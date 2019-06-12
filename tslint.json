@@ -8,6 +8,13 @@
       "node_modules/**"
     ]
   },
+  "compilerOptions": {
+    "target": "es5",
+    "strict": true,
+    "module": "es2015",
+    "moduleResolution": "node",
+    "plugins": [{"name": "typescript-tslint-plugin"}]
+  },
   "rules": {
     "quotemark": [true, "single"],
     "no-console": [true, "log", "warning"],
