@@ -1,19 +1,25 @@
 <template>
-  <div class="home">
-    <h1>{{ $t('home.msg') }}</h1>
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <div class="home-view">
+    <router-view/>
   </div>
 </template>
 
+
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import HelloWorld from '@/components/HelloWorld.vue' // @ is an alias to /src
 
-@Component({
-  components: {
-    HelloWorld,
-  },
-})
+@Component
 export default class Home extends Vue {}
 </script>
+
+
+<style lang="scss">
+.home-view {
+  min-height: 100%;
+  background-color: #F9FAFD;
+  .right-content {
+    margin-left: 300px;
+    min-height: 100%;
+  }
+}
+</style>

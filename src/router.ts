@@ -1,25 +1,25 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
+import Connections from './views/connections/index.vue'
+import Brokers from './views/brokers/index.vue'
+import Settings from './views/settings/index.vue'
 
 Vue.use(Router)
 
 export default new Router({
-  mode: 'history',
+  mode: 'hash',
   base: process.env.BASE_URL,
   routes: [
     {
       path: '/',
-      name: 'home',
+      redirect: '/recent_connections',
       component: Home,
-    },
-    {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue'),
+      children: [
+        { path: '/recent_connections', component: Connections },
+        { path: '/brokers', component: Brokers },
+        { path: '/settings', component: Settings },
+      ],
     },
   ],
 })
