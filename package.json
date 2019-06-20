@@ -17,6 +17,7 @@
   "dependencies": {
     "chai-as-promised": "^7.1.1",
     "core-js": "^2.6.5",
+    "element-ui": "^2.9.1",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",
     "vue-i18n": "^8.11.2",
@@ -33,6 +34,7 @@
     "@vue/cli-plugin-unit-mocha": "^3.8.0",
     "@vue/cli-service": "^3.8.0",
     "@vue/test-utils": "1.0.0-beta.29",
+    "babel-plugin-component": "^1.1.1",
     "chai": "^4.1.2",
     "electron": "^5.0.0",
     "node-sass": "^4.9.0",
