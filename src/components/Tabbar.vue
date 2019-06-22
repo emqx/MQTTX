@@ -35,8 +35,5 @@ export default class Leftbar extends Vue {}
   height: 56px;
   line-height: 56px;
   text-align: center;
-  .el-col {
-
-  }
 }
 </style>

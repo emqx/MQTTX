@@ -11,13 +11,20 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import Leftbar from '@/components/Leftbar.vue'
+// import { Action } from 'vuex-class'
 
 @Component({
   components: {
     Leftbar,
   },
 })
-export default class Settings extends Vue {}
+export default class Settings extends Vue {
+  // @Action('TOGGLE_THEME') private actionTheme: any
+
+  // private setItem() {
+  //   this.actionTheme({ currentTheme: 'light' })
+  // }
+}
 </script>
 
 
