@@ -17,7 +17,7 @@
   },
   "rules": {
     "quotemark": [true, "single"],
-    "no-console": [true, "log", "warning"],
+    "no-console": false,
     "indent": [true, "spaces", 2],
     "semicolon": [true, "never"],
     "interface-name": false,
