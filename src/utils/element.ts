@@ -20,8 +20,8 @@ import {
   // CheckboxButton,
   // CheckboxGroup,
   // Switch,
-  // Select,
-  // Option,
+  Select,
+  Option,
   // OptionGroup,
   Button,
   // ButtonGroup,
@@ -90,8 +90,8 @@ export default (Vue: any) => {
   // Vue.use(CheckboxButton)
   // Vue.use(CheckboxGroup)
   // Vue.use(Switch)
-  // Vue.use(Select)
-  // Vue.use(Option)
+  Vue.use(Select)
+  Vue.use(Option)
   // Vue.use(OptionGroup)
   Vue.use(Button)
   // Vue.use(ButtonGroup)

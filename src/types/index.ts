@@ -1,5 +1,6 @@
 interface App {
   currentTheme: string,
+  currentLang: string,
 }
 
 interface State {
