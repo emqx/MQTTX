@@ -1,3 +1,5 @@
+@import './variable.scss';
+
 html, body, #app {
   height: 100%;
   margin: 0;
@@ -9,9 +11,13 @@ body {
     "Microsoft YaHei", "wenquanyi micro hei","Hiragino Sans GB", "Hiragino Sans GB W3",
     "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
     "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 14px;
+  font-size: $font-size--body;
   font-weight: 400;
   line-height: 1.5;
   -webkit-font-smoothing: subpixel-antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1 {
+  font-size: $font-size--title;
 }

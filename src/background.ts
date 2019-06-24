@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import {
   createProtocol,
   installVueDevtools,
@@ -13,6 +13,12 @@ let win: BrowserWindow | null
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{scheme: 'app', privileges: { secure: true, standard: true } }])
+
+function handleIpcMessages() {
+  ipcMain.on('setting', (event: any, ...args: any[]) => {
+    event.sender.send('setting', ...args)
+  })
+}
 
 function createWindow() {
   // Create the browser window.
@@ -65,6 +71,7 @@ app.on('ready', async () => {
     }
   }
   createWindow()
+  handleIpcMessages()
 })
 
 // Exit cleanly on request from parent process in development mode.
