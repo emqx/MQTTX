@@ -10,8 +10,9 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { Getter, Action } from 'vuex-class'
+import { ipcRenderer } from 'electron'
 import Leftbar from '@/components/Leftbar.vue'
-// import { Action } from 'vuex-class'
 
 @Component({
   components: {
@@ -19,11 +20,21 @@ import Leftbar from '@/components/Leftbar.vue'
   },
 })
 export default class Settings extends Vue {
-  // @Action('TOGGLE_THEME') private actionTheme: any
+  @Action('TOGGLE_THEME') private actionTheme: any
+  @Getter('currentTheme') private getterTheme: any
+  private currentTheme: string = 'light'
 
-  // private setItem() {
-  //   this.actionTheme({ currentTheme: 'light' })
-  // }
+  private toggleTheme(currentTheme: string): void {
+    if (this.getterTheme === currentTheme) {
+      return
+    }
+    this.actionTheme({ currentTheme })
+    ipcRenderer.send('setting', currentTheme)
+  }
+
+  private created() {
+    this.currentTheme = this.getterTheme
+  }
 }
 </script>
 
