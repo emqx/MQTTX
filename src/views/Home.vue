@@ -1,6 +1,7 @@
 <template>
   <div class="home-view">
     <router-view/>
+    <Ipc @setTheme="setTheme" @setLang="setLang"/>
   </div>
 </template>
 
@@ -8,12 +9,16 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
-import { ipcRenderer } from 'electron'
+import Ipc from '@/components/Ipc.vue'
 
-@Component
+@Component({
+  components: {
+    Ipc,
+  },
+})
 export default class Home extends Vue {
   @Getter('currentTheme') private getterTheme: any
-
+  @Getter('currentLang') private getterLang: any
   private setTheme(currentTheme: string): void {
     const bodyTag: HTMLBodyElement | null = document.querySelector('body')
     if (!bodyTag) {
@@ -22,24 +27,14 @@ export default class Home extends Vue {
     bodyTag.className = currentTheme
   }
 
-  private bindIpcEvents(): void {
-    ipcRenderer.on('setting', (event: any, ...args: any[]) => {
-      const value: string = args[0]
-      this.setTheme(value)
-    })
-  }
-
-  private unbindIpcEvents(): void {
-    ipcRenderer.removeAllListeners('setting')
+  private setLang(currentLang: string): void {
+    document.documentElement.lang = currentLang
+    this.$i18n.locale = currentLang
   }
 
   private created() {
-    this.bindIpcEvents()
     this.setTheme(this.getterTheme)
-  }
-
-  private beforeDestroy() {
-    this.unbindIpcEvents()
+    this.setLang(this.getterLang)
   }
 }
 </script>

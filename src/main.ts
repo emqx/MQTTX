@@ -13,8 +13,9 @@ import element from './utils/element'
 Vue.use(element)
 Vue.use(VueI18n)
 
+const locale: string = store.state.app.currentLang
 const vueI18n: VueI18n = new VueI18n({
-  locale: 'zh',
+  locale,
   messages: Lang,
 })
 const { i18n }: any = ElementLocale
