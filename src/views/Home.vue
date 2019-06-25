@@ -19,6 +19,7 @@ import Ipc from '@/components/Ipc.vue'
 export default class Home extends Vue {
   @Getter('currentTheme') private getterTheme: any
   @Getter('currentLang') private getterLang: any
+
   private setTheme(currentTheme: string): void {
     const bodyTag: HTMLBodyElement | null = document.querySelector('body')
     if (!bodyTag) {

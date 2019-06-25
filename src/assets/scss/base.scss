@@ -20,4 +20,7 @@ body {
 
 h1 {
   font-size: $font-size--title;
+  color: var(--color-text-title);
+  padding: 0px;
+  margin: 0px;
 }
