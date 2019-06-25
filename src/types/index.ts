@@ -1,6 +1,9 @@
+import { TranslateResult } from 'vue-i18n'
+
 interface App {
   currentTheme: string,
   currentLang: string,
+  autoCheck: boolean,
 }
 
 interface State {
@@ -14,8 +17,14 @@ interface Routes {
   children: any[],
 }
 
+interface Options {
+  value: any,
+  label: string | TranslateResult,
+}
+
 export {
   App,
   State,
   Routes,
+  Options,
 }

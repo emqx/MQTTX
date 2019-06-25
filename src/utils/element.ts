@@ -1,4 +1,5 @@
-import '@/assets/scss/element-variables.scss'
+import '@/assets/scss/element/element-variables.scss'
+import '@/assets/scss/element/element-reset.scss'
 
 import {
   // Pagination,
@@ -19,7 +20,7 @@ import {
   // Checkbox,
   // CheckboxButton,
   // CheckboxGroup,
-  // Switch,
+  Switch,
   Select,
   Option,
   // OptionGroup,
@@ -68,6 +69,7 @@ import {
   // MessageBox,
   // Message,
   // Notification,
+  Divider,
 } from 'element-ui'
 
 export default (Vue: any) => {
@@ -89,7 +91,7 @@ export default (Vue: any) => {
   // Vue.use(Checkbox)
   // Vue.use(CheckboxButton)
   // Vue.use(CheckboxGroup)
-  // Vue.use(Switch)
+  Vue.use(Switch)
   Vue.use(Select)
   Vue.use(Option)
   // Vue.use(OptionGroup)
@@ -134,6 +136,7 @@ export default (Vue: any) => {
   // Vue.use(Aside)
   // Vue.use(Main)
   // Vue.use(Footer)
+  Vue.use(Divider)
 
   // Vue.use(Loading.directive)
 
