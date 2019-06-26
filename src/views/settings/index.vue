@@ -1,6 +1,9 @@
 <template>
   <div>
-    <leftbar/>
+    <leftbar>
+      <SettingsLeft/>
+    </leftbar>
+
     <div class="settings-view right-content">
       <h1 class="titlebar">{{ $t('settings.settings') }}</h1>
       <div class="settings-general">
@@ -85,10 +88,12 @@ import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
 import { Options } from '@/types/index'
 import Leftbar from '@/components/Leftbar.vue'
+import SettingsLeft from './SettingsLeft.vue'
 
 @Component({
   components: {
     Leftbar,
+    SettingsLeft,
   },
 })
 export default class Settings extends Vue {

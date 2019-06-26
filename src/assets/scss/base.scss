@@ -24,3 +24,14 @@ h1 {
   padding: 0px;
   margin: 0px;
 }
+
+p {
+  font-size: $font-size--body;
+  color: var(--color-text-default);
+}
+
+a {
+  color: var(--color-main-green);
+  text-decoration: none;
+  font-size: $font-size--body;
+}

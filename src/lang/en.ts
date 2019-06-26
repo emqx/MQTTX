@@ -1,6 +1,4 @@
 export default {
-  home: {
-  },
   settings: {
     settings: 'Settings',
     general: 'General',
@@ -10,5 +8,7 @@ export default {
     theme: 'Theme',
     light: 'Light',
     dark: 'Dark',
+    version: 'Version',
+    update: 'Check for Updates',
   },
 }
