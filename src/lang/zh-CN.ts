@@ -1,6 +1,4 @@
 export default {
-  home: {
-  },
   settings: {
     settings: '设置',
     general: '基础',
@@ -10,5 +8,7 @@ export default {
     theme: '主题',
     light: '浅色',
     dark: '深色',
+    version: '版本号',
+    update: '检查更新',
   },
 }

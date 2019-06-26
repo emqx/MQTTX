@@ -22,7 +22,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class Leftbar extends Vue {}
+export default class Tabbar extends Vue {}
 </script>
 
 

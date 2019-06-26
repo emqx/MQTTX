@@ -1,5 +1,6 @@
 <template>
   <div class="leftbar">
+    <slot></slot>
     <tabbar/>
   </div>
 </template>
