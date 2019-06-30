@@ -12,7 +12,7 @@ import {
   // Submenu,
   // MenuItem,
   // MenuItemGroup,
-  // Input,
+  Input,
   // InputNumber,
   // Radio,
   // RadioGroup,
@@ -83,7 +83,7 @@ export default (Vue: any) => {
   // Vue.use(Submenu)
   // Vue.use(MenuItem)
   // Vue.use(MenuItemGroup)
-  // Vue.use(Input)
+  Vue.use(Input)
   // Vue.use(InputNumber)
   // Vue.use(Radio)
   // Vue.use(RadioGroup)
