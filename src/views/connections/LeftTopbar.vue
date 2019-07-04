@@ -1,7 +1,11 @@
 <template>
   <div class="left-topbar">
-    <el-input></el-input>
-    <span class="iconfont icon-disconnect"></span>
+    <el-input size="small" placeholder="Search">
+      <i slot="prefix" class="iconfont icon-search"></i>
+    </el-input>
+    <a href="" title="Add Connection">
+      <span class="iconfont icon-plus"></span>
+    </a>
   </div>
 </template>
 
@@ -23,17 +27,20 @@ export default class LeftTopbar extends Vue {}
   border-bottom: 1px solid var(--color-border-default);
   .el-input {
     margin-left: 16px;
-    width: 208px;
-    border-radius: 4px;
+    width: 232px;
     input {
       background: var(--color-bg-primary);
-      height: 32px;
+    }
+    .icon-search {
+      margin-left: 3px;
       line-height: 32px;
+      color: var(--color-text-tips);
     }
   }
-  .iconfont {
-    margin-right: 24px;
-    font-size: 24px;
+  .icon-plus {
+    font-size: 18px;
+    margin-right: 16px;
+    color: var(--color-main-green);
   }
 
 }
