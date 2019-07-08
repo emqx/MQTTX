@@ -1,4 +1,5 @@
 @import './variable.scss';
+@import './mixins.scss';
 
 html, body, #app {
   height: 100%;
@@ -20,9 +21,12 @@ body {
 
 h1 {
   font-size: $font-size--title;
-  color: var(--color-text-title);
-  padding: 0px;
-  margin: 0px;
+  @include head-title;
+}
+
+h2 {
+  font-size: $font-size--subtitle;
+  @include head-title;
 }
 
 p {
@@ -34,4 +38,12 @@ a {
   color: var(--color-main-green);
   text-decoration: none;
   font-size: $font-size--body;
+}
+
+div.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+  border-bottom: 1px solid var(--color-border-default);
 }

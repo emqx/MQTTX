@@ -1,9 +1,9 @@
 <template>
-  <div class="left-topbar">
+  <div class="left-topbar topbar">
     <el-input size="small" placeholder="Search">
       <i slot="prefix" class="iconfont icon-search"></i>
     </el-input>
-    <a href="" title="Add Connection">
+    <a href="javascript:;" title="Add Connection">
       <span class="iconfont icon-plus"></span>
     </a>
   </div>
@@ -20,11 +20,6 @@ export default class LeftTopbar extends Vue {}
 
 <style lang="scss">
 .left-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 60px;
-  border-bottom: 1px solid var(--color-border-default);
   .el-input {
     margin-left: 16px;
     width: 232px;
@@ -42,6 +37,5 @@ export default class LeftTopbar extends Vue {}
     margin-right: 16px;
     color: var(--color-main-green);
   }
-
 }
 </style>

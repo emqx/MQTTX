@@ -29,6 +29,6 @@ export default class Leftbar extends Vue {}
   overflow-x: hidden;
   z-index: 1000;
   border-right: 2px solid var(--color-border-default);
-  background-color: #fff;
+  background-color: var(--color-bg-normal);
 }
 </style>
