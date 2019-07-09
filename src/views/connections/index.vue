@@ -1,7 +1,7 @@
 <template>
   <div>
     <leftbar>
-      <LeftTopbar/>
+      <SearchTopbar/>
       <LeftList/>
     </leftbar>
 
@@ -15,14 +15,14 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import Leftbar from '@/components/Leftbar.vue'
-import LeftTopbar from './LeftTopbar.vue'
+import SearchTopbar from '@/components/SearchTopbar.vue'
 import LeftList from './LeftList.vue'
 import RightTopbar from './RightTopbar.vue'
 
 @Component({
   components: {
     Leftbar,
-    LeftTopbar,
+    SearchTopbar,
     LeftList,
     RightTopbar,
   },
