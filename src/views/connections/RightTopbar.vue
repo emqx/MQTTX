@@ -1,17 +1,46 @@
 <template>
-  <div class="right-topbar topbar">
-    <div class="connection-haed">
-      <h2>Device xxx</h2>
-      <a href="javascript:;">6 subscriptions</a>
+  <div class="right-topbar">
+    <div class="right-topbar__info topbar">
+        <div class="connection-haed">
+        <h2>Device xxx</h2>
+        <a href="javascript:;">6 subscriptions</a>
+      </div>
+      <div class="connection-tail">
+        <a href="javascript:;" @click="searchVisible = !searchVisible">
+          <i class="iconfont icon-search"></i>
+        </a>
+        <el-dropdown>
+          <a href="javascript:;">
+            <i class="el-icon-more"></i>
+          </a>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>
+              <i class="iconfont icon-client"></i>{{ $t('connections.clientInfo') }}
+            </el-dropdown-item>
+            <el-dropdown-item>
+              <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
+            </el-dropdown-item>
+            <el-dropdown-item>
+              <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
+            </el-dropdown-item>
+            <el-dropdown-item>
+              <i class="iconfont icon-delete"></i>{{ $t('connections.deleteConnect') }}
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
     </div>
-    <div class="connection-tail">
-      <a href="javascript:;">
-        <i slot="prefix" class="iconfont icon-search"></i>
-      </a>
-      <a href="javascript:;">
-        <i class="el-icon-more"></i>
-      </a>
-    </div>
+
+    <transition name="el-zoom-in-top">
+      <div v-if="searchVisible" class="right-topbar__search topbar">
+        <el-input size="small" :placeholder="$t('connections.searchByTopic')">
+          <i slot="suffix" class="iconfont icon-search"></i>
+        </el-input>
+        <a href="javascript:;" class="close-search" @click="searchVisible = false">
+          <i class="el-icon-circle-close"></i>
+        </a>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -20,14 +49,36 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class RightTopbar extends Vue {}
+export default class RightTopbar extends Vue {
+  private searchVisible: boolean = false
+}
 </script>
 
 
 <style lang="scss">
 .right-topbar {
-  background-color: var(--color-bg-normal);
-  padding: 0 16px;
+  .right-topbar__info {
+    padding: 0 16px;
+    background-color: var(--color-bg-normal);
+  }
+  .right-topbar__search {
+    padding: 0 16px;
+    height: 64px;
+    background-color: var(--color-bg-normal);
+    .icon-search {
+      line-height: 32px;
+    }
+    .el-input {
+      .el-input__inner {
+        background: var(--color-bg-primary);
+      }
+    }
+    .close-search {
+      font-size: 18px;
+      color: var(--color-text-default);
+      margin-left: 10px;
+    }
+  }
   .icon-search {
     margin-right: 10px;
   }
