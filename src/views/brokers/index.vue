@@ -1,6 +1,6 @@
 <template>
   <div>
-    <leftbar/>
+    <Leftbar/>
     <div class="brokers-view right-content">
       <div class="titlebar">Brokers</div>
     </div>

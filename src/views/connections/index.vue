@@ -1,12 +1,12 @@
 <template>
   <div>
     <leftbar>
-      <left-topbar/>
-      <left-list/>
+      <LeftTopbar/>
+      <LeftList/>
     </leftbar>
 
     <div class="connections-view right-content">
-      <right-topbar/>
+      <RightTopbar/>
     </div>
   </div>
 </template>
