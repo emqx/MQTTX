@@ -3,7 +3,8 @@
     <div class="right-topbar__info topbar">
         <div class="connection-haed">
         <h2>Device xxx</h2>
-        <a href="javascript:;">6 subscriptions</a>
+        <a v-if="isConnect" href="javascript:;">6 subscriptions</a>
+        <a v-else class="error" href="javascript:;">Disconnected</a>
       </div>
       <div class="connection-tail">
         <a href="javascript:;" @click="searchVisible = !searchVisible">
@@ -51,6 +52,7 @@ import { Component, Vue } from 'vue-property-decorator'
 @Component
 export default class RightTopbar extends Vue {
   private searchVisible: boolean = false
+  private isConnected: boolean = false
 }
 </script>
 
