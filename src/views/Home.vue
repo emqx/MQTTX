@@ -1,6 +1,6 @@
 <template>
   <div class="home-view">
-    <router-view/>
+    <RouterView/>
     <Ipc @setTheme="setTheme" @setLang="setLang"/>
   </div>
 </template>
