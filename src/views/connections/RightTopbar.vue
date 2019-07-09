@@ -3,7 +3,7 @@
     <div class="right-topbar__info topbar">
         <div class="connection-haed">
         <h2>Device xxx</h2>
-        <a v-if="isConnect" href="javascript:;">6 subscriptions</a>
+        <a v-if="isConnected" href="javascript:;">6 subscriptions</a>
         <a v-else class="error" href="javascript:;">Disconnected</a>
       </div>
       <div class="connection-tail">
