@@ -11,4 +11,12 @@ export default {
     version: 'Version',
     update: 'Check for Updates',
   },
+  connections: {
+    search: 'Search',
+    searchByTopic: 'Search by Topic',
+    clientInfo: 'Client Info',
+    clearHistory: 'Clear Histroy',
+    disconnect: 'Disconnect',
+    deleteConnect: 'Delete Connection',
+  },
 }

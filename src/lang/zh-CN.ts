@@ -11,4 +11,12 @@ export default {
     version: '版本号',
     update: '检查更新',
   },
+  connections: {
+    search: '搜索',
+    searchByTopic: '按主题搜索',
+    clientInfo: '客户端信息',
+    clearHistory: '清除历史记录',
+    disconnect: '断开连接',
+    deleteConnect: '删除连接',
+  },
 }

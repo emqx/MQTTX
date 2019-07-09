@@ -1,6 +1,6 @@
 <template>
   <div class="left-topbar topbar">
-    <el-input size="small" placeholder="Search">
+    <el-input size="small" :placeholder="$t('connections.search')">
       <i slot="prefix" class="iconfont icon-search"></i>
     </el-input>
     <a href="javascript:;" title="Add Connection">
@@ -23,7 +23,7 @@ export default class LeftTopbar extends Vue {}
   .el-input {
     margin-left: 16px;
     width: 232px;
-    input {
+    .el-input__inner {
       background: var(--color-bg-primary);
     }
     .icon-search {
