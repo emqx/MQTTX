@@ -23,7 +23,7 @@ export default class Leftbar extends Vue {}
 <style lang="scss">
 .leftbar {
   position: fixed;
-  width: 298px;
+  width: 300px;
   top: 0;
   bottom: 0;
   overflow-x: hidden;

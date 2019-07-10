@@ -1,5 +1,5 @@
 <template>
-  <div class="left-list">
+  <div class="connections-list">
     <div class="connection-item">
       <div class="item-left">
         <div class="connection-status online"></div>
@@ -28,14 +28,14 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class LeftList extends Vue {}
+export default class ConnectionsList extends Vue {}
 </script>
 
 
 <style lang="scss">
 @import "~@/assets/scss/variable.scss";
 
-.left-list {
+.connections-list {
   .connection-item {
     display: flex;
     align-items: center;

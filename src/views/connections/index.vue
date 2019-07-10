@@ -2,11 +2,12 @@
   <div>
     <leftbar>
       <SearchTopbar/>
-      <LeftList/>
+      <ConnectionsList/>
     </leftbar>
 
-    <div class="connections-view right-content">
-      <RightTopbar/>
+    <div class="connections-view">
+      <ConnectionsTopbar/>
+      <ConnectionsContent/>
     </div>
   </div>
 </template>
@@ -16,15 +17,17 @@
 import { Component, Vue } from 'vue-property-decorator'
 import Leftbar from '@/components/Leftbar.vue'
 import SearchTopbar from '@/components/SearchTopbar.vue'
-import LeftList from './LeftList.vue'
-import RightTopbar from './RightTopbar.vue'
+import ConnectionsList from './ConnectionsList.vue'
+import ConnectionsTopbar from './ConnectionsTopbar.vue'
+import ConnectionsContent from './ConnectionsContent.vue'
 
 @Component({
   components: {
     Leftbar,
     SearchTopbar,
-    LeftList,
-    RightTopbar,
+    ConnectionsList,
+    ConnectionsTopbar,
+    ConnectionsContent,
   },
 })
 export default class Connections extends Vue {}

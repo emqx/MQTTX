@@ -1,5 +1,5 @@
 <template>
-  <div class="left-topbar topbar">
+  <div class="search-topbar left-topbar topbar">
     <el-input size="small" :placeholder="$t('connections.search')">
       <i slot="prefix" class="iconfont icon-search"></i>
     </el-input>
@@ -14,14 +14,13 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class LeftTopbar extends Vue {}
+export default class SearchTopbar extends Vue {}
 </script>
 
 
 <style lang="scss">
-.left-topbar {
+.search-topbar {
   .el-input {
-    margin-left: 16px;
     width: 232px;
     .el-input__inner {
       background: var(--color-bg-primary);
@@ -34,7 +33,6 @@ export default class LeftTopbar extends Vue {}
   }
   .icon-plus {
     font-size: 18px;
-    margin-right: 16px;
     color: var(--color-main-green);
   }
 }

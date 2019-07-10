@@ -31,11 +31,12 @@ export default class Tabbar extends Vue {}
 
 .tabbar {
   position: fixed;
-  width: 298px;
+  width: 300px;
   bottom: 0;
   overflow-x: hidden;
   z-index: 1001;
   border-top: 2px solid var(--color-border-default);
+  border-right: 2px solid var(--color-border-default);
   text-align: center;
 
   .el-col {

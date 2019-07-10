@@ -45,6 +45,22 @@ export default class Home extends Vue {
 .home-view {
   min-height: 100%;
   background-color: var(--color-bg-primary);
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    border-bottom: 1px solid var(--color-border-default);
+  }
+  .left-topbar {
+    padding: 0 16px;
+  }
+  .right-topbar {
+    position: fixed;
+    top: 0;
+    left: 300px;
+    right: 0;
+  }
   .right-content {
     margin-left: 300px;
     min-height: 100%;

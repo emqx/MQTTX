@@ -19,12 +19,3 @@ import Leftbar from '@/components/Leftbar.vue'
 })
 export default class Brokers extends Vue {}
 </script>
-
-
-<style lang="scss">
-.brokers-view {
-  .titlebar {
-    height: 60px;
-  }
-}
-</style>

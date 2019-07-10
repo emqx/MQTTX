@@ -142,7 +142,7 @@ export default class Settings extends Vue {
 @import '@/assets/scss/variable.scss';
 
 .settings-view {
-  padding: 0 20px;
+  padding: 0 16px;
   
   .titlebar {
     height: 60px;

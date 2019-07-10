@@ -1,6 +1,6 @@
 <template>
-  <div class="right-topbar">
-    <div class="right-topbar__info topbar">
+  <div class="connections-topbar right-topbar">
+    <div class="connections-info topbar">
         <div class="connection-haed">
         <h2>Device xxx</h2>
         <a v-if="isConnected" href="javascript:;">6 subscriptions</a>
@@ -33,7 +33,7 @@
     </div>
 
     <transition name="el-zoom-in-top">
-      <div v-if="searchVisible" class="right-topbar__search topbar">
+      <div v-if="searchVisible" class="connections-search topbar">
         <el-input size="small" :placeholder="$t('connections.searchByTopic')">
           <i slot="suffix" class="iconfont icon-search"></i>
         </el-input>
@@ -50,7 +50,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class RightTopbar extends Vue {
+export default class ConnectionsTopbar extends Vue {
   private searchVisible: boolean = false
   private isConnected: boolean = false
 }
@@ -58,12 +58,12 @@ export default class RightTopbar extends Vue {
 
 
 <style lang="scss">
-.right-topbar {
-  .right-topbar__info {
+.connections-topbar {
+  .connections-info {
     padding: 0 16px;
     background-color: var(--color-bg-normal);
   }
-  .right-topbar__search {
+  .connections-search {
     padding: 0 16px;
     height: 64px;
     background-color: var(--color-bg-normal);
