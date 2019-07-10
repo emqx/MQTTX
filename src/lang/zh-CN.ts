@@ -18,5 +18,6 @@ export default {
     clearHistory: '清除历史记录',
     disconnect: '断开连接',
     deleteConnect: '删除连接',
+    connectBroker: '连接到 Broker',
   },
 }
