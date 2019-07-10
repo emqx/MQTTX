@@ -10,7 +10,7 @@
         <a href="javascript:;" @click="searchVisible = !searchVisible">
           <i class="iconfont icon-search"></i>
         </a>
-        <el-dropdown>
+        <el-dropdown trigger="click">
           <a href="javascript:;">
             <i class="el-icon-more"></i>
           </a>
@@ -57,7 +57,7 @@ export default class ConnectionsTopbar extends Vue {
 </script>
 
 
-<style lang="scss">
+<style lang="scss" scope>
 .connections-topbar {
   .connections-info {
     padding: 0 16px;

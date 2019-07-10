@@ -138,7 +138,7 @@ export default class Settings extends Vue {
 </script>
 
 
-<style lang="scss">
+<style lang="scss" scope>
 @import '@/assets/scss/variable.scss';
 
 .settings-view {

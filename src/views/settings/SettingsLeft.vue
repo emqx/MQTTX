@@ -24,7 +24,7 @@ export default class SettingsLeft extends Vue {}
 </script>
 
 
-<style lang="scss">
+<style lang="scss" scope>
 .settings-left {
   display: flex;
   justify-content: center;

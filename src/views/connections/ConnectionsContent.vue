@@ -19,7 +19,7 @@ export default class ConnectionsContent extends Vue {}
 </script>
 
 
-<style lang="scss">
+<style lang="scss" scope>
 @import "~@/assets/scss/variable.scss";
 
 .connections-content {

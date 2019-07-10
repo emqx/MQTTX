@@ -32,7 +32,7 @@ export default class ConnectionsList extends Vue {}
 </script>
 
 
-<style lang="scss">
+<style lang="scss" scope>
 @import "~@/assets/scss/variable.scss";
 
 .connections-list {
