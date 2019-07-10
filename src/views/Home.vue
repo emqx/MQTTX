@@ -41,7 +41,7 @@ export default class Home extends Vue {
 </script>
 
 
-<style lang="scss">
+<style lang="scss" scope>
 .home-view {
   min-height: 100%;
   background-color: var(--color-bg-primary);
