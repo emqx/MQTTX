@@ -18,5 +18,6 @@ export default {
     clearHistory: 'Clear Histroy',
     disconnect: 'Disconnect',
     deleteConnect: 'Delete Connection',
+    connectBroker: 'Connect to broker',
   },
 }
