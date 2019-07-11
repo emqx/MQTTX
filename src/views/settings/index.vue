@@ -86,7 +86,6 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
-import { Options } from '@/types/index'
 import Leftbar from '@/components/Leftbar.vue'
 import SettingsLeft from './SettingsLeft.vue'
 
@@ -129,7 +128,7 @@ export default class Settings extends Vue {
     this.actionAutoCheck({ autoCheck: value })
   }
 
-  private created() {
+  private created(): void {
     this.autoCheck = this.getterAutoCheck
     this.currentTheme = this.getterTheme
     this.currentLang = this.getterLang

@@ -2,7 +2,6 @@ import Home from '../views/Home.vue'
 import Connections from '../views/connections/index.vue'
 import Brokers from '../views/brokers/index.vue'
 import Settings from '../views/settings/index.vue'
-import { Routes } from '../types/index'
 
 const routes: Routes[] = [
   {
