@@ -42,13 +42,13 @@ export default class Home extends Vue {
 
 
 <style lang="scss" scope>
+@import '~@/assets/scss/mixins.scss';
+
 .home-view {
   min-height: 100%;
   background-color: var(--color-bg-primary);
   .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    @include flex-space-between;
     height: 60px;
     border-bottom: 1px solid var(--color-border-default);
   }
