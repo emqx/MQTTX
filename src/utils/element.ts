@@ -3,7 +3,7 @@ import '@/assets/scss/element/element-reset.scss'
 
 import {
   // Pagination,
-  // Dialog,
+  Dialog,
   // Autocomplete,
   Dropdown,
   DropdownMenu,
@@ -14,7 +14,7 @@ import {
   // MenuItemGroup,
   Input,
   // InputNumber,
-  // Radio,
+  Radio,
   // RadioGroup,
   // RadioButton,
   // Checkbox,
@@ -35,8 +35,8 @@ import {
   // Tooltip,
   // Breadcrumb,
   // BreadcrumbItem,
-  // Form,
-  // FormItem,
+  Form,
+  FormItem,
   // Tabs,
   // TabPane,
   // Tag,
@@ -74,7 +74,7 @@ import {
 
 export default (Vue: any) => {
   // Vue.use(Pagination)
-  // Vue.use(Dialog)
+  Vue.use(Dialog)
   // Vue.use(Autocomplete)
   Vue.use(Dropdown)
   Vue.use(DropdownMenu)
@@ -85,7 +85,7 @@ export default (Vue: any) => {
   // Vue.use(MenuItemGroup)
   Vue.use(Input)
   // Vue.use(InputNumber)
-  // Vue.use(Radio)
+  Vue.use(Radio)
   // Vue.use(RadioGroup)
   // Vue.use(RadioButton)
   // Vue.use(Checkbox)
@@ -106,8 +106,8 @@ export default (Vue: any) => {
   // Vue.use(Tooltip)
   // Vue.use(Breadcrumb)
   // Vue.use(BreadcrumbItem)
-  // Vue.use(Form)
-  // Vue.use(FormItem)
+  Vue.use(Form)
+  Vue.use(FormItem)
   // Vue.use(Tabs)
   // Vue.use(TabPane)
   // Vue.use(Tag)

@@ -1,4 +1,8 @@
 export default {
+  myDialog: {
+    cancel: '取消',
+    confirm: '确定',
+  },
   settings: {
     settings: '设置',
     general: '基础',
@@ -19,5 +23,8 @@ export default {
     disconnect: '断开连接',
     deleteConnect: '删除连接',
     connectBroker: '连接到 Broker',
+  },
+  brokers: {
+    newBrokerDialogTitle: '添加 Broker',
   },
 }
