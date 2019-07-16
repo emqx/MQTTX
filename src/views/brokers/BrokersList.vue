@@ -11,7 +11,9 @@
         <div class="broker-name">Broker 2</div>
         <div class="broker-url">127.0.0.1:8883</div>
       </div>
-      <div class="ssl"></div>
+      <div class="ssl-tag">
+        <span>SSL</span>
+      </div>
     </div>
   </div>
 </template>
@@ -49,7 +51,7 @@ export default class BrokersList extends Vue {}
       font-size: $font-size--tips;
       color: var(--color-text-default);
     }
-    .ssl {
+    .ssl-tag {
       position: absolute;
       right: 0;
       top: 0;
@@ -57,6 +59,14 @@ export default class BrokersList extends Vue {}
       height: 0;
       border-top: 36px solid var(--color-main-green);
       border-left: 36px solid transparent;
+      span {
+        position: absolute;
+        top: -32px;
+        right: -2px;
+        font-size: 12px;
+        transform: rotate(45deg);
+        color: #fff;
+      }
     }
   }
 }

@@ -1,4 +1,8 @@
 export default {
+  myDialog: {
+    cancel: 'Cancel',
+    confirm: 'Confirm',
+  },
   settings: {
     settings: 'Settings',
     general: 'General',
@@ -19,5 +23,8 @@ export default {
     disconnect: 'Disconnect',
     deleteConnect: 'Delete Connection',
     connectBroker: 'Connect to broker',
+  },
+  brokers: {
+    newBrokerDialogTitle: 'New Broker',
   },
 }
