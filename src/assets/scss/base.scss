@@ -3,8 +3,8 @@
 
 html, body, #app {
   height: 100%;
-  margin: 0;
-  padding: 0;
+  margin: 0px;
+  padding: 0px;
 }
 
 body {
@@ -17,6 +17,7 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: subpixel-antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: var(--color-text-default);
 }
 
 * {
@@ -33,9 +34,9 @@ h2 {
   @include head-title;
 }
 
-p {
+p, pre {
   font-size: $font-size--body;
-  color: var(--color-text-default);
+  margin: 0px;
 }
 
 a {

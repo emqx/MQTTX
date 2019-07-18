@@ -1,5 +1,15 @@
 <template>
-  <div class="connections-content right-content">
+  <div :class="['connections-content', 'right-content', isEdit ? 'foucs' : '']">
+    <div class="connections-body">
+      <MsgLeftItem
+        topic="/some/topic1"
+        :payload="payload"
+        time="2019-09-32 12:32:11"/>
+      <MsgRightItem
+        topic="/some/topic1"
+        :payload="payload"
+        time="2019-09-32 12:32:11"/>
+    </div>
     <div class="connections-footer">
       <!-- <el-button
         class="connect-btn"
@@ -33,19 +43,30 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import MsgRightItem from './MsgRightItem.vue'
+import MsgLeftItem from './MsgLeftItem.vue'
 
 interface Message {
   topic: string,
   payload: string,
 }
 
-@Component
+@Component({
+  components: {
+    MsgRightItem,
+    MsgLeftItem,
+  },
+})
 export default class ConnectionsContent extends Vue {
   private isEdit: boolean = false
   private msgRecord: Message = {
     topic: '',
-    payload: '',
+    payload: JSON.stringify({ msg: 'hello' }, null, 2),
   }
+
+  private payload: string = JSON.stringify({
+    temperature: { time: 1523523523, value: 100000000 },
+  }, null, 2)
 
   private sendMsg(): void {
     if (!this.isEdit) {
@@ -62,7 +83,14 @@ export default class ConnectionsContent extends Vue {
 @import "~@/assets/scss/mixins.scss";
 
 .connections-content {
+  height: 100%;
   padding: 60px 0;
+  &.foucs {
+    padding-bottom: 200px;
+  }
+  .connections-body {
+    padding: 16px;
+  }
   .connections-footer {
     position: fixed;
     width: inherit;

@@ -9,3 +9,19 @@
   align-items: center;
   justify-content: space-between;
 }
+
+@mixin msg-item {
+  .payload {
+    display: inline-block;
+    min-height: 41px;
+    max-width: 300px;
+    min-width: 20px;
+    margin: 10px 0;
+    padding: 10px;
+    white-space: normal;
+    word-break: break-all;
+  }
+  .time {
+    color: var(--color-text-light);
+  }
+}

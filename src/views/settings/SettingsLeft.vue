@@ -52,6 +52,7 @@ export default class SettingsLeft extends Vue {}
     color: var(--color-text-default);
     margin: 5px 0;
   }
+
   .iconfont {
     font-size: 1.25rem;
     position: relative;
