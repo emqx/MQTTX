@@ -16,23 +16,28 @@
       :visible.sync="newBrokerDialogVisible"
       @confirm="saveBroker"
       @close="resetBroker">
-      <el-form ref="form" :model="form">
-        <el-form-item label="Broker Name">
-          <el-input ></el-input>
+      <el-form
+        ref="form"
+        label-position="right"
+        label-width="130px"
+        :model="record"
+        :rules="rules">
+        <el-form-item label="Broker Name" prop="brokerName">
+          <el-input v-model="record.brokerName"></el-input>
         </el-form-item>
-        <el-form-item label="Broker Address">
-          <el-input ></el-input>
+        <el-form-item label="Broker Address" prop="brokerAddress">
+          <el-input v-model="record.brokerAddress"></el-input>
         </el-form-item>
-        <el-form-item label="Broker Port">
-          <el-input ></el-input>
+        <el-form-item label="Broker Port" prop="brokerPort">
+          <el-input type="number" v-model.number="record.brokerPort"></el-input>
         </el-form-item>
-        <el-form-item label="Certificate Type">
-          <el-radio >CA signed</el-radio>
-          <el-radio >Self signed</el-radio>
+        <el-form-item label="SSL/TLS" prop="tls">
+          <el-radio :label="false" v-model="record.tls">false</el-radio>
+          <el-radio :label="true" v-model="record.tls">true</el-radio>
         </el-form-item>
-        <el-form-item label="SSL/TLS">
-          <el-radio >true</el-radio>
-          <el-radio >false</el-radio>
+        <el-form-item label="Certificate Type" prop="certType" v-if="record.tls">
+          <el-radio label="ca" v-model="record.certType">CA signed</el-radio>
+          <el-radio label="self" v-model="record.certType">Self signed</el-radio>
         </el-form-item>
       </el-form>
     </my-dialog>
@@ -56,16 +61,41 @@ import BrokersList from './BrokersList.vue'
     MyDialog,
   },
 })
+
 export default class Brokers extends Vue {
   private newBrokerDialogVisible: boolean = false
   private newBrokerConfirmLoading: boolean = false
 
-  private saveBroker(): void {
-    console.log('saveBroker')
+  // Broker model
+  private record = {
+    brokerName: undefined,
+    brokerAddress: undefined,
+    brokerPort: undefined,
+    tls: false,
+    certType: undefined,
   }
+
+  private rules = {
+    brokerName: [{ required: true, trigger: 'change', message: 'required' }],
+    brokerAddress: [{ required: true, trigger: 'change', message: 'required' }],
+    brokerPort: [{ type: 'number', required: true, trigger: 'change', message: 'required' }],
+    tls: [{ type: 'boolean', required: true, trigger: 'change', message: 'required' }],
+    certType: [{ required: true, trigger: 'change', message: 'required' }],
+  }
+
+  private saveBroker(): boolean | void {
+    (this.$refs.form as any).validate((valid: boolean) => {
+      if (!valid) {
+        return false
+      }
+      console.log(this.record)
+    })
+  }
+
   private resetBroker(): void {
     console.log('resetBroker')
   }
+
   private showNewBrokerDialog(): void {
     this.newBrokerDialogVisible = true
   }
