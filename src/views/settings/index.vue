@@ -144,8 +144,12 @@ export default class Settings extends Vue {
   padding: 0 16px;
   
   .titlebar {
-    height: 60px;
-    padding: 10px 0;
+    padding: 16px 0;
+  }
+
+  .settings-general {
+    margin-top: 30px;
+    margin-bottom: 80px;
   }
   
   .el-divider--horizontal {
@@ -183,10 +187,6 @@ export default class Settings extends Vue {
     &.el-select .el-input .el-select__caret {
       color: var(--color-text-default);
     }
-  }
-
-  .settings-general {
-    margin-bottom: 80px;
   }
 }
 </style>

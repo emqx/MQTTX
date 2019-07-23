@@ -1,6 +1,13 @@
 <template>
   <div :class="['connections-content', 'right-content', isEdit ? 'foucs' : '']">
     <div class="connections-body">
+      <div class="message-type">
+        <el-radio-group v-model="msgType" size="mini">
+          <el-radio-button label="All"></el-radio-button>
+          <el-radio-button label="Received"></el-radio-button>
+          <el-radio-button label="Publish"></el-radio-button>
+        </el-radio-group>
+      </div>
       <MsgLeftItem
         topic="/some/topic1"
         :payload="payload"
@@ -59,6 +66,7 @@ interface Message {
 })
 export default class ConnectionsContent extends Vue {
   private isEdit: boolean = false
+  private msgType: string = 'All'
   private msgRecord: Message = {
     topic: '',
     payload: JSON.stringify({ msg: 'hello' }, null, 2),
@@ -90,6 +98,10 @@ export default class ConnectionsContent extends Vue {
   }
   .connections-body {
     padding: 16px;
+    .message-type {
+      text-align: center;
+      margin-bottom: 5px;
+    }
   }
   .connections-footer {
     position: fixed;
