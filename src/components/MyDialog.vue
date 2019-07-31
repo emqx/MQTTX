@@ -90,9 +90,6 @@ export default class MyDialog extends Vue {
   }
   .el-dialog--center .el-dialog__body {
     padding: 32px 24px 0;
-    .el-form-item__label {
-      color: var(--color-text-default)
-    }
   }
   .el-dialog__footer {
     text-align: right !important;

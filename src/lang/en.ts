@@ -23,6 +23,9 @@ export default {
     disconnect: 'Disconnect',
     deleteConnect: 'Delete Connection',
     connectBroker: 'Connect to broker',
+    all: 'All',
+    received: 'Received',
+    published: 'Published',
   },
   brokers: {
     newBrokerDialogTitle: 'New Broker',

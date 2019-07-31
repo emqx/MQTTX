@@ -3,9 +3,9 @@
     <div class="connections-body">
       <div class="message-type">
         <el-radio-group v-model="msgType" size="mini">
-          <el-radio-button label="All"></el-radio-button>
-          <el-radio-button label="Received"></el-radio-button>
-          <el-radio-button label="Publish"></el-radio-button>
+          <el-radio-button label="all">{{ $t('connections.all') }}</el-radio-button>
+          <el-radio-button label="received">{{ $t('connections.received') }}</el-radio-button>
+          <el-radio-button label="publish">{{ $t('connections.published') }}</el-radio-button>
         </el-radio-group>
       </div>
       <MsgLeftItem
@@ -66,7 +66,7 @@ interface Message {
 })
 export default class ConnectionsContent extends Vue {
   private isEdit: boolean = false
-  private msgType: string = 'All'
+  private msgType: string = 'all'
   private msgRecord: Message = {
     topic: '',
     payload: JSON.stringify({ msg: 'hello' }, null, 2),

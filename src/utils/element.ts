@@ -49,7 +49,7 @@ import {
   // Upload,
   // Progress,
   // Badge,
-  // Card,
+  Card,
   // Rate,
   // Steps,
   // Step,
@@ -120,7 +120,7 @@ export default (Vue: any) => {
   // Vue.use(Upload)
   // Vue.use(Progress)
   // Vue.use(Badge)
-  // Vue.use(Card)
+  Vue.use(Card)
   // Vue.use(Rate)
   // Vue.use(Steps)
   // Vue.use(Step)
