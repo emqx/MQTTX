@@ -34,6 +34,11 @@ h2 {
   @include head-title;
 }
 
+h3 {
+  font-size: $font-size--body;
+  @include head-title;
+}
+
 p, pre {
   font-size: $font-size--body;
   margin: 0px;

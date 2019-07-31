@@ -6,7 +6,8 @@
     </Leftbar>
 
     <div class="brokers-view right-content">
-      <div class="titlebar">Brokers</div>
+      <BrokerTopbar/>
+      <BrokerContent/>
     </div>
 
     <!-- New broker dialog -->
@@ -52,6 +53,8 @@ import Leftbar from '@/components/Leftbar.vue'
 import SearchTopbar from '@/components/SearchTopbar.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import BrokersList from './BrokersList.vue'
+import BrokerTopbar from './BrokerTopbar.vue'
+import BrokerContent from './BrokerContent.vue'
 
 @Component({
   components: {
@@ -59,6 +62,8 @@ import BrokersList from './BrokersList.vue'
     SearchTopbar,
     BrokersList,
     MyDialog,
+    BrokerTopbar,
+    BrokerContent,
   },
 })
 

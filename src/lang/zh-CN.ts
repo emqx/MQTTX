@@ -23,6 +23,9 @@ export default {
     disconnect: '断开连接',
     deleteConnect: '删除连接',
     connectBroker: '连接到 Broker',
+    all: '全部',
+    received: '已接受',
+    published: '已发送',
   },
   brokers: {
     newBrokerDialogTitle: '添加 Broker',
