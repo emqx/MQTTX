@@ -5,9 +5,12 @@
       <BrokersList/>
     </Leftbar>
 
-    <div class="brokers-view right-content">
+    <!-- <div class="brokers-view right-content">
       <BrokerTopbar/>
       <BrokerContent/>
+    </div> -->
+    <div class="brokers-view right-content">
+      <ClientCreate/>
     </div>
 
     <!-- New broker dialog -->
@@ -55,6 +58,15 @@ import MyDialog from '@/components/MyDialog.vue'
 import BrokersList from './BrokersList.vue'
 import BrokerTopbar from './BrokerTopbar.vue'
 import BrokerContent from './BrokerContent.vue'
+import ClientCreate from './clients/ClientCreate.vue'
+
+interface BrokerModel {
+  brokerName: string,
+  brokerAddress: string,
+  brokerPort: string,
+  tls: boolean,
+  certType?: string,
+}
 
 @Component({
   components: {
@@ -64,6 +76,7 @@ import BrokerContent from './BrokerContent.vue'
     MyDialog,
     BrokerTopbar,
     BrokerContent,
+    ClientCreate,
   },
 })
 
@@ -72,10 +85,10 @@ export default class Brokers extends Vue {
   private newBrokerConfirmLoading: boolean = false
 
   // Broker model
-  private record = {
-    brokerName: undefined,
-    brokerAddress: undefined,
-    brokerPort: undefined,
+  private record: BrokerModel = {
+    brokerName: '',
+    brokerAddress: '',
+    brokerPort: '',
     tls: false,
     certType: undefined,
   }
@@ -106,3 +119,10 @@ export default class Brokers extends Vue {
   }
 }
 </script>
+
+
+<style lang="scss" scoped>
+.brokers-view {
+  padding: 90px 16px;
+}
+</style>

@@ -50,6 +50,32 @@ a {
   font-size: $font-size--body;
 }
 
+/* Card form */
+.card-form {
+  h3 {
+    color: var(--color-text-light);
+  }
+  .info-header {
+    @include flex-space-between;
+  }
+  .item-card {
+    margin: 10px 0 30px 0;
+    position: relative;
+    .el-card__body {
+      padding: 10px 20px;
+    }
+  }
+  .iconfont {
+    font-size: $font-size--title;
+  }
+  .el-form {
+    .el-form-item {
+      margin-bottom: 0px;
+    }
+  }
+}
+
+/* Error */
 .error {
   color: var(--color-main-red);
 }

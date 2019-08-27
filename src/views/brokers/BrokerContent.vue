@@ -1,5 +1,5 @@
 <template>
-  <div class="broker-content">
+  <div class="broker-content card-form">
     <div class="info-header">
       <h3>Broker info</h3>
       <a href="javascript:;">
@@ -33,14 +33,14 @@
 
     <div class="info-header">
       <h3>Clients</h3>
-      <a href="javascript:;">
+      <router-link to="/brokers/clients">
         <i class="iconfont icon-plus"></i>
-      </a>
+      </router-link>
     </div>
     <el-row :gutter="10">
       <el-col :span="12">
         <el-card shadow="never" class="item-card">
-          <el-form class="broker-form">
+          <el-form>
             <el-form-item label="Client Name:">
               <span>name Name</span>
             </el-form-item>
@@ -77,40 +77,17 @@ export default class BrokerContent extends Vue {}
 
 <style lang="scss" scope>
 @import "~@/assets/scss/variable.scss";
-@import "~@/assets/scss/mixins.scss";
 
 .broker-content {
   height: 100%;
-  padding: 90px 16px;
-  h3 {
-    color: var(--color-text-light);
-  }
-  .info-header {
-    @include flex-space-between;
-  }
-  .item-card {
-    margin: 10px 0 30px 0;
-    position: relative;
-    .item-card__tag {
-      position: absolute;
-      right: 0;
-      top: 0;
-      background: var(--color-text-tips);
-      color: #fff;
-      padding: 0px 5px;
-      font-size: $font-size--tips;
-    }
-    .el-card__body {
-      padding: 10px 20px;
-    }
-  }
-  .iconfont {
-    font-size: $font-size--title;
-  }
-  .broker-form {
-    .el-form-item {
-      margin-bottom: 0px;
-    }
+  .item-card__tag {
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: var(--color-text-tips);
+    color: #fff;
+    padding: 0px 5px;
+    font-size: $font-size--tips;
   }
 }
 </style>
