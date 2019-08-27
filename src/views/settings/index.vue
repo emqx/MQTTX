@@ -10,7 +10,7 @@
         <div class="settings-title">{{ $t('settings.general') }}</div>
 
         <el-divider></el-divider>
-        
+
         <el-row class="settings-item" type="flex" justify="space-between">
           <el-col :span="20">
             <label>{{ $t('settings.language') }}</label>

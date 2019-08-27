@@ -61,6 +61,7 @@ export default class Home extends Vue {
     left: 300px;
     right: 0;
     z-index: 3;
+    background: #fff;
   }
   .right-content {
     margin-left: 300px;
