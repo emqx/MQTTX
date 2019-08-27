@@ -5,13 +5,13 @@
       <BrokersList/>
     </Leftbar>
 
-    <!-- <div class="brokers-view right-content">
+    <div class="brokers-view right-content">
       <BrokerTopbar/>
       <BrokerContent/>
-    </div> -->
-    <div class="brokers-view right-content">
-      <ClientCreate/>
     </div>
+    <!-- <div class="brokers-view right-content">
+      <ClientCreate/>
+    </div> -->
 
     <!-- New broker dialog -->
     <my-dialog

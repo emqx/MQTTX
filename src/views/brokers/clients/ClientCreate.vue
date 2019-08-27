@@ -23,7 +23,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="2">
-              <a href="javascript:;" class="refresh">
+              <a href="javascript:;" class="icon-oper">
                 <i class="el-icon-refresh-right"></i>
               </a>
             </el-col>
@@ -42,6 +42,50 @@
           </el-form>
         </el-row>
       </el-card>
+
+      <template v-if="hasSSL">
+        <div class="info-header">
+          <h3>Certificates</h3>
+        </div>
+        <el-card
+          shadow="never"
+          class="info-body item-card">
+          <el-row :gutter="10">
+            <el-form :model="certRecord" label-position="right" label-width="160px" :rules="certRules">
+              <el-col :span="22">
+                <el-form-item label="CA File" prop="ca">
+                  <el-input size="mini" v-model="certRecord.ca"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2">
+                <a href="javascript:;" class="icon-oper">
+                  <i class="el-icon-folder-opened"></i>
+                </a>
+              </el-col>
+              <el-col :span="22">
+                <el-form-item label="Client Certificate File" prop="cert">
+                  <el-input size="mini" v-model="certRecord.cert"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2">
+                <a href="javascript:;" class="icon-oper">
+                  <i class="el-icon-folder-opened"></i>
+                </a>
+              </el-col>
+              <el-col :span="22">
+                <el-form-item label="Client Key File" prop="key">
+                  <el-input size="mini" v-model="certRecord.key"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2">
+                <a href="javascript:;" class="icon-oper">
+                  <i class="el-icon-folder-opened"></i>
+                </a>
+              </el-col>
+            </el-form>
+          </el-row>
+        </el-card>
+      </template>
 
       <div class="info-header">
         <h3>Advanced <i class="el-icon-caret-top"></i></h3>
@@ -116,13 +160,19 @@ interface AdvancedModel {
   mqttVersion?: string,
 }
 
+interface CertModel {
+  ca: string,
+  cert: string,
+  key: string,
+}
+
 @Component({
   components: {
     ClientTopbar,
   },
 })
 export default class ClientCreate extends Vue {
-  private hasSSL: boolean = false
+  private hasSSL: boolean = true
 
   private generalRecord: GeneraModel = {
     clientName: '',
@@ -133,9 +183,19 @@ export default class ClientCreate extends Vue {
     autoReconnect: true,
     mqttVersion: '3.1.0',
   }
+  private certRecord: CertModel = {
+    ca: '',
+    cert: '',
+    key: '',
+  }
   private generalRules = {
     clientName: [{ required: true, message: 'required' }],
     clientId: [{ required: true, message: 'required' }],
+  }
+  private certRules = {
+    ca: [{ required: true, message: 'required' }],
+    cert: [{ required: true, message: 'required' }],
+    key: [{ required: true, message: 'required' }],
   }
 }
 </script>
@@ -155,9 +215,13 @@ export default class ClientCreate extends Vue {
         .el-form-item {
           margin-bottom: 5px;
         }
-        .refresh {
+        .icon-oper {
           color: var(--color-text-default);
           line-height: 40px;
+          &:hover,
+          &:focus {
+            color: var(--color-main-green);
+          }
           i {
             font-weight: 600;
           }
