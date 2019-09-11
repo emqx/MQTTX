@@ -2,7 +2,7 @@
   <div class="client-topbar right-topbar">
     <div class="client-info topbar">
       <div class="client-header">
-        <a href="javascript:;">
+        <a href="javascript:;" @click="$router.push({ path: '/brokers' })">
           <i class="el-icon-arrow-left"></i>Back
         </a>
       </div>

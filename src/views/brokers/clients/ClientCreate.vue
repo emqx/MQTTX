@@ -28,7 +28,7 @@
               </a>
             </el-col>
             <el-col :span="22">
-              <el-form-item label="User Name" prop="username">
+              <el-form-item label="Username" prop="username">
                 <el-input size="mini" v-model="generalRecord.username"></el-input>
               </el-form-item>
             </el-col>
@@ -197,6 +197,8 @@ export default class ClientCreate extends Vue {
     cert: [{ required: true, message: 'required' }],
     key: [{ required: true, message: 'required' }],
   }
+
+  // TODO: Determine whether to save on beforeRouterLeave
 }
 </script>
 

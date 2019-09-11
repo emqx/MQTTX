@@ -5,7 +5,7 @@
         @click.native="$router.push({ path: '/recent_connections' })">
         <span class="iconfont icon-connections"></span>
       </el-col>
-      <el-col :span="8" :class="{ active: $route.path === '/brokers' }"
+      <el-col :span="8" :class="{ active: ['/brokers', '/clients'].includes($route.path) }"
         @click.native="$router.push({ path: '/brokers' })">
         <span class="iconfont icon-brokers"></span>
       </el-col>
