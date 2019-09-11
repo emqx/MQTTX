@@ -11,6 +11,7 @@ const routes: Routes[] = [
     children: [
       { path: '/recent_connections', component: Connections },
       { path: '/brokers', component: Brokers },
+      { path: '/clients', component: Brokers },
       { path: '/settings', component: Settings },
     ],
   },

@@ -33,7 +33,7 @@
 
     <div class="info-header">
       <h3>Clients</h3>
-      <router-link to="/brokers/clients">
+      <router-link to="/clients?oper=create">
         <i class="iconfont icon-plus"></i>
       </router-link>
     </div>

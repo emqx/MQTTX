@@ -6,12 +6,14 @@
     </Leftbar>
 
     <div class="brokers-view right-content">
-      <BrokerTopbar/>
-      <BrokerContent/>
+      <template v-if="currentPage === '/brokers'">
+        <BrokerTopbar/>
+        <BrokerContent/>
+      </template>
+      <template v-if="currentPage === '/clients'">
+        <ClientCreate/>
+      </template>
     </div>
-    <!-- <div class="brokers-view right-content">
-      <ClientCreate/>
-    </div> -->
 
     <!-- New broker dialog -->
     <my-dialog
@@ -99,6 +101,10 @@ export default class Brokers extends Vue {
     brokerPort: [{ type: 'number', required: true, trigger: 'change', message: 'required' }],
     tls: [{ type: 'boolean', required: true, trigger: 'change', message: 'required' }],
     certType: [{ required: true, trigger: 'change', message: 'required' }],
+  }
+
+  get currentPage(): string {
+    return this.$route.path
   }
 
   private saveBroker(): boolean | void {
