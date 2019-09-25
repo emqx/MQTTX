@@ -41,7 +41,10 @@
   .el-select {
     width: 100%;
   }
-  .el-form-item__error {
-    top: 80%;
-  }
+}
+
+/* Icon */
+[class^="el-icon-"],
+[class*=" el-icon-"] {
+  font-weight: 600;
 }

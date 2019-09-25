@@ -3,7 +3,7 @@
     <div class="connections-info topbar">
         <div class="connection-head">
         <h2>Device xxx</h2>
-        <a v-if="isConnected" href="javascript:;">6 subscriptions</a>
+        <a v-if="isConnected" href="javascript:;" @click.stop="showSubs">6 subscriptions</a>
         <a v-else class="error" href="javascript:;">Disconnected</a>
       </div>
       <div class="connection-tail">
@@ -47,12 +47,18 @@
 
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 
 @Component
 export default class ConnectionsTopbar extends Vue {
   private searchVisible: boolean = false
-  private isConnected: boolean = false
+  private isConnected: boolean = true
+  private subsVisible: boolean = false
+
+  private showSubs(): void {
+    this.subsVisible = !this.subsVisible
+    this.$emit('click-subs', this.subsVisible)
+  }
 }
 </script>
 

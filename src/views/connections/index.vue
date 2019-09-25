@@ -6,20 +6,23 @@
     </leftbar>
 
     <div class="connections-view">
-      <ConnectionsTopbar/>
+      <ConnectionsTopbar @click-subs="setSubsVisible"/>
       <ConnectionsContent/>
     </div>
+
+    <SubscriptionsList ref="subscriptionsList" :subs-visible="showSubs"/>
   </div>
 </template>
 
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import Leftbar from '@/components/Leftbar.vue'
 import SearchTopbar from '@/components/SearchTopbar.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsTopbar from './ConnectionsTopbar.vue'
 import ConnectionsContent from './ConnectionsContent.vue'
+import SubscriptionsList from './SubscriptionsList.vue'
 
 @Component({
   components: {
@@ -28,7 +31,14 @@ import ConnectionsContent from './ConnectionsContent.vue'
     ConnectionsList,
     ConnectionsTopbar,
     ConnectionsContent,
+    SubscriptionsList,
   },
 })
-export default class Connections extends Vue {}
+export default class Connections extends Vue {
+  private showSubs: boolean = false
+
+  private setSubsVisible(val: boolean): void {
+    this.showSubs = val
+  }
+}
 </script>

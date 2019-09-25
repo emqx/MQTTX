@@ -107,8 +107,12 @@ export default class Brokers extends Vue {
     return this.$route.path
   }
 
+  get vueForm(): VueForm {
+    return this.$refs.form as VueForm
+  }
+
   private saveBroker(): boolean | void {
-    (this.$refs.form as any).validate((valid: boolean) => {
+    this.vueForm.validate((valid: boolean) => {
       if (!valid) {
         return false
       }
@@ -117,7 +121,8 @@ export default class Brokers extends Vue {
   }
 
   private resetBroker(): void {
-    console.log('resetBroker')
+    this.vueForm.clearValidate()
+    this.vueForm.resetFields()
   }
 
   private showNewBrokerDialog(): void {

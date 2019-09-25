@@ -224,9 +224,9 @@ export default class ClientCreate extends Vue {
           &:focus {
             color: var(--color-main-green);
           }
-          i {
-            font-weight: 600;
-          }
+        }
+        .el-form-item__error {
+          top: 80%;
         }
       }
     }
