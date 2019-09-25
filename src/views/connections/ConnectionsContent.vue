@@ -23,7 +23,7 @@
         type="primary">
         {{ $t('connections.connectBroker') }}
       </el-button> -->
-      <div :class="['connections-input', isEdit ? 'message' : 'message-disabled']">
+      <div ref="messagesInput" :class="['connections-input', isEdit ? 'message' : 'message-disabled']">
         <el-input
           :placeholder="isEdit ? 'Topic' : 'Write a message'"
           v-model="msgRecord.topic"
@@ -49,7 +49,8 @@
 
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
+import clickHide from '@/utils/clickHide'
 import MsgRightItem from './MsgRightItem.vue'
 import MsgLeftItem from './MsgLeftItem.vue'
 
@@ -77,10 +78,28 @@ export default class ConnectionsContent extends Vue {
   }, null, 2)
 
   private sendMsg(): void {
-    if (!this.isEdit) {
-      return
+    console.log('is sended')
+  }
+
+  @Watch('isEdit')
+  private handleEditChange(val: boolean) {
+    if (val) {
+      this.inputVisibleChange('open')
+    } else {
+      this.inputVisibleChange('close')
     }
-    this.isEdit = false
+  }
+
+  private inputVisibleChange(type: 'close' | 'open'): void {
+    if (type === 'open') {
+      document.addEventListener('click', this.hideInput)
+    } else {
+      document.removeEventListener('click', this.hideInput)
+    }
+  }
+
+  private hideInput(e: MouseEvent) {
+    this.isEdit = clickHide('.connections-input', e)
   }
 }
 </script>

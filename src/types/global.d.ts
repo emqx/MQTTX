@@ -29,4 +29,11 @@ declare global {
     value: any,
     label: string | TranslateResult,
   }
+
+  interface SubscriptionModel {
+    topic: string,
+    qos: 0 | 1 | 2,
+  }
+
+  type qosList = [0, 1, 2]
 }

@@ -11,6 +11,10 @@
 }
 
 @mixin msg-item {
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
   .payload {
     display: inline-block;
     min-height: 41px;
