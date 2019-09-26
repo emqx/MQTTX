@@ -7,10 +7,14 @@
             <i class="el-icon-plus"></i>
             {{ $t('connections.newSubscription') }}
           </a>
+          <a href="javascript:;" class="back-btn" @click="closeSubsList">
+            <i class="el-icon-arrow-right"></i>
+          </a>
         </div>
         <div class="topics-item" v-for="(sub, index) in subsList" :key="index">
           <span class="topic">{{ sub.topic }}</span>
           <span class="qos">QoS {{ sub.qos }}</span>
+          <a href="javascript:;" class="close"><i class="el-icon-close"></i></a>
         </div>
       </el-card>
     </right-panel>
@@ -72,10 +76,17 @@ export default class SubscriptionsList extends Vue {
   private qosOption: qosList = [0, 1, 2]
   private subsList: SubscriptionModel[] = [
     { topic: 'testtopic/#', qos: 0 },
+    { topic: 'testtopic/#', qos: 0 },
+    { topic: 'testtopic/#', qos: 0 },
+    { topic: 'testtopic/#', qos: 0 },
   ]
 
   get vueForm(): VueForm {
     return this.$refs.form as VueForm
+  }
+
+  private closeSubsList() {
+    this.$emit('update:subsVisible', false)
   }
 
   private openDialog(): void {
@@ -103,6 +114,17 @@ export default class SubscriptionsList extends Vue {
 .subscriptions-list-view {
   .el-card__header {
     text-align: center;
+    position: relative;
+    .back-btn {
+      width: 24px;
+      height: 24px;
+      background: var(--color-bg-accent);
+      color: var(--color-text-light);
+      position: absolute;
+      left: 0;
+      top: 17px;
+      padding: 1px;
+    }
   }
   .el-card__body {
     padding: 0px;
@@ -110,9 +132,24 @@ export default class SubscriptionsList extends Vue {
       padding: 20px;
       color: var(--color-text-title);
       border-bottom: 1px solid var(--color-border-default);
+      display: flex;
+      .topic {
+        flex: 3;
+      }
       .qos {
+        flex: 1;
         color: var(--color-text-light);
-        float: right;
+      }
+      .close {
+        visibility: hidden;
+        color: var(--color-second-red);
+      }
+      transition: 0.3s all;
+      &:hover {
+        background: var(--color-thrid-green);
+        .close {
+          visibility: visible;
+        }
       }
     }
   }

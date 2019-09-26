@@ -47,17 +47,15 @@
 
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
 
 @Component
 export default class ConnectionsTopbar extends Vue {
   private searchVisible: boolean = false
   private isConnected: boolean = true
-  private subsVisible: boolean = false
 
   private showSubs(): void {
-    this.subsVisible = !this.subsVisible
-    this.$emit('click-subs', this.subsVisible)
+    this.$emit('click-subs')
   }
 }
 </script>
