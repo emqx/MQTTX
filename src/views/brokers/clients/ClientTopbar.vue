@@ -3,15 +3,15 @@
     <div class="client-info topbar">
       <div class="client-header">
         <a href="javascript:;" @click="$router.push({ path: '/brokers' })">
-          <i class="el-icon-arrow-left"></i>Back
+          <i class="el-icon-arrow-left"></i>{{ $t('common.back') }}
         </a>
       </div>
       <div class="client-body">
-        <h2>New Client</h2>
+        <h2>{{ $t('brokers.newClient') }}</h2>
       </div>
       <div class="client-tail">
         <a href="javascript:;">
-          Save
+          {{ $t('common.save') }}
         </a>
       </div>
     </div>

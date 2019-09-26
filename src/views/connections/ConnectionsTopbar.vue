@@ -3,8 +3,8 @@
     <div class="connections-info topbar">
         <div class="connection-head">
         <h2>Device xxx</h2>
-        <a v-if="isConnected" href="javascript:;" @click.stop="showSubs">6 subscriptions</a>
-        <a v-else class="error" href="javascript:;">Disconnected</a>
+        <a v-if="isConnected" href="javascript:;" @click.stop="showSubs">6 {{ $t('connections.subscription') }}</a>
+        <a v-else class="error" href="javascript:;">{{ $t('connections.disconnected') }}</a>
       </div>
       <div class="connection-tail">
         <a href="javascript:;" @click="searchVisible = !searchVisible">

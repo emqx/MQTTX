@@ -1,7 +1,7 @@
 <template>
   <div class="broker-content card-form">
     <div class="info-header">
-      <h3>Broker info</h3>
+      <h3>{{ $t('brokers.brokerInfo') }}</h3>
       <a href="javascript:;">
         <i class="iconfont icon-edit"></i>
       </a>
@@ -11,19 +11,19 @@
       class="info-body item-card">
       <div class="item-card__tag">EMQ X</div>
       <el-row>
-        <el-form class="broker-form">
+        <el-form class="broker-form" label-suffix=":">
           <el-col :span="12">
-            <el-form-item label="Broker Name:">
+            <el-form-item :label="$t('brokers.brokerName')">
               <span>111111</span>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="Broker Address:">
+            <el-form-item :label="$t('brokers.brokerAddress')">
               <span>127.0.0.1</span>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="Broker Port:">
+            <el-form-item :label="$t('brokers.brokerPort')">
               <span>18083</span>
             </el-form-item>
           </el-col>
@@ -32,7 +32,7 @@
     </el-card>
 
     <div class="info-header">
-      <h3>Clients</h3>
+      <h3>{{ $t('brokers.clients') }}</h3>
       <router-link to="/clients?oper=create">
         <i class="iconfont icon-plus"></i>
       </router-link>
@@ -40,23 +40,11 @@
     <el-row :gutter="10">
       <el-col :span="12">
         <el-card shadow="never" class="item-card">
-          <el-form>
-            <el-form-item label="Client Name:">
+          <el-form label-suffix=":">
+            <el-form-item :label="$t('brokers.clientName')">
               <span>name Name</span>
             </el-form-item>
-            <el-form-item label="Client ID:">
-              <span>11111111</span>
-            </el-form-item>
-          </el-form>
-        </el-card>
-      </el-col>
-      <el-col :span="12">
-        <el-card shadow="never" class="item-card">
-          <el-form class="broker-form">
-            <el-form-item label="Client Name:">
-              <span>name Name</span>
-            </el-form-item>
-            <el-form-item label="Client ID:">
+            <el-form-item label="Client ID">
               <span>11111111</span>
             </el-form-item>
           </el-form>

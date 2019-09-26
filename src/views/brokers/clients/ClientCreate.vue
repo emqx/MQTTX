@@ -4,7 +4,7 @@
 
     <div class="client-create__body">
       <div class="info-header">
-        <h3>General</h3>
+        <h3>{{ $t('settings.general') }}</h3>
       </div>
       <el-card
         shadow="never"
@@ -12,7 +12,7 @@
         <el-row :gutter="10">
           <el-form :model="generalRecord" label-position="right" label-width="110px" :rules="generalRules">
             <el-col :span="22">
-              <el-form-item label="Client Name" prop="clientName">
+              <el-form-item :label="$t('brokers.clientName')" prop="clientName">
                 <el-input size="mini" v-model="generalRecord.clientName"></el-input>
               </el-form-item>
             </el-col>
@@ -28,13 +28,13 @@
               </a>
             </el-col>
             <el-col :span="22">
-              <el-form-item label="Username" prop="username">
+              <el-form-item :label="$t('brokers.username')" prop="username">
                 <el-input size="mini" v-model="generalRecord.username"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="22">
-              <el-form-item label="Password" prop="password">
+              <el-form-item :label="$t('brokers.password')" prop="password">
                 <el-input size="mini" v-model="generalRecord.password"></el-input>
               </el-form-item>
             </el-col>
@@ -53,7 +53,7 @@
           <el-row :gutter="10">
             <el-form :model="certRecord" label-position="right" label-width="160px" :rules="certRules">
               <el-col :span="22">
-                <el-form-item label="CA File" prop="ca">
+                <el-form-item :label="$t('brokers.ca')" prop="ca">
                   <el-input size="mini" v-model="certRecord.ca"></el-input>
                 </el-form-item>
               </el-col>
@@ -63,7 +63,7 @@
                 </a>
               </el-col>
               <el-col :span="22">
-                <el-form-item label="Client Certificate File" prop="cert">
+                <el-form-item :label="$t('brokers.cert')" prop="cert">
                   <el-input size="mini" v-model="certRecord.cert"></el-input>
                 </el-form-item>
               </el-col>
@@ -73,7 +73,7 @@
                 </a>
               </el-col>
               <el-col :span="22">
-                <el-form-item label="Client Key File" prop="key">
+                <el-form-item :label="$t('brokers.key')" prop="key">
                   <el-input size="mini" v-model="certRecord.key"></el-input>
                 </el-form-item>
               </el-col>
@@ -88,7 +88,7 @@
       </template>
 
       <div class="info-header">
-        <h3>Advanced <i class="el-icon-caret-top"></i></h3>
+        <h3>{{ $t('settings.advanced') }} <i class="el-icon-caret-top"></i></h3>
       </div>
       <el-card
         shadow="never"
@@ -96,7 +96,7 @@
         <el-row :gutter="10">
           <el-form :model="advancedRecord" label-position="right" label-width="150px">
             <el-col :span="22">
-              <el-form-item label="Connection Timeout" prop="connectionTimeout">
+              <el-form-item :label="$t('brokers.connectionTimeout')" prop="connectionTimeout">
                 <el-input size="mini" v-model="advancedRecord.connectionTimeout"></el-input>
               </el-form-item>
             </el-col>
@@ -109,7 +109,7 @@
             <el-col :span="2">
             </el-col>
             <el-col :span="22">
-              <el-form-item label="Clean Session" prop="cleanSession">
+              <el-form-item :label="$t('brokers.connectionTimeout')" prop="cleanSession">
                 <el-radio-group v-model="advancedRecord.cleanSession">
                   <el-radio :label="true"></el-radio>
                   <el-radio :label="false"></el-radio>
@@ -118,7 +118,7 @@
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="22">
-              <el-form-item label="Auto Reconnect" prop="autoReconnect">
+              <el-form-item :label="$t('brokers.autoReconnect')" prop="autoReconnect">
                 <el-radio-group v-model="advancedRecord.autoReconnect">
                   <el-radio :label="true"></el-radio>
                   <el-radio :label="false"></el-radio>
@@ -127,7 +127,7 @@
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="22">
-              <el-form-item label="MQTT version" prop="mqttVersion">
+              <el-form-item :label="$t('brokers.mqttVersion')" prop="mqttVersion">
                 <el-select size="mini" v-model="advancedRecord.mqttVersion">
                   <el-option value="3.1.0" label="3.1.0"></el-option>
                 </el-select>
@@ -188,16 +188,21 @@ export default class ClientCreate extends Vue {
     cert: '',
     key: '',
   }
-  private generalRules = {
-    clientName: [{ required: true, message: 'required' }],
-    clientId: [{ required: true, message: 'required' }],
-  }
-  private certRules = {
-    ca: [{ required: true, message: 'required' }],
-    cert: [{ required: true, message: 'required' }],
-    key: [{ required: true, message: 'required' }],
+
+  get generalRules() {
+    return {
+      clientName: [{ required: true, message: this.$t('common.inputRequired') }],
+      clientId: [{ required: true, message: this.$t('common.inputRequired') }],
+    }
   }
 
+  get certRules() {
+    return {
+      ca: [{ required: true, message: this.$t('common.inputRequired') }],
+      cert: [{ required: true, message: this.$t('common.inputRequired') }],
+      key: [{ required: true, message: this.$t('common.inputRequired') }],
+    }
+  }
   // TODO: Determine whether to save on beforeRouterLeave
 }
 </script>

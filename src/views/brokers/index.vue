@@ -28,20 +28,20 @@
         label-width="130px"
         :model="record"
         :rules="rules">
-        <el-form-item label="Broker Name" prop="brokerName">
+        <el-form-item :label="$t('brokers.brokerName')" prop="brokerName">
           <el-input v-model="record.brokerName"></el-input>
         </el-form-item>
-        <el-form-item label="Broker Address" prop="brokerAddress">
+        <el-form-item :label="$t('brokers.brokerAddress')" prop="brokerAddress">
           <el-input v-model="record.brokerAddress"></el-input>
         </el-form-item>
-        <el-form-item label="Broker Port" prop="brokerPort">
+        <el-form-item :label="$t('brokers.brokerPort')" prop="brokerPort">
           <el-input type="number" v-model.number="record.brokerPort"></el-input>
         </el-form-item>
         <el-form-item label="SSL/TLS" prop="tls">
           <el-radio :label="false" v-model="record.tls">false</el-radio>
           <el-radio :label="true" v-model="record.tls">true</el-radio>
         </el-form-item>
-        <el-form-item label="Certificate Type" prop="certType" v-if="record.tls">
+        <el-form-item :label="$t('brokers.certType')" prop="certType" v-if="record.tls">
           <el-radio label="ca" v-model="record.certType">CA signed</el-radio>
           <el-radio label="self" v-model="record.certType">Self signed</el-radio>
         </el-form-item>
@@ -95,12 +95,14 @@ export default class Brokers extends Vue {
     certType: undefined,
   }
 
-  private rules = {
-    brokerName: [{ required: true, trigger: 'change', message: 'required' }],
-    brokerAddress: [{ required: true, trigger: 'change', message: 'required' }],
-    brokerPort: [{ type: 'number', required: true, trigger: 'change', message: 'required' }],
-    tls: [{ type: 'boolean', required: true, trigger: 'change', message: 'required' }],
-    certType: [{ required: true, trigger: 'change', message: 'required' }],
+  get rules(): any {
+    return {
+      brokerName: [{ required: true, trigger: 'change', message: this.$t('common.inputRequired') }],
+      brokerAddress: [{ required: true, trigger: 'change', message: this.$t('common.inputRequired') }],
+      brokerPort: [{ type: 'number', required: true, trigger: 'change', message: this.$t('common.inputRequired') }],
+      tls: [{ type: 'boolean', required: true, trigger: 'change', message: this.$t('common.inputRequired') }],
+      certType: [{ required: true, trigger: 'change', message: this.$t('common.selectRequired') }],
+    }
   }
 
   get currentPage(): string {
