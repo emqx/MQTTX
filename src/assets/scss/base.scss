@@ -50,6 +50,10 @@ a {
   font-size: $font-size--body;
 }
 
+img {
+  max-width: 100%;
+}
+
 /* Card form */
 .card-form {
   h3 {

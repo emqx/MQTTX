@@ -48,3 +48,10 @@
 [class*=" el-icon-"] {
   font-weight: 600;
 }
+
+/* Button */
+.el-button--outline {
+  background: var(--color-bg-normal);
+  border: 2px solid var(--color-main-green);
+  color: var(--color-main-green);
+}

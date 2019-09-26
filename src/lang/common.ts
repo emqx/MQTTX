@@ -23,4 +23,8 @@ export default {
     zh: '保存',
     en: 'Save',
   },
+  noData: {
+    zh: '暂无数据',
+    en: 'No Data',
+  },
 }

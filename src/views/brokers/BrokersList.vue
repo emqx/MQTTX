@@ -1,5 +1,6 @@
 <template>
   <div class="brokers-list">
+    <!-- <div class="no-data">{{ $t('common.noData') }}</div> -->
     <div class="broker-item">
       <div>
         <div class="broker-name">Broker 1</div>

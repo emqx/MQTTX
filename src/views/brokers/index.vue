@@ -5,6 +5,9 @@
       <BrokersList/>
     </Leftbar>
 
+    <!-- <EmptyPage
+      name="brokers"
+      :btn-title="$t('brokers.newBroker')"/> -->
     <div class="brokers-view right-content">
       <template v-if="currentPage === '/brokers'">
         <BrokerTopbar/>
@@ -17,7 +20,7 @@
 
     <!-- New broker dialog -->
     <my-dialog
-      :title="$t('brokers.newBrokerDialogTitle')"
+      :title="$t('brokers.newBroker')"
       :confirmLoading="newBrokerConfirmLoading"
       :visible.sync="newBrokerDialogVisible"
       @confirm="saveBroker"
@@ -61,6 +64,7 @@ import BrokersList from './BrokersList.vue'
 import BrokerTopbar from './BrokerTopbar.vue'
 import BrokerContent from './BrokerContent.vue'
 import ClientCreate from './clients/ClientCreate.vue'
+import EmptyPage from '@/components/EmptyPage.vue'
 
 interface BrokerModel {
   brokerName: string,
@@ -79,6 +83,7 @@ interface BrokerModel {
     BrokerTopbar,
     BrokerContent,
     ClientCreate,
+    EmptyPage,
   },
 })
 
