@@ -25,7 +25,7 @@
       </el-button> -->
       <div ref="messagesInput" :class="['connections-input', isEdit ? 'message' : 'message-disabled']">
         <el-input
-          :placeholder="isEdit ? 'Topic' : 'Write a message'"
+          :placeholder="isEdit ? 'Topic' : $t('connections.writeMsg')"
           v-model="msgRecord.topic"
           @focus="isEdit = true">
         </el-input>
@@ -54,7 +54,7 @@ import clickHide from '@/utils/clickHide'
 import MsgRightItem from './MsgRightItem.vue'
 import MsgLeftItem from './MsgLeftItem.vue'
 
-interface Message {
+interface MessageModel {
   topic: string,
   payload: string,
 }
@@ -68,7 +68,7 @@ interface Message {
 export default class ConnectionsContent extends Vue {
   private isEdit: boolean = false
   private msgType: string = 'all'
-  private msgRecord: Message = {
+  private msgRecord: MessageModel = {
     topic: '',
     payload: JSON.stringify({ msg: 'hello' }, null, 2),
   }

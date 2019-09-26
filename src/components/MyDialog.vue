@@ -16,14 +16,14 @@
 
     <div slot="footer" class="dialog-footer">
       <el-button class="cancel" type="text" size="small" @click="hideDialog">
-        {{ $t('myDialog.cancel') }}
+        {{ $t('common.cancel') }}
       </el-button>
       <el-button
         class="confirm-button"
         type="text"
         :loading="confirmLoading"
         :disabled="btnDisabled"
-        @click="confirmClick">{{ $t('myDialog.confirm') }}
+        @click="confirmClick">{{ $t('common.confirm') }}
       </el-button>
     </div>
 

@@ -5,7 +5,7 @@
         <div slot="header" class="clearfix">
           <a href="javascript:;" class="message-close" @click="openDialog">
             <i class="el-icon-plus"></i>
-            New Subscription
+            {{ $t('connections.newSubscription') }}
           </a>
         </div>
         <div class="topics-item" v-for="(sub, index) in subsList" :key="index">
@@ -17,7 +17,7 @@
 
     <!-- New subscription dialog -->
     <my-dialog
-      title="New Subscription"
+      :title="$t('connections.newSubscription')"
       :visible.sync="showDialog"
       @confirm="saveSubs"
       @close="resetSubs">
@@ -63,9 +63,11 @@ export default class SubscriptionsList extends Vue {
     topic: '',
     qos: 0,
   }
-  private rules = {
-    topic: { required: true, message: 'required' },
-    qos: { required: true, message: 'required' },
+  get rules() {
+    return {
+      topic: { required: true, message: this.$t('common.inputRequired') },
+      qos: { required: true, message: this.$t('common.selectRequired') },
+    }
   }
   private qosOption: qosList = [0, 1, 2]
   private subsList: SubscriptionModel[] = [
