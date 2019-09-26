@@ -1,5 +1,5 @@
 export default {
-  newBrokerDialogTitle: {
+  newBroker: {
     zh: '添加 Broker',
     en: 'New Broker',
   },

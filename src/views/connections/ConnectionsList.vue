@@ -1,5 +1,6 @@
 <template>
   <div class="connections-list">
+    <!-- <div class="no-data">{{ $t('common.noData') }}</div> -->
     <div class="connection-item">
       <div class="item-left">
         <div class="connection-status online"></div>

@@ -1,4 +1,8 @@
 export default {
+  newConnections: {
+    zh: '新建连接',
+    en: 'New Connection',
+  },
   search: {
     zh: '搜索',
     en: 'Search',
