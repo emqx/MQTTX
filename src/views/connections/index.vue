@@ -10,7 +10,7 @@
       <ConnectionsContent/>
     </div>
 
-    <SubscriptionsList ref="subscriptionsList" :subs-visible="showSubs"/>
+    <SubscriptionsList ref="subscriptionsList" :subs-visible.sync="showSubs"/>
   </div>
 </template>
 
@@ -37,8 +37,8 @@ import SubscriptionsList from './SubscriptionsList.vue'
 export default class Connections extends Vue {
   private showSubs: boolean = false
 
-  private setSubsVisible(val: boolean): void {
-    this.showSubs = val
+  private setSubsVisible(): void {
+    this.showSubs = !this.showSubs
   }
 }
 </script>

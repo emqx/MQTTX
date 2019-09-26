@@ -23,7 +23,7 @@ export default class RightPanel extends Vue {}
     top: 0;
     right: 0;
     z-index: 1002;
-    width: 280px;
+    width: 300px;
     height: 100%;
     background: #fff;
     border-radius: 0;
