@@ -1,4 +1,13 @@
+import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
+
+declare global {
+  type VueForm = Vue & {
+    validate: (validate: (valid: boolean) => void) => void,
+    clearValidate: () => void,
+    resetFields: () => void,
+  }
+}
 
 declare global {
   type PluginFunction<T> = (Vue: any, options?: T) => void
