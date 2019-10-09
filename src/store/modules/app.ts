@@ -1,12 +1,16 @@
+import { loadSettings, setSettings } from '@/utils/api/setting'
+
 const TOGGLE_THEME: string = 'TOGGLE_THEME'
 const TOGGLE_LANG: string = 'TOGGLE_LANG'
 const TOGGLE_AUTO_CHECK: string = 'TOGGLE_AUTO_CHECK'
 
+const stateRecord: App = loadSettings()
+
 const app = {
   state: {
-    currentTheme: localStorage.getItem('currentTheme') || 'light',
-    currentLang: localStorage.getItem('currentLang') || 'en',
-    autoCheck: JSON.parse(localStorage.getItem('autoCheck') || 'true'),
+    currentTheme: stateRecord.currentTheme || 'light',
+    currentLang: stateRecord.currentLang || 'en',
+    autoCheck: stateRecord.autoCheck,
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: string) {
@@ -21,15 +25,15 @@ const app = {
   },
   actions: {
     TOGGLE_THEME({ commit }: any, payload: App) {
-      localStorage.setItem('currentTheme', payload.currentTheme)
+      setSettings('settings.currentTheme', payload.currentTheme)
       commit(TOGGLE_THEME, payload.currentTheme)
     },
     TOGGLE_LANG({ commit }: any, payload: App) {
-      localStorage.setItem('currentLang', payload.currentLang)
+      setSettings('settings.currentLang', payload.currentLang)
       commit(TOGGLE_LANG, payload.currentLang)
     },
     TOGGLE_AUTO_CHECK({ commit }: any, payload: App) {
-      localStorage.setItem('autoCheck', JSON.stringify(payload.autoCheck))
+      setSettings('settings.autoCheck', payload.autoCheck)
       commit(TOGGLE_AUTO_CHECK, payload.autoCheck)
     },
   },

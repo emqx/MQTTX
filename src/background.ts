@@ -5,6 +5,8 @@ import {
   createProtocol,
   installVueDevtools,
 } from 'vue-cli-plugin-electron-builder/lib'
+import db from './datastore/index'
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -21,8 +23,9 @@ function handleIpcMessages() {
 }
 
 function createWindow() {
+  const windowSize = db.get('windowSize')
   // Create the browser window.
-  win = new BrowserWindow({ width: 900, height: 612, webPreferences: {
+  win = new BrowserWindow({ ...windowSize, webPreferences: {
     nodeIntegration: true,
   } })
 
