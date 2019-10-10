@@ -10,6 +10,8 @@ declare global {
 }
 
 declare global {
+  type $TSFixed = any
+
   type PluginFunction<T> = (Vue: any, options?: T) => void
 
   interface PluginObject<T> {
@@ -30,6 +32,7 @@ declare global {
   interface Routes {
     path: string,
     component: any,
+    name: string,
     redirect?: string,
     children?: Routes[],
   }

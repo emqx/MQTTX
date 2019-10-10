@@ -5,7 +5,7 @@ export const loadSettings = (): any => {
 }
 
 export const setSettings = (key: string, value: string | boolean): any => {
-  return db.set(key, value)
+  return db.set<string | boolean>(key, value)
 }
 
 export default {}

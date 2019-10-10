@@ -27,4 +27,20 @@ export default {
     zh: '暂无数据',
     en: 'No Data',
   },
+  createSuccess: {
+    zh: '创建成功',
+    en: 'Create Success',
+  },
+  createfailed: {
+    zh: '创建失败',
+    en: 'Create Failed',
+  },
+  editSuccess: {
+    zh: '编辑成功',
+    en: 'Edit Success',
+  },
+  editfailed: {
+    zh: '编辑失败',
+    en: 'Edit Failed',
+  },
 }

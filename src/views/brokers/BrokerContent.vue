@@ -1,8 +1,28 @@
 <template>
   <div class="broker-content card-form">
+    <div class="broker-topbar right-topbar">
+      <div class="broker-info topbar">
+        <div class="broker-head">
+          <h2>{{ record.brokerName }}</h2>
+        </div>
+        <div class="broker-tail">
+          <el-dropdown trigger="click">
+            <a href="javascript:;">
+              <i class="el-icon-more"></i>
+            </a>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>
+                <i class="iconfont icon-client"></i>oper
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
+      </div>
+    </div>
+
     <div class="info-header">
       <h3>{{ $t('brokers.brokerInfo') }}</h3>
-      <a href="javascript:;">
+      <a href="javascript:;" @click="handleEdit">
         <i class="iconfont icon-edit"></i>
       </a>
     </div>
@@ -14,26 +34,25 @@
         <el-form class="broker-form" label-suffix=":">
           <el-col :span="12">
             <el-form-item :label="$t('brokers.brokerName')">
-              <span>111111</span>
+              <span>{{ record.brokerName }}</span>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('brokers.brokerAddress')">
-              <span>127.0.0.1</span>
+              <span>{{ record.brokerAddress }}</span>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('brokers.brokerPort')">
-              <span>18083</span>
+              <span>{{ record.brokerPort }}</span>
             </el-form-item>
           </el-col>
         </el-form>
       </el-row>
     </el-card>
-
     <div class="info-header">
       <h3>{{ $t('brokers.clients') }}</h3>
-      <router-link to="/clients?oper=create">
+      <router-link :to="`/clients/${record.id}?oper=create`">
         <i class="iconfont icon-plus"></i>
       </router-link>
     </div>
@@ -56,10 +75,18 @@
 
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
+import { BrokerModel } from './types'
 
 @Component
-export default class BrokerContent extends Vue {}
+export default class BrokerContent extends Vue {
+  @Prop({ required: true }) public record!: BrokerModel
+
+  private handleEdit(): void {
+    console.log(1)
+    this.$emit('edit')
+  }
+}
 </script>
 
 
@@ -67,6 +94,11 @@ export default class BrokerContent extends Vue {}
 @import "~@/assets/scss/variable.scss";
 
 .broker-content {
+  .broker-topbar {
+    .broker-info {
+      padding: 0 16px;
+    }
+  }
   height: 100%;
   .item-card__tag {
     position: absolute;

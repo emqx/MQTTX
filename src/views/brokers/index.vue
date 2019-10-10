@@ -2,25 +2,25 @@
   <div>
     <Leftbar>
       <search-topbar @showNewDialog="showNewBrokerDialog"></search-topbar>
-      <BrokersList/>
+      <BrokersList :brokerID="brokerID" :data="records"/>
     </Leftbar>
 
-    <!-- <EmptyPage
+    <EmptyPage
+      v-if="!records.length && !isClientPage"
       name="brokers"
-      :btn-title="$t('brokers.newBroker')"/> -->
-    <div class="brokers-view right-content">
-      <template v-if="currentPage === '/brokers'">
-        <BrokerTopbar/>
-        <BrokerContent/>
-      </template>
-      <template v-if="currentPage === '/clients'">
-        <ClientCreate/>
-      </template>
+      :btn-title="$t('brokers.newBroker')"
+      :click-method="showNewBrokerDialog"/>
+    <div v-else class="brokers-view right-content">
+      <ClientCreate v-if="isClientPage"/>
+      <BrokerContent
+        v-else
+        :record="currentBroker"
+        @edit="showNewBrokerDialog(true)"/>
     </div>
 
     <!-- New broker dialog -->
     <my-dialog
-      :title="$t('brokers.newBroker')"
+      :title="!isEdit ? $t('brokers.newBroker') : $t('brokers.editBroker')"
       :confirmLoading="newBrokerConfirmLoading"
       :visible.sync="newBrokerDialogVisible"
       @confirm="saveBroker"
@@ -56,23 +56,16 @@
 
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import Leftbar from '@/components/Leftbar.vue'
 import SearchTopbar from '@/components/SearchTopbar.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import BrokersList from './BrokersList.vue'
-import BrokerTopbar from './BrokerTopbar.vue'
 import BrokerContent from './BrokerContent.vue'
 import ClientCreate from './clients/ClientCreate.vue'
 import EmptyPage from '@/components/EmptyPage.vue'
-
-interface BrokerModel {
-  brokerName: string,
-  brokerAddress: string,
-  brokerPort: string,
-  tls: boolean,
-  certType?: string,
-}
+import { loadBrokers, loadBroker, createBroker, updateBroker } from '@/utils/api/broker'
+import { BrokerModel } from './types'
 
 @Component({
   components: {
@@ -80,7 +73,6 @@ interface BrokerModel {
     SearchTopbar,
     BrokersList,
     MyDialog,
-    BrokerTopbar,
     BrokerContent,
     ClientCreate,
     EmptyPage,
@@ -90,6 +82,9 @@ interface BrokerModel {
 export default class Brokers extends Vue {
   private newBrokerDialogVisible: boolean = false
   private newBrokerConfirmLoading: boolean = false
+  private isEdit: boolean = false
+
+  private records: BrokerModel[] = []
 
   // Broker model
   private record: BrokerModel = {
@@ -98,6 +93,20 @@ export default class Brokers extends Vue {
     brokerPort: '',
     tls: false,
     certType: undefined,
+  }
+
+  private currentBroker: BrokerModel = {
+    id: '',
+    brokerName: '',
+    brokerAddress: '',
+    brokerPort: '',
+    tls: false,
+    certType: undefined,
+  }
+
+  @Watch('$route.params.id')
+  private handleIdChanged() {
+    this.loadDetail()
   }
 
   get rules(): any {
@@ -110,30 +119,86 @@ export default class Brokers extends Vue {
     }
   }
 
-  get currentPage(): string {
-    return this.$route.path
+  get isClientPage(): boolean {
+    return this.$route.name === 'Clients'
+  }
+
+  get brokerID(): string | undefined {
+    return this.$route.params.id
   }
 
   get vueForm(): VueForm {
     return this.$refs.form as VueForm
   }
 
+  private async loadDetail() {
+    const res: BrokerModel = await loadBroker(this.brokerID as string)
+    if (res) {
+      this.currentBroker = res
+    }
+  }
+
+  private async loadData(): Promise<void> {
+    const res: BrokerModel[] | [] = await loadBrokers()
+    this.records = res
+    if (this.records.length) {
+      this.loadDetail()
+    }
+  }
+
   private saveBroker(): boolean | void {
-    this.vueForm.validate((valid: boolean) => {
+    this.vueForm.validate(async (valid: boolean) => {
       if (!valid) {
         return false
       }
-      console.log(this.record)
+      const data = { ...this.record }
+      let res = null
+      let success: string = ''
+      let faild: string = ''
+      if (!this.isEdit) {
+        res = await createBroker(data)
+        success = this.$t('common.createSuccess') as string
+        faild = this.$t('common.createfailed') as string
+      } else {
+        res = await updateBroker(this.brokerID as string, data)
+        success = this.$t('common.editSuccess') as string
+        faild = this.$t('common.editfailed') as string
+      }
+      if (res) {
+        this.newBrokerDialogVisible = false
+        this.$message.success(success)
+        this.resetBroker()
+        this.loadData()
+        this.$router.push(`/brokers/${res.id}`)
+      } else {
+        this.$message.success(faild)
+      }
     })
   }
 
   private resetBroker(): void {
+    this.record = {
+      brokerName: '',
+      brokerAddress: '',
+      brokerPort: '',
+      tls: false,
+      certType: undefined,
+    }
     this.vueForm.clearValidate()
     this.vueForm.resetFields()
   }
 
-  private showNewBrokerDialog(): void {
+  private showNewBrokerDialog(isEdit: boolean = false): void {
+    console.log(isEdit)
+    this.isEdit = isEdit
     this.newBrokerDialogVisible = true
+    if (isEdit) {
+      this.record = { ...this.currentBroker }
+    }
+  }
+
+  private created(): void {
+    this.loadData()
   }
 }
 </script>

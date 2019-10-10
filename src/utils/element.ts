@@ -67,7 +67,7 @@ import {
   // Footer,
   // Loading,
   // MessageBox,
-  // Message,
+  Message,
   // Notification,
   Divider,
 } from 'element-ui'
@@ -146,5 +146,5 @@ export default (Vue: any) => {
   // Vue.prototype.$confirm = MessageBox.confirm
   // Vue.prototype.$prompt = MessageBox.prompt
   // Vue.prototype.$notify = Notification
-  // Vue.prototype.$message = Message
+  Vue.prototype.$message = Message
 }

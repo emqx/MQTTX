@@ -7,12 +7,14 @@ const routes: Routes[] = [
   {
     path: '/',
     redirect: '/recent_connections',
+    name: 'Home',
     component: Home,
     children: [
-      { path: '/recent_connections', component: Connections },
-      { path: '/brokers', component: Brokers },
-      { path: '/clients', component: Brokers },
-      { path: '/settings', component: Settings },
+      { path: '/recent_connections', name: 'Connections', component: Connections },
+      { path: '/brokers', name: 'Brokers', component: Brokers },
+      { path: '/brokers/:id', name: 'BrokerDetails', component: Brokers },
+      { path: '/clients/:id', name: 'Clients', component: Brokers },
+      { path: '/settings', name: 'Settings', component: Settings },
     ],
   },
 ]

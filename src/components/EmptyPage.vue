@@ -4,7 +4,9 @@
       <div>
         <img :src="imageSrc" alt="new connection">
       </div>
-      <el-button type="outline" icon="el-icon-plus">{{ btnTitle }}</el-button>
+      <el-button type="outline" icon="el-icon-plus" @click="clickMethod(false)">
+        {{ btnTitle }}
+      </el-button>
     </div>
   </div>
 </template>
@@ -17,6 +19,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 export default class EmptyPage extends Vue {
   @Prop({ required: true }) public btnTitle!: 'connections' | 'brokers'
   @Prop({ required: true }) public name!: string
+  @Prop() public clickMethod!: <T>() => T | void
 
   get imageSrc(): string {
     return require(`../assets/images/${this.name}.png`)
