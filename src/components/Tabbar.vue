@@ -1,11 +1,11 @@
 <template>
   <div class="tabbar">
     <el-row>
-      <el-col :span="8" :class="{ active: $route.path === '/recent_connections' }"
+      <el-col :span="8" :class="{ active: isConnection }"
         @click.native="$router.push({ path: '/recent_connections' })">
         <span class="iconfont icon-connections"></span>
       </el-col>
-      <el-col :span="8" :class="{ active: ['/brokers', '/clients'].includes($route.path) }"
+      <el-col :span="8" :class="{ active: isBroker }"
         @click.native="$router.push({ path: '/brokers' })">
         <span class="iconfont icon-brokers"></span>
       </el-col>
@@ -22,7 +22,18 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class Tabbar extends Vue {}
+export default class Tabbar extends Vue {
+  get isConnection(): boolean {
+    return this.$route.path === '/recent_connections'
+  }
+  get isBroker(): boolean {
+    const { path }: { path: string } = this.$route
+    return  ['brokers', 'clients'].includes(path.split('/')[1])
+  }
+  get isSettings(): boolean {
+    return this.$route.path === '/settings'
+  }
+}
 </script>
 
 

@@ -3,6 +3,10 @@ export default {
     zh: '添加 Broker',
     en: 'New Broker',
   },
+  editBroker: {
+    zh: '编辑 Broker',
+    en: 'Edit Broker',
+  },
   brokerName: {
     zh: 'Broker 名称',
     en: 'Broker Name',

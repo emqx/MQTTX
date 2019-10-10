@@ -22,8 +22,13 @@ function handleIpcMessages() {
   })
 }
 
+interface WindowSizeModel {
+  width: number,
+  height: number,
+}
+
 function createWindow() {
-  const windowSize = db.get('windowSize')
+  const windowSize = db.get<WindowSizeModel>('windowSize')
   // Create the browser window.
   win = new BrowserWindow({ ...windowSize, webPreferences: {
     nodeIntegration: true,

@@ -1,30 +1,38 @@
 <template>
   <div class="brokers-list">
-    <!-- <div class="no-data">{{ $t('common.noData') }}</div> -->
-    <div class="broker-item">
-      <div>
-        <div class="broker-name">Broker 1</div>
-        <div class="broker-url">127.0.0.1:1883</div>
+    <div class="no-data" v-if="!data.length">{{ $t('common.noData') }}</div>
+    <template v-else>
+      <div
+        v-for="broker in data"
+        :key="broker.id"
+        :class="['broker-item', { active: broker.id === brokerID }]"
+        @click="selectBroker(broker)">
+        <div>
+          <div class="broker-name">{{ broker.brokerName }}</div>
+          <div class="broker-url">{{ broker.brokerAddress }}:{{ broker.brokerPort }}</div>
+        </div>
+        <div v-if="broker.tls" class="ssl-tag">
+          <span>SSL</span>
+        </div>
       </div>
-    </div>
-    <div class="broker-item active">
-      <div>
-        <div class="broker-name">Broker 2</div>
-        <div class="broker-url">127.0.0.1:8883</div>
-      </div>
-      <div class="ssl-tag">
-        <span>SSL</span>
-      </div>
-    </div>
+    </template>
   </div>
 </template>
 
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
+import { BrokerModel } from './types'
 
 @Component
-export default class BrokersList extends Vue {}
+export default class BrokersList extends Vue {
+  @Prop({ required: true }) public data!: BrokerModel[] | []
+  @Prop({ required: true }) public brokerID!: string
+
+  private selectBroker(row: BrokerModel | $TSFixed): void {
+    this.$router.push({ path: `/brokers/${row.id}` })
+  }
+}
 </script>
 
 

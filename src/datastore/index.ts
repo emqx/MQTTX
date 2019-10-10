@@ -25,33 +25,74 @@ class DB {
   public constructor() {
     const adapter: Lowdb.AdapterSync<any> = new FileSync(path.join(STORE_PATH, '/db.json'))
     this.db = Lowdb(adapter)
+    // Use lodash-id must use insert methods
     this.db._.mixin(LodashID)
     if (!this.db.has('windowSize').value()) {
-      this.db.set('windowSize', {
-        width: 900,
-        height: 612,
-      }).write()
+      this.db
+        .set('windowSize', {
+          width: 900,
+          height: 612,
+        })
+        .write()
     }
     if (!this.db.has('settings').value()) {
-      this.db.set('settings', {
-        autoCheck: true,
-        currentLang: 'en',
-        currentTheme: 'light',
-      }).write()
+      this.db
+        .set('settings', {
+          autoCheck: true,
+          currentLang: 'en',
+          currentTheme: 'light',
+        })
+        .write()
+    }
+    if (!this.db.has('brokers').value()) {
+      this.db
+        .set('brokers', [])
+        .write()
     }
   }
   // read() is to keep the data of the main process and the rendering process up to date.
   public read() {
     return this.db.read()
   }
-  public get(key: string): any {
-    return this.read().get(key).value()
+  public get<T>(key: string): T {
+    return this.read()
+      .get(key)
+      .value()
   }
-  public set(key: string, value: any): any {
-    return this.read().set(key, value).write()
+  public find<T>(key: string, id: string): T {
+    const data: $TSFixed = this.read().get(key)
+    return data
+      .find({ id })
+      .value()
   }
-  public has(key: string): any {
-    return this.read().has(key).value()
+  public set<T>(key: string, value: T): T {
+    return this.read()
+      .set(key, value)
+      .write()
+  }
+  public insert<T>(key: string, value: T): T {
+    const data: $TSFixed = this.read().get(key)
+    return data
+      .insert(value)
+      .write()
+  }
+  public update<T>(key: string, id: string, value: T): T {
+    const data: $TSFixed = this.read().get(key)
+    return data
+      .find({ id })
+      .assign(value)
+      .write()
+  }
+  public remove<T>(key: string, id: string): T {
+    const data: $TSFixed = this.read().get(key)
+    return data
+      .removeById(id)
+      .write()
+  }
+  public has(key: string): boolean {
+    return this.read()
+      .has(key)
+      .value()
   }
 }
 
