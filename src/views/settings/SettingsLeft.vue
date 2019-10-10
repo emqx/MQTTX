@@ -8,7 +8,11 @@
       <i class="iconfont icon-website"></i>
       mqttx.emqx.io
     </a>
-    <a class="web-link" href="javascript:;">
+    <a 
+      class="web-link"
+      href="https://github.com/emqx/MQTTX"
+      target="_blank"
+      rel="noopener noreferrer">
       <i class="iconfont icon-github"></i>
       github.com/emqx/MQTTX
     </a>

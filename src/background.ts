@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, ipcMain } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain, shell } from 'electron'
 import {
   createProtocol,
   installVueDevtools,
@@ -80,6 +80,17 @@ app.on('ready', async () => {
   }
   createWindow()
   handleIpcMessages()
+})
+
+// Disabled create new window
+app.on('web-contents-created', (event, contents) => {
+  // tslint:disable-next-line:no-shadowed-variable
+  contents.on('new-window', async (event, navigationUrl) => {
+    // In this example, we'll ask the operating system
+    // to open this event's url in the default browser.
+    event.preventDefault()
+    await shell.openExternal(navigationUrl)
+  })
 })
 
 // Exit cleanly on request from parent process in development mode.
