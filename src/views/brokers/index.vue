@@ -11,10 +11,11 @@
       :btn-title="$t('brokers.newBroker')"
       :click-method="showNewBrokerDialog"/>
     <div v-else class="brokers-view right-content">
-      <ClientCreate v-if="isClientPage"/>
+      <ClientCreate v-if="isClientPage" :broker="currentBroker"/>
       <BrokerContent
         v-else
         :record="currentBroker"
+        :clients="currentClients"
         @edit="showNewBrokerDialog(true)"/>
     </div>
 
@@ -64,8 +65,8 @@ import BrokersList from './BrokersList.vue'
 import BrokerContent from './BrokerContent.vue'
 import ClientCreate from './clients/ClientCreate.vue'
 import EmptyPage from '@/components/EmptyPage.vue'
-import { loadBrokers, loadBroker, createBroker, updateBroker } from '@/utils/api/broker'
-import { BrokerModel } from './types'
+import { loadBrokers, loadBroker, createBroker, updateBroker, loadClients } from '@/utils/api/broker'
+import { BrokerModel, ClientModel } from './types'
 
 @Component({
   components: {
@@ -86,7 +87,6 @@ export default class Brokers extends Vue {
 
   private records: BrokerModel[] = []
 
-  // Broker model
   private record: BrokerModel = {
     brokerName: '',
     brokerAddress: '',
@@ -94,6 +94,8 @@ export default class Brokers extends Vue {
     tls: false,
     certType: undefined,
   }
+
+  private currentClients: ClientModel[] = []
 
   private currentBroker: BrokerModel = {
     id: '',
@@ -107,6 +109,12 @@ export default class Brokers extends Vue {
   @Watch('$route.params.id')
   private handleIdChanged() {
     this.loadDetail()
+    this.loadClients()
+  }
+
+  @Watch('isClientPage')
+  private handlePageChange() {
+    this.loadClients()
   }
 
   get rules(): any {
@@ -138,12 +146,20 @@ export default class Brokers extends Vue {
     }
   }
 
+  private async loadClients() {
+    const res = await loadClients(this.brokerID as string)
+    if (res) {
+      this.currentClients = res
+    }
+  }
+
   private async loadData(): Promise<void> {
     const res: BrokerModel[] | [] = await loadBrokers()
     this.records = res
     if (this.records.length) {
       this.loadDetail()
     }
+    this.loadClients()
   }
 
   private saveBroker(): boolean | void {
@@ -189,7 +205,6 @@ export default class Brokers extends Vue {
   }
 
   private showNewBrokerDialog(isEdit: boolean = false): void {
-    console.log(isEdit)
     this.isEdit = isEdit
     this.newBrokerDialogVisible = true
     if (isEdit) {

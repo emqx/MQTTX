@@ -50,6 +50,7 @@
         </el-form>
       </el-row>
     </el-card>
+
     <div class="info-header">
       <h3>{{ $t('brokers.clients') }}</h3>
       <router-link :to="`/clients/${record.id}?oper=create`">
@@ -57,14 +58,14 @@
       </router-link>
     </div>
     <el-row :gutter="10">
-      <el-col :span="12">
-        <el-card shadow="never" class="item-card">
+      <el-col v-for="client in clients" :key="client.id" :span="12">
+        <el-card shadow="never" class="item-card client-card">
           <el-form label-suffix=":">
             <el-form-item :label="$t('brokers.clientName')">
-              <span>name Name</span>
+              <span>{{ client.clientName }}</span>
             </el-form-item>
             <el-form-item label="Client ID">
-              <span>11111111</span>
+              <span>{{ client.clientId }}</span>
             </el-form-item>
           </el-form>
         </el-card>
@@ -76,14 +77,14 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { BrokerModel } from './types'
+import { BrokerModel, ClientModel } from './types'
 
 @Component
 export default class BrokerContent extends Vue {
   @Prop({ required: true }) public record!: BrokerModel
+  @Prop({ required: true }) public clients!: ClientModel[]
 
   private handleEdit(): void {
-    console.log(1)
     this.$emit('edit')
   }
 }
@@ -108,6 +109,9 @@ export default class BrokerContent extends Vue {
     color: #fff;
     padding: 0px 5px;
     font-size: $font-size--tips;
+  }
+  .client-card {
+    margin: 10px 5px 10px 0px;
   }
 }
 </style>

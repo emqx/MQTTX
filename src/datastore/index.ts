@@ -49,6 +49,11 @@ class DB {
         .set('brokers', [])
         .write()
     }
+    if (!this.db.has('clients').value()) {
+      this.db
+        .set('clients', [])
+        .write()
+    }
   }
   // read() is to keep the data of the main process and the rendering process up to date.
   public read() {
@@ -88,6 +93,12 @@ class DB {
     return data
       .removeById(id)
       .write()
+  }
+  public filter<T, K>(key: string, query: K): T {
+    const data: $TSFixed = this.read().get(key)
+    return data
+      .filter(query)
+      .value()
   }
   public has(key: string): boolean {
     return this.read()
