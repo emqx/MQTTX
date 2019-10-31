@@ -57,6 +57,6 @@ export default {
   },
   confirmDelete: {
     zh: '此操作将删除该 {name}，是否继续？',
-    en: 'This will delete {name}. Continue?',
+    en: 'This will delete {name}, Continue?',
   },
 }
