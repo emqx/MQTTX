@@ -19,7 +19,8 @@
         v-else
         :record="currentBroker"
         :clients="currentClients"
-        @edit="showNewBrokerDialog(true)"/>
+        @edit="showNewBrokerDialog(true)"
+        @delete="loadClients"/>
     </div>
 
     <!-- New broker dialog -->

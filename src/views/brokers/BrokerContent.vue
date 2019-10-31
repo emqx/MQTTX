@@ -60,6 +60,9 @@
     <el-row :gutter="10">
       <el-col v-for="client in clients" :key="client.id" :span="12">
         <el-card shadow="never" class="item-card client-card">
+          <a class="remove-icon" href="javascript:;" @click="removeClient(client)">
+            <i class="el-icon-close"></i>
+          </a>
           <el-form label-suffix=":">
             <el-form-item :label="$t('brokers.clientName')">
               <span>{{ client.clientName }}</span>
@@ -77,6 +80,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { deleteClient } from '@/utils/api/broker'
 import { BrokerModel, ClientModel } from './types'
 
 @Component
@@ -86,6 +90,24 @@ export default class BrokerContent extends Vue {
 
   private handleEdit(): void {
     this.$emit('edit')
+  }
+
+  private removeClient(row: ClientModel): void {
+    const confirmDelete: string = this.$t('common.confirmDelete', { name: row.clientName }) as string
+    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
+      type: 'warning',
+    }).then(async () => {
+      const res: ClientModel | null = await deleteClient(row.id as string)
+      if (res) {
+        this.$emit('delete')
+        this.$message({
+          type: 'success',
+          message: this.$t('common.deleteSuccess') as string,
+        })
+      }
+    }).catch((error) => {
+      console.error(error)
+    })
   }
 }
 </script>
@@ -112,6 +134,18 @@ export default class BrokerContent extends Vue {
   }
   .client-card {
     margin: 10px 5px 10px 0px;
+    cursor: pointer;
+    .remove-icon {
+      position: absolute;
+      right: 10px;
+      top: 5px;
+      visibility: hidden;
+    }
+    &:hover {
+      .remove-icon {
+        visibility: visible;
+      }
+    }
   }
 }
 </style>
