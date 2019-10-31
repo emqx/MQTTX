@@ -51,7 +51,7 @@
             <el-col :span="2"></el-col>
             <el-col :span="22">
               <el-form-item label-width="110px" :label="$t('brokers.password')" prop="password">
-                <el-input size="mini" v-model="record.password"></el-input>
+                <el-input type="password" size="mini" v-model="record.password"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
