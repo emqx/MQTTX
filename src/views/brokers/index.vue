@@ -2,7 +2,10 @@
   <div>
     <Leftbar>
       <search-topbar @showNewDialog="showNewBrokerDialog"></search-topbar>
-      <BrokersList :brokerID="brokerID" :data="records"/>
+      <BrokersList
+        :brokerID="brokerID"
+        :data="records"
+        @delete="loadData(true)"/>
     </Leftbar>
 
     <EmptyPage
@@ -153,9 +156,12 @@ export default class Brokers extends Vue {
     }
   }
 
-  private async loadData(): Promise<void> {
+  private async loadData(reload: boolean = false): Promise<void> {
     const res: BrokerModel[] | [] = await loadBrokers()
     this.records = res
+    if (reload && this.records.length) {
+      this.$router.push({ path: `/brokers/${this.records[0].id}` })
+    }
     if (this.records.length) {
       this.loadDetail()
     }
@@ -168,21 +174,17 @@ export default class Brokers extends Vue {
         return false
       }
       const data = { ...this.record }
-      let res = null
-      let success: string = ''
+      let res: BrokerModel | null = null
       let faild: string = ''
       if (!this.isEdit) {
         res = await createBroker(data)
-        success = this.$t('common.createSuccess') as string
         faild = this.$t('common.createfailed') as string
       } else {
         res = await updateBroker(this.brokerID as string, data)
-        success = this.$t('common.editSuccess') as string
         faild = this.$t('common.editfailed') as string
       }
       if (res) {
         this.newBrokerDialogVisible = false
-        this.$message.success(success)
         this.resetBroker()
         this.loadData()
         this.$router.push(`/brokers/${res.id}`)

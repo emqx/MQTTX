@@ -14,6 +14,9 @@
         <div v-if="broker.tls" class="ssl-tag">
           <span>SSL</span>
         </div>
+        <a class="remove-icon" href="javascript:;" @click.stop="removeBroker(broker)">
+          <i class="el-icon-close"></i>
+        </a>
       </div>
     </template>
   </div>
@@ -22,6 +25,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { deleteBroker } from '@/utils/api/broker'
 import { BrokerModel } from './types'
 
 @Component
@@ -31,6 +35,24 @@ export default class BrokersList extends Vue {
 
   private selectBroker(row: BrokerModel | $TSFixed): void {
     this.$router.push({ path: `/brokers/${row.id}` })
+  }
+
+  private removeBroker(row: BrokerModel | $TSFixed) {
+    const confirmDelete: string = this.$t('common.confirmDelete', { name: row.brokerName }) as string
+    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
+      type: 'warning',
+    }).then(async () => {
+      const res: BrokerModel | null = await deleteBroker(row.id)
+      if (res) {
+        this.$emit('delete')
+        this.$message({
+          type: 'success',
+          message: this.$t('common.deleteSuccess') as string,
+        })
+      }
+    }).catch((error) => {
+      console.error(error)
+    })
   }
 }
 </script>
@@ -75,6 +97,17 @@ export default class BrokersList extends Vue {
         font-size: 12px;
         transform: rotate(45deg);
         color: #fff;
+      }
+    }
+    .remove-icon {
+      position: absolute;
+      right: 19px;
+      top: 31px;
+      visibility: hidden;
+    }
+    &:hover {
+      .remove-icon {
+        visibility: visible;
       }
     }
   }

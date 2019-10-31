@@ -43,4 +43,20 @@ export default {
     zh: '编辑失败',
     en: 'Edit Failed',
   },
+  deleteSuccess: {
+    zh: '删除成功',
+    en: 'Delete Success',
+  },
+  deletefailed: {
+    zh: '删除失败',
+    en: 'Delete Failed',
+  },
+  warning: {
+    zh: '提示',
+    en: 'Warning',
+  },
+  confirmDelete: {
+    zh: '此操作将删除该 {name}，是否继续？',
+    en: 'This will delete {name}. Continue?',
+  },
 }
