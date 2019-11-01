@@ -24,11 +24,10 @@ import { Component, Vue } from 'vue-property-decorator'
 @Component
 export default class Tabbar extends Vue {
   get isConnection(): boolean {
-    return this.$route.path === '/recent_connections'
+    return 'recent_connections' === this.$route.path.split('/')[1]
   }
   get isBroker(): boolean {
-    const { path }: { path: string } = this.$route
-    return  ['brokers', 'clients'].includes(path.split('/')[1])
+    return  ['brokers', 'clients'].includes(this.$route.path.split('/')[1])
   }
   get isSettings(): boolean {
     return this.$route.path === '/settings'

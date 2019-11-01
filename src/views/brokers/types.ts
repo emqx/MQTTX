@@ -3,12 +3,12 @@ export interface BrokerModel {
   brokerAddress: string
   brokerPort: string
   tls: boolean
-  id?: string
   certType?: string
+  readonly id?: string
 }
 
 export interface ClientModel {
-  brokerId: string
+  brokeruuid: string
   clientName: string
   clientId: string
   username?: string
@@ -20,5 +20,5 @@ export interface ClientModel {
   ca: string
   cert: string
   key: string
-  id?: string,
+  readonly id?: string,
 }

@@ -121,7 +121,7 @@
             <el-col :span="2">
             </el-col>
             <el-col :span="22">
-              <el-form-item :label="$t('brokers.connectionTimeout')" prop="cleanSession">
+              <el-form-item :label="$t('brokers.cleanSession')" prop="cleanSession">
                 <el-radio-group v-model="record.cleanSession">
                   <el-radio :label="true"></el-radio>
                   <el-radio :label="false"></el-radio>
@@ -141,7 +141,7 @@
             <el-col :span="22">
               <el-form-item :label="$t('brokers.mqttVersion')" prop="mqttVersion">
                 <el-select size="mini" v-model="record.mqttVersion">
-                  <el-option value="3.1.0" label="3.1.0"></el-option>
+                  <el-option value="3.1.1" label="3.1.1"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -167,7 +167,7 @@ export default class ClientCreate extends Vue {
   @Prop({ required: true }) private broker!: BrokerModel
 
   private record: ClientModel = {
-    brokerId: '',
+    brokeruuid: '',
     clientName: '',
     clientId: this.getClientID(),
     cleanSession: true,
@@ -197,7 +197,7 @@ export default class ClientCreate extends Vue {
   }
 
   private getClientID(): string {
-    return `mqttjs_${Math.random().toString(16).substr(2, 8)}` as string
+    return `mqttx_${Math.random().toString(16).substr(2, 8)}` as string
   }
 
   private setClientID(): void {
@@ -224,7 +224,7 @@ export default class ClientCreate extends Vue {
       if (!valid) {
         return false
       }
-      this.record.brokerId = this.broker.id || ''
+      this.record.brokeruuid = this.broker.id || ''
       const data = { ...this.record }
       const res = await createClient(data)
       if (res) {

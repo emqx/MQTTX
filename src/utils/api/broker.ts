@@ -1,8 +1,20 @@
 import db from '@/datastore/index'
 import { BrokerModel, ClientModel } from '@/views/brokers/types'
+import { ConnectionModel } from '@/views/connections/types'
+import { deleteConnection } from './connection'
 
 interface QueryClient {
-  brokerId: string
+  brokeruuid: string
+}
+
+const deleteConnectionList = (id: string, type: 'broker' | 'client'): void => {
+  const uuid = type === 'broker' ? 'brokeruuid' : 'clientuuid'
+  const connections: ConnectionModel[] | [] = db.get<ConnectionModel[]>('connections')
+  connections.forEach((connection: ConnectionModel) => {
+    if (connection[uuid] === id) {
+      deleteConnection(connection.id as string)
+    }
+  })
 }
 
 export const loadBrokers = (): BrokerModel[] | [] => {
@@ -23,6 +35,7 @@ export const updateBroker = (id: string, data: BrokerModel): BrokerModel => {
 
 export const deleteBroker = (id: string): BrokerModel => {
   deleteClientByBroker(id)
+  deleteConnectionList(id, 'broker')
   return db.remove<BrokerModel>('brokers', id)
 }
 
@@ -30,15 +43,15 @@ export const createClient = (data: ClientModel): ClientModel => {
   return db.insert<ClientModel>('clients', data)
 }
 
-export const loadClients = (brokerId: string): ClientModel[] => {
+export const loadClients = (brokeruuid: string): ClientModel[] => {
   const query: QueryClient = {
-    brokerId,
+    brokeruuid,
   }
   return db.filter<ClientModel[], QueryClient>('clients', query)
 }
 
-export const deleteClientByBroker = async (brokerId: string): Promise<ClientModel[]> => {
-  let brokerClients: ClientModel[] | [] = await loadClients(brokerId)
+export const deleteClientByBroker = async (brokeruuid: string): Promise<ClientModel[]> => {
+  let brokerClients: ClientModel[] | [] = await loadClients(brokeruuid)
   if (brokerClients.length) {
     brokerClients = brokerClients.map((client: ClientModel) => {
       return deleteClient(client.id as string)
@@ -48,7 +61,27 @@ export const deleteClientByBroker = async (brokerId: string): Promise<ClientMode
 }
 
 export const deleteClient = (clientId: string): ClientModel => {
+  deleteConnectionList(clientId, 'client')
   return db.remove<ClientModel>('clients', clientId)
+}
+
+export const loadClientOptions = (): Options[] => {
+  const brokers: BrokerModel[] | [] = db.get<BrokerModel[]>('brokers')
+  const res: Options[] = brokers.map((broker: BrokerModel): Options => {
+    const clients = loadClients(broker.id as string)
+    const children: Options[] = clients.map((client: ClientModel): Options => (
+      {
+        label: client.clientName,
+        value: client.id,
+      }
+    ))
+    return {
+      label: broker.brokerName,
+      value: broker.id,
+      children,
+    }
+  })
+  return res
 }
 
 export default {}

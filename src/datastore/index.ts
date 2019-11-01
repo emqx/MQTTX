@@ -54,6 +54,11 @@ class DB {
         .set('clients', [])
         .write()
     }
+    if (!this.db.has('connections').value()) {
+      this.db
+        .set('connections', [])
+        .write()
+    }
   }
   // read() is to keep the data of the main process and the rendering process up to date.
   public read() {
