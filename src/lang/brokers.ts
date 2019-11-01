@@ -1,6 +1,6 @@
 export default {
   newBroker: {
-    zh: '添加 Broker',
+    zh: '新建 Broker',
     en: 'New Broker',
   },
   editBroker: {
@@ -28,6 +28,10 @@ export default {
     en: 'Broker Info',
   },
   // Clients
+  client: {
+    zh: '客户端',
+    en: 'Client',
+  },
   clients: {
     zh: '客户端',
     en: 'Clients',

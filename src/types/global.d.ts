@@ -40,6 +40,7 @@ declare global {
   interface Options {
     value: any,
     label: string | TranslateResult,
+    children?: Options[],
   }
 
   interface SubscriptionModel {

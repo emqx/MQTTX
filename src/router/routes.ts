@@ -11,6 +11,7 @@ const routes: Routes[] = [
     component: Home,
     children: [
       { path: '/recent_connections', name: 'Connections', component: Connections },
+      { path: '/recent_connections/:id', name: 'ConnectionDetails', component: Connections },
       { path: '/brokers', name: 'Brokers', component: Brokers },
       { path: '/brokers/:id', name: 'BrokerDetails', component: Brokers },
       { path: '/clients/:id', name: 'Clients', component: Brokers },

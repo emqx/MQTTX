@@ -190,7 +190,7 @@ export default class Brokers extends Vue {
         this.loadData()
         this.$router.push(`/brokers/${res.id}`)
       } else {
-        this.$message.success(faild)
+        this.$message.error(faild)
       }
     })
   }

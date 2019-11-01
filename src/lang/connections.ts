@@ -59,4 +59,8 @@ export default {
     zh: '添加订阅',
     en: 'New Subscription',
   },
+  newConnection: {
+    zh: '新建连接',
+    en: 'New Connection',
+  },
 }
