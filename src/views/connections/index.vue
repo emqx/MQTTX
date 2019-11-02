@@ -12,8 +12,7 @@
         :btn-title="$t('connections.newConnections')"
         :click-method="showNewConnectionDialog"/>
       <template v-else>
-        <ConnectionsTopbar @click-subs="setSubsVisible"/>
-        <ConnectionsContent/>
+        <ConnectionsContent @click-subs="setSubsVisible"/>
       </template>
     </div>
 
@@ -56,7 +55,6 @@ import Leftbar from '@/components/Leftbar.vue'
 import SearchTopbar from '@/components/SearchTopbar.vue'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
-import ConnectionsTopbar from './ConnectionsTopbar.vue'
 import ConnectionsContent from './ConnectionsContent.vue'
 import SubscriptionsList from './SubscriptionsList.vue'
 import { ConnectionModel } from './types'
@@ -66,7 +64,6 @@ import { ConnectionModel } from './types'
     Leftbar,
     SearchTopbar,
     ConnectionsList,
-    ConnectionsTopbar,
     ConnectionsContent,
     SubscriptionsList,
     EmptyPage,
