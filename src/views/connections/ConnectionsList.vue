@@ -2,25 +2,22 @@
   <div class="connections-list">
     <div v-if="!data.length" class="no-data">{{ $t('common.noData') }}</div>
     <template v-else>
-      <div class="connection-item">
+      <div class="connection-item active">
         <div class="item-left">
           <div class="connection-status online"></div>
           <div class="client-info">
-            <div class="client-name">Device 1</div>
-            <div class="client-id">ClientID: 1111111111111</div>
+            <el-tooltip
+              effect="light"
+              :disabled="'Device 1@127.0.0.1:8083'.length < 30"
+              content="Device 1@127.0.0.1:8083"
+              placement="top">
+              <div class="client-name">
+                Device 1@127.0.0.1:8083
+              </div>
+            </el-tooltip>
           </div>
         </div>
         <div class="new-msg-count">12</div>
-      </div>
-      <div class="connection-item active">
-        <div class="item-left">
-          <div class="connection-status"></div>
-          <div class="client-info">
-            <div class="client-name">Device 2</div>
-            <div class="client-id">ClientID: 2222222222222</div>
-          </div>
-        </div>
-        <div class="new-msg-count">2</div>
       </div>
     </template>
   </div>
@@ -59,11 +56,15 @@ export default class ConnectionsList extends Vue {
         font-size: $font-size--body;
         font-weight: 500;
         color: var(--color-text-title);
+        max-width: 200px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
       }
-      .client-id {
-        font-size: $font-size--tips;
-        color: var(--color-text-default);
-      }
+    }
+    .item-left {
+      height: 28px;
+      line-height: 28px;
     }
     .new-msg-count {
       min-width: 18px;
@@ -83,7 +84,7 @@ export default class ConnectionsList extends Vue {
       border-radius: 4px;
       background: var(--color-bg-connection_status);
       vertical-align: top;
-      margin-top: 7px;
+      margin-top: 10px;
       &.online {
         background: var(--color-main-green);
       }
