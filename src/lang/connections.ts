@@ -63,4 +63,12 @@ export default {
     zh: '新建连接',
     en: 'New Connection',
   },
+  connected: {
+    zh: '已连接',
+    en: 'Connected',
+  },
+  connectFailed: {
+    zh: '连接失败',
+    en: 'Connect Failed',
+  },
 }

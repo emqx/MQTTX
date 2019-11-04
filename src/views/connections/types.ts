@@ -1,3 +1,4 @@
+import { MqttClient } from 'mqtt'
 export interface MessageModel {
   createAt: string
   out: boolean
@@ -16,6 +17,7 @@ export interface ConnectionModel  {
   clean: boolean,
   host: string,
   keepalive: number,
+  connectTimeout: number,
   messages: MessageModel[] | [],
   username: string,
   password: string,
@@ -24,7 +26,11 @@ export interface ConnectionModel  {
   ssl: boolean,
   subscriptions: SubscriptionModel[] | [],
   unreadMessageCount: number,
-  client: $TSFixed,
+  client: MqttClient | {
+    connected: boolean,
+    on?: $TSFixed,
+    end?: $TSFixed,
+  },
   ca?: string,
   cert?: string,
   key?: string,

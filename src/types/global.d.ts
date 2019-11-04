@@ -46,6 +46,7 @@ declare global {
   interface SubscriptionModel {
     topic: string,
     qos: 0 | 1 | 2,
+    retain?: boolean,
   }
 
   type qosList = [0, 1, 2]

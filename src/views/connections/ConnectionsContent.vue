@@ -69,7 +69,8 @@
           :loading="connectLoading"
           v-if="!isConnected"
           class="connect-btn"
-          type="primary">
+          type="primary"
+          @click="connect">
           {{ $t('connections.connectBroker') }}
         </el-button>
         <div v-else ref="messagesInput" :class="['connections-input', isEdit ? 'message' : 'message-disabled']">
@@ -100,6 +101,9 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import mqtt, { MqttClient } from 'mqtt'
+import { updateConnection } from '@/utils/api/connection'
+import time from '@/utils/time'
 import clickHide from '@/utils/clickHide'
 import MsgRightItem from './MsgRightItem.vue'
 import MsgLeftItem from './MsgLeftItem.vue'
@@ -133,6 +137,14 @@ export default class ConnectionsContent extends Vue {
 
   get isConnected(): boolean {
     return this.record.client.connected
+  }
+
+  get connectUrl(): string {
+    const {
+      host, port, path,
+    } = this.record
+    const protocol = 'mqtt://'
+    return `${protocol}${host}:${port}${path.startsWith('/') ? '' : '/'}${path}`
   }
 
   @Watch('isEdit')
@@ -169,6 +181,74 @@ export default class ConnectionsContent extends Vue {
 
   private hideInput(e: MouseEvent) {
     this.isEdit = clickHide('.connections-input', e)
+  }
+
+  private connect(): boolean | void {
+    if (this.record.client.connected) {
+      return false
+    }
+    this.connectLoading = true
+    const client: MqttClient = this.createClient()
+    const { id } = this.record
+    this.record.client = client
+    if (id) {
+      this.record.client.on('connect', this.onConnect)
+      this.record.client.on('error', this.onError)
+      this.record.client.on('reconnect', this.onReConnect)
+      this.record.client.on('message', this.messageArrived(id))
+    }
+  }
+
+  private createClient(): MqttClient {
+    const reconnectPeriod = 4000
+    const {
+      clientId, username, password, keepalive, clean, connectTimeout,
+    } = this.record
+    const client: MqttClient = mqtt.connect(this.connectUrl, {
+      clientId,
+      username,
+      password,
+      keepalive,
+      clean,
+      connectTimeout,
+      reconnectPeriod,
+    })
+    return client
+  }
+
+  private disconnect() {
+    if (this.record.client.connected) {
+      this.record.subscriptions = []
+      updateConnection(this.record.id as string, this.record)
+      this.record.client.end()
+      this.$message.success(this.$t('connections.disconnected') as string)
+    }
+  }
+  private onConnect() {
+    this.connectLoading = false
+    this.$message.success(this.$t('connections.connected') as string)
+    updateConnection(this.record.id as string, this.record)
+  }
+  private onError() {
+    this.connectLoading = false
+    this.$message.error(this.$t('connections.connectFailed') as string)
+  }
+  private onReConnect() {
+    this.record.client.end()
+    this.connectLoading = false
+    this.$message.error(this.$t('connections.connectFailed') as string)
+  }
+  private messageArrived(id: string) {
+    return (topic: string, payload: string, packet: SubscriptionModel) => {
+      const message = {
+        out: false,
+        createAt: time.getNowDate(),
+        topic,
+        payload: payload.toString(),
+        qos: packet.qos,
+        retain: packet.retain,
+      }
+    }
   }
 }
 </script>

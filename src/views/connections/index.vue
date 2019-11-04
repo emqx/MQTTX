@@ -14,6 +14,7 @@
       <template v-else>
         <ConnectionsContent
           :record="currentConnection"
+          @reload="loadDetail"
           @click-subs="setSubsVisible"/>
       </template>
     </div>
@@ -90,6 +91,7 @@ export default class Connections extends Vue {
     clean: false,
     host: '',
     keepalive: 60,
+    connectTimeout: 4000,
     messages: [],
     username: '',
     password: '',
@@ -113,6 +115,7 @@ export default class Connections extends Vue {
     clean: false,
     host: '',
     keepalive: 60,
+    connectTimeout: 4000,
     messages: [],
     username: '',
     password: '',
@@ -199,6 +202,7 @@ export default class Connections extends Vue {
             username: client.username || '',
             password: client.password || '',
             keepalive: client.keepAlive || 60,
+            connectTimeout: client.connectionTimeout || 4000,
             clean: client.cleanSession,
           }
         }
@@ -229,6 +233,7 @@ export default class Connections extends Vue {
       name: '',
       clean: false,
       host: '',
+      connectTimeout: 4000,
       keepalive: 60,
       messages: [],
       username: '',
