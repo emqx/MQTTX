@@ -16,7 +16,7 @@
               :content="`${item.name}@${item.host}:${item.port}`"
               placement="top">
               <div class="client-name">
-                {{ item.name  }}@{{ item.host }}:{{item.port}}
+                {{ item.name }}@{{ item.host }}:{{item.port}}
               </div>
             </el-tooltip>
           </div>
