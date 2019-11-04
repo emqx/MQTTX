@@ -173,6 +173,7 @@ export default class ClientCreate extends Vue {
     cleanSession: true,
     autoReconnect: true,
     mqttVersion: '3.1.1',
+    keepAlive: 60,
     ca: '',
     cert: '',
     key: '',

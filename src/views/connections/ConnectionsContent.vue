@@ -3,8 +3,10 @@
     <div class="connections-topbar right-topbar">
       <div class="connections-info topbar">
           <div class="connection-head">
-          <h2>Device xxx</h2>
-          <a v-if="isConnected" href="javascript:;" @click.stop="showSubs">6 {{ $t('connections.subscription') }}</a>
+          <h2>{{ record.name }}</h2>
+          <a v-if="isConnected" href="javascript:;" @click.stop="showSubs">
+            {{ record.subscriptions.length }} {{ $t('connections.subscription') }}
+          </a>
           <a v-else class="error" href="javascript:;">{{ $t('connections.disconnected') }}</a>
         </div>
         <div class="connection-tail">
@@ -47,30 +49,30 @@
     <div :class="['connections-content-main', 'right-content', isEdit ? 'foucs' : '']">
       <div class="connections-body">
         <div class="message-type">
-          <el-radio-group v-model="msgType" size="mini">
+          <el-radio-group :disabled="messages.length <= 0" v-model="msgType" size="mini">
             <el-radio-button label="all">{{ $t('connections.all') }}</el-radio-button>
             <el-radio-button label="received">{{ $t('connections.received') }}</el-radio-button>
             <el-radio-button label="publish">{{ $t('connections.published') }}</el-radio-button>
           </el-radio-group>
         </div>
-        <MsgLeftItem
-          topic="/some/topic1"
-          :qos="0"
-          :payload="payload"
-          createAt="2019-09-32 12:32:11"/>
-        <MsgRightItem
-          topic="/some/topic1"
-          :qos="0"
-          :payload="payload"
-          createAt="2019-09-32 12:32:11"/>
+        <div v-for="(message, index) in messages" :key="index">
+          <MsgLeftItem
+            v-if="!message.out"
+            v-bind="message"/>
+          <MsgRightItem
+            v-else
+            v-bind="message"/>
+        </div>
       </div>
       <div class="connections-footer">
-        <!-- <el-button
+        <el-button
+          :loading="connectLoading"
+          v-if="!isConnected"
           class="connect-btn"
           type="primary">
           {{ $t('connections.connectBroker') }}
-        </el-button> -->
-        <div ref="messagesInput" :class="['connections-input', isEdit ? 'message' : 'message-disabled']">
+        </el-button>
+        <div v-else ref="messagesInput" :class="['connections-input', isEdit ? 'message' : 'message-disabled']">
           <el-input
             :placeholder="isEdit ? 'Topic' : $t('connections.writeMsg')"
             v-model="msgRecord.topic"
@@ -97,15 +99,11 @@
 
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import clickHide from '@/utils/clickHide'
 import MsgRightItem from './MsgRightItem.vue'
 import MsgLeftItem from './MsgLeftItem.vue'
-
-interface MessageModel {
-  topic: string,
-  payload: string,
-}
+import { ConnectionModel, MessageModel } from './types'
 
 @Component({
   components: {
@@ -114,22 +112,27 @@ interface MessageModel {
   },
 })
 export default class ConnectionsContent extends Vue {
-  private isEdit: boolean = false
-  private msgType: string = 'all'
-  private searchVisible: boolean = false
-  private isConnected: boolean = true
+  @Prop({ required: true }) public record!: ConnectionModel
 
+  private isEdit: boolean = false
+  private connectLoading: boolean = false
+  private msgType: 'all' | 'received' | 'publish' = 'all'
+  private searchVisible: boolean = false
+  private messages: MessageModel[] | [] = []
   private msgRecord: MessageModel = {
+    createAt: '',
+    out: true,
+    qos: 0,
+    retain: false,
     topic: '',
     payload: JSON.stringify({ msg: 'hello' }, null, 2),
   }
-
   private payload: string = JSON.stringify({
     temperature: { time: 1523523523, value: 100000000 },
   }, null, 2)
 
-  private sendMsg(): void {
-    console.log('is sended')
+  get isConnected(): boolean {
+    return this.record.client.connected
   }
 
   @Watch('isEdit')
@@ -138,6 +141,17 @@ export default class ConnectionsContent extends Vue {
       this.inputVisibleChange('open')
     } else {
       this.inputVisibleChange('close')
+    }
+  }
+
+  private sendMsg(): void {
+    console.log('is sended')
+  }
+
+  private getMessages() {
+    this.msgType = 'all'
+    if (this.record) {
+      this.messages = this.record.messages
     }
   }
 

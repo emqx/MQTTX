@@ -1,7 +1,7 @@
 export interface BrokerModel {
   brokerName: string
   brokerAddress: string
-  brokerPort: string
+  brokerPort: number
   tls: boolean
   certType?: string
   readonly id?: string
@@ -13,6 +13,7 @@ export interface ClientModel {
   clientId: string
   username?: string
   password?: string
+  keepAlive: number,
   connectionTimeout?: string
   cleanSession: boolean
   autoReconnect: boolean
@@ -20,5 +21,5 @@ export interface ClientModel {
   ca: string
   cert: string
   key: string
-  readonly id?: string,
+  readonly id?: string
 }

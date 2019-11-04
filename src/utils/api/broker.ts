@@ -50,6 +50,10 @@ export const loadClients = (brokeruuid: string): ClientModel[] => {
   return db.filter<ClientModel[], QueryClient>('clients', query)
 }
 
+export const loadClient = (id: string): ClientModel => {
+  return db.find<ClientModel>('clients', id)
+}
+
 export const deleteClientByBroker = async (brokeruuid: string): Promise<ClientModel[]> => {
   let brokerClients: ClientModel[] | [] = await loadClients(brokeruuid)
   if (brokerClients.length) {
