@@ -1,10 +1,13 @@
 <template>
   <div class="msg-left-item">
-    <p class="left-topic">{{ topic }}</p>
     <div class="left-payload payload">
+      <p class="left-info">
+        <span class="topic">Topic: {{ topic }}</span>
+        <span class="qos">QoS: {{ qos }}</span>
+      </p>
       <pre>{{ payload }}</pre>
     </div>
-    <p class="left-time time">{{ time }}</p>
+    <p class="left-time time">{{ createAt }}</p>
   </div>
 </template>
 
@@ -15,8 +18,9 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 @Component
 export default class MsgLeftItem extends Vue {
   @Prop({ required: true }) public topic!: string
+  @Prop({ required: true }) public qos!: number
   @Prop({ required: true }) public payload!: string
-  @Prop({ required: true }) public time!: string
+  @Prop({ required: true }) public createAt!: string
 }
 </script>
 

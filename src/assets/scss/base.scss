@@ -39,9 +39,14 @@ h3 {
   @include head-title;
 }
 
-p, pre {
+p {
   font-size: $font-size--body;
   margin: 0px;
+}
+
+pre {
+  font-size: $font-size--body;
+  margin-bottom: 0px;
 }
 
 a {
