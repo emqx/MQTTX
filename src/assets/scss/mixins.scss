@@ -15,6 +15,18 @@
     white-space: pre-wrap;
     word-wrap: break-word;
   }
+  p {
+    margin: 0px;
+  }
+  .left-info {
+    color: var(--color-text-left_info);
+  }
+  .right-info {
+    color: var(--color-text-right_info);
+  }
+  .topic {
+    margin-right: 16px;
+  }
   .payload {
     display: inline-block;
     min-height: 41px;

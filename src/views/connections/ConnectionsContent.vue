@@ -55,12 +55,14 @@
         </div>
         <MsgLeftItem
           topic="/some/topic1"
+          :qos="0"
           :payload="payload"
-          time="2019-09-32 12:32:11"/>
+          createAt="2019-09-32 12:32:11"/>
         <MsgRightItem
           topic="/some/topic1"
+          :qos="0"
           :payload="payload"
-          time="2019-09-32 12:32:11"/>
+          createAt="2019-09-32 12:32:11"/>
       </div>
       <div class="connections-footer">
         <!-- <el-button

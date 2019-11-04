@@ -2,7 +2,7 @@
   <div>
     <leftbar>
       <SearchTopbar @showNewDialog="showNewConnectionDialog"/>
-      <ConnectionsList :data="records"/>
+      <ConnectionsList :data="records" :connectionId="connectionId"/>
     </leftbar>
 
     <div class="connections-view">
@@ -79,6 +79,10 @@ export default class Connections extends Vue {
     clientuuid: '',
     brokeruuid: '',
     connected: false,
+  }
+
+  get connectionId(): string {
+    return this.$route.params.id
   }
 
   get clientOptions(): Options[] {

@@ -2,9 +2,13 @@
   <div class="connections-list">
     <div v-if="!data.length" class="no-data">{{ $t('common.noData') }}</div>
     <template v-else>
-      <div class="connection-item active">
+      <div
+        v-for="item in data"
+        :key="item.id"
+        :class="['connection-item', { active: item.id === connectionId }]"
+        @click="selectConnection(item)">
         <div class="item-left">
-          <div class="connection-status online"></div>
+          <div :class="['connection-status', { online: item.connected }]"></div>
           <div class="client-info">
             <el-tooltip
               effect="light"
@@ -31,6 +35,11 @@ import { ConnectionModel } from './types'
 @Component
 export default class ConnectionsList extends Vue {
   @Prop({ required: true }) public data!: ConnectionModel[] | []
+  @Prop({ required: true }) public connectionId!: string
+
+  private selectConnection(row: ConnectionModel) {
+    this.$router.push({ path: `/recent_connections/${row.id}` })
+  }
 }
 </script>
 
