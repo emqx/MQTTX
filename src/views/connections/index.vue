@@ -12,7 +12,9 @@
         :btn-title="$t('connections.newConnections')"
         :click-method="showNewConnectionDialog"/>
       <template v-else>
-        <ConnectionsContent @click-subs="setSubsVisible"/>
+        <ConnectionsContent
+          :record="currentConnection"
+          @click-subs="setSubsVisible"/>
       </template>
     </div>
 
@@ -32,11 +34,11 @@
         label-position="top"
         :model="record"
         :rules="rules">
-        <el-form-item :label="$t('brokers.client')" prop="clientuuid">
+        <el-form-item :label="$t('brokers.client')" prop="selector">
           <router-link class="new-broker" to="/brokers">{{ $t('brokers.newBroker') }}</router-link>
           <el-cascader
             clearable
-            v-model="record.clientuuid"
+            v-model="record.selector"
             :options="clientOptions">
           </el-cascader>
         </el-form-item>
@@ -48,8 +50,8 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { loadConnections, createConnections } from '@/utils/api/connection'
-import { loadClientOptions, createClient } from '@/utils/api/broker'
+import { loadConnections, createConnections, loadConnection } from '@/utils/api/connection'
+import { loadClientOptions, createClient, loadBroker, loadClient } from '@/utils/api/broker'
 import MyDialog from '@/components/MyDialog.vue'
 import Leftbar from '@/components/Leftbar.vue'
 import SearchTopbar from '@/components/SearchTopbar.vue'
@@ -58,6 +60,11 @@ import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsContent from './ConnectionsContent.vue'
 import SubscriptionsList from './SubscriptionsList.vue'
 import { ConnectionModel } from './types'
+import { BrokerModel, ClientModel } from '../brokers/types'
+
+interface RecordModel {
+  selector: [string, string] | []
+}
 
 @Component({
   components: {
@@ -75,10 +82,53 @@ export default class Connections extends Vue {
   private newConnectionDialogVisible: boolean = false
   private showSubs: boolean = false
   private records: ConnectionModel[] | [] = []
-  private record: ConnectionModel = {
+  private currentConnection: ConnectionModel = {
     clientuuid: '',
     brokeruuid: '',
-    connected: false,
+    clientId: '',
+    name: '',
+    clean: false,
+    host: '',
+    keepalive: 60,
+    messages: [],
+    username: '',
+    password: '',
+    path: '/mqtt',
+    port: 8083,
+    ssl: false,
+    subscriptions: [],
+    unreadMessageCount: 0,
+    client: {
+      connected: false,
+    },
+  }
+  private record: RecordModel = {
+    selector: [],
+  }
+  private data: ConnectionModel = {
+    clientuuid: '',
+    brokeruuid: '',
+    clientId: '',
+    name: '',
+    clean: false,
+    host: '',
+    keepalive: 60,
+    messages: [],
+    username: '',
+    password: '',
+    path: '/mqtt',
+    port: 8083,
+    ssl: false,
+    subscriptions: [],
+    unreadMessageCount: 0,
+    client: {
+      connected: false,
+    },
+  }
+
+  @Watch('$route.params.id')
+  private handleIdChanged(val: string) {
+    this.loadDetail(val)
   }
 
   get connectionId(): string {
@@ -95,7 +145,7 @@ export default class Connections extends Vue {
 
   get rules() {
     return {
-      clientuuid: [{ required: true, trigger: 'change', message: this.$t('common.selectRequired') }],
+      selector: [{ required: true, trigger: 'change', message: this.$t('common.selectRequired') }],
     }
   }
 
@@ -103,10 +153,18 @@ export default class Connections extends Vue {
     this.showSubs = !this.showSubs
   }
 
+  private async loadDetail(id: string): Promise<void> {
+    const res: ConnectionModel | null = await loadConnection(id)
+    if (res) {
+      this.currentConnection = res
+    }
+  }
+
   private async loadData(): Promise<void> {
     const connections: ConnectionModel[] | [] = await loadConnections()
     if (connections.length) {
       this.records = connections
+      this.loadDetail(this.connectionId)
     }
   }
 
@@ -119,31 +177,70 @@ export default class Connections extends Vue {
       if (!valid) {
         return false
       }
-      const [brokeruuid, clientuuid] = this.record.clientuuid
-      const { connected } = this.record
-      const data: ConnectionModel = {
-        brokeruuid,
-        clientuuid,
-        connected,
-      }
-      const res: ConnectionModel | null = await createConnections(data)
-      const faild = this.$t('common.createfailed') as string
-      if (res) {
-        this.newConnectionDialogVisible = false
-        this.resetConnction()
-        this.loadData()
-        this.$router.push(`/recent_connections/${res.id}`)
-      } else {
-        this.$message.error(faild)
+      const [brokeruuid, clientuuid] = this.record.selector
+      if (brokeruuid && clientuuid) {
+        let brokerData = {}
+        let clientData = {}
+        const broker: BrokerModel | null = await loadBroker(brokeruuid)
+        if (broker) {
+          brokerData = {
+            brokeruuid: broker.id,
+            host: broker.brokerAddress,
+            port: broker.brokerPort,
+            ssl: broker.tls,
+          }
+        }
+        const client: ClientModel | null = await loadClient(clientuuid)
+        if (client) {
+          clientData = {
+            clientuuid: client.id,
+            name: client.clientName,
+            clientId: client.clientId,
+            username: client.username || '',
+            password: client.password || '',
+            keepalive: client.keepAlive || 60,
+            clean: client.cleanSession,
+          }
+        }
+        const data = {
+          ...brokerData,
+          ...clientData,
+        }
+        Object.assign(this.data, data)
+        const res: ConnectionModel | null = await createConnections(this.data)
+        const faild = this.$t('common.createfailed') as string
+        if (res) {
+          this.newConnectionDialogVisible = false
+          this.resetConnction()
+          this.loadData()
+          this.$router.push(`/recent_connections/${res.id}`)
+        } else {
+          this.$message.error(faild)
+        }
       }
     })
   }
 
   private resetConnction(): void {
-    this.record = {
+    this.data = {
       clientuuid: '',
       brokeruuid: '',
-      connected: false,
+      clientId: '',
+      name: '',
+      clean: false,
+      host: '',
+      keepalive: 60,
+      messages: [],
+      username: '',
+      password: '',
+      path: '/mqtt',
+      port: 8083,
+      ssl: false,
+      subscriptions: [],
+      unreadMessageCount: 0,
+      client: {
+        connected: false,
+      },
     }
     this.vueForm.clearValidate()
     this.vueForm.resetFields()

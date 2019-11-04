@@ -94,7 +94,7 @@ export default class Brokers extends Vue {
   private record: BrokerModel = {
     brokerName: '',
     brokerAddress: '',
-    brokerPort: '',
+    brokerPort: 8083,
     tls: false,
     certType: undefined,
   }
@@ -105,7 +105,7 @@ export default class Brokers extends Vue {
     id: '',
     brokerName: '',
     brokerAddress: '',
-    brokerPort: '',
+    brokerPort: 8083,
     tls: false,
     certType: undefined,
   }
@@ -143,14 +143,14 @@ export default class Brokers extends Vue {
     return this.$refs.form as VueForm
   }
 
-  private async loadDetail() {
+  private async loadDetail(): Promise<void> {
     const res: BrokerModel = await loadBroker(this.brokerID as string)
     if (res) {
       this.currentBroker = res
     }
   }
 
-  private async loadClients() {
+  private async loadClients(): Promise<void> {
     const res = await loadClients(this.brokerID as string)
     if (res) {
       this.currentClients = res
@@ -199,7 +199,7 @@ export default class Brokers extends Vue {
     this.record = {
       brokerName: '',
       brokerAddress: '',
-      brokerPort: '',
+      brokerPort: 8083,
       tls: false,
       certType: undefined,
     }

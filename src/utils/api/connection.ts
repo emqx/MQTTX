@@ -1,6 +1,10 @@
 import db from '@/datastore/index'
 import { ConnectionModel } from '@/views/connections/types'
 
+export const loadConnection = (id: string): ConnectionModel => {
+  return db.find<ConnectionModel>('connections', id)
+}
+
 export const loadConnections = (): ConnectionModel[] | [] => {
   return db.get<ConnectionModel[] | []>('connections')
 }

@@ -65,7 +65,7 @@ import {
   // Aside,
   // Main,
   // Footer,
-  // Loading,
+  Loading,
   MessageBox,
   Message,
   // Notification,
@@ -138,7 +138,7 @@ export default (Vue: any) => {
   // Vue.use(Footer)
   Vue.use(Divider)
 
-  // Vue.use(Loading.directive)
+  Vue.use(Loading.directive)
 
   // Vue.prototype.$loading = Loading.service
   // Vue.prototype.$msgbox = MessageBox

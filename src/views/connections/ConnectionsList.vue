@@ -8,20 +8,24 @@
         :class="['connection-item', { active: item.id === connectionId }]"
         @click="selectConnection(item)">
         <div class="item-left">
-          <div :class="['connection-status', { online: item.connected }]"></div>
+          <div :class="['connection-status', { online: item.client.connected }]"></div>
           <div class="client-info">
             <el-tooltip
               effect="light"
-              :disabled="'Device 1@127.0.0.1:8083'.length < 30"
-              content="Device 1@127.0.0.1:8083"
+              :disabled="`${item.name}@${item.host}:${item.port}`.length < 25"
+              :content="`${item.name}@${item.host}:${item.port}`"
               placement="top">
               <div class="client-name">
-                Device 1@127.0.0.1:8083
+                {{ item.name  }}@{{ item.host }}:{{item.port}}
               </div>
             </el-tooltip>
           </div>
         </div>
-        <div class="new-msg-count">12</div>
+        <div
+          v-if="item.unreadMessageCount > 0"
+          class="new-msg-count">
+          {{ item.unreadMessageCount }}
+        </div>
       </div>
     </template>
   </div>
