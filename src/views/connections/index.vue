@@ -14,8 +14,9 @@
       <template v-else>
         <ConnectionsContent
           :record="currentConnection"
-          @reload="loadDetail"
-          @click-subs="setSubsVisible"/>
+          @reload="loadData"
+          @click-subs="setSubsVisible"
+          @delete="loadData(true)"/>
       </template>
     </div>
 
@@ -96,7 +97,7 @@ export default class Connections extends Vue {
     username: '',
     password: '',
     path: '/mqtt',
-    port: 8083,
+    port: 1883,
     ssl: false,
     subscriptions: [],
     unreadMessageCount: 0,
@@ -120,7 +121,7 @@ export default class Connections extends Vue {
     username: '',
     password: '',
     path: '/mqtt',
-    port: 8083,
+    port: 1883,
     ssl: false,
     subscriptions: [],
     unreadMessageCount: 0,
@@ -163,10 +164,13 @@ export default class Connections extends Vue {
     }
   }
 
-  private async loadData(): Promise<void> {
+  private async loadData(reload: boolean = false): Promise<void> {
     const connections: ConnectionModel[] | [] = await loadConnections()
+    this.records = connections
+    if (reload && connections.length) {
+      this.$router.push({ path: `/recent_connections/${connections[0].id}` })
+    }
     if (connections.length) {
-      this.records = connections
       this.loadDetail(this.connectionId)
     }
   }
@@ -239,7 +243,7 @@ export default class Connections extends Vue {
       username: '',
       password: '',
       path: '/mqtt',
-      port: 8083,
+      port: 1883,
       ssl: false,
       subscriptions: [],
       unreadMessageCount: 0,

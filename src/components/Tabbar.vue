@@ -52,6 +52,7 @@ export default class Tabbar extends Vue {
   .el-col {
     height: 58px;
     line-height: 58px;
+    background: var(--color-bg-normal);
     cursor: pointer;
     &:hover, &.active {
       background-color: var(--color-bg-tabs_hover);
