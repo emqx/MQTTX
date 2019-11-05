@@ -13,21 +13,21 @@
           <a href="javascript:;" @click="searchVisible = !searchVisible">
             <i class="iconfont icon-search"></i>
           </a>
-          <el-dropdown trigger="click">
+          <el-dropdown trigger="click" @command="handleCommand">
             <a href="javascript:;">
               <i class="el-icon-more"></i>
             </a>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>
+              <el-dropdown-item command="viewClient">
                 <i class="iconfont icon-client"></i>{{ $t('connections.clientInfo') }}
               </el-dropdown-item>
-              <el-dropdown-item>
+              <el-dropdown-item command="clearHistory">
                 <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
               </el-dropdown-item>
-              <el-dropdown-item>
+              <el-dropdown-item command="disconnect">
                 <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
               </el-dropdown-item>
-              <el-dropdown-item>
+              <el-dropdown-item command="deleteConnect">
                 <i class="iconfont icon-delete"></i>{{ $t('connections.deleteConnect') }}
               </el-dropdown-item>
             </el-dropdown-menu>
@@ -102,7 +102,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import mqtt, { MqttClient } from 'mqtt'
-import { updateConnection } from '@/utils/api/connection'
+import { updateConnection, deleteConnection } from '@/utils/api/connection'
 import time from '@/utils/time'
 import clickHide from '@/utils/clickHide'
 import MsgRightItem from './MsgRightItem.vue'
@@ -118,6 +118,7 @@ import { ConnectionModel, MessageModel } from './types'
 export default class ConnectionsContent extends Vue {
   @Prop({ required: true }) public record!: ConnectionModel
 
+  private client: $TSFixed = {}
   private isEdit: boolean = false
   private connectLoading: boolean = false
   private msgType: 'all' | 'received' | 'publish' = 'all'
@@ -183,20 +184,30 @@ export default class ConnectionsContent extends Vue {
     this.isEdit = clickHide('.connections-input', e)
   }
 
-  private connect(): boolean | void {
-    if (this.record.client.connected) {
-      return false
+  private handleCommand(command: string): void {
+    if (command === 'disconnect') {
+      this.disconnect()
+    } else if (command === 'deleteConnect') {
+      this.removeConnection()
     }
-    this.connectLoading = true
-    const client: MqttClient = this.createClient()
-    const { id } = this.record
-    this.record.client = client
-    if (id) {
-      this.record.client.on('connect', this.onConnect)
-      this.record.client.on('error', this.onError)
-      this.record.client.on('reconnect', this.onReConnect)
-      this.record.client.on('message', this.messageArrived(id))
-    }
+  }
+
+  private removeConnection(): void {
+    const confirmDelete: string = this.$t('common.confirmDelete', { name: this.record.name }) as string
+    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
+      type: 'warning',
+    }).then(async () => {
+      const res: ConnectionModel | null = await deleteConnection(this.record.id as string)
+      if (res) {
+        this.$emit('delete')
+        this.$message({
+          type: 'success',
+          message: this.$t('common.deleteSuccess') as string,
+        })
+      }
+    }).catch((error) => {
+      console.error(error)
+    })
   }
 
   private createClient(): MqttClient {
@@ -204,7 +215,7 @@ export default class ConnectionsContent extends Vue {
     const {
       clientId, username, password, keepalive, clean, connectTimeout,
     } = this.record
-    const client: MqttClient = mqtt.connect(this.connectUrl, {
+    return mqtt.connect(this.connectUrl, {
       clientId,
       username,
       password,
@@ -213,28 +224,44 @@ export default class ConnectionsContent extends Vue {
       connectTimeout,
       reconnectPeriod,
     })
-    return client
   }
-
+  private connect(): boolean | void {
+    if (this.record.client.connected) {
+      return false
+    }
+    this.connectLoading = true
+    this.client = this.createClient()
+    const { id } = this.record
+    if (id) {
+      this.client.on('connect', this.onConnect)
+      this.client.on('error', this.onError)
+      this.client.on('reconnect', this.onReConnect)
+      this.client.on('message', this.messageArrived(id))
+    }
+  }
   private disconnect() {
     if (this.record.client.connected) {
       this.record.subscriptions = []
-      updateConnection(this.record.id as string, this.record)
-      this.record.client.end()
+      this.client.end()
+      this.record.client = this.client
       this.$message.success(this.$t('connections.disconnected') as string)
+      updateConnection(this.record.id as string, this.record)
     }
+    this.$emit('reload')
   }
   private onConnect() {
     this.connectLoading = false
+    this.record.client = this.client
     this.$message.success(this.$t('connections.connected') as string)
     updateConnection(this.record.id as string, this.record)
+    this.$emit('reload')
   }
   private onError() {
     this.connectLoading = false
     this.$message.error(this.$t('connections.connectFailed') as string)
   }
   private onReConnect() {
-    this.record.client.end()
+    this.client.end()
     this.connectLoading = false
     this.$message.error(this.$t('connections.connectFailed') as string)
   }

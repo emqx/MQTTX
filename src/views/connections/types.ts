@@ -28,8 +28,6 @@ export interface ConnectionModel  {
   unreadMessageCount: number,
   client: MqttClient | {
     connected: boolean,
-    on?: $TSFixed,
-    end?: $TSFixed,
   },
   ca?: string,
   cert?: string,

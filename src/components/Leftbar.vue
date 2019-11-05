@@ -30,6 +30,7 @@ export default class Leftbar extends Vue {}
   z-index: 1000;
   border-right: 2px solid var(--color-border-default);
   background-color: var(--color-bg-normal);
+  margin-bottom: 58px;
   .no-data {
     text-align: center;
     position: absolute;

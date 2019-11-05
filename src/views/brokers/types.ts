@@ -14,7 +14,7 @@ export interface ClientModel {
   username?: string
   password?: string
   keepAlive: number,
-  connectionTimeout?: string
+  connectionTimeout?: number
   cleanSession: boolean
   autoReconnect: boolean
   mqttVersion: string

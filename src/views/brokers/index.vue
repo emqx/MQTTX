@@ -94,7 +94,7 @@ export default class Brokers extends Vue {
   private record: BrokerModel = {
     brokerName: '',
     brokerAddress: '',
-    brokerPort: 8083,
+    brokerPort: 1883,
     tls: false,
     certType: undefined,
   }
@@ -105,7 +105,7 @@ export default class Brokers extends Vue {
     id: '',
     brokerName: '',
     brokerAddress: '',
-    brokerPort: 8083,
+    brokerPort: 1883,
     tls: false,
     certType: undefined,
   }
@@ -199,7 +199,7 @@ export default class Brokers extends Vue {
     this.record = {
       brokerName: '',
       brokerAddress: '',
-      brokerPort: 8083,
+      brokerPort: 1883,
       tls: false,
       certType: undefined,
     }
