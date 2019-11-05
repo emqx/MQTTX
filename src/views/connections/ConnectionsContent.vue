@@ -4,7 +4,7 @@
       <div class="connections-info topbar">
           <div class="connection-head">
           <h2>{{ record.name }}</h2>
-          <a v-if="isConnected" href="javascript:;" @click.stop="showSubs">
+          <a v-if="client.connected" href="javascript:;" @click.stop="showSubs">
             {{ record.subscriptions.length }} {{ $t('connections.subscription') }}
           </a>
           <a v-else class="error" href="javascript:;">{{ $t('connections.disconnected') }}</a>
@@ -67,7 +67,7 @@
       <div class="connections-footer">
         <el-button
           :loading="connectLoading"
-          v-if="!isConnected"
+          v-if="!client.connected"
           class="connect-btn"
           type="primary"
           @click="connect">
@@ -102,7 +102,8 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import mqtt, { MqttClient } from 'mqtt'
-import { updateConnection, deleteConnection } from '@/utils/api/connection'
+import { Getter, Action } from 'vuex-class'
+import { deleteConnection, updateConnection } from '@/utils/api/connection'
 import time from '@/utils/time'
 import clickHide from '@/utils/clickHide'
 import MsgRightItem from './MsgRightItem.vue'
@@ -117,6 +118,10 @@ import { ConnectionModel, MessageModel } from './types'
 })
 export default class ConnectionsContent extends Vue {
   @Prop({ required: true }) public record!: ConnectionModel
+
+  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection: any
+  @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection: any
+  @Getter('activeConnection') private activeConnection: any
 
   private client: $TSFixed = {}
   private isEdit: boolean = false
@@ -136,15 +141,11 @@ export default class ConnectionsContent extends Vue {
     temperature: { time: 1523523523, value: 100000000 },
   }, null, 2)
 
-  get isConnected(): boolean {
-    return this.record.client.connected
-  }
-
   get connectUrl(): string {
     const {
-      host, port, path,
+      host, port, path, ssl,
     } = this.record
-    const protocol = 'mqtt://'
+    const protocol = ssl ? 'mqtts://' : 'mqtt://'
     return `${protocol}${host}:${port}${path.startsWith('/') ? '' : '/'}${path}`
   }
 
@@ -154,6 +155,20 @@ export default class ConnectionsContent extends Vue {
       this.inputVisibleChange('open')
     } else {
       this.inputVisibleChange('close')
+    }
+  }
+
+  @Watch('$route.params.id')
+  private handleIdChanged(val: string) {
+    this.setClientValue(val)
+  }
+
+  private setClientValue(id: string): void {
+    const $activeConnection = this.activeConnection[id]
+    if ($activeConnection) {
+      this.client = $activeConnection.client
+    } else {
+      this.client = {}
     }
   }
 
@@ -204,6 +219,7 @@ export default class ConnectionsContent extends Vue {
           type: 'success',
           message: this.$t('common.deleteSuccess') as string,
         })
+        this.removeActiveConnection({ id: res.id })
       }
     }).catch((error) => {
       console.error(error)
@@ -226,7 +242,7 @@ export default class ConnectionsContent extends Vue {
     })
   }
   private connect(): boolean | void {
-    if (this.record.client.connected) {
+    if (this.client.connected) {
       return false
     }
     this.connectLoading = true
@@ -239,25 +255,25 @@ export default class ConnectionsContent extends Vue {
       this.client.on('message', this.messageArrived(id))
     }
   }
+  private onConnect() {
+    this.connectLoading = false
+    this.changeActiveConnection({ id: this.record.id, client: this.client })
+    this.$message.success(this.$t('connections.connected') as string)
+    this.$emit('reload')
+  }
   private disconnect() {
-    if (this.record.client.connected) {
+    if (this.client.connected) {
       this.record.subscriptions = []
       this.client.end()
-      this.record.client = this.client
+      this.changeActiveConnection({ id: this.record.id, client: this.client })
       this.$message.success(this.$t('connections.disconnected') as string)
       updateConnection(this.record.id as string, this.record)
     }
     this.$emit('reload')
   }
-  private onConnect() {
-    this.connectLoading = false
-    this.record.client = this.client
-    this.$message.success(this.$t('connections.connected') as string)
-    updateConnection(this.record.id as string, this.record)
-    this.$emit('reload')
-  }
   private onError() {
     this.connectLoading = false
+    this.client.end()
     this.$message.error(this.$t('connections.connectFailed') as string)
   }
   private onReConnect() {
@@ -276,6 +292,11 @@ export default class ConnectionsContent extends Vue {
         retain: packet.retain,
       }
     }
+  }
+
+  private created(): void {
+    const { id } = this.$route.params
+    this.setClientValue(id)
   }
 }
 </script>

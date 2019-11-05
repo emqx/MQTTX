@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
+import { MqttClient } from 'mqtt'
 
 declare global {
   type VueForm = Vue & {
@@ -23,6 +24,11 @@ declare global {
     currentTheme: string,
     currentLang: string,
     autoCheck: boolean,
+    activeConnection: {
+      [id: string]: {
+        client: MqttClient,
+      },
+    },
   }
 
   interface State {
