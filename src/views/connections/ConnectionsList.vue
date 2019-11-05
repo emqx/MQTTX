@@ -8,7 +8,11 @@
         :class="['connection-item', { active: item.id === connectionId }]"
         @click="selectConnection(item)">
         <div class="item-left">
-          <div :class="['connection-status', { online: item.client.connected }]"></div>
+          <div
+            :class="['connection-status', {
+              online: activeConnection[item.id] ? activeConnection[item.id].client.connected : false
+            }]">
+          </div>
           <div class="client-info">
             <el-tooltip
               effect="light"
@@ -33,13 +37,16 @@
 
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 import { ConnectionModel } from './types'
 
 @Component
 export default class ConnectionsList extends Vue {
   @Prop({ required: true }) public data!: ConnectionModel[] | []
   @Prop({ required: true }) public connectionId!: string
+
+  @Getter('activeConnection') private activeConnection: any
 
   private selectConnection(row: ConnectionModel) {
     this.$router.push({ path: `/recent_connections/${row.id}` })
