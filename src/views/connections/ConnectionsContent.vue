@@ -49,7 +49,7 @@
     <div :class="['connections-content-main', 'right-content', isEdit ? 'foucs' : '']">
       <div class="connections-body">
         <div class="message-type">
-          <el-radio-group :disabled="messages.length <= 0" v-model="msgType" size="mini">
+          <el-radio-group :disabled="messages.length <= 0" v-model="msgType" size="mini" @change="handleMsgTypeChanged">
             <el-radio-button label="all">{{ $t('connections.all') }}</el-radio-button>
             <el-radio-button label="received">{{ $t('connections.received') }}</el-radio-button>
             <el-radio-button label="publish">{{ $t('connections.published') }}</el-radio-button>
@@ -79,6 +79,16 @@
             v-model="msgRecord.topic"
             @focus="isEdit = true">
           </el-input>
+          <div class="qos-retain" v-if="isEdit">
+            <span class="publish-label">QoS: </span>
+            <el-radio-group v-model="msgRecord.qos">
+              <el-radio :label="0"></el-radio>
+              <el-radio :label="1"></el-radio>
+              <el-radio :label="2"></el-radio>
+            </el-radio-group>
+            <span class="publish-label">Retain: </span>
+            <el-checkbox v-model="msgRecord.retain"></el-checkbox>
+          </div>
           <el-input
             v-if="isEdit"
             type="textarea"
@@ -89,7 +99,7 @@
           <a
             href="javascript:;"
             class="send-btn"
-            @click="sendMsg">
+            @click="sendMessage">
             <i class="iconfont icon-send"></i>
           </a>
         </div>
@@ -110,6 +120,8 @@ import MsgRightItem from './MsgRightItem.vue'
 import MsgLeftItem from './MsgLeftItem.vue'
 import { ConnectionModel, MessageModel } from './types'
 
+type MessageType = 'all' | 'received' | 'publish'
+
 @Component({
   components: {
     MsgRightItem,
@@ -128,9 +140,9 @@ export default class ConnectionsContent extends Vue {
   private subsList: SubscriptionModel[] = []
   private isEdit: boolean = false
   private connectLoading: boolean = false
-  private msgType: 'all' | 'received' | 'publish' = 'all'
+  private msgType: MessageType = 'all'
   private searchVisible: boolean = false
-  private messages: MessageModel[] | [] = []
+  private messages: MessageModel[] = []
   private msgRecord: MessageModel = {
     createAt: '',
     out: true,
@@ -165,9 +177,17 @@ export default class ConnectionsContent extends Vue {
     }
   }
 
-  @Watch('$route.params.id')
-  private handleIdChanged(val: string) {
-    this.setClientValue(val)
+  @Watch('record')
+  private handleRecordChanged(val: ConnectionModel) {
+    this.setClientValue(val.id as string)
+    this.getMessages(val)
+  }
+
+  private getMessages(connection: ConnectionModel) {
+    this.msgType = 'all'
+    if (connection) {
+      this.messages = connection.messages
+    }
   }
 
   private setClientValue(id: string): void {
@@ -181,15 +201,42 @@ export default class ConnectionsContent extends Vue {
     }
   }
 
-  private sendMsg(): void {
-    console.log('is sended')
-  }
-
-  private getMessages() {
-    this.msgType = 'all'
-    if (this.record) {
-      this.messages = this.record.messages
+  private sendMessage(): void | boolean {
+    if (!this.client.connected) {
+      return false
     }
+    const {
+      topic, qos, payload, retain,
+    } = this.msgRecord
+    const notSend = retain ? !topic : !topic || !payload
+    if (notSend) {
+      return false
+    }
+    this.client.publish(
+      topic,
+      payload,
+      { qos, retain },
+      (error: string) => {
+        if (error) {
+          this.$message.error(error)
+          return false
+        }
+        const publishMessage: MessageModel = {
+          out: true,
+          createAt: time.getNowDate(),
+          topic,
+          payload,
+          qos,
+          retain,
+        }
+        this.messages.push({ ...publishMessage })
+        this.record.messages = this.messages
+        updateConnection(this.record.id as string, this.record)
+        setTimeout(() => {
+          window.scrollTo(0, document.body.scrollHeight + 190)
+        }, 100)
+      },
+    )
   }
 
   private inputVisibleChange(type: 'close' | 'open'): void {
@@ -213,6 +260,21 @@ export default class ConnectionsContent extends Vue {
       this.disconnect()
     } else if (command === 'deleteConnect') {
       this.removeConnection()
+    } else if (command === 'clearHistory') {
+      this.messages = []
+      this.record.messages = []
+      updateConnection(this.record.id as string, this.record)
+      this.msgType = 'all'
+    }
+  }
+
+  private handleMsgTypeChanged(type: MessageType): void {
+    if (type === 'received') {
+      this.messages = this.record.messages.filter(($: MessageModel) => !$.out)
+    } else if (type === 'publish') {
+      this.messages = this.record.messages.filter(($: MessageModel) => $.out)
+    } else {
+      this.messages = this.record.messages
     }
   }
 
@@ -285,8 +347,8 @@ export default class ConnectionsContent extends Vue {
     this.$emit('reload')
   }
   private onError() {
-    this.connectLoading = false
     this.client.end()
+    this.connectLoading = false
     this.$message.error(this.$t('connections.connectFailed') as string)
   }
   private onReConnect() {
@@ -296,14 +358,20 @@ export default class ConnectionsContent extends Vue {
   }
   private messageArrived(id: string) {
     return (topic: string, payload: string, packet: SubscriptionModel) => {
-      const message = {
+      const receivedMessage: MessageModel = {
         out: false,
         createAt: time.getNowDate(),
         topic,
         payload: payload.toString(),
         qos: packet.qos,
-        retain: packet.retain,
+        retain: packet.retain as boolean,
       }
+      this.messages.push({ ...receivedMessage })
+      this.record.messages = this.messages
+      updateConnection(this.record.id as string, this.record)
+      setTimeout(() => {
+        window.scrollTo(0, document.body.scrollHeight + 190)
+      }, 100)
     }
   }
 
@@ -383,6 +451,32 @@ export default class ConnectionsContent extends Vue {
           border: 0px;
           border-radius: 0px;
           padding: 0px;
+        }
+        .qos-retain {
+          border-top: 1px solid var(--color-border-default);
+          position: absolute;
+          top: 1px;
+          right: 35px;
+          padding-left: 32px;
+          text-align: right;
+          line-height: 40px;
+          background: var(--color-bg-normal);
+          .publish-label {
+            color: var(--color-text-default);
+            margin-right: 16px;
+          }
+          .el-radio-group {
+            margin-right: 32px;
+          }
+          .el-radio {
+            margin-right: 16px;
+            .el-radio__label {
+              padding-left: 8px;
+            }
+          }
+          .el-checkbox__inner {
+            border-radius: 100%;
+          }
         }
         textarea {
           resize: none;

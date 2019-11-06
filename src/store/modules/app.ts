@@ -1,5 +1,7 @@
 import { loadSettings, setSettings } from '@/utils/api/setting'
+import { loadConnection } from '@/utils/api/connection'
 import { MqttClient } from 'mqtt'
+import { MessageModel } from '@/views/connections/types'
 
 interface Client {
   id: string,
@@ -11,12 +13,18 @@ interface Subscriptions {
   subscriptions: SubscriptionModel[],
 }
 
+interface Message {
+  id: string,
+  messages: MessageModel[]
+}
+
 const TOGGLE_THEME: string = 'TOGGLE_THEME'
 const TOGGLE_LANG: string = 'TOGGLE_LANG'
 const TOGGLE_AUTO_CHECK: string = 'TOGGLE_AUTO_CHECK'
 const CHANGE_ACTIVE_CONNECTION: string = 'CHANGE_ACTIVE_CONNECTION'
 const REMOVE_ACTIVE_CONNECTION: string = 'REMOVE_ACTIVE_CONNECTION'
 const CHANGE_SUBSCRIPTIONS: string = 'CHANGE_SUBSCRIPTIONS'
+const PUSH_MESSAGE: string = 'PUSH_MESSAGE'
 
 const stateRecord: App = loadSettings()
 
@@ -53,6 +61,14 @@ const app = {
     [CHANGE_SUBSCRIPTIONS](state: App, subs: Subscriptions) {
       state.activeConnection[subs.id].subscriptions = subs.subscriptions
     },
+    [PUSH_MESSAGE](state: App, payload: Message) {
+      const currentConnection = loadConnection(payload.id)
+      if (!state.activeConnection[payload.id].messages) {
+        state.activeConnection[payload.id].messages = currentConnection.messages
+      } else {
+        state.activeConnection[payload.id].messages = payload.messages
+      }
+    },
   },
   actions: {
     TOGGLE_THEME({ commit }: any, payload: App) {
@@ -75,6 +91,9 @@ const app = {
     },
     CHANGE_SUBSCRIPTIONS({ commit }: any, payload: App) {
       commit(CHANGE_SUBSCRIPTIONS, payload)
+    },
+    PUSH_MESSAGE({ commit }: any, payload: App) {
+      commit(PUSH_MESSAGE, payload)
     },
   },
 }
