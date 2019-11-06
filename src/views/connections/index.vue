@@ -22,7 +22,9 @@
 
     <SubscriptionsList
       ref="subscriptionsList"
-      :subs-visible.sync="showSubs"/>
+      :subs-visible.sync="showSubs"
+      :connectionId="connectionId"
+      :record="currentConnection"/>
 
     <!-- New connection dialog -->
     <my-dialog
