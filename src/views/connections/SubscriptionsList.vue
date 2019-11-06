@@ -14,7 +14,9 @@
         <div class="topics-item" v-for="(sub, index) in subsList" :key="index">
           <span class="topic">{{ sub.topic }}</span>
           <span class="qos">QoS {{ sub.qos }}</span>
-          <a href="javascript:;" class="close"><i class="el-icon-close"></i></a>
+          <a href="javascript:;" class="close" @click="removeSubs(sub)">
+            <i class="el-icon-close"></i>
+          </a>
         </div>
       </el-card>
     </right-panel>
@@ -27,13 +29,13 @@
       @close="resetSubs">
       <el-form
         ref="form"
-        :model="record"
+        :model="subRecord"
         :rules="rules">
         <el-form-item label="Topic" prop="topic">
-          <el-input v-model="record.topic" placeholder="testtopic/#"></el-input>
+          <el-input v-model="subRecord.topic" placeholder="testtopic/#"></el-input>
         </el-form-item>
         <el-form-item label="QoS" prop="qos">
-          <el-select v-model="record.qos">
+          <el-select v-model="subRecord.qos">
             <el-option
               v-for="qos in qosOption"
               :key="qos"
@@ -49,9 +51,12 @@
 
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Getter, Action } from 'vuex-class'
+import { updateConnection } from '@/utils/api/connection'
 import RightPanel from '@/components/RightPanel.vue'
 import MyDialog from '@/components/MyDialog.vue'
+import { ConnectionModel } from './types'
 
 @Component({
   components: {
@@ -61,9 +66,15 @@ import MyDialog from '@/components/MyDialog.vue'
 })
 export default class SubscriptionsList extends Vue {
   @Prop({ required: true }) public subsVisible!: boolean
+  @Prop({ required: true }) public connectionId!: string
+  @Prop({ required: true }) public record!: ConnectionModel
 
+  @Action('CHANGE_SUBSCRIPTIONS') private changeSubs: any
+  @Getter('activeConnection') private activeConnection: any
+
+  private currentConnection: $TSFixed = {}
   private showDialog: boolean = false
-  private record: SubscriptionModel = {
+  private subRecord: SubscriptionModel = {
     topic: '',
     qos: 0,
   }
@@ -74,12 +85,12 @@ export default class SubscriptionsList extends Vue {
     }
   }
   private qosOption: qosList = [0, 1, 2]
-  private subsList: SubscriptionModel[] = [
-    { topic: 'testtopic/#', qos: 0 },
-    { topic: 'testtopic/#', qos: 0 },
-    { topic: 'testtopic/#', qos: 0 },
-    { topic: 'testtopic/#', qos: 0 },
-  ]
+  private subsList: SubscriptionModel[] = []
+
+  @Watch('connectionId')
+  private handleIdChanged(val: string) {
+    this.setCurrentConnection(val)
+  }
 
   get vueForm(): VueForm {
     return this.$refs.form as VueForm
@@ -93,18 +104,101 @@ export default class SubscriptionsList extends Vue {
     this.showDialog = true
   }
 
-  private saveSubs(): void {
+  private saveSubs(): void | boolean {
+    this.setCurrentConnection(this.connectionId)
+
+    if (!this.currentConnection.client) {
+      return false
+    }
+    if (!this.currentConnection.client.connected) {
+      return false
+    }
     this.vueForm.validate((valid: boolean) => {
       if (!valid) {
         return false
       }
-      console.log(this.record)
+      const { topic, qos } = this.subRecord
+      this.currentConnection.client.subscribe(
+        topic,
+        { qos },
+        (error: string, res: SubscriptionModel[]) => {
+          if (error) {
+            this.$message.error(error)
+            return false
+          }
+          if (res.length < 1 || ![0, 1, 2].includes(res[0].qos)) {
+            this.$message.error('Subscribe Failure!')
+            return false
+          }
+
+          const subscriptions: SubscriptionModel[] = this.currentConnection.subscriptions || []
+          const existTopicIndex: number = subscriptions.findIndex(
+            (item: SubscriptionModel) => item.topic === topic,
+          )
+          if (existTopicIndex !== -1) {
+            subscriptions[existTopicIndex].qos = qos
+          } else {
+            subscriptions.push({ ...this.subRecord })
+          }
+          this.record.subscriptions = subscriptions
+          updateConnection(this.record.id as string, this.record)
+          this.changeSubs({ id: this.connectionId, subscriptions })
+          this.subsList = subscriptions
+          this.showDialog = false
+          return true
+        },
+      )
+    })
+  }
+
+  private removeSubs(row: SubscriptionModel): void | boolean {
+    if (!this.currentConnection.client) {
+      return false
+    }
+    if (!this.currentConnection.client.connected) {
+      return false
+    }
+    const { topic, qos } = row
+    this.currentConnection.client.unsubscribe(topic, { qos }, (error: string) => {
+      if (error) {
+        this.$message.error(error)
+        return false
+      }
+      const payload: {
+        id: string,
+        subscriptions: SubscriptionModel[],
+      } = {
+        id: this.record.id as string,
+        subscriptions: this.currentConnection.subscriptions.filter(
+          ($: SubscriptionModel) => $.topic !== topic,
+        ),
+      }
+      this.record.subscriptions = payload.subscriptions
+      updateConnection(this.record.id as string, this.record)
+      this.changeSubs(payload)
+      this.subsList = payload.subscriptions
+      return true
     })
   }
 
   private resetSubs(): void {
     this.vueForm.clearValidate()
     this.vueForm.resetFields()
+  }
+
+  private setCurrentConnection(id: string): void {
+    const $activeConnection = this.activeConnection[id]
+    if ($activeConnection) {
+      this.subsList = $activeConnection.subscriptions || []
+      this.currentConnection = $activeConnection
+    } else {
+      this.currentConnection = {}
+      this.subsList = []
+    }
+  }
+
+  private created(): void {
+    this.setCurrentConnection(this.connectionId)
   }
 }
 </script>

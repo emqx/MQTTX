@@ -1,9 +1,14 @@
 import { loadSettings, setSettings } from '@/utils/api/setting'
 import { MqttClient } from 'mqtt'
 
-interface Connection {
+interface Client {
   id: string,
   client: MqttClient,
+}
+
+interface Subscriptions {
+  id: string,
+  subscriptions: SubscriptionModel[],
 }
 
 const TOGGLE_THEME: string = 'TOGGLE_THEME'
@@ -11,6 +16,7 @@ const TOGGLE_LANG: string = 'TOGGLE_LANG'
 const TOGGLE_AUTO_CHECK: string = 'TOGGLE_AUTO_CHECK'
 const CHANGE_ACTIVE_CONNECTION: string = 'CHANGE_ACTIVE_CONNECTION'
 const REMOVE_ACTIVE_CONNECTION: string = 'REMOVE_ACTIVE_CONNECTION'
+const CHANGE_SUBSCRIPTIONS: string = 'CHANGE_SUBSCRIPTIONS'
 
 const stateRecord: App = loadSettings()
 
@@ -31,14 +37,21 @@ const app = {
     [TOGGLE_AUTO_CHECK](state: App, autoCheck: boolean) {
       state.autoCheck = autoCheck
     },
-    [CHANGE_ACTIVE_CONNECTION](state: App, connection: Connection) {
+    [CHANGE_ACTIVE_CONNECTION](state: App, connection: Client) {
       const client: MqttClient = connection.client
-      state.activeConnection[connection.id] = {
-        client,
+      if (state.activeConnection[connection.id]) {
+        state.activeConnection[connection.id].client = client
+      } else {
+        state.activeConnection[connection.id] = {
+          client,
+        }
       }
     },
     [REMOVE_ACTIVE_CONNECTION](state: App, id: string) {
       delete state.activeConnection[id]
+    },
+    [CHANGE_SUBSCRIPTIONS](state: App, subs: Subscriptions) {
+      state.activeConnection[subs.id].subscriptions = subs.subscriptions
     },
   },
   actions: {
@@ -59,6 +72,9 @@ const app = {
     },
     REMOVE_ACTIVE_CONNECTION({ commit }: any, { id }: { id: string }) {
       commit(REMOVE_ACTIVE_CONNECTION, id)
+    },
+    CHANGE_SUBSCRIPTIONS({ commit }: any, payload: App) {
+      commit(CHANGE_SUBSCRIPTIONS, payload)
     },
   },
 }

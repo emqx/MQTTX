@@ -119,11 +119,13 @@ import { ConnectionModel, MessageModel } from './types'
 export default class ConnectionsContent extends Vue {
   @Prop({ required: true }) public record!: ConnectionModel
 
+  @Action('CHANGE_SUBSCRIPTIONS') private changeSubs: any
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection: any
   @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection: any
   @Getter('activeConnection') private activeConnection: any
 
   private client: $TSFixed = {}
+  private subsList: SubscriptionModel[] = []
   private isEdit: boolean = false
   private connectLoading: boolean = false
   private msgType: 'all' | 'received' | 'publish' = 'all'
@@ -140,6 +142,11 @@ export default class ConnectionsContent extends Vue {
   private payload: string = JSON.stringify({
     temperature: { time: 1523523523, value: 100000000 },
   }, null, 2)
+
+  get count(): number {
+    console.log(this.activeConnection)
+    return 0
+  }
 
   get connectUrl(): string {
     const {
@@ -166,8 +173,10 @@ export default class ConnectionsContent extends Vue {
   private setClientValue(id: string): void {
     const $activeConnection = this.activeConnection[id]
     if ($activeConnection) {
+      this.subsList = $activeConnection.subscriptions || []
       this.client = $activeConnection.client
     } else {
+      this.subsList = []
       this.client = {}
     }
   }
@@ -255,20 +264,24 @@ export default class ConnectionsContent extends Vue {
       this.client.on('message', this.messageArrived(id))
     }
   }
+  private disconnect(): boolean | void {
+    if (!this.client.connected) {
+      return false
+    }
+    if (this.record.clean) {
+      this.record.subscriptions = []
+      this.changeSubs({ id: this.record.id, subscription: [] })
+      updateConnection(this.record.id as string, this.record)
+    }
+    this.client.end()
+    this.changeActiveConnection({ id: this.record.id, client: this.client })
+    this.$message.success(this.$t('connections.disconnected') as string)
+    this.$emit('reload')
+  }
   private onConnect() {
     this.connectLoading = false
     this.changeActiveConnection({ id: this.record.id, client: this.client })
     this.$message.success(this.$t('connections.connected') as string)
-    this.$emit('reload')
-  }
-  private disconnect() {
-    if (this.client.connected) {
-      this.record.subscriptions = []
-      this.client.end()
-      this.changeActiveConnection({ id: this.record.id, client: this.client })
-      this.$message.success(this.$t('connections.disconnected') as string)
-      updateConnection(this.record.id as string, this.record)
-    }
     this.$emit('reload')
   }
   private onError() {

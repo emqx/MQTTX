@@ -27,6 +27,7 @@ declare global {
     activeConnection: {
       [id: string]: {
         client: MqttClient,
+        subscriptions?: SubscriptionModel[],
       },
     },
   }
