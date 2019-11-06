@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
 import { MqttClient } from 'mqtt'
+import { MessageModel } from '@/views/connections/types'
 
 declare global {
   type VueForm = Vue & {
@@ -28,6 +29,7 @@ declare global {
       [id: string]: {
         client: MqttClient,
         subscriptions?: SubscriptionModel[],
+        messages?: MessageModel[],
       },
     },
   }

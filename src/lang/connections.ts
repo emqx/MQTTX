@@ -59,6 +59,10 @@ export default {
     zh: '添加订阅',
     en: 'New Subscription',
   },
+  subFailed: {
+    zh: '订阅失败',
+    en: 'Subscribe Failed',
+  },
   newConnection: {
     zh: '新建连接',
     en: 'New Connection',
