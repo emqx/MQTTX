@@ -87,9 +87,9 @@ export default class SubscriptionsList extends Vue {
   private qosOption: qosList = [0, 1, 2]
   private subsList: SubscriptionModel[] = []
 
-  @Watch('connectionId')
-  private handleIdChanged(val: string) {
-    this.setCurrentConnection(val)
+  @Watch('record')
+  private handleRecordChanged(val: ConnectionModel) {
+    this.setCurrentConnection(val.id as string)
   }
 
   get vueForm(): VueForm {

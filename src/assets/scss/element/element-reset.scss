@@ -60,3 +60,31 @@
 .el-cascader {
   width: 100%;
 }
+
+/* Message */
+.el-message-box {
+  border-radius: 2px;
+}
+.el-message-box__btns {
+  font-size: 14px;
+  .el-button--small {
+    font-size: 14px;
+    border: none;
+    color: var(--color-text-default);
+    &:hover {
+      color: var(--color-second-green);
+      background: transparent;
+    }
+  }
+  .el-button--primary {
+    background: transparent;
+    &:hover {
+      background: transparent;
+      color: var(--color-second-green);
+    }
+  }
+  button:nth-child(2) {
+    color: var(--color-main-green);
+    margin-left: 0px;
+  }
+}
