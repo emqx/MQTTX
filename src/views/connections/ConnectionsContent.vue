@@ -64,6 +64,7 @@
             v-bind="message"/>
         </div>
       </div>
+
       <div class="connections-footer">
         <el-button
           :loading="connectLoading"
@@ -77,7 +78,7 @@
           <el-input
             :placeholder="isEdit ? 'Topic' : $t('connections.writeMsg')"
             v-model="msgRecord.topic"
-            @focus="isEdit = true">
+            @focus="handleInputFoucs">
           </el-input>
           <div class="qos-retain" v-if="isEdit">
             <span class="publish-label">QoS: </span>
@@ -112,6 +113,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import mqtt, { MqttClient } from 'mqtt'
+import jump from 'jump.js'
 import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection } from '@/utils/api/connection'
 import time from '@/utils/time'
@@ -155,11 +157,6 @@ export default class ConnectionsContent extends Vue {
     temperature: { time: 1523523523, value: 100000000 },
   }, null, 2)
 
-  get count(): number {
-    console.log(this.activeConnection)
-    return 0
-  }
-
   get connectUrl(): string {
     const {
       host, port, path, ssl,
@@ -179,7 +176,7 @@ export default class ConnectionsContent extends Vue {
 
   @Watch('record')
   private handleRecordChanged(val: ConnectionModel) {
-    this.setClientValue(val.id as string)
+    this.getClientValue(val.id as string)
     this.getMessages(val)
   }
 
@@ -190,13 +187,19 @@ export default class ConnectionsContent extends Vue {
     }
   }
 
-  private setClientValue(id: string): void {
+  private getClientValue(id: string): void {
     const $activeConnection = this.activeConnection[id]
     if ($activeConnection) {
       this.subsList = $activeConnection.subscriptions || []
       this.client = $activeConnection.client
     } else {
-      this.subsList = []
+      if (this.record.clean) {
+        this.subsList = []
+        this.record.subscriptions = []
+        updateConnection(this.record.id as string, this.record)
+      } else {
+        this.subsList = this.record.subscriptions
+      }
       this.client = {}
     }
   }
@@ -253,6 +256,11 @@ export default class ConnectionsContent extends Vue {
 
   private hideInput(e: MouseEvent) {
     this.isEdit = clickHide('.connections-input', e)
+  }
+
+  private handleInputFoucs(): void {
+    this.isEdit = true
+    jump(document.body.scrollHeight)
   }
 
   private handleCommand(command: string): void {
@@ -377,7 +385,7 @@ export default class ConnectionsContent extends Vue {
 
   private created(): void {
     const { id } = this.$route.params
-    this.setClientValue(id)
+    this.getClientValue(id)
   }
 }
 </script>

@@ -4,11 +4,15 @@
     <p class="version">{{ $t('settings.version') }} 1.0.0</p>
     <a class="update" href="javascript:;">{{ $t('settings.update') }}</a>
 
-    <a class="web-link" href="javascript:;">
+    <a
+      class="web-link"
+      href="https://emqx.io"
+      target="_blank"
+      rel="noopener noreferrer">
       <i class="iconfont icon-website"></i>
-      mqttx.emqx.io
+      emqx.io
     </a>
-    <a 
+    <a
       class="web-link"
       href="https://github.com/emqx/MQTTX"
       target="_blank"
