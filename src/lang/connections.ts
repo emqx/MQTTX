@@ -59,6 +59,10 @@ export default {
     zh: '请输入消息',
     en: 'Write a message',
   },
+  subscriptions: {
+    zh: '订阅列表',
+    en: 'Subscriptions',
+  },
   subscription: {
     zh: '订阅',
     en: 'subscription',
@@ -82,5 +86,13 @@ export default {
   connectFailed: {
     zh: '连接失败',
     en: 'Connect Failed',
+  },
+  connectBtn: {
+    zh: '连 接',
+    en: 'Connected',
+  },
+  disconnectedBtn: {
+    zh: '断开连接',
+    en: 'Disconnect',
   },
 }

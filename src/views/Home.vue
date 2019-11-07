@@ -49,7 +49,7 @@ export default class Home extends Vue {
   background-color: var(--color-bg-primary);
   .topbar {
     @include flex-space-between;
-    height: 60px;
+    min-height: 60px;
     border-bottom: 1px solid var(--color-border-default);
   }
   .left-topbar {

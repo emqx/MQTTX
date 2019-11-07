@@ -1,5 +1,6 @@
 import '@/assets/scss/element/element-variables.scss'
 import '@/assets/scss/element/element-reset.scss'
+import CollapseTransition from 'element-ui/lib/transitions/collapse-transition'
 
 import {
   // Pagination,
@@ -68,7 +69,7 @@ import {
   Loading,
   MessageBox,
   Message,
-  // Notification,
+  Notification,
   Divider,
 } from 'element-ui'
 
@@ -145,6 +146,8 @@ export default (Vue: any) => {
   // Vue.prototype.$alert = MessageBox.alert
   Vue.prototype.$confirm = MessageBox.confirm
   // Vue.prototype.$prompt = MessageBox.prompt
-  // Vue.prototype.$notify = Notification
+  Vue.prototype.$notify = Notification
   Vue.prototype.$message = Message
+
+  Vue.component(CollapseTransition.name, CollapseTransition)
 }

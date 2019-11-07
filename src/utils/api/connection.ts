@@ -1,6 +1,7 @@
 import db from '@/datastore/index'
+import { loadClient, updateClient } from './broker'
 import { ConnectionModel } from '@/views/connections/types'
-import { MqttClient } from 'mqtt'
+import { ClientModel } from '@/views/brokers/types'
 
 export const loadConnection = (id: string): ConnectionModel => {
   return db.find<ConnectionModel>('connections', id)
@@ -19,6 +20,20 @@ export const deleteConnection = (id: string): ConnectionModel => {
 }
 
 export const updateConnection = (id: string, data: ConnectionModel): ConnectionModel => {
+  return db.update<ConnectionModel>('connections', id, data)
+}
+
+export const updateConnectionByClient = (id: string, data: ConnectionModel): ConnectionModel => {
+  const client: ClientModel = loadClient(data.clientuuid)
+  if (client) {
+    client.clientName = data.name
+    client.clientId = data.clientId
+    client.username = data.username
+    client.password = data.password
+    client.keepAlive = data.keepalive
+    client.cleanSession = data.clean
+    updateClient(data.clientuuid, client)
+  }
   return db.update<ConnectionModel>('connections', id, data)
 }
 

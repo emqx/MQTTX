@@ -155,10 +155,11 @@
 
 
 <script lang="ts">
+import { remote } from 'electron'
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { createClient } from '@/utils/api/broker'
+import getClientId from '@/utils/getClientId'
 import { ClientModel, BrokerModel } from '../types'
-import { remote } from 'electron'
 
 @Component({
   components: {},
@@ -169,7 +170,7 @@ export default class ClientCreate extends Vue {
   private record: ClientModel = {
     brokeruuid: '',
     clientName: '',
-    clientId: this.getClientID(),
+    clientId: getClientId(),
     cleanSession: true,
     autoReconnect: true,
     mqttVersion: '3.1.1',
@@ -197,12 +198,8 @@ export default class ClientCreate extends Vue {
     }
   }
 
-  private getClientID(): string {
-    return `mqttx_${Math.random().toString(16).substr(2, 8)}` as string
-  }
-
   private setClientID(): void {
-    this.record.clientId = this.getClientID()
+    this.record.clientId = getClientId()
   }
 
   private getFilePath(key: 'ca' | 'cert' | 'key'): void {
