@@ -1,37 +1,58 @@
 <template>
   <div class="connections-content">
     <div class="connections-topbar right-topbar">
-      <div class="connections-info topbar">
-        <div class="connection-head">
-          <h2 :class="{ offline: !client.connected }">{{ record.name }}</h2>
-        </div>
-        <div class="connection-tail">
-          <a href="javascript:;" @click="searchVisible = !searchVisible">
-            <i class="iconfont icon-search"></i>
-          </a>
-          <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
-            <a href="javascript:;">
-              <i class="el-icon-more"></i>
+      <div class="connections-info">
+        <div class="topbar">
+          <div class="connection-head">
+            <h2 :class="{ offline: !client.connected }">
+              {{ record.name }}
+              <a
+                href="javascript:;"
+                :class="['collapse-btn', showClientInfo ? 'top': 'bottom']"
+                @click="handleCollapse">
+                <i class="el-icon-d-arrow-left"></i>
+              </a>
+            </h2>
+          </div>
+          <div class="connection-tail">
+            <a href="javascript:;" @click="searchVisible = !searchVisible">
+              <i class="iconfont icon-search"></i>
             </a>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="viewClient">
-                <i class="iconfont icon-client"></i>{{ $t('connections.brokerInfo') }}
-              </el-dropdown-item>
-              <el-dropdown-item command="clearHistory">
-                <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
-              </el-dropdown-item>
-              <el-dropdown-item command="disconnect">
-                <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
-              </el-dropdown-item>
-              <el-dropdown-item command="deleteConnect">
-                <i class="iconfont icon-delete"></i>{{ $t('connections.deleteConnect') }}
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+            <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
+              <a href="javascript:;">
+                <i class="el-icon-more"></i>
+              </a>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="viewClient">
+                  <i class="iconfont icon-client"></i>{{ $t('connections.brokerInfo') }}
+                </el-dropdown-item>
+                <el-dropdown-item command="clearHistory">
+                  <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
+                </el-dropdown-item>
+                <el-dropdown-item command="disconnect">
+                  <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
+                </el-dropdown-item>
+                <el-dropdown-item command="deleteConnect">
+                  <i class="iconfont icon-delete"></i>{{ $t('connections.deleteConnect') }}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </div>
         </div>
+        <el-collapse-transition>
+          <ConnectionForm
+            v-show="showClientInfo"
+            class="connection-form"
+            :connection="record"
+            :client="client"
+            :btn-loading="connectLoading"
+            @handleConfirm="connect"
+            @handleCancel="disconnect"/>
+        </el-collapse-transition>
       </div>
+
       <transition name="el-zoom-in-top">
-        <div v-if="searchVisible" class="connections-search topbar">
+        <div v-show="searchVisible" class="connections-search topbar">
           <el-input size="small" :placeholder="$t('connections.searchByTopic')">
             <i slot="suffix" class="iconfont icon-search"></i>
           </el-input>
@@ -42,17 +63,29 @@
       </transition>
     </div>
 
-    <div class="connections-content-main right-content">
+    <div
+      class="connections-content-main right-content"
+      :style="{
+        paddingTop: showClientInfo ? '286px': '88px',
+      }">
       <div class="connections-body">
-        <div class="message-type">
-          <el-radio-group
-            :disabled="messages.length <= 0"
-            v-model="msgType" size="mini"
-            @change="handleMsgTypeChanged">
-            <el-radio-button label="all">{{ $t('connections.all') }}</el-radio-button>
-            <el-radio-button label="received">{{ $t('connections.received') }}</el-radio-button>
-            <el-radio-button label="publish">{{ $t('connections.published') }}</el-radio-button>
-          </el-radio-group>
+        <div class="filter-bar" :style="{ top: showClientInfo ? '258px': '60px' }">
+          <span class="subs-title">
+            {{ this.$t('connections.subscriptions') }}
+            <a class="subs-btn" href="javascript:;">
+              <i class="el-icon-s-unfold"></i>
+            </a>
+          </span>
+          <div class="message-type">
+            <el-radio-group
+              :disabled="messages.length <= 0"
+              v-model="msgType" size="mini"
+              @change="handleMsgTypeChanged">
+              <el-radio-button label="all">{{ $t('connections.all') }}</el-radio-button>
+              <el-radio-button label="received">{{ $t('connections.received') }}</el-radio-button>
+              <el-radio-button label="publish">{{ $t('connections.published') }}</el-radio-button>
+            </el-radio-group>
+          </div>
         </div>
         <div v-for="(message, index) in messages" :key="index">
           <MsgLeftItem
@@ -65,36 +98,8 @@
       </div>
 
       <div class="connections-footer">
-        <div class="connections-input message">
-          <el-input
-            placeholder="Topic"
-            v-model="msgRecord.topic"
-            @focus="handleInputFoucs">
-          </el-input>
-          <div class="qos-retain">
-            <span class="publish-label">QoS: </span>
-            <el-radio-group v-model="msgRecord.qos">
-              <el-radio :label="0"></el-radio>
-              <el-radio :label="1"></el-radio>
-              <el-radio :label="2"></el-radio>
-            </el-radio-group>
-            <span class="publish-label">Retain: </span>
-            <el-checkbox v-model="msgRecord.retain"></el-checkbox>
-          </div>
-          <el-input
-            type="textarea"
-            rows="3"
-            placeholder="Payload"
-            v-model="msgRecord.payload"
-            @focus="handleInputFoucs">
-          </el-input>
-          <a
-            href="javascript:;"
-            class="send-btn"
-            @click="sendMessage">
-            <i class="iconfont icon-send"></i>
-          </a>
-        </div>
+        <MsgPublish
+          @handleSend="sendMessage"/>
       </div>
     </div>
   </div>
@@ -104,12 +109,13 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import mqtt, { MqttClient } from 'mqtt'
-import jump from 'jump.js'
 import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection } from '@/utils/api/connection'
 import time from '@/utils/time'
 import MsgRightItem from './MsgRightItem.vue'
 import MsgLeftItem from './MsgLeftItem.vue'
+import MsgPublish from './MsgPublish.vue'
+import ConnectionForm from './ConnectionForm.vue'
 import { ConnectionModel, MessageModel } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
@@ -118,6 +124,8 @@ type MessageType = 'all' | 'received' | 'publish'
   components: {
     MsgRightItem,
     MsgLeftItem,
+    ConnectionForm,
+    MsgPublish,
   },
 })
 export default class ConnectionsContent extends Vue {
@@ -126,25 +134,16 @@ export default class ConnectionsContent extends Vue {
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs: any
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection: any
   @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection: any
+  @Action('SHOW_CLIENT_INFO') private changeShowClientInfo: any
   @Getter('activeConnection') private activeConnection: any
 
   private client: $TSFixed = {}
   private subsList: SubscriptionModel[] = []
+  private showClientInfo: boolean = true
   private connectLoading: boolean = false
   private msgType: MessageType = 'all'
   private searchVisible: boolean = false
   private messages: MessageModel[] = []
-  private msgRecord: MessageModel = {
-    createAt: '',
-    out: true,
-    qos: 0,
-    retain: false,
-    topic: '',
-    payload: JSON.stringify({ msg: 'hello' }, null, 2),
-  }
-  private payload: string = JSON.stringify({
-    temperature: { time: 1523523523, value: 100000000 },
-  }, null, 2)
 
   get connectUrl(): string {
     const {
@@ -158,9 +157,6 @@ export default class ConnectionsContent extends Vue {
   private handleRecordChanged(val: ConnectionModel) {
     this.getClientValue(val.id as string)
     this.getMessages(val)
-    setTimeout(() => {
-      window.scrollTo(0, document.body.scrollHeight + 120)
-    }, 100)
   }
 
   private getMessages(connection: ConnectionModel) {
@@ -175,26 +171,27 @@ export default class ConnectionsContent extends Vue {
     if ($activeConnection) {
       this.subsList = $activeConnection.subscriptions || []
       this.client = $activeConnection.client
+      this.showClientInfo = $activeConnection.showClientInfo
     } else {
-      if (this.record.clean) {
-        this.subsList = []
-        this.record.subscriptions = []
-        updateConnection(this.record.id as string, this.record)
-      } else {
-        this.subsList = this.record.subscriptions
-      }
+      this.subsList = []
       this.client = {}
+      this.showClientInfo = true
     }
   }
 
-  private sendMessage(): void | boolean {
+  private sendMessage(message: MessageModel): void | boolean {
     if (!this.client.connected) {
-      this.$message.error(this.$t('connections.notConnect') as string)
+      this.$notify({
+        title: this.$t('connections.notConnect') as string,
+        message: '',
+        type: 'error',
+        duration: 3000,
+      })
       return false
     }
     const {
       topic, qos, payload, retain,
-    } = this.msgRecord
+    } = message
     const notSend = retain ? !topic : !topic || !payload
     if (notSend) {
       return false
@@ -226,8 +223,9 @@ export default class ConnectionsContent extends Vue {
     )
   }
 
-  private handleInputFoucs(): void {
-    jump(document.body.scrollHeight)
+  private handleCollapse(): void {
+    this.showClientInfo = !this.showClientInfo
+    this.changeShowClientInfo({ id: this.record.id, showClientInfo: this.showClientInfo })
   }
 
   private handleCommand(command: string): void {
@@ -312,24 +310,48 @@ export default class ConnectionsContent extends Vue {
     }
     this.client.end()
     this.changeActiveConnection({ id: this.record.id, client: this.client })
-    this.$message.success(this.$t('connections.disconnected') as string)
+    this.$notify({
+      title: this.$t('connections.disconnected') as string,
+      message: '',
+      type: 'success',
+      duration: 3000,
+    })
     this.$emit('reload')
   }
   private onConnect() {
     this.connectLoading = false
     this.changeActiveConnection({ id: this.record.id, client: this.client })
-    this.$message.success(this.$t('connections.connected') as string)
+    this.$notify({
+      title: this.$t('connections.connected') as string,
+      message: '',
+      type: 'success',
+      duration: 3000,
+    })
+    setTimeout(() => {
+      this.showClientInfo = false
+      this.changeShowClientInfo({ id: this.record.id, showClientInfo: this.showClientInfo })
+    }, 500)
     this.$emit('reload')
   }
   private onError() {
     this.client.end()
     this.connectLoading = false
-    this.$message.error(this.$t('connections.connectFailed') as string)
+    this.$notify({
+      title: this.$t('connections.connectFailed') as string,
+      message: '',
+      type: 'error',
+      duration: 3000,
+    })
   }
   private onReConnect() {
     this.client.end()
     this.connectLoading = false
-    this.$message.error(this.$t('connections.connectFailed') as string)
+    this.$notify({
+      title: this.$t('connections.connectFailed') as string,
+      message: '',
+      type: 'error',
+      duration: 3000,
+    })
   }
   private messageArrived(id: string) {
     return (topic: string, payload: string, packet: SubscriptionModel) => {
@@ -364,11 +386,30 @@ export default class ConnectionsContent extends Vue {
 
 .connections-content {
   .connections-topbar {
+    border-bottom: 1px solid var(--color-border-default);
     .connections-info {
       padding: 0 16px;
       background-color: var(--color-bg-normal);
-      .connection-head .offline {
-        color: var(--color-text-light);
+      .topbar {
+        border-bottom: 0px;
+        min-height: 59px;
+      }
+      .connection-head {
+        .offline {
+          color: var(--color-text-light);
+        }
+        a.collapse-btn {
+          font-size: 16px;
+          float: right;
+          margin-left: 18px;
+          transition: all .3s;
+          &.top {
+            transform: rotate(90deg);
+          }
+          &.bottom {
+            transform: rotate(-90deg);
+          }
+        }
       }
       .connection-tail {
         .el-dropdown.connection-oper {
@@ -381,9 +422,13 @@ export default class ConnectionsContent extends Vue {
       }
     }
     .connections-search {
-      padding: 0 16px;
-      height: 64px;
+      padding: 0 16px 10px 16px;
+      height: auto;
       background-color: var(--color-bg-normal);
+      &.topbar {
+        border-bottom: 0px;
+        min-height: 0px;
+      }
       .icon-search {
         line-height: 32px;
       }
@@ -405,13 +450,32 @@ export default class ConnectionsContent extends Vue {
 
   .connections-content-main {
     height: 100%;
-    padding: 60px 0;
-    padding-bottom: 120px;
+    padding: 88px 0 120px 0;
+    transition: all .5s;
     .connections-body {
       padding: 16px;
-      .message-type {
-        text-align: center;
-        margin-bottom: 15px;
+      .filter-bar {
+        padding: 12px 16px;
+        z-index: 1;
+        background: var(--color-bg-primary);
+        position: fixed;
+        left: 300px;
+        right: 0;
+        z-index: 1;
+        transition: all .4s;
+        .subs-title {
+          color: var(--color-text-title);
+          position: absolute;
+          top: 11px;
+        }
+        .subs-btn {
+          font-size: 20px;
+          position: relative;
+          top: 3px;
+        }
+        .message-type {
+          text-align: center;
+        }
       }
     }
     .connections-footer {
@@ -421,71 +485,6 @@ export default class ConnectionsContent extends Vue {
       left: 0;
       right: 0;
       margin-left: 300px;
-      .connect-btn {
-        width: 100%;
-        height: 60px;
-        border-radius: 0px;
-        font-size: $font-size--title;
-      }
-      .connections-input {
-        background: var(--color-bg-normal);
-        border-top: 2px solid var(--color-border-default);
-        padding: 0px 16px;
-        transition: .3s height;
-        .el-input__inner {
-          border: 0px;
-          border-radius: 0px;
-          padding: 0px;
-        }
-        .qos-retain {
-          border-top: 1px solid var(--color-border-default);
-          position: absolute;
-          top: 1px;
-          right: 35px;
-          padding-left: 32px;
-          text-align: right;
-          line-height: 40px;
-          background: var(--color-bg-normal);
-          .publish-label {
-            color: var(--color-text-default);
-            margin-right: 16px;
-          }
-          .el-radio-group {
-            margin-right: 32px;
-          }
-          .el-radio {
-            margin-right: 16px;
-            .el-radio__label {
-              padding-left: 8px;
-            }
-          }
-          .el-checkbox__inner {
-            border-radius: 100%;
-          }
-        }
-        textarea {
-          resize: none;
-        }
-        .el-textarea__inner {
-          border-color: var(--color-border-default);
-          border-left: 0px;
-          border-right: 0px;
-          border-bottom: 0px;
-          border-radius: 0px;
-          padding: 8px 0px;
-        }
-        .send-btn {
-          position: fixed;
-          right: 16px;
-          bottom: 10px;
-          .icon-send {
-            font-size: $font-size--send;
-          }
-        }
-        &.message {
-          height: 120px;
-        }
-      }
     }
   }
 }

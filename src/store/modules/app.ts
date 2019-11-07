@@ -3,18 +3,23 @@ import { loadConnection } from '@/utils/api/connection'
 import { MqttClient } from 'mqtt'
 import { MessageModel } from '@/views/connections/types'
 
-interface Client {
+interface ActiveConnection {
   id: string,
+}
+
+interface Client extends ActiveConnection {
   client: MqttClient,
 }
 
-interface Subscriptions {
-  id: string,
+interface ClientInfo extends ActiveConnection {
+  showClientInfo: boolean,
+}
+
+interface Subscriptions extends ActiveConnection {
   subscriptions: SubscriptionModel[],
 }
 
-interface Message {
-  id: string,
+interface Message extends ActiveConnection {
   messages: MessageModel[]
 }
 
@@ -25,6 +30,7 @@ const CHANGE_ACTIVE_CONNECTION: string = 'CHANGE_ACTIVE_CONNECTION'
 const REMOVE_ACTIVE_CONNECTION: string = 'REMOVE_ACTIVE_CONNECTION'
 const CHANGE_SUBSCRIPTIONS: string = 'CHANGE_SUBSCRIPTIONS'
 const PUSH_MESSAGE: string = 'PUSH_MESSAGE'
+const SHOW_CLIENT_INFO: string = 'SHOW_CLIENT_INFO'
 
 const stateRecord: App = loadSettings()
 
@@ -52,6 +58,7 @@ const app = {
       } else {
         state.activeConnection[connection.id] = {
           client,
+          showClientInfo: true,
         }
       }
     },
@@ -67,6 +74,11 @@ const app = {
         state.activeConnection[payload.id].messages = currentConnection.messages
       } else {
         state.activeConnection[payload.id].messages = payload.messages
+      }
+    },
+    [SHOW_CLIENT_INFO](state: App, payload: ClientInfo) {
+      if (state.activeConnection[payload.id]) {
+        state.activeConnection[payload.id].showClientInfo = payload.showClientInfo
       }
     },
   },
@@ -94,6 +106,9 @@ const app = {
     },
     PUSH_MESSAGE({ commit }: any, payload: App) {
       commit(PUSH_MESSAGE, payload)
+    },
+    SHOW_CLIENT_INFO({ commit }: any, payload: App) {
+      commit(SHOW_CLIENT_INFO, payload)
     },
   },
 }

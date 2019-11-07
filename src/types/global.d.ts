@@ -27,9 +27,10 @@ declare global {
     autoCheck: boolean,
     activeConnection: {
       [id: string]: {
-        client: MqttClient,
+        client?: MqttClient,
         subscriptions?: SubscriptionModel[],
         messages?: MessageModel[],
+        showClientInfo?: boolean,
       },
     },
   }

@@ -88,3 +88,12 @@
     margin-left: 0px;
   }
 }
+
+/* Notification */
+.el-notification {
+  border-radius: 4px;
+  .el-notification__title {
+    color: var(--color-text-title);
+    font-weight: normal;
+  }
+}

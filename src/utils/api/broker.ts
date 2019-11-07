@@ -39,6 +39,10 @@ export const deleteBroker = (id: string): BrokerModel => {
   return db.remove<BrokerModel>('brokers', id)
 }
 
+export const updateClient = (id: string, data: ClientModel): ClientModel => {
+  return db.update<ClientModel>('clients', id, data)
+}
+
 export const createClient = (data: ClientModel): ClientModel => {
   return db.insert<ClientModel>('clients', data)
 }
