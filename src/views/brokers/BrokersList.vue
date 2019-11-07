@@ -51,7 +51,7 @@ export default class BrokersList extends Vue {
         })
       }
     }).catch((error) => {
-      console.error(error)
+      // ignore(error)
     })
   }
 }

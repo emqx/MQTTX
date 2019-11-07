@@ -30,8 +30,8 @@ class DB {
     if (!this.db.has('windowSize').value()) {
       this.db
         .set('windowSize', {
-          width: 900,
-          height: 612,
+          width: 1025,
+          height: 749,
         })
         .write()
     }
