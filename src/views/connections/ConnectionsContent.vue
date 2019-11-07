@@ -2,24 +2,20 @@
   <div class="connections-content">
     <div class="connections-topbar right-topbar">
       <div class="connections-info topbar">
-          <div class="connection-head">
-          <h2>{{ record.name }}</h2>
-          <a v-if="client.connected" href="javascript:;" @click.stop="showSubs">
-            {{ record.subscriptions.length }} {{ $t('connections.subscription') }}
-          </a>
-          <a v-else class="error" href="javascript:;">{{ $t('connections.disconnected') }}</a>
+        <div class="connection-head">
+          <h2 :class="{ offline: !client.connected }">{{ record.name }}</h2>
         </div>
         <div class="connection-tail">
           <a href="javascript:;" @click="searchVisible = !searchVisible">
             <i class="iconfont icon-search"></i>
           </a>
-          <el-dropdown trigger="click" @command="handleCommand">
+          <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
             <a href="javascript:;">
               <i class="el-icon-more"></i>
             </a>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="viewClient">
-                <i class="iconfont icon-client"></i>{{ $t('connections.clientInfo') }}
+                <i class="iconfont icon-client"></i>{{ $t('connections.brokerInfo') }}
               </el-dropdown-item>
               <el-dropdown-item command="clearHistory">
                 <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
@@ -46,10 +42,13 @@
       </transition>
     </div>
 
-    <div :class="['connections-content-main', 'right-content', isEdit ? 'foucs' : '']">
+    <div class="connections-content-main right-content">
       <div class="connections-body">
         <div class="message-type">
-          <el-radio-group :disabled="messages.length <= 0" v-model="msgType" size="mini" @change="handleMsgTypeChanged">
+          <el-radio-group
+            :disabled="messages.length <= 0"
+            v-model="msgType" size="mini"
+            @change="handleMsgTypeChanged">
             <el-radio-button label="all">{{ $t('connections.all') }}</el-radio-button>
             <el-radio-button label="received">{{ $t('connections.received') }}</el-radio-button>
             <el-radio-button label="publish">{{ $t('connections.published') }}</el-radio-button>
@@ -66,21 +65,13 @@
       </div>
 
       <div class="connections-footer">
-        <el-button
-          :loading="connectLoading"
-          v-if="!client.connected"
-          class="connect-btn"
-          type="primary"
-          @click="connect">
-          {{ $t('connections.connectBroker') }}
-        </el-button>
-        <div v-else ref="messagesInput" :class="['connections-input', isEdit ? 'message' : 'message-disabled']">
+        <div class="connections-input message">
           <el-input
-            :placeholder="isEdit ? 'Topic' : $t('connections.writeMsg')"
+            placeholder="Topic"
             v-model="msgRecord.topic"
             @focus="handleInputFoucs">
           </el-input>
-          <div class="qos-retain" v-if="isEdit">
+          <div class="qos-retain">
             <span class="publish-label">QoS: </span>
             <el-radio-group v-model="msgRecord.qos">
               <el-radio :label="0"></el-radio>
@@ -91,11 +82,11 @@
             <el-checkbox v-model="msgRecord.retain"></el-checkbox>
           </div>
           <el-input
-            v-if="isEdit"
             type="textarea"
-            rows="4"
+            rows="3"
             placeholder="Payload"
-            v-model="msgRecord.payload">
+            v-model="msgRecord.payload"
+            @focus="handleInputFoucs">
           </el-input>
           <a
             href="javascript:;"
@@ -117,7 +108,6 @@ import jump from 'jump.js'
 import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection } from '@/utils/api/connection'
 import time from '@/utils/time'
-import clickHide from '@/utils/clickHide'
 import MsgRightItem from './MsgRightItem.vue'
 import MsgLeftItem from './MsgLeftItem.vue'
 import { ConnectionModel, MessageModel } from './types'
@@ -140,7 +130,6 @@ export default class ConnectionsContent extends Vue {
 
   private client: $TSFixed = {}
   private subsList: SubscriptionModel[] = []
-  private isEdit: boolean = false
   private connectLoading: boolean = false
   private msgType: MessageType = 'all'
   private searchVisible: boolean = false
@@ -165,19 +154,13 @@ export default class ConnectionsContent extends Vue {
     return `${protocol}${host}:${port}${path.startsWith('/') ? '' : '/'}${path}`
   }
 
-  @Watch('isEdit')
-  private handleEditChange(val: boolean) {
-    if (val) {
-      this.inputVisibleChange('open')
-    } else {
-      this.inputVisibleChange('close')
-    }
-  }
-
   @Watch('record')
   private handleRecordChanged(val: ConnectionModel) {
     this.getClientValue(val.id as string)
     this.getMessages(val)
+    setTimeout(() => {
+      window.scrollTo(0, document.body.scrollHeight + 120)
+    }, 100)
   }
 
   private getMessages(connection: ConnectionModel) {
@@ -206,6 +189,7 @@ export default class ConnectionsContent extends Vue {
 
   private sendMessage(): void | boolean {
     if (!this.client.connected) {
+      this.$message.error(this.$t('connections.notConnect') as string)
       return false
     }
     const {
@@ -236,30 +220,13 @@ export default class ConnectionsContent extends Vue {
         this.record.messages = this.messages
         updateConnection(this.record.id as string, this.record)
         setTimeout(() => {
-          window.scrollTo(0, document.body.scrollHeight + 190)
+          window.scrollTo(0, document.body.scrollHeight + 120)
         }, 100)
       },
     )
   }
 
-  private inputVisibleChange(type: 'close' | 'open'): void {
-    if (type === 'open') {
-      document.addEventListener('click', this.hideInput)
-    } else {
-      document.removeEventListener('click', this.hideInput)
-    }
-  }
-
-  private showSubs(): void {
-    this.$emit('click-subs')
-  }
-
-  private hideInput(e: MouseEvent) {
-    this.isEdit = clickHide('.connections-input', e)
-  }
-
   private handleInputFoucs(): void {
-    this.isEdit = true
     jump(document.body.scrollHeight)
   }
 
@@ -301,7 +268,7 @@ export default class ConnectionsContent extends Vue {
         this.removeActiveConnection({ id: res.id })
       }
     }).catch((error) => {
-      console.error(error)
+      // ignore(error)
     })
   }
 
@@ -378,7 +345,7 @@ export default class ConnectionsContent extends Vue {
       this.record.messages = this.messages
       updateConnection(this.record.id as string, this.record)
       setTimeout(() => {
-        window.scrollTo(0, document.body.scrollHeight + 190)
+        window.scrollTo(0, document.body.scrollHeight + 120)
       }, 100)
     }
   }
@@ -400,6 +367,18 @@ export default class ConnectionsContent extends Vue {
     .connections-info {
       padding: 0 16px;
       background-color: var(--color-bg-normal);
+      .connection-head .offline {
+        color: var(--color-text-light);
+      }
+      .connection-tail {
+        .el-dropdown.connection-oper {
+          a {
+            width: 24px;
+            display: inline-block;
+            text-align: center;
+          }
+        }
+      }
     }
     .connections-search {
       padding: 0 16px;
@@ -427,14 +406,12 @@ export default class ConnectionsContent extends Vue {
   .connections-content-main {
     height: 100%;
     padding: 60px 0;
-    &.foucs {
-      padding-bottom: 200px;
-    }
+    padding-bottom: 120px;
     .connections-body {
       padding: 16px;
       .message-type {
         text-align: center;
-        margin-bottom: 5px;
+        margin-bottom: 15px;
       }
     }
     .connections-footer {
@@ -506,17 +483,7 @@ export default class ConnectionsContent extends Vue {
           }
         }
         &.message {
-          height: 200px;
-        }
-        &.message-disabled {
-          @include flex-space-between;
-          width: 100%;
-          height: 60px;
-          padding-right: 16px;
-          .send-btn {
-            color: var(--color-text-tips);
-            cursor: not-allowed;
-          }
+          height: 120px;
         }
       }
     }

@@ -15,9 +15,17 @@ export default {
     zh: '客户端信息',
     en: 'Client Info',
   },
+  brokerInfo: {
+    zh: 'Broker 信息',
+    en: 'Broker Info',
+  },
   clearHistory: {
     zh: '清除历史记录',
     en: 'Clear Histroy',
+  },
+  notConnect: {
+    zh: '客户端未连接',
+    en: 'Client Not Connected',
   },
   disconnect: {
     zh: '断开连接',

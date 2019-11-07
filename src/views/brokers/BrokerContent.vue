@@ -106,7 +106,7 @@ export default class BrokerContent extends Vue {
         })
       }
     }).catch((error) => {
-      console.error(error)
+      // ignore(error)
     })
   }
 }
