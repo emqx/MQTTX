@@ -26,7 +26,7 @@ export default class SearchTopbar extends Vue {
 <style lang="scss">
 .search-topbar {
   .el-input {
-    width: 232px;
+    width: 215px;
     .el-input__inner {
       background: var(--color-bg-primary);
     }

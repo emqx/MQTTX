@@ -44,6 +44,7 @@
         <el-col :span="8">
           <el-button 
             v-if="!client.connected" 
+            icon="el-icon-caret-right"
             plain
             type="outline"
             size="mini"
@@ -54,6 +55,7 @@
           <el-button 
             v-else
             class="disconnect"
+            icon="el-icon-switch-button"
             plain
             type="outline"
             size="mini"

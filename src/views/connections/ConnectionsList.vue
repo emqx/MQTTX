@@ -16,7 +16,7 @@
           <div class="client-info">
             <el-tooltip
               effect="light"
-              :disabled="`${item.name}@${item.host}:${item.port}`.length < 25"
+              :disabled="`${item.name}@${item.host}:${item.port}`.length < 26"
               :content="`${item.name}@${item.host}:${item.port}`"
               placement="top">
               <div class="client-name">

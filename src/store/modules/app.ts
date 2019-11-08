@@ -23,6 +23,10 @@ interface Message extends ActiveConnection {
   messages: MessageModel[]
 }
 
+interface SubscriptionsVisible {
+  showSubscriptions: boolean
+}
+
 const TOGGLE_THEME: string = 'TOGGLE_THEME'
 const TOGGLE_LANG: string = 'TOGGLE_LANG'
 const TOGGLE_AUTO_CHECK: string = 'TOGGLE_AUTO_CHECK'
@@ -31,14 +35,24 @@ const REMOVE_ACTIVE_CONNECTION: string = 'REMOVE_ACTIVE_CONNECTION'
 const CHANGE_SUBSCRIPTIONS: string = 'CHANGE_SUBSCRIPTIONS'
 const PUSH_MESSAGE: string = 'PUSH_MESSAGE'
 const SHOW_CLIENT_INFO: string = 'SHOW_CLIENT_INFO'
+const SHOW_SUBSCRIPTIONS: string = 'SHOW_SUBSCRIPTIONS'
 
 const stateRecord: App = loadSettings()
+
+const getShowSubscriptions = (): boolean => {
+  const $showSubscriptions: string | null = localStorage.getItem('showSubscriptions')
+  if (!$showSubscriptions) {
+    return true
+  }
+  return JSON.parse($showSubscriptions)
+}
 
 const app = {
   state: {
     currentTheme: stateRecord.currentTheme || 'light',
     currentLang: stateRecord.currentLang || 'en',
     autoCheck: stateRecord.autoCheck,
+    showSubscriptions: getShowSubscriptions(),
     activeConnection: {},
   },
   mutations: {
@@ -81,6 +95,10 @@ const app = {
         state.activeConnection[payload.id].showClientInfo = payload.showClientInfo
       }
     },
+    [SHOW_SUBSCRIPTIONS](state: App, payload: SubscriptionsVisible) {
+      state.showSubscriptions = payload.showSubscriptions
+      localStorage.setItem('showSubscriptions', JSON.stringify(state.showSubscriptions))
+    },
   },
   actions: {
     TOGGLE_THEME({ commit }: any, payload: App) {
@@ -109,6 +127,9 @@ const app = {
     },
     SHOW_CLIENT_INFO({ commit }: any, payload: App) {
       commit(SHOW_CLIENT_INFO, payload)
+    },
+    SHOW_SUBSCRIPTIONS({ commit }: any, payload: App) {
+      commit(SHOW_SUBSCRIPTIONS, payload)
     },
   },
 }
