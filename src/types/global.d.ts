@@ -25,6 +25,7 @@ declare global {
     currentTheme: string,
     currentLang: string,
     autoCheck: boolean,
+    showSubscriptions: boolean,
     activeConnection: {
       [id: string]: {
         client?: MqttClient,

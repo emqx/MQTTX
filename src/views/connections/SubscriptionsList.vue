@@ -1,25 +1,39 @@
 <template>
   <div>
-    <right-panel>
-      <el-card class="subscriptions-list-view" v-if="subsVisible">
+    <left-panel>
+      <el-card
+        v-if="subsVisible"
+        shadow="never"
+        class="subscriptions-list-view"
+        :style="{
+          top: top,
+        }">
         <div slot="header" class="clearfix">
-          <a href="javascript:;" class="message-close" @click="openDialog">
+          <a href="javascript:;" class="new-subs" @click="openDialog">
             <i class="el-icon-plus"></i>
             {{ $t('connections.newSubscription') }}
           </a>
-          <a href="javascript:;" class="back-btn" @click="closeSubsList">
-            <i class="el-icon-arrow-right"></i>
+          <a class="hide-btn" href="javascript:;" @click="hideSubsList">
+            <i class="el-icon-s-fold"></i>
           </a>
         </div>
         <div class="topics-item" v-for="(sub, index) in subsList" :key="index">
-          <span class="topic">{{ sub.topic }}</span>
+          <el-tooltip
+            effect="light"
+            :disabled="sub.topic.length < 20"
+            :content="sub.topic"
+            placement="top">
+            <span class="topic">
+              {{ sub.topic }}
+            </span>
+          </el-tooltip>
           <span class="qos">QoS {{ sub.qos }}</span>
           <a href="javascript:;" class="close" @click="removeSubs(sub)">
             <i class="el-icon-close"></i>
           </a>
         </div>
       </el-card>
-    </right-panel>
+    </left-panel>
 
     <!-- New subscription dialog -->
     <my-dialog
@@ -54,13 +68,13 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { updateConnection } from '@/utils/api/connection'
-import RightPanel from '@/components/RightPanel.vue'
+import LeftPanel from '@/components/LeftPanel.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import { ConnectionModel } from './types'
 
 @Component({
   components: {
-    RightPanel,
+    LeftPanel,
     MyDialog,
   },
 })
@@ -68,7 +82,9 @@ export default class SubscriptionsList extends Vue {
   @Prop({ required: true }) public subsVisible!: boolean
   @Prop({ required: true }) public connectionId!: string
   @Prop({ required: true }) public record!: ConnectionModel
+  @Prop({ type: String, default: '60px' }) public top!: string
 
+  @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions: $TSFixed
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs: any
   @Getter('activeConnection') private activeConnection: any
 
@@ -89,15 +105,16 @@ export default class SubscriptionsList extends Vue {
 
   @Watch('record')
   private handleRecordChanged(val: ConnectionModel) {
-    this.setCurrentConnection(val.id as string)
+    this.getCurrentConnection(val.id as string)
   }
 
   get vueForm(): VueForm {
     return this.$refs.form as VueForm
   }
 
-  private closeSubsList() {
+  private hideSubsList() {
     this.$emit('update:subsVisible', false)
+    this.changeShowSubscriptions({ showSubscriptions: false })
   }
 
   private openDialog(): void {
@@ -105,7 +122,7 @@ export default class SubscriptionsList extends Vue {
   }
 
   private saveSubs(): void | boolean {
-    this.setCurrentConnection(this.connectionId)
+    this.getCurrentConnection(this.connectionId)
 
     if (!this.currentConnection.client) {
       return false
@@ -140,8 +157,10 @@ export default class SubscriptionsList extends Vue {
           } else {
             subscriptions.push({ ...this.subRecord })
           }
-          this.record.subscriptions = subscriptions
-          updateConnection(this.record.id as string, this.record)
+          if (!this.record.clean) {
+            this.record.subscriptions = subscriptions
+            updateConnection(this.record.id as string, this.record)
+          }
           this.changeSubs({ id: this.connectionId, subscriptions })
           this.subsList = subscriptions
           this.showDialog = false
@@ -169,7 +188,7 @@ export default class SubscriptionsList extends Vue {
         subscriptions: SubscriptionModel[],
       } = {
         id: this.record.id as string,
-        subscriptions: this.currentConnection.subscriptions.filter(
+        subscriptions: this.subsList.filter(
           ($: SubscriptionModel) => $.topic !== topic,
         ),
       }
@@ -186,19 +205,24 @@ export default class SubscriptionsList extends Vue {
     this.vueForm.resetFields()
   }
 
-  private setCurrentConnection(id: string): void {
+  private getCurrentConnection(id: string): void {
     const $activeConnection = this.activeConnection[id]
+    const { clean } = this.record
     if ($activeConnection) {
-      this.subsList = $activeConnection.subscriptions || []
       this.currentConnection = $activeConnection
+      if (clean) {
+        this.subsList = $activeConnection.subscriptions || []
+      } else {
+        this.subsList = this.record.subscriptions
+      }
     } else {
       this.currentConnection = {}
-      this.subsList = []
+      this.subsList = this.record.subscriptions
     }
   }
 
   private created(): void {
-    this.setCurrentConnection(this.connectionId)
+    this.getCurrentConnection(this.connectionId)
   }
 }
 </script>
@@ -206,29 +230,34 @@ export default class SubscriptionsList extends Vue {
 
 <style lang="scss">
 .subscriptions-list-view {
+  &.el-card {
+    border-top: 0px;
+  }
   .el-card__header {
     text-align: center;
     position: relative;
-    .back-btn {
-      width: 24px;
-      height: 24px;
-      background: var(--color-bg-accent);
-      color: var(--color-text-light);
+    .hide-btn {
+      font-size: 20px;
       position: absolute;
-      left: 0;
-      top: 17px;
-      padding: 1px;
+      top: 15px;
+      right: -1px;
     }
   }
   .el-card__body {
     padding: 0px;
     .topics-item {
-      padding: 20px;
+      padding: 16px;
       color: var(--color-text-title);
       border-bottom: 1px solid var(--color-border-default);
       display: flex;
       .topic {
-        flex: 3;
+        flex: 5;
+        max-width: 150px;
+        display: inline-block;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        margin-right: 5px;
       }
       .qos {
         flex: 1;

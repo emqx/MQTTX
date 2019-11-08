@@ -58,13 +58,13 @@ export default class Home extends Vue {
   .right-topbar {
     position: fixed;
     top: 0;
-    left: 300px;
+    left: 280px;
     right: 0;
     z-index: 3;
     background: #fff;
   }
   .right-content {
-    margin-left: 300px;
+    margin-left: 280px;
     min-height: 100%;
   }
 }

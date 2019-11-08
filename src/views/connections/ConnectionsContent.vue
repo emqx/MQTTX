@@ -23,7 +23,7 @@
                 <i class="el-icon-more"></i>
               </a>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="viewClient">
+                <el-dropdown-item command="viewBroker">
                   <i class="iconfont icon-client"></i>{{ $t('connections.brokerInfo') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="clearHistory">
@@ -67,12 +67,13 @@
       class="connections-content-main right-content"
       :style="{
         paddingTop: showClientInfo ? '286px': '88px',
+        marginLeft: showSubs ? '529px' : '280px',
       }">
       <div class="connections-body">
         <div class="filter-bar" :style="{ top: showClientInfo ? '258px': '60px' }">
           <span class="subs-title">
             {{ this.$t('connections.subscriptions') }}
-            <a class="subs-btn" href="javascript:;">
+            <a class="subs-btn" href="javascript:;" @click="handleShowSubs">
               <i class="el-icon-s-unfold"></i>
             </a>
           </span>
@@ -87,6 +88,11 @@
             </el-radio-group>
           </div>
         </div>
+        <SubscriptionsList
+          :subsVisible.sync="showSubs"
+          :connectionId="$route.params.id"
+          :record="record"
+          :top="showClientInfo ? '258px': '60px'"/>
         <div v-for="(message, index) in messages" :key="index">
           <MsgLeftItem
             v-if="!message.out"
@@ -97,7 +103,9 @@
         </div>
       </div>
 
-      <div class="connections-footer">
+      <div
+        class="connections-footer" 
+        :style="{ marginLeft: showSubs ? '529px' : '280px' }">
         <MsgPublish
           @handleSend="sendMessage"/>
       </div>
@@ -110,15 +118,17 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import mqtt, { MqttClient } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
-import { deleteConnection, updateConnection } from '@/utils/api/connection'
+import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
 import MsgRightItem from './MsgRightItem.vue'
 import MsgLeftItem from './MsgLeftItem.vue'
 import MsgPublish from './MsgPublish.vue'
 import ConnectionForm from './ConnectionForm.vue'
+import SubscriptionsList from './SubscriptionsList.vue'
 import { ConnectionModel, MessageModel } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
+type CommandType = 'viewBroker' | 'clearHistory' | 'disconnect' | 'deleteConnect'
 
 @Component({
   components: {
@@ -126,19 +136,22 @@ type MessageType = 'all' | 'received' | 'publish'
     MsgLeftItem,
     ConnectionForm,
     MsgPublish,
+    SubscriptionsList,
   },
 })
 export default class ConnectionsContent extends Vue {
   @Prop({ required: true }) public record!: ConnectionModel
 
-  @Action('CHANGE_SUBSCRIPTIONS') private changeSubs: any
-  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection: any
-  @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection: any
-  @Action('SHOW_CLIENT_INFO') private changeShowClientInfo: any
-  @Getter('activeConnection') private activeConnection: any
+  @Action('CHANGE_SUBSCRIPTIONS') private changeSubs: $TSFixed
+  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection: $TSFixed
+  @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection: $TSFixed
+  @Action('SHOW_CLIENT_INFO') private changeShowClientInfo: $TSFixed
+  @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions: $TSFixed
+  @Getter('activeConnection') private activeConnection: $TSFixed
+  @Getter('showSubscriptions') private showSubscriptions!: boolean
 
   private client: $TSFixed = {}
-  private subsList: SubscriptionModel[] = []
+  private showSubs: boolean = true
   private showClientInfo: boolean = true
   private connectLoading: boolean = false
   private msgType: MessageType = 'all'
@@ -155,7 +168,7 @@ export default class ConnectionsContent extends Vue {
 
   @Watch('record')
   private handleRecordChanged(val: ConnectionModel) {
-    this.getClientValue(val.id as string)
+    this.getConnectionValue(val.id as string)
     this.getMessages(val)
   }
 
@@ -166,14 +179,13 @@ export default class ConnectionsContent extends Vue {
     }
   }
 
-  private getClientValue(id: string): void {
+  private getConnectionValue(id: string): void {
     const $activeConnection = this.activeConnection[id]
+    this.showSubs = this.showSubscriptions
     if ($activeConnection) {
-      this.subsList = $activeConnection.subscriptions || []
       this.client = $activeConnection.client
       this.showClientInfo = $activeConnection.showClientInfo
     } else {
-      this.subsList = []
       this.client = {}
       this.showClientInfo = true
     }
@@ -215,7 +227,7 @@ export default class ConnectionsContent extends Vue {
         }
         this.messages.push({ ...publishMessage })
         this.record.messages = this.messages
-        updateConnection(this.record.id as string, this.record)
+        updateConnectionMessage(this.record.id as string, { ...publishMessage })
         setTimeout(() => {
           window.scrollTo(0, document.body.scrollHeight + 120)
         }, 100)
@@ -223,12 +235,17 @@ export default class ConnectionsContent extends Vue {
     )
   }
 
+  private handleShowSubs(): void {
+    this.showSubs = !this.showSubs
+    this.changeShowSubscriptions({ showSubscriptions: this.showSubs })
+  }
+
   private handleCollapse(): void {
     this.showClientInfo = !this.showClientInfo
     this.changeShowClientInfo({ id: this.record.id, showClientInfo: this.showClientInfo })
   }
 
-  private handleCommand(command: string): void {
+  private handleCommand(command: CommandType): void {
     if (command === 'disconnect') {
       this.disconnect()
     } else if (command === 'deleteConnect') {
@@ -238,6 +255,8 @@ export default class ConnectionsContent extends Vue {
       this.record.messages = []
       updateConnection(this.record.id as string, this.record)
       this.msgType = 'all'
+    } else if (command === 'viewBroker') {
+      this.$router.push({ path: `/brokers/${this.record.brokeruuid}` })
     }
   }
 
@@ -363,9 +382,13 @@ export default class ConnectionsContent extends Vue {
         qos: packet.qos,
         retain: packet.retain as boolean,
       }
-      this.messages.push({ ...receivedMessage })
-      this.record.messages = this.messages
-      updateConnection(this.record.id as string, this.record)
+      if (id === this.record.id) {
+        this.messages.push({ ...receivedMessage })
+        this.record.messages = this.messages
+        updateConnectionMessage(this.record.id as string, { ...receivedMessage })
+      } else {
+        updateConnectionMessage(id, { ...receivedMessage })
+      }
       setTimeout(() => {
         window.scrollTo(0, document.body.scrollHeight + 120)
       }, 100)
@@ -374,7 +397,7 @@ export default class ConnectionsContent extends Vue {
 
   private created(): void {
     const { id } = this.$route.params
-    this.getClientValue(id)
+    this.getConnectionValue(id)
   }
 }
 </script>
@@ -459,7 +482,7 @@ export default class ConnectionsContent extends Vue {
         z-index: 1;
         background: var(--color-bg-primary);
         position: fixed;
-        left: 300px;
+        left: 280px;
         right: 0;
         z-index: 1;
         transition: all .4s;
@@ -474,17 +497,17 @@ export default class ConnectionsContent extends Vue {
           top: 3px;
         }
         .message-type {
-          text-align: center;
+          text-align: right;
         }
       }
     }
     .connections-footer {
+      transition: all .4s ease;
       position: fixed;
       width: inherit;
       bottom: 0;
       left: 0;
       right: 0;
-      margin-left: 300px;
     }
   }
 }

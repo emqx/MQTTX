@@ -15,16 +15,9 @@
         <ConnectionsContent
           :record="currentConnection"
           @reload="loadData"
-          @click-subs="setSubsVisible"
           @delete="loadData(true)"/>
       </template>
     </div>
-
-    <SubscriptionsList
-      ref="subscriptionsList"
-      :subs-visible.sync="showSubs"
-      :connectionId="connectionId"
-      :record="currentConnection"/>
 
     <!-- New connection dialog -->
     <my-dialog
@@ -62,7 +55,6 @@ import SearchTopbar from '@/components/SearchTopbar.vue'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsContent from './ConnectionsContent.vue'
-import SubscriptionsList from './SubscriptionsList.vue'
 import { ConnectionModel } from './types'
 import { BrokerModel, ClientModel } from '../brokers/types'
 
@@ -76,7 +68,6 @@ interface RecordModel {
     SearchTopbar,
     ConnectionsList,
     ConnectionsContent,
-    SubscriptionsList,
     EmptyPage,
     MyDialog,
   },
@@ -84,7 +75,6 @@ interface RecordModel {
 export default class Connections extends Vue {
   private newConnectionConfirmLoading: boolean = false
   private newConnectionDialogVisible: boolean = false
-  private showSubs: boolean = false
   private records: ConnectionModel[] | [] = []
   private currentConnection: ConnectionModel = {
     clientuuid: '',
@@ -153,10 +143,6 @@ export default class Connections extends Vue {
     return {
       selector: [{ required: true, trigger: 'change', message: this.$t('common.selectRequired') }],
     }
-  }
-
-  private setSubsVisible(): void {
-    this.showSubs = !this.showSubs
   }
 
   private async loadDetail(id: string): Promise<void> {

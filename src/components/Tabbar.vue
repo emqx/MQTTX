@@ -41,7 +41,7 @@ export default class Tabbar extends Vue {
 
 .tabbar {
   position: fixed;
-  width: 300px;
+  width: 280px;
   bottom: 0;
   overflow-x: hidden;
   z-index: 1001;
