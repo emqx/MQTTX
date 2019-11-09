@@ -26,12 +26,16 @@ declare global {
     currentLang: string,
     autoCheck: boolean,
     showSubscriptions: boolean,
+    showClientInfo: {
+      [id: string]: boolean,
+    },
+    unreadMessageCount: {
+      [id: string]: number,
+    }
     activeConnection: {
       [id: string]: {
-        client?: MqttClient,
+        client: MqttClient,
         subscriptions?: SubscriptionModel[],
-        messages?: MessageModel[],
-        showClientInfo?: boolean,
       },
     },
   }

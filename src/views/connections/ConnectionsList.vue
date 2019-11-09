@@ -26,9 +26,9 @@
           </div>
         </div>
         <div
-          v-if="item.unreadMessageCount > 0"
+          v-if="unreadMessageCount[item.id] > 0"
           class="new-msg-count">
-          {{ item.unreadMessageCount }}
+          {{ unreadMessageCount[item.id] }}
         </div>
       </div>
     </template>
@@ -38,17 +38,30 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 import { ConnectionModel } from './types'
+import { MqttClient } from 'mqtt'
 
 @Component
 export default class ConnectionsList extends Vue {
   @Prop({ required: true }) public data!: ConnectionModel[] | []
   @Prop({ required: true }) public connectionId!: string
 
-  @Getter('activeConnection') private activeConnection: any
+  @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: {
+    id: string,
+    unreadMessageCount: number,
+  }) => void
+
+  @Getter('activeConnection') private activeConnection!: {
+    id: string,
+    client: MqttClient,
+  } | undefined
+  @Getter('unreadMessageCount') private unreadMessageCount: {
+    [id: string]: number,
+  } | undefined
 
   private selectConnection(row: ConnectionModel) {
+    this.unreadMessageIncrement({ id: row.id as string, unreadMessageCount: 0  })
     this.$router.push({ path: `/recent_connections/${row.id}` })
   }
 }

@@ -1,7 +1,6 @@
-import { loadSettings, setSettings } from '@/utils/api/setting'
-import { loadConnection } from '@/utils/api/connection'
+import Vue from 'vue'
 import { MqttClient } from 'mqtt'
-import { MessageModel } from '@/views/connections/types'
+import { loadSettings, setSettings } from '@/utils/api/setting'
 
 interface ActiveConnection {
   id: string,
@@ -19,8 +18,8 @@ interface Subscriptions extends ActiveConnection {
   subscriptions: SubscriptionModel[],
 }
 
-interface Message extends ActiveConnection {
-  messages: MessageModel[]
+interface UnreadMessage extends ActiveConnection {
+  unreadMessageCount: 0,
 }
 
 interface SubscriptionsVisible {
@@ -33,9 +32,9 @@ const TOGGLE_AUTO_CHECK: string = 'TOGGLE_AUTO_CHECK'
 const CHANGE_ACTIVE_CONNECTION: string = 'CHANGE_ACTIVE_CONNECTION'
 const REMOVE_ACTIVE_CONNECTION: string = 'REMOVE_ACTIVE_CONNECTION'
 const CHANGE_SUBSCRIPTIONS: string = 'CHANGE_SUBSCRIPTIONS'
-const PUSH_MESSAGE: string = 'PUSH_MESSAGE'
 const SHOW_CLIENT_INFO: string = 'SHOW_CLIENT_INFO'
 const SHOW_SUBSCRIPTIONS: string = 'SHOW_SUBSCRIPTIONS'
+const UNREAD_MESSAGE_COUNT_INCREMENT: string = 'UNREAD_MESSAGE_COUNT_INCREMENT'
 
 const stateRecord: App = loadSettings()
 
@@ -53,6 +52,8 @@ const app = {
     currentLang: stateRecord.currentLang || 'en',
     autoCheck: stateRecord.autoCheck,
     showSubscriptions: getShowSubscriptions(),
+    showClientInfo: {},
+    unreadMessageCount: {},
     activeConnection: {},
   },
   mutations: {
@@ -72,32 +73,31 @@ const app = {
       } else {
         state.activeConnection[connection.id] = {
           client,
-          showClientInfo: true,
         }
       }
     },
     [REMOVE_ACTIVE_CONNECTION](state: App, id: string) {
       delete state.activeConnection[id]
+      delete state.unreadMessageCount[id]
+      delete state.showClientInfo[id]
     },
     [CHANGE_SUBSCRIPTIONS](state: App, subs: Subscriptions) {
       state.activeConnection[subs.id].subscriptions = subs.subscriptions
     },
-    [PUSH_MESSAGE](state: App, payload: Message) {
-      const currentConnection = loadConnection(payload.id)
-      if (!state.activeConnection[payload.id].messages) {
-        state.activeConnection[payload.id].messages = currentConnection.messages
-      } else {
-        state.activeConnection[payload.id].messages = payload.messages
-      }
-    },
     [SHOW_CLIENT_INFO](state: App, payload: ClientInfo) {
-      if (state.activeConnection[payload.id]) {
-        state.activeConnection[payload.id].showClientInfo = payload.showClientInfo
-      }
+      state.showClientInfo[payload.id] = payload.showClientInfo
     },
     [SHOW_SUBSCRIPTIONS](state: App, payload: SubscriptionsVisible) {
       state.showSubscriptions = payload.showSubscriptions
       localStorage.setItem('showSubscriptions', JSON.stringify(state.showSubscriptions))
+    },
+    [UNREAD_MESSAGE_COUNT_INCREMENT](state: App, payload: UnreadMessage) {
+      if (payload.unreadMessageCount !== undefined) {
+        Vue.set(state.unreadMessageCount, payload.id, payload.unreadMessageCount)
+      } else {
+        const count = state.unreadMessageCount[payload.id] += 1
+        Vue.set(state.unreadMessageCount, payload.id, count)
+      }
     },
   },
   actions: {
@@ -122,14 +122,14 @@ const app = {
     CHANGE_SUBSCRIPTIONS({ commit }: any, payload: App) {
       commit(CHANGE_SUBSCRIPTIONS, payload)
     },
-    PUSH_MESSAGE({ commit }: any, payload: App) {
-      commit(PUSH_MESSAGE, payload)
-    },
     SHOW_CLIENT_INFO({ commit }: any, payload: App) {
       commit(SHOW_CLIENT_INFO, payload)
     },
     SHOW_SUBSCRIPTIONS({ commit }: any, payload: App) {
       commit(SHOW_SUBSCRIPTIONS, payload)
+    },
+    UNREAD_MESSAGE_COUNT_INCREMENT({ commit }: any, payload: App) {
+      commit(UNREAD_MESSAGE_COUNT_INCREMENT, payload)
     },
   },
 }

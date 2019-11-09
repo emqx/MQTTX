@@ -4,6 +4,8 @@ const getters = {
   autoCheck: (state: State) => state.app.autoCheck,
   showSubscriptions: (state: State) => state.app.showSubscriptions,
   activeConnection: (state: State) => state.app.activeConnection,
+  showClientInfo: (state: State) => state.app.showClientInfo,
+  unreadMessageCount: (state: State) => state.app.unreadMessageCount,
 }
 
 export default getters

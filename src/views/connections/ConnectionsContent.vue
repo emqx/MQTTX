@@ -147,8 +147,13 @@ export default class ConnectionsContent extends Vue {
   @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection: $TSFixed
   @Action('SHOW_CLIENT_INFO') private changeShowClientInfo: $TSFixed
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions: $TSFixed
+  @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement: $TSFixed
+
   @Getter('activeConnection') private activeConnection: $TSFixed
   @Getter('showSubscriptions') private showSubscriptions!: boolean
+  @Getter('showClientInfo') private clientInfoVisibles!: {
+    [id: string]: boolean,
+  }
 
   private client: $TSFixed = {}
   private showSubs: boolean = true
@@ -180,14 +185,21 @@ export default class ConnectionsContent extends Vue {
   }
 
   private getConnectionValue(id: string): void {
-    const $activeConnection = this.activeConnection[id]
+    const $activeConnection: {
+      id?: string,
+      client: MqttClient,
+    } | undefined = this.activeConnection[id]
+    const $clientInfoVisible: boolean | undefined = this.clientInfoVisibles[id]
+    if ($clientInfoVisible === undefined) {
+      this.showClientInfo = true
+    } else {
+      this.showClientInfo = $clientInfoVisible
+    }
     this.showSubs = this.showSubscriptions
     if ($activeConnection) {
       this.client = $activeConnection.client
-      this.showClientInfo = $activeConnection.showClientInfo
     } else {
       this.client = {}
-      this.showClientInfo = true
     }
   }
 
@@ -388,6 +400,7 @@ export default class ConnectionsContent extends Vue {
         updateConnectionMessage(this.record.id as string, { ...receivedMessage })
       } else {
         updateConnectionMessage(id, { ...receivedMessage })
+        this.unreadMessageIncrement({ id })
       }
       setTimeout(() => {
         window.scrollTo(0, document.body.scrollHeight + 120)
