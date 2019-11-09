@@ -53,10 +53,15 @@
 
       <transition name="el-zoom-in-top">
         <div v-show="searchVisible" class="connections-search topbar">
-          <el-input size="small" :placeholder="$t('connections.searchByTopic')">
-            <i slot="suffix" class="iconfont icon-search"></i>
+          <el-input
+            v-model="searchTopic" 
+            size="small"
+            :placeholder="$t('connections.searchByTopic')">
+            <a class="search-btn" href="javascript:;" slot="suffix" @click="searchByTopic">
+              <i class="iconfont icon-search"></i>
+            </a>
           </el-input>
-          <a href="javascript:;" class="close-search" @click="searchVisible = false">
+          <a href="javascript:;" class="close-search" @click="handleSearchClose">
             <i class="el-icon-circle-close"></i>
           </a>
         </div>
@@ -162,6 +167,7 @@ export default class ConnectionsContent extends Vue {
   private msgType: MessageType = 'all'
   private searchVisible: boolean = false
   private messages: MessageModel[] = []
+  private searchTopic: string = ''
 
   get connectUrl(): string {
     const {
@@ -280,6 +286,17 @@ export default class ConnectionsContent extends Vue {
     } else {
       this.messages = this.record.messages
     }
+  }
+
+  private searchByTopic(): void {
+    this.getMessages(this.record)
+    const $messages = [...this.messages]
+    this.messages = $messages.filter(($: MessageModel) => $.topic === this.searchTopic)
+  }
+
+  private handleSearchClose(): void {
+    this.searchVisible = false
+    this.getMessages(this.record)
   }
 
   private removeConnection(): void {
@@ -471,6 +488,9 @@ export default class ConnectionsContent extends Vue {
       .el-input {
         .el-input__inner {
           background: var(--color-bg-primary);
+        }
+        .search-btn {
+          color: var(--color-text-default); 
         }
       }
       .close-search {
