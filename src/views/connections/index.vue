@@ -1,13 +1,17 @@
 <template>
   <div>
     <leftbar>
-      <SearchTopbar @showNewDialog="showNewConnectionDialog"/>
+      <SearchTopbar
+        :loading="searchLoading"
+        @reload="loadData"
+        @search="searchConnection"
+        @showNewDialog="showNewConnectionDialog"/>
       <ConnectionsList :data="records" :connectionId="connectionId"/>
     </leftbar>
 
     <div class="connections-view">
       <EmptyPage
-        v-if="!records.length"
+        v-if="isEmpty"
         name="connections"
         :btn-title="$t('connections.newConnections')"
         :click-method="showNewConnectionDialog"/>
@@ -49,6 +53,7 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { loadConnections, createConnections, loadConnection } from '@/utils/api/connection'
 import { loadClientOptions, createClient, loadBroker, loadClient } from '@/utils/api/broker'
+import matchSearch from '@/utils/matchSearch'
 import MyDialog from '@/components/MyDialog.vue'
 import Leftbar from '@/components/Leftbar.vue'
 import SearchTopbar from '@/components/SearchTopbar.vue'
@@ -73,6 +78,8 @@ interface RecordModel {
   },
 })
 export default class Connections extends Vue {
+  private searchLoading: boolean = false
+  private isEmpty: boolean = false
   private newConnectionConfirmLoading: boolean = false
   private newConnectionDialogVisible: boolean = false
   private records: ConnectionModel[] | [] = []
@@ -160,6 +167,9 @@ export default class Connections extends Vue {
     }
     if (connections.length) {
       this.loadDetail(this.connectionId)
+      this.isEmpty = false
+    } else {
+      this.isEmpty = true
     }
   }
 
@@ -241,6 +251,22 @@ export default class Connections extends Vue {
     }
     this.vueForm.clearValidate()
     this.vueForm.resetFields()
+  }
+
+  private async searchConnection(val: string): Promise<void> {
+    this.searchLoading = true
+    const data: ConnectionModel[] = await loadConnections()
+    if (data) {
+      setTimeout(async () => {
+        const res: ConnectionModel[] | null = await matchSearch(data, 'name', val)
+        if (res) {
+          this.records = res
+          this.searchLoading = false
+        }
+      }, 500)
+    } else {
+      this.searchLoading = false
+    }
   }
 
   private created(): void {
