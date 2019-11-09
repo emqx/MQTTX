@@ -61,6 +61,7 @@
           </el-col>
           <el-col :span="4">
             <el-select
+              disabled
               class="settings-options"
               v-model="currentTheme"
               size="mini"

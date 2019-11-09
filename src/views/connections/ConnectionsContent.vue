@@ -84,7 +84,6 @@
           </span>
           <div class="message-type">
             <el-radio-group
-              :disabled="messages.length <= 0"
               v-model="msgType" size="mini"
               @change="handleMsgTypeChanged">
               <el-radio-button label="all">{{ $t('connections.all') }}</el-radio-button>

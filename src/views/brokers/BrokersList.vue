@@ -14,7 +14,7 @@
         <div v-if="broker.tls" class="ssl-tag">
           <span>SSL</span>
         </div>
-        <a class="remove-icon" href="javascript:;" @click.stop="removeBroker(broker)">
+        <a class="remove-icon" href="javascript:;" @click.stop="handleDelete(broker)">
           <i class="el-icon-close"></i>
         </a>
       </div>
@@ -33,26 +33,12 @@ export default class BrokersList extends Vue {
   @Prop({ required: true }) public data!: BrokerModel[] | []
   @Prop({ required: true }) public brokerID!: string
 
-  private selectBroker(row: BrokerModel | $TSFixed): void {
+  private selectBroker(row: BrokerModel): void {
     this.$router.push({ path: `/brokers/${row.id}` })
   }
 
-  private removeBroker(row: BrokerModel | $TSFixed) {
-    const confirmDelete: string = this.$t('common.confirmDelete', { name: row.brokerName }) as string
-    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
-      type: 'warning',
-    }).then(async () => {
-      const res: BrokerModel | null = await deleteBroker(row.id)
-      if (res) {
-        this.$emit('delete')
-        this.$message({
-          type: 'success',
-          message: this.$t('common.deleteSuccess') as string,
-        })
-      }
-    }).catch((error) => {
-      // ignore(error)
-    })
+  private handleDelete(row: BrokerModel) {
+    this.$emit('delete', row)
   }
 }
 </script>
@@ -66,7 +52,7 @@ export default class BrokersList extends Vue {
     display: flex;
     align-items: center;
     position: relative;
-    height: 80px;
+    height: 64px;
     padding: 0 32px;
     cursor: pointer;
     &.active {
@@ -102,8 +88,9 @@ export default class BrokersList extends Vue {
     .remove-icon {
       position: absolute;
       right: 19px;
-      top: 31px;
+      top: 22px;
       visibility: hidden;
+      color: var(--color-second-red);
     }
     &:hover {
       .remove-icon {

@@ -32,12 +32,13 @@
     min-height: 41px;
     max-width: 280px;
     min-width: 20px;
-    margin: 10px 0;
+    margin: 10px 0 0px 0px;
     padding: 10px;
     white-space: normal;
     word-break: break-all;
   }
   .time {
     color: var(--color-text-light);
+    margin-bottom: 5px;
   }
 }
