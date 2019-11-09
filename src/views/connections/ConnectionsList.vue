@@ -16,7 +16,7 @@
           <div class="client-info">
             <el-tooltip
               effect="light"
-              :disabled="`${item.name}@${item.host}:${item.port}`.length < 26"
+              :disabled="`${item.name}@${item.host}:${item.port}`.length < 28"
               :content="`${item.name}@${item.host}:${item.port}`"
               placement="top">
               <div class="client-name">
@@ -79,6 +79,8 @@ export default class ConnectionsList extends Vue {
     height: 64px;
     padding: 0 16px;
     cursor: pointer;
+    position: relative;
+    transition: background .3s ease;
     &.active {
       background-color: var(--color-bg-connection_item);
     }
@@ -121,6 +123,9 @@ export default class ConnectionsList extends Vue {
       &.online {
         background: var(--color-main-green);
       }
+    }
+    &:hover {
+      background: var(--color-bg-connection_item);
     }
   }
 }

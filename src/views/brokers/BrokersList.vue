@@ -54,6 +54,7 @@ export default class BrokersList extends Vue {
     position: relative;
     height: 64px;
     padding: 0 32px;
+    transition: background .3s ease;
     cursor: pointer;
     &.active {
       background-color: var(--color-bg-connection_item);
@@ -88,13 +89,14 @@ export default class BrokersList extends Vue {
     .remove-icon {
       position: absolute;
       right: 19px;
-      top: 22px;
-      visibility: hidden;
+      top: 25px;
+      display: none;
       color: var(--color-second-red);
     }
     &:hover {
+      background: var(--color-bg-connection_item);
       .remove-icon {
-        visibility: visible;
+        display: inherit;
       }
     }
   }

@@ -79,7 +79,7 @@
           <span class="subs-title">
             {{ this.$t('connections.subscriptions') }}
             <a class="subs-btn" href="javascript:;" @click="handleShowSubs">
-              <i class="el-icon-s-unfold"></i>
+              <i class="iconfont icon-zhedie"></i>
             </a>
           </span>
           <div class="message-type">
@@ -451,9 +451,10 @@ export default class ConnectionsContent extends Vue {
           color: var(--color-text-light);
         }
         a.collapse-btn {
-          font-size: 16px;
+          font-size: 18px;
           float: right;
-          margin-left: 18px;
+          margin-left: 12px;
+          margin-top: -1px;
           transition: all .3s;
           &.top {
             transform: rotate(90deg);
@@ -511,7 +512,6 @@ export default class ConnectionsContent extends Vue {
       padding: 16px;
       .filter-bar {
         padding: 12px 16px;
-        z-index: 1;
         background: var(--color-bg-primary);
         position: fixed;
         left: 280px;
@@ -521,12 +521,16 @@ export default class ConnectionsContent extends Vue {
         .subs-title {
           color: var(--color-text-title);
           position: absolute;
-          top: 11px;
+          top: 15px;
         }
         .subs-btn {
-          font-size: 20px;
           position: relative;
-          top: 3px;
+          top: 1px;
+          left: 3px;
+          .icon-zhedie {
+            display: inline-block;
+            transform: rotate(180deg);
+          }
         }
         .message-type {
           text-align: right;

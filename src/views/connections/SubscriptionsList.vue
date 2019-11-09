@@ -14,7 +14,7 @@
             {{ $t('connections.newSubscription') }}
           </a>
           <a class="hide-btn" href="javascript:;" @click="hideSubsList">
-            <i class="el-icon-s-fold"></i>
+            <i class="iconfont icon-zhedie"></i>
           </a>
         </div>
         <div class="topics-item" v-for="(sub, index) in subsList" :key="index">
@@ -232,6 +232,7 @@ export default class SubscriptionsList extends Vue {
 .subscriptions-list-view {
   &.el-card {
     border-top: 0px;
+    border-left: 0px;
   }
   .el-card__header {
     text-align: center;
@@ -239,39 +240,51 @@ export default class SubscriptionsList extends Vue {
     .hide-btn {
       font-size: 20px;
       position: absolute;
-      top: 15px;
-      right: -1px;
+      top: 13px;
+      right: 0px;
     }
   }
   .el-card__body {
-    padding: 0px;
+    padding: 16px;
+    height: 100%;
+    overflow: scroll;
     .topics-item {
-      padding: 16px;
-      color: var(--color-text-title);
-      border-bottom: 1px solid var(--color-border-default);
-      display: flex;
+      background: var(--color-bg-tabs);
+      padding: 0px 8px;
+      height: 46px;
+      line-height: 46px;
+      margin-bottom: 16px;
+      position: relative;
+      clear: both;
       .topic {
-        flex: 5;
-        max-width: 150px;
+        max-width: 164px;
         display: inline-block;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        margin-right: 5px;
       }
       .qos {
-        flex: 1;
+        float: right;
         color: var(--color-text-light);
       }
       .close {
-        visibility: hidden;
-        color: var(--color-second-red);
+        display: none;
+        border-radius: 50%;
+        background: var(--color-second-red);
+        position: absolute;
+        right: -7px;
+        top: -7px;
+        width: 18px;
+        height: 18px;
+        text-align: center;
+        line-height: 18px;
+        .el-icon-close {
+          color: var(--color-bg-normal);
+        }
       }
-      transition: 0.3s all;
       &:hover {
-        background: var(--color-thrid-green);
         .close {
-          visibility: visible;
+          display: inline;
         }
       }
     }
