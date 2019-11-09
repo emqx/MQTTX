@@ -76,7 +76,7 @@ export default class ConnectionsList extends Vue {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 80px;
+    height: 64px;
     padding: 0 16px;
     cursor: pointer;
     &.active {

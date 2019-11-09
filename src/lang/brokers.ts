@@ -80,4 +80,8 @@ export default {
     zh: 'MQTT 版本',
     en: 'MQTT Version',
   },
+  deleteBroker: {
+    zh: '删除 Broker',
+    en: 'Delete Broker',
+  },
 }

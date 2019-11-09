@@ -9,7 +9,7 @@
       <BrokersList
         :brokerID="brokerID"
         :data="records"
-        @delete="loadData(true)"/>
+        @delete="removeBroker"/>
     </Leftbar>
 
     <EmptyPage
@@ -24,7 +24,8 @@
         :record="currentBroker"
         :clients="currentClients"
         @edit="showNewBrokerDialog(true)"
-        @delete="loadClients"/>
+        @deleteBroker="removeBroker"
+        @deleteClient="loadClients"/>
     </div>
 
     <!-- New broker dialog -->
@@ -74,7 +75,9 @@ import BrokerContent from './BrokerContent.vue'
 import ClientCreate from './clients/ClientCreate.vue'
 import EmptyPage from '@/components/EmptyPage.vue'
 import matchSearch from '@/utils/matchSearch'
-import { loadBrokers, loadBroker, createBroker, updateBroker, loadClients } from '@/utils/api/broker'
+import {
+  loadBrokers, loadBroker, createBroker, updateBroker, loadClients, deleteBroker,
+} from '@/utils/api/broker'
 import { BrokerModel, ClientModel } from './types'
 
 @Component({
@@ -214,6 +217,24 @@ export default class Brokers extends Vue {
     }
     this.vueForm.clearValidate()
     this.vueForm.resetFields()
+  }
+
+  private removeBroker(row: BrokerModel) {
+    const confirmDelete: string = this.$t('common.confirmDelete', { name: row.brokerName }) as string
+    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
+      type: 'warning',
+    }).then(async () => {
+      const res: BrokerModel | null = await deleteBroker(row.id as string)
+      if (res) {
+        this.$message({
+          type: 'success',
+          message: this.$t('common.deleteSuccess') as string,
+        })
+        this.loadData(true)
+      }
+    }).catch((error) => {
+      // ignore(error)
+    })
   }
 
   private showNewBrokerDialog(isEdit: boolean = false): void {

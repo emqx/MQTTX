@@ -6,13 +6,14 @@
           <h2>{{ record.brokerName }}</h2>
         </div>
         <div class="broker-tail">
-          <el-dropdown trigger="click">
+          <el-dropdown trigger="click" @command="handleCommand">
             <a href="javascript:;">
               <i class="el-icon-more"></i>
             </a>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>
-                <i class="iconfont icon-client"></i>oper
+              <el-dropdown-item command="deleteBroker">
+                <i class="iconfont icon-delete"></i>
+                {{ $t('brokers.deleteBroker') }}
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -92,6 +93,12 @@ export default class BrokerContent extends Vue {
     this.$emit('edit')
   }
 
+  private handleCommand(command: 'deleteBroker'): void {
+    if (command === 'deleteBroker') {
+      this.$emit('deleteBroker', this.record)
+    }
+  }
+
   private removeClient(row: ClientModel): void {
     const confirmDelete: string = this.$t('common.confirmDelete', { name: row.clientName }) as string
     this.$confirm(confirmDelete, this.$t('common.warning') as string, {
@@ -99,7 +106,7 @@ export default class BrokerContent extends Vue {
     }).then(async () => {
       const res: ClientModel | null = await deleteClient(row.id as string)
       if (res) {
-        this.$emit('delete')
+        this.$emit('deleteClient')
         this.$message({
           type: 'success',
           message: this.$t('common.deleteSuccess') as string,

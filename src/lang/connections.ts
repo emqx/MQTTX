@@ -89,7 +89,7 @@ export default {
   },
   connectBtn: {
     zh: '连 接',
-    en: 'Connected',
+    en: 'Connect',
   },
   disconnectedBtn: {
     zh: '断开连接',
