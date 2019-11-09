@@ -3,7 +3,7 @@ import { MqttClient } from 'mqtt'
 import { loadSettings, setSettings } from '@/utils/api/setting'
 
 interface ActiveConnection {
-  id: string,
+  readonly id: string,
 }
 
 interface Client extends ActiveConnection {
