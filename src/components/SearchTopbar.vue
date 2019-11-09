@@ -1,7 +1,12 @@
 <template>
   <div class="search-topbar left-topbar topbar">
-    <el-input size="small" :placeholder="$t('connections.search')">
-      <i slot="prefix" class="iconfont icon-search"></i>
+    <el-input 
+      v-model="searchValue"
+      size="small"
+      clearable
+      :placeholder="$t('connections.search')">
+      <i v-if="!loading" slot="prefix" class="iconfont icon-search"></i>
+      <i v-else slot="prefix" class="el-icon-loading"></i>
     </el-input>
     <a href="javascript:;" @click="newClick">
       <span class="iconfont icon-plus"></span>
@@ -11,10 +16,23 @@
 
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 
 @Component
 export default class SearchTopbar extends Vue {
+  @Prop({ default: false }) private loading!: boolean
+
+  private searchValue: string = ''
+
+  @Watch('searchValue')
+  private handleValueChange(val: string): void {
+    if (val === '') {
+      this.$emit('reload')
+    } else {
+      this.$emit('search', val)
+    }
+  }
+
   private newClick(): void {
     // New broker or connection
     this.$emit('showNewDialog')
@@ -30,7 +48,7 @@ export default class SearchTopbar extends Vue {
     .el-input__inner {
       background: var(--color-bg-primary);
     }
-    .icon-search {
+    .icon-search, .el-icon-loading {
       margin-left: 3px;
       line-height: 32px;
       color: var(--color-text-tips);
