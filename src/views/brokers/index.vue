@@ -1,7 +1,11 @@
 <template>
   <div>
     <Leftbar>
-      <search-topbar @showNewDialog="showNewBrokerDialog"></search-topbar>
+      <SearchTopbar
+        :loading="searchLoading"
+        @reload="loadData"
+        @search="searchBroker"
+        @showNewDialog="showNewBrokerDialog"/>
       <BrokersList
         :brokerID="brokerID"
         :data="records"
@@ -9,7 +13,7 @@
     </Leftbar>
 
     <EmptyPage
-      v-if="!records.length && !isClientPage"
+      v-if="isEmpty && !isClientPage"
       name="brokers"
       :btn-title="$t('brokers.newBroker')"
       :click-method="showNewBrokerDialog"/>
@@ -69,6 +73,7 @@ import BrokersList from './BrokersList.vue'
 import BrokerContent from './BrokerContent.vue'
 import ClientCreate from './clients/ClientCreate.vue'
 import EmptyPage from '@/components/EmptyPage.vue'
+import matchSearch from '@/utils/matchSearch'
 import { loadBrokers, loadBroker, createBroker, updateBroker, loadClients } from '@/utils/api/broker'
 import { BrokerModel, ClientModel } from './types'
 
@@ -83,8 +88,9 @@ import { BrokerModel, ClientModel } from './types'
     EmptyPage,
   },
 })
-
 export default class Brokers extends Vue {
+  private searchLoading: boolean = false
+  private isEmpty: boolean = false
   private newBrokerDialogVisible: boolean = false
   private newBrokerConfirmLoading: boolean = false
   private isEdit: boolean = false
@@ -158,15 +164,18 @@ export default class Brokers extends Vue {
   }
 
   private async loadData(reload: boolean = false): Promise<void> {
-    const res: BrokerModel[] | [] = await loadBrokers()
-    this.records = res
+    const brokers: BrokerModel[] | [] = await loadBrokers()
+    this.records = brokers
     if (reload && this.records.length) {
       this.$router.push({ path: `/brokers/${this.records[0].id}` })
     }
     if (this.records.length) {
       this.loadDetail()
+      this.isEmpty = false
+      this.loadClients()
+    } else {
+      this.isEmpty = true
     }
-    this.loadClients()
   }
 
   private saveBroker(): boolean | void {
@@ -215,6 +224,21 @@ export default class Brokers extends Vue {
     }
   }
 
+  private async searchBroker(val: string): Promise<void> {
+    this.searchLoading = true
+    const data: BrokerModel[] = await loadBrokers()
+    if (data) {
+      setTimeout(async () => {
+        const res: BrokerModel[] | null = await matchSearch(data, 'brokerName', val)
+        if (res) {
+          this.records = res
+          this.searchLoading = false
+        }
+      }, 500)
+    } else {
+      this.searchLoading = false
+    }
+  }
   private created(): void {
     this.loadData()
   }
