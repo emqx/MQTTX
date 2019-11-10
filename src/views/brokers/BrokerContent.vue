@@ -48,6 +48,11 @@
               <span>{{ record.brokerPort }}</span>
             </el-form-item>
           </el-col>
+          <el-col :span="12">
+            <el-form-item label="Path">
+              <span>{{ record.path }}</span>
+            </el-form-item>
+          </el-col>
         </el-form>
       </el-row>
     </el-card>

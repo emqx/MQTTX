@@ -193,6 +193,7 @@ export default class Connections extends Vue {
             host: broker.brokerAddress,
             port: broker.brokerPort,
             ssl: broker.tls,
+            path: broker.path,
           }
         }
         const client: ClientModel | null = await loadClient(clientuuid)

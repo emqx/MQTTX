@@ -91,7 +91,7 @@ export default class SubscriptionsList extends Vue {
   private currentConnection: $TSFixed = {}
   private showDialog: boolean = false
   private subRecord: SubscriptionModel = {
-    topic: '',
+    topic: 'testtopic/#',
     qos: 0,
   }
   get rules() {
