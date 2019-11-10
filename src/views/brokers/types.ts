@@ -2,6 +2,7 @@ export interface BrokerModel {
   brokerName: string
   brokerAddress: string
   brokerPort: number
+  path: string,
   tls: boolean
   certType?: string
   readonly id?: string
