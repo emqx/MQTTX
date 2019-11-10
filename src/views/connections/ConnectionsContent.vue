@@ -120,7 +120,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import mqtt, { MqttClient } from 'mqtt'
+import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
@@ -322,15 +322,20 @@ export default class ConnectionsContent extends Vue {
     const {
       clientId, username, password, keepalive, clean, connectTimeout,
     } = this.record
-    return mqtt.connect(this.connectUrl, {
+    const options: IClientOptions  = {
       clientId,
-      username,
-      password,
       keepalive,
       clean,
       connectTimeout,
       reconnectPeriod,
-    })
+    }
+    if (username !== '') {
+      options.username = username
+    }
+    if (password !== '') {
+      options.password = password
+    }
+    return mqtt.connect(this.connectUrl, options)
   }
   private connect(): boolean | void {
     if (this.client.connected) {
