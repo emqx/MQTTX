@@ -1,12 +1,14 @@
 {
   "name": "MQTTX",
+  "author": "emqx",
   "version": "1.0.0",
   "license": "Apache",
+  "description": "MQTT desktop client",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "electron:build": "vue-cli-service electron:build",
+    "electron:build": "vue-cli-service electron:build --platform=all",
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",

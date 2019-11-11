@@ -27,12 +27,19 @@ interface WindowSizeModel {
   height: number,
 }
 
+declare const __static: string
+
 function createWindow() {
   const windowSize = db.get<WindowSizeModel>('windowSize')
   // Create the browser window.
-  win = new BrowserWindow({ ...windowSize, webPreferences: {
-    nodeIntegration: true,
-  } })
+  win = new BrowserWindow({
+    ...windowSize,
+    webPreferences: {
+      webSecurity: false,
+      nodeIntegration: true,
+    },
+    icon: `${__static}/app.ico`,
+  })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
