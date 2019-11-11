@@ -1,6 +1,6 @@
 {
   "name": "MQTTX",
-  "author": "emqx",
+  "author": "EMQ X Team",
   "version": "1.0.0",
   "license": "Apache",
   "description": "MQTT desktop client",
