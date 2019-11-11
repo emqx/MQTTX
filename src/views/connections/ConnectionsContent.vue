@@ -170,10 +170,10 @@ export default class ConnectionsContent extends Vue {
 
   get connectUrl(): string {
     const {
-      host, port, path, ssl,
+      host, port, ssl,
     } = this.record
     const protocol = ssl ? 'mqtts://' : 'mqtt://'
-    return `${protocol}${host}:${port}${path.startsWith('/') ? '' : '/'}${path}`
+    return `${protocol}${host}:${port}`
   }
 
   @Watch('record')
