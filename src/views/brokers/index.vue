@@ -50,9 +50,9 @@
         <el-form-item :label="$t('brokers.brokerPort')" prop="brokerPort">
           <el-input type="number" v-model.number="record.brokerPort"></el-input>
         </el-form-item>
-        <el-form-item label="Path" prop="path">
+        <!-- <el-form-item label="Path" prop="path">
           <el-input v-model="record.path"></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="SSL/TLS" prop="tls">
           <el-radio :label="false" v-model="record.tls">false</el-radio>
           <el-radio :label="true" v-model="record.tls">true</el-radio>
@@ -140,7 +140,7 @@ export default class Brokers extends Vue {
       brokerName: [{ required: true, trigger: 'change', message: this.$t('common.inputRequired') }],
       brokerAddress: [{ required: true, trigger: 'change', message: this.$t('common.inputRequired') }],
       brokerPort: [{ type: 'number', required: true, trigger: 'change', message: this.$t('common.inputRequired') }],
-      path: [{ required: true, trigger: 'change', message: this.$t('common.inputRequired') }],
+      // path: [{ required: true, trigger: 'change', message: this.$t('common.inputRequired') }],
       tls: [{ type: 'boolean', required: true, trigger: 'change', message: this.$t('common.inputRequired') }],
       certType: [{ required: true, trigger: 'change', message: this.$t('common.selectRequired') }],
     }
