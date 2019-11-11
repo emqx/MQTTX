@@ -2,7 +2,7 @@
   <div class="settings-left">
     <img class="logo" src="../../assets/images/mqttx.png" alt="mqttx">
     <p class="version">{{ $t('settings.version') }} 1.0.0</p>
-    <a class="update" href="javascript:;">{{ $t('settings.update') }}</a>
+    <a class="update" href="javascript:;" @click="checkUpdate">{{ $t('settings.update') }}</a>
 
     <a
       class="web-link"
@@ -26,9 +26,15 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { ipcRenderer } from 'electron'
 
 @Component
-export default class SettingsLeft extends Vue {}
+export default class SettingsLeft extends Vue {
+
+  private checkUpdate(): void {
+    ipcRenderer.send('checkUpdate')
+  }
+}
 </script>
 
 

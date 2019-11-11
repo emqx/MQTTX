@@ -6,6 +6,7 @@ import {
   installVueDevtools,
 } from 'vue-cli-plugin-electron-builder/lib'
 import db from './datastore/index'
+import updateChecker from './updateChecker'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
@@ -19,6 +20,9 @@ protocol.registerSchemesAsPrivileged([{scheme: 'app', privileges: { secure: true
 function handleIpcMessages() {
   ipcMain.on('setting', (event: any, ...args: any[]) => {
     event.sender.send('setting', ...args)
+  })
+  ipcMain.on('checkUpdate', () => {
+    updateChecker(false)
   })
 }
 
@@ -77,6 +81,7 @@ app.on('activate', () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
+  const autoCheckUpdate = db.get('settings.autoCheck')
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
     try {
@@ -87,6 +92,9 @@ app.on('ready', async () => {
   }
   createWindow()
   handleIpcMessages()
+  if (autoCheckUpdate) {
+    updateChecker()
+  }
 })
 
 // Disabled create new window
