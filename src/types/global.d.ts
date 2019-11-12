@@ -9,6 +9,34 @@ declare global {
     clearValidate: () => void,
     resetFields: () => void,
   }
+
+  interface ActiveConnection {
+    readonly id: string,
+  }
+  interface Client extends ActiveConnection {
+    client: MqttClient | {},
+    messages: MessageModel[],
+  }
+
+  interface Message extends ActiveConnection {
+    message: MessageModel,
+  }
+
+  interface ClientInfo extends ActiveConnection {
+    showClientInfo: boolean,
+  }
+
+  interface Subscriptions extends ActiveConnection {
+    subscriptions: SubscriptionModel[],
+  }
+
+  interface UnreadMessage extends ActiveConnection {
+    unreadMessageCount: 0,
+  }
+
+  interface SubscriptionsVisible {
+    showSubscriptions: boolean
+  }
 }
 
 declare global {
@@ -34,7 +62,8 @@ declare global {
     }
     activeConnection: {
       [id: string]: {
-        client: MqttClient,
+        client: MqttClient | {},
+        messages: MessageModel[],
         subscriptions?: SubscriptionModel[],
       },
     },
