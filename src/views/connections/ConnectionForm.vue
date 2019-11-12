@@ -76,12 +76,13 @@ import getClientId from '@/utils/getClientId'
 import { updateConnectionByClient } from '@/utils/api/connection'
 import { ClientModel } from '../brokers/types'
 import { ConnectionModel } from './types'
+import { MqttClient } from 'mqtt'
 
 @Component
 export default class ConnectionForm extends Vue {
   @Prop({ required: true }) public connection!: ConnectionModel
   @Prop({ required: true }) public btnLoading!: boolean
-  @Prop({ required: true }) public client!: $TSFixed
+  @Prop({ required: true }) public client!: MqttClient | {}
 
   get rules() {
     return {
