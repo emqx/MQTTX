@@ -9,7 +9,7 @@
               <a
                 href="javascript:;"
                 :class="['collapse-btn', showClientInfo ? 'top': 'bottom']"
-                @click="handleCollapse">
+                @click="handleCollapse($route.params.id)">
                 <i class="el-icon-d-arrow-left"></i>
               </a>
             </h2>
@@ -146,13 +146,13 @@ type CommandType = 'viewBroker' | 'clearHistory' | 'disconnect' | 'deleteConnect
 export default class ConnectionsContent extends Vue {
   @Prop({ required: true }) public record!: ConnectionModel
 
-  @Action('CHANGE_SUBSCRIPTIONS') private changeSubs: $TSFixed
-  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection: $TSFixed
-  @Action('PUSH_MESSAGE') private pushMessage: $TSFixed
-  @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection: $TSFixed
-  @Action('SHOW_CLIENT_INFO') private changeShowClientInfo: $TSFixed
-  @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions: $TSFixed
-  @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement: $TSFixed
+  @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
+  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
+  @Action('PUSH_MESSAGE') private pushMessage!: (payload: Message) => void
+  @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection!: (payload: ActiveConnection) => void
+  @Action('SHOW_CLIENT_INFO') private changeShowClientInfo!: (payload: ClientInfo) => void
+  @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
+  @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
 
   @Getter('activeConnection') private activeConnection: $TSFixed
   @Getter('showSubscriptions') private showSubscriptions!: boolean
@@ -208,9 +208,12 @@ export default class ConnectionsContent extends Vue {
     this.changeShowSubscriptions({ showSubscriptions: this.showSubs })
   }
 
-  private handleCollapse(): void {
+  private handleCollapse(id: string): void {
     this.showClientInfo = !this.showClientInfo
-    this.changeShowClientInfo({ id: this.record.id, showClientInfo: this.showClientInfo })
+    this.changeShowClientInfo({
+      id,
+      showClientInfo: this.showClientInfo,
+    })
   }
 
   private handleCommand(command: CommandType): void {
@@ -238,7 +241,7 @@ export default class ConnectionsContent extends Vue {
     this.messages = []
     this.record.messages = []
     this.changeActiveConnection({
-      id: this.record.id,
+      id: this.$route.params.id,
       client: this.client,
       messages: this.messages,
     })
@@ -275,7 +278,7 @@ export default class ConnectionsContent extends Vue {
           type: 'success',
           message: this.$t('common.deleteSuccess') as string,
         })
-        this.removeActiveConnection({ id: res.id })
+        this.removeActiveConnection({ id: res.id as string })
       }
     }).catch((error) => {
       // ignore(error)
@@ -320,14 +323,15 @@ export default class ConnectionsContent extends Vue {
     if (!this.client.connected) {
       return false
     }
+    const { id } = this.$route.params
     if (this.record.clean) {
       this.record.subscriptions = []
-      this.changeSubs({ id: this.record.id, subscription: [] })
-      updateConnection(this.record.id as string, this.record)
+      this.changeSubs({ id, subscriptions: [] })
+      updateConnection(id, this.record)
     }
     this.client.end()
     this.changeActiveConnection({
-      id: this.record.id,
+      id,
       client: this.client,
       messages: this.record.messages,
     })
@@ -342,7 +346,7 @@ export default class ConnectionsContent extends Vue {
   private onConnect() {
     this.connectLoading = false
     this.changeActiveConnection({
-      id: this.record.id,
+      id: this.$route.params.id,
       client: this.client,
       messages: this.record.messages,
     })
@@ -354,7 +358,10 @@ export default class ConnectionsContent extends Vue {
     })
     setTimeout(() => {
       this.showClientInfo = false
-      this.changeShowClientInfo({ id: this.record.id, showClientInfo: this.showClientInfo })
+      this.changeShowClientInfo({
+        id: this.record.id as string,
+        showClientInfo: this.showClientInfo,
+      })
     }, 500)
     this.$emit('reload')
   }
@@ -442,7 +449,7 @@ export default class ConnectionsContent extends Vue {
           retain,
         }
         this.pushMessage({
-          id: this.record.id,
+          id: this.record.id as string,
           message: publishMessage,
         })
         this.record.messages.push({ ...publishMessage })

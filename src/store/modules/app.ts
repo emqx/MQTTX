@@ -42,14 +42,14 @@ const app = {
     [TOGGLE_AUTO_CHECK](state: App, autoCheck: boolean) {
       state.autoCheck = autoCheck
     },
-    [CHANGE_ACTIVE_CONNECTION](state: App, connection: Client) {
-      const client = connection.client
-      const messages = connection.messages
-      if (state.activeConnection[connection.id]) {
-        state.activeConnection[connection.id].client = client
-        state.activeConnection[connection.id].messages = messages
+    [CHANGE_ACTIVE_CONNECTION](state: App, payload: Client) {
+      const client = payload.client
+      const messages = payload.messages
+      if (state.activeConnection[payload.id]) {
+        state.activeConnection[payload.id].client = client
+        state.activeConnection[payload.id].messages = messages
       } else {
-        state.activeConnection[connection.id] = {
+        state.activeConnection[payload.id] = {
           client,
           messages,
         }
@@ -65,8 +65,8 @@ const app = {
       delete state.unreadMessageCount[id]
       delete state.showClientInfo[id]
     },
-    [CHANGE_SUBSCRIPTIONS](state: App, subs: Subscriptions) {
-      state.activeConnection[subs.id].subscriptions = subs.subscriptions
+    [CHANGE_SUBSCRIPTIONS](state: App, payload: Subscriptions) {
+      state.activeConnection[payload.id].subscriptions = payload.subscriptions
     },
     [SHOW_CLIENT_INFO](state: App, payload: ClientInfo) {
       state.showClientInfo[payload.id] = payload.showClientInfo

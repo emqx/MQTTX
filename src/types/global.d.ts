@@ -13,6 +13,7 @@ declare global {
   interface ActiveConnection {
     readonly id: string,
   }
+
   interface Client extends ActiveConnection {
     client: MqttClient | {},
     messages: MessageModel[],
@@ -31,7 +32,7 @@ declare global {
   }
 
   interface UnreadMessage extends ActiveConnection {
-    unreadMessageCount: 0,
+    unreadMessageCount?: 0,
   }
 
   interface SubscriptionsVisible {
