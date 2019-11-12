@@ -51,6 +51,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Action } from 'vuex-class'
 import { loadConnections, createConnections, loadConnection } from '@/utils/api/connection'
 import { loadClientOptions, createClient, loadBroker, loadClient } from '@/utils/api/broker'
 import matchSearch from '@/utils/matchSearch'
@@ -78,6 +79,8 @@ interface RecordModel {
   },
 })
 export default class Connections extends Vue {
+  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection: $TSFixed
+
   private searchLoading: boolean = false
   private isEmpty: boolean = false
   private newConnectionConfirmLoading: boolean = false
@@ -215,14 +218,18 @@ export default class Connections extends Vue {
         }
         Object.assign(this.data, data)
         const res: ConnectionModel | null = await createConnections(this.data)
-        const faild = this.$t('common.createfailed') as string
         if (res) {
+          this.changeActiveConnection({
+            id: res.id,
+            client: {},
+            messages: [],
+          })
           this.newConnectionDialogVisible = false
           this.resetConnction()
           this.loadData()
           this.$router.push(`/recent_connections/${res.id}`)
         } else {
-          this.$message.error(faild)
+          this.$message.error(this.$t('common.createfailed') as string)
         }
       }
     })

@@ -47,18 +47,10 @@ export default class ConnectionsList extends Vue {
   @Prop({ required: true }) public data!: ConnectionModel[] | []
   @Prop({ required: true }) public connectionId!: string
 
-  @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: {
-    id: string,
-    unreadMessageCount: number,
-  }) => void
+  @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
 
-  @Getter('activeConnection') private activeConnection!: {
-    id: string,
-    client: MqttClient,
-  } | undefined
-  @Getter('unreadMessageCount') private unreadMessageCount: {
-    [id: string]: number,
-  } | undefined
+  @Getter('activeConnection') private activeConnection: Client | undefined
+  @Getter('unreadMessageCount') private unreadMessageCount: UnreadMessage | undefined
 
   private selectConnection(row: ConnectionModel) {
     this.unreadMessageIncrement({ id: row.id as string, unreadMessageCount: 0  })

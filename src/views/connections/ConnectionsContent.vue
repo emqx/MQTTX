@@ -148,6 +148,7 @@ export default class ConnectionsContent extends Vue {
 
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs: $TSFixed
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection: $TSFixed
+  @Action('PUSH_MESSAGE') private pushMessage: $TSFixed
   @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection: $TSFixed
   @Action('SHOW_CLIENT_INFO') private changeShowClientInfo: $TSFixed
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions: $TSFixed
@@ -177,16 +178,10 @@ export default class ConnectionsContent extends Vue {
   }
 
   @Watch('record')
-  private handleRecordChanged(val: ConnectionModel) {
-    this.getConnectionValue(val.id as string)
-    this.getMessages(val)
-  }
-
-  private getMessages(connection: ConnectionModel) {
-    this.msgType = 'all'
-    if (connection) {
-      this.messages = connection.messages
-    }
+  private handleRecordChanged() {
+    const id: string = this.$route.params.id
+    this.getConnectionValue(id)
+    this.getMessages(id)
   }
 
   private getConnectionValue(id: string): void {
@@ -208,50 +203,6 @@ export default class ConnectionsContent extends Vue {
     }
   }
 
-  private sendMessage(message: MessageModel): void | boolean {
-    if (!this.client.connected) {
-      this.$notify({
-        title: this.$t('connections.notConnect') as string,
-        message: '',
-        type: 'error',
-        duration: 3000,
-      })
-      return false
-    }
-    const {
-      topic, qos, payload, retain,
-    } = message
-    const notSend = retain ? !topic : !topic || !payload
-    if (notSend) {
-      return false
-    }
-    this.client.publish(
-      topic,
-      payload,
-      { qos, retain },
-      (error: string) => {
-        if (error) {
-          this.$message.error(error)
-          return false
-        }
-        const publishMessage: MessageModel = {
-          out: true,
-          createAt: time.getNowDate(),
-          topic,
-          payload,
-          qos,
-          retain,
-        }
-        this.messages.push({ ...publishMessage })
-        this.record.messages = this.messages
-        updateConnectionMessage(this.record.id as string, { ...publishMessage })
-        setTimeout(() => {
-          window.scrollTo(0, document.body.scrollHeight + 120)
-        }, 100)
-      },
-    )
-  }
-
   private handleShowSubs(): void {
     this.showSubs = !this.showSubs
     this.changeShowSubscriptions({ showSubscriptions: this.showSubs })
@@ -268,15 +219,31 @@ export default class ConnectionsContent extends Vue {
     } else if (command === 'deleteConnect') {
       this.removeConnection()
     } else if (command === 'clearHistory') {
-      this.messages = []
-      this.record.messages = []
-      updateConnection(this.record.id as string, this.record)
-      this.msgType = 'all'
+      this.handleMsgClear()
     } else if (command === 'viewBroker') {
       this.$router.push({ path: `/brokers/${this.record.brokeruuid}` })
     }
   }
 
+   private getMessages(id: string) {
+    this.msgType = 'all'
+    const $activeConnection = this.activeConnection[id]
+    if ($activeConnection) {
+      this.messages = $activeConnection.messages
+    } else {
+      this.messages = this.record.messages
+    }
+  }
+  private handleMsgClear(): void {
+    this.messages = []
+    this.record.messages = []
+    this.changeActiveConnection({
+      id: this.record.id,
+      client: this.client,
+      messages: this.messages,
+    })
+    updateConnection(this.record.id as string, this.record)
+  }
   private handleMsgTypeChanged(type: MessageType): void {
     if (type === 'received') {
       this.messages = this.record.messages.filter(($: MessageModel) => !$.out)
@@ -286,16 +253,14 @@ export default class ConnectionsContent extends Vue {
       this.messages = this.record.messages
     }
   }
-
   private searchByTopic(): void {
-    this.getMessages(this.record)
+    this.getMessages(this.$route.params.id)
     const $messages = [...this.messages]
     this.messages = $messages.filter(($: MessageModel) => $.topic === this.searchTopic)
   }
-
   private handleSearchClose(): void {
     this.searchVisible = false
-    this.getMessages(this.record)
+    this.getMessages(this.$route.params.id)
   }
 
   private removeConnection(): void {
@@ -361,7 +326,11 @@ export default class ConnectionsContent extends Vue {
       updateConnection(this.record.id as string, this.record)
     }
     this.client.end()
-    this.changeActiveConnection({ id: this.record.id, client: this.client })
+    this.changeActiveConnection({
+      id: this.record.id,
+      client: this.client,
+      messages: this.record.messages,
+    })
     this.$notify({
       title: this.$t('connections.disconnected') as string,
       message: '',
@@ -372,7 +341,11 @@ export default class ConnectionsContent extends Vue {
   }
   private onConnect() {
     this.connectLoading = false
-    this.changeActiveConnection({ id: this.record.id, client: this.client })
+    this.changeActiveConnection({
+      id: this.record.id,
+      client: this.client,
+      messages: this.record.messages,
+    })
     this.$notify({
       title: this.$t('connections.connected') as string,
       message: '',
@@ -406,7 +379,11 @@ export default class ConnectionsContent extends Vue {
     })
   }
   private messageArrived(id: string) {
-    return (topic: string, payload: string, packet: SubscriptionModel) => {
+    return (
+        topic: string,
+        payload: string,
+        packet: SubscriptionModel,
+      ) => {
       const receivedMessage: MessageModel = {
         out: false,
         createAt: time.getNowDate(),
@@ -415,10 +392,11 @@ export default class ConnectionsContent extends Vue {
         qos: packet.qos,
         retain: packet.retain as boolean,
       }
-      if (id === this.record.id) {
-        this.messages.push({ ...receivedMessage })
-        this.record.messages = this.messages
-        updateConnectionMessage(this.record.id as string, { ...receivedMessage })
+      this.pushMessage({ id, message: receivedMessage })
+      this.record.messages.push({ ...receivedMessage })
+      const connectionId = this.$route.params.id
+      if (id === connectionId) {
+        updateConnectionMessage(connectionId, { ...receivedMessage })
       } else {
         updateConnectionMessage(id, { ...receivedMessage })
         this.unreadMessageIncrement({ id })
@@ -427,6 +405,53 @@ export default class ConnectionsContent extends Vue {
         window.scrollTo(0, document.body.scrollHeight + 120)
       }, 100)
     }
+  }
+
+  private sendMessage(message: MessageModel): void | boolean {
+    if (!this.client.connected) {
+      this.$notify({
+        title: this.$t('connections.notConnect') as string,
+        message: '',
+        type: 'error',
+        duration: 3000,
+      })
+      return false
+    }
+    const {
+      topic, qos, payload, retain,
+    } = message
+    const notSend = retain ? !topic : !topic || !payload
+    if (notSend) {
+      return false
+    }
+    this.client.publish(
+      topic,
+      payload,
+      { qos, retain },
+      (error: string) => {
+        if (error) {
+          this.$message.error(error)
+          return false
+        }
+        const publishMessage: MessageModel = {
+          out: true,
+          createAt: time.getNowDate(),
+          topic,
+          payload,
+          qos,
+          retain,
+        }
+        this.pushMessage({
+          id: this.record.id,
+          message: publishMessage,
+        })
+        this.record.messages.push({ ...publishMessage })
+        updateConnectionMessage(this.record.id as string, { ...publishMessage })
+        setTimeout(() => {
+          window.scrollTo(0, document.body.scrollHeight + 120)
+        }, 100)
+      },
+    )
   }
 
   private created(): void {
