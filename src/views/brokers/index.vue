@@ -54,12 +54,16 @@
           <el-input v-model="record.path"></el-input>
         </el-form-item> -->
         <el-form-item label="SSL/TLS" prop="tls">
-          <el-radio :label="false" v-model="record.tls">false</el-radio>
-          <el-radio :label="true" v-model="record.tls">true</el-radio>
+          <el-radio-group v-model="record.tls" @change="handleSSL">
+            <el-radio :label="false">false</el-radio>
+            <el-radio :label="true">true</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item :label="$t('brokers.certType')" prop="certType" v-if="record.tls">
-          <el-radio label="ca" v-model="record.certType">CA signed</el-radio>
-          <el-radio label="self" v-model="record.certType">Self signed</el-radio>
+          <el-radio-group v-model="record.certType">
+            <el-radio label="ca">CA signed</el-radio>
+            <el-radio label="self">Self signed</el-radio>
+          </el-radio-group>
         </el-form-item>
       </el-form>
     </my-dialog>
@@ -267,6 +271,15 @@ export default class Brokers extends Vue {
       this.searchLoading = false
     }
   }
+
+  private handleSSL(val: boolean): void {
+    if (val) {
+      this.record.brokerPort = 8883
+    } else {
+      this.record.brokerPort = 1883
+    }
+  }
+
   private created(): void {
     this.loadData()
   }
