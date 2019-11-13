@@ -84,9 +84,9 @@ export default class SubscriptionsList extends Vue {
   @Prop({ required: true }) public record!: ConnectionModel
   @Prop({ type: String, default: '60px' }) public top!: string
 
-  @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions: $TSFixed
-  @Action('CHANGE_SUBSCRIPTIONS') private changeSubs: any
-  @Getter('activeConnection') private activeConnection: any
+  @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
+  @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
+  @Getter('activeConnection') private activeConnection: $TSFixed
 
   private currentConnection: $TSFixed = {}
   private showDialog: boolean = false

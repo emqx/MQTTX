@@ -79,7 +79,7 @@ interface RecordModel {
   },
 })
 export default class Connections extends Vue {
-  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection: $TSFixed
+  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
 
   private searchLoading: boolean = false
   private isEmpty: boolean = false
@@ -220,7 +220,7 @@ export default class Connections extends Vue {
         const res: ConnectionModel | null = await createConnections(this.data)
         if (res) {
           this.changeActiveConnection({
-            id: res.id,
+            id: res.id as string,
             client: {},
             messages: [],
           })
