@@ -43,7 +43,6 @@
     "@types/lodash": "^4.14.142",
     "@types/lowdb": "^1.0.9",
     "@types/mocha": "^5.2.4",
-    "@types/mqtt": "^2.5.0",
     "@vue/cli-plugin-babel": "^3.8.0",
     "@vue/cli-plugin-e2e-cypress": "^3.8.0",
     "@vue/cli-plugin-typescript": "^3.8.0",

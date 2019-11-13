@@ -15,6 +15,9 @@ export default class Home extends Vue {
       const value: any = args[1]
       this.handleIcpEvents(eventType, value)
     })
+    ipcRenderer.on('preferences', () => {
+      this.$router.push({ path: '/settings' })
+    })
   }
 
   private unbindIpcEvents(): void {
