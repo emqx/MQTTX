@@ -17,7 +17,6 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
                 label: 'Preferences',
                 accelerator: 'cmd + ,',
                 click: () => {
-                  console.log(win)
                   win.webContents.send('preferences')
                 },
               },

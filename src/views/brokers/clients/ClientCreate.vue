@@ -58,7 +58,7 @@
           </el-row>
         </el-card>
 
-        <template v-if="hasSSL">
+        <template v-if="needSelfCAfile">
           <div class="info-header">
             <h3>Certificates</h3>
           </div>
@@ -184,8 +184,8 @@ export default class ClientCreate extends Vue {
     return this.$refs.record as VueForm
   }
 
-  get hasSSL(): boolean {
-    return this.broker.tls
+  get needSelfCAfile(): boolean {
+    return this.broker.tls && this.broker.certType === 'self'
   }
 
   get rules() {
