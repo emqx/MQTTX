@@ -1,18 +1,23 @@
 'use strict'
 
-import { app, protocol, BrowserWindow, ipcMain, shell } from 'electron'
+import {
+  app, protocol, BrowserWindow, ipcMain, shell, Menu,
+} from 'electron'
 import {
   createProtocol,
   installVueDevtools,
 } from 'vue-cli-plugin-electron-builder/lib'
 import db from './datastore/index'
-import updateChecker from './updateChecker'
+import updateChecker from '../main/updateChecker'
+import getMenuTemplate from '../main/getMenuTemplate'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win: BrowserWindow | null
+
+let menu: Menu | null
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{scheme: 'app', privileges: { secure: true, standard: true } }])
@@ -44,6 +49,11 @@ function createWindow() {
     },
     icon: `${__static}/app.ico`,
   })
+
+  // Menu Manger
+  const templateMenu = getMenuTemplate(win)
+  menu = Menu.buildFromTemplate(templateMenu)
+  Menu.setApplicationMenu(menu)
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode

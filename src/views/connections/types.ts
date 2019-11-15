@@ -1,14 +1,21 @@
 import { MqttClient } from 'mqtt'
+
 export interface MessageModel {
-  createAt: string
-  out: boolean
-  payload: string
-  qos: number
-  retain: boolean
-  topic: string
+  createAt: string,
+  out: boolean,
+  payload: string,
+  qos: number,
+  retain: boolean,
+  topic: string,
 }
 
-export interface ConnectionModel  {
+export interface SSLPath {
+  ca: string,
+  cert: string,
+  key: string,
+}
+
+export interface ConnectionModel extends SSLPath  {
   readonly id?: string,
   readonly clientuuid: string,
   readonly brokeruuid: string,
@@ -29,7 +36,10 @@ export interface ConnectionModel  {
   client: MqttClient | {
     connected: boolean,
   },
-  ca?: string,
-  cert?: string,
-  key?: string,
+}
+
+export interface SSLContent {
+  ca: string | string[] | Buffer | Buffer[] | undefined,
+  cert: string | string[] | Buffer | Buffer[] | undefined,
+  key: string | string[] | Buffer | Buffer[] | undefined,
 }

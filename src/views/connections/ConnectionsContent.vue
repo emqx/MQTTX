@@ -9,7 +9,7 @@
               <a
                 href="javascript:;"
                 :class="['collapse-btn', showClientInfo ? 'top': 'bottom']"
-                @click="handleCollapse">
+                @click="handleCollapse($route.params.id)">
                 <i class="el-icon-d-arrow-left"></i>
               </a>
             </h2>
@@ -124,12 +124,13 @@ import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
+import { getSSLFile } from '@/utils/getFiles'
 import MsgRightItem from './MsgRightItem.vue'
 import MsgLeftItem from './MsgLeftItem.vue'
 import MsgPublish from './MsgPublish.vue'
 import ConnectionForm from './ConnectionForm.vue'
 import SubscriptionsList from './SubscriptionsList.vue'
-import { ConnectionModel, MessageModel } from './types'
+import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'viewBroker' | 'clearHistory' | 'disconnect' | 'deleteConnect'
@@ -146,12 +147,13 @@ type CommandType = 'viewBroker' | 'clearHistory' | 'disconnect' | 'deleteConnect
 export default class ConnectionsContent extends Vue {
   @Prop({ required: true }) public record!: ConnectionModel
 
-  @Action('CHANGE_SUBSCRIPTIONS') private changeSubs: $TSFixed
-  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection: $TSFixed
-  @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection: $TSFixed
-  @Action('SHOW_CLIENT_INFO') private changeShowClientInfo: $TSFixed
-  @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions: $TSFixed
-  @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement: $TSFixed
+  @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
+  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
+  @Action('PUSH_MESSAGE') private pushMessage!: (payload: Message) => void
+  @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection!: (payload: ActiveConnection) => void
+  @Action('SHOW_CLIENT_INFO') private changeShowClientInfo!: (payload: ClientInfo) => void
+  @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
+  @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
 
   @Getter('activeConnection') private activeConnection: $TSFixed
   @Getter('showSubscriptions') private showSubscriptions!: boolean
@@ -177,16 +179,10 @@ export default class ConnectionsContent extends Vue {
   }
 
   @Watch('record')
-  private handleRecordChanged(val: ConnectionModel) {
-    this.getConnectionValue(val.id as string)
-    this.getMessages(val)
-  }
-
-  private getMessages(connection: ConnectionModel) {
-    this.msgType = 'all'
-    if (connection) {
-      this.messages = connection.messages
-    }
+  private handleRecordChanged() {
+    const id: string = this.$route.params.id
+    this.getConnectionValue(id)
+    this.getMessages(id)
   }
 
   private getConnectionValue(id: string): void {
@@ -205,6 +201,231 @@ export default class ConnectionsContent extends Vue {
       this.client = $activeConnection.client
     } else {
       this.client = {}
+    }
+  }
+
+  private handleShowSubs(): void {
+    this.showSubs = !this.showSubs
+    this.changeShowSubscriptions({ showSubscriptions: this.showSubs })
+  }
+
+  private handleCollapse(id: string): void {
+    this.showClientInfo = !this.showClientInfo
+    this.changeShowClientInfo({
+      id,
+      showClientInfo: this.showClientInfo,
+    })
+  }
+
+  private handleCommand(command: CommandType): void {
+    if (command === 'disconnect') {
+      this.disconnect()
+    } else if (command === 'deleteConnect') {
+      this.removeConnection()
+    } else if (command === 'clearHistory') {
+      this.handleMsgClear()
+    } else if (command === 'viewBroker') {
+      this.$router.push({ path: `/brokers/${this.record.brokeruuid}` })
+    }
+  }
+
+   private getMessages(id: string) {
+    this.msgType = 'all'
+    const $activeConnection = this.activeConnection[id]
+    if ($activeConnection) {
+      this.messages = $activeConnection.messages
+    } else {
+      this.messages = this.record.messages
+    }
+  }
+  private handleMsgClear(): void {
+    this.messages = []
+    this.record.messages = []
+    this.changeActiveConnection({
+      id: this.$route.params.id,
+      client: this.client,
+      messages: this.messages,
+    })
+    updateConnection(this.record.id as string, this.record)
+  }
+  private handleMsgTypeChanged(type: MessageType): void {
+    if (type === 'received') {
+      this.messages = this.record.messages.filter(($: MessageModel) => !$.out)
+    } else if (type === 'publish') {
+      this.messages = this.record.messages.filter(($: MessageModel) => $.out)
+    } else {
+      this.messages = this.record.messages
+    }
+  }
+  private searchByTopic(): void {
+    this.getMessages(this.$route.params.id)
+    const $messages = [...this.messages]
+    this.messages = $messages.filter(($: MessageModel) => $.topic === this.searchTopic)
+  }
+  private handleSearchClose(): void {
+    this.searchVisible = false
+    this.getMessages(this.$route.params.id)
+  }
+
+  private removeConnection(): void {
+    const confirmDelete: string = this.$t('common.confirmDelete', { name: this.record.name }) as string
+    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
+      type: 'warning',
+    }).then(async () => {
+      const res: ConnectionModel | null = await deleteConnection(this.record.id as string)
+      if (res) {
+        this.$emit('delete')
+        this.$message({
+          type: 'success',
+          message: this.$t('common.deleteSuccess') as string,
+        })
+        this.removeActiveConnection({ id: res.id as string })
+      }
+    }).catch((error) => {
+      // ignore(error)
+    })
+  }
+
+  private createClient(): MqttClient {
+    const reconnectPeriod = 4000
+    const {
+      clientId, username, password, keepalive, clean, connectTimeout, ssl,
+    } = this.record
+    const options: IClientOptions  = {
+      clientId,
+      keepalive,
+      clean,
+      connectTimeout,
+      reconnectPeriod,
+    }
+    if (username !== '') {
+      options.username = username
+    }
+    if (password !== '') {
+      options.password = password
+    }
+    if (ssl) {
+      const filePath: SSLPath = {
+        ca: this.record.ca,
+        cert: this.record.cert,
+        key: this.record.key,
+      }
+      const sslRes: SSLContent | undefined = getSSLFile(filePath)
+      if (sslRes) {
+        options.rejectUnauthorized = false
+        options.ca = sslRes.ca
+        options.cert = sslRes.cert
+        options.key = sslRes.key
+      }
+    }
+    return mqtt.connect(this.connectUrl, options)
+  }
+  private connect(): boolean | void {
+    if (this.client.connected) {
+      return false
+    }
+    this.connectLoading = true
+    this.client = this.createClient()
+    const { id } = this.record
+    if (id) {
+      this.client.on('connect', this.onConnect)
+      this.client.on('error', this.onError)
+      this.client.on('reconnect', this.onReConnect)
+      this.client.on('message', this.messageArrived(id))
+    }
+  }
+  private disconnect(): boolean | void {
+    if (!this.client.connected) {
+      return false
+    }
+    const { id } = this.$route.params
+    if (this.record.clean) {
+      this.record.subscriptions = []
+      this.changeSubs({ id, subscriptions: [] })
+      updateConnection(id, this.record)
+    }
+    this.client.end()
+    this.changeActiveConnection({
+      id,
+      client: this.client,
+      messages: this.record.messages,
+    })
+    this.$notify({
+      title: this.$t('connections.disconnected') as string,
+      message: '',
+      type: 'success',
+      duration: 3000,
+    })
+    this.$emit('reload')
+  }
+  private onConnect() {
+    this.connectLoading = false
+    this.changeActiveConnection({
+      id: this.$route.params.id,
+      client: this.client,
+      messages: this.record.messages,
+    })
+    this.$notify({
+      title: this.$t('connections.connected') as string,
+      message: '',
+      type: 'success',
+      duration: 3000,
+    })
+    setTimeout(() => {
+      this.showClientInfo = false
+      this.changeShowClientInfo({
+        id: this.record.id as string,
+        showClientInfo: this.showClientInfo,
+      })
+    }, 500)
+    this.$emit('reload')
+  }
+  private onError() {
+    this.client.end()
+    this.connectLoading = false
+    this.$notify({
+      title: this.$t('connections.connectFailed') as string,
+      message: '',
+      type: 'error',
+      duration: 3000,
+    })
+  }
+  private onReConnect() {
+    this.client.end()
+    this.connectLoading = false
+    this.$notify({
+      title: this.$t('connections.connectFailed') as string,
+      message: '',
+      type: 'error',
+      duration: 3000,
+    })
+  }
+  private messageArrived(id: string) {
+    return (
+        topic: string,
+        payload: string,
+        packet: SubscriptionModel,
+      ) => {
+      const receivedMessage: MessageModel = {
+        out: false,
+        createAt: time.getNowDate(),
+        topic,
+        payload: payload.toString(),
+        qos: packet.qos,
+        retain: packet.retain as boolean,
+      }
+      this.pushMessage({ id, message: receivedMessage })
+      this.record.messages.push({ ...receivedMessage })
+      const connectionId = this.$route.params.id
+      if (id === connectionId) {
+        updateConnectionMessage(connectionId, { ...receivedMessage })
+      } else {
+        updateConnectionMessage(id, { ...receivedMessage })
+        this.unreadMessageIncrement({ id })
+      }
+      setTimeout(() => {
+        window.scrollTo(0, document.body.scrollHeight + 120)
+      }, 100)
     }
   }
 
@@ -242,191 +463,17 @@ export default class ConnectionsContent extends Vue {
           qos,
           retain,
         }
-        this.messages.push({ ...publishMessage })
-        this.record.messages = this.messages
+        this.pushMessage({
+          id: this.record.id as string,
+          message: publishMessage,
+        })
+        this.record.messages.push({ ...publishMessage })
         updateConnectionMessage(this.record.id as string, { ...publishMessage })
         setTimeout(() => {
           window.scrollTo(0, document.body.scrollHeight + 120)
         }, 100)
       },
     )
-  }
-
-  private handleShowSubs(): void {
-    this.showSubs = !this.showSubs
-    this.changeShowSubscriptions({ showSubscriptions: this.showSubs })
-  }
-
-  private handleCollapse(): void {
-    this.showClientInfo = !this.showClientInfo
-    this.changeShowClientInfo({ id: this.record.id, showClientInfo: this.showClientInfo })
-  }
-
-  private handleCommand(command: CommandType): void {
-    if (command === 'disconnect') {
-      this.disconnect()
-    } else if (command === 'deleteConnect') {
-      this.removeConnection()
-    } else if (command === 'clearHistory') {
-      this.messages = []
-      this.record.messages = []
-      updateConnection(this.record.id as string, this.record)
-      this.msgType = 'all'
-    } else if (command === 'viewBroker') {
-      this.$router.push({ path: `/brokers/${this.record.brokeruuid}` })
-    }
-  }
-
-  private handleMsgTypeChanged(type: MessageType): void {
-    if (type === 'received') {
-      this.messages = this.record.messages.filter(($: MessageModel) => !$.out)
-    } else if (type === 'publish') {
-      this.messages = this.record.messages.filter(($: MessageModel) => $.out)
-    } else {
-      this.messages = this.record.messages
-    }
-  }
-
-  private searchByTopic(): void {
-    this.getMessages(this.record)
-    const $messages = [...this.messages]
-    this.messages = $messages.filter(($: MessageModel) => $.topic === this.searchTopic)
-  }
-
-  private handleSearchClose(): void {
-    this.searchVisible = false
-    this.getMessages(this.record)
-  }
-
-  private removeConnection(): void {
-    const confirmDelete: string = this.$t('common.confirmDelete', { name: this.record.name }) as string
-    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
-      type: 'warning',
-    }).then(async () => {
-      const res: ConnectionModel | null = await deleteConnection(this.record.id as string)
-      if (res) {
-        this.$emit('delete')
-        this.$message({
-          type: 'success',
-          message: this.$t('common.deleteSuccess') as string,
-        })
-        this.removeActiveConnection({ id: res.id })
-      }
-    }).catch((error) => {
-      // ignore(error)
-    })
-  }
-
-  private createClient(): MqttClient {
-    const reconnectPeriod = 4000
-    const {
-      clientId, username, password, keepalive, clean, connectTimeout,
-    } = this.record
-    const options: IClientOptions  = {
-      clientId,
-      keepalive,
-      clean,
-      connectTimeout,
-      reconnectPeriod,
-    }
-    if (username !== '') {
-      options.username = username
-    }
-    if (password !== '') {
-      options.password = password
-    }
-    return mqtt.connect(this.connectUrl, options)
-  }
-  private connect(): boolean | void {
-    if (this.client.connected) {
-      return false
-    }
-    this.connectLoading = true
-    this.client = this.createClient()
-    const { id } = this.record
-    if (id) {
-      this.client.on('connect', this.onConnect)
-      this.client.on('error', this.onError)
-      this.client.on('reconnect', this.onReConnect)
-      this.client.on('message', this.messageArrived(id))
-    }
-  }
-  private disconnect(): boolean | void {
-    if (!this.client.connected) {
-      return false
-    }
-    if (this.record.clean) {
-      this.record.subscriptions = []
-      this.changeSubs({ id: this.record.id, subscription: [] })
-      updateConnection(this.record.id as string, this.record)
-    }
-    this.client.end()
-    this.changeActiveConnection({ id: this.record.id, client: this.client })
-    this.$notify({
-      title: this.$t('connections.disconnected') as string,
-      message: '',
-      type: 'success',
-      duration: 3000,
-    })
-    this.$emit('reload')
-  }
-  private onConnect() {
-    this.connectLoading = false
-    this.changeActiveConnection({ id: this.record.id, client: this.client })
-    this.$notify({
-      title: this.$t('connections.connected') as string,
-      message: '',
-      type: 'success',
-      duration: 3000,
-    })
-    setTimeout(() => {
-      this.showClientInfo = false
-      this.changeShowClientInfo({ id: this.record.id, showClientInfo: this.showClientInfo })
-    }, 500)
-    this.$emit('reload')
-  }
-  private onError() {
-    this.client.end()
-    this.connectLoading = false
-    this.$notify({
-      title: this.$t('connections.connectFailed') as string,
-      message: '',
-      type: 'error',
-      duration: 3000,
-    })
-  }
-  private onReConnect() {
-    this.client.end()
-    this.connectLoading = false
-    this.$notify({
-      title: this.$t('connections.connectFailed') as string,
-      message: '',
-      type: 'error',
-      duration: 3000,
-    })
-  }
-  private messageArrived(id: string) {
-    return (topic: string, payload: string, packet: SubscriptionModel) => {
-      const receivedMessage: MessageModel = {
-        out: false,
-        createAt: time.getNowDate(),
-        topic,
-        payload: payload.toString(),
-        qos: packet.qos,
-        retain: packet.retain as boolean,
-      }
-      if (id === this.record.id) {
-        this.messages.push({ ...receivedMessage })
-        this.record.messages = this.messages
-        updateConnectionMessage(this.record.id as string, { ...receivedMessage })
-      } else {
-        updateConnectionMessage(id, { ...receivedMessage })
-        this.unreadMessageIncrement({ id })
-      }
-      setTimeout(() => {
-        window.scrollTo(0, document.body.scrollHeight + 120)
-      }, 100)
-    }
   }
 
   private created(): void {

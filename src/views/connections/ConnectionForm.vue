@@ -38,8 +38,15 @@
             <el-input size="mini" type="number" v-model.number="connection.keepalive"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="8" :class="connection.ssl ? 'is-ssl' : ''">
           <el-checkbox v-model="connection.clean">Clean Session</el-checkbox>
+          <el-checkbox
+            v-if="connection.ssl"
+            v-model="connection.ssl"
+            class="ssl"
+            disabled>
+            SSL
+          </el-checkbox>
         </el-col>
         <el-col :span="8">
           <el-button 
@@ -73,15 +80,16 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import getClientId from '@/utils/getClientId'
-import { updateConnectionByClient } from '@/utils/api/connection'
+import { updateClientByConnection } from '@/utils/api/connection'
 import { ClientModel } from '../brokers/types'
 import { ConnectionModel } from './types'
+import { MqttClient } from 'mqtt'
 
 @Component
 export default class ConnectionForm extends Vue {
   @Prop({ required: true }) public connection!: ConnectionModel
   @Prop({ required: true }) public btnLoading!: boolean
-  @Prop({ required: true }) public client!: $TSFixed
+  @Prop({ required: true }) public client!: MqttClient | {}
 
   get rules() {
     return {
@@ -91,7 +99,10 @@ export default class ConnectionForm extends Vue {
   }
 
   private async confirm(): Promise<void> {
-    const res: ConnectionModel | null = await updateConnectionByClient(this.connection.id as string, this.connection)
+    const res: ConnectionModel | null = await updateClientByConnection(
+      this.connection.id as string,
+      this.connection,
+    )
     if (res) {
       this.$emit('handleConfirm', this.connection)
     }
@@ -132,6 +143,22 @@ export default class ConnectionForm extends Vue {
     .el-checkbox {
       margin-top: 42px;
     }
+    .is-ssl {
+      .el-checkbox.ssl {
+        &.is-disabled {
+          .el-checkbox__input.is-checked .el-checkbox__inner {
+            background-color: var(--color-main-green);
+            border-color: var(--color-main-green);
+            &::after {
+              border-color: var(--color-bg-normal);
+            }
+          }
+          .el-checkbox__input.is-disabled + span.el-checkbox__label {
+            color: var(--color-main-green);
+          }
+        }
+      }
+    }
     .el-button {
       margin-top: 25px;
       float: right;
@@ -140,6 +167,17 @@ export default class ConnectionForm extends Vue {
     .disconnect.el-button {
       color: var(--color-second-red);
       border-color: var(--color-second-red);
+    }
+  }
+}
+@media (max-width: 942px) {
+  .connection-form {
+    .el-form {
+      .is-ssl {
+        .el-checkbox {
+          margin-top: 12px;
+        }
+      }
     }
   }
 }

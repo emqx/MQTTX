@@ -1,35 +1,11 @@
 import Vue from 'vue'
-import { MqttClient } from 'mqtt'
 import { loadSettings, setSettings } from '@/utils/api/setting'
-
-interface ActiveConnection {
-  readonly id: string,
-}
-
-interface Client extends ActiveConnection {
-  client: MqttClient,
-}
-
-interface ClientInfo extends ActiveConnection {
-  showClientInfo: boolean,
-}
-
-interface Subscriptions extends ActiveConnection {
-  subscriptions: SubscriptionModel[],
-}
-
-interface UnreadMessage extends ActiveConnection {
-  unreadMessageCount: 0,
-}
-
-interface SubscriptionsVisible {
-  showSubscriptions: boolean
-}
 
 const TOGGLE_THEME: string = 'TOGGLE_THEME'
 const TOGGLE_LANG: string = 'TOGGLE_LANG'
 const TOGGLE_AUTO_CHECK: string = 'TOGGLE_AUTO_CHECK'
 const CHANGE_ACTIVE_CONNECTION: string = 'CHANGE_ACTIVE_CONNECTION'
+const PUSH_MESSAGE: string = 'PUSH_MESSAGE'
 const REMOVE_ACTIVE_CONNECTION: string = 'REMOVE_ACTIVE_CONNECTION'
 const CHANGE_SUBSCRIPTIONS: string = 'CHANGE_SUBSCRIPTIONS'
 const SHOW_CLIENT_INFO: string = 'SHOW_CLIENT_INFO'
@@ -66,14 +42,22 @@ const app = {
     [TOGGLE_AUTO_CHECK](state: App, autoCheck: boolean) {
       state.autoCheck = autoCheck
     },
-    [CHANGE_ACTIVE_CONNECTION](state: App, connection: Client) {
-      const client: MqttClient = connection.client
-      if (state.activeConnection[connection.id]) {
-        state.activeConnection[connection.id].client = client
+    [CHANGE_ACTIVE_CONNECTION](state: App, payload: Client) {
+      const client = payload.client
+      const messages = payload.messages
+      if (state.activeConnection[payload.id]) {
+        state.activeConnection[payload.id].client = client
+        state.activeConnection[payload.id].messages = messages
       } else {
-        state.activeConnection[connection.id] = {
+        state.activeConnection[payload.id] = {
           client,
+          messages,
         }
+      }
+    },
+    [PUSH_MESSAGE](state: App, payload: Message) {
+      if (state.activeConnection[payload.id]) {
+        state.activeConnection[payload.id].messages.push(payload.message)
       }
     },
     [REMOVE_ACTIVE_CONNECTION](state: App, id: string) {
@@ -81,8 +65,8 @@ const app = {
       delete state.unreadMessageCount[id]
       delete state.showClientInfo[id]
     },
-    [CHANGE_SUBSCRIPTIONS](state: App, subs: Subscriptions) {
-      state.activeConnection[subs.id].subscriptions = subs.subscriptions
+    [CHANGE_SUBSCRIPTIONS](state: App, payload: Subscriptions) {
+      state.activeConnection[payload.id].subscriptions = payload.subscriptions
     },
     [SHOW_CLIENT_INFO](state: App, payload: ClientInfo) {
       state.showClientInfo[payload.id] = payload.showClientInfo
@@ -95,7 +79,7 @@ const app = {
       if (payload.unreadMessageCount !== undefined) {
         Vue.set(state.unreadMessageCount, payload.id, payload.unreadMessageCount)
       } else {
-        const count = state.unreadMessageCount[payload.id] += 1
+        const count = (state.unreadMessageCount[payload.id] += 1)
         Vue.set(state.unreadMessageCount, payload.id, count)
       }
     },
@@ -115,6 +99,9 @@ const app = {
     },
     CHANGE_ACTIVE_CONNECTION({ commit }: any, payload: App) {
       commit(CHANGE_ACTIVE_CONNECTION, payload)
+    },
+    PUSH_MESSAGE({ commit }: any, payload: App) {
+      commit(PUSH_MESSAGE, payload)
     },
     REMOVE_ACTIVE_CONNECTION({ commit }: any, { id }: { id: string }) {
       commit(REMOVE_ACTIVE_CONNECTION, id)
