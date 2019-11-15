@@ -1,11 +1,12 @@
 import { MqttClient } from 'mqtt'
+
 export interface MessageModel {
-  createAt: string
-  out: boolean
-  payload: string
-  qos: number
-  retain: boolean
-  topic: string
+  createAt: string,
+  out: boolean,
+  payload: string,
+  qos: number,
+  retain: boolean,
+  topic: string,
 }
 
 export interface SSLPath {
