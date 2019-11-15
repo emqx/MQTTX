@@ -1,7 +1,7 @@
 import db from '@/datastore/index'
 import { BrokerModel, ClientModel } from '@/views/brokers/types'
 import { ConnectionModel } from '@/views/connections/types'
-import { deleteConnection } from './connection'
+import { deleteConnection, updateConnection, loadConnections } from './connection'
 
 interface QueryClient {
   brokeruuid: string
@@ -9,10 +9,23 @@ interface QueryClient {
 
 const deleteConnectionList = (id: string, type: 'broker' | 'client'): void => {
   const uuid = type === 'broker' ? 'brokeruuid' : 'clientuuid'
-  const connections: ConnectionModel[] | [] = db.get<ConnectionModel[]>('connections')
+  const connections: ConnectionModel[] | [] = loadConnections()
   connections.forEach((connection: ConnectionModel) => {
     if (connection[uuid] === id) {
       deleteConnection(connection.id as string)
+    }
+  })
+}
+
+const updateConnectionList = (brokeruuid: string, data: BrokerModel): void => {
+  const connections: ConnectionModel[] | [] = loadConnections()
+  connections.forEach((connection: ConnectionModel) => {
+    if (connection.brokeruuid === brokeruuid) {
+      connection.host = data.brokerAddress
+      connection.port = data.brokerPort
+      connection.path = data.path
+      connection.ssl = data.tls
+      updateConnection(connection.id as string, connection)
     }
   })
 }
@@ -30,7 +43,7 @@ export const createBroker = (data: BrokerModel): BrokerModel => {
 }
 
 export const updateBroker = (id: string, data: BrokerModel): BrokerModel => {
-  console.log(data)
+  updateConnectionList(id, data)
   return db.update<BrokerModel>('brokers', id, data)
 }
 

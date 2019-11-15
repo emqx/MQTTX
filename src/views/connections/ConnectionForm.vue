@@ -80,7 +80,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import getClientId from '@/utils/getClientId'
-import { updateConnectionByClient } from '@/utils/api/connection'
+import { updateClientByConnection } from '@/utils/api/connection'
 import { ClientModel } from '../brokers/types'
 import { ConnectionModel } from './types'
 import { MqttClient } from 'mqtt'
@@ -99,7 +99,7 @@ export default class ConnectionForm extends Vue {
   }
 
   private async confirm(): Promise<void> {
-    const res: ConnectionModel | null = await updateConnectionByClient(
+    const res: ConnectionModel | null = await updateClientByConnection(
       this.connection.id as string,
       this.connection,
     )
