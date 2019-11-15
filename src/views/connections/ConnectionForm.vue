@@ -92,7 +92,10 @@ export default class ConnectionForm extends Vue {
   }
 
   private async confirm(): Promise<void> {
-    const res: ConnectionModel | null = await updateConnectionByClient(this.connection.id as string, this.connection)
+    const res: ConnectionModel | null = await updateConnectionByClient(
+      this.connection.id as string,
+      this.connection,
+    )
     if (res) {
       this.$emit('handleConfirm', this.connection)
     }

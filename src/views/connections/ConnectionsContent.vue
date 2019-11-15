@@ -124,12 +124,13 @@ import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
+import { getSSLFile } from '@/utils/getFiles'
 import MsgRightItem from './MsgRightItem.vue'
 import MsgLeftItem from './MsgLeftItem.vue'
 import MsgPublish from './MsgPublish.vue'
 import ConnectionForm from './ConnectionForm.vue'
 import SubscriptionsList from './SubscriptionsList.vue'
-import { ConnectionModel, MessageModel } from './types'
+import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'viewBroker' | 'clearHistory' | 'disconnect' | 'deleteConnect'
@@ -288,7 +289,7 @@ export default class ConnectionsContent extends Vue {
   private createClient(): MqttClient {
     const reconnectPeriod = 4000
     const {
-      clientId, username, password, keepalive, clean, connectTimeout,
+      clientId, username, password, keepalive, clean, connectTimeout, ssl,
     } = this.record
     const options: IClientOptions  = {
       clientId,
@@ -302,6 +303,20 @@ export default class ConnectionsContent extends Vue {
     }
     if (password !== '') {
       options.password = password
+    }
+    if (ssl) {
+      const filePath: SSLPath = {
+        ca: this.record.ca,
+        cert: this.record.cert,
+        key: this.record.key,
+      }
+      const sslRes: SSLContent | undefined = getSSLFile(filePath)
+      if (sslRes) {
+        options.rejectUnauthorized = false
+        options.ca = sslRes.ca
+        options.cert = sslRes.cert
+        options.key = sslRes.key
+      }
     }
     return mqtt.connect(this.connectUrl, options)
   }
