@@ -38,8 +38,15 @@
             <el-input size="mini" type="number" v-model.number="connection.keepalive"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="8" :class="connection.ssl ? 'is-ssl' : ''">
           <el-checkbox v-model="connection.clean">Clean Session</el-checkbox>
+          <el-checkbox
+            v-if="connection.ssl"
+            v-model="connection.ssl"
+            class="ssl"
+            disabled>
+            SSL
+          </el-checkbox>
         </el-col>
         <el-col :span="8">
           <el-button 
@@ -136,6 +143,22 @@ export default class ConnectionForm extends Vue {
     .el-checkbox {
       margin-top: 42px;
     }
+    .is-ssl {
+      .el-checkbox.ssl {
+        &.is-disabled {
+          .el-checkbox__input.is-checked .el-checkbox__inner {
+            background-color: var(--color-main-green);
+            border-color: var(--color-main-green);
+            &::after {
+              border-color: var(--color-bg-normal);
+            }
+          }
+          .el-checkbox__input.is-disabled + span.el-checkbox__label {
+            color: var(--color-main-green);
+          }
+        }
+      }
+    }
     .el-button {
       margin-top: 25px;
       float: right;
@@ -144,6 +167,17 @@ export default class ConnectionForm extends Vue {
     .disconnect.el-button {
       color: var(--color-second-red);
       border-color: var(--color-second-red);
+    }
+  }
+}
+@media (max-width: 942px) {
+  .connection-form {
+    .el-form {
+      .is-ssl {
+        .el-checkbox {
+          margin-top: 12px;
+        }
+      }
     }
   }
 }
