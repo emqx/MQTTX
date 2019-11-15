@@ -106,6 +106,9 @@ export default class Connections extends Vue {
     client: {
       connected: false,
     },
+    ca: '',
+    cert: '',
+    key: '',
   }
   private record: RecordModel = {
     selector: [],
@@ -130,6 +133,9 @@ export default class Connections extends Vue {
     client: {
       connected: false,
     },
+    ca: '',
+    cert: '',
+    key: '',
   }
 
   @Watch('$route.params.id')
@@ -210,6 +216,9 @@ export default class Connections extends Vue {
             keepalive: client.keepAlive || 60,
             connectTimeout: client.connectionTimeout || 4000,
             clean: client.cleanSession,
+            ca: client.ca,
+            cert: client.cert,
+            key: client.key,
           }
         }
         const data = {
@@ -256,6 +265,9 @@ export default class Connections extends Vue {
       client: {
         connected: false,
       },
+      ca: '',
+      cert: '',
+      key: '',
     }
     this.vueForm.clearValidate()
     this.vueForm.resetFields()

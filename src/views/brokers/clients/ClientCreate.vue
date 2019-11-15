@@ -208,7 +208,7 @@ export default class ClientCreate extends Vue {
         'openFile',
       ],
       filters: [
-        { name: 'CA', extensions: ['crt', 'key'] },
+        { name: 'CA', extensions: ['crt', 'key', 'pem'] },
       ],
     }, (files) => {
       if (files) {
