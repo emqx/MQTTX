@@ -29,7 +29,7 @@ export const updateConnectionMessage = (id: string, message: MessageModel ): Con
   return db.update<ConnectionModel>('connections', id, connection)
 }
 
-export const updateConnectionByClient = (id: string, data: ConnectionModel): ConnectionModel => {
+export const updateClientByConnection = (id: string, data: ConnectionModel): ConnectionModel => {
   const client: ClientModel = loadClient(data.clientuuid)
   if (client) {
     client.clientName = data.name
