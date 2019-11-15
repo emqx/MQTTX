@@ -9,7 +9,15 @@
         @click="selectBroker(broker)">
         <div>
           <div class="broker-name">{{ broker.brokerName }}</div>
-          <div class="broker-url">{{ broker.brokerAddress }}:{{ broker.brokerPort }}</div>
+          <el-tooltip
+            effect="light"
+            :disabled="`${broker.brokerAddress}:${broker.brokerPort}`.length < 35"
+            :content="`${broker.brokerAddress}:${broker.brokerPort}`"
+            placement="top">
+            <div class="broker-url">
+              {{ broker.brokerAddress }}:{{ broker.brokerPort }}
+            </div>
+          </el-tooltip>
         </div>
         <div v-if="broker.tls" class="ssl-tag">
           <span>SSL</span>
@@ -68,6 +76,10 @@ export default class BrokersList extends Vue {
     .broker-url {
       font-size: $font-size--tips;
       color: var(--color-text-default);
+      max-width: 200px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
     }
     .ssl-tag {
       position: absolute;
