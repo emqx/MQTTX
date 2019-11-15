@@ -30,6 +30,7 @@ export const createBroker = (data: BrokerModel): BrokerModel => {
 }
 
 export const updateBroker = (id: string, data: BrokerModel): BrokerModel => {
+  console.log(data)
   return db.update<BrokerModel>('brokers', id, data)
 }
 
