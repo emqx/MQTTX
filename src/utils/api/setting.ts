@@ -1,10 +1,10 @@
 import db from '@/datastore/index'
 
-export const loadSettings = (): any => {
-  return db.get('settings')
+export const loadSettings = (): App => {
+  return db.get<App>('settings')
 }
 
-export const setSettings = (key: string, value: string | boolean): any => {
+export const setSettings = (key: string, value: string | boolean): string | boolean => {
   return db.set<string | boolean>(key, value)
 }
 

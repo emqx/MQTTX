@@ -18,9 +18,9 @@ import Ipc from '@/components/Ipc.vue'
 })
 export default class Home extends Vue {
   @Getter('currentTheme') private getterTheme!: 'dark' | 'light'
-  @Getter('currentLang') private getterLang!: string
+  @Getter('currentLang') private getterLang!: 'en' | 'zh'
 
-  private setTheme(currentTheme: string): void {
+  private setTheme(currentTheme: 'dark' | 'light'): void {
     const bodyTag: HTMLBodyElement | null = document.querySelector('body')
     if (!bodyTag) {
       return
@@ -28,7 +28,7 @@ export default class Home extends Vue {
     bodyTag.className = currentTheme
   }
 
-  private setLang(currentLang: string): void {
+  private setLang(currentLang: 'en' | 'zh'): void {
     document.documentElement.lang = currentLang
     this.$i18n.locale = currentLang
   }
