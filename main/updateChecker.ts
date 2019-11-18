@@ -8,15 +8,15 @@ const downloadUrl: string = 'https://github.com/emqx/MQTTX/releases/latest'
 const isUpdate = (latest: string, current: string): boolean => {
   const latestVersion: number[] = latest.split('.').map((item) => parseInt(item, 10))
   const currentVersion: number[] = current.split('.').map((item) => parseInt(item, 10))
-  let isMin: boolean = false
+  let update: boolean = false
 
   for (let i: number = 0; i < 3; i++) {
     if (currentVersion[i] < latestVersion[i]) {
-      isMin = true
+      update = true
     }
   }
 
-  return isMin
+  return update
 }
 
 const updateChecker = async (isAuto: boolean = true): Promise<void | boolean> => {
