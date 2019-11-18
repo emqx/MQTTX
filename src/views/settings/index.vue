@@ -61,7 +61,6 @@
           </el-col>
           <el-col :span="4">
             <el-select
-              disabled
               class="settings-options"
               v-model="currentTheme"
               size="mini"
@@ -97,12 +96,12 @@ import SettingsLeft from './SettingsLeft.vue'
   },
 })
 export default class Settings extends Vue {
-  @Action('TOGGLE_THEME') private actionTheme: any
-  @Action('TOGGLE_LANG') private actionLang: any
-  @Action('TOGGLE_AUTO_CHECK') private actionAutoCheck: any
-  @Getter('currentTheme') private getterTheme: any
-  @Getter('currentLang') private getterLang: any
-  @Getter('autoCheck') private getterAutoCheck: any
+  @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
+  @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
+  @Action('TOGGLE_AUTO_CHECK') private actionAutoCheck!: (payload: { autoCheck: boolean }) => void
+  @Getter('currentTheme') private getterTheme!: 'dark' | 'light'
+  @Getter('currentLang') private getterLang!: string
+  @Getter('autoCheck') private getterAutoCheck!: boolean
 
   private currentTheme: string = 'light'
   private currentLang: string = 'en'
@@ -118,9 +117,9 @@ export default class Settings extends Vue {
 
   private handleSelectChange(type: string, value: string | number | boolean): void {
     if (type === 'theme') {
-      this.actionTheme({ currentTheme: value })
+      this.actionTheme({ currentTheme: value as string })
     } else if (type === 'lang') {
-      this.actionLang({ currentLang: value })
+      this.actionLang({ currentLang: value as string })
     }
     ipcRenderer.send('setting', type, value)
   }

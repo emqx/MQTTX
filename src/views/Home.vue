@@ -17,8 +17,8 @@ import Ipc from '@/components/Ipc.vue'
   },
 })
 export default class Home extends Vue {
-  @Getter('currentTheme') private getterTheme: any
-  @Getter('currentLang') private getterLang: any
+  @Getter('currentTheme') private getterTheme!: 'dark' | 'light'
+  @Getter('currentLang') private getterLang!: string
 
   private setTheme(currentTheme: string): void {
     const bodyTag: HTMLBodyElement | null = document.querySelector('body')
