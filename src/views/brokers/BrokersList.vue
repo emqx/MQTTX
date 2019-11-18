@@ -10,7 +10,7 @@
         <div>
           <div class="broker-name">{{ broker.brokerName }}</div>
           <el-tooltip
-            effect="light"
+            :effect="theme"
             :disabled="`${broker.brokerAddress}:${broker.brokerPort}`.length < 35"
             :content="`${broker.brokerAddress}:${broker.brokerPort}`"
             placement="top">
@@ -33,6 +33,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 import { deleteBroker } from '@/utils/api/broker'
 import { BrokerModel } from './types'
 
@@ -40,6 +41,8 @@ import { BrokerModel } from './types'
 export default class BrokersList extends Vue {
   @Prop({ required: true }) public data!: BrokerModel[] | []
   @Prop({ required: true }) public brokerID!: string
+
+  @Getter('currentTheme') private theme!: 'dark' | 'light'
 
   private selectBroker(row: BrokerModel): void {
     this.$router.push({ path: `/brokers/${row.id}` })

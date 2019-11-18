@@ -64,16 +64,17 @@ export default class MsgPublish extends Vue {
 
 .msg-publish {
   background: var(--color-bg-normal);
-  border-top: 2px solid var(--color-border-default);
+  border-top: 1px solid var(--color-border-default);
   padding: 0px 16px;
   transition: .3s height;
-  .el-input__inner {
-    border: 0px;
-    border-radius: 0px;
-    padding: 0px;
+  .el-input {
+    .el-input__inner {
+      border: 0px;
+      border-radius: 0px;
+      padding: 0px;
+    }
   }
   .qos-retain {
-    border-top: 1px solid var(--color-border-default);
     position: absolute;
     top: 1px;
     right: 35px;
@@ -87,6 +88,9 @@ export default class MsgPublish extends Vue {
     }
     .el-radio-group {
       margin-right: 32px;
+      .el-radio {
+        color: var(--color-text-default);
+      }
     }
     .el-radio {
       margin-right: 16px;
@@ -101,16 +105,15 @@ export default class MsgPublish extends Vue {
   textarea {
     resize: none;
   }
-  .el-textarea__inner {
-    border-top-color: var(--color-border-default);
-    border-left: 0px;
-    border-right: 0px;
-    border-bottom: 0px;
-    border-radius: 0px;
-    padding: 8px 0px;
-    &:focus,
-    &:hover {
-      border-color: var(--color-border-default);
+  .el-textarea {
+    .el-textarea__inner {
+      border: 0px;
+      border-top: 1px solid var(--color-border-default);
+      padding: 8px 0px;
+      &:focus,
+      &:hover {
+        border-color: var(--color-border-default);
+      }
     }
   }
   .send-btn {

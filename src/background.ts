@@ -1,7 +1,7 @@
 'use strict'
 
 import {
-  app, protocol, BrowserWindow, ipcMain, shell, Menu,
+  app, protocol, BrowserWindow, ipcMain, shell, Menu, systemPreferences,
 } from 'electron'
 import {
   createProtocol,
@@ -11,7 +11,15 @@ import db from './datastore/index'
 import updateChecker from '../main/updateChecker'
 import getMenuTemplate from '../main/getMenuTemplate'
 
+interface WindowSizeModel {
+  width: number,
+  height: number,
+}
+
+declare const __static: string
+
 const isDevelopment = process.env.NODE_ENV !== 'production'
+const isDarkMode = systemPreferences.isDarkMode()
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -31,22 +39,18 @@ function handleIpcMessages() {
   })
 }
 
-interface WindowSizeModel {
-  width: number,
-  height: number,
-}
-
-declare const __static: string
-
 function createWindow() {
   const windowSize = db.get<WindowSizeModel>('windowSize')
+  const theme = db.get<'light' | 'dark'>('settings.currentTheme')
   // Create the browser window.
   win = new BrowserWindow({
     ...windowSize,
     webPreferences: {
+      devTools: isDevelopment,
       webSecurity: false,
       nodeIntegration: true,
     },
+    backgroundColor: theme === 'dark' ? '#232323' : '#ffffff',
     icon: `${__static}/app.ico`,
   })
 
@@ -91,7 +95,7 @@ app.on('activate', () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
-  const autoCheckUpdate = db.get('settings.autoCheck')
+  const autoCheckUpdate = db.get<boolean>('settings.autoCheck')
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
     try {

@@ -15,7 +15,7 @@
           </div>
           <div class="client-info">
             <el-tooltip
-              effect="light"
+              :effect="theme"
               :disabled="`${item.name}@${item.host}:${item.port}`.length < 28"
               :content="`${item.name}@${item.host}:${item.port}`"
               placement="top">
@@ -51,6 +51,7 @@ export default class ConnectionsList extends Vue {
 
   @Getter('activeConnection') private activeConnection: Client | undefined
   @Getter('unreadMessageCount') private unreadMessageCount: UnreadMessage | undefined
+  @Getter('currentTheme') private theme!: 'dark' | 'light'
 
   private selectConnection(row: ConnectionModel) {
     this.unreadMessageIncrement({ id: row.id as string, unreadMessageCount: 0  })
