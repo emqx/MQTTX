@@ -51,8 +51,8 @@ declare global {
   }
 
   interface App {
-    currentTheme: string,
-    currentLang: string,
+    currentTheme: 'dark' | 'light',
+    currentLang: 'en' | 'zh',
     autoCheck: boolean,
     showSubscriptions: boolean,
     showClientInfo: {

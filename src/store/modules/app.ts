@@ -33,10 +33,10 @@ const app = {
     activeConnection: {},
   },
   mutations: {
-    [TOGGLE_THEME](state: App, currentTheme: string) {
+    [TOGGLE_THEME](state: App, currentTheme: 'dark' | 'light') {
       state.currentTheme = currentTheme
     },
-    [TOGGLE_LANG](state: App, currentLang: string) {
+    [TOGGLE_LANG](state: App, currentLang: 'en' | 'zh') {
       state.currentLang = currentLang
     },
     [TOGGLE_AUTO_CHECK](state: App, autoCheck: boolean) {
