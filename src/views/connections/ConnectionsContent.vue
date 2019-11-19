@@ -425,6 +425,7 @@ export default class ConnectionsContent extends Vue {
       duration: 3000,
       offset: 20,
     })
+    this.$emit('reload')
   }
   private onReConnect() {
     this.client.end()
@@ -436,6 +437,7 @@ export default class ConnectionsContent extends Vue {
       duration: 3000,
       offset: 20,
     })
+    this.$emit('reload')
   }
   private messageArrived(id: string) {
     return (
