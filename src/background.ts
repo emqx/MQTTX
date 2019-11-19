@@ -51,6 +51,7 @@ function createWindow() {
       webSecurity: false,
       nodeIntegration: true,
     },
+    titleBarStyle: isMac ? 'hidden' : 'default',
     backgroundColor: theme === 'dark' ? '#232323' : '#ffffff',
     icon: `${__static}/app.ico`,
   })

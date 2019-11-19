@@ -31,6 +31,8 @@ const app = {
     showClientInfo: {},
     unreadMessageCount: {},
     activeConnection: {},
+    // On MacOS system we have custom titlebar, should has TOP value to display it.
+    MacOSTop: process.platform === 'darwin' ? '24px' : '0px',
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: 'dark' | 'light') {

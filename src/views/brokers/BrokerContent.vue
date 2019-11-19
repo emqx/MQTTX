@@ -1,6 +1,6 @@
 <template>
   <div class="broker-content card-form">
-    <div class="broker-topbar right-topbar">
+    <div class="broker-topbar right-topbar" :style="{ top: $store.state.app.MacOSTop }">
       <div class="broker-info topbar">
         <div class="broker-head">
           <h2>{{ record.brokerName }}</h2>

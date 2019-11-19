@@ -27,6 +27,7 @@ export default class LeftPanel extends Vue {}
     border-radius: 0;
     top: 0;
     bottom: 0;
+    padding-bottom: 42px;
   }
 }
 .pop-enter-active {
