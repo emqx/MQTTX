@@ -1,5 +1,5 @@
 <template>
-  <div class="search-topbar left-topbar topbar">
+  <div class="search-topbar left-topbar topbar" :style="{ top: $store.state.app.MacOSTop }">
     <el-input 
       v-model="searchValue"
       size="small"

@@ -55,20 +55,20 @@ export default class Home extends Vue {
   .left-topbar {
     padding: 0 16px;
     position: fixed;
-    top: 0;
     left: 0;
     z-index: 1;
     background: var(--color-bg-normal);
     width: 280px;
     border-right: 2px solid var(--color-border-default);
+    -webkit-app-region: drag;
   }
   .right-topbar {
     position: fixed;
-    top: 0;
     left: 280px;
     right: 0;
     z-index: 3;
     background: var(--color-bg-normal);
+    -webkit-app-region: drag;
   }
   .right-content {
     margin-left: 280px;

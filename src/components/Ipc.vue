@@ -8,7 +8,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { ipcRenderer } from 'electron'
 
 @Component
-export default class Home extends Vue {
+export default class Ipc extends Vue {
   private bindIpcEvents(): void {
     ipcRenderer.on('setting', (event: any, ...args: any[]) => {
       const eventType: any = args[0]

@@ -53,6 +53,7 @@ declare global {
   interface App {
     currentTheme: 'dark' | 'light',
     currentLang: 'en' | 'zh',
+    MacOSTop: '24px' | '0px',
     autoCheck: boolean,
     showSubscriptions: boolean,
     showClientInfo: {

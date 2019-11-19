@@ -17,7 +17,9 @@
       name="brokers"
       :btn-title="$t('brokers.newBroker')"
       :click-method="showNewBrokerDialog"/>
-    <div v-else class="brokers-view right-content">
+    <div v-else class="brokers-view right-content" :style="{
+      paddingTop: brokerViewTop,
+    }">
       <ClientCreate v-if="isClientPage" :broker="currentBroker"/>
       <BrokerContent
         v-else
@@ -137,6 +139,13 @@ export default class Brokers extends Vue {
   @Watch('isClientPage')
   private handlePageChange() {
     this.loadClients()
+  }
+
+  get brokerViewTop(): string {
+    if (this.$store.state.app.MacOSTop === '24px') {
+      return '114px'
+    }
+    return '90px'
   }
 
   get rules(): any {
@@ -289,6 +298,6 @@ export default class Brokers extends Vue {
 
 <style lang="scss" scoped>
 .brokers-view {
-  padding: 90px 16px;
+  padding: 0px 16px 16px 16px;
 }
 </style>

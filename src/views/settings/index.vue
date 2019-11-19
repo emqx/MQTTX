@@ -4,7 +4,7 @@
       <SettingsLeft/>
     </leftbar>
 
-    <div class="settings-view-content right-content">
+    <div class="settings-view-content right-content" :style="{ top: $store.state.app.MacOSTop }">
       <h1 class="titlebar">{{ $t('settings.settings') }}</h1>
       <div class="settings-general">
         <div class="settings-title">{{ $t('settings.general') }}</div>
@@ -147,26 +147,27 @@ export default class Settings extends Vue {
     margin: 0px;
   }
   .settings-view-content {
+    position: relative;
     padding: 0 16px;
-    
+
     .titlebar {
       padding: 16px 0;
     }
-  
+
     .settings-general {
       margin-top: 30px;
       margin-bottom: 80px;
     }
-    
+
     .el-divider--horizontal {
       margin: 15px 0;
     }
-  
+
     .settings-title {
       color: var(--color-text-light);
       margin-bottom: -5px;
     }
-  
+
     .settings-item {
       label {
         color: var(--color-text-title);
@@ -176,20 +177,20 @@ export default class Settings extends Vue {
     .el-col-4 {
       text-align: right;
     }
-  
+
     .settings-options {
-  
+
       .el-input__inner {
         border: none;
         background: transparent;
         font-size: $font-size--body;
         color: var(--color-text-default);
       }
-  
+
       &.el-select {
         width: 108px;
       }
-  
+
       &.el-select .el-input .el-select__caret {
         color: var(--color-text-default);
       }
