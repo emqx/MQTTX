@@ -113,10 +113,13 @@
 .el-notification {
   border-radius: 4px;
   background-color: var(--color-bg-messagebox);
-  border-color: var(--color-border-bold);
+  border-color: var(--color-border-default);
   .el-notification__title {
     color: var(--color-text-title);
     font-weight: normal;
+  }
+  .el-icon-success {
+    color: var(--color-main-green);
   }
 }
 
@@ -141,6 +144,9 @@
     background: var(--color-bg-normal);
     border: 1px solid var(--color-border-default);
     color: var(--color-text-default);
+    &::placeholder {
+      color: var(--color-text-light);
+    }
   }
 }
 
