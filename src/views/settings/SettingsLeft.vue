@@ -31,13 +31,13 @@ import { ipcRenderer } from 'electron'
 
 @Component
 export default class SettingsLeft extends Vue {
-  @Getter('currentTheme') private getterTheme!: 'dark' | 'light'
+  @Getter('currentTheme') private getterTheme!: 'light' | 'dark' | 'purple'
 
   get logo(): string {
-    if (this.getterTheme === 'dark') {
-      return require('../../assets/images/mqttx-dark.png')
+    if (this.getterTheme === 'light') {
+      return require('../../assets/images/mqttx-light.png')
     }
-    return require('../../assets/images/mqttx-light.png')
+    return require('../../assets/images/mqttx-dark.png')
   }
 
   private checkUpdate(): void {

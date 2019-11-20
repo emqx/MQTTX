@@ -11,9 +11,10 @@
   background: transparent;
   border: 2px solid var(--color-border-bold);
   width: 90px;
+  color: var(--color-text-light);
 }
 .el-radio-button__orig-radio:checked+.el-radio-button__inner {
-  background-color: var(--color-bg-connection_item);
+  background-color: var(--color-bg-item);
   color: var(--color-main-green);
   border: 2px solid var(--color-main-green) !important;
   z-index: 1;
@@ -166,7 +167,7 @@
 }
 .el-select-dropdown__item.hover,
 .el-select-dropdown__item:hover {
-  background: var(--color-bg-connection_item);
+  background: var(--color-bg-item);
 }
 
 /* Cascader */
@@ -175,5 +176,5 @@
 }
 .el-cascader-node:not(.is-disabled):hover,
 .el-cascader-node:not(.is-disabled):focus {
-  background: var(--color-bg-connection_item);
+  background: var(--color-bg-item);
 }

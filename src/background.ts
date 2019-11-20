@@ -42,7 +42,7 @@ function handleIpcMessages() {
 
 function createWindow() {
   const windowSize = db.get<WindowSizeModel>('windowSize')
-  const theme = db.get<'light' | 'dark'>('settings.currentTheme')
+  const theme = db.get<'light' | 'dark' | 'purple'>('settings.currentTheme')
   // Create the browser window.
   win = new BrowserWindow({
     ...windowSize,

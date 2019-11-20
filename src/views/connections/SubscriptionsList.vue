@@ -87,7 +87,7 @@ export default class SubscriptionsList extends Vue {
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
   @Getter('activeConnection') private activeConnection: $TSFixed
-  @Getter('currentTheme') private theme!: 'dark' | 'light'
+  @Getter('currentTheme') private theme!: 'light' | 'dark' | 'purple'
 
   private currentConnection: $TSFixed = {}
   private showDialog: boolean = false

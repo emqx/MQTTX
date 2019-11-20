@@ -51,7 +51,7 @@ declare global {
   }
 
   interface App {
-    currentTheme: 'dark' | 'light',
+    currentTheme: 'light' | 'dark' | 'purple',
     currentLang: 'en' | 'zh',
     MacOSTop: '24px' | '0px',
     autoCheck: boolean,
