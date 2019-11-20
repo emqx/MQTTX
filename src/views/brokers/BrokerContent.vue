@@ -65,10 +65,22 @@
     </div>
     <el-row :gutter="10">
       <el-col v-for="client in clients" :key="client.id" :span="12">
-        <el-card shadow="never" class="item-card client-card">
-          <a class="remove-icon" href="javascript:;" @click="removeClient(client)">
-            <i class="el-icon-close"></i>
-          </a>
+        <el-card shadow="hover" class="item-card client-card">
+          <el-dropdown class="oper-dropdown" trigger="click" @command="handleCommand">
+            <a class="oper-icon" href="javascript:;">
+              <i class="el-icon-more"></i>
+            </a>
+            <el-dropdown-menu slot="dropdown">
+              <a class="dropdown-clients-item" href="javascript:;" @click="editClient(client)">
+                <i class="el-icon-edit"></i>
+                {{ $t('common.edit') }}
+              </a>
+              <a class="dropdown-clients-item" href="javascript:;" @click="removeClient(client)">
+                <i class="el-icon-delete"></i>
+                {{ $t('common.delete') }}
+              </a>
+            </el-dropdown-menu>
+          </el-dropdown>
           <el-form label-suffix=":">
             <el-form-item :label="$t('brokers.clientName')">
               <span>{{ client.clientName }}</span>
@@ -102,6 +114,13 @@ export default class BrokerContent extends Vue {
     if (command === 'deleteBroker') {
       this.$emit('deleteBroker', this.record)
     }
+  }
+
+  private editClient(row: ClientModel): void {
+    this.$router.push({
+      path: `/clients/${this.record.id}`,
+      query: { oper: 'edit', clientId: row.id },
+    })
   }
 
   private removeClient(row: ClientModel): void {
@@ -147,17 +166,24 @@ export default class BrokerContent extends Vue {
   .client-card {
     margin: 10px 5px 10px 0px;
     cursor: pointer;
-    .remove-icon {
+    .oper-dropdown {
       position: absolute;
       right: 10px;
-      top: 5px;
-      visibility: hidden;
-    }
-    &:hover {
-      .remove-icon {
-        visibility: visible;
+      top: 8px;
+      .oper-icon {
+        display: inline-block;
+        transform: rotate(90deg);
       }
     }
+  }
+}
+.dropdown-clients-item {
+  display: block;
+  text-align: left;
+  padding: 5px 16px;
+  min-width: 85px;
+  i {
+    margin-right: 8px;
   }
 }
 </style>

@@ -8,7 +8,7 @@
           </a>
         </div>
         <div class="client-body">
-          <h2>{{ $t('brokers.newClient') }}</h2>
+          <h2>{{ oper === 'create' ? $t('brokers.newClient') : $t('brokers.editClient') }}</h2>
         </div>
         <div class="client-tail">
           <a href="javascript:;" @click="save">
@@ -157,7 +157,7 @@
 <script lang="ts">
 import { remote } from 'electron'
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { createClient } from '@/utils/api/broker'
+import { createClient, loadClient } from '@/utils/api/broker'
 import getClientId from '@/utils/getClientId'
 import { ClientModel, BrokerModel } from '../types'
 
@@ -178,6 +178,21 @@ export default class ClientCreate extends Vue {
     ca: '',
     cert: '',
     key: '',
+  }
+
+  get oper(): 'create' | 'edit' {
+    if (this.$route.query.oper === 'edit') {
+      return 'edit'
+    }
+    return 'create'
+  }
+
+  get clientId(): string {
+    const clientId: string = this.$route.query.clientId as string
+    if (clientId) {
+      return clientId
+    }
+    return ''
   }
 
   get vueForm(): VueForm {
@@ -217,6 +232,13 @@ export default class ClientCreate extends Vue {
     })
   }
 
+  private async loadData(): Promise<void> {
+    const res: ClientModel = await loadClient(this.clientId)
+    if (res) {
+      this.record = res
+    }
+  }
+
   private save() {
     this.vueForm.validate(async (valid: boolean) => {
       if (!valid) {
@@ -230,6 +252,12 @@ export default class ClientCreate extends Vue {
         this.$router.push({ path: `/brokers/${this.broker.id}` })
       }
     })
+  }
+
+  private created(): void {
+    if (this.clientId !== '' && this.oper === 'edit') {
+      this.loadData()
+    }
   }
   // TODO: Determine whether to save on beforeRouterLeave
 }
