@@ -8,7 +8,7 @@
 
 ---
 
-MQTTX 是 EMQ 开源的一款跨平台 MQTT 桌面客户端，它支持 Mac, Linux, Windows。
+MQTTX 是 EMQ 开源的一款跨平台 MQTT 桌面客户端，它支持 macOS, Linux, Windows。
 
 MQTTX 采用了聊天界面形式，简化了页面操作逻辑，方便用户快速测试 MQTT/MQTTS 连接，及 MQTT 消息的发布与订阅。
 
@@ -31,17 +31,17 @@ MQTTX 采用了聊天界面形式，简化了页面操作逻辑，方便用户�
 ## 开发
 
 ``` shell
-# Clone
+# 克隆项目
 git clone git@github.com:emqx/MQTTX.git
 
-# Install dependencies
+# 安装依赖
 cd MQTTX
 yarn install
 
-# Compiles and hot-reloads for development
+# 编译和热重载以进行开发
 yarn run electron:serve
 
-# Compiles and minifies for production
+# 编译和压缩以构建生产版本
 yarn run electron:build
 ```
 
