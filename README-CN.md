@@ -8,7 +8,7 @@
 
 ---
 
-MQTTX 是 EMQ 最近开源的一款跨平台 MQTT 桌面客户端，它支持 Mac, Linux, Windows。
+MQTTX 是 EMQ 开源的一款跨平台 MQTT 桌面客户端，它支持 Mac, Linux, Windows。
 
 MQTTX 采用了聊天界面形式，简化了页面操作逻辑，方便用户快速测试 MQTT/MQTTS 连接，及 MQTT 消息的发布与订阅。
 
