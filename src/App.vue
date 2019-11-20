@@ -26,4 +26,5 @@ export default class App extends Vue {
 @import "./assets/scss/base.scss";
 @import "./assets/scss/theme/dark.scss";
 @import "./assets/scss/theme/light.scss";
+@import "./assets/scss/theme/purple.scss";
 </style>

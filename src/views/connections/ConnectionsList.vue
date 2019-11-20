@@ -51,7 +51,7 @@ export default class ConnectionsList extends Vue {
 
   @Getter('activeConnection') private activeConnection: Client | undefined
   @Getter('unreadMessageCount') private unreadMessageCount: UnreadMessage | undefined
-  @Getter('currentTheme') private theme!: 'dark' | 'light'
+  @Getter('currentTheme') private theme!: 'light' | 'dark' | 'purple'
 
   private selectConnection(row: ConnectionModel) {
     this.unreadMessageIncrement({ id: row.id as string, unreadMessageCount: 0  })
@@ -75,7 +75,7 @@ export default class ConnectionsList extends Vue {
     position: relative;
     transition: background .3s ease;
     &.active {
-      background-color: var(--color-bg-connection_item);
+      background-color: var(--color-bg-item);
     }
     .client-info {
       display: inline-block;
@@ -110,7 +110,7 @@ export default class ConnectionsList extends Vue {
       width: 8px;
       height: 8px;
       border-radius: 4px;
-      background: var(--color-bg-connection_status);
+      background: var(--color-bg-item_status);
       vertical-align: top;
       margin-top: 10px;
       &.online {
@@ -118,7 +118,7 @@ export default class ConnectionsList extends Vue {
       }
     }
     &:hover {
-      background: var(--color-bg-connection_item);
+      background: var(--color-bg-item);
     }
   }
 }

@@ -42,7 +42,7 @@ export default class BrokersList extends Vue {
   @Prop({ required: true }) public data!: BrokerModel[] | []
   @Prop({ required: true }) public brokerID!: string
 
-  @Getter('currentTheme') private theme!: 'dark' | 'light'
+  @Getter('currentTheme') private theme!: 'light' | 'dark' | 'purple'
 
   private selectBroker(row: BrokerModel): void {
     this.$router.push({ path: `/brokers/${row.id}` })
@@ -68,7 +68,7 @@ export default class BrokersList extends Vue {
     transition: background .3s ease;
     cursor: pointer;
     &.active {
-      background-color: var(--color-bg-connection_item);
+      background-color: var(--color-bg-item);
       border-left: 4px solid var(--color-main-green);
     }
     .broker-name {
@@ -109,7 +109,7 @@ export default class BrokersList extends Vue {
       color: var(--color-second-red);
     }
     &:hover {
-      background: var(--color-bg-connection_item);
+      background: var(--color-bg-item);
       .remove-icon {
         display: inherit;
       }

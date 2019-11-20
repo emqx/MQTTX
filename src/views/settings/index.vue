@@ -99,11 +99,11 @@ export default class Settings extends Vue {
   @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
   @Action('TOGGLE_AUTO_CHECK') private actionAutoCheck!: (payload: { autoCheck: boolean }) => void
-  @Getter('currentTheme') private getterTheme!: 'dark' | 'light'
+  @Getter('currentTheme') private getterTheme!: 'light' | 'dark' | 'purple'
   @Getter('currentLang') private getterLang!: 'en' | 'zh'
   @Getter('autoCheck') private getterAutoCheck!: boolean
 
-  private currentTheme: 'dark' | 'light' = 'light'
+  private currentTheme: 'light' | 'dark' | 'purple' = 'light'
   private currentLang: 'en' | 'zh' = 'en'
   private autoCheck: boolean = false
   private langOptions: Options[] = [
@@ -113,6 +113,7 @@ export default class Settings extends Vue {
   private themeOptions: Options[] = [
     { label: 'Light', value: 'light' },
     { label: 'Dark', value: 'dark' },
+    { label: 'Purple', value: 'purple' },
   ]
 
   private handleSelectChange(
