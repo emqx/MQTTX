@@ -6,6 +6,7 @@ const getters = {
   activeConnection: (state: State) => state.app.activeConnection,
   showClientInfo: (state: State) => state.app.showClientInfo,
   unreadMessageCount: (state: State) => state.app.unreadMessageCount,
+  MacOSTop: (state: State) => state.app.MacOSTop,
 }
 
 export default getters

@@ -1,5 +1,5 @@
 <template>
-  <div class="search-topbar left-topbar topbar">
+  <div class="search-topbar left-topbar topbar" :style="{ top: $store.state.app.MacOSTop }">
     <el-input 
       v-model="searchValue"
       size="small"
@@ -46,7 +46,7 @@ export default class SearchTopbar extends Vue {
   .el-input {
     width: 215px;
     .el-input__inner {
-      background: var(--color-bg-primary);
+      background: var(--color-bg-input);
     }
     .icon-search, .el-icon-loading {
       margin-left: 3px;

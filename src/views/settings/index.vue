@@ -4,7 +4,7 @@
       <SettingsLeft/>
     </leftbar>
 
-    <div class="settings-view-content right-content">
+    <div class="settings-view-content right-content" :style="{ top: $store.state.app.MacOSTop }">
       <h1 class="titlebar">{{ $t('settings.settings') }}</h1>
       <div class="settings-general">
         <div class="settings-title">{{ $t('settings.general') }}</div>
@@ -61,7 +61,6 @@
           </el-col>
           <el-col :span="4">
             <el-select
-              disabled
               class="settings-options"
               v-model="currentTheme"
               size="mini"
@@ -97,15 +96,15 @@ import SettingsLeft from './SettingsLeft.vue'
   },
 })
 export default class Settings extends Vue {
-  @Action('TOGGLE_THEME') private actionTheme: any
-  @Action('TOGGLE_LANG') private actionLang: any
-  @Action('TOGGLE_AUTO_CHECK') private actionAutoCheck: any
-  @Getter('currentTheme') private getterTheme: any
-  @Getter('currentLang') private getterLang: any
-  @Getter('autoCheck') private getterAutoCheck: any
+  @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
+  @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
+  @Action('TOGGLE_AUTO_CHECK') private actionAutoCheck!: (payload: { autoCheck: boolean }) => void
+  @Getter('currentTheme') private getterTheme!: 'light' | 'dark' | 'purple'
+  @Getter('currentLang') private getterLang!: 'en' | 'zh'
+  @Getter('autoCheck') private getterAutoCheck!: boolean
 
-  private currentTheme: string = 'light'
-  private currentLang: string = 'en'
+  private currentTheme: 'light' | 'dark' | 'purple' = 'light'
+  private currentLang: 'en' | 'zh' = 'en'
   private autoCheck: boolean = false
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
@@ -114,13 +113,17 @@ export default class Settings extends Vue {
   private themeOptions: Options[] = [
     { label: 'Light', value: 'light' },
     { label: 'Dark', value: 'dark' },
+    { label: 'Purple', value: 'purple' },
   ]
 
-  private handleSelectChange(type: string, value: string | number | boolean): void {
+  private handleSelectChange(
+    type: 'lang' | 'theme',
+    value: string | number | boolean,
+  ): void {
     if (type === 'theme') {
-      this.actionTheme({ currentTheme: value })
+      this.actionTheme({ currentTheme: value as string })
     } else if (type === 'lang') {
-      this.actionLang({ currentLang: value })
+      this.actionLang({ currentLang: value as string })
     }
     ipcRenderer.send('setting', type, value)
   }
@@ -145,26 +148,27 @@ export default class Settings extends Vue {
     margin: 0px;
   }
   .settings-view-content {
+    position: relative;
     padding: 0 16px;
-    
+
     .titlebar {
       padding: 16px 0;
     }
-  
+
     .settings-general {
       margin-top: 30px;
       margin-bottom: 80px;
     }
-    
+
     .el-divider--horizontal {
       margin: 15px 0;
     }
-  
+
     .settings-title {
       color: var(--color-text-light);
       margin-bottom: -5px;
     }
-  
+
     .settings-item {
       label {
         color: var(--color-text-title);
@@ -174,20 +178,20 @@ export default class Settings extends Vue {
     .el-col-4 {
       text-align: right;
     }
-  
+
     .settings-options {
-  
+
       .el-input__inner {
         border: none;
         background: transparent;
         font-size: $font-size--body;
         color: var(--color-text-default);
       }
-  
+
       &.el-select {
         width: 108px;
       }
-  
+
       &.el-select .el-input .el-select__caret {
         color: var(--color-text-default);
       }

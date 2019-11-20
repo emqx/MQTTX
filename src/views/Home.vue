@@ -17,10 +17,10 @@ import Ipc from '@/components/Ipc.vue'
   },
 })
 export default class Home extends Vue {
-  @Getter('currentTheme') private getterTheme: any
-  @Getter('currentLang') private getterLang: any
+  @Getter('currentTheme') private getterTheme!: 'light' | 'dark' | 'purple'
+  @Getter('currentLang') private getterLang!: 'en' | 'zh'
 
-  private setTheme(currentTheme: string): void {
+  private setTheme(currentTheme: 'light' | 'dark' | 'purple'): void {
     const bodyTag: HTMLBodyElement | null = document.querySelector('body')
     if (!bodyTag) {
       return
@@ -28,7 +28,7 @@ export default class Home extends Vue {
     bodyTag.className = currentTheme
   }
 
-  private setLang(currentLang: string): void {
+  private setLang(currentLang: 'en' | 'zh'): void {
     document.documentElement.lang = currentLang
     this.$i18n.locale = currentLang
   }
@@ -55,20 +55,20 @@ export default class Home extends Vue {
   .left-topbar {
     padding: 0 16px;
     position: fixed;
-    top: 0;
     left: 0;
     z-index: 1;
     background: var(--color-bg-normal);
     width: 280px;
     border-right: 2px solid var(--color-border-default);
+    -webkit-app-region: drag;
   }
   .right-topbar {
     position: fixed;
-    top: 0;
     left: 280px;
     right: 0;
     z-index: 3;
     background: var(--color-bg-normal);
+    -webkit-app-region: drag;
   }
   .right-content {
     margin-left: 280px;

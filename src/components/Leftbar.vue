@@ -1,5 +1,5 @@
 <template>
-  <div class="leftbar">
+  <div class="leftbar" :style="{ top: $store.state.app.MacOSTop }">
     <slot></slot>
     <Tabbar/>
   </div>
@@ -24,7 +24,6 @@ export default class Leftbar extends Vue {}
 .leftbar {
   position: fixed;
   width: 280px;
-  top: 0;
   bottom: 0;
   overflow-x: hidden;
   z-index: 1000;

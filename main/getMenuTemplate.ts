@@ -1,4 +1,4 @@
-import { shell, BrowserWindow } from 'electron'
+import { app, shell, BrowserWindow } from 'electron'
 import updateChecker from './updateChecker'
 
 const isMac = process.platform === 'darwin'
@@ -9,7 +9,7 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
     ...(isMac
       ? [
           {
-            label: 'MQTTX',
+            label: app.getName(),
             submenu: [
               { role: 'about' },
               { type: 'separator' },

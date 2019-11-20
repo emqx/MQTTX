@@ -1,7 +1,7 @@
 'use strict'
 
 import {
-  app, protocol, BrowserWindow, ipcMain, shell, Menu,
+  app, protocol, BrowserWindow, ipcMain, shell, Menu, systemPreferences,
 } from 'electron'
 import {
   createProtocol,
@@ -11,7 +11,16 @@ import db from './datastore/index'
 import updateChecker from '../main/updateChecker'
 import getMenuTemplate from '../main/getMenuTemplate'
 
-const isDevelopment = process.env.NODE_ENV !== 'production'
+interface WindowSizeModel {
+  width: number,
+  height: number,
+}
+
+declare const __static: string
+
+const isDevelopment: boolean = process.env.NODE_ENV !== 'production'
+const isDarkMode: boolean = systemPreferences.isDarkMode()
+const isMac: boolean = process.platform === 'darwin'
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -31,22 +40,19 @@ function handleIpcMessages() {
   })
 }
 
-interface WindowSizeModel {
-  width: number,
-  height: number,
-}
-
-declare const __static: string
-
 function createWindow() {
   const windowSize = db.get<WindowSizeModel>('windowSize')
+  const theme = db.get<'light' | 'dark' | 'purple'>('settings.currentTheme')
   // Create the browser window.
   win = new BrowserWindow({
     ...windowSize,
     webPreferences: {
+      devTools: isDevelopment,
       webSecurity: false,
       nodeIntegration: true,
     },
+    titleBarStyle: isMac ? 'hidden' : 'default',
+    backgroundColor: theme === 'dark' ? '#232323' : '#ffffff',
     icon: `${__static}/app.ico`,
   })
 
@@ -74,7 +80,7 @@ function createWindow() {
 app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
+  if (!isMac) {
     app.quit()
   }
 })
@@ -91,7 +97,7 @@ app.on('activate', () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
-  const autoCheckUpdate = db.get('settings.autoCheck')
+  const autoCheckUpdate = db.get<boolean>('settings.autoCheck')
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
     try {

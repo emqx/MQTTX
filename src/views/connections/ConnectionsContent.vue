@@ -1,6 +1,6 @@
 <template>
   <div class="connections-content">
-    <div class="connections-topbar right-topbar">
+    <div class="connections-topbar right-topbar" :style="{ top: $store.state.app.MacOSTop }">
       <div class="connections-info">
         <div class="topbar">
           <div class="connection-head">
@@ -71,11 +71,11 @@
     <div
       class="connections-content-main right-content"
       :style="{
-        paddingTop: showClientInfo ? '286px': '88px',
+        paddingTop: showClientInfo ? msgTop.open: msgTop.close,
         marginLeft: showSubs ? '529px' : '280px',
       }">
       <div class="connections-body">
-        <div class="filter-bar" :style="{ top: showClientInfo ? '258px': '60px' }">
+        <div class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open: bodyTop.close }">
           <span class="subs-title">
             {{ this.$t('connections.subscriptions') }}
             <a class="subs-btn" href="javascript:;" @click="handleShowSubs">
@@ -96,7 +96,7 @@
           :subsVisible.sync="showSubs"
           :connectionId="$route.params.id"
           :record="record"
-          :top="showClientInfo ? '258px': '60px'"/>
+          :top="showClientInfo ? bodyTop.open: bodyTop.close"/>
         <div v-for="(message, index) in messages" :key="index">
           <MsgLeftItem
             v-if="!message.out"
@@ -135,6 +135,11 @@ import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'viewBroker' | 'clearHistory' | 'disconnect' | 'deleteConnect'
 
+interface Top {
+  open: string,
+  close: string,
+}
+
 @Component({
   components: {
     MsgRightItem,
@@ -169,6 +174,34 @@ export default class ConnectionsContent extends Vue {
   private searchVisible: boolean = false
   private messages: MessageModel[] = []
   private searchTopic: string = ''
+
+  get bodyTop(): Top {
+    if (this.$store.state.app.MacOSTop === '24px'
+      && process.platform === 'darwin') {
+      return {
+        open: '282px',
+        close: '84px',
+      }
+    }
+    return {
+      open: '258px',
+      close: '60px',
+    }
+  }
+
+  get msgTop(): Top {
+    if (this.$store.state.app.MacOSTop === '24px'
+      && process.platform === 'darwin') {
+      return {
+        open: '310px',
+        close: '112px',
+      }
+    }
+    return {
+      open: '286px',
+      close: '88px',
+    }
+  }
 
   get connectUrl(): string {
     const {
@@ -355,6 +388,7 @@ export default class ConnectionsContent extends Vue {
       message: '',
       type: 'success',
       duration: 3000,
+      offset: 20,
     })
     this.$emit('reload')
   }
@@ -370,6 +404,7 @@ export default class ConnectionsContent extends Vue {
       message: '',
       type: 'success',
       duration: 3000,
+      offset: 20,
     })
     setTimeout(() => {
       this.showClientInfo = false
@@ -388,7 +423,9 @@ export default class ConnectionsContent extends Vue {
       message: '',
       type: 'error',
       duration: 3000,
+      offset: 20,
     })
+    this.$emit('reload')
   }
   private onReConnect() {
     this.client.end()
@@ -398,7 +435,9 @@ export default class ConnectionsContent extends Vue {
       message: '',
       type: 'error',
       duration: 3000,
+      offset: 20,
     })
+    this.$emit('reload')
   }
   private messageArrived(id: string) {
     return (
@@ -436,6 +475,7 @@ export default class ConnectionsContent extends Vue {
         message: '',
         type: 'error',
         duration: 3000,
+        offset: 20,
       })
       return false
     }

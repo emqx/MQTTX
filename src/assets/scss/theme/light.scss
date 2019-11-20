@@ -1,18 +1,20 @@
 body.light {
   /* Backgroud color */
   --color-bg-normal: #ffffff;
-  --color-bg-accent: #f1f1f1;
   --color-bg-primary: #F9FAFD;
   --color-bg-tabs: #F8F8F8;
   --color-bg-tabs_hover: #F8F8F8;
-  --color-bg-connection_item: #EBF8F2;
-  --color-bg-connection_status: #9EA3B1;
+  --color-bg-item: #EBF8F2;
+  --color-bg-item_status: #9EA3B1;
+  --color-bg-input: #ffffff;
+  --color-bg-messagebox: #ffffff;
 
   /* Font color */
   --color-text-title: #262626;
   --color-text-default: #616161;
   --color-text-light: #A2A9B0;
   --color-text-tips: #B4B4B4;
+  --color-text-right_block: #34C388;
   --color-text-right_info: #ADE7CF;
   --color-text-left_info: #959599;
 

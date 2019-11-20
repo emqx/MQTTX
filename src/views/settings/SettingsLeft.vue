@@ -1,6 +1,6 @@
 <template>
   <div class="settings-left">
-    <img class="logo" src="../../assets/images/mqttx.png" alt="mqttx">
+    <img class="logo" :src="logo" alt="mqttx">
     <p class="version">{{ $t('settings.version') }} 1.1.0</p>
     <a class="update" href="javascript:;" @click="checkUpdate">{{ $t('settings.update') }}</a>
 
@@ -26,10 +26,19 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 import { ipcRenderer } from 'electron'
 
 @Component
 export default class SettingsLeft extends Vue {
+  @Getter('currentTheme') private getterTheme!: 'light' | 'dark' | 'purple'
+
+  get logo(): string {
+    if (this.getterTheme === 'light') {
+      return require('../../assets/images/mqttx-light.png')
+    }
+    return require('../../assets/images/mqttx-dark.png')
+  }
 
   private checkUpdate(): void {
     ipcRenderer.send('checkUpdate')

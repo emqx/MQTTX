@@ -11,9 +11,10 @@
   background: transparent;
   border: 2px solid var(--color-border-bold);
   width: 90px;
+  color: var(--color-text-light);
 }
 .el-radio-button__orig-radio:checked+.el-radio-button__inner {
-  background-color: var(--color-bg-connection_item);
+  background-color: var(--color-bg-item);
   color: var(--color-main-green);
   border: 2px solid var(--color-main-green) !important;
   z-index: 1;
@@ -25,7 +26,8 @@
 
 /* Card */
 .el-card {
-  border: 1px solid #E6E8F1;
+  border: 1px solid var(--color-border-default);
+  background-color: var(--color-bg-normal);
 }
 
 /* Form */
@@ -35,11 +37,17 @@
   }
   .el-form-item__content {
     span {
-      color: var(--color-text-title);
+      color: var(--color-text-default);
     }
   }
   .el-select {
     width: 100%;
+  }
+  .el-form-item.is-success .el-input__inner,
+  .el-form-item.is-success .el-input__inner:focus,
+  .el-form-item.is-success .el-textarea__inner,
+  .el-form-item.is-success .el-textarea__inner:focus {
+    border-color: var(--color-main-green);
   }
 }
 
@@ -55,6 +63,10 @@
   border: 2px solid var(--color-main-green);
   color: var(--color-main-green);
 }
+.el-button.is-plain:hover,
+.el-button.is-plain:focus {
+  background: var(--color-bg-normal);
+}
 
 /* Cascader */
 .el-cascader {
@@ -64,13 +76,22 @@
 /* Message */
 .el-message-box {
   border-radius: 2px;
+  background-color: var(--color-bg-messagebox);
+  border-color: var(--color-border-default);
+  .el-message-box__title {
+    color: var(--color-text-title);
+  }
+  .el-message-box__content {
+    color: var(--color-text-default);
+  }
 }
 .el-message-box__btns {
   font-size: 14px;
   .el-button--small {
     font-size: 14px;
     border: none;
-    color: var(--color-text-default);
+    color: var(--color-text-light);
+    background: transparent;
     &:hover {
       color: var(--color-second-green);
       background: transparent;
@@ -92,8 +113,68 @@
 /* Notification */
 .el-notification {
   border-radius: 4px;
+  background-color: var(--color-bg-messagebox);
+  border-color: var(--color-border-default);
   .el-notification__title {
     color: var(--color-text-title);
     font-weight: normal;
   }
+  .el-icon-success {
+    color: var(--color-main-green);
+  }
+}
+
+/* Dialog */
+.el-dialog {
+  background: var(--color-bg-normal);
+}
+
+/* Input */
+.el-input {
+  .el-input__inner {
+    background: var(--color-bg-normal);
+    border: 1px solid var(--color-border-default);
+    color: var(--color-text-default);
+    &::placeholder {
+      color: var(--color-text-light);
+    }
+  }
+}
+.el-textarea {
+  .el-textarea__inner {
+    background: var(--color-bg-normal);
+    border: 1px solid var(--color-border-default);
+    color: var(--color-text-default);
+    &::placeholder {
+      color: var(--color-text-light);
+    }
+  }
+}
+
+/* Popper */
+.el-popper {
+  background: var(--color-bg-messagebox);
+  border-color: var(--color-border-default);
+  li {
+    color: var(--color-text-default);
+  }
+}
+.el-popper[x-placement^="bottom"] .popper__arrow {
+  border-bottom-color: var(--color-border-default);
+  &::after {
+    border-bottom-color: var(--color-bg-messagebox);
+  }
+}
+.el-select-dropdown__item.hover,
+.el-select-dropdown__item:hover {
+  background: var(--color-bg-item);
+}
+
+/* Cascader */
+.el-cascader-menu {
+  border-right: 1px solid var(--color-border-default);
+}
+.el-cascader-node:not(.is-disabled):hover,
+.el-cascader-node:not(.is-disabled):focus {
+  background: var(--color-bg-item);
 }

@@ -19,7 +19,7 @@
         </div>
         <div class="topics-item" v-for="(sub, index) in subsList" :key="index">
           <el-tooltip
-            effect="light"
+            :effect="theme"
             :disabled="sub.topic.length < 20"
             :content="sub.topic"
             placement="top">
@@ -87,6 +87,7 @@ export default class SubscriptionsList extends Vue {
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
   @Getter('activeConnection') private activeConnection: $TSFixed
+  @Getter('currentTheme') private theme!: 'light' | 'dark' | 'purple'
 
   private currentConnection: $TSFixed = {}
   private showDialog: boolean = false
@@ -235,6 +236,7 @@ export default class SubscriptionsList extends Vue {
     border-left: 0px;
   }
   .el-card__header {
+    border-bottom: 1px solid var(--color-border-default);
     text-align: center;
     position: relative;
     .hide-btn {
@@ -249,6 +251,7 @@ export default class SubscriptionsList extends Vue {
     height: 100%;
     overflow: scroll;
     .topics-item {
+      color: var(--color-text-title);
       background: var(--color-bg-tabs);
       padding: 0px 8px;
       height: 46px;
@@ -279,7 +282,7 @@ export default class SubscriptionsList extends Vue {
         text-align: center;
         line-height: 18px;
         .el-icon-close {
-          color: var(--color-bg-normal);
+          color: #fff;
         }
       }
       &:hover {
