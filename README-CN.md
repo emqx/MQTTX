@@ -4,31 +4,31 @@
 
 [![GitHub Release](https://img.shields.io/github/release/emqx/mqttx?color=brightgreen)](https://github.com/emqx/mqttx/releases) ![Support Platforms](https://camo.githubusercontent.com/a50c47295f350646d08f2e1ccd797ceca3840e52/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f706c6174666f726d2d6d61634f5325323025374325323057696e646f77732532302537432532304c696e75782d6c69676874677265792e737667) [![Total Downloads](https://img.shields.io/github/downloads/emqx/mqttx/total.svg)](https://github.com/emqx/mqttx/releases)
 
-English | [简体中文](./README-CN.md)
+[English](./README.md) | 简体中文
 
 ---
 
-MQTTX is a cross-platform MQTT desktop client open sourced by EMQ, which supports macOS, Linux, and Windows.
+MQTTX 是 EMQ 最近开源的一款跨平台 MQTT 桌面客户端，它支持 Mac, Linux, Windows。
 
-MQTTX adopts  the form of chat interface, which simplifies the page operation, facilitates the user to quickly test the MQTT/MQTTS connection,  publish and subscribe to MQTT messages.
+MQTTX 采用了聊天界面形式，简化了页面操作逻辑，方便用户快速测试 MQTT/MQTTS 连接，及 MQTT 消息的发布与订阅。
 
-## Preview
+## 预览
 
 ![mqttx-preview](./assets/mqttx-preview.png)
 
-## Installation
+## 安装
 
-Download from [GitHub Releases](https://github.com/emqx/MQTTX/releases) and install it.
+请从 [GitHub Releases](https://github.com/emqx/MQTTX/releases) 下载符合您的版本并安装使用。
 
-## Usage
+## 使用
 
-1. Create broker
+1. 首先创建一个 Broker
 
-2. The same broker can create many clients
+2. 同一个 Broker 下可以创建多个客户端
 
-3. Go back to connectons page, select the broker's client for connection testing
+3. 回到连接页面，选择刚才创建的 Broker 下的客户端进行连接测试
 
-## Develop
+## 开发
 
 ``` shell
 # Clone
@@ -45,17 +45,17 @@ yarn run electron:serve
 yarn run electron:build
 ```
 
-## Contributing
+## 贡献
 
-1. Fork this repository
+1. Fork 这个项目
 
-2. Add upstream remote `git remote add upstream git@github.com:emqx/MQTTX.git`
+2. 添加 upstream remote `git remote add upstream git@github.com:emqx/MQTTX.git`
 
-3. Modify code, add commit on new branch, push it
+3. 本地修改代码，添加一个 commit 在您本地新的分支里
 
-4. Submit a pull request to upstream develop branch, we will review it
+4. 向 upstream 仓库的 develop 分支提交一个 Pull Request，我们将会审核它
 
-## Technology Stack
+## 技术栈
 
 - [Vue](https://vuejs.org/) + [Element](https://element.eleme.io)
 - [Electron](https://electronjs.org/)
