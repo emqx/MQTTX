@@ -59,4 +59,12 @@ export default {
     zh: '此操作将删除该 {name}，是否继续？',
     en: 'This will delete {name}, Continue?',
   },
+  delete: {
+    zh: '删除',
+    en: 'Delete',
+  },
+  edit: {
+    zh: '编辑',
+    en: 'Edit',
+  },
 }
