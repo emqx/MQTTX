@@ -20,7 +20,7 @@
     <div v-else class="brokers-view right-content" :style="{
       paddingTop: brokerViewTop,
     }">
-      <ClientCreate v-if="isClientPage" :broker="currentBroker"/>
+      <ClientDetail v-if="isClientPage" :broker="currentBroker"/>
       <BrokerContent
         v-else
         :record="currentBroker"
@@ -81,7 +81,7 @@ import SearchTopbar from '@/components/SearchTopbar.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import BrokersList from './BrokersList.vue'
 import BrokerContent from './BrokerContent.vue'
-import ClientCreate from './clients/ClientCreate.vue'
+import ClientDetail from './clients/ClientDetail.vue'
 import EmptyPage from '@/components/EmptyPage.vue'
 import matchSearch from '@/utils/matchSearch'
 import {
@@ -96,7 +96,7 @@ import { BrokerModel, ClientModel } from './types'
     BrokersList,
     MyDialog,
     BrokerContent,
-    ClientCreate,
+    ClientDetail,
     EmptyPage,
   },
 })

@@ -1,5 +1,5 @@
 <template>
-  <div class="client-create card-form">
+  <div class="client-detail card-form">
     <div class="client-topbar right-topbar" :style="{ top: $store.state.app.MacOSTop }">
       <div class="client-info topbar">
         <div class="client-header">
@@ -157,14 +157,14 @@
 <script lang="ts">
 import { remote } from 'electron'
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { createClient, loadClient } from '@/utils/api/broker'
+import { createClient, loadClient, updateClient } from '@/utils/api/broker'
 import getClientId from '@/utils/getClientId'
 import { ClientModel, BrokerModel } from '../types'
 
 @Component({
   components: {},
 })
-export default class ClientCreate extends Vue {
+export default class ClientDetail extends Vue {
   @Prop({ required: true }) private broker!: BrokerModel
 
   private record: ClientModel = {
@@ -244,12 +244,20 @@ export default class ClientCreate extends Vue {
       if (!valid) {
         return false
       }
-      this.record.brokeruuid = this.broker.id || ''
+      this.record.brokeruuid = this.broker.id as string
       const data = { ...this.record }
-      const res = await createClient(data)
-      if (res) {
-        this.$message.success(this.$t('common.createSuccess') as string)
-        this.$router.push({ path: `/brokers/${this.broker.id}` })
+      if (this.oper === 'create') {
+        const res = await createClient(data)
+        if (res) {
+          this.$message.success(this.$t('common.createSuccess') as string)
+          this.$router.push({ path: `/brokers/${this.broker.id}` })
+        }
+      } else {
+        const res = await updateClient(data.id as string, data, true)
+        if (res) {
+          this.$message.success(this.$t('common.editSuccess') as string)
+          this.$router.push({ path: `/brokers/${this.broker.id}` })
+        }
       }
     })
   }
@@ -268,7 +276,7 @@ export default class ClientCreate extends Vue {
 @import "~@/assets/scss/variable.scss";
 @import "~@/assets/scss/mixins.scss";
 
-.client-create {
+.client-detail {
   height: 100%;
 
   .client-topbar {
