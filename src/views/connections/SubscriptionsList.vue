@@ -19,7 +19,7 @@
         </div>
         <div class="topics-item" v-for="(sub, index) in subsList" :key="index">
           <el-tooltip
-            :effect="theme"
+            :effect="theme !== 'light' ? 'dark' : 'light'"
             :disabled="sub.topic.length < 20"
             :content="sub.topic"
             placement="top">
