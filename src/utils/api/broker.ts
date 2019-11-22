@@ -125,15 +125,22 @@ export const deleteClient = (clientId: string): ClientModel => {
 }
 
 export const loadClientOptions = (): Options[] => {
-  const brokers: BrokerModel[] | [] = db.get<BrokerModel[]>('brokers')
+  const brokers: BrokerModel[] = loadBrokers()
+  const connections: ConnectionModel[] = loadConnections()
+  const connectionIds = connections.map((connection) => connection.clientuuid)
+
   const res: Options[] = brokers.map((broker: BrokerModel): Options => {
     const clients = loadClients(broker.id as string)
-    const children: Options[] = clients.map((client: ClientModel): Options => (
-      {
+    const children: Options[] = clients.map((client: ClientModel): Options => {
+      const clientData: Options = {
         label: client.clientName,
         value: client.id,
       }
-    ))
+      if (connectionIds.includes(client.id as string)) {
+        clientData.disabled = true
+      }
+      return clientData
+    })
     return {
       label: broker.brokerName,
       value: broker.id,

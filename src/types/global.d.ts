@@ -87,6 +87,7 @@ declare global {
     value: any,
     label: string | TranslateResult,
     children?: Options[],
+    disabled?: boolean,
   }
 
   interface SubscriptionModel {
