@@ -1,5 +1,5 @@
 <template>
-  <div class="client-create card-form">
+  <div class="client-detail card-form">
     <div class="client-topbar right-topbar" :style="{ top: $store.state.app.MacOSTop }">
       <div class="client-info topbar">
         <div class="client-header">
@@ -8,7 +8,7 @@
           </a>
         </div>
         <div class="client-body">
-          <h2>{{ $t('brokers.newClient') }}</h2>
+          <h2>{{ oper === 'create' ? $t('brokers.newClient') : $t('brokers.editClient') }}</h2>
         </div>
         <div class="client-tail">
           <a href="javascript:;" @click="save">
@@ -157,14 +157,14 @@
 <script lang="ts">
 import { remote } from 'electron'
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { createClient } from '@/utils/api/broker'
+import { createClient, loadClient, updateClient } from '@/utils/api/broker'
 import getClientId from '@/utils/getClientId'
 import { ClientModel, BrokerModel } from '../types'
 
 @Component({
   components: {},
 })
-export default class ClientCreate extends Vue {
+export default class ClientDetail extends Vue {
   @Prop({ required: true }) private broker!: BrokerModel
 
   private record: ClientModel = {
@@ -178,6 +178,21 @@ export default class ClientCreate extends Vue {
     ca: '',
     cert: '',
     key: '',
+  }
+
+  get oper(): 'create' | 'edit' {
+    if (this.$route.query.oper === 'edit') {
+      return 'edit'
+    }
+    return 'create'
+  }
+
+  get clientId(): string {
+    const clientId: string = this.$route.query.clientId as string
+    if (clientId) {
+      return clientId
+    }
+    return ''
   }
 
   get vueForm(): VueForm {
@@ -217,19 +232,40 @@ export default class ClientCreate extends Vue {
     })
   }
 
+  private async loadData(): Promise<void> {
+    const res: ClientModel = await loadClient(this.clientId)
+    if (res) {
+      this.record = res
+    }
+  }
+
   private save() {
     this.vueForm.validate(async (valid: boolean) => {
       if (!valid) {
         return false
       }
-      this.record.brokeruuid = this.broker.id || ''
+      this.record.brokeruuid = this.broker.id as string
       const data = { ...this.record }
-      const res = await createClient(data)
-      if (res) {
-        this.$message.success(this.$t('common.createSuccess') as string)
-        this.$router.push({ path: `/brokers/${this.broker.id}` })
+      if (this.oper === 'create') {
+        const res = await createClient(data)
+        if (res) {
+          this.$message.success(this.$t('common.createSuccess') as string)
+          this.$router.push({ path: `/brokers/${this.broker.id}` })
+        }
+      } else {
+        const res = await updateClient(data.id as string, data, true)
+        if (res) {
+          this.$message.success(this.$t('common.editSuccess') as string)
+          this.$router.push({ path: `/brokers/${this.broker.id}` })
+        }
       }
     })
+  }
+
+  private created(): void {
+    if (this.clientId !== '' && this.oper === 'edit') {
+      this.loadData()
+    }
   }
   // TODO: Determine whether to save on beforeRouterLeave
 }
@@ -240,7 +276,7 @@ export default class ClientCreate extends Vue {
 @import "~@/assets/scss/variable.scss";
 @import "~@/assets/scss/mixins.scss";
 
-.client-create {
+.client-detail {
   height: 100%;
 
   .client-topbar {

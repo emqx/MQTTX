@@ -40,6 +40,7 @@
           <el-cascader
             clearable
             v-model="record.selector"
+            :placeholder="`Broker / ${$t('brokers.client')}`"
             :options="clientOptions">
           </el-cascader>
         </el-form-item>
@@ -64,7 +65,7 @@ import ConnectionsContent from './ConnectionsContent.vue'
 import { ConnectionModel } from './types'
 import { BrokerModel, ClientModel } from '../brokers/types'
 
-interface RecordModel {
+interface NewConnectionModel {
   selector: [string, string] | []
 }
 
@@ -110,9 +111,10 @@ export default class Connections extends Vue {
     cert: '',
     key: '',
   }
-  private record: RecordModel = {
+  private record: NewConnectionModel = {
     selector: [],
   }
+  private clientOptions: Options[] = []
   private data: ConnectionModel = {
     clientuuid: '',
     brokeruuid: '',
@@ -147,10 +149,6 @@ export default class Connections extends Vue {
     return this.$route.params.id
   }
 
-  get clientOptions(): Options[] {
-    return loadClientOptions()
-  }
-
   get vueForm(): VueForm {
     return this.$refs.form as VueForm
   }
@@ -159,6 +157,10 @@ export default class Connections extends Vue {
     return {
       selector: [{ required: true, trigger: 'change', message: this.$t('common.selectRequired') }],
     }
+  }
+
+  private async loadOptions(): Promise<void> {
+    this.clientOptions = await loadClientOptions()
   }
 
   private async loadDetail(id: string): Promise<void> {
@@ -184,6 +186,7 @@ export default class Connections extends Vue {
 
   private showNewConnectionDialog(): void {
     this.newConnectionDialogVisible = true
+    this.loadOptions()
   }
 
   private saveConnection(): void {
@@ -291,6 +294,7 @@ export default class Connections extends Vue {
 
   private created(): void {
     this.loadData()
+    this.loadOptions()
   }
 }
 </script>

@@ -29,6 +29,9 @@
   border: 1px solid var(--color-border-default);
   background-color: var(--color-bg-normal);
 }
+.el-card.is-hover-shadow:hover {
+  box-shadow: 0 2px 12px 0 var(--color-shadow-card);
+}
 
 /* Form */
 .el-form {

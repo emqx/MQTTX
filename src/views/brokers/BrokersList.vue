@@ -10,7 +10,7 @@
         <div>
           <div class="broker-name">{{ broker.brokerName }}</div>
           <el-tooltip
-            :effect="theme"
+            :effect="theme !== 'light' ? 'dark' : 'light'"
             :disabled="`${broker.brokerAddress}:${broker.brokerPort}`.length < 35"
             :content="`${broker.brokerAddress}:${broker.brokerPort}`"
             placement="top">

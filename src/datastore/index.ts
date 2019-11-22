@@ -13,7 +13,7 @@ const STORE_PATH: string = APP.getPath('userData')
 
 // In production mode, during the first open application
 // APP.getPath('userData') gets the path nested and the datastore.js is loaded.
-// So if it doesn't exist, create it.
+// if it doesn't exist, create it.
 if (!isRenderer) {
   if (!fs.pathExistsSync(STORE_PATH)) {
     fs.mkdirpSync(STORE_PATH)

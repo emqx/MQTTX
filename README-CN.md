@@ -24,6 +24,13 @@ MQTTX 采用了聊天界面形式，简化了页面操作逻辑，方便用户�
 
 1. 首先创建一个 Broker
 
+```conf
+# 如果你暂时没有一个可用的 MQTT Broker，你可以用这个公共的 Broker 进行测试
+
+Broker 地址: broker.emqx.io
+Broker 端口: 1883
+```
+
 2. 同一个 Broker 下可以创建多个客户端
 
 3. 回到连接页面，选择刚才创建的 Broker 下的客户端进行连接测试

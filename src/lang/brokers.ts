@@ -44,6 +44,10 @@ export default {
     zh: '新建客户端',
     en: 'New Client',
   },
+  editClient: {
+    zh: '编辑客户端',
+    en: 'Edit Client',
+  },
   username: {
     zh: '用户名',
     en: 'Username',

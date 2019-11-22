@@ -24,6 +24,13 @@ Download from [GitHub Releases](https://github.com/emqx/MQTTX/releases) and inst
 
 1. Create broker
 
+```conf
+# If you don't have a mqtt broker available, you can use this public broker test.
+
+Broker Address: broker.emqx.io
+Broker Port: 1883
+```
+
 2. The same broker can create many clients
 
 3. Go back to connectons page, select the broker's client for connection testing
