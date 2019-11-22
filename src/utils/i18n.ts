@@ -13,7 +13,7 @@ export const formati18n = (transItems: i18nLocaleModel): VueI18n.LocaleMessages 
     settings: {},
     common: {},
   }
-  transItems.forEach((item: string) => {
+  transItems.forEach((item) => {
     const values = require(`@/lang/${item}`).default
     Object.keys(values).forEach((key: string) => {
       const { zh: $zh, en: $en } = values[key]
