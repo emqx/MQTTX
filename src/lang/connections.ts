@@ -48,7 +48,7 @@ export default {
     en: 'All',
   },
   received: {
-    zh: '已接受',
+    zh: '已接收',
     en: 'Received',
   },
   published: {

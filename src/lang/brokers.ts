@@ -70,7 +70,7 @@ export default {
   },
   connectionTimeout: {
     zh: '连接超时时长',
-    en: 'Connection Timeout',
+    en: 'Connect Timeout',
   },
   cleanSession: {
     zh: '清除会话',

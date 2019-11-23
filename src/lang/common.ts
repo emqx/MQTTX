@@ -67,4 +67,12 @@ export default {
     zh: '编辑',
     en: 'Edit',
   },
+  unitS: {
+    zh: '秒',
+    en: 's',
+  },
+  unitMS: {
+    zh: '毫秒',
+    en: 'ms',
+  },
 }
