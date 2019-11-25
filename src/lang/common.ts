@@ -60,11 +60,11 @@ export default {
     en: 'This will delete {name}, Continue?',
   },
   delete: {
-    zh: '删除',
+    zh: '删 除',
     en: 'Delete',
   },
   edit: {
-    zh: '编辑',
+    zh: '编 辑',
     en: 'Edit',
   },
   unitS: {

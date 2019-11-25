@@ -79,6 +79,10 @@
                 <i class="el-icon-delete"></i>
                 {{ $t('common.delete') }}
               </a>
+              <a class="dropdown-clients-item" href="javascript:;" @click="createConnection(client)">
+                <i class="el-icon-connection"></i>
+                {{ $t('connections.connectBtn') }}
+              </a>
             </el-dropdown-menu>
           </el-dropdown>
           <el-form label-suffix=":">
@@ -98,13 +102,21 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Action } from 'vuex-class'
 import { deleteClient } from '@/utils/api/broker'
 import { BrokerModel, ClientModel } from './types'
+import { genConnection, loadConnections, createConnections } from '@/utils/api/connection'
+import { ConnectionModel } from '../connections/types'
 
 @Component
 export default class BrokerContent extends Vue {
+
   @Prop({ required: true }) public record!: BrokerModel
   @Prop({ required: true }) public clients!: ClientModel[]
+
+  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (
+    payload: Client,
+  ) => void
 
   private handleEdit(): void {
     this.$emit('edit')
@@ -139,6 +151,57 @@ export default class BrokerContent extends Vue {
     }).catch((error) => {
       // ignore(error)
     })
+  }
+
+  private async createConnection(row: ClientModel): Promise<void | boolean> {
+    const connections = await loadConnections()
+    const index = connections.findIndex((connection) =>
+      connection.clientId === row.clientId,
+    )
+    if (index !== -1) {
+      this.$message.error(this.$t('connections.connectionExists') as string)
+      return false
+    }
+    const connectionData: ConnectionModel = {
+      clientuuid: '',
+      brokeruuid: '',
+      clientId: '',
+      name: '',
+      clean: false,
+      host: '',
+      connectTimeout: 4000,
+      keepalive: 60,
+      messages: [],
+      username: '',
+      password: '',
+      path: '/mqtt',
+      port: 1883,
+      ssl: false,
+      subscriptions: [],
+      unreadMessageCount: 0,
+      client: {
+        connected: false,
+      },
+      ca: '',
+      cert: '',
+      key: '',
+    }
+    const data = genConnection(this.record, row)
+    Object.assign(connectionData, data)
+    const res: ConnectionModel | null = await createConnections(connectionData)
+    if (res) {
+      this.changeActiveConnection({
+        id: res.id as string,
+        client: {},
+        messages: [],
+      })
+      this.$router.push({
+        path: `/recent_connections/${res.id}`,
+        query: { autoConnect: 'true' },
+      })
+    } else {
+      this.$message.error(this.$t('connections.connectFailed') as string)
+    }
   }
 }
 </script>

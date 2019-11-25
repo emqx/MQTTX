@@ -95,4 +95,8 @@ export default {
     zh: '断开连接',
     en: 'Disconnect',
   },
+  connectionExists: {
+    zh: '连接数据已存在',
+    en: 'Connection already exists',
+  },
 }

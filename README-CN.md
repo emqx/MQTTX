@@ -10,7 +10,7 @@
 
 MQTTX 是 EMQ 开源的一款跨平台 MQTT 桌面客户端，它支持 macOS, Linux, Windows。
 
-MQTTX 采用了聊天界面形式，简化了页面操作逻辑，方便用户快速测试 MQTT/MQTTS 连接，及 MQTT 消息的发布与订阅。
+MQTTX 采用了聊天界面形式，简化了页面操作逻辑，允许在同一份 Broker 配置下保存多个客户端，方便用户快速测试 MQTT/MQTTS 连接，及 MQTT 消息的发布与订阅。
 
 ## 预览
 
@@ -24,8 +24,8 @@ MQTTX 采用了聊天界面形式，简化了页面操作逻辑，方便用户�
 
 1. 首先创建一个 Broker
 
-```conf
-# 如果你暂时没有一个可用的 MQTT Broker，你可以用这个公共的 Broker 进行测试
+```shell
+# 如果你暂时没有一个可用的 MQTT Broker，你可以用这个 EMQ X 公共的 Broker 进行测试
 
 Broker 地址: broker.emqx.io
 Broker 端口: 1883
@@ -33,7 +33,7 @@ Broker 端口: 1883
 
 2. 同一个 Broker 下可以创建多个客户端
 
-3. 回到连接页面，选择刚才创建的 Broker 下的客户端进行连接测试
+3. 回到连接页面，选择刚才创建的 Broker 下的客户端进行连接测试。或者你可以在客户端卡片上直接选择 `连接` 操作
 
 ## 开发
 

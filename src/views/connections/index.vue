@@ -53,8 +53,12 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Action } from 'vuex-class'
-import { loadConnections, createConnections, loadConnection } from '@/utils/api/connection'
-import { loadClientOptions, createClient, loadBroker, loadClient } from '@/utils/api/broker'
+import {
+  loadConnections, createConnections, loadConnection, genConnection,
+} from '@/utils/api/connection'
+import {
+  loadClientOptions, createClient, loadBroker, loadClient,
+} from '@/utils/api/broker'
 import matchSearch from '@/utils/matchSearch'
 import MyDialog from '@/components/MyDialog.vue'
 import Leftbar from '@/components/Leftbar.vue'
@@ -80,7 +84,9 @@ interface NewConnectionModel {
   },
 })
 export default class Connections extends Vue {
-  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
+  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (
+    payload: Client,
+  ) => void
 
   private searchLoading: boolean = false
   private isEmpty: boolean = false
@@ -196,38 +202,9 @@ export default class Connections extends Vue {
       }
       const [brokeruuid, clientuuid] = this.record.selector
       if (brokeruuid && clientuuid) {
-        let brokerData = {}
-        let clientData = {}
         const broker: BrokerModel | null = await loadBroker(brokeruuid)
-        if (broker) {
-          brokerData = {
-            brokeruuid: broker.id,
-            host: broker.brokerAddress,
-            port: broker.brokerPort,
-            ssl: broker.tls,
-            path: broker.path,
-          }
-        }
         const client: ClientModel | null = await loadClient(clientuuid)
-        if (client) {
-          clientData = {
-            clientuuid: client.id,
-            name: client.clientName,
-            clientId: client.clientId,
-            username: client.username || '',
-            password: client.password || '',
-            keepalive: client.keepAlive || 60,
-            connectTimeout: client.connectionTimeout || 4000,
-            clean: client.cleanSession,
-            ca: client.ca,
-            cert: client.cert,
-            key: client.key,
-          }
-        }
-        const data = {
-          ...brokerData,
-          ...clientData,
-        }
+        const data = genConnection(broker, client)
         Object.assign(this.data, data)
         const res: ConnectionModel | null = await createConnections(this.data)
         if (res) {
