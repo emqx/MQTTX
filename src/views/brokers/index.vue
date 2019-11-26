@@ -111,7 +111,7 @@ export default class Brokers extends Vue {
 
   private record: BrokerModel = {
     brokerName: '',
-    brokerAddress: '',
+    brokerAddress: 'broker.emqx.io',
     brokerPort: 1883,
     path: '/mqtt',
     tls: false,

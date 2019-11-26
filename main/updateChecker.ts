@@ -1,9 +1,9 @@
 import { dialog, shell } from 'electron'
 import axios from 'axios'
 
-const version: string = 'v1.1.1'
-const release: string = 'https://api.github.com/repos/emqx/MQTTX/releases/latest'
-const downloadUrl: string = 'https://github.com/emqx/MQTTX/releases/latest'
+const version = 'v1.1.1'
+const release = 'https://api.github.com/repos/emqx/MQTTX/releases/latest'
+const downloadUrl = 'https://github.com/emqx/MQTTX/releases/latest'
 
 const isUpdate = (latest: string, current: string): boolean => {
   const latestVersion: number[] = latest.split('.').map((item) => parseInt(item, 10))
