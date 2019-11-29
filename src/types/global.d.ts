@@ -6,6 +6,8 @@ import { MessageModel } from '@/views/connections/types'
 declare global {
   type Theme = 'light' | 'dark' | 'purple'
 
+  type Language = 'en' | 'zh'
+
   type VueForm = Vue & {
     validate: (validate: (valid: boolean) => void) => void,
     clearValidate: () => void,
@@ -54,7 +56,7 @@ declare global {
 
   interface App {
     currentTheme: Theme,
-    currentLang: 'en' | 'zh',
+    currentLang: Language,
     MacOSTop: '24px' | '0px',
     autoCheck: boolean,
     showSubscriptions: boolean,
