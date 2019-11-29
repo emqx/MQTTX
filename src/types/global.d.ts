@@ -94,6 +94,7 @@ declare global {
     topic: string,
     qos: 0 | 1 | 2,
     retain?: boolean,
+    color?: string,
   }
 
   type qosList = [0, 1, 2]
