@@ -38,7 +38,7 @@ const app = {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
       state.currentTheme = currentTheme
     },
-    [TOGGLE_LANG](state: App, currentLang: 'en' | 'zh') {
+    [TOGGLE_LANG](state: App, currentLang: Language) {
       state.currentLang = currentLang
     },
     [TOGGLE_AUTO_CHECK](state: App, autoCheck: boolean) {

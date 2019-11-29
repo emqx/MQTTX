@@ -13,7 +13,7 @@ import element from './utils/element'
 Vue.use(element)
 Vue.use(VueI18n)
 
-const locale: 'en' | 'zh' = store.state.app.currentLang
+const locale: Language = store.state.app.currentLang
 const vueI18n: VueI18n = new VueI18n({
   locale,
   messages: Lang,

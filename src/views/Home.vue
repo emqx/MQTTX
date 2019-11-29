@@ -18,7 +18,7 @@ import Ipc from '@/components/Ipc.vue'
 })
 export default class Home extends Vue {
   @Getter('currentTheme') private getterTheme!: Theme
-  @Getter('currentLang') private getterLang!: 'en' | 'zh'
+  @Getter('currentLang') private getterLang!: Language
 
   private setTheme(currentTheme: Theme): void {
     const bodyTag: HTMLBodyElement | null = document.querySelector('body')
@@ -28,7 +28,7 @@ export default class Home extends Vue {
     bodyTag.className = currentTheme
   }
 
-  private setLang(currentLang: 'en' | 'zh'): void {
+  private setLang(currentLang: Language): void {
     document.documentElement.lang = currentLang
     this.$i18n.locale = currentLang
   }
