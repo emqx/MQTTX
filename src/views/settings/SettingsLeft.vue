@@ -1,7 +1,7 @@
 <template>
   <div class="settings-left">
     <img class="logo" :src="logo" alt="mqttx">
-    <p class="version">{{ $t('settings.version') }} 1.1.1</p>
+    <p class="version">{{ $t('settings.version') }} 1.1.2</p>
     <a class="update" href="javascript:;" @click="checkUpdate">{{ $t('settings.update') }}</a>
 
     <a
