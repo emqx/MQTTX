@@ -35,7 +35,7 @@ const app = {
     MacOSTop: process.platform === 'darwin' ? '24px' : '0px',
   },
   mutations: {
-    [TOGGLE_THEME](state: App, currentTheme: 'light' | 'dark' | 'purple') {
+    [TOGGLE_THEME](state: App, currentTheme: Theme) {
       state.currentTheme = currentTheme
     },
     [TOGGLE_LANG](state: App, currentLang: 'en' | 'zh') {

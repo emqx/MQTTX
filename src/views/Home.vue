@@ -17,10 +17,10 @@ import Ipc from '@/components/Ipc.vue'
   },
 })
 export default class Home extends Vue {
-  @Getter('currentTheme') private getterTheme!: 'light' | 'dark' | 'purple'
+  @Getter('currentTheme') private getterTheme!: Theme
   @Getter('currentLang') private getterLang!: 'en' | 'zh'
 
-  private setTheme(currentTheme: 'light' | 'dark' | 'purple'): void {
+  private setTheme(currentTheme: Theme): void {
     const bodyTag: HTMLBodyElement | null = document.querySelector('body')
     if (!bodyTag) {
       return

@@ -31,7 +31,7 @@ import { ipcRenderer } from 'electron'
 
 @Component
 export default class SettingsLeft extends Vue {
-  @Getter('currentTheme') private getterTheme!: 'light' | 'dark' | 'purple'
+  @Getter('currentTheme') private getterTheme!: Theme
 
   get logo(): string {
     if (this.getterTheme === 'light') {

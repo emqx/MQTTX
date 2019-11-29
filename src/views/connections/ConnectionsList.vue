@@ -51,7 +51,7 @@ export default class ConnectionsList extends Vue {
 
   @Getter('activeConnection') private activeConnection: Client | undefined
   @Getter('unreadMessageCount') private unreadMessageCount: UnreadMessage | undefined
-  @Getter('currentTheme') private theme!: 'light' | 'dark' | 'purple'
+  @Getter('currentTheme') private theme!: Theme
 
   private selectConnection(row: ConnectionModel) {
     this.unreadMessageIncrement({ id: row.id as string, unreadMessageCount: 0  })

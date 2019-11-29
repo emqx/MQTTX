@@ -4,6 +4,8 @@ import { MqttClient } from 'mqtt'
 import { MessageModel } from '@/views/connections/types'
 
 declare global {
+  type Theme = 'light' | 'dark' | 'purple'
+
   type VueForm = Vue & {
     validate: (validate: (valid: boolean) => void) => void,
     clearValidate: () => void,
@@ -51,7 +53,7 @@ declare global {
   }
 
   interface App {
-    currentTheme: 'light' | 'dark' | 'purple',
+    currentTheme: Theme,
     currentLang: 'en' | 'zh',
     MacOSTop: '24px' | '0px',
     autoCheck: boolean,
