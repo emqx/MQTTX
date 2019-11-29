@@ -1,7 +1,7 @@
 'use strict'
 
 import {
-  app, protocol, BrowserWindow, ipcMain, shell, Menu, systemPreferences,
+  app, protocol, BrowserWindow, ipcMain, shell, Menu,
 } from 'electron'
 import {
   createProtocol,
@@ -19,7 +19,6 @@ interface WindowSizeModel {
 declare const __static: string
 
 const isDevelopment: boolean = process.env.NODE_ENV !== 'production'
-const isDarkMode: boolean = systemPreferences.isDarkMode()
 const isMac: boolean = process.platform === 'darwin'
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -42,7 +41,7 @@ function handleIpcMessages() {
 
 function createWindow() {
   const windowSize = db.get<WindowSizeModel>('windowSize')
-  const theme = db.get<'light' | 'dark' | 'purple'>('settings.currentTheme')
+  const theme = db.get<Theme>('settings.currentTheme')
   // Create the browser window.
   win = new BrowserWindow({
     ...windowSize,

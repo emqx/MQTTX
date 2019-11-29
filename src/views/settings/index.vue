@@ -100,11 +100,11 @@ export default class Settings extends Vue {
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
   @Action('TOGGLE_AUTO_CHECK') private actionAutoCheck!: (payload: { autoCheck: boolean }) => void
   @Getter('currentTheme') private getterTheme!: 'light' | 'dark' | 'purple'
-  @Getter('currentLang') private getterLang!: 'en' | 'zh'
+  @Getter('currentLang') private getterLang!: Language
   @Getter('autoCheck') private getterAutoCheck!: boolean
 
   private currentTheme: 'light' | 'dark' | 'purple' = 'light'
-  private currentLang: 'en' | 'zh' = 'en'
+  private currentLang: Language = 'en'
   private autoCheck: boolean = false
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },

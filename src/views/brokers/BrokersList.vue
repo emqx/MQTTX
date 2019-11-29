@@ -42,7 +42,7 @@ export default class BrokersList extends Vue {
   @Prop({ required: true }) public data!: BrokerModel[] | []
   @Prop({ required: true }) public brokerID!: string
 
-  @Getter('currentTheme') private theme!: 'light' | 'dark' | 'purple'
+  @Getter('currentTheme') private theme!: Theme
 
   private selectBroker(row: BrokerModel): void {
     this.$router.push({ path: `/brokers/${row.id}` })

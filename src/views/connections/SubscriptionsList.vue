@@ -17,10 +17,16 @@
             <i class="iconfont icon-zhedie"></i>
           </a>
         </div>
-        <div class="topics-item" v-for="(sub, index) in subsList" :key="index">
+        <div
+          class="topics-item"
+          v-for="(sub, index) in subsList"
+          :key="index"
+          :style="{
+            borderLeft: `4px solid ${sub.color}`,
+           }">
           <el-tooltip
             :effect="theme !== 'light' ? 'dark' : 'light'"
-            :disabled="sub.topic.length < 20"
+            :disabled="sub.topic.length < 25"
             :content="sub.topic"
             placement="top">
             <span class="topic">
@@ -87,7 +93,7 @@ export default class SubscriptionsList extends Vue {
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
   @Getter('activeConnection') private activeConnection: $TSFixed
-  @Getter('currentTheme') private theme!: 'light' | 'dark' | 'purple'
+  @Getter('currentTheme') private theme!: Theme
 
   private currentConnection: $TSFixed = {}
   private showDialog: boolean = false
@@ -95,22 +101,40 @@ export default class SubscriptionsList extends Vue {
     topic: 'testtopic/#',
     qos: 0,
   }
+  private qosOption: qosList = [0, 1, 2]
+  private subsList: SubscriptionModel[] = []
+
   get rules() {
     return {
       topic: { required: true, message: this.$t('common.inputRequired') },
       qos: { required: true, message: this.$t('common.selectRequired') },
     }
   }
-  private qosOption: qosList = [0, 1, 2]
-  private subsList: SubscriptionModel[] = []
+
+  get vueForm(): VueForm {
+    return this.$refs.form as VueForm
+  }
 
   @Watch('record')
   private handleRecordChanged(val: ConnectionModel) {
     this.getCurrentConnection(val.id as string)
   }
 
-  get vueForm(): VueForm {
-    return this.$refs.form as VueForm
+  private getBorderColor(): string {
+    let $index: number = this.subsList.length
+    const lastSubs: SubscriptionModel = this.subsList[$index - 1]
+    const colors = ['#CEEC97', '#F4B393', '#F78764', '#FC60A8', '#668D97']
+
+    if ($index === 0) {
+      return colors[0]
+    }
+    const subIndex = colors.findIndex((color) => color === lastSubs.color)
+    if (colors[subIndex + 1]) {
+      $index = subIndex + 1
+    } else {
+      $index = 0
+    }
+    return colors[$index]
   }
 
   private hideSubsList() {
@@ -136,6 +160,7 @@ export default class SubscriptionsList extends Vue {
         return false
       }
       const { topic, qos } = this.subRecord
+      this.subRecord.color = this.getBorderColor()
       this.currentConnection.client.subscribe(
         topic,
         { qos },
@@ -260,7 +285,8 @@ export default class SubscriptionsList extends Vue {
       position: relative;
       clear: both;
       .topic {
-        max-width: 164px;
+        max-width: 140px;
+        margin-left: 5px;
         display: inline-block;
         white-space: nowrap;
         text-overflow: ellipsis;

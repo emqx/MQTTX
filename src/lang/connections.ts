@@ -48,7 +48,7 @@ export default {
     en: 'All',
   },
   received: {
-    zh: '已接受',
+    zh: '已接收',
     en: 'Received',
   },
   published: {
@@ -94,5 +94,9 @@ export default {
   disconnectedBtn: {
     zh: '断开连接',
     en: 'Disconnect',
+  },
+  connectionExists: {
+    zh: '连接数据已存在',
+    en: 'Connection already exists',
   },
 }
