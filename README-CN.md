@@ -20,6 +20,8 @@ MQTTX 采用了聊天界面形式，简化了页面操作逻辑，允许在同�
 
 请从 [GitHub Releases](https://github.com/emqx/MQTTX/releases) 下载符合您的版本并安装使用。
 
+或者也可以从[这里](https://www.emqx.io/downloads/MQTTX/)下载。
+
 ## 使用
 
 1. 首先创建一个 Broker
