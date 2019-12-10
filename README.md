@@ -20,6 +20,8 @@ MQTTX adopts  the form of chat interface, which simplifies the page operation, a
 
 Download from [GitHub Releases](https://github.com/emqx/MQTTX/releases) and install it.
 
+Alternative, you can download [here](https://www.emqx.io/downloads/MQTTX/).
+
 ## Usage
 
 1. Create broker
