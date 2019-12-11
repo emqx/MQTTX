@@ -171,6 +171,7 @@ export default class BrokerContent extends Vue {
       host: '',
       connectTimeout: 4000,
       keepalive: 60,
+      reconnect: true,
       messages: [],
       username: '',
       password: '',

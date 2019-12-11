@@ -102,6 +102,7 @@ export default class Connections extends Vue {
     host: '',
     keepalive: 60,
     connectTimeout: 4000,
+    reconnect: true,
     messages: [],
     username: '',
     password: '',
@@ -130,6 +131,7 @@ export default class Connections extends Vue {
     host: '',
     keepalive: 60,
     connectTimeout: 4000,
+    reconnect: true,
     messages: [],
     username: '',
     password: '',
@@ -240,6 +242,7 @@ export default class Connections extends Vue {
       path: '/mqtt',
       port: 1883,
       ssl: false,
+      reconnect: true,
       subscriptions: [],
       unreadMessageCount: 0,
       client: {
