@@ -32,6 +32,7 @@ export interface ConnectionModel extends SSLPath  {
   port: number,
   ssl: boolean,
   subscriptions: SubscriptionModel[],
+  reconnect: boolean,
   unreadMessageCount: number,
   client: MqttClient | {
     connected: boolean,

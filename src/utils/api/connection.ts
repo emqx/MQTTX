@@ -59,6 +59,7 @@ export const genConnection = (broker: BrokerModel, client: ClientModel) => {
     password: client.password || '',
     keepalive: client.keepAlive || 60,
     connectTimeout: client.connectionTimeout || 4000,
+    reconnect: client.autoReconnect,
     clean: client.cleanSession,
     ca: client.ca,
     cert: client.cert,

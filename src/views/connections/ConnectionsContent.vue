@@ -428,15 +428,26 @@ export default class ConnectionsContent extends Vue {
     this.$emit('reload')
   }
   private onReConnect() {
-    this.client.end()
-    this.connectLoading = false
-    this.$notify({
-      title: this.$t('connections.connectFailed') as string,
-      message: '',
-      type: 'error',
-      duration: 3000,
-      offset: 20,
-    })
+    if (!this.record.reconnect) {
+      this.client.end()
+      this.connectLoading = false
+      this.$notify({
+        title: this.$t('connections.connectFailed') as string,
+        message: '',
+        type: 'error',
+        duration: 3000,
+        offset: 20,
+      })
+    } else {
+      this.connectLoading = true
+      this.$notify({
+        title: this.$t('connections.reconnect') as string,
+        message: '',
+        type: 'warning',
+        duration: 3000,
+        offset: 20,
+      })
+    }
     this.$emit('reload')
   }
   private messageArrived(id: string) {

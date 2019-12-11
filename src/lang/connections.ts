@@ -87,6 +87,10 @@ export default {
     zh: '连接失败',
     en: 'Connect Failed',
   },
+  reconnect: {
+    zh: '正在重连',
+    en: 'Reconnecting',
+  },
   connectBtn: {
     zh: '连 接',
     en: 'Connect',
