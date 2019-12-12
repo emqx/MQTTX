@@ -1,6 +1,6 @@
 <template>
   <div class="client-detail card-form">
-    <div class="client-topbar right-topbar" :style="{ top: $store.state.app.MacOSTop }">
+    <div class="client-topbar right-topbar">
       <div class="client-info topbar">
         <div class="client-header">
           <a href="javascript:;" @click="$router.go(-1)">

@@ -1,5 +1,6 @@
 <template>
   <div class="home-view">
+    <Leftbar/>
     <RouterView/>
     <Ipc @setTheme="setTheme" @setLang="setLang"/>
   </div>
@@ -10,10 +11,12 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import Ipc from '@/components/Ipc.vue'
+import Leftbar from '@/components/Leftbar.vue'
 
 @Component({
   components: {
     Ipc,
+    Leftbar,
   },
 })
 export default class Home extends Vue {
@@ -52,26 +55,16 @@ export default class Home extends Vue {
     min-height: 60px;
     border-bottom: 1px solid var(--color-border-default);
   }
-  .left-topbar {
-    padding: 0 16px;
-    position: fixed;
-    left: 0;
-    z-index: 1;
-    background: var(--color-bg-normal);
-    width: 280px;
-    border-right: 2px solid var(--color-border-default);
-    -webkit-app-region: drag;
-  }
   .right-topbar {
     position: fixed;
-    left: 280px;
+    left: 341px;
     right: 0;
     z-index: 3;
     background: var(--color-bg-normal);
     -webkit-app-region: drag;
   }
   .right-content {
-    margin-left: 280px;
+    margin-left: 341px;
     min-height: 100%;
   }
 }

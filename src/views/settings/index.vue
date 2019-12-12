@@ -1,10 +1,6 @@
 <template>
   <div class="settings-view">
-    <leftbar>
-      <SettingsLeft/>
-    </leftbar>
-
-    <div class="settings-view-content right-content" :style="{ top: $store.state.app.MacOSTop }">
+    <div class="settings-view-content right-content">
       <h1 class="titlebar">{{ $t('settings.settings') }}</h1>
       <div class="settings-general">
         <div class="settings-title">{{ $t('settings.general') }}</div>
@@ -86,15 +82,8 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
-import Leftbar from '@/components/Leftbar.vue'
-import SettingsLeft from './SettingsLeft.vue'
 
-@Component({
-  components: {
-    Leftbar,
-    SettingsLeft,
-  },
-})
+@Component
 export default class Settings extends Vue {
   @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
@@ -144,12 +133,16 @@ export default class Settings extends Vue {
 <style lang="scss" scope>
 @import '@/assets/scss/variable.scss';
 .settings-view {
-  .leftbar {
+  .LeftList {
     margin: 0px;
   }
   .settings-view-content {
     position: relative;
     padding: 0 16px;
+
+    &.right-content {
+      margin-left: 81px;
+    }
 
     .titlebar {
       padding: 16px 0;
