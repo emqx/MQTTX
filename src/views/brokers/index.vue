@@ -1,25 +1,18 @@
 <template>
   <div>
-    <Leftbar>
-      <SearchTopbar
-        :loading="searchLoading"
-        @reload="loadData"
-        @search="searchBroker"
-        @showNewDialog="showNewBrokerDialog"/>
+    <left-list>
       <BrokersList
         :brokerID="brokerID"
         :data="records"
         @delete="removeBroker"/>
-    </Leftbar>
+    </left-list>
 
     <EmptyPage
       v-if="isEmpty && !isClientPage"
       name="brokers"
       :btn-title="$t('brokers.newBroker')"
       :click-method="showNewBrokerDialog"/>
-    <div v-else class="brokers-view right-content" :style="{
-      paddingTop: brokerViewTop,
-    }">
+    <div v-else class="brokers-view right-content">
       <ClientDetail v-if="isClientPage" :broker="currentBroker"/>
       <BrokerContent
         v-else
@@ -76,8 +69,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import Leftbar from '@/components/Leftbar.vue'
-import SearchTopbar from '@/components/SearchTopbar.vue'
+import LeftList from '@/components/LeftList.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import BrokersList from './BrokersList.vue'
 import BrokerContent from './BrokerContent.vue'
@@ -91,8 +83,7 @@ import { BrokerModel, ClientModel } from './types'
 
 @Component({
   components: {
-    Leftbar,
-    SearchTopbar,
+    LeftList,
     BrokersList,
     MyDialog,
     BrokerContent,
@@ -139,13 +130,6 @@ export default class Brokers extends Vue {
   @Watch('isClientPage')
   private handlePageChange() {
     this.loadClients()
-  }
-
-  get brokerViewTop(): string {
-    if (this.$store.state.app.MacOSTop === '24px') {
-      return '114px'
-    }
-    return '90px'
   }
 
   get rules(): any {

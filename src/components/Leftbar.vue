@@ -1,41 +1,115 @@
 <template>
-  <div class="leftbar" :style="{ top: $store.state.app.MacOSTop }">
-    <slot></slot>
-    <Tabbar/>
+  <div class="leftbar">
+    <section class="leftbar-top">
+      <div class="app-logo leftbar-item">
+        <a
+          href="https://emqx.io"
+          target="_blank"
+          rel="noopener noreferrer">
+          <img src="../assets/images/app-logo.png" alt="app-logo">
+        </a>
+      </div>
+      <div :class="[{ active: isConnection }, 'leftbar-item']">
+        <a href="javascript:;" @click="$router.push({ path: '/recent_connections' })">
+          <i class="iconfont icon-connections"></i>
+        </a>
+      </div>
+      <div class="leftbar-item">
+        <a href="javascript:;" @click="$router.push({ path: '/recent_connections' })">
+          <i class="iconfont icon-plus"></i>
+        </a>
+      </div>
+    </section>
+
+    <section class="leftbar-bottom">
+      <div class="leftbar-item">
+        <a href="javascript:;" @click="$router.push({ path: '/recent_connections' })">
+          <i class="iconfont icon-about"></i>
+        </a>
+      </div>
+      <div :class="[{ active: isSettings }, 'leftbar-item']">
+        <a href="javascript:;" @click="$router.push({ path: '/settings' })">
+          <i class="iconfont icon-settings"></i>
+        </a>
+      </div>
+    </section>
   </div>
 </template>
 
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import Tabbar from '@/components/Tabbar.vue'
 
-@Component({
-  components: {
-    Tabbar,
-  },
-})
-
-export default class Leftbar extends Vue {}
+@Component
+export default class Leftbar extends Vue {
+  get isConnection(): boolean {
+    return 'recent_connections' === this.$route.path.split('/')[1]
+  }
+  get isSettings(): boolean {
+    return this.$route.path === '/settings'
+  }
+}
 </script>
 
 
 <style lang="scss">
+@import "~@/assets/scss/variable.scss";
+
 .leftbar {
   position: fixed;
-  width: 280px;
+  width: 80px;
+  top: 0;
   bottom: 0;
-  overflow-x: hidden;
-  z-index: 1000;
-  border-right: 2px solid var(--color-border-default);
-  background-color: var(--color-bg-normal);
-  margin: 60px 0;
-  .no-data {
+  background: #333844;
+  padding: 48px 0;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  -webkit-app-region: drag;
+
+  & > .leftbar-top {
+    flex: 3;
+  }
+  & > .leftbar-bottom {
+    flex: 0;
+  }
+
+  .leftbar-item {
     text-align: center;
-    position: absolute;
-    top: 45%;
-    left: 40%;
+    margin-bottom: 25px;
+    position: relative;
+    a {
+      height: 48px;
+      width: 48px;
+      line-height: 48px;
+      display: inline-block;
+    }
+    &.active a {
+      background-color: var(--color-bg-leftbar_item);
+      border-radius: 50%;
+    }
+    &.active a,
+    a:hover {
+      .iconfont {
+        color: var(--color-main-green);
+      }
+    }
+    &:last-child {
+      margin-bottom: 0px;
+    }
+  }
+
+  .app-logo {
+    margin-bottom: 35px;
+    img {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  .iconfont {
     color: var(--color-text-light);
+    font-size: $font-size--leftbar_title;
   }
 }
 </style>

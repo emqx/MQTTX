@@ -1,13 +1,8 @@
 <template>
   <div>
-    <leftbar>
-      <SearchTopbar
-        :loading="searchLoading"
-        @reload="loadData"
-        @search="searchConnection"
-        @showNewDialog="showNewConnectionDialog"/>
+    <left-list>
       <ConnectionsList :data="records" :connectionId="connectionId"/>
-    </leftbar>
+    </left-list>
 
     <div class="connections-view">
       <EmptyPage
@@ -61,8 +56,7 @@ import {
 } from '@/utils/api/broker'
 import matchSearch from '@/utils/matchSearch'
 import MyDialog from '@/components/MyDialog.vue'
-import Leftbar from '@/components/Leftbar.vue'
-import SearchTopbar from '@/components/SearchTopbar.vue'
+import LeftList from '@/components/LeftList.vue'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsContent from './ConnectionsContent.vue'
@@ -75,8 +69,7 @@ interface NewConnectionModel {
 
 @Component({
   components: {
-    Leftbar,
-    SearchTopbar,
+    LeftList,
     ConnectionsList,
     ConnectionsContent,
     EmptyPage,

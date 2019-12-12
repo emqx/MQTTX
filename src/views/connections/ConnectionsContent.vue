@@ -1,6 +1,6 @@
 <template>
   <div class="connections-content">
-    <div class="connections-topbar right-topbar" :style="{ top: $store.state.app.MacOSTop }">
+    <div class="connections-topbar right-topbar">
       <div class="connections-info">
         <div class="topbar">
           <div class="connection-head">
@@ -72,7 +72,7 @@
       class="connections-content-main right-content"
       :style="{
         paddingTop: showClientInfo ? msgTop.open: msgTop.close,
-        marginLeft: showSubs ? '529px' : '280px',
+        marginLeft: showSubs ? '570px' : '341px',
       }">
       <div class="connections-body">
         <div class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open: bodyTop.close }">
@@ -109,7 +109,7 @@
 
       <div
         class="connections-footer" 
-        :style="{ marginLeft: showSubs ? '529px' : '280px' }">
+        :style="{ marginLeft: showSubs ? '570px' : '341px' }">
         <MsgPublish
           @handleSend="sendMessage"/>
       </div>
@@ -176,13 +176,6 @@ export default class ConnectionsContent extends Vue {
   private searchTopic: string = ''
 
   get bodyTop(): Top {
-    if (this.$store.state.app.MacOSTop === '24px'
-      && process.platform === 'darwin') {
-      return {
-        open: '282px',
-        close: '84px',
-      }
-    }
     return {
       open: '258px',
       close: '60px',
@@ -190,13 +183,6 @@ export default class ConnectionsContent extends Vue {
   }
 
   get msgTop(): Top {
-    if (this.$store.state.app.MacOSTop === '24px'
-      && process.platform === 'darwin') {
-      return {
-        open: '310px',
-        close: '112px',
-      }
-    }
     return {
       open: '286px',
       close: '88px',
@@ -617,7 +603,7 @@ export default class ConnectionsContent extends Vue {
         padding: 12px 16px;
         background: var(--color-bg-primary);
         position: fixed;
-        left: 280px;
+        left: 341px;
         right: 0;
         z-index: 1;
         transition: all .4s;

@@ -277,7 +277,7 @@ export default class SubscriptionsList extends Vue {
     overflow: scroll;
     .topics-item {
       color: var(--color-text-title);
-      background: var(--color-bg-tabs);
+      background: var(--color-bg-topics);
       padding: 0px 8px;
       height: 46px;
       line-height: 46px;
