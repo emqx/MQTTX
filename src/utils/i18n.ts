@@ -6,12 +6,14 @@ export const formati18n = (transItems: i18nLocaleModel): VueI18n.LocaleMessages 
     brokers: {},
     settings: {},
     common: {},
+    about: {},
   }
   const zh: any = {
     connections: {},
     brokers: {},
     settings: {},
     common: {},
+    about: {},
   }
   transItems.forEach((item) => {
     const values = require(`@/lang/${item}`).default

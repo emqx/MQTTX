@@ -2,6 +2,7 @@ import Home from '../views/Home.vue'
 import Connections from '../views/connections/index.vue'
 import Brokers from '../views/brokers/index.vue'
 import Settings from '../views/settings/index.vue'
+import About from '../views/about/index.vue'
 
 const routes: Routes[] = [
   {
@@ -16,6 +17,7 @@ const routes: Routes[] = [
       { path: '/brokers/:id', name: 'BrokerDetails', component: Brokers },
       { path: '/clients/:id', name: 'Clients', component: Brokers },
       { path: '/settings', name: 'Settings', component: Settings },
+      { path: '/about', name: 'About', component: About },
     ],
   },
 ]

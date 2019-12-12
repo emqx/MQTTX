@@ -22,8 +22,8 @@
     </section>
 
     <section class="leftbar-bottom">
-      <div class="leftbar-item">
-        <a href="javascript:;" @click="$router.push({ path: '/recent_connections' })">
+      <div :class="[{ active: isAbout }, 'leftbar-item']">
+        <a href="javascript:;" @click="$router.push({ path: '/about' })">
           <i class="iconfont icon-about"></i>
         </a>
       </div>
@@ -47,6 +47,9 @@ export default class Leftbar extends Vue {
   }
   get isSettings(): boolean {
     return this.$route.path === '/settings'
+  }
+  get isAbout(): boolean {
+    return this.$route.path === '/about'
   }
 }
 </script>

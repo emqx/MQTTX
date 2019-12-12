@@ -31,14 +31,6 @@ export default {
     zh: '深色',
     en: 'Dark',
   },
-  version: {
-    zh: '版本号',
-    en: 'Version',
-  },
-  update: {
-    zh: '检查更新',
-    en: 'Check for Updates',
-  },
   advanced: {
     zh: '高级',
     en: 'Advanced',

@@ -5,7 +5,7 @@ import zhLocale from 'element-ui/lib/locale/lang/zh-CN'
 
 import { formati18n } from '@/utils/i18n'
 
-const i18nModules: i18nLocaleModel = ['connections', 'brokers', 'settings', 'common']
+const i18nModules: i18nLocaleModel = ['connections', 'brokers', 'settings', 'common', 'about']
 
 const { en, zh }: VueI18n.LocaleMessages = formati18n(i18nModules)
 

@@ -48,7 +48,7 @@ export default class Home extends Vue {
 @import '~@/assets/scss/mixins.scss';
 
 .home-view {
-  min-height: 100%;
+  height: 100%;
   background-color: var(--color-bg-primary);
   .topbar {
     @include flex-space-between;
@@ -62,6 +62,10 @@ export default class Home extends Vue {
     z-index: 3;
     background: var(--color-bg-normal);
     -webkit-app-region: drag;
+  }
+  .rightbar {
+    margin-left: 81px;
+    height: 100%;
   }
   .right-content {
     margin-left: 341px;
