@@ -11,7 +11,12 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
           {
             label: app.getName(),
             submenu: [
-              { role: 'about' },
+              {
+                label: 'About MQTTX',
+                click: () => {
+                  win.webContents.send('about')
+                },
+              },
               { type: 'separator' },
               {
                 label: 'Preferences',
