@@ -15,7 +15,7 @@
         </a>
       </div>
       <div class="leftbar-item">
-        <a href="javascript:;" @click="$router.push({ path: '/recent_connections' })">
+        <a href="javascript:;" @click="$router.push({ path: '/recent_connections/0?oper=create' })">
           <i class="iconfont icon-plus"></i>
         </a>
       </div>
@@ -64,7 +64,7 @@ export default class Leftbar extends Vue {
   top: 0;
   bottom: 0;
   background: #333844;
-  padding: 48px 0;
+  padding: 45px 0;
   z-index: 1001;
   display: flex;
   flex-direction: column;

@@ -1,46 +1,28 @@
 <template>
-  <div>
+  <div class="connections">
     <left-list>
+      <h1 class="titlebar">{{ $t('connections.connections') }}</h1>
       <ConnectionsList :data="records" :connectionId="connectionId"/>
     </left-list>
 
     <div class="connections-view">
       <EmptyPage
-        v-if="isEmpty"
+        v-if="isEmpty && !oper"
         name="connections"
         :btn-title="$t('connections.newConnections')"
-        :click-method="showNewConnectionDialog"/>
+        :click-method="toCreateConnection"/>
       <template v-else>
+        <ConnectionForm
+          v-if="oper"
+          :oper="oper"/>
         <ConnectionsContent
+          v-else
           :record="currentConnection"
           @reload="loadData"
           @delete="loadData(true)"/>
       </template>
     </div>
 
-    <!-- New connection dialog -->
-    <my-dialog
-      :title="$t('connections.newConnection')"
-      :confirmLoading="newConnectionConfirmLoading"
-      :visible.sync="newConnectionDialogVisible"
-      @confirm="saveConnection"
-      @close="resetConnction">
-      <el-form
-        ref="form"
-        label-position="top"
-        :model="record"
-        :rules="rules">
-        <el-form-item :label="$t('brokers.client')" prop="selector">
-          <router-link class="new-broker" to="/brokers">{{ $t('brokers.newBroker') }}</router-link>
-          <el-cascader
-            clearable
-            v-model="record.selector"
-            :placeholder="`Broker / ${$t('brokers.client')}`"
-            :options="clientOptions">
-          </el-cascader>
-        </el-form-item>
-      </el-form>
-    </my-dialog>
   </div>
 </template>
 
@@ -48,18 +30,15 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Action } from 'vuex-class'
+import { loadConnections, loadConnection } from '@/utils/api/connection'
 import {
-  loadConnections, createConnections, loadConnection, genConnection,
-} from '@/utils/api/connection'
-import {
-  loadClientOptions, createClient, loadBroker, loadClient,
+  createClient, loadBroker, loadClient,
 } from '@/utils/api/broker'
-import matchSearch from '@/utils/matchSearch'
-import MyDialog from '@/components/MyDialog.vue'
 import LeftList from '@/components/LeftList.vue'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsContent from './ConnectionsContent.vue'
+import ConnectionForm from './ConnectionForm.vue'
 import { ConnectionModel } from './types'
 import { BrokerModel, ClientModel } from '../brokers/types'
 
@@ -72,8 +51,8 @@ interface NewConnectionModel {
     LeftList,
     ConnectionsList,
     ConnectionsContent,
+    ConnectionForm,
     EmptyPage,
-    MyDialog,
   },
 })
 export default class Connections extends Vue {
@@ -81,14 +60,9 @@ export default class Connections extends Vue {
     payload: Client,
   ) => void
 
-  private searchLoading: boolean = false
   private isEmpty: boolean = false
-  private newConnectionConfirmLoading: boolean = false
-  private newConnectionDialogVisible: boolean = false
   private records: ConnectionModel[] | [] = []
   private currentConnection: ConnectionModel = {
-    clientuuid: '',
-    brokeruuid: '',
     clientId: '',
     name: '',
     clean: false,
@@ -96,42 +70,15 @@ export default class Connections extends Vue {
     keepalive: 60,
     connectTimeout: 4000,
     reconnect: true,
-    messages: [],
     username: '',
     password: '',
     path: '/mqtt',
     port: 1883,
+    certType: '',
     ssl: false,
+    mqttVersion: '3.1.1',
     subscriptions: [],
-    unreadMessageCount: 0,
-    client: {
-      connected: false,
-    },
-    ca: '',
-    cert: '',
-    key: '',
-  }
-  private record: NewConnectionModel = {
-    selector: [],
-  }
-  private clientOptions: Options[] = []
-  private data: ConnectionModel = {
-    clientuuid: '',
-    brokeruuid: '',
-    clientId: '',
-    name: '',
-    clean: false,
-    host: '',
-    keepalive: 60,
-    connectTimeout: 4000,
-    reconnect: true,
     messages: [],
-    username: '',
-    password: '',
-    path: '/mqtt',
-    port: 1883,
-    ssl: false,
-    subscriptions: [],
     unreadMessageCount: 0,
     client: {
       connected: false,
@@ -143,7 +90,12 @@ export default class Connections extends Vue {
 
   @Watch('$route.params.id')
   private handleIdChanged(val: string) {
-    this.loadDetail(val)
+    this.loadData()
+  }
+
+  get oper(): string | Array<string | null> {
+    console.log(this.$route.query.oper)
+    return this.$route.query.oper
   }
 
   get connectionId(): string {
@@ -152,16 +104,6 @@ export default class Connections extends Vue {
 
   get vueForm(): VueForm {
     return this.$refs.form as VueForm
-  }
-
-  get rules() {
-    return {
-      selector: [{ required: true, trigger: 'change', message: this.$t('common.selectRequired') }],
-    }
-  }
-
-  private async loadOptions(): Promise<void> {
-    this.clientOptions = await loadClientOptions()
   }
 
   private async loadDetail(id: string): Promise<void> {
@@ -177,7 +119,7 @@ export default class Connections extends Vue {
     if (reload && connections.length) {
       this.$router.push({ path: `/recent_connections/${connections[0].id}` })
     }
-    if (connections.length) {
+    if (connections.length && this.connectionId !== 'create') {
       this.loadDetail(this.connectionId)
       this.isEmpty = false
     } else {
@@ -185,98 +127,21 @@ export default class Connections extends Vue {
     }
   }
 
-  private showNewConnectionDialog(): void {
-    this.newConnectionDialogVisible = true
-    this.loadOptions()
-  }
-
-  private saveConnection(): void {
-    this.vueForm.validate(async (valid: boolean) => {
-      if (!valid) {
-        return false
-      }
-      const [brokeruuid, clientuuid] = this.record.selector
-      if (brokeruuid && clientuuid) {
-        const broker: BrokerModel | null = await loadBroker(brokeruuid)
-        const client: ClientModel | null = await loadClient(clientuuid)
-        const data = genConnection(broker, client)
-        Object.assign(this.data, data)
-        const res: ConnectionModel | null = await createConnections(this.data)
-        if (res) {
-          this.changeActiveConnection({
-            id: res.id as string,
-            client: {},
-            messages: [],
-          })
-          this.newConnectionDialogVisible = false
-          this.resetConnction()
-          this.loadData()
-          this.$router.push(`/recent_connections/${res.id}`)
-        } else {
-          this.$message.error(this.$t('common.createfailed') as string)
-        }
-      }
-    })
-  }
-
-  private resetConnction(): void {
-    this.data = {
-      clientuuid: '',
-      brokeruuid: '',
-      clientId: '',
-      name: '',
-      clean: false,
-      host: '',
-      connectTimeout: 4000,
-      keepalive: 60,
-      messages: [],
-      username: '',
-      password: '',
-      path: '/mqtt',
-      port: 1883,
-      ssl: false,
-      reconnect: true,
-      subscriptions: [],
-      unreadMessageCount: 0,
-      client: {
-        connected: false,
-      },
-      ca: '',
-      cert: '',
-      key: '',
-    }
-    this.vueForm.clearValidate()
-    this.vueForm.resetFields()
-  }
-
-  private async searchConnection(val: string): Promise<void> {
-    this.searchLoading = true
-    const data: ConnectionModel[] = await loadConnections()
-    if (data) {
-      setTimeout(async () => {
-        const res: ConnectionModel[] | null = await matchSearch(data, 'name', val)
-        if (res) {
-          this.records = res
-          this.searchLoading = false
-        }
-      }, 500)
-    } else {
-      this.searchLoading = false
-    }
+  private toCreateConnection(): void {
+    this.$router.push({ path: '/recent_connections/0?oper=create' })
   }
 
   private created(): void {
     this.loadData()
-    this.loadOptions()
   }
 }
 </script>
 
 
 <style lang="scss">
-.new-broker {
-  position: absolute;
-  top: -50px;
-  right: 0;
+.connections {
+  .titlebar {
+    padding: 16px;
+  }
 }
 </style>

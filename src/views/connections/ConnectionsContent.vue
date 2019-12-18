@@ -23,9 +23,6 @@
                 <i class="el-icon-more"></i>
               </a>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="viewBroker">
-                  <i class="iconfont icon-client"></i>{{ $t('connections.brokerInfo') }}
-                </el-dropdown-item>
                 <el-dropdown-item command="clearHistory">
                   <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
                 </el-dropdown-item>
@@ -40,9 +37,9 @@
           </div>
         </div>
         <el-collapse-transition>
-          <ConnectionForm
+          <ConnectionInfo
             v-show="showClientInfo"
-            class="connection-form"
+            class="connection-info"
             :connection="record"
             :client="client"
             :btn-loading="connectLoading"
@@ -125,15 +122,15 @@ import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
-import MsgRightItem from './MsgRightItem.vue'
-import MsgLeftItem from './MsgLeftItem.vue'
-import MsgPublish from './MsgPublish.vue'
-import ConnectionForm from './ConnectionForm.vue'
-import SubscriptionsList from './SubscriptionsList.vue'
+import MsgRightItem from '@/components/MsgRightItem.vue'
+import MsgLeftItem from '@/components/MsgLeftItem.vue'
+import MsgPublish from '@/components/MsgPublish.vue'
+import SubscriptionsList from '@/components/SubscriptionsList.vue'
+import ConnectionInfo from './ConnectionInfo.vue'
 import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
-type CommandType = 'viewBroker' | 'clearHistory' | 'disconnect' | 'deleteConnect'
+type CommandType = 'clearHistory' | 'disconnect' | 'deleteConnect'
 
 interface Top {
   open: string,
@@ -144,7 +141,7 @@ interface Top {
   components: {
     MsgRightItem,
     MsgLeftItem,
-    ConnectionForm,
+    ConnectionInfo,
     MsgPublish,
     SubscriptionsList,
   },
@@ -177,7 +174,7 @@ export default class ConnectionsContent extends Vue {
 
   get bodyTop(): Top {
     return {
-      open: '258px',
+      open: '254px',
       close: '60px',
     }
   }
@@ -243,8 +240,6 @@ export default class ConnectionsContent extends Vue {
       this.removeConnection()
     } else if (command === 'clearHistory') {
       this.handleMsgClear()
-    } else if (command === 'viewBroker') {
-      this.$router.push({ path: `/brokers/${this.record.brokeruuid}` })
     }
   }
 
@@ -529,11 +524,9 @@ export default class ConnectionsContent extends Vue {
   .connections-topbar {
     border-bottom: 1px solid var(--color-border-default);
     .connections-info {
-      padding: 0 16px;
       background-color: var(--color-bg-normal);
       .topbar {
         border-bottom: 0px;
-        min-height: 59px;
       }
       .connection-head {
         .offline {
@@ -561,6 +554,9 @@ export default class ConnectionsContent extends Vue {
             text-align: center;
           }
         }
+      }
+      .connection-info {
+        padding: 0 16px;
       }
     }
     .connections-search {

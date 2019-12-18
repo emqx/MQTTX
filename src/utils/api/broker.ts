@@ -1,4 +1,4 @@
-import db from '@/datastore/index'
+import db from '@/database/index'
 import { BrokerModel, ClientModel } from '@/views/brokers/types'
 import { ConnectionModel } from '@/views/connections/types'
 import { deleteConnection, updateConnection, loadConnections } from './connection'

@@ -24,6 +24,9 @@
               </div>
             </el-tooltip>
           </div>
+          <div v-if="item.ssl" class="ssl-tag">
+            <span>SSL</span>
+          </div>
         </div>
         <div
           v-if="unreadMessageCount[item.id] > 0"
@@ -88,6 +91,23 @@ export default class ConnectionsList extends Vue {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
+      }
+    }
+    .ssl-tag {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 0;
+      height: 0;
+      border-top: 36px solid var(--color-main-green);
+      border-left: 36px solid transparent;
+      span {
+        position: absolute;
+        top: -36px;
+        right: -1px;
+        font-size: 12px;
+        transform: rotate(45deg);
+        color: #fff;
       }
     }
     .item-left {

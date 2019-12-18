@@ -1,5 +1,4 @@
-import db from '@/datastore/index'
-import { loadClient, updateClient } from './broker'
+import db from '@/database/index'
 import { ConnectionModel, MessageModel } from '@/views/connections/types'
 import { ClientModel, BrokerModel } from '@/views/brokers/types'
 
@@ -11,7 +10,7 @@ export const loadConnections = (): ConnectionModel[] | [] => {
   return db.get<ConnectionModel[] | []>('connections')
 }
 
-export const createConnections = (data: ConnectionModel): ConnectionModel => {
+export const createConnection = (data: ConnectionModel): ConnectionModel => {
   return db.insert<ConnectionModel>('connections', data)
 }
 
@@ -30,17 +29,7 @@ export const updateConnectionMessage = (id: string, message: MessageModel ): Con
 }
 
 export const updateClientByConnection = (id: string, data: ConnectionModel): ConnectionModel => {
-  const client: ClientModel = loadClient(data.clientuuid)
-  if (client) {
-    client.clientName = data.name
-    client.clientId = data.clientId
-    client.username = data.username
-    client.password = data.password
-    client.keepAlive = data.keepalive
-    client.cleanSession = data.clean
-    updateClient(data.clientuuid, client)
-  }
-  return db.update<ConnectionModel>('connections', id, data)
+  return data
 }
 
 export const genConnection = (broker: BrokerModel, client: ClientModel) => {

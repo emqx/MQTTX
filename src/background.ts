@@ -7,7 +7,7 @@ import {
   createProtocol,
   installVueDevtools,
 } from 'vue-cli-plugin-electron-builder/lib'
-import db from './datastore/index'
+import db from './database/index'
 import updateChecker from '../main/updateChecker'
 import getMenuTemplate from '../main/getMenuTemplate'
 
@@ -50,7 +50,7 @@ function createWindow() {
       webSecurity: false,
       nodeIntegration: true,
     },
-    titleBarStyle: isMac ? 'hiddenInset' : 'default',
+    titleBarStyle: isMac ? 'hidden' : 'default',
     backgroundColor: theme === 'dark' ? '#232323' : '#ffffff',
     icon: `${__static}/app.ico`,
   })

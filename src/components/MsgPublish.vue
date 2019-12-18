@@ -33,8 +33,8 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { MessageModel } from './types'
 import jump from 'jump.js'
+import { MessageModel } from '../views/connections/types'
 
 @Component
 export default class MsgPublish extends Vue {

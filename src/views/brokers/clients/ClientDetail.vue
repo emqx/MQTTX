@@ -269,7 +269,6 @@ export default class ClientDetail extends Vue {
       this.loadData()
     }
   }
-  // TODO: Determine whether to save on beforeRouterLeave
 }
 </script>
 
