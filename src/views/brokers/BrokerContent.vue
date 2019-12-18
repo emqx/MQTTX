@@ -105,7 +105,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Action } from 'vuex-class'
 import { deleteClient } from '@/utils/api/broker'
 import { BrokerModel, ClientModel } from './types'
-import { genConnection, loadConnections, createConnections } from '@/utils/api/connection'
+import { genConnection, loadConnections, createConnection } from '@/utils/api/connection'
 import { ConnectionModel } from '../connections/types'
 
 @Component

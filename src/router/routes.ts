@@ -1,6 +1,5 @@
 import Home from '../views/Home.vue'
 import Connections from '../views/connections/index.vue'
-import Brokers from '../views/brokers/index.vue'
 import Settings from '../views/settings/index.vue'
 import About from '../views/about/index.vue'
 
@@ -13,9 +12,6 @@ const routes: Routes[] = [
     children: [
       { path: '/recent_connections', name: 'Connections', component: Connections },
       { path: '/recent_connections/:id', name: 'ConnectionDetails', component: Connections },
-      { path: '/brokers', name: 'Brokers', component: Brokers },
-      { path: '/brokers/:id', name: 'BrokerDetails', component: Brokers },
-      { path: '/clients/:id', name: 'Clients', component: Brokers },
       { path: '/settings', name: 'Settings', component: Settings },
       { path: '/about', name: 'About', component: About },
     ],

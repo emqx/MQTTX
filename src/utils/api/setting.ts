@@ -1,4 +1,4 @@
-import db from '@/datastore/index'
+import db from '@/database/index'
 
 export const loadSettings = (): App => {
   return db.get<App>('settings')

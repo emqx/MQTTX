@@ -76,7 +76,7 @@ import { Getter, Action } from 'vuex-class'
 import { updateConnection } from '@/utils/api/connection'
 import LeftPanel from '@/components/LeftPanel.vue'
 import MyDialog from '@/components/MyDialog.vue'
-import { ConnectionModel } from './types'
+import { ConnectionModel } from '../views/connections/types'
 
 @Component({
   components: {

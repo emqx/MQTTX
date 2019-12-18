@@ -44,14 +44,14 @@ class DB {
         })
         .write()
     }
-    if (!this.db.has('brokers').value()) {
+    if (this.db.has('brokers').value()) {
       this.db
-        .set('brokers', [])
+        .unset('brokers')
         .write()
     }
-    if (!this.db.has('clients').value()) {
+    if (this.db.has('clients').value()) {
       this.db
-        .set('clients', [])
+        .unset('clients')
         .write()
     }
     if (!this.db.has('connections').value()) {

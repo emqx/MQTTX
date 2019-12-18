@@ -53,6 +53,7 @@ export default class Home extends Vue {
   .topbar {
     @include flex-space-between;
     min-height: 60px;
+    padding: 0 16px;
     border-bottom: 1px solid var(--color-border-default);
   }
   .right-topbar {
@@ -66,10 +67,12 @@ export default class Home extends Vue {
   .rightbar {
     margin-left: 81px;
     height: 100%;
+    background-color: var(--color-bg-primary);
   }
   .right-content {
     margin-left: 341px;
-    min-height: 100%;
+    height: 100%;
+    background-color: var(--color-bg-primary);
   }
 }
 </style>
