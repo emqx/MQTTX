@@ -7,7 +7,7 @@
       :rules="rules">
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-form-item :label="$t('brokers.clientName')" prop="name">
+          <el-form-item :label="$t('connections.name')" prop="name">
             <el-input size="mini" v-model="connection.name"></el-input>
           </el-form-item>
         </el-col>
@@ -24,12 +24,12 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item :label="$t('brokers.username')">
+          <el-form-item :label="$t('connections.username')">
             <el-input size="mini" v-model="connection.username"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item :label="$t('brokers.password')">
+          <el-form-item :label="$t('connections.password')">
             <el-input size="mini" type="password" v-model="connection.password"></el-input>
           </el-form-item>
         </el-col>
@@ -73,8 +73,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import getClientId from '@/utils/getClientId'
-import { updateClientByConnection } from '@/utils/api/connection'
-import { ClientModel } from '../brokers/types'
+import { updateConnection } from '@/utils/api/connection'
 import { ConnectionModel } from './types'
 import { MqttClient } from 'mqtt'
 
@@ -92,7 +91,7 @@ export default class ConnectionInfo extends Vue {
   }
 
   private async confirm(): Promise<void> {
-    const res: ConnectionModel | null = await updateClientByConnection(
+    const res: ConnectionModel | null = await updateConnection(
       this.connection.id as string,
       this.connection,
     )
