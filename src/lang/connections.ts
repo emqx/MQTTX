@@ -35,10 +35,6 @@ export default {
     zh: '删除连接',
     en: 'Delete Connection',
   },
-  connectBroker: {
-    zh: '连接到 Broker',
-    en: 'Connect to broker',
-  },
   all: {
     zh: '全部',
     en: 'All',

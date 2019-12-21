@@ -31,20 +31,12 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Action } from 'vuex-class'
 import { loadConnections, loadConnection } from '@/utils/api/connection'
-import {
-  createClient, loadBroker, loadClient,
-} from '@/utils/api/broker'
 import LeftList from '@/components/LeftList.vue'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsContent from './ConnectionsContent.vue'
 import ConnectionForm from './ConnectionForm.vue'
 import { ConnectionModel } from './types'
-import { BrokerModel, ClientModel } from '../brokers/types'
-
-interface NewConnectionModel {
-  selector: [string, string] | []
-}
 
 @Component({
   components: {

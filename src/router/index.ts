@@ -1,9 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import routes from './routes'
-import { loadBrokers } from '@/utils/api/broker'
 import { loadConnections } from '@/utils/api/connection'
-import { BrokerModel } from '@/views/brokers/types'
 import { ConnectionModel } from '@/views/Connections/types'
 
 Vue.use(Router)
