@@ -14,9 +14,12 @@
       <template v-else>
         <ConnectionForm
           v-if="oper"
-          :oper="oper"/>
+          ref="connectionForm"
+          :oper="oper"
+          @connect="handleConnect"/>
         <ConnectionsContent
           v-else
+          ref="connectionContent"
           :record="currentConnection"
           @reload="loadData"
           @delete="loadData(true)"/>
@@ -86,7 +89,6 @@ export default class Connections extends Vue {
   }
 
   get oper(): string | Array<string | null> {
-    console.log(this.$route.query.oper)
     return this.$route.query.oper
   }
 
@@ -121,6 +123,13 @@ export default class Connections extends Vue {
 
   private toCreateConnection(): void {
     this.$router.push({ path: '/recent_connections/0?oper=create' })
+  }
+
+  private handleConnect(): void {
+    setTimeout(() => {
+      const connection: ConnectionsContent = this.$refs.connectionContent as ConnectionsContent
+      connection.connect()
+    }, 500)
   }
 
   private created(): void {

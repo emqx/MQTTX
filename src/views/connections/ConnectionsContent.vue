@@ -5,7 +5,7 @@
         <div class="topbar">
           <div class="connection-head">
             <h2 :class="{ offline: !client.connected }">
-              {{ record.name }}
+              {{ titleName }}
               <a
                 href="javascript:;"
                 :class="['collapse-btn', showClientInfo ? 'top': 'bottom']"
@@ -164,13 +164,29 @@ export default class ConnectionsContent extends Vue {
   }
 
   private client: $TSFixed = {}
-  private showSubs: boolean = true
-  private showClientInfo: boolean = true
-  private connectLoading: boolean = false
+  private showSubs = true
+  private showClientInfo = true
+  private connectLoading = false
   private msgType: MessageType = 'all'
-  private searchVisible: boolean = false
+  private searchVisible = false
   private messages: MessageModel[] = []
-  private searchTopic: string = ''
+  private searchTopic = ''
+  private titleName: string = this.record.name
+
+  public connect(): boolean | void {
+    if (this.client.connected) {
+      return false
+    }
+    this.connectLoading = true
+    this.client = this.createClient()
+    const { id } = this.record
+    if (id) {
+      this.client.on('connect', this.onConnect)
+      this.client.on('error', this.onError)
+      this.client.on('reconnect', this.onReConnect)
+      this.client.on('message', this.messageArrived(id))
+    }
+  }
 
   get bodyTop(): Top {
     return {
@@ -197,6 +213,7 @@ export default class ConnectionsContent extends Vue {
   @Watch('record')
   private handleRecordChanged() {
     const id: string = this.$route.params.id
+    this.titleName = this.record.name
     this.getConnectionValue(id)
     this.getMessages(id)
   }
@@ -303,7 +320,7 @@ export default class ConnectionsContent extends Vue {
   private createClient(): MqttClient {
     const reconnectPeriod = 4000
     const {
-      clientId, username, password, keepalive, clean, connectTimeout, ssl,
+      clientId, username, password, keepalive, clean, connectTimeout, ssl, certType,
     } = this.record
     const options: IClientOptions  = {
       clientId,
@@ -318,7 +335,7 @@ export default class ConnectionsContent extends Vue {
     if (password !== '') {
       options.password = password
     }
-    if (ssl) {
+    if (ssl && certType === 'self') {
       const filePath: SSLPath = {
         ca: this.record.ca,
         cert: this.record.cert,
@@ -333,20 +350,6 @@ export default class ConnectionsContent extends Vue {
       }
     }
     return mqtt.connect(this.connectUrl, options)
-  }
-  private connect(): boolean | void {
-    if (this.client.connected) {
-      return false
-    }
-    this.connectLoading = true
-    this.client = this.createClient()
-    const { id } = this.record
-    if (id) {
-      this.client.on('connect', this.onConnect)
-      this.client.on('error', this.onError)
-      this.client.on('reconnect', this.onReConnect)
-      this.client.on('message', this.messageArrived(id))
-    }
   }
   private disconnect(): boolean | void {
     if (!this.client.connected) {
