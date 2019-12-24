@@ -261,6 +261,7 @@ export default class ConnectionCreate extends Vue {
           client: {},
           messages: [],
         })
+        this.$emit('connect')
         this.$router.push(`/recent_connections/${res.id}`)
       } else {
         this.$message.error(this.$t('common.createfailed') as string)

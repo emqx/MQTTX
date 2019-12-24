@@ -17,7 +17,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 
 @Component
 export default class EmptyPage extends Vue {
-  @Prop({ required: true }) public btnTitle!: 'connections' | 'brokers'
+  @Prop({ required: true }) public btnTitle!: 'connections'
   @Prop({ required: true }) public name!: string
   @Prop() public clickMethod!: <T>() => T | void
 

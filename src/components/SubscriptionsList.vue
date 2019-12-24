@@ -25,7 +25,7 @@
             borderLeft: `4px solid ${sub.color}`,
            }">
           <el-tooltip
-            :effect="theme !== 'light' ? 'dark' : 'light'"
+            :effect="theme !== 'light' ? 'light' : 'dark'"
             :disabled="sub.topic.length < 25"
             :content="sub.topic"
             placement="top">
