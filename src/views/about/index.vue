@@ -5,7 +5,7 @@
       <img class="logo" :src="logo" alt="mqttx">
 
       <p class="about-version">
-        <span class="version">{{ $t('about.version') }} 1.1.2</span>
+        <span class="version">{{ $t('about.version') }} 1.2.0</span>
         <a class="update" href="javascript:;" @click="checkUpdate">{{ $t('about.update') }}</a>
       </p>
 

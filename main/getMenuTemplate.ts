@@ -110,6 +110,12 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
           },
         },
         {
+          label: 'Learn more EMQ X',
+          click: async () => {
+            await shell.openExternal('https://github.com/emqx/emqx')
+          },
+        },
+        {
           label: 'Report problem',
           click: async () => {
             await shell.openExternal('https://github.com/emqx/MQTTX/issues')
