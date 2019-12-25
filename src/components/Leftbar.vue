@@ -63,7 +63,7 @@ export default class Leftbar extends Vue {
   width: 80px;
   top: 0;
   bottom: 0;
-  background: #333844;
+  background: var(--color-bg-leftbar);
   padding: 45px 0;
   z-index: 1001;
   display: flex;

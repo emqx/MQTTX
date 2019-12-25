@@ -123,7 +123,7 @@ export default class SubscriptionsList extends Vue {
   private getBorderColor(): string {
     let $index: number = this.subsList.length
     const lastSubs: SubscriptionModel = this.subsList[$index - 1]
-    const colors = ['#CEEC97', '#F4B393', '#F78764', '#FC60A8', '#668D97']
+    const colors = ['#34C388', '#6ECBEE', '#D08CF1', '#907AEF', '#EDB16E']
 
     if ($index === 0) {
       return colors[0]
@@ -284,6 +284,7 @@ export default class SubscriptionsList extends Vue {
       margin-bottom: 16px;
       position: relative;
       clear: both;
+      border-radius: 2px;
       .topic {
         max-width: 140px;
         margin-left: 5px;

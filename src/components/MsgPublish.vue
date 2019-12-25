@@ -78,16 +78,16 @@ export default class MsgPublish extends Vue {
     position: absolute;
     top: 1px;
     right: 35px;
-    padding-left: 32px;
+    padding-left: 12px;
     text-align: right;
     line-height: 40px;
     background: var(--color-bg-normal);
     .publish-label {
       color: var(--color-text-default);
-      margin-right: 16px;
+      margin-right: 8px;
     }
     .el-radio-group {
-      margin-right: 32px;
+      margin-right: 8px;
       .el-radio {
         color: var(--color-text-default);
       }

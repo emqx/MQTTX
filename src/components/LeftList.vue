@@ -22,7 +22,7 @@ export default class LeftList extends Vue {}
   bottom: 0;
   overflow-x: hidden;
   z-index: 1000;
-  border-right: 2px solid var(--color-border-default);
+  border-right: 1px solid var(--color-border-default);
   background-color: var(--color-bg-primary);
   .no-data {
     text-align: center;

@@ -68,8 +68,8 @@
             <el-col :span="22">
               <el-form-item label-width="90px" label="SSL/TLS" prop="ssl">
                 <el-radio-group v-model="record.ssl" @change="handleSSL">
-                  <el-radio :label="false">false</el-radio>
                   <el-radio :label="true">true</el-radio>
+                  <el-radio :label="false">false</el-radio>
                 </el-radio-group>
               </el-form-item>
             </el-col>
