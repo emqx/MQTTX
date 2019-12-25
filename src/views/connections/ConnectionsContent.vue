@@ -15,14 +15,24 @@
             </h2>
           </div>
           <div class="connection-tail">
-            <a href="javascript:;" @click="searchVisible = !searchVisible">
-              <i class="iconfont icon-search"></i>
-            </a>
+            <el-tooltip
+              placement="bottom"
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :open-delay="1000"
+              :content="$t('common.config')">
+              <a :class="['edit-btn', { 'disabled': client.connected }]" 
+              href="javascript:;" @click="handleEdit($route.params.id)">
+                <i class="iconfont el-icon-edit-outline"></i>
+              </a>
+            </el-tooltip>
             <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
               <a href="javascript:;">
                 <i class="el-icon-more"></i>
               </a>
               <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="searchByTopic">
+                  <i class="iconfont icon-search"></i>{{ $t('connections.searchByTopic') }}
+                </el-dropdown-item>
                 <el-dropdown-item command="clearHistory">
                   <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
                 </el-dropdown-item>
@@ -130,7 +140,7 @@ import ConnectionInfo from './ConnectionInfo.vue'
 import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
-type CommandType = 'clearHistory' | 'disconnect' | 'deleteConnect'
+type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
 
 interface Top {
   open: string,
@@ -159,6 +169,7 @@ export default class ConnectionsContent extends Vue {
 
   @Getter('activeConnection') private activeConnection: $TSFixed
   @Getter('showSubscriptions') private showSubscriptions!: boolean
+  @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: {
     [id: string]: boolean,
   }
@@ -257,6 +268,8 @@ export default class ConnectionsContent extends Vue {
       this.removeConnection()
     } else if (command === 'clearHistory') {
       this.handleMsgClear()
+    } else if (command === 'searchByTopic') {
+      this.searchVisible = true
     }
   }
 
@@ -287,6 +300,17 @@ export default class ConnectionsContent extends Vue {
     } else {
       this.messages = this.record.messages
     }
+  }
+  private handleEdit(id: string): boolean | void {
+    if (this.client.connected) {
+      return false
+    }
+    this.$router.push({
+      path: `/recent_connections/${id}`,
+      query: {
+        oper: 'edit',
+      },
+    })
   }
   private searchByTopic(): void {
     this.getMessages(this.$route.params.id)
@@ -550,11 +574,23 @@ export default class ConnectionsContent extends Vue {
         }
       }
       .connection-tail {
+        .edit-btn {
+          .el-icon-edit-outline {
+            font-size: 18px;
+          }
+          &.disabled {
+            cursor: not-allowed;
+            color: var(--color-text-light);
+          }
+          margin-right: 6px;
+        }
         .el-dropdown.connection-oper {
           a {
             width: 24px;
             display: inline-block;
             text-align: center;
+            position: relative;
+            top: -1px;
           }
         }
       }
@@ -563,7 +599,7 @@ export default class ConnectionsContent extends Vue {
       }
     }
     .connections-search {
-      padding: 0 16px 10px 16px;
+      padding: 13px 16px 13px 16px;
       height: auto;
       background-color: var(--color-bg-normal);
       &.topbar {

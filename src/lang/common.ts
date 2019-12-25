@@ -79,4 +79,8 @@ export default {
     zh: '毫秒',
     en: 'ms',
   },
+  config: {
+    zh: '高级配置',
+    en: 'Advanced Config',
+  },
 }
