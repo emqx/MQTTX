@@ -126,6 +126,7 @@ export default class Connections extends Vue {
   }
 
   private handleConnect(): void {
+    this.loadData()
     setTimeout(() => {
       const connection: ConnectionsContent = this.$refs.connectionContent as ConnectionsContent
       connection.connect()

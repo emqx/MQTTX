@@ -2,7 +2,7 @@
   <div class="connection-form right-content card-form">
     <div class="right-topbar topbar">
       <div class="header">
-          <a href="javascript:;" @click="$router.push('/recent_connections')">
+          <a href="javascript:;" @click="handleBack($route.params.id)">
             <i class="el-icon-arrow-left"></i>{{ $t('common.back') }}
           </a>
         </div>
@@ -193,6 +193,7 @@
 import { remote } from 'electron'
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Action } from 'vuex-class'
+import { loadConnection, updateConnection } from '@/utils/api/connection'
 import getClientId from '@/utils/getClientId'
 import { createConnection } from '@/utils/api/connection'
 import { ConnectionModel } from './types'
@@ -248,13 +249,28 @@ export default class ConnectionCreate extends Vue {
     return this.$refs.form as VueForm
   }
 
+  private async loadDetail(id: string) {
+    const res: ConnectionModel | null = await loadConnection(id)
+    if (res) {
+      this.record = res
+    }
+  }
+
   private save(): void {
     this.vueForm.validate(async (valid: boolean) => {
       if (!valid) {
         return false
       }
       const data = { ...this.record }
-      const res: ConnectionModel | null = await createConnection(data)
+      let res: ConnectionModel | null = null
+      let msgError = ''
+      if (this.oper === 'create') {
+        res = await createConnection(data)
+        msgError = this.$t('common.createfailed') as string
+      } else {
+        res = await updateConnection(data.id as string, data)
+        msgError = this.$t('common.editfailed') as string
+      }
       if (res) {
         this.changeActiveConnection({
           id: res.id as string,
@@ -264,7 +280,7 @@ export default class ConnectionCreate extends Vue {
         this.$emit('connect')
         this.$router.push(`/recent_connections/${res.id}`)
       } else {
-        this.$message.error(this.$t('common.createfailed') as string)
+        this.$message.error(msgError)
       }
     })
   }
@@ -291,6 +307,21 @@ export default class ConnectionCreate extends Vue {
   private handleSSL(val: boolean): void {
     if (!val) {
       this.record.certType = ''
+    }
+  }
+
+  private handleBack(id: string): void {
+    if (this.oper === 'create' && id === '0') {
+      this.$router.push('/recent_connections')
+    } else {
+      this.$router.push(`/recent_connections/${id}`)
+    }
+  }
+
+  private created() {
+    const { id } = this.$route.params
+    if (this.oper === 'edit' && id !== '0') {
+      this.loadDetail(id)
     }
   }
 }
