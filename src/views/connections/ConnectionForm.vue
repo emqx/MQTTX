@@ -26,13 +26,13 @@
           class="info-body item-card">
           <el-row :gutter="10">
             <el-col :span="22">
-              <el-form-item label-width="90px" :label="$t('connections.name')" prop="name">
+              <el-form-item label-width="93px" :label="$t('connections.name')" prop="name">
                 <el-input size="mini" v-model="record.name"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="22">
-              <el-form-item label-width="90px" label="Client ID" prop="clientId">
+              <el-form-item label-width="93px" label="Client ID" prop="clientId">
                 <el-input size="mini" v-model="record.clientId"></el-input>
               </el-form-item>
             </el-col>
@@ -42,31 +42,31 @@
               </a>
             </el-col>
             <el-col :span="22">
-              <el-form-item label-width="90px" :label="$t('connections.brokerIP')" prop="host">
+              <el-form-item label-width="93px" :label="$t('connections.brokerIP')" prop="host">
                 <el-input size="mini" v-model="record.host"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="22">
-              <el-form-item label-width="90px" :label="$t('connections.brokerPort')" prop="port">
+              <el-form-item label-width="93px" :label="$t('connections.brokerPort')" prop="port">
                 <el-input size="mini" type="number" v-model.number="record.port"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="22">
-              <el-form-item label-width="90px" :label="$t('connections.username')" prop="username">
+              <el-form-item label-width="93px" :label="$t('connections.username')" prop="username">
                 <el-input size="mini" v-model="record.username"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="22">
-              <el-form-item label-width="90px" :label="$t('connections.password')" prop="password">
+              <el-form-item label-width="93px" :label="$t('connections.password')" prop="password">
                 <el-input type="password" size="mini" v-model="record.password"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="22">
-              <el-form-item label-width="90px" label="SSL/TLS" prop="ssl">
+              <el-form-item label-width="93px" label="SSL/TLS" prop="ssl">
                 <el-radio-group v-model="record.ssl" @change="handleSSL">
                   <el-radio :label="true">true</el-radio>
                   <el-radio :label="false">false</el-radio>
@@ -76,7 +76,7 @@
             <el-col :span="2"></el-col>
             <template v-if="record.ssl">
               <el-col :span="22">
-                <el-form-item label-width="90px" :label="$t('connections.certType')" prop="certType">
+                <el-form-item label-width="93px" :label="$t('connections.certType')" prop="certType">
                   <el-radio-group v-model="record.certType">
                     <el-radio label="ca">CA signed</el-radio>
                     <el-radio label="self">Self signed</el-radio>

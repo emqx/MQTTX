@@ -131,6 +131,10 @@ export default class About extends Vue {
 
   .about-footer {
     margin-top: 40px;
+    position: absolute;
+    bottom: 28px;
+    left: 16px;
+    right: 16px;
     .web-link {
       float: right;
       color: var(--color-text-default);
