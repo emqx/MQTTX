@@ -78,7 +78,7 @@
               <el-col :span="22">
                 <el-form-item label-width="93px" :label="$t('connections.certType')" prop="certType">
                   <el-radio-group v-model="record.certType">
-                    <el-radio label="ca">CA signed</el-radio>
+                    <el-radio label="ca">CA signed server</el-radio>
                     <el-radio label="self">Self signed</el-radio>
                   </el-radio-group>
                 </el-form-item>
