@@ -42,25 +42,36 @@
           <el-checkbox v-model="connection.clean">Clean Session</el-checkbox>
         </el-col>
         <el-col :span="8">
-          <el-button 
-            v-if="!client.connected" 
+          <el-button
+            v-if="!client.connected && btnLoading"
+            class="disconnect cancel"
+            icon="el-icon-close"
+            plain
+            type="outline"
+            size="mini"
+            @click="cancel">
+            {{ $t('common.cancel') }}
+          </el-button>
+          <el-button
+            v-if="!client.connected"
+            class="btn"
             icon="el-icon-caret-right"
             plain
             type="outline"
             size="mini"
             :loading="btnLoading"
-            @click="confirm">
+            @click="connect">
             {{ $t('connections.connectBtn') }}
           </el-button>
-          <el-button 
+          <el-button
             v-else
-            class="disconnect"
+            class="btn disconnect"
             icon="el-icon-switch-button"
             plain
             type="outline"
             size="mini"
             :loading="btnLoading"
-            @click="cancel">
+            @click="disconnect">
             {{ $t('connections.disconnectedBtn') }}
           </el-button>
         </el-col>
@@ -90,14 +101,18 @@ export default class ConnectionInfo extends Vue {
     }
   }
 
-  private async confirm(): Promise<void> {
+  private async connect(): Promise<void> {
     const res: ConnectionModel | null = await updateConnection(
       this.connection.id as string,
       this.connection,
     )
     if (res) {
-      this.$emit('handleConfirm', this.connection)
+      this.$emit('handleConnect', this.connection)
     }
+  }
+
+  private disconnect(): void {
+    this.$emit('handleDisconnect', this.connection)
   }
 
   private cancel(): void {
@@ -135,10 +150,15 @@ export default class ConnectionInfo extends Vue {
     .el-checkbox {
       margin-top: 42px;
     }
-    .el-button {
+    .el-button.btn {
       margin-top: 25px;
       float: right;
       min-width: 100px;
+    }
+    .el-button.cancel {
+      position: relative;
+      top: 25px;
+      left: 5px;
     }
     .disconnect.el-button {
       color: var(--color-second-red);

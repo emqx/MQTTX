@@ -53,8 +53,9 @@
             :connection="record"
             :client="client"
             :btn-loading="connectLoading"
-            @handleConfirm="connect"
-            @handleCancel="disconnect"/>
+            @handleConnect="connect"
+            @handleDisconnect="disconnect"
+            @handleCancel="cancel"/>
         </el-collapse-transition>
       </div>
 
@@ -375,6 +376,10 @@ export default class ConnectionsContent extends Vue {
     }
     return mqtt.connect(this.connectUrl, options)
   }
+  private cancel() {
+    this.connectLoading = false
+    this.client.end()
+  }
   private disconnect(): boolean | void {
     if (!this.client.connected) {
       return false
@@ -446,6 +451,7 @@ export default class ConnectionsContent extends Vue {
         duration: 3000,
         offset: 20,
       })
+      this.$emit('reload')
     } else {
       this.connectLoading = true
       this.$notify({
@@ -456,7 +462,6 @@ export default class ConnectionsContent extends Vue {
         offset: 20,
       })
     }
-    this.$emit('reload')
   }
   private messageArrived(id: string) {
     return (

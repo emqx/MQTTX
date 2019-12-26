@@ -23,7 +23,7 @@
           :key="index"
           :style="{
             borderLeft: `4px solid ${sub.color}`,
-           }">
+          }">
           <el-tooltip
             :effect="theme !== 'light' ? 'light' : 'dark'"
             :disabled="sub.topic.length < 25"
@@ -292,6 +292,7 @@ export default class SubscriptionsList extends Vue {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
+        user-select: all;
       }
       .qos {
         float: right;
