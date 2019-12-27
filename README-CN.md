@@ -28,7 +28,7 @@
 
    - 如果您不需要本地部署的 MQTT Broker，那么可以使用 [EMQ X](https://github.com/emqx/emqx) 的线上公开版进行快速测试；
 
-     ```
+     ```shell
      Broker 地址: broker.emqx.io
      Broker TCP 端口: 1883
      Broker SSL 端口: 8883
@@ -41,6 +41,8 @@
 3. 连接信息配置完成后，点击右上角的 `Connect` 按钮就可以创建一个连接并连接至 MQTT Broker。
 
 4. MQTT 连接成功后，就可以进行 MQTT 的发布与订阅测试。
+
+![mqttx-gif](./assets/mqttx-gif.gif)
 
 ## 开发
 
