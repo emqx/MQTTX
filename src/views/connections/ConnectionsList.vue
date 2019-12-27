@@ -87,7 +87,7 @@ export default class ConnectionsList extends Vue {
         font-size: $font-size--body;
         font-weight: 500;
         color: var(--color-text-title);
-        max-width: 200px;
+        max-width: 180px;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
