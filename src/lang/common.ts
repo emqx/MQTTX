@@ -59,6 +59,10 @@ export default {
     zh: '此操作将删除该 {name}，是否继续？',
     en: 'This will delete {name}, Continue?',
   },
+  new: {
+    zh: '新 建',
+    en: 'New',
+  },
   delete: {
     zh: '删 除',
     en: 'Delete',
@@ -74,5 +78,9 @@ export default {
   unitMS: {
     zh: '毫秒',
     en: 'ms',
+  },
+  config: {
+    zh: '高级配置',
+    en: 'Advanced Config',
   },
 }

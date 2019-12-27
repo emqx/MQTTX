@@ -23,9 +23,9 @@
           :key="index"
           :style="{
             borderLeft: `4px solid ${sub.color}`,
-           }">
+          }">
           <el-tooltip
-            :effect="theme !== 'light' ? 'dark' : 'light'"
+            :effect="theme !== 'light' ? 'light' : 'dark'"
             :disabled="sub.topic.length < 25"
             :content="sub.topic"
             placement="top">
@@ -76,7 +76,7 @@ import { Getter, Action } from 'vuex-class'
 import { updateConnection } from '@/utils/api/connection'
 import LeftPanel from '@/components/LeftPanel.vue'
 import MyDialog from '@/components/MyDialog.vue'
-import { ConnectionModel } from './types'
+import { ConnectionModel } from '../views/connections/types'
 
 @Component({
   components: {
@@ -123,7 +123,7 @@ export default class SubscriptionsList extends Vue {
   private getBorderColor(): string {
     let $index: number = this.subsList.length
     const lastSubs: SubscriptionModel = this.subsList[$index - 1]
-    const colors = ['#CEEC97', '#F4B393', '#F78764', '#FC60A8', '#668D97']
+    const colors = ['#34C388', '#6ECBEE', '#D08CF1', '#907AEF', '#EDB16E']
 
     if ($index === 0) {
       return colors[0]
@@ -277,20 +277,22 @@ export default class SubscriptionsList extends Vue {
     overflow: scroll;
     .topics-item {
       color: var(--color-text-title);
-      background: var(--color-bg-tabs);
+      background: var(--color-bg-topics);
       padding: 0px 8px;
       height: 46px;
       line-height: 46px;
       margin-bottom: 16px;
       position: relative;
       clear: both;
+      border-radius: 2px;
       .topic {
-        max-width: 140px;
+        max-width: 120px;
         margin-left: 5px;
         display: inline-block;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
+        user-select: all;
       }
       .qos {
         float: right;

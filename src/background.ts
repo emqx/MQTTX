@@ -7,7 +7,7 @@ import {
   createProtocol,
   installVueDevtools,
 } from 'vue-cli-plugin-electron-builder/lib'
-import db from './datastore/index'
+import db from './database/index'
 import updateChecker from '../main/updateChecker'
 import getMenuTemplate from '../main/getMenuTemplate'
 

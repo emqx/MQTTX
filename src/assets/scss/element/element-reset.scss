@@ -181,3 +181,8 @@
 .el-cascader-node:not(.is-disabled):focus {
   background: var(--color-bg-item);
 }
+
+/* Tootip */
+.el-tooltip__popper.is-light {
+  color: #616161;
+}

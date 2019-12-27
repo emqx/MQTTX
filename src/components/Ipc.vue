@@ -18,6 +18,9 @@ export default class Ipc extends Vue {
     ipcRenderer.on('preferences', () => {
       this.$router.push({ path: '/settings' })
     })
+    ipcRenderer.on('about', () => {
+      this.$router.push({ path: '/about' })
+    })
   }
 
   private unbindIpcEvents(): void {

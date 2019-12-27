@@ -10,7 +10,7 @@ English | [简体中文](./README-CN.md)
 
 MQTTX is a cross-platform MQTT desktop client open sourced by EMQ, which supports macOS, Linux, and Windows.
 
-MQTTX adopts  the form of chat interface, which simplifies the page operation, allow multiple clients information to be saved under the same broker, facilitates the user to quickly test the MQTT/MQTTS connection,  publish and subscribe to MQTT messages.
+MQTTX adopts the form of chat interface, which simplifies the page operation, allow multiple clients information to be saved, facilitates the user to quickly test the MQTT/MQTTS connection,  publish and subscribe to MQTT messages.
 
 ## Preview
 
@@ -20,20 +20,22 @@ MQTTX adopts  the form of chat interface, which simplifies the page operation, a
 
 Download from [GitHub Releases](https://github.com/emqx/MQTTX/releases) and install it.
 
+Alternative, you can download [here](https://www.emqx.io/downloads/MQTTX/).
+
 ## Usage
 
-1. Create broker
+1. Create connection, click the `+` button on the left menu bar.
+
+2. Configure the items you need to complete in the form.
+
+> If you don't have a mqtt broker available, you can use this EMQ X public broker to test.
 
 ```shell
-# If you don't have a mqtt broker available, you can use this EMQ X public broker to test.
-
-Broker Address: broker.emqx.io
-Broker Port: 1883
+IP Address: broker.emqx.io
+Port: 1883
 ```
 
-2. The same broker can create many clients
-
-3. Go back to connectons page, select the broker's client for connection testing. Or you can choose the `Connect` operation directly on the client card.
+3. Click the `connect` button in the upper right corner and you can easily create a connection and test it with messages.
 
 ## Develop
 
@@ -64,8 +66,8 @@ yarn run electron:build
 
 ## Technology Stack
 
-- [Vue](https://vuejs.org/) + [Element](https://element.eleme.io)
 - [Electron](https://electronjs.org/)
+- [Vue](https://vuejs.org/) + [Element](https://element.eleme.io)
 - [TypeScript](https://www.typescriptlang.org/)
 - [Lowdb](https://github.com/typicode/lowdb)
 

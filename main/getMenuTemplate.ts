@@ -11,7 +11,12 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
           {
             label: app.getName(),
             submenu: [
-              { role: 'about' },
+              {
+                label: 'About MQTTX',
+                click: () => {
+                  win.webContents.send('about')
+                },
+              },
               { type: 'separator' },
               {
                 label: 'Preferences',
@@ -102,6 +107,12 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
           label: 'Learn more MQTTX',
           click: async () => {
             await shell.openExternal('https://github.com/emqx/MQTTX')
+          },
+        },
+        {
+          label: 'Learn more EMQ X',
+          click: async () => {
+            await shell.openExternal('https://github.com/emqx/emqx')
           },
         },
         {

@@ -57,7 +57,6 @@ declare global {
   interface App {
     currentTheme: Theme,
     currentLang: Language,
-    MacOSTop: '24px' | '0px',
     autoCheck: boolean,
     showSubscriptions: boolean,
     showClientInfo: {

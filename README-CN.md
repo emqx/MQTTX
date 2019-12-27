@@ -10,7 +10,7 @@
 
 MQTTX 是 EMQ 开源的一款跨平台 MQTT 桌面客户端，它支持 macOS, Linux, Windows。
 
-MQTTX 采用了聊天界面形式，简化了页面操作逻辑，允许在同一份 Broker 配置下保存多个客户端，方便用户快速测试 MQTT/MQTTS 连接，及 MQTT 消息的发布与订阅。
+MQTTX 采用了聊天界面形式，简化了页面操作逻辑，允许保存多个客户端，方便用户快速测试 MQTT/MQTTS 连接，及 MQTT 消息的发布与订阅。
 
 ## 预览
 
@@ -20,20 +20,22 @@ MQTTX 采用了聊天界面形式，简化了页面操作逻辑，允许在同�
 
 请从 [GitHub Releases](https://github.com/emqx/MQTTX/releases) 下载符合您的版本并安装使用。
 
+或者也可以从[这里](https://www.emqx.io/downloads/MQTTX/)下载。
+
 ## 使用
 
-1. 首先创建一个 Broker
+1. 创建一个连接，点击左侧菜单栏的 `+` 号按钮
+
+2. 在表单中配置你所需要完成的项
+
+> 如果你暂时没有一个可用的 MQTT Broker，你可以用这个 EMQ X 公共的 Broker 进行测试
 
 ```shell
-# 如果你暂时没有一个可用的 MQTT Broker，你可以用这个 EMQ X 公共的 Broker 进行测试
-
 Broker 地址: broker.emqx.io
 Broker 端口: 1883
 ```
 
-2. 同一个 Broker 下可以创建多个客户端
-
-3. 回到连接页面，选择刚才创建的 Broker 下的客户端进行连接测试。或者你可以在客户端卡片上直接选择 `连接` 操作
+3. 点击右上角的 `Connect` 按钮就可以快速的创建一个连接，并且对它进行一些消息测试了
 
 ## 开发
 
@@ -64,8 +66,8 @@ yarn run electron:build
 
 ## 技术栈
 
-- [Vue](https://vuejs.org/) + [Element](https://element.eleme.io)
 - [Electron](https://electronjs.org/)
+- [Vue](https://vuejs.org/) + [Element](https://element.eleme.io)
 - [TypeScript](https://www.typescriptlang.org/)
 - [Lowdb](https://github.com/typicode/lowdb)
 

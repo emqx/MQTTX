@@ -5,6 +5,7 @@ html, body, #app {
   height: 100%;
   margin: 0px;
   padding: 0px;
+  background: var(--color-bg-primary);
 }
 
 body {
@@ -82,10 +83,18 @@ img {
     .el-form-item {
       margin-bottom: 0px;
     }
+    .el-form-item__content {
+      line-height: 43px;
+    }
   }
 }
 
 /* Error */
 .error {
   color: var(--color-main-red);
+}
+
+/* Titlebar */
+.titlebar {
+  padding: 16px 0;
 }

@@ -1,11 +1,11 @@
 <template>
   <div class="connections-content">
-    <div class="connections-topbar right-topbar" :style="{ top: $store.state.app.MacOSTop }">
+    <div class="connections-topbar right-topbar">
       <div class="connections-info">
         <div class="topbar">
           <div class="connection-head">
             <h2 :class="{ offline: !client.connected }">
-              {{ record.name }}
+              {{ titleName }}
               <a
                 href="javascript:;"
                 :class="['collapse-btn', showClientInfo ? 'top': 'bottom']"
@@ -15,16 +15,23 @@
             </h2>
           </div>
           <div class="connection-tail">
-            <a href="javascript:;" @click="searchVisible = !searchVisible">
-              <i class="iconfont icon-search"></i>
-            </a>
+            <el-tooltip
+              placement="bottom"
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :open-delay="1000"
+              :content="$t('common.config')">
+              <a :class="['edit-btn', { 'disabled': client.connected }]" 
+              href="javascript:;" @click="handleEdit($route.params.id)">
+                <i class="iconfont el-icon-edit-outline"></i>
+              </a>
+            </el-tooltip>
             <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
               <a href="javascript:;">
                 <i class="el-icon-more"></i>
               </a>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="viewBroker">
-                  <i class="iconfont icon-client"></i>{{ $t('connections.brokerInfo') }}
+                <el-dropdown-item command="searchByTopic">
+                  <i class="iconfont icon-search"></i>{{ $t('connections.searchByTopic') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="clearHistory">
                   <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
@@ -40,14 +47,15 @@
           </div>
         </div>
         <el-collapse-transition>
-          <ConnectionForm
+          <ConnectionInfo
             v-show="showClientInfo"
-            class="connection-form"
+            class="connection-info"
             :connection="record"
             :client="client"
             :btn-loading="connectLoading"
-            @handleConfirm="connect"
-            @handleCancel="disconnect"/>
+            @handleConnect="connect"
+            @handleDisconnect="disconnect"
+            @handleCancel="cancel"/>
         </el-collapse-transition>
       </div>
 
@@ -72,7 +80,7 @@
       class="connections-content-main right-content"
       :style="{
         paddingTop: showClientInfo ? msgTop.open: msgTop.close,
-        marginLeft: showSubs ? '529px' : '280px',
+        marginLeft: showSubs ? '570px' : '341px',
       }">
       <div class="connections-body">
         <div class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open: bodyTop.close }">
@@ -109,7 +117,7 @@
 
       <div
         class="connections-footer" 
-        :style="{ marginLeft: showSubs ? '529px' : '280px' }">
+        :style="{ marginLeft: showSubs ? '570px' : '341px' }">
         <MsgPublish
           @handleSend="sendMessage"/>
       </div>
@@ -125,15 +133,15 @@ import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
-import MsgRightItem from './MsgRightItem.vue'
-import MsgLeftItem from './MsgLeftItem.vue'
-import MsgPublish from './MsgPublish.vue'
-import ConnectionForm from './ConnectionForm.vue'
-import SubscriptionsList from './SubscriptionsList.vue'
+import MsgRightItem from '@/components/MsgRightItem.vue'
+import MsgLeftItem from '@/components/MsgLeftItem.vue'
+import MsgPublish from '@/components/MsgPublish.vue'
+import SubscriptionsList from '@/components/SubscriptionsList.vue'
+import ConnectionInfo from './ConnectionInfo.vue'
 import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
-type CommandType = 'viewBroker' | 'clearHistory' | 'disconnect' | 'deleteConnect'
+type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
 
 interface Top {
   open: string,
@@ -144,7 +152,7 @@ interface Top {
   components: {
     MsgRightItem,
     MsgLeftItem,
-    ConnectionForm,
+    ConnectionInfo,
     MsgPublish,
     SubscriptionsList,
   },
@@ -162,41 +170,44 @@ export default class ConnectionsContent extends Vue {
 
   @Getter('activeConnection') private activeConnection: $TSFixed
   @Getter('showSubscriptions') private showSubscriptions!: boolean
+  @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: {
     [id: string]: boolean,
   }
 
   private client: $TSFixed = {}
-  private showSubs: boolean = true
-  private showClientInfo: boolean = true
-  private connectLoading: boolean = false
+  private showSubs = true
+  private showClientInfo = true
+  private connectLoading = false
   private msgType: MessageType = 'all'
-  private searchVisible: boolean = false
+  private searchVisible = false
   private messages: MessageModel[] = []
-  private searchTopic: string = ''
+  private searchTopic = ''
+  private titleName: string = this.record.name
+
+  public connect(): boolean | void {
+    if (this.client.connected) {
+      return false
+    }
+    this.connectLoading = true
+    this.client = this.createClient()
+    const { id } = this.record
+    if (id) {
+      this.client.on('connect', this.onConnect)
+      this.client.on('error', this.onError)
+      this.client.on('reconnect', this.onReConnect)
+      this.client.on('message', this.messageArrived(id))
+    }
+  }
 
   get bodyTop(): Top {
-    if (this.$store.state.app.MacOSTop === '24px'
-      && process.platform === 'darwin') {
-      return {
-        open: '282px',
-        close: '84px',
-      }
-    }
     return {
-      open: '258px',
+      open: '254px',
       close: '60px',
     }
   }
 
   get msgTop(): Top {
-    if (this.$store.state.app.MacOSTop === '24px'
-      && process.platform === 'darwin') {
-      return {
-        open: '310px',
-        close: '112px',
-      }
-    }
     return {
       open: '286px',
       close: '88px',
@@ -214,6 +225,7 @@ export default class ConnectionsContent extends Vue {
   @Watch('record')
   private handleRecordChanged() {
     const id: string = this.$route.params.id
+    this.titleName = this.record.name
     this.getConnectionValue(id)
     this.getMessages(id)
   }
@@ -257,8 +269,8 @@ export default class ConnectionsContent extends Vue {
       this.removeConnection()
     } else if (command === 'clearHistory') {
       this.handleMsgClear()
-    } else if (command === 'viewBroker') {
-      this.$router.push({ path: `/brokers/${this.record.brokeruuid}` })
+    } else if (command === 'searchByTopic') {
+      this.searchVisible = true
     }
   }
 
@@ -289,6 +301,17 @@ export default class ConnectionsContent extends Vue {
     } else {
       this.messages = this.record.messages
     }
+  }
+  private handleEdit(id: string): boolean | void {
+    if (this.client.connected) {
+      return false
+    }
+    this.$router.push({
+      path: `/recent_connections/${id}`,
+      query: {
+        oper: 'edit',
+      },
+    })
   }
   private searchByTopic(): void {
     this.getMessages(this.$route.params.id)
@@ -322,7 +345,7 @@ export default class ConnectionsContent extends Vue {
   private createClient(): MqttClient {
     const reconnectPeriod = 4000
     const {
-      clientId, username, password, keepalive, clean, connectTimeout, ssl,
+      clientId, username, password, keepalive, clean, connectTimeout, ssl, certType,
     } = this.record
     const options: IClientOptions  = {
       clientId,
@@ -337,7 +360,7 @@ export default class ConnectionsContent extends Vue {
     if (password !== '') {
       options.password = password
     }
-    if (ssl) {
+    if (ssl && certType === 'self') {
       const filePath: SSLPath = {
         ca: this.record.ca,
         cert: this.record.cert,
@@ -353,19 +376,9 @@ export default class ConnectionsContent extends Vue {
     }
     return mqtt.connect(this.connectUrl, options)
   }
-  private connect(): boolean | void {
-    if (this.client.connected) {
-      return false
-    }
-    this.connectLoading = true
-    this.client = this.createClient()
-    const { id } = this.record
-    if (id) {
-      this.client.on('connect', this.onConnect)
-      this.client.on('error', this.onError)
-      this.client.on('reconnect', this.onReConnect)
-      this.client.on('message', this.messageArrived(id))
-    }
+  private cancel() {
+    this.connectLoading = false
+    this.client.end()
   }
   private disconnect(): boolean | void {
     if (!this.client.connected) {
@@ -428,16 +441,27 @@ export default class ConnectionsContent extends Vue {
     this.$emit('reload')
   }
   private onReConnect() {
-    this.client.end()
-    this.connectLoading = false
-    this.$notify({
-      title: this.$t('connections.connectFailed') as string,
-      message: '',
-      type: 'error',
-      duration: 3000,
-      offset: 20,
-    })
-    this.$emit('reload')
+    if (!this.record.reconnect) {
+      this.client.end()
+      this.connectLoading = false
+      this.$notify({
+        title: this.$t('connections.connectFailed') as string,
+        message: '',
+        type: 'error',
+        duration: 3000,
+        offset: 20,
+      })
+      this.$emit('reload')
+    } else {
+      this.connectLoading = true
+      this.$notify({
+        title: this.$t('connections.reconnect') as string,
+        message: '',
+        type: 'warning',
+        duration: 3000,
+        offset: 20,
+      })
+    }
   }
   private messageArrived(id: string) {
     return (
@@ -532,11 +556,9 @@ export default class ConnectionsContent extends Vue {
   .connections-topbar {
     border-bottom: 1px solid var(--color-border-default);
     .connections-info {
-      padding: 0 16px;
       background-color: var(--color-bg-normal);
       .topbar {
         border-bottom: 0px;
-        min-height: 59px;
       }
       .connection-head {
         .offline {
@@ -557,17 +579,32 @@ export default class ConnectionsContent extends Vue {
         }
       }
       .connection-tail {
+        .edit-btn {
+          .el-icon-edit-outline {
+            font-size: 18px;
+          }
+          &.disabled {
+            cursor: not-allowed;
+            color: var(--color-text-light);
+          }
+          margin-right: 6px;
+        }
         .el-dropdown.connection-oper {
           a {
             width: 24px;
             display: inline-block;
             text-align: center;
+            position: relative;
+            top: -1px;
           }
         }
       }
+      .connection-info {
+        padding: 0 16px;
+      }
     }
     .connections-search {
-      padding: 0 16px 10px 16px;
+      padding: 13px 16px 13px 16px;
       height: auto;
       background-color: var(--color-bg-normal);
       &.topbar {
@@ -606,7 +643,7 @@ export default class ConnectionsContent extends Vue {
         padding: 12px 16px;
         background: var(--color-bg-primary);
         position: fixed;
-        left: 280px;
+        left: 341px;
         right: 0;
         z-index: 1;
         transition: all .4s;
