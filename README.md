@@ -24,19 +24,19 @@ Alternative, you can download [here](https://www.emqx.io/downloads/MQTTX/).
 
 ## Usage
 
-1. Create connection, click the `+` button on the left menu bar.
+1. MQTT Broker preparation.
 
-2. Configure the items you need to complete in the form.
+    - If you do not need the MQTT Broker deployed locally, you can use the online public version of [EMQ X](https://github.com/emqx/emqx) for quick test;
 
-> If you don't have a mqtt broker available, you can use this EMQ X public broker to test.
+    - If you plan to deploy a MQTT Broker running locally, we recommend you to download [EMQ X](https://github.com/emqx/emqx/releases) for installation.
 
-```shell
-IP Address: broker.emqx.io
-TCP Port: 1883
-SSL Port: 8883
-```
+2. Connection configuration. Click the `+` button in the left menu bar and fill in the corresponding required fields in the form.
 
-3. Click the `connect` button in the upper right corner and you can easily create a connection and test it with messages.
+3. After the connection information is configured, click the `Connect` button in the upper right corner to create a connection and connect to MQTT Broker.
+
+4. After the MQTT is connected successfully, you can perform MQTT publish and subscription tests.
+
+![mqttx-gif](./assets/mqttx-gif.gif)
 
 ## Develop
 
