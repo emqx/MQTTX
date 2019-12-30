@@ -39,7 +39,7 @@
      Broker SSL 端口: 8883
      ```
 
-   - 如果您打算部署一个本地运行的 MQTT Broker，那么我们推荐您 [下载 EMQ X](https://github.com/emqx/emqx/releases) 进行安装使用。
+   - 如果您打算部署一个本地运行的 MQTT Broker，那么我们推荐您 [下载 EMQ X](https://github.com/emqx/emqx/releases) 进行安装使用。EMQ X 是一款完全开源，高度可伸缩，高可用的百万级分布式 MQTT 消息服务器，是 5G 时代万物互联的消息引擎，支持 MQTT/CoAP/LwM2M 一站式 IoT 协议接入。
 
 2. 连接配置。点击左侧菜单栏里的 `+` 号按钮，并填写表单中相应的必填项。
 
@@ -87,8 +87,8 @@ yarn run electron:build
 
 |  方式   | 内容  |
 |  ----  | ----  |
-| QQ 群 | 937041105 |
-| 公众号 | <img src="./assets/wx_qr_code.png" width="160" width="160" alt="MQTTX Logo"/> |
+| QQ 群（EMQ X 官方群3）| 937041105 |
+| EMQ X 官方公众号 | <img src="./assets/wx_qr_code.png" width="160" width="160" alt="MQTTX Logo"/> |
 
 ## License
 
