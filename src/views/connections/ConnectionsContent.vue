@@ -64,9 +64,11 @@
           <el-input
             v-model="searchTopic" 
             size="small"
-            :placeholder="$t('connections.searchByTopic')">
+            :placeholder="$t('connections.searchByTopic')"
+            @keyup.enter.native="searchByTopic">
             <a class="search-btn" href="javascript:;" slot="suffix" @click="searchByTopic">
-              <i class="iconfont icon-search"></i>
+              <i v-if="!searchLoading" class="iconfont icon-search"></i>
+              <i v-else class="el-icon-loading"></i>
             </a>
           </el-input>
           <a href="javascript:;" class="close-search" @click="handleSearchClose">
@@ -183,6 +185,7 @@ export default class ConnectionsContent extends Vue {
   private searchVisible = false
   private messages: MessageModel[] = []
   private searchTopic = ''
+  private searchLoading = false
   private titleName: string = this.record.name
 
   public connect(): boolean | void {
@@ -314,9 +317,17 @@ export default class ConnectionsContent extends Vue {
     })
   }
   private searchByTopic(): void {
-    this.getMessages(this.$route.params.id)
-    const $messages = [...this.messages]
-    this.messages = $messages.filter(($: MessageModel) => $.topic === this.searchTopic)
+    this.searchLoading = true
+    setTimeout(() => {
+      this.searchLoading = false
+    }, 500)
+    if (this.searchTopic !== '') {
+      this.getMessages(this.$route.params.id)
+      const $messages = [...this.messages]
+      this.messages = $messages.filter(($: MessageModel) => $.topic === this.searchTopic)
+    } else {
+      this.getMessages(this.$route.params.id)
+    }
   }
   private handleSearchClose(): void {
     this.searchVisible = false
@@ -611,8 +622,11 @@ export default class ConnectionsContent extends Vue {
         border-bottom: 0px;
         min-height: 0px;
       }
-      .icon-search {
+      .icon-search, .el-icon-loading {
         line-height: 32px;
+      }
+      .el-icon-loading {
+        margin-right: 10px;
       }
       .el-input {
         .el-input__inner {
