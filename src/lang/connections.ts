@@ -143,4 +143,12 @@ export default {
     zh: 'MQTT 版本',
     en: 'MQTT Version',
   },
+  sessionExpiryInterval: {
+    zh: '会话过期时间',
+    en: 'Session Expiry Interval',
+  },
+  receiveMaximum: {
+    zh: '接受最大数值',
+    en: 'Receive Maximum',
+  },
 }
