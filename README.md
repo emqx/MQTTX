@@ -32,6 +32,12 @@ Alternative, you can download [here](https://www.emqx.io/downloads/MQTTX/).
 
     - If you do not need the MQTT Broker deployed locally, you can use the online public version of [EMQ X](https://github.com/emqx/emqx) for quick test;
 
+     ```shell
+     Broker IP: broker.emqx.io
+     Broker TCP Port: 1883
+     Broker SSL Port: 8883
+     ```
+
     - If you plan to deploy a MQTT Broker running locally, we recommend you to download [EMQ X](https://github.com/emqx/emqx/releases) for installation. EMQ X broker is a fully open source, highly scalable, highly available distributed MQTT messaging broker for IoT, M2M and Mobile applications that can handle tens of millions of concurrent clients.
 
 2. Connection configuration. Click the `+` button in the left menu bar and fill in the corresponding required fields in the form.
