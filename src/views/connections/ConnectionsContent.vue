@@ -187,6 +187,10 @@ export default class ConnectionsContent extends Vue {
   private searchTopic = ''
   private searchLoading = false
   private titleName: string = this.record.name
+  private mqttVersionDict = {
+    '3.1.1': 4,
+    '5.0': 5,
+  }
 
   public connect(): boolean | void {
     if (this.client.connected) {
@@ -353,23 +357,54 @@ export default class ConnectionsContent extends Vue {
     })
   }
 
+  private setMQTT5Properties(
+    option: IClientOptions['properties'],
+  ): IClientOptions['properties'] | undefined {
+    if (option === undefined) {
+      return undefined
+    }
+    const properties: IClientOptions['properties'] = {}
+    if (option.sessionExpiryInterval ||
+      option.sessionExpiryInterval === 0) {
+      properties.sessionExpiryInterval = option.sessionExpiryInterval
+    }
+    if (option.receiveMaximum ||
+      option.sessionExpiryInterval === 0) {
+      properties.receiveMaximum = option.receiveMaximum
+    }
+    return properties
+  }
+
   private createClient(): MqttClient {
     const reconnectPeriod = 4000
     const {
-      clientId, username, password, keepalive, clean, connectTimeout, ssl, certType,
+      clientId, username, password, keepalive, clean, connectTimeout,
+      ssl, certType, mqttVersion,
     } = this.record
+    const protocolVersion = this.mqttVersionDict[mqttVersion]
     const options: IClientOptions  = {
       clientId,
       keepalive,
       clean,
       connectTimeout,
       reconnectPeriod,
+      protocolVersion,
     }
     if (username !== '') {
       options.username = username
     }
     if (password !== '') {
       options.password = password
+    }
+    if (protocolVersion === 5) {
+      const { sessionExpiryInterval, receiveMaximum } = this.record
+      const properties = this.setMQTT5Properties({
+        sessionExpiryInterval,
+        receiveMaximum,
+      })
+      if (properties && Object.keys(properties).length > 0) {
+        options.properties =  properties
+      }
     }
     if (ssl && certType === 'self') {
       const filePath: SSLPath = {

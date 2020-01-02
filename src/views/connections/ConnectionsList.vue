@@ -16,7 +16,7 @@
           <div class="client-info">
             <el-tooltip
               :effect="theme !== 'light' ? 'light' : 'dark'"
-              :disabled="`${item.name}@${item.host}:${item.port}`.length < 30"
+              :disabled="`${item.name}@${item.host}:${item.port}`.length < 27"
               :content="`${item.name}@${item.host}:${item.port}`"
               placement="top">
               <div class="client-name">
