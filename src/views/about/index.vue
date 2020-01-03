@@ -24,24 +24,22 @@
         </a>
       </p>
 
-      <p class="emqx-title">{{ $t('about.welcome') }}<a
-          class="web-link"
-          href="https://www.emqx.io/downloads#broker"
+      <div class="emqx-desc">
+        <i18n path="about.emqxLocal.local" tag="span">
+          <a href="https://github.com/emqx/emqx"
+            target="_blank"
+            rel="noopener noreferrer">{{ $t('about.emqxLocal.emqx') }}</a>
+        </i18n>
+        <a href="https://github.com/emqx/emqx"
           target="_blank"
-          rel="noopener noreferrer">
-          {{ $t('about.download') }}
-        </a>{{ $t('about.emqxUse') }} (
-        <a
-          class="web-link"
-          href="https://github.com/emqx/emqx"
-          target="_blank"
-          rel="noopener noreferrer">
-          github.com/emqx/emqx
-        </a>
-      )</p>
+          rel="noopener noreferrer">EMQ X</a> {{ $t('about.emqxDesc') }}
+      </div>
 
       <div class="emqx-desc">
-        <strong>EMQ X</strong> {{ $t('about.emqxDesc') }}
+        {{ $t('about.emqxDocker') }}
+        <div class="docker-code">
+          docker run -d --name emqx -p 1883:1883 -p 8083:8083 -p 8883:8883 -p 8084:8084 -p 18083:18083 emqx/emqx
+        </div>
       </div>
 
       <el-button
@@ -74,6 +72,31 @@
           class="follow-link" href="https://www.reddit.com/r/emqx/">
           <i class="iconfont icon-reddit"></i>
         </a>
+        <template v-if="getterLang === 'zh'">
+          <a target="_blank" rel="noopener noreferrer"
+            class="follow-link" href="https://weibo.com/emqtt">
+            <i class="iconfont icon-weibo"></i>
+          </a>
+          <el-popover
+            placement="top-start"
+            width="30"
+            trigger="click">
+            <img class="emqx-qq" src="../../assets/images/qq-qr_code.png" alt="qq">
+            <span class="follow-link" slot="reference">
+              <i class="iconfont icon-qq"></i>
+            </span>
+          </el-popover>
+          <el-popover
+            placement="top-start"
+            width="30"
+            style="margin-left: 16px"
+            trigger="click">
+            <img class="emqx-qq" src="../../assets/images/wx_qr_code.png" alt="qq">
+            <span class="follow-link" slot="reference">
+              <i class="iconfont icon-we-chat"></i>
+            </span>
+          </el-popover>
+        </template>
       </div>
     </div>
   </div>
@@ -88,6 +111,7 @@ import { ipcRenderer } from 'electron'
 @Component
 export default class About extends Vue {
   @Getter('currentTheme') private getterTheme!: Theme
+  @Getter('currentLang') private getterLang!: Language
 
   get logo(): string {
     if (this.getterTheme === 'light') {
@@ -142,16 +166,17 @@ export default class About extends Vue {
     margin-bottom: 35px;
   }
 
-  .emqx-title {
-    font-size: 1rem;
-    margin-bottom: 20px;
-    a {
-      font-size: 1rem;
-    }
-  }
   .emqx-desc {
     max-width: 560px;
     line-height: 1.6;
+    margin-bottom: 12px;
+  }
+  .docker-code {
+    background: var(--color-bg-code);
+    padding: 10px;
+    border-radius: 4px;
+    user-select: all;
+    margin-top: 8px;
   }
 
   .github-btn {
@@ -177,16 +202,17 @@ export default class About extends Vue {
     right: 16px;
     .emqx-logo {
       position: absolute;
-      top: 9px;
+      top: 5px;
     }
     .copyright {
       position: absolute;
       left: 45px;
-      top: 15px;
+      top: 10px;
     }
     .follow-items {
       float: right;
       .follow-link {
+        cursor: pointer;
         display: inline-block;
         width: 50px;
         height: 40px;
