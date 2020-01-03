@@ -28,7 +28,7 @@ export interface ConnectionModel extends SSLPath  {
   username: string,
   password: string,
   path: string,
-  certType?: '' | 'ca' | 'self',
+  certType?: '' | 'server' | 'self',
   ssl: boolean,
   mqttVersion: '3.1.1' | '5.0',
   unreadMessageCount: number,

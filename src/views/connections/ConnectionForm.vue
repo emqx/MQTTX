@@ -78,7 +78,7 @@
               <el-col :span="22">
                 <el-form-item label-width="93px" :label="$t('connections.certType')" prop="certType">
                   <el-radio-group v-model="record.certType">
-                    <el-radio label="ca">CA signed server</el-radio>
+                    <el-radio label="server">CA signed server</el-radio>
                     <el-radio label="self">Self signed</el-radio>
                   </el-radio-group>
                 </el-form-item>
@@ -259,8 +259,6 @@ export default class ConnectionCreate extends Vue {
       port: [{ required: true, message: this.$t('common.inputRequired') }],
       certType: [{ required: true, message: this.$t('common.selectRequired') }],
       ca: [{ required: true, message: this.$t('common.inputRequired') }],
-      cert: [{ required: true, message: this.$t('common.inputRequired') }],
-      key: [{ required: true, message: this.$t('common.inputRequired') }],
     }
   }
 
