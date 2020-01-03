@@ -1,7 +1,7 @@
 import { dialog, shell } from 'electron'
 import axios from 'axios'
 
-const version = 'v1.2.0'
+const version = 'v1.2.1'
 const release = 'https://api.github.com/repos/emqx/MQTTX/releases/latest'
 const downloadUrl = 'https://github.com/emqx/MQTTX/releases/latest'
 

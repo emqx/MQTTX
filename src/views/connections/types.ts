@@ -28,15 +28,17 @@ export interface ConnectionModel extends SSLPath  {
   username: string,
   password: string,
   path: string,
-  certType?: '' | 'ca' | 'self',
+  certType?: '' | 'server' | 'self',
   ssl: boolean,
-  mqttVersion: string,
+  mqttVersion: '3.1.1' | '5.0',
   unreadMessageCount: number,
   messages: MessageModel[],
   subscriptions: SubscriptionModel[],
   client: MqttClient | {
     connected: boolean,
   },
+  sessionExpiryInterval?: number,
+  receiveMaximum?: number,
 }
 
 export interface SSLContent {

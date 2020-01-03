@@ -78,7 +78,7 @@
               <el-col :span="22">
                 <el-form-item label-width="93px" :label="$t('connections.certType')" prop="certType">
                   <el-radio-group v-model="record.certType">
-                    <el-radio label="ca">CA signed server</el-radio>
+                    <el-radio label="server">CA signed server</el-radio>
                     <el-radio label="self">Self signed</el-radio>
                   </el-radio-group>
                 </el-form-item>
@@ -177,10 +177,29 @@
               <el-form-item :label="$t('connections.mqttVersion')" prop="mqttVersion">
                 <el-select size="mini" v-model="record.mqttVersion">
                   <el-option value="3.1.1" label="3.1.1"></el-option>
+                  <el-option value="5.0" label="5.0"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
+
+            <!-- MQTT v5.0 -->
+            <template v-if="record.mqttVersion === '5.0'">
+              <el-col :span="22">
+                <el-form-item :label="$t('connections.sessionExpiryInterval')" prop="sessionExpiryInterval">
+                  <el-input size="mini" type="number" v-model.number="record.sessionExpiryInterval">
+                  </el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2"></el-col>
+              <el-col :span="22">
+                <el-form-item :label="$t('connections.receiveMaximum')" prop="receiveMaximum">
+                  <el-input size="mini" type="number" v-model.number="record.receiveMaximum">
+                  </el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2"></el-col>
+            </template>
           </el-row>
         </el-card>
       </div>
@@ -240,8 +259,6 @@ export default class ConnectionCreate extends Vue {
       port: [{ required: true, message: this.$t('common.inputRequired') }],
       certType: [{ required: true, message: this.$t('common.selectRequired') }],
       ca: [{ required: true, message: this.$t('common.inputRequired') }],
-      cert: [{ required: true, message: this.$t('common.inputRequired') }],
-      key: [{ required: true, message: this.$t('common.inputRequired') }],
     }
   }
 

@@ -6,11 +6,46 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "1663480",
+      "name": "reddit",
+      "font_class": "reddit",
+      "unicode": "e7e4",
+      "unicode_decimal": 59364
+    },
+    {
+      "icon_id": "1878149",
+      "name": "qq",
+      "font_class": "qq",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "1937032",
+      "name": "weibo",
+      "font_class": "weibo",
+      "unicode": "e73a",
+      "unicode_decimal": 59194
+    },
+    {
+      "icon_id": "3876355",
+      "name": "slack",
+      "font_class": "slack",
+      "unicode": "e641",
+      "unicode_decimal": 58945
+    },
+    {
       "icon_id": "9047144",
       "name": "折叠",
       "font_class": "zhedie",
       "unicode": "e600",
       "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "9277879",
+      "name": "we-chat",
+      "font_class": "we-chat",
+      "unicode": "e70e",
+      "unicode_decimal": 59150
     },
     {
       "icon_id": "9408416",
@@ -144,6 +179,13 @@
       "font_class": "site",
       "unicode": "e650",
       "unicode_decimal": 58960
+    },
+    {
+      "icon_id": "12313365",
+      "name": "twitter",
+      "font_class": "ttww",
+      "unicode": "e6c7",
+      "unicode_decimal": 59079
     }
   ]
 }
