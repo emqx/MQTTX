@@ -41,17 +41,7 @@
         <el-col :span="8" class="connection.ssl">
           <el-checkbox v-model="connection.clean">Clean Session</el-checkbox>
         </el-col>
-        <el-col :span="8">
-          <el-button
-            v-if="!client.connected && btnLoading"
-            class="disconnect cancel"
-            icon="el-icon-close"
-            plain
-            type="outline"
-            size="mini"
-            @click="cancel">
-            {{ $t('common.cancel') }}
-          </el-button>
+        <el-col :span="24">
           <el-button
             v-if="!client.connected"
             class="btn"
@@ -73,6 +63,16 @@
             :loading="btnLoading"
             @click="disconnect">
             {{ $t('connections.disconnectedBtn') }}
+          </el-button>
+          <el-button
+            v-if="!client.connected && btnLoading"
+            class="disconnect cancel btn"
+            icon="el-icon-close"
+            plain
+            type="outline"
+            size="mini"
+            @click="cancel">
+            {{ $t('common.cancel') }}
           </el-button>
         </el-col>
       </el-row>
@@ -151,16 +151,13 @@ export default class ConnectionInfo extends Vue {
       margin-top: 42px;
     }
     .el-button.btn {
-      margin-top: 25px;
+      margin-top: 13px;
       float: right;
-      min-width: 100px;
     }
     .el-button.cancel {
-      position: relative;
-      top: 25px;
-      left: 5px;
+      margin-right: 10px;
     }
-    .disconnect.el-button {
+    .el-button.disconnect {
       color: var(--color-second-red);
       border-color: var(--color-second-red);
     }
