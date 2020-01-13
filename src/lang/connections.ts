@@ -151,4 +151,12 @@ export default {
     zh: '接受最大数值',
     en: 'Receive Maximum',
   },
+  topicReuired: {
+    zh: '请输入 Topic',
+    en: 'Topic is required',
+  },
+  payloadReuired: {
+    zh: '请输入 Payload',
+    en: 'Payload is required',
+  },
 }
