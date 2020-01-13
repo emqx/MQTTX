@@ -149,6 +149,8 @@ export default class About extends Vue {
 
   .logo {
     margin-bottom: 5px;
+    width: 320px;
+    height: 110px;
   }
 
   .version {
