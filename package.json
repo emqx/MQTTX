@@ -1,7 +1,7 @@
 {
   "name": "MQTTX",
   "author": "EMQ X Team",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "license": "Apache",
   "description": "MQTT desktop client",
   "repository": "https://github.com/emqx/MQTTX",
