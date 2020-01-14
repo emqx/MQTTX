@@ -134,7 +134,7 @@ import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
-import { getSSLFile } from '@/utils/getFiles'
+import { getClientOptions } from '@/utils/mqttUtils'
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
@@ -203,6 +203,7 @@ export default class ConnectionsContent extends Vue {
       this.client.on('connect', this.onConnect)
       this.client.on('error', this.onError)
       this.client.on('reconnect', this.onReConnect)
+      this.client.on('close', this.onClose)
       this.client.on('message', this.messageArrived(id))
     }
   }
@@ -281,7 +282,7 @@ export default class ConnectionsContent extends Vue {
     }
   }
 
-   private getMessages(id: string) {
+  private getMessages(id: string) {
     this.msgType = 'all'
     const $activeConnection = this.activeConnection[id]
     if ($activeConnection) {
@@ -315,9 +316,7 @@ export default class ConnectionsContent extends Vue {
     }
     this.$router.push({
       path: `/recent_connections/${id}`,
-      query: {
-        oper: 'edit',
-      },
+      query: { oper: 'edit' },
     })
   }
   private searchByTopic(): void {
@@ -357,70 +356,8 @@ export default class ConnectionsContent extends Vue {
     })
   }
 
-  private setMQTT5Properties(
-    option: IClientOptions['properties'],
-  ): IClientOptions['properties'] | undefined {
-    if (option === undefined) {
-      return undefined
-    }
-    const properties: IClientOptions['properties'] = {}
-    if (option.sessionExpiryInterval ||
-      option.sessionExpiryInterval === 0) {
-      properties.sessionExpiryInterval = option.sessionExpiryInterval
-    }
-    if (option.receiveMaximum ||
-      option.sessionExpiryInterval === 0) {
-      properties.receiveMaximum = option.receiveMaximum
-    }
-    return properties
-  }
-
   private createClient(): MqttClient {
-    const {
-      clientId, username, password, keepalive, clean, connectTimeout,
-      ssl, certType, mqttVersion, reconnect,
-    } = this.record
-    // reconnectPeriod = 0 disabled automatic reconnection in the client
-    const reconnectPeriod = reconnect ? 4000 : 0
-    const protocolVersion = this.mqttVersionDict[mqttVersion]
-    const options: IClientOptions  = {
-      clientId,
-      keepalive,
-      clean,
-      connectTimeout,
-      reconnectPeriod,
-      protocolVersion,
-    }
-    if (username !== '') {
-      options.username = username
-    }
-    if (password !== '') {
-      options.password = password
-    }
-    if (protocolVersion === 5) {
-      const { sessionExpiryInterval, receiveMaximum } = this.record
-      const properties = this.setMQTT5Properties({
-        sessionExpiryInterval,
-        receiveMaximum,
-      })
-      if (properties && Object.keys(properties).length > 0) {
-        options.properties =  properties
-      }
-    }
-    if (ssl && certType === 'self') {
-      const filePath: SSLPath = {
-        ca: this.record.ca,
-        cert: this.record.cert,
-        key: this.record.key,
-      }
-      const sslRes: SSLContent | undefined = getSSLFile(filePath)
-      if (sslRes) {
-        options.rejectUnauthorized = false
-        options.ca = sslRes.ca
-        options.cert = sslRes.cert
-        options.key = sslRes.key
-      }
-    }
+    const options: IClientOptions = getClientOptions(this.record)
     return mqtt.connect(this.connectUrl, options)
   }
   private cancel() {
@@ -513,6 +450,9 @@ export default class ConnectionsContent extends Vue {
         offset: 20,
       })
     }
+  }
+  private onClose() {
+    this.connectLoading = false
   }
   private messageArrived(id: string) {
     return (
