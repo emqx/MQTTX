@@ -45,26 +45,45 @@
     <my-dialog
       :title="$t('connections.newSubscription')"
       :visible.sync="showDialog"
+      width="500px"
+      class="topic-dialog"
       @confirm="saveSubs"
       @close="resetSubs">
-      <el-form
-        ref="form"
-        :model="subRecord"
-        :rules="rules">
-        <el-form-item label="Topic" prop="topic">
-          <el-input v-model="subRecord.topic" placeholder="testtopic/#"></el-input>
-        </el-form-item>
-        <el-form-item label="QoS" prop="qos">
-          <el-select v-model="subRecord.qos">
-            <el-option
-              v-for="qos in qosOption"
-              :key="qos"
-              :label="qos"
-              :value="qos">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
+      <el-row :gutter="20">
+        <el-form
+          ref="form"
+          :model="subRecord"
+          :rules="rules">
+          <el-col :span="24">
+            <el-form-item label="Topic" prop="topic">
+              <el-input v-model="subRecord.topic" placeholder="testtopic/#" size="small">
+              </el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="20">
+            <el-form-item label="QoS" prop="qos">
+              <el-select v-model="subRecord.qos" size="small">
+                <el-option
+                  v-for="qos in qosOption"
+                  :key="qos"
+                  :label="qos"
+                  :value="qos">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="4">
+            <el-form-item :label="$t('connections.color')">
+              <el-color-picker
+                v-model="topicColor"
+                size="small"
+                color-format="hex"
+                :predefine="predefineColors">
+              </el-color-picker>
+            </el-form-item>
+          </el-col>
+        </el-form>
+      </el-row>
     </my-dialog>
   </div>
 </template>
@@ -95,6 +114,8 @@ export default class SubscriptionsList extends Vue {
   @Getter('activeConnection') private activeConnection: $TSFixed
   @Getter('currentTheme') private theme!: Theme
 
+  private topicColor = ''
+  private predefineColors = ['#34C388', '#6ECBEE', '#D08CF1', '#907AEF', '#EDB16E']
   private currentConnection: $TSFixed = {}
   private showDialog: boolean = false
   private subRecord: SubscriptionModel = {
@@ -123,18 +144,17 @@ export default class SubscriptionsList extends Vue {
   private getBorderColor(): string {
     let $index: number = this.subsList.length
     const lastSubs: SubscriptionModel = this.subsList[$index - 1]
-    const colors = ['#34C388', '#6ECBEE', '#D08CF1', '#907AEF', '#EDB16E']
 
     if ($index === 0) {
-      return colors[0]
+      return this.predefineColors[0]
     }
-    const subIndex = colors.findIndex((color) => color === lastSubs.color)
-    if (colors[subIndex + 1]) {
+    const subIndex = this.predefineColors.findIndex((color) => color === lastSubs.color)
+    if (this.predefineColors[subIndex + 1]) {
       $index = subIndex + 1
     } else {
       $index = 0
     }
-    return colors[$index]
+    return this.predefineColors[$index]
   }
 
   private hideSubsList() {
@@ -160,7 +180,7 @@ export default class SubscriptionsList extends Vue {
         return false
       }
       const { topic, qos } = this.subRecord
-      this.subRecord.color = this.getBorderColor()
+      this.subRecord.color = this.topicColor || this.getBorderColor()
       this.currentConnection.client.subscribe(
         topic,
         { qos },
@@ -303,8 +323,8 @@ export default class SubscriptionsList extends Vue {
         border-radius: 50%;
         background: var(--color-second-red);
         position: absolute;
-        right: -7px;
-        top: -7px;
+        right: -5px;
+        top: -5px;
         width: 18px;
         height: 18px;
         text-align: center;
@@ -318,6 +338,17 @@ export default class SubscriptionsList extends Vue {
           display: inline;
         }
       }
+    }
+  }
+}
+.topic-dialog {
+  .el-dialog__body {
+    padding: 20px 20px 0 20px;
+    .el-color-picker {
+      top: 3px;
+    }
+    .el-color-picker--small .el-color-picker__trigger {
+      width: 40px;
     }
   }
 }
