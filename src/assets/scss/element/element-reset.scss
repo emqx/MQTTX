@@ -186,3 +186,14 @@
 .el-tooltip__popper.is-light {
   color: #616161;
 }
+
+/* Color picker */
+.el-color-picker__panel {
+  background: var(--color-bg-normal);
+  border-color: var(--color-border-default);
+}
+.el-color-dropdown__btn {
+  border-color: var(--color-border-default);
+  background: transparent;
+  color: var(--color-text-default);
+}

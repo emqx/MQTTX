@@ -159,4 +159,8 @@ export default {
     zh: '请输入 Payload',
     en: 'Payload is required',
   },
+  color: {
+    zh: '标记',
+    en: 'Color',
+  },
 }

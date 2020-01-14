@@ -1,14 +1,7 @@
 <template>
   <el-dialog
     class="my-dialog"
-    :append-to-body="true"
-    :show-close="false"
-    :center="true"
-    :visible.sync="showDialog"
-    :title="title"
-    :width="width"
-    :close-on-click-modal="false"
-    :close-on-press-escape="false"
+    v-bind="$props"
     @open="open"
     @close="close">
 
