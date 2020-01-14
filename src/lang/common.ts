@@ -56,8 +56,8 @@ export default {
     en: 'Warning',
   },
   confirmDelete: {
-    zh: '此操作将删除该 {name}，是否继续？',
-    en: 'This will delete {name}, Continue?',
+    zh: '此操作将删除 {name}，是否继续？',
+    en: 'This will delete {name}, continue?',
   },
   new: {
     zh: '新 建',

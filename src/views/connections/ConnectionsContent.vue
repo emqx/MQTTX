@@ -609,6 +609,7 @@ export default class ConnectionsContent extends Vue {
       background-color: var(--color-bg-normal);
       .topbar {
         border-bottom: 0px;
+        -webkit-app-region: drag;
       }
       .connection-head {
         .offline {
