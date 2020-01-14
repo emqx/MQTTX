@@ -21,7 +21,7 @@ export default {
   },
   notConnect: {
     zh: '客户端未连接',
-    en: 'Client Not Connected',
+    en: 'Client not connected',
   },
   disconnect: {
     zh: '断开连接',

@@ -376,11 +376,12 @@ export default class ConnectionsContent extends Vue {
   }
 
   private createClient(): MqttClient {
-    const reconnectPeriod = 4000
     const {
       clientId, username, password, keepalive, clean, connectTimeout,
-      ssl, certType, mqttVersion,
+      ssl, certType, mqttVersion, reconnect,
     } = this.record
+    // reconnectPeriod = 0 disabled automatic reconnection in the client
+    const reconnectPeriod = reconnect ? 4000 : 0
     const protocolVersion = this.mqttVersionDict[mqttVersion]
     const options: IClientOptions  = {
       clientId,
@@ -474,11 +475,15 @@ export default class ConnectionsContent extends Vue {
     }, 500)
     this.$emit('reload')
   }
-  private onError() {
+  private onError(error: string) {
+    let msgTitle = this.$t('connections.connectFailed') as string
+    if (error) {
+      msgTitle = error
+    }
     this.client.end()
     this.connectLoading = false
     this.$notify({
-      title: this.$t('connections.connectFailed') as string,
+      title: msgTitle,
       message: '',
       type: 'error',
       duration: 3000,
