@@ -92,8 +92,8 @@ export default {
     en: 'Connection already exists',
   },
   brokerIP: {
-    zh: 'IP 地址',
-    en: 'IP Address',
+    zh: '服务器地址',
+    en: 'Host',
   },
   brokerPort: {
     zh: '端口',
@@ -148,7 +148,7 @@ export default {
     en: 'Session Expiry Interval',
   },
   receiveMaximum: {
-    zh: '接受最大数值',
+    zh: '接收最大数值',
     en: 'Receive Maximum',
   },
   topicReuired: {

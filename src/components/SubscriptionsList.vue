@@ -28,6 +28,7 @@
             :effect="theme !== 'light' ? 'light' : 'dark'"
             :disabled="sub.topic.length < 25"
             :content="sub.topic"
+            :open-delay="500"
             placement="top">
             <span class="topic">
               {{ sub.topic }}
