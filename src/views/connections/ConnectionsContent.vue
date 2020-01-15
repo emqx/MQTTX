@@ -538,6 +538,7 @@ export default class ConnectionsContent extends Vue {
   private created(): void {
     const { id } = this.$route.params
     this.getConnectionValue(id)
+    this.getMessages(id)
   }
 }
 </script>
