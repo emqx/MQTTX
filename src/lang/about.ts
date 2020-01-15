@@ -24,14 +24,14 @@ export default {
     en: 'Follow us on GitHub',
   },
   emqxDesc: {
-    zh: '是一款完全开源，高可用低时延的百万级分布式物联网 MQTT 5.0 消息服务器。',
+    zh: '一款完全开源，高可用低时延的百万级分布式物联网 MQTT 5.0 消息服务器。',
     // tslint:disable-next-line:max-line-length
-    en: 'is a fully open source, highly scalable, highly available distributed MQTT 5.0 messaging broker for IoT, M2M and mobile applications that can handle tens of millions of concurrent clients.',
+    en: 'is a fully open source, highly scalable, highly available distributed MQTT 5.0 messaging broker for IoT, M2M and mobile applications.',
   },
   emqxLocal: {
     zh: {
       emqx: 'EMQ X',
-      local: '如需本地运行 MQTT Broker 推荐使用 {0}。',
+      local: '如需本地运行 MQTT Broker 推荐使用 {0} —— ',
     },
     en: {
       emqx: 'EMQ X',
