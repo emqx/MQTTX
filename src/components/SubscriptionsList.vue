@@ -61,7 +61,7 @@
               </el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="20">
+          <el-col :span="12">
             <el-form-item label="QoS" prop="qos">
               <el-select v-model="subRecord.qos" size="small">
                 <el-option
@@ -73,14 +73,25 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="4">
+          <el-col :span="12">
             <el-form-item :label="$t('connections.color')">
               <el-color-picker
                 v-model="topicColor"
-                size="small"
+                size="mini"
                 color-format="hex"
                 :predefine="predefineColors">
               </el-color-picker>
+              <el-input
+                v-model="topicColor"
+                size="small"
+                placeholder="#34C388">
+                <i
+                  slot="suffix"
+                  title="Refresh"
+                  class="el-icon-refresh"
+                  @click="setColor">
+                </i>
+              </el-input>
             </el-form-item>
           </el-col>
         </el-form>
@@ -94,6 +105,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { updateConnection } from '@/utils/api/connection'
+import { defineColors, getRandomColor } from '@/utils/colors'
 import LeftPanel from '@/components/LeftPanel.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import { ConnectionModel } from '../views/connections/types'
@@ -116,7 +128,6 @@ export default class SubscriptionsList extends Vue {
   @Getter('currentTheme') private theme!: Theme
 
   private topicColor = ''
-  private predefineColors = ['#34C388', '#6ECBEE', '#D08CF1', '#907AEF', '#EDB16E']
   private currentConnection: $TSFixed = {}
   private showDialog: boolean = false
   private subRecord: SubscriptionModel = {
@@ -137,11 +148,18 @@ export default class SubscriptionsList extends Vue {
     return this.$refs.form as VueForm
   }
 
+  get predefineColors(): string[] {
+    return defineColors
+  }
+
   @Watch('record')
   private handleRecordChanged(val: ConnectionModel) {
     this.getCurrentConnection(val.id as string)
   }
 
+  private setColor() {
+    this.topicColor = getRandomColor()
+  }
   private getBorderColor(): string {
     let $index: number = this.subsList.length
     const lastSubs: SubscriptionModel = this.subsList[$index - 1]
@@ -163,8 +181,9 @@ export default class SubscriptionsList extends Vue {
     this.changeShowSubscriptions({ showSubscriptions: false })
   }
 
-  private openDialog(): void {
+  private openDialog() {
     this.showDialog = true
+    this.setColor()
   }
 
   private saveSubs(): void | boolean {
@@ -247,12 +266,12 @@ export default class SubscriptionsList extends Vue {
     })
   }
 
-  private resetSubs(): void {
+  private resetSubs() {
     this.vueForm.clearValidate()
     this.vueForm.resetFields()
   }
 
-  private getCurrentConnection(id: string): void {
+  private getCurrentConnection(id: string) {
     const $activeConnection = this.activeConnection[id]
     const { clean } = this.record
     if ($activeConnection) {
@@ -346,10 +365,9 @@ export default class SubscriptionsList extends Vue {
   .el-dialog__body {
     padding: 20px 20px 0 20px;
     .el-color-picker {
-      top: 3px;
-    }
-    .el-color-picker--small .el-color-picker__trigger {
-      width: 40px;
+      position: absolute;
+      right: 0;
+      top: 6px;
     }
   }
 }
