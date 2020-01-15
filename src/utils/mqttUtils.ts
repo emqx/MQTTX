@@ -1,4 +1,5 @@
 import { IClientOptions } from 'mqtt'
+import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
 import { ConnectionModel, SSLPath, SSLContent } from '@/views/connections/types'
 
@@ -38,10 +39,10 @@ export const getClientOptions = (
     clientId,
     keepalive,
     clean,
-    connectTimeout,
     reconnectPeriod,
     protocolVersion,
   }
+  options.connectTimeout = time.convertSecondsToMs(connectTimeout)
   if (username !== '') {
     options.username = username
   }
