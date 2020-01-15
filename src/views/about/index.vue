@@ -30,7 +30,7 @@
             target="_blank"
             rel="noopener noreferrer">{{ $t('about.emqxLocal.emqx') }}</a>
         </i18n>
-        <a href="https://github.com/emqx/emqx"
+        <a v-if="getterLang !== 'zh'" href="https://github.com/emqx/emqx"
           target="_blank"
           rel="noopener noreferrer">EMQ X</a> {{ $t('about.emqxDesc') }}
       </div>
