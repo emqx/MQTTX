@@ -16,7 +16,12 @@
       </div>
     </div>
 
-    <el-form ref="form" :model="record" label-position="right" label-width="160px" :rules="rules">
+    <el-form
+      ref="form"
+      label-position="right"
+      label-width="160px"
+      :model="record"
+      :rules="rules">
       <div class="client-create__body">
         <div class="info-header">
           <h3>{{ $t('settings.general') }}</h3>
