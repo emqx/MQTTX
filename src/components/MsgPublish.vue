@@ -3,7 +3,8 @@
     <el-input
       placeholder="Topic"
       v-model="msgRecord.topic"
-      @focus="handleInputFoucs">
+      @focus="handleInputFoucs"
+      @blur="handleInputBlur">
     </el-input>
     <div class="qos-retain">
       <span class="publish-label">QoS: </span>
@@ -20,7 +21,8 @@
       rows="3"
       placeholder="Payload"
       v-model="msgRecord.payload"
-      @focus="handleInputFoucs">
+      @focus="handleInputFoucs"
+      @blur="handleInputBlur">
     </el-input>
     <a
       href="javascript:;"
@@ -31,8 +33,10 @@
   </div>
 </template>
 
+
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
+import { ipcRenderer } from 'electron'
 import jump from 'jump.js'
 import { MessageModel } from '../views/connections/types'
 
@@ -47,12 +51,22 @@ export default class MsgPublish extends Vue {
     payload: JSON.stringify({ msg: 'hello' }, null, 2),
   }
 
-  private send(): void {
+  private send() {
     this.$emit('handleSend', this.msgRecord)
   }
 
-  private handleInputFoucs(): void {
+  private handleInputFoucs() {
+    ipcRenderer.on('sendPayload', () => {
+      this.send()
+    })
     jump(document.body.scrollHeight)
+  }
+  private handleInputBlur() {
+    ipcRenderer.removeAllListeners('sendPayload')
+  }
+
+  private beforeDestroy() {
+    ipcRenderer.removeAllListeners('sendPayload')
   }
 }
 </script>
@@ -109,6 +123,7 @@ export default class MsgPublish extends Vue {
     .el-textarea__inner {
       border: 0px;
       border-top: 1px solid var(--color-border-default);
+      border-radius: 0px;
       padding: 8px 0px;
       &:focus,
       &:hover {
@@ -125,7 +140,7 @@ export default class MsgPublish extends Vue {
     }
   }
   &.message {
-    height: 120px;
+    height: 125px;
   }
 }
 </style>
