@@ -62,10 +62,12 @@
       <transition name="el-zoom-in-top">
         <div v-show="searchVisible" class="connections-search topbar">
           <el-input
+            id="searchTopic"
             v-model="searchTopic" 
             size="small"
             :placeholder="$t('connections.searchByTopic')"
-            @keyup.enter.native="searchByTopic">
+            @keyup.enter.native="searchByTopic"
+            @keyup.esc.native="handleSearchClose">
             <a class="search-btn" href="javascript:;" slot="suffix" @click="searchByTopic">
               <i v-if="!searchLoading" class="iconfont icon-search"></i>
               <i v-else class="el-icon-loading"></i>
@@ -141,6 +143,7 @@ import MsgPublish from '@/components/MsgPublish.vue'
 import SubscriptionsList from '@/components/SubscriptionsList.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
 import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
+import { ipcRenderer } from 'electron'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
@@ -278,7 +281,7 @@ export default class ConnectionsContent extends Vue {
     } else if (command === 'clearHistory') {
       this.handleMsgClear()
     } else if (command === 'searchByTopic') {
-      this.searchVisible = true
+      this.handleSearchOpen()
     }
   }
 
@@ -332,7 +335,16 @@ export default class ConnectionsContent extends Vue {
       this.getMessages(this.$route.params.id)
     }
   }
-  private handleSearchClose(): void {
+  private handleSearchOpen() {
+    this.searchVisible = true
+    const $el = document.getElementById('searchTopic')
+    this.$nextTick(() => {
+      if ($el) {
+        $el.focus()
+      }
+    })
+  }
+  private handleSearchClose() {
     this.searchVisible = false
     this.getMessages(this.$route.params.id)
   }
@@ -539,6 +551,13 @@ export default class ConnectionsContent extends Vue {
     const { id } = this.$route.params
     this.getConnectionValue(id)
     this.getMessages(id)
+    ipcRenderer.on('searchByTopic', () => {
+      this.handleSearchOpen()
+    })
+  }
+
+  private beforeDestroy() {
+    ipcRenderer.removeAllListeners('searchByTopic')
   }
 }
 </script>
