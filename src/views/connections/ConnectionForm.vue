@@ -16,7 +16,12 @@
       </div>
     </div>
 
-    <el-form ref="form" :model="record" label-position="right" label-width="160px" :rules="rules">
+    <el-form
+      ref="form"
+      label-position="right"
+      label-width="160px"
+      :model="record"
+      :rules="rules">
       <div class="client-create__body">
         <div class="info-header">
           <h3>{{ $t('settings.general') }}</h3>
@@ -142,7 +147,7 @@
           <el-row :gutter="10">
             <el-col :span="22">
               <el-form-item
-                :label="`${$t('connections.connectionTimeout')} (${$t('common.unitMS')})`"
+                :label="`${$t('connections.connectionTimeout')} (${$t('common.unitS')})`"
                 prop="connectTimeout">
                 <el-input size="mini" type="number" v-model.number="record.connectTimeout"></el-input>
               </el-form-item>
@@ -231,7 +236,7 @@ export default class ConnectionCreate extends Vue {
     clean: true,
     host: 'broker.emqx.io',
     keepalive: 60,
-    connectTimeout: 4000,
+    connectTimeout: 10,
     reconnect: true,
     username: '',
     password: '',

@@ -28,6 +28,7 @@
             :effect="theme !== 'light' ? 'light' : 'dark'"
             :disabled="sub.topic.length < 25"
             :content="sub.topic"
+            :open-delay="500"
             placement="top">
             <span class="topic">
               {{ sub.topic }}
@@ -45,26 +46,56 @@
     <my-dialog
       :title="$t('connections.newSubscription')"
       :visible.sync="showDialog"
+      width="500px"
+      class="topic-dialog"
       @confirm="saveSubs"
       @close="resetSubs">
-      <el-form
-        ref="form"
-        :model="subRecord"
-        :rules="rules">
-        <el-form-item label="Topic" prop="topic">
-          <el-input v-model="subRecord.topic" placeholder="testtopic/#"></el-input>
-        </el-form-item>
-        <el-form-item label="QoS" prop="qos">
-          <el-select v-model="subRecord.qos">
-            <el-option
-              v-for="qos in qosOption"
-              :key="qos"
-              :label="qos"
-              :value="qos">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
+      <el-row :gutter="20">
+        <el-form
+          ref="form"
+          :model="subRecord"
+          :rules="rules">
+          <el-col :span="24">
+            <el-form-item label="Topic" prop="topic">
+              <el-input v-model="subRecord.topic" placeholder="testtopic/#" size="small">
+              </el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="QoS" prop="qos">
+              <el-select v-model="subRecord.qos" size="small">
+                <el-option
+                  v-for="qos in qosOption"
+                  :key="qos"
+                  :label="qos"
+                  :value="qos">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item :label="$t('connections.color')">
+              <el-color-picker
+                v-model="topicColor"
+                size="mini"
+                color-format="hex"
+                :predefine="predefineColors">
+              </el-color-picker>
+              <el-input
+                v-model="topicColor"
+                size="small"
+                placeholder="#34C388">
+                <i
+                  slot="suffix"
+                  title="Refresh"
+                  class="el-icon-refresh"
+                  @click="setColor">
+                </i>
+              </el-input>
+            </el-form-item>
+          </el-col>
+        </el-form>
+      </el-row>
     </my-dialog>
   </div>
 </template>
@@ -74,6 +105,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { updateConnection } from '@/utils/api/connection'
+import { defineColors, getRandomColor } from '@/utils/colors'
 import LeftPanel from '@/components/LeftPanel.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import { ConnectionModel } from '../views/connections/types'
@@ -95,6 +127,7 @@ export default class SubscriptionsList extends Vue {
   @Getter('activeConnection') private activeConnection: $TSFixed
   @Getter('currentTheme') private theme!: Theme
 
+  private topicColor = ''
   private currentConnection: $TSFixed = {}
   private showDialog: boolean = false
   private subRecord: SubscriptionModel = {
@@ -115,26 +148,32 @@ export default class SubscriptionsList extends Vue {
     return this.$refs.form as VueForm
   }
 
+  get predefineColors(): string[] {
+    return defineColors
+  }
+
   @Watch('record')
   private handleRecordChanged(val: ConnectionModel) {
     this.getCurrentConnection(val.id as string)
   }
 
+  private setColor() {
+    this.topicColor = getRandomColor()
+  }
   private getBorderColor(): string {
     let $index: number = this.subsList.length
     const lastSubs: SubscriptionModel = this.subsList[$index - 1]
-    const colors = ['#34C388', '#6ECBEE', '#D08CF1', '#907AEF', '#EDB16E']
 
     if ($index === 0) {
-      return colors[0]
+      return this.predefineColors[0]
     }
-    const subIndex = colors.findIndex((color) => color === lastSubs.color)
-    if (colors[subIndex + 1]) {
+    const subIndex = this.predefineColors.findIndex((color) => color === lastSubs.color)
+    if (this.predefineColors[subIndex + 1]) {
       $index = subIndex + 1
     } else {
       $index = 0
     }
-    return colors[$index]
+    return this.predefineColors[$index]
   }
 
   private hideSubsList() {
@@ -142,8 +181,9 @@ export default class SubscriptionsList extends Vue {
     this.changeShowSubscriptions({ showSubscriptions: false })
   }
 
-  private openDialog(): void {
+  private openDialog() {
     this.showDialog = true
+    this.setColor()
   }
 
   private saveSubs(): void | boolean {
@@ -160,7 +200,7 @@ export default class SubscriptionsList extends Vue {
         return false
       }
       const { topic, qos } = this.subRecord
-      this.subRecord.color = this.getBorderColor()
+      this.subRecord.color = this.topicColor || this.getBorderColor()
       this.currentConnection.client.subscribe(
         topic,
         { qos },
@@ -226,12 +266,12 @@ export default class SubscriptionsList extends Vue {
     })
   }
 
-  private resetSubs(): void {
+  private resetSubs() {
     this.vueForm.clearValidate()
     this.vueForm.resetFields()
   }
 
-  private getCurrentConnection(id: string): void {
+  private getCurrentConnection(id: string) {
     const $activeConnection = this.activeConnection[id]
     const { clean } = this.record
     if ($activeConnection) {
@@ -303,8 +343,8 @@ export default class SubscriptionsList extends Vue {
         border-radius: 50%;
         background: var(--color-second-red);
         position: absolute;
-        right: -7px;
-        top: -7px;
+        right: -5px;
+        top: -5px;
         width: 18px;
         height: 18px;
         text-align: center;
@@ -318,6 +358,16 @@ export default class SubscriptionsList extends Vue {
           display: inline;
         }
       }
+    }
+  }
+}
+.topic-dialog {
+  .el-dialog__body {
+    padding: 20px 20px 0 20px;
+    .el-color-picker {
+      position: absolute;
+      right: 0;
+      top: 6px;
     }
   }
 }

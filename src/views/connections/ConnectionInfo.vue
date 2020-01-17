@@ -142,10 +142,6 @@ export default class ConnectionInfo extends Vue {
         line-height: 35px;
         height: 35px;
       }
-      .el-icon-refresh {
-        cursor: pointer;
-        color: var(--color-main-green);
-      }
     }
     .el-checkbox {
       margin-top: 42px;

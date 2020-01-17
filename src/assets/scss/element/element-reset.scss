@@ -168,6 +168,13 @@
     border-bottom-color: var(--color-bg-messagebox);
   }
 }
+.el-popper[x-placement^="top"] .popper__arrow {
+  border-top-color: var(--color-border-default);
+
+  &:after {
+    border-top-color: var(--color-bg-messagebox);
+  }
+}
 .el-select-dropdown__item.hover,
 .el-select-dropdown__item:hover {
   background: var(--color-bg-item);
@@ -185,4 +192,21 @@
 /* Tootip */
 .el-tooltip__popper.is-light {
   color: #616161;
+}
+
+/* Color picker */
+.el-color-picker__panel {
+  background: var(--color-bg-normal);
+  border-color: var(--color-border-default);
+}
+.el-color-dropdown__btn {
+  border-color: var(--color-border-default);
+  background: transparent;
+  color: var(--color-text-default);
+}
+
+/* Icon */
+.el-icon-refresh {
+  cursor: pointer;
+  color: var(--color-main-green);
 }

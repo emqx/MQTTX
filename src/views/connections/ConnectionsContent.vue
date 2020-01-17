@@ -62,10 +62,12 @@
       <transition name="el-zoom-in-top">
         <div v-show="searchVisible" class="connections-search topbar">
           <el-input
+            id="searchTopic"
             v-model="searchTopic" 
             size="small"
             :placeholder="$t('connections.searchByTopic')"
-            @keyup.enter.native="searchByTopic">
+            @keyup.enter.native="searchByTopic"
+            @keyup.esc.native="handleSearchClose">
             <a class="search-btn" href="javascript:;" slot="suffix" @click="searchByTopic">
               <i v-if="!searchLoading" class="iconfont icon-search"></i>
               <i v-else class="el-icon-loading"></i>
@@ -134,13 +136,14 @@ import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
-import { getSSLFile } from '@/utils/getFiles'
+import { getClientOptions } from '@/utils/mqttUtils'
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
 import SubscriptionsList from '@/components/SubscriptionsList.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
 import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
+import { ipcRenderer } from 'electron'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
@@ -203,6 +206,7 @@ export default class ConnectionsContent extends Vue {
       this.client.on('connect', this.onConnect)
       this.client.on('error', this.onError)
       this.client.on('reconnect', this.onReConnect)
+      this.client.on('close', this.onClose)
       this.client.on('message', this.messageArrived(id))
     }
   }
@@ -277,11 +281,11 @@ export default class ConnectionsContent extends Vue {
     } else if (command === 'clearHistory') {
       this.handleMsgClear()
     } else if (command === 'searchByTopic') {
-      this.searchVisible = true
+      this.handleSearchOpen()
     }
   }
 
-   private getMessages(id: string) {
+  private getMessages(id: string) {
     this.msgType = 'all'
     const $activeConnection = this.activeConnection[id]
     if ($activeConnection) {
@@ -315,9 +319,7 @@ export default class ConnectionsContent extends Vue {
     }
     this.$router.push({
       path: `/recent_connections/${id}`,
-      query: {
-        oper: 'edit',
-      },
+      query: { oper: 'edit' },
     })
   }
   private searchByTopic(): void {
@@ -333,7 +335,16 @@ export default class ConnectionsContent extends Vue {
       this.getMessages(this.$route.params.id)
     }
   }
-  private handleSearchClose(): void {
+  private handleSearchOpen() {
+    this.searchVisible = true
+    const $el = document.getElementById('searchTopic')
+    this.$nextTick(() => {
+      if ($el) {
+        $el.focus()
+      }
+    })
+  }
+  private handleSearchClose() {
     this.searchVisible = false
     this.getMessages(this.$route.params.id)
   }
@@ -357,69 +368,8 @@ export default class ConnectionsContent extends Vue {
     })
   }
 
-  private setMQTT5Properties(
-    option: IClientOptions['properties'],
-  ): IClientOptions['properties'] | undefined {
-    if (option === undefined) {
-      return undefined
-    }
-    const properties: IClientOptions['properties'] = {}
-    if (option.sessionExpiryInterval ||
-      option.sessionExpiryInterval === 0) {
-      properties.sessionExpiryInterval = option.sessionExpiryInterval
-    }
-    if (option.receiveMaximum ||
-      option.sessionExpiryInterval === 0) {
-      properties.receiveMaximum = option.receiveMaximum
-    }
-    return properties
-  }
-
   private createClient(): MqttClient {
-    const reconnectPeriod = 4000
-    const {
-      clientId, username, password, keepalive, clean, connectTimeout,
-      ssl, certType, mqttVersion,
-    } = this.record
-    const protocolVersion = this.mqttVersionDict[mqttVersion]
-    const options: IClientOptions  = {
-      clientId,
-      keepalive,
-      clean,
-      connectTimeout,
-      reconnectPeriod,
-      protocolVersion,
-    }
-    if (username !== '') {
-      options.username = username
-    }
-    if (password !== '') {
-      options.password = password
-    }
-    if (protocolVersion === 5) {
-      const { sessionExpiryInterval, receiveMaximum } = this.record
-      const properties = this.setMQTT5Properties({
-        sessionExpiryInterval,
-        receiveMaximum,
-      })
-      if (properties && Object.keys(properties).length > 0) {
-        options.properties =  properties
-      }
-    }
-    if (ssl && certType === 'self') {
-      const filePath: SSLPath = {
-        ca: this.record.ca,
-        cert: this.record.cert,
-        key: this.record.key,
-      }
-      const sslRes: SSLContent | undefined = getSSLFile(filePath)
-      if (sslRes) {
-        options.rejectUnauthorized = false
-        options.ca = sslRes.ca
-        options.cert = sslRes.cert
-        options.key = sslRes.key
-      }
-    }
+    const options: IClientOptions = getClientOptions(this.record)
     return mqtt.connect(this.connectUrl, options)
   }
   private cancel() {
@@ -474,11 +424,15 @@ export default class ConnectionsContent extends Vue {
     }, 500)
     this.$emit('reload')
   }
-  private onError() {
+  private onError(error: string) {
+    let msgTitle = this.$t('connections.connectFailed') as string
+    if (error) {
+      msgTitle = error
+    }
     this.client.end()
     this.connectLoading = false
     this.$notify({
-      title: this.$t('connections.connectFailed') as string,
+      title: msgTitle,
       message: '',
       type: 'error',
       duration: 3000,
@@ -508,6 +462,9 @@ export default class ConnectionsContent extends Vue {
         offset: 20,
       })
     }
+  }
+  private onClose() {
+    this.connectLoading = false
   }
   private messageArrived(id: string) {
     return (
@@ -552,8 +509,12 @@ export default class ConnectionsContent extends Vue {
     const {
       topic, qos, payload, retain,
     } = message
-    const notSend = retain ? !topic : !topic || !payload
-    if (notSend) {
+    if (!topic) {
+      this.$message.warning(this.$t('connections.topicReuired') as string)
+      return false
+    }
+    if (!payload && !retain) {
+      this.$message.warning(this.$t('connections.payloadReuired') as string)
       return false
     }
     this.client.publish(
@@ -589,6 +550,14 @@ export default class ConnectionsContent extends Vue {
   private created(): void {
     const { id } = this.$route.params
     this.getConnectionValue(id)
+    this.getMessages(id)
+    ipcRenderer.on('searchByTopic', () => {
+      this.handleSearchOpen()
+    })
+  }
+
+  private beforeDestroy() {
+    ipcRenderer.removeAllListeners('searchByTopic')
   }
 }
 </script>
@@ -605,6 +574,7 @@ export default class ConnectionsContent extends Vue {
       background-color: var(--color-bg-normal);
       .topbar {
         border-bottom: 0px;
+        -webkit-app-region: drag;
       }
       .connection-head {
         .offline {

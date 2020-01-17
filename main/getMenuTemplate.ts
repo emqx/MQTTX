@@ -68,6 +68,21 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
               },
             ]
           : [{ role: 'delete' }, { type: 'separator' }, { role: 'selectAll' }]),
+        { type: 'separator' },
+        {
+          label: 'Send payload',
+          accelerator: 'CmdOrCtrl + Enter',
+          click: () => {
+            win.webContents.send('sendPayload')
+          },
+        },
+        {
+          label: 'Search by Topic',
+          accelerator: 'CmdOrCtrl + F',
+          click: () => {
+            win.webContents.send('searchByTopic')
+          },
+        },
       ],
     },
     {

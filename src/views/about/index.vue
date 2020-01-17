@@ -4,7 +4,7 @@
     <div class="about-content">
       <img class="logo" :src="logo" alt="mqttx">
 
-      <p class="version">v1.2.1</p>
+      <p class="version">v1.2.2</p>
 
       <p class="about-help">
         <a class="web-link" href="javascript:;" @click="checkUpdate">{{ $t('about.update') }}</a>
@@ -30,7 +30,7 @@
             target="_blank"
             rel="noopener noreferrer">{{ $t('about.emqxLocal.emqx') }}</a>
         </i18n>
-        <a href="https://github.com/emqx/emqx"
+        <a v-if="getterLang !== 'zh'" href="https://github.com/emqx/emqx"
           target="_blank"
           rel="noopener noreferrer">EMQ X</a> {{ $t('about.emqxDesc') }}
       </div>
@@ -149,6 +149,8 @@ export default class About extends Vue {
 
   .logo {
     margin-bottom: 5px;
+    width: 320px;
+    height: 110px;
   }
 
   .version {

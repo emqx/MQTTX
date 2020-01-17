@@ -62,7 +62,6 @@ export default class Home extends Vue {
     right: 0;
     z-index: 3;
     background: var(--color-bg-normal);
-    -webkit-app-region: drag;
   }
   .rightbar {
     margin-left: 81px;
