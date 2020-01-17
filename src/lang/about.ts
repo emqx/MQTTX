@@ -31,7 +31,7 @@ export default {
   emqxLocal: {
     zh: {
       emqx: 'EMQ X',
-      local: '如需本地运行 MQTT Broker 推荐使用 {0} —— ',
+      local: '如需本地运行 MQTT Broker 推荐使用 {0}：',
     },
     en: {
       emqx: 'EMQ X',
