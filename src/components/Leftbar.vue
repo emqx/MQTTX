@@ -3,7 +3,7 @@
     <section class="leftbar-top">
       <div class="app-logo leftbar-item">
         <a
-          href="https://emqx.io"
+          href="https://mqttx.app"
           target="_blank"
           rel="noopener noreferrer">
           <img src="../assets/images/app-logo.png" alt="app-logo">
