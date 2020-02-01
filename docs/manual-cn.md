@@ -22,7 +22,7 @@
 - 跨平台，支持 Windows，macOS，Linux
 - 支持 MQTT v3.1.1 以及 MQTT v5.0
 - 支持 CA、自签名证书，以及单、双向 SSL 认证
-- 多主题 Light、Dark、Purple 三种主题模式切换
+- 多主题 Light、Dark、Night（Purple）三种主题模式切换
 - 支持简体中文以及英文
 - 支持 WebSocket 连接至 MQTT 服务器
 - 订阅 Topic 时可自定义颜色标记
