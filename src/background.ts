@@ -8,8 +8,8 @@ import {
   installVueDevtools,
 } from 'vue-cli-plugin-electron-builder/lib'
 import db from './database/index'
-import updateChecker from '../main/updateChecker'
-import getMenuTemplate from '../main/getMenuTemplate'
+import updateChecker from './main/updateChecker'
+import getMenuTemplate from './main/getMenuTemplate'
 
 interface WindowSizeModel {
   width: number,
