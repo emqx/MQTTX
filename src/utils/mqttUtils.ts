@@ -30,7 +30,7 @@ export const getClientOptions = (
   }
   const {
     clientId, username, password, keepalive, clean, connectTimeout,
-    ssl, certType, mqttVersion, reconnect,
+    ssl, certType, mqttVersion, reconnect, will,
   } = record
   // reconnectPeriod = 0 disabled automatic reconnection in the client
   const reconnectPeriod = reconnect ? 4000 : 0
@@ -43,12 +43,14 @@ export const getClientOptions = (
     protocolVersion,
   }
   options.connectTimeout = time.convertSecondsToMs(connectTimeout)
+  // Auth
   if (username !== '') {
     options.username = username
   }
   if (password !== '') {
     options.password = password
   }
+  // MQTT Version
   if (protocolVersion === 5) {
     const { sessionExpiryInterval, receiveMaximum } = record
     const properties = setMQTT5Properties({
@@ -59,6 +61,7 @@ export const getClientOptions = (
       options.properties =  properties
     }
   }
+  // SSL
   if (ssl && certType === 'self') {
     const filePath: SSLPath = {
       ca: record.ca,
@@ -71,6 +74,18 @@ export const getClientOptions = (
       options.ca = sslRes.ca
       options.cert = sslRes.cert
       options.key = sslRes.key
+    }
+  }
+  // Will Message
+  if (will) {
+    const {
+      lastWillTopic: topic,
+      lastWillPayload: payload,
+      lastWillQos: qos,
+      lastWillRetain: retain,
+    } = will
+    if (topic) {
+      options.will = { topic, payload, qos, retain }
     }
   }
   return options
