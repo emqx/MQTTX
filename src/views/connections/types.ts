@@ -1,10 +1,12 @@
 import { MqttClient } from 'mqtt'
 
+type QoS = 0 | 1 | 2
+
 export interface MessageModel {
   createAt: string,
   out: boolean,
   payload: string,
-  qos: number,
+  qos: QoS,
   retain: boolean,
   topic: string,
 }
@@ -39,6 +41,12 @@ export interface ConnectionModel extends SSLPath  {
   },
   sessionExpiryInterval?: number,
   receiveMaximum?: number,
+  will?: {
+    lastWillTopic: string,
+    lastWillPayload: string,
+    lastWillQos: QoS,
+    lastWillRetain: boolean,
+  },
 }
 
 export interface SSLContent {

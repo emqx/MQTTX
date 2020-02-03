@@ -207,6 +207,57 @@
             </template>
           </el-row>
         </el-card>
+
+        <!-- Last-Will Message -->
+        <div class="info-header">
+          <h3>Last-Will Message <i class="el-icon-caret-top"></i></h3>
+        </div>
+        <el-card
+          shadow="never"
+          class="info-body item-card">
+          <el-row :gutter="10">
+            <el-col :span="22">
+              <el-form-item
+                label="Last-Will Topic"
+                prop="will.lastWillTopic">
+                <el-input size="mini" v-model="record.will.lastWillTopic"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="2"></el-col>
+            <el-col :span="22">
+              <el-form-item
+                label="Last-Will QoS"
+                prop="will.lastWillQos">
+                <el-radio-group v-model="record.will.lastWillQos">
+                  <el-radio :label="0"></el-radio>
+                  <el-radio :label="1"></el-radio>
+                  <el-radio :label="2"></el-radio>
+                </el-radio-group>
+              </el-form-item>
+            </el-col>
+            <el-col :span="2"></el-col>
+            <el-col :span="22">
+              <el-form-item
+                label="Last-Will Retain"
+                prop="will.lastWillRetain">
+                <el-radio-group v-model="record.will.lastWillRetain">
+                  <el-radio :label="true"></el-radio>
+                  <el-radio :label="false"></el-radio>
+                </el-radio-group>
+              </el-form-item>
+            </el-col>
+            <el-col :span="2"></el-col>
+            <el-col :span="22">
+              <el-form-item
+                label="Last-Will Payload"
+                prop="will.lastWillPayload">
+                <el-input size="mini" type="textarea" rows="3" v-model="record.will.lastWillPayload">
+                </el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="2"></el-col>
+          </el-row>
+        </el-card>
       </div>
     </el-form>
   </div>
@@ -254,6 +305,12 @@ export default class ConnectionCreate extends Vue {
     client: {
       connected: false,
     },
+    will: {
+      lastWillTopic: '',
+      lastWillPayload: '',
+      lastWillQos: 0,
+      lastWillRetain: false,
+    },
   }
 
   get rules() {
@@ -274,7 +331,7 @@ export default class ConnectionCreate extends Vue {
   private async loadDetail(id: string) {
     const res: ConnectionModel | null = await loadConnection(id)
     if (res) {
-      this.record = res
+      Object.assign(this.record, res)
     }
   }
 
@@ -311,7 +368,7 @@ export default class ConnectionCreate extends Vue {
     this.record.clientId = getClientId()
   }
 
-  private getFilePath(key: 'ca' | 'cert' | 'key'): void {
+  private getFilePath(key: 'ca' | 'cert' | 'key') {
     remote.dialog.showOpenDialog({
       properties: [
         'openFile',
@@ -326,13 +383,13 @@ export default class ConnectionCreate extends Vue {
     })
   }
 
-  private handleSSL(val: boolean): void {
+  private handleSSL(val: boolean) {
     if (!val) {
       this.record.certType = ''
     }
   }
 
-  private handleBack(id: string): void {
+  private handleBack(id: string) {
     if (this.oper === 'create' && id === '0') {
       this.$router.push('/recent_connections')
     } else {
@@ -355,6 +412,7 @@ export default class ConnectionCreate extends Vue {
   padding: 0 16px;
   .el-form {
     padding-top: 80px;
+    padding-bottom: 40px;
     .icon-oper {
       color: var(--color-text-default);
       line-height: 43px;
