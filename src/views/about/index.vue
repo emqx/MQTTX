@@ -65,7 +65,7 @@
           <i class="iconfont icon-ttww"></i>
         </a>
         <a target="_blank" rel="noopener noreferrer"
-          class="follow-link" href="https://emqx.slack.com/">
+          class="follow-link" href="https://slack-invite.emqx.io/">
           <i class="iconfont icon-slack"></i>
         </a>
         <a target="_blank" rel="noopener noreferrer"
