@@ -4,7 +4,7 @@ import { MqttClient } from 'mqtt'
 import { MessageModel } from '@/views/connections/types'
 
 declare global {
-  type Theme = 'light' | 'dark' | 'purple'
+  type Theme = 'light' | 'dark' | 'night'
 
   type Language = 'en' | 'zh'
 

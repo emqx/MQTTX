@@ -44,6 +44,10 @@ class DB {
         })
         .write()
     }
+    // Purple to Night
+    if (this.db.get('settings.currentTheme').value() === 'purple') {
+      this.db.set('settings.currentTheme', 'night').write()
+    }
     if (this.db.has('brokers').value()) {
       this.db
         .unset('brokers')

@@ -138,6 +138,12 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
         },
         { type: 'separator' },
         {
+          label: 'MQTT X Website',
+          click: async () => {
+            await shell.openExternal('https://mqttx.app')
+          },
+        },
+        {
           label: 'EMQ X Website',
           click: async () => {
             await shell.openExternal('https://emqx.io')
