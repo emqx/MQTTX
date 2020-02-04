@@ -431,6 +431,9 @@ export default class ConnectionCreate extends Vue {
 
 .connection-form {
   padding: 0 16px;
+  .topbar {
+    -webkit-app-region: drag;
+  }
   .el-form {
     padding-top: 80px;
     padding-bottom: 40px;
