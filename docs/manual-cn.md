@@ -113,6 +113,12 @@ Linux 用户请下载最新版本的 `AppImage` 文件或使用 `snap` 文件进
 
 ![mqttx-v5](../assets/mqttx-v5.png)
 
+6. 遗嘱消息
+
+    在高级配置下方的配置卡片中，可以配置遗嘱消息，`Last-Will-QoS` 和 `Last-Will-Retain` 的值默认填充为 0 和 `False`，当您输入 `Last-Will-Topic` 和 `Last-Will-Payload` 的值后，就可以完成对遗嘱消息的配置。
+
+![mqttx-willmessage](../assets/mqttx-willmessage.png)
+
 配置完成后，点击右上角的 `Connect` 按钮就可以快速创建一个连接并连接至 MQTT Broker。
 
 ### 消息的发布订阅
