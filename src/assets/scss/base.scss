@@ -68,9 +68,10 @@ img {
   }
   .info-header {
     @include flex-space-between;
+    margin: 0 0 10px 0;
   }
   .item-card {
-    margin: 10px 0 30px 0;
+    margin: 0 0 30px 0;
     position: relative;
     .el-card__body {
       padding: 10px 20px;
