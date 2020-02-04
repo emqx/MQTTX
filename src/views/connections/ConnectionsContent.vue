@@ -585,14 +585,8 @@ export default class ConnectionsContent extends Vue {
           float: right;
           margin-left: 12px;
           margin-top: -1px;
-          transition: all .3s;
-          &.top {
-            transform: rotate(90deg);
-          }
-          &.bottom {
-            transform: rotate(-90deg);
-          }
         }
+        @include collapse-btn-transform(90deg, -90deg);
       }
       .connection-tail {
         .edit-btn {

@@ -115,11 +115,11 @@ export default class Settings extends Vue {
     ipcRenderer.send('setting', type, value)
   }
 
-  private handleSwitchChange(value: boolean): void {
+  private handleSwitchChange(value: boolean) {
     this.actionAutoCheck({ autoCheck: value })
   }
 
-  private created(): void {
+  private created() {
     this.autoCheck = this.getterAutoCheck
     this.currentTheme = this.getterTheme
     this.currentLang = this.getterLang
