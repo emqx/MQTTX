@@ -1,7 +1,6 @@
 module.exports = {
   pluginOptions: {
     electronBuilder: {
-      removeElectronJunk: true,
       builderOptions: {
         win: {
           icon: './public/app.ico'

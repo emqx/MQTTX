@@ -165,6 +165,6 @@ export default {
   },
   willMessage: {
     zh: '遗嘱消息',
-    en: 'Last-Will Message',
+    en: 'Last Will and Testament',
   },
 }
