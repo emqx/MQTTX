@@ -39,7 +39,7 @@
                 <el-dropdown-item command="disconnect">
                   <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
                 </el-dropdown-item>
-                <el-dropdown-item command="deleteConnect">
+                <el-dropdown-item class="delete-item" command="deleteConnect">
                   <i class="iconfont icon-delete"></i>{{ $t('connections.deleteConnect') }}
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -585,14 +585,8 @@ export default class ConnectionsContent extends Vue {
           float: right;
           margin-left: 12px;
           margin-top: -1px;
-          transition: all .3s;
-          &.top {
-            transform: rotate(90deg);
-          }
-          &.bottom {
-            transform: rotate(-90deg);
-          }
         }
+        @include collapse-btn-transform(90deg, -90deg);
       }
       .connection-tail {
         .edit-btn {
@@ -693,6 +687,13 @@ export default class ConnectionsContent extends Vue {
       left: 0;
       right: 0;
     }
+  }
+}
+.el-popper li.delete-item {
+  color: var(--color-second-red);
+  &:hover {
+    color: var(--color-second-red);
+    background: var(--color-third-red);
   }
 }
 </style>

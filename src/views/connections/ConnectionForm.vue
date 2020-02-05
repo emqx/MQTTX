@@ -139,74 +139,141 @@
         </transition-group>
 
         <div class="info-header">
-          <h3>{{ $t('settings.advanced') }} <i class="el-icon-caret-top"></i></h3>
+          <h3>{{ $t('settings.advanced') }}
+            <a :class="['collapse-btn', advancedVisible ? 'top': 'bottom']"
+              href="javascript:;" @click="advancedVisible = !advancedVisible">
+              <i class="el-icon-caret-top"></i>
+            </a>
+          </h3>
         </div>
-        <el-card
-          shadow="never"
-          class="info-body item-card">
-          <el-row :gutter="10">
-            <el-col :span="22">
-              <el-form-item
-                :label="`${$t('connections.connectionTimeout')} (${$t('common.unitS')})`"
-                prop="connectTimeout">
-                <el-input size="mini" type="number" v-model.number="record.connectTimeout"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="2"></el-col>
-            <el-col :span="22">
-              <el-form-item :label="`Keep Alive (${$t('common.unitS')})`" prop="keepalive">
-                <el-input size="mini" type="number" v-model.number="record.keepalive"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="2">
-            </el-col>
-            <el-col :span="22">
-              <el-form-item :label="$t('connections.cleanSession')" prop="clean">
-                <el-radio-group v-model="record.clean">
-                  <el-radio :label="true"></el-radio>
-                  <el-radio :label="false"></el-radio>
-                </el-radio-group>
-              </el-form-item>
-            </el-col>
-            <el-col :span="2"></el-col>
-            <el-col :span="22">
-              <el-form-item :label="$t('connections.autoReconnect')" prop="reconnect">
-                <el-radio-group v-model="record.reconnect">
-                  <el-radio :label="true"></el-radio>
-                  <el-radio :label="false"></el-radio>
-                </el-radio-group>
-              </el-form-item>
-            </el-col>
-            <el-col :span="2"></el-col>
-            <el-col :span="22">
-              <el-form-item :label="$t('connections.mqttVersion')" prop="mqttVersion">
-                <el-select size="mini" v-model="record.mqttVersion">
-                  <el-option value="3.1.1" label="3.1.1"></el-option>
-                  <el-option value="5.0" label="5.0"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="2"></el-col>
+        <el-collapse-transition>
+          <el-card
+            v-show="advancedVisible"
+            shadow="never"
+            class="info-body item-card">
+            <el-row :gutter="10">
+              <el-col :span="22">
+                <el-form-item
+                  :label="`${$t('connections.connectionTimeout')} (${$t('common.unitS')})`"
+                  prop="connectTimeout">
+                  <el-input size="mini" type="number" v-model.number="record.connectTimeout"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2"></el-col>
+              <el-col :span="22">
+                <el-form-item :label="`Keep Alive (${$t('common.unitS')})`" prop="keepalive">
+                  <el-input size="mini" type="number" v-model.number="record.keepalive"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2">
+              </el-col>
+              <el-col :span="22">
+                <el-form-item :label="$t('connections.cleanSession')" prop="clean">
+                  <el-radio-group v-model="record.clean">
+                    <el-radio :label="true"></el-radio>
+                    <el-radio :label="false"></el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2"></el-col>
+              <el-col :span="22">
+                <el-form-item :label="$t('connections.autoReconnect')" prop="reconnect">
+                  <el-radio-group v-model="record.reconnect">
+                    <el-radio :label="true"></el-radio>
+                    <el-radio :label="false"></el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2"></el-col>
+              <el-col :span="22">
+                <el-form-item :label="$t('connections.mqttVersion')" prop="mqttVersion">
+                  <el-select size="mini" v-model="record.mqttVersion">
+                    <el-option value="3.1.1" label="3.1.1"></el-option>
+                    <el-option value="5.0" label="5.0"></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2"></el-col>
 
-            <!-- MQTT v5.0 -->
-            <template v-if="record.mqttVersion === '5.0'">
+              <!-- MQTT v5.0 -->
+              <template v-if="record.mqttVersion === '5.0'">
+                <el-col :span="22">
+                  <el-form-item :label="$t('connections.sessionExpiryInterval')" prop="sessionExpiryInterval">
+                    <el-input size="mini" type="number" v-model.number="record.sessionExpiryInterval">
+                    </el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
+                <el-col :span="22">
+                  <el-form-item :label="$t('connections.receiveMaximum')" prop="receiveMaximum">
+                    <el-input size="mini" type="number" v-model.number="record.receiveMaximum">
+                    </el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
+              </template>
+            </el-row>
+          </el-card>
+        </el-collapse-transition>
+
+        <!-- Last-Will Message -->
+        <div class="info-header">
+          <h3>{{ $t('connections.willMessage') }}
+            <a :class="['collapse-btn', willMessageVisible ? 'top': 'bottom']"
+              href="javascript:;" @click="willMessageVisible = !willMessageVisible">
+              <i class="el-icon-caret-top"></i>
+            </a>
+          </h3>
+        </div>
+        <el-collapse-transition>
+          <el-card
+            v-show="willMessageVisible"
+            shadow="never"
+            class="info-body item-card">
+            <el-row :gutter="10">
               <el-col :span="22">
-                <el-form-item :label="$t('connections.sessionExpiryInterval')" prop="sessionExpiryInterval">
-                  <el-input size="mini" type="number" v-model.number="record.sessionExpiryInterval">
-                  </el-input>
+                <el-form-item
+                  label="Last-Will Topic"
+                  prop="will.lastWillTopic">
+                  <el-input size="mini" v-model="record.will.lastWillTopic"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="2"></el-col>
               <el-col :span="22">
-                <el-form-item :label="$t('connections.receiveMaximum')" prop="receiveMaximum">
-                  <el-input size="mini" type="number" v-model.number="record.receiveMaximum">
+                <el-form-item
+                  label="Last-Will QoS"
+                  prop="will.lastWillQos">
+                  <el-radio-group v-model="record.will.lastWillQos">
+                    <el-radio :label="0"></el-radio>
+                    <el-radio :label="1"></el-radio>
+                    <el-radio :label="2"></el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2"></el-col>
+              <el-col :span="22">
+                <el-form-item
+                  label="Last-Will Retain"
+                  prop="will.lastWillRetain">
+                  <el-radio-group v-model="record.will.lastWillRetain">
+                    <el-radio :label="true"></el-radio>
+                    <el-radio :label="false"></el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2"></el-col>
+              <el-col :span="22">
+                <el-form-item
+                  label="Last-Will Payload"
+                  prop="will.lastWillPayload">
+                  <el-input size="mini" type="textarea" rows="3" v-model="record.will.lastWillPayload">
                   </el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="2"></el-col>
-            </template>
-          </el-row>
-        </el-card>
+            </el-row>
+          </el-card>
+        </el-collapse-transition>
       </div>
     </el-form>
   </div>
@@ -229,6 +296,9 @@ export default class ConnectionCreate extends Vue {
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (
     payload: Client,
   ) => void
+
+  private willMessageVisible = true
+  private advancedVisible = true
 
   private record: ConnectionModel = {
     clientId: getClientId(),
@@ -254,6 +324,12 @@ export default class ConnectionCreate extends Vue {
     client: {
       connected: false,
     },
+    will: {
+      lastWillTopic: '',
+      lastWillPayload: '',
+      lastWillQos: 0,
+      lastWillRetain: false,
+    },
   }
 
   get rules() {
@@ -274,7 +350,7 @@ export default class ConnectionCreate extends Vue {
   private async loadDetail(id: string) {
     const res: ConnectionModel | null = await loadConnection(id)
     if (res) {
-      this.record = res
+      Object.assign(this.record, res)
     }
   }
 
@@ -311,7 +387,7 @@ export default class ConnectionCreate extends Vue {
     this.record.clientId = getClientId()
   }
 
-  private getFilePath(key: 'ca' | 'cert' | 'key'): void {
+  private getFilePath(key: 'ca' | 'cert' | 'key') {
     remote.dialog.showOpenDialog({
       properties: [
         'openFile',
@@ -326,13 +402,13 @@ export default class ConnectionCreate extends Vue {
     })
   }
 
-  private handleSSL(val: boolean): void {
+  private handleSSL(val: boolean) {
     if (!val) {
       this.record.certType = ''
     }
   }
 
-  private handleBack(id: string): void {
+  private handleBack(id: string) {
     if (this.oper === 'create' && id === '0') {
       this.$router.push('/recent_connections')
     } else {
@@ -351,10 +427,16 @@ export default class ConnectionCreate extends Vue {
 
 
 <style lang="scss">
+@import "~@/assets/scss/mixins.scss";
+
 .connection-form {
   padding: 0 16px;
+  .topbar {
+    -webkit-app-region: drag;
+  }
   .el-form {
     padding-top: 80px;
+    padding-bottom: 40px;
     .icon-oper {
       color: var(--color-text-default);
       line-height: 43px;
@@ -366,6 +448,15 @@ export default class ConnectionCreate extends Vue {
     .el-form-item__error {
       top: 80%;
     }
+  }
+  .info-header {
+    a.collapse-btn {
+      color: var(--color-text-light);
+      font-size: 1rem;
+      position: relative;
+      top: 1px;
+    }
+    @include collapse-btn-transform(0deg, 180deg);
   }
 }
 </style>

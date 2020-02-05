@@ -1,7 +1,7 @@
 {
   "name": "MQTTX",
   "author": "EMQ X Team",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "license": "Apache",
   "description": "MQTT desktop client",
   "repository": "https://github.com/emqx/MQTTX",
@@ -19,7 +19,6 @@
   "main": "background.js",
   "dependencies": {
     "axios": "^0.19.0",
-    "chai-as-promised": "^7.1.1",
     "core-js": "^2.6.5",
     "element-ui": "^2.13.0",
     "fs-extra": "^8.1.0",

@@ -113,6 +113,12 @@ After entering the creation page, it is required to configure or fill in the rel
 
 ![mqttx-v5](../assets/mqttx-v5.png)
 
+6. Will Message
+
+    Below the advanced configuration, you can configure the Will Message. The values of `Last-Will-QoS` and `Last-Will-Retain` are filled with 0 and `False` by default. When you enter the values of `Last-Will-Topic` and `Last-Will-Payload`, you can complete the configuration of Will Message.
+
+![mqttx-willmessage](../assets/mqttx-willmessage.png)
+
 After the configuration is complete, click the `Connect` button in the upper right corner to quickly create a connection and connect to MQTT Broker.
 
 ### Publish and subscription of message

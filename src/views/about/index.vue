@@ -4,7 +4,7 @@
     <div class="about-content">
       <img class="logo" :src="logo" alt="mqttx">
 
-      <p class="version">v1.2.2</p>
+      <p class="version">v1.2.3</p>
 
       <p class="about-help">
         <a class="web-link" href="javascript:;" @click="checkUpdate">{{ $t('about.update') }}</a>
@@ -65,7 +65,7 @@
           <i class="iconfont icon-ttww"></i>
         </a>
         <a target="_blank" rel="noopener noreferrer"
-          class="follow-link" href="https://emqx.slack.com/">
+          class="follow-link" href="https://slack-invite.emqx.io/">
           <i class="iconfont icon-slack"></i>
         </a>
         <a target="_blank" rel="noopener noreferrer"
