@@ -218,7 +218,7 @@
 
         <!-- Last-Will Message -->
         <div class="info-header">
-          <h3>Last-Will Message
+          <h3>{{ $t('connections.willMessage') }}
             <a :class="['collapse-btn', willMessageVisible ? 'top': 'bottom']"
               href="javascript:;" @click="willMessageVisible = !willMessageVisible">
               <i class="el-icon-caret-top"></i>

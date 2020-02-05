@@ -163,4 +163,8 @@ export default {
     zh: '标记',
     en: 'Color',
   },
+  willMessage: {
+    zh: '遗嘱消息',
+    en: 'Last-Will Message',
+  },
 }
