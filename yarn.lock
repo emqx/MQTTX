@@ -2506,13 +2506,6 @@ caseless@~0.12.0:
   resolved "https://registry.npm.taobao.org/caseless/download/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
   integrity sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
 
-chai-as-promised@^7.1.1:
-  version "7.1.1"
-  resolved "https://registry.npm.taobao.org/chai-as-promised/download/chai-as-promised-7.1.1.tgz#08645d825deb8696ee61725dbf590c012eb00ca0"
-  integrity sha1-CGRdgl3rhpbuYXJdv1kMAS6wDKA=
-  dependencies:
-    check-error "^1.0.2"
-
 chai@^4.1.2:
   version "4.2.0"
   resolved "https://registry.npm.taobao.org/chai/download/chai-4.2.0.tgz#760aa72cf20e3795e84b12877ce0e83737aa29e5"
