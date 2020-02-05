@@ -5,6 +5,19 @@ import fs from 'fs-extra'
 import LodashID from 'lodash-id'
 import { app, remote } from 'electron'
 
+interface Schema {
+  windowSize: {
+    height: number,
+    width: number,
+  },
+  settings: {
+    autoCheck: boolean,
+    currentLang: string,
+    currentTheme: string,
+  },
+  connections: [],
+}
+
 const isRenderer: boolean = process.type === 'renderer'
 // Render process use remote app
 const APP: Electron.App = isRenderer ? remote.app : app
@@ -21,9 +34,11 @@ if (!isRenderer) {
 }
 
 class DB {
-  private db: Lowdb.LowdbSync<any>
+  private db: Lowdb.LowdbSync<Schema>
   public constructor() {
-    const adapter: Lowdb.AdapterSync<any> = new FileSync(path.join(STORE_PATH, '/db.json'))
+    const adapter: Lowdb.AdapterSync<Schema> = new FileSync<Schema>(
+      path.join(STORE_PATH, '/db.json'),
+    )
     this.db = Lowdb(adapter)
     // Use lodash-id must use insert methods
     this.db._.mixin(LodashID)
