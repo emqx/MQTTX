@@ -121,11 +121,11 @@ export default class Connections extends Vue {
     }
   }
 
-  private toCreateConnection(): void {
+  private toCreateConnection() {
     this.$router.push({ path: '/recent_connections/0?oper=create' })
   }
 
-  private handleConnect(): void {
+  private handleConnect() {
     this.loadData()
     setTimeout(() => {
       const connection: ConnectionsContent = this.$refs.connectionContent as ConnectionsContent
@@ -133,7 +133,7 @@ export default class Connections extends Vue {
     }, 500)
   }
 
-  private created(): void {
+  private created() {
     this.loadData()
   }
 }
