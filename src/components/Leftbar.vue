@@ -3,7 +3,7 @@
     <section class="leftbar-top">
       <div class="app-logo leftbar-item">
         <a
-          href="https://mqttx.app"
+          :href="siteLink"
           target="_blank"
           rel="noopener noreferrer">
           <img src="../assets/images/app-logo.png" alt="app-logo">
@@ -39,9 +39,15 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 
 @Component
 export default class Leftbar extends Vue {
+  @Getter('currentLang') private getterLang!: Language
+
+  get siteLink(): string {
+    return this.getterLang === 'zh' ? 'https://mqttx.app/cn' : 'https://mqttx.app'
+  }
   get isConnection(): boolean {
     return 'recent_connections' === this.$route.path.split('/')[1]
   }
