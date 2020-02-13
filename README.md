@@ -14,7 +14,7 @@ English | [简体中文](./README-CN.md)
 
 **MQTT X** is a cross-platform MQTT desktop client open sourced by [EMQ](https://emqx.io), which supports macOS, Linux, and Windows.
 
-**MQTT X** adopts the form of chat interface, which simplifies the page operation, allow multiple clients information to be saved, facilitates the user to quickly test the MQTT/MQTTS connection,  publish and subscribe to MQTT messages.
+**MQTT X** simplifies the operation logic of the page with the help of chatting software. The user can quickly create a connection to save and establish multiple connection clients at the same time. It is convenient for the user to quickly test the connection of MQTT/TCP、MQTT/TLS, Publish / Subscribe functions and other features .
 
 ## Preview
 
