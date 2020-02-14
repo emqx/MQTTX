@@ -13,9 +13,11 @@
 
 ---
 
-**MQTT X** 是 [EMQ](http://emqx.io/cn) 开源的一款跨平台 MQTT 桌面客户端，它支持 macOS, Linux, Windows。
+**MQTT X** 是 [EMQ](http://emqx.io/cn) 开源的一款跨平台 MQTT 5.0 桌面客户端，它支持 macOS, Linux, Windows。
 
-**MQTT X** 采用了聊天界面形式，简化了页面操作逻辑，允许保存多个客户端，方便用户快速测试 MQTT/MQTTS 连接，及 MQTT 消息的发布与订阅。
+**MQTT X** 的用户界面借助聊天软件的形式简化了页面的操作逻辑，用户可以快速创建连接保存并同时建立多个连接客户端，方便用户快速测试 MQTT/TCP、MQTT/TLS 的连接、发布/订阅功能及其他特性。
+
+> [MQTT](http://mqtt.org/faq) 全称为 Message Queuing Telemetry Transport（消息队列遥测传输）是一种基于 发布/订阅 范式的“轻量级”消息协议，旨在用于受限设备和低带宽，高延迟或不可靠的网络，由 IBM 发布。
 
 ## 功能预览
 
@@ -25,9 +27,11 @@
 
 请从 [GitHub Releases](https://github.com/emqx/MQTTX/releases) 下载符合您的版本并安装使用。
 
-国内用户也可以从 [这里](https://www.emqx.io/downloads/MQTTX/)下载。
+国内用户也可以从 [这里](https://www.emqx.io/downloads/MQTTX/) 下载。
 
 ## 使用
+
+详细使用，请查看我们的 [博客](https://www.emqx.io/blog/mqtt-x-guideline) 或 [使用手册](./docs/manual.md)
 
 1. MQTT Broker 准备。
 
