@@ -12,9 +12,11 @@ English | [简体中文](./README-CN.md)
 
 ---
 
-**MQTT X** is a cross-platform MQTT desktop client open sourced by [EMQ](https://emqx.io), which supports macOS, Linux, and Windows.
+**MQTT X** is a cross-platform MQTT 5.0 desktop client open sourced by [EMQ](https://emqx.io), which supports macOS, Linux, and Windows.
 
 **MQTT X** simplifies the operation logic of the page with the help of chatting software. The user can quickly create a connection to save and establish multiple connection clients at the same time. It is convenient for the user to quickly test the connection of MQTT/TCP、MQTT/TLS, Publish / Subscribe functions and other features .
+
+> [MQTT](http://mqtt.org/faq) stands for MQ Telemetry Transport. It is a publish/subscribe, extremely simple and lightweight messaging protocol, designed for constrained devices and low-bandwidth, high-latency or unreliable networks.
 
 ## Preview
 
@@ -27,6 +29,8 @@ Download from [GitHub Releases](https://github.com/emqx/MQTTX/releases) and inst
 Alternative, you can download [here](https://www.emqx.io/downloads/MQTTX/).
 
 ## Usage
+
+See our [blog](https://www.emqx.io/blog/mqtt-x-guideline) or [manual](./docs/manual.md) for details.
 
 1. MQTT Broker preparation.
 
