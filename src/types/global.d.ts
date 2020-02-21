@@ -8,6 +8,8 @@ declare global {
 
   type Language = 'en' | 'zh'
 
+  type Protocol = 'ws' | 'wss' | 'mqtt' | 'mqtts'
+
   type VueForm = Vue & {
     validate: (validate: (valid: boolean) => void) => void,
     clearValidate: () => void,

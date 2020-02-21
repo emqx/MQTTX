@@ -47,8 +47,19 @@
               </a>
             </el-col>
             <el-col :span="22">
-              <el-form-item label-width="93px" :label="$t('connections.brokerIP')" prop="host">
-                <el-input size="mini" v-model="record.host"></el-input>
+              <el-form-item class="host-item" label-width="93px" :label="$t('connections.brokerIP')" prop="host">
+                <el-col :span="6">
+                  <el-select size="mini" v-model="record.protocol">
+                    <el-option label="mqtt://" value="mqtt" :disabled="record.ssl"></el-option>
+                    <el-option label="mqtts://" value="mqtts"></el-option>
+                    <el-option label="ws://" value="ws" :disabled="record.ssl"></el-option>
+                    <el-option label="wss://" value="wss"></el-option>
+                  </el-select>
+                </el-col>
+                <el-col :span="18">
+                  <el-input size="mini" v-model="record.host">
+                  </el-input>
+                </el-col>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
@@ -57,6 +68,16 @@
                 <el-input size="mini" type="number" v-model.number="record.port"></el-input>
               </el-form-item>
             </el-col>
+
+            <template v-if="record.protocol === 'ws' || record.protocol === 'wss'">
+              <el-col :span="22">
+                <el-form-item label-width="93px" label="Path" prop="path">
+                  <el-input size="mini" v-model="record.path"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2"></el-col>
+            </template>
+
             <el-col :span="2"></el-col>
             <el-col :span="22">
               <el-form-item label-width="93px" :label="$t('connections.username')" prop="username">
@@ -79,6 +100,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
+
             <template v-if="record.ssl">
               <el-col :span="22">
                 <el-form-item label-width="93px" :label="$t('connections.certType')" prop="certType">
@@ -90,6 +112,7 @@
               </el-col>
               <el-col :span="2"></el-col>
             </template>
+
           </el-row>
         </el-card>
 
@@ -288,6 +311,7 @@ import { loadConnection, updateConnection } from '@/utils/api/connection'
 import getClientId from '@/utils/getClientId'
 import { createConnection } from '@/utils/api/connection'
 import { ConnectionModel } from './types'
+import { getMQTTProtocol } from '@/utils/mqttUtils'
 
 @Component
 export default class ConnectionCreate extends Vue {
@@ -304,6 +328,7 @@ export default class ConnectionCreate extends Vue {
     clientId: getClientId(),
     name: '',
     clean: true,
+    protocol: 'mqtt',
     host: 'broker.emqx.io',
     keepalive: 60,
     connectTimeout: 10,
@@ -336,6 +361,7 @@ export default class ConnectionCreate extends Vue {
     return {
       name: [{ required: true, message: this.$t('common.inputRequired') }],
       clientId: [{ required: true, message: this.$t('common.inputRequired') }],
+      path: [{ required: true, message: this.$t('common.inputRequired') }],
       host: [{ required: true, message: this.$t('common.inputRequired') }],
       port: [{ required: true, message: this.$t('common.inputRequired') }],
       certType: [{ required: true, message: this.$t('common.selectRequired') }],
@@ -351,10 +377,11 @@ export default class ConnectionCreate extends Vue {
     const res: ConnectionModel | null = await loadConnection(id)
     if (res) {
       Object.assign(this.record, res)
+      this.record.protocol = getMQTTProtocol(res)
     }
   }
 
-  private save(): void {
+  private save() {
     this.vueForm.validate(async (valid: boolean) => {
       if (!valid) {
         return false
@@ -403,8 +430,23 @@ export default class ConnectionCreate extends Vue {
   }
 
   private handleSSL(val: boolean) {
+    const { protocol } = this.record
+    this.changeProtocol(protocol, val)
     if (!val) {
       this.record.certType = ''
+    }
+  }
+
+  private changeProtocol(
+    protocol: Protocol | undefined, isSSL: boolean,
+  ): void | boolean {
+    if (!protocol) {
+      return false
+    }
+    if (/ws/gi.test(protocol)) {
+      this.record.protocol = isSSL ? 'wss' : 'ws'
+    } else if (/mqtt/gi.test(protocol)) {
+      this.record.protocol = isSSL ? 'mqtts' : 'mqtt'
     }
   }
 
@@ -447,6 +489,14 @@ export default class ConnectionCreate extends Vue {
     }
     .el-form-item__error {
       top: 80%;
+    }
+    .host-item {
+      .el-col-6 {
+        padding-left: 0px !important;
+      }
+      .el-col-18 {
+        padding-right: 0px !important;
+      }
     }
   }
   .info-header {

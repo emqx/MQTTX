@@ -132,11 +132,11 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import mqtt, { MqttClient, IClientOptions } from 'mqtt'
+import { MqttClient, IClientOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
-import { getClientOptions } from '@/utils/mqttUtils'
+import { getClientOptions, getMQTTProtocol } from '@/utils/mqttUtils'
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
@@ -227,10 +227,14 @@ export default class ConnectionsContent extends Vue {
 
   get connectUrl(): string {
     const {
-      host, port, ssl,
+      host, port, ssl, path,
     } = this.record
-    const protocol = ssl ? 'mqtts://' : 'mqtt://'
-    return `${protocol}${host}:${port}`
+    const protocol = getMQTTProtocol(this.record)
+    let url = `${protocol}://${host}:${port}`
+    if (protocol === 'ws' || protocol === 'wss') {
+      url = `${url}${path.startsWith('/') ? '' : '/'}${path}`
+    }
+    return url
   }
 
   @Watch('record')
@@ -241,7 +245,7 @@ export default class ConnectionsContent extends Vue {
     this.getMessages(id)
   }
 
-  private getConnectionValue(id: string): void {
+  private getConnectionValue(id: string) {
     const $activeConnection: {
       id?: string,
       client: MqttClient,
@@ -260,12 +264,12 @@ export default class ConnectionsContent extends Vue {
     }
   }
 
-  private handleShowSubs(): void {
+  private handleShowSubs() {
     this.showSubs = !this.showSubs
     this.changeShowSubscriptions({ showSubscriptions: this.showSubs })
   }
 
-  private handleCollapse(id: string): void {
+  private handleCollapse(id: string) {
     this.showClientInfo = !this.showClientInfo
     this.changeShowClientInfo({
       id,
@@ -273,7 +277,7 @@ export default class ConnectionsContent extends Vue {
     })
   }
 
-  private handleCommand(command: CommandType): void {
+  private handleCommand(command: CommandType) {
     if (command === 'disconnect') {
       this.disconnect()
     } else if (command === 'deleteConnect') {
@@ -294,7 +298,7 @@ export default class ConnectionsContent extends Vue {
       this.messages = this.record.messages
     }
   }
-  private handleMsgClear(): void {
+  private handleMsgClear() {
     this.messages = []
     this.record.messages = []
     this.changeActiveConnection({
@@ -304,7 +308,7 @@ export default class ConnectionsContent extends Vue {
     })
     updateConnection(this.record.id as string, this.record)
   }
-  private handleMsgTypeChanged(type: MessageType): void {
+  private handleMsgTypeChanged(type: MessageType) {
     if (type === 'received') {
       this.messages = this.record.messages.filter(($: MessageModel) => !$.out)
     } else if (type === 'publish') {
@@ -322,7 +326,7 @@ export default class ConnectionsContent extends Vue {
       query: { oper: 'edit' },
     })
   }
-  private searchByTopic(): void {
+  private searchByTopic() {
     this.searchLoading = true
     setTimeout(() => {
       this.searchLoading = false
@@ -349,7 +353,7 @@ export default class ConnectionsContent extends Vue {
     this.getMessages(this.$route.params.id)
   }
 
-  private removeConnection(): void {
+  private removeConnection() {
     const confirmDelete: string = this.$t('common.confirmDelete', { name: this.record.name }) as string
     this.$confirm(confirmDelete, this.$t('common.warning') as string, {
       type: 'warning',
@@ -370,6 +374,13 @@ export default class ConnectionsContent extends Vue {
 
   private createClient(): MqttClient {
     const options: IClientOptions = getClientOptions(this.record)
+    const isWS: boolean = this.connectUrl.startsWith('ws') || this.connectUrl.startsWith('wss')
+    let mqtt = null
+    if (isWS) {
+      mqtt = require('mqtt/dist/mqtt')
+    } else {
+      mqtt = require('mqtt')
+    }
     return mqtt.connect(this.connectUrl, options)
   }
   private cancel() {
