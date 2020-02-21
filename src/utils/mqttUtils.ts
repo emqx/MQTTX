@@ -91,4 +91,13 @@ export const getClientOptions = (
   return options
 }
 
+// Prevent old data from missing protocol field
+export const getMQTTProtocol = (data: ConnectionModel): Protocol => {
+  const { protocol, ssl } = data
+  if (!protocol) {
+    return ssl ? 'mqtts' : 'mqtt'
+  }
+  return protocol
+}
+
 export default {}
