@@ -56,8 +56,13 @@ class DB {
           autoCheck: true,
           currentLang: 'en',
           currentTheme: 'light',
+          maxReconnectTimes: 10,
         })
         .write()
+    }
+    // Set max reconnection times
+    if (!this.db.get('settings.maxReconnectTimes').value()) {
+      this.db.set('settings.maxReconnectTimes', 10).write()
     }
     // Purple to Night
     if (this.db.get('settings.currentTheme').value() === 'purple') {

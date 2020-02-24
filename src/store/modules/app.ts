@@ -4,6 +4,7 @@ import { loadSettings, setSettings } from '@/utils/api/setting'
 const TOGGLE_THEME: string = 'TOGGLE_THEME'
 const TOGGLE_LANG: string = 'TOGGLE_LANG'
 const TOGGLE_AUTO_CHECK: string = 'TOGGLE_AUTO_CHECK'
+const SET_MAX_RECONNECT_TIMES = 'SET_MAX_RECONNECT_TIMES'
 const CHANGE_ACTIVE_CONNECTION: string = 'CHANGE_ACTIVE_CONNECTION'
 const PUSH_MESSAGE: string = 'PUSH_MESSAGE'
 const REMOVE_ACTIVE_CONNECTION: string = 'REMOVE_ACTIVE_CONNECTION'
@@ -27,6 +28,7 @@ const app = {
     currentTheme: stateRecord.currentTheme || 'light',
     currentLang: stateRecord.currentLang || 'en',
     autoCheck: stateRecord.autoCheck,
+    maxReconnectTimes: stateRecord.maxReconnectTimes || 10,
     showSubscriptions: getShowSubscriptions(),
     showClientInfo: {},
     unreadMessageCount: {},
@@ -41,6 +43,9 @@ const app = {
     },
     [TOGGLE_AUTO_CHECK](state: App, autoCheck: boolean) {
       state.autoCheck = autoCheck
+    },
+    [SET_MAX_RECONNECT_TIMES](state: App, maxReconnectTimes: number) {
+      state.maxReconnectTimes = maxReconnectTimes
     },
     [CHANGE_ACTIVE_CONNECTION](state: App, payload: Client) {
       const client = payload.client
@@ -96,6 +101,10 @@ const app = {
     TOGGLE_AUTO_CHECK({ commit }: any, payload: App) {
       setSettings('settings.autoCheck', payload.autoCheck)
       commit(TOGGLE_AUTO_CHECK, payload.autoCheck)
+    },
+    SET_MAX_RECONNECT_TIMES({ commit }: any, payload: App) {
+      setSettings('settings.maxReconnectTimes', payload.maxReconnectTimes)
+      commit(SET_MAX_RECONNECT_TIMES, payload.maxReconnectTimes)
     },
     CHANGE_ACTIVE_CONNECTION({ commit }: any, payload: App) {
       commit(CHANGE_ACTIVE_CONNECTION, payload)
