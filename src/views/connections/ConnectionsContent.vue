@@ -175,6 +175,7 @@ export default class ConnectionsContent extends Vue {
 
   @Getter('activeConnection') private activeConnection: $TSFixed
   @Getter('showSubscriptions') private showSubscriptions!: boolean
+  @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: {
     [id: string]: boolean,
@@ -190,6 +191,7 @@ export default class ConnectionsContent extends Vue {
   private searchTopic = ''
   private searchLoading = false
   private titleName: string = this.record.name
+  private retryTimes = 0
   private mqttVersionDict = {
     '3.1.1': 4,
     '5.0': 5,
@@ -386,6 +388,7 @@ export default class ConnectionsContent extends Vue {
   private cancel() {
     this.connectLoading = false
     this.client.end()
+    this.retryTimes = 0
   }
   private disconnect(): boolean | void {
     if (!this.client.connected) {
@@ -398,6 +401,7 @@ export default class ConnectionsContent extends Vue {
       updateConnection(id, this.record)
     }
     this.client.end()
+    this.retryTimes = 0
     this.changeActiveConnection({
       id,
       client: this.client,
@@ -441,6 +445,7 @@ export default class ConnectionsContent extends Vue {
       msgTitle = error
     }
     this.client.end()
+    this.retryTimes = 0
     this.connectLoading = false
     this.$notify({
       title: msgTitle,
@@ -454,6 +459,7 @@ export default class ConnectionsContent extends Vue {
   private onReConnect() {
     if (!this.record.reconnect) {
       this.client.end()
+      this.retryTimes = 0
       this.connectLoading = false
       this.$notify({
         title: this.$t('connections.connectFailed') as string,
@@ -464,14 +470,21 @@ export default class ConnectionsContent extends Vue {
       })
       this.$emit('reload')
     } else {
-      this.connectLoading = true
-      this.$notify({
-        title: this.$t('connections.reconnect') as string,
-        message: '',
-        type: 'warning',
-        duration: 3000,
-        offset: 20,
-      })
+      if (this.retryTimes > this.maxReconnectTimes) {
+        this.client.end()
+        this.retryTimes = 0
+        this.connectLoading = false
+      } else {
+        this.retryTimes += 1
+        this.connectLoading = true
+        this.$notify({
+          title: this.$t('connections.reconnect') as string,
+          message: '',
+          type: 'warning',
+          duration: 3000,
+          offset: 20,
+        })
+      }
     }
   }
   private onClose() {
