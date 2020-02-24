@@ -43,6 +43,22 @@
       </el-row>
 
       <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
+          <label>{{ $t('settings.maxReconnectTimes') }}</label>
+        </el-col>
+        <el-col :span="4">
+          <el-input-number
+            size="mini"
+            v-model="maxReconnectTimes"
+            :min="1"
+            @change="handleInputChage">
+          </el-input-number>
+        </el-col>
+      </el-row>
+
+      <el-divider></el-divider>
     </div>
 
     <div class="settings-appearance">
@@ -86,13 +102,16 @@ export default class Settings extends Vue {
   @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
   @Action('TOGGLE_AUTO_CHECK') private actionAutoCheck!: (payload: { autoCheck: boolean }) => void
+  @Action('SET_MAX_RECONNECT_TIMES') private actionMaxReconnectTimes!: (payload: { maxReconnectTimes: number }) => void
   @Getter('currentTheme') private getterTheme!: 'light' | 'dark' | 'night'
   @Getter('currentLang') private getterLang!: Language
   @Getter('autoCheck') private getterAutoCheck!: boolean
+  @Getter('maxReconnectTimes') private getterMaxReconnectTimes!: number
 
   private currentTheme: 'light' | 'dark' | 'night' = 'light'
   private currentLang: Language = 'en'
-  private autoCheck: boolean = false
+  private autoCheck = false
+  private maxReconnectTimes = 10
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
     { label: 'English', value: 'en' },
@@ -119,10 +138,15 @@ export default class Settings extends Vue {
     this.actionAutoCheck({ autoCheck: value })
   }
 
+  private handleInputChage(value: number) {
+    this.actionMaxReconnectTimes({ maxReconnectTimes: value })
+  }
+
   private created() {
     this.autoCheck = this.getterAutoCheck
     this.currentTheme = this.getterTheme
     this.currentLang = this.getterLang
+    this.maxReconnectTimes = this.getterMaxReconnectTimes
   }
 }
 </script>
@@ -174,6 +198,17 @@ export default class Settings extends Vue {
     &.el-select .el-input .el-select__caret {
       color: var(--color-text-default);
     }
+  }
+
+  .el-input-number__increase,
+  .el-input-number__decrease {
+    background: var(--color-bg-input_btn);
+  }
+  .el-input-number__decrease {
+    border-right: 1px solid var(--color-border-default);
+  }
+  .el-input-number__increase {
+    border-left: 1px solid var(--color-border-default);
   }
 }
 </style>
