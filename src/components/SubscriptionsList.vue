@@ -49,7 +49,8 @@
       width="500px"
       class="topic-dialog"
       @confirm="saveSubs"
-      @close="resetSubs">
+      @close="resetSubs"
+      @keyupEnter="saveSubs">
       <el-row :gutter="20">
         <el-form
           ref="form"
