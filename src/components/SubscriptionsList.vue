@@ -191,9 +191,11 @@ export default class SubscriptionsList extends Vue {
     this.getCurrentConnection(this.connectionId)
 
     if (!this.currentConnection.client) {
+      this.$message.warning(this.$t('connections.notConnect') as string)
       return false
     }
     if (!this.currentConnection.client.connected) {
+      this.$message.warning(this.$t('connections.notConnect') as string)
       return false
     }
     this.vueForm.validate((valid: boolean) => {
