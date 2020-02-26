@@ -414,6 +414,9 @@ export default class ConnectionsContent extends Vue {
       duration: 3000,
       offset: 20,
     })
+    if (!this.showClientInfo) {
+      this.setShowClientInfo(true)
+    }
     this.$emit('reload')
   }
   private onConnect() {
@@ -430,13 +433,7 @@ export default class ConnectionsContent extends Vue {
       duration: 3000,
       offset: 20,
     })
-    setTimeout(() => {
-      this.showClientInfo = false
-      this.changeShowClientInfo({
-        id: this.record.id as string,
-        showClientInfo: this.showClientInfo,
-      })
-    }, 500)
+    this.setShowClientInfo(false)
     this.$emit('reload')
   }
   private onError(error: string) {
@@ -569,6 +566,15 @@ export default class ConnectionsContent extends Vue {
         }, 100)
       },
     )
+  }
+  private setShowClientInfo(show: boolean) {
+    setTimeout(() => {
+      this.showClientInfo = show
+      this.changeShowClientInfo({
+        id: this.record.id as string,
+        showClientInfo: this.showClientInfo,
+      })
+    }, 500)
   }
 
   private created(): void {
