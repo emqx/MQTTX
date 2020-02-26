@@ -1,9 +1,9 @@
 <template>
   <div class="connections">
-    <left-list>
+    <div class="leftList">
       <h1 class="titlebar">{{ $t('connections.connections') }}</h1>
       <ConnectionsList :data="records" :connectionId="connectionId"/>
-    </left-list>
+    </div>
 
     <div class="connections-view">
       <EmptyPage
@@ -34,7 +34,6 @@
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Action } from 'vuex-class'
 import { loadConnections, loadConnection } from '@/utils/api/connection'
-import LeftList from '@/components/LeftList.vue'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsContent from './ConnectionsContent.vue'
@@ -43,7 +42,6 @@ import { ConnectionModel } from './types'
 
 @Component({
   components: {
-    LeftList,
     ConnectionsList,
     ConnectionsContent,
     ConnectionForm,
@@ -144,6 +142,24 @@ export default class Connections extends Vue {
 .connections {
   .titlebar {
     padding: 16px;
+  }
+}
+.leftList {
+  position: fixed;
+  width: 260px;
+  left: 81px;
+  top: 0;
+  bottom: 0;
+  overflow-x: hidden;
+  z-index: 1000;
+  border-right: 1px solid var(--color-border-default);
+  background-color: var(--color-bg-primary);
+  .no-data {
+    text-align: center;
+    position: absolute;
+    top: 45%;
+    left: 40%;
+    color: var(--color-text-light);
   }
 }
 </style>
