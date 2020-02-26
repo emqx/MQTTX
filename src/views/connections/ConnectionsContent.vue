@@ -84,6 +84,7 @@
       class="connections-content-main right-content"
       :style="{
         paddingTop: showClientInfo ? msgTop.open: msgTop.close,
+        paddingBottom: `${msgBottom}px`,
         marginLeft: showSubs ? '570px' : '341px',
       }">
       <div class="connections-body">
@@ -122,7 +123,10 @@
       <div
         class="connections-footer" 
         :style="{ marginLeft: showSubs ? '570px' : '341px' }">
+        <ResizeHeight v-model="inputHeight"/>
         <MsgPublish
+          :style="{ height: `${inputHeight}px` }"
+          :payloadHeight="inputHeight - 40"
           @handleSend="sendMessage"/>
       </div>
     </div>
@@ -141,6 +145,7 @@ import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
 import SubscriptionsList from '@/components/SubscriptionsList.vue'
+import ResizeHeight from '@/components/ResizeHeight.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
 import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
 import { ipcRenderer } from 'electron'
@@ -160,6 +165,7 @@ interface Top {
     ConnectionInfo,
     MsgPublish,
     SubscriptionsList,
+    ResizeHeight,
   },
 })
 export default class ConnectionsContent extends Vue {
@@ -192,6 +198,8 @@ export default class ConnectionsContent extends Vue {
   private searchLoading = false
   private titleName: string = this.record.name
   private retryTimes = 0
+  private inputHeight = 125
+  private msgBottom = 120
   private mqttVersionDict = {
     '3.1.1': 4,
     '5.0': 5,
@@ -245,6 +253,14 @@ export default class ConnectionsContent extends Vue {
     this.titleName = this.record.name
     this.getConnectionValue(id)
     this.getMessages(id)
+  }
+
+  @Watch('inputHeight')
+  private handleInputHeight(val: number) {
+    const oldInputHeight = 125
+    const oldMsgBottom = 120
+    const offset = val - oldInputHeight
+    this.msgBottom = oldMsgBottom + offset
   }
 
   private getConnectionValue(id: string) {
@@ -678,7 +694,6 @@ export default class ConnectionsContent extends Vue {
 
   .connections-content-main {
     height: 100%;
-    padding: 88px 0 120px 0;
     transition: all .5s;
     .connections-body {
       padding: 16px;

@@ -21,6 +21,12 @@ body {
   color: var(--color-text-default);
 }
 
+body.select-none {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  user-select: none;
+}
+
 * {
   box-sizing: border-box;
 }
