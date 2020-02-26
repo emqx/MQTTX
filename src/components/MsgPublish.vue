@@ -35,13 +35,15 @@
 
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import { ipcRenderer } from 'electron'
 import jump from 'jump.js'
 import { MessageModel } from '../views/connections/types'
 
 @Component
 export default class MsgPublish extends Vue {
+  @Prop({ required: false }) public payloadHeight: number = 85
+
   private msgRecord: MessageModel = {
     createAt: '',
     out: true,
@@ -78,7 +80,6 @@ export default class MsgPublish extends Vue {
 
 .msg-publish {
   background: var(--color-bg-normal);
-  border-top: 1px solid var(--color-border-default);
   padding: 0px 16px;
   transition: .3s height;
   .el-input {
@@ -138,9 +139,6 @@ export default class MsgPublish extends Vue {
     .icon-send {
       font-size: $font-size--send;
     }
-  }
-  &.message {
-    height: 125px;
   }
 }
 </style>
