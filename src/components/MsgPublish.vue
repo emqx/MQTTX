@@ -1,21 +1,35 @@
 <template>
   <div class="msg-publish message">
+    <div class="qos-retain">
+      <span class="publish-label">Payload: </span>
+      <el-select
+        class="payload-select"
+        size="mini"
+        v-model="payloadType">
+        <el-option
+          v-for="(type, index) in payloadOptions"
+          :key="index"
+          :value="type">
+        </el-option>
+      </el-select>
+      <span class="publish-label">QoS: </span>
+      <el-select class="qos-select" size="mini" v-model="msgRecord.qos">
+        <el-option :value="0"></el-option>
+        <el-option :value="1"></el-option>
+        <el-option :value="2"></el-option>
+      </el-select>
+      <div class="retain-block">
+        <span class="publish-label">Retain: </span>
+        <el-checkbox v-model="msgRecord.retain"></el-checkbox>
+      </div>
+    </div>
     <el-input
+      class="topic-input"
       placeholder="Topic"
       v-model="msgRecord.topic"
       @focus="handleInputFoucs"
       @blur="handleInputBlur">
     </el-input>
-    <div class="qos-retain">
-      <span class="publish-label">QoS: </span>
-      <el-radio-group v-model="msgRecord.qos">
-        <el-radio :label="0"></el-radio>
-        <el-radio :label="1"></el-radio>
-        <el-radio :label="2"></el-radio>
-      </el-radio-group>
-      <span class="publish-label">Retain: </span>
-      <el-checkbox v-model="msgRecord.retain"></el-checkbox>
-    </div>
     <el-input
       type="textarea"
       rows="3"
@@ -35,14 +49,14 @@
 
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { ipcRenderer } from 'electron'
 import jump from 'jump.js'
 import { MessageModel } from '../views/connections/types'
+import convertPayload from '@/utils/convertPayload'
 
 @Component
 export default class MsgPublish extends Vue {
-  @Prop({ required: false }) public payloadHeight: number = 85
 
   private msgRecord: MessageModel = {
     createAt: '',
@@ -51,6 +65,20 @@ export default class MsgPublish extends Vue {
     retain: false,
     topic: '',
     payload: JSON.stringify({ msg: 'hello' }, null, 2),
+  }
+
+  private payloadType: PayloadType = 'Plaintext'
+  private payloadOptions: PayloadType[] = ['Plaintext', 'Base64', 'JSON', 'Hex']
+
+  @Watch('payloadType')
+  private handleTypeChange(val: PayloadType, oldVal: PayloadType) {
+    const { payload } = this.msgRecord
+    convertPayload(payload, val, oldVal).then((res) => {
+      this.msgRecord.payload = res
+    }).catch((error) => {
+      const errorMsg = error.toString()
+      this.$message.error(errorMsg)
+    })
   }
 
   private send() {
@@ -82,7 +110,7 @@ export default class MsgPublish extends Vue {
   background: var(--color-bg-normal);
   padding: 0px 16px;
   transition: .3s height;
-  .el-input {
+  .topic-input.el-input {
     .el-input__inner {
       border: 0px;
       border-radius: 0px;
@@ -90,28 +118,21 @@ export default class MsgPublish extends Vue {
     }
   }
   .qos-retain {
-    position: absolute;
-    top: 1px;
-    right: 35px;
-    padding-left: 12px;
-    text-align: right;
-    line-height: 40px;
+    line-height: 35px;
     background: var(--color-bg-normal);
     .publish-label {
       color: var(--color-text-default);
       margin-right: 8px;
     }
-    .el-radio-group {
-      margin-right: 8px;
-      .el-radio {
-        color: var(--color-text-default);
-      }
+    .payload-select {
+      width: 95px;
+      margin-right: 10px
     }
-    .el-radio {
-      margin-right: 16px;
-      .el-radio__label {
-        padding-left: 8px;
-      }
+    .qos-select {
+      width: 55px;
+    }
+    .retain-block {
+      float: right;
     }
     .el-checkbox__inner {
       border-radius: 100%;

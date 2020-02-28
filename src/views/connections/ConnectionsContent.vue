@@ -126,7 +126,6 @@
         <ResizeHeight v-model="inputHeight"/>
         <MsgPublish
           :style="{ height: `${inputHeight}px` }"
-          :payloadHeight="inputHeight - 40"
           @handleSend="sendMessage"/>
       </div>
     </div>
@@ -198,8 +197,8 @@ export default class ConnectionsContent extends Vue {
   private searchLoading = false
   private titleName: string = this.record.name
   private retryTimes = 0
-  private inputHeight = 125
-  private msgBottom = 120
+  private inputHeight = 155
+  private msgBottom = 160
   private mqttVersionDict = {
     '3.1.1': 4,
     '5.0': 5,
@@ -257,8 +256,8 @@ export default class ConnectionsContent extends Vue {
 
   @Watch('inputHeight')
   private handleInputHeight(val: number) {
-    const oldInputHeight = 125
-    const oldMsgBottom = 120
+    const oldInputHeight = 155
+    const oldMsgBottom = 160
     const offset = val - oldInputHeight
     this.msgBottom = oldMsgBottom + offset
   }
@@ -527,7 +526,7 @@ export default class ConnectionsContent extends Vue {
         this.unreadMessageIncrement({ id })
       }
       setTimeout(() => {
-        window.scrollTo(0, document.body.scrollHeight + 120)
+        window.scrollTo(0, document.body.scrollHeight + 160)
       }, 100)
     }
   }
@@ -578,7 +577,7 @@ export default class ConnectionsContent extends Vue {
         this.record.messages.push({ ...publishMessage })
         updateConnectionMessage(this.record.id as string, { ...publishMessage })
         setTimeout(() => {
-          window.scrollTo(0, document.body.scrollHeight + 120)
+          window.scrollTo(0, document.body.scrollHeight + 160)
         }, 100)
       },
     )

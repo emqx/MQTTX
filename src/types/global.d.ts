@@ -10,6 +10,8 @@ declare global {
 
   type Protocol = 'ws' | 'wss' | 'mqtt' | 'mqtts'
 
+  type PayloadType = 'Plaintext' | 'Base64' | 'JSON' | 'Hex'
+
   type VueForm = Vue & {
     validate: (validate: (valid: boolean) => void) => void,
     clearValidate: () => void,
