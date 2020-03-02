@@ -139,6 +139,7 @@ import { MqttClient, IClientOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
+import matchSearch from '@/utils/matchSearch'
 import { getClientOptions, getMQTTProtocol } from '@/utils/mqttUtils'
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
@@ -351,7 +352,13 @@ export default class ConnectionsContent extends Vue {
     if (this.searchTopic !== '') {
       this.getMessages(this.$route.params.id)
       const $messages = [...this.messages]
-      this.messages = $messages.filter(($: MessageModel) => $.topic === this.searchTopic)
+      matchSearch($messages, 'topic', this.searchTopic).then((res) => {
+        if (res) {
+          this.messages = res
+        } else {
+          this.messages = []
+        }
+      })
     } else {
       this.getMessages(this.$route.params.id)
     }

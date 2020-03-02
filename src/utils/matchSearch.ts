@@ -6,7 +6,9 @@ const matchSearch: MatchSearch = (data, searchKey, searchValue) => {
       const filterData = data.filter(($) => {
         if ($[searchKey]) {
           const key: string = $[searchKey].toLowerCase().replace(/\s+/g, '')
-          const value: string = searchValue.toLocaleLowerCase().replace(/\s+/g, '')
+          const value: string = searchValue.toLocaleLowerCase()
+            .replace(/\s+/g, '')
+            .replace(/[~#^$@%&!+*]/gi, (val) => `\\${val}`)
           return key.match(value)
         } else {
           return null
