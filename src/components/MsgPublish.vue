@@ -30,14 +30,25 @@
       @focus="handleInputFoucs"
       @blur="handleInputBlur">
     </el-input>
-    <el-input
+    <div
+      class="editor-container"
+      :style="{
+        height: `${editorHeight}px`
+      }">
+      <Editor
+        ref="payloadEditor"
+        id="payload"
+        lang="json"
+        v-model="msgRecord.payload"/>
+    </div>
+    <!-- <el-input
       type="textarea"
       rows="3"
       placeholder="Payload"
       v-model="msgRecord.payload"
       @focus="handleInputFoucs"
       @blur="handleInputBlur">
-    </el-input>
+    </el-input> -->
     <a
       href="javascript:;"
       class="send-btn"
@@ -52,11 +63,17 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { ipcRenderer } from 'electron'
 import jump from 'jump.js'
+import Editor from '@/components/Editor.vue'
 import { MessageModel } from '../views/connections/types'
 import convertPayload from '@/utils/convertPayload'
 
-@Component
+@Component({
+  components: {
+    Editor,
+  },
+})
 export default class MsgPublish extends Vue {
+  @Prop({ required: true }) public editorHeight!: number
 
   private msgRecord: MessageModel = {
     createAt: '',
@@ -70,6 +87,11 @@ export default class MsgPublish extends Vue {
   private payloadType: PayloadType = 'Plaintext'
   private payloadOptions: PayloadType[] = ['Plaintext', 'Base64', 'JSON', 'Hex']
 
+  @Watch('editorHeight')
+  private handleHeightChanged() {
+    const editorRef: EditorRef = this.$refs.payloadEditor as EditorRef
+    editorRef.editorLayout()
+  }
   @Watch('payloadType')
   private handleTypeChange(val: PayloadType, oldVal: PayloadType) {
     const { payload } = this.msgRecord
@@ -115,6 +137,9 @@ export default class MsgPublish extends Vue {
       border: 0px;
       border-radius: 0px;
       padding: 0px;
+      height: 36px;
+      line-height: 36px;
+      border-bottom: 1px solid var(--color-border-default);
     }
   }
   .qos-retain {
@@ -140,6 +165,9 @@ export default class MsgPublish extends Vue {
   }
   textarea {
     resize: none;
+  }
+  .editor-container {
+    padding-top: 3px;
   }
   .el-textarea {
     .el-textarea__inner {
