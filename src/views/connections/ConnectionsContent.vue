@@ -125,6 +125,7 @@
         :style="{ marginLeft: showSubs ? '570px' : '341px' }">
         <ResizeHeight v-model="inputHeight"/>
         <MsgPublish
+          :editor-height="inputHeight - 75"
           :style="{ height: `${inputHeight}px` }"
           @handleSend="sendMessage"/>
       </div>

@@ -18,6 +18,10 @@ declare global {
     resetFields: () => void,
   }
 
+  type EditorRef = Vue & {
+    editorLayout: () => void,
+  }
+
   interface ActiveConnection {
     readonly id: string,
   }
