@@ -1,4 +1,14 @@
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
+
 module.exports = {
+  configureWebpack: {
+    plugins: [
+      new MonacoWebpackPlugin({
+        output: 'static/',
+        languages: ['json'],
+      }),
+    ],
+  },
   pluginOptions: {
     electronBuilder: {
       // Prevent bundling of certain imported packages and instead retrieve these external dependencies at runtime.
