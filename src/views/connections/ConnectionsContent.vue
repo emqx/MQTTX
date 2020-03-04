@@ -126,6 +126,7 @@
         <ResizeHeight v-model="inputHeight"/>
         <MsgPublish
           :editor-height="inputHeight - 75"
+          :subs-visible="showSubs"
           :style="{ height: `${inputHeight}px` }"
           @handleSend="sendMessage"/>
       </div>
