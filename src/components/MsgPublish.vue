@@ -38,17 +38,12 @@
       <Editor
         ref="payloadEditor"
         id="payload"
-        lang="json"
-        v-model="msgRecord.payload"/>
+        :lang="payloadLang"
+        v-model="msgRecord.payload"
+        @enter-event="send"
+        @focus="handleInputFoucs"
+        @blur="handleInputBlur"/>
     </div>
-    <!-- <el-input
-      type="textarea"
-      rows="3"
-      placeholder="Payload"
-      v-model="msgRecord.payload"
-      @focus="handleInputFoucs"
-      @blur="handleInputBlur">
-    </el-input> -->
     <a
       href="javascript:;"
       class="send-btn"
@@ -74,6 +69,7 @@ import convertPayload from '@/utils/convertPayload'
 })
 export default class MsgPublish extends Vue {
   @Prop({ required: true }) public editorHeight!: number
+  @Prop({ required: true }) public subsVisible!: boolean
 
   private msgRecord: MessageModel = {
     createAt: '',
@@ -84,22 +80,34 @@ export default class MsgPublish extends Vue {
     payload: JSON.stringify({ msg: 'hello' }, null, 2),
   }
 
-  private payloadType: PayloadType = 'Plaintext'
+  private payloadLang = 'json'
+  private payloadType: PayloadType = 'JSON'
   private payloadOptions: PayloadType[] = ['Plaintext', 'Base64', 'JSON', 'Hex']
 
   @Watch('editorHeight')
   private handleHeightChanged() {
-    const editorRef: EditorRef = this.$refs.payloadEditor as EditorRef
-    editorRef.editorLayout()
+    this.handleLayout()
+  }
+  @Watch('subsVisible')
+  private handleSubsChanged(val: boolean) {
+    setTimeout(() => {
+      this.handleLayout()
+    }, 500)
   }
   @Watch('payloadType')
   private handleTypeChange(val: PayloadType, oldVal: PayloadType) {
     const { payload } = this.msgRecord
     convertPayload(payload, val, oldVal).then((res) => {
       this.msgRecord.payload = res
+      if (val === 'JSON') {
+        this.payloadLang = 'json'
+      } else {
+        this.payloadLang = 'plaintext'
+      }
     }).catch((error) => {
       const errorMsg = error.toString()
       this.$message.error(errorMsg)
+      this.payloadType = oldVal
     })
   }
 
@@ -119,6 +127,11 @@ export default class MsgPublish extends Vue {
 
   private beforeDestroy() {
     ipcRenderer.removeAllListeners('sendPayload')
+  }
+
+  private handleLayout() {
+    const editorRef: EditorRef = this.$refs.payloadEditor as EditorRef
+    editorRef.editorLayout()
   }
 }
 </script>
@@ -165,9 +178,6 @@ export default class MsgPublish extends Vue {
   }
   textarea {
     resize: none;
-  }
-  .editor-container {
-    padding-top: 3px;
   }
   .el-textarea {
     .el-textarea__inner {

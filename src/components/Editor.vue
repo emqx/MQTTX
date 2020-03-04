@@ -5,7 +5,10 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Model, Watch } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
+import EditorDark from '@/assets/scss/theme/editor-dark.json'
+import EditorNight from '@/assets/scss/theme/editor-night.json'
 
 @Component
 export default class Editor extends Vue {
@@ -13,6 +16,8 @@ export default class Editor extends Vue {
   @Prop({ required: true }) public lang!: string
 
   @Model('change', { type: String }) private readonly value!: string
+
+  @Getter('currentTheme') private theme!: Theme
 
   private editor: monaco.editor.IStandaloneCodeEditor | null = null
 
@@ -41,9 +46,19 @@ export default class Editor extends Vue {
       fontSize: 14,
       scrollBeyondLastLine: false,
       lineNumbersMinChars: 1,
-      theme: 'vs',
+      renderLineHighlight: 'none',
+      matchBrackets: 'near',
+      folding: false,
+      theme: this.getTheme(),
+      lightbulb: {
+        enabled: false,
+      },
       minimap: {
         enabled: false,
+      },
+      scrollbar: {
+        horizontal: 'hidden',
+        vertical: 'hidden',
       },
     }
     // Create
@@ -62,25 +77,49 @@ export default class Editor extends Vue {
         }
       }
     })
-    // Qucik save method
-    // this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
-    //   this.$emit('qucik-save', this.value)
-    // })
+    // Command method
+    // tslint:disable-next-line:no-bitwise
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      this.$emit('enter-event', this.value)
+    })
     // Update editor options
     const model = this.editor.getModel()
     if (model) {
       model.updateOptions({ tabSize: 2 })
     }
+    this.editor.onDidFocusEditorText(() => {
+      this.$emit('focus')
+    })
+    this.editor.onDidBlurEditorText(() => {
+      this.$emit('blur')
+    })
   }
   private editorLayout() {
     if (this.editor) {
       this.editor.layout()
     }
   }
+  private defineTheme() {
+    const dark = EditorDark as monaco.editor.IStandaloneThemeData
+    const night = EditorNight as monaco.editor.IStandaloneThemeData
+    monaco.editor.defineTheme('editor-dark', dark)
+    monaco.editor.defineTheme('editor-night', night)
+  }
+  private getTheme(): string {
+    if (this.theme === 'dark') {
+      return 'editor-dark'
+    } else if (this.theme === 'night') {
+      return 'editor-night'
+    } else {
+      return 'vs'
+    }
+  }
+
   private mounted() {
     this.initEditor()
   }
   private created() {
+    this.defineTheme()
     window.onresize = () => {
       this.editorLayout()
     }
@@ -102,6 +141,10 @@ export default class Editor extends Vue {
 <style lang="scss">
 .editor-view {
   height: 100%;
+  width: 100%;
   position: relative;
+}
+.decorationsOverviewRuler {
+  display: none;
 }
 </style>
