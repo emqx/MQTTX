@@ -420,7 +420,7 @@ export default class ConnectionCreate extends Vue {
         'openFile',
       ],
       filters: [
-        { name: 'CA', extensions: ['crt', 'key', 'pem'] },
+        { name: 'CA', extensions: ['crt', 'key', 'pem', 'jks', 'der', 'cer', 'pfx'] },
       ],
     }, (files) => {
       if (files) {
