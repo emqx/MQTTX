@@ -332,7 +332,7 @@ export default class ConnectionCreate extends Vue {
     host: 'broker.emqx.io',
     keepalive: 60,
     connectTimeout: 10,
-    reconnect: true,
+    reconnect: false,
     username: '',
     password: '',
     path: '/mqtt',

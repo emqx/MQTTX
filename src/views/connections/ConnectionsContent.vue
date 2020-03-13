@@ -15,6 +15,19 @@
             </h2>
           </div>
           <div class="connection-tail">
+            <transition name="el-fade-in">
+              <el-tooltip
+                v-if="!showClientInfo && client.connected"
+                placement="bottom"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :open-delay="1000"
+                :content="$t('connections.disconnectedBtn')">
+                <a class="disconnect-btn"
+                href="javascript:;" @click="disconnect">
+                  <i class="iconfont el-icon-switch-button"></i>
+                </a>
+              </el-tooltip>
+            </transition>
             <el-tooltip
               placement="bottom"
               :effect="theme !== 'light' ? 'light' : 'dark'"
@@ -436,7 +449,7 @@ export default class ConnectionsContent extends Vue {
       message: '',
       type: 'success',
       duration: 3000,
-      offset: 20,
+      offset: 30,
     })
     if (!this.showClientInfo) {
       this.setShowClientInfo(true)
@@ -455,7 +468,7 @@ export default class ConnectionsContent extends Vue {
       message: '',
       type: 'success',
       duration: 3000,
-      offset: 20,
+      offset: 30,
     })
     this.setShowClientInfo(false)
     this.$emit('reload')
@@ -473,7 +486,7 @@ export default class ConnectionsContent extends Vue {
       message: '',
       type: 'error',
       duration: 3000,
-      offset: 20,
+      offset: 30,
     })
     this.$emit('reload')
   }
@@ -487,7 +500,7 @@ export default class ConnectionsContent extends Vue {
         message: '',
         type: 'error',
         duration: 3000,
-        offset: 20,
+        offset: 30,
       })
       this.$emit('reload')
     } else {
@@ -503,7 +516,7 @@ export default class ConnectionsContent extends Vue {
           message: '',
           type: 'warning',
           duration: 3000,
-          offset: 20,
+          offset: 30,
         })
       }
     }
@@ -547,7 +560,7 @@ export default class ConnectionsContent extends Vue {
         message: '',
         type: 'error',
         duration: 3000,
-        offset: 20,
+        offset: 30,
       })
       return false
     }
@@ -643,15 +656,19 @@ export default class ConnectionsContent extends Vue {
         @include collapse-btn-transform(90deg, -90deg);
       }
       .connection-tail {
+        i {
+          font-size: 18px;
+        }
+        .disconnect-btn {
+          margin-right: 10px;
+          color: var(--color-second-red);
+        }
         .edit-btn {
-          .el-icon-edit-outline {
-            font-size: 18px;
-          }
           &.disabled {
             cursor: not-allowed;
             color: var(--color-text-light);
           }
-          margin-right: 6px;
+          margin-right: 10px;
         }
         .el-dropdown.connection-oper {
           a {
