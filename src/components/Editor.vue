@@ -45,7 +45,7 @@ export default class Editor extends Vue {
       readOnly: false,
       fontSize: 14,
       scrollBeyondLastLine: false,
-      lineNumbersMinChars: 1,
+      lineNumbers: 'off',
       renderLineHighlight: 'none',
       matchBrackets: 'near',
       folding: false,
@@ -59,6 +59,7 @@ export default class Editor extends Vue {
       scrollbar: {
         horizontal: 'hidden',
         vertical: 'hidden',
+        useShadows: false,
       },
     }
     // Create
