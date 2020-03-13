@@ -1,37 +1,39 @@
 <template>
   <div class="msg-publish message">
-    <div class="qos-retain">
-      <span class="publish-label">Payload: </span>
-      <el-select
-        class="payload-select"
-        size="mini"
-        v-model="payloadType">
-        <el-option
-          v-for="(type, index) in payloadOptions"
-          :key="index"
-          :value="type">
-        </el-option>
-      </el-select>
-      <span class="publish-label">QoS: </span>
-      <el-select class="qos-select" size="mini" v-model="msgRecord.qos">
-        <el-option :value="0"></el-option>
-        <el-option :value="1"></el-option>
-        <el-option :value="2"></el-option>
-      </el-select>
-      <div class="retain-block">
-        <span class="publish-label">Retain: </span>
-        <el-checkbox v-model="msgRecord.retain"></el-checkbox>
+    <div class="publish-header">
+      <div class="qos-retain">
+        <span class="publish-label">Payload: </span>
+        <el-select
+          class="payload-select"
+          size="mini"
+          v-model="payloadType">
+          <el-option
+            v-for="(type, index) in payloadOptions"
+            :key="index"
+            :value="type">
+          </el-option>
+        </el-select>
+        <span class="publish-label">QoS: </span>
+        <el-select class="qos-select" size="mini" v-model="msgRecord.qos">
+          <el-option :value="0"></el-option>
+          <el-option :value="1"></el-option>
+          <el-option :value="2"></el-option>
+        </el-select>
+        <div class="retain-block">
+          <span class="publish-label">Retain: </span>
+          <el-checkbox v-model="msgRecord.retain"></el-checkbox>
+        </div>
       </div>
+      <el-input
+        class="topic-input"
+        placeholder="Topic"
+        v-model="msgRecord.topic"
+        @focus="handleInputFoucs"
+        @blur="handleInputBlur">
+      </el-input>
     </div>
-    <el-input
-      class="topic-input"
-      placeholder="Topic"
-      v-model="msgRecord.topic"
-      @focus="handleInputFoucs"
-      @blur="handleInputBlur">
-    </el-input>
     <div
-      class="editor-container"
+      class="editor-container publish-footer"
       :style="{
         height: `${editorHeight}px`
       }">
@@ -143,8 +145,14 @@ export default class MsgPublish extends Vue {
 
 .msg-publish {
   background: var(--color-bg-normal);
-  padding: 0px 16px;
   transition: .3s height;
+  .publish-header {
+    padding: 0 16px;
+    margin-bottom: 4px;
+  }
+  .publish-footer {
+    padding: 0 6px;
+  }
   .topic-input.el-input {
     .el-input__inner {
       border: 0px;
