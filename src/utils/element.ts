@@ -14,7 +14,7 @@ import {
   // MenuItem,
   // MenuItemGroup,
   Input,
-  // InputNumber,
+  InputNumber,
   Radio,
   RadioGroup,
   RadioButton,
@@ -85,7 +85,7 @@ export default (Vue: any) => {
   // Vue.use(MenuItem)
   // Vue.use(MenuItemGroup)
   Vue.use(Input)
-  // Vue.use(InputNumber)
+  Vue.use(InputNumber)
   Vue.use(Radio)
   Vue.use(RadioGroup)
   Vue.use(RadioButton)

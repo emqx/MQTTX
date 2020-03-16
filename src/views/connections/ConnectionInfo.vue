@@ -111,15 +111,15 @@ export default class ConnectionInfo extends Vue {
     }
   }
 
-  private disconnect(): void {
+  private disconnect() {
     this.$emit('handleDisconnect', this.connection)
   }
 
-  private cancel(): void {
+  private cancel() {
     this.$emit('handleCancel', this.connection)
   }
 
-  private refreshClientId(): void {
+  private refreshClientId() {
     this.connection.clientId = getClientId()
   }
 }

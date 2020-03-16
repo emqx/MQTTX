@@ -22,6 +22,7 @@ export interface ConnectionModel extends SSLPath  {
   clientId: string,
   name: string,
   clean: boolean,
+  protocol?: Protocol,
   host: string,
   port: number,
   keepalive: number,

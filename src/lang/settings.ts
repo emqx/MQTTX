@@ -15,6 +15,10 @@ export default {
     zh: '自动检查更新',
     en: 'Auto check update',
   },
+  maxReconnectTimes: {
+    zh: '最大重连次数',
+    en: 'Max reconnection times',
+  },
   appearance: {
     zh: '外观',
     en: 'Appearance',

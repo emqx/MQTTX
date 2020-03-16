@@ -8,10 +8,18 @@ declare global {
 
   type Language = 'en' | 'zh'
 
+  type Protocol = 'ws' | 'wss' | 'mqtt' | 'mqtts'
+
+  type PayloadType = 'Plaintext' | 'Base64' | 'JSON' | 'Hex'
+
   type VueForm = Vue & {
     validate: (validate: (valid: boolean) => void) => void,
     clearValidate: () => void,
     resetFields: () => void,
+  }
+
+  type EditorRef = Vue & {
+    editorLayout: () => void,
   }
 
   interface ActiveConnection {
@@ -59,12 +67,13 @@ declare global {
     currentLang: Language,
     autoCheck: boolean,
     showSubscriptions: boolean,
+    maxReconnectTimes: number,
     showClientInfo: {
       [id: string]: boolean,
     },
     unreadMessageCount: {
       [id: string]: number,
-    }
+    },
     activeConnection: {
       [id: string]: {
         client: MqttClient | {},

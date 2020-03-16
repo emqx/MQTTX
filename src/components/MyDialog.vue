@@ -3,7 +3,8 @@
     class="my-dialog"
     v-bind="$props"
     @open="open"
-    @close="close">
+    @close="close"
+    @keyup.enter.native="handleEnterEvent">
 
     <slot></slot>
 
@@ -47,22 +48,26 @@ export default class MyDialog extends Vue {
     this.showDialog = val
   }
 
-  private confirmClick(): void {
+  private confirmClick() {
     // Confirm event
     this.$emit('confirm')
   }
-  private open(): void {
+  private open() {
     // Open the dialog event
     this.$emit('open')
   }
-  private close(): void {
+  private close() {
     this.$emit('update:visible', false)
     // Close the dialog event
     this.$emit('close')
   }
-  private hideDialog(): void {
+  private hideDialog() {
     // Hide the Dialog event
     this.$emit('update:visible', false)
+  }
+  private handleEnterEvent() {
+    // Trigger enter event
+    this.$emit('keyupEnter')
   }
 }
 </script>

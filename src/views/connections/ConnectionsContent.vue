@@ -15,6 +15,19 @@
             </h2>
           </div>
           <div class="connection-tail">
+            <transition name="el-fade-in">
+              <el-tooltip
+                v-if="!showClientInfo && client.connected"
+                placement="bottom"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :open-delay="1000"
+                :content="$t('connections.disconnectedBtn')">
+                <a class="disconnect-btn"
+                href="javascript:;" @click="disconnect">
+                  <i class="iconfont el-icon-switch-button"></i>
+                </a>
+              </el-tooltip>
+            </transition>
             <el-tooltip
               placement="bottom"
               :effect="theme !== 'light' ? 'light' : 'dark'"
@@ -84,6 +97,7 @@
       class="connections-content-main right-content"
       :style="{
         paddingTop: showClientInfo ? msgTop.open: msgTop.close,
+        paddingBottom: `${msgBottom}px`,
         marginLeft: showSubs ? '570px' : '341px',
       }">
       <div class="connections-body">
@@ -122,7 +136,11 @@
       <div
         class="connections-footer" 
         :style="{ marginLeft: showSubs ? '570px' : '341px' }">
+        <ResizeHeight v-model="inputHeight"/>
         <MsgPublish
+          :editor-height="inputHeight - 75"
+          :subs-visible="showSubs"
+          :style="{ height: `${inputHeight}px` }"
           @handleSend="sendMessage"/>
       </div>
     </div>
@@ -132,15 +150,17 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import mqtt, { MqttClient, IClientOptions } from 'mqtt'
+import { MqttClient, IClientOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
-import { getClientOptions } from '@/utils/mqttUtils'
+import matchSearch from '@/utils/matchSearch'
+import { getClientOptions, getMQTTProtocol } from '@/utils/mqttUtils'
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
 import SubscriptionsList from '@/components/SubscriptionsList.vue'
+import ResizeHeight from '@/components/ResizeHeight.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
 import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
 import { ipcRenderer } from 'electron'
@@ -160,6 +180,7 @@ interface Top {
     ConnectionInfo,
     MsgPublish,
     SubscriptionsList,
+    ResizeHeight,
   },
 })
 export default class ConnectionsContent extends Vue {
@@ -175,6 +196,7 @@ export default class ConnectionsContent extends Vue {
 
   @Getter('activeConnection') private activeConnection: $TSFixed
   @Getter('showSubscriptions') private showSubscriptions!: boolean
+  @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: {
     [id: string]: boolean,
@@ -190,6 +212,9 @@ export default class ConnectionsContent extends Vue {
   private searchTopic = ''
   private searchLoading = false
   private titleName: string = this.record.name
+  private retryTimes = 0
+  private inputHeight = 155
+  private msgBottom = 160
   private mqttVersionDict = {
     '3.1.1': 4,
     '5.0': 5,
@@ -227,10 +252,14 @@ export default class ConnectionsContent extends Vue {
 
   get connectUrl(): string {
     const {
-      host, port, ssl,
+      host, port, ssl, path,
     } = this.record
-    const protocol = ssl ? 'mqtts://' : 'mqtt://'
-    return `${protocol}${host}:${port}`
+    const protocol = getMQTTProtocol(this.record)
+    let url = `${protocol}://${host}:${port}`
+    if (protocol === 'ws' || protocol === 'wss') {
+      url = `${url}${path.startsWith('/') ? '' : '/'}${path}`
+    }
+    return url
   }
 
   @Watch('record')
@@ -241,7 +270,15 @@ export default class ConnectionsContent extends Vue {
     this.getMessages(id)
   }
 
-  private getConnectionValue(id: string): void {
+  @Watch('inputHeight')
+  private handleInputHeight(val: number) {
+    const oldInputHeight = 155
+    const oldMsgBottom = 160
+    const offset = val - oldInputHeight
+    this.msgBottom = oldMsgBottom + offset
+  }
+
+  private getConnectionValue(id: string) {
     const $activeConnection: {
       id?: string,
       client: MqttClient,
@@ -260,12 +297,12 @@ export default class ConnectionsContent extends Vue {
     }
   }
 
-  private handleShowSubs(): void {
+  private handleShowSubs() {
     this.showSubs = !this.showSubs
     this.changeShowSubscriptions({ showSubscriptions: this.showSubs })
   }
 
-  private handleCollapse(id: string): void {
+  private handleCollapse(id: string) {
     this.showClientInfo = !this.showClientInfo
     this.changeShowClientInfo({
       id,
@@ -273,7 +310,7 @@ export default class ConnectionsContent extends Vue {
     })
   }
 
-  private handleCommand(command: CommandType): void {
+  private handleCommand(command: CommandType) {
     if (command === 'disconnect') {
       this.disconnect()
     } else if (command === 'deleteConnect') {
@@ -294,7 +331,7 @@ export default class ConnectionsContent extends Vue {
       this.messages = this.record.messages
     }
   }
-  private handleMsgClear(): void {
+  private handleMsgClear() {
     this.messages = []
     this.record.messages = []
     this.changeActiveConnection({
@@ -304,7 +341,7 @@ export default class ConnectionsContent extends Vue {
     })
     updateConnection(this.record.id as string, this.record)
   }
-  private handleMsgTypeChanged(type: MessageType): void {
+  private handleMsgTypeChanged(type: MessageType) {
     if (type === 'received') {
       this.messages = this.record.messages.filter(($: MessageModel) => !$.out)
     } else if (type === 'publish') {
@@ -322,7 +359,7 @@ export default class ConnectionsContent extends Vue {
       query: { oper: 'edit' },
     })
   }
-  private searchByTopic(): void {
+  private searchByTopic() {
     this.searchLoading = true
     setTimeout(() => {
       this.searchLoading = false
@@ -330,7 +367,13 @@ export default class ConnectionsContent extends Vue {
     if (this.searchTopic !== '') {
       this.getMessages(this.$route.params.id)
       const $messages = [...this.messages]
-      this.messages = $messages.filter(($: MessageModel) => $.topic === this.searchTopic)
+      matchSearch($messages, 'topic', this.searchTopic).then((res) => {
+        if (res) {
+          this.messages = res
+        } else {
+          this.messages = []
+        }
+      })
     } else {
       this.getMessages(this.$route.params.id)
     }
@@ -349,7 +392,7 @@ export default class ConnectionsContent extends Vue {
     this.getMessages(this.$route.params.id)
   }
 
-  private removeConnection(): void {
+  private removeConnection() {
     const confirmDelete: string = this.$t('common.confirmDelete', { name: this.record.name }) as string
     this.$confirm(confirmDelete, this.$t('common.warning') as string, {
       type: 'warning',
@@ -370,11 +413,19 @@ export default class ConnectionsContent extends Vue {
 
   private createClient(): MqttClient {
     const options: IClientOptions = getClientOptions(this.record)
+    const isWS: boolean = this.connectUrl.startsWith('ws') || this.connectUrl.startsWith('wss')
+    let mqtt = null
+    if (isWS) {
+      mqtt = require('mqtt/dist/mqtt')
+    } else {
+      mqtt = require('mqtt')
+    }
     return mqtt.connect(this.connectUrl, options)
   }
   private cancel() {
     this.connectLoading = false
     this.client.end()
+    this.retryTimes = 0
   }
   private disconnect(): boolean | void {
     if (!this.client.connected) {
@@ -387,6 +438,7 @@ export default class ConnectionsContent extends Vue {
       updateConnection(id, this.record)
     }
     this.client.end()
+    this.retryTimes = 0
     this.changeActiveConnection({
       id,
       client: this.client,
@@ -397,8 +449,11 @@ export default class ConnectionsContent extends Vue {
       message: '',
       type: 'success',
       duration: 3000,
-      offset: 20,
+      offset: 30,
     })
+    if (!this.showClientInfo) {
+      this.setShowClientInfo(true)
+    }
     this.$emit('reload')
   }
   private onConnect() {
@@ -413,15 +468,9 @@ export default class ConnectionsContent extends Vue {
       message: '',
       type: 'success',
       duration: 3000,
-      offset: 20,
+      offset: 30,
     })
-    setTimeout(() => {
-      this.showClientInfo = false
-      this.changeShowClientInfo({
-        id: this.record.id as string,
-        showClientInfo: this.showClientInfo,
-      })
-    }, 500)
+    this.setShowClientInfo(false)
     this.$emit('reload')
   }
   private onError(error: string) {
@@ -430,37 +479,46 @@ export default class ConnectionsContent extends Vue {
       msgTitle = error
     }
     this.client.end()
+    this.retryTimes = 0
     this.connectLoading = false
     this.$notify({
       title: msgTitle,
       message: '',
       type: 'error',
       duration: 3000,
-      offset: 20,
+      offset: 30,
     })
     this.$emit('reload')
   }
   private onReConnect() {
     if (!this.record.reconnect) {
       this.client.end()
+      this.retryTimes = 0
       this.connectLoading = false
       this.$notify({
         title: this.$t('connections.connectFailed') as string,
         message: '',
         type: 'error',
         duration: 3000,
-        offset: 20,
+        offset: 30,
       })
       this.$emit('reload')
     } else {
-      this.connectLoading = true
-      this.$notify({
-        title: this.$t('connections.reconnect') as string,
-        message: '',
-        type: 'warning',
-        duration: 3000,
-        offset: 20,
-      })
+      if (this.retryTimes > this.maxReconnectTimes) {
+        this.client.end()
+        this.retryTimes = 0
+        this.connectLoading = false
+      } else {
+        this.retryTimes += 1
+        this.connectLoading = true
+        this.$notify({
+          title: this.$t('connections.reconnect') as string,
+          message: '',
+          type: 'warning',
+          duration: 3000,
+          offset: 30,
+        })
+      }
     }
   }
   private onClose() {
@@ -490,7 +548,7 @@ export default class ConnectionsContent extends Vue {
         this.unreadMessageIncrement({ id })
       }
       setTimeout(() => {
-        window.scrollTo(0, document.body.scrollHeight + 120)
+        window.scrollTo(0, document.body.scrollHeight + 160)
       }, 100)
     }
   }
@@ -502,7 +560,7 @@ export default class ConnectionsContent extends Vue {
         message: '',
         type: 'error',
         duration: 3000,
-        offset: 20,
+        offset: 30,
       })
       return false
     }
@@ -541,10 +599,19 @@ export default class ConnectionsContent extends Vue {
         this.record.messages.push({ ...publishMessage })
         updateConnectionMessage(this.record.id as string, { ...publishMessage })
         setTimeout(() => {
-          window.scrollTo(0, document.body.scrollHeight + 120)
+          window.scrollTo(0, document.body.scrollHeight + 160)
         }, 100)
       },
     )
+  }
+  private setShowClientInfo(show: boolean) {
+    setTimeout(() => {
+      this.showClientInfo = show
+      this.changeShowClientInfo({
+        id: this.record.id as string,
+        showClientInfo: this.showClientInfo,
+      })
+    }, 500)
   }
 
   private created(): void {
@@ -589,15 +656,19 @@ export default class ConnectionsContent extends Vue {
         @include collapse-btn-transform(90deg, -90deg);
       }
       .connection-tail {
+        i {
+          font-size: 18px;
+        }
+        .disconnect-btn {
+          margin-right: 10px;
+          color: var(--color-second-red);
+        }
         .edit-btn {
-          .el-icon-edit-outline {
-            font-size: 18px;
-          }
           &.disabled {
             cursor: not-allowed;
             color: var(--color-text-light);
           }
-          margin-right: 6px;
+          margin-right: 10px;
         }
         .el-dropdown.connection-oper {
           a {
@@ -648,7 +719,6 @@ export default class ConnectionsContent extends Vue {
 
   .connections-content-main {
     height: 100%;
-    padding: 88px 0 120px 0;
     transition: all .5s;
     .connections-body {
       padding: 16px;

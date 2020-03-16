@@ -21,6 +21,12 @@ body {
   color: var(--color-text-default);
 }
 
+body.select-none {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  user-select: none;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -48,6 +54,7 @@ p {
 pre {
   font-size: $font-size--body;
   margin-bottom: 0px;
+  font-family: Menlo, Monaco, "Courier New", monospace;
 }
 
 a {
