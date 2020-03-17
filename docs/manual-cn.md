@@ -9,11 +9,11 @@
 
 ## 简介
 
-**MQTT X** 是 [EMQ](http://emqx.io/cn) 开源的一款优雅的跨平台 MQTT 5.0 桌面客户端，它支持 macOS, Linux, Windows。
+[MQTT X](https://mqttx.app) 是 [EMQ](http://emqx.io/cn) 开源的一款优雅的跨平台 MQTT 5.0 桌面客户端，它支持 macOS, Linux, Windows。
 
-**MQTT X** 的 `UI` 采用了聊天界面形式，简化了页面操作逻辑，用户可以快速创建连接，允许保存多个客户端，方便用户快速测试 `MQTT/MQTTS` 连接，及 `MQTT` 消息的订阅和发布。
+[MQTT X](https://mqttx.app) 的 `UI` 采用了聊天界面形式，简化了页面操作逻辑，用户可以快速创建连接，允许保存多个客户端，方便用户快速测试 `MQTT/MQTTS` 连接，及 `MQTT` 消息的订阅和发布。
 
-在下载和安装前请访问我们的 [官网](https://mqttx.app) 或者是 [GitHub](https://github.com/emqx/MQTTX) 来了解并获取到最新的版本信息，使用最新版本有助于提高使用体验。如果你对本项目了解也可以直接 Clone **MQTT X** 的仓库源码，自行打包和使用。使用过程中，有任何问题都可以到 [GitHub issues](https://github.com/emqx/MQTTX/issues) 来发表问题和看法或者是 Fork 我们的项目，并向我们提交修改后的 PR，我们将会认真查阅和回复。
+在下载和安装前请访问我们的 [官网](https://mqttx.app) 或者是 [GitHub](https://github.com/emqx/MQTTX) 来了解并获取到最新的版本信息，使用最新版本有助于提高使用体验。如果你对本项目了解也可以直接 Clone [MQTT X](https://mqttx.app) 的仓库源码，自行打包和使用。使用过程中，有任何问题都可以到 [GitHub issues](https://github.com/emqx/MQTTX/issues) 来发表问题和看法或者是 Fork 我们的项目，并向我们提交修改后的 PR，我们将会认真查阅和回复。
 
 ### 快速预览
 
@@ -87,6 +87,10 @@ Linux 用户请下载最新版本的 `AppImage` 文件或使用 `snap` 文件进
 
     配置 `Broker` 信息时，`Client ID`、`Host` 和 `Port` 已经默认填写，您也可根据实际的 `Broker` 信息自行修改。点击 `Client ID` 右侧的刷新按钮，可快速生成新的 `Client ID`。
 
+    `Host` 前的选择框，用来选择该连接的协议，支持 `mqtt://`，`ws://`，如果是 `SSL/TLS` 认证连接的话，需要修改为 `mqtts://`，`wss://`。
+
+    **注意**：当协议修改时，需要修改连接的端口。
+
 ![mqttx-brokerinfo](../assets/mqttx-brokerinfo.png)
 
 2. 用户认证信息
@@ -139,6 +143,8 @@ Linux 用户请下载最新版本的 `AppImage` 文件或使用 `snap` 文件进
 
     `Topic` 订阅成功后，就可以来测试消息的收发了。在页面右下角填入刚才所订阅的 `Topic` 信息，可选择 `QoS`，`Retain` 的值，输入 `payload` 后，点击最右侧的发送按钮，就向刚才订阅的 `Topic` 发送了一条消息。发送成功后，也可以即时接收到刚才所发送的消息。注意，在消息框内，右边栏为发送的消息。左边栏为接收到的消息。macOS 用户可以使用 `command + enter` 快捷键，其它用户可以使用 `control + enter` 快捷键来快速发送消息。
 
+    消息栏的 `payload` 选项，可以快速将消息转化为多种格式，支持 `Base64`，`Hex`，`JSON` 和 `Plaintext`。
+
 ![mqttx-message](../assets/mqttx-message.png)
 
 至此就完成了一条 `MQTT` 消息的测试。
@@ -162,7 +168,7 @@ Linux 用户请下载最新版本的 `AppImage` 文件或使用 `snap` 文件进
     在消息栏右上角的 `All`，`Received`， `Published` 按钮可以过滤出
     全部消息，已接收的消息，和已发布的消息。
 
-    点击顶部的操作栏按钮，选择 `Search by Topic` 项，或使用快捷键，macOS 用户可以使用 `command + f` 快捷键，其它用户可以使用 `control + f` 快捷键，来打开按 `Topic` 搜索的的功能。
+    点击顶部的操作栏按钮，选择 `Search by Topic` 项，或使用快捷键，macOS 用户可以使用 `command + f` 快捷键，其它用户可以使用 `control + f` 快捷键，来打开按 `Topic` 搜索的的功能，支持主题的模糊查询。
 
     点击顶部的操作栏按钮，选择 `Clear Histroy` 项，可以快速清空当前连接所发送和接收的消息。
 
@@ -170,9 +176,13 @@ Linux 用户请下载最新版本的 `AppImage` 文件或使用 `snap` 文件进
 
 3. 检查更新
 
-点击左侧底部的 `i` 按钮，可进入到 `About` 页面，了解 **MQTT X** 的版本信息和 [EMQ X](https://emqx.io) 的相关信息。点击 `Check for Updates` 可以检查是否有更新版本。
+    点击左侧底部的 `i` 按钮，可进入到 `About` 页面，了解 [MQTT X](https://mqttx.app) 的版本信息和 [EMQ X](https://emqx.io) 的相关信息。点击 `Check for Updates` 可以检查是否有更新版本。
 
 ![mqttx-update](../assets/mqttx-update.png)
+
+4. 最大重连数
+
+    在自动检查更新的下方，有一个最大重连数设置，可以设置一个整数，当 `Broker` 断开，或者连接不上的情况下时，重连次数超过该数值，连接将会彻底断开。
 
 ## 开发指南
 
