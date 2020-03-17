@@ -9,11 +9,11 @@
 
 ## Introduction
 
-**MQTT X** is an elegant cross-platform MQTT 5.0 desktop client open-sourced by [EMQ](http://emqx.io/cn), which supports macOS, Linux, Windows.
+[MQTT X](https://mqttx.app) is an elegant cross-platform MQTT 5.0 desktop client open-sourced by [EMQ](http://emqx.io/cn), which supports macOS, Linux, Windows.
 
-The `UI` of **MQTT X** adopts the form of chat interface, which simplifies the page operation logic. It allows  users to quickly create connections and save multiple clients, which facilitate users to quickly test the `MQTT/MQTTS` connection, as well as the subscription and publication of `MQTT` messages.
+The `UI` of [MQTT X](https://mqttx.app) adopts the form of chat interface, which simplifies the page operation logic. It allows  users to quickly create connections and save multiple clients, which facilitate users to quickly test the `MQTT/MQTTS` connection, as well as the subscription and publication of `MQTT` messages.
 
-Before downloading and installing, please visit our [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX) to understand and obtain the latest version information. The latest version helps improve the usage experience. If you are familiar with this project, you can also directly clone the repository source code of **MQTT X**  and build and use it by yourself. During the using process, if you have any questions, you can go to  [GitHub issues](https://github.com/emqx/MQTTX/issues) to express questions and opinions or fork our project, and submit the modified PR to us. We will review and reply carefully.
+Before downloading and installing, please visit our [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX) to understand and obtain the latest version information. The latest version helps improve the usage experience. If you are familiar with this project, you can also directly clone the repository source code of [MQTT X](https://mqttx.app)  and build and use it by yourself. During the using process, if you have any questions, you can go to  [GitHub issues](https://github.com/emqx/MQTTX/issues) to express questions and opinions or fork our project, and submit the modified PR to us. We will review and reply carefully.
 
 ### Preview
 
@@ -87,6 +87,10 @@ After entering the creation page, it is required to configure or fill in the rel
 
    When configuring the `Broker` information,`Client ID`, `Host`, and `Port` are already filled in by default. You can also modify it by yourself based on the actual `Broker` information. Click the refresh button to the right of `Client ID` to quickly generate a new `Client ID`.
 
+   The drop-down box in front of `Host` is used to select the connection protocol, which supports `mqtt: //`, `ws: //`. If an `SSL / TLS` authentication connection is used, it needs to be modified to `mqtts: //`. , `Wss: //`.
+
+    **Note**: When the protocol is modified, the connection port needs to be modified.
+
 ![mqttx-brokerinfo](../assets/mqttx-brokerinfo.png)
 
 2. User authentication information
@@ -139,6 +143,8 @@ After the configuration is complete, click the `Connect` button in the upper rig
 
    After the `Topic` is successfully subscribed, you can test the sending and receiving of messages. Fill in the `Topic` information you just subscribed to in the lower right corner of the page. You can select the values of `QoS`, `Retain`, input `payload`, and click the send button on the far right to send a message to the `Topic` you just subscribed. After sending successfully, you can immediately receive the message just sent. Note that in the message box, the right column is the sent message, and the left column is the received message. MacOS users can use the `command + enter` shortcut to quickly send messages, and other users can use the `control + enter` shortcut to do that.
 
+   Through the `payload` option in the message bar, the messages can quickly be converted into multiple formats, such as `Base64`, `Hex`,`JSON` and `Plaintext`.
+
 ![mqttx-message](../assets/mqttx-message.png)
 
 So far, the test of an `MQTT` message is completed.
@@ -161,7 +167,7 @@ Click the settings button at the bottom of the left menu bar, or use shortcut. M
 
    Through the `All`,`Received`, `Published` buttons in the upper right corner of the message bar, you can filter out all messages, received messages and published messages.
 
-Click the action bar button at the top and select the `Search by Topic`  item, or use the shortcut key. MacOS users can use the command + f shortcut and Other users can use the control + f shortcut  to open the `Topic` search function.
+Click the action bar button at the top and select the `Search by Topic`  item, or use the shortcut key. MacOS users can use the command + f shortcut and Other users can use the control + f shortcut  to open the `Topic` search function, the fuzzy query of topics is supported.
 
 Click on the action bar button at the top and select the `Clear Histroy` item, you can quickly clear the messages sent and received by the current connection.
 
@@ -169,9 +175,13 @@ Click on the action bar button at the top and select the `Clear Histroy` item, y
 
 3. Check update
 
-Click the `i` button at the bottom left to enter the `About` page to learn about the version information of **MQTT X** and related information of [EMQ X](https://emqx.io) . Click `Check for Updates` to check if there are newer versions.
+   Click the `i` button at the bottom left to enter the `About` page to learn about the version information of [MQTT X](https://mqttx.app) and related information of [EMQ X](https://emqx.io) . Click `Check for Updates` to check if there are newer versions.
 
 ![mqttx-update](../assets/mqttx-update.png)
+
+4. Max reconnection times
+
+    Below the automatic check update, there is a setting for the maximum number of reconnections, which can be set as an integer. When the 'broker' is disconnected or the connection is unavailable, the connection will be completely disconnected if the number of reconnections exceeds this setting value.
 
 ## Development Guide
 
