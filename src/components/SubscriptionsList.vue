@@ -23,7 +23,8 @@
           :key="index"
           :style="{
             borderLeft: `4px solid ${sub.color}`,
-          }">
+          }"
+          @click="handleClickTopic(sub)">
           <el-tooltip
             :effect="theme !== 'light' ? 'light' : 'dark'"
             :disabled="sub.topic.length < 25"
@@ -35,7 +36,7 @@
             </span>
           </el-tooltip>
           <span class="qos">QoS {{ sub.qos }}</span>
-          <a href="javascript:;" class="close" @click="removeSubs(sub)">
+          <a href="javascript:;" class="close" @click.stop="removeSubs(sub)">
             <i class="el-icon-close"></i>
           </a>
         </div>
@@ -290,6 +291,10 @@ export default class SubscriptionsList extends Vue {
     }
   }
 
+  private handleClickTopic(item: SubscriptionModel) {
+    this.$emit('onClickTopic', item)
+  }
+
   private created(): void {
     this.getCurrentConnection(this.connectionId)
   }
@@ -319,6 +324,7 @@ export default class SubscriptionsList extends Vue {
     height: 100%;
     overflow: scroll;
     .topics-item {
+      cursor: pointer;
       color: var(--color-text-title);
       background: var(--color-bg-topics);
       padding: 0px 8px;
