@@ -548,6 +548,9 @@ export default class ConnectionsContent extends Vue {
       }
       this.pushMessage({ id, message: receivedMessage })
       this.record.messages.push({ ...receivedMessage })
+      if (this.msgType === 'received') {
+        this.messages.push(receivedMessage)
+      }
       const connectionId = this.$route.params.id
       if (id === connectionId) {
         updateConnectionMessage(connectionId, { ...receivedMessage })
@@ -605,6 +608,9 @@ export default class ConnectionsContent extends Vue {
           message: publishMessage,
         })
         this.record.messages.push({ ...publishMessage })
+        if (this.msgType === 'publish') {
+          this.messages.push(publishMessage)
+        }
         updateConnectionMessage(this.record.id as string, { ...publishMessage })
         setTimeout(() => {
           window.scrollTo(0, document.body.scrollHeight + 160)
