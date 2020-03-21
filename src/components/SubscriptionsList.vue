@@ -152,7 +152,7 @@ export default class SubscriptionsList extends Vue {
     }
   }
 
-  get vueForm(): VueForm {
+  get subForm(): VueForm {
     return this.$refs.form as VueForm
   }
 
@@ -205,7 +205,7 @@ export default class SubscriptionsList extends Vue {
       this.$message.warning(this.$t('connections.notConnect') as string)
       return false
     }
-    this.vueForm.validate((valid: boolean) => {
+    this.subForm.validate((valid: boolean) => {
       if (!valid) {
         return false
       }
@@ -277,8 +277,8 @@ export default class SubscriptionsList extends Vue {
   }
 
   private resetSubs() {
-    this.vueForm.clearValidate()
-    this.vueForm.resetFields()
+    this.subForm.clearValidate()
+    this.subForm.resetFields()
   }
 
   private getCurrentConnection(id: string) {

@@ -1,6 +1,8 @@
+import { MessageModel } from '@/views/connections/types'
+
 const topicMatch = (
-  data: SubscriptionModel[], currentTopic: string,
-): Promise<SubscriptionModel[]> => {
+  data: MessageModel[], currentTopic: string,
+): Promise<MessageModel[]> => {
   return new Promise((resolve, reject) => {
     try {
       // Topic matching algorithm
