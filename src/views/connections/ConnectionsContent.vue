@@ -122,7 +122,8 @@
           :subsVisible.sync="showSubs"
           :connectionId="$route.params.id"
           :record="record"
-          :top="showClientInfo ? bodyTop.open: bodyTop.close"/>
+          :top="showClientInfo ? bodyTop.open: bodyTop.close"
+          @onClickTopic="handleTopicClick"/>
         <div v-for="(message, index) in messages" :key="index">
           <MsgLeftItem
             v-if="!message.out"
@@ -155,6 +156,7 @@ import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
 import matchSearch from '@/utils/matchSearch'
+import topicMatch from '@/utils/topicMatch'
 import { getClientOptions, getMQTTProtocol } from '@/utils/mqttUtils'
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
@@ -378,6 +380,12 @@ export default class ConnectionsContent extends Vue {
       this.getMessages(this.$route.params.id)
     }
   }
+  private handleTopicClick(sub: SubscriptionModel) {
+    const $messages = [...this.messages]
+    topicMatch($messages, sub.topic).then((res) => {
+      console.log(res)
+    })
+  }
   private handleSearchOpen() {
     this.searchVisible = true
     const $el = document.getElementById('searchTopic')
@@ -424,7 +432,7 @@ export default class ConnectionsContent extends Vue {
   }
   private cancel() {
     this.connectLoading = false
-    this.client.end()
+    this.client.end(true)
     this.retryTimes = 0
   }
   private disconnect(): boolean | void {

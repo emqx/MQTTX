@@ -15,6 +15,10 @@ export default {
     zh: '按主题搜索',
     en: 'Search by Topic',
   },
+  topicCopied: {
+    zh: '复制成功!',
+    en: 'Topic copied!',
+  },
   clearHistory: {
     zh: '清除历史记录',
     en: 'Clear Histroy',
