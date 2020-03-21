@@ -1,5 +1,10 @@
 <template>
   <div>
+    <!-- Hide copy text -->
+    <input
+      v-model="clipboardContent"
+      type="text"
+      id="clipboard">
     <left-panel>
       <el-card
         v-if="subsVisible"
@@ -24,16 +29,15 @@
           :style="{
             borderLeft: `4px solid ${sub.color}`,
           }"
-          @click="handleClickTopic(sub)">
+          @click.stop="handleClickTopic(sub)">
           <el-tooltip
             :effect="theme !== 'light' ? 'light' : 'dark'"
-            :disabled="sub.topic.length < 25"
-            :content="sub.topic"
-            :open-delay="500"
+            :content="copySuccess ? $t('connections.topicCopied') : sub.topic"
+            :open-delay="!copySuccess ? 0 : 500"
             placement="top">
-            <span class="topic">
+            <a href="javascript:;" class="topic" @click.stop="handleCopyTopic(sub.topic)">
               {{ sub.topic }}
-            </span>
+            </a>
           </el-tooltip>
           <span class="qos">QoS {{ sub.qos }}</span>
           <a href="javascript:;" class="close" @click.stop="removeSubs(sub)">
@@ -138,6 +142,8 @@ export default class SubscriptionsList extends Vue {
   }
   private qosOption: qosList = [0, 1, 2]
   private subsList: SubscriptionModel[] = []
+  private copySuccess = false
+  private clipboardContent = ''
 
   get rules() {
     return {
@@ -291,6 +297,22 @@ export default class SubscriptionsList extends Vue {
     }
   }
 
+  private handleCopyTopic(topic: string): void | boolean {
+    this.clipboardContent = topic
+    this.copySuccess = true
+    setTimeout(() => {
+      const clipboard = document.querySelector('#clipboard') as HTMLInputElement
+      if (!clipboard) {
+        return false
+      }
+      clipboard.select()
+      document.execCommand('Copy')
+      setTimeout(() => {
+        this.copySuccess = false
+      }, 1000)
+    }, 500)
+  }
+
   private handleClickTopic(item: SubscriptionModel) {
     this.$emit('onClickTopic', item)
   }
@@ -342,6 +364,7 @@ export default class SubscriptionsList extends Vue {
         text-overflow: ellipsis;
         overflow: hidden;
         user-select: all;
+        color: var(--color-text-default);
       }
       .qos {
         float: right;
@@ -379,5 +402,10 @@ export default class SubscriptionsList extends Vue {
       top: 6px;
     }
   }
+}
+#clipboard {
+  position: absolute;
+  z-index: -1;
+  visibility: hidden;
 }
 </style>
