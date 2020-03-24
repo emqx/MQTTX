@@ -51,6 +51,12 @@ For Windows users, please download the latest version of the `exe` file. After d
 
 For Linux users, please download the latest version of the `AppImage` file or use the snap file for quick installation.
 
+For installation using `snap` file, you can also execute this command to quickly install:
+
+```shell
+sudo snap install mqttx
+```
+
 **Note**: When installing with `snap` files, there may be a problem of insufficient permissions. For details, refer to this `issue` [https://github.com/emqx/MQTTX/issues/109](https://github.com/emqx/MQTTX/issues/109)
 
 ## Usage
