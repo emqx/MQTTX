@@ -13,7 +13,7 @@
 
 ---
 
-[MQTT X](https://mqttx.app/cn) 是 [EMQ](http://emqx.io/cn) 开源的一款跨平台 MQTT 5.0 桌面客户端，它支持 macOS, Linux, Windows，并且支持 MQTT 消息格式转换。
+[MQTT X](https://mqttx.app/cn) 是 [EMQ](http://emqx.io/cn) 开源的一款跨平台 MQTT 5.0 客户端工具，它支持 macOS, Linux, Windows，并且支持 MQTT 消息格式转换。
 
 [MQTT X](https://mqttx.app/cn) 的用户界面借助聊天软件的形式简化了页面的操作逻辑，用户可以快速创建连接保存并同时建立多个连接客户端，方便用户快速测试 MQTT/TCP、MQTT/TLS、MQTT/WebSocket 的 **连接/发布/订阅** 功能及其他特性。
 
