@@ -54,7 +54,7 @@
       <img class="emqx-logo" src="../../assets/images/emqx-logo.png" alt="emqx" width="35">
       <span class="copyright">Copyright &copy; 2020
         <a
-          href="https://emqx.io"
+          href="https://www.emqx.io"
           target="_blank"
           rel="noopener noreferrer">
         EMQ X</a>
