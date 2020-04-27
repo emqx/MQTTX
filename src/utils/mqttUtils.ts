@@ -1,7 +1,7 @@
 import { IClientOptions } from 'mqtt'
 import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
-import { ConnectionModel, SSLPath, SSLContent } from '@/views/connections/types'
+import { ConnectionModel, SSLContent } from '@/views/connections/types'
 
 const setMQTT5Properties = (
   option: IClientOptions['properties'],
@@ -63,12 +63,11 @@ export const getClientOptions = (
   }
   // SSL
   if (ssl && certType === 'self') {
-    const filePath: SSLPath = {
+    const sslRes: SSLContent | undefined = getSSLFile({
       ca: record.ca,
       cert: record.cert,
       key: record.key,
-    }
-    const sslRes: SSLContent | undefined = getSSLFile(filePath)
+    })
     if (sslRes) {
       options.rejectUnauthorized = false
       options.ca = sslRes.ca
