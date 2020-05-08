@@ -42,6 +42,9 @@ export interface ConnectionModel extends SSLPath  {
   },
   sessionExpiryInterval?: number,
   receiveMaximum?: number,
+  topicAliasMaximum?: number,
+  requestResponseInformation?: boolean,
+  requestProblemInformation?: boolean,
   will?: {
     lastWillTopic: string,
     lastWillPayload: string,
