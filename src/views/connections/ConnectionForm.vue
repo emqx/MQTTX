@@ -234,6 +234,37 @@
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
+                <el-col :span="22">
+                  <el-form-item :label="$t('connections.topicAliasMaximum')" prop="topicAliasMaximum">
+                    <el-input size="mini" type="number" v-model.number="record.topicAliasMaximum">
+                    </el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
+                <el-col :span="22">
+                  <el-form-item
+                    label-width="120"
+                    :label="$t('connections.requestResponseInformation')"
+                    prop="requestResponseInformation">
+                    <el-radio-group v-model="record.requestResponseInformation">
+                      <el-radio :label="true"></el-radio>
+                      <el-radio :label="false"></el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
+                <el-col :span="22">
+                  <el-form-item
+                    label-width="120"
+                    :label="$t('connections.requestProblemInformation')"
+                    prop="requestProblemInformation">
+                    <el-radio-group v-model="record.requestProblemInformation">
+                      <el-radio :label="true"></el-radio>
+                      <el-radio :label="false"></el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
               </template>
             </el-row>
           </el-card>
@@ -355,6 +386,11 @@ export default class ConnectionCreate extends Vue {
       lastWillQos: 0,
       lastWillRetain: false,
     },
+    sessionExpiryInterval: undefined,
+    receiveMaximum: undefined,
+    topicAliasMaximum: undefined,
+    requestResponseInformation: undefined,
+    requestProblemInformation: undefined,
   }
 
   get rules() {
