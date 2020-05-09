@@ -126,14 +126,13 @@ export default class MsgPublish extends Vue {
   private handleInputBlur() {
     ipcRenderer.removeAllListeners('sendPayload')
   }
-
-  private beforeDestroy() {
-    ipcRenderer.removeAllListeners('sendPayload')
-  }
-
   private handleLayout() {
     const editorRef: EditorRef = this.$refs.payloadEditor as EditorRef
     editorRef.editorLayout()
+  }
+
+  private beforeDestroy() {
+    ipcRenderer.removeAllListeners('sendPayload')
   }
 }
 </script>
