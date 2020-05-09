@@ -582,10 +582,6 @@ export default class ConnectionsContent extends Vue {
       this.$message.warning(this.$t('connections.topicReuired') as string)
       return false
     }
-    if (!payload && !retain) {
-      this.$message.warning(this.$t('connections.payloadReuired') as string)
-      return false
-    }
     this.client.publish(
       topic,
       payload,
