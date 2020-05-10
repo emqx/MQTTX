@@ -22,14 +22,6 @@ const setMQTT5Properties = (
     option.topicAliasMaximum === 0) {
     properties.topicAliasMaximum = option.topicAliasMaximum
   }
-  if (option.requestResponseInformation === true ||
-    option.requestResponseInformation === false) {
-    properties.requestResponseInformation = option.requestResponseInformation
-  }
-  if (option.requestProblemInformation === true ||
-    option.requestProblemInformation === false) {
-    properties.requestProblemInformation = option.requestProblemInformation
-  }
   return properties
 }
 
@@ -64,15 +56,12 @@ export const getClientOptions = (
   }
   // MQTT Version
   if (protocolVersion === 5) {
-    const { sessionExpiryInterval, receiveMaximum,
-      topicAliasMaximum, requestResponseInformation, requestProblemInformation,
+    const { sessionExpiryInterval, receiveMaximum, topicAliasMaximum,
     } = record
     const properties = setMQTT5Properties({
       sessionExpiryInterval,
       receiveMaximum,
       topicAliasMaximum,
-      requestResponseInformation,
-      requestProblemInformation,
     })
     if (properties && Object.keys(properties).length > 0) {
       options.properties =  properties
