@@ -116,6 +116,7 @@
           </el-row>
         </el-card>
 
+        <!-- SSL -->
         <transition-group name="el-zoom-in-top">
           <template v-if="record.certType === 'self'">
             <div key="title" class="info-header">
@@ -156,6 +157,19 @@
                     <i class="el-icon-folder-opened"></i>
                   </a>
                 </el-col>
+                <el-col :span="22">
+                  <el-form-item 
+                    :label="$t('connections.strictValidateCertificate')"
+                    :label-width="getterLang === 'zh' ? '' : '200'"
+                    prop="rejectUnauthorized">
+                    <el-switch
+                      v-model="record.rejectUnauthorized"
+                      active-color="#13ce66"
+                      inactive-color="#A2A9B0">
+                    </el-switch>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
               </el-row>
             </el-card>
           </template>
@@ -234,6 +248,13 @@
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
+                <el-col :span="22">
+                  <el-form-item :label="$t('connections.topicAliasMaximum')" prop="topicAliasMaximum">
+                    <el-input size="mini" type="number" v-model.number="record.topicAliasMaximum">
+                    </el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
               </template>
             </el-row>
           </el-card>
@@ -306,7 +327,7 @@
 <script lang="ts">
 import { remote } from 'electron'
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { Action } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 import { loadConnection, updateConnection } from '@/utils/api/connection'
 import getClientId from '@/utils/getClientId'
 import { createConnection } from '@/utils/api/connection'
@@ -316,6 +337,8 @@ import { getMQTTProtocol } from '@/utils/mqttUtils'
 @Component
 export default class ConnectionCreate extends Vue {
   @Prop({ required: true }) public oper!: 'edit' | 'create' | undefined
+
+  @Getter('currentLang') private getterLang!: Language
 
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (
     payload: Client,
@@ -339,6 +362,7 @@ export default class ConnectionCreate extends Vue {
     port: 1883,
     ssl: false,
     certType: '',
+    rejectUnauthorized: false,
     ca: '',
     cert: '',
     key: '',
@@ -355,6 +379,9 @@ export default class ConnectionCreate extends Vue {
       lastWillQos: 0,
       lastWillRetain: false,
     },
+    sessionExpiryInterval: undefined,
+    receiveMaximum: undefined,
+    topicAliasMaximum: undefined,
   }
 
   get rules() {
@@ -378,6 +405,9 @@ export default class ConnectionCreate extends Vue {
     if (res) {
       Object.assign(this.record, res)
       this.record.protocol = getMQTTProtocol(res)
+      if (res.rejectUnauthorized === undefined) {
+        this.record.rejectUnauthorized = false
+      }
     }
   }
 

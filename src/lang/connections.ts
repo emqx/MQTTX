@@ -155,6 +155,18 @@ export default {
     zh: '接收最大数值',
     en: 'Receive Maximum',
   },
+  topicAliasMaximum: {
+    zh: '主题别名最大值',
+    en: 'Topic Alias Maximum',
+  },
+  requestResponseInformation: {
+    zh: '请求响应信息',
+    en: 'Request Response Information',
+  },
+  requestProblemInformation: {
+    zh: '请求失败信息',
+    en: 'Request Problem Information',
+  },
   topicReuired: {
     zh: '请输入 Topic',
     en: 'Topic is required',
@@ -170,5 +182,9 @@ export default {
   willMessage: {
     zh: '遗嘱消息',
     en: 'Last Will and Testament',
+  },
+  strictValidateCertificate: {
+    zh: '严格证书验证',
+    en: 'Strict validate Certificate',
   },
 }

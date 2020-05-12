@@ -4,7 +4,7 @@
     <div class="about-content">
       <img class="logo" :src="logo" alt="mqttx">
 
-      <p class="version">v1.3.0</p>
+      <p class="version">v1.3.1</p>
 
       <p class="about-help">
         <a class="web-link" href="javascript:;" @click="checkUpdate">{{ $t('about.update') }}</a>
@@ -54,7 +54,7 @@
       <img class="emqx-logo" src="../../assets/images/emqx-logo.png" alt="emqx" width="35">
       <span class="copyright">Copyright &copy; 2020
         <a
-          href="https://emqx.io"
+          :href="emqxWebsite"
           target="_blank"
           rel="noopener noreferrer">
         EMQ X</a>
@@ -118,6 +118,14 @@ export default class About extends Vue {
       return require('../../assets/images/mqttx-light.png')
     }
     return require('../../assets/images/mqttx-dark.png')
+  }
+
+  get emqxWebsite(): string {
+    let url = 'https://www.emqx.io'
+    if (this.getterLang === 'zh') {
+      url = `${url}/cn/`
+    }
+    return url
   }
 
   private checkUpdate(): void {

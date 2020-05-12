@@ -1,10 +1,5 @@
 <template>
   <div>
-    <!-- Hide copy text -->
-    <input
-      v-model="clipboardContent"
-      type="text"
-      id="clipboard">
     <left-panel>
       <el-card
         v-if="subsVisible"
@@ -23,19 +18,24 @@
           </a>
         </div>
         <div
-          class="topics-item"
           v-for="(sub, index) in subsList"
           :key="index"
+          :class="['topics-item', index === topicActiveIndex ? 'active' : '']"
           :style="{
             borderLeft: `4px solid ${sub.color}`,
           }"
-          @click.stop="handleClickTopic(sub)">
+          @click="handleClickTopic(sub, index)">
           <el-tooltip
             :effect="theme !== 'light' ? 'light' : 'dark'"
             :content="copySuccess ? $t('connections.topicCopied') : sub.topic"
             :open-delay="!copySuccess ? 0 : 500"
             placement="top">
-            <a href="javascript:;" class="topic" @click.stop="handleCopyTopic(sub.topic)">
+            <a
+              v-clipboard:copy="sub.topic"
+              v-clipboard:success="onCopySuccess"
+              href="javascript:;"
+              class="topic"
+              @click.stop="stopClick">
               {{ sub.topic }}
             </a>
           </el-tooltip>
@@ -143,7 +143,7 @@ export default class SubscriptionsList extends Vue {
   private qosOption: qosList = [0, 1, 2]
   private subsList: SubscriptionModel[] = []
   private copySuccess = false
-  private clipboardContent = ''
+  private topicActiveIndex: number | null = null
 
   get rules() {
     return {
@@ -162,6 +162,7 @@ export default class SubscriptionsList extends Vue {
 
   @Watch('record')
   private handleRecordChanged(val: ConnectionModel) {
+    this.topicActiveIndex = null
     this.getCurrentConnection(val.id as string)
   }
 
@@ -297,27 +298,27 @@ export default class SubscriptionsList extends Vue {
     }
   }
 
-  private handleCopyTopic(topic: string): void | boolean {
-    this.clipboardContent = topic
+  private onCopySuccess() {
     this.copySuccess = true
     setTimeout(() => {
-      const clipboard = document.querySelector('#clipboard') as HTMLInputElement
-      if (!clipboard) {
-        return false
-      }
-      clipboard.select()
-      document.execCommand('Copy')
-      setTimeout(() => {
-        this.copySuccess = false
-      }, 1000)
-    }, 500)
+      this.copySuccess = false
+    }, 1000)
+  }
+  private stopClick(): boolean {
+    return false
   }
 
-  private handleClickTopic(item: SubscriptionModel) {
-    this.$emit('onClickTopic', item)
+  private handleClickTopic(item: SubscriptionModel, index: number) {
+    if (this.topicActiveIndex === null || this.topicActiveIndex !== index) {
+      this.topicActiveIndex = index
+      this.$emit('onClickTopic', item, false)
+    } else if (this.topicActiveIndex === index) {
+      this.topicActiveIndex = null
+      this.$emit('onClickTopic', item, true)
+    }
   }
 
-  private created(): void {
+  private created() {
     this.getCurrentConnection(this.connectionId)
   }
 }
@@ -356,6 +357,15 @@ export default class SubscriptionsList extends Vue {
       position: relative;
       clear: both;
       border-radius: 2px;
+      -moz-user-select: none;
+      -khtml-user-select: none;
+      user-select: none;
+      transition: all .3s ease;
+      box-shadow: 1px 1px 2px 0px var(--color-bg-topics_shadow);
+      &.active {
+        background: var(--color-bg-topics_active);
+        box-shadow: none;
+      }
       .topic {
         max-width: 120px;
         margin-left: 5px;
@@ -363,7 +373,6 @@ export default class SubscriptionsList extends Vue {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        user-select: all;
         color: var(--color-text-default);
       }
       .qos {
@@ -402,10 +411,5 @@ export default class SubscriptionsList extends Vue {
       top: 6px;
     }
   }
-}
-#clipboard {
-  position: absolute;
-  z-index: -1;
-  visibility: hidden;
 }
 </style>
