@@ -183,4 +183,8 @@ export default {
     zh: '遗嘱消息',
     en: 'Last Will and Testament',
   },
+  strictValidateCertificate: {
+    zh: '严格证书验证',
+    en: 'Strict validate Certificate',
+  },
 }

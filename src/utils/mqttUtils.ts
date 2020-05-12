@@ -34,7 +34,7 @@ export const getClientOptions = (
   }
   const {
     clientId, username, password, keepalive, clean, connectTimeout,
-    ssl, certType, mqttVersion, reconnect, will,
+    ssl, certType, mqttVersion, reconnect, will, rejectUnauthorized,
   } = record
   // reconnectPeriod = 0 disabled automatic reconnection in the client
   const reconnectPeriod = reconnect ? 4000 : 0
@@ -75,10 +75,14 @@ export const getClientOptions = (
       key: record.key,
     })
     if (sslRes) {
-      options.rejectUnauthorized = false
       options.ca = sslRes.ca
       options.cert = sslRes.cert
       options.key = sslRes.key
+      if (rejectUnauthorized === undefined) {
+        options.rejectUnauthorized = false
+      } else {
+        options.rejectUnauthorized = rejectUnauthorized
+      }
     }
   }
   // Will Message
