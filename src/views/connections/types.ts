@@ -12,6 +12,7 @@ export interface MessageModel {
 }
 
 export interface SSLPath {
+  rejectUnauthorized?: boolean,
   ca: string,
   cert: string,
   key: string,
