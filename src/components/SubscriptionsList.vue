@@ -361,8 +361,10 @@ export default class SubscriptionsList extends Vue {
       -khtml-user-select: none;
       user-select: none;
       transition: all .3s ease;
+      box-shadow: 1px 1px 2px 0px var(--color-bg-topics_shadow);
       &.active {
         background: var(--color-bg-topics_active);
+        box-shadow: none;
       }
       .topic {
         max-width: 120px;
