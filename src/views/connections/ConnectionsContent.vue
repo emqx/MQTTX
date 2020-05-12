@@ -574,13 +574,15 @@ export default class ConnectionsContent extends Vue {
         retain: packet.retain as boolean,
       }
       this.pushMessage({ id, message: receivedMessage })
-      this.record.messages.push({ ...receivedMessage })
-      const isActiveTopicMessages: boolean = matchTopicMethod(this.activeTopic, topic)
-      if (this.msgType === 'received' || isActiveTopicMessages) {
-        this.messages.push(receivedMessage)
-      }
       const connectionId = this.$route.params.id
       if (id === connectionId) {
+        this.record.messages.push({ ...receivedMessage })
+        const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+        if (this.msgType === 'received' && !this.activeTopic) {
+          this.messages.push(receivedMessage)
+        } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'publish') {
+          this.messages.push(receivedMessage)
+        }
         updateConnectionMessage(connectionId, { ...receivedMessage })
       } else {
         updateConnectionMessage(id, { ...receivedMessage })
@@ -632,8 +634,10 @@ export default class ConnectionsContent extends Vue {
           message: publishMessage,
         })
         this.record.messages.push({ ...publishMessage })
-        const isActiveTopicMessages: boolean = matchTopicMethod(this.activeTopic, topic)
-        if (this.msgType === 'publish' || isActiveTopicMessages) {
+        const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+        if (this.msgType === 'publish' && !this.activeTopic) {
+          this.messages.push(publishMessage)
+        } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'received') {
           this.messages.push(publishMessage)
         }
         updateConnectionMessage(this.record.id as string, { ...publishMessage })
