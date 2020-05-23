@@ -39,7 +39,11 @@ If there are network reasons that cause slow network speeds or jam when download
 
 - macOS
 
-MacOS users are encouraged to download the installation package file in `dmg` format first. They can also choose to download the compressed file of `mac.zip`, which can be used quickly after decompression.
+For macOS users, it is recommended to download from the Mac App store.
+
+[![Get it from the Snap Store](../assets/app-store-download.svg)](https://apps.apple.com/us/app/mqttx/id1514074565?mt=12)
+
+When you need to download files to install, it is recommended to download the installation package file in `dmg` format first. They can also choose to download the compressed file of `mac.zip`, which can be used quickly after decompression.
 
 **Note**: However, for different `macOS` system versions, `zip` compression package may not be opened after decompression in the `10.15.2` system version. Please prefer the `dmg` file.
 
@@ -51,7 +55,9 @@ For Windows users, please download the latest version of the `exe` file. After d
 
 For Linux users, please download the latest version of the `AppImage` file or use the snap file for quick installation.
 
-For installation using `snap` file, you can also execute this command to quickly install:
+For installation using `snap` file, you can also execute this command to quickly install or visit Snap Store:
+
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/mqttx)
 
 ```shell
 sudo snap install mqttx
