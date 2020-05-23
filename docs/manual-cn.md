@@ -39,7 +39,11 @@
 
 - macOS
 
-macOS 用户请优先选择下载 `dmg`  格式的安装包文件。也可以选择下载 `mac.zip` 的压缩包文件，解压后可快速使用。
+对于 macOS 用户，首选建议从 Mac App Store 下载。
+
+[![Get it from the Snap Store](../assets/app-store-download.svg)](https://apps.apple.com/cn/app/mqttx/id1514074565?mt=12)
+
+当需要下载文件安装时，请优先选择下载 `dmg`  格式的安装包文件。也可以选择下载 `mac.zip` 的压缩包文件，解压后可快速使用。
 
 **注意**：但是对于 `macOS` 系统版本不同，使用 `zip` 压缩包在 `10.15.2` 系统版本中可能会出现解压后无法打开的情况，因此请优先选择 `dmg` 文件。
 
@@ -51,7 +55,9 @@ Windows 用户请下载最新版本的 `exe` 文件，下载后可根据 Setup �
 
 Linux 用户请下载最新版本的 `AppImage` 文件或使用 `snap` 文件进行快速安装。
 
-对于使用 `snap` 格式文件进行安装的，还可以执行该命令，快速安装：
+对于使用 `snap` 格式文件进行安装的，还可以执行该命令快速安装，或直接访问 Snap Store：
+
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/mqttx)
 
 ```shell
 sudo snap install mqttx

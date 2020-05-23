@@ -24,6 +24,18 @@ English | [简体中文](./README-CN.md)
 
 ## Installation
 
+Currently available for download from these app stores
+
+### MacOS App Store
+
+[![Get it from the Snap Store](./assets/app-store-download.svg)](https://apps.apple.com/us/app/mqttx/id1514074565?mt=12)
+
+### Linux
+
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/mqttx)
+
+### Released Packages
+
 Download from [GitHub Releases](https://github.com/emqx/MQTTX/releases) and install it.
 
 Alternative, you can download [here](https://www.emqx.io/downloads/MQTTX/).
