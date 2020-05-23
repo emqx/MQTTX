@@ -22,11 +22,17 @@ module.exports = {
       // In order to connect to websocket.
       externals: ['mqtt'],
       builderOptions: {
+        productName: 'MQTTX',
         win: {
           icon: './public/app.ico'
         },
         mac: {
-          icon: './public/app.png'
+          icon: './public/icon.icns',
+          target: [
+            'pkg',
+            'dmg',
+            'zip',
+          ],
         },
         linux: {
           icon: './public/app.png'
