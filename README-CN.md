@@ -25,6 +25,18 @@
 
 ## 安装
 
+当前可从以下应用商店进行快速下载安装
+
+### MacOS App Store
+
+[![Get it from the Snap Store](./assets/app-store-download.svg)](https://apps.apple.com/cn/app/mqttx/id1514074565?mt=12)
+
+### Linux
+
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/mqttx)
+
+### 发行包
+
 请从 [GitHub Releases](https://github.com/emqx/MQTTX/releases) 下载符合您的版本并安装使用。
 
 国内用户也可以从 [这里](https://www.emqx.io/downloads/MQTTX/) 下载。
