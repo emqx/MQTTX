@@ -29,6 +29,9 @@ body.select-none {
 
 * {
   box-sizing: border-box;
+  :focus {
+    outline: none;
+  }
 }
 
 h1 {
