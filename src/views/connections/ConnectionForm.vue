@@ -178,7 +178,7 @@
         <div class="info-header">
           <h3>{{ $t('settings.advanced') }}
             <a :class="['collapse-btn', advancedVisible ? 'top': 'bottom']"
-              href="javascript:;" @click="advancedVisible = !advancedVisible">
+              href="javascript:;" @click="handleCollapse('advanced')">
               <i class="el-icon-caret-top"></i>
             </a>
           </h3>
@@ -264,7 +264,7 @@
         <div class="info-header">
           <h3>{{ $t('connections.willMessage') }}
             <a :class="['collapse-btn', willMessageVisible ? 'top': 'bottom']"
-              href="javascript:;" @click="willMessageVisible = !willMessageVisible">
+              href="javascript:;" @click="handleCollapse('willMessage')">
               <i class="el-icon-caret-top"></i>
             </a>
           </h3>
@@ -350,9 +350,17 @@ export default class ConnectionCreate extends Vue {
   @Prop({ required: true }) public oper!: 'edit' | 'create' | undefined
 
   @Getter('currentLang') private getterLang!: Language
+  @Getter('advancedVisible') private getterAdvancedVisible!: boolean
+  @Getter('willMessageVisible') private getterWillMessageVisible!: boolean
 
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (
     payload: Client,
+  ) => void
+  @Action('TOGGLE_ADVANCED_VISIBLE') private toggleAdvancedVisible!: (
+    payload: { advancedVisible: boolean },
+  ) => void
+  @Action('TOGGLE_WILL_MESSAGE_VISIBLE') private toggleWillMessageVisible!: (
+    payload: { willMessageVisible: boolean },
   ) => void
 
   private willMessageVisible = true
@@ -507,11 +515,27 @@ export default class ConnectionCreate extends Vue {
     data.password = password.trim()
   }
 
+  private handleCollapse(part: 'advanced' | 'willMessage') {
+    if (part === 'advanced') {
+      this.advancedVisible = !this.advancedVisible
+      this.toggleAdvancedVisible({
+        advancedVisible: this.advancedVisible,
+      })
+    } else if (part === 'willMessage') {
+      this.willMessageVisible = !this.willMessageVisible
+      this.toggleWillMessageVisible({
+        willMessageVisible: this.willMessageVisible,
+      })
+    }
+  }
+
   private created() {
     const { id } = this.$route.params
     if (this.oper === 'edit' && id !== '0') {
       this.loadDetail(id)
     }
+    this.advancedVisible = this.getterAdvancedVisible
+    this.willMessageVisible = this.getterWillMessageVisible
   }
 }
 </script>

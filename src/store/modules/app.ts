@@ -12,6 +12,8 @@ const CHANGE_SUBSCRIPTIONS = 'CHANGE_SUBSCRIPTIONS'
 const SHOW_CLIENT_INFO = 'SHOW_CLIENT_INFO'
 const SHOW_SUBSCRIPTIONS = 'SHOW_SUBSCRIPTIONS'
 const UNREAD_MESSAGE_COUNT_INCREMENT = 'UNREAD_MESSAGE_COUNT_INCREMENT'
+const TOGGLE_WILL_MESSAGE_VISIBLE = 'TOGGLE_WILL_MESSAGE_VISIBLE'
+const TOGGLE_ADVANCED_VISIBLE = 'TOGGLE_ADVANCED_VISIBLE'
 
 const stateRecord: App = loadSettings()
 
@@ -33,6 +35,8 @@ const app = {
     showClientInfo: {},
     unreadMessageCount: {},
     activeConnection: {},
+    advancedVisible: true,
+    willMessageVisible: true,
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -88,6 +92,12 @@ const app = {
         Vue.set(state.unreadMessageCount, payload.id, count)
       }
     },
+    [TOGGLE_ADVANCED_VISIBLE](state: App, advancedVisible: boolean) {
+      state.advancedVisible = advancedVisible
+    },
+    [TOGGLE_WILL_MESSAGE_VISIBLE](state: App, willMessageVisible: boolean) {
+      state.willMessageVisible = willMessageVisible
+    },
   },
   actions: {
     TOGGLE_THEME({ commit }: any, payload: App) {
@@ -126,6 +136,12 @@ const app = {
     },
     UNREAD_MESSAGE_COUNT_INCREMENT({ commit }: any, payload: App) {
       commit(UNREAD_MESSAGE_COUNT_INCREMENT, payload)
+    },
+    TOGGLE_ADVANCED_VISIBLE({ commit }: any, payload: App) {
+      commit(TOGGLE_ADVANCED_VISIBLE, payload.advancedVisible)
+    },
+    TOGGLE_WILL_MESSAGE_VISIBLE({ commit }: any, payload: App) {
+      commit(TOGGLE_WILL_MESSAGE_VISIBLE, payload.willMessageVisible)
     },
   },
 }
