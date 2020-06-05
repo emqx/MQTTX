@@ -183,21 +183,6 @@ export default class MsgPublish extends Vue {
       border-radius: 100%;
     }
   }
-  textarea {
-    resize: none;
-  }
-  .el-textarea {
-    .el-textarea__inner {
-      border: 0px;
-      border-top: 1px solid var(--color-border-default);
-      border-radius: 0px;
-      padding: 8px 0px;
-      &:focus,
-      &:hover {
-        border-color: var(--color-border-default);
-      }
-    }
-  }
   .send-btn {
     position: fixed;
     right: 16px;
