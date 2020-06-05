@@ -310,8 +310,14 @@
                 <el-form-item
                   label="Last-Will Payload"
                   prop="will.lastWillPayload">
-                  <el-input size="mini" type="textarea" rows="3" v-model="record.will.lastWillPayload">
-                  </el-input>
+                  <div class="last-will-payload">
+                    <Editor
+                      ref="lastWillPayload"
+                      id="lastWillPayload"
+                      lang="plaintext"
+                      v-model="record.will.lastWillPayload"
+                      scrollbar-status="auto"/>
+                  </div>
                 </el-form-item>
               </el-col>
               <el-col :span="2"></el-col>
@@ -333,8 +339,13 @@ import getClientId from '@/utils/getClientId'
 import { createConnection } from '@/utils/api/connection'
 import { ConnectionModel } from './types'
 import { getMQTTProtocol } from '@/utils/mqttUtils'
+import Editor from '@/components/Editor.vue'
 
-@Component
+@Component({
+  components: {
+    Editor,
+  },
+})
 export default class ConnectionCreate extends Vue {
   @Prop({ required: true }) public oper!: 'edit' | 'create' | undefined
 
@@ -535,6 +546,14 @@ export default class ConnectionCreate extends Vue {
       .el-col-18 {
         padding-right: 0px !important;
       }
+    }
+    .last-will-payload {
+      height: 235px;
+      border: 1px solid var(--color-border-default);
+      padding-top: 10px;
+    }
+    .payload-type {
+      float: right;
     }
   }
   .info-header {
