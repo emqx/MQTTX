@@ -417,6 +417,7 @@ export default class ConnectionCreate extends Vue {
         return false
       }
       const data = { ...this.record }
+      this.trimString(data)
       let res: ConnectionModel | null = null
       let msgError = ''
       if (this.oper === 'create') {
@@ -486,6 +487,13 @@ export default class ConnectionCreate extends Vue {
     } else {
       this.$router.push(`/recent_connections/${id}`)
     }
+  }
+
+  private trimString(data: ConnectionModel) {
+    const { name, host, password } = data
+    data.name = name.trim()
+    data.host = host.trim()
+    data.password = password.trim()
   }
 
   private created() {
