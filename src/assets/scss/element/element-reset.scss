@@ -5,6 +5,8 @@
 
 /* Radio */
 .el-radio-button {
+  outline: none;
+  user-select: none;
   margin-right: -2px;
 }
 .el-radio-button--mini .el-radio-button__inner {

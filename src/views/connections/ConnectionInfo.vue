@@ -128,6 +128,7 @@ export default class ConnectionInfo extends Vue {
 
 <style lang="scss">
 .connection-info {
+  user-select: none;
   padding-bottom: 5px;
   .el-form {
     position: relative;

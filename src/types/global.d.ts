@@ -81,6 +81,8 @@ declare global {
         subscriptions?: SubscriptionModel[],
       },
     },
+    willMessageVisible: boolean,
+    advancedVisible: boolean,
   }
 
   interface State {
