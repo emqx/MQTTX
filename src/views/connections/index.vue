@@ -17,9 +17,9 @@
           ref="connectionForm"
           :oper="oper"
           @connect="handleConnect"/>
-        <ConnectionsContent
+        <ConnectionsDetail
           v-else
-          ref="connectionContent"
+          ref="ConnectionsDetail"
           :record="currentConnection"
           @reload="loadData"
           @delete="loadData(true)"/>
@@ -36,14 +36,14 @@ import { Action } from 'vuex-class'
 import { loadConnections, loadConnection } from '@/utils/api/connection'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
-import ConnectionsContent from './ConnectionsContent.vue'
+import ConnectionsDetail from './ConnectionsDetail.vue'
 import ConnectionForm from './ConnectionForm.vue'
 import { ConnectionModel } from './types'
 
 @Component({
   components: {
     ConnectionsList,
-    ConnectionsContent,
+    ConnectionsDetail,
     ConnectionForm,
     EmptyPage,
   },
@@ -126,7 +126,7 @@ export default class Connections extends Vue {
   private handleConnect() {
     this.loadData()
     setTimeout(() => {
-      const connection: ConnectionsContent = this.$refs.connectionContent as ConnectionsContent
+      const connection: ConnectionsDetail = this.$refs.ConnectionsDetail as ConnectionsDetail
       connection.connect()
     }, 500)
   }
