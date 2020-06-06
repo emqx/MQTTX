@@ -1,5 +1,5 @@
 <template>
-  <div class="connections-content">
+  <div class="connections-detail">
     <div class="connections-topbar right-topbar">
       <div class="connections-info">
         <div class="topbar">
@@ -94,7 +94,7 @@
     </div>
 
     <div
-      class="connections-content-main right-content"
+      class="connections-detail-main right-content"
       :style="{
         paddingTop: showClientInfo ? msgTop.open: msgTop.close,
         paddingBottom: `${msgBottom}px`,
@@ -185,7 +185,7 @@ interface Top {
     ResizeHeight,
   },
 })
-export default class ConnectionsContent extends Vue {
+export default class ConnectionsDetail extends Vue {
   @Prop({ required: true }) public record!: ConnectionModel
 
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
@@ -677,7 +677,7 @@ export default class ConnectionsContent extends Vue {
 @import "~@/assets/scss/variable.scss";
 @import "~@/assets/scss/mixins.scss";
 
-.connections-content {
+.connections-detail {
   .connections-topbar {
     border-bottom: 1px solid var(--color-border-default);
     .connections-info {
@@ -760,7 +760,7 @@ export default class ConnectionsContent extends Vue {
     }
   }
 
-  .connections-content-main {
+  .connections-detail-main {
     height: 100%;
     transition: all .5s;
     .connections-body {
