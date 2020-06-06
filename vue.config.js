@@ -27,7 +27,7 @@ module.exports = {
           icon: './public/app.ico'
         },
         mac: {
-          icon: './public/icon.icns',
+          icon: './public/icons/Icon.icns',
           target: [
             'pkg',
             'dmg',
