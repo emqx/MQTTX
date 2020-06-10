@@ -435,10 +435,7 @@ export default class ConnectionsDetail extends Vue {
       const res: ConnectionModel | null = await deleteConnection(this.record.id as string)
       if (res) {
         this.$emit('delete')
-        this.$message({
-          type: 'success',
-          message: this.$t('common.deleteSuccess') as string,
-        })
+        this.$message.success(this.$t('common.deleteSuccess') as string)
         this.removeActiveConnection({ id: res.id as string })
       }
     }).catch((error) => {

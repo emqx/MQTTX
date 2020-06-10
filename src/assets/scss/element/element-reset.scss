@@ -114,6 +114,31 @@
     margin-left: 0px;
   }
 }
+.el-message {
+  padding: 16px;
+  border-radius: 8px;
+  background-color: var(--color-bg-normal);
+  border: none;
+  .el-message__icon {
+    font-size: 18px;
+  }
+  &--success {
+    border: 2px solid var(--color-main-green);
+    box-shadow: 3px 3px 5px 0px var(--color-shadow-message);
+    .el-message__icon,
+    .el-message__content {
+      color: var(--color-main-green);
+    }
+  }
+  &--warning {
+    border: 2px solid var(--color-main-yellow);
+    box-shadow: 3px 3px 5px 0px var(--color-shadow-message);
+  }
+  &--error {
+    border: 2px solid var(--color-second-red);
+    box-shadow: 3px 3px 5px 0px var(--color-shadow-message);
+  }
+}
 
 /* Notification */
 .el-notification {
