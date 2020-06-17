@@ -49,10 +49,10 @@
                 <el-dropdown-item command="clearHistory">
                   <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
                 </el-dropdown-item>
-                <el-dropdown-item command="disconnect">
+                <el-dropdown-item command="disconnect" :disabled="!client.connected">
                   <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
                 </el-dropdown-item>
-                <el-dropdown-item class="delete-item" command="deleteConnect">
+                <el-dropdown-item class="delete-item" command="deleteConnect" divided>
                   <i class="iconfont icon-delete"></i>{{ $t('connections.deleteConnect') }}
                 </el-dropdown-item>
               </el-dropdown-menu>
