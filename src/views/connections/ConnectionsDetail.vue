@@ -76,7 +76,7 @@
         <div v-show="searchVisible" class="connections-search topbar">
           <el-input
             id="searchTopic"
-            v-model="searchTopic" 
+            v-model="searchTopic"
             size="small"
             :placeholder="$t('connections.searchByTopic')"
             @keyup.enter.native="searchByTopic"
@@ -204,15 +204,15 @@ export default class ConnectionsDetail extends Vue {
     [id: string]: boolean,
   }
 
-  private client: $TSFixed = {}
   private showSubs = true
   private showClientInfo = true
   private connectLoading = false
-  private msgType: MessageType = 'all'
   private searchVisible = false
+  private searchLoading = false
+  private msgType: MessageType = 'all'
+  private client: $TSFixed = {}
   private messages: MessageModel[] = []
   private searchTopic = ''
-  private searchLoading = false
   private titleName: string = this.record.name
   private retryTimes = 0
   private inputHeight = 155
