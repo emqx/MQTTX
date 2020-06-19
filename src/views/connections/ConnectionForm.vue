@@ -19,7 +19,7 @@
     <el-form
       ref="form"
       label-position="right"
-      label-width="160px"
+      label-width="180px"
       :model="record"
       :rules="rules">
       <div class="client-create__body">
@@ -277,7 +277,7 @@
             <el-row :gutter="10">
               <el-col :span="22">
                 <el-form-item
-                  label="Last-Will Topic"
+                  :label="$t('connections.willTopic')"
                   prop="will.lastWillTopic">
                   <el-input size="mini" v-model="record.will.lastWillTopic"></el-input>
                 </el-form-item>
@@ -285,7 +285,7 @@
               <el-col :span="2"></el-col>
               <el-col :span="22">
                 <el-form-item
-                  label="Last-Will QoS"
+                  :label="$t('connections.willQos')"
                   prop="will.lastWillQos">
                   <el-radio-group v-model="record.will.lastWillQos">
                     <el-radio :label="0"></el-radio>
@@ -297,7 +297,7 @@
               <el-col :span="2"></el-col>
               <el-col :span="22">
                 <el-form-item
-                  label="Last-Will Retain"
+                  :label="$t('connections.willRetain')"
                   prop="will.lastWillRetain">
                   <el-radio-group v-model="record.will.lastWillRetain">
                     <el-radio :label="true"></el-radio>
@@ -308,7 +308,7 @@
               <el-col :span="2"></el-col>
               <el-col :span="22">
                 <el-form-item
-                  label="Last-Will Payload"
+                  :label="$t('connections.willPayload')"
                   prop="will.lastWillPayload">
                   <div class="last-will-payload">
                     <Editor
@@ -321,6 +321,46 @@
                 </el-form-item>
               </el-col>
               <el-col :span="2"></el-col>
+
+              <!-- MQTT v5.0 -->
+              <template v-if="record.mqttVersion === '5.0'">
+                <el-col :span="22">
+                  <el-form-item :label="$t('connections.isUTF8Data')" prop="payloadFormatIndicator">
+                    <el-radio-group v-model="record.will.properties.payloadFormatIndicator">
+                      <el-radio :label="true"></el-radio>
+                      <el-radio :label="false"></el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
+                <el-col :span="22">
+                  <el-form-item :label="`${$t('connections.willDelayInterval')} (${$t('common.unitS')})`" prop="willDelayInterval">
+                    <el-input size="mini" type="number" v-model.number="record.will.properties.willDelayInterval">
+                    </el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
+                <el-col :span="22">
+                  <el-form-item :label="`${$t('connections.messageExpiryInterval')} (${$t('common.unitS')})`">
+                    <el-input size="mini" type="number" v-model.number="record.will.properties.messageExpiryInterval">
+                    </el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
+                <el-col :span="22">
+                  <el-form-item :label="$t('connections.contentType')" prop="contentType">
+                    <div class="last-will-payload">
+                      <Editor
+                        ref="contentType"
+                        id="contentType"
+                        lang="plaintext"
+                        v-model="record.will.properties.contentType"
+                        scrollbar-status="auto"/>
+                    </div>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
+              </template>
             </el-row>
           </el-card>
         </el-collapse-transition>
@@ -397,6 +437,12 @@ export default class ConnectionCreate extends Vue {
       lastWillPayload: '',
       lastWillQos: 0,
       lastWillRetain: false,
+      properties: {
+        payloadFormatIndicator: true,
+        willDelayInterval: undefined,
+        messageExpiryInterval: undefined,
+        contentType: '',
+      }
     },
     sessionExpiryInterval: undefined,
     receiveMaximum: undefined,
