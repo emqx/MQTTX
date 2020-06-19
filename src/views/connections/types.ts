@@ -51,6 +51,12 @@ export interface ConnectionModel extends SSLPath  {
     lastWillPayload: string,
     lastWillQos: QoS,
     lastWillRetain: boolean,
+    properties?: {
+      payloadFormatIndicator?: boolean,
+      willDelayInterval?: number,
+      messageExpiryInterval?: number,
+      contentType?: string,
+    }
   },
 }
 

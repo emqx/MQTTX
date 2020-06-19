@@ -96,7 +96,20 @@ export const getClientOptions = (
     if (topic) {
       options.will = { topic, payload, qos, retain }
     }
+    if(protocolVersion === 5) {
+      const { properties } = will
+      const willProperties: any = will.properties
+      Object.keys(willProperties).forEach(key => {
+        if(willProperties[key] === '') {
+          delete willProperties[key]
+        }
+      })
+      if(willProperties && Object.keys(willProperties).length > 0 && topic) {
+        options.will = { topic, payload, qos, retain, properties }
+      }
+    }
   }
+  console.log('options options', options)
   return options
 }
 
