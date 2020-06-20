@@ -189,34 +189,34 @@ export default {
   },
   willTopic: {
     zh: '遗嘱消息主题',
-    en: 'Last-Will Topic'
+    en: 'Last-Will Topic',
   },
   willPayload: {
     zh: '遗嘱消息',
-    en: 'Last-Will Payload'
+    en: 'Last-Will Payload',
   },
   willQos: {
     zh: '遗嘱消息 QoS',
-    en: 'Last-Will QoS'
+    en: 'Last-Will QoS',
   },
   willRetain: {
     zh: '遗嘱消息保留标志',
-    en: 'Last-Will Retain'
+    en: 'Last-Will Retain',
   },
   willDelayInterval: {
     zh: '遗嘱消息延迟时间',
-    en: 'willDelayInterval'
+    en: 'willDelayInterval',
   },
   messageExpiryInterval: {
     zh: '遗嘱消息过期时间',
-    en: 'messageExpiryInterval'
+    en: 'messageExpiryInterval',
   },
   contentType: {
     zh: '遗嘱消息描述',
-    en: 'contentType'
+    en: 'contentType',
   },
   isUTF8Data: {
     zh: '是否为 UTF-8 编码数据',
-    en: 'is UTF-8 Encoded Data'
-  }
+    en: 'is UTF-8 Encoded Data',
+  },
 }
