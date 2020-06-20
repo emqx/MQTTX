@@ -20,7 +20,7 @@ export interface SSLPath {
 
 export interface WillPropertiesModel {
   willDelayInterval?: number,
-  payloadFormatIndicator?: number,
+  payloadFormatIndicator?: boolean,
   messageExpiryInterval?: number,
   contentType?: string,
   responseTopic?: string,
