@@ -138,7 +138,6 @@ export const getClientOptions = (
       }
     }
   }
-  console.log('options', options)
   return options
 }
 
