@@ -18,7 +18,14 @@ export interface SSLPath {
   key: string,
 }
 
-export interface ConnectionModel extends SSLPath  {
+export interface WillPropertiesModel {
+  payloadFormatIndicator?: boolean,
+  willDelayInterval?: number,
+  messageExpiryInterval?: number,
+  contentType?: string,
+}
+
+export interface ConnectionModel extends SSLPath {
   readonly id?: string,
   clientId: string,
   name: string,
@@ -51,12 +58,7 @@ export interface ConnectionModel extends SSLPath  {
     lastWillPayload: string,
     lastWillQos: QoS,
     lastWillRetain: boolean,
-    properties?: {
-      payloadFormatIndicator?: boolean,
-      willDelayInterval?: number,
-      messageExpiryInterval?: number,
-      contentType?: string,
-    }
+    properties?: WillPropertiesModel,
   },
 }
 

@@ -1,7 +1,7 @@
 import { IClientOptions } from 'mqtt'
 import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
-import { ConnectionModel, SSLContent } from '@/views/connections/types'
+import { ConnectionModel, SSLContent, WillPropertiesModel } from '@/views/connections/types'
 
 const setMQTT5Properties = (
   option: IClientOptions['properties'],
@@ -95,6 +95,29 @@ export const getClientOptions = (
     } = will
     if (topic) {
       options.will = { topic, payload, qos, retain }
+      if (protocolVersion === 5) {
+        const { properties } = will
+        const willProperties: WillPropertiesModel | undefined = {}
+        if (properties !== undefined) {
+          if (properties.willDelayInterval ||
+            properties.willDelayInterval === 0 ) {
+            willProperties.willDelayInterval = properties.willDelayInterval
+          }
+          if (properties.messageExpiryInterval ||
+            properties.messageExpiryInterval === 0) {
+            willProperties.messageExpiryInterval = properties.messageExpiryInterval
+          }
+          if (properties.contentType !== '') {
+            willProperties.contentType = properties.contentType
+          }
+          if (properties.payloadFormatIndicator !== undefined) {
+            willProperties.payloadFormatIndicator = properties.payloadFormatIndicator
+          }
+        }
+        if (willProperties && Object.keys(willProperties).length > 0) {
+          options.will['properties'] = willProperties
+        }
+      }
     }
     if (topic && protocolVersion === 5) {
       const { properties } = will
@@ -115,6 +138,7 @@ export const getClientOptions = (
       }
     }
   }
+  console.log('options', options)
   return options
 }
 

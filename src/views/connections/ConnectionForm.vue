@@ -65,7 +65,9 @@
             <el-col :span="2"></el-col>
             <el-col :span="22">
               <el-form-item label-width="93px" :label="$t('connections.brokerPort')" prop="port">
-                <el-input size="mini" type="number" v-model.number="record.port"></el-input>
+                <el-input size="mini" type="number" :min="0"
+                  v-model.number="record.port">
+                </el-input>
               </el-form-item>
             </el-col>
 
@@ -193,13 +195,17 @@
                 <el-form-item
                   :label="`${$t('connections.connectionTimeout')} (${$t('common.unitS')})`"
                   prop="connectTimeout">
-                  <el-input size="mini" type="number" v-model.number="record.connectTimeout"></el-input>
+                  <el-input size="mini" type="number" :min="0"
+                    v-model.number="record.connectTimeout">
+                  </el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="2"></el-col>
               <el-col :span="22">
                 <el-form-item :label="`Keep Alive (${$t('common.unitS')})`" prop="keepalive">
-                  <el-input size="mini" type="number" v-model.number="record.keepalive"></el-input>
+                  <el-input size="mini" type="number" :min="0"
+                    v-model.number="record.keepalive">
+                  </el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="2">
@@ -236,21 +242,24 @@
               <template v-if="record.mqttVersion === '5.0'">
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.sessionExpiryInterval')" prop="sessionExpiryInterval">
-                    <el-input size="mini" type="number" v-model.number="record.sessionExpiryInterval">
+                    <el-input size="mini" type="number" :min="0"
+                      v-model.number="record.sessionExpiryInterval">
                     </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.receiveMaximum')" prop="receiveMaximum">
-                    <el-input size="mini" type="number" v-model.number="record.receiveMaximum">
+                    <el-input size="mini" type="number" :min="0"
+                      v-model.number="record.receiveMaximum">
                     </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.topicAliasMaximum')" prop="topicAliasMaximum">
-                    <el-input size="mini" type="number" v-model.number="record.topicAliasMaximum">
+                    <el-input size="mini" type="number" :min="0"
+                      v-model.number="record.topicAliasMaximum">
                     </el-input>
                   </el-form-item>
                 </el-col>
@@ -334,29 +343,36 @@
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
-                  <el-form-item :label="`${$t('connections.willDelayInterval')} (${$t('common.unitS')})`" prop="willDelayInterval">
-                    <el-input size="mini" type="number" v-model.number="record.will.properties.willDelayInterval">
+                  <el-form-item
+                    :label="`${$t('connections.willDelayInterval')} (${$t('common.unitS')})`"
+                    prop="willDelayInterval">
+                    <el-input
+                      size="mini"
+                      type="number"
+                      :min="0"
+                      v-model.number="record.will.properties.willDelayInterval">
                     </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
-                  <el-form-item :label="`${$t('connections.messageExpiryInterval')} (${$t('common.unitS')})`">
-                    <el-input size="mini" type="number" v-model.number="record.will.properties.messageExpiryInterval">
+                  <el-form-item
+                    :label="`${$t('connections.messageExpiryInterval')} (${$t('common.unitS')})`"
+                    props="messageExpiryInterval">
+                    <el-input
+                      size="mini"
+                      type="number"
+                      :min="0"
+                      v-model.number="record.will.properties.messageExpiryInterval">
                     </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.contentType')" prop="contentType">
-                    <div class="last-will-payload">
-                      <Editor
-                        ref="contentType"
-                        id="contentType"
-                        lang="plaintext"
-                        v-model="record.will.properties.contentType"
-                        scrollbar-status="auto"/>
-                    </div>
+                    <el-input type="textarea" :rows="2"
+                      v-model="record.will.properties.contentType">
+                    </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
