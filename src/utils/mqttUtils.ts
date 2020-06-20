@@ -96,20 +96,25 @@ export const getClientOptions = (
     if (topic) {
       options.will = { topic, payload, qos, retain }
     }
-    if(protocolVersion === 5) {
+    if (topic && protocolVersion === 5) {
       const { properties } = will
-      const willProperties: any = will.properties
-      Object.keys(willProperties).forEach(key => {
-        if(willProperties[key] === '') {
-          delete willProperties[key]
+      const willProperties = will.properties
+      if (willProperties !== undefined) {
+        if (!willProperties.contentType) {
+          delete willProperties.contentType
         }
-      })
-      if(willProperties && Object.keys(willProperties).length > 0 && topic) {
+        if (!willProperties.willDelayInterval && willProperties.willDelayInterval !== 0) {
+          delete willProperties.willDelayInterval
+        }
+        if (!willProperties.messageExpiryInterval && willProperties.messageExpiryInterval !== 0) {
+          delete willProperties.messageExpiryInterval
+        }
+      }
+      if (willProperties && Object.keys(willProperties).length > 0) {
         options.will = { topic, payload, qos, retain, properties }
       }
     }
   }
-  console.log('options options', options)
   return options
 }
 

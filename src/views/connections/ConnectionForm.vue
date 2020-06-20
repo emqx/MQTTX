@@ -438,7 +438,7 @@ export default class ConnectionCreate extends Vue {
       lastWillQos: 0,
       lastWillRetain: false,
       properties: {
-        payloadFormatIndicator: true,
+        payloadFormatIndicator: undefined,
         willDelayInterval: undefined,
         messageExpiryInterval: undefined,
         contentType: '',
