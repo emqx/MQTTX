@@ -196,7 +196,7 @@ export default {
     en: 'Last-Will Payload'
   },
   willQos: {
-    zh: '遗嘱消息QoS',
+    zh: '遗嘱消息 QoS',
     en: 'Last-Will QoS'
   },
   willRetain: {
@@ -216,7 +216,7 @@ export default {
     en: 'contentType'
   },
   isUTF8Data: {
-    zh: '是否为UTF-8编码数据',
+    zh: '是否为 UTF-8 编码数据',
     en: 'is UTF-8 Encoded Data'
   }
 }
