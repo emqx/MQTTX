@@ -119,24 +119,6 @@ export const getClientOptions = (
         }
       }
     }
-    if (topic && protocolVersion === 5) {
-      const { properties } = will
-      const willProperties = will.properties
-      if (willProperties !== undefined) {
-        if (!willProperties.contentType) {
-          delete willProperties.contentType
-        }
-        if (!willProperties.willDelayInterval && willProperties.willDelayInterval !== 0) {
-          delete willProperties.willDelayInterval
-        }
-        if (!willProperties.messageExpiryInterval && willProperties.messageExpiryInterval !== 0) {
-          delete willProperties.messageExpiryInterval
-        }
-      }
-      if (willProperties && Object.keys(willProperties).length > 0) {
-        options.will = { topic, payload, qos, retain, properties }
-      }
-    }
   }
   return options
 }
