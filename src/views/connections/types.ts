@@ -19,10 +19,14 @@ export interface SSLPath {
 }
 
 export interface WillPropertiesModel {
-  payloadFormatIndicator?: boolean,
   willDelayInterval?: number,
+  payloadFormatIndicator?: number,
   messageExpiryInterval?: number,
   contentType?: string,
+  responseTopic?: string,
+  correlationData?: Buffer,
+  // tslint:disable-next-line:ban-types
+  userProperties?: Object,
 }
 
 export interface ConnectionModel extends SSLPath {
