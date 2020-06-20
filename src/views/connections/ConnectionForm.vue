@@ -458,7 +458,7 @@ export default class ConnectionCreate extends Vue {
         willDelayInterval: undefined,
         messageExpiryInterval: undefined,
         contentType: '',
-      }
+      },
     },
     sessionExpiryInterval: undefined,
     receiveMaximum: undefined,

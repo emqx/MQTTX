@@ -115,7 +115,7 @@ export const getClientOptions = (
           }
         }
         if (willProperties && Object.keys(willProperties).length > 0) {
-          options.will['properties'] = willProperties
+          options.will.properties = willProperties
         }
       }
     }
