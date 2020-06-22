@@ -636,7 +636,8 @@ export default class ConnectionCreate extends Vue {
     .last-will-payload {
       height: 235px;
       border: 1px solid var(--color-border-default);
-      padding-top: 10px;
+      padding: 10px 1px 1px 1px;
+      border-radius: 4px;
     }
     .payload-type {
       float: right;
