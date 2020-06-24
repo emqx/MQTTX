@@ -415,6 +415,7 @@ import { createConnection } from '@/utils/api/connection'
 import { ConnectionModel } from './types'
 import { getMQTTProtocol } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
+import deepMerge from '@/utils/deepMerge'
 
 @Component({
   components: {
@@ -513,7 +514,7 @@ export default class ConnectionCreate extends Vue {
   private async loadDetail(id: string) {
     const res: ConnectionModel | null = await loadConnection(id)
     if (res) {
-      Object.assign(this.record, res)
+      deepMerge(this.record, res)
       this.record.protocol = getMQTTProtocol(res)
       if (res.rejectUnauthorized === undefined) {
         this.record.rejectUnauthorized = false
