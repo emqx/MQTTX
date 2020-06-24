@@ -502,7 +502,7 @@ export default class ConnectionCreate extends Vue {
     return this.$refs.form as VueForm
   }
 
-  private versionChange(val: string) {
+  private versionChange(val: '5.0' | '3.1.1') {
     if (val === '5.0') {
       this.willLabelWidth = 170
     } else {
@@ -666,17 +666,20 @@ export default class ConnectionCreate extends Vue {
       height: 235px;
       border: 1px solid var(--color-border-default);
       padding: 10px 1px 1px 1px;
-      border-radius: 4px;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
     }
     .payload-type {
       width: 100%;
       height: 30px;
       line-height: 30px;
       padding: 0px 12px;
-      background: #f6f7fb;
-      border: 1px solid #D9D9D9;
+      background: var(--color-bg-radio);
+      border: 1px solid var(--color-border-default);
       border-top: none;
       text-align: right;
+      border-bottom-left-radius: 4px;
+      border-bottom-right-radius: 4px;
     }
   }
   .info-header {
