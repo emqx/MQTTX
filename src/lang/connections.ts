@@ -205,15 +205,15 @@ export default {
   },
   willDelayInterval: {
     zh: '遗嘱消息延迟时间',
-    en: 'willDelayInterval',
+    en: 'Will Delay Interval',
   },
   messageExpiryInterval: {
     zh: '遗嘱消息过期时间',
-    en: 'messageExpiryInterval',
+    en: 'Message Expiry Interval',
   },
   contentType: {
     zh: '遗嘱消息描述',
-    en: 'contentType',
+    en: 'Content Type',
   },
   isUTF8Data: {
     zh: '是否为 UTF-8 编码数据',

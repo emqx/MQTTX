@@ -505,7 +505,7 @@ export default class ConnectionCreate extends Vue {
 
   private versionChange(val: '5.0' | '3.1.1') {
     if (val === '5.0') {
-      this.willLabelWidth = 170
+      this.willLabelWidth = 180
     } else {
       this.willLabelWidth = 160
     }
@@ -669,6 +669,9 @@ export default class ConnectionCreate extends Vue {
       padding: 10px 1px 1px 1px;
       border-top-left-radius: 4px;
       border-top-right-radius: 4px;
+      span {
+        font-size: 12px;
+      }
     }
     .payload-type {
       width: 100%;
