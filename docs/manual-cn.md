@@ -230,4 +230,4 @@ Linux: `vue-cli-service electron:build --linux`
 |  方式   | 内容  |
 |  ----  | ----  |
 | QQ 群（EMQ X 官方群3）| 937041105 |
-| EMQ X 官方公众号 | <img src="../assets/wx_qr_code.png" width="160" width="160" alt="MQTTX Logo"/> |
+| EMQ X 官方公众号 | <img src="../assets/wx_qr_code.png" width="160" alt="MQTTX Logo"/> |
