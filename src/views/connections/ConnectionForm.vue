@@ -230,7 +230,7 @@
               <el-col :span="2"></el-col>
               <el-col :span="22">
                 <el-form-item :label="$t('connections.mqttVersion')" prop="mqttVersion">
-                  <el-select size="mini" v-model="record.mqttVersion" @change="versionChange">
+                  <el-select size="mini" v-model="record.mqttVersion">
                     <el-option value="3.1.1" label="3.1.1"></el-option>
                     <el-option value="5.0" label="5.0"></el-option>
                   </el-select>
@@ -407,7 +407,7 @@
 
 <script lang="ts">
 import { remote } from 'electron'
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { loadConnection, updateConnection } from '@/utils/api/connection'
 import getClientId from '@/utils/getClientId'
@@ -487,6 +487,15 @@ export default class ConnectionCreate extends Vue {
     topicAliasMaximum: undefined,
   }
 
+  @Watch('record', { immediate: true, deep: true })
+  private handleMqttVersionChange(val: ConnectionModel) {
+    if (val.mqttVersion === '3.1.1') {
+      this.willLabelWidth = 160
+    } else {
+      this.willLabelWidth = 180
+    }
+  }
+
   get rules() {
     return {
       name: [{ required: true, message: this.$t('common.inputRequired') }],
@@ -501,14 +510,6 @@ export default class ConnectionCreate extends Vue {
 
   get vueForm(): VueForm {
     return this.$refs.form as VueForm
-  }
-
-  private versionChange(val: '5.0' | '3.1.1') {
-    if (val === '5.0') {
-      this.willLabelWidth = 180
-    } else {
-      this.willLabelWidth = 160
-    }
   }
 
   private async loadDetail(id: string) {
@@ -669,9 +670,6 @@ export default class ConnectionCreate extends Vue {
       padding: 10px 1px 1px 1px;
       border-top-left-radius: 4px;
       border-top-right-radius: 4px;
-      span {
-        font-size: 12px;
-      }
     }
     .payload-type {
       width: 100%;

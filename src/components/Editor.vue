@@ -69,6 +69,9 @@ export default class Editor extends Vue {
     if (!id) {
       return false
     }
+    if (this.id === 'lastWillPayload') {
+      defaultOptions.fontSize = 12
+    }
     this.editor = monaco.editor.create(id, defaultOptions)
     // event changed
     this.editor.onDidChangeModelContent((event) => {
