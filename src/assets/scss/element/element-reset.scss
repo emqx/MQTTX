@@ -9,6 +9,9 @@
   user-select: none;
   margin-right: -2px;
 }
+.el-radio__label {
+  font-size: 13px;
+}
 .el-radio-button--mini .el-radio-button__inner {
   background: transparent;
   border: 2px solid var(--color-border-bold);
@@ -40,9 +43,11 @@
   .el-form-item__label {
     color: var(--color-text-default);
   }
-  .el-form-item__content {
-    span {
-      color: var(--color-text-default);
+  .el-form-item:not(.will-payload-box) {
+    .el-form-item__content {
+      span {
+        color: var(--color-text-default);
+      }
     }
   }
   .el-select {

@@ -19,7 +19,7 @@
     <el-form
       ref="form"
       label-position="right"
-      label-width="180px"
+      label-width="160px"
       :model="record"
       :rules="rules">
       <div class="client-create__body">
@@ -230,7 +230,7 @@
               <el-col :span="2"></el-col>
               <el-col :span="22">
                 <el-form-item :label="$t('connections.mqttVersion')" prop="mqttVersion">
-                  <el-select size="mini" v-model="record.mqttVersion">
+                  <el-select size="mini" v-model="record.mqttVersion" @change="versionChange">
                     <el-option value="3.1.1" label="3.1.1"></el-option>
                     <el-option value="5.0" label="5.0"></el-option>
                   </el-select>
@@ -286,6 +286,7 @@
             <el-row :gutter="10">
               <el-col :span="22">
                 <el-form-item
+                  :label-width="`${willLabelWidth}px`"
                   :label="$t('connections.willTopic')"
                   prop="will.lastWillTopic">
                   <el-input size="mini" v-model="record.will.lastWillTopic"></el-input>
@@ -294,6 +295,7 @@
               <el-col :span="2"></el-col>
               <el-col :span="22">
                 <el-form-item
+                  :label-width="`${willLabelWidth}px`"
                   :label="$t('connections.willQos')"
                   prop="will.lastWillQos">
                   <el-radio-group v-model="record.will.lastWillQos">
@@ -306,6 +308,7 @@
               <el-col :span="2"></el-col>
               <el-col :span="22">
                 <el-form-item
+                  :label-width="`${willLabelWidth}px`"
                   :label="$t('connections.willRetain')"
                   prop="will.lastWillRetain">
                   <el-radio-group v-model="record.will.lastWillRetain">
@@ -317,15 +320,23 @@
               <el-col :span="2"></el-col>
               <el-col :span="22">
                 <el-form-item
+                  class="will-payload-box"
+                  :label-width="`${willLabelWidth}px`"
                   :label="$t('connections.willPayload')"
                   prop="will.lastWillPayload">
                   <div class="last-will-payload">
                     <Editor
                       ref="lastWillPayload"
                       id="lastWillPayload"
-                      lang="plaintext"
+                      :lang="payloadType"
                       v-model="record.will.lastWillPayload"
                       scrollbar-status="auto"/>
+                  </div>
+                  <div class="payload-type">
+                    <el-radio-group v-model="payloadType">
+                      <el-radio label="json">JSON</el-radio>
+                      <el-radio label="plaintext">Plaintext</el-radio>
+                    </el-radio-group>
                   </div>
                 </el-form-item>
               </el-col>
@@ -334,7 +345,10 @@
               <!-- MQTT v5.0 -->
               <template v-if="record.mqttVersion === '5.0'">
                 <el-col :span="22">
-                  <el-form-item :label="$t('connections.isUTF8Data')" prop="payloadFormatIndicator">
+                  <el-form-item
+                    :label-width="`${willLabelWidth}px`"
+                    :label="$t('connections.isUTF8Data')"
+                    prop="payloadFormatIndicator">
                     <el-radio-group v-model="record.will.properties.payloadFormatIndicator">
                       <el-radio :label="true"></el-radio>
                       <el-radio :label="false"></el-radio>
@@ -344,6 +358,7 @@
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item
+                    :label-width="`${willLabelWidth}px`"
                     :label="`${$t('connections.willDelayInterval')} (${$t('common.unitS')})`"
                     prop="willDelayInterval">
                     <el-input
@@ -357,6 +372,7 @@
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item
+                    :label-width="`${willLabelWidth}px`"
                     :label="`${$t('connections.messageExpiryInterval')} (${$t('common.unitS')})`"
                     props="messageExpiryInterval">
                     <el-input
@@ -369,7 +385,10 @@
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
-                  <el-form-item :label="$t('connections.contentType')" prop="contentType">
+                  <el-form-item
+                    :label-width="`${willLabelWidth}px`"
+                    :label="$t('connections.contentType')"
+                    prop="contentType">
                     <el-input type="textarea" :rows="2"
                       v-model="record.will.properties.contentType">
                     </el-input>
@@ -421,6 +440,8 @@ export default class ConnectionCreate extends Vue {
 
   private willMessageVisible = true
   private advancedVisible = true
+  private payloadType = 'plaintext'
+  private willLabelWidth = 160
 
   private record: ConnectionModel = {
     clientId: getClientId(),
@@ -479,6 +500,14 @@ export default class ConnectionCreate extends Vue {
 
   get vueForm(): VueForm {
     return this.$refs.form as VueForm
+  }
+
+  private versionChange(val: string) {
+    if (val === '5.0') {
+      this.willLabelWidth = 170
+    } else {
+      this.willLabelWidth = 160
+    }
   }
 
   private async loadDetail(id: string) {
@@ -640,7 +669,14 @@ export default class ConnectionCreate extends Vue {
       border-radius: 4px;
     }
     .payload-type {
-      float: right;
+      width: 100%;
+      height: 30px;
+      line-height: 30px;
+      padding: 0px 12px;
+      background: #f6f7fb;
+      border: 1px solid #D9D9D9;
+      border-top: none;
+      text-align: right;
     }
   }
   .info-header {
