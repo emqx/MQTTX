@@ -145,6 +145,7 @@ export default class MsgPublish extends Vue {
 .msg-publish {
   background: var(--color-bg-normal);
   transition: .3s height;
+  border-top: 1px solid var(--color-border-default);
   .publish-header {
     padding: 0 16px;
     margin-bottom: 4px;
