@@ -14,6 +14,7 @@ import EditorNight from '@/assets/scss/theme/editor-night.json'
 export default class Editor extends Vue {
   @Prop({ required: true }) public id!: string
   @Prop({ required: true }) public lang!: string
+  @Prop({ required: true }) public fontSize!: number
   @Prop({ default: 'hidden' }) public scrollbarStatus: 'auto' | 'visible' | 'hidden' | undefined
 
   @Model('change', { type: String }) private readonly value!: string
@@ -44,7 +45,7 @@ export default class Editor extends Vue {
       value: this.value,
       language: this.lang,
       readOnly: false,
-      fontSize: 14,
+      fontSize: this.fontSize,
       scrollBeyondLastLine: false,
       lineNumbers: 'off',
       renderLineHighlight: 'none',
@@ -68,9 +69,6 @@ export default class Editor extends Vue {
     const id = document.getElementById(`monaco-${this.id}`)
     if (!id) {
       return false
-    }
-    if (this.id === 'lastWillPayload') {
-      defaultOptions.fontSize = 12
     }
     this.editor = monaco.editor.create(id, defaultOptions)
     // event changed
