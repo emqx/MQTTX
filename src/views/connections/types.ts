@@ -1,6 +1,11 @@
 import { MqttClient } from 'mqtt'
 
 type QoS = 0 | 1 | 2
+type searchCallBack = (data: ConnectionModel[]) => ConnectionModel[]
+
+export interface SearchCallBack {
+  callBack: searchCallBack
+}
 
 export interface MessageModel {
   createAt: string,
@@ -30,9 +35,10 @@ export interface WillPropertiesModel {
 }
 
 export interface ConnectionModel extends SSLPath {
-  readonly id?: string,
+  id?: string,
   clientId: string,
   name: string,
+  value?: string,
   clean: boolean,
   protocol?: Protocol,
   host: string,

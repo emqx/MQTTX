@@ -5,7 +5,7 @@ import CollapseTransition from 'element-ui/lib/transitions/collapse-transition'
 import {
   // Pagination,
   Dialog,
-  // Autocomplete,
+  Autocomplete,
   Dropdown,
   DropdownMenu,
   DropdownItem,
@@ -76,7 +76,7 @@ import {
 export default (Vue: any) => {
   // Vue.use(Pagination)
   Vue.use(Dialog)
-  // Vue.use(Autocomplete)
+  Vue.use(Autocomplete)
   Vue.use(Dropdown)
   Vue.use(DropdownMenu)
   Vue.use(DropdownItem)
