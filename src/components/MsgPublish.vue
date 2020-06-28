@@ -41,6 +41,7 @@
         ref="payloadEditor"
         id="payload"
         :lang="payloadLang"
+        :fontSize="14"
         v-model="msgRecord.payload"
         @enter-event="send"
         @focus="handleInputFoucs"

@@ -329,6 +329,7 @@
                       ref="lastWillPayload"
                       id="lastWillPayload"
                       :lang="payloadType"
+                      :fontSize="12"
                       v-model="record.will.lastWillPayload"
                       scrollbar-status="auto"/>
                   </div>
