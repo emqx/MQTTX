@@ -14,7 +14,7 @@ import EditorNight from '@/assets/scss/theme/editor-night.json'
 export default class Editor extends Vue {
   @Prop({ required: true }) public id!: string
   @Prop({ required: true }) public lang!: string
-  @Prop({ required: true }) public fontSize!: number
+  @Prop({ default: 14 }) public fontSize!: number
   @Prop({ default: 'hidden' }) public scrollbarStatus: 'auto' | 'visible' | 'hidden' | undefined
 
   @Model('change', { type: String }) private readonly value!: string
