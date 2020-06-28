@@ -32,7 +32,12 @@
           <el-row :gutter="10">
             <el-col :span="22">
               <el-form-item label-width="93px" :label="$t('connections.name')" prop="name">
-                <el-input size="mini" v-model="record.name"></el-input>
+                <el-autocomplete
+                  size="mini"
+                  v-model="record.name"
+                  :fetch-suggestions="querySearchName"
+                  @select="handleSelectName">
+                </el-autocomplete>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
@@ -410,10 +415,10 @@
 import { remote } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { loadConnection, updateConnection } from '@/utils/api/connection'
+import { loadConnection, loadConnections, updateConnection } from '@/utils/api/connection'
 import getClientId from '@/utils/getClientId'
 import { createConnection } from '@/utils/api/connection'
-import { ConnectionModel } from './types'
+import { ConnectionModel, SearchCallBack } from './types'
 import { getMQTTProtocol } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
 import deepMerge from '@/utils/deepMerge'
@@ -444,10 +449,12 @@ export default class ConnectionCreate extends Vue {
   private advancedVisible = true
   private payloadType = 'plaintext'
   private willLabelWidth = 160
+  private connectionList: ConnectionModel[] | [] = []
 
   private record: ConnectionModel = {
     clientId: getClientId(),
     name: '',
+    value: '',
     clean: true,
     protocol: 'mqtt',
     host: 'broker.emqx.io',
@@ -630,6 +637,35 @@ export default class ConnectionCreate extends Vue {
     }
     this.advancedVisible = this.getterAdvancedVisible
     this.willMessageVisible = this.getterWillMessageVisible
+  }
+
+  private mounted() {
+    this.loadData()
+  }
+
+  private async loadData(reload: boolean = false): Promise<void> {
+    this.connectionList = await loadConnections()
+    for (const i of this.connectionList) {
+      i.value = i.name
+    }
+  }
+
+  private createFilter(queryName: string) {
+    return (connectionItem: ConnectionModel) => {
+      return (connectionItem.name.toLowerCase().indexOf(queryName.toLowerCase()) === 0)
+    }
+  }
+
+  private querySearchName(queryName: string, cb: SearchCallBack['callBack']) {
+    const connections = this.connectionList
+    const results = queryName ? connections.filter(this.createFilter(queryName)) : connections
+    cb(results)
+  }
+
+  private handleSelectName(item: ConnectionModel) {
+    item.clientId = getClientId()
+    delete item.id
+    this.record = item
   }
 }
 </script>
