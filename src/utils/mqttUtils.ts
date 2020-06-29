@@ -56,7 +56,8 @@ export const getClientOptions = (
   }
   // MQTT Version
   if (protocolVersion === 5) {
-    const { sessionExpiryInterval, receiveMaximum, topicAliasMaximum,
+    const {
+      sessionExpiryInterval, receiveMaximum, topicAliasMaximum,
     } = record
     const properties = setMQTT5Properties({
       sessionExpiryInterval,
@@ -68,21 +69,28 @@ export const getClientOptions = (
     }
   }
   // SSL
-  if (ssl && certType === 'self') {
-    const sslRes: SSLContent | undefined = getSSLFile({
-      ca: record.ca,
-      cert: record.cert,
-      key: record.key,
-    })
-    if (sslRes) {
-      options.ca = sslRes.ca
-      options.cert = sslRes.cert
-      options.key = sslRes.key
-      if (rejectUnauthorized === undefined) {
+  if (ssl) {
+    switch (certType) {
+      case 'self':
+        const sslRes: SSLContent | undefined = getSSLFile({
+          ca: record.ca,
+          cert: record.cert,
+          key: record.key,
+        })
+        if (sslRes) {
+          options.ca = sslRes.ca
+          options.cert = sslRes.cert
+          options.key = sslRes.key
+          if (rejectUnauthorized === undefined) {
+            options.rejectUnauthorized = false
+          } else {
+            options.rejectUnauthorized = rejectUnauthorized
+          }
+        }
+        break
+      case 'server':
         options.rejectUnauthorized = false
-      } else {
-        options.rejectUnauthorized = rejectUnauthorized
-      }
+        break
     }
   }
   // Will Message

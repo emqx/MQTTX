@@ -151,6 +151,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import mqtt from 'mqtt'
 import { MqttClient, IClientOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
@@ -169,6 +170,10 @@ import { ipcRenderer } from 'electron'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
+
+interface InitClient {
+  connected: boolean,
+}
 
 interface Top {
   open: string,
@@ -210,7 +215,9 @@ export default class ConnectionsDetail extends Vue {
   private searchVisible = false
   private searchLoading = false
   private msgType: MessageType = 'all'
-  private client: $TSFixed = {}
+  private client: MqttClient | any = {
+    connected: false,
+  }
   private messages: MessageModel[] = []
   private searchTopic = ''
   private titleName: string = this.record.name
@@ -229,6 +236,7 @@ export default class ConnectionsDetail extends Vue {
     }
     this.connectLoading = true
     this.client = this.createClient()
+    console.log(this.client)
     const { id } = this.record
     if (id) {
       this.client.on('connect', this.onConnect)
@@ -296,7 +304,9 @@ export default class ConnectionsDetail extends Vue {
     if ($activeConnection) {
       this.client = $activeConnection.client
     } else {
-      this.client = {}
+      this.client = {
+        connected: false,
+      }
     }
   }
 
@@ -446,12 +456,12 @@ export default class ConnectionsDetail extends Vue {
   private createClient(): MqttClient {
     const options: IClientOptions = getClientOptions(this.record)
     const isWS: boolean = this.connectUrl.startsWith('ws') || this.connectUrl.startsWith('wss')
-    let mqtt = null
-    if (isWS) {
-      mqtt = require('mqtt/dist/mqtt')
-    } else {
-      mqtt = require('mqtt')
-    }
+    // let mqtt = null
+    // if (isWS) {
+    //   mqtt = require('mqtt/dist/mqtt')
+    // } else {
+    //   mqtt = require('mqtt')
+    // }
     return mqtt.connect(this.connectUrl, options)
   }
   private cancel() {
@@ -469,7 +479,7 @@ export default class ConnectionsDetail extends Vue {
       this.changeSubs({ id, subscriptions: [] })
       updateConnection(id, this.record)
     }
-    this.client.end()
+    this.client.end(true)
     this.retryTimes = 0
     this.changeActiveConnection({
       id,
@@ -510,7 +520,7 @@ export default class ConnectionsDetail extends Vue {
     if (error) {
       msgTitle = error
     }
-    this.client.end()
+    this.client.end(true)
     this.retryTimes = 0
     this.connectLoading = false
     this.$notify({
@@ -524,7 +534,7 @@ export default class ConnectionsDetail extends Vue {
   }
   private onReConnect() {
     if (!this.record.reconnect) {
-      this.client.end()
+      this.client.end(true)
       this.retryTimes = 0
       this.connectLoading = false
       this.$notify({
@@ -537,7 +547,7 @@ export default class ConnectionsDetail extends Vue {
       this.$emit('reload')
     } else {
       if (this.retryTimes > this.maxReconnectTimes) {
-        this.client.end()
+        this.client.end(true)
         this.retryTimes = 0
         this.connectLoading = false
       } else {
