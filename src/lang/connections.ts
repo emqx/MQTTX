@@ -219,4 +219,8 @@ export default {
     zh: '是否为 UTF-8 编码数据',
     en: 'is UTF-8 Encoded Data',
   },
+  duplicateName: {
+    zh: '该名称已存在，请重新命名！',
+    en: 'The name already exists. Please rename it!',
+  },
 }

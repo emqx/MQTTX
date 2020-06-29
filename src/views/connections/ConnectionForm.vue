@@ -33,11 +33,14 @@
             <el-col :span="22">
               <el-form-item label-width="93px" :label="$t('connections.name')" prop="name">
                 <el-autocomplete
+                  v-if="oper === 'create'"
                   size="mini"
                   v-model="record.name"
+                  value-key="name"
                   :fetch-suggestions="querySearchName"
                   @select="handleSelectName">
                 </el-autocomplete>
+                <el-input v-else size="mini" v-model="record.name"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
@@ -415,10 +418,10 @@
 import { remote } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { loadConnection, loadConnections, updateConnection } from '@/utils/api/connection'
+import { loadConnection, createConnection, updateConnection, loadConnections } from '@/utils/api/connection'
 import getClientId from '@/utils/getClientId'
-import { createConnection } from '@/utils/api/connection'
-import { ConnectionModel, SearchCallBack } from './types'
+import { loadSuggestConnections } from '@/utils/api/connection'
+import { ConnectionModel, SearchCallBack, NameCallBack, FormRule } from './types'
 import { getMQTTProtocol } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
 import deepMerge from '@/utils/deepMerge'
@@ -505,7 +508,10 @@ export default class ConnectionCreate extends Vue {
 
   get rules() {
     return {
-      name: [{ required: true, message: this.$t('common.inputRequired') }],
+      name: [
+        { required: true, message: this.$t('common.inputRequired') },
+        { validator: this.validateName, trigger: 'blur' },
+      ],
       clientId: [{ required: true, message: this.$t('common.inputRequired') }],
       path: [{ required: true, message: this.$t('common.inputRequired') }],
       host: [{ required: true, message: this.$t('common.inputRequired') }],
@@ -629,21 +635,17 @@ export default class ConnectionCreate extends Vue {
     }
   }
 
-  private created() {
-    this.loadData()
-    const { id } = this.$route.params
-    if (this.oper === 'edit' && id !== '0') {
-      this.loadDetail(id)
+  private async validateName(rule: FormRule, name: string, callBack: NameCallBack['callBack']) {
+    const allConnections = await loadConnections()
+    for (const one of allConnections) {
+      if (one.name === name) {
+        callBack(`${this.$t('connections.duplicateName')}`)
+      }
     }
-    this.advancedVisible = this.getterAdvancedVisible
-    this.willMessageVisible = this.getterWillMessageVisible
   }
 
   private async loadData(reload: boolean = false): Promise<void> {
-    this.connectionList = await loadConnections()
-    for (const i of this.connectionList) {
-      i.value = i.name
-    }
+    this.connectionList = await loadSuggestConnections()
   }
 
   private createFilter(queryName: string) {
@@ -653,15 +655,25 @@ export default class ConnectionCreate extends Vue {
   }
 
   private querySearchName(queryName: string, cb: SearchCallBack['callBack']) {
-    const connections = this.connectionList
-    const results = queryName ? connections.filter(this.createFilter(queryName)) : connections
+    const connection = this.connectionList
+    const results = queryName ? connection.filter(this.createFilter(queryName)) : connection
     cb(results)
   }
 
   private handleSelectName(item: ConnectionModel) {
-    item.clientId = getClientId()
-    delete item.id
-    this.record = item
+    const { id, ...oneConnection } = item
+    oneConnection.clientId = getClientId()
+    this.record = oneConnection
+  }
+
+  private created() {
+    this.loadData()
+    const { id } = this.$route.params
+    if (this.oper === 'edit' && id !== '0') {
+      this.loadDetail(id)
+    }
+    this.advancedVisible = this.getterAdvancedVisible
+    this.willMessageVisible = this.getterWillMessageVisible
   }
 }
 </script>
