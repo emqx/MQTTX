@@ -418,9 +418,11 @@
 import { remote } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { loadConnection, createConnection, updateConnection, loadConnections } from '@/utils/api/connection'
+import {
+  loadConnection, createConnection, updateConnection,
+  loadConnections, loadSuggestConnections,
+} from '@/utils/api/connection'
 import getClientId from '@/utils/getClientId'
-import { loadSuggestConnections } from '@/utils/api/connection'
 import { ConnectionModel, SearchCallBack, NameCallBack, FormRule } from './types'
 import { getMQTTProtocol } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
@@ -637,8 +639,8 @@ export default class ConnectionCreate extends Vue {
 
   private async validateName(rule: FormRule, name: string, callBack: NameCallBack['callBack']) {
     const allConnections = await loadConnections()
-    for (const one of allConnections) {
-      if (one.name === name) {
+    for (const connection of allConnections) {
+      if (connection.name === name) {
         callBack(`${this.$t('connections.duplicateName')}`)
       }
     }
