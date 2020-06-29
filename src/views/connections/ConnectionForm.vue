@@ -454,7 +454,6 @@ export default class ConnectionCreate extends Vue {
   private record: ConnectionModel = {
     clientId: getClientId(),
     name: '',
-    value: '',
     clean: true,
     protocol: 'mqtt',
     host: 'broker.emqx.io',
@@ -631,16 +630,13 @@ export default class ConnectionCreate extends Vue {
   }
 
   private created() {
+    this.loadData()
     const { id } = this.$route.params
     if (this.oper === 'edit' && id !== '0') {
       this.loadDetail(id)
     }
     this.advancedVisible = this.getterAdvancedVisible
     this.willMessageVisible = this.getterWillMessageVisible
-  }
-
-  private mounted() {
-    this.loadData()
   }
 
   private async loadData(reload: boolean = false): Promise<void> {
