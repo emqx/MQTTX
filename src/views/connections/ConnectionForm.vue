@@ -49,7 +49,7 @@
                 placement="top"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
                 :open-delay="500"
-                :offset="100"
+                :offset="80"
                 :content="$t('connections.nameTip')">
                 <a href="javascript:;" class="icon-oper">
                   <i class="el-icon-warning-outline"></i>
