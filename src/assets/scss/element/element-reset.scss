@@ -128,7 +128,7 @@
     font-size: 18px;
   }
   &--success {
-    border: 2px solid var(--color-main-green);
+    border: 1px solid var(--color-main-green);
     box-shadow: 3px 3px 5px 0px var(--color-shadow-message);
     .el-message__icon,
     .el-message__content {
@@ -136,11 +136,11 @@
     }
   }
   &--warning {
-    border: 2px solid var(--color-main-yellow);
+    border: 1px solid var(--color-main-yellow);
     box-shadow: 3px 3px 5px 0px var(--color-shadow-message);
   }
   &--error {
-    border: 2px solid var(--color-second-red);
+    border: 1px solid var(--color-second-red);
     box-shadow: 3px 3px 5px 0px var(--color-shadow-message);
   }
 }
