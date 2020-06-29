@@ -236,7 +236,6 @@ export default class ConnectionsDetail extends Vue {
     }
     this.connectLoading = true
     this.client = this.createClient()
-    console.log(this.client)
     const { id } = this.record
     if (id) {
       this.client.on('connect', this.onConnect)

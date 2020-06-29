@@ -45,13 +45,14 @@
             </el-col>
             <el-col :span="2">
               <el-tooltip
+                v-if="oper === 'create'"
                 placement="top"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
                 :open-delay="500"
-                :offset="80"
+                :offset="100"
                 :content="$t('connections.nameTip')">
                 <a href="javascript:;" class="icon-oper">
-                  <i class="el-icon-question"></i>
+                  <i class="el-icon-warning-outline"></i>
                 </a>
               </el-tooltip>
             </el-col>
@@ -676,7 +677,7 @@ export default class ConnectionCreate extends Vue {
   private querySearchName(queryName: string, cb: SearchCallBack['callBack']) {
     const connection = this.connectionList
     const results = queryName ? connection.filter(this.createFilter(queryName)) : connection
-    cb(results)
+    cb(results.reverse())
   }
 
   private handleSelectName(item: ConnectionModel) {
@@ -712,6 +713,7 @@ export default class ConnectionCreate extends Vue {
     .icon-oper {
       color: var(--color-text-default);
       line-height: 43px;
+      transition: .2s color ease;
       &:hover,
       &:focus {
         color: var(--color-main-green);
