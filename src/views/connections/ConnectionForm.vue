@@ -43,7 +43,18 @@
                 <el-input v-else size="mini" v-model="record.name"></el-input>
               </el-form-item>
             </el-col>
-            <el-col :span="2"></el-col>
+            <el-col :span="2">
+              <el-tooltip
+                placement="top"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :open-delay="500"
+                :offset="80"
+                :content="$t('connections.nameTip')">
+                <a href="javascript:;" class="icon-oper">
+                  <i class="el-icon-question"></i>
+                </a>
+              </el-tooltip>
+            </el-col>
             <el-col :span="22">
               <el-form-item label-width="93px" label="Client ID" prop="clientId">
                 <el-input size="mini" v-model="record.clientId"></el-input>
@@ -439,6 +450,7 @@ export default class ConnectionCreate extends Vue {
   @Getter('currentLang') private getterLang!: Language
   @Getter('advancedVisible') private getterAdvancedVisible!: boolean
   @Getter('willMessageVisible') private getterWillMessageVisible!: boolean
+  @Getter('currentTheme') private theme!: Theme
 
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (
     payload: Client,
@@ -455,6 +467,7 @@ export default class ConnectionCreate extends Vue {
   private payloadType = 'plaintext'
   private willLabelWidth = 160
   private connectionList: ConnectionModel[] | [] = []
+  private oldName = ''
 
   private record: ConnectionModel = {
     clientId: getClientId(),
@@ -531,6 +544,7 @@ export default class ConnectionCreate extends Vue {
     const res: ConnectionModel | null = await loadConnection(id)
     if (res) {
       deepMerge(this.record, res)
+      this.oldName = res.name
       this.record.protocol = getMQTTProtocol(res)
       if (res.rejectUnauthorized === undefined) {
         this.record.rejectUnauthorized = false
@@ -640,7 +654,10 @@ export default class ConnectionCreate extends Vue {
   private async validateName(rule: FormRule, name: string, callBack: NameCallBack['callBack']) {
     const allConnections = await loadConnections()
     for (const connection of allConnections) {
-      if (connection.name === name) {
+      if (this.oper === 'create' && connection.name === name) {
+        callBack(`${this.$t('connections.duplicateName')}`)
+      } else if (this.oper === 'edit'
+        && name !== this.oldName && connection.name === name) {
         callBack(`${this.$t('connections.duplicateName')}`)
       }
     }
