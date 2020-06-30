@@ -84,9 +84,10 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import getClientId from '@/utils/getClientId'
-import { updateConnection, loadConnections } from '@/utils/api/connection'
+import { updateConnection } from '@/utils/api/connection'
 import { ConnectionModel, FormRule, NameCallBack } from './types'
 import { MqttClient } from 'mqtt'
+import { Getter } from 'vuex-class'
 
 @Component
 export default class ConnectionInfo extends Vue {
@@ -94,6 +95,8 @@ export default class ConnectionInfo extends Vue {
   @Prop({ required: true }) public btnLoading!: boolean
   @Prop({ required: true }) public client!: MqttClient | {}
   @Prop({ required: true }) public titleName!: string
+
+  @Getter('allConnections') private allConnections!: ConnectionModel[] | []
 
   private oldName = ''
 
@@ -117,8 +120,7 @@ export default class ConnectionInfo extends Vue {
   }
 
   private async validateName(rule: FormRule, name: string, callBack: NameCallBack['callBack']) {
-    const allConnections = await loadConnections()
-    for (const oneConnection of allConnections) {
+    for (const oneConnection of this.allConnections) {
       if (name !== this.oldName && oneConnection.name === name) {
         callBack(`${this.$t('connections.duplicateName')}`)
       }

@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { ConnectionModel } from '../../views/connections/types'
 import { loadSettings, setSettings } from '@/utils/api/setting'
 
 const TOGGLE_THEME = 'TOGGLE_THEME'
@@ -14,6 +15,7 @@ const SHOW_SUBSCRIPTIONS = 'SHOW_SUBSCRIPTIONS'
 const UNREAD_MESSAGE_COUNT_INCREMENT = 'UNREAD_MESSAGE_COUNT_INCREMENT'
 const TOGGLE_WILL_MESSAGE_VISIBLE = 'TOGGLE_WILL_MESSAGE_VISIBLE'
 const TOGGLE_ADVANCED_VISIBLE = 'TOGGLE_ADVANCED_VISIBLE'
+const CHANGE_ALL_CONNECTIONS = 'CHANGE_ALL_CONNECTIONS'
 
 const stateRecord: App = loadSettings()
 
@@ -37,6 +39,7 @@ const app = {
     activeConnection: {},
     advancedVisible: true,
     willMessageVisible: true,
+    allConnections: [],
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -98,6 +101,9 @@ const app = {
     [TOGGLE_WILL_MESSAGE_VISIBLE](state: App, willMessageVisible: boolean) {
       state.willMessageVisible = willMessageVisible
     },
+    [CHANGE_ALL_CONNECTIONS](state: App, allConnections: ConnectionModel[] | []) {
+      state.allConnections = allConnections
+    },
   },
   actions: {
     TOGGLE_THEME({ commit }: any, payload: App) {
@@ -142,6 +148,9 @@ const app = {
     },
     TOGGLE_WILL_MESSAGE_VISIBLE({ commit }: any, payload: App) {
       commit(TOGGLE_WILL_MESSAGE_VISIBLE, payload.willMessageVisible)
+    },
+    CHANGE_ALL_CONNECTIONS({ commit }: any, payload: App) {
+      commit(CHANGE_ALL_CONNECTIONS, payload.allConnections)
     },
   },
 }
