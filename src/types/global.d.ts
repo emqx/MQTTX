@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
 import { MqttClient } from 'mqtt'
-import { MessageModel } from '@/views/connections/types'
+import { MessageModel, ConnectionModel } from '@/views/connections/types'
 
 declare global {
   type Theme = 'light' | 'dark' | 'night'
@@ -83,6 +83,7 @@ declare global {
     },
     willMessageVisible: boolean,
     advancedVisible: boolean,
+    allConnections: ConnectionModel[] | [],
   }
 
   interface State {

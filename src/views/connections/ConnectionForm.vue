@@ -431,8 +431,8 @@ import { remote } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import {
-  loadConnection, createConnection, updateConnection,
-  loadConnections, loadSuggestConnections,
+  loadConnection, createConnection,
+  updateConnection, loadSuggestConnections,
 } from '@/utils/api/connection'
 import getClientId from '@/utils/getClientId'
 import { ConnectionModel, SearchCallBack, NameCallBack, FormRule } from './types'
@@ -452,6 +452,7 @@ export default class ConnectionCreate extends Vue {
   @Getter('advancedVisible') private getterAdvancedVisible!: boolean
   @Getter('willMessageVisible') private getterWillMessageVisible!: boolean
   @Getter('currentTheme') private theme!: Theme
+  @Getter('allConnections') private allConnections!: ConnectionModel[] | []
 
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (
     payload: Client,
@@ -467,7 +468,7 @@ export default class ConnectionCreate extends Vue {
   private advancedVisible = true
   private payloadType = 'plaintext'
   private willLabelWidth = 160
-  private connectionList: ConnectionModel[] | [] = []
+  private suggestConnections: ConnectionModel[] | [] = []
   private oldName = ''
 
   private record: ConnectionModel = {
@@ -653,8 +654,7 @@ export default class ConnectionCreate extends Vue {
   }
 
   private async validateName(rule: FormRule, name: string, callBack: NameCallBack['callBack']) {
-    const allConnections = await loadConnections()
-    for (const connection of allConnections) {
+    for (const connection of this.allConnections) {
       if (this.oper === 'create' && connection.name === name) {
         callBack(`${this.$t('connections.duplicateName')}`)
       } else if (this.oper === 'edit'
@@ -665,7 +665,7 @@ export default class ConnectionCreate extends Vue {
   }
 
   private async loadData(reload: boolean = false): Promise<void> {
-    this.connectionList = await loadSuggestConnections()
+    this.suggestConnections = await loadSuggestConnections()
   }
 
   private createFilter(queryName: string) {
@@ -675,7 +675,7 @@ export default class ConnectionCreate extends Vue {
   }
 
   private querySearchName(queryName: string, cb: SearchCallBack['callBack']) {
-    const connection = this.connectionList
+    const connection = this.suggestConnections
     const results = queryName ? connection.filter(this.createFilter(queryName)) : connection
     cb(results.reverse())
   }

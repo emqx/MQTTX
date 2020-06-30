@@ -52,6 +52,9 @@ export default class Connections extends Vue {
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (
     payload: Client,
   ) => void
+  @Action('CHANGE_ALL_CONNECTIONS') private changeAllConnections!: (
+    payload: { allConnections: ConnectionModel[] | [] },
+  ) => void
 
   private isEmpty: boolean = false
   private records: ConnectionModel[] | [] = []
@@ -107,6 +110,7 @@ export default class Connections extends Vue {
 
   private async loadData(reload: boolean = false): Promise<void> {
     const connections: ConnectionModel[] | [] = await loadConnections()
+    this.changeAllConnections({ allConnections: connections })
     this.records = connections
     if (reload && connections.length) {
       this.$router.push({ path: `/recent_connections/${connections[0].id}` })
