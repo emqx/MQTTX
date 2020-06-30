@@ -64,6 +64,7 @@
             v-show="showClientInfo"
             class="connection-info"
             :connection="record"
+            :titleName="titleName"
             :client="client"
             :btn-loading="connectLoading"
             @handleConnect="connect"
