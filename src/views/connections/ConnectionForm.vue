@@ -675,8 +675,8 @@ export default class ConnectionCreate extends Vue {
   }
 
   private querySearchName(queryName: string, cb: SearchCallBack['callBack']) {
-    const connection = this.suggestConnections
-    const results = queryName ? connection.filter(this.createFilter(queryName)) : connection
+    const connections = this.suggestConnections
+    const results = queryName ? connections.filter(this.createFilter(queryName)) : connections
     cb(results.reverse())
   }
 
