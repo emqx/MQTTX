@@ -247,3 +247,17 @@
 .el-autocomplete {
   width: 100%;
 }
+.el-autocomplete-suggestion li:hover {
+  color: var(--color-main-green);
+  background-color: var(--color-bg-item);
+}
+
+/* Dropdown */
+.el-dropdown-menu__item--divided:before {
+  background-color: transparent;
+}
+.el-dropdown-menu__item--divided {
+  position: relative;
+  margin-top: 6px;
+  border-top: 1px solid var(--color-border-default);
+}

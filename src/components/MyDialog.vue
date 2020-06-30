@@ -2,6 +2,7 @@
   <el-dialog
     class="my-dialog"
     v-bind="$props"
+    :close-on-click-modal="false"
     @open="open"
     @close="close"
     @keyup.enter.native="handleEnterEvent">
