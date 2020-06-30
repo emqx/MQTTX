@@ -82,10 +82,10 @@
 
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import getClientId from '@/utils/getClientId'
-import { updateConnection } from '@/utils/api/connection'
-import { ConnectionModel } from './types'
+import { updateConnection, loadConnections } from '@/utils/api/connection'
+import { ConnectionModel, FormRule, NameCallBack } from './types'
 import { MqttClient } from 'mqtt'
 
 @Component
@@ -93,26 +93,60 @@ export default class ConnectionInfo extends Vue {
   @Prop({ required: true }) public connection!: ConnectionModel
   @Prop({ required: true }) public btnLoading!: boolean
   @Prop({ required: true }) public client!: MqttClient | {}
+  @Prop({ required: true }) public titleName!: string
+
+  private oldName = ''
+
+  @Watch('titleName', { immediate: true, deep: true })
+  private handleNameChange(titleName: string) {
+    this.oldName = titleName
+  }
 
   get rules() {
     return {
-      name: [{ required: true, message: this.$t('common.inputRequired') }],
+      name: [
+        { required: true, message: this.$t('common.inputRequired') },
+        { validator: this.validateName, trigger: 'blur' },
+      ],
       clientId: [{ required: true, message: this.$t('common.inputRequired') }],
     }
   }
 
-  private async connect(): Promise<void> {
-    const res: ConnectionModel | null = await updateConnection(
-      this.connection.id as string,
-      this.connection,
-    )
-    if (res) {
-      this.$emit('handleConnect', this.connection)
+  get vueForm(): VueForm {
+    return this.$refs.form as VueForm
+  }
+
+  private async validateName(rule: FormRule, name: string, callBack: NameCallBack['callBack']) {
+    const allConnections = await loadConnections()
+    for (const oneConnection of allConnections) {
+      if (name !== this.oldName && oneConnection.name === name) {
+        callBack(`${this.$t('connections.duplicateName')}`)
+      }
     }
   }
 
+  private async connect(): Promise<void> {
+    this.vueForm.validate(async (valid: boolean) => {
+      if (!valid) {
+        return false
+      }
+      const res: ConnectionModel | null = await updateConnection(
+        this.connection.id as string,
+        this.connection,
+      )
+      if (res) {
+        this.$emit('handleConnect', this.connection)
+      }
+    })
+  }
+
   private disconnect() {
-    this.$emit('handleDisconnect', this.connection)
+    this.vueForm.validate(async (valid: boolean) => {
+      if (!valid) {
+        return false
+      }
+      this.$emit('handleDisconnect', this.connection)
+    })
   }
 
   private cancel() {
