@@ -152,8 +152,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import mqtt from 'mqtt'
-import { MqttClient, IClientOptions } from 'mqtt'
+import mqtt, { PacketCallback, MqttClient, IClientOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
@@ -216,7 +215,7 @@ export default class ConnectionsDetail extends Vue {
   private searchVisible = false
   private searchLoading = false
   private msgType: MessageType = 'all'
-  private client: MqttClient | any = {
+  private client: Partial<MqttClient> = {
     connected: false,
   }
   private messages: MessageModel[] = []
@@ -238,7 +237,7 @@ export default class ConnectionsDetail extends Vue {
     this.connectLoading = true
     this.client = this.createClient()
     const { id } = this.record
-    if (id) {
+    if (id && this.client.on) {
       this.client.on('connect', this.onConnect)
       this.client.on('error', this.onError)
       this.client.on('reconnect', this.onReConnect)
@@ -466,7 +465,7 @@ export default class ConnectionsDetail extends Vue {
   }
   private cancel() {
     this.connectLoading = false
-    this.client.end(true)
+    this.client.end!(true)
     this.retryTimes = 0
   }
   private disconnect(): boolean | void {
@@ -479,7 +478,7 @@ export default class ConnectionsDetail extends Vue {
       this.changeSubs({ id, subscriptions: [] })
       updateConnection(id, this.record)
     }
-    this.client.end(true)
+    this.client.end!(true)
     this.retryTimes = 0
     this.changeActiveConnection({
       id,
@@ -520,7 +519,7 @@ export default class ConnectionsDetail extends Vue {
     if (error) {
       msgTitle = error
     }
-    this.client.end(true)
+    this.client.end!(true)
     this.retryTimes = 0
     this.connectLoading = false
     this.$notify({
@@ -534,7 +533,7 @@ export default class ConnectionsDetail extends Vue {
   }
   private onReConnect() {
     if (!this.record.reconnect) {
-      this.client.end(true)
+      this.client.end!(true)
       this.retryTimes = 0
       this.connectLoading = false
       this.$notify({
@@ -547,7 +546,7 @@ export default class ConnectionsDetail extends Vue {
       this.$emit('reload')
     } else {
       if (this.retryTimes > this.maxReconnectTimes) {
-        this.client.end(true)
+        this.client.end!(true)
         this.retryTimes = 0
         this.connectLoading = false
       } else {
@@ -619,11 +618,11 @@ export default class ConnectionsDetail extends Vue {
       this.$message.warning(this.$t('connections.topicReuired') as string)
       return false
     }
-    this.client.publish(
+    this.client.publish!(
       topic,
       payload,
       { qos, retain },
-      (error: string) => {
+      (error: Error) => {
         if (error) {
           this.$message.error(error)
           return false

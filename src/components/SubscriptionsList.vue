@@ -140,7 +140,7 @@ export default class SubscriptionsList extends Vue {
     topic: 'testtopic/#',
     qos: 0,
   }
-  private qosOption: qosList = [0, 1, 2]
+  private qosOption: QoSList = [0, 1, 2]
   private subsList: SubscriptionModel[] = []
   private copySuccess = false
   private topicActiveIndex: number | null = null
