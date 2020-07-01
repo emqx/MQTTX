@@ -221,7 +221,7 @@ export default {
   },
   duplicateName: {
     zh: '该名称已存在，请重新命名！',
-    en: 'The name already exists. Please rename it!',
+    en: 'Duplicate name. Please rename it!',
   },
   nameTip: {
     zh: '可快速选择已创建过的连接配置',
