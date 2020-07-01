@@ -40,6 +40,9 @@
 
 /* Form */
 .el-form {
+  .el-form-item__error {
+    white-space: nowrap;
+  }
   .el-form-item__label {
     color: var(--color-text-default);
   }
