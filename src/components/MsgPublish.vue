@@ -106,7 +106,7 @@ export default class MsgPublish extends Vue {
       } else {
         this.payloadLang = 'plaintext'
       }
-    }).catch((error) => {
+    }).catch((error: Error) => {
       const errorMsg = error.toString()
       this.$message.error(errorMsg)
       this.payloadType = oldVal
@@ -114,7 +114,7 @@ export default class MsgPublish extends Vue {
   }
 
   private send() {
-    this.$emit('handleSend', this.msgRecord)
+    this.$emit('handleSend', this.msgRecord, this.payloadType)
   }
 
   private handleInputFoucs() {

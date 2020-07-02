@@ -257,7 +257,7 @@
 
 /* Dropdown */
 .el-dropdown-menu__item--divided:before {
-  background-color: transparent;
+  background-color: var(--color-bg-messagebox);
 }
 .el-dropdown-menu__item--divided {
   position: relative;

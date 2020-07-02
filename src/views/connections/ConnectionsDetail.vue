@@ -170,10 +170,7 @@ import { ipcRenderer } from 'electron'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
-
-interface InitClient {
-  connected: boolean,
-}
+type PayloadConvertType = 'base64' | 'hex'
 
 interface Top {
   open: string,
@@ -600,7 +597,7 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
-  private sendMessage(message: MessageModel): void | boolean {
+  private sendMessage(message: MessageModel, type: PayloadType): void | boolean {
     if (!this.client.connected) {
       this.$notify({
         title: this.$t('connections.notConnect') as string,
@@ -618,13 +615,15 @@ export default class ConnectionsDetail extends Vue {
       this.$message.warning(this.$t('connections.topicReuired') as string)
       return false
     }
+    const $payload = this.convertPayloadByType(payload, type)
     this.client.publish!(
       topic,
-      payload,
+      $payload,
       { qos, retain },
       (error: Error) => {
         if (error) {
-          this.$message.error(error)
+          const errorMsg = error.toString()
+          this.$message.error(errorMsg)
           return false
         }
         const publishMessage: MessageModel = {
@@ -661,6 +660,14 @@ export default class ConnectionsDetail extends Vue {
         showClientInfo: this.showClientInfo,
       })
     }, 500)
+  }
+
+  private convertPayloadByType(value: string, type: PayloadType): Buffer | string {
+    if (type === 'Base64' || type === 'Hex') {
+      const $type = type.toLowerCase() as PayloadConvertType
+      return Buffer.from(value, $type)
+    }
+    return value
   }
 
   private created() {
