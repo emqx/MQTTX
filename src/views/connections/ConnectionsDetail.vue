@@ -451,13 +451,6 @@ export default class ConnectionsDetail extends Vue {
 
   private createClient(): MqttClient {
     const options: IClientOptions = getClientOptions(this.record)
-    const isWS: boolean = this.connectUrl.startsWith('ws') || this.connectUrl.startsWith('wss')
-    // let mqtt = null
-    // if (isWS) {
-    //   mqtt = require('mqtt/dist/mqtt')
-    // } else {
-    //   mqtt = require('mqtt')
-    // }
     return mqtt.connect(this.connectUrl, options)
   }
   private cancel() {
