@@ -10213,13 +10213,13 @@ vue-class-component@^7.0.1, vue-class-component@^7.0.2:
   resolved "https://registry.npm.taobao.org/vue-class-component/download/vue-class-component-7.1.0.tgz#b33efcb10e17236d684f70b1e96f1946ec793e87"
   integrity sha1-sz78sQ4XI21oT3Cx6W8ZRux5Poc=
 
-vue-cli-plugin-electron-builder@^1.4.6:
-  version "1.4.6"
-  resolved "https://registry.npm.taobao.org/vue-cli-plugin-electron-builder/download/vue-cli-plugin-electron-builder-1.4.6.tgz#5de519edc158c80ae72a67e8ae8ae983e38ecb7a"
-  integrity sha1-XeUZ7cFYyArnKmfororpg+OOy3o=
+vue-cli-plugin-electron-builder@^1.4.4:
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/vue-cli-plugin-electron-builder/-/vue-cli-plugin-electron-builder-1.4.4.tgz#82d2bcf106161a2d694a6a2bc4f5a7c92df340f8"
+  integrity sha512-g+x4uRMQQfYvfSTEwC4swRSRQOpEhV6cRx4kKus2b2MWz/4h1pfCqYwGdR9xLeaJdhfAH3c328feugnd6MIenQ==
   dependencies:
     chokidar "^3.0.2"
-    electron-builder "^21.2.0"
+    electron-builder "^22.2.0"
     execa "^1.0.0"
     friendly-errors-webpack-plugin "^1.7.0"
     fs-extra "^8.1.0"
