@@ -23,6 +23,7 @@ module.exports = {
       externals: ['mqtt'],
       builderOptions: {
         productName: 'MQTTX',
+        appId: 'mqttx-app.ysf.mqttx-app',
         win: {
           icon: './public/app.ico'
         },
@@ -32,7 +33,17 @@ module.exports = {
             'pkg',
             'dmg',
             'zip',
+            'mas',
           ],
+          extendInfo: {
+            ElectronTeamID: '72J4Z38V6Q'
+          }
+        },
+        mas: {
+          icon: './public/icons/Icon.icns',
+          extendInfo: {
+            ElectronTeamID: '72J4Z38V6Q'
+          },
         },
         linux: {
           icon: './public/app.png'

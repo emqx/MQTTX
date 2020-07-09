@@ -427,7 +427,7 @@
 
 
 <script lang="ts">
-import { remote } from 'electron'
+// import { remote } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import {
@@ -589,18 +589,18 @@ export default class ConnectionCreate extends Vue {
   }
 
   private getFilePath(key: 'ca' | 'cert' | 'key') {
-    remote.dialog.showOpenDialog({
-      properties: [
-        'openFile',
-      ],
-      filters: [
-        { name: 'CA', extensions: ['crt', 'key', 'pem', 'jks', 'der', 'cer', 'pfx'] },
-      ],
-    }, (files) => {
-      if (files) {
-        this.record[key] = files[0]
-      }
-    })
+    // remote.dialog.showOpenDialog({
+    //   properties: [
+    //     'openFile',
+    //   ],
+    //   filters: [
+    //     { name: 'CA', extensions: ['crt', 'key', 'pem', 'jks', 'der', 'cer', 'pfx'] },
+    //   ],
+    // }).then((data) => {
+    //   if (data.filePaths) {
+    //     this.record[key] = data.filePaths[0]
+    //   }
+    // })
   }
 
   private handleSSL(val: boolean) {

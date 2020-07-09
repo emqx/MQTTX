@@ -30,8 +30,8 @@ const updateChecker = async (isAuto: boolean = true): Promise<void | boolean> =>
         title: 'New Version',
         buttons: ['Download', 'No'],
         message: `Update available: ${latest}`,
-      }, (res) => {
-        if (res === 0) { // if selected yes
+      }).then((data: Electron.MessageBoxReturnValue) => {
+        if (data.response === 0) { // if selected yes
           shell.openExternal(downloadUrl)
         }
       })

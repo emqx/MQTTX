@@ -52,12 +52,12 @@
     "@vue/test-utils": "1.0.0-beta.29",
     "babel-plugin-component": "^1.1.1",
     "chai": "^4.1.2",
-    "electron": "^7.2.4",
+    "electron": "^7.3.2",
     "monaco-editor-webpack-plugin": "^1.9.0",
     "node-sass": "^4.9.0",
     "sass-loader": "^7.3.1",
     "typescript": "^3.7.4",
-    "vue-cli-plugin-electron-builder": "^1.4.4",
+    "vue-cli-plugin-electron-builder": "^2.0.0-rc.4",
     "vue-template-compiler": "^2.6.10"
   },
   "postcss": {
