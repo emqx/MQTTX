@@ -88,7 +88,7 @@ export const getClientOptions = (
           }
         }
         break
-      case 'server':
+      default:
         options.rejectUnauthorized = false
         break
     }
