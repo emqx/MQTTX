@@ -10219,7 +10219,7 @@ vue-cli-plugin-electron-builder@^1.4.4:
   integrity sha512-g+x4uRMQQfYvfSTEwC4swRSRQOpEhV6cRx4kKus2b2MWz/4h1pfCqYwGdR9xLeaJdhfAH3c328feugnd6MIenQ==
   dependencies:
     chokidar "^3.0.2"
-    electron-builder "^22.2.0"
+    electron-builder "^21.2.0"
     execa "^1.0.0"
     friendly-errors-webpack-plugin "^1.7.0"
     fs-extra "^8.1.0"
