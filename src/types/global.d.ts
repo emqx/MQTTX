@@ -1,9 +1,11 @@
 import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
 import { MqttClient } from 'mqtt'
-import { MessageModel } from '@/views/connections/types'
+import { MessageModel, ConnectionModel } from '@/views/connections/types'
 
 declare global {
+  type $TSFixed = any
+
   type Theme = 'light' | 'dark' | 'night'
 
   type Language = 'en' | 'zh'
@@ -50,10 +52,6 @@ declare global {
   interface SubscriptionsVisible {
     showSubscriptions: boolean
   }
-}
-
-declare global {
-  type $TSFixed = any
 
   type PluginFunction<T> = (Vue: any, options?: T) => void
 
@@ -81,6 +79,9 @@ declare global {
         subscriptions?: SubscriptionModel[],
       },
     },
+    willMessageVisible: boolean,
+    advancedVisible: boolean,
+    allConnections: ConnectionModel[] | [],
   }
 
   interface State {
@@ -102,12 +103,12 @@ declare global {
     disabled?: boolean,
   }
 
+  type QoSList = [0, 1, 2]
+
   interface SubscriptionModel {
     topic: string,
     qos: 0 | 1 | 2,
     retain?: boolean,
     color?: string,
   }
-
-  type qosList = [0, 1, 2]
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="connections-content">
+  <div class="connections-detail">
     <div class="connections-topbar right-topbar">
       <div class="connections-info">
         <div class="topbar">
@@ -49,10 +49,10 @@
                 <el-dropdown-item command="clearHistory">
                   <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
                 </el-dropdown-item>
-                <el-dropdown-item command="disconnect">
+                <el-dropdown-item command="disconnect" :disabled="!client.connected">
                   <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
                 </el-dropdown-item>
-                <el-dropdown-item class="delete-item" command="deleteConnect">
+                <el-dropdown-item class="delete-item" command="deleteConnect" divided>
                   <i class="iconfont icon-delete"></i>{{ $t('connections.deleteConnect') }}
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -64,6 +64,7 @@
             v-show="showClientInfo"
             class="connection-info"
             :connection="record"
+            :titleName="titleName"
             :client="client"
             :btn-loading="connectLoading"
             @handleConnect="connect"
@@ -76,7 +77,7 @@
         <div v-show="searchVisible" class="connections-search topbar">
           <el-input
             id="searchTopic"
-            v-model="searchTopic" 
+            v-model="searchTopic"
             size="small"
             :placeholder="$t('connections.searchByTopic')"
             @keyup.enter.native="searchByTopic"
@@ -94,7 +95,7 @@
     </div>
 
     <div
-      class="connections-content-main right-content"
+      class="connections-detail-main right-content"
       :style="{
         paddingTop: showClientInfo ? msgTop.open: msgTop.close,
         paddingBottom: `${msgBottom}px`,
@@ -151,7 +152,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { MqttClient, IClientOptions } from 'mqtt'
+import mqtt, { PacketCallback, MqttClient, IClientOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
@@ -169,6 +170,7 @@ import { ipcRenderer } from 'electron'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
+type PayloadConvertType = 'base64' | 'hex'
 
 interface Top {
   open: string,
@@ -185,7 +187,7 @@ interface Top {
     ResizeHeight,
   },
 })
-export default class ConnectionsContent extends Vue {
+export default class ConnectionsDetail extends Vue {
   @Prop({ required: true }) public record!: ConnectionModel
 
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
@@ -204,15 +206,17 @@ export default class ConnectionsContent extends Vue {
     [id: string]: boolean,
   }
 
-  private client: $TSFixed = {}
   private showSubs = true
   private showClientInfo = true
   private connectLoading = false
-  private msgType: MessageType = 'all'
   private searchVisible = false
+  private searchLoading = false
+  private msgType: MessageType = 'all'
+  private client: Partial<MqttClient> = {
+    connected: false,
+  }
   private messages: MessageModel[] = []
   private searchTopic = ''
-  private searchLoading = false
   private titleName: string = this.record.name
   private retryTimes = 0
   private inputHeight = 155
@@ -230,7 +234,7 @@ export default class ConnectionsContent extends Vue {
     this.connectLoading = true
     this.client = this.createClient()
     const { id } = this.record
-    if (id) {
+    if (id && this.client.on) {
       this.client.on('connect', this.onConnect)
       this.client.on('error', this.onError)
       this.client.on('reconnect', this.onReConnect)
@@ -296,7 +300,9 @@ export default class ConnectionsContent extends Vue {
     if ($activeConnection) {
       this.client = $activeConnection.client
     } else {
-      this.client = {}
+      this.client = {
+        connected: false,
+      }
     }
   }
 
@@ -435,10 +441,7 @@ export default class ConnectionsContent extends Vue {
       const res: ConnectionModel | null = await deleteConnection(this.record.id as string)
       if (res) {
         this.$emit('delete')
-        this.$message({
-          type: 'success',
-          message: this.$t('common.deleteSuccess') as string,
-        })
+        this.$message.success(this.$t('common.deleteSuccess') as string)
         this.removeActiveConnection({ id: res.id as string })
       }
     }).catch((error) => {
@@ -448,18 +451,11 @@ export default class ConnectionsContent extends Vue {
 
   private createClient(): MqttClient {
     const options: IClientOptions = getClientOptions(this.record)
-    const isWS: boolean = this.connectUrl.startsWith('ws') || this.connectUrl.startsWith('wss')
-    let mqtt = null
-    if (isWS) {
-      mqtt = require('mqtt/dist/mqtt')
-    } else {
-      mqtt = require('mqtt')
-    }
     return mqtt.connect(this.connectUrl, options)
   }
   private cancel() {
     this.connectLoading = false
-    this.client.end(true)
+    this.client.end!(true)
     this.retryTimes = 0
   }
   private disconnect(): boolean | void {
@@ -472,7 +468,7 @@ export default class ConnectionsContent extends Vue {
       this.changeSubs({ id, subscriptions: [] })
       updateConnection(id, this.record)
     }
-    this.client.end()
+    this.client.end!(true)
     this.retryTimes = 0
     this.changeActiveConnection({
       id,
@@ -513,7 +509,7 @@ export default class ConnectionsContent extends Vue {
     if (error) {
       msgTitle = error
     }
-    this.client.end()
+    this.client.end!(true)
     this.retryTimes = 0
     this.connectLoading = false
     this.$notify({
@@ -527,7 +523,7 @@ export default class ConnectionsContent extends Vue {
   }
   private onReConnect() {
     if (!this.record.reconnect) {
-      this.client.end()
+      this.client.end!(true)
       this.retryTimes = 0
       this.connectLoading = false
       this.$notify({
@@ -540,7 +536,7 @@ export default class ConnectionsContent extends Vue {
       this.$emit('reload')
     } else {
       if (this.retryTimes > this.maxReconnectTimes) {
-        this.client.end()
+        this.client.end!(true)
         this.retryTimes = 0
         this.connectLoading = false
       } else {
@@ -594,7 +590,7 @@ export default class ConnectionsContent extends Vue {
     }
   }
 
-  private sendMessage(message: MessageModel): void | boolean {
+  private sendMessage(message: MessageModel, type: PayloadType): void | boolean {
     if (!this.client.connected) {
       this.$notify({
         title: this.$t('connections.notConnect') as string,
@@ -612,13 +608,15 @@ export default class ConnectionsContent extends Vue {
       this.$message.warning(this.$t('connections.topicReuired') as string)
       return false
     }
-    this.client.publish(
+    const $payload = this.convertPayloadByType(payload, type)
+    this.client.publish!(
       topic,
-      payload,
+      $payload,
       { qos, retain },
-      (error: string) => {
+      (error: Error) => {
         if (error) {
-          this.$message.error(error)
+          const errorMsg = error.toString()
+          this.$message.error(errorMsg)
           return false
         }
         const publishMessage: MessageModel = {
@@ -657,6 +655,14 @@ export default class ConnectionsContent extends Vue {
     }, 500)
   }
 
+  private convertPayloadByType(value: string, type: PayloadType): Buffer | string {
+    if (type === 'Base64' || type === 'Hex') {
+      const $type = type.toLowerCase() as PayloadConvertType
+      return Buffer.from(value, $type)
+    }
+    return value
+  }
+
   private created() {
     const { id } = this.$route.params
     this.getConnectionValue(id)
@@ -677,7 +683,7 @@ export default class ConnectionsContent extends Vue {
 @import "~@/assets/scss/variable.scss";
 @import "~@/assets/scss/mixins.scss";
 
-.connections-content {
+.connections-detail {
   .connections-topbar {
     border-bottom: 1px solid var(--color-border-default);
     .connections-info {
@@ -760,7 +766,7 @@ export default class ConnectionsContent extends Vue {
     }
   }
 
-  .connections-content-main {
+  .connections-detail-main {
     height: 100%;
     transition: all .5s;
     .connections-body {

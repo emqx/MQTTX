@@ -158,6 +158,9 @@ export default class Settings extends Vue {
 .settings-view {
   position: relative;
   padding: 0 16px;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  user-select: none;
 
   .settings-general {
     margin-top: 30px;

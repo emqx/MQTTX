@@ -715,6 +715,19 @@
     ajv "^6.1.0"
     ajv-keywords "^3.1.0"
 
+"@fullhuman/postcss-purgecss@^2.1.0":
+  version "2.2.0"
+  resolved "https://registry.npm.taobao.org/@fullhuman/postcss-purgecss/download/@fullhuman/postcss-purgecss-2.2.0.tgz#2b3699287163ff515f25ccdae5b96a244eebb41a"
+  integrity sha1-KzaZKHFj/1FfJcza5blqJE7rtBo=
+  dependencies:
+    postcss "7.0.28"
+    purgecss "^2.2.0"
+
+"@fullhuman/vue-cli-plugin-purgecss@~2.2.0":
+  version "2.2.0"
+  resolved "https://registry.npm.taobao.org/@fullhuman/vue-cli-plugin-purgecss/download/@fullhuman/vue-cli-plugin-purgecss-2.2.0.tgz#fba98dd587d1722e75bc1285cf9de7fc65fe7809"
+  integrity sha1-+6mN1YfRci51vBKFz53n/GX+eAk=
+
 "@hapi/address@2.x.x":
   version "2.0.0"
   resolved "https://registry.npm.taobao.org/@hapi/address/download/@hapi/address-2.0.0.tgz#9f05469c88cb2fd3dcd624776b54ee95c312126a"
@@ -2691,6 +2704,11 @@ commander@^2.12.1, commander@^2.18.0, commander@^2.20.0:
   resolved "https://registry.npm.taobao.org/commander/download/commander-2.20.0.tgz#d58bb2b5c1ee8f87b0d340027e9e94e222c5a422"
   integrity sha1-1YuytcHuj4ew00ACfp6U4iLFpCI=
 
+commander@^5.0.0:
+  version "5.1.0"
+  resolved "https://registry.npm.taobao.org/commander/download/commander-5.1.0.tgz#46abbd1652f8e059bddaef99bbdcb2ad9cf179ae"
+  integrity sha1-Rqu9FlL44Fm92u+Zu9yyrZzxea4=
+
 commander@~2.19.0:
   version "2.19.0"
   resolved "https://registry.npm.taobao.org/commander/download/commander-2.19.0.tgz#f6198aa84e5b83c46054b94ddedbfed5ee9ff12a"
@@ -3108,6 +3126,11 @@ cssesc@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npm.taobao.org/cssesc/download/cssesc-2.0.0.tgz#3b13bd1bb1cb36e1bcb5a4dcd27f54c5dcb35703"
   integrity sha1-OxO9G7HLNuG8taTc0n9UxdyzVwM=
+
+cssesc@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.npm.taobao.org/cssesc/download/cssesc-3.0.0.tgz#37741919903b868565e1c09ea747445cd18983ee"
+  integrity sha1-N3QZGZA7hoVl4cCep0dEXNGJg+4=
 
 cssnano-preset-default@^4.0.0, cssnano-preset-default@^4.0.7:
   version "4.0.7"
@@ -6675,14 +6698,15 @@ mqtt-packet@^6.0.0:
     process-nextick-args "^2.0.0"
     safe-buffer "^5.1.2"
 
-mqtt@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/mqtt/-/mqtt-3.0.0.tgz#7961e5f61efba3eec37d5aa9c4cbcdeb6f841380"
-  integrity sha512-0nKV6MAc1ibKZwaZQUTb3iIdT4NVpj541BsYrqrGBcQdQ7Jd0MnZD1/6/nj1UFdGTboK9ZEUXvkCu2nPCugHFA==
+mqtt@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.npm.taobao.org/mqtt/download/mqtt-4.1.0.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fmqtt%2Fdownload%2Fmqtt-4.1.0.tgz#efcfa4acb8789265b951452142054a5b158bef0f"
+  integrity sha1-78+krLh4kmW5UUUhQgVKWxWL7w8=
   dependencies:
     base64-js "^1.3.0"
     commist "^1.0.0"
     concat-stream "^1.6.2"
+    debug "^4.1.1"
     end-of-stream "^1.4.1"
     es6-map "^0.1.5"
     help-me "^1.0.1"
@@ -7914,6 +7938,15 @@ postcss-selector-parser@^5.0.0, postcss-selector-parser@^5.0.0-rc.4:
     indexes-of "^1.0.1"
     uniq "^1.0.1"
 
+postcss-selector-parser@^6.0.2:
+  version "6.0.2"
+  resolved "https://registry.npm.taobao.org/postcss-selector-parser/download/postcss-selector-parser-6.0.2.tgz#934cf799d016c83411859e09dcecade01286ec5c"
+  integrity sha1-k0z3mdAWyDQRhZ4J3Oyt4BKG7Fw=
+  dependencies:
+    cssesc "^3.0.0"
+    indexes-of "^1.0.1"
+    uniq "^1.0.1"
+
 postcss-svgo@^4.0.2:
   version "4.0.2"
   resolved "https://registry.npm.taobao.org/postcss-svgo/download/postcss-svgo-4.0.2.tgz#17b997bc711b333bab143aaed3b8d3d6e3d38258"
@@ -7942,6 +7975,15 @@ postcss-value-parser@^4.0.0:
   version "4.0.0"
   resolved "https://registry.npm.taobao.org/postcss-value-parser/download/postcss-value-parser-4.0.0.tgz#99a983d365f7b2ad8d0f9b8c3094926eab4b936d"
   integrity sha1-mamD02X3sq2ND5uMMJSSbqtLk20=
+
+postcss@7.0.28:
+  version "7.0.28"
+  resolved "https://registry.npm.taobao.org/postcss/download/postcss-7.0.28.tgz?cache=0&sync_timestamp=1591102406139&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fpostcss%2Fdownload%2Fpostcss-7.0.28.tgz#d349ced7743475717ba91f6810efb58c51fb5dbb"
+  integrity sha1-00nO13Q0dXF7qR9oEO+1jFH7Xbs=
+  dependencies:
+    chalk "^2.4.2"
+    source-map "^0.6.1"
+    supports-color "^6.1.0"
 
 postcss@^6.0.1, postcss@^6.0.23:
   version "6.0.23"
@@ -8104,6 +8146,16 @@ punycode@^2.1.0, punycode@^2.1.1:
   version "2.1.1"
   resolved "https://registry.npm.taobao.org/punycode/download/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha1-tYsBCsQMIsVldhbI0sLALHv0eew=
+
+purgecss@^2.2.0:
+  version "2.2.1"
+  resolved "https://registry.npm.taobao.org/purgecss/download/purgecss-2.2.1.tgz#aa3bdf23370f7539df6154f5e25df2da311cd018"
+  integrity sha1-qjvfIzcPdTnfYVT14l3y2jEc0Bg=
+  dependencies:
+    commander "^5.0.0"
+    glob "^7.0.0"
+    postcss "7.0.28"
+    postcss-selector-parser "^6.0.2"
 
 q@^1.1.2, q@~1.5.0:
   version "1.5.1"
@@ -10161,10 +10213,10 @@ vue-class-component@^7.0.1, vue-class-component@^7.0.2:
   resolved "https://registry.npm.taobao.org/vue-class-component/download/vue-class-component-7.1.0.tgz#b33efcb10e17236d684f70b1e96f1946ec793e87"
   integrity sha1-sz78sQ4XI21oT3Cx6W8ZRux5Poc=
 
-vue-cli-plugin-electron-builder@^1.4.4:
-  version "1.4.4"
-  resolved "https://registry.yarnpkg.com/vue-cli-plugin-electron-builder/-/vue-cli-plugin-electron-builder-1.4.4.tgz#82d2bcf106161a2d694a6a2bc4f5a7c92df340f8"
-  integrity sha512-g+x4uRMQQfYvfSTEwC4swRSRQOpEhV6cRx4kKus2b2MWz/4h1pfCqYwGdR9xLeaJdhfAH3c328feugnd6MIenQ==
+vue-cli-plugin-electron-builder@^1.4.6:
+  version "1.4.6"
+  resolved "https://registry.npm.taobao.org/vue-cli-plugin-electron-builder/download/vue-cli-plugin-electron-builder-1.4.6.tgz#5de519edc158c80ae72a67e8ae8ae983e38ecb7a"
+  integrity sha1-XeUZ7cFYyArnKmfororpg+OOy3o=
   dependencies:
     chokidar "^3.0.2"
     electron-builder "^21.2.0"

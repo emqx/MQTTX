@@ -106,7 +106,7 @@ export default class MsgPublish extends Vue {
       } else {
         this.payloadLang = 'plaintext'
       }
-    }).catch((error) => {
+    }).catch((error: Error) => {
       const errorMsg = error.toString()
       this.$message.error(errorMsg)
       this.payloadType = oldVal
@@ -114,7 +114,7 @@ export default class MsgPublish extends Vue {
   }
 
   private send() {
-    this.$emit('handleSend', this.msgRecord)
+    this.$emit('handleSend', this.msgRecord, this.payloadType)
   }
 
   private handleInputFoucs() {
@@ -145,6 +145,7 @@ export default class MsgPublish extends Vue {
 .msg-publish {
   background: var(--color-bg-normal);
   transition: .3s height;
+  border-top: 1px solid var(--color-border-default);
   .publish-header {
     padding: 0 16px;
     margin-bottom: 4px;
@@ -181,21 +182,6 @@ export default class MsgPublish extends Vue {
     }
     .el-checkbox__inner {
       border-radius: 100%;
-    }
-  }
-  textarea {
-    resize: none;
-  }
-  .el-textarea {
-    .el-textarea__inner {
-      border: 0px;
-      border-top: 1px solid var(--color-border-default);
-      border-radius: 0px;
-      padding: 8px 0px;
-      &:focus,
-      &:hover {
-        border-color: var(--color-border-default);
-      }
     }
   }
   .send-btn {

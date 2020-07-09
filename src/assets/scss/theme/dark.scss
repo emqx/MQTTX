@@ -14,6 +14,7 @@ body.dark {
   --color-bg-follows: #4a4a4a;
   --color-bg-code: #38404a;
   --color-bg-input_btn: transparent;
+  --color-bg-radio: #37363d80;
 
   /* Font color */
   --color-text-title: #ffffff;
@@ -29,12 +30,14 @@ body.dark {
   --color-second-green: #53DAA2;
   --color-thrid-green: #EBF8F2;
   --color-main-red: #E86AA6;
-  --color-second-red: #EF607C;
+  --color-second-red: #F56C6C;
   --color-third-red: #fcdee4;
   --color-main-grey: #323232;
+  --color-main-yellow: #e6a23cb3;
 
   /* Border color */
   --color-border-default: #383838;
   --color-border-bold: #969696;
   --color-shadow-card: #00000059;
+  --color-shadow-message: #1f1f1f;
 }

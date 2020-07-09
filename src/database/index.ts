@@ -16,6 +16,7 @@ interface Schema {
     currentTheme: string,
   },
   connections: [],
+  suggestConnections: [],
 }
 
 const isRenderer: boolean = process.type === 'renderer'
@@ -81,6 +82,11 @@ class DB {
     if (!this.db.has('connections').value()) {
       this.db
         .set('connections', [])
+        .write()
+    }
+    if (!this.db.has('suggestConnections').value()) {
+      this.db
+        .set('suggestConnections', [])
         .write()
     }
   }

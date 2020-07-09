@@ -5,7 +5,12 @@
 
 /* Radio */
 .el-radio-button {
+  outline: none;
+  user-select: none;
   margin-right: -2px;
+}
+.el-radio__label {
+  font-size: 13px;
 }
 .el-radio-button--mini .el-radio-button__inner {
   background: transparent;
@@ -35,12 +40,17 @@
 
 /* Form */
 .el-form {
+  .el-form-item__error {
+    white-space: nowrap;
+  }
   .el-form-item__label {
     color: var(--color-text-default);
   }
-  .el-form-item__content {
-    span {
-      color: var(--color-text-default);
+  .el-form-item:not(.will-payload-box) {
+    .el-form-item__content {
+      span {
+        color: var(--color-text-default);
+      }
     }
   }
   .el-select {
@@ -110,6 +120,31 @@
   button:nth-child(2) {
     color: var(--color-main-green);
     margin-left: 0px;
+  }
+}
+.el-message {
+  padding: 16px;
+  border-radius: 8px;
+  background-color: var(--color-bg-normal);
+  border: none;
+  .el-message__icon {
+    font-size: 18px;
+  }
+  &--success {
+    border: 1px solid var(--color-main-green);
+    box-shadow: 3px 3px 5px 0px var(--color-shadow-message);
+    .el-message__icon,
+    .el-message__content {
+      color: var(--color-main-green);
+    }
+  }
+  &--warning {
+    border: 1px solid var(--color-main-yellow);
+    box-shadow: 3px 3px 5px 0px var(--color-shadow-message);
+  }
+  &--error {
+    border: 1px solid var(--color-second-red);
+    box-shadow: 3px 3px 5px 0px var(--color-shadow-message);
   }
 }
 
@@ -209,4 +244,23 @@
 .el-icon-refresh {
   cursor: pointer;
   color: var(--color-main-green);
+}
+
+/* Autocomplete */
+.el-autocomplete {
+  width: 100%;
+}
+.el-autocomplete-suggestion li:hover {
+  color: var(--color-main-green);
+  background-color: var(--color-bg-item);
+}
+
+/* Dropdown */
+.el-dropdown-menu__item--divided:before {
+  background-color: var(--color-bg-messagebox);
+}
+.el-dropdown-menu__item--divided {
+  position: relative;
+  margin-top: 6px;
+  border-top: 1px solid var(--color-border-default);
 }

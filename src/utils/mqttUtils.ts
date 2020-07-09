@@ -1,7 +1,7 @@
 import { IClientOptions } from 'mqtt'
 import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
-import { ConnectionModel, SSLContent } from '@/views/connections/types'
+import { ConnectionModel, SSLContent, WillPropertiesModel } from '@/views/connections/types'
 
 const setMQTT5Properties = (
   option: IClientOptions['properties'],
@@ -56,7 +56,8 @@ export const getClientOptions = (
   }
   // MQTT Version
   if (protocolVersion === 5) {
-    const { sessionExpiryInterval, receiveMaximum, topicAliasMaximum,
+    const {
+      sessionExpiryInterval, receiveMaximum, topicAliasMaximum,
     } = record
     const properties = setMQTT5Properties({
       sessionExpiryInterval,
@@ -68,21 +69,28 @@ export const getClientOptions = (
     }
   }
   // SSL
-  if (ssl && certType === 'self') {
-    const sslRes: SSLContent | undefined = getSSLFile({
-      ca: record.ca,
-      cert: record.cert,
-      key: record.key,
-    })
-    if (sslRes) {
-      options.ca = sslRes.ca
-      options.cert = sslRes.cert
-      options.key = sslRes.key
-      if (rejectUnauthorized === undefined) {
+  if (ssl) {
+    switch (certType) {
+      case 'self':
+        const sslRes: SSLContent | undefined = getSSLFile({
+          ca: record.ca,
+          cert: record.cert,
+          key: record.key,
+        })
+        if (sslRes) {
+          options.ca = sslRes.ca
+          options.cert = sslRes.cert
+          options.key = sslRes.key
+          if (rejectUnauthorized === undefined) {
+            options.rejectUnauthorized = false
+          } else {
+            options.rejectUnauthorized = rejectUnauthorized
+          }
+        }
+        break
+      default:
         options.rejectUnauthorized = false
-      } else {
-        options.rejectUnauthorized = rejectUnauthorized
-      }
+        break
     }
   }
   // Will Message
@@ -95,6 +103,29 @@ export const getClientOptions = (
     } = will
     if (topic) {
       options.will = { topic, payload, qos, retain }
+      if (protocolVersion === 5) {
+        const { properties } = will
+        const willProperties: WillPropertiesModel | undefined = {}
+        if (properties !== undefined) {
+          if (properties.willDelayInterval ||
+            properties.willDelayInterval === 0 ) {
+            willProperties.willDelayInterval = properties.willDelayInterval
+          }
+          if (properties.messageExpiryInterval ||
+            properties.messageExpiryInterval === 0) {
+            willProperties.messageExpiryInterval = properties.messageExpiryInterval
+          }
+          if (properties.contentType !== '') {
+            willProperties.contentType = properties.contentType
+          }
+          if (properties.payloadFormatIndicator !== undefined) {
+            willProperties.payloadFormatIndicator = properties.payloadFormatIndicator
+          }
+        }
+        if (willProperties && Object.keys(willProperties).length > 0) {
+          options.will.properties = willProperties
+        }
+      }
     }
   }
   return options

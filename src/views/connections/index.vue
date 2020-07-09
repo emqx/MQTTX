@@ -17,9 +17,9 @@
           ref="connectionForm"
           :oper="oper"
           @connect="handleConnect"/>
-        <ConnectionsContent
+        <ConnectionsDetail
           v-else
-          ref="connectionContent"
+          ref="ConnectionsDetail"
           :record="currentConnection"
           @reload="loadData"
           @delete="loadData(true)"/>
@@ -36,14 +36,14 @@ import { Action } from 'vuex-class'
 import { loadConnections, loadConnection } from '@/utils/api/connection'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
-import ConnectionsContent from './ConnectionsContent.vue'
+import ConnectionsDetail from './ConnectionsDetail.vue'
 import ConnectionForm from './ConnectionForm.vue'
 import { ConnectionModel } from './types'
 
 @Component({
   components: {
     ConnectionsList,
-    ConnectionsContent,
+    ConnectionsDetail,
     ConnectionForm,
     EmptyPage,
   },
@@ -51,6 +51,9 @@ import { ConnectionModel } from './types'
 export default class Connections extends Vue {
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (
     payload: Client,
+  ) => void
+  @Action('CHANGE_ALL_CONNECTIONS') private changeAllConnections!: (
+    payload: { allConnections: ConnectionModel[] | [] },
   ) => void
 
   private isEmpty: boolean = false
@@ -107,6 +110,7 @@ export default class Connections extends Vue {
 
   private async loadData(reload: boolean = false): Promise<void> {
     const connections: ConnectionModel[] | [] = await loadConnections()
+    this.changeAllConnections({ allConnections: connections })
     this.records = connections
     if (reload && connections.length) {
       this.$router.push({ path: `/recent_connections/${connections[0].id}` })
@@ -126,7 +130,7 @@ export default class Connections extends Vue {
   private handleConnect() {
     this.loadData()
     setTimeout(() => {
-      const connection: ConnectionsContent = this.$refs.connectionContent as ConnectionsContent
+      const connection: ConnectionsDetail = this.$refs.ConnectionsDetail as ConnectionsDetail
       connection.connect()
     }, 500)
   }

@@ -140,7 +140,7 @@ export default class SubscriptionsList extends Vue {
     topic: 'testtopic/#',
     qos: 0,
   }
-  private qosOption: qosList = [0, 1, 2]
+  private qosOption: QoSList = [0, 1, 2]
   private subsList: SubscriptionModel[] = []
   private copySuccess = false
   private topicActiveIndex: number | null = null
@@ -197,12 +197,7 @@ export default class SubscriptionsList extends Vue {
 
   private saveSubs(): void | boolean {
     this.getCurrentConnection(this.connectionId)
-
-    if (!this.currentConnection.client) {
-      this.$message.warning(this.$t('connections.notConnect') as string)
-      return false
-    }
-    if (!this.currentConnection.client.connected) {
+    if (!this.currentConnection.client || !this.currentConnection.client.connected) {
       this.$message.warning(this.$t('connections.notConnect') as string)
       return false
     }

@@ -46,8 +46,7 @@ export default class ResizeHeight extends Vue {
 <style lang="scss">
 .resize-height {
   width: 100%;
-  height: 1px;
-  background: var(--color-border-default);
+  height: 6px;
   cursor: row-resize;
   text-align: center;
   .el-icon-more {

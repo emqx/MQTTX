@@ -1,6 +1,23 @@
 import { MqttClient } from 'mqtt'
 
 type QoS = 0 | 1 | 2
+type searchCallBack = (data: ConnectionModel[]) => ConnectionModel[]
+type nameCallBack = (name: string) => string
+
+export interface SearchCallBack {
+  callBack: searchCallBack
+}
+
+export interface NameCallBack {
+  callBack: nameCallBack
+}
+
+export interface FormRule {
+  field: string,
+  fullField: string,
+  type: string,
+  validator: () => void
+}
 
 export interface MessageModel {
   createAt: string,
@@ -18,7 +35,18 @@ export interface SSLPath {
   key: string,
 }
 
-export interface ConnectionModel extends SSLPath  {
+export interface WillPropertiesModel {
+  willDelayInterval?: number,
+  payloadFormatIndicator?: boolean,
+  messageExpiryInterval?: number,
+  contentType?: string,
+  responseTopic?: string,
+  correlationData?: Buffer,
+  // tslint:disable-next-line:ban-types
+  userProperties?: Object,
+}
+
+export interface ConnectionModel extends SSLPath {
   readonly id?: string,
   clientId: string,
   name: string,
@@ -51,6 +79,7 @@ export interface ConnectionModel extends SSLPath  {
     lastWillPayload: string,
     lastWillQos: QoS,
     lastWillRetain: boolean,
+    properties?: WillPropertiesModel,
   },
 }
 

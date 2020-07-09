@@ -187,4 +187,44 @@ export default {
     zh: '严格证书验证',
     en: 'Strict validate Certificate',
   },
+  willTopic: {
+    zh: '遗嘱消息主题',
+    en: 'Last-Will Topic',
+  },
+  willPayload: {
+    zh: '遗嘱消息',
+    en: 'Last-Will Payload',
+  },
+  willQos: {
+    zh: '遗嘱消息 QoS',
+    en: 'Last-Will QoS',
+  },
+  willRetain: {
+    zh: '遗嘱消息保留标志',
+    en: 'Last-Will Retain',
+  },
+  willDelayInterval: {
+    zh: '遗嘱消息延迟时间',
+    en: 'Will Delay Interval',
+  },
+  messageExpiryInterval: {
+    zh: '遗嘱消息过期时间',
+    en: 'Message Expiry Interval',
+  },
+  contentType: {
+    zh: '遗嘱消息描述',
+    en: 'Content Type',
+  },
+  isUTF8Data: {
+    zh: '是否为 UTF-8 编码数据',
+    en: 'is UTF-8 Encoded Data',
+  },
+  duplicateName: {
+    zh: '该名称已存在，请重新命名！',
+    en: 'Duplicate name. Please rename it!',
+  },
+  nameTip: {
+    zh: '可快速选择已创建过的连接配置',
+    en: 'Quick selection of created connection configurations',
+  },
 }
