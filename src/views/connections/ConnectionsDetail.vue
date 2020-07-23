@@ -151,10 +151,14 @@
 
 
 <script lang="ts">
+import { ipcRenderer } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import mqtt, { PacketCallback, MqttClient, IClientOptions } from 'mqtt'
+import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
-import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
+import _ from 'lodash'
+import {
+  deleteConnection, updateConnection, updateConnectionMessage,
+} from '@/utils/api/connection'
 import time from '@/utils/time'
 import matchSearch from '@/utils/matchSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
@@ -166,7 +170,6 @@ import SubscriptionsList from '@/components/SubscriptionsList.vue'
 import ResizeHeight from '@/components/ResizeHeight.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
 import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
-import { ipcRenderer } from 'electron'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
@@ -192,7 +195,6 @@ export default class ConnectionsDetail extends Vue {
 
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
-  @Action('PUSH_MESSAGE') private pushMessage!: (payload: Message) => void
   @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection!: (payload: ActiveConnection) => void
   @Action('SHOW_CLIENT_INFO') private changeShowClientInfo!: (payload: ClientInfo) => void
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
@@ -274,7 +276,7 @@ export default class ConnectionsDetail extends Vue {
     const id: string = this.$route.params.id
     this.titleName = this.record.name
     this.getConnectionValue(id)
-    this.getMessages(id)
+    this.getMessages()
   }
 
   @Watch('inputHeight')
@@ -331,14 +333,19 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
-  private getMessages(id: string) {
-    this.msgType = 'all'
-    const $activeConnection = this.activeConnection[id]
-    if ($activeConnection) {
-      this.messages = $activeConnection.messages
-    } else {
-      this.messages = this.record.messages
+  private handleEdit(id: string): boolean | void {
+    if (this.client.connected) {
+      return false
     }
+    this.$router.push({
+      path: `/recent_connections/${id}`,
+      query: { oper: 'edit' },
+    })
+  }
+
+  private getMessages() {
+    this.msgType = 'all'
+    this.messages = _.cloneDeep(this.record.messages)
   }
   private handleMsgClear() {
     this.messages = []
@@ -375,23 +382,14 @@ export default class ConnectionsDetail extends Vue {
       this.messages = this.record.messages
     }
   }
-  private handleEdit(id: string): boolean | void {
-    if (this.client.connected) {
-      return false
-    }
-    this.$router.push({
-      path: `/recent_connections/${id}`,
-      query: { oper: 'edit' },
-    })
-  }
   private searchByTopic() {
     this.searchLoading = true
     setTimeout(() => {
       this.searchLoading = false
     }, 500)
+    this.getMessages()
     if (this.searchTopic !== '') {
-      this.getMessages(this.$route.params.id)
-      const $messages = [...this.messages]
+      const $messages = _.cloneDeep(this.messages)
       matchSearch($messages, 'topic', this.searchTopic).then((res) => {
         if (res) {
           this.messages = res
@@ -399,18 +397,16 @@ export default class ConnectionsDetail extends Vue {
           this.messages = []
         }
       })
-    } else {
-      this.getMessages(this.$route.params.id)
     }
   }
   private handleTopicClick(sub: SubscriptionModel, reset: boolean) {
-    this.getMessages(this.$route.params.id)
+    this.getMessages()
     if (reset) {
       this.activeTopic = ''
       return false
     }
     this.activeTopic = sub.topic
-    const $messages = [...this.messages]
+    const $messages = _.cloneDeep(this.messages)
     topicMatch($messages, sub.topic).then((res) => {
       if (res) {
         this.messages = res
@@ -430,7 +426,7 @@ export default class ConnectionsDetail extends Vue {
   }
   private handleSearchClose() {
     this.searchVisible = false
-    this.getMessages(this.$route.params.id)
+    this.getMessages()
   }
 
   private removeConnection() {
@@ -569,17 +565,16 @@ export default class ConnectionsDetail extends Vue {
         qos: packet.qos,
         retain: packet.retain as boolean,
       }
-      this.pushMessage({ id, message: receivedMessage })
       const connectionId = this.$route.params.id
       if (id === connectionId) {
         this.record.messages.push({ ...receivedMessage })
+        updateConnectionMessage(connectionId, { ...receivedMessage })
         const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
-        if (this.msgType === 'received' && !this.activeTopic) {
+        if (this.msgType !== 'publish' && !this.activeTopic) {
           this.messages.push(receivedMessage)
         } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'publish') {
           this.messages.push(receivedMessage)
         }
-        updateConnectionMessage(connectionId, { ...receivedMessage })
       } else {
         updateConnectionMessage(id, { ...receivedMessage })
         this.unreadMessageIncrement({ id })
@@ -589,7 +584,6 @@ export default class ConnectionsDetail extends Vue {
       }, 100)
     }
   }
-
   private sendMessage(message: MessageModel, type: PayloadType): void | boolean {
     if (!this.client.connected) {
       this.$notify({
@@ -627,18 +621,14 @@ export default class ConnectionsDetail extends Vue {
           qos,
           retain,
         }
-        this.pushMessage({
-          id: this.record.id as string,
-          message: publishMessage,
-        })
-        this.record.messages.push({ ...publishMessage })
         const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
-        if (this.msgType === 'publish' && !this.activeTopic) {
+        this.record.messages.push({ ...publishMessage })
+        updateConnectionMessage(this.record.id as string, { ...publishMessage })
+        if (this.msgType !== 'received' && !this.activeTopic) {
           this.messages.push(publishMessage)
         } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'received') {
           this.messages.push(publishMessage)
         }
-        updateConnectionMessage(this.record.id as string, { ...publishMessage })
         setTimeout(() => {
           window.scrollTo(0, document.body.scrollHeight + 160)
         }, 100)
@@ -666,7 +656,7 @@ export default class ConnectionsDetail extends Vue {
   private created() {
     const { id } = this.$route.params
     this.getConnectionValue(id)
-    this.getMessages(id)
+    this.getMessages()
     ipcRenderer.on('searchByTopic', () => {
       this.handleSearchOpen()
     })
