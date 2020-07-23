@@ -160,6 +160,9 @@
   .el-icon-success {
     color: var(--color-main-green);
   }
+  .el-notification__title {
+    word-break: break-word;
+  }
 }
 
 /* Dialog */
