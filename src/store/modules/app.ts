@@ -7,7 +7,6 @@ const TOGGLE_LANG = 'TOGGLE_LANG'
 const TOGGLE_AUTO_CHECK = 'TOGGLE_AUTO_CHECK'
 const SET_MAX_RECONNECT_TIMES = 'SET_MAX_RECONNECT_TIMES'
 const CHANGE_ACTIVE_CONNECTION = 'CHANGE_ACTIVE_CONNECTION'
-const PUSH_MESSAGE = 'PUSH_MESSAGE'
 const REMOVE_ACTIVE_CONNECTION = 'REMOVE_ACTIVE_CONNECTION'
 const CHANGE_SUBSCRIPTIONS = 'CHANGE_SUBSCRIPTIONS'
 const SHOW_CLIENT_INFO = 'SHOW_CLIENT_INFO'
@@ -67,11 +66,6 @@ const app = {
         }
       }
     },
-    [PUSH_MESSAGE](state: App, payload: Message) {
-      if (state.activeConnection[payload.id]) {
-        state.activeConnection[payload.id].messages.push(payload.message)
-      }
-    },
     [REMOVE_ACTIVE_CONNECTION](state: App, id: string) {
       delete state.activeConnection[id]
       delete state.unreadMessageCount[id]
@@ -124,9 +118,6 @@ const app = {
     },
     CHANGE_ACTIVE_CONNECTION({ commit }: any, payload: App) {
       commit(CHANGE_ACTIVE_CONNECTION, payload)
-    },
-    PUSH_MESSAGE({ commit }: any, payload: App) {
-      commit(PUSH_MESSAGE, payload)
     },
     REMOVE_ACTIVE_CONNECTION({ commit }: any, { id }: { id: string }) {
       commit(REMOVE_ACTIVE_CONNECTION, id)
