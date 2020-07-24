@@ -217,7 +217,7 @@ export default class ConnectionsDetail extends Vue {
   private client: Partial<MqttClient> = {
     connected: false,
   }
-  private messages: MessageModel[] = []
+  private messages: MessageModel[] = this.record.messages
   private searchTopic = ''
   private titleName: string = this.record.name
   private retryTimes = 0
@@ -241,7 +241,7 @@ export default class ConnectionsDetail extends Vue {
       this.client.on('error', this.onError)
       this.client.on('reconnect', this.onReConnect)
       this.client.on('close', this.onClose)
-      this.client.on('message', this.messageArrived(id))
+      this.client.on('message', this.onMessageArrived(id))
     }
   }
 
@@ -288,7 +288,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private getConnectionValue(id: string) {
-    const $activeConnection: {
+    const currentActiveConnection: {
       id?: string,
       client: MqttClient,
     } | undefined = this.activeConnection[id]
@@ -299,8 +299,9 @@ export default class ConnectionsDetail extends Vue {
       this.showClientInfo = $clientInfoVisible
     }
     this.showSubs = this.showSubscriptions
-    if ($activeConnection) {
-      this.client = $activeConnection.client
+    if (currentActiveConnection) {
+      this.client = currentActiveConnection.client
+      this.setClientsMessageListener()
     } else {
       this.client = {
         connected: false,
@@ -551,7 +552,7 @@ export default class ConnectionsDetail extends Vue {
   private onClose() {
     this.connectLoading = false
   }
-  private messageArrived(id: string) {
+  private onMessageArrived(id: string) {
     return (
         topic: string,
         payload: string,
@@ -635,6 +636,7 @@ export default class ConnectionsDetail extends Vue {
       },
     )
   }
+
   private setShowClientInfo(show: boolean) {
     setTimeout(() => {
       this.showClientInfo = show
@@ -656,14 +658,47 @@ export default class ConnectionsDetail extends Vue {
   private created() {
     const { id } = this.$route.params
     this.getConnectionValue(id)
-    this.getMessages()
     ipcRenderer.on('searchByTopic', () => {
       this.handleSearchOpen()
     })
   }
 
+  private setClientsMessageListener() {
+    // Register connected clients message event listeners
+    Object.keys(this.activeConnection).forEach((connectionID: string) => {
+      const $connection: {
+        id?: string,
+        client: MqttClient,
+      } = this.activeConnection[connectionID]
+      const client: MqttClient = $connection.client
+      let msgEventCount = 0
+      msgEventCount = client.listenerCount('message')
+      if (client.connected && client.on && msgEventCount === 0) {
+        client.on('message', this.onMessageArrived(connectionID))
+      }
+      this.changeActiveConnection({
+        id: connectionID,
+        client,
+        messages: this.messages,
+      })
+    })
+  }
+
+  private removeMessageListener() {
+    // Remove connected clients message event listeners
+    Object.keys(this.activeConnection).forEach((connectionID: string) => {
+      const currentActiveConnection: {
+        id?: string,
+        client: MqttClient,
+      } = this.activeConnection[connectionID]
+      const client: MqttClient = currentActiveConnection.client
+      client.removeAllListeners('message')
+    })
+  }
+
   private beforeDestroy() {
     ipcRenderer.removeAllListeners('searchByTopic')
+    this.removeMessageListener()
   }
 }
 </script>
