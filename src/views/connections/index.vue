@@ -18,7 +18,7 @@
           :oper="oper"
           @connect="handleConnect"/>
         <ConnectionsDetail
-          v-else
+          v-show="!oper"
           ref="ConnectionsDetail"
           :record="currentConnection"
           @reload="loadData"
