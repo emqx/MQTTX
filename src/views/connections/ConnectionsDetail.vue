@@ -652,6 +652,13 @@ export default class ConnectionsDetail extends Vue {
       const $type = type.toLowerCase() as PayloadConvertType
       return Buffer.from(value, $type)
     }
+    if (type === 'JSON') {
+      try {
+        JSON.parse(value)
+      } catch (error) {
+        this.$message.warning(error.toString())
+      }
+    }
     return value
   }
 
