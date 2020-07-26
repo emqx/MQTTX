@@ -128,6 +128,7 @@
         <div v-for="(message, index) in messages" :key="index">
           <MsgLeftItem
             v-if="!message.out"
+            :subsList="record.subscriptions"
             v-bind="message"/>
           <MsgRightItem
             v-else
