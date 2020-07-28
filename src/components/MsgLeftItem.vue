@@ -14,7 +14,7 @@
 
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { matchTopicMethod } from '@/utils/topicMatch'
 
 type LeftPayloadDOM = Vue & {
@@ -32,7 +32,16 @@ export default class MsgLeftItem extends Vue {
   private topicColorHeight = '0px'
   private currentTopicColor = ''
 
+  @Watch('subsList', {
+    immediate: true,
+    deep: true,
+  })
+  private handleSubsListChange() {
+    this.setCurrentTopicColor()
+  }
+
   private setCurrentTopicColor() {
+    // console.log(this.subsList)
     const topic: SubscriptionModel | undefined = this.subsList.find((sub: SubscriptionModel) =>
       matchTopicMethod(sub.topic, this.topic),
     )
@@ -44,8 +53,6 @@ export default class MsgLeftItem extends Vue {
   private mounted() {
     const leftPayloadDom = this.$refs.leftPayload as LeftPayloadDOM
     this.topicColorHeight = `${leftPayloadDom.offsetHeight - 6}px`
-  }
-  private created() {
     this.setCurrentTopicColor()
   }
 }
