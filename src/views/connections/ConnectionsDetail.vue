@@ -680,7 +680,9 @@ export default class ConnectionsDetail extends Vue {
       } = this.activeConnection[connectionID]
       const client: MqttClient = $connection.client
       let msgEventCount = 0
-      msgEventCount = client.listenerCount('message')
+      if (client.listenerCount) {
+        msgEventCount = client.listenerCount('message')
+      }
       if (client.connected && client.on && msgEventCount === 0) {
         client.on('message', this.onMessageArrived(connectionID))
       }
@@ -700,7 +702,9 @@ export default class ConnectionsDetail extends Vue {
         client: MqttClient,
       } = this.activeConnection[connectionID]
       const client: MqttClient = currentActiveConnection.client
-      client.removeAllListeners('message')
+      if (client.removeAllListeners) {
+        client.removeAllListeners('message')
+      }
     })
   }
 
