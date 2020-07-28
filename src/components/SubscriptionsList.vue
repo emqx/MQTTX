@@ -229,10 +229,8 @@ export default class SubscriptionsList extends Vue {
           } else {
             subscriptions.push({ ...this.subRecord })
           }
-          if (!this.record.clean) {
-            this.record.subscriptions = subscriptions
-            updateConnection(this.record.id as string, this.record)
-          }
+          this.record.subscriptions = subscriptions
+          updateConnection(this.record.id as string, this.record)
           this.changeSubs({ id: this.connectionId, subscriptions })
           this.subsList = subscriptions
           this.showDialog = false
