@@ -41,7 +41,6 @@ export default class MsgLeftItem extends Vue {
   }
 
   private setCurrentTopicColor() {
-    // console.log(this.subsList)
     const topic: SubscriptionModel | undefined = this.subsList.find((sub: SubscriptionModel) =>
       matchTopicMethod(sub.topic, this.topic),
     )
