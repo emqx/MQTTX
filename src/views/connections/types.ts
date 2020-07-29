@@ -20,6 +20,7 @@ export interface FormRule {
 }
 
 export interface MessageModel {
+  mid: string,
   createAt: string,
   out: boolean,
   payload: string,

@@ -32,14 +32,6 @@ export default class MsgLeftItem extends Vue {
   private topicColorHeight = '0px'
   private currentTopicColor = ''
 
-  @Watch('subsList', {
-    immediate: true,
-    deep: true,
-  })
-  private handleSubsListChange() {
-    this.setCurrentTopicColor()
-  }
-
   private setCurrentTopicColor() {
     const topic: SubscriptionModel | undefined = this.subsList.find((sub: SubscriptionModel) =>
       matchTopicMethod(sub.topic, this.topic),

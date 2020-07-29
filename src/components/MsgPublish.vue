@@ -63,6 +63,7 @@ import jump from 'jump.js'
 import Editor from '@/components/Editor.vue'
 import { MessageModel } from '../views/connections/types'
 import convertPayload from '@/utils/convertPayload'
+import { v4 as uuidv4 } from 'uuid'
 
 @Component({
   components: {
@@ -74,6 +75,7 @@ export default class MsgPublish extends Vue {
   @Prop({ required: true }) public subsVisible!: boolean
 
   private msgRecord: MessageModel = {
+    mid: '',
     createAt: '',
     out: true,
     qos: 0,
@@ -114,6 +116,7 @@ export default class MsgPublish extends Vue {
   }
 
   private send() {
+    this.msgRecord.mid = uuidv4()
     this.$emit('handleSend', this.msgRecord, this.payloadType)
   }
 
