@@ -125,7 +125,7 @@
           :record="record"
           :top="showClientInfo ? bodyTop.open: bodyTop.close"
           @onClickTopic="handleTopicClick"/>
-        <div v-for="(message, index) in messages" :key="index">
+        <div v-for="message in messages" :key="message.mid">
           <MsgLeftItem
             v-if="!message.out"
             :subsList="record.subscriptions"
@@ -152,11 +152,13 @@
 
 
 <script lang="ts">
-import { ipcRenderer } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { ipcRenderer } from 'electron'
 import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
+import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
+
 import {
   deleteConnection, updateConnection, updateConnectionMessage,
 } from '@/utils/api/connection'
@@ -560,6 +562,7 @@ export default class ConnectionsDetail extends Vue {
         packet: SubscriptionModel,
       ) => {
       const receivedMessage: MessageModel = {
+        mid: uuidv4(),
         out: false,
         createAt: time.getNowDate(),
         topic,
@@ -598,7 +601,7 @@ export default class ConnectionsDetail extends Vue {
       return false
     }
     const {
-      topic, qos, payload, retain,
+      mid, topic, qos, payload, retain,
     } = message
     if (!topic) {
       this.$message.warning(this.$t('connections.topicReuired') as string)
@@ -616,6 +619,7 @@ export default class ConnectionsDetail extends Vue {
           return false
         }
         const publishMessage: MessageModel = {
+          mid,
           out: true,
           createAt: time.getNowDate(),
           topic,
