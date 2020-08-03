@@ -10238,6 +10238,11 @@ vue-cli-plugin-electron-builder@^1.4.4:
     webpack-chain "^5.0.0"
     yargs "^14.0.0"
 
+vue-click-outside@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.npm.taobao.org/vue-click-outside/download/vue-click-outside-1.1.0.tgz#48b7680b518923e701643cccb3e165854aad99eb"
+  integrity sha1-SLdoC1GJI+cBZDzMs+FlhUqtmes=
+
 vue-clipboard2@^0.3.1:
   version "0.3.1"
   resolved "https://registry.npm.taobao.org/vue-clipboard2/download/vue-clipboard2-0.3.1.tgz#6e551fb7bd384889b28b0da3b12289ed6bca4894"

@@ -6,7 +6,8 @@
         v-for="item in data"
         :key="item.id"
         :class="['connection-item', { active: item.id === connectionId }]"
-        @click="selectConnection(item)">
+        @click="handleSelectConnection(item)"
+        @contextmenu="handleContextMenu(item, $event)">
         <div class="item-left">
           <div
             :class="['connection-status', {
@@ -36,6 +37,11 @@
         </div>
       </div>
     </template>
+    <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
+      <a href="javascript:;" class="context-menu__item danger">
+        <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
+      </a>
+    </contextmenu>
   </div>
 </template>
 
@@ -43,10 +49,15 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { ConnectionModel } from './types'
 import { MqttClient } from 'mqtt'
+import Contextmenu from '@/components/Contextmenu.vue'
+import { ConnectionModel, ContextmenuModel } from './types'
 
-@Component
+@Component({
+  components: {
+    Contextmenu,
+  },
+})
 export default class ConnectionsList extends Vue {
   @Prop({ required: true }) public data!: ConnectionModel[] | []
   @Prop({ required: true }) public connectionId!: string
@@ -57,9 +68,35 @@ export default class ConnectionsList extends Vue {
   @Getter('unreadMessageCount') private unreadMessageCount: UnreadMessage | undefined
   @Getter('currentTheme') private theme!: Theme
 
-  private selectConnection(row: ConnectionModel) {
+  private showContextmenu: boolean = false
+  private selectedConnection: ConnectionModel | null = null
+  private contextmenuConfig: ContextmenuModel = {
+    top: 0,
+    left: 0,
+  }
+
+  @Watch('showContextmenu')
+  private handleShowContextmenuChange(val: boolean) {
+    if (!val) {
+      this.selectedConnection = null
+    }
+  }
+
+  private handleSelectConnection(row: ConnectionModel) {
     this.unreadMessageIncrement({ id: row.id as string, unreadMessageCount: 0  })
     this.$router.push({ path: `/recent_connections/${row.id}` })
+  }
+
+  private handleContextMenu(row: ConnectionModel, event: MouseEvent) {
+    if (!this.showContextmenu) {
+      const { clientX, clientY } = event
+      this.contextmenuConfig.top = clientY
+      this.contextmenuConfig.left = clientX
+      this.showContextmenu = true
+      this.selectedConnection = row
+    } else {
+      this.showContextmenu = false
+    }
   }
 }
 </script>
@@ -78,6 +115,7 @@ export default class ConnectionsList extends Vue {
     cursor: pointer;
     position: relative;
     transition: background .3s ease;
+    user-select: none;
     &.active {
       background-color: var(--color-bg-item);
     }
