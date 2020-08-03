@@ -248,6 +248,27 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
+  public removeConnection(currentConnection?: ConnectionModel) {
+    let { id, name } = this.record
+    if (currentConnection) {
+      id = currentConnection.id
+      name = currentConnection.name
+    }
+    const confirmDelete: string = this.$t('common.confirmDelete', { name }) as string
+    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
+      type: 'warning',
+    }).then(async () => {
+      const res: ConnectionModel | null = await deleteConnection(id as string)
+      if (res) {
+        this.$emit('delete')
+        this.$message.success(this.$t('common.deleteSuccess') as string)
+        this.removeActiveConnection({ id: res.id as string })
+      }
+    }).catch((error) => {
+      // ignore(error)
+    })
+  }
+
   get bodyTop(): Top {
     return {
       open: '254px',
@@ -431,22 +452,6 @@ export default class ConnectionsDetail extends Vue {
   private handleSearchClose() {
     this.searchVisible = false
     this.getMessages()
-  }
-
-  private removeConnection() {
-    const confirmDelete: string = this.$t('common.confirmDelete', { name: this.record.name }) as string
-    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
-      type: 'warning',
-    }).then(async () => {
-      const res: ConnectionModel | null = await deleteConnection(this.record.id as string)
-      if (res) {
-        this.$emit('delete')
-        this.$message.success(this.$t('common.deleteSuccess') as string)
-        this.removeActiveConnection({ id: res.id as string })
-      }
-    }).catch((error) => {
-      // ignore(error)
-    })
   }
 
   private createClient(): MqttClient {

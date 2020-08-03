@@ -2,7 +2,10 @@
   <div class="connections">
     <div class="leftList">
       <h1 class="titlebar">{{ $t('connections.connections') }}</h1>
-      <ConnectionsList :data="records" :connectionId="connectionId"/>
+      <ConnectionsList
+        :data="records"
+        :connectionId="connectionId"
+        @delete="onDelete"/>
     </div>
 
     <div class="connections-view">
@@ -16,7 +19,7 @@
           v-if="oper"
           ref="connectionForm"
           :oper="oper"
-          @connect="handleConnect"/>
+          @connect="onConnect"/>
         <ConnectionsDetail
           v-show="!oper"
           ref="ConnectionsDetail"
@@ -127,12 +130,17 @@ export default class Connections extends Vue {
     this.$router.push({ path: '/recent_connections/0?oper=create' })
   }
 
-  private handleConnect() {
+  private onConnect() {
     this.loadData()
     setTimeout(() => {
       const connection: ConnectionsDetail = this.$refs.ConnectionsDetail as ConnectionsDetail
       connection.connect()
     }, 500)
+  }
+
+  private onDelete(data: ConnectionModel) {
+    const connection: ConnectionsDetail = this.$refs.ConnectionsDetail as ConnectionsDetail
+    connection.removeConnection(data)
   }
 
   private created() {
