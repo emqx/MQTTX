@@ -89,3 +89,8 @@ export interface SSLContent {
   cert: string | string[] | Buffer | Buffer[] | undefined,
   key: string | string[] | Buffer | Buffer[] | undefined,
 }
+
+export interface ContextmenuModel {
+  top: number,
+  left: number,
+}
