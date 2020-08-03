@@ -38,7 +38,7 @@
       </div>
     </template>
     <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
-      <a href="javascript:;" class="context-menu__item danger">
+      <a href="javascript:;" class="context-menu__item danger" @click="handleDelete">
         <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
       </a>
     </contextmenu>
@@ -97,6 +97,10 @@ export default class ConnectionsList extends Vue {
     } else {
       this.showContextmenu = false
     }
+  }
+
+  private handleDelete() {
+    this.$emit('delete', this.selectedConnection)
   }
 }
 </script>

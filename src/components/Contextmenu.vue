@@ -3,8 +3,8 @@
     <el-card
       v-if="visible"
       class="contextmenu"
-      v-click-outside="handleClickoutside"
-      :style="{ top: `${top}px`, left: `${left}px` }">
+      :style="{ top: `${top}px`, left: `${left}px` }"
+      v-click-outside="handleClickoutside">
       <slot></slot>
     </el-card>
   </transition>
