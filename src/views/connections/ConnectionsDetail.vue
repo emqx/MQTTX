@@ -216,6 +216,7 @@ export default class ConnectionsDetail extends Vue {
   private connectLoading = false
   private searchVisible = false
   private searchLoading = false
+  private receivedMsgType: PayloadType = 'Plaintext'
   private msgType: MessageType = 'all'
   private client: Partial<MqttClient> = {
     connected: false,
@@ -563,15 +564,16 @@ export default class ConnectionsDetail extends Vue {
   private onMessageArrived(id: string) {
     return (
         topic: string,
-        payload: string,
+        payload: Buffer,
         packet: SubscriptionModel,
       ) => {
+      const $payload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
       const receivedMessage: MessageModel = {
         mid: uuidv4(),
         out: false,
         createAt: time.getNowDate(),
         topic,
-        payload: payload.toString(),
+        payload: $payload,
         qos: packet.qos,
         retain: packet.retain as boolean,
       }
@@ -612,7 +614,7 @@ export default class ConnectionsDetail extends Vue {
       this.$message.warning(this.$t('connections.topicReuired') as string)
       return false
     }
-    const $payload = this.convertPayloadByType(payload, type)
+    const $payload = this.convertPayloadByType(payload, type, 'publish')
     this.client.publish!(
       topic,
       $payload,
@@ -657,17 +659,36 @@ export default class ConnectionsDetail extends Vue {
     }, 500)
   }
 
-  private convertPayloadByType(value: string, type: PayloadType): Buffer | string {
-    if (type === 'Base64' || type === 'Hex') {
-      const $type = type.toLowerCase() as PayloadConvertType
-      return Buffer.from(value, $type)
-    }
-    if (type === 'JSON') {
-      try {
-        JSON.parse(value)
-      } catch (error) {
-        this.$message.warning(error.toString())
+  private convertPayloadByType(
+    value: Buffer | string,
+    type: PayloadType,
+    way: 'publish' | 'receive',
+  ): Buffer | string {
+    const genPublishPayload = (publishType: PayloadType, publishValue: string) => {
+      if (publishType === 'Base64' || publishType === 'Hex') {
+        const $type = publishType.toLowerCase() as PayloadConvertType
+        return Buffer.from(publishValue, $type)
       }
+      if (publishType === 'JSON') {
+        try {
+          JSON.parse(publishValue)
+        } catch (error) {
+          this.$message.warning(error.toString())
+        }
+      }
+      return publishValue
+    }
+    const genReceivePayload = (receiveType: PayloadType, receiveValue: Buffer) => {
+      if (receiveType === 'Base64' || receiveType === 'Hex') {
+        const $type = receiveType.toLowerCase() as PayloadType
+        return receiveValue.toString($type)
+      }
+      return receiveValue.toString()
+    }
+    if (way === 'publish' && typeof value === 'string') {
+      return genPublishPayload(type, value)
+    } else if (way === 'receive' && typeof value !== 'string') {
+      return genReceivePayload(type, value)
     }
     return value
   }
