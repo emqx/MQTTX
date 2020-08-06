@@ -60,8 +60,9 @@ export default class MsgLeftItem extends Vue {
   .topic-color {
     display: inline-block;
     width: 3px;
-    position: relative;
+    position: absolute;
     top: 10px;
+    left: -3px;
   }
   .left-payload {
     background: var(--color-main-grey);
