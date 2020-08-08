@@ -208,7 +208,6 @@
 }
 .el-popper[x-placement^="top"] .popper__arrow {
   border-top-color: var(--color-border-default);
-
   &:after {
     border-top-color: var(--color-bg-messagebox);
   }

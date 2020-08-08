@@ -110,8 +110,28 @@
             </a>
           </span>
           <div class="message-type">
+            <el-tooltip
+              placement="top"
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :open-delay="500"
+              :content="$t('connections.receivedPayloadDecodedBy')">
+              <a href="javascript:;" class="icon-tip">
+                <i class="el-icon-warning-outline"></i>
+              </a>
+            </el-tooltip>
+            <el-select
+              class="received-type-select"
+              size="small"
+              v-model="receivedMsgType">
+              <el-option
+                v-for="(type, index) in payloadOptions"
+                :key="index"
+                :value="type">
+              </el-option>
+            </el-select>
             <el-radio-group
-              v-model="msgType" size="mini"
+              v-model="msgType"
+              size="mini"
               @change="handleMsgTypeChanged">
               <el-radio-button label="all">{{ $t('connections.all') }}</el-radio-button>
               <el-radio-button label="received">{{ $t('connections.received') }}</el-radio-button>
@@ -153,9 +173,10 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Getter, Action } from 'vuex-class'
+import { TranslateResult } from 'vue-i18n'
 import { ipcRenderer } from 'electron'
 import mqtt, { MqttClient, IClientOptions } from 'mqtt'
-import { Getter, Action } from 'vuex-class'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
 
@@ -227,11 +248,12 @@ export default class ConnectionsDetail extends Vue {
   private retryTimes = 0
   private inputHeight = 155
   private msgBottom = 160
+  private activeTopic = ''
   private mqttVersionDict = {
     '3.1.1': 4,
     '5.0': 5,
   }
-  private activeTopic = ''
+  private payloadOptions: PayloadType[] = ['Plaintext', 'Base64', 'JSON', 'Hex']
 
   public connect(): boolean | void {
     if (this.client.connected) {
@@ -664,17 +686,20 @@ export default class ConnectionsDetail extends Vue {
     type: PayloadType,
     way: 'publish' | 'receive',
   ): Buffer | string {
+    const validJSONType = (jsonValue: string, warnMessage: TranslateResult) => {
+      try {
+        JSON.parse(jsonValue)
+      } catch (error) {
+        this.$message.warning(`${warnMessage} ${error.toString()}`)
+      }
+    }
     const genPublishPayload = (publishType: PayloadType, publishValue: string) => {
       if (publishType === 'Base64' || publishType === 'Hex') {
         const $type = publishType.toLowerCase() as PayloadConvertType
         return Buffer.from(publishValue, $type)
       }
       if (publishType === 'JSON') {
-        try {
-          JSON.parse(publishValue)
-        } catch (error) {
-          this.$message.warning(error.toString())
-        }
+        validJSONType(publishValue, this.$t('connections.publishMsg'))
       }
       return publishValue
     }
@@ -682,6 +707,9 @@ export default class ConnectionsDetail extends Vue {
       if (receiveType === 'Base64' || receiveType === 'Hex') {
         const $type = receiveType.toLowerCase() as PayloadType
         return receiveValue.toString($type)
+      }
+      if (receiveType === 'JSON') {
+        validJSONType(receiveValue.toString(), this.$t('connections.receivedMsg'))
       }
       return receiveValue.toString()
     }
@@ -861,7 +889,17 @@ export default class ConnectionsDetail extends Vue {
           }
         }
         .message-type {
-          text-align: right;
+          @include flex-space-between;
+          .received-type-select {
+            width: 110px;
+            margin-left: 245px;
+          }
+          .icon-tip {
+            position: absolute;
+            left: 239px;
+            font-size: 16px;
+            color: var(--color-text-default);
+          }
         }
       }
     }

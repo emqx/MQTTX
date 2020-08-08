@@ -227,4 +227,16 @@ export default {
     zh: '可快速选择已创建过的连接配置',
     en: 'Quick selection of created connection configurations',
   },
+  publishMsg: {
+    zh: '发送消息',
+    en: 'Publish message',
+  },
+  receivedMsg: {
+    zh: '接收消息',
+    en: 'Received message',
+  },
+  receivedPayloadDecodedBy: {
+    zh: '接收到的 Payload 解码',
+    en: 'Received payload decoded by',
+  },
 }
