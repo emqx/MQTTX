@@ -2,37 +2,30 @@
   <div class="about-view rightbar">
     <h1 class="titlebar">{{ $t('about.about') }}</h1>
     <div class="about-content">
-      <img class="logo" :src="logo" alt="mqttx">
+      <img class="logo" :src="logo" alt="mqttx" />
 
       <p class="version">v1.3.3</p>
 
       <p class="about-help">
         <a class="web-link" href="javascript:;" @click="checkUpdate">{{ $t('about.update') }}</a>
-        <a
-          class="web-link"
-          href="https://github.com/emqx/MQTTX/releases"
-          target="_blank"
-          rel="noopener noreferrer">
+        <a class="web-link" href="https://github.com/emqx/MQTTX/releases" target="_blank" rel="noopener noreferrer">
           {{ $t('about.releases') }}
         </a>
-        <a
-          class="web-link"
-          href="https://github.com/emqx/MQTTX/issues"
-          target="_blank"
-          rel="noopener noreferrer">
+        <a class="web-link" href="https://github.com/emqx/MQTTX/issues" target="_blank" rel="noopener noreferrer">
           {{ $t('about.support') }}
         </a>
       </p>
 
       <div class="emqx-desc">
         <i18n path="about.emqxLocal.local" tag="span">
-          <a href="https://github.com/emqx/emqx"
-            target="_blank"
-            rel="noopener noreferrer">{{ $t('about.emqxLocal.emqx') }}</a>
+          <a href="https://github.com/emqx/emqx" target="_blank" rel="noopener noreferrer">{{
+            $t('about.emqxLocal.emqx')
+          }}</a>
         </i18n>
-        <a v-if="getterLang !== 'zh'" href="https://github.com/emqx/emqx"
-          target="_blank"
-          rel="noopener noreferrer">EMQ X</a> {{ $t('about.emqxDesc') }}
+        <a v-if="getterLang !== 'zh'" href="https://github.com/emqx/emqx" target="_blank" rel="noopener noreferrer"
+          >EMQ X</a
+        >
+        {{ $t('about.emqxDesc') }}
       </div>
 
       <div class="emqx-desc">
@@ -42,56 +35,39 @@
         </div>
       </div>
 
-      <el-button
-        class="about-website github-btn"
-        type="primary"
-        @click="goToLink('https://github.com/emqx/MQTTX')">
+      <el-button class="about-website github-btn" type="primary" @click="goToLink('https://github.com/emqx/MQTTX')">
         <i class="iconfont icon-github"></i> {{ $t('about.followGithub') }}
       </el-button>
     </div>
 
     <div class="about-footer">
-      <img class="emqx-logo" src="../../assets/images/emqx-logo.png" alt="emqx" width="35">
-      <span class="copyright">Copyright &copy; 2020
-        <a
-          :href="emqxWebsite"
-          target="_blank"
-          rel="noopener noreferrer">
-        EMQ X</a>
+      <img class="emqx-logo" src="../../assets/images/emqx-logo.png" alt="emqx" width="35" />
+      <span class="copyright"
+        >Copyright &copy; 2020
+        <a :href="emqxWebsite" target="_blank" rel="noopener noreferrer"> EMQ X</a>
       </span>
       <div class="follow-items">
-        <a target="_blank" rel="noopener noreferrer"
-          class="follow-link" href="https://twitter.com/emqtt">
+        <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://twitter.com/emqtt">
           <i class="iconfont icon-ttww"></i>
         </a>
-        <a target="_blank" rel="noopener noreferrer"
-          class="follow-link" href="https://slack-invite.emqx.io/">
+        <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://slack-invite.emqx.io/">
           <i class="iconfont icon-slack"></i>
         </a>
-        <a target="_blank" rel="noopener noreferrer"
-          class="follow-link" href="https://www.reddit.com/r/emqx/">
+        <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://www.reddit.com/r/emqx/">
           <i class="iconfont icon-reddit"></i>
         </a>
         <template v-if="getterLang === 'zh'">
-          <a target="_blank" rel="noopener noreferrer"
-            class="follow-link" href="https://weibo.com/emqtt">
+          <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://weibo.com/emqtt">
             <i class="iconfont icon-weibo"></i>
           </a>
-          <el-popover
-            placement="top-start"
-            width="30"
-            trigger="click">
-            <img class="emqx-qq" src="../../assets/images/qq-qr_code.png" alt="qq">
+          <el-popover placement="top-start" width="30" trigger="click">
+            <img class="emqx-qq" src="../../assets/images/qq-qr_code.png" alt="qq" />
             <span class="follow-link" slot="reference">
               <i class="iconfont icon-qq"></i>
             </span>
           </el-popover>
-          <el-popover
-            placement="top-start"
-            width="30"
-            style="margin-left: 16px"
-            trigger="click">
-            <img class="emqx-qq" src="../../assets/images/wx_qr_code.png" alt="qq">
+          <el-popover placement="top-start" width="30" style="margin-left: 16px;" trigger="click">
+            <img class="emqx-qq" src="../../assets/images/wx_qr_code.png" alt="qq" />
             <span class="follow-link" slot="reference">
               <i class="iconfont icon-we-chat"></i>
             </span>
@@ -101,7 +77,6 @@
     </div>
   </div>
 </template>
-
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
@@ -140,7 +115,6 @@ export default class About extends Vue {
   }
 }
 </script>
-
 
 <style lang="scss" scope>
 .about-view {

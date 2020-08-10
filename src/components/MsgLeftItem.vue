@@ -1,6 +1,6 @@
 <template>
   <div class="msg-left-item">
-    <span class="topic-color" :style="{ height: topicColorHeight, background: currentTopicColor  }"></span>
+    <span class="topic-color" :style="{ height: topicColorHeight, background: currentTopicColor }"></span>
     <div ref="leftPayload" class="left-payload payload">
       <p class="left-info">
         <span class="topic">Topic: {{ topic }}</span>
@@ -12,13 +12,12 @@
   </div>
 </template>
 
-
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { matchTopicMethod } from '@/utils/topicMatch'
 
 type LeftPayloadDOM = Vue & {
-  offsetHeight: number,
+  offsetHeight: number
 }
 
 @Component
@@ -49,9 +48,8 @@ export default class MsgLeftItem extends Vue {
 }
 </script>
 
-
 <style lang="scss" scoped>
-@import "~@/assets/scss/mixins.scss";
+@import '~@/assets/scss/mixins.scss';
 
 .msg-left-item {
   @include msg-item;

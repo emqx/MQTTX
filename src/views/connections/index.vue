@@ -2,10 +2,7 @@
   <div class="connections">
     <div class="leftList">
       <h1 class="titlebar">{{ $t('connections.connections') }}</h1>
-      <ConnectionsList
-        :data="records"
-        :connectionId="connectionId"
-        @delete="onDelete"/>
+      <ConnectionsList :data="records" :connectionId="connectionId" @delete="onDelete" />
     </div>
 
     <div class="connections-view">
@@ -13,25 +10,21 @@
         v-if="isEmpty && !oper"
         name="connections"
         :btn-title="$t('connections.newConnections')"
-        :click-method="toCreateConnection"/>
+        :click-method="toCreateConnection"
+      />
       <template v-else>
-        <ConnectionForm
-          v-if="oper"
-          ref="connectionForm"
-          :oper="oper"
-          @connect="onConnect"/>
+        <ConnectionForm v-if="oper" ref="connectionForm" :oper="oper" @connect="onConnect" />
         <ConnectionsDetail
           v-show="!oper"
           ref="ConnectionsDetail"
           :record="currentConnection"
           @reload="loadData"
-          @delete="loadData(true)"/>
+          @delete="loadData(true)"
+        />
       </template>
     </div>
-
   </div>
 </template>
-
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
@@ -52,12 +45,10 @@ import { ConnectionModel } from './types'
   },
 })
 export default class Connections extends Vue {
-  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (
-    payload: Client,
-  ) => void
-  @Action('CHANGE_ALL_CONNECTIONS') private changeAllConnections!: (
-    payload: { allConnections: ConnectionModel[] | [] },
-  ) => void
+  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
+  @Action('CHANGE_ALL_CONNECTIONS') private changeAllConnections!: (payload: {
+    allConnections: ConnectionModel[] | []
+  }) => void
 
   private isEmpty: boolean = false
   private records: ConnectionModel[] | [] = []
@@ -148,7 +139,6 @@ export default class Connections extends Vue {
   }
 }
 </script>
-
 
 <style lang="scss">
 .connections {

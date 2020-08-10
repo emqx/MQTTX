@@ -2,7 +2,6 @@
   <div :id="`monaco-${id}`" class="editor-view"></div>
 </template>
 
-
 <script lang="ts">
 import { Component, Vue, Prop, Model, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
@@ -140,7 +139,6 @@ export default class Editor extends Vue {
   }
 }
 </script>
-
 
 <style lang="scss">
 .editor-view {

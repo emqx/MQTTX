@@ -25,16 +25,20 @@ const updateChecker = async (isAuto: boolean = true): Promise<void | boolean> =>
     const latest: string = response.data.name
     const isPrerelease: boolean = response.data.prerelease
     if (isUpdate(latest.slice(1, 6), version.slice(1, 6)) && !isPrerelease) {
-      dialog.showMessageBox({
-        type: 'info',
-        title: 'New Version',
-        buttons: ['Download', 'No'],
-        message: `Update available: ${latest}`,
-      }, (res) => {
-        if (res === 0) { // if selected yes
-          shell.openExternal(downloadUrl)
-        }
-      })
+      dialog.showMessageBox(
+        {
+          type: 'info',
+          title: 'New Version',
+          buttons: ['Download', 'No'],
+          message: `Update available: ${latest}`,
+        },
+        (res) => {
+          if (res === 0) {
+            // if selected yes
+            shell.openExternal(downloadUrl)
+          }
+        },
+      )
     } else {
       if (!isAuto) {
         dialog.showMessageBox({

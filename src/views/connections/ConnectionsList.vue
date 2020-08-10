@@ -7,32 +7,33 @@
         :key="item.id"
         :class="['connection-item', { active: item.id === connectionId }]"
         @click="handleSelectConnection(item)"
-        @contextmenu="handleContextMenu(item, $event)">
+        @contextmenu="handleContextMenu(item, $event)"
+      >
         <div class="item-left">
           <div
-            :class="['connection-status', {
-              online: activeConnection[item.id] ? activeConnection[item.id].client.connected : false
-            }]">
-          </div>
+            :class="[
+              'connection-status',
+              {
+                online: activeConnection[item.id] ? activeConnection[item.id].client.connected : false,
+              },
+            ]"
+          ></div>
           <div class="client-info">
             <el-tooltip
               :effect="theme !== 'light' ? 'light' : 'dark'"
               :disabled="`${item.name}@${item.host}:${item.port}`.length < 26"
               :content="`${item.name}@${item.host}:${item.port}`"
               :open-delay="500"
-              placement="top">
-              <div class="client-name">
-                {{ item.name }}@{{ item.host }}:{{item.port}}
-              </div>
+              placement="top"
+            >
+              <div class="client-name">{{ item.name }}@{{ item.host }}:{{ item.port }}</div>
             </el-tooltip>
           </div>
           <div v-if="item.ssl" class="ssl-tag">
             <span>SSL</span>
           </div>
         </div>
-        <div
-          v-if="unreadMessageCount[item.id] > 0"
-          class="new-msg-count">
+        <div v-if="unreadMessageCount[item.id] > 0" class="new-msg-count">
           {{ unreadMessageCount[item.id] }}
         </div>
       </div>
@@ -44,7 +45,6 @@
     </contextmenu>
   </div>
 </template>
-
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
@@ -83,7 +83,7 @@ export default class ConnectionsList extends Vue {
   }
 
   private handleSelectConnection(row: ConnectionModel) {
-    this.unreadMessageIncrement({ id: row.id as string, unreadMessageCount: 0  })
+    this.unreadMessageIncrement({ id: row.id as string, unreadMessageCount: 0 })
     this.$router.push({ path: `/recent_connections/${row.id}` })
   }
 
@@ -105,9 +105,8 @@ export default class ConnectionsList extends Vue {
 }
 </script>
 
-
 <style lang="scss" scope>
-@import "~@/assets/scss/variable.scss";
+@import '~@/assets/scss/variable.scss';
 
 .connections-list {
   .connection-item {
@@ -118,7 +117,7 @@ export default class ConnectionsList extends Vue {
     padding: 0 16px;
     cursor: pointer;
     position: relative;
-    transition: background .3s ease;
+    transition: background 0.3s ease;
     user-select: none;
     &.active {
       background-color: var(--color-bg-item);
