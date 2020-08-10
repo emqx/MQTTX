@@ -1,11 +1,10 @@
 <template>
   <div class="home-view">
-    <Leftbar/>
-    <RouterView/>
-    <Ipc @setTheme="setTheme" @setLang="setLang"/>
+    <Leftbar />
+    <RouterView />
+    <Ipc @setTheme="setTheme" @setLang="setLang" />
   </div>
 </template>
-
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
@@ -42,7 +41,6 @@ export default class Home extends Vue {
   }
 }
 </script>
-
 
 <style lang="scss" scope>
 @import '~@/assets/scss/mixins.scss';

@@ -2,11 +2,8 @@
   <div class="leftbar">
     <section class="leftbar-top">
       <div class="app-logo leftbar-item">
-        <a
-          :href="siteLink"
-          target="_blank"
-          rel="noopener noreferrer">
-          <img src="../assets/images/app-logo.png" alt="app-logo">
+        <a :href="siteLink" target="_blank" rel="noopener noreferrer">
+          <img src="../assets/images/app-logo.png" alt="app-logo" />
         </a>
       </div>
       <div :class="[{ active: isConnection }, 'leftbar-item']">
@@ -36,7 +33,6 @@
   </div>
 </template>
 
-
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
@@ -61,9 +57,8 @@ export default class Leftbar extends Vue {
 }
 </script>
 
-
 <style lang="scss">
-@import "~@/assets/scss/variable.scss";
+@import '~@/assets/scss/variable.scss';
 
 .leftbar {
   position: fixed;

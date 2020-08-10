@@ -4,12 +4,12 @@
       v-if="visible"
       class="contextmenu"
       :style="{ top: `${top}px`, left: `${left}px` }"
-      v-click-outside="handleClickoutside">
+      v-click-outside="handleClickoutside"
+    >
       <slot></slot>
     </el-card>
   </transition>
 </template>
-
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
@@ -32,7 +32,6 @@ export default class Contextmenu extends Vue {
   }
 }
 </script>
-
 
 <style lang="scss">
 .contextmenu {

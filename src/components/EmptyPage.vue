@@ -2,7 +2,7 @@
   <div class="empty-page right-content">
     <div class="empty-page__block">
       <div>
-        <img :src="imageSrc" alt="new connection">
+        <img :src="imageSrc" alt="new connection" />
       </div>
       <el-button type="outline" icon="el-icon-plus" @click="clickMethod(false)">
         {{ btnTitle }}
@@ -10,7 +10,6 @@
     </div>
   </div>
 </template>
-
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
@@ -26,7 +25,6 @@ export default class EmptyPage extends Vue {
   }
 }
 </script>
-
 
 <style lang="scss" scoped>
 .empty-page {

@@ -8,8 +8,9 @@
               {{ titleName }}
               <a
                 href="javascript:;"
-                :class="['collapse-btn', showClientInfo ? 'top': 'bottom']"
-                @click="handleCollapse($route.params.id)">
+                :class="['collapse-btn', showClientInfo ? 'top' : 'bottom']"
+                @click="handleCollapse($route.params.id)"
+              >
                 <i class="el-icon-d-arrow-left"></i>
               </a>
             </h2>
@@ -21,9 +22,9 @@
                 placement="bottom"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
                 :open-delay="1000"
-                :content="$t('connections.disconnectedBtn')">
-                <a class="disconnect-btn"
-                href="javascript:;" @click="disconnect">
+                :content="$t('connections.disconnectedBtn')"
+              >
+                <a class="disconnect-btn" href="javascript:;" @click="disconnect">
                   <i class="iconfont el-icon-switch-button"></i>
                 </a>
               </el-tooltip>
@@ -32,9 +33,13 @@
               placement="bottom"
               :effect="theme !== 'light' ? 'light' : 'dark'"
               :open-delay="1000"
-              :content="$t('common.config')">
-              <a :class="['edit-btn', { 'disabled': client.connected }]" 
-              href="javascript:;" @click="handleEdit($route.params.id)">
+              :content="$t('common.config')"
+            >
+              <a
+                :class="['edit-btn', { disabled: client.connected }]"
+                href="javascript:;"
+                @click="handleEdit($route.params.id)"
+              >
                 <i class="iconfont el-icon-edit-outline"></i>
               </a>
             </el-tooltip>
@@ -69,7 +74,8 @@
             :btn-loading="connectLoading"
             @handleConnect="connect"
             @handleDisconnect="disconnect"
-            @handleCancel="cancel"/>
+            @handleCancel="cancel"
+          />
         </el-collapse-transition>
       </div>
 
@@ -81,7 +87,8 @@
             size="small"
             :placeholder="$t('connections.searchByTopic')"
             @keyup.enter.native="searchByTopic"
-            @keyup.esc.native="handleSearchClose">
+            @keyup.esc.native="handleSearchClose"
+          >
             <a class="search-btn" href="javascript:;" slot="suffix" @click="searchByTopic">
               <i v-if="!searchLoading" class="iconfont icon-search"></i>
               <i v-else class="el-icon-loading"></i>
@@ -97,12 +104,13 @@
     <div
       class="connections-detail-main right-content"
       :style="{
-        paddingTop: showClientInfo ? msgTop.open: msgTop.close,
+        paddingTop: showClientInfo ? msgTop.open : msgTop.close,
         paddingBottom: `${msgBottom}px`,
         marginLeft: showSubs ? '570px' : '341px',
-      }">
+      }"
+    >
       <div class="connections-body">
-        <div class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open: bodyTop.close }">
+        <div class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open : bodyTop.close }">
           <span class="subs-title">
             {{ this.$t('connections.subscriptions') }}
             <a class="subs-btn" href="javascript:;" @click="handleShowSubs">
@@ -114,25 +122,16 @@
               placement="top"
               :effect="theme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
-              :content="$t('connections.receivedPayloadDecodedBy')">
+              :content="$t('connections.receivedPayloadDecodedBy')"
+            >
               <a href="javascript:;" class="icon-tip">
                 <i class="el-icon-warning-outline"></i>
               </a>
             </el-tooltip>
-            <el-select
-              class="received-type-select"
-              size="small"
-              v-model="receivedMsgType">
-              <el-option
-                v-for="(type, index) in payloadOptions"
-                :key="index"
-                :value="type">
-              </el-option>
+            <el-select class="received-type-select" size="small" v-model="receivedMsgType">
+              <el-option v-for="(type, index) in payloadOptions" :key="index" :value="type"> </el-option>
             </el-select>
-            <el-radio-group
-              v-model="msgType"
-              size="mini"
-              @change="handleMsgTypeChanged">
+            <el-radio-group v-model="msgType" size="mini" @change="handleMsgTypeChanged">
               <el-radio-button label="all">{{ $t('connections.all') }}</el-radio-button>
               <el-radio-button label="received">{{ $t('connections.received') }}</el-radio-button>
               <el-radio-button label="publish">{{ $t('connections.published') }}</el-radio-button>
@@ -143,33 +142,27 @@
           :subsVisible.sync="showSubs"
           :connectionId="$route.params.id"
           :record="record"
-          :top="showClientInfo ? bodyTop.open: bodyTop.close"
-          @onClickTopic="handleTopicClick"/>
+          :top="showClientInfo ? bodyTop.open : bodyTop.close"
+          @onClickTopic="handleTopicClick"
+        />
         <div v-for="message in messages" :key="message.mid">
-          <MsgLeftItem
-            v-if="!message.out"
-            :subsList="record.subscriptions"
-            v-bind="message"/>
-          <MsgRightItem
-            v-else
-            v-bind="message"/>
+          <MsgLeftItem v-if="!message.out" :subsList="record.subscriptions" v-bind="message" />
+          <MsgRightItem v-else v-bind="message" />
         </div>
       </div>
 
-      <div
-        class="connections-footer" 
-        :style="{ marginLeft: showSubs ? '570px' : '341px' }">
-        <ResizeHeight v-model="inputHeight"/>
+      <div class="connections-footer" :style="{ marginLeft: showSubs ? '570px' : '341px' }">
+        <ResizeHeight v-model="inputHeight" />
         <MsgPublish
           :editor-height="inputHeight - 75"
           :subs-visible="showSubs"
           :style="{ height: `${inputHeight}px` }"
-          @handleSend="sendMessage"/>
+          @handleSend="sendMessage"
+        />
       </div>
     </div>
   </div>
 </template>
-
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
@@ -180,9 +173,7 @@ import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
 
-import {
-  deleteConnection, updateConnection, updateConnectionMessage,
-} from '@/utils/api/connection'
+import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
 import matchSearch from '@/utils/matchSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
@@ -200,8 +191,8 @@ type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConn
 type PayloadConvertType = 'base64' | 'hex'
 
 interface Top {
-  open: string,
-  close: string,
+  open: string
+  close: string
 }
 
 @Component({
@@ -229,7 +220,7 @@ export default class ConnectionsDetail extends Vue {
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: {
-    [id: string]: boolean,
+    [id: string]: boolean
   }
 
   private showSubs = true
@@ -280,16 +271,18 @@ export default class ConnectionsDetail extends Vue {
     const confirmDelete: string = this.$t('common.confirmDelete', { name }) as string
     this.$confirm(confirmDelete, this.$t('common.warning') as string, {
       type: 'warning',
-    }).then(async () => {
-      const res: ConnectionModel | null = await deleteConnection(id as string)
-      if (res) {
-        this.$emit('delete')
-        this.$message.success(this.$t('common.deleteSuccess') as string)
-        this.removeActiveConnection({ id: res.id as string })
-      }
-    }).catch((error) => {
-      // ignore(error)
     })
+      .then(async () => {
+        const res: ConnectionModel | null = await deleteConnection(id as string)
+        if (res) {
+          this.$emit('delete')
+          this.$message.success(this.$t('common.deleteSuccess') as string)
+          this.removeActiveConnection({ id: res.id as string })
+        }
+      })
+      .catch((error) => {
+        // ignore(error)
+      })
   }
 
   get bodyTop(): Top {
@@ -307,9 +300,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   get connectUrl(): string {
-    const {
-      host, port, ssl, path,
-    } = this.record
+    const { host, port, ssl, path } = this.record
     const protocol = getMQTTProtocol(this.record)
     let url = `${protocol}://${host}:${port}`
     if (protocol === 'ws' || protocol === 'wss') {
@@ -335,10 +326,12 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private getConnectionValue(id: string) {
-    const currentActiveConnection: {
-      id?: string,
-      client: MqttClient,
-    } | undefined = this.activeConnection[id]
+    const currentActiveConnection:
+      | {
+          id?: string
+          client: MqttClient
+        }
+      | undefined = this.activeConnection[id]
     const $clientInfoVisible: boolean | undefined = this.clientInfoVisibles[id]
     if ($clientInfoVisible === undefined) {
       this.showClientInfo = true
@@ -584,11 +577,7 @@ export default class ConnectionsDetail extends Vue {
     this.connectLoading = false
   }
   private onMessageArrived(id: string) {
-    return (
-        topic: string,
-        payload: Buffer,
-        packet: SubscriptionModel,
-      ) => {
+    return (topic: string, payload: Buffer, packet: SubscriptionModel) => {
       const $payload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
       const receivedMessage: MessageModel = {
         mid: uuidv4(),
@@ -629,46 +618,39 @@ export default class ConnectionsDetail extends Vue {
       })
       return false
     }
-    const {
-      mid, topic, qos, payload, retain,
-    } = message
+    const { mid, topic, qos, payload, retain } = message
     if (!topic) {
       this.$message.warning(this.$t('connections.topicReuired') as string)
       return false
     }
     const $payload = this.convertPayloadByType(payload, type, 'publish')
-    this.client.publish!(
-      topic,
-      $payload,
-      { qos, retain },
-      (error: Error) => {
-        if (error) {
-          const errorMsg = error.toString()
-          this.$message.error(errorMsg)
-          return false
-        }
-        const publishMessage: MessageModel = {
-          mid,
-          out: true,
-          createAt: time.getNowDate(),
-          topic,
-          payload,
-          qos,
-          retain,
-        }
-        const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
-        this.record.messages.push({ ...publishMessage })
-        updateConnectionMessage(this.record.id as string, { ...publishMessage })
-        if (this.msgType !== 'received' && !this.activeTopic) {
-          this.messages.push(publishMessage)
-        } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'received') {
-          this.messages.push(publishMessage)
-        }
-        setTimeout(() => {
-          window.scrollTo(0, document.body.scrollHeight + 160)
-        }, 100)
-      },
-    )
+    this.client.publish!(topic, $payload, { qos, retain }, (error: Error) => {
+      if (error) {
+        const errorMsg = error.toString()
+        this.$message.error(errorMsg)
+        return false
+      }
+      const publishMessage: MessageModel = {
+        mid,
+        out: true,
+        createAt: time.getNowDate(),
+        topic,
+        payload,
+        qos,
+        retain,
+      }
+      const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+      this.record.messages.push({ ...publishMessage })
+      updateConnectionMessage(this.record.id as string, { ...publishMessage })
+      if (this.msgType !== 'received' && !this.activeTopic) {
+        this.messages.push(publishMessage)
+      } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'received') {
+        this.messages.push(publishMessage)
+      }
+      setTimeout(() => {
+        window.scrollTo(0, document.body.scrollHeight + 160)
+      }, 100)
+    })
   }
 
   private setShowClientInfo(show: boolean) {
@@ -681,11 +663,7 @@ export default class ConnectionsDetail extends Vue {
     }, 500)
   }
 
-  private convertPayloadByType(
-    value: Buffer | string,
-    type: PayloadType,
-    way: 'publish' | 'receive',
-  ): Buffer | string {
+  private convertPayloadByType(value: Buffer | string, type: PayloadType, way: 'publish' | 'receive'): Buffer | string {
     const validJSONType = (jsonValue: string, warnMessage: TranslateResult) => {
       try {
         JSON.parse(jsonValue)
@@ -733,8 +711,8 @@ export default class ConnectionsDetail extends Vue {
     // Register connected clients message event listeners
     Object.keys(this.activeConnection).forEach((connectionID: string) => {
       const $connection: {
-        id?: string,
-        client: MqttClient,
+        id?: string
+        client: MqttClient
       } = this.activeConnection[connectionID]
       const client: MqttClient = $connection.client
       let msgEventCount = 0
@@ -756,8 +734,8 @@ export default class ConnectionsDetail extends Vue {
     // Remove connected clients message event listeners
     Object.keys(this.activeConnection).forEach((connectionID: string) => {
       const currentActiveConnection: {
-        id?: string,
-        client: MqttClient,
+        id?: string
+        client: MqttClient
       } = this.activeConnection[connectionID]
       const client: MqttClient = currentActiveConnection.client
       if (client.removeAllListeners) {
@@ -773,10 +751,9 @@ export default class ConnectionsDetail extends Vue {
 }
 </script>
 
-
 <style lang="scss" scope>
-@import "~@/assets/scss/variable.scss";
-@import "~@/assets/scss/mixins.scss";
+@import '~@/assets/scss/variable.scss';
+@import '~@/assets/scss/mixins.scss';
 
 .connections-detail {
   .connections-topbar {
@@ -836,7 +813,8 @@ export default class ConnectionsDetail extends Vue {
         border-bottom: 0px;
         min-height: 0px;
       }
-      .icon-search, .el-icon-loading {
+      .icon-search,
+      .el-icon-loading {
         line-height: 32px;
       }
       .el-icon-loading {
@@ -847,7 +825,7 @@ export default class ConnectionsDetail extends Vue {
           background: var(--color-bg-primary);
         }
         .search-btn {
-          color: var(--color-text-default); 
+          color: var(--color-text-default);
         }
       }
       .close-search {
@@ -863,7 +841,7 @@ export default class ConnectionsDetail extends Vue {
 
   .connections-detail-main {
     height: 100%;
-    transition: all .5s;
+    transition: all 0.5s;
     .connections-body {
       padding: 16px;
       .filter-bar {
@@ -873,7 +851,7 @@ export default class ConnectionsDetail extends Vue {
         left: 341px;
         right: 0;
         z-index: 1;
-        transition: all .4s;
+        transition: all 0.4s;
         .subs-title {
           color: var(--color-text-title);
           position: absolute;
@@ -904,7 +882,7 @@ export default class ConnectionsDetail extends Vue {
       }
     }
     .connections-footer {
-      transition: all .4s ease;
+      transition: all 0.4s ease;
       position: fixed;
       width: inherit;
       bottom: 0;

@@ -2,10 +2,10 @@
   <div class="connection-form right-content card-form">
     <div class="right-topbar topbar">
       <div class="header">
-          <a href="javascript:;" @click="handleBack($route.params.id)">
-            <i class="el-icon-arrow-left"></i>{{ $t('common.back') }}
-          </a>
-        </div>
+        <a href="javascript:;" @click="handleBack($route.params.id)">
+          <i class="el-icon-arrow-left"></i>{{ $t('common.back') }}
+        </a>
+      </div>
       <div class="body">
         <h2>{{ oper === 'create' ? $t('common.new') : $t('common.edit') }}</h2>
       </div>
@@ -16,19 +16,12 @@
       </div>
     </div>
 
-    <el-form
-      ref="form"
-      label-position="right"
-      label-width="160px"
-      :model="record"
-      :rules="rules">
+    <el-form ref="form" label-position="right" label-width="160px" :model="record" :rules="rules">
       <div class="client-create__body">
         <div class="info-header">
           <h3>{{ $t('settings.general') }}</h3>
         </div>
-        <el-card
-          shadow="never"
-          class="info-body item-card">
+        <el-card shadow="never" class="info-body item-card">
           <el-row :gutter="10">
             <el-col :span="22">
               <el-form-item label-width="93px" :label="$t('connections.name')" prop="name">
@@ -38,7 +31,8 @@
                   v-model="record.name"
                   value-key="name"
                   :fetch-suggestions="querySearchName"
-                  @select="handleSelectName">
+                  @select="handleSelectName"
+                >
                 </el-autocomplete>
                 <el-input v-else size="mini" v-model="record.name"></el-input>
               </el-form-item>
@@ -50,7 +44,8 @@
                 :effect="theme !== 'light' ? 'light' : 'dark'"
                 :open-delay="500"
                 :offset="80"
-                :content="$t('connections.nameTip')">
+                :content="$t('connections.nameTip')"
+              >
                 <a href="javascript:;" class="icon-oper">
                   <i class="el-icon-warning-outline"></i>
                 </a>
@@ -77,17 +72,14 @@
                   </el-select>
                 </el-col>
                 <el-col :span="18">
-                  <el-input size="mini" v-model="record.host">
-                  </el-input>
+                  <el-input size="mini" v-model="record.host"> </el-input>
                 </el-col>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="22">
               <el-form-item label-width="93px" :label="$t('connections.brokerPort')" prop="port">
-                <el-input size="mini" type="number" :min="0"
-                  v-model.number="record.port">
-                </el-input>
+                <el-input size="mini" type="number" :min="0" v-model.number="record.port"> </el-input>
               </el-form-item>
             </el-col>
 
@@ -134,7 +126,6 @@
               </el-col>
               <el-col :span="2"></el-col>
             </template>
-
           </el-row>
         </el-card>
 
@@ -144,10 +135,7 @@
             <div key="title" class="info-header">
               <h3>Certificates</h3>
             </div>
-            <el-card
-              key="content"
-              shadow="never"
-              class="info-body item-card">
+            <el-card key="content" shadow="never" class="info-body item-card">
               <el-row :gutter="10">
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.ca')" prop="ca">
@@ -180,14 +168,12 @@
                   </a>
                 </el-col>
                 <el-col :span="22">
-                  <el-form-item 
+                  <el-form-item
                     :label="$t('connections.strictValidateCertificate')"
                     :label-width="getterLang === 'zh' ? '' : '200'"
-                    prop="rejectUnauthorized">
-                    <el-switch
-                      v-model="record.rejectUnauthorized"
-                      active-color="#13ce66"
-                      inactive-color="#A2A9B0">
+                    prop="rejectUnauthorized"
+                  >
+                    <el-switch v-model="record.rejectUnauthorized" active-color="#13ce66" inactive-color="#A2A9B0">
                     </el-switch>
                   </el-form-item>
                 </el-col>
@@ -198,38 +184,35 @@
         </transition-group>
 
         <div class="info-header">
-          <h3>{{ $t('settings.advanced') }}
-            <a :class="['collapse-btn', advancedVisible ? 'top': 'bottom']"
-              href="javascript:;" @click="handleCollapse('advanced')">
+          <h3>
+            {{ $t('settings.advanced') }}
+            <a
+              :class="['collapse-btn', advancedVisible ? 'top' : 'bottom']"
+              href="javascript:;"
+              @click="handleCollapse('advanced')"
+            >
               <i class="el-icon-caret-top"></i>
             </a>
           </h3>
         </div>
         <el-collapse-transition>
-          <el-card
-            v-show="advancedVisible"
-            shadow="never"
-            class="info-body item-card">
+          <el-card v-show="advancedVisible" shadow="never" class="info-body item-card">
             <el-row :gutter="10">
               <el-col :span="22">
                 <el-form-item
                   :label="`${$t('connections.connectionTimeout')} (${$t('common.unitS')})`"
-                  prop="connectTimeout">
-                  <el-input size="mini" type="number" :min="0"
-                    v-model.number="record.connectTimeout">
-                  </el-input>
+                  prop="connectTimeout"
+                >
+                  <el-input size="mini" type="number" :min="0" v-model.number="record.connectTimeout"> </el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="2"></el-col>
               <el-col :span="22">
                 <el-form-item :label="`Keep Alive (${$t('common.unitS')})`" prop="keepalive">
-                  <el-input size="mini" type="number" :min="0"
-                    v-model.number="record.keepalive">
-                  </el-input>
+                  <el-input size="mini" type="number" :min="0" v-model.number="record.keepalive"> </el-input>
                 </el-form-item>
               </el-col>
-              <el-col :span="2">
-              </el-col>
+              <el-col :span="2"> </el-col>
               <el-col :span="22">
                 <el-form-item :label="$t('connections.cleanSession')" prop="clean">
                   <el-radio-group v-model="record.clean">
@@ -262,25 +245,20 @@
               <template v-if="record.mqttVersion === '5.0'">
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.sessionExpiryInterval')" prop="sessionExpiryInterval">
-                    <el-input size="mini" type="number" :min="0"
-                      v-model.number="record.sessionExpiryInterval">
+                    <el-input size="mini" type="number" :min="0" v-model.number="record.sessionExpiryInterval">
                     </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.receiveMaximum')" prop="receiveMaximum">
-                    <el-input size="mini" type="number" :min="0"
-                      v-model.number="record.receiveMaximum">
-                    </el-input>
+                    <el-input size="mini" type="number" :min="0" v-model.number="record.receiveMaximum"> </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.topicAliasMaximum')" prop="topicAliasMaximum">
-                    <el-input size="mini" type="number" :min="0"
-                      v-model.number="record.topicAliasMaximum">
-                    </el-input>
+                    <el-input size="mini" type="number" :min="0" v-model.number="record.topicAliasMaximum"> </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
@@ -291,24 +269,26 @@
 
         <!-- Last-Will Message -->
         <div class="info-header">
-          <h3>{{ $t('connections.willMessage') }}
-            <a :class="['collapse-btn', willMessageVisible ? 'top': 'bottom']"
-              href="javascript:;" @click="handleCollapse('willMessage')">
+          <h3>
+            {{ $t('connections.willMessage') }}
+            <a
+              :class="['collapse-btn', willMessageVisible ? 'top' : 'bottom']"
+              href="javascript:;"
+              @click="handleCollapse('willMessage')"
+            >
               <i class="el-icon-caret-top"></i>
             </a>
           </h3>
         </div>
         <el-collapse-transition>
-          <el-card
-            v-show="willMessageVisible"
-            shadow="never"
-            class="info-body item-card">
+          <el-card v-show="willMessageVisible" shadow="never" class="info-body item-card">
             <el-row :gutter="10">
               <el-col :span="22">
                 <el-form-item
                   :label-width="`${willLabelWidth}px`"
                   :label="$t('connections.willTopic')"
-                  prop="will.lastWillTopic">
+                  prop="will.lastWillTopic"
+                >
                   <el-input size="mini" v-model="record.will.lastWillTopic"></el-input>
                 </el-form-item>
               </el-col>
@@ -317,7 +297,8 @@
                 <el-form-item
                   :label-width="`${willLabelWidth}px`"
                   :label="$t('connections.willQos')"
-                  prop="will.lastWillQos">
+                  prop="will.lastWillQos"
+                >
                   <el-radio-group v-model="record.will.lastWillQos">
                     <el-radio :label="0"></el-radio>
                     <el-radio :label="1"></el-radio>
@@ -330,7 +311,8 @@
                 <el-form-item
                   :label-width="`${willLabelWidth}px`"
                   :label="$t('connections.willRetain')"
-                  prop="will.lastWillRetain">
+                  prop="will.lastWillRetain"
+                >
                   <el-radio-group v-model="record.will.lastWillRetain">
                     <el-radio :label="true"></el-radio>
                     <el-radio :label="false"></el-radio>
@@ -343,7 +325,8 @@
                   class="will-payload-box"
                   :label-width="`${willLabelWidth}px`"
                   :label="$t('connections.willPayload')"
-                  prop="will.lastWillPayload">
+                  prop="will.lastWillPayload"
+                >
                   <div class="last-will-payload">
                     <Editor
                       ref="lastWillPayload"
@@ -351,7 +334,8 @@
                       :lang="payloadType"
                       :fontSize="12"
                       v-model="record.will.lastWillPayload"
-                      scrollbar-status="auto"/>
+                      scrollbar-status="auto"
+                    />
                   </div>
                   <div class="payload-type">
                     <el-radio-group v-model="payloadType">
@@ -369,7 +353,8 @@
                   <el-form-item
                     :label-width="`${willLabelWidth}px`"
                     :label="$t('connections.isUTF8Data')"
-                    prop="payloadFormatIndicator">
+                    prop="payloadFormatIndicator"
+                  >
                     <el-radio-group v-model="record.will.properties.payloadFormatIndicator">
                       <el-radio :label="true"></el-radio>
                       <el-radio :label="false"></el-radio>
@@ -381,12 +366,14 @@
                   <el-form-item
                     :label-width="`${willLabelWidth}px`"
                     :label="`${$t('connections.willDelayInterval')} (${$t('common.unitS')})`"
-                    prop="willDelayInterval">
+                    prop="willDelayInterval"
+                  >
                     <el-input
                       size="mini"
                       type="number"
                       :min="0"
-                      v-model.number="record.will.properties.willDelayInterval">
+                      v-model.number="record.will.properties.willDelayInterval"
+                    >
                     </el-input>
                   </el-form-item>
                 </el-col>
@@ -395,12 +382,14 @@
                   <el-form-item
                     :label-width="`${willLabelWidth}px`"
                     :label="`${$t('connections.messageExpiryInterval')} (${$t('common.unitS')})`"
-                    props="messageExpiryInterval">
+                    props="messageExpiryInterval"
+                  >
                     <el-input
                       size="mini"
                       type="number"
                       :min="0"
-                      v-model.number="record.will.properties.messageExpiryInterval">
+                      v-model.number="record.will.properties.messageExpiryInterval"
+                    >
                     </el-input>
                   </el-form-item>
                 </el-col>
@@ -409,10 +398,9 @@
                   <el-form-item
                     :label-width="`${willLabelWidth}px`"
                     :label="$t('connections.contentType')"
-                    prop="contentType">
-                    <el-input type="textarea" :rows="2"
-                      v-model="record.will.properties.contentType">
-                    </el-input>
+                    prop="contentType"
+                  >
+                    <el-input type="textarea" :rows="2" v-model="record.will.properties.contentType"> </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
@@ -425,15 +413,11 @@
   </div>
 </template>
 
-
 <script lang="ts">
 import { remote } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import {
-  loadConnection, createConnection,
-  updateConnection, loadSuggestConnections,
-} from '@/utils/api/connection'
+import { loadConnection, createConnection, updateConnection, loadSuggestConnections } from '@/utils/api/connection'
 import getClientId from '@/utils/getClientId'
 import { ConnectionModel, SearchCallBack, NameCallBack, FormRule } from './types'
 import { getMQTTProtocol } from '@/utils/mqttUtils'
@@ -454,15 +438,11 @@ export default class ConnectionCreate extends Vue {
   @Getter('currentTheme') private theme!: Theme
   @Getter('allConnections') private allConnections!: ConnectionModel[] | []
 
-  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (
-    payload: Client,
-  ) => void
-  @Action('TOGGLE_ADVANCED_VISIBLE') private toggleAdvancedVisible!: (
-    payload: { advancedVisible: boolean },
-  ) => void
-  @Action('TOGGLE_WILL_MESSAGE_VISIBLE') private toggleWillMessageVisible!: (
-    payload: { willMessageVisible: boolean },
-  ) => void
+  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
+  @Action('TOGGLE_ADVANCED_VISIBLE') private toggleAdvancedVisible!: (payload: { advancedVisible: boolean }) => void
+  @Action('TOGGLE_WILL_MESSAGE_VISIBLE') private toggleWillMessageVisible!: (payload: {
+    willMessageVisible: boolean
+  }) => void
 
   private willMessageVisible = true
   private advancedVisible = true
@@ -589,18 +569,17 @@ export default class ConnectionCreate extends Vue {
   }
 
   private getFilePath(key: 'ca' | 'cert' | 'key') {
-    remote.dialog.showOpenDialog({
-      properties: [
-        'openFile',
-      ],
-      filters: [
-        { name: 'CA', extensions: ['crt', 'key', 'pem', 'jks', 'der', 'cer', 'pfx'] },
-      ],
-    }, (files) => {
-      if (files) {
-        this.record[key] = files[0]
-      }
-    })
+    remote.dialog.showOpenDialog(
+      {
+        properties: ['openFile'],
+        filters: [{ name: 'CA', extensions: ['crt', 'key', 'pem', 'jks', 'der', 'cer', 'pfx'] }],
+      },
+      (files) => {
+        if (files) {
+          this.record[key] = files[0]
+        }
+      },
+    )
   }
 
   private handleSSL(val: boolean) {
@@ -611,9 +590,7 @@ export default class ConnectionCreate extends Vue {
     }
   }
 
-  private changeProtocol(
-    protocol: Protocol | undefined, isSSL: boolean,
-  ): void | boolean {
+  private changeProtocol(protocol: Protocol | undefined, isSSL: boolean): void | boolean {
     if (!protocol) {
       return false
     }
@@ -657,8 +634,7 @@ export default class ConnectionCreate extends Vue {
     for (const connection of this.allConnections) {
       if (this.oper === 'create' && connection.name === name) {
         callBack(`${this.$t('connections.duplicateName')}`)
-      } else if (this.oper === 'edit'
-        && name !== this.oldName && connection.name === name) {
+      } else if (this.oper === 'edit' && name !== this.oldName && connection.name === name) {
         callBack(`${this.$t('connections.duplicateName')}`)
       }
     }
@@ -670,12 +646,12 @@ export default class ConnectionCreate extends Vue {
 
   private createFilter(queryName: string) {
     return (connectionItem: ConnectionModel) => {
-      return (connectionItem.name.toLowerCase().indexOf(queryName.toLowerCase()) === 0)
+      return connectionItem.name.toLowerCase().indexOf(queryName.toLowerCase()) === 0
     }
   }
 
   private querySearchName(queryName: string, cb: SearchCallBack['callBack']) {
-    const connections = [ ...this.suggestConnections ]
+    const connections = [...this.suggestConnections]
     const results = queryName ? connections.filter(this.createFilter(queryName)) : connections
     cb(results.reverse())
   }
@@ -698,9 +674,8 @@ export default class ConnectionCreate extends Vue {
 }
 </script>
 
-
 <style lang="scss">
-@import "~@/assets/scss/mixins.scss";
+@import '~@/assets/scss/mixins.scss';
 
 .connection-form {
   padding: 0 16px;
@@ -713,7 +688,7 @@ export default class ConnectionCreate extends Vue {
     .icon-oper {
       color: var(--color-text-default);
       line-height: 43px;
-      transition: .2s color ease;
+      transition: 0.2s color ease;
       &:hover,
       &:focus {
         color: var(--color-main-green);

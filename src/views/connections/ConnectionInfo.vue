@@ -1,10 +1,6 @@
 <template>
   <div class="connection-info">
-    <el-form
-      ref="form"
-      label-position="top"
-      :model="connection"
-      :rules="rules">
+    <el-form ref="form" label-position="top" :model="connection" :rules="rules">
       <el-row :gutter="20">
         <el-col :span="8">
           <el-form-item :label="$t('connections.name')" prop="name">
@@ -14,12 +10,7 @@
         <el-col :span="8">
           <el-form-item label="Client ID" prop="clientId">
             <el-input size="mini" v-model="connection.clientId">
-              <i
-                slot="suffix"
-                title="Refresh"
-                class="el-icon-refresh"
-                @click="refreshClientId">
-              </i>
+              <i slot="suffix" title="Refresh" class="el-icon-refresh" @click="refreshClientId"> </i>
             </el-input>
           </el-form-item>
         </el-col>
@@ -50,7 +41,8 @@
             type="outline"
             size="mini"
             :loading="btnLoading"
-            @click="connect">
+            @click="connect"
+          >
             {{ $t('connections.connectBtn') }}
           </el-button>
           <el-button
@@ -61,7 +53,8 @@
             type="outline"
             size="mini"
             :loading="btnLoading"
-            @click="disconnect">
+            @click="disconnect"
+          >
             {{ $t('connections.disconnectedBtn') }}
           </el-button>
           <el-button
@@ -71,7 +64,8 @@
             plain
             type="outline"
             size="mini"
-            @click="cancel">
+            @click="cancel"
+          >
             {{ $t('common.cancel') }}
           </el-button>
         </el-col>
@@ -79,7 +73,6 @@
     </el-form>
   </div>
 </template>
-
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
@@ -132,10 +125,7 @@ export default class ConnectionInfo extends Vue {
       if (!valid) {
         return false
       }
-      const res: ConnectionModel | null = await updateConnection(
-        this.connection.id as string,
-        this.connection,
-      )
+      const res: ConnectionModel | null = await updateConnection(this.connection.id as string, this.connection)
       if (res) {
         this.$emit('handleConnect', this.connection)
       }
@@ -160,7 +150,6 @@ export default class ConnectionInfo extends Vue {
   }
 }
 </script>
-
 
 <style lang="scss">
 .connection-info {

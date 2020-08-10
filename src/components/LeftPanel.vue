@@ -7,14 +7,12 @@
   </div>
 </template>
 
-
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
 export default class LeftPanel extends Vue {}
 </script>
-
 
 <style lang="scss">
 .left-panel {
@@ -31,10 +29,10 @@ export default class LeftPanel extends Vue {}
   }
 }
 .pop-enter-active {
-  animation: leftbarPop .4s;
+  animation: leftbarPop 0.4s;
 }
 .pop-leave-active {
-  animation: leftbarPop .4s reverse;
+  animation: leftbarPop 0.4s reverse;
 }
 .left-panel {
   @keyframes leftbarPop {

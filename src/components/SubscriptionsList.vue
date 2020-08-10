@@ -7,7 +7,8 @@
         class="subscriptions-list-view"
         :style="{
           top: top,
-        }">
+        }"
+      >
         <div slot="header" class="clearfix">
           <a href="javascript:;" class="new-subs" @click="openDialog">
             <i class="el-icon-plus"></i>
@@ -24,18 +25,21 @@
           :style="{
             borderLeft: `4px solid ${sub.color}`,
           }"
-          @click="handleClickTopic(sub, index)">
+          @click="handleClickTopic(sub, index)"
+        >
           <el-tooltip
             :effect="theme !== 'light' ? 'light' : 'dark'"
             :content="copySuccess ? $t('connections.topicCopied') : sub.topic"
             :open-delay="!copySuccess ? 0 : 500"
-            placement="top">
+            placement="top"
+          >
             <a
               v-clipboard:copy="sub.topic"
               v-clipboard:success="onCopySuccess"
               href="javascript:;"
               class="topic"
-              @click.stop="stopClick">
+              @click.stop="stopClick"
+            >
               {{ sub.topic }}
             </a>
           </el-tooltip>
@@ -55,48 +59,28 @@
       class="topic-dialog"
       @confirm="saveSubs"
       @close="resetSubs"
-      @keyupEnter="saveSubs">
+      @keyupEnter="saveSubs"
+    >
       <el-row :gutter="20">
-        <el-form
-          ref="form"
-          :model="subRecord"
-          :rules="rules">
+        <el-form ref="form" :model="subRecord" :rules="rules">
           <el-col :span="24">
             <el-form-item label="Topic" prop="topic">
-              <el-input v-model="subRecord.topic" placeholder="testtopic/#" size="small">
-              </el-input>
+              <el-input v-model="subRecord.topic" placeholder="testtopic/#" size="small"> </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="QoS" prop="qos">
               <el-select v-model="subRecord.qos" size="small">
-                <el-option
-                  v-for="qos in qosOption"
-                  :key="qos"
-                  :label="qos"
-                  :value="qos">
-                </el-option>
+                <el-option v-for="qos in qosOption" :key="qos" :label="qos" :value="qos"> </el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('connections.color')">
-              <el-color-picker
-                v-model="topicColor"
-                size="mini"
-                color-format="hex"
-                :predefine="predefineColors">
+              <el-color-picker v-model="topicColor" size="mini" color-format="hex" :predefine="predefineColors">
               </el-color-picker>
-              <el-input
-                v-model="topicColor"
-                size="small"
-                placeholder="#34C388">
-                <i
-                  slot="suffix"
-                  title="Refresh"
-                  class="el-icon-refresh"
-                  @click="setColor">
-                </i>
+              <el-input v-model="topicColor" size="small" placeholder="#34C388">
+                <i slot="suffix" title="Refresh" class="el-icon-refresh" @click="setColor"> </i>
               </el-input>
             </el-form-item>
           </el-col>
@@ -105,7 +89,6 @@
     </my-dialog>
   </div>
 </template>
-
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
@@ -207,36 +190,30 @@ export default class SubscriptionsList extends Vue {
       }
       const { topic, qos } = this.subRecord
       this.subRecord.color = this.topicColor || this.getBorderColor()
-      this.currentConnection.client.subscribe(
-        topic,
-        { qos },
-        (error: string, res: SubscriptionModel[]) => {
-          if (error) {
-            this.$message.error(error)
-            return false
-          }
-          if (res.length < 1 || ![0, 1, 2].includes(res[0].qos)) {
-            this.$message.error(this.$t('connections.subFailed') as string)
-            return false
-          }
+      this.currentConnection.client.subscribe(topic, { qos }, (error: string, res: SubscriptionModel[]) => {
+        if (error) {
+          this.$message.error(error)
+          return false
+        }
+        if (res.length < 1 || ![0, 1, 2].includes(res[0].qos)) {
+          this.$message.error(this.$t('connections.subFailed') as string)
+          return false
+        }
 
-          const subscriptions: SubscriptionModel[] = this.currentConnection.subscriptions || []
-          const existTopicIndex: number = subscriptions.findIndex(
-            (item: SubscriptionModel) => item.topic === topic,
-          )
-          if (existTopicIndex !== -1) {
-            subscriptions[existTopicIndex].qos = qos
-          } else {
-            subscriptions.push({ ...this.subRecord })
-          }
-          this.record.subscriptions = subscriptions
-          updateConnection(this.record.id as string, this.record)
-          this.changeSubs({ id: this.connectionId, subscriptions })
-          this.subsList = subscriptions
-          this.showDialog = false
-          return true
-        },
-      )
+        const subscriptions: SubscriptionModel[] = this.currentConnection.subscriptions || []
+        const existTopicIndex: number = subscriptions.findIndex((item: SubscriptionModel) => item.topic === topic)
+        if (existTopicIndex !== -1) {
+          subscriptions[existTopicIndex].qos = qos
+        } else {
+          subscriptions.push({ ...this.subRecord })
+        }
+        this.record.subscriptions = subscriptions
+        updateConnection(this.record.id as string, this.record)
+        this.changeSubs({ id: this.connectionId, subscriptions })
+        this.subsList = subscriptions
+        this.showDialog = false
+        return true
+      })
     })
   }
 
@@ -254,13 +231,11 @@ export default class SubscriptionsList extends Vue {
         return false
       }
       const payload: {
-        id: string,
-        subscriptions: SubscriptionModel[],
+        id: string
+        subscriptions: SubscriptionModel[]
       } = {
         id: this.record.id as string,
-        subscriptions: this.subsList.filter(
-          ($: SubscriptionModel) => $.topic !== topic,
-        ),
+        subscriptions: this.subsList.filter(($: SubscriptionModel) => $.topic !== topic),
       }
       this.record.subscriptions = payload.subscriptions
       updateConnection(this.record.id as string, this.record)
@@ -317,7 +292,6 @@ export default class SubscriptionsList extends Vue {
 }
 </script>
 
-
 <style lang="scss">
 .subscriptions-list-view {
   &.el-card {
@@ -353,7 +327,7 @@ export default class SubscriptionsList extends Vue {
       -moz-user-select: none;
       -khtml-user-select: none;
       user-select: none;
-      transition: all .3s ease;
+      transition: all 0.3s ease;
       box-shadow: 1px 1px 2px 0px var(--color-bg-topics_shadow);
       &.active {
         background: var(--color-bg-topics_active);

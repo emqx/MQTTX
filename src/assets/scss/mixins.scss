@@ -45,7 +45,7 @@
 
 @mixin collapse-btn-transform($top, $bottom) {
   a.collapse-btn {
-    transition: all .3s;
+    transition: all 0.3s;
     display: inline-block;
     &.top {
       transform: rotate($top);

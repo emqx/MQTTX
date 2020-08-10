@@ -1,6 +1,6 @@
 interface CodeType {
-  encode: (str: string) => string,
-  decode: (str: string) => string,
+  encode: (str: string) => string
+  decode: (str: string) => string
 }
 
 const convertBase64 = (value: string, codeType: 'encode' | 'decode'): string => {
@@ -39,11 +39,7 @@ const convertJSON = (value: string): Promise<string> => {
   })
 }
 
-const convertPayload = async (
-  payload: string,
-  currentType: PayloadType,
-  fromType: PayloadType,
-): Promise<string> => {
+const convertPayload = async (payload: string, currentType: PayloadType, fromType: PayloadType): Promise<string> => {
   let $payload = payload
   switch (fromType) {
     case 'Base64':

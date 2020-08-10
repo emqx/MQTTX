@@ -3,43 +3,46 @@ import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
 import { ConnectionModel, SSLContent, WillPropertiesModel } from '@/views/connections/types'
 
-const setMQTT5Properties = (
-  option: IClientOptions['properties'],
-): IClientOptions['properties'] | undefined => {
+const setMQTT5Properties = (option: IClientOptions['properties']): IClientOptions['properties'] | undefined => {
   if (option === undefined) {
     return undefined
   }
   const properties: IClientOptions['properties'] = {}
-  if (option.sessionExpiryInterval ||
-    option.sessionExpiryInterval === 0) {
+  if (option.sessionExpiryInterval || option.sessionExpiryInterval === 0) {
     properties.sessionExpiryInterval = option.sessionExpiryInterval
   }
-  if (option.receiveMaximum ||
-    option.sessionExpiryInterval === 0) {
+  if (option.receiveMaximum || option.sessionExpiryInterval === 0) {
     properties.receiveMaximum = option.receiveMaximum
   }
-  if (option.topicAliasMaximum ||
-    option.topicAliasMaximum === 0) {
+  if (option.topicAliasMaximum || option.topicAliasMaximum === 0) {
     properties.topicAliasMaximum = option.topicAliasMaximum
   }
   return properties
 }
 
-export const getClientOptions = (
-  record: ConnectionModel,
-): IClientOptions => {
+export const getClientOptions = (record: ConnectionModel): IClientOptions => {
   const mqttVersionDict = {
     '3.1.1': 4,
     '5.0': 5,
   }
   const {
-    clientId, username, password, keepalive, clean, connectTimeout,
-    ssl, certType, mqttVersion, reconnect, will, rejectUnauthorized,
+    clientId,
+    username,
+    password,
+    keepalive,
+    clean,
+    connectTimeout,
+    ssl,
+    certType,
+    mqttVersion,
+    reconnect,
+    will,
+    rejectUnauthorized,
   } = record
   // reconnectPeriod = 0 disabled automatic reconnection in the client
   const reconnectPeriod = reconnect ? 4000 : 0
   const protocolVersion = mqttVersionDict[mqttVersion]
-  const options: IClientOptions  = {
+  const options: IClientOptions = {
     clientId,
     keepalive,
     clean,
@@ -56,16 +59,14 @@ export const getClientOptions = (
   }
   // MQTT Version
   if (protocolVersion === 5) {
-    const {
-      sessionExpiryInterval, receiveMaximum, topicAliasMaximum,
-    } = record
+    const { sessionExpiryInterval, receiveMaximum, topicAliasMaximum } = record
     const properties = setMQTT5Properties({
       sessionExpiryInterval,
       receiveMaximum,
       topicAliasMaximum,
     })
     if (properties && Object.keys(properties).length > 0) {
-      options.properties =  properties
+      options.properties = properties
     }
   }
   // SSL
@@ -95,24 +96,17 @@ export const getClientOptions = (
   }
   // Will Message
   if (will) {
-    const {
-      lastWillTopic: topic,
-      lastWillPayload: payload,
-      lastWillQos: qos,
-      lastWillRetain: retain,
-    } = will
+    const { lastWillTopic: topic, lastWillPayload: payload, lastWillQos: qos, lastWillRetain: retain } = will
     if (topic) {
       options.will = { topic, payload, qos, retain }
       if (protocolVersion === 5) {
         const { properties } = will
         const willProperties: WillPropertiesModel | undefined = {}
         if (properties !== undefined) {
-          if (properties.willDelayInterval ||
-            properties.willDelayInterval === 0 ) {
+          if (properties.willDelayInterval || properties.willDelayInterval === 0) {
             willProperties.willDelayInterval = properties.willDelayInterval
           }
-          if (properties.messageExpiryInterval ||
-            properties.messageExpiryInterval === 0) {
+          if (properties.messageExpiryInterval || properties.messageExpiryInterval === 0) {
             willProperties.messageExpiryInterval = properties.messageExpiryInterval
           }
           if (properties.contentType !== '') {
