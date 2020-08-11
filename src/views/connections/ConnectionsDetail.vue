@@ -125,7 +125,7 @@
               :content="$t('connections.receivedPayloadDecodedBy')"
             >
               <a href="javascript:;" class="icon-tip">
-                <i class="el-icon-warning-outline"></i>
+                <i class="el-icon-question"></i>
               </a>
             </el-tooltip>
             <el-select class="received-type-select" size="small" v-model="receivedMsgType">
@@ -173,11 +173,18 @@ import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
 
-import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
+import {
+  deleteConnection,
+  updateConnection,
+  updateConnectionMessage,
+  loadConnection,
+  loadConnections,
+} from '@/utils/api/connection'
 import time from '@/utils/time'
 import matchSearch from '@/utils/matchSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
 import { getClientOptions, getMQTTProtocol } from '@/utils/mqttUtils'
+
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
@@ -398,32 +405,27 @@ export default class ConnectionsDetail extends Vue {
     })
     updateConnection(this.record.id as string, this.record)
   }
-  private handleMsgTypeChanged(type: MessageType) {
+  private async handleMsgTypeChanged(type: MessageType) {
+    const setChangedMessages = (changedType: MessageType, msgData: MessageModel[]) => {
+      if (type === 'received') {
+        this.messages = msgData.filter(($: MessageModel) => !$.out)
+      } else if (type === 'publish') {
+        this.messages = msgData.filter(($: MessageModel) => $.out)
+      } else {
+        this.messages = msgData.slice()
+      }
+    }
     if (this.activeTopic !== '') {
-      topicMatch(this.record.messages, this.activeTopic).then((res) => {
-        if (res) {
-          if (type === 'received') {
-            this.messages = res.filter(($: MessageModel) => !$.out)
-          } else if (type === 'publish') {
-            this.messages = res.filter(($: MessageModel) => $.out)
-          } else {
-            this.messages = res
-          }
-        } else {
-          this.messages = []
-        }
-      })
-      return false
+      const res = await topicMatch(this.record.messages, this.activeTopic)
+      if (res) {
+        setChangedMessages(type, res)
+      } else {
+        this.messages = [].slice()
+      }
     }
-    if (type === 'received') {
-      this.messages = this.record.messages.filter(($: MessageModel) => !$.out)
-    } else if (type === 'publish') {
-      this.messages = this.record.messages.filter(($: MessageModel) => $.out)
-    } else {
-      this.messages = this.record.messages
-    }
+    setChangedMessages(type, this.record.messages)
   }
-  private searchByTopic() {
+  private async searchByTopic() {
     this.searchLoading = true
     setTimeout(() => {
       this.searchLoading = false
@@ -431,16 +433,15 @@ export default class ConnectionsDetail extends Vue {
     this.getMessages()
     if (this.searchTopic !== '') {
       const $messages = _.cloneDeep(this.messages)
-      matchSearch($messages, 'topic', this.searchTopic).then((res) => {
-        if (res) {
-          this.messages = res
-        } else {
-          this.messages = []
-        }
-      })
+      const res = await matchSearch($messages, 'topic', this.searchTopic)
+      if (res) {
+        this.messages = res.slice()
+      } else {
+        this.messages = [].slice()
+      }
     }
   }
-  private handleTopicClick(sub: SubscriptionModel, reset: boolean) {
+  private async handleTopicClick(sub: SubscriptionModel, reset: boolean) {
     this.getMessages()
     if (reset) {
       this.activeTopic = ''
@@ -448,13 +449,12 @@ export default class ConnectionsDetail extends Vue {
     }
     this.activeTopic = sub.topic
     const $messages = _.cloneDeep(this.messages)
-    topicMatch($messages, sub.topic).then((res) => {
-      if (res) {
-        this.messages = res
-      } else {
-        this.messages = []
-      }
-    })
+    const res = await topicMatch($messages, sub.topic)
+    if (res) {
+      this.messages = res.slice()
+    } else {
+      this.messages = [].slice()
+    }
   }
   private handleSearchOpen() {
     this.searchVisible = true
@@ -730,7 +730,7 @@ export default class ConnectionsDetail extends Vue {
     })
   }
 
-  private removeMessageListener() {
+  private removeClinetsMessageListener() {
     // Remove connected clients message event listeners
     Object.keys(this.activeConnection).forEach((connectionID: string) => {
       const currentActiveConnection: {
@@ -746,7 +746,7 @@ export default class ConnectionsDetail extends Vue {
 
   private beforeDestroy() {
     ipcRenderer.removeAllListeners('searchByTopic')
-    this.removeMessageListener()
+    this.removeClinetsMessageListener()
   }
 }
 </script>
@@ -876,7 +876,7 @@ export default class ConnectionsDetail extends Vue {
             position: absolute;
             left: 239px;
             font-size: 16px;
-            color: var(--color-text-default);
+            color: var(--color-text-tips);
           }
         }
       }
