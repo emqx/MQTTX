@@ -370,14 +370,21 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private handleCommand(command: CommandType) {
-    if (command === 'disconnect') {
-      this.disconnect()
-    } else if (command === 'deleteConnect') {
-      this.removeConnection()
-    } else if (command === 'clearHistory') {
-      this.handleMsgClear()
-    } else if (command === 'searchByTopic') {
-      this.handleSearchOpen()
+    switch (command) {
+      case 'disconnect':
+        this.disconnect()
+        break
+      case 'deleteConnect':
+        this.removeConnection()
+        break
+      case 'clearHistory':
+        this.handleMsgClear()
+        break
+      case 'searchByTopic':
+        this.handleSearchOpen()
+        break
+      default:
+        break
     }
   }
 
