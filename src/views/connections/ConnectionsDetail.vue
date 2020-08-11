@@ -429,8 +429,9 @@ export default class ConnectionsDetail extends Vue {
       } else {
         this.messages = [].slice()
       }
+    } else {
+      setChangedMessages(type, this.record.messages)
     }
-    setChangedMessages(type, this.record.messages)
   }
   private async searchByTopic() {
     this.searchLoading = true
