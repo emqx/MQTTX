@@ -5,8 +5,8 @@
     :close-on-click-modal="false"
     @open="open"
     @close="close"
-    @keyup.enter.native="handleEnterEvent">
-
+    @keyup.enter.native="handleEnterEvent"
+  >
     <slot></slot>
 
     <div slot="footer" class="dialog-footer">
@@ -18,13 +18,12 @@
         type="text"
         :loading="confirmLoading"
         :disabled="btnDisabled"
-        @click="confirmClick">{{ $t('common.confirm') }}
+        @click="confirmClick"
+        >{{ $t('common.confirm') }}
       </el-button>
     </div>
-
   </el-dialog>
 </template>
-
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
@@ -42,7 +41,7 @@ export default class MyDialog extends Vue {
   // Confirm button disabled status
   @Prop({ default: false }) public btnDisabled!: boolean
 
-  private showDialog: boolean =  this.visible
+  private showDialog: boolean = this.visible
 
   @Watch('visible')
   private onChildChanged(val: boolean, oldVal: boolean) {
@@ -73,9 +72,8 @@ export default class MyDialog extends Vue {
 }
 </script>
 
-
 <style lang="scss">
-@import "~@/assets/scss/variable.scss";
+@import '~@/assets/scss/variable.scss';
 
 .my-dialog {
   .el-dialog__header {

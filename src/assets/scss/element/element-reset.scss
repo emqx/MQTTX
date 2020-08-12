@@ -18,7 +18,7 @@
   width: 90px;
   color: var(--color-text-light);
 }
-.el-radio-button__orig-radio:checked+.el-radio-button__inner {
+.el-radio-button__orig-radio:checked + .el-radio-button__inner {
   background-color: var(--color-bg-item);
   color: var(--color-main-green);
   border: 2px solid var(--color-main-green) !important;
@@ -65,8 +65,8 @@
 }
 
 /* Icon */
-[class^="el-icon-"],
-[class*=" el-icon-"] {
+[class^='el-icon-'],
+[class*=' el-icon-'] {
   font-weight: 600;
 }
 
@@ -160,6 +160,9 @@
   .el-icon-success {
     color: var(--color-main-green);
   }
+  .el-notification__title {
+    word-break: break-word;
+  }
 }
 
 /* Dialog */
@@ -197,15 +200,14 @@
     color: var(--color-text-default);
   }
 }
-.el-popper[x-placement^="bottom"] .popper__arrow {
+.el-popper[x-placement^='bottom'] .popper__arrow {
   border-bottom-color: var(--color-border-default);
   &::after {
     border-bottom-color: var(--color-bg-messagebox);
   }
 }
-.el-popper[x-placement^="top"] .popper__arrow {
+.el-popper[x-placement^='top'] .popper__arrow {
   border-top-color: var(--color-border-default);
-
   &:after {
     border-top-color: var(--color-bg-messagebox);
   }

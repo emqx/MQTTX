@@ -15,38 +15,38 @@ declare global {
   type PayloadType = 'Plaintext' | 'Base64' | 'JSON' | 'Hex'
 
   type VueForm = Vue & {
-    validate: (validate: (valid: boolean) => void) => void,
-    clearValidate: () => void,
-    resetFields: () => void,
+    validate: (validate: (valid: boolean) => void) => void
+    clearValidate: () => void
+    resetFields: () => void
   }
 
   type EditorRef = Vue & {
-    editorLayout: () => void,
+    editorLayout: () => void
   }
 
   interface ActiveConnection {
-    readonly id: string,
+    readonly id: string
   }
 
   interface Client extends ActiveConnection {
-    client: MqttClient | {},
-    messages: MessageModel[],
+    client: MqttClient | {}
+    messages: MessageModel[]
   }
 
   interface Message extends ActiveConnection {
-    message: MessageModel,
+    message: MessageModel
   }
 
   interface ClientInfo extends ActiveConnection {
-    showClientInfo: boolean,
+    showClientInfo: boolean
   }
 
   interface Subscriptions extends ActiveConnection {
-    subscriptions: SubscriptionModel[],
+    subscriptions: SubscriptionModel[]
   }
 
   interface UnreadMessage extends ActiveConnection {
-    unreadMessageCount?: 0,
+    unreadMessageCount?: 0
   }
 
   interface SubscriptionsVisible {
@@ -61,54 +61,54 @@ declare global {
   }
 
   interface App {
-    currentTheme: Theme,
-    currentLang: Language,
-    autoCheck: boolean,
-    showSubscriptions: boolean,
-    maxReconnectTimes: number,
+    currentTheme: Theme
+    currentLang: Language
+    autoCheck: boolean
+    showSubscriptions: boolean
+    maxReconnectTimes: number
     showClientInfo: {
-      [id: string]: boolean,
-    },
+      [id: string]: boolean
+    }
     unreadMessageCount: {
-      [id: string]: number,
-    },
+      [id: string]: number
+    }
     activeConnection: {
       [id: string]: {
-        client: MqttClient | {},
-        messages: MessageModel[],
-        subscriptions?: SubscriptionModel[],
-      },
-    },
-    willMessageVisible: boolean,
-    advancedVisible: boolean,
-    allConnections: ConnectionModel[] | [],
+        client: MqttClient | {}
+        messages: MessageModel[]
+        subscriptions?: SubscriptionModel[]
+      }
+    }
+    willMessageVisible: boolean
+    advancedVisible: boolean
+    allConnections: ConnectionModel[] | []
   }
 
   interface State {
-    app: App,
+    app: App
   }
 
   interface Routes {
-    path: string,
-    component: any,
-    name: string,
-    redirect?: string,
-    children?: Routes[],
+    path: string
+    component: any
+    name: string
+    redirect?: string
+    children?: Routes[]
   }
 
   interface Options {
-    value: any,
-    label: string | TranslateResult,
-    children?: Options[],
-    disabled?: boolean,
+    value: any
+    label: string | TranslateResult
+    children?: Options[]
+    disabled?: boolean
   }
 
   type QoSList = [0, 1, 2]
 
   interface SubscriptionModel {
-    topic: string,
-    qos: 0 | 1 | 2,
-    retain?: boolean,
-    color?: string,
+    topic: string
+    qos: 0 | 1 | 2
+    retain?: boolean
+    color?: string
   }
 }

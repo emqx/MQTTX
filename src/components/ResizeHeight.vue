@@ -1,12 +1,6 @@
 <template>
-  <div
-    id="resize-height"
-    class="resize-height"
-    @mousedown="handleMousedown"
-  >
-  </div>
+  <div id="resize-height" class="resize-height" @mousedown="handleMousedown"></div>
 </template>
-
 
 <script lang="ts">
 import { Component, Vue, Model, Prop } from 'vue-property-decorator'
@@ -41,7 +35,6 @@ export default class ResizeHeight extends Vue {
   }
 }
 </script>
-
 
 <style lang="scss">
 .resize-height {

@@ -8,8 +8,9 @@
               {{ titleName }}
               <a
                 href="javascript:;"
-                :class="['collapse-btn', showClientInfo ? 'top': 'bottom']"
-                @click="handleCollapse($route.params.id)">
+                :class="['collapse-btn', showClientInfo ? 'top' : 'bottom']"
+                @click="handleCollapse($route.params.id)"
+              >
                 <i class="el-icon-d-arrow-left"></i>
               </a>
             </h2>
@@ -21,9 +22,9 @@
                 placement="bottom"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
                 :open-delay="1000"
-                :content="$t('connections.disconnectedBtn')">
-                <a class="disconnect-btn"
-                href="javascript:;" @click="disconnect">
+                :content="$t('connections.disconnectedBtn')"
+              >
+                <a class="disconnect-btn" href="javascript:;" @click="disconnect">
                   <i class="iconfont el-icon-switch-button"></i>
                 </a>
               </el-tooltip>
@@ -32,9 +33,13 @@
               placement="bottom"
               :effect="theme !== 'light' ? 'light' : 'dark'"
               :open-delay="1000"
-              :content="$t('common.config')">
-              <a :class="['edit-btn', { 'disabled': client.connected }]" 
-              href="javascript:;" @click="handleEdit($route.params.id)">
+              :content="$t('common.config')"
+            >
+              <a
+                :class="['edit-btn', { disabled: client.connected }]"
+                href="javascript:;"
+                @click="handleEdit($route.params.id)"
+              >
                 <i class="iconfont el-icon-edit-outline"></i>
               </a>
             </el-tooltip>
@@ -69,7 +74,8 @@
             :btn-loading="connectLoading"
             @handleConnect="connect"
             @handleDisconnect="disconnect"
-            @handleCancel="cancel"/>
+            @handleCancel="cancel"
+          />
         </el-collapse-transition>
       </div>
 
@@ -81,7 +87,8 @@
             size="small"
             :placeholder="$t('connections.searchByTopic')"
             @keyup.enter.native="searchByTopic"
-            @keyup.esc.native="handleSearchClose">
+            @keyup.esc.native="handleSearchClose"
+          >
             <a class="search-btn" href="javascript:;" slot="suffix" @click="searchByTopic">
               <i v-if="!searchLoading" class="iconfont icon-search"></i>
               <i v-else class="el-icon-loading"></i>
@@ -97,12 +104,13 @@
     <div
       class="connections-detail-main right-content"
       :style="{
-        paddingTop: showClientInfo ? msgTop.open: msgTop.close,
+        paddingTop: showClientInfo ? msgTop.open : msgTop.close,
         paddingBottom: `${msgBottom}px`,
         marginLeft: showSubs ? '570px' : '341px',
-      }">
+      }"
+    >
       <div class="connections-body">
-        <div class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open: bodyTop.close }">
+        <div class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open : bodyTop.close }">
           <span class="subs-title">
             {{ this.$t('connections.subscriptions') }}
             <a class="subs-btn" href="javascript:;" @click="handleShowSubs">
@@ -110,9 +118,20 @@
             </a>
           </span>
           <div class="message-type">
-            <el-radio-group
-              v-model="msgType" size="mini"
-              @change="handleMsgTypeChanged">
+            <el-tooltip
+              placement="top"
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :open-delay="500"
+              :content="$t('connections.receivedPayloadDecodedBy')"
+            >
+              <a href="javascript:;" class="icon-tip">
+                <i class="el-icon-question"></i>
+              </a>
+            </el-tooltip>
+            <el-select class="received-type-select" size="small" v-model="receivedMsgType">
+              <el-option v-for="(type, index) in payloadOptions" :key="index" :value="type"> </el-option>
+            </el-select>
+            <el-radio-group v-model="msgType" size="mini" @change="handleMsgTypeChanged">
               <el-radio-button label="all">{{ $t('connections.all') }}</el-radio-button>
               <el-radio-button label="received">{{ $t('connections.received') }}</el-radio-button>
               <el-radio-button label="publish">{{ $t('connections.published') }}</el-radio-button>
@@ -123,42 +142,49 @@
           :subsVisible.sync="showSubs"
           :connectionId="$route.params.id"
           :record="record"
-          :top="showClientInfo ? bodyTop.open: bodyTop.close"
-          @onClickTopic="handleTopicClick"/>
-        <div v-for="(message, index) in messages" :key="index">
-          <MsgLeftItem
-            v-if="!message.out"
-            v-bind="message"/>
-          <MsgRightItem
-            v-else
-            v-bind="message"/>
+          :top="showClientInfo ? bodyTop.open : bodyTop.close"
+          @onClickTopic="handleTopicClick"
+        />
+        <div v-for="message in messages" :key="message.mid">
+          <MsgLeftItem v-if="!message.out" :subsList="record.subscriptions" v-bind="message" />
+          <MsgRightItem v-else v-bind="message" />
         </div>
       </div>
 
-      <div
-        class="connections-footer" 
-        :style="{ marginLeft: showSubs ? '570px' : '341px' }">
-        <ResizeHeight v-model="inputHeight"/>
+      <div class="connections-footer" :style="{ marginLeft: showSubs ? '570px' : '341px' }">
+        <ResizeHeight v-model="inputHeight" />
         <MsgPublish
           :editor-height="inputHeight - 75"
           :subs-visible="showSubs"
           :style="{ height: `${inputHeight}px` }"
-          @handleSend="sendMessage"/>
+          @handleSend="sendMessage"
+        />
       </div>
     </div>
   </div>
 </template>
 
-
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import mqtt, { PacketCallback, MqttClient, IClientOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
-import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
+import { TranslateResult } from 'vue-i18n'
+import { ipcRenderer } from 'electron'
+import mqtt, { MqttClient, IClientOptions } from 'mqtt'
+import { v4 as uuidv4 } from 'uuid'
+import _ from 'lodash'
+
+import {
+  deleteConnection,
+  updateConnection,
+  updateConnectionMessage,
+  loadConnection,
+  loadConnections,
+} from '@/utils/api/connection'
 import time from '@/utils/time'
 import matchSearch from '@/utils/matchSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
 import { getClientOptions, getMQTTProtocol } from '@/utils/mqttUtils'
+
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
@@ -166,15 +192,14 @@ import SubscriptionsList from '@/components/SubscriptionsList.vue'
 import ResizeHeight from '@/components/ResizeHeight.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
 import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
-import { ipcRenderer } from 'electron'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
 type PayloadConvertType = 'base64' | 'hex'
 
 interface Top {
-  open: string,
-  close: string,
+  open: string
+  close: string
 }
 
 @Component({
@@ -192,7 +217,6 @@ export default class ConnectionsDetail extends Vue {
 
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
-  @Action('PUSH_MESSAGE') private pushMessage!: (payload: Message) => void
   @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection!: (payload: ActiveConnection) => void
   @Action('SHOW_CLIENT_INFO') private changeShowClientInfo!: (payload: ClientInfo) => void
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
@@ -203,7 +227,7 @@ export default class ConnectionsDetail extends Vue {
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: {
-    [id: string]: boolean,
+    [id: string]: boolean
   }
 
   private showSubs = true
@@ -211,21 +235,23 @@ export default class ConnectionsDetail extends Vue {
   private connectLoading = false
   private searchVisible = false
   private searchLoading = false
+  private receivedMsgType: PayloadType = 'Plaintext'
   private msgType: MessageType = 'all'
   private client: Partial<MqttClient> = {
     connected: false,
   }
-  private messages: MessageModel[] = []
+  private messages: MessageModel[] = this.record.messages
   private searchTopic = ''
   private titleName: string = this.record.name
   private retryTimes = 0
   private inputHeight = 155
   private msgBottom = 160
+  private activeTopic = ''
   private mqttVersionDict = {
     '3.1.1': 4,
     '5.0': 5,
   }
-  private activeTopic = ''
+  private payloadOptions: PayloadType[] = ['Plaintext', 'Base64', 'JSON', 'Hex']
 
   public connect(): boolean | void {
     if (this.client.connected) {
@@ -239,8 +265,31 @@ export default class ConnectionsDetail extends Vue {
       this.client.on('error', this.onError)
       this.client.on('reconnect', this.onReConnect)
       this.client.on('close', this.onClose)
-      this.client.on('message', this.messageArrived(id))
+      this.client.on('message', this.onMessageArrived(id))
     }
+  }
+
+  public removeConnection(currentConnection?: ConnectionModel) {
+    let { id, name } = this.record
+    if (currentConnection) {
+      id = currentConnection.id
+      name = currentConnection.name
+    }
+    const confirmDelete: string = this.$t('common.confirmDelete', { name }) as string
+    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
+      type: 'warning',
+    })
+      .then(async () => {
+        const res: ConnectionModel | null = await deleteConnection(id as string)
+        if (res) {
+          this.$emit('delete')
+          this.$message.success(this.$t('common.deleteSuccess') as string)
+          this.removeActiveConnection({ id: res.id as string })
+        }
+      })
+      .catch((error) => {
+        // ignore(error)
+      })
   }
 
   get bodyTop(): Top {
@@ -258,9 +307,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   get connectUrl(): string {
-    const {
-      host, port, ssl, path,
-    } = this.record
+    const { host, port, ssl, path } = this.record
     const protocol = getMQTTProtocol(this.record)
     let url = `${protocol}://${host}:${port}`
     if (protocol === 'ws' || protocol === 'wss') {
@@ -274,7 +321,7 @@ export default class ConnectionsDetail extends Vue {
     const id: string = this.$route.params.id
     this.titleName = this.record.name
     this.getConnectionValue(id)
-    this.getMessages(id)
+    this.getMessages()
   }
 
   @Watch('inputHeight')
@@ -286,10 +333,12 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private getConnectionValue(id: string) {
-    const $activeConnection: {
-      id?: string,
-      client: MqttClient,
-    } | undefined = this.activeConnection[id]
+    const currentActiveConnection:
+      | {
+          id?: string
+          client: MqttClient
+        }
+      | undefined = this.activeConnection[id]
     const $clientInfoVisible: boolean | undefined = this.clientInfoVisibles[id]
     if ($clientInfoVisible === undefined) {
       this.showClientInfo = true
@@ -297,8 +346,9 @@ export default class ConnectionsDetail extends Vue {
       this.showClientInfo = $clientInfoVisible
     }
     this.showSubs = this.showSubscriptions
-    if ($activeConnection) {
-      this.client = $activeConnection.client
+    if (currentActiveConnection) {
+      this.client = currentActiveConnection.client
+      this.setClientsMessageListener()
     } else {
       this.client = {
         connected: false,
@@ -320,25 +370,37 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private handleCommand(command: CommandType) {
-    if (command === 'disconnect') {
-      this.disconnect()
-    } else if (command === 'deleteConnect') {
-      this.removeConnection()
-    } else if (command === 'clearHistory') {
-      this.handleMsgClear()
-    } else if (command === 'searchByTopic') {
-      this.handleSearchOpen()
+    switch (command) {
+      case 'disconnect':
+        this.disconnect()
+        break
+      case 'deleteConnect':
+        this.removeConnection()
+        break
+      case 'clearHistory':
+        this.handleMsgClear()
+        break
+      case 'searchByTopic':
+        this.handleSearchOpen()
+        break
+      default:
+        break
     }
   }
 
-  private getMessages(id: string) {
-    this.msgType = 'all'
-    const $activeConnection = this.activeConnection[id]
-    if ($activeConnection) {
-      this.messages = $activeConnection.messages
-    } else {
-      this.messages = this.record.messages
+  private handleEdit(id: string): boolean | void {
+    if (this.client.connected) {
+      return false
     }
+    this.$router.push({
+      path: `/recent_connections/${id}`,
+      query: { oper: 'edit' },
+    })
+  }
+
+  private getMessages() {
+    this.msgType = 'all'
+    this.messages = _.cloneDeep(this.record.messages)
   }
   private handleMsgClear() {
     this.messages = []
@@ -350,74 +412,57 @@ export default class ConnectionsDetail extends Vue {
     })
     updateConnection(this.record.id as string, this.record)
   }
-  private handleMsgTypeChanged(type: MessageType) {
+  private async handleMsgTypeChanged(type: MessageType) {
+    const setChangedMessages = (changedType: MessageType, msgData: MessageModel[]) => {
+      if (type === 'received') {
+        this.messages = msgData.filter(($: MessageModel) => !$.out)
+      } else if (type === 'publish') {
+        this.messages = msgData.filter(($: MessageModel) => $.out)
+      } else {
+        this.messages = msgData.slice()
+      }
+    }
     if (this.activeTopic !== '') {
-      topicMatch(this.record.messages, this.activeTopic).then((res) => {
-        if (res) {
-          if (type === 'received') {
-            this.messages = res.filter(($: MessageModel) => !$.out)
-          } else if (type === 'publish') {
-            this.messages = res.filter(($: MessageModel) => $.out)
-          } else {
-            this.messages = res
-          }
-        } else {
-          this.messages = []
-        }
-      })
-      return false
-    }
-    if (type === 'received') {
-      this.messages = this.record.messages.filter(($: MessageModel) => !$.out)
-    } else if (type === 'publish') {
-      this.messages = this.record.messages.filter(($: MessageModel) => $.out)
+      const res = await topicMatch(this.record.messages, this.activeTopic)
+      if (res) {
+        setChangedMessages(type, res)
+      } else {
+        this.messages = [].slice()
+      }
     } else {
-      this.messages = this.record.messages
+      setChangedMessages(type, this.record.messages)
     }
   }
-  private handleEdit(id: string): boolean | void {
-    if (this.client.connected) {
-      return false
-    }
-    this.$router.push({
-      path: `/recent_connections/${id}`,
-      query: { oper: 'edit' },
-    })
-  }
-  private searchByTopic() {
+  private async searchByTopic() {
     this.searchLoading = true
     setTimeout(() => {
       this.searchLoading = false
     }, 500)
+    this.getMessages()
     if (this.searchTopic !== '') {
-      this.getMessages(this.$route.params.id)
-      const $messages = [...this.messages]
-      matchSearch($messages, 'topic', this.searchTopic).then((res) => {
-        if (res) {
-          this.messages = res
-        } else {
-          this.messages = []
-        }
-      })
-    } else {
-      this.getMessages(this.$route.params.id)
+      const $messages = _.cloneDeep(this.messages)
+      const res = await matchSearch($messages, 'topic', this.searchTopic)
+      if (res) {
+        this.messages = res.slice()
+      } else {
+        this.messages = [].slice()
+      }
     }
   }
-  private handleTopicClick(sub: SubscriptionModel, reset: boolean) {
-    this.getMessages(this.$route.params.id)
+  private async handleTopicClick(sub: SubscriptionModel, reset: boolean) {
+    this.getMessages()
     if (reset) {
       this.activeTopic = ''
       return false
     }
     this.activeTopic = sub.topic
-    const $messages = [...this.messages]
-    topicMatch($messages, sub.topic).then((res) => {
-      if (res) {
-        this.messages = res
-      } else {
-        this.messages = []
-      }
-    })
+    const $messages = _.cloneDeep(this.messages)
+    const res = await topicMatch($messages, sub.topic)
+    if (res) {
+      this.messages = res.slice()
+    } else {
+      this.messages = [].slice()
+    }
   }
   private handleSearchOpen() {
     this.searchVisible = true
@@ -430,23 +475,7 @@ export default class ConnectionsDetail extends Vue {
   }
   private handleSearchClose() {
     this.searchVisible = false
-    this.getMessages(this.$route.params.id)
-  }
-
-  private removeConnection() {
-    const confirmDelete: string = this.$t('common.confirmDelete', { name: this.record.name }) as string
-    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
-      type: 'warning',
-    }).then(async () => {
-      const res: ConnectionModel | null = await deleteConnection(this.record.id as string)
-      if (res) {
-        this.$emit('delete')
-        this.$message.success(this.$t('common.deleteSuccess') as string)
-        this.removeActiveConnection({ id: res.id as string })
-      }
-    }).catch((error) => {
-      // ignore(error)
-    })
+    this.getMessages()
   }
 
   private createClient(): MqttClient {
@@ -555,31 +584,28 @@ export default class ConnectionsDetail extends Vue {
   private onClose() {
     this.connectLoading = false
   }
-  private messageArrived(id: string) {
-    return (
-        topic: string,
-        payload: string,
-        packet: SubscriptionModel,
-      ) => {
+  private onMessageArrived(id: string) {
+    return (topic: string, payload: Buffer, packet: SubscriptionModel) => {
+      const $payload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
       const receivedMessage: MessageModel = {
+        mid: uuidv4(),
         out: false,
         createAt: time.getNowDate(),
         topic,
-        payload: payload.toString(),
+        payload: $payload,
         qos: packet.qos,
         retain: packet.retain as boolean,
       }
-      this.pushMessage({ id, message: receivedMessage })
       const connectionId = this.$route.params.id
       if (id === connectionId) {
         this.record.messages.push({ ...receivedMessage })
+        updateConnectionMessage(connectionId, { ...receivedMessage })
         const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
-        if (this.msgType === 'received' && !this.activeTopic) {
+        if (this.msgType !== 'publish' && !this.activeTopic) {
           this.messages.push(receivedMessage)
         } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'publish') {
           this.messages.push(receivedMessage)
         }
-        updateConnectionMessage(connectionId, { ...receivedMessage })
       } else {
         updateConnectionMessage(id, { ...receivedMessage })
         this.unreadMessageIncrement({ id })
@@ -589,7 +615,6 @@ export default class ConnectionsDetail extends Vue {
       }, 100)
     }
   }
-
   private sendMessage(message: MessageModel, type: PayloadType): void | boolean {
     if (!this.client.connected) {
       this.$notify({
@@ -601,50 +626,41 @@ export default class ConnectionsDetail extends Vue {
       })
       return false
     }
-    const {
-      topic, qos, payload, retain,
-    } = message
+    const { mid, topic, qos, payload, retain } = message
     if (!topic) {
       this.$message.warning(this.$t('connections.topicReuired') as string)
       return false
     }
-    const $payload = this.convertPayloadByType(payload, type)
-    this.client.publish!(
-      topic,
-      $payload,
-      { qos, retain },
-      (error: Error) => {
-        if (error) {
-          const errorMsg = error.toString()
-          this.$message.error(errorMsg)
-          return false
-        }
-        const publishMessage: MessageModel = {
-          out: true,
-          createAt: time.getNowDate(),
-          topic,
-          payload,
-          qos,
-          retain,
-        }
-        this.pushMessage({
-          id: this.record.id as string,
-          message: publishMessage,
-        })
-        this.record.messages.push({ ...publishMessage })
-        const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
-        if (this.msgType === 'publish' && !this.activeTopic) {
-          this.messages.push(publishMessage)
-        } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'received') {
-          this.messages.push(publishMessage)
-        }
-        updateConnectionMessage(this.record.id as string, { ...publishMessage })
-        setTimeout(() => {
-          window.scrollTo(0, document.body.scrollHeight + 160)
-        }, 100)
-      },
-    )
+    const $payload = this.convertPayloadByType(payload, type, 'publish')
+    this.client.publish!(topic, $payload, { qos, retain }, (error: Error) => {
+      if (error) {
+        const errorMsg = error.toString()
+        this.$message.error(errorMsg)
+        return false
+      }
+      const publishMessage: MessageModel = {
+        mid,
+        out: true,
+        createAt: time.getNowDate(),
+        topic,
+        payload,
+        qos,
+        retain,
+      }
+      const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+      this.record.messages.push({ ...publishMessage })
+      updateConnectionMessage(this.record.id as string, { ...publishMessage })
+      if (this.msgType !== 'received' && !this.activeTopic) {
+        this.messages.push(publishMessage)
+      } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'received') {
+        this.messages.push(publishMessage)
+      }
+      setTimeout(() => {
+        window.scrollTo(0, document.body.scrollHeight + 160)
+      }, 100)
+    })
   }
+
   private setShowClientInfo(show: boolean) {
     setTimeout(() => {
       this.showClientInfo = show
@@ -655,10 +671,38 @@ export default class ConnectionsDetail extends Vue {
     }, 500)
   }
 
-  private convertPayloadByType(value: string, type: PayloadType): Buffer | string {
-    if (type === 'Base64' || type === 'Hex') {
-      const $type = type.toLowerCase() as PayloadConvertType
-      return Buffer.from(value, $type)
+  private convertPayloadByType(value: Buffer | string, type: PayloadType, way: 'publish' | 'receive'): Buffer | string {
+    const validJSONType = (jsonValue: string, warnMessage: TranslateResult) => {
+      try {
+        JSON.parse(jsonValue)
+      } catch (error) {
+        this.$message.warning(`${warnMessage} ${error.toString()}`)
+      }
+    }
+    const genPublishPayload = (publishType: PayloadType, publishValue: string) => {
+      if (publishType === 'Base64' || publishType === 'Hex') {
+        const $type = publishType.toLowerCase() as PayloadConvertType
+        return Buffer.from(publishValue, $type)
+      }
+      if (publishType === 'JSON') {
+        validJSONType(publishValue, this.$t('connections.publishMsg'))
+      }
+      return publishValue
+    }
+    const genReceivePayload = (receiveType: PayloadType, receiveValue: Buffer) => {
+      if (receiveType === 'Base64' || receiveType === 'Hex') {
+        const $type = receiveType.toLowerCase() as PayloadType
+        return receiveValue.toString($type)
+      }
+      if (receiveType === 'JSON') {
+        validJSONType(receiveValue.toString(), this.$t('connections.receivedMsg'))
+      }
+      return receiveValue.toString()
+    }
+    if (way === 'publish' && typeof value === 'string') {
+      return genPublishPayload(type, value)
+    } else if (way === 'receive' && typeof value !== 'string') {
+      return genReceivePayload(type, value)
     }
     return value
   }
@@ -666,22 +710,58 @@ export default class ConnectionsDetail extends Vue {
   private created() {
     const { id } = this.$route.params
     this.getConnectionValue(id)
-    this.getMessages(id)
     ipcRenderer.on('searchByTopic', () => {
       this.handleSearchOpen()
     })
   }
 
+  private setClientsMessageListener() {
+    // Register connected clients message event listeners
+    Object.keys(this.activeConnection).forEach((connectionID: string) => {
+      const $connection: {
+        id?: string
+        client: MqttClient
+      } = this.activeConnection[connectionID]
+      const client: MqttClient = $connection.client
+      let msgEventCount = 0
+      if (client.listenerCount) {
+        msgEventCount = client.listenerCount('message')
+      }
+      if (client.connected && client.on && msgEventCount === 0) {
+        client.on('message', this.onMessageArrived(connectionID))
+      }
+      this.changeActiveConnection({
+        id: connectionID,
+        client,
+        messages: this.messages,
+      })
+    })
+  }
+
+  private removeClinetsMessageListener() {
+    // Remove connected clients message event listeners
+    Object.keys(this.activeConnection).forEach((connectionID: string) => {
+      const currentActiveConnection: {
+        id?: string
+        client: MqttClient
+      } = this.activeConnection[connectionID]
+      const client: MqttClient = currentActiveConnection.client
+      if (client.removeAllListeners) {
+        client.removeAllListeners('message')
+      }
+    })
+  }
+
   private beforeDestroy() {
     ipcRenderer.removeAllListeners('searchByTopic')
+    this.removeClinetsMessageListener()
   }
 }
 </script>
 
-
 <style lang="scss" scope>
-@import "~@/assets/scss/variable.scss";
-@import "~@/assets/scss/mixins.scss";
+@import '~@/assets/scss/variable.scss';
+@import '~@/assets/scss/mixins.scss';
 
 .connections-detail {
   .connections-topbar {
@@ -741,7 +821,8 @@ export default class ConnectionsDetail extends Vue {
         border-bottom: 0px;
         min-height: 0px;
       }
-      .icon-search, .el-icon-loading {
+      .icon-search,
+      .el-icon-loading {
         line-height: 32px;
       }
       .el-icon-loading {
@@ -752,7 +833,7 @@ export default class ConnectionsDetail extends Vue {
           background: var(--color-bg-primary);
         }
         .search-btn {
-          color: var(--color-text-default); 
+          color: var(--color-text-default);
         }
       }
       .close-search {
@@ -768,7 +849,7 @@ export default class ConnectionsDetail extends Vue {
 
   .connections-detail-main {
     height: 100%;
-    transition: all .5s;
+    transition: all 0.5s;
     .connections-body {
       padding: 16px;
       .filter-bar {
@@ -778,7 +859,7 @@ export default class ConnectionsDetail extends Vue {
         left: 341px;
         right: 0;
         z-index: 1;
-        transition: all .4s;
+        transition: all 0.4s;
         .subs-title {
           color: var(--color-text-title);
           position: absolute;
@@ -794,12 +875,22 @@ export default class ConnectionsDetail extends Vue {
           }
         }
         .message-type {
-          text-align: right;
+          @include flex-space-between;
+          .received-type-select {
+            width: 110px;
+            margin-left: 245px;
+          }
+          .icon-tip {
+            position: absolute;
+            left: 239px;
+            font-size: 16px;
+            color: var(--color-text-tips);
+          }
         }
       }
     }
     .connections-footer {
-      transition: all .4s ease;
+      transition: all 0.4s ease;
       position: fixed;
       width: inherit;
       bottom: 0;

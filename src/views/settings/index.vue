@@ -15,12 +15,9 @@
             class="settings-options"
             v-model="currentLang"
             size="mini"
-            @change="handleSelectChange('lang', $event)">
-            <el-option
-              v-for="(lang, index) in langOptions"
-              :key="index"
-              :label="lang.label"
-              :value="lang.value">
+            @change="handleSelectChange('lang', $event)"
+          >
+            <el-option v-for="(lang, index) in langOptions" :key="index" :label="lang.label" :value="lang.value">
             </el-option>
           </el-select>
         </el-col>
@@ -33,11 +30,7 @@
           <label>{{ $t('settings.automatically') }}</label>
         </el-col>
         <el-col :span="4">
-          <el-switch
-            v-model="autoCheck"
-            active-color="#13ce66"
-            inactive-color="#A2A9B0"
-            @change="handleSwitchChange">
+          <el-switch v-model="autoCheck" active-color="#13ce66" inactive-color="#A2A9B0" @change="handleSwitchChange">
           </el-switch>
         </el-col>
       </el-row>
@@ -49,11 +42,7 @@
           <label>{{ $t('settings.maxReconnectTimes') }}</label>
         </el-col>
         <el-col :span="4">
-          <el-input-number
-            size="mini"
-            v-model="maxReconnectTimes"
-            :min="1"
-            @change="handleInputChage">
+          <el-input-number size="mini" v-model="maxReconnectTimes" :min="1" @change="handleInputChage">
           </el-input-number>
         </el-col>
       </el-row>
@@ -65,7 +54,7 @@
       <div class="settings-title">{{ $t('settings.appearance') }}</div>
 
       <el-divider></el-divider>
-      
+
       <el-row class="settings-item" type="flex" justify="space-between">
         <el-col :span="20">
           <label>{{ $t('settings.theme') }}</label>
@@ -75,12 +64,9 @@
             class="settings-options"
             v-model="currentTheme"
             size="mini"
-            @change="handleSelectChange('theme', $event)">
-            <el-option
-              v-for="(theme, index) in themeOptions"
-              :key="index"
-              :label="theme.label"
-              :value="theme.value">
+            @change="handleSelectChange('theme', $event)"
+          >
+            <el-option v-for="(theme, index) in themeOptions" :key="index" :label="theme.label" :value="theme.value">
             </el-option>
           </el-select>
         </el-col>
@@ -90,7 +76,6 @@
     </div>
   </div>
 </template>
-
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
@@ -122,10 +107,7 @@ export default class Settings extends Vue {
     { label: 'Night', value: 'night' },
   ]
 
-  private handleSelectChange(
-    type: 'lang' | 'theme',
-    value: string | number | boolean,
-  ): void {
+  private handleSelectChange(type: 'lang' | 'theme', value: string | number | boolean): void {
     if (type === 'theme') {
       this.actionTheme({ currentTheme: value as string })
     } else if (type === 'lang') {
@@ -150,7 +132,6 @@ export default class Settings extends Vue {
   }
 }
 </script>
-
 
 <style lang="scss" scope>
 @import '@/assets/scss/variable.scss';

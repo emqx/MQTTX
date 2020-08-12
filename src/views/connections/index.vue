@@ -2,7 +2,7 @@
   <div class="connections">
     <div class="leftList">
       <h1 class="titlebar">{{ $t('connections.connections') }}</h1>
-      <ConnectionsList :data="records" :connectionId="connectionId"/>
+      <ConnectionsList :data="records" :connectionId="connectionId" @delete="onDelete" />
     </div>
 
     <div class="connections-view">
@@ -10,25 +10,21 @@
         v-if="isEmpty && !oper"
         name="connections"
         :btn-title="$t('connections.newConnections')"
-        :click-method="toCreateConnection"/>
+        :click-method="toCreateConnection"
+      />
       <template v-else>
-        <ConnectionForm
-          v-if="oper"
-          ref="connectionForm"
-          :oper="oper"
-          @connect="handleConnect"/>
+        <ConnectionForm v-if="oper" ref="connectionForm" :oper="oper" @connect="onConnect" />
         <ConnectionsDetail
-          v-else
+          v-show="!oper"
           ref="ConnectionsDetail"
           :record="currentConnection"
           @reload="loadData"
-          @delete="loadData(true)"/>
+          @delete="loadData(true)"
+        />
       </template>
     </div>
-
   </div>
 </template>
-
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
@@ -49,12 +45,10 @@ import { ConnectionModel } from './types'
   },
 })
 export default class Connections extends Vue {
-  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (
-    payload: Client,
-  ) => void
-  @Action('CHANGE_ALL_CONNECTIONS') private changeAllConnections!: (
-    payload: { allConnections: ConnectionModel[] | [] },
-  ) => void
+  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
+  @Action('CHANGE_ALL_CONNECTIONS') private changeAllConnections!: (payload: {
+    allConnections: ConnectionModel[] | []
+  }) => void
 
   private isEmpty: boolean = false
   private records: ConnectionModel[] | [] = []
@@ -127,7 +121,7 @@ export default class Connections extends Vue {
     this.$router.push({ path: '/recent_connections/0?oper=create' })
   }
 
-  private handleConnect() {
+  private onConnect() {
     this.loadData()
     setTimeout(() => {
       const connection: ConnectionsDetail = this.$refs.ConnectionsDetail as ConnectionsDetail
@@ -135,12 +129,16 @@ export default class Connections extends Vue {
     }, 500)
   }
 
+  private onDelete(data: ConnectionModel) {
+    const connection: ConnectionsDetail = this.$refs.ConnectionsDetail as ConnectionsDetail
+    connection.removeConnection(data)
+  }
+
   private created() {
     this.loadData()
   }
 }
 </script>
-
 
 <style lang="scss">
 .connections {

@@ -3,15 +3,8 @@
     <div class="publish-header">
       <div class="qos-retain">
         <span class="publish-label">Payload: </span>
-        <el-select
-          class="payload-select"
-          size="mini"
-          v-model="payloadType">
-          <el-option
-            v-for="(type, index) in payloadOptions"
-            :key="index"
-            :value="type">
-          </el-option>
+        <el-select class="payload-select" size="mini" v-model="payloadType">
+          <el-option v-for="(type, index) in payloadOptions" :key="index" :value="type"> </el-option>
         </el-select>
         <span class="publish-label">QoS: </span>
         <el-select class="qos-select" size="mini" v-model="msgRecord.qos">
@@ -29,14 +22,16 @@
         placeholder="Topic"
         v-model="msgRecord.topic"
         @focus="handleInputFoucs"
-        @blur="handleInputBlur">
+        @blur="handleInputBlur"
+      >
       </el-input>
     </div>
     <div
       class="editor-container publish-footer"
       :style="{
-        height: `${editorHeight}px`
-      }">
+        height: `${editorHeight}px`,
+      }"
+    >
       <Editor
         ref="payloadEditor"
         id="payload"
@@ -44,17 +39,14 @@
         v-model="msgRecord.payload"
         @enter-event="send"
         @focus="handleInputFoucs"
-        @blur="handleInputBlur"/>
+        @blur="handleInputBlur"
+      />
     </div>
-    <a
-      href="javascript:;"
-      class="send-btn"
-      @click="send">
+    <a href="javascript:;" class="send-btn" @click="send">
       <i class="iconfont icon-send"></i>
     </a>
   </div>
 </template>
-
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
@@ -63,6 +55,7 @@ import jump from 'jump.js'
 import Editor from '@/components/Editor.vue'
 import { MessageModel } from '../views/connections/types'
 import convertPayload from '@/utils/convertPayload'
+import { v4 as uuidv4 } from 'uuid'
 
 @Component({
   components: {
@@ -74,6 +67,7 @@ export default class MsgPublish extends Vue {
   @Prop({ required: true }) public subsVisible!: boolean
 
   private msgRecord: MessageModel = {
+    mid: '',
     createAt: '',
     out: true,
     qos: 0,
@@ -99,21 +93,24 @@ export default class MsgPublish extends Vue {
   @Watch('payloadType')
   private handleTypeChange(val: PayloadType, oldVal: PayloadType) {
     const { payload } = this.msgRecord
-    convertPayload(payload, val, oldVal).then((res) => {
-      this.msgRecord.payload = res
-      if (val === 'JSON') {
-        this.payloadLang = 'json'
-      } else {
-        this.payloadLang = 'plaintext'
-      }
-    }).catch((error: Error) => {
-      const errorMsg = error.toString()
-      this.$message.error(errorMsg)
-      this.payloadType = oldVal
-    })
+    convertPayload(payload, val, oldVal)
+      .then((res) => {
+        this.msgRecord.payload = res
+        if (val === 'JSON') {
+          this.payloadLang = 'json'
+        } else {
+          this.payloadLang = 'plaintext'
+        }
+      })
+      .catch((error: Error) => {
+        const errorMsg = error.toString()
+        this.$message.error(errorMsg)
+        this.payloadType = oldVal
+      })
   }
 
   private send() {
+    this.msgRecord.mid = uuidv4()
     this.$emit('handleSend', this.msgRecord, this.payloadType)
   }
 
@@ -137,14 +134,13 @@ export default class MsgPublish extends Vue {
 }
 </script>
 
-
 <style lang="scss">
-@import "~@/assets/scss/variable.scss";
-@import "~@/assets/scss/mixins.scss";
+@import '~@/assets/scss/variable.scss';
+@import '~@/assets/scss/mixins.scss';
 
 .msg-publish {
   background: var(--color-bg-normal);
-  transition: .3s height;
+  transition: 0.3s height;
   border-top: 1px solid var(--color-border-default);
   .publish-header {
     padding: 0 16px;
@@ -172,7 +168,7 @@ export default class MsgPublish extends Vue {
     }
     .payload-select {
       width: 95px;
-      margin-right: 10px
+      margin-right: 10px;
     }
     .qos-select {
       width: 55px;

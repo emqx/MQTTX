@@ -1,19 +1,14 @@
 'use strict'
 
-import {
-  app, protocol, BrowserWindow, ipcMain, shell, Menu,
-} from 'electron'
-import {
-  createProtocol,
-  installVueDevtools,
-} from 'vue-cli-plugin-electron-builder/lib'
+import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
+import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
 import db from './database/index'
 import updateChecker from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
 
 interface WindowSizeModel {
-  width: number,
-  height: number,
+  width: number
+  height: number
 }
 
 declare const __static: string
@@ -28,7 +23,7 @@ let win: BrowserWindow | null
 let menu: Menu | null
 
 // Scheme must be registered before the app is ready
-protocol.registerSchemesAsPrivileged([{scheme: 'app', privileges: { secure: true, standard: true } }])
+protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }])
 
 function handleIpcMessages() {
   ipcMain.on('setting', (event: any, ...args: any[]) => {
@@ -63,7 +58,9 @@ function createWindow() {
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     win.loadURL(process.env.WEBPACK_DEV_SERVER_URL as string)
-    if (!process.env.IS_TEST) {win.webContents.openDevTools()}
+    if (!process.env.IS_TEST) {
+      win.webContents.openDevTools()
+    }
   } else {
     createProtocol('app')
     // Load the index.html when not in development
