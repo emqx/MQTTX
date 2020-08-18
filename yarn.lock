@@ -3772,7 +3772,7 @@ duplexer@^0.1.1:
   resolved "https://registry.npm.taobao.org/duplexer/download/duplexer-0.1.1.tgz#ace6ff808c1ce66b57d1ebf97977acb02334cfc1"
   integrity sha1-rOb/gIwc5mtX0ev5eXessCM0z8E=
 
-duplexify@^3.4.2, duplexify@^3.5.1, duplexify@^3.6.0:
+duplexify@^3.4.2, duplexify@^3.6.0:
   version "3.7.1"
   resolved "https://registry.npm.taobao.org/duplexify/download/duplexify-3.7.1.tgz#2a4df5317f6ccfd91f86d6fd25d8d8a103b88309"
   integrity sha1-Kk31MX9sz9kfhtb9JdjYoQO4gwk=
@@ -6872,6 +6872,11 @@ minimist@1.2.0, minimist@^1.1.0, minimist@^1.1.3, minimist@^1.2.0:
   resolved "https://registry.npm.taobao.org/minimist/download/minimist-1.2.0.tgz#a35008b20f41383eec1fb914f4cd5df79a264284"
   integrity sha1-o1AIsg9BOD7sH7kU9M1d95omQoQ=
 
+minimist@^1.2.5:
+  version "1.2.5"
+  resolved "https://registry.npm.taobao.org/minimist/download/minimist-1.2.5.tgz#67d66014b66a6a8aaa0c083c5fd58df4e4e97602"
+  integrity sha1-Z9ZgFLZqaoqqDAg8X9WN9OTpdgI=
+
 minimist@~0.0.1:
   version "0.0.10"
   resolved "https://registry.npm.taobao.org/minimist/download/minimist-0.0.10.tgz#de3f98543dbf96082be48ad1a0c7cda836301dcf"
@@ -7008,20 +7013,21 @@ move-concurrently@^1.0.1:
     rimraf "^2.5.4"
     run-queue "^1.0.3"
 
-mqtt-packet@^6.0.0:
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/mqtt-packet/-/mqtt-packet-6.2.1.tgz#89b27e5e22a859abe9f5a3359b2e2dd07e4168b2"
-  integrity sha512-ZxG5QVb7+gMix5n4DClym9dQoCZC6DoNEqgMkMi/GMXvIU4Wsdx+/6KBavw50HHFH9kN1lBSY7phxNlAS2+jnw==
+mqtt-packet@^6.3.2:
+  version "6.3.2"
+  resolved "https://registry.npm.taobao.org/mqtt-packet/download/mqtt-packet-6.3.2.tgz#a737734a9a64e8cffbad7ad9e116d35b912f2e00"
+  integrity sha1-pzdzSppk6M/7rXrZ4RbTW5EvLgA=
   dependencies:
     bl "^1.2.2"
+    debug "^4.1.1"
     inherits "^2.0.3"
     process-nextick-args "^2.0.0"
     safe-buffer "^5.1.2"
 
-mqtt@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.npm.taobao.org/mqtt/download/mqtt-4.1.0.tgz#efcfa4acb8789265b951452142054a5b158bef0f"
-  integrity sha1-78+krLh4kmW5UUUhQgVKWxWL7w8=
+mqtt@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.npm.taobao.org/mqtt/download/mqtt-4.2.0.tgz#74c65f8b926728485ebe1d55297a7ce08e47996f"
+  integrity sha1-dMZfi5JnKEhevh1VKXp84I5HmW8=
   dependencies:
     base64-js "^1.3.0"
     commist "^1.0.0"
@@ -7031,13 +7037,13 @@ mqtt@^4.1.0:
     es6-map "^0.1.5"
     help-me "^1.0.1"
     inherits "^2.0.3"
-    minimist "^1.2.0"
-    mqtt-packet "^6.0.0"
+    minimist "^1.2.5"
+    mqtt-packet "^6.3.2"
     pump "^3.0.0"
     readable-stream "^2.3.6"
     reinterval "^1.1.0"
     split2 "^3.1.0"
-    websocket-stream "^5.1.2"
+    ws "^7.3.1"
     xtend "^4.0.1"
 
 ms@2.0.0:
@@ -10357,11 +10363,6 @@ uglify-js@3.4.x:
     commander "~2.19.0"
     source-map "~0.6.1"
 
-ultron@~1.1.0:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/ultron/-/ultron-1.1.1.tgz#9fe1536a10a664a65266a1e3ccf85fd36302bc9c"
-  integrity sha512-UIEXBNeYmKptWH6z8ZnqTeS8fV74zG0/eRU9VGkpzz+LIJNs8W/zM/L+7ctCkRrgbNnnR0xxw4bKOr0cW0N0Og==
-
 unc-path-regex@^0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/unc-path-regex/-/unc-path-regex-0.1.2.tgz#e73dd3d7b0d7c5ed86fbac6b0ae7d8c6a69d50fa"
@@ -11006,18 +11007,6 @@ websocket-extensions@>=0.1.1:
   resolved "https://registry.yarnpkg.com/websocket-extensions/-/websocket-extensions-0.1.4.tgz#7f8473bc839dfd87608adb95d7eb075211578a42"
   integrity sha512-OqedPIGOfsDlo31UNwYbCFMSaO9m9G/0faIHj5/dZFDMFqPTcx6UwqyOy3COEaEOg/9VsGIpdqn62W5KhoKSpg==
 
-websocket-stream@^5.1.2:
-  version "5.5.0"
-  resolved "https://registry.yarnpkg.com/websocket-stream/-/websocket-stream-5.5.0.tgz#9827f2846fc0d2b4dca7aab8f92980b2548b868e"
-  integrity sha512-EXy/zXb9kNHI07TIMz1oIUIrPZxQRA8aeJ5XYg5ihV8K4kD1DuA+FY6R96HfdIHzlSzS8HiISAfrm+vVQkZBug==
-  dependencies:
-    duplexify "^3.5.1"
-    inherits "^2.0.1"
-    readable-stream "^2.3.3"
-    safe-buffer "^5.1.2"
-    ws "^3.2.0"
-    xtend "^4.0.0"
-
 wgxpath@~1.0.0:
   version "1.0.0"
   resolved "https://registry.npm.taobao.org/wgxpath/download/wgxpath-1.0.0.tgz#eef8a4b9d558cc495ad3a9a2b751597ecd9af690"
@@ -11135,21 +11124,17 @@ write@1.0.3:
   dependencies:
     mkdirp "^0.5.1"
 
-ws@^3.2.0:
-  version "3.3.3"
-  resolved "https://registry.yarnpkg.com/ws/-/ws-3.3.3.tgz#f1cf84fe2d5e901ebce94efaece785f187a228f2"
-  integrity sha512-nnWLa/NwZSt4KQJu51MYlCcSQ5g7INpOrOMt4XV8j4dqTXdmlUmSHQ8/oLC069ckre0fRsgfvsKwbTdtKLCDkA==
-  dependencies:
-    async-limiter "~1.0.0"
-    safe-buffer "~5.1.0"
-    ultron "~1.1.0"
-
 ws@^6.0.0, ws@^6.1.2:
   version "6.2.1"
   resolved "https://registry.npm.taobao.org/ws/download/ws-6.2.1.tgz#442fdf0a47ed64f59b6a5d8ff130f4748ed524fb"
   integrity sha1-RC/fCkftZPWbal2P8TD0dI7VJPs=
   dependencies:
     async-limiter "~1.0.0"
+
+ws@^7.3.1:
+  version "7.3.1"
+  resolved "https://registry.npm.taobao.org/ws/download/ws-7.3.1.tgz?cache=0&sync_timestamp=1593925481882&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fws%2Fdownload%2Fws-7.3.1.tgz#d0547bf67f7ce4f12a72dfe31262c68d7dc551c8"
+  integrity sha1-0FR79n985PEqct/jEmLGjX3FUcg=
 
 xdg-basedir@^3.0.0:
   version "3.0.0"
