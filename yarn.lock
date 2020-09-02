@@ -7024,10 +7024,10 @@ mqtt-packet@^6.3.2:
     process-nextick-args "^2.0.0"
     safe-buffer "^5.1.2"
 
-mqtt@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.npm.taobao.org/mqtt/download/mqtt-4.2.0.tgz#74c65f8b926728485ebe1d55297a7ce08e47996f"
-  integrity sha1-dMZfi5JnKEhevh1VKXp84I5HmW8=
+mqtt@^4.2.1:
+  version "4.2.1"
+  resolved "https://registry.npm.taobao.org/mqtt/download/mqtt-4.2.1.tgz#7dbc4a01b5188186db90919c6fce318692c77004"
+  integrity sha1-fbxKAbUYgYbbkJGcb84xhpLHcAQ=
   dependencies:
     base64-js "^1.3.0"
     commist "^1.0.0"

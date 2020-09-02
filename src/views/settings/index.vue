@@ -100,6 +100,7 @@ export default class Settings extends Vue {
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
     { label: 'English', value: 'en' },
+    { label: '日本語', value: 'ja' },
   ]
   private themeOptions: Options[] = [
     { label: 'Light', value: 'light' },

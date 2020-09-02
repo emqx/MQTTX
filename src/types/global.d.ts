@@ -8,7 +8,7 @@ declare global {
 
   type Theme = 'light' | 'dark' | 'night'
 
-  type Language = 'en' | 'zh'
+  type Language = 'zh' | 'en' | 'ja'
 
   type Protocol = 'ws' | 'wss' | 'mqtt' | 'mqtts'
 
