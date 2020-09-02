@@ -1,25 +1,26 @@
 import VueI18n from 'vue-i18n'
 
-export const formati18n = (transItems: i18nLocaleModel): VueI18n.LocaleMessages => {
-  const en: any = {
-    connections: {},
-    settings: {},
-    common: {},
-    about: {},
-  }
-  const zh: any = {
-    connections: {},
-    settings: {},
-    common: {},
-    about: {},
-  }
+type FormatLang = {
+  [key in Language]?: any
+}
+
+export const formati18n = (transItems: i18nLocaleModel, langs: SupportLangModel): VueI18n.LocaleMessages => {
+  const formatLang: FormatLang = {}
+  langs.forEach((lang) => {
+    formatLang[lang] = {
+      connections: {},
+      settings: {},
+      common: {},
+      about: {},
+    }
+  })
   transItems.forEach((item) => {
     const values = require(`@/lang/${item}`).default
     Object.keys(values).forEach((key: string) => {
-      const { zh: $zh, en: $en } = values[key]
-      en[item][key] = $en
-      zh[item][key] = $zh
+      langs.forEach((lang) => {
+        formatLang[lang][item][key] = values[key][lang]
+      })
     })
   })
-  return { en, zh }
+  return formatLang
 }
