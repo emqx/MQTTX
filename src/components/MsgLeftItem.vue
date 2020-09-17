@@ -6,7 +6,7 @@
         <span class="topic">Topic: {{ topic }}</span>
         <span class="qos">QoS: {{ qos }}</span>
       </p>
-      <pre>{{ payload }}</pre>
+      <pre @contextmenu.prevent="customMenu($event)">{{ payload }}</pre>
     </div>
     <p class="left-time time">{{ createAt }}</p>
   </div>
@@ -38,6 +38,10 @@ export default class MsgLeftItem extends Vue {
     if (topic && topic.color) {
       this.currentTopicColor = topic.color
     }
+  }
+
+  private customMenu(event: MouseEvent) {
+    this.$emit('showmenu', this.payload, event)
   }
 
   private mounted() {

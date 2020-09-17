@@ -146,9 +146,22 @@
           @onClickTopic="handleTopicClick"
         />
         <div v-for="message in messages" :key="message.mid">
-          <MsgLeftItem v-if="!message.out" :subsList="record.subscriptions" v-bind="message" />
-          <MsgRightItem v-else v-bind="message" />
+          <MsgLeftItem
+            v-if="!message.out"
+            :subsList="record.subscriptions"
+            v-bind="message"
+            @showmenu="handleContextMenu(arguments, message)"
+          />
+          <MsgRightItem v-else v-bind="message" @showmenu="handleContextMenu(arguments, message)" />
         </div>
+        <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
+          <a href="javascript:;" class="context-menu__item" @click="handleCopyMessage">
+            <i class="el-icon-document-copy"></i>{{ $t('common.copy') }}
+          </a>
+          <a href="javascript:;" class="context-menu__item danger" @click="handleDeleteMessage">
+            <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
+          </a>
+        </contextmenu>
       </div>
 
       <div class="connections-footer" :style="{ marginLeft: showSubs ? '570px' : '341px' }">
@@ -175,6 +188,7 @@ import _ from 'lodash'
 
 import {
   deleteConnection,
+  deleteMessage,
   updateConnection,
   updateConnectionMessage,
   loadConnection,
@@ -191,7 +205,8 @@ import MsgPublish from '@/components/MsgPublish.vue'
 import SubscriptionsList from '@/components/SubscriptionsList.vue'
 import ResizeHeight from '@/components/ResizeHeight.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
-import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
+import Contextmenu from '@/components/Contextmenu.vue'
+import { ConnectionModel, MessageModel, SSLPath, SSLContent, ContextmenuModel } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
@@ -210,6 +225,7 @@ interface Top {
     MsgPublish,
     SubscriptionsList,
     ResizeHeight,
+    Contextmenu,
   },
 })
 export default class ConnectionsDetail extends Vue {
@@ -252,6 +268,13 @@ export default class ConnectionsDetail extends Vue {
     '5.0': 5,
   }
   private payloadOptions: PayloadType[] = ['Plaintext', 'Base64', 'JSON', 'Hex']
+  private showContextmenu: boolean = false
+  private selectedMessage: MessageModel | null = null
+  private contextmenuConfig: ContextmenuModel = {
+    top: 0,
+    left: 0,
+  }
+  private selectedInfo: string = ''
 
   public connect(): boolean | void {
     if (this.client.connected) {
@@ -330,6 +353,50 @@ export default class ConnectionsDetail extends Vue {
     const oldMsgBottom = 160
     const offset = val - oldInputHeight
     this.msgBottom = oldMsgBottom + offset
+  }
+
+  private handleContextMenu(msgItemInfo: IArguments, message: MessageModel) {
+    const [payload, event] = msgItemInfo
+    if (!this.showContextmenu) {
+      const { clientX, clientY } = event
+      this.contextmenuConfig.top = clientY
+      this.contextmenuConfig.left = clientX
+      this.showContextmenu = true
+      this.selectedMessage = message
+      this.selectedInfo = payload
+    } else {
+      this.showContextmenu = false
+    }
+  }
+
+  private handleCopyMessage() {
+    if (this.selectedInfo) {
+      this.$copyText(this.selectedInfo).then(
+        () => {
+          this.$message.success(this.$t('common.copySuccess') as string)
+        },
+        () => {
+          this.$message.error(this.$t('common.copyFailed') as string)
+        },
+      )
+    }
+  }
+
+  private async handleDeleteMessage() {
+    const connectID = this.record.id
+    let mid = ''
+    if (this.selectedMessage) {
+      mid = this.selectedMessage.mid
+    }
+    const res: ConnectionModel | null = await deleteMessage(connectID as string, mid as string)
+    if (res) {
+      this.showContextmenu = false
+      this.$message.success(this.$t('common.deleteSuccess') as string)
+      await this.$emit('reload')
+    } else {
+      this.showContextmenu = false
+      this.$message.error(this.$t('common.deletefailed') as string)
+    }
   }
 
   private getConnectionValue(id: string) {

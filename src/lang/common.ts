@@ -104,4 +104,19 @@ export default {
     en: 'Advanced Config',
     ja: '詳細設定',
   },
+  copy: {
+    zh: '复制',
+    en: 'Copy',
+    ja: 'Copy',
+  },
+  copySuccess: {
+    zh: '复制成功',
+    en: 'Copy Success',
+    ja: 'Copy Success',
+  },
+  copyFailed: {
+    zh: '复制失败',
+    en: 'Copy Failed',
+    ja: 'Copy Failed',
+  },
 }
