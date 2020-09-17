@@ -107,6 +107,7 @@ declare global {
 
   interface SubscriptionModel {
     topic: string
+    alias?: string
     qos: 0 | 1 | 2
     retain?: boolean
     color?: string

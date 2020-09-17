@@ -299,4 +299,9 @@ export default {
     en: 'Received payload decoded by',
     ja: '受信したペイロードをデコードする',
   },
+  alias: {
+    zh: '别名',
+    en: 'Alias',
+    ja: 'Alias',
+  },
 }

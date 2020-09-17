@@ -40,7 +40,7 @@
               class="topic"
               @click.stop="stopClick"
             >
-              {{ sub.topic }}
+              {{ sub.alias || sub.topic }}
             </a>
           </el-tooltip>
           <span class="qos">QoS {{ sub.qos }}</span>
@@ -82,6 +82,11 @@
               <el-input v-model="topicColor" size="small" placeholder="#34C388">
                 <i slot="suffix" title="Refresh" class="el-icon-refresh" @click="setColor"> </i>
               </el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item :label="$t('connections.alias')">
+              <el-input v-model="subRecord.alias" size="small"> </el-input>
             </el-form-item>
           </el-col>
         </el-form>
