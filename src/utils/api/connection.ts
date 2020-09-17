@@ -36,6 +36,10 @@ export const deleteConnection = (id: string): ConnectionModel => {
   return db.remove<ConnectionModel>('connections', id)
 }
 
+export const deleteMessage = (id: string, mid: string): ConnectionModel => {
+  return db.findChild<any>('connections', id).get('messages').remove({ mid }).write()
+}
+
 export const updateConnection = (id: string, data: ConnectionModel): ConnectionModel => {
   return db.update<ConnectionModel>('connections', id, data)
 }
