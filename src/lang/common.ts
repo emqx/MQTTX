@@ -105,7 +105,7 @@ export default {
     ja: '詳細設定',
   },
   copy: {
-    zh: '复制',
+    zh: '复 制',
     en: 'Copy',
     ja: 'Copy',
   },
