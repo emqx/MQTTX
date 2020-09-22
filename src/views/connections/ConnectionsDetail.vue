@@ -25,7 +25,8 @@
                 :content="$t('connections.disconnectedBtn')"
               >
                 <a class="disconnect-btn" href="javascript:;" @click="disconnect">
-                  <i class="iconfont el-icon-switch-button"></i>
+                  <i v-if="!disconnectLoding" class="iconfont el-icon-switch-button"></i>
+                  <i v-else class="el-icon-loading"></i>
                 </a>
               </el-tooltip>
             </transition>
@@ -251,6 +252,7 @@ export default class ConnectionsDetail extends Vue {
   private connectLoading = false
   private searchVisible = false
   private searchLoading = false
+  private disconnectLoding = false
   private receivedMsgType: PayloadType = 'Plaintext'
   private msgType: MessageType = 'all'
   private client: Partial<MqttClient> = {
@@ -556,34 +558,37 @@ export default class ConnectionsDetail extends Vue {
     this.client.end!(true)
     this.retryTimes = 0
   }
-  private disconnect(): boolean | void {
+  private disconnect(): boolean|void {
     if (!this.client.connected) {
       return false
     }
+    this.disconnectLoding = true
     const { id } = this.$route.params
     if (this.record.clean) {
       this.record.subscriptions = []
       this.changeSubs({ id, subscriptions: [] })
       updateConnection(id, this.record)
     }
-    this.client.end!(true)
-    this.retryTimes = 0
-    this.changeActiveConnection({
-      id,
-      client: this.client,
-      messages: this.record.messages,
+    this.client.end!(false, () => {
+      this.disconnectLoding = false
+      this.retryTimes = 0
+      this.changeActiveConnection({
+        id,
+        client: this.client,
+        messages: this.record.messages,
+      })
+      this.$notify({
+        title: this.$t('connections.disconnected') as string,
+        message: '',
+        type: 'success',
+        duration: 3000,
+        offset: 30,
+      })
+      if (!this.showClientInfo) {
+        this.setShowClientInfo(true)
+      }
+      this.$emit('reload')
     })
-    this.$notify({
-      title: this.$t('connections.disconnected') as string,
-      message: '',
-      type: 'success',
-      duration: 3000,
-      offset: 30,
-    })
-    if (!this.showClientInfo) {
-      this.setShowClientInfo(true)
-    }
-    this.$emit('reload')
   }
   private onConnect() {
     this.connectLoading = false
