@@ -1,11 +1,11 @@
 <template>
   <div class="msg-right-item">
-    <div class="right-payload payload">
+    <div class="right-payload payload" @contextmenu.prevent="customMenu($event)">
       <p class="right-info">
         <span class="topic">Topic: {{ topic }}</span>
         <span class="qos">QoS: {{ qos }}</span>
       </p>
-      <pre @contextmenu.prevent="customMenu($event)">{{ payload }}</pre>
+      <pre>{{ payload }}</pre>
     </div>
     <p class="right-time time">{{ createAt }}</p>
   </div>

@@ -359,8 +359,10 @@ export default class ConnectionsDetail extends Vue {
     const [payload, event] = msgItemInfo
     if (!this.showContextmenu) {
       const { clientX, clientY } = event
-      this.contextmenuConfig.top = clientY
-      this.contextmenuConfig.left = clientX
+      const width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
+      const height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+      this.contextmenuConfig.left = width - clientX < 95 ? clientX - 75 : clientX
+      this.contextmenuConfig.top = height - clientY < 77 ? clientY - 77 : clientY
       this.showContextmenu = true
       this.selectedMessage = message
       this.selectedInfo = payload

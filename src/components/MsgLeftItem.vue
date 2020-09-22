@@ -1,12 +1,12 @@
 <template>
   <div class="msg-left-item">
     <span class="topic-color" :style="{ height: topicColorHeight, background: currentTopicColor }"></span>
-    <div ref="leftPayload" class="left-payload payload">
+    <div ref="leftPayload" class="left-payload payload" @contextmenu.prevent="customMenu($event)">
       <p class="left-info">
         <span class="topic">Topic: {{ topic }}</span>
         <span class="qos">QoS: {{ qos }}</span>
       </p>
-      <pre @contextmenu.prevent="customMenu($event)">{{ payload }}</pre>
+      <pre>{{ payload }}</pre>
     </div>
     <p class="left-time time">{{ createAt }}</p>
   </div>
