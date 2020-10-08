@@ -55,6 +55,9 @@
                 <el-dropdown-item command="clearHistory">
                   <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
                 </el-dropdown-item>
+                <el-dropdown-item command="exportContent">
+                  <i class="el-icon-printer"></i>{{ $t('connections.exportData') }}
+                </el-dropdown-item>
                 <el-dropdown-item command="disconnect" :disabled="!client.connected">
                   <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
                 </el-dropdown-item>
@@ -973,11 +976,17 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 }
-.el-popper li.delete-item {
+.el-popper {
+  li.delete-item {
   color: var(--color-second-red);
-  &:hover {
-    color: var(--color-second-red);
-    background: var(--color-third-red);
+    &:hover {
+      color: var(--color-second-red);
+      background: var(--color-third-red);
+    }
+  }
+   .el-icon-printer {
+    font-size: 16px;
+    margin-right: 7px;
   }
 }
 </style>
