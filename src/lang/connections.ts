@@ -304,4 +304,9 @@ export default {
     en: 'Alias',
     ja: 'Alias',
   },
+  exportData: {
+    zh: '导出数据',
+    en: 'Export Data',
+    ja: 'Export Data',
+  },
 }
