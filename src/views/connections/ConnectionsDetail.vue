@@ -55,7 +55,7 @@
                 <el-dropdown-item command="clearHistory">
                   <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
                 </el-dropdown-item>
-                <el-dropdown-item command="exportContent">
+                <el-dropdown-item command="exportData">
                   <i class="el-icon-printer"></i>{{ $t('connections.exportData') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="disconnect" :disabled="!client.connected">
@@ -178,6 +178,8 @@
         />
       </div>
     </div>
+
+    <ExportData :visible.sync="showExportData"/>
   </div>
 </template>
 
@@ -210,10 +212,12 @@ import SubscriptionsList from '@/components/SubscriptionsList.vue'
 import ResizeHeight from '@/components/ResizeHeight.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
 import Contextmenu from '@/components/Contextmenu.vue'
+import ExportData from '@/components/ExportData.vue'
+
 import { ConnectionModel, MessageModel, SSLPath, SSLContent, ContextmenuModel } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
-type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
+type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect' | 'exportData'
 type PayloadConvertType = 'base64' | 'hex'
 
 interface Top {
@@ -230,6 +234,7 @@ interface Top {
     SubscriptionsList,
     ResizeHeight,
     Contextmenu,
+    ExportData,
   },
 })
 export default class ConnectionsDetail extends Vue {
@@ -252,6 +257,7 @@ export default class ConnectionsDetail extends Vue {
 
   private showSubs = true
   private showClientInfo = true
+  private showExportData = false
   private connectLoading = false
   private searchVisible = false
   private searchLoading = false
@@ -456,6 +462,9 @@ export default class ConnectionsDetail extends Vue {
         break
       case 'searchByTopic':
         this.handleSearchOpen()
+        break
+      case 'exportData':
+        this.handleExportData()
         break
       default:
         break
@@ -782,6 +791,10 @@ export default class ConnectionsDetail extends Vue {
       return genReceivePayload(type, value)
     }
     return value
+  }
+
+  private handleExportData () {
+    this.showExportData = true
   }
 
   private created() {
