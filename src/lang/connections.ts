@@ -309,4 +309,18 @@ export default {
     en: 'Export Data',
     ja: 'Export Data',
   },
+  exportFormat: {
+    zh: '导出数据格式',
+    en: 'Export format',
+    ja: 'Export format',
+  },
+  allConnections: {
+    zh: '全部数据',
+    en: 'All connections',
+    ja: 'All connections',
+  },
+  allConnectionsTips: {
+    zh: '当打开此开关后，可以导出全部数据',
+    en: 'When this switch is turned on, all Connections data can be exported',
+  },
 }
