@@ -40,8 +40,10 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
-import exportData from '@/utils/exportData'
+import { ipcRenderer } from 'electron'
+import { loadConnections } from '@/utils/api/connection'
 import MyDialog from './MyDialog.vue'
+import { ConnectionModel } from '@/views/connections/types'
 
 type ExportFormat = 'JSON'
 
@@ -53,11 +55,12 @@ interface ExportForm {
 @Component({
   components: {
     MyDialog,
-  }
+  },
 })
 export default class ExportData extends Vue {
   @Getter('currentTheme') private theme!: Theme
 
+  @Prop({ required: true }) public connection!: ConnectionModel
   @Prop({ default: false }) public visible!: boolean
 
   private showDialog: boolean = this.visible
@@ -71,12 +74,35 @@ export default class ExportData extends Vue {
     this.showDialog = val
   }
   private exportData() {
-    exportData()
-    // this.resetData()
+    switch (this.record.exportFormat) {
+      case 'JSON':
+        this.exportJSONData()
+        break
+      default:
+        break
+    }
+  }
+  private async exportJSONData() {
+    let filename = this.$t('connections.allConnections')
+    let content = ''
+    if (!this.record.allConnections) {
+      filename = this.connection.name
+      content = JSON.stringify(this.connection, null, 2)
+      ipcRenderer.send('exportData', filename, content, 'json')
+    } else {
+      const connections: ConnectionModel[] | [] = await loadConnections()
+      content = JSON.stringify(connections, null, 2)
+      ipcRenderer.send('exportData', 'data', content, 'json')
+    }
+    ipcRenderer.on('saved', () => {
+      this.$message.success(`${filename} ${this.$t('common.exportSuccess')}`)
+      this.resetData()
+    })
   }
   private resetData() {
     this.showDialog = false
     this.$emit('update:visible', false)
+    ipcRenderer.removeAllListeners('saved')
   }
 }
 </script>

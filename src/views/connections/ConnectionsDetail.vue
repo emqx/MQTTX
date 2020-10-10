@@ -179,7 +179,7 @@
       </div>
     </div>
 
-    <ExportData :visible.sync="showExportData"/>
+    <ExportData :visible.sync="showExportData" :connection="record" />
   </div>
 </template>
 
@@ -570,7 +570,7 @@ export default class ConnectionsDetail extends Vue {
     this.client.end!(true)
     this.retryTimes = 0
   }
-  private disconnect(): boolean|void {
+  private disconnect(): boolean | void {
     if (!this.client.connected) {
       return false
     }
@@ -793,7 +793,7 @@ export default class ConnectionsDetail extends Vue {
     return value
   }
 
-  private handleExportData () {
+  private handleExportData() {
     this.showExportData = true
   }
 
@@ -991,13 +991,13 @@ export default class ConnectionsDetail extends Vue {
 }
 .el-popper {
   li.delete-item {
-  color: var(--color-second-red);
+    color: var(--color-second-red);
     &:hover {
       color: var(--color-second-red);
       background: var(--color-third-red);
     }
   }
-   .el-icon-printer {
+  .el-icon-printer {
     font-size: 16px;
     margin-right: 7px;
   }
