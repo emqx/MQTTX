@@ -5,6 +5,7 @@ import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-buil
 import db from './database/index'
 import updateChecker from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
+import saveFile from './main/saveFile'
 
 interface WindowSizeModel {
   width: number
@@ -31,6 +32,12 @@ function handleIpcMessages() {
   })
   ipcMain.on('checkUpdate', () => {
     updateChecker(false)
+  })
+  ipcMain.on('exportData', (event: any, ...args: string[]) => {
+    const [filename, content, type] = args
+    if (win) {
+      saveFile(win, filename, content, type)
+    }
   })
 }
 

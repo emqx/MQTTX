@@ -119,4 +119,9 @@ export default {
     en: 'Copy Failed',
     ja: 'Copy Failed',
   },
+  exportSuccess: {
+    zh: '导出成功',
+    en: 'exported successfully',
+    ja: 'exported successfully',
+  },
 }
