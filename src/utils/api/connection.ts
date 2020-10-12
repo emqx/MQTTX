@@ -27,8 +27,28 @@ export const deleteSuggestConnection = (id: string): ConnectionModel => {
   return db.remove<ConnectionModel>('suggestConnections', id)
 }
 
+export const loadAllConnectionsIds = async(type: 'connections' | 'suggestConnections'): Promise<string[]> => {
+  const connectionsIds: string[] = []
+  let allConnections: ConnectionModel[]
+  if (type === 'connections') {
+    allConnections = await loadConnections()
+  } else {
+    allConnections = await loadSuggestConnections()
+  }
+  allConnections.forEach((connection: ConnectionModel) => {
+    if (connection.id) {
+      connectionsIds.push(connection.id)
+    }
+  })
+  return connectionsIds
+}
+
 export const createConnection = (data: ConnectionModel): ConnectionModel => {
-  createSuggestConnection(data)
+  loadAllConnectionsIds('suggestConnections').then(res => {
+    if (data.id && res.indexOf(data.id) === -1) {
+      createSuggestConnection(data)
+    }
+  })
   return db.insert<ConnectionModel>('connections', data)
 }
 
@@ -48,6 +68,29 @@ export const updateConnectionMessage = (id: string, message: MessageModel): Conn
   const connection: ConnectionModel = loadConnection(id)
   connection.messages.push(message)
   return db.update<ConnectionModel>('connections', id, connection)
+}
+
+export const importConnections = (data: ConnectionModel[]): Promise<string> => {
+  const returnVal: Promise<string> = loadAllConnectionsIds('connections').then(res => {
+    try {
+      data.forEach((item: ConnectionModel) => {
+        const { id } = item
+        if (id) {
+          if (res.indexOf(id) === -1) {
+            createConnection(item)
+          } else {
+            updateConnection(id, item)
+          }
+        }
+      })
+      return 'ok'
+    } catch (err) {
+      return err
+    }
+  }).catch(err => {
+    return err
+  })
+  return returnVal
 }
 
 export default {}

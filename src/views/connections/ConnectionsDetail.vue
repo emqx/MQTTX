@@ -58,6 +58,9 @@
                 <el-dropdown-item command="exportData">
                   <i class="el-icon-printer"></i>{{ $t('connections.exportData') }}
                 </el-dropdown-item>
+                <el-dropdown-item command="importData">
+                  <i class="el-icon-upload"></i>{{ $t('connections.importData') }}
+                </el-dropdown-item>
                 <el-dropdown-item command="disconnect" :disabled="!client.connected">
                   <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
                 </el-dropdown-item>
@@ -180,6 +183,7 @@
     </div>
 
     <ExportData :visible.sync="showExportData" :connection="record" />
+    <ImportData :visible.sync="showImportData" @updateData="$emit('reload')" />
   </div>
 </template>
 
@@ -213,11 +217,12 @@ import ResizeHeight from '@/components/ResizeHeight.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
 import Contextmenu from '@/components/Contextmenu.vue'
 import ExportData from '@/components/ExportData.vue'
+import ImportData from '@/components/ImportData.vue'
 
 import { ConnectionModel, MessageModel, SSLPath, SSLContent, ContextmenuModel } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
-type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect' | 'exportData'
+type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect' | 'exportData' | 'importData'
 type PayloadConvertType = 'base64' | 'hex'
 
 interface Top {
@@ -235,6 +240,7 @@ interface Top {
     ResizeHeight,
     Contextmenu,
     ExportData,
+    ImportData,
   },
 })
 export default class ConnectionsDetail extends Vue {
@@ -258,6 +264,7 @@ export default class ConnectionsDetail extends Vue {
   private showSubs = true
   private showClientInfo = true
   private showExportData = false
+  private showImportData = false
   private connectLoading = false
   private searchVisible = false
   private searchLoading = false
@@ -465,6 +472,9 @@ export default class ConnectionsDetail extends Vue {
         break
       case 'exportData':
         this.handleExportData()
+        break
+      case 'importData':
+        this.handleImportData()
         break
       default:
         break
@@ -797,6 +807,10 @@ export default class ConnectionsDetail extends Vue {
     this.showExportData = true
   }
 
+  private handleImportData() {
+    this.showImportData = true
+  }
+
   private created() {
     const { id } = this.$route.params
     this.getConnectionValue(id)
@@ -997,9 +1011,8 @@ export default class ConnectionsDetail extends Vue {
       background: var(--color-third-red);
     }
   }
-  .el-icon-printer {
+  .el-icon-printer, .el-icon-upload {
     font-size: 16px;
-    margin-right: 7px;
   }
 }
 </style>
