@@ -11,16 +11,6 @@
       <el-row :gutter="20">
         <el-col :span="24">
           <el-form-item :label="$t('connections.importFormat')" prop="importFormat">
-            <el-tooltip
-              placement="top"
-              :effect="theme !== 'light' ? 'light' : 'dark'"
-              :open-delay="500"
-              :content="$t('connections.importConnectionsTip')"
-            >
-              <a href="javascript:;" class="icon-tip">
-                <i class="el-icon-question"></i>
-              </a>
-            </el-tooltip>
             <el-select size="small" v-model="record.importFormat">
               <el-option v-for="(format, index) in ['JSON']" :key="index" :value="format"> </el-option>
             </el-select>
@@ -28,6 +18,14 @@
         </el-col>
         <el-col :span="22">
           <el-form-item :label="$t('connections.importFile')" prop="cert">
+            <el-tooltip :offset="-57" placement="top" :effect="theme !== 'light' ? 'light' : 'dark'" :open-delay="500">
+              <div slot="content" v-html="$t('connections.importConnectionsTip')">
+                {{ $t('connections.importConnectionsTip') }}
+              </div>
+              <a href="javascript:;" class="icon-tip">
+                <i class="el-icon-question"></i>
+              </a>
+            </el-tooltip>
             <el-input size="small" v-model="record.filePath"></el-input>
           </el-form-item>
         </el-col>
@@ -44,7 +42,6 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
-import { ipcRenderer } from 'electron'
 import { importConnections } from '@/utils/api/connection'
 import MyDialog from './MyDialog.vue'
 import { ConnectionModel } from '@/views/connections/types'
@@ -91,7 +88,7 @@ export default class ImportData extends Vue {
         if (files) {
           const filePath = files[0]
           fs.readFile(filePath, 'utf-8', (err, data) => {
-            if(err){
+            if (err) {
               this.$message.error(`${this.$t('connections.readFileErr')}${err.message}`)
               return
             }
@@ -116,19 +113,18 @@ export default class ImportData extends Vue {
     }
   }
   private async importJSONData() {
-    const res = await importConnections(this.record.fileContent)
-    if (res === 'ok') {
+    const importDataResult = await importConnections(this.record.fileContent)
+    if (importDataResult === 'ok') {
       this.$message.success(`${this.$t('common.importSuccess')}`)
       this.$emit('updateData')
       this.resetData()
     } else {
-      this.$message.error(res.toString())
+      this.$message.error(importDataResult)
     }
   }
   private resetData() {
     this.showDialog = false
     this.$emit('update:visible', false)
-    ipcRenderer.removeAllListeners('saved')
     this.record = {
       importFormat: 'JSON',
       filePath: '',

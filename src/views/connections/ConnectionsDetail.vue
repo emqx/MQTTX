@@ -1011,7 +1011,8 @@ export default class ConnectionsDetail extends Vue {
       background: var(--color-third-red);
     }
   }
-  .el-icon-printer, .el-icon-upload {
+  .el-icon-printer,
+  .el-icon-upload {
     font-size: 16px;
   }
 }

@@ -27,14 +27,10 @@ export const deleteSuggestConnection = (id: string): ConnectionModel => {
   return db.remove<ConnectionModel>('suggestConnections', id)
 }
 
-export const loadAllConnectionsIds = async(type: 'connections' | 'suggestConnections'): Promise<string[]> => {
+export const loadAllConnectionsIds = async (type: 'connections' | 'suggestConnections'): Promise<string[]> => {
   const connectionsIds: string[] = []
   let allConnections: ConnectionModel[]
-  if (type === 'connections') {
-    allConnections = await loadConnections()
-  } else {
-    allConnections = await loadSuggestConnections()
-  }
+  allConnections = type === 'connections' ? await loadConnections() : await loadSuggestConnections()
   allConnections.forEach((connection: ConnectionModel) => {
     if (connection.id) {
       connectionsIds.push(connection.id)
@@ -44,7 +40,7 @@ export const loadAllConnectionsIds = async(type: 'connections' | 'suggestConnect
 }
 
 export const createConnection = (data: ConnectionModel): ConnectionModel => {
-  loadAllConnectionsIds('suggestConnections').then(res => {
+  loadAllConnectionsIds('suggestConnections').then((res) => {
     if (data.id && res.indexOf(data.id) === -1) {
       createSuggestConnection(data)
     }
@@ -71,26 +67,28 @@ export const updateConnectionMessage = (id: string, message: MessageModel): Conn
 }
 
 export const importConnections = (data: ConnectionModel[]): Promise<string> => {
-  const returnVal: Promise<string> = loadAllConnectionsIds('connections').then(res => {
-    try {
-      data.forEach((item: ConnectionModel) => {
-        const { id } = item
-        if (id) {
-          if (res.indexOf(id) === -1) {
-            createConnection(item)
-          } else {
-            updateConnection(id, item)
+  const importDataResult: Promise<string> = loadAllConnectionsIds('connections')
+    .then((res) => {
+      try {
+        data.forEach((item: ConnectionModel) => {
+          const { id } = item
+          if (id) {
+            if (res.indexOf(id) === -1) {
+              createConnection(item)
+            } else {
+              updateConnection(id, item)
+            }
           }
-        }
-      })
-      return 'ok'
-    } catch (err) {
-      return err
-    }
-  }).catch(err => {
-    return err
-  })
-  return returnVal
+        })
+        return 'ok'
+      } catch (err) {
+        return err.toString()
+      }
+    })
+    .catch((err) => {
+      return err.toString()
+    })
+  return importDataResult
 }
 
 export default {}
