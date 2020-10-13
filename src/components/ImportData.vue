@@ -95,7 +95,7 @@ export default class ImportData extends Vue {
             try {
               const _data = JSON.parse(data)
               const fileContent = isArray(_data) ? _data : [_data]
-              const res = this.VerifyFileContent(fileContent)
+              const res = this.verifyFileContent(fileContent)
               if (!res) {
                 this.$message.error(`${this.$t('connections.fileContentRequired')}`)
                 return
@@ -103,25 +103,19 @@ export default class ImportData extends Vue {
               this.record.filePath = filePath
               this.record.fileContent = fileContent
             } catch (err) {
-              this.$message.error(`${err.toString()}`)
+              this.$message.error(err.toString())
             }
           })
         }
       },
     )
   }
-  private VerifyFileContent(data: ConnectionModel[]) {
-    const validatorArr: boolean[] = []
-    for (let index = 0; index < data.length; index += 1) {
-      const oneConnection = data[index]
+  private verifyFileContent(data: ConnectionModel[]) {
+    const hasRequiredItem = (oneConnection: ConnectionModel): boolean => {
       const { clientId, name, host, port, ssl, certType, ca } = oneConnection
-      if (!clientId || !name || !host || !port || (ssl && !certType) || (certType === 'self' && !ca)) {
-        validatorArr.push(false)
-        break
-      }
-      validatorArr.push(true)
+      return !(!clientId || !name || !host || !port || (ssl && !certType) || (certType === 'self' && !ca))
     }
-    return validatorArr.indexOf(false) === -1
+    return data.every(hasRequiredItem)
   }
   private importData() {
     if (!this.record.fileContent.length) {

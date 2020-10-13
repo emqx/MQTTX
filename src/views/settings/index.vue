@@ -80,15 +80,21 @@
       <el-divider></el-divider>
 
       <el-row class="settings-item" type="flex" justify="space-between">
-        <el-col :span="18">
-          <label>{{ $t('settings.dataManage') }}</label>
+        <el-col :span="20">
+          <label>{{ $t('settings.dataRecovery') }}</label>
         </el-col>
-        <el-col :span="6">
-          <el-button type="primary" size="mini" icon="el-icon-upload" @click="handleImportData">
-            {{ $t('settings.dataRecovery') }}
-          </el-button>
-          <el-button type="primary" size="mini" icon="el-icon-printer" @click="handleExportData">
-            {{ $t('settings.dataBackup') }}
+        <el-col :span="4">
+          <el-button type="primary" size="mini" icon="el-icon-upload" @click="handleImportData"> </el-button>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
+          <label>{{ $t('settings.dataBackup') }}</label>
+        </el-col>
+        <el-col :span="4">
+          <el-button class="backup-btn" type="primary" size="mini" icon="el-icon-printer" @click="handleExportData">
           </el-button>
         </el-col>
       </el-row>
@@ -183,10 +189,9 @@ export default class Settings extends Vue {
 
   .settings-general {
     margin-top: 30px;
-    margin-bottom: 80px;
   }
 
-  .settings-appearance {
+  [class$='general'], [class$='appearance'] {
     margin-bottom: 80px;
   }
 
@@ -236,6 +241,23 @@ export default class Settings extends Vue {
   }
   .el-input-number__increase {
     border-left: 1px solid var(--color-border-default);
+  }
+
+  .el-icon-upload {
+    font-size: 26px;
+    &:before {
+      position: relative;
+      bottom: 1px;
+    }
+  }
+  .el-icon-printer {
+    font-size: 22px;
+  }
+  .el-button--mini {
+    padding: 0px 16px;
+  }
+  .backup-btn {
+    padding: 2px 18px !important;
   }
 }
 </style>
