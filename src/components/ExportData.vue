@@ -20,6 +20,7 @@
         <el-col :span="24">
           <el-form-item class="swtich-item" :label="$t('connections.allConnections')" prop="allConnections">
             <el-tooltip
+              v-if="connection"
               placement="top"
               :effect="theme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
@@ -29,7 +30,7 @@
                 <i class="el-icon-question"></i>
               </a>
             </el-tooltip>
-            <el-switch v-model="record.allConnections"></el-switch>
+            <el-switch v-model="record.allConnections" :disabled="!connection"></el-switch>
           </el-form-item>
         </el-col>
       </el-row>
@@ -60,7 +61,7 @@ interface ExportForm {
 export default class ExportData extends Vue {
   @Getter('currentTheme') private theme!: Theme
 
-  @Prop({ required: true }) public connection!: ConnectionModel
+  @Prop({ default: () => {} }) public connection!: ConnectionModel
   @Prop({ default: false }) public visible!: boolean
 
   private showDialog: boolean = this.visible
@@ -103,6 +104,9 @@ export default class ExportData extends Vue {
     this.showDialog = false
     this.$emit('update:visible', false)
     ipcRenderer.removeAllListeners('saved')
+  }
+  private created() {
+    this.record.allConnections = !this.connection ? true : false
   }
 }
 </script>

@@ -92,12 +92,36 @@ export default class ImportData extends Vue {
               this.$message.error(`${this.$t('connections.readFileErr')}${err.message}`)
               return
             }
-            this.record.filePath = filePath
-            this.record.fileContent = isArray(JSON.parse(data)) ? JSON.parse(data) : [JSON.parse(data)]
+            try {
+              const _data = JSON.parse(data)
+              const fileContent = isArray(_data) ? _data : [_data]
+              const res = this.VerifyFileContent(fileContent)
+              if (!res) {
+                this.$message.error(`${this.$t('connections.fileContentRequired')}`)
+                return
+              }
+              this.record.filePath = filePath
+              this.record.fileContent = fileContent
+            } catch (err) {
+              this.$message.error(`${err.toString()}`)
+            }
           })
         }
       },
     )
+  }
+  private VerifyFileContent(data: ConnectionModel[]) {
+    const validatorArr: boolean[] = []
+    for (let index = 0; index < data.length; index += 1) {
+      const oneConnection = data[index]
+      const { clientId, name, host, port, ssl, certType, ca } = oneConnection
+      if (!clientId || !name || !host || !port || (ssl && !certType) || (certType === 'self' && !ca)) {
+        validatorArr.push(false)
+        break
+      }
+      validatorArr.push(true)
+    }
+    return validatorArr.indexOf(false) === -1
   }
   private importData() {
     if (!this.record.fileContent.length) {
