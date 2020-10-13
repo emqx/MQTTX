@@ -59,7 +59,7 @@
                   <i class="el-icon-printer"></i>{{ $t('connections.exportData') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="importData">
-                  <i class="el-icon-upload"></i>{{ $t('connections.importData') }}
+                  <i class="el-icon-upload2"></i>{{ $t('connections.importData') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="disconnect" :disabled="!client.connected">
                   <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
