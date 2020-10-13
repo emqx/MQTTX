@@ -49,4 +49,19 @@ export default {
     en: 'Advanced',
     ja: '詳細',
   },
+  dataBackup: {
+    zh: '数据备份',
+    en: 'Data backup',
+    ja: 'Data backup',
+  },
+  dataRecovery: {
+    zh: '数据恢复',
+    en: 'Data recovery',
+    ja: 'Data recovery',
+  },
+  dataManage: {
+    zh: '数据管理',
+    en: 'Data management',
+    ja: 'Data management',
+  },
 }

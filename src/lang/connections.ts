@@ -357,4 +357,9 @@ export default {
     en: 'Please select file',
     ja: 'Please select file',
   },
+  fileContentRequired: {
+    zh: '文件内容中必填项为空',
+    en: 'Required fields in the file content are empty',
+    ja: 'Required fields in the file content are empty',
+  },
 }
