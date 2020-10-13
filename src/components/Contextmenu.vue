@@ -44,7 +44,7 @@ export default class Contextmenu extends Vue {
       display: block;
       &:hover {
         color: var(--color-main-green);
-        background: var(--color-second-green);
+        background: var(--color-thrid-green);
       }
       &.danger {
         color: var(--color-second-red);
@@ -56,6 +56,9 @@ export default class Contextmenu extends Vue {
     }
     i {
       margin-right: 5px;
+    }
+    .icon-delete {
+      margin-right: 4px;
     }
   }
 }
