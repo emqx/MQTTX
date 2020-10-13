@@ -61,7 +61,7 @@ interface ExportForm {
 export default class ExportData extends Vue {
   @Getter('currentTheme') private theme!: Theme
 
-  @Prop({ default: () => {} }) public connection!: ConnectionModel
+  @Prop({ default: undefined }) public connection!: ConnectionModel
   @Prop({ default: false }) public visible!: boolean
 
   private showDialog: boolean = this.visible
