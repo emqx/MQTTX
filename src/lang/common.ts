@@ -126,7 +126,7 @@ export default {
   },
   importSuccess: {
     zh: '导入成功',
-    en: 'imported successfully',
+    en: 'Imported successfully',
     ja: 'インポートに成功しました',
   },
 }
