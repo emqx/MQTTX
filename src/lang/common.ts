@@ -107,26 +107,26 @@ export default {
   copy: {
     zh: '复 制',
     en: 'Copy',
-    ja: 'Copy',
+    ja: 'コピー',
   },
   copySuccess: {
     zh: '复制成功',
     en: 'Copy Success',
-    ja: 'Copy Success',
+    ja: 'コピーが成功しました',
   },
   copyFailed: {
     zh: '复制失败',
     en: 'Copy Failed',
-    ja: 'Copy Failed',
+    ja: 'コピーが失敗しました',
   },
   exportSuccess: {
     zh: '导出成功',
     en: 'exported successfully',
-    ja: 'exported successfully',
+    ja: 'エクスポートに成功しました',
   },
   importSuccess: {
     zh: '导入成功',
     en: 'imported successfully',
-    ja: 'imported successfully',
+    ja: 'インポートに成功しました',
   },
 }

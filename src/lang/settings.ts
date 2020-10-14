@@ -52,16 +52,16 @@ export default {
   dataBackup: {
     zh: '数据备份',
     en: 'Data backup',
-    ja: 'Data backup',
+    ja: 'データバックアップ',
   },
   dataRecovery: {
     zh: '数据恢复',
     en: 'Data recovery',
-    ja: 'Data recovery',
+    ja: 'データ復旧',
   },
   dataManage: {
     zh: '数据管理',
     en: 'Data management',
-    ja: 'Data management',
+    ja: 'データ管理',
   },
 }

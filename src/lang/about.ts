@@ -34,7 +34,7 @@ export default {
     // tslint:disable-next-line:max-line-length
     en:
       'is a fully open source, highly scalable, highly available distributed MQTT 5.0 messaging broker for IoT, M2M and mobile applications.',
-    ja: '完全なオープンソース、高可用性、低レイテンシのミリオンレベルの分散型IoT MQTT 5.0メッセージサーバ。',
+    ja: 'は完全なオープンソース、高可用性、低レイテンシのミリオンレベルの分散型IoT MQTT 5.0メッセージサーバです。',
   },
   emqxLocal: {
     zh: {
@@ -47,7 +47,7 @@ export default {
     },
     ja: {
       emqx: 'EMQ X',
-      local: 'ローカルでMQTT Brokerを利用するように{0}が薦められる',
+      local: 'ローカルでMQTT Brokerを動作させたい場合に、{0}がお勧めです。',
     },
   },
   emqxDocker: {
