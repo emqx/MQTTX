@@ -18,7 +18,7 @@
         </el-col>
         <el-col :span="22">
           <el-form-item :label="$t('connections.importFile')" prop="cert">
-            <el-tooltip :offset="-57" placement="top" :effect="theme !== 'light' ? 'light' : 'dark'" :open-delay="500">
+            <el-tooltip placement="top" :effect="theme !== 'light' ? 'light' : 'dark'" :open-delay="500">
               <div slot="content" v-html="$t('connections.importConnectionsTip')">
                 {{ $t('connections.importConnectionsTip') }}
               </div>
@@ -42,12 +42,12 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
-import { importConnections } from '@/utils/api/connection'
-import MyDialog from './MyDialog.vue'
-import { ConnectionModel } from '@/views/connections/types'
-import { remote } from 'electron'
 import fs from 'fs'
+import { remote } from 'electron'
 import { isArray } from 'lodash'
+import { importConnections } from '@/utils/api/connection'
+import { ConnectionModel } from '@/views/connections/types'
+import MyDialog from './MyDialog.vue'
 
 type ImportFormat = 'JSON'
 

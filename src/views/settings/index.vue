@@ -84,7 +84,14 @@
           <label>{{ $t('settings.dataRecovery') }}</label>
         </el-col>
         <el-col :span="4">
-          <el-button class="data-manager-btn" type="primary" size="mini" icon="el-icon-upload2" @click="handleImportData"> </el-button>
+          <el-button
+            class="data-manager-btn"
+            type="primary"
+            size="mini"
+            icon="el-icon-upload2"
+            @click="handleImportData"
+          >
+          </el-button>
         </el-col>
       </el-row>
       <el-divider></el-divider>
@@ -94,7 +101,13 @@
           <label>{{ $t('settings.dataBackup') }}</label>
         </el-col>
         <el-col :span="4">
-          <el-button class="data-manager-btn" type="primary" size="mini" icon="el-icon-printer" @click="handleExportData">
+          <el-button
+            class="data-manager-btn"
+            type="primary"
+            size="mini"
+            icon="el-icon-printer"
+            @click="handleExportData"
+          >
           </el-button>
         </el-col>
       </el-row>
@@ -191,7 +204,8 @@ export default class Settings extends Vue {
     margin-top: 30px;
   }
 
-  [class$='general'], [class$='appearance'] {
+  [class$='general'],
+  [class$='appearance'] {
     margin-bottom: 80px;
   }
 
