@@ -8,7 +8,7 @@ declare global {
 
   type Theme = 'light' | 'dark' | 'night'
 
-  type Language = 'en' | 'zh'
+  type Language = 'zh' | 'en' | 'ja'
 
   type Protocol = 'ws' | 'wss' | 'mqtt' | 'mqtts'
 
@@ -107,6 +107,7 @@ declare global {
 
   interface SubscriptionModel {
     topic: string
+    alias?: string
     qos: 0 | 1 | 2
     retain?: boolean
     color?: string

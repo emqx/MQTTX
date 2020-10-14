@@ -74,6 +74,48 @@
 
       <el-divider></el-divider>
     </div>
+
+    <div class="settings-advanced">
+      <div class="settings-title">{{ $t('settings.advanced') }}</div>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
+          <label>{{ $t('settings.dataRecovery') }}</label>
+        </el-col>
+        <el-col :span="4">
+          <el-button
+            class="data-manager-btn"
+            type="primary"
+            size="mini"
+            icon="el-icon-upload2"
+            @click="handleImportData"
+          >
+          </el-button>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
+          <label>{{ $t('settings.dataBackup') }}</label>
+        </el-col>
+        <el-col :span="4">
+          <el-button
+            class="data-manager-btn"
+            type="primary"
+            size="mini"
+            icon="el-icon-printer"
+            @click="handleExportData"
+          >
+          </el-button>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <ImportData :visible.sync="showImportData" />
+      <ExportData :visible.sync="showExportData" />
+    </div>
   </div>
 </template>
 
@@ -81,8 +123,12 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
+import ImportData from '@/components/ImportData.vue'
+import ExportData from '@/components/ExportData.vue'
 
-@Component
+@Component({
+  components: { ImportData, ExportData },
+})
 export default class Settings extends Vue {
   @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
@@ -100,12 +146,15 @@ export default class Settings extends Vue {
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
     { label: 'English', value: 'en' },
+    { label: '日本語', value: 'ja' },
   ]
   private themeOptions: Options[] = [
     { label: 'Light', value: 'light' },
     { label: 'Dark', value: 'dark' },
     { label: 'Night', value: 'night' },
   ]
+  private showImportData = false
+  private showExportData = false
 
   private handleSelectChange(type: 'lang' | 'theme', value: string | number | boolean): void {
     if (type === 'theme') {
@@ -122,6 +171,14 @@ export default class Settings extends Vue {
 
   private handleInputChage(value: number) {
     this.actionMaxReconnectTimes({ maxReconnectTimes: value })
+  }
+
+  private handleImportData() {
+    this.showImportData = true
+  }
+
+  private handleExportData() {
+    this.showExportData = true
   }
 
   private created() {
@@ -145,6 +202,10 @@ export default class Settings extends Vue {
 
   .settings-general {
     margin-top: 30px;
+  }
+
+  [class$='general'],
+  [class$='appearance'] {
     margin-bottom: 80px;
   }
 
@@ -163,7 +224,8 @@ export default class Settings extends Vue {
     }
   }
 
-  .el-col-4 {
+  .el-col-4,
+  .el-col-6 {
     text-align: right;
   }
 
@@ -193,6 +255,14 @@ export default class Settings extends Vue {
   }
   .el-input-number__increase {
     border-left: 1px solid var(--color-border-default);
+  }
+
+  .el-icon-printer,
+  .el-icon-upload2 {
+    font-size: 16px;
+  }
+  .data-manager-btn {
+    width: 90px;
   }
 }
 </style>

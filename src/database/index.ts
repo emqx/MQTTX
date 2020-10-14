@@ -91,6 +91,10 @@ class DB {
     const data: $TSFixed = this.read().get(key)
     return data.find({ id }).value()
   }
+  public findChild<T>(key: string, id: string): T {
+    const data: $TSFixed = this.read().get(key)
+    return data.find({ id })
+  }
   public set<T>(key: string, value: T): T {
     return this.read().set(key, value).write()
   }

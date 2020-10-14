@@ -25,7 +25,8 @@
                 :content="$t('connections.disconnectedBtn')"
               >
                 <a class="disconnect-btn" href="javascript:;" @click="disconnect">
-                  <i class="iconfont el-icon-switch-button"></i>
+                  <i v-if="!disconnectLoding" class="iconfont el-icon-switch-button"></i>
+                  <i v-else class="el-icon-loading"></i>
                 </a>
               </el-tooltip>
             </transition>
@@ -53,6 +54,12 @@
                 </el-dropdown-item>
                 <el-dropdown-item command="clearHistory">
                   <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
+                </el-dropdown-item>
+                <el-dropdown-item command="exportData">
+                  <i class="el-icon-printer"></i>{{ $t('connections.exportData') }}
+                </el-dropdown-item>
+                <el-dropdown-item command="importData">
+                  <i class="el-icon-upload2"></i>{{ $t('connections.importData') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="disconnect" :disabled="!client.connected">
                   <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
@@ -146,9 +153,22 @@
           @onClickTopic="handleTopicClick"
         />
         <div v-for="message in messages" :key="message.mid">
-          <MsgLeftItem v-if="!message.out" :subsList="record.subscriptions" v-bind="message" />
-          <MsgRightItem v-else v-bind="message" />
+          <MsgLeftItem
+            v-if="!message.out"
+            :subsList="record.subscriptions"
+            v-bind="message"
+            @showmenu="handleContextMenu(arguments, message)"
+          />
+          <MsgRightItem v-else v-bind="message" @showmenu="handleContextMenu(arguments, message)" />
         </div>
+        <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
+          <a href="javascript:;" class="context-menu__item" @click="handleCopyMessage">
+            <i class="el-icon-document-copy"></i>{{ $t('common.copy') }}
+          </a>
+          <a href="javascript:;" class="context-menu__item danger" @click="handleDeleteMessage">
+            <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
+          </a>
+        </contextmenu>
       </div>
 
       <div class="connections-footer" :style="{ marginLeft: showSubs ? '570px' : '341px' }">
@@ -161,6 +181,9 @@
         />
       </div>
     </div>
+
+    <ExportData :visible.sync="showExportData" :connection="record" />
+    <ImportData :visible.sync="showImportData" @updateData="$emit('reload')" />
   </div>
 </template>
 
@@ -175,6 +198,7 @@ import _ from 'lodash'
 
 import {
   deleteConnection,
+  deleteMessage,
   updateConnection,
   updateConnectionMessage,
   loadConnection,
@@ -191,10 +215,14 @@ import MsgPublish from '@/components/MsgPublish.vue'
 import SubscriptionsList from '@/components/SubscriptionsList.vue'
 import ResizeHeight from '@/components/ResizeHeight.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
-import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
+import Contextmenu from '@/components/Contextmenu.vue'
+import ExportData from '@/components/ExportData.vue'
+import ImportData from '@/components/ImportData.vue'
+
+import { ConnectionModel, MessageModel, SSLPath, SSLContent, ContextmenuModel } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
-type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
+type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect' | 'exportData' | 'importData'
 type PayloadConvertType = 'base64' | 'hex'
 
 interface Top {
@@ -210,6 +238,9 @@ interface Top {
     MsgPublish,
     SubscriptionsList,
     ResizeHeight,
+    Contextmenu,
+    ExportData,
+    ImportData,
   },
 })
 export default class ConnectionsDetail extends Vue {
@@ -232,9 +263,12 @@ export default class ConnectionsDetail extends Vue {
 
   private showSubs = true
   private showClientInfo = true
+  private showExportData = false
+  private showImportData = false
   private connectLoading = false
   private searchVisible = false
   private searchLoading = false
+  private disconnectLoding = false
   private receivedMsgType: PayloadType = 'Plaintext'
   private msgType: MessageType = 'all'
   private client: Partial<MqttClient> = {
@@ -252,6 +286,13 @@ export default class ConnectionsDetail extends Vue {
     '5.0': 5,
   }
   private payloadOptions: PayloadType[] = ['Plaintext', 'Base64', 'JSON', 'Hex']
+  private showContextmenu: boolean = false
+  private selectedMessage: MessageModel | null = null
+  private contextmenuConfig: ContextmenuModel = {
+    top: 0,
+    left: 0,
+  }
+  private selectedInfo: string = ''
 
   public connect(): boolean | void {
     if (this.client.connected) {
@@ -332,6 +373,52 @@ export default class ConnectionsDetail extends Vue {
     this.msgBottom = oldMsgBottom + offset
   }
 
+  private handleContextMenu(msgItemInfo: IArguments, message: MessageModel) {
+    const [payload, event] = msgItemInfo
+    if (!this.showContextmenu) {
+      const { clientX, clientY } = event
+      const width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
+      const height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+      this.contextmenuConfig.left = width - clientX < 95 ? clientX - 75 : clientX
+      this.contextmenuConfig.top = height - clientY < 77 ? clientY - 77 : clientY
+      this.showContextmenu = true
+      this.selectedMessage = message
+      this.selectedInfo = payload
+    } else {
+      this.showContextmenu = false
+    }
+  }
+
+  private handleCopyMessage() {
+    if (this.selectedInfo) {
+      this.$copyText(this.selectedInfo).then(
+        () => {
+          this.$message.success(this.$t('common.copySuccess') as string)
+        },
+        () => {
+          this.$message.error(this.$t('common.copyFailed') as string)
+        },
+      )
+    }
+  }
+
+  private async handleDeleteMessage() {
+    const connectID = this.record.id
+    let mid = ''
+    if (this.selectedMessage) {
+      mid = this.selectedMessage.mid
+    }
+    const res: ConnectionModel | null = await deleteMessage(connectID as string, mid as string)
+    if (res) {
+      this.showContextmenu = false
+      this.$message.success(this.$t('common.deleteSuccess') as string)
+      await this.$emit('reload')
+    } else {
+      this.showContextmenu = false
+      this.$message.error(this.$t('common.deletefailed') as string)
+    }
+  }
+
   private getConnectionValue(id: string) {
     const currentActiveConnection:
       | {
@@ -382,6 +469,12 @@ export default class ConnectionsDetail extends Vue {
         break
       case 'searchByTopic':
         this.handleSearchOpen()
+        break
+      case 'exportData':
+        this.handleExportData()
+        break
+      case 'importData':
+        this.handleImportData()
         break
       default:
         break
@@ -491,30 +584,33 @@ export default class ConnectionsDetail extends Vue {
     if (!this.client.connected) {
       return false
     }
+    this.disconnectLoding = true
     const { id } = this.$route.params
     if (this.record.clean) {
       this.record.subscriptions = []
       this.changeSubs({ id, subscriptions: [] })
       updateConnection(id, this.record)
     }
-    this.client.end!(true)
-    this.retryTimes = 0
-    this.changeActiveConnection({
-      id,
-      client: this.client,
-      messages: this.record.messages,
+    this.client.end!(false, () => {
+      this.disconnectLoding = false
+      this.retryTimes = 0
+      this.changeActiveConnection({
+        id,
+        client: this.client,
+        messages: this.record.messages,
+      })
+      this.$notify({
+        title: this.$t('connections.disconnected') as string,
+        message: '',
+        type: 'success',
+        duration: 3000,
+        offset: 30,
+      })
+      if (!this.showClientInfo) {
+        this.setShowClientInfo(true)
+      }
+      this.$emit('reload')
     })
-    this.$notify({
-      title: this.$t('connections.disconnected') as string,
-      message: '',
-      type: 'success',
-      duration: 3000,
-      offset: 30,
-    })
-    if (!this.showClientInfo) {
-      this.setShowClientInfo(true)
-    }
-    this.$emit('reload')
   }
   private onConnect() {
     this.connectLoading = false
@@ -705,6 +801,14 @@ export default class ConnectionsDetail extends Vue {
       return genReceivePayload(type, value)
     }
     return value
+  }
+
+  private handleExportData() {
+    this.showExportData = true
+  }
+
+  private handleImportData() {
+    this.showImportData = true
   }
 
   private created() {
@@ -899,11 +1003,17 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 }
-.el-popper li.delete-item {
-  color: var(--color-second-red);
-  &:hover {
+.el-popper {
+  li.delete-item {
     color: var(--color-second-red);
-    background: var(--color-third-red);
+    &:hover {
+      color: var(--color-second-red);
+      background: var(--color-third-red);
+    }
+  }
+  .el-icon-printer,
+  .el-icon-upload {
+    font-size: 16px;
   }
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="msg-right-item">
-    <div class="right-payload payload">
+    <div class="right-payload payload" @contextmenu.prevent="customMenu($event)">
       <p class="right-info">
         <span class="topic">Topic: {{ topic }}</span>
         <span class="qos">QoS: {{ qos }}</span>
@@ -20,6 +20,10 @@ export default class MsgrightItem extends Vue {
   @Prop({ required: true }) public qos!: number
   @Prop({ required: true }) public payload!: string
   @Prop({ required: true }) public createAt!: string
+
+  private customMenu(event: MouseEvent) {
+    this.$emit('showmenu', this.payload, event)
+  }
 }
 </script>
 

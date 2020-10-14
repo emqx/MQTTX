@@ -1,7 +1,7 @@
 <template>
   <div class="msg-left-item">
     <span class="topic-color" :style="{ height: topicColorHeight, background: currentTopicColor }"></span>
-    <div ref="leftPayload" class="left-payload payload">
+    <div ref="leftPayload" class="left-payload payload" @contextmenu.prevent="customMenu($event)">
       <p class="left-info">
         <span class="topic">Topic: {{ topic }}</span>
         <span class="qos">QoS: {{ qos }}</span>
@@ -38,6 +38,10 @@ export default class MsgLeftItem extends Vue {
     if (topic && topic.color) {
       this.currentTopicColor = topic.color
     }
+  }
+
+  private customMenu(event: MouseEvent) {
+    this.$emit('showmenu', this.payload, event)
   }
 
   private mounted() {
