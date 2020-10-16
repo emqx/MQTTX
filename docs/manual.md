@@ -179,7 +179,7 @@ Click the settings button at the bottom of the left menu bar, or use shortcut. M
 
    Through the `All`,`Received`, `Published` buttons in the upper right corner of the message bar, you can filter out all messages, received messages and published messages.
 
-Click the action bar button at the top and select the `Search by Topic`  item, or use the shortcut key. MacOS users can use the command + f shortcut and Other users can use the control + f shortcut  to open the `Topic` search function, the fuzzy query of topics is supported.
+Click the action bar button at the top and select the `Search`  item, or use the shortcut key. MacOS users can use the command + f shortcut and Other users can use the control + f shortcut  to open the `Topic` search function, the fuzzy query of topics is supported.
 
 Click on the action bar button at the top and select the `Clear Histroy` item, you can quickly clear the messages sent and received by the current connection.
 

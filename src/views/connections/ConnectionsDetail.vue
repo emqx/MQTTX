@@ -49,8 +49,8 @@
                 <i class="el-icon-more"></i>
               </a>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="searchByTopic">
-                  <i class="iconfont icon-search"></i>{{ $t('connections.searchByTopic') }}
+                <el-dropdown-item command="searchContent">
+                  <i class="iconfont icon-search"></i>{{ $t('connections.searchContent') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="clearHistory">
                   <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
@@ -90,17 +90,26 @@
         <div v-show="searchVisible" class="connections-search topbar">
           <el-input
             id="searchTopic"
-            v-model="searchTopic"
+            v-model="searchParams.topic"
             size="small"
-            :placeholder="$t('connections.searchByTopic')"
-            @keyup.enter.native="searchByTopic"
+            :placeholder="$t('connections.inputTopic')"
+            @keyup.enter.native="searchContent"
             @keyup.esc.native="handleSearchClose"
           >
-            <a class="search-btn" href="javascript:;" slot="suffix" @click="searchByTopic">
-              <i v-if="!searchLoading" class="iconfont icon-search"></i>
-              <i v-else class="el-icon-loading"></i>
-            </a>
           </el-input>
+          <el-input
+            v-model="searchParams.payload"
+            size="small"
+            :placeholder="$t('connections.inputMsgContent')"
+            @keyup.enter.native="searchContent"
+            @keyup.esc.native="handleSearchClose"
+            class="content-search"
+          >
+          </el-input>
+          <a href="javascript:;" class="search-btn" @click="searchContent">
+            <i v-if="!searchLoading" class="iconfont icon-search"></i>
+            <i v-else class="el-icon-loading"></i>
+          </a>
           <a href="javascript:;" class="close-search" @click="handleSearchClose">
             <i class="el-icon-circle-close"></i>
           </a>
@@ -205,7 +214,7 @@ import {
   loadConnections,
 } from '@/utils/api/connection'
 import time from '@/utils/time'
-import matchSearch from '@/utils/matchSearch'
+import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
 import { getClientOptions, getMQTTProtocol } from '@/utils/mqttUtils'
 
@@ -222,7 +231,7 @@ import ImportData from '@/components/ImportData.vue'
 import { ConnectionModel, MessageModel, SSLPath, SSLContent, ContextmenuModel } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
-type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect' | 'exportData' | 'importData'
+type CommandType = 'searchContent' | 'clearHistory' | 'disconnect' | 'deleteConnect' | 'exportData' | 'importData'
 type PayloadConvertType = 'base64' | 'hex'
 
 interface Top {
@@ -275,7 +284,10 @@ export default class ConnectionsDetail extends Vue {
     connected: false,
   }
   private messages: MessageModel[] = this.record.messages
-  private searchTopic = ''
+  private searchParams = {
+    topic: '',
+    payload: '',
+  }
   private titleName: string = this.record.name
   private retryTimes = 0
   private inputHeight = 155
@@ -467,7 +479,7 @@ export default class ConnectionsDetail extends Vue {
       case 'clearHistory':
         this.handleMsgClear()
         break
-      case 'searchByTopic':
+      case 'searchContent':
         this.handleSearchOpen()
         break
       case 'exportData':
@@ -526,15 +538,16 @@ export default class ConnectionsDetail extends Vue {
       setChangedMessages(type, this.record.messages)
     }
   }
-  private async searchByTopic() {
+  private async searchContent() {
     this.searchLoading = true
     setTimeout(() => {
       this.searchLoading = false
     }, 500)
     this.getMessages()
-    if (this.searchTopic !== '') {
+    const { topic, payload } = this.searchParams
+    if (topic !== '' || payload !== '') {
       const $messages = _.cloneDeep(this.messages)
-      const res = await matchSearch($messages, 'topic', this.searchTopic)
+      const res = await matchMultipleSearch($messages, this.searchParams)
       if (res) {
         this.messages = res.slice()
       } else {
@@ -568,6 +581,10 @@ export default class ConnectionsDetail extends Vue {
   }
   private handleSearchClose() {
     this.searchVisible = false
+    this.searchParams = {
+      topic: '',
+      payload: '',
+    }
     this.getMessages()
   }
 
@@ -814,7 +831,7 @@ export default class ConnectionsDetail extends Vue {
   private created() {
     const { id } = this.$route.params
     this.getConnectionValue(id)
-    ipcRenderer.on('searchByTopic', () => {
+    ipcRenderer.on('searchContent', () => {
       this.handleSearchOpen()
     })
   }
@@ -857,7 +874,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private beforeDestroy() {
-    ipcRenderer.removeAllListeners('searchByTopic')
+    ipcRenderer.removeAllListeners('searchContent')
     this.removeClinetsMessageListener()
   }
 }
@@ -925,29 +942,27 @@ export default class ConnectionsDetail extends Vue {
         border-bottom: 0px;
         min-height: 0px;
       }
-      .icon-search,
-      .el-icon-loading {
-        line-height: 32px;
-      }
-      .el-icon-loading {
-        margin-right: 10px;
-      }
       .el-input {
         .el-input__inner {
           background: var(--color-bg-primary);
         }
-        .search-btn {
-          color: var(--color-text-default);
+      }
+      .content-search {
+        margin: 0 19px 0 20px;
+      }
+      .search-btn {
+        color: var(--color-text-default);
+        margin-right: 10px;
+        .icon-search,
+        .el-icon-loading {
+          font-size: 18px;
+          line-height: 32px;
         }
       }
-      .close-search {
-        font-size: 18px;
+      .el-icon-circle-close {
+        font-size: 16px;
         color: var(--color-text-default);
-        margin-left: 10px;
       }
-    }
-    .icon-search {
-      margin-right: 10px;
     }
   }
 
