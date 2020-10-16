@@ -180,7 +180,7 @@ sudo snap install mqttx
     在消息栏右上角的 `All`，`Received`， `Published` 按钮可以过滤出
     全部消息，已接收的消息，和已发布的消息。
 
-    点击顶部的操作栏按钮，选择 `Search by Topic` 项，或使用快捷键，macOS 用户可以使用 `command + f` 快捷键，其它用户可以使用 `control + f` 快捷键，来打开按 `Topic` 搜索的的功能，支持主题的模糊查询。
+    点击顶部的操作栏按钮，选择 `Search` 项，或使用快捷键，macOS 用户可以使用 `command + f` 快捷键，其它用户可以使用 `control + f` 快捷键，来打开按 `Topic` 搜索的的功能，支持主题的模糊查询。
 
     点击顶部的操作栏按钮，选择 `Clear Histroy` 项，可以快速清空当前连接所发送和接收的消息。
 
