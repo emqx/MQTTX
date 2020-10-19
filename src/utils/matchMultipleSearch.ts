@@ -2,9 +2,9 @@ interface SearchParams {
   [propName: string]: string
 }
 
-type MatchSearch = (data: any[], params: SearchParams) => Promise<any[] | null>
+type MatchMultipleSearch = (data: any[], params: SearchParams) => Promise<any[] | null>
 
-const matchMultipleSearch: MatchSearch = (data, params) => {
+const matchMultipleSearch: MatchMultipleSearch = (data, params) => {
   return new Promise((resolve, reject) => {
     const paramsKeys = Object.keys(params)
     try {
