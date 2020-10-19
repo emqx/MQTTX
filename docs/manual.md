@@ -149,7 +149,11 @@ After the configuration is complete, click the `Connect` button in the upper rig
 
    Click the `New Subscription` button in the lower left corner to quickly add a Topic. Each Topic can be marked with a color, which can be randomly generated or opened by the color selector. The rightmost button at the top of the subscription list can hide the subscription list to show more space on the page. After the addition is complete, click on the subscribed Topic items in the subscription list to achieve message filtering. The message view will only display the message content subscribed to the current topic. Click again to cancel the filter; You can also directly click other subscribed Topic items to view the corresponding message content. By clicking on the topic name, you can quickly copy the current topic information. When you need to send a message to this topic, you can quickly paste it into the topic input box of the message bar to modify it, and you can quickly complete the operation.
 
+   When adding `Topic`, you can set an alias for each Topic. This option is an optional. When the subscription is set and added, the `Topic` in the subscription list will be displayed as an alias, and the mouse over the `Topic` item, the prompt box will also display the original value of the `Topic`. This is very helpful when multiple `Topics` that need to be monitored are too long to distinguish the specific meaning of `Topic`.
+
 ![mqttx-topic](../assets/mqttx-topic.png)
+
+![mqttx-topic-alias](../assets/mqttx-topic-alias.png)
 
 3. Sending and receiving of messages
 
@@ -163,15 +167,23 @@ So far, the test of an `MQTT` message is completed.
 
 ### Setting
 
-Click the settings button at the bottom of the left menu bar, or use shortcut. MacOS users can use the `command +,` shortcut, and other users can use the `control +,` shortcut to jump to the settings page. Currently, language selection is supported, and whether to automatically check for updates and select topics is enabled.
+Click the settings button at the bottom of the left menu bar, or use shortcut. MacOS users can use the `command +,` shortcut, and other users can use the `control +,` shortcut to jump to the settings page. Currently, language selection is supported, whether to automatically check for updates, select topics is enabled and also data backup and recovery functions in advanced settings.
+
+#### Data management
+
+The advanced settings include data backup and recovery functions. Users can choose two import and export ways, or through the upper right menu in the connection page, or in the advanced bar in the settings page.
 
 ![mqttx-theme](../assets/mqttx-theme.png)
+
+In the settings page, you can choose to click the data backup and data recovery buttons in the advanced functions at the bottom. When selecting data backup, all connection data will be exported, including all received and sent messages. When selecting data recovery, after selecting the path of the imported file, the data can be recovered after confirmation.
+
+![mqttx-advance](../assets/mqttx-advance.png)
 
 ### Others
 
 1. Connection operation
 
-   By clicking the action bar button at the top, you can quickly disconnect, delete the current connection.
+   By clicking the action bar button at the top, you can quickly disconnect, delete the current connection, import and export of current data, etc.
 
 ![mqttx-connection](../assets/mqttx-connection.png)
 
@@ -179,7 +191,7 @@ Click the settings button at the bottom of the left menu bar, or use shortcut. M
 
    Through the `All`,`Received`, `Published` buttons in the upper right corner of the message bar, you can filter out all messages, received messages and published messages.
 
-Click the action bar button at the top and select the `Search by Topic`  item, or use the shortcut key. MacOS users can use the command + f shortcut and Other users can use the control + f shortcut  to open the `Topic` search function, the fuzzy query of topics is supported.
+Click the action bar button at the top and select the `Search`  item, or use the shortcut key. MacOS users can use the command + f shortcut and Other users can use the control + f shortcut  to open the `Topic` search function, the fuzzy query of topics is supported.
 
 Click on the action bar button at the top and select the `Clear Histroy` item, you can quickly clear the messages sent and received by the current connection.
 

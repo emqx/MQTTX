@@ -77,10 +77,10 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
           },
         },
         {
-          label: 'Search by Topic',
+          label: 'Search',
           accelerator: 'CmdOrCtrl + F',
           click: () => {
-            win.webContents.send('searchByTopic')
+            win.webContents.send('searchContent')
           },
         },
       ],

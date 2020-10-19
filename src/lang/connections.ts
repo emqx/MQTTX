@@ -14,11 +14,6 @@ export default {
     en: 'Search',
     ja: '検索',
   },
-  searchByTopic: {
-    zh: '按主题搜索',
-    en: 'Search by Topic',
-    ja: 'トピックで検索',
-  },
   topicCopied: {
     zh: '复制成功!',
     en: 'Topic copied!',
@@ -361,5 +356,20 @@ export default {
     zh: '文件内容中必填项为空',
     en: 'Required fields in the file content are empty',
     ja: '必須フィールドに値を入力してください',
+  },
+  searchContent: {
+    zh: '内容搜索',
+    en: 'Search',
+    ja: 'Search',
+  },
+  inputTopic: {
+    zh: '请输入主题',
+    en: 'Please input Topic',
+    ja: 'Please input Topic',
+  },
+  inputMsgContent: {
+    zh: '请输入消息内容',
+    en: 'Please input Message',
+    ja: 'Please input Message',
   },
 }
