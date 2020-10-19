@@ -713,7 +713,7 @@ export default class ConnectionsDetail extends Vue {
   private onClose() {
     this.connectLoading = false
   }
-  private async isSearchMessage(oneMessage: MessageModel) {
+  private async isSearchMessage(oneMessage: MessageModel): Promise<boolean> {
     const res = await matchMultipleSearch([oneMessage], this.searchParams)
     return res && res.length ? true : false
   }
