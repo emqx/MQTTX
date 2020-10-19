@@ -160,6 +160,7 @@
           :record="record"
           :top="showClientInfo ? bodyTop.open : bodyTop.close"
           @onClickTopic="handleTopicClick"
+          @deleteTopic="getMessages"
         />
         <div v-for="message in messages" :key="message.mid">
           <MsgLeftItem
@@ -539,14 +540,18 @@ export default class ConnectionsDetail extends Vue {
     }
   }
   private async searchContent() {
+    const { topic, payload } = this.searchParams
+    if (!topic && !payload) {
+      return
+    }
     this.searchLoading = true
     setTimeout(() => {
       this.searchLoading = false
     }, 500)
     this.getMessages()
-    const { topic, payload } = this.searchParams
     if (topic !== '' || payload !== '') {
-      const $messages = _.cloneDeep(this.messages)
+      const $messages =
+        this.activeTopic === '' ? _.cloneDeep(this.messages) : await topicMatch(this.record.messages, this.activeTopic)
       const res = await matchMultipleSearch($messages, this.searchParams)
       if (res) {
         this.messages = res.slice()
@@ -559,6 +564,7 @@ export default class ConnectionsDetail extends Vue {
     this.getMessages()
     if (reset) {
       this.activeTopic = ''
+      this.searchContent()
       return false
     }
     this.activeTopic = sub.topic
@@ -569,6 +575,7 @@ export default class ConnectionsDetail extends Vue {
     } else {
       this.messages = [].slice()
     }
+    this.searchContent()
   }
   private handleSearchOpen() {
     this.searchVisible = true
@@ -579,13 +586,22 @@ export default class ConnectionsDetail extends Vue {
       }
     })
   }
-  private handleSearchClose() {
+  private async handleSearchClose() {
     this.searchVisible = false
     this.searchParams = {
       topic: '',
       payload: '',
     }
     this.getMessages()
+    if (this.activeTopic) {
+      const $messages = _.cloneDeep(this.messages)
+      const res = await topicMatch($messages, this.activeTopic)
+      if (res) {
+        this.messages = res.slice()
+      } else {
+        this.messages = [].slice()
+      }
+    }
   }
 
   private createClient(): MqttClient {
@@ -697,6 +713,10 @@ export default class ConnectionsDetail extends Vue {
   private onClose() {
     this.connectLoading = false
   }
+  private async isSearchMessage(oneMessage: MessageModel) {
+    const res = await matchMultipleSearch([oneMessage], this.searchParams)
+    return res && res.length ? true : false
+  }
   private onMessageArrived(id: string) {
     return (topic: string, payload: Buffer, packet: SubscriptionModel) => {
       const $payload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
@@ -714,6 +734,15 @@ export default class ConnectionsDetail extends Vue {
         this.record.messages.push({ ...receivedMessage })
         updateConnectionMessage(connectionId, { ...receivedMessage })
         const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+        const { topic: searchTopic, payload: searchPayload } = this.searchParams
+        if (searchTopic || searchPayload) {
+          this.isSearchMessage(receivedMessage).then((res) => {
+            if (res) {
+              this.messages.push(receivedMessage)
+            }
+          })
+          return
+        }
         if (this.msgType !== 'publish' && !this.activeTopic) {
           this.messages.push(receivedMessage)
         } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'publish') {
@@ -761,8 +790,17 @@ export default class ConnectionsDetail extends Vue {
         retain,
       }
       const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+      const { topic: searchTopic, payload: searchPayload } = this.searchParams
       this.record.messages.push({ ...publishMessage })
       updateConnectionMessage(this.record.id as string, { ...publishMessage })
+      if (searchTopic || searchPayload) {
+        this.isSearchMessage(publishMessage).then((res) => {
+          if (res) {
+            this.messages.push(publishMessage)
+          }
+        })
+        return
+      }
       if (this.msgType !== 'received' && !this.activeTopic) {
         this.messages.push(publishMessage)
       } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'received') {

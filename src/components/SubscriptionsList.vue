@@ -246,6 +246,7 @@ export default class SubscriptionsList extends Vue {
       updateConnection(this.record.id as string, this.record)
       this.changeSubs(payload)
       this.subsList = payload.subscriptions
+      this.$emit('deleteTopic')
       return true
     })
   }
