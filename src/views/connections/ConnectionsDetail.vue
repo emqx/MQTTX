@@ -602,6 +602,7 @@ export default class ConnectionsDetail extends Vue {
         this.messages = [].slice()
       }
     }
+    this.scrollToBottom()
   }
 
   private createClient(): MqttClient {
@@ -717,6 +718,11 @@ export default class ConnectionsDetail extends Vue {
     const res = await matchMultipleSearch([oneMessage], this.searchParams)
     return res && res.length ? true : false
   }
+  private scrollToBottom = () => {
+    setTimeout(() => {
+      window.scrollTo(0, document.body.scrollHeight + 160)
+    }, 100)
+  }
   private onMessageArrived(id: string) {
     return (topic: string, payload: Buffer, packet: SubscriptionModel) => {
       const $payload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
@@ -739,6 +745,7 @@ export default class ConnectionsDetail extends Vue {
           this.isSearchMessage(receivedMessage).then((res) => {
             if (res) {
               this.messages.push(receivedMessage)
+              this.scrollToBottom()
             }
           })
           return
@@ -752,9 +759,7 @@ export default class ConnectionsDetail extends Vue {
         updateConnectionMessage(id, { ...receivedMessage })
         this.unreadMessageIncrement({ id })
       }
-      setTimeout(() => {
-        window.scrollTo(0, document.body.scrollHeight + 160)
-      }, 100)
+      this.scrollToBottom()
     }
   }
   private sendMessage(message: MessageModel, type: PayloadType): void | boolean {
@@ -797,6 +802,7 @@ export default class ConnectionsDetail extends Vue {
         this.isSearchMessage(publishMessage).then((res) => {
           if (res) {
             this.messages.push(publishMessage)
+            this.scrollToBottom()
           }
         })
         return
@@ -806,9 +812,7 @@ export default class ConnectionsDetail extends Vue {
       } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'received') {
         this.messages.push(publishMessage)
       }
-      setTimeout(() => {
-        window.scrollTo(0, document.body.scrollHeight + 160)
-      }, 100)
+      this.scrollToBottom()
     })
   }
 
