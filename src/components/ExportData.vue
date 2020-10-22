@@ -13,7 +13,7 @@
         <el-col :span="24">
           <el-form-item :label="$t('connections.exportFormat')" prop="exportFormat">
             <el-select size="small" v-model="record.exportFormat">
-              <el-option v-for="(format, index) in ['JSON']" :key="index" :value="format"> </el-option>
+              <el-option v-for="(format, index) in ['JSON', 'XML', 'CSV']" :key="index" :value="format"> </el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -45,8 +45,10 @@ import { ipcRenderer } from 'electron'
 import { loadConnections } from '@/utils/api/connection'
 import MyDialog from './MyDialog.vue'
 import { ConnectionModel } from '@/views/connections/types'
+import XMLConvert from 'xml-js'
+const { parse: CSVConvert } = require('json2csv')
 
-type ExportFormat = 'JSON'
+type ExportFormat = 'JSON' | 'XML' | 'CSV'
 
 interface ExportForm {
   exportFormat: ExportFormat
@@ -74,37 +76,87 @@ export default class ExportData extends Vue {
   private onChildChanged(val: boolean) {
     this.showDialog = val
   }
+
   private exportData() {
     switch (this.record.exportFormat) {
       case 'JSON':
         this.exportJSONData()
         break
+      case 'XML':
+        this.exportXMLData()
+        break
+      case 'CSV':
+        this.exportCSVData()
+        break
       default:
         break
     }
   }
-  private async exportJSONData() {
+
+  private async exportDiffFormatData(content: string, format: ExportFormat) {
+    const fileFormat = format.toLowerCase() as ExportFormat
     let filename = this.$t('connections.allConnections')
-    let content = ''
     if (!this.record.allConnections) {
       filename = this.connection.name
-      content = JSON.stringify(this.connection, null, 2)
-      ipcRenderer.send('exportData', filename, content, 'json')
+      ipcRenderer.send('exportData', filename, content, fileFormat)
     } else {
-      const connections: ConnectionModel[] | [] = await loadConnections()
-      content = JSON.stringify(connections, null, 2)
-      ipcRenderer.send('exportData', 'data', content, 'json')
+      ipcRenderer.send('exportData', 'data', content, fileFormat)
     }
     ipcRenderer.on('saved', () => {
       this.$message.success(`${filename} ${this.$t('common.exportSuccess')}`)
       this.resetData()
     })
   }
+
+  private async exportJSONData() {
+    let content = ''
+    if (!this.record.allConnections) {
+      content = JSON.stringify(this.connection, null, 2)
+      this.exportDiffFormatData(content, 'JSON')
+    } else {
+      const connections: ConnectionModel[] | [] = await loadConnections()
+      content = JSON.stringify(connections, null, 2)
+      this.exportDiffFormatData(content, 'JSON')
+    }
+  }
+
+  private async exportXMLData() {
+    const exportDataToXML = (jsonContent: string) => {
+      const XMLOptions = { compact: true, ignoreComment: true, spaces: 4 }
+      let content = XMLConvert.json2xml(jsonContent, XMLOptions)
+      content = '<?xml version="1.0" encoding="utf-8"?>\n<root>\n'.concat(content).concat('\n</root>')
+      this.exportDiffFormatData(content, 'XML')
+    }
+    let jsonContent = ''
+    if (!this.record.allConnections) {
+      jsonContent = JSON.stringify(this.connection, null, 2)
+      exportDataToXML(jsonContent)
+    } else {
+      const connections: ConnectionModel[] | [] = await loadConnections()
+      jsonContent = JSON.stringify(connections, null, 2)
+      exportDataToXML(jsonContent)
+    }
+  }
+
+  private async exportCSVData() {
+    const exportDataToCSV = (jsonContent: ConnectionModel[]) => {
+      const content = CSVConvert(jsonContent)
+      this.exportDiffFormatData(content, 'CSV')
+    }
+    if (!this.record.allConnections) {
+      exportDataToCSV([this.connection])
+    } else {
+      const connections: ConnectionModel[] | [] = await loadConnections()
+      exportDataToCSV(connections)
+    }
+  }
+
   private resetData() {
     this.showDialog = false
     this.$emit('update:visible', false)
     ipcRenderer.removeAllListeners('saved')
   }
+
   private created() {
     this.record.allConnections = !this.connection ? true : false
   }

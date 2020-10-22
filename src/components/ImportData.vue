@@ -12,7 +12,7 @@
         <el-col :span="24">
           <el-form-item :label="$t('connections.importFormat')" prop="importFormat">
             <el-select size="small" v-model="record.importFormat">
-              <el-option v-for="(format, index) in ['JSON']" :key="index" :value="format"> </el-option>
+              <el-option v-for="(format, index) in ['JSON', 'CSV']" :key="index" :value="format"> </el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -48,8 +48,9 @@ import { isArray } from 'lodash'
 import { importConnections } from '@/utils/api/connection'
 import { ConnectionModel } from '@/views/connections/types'
 import MyDialog from './MyDialog.vue'
+import CSVConvert from 'csvtojson'
 
-type ImportFormat = 'JSON'
+type ImportFormat = 'JSON' | 'CSV'
 
 interface ImportForm {
   importFormat: ImportFormat
@@ -78,30 +79,32 @@ export default class ImportData extends Vue {
   private onChildChanged(val: boolean) {
     this.showDialog = val
   }
+
   private getFileData() {
     remote.dialog.showOpenDialog(
       {
         properties: ['openFile'],
-        filters: [{ name: '', extensions: ['json'] }],
+        filters: [{ name: '', extensions: [`${this.record.importFormat.toLowerCase()}`] }],
       },
       (files) => {
         if (files) {
           const filePath = files[0]
-          fs.readFile(filePath, 'utf-8', (err, data) => {
+          fs.readFile(filePath, 'utf-8', (err, content) => {
             if (err) {
               this.$message.error(`${this.$t('connections.readFileErr')}${err.message}`)
               return
             }
             try {
-              const _data = JSON.parse(data)
-              const fileContent = isArray(_data) ? _data : [_data]
-              const res = this.verifyFileContent(fileContent)
-              if (!res) {
-                this.$message.error(`${this.$t('connections.fileContentRequired')}`)
-                return
+              const fileContent = this.getDiffFormatData(content)
+              if (fileContent) {
+                const res = this.verifyFileContent(fileContent)
+                if (!res) {
+                  this.$message.error(`${this.$t('connections.fileContentRequired')}`)
+                  return
+                }
+                this.record.filePath = filePath
+                this.record.fileContent = fileContent
               }
-              this.record.filePath = filePath
-              this.record.fileContent = fileContent
             } catch (err) {
               this.$message.error(err.toString())
             }
@@ -110,6 +113,7 @@ export default class ImportData extends Vue {
       },
     )
   }
+
   private verifyFileContent(data: ConnectionModel[]) {
     const hasRequiredItem = (oneConnection: ConnectionModel): boolean => {
       const { clientId, name, host, port, ssl, certType, ca } = oneConnection
@@ -117,20 +121,60 @@ export default class ImportData extends Vue {
     }
     return data.every(hasRequiredItem)
   }
-  private importData() {
-    if (!this.record.fileContent.length) {
-      this.$message.error(`${this.$t('connections.uploadFileTip')}`)
-      return
-    }
+
+  private getDiffFormatData(content: string): ConnectionModel[] | undefined {
     switch (this.record.importFormat) {
       case 'JSON':
-        this.importJSONData()
+        return this.getJSONData(content)
+        break
+      case 'CSV':
+        return this.getCSVData(content)
         break
       default:
         break
     }
   }
-  private async importJSONData() {
+
+  private getJSONData(data: string): ConnectionModel[] {
+    const _data = JSON.parse(data)
+    const fileContent: ConnectionModel[] = isArray(_data) ? _data : [_data]
+    return fileContent
+  }
+
+  private getCSVData(data: string): ConnectionModel[] {
+    const fileContent: ConnectionModel[] = []
+    CSVConvert()
+      .fromString(data)
+      .subscribe((jsonObj) => {
+        let { client, messages, subscriptions, will, ...otherProps } = jsonObj
+        client = JSON.parse(client)
+        messages = JSON.parse(messages)
+        subscriptions = JSON.parse(subscriptions)
+        will = JSON.parse(will)
+        Object.keys(otherProps).forEach((item) => {
+          if (otherProps[item] === 'true') {
+            otherProps[item] = true
+          } else if (otherProps[item] === 'false') {
+            otherProps[item] = false
+          }
+        })
+        const oneRealJSONObj = {
+          client,
+          messages,
+          subscriptions,
+          will,
+          ...otherProps,
+        }
+        fileContent.push(oneRealJSONObj)
+      })
+    return fileContent
+  }
+
+  private async importData() {
+    if (!this.record.fileContent.length) {
+      this.$message.error(`${this.$t('connections.uploadFileTip')}`)
+      return
+    }
     const importDataResult = await importConnections(this.record.fileContent)
     if (importDataResult === 'ok') {
       this.$message.success(`${this.$t('common.importSuccess')}`)
@@ -140,6 +184,7 @@ export default class ImportData extends Vue {
       this.$message.error(importDataResult)
     }
   }
+
   private resetData() {
     this.showDialog = false
     this.$emit('update:visible', false)
