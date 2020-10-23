@@ -10,14 +10,14 @@
     <el-form ref="form" label-position="left" label-width="130px" :model="record">
       <el-row :gutter="20">
         <el-col :span="24">
-          <el-form-item :label="$t('connections.importFormat')" prop="importFormat">
+          <el-form-item :label="$t('connections.importFormat')">
             <el-select size="small" v-model="record.importFormat">
               <el-option v-for="(format, index) in ['JSON', 'CSV']" :key="index" :value="format"> </el-option>
             </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="22">
-          <el-form-item :label="$t('connections.importFile')" prop="cert">
+          <el-form-item :label="$t('connections.importFile')">
             <el-tooltip placement="top" :effect="theme !== 'light' ? 'light' : 'dark'" :open-delay="500">
               <div slot="content" v-html="$t('connections.importConnectionsTip')">
                 {{ $t('connections.importConnectionsTip') }}
@@ -34,6 +34,20 @@
             <i class="el-icon-folder-opened"></i>
           </a>
         </el-col>
+        <el-collapse-transition>
+          <div v-if="record.fileName">
+            <el-col :span="22">
+              <el-form-item :label="$t('connections.flieName')">
+                <el-input size="small" v-model="record.fileName" readonly></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="2">
+              <a href="javascript:;" class="icon-upload icon-file-name">
+                <i class="el-icon-document-checked"></i>
+              </a>
+            </el-col>
+          </div>
+        </el-collapse-transition>
       </el-row>
     </el-form>
   </my-dialog>
@@ -55,6 +69,7 @@ type ImportFormat = 'JSON' | 'CSV'
 interface ImportForm {
   importFormat: ImportFormat
   filePath: string
+  fileName: string
   fileContent: ConnectionModel[]
 }
 
@@ -72,6 +87,7 @@ export default class ImportData extends Vue {
   private record: ImportForm = {
     importFormat: 'JSON',
     filePath: '',
+    fileName: '',
     fileContent: [],
   }
 
@@ -99,10 +115,12 @@ export default class ImportData extends Vue {
               if (fileContent) {
                 const res = this.verifyFileContent(fileContent)
                 if (!res) {
-                  this.$message.error(`${this.$t('connections.fileContentRequired')}`)
+                  this.$message.error(this.$t('connections.fileContentRequired') as string)
                   return
                 }
                 this.record.filePath = filePath
+                const nameIndex = filePath.split('/').length - 1
+                this.record.fileName = filePath.split('/')[nameIndex]
                 this.record.fileContent = fileContent
               }
             } catch (err) {
@@ -147,15 +165,21 @@ export default class ImportData extends Vue {
       .fromString(data)
       .subscribe((jsonObj) => {
         let { client, messages, subscriptions, will, ...otherProps } = jsonObj
+        // format object
         client = JSON.parse(client)
         messages = JSON.parse(messages)
         subscriptions = JSON.parse(subscriptions)
         will = JSON.parse(will)
         Object.keys(otherProps).forEach((item) => {
+          // format boolean
           if (otherProps[item] === 'true') {
             otherProps[item] = true
           } else if (otherProps[item] === 'false') {
             otherProps[item] = false
+          } else if (otherProps[item] !== '') {
+            // format number
+            const numValue = Number(otherProps[item])
+            otherProps[item] = !isNaN(numValue) ? numValue : otherProps[item]
           }
         })
         const oneRealJSONObj = {
@@ -172,12 +196,12 @@ export default class ImportData extends Vue {
 
   private async importData() {
     if (!this.record.fileContent.length) {
-      this.$message.error(`${this.$t('connections.uploadFileTip')}`)
+      this.$message.error(this.$t('connections.uploadFileTip') as string)
       return
     }
     const importDataResult = await importConnections(this.record.fileContent)
     if (importDataResult === 'ok') {
-      this.$message.success(`${this.$t('common.importSuccess')}`)
+      this.$message.success(this.$t('common.importSuccess') as string)
       this.$emit('updateData')
       this.resetData()
     } else {
@@ -191,6 +215,7 @@ export default class ImportData extends Vue {
     this.record = {
       importFormat: 'JSON',
       filePath: '',
+      fileName: '',
       fileContent: [],
     }
   }
@@ -211,6 +236,9 @@ export default class ImportData extends Vue {
   .icon-upload {
     display: inline-block;
     margin-top: 9px;
+  }
+  .icon-file-name {
+    cursor: default;
   }
   .el-col-2 {
     padding-left: 5px !important;
