@@ -213,15 +213,15 @@ export default class ImportData extends Vue {
       textFn: removeJsonTextAttribute,
     }
     const formatedData = XMLConvert.xml2json(data, XMLOptions)
-    return this.convertNullString(formatedData)
+    return this.convertRightStringAndArray(formatedData)
   }
 
-  private convertNullString(data: string): ConnectionModel[] {
+  private convertRightStringAndArray(data: string): ConnectionModel[] {
     const jsonData = JSON.parse(data)
     const isOneConnection = !jsonData.root.oneItem
     let fileContent: ConnectionModel[] = []
 
-    const convertFunction = (oneConnection: ConnectionModel): ConnectionModel => {
+    const convertOneConnections = (oneConnection: ConnectionModel): ConnectionModel => {
       const { ca, cert, certType, key, password, username, will } = oneConnection
       // empty string
       const isStringTypeProps = { ca, cert, certType, key, password, username, will }
@@ -235,19 +235,21 @@ export default class ImportData extends Vue {
 
       // empty message/subscription
       const isArrayTypeProps = { messages, subscriptions }
-      const isArrayTypePropsStr = JSON.stringify(isArrayTypeProps).replace(/{}/g, '\[\]')
+      const isArrayTypePropsStr = JSON.stringify(isArrayTypeProps).replace(/{}/g, '[]')
 
-      const convertedData = Object.assign(JSON.parse(isStringTypePropsStr), JSON.parse(isArrayTypePropsStr))
-      return Object.assign(oneConnection, convertedData)
+      const convertedString = JSON.parse(isStringTypePropsStr)
+      const convertedArray = JSON.parse(isArrayTypePropsStr)
+
+      return Object.assign(oneConnection, convertedString, convertedArray)
     }
 
     if (isOneConnection) {
       const { root: oneConnection }: { root: ConnectionModel } = jsonData
-      const convertedResult = convertFunction(oneConnection)
+      const convertedResult = convertOneConnections(oneConnection)
       fileContent = [convertedResult]
     } else {
       const { oneItem: connections }: { oneItem: ConnectionModel[] } = jsonData.root
-      fileContent = connections.map((oneConnection) => convertFunction(oneConnection))
+      fileContent = connections.map((oneConnection) => convertOneConnections(oneConnection))
     }
     return fileContent
   }
