@@ -13,7 +13,7 @@
         <el-col :span="24">
           <el-form-item :label="$t('connections.exportFormat')" prop="exportFormat">
             <el-select size="small" v-model="record.exportFormat">
-              <el-option v-for="(format, index) in ['JSON', 'XML', 'CSV']" :key="index" :value="format"> </el-option>
+              <el-option v-for="(format, index) in ['JSON', 'CSV', 'XML']" :key="index" :value="format"> </el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -46,7 +46,7 @@ import { loadConnections } from '@/utils/api/connection'
 import MyDialog from './MyDialog.vue'
 import { ConnectionModel } from '@/views/connections/types'
 import XMLConvert from 'xml-js'
-const { Parser: CSVConvert } = require('json2csv')
+const { parse: CSVConvert } = require('json2csv')
 
 type ExportFormat = 'JSON' | 'XML' | 'CSV'
 
@@ -121,11 +121,17 @@ export default class ExportData extends Vue {
 
   private async exportXMLData() {
     const exportDataToXML = (jsonContent: string) => {
+      // avoid messages: [] & subscriptions: [] being discarded
+      jsonContent = jsonContent.replace(/\[\]/g, '""')
       const XMLOptions = { compact: true, ignoreComment: true, spaces: 4 }
-      let content = XMLConvert.json2xml(jsonContent, XMLOptions)
-      content = '<?xml version="1.0" encoding="utf-8"?>\n<root>\n'.concat(content).concat('\n</root>')
-      content = content.replace(/<([0-9]*)>/g, '<oneItem>').replace(/<(\/[0-9]*)>/g, '</oneItem>')
-      this.exportDiffFormatData(content, 'XML')
+      try {
+        let content = XMLConvert.json2xml(jsonContent, XMLOptions)
+        content = '<?xml version="1.0" encoding="utf-8"?>\n<root>\n'.concat(content).concat('\n</root>')
+        content = content.replace(/<([0-9]*)>/g, '<oneItem>').replace(/<(\/[0-9]*)>/g, '</oneItem>')
+        this.exportDiffFormatData(content, 'XML')
+      } catch (err) {
+        this.$message.error(err.toString())
+      }
     }
     let jsonContent = ''
     if (!this.record.allConnections) {
