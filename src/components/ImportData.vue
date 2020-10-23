@@ -12,7 +12,7 @@
         <el-col :span="24">
           <el-form-item :label="$t('connections.importFormat')">
             <el-select size="small" v-model="record.importFormat">
-              <el-option v-for="(format, index) in ['JSON', 'CSV']" :key="index" :value="format"> </el-option>
+              <el-option v-for="(format, index) in ['JSON', 'CSV', 'XML']" :key="index" :value="format"> </el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -60,17 +60,22 @@ import fs from 'fs'
 import { remote } from 'electron'
 import { isArray } from 'lodash'
 import { importConnections } from '@/utils/api/connection'
-import { ConnectionModel } from '@/views/connections/types'
+import { ConnectionModel, MessageModel } from '@/views/connections/types'
 import MyDialog from './MyDialog.vue'
+import XMLConvert from 'xml-js'
 import CSVConvert from 'csvtojson'
 
-type ImportFormat = 'JSON' | 'CSV'
+type ImportFormat = 'JSON' | 'XML' | 'CSV'
 
 interface ImportForm {
   importFormat: ImportFormat
   filePath: string
   fileName: string
   fileContent: ConnectionModel[]
+}
+
+interface XMLParentElement {
+  [propName: string]: any
 }
 
 @Component({
@@ -90,6 +95,17 @@ export default class ImportData extends Vue {
     fileName: '',
     fileContent: [],
   }
+  // properties with string values may be 'number'
+  private stringProps: string[] = [
+    'clientId',
+    'name',
+    'password',
+    'topic',
+    'username',
+    'lastWillPayload',
+    'lastWillTopic',
+    'contentType',
+  ]
 
   @Watch('visible')
   private onChildChanged(val: boolean) {
@@ -148,6 +164,9 @@ export default class ImportData extends Vue {
       case 'CSV':
         return this.getCSVData(content)
         break
+      case 'XML':
+        return this.getXMLData(content)
+        break
       default:
         break
     }
@@ -156,6 +175,80 @@ export default class ImportData extends Vue {
   private getJSONData(data: string): ConnectionModel[] {
     const _data = JSON.parse(data)
     const fileContent: ConnectionModel[] = isArray(_data) ? _data : [_data]
+    return fileContent
+  }
+
+  private getXMLData(data: string): ConnectionModel[] {
+    const removeJsonTextAttribute = (value: string, parentElement: XMLParentElement) => {
+      try {
+        const nativeType = (value: any) => {
+          let lowerValue = value.toLowerCase()
+          if (lowerValue === 'true') {
+            return true
+          } else if (lowerValue === 'false') {
+            return false
+          } else if (lowerValue !== '') {
+            // format number
+            const numValue = Number(lowerValue)
+            lowerValue = !isNaN(numValue) ? numValue : lowerValue
+            return lowerValue
+          }
+          return value
+        }
+        const keyNameIndex = Object.keys(parentElement._parent).length - 1
+        const keyName = Object.keys(parentElement._parent)[keyNameIndex]
+        parentElement._parent[keyName] = this.stringProps.indexOf(keyName) !== -1 ? value : nativeType(value)
+      } catch (err) {
+        this.$message.error(err.toString())
+      }
+    }
+    const XMLOptions = {
+      compact: true,
+      ignoreComment: true,
+      ignoreDeclaration: true,
+      ignoreInstruction: true,
+      ignoreAttributes: true,
+      ignoreCdata: true,
+      ignoreDoctype: true,
+      textFn: removeJsonTextAttribute,
+    }
+    const formatedData = XMLConvert.xml2json(data, XMLOptions)
+    return this.convertNullString(formatedData)
+  }
+
+  private convertNullString(data: string): ConnectionModel[] {
+    const jsonData = JSON.parse(data)
+    const isOneConnection = !jsonData.root.oneItem
+    let fileContent: ConnectionModel[] = []
+
+    const convertFunction = (oneConnection: ConnectionModel): ConnectionModel => {
+      const { ca, cert, certType, key, password, username, will } = oneConnection
+      // empty string
+      const isStringTypeProps = { ca, cert, certType, key, password, username, will }
+      const isStringTypePropsStr = JSON.stringify(isStringTypeProps).replace(/{}/g, '""')
+
+      // one message/subscription
+      let { messages, subscriptions } = oneConnection
+      messages = JSON.stringify(messages) !== '{}' && !Array.isArray(messages) ? [messages] : messages
+      subscriptions =
+        JSON.stringify(subscriptions) !== '{}' && !Array.isArray(subscriptions) ? [subscriptions] : subscriptions
+
+      // empty message/subscription
+      const isArrayTypeProps = { messages, subscriptions }
+      const isArrayTypePropsStr = JSON.stringify(isArrayTypeProps).replace(/{}/g, '\[\]')
+
+      const convertedData = Object.assign(JSON.parse(isStringTypePropsStr), JSON.parse(isArrayTypePropsStr))
+      return Object.assign(oneConnection, convertedData)
+    }
+
+    if (isOneConnection) {
+      const { root: oneConnection }: { root: ConnectionModel } = jsonData
+      const convertedResult = convertFunction(oneConnection)
+      fileContent = [convertedResult]
+    } else {
+      const { oneItem: connections }: { oneItem: ConnectionModel[] } = jsonData.root
+      fileContent = connections.map((oneConnection) => convertFunction(oneConnection))
+    }
     return fileContent
   }
 
@@ -176,7 +269,7 @@ export default class ImportData extends Vue {
             otherProps[item] = true
           } else if (otherProps[item] === 'false') {
             otherProps[item] = false
-          } else if (otherProps[item] !== '') {
+          } else if (this.stringProps.indexOf(item) === -1 && otherProps[item] !== '') {
             // format number
             const numValue = Number(otherProps[item])
             otherProps[item] = !isNaN(numValue) ? numValue : otherProps[item]
