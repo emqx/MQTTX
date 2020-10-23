@@ -46,7 +46,7 @@ import { loadConnections } from '@/utils/api/connection'
 import MyDialog from './MyDialog.vue'
 import { ConnectionModel } from '@/views/connections/types'
 import XMLConvert from 'xml-js'
-const { parse: CSVConvert } = require('json2csv')
+const { Parser: CSVConvert } = require('json2csv')
 
 type ExportFormat = 'JSON' | 'XML' | 'CSV'
 
@@ -112,12 +112,11 @@ export default class ExportData extends Vue {
     let content = ''
     if (!this.record.allConnections) {
       content = JSON.stringify(this.connection, null, 2)
-      this.exportDiffFormatData(content, 'JSON')
     } else {
       const connections: ConnectionModel[] | [] = await loadConnections()
       content = JSON.stringify(connections, null, 2)
-      this.exportDiffFormatData(content, 'JSON')
     }
+    this.exportDiffFormatData(content, 'JSON')
   }
 
   private async exportXMLData() {
@@ -125,17 +124,17 @@ export default class ExportData extends Vue {
       const XMLOptions = { compact: true, ignoreComment: true, spaces: 4 }
       let content = XMLConvert.json2xml(jsonContent, XMLOptions)
       content = '<?xml version="1.0" encoding="utf-8"?>\n<root>\n'.concat(content).concat('\n</root>')
+      content = content.replace(/<([0-9]*)>/g, '<oneItem>').replace(/<(\/[0-9]*)>/g, '</oneItem>')
       this.exportDiffFormatData(content, 'XML')
     }
     let jsonContent = ''
     if (!this.record.allConnections) {
       jsonContent = JSON.stringify(this.connection, null, 2)
-      exportDataToXML(jsonContent)
     } else {
       const connections: ConnectionModel[] | [] = await loadConnections()
       jsonContent = JSON.stringify(connections, null, 2)
-      exportDataToXML(jsonContent)
     }
+    exportDataToXML(jsonContent)
   }
 
   private async exportCSVData() {
@@ -143,12 +142,8 @@ export default class ExportData extends Vue {
       const content = CSVConvert(jsonContent)
       this.exportDiffFormatData(content, 'CSV')
     }
-    if (!this.record.allConnections) {
-      exportDataToCSV([this.connection])
-    } else {
-      const connections: ConnectionModel[] | [] = await loadConnections()
-      exportDataToCSV(connections)
-    }
+    const jsonContent: ConnectionModel[] = !this.record.allConnections ? [this.connection] : await loadConnections()
+    exportDataToCSV(jsonContent)
   }
 
   private resetData() {

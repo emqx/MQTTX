@@ -372,4 +372,9 @@ export default {
     en: 'Please input Message',
     ja: 'Please input Message',
   },
+  flieName: {
+    zh: '文件名',
+    en: 'File Name',
+    ja: 'File Name',
+  },
 }
