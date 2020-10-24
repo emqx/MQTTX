@@ -109,11 +109,12 @@ export default class ExportData extends Vue {
   }
 
   private handleSubscriptions(data: ConnectionModel[]): ConnectionModel[] {
-    return data.map((oneConnection: ConnectionModel): ConnectionModel => {
+    const handleConnection = (oneConnection: ConnectionModel): ConnectionModel => {
       const { clean, subscriptions, ...otherProps } = oneConnection
       const realSubscriptions = clean ? [] : subscriptions
       return { ...otherProps, clean, subscriptions: realSubscriptions }
-    })
+    }
+    return data.map((oneConnection) => handleConnection(oneConnection))
   }
 
   private async getStringifyContent(): Promise<string> {
@@ -131,18 +132,24 @@ export default class ExportData extends Vue {
   }
 
   private exportJSONData() {
-    this.getStringifyContent().then(content => {
-      this.exportDiffFormatData(content, 'JSON')
-    }).catch(err => {
-      this.$message.error(err.toString())
-    })
+    this.getStringifyContent()
+      .then((content) => {
+        if (content === '[]') {
+          this.$message.warning(this.$t('common.noData') as string)
+          return
+        }
+        this.exportDiffFormatData(content, 'JSON')
+      })
+      .catch((err) => {
+        this.$message.error(err.toString())
+      })
   }
 
   private exportXMLData() {
     const exportDataToXML = (jsonContent: string) => {
       // avoid messages: [] & subscriptions: [] being discarded
       jsonContent = jsonContent.replace(/\[\]/g, '""')
-      const XMLOptions = { compact: true, ignoreComment: true, spaces: 4 }
+      const XMLOptions = { compact: true, ignoreComment: true, spaces: 2 }
       try {
         let content = XMLConvert.json2xml(jsonContent, XMLOptions)
         content = '<?xml version="1.0" encoding="utf-8"?>\n<root>\n'.concat(content).concat('\n</root>')
@@ -152,11 +159,17 @@ export default class ExportData extends Vue {
         this.$message.error(err.toString())
       }
     }
-    this.getStringifyContent().then(content => {
-      exportDataToXML(content)
-    }).catch(err => {
-      this.$message.error(err.toString())
-    })
+    this.getStringifyContent()
+      .then((content) => {
+        if (content === '[]') {
+          this.$message.warning(this.$t('common.noData') as string)
+          return
+        }
+        exportDataToXML(content)
+      })
+      .catch((err) => {
+        this.$message.error(err.toString())
+      })
   }
 
   private async exportCSVData() {
@@ -165,6 +178,10 @@ export default class ExportData extends Vue {
       this.exportDiffFormatData(content, 'CSV')
     }
     const data: ConnectionModel[] = !this.record.allConnections ? [this.connection] : await loadConnections()
+    if (!data.length) {
+      this.$message.warning(this.$t('common.noData') as string)
+      return
+    }
     const jsonContent = this.handleSubscriptions(data)
     exportDataToCSV(jsonContent)
   }
