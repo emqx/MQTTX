@@ -58,7 +58,6 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import fs from 'fs'
 import { remote } from 'electron'
-import { isArray } from 'lodash'
 import { importConnections } from '@/utils/api/connection'
 import { ConnectionModel, MessageModel } from '@/views/connections/types'
 import MyDialog from './MyDialog.vue'
@@ -174,24 +173,24 @@ export default class ImportData extends Vue {
 
   private getJSONData(data: string): ConnectionModel[] {
     const _data = JSON.parse(data)
-    const fileContent: ConnectionModel[] = isArray(_data) ? _data : [_data]
+    const fileContent: ConnectionModel[] = Array.isArray(_data) ? _data : [_data]
     return fileContent
   }
 
   private getXMLData(data: string): ConnectionModel[] {
     const removeJsonTextAttribute = (value: string, parentElement: XMLParentElement) => {
       try {
-        const nativeType = (value: any) => {
-          let lowerValue = value.toLowerCase()
+        const nativeType = (value: string) => {
+          const lowerValue = value.toLowerCase()
           if (lowerValue === 'true') {
             return true
           } else if (lowerValue === 'false') {
             return false
           } else if (lowerValue !== '') {
             // format number
-            const numValue = Number(lowerValue)
-            lowerValue = !isNaN(numValue) ? numValue : lowerValue
-            return lowerValue
+            const numValue = Number(value)
+            const convertedValue = !isNaN(numValue) ? numValue : value
+            return convertedValue
           }
           return value
         }
@@ -218,14 +217,14 @@ export default class ImportData extends Vue {
 
   private convertRightStringAndArray(data: string): ConnectionModel[] {
     const jsonData = JSON.parse(data)
-    const isOneConnection = !jsonData.root.oneItem
+    const isOneConnection = !jsonData.root.oneConnection
     let fileContent: ConnectionModel[] = []
 
-    const convertOneConnections = (oneConnection: ConnectionModel): ConnectionModel => {
+    const convertOneConnection = (oneConnection: ConnectionModel): ConnectionModel => {
       const { ca, cert, certType, key, password, username, will } = oneConnection
       // empty string
       const isStringTypeProps = { ca, cert, certType, key, password, username, will }
-      const isStringTypePropsStr = JSON.stringify(isStringTypeProps).replace(/{}/g, '""')
+      const isStringTypePropsStr = JSON.stringify(isStringTypeProps).replace(/\{\}/g, '""')
 
       // one message/subscription
       let { messages, subscriptions } = oneConnection
@@ -235,7 +234,7 @@ export default class ImportData extends Vue {
 
       // empty message/subscription
       const isArrayTypeProps = { messages, subscriptions }
-      const isArrayTypePropsStr = JSON.stringify(isArrayTypeProps).replace(/{}/g, '[]')
+      const isArrayTypePropsStr = JSON.stringify(isArrayTypeProps).replace(/\{\}/g, '[]')
 
       const convertedString = JSON.parse(isStringTypePropsStr)
       const convertedArray = JSON.parse(isArrayTypePropsStr)
@@ -245,11 +244,11 @@ export default class ImportData extends Vue {
 
     if (isOneConnection) {
       const { root: oneConnection }: { root: ConnectionModel } = jsonData
-      const convertedResult = convertOneConnections(oneConnection)
+      const convertedResult = convertOneConnection(oneConnection)
       fileContent = [convertedResult]
     } else {
-      const { oneItem: connections }: { oneItem: ConnectionModel[] } = jsonData.root
-      fileContent = connections.map((oneConnection) => convertOneConnections(oneConnection))
+      const { oneConnection: connections }: { oneConnection: ConnectionModel[] } = jsonData.root
+      fileContent = connections.map((oneConnection) => convertOneConnection(oneConnection))
     }
     return fileContent
   }
