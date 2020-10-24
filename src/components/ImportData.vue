@@ -216,39 +216,53 @@ export default class ImportData extends Vue {
   }
 
   private convertRightStringAndArray(data: string): ConnectionModel[] {
-    const jsonData = JSON.parse(data)
-    const isOneConnection = !jsonData.root.oneConnection
     let fileContent: ConnectionModel[] = []
+    try {
+      const jsonData = JSON.parse(data)
+      const isOneConnection = !jsonData.root.oneConnection || !Array.isArray(jsonData.root.oneConnection)
 
-    const convertOneConnection = (oneConnection: ConnectionModel): ConnectionModel => {
-      const { ca, cert, certType, key, password, username, will } = oneConnection
-      // empty string
-      const isStringTypeProps = { ca, cert, certType, key, password, username, will }
-      const isStringTypePropsStr = JSON.stringify(isStringTypeProps).replace(/\{\}/g, '""')
+      const convertOneConnection = (oneConnection: ConnectionModel): ConnectionModel | undefined => {
+        const { ca, cert, certType, key, password, username, will } = oneConnection
+        // empty string
+        const isStringTypeProps = { ca, cert, certType, key, password, username, will }
+        const isStringTypePropsStr = JSON.stringify(isStringTypeProps).replace(/\{\}/g, '""')
 
-      // one message/subscription
-      let { messages, subscriptions } = oneConnection
-      messages = JSON.stringify(messages) !== '{}' && !Array.isArray(messages) ? [messages] : messages
-      subscriptions =
-        JSON.stringify(subscriptions) !== '{}' && !Array.isArray(subscriptions) ? [subscriptions] : subscriptions
+        // one message/subscription
+        let { messages, subscriptions } = oneConnection
+        if (messages === undefined || subscriptions === undefined) {
+          this.$message.error(this.$t('connections.uploadFileTip') as string)
+          return
+        }
+        messages = JSON.stringify(messages) !== '{}' && !Array.isArray(messages) ? [messages] : messages
+        subscriptions =
+          JSON.stringify(subscriptions) !== '{}' && !Array.isArray(subscriptions) ? [subscriptions] : subscriptions
 
-      // empty message/subscription
-      const isArrayTypeProps = { messages, subscriptions }
-      const isArrayTypePropsStr = JSON.stringify(isArrayTypeProps).replace(/\{\}/g, '[]')
+        // empty message/subscription
+        const isArrayTypeProps = { messages, subscriptions }
+        const isArrayTypePropsStr = JSON.stringify(isArrayTypeProps).replace(/\{\}/g, '[]')
 
-      const convertedString = JSON.parse(isStringTypePropsStr)
-      const convertedArray = JSON.parse(isArrayTypePropsStr)
+        const convertedString = JSON.parse(isStringTypePropsStr)
+        const convertedArray = JSON.parse(isArrayTypePropsStr)
 
-      return Object.assign(oneConnection, convertedString, convertedArray)
-    }
+        return Object.assign(oneConnection, convertedString, convertedArray)
+      }
 
-    if (isOneConnection) {
-      const { root: oneConnection }: { root: ConnectionModel } = jsonData
-      const convertedResult = convertOneConnection(oneConnection)
-      fileContent = [convertedResult]
-    } else {
-      const { oneConnection: connections }: { oneConnection: ConnectionModel[] } = jsonData.root
-      fileContent = connections.map((oneConnection) => convertOneConnection(oneConnection))
+      if (isOneConnection) {
+        // { root: {} or root: { oneConnection : {} } }
+        const isSimpleObj = jsonData.root.oneConnection === undefined
+        let oneConnection: ConnectionModel = isSimpleObj ? jsonData.root : jsonData.root.oneConnection
+        const convertedResult = convertOneConnection(oneConnection)
+        fileContent = convertedResult ? [convertedResult] : []
+      } else {
+        // { root: { oneConnection : [] } }
+        const { oneConnection: connections }: { oneConnection: ConnectionModel[] } = jsonData.root
+        const convertedArray = connections.map((oneConnection) => convertOneConnection(oneConnection))
+        if (convertedArray.indexOf(undefined) === -1) {
+          fileContent = convertedArray as ConnectionModel[]
+        }
+      }
+    } catch (err) {
+      this.$message.error(err.toString())
     }
     return fileContent
   }
@@ -258,32 +272,36 @@ export default class ImportData extends Vue {
     CSVConvert()
       .fromString(data)
       .subscribe((jsonObj) => {
-        let { client, messages, subscriptions, will, ...otherProps } = jsonObj
-        // format object
-        client = JSON.parse(client)
-        messages = JSON.parse(messages)
-        subscriptions = JSON.parse(subscriptions)
-        will = JSON.parse(will)
-        Object.keys(otherProps).forEach((item) => {
-          // format boolean
-          if (otherProps[item] === 'true') {
-            otherProps[item] = true
-          } else if (otherProps[item] === 'false') {
-            otherProps[item] = false
-          } else if (this.stringProps.indexOf(item) === -1 && otherProps[item] !== '') {
-            // format number
-            const numValue = Number(otherProps[item])
-            otherProps[item] = !isNaN(numValue) ? numValue : otherProps[item]
+        try {
+          let { client, messages, subscriptions, will, ...otherProps } = jsonObj
+          // format object
+          client = JSON.parse(client)
+          messages = JSON.parse(messages)
+          subscriptions = JSON.parse(subscriptions)
+          will = JSON.parse(will)
+          Object.keys(otherProps).forEach((item) => {
+            // format boolean
+            if (otherProps[item] === 'true') {
+              otherProps[item] = true
+            } else if (otherProps[item] === 'false') {
+              otherProps[item] = false
+            } else if (this.stringProps.indexOf(item) === -1 && otherProps[item] !== '') {
+              // format number
+              const numValue = Number(otherProps[item])
+              otherProps[item] = !isNaN(numValue) ? numValue : otherProps[item]
+            }
+          })
+          const oneRealJSONObj = {
+            client,
+            messages,
+            subscriptions,
+            will,
+            ...otherProps,
           }
-        })
-        const oneRealJSONObj = {
-          client,
-          messages,
-          subscriptions,
-          will,
-          ...otherProps,
+          fileContent.push(oneRealJSONObj)
+        } catch (err) {
+          this.$message.error(err.toString())
         }
-        fileContent.push(oneRealJSONObj)
       })
     return fileContent
   }
