@@ -64,6 +64,8 @@
     "eslint": "6.5.1",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "husky": "^4.3.0",
+    "lint-staged": "^10.4.2",
     "monaco-editor-webpack-plugin": "^1.9.0",
     "node-sass": "^4.13.1",
     "prettier": "^2.0.5",
@@ -81,6 +83,17 @@
     "> 1%",
     "last 2 versions"
   ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{vue,ts,js,scss}": [
+      "prettier --write \"src/**/*.ts\" \"src/**/*.vue\" \"src/**/*.scss\"",
+      "git add"
+    ]
+  },
   "license": "Apache",
   "repository": "https://github.com/emqx/MQTTX"
 }
