@@ -174,8 +174,12 @@ export default class ExportData extends Vue {
 
   private async exportCSVData() {
     const exportDataToCSV = (jsonContent: ConnectionModel[]) => {
-      const content: string = CSVConvert(jsonContent)
-      this.exportDiffFormatData(content, 'CSV')
+      try {
+        const content: string = CSVConvert(jsonContent)
+        this.exportDiffFormatData(content, 'CSV')
+      } catch (err) {
+        this.$message.error(err.toString())
+      }
     }
     const data: ConnectionModel[] = !this.record.allConnections ? [this.connection] : await loadConnections()
     if (!data.length) {

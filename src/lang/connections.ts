@@ -347,11 +347,6 @@ export default {
     en: 'An error ocurred reading the file:',
     ja: '読み込み中にエラーが発生したファイル:',
   },
-  uploadFileTip: {
-    zh: '请选择文件',
-    en: 'Please select file',
-    ja: 'ファイルを選択してください',
-  },
   fileContentRequired: {
     zh: '文件内容中必填项为空',
     en: 'Required fields in the file content are empty',
@@ -376,5 +371,10 @@ export default {
     zh: '文件名',
     en: 'File Name',
     ja: 'File Name',
+  },
+  uploadFileTip: {
+    zh: '文件内容格式错误或为空',
+    en: 'The file content is malformed or empty',
+    ja: 'The file content is malformed or empty',
   },
 }
