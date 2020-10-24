@@ -93,7 +93,7 @@ export default class ExportData extends Vue {
     }
   }
 
-  private async exportDiffFormatData(content: string, format: ExportFormat) {
+  private exportDiffFormatData(content: string, format: ExportFormat) {
     const fileFormat = format.toLowerCase() as ExportFormat
     let filename = this.$t('connections.allConnections')
     if (!this.record.allConnections) {
@@ -108,18 +108,37 @@ export default class ExportData extends Vue {
     })
   }
 
-  private async exportJSONData() {
-    let content = ''
-    if (!this.record.allConnections) {
-      content = JSON.stringify(this.connection, null, 2)
-    } else {
-      const connections: ConnectionModel[] | [] = await loadConnections()
-      content = JSON.stringify(connections, null, 2)
-    }
-    this.exportDiffFormatData(content, 'JSON')
+  private handleSubscriptions(data: ConnectionModel[]): ConnectionModel[] {
+    return data.map((oneConnection: ConnectionModel): ConnectionModel => {
+      const { clean, subscriptions, ...otherProps } = oneConnection
+      const realSubscriptions = clean ? [] : subscriptions
+      return { ...otherProps, clean, subscriptions: realSubscriptions }
+    })
   }
 
-  private async exportXMLData() {
+  private async getStringifyContent(): Promise<string> {
+    if (!this.record.allConnections) {
+      const { ...connection } = this.connection
+      const data = this.handleSubscriptions([connection])
+      const content = JSON.stringify(data[0], null, 2)
+      return content
+    } else {
+      const connections: ConnectionModel[] | [] = await loadConnections()
+      const data = this.handleSubscriptions(connections)
+      const content = JSON.stringify(data, null, 2)
+      return content
+    }
+  }
+
+  private exportJSONData() {
+    this.getStringifyContent().then(content => {
+      this.exportDiffFormatData(content, 'JSON')
+    }).catch(err => {
+      this.$message.error(err.toString())
+    })
+  }
+
+  private exportXMLData() {
     const exportDataToXML = (jsonContent: string) => {
       // avoid messages: [] & subscriptions: [] being discarded
       jsonContent = jsonContent.replace(/\[\]/g, '""')
@@ -127,28 +146,26 @@ export default class ExportData extends Vue {
       try {
         let content = XMLConvert.json2xml(jsonContent, XMLOptions)
         content = '<?xml version="1.0" encoding="utf-8"?>\n<root>\n'.concat(content).concat('\n</root>')
-        content = content.replace(/<([0-9]*)>/g, '<oneItem>').replace(/<(\/[0-9]*)>/g, '</oneItem>')
+        content = content.replace(/<([0-9]*)>/g, '<oneConnection>').replace(/<(\/[0-9]*)>/g, '</oneConnection>')
         this.exportDiffFormatData(content, 'XML')
       } catch (err) {
         this.$message.error(err.toString())
       }
     }
-    let jsonContent = ''
-    if (!this.record.allConnections) {
-      jsonContent = JSON.stringify(this.connection, null, 2)
-    } else {
-      const connections: ConnectionModel[] | [] = await loadConnections()
-      jsonContent = JSON.stringify(connections, null, 2)
-    }
-    exportDataToXML(jsonContent)
+    this.getStringifyContent().then(content => {
+      exportDataToXML(content)
+    }).catch(err => {
+      this.$message.error(err.toString())
+    })
   }
 
   private async exportCSVData() {
     const exportDataToCSV = (jsonContent: ConnectionModel[]) => {
-      const content = CSVConvert(jsonContent)
+      const content: string = CSVConvert(jsonContent)
       this.exportDiffFormatData(content, 'CSV')
     }
-    const jsonContent: ConnectionModel[] = !this.record.allConnections ? [this.connection] : await loadConnections()
+    const data: ConnectionModel[] = !this.record.allConnections ? [this.connection] : await loadConnections()
+    const jsonContent = this.handleSubscriptions(data)
     exportDataToCSV(jsonContent)
   }
 
