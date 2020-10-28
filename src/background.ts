@@ -6,6 +6,7 @@ import db from './database/index'
 import updateChecker from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
 import saveFile from './main/saveFile'
+import saveExcel from './main/saveExcel'
 
 interface WindowSizeModel {
   width: number
@@ -33,10 +34,14 @@ function handleIpcMessages() {
   ipcMain.on('checkUpdate', () => {
     updateChecker(false)
   })
-  ipcMain.on('exportData', (event: any, ...args: string[]) => {
+  ipcMain.on('exportData', (event: any, ...args: any[]) => {
     const [filename, content, type] = args
     if (win) {
-      saveFile(win, filename, content, type)
+      if (typeof content === 'string') {
+        saveFile(win, filename, content, type)
+      } else {
+        saveExcel(win, filename, content)
+      }
     }
   })
 }

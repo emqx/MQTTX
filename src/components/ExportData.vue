@@ -13,7 +13,8 @@
         <el-col :span="24">
           <el-form-item :label="$t('connections.exportFormat')" prop="exportFormat">
             <el-select size="small" v-model="record.exportFormat">
-              <el-option v-for="(format, index) in ['JSON', 'CSV', 'XML']" :key="index" :value="format"> </el-option>
+              <el-option v-for="(format, index) in ['JSON', 'CSV', 'XML', 'Excel']" :key="index" :value="format">
+              </el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -47,8 +48,9 @@ import MyDialog from './MyDialog.vue'
 import { ConnectionModel } from '@/views/connections/types'
 import XMLConvert from 'xml-js'
 const { parse: CSVConvert } = require('json2csv')
+import ExcelConvert, { WorkBook } from 'xlsx'
 
-type ExportFormat = 'JSON' | 'XML' | 'CSV'
+type ExportFormat = 'JSON' | 'XML' | 'CSV' | 'Excel'
 
 interface ExportForm {
   exportFormat: ExportFormat
@@ -87,6 +89,9 @@ export default class ExportData extends Vue {
         break
       case 'CSV':
         this.exportCSVData()
+        break
+      case 'Excel':
+        this.exportExcelData()
         break
       default:
         break
@@ -143,6 +148,41 @@ export default class ExportData extends Vue {
       .catch((err) => {
         this.$message.error(err.toString())
       })
+  }
+
+  private async exportExcelData() {
+    const data: ConnectionModel[] = !this.record.allConnections ? [this.connection] : await loadConnections()
+    const fileName = !this.record.allConnections ? this.connection.name : 'data'
+    const saveExcelData = (workbook: WorkBook) => {
+      let filename = this.$t('connections.allConnections')
+      if (!this.record.allConnections) {
+        filename = this.connection.name
+        ipcRenderer.send('exportData', filename, workbook)
+      } else {
+        ipcRenderer.send('exportData', 'data', workbook)
+      }
+      ipcRenderer.on('saved', () => {
+        this.$message.success(`${filename} ${this.$t('common.exportSuccess')}`)
+        this.resetData()
+      })
+    }
+
+    if (!data.length) {
+      this.$message.warning(this.$t('common.noData') as string)
+      return
+    }
+    const jsonContent = this.handleSubscriptions(data)
+    const sheet = ExcelConvert.utils.json_to_sheet(jsonContent)
+    Object.keys(sheet).forEach((item) => {
+      // format nested object/array to string
+      if (sheet[item].t === undefined && item !== '!ref') {
+        const stringValue = JSON.stringify(sheet[item])
+        sheet[item] = { t: 's', v: stringValue }
+      }
+    })
+    const newWorkBook = ExcelConvert.utils.book_new()
+    ExcelConvert.utils.book_append_sheet(newWorkBook, sheet)
+    saveExcelData(newWorkBook)
   }
 
   private exportXMLData() {
