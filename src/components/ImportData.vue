@@ -12,7 +12,8 @@
         <el-col :span="24">
           <el-form-item :label="$t('connections.importFormat')">
             <el-select size="small" v-model="record.importFormat">
-              <el-option v-for="(format, index) in ['JSON', 'CSV', 'XML']" :key="index" :value="format"> </el-option>
+              <el-option v-for="(format, index) in ['JSON', 'CSV', 'XML', 'Excel']" :key="index" :value="format">
+              </el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -63,8 +64,9 @@ import { ConnectionModel, MessageModel } from '@/views/connections/types'
 import MyDialog from './MyDialog.vue'
 import XMLConvert from 'xml-js'
 import CSVConvert from 'csvtojson'
+import ExcelConvert from 'xlsx'
 
-type ImportFormat = 'JSON' | 'XML' | 'CSV'
+type ImportFormat = 'JSON' | 'XML' | 'CSV' | 'Excel'
 
 interface ImportForm {
   importFormat: ImportFormat
@@ -112,39 +114,84 @@ export default class ImportData extends Vue {
   }
 
   private getFileData() {
+    const lowerFormat = this.record.importFormat.toLowerCase()
+    const extensionName = lowerFormat === 'excel' ? 'xlsx' : lowerFormat
     remote.dialog.showOpenDialog(
       {
         properties: ['openFile'],
-        filters: [{ name: '', extensions: [`${this.record.importFormat.toLowerCase()}`] }],
+        filters: [{ name: '', extensions: [`${extensionName}`] }],
       },
       (files) => {
         if (files) {
           const filePath = files[0]
-          fs.readFile(filePath, 'utf-8', (err, content) => {
-            if (err) {
-              this.$message.error(`${this.$t('connections.readFileErr')}${err.message}`)
-              return
-            }
-            try {
-              const fileContent = this.getDiffFormatData(content)
-              if (fileContent) {
-                const res = this.verifyFileContent(fileContent)
-                if (!res) {
-                  this.$message.error(this.$t('connections.fileContentRequired') as string)
-                  return
-                }
-                this.record.filePath = filePath
-                const nameIndex = filePath.split('/').length - 1
-                this.record.fileName = filePath.split('/')[nameIndex]
-                this.record.fileContent = fileContent
-              }
-            } catch (err) {
-              this.$message.error(err.toString())
-            }
-          })
+          if (extensionName === 'xlsx') {
+            this.getExcelContentByXlsx(filePath)
+          } else {
+            this.getFileContentByFs(filePath)
+          }
         }
       },
     )
+  }
+
+  private getExcelContentByXlsx(filePath: string) {
+    const workbook = ExcelConvert.readFile(filePath)
+    const sheets = workbook.Sheets
+    let caughtError = false
+    let content: any[] = []
+    for (const sheet in sheets) {
+      if (sheets.hasOwnProperty(sheet)) {
+        const oneSheetJson = ExcelConvert.utils.sheet_to_json(sheets[sheet])
+        content = content.concat(oneSheetJson)
+      }
+    }
+
+    const parseStringProps = (connection: any): ConnectionModel => {
+      let { client, messages, will, subscriptions } = connection
+      try {
+        client = JSON.parse(client)
+        messages = JSON.parse(messages)
+        will = JSON.parse(will)
+        subscriptions = JSON.parse(subscriptions)
+      } catch (err) {
+        this.$message.error(err.toString())
+        caughtError = true
+      }
+      return Object.assign(connection, { client, messages, will, subscriptions })
+    }
+    const jsonContent = content.map((connection): ConnectionModel => parseStringProps(connection))
+    if (!caughtError) {
+      this.assignValueToRecord(filePath, jsonContent)
+    }
+  }
+
+  private getFileContentByFs(filePath: string) {
+    fs.readFile(filePath, 'utf-8', (err, content) => {
+      if (err) {
+        this.$message.error(`${this.$t('connections.readFileErr')}${err.message}`)
+        return
+      }
+      try {
+        const fileContent = this.getDiffFormatData(content)
+        this.assignValueToRecord(filePath, fileContent)
+      } catch (err) {
+        this.$message.error(err.toString())
+      }
+    })
+  }
+
+  private assignValueToRecord(filePath: string, fileContent: ConnectionModel[] | undefined) {
+    if (fileContent) {
+      const res = this.verifyFileContent(fileContent)
+      if (!res) {
+        this.$message.error(this.$t('connections.fileContentRequired') as string)
+        return
+      }
+      this.record.filePath = filePath
+      const nameIndex = filePath.split('/').length - 1
+      this.record.fileName = filePath.split('/')[nameIndex]
+      this.record.fileContent = fileContent
+    }
   }
 
   private verifyFileContent(data: ConnectionModel[]) {
