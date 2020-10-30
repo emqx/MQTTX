@@ -193,6 +193,8 @@ export default class SubscriptionsList extends Vue {
       if (!valid) {
         return false
       }
+      this.subRecord.topic = this.subRecord.topic.trim()
+      this.subRecord.alias = this.subRecord.alias ? this.subRecord.alias.trim() : this.subRecord.alias
       const { topic, qos } = this.subRecord
       this.subRecord.color = this.topicColor || this.getBorderColor()
       this.currentConnection.client.subscribe(topic, { qos }, (error: string, res: SubscriptionModel[]) => {
@@ -254,6 +256,7 @@ export default class SubscriptionsList extends Vue {
   private resetSubs() {
     this.subForm.clearValidate()
     this.subForm.resetFields()
+    this.subRecord.alias = ''
   }
 
   private getCurrentConnection(id: string) {
