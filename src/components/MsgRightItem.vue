@@ -39,5 +39,19 @@ export default class MsgrightItem extends Vue {
     border-radius: 10px 0 10px 10px;
     text-align: left;
   }
+  .right-payload,
+  .right-time {
+    position: relative;
+    left: 0px;
+    animation: rightMsg 0.2s ease-in-out;
+  }
+  @keyframes rightMsg {
+    from {
+      left: 171px;
+    }
+    to {
+      left: 0px;
+    }
+  }
 }
 </style>
