@@ -71,5 +71,19 @@ export default class MsgLeftItem extends Vue {
     border-radius: 0px 10px 10px 10px;
     position: relative;
   }
+  .left-payload,
+  .left-time {
+    position: relative;
+    right: 0px;
+    animation: leftMsg 0.2s ease-in-out;
+  }
+  @keyframes leftMsg {
+    from {
+      right: 171px;
+    }
+    to {
+      right: 0px;
+    }
+  }
 }
 </style>
