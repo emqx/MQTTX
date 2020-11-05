@@ -331,6 +331,7 @@ export default class SubscriptionsList extends Vue {
       line-height: 46px;
       margin-bottom: 16px;
       position: relative;
+      top: 0px;
       clear: both;
       border-radius: 2px;
       -moz-user-select: none;
@@ -338,6 +339,7 @@ export default class SubscriptionsList extends Vue {
       user-select: none;
       transition: all 0.3s ease;
       box-shadow: 1px 1px 2px 0px var(--color-bg-topics_shadow);
+      animation: subItem 0.2s ease-in-out;
       &.active {
         background: var(--color-bg-topics_active);
         box-shadow: none;
@@ -375,6 +377,14 @@ export default class SubscriptionsList extends Vue {
           display: inline;
         }
       }
+    }
+  }
+  @keyframes subItem {
+    from {
+      top: 100px;
+    }
+    to {
+      top: 0px;
     }
   }
 }
