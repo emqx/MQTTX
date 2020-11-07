@@ -846,7 +846,7 @@ export default class ConnectionsDetail extends Vue {
     }
     const genReceivePayload = (receiveType: PayloadType, receiveValue: Buffer) => {
       if (receiveType === 'Base64' || receiveType === 'Hex') {
-        const $type = receiveType.toLowerCase() as PayloadType
+        const $type = receiveType.toLowerCase() as 'base64' | 'hex'
         return receiveValue.toString($type)
       }
       if (receiveType === 'JSON') {
