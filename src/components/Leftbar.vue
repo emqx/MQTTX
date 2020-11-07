@@ -7,12 +7,12 @@
         </a>
       </div>
       <div :class="[{ active: isConnection }, 'leftbar-item']">
-        <a href="javascript:;" @click="$router.push({ path: '/recent_connections' })">
+        <a href="javascript:;" @click="routeToPage('/recent_connections')">
           <i class="iconfont icon-connections"></i>
         </a>
       </div>
       <div class="leftbar-item">
-        <a href="javascript:;" @click="$router.push({ path: '/recent_connections/0?oper=create' })">
+        <a href="javascript:;" @click="routeToPage('/recent_connections/0?oper=create')">
           <i class="iconfont icon-plus"></i>
         </a>
       </div>
@@ -20,12 +20,12 @@
 
     <section class="leftbar-bottom">
       <div :class="[{ active: isAbout }, 'leftbar-item']">
-        <a href="javascript:;" @click="$router.push({ path: '/about' })">
+        <a href="javascript:;" @click="routeToPage('/about')">
           <i class="iconfont icon-about"></i>
         </a>
       </div>
       <div :class="[{ active: isSettings }, 'leftbar-item']">
-        <a href="javascript:;" @click="$router.push({ path: '/settings' })">
+        <a href="javascript:;" @click="routeToPage('/settings')">
           <i class="iconfont icon-settings"></i>
         </a>
       </div>
@@ -53,6 +53,14 @@ export default class Leftbar extends Vue {
   }
   get isAbout(): boolean {
     return this.$route.path === '/about'
+  }
+
+  private routeToPage(path: string) {
+    this.$router
+      .push({
+        path,
+      })
+      .catch(() => {})
   }
 }
 </script>

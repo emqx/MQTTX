@@ -1,7 +1,4 @@
 import Home from '../views/Home.vue'
-import Connections from '../views/connections/index.vue'
-import Settings from '../views/settings/index.vue'
-import About from '../views/about/index.vue'
 
 const routes: Routes[] = [
   {
@@ -10,10 +7,14 @@ const routes: Routes[] = [
     name: 'Home',
     component: Home,
     children: [
-      { path: '/recent_connections', name: 'Connections', component: Connections },
-      { path: '/recent_connections/:id', name: 'ConnectionDetails', component: Connections },
-      { path: '/settings', name: 'Settings', component: Settings },
-      { path: '/about', name: 'About', component: About },
+      { path: '/recent_connections', name: 'Connections', component: () => import('../views/connections/index.vue') },
+      {
+        path: '/recent_connections/:id',
+        name: 'ConnectionDetails',
+        component: () => import('../views/connections/index.vue'),
+      },
+      { path: '/settings', name: 'Settings', component: () => import('../views/settings/index.vue') },
+      { path: '/about', name: 'About', component: () => import('../views/about/index.vue') },
     ],
   },
 ]
