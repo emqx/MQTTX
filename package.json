@@ -29,12 +29,12 @@
     "moment": "^2.24.0",
     "monaco-editor": "^0.20.0",
     "mqtt": "^4.2.1",
-    "vue": "^2.6.10",
+    "vue": "^2.6.12",
     "vue-class-component": "^7.0.2",
     "vue-click-outside": "^1.1.0",
     "vue-clipboard2": "^0.3.1",
     "vue-i18n": "^8.11.2",
-    "vue-property-decorator": "^8.1.0",
+    "vue-property-decorator": "^8.5.1",
     "vue-router": "^3.0.3",
     "vuex": "^3.0.1",
     "vuex-class": "^0.3.2",
@@ -50,6 +50,7 @@
     "@types/lodash": "^4.14.142",
     "@types/lowdb": "^1.0.9",
     "@types/mocha": "^5.2.7",
+    "@types/node": "^12.12.6",
     "@typescript-eslint/eslint-plugin": "^3.8.0",
     "@typescript-eslint/parser": "^3.8.0",
     "@vue/cli-plugin-babel": "^3.12.1",
@@ -61,7 +62,7 @@
     "@vue/test-utils": "1.0.0-beta.29",
     "babel-plugin-component": "^1.1.1",
     "chai": "^4.1.2",
-    "electron": "^5.0.0",
+    "electron": "^5.0.13",
     "eslint": "6.5.1",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
@@ -72,8 +73,8 @@
     "prettier": "^2.0.5",
     "sass-loader": "^7.3.1",
     "typescript": "^3.7.4",
-    "vue-cli-plugin-electron-builder": "^1.4.4",
-    "vue-template-compiler": "^2.6.10"
+    "vue-cli-plugin-electron-builder": "^1.4.6",
+    "vue-template-compiler": "^2.6.12"
   },
   "postcss": {
     "plugins": {
