@@ -11059,7 +11059,7 @@ vue-property-decorator@^8.5.1:
   dependencies:
     vue-class-component "^7.1.0"
 
-vue-router@^3.0.3:
+vue-router@^3.4.9:
   version "3.4.9"
   resolved "https://registry.npm.taobao.org/vue-router/download/vue-router-3.4.9.tgz?cache=0&sync_timestamp=1604611494091&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fvue-router%2Fdownload%2Fvue-router-3.4.9.tgz#c016f42030ae2932f14e4748b39a1d9a0e250e66"
   integrity sha1-wBb0IDCuKTLxTkdIs5odmg4lDmY=
