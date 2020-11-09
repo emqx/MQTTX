@@ -18,6 +18,13 @@ const router: Router = new Router({
   routes,
 })
 
+// Fix Uncaught (in promise) NavigationDuplicated {_name: "NavigationDuplicated"}
+const originalPush = Router.prototype.push
+Router.prototype.push = function push(location: string) {
+  const callRes: $TSFixed = originalPush.call(this, location)
+  return callRes.catch((err: Error) => err)
+}
+
 router.beforeEach((to, from, next) => {
   if (to.name === 'Connections') {
     const connections: ConnectionModel[] | [] = loadConnections() || []
