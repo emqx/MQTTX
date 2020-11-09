@@ -7,6 +7,7 @@ import updateChecker from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
 import saveFile from './main/saveFile'
 import saveExcel from './main/saveExcel'
+import newWindow from './main/newWindow'
 
 interface WindowSizeModel {
   width: number
@@ -24,17 +25,21 @@ let win: BrowserWindow | null
 
 let menu: Menu | null
 
+const windowSize = db.get<WindowSizeModel>('windowSize')
+
+const theme = db.get<Theme>('settings.currentTheme')
+
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }])
 
 function handleIpcMessages() {
-  ipcMain.on('setting', (event: any, ...args: any[]) => {
+  ipcMain.on('setting', (event: Electron.Event, ...args: any[]) => {
     event.sender.send('setting', ...args)
   })
   ipcMain.on('checkUpdate', () => {
     updateChecker(false)
   })
-  ipcMain.on('exportData', (event: any, ...args: any[]) => {
+  ipcMain.on('exportData', (event: Electron.Event, ...args: any[]) => {
     const [filename, content, type] = args
     if (win) {
       if (typeof content === 'string') {
@@ -44,11 +49,15 @@ function handleIpcMessages() {
       }
     }
   })
+  ipcMain.on('newWindow', (event: Electron.Event, ...args: any[]) => {
+    if (win) {
+      const id = args[0]
+      newWindow(id, { isMac, theme, static: __static })
+    }
+  })
 }
 
 function createWindow() {
-  const windowSize = db.get<WindowSizeModel>('windowSize')
-  const theme = db.get<Theme>('settings.currentTheme')
   // Create the browser window.
   win = new BrowserWindow({
     ...windowSize,

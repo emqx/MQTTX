@@ -30,45 +30,47 @@
                 </a>
               </el-tooltip>
             </transition>
-            <el-tooltip
-              placement="bottom"
-              :effect="theme !== 'light' ? 'light' : 'dark'"
-              :open-delay="1000"
-              :content="$t('common.config')"
-            >
-              <a
-                :class="['edit-btn', { disabled: client.connected }]"
-                href="javascript:;"
-                @click="handleEdit($route.params.id)"
+            <template v-if="!isNewWindow">
+              <el-tooltip
+                placement="bottom"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :open-delay="1000"
+                :content="$t('common.config')"
               >
-                <i class="iconfont el-icon-edit-outline"></i>
-              </a>
-            </el-tooltip>
-            <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
-              <a href="javascript:;">
-                <i class="el-icon-more"></i>
-              </a>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="searchContent">
-                  <i class="iconfont icon-search"></i>{{ $t('connections.searchContent') }}
-                </el-dropdown-item>
-                <el-dropdown-item command="clearHistory">
-                  <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
-                </el-dropdown-item>
-                <el-dropdown-item command="exportData">
-                  <i class="el-icon-printer"></i>{{ $t('connections.exportData') }}
-                </el-dropdown-item>
-                <el-dropdown-item command="importData">
-                  <i class="el-icon-upload2"></i>{{ $t('connections.importData') }}
-                </el-dropdown-item>
-                <el-dropdown-item command="disconnect" :disabled="!client.connected">
-                  <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
-                </el-dropdown-item>
-                <el-dropdown-item class="delete-item" command="deleteConnect" divided>
-                  <i class="iconfont icon-delete"></i>{{ $t('connections.deleteConnect') }}
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
+                <a
+                  :class="['edit-btn', { disabled: client.connected }]"
+                  href="javascript:;"
+                  @click="handleEdit($route.params.id)"
+                >
+                  <i class="iconfont el-icon-edit-outline"></i>
+                </a>
+              </el-tooltip>
+              <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
+                <a href="javascript:;">
+                  <i class="el-icon-more"></i>
+                </a>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item command="searchContent">
+                    <i class="iconfont icon-search"></i>{{ $t('connections.searchContent') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="clearHistory">
+                    <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="exportData">
+                    <i class="el-icon-printer"></i>{{ $t('connections.exportData') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="importData">
+                    <i class="el-icon-upload2"></i>{{ $t('connections.importData') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="disconnect" :disabled="!client.connected">
+                    <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item class="delete-item" command="deleteConnect" divided>
+                    <i class="iconfont icon-delete"></i>{{ $t('connections.deleteConnect') }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+            </template>
           </div>
         </div>
         <el-collapse-transition>
@@ -127,7 +129,7 @@
     >
       <div class="connections-body">
         <div class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open : bodyTop.close }">
-          <span class="subs-title">
+          <span v-if="!isNewWindow" class="subs-title">
             {{ this.$t('connections.subscriptions') }}
             <a class="subs-btn" href="javascript:;" @click="handleShowSubs">
               <i class="iconfont icon-zhedie"></i>
@@ -368,6 +370,10 @@ export default class ConnectionsDetail extends Vue {
       url = `${url}${path.startsWith('/') ? '' : '/'}${path}`
     }
     return url
+  }
+
+  get isNewWindow(): boolean {
+    return this.$route.name === 'newWindow'
   }
 
   @Watch('record')
