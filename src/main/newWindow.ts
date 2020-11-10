@@ -23,11 +23,6 @@ const newWindow = (id: string, options: WindowOptions) => {
     backgroundColor: options.theme === 'dark' ? '#232323' : '#ffffff',
     icon: `${options.static}/app.ico`,
   })
-  // Menu Manger
-  let menu: Menu | null
-  const templateMenu = getMenuTemplate(createWindow)
-  menu = Menu.buildFromTemplate(templateMenu)
-  Menu.setApplicationMenu(menu)
   // Load page
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
