@@ -129,7 +129,7 @@
     >
       <div class="connections-body">
         <div class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open : bodyTop.close }">
-          <span v-if="!isNewWindow" class="subs-title">
+          <span class="subs-title">
             {{ this.$t('connections.subscriptions') }}
             <a class="subs-btn" href="javascript:;" @click="handleShowSubs">
               <i class="iconfont icon-zhedie"></i>

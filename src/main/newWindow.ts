@@ -1,5 +1,6 @@
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
+import getMenuTemplate from './getMenuTemplate'
 
 interface WindowOptions {
   theme: Theme
@@ -8,6 +9,7 @@ interface WindowOptions {
 }
 
 const newWindow = (id: string, options: WindowOptions) => {
+  // Create window
   let createWindow: BrowserWindow | null = new BrowserWindow({
     width: 1025,
     height: 749,
@@ -21,6 +23,12 @@ const newWindow = (id: string, options: WindowOptions) => {
     backgroundColor: options.theme === 'dark' ? '#232323' : '#ffffff',
     icon: `${options.static}/app.ico`,
   })
+  // Menu Manger
+  let menu: Menu | null
+  const templateMenu = getMenuTemplate(createWindow)
+  menu = Menu.buildFromTemplate(templateMenu)
+  Menu.setApplicationMenu(menu)
+  // Load page
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     createWindow.loadURL(`${process.env.WEBPACK_DEV_SERVER_URL as string}#/new_window/${id}`)
