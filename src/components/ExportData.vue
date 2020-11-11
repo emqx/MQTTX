@@ -13,7 +13,8 @@
         <el-col :span="24">
           <el-form-item :label="$t('connections.exportFormat')" prop="exportFormat">
             <el-select size="small" v-model="record.exportFormat">
-              <el-option v-for="(format, index) in ['JSON']" :key="index" :value="format"> </el-option>
+              <el-option v-for="(format, index) in ['JSON', 'CSV', 'XML', 'Excel']" :key="index" :value="format">
+              </el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -45,8 +46,11 @@ import { ipcRenderer } from 'electron'
 import { loadConnections } from '@/utils/api/connection'
 import MyDialog from './MyDialog.vue'
 import { ConnectionModel } from '@/views/connections/types'
+import XMLConvert from 'xml-js'
+const { parse: CSVConvert } = require('json2csv')
+import ExcelConvert, { WorkBook } from 'xlsx'
 
-type ExportFormat = 'JSON'
+type ExportFormat = 'JSON' | 'XML' | 'CSV' | 'Excel'
 
 interface ExportForm {
   exportFormat: ExportFormat
@@ -74,37 +78,164 @@ export default class ExportData extends Vue {
   private onChildChanged(val: boolean) {
     this.showDialog = val
   }
+
   private exportData() {
     switch (this.record.exportFormat) {
       case 'JSON':
         this.exportJSONData()
         break
+      case 'XML':
+        this.exportXMLData()
+        break
+      case 'CSV':
+        this.exportCSVData()
+        break
+      case 'Excel':
+        this.exportExcelData()
+        break
       default:
         break
     }
   }
-  private async exportJSONData() {
+
+  private exportDiffFormatData(content: string, format: ExportFormat) {
+    const fileFormat = format.toLowerCase() as ExportFormat
     let filename = this.$t('connections.allConnections')
-    let content = ''
     if (!this.record.allConnections) {
       filename = this.connection.name
-      content = JSON.stringify(this.connection, null, 2)
-      ipcRenderer.send('exportData', filename, content, 'json')
+      ipcRenderer.send('exportData', filename, content, fileFormat)
     } else {
-      const connections: ConnectionModel[] | [] = await loadConnections()
-      content = JSON.stringify(connections, null, 2)
-      ipcRenderer.send('exportData', 'data', content, 'json')
+      ipcRenderer.send('exportData', 'data', content, fileFormat)
     }
     ipcRenderer.on('saved', () => {
       this.$message.success(`${filename} ${this.$t('common.exportSuccess')}`)
       this.resetData()
     })
   }
+
+  private handleSubscriptions(data: ConnectionModel[]): ConnectionModel[] {
+    const handleConnection = (oneConnection: ConnectionModel): ConnectionModel => {
+      const { clean, subscriptions, ...otherProps } = oneConnection
+      const realSubscriptions = clean ? [] : subscriptions
+      return { ...otherProps, clean, subscriptions: realSubscriptions }
+    }
+    return data.map((oneConnection) => handleConnection(oneConnection))
+  }
+
+  private async getStringifyContent(): Promise<string> {
+    if (!this.record.allConnections) {
+      const { ...connection } = this.connection
+      const data = this.handleSubscriptions([connection])
+      const content = JSON.stringify(data[0], null, 2)
+      return content
+    } else {
+      const connections: ConnectionModel[] | [] = await loadConnections()
+      const data = this.handleSubscriptions(connections)
+      const content = JSON.stringify(data, null, 2)
+      return content
+    }
+  }
+
+  private exportJSONData() {
+    this.getStringifyContent()
+      .then((content) => {
+        if (content === '[]') {
+          this.$message.warning(this.$t('common.noData') as string)
+          return
+        }
+        this.exportDiffFormatData(content, 'JSON')
+      })
+      .catch((err) => {
+        this.$message.error(err.toString())
+      })
+  }
+
+  private async exportExcelData() {
+    const data: ConnectionModel[] = !this.record.allConnections ? [this.connection] : await loadConnections()
+    const fileName = !this.record.allConnections ? this.connection.name : 'data'
+    const saveExcelData = (workbook: WorkBook) => {
+      let filename = this.$t('connections.allConnections')
+      if (!this.record.allConnections) {
+        filename = this.connection.name
+        ipcRenderer.send('exportData', filename, workbook)
+      } else {
+        ipcRenderer.send('exportData', 'data', workbook)
+      }
+      ipcRenderer.on('saved', () => {
+        this.$message.success(`${filename} ${this.$t('common.exportSuccess')}`)
+        this.resetData()
+      })
+    }
+
+    if (!data.length) {
+      this.$message.warning(this.$t('common.noData') as string)
+      return
+    }
+    const jsonContent = this.handleSubscriptions(data)
+    const sheet = ExcelConvert.utils.json_to_sheet(jsonContent)
+    Object.keys(sheet).forEach((item) => {
+      // format nested object/array to string
+      if (sheet[item].t === undefined && item !== '!ref') {
+        const stringValue = JSON.stringify(sheet[item])
+        sheet[item] = { t: 's', v: stringValue }
+      }
+    })
+    const newWorkBook = ExcelConvert.utils.book_new()
+    ExcelConvert.utils.book_append_sheet(newWorkBook, sheet)
+    saveExcelData(newWorkBook)
+  }
+
+  private exportXMLData() {
+    const exportDataToXML = (jsonContent: string) => {
+      // avoid messages: [] & subscriptions: [] being discarded
+      jsonContent = jsonContent.replace(/\[\]/g, '""')
+      const XMLOptions = { compact: true, ignoreComment: true, spaces: 2 }
+      try {
+        let content = XMLConvert.json2xml(jsonContent, XMLOptions)
+        content = '<?xml version="1.0" encoding="utf-8"?>\n<root>\n'.concat(content).concat('\n</root>')
+        content = content.replace(/<([0-9]*)>/g, '<oneConnection>').replace(/<(\/[0-9]*)>/g, '</oneConnection>')
+        this.exportDiffFormatData(content, 'XML')
+      } catch (err) {
+        this.$message.error(err.toString())
+      }
+    }
+    this.getStringifyContent()
+      .then((content) => {
+        if (content === '[]') {
+          this.$message.warning(this.$t('common.noData') as string)
+          return
+        }
+        exportDataToXML(content)
+      })
+      .catch((err) => {
+        this.$message.error(err.toString())
+      })
+  }
+
+  private async exportCSVData() {
+    const exportDataToCSV = (jsonContent: ConnectionModel[]) => {
+      try {
+        const content: string = CSVConvert(jsonContent)
+        this.exportDiffFormatData(content, 'CSV')
+      } catch (err) {
+        this.$message.error(err.toString())
+      }
+    }
+    const data: ConnectionModel[] = !this.record.allConnections ? [this.connection] : await loadConnections()
+    if (!data.length) {
+      this.$message.warning(this.$t('common.noData') as string)
+      return
+    }
+    const jsonContent = this.handleSubscriptions(data)
+    exportDataToCSV(jsonContent)
+  }
+
   private resetData() {
     this.showDialog = false
     this.$emit('update:visible', false)
     ipcRenderer.removeAllListeners('saved')
   }
+
   private created() {
     this.record.allConnections = !this.connection ? true : false
   }

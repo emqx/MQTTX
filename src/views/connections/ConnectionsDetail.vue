@@ -30,45 +30,47 @@
                 </a>
               </el-tooltip>
             </transition>
-            <el-tooltip
-              placement="bottom"
-              :effect="theme !== 'light' ? 'light' : 'dark'"
-              :open-delay="1000"
-              :content="$t('common.config')"
-            >
-              <a
-                :class="['edit-btn', { disabled: client.connected }]"
-                href="javascript:;"
-                @click="handleEdit($route.params.id)"
+            <template v-if="!isNewWindow">
+              <el-tooltip
+                placement="bottom"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :open-delay="1000"
+                :content="$t('common.config')"
               >
-                <i class="iconfont el-icon-edit-outline"></i>
-              </a>
-            </el-tooltip>
-            <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
-              <a href="javascript:;">
-                <i class="el-icon-more"></i>
-              </a>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="searchContent">
-                  <i class="iconfont icon-search"></i>{{ $t('connections.searchContent') }}
-                </el-dropdown-item>
-                <el-dropdown-item command="clearHistory">
-                  <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
-                </el-dropdown-item>
-                <el-dropdown-item command="exportData">
-                  <i class="el-icon-printer"></i>{{ $t('connections.exportData') }}
-                </el-dropdown-item>
-                <el-dropdown-item command="importData">
-                  <i class="el-icon-upload2"></i>{{ $t('connections.importData') }}
-                </el-dropdown-item>
-                <el-dropdown-item command="disconnect" :disabled="!client.connected">
-                  <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
-                </el-dropdown-item>
-                <el-dropdown-item class="delete-item" command="deleteConnect" divided>
-                  <i class="iconfont icon-delete"></i>{{ $t('connections.deleteConnect') }}
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
+                <a
+                  :class="['edit-btn', { disabled: client.connected }]"
+                  href="javascript:;"
+                  @click="handleEdit($route.params.id)"
+                >
+                  <i class="iconfont el-icon-edit-outline"></i>
+                </a>
+              </el-tooltip>
+              <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
+                <a href="javascript:;">
+                  <i class="el-icon-more"></i>
+                </a>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item command="searchContent">
+                    <i class="iconfont icon-search"></i>{{ $t('connections.searchContent') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="clearHistory">
+                    <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="exportData">
+                    <i class="el-icon-printer"></i>{{ $t('connections.exportData') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="importData">
+                    <i class="el-icon-upload2"></i>{{ $t('connections.importData') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="disconnect" :disabled="!client.connected">
+                    <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item class="delete-item" command="deleteConnect" divided>
+                    <i class="iconfont icon-delete"></i>{{ $t('connections.deleteConnect') }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+            </template>
           </div>
         </div>
         <el-collapse-transition>
@@ -160,6 +162,7 @@
           :record="record"
           :top="showClientInfo ? bodyTop.open : bodyTop.close"
           @onClickTopic="handleTopicClick"
+          @deleteTopic="getMessages"
         />
         <div v-for="message in messages" :key="message.mid">
           <MsgLeftItem
@@ -369,6 +372,10 @@ export default class ConnectionsDetail extends Vue {
     return url
   }
 
+  get isNewWindow(): boolean {
+    return this.$route.name === 'newWindow'
+  }
+
   @Watch('record')
   private handleRecordChanged() {
     const id: string = this.$route.params.id
@@ -539,14 +546,18 @@ export default class ConnectionsDetail extends Vue {
     }
   }
   private async searchContent() {
+    const { topic, payload } = this.searchParams
+    if (!topic && !payload) {
+      return
+    }
     this.searchLoading = true
     setTimeout(() => {
       this.searchLoading = false
     }, 500)
     this.getMessages()
-    const { topic, payload } = this.searchParams
     if (topic !== '' || payload !== '') {
-      const $messages = _.cloneDeep(this.messages)
+      const $messages =
+        this.activeTopic === '' ? _.cloneDeep(this.messages) : await topicMatch(this.record.messages, this.activeTopic)
       const res = await matchMultipleSearch($messages, this.searchParams)
       if (res) {
         this.messages = res.slice()
@@ -559,6 +570,7 @@ export default class ConnectionsDetail extends Vue {
     this.getMessages()
     if (reset) {
       this.activeTopic = ''
+      this.searchContent()
       return false
     }
     this.activeTopic = sub.topic
@@ -569,6 +581,7 @@ export default class ConnectionsDetail extends Vue {
     } else {
       this.messages = [].slice()
     }
+    this.searchContent()
   }
   private handleSearchOpen() {
     this.searchVisible = true
@@ -579,13 +592,23 @@ export default class ConnectionsDetail extends Vue {
       }
     })
   }
-  private handleSearchClose() {
+  private async handleSearchClose() {
     this.searchVisible = false
     this.searchParams = {
       topic: '',
       payload: '',
     }
     this.getMessages()
+    if (this.activeTopic) {
+      const $messages = _.cloneDeep(this.messages)
+      const res = await topicMatch($messages, this.activeTopic)
+      if (res) {
+        this.messages = res.slice()
+      } else {
+        this.messages = [].slice()
+      }
+    }
+    this.scrollToBottom()
   }
 
   private createClient(): MqttClient {
@@ -697,6 +720,15 @@ export default class ConnectionsDetail extends Vue {
   private onClose() {
     this.connectLoading = false
   }
+  private async isSearchMessage(oneMessage: MessageModel): Promise<boolean> {
+    const res = await matchMultipleSearch([oneMessage], this.searchParams)
+    return res && res.length ? true : false
+  }
+  private scrollToBottom = () => {
+    setTimeout(() => {
+      window.scrollTo(0, document.body.scrollHeight + 160)
+    }, 100)
+  }
   private onMessageArrived(id: string) {
     return (topic: string, payload: Buffer, packet: SubscriptionModel) => {
       const $payload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
@@ -710,22 +742,34 @@ export default class ConnectionsDetail extends Vue {
         retain: packet.retain as boolean,
       }
       const connectionId = this.$route.params.id
+      let _id = id
       if (id === connectionId) {
         this.record.messages.push({ ...receivedMessage })
-        updateConnectionMessage(connectionId, { ...receivedMessage })
+        _id = connectionId
         const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+        const { topic: searchTopic, payload: searchPayload } = this.searchParams
+        if (searchTopic || searchPayload) {
+          this.isSearchMessage(receivedMessage).then((res) => {
+            if (res) {
+              this.messages.push(receivedMessage)
+              this.scrollToBottom()
+            }
+          })
+          return
+        }
         if (this.msgType !== 'publish' && !this.activeTopic) {
           this.messages.push(receivedMessage)
         } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'publish') {
           this.messages.push(receivedMessage)
         }
       } else {
-        updateConnectionMessage(id, { ...receivedMessage })
         this.unreadMessageIncrement({ id })
       }
-      setTimeout(() => {
-        window.scrollTo(0, document.body.scrollHeight + 160)
-      }, 100)
+      ipcRenderer.send('saveMessages', {
+        id: _id,
+        receivedMessage,
+      })
+      this.scrollToBottom()
     }
   }
   private sendMessage(message: MessageModel, type: PayloadType): void | boolean {
@@ -761,16 +805,24 @@ export default class ConnectionsDetail extends Vue {
         retain,
       }
       const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+      const { topic: searchTopic, payload: searchPayload } = this.searchParams
       this.record.messages.push({ ...publishMessage })
       updateConnectionMessage(this.record.id as string, { ...publishMessage })
+      if (searchTopic || searchPayload) {
+        this.isSearchMessage(publishMessage).then((res) => {
+          if (res) {
+            this.messages.push(publishMessage)
+            this.scrollToBottom()
+          }
+        })
+        return
+      }
       if (this.msgType !== 'received' && !this.activeTopic) {
         this.messages.push(publishMessage)
       } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'received') {
         this.messages.push(publishMessage)
       }
-      setTimeout(() => {
-        window.scrollTo(0, document.body.scrollHeight + 160)
-      }, 100)
+      this.scrollToBottom()
     })
   }
 
@@ -804,7 +856,7 @@ export default class ConnectionsDetail extends Vue {
     }
     const genReceivePayload = (receiveType: PayloadType, receiveValue: Buffer) => {
       if (receiveType === 'Base64' || receiveType === 'Hex') {
-        const $type = receiveType.toLowerCase() as PayloadType
+        const $type = receiveType.toLowerCase() as 'base64' | 'hex'
         return receiveValue.toString($type)
       }
       if (receiveType === 'JSON') {

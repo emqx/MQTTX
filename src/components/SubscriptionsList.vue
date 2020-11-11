@@ -193,6 +193,8 @@ export default class SubscriptionsList extends Vue {
       if (!valid) {
         return false
       }
+      this.subRecord.topic = this.subRecord.topic.trim()
+      this.subRecord.alias = this.subRecord.alias ? this.subRecord.alias.trim() : this.subRecord.alias
       const { topic, qos } = this.subRecord
       this.subRecord.color = this.topicColor || this.getBorderColor()
       this.currentConnection.client.subscribe(topic, { qos }, (error: string, res: SubscriptionModel[]) => {
@@ -246,6 +248,7 @@ export default class SubscriptionsList extends Vue {
       updateConnection(this.record.id as string, this.record)
       this.changeSubs(payload)
       this.subsList = payload.subscriptions
+      this.$emit('deleteTopic')
       return true
     })
   }
@@ -253,6 +256,7 @@ export default class SubscriptionsList extends Vue {
   private resetSubs() {
     this.subForm.clearValidate()
     this.subForm.resetFields()
+    this.subRecord.alias = ''
   }
 
   private getCurrentConnection(id: string) {
@@ -327,6 +331,7 @@ export default class SubscriptionsList extends Vue {
       line-height: 46px;
       margin-bottom: 16px;
       position: relative;
+      top: 0px;
       clear: both;
       border-radius: 2px;
       -moz-user-select: none;
@@ -334,6 +339,7 @@ export default class SubscriptionsList extends Vue {
       user-select: none;
       transition: all 0.3s ease;
       box-shadow: 1px 1px 2px 0px var(--color-bg-topics_shadow);
+      animation: subItem 0.2s ease-in-out;
       &.active {
         background: var(--color-bg-topics_active);
         box-shadow: none;
@@ -371,6 +377,14 @@ export default class SubscriptionsList extends Vue {
           display: inline;
         }
       }
+    }
+  }
+  @keyframes subItem {
+    from {
+      top: 100px;
+    }
+    to {
+      top: 0px;
     }
   }
 }

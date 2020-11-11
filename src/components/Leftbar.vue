@@ -6,26 +6,28 @@
           <img src="../assets/images/app-logo.png" alt="app-logo" />
         </a>
       </div>
-      <div :class="[{ active: isConnection }, 'leftbar-item']">
-        <a href="javascript:;" @click="$router.push({ path: '/recent_connections' })">
-          <i class="iconfont icon-connections"></i>
-        </a>
-      </div>
-      <div class="leftbar-item">
-        <a href="javascript:;" @click="$router.push({ path: '/recent_connections/0?oper=create' })">
-          <i class="iconfont icon-plus"></i>
-        </a>
-      </div>
+      <template v-if="!isNewWindow">
+        <div :class="[{ active: isConnection }, 'leftbar-item']">
+          <a href="javascript:;" @click="routeToPage('/recent_connections')">
+            <i class="iconfont icon-connections"></i>
+          </a>
+        </div>
+        <div class="leftbar-item">
+          <a href="javascript:;" @click="routeToPage('/recent_connections/0?oper=create')">
+            <i class="iconfont icon-plus"></i>
+          </a>
+        </div>
+      </template>
     </section>
 
-    <section class="leftbar-bottom">
+    <section v-if="!isNewWindow" class="leftbar-bottom">
       <div :class="[{ active: isAbout }, 'leftbar-item']">
-        <a href="javascript:;" @click="$router.push({ path: '/about' })">
+        <a href="javascript:;" @click="routeToPage('/about')">
           <i class="iconfont icon-about"></i>
         </a>
       </div>
       <div :class="[{ active: isSettings }, 'leftbar-item']">
-        <a href="javascript:;" @click="$router.push({ path: '/settings' })">
+        <a href="javascript:;" @click="routeToPage('/settings')">
           <i class="iconfont icon-settings"></i>
         </a>
       </div>
@@ -53,6 +55,17 @@ export default class Leftbar extends Vue {
   }
   get isAbout(): boolean {
     return this.$route.path === '/about'
+  }
+  get isNewWindow(): boolean {
+    return this.$route.name === 'newWindow'
+  }
+
+  private routeToPage(path: string) {
+    this.$router
+      .push({
+        path,
+      })
+      .catch(() => {})
   }
 }
 </script>

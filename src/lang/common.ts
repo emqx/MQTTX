@@ -129,4 +129,9 @@ export default {
     en: 'Imported successfully',
     ja: 'インポートに成功しました',
   },
+  newWindow: {
+    zh: '新建窗口',
+    en: 'New window',
+    ja: '窓口を新規する',
+  },
 }

@@ -4,7 +4,7 @@
     <div class="about-content">
       <img class="logo" :src="logo" alt="mqttx" />
 
-      <p class="version">v1.3.4</p>
+      <p class="version">v1.4.0</p>
 
       <p class="about-help">
         <a class="web-link" href="javascript:;" @click="checkUpdate">{{ $t('about.update') }}</a>
@@ -66,7 +66,7 @@
               <i class="iconfont icon-qq"></i>
             </span>
           </el-popover>
-          <el-popover placement="top-start" width="30" style="margin-left: 16px;" trigger="click">
+          <el-popover placement="top-start" width="30" style="margin-left: 16px" trigger="click">
             <img class="emqx-qq" src="../../assets/images/wx_qr_code.png" alt="qq" />
             <span class="follow-link" slot="reference">
               <i class="iconfont icon-we-chat"></i>

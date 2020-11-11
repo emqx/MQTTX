@@ -39,6 +39,9 @@
       </div>
     </template>
     <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
+      <a href="javascript:;" class="context-menu__item" @click="handleNewWindow">
+        <i class="el-icon-monitor"></i>{{ $t('common.newWindow') }}
+      </a>
       <a href="javascript:;" class="context-menu__item danger" @click="handleDelete">
         <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
       </a>
@@ -52,6 +55,7 @@ import { Getter, Action } from 'vuex-class'
 import { MqttClient } from 'mqtt'
 import Contextmenu from '@/components/Contextmenu.vue'
 import { ConnectionModel, ContextmenuModel } from './types'
+import { ipcRenderer } from 'electron'
 
 @Component({
   components: {
@@ -84,10 +88,16 @@ export default class ConnectionsList extends Vue {
 
   private handleSelectConnection(row: ConnectionModel) {
     this.unreadMessageIncrement({ id: row.id as string, unreadMessageCount: 0 })
+    if (this.$route.name === 'newWindow') {
+      return
+    }
     this.$router.push({ path: `/recent_connections/${row.id}` })
   }
 
   private handleContextMenu(row: ConnectionModel, event: MouseEvent) {
+    if (this.$route.name === 'newWindow') {
+      return
+    }
     if (!this.showContextmenu) {
       const { clientX, clientY } = event
       this.contextmenuConfig.top = clientY
@@ -101,6 +111,13 @@ export default class ConnectionsList extends Vue {
 
   private handleDelete() {
     this.$emit('delete', this.selectedConnection)
+  }
+
+  private handleNewWindow() {
+    if (this.selectedConnection) {
+      ipcRenderer.send('newWindow', this.selectedConnection.id)
+      this.showContextmenu = false
+    }
   }
 }
 </script>

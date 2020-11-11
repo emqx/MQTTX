@@ -51,7 +51,7 @@ export default class Connections extends Vue {
   }) => void
 
   private isEmpty: boolean = false
-  private records: ConnectionModel[] | [] = []
+  private records: ConnectionModel[] = []
   private currentConnection: ConnectionModel = {
     clientId: '',
     name: '',
@@ -141,27 +141,5 @@ export default class Connections extends Vue {
 </script>
 
 <style lang="scss">
-.connections {
-  .titlebar {
-    padding: 16px;
-  }
-}
-.leftList {
-  position: fixed;
-  width: 260px;
-  left: 81px;
-  top: 0;
-  bottom: 0;
-  overflow-x: hidden;
-  z-index: 1000;
-  border-right: 1px solid var(--color-border-default);
-  background-color: var(--color-bg-primary);
-  .no-data {
-    text-align: center;
-    position: absolute;
-    top: 45%;
-    left: 40%;
-    color: var(--color-text-light);
-  }
-}
+@import '~@/assets/scss/connections.scss';
 </style>
