@@ -355,26 +355,26 @@ export default {
   searchContent: {
     zh: '内容搜索',
     en: 'Search',
-    ja: 'Search',
+    ja: '内容検索',
   },
   inputTopic: {
     zh: '请输入主题',
     en: 'Please input Topic',
-    ja: 'Please input Topic',
+    ja: 'トピックを入力してください',
   },
   inputMsgContent: {
     zh: '请输入消息内容',
     en: 'Please input Message',
-    ja: 'Please input Message',
+    ja: 'メッセージ内容を入力してください',
   },
   flieName: {
     zh: '文件名',
     en: 'File Name',
-    ja: 'File Name',
+    ja: 'ファイル名',
   },
   uploadFileTip: {
     zh: '文件内容格式错误或为空',
     en: 'The file content is malformed or empty',
-    ja: 'The file content is malformed or empty',
+    ja: 'ファイル内容格式ミス/空いている',
   },
 }
