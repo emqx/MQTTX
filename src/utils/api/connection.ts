@@ -62,7 +62,9 @@ export const updateConnection = (id: string, data: ConnectionModel): ConnectionM
 
 export const updateConnectionMessage = (id: string, message: MessageModel): ConnectionModel => {
   const connection: ConnectionModel = loadConnection(id)
-  connection.messages.push(message)
+  if (connection) {
+    connection.messages.push(message)
+  }
   return db.update<ConnectionModel>('connections', id, connection)
 }
 

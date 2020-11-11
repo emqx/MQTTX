@@ -1,6 +1,5 @@
-import { BrowserWindow, Menu } from 'electron'
+import { BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
-import getMenuTemplate from './getMenuTemplate'
 
 interface WindowOptions {
   theme: Theme
@@ -9,12 +8,19 @@ interface WindowOptions {
 }
 
 const newWindow = (id: string, options: WindowOptions) => {
+  let winPos = BrowserWindow.getFocusedWindow()
+  let [x, y] = [0, 0]
+  if (winPos) {
+    const [currentWindowX, currentWindowY] = winPos.getPosition()
+    x = currentWindowX + 30
+    y = currentWindowY + 30
+  }
   // Create window
   let createWindow: BrowserWindow | null = new BrowserWindow({
     width: 1025,
     height: 749,
-    x: 600,
-    y: 600,
+    x,
+    y,
     webPreferences: {
       webSecurity: false,
       nodeIntegration: true,

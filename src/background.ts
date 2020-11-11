@@ -2,6 +2,7 @@
 
 import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
+import { updateConnectionMessage } from '@/utils/api/connection'
 import db from './database/index'
 import updateChecker from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
@@ -54,6 +55,10 @@ function handleIpcMessages() {
       const id = args[0]
       newWindow(id, { isMac, theme, static: __static })
     }
+  })
+  ipcMain.on('saveMessages', (event: Electron.Event, ...args: any[]) => {
+    const { id, receivedMessage } = args[0]
+    updateConnectionMessage(id, { ...receivedMessage })
   })
 }
 

@@ -742,9 +742,10 @@ export default class ConnectionsDetail extends Vue {
         retain: packet.retain as boolean,
       }
       const connectionId = this.$route.params.id
+      let _id = id
       if (id === connectionId) {
         this.record.messages.push({ ...receivedMessage })
-        updateConnectionMessage(connectionId, { ...receivedMessage })
+        _id = connectionId
         const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
         const { topic: searchTopic, payload: searchPayload } = this.searchParams
         if (searchTopic || searchPayload) {
@@ -762,9 +763,12 @@ export default class ConnectionsDetail extends Vue {
           this.messages.push(receivedMessage)
         }
       } else {
-        updateConnectionMessage(id, { ...receivedMessage })
         this.unreadMessageIncrement({ id })
       }
+      ipcRenderer.send('saveMessages', {
+        id: _id,
+        receivedMessage,
+      })
       this.scrollToBottom()
     }
   }
