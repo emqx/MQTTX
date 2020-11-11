@@ -132,6 +132,6 @@ export default {
   newWindow: {
     zh: '新建窗口',
     en: 'New window',
-    ja: 'New window',
+    ja: '窓口を新規する',
   },
 }
