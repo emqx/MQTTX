@@ -28,7 +28,7 @@
     "lowdb": "^1.0.0",
     "moment": "^2.24.0",
     "monaco-editor": "^0.20.0",
-    "mqtt": "^4.2.1",
+    "mqtt": "4.2.1",
     "vue": "^2.6.12",
     "vue-class-component": "^7.0.2",
     "vue-click-outside": "^1.1.0",
