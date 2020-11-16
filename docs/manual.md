@@ -169,13 +169,13 @@ So far, the test of an `MQTT` message is completed.
 
 Click the settings button at the bottom of the left menu bar, or use shortcut. MacOS users can use the `command +,` shortcut, and other users can use the `control +,` shortcut to jump to the settings page. Currently, language selection is supported, whether to automatically check for updates, select topics is enabled and also data backup and recovery functions in advanced settings.
 
+![mqttx-theme](../assets/mqttx-theme.png)
+
 #### Data management
 
 The advanced settings include data backup and recovery functions. Users can choose two import and export ways, or through the upper right menu in the connection page, or in the advanced bar in the settings page.
 
-![mqttx-theme](../assets/mqttx-theme.png)
-
-In the settings page, you can choose to click the data backup and data recovery buttons in the advanced functions at the bottom. When selecting data backup, all connection data will be exported, including all received and sent messages. When selecting data recovery, after selecting the path of the imported file, the data can be recovered after confirmation.
+In the settings page, you can choose to click the data backup and data recovery buttons in the advanced functions at the bottom. When selecting data backup, all connection data will be exported, including all received and sent messages. When selecting data recovery, after selecting the path of the imported file, the data can be recovered after confirmation. The file format supports `JSON`, `XML`, `CSV` and `Excel`.
 
 ![mqttx-advance](../assets/mqttx-advance.png)
 
@@ -206,6 +206,12 @@ Click on the action bar button at the top and select the `Clear Histroy` item, y
 4. Max reconnection times
 
     Below the automatic check update, there is a setting for the maximum number of reconnections, which can be set as an integer. When the 'broker' is disconnected or the connection is unavailable, the connection will be completely disconnected if the number of reconnections exceeds this setting value.
+
+5. Multi-window
+
+    In the connection list, right-click and select `New window` to create a new window for the connection. In the new window, you can also connect, subscribe to topics, publish and receive messages, etc. If there is a connection between multiple connections created, or you need to view messages received at the same time, you can create multiple view windows and view them at the same time.
+
+![mqttx-muti-window](../assets/mqttx-muti-window.png)
 
 ## Development Guide
 
