@@ -14,6 +14,26 @@
                 <i class="el-icon-d-arrow-left"></i>
               </a>
             </h2>
+            <transition name="el-fade-in">
+              <el-popover
+                v-if="client.connected"
+                :title="$t('connections.messageCount')"
+                popper-class="message-popover"
+                placement="right"
+                trigger="hover"
+              >
+                <div class="popover-item">
+                  <label>{{ $t('connections.received') }}:</label>
+                  <span>{{ messagesCount.received }}</span>
+                </div>
+                <div class="popover-item">
+                  <label>{{ $t('connections.published') }}:</label>
+                  <span>{{ messagesCount.publish }}</span>
+                </div>
+                <el-badge slot="reference" :value="messagesCount.count" class="connection-message-count" type="primary">
+                </el-badge>
+              </el-popover>
+            </transition>
           </div>
           <div class="connection-tail">
             <transition name="el-fade-in">
@@ -374,6 +394,21 @@ export default class ConnectionsDetail extends Vue {
 
   get isNewWindow(): boolean {
     return this.$route.name === 'newWindow'
+  }
+
+  get messagesCount(): {
+    count: number
+    received: number
+    publish: number
+  } {
+    const count = this.record.messages.length
+    const received = this.record.messages.filter((msg: MessageModel) => !msg.out).length
+    const publish = this.record.messages.filter((msg: MessageModel) => msg.out).length
+    return {
+      count,
+      received,
+      publish,
+    }
   }
 
   @Watch('record')
@@ -946,6 +981,7 @@ export default class ConnectionsDetail extends Vue {
         -webkit-app-region: drag;
       }
       .connection-head {
+        display: flex;
         .offline {
           color: var(--color-text-light);
         }
@@ -956,6 +992,10 @@ export default class ConnectionsDetail extends Vue {
           margin-top: -1px;
         }
         @include collapse-btn-transform(90deg, -90deg);
+        .connection-message-count {
+          top: 3px;
+          left: 10px;
+        }
       }
       .connection-tail {
         i {
@@ -1081,6 +1121,21 @@ export default class ConnectionsDetail extends Vue {
   .el-icon-printer,
   .el-icon-upload {
     font-size: 16px;
+  }
+}
+.message-popover {
+  .popover-item {
+    margin-top: 10px;
+    &:last-child {
+      margin-bottom: 0px;
+    }
+    label,
+    span {
+      color: var(--color-text-default);
+    }
+    label {
+      margin-right: 8px;
+    }
   }
 }
 </style>

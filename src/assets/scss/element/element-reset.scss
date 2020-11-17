@@ -193,11 +193,20 @@
 }
 
 /* Popper */
+.el-popover__title {
+  color: var(--color-text-title);
+}
 .el-popper {
   background: var(--color-bg-messagebox);
   border-color: var(--color-border-default);
   li {
     color: var(--color-text-default);
+  }
+}
+.el-popper[x-placement^='right'] .popper__arrow {
+  border-right-color: var(--color-border-default);
+  &::after {
+    border-right-color: var(--color-bg-messagebox);
   }
 }
 .el-popper[x-placement^='bottom'] .popper__arrow {
