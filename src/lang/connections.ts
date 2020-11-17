@@ -377,4 +377,9 @@ export default {
     en: 'The file content is malformed or empty',
     ja: 'ファイル内容格式ミス/空いている',
   },
+  messageCount: {
+    zh: '消息数',
+    en: 'Message count',
+    ja: 'Message count',
+  },
 }
