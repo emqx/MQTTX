@@ -755,7 +755,7 @@ export default class ConnectionsDetail extends Vue {
   private onClose() {
     this.connectLoading = false
   }
-  private async isSearchMessage(oneMessage: MessageModel): Promise<boolean> {
+  private async searchMessage(oneMessage: MessageModel): Promise<boolean> {
     const res = await matchMultipleSearch([oneMessage], this.searchParams)
     return res && res.length ? true : false
   }
@@ -781,20 +781,15 @@ export default class ConnectionsDetail extends Vue {
       if (id === connectionId) {
         this.record.messages.push({ ...receivedMessage })
         _id = connectionId
-        const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
-        const { topic: searchTopic, payload: searchPayload } = this.searchParams
-        if (searchTopic || searchPayload) {
-          this.isSearchMessage(receivedMessage).then((res) => {
-            if (res) {
-              this.messages.push(receivedMessage)
-              this.scrollToBottom()
-            }
-          })
+        // Filter by conditions (topic, payload, etc)
+        const filterRes = this.filterBySearchConditions(topic, receivedMessage)
+        if (filterRes) {
           return
         }
-        if (this.msgType !== 'publish' && !this.activeTopic) {
-          this.messages.push(receivedMessage)
-        } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'publish') {
+        const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+        const isFromActiveTopic = this.msgType !== 'publish' && this.activeTopic && isActiveTopicMessages
+        const isFromNotActiveTopic = this.msgType !== 'publish' && !this.activeTopic
+        if (isFromActiveTopic || isFromNotActiveTopic) {
           this.messages.push(receivedMessage)
         }
       } else {
@@ -839,22 +834,17 @@ export default class ConnectionsDetail extends Vue {
         qos,
         retain,
       }
-      const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
-      const { topic: searchTopic, payload: searchPayload } = this.searchParams
-      this.record.messages.push({ ...publishMessage })
       updateConnectionMessage(this.record.id as string, { ...publishMessage })
-      if (searchTopic || searchPayload) {
-        this.isSearchMessage(publishMessage).then((res) => {
-          if (res) {
-            this.messages.push(publishMessage)
-            this.scrollToBottom()
-          }
-        })
+      this.record.messages.push({ ...publishMessage })
+      // Filter by conditions (topic, payload, etc)
+      const filterRes = this.filterBySearchConditions(topic, publishMessage)
+      if (filterRes) {
         return
       }
-      if (this.msgType !== 'received' && !this.activeTopic) {
-        this.messages.push(publishMessage)
-      } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'received') {
+      const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+      const isFromActiveTopic = this.activeTopic && isActiveTopicMessages && this.msgType !== 'received'
+      const isFromNotActiveTopic = this.msgType !== 'received' && !this.activeTopic
+      if (isFromActiveTopic || isFromNotActiveTopic) {
         this.messages.push(publishMessage)
       }
       this.scrollToBottom()
@@ -905,6 +895,20 @@ export default class ConnectionsDetail extends Vue {
       return genReceivePayload(type, value)
     }
     return value
+  }
+
+  private filterBySearchConditions(topic: string, message: MessageModel): boolean {
+    const { topic: searchTopic, payload: searchPayload } = this.searchParams
+    if (searchTopic || searchPayload) {
+      this.searchMessage(message).then((res) => {
+        if (res) {
+          this.messages.push(message)
+          this.scrollToBottom()
+        }
+      })
+      return true
+    }
+    return false
   }
 
   private handleExportData() {
