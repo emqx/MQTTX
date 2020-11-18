@@ -43,7 +43,7 @@ export default class MsgrightItem extends Vue {
   .right-time {
     position: relative;
     left: 0px;
-    animation: rightMsg 0.2s ease-in-out;
+    animation: rightMsg 0.3s ease-in-out;
   }
   @keyframes rightMsg {
     from {

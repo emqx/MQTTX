@@ -75,7 +75,7 @@ export default class MsgLeftItem extends Vue {
   .left-time {
     position: relative;
     right: 0px;
-    animation: leftMsg 0.2s ease-in-out;
+    animation: leftMsg 0.3s ease-in-out;
   }
   @keyframes leftMsg {
     from {
