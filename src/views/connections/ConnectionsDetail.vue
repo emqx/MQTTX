@@ -1,6 +1,6 @@
 <template>
   <div class="connections-detail">
-    <div class="connections-topbar right-topbar">
+    <div ref="connectionTopbar" class="connections-topbar right-topbar">
       <div class="connections-info">
         <div class="topbar">
           <div class="connection-head">
@@ -148,7 +148,7 @@
       }"
     >
       <div class="connections-body">
-        <div class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open : bodyTop.close }">
+        <div ref="filterBar" class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open : bodyTop.close }">
           <span class="subs-title">
             {{ this.$t('connections.subscriptions') }}
             <a class="subs-btn" href="javascript:;" @click="handleShowSubs">
@@ -184,14 +184,16 @@
           @onClickTopic="handleTopicClick"
           @deleteTopic="getMessages"
         />
-        <div v-for="message in messages" :key="message.mid">
-          <MsgLeftItem
-            v-if="!message.out"
-            :subsList="record.subscriptions"
-            v-bind="message"
-            @showmenu="handleContextMenu(arguments, message)"
-          />
-          <MsgRightItem v-else v-bind="message" @showmenu="handleContextMenu(arguments, message)" />
+        <div ref="messagesDisplay" class="messages-display" :style="{ height: `${messageListHeight}px` }">
+          <div v-for="message in messages" :key="message.mid">
+            <MsgLeftItem
+              v-if="!message.out"
+              :subsList="record.subscriptions"
+              v-bind="message"
+              @showmenu="handleContextMenu(arguments, message)"
+            />
+            <MsgRightItem v-else v-bind="message" @showmenu="handleContextMenu(arguments, message)" />
+          </div>
         </div>
         <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
           <a href="javascript:;" class="context-menu__item" @click="handleCopyMessage">
@@ -203,12 +205,13 @@
         </contextmenu>
       </div>
 
-      <div class="connections-footer" :style="{ marginLeft: showSubs ? '570px' : '341px' }">
+      <div ref="connectionFooter" class="connections-footer" :style="{ marginLeft: showSubs ? '570px' : '341px' }">
         <ResizeHeight v-model="inputHeight" />
         <MsgPublish
           :editor-height="inputHeight - 75"
           :subs-visible="showSubs"
           :style="{ height: `${inputHeight}px` }"
+          @foucs="scrollToBottom"
           @handleSend="sendMessage"
         />
       </div>
@@ -328,6 +331,7 @@ export default class ConnectionsDetail extends Vue {
     left: 0,
   }
   private selectedInfo: string = ''
+  private messageListHeight: number = 285
 
   public connect(): boolean | void {
     if (this.client.connected) {
@@ -425,6 +429,18 @@ export default class ConnectionsDetail extends Vue {
     const oldMsgBottom = 160
     const offset = val - oldInputHeight
     this.msgBottom = oldMsgBottom + offset
+    const timer = setTimeout(() => {
+      this.setMessageListHeight()
+      clearTimeout(timer)
+    }, 500)
+  }
+
+  @Watch('showClientInfo')
+  private handleShowClientInfoChange() {
+    const timer = setTimeout(() => {
+      this.setMessageListHeight()
+      clearTimeout(timer)
+    }, 500)
   }
 
   private handleContextMenu(msgItemInfo: IArguments, message: MessageModel) {
@@ -761,7 +777,12 @@ export default class ConnectionsDetail extends Vue {
   }
   private scrollToBottom = () => {
     setTimeout(() => {
-      window.scrollTo(0, document.body.scrollHeight + 160)
+      const messagesDisplay = this.$refs.messagesDisplay as Element
+      messagesDisplay.scrollTo({
+        top: messagesDisplay.scrollHeight + 160,
+        left: 0,
+        behavior: 'smooth',
+      })
     }, 100)
   }
   private onMessageArrived(id: string) {
@@ -927,8 +948,8 @@ export default class ConnectionsDetail extends Vue {
     })
   }
 
+  // Register connected clients message event listeners
   private setClientsMessageListener() {
-    // Register connected clients message event listeners
     Object.keys(this.activeConnection).forEach((connectionID: string) => {
       const $connection: {
         id?: string
@@ -950,8 +971,8 @@ export default class ConnectionsDetail extends Vue {
     })
   }
 
+  // Remove connected clients message event listeners
   private removeClinetsMessageListener() {
-    // Remove connected clients message event listeners
     Object.keys(this.activeConnection).forEach((connectionID: string) => {
       const currentActiveConnection: {
         id?: string
@@ -967,6 +988,25 @@ export default class ConnectionsDetail extends Vue {
   private beforeDestroy() {
     ipcRenderer.removeAllListeners('searchContent')
     this.removeClinetsMessageListener()
+  }
+
+  private setMessageListHeight() {
+    const connectionFooter: HTMLElement = this.$refs.connectionFooter as HTMLElement
+    const connectionTopbar: HTMLElement = this.$refs.connectionTopbar as HTMLElement
+    const filterBar: HTMLElement = this.$refs.filterBar as HTMLElement
+    this.messageListHeight =
+      document.body.offsetHeight -
+      connectionTopbar.offsetHeight -
+      connectionFooter.offsetHeight -
+      filterBar.offsetHeight +
+      7
+  }
+
+  private mounted() {
+    this.setMessageListHeight()
+    window.onresize = () => {
+      this.setMessageListHeight()
+    }
   }
 }
 </script>
@@ -1066,7 +1106,6 @@ export default class ConnectionsDetail extends Vue {
     height: 100%;
     transition: all 0.5s;
     .connections-body {
-      padding: 16px;
       .filter-bar {
         padding: 12px 16px;
         background: var(--color-bg-primary);
@@ -1102,6 +1141,12 @@ export default class ConnectionsDetail extends Vue {
             color: var(--color-text-tips);
           }
         }
+      }
+      .messages-display {
+        overflow-y: scroll;
+        overflow-x: hidden;
+        padding: 0 16px;
+        margin-top: 18px;
       }
     }
     .connections-footer {

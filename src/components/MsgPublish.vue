@@ -51,7 +51,6 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { ipcRenderer } from 'electron'
-import jump from 'jump.js'
 import Editor from '@/components/Editor.vue'
 import { MessageModel } from '../views/connections/types'
 import convertPayload from '@/utils/convertPayload'
@@ -118,7 +117,7 @@ export default class MsgPublish extends Vue {
     ipcRenderer.on('sendPayload', () => {
       this.send()
     })
-    jump(document.body.scrollHeight)
+    this.$emit('foucs')
   }
   private handleInputBlur() {
     ipcRenderer.removeAllListeners('sendPayload')

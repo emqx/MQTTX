@@ -848,11 +848,6 @@
   resolved "https://registry.npm.taobao.org/@types/json-schema/download/@types/json-schema-7.0.6.tgz?cache=0&sync_timestamp=1598910403749&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40types%2Fjson-schema%2Fdownload%2F%40types%2Fjson-schema-7.0.6.tgz#f4c7ec43e81b319a9815115031709f26987891f0"
   integrity sha1-9MfsQ+gbMZqYFRFQMXCfJph4kfA=
 
-"@types/jump.js@^1.0.3":
-  version "1.0.3"
-  resolved "https://registry.npm.taobao.org/@types/jump.js/download/@types/jump.js-1.0.3.tgz#fa146aea4cbfdbe01bfc79f1d5c5d153459540e4"
-  integrity sha1-+hRq6ky/2+Ab/Hnx1cXRU0WVQOQ=
-
 "@types/lodash@*", "@types/lodash@^4.14.142":
   version "4.14.165"
   resolved "https://registry.npm.taobao.org/@types/lodash/download/@types/lodash-4.14.165.tgz?cache=0&sync_timestamp=1604600854786&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2F%40types%2Flodash%2Fdownload%2F%40types%2Flodash-4.14.165.tgz#74d55d947452e2de0742bad65270433b63a8c30f"
@@ -6575,11 +6570,6 @@ jszip@^3.1.0:
     pako "~1.0.2"
     readable-stream "~2.3.6"
     set-immediate-shim "~1.0.1"
-
-jump.js@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.npm.taobao.org/jump.js/download/jump.js-1.0.2.tgz#e0641b47f40a38f2139c25fda0500bf28e43015a"
-  integrity sha1-4GQbR/QKOPITnCX9oFAL8o5DAVo=
 
 keyv@^3.0.0:
   version "3.1.0"
