@@ -602,8 +602,9 @@ export default class ConnectionsDetail extends Vue {
       return
     }
     this.searchLoading = true
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       this.searchLoading = false
+      clearTimeout(timer)
     }, 500)
     this.getMessages()
     if (topic !== '' || payload !== '') {
@@ -776,13 +777,14 @@ export default class ConnectionsDetail extends Vue {
     return res && res.length ? true : false
   }
   private scrollToBottom = () => {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       const messagesDisplay = this.$refs.messagesDisplay as Element
       messagesDisplay.scrollTo({
         top: messagesDisplay.scrollHeight + 160,
         left: 0,
         behavior: 'smooth',
       })
+      clearTimeout(timer)
     }, 100)
   }
   private onMessageArrived(id: string) {
@@ -873,12 +875,13 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private setShowClientInfo(show: boolean) {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       this.showClientInfo = show
       this.changeShowClientInfo({
         id: this.record.id as string,
         showClientInfo: this.showClientInfo,
       })
+      clearTimeout(timer)
     }, 500)
   }
 

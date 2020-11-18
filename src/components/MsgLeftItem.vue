@@ -16,10 +16,6 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { matchTopicMethod } from '@/utils/topicMatch'
 
-type LeftPayloadDOM = Vue & {
-  offsetHeight: number
-}
-
 @Component
 export default class MsgLeftItem extends Vue {
   @Prop({ required: true }) public topic!: string
@@ -45,8 +41,8 @@ export default class MsgLeftItem extends Vue {
   }
 
   private mounted() {
-    const leftPayloadDom = this.$refs.leftPayload as LeftPayloadDOM
-    this.topicColorHeight = `${leftPayloadDom.offsetHeight - 6}px`
+    const leftPayload = this.$refs.leftPayload as HTMLElement
+    this.topicColorHeight = `${leftPayload.offsetHeight - 6}px`
     this.setCurrentTopicColor()
   }
 }
