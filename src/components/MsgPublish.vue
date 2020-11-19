@@ -3,18 +3,18 @@
     <div class="publish-header">
       <div class="qos-retain">
         <span class="publish-label">Payload: </span>
-        <el-select class="payload-select" size="mini" v-model="payloadType">
+        <el-select class="payload-select" size="mini" v-model="payloadType" :disabled="disabled">
           <el-option v-for="(type, index) in payloadOptions" :key="index" :value="type"> </el-option>
         </el-select>
         <span class="publish-label">QoS: </span>
-        <el-select class="qos-select" size="mini" v-model="msgRecord.qos">
+        <el-select class="qos-select" size="mini" v-model="msgRecord.qos" :disabled="disabled">
           <el-option :value="0"></el-option>
           <el-option :value="1"></el-option>
           <el-option :value="2"></el-option>
         </el-select>
         <div class="retain-block">
           <span class="publish-label">Retain: </span>
-          <el-checkbox v-model="msgRecord.retain"></el-checkbox>
+          <el-checkbox v-model="msgRecord.retain" :disabled="disabled"></el-checkbox>
         </div>
       </div>
       <el-input
@@ -23,6 +23,7 @@
         v-model="msgRecord.topic"
         @focus="handleInputFoucs"
         @blur="handleInputBlur"
+        :disabled="disabled"
       >
       </el-input>
     </div>
@@ -40,16 +41,17 @@
         @enter-event="send"
         @focus="handleInputFoucs"
         @blur="handleInputBlur"
+        :disabled="disabled"
       />
     </div>
-    <a href="javascript:;" class="send-btn" @click="send">
+    <a href="javascript:;" :class="['send-btn', disabled ? 'disabled-style' : '']" @click="send">
       <i class="iconfont icon-send"></i>
     </a>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Model, Prop, Watch } from 'vue-property-decorator'
 import { ipcRenderer } from 'electron'
 import Editor from '@/components/Editor.vue'
 import { MessageModel } from '../views/connections/types'
@@ -64,6 +66,7 @@ import { v4 as uuidv4 } from 'uuid'
 export default class MsgPublish extends Vue {
   @Prop({ required: true }) public editorHeight!: number
   @Prop({ required: true }) public subsVisible!: boolean
+  @Prop({ default: false }) public disabled!: boolean
 
   private msgRecord: MessageModel = {
     mid: '',
@@ -109,6 +112,9 @@ export default class MsgPublish extends Vue {
   }
 
   private send() {
+    if (this.disabled) {
+      return
+    }
     this.msgRecord.mid = uuidv4()
     this.$emit('handleSend', this.msgRecord, this.payloadType)
   }
@@ -186,6 +192,9 @@ export default class MsgPublish extends Vue {
     .icon-send {
       font-size: $font-size--send;
     }
+  }
+  .disabled-style {
+    cursor: not-allowed;
   }
 }
 </style>
