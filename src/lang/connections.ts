@@ -382,4 +382,19 @@ export default {
     en: 'Message count',
     ja: 'Message count',
   },
+  timedMessage: {
+    zh: '定时消息',
+    en: 'Timed message',
+    ja: 'Timed message',
+  },
+  msgFrequency: {
+    zh: '消息频率（秒）',
+    en: 'Message frequency(s)',
+    ja: 'Message frequency(s)',
+  },
+  clearIntervalBtn: {
+    zh: '清理定时器',
+    en: 'ClearInterval',
+    ja: 'ClearInterval',
+  },
 }

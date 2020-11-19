@@ -96,3 +96,7 @@ export interface ContextmenuModel {
   top: number
   left: number
 }
+
+export interface TimedForm {
+  sendFrequency: number | undefined
+}
