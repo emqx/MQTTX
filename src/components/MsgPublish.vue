@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Model, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { ipcRenderer } from 'electron'
 import Editor from '@/components/Editor.vue'
 import { MessageModel } from '../views/connections/types'
