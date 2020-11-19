@@ -37,18 +37,30 @@
           </div>
           <div class="connection-tail">
             <transition name="el-fade-in">
-              <el-tooltip
-                v-if="!showClientInfo && client.connected"
-                placement="bottom"
-                :effect="theme !== 'light' ? 'light' : 'dark'"
-                :open-delay="1000"
-                :content="$t('connections.disconnectedBtn')"
-              >
-                <a class="disconnect-btn" href="javascript:;" @click="disconnect">
-                  <i v-if="!disconnectLoding" class="iconfont el-icon-switch-button"></i>
-                  <i v-else class="el-icon-loading"></i>
-                </a>
-              </el-tooltip>
+              <span v-if="!showClientInfo && client.connected">
+                <el-tooltip
+                  v-if="sendTimeId"
+                  placement="bottom"
+                  :effect="theme !== 'light' ? 'light' : 'dark'"
+                  :open-delay="1000"
+                  :content="$t('connections.clearIntervalBtn')"
+                >
+                  <a class="stop-interval-btn" href="javascript:;" @click="stopTimedSend">
+                    <i class="el-icon-turn-off"></i>
+                  </a>
+                </el-tooltip>
+                <el-tooltip
+                  placement="bottom"
+                  :effect="theme !== 'light' ? 'light' : 'dark'"
+                  :open-delay="1000"
+                  :content="$t('connections.disconnectedBtn')"
+                >
+                  <a class="disconnect-btn" href="javascript:;" @click="disconnect">
+                    <i v-if="!disconnectLoding" class="iconfont el-icon-switch-button"></i>
+                    <i v-else class="el-icon-loading"></i>
+                  </a>
+                </el-tooltip>
+              </span>
             </transition>
             <template v-if="!isNewWindow">
               <el-tooltip
@@ -81,6 +93,9 @@
                   </el-dropdown-item>
                   <el-dropdown-item command="importData">
                     <i class="el-icon-upload2"></i>{{ $t('connections.importData') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="timedMessage" :disabled="!client.connected || sendTimeId !== null">
+                    <i class="el-icon-time"></i>{{ $t('connections.timedMessage') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="disconnect" :disabled="!client.connected">
                     <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
@@ -211,6 +226,7 @@
           :editor-height="inputHeight - 75"
           :subs-visible="showSubs"
           :style="{ height: `${inputHeight}px` }"
+          :disabled="sendTimeId !== null"
           @foucs="scrollToBottom"
           @handleSend="sendMessage"
         />
@@ -219,6 +235,7 @@
 
     <ExportData :visible.sync="showExportData" :connection="record" />
     <ImportData :visible.sync="showImportData" @updateData="$emit('reload')" />
+    <TimedMessage :visible.sync="showTimedMessage" v-model="timedMsgRecord" />
   </div>
 </template>
 
@@ -253,11 +270,19 @@ import ConnectionInfo from './ConnectionInfo.vue'
 import Contextmenu from '@/components/Contextmenu.vue'
 import ExportData from '@/components/ExportData.vue'
 import ImportData from '@/components/ImportData.vue'
+import TimedMessage from '@/components/TimedMessage.vue'
 
-import { ConnectionModel, MessageModel, SSLPath, SSLContent, ContextmenuModel } from './types'
+import { ConnectionModel, MessageModel, SSLPath, SSLContent, ContextmenuModel, TimedForm } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
-type CommandType = 'searchContent' | 'clearHistory' | 'disconnect' | 'deleteConnect' | 'exportData' | 'importData'
+type CommandType =
+  | 'searchContent'
+  | 'clearHistory'
+  | 'disconnect'
+  | 'deleteConnect'
+  | 'exportData'
+  | 'importData'
+  | 'timedMessage'
 type PayloadConvertType = 'base64' | 'hex'
 
 interface Top {
@@ -276,6 +301,7 @@ interface Top {
     Contextmenu,
     ExportData,
     ImportData,
+    TimedMessage,
   },
 })
 export default class ConnectionsDetail extends Vue {
@@ -300,6 +326,11 @@ export default class ConnectionsDetail extends Vue {
   private showClientInfo = true
   private showExportData = false
   private showImportData = false
+  private showTimedMessage = false
+  private timedMsgRecord: TimedForm = {
+    sendFrequency: undefined,
+  }
+  private sendTimeId: number | null = null
   private connectLoading = false
   private searchVisible = false
   private searchLoading = false
@@ -546,6 +577,8 @@ export default class ConnectionsDetail extends Vue {
       case 'importData':
         this.handleImportData()
         break
+      case 'timedMessage':
+        this.handleTimedMessage()
       default:
         break
     }
@@ -676,6 +709,7 @@ export default class ConnectionsDetail extends Vue {
     if (!this.client.connected) {
       return false
     }
+    this.stopTimedSend()
     this.disconnectLoding = true
     const { id } = this.$route.params
     if (this.record.clean) {
@@ -825,7 +859,34 @@ export default class ConnectionsDetail extends Vue {
       this.scrollToBottom()
     }
   }
-  private sendMessage(message: MessageModel, type: PayloadType): void | boolean {
+  private sendMessage(message: MessageModel, type: PayloadType): void {
+    this.sendOneMessage(message, type)
+    const { sendFrequency } = this.timedMsgRecord
+    if (sendFrequency) {
+      this.timedSendMessage(sendFrequency, message, type)
+    }
+  }
+  private timedSendMessage(time: number, message: MessageModel, type: PayloadType) {
+    this.sendTimeId = window.setInterval(() => {
+      const { ...oneMessage } = message
+      let { mid } = oneMessage
+      mid = uuidv4()
+      this.sendOneMessage(Object.assign(oneMessage, { mid }), type)
+      if (!this.client.connected) {
+        this.stopTimedSend()
+      }
+    }, time * 1000)
+  }
+  public stopTimedSend() {
+    this.timedMsgRecord = {
+      sendFrequency: undefined,
+    }
+    if (this.sendTimeId) {
+      clearInterval(this.sendTimeId)
+      this.sendTimeId = null
+    }
+  }
+  private sendOneMessage(message: MessageModel, type: PayloadType): void | boolean {
     if (!this.client.connected) {
       this.$notify({
         title: this.$t('connections.notConnect') as string,
@@ -943,6 +1004,10 @@ export default class ConnectionsDetail extends Vue {
     this.showImportData = true
   }
 
+  private handleTimedMessage() {
+    this.showTimedMessage = true
+  }
+
   private created() {
     const { id } = this.$route.params
     this.getConnectionValue(id)
@@ -1048,7 +1113,8 @@ export default class ConnectionsDetail extends Vue {
         i {
           font-size: 18px;
         }
-        .disconnect-btn {
+        .disconnect-btn,
+        .stop-interval-btn {
           margin-right: 10px;
           color: var(--color-second-red);
         }

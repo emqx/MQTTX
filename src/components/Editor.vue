@@ -15,6 +15,7 @@ export default class Editor extends Vue {
   @Prop({ required: true }) public lang!: string
   @Prop({ default: 14 }) public fontSize!: number
   @Prop({ default: 'hidden' }) public scrollbarStatus: 'auto' | 'visible' | 'hidden' | undefined
+  @Prop({ default: false }) public disabled!: boolean
 
   @Model('change', { type: String }) private readonly value!: string
 
@@ -39,11 +40,19 @@ export default class Editor extends Vue {
     }
   }
 
+  @Watch('disabled')
+  private handleDisabledChanged(val: string) {
+    if (this.editor) {
+      this.editor.dispose()
+      this.initEditor()
+    }
+  }
+
   private initEditor(): void | boolean {
     const defaultOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
       value: this.value,
       language: this.lang,
-      readOnly: false,
+      readOnly: this.disabled,
       fontSize: this.fontSize,
       scrollBeyondLastLine: false,
       lineNumbers: 'off',
