@@ -32,7 +32,7 @@ interface TimedForm {
     MyDialog,
   },
 })
-export default class TimedMessge extends Vue {
+export default class TimedMessage extends Vue {
   @Prop({ default: false }) public visible!: boolean
 
   private showDialog: boolean = this.visible
