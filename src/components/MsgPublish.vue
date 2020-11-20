@@ -3,18 +3,18 @@
     <div class="publish-header">
       <div class="qos-retain">
         <span class="publish-label">Payload: </span>
-        <el-select class="payload-select" size="mini" v-model="payloadType" :disabled="disabled">
+        <el-select class="payload-select" size="mini" v-model="payloadType">
           <el-option v-for="(type, index) in payloadOptions" :key="index" :value="type"> </el-option>
         </el-select>
         <span class="publish-label">QoS: </span>
-        <el-select class="qos-select" size="mini" v-model="msgRecord.qos" :disabled="disabled">
+        <el-select class="qos-select" size="mini" v-model="msgRecord.qos">
           <el-option :value="0"></el-option>
           <el-option :value="1"></el-option>
           <el-option :value="2"></el-option>
         </el-select>
         <div class="retain-block">
           <span class="publish-label">Retain: </span>
-          <el-checkbox v-model="msgRecord.retain" :disabled="disabled"></el-checkbox>
+          <el-checkbox v-model="msgRecord.retain"></el-checkbox>
         </div>
       </div>
       <el-input
@@ -23,7 +23,6 @@
         v-model="msgRecord.topic"
         @focus="handleInputFoucs"
         @blur="handleInputBlur"
-        :disabled="disabled"
       >
       </el-input>
     </div>
@@ -41,12 +40,12 @@
         @enter-event="send"
         @focus="handleInputFoucs"
         @blur="handleInputBlur"
-        :disabled="disabled"
       />
     </div>
-    <a href="javascript:;" :class="['send-btn', disabled ? 'disabled-style' : '']" @click="send">
+    <a href="javascript:;" class="send-btn" @click="send">
       <i class="iconfont icon-send"></i>
     </a>
+    <div v-if="disabled" class="disabled-mask" @click.stop></div>
   </div>
 </template>
 
@@ -110,11 +109,14 @@ export default class MsgPublish extends Vue {
         this.payloadType = oldVal
       })
   }
+  @Watch('disabled', { immediate: true, deep: true })
+  private handleDisabledChange(val: boolean) {
+    if (val) {
+      ipcRenderer.removeAllListeners('sendPayload')
+    }
+  }
 
   private send() {
-    if (this.disabled) {
-      return
-    }
     this.msgRecord.mid = uuidv4()
     this.$emit('handleSend', this.msgRecord, this.payloadType)
   }
@@ -144,6 +146,7 @@ export default class MsgPublish extends Vue {
 @import '~@/assets/scss/mixins.scss';
 
 .msg-publish {
+  position: relative;
   background: var(--color-bg-normal);
   transition: 0.3s height;
   border-top: 1px solid var(--color-border-default);
@@ -193,8 +196,15 @@ export default class MsgPublish extends Vue {
       font-size: $font-size--send;
     }
   }
-  .disabled-style {
+  .disabled-mask {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-bg-primary);
+    opacity: 0.5;
     cursor: not-allowed;
+    z-index: 9;
+    top: 0;
   }
 }
 </style>

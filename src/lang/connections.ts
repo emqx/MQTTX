@@ -398,9 +398,9 @@ export default {
     ja: 'Clear timer',
   },
   setTimerSuccess: {
-    zh: '成功设置定时器',
-    en: 'Timer set successfully',
-    ja: 'Timer set successfully',
+    zh: '成功设置定时器，发送一条消息将触发定时消息',
+    en: 'Timer set successfully, sending a message will trigger timed messages',
+    ja: 'Timer set successfully, sending a message will trigger timed messages',
   },
   startTimedMessage: {
     zh: '成功开启定时消息，消息频率（秒）：',
