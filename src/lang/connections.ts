@@ -394,7 +394,22 @@ export default {
   },
   clearIntervalBtn: {
     zh: '清理定时器',
-    en: 'ClearInterval',
-    ja: 'ClearInterval',
+    en: 'Clear timer',
+    ja: 'Clear timer',
+  },
+  setTimerSuccess: {
+    zh: '成功设置定时器',
+    en: 'Timer set successfully',
+    ja: 'Timer set successfully',
+  },
+  startTimedMessage: {
+    zh: '成功开启定时消息，消息频率（秒）：',
+    en: 'Opened timed message successfully, frequency(s): ',
+    ja: 'Opened timed message successfully, frequency(s): ',
+  },
+  stopTimedMessage: {
+    zh: '已停止发送定时消息',
+    en: 'Stopped sending timed messages',
+    ja: 'Stopped sending timed messages',
   },
 }
