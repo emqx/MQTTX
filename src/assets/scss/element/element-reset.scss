@@ -192,6 +192,18 @@
   }
 }
 
+/* Input Number */
+.el-input-number.is-controls-right {
+  .el-input-number__decrease,
+  .el-input-number__increase {
+    background: var(--color-bg-normal);
+    border-left: 1px solid var(--color-border-default);
+  }
+  .el-input-number__increase {
+    border-bottom: 1px solid var(--color-border-default);
+  }
+}
+
 /* Popper */
 .el-popover__title {
   color: var(--color-text-title);
