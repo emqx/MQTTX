@@ -46,7 +46,7 @@
                   :content="$t('connections.clearIntervalBtn')"
                 >
                   <a class="stop-interval-btn" href="javascript:;" @click="stopTimedSend">
-                    <i class="el-icon-turn-off"></i>
+                    <i class="el-icon-time"></i>
                   </a>
                 </el-tooltip>
                 <el-tooltip
@@ -56,7 +56,7 @@
                   :content="$t('connections.disconnectedBtn')"
                 >
                   <a class="disconnect-btn" href="javascript:;" @click="disconnect">
-                    <i v-if="!disconnectLoding" class="iconfont el-icon-switch-button"></i>
+                    <i v-if="!disconnectLoding" class="el-icon-switch-button"></i>
                     <i v-else class="el-icon-loading"></i>
                   </a>
                 </el-tooltip>
@@ -74,7 +74,7 @@
                   href="javascript:;"
                   @click="handleEdit($route.params.id)"
                 >
-                  <i class="iconfont el-icon-edit-outline"></i>
+                  <i class="el-icon-edit-outline"></i>
                 </a>
               </el-tooltip>
               <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
@@ -235,7 +235,7 @@
 
     <ExportData :visible.sync="showExportData" :connection="record" />
     <ImportData :visible.sync="showImportData" @updateData="$emit('reload')" />
-    <TimedMessage :visible.sync="showTimedMessage" v-model="timedMsgRecord" />
+    <TimedMessage ref="timedMessage" :visible.sync="showTimedMessage" @setTimerSuccess="setTimerSuccess" />
   </div>
 </template>
 
@@ -272,7 +272,7 @@ import ExportData from '@/components/ExportData.vue'
 import ImportData from '@/components/ImportData.vue'
 import TimedMessage from '@/components/TimedMessage.vue'
 
-import { ConnectionModel, MessageModel, SSLPath, SSLContent, ContextmenuModel, TimedForm } from './types'
+import { ConnectionModel, MessageModel, SSLPath, SSLContent, ContextmenuModel } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType =
@@ -327,9 +327,7 @@ export default class ConnectionsDetail extends Vue {
   private showExportData = false
   private showImportData = false
   private showTimedMessage = false
-  private timedMsgRecord: TimedForm = {
-    sendFrequency: undefined,
-  }
+  private sendFrequency: number | undefined = undefined
   private sendTimeId: number | null = null
   private connectLoading = false
   private searchVisible = false
@@ -859,11 +857,14 @@ export default class ConnectionsDetail extends Vue {
       this.scrollToBottom()
     }
   }
+  private setTimerSuccess(time: number) {
+    this.sendFrequency = time
+  }
   private sendMessage(message: MessageModel, type: PayloadType): void {
     this.sendOneMessage(message, type)
-    const { sendFrequency } = this.timedMsgRecord
-    if (sendFrequency) {
-      this.timedSendMessage(sendFrequency, message, type)
+    if (this.sendFrequency) {
+      this.$message.success(`${this.$t('connections.startTimedMessage')}${this.sendFrequency}`)
+      this.timedSendMessage(this.sendFrequency, message, type)
     }
   }
   private timedSendMessage(time: number, message: MessageModel, type: PayloadType) {
@@ -878,12 +879,14 @@ export default class ConnectionsDetail extends Vue {
     }, time * 1000)
   }
   public stopTimedSend() {
-    this.timedMsgRecord = {
+    const timedMessage: TimedMessage = this.$refs.timedMessage as TimedMessage
+    timedMessage['record'] = {
       sendFrequency: undefined,
     }
     if (this.sendTimeId) {
       clearInterval(this.sendTimeId)
       this.sendTimeId = null
+      this.$message.success(this.$t('connections.stopTimedMessage') as string)
     }
   }
   private sendOneMessage(message: MessageModel, type: PayloadType): void | boolean {
