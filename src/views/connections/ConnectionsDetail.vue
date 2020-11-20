@@ -868,13 +868,13 @@ export default class ConnectionsDetail extends Vue {
   }
   private timedSendMessage(time: number, message: MessageModel, type: PayloadType) {
     this.sendTimeId = window.setInterval(() => {
+      if (!this.client.connected) {
+        this.stopTimedSend()
+      }
       const { ...oneMessage } = message
       let { mid } = oneMessage
       mid = uuidv4()
       this.sendOneMessage(Object.assign(oneMessage, { mid }), type)
-      if (!this.client.connected) {
-        this.stopTimedSend()
-      }
     }, time * 1000)
   }
   public stopTimedSend() {
@@ -1056,6 +1056,7 @@ export default class ConnectionsDetail extends Vue {
   private beforeDestroy() {
     ipcRenderer.removeAllListeners('searchContent')
     this.removeClinetsMessageListener()
+    this.stopTimedSend()
   }
 
   private setMessageListHeight() {
