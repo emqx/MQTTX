@@ -20,22 +20,25 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Model, Prop, Watch } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import MyDialog from './MyDialog.vue'
-import { TimedForm } from '@/views/connections/types'
+
+interface TimedForm {
+  sendFrequency: number | undefined
+}
 
 @Component({
   components: {
     MyDialog,
   },
 })
-export default class ImportData extends Vue {
+export default class TimedMessge extends Vue {
   @Prop({ default: false }) public visible!: boolean
 
-  @Model('change') private record!: TimedForm
-
   private showDialog: boolean = this.visible
+  public record: TimedForm = {
+    sendFrequency: undefined,
+  }
 
   @Watch('visible')
   private onChildChanged(val: boolean) {
@@ -43,7 +46,11 @@ export default class ImportData extends Vue {
   }
 
   private publishTimedMsg() {
-    this.$emit('change', this.record)
+    const { sendFrequency } = this.record
+    if (sendFrequency) {
+      this.$emit('setTimerSuccess', sendFrequency)
+      this.$message.success(this.$t('connections.setTimerSuccess') as string)
+    }
     this.resetData()
   }
 
