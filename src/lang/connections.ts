@@ -412,4 +412,24 @@ export default {
     en: 'Stopped sending timed messages',
     ja: 'Stopped sending timed messages',
   },
+  systemTopic: {
+    zh: '系统主题',
+    en: 'System topic',
+    ja: 'System topic',
+  },
+  bytesStatistics: {
+    zh: '收发流量统计',
+    en: 'Bytes statistics',
+    ja: 'Bytes statistics',
+  },
+  bytesReceived: {
+    zh: '累计接收流量',
+    en: 'Accumulated received bytes',
+    ja: 'Accumulated received bytes',
+  },
+  bytesSent: {
+    zh: '累计发送流量',
+    en: 'Accumulated sent bytes',
+    ja: 'Accumulated sent bytes',
+  },
 }

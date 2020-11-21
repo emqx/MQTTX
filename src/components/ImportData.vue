@@ -109,7 +109,7 @@ export default class ImportData extends Vue {
   ]
 
   @Watch('visible')
-  private onChildChanged(val: boolean) {
+  private onVisibleChanged(val: boolean) {
     this.showDialog = val
   }
 
