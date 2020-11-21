@@ -75,7 +75,7 @@ export default class ExportData extends Vue {
   }
 
   @Watch('visible')
-  private onChildChanged(val: boolean) {
+  private onVisibleChanged(val: boolean) {
     this.showDialog = val
   }
 

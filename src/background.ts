@@ -53,7 +53,7 @@ function handleIpcMessages() {
   ipcMain.on('newWindow', (event: Electron.Event, ...args: any[]) => {
     if (win) {
       const id = args[0]
-      newWindow(id, { isMac, theme, static: __static })
+      newWindow(id, { isMac, theme, static: __static, path: '/new_window' })
     }
   })
   ipcMain.on('saveMessages', (event: Electron.Event, ...args: any[]) => {
