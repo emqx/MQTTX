@@ -29,6 +29,8 @@ export default class BytesStatistics extends Vue {
   @Prop({ default: 0 }) public sent!: number
   @Prop({ default: 0 }) public recevied!: number
 
+  @Getter('currentTheme') private theme!: Theme
+
   private showDialog: boolean = this.visible
   private bytesChart: Chart | null = null
   private loading = true
@@ -47,6 +49,10 @@ export default class BytesStatistics extends Vue {
   @Watch('$route.params.id')
   private handleIdChanged() {
     this.initChartDataOption()
+  }
+
+  get fontLineColor() {
+    return this.theme !== 'light' ? '#fff' : '#666'
   }
 
   public updateChart() {
@@ -75,18 +81,23 @@ export default class BytesStatistics extends Vue {
           {
             label: this.$t('connections.bytesReceived'),
             borderColor: '#ff6384',
-            backgroundColor: '#ff638424',
+            backgroundColor: '#ff638412',
             data: [],
           },
           {
             label: this.$t('connections.bytesSent'),
             borderColor: '#ffce56',
-            backgroundColor: '#ffce5624',
+            backgroundColor: '#ffce5612',
             data: [],
           },
         ],
       },
       options: {
+        legend: {
+          labels: {
+            fontColor: this.fontLineColor,
+          },
+        },
         scales: {
           yAxes: [
             {
@@ -118,6 +129,7 @@ export default class BytesStatistics extends Vue {
   }
 
   private created() {
+    Chart.defaults.global.defaultFontColor = this.fontLineColor
     this.initChartDataOption()
   }
 }
