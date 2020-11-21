@@ -95,7 +95,10 @@
                     <i class="el-icon-upload2"></i>{{ $t('connections.importData') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="timedMessage" :disabled="!client.connected || sendTimeId !== null">
-                    <i class="el-icon-time"></i>{{ $t('connections.timedMessage') }}
+                    <i class="el-icon-timer"></i>{{ $t('connections.timedMessage') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="bytesStatistics" :disabled="!client.connected">
+                    <i class="el-icon-data-line"></i>{{ $t('connections.bytesStatistics') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="disconnect" :disabled="!client.connected">
                     <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
@@ -192,6 +195,7 @@
           </div>
         </div>
         <SubscriptionsList
+          ref="subList"
           :subsVisible.sync="showSubs"
           :connectionId="$route.params.id"
           :record="record"
@@ -236,6 +240,7 @@
     <ExportData :visible.sync="showExportData" :connection="record" />
     <ImportData :visible.sync="showImportData" @updateData="$emit('reload')" />
     <TimedMessage ref="timedMessage" :visible.sync="showTimedMessage" @setTimerSuccess="setTimerSuccess" />
+    <BytesStatistics ref="bytesStatistics" :visible.sync="showBytes" v-bind="chartData" />
   </div>
 </template>
 
@@ -260,6 +265,7 @@ import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
 import { getClientOptions, getMQTTProtocol } from '@/utils/mqttUtils'
+import { handleBytes } from '@/utils/SystemTopicUtils'
 
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
@@ -271,8 +277,9 @@ import Contextmenu from '@/components/Contextmenu.vue'
 import ExportData from '@/components/ExportData.vue'
 import ImportData from '@/components/ImportData.vue'
 import TimedMessage from '@/components/TimedMessage.vue'
+import BytesStatistics from '@/components/BytesStatistics.vue'
 
-import { ConnectionModel, MessageModel, SSLPath, SSLContent, ContextmenuModel } from './types'
+import { ConnectionModel, MessageModel, SSLPath, SSLContent, ContextmenuModel, ChartDataModel } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType =
@@ -283,9 +290,10 @@ type CommandType =
   | 'exportData'
   | 'importData'
   | 'timedMessage'
+  | 'bytesStatistics'
 type PayloadConvertType = 'base64' | 'hex'
 
-interface Top {
+interface TopModel {
   open: string
   close: string
 }
@@ -302,6 +310,7 @@ interface Top {
     ExportData,
     ImportData,
     TimedMessage,
+    BytesStatistics,
   },
 })
 export default class ConnectionsDetail extends Vue {
@@ -327,12 +336,14 @@ export default class ConnectionsDetail extends Vue {
   private showExportData = false
   private showImportData = false
   private showTimedMessage = false
-  private sendFrequency: number | undefined = undefined
-  private sendTimeId: number | null = null
   private connectLoading = false
   private searchVisible = false
   private searchLoading = false
   private disconnectLoding = false
+  private showBytes = false
+
+  private sendFrequency: number | undefined = undefined
+  private sendTimeId: number | null = null
   private receivedMsgType: PayloadType = 'Plaintext'
   private msgType: MessageType = 'all'
   private client: Partial<MqttClient> = {
@@ -344,9 +355,12 @@ export default class ConnectionsDetail extends Vue {
     payload: '',
   }
   private titleName: string = this.record.name
+
   private retryTimes = 0
   private inputHeight = 155
   private msgBottom = 160
+  private messageListHeight: number = 285
+
   private activeTopic = ''
   private mqttVersionDict = {
     '3.1.1': 4,
@@ -360,7 +374,12 @@ export default class ConnectionsDetail extends Vue {
     left: 0,
   }
   private selectedInfo: string = ''
-  private messageListHeight: number = 285
+  private chartData: ChartDataModel = {
+    label: '',
+    recevied: 0,
+    sent: 0,
+  }
+  private bytesTimes = 0
 
   public connect(): boolean | void {
     if (this.client.connected) {
@@ -401,14 +420,14 @@ export default class ConnectionsDetail extends Vue {
       })
   }
 
-  get bodyTop(): Top {
+  get bodyTop(): TopModel {
     return {
       open: '254px',
       close: '60px',
     }
   }
 
-  get msgTop(): Top {
+  get msgTop(): TopModel {
     return {
       open: '286px',
       close: '88px',
@@ -577,6 +596,10 @@ export default class ConnectionsDetail extends Vue {
         break
       case 'timedMessage':
         this.handleTimedMessage()
+        break
+      case 'bytesStatistics':
+        this.handleSubSystemTopic()
+        break
       default:
         break
     }
@@ -833,6 +856,21 @@ export default class ConnectionsDetail extends Vue {
       }
       const connectionId = this.$route.params.id
       let _id = id
+      if (topic.indexOf('$SYS') !== -1 && this.showBytes && id === connectionId) {
+        const _chartData = handleBytes(receivedMessage)
+        if (_chartData) {
+          this.chartData = _chartData
+          this.bytesTimes += 1
+          if (this.bytesTimes === 2) {
+            const bytesStatistics = this.$refs.bytesStatistics as BytesStatistics
+            this.$nextTick(() => {
+              bytesStatistics.updateChart()
+              this.bytesTimes = 0
+            })
+          }
+        }
+        return
+      }
       if (id === connectionId) {
         this.record.messages.push({ ...receivedMessage })
         _id = connectionId
@@ -1009,6 +1047,12 @@ export default class ConnectionsDetail extends Vue {
 
   private handleTimedMessage() {
     this.showTimedMessage = true
+  }
+
+  private handleSubSystemTopic() {
+    this.showBytes = true
+    const subList = this.$refs.subList as SubscriptionsList
+    subList.subscribe({ topic: '$SYS/#', qos: 0 }, true)
   }
 
   private created() {
@@ -1219,7 +1263,7 @@ export default class ConnectionsDetail extends Vue {
         overflow-y: scroll;
         overflow-x: hidden;
         padding: 0 16px;
-        margin-top: 18px;
+        margin-top: 19px;
       }
     }
     .connections-footer {
@@ -1240,8 +1284,7 @@ export default class ConnectionsDetail extends Vue {
       background: var(--color-third-red);
     }
   }
-  .el-icon-printer,
-  .el-icon-upload {
+  i {
     font-size: 16px;
   }
 }

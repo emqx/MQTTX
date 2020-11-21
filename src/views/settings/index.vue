@@ -257,8 +257,7 @@ export default class Settings extends Vue {
     border-left: 1px solid var(--color-border-default);
   }
 
-  .el-icon-printer,
-  .el-icon-upload2 {
+  i {
     font-size: 16px;
   }
   .data-manager-btn {

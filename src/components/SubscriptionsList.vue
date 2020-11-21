@@ -195,32 +195,40 @@ export default class SubscriptionsList extends Vue {
       }
       this.subRecord.topic = this.subRecord.topic.trim()
       this.subRecord.alias = this.subRecord.alias ? this.subRecord.alias.trim() : this.subRecord.alias
-      const { topic, qos } = this.subRecord
       this.subRecord.color = this.topicColor || this.getBorderColor()
-      this.currentConnection.client.subscribe(topic, { qos }, (error: string, res: SubscriptionModel[]) => {
-        if (error) {
-          this.$message.error(error)
-          return false
-        }
-        if (res.length < 1 || ![0, 1, 2].includes(res[0].qos)) {
-          this.$message.error(this.$t('connections.subFailed') as string)
-          return false
-        }
+      this.subscribe(this.subRecord)
+    })
+  }
 
-        const subscriptions: SubscriptionModel[] = this.currentConnection.subscriptions || []
-        const existTopicIndex: number = subscriptions.findIndex((item: SubscriptionModel) => item.topic === topic)
-        if (existTopicIndex !== -1) {
-          subscriptions[existTopicIndex].qos = qos
-        } else {
-          subscriptions.push({ ...this.subRecord })
-        }
-        this.record.subscriptions = subscriptions
-        updateConnection(this.record.id as string, this.record)
-        this.changeSubs({ id: this.connectionId, subscriptions })
-        this.subsList = subscriptions
-        this.showDialog = false
-        return true
-      })
+  public subscribe({ topic, qos }: SubscriptionModel, isAuto?: boolean) {
+    if (isAuto) {
+      this.subRecord.topic = topic
+      this.subRecord.qos = qos
+      this.subRecord.color = getRandomColor()
+    }
+    this.currentConnection.client.subscribe(topic, { qos }, (error: string, res: SubscriptionModel[]) => {
+      if (error) {
+        this.$message.error(error)
+        return false
+      }
+      if (res.length < 1 || ![0, 1, 2].includes(res[0].qos)) {
+        const errorMsg: string = `${topic} ${this.$t('connections.subFailed')}`
+        this.$message.error(errorMsg)
+        return false
+      }
+      const subscriptions: SubscriptionModel[] = this.currentConnection.subscriptions || []
+      const existTopicIndex: number = subscriptions.findIndex((item: SubscriptionModel) => item.topic === topic)
+      if (existTopicIndex !== -1) {
+        subscriptions[existTopicIndex].qos = qos
+      } else {
+        subscriptions.push({ ...this.subRecord })
+      }
+      this.record.subscriptions = subscriptions
+      updateConnection(this.record.id as string, this.record)
+      this.changeSubs({ id: this.connectionId, subscriptions })
+      this.subsList = subscriptions
+      this.showDialog = false
+      return true
     })
   }
 
@@ -256,6 +264,8 @@ export default class SubscriptionsList extends Vue {
   private resetSubs() {
     this.subForm.clearValidate()
     this.subForm.resetFields()
+    this.subRecord.topic = 'testtopic/#'
+    this.subRecord.qos = 0
     this.subRecord.alias = ''
   }
 

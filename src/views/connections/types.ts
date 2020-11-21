@@ -96,3 +96,9 @@ export interface ContextmenuModel {
   top: number
   left: number
 }
+
+export interface ChartDataModel {
+  label: string
+  recevied: number
+  sent: number
+}

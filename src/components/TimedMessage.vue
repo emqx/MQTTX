@@ -41,7 +41,7 @@ export default class TimedMessage extends Vue {
   }
 
   @Watch('visible')
-  private onChildChanged(val: boolean) {
+  private onVisibleChanged(val: boolean) {
     this.showDialog = val
   }
 
