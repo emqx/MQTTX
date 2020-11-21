@@ -9,7 +9,7 @@
 [![Twitter](https://img.shields.io/badge/Twitter-EMQ%20X-1DA1F2?logo=twitter)](https://twitter.com/emqtt)
 [![Reddit](https://img.shields.io/badge/Reddit-EMQ%20X-orange?logo=reddit)](https://www.reddit.com/r/emqx/)
 
-[English](./README.md) | 简体中文
+[English](./README.md) | 简体中文 | [日本語](./README-JP.md)
 
 ---
 
