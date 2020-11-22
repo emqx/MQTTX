@@ -8,7 +8,7 @@
     @confirm="resetData"
   >
     <div v-loading="loading"></div>
-    <canvas id="bytesChart" width="450" height="200" v-loading="true"></canvas>
+    <canvas id="bytesChart" width="450" height="200"></canvas>
   </my-dialog>
 </template>
 
