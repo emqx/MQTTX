@@ -7,7 +7,7 @@ export default {
   newConnections: {
     zh: '新建连接',
     en: 'New Connection',
-    ja: '新規接続',
+    ja: '新しい接続',
   },
   search: {
     zh: '搜索',
@@ -27,7 +27,7 @@ export default {
   notConnect: {
     zh: '客户端未连接',
     en: 'Client not connected',
-    ja: 'クライアント未接続',
+    ja: 'クライアントが接続されていません',
   },
   disconnect: {
     zh: '断开连接',
@@ -127,7 +127,7 @@ export default {
   certType: {
     zh: '证书类型',
     en: 'Certificate',
-    ja: '証明書タイプ',
+    ja: '証明書種類',
   },
   name: {
     zh: '名称',
@@ -157,7 +157,7 @@ export default {
   key: {
     zh: '客户端 key 文件',
     en: 'Client key file',
-    ja: 'クライアント キー ファイル',
+    ja: 'クライアントキー',
   },
   connectionTimeout: {
     zh: '连接超时时长',
@@ -192,7 +192,7 @@ export default {
   topicAliasMaximum: {
     zh: '主题别名最大值',
     en: 'Topic Alias Maximum',
-    ja: 'トピックエイリアスの最大値',
+    ja: 'Topic Aliasの最大値',
   },
   requestResponseInformation: {
     zh: '请求响应信息',
@@ -267,7 +267,7 @@ export default {
   isUTF8Data: {
     zh: '是否为 UTF-8 编码数据',
     en: 'is UTF-8 Encoded Data',
-    ja: 'UTF-8エンコードデータフラグ',
+    ja: 'UTF-8エンコードデータ',
   },
   duplicateName: {
     zh: '该名称已存在，请重新命名！',
@@ -282,12 +282,12 @@ export default {
   publishMsg: {
     zh: '发送消息',
     en: 'Publish message',
-    ja: 'メッセージを送る',
+    ja: '送信エラー：',
   },
   receivedMsg: {
     zh: '接收消息',
     en: 'Received message',
-    ja: 'メッセージを受信する',
+    ja: '受信エラー：',
   },
   receivedPayloadDecodedBy: {
     zh: '接收到的 Payload 解码',
@@ -297,7 +297,7 @@ export default {
   alias: {
     zh: '别名',
     en: 'Alias',
-    ja: '別名',
+    ja: 'エイリアス',
   },
   exportData: {
     zh: '导出数据',
@@ -375,7 +375,7 @@ export default {
   uploadFileTip: {
     zh: '文件内容格式错误或为空',
     en: 'The file content is malformed or empty',
-    ja: 'ファイル内容格式ミス/空いている',
+    ja: 'ファイルの内容が不正な形式または空です',
   },
   messageCount: {
     zh: '消息数',
