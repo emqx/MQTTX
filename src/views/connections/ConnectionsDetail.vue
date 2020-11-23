@@ -389,6 +389,7 @@ export default class ConnectionsDetail extends Vue {
   private uptime = ''
   private bytesTimes = 0
 
+  // Connect
   public connect(): boolean | void {
     if (this.client.connected) {
       return false
@@ -404,7 +405,7 @@ export default class ConnectionsDetail extends Vue {
       this.client.on('message', this.onMessageArrived(id))
     }
   }
-
+  // Delete connection
   public removeConnection(currentConnection?: ConnectionModel) {
     let { id, name } = this.record
     if (currentConnection) {
@@ -498,7 +499,7 @@ export default class ConnectionsDetail extends Vue {
       clearTimeout(timer)
     }, 500)
   }
-
+  // Show context menu
   private handleContextMenu(msgItemInfo: IArguments, message: MessageModel) {
     const [payload, event] = msgItemInfo
     if (!this.showContextmenu) {
@@ -514,7 +515,7 @@ export default class ConnectionsDetail extends Vue {
       this.showContextmenu = false
     }
   }
-
+  // Copy message
   private handleCopyMessage() {
     if (this.selectedInfo) {
       this.$copyText(this.selectedInfo).then(
@@ -527,7 +528,7 @@ export default class ConnectionsDetail extends Vue {
       )
     }
   }
-
+  // Delete message
   private async handleDeleteMessage() {
     const connectID = this.record.id
     let mid = ''
@@ -544,7 +545,7 @@ export default class ConnectionsDetail extends Vue {
       this.$message.error(this.$t('common.deletefailed') as string)
     }
   }
-
+  // Get current connection
   private getConnectionValue(id: string) {
     const currentActiveConnection:
       | {
@@ -568,12 +569,12 @@ export default class ConnectionsDetail extends Vue {
       }
     }
   }
-
+  // Show subscription list
   private handleShowSubs() {
     this.showSubs = !this.showSubs
     this.changeShowSubscriptions({ showSubscriptions: this.showSubs })
   }
-
+  // Collapse top client info
   private handleCollapse(id: string) {
     this.showClientInfo = !this.showClientInfo
     this.changeShowClientInfo({
@@ -581,7 +582,7 @@ export default class ConnectionsDetail extends Vue {
       showClientInfo: this.showClientInfo,
     })
   }
-
+  // Dropdown command
   private handleCommand(command: CommandType) {
     switch (command) {
       case 'disconnect':
@@ -612,7 +613,7 @@ export default class ConnectionsDetail extends Vue {
         break
     }
   }
-
+  // Route to edit page
   private handleEdit(id: string): boolean | void {
     if (this.client.connected) {
       return false
@@ -622,11 +623,12 @@ export default class ConnectionsDetail extends Vue {
       query: { oper: 'edit' },
     })
   }
-
+  // Return messages
   private getMessages() {
     this.msgType = 'all'
     this.messages = _.cloneDeep(this.record.messages)
   }
+  // Clear messages
   private handleMsgClear() {
     this.messages = []
     this.record.messages = []
@@ -637,6 +639,7 @@ export default class ConnectionsDetail extends Vue {
     })
     updateConnection(this.record.id as string, this.record)
   }
+  // Message type changed
   private async handleMsgTypeChanged(type: MessageType) {
     const setChangedMessages = (changedType: MessageType, msgData: MessageModel[]) => {
       if (type === 'received') {
@@ -658,6 +661,7 @@ export default class ConnectionsDetail extends Vue {
       setChangedMessages(type, this.record.messages)
     }
   }
+  // Search messages
   private async searchContent() {
     const { topic, payload } = this.searchParams
     if (!topic && !payload) {
@@ -680,6 +684,7 @@ export default class ConnectionsDetail extends Vue {
       }
     }
   }
+  // Click topic item
   private async handleTopicClick(sub: SubscriptionModel, reset: boolean) {
     this.getMessages()
     if (reset) {
@@ -706,6 +711,7 @@ export default class ConnectionsDetail extends Vue {
       }
     })
   }
+  // Close search bar
   private async handleSearchClose() {
     this.searchVisible = false
     this.searchParams = {
@@ -724,16 +730,18 @@ export default class ConnectionsDetail extends Vue {
     }
     this.scrollToBottom()
   }
-
+  // Return client
   private createClient(): MqttClient {
     const options: IClientOptions = getClientOptions(this.record)
     return mqtt.connect(this.connectUrl, options)
   }
+  // Cancel connect
   private cancel() {
     this.connectLoading = false
     this.client.end!(true)
     this.retryTimes = 0
   }
+  // Disconnect
   private disconnect(): boolean | void {
     if (!this.client.connected) {
       return false
@@ -767,6 +775,7 @@ export default class ConnectionsDetail extends Vue {
       this.$emit('reload')
     })
   }
+  // Connect callback
   private onConnect() {
     this.connectLoading = false
     this.changeActiveConnection({
@@ -784,6 +793,7 @@ export default class ConnectionsDetail extends Vue {
     this.setShowClientInfo(false)
     this.$emit('reload')
   }
+  // Error callback
   private onError(error: string) {
     let msgTitle = this.$t('connections.connectFailed') as string
     if (error) {
@@ -801,6 +811,7 @@ export default class ConnectionsDetail extends Vue {
     })
     this.$emit('reload')
   }
+  // Reconnect callback
   private onReConnect() {
     if (!this.record.reconnect) {
       this.client.end!(true)
@@ -832,13 +843,16 @@ export default class ConnectionsDetail extends Vue {
       }
     }
   }
+  // Close connection callback
   private onClose() {
     this.connectLoading = false
   }
+  // Search message
   private async searchMessage(oneMessage: MessageModel): Promise<boolean> {
     const res = await matchMultipleSearch([oneMessage], this.searchParams)
     return res && res.length ? true : false
   }
+  // Scroll to page bottom
   private scrollToBottom = () => {
     const timer = setTimeout(() => {
       const messagesDisplay = this.$refs.messagesDisplay as Element
@@ -850,6 +864,7 @@ export default class ConnectionsDetail extends Vue {
       clearTimeout(timer)
     }, 100)
   }
+  // Recevied message
   private onMessageArrived(id: string) {
     return (topic: string, payload: Buffer, packet: SubscriptionModel) => {
       const $payload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
@@ -911,9 +926,11 @@ export default class ConnectionsDetail extends Vue {
       this.scrollToBottom()
     }
   }
+  // Set timed message success
   private setTimerSuccess(time: number) {
     this.sendFrequency = time
   }
+  // Set timed message
   private sendMessage(message: MessageModel, type: PayloadType): void {
     this.sendOneMessage(message, type)
     if (this.sendFrequency) {
@@ -921,6 +938,7 @@ export default class ConnectionsDetail extends Vue {
       this.timedSendMessage(this.sendFrequency, message, type)
     }
   }
+  // Set timed message
   private timedSendMessage(time: number, message: MessageModel, type: PayloadType) {
     this.sendTimeId = window.setInterval(() => {
       if (!this.client.connected) {
@@ -932,6 +950,7 @@ export default class ConnectionsDetail extends Vue {
       this.sendOneMessage(Object.assign(oneMessage, { mid }), type)
     }, time * 1000)
   }
+  // Clearn interval
   public stopTimedSend() {
     const timedMessage: TimedMessage = this.$refs.timedMessage as TimedMessage
     timedMessage['record'] = {
@@ -943,6 +962,7 @@ export default class ConnectionsDetail extends Vue {
       this.$message.success(this.$t('connections.stopTimedMessage') as string)
     }
   }
+  // Send one message
   private sendOneMessage(message: MessageModel, type: PayloadType): void | boolean {
     if (!this.client.connected) {
       this.$notify({
@@ -992,6 +1012,7 @@ export default class ConnectionsDetail extends Vue {
     })
   }
 
+  // Show top connection client info
   private setShowClientInfo(show: boolean) {
     const timer = setTimeout(() => {
       this.showClientInfo = show
@@ -1003,6 +1024,7 @@ export default class ConnectionsDetail extends Vue {
     }, 500)
   }
 
+  // Convert payload by type
   private convertPayloadByType(value: Buffer | string, type: PayloadType, way: 'publish' | 'receive'): Buffer | string {
     const validJSONType = (jsonValue: string, warnMessage: TranslateResult) => {
       try {
@@ -1039,6 +1061,7 @@ export default class ConnectionsDetail extends Vue {
     return value
   }
 
+  // Conditions when searching and filtering
   private filterBySearchConditions(topic: string, message: MessageModel): boolean {
     const { topic: searchTopic, payload: searchPayload } = this.searchParams
     if (searchTopic || searchPayload) {
@@ -1053,15 +1076,17 @@ export default class ConnectionsDetail extends Vue {
     return false
   }
 
+  // Show export data dialog
   private handleExportData() {
     this.showExportData = true
   }
 
+  // Show import data dialog
   private handleImportData() {
     this.showImportData = true
   }
 
-  // Show timed message
+  // Show timed message dialog
   private handleTimedMessage() {
     this.showTimedMessage = true
   }
