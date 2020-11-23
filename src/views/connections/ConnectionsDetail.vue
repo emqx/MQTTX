@@ -77,6 +77,16 @@
                   <i class="el-icon-edit-outline"></i>
                 </a>
               </el-tooltip>
+              <el-tooltip
+                placement="bottom"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :open-delay="1000"
+                :content="$t('common.newWindow')"
+              >
+                <a class="new-window-btn" href="javascript:;" @click="handleNewWindow">
+                  <i class="el-icon-monitor"></i>
+                </a>
+              </el-tooltip>
               <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
                 <a href="javascript:;">
                   <i class="el-icon-more"></i>
@@ -581,6 +591,10 @@ export default class ConnectionsDetail extends Vue {
       id,
       showClientInfo: this.showClientInfo,
     })
+  }
+  // New window
+  private handleNewWindow() {
+    ipcRenderer.send('newWindow', this.$route.params.id)
   }
   // Dropdown command
   private handleCommand(command: CommandType) {
@@ -1209,6 +1223,9 @@ export default class ConnectionsDetail extends Vue {
         .stop-interval-btn {
           margin-right: 10px;
           color: var(--color-second-red);
+        }
+        .new-window-btn {
+          margin-right: 10px;
         }
         .edit-btn {
           &.disabled {
