@@ -8,7 +8,6 @@
     @keyup.enter.native="handleEnterEvent"
   >
     <slot></slot>
-
     <div slot="footer" class="dialog-footer">
       <el-button class="cancel" type="text" size="small" @click="hideDialog">
         {{ $t('common.cancel') }}
@@ -40,6 +39,8 @@ export default class MyDialog extends Vue {
   @Prop({ default: false }) public confirmLoading!: boolean
   // Confirm button disabled status
   @Prop({ default: false }) public btnDisabled!: boolean
+  // Dialog margin-top value
+  @Prop({ default: '15vh' }) public top!: string
 
   private showDialog: boolean = this.visible
 

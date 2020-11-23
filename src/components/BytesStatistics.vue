@@ -2,13 +2,25 @@
   <my-dialog
     :title="$t('connections.bytesStatistics')"
     :visible.sync="showDialog"
-    class="system-topic"
+    class="bytes-statistics"
     width="900px"
+    top="35px"
     @close="resetData"
     @confirm="resetData"
   >
-    <div v-loading="loading"></div>
-    <canvas id="bytesChart" width="450" height="200"></canvas>
+    <el-row :gutter="20">
+      <el-col :span="12">
+        <el-card class="version-card info-card"> Broker {{ $t('common.version') }}: {{ version }} </el-card>
+      </el-col>
+      <el-col :span="12">
+        <el-card class="uptime-card info-card"> {{ $t('common.uptime') }}: {{ uptime }} </el-card>
+      </el-col>
+      <el-col :span="24">
+        <el-card class="chart-card" v-loading="loading">
+          <canvas id="bytesChart" width="450" height="200"></canvas>
+        </el-card>
+      </el-col>
+    </el-row>
   </my-dialog>
 </template>
 
@@ -28,6 +40,8 @@ export default class BytesStatistics extends Vue {
   @Prop({ default: '' }) public label!: string
   @Prop({ default: 0 }) public sent!: number
   @Prop({ default: 0 }) public recevied!: number
+  @Prop({ default: '' }) public uptime!: ''
+  @Prop({ default: '' }) public version!: ''
 
   @Getter('currentTheme') private theme!: Theme
 
@@ -135,4 +149,26 @@ export default class BytesStatistics extends Vue {
 }
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+.bytes-statistics {
+  .info-card {
+    height: 60px;
+    line-height: 60px;
+    text-align: center;
+    font-size: 16px;
+    color: #fff;
+    .el-card__body {
+      padding: 0px;
+    }
+    &.version-card {
+      background: linear-gradient(0.25turn, #0c7cd1, #19bcc2);
+    }
+    &.uptime-card {
+      background: linear-gradient(0.25turn, #00ac70, #34c388);
+    }
+  }
+  .chart-card {
+    margin-top: 20px;
+  }
+}
+</style>

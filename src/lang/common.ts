@@ -134,4 +134,14 @@ export default {
     en: 'New window',
     ja: '窓口を新規する',
   },
+  version: {
+    zh: '系统版本',
+    en: 'Version',
+    ja: 'Version',
+  },
+  uptime: {
+    zh: '运行时间',
+    en: 'Uptime',
+    ja: 'Uptime',
+  },
 }

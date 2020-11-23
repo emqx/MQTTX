@@ -240,7 +240,13 @@
     <ExportData :visible.sync="showExportData" :connection="record" />
     <ImportData :visible.sync="showImportData" @updateData="$emit('reload')" />
     <TimedMessage ref="timedMessage" :visible.sync="showTimedMessage" @setTimerSuccess="setTimerSuccess" />
-    <BytesStatistics ref="bytesStatistics" :visible.sync="showBytes" v-bind="chartData" />
+    <BytesStatistics
+      ref="bytesStatistics"
+      :visible.sync="showBytes"
+      v-bind="chartData"
+      :version="version"
+      :uptime="uptime"
+    />
   </div>
 </template>
 
@@ -265,7 +271,7 @@ import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
 import { getClientOptions, getMQTTProtocol } from '@/utils/mqttUtils'
-import { handleBytes } from '@/utils/SystemTopicUtils'
+import { getBytes, getUptime, getVersion } from '@/utils/SystemTopicUtils'
 
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
@@ -379,6 +385,8 @@ export default class ConnectionsDetail extends Vue {
     recevied: 0,
     sent: 0,
   }
+  private version = ''
+  private uptime = ''
   private bytesTimes = 0
 
   public connect(): boolean | void {
@@ -857,7 +865,7 @@ export default class ConnectionsDetail extends Vue {
       const connectionId = this.$route.params.id
       let _id = id
       if (topic.indexOf('$SYS') !== -1 && this.showBytes && id === connectionId) {
-        const _chartData = handleBytes(receivedMessage)
+        const _chartData = getBytes(receivedMessage)
         if (_chartData) {
           this.chartData = _chartData
           this.bytesTimes += 1
@@ -868,6 +876,14 @@ export default class ConnectionsDetail extends Vue {
               this.bytesTimes = 0
             })
           }
+        }
+        const _version = getVersion(receivedMessage)
+        if (_version) {
+          this.version = _version
+        }
+        const _uptime = getUptime(receivedMessage)
+        if (_uptime) {
+          this.uptime = _uptime
         }
         return
       }
@@ -1045,22 +1061,16 @@ export default class ConnectionsDetail extends Vue {
     this.showImportData = true
   }
 
+  // Show timed message
   private handleTimedMessage() {
     this.showTimedMessage = true
   }
 
+  // Auto subscribe system topic
   private handleSubSystemTopic() {
     this.showBytes = true
     const subList = this.$refs.subList as SubscriptionsList
     subList.subscribe({ topic: '$SYS/#', qos: 0 }, true)
-  }
-
-  private created() {
-    const { id } = this.$route.params
-    this.getConnectionValue(id)
-    ipcRenderer.on('searchContent', () => {
-      this.handleSearchOpen()
-    })
   }
 
   // Register connected clients message event listeners
@@ -1100,12 +1110,7 @@ export default class ConnectionsDetail extends Vue {
     })
   }
 
-  private beforeDestroy() {
-    ipcRenderer.removeAllListeners('searchContent')
-    this.removeClinetsMessageListener()
-    this.stopTimedSend()
-  }
-
+  // Set messages list height
   private setMessageListHeight() {
     const connectionFooter: HTMLElement = this.$refs.connectionFooter as HTMLElement
     const connectionTopbar: HTMLElement = this.$refs.connectionTopbar as HTMLElement
@@ -1118,11 +1123,25 @@ export default class ConnectionsDetail extends Vue {
       7
   }
 
+  private created() {
+    const { id } = this.$route.params
+    this.getConnectionValue(id)
+    ipcRenderer.on('searchContent', () => {
+      this.handleSearchOpen()
+    })
+  }
+
   private mounted() {
     this.setMessageListHeight()
     window.onresize = () => {
       this.setMessageListHeight()
     }
+  }
+
+  private beforeDestroy() {
+    ipcRenderer.removeAllListeners('searchContent')
+    this.removeClinetsMessageListener()
+    this.stopTimedSend()
   }
 }
 </script>
