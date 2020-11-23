@@ -122,16 +122,16 @@ export default {
   exportSuccess: {
     zh: '导出成功',
     en: 'exported successfully',
-    ja: 'エクスポートに成功しました',
+    ja: 'のエクスポートが成功しました',
   },
   importSuccess: {
     zh: '导入成功',
     en: 'Imported successfully',
-    ja: 'インポートに成功しました',
+    ja: 'インポートが成功しました',
   },
   newWindow: {
     zh: '新建窗口',
     en: 'New window',
-    ja: '窓口を新規する',
+    ja: '新しいウィンドウ',
   },
 }
