@@ -7,18 +7,35 @@ const res: ChartDataModel = {
   sent: 0,
 }
 
-export const handleBytes = (messages: MessageModel): ChartDataModel | null => {
-  const { topic, payload } = messages
+const getData = (message: MessageModel, condition: string): string | null => {
+  const { topic, payload } = message
+  if (topic.indexOf(condition) !== -1) {
+    return payload
+  }
+  return null
+}
+
+export const getBytes = (message: MessageModel): ChartDataModel | null => {
   res.label = time.getNowDate()
-  if (topic.indexOf('/metrics/bytes/received') !== -1) {
-    res.recevied = parseInt(payload, 10)
+  const _recevied = getData(message, '/metrics/bytes/received')
+  if (_recevied) {
+    res.recevied = parseInt(_recevied, 10)
     return res
   }
-  if (topic.indexOf('/metrics/bytes/sent') !== -1) {
-    res.sent = parseInt(payload, 10)
+  const _sent = getData(message, '/metrics/bytes/sent')
+  if (_sent) {
+    res.sent = parseInt(_sent, 10)
     return res
   }
   return null
+}
+
+export const getUptime = (message: MessageModel): string | null => {
+  return getData(message, '/uptime')
+}
+
+export const getVersion = (message: MessageModel): string | null => {
+  return getData(message, '/version')
 }
 
 export default {}
