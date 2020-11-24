@@ -144,14 +144,4 @@ export default {
     en: 'Uptime',
     ja: 'Uptime',
   },
-  version: {
-    zh: '系统版本',
-    en: 'Version',
-    ja: 'Version',
-  },
-  uptime: {
-    zh: '运行时间',
-    en: 'Uptime',
-    ja: 'Uptime',
-  },
 }
