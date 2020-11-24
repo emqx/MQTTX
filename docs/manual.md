@@ -193,7 +193,7 @@ In the settings page, you can choose to click the data backup and data recovery 
 
 Click the action bar button at the top and select the `Search`  item, or use the shortcut key. MacOS users can use the command + f shortcut and Other users can use the control + f shortcut  to open the `Topic` search function, the fuzzy query of topics is supported.
 
-Click on the action bar button at the top and select the `Clear Histroy` item, you can quickly clear the messages sent and received by the current connection.
+Click on the action bar button at the top and select the `Clear History` item, you can quickly clear the messages sent and received by the current connection.
 
 ![mqttx-search](../assets/mqttx-search.png)
 
