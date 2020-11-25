@@ -213,17 +213,13 @@
           @onClickTopic="handleTopicClick"
           @deleteTopic="getMessages"
         />
-        <div ref="messagesDisplay" class="messages-display" :style="{ height: `${messageListHeight}px` }">
-          <div v-for="message in messages" :key="message.mid">
-            <MsgLeftItem
-              v-if="!message.out"
-              :subsList="record.subscriptions"
-              v-bind="message"
-              @showmenu="handleContextMenu(arguments, message)"
-            />
-            <MsgRightItem v-else v-bind="message" @showmenu="handleContextMenu(arguments, message)" />
-          </div>
-        </div>
+        <MessageList
+          ref="messagesDisplay"
+          :subscriptions="record.subscriptions"
+          :messages="messages"
+          :height="messageListHeight"
+          @showContextMenu="handleContextMenu"
+        />
         <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
           <a href="javascript:;" class="context-menu__item" @click="handleCopyMessage">
             <i class="el-icon-document-copy"></i>{{ $t('common.copy') }}
@@ -285,6 +281,7 @@ import { getBytes, getUptime, getVersion } from '@/utils/SystemTopicUtils'
 
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
+import MessageList from '@/components/MessageList.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
 import SubscriptionsList from '@/components/SubscriptionsList.vue'
 import ResizeHeight from '@/components/ResizeHeight.vue'
@@ -316,8 +313,6 @@ interface TopModel {
 
 @Component({
   components: {
-    MsgRightItem,
-    MsgLeftItem,
     ConnectionInfo,
     MsgPublish,
     SubscriptionsList,
@@ -327,6 +322,7 @@ interface TopModel {
     ImportData,
     TimedMessage,
     BytesStatistics,
+    MessageList,
   },
 })
 export default class ConnectionsDetail extends Vue {
@@ -869,9 +865,10 @@ export default class ConnectionsDetail extends Vue {
   // Scroll to page bottom
   private scrollToBottom = () => {
     const timer = setTimeout(() => {
-      const messagesDisplay = this.$refs.messagesDisplay as Element
-      messagesDisplay.scrollTo({
-        top: messagesDisplay.scrollHeight + 160,
+      const messagesDisplay = this.$refs.messagesDisplay as Vue
+      const messagesDisplayDOM = messagesDisplay.$el
+      messagesDisplayDOM.scrollTo({
+        top: messagesDisplayDOM.scrollHeight + 160,
         left: 0,
         behavior: 'smooth',
       })
@@ -1319,12 +1316,6 @@ export default class ConnectionsDetail extends Vue {
             color: var(--color-text-tips);
           }
         }
-      }
-      .messages-display {
-        overflow-y: scroll;
-        overflow-x: hidden;
-        padding: 0 16px;
-        margin-top: 19px;
       }
     }
     .connections-footer {
