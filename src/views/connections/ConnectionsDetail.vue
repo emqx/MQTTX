@@ -371,7 +371,7 @@ export default class ConnectionsDetail extends Vue {
   private retryTimes = 0
   private inputHeight = 155
   private msgBottom = 160
-  private messageListHeight: number = 285
+  private messageListHeight: number = 283
 
   private activeTopic = ''
   private mqttVersionDict = {
@@ -1156,7 +1156,7 @@ export default class ConnectionsDetail extends Vue {
       connectionTopbar.offsetHeight -
       connectionFooter.offsetHeight -
       filterBar.offsetHeight +
-      7
+      5
   }
 
   private created() {
