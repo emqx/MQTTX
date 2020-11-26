@@ -967,6 +967,7 @@ export default class ConnectionsDetail extends Vue {
     timedMessage['record'] = {
       sendFrequency: undefined,
     }
+    this.sendFrequency = undefined
     if (this.sendTimeId) {
       clearInterval(this.sendTimeId)
       this.sendTimeId = null
