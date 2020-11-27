@@ -951,10 +951,8 @@ export default class ConnectionsDetail extends Vue {
   }
   // Set timed message
   private timedSendMessage(time: number, message: MessageModel, type: PayloadType) {
+    this.stopTimedSend()
     this.sendTimeId = window.setInterval(() => {
-      if (!this.client.connected) {
-        this.stopTimedSend()
-      }
       const { ...oneMessage } = message
       let { mid } = oneMessage
       mid = uuidv4()
@@ -984,11 +982,13 @@ export default class ConnectionsDetail extends Vue {
         duration: 3000,
         offset: 30,
       })
+      this.stopTimedSend()
       return false
     }
     const { mid, topic, qos, payload, retain } = message
     if (!topic) {
       this.$message.warning(this.$t('connections.topicReuired') as string)
+      this.stopTimedSend()
       return false
     }
     const $payload = this.convertPayloadByType(payload, type, 'publish')
@@ -996,6 +996,7 @@ export default class ConnectionsDetail extends Vue {
       if (error) {
         const errorMsg = error.toString()
         this.$message.error(errorMsg)
+        this.stopTimedSend()
         return false
       }
       const publishMessage: MessageModel = {
