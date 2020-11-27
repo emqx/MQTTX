@@ -183,7 +183,7 @@ In the settings page, you can choose to click the data backup and data recovery 
 
 1. Connection operation
 
-   By clicking the action bar button at the top, you can quickly disconnect, delete the current connection, import and export of current data, etc.
+   By clicking the action bar button at the top, you can quickly disconnect, delete the current connection, import and export of current data, timed message and bytes statistics etc.
 
 ![mqttx-connection](../assets/mqttx-connection.png)
 
@@ -191,7 +191,7 @@ In the settings page, you can choose to click the data backup and data recovery 
 
    Through the `All`,`Received`, `Published` buttons in the upper right corner of the message bar, you can filter out all messages, received messages and published messages.
 
-Click the action bar button at the top and select the `Search`  item, or use the shortcut key. MacOS users can use the command + f shortcut and Other users can use the control + f shortcut  to open the `Topic` search function, the fuzzy query of topics is supported.
+Click the action bar button at the top and select the `Search`  item, or use the shortcut key. MacOS users can use the command + f shortcut and Other users can use the control + f shortcut  to open the `Topic` search function, the fuzzy query of topics and payload is supported.
 
 Click on the action bar button at the top and select the `Clear History` item, you can quickly clear the messages sent and received by the current connection.
 
@@ -209,9 +209,19 @@ Click on the action bar button at the top and select the `Clear History` item, y
 
 5. Multi-window
 
-    In the connection list, right-click and select `New window` to create a new window for the connection. In the new window, you can also connect, subscribe to topics, publish and receive messages, etc. If there is a connection between multiple connections created, or you need to view messages received at the same time, you can create multiple view windows and view them at the same time.
+    In the connection list, right-click and select `New window` to create a new window for the connection. In the new window, you can also connect, subscribe to topics, publish and receive messages, etc. If there is a connection between multiple connections created, or you need to view messages received at the same time, you can create multiple view windows and view them at the same time. After v1.4.1, users can also click the window button at the top to quickly create a new window.
+
+![mqttx-window](../assets/mqttx-window.png)
 
 ![mqttx-muti-window](../assets/mqttx-muti-window.png)
+
+6. Bytes statistics
+
+    In the drop-down menu in the upper right corner, you can click on the `Bytes statistics` item, MQTT X will automatically subscribe to the system topic, and can display the simple `Bytes statistics` chart, version and uptime of the MQTT Broker on the page.
+
+    > By default, only MQTT clients on localhost is allowed to subscribe to the $ SYS topic. Please refer to build-in ACL to modify the ACL rules for publish and subscription.
+
+![mqttx-bytes](../assets/mqttx-bytes.png)
 
 ## Development Guide
 
