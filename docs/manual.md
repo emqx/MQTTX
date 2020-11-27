@@ -223,6 +223,12 @@ Click on the action bar button at the top and select the `Clear History` item, y
 
 ![mqttx-bytes](../assets/mqttx-bytes.png)
 
+7. Timed message
+
+    In the drop-down menu in the upper right corner, you can click the `Timed message` item to set the sending frequency in seconds. After the setting is completed, manually send a message, and the message will be automatically sent according to the set sending frequency.
+
+![mqttx-timed-message](../assets/mqttx-timed-message.png)
+
 ## Development Guide
 
 When developing, you need to have `Node`, `Git` environment in the local machine, and need to know about `npm`,`Vue.js`, `Electron`,`TypeScript` and other related knowledge.
