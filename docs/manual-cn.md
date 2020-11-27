@@ -223,6 +223,12 @@ sudo snap install mqttx
 
 ![mqttx-bytes](../assets/mqttx-bytes.png)
 
+7. 定时消息
+
+    在右上角的下拉菜单中，可点击定时消息项，设置发送频率，单位为秒，设置完成后手动发送一条消息，将会自动根据设置的发送频率自动发送消息。
+
+![mqttx-timed-message](../assets/mqttx-timed-message.png)
+
 ## 开发指南
 
 开发时，本机需要具有 `Node`，`Git` 环境，并需要了解 `npm`，`Vue.js`，`Electron`，`TypeScript` 等相关知识。
