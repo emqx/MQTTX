@@ -81,7 +81,9 @@ export default class Connections extends Vue {
   @Watch('$route.params.id')
   private handleIdChanged(val: string) {
     const connection: ConnectionsDetail = this.$refs.ConnectionsDetail as ConnectionsDetail
-    connection.stopTimedSend()
+    if (connection) {
+      connection.stopTimedSend()
+    }
     this.loadData()
   }
 
