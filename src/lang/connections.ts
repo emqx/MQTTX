@@ -400,7 +400,8 @@ export default {
   setTimerSuccess: {
     zh: '成功设置定时器，发送一条消息将触发定时消息',
     en: 'Timer set successfully, sending a message will trigger timed messages',
-    ja: '自動送信を設定しました。<br>これから一つのメッセージを送信すると、設定した時間間隔で自動的に該当メッセージを送信できます。',
+    ja: `自動送信を設定しました。
+    これから一つのメッセージを送信すると、設定した時間間隔で自動的に該当メッセージを送信できます`,
   },
   startTimedMessage: {
     zh: '成功开启定时消息，消息频率（秒）：',
