@@ -137,11 +137,11 @@ export default {
   version: {
     zh: '系统版本',
     en: 'Version',
-    ja: 'Version',
+    ja: 'システムバージョン',
   },
   uptime: {
     zh: '运行时间',
     en: 'Uptime',
-    ja: 'Uptime',
+    ja: '動作時間',
   },
 }
