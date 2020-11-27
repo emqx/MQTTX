@@ -41,7 +41,7 @@
 
 ## 利用方法
 
-詳細な利用方法については、[ブログ](https://www.emqx.io/blog/mqtt-x-guideline)または[ユーザーマニュアル](./docs/manual.md)を確認してください。
+詳細な利用方法については、[ブログ](https://qiita.com/emqx_japan/items/1ff6097fdfe273c5e22f)または[ユーザーマニュアル](./docs/manual-jp.md)を確認してください。
 
 1. MQTT Brokerの準備。
 
