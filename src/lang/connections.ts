@@ -385,51 +385,51 @@ export default {
   timedMessage: {
     zh: '定时消息',
     en: 'Timed message',
-    ja: '定時メッセージ',
+    ja: '自動送信',
   },
   msgFrequency: {
     zh: '消息频率（秒）',
     en: 'Message frequency(s)',
-    ja: 'メッセージ頻度（秒）',
+    ja: '送信間隔（秒）',
   },
   clearIntervalBtn: {
     zh: '清理定时器',
     en: 'Clear timer',
-    ja: 'タイマーをクリーンする',
+    ja: '自動送信を解除する',
   },
   setTimerSuccess: {
     zh: '成功设置定时器，发送一条消息将触发定时消息',
     en: 'Timer set successfully, sending a message will trigger timed messages',
-    ja: 'タイマーを正しく設定した。メッセージ一通を送信すれば、定時メッセージを触発する',
+    ja: '自動送信を設定しました。<br>これから一つのメッセージを送信すると、設定した時間間隔で自動的に該当メッセージを送信できます。',
   },
   startTimedMessage: {
     zh: '成功开启定时消息，消息频率（秒）：',
     en: 'Opened timed message successfully, frequency(s): ',
-    ja: '定時メッセージを正しく設定した。メッセージ頻度（秒）: ',
+    ja: 'メッセージの自動送信が始まりました。送信間隔（秒）: ',
   },
   stopTimedMessage: {
     zh: '已停止发送定时消息',
     en: 'Stopped sending timed messages',
-    ja: '定時メッセージを発送中止した',
+    ja: '自動送信設定を解除しました',
   },
   systemTopic: {
     zh: '系统主题',
     en: 'System topic',
-    ja: 'システムテーマ',
+    ja: 'システムトピック',
   },
   bytesStatistics: {
     zh: '收发流量统计',
     en: 'Bytes statistics',
-    ja: 'データ通信量の送受信を統計する',
+    ja: 'データ通信の利用状況',
   },
   bytesReceived: {
     zh: '累计接收流量',
     en: 'Accumulated received bytes',
-    ja: 'データ通信量の受信を累算する',
+    ja: '累積受信バイト数',
   },
   bytesSent: {
     zh: '累计发送流量',
     en: 'Accumulated sent bytes',
-    ja: 'データ通信量の送信を累算する',
+    ja: '累積送信バイト数',
   },
 }

@@ -142,6 +142,6 @@ export default {
   uptime: {
     zh: '运行时间',
     en: 'Uptime',
-    ja: '運行時間',
+    ja: '稼働時間',
   },
 }
