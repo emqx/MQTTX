@@ -43,7 +43,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import { ipcRenderer } from 'electron'
-import { loadConnections } from '@/utils/api/connection'
+import { loadConnections } from '@/api/connection'
 import MyDialog from './MyDialog.vue'
 import { ConnectionModel } from '@/views/connections/types'
 import XMLConvert from 'xml-js'

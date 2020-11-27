@@ -2,7 +2,7 @@
 
 import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
-import { updateConnectionMessage } from '@/utils/api/connection'
+import { updateConnectionMessage } from '@/api/connection'
 import db from './database/index'
 import updateChecker from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
