@@ -29,7 +29,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Action } from 'vuex-class'
-import { loadConnections, loadConnection } from '@/utils/api/connection'
+import { loadConnections, loadConnection } from '@/api/connection'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsDetail from './ConnectionsDetail.vue'

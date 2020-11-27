@@ -272,7 +272,7 @@ import {
   updateConnectionMessage,
   loadConnection,
   loadConnections,
-} from '@/utils/api/connection'
+} from '@/api/connection'
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'

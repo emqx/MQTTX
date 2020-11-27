@@ -417,7 +417,7 @@
 import { remote } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { loadConnection, createConnection, updateConnection, loadSuggestConnections } from '@/utils/api/connection'
+import { loadConnection, createConnection, updateConnection, loadSuggestConnections } from '@/api/connection'
 import getClientId from '@/utils/getClientId'
 import { ConnectionModel, SearchCallBack, NameCallBack, FormRule } from './types'
 import { getMQTTProtocol } from '@/utils/mqttUtils'
