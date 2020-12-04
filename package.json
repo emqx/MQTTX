@@ -42,8 +42,6 @@
     "xml-js": "^1.6.11"
   },
   "devDependencies": {
-    "@fullhuman/postcss-purgecss": "^2.1.0",
-    "@fullhuman/vue-cli-plugin-purgecss": "~2.2.0",
     "@types/chai": "^4.1.0",
     "@types/chart.js": "^2.9.28",
     "@types/fs-extra": "^8.0.0",
@@ -75,11 +73,6 @@
     "typescript": "^3.7.4",
     "vue-cli-plugin-electron-builder": "^1.4.6",
     "vue-template-compiler": "^2.6.12"
-  },
-  "postcss": {
-    "plugins": {
-      "autoprefixer": {}
-    }
   },
   "browserslist": [
     "> 1%",
