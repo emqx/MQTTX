@@ -337,7 +337,7 @@
                       scrollbar-status="auto"
                     />
                   </div>
-                  <div class="payload-type">
+                  <div class="lang-type">
                     <el-radio-group v-model="payloadType">
                       <el-radio label="json">JSON</el-radio>
                       <el-radio label="plaintext">Plaintext</el-radio>
@@ -712,18 +712,7 @@ export default class ConnectionCreate extends Vue {
       border-top-left-radius: 4px;
       border-top-right-radius: 4px;
     }
-    .payload-type {
-      width: 100%;
-      height: 30px;
-      line-height: 30px;
-      padding: 0px 12px;
-      background: var(--color-bg-radio);
-      border: 1px solid var(--color-border-default);
-      border-top: none;
-      text-align: right;
-      border-bottom-left-radius: 4px;
-      border-bottom-right-radius: 4px;
-    }
+    @include editor-lang-type;
   }
   .info-header {
     a.collapse-btn {

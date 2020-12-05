@@ -5,7 +5,7 @@ import fs from 'fs-extra'
 import LodashID from 'lodash-id'
 import { app, remote } from 'electron'
 
-interface Schema {
+interface DBSchema {
   windowSize: {
     height: number
     width: number
@@ -17,6 +17,7 @@ interface Schema {
   }
   connections: []
   suggestConnections: []
+  scripts: []
 }
 
 const isRenderer: boolean = process.type === 'renderer'
@@ -35,9 +36,9 @@ if (!isRenderer) {
 }
 
 class DB {
-  private db: Lowdb.LowdbSync<Schema>
+  private db: Lowdb.LowdbSync<DBSchema>
   public constructor() {
-    const adapter: Lowdb.AdapterSync<Schema> = new FileSync<Schema>(path.join(STORE_PATH, '/db.json'))
+    const adapter: Lowdb.AdapterSync<DBSchema> = new FileSync<DBSchema>(path.join(STORE_PATH, '/db.json'))
     this.db = Lowdb(adapter)
     // Use lodash-id must use insert methods
     this.db._.mixin(LodashID)
@@ -68,6 +69,9 @@ class DB {
     }
     if (!this.db.has('suggestConnections').value()) {
       this.db.set('suggestConnections', []).write()
+    }
+    if (!this.db.has('scripts').value()) {
+      this.db.set('scripts', []).write()
     }
   }
   // read() is to keep the data of the main process and the rendering process up to date.
