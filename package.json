@@ -39,7 +39,8 @@
     "vuex": "^3.0.1",
     "vuex-class": "^0.3.2",
     "xlsx": "^0.16.8",
-    "xml-js": "^1.6.11"
+    "xml-js": "^1.6.11",
+    "vm2": "latest"
   },
   "devDependencies": {
     "@types/chai": "^4.1.0",
