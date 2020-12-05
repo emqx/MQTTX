@@ -96,6 +96,13 @@ export default class Editor extends Vue {
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
       this.$emit('enter-event', this.value)
     })
+    // tslint:disable-next-line:no-bitwise
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      this.$emit('enter-event', this.value)
+    })
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
+      this.$emit('qucik-save', this.value)
+    })
     // Update editor options
     const model = this.editor.getModel()
     if (model) {
