@@ -18,6 +18,7 @@
         v-model="scriptValue"
         lineNumbers="on"
         renderHighlight="line"
+        @qucik-save="handleTestFunc"
       />
     </div>
     <el-row class="script-test-row script-test-input" :gutter="20">
