@@ -5,7 +5,7 @@ export default {
     ja: 'Script',
   },
   test: {
-    zh: '测试',
+    zh: '测 试',
     en: 'Test',
     ja: 'Test',
   },
@@ -18,5 +18,10 @@ export default {
     zh: '输出',
     en: 'Output',
     ja: 'Output',
+  },
+  saveScript: {
+    zh: '保存脚本',
+    en: 'Save script',
+    ja: 'Save script',
   },
 }

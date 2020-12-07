@@ -25,7 +25,7 @@ export default {
     ja: '戻る',
   },
   save: {
-    zh: '保存',
+    zh: '保 存',
     en: 'Save',
     ja: '保存',
   },

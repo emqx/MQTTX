@@ -2,8 +2,20 @@
   <div class="script-view rightbar">
     <h1 class="titlebar">{{ $t('script.script') }}</h1>
     <div class="script-view-header">
-      <el-select size="mini" v-model="currentScript"></el-select>
-      <el-button class="save-btn" type="primary" size="mini">{{ $t('common.save') }}</el-button>
+      <div>
+        <el-select size="mini" v-model="currentScriptId" @change="handleScriptChange">
+          <el-option v-for="script in scripts" :key="script.id" :value="script.id" :label="script.name"></el-option>
+        </el-select>
+        <a v-if="this.currentScriptId" href="javascript:;" @click="handleCreate">
+          <i class="iconfont icon-plus"></i>
+        </a>
+      </div>
+      <div>
+        <el-button class="save-btn" type="primary" size="mini" @click="handleSave">{{ $t('common.save') }}</el-button>
+        <el-button v-if="currentScriptId" class="delete-btn" type="outline" size="mini" plain @click="handleDelete">{{
+          $t('common.delete')
+        }}</el-button>
+      </div>
     </div>
     <div
       class="editor-container script-editor"
@@ -51,32 +63,159 @@
         <el-input v-model="outputValue" type="textarea" rows="4" disabled></el-input>
       </el-col>
     </el-row>
+    <my-dialog
+      :title="$t('script.saveScript')"
+      :visible.sync="showDialog"
+      class="save-script"
+      width="400px"
+      @confirm="save"
+    >
+      <el-form v-if="showDialog" ref="form" label-position="left" label-width="80px" :model="record" :rules="rules">
+        <el-row :gutter="20">
+          <el-col :span="24">
+            <el-form-item :label="$t('connections.name')" prop="name">
+              <el-input v-model="record.name" size="mini"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+    </my-dialog>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import Editor from '@/components/Editor.vue'
+import MyDialog from '@/components/MyDialog.vue'
 import sandbox from '@/utils/sandbox'
+import { createScript, deleteScript, loadScript, loadScripts, updateScript } from '@/api/script'
+import { ScriptModel } from './types'
+import script from '@/lang/script'
 
 @Component({
   components: {
     Editor,
+    MyDialog,
   },
 })
 export default class Script extends Vue {
-  private scriptValue = `function handlePayload(value) {
+  private scriptValue = ''
+  private showDialog = false
+  private inputValue = JSON.stringify({ msg: 'hello' }, null, 2)
+  private outputValue = ''
+  private currentScriptId = ''
+  private inputType: 'json' | 'plaintext' = 'json'
+  private record: ScriptModel = {
+    name: '',
+    script: '',
+  }
+  private scripts: ScriptModel[] = []
+  private readonly defaultScript = `function handlePayload(value) {
   return value.msg
 }
 
 execute(handlePayload)`
-  private inputValue = JSON.stringify({ msg: 'Hello' }, null, 2)
-  private outputValue = ''
-  private currentScript = ''
-  private inputType: 'json' | 'plaintext' = 'json'
+
+  get rules() {
+    return {
+      name: [{ required: true, message: this.$t('common.inputRequired') }],
+    }
+  }
+
+  get vueForm(): VueForm {
+    return this.$refs.form as VueForm
+  }
+
+  private created() {
+    this.loadData()
+  }
 
   private handleTestFunc() {
     this.outputValue = sandbox.executeScript(this.inputValue, this.scriptValue, this.inputType)
+  }
+
+  private async handleSave() {
+    if (!this.currentScriptId) {
+      this.showDialog = true
+    } else {
+      const currentScript = await loadScript(this.currentScriptId)
+      if (currentScript) {
+        currentScript.script = this.scriptValue
+        const data = { ...currentScript }
+        const res = await updateScript(this.currentScriptId, data)
+        if (res) {
+          this.$message.success(this.$t('common.editSuccess') as string)
+        }
+      }
+    }
+  }
+
+  private save() {
+    this.vueForm.validate(async (valid: boolean) => {
+      if (!valid) {
+        return false
+      }
+      this.record.script = this.scriptValue
+      const data = { ...this.record }
+      const res = await createScript(data)
+      if (res) {
+        this.$message.success(this.$t('common.createSuccess') as string)
+        this.showDialog = false
+        this.record = {
+          id: '',
+          name: '',
+          script: '',
+        }
+        this.loadData()
+      }
+    })
+  }
+
+  private async loadData(): Promise<void> {
+    const scripts: ScriptModel[] | [] = await loadScripts()
+    this.scripts = scripts
+    const len = scripts.length
+    const _firstScript: ScriptModel = this.scripts[len - 1]
+    if (_firstScript && _firstScript.id) {
+      this.currentScriptId = _firstScript.id
+      this.scriptValue = _firstScript.script
+    } else {
+      this.currentScriptId = ''
+      this.scriptValue = this.defaultScript
+    }
+  }
+
+  private async handleDelete() {
+    const currentScript = await loadScript(this.currentScriptId)
+    if (currentScript) {
+      const { name } = currentScript
+      const confirmDelete: string = this.$t('common.confirmDelete', { name }) as string
+      this.$confirm(confirmDelete, this.$t('common.warning') as string, {
+        type: 'warning',
+      })
+        .then(async () => {
+          const res: ScriptModel | null = await deleteScript(this.currentScriptId)
+          if (res) {
+            this.$message.success(this.$t('common.deleteSuccess') as string)
+            this.loadData()
+          }
+        })
+        .catch((error) => {
+          // ignore(error)
+        })
+    }
+  }
+
+  private handleCreate() {
+    this.currentScriptId = ''
+    this.scriptValue = this.defaultScript
+  }
+
+  private async handleScriptChange(val: string) {
+    const currentScript = await loadScript(val)
+    if (currentScript) {
+      this.scriptValue = currentScript.script
+    }
   }
 }
 </script>
@@ -90,6 +229,14 @@ execute(handlePayload)`
   .script-view-header {
     @include flex-space-between;
     margin-bottom: 10px;
+    .el-select {
+      width: 230px;
+      margin-right: 12px;
+    }
+    .delete-btn {
+      color: var(--color-second-red);
+      border-color: var(--color-second-red);
+    }
   }
   .script-editor {
     background: var(--color-bg-normal);
