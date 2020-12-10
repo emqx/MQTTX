@@ -279,6 +279,11 @@ export default {
     en: 'Quick selection of created connection configurations',
     ja: '作成された接続構成を早めに選択することができます',
   },
+  clientIdWithTimeTip: {
+    zh: '附加时间戳到 ClientID 后，以防止重复的连接',
+    en: 'Append a timestamp to the ClientID to prevent duplicate connections',
+    ja: '重複接続を防ぐために、ClientIDにタイムスタンプを追加します',
+  },
   publishMsg: {
     zh: '发送消息',
     en: 'Publish message',

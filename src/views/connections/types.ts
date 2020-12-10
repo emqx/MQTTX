@@ -86,6 +86,7 @@ export interface ConnectionModel extends SSLPath {
     lastWillRetain: boolean
     properties?: WillPropertiesModel
   }
+  clientIdWithTime?: boolean //Fill in client_id.Ensure that client_id field is unique.
 }
 
 export interface SSLContent {

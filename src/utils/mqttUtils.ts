@@ -38,6 +38,7 @@ export const getClientOptions = (record: ConnectionModel): IClientOptions => {
     reconnect,
     will,
     rejectUnauthorized,
+    clientIdWithTime,
   } = record
   // reconnectPeriod = 0 disabled automatic reconnection in the client
   const reconnectPeriod = reconnect ? 4000 : 0
@@ -50,6 +51,11 @@ export const getClientOptions = (record: ConnectionModel): IClientOptions => {
     protocolVersion,
   }
   options.connectTimeout = time.convertSecondsToMs(connectTimeout)
+  // Append timestamp to MQTT client id
+  if (clientIdWithTime === true) {
+    const clickIconTime = Date.parse(new Date().toString())
+    options.clientId = `${options.clientId}_${clickIconTime}`
+  }
   // Auth
   if (username !== '') {
     options.username = username

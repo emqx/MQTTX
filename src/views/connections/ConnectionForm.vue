@@ -56,10 +56,29 @@
                 <el-input size="mini" v-model="record.clientId"></el-input>
               </el-form-item>
             </el-col>
-            <el-col :span="2">
+            <el-col :span="1">
               <a href="javascript:;" class="icon-oper" @click="setClientID">
                 <i class="el-icon-refresh-right"></i>
               </a>
+            </el-col>
+            <!-- add clientID timestamp check icon -->
+            <el-col :span="1">
+              <el-tooltip
+                placement="top"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :open-delay="500"
+                :offset="80"
+                :content="$t('connections.clientIdWithTimeTip')"
+              >
+                <a
+                  href="javascript:;"
+                  class="icon-oper"
+                  @click="reverseClientIDWithTime"
+                  :class="{ 'icon-oper-active': clientIdWithTime }"
+                >
+                  <i class="el-icon-time"></i>
+                </a>
+              </el-tooltip>
             </el-col>
             <el-col :span="22">
               <el-form-item class="host-item" label-width="93px" :label="$t('connections.brokerIP')" prop="host">
@@ -492,6 +511,7 @@ export default class ConnectionCreate extends Vue {
     sessionExpiryInterval: undefined,
     receiveMaximum: undefined,
     topicAliasMaximum: undefined,
+    clientIdWithTime: false,
   }
 
   @Watch('record', { immediate: true, deep: true })
@@ -501,6 +521,10 @@ export default class ConnectionCreate extends Vue {
     } else {
       this.willLabelWidth = 180
     }
+  }
+
+  get clientIdWithTime() {
+    return this.record.clientIdWithTime
   }
 
   get rules() {
@@ -566,6 +590,11 @@ export default class ConnectionCreate extends Vue {
 
   private setClientID() {
     this.record.clientId = getClientId()
+  }
+
+  // Reverse the status of clientIdWithTime.
+  private reverseClientIDWithTime() {
+    this.record.clientIdWithTime = !this.record.clientIdWithTime
   }
 
   private getFilePath(key: 'ca' | 'cert' | 'key') {
@@ -689,10 +718,13 @@ export default class ConnectionCreate extends Vue {
       color: var(--color-text-default);
       line-height: 43px;
       transition: 0.2s color ease;
-      &:hover,
-      &:focus {
+      &:hover {
         color: var(--color-main-green);
       }
+    }
+    // icon active
+    .icon-oper-active {
+      color: var(--color-main-green);
     }
     .el-form-item__error {
       top: 80%;
