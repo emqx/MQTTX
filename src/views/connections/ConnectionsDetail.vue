@@ -925,20 +925,14 @@ export default class ConnectionsDetail extends Vue {
   // Recevied message
   private onMessageArrived(id: string) {
     return (topic: string, payload: Buffer, packet: SubscriptionModel) => {
-      let convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
-      if (this.scriptOption !== null && this.scriptOption.content && this.scriptOption.apply !== 'publish') {
-        // Enable script function
-        convertPayload = sandbox.executeScript(convertPayload, this.scriptOption.content.script, this.receivedMsgType)
-        if (convertPayload === 'undefined' || convertPayload === 'null') {
-          return
-        }
-      }
+      const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
+      const receviedPayload = this.convertPayloadByScript(convertPayload, 'publish')
       const receivedMessage: MessageModel = {
         mid: uuidv4(),
         out: false,
         createAt: time.getNowDate(),
         topic,
-        payload: convertPayload,
+        payload: receviedPayload,
         qos: packet.qos,
         retain: packet.retain as boolean,
       }
@@ -1045,15 +1039,8 @@ export default class ConnectionsDetail extends Vue {
       this.stopTimedSend()
       return false
     }
-    let covertPayload = payload
-    if (this.scriptOption !== null && this.scriptOption.content && this.scriptOption.apply !== 'received') {
-      // Enable script function
-      covertPayload = sandbox.executeScript(payload, this.scriptOption.content.script, this.receivedMsgType)
-      if (covertPayload === 'undefined' || covertPayload === 'null') {
-        return
-      }
-    }
-    const sendPayload = this.convertPayloadByType(covertPayload, type, 'publish')
+    const convertPayload = this.convertPayloadByScript(payload, 'received')
+    const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
     this.client.publish!(topic, sendPayload, { qos, retain }, (error: Error) => {
       if (error) {
         const errorMsg = error.toString()
@@ -1066,7 +1053,7 @@ export default class ConnectionsDetail extends Vue {
         out: true,
         createAt: time.getNowDate(),
         topic,
-        payload: covertPayload,
+        payload: convertPayload,
         qos,
         retain,
       }
@@ -1134,6 +1121,16 @@ export default class ConnectionsDetail extends Vue {
       return genReceivePayload(type, value)
     }
     return value
+  }
+
+  // Use script to apply to payload
+  private convertPayloadByScript(payload: string, notType: MessageType): string {
+    let convertPayload = payload
+    if (this.scriptOption !== null && this.scriptOption.content && this.scriptOption.apply !== notType) {
+      // Enable script function
+      convertPayload = sandbox.executeScript(payload, this.scriptOption.content.script, this.receivedMsgType)
+    }
+    return convertPayload
   }
 
   // Conditions when searching and filtering
