@@ -917,10 +917,12 @@ export default class ConnectionsDetail extends Vue {
       apply: applyType,
       content: script,
     }
+    this.$message.success(this.$t('script.startScript') as string)
   }
   // Remove script
   private removeScript() {
     this.scriptOption = null
+    this.$message.success(this.$t('script.stopScirpt') as string)
   }
   // Recevied message
   private onMessageArrived(id: string) {

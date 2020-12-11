@@ -40,13 +40,23 @@ export default {
     ja: 'Remove script',
   },
   applyType: {
-    zh: '应用类型',
-    en: 'Apply type',
-    ja: 'Apply type',
+    zh: '应用于',
+    en: 'Applied to',
+    ja: 'Applied to',
   },
   scriptRequired: {
     zh: '请选择脚本',
     en: 'Script name is required',
     ja: 'Script name is required',
+  },
+  startScript: {
+    zh: '脚本功能已开启',
+    en: 'Script is enabled',
+    ja: 'Script is enabled',
+  },
+  stopScirpt: {
+    zh: '脚本功能已停止',
+    en: 'Script has stopped',
+    ja: 'Script has stopped',
   },
 }
