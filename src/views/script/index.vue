@@ -1,6 +1,16 @@
 <template>
   <div class="script-view rightbar">
-    <h1 class="titlebar">{{ $t('script.script') }}</h1>
+    <h1 class="titlebar">
+      {{ $t('script.script') }}
+      <el-tooltip
+        placement="bottom"
+        :effect="theme !== 'light' ? 'light' : 'dark'"
+        :open-delay="500"
+        :content="$t('common.betaInfo')"
+      >
+        <el-badge value="Beta"></el-badge>
+      </el-tooltip>
+    </h1>
     <div class="script-view-header">
       <div>
         <el-select size="mini" v-model="currentScriptId" @change="handleScriptChange">
@@ -49,12 +59,12 @@
         height: '80px',
       }"
     >
-      <Editor ref="scriptInput" id="script-input" :lang="inputType" v-model="inputValue" />
+      <Editor ref="scriptInput" id="script-input" :lang="editorLang" v-model="inputValue" />
     </div>
     <div class="lang-type">
       <el-radio-group v-model="inputType">
-        <el-radio label="json">JSON</el-radio>
-        <el-radio label="plaintext">Plaintext</el-radio>
+        <el-radio label="JSON">JSON</el-radio>
+        <el-radio label="Plaintext">Plaintext</el-radio>
       </el-radio-group>
     </div>
     <el-row class="script-test-row script-test-output" :gutter="20">
@@ -70,10 +80,10 @@
       width="400px"
       @confirm="save"
     >
-      <el-form v-if="showDialog" ref="form" label-position="left" label-width="80px" :model="record" :rules="rules">
+      <el-form v-if="showDialog" ref="form" label-position="left" label-width="120px" :model="record" :rules="rules">
         <el-row :gutter="20">
           <el-col :span="24">
-            <el-form-item :label="$t('connections.name')" prop="name">
+            <el-form-item :label="$t('script.scriptName')" prop="name">
               <el-input v-model="record.name" size="mini"></el-input>
             </el-form-item>
           </el-col>
@@ -84,7 +94,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Getter, Action } from 'vuex-class'
 import Editor from '@/components/Editor.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import sandbox from '@/utils/sandbox'
@@ -99,12 +110,15 @@ import script from '@/lang/script'
   },
 })
 export default class Script extends Vue {
+  @Getter('currentTheme') private theme!: Theme
+
   private scriptValue = ''
   private showDialog = false
   private inputValue = JSON.stringify({ msg: 'hello' }, null, 2)
   private outputValue = ''
   private currentScriptId = ''
-  private inputType: 'json' | 'plaintext' = 'json'
+  private inputType: PayloadType = 'JSON'
+  private editorLang = 'json'
   private record: ScriptModel = {
     name: '',
     script: '',
@@ -115,6 +129,11 @@ export default class Script extends Vue {
 }
 
 execute(handlePayload)`
+
+  @Watch('inputType')
+  handleInputTypeChange(val: PayloadType) {
+    this.editorLang = val === 'JSON' ? 'json' : 'plaintext'
+  }
 
   get rules() {
     return {
@@ -226,12 +245,23 @@ execute(handlePayload)`
 .script-view {
   position: relative;
   padding: 0 16px;
+  .titlebar {
+    .el-badge__content {
+      height: 20px;
+      position: relative;
+      top: 3px;
+      margin-left: 5px;
+    }
+  }
   .script-view-header {
     @include flex-space-between;
     margin-bottom: 10px;
     .el-select {
       width: 230px;
       margin-right: 12px;
+    }
+    .save-btn {
+      border: 2px solid #22bb7a;
     }
     .delete-btn {
       color: var(--color-second-red);

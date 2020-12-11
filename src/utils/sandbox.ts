@@ -1,14 +1,14 @@
 import { VM, VMScript } from 'vm2'
 
-const executeScript = (input: string | number, script: string, type: 'json' | 'plaintext'): string => {
+const executeScript = (input: string | number, script: string, type: PayloadType): string => {
   let output = ''
   try {
     const vm = new VM({
       timeout: 10000,
       sandbox: {
-        execute(callback: (value: any) => string) {
+        execute(callback: (value: any) => any) {
           let _inputValue = input
-          if (type === 'json' && typeof input === 'string') {
+          if (type === 'JSON' && typeof input === 'string') {
             _inputValue = JSON.parse(input)
           }
           let _output = callback(_inputValue)

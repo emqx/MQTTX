@@ -4,6 +4,11 @@ export default {
     en: 'Script',
     ja: 'Script',
   },
+  scriptName: {
+    zh: '脚本名称',
+    en: 'Script name',
+    ja: 'Script name',
+  },
   test: {
     zh: '测 试',
     en: 'Test',
@@ -23,5 +28,25 @@ export default {
     zh: '保存脚本',
     en: 'Save script',
     ja: 'Save script',
+  },
+  useScript: {
+    zh: '使用脚本',
+    en: 'Use script',
+    ja: 'Use script',
+  },
+  removeScript: {
+    zh: '移除脚本',
+    en: 'Remove script',
+    ja: 'Remove script',
+  },
+  applyType: {
+    zh: '应用类型',
+    en: 'Apply type',
+    ja: 'Apply type',
+  },
+  scriptRequired: {
+    zh: '请选择脚本',
+    en: 'Script name is required',
+    ja: 'Script name is required',
   },
 }
