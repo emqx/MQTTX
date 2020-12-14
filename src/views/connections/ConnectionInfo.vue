@@ -4,7 +4,7 @@
       <el-row :gutter="20">
         <el-col :span="8">
           <el-form-item :label="$t('connections.name')" prop="name">
-            <el-input size="mini" v-model="connection.name"></el-input>
+            <el-input size="mini" v-model="connection.name" :disabled="client.connected"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -26,28 +26,40 @@
                 <i class="el-icon-time"></i>
               </a>
             </el-tooltip>
-            <el-input size="mini" v-model="connection.clientId">
-              <i slot="suffix" title="Refresh" class="el-icon-refresh" @click="refreshClientId"> </i>
+            <el-input size="mini" v-model="connection.clientId" :disabled="client.connected">
+              <i
+                slot="suffix"
+                title="Refresh"
+                class="el-icon-refresh"
+                :class="client.connected === true ? 'icon-oper-disable' : ''"
+                @click="refreshClientId"
+              >
+              </i>
             </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('connections.username')">
-            <el-input size="mini" v-model="connection.username"></el-input>
+            <el-input size="mini" v-model="connection.username" :disabled="client.connected"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('connections.password')">
-            <el-input size="mini" type="password" v-model="connection.password"></el-input>
+            <el-input size="mini" type="password" v-model="connection.password" :disabled="client.connected"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="Keep Alive">
-            <el-input size="mini" type="number" v-model.number="connection.keepalive"></el-input>
+            <el-input
+              size="mini"
+              type="number"
+              v-model.number="connection.keepalive"
+              :disabled="client.connected"
+            ></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8" class="connection.ssl">
-          <el-checkbox v-model="connection.clean">Clean Session</el-checkbox>
+          <el-checkbox v-model="connection.clean" :disabled="client.connected">Clean Session</el-checkbox>
         </el-col>
         <el-col :span="24">
           <el-button
@@ -139,6 +151,11 @@ export default class ConnectionInfo extends Vue {
 
   // Reverse the status of clientIdWithTime.
   private reverseClientIDWithTime() {
+    // when the client connected, we should disable this icon event
+    let curClientConnection: any = this.client
+    if (curClientConnection.connected === true) {
+      return
+    }
     if (this.connection.clientIdWithTime === undefined) {
       this.connection.clientIdWithTime = false
     }
@@ -179,6 +196,11 @@ export default class ConnectionInfo extends Vue {
   }
 
   private refreshClientId() {
+    // when the client connected, we should disable this icon event
+    let curClientConnection: any = this.client
+    if (curClientConnection.connected === true) {
+      return
+    }
     this.connection.clientId = getClientId()
   }
 }
@@ -210,6 +232,10 @@ export default class ConnectionInfo extends Vue {
       // icon active
       .icon-oper-active {
         color: var(--color-main-green);
+      }
+      // icon disable
+      .icon-oper-disable {
+        color: var(--color-text-default);
       }
     }
     // adjust the position of the clientID timestamp element
