@@ -201,14 +201,11 @@ export default class ConnectionInfo extends Vue {
         line-height: 35px;
         height: 35px;
       }
-      // icon click event
+      // normal icon
       .icon-oper {
-        color: var(--color-text-default);
+        color: var(--color-text-tips);
         line-height: 43px;
         transition: 0.2s color ease;
-        &:hover {
-          color: var(--color-main-green);
-        }
       }
       // icon active
       .icon-oper-active {
