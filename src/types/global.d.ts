@@ -20,10 +20,6 @@ declare global {
     resetFields: () => void
   }
 
-  type EditorRef = Vue & {
-    editorLayout: () => void
-  }
-
   interface ActiveConnection {
     readonly id: string
   }
@@ -51,13 +47,6 @@ declare global {
 
   interface SubscriptionsVisible {
     showSubscriptions: boolean
-  }
-
-  type PluginFunction<T> = (Vue: any, options?: T) => void
-
-  interface PluginObject<T> {
-    install: PluginFunction<T>
-    [key: string]: any
   }
 
   interface App {

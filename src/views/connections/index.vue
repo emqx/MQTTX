@@ -16,7 +16,7 @@
         <ConnectionForm v-if="oper" ref="connectionForm" :oper="oper" @connect="onConnect" />
         <ConnectionsDetail
           v-show="!oper"
-          ref="ConnectionsDetail"
+          ref="connectionsDetail"
           :record="currentConnection"
           @reload="loadData"
           @delete="loadData(true)"
@@ -29,6 +29,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Action } from 'vuex-class'
+import { ipcRenderer } from 'electron'
 import { loadConnections, loadConnection } from '@/api/connection'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
@@ -80,11 +81,22 @@ export default class Connections extends Vue {
 
   @Watch('$route.params.id')
   private handleIdChanged(val: string) {
-    const connection: ConnectionsDetail = this.$refs.ConnectionsDetail as ConnectionsDetail
-    if (connection) {
-      connection.stopTimedSend()
+    const connectionsDetailRef: ConnectionsDetail = this.$refs.connectionsDetail as ConnectionsDetail
+    if (connectionsDetailRef) {
+      connectionsDetailRef.stopTimedSend()
     }
     this.loadData()
+  }
+
+  @Watch('oper')
+  private handleOperChange(val: string | undefined) {
+    if (val === undefined) {
+      ipcRenderer.send('initEditor')
+      setTimeout(() => {
+        const connectionsDetailRef = this.$refs.connectionsDetail as ConnectionsDetail
+        connectionsDetailRef.setMessageListHeight()
+      }, 500)
+    }
   }
 
   get oper(): string | Array<string | null> {
@@ -128,14 +140,14 @@ export default class Connections extends Vue {
   private onConnect() {
     this.loadData()
     setTimeout(() => {
-      const connection: ConnectionsDetail = this.$refs.ConnectionsDetail as ConnectionsDetail
-      connection.connect()
+      const connectionsDetailRef = this.$refs.connectionsDetail as ConnectionsDetail
+      connectionsDetailRef.connect()
     }, 500)
   }
 
   private onDelete(data: ConnectionModel) {
-    const connection: ConnectionsDetail = this.$refs.ConnectionsDetail as ConnectionsDetail
-    connection.removeConnection(data)
+    const connectionsDetailRef = this.$refs.connectionsDetail as ConnectionsDetail
+    connectionsDetailRef.removeConnection(data)
   }
 
   private created() {

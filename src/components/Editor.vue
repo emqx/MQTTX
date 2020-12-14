@@ -50,7 +50,7 @@ export default class Editor extends Vue {
     }
   }
 
-  private initEditor(): void | boolean {
+  public initEditor(): void | boolean {
     const defaultOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
       value: this.value,
       language: this.lang,
@@ -115,7 +115,7 @@ export default class Editor extends Vue {
       this.$emit('blur')
     })
   }
-  private editorLayout() {
+  public editorLayout() {
     if (this.editor) {
       this.editor.layout()
     }

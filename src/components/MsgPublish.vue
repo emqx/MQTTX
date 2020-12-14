@@ -116,6 +116,16 @@ export default class MsgPublish extends Vue {
     }
   }
 
+  private mounted() {
+    ipcRenderer.on('initEditor', () => {
+      const editorRef = this.$refs.payloadEditor as Editor
+      if (editorRef) {
+        editorRef.initEditor()
+      }
+      ipcRenderer.removeAllListeners('initEditor')
+    })
+  }
+
   private send() {
     this.msgRecord.mid = uuidv4()
     this.$emit('handleSend', this.msgRecord, this.payloadType)
@@ -131,7 +141,7 @@ export default class MsgPublish extends Vue {
     ipcRenderer.removeAllListeners('sendPayload')
   }
   private handleLayout() {
-    const editorRef: EditorRef = this.$refs.payloadEditor as EditorRef
+    const editorRef = this.$refs.payloadEditor as Editor
     editorRef.editorLayout()
   }
 

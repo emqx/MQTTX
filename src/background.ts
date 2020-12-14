@@ -60,6 +60,9 @@ function handleIpcMessages() {
     const { id, receivedMessage } = args[0]
     updateConnectionMessage(id, { ...receivedMessage })
   })
+  ipcMain.on('initEditor', (event: Electron.Event, ...args: any[]) => {
+    event.sender.send('initEditor')
+  })
 }
 
 function createWindow() {

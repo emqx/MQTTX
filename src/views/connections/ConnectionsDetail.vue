@@ -247,6 +247,7 @@
       <div ref="connectionFooter" class="connections-footer" :style="{ marginLeft: showSubs ? '570px' : '341px' }">
         <ResizeHeight v-model="inputHeight" />
         <MsgPublish
+          ref="msgPublish"
           :editor-height="inputHeight - 75"
           :subs-visible="showSubs"
           :style="{ height: `${inputHeight}px` }"
@@ -428,46 +429,6 @@ export default class ConnectionsDetail extends Vue {
     content: ScriptModel | null
   } | null = null
 
-  // Connect
-  public connect(): boolean | void {
-    if (this.client.connected) {
-      return false
-    }
-    this.connectLoading = true
-    this.client = this.createClient()
-    const { id } = this.record
-    if (id && this.client.on) {
-      this.client.on('connect', this.onConnect)
-      this.client.on('error', this.onError)
-      this.client.on('reconnect', this.onReConnect)
-      this.client.on('close', this.onClose)
-      this.client.on('message', this.onMessageArrived(id))
-    }
-  }
-  // Delete connection
-  public removeConnection(currentConnection?: ConnectionModel) {
-    let { id, name } = this.record
-    if (currentConnection) {
-      id = currentConnection.id
-      name = currentConnection.name
-    }
-    const confirmDelete: string = this.$t('common.confirmDelete', { name }) as string
-    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
-      type: 'warning',
-    })
-      .then(async () => {
-        const res: ConnectionModel | null = await deleteConnection(id as string)
-        if (res) {
-          this.$emit('delete')
-          this.$message.success(this.$t('common.deleteSuccess') as string)
-          this.removeActiveConnection({ id: res.id as string })
-        }
-      })
-      .catch((error) => {
-        // ignore(error)
-      })
-  }
-
   get bodyTop(): TopModel {
     return {
       open: '254px',
@@ -538,6 +499,72 @@ export default class ConnectionsDetail extends Vue {
       clearTimeout(timer)
     }, 500)
   }
+
+  // Connect
+  public connect(): boolean | void {
+    if (this.client.connected) {
+      return false
+    }
+    this.connectLoading = true
+    this.client = this.createClient()
+    const { id } = this.record
+    if (id && this.client.on) {
+      this.client.on('connect', this.onConnect)
+      this.client.on('error', this.onError)
+      this.client.on('reconnect', this.onReConnect)
+      this.client.on('close', this.onClose)
+      this.client.on('message', this.onMessageArrived(id))
+    }
+  }
+  // Delete connection
+  public removeConnection(currentConnection?: ConnectionModel) {
+    let { id, name } = this.record
+    if (currentConnection) {
+      id = currentConnection.id
+      name = currentConnection.name
+    }
+    const confirmDelete: string = this.$t('common.confirmDelete', { name }) as string
+    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
+      type: 'warning',
+    })
+      .then(async () => {
+        const res: ConnectionModel | null = await deleteConnection(id as string)
+        if (res) {
+          this.$emit('delete')
+          this.$message.success(this.$t('common.deleteSuccess') as string)
+          this.removeActiveConnection({ id: res.id as string })
+        }
+      })
+      .catch((error) => {
+        // ignore(error)
+      })
+  }
+  // Clearn interval
+  public stopTimedSend() {
+    const timedMessageRef: TimedMessage = this.$refs.timedMessage as TimedMessage
+    timedMessageRef['record'] = {
+      sendFrequency: undefined,
+    }
+    this.sendFrequency = undefined
+    if (this.sendTimeId) {
+      clearInterval(this.sendTimeId)
+      this.sendTimeId = null
+      this.$message.success(this.$t('connections.stopTimedMessage') as string)
+    }
+  }
+  // Set messages list height
+  public setMessageListHeight() {
+    const connectionFooter: HTMLElement = this.$refs.connectionFooter as HTMLElement
+    const connectionTopbar: HTMLElement = this.$refs.connectionTopbar as HTMLElement
+    const filterBar: HTMLElement = this.$refs.filterBar as HTMLElement
+    this.messageListHeight =
+      document.body.offsetHeight -
+      connectionTopbar.offsetHeight -
+      connectionFooter.offsetHeight -
+      filterBar.offsetHeight +
+      5
+  }
+
   // Show context menu
   private handleContextMenu(msgItemInfo: IArguments, message: MessageModel) {
     const [payload, event] = msgItemInfo
@@ -1009,19 +1036,6 @@ export default class ConnectionsDetail extends Vue {
       this.sendOneMessage(Object.assign(oneMessage, { mid }), type)
     }, time * 1000)
   }
-  // Clearn interval
-  public stopTimedSend() {
-    const timedMessage: TimedMessage = this.$refs.timedMessage as TimedMessage
-    timedMessage['record'] = {
-      sendFrequency: undefined,
-    }
-    this.sendFrequency = undefined
-    if (this.sendTimeId) {
-      clearInterval(this.sendTimeId)
-      this.sendTimeId = null
-      this.$message.success(this.$t('connections.stopTimedMessage') as string)
-    }
-  }
   // Send one message
   private sendOneMessage(message: MessageModel, type: PayloadType): void | boolean {
     if (!this.client.connected) {
@@ -1168,8 +1182,8 @@ export default class ConnectionsDetail extends Vue {
   // Auto subscribe system topic and show dialog
   private handleSubSystemTopic() {
     this.showBytes = true
-    const subList = this.$refs.subList as SubscriptionsList
-    subList.subscribe({ topic: '$SYS/#', qos: 0 }, true)
+    const subListRef = this.$refs.subList as SubscriptionsList
+    subListRef.subscribe({ topic: '$SYS/#', qos: 0 }, true)
   }
 
   // Show use script dialog
@@ -1212,19 +1226,6 @@ export default class ConnectionsDetail extends Vue {
         client.removeAllListeners('message')
       }
     })
-  }
-
-  // Set messages list height
-  private setMessageListHeight() {
-    const connectionFooter: HTMLElement = this.$refs.connectionFooter as HTMLElement
-    const connectionTopbar: HTMLElement = this.$refs.connectionTopbar as HTMLElement
-    const filterBar: HTMLElement = this.$refs.filterBar as HTMLElement
-    this.messageListHeight =
-      document.body.offsetHeight -
-      connectionTopbar.offsetHeight -
-      connectionFooter.offsetHeight -
-      filterBar.offsetHeight +
-      5
   }
 
   private created() {

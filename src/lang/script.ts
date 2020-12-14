@@ -35,9 +35,9 @@ export default {
     ja: 'Use script',
   },
   removeScript: {
-    zh: '移除脚本',
-    en: 'Remove script',
-    ja: 'Remove script',
+    zh: '停止脚本',
+    en: 'Stop script',
+    ja: 'Stop script',
   },
   applyType: {
     zh: '应用于',
