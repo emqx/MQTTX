@@ -9,6 +9,23 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="Client ID" prop="clientId">
+            <el-tooltip
+              class="icon-client-time"
+              placement="top"
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :open-delay="500"
+              :offset="80"
+              :content="$t('connections.clientIdWithTimeTip')"
+            >
+              <a
+                href="javascript:;"
+                class="icon-oper"
+                @click="reverseClientIDWithTime"
+                :class="{ 'icon-oper-active': clientIdWithTime }"
+              >
+                <i class="el-icon-time"></i>
+              </a>
+            </el-tooltip>
             <el-input size="mini" v-model="connection.clientId">
               <i slot="suffix" title="Refresh" class="el-icon-refresh" @click="refreshClientId"> </i>
             </el-input>
@@ -89,6 +106,7 @@ export default class ConnectionInfo extends Vue {
   @Prop({ required: true }) public client!: MqttClient | {}
   @Prop({ required: true }) public titleName!: string
 
+  @Getter('currentTheme') private theme!: Theme
   @Getter('allConnections') private allConnections!: ConnectionModel[] | []
 
   private oldName = ''
@@ -110,6 +128,21 @@ export default class ConnectionInfo extends Vue {
 
   get vueForm(): VueForm {
     return this.$refs.form as VueForm
+  }
+
+  get clientIdWithTime(): boolean {
+    if (this.connection.clientIdWithTime === undefined) {
+      this.connection.clientIdWithTime = false
+    }
+    return this.connection.clientIdWithTime
+  }
+
+  // Reverse the status of clientIdWithTime.
+  private reverseClientIDWithTime() {
+    if (this.connection.clientIdWithTime === undefined) {
+      this.connection.clientIdWithTime = false
+    }
+    this.connection.clientIdWithTime = !this.connection.clientIdWithTime
   }
 
   private async validateName(rule: FormRule, name: string, callBack: NameCallBack['callBack']) {
@@ -168,7 +201,27 @@ export default class ConnectionInfo extends Vue {
         line-height: 35px;
         height: 35px;
       }
+      // icon click event
+      .icon-oper {
+        color: var(--color-text-default);
+        line-height: 43px;
+        transition: 0.2s color ease;
+        &:hover {
+          color: var(--color-main-green);
+        }
+      }
+      // icon active
+      .icon-oper-active {
+        color: var(--color-main-green);
+      }
     }
+    // adjust the position of the clientID timestamp element
+    .icon-client-time {
+      position: absolute;
+      top: -2.65em;
+      left: 5em;
+    }
+
     .el-checkbox {
       margin-top: 42px;
     }

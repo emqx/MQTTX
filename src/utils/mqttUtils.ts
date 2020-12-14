@@ -52,7 +52,7 @@ export const getClientOptions = (record: ConnectionModel): IClientOptions => {
   }
   options.connectTimeout = time.convertSecondsToMs(connectTimeout)
   // Append timestamp to MQTT client id
-  if (clientIdWithTime === true) {
+  if (clientIdWithTime) {
     const clickIconTime = Date.parse(new Date().toString())
     options.clientId = `${options.clientId}_${clickIconTime}`
   }
