@@ -31,7 +31,7 @@
                 slot="suffix"
                 title="Refresh"
                 class="el-icon-refresh"
-                :class="client.connected === true ? 'icon-oper-disable' : ''"
+                :class="client.connected ? 'icon-oper-disable' : ''"
                 @click="refreshClientId"
               >
               </i>
@@ -115,7 +115,7 @@ import { Getter } from 'vuex-class'
 export default class ConnectionInfo extends Vue {
   @Prop({ required: true }) public connection!: ConnectionModel
   @Prop({ required: true }) public btnLoading!: boolean
-  @Prop({ required: true }) public client!: MqttClient | {}
+  @Prop({ required: true }) public client!: MqttClient | { connected: Boolean }
   @Prop({ required: true }) public titleName!: string
 
   @Getter('currentTheme') private theme!: Theme
@@ -152,8 +152,7 @@ export default class ConnectionInfo extends Vue {
   // Reverse the status of clientIdWithTime.
   private reverseClientIDWithTime() {
     // when the client connected, we should disable this icon event
-    let curClientConnection: any = this.client
-    if (curClientConnection.connected === true) {
+    if (this.isClientConnected) {
       return
     }
     if (this.connection.clientIdWithTime === undefined) {
@@ -197,11 +196,15 @@ export default class ConnectionInfo extends Vue {
 
   private refreshClientId() {
     // when the client connected, we should disable this icon event
-    let curClientConnection: any = this.client
-    if (curClientConnection.connected === true) {
+    if (this.isClientConnected) {
       return
     }
     this.connection.clientId = getClientId()
+  }
+
+  // Return the status of client connection
+  private get isClientConnected() {
+    return this.client.connected
   }
 }
 </script>
