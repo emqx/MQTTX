@@ -4,6 +4,8 @@ type QoS = 0 | 1 | 2
 type searchCallBack = (data: ConnectionModel[]) => ConnectionModel[]
 type nameCallBack = (name: string) => string
 
+export type MessageType = 'all' | 'received' | 'publish'
+
 export interface SearchCallBack {
   callBack: searchCallBack
 }

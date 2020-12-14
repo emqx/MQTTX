@@ -42,17 +42,17 @@
                   v-if="sendTimeId"
                   placement="bottom"
                   :effect="theme !== 'light' ? 'light' : 'dark'"
-                  :open-delay="1000"
+                  :open-delay="500"
                   :content="$t('connections.clearIntervalBtn')"
                 >
                   <a class="stop-interval-btn" href="javascript:;" @click="stopTimedSend">
-                    <i class="el-icon-time"></i>
+                    <i class="el-icon-timer"></i>
                   </a>
                 </el-tooltip>
                 <el-tooltip
                   placement="bottom"
                   :effect="theme !== 'light' ? 'light' : 'dark'"
-                  :open-delay="1000"
+                  :open-delay="500"
                   :content="$t('connections.disconnectedBtn')"
                 >
                   <a class="disconnect-btn" href="javascript:;" @click="disconnect">
@@ -62,11 +62,22 @@
                 </el-tooltip>
               </span>
             </transition>
+            <el-tooltip
+              v-if="scriptOption !== null"
+              placement="bottom"
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :open-delay="500"
+              :content="$t('script.removeScript')"
+            >
+              <a class="remove-script-btn" href="javascript:;" @click="removeScript">
+                <i class="el-icon-cpu"></i>
+              </a>
+            </el-tooltip>
             <template v-if="!isNewWindow">
               <el-tooltip
                 placement="bottom"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
-                :open-delay="1000"
+                :open-delay="500"
                 :content="$t('common.config')"
               >
                 <a
@@ -80,7 +91,7 @@
               <el-tooltip
                 placement="bottom"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
-                :open-delay="1000"
+                :open-delay="500"
                 :content="$t('common.newWindow')"
               >
                 <a class="new-window-btn" href="javascript:;" @click="handleNewWindow">
@@ -109,6 +120,9 @@
                   </el-dropdown-item>
                   <el-dropdown-item command="bytesStatistics" :disabled="!client.connected">
                     <i class="el-icon-data-line"></i>{{ $t('connections.bytesStatistics') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="useScript" :disabled="!client.connected">
+                    <i class="el-icon-cpu"></i>{{ $t('script.useScript') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="disconnect" :disabled="!client.connected">
                     <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
@@ -246,6 +260,7 @@
     <ExportData :visible.sync="showExportData" :connection="record" />
     <ImportData :visible.sync="showImportData" @updateData="$emit('reload')" />
     <TimedMessage ref="timedMessage" :visible.sync="showTimedMessage" @setTimerSuccess="setTimerSuccess" />
+    <UseScript ref="useScript" :visible.sync="showUseScript" @setScript="handleSetScript" />
     <BytesStatistics
       ref="bytesStatistics"
       :visible.sync="showBytes"
@@ -291,10 +306,20 @@ import ExportData from '@/components/ExportData.vue'
 import ImportData from '@/components/ImportData.vue'
 import TimedMessage from '@/components/TimedMessage.vue'
 import BytesStatistics from '@/components/BytesStatistics.vue'
+import UseScript from '@/components/UseScript.vue'
 
-import { ConnectionModel, MessageModel, SSLPath, SSLContent, ContextmenuModel, ChartDataModel } from './types'
+import {
+  ConnectionModel,
+  MessageModel,
+  SSLPath,
+  SSLContent,
+  ContextmenuModel,
+  ChartDataModel,
+  MessageType,
+} from './types'
+import { ScriptModel } from '../script/types'
+import sandbox from '@/utils/sandbox'
 
-type MessageType = 'all' | 'received' | 'publish'
 type CommandType =
   | 'searchContent'
   | 'clearHistory'
@@ -304,6 +329,7 @@ type CommandType =
   | 'importData'
   | 'timedMessage'
   | 'bytesStatistics'
+  | 'useScript'
 type PayloadConvertType = 'base64' | 'hex'
 
 interface TopModel {
@@ -323,6 +349,7 @@ interface TopModel {
     TimedMessage,
     BytesStatistics,
     MessageList,
+    UseScript,
   },
 })
 export default class ConnectionsDetail extends Vue {
@@ -348,6 +375,8 @@ export default class ConnectionsDetail extends Vue {
   private showExportData = false
   private showImportData = false
   private showTimedMessage = false
+  private showUseScript = false
+
   private connectLoading = false
   private searchVisible = false
   private searchLoading = false
@@ -394,6 +423,10 @@ export default class ConnectionsDetail extends Vue {
   private version = ''
   private uptime = ''
   private bytesTimes = 0
+  private scriptOption: {
+    apply: MessageType
+    content: ScriptModel | null
+  } | null = null
 
   // Connect
   public connect(): boolean | void {
@@ -618,6 +651,9 @@ export default class ConnectionsDetail extends Vue {
         break
       case 'bytesStatistics':
         this.handleSubSystemTopic()
+        break
+      case 'useScript':
+        this.handleUseScript()
         break
       default:
         break
@@ -875,16 +911,30 @@ export default class ConnectionsDetail extends Vue {
       clearTimeout(timer)
     }, 100)
   }
+  // Set script
+  private handleSetScript(script: ScriptModel, applyType: MessageType) {
+    this.scriptOption = {
+      apply: applyType,
+      content: script,
+    }
+    this.$message.success(this.$t('script.startScript') as string)
+  }
+  // Remove script
+  private removeScript() {
+    this.scriptOption = null
+    this.$message.success(this.$t('script.stopScirpt') as string)
+  }
   // Recevied message
   private onMessageArrived(id: string) {
     return (topic: string, payload: Buffer, packet: SubscriptionModel) => {
-      const $payload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
+      const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
+      const receviedPayload = this.convertPayloadByScript(convertPayload, 'publish')
       const receivedMessage: MessageModel = {
         mid: uuidv4(),
         out: false,
         createAt: time.getNowDate(),
         topic,
-        payload: $payload,
+        payload: receviedPayload,
         qos: packet.qos,
         retain: packet.retain as boolean,
       }
@@ -991,8 +1041,9 @@ export default class ConnectionsDetail extends Vue {
       this.stopTimedSend()
       return false
     }
-    const $payload = this.convertPayloadByType(payload, type, 'publish')
-    this.client.publish!(topic, $payload, { qos, retain }, (error: Error) => {
+    const convertPayload = this.convertPayloadByScript(payload, 'received')
+    const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
+    this.client.publish!(topic, sendPayload, { qos, retain }, (error: Error) => {
       if (error) {
         const errorMsg = error.toString()
         this.$message.error(errorMsg)
@@ -1004,7 +1055,7 @@ export default class ConnectionsDetail extends Vue {
         out: true,
         createAt: time.getNowDate(),
         topic,
-        payload,
+        payload: convertPayload,
         qos,
         retain,
       }
@@ -1074,6 +1125,16 @@ export default class ConnectionsDetail extends Vue {
     return value
   }
 
+  // Use script to apply to payload
+  private convertPayloadByScript(payload: string, notType: MessageType): string {
+    let convertPayload = payload
+    if (this.scriptOption !== null && this.scriptOption.content && this.scriptOption.apply !== notType) {
+      // Enable script function
+      convertPayload = sandbox.executeScript(payload, this.scriptOption.content.script, this.receivedMsgType)
+    }
+    return convertPayload
+  }
+
   // Conditions when searching and filtering
   private filterBySearchConditions(topic: string, message: MessageModel): boolean {
     const { topic: searchTopic, payload: searchPayload } = this.searchParams
@@ -1104,11 +1165,16 @@ export default class ConnectionsDetail extends Vue {
     this.showTimedMessage = true
   }
 
-  // Auto subscribe system topic
+  // Auto subscribe system topic and show dialog
   private handleSubSystemTopic() {
     this.showBytes = true
     const subList = this.$refs.subList as SubscriptionsList
     subList.subscribe({ topic: '$SYS/#', qos: 0 }, true)
+  }
+
+  // Show use script dialog
+  private handleUseScript() {
+    this.showUseScript = true
   }
 
   // Register connected clients message event listeners
@@ -1218,20 +1284,21 @@ export default class ConnectionsDetail extends Vue {
         i {
           font-size: 18px;
         }
+        .remove-script-btn,
         .disconnect-btn,
         .stop-interval-btn {
-          margin-right: 10px;
+          margin-right: 12px;
           color: var(--color-second-red);
         }
+        .edit-btn,
         .new-window-btn {
-          margin-right: 10px;
+          margin-right: 12px;
         }
         .edit-btn {
           &.disabled {
             cursor: not-allowed;
             color: var(--color-text-light);
           }
-          margin-right: 10px;
         }
         .el-dropdown.connection-oper {
           a {

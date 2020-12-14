@@ -25,7 +25,7 @@ export default {
     ja: '戻る',
   },
   save: {
-    zh: '保存',
+    zh: '保 存',
     en: 'Save',
     ja: '保存',
   },
@@ -143,5 +143,10 @@ export default {
     zh: '运行时间',
     en: 'Uptime',
     ja: '稼働時間',
+  },
+  betaInfo: {
+    zh: '该功能属于 beta 测试阶段',
+    en: 'It is a test feature in the beta stage',
+    ja: 'It is a test feature in the beta stage',
   },
 }

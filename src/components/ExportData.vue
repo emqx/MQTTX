@@ -47,7 +47,7 @@ import { loadConnections } from '@/api/connection'
 import MyDialog from './MyDialog.vue'
 import { ConnectionModel } from '@/views/connections/types'
 import XMLConvert from 'xml-js'
-const { parse: CSVConvert } = require('json2csv')
+import { parse as CSVConvert } from 'json2csv'
 import ExcelConvert, { WorkBook } from 'xlsx'
 
 type ExportFormat = 'JSON' | 'XML' | 'CSV' | 'Excel'
