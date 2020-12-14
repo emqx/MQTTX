@@ -72,7 +72,7 @@
               >
                 <a
                   href="javascript:;"
-                  class="icon-oper"
+                  class="icon-oper-pure"
                   @click="reverseClientIDWithTime"
                   :class="{ 'icon-oper-active': clientIdWithTime }"
                 >
@@ -714,6 +714,7 @@ export default class ConnectionCreate extends Vue {
   .el-form {
     padding-top: 80px;
     padding-bottom: 40px;
+    // normal icon operation style
     .icon-oper {
       color: var(--color-text-default);
       line-height: 43px;
@@ -721,6 +722,12 @@ export default class ConnectionCreate extends Vue {
       &:hover {
         color: var(--color-main-green);
       }
+    }
+    // icon style without fake class such as `:hover` style
+    .icon-oper-pure {
+      color: var(--color-text-default);
+      line-height: 43px;
+      transition: 0.2s color ease;
     }
     // icon active
     .icon-oper-active {
