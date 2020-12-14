@@ -147,6 +147,6 @@ export default {
   betaInfo: {
     zh: '该功能属于 beta 测试阶段',
     en: 'It is a test feature in the beta stage',
-    ja: 'It is a test feature in the beta stage',
+    ja: 'この機能はベータテスト中です',
   },
 }
