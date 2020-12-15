@@ -10,6 +10,7 @@ const getters = {
   willMessageVisible: (state: State) => state.app.willMessageVisible,
   advancedVisible: (state: State) => state.app.advancedVisible,
   allConnections: (state: State) => state.app.allConnections,
+  currentScript: (state: State) => state.app.currentScript,
 }
 
 export default getters

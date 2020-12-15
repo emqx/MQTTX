@@ -80,7 +80,7 @@
       width="400px"
       @confirm="save"
     >
-      <el-form v-if="showDialog" ref="form" label-position="left" label-width="120px" :model="record" :rules="rules">
+      <el-form ref="form" label-position="left" label-width="120px" :model="record">
         <el-row :gutter="20">
           <el-col :span="24">
             <el-form-item :label="$t('script.scriptName')" prop="name">
@@ -135,16 +135,6 @@ execute(handlePayload)`
     this.editorLang = val === 'JSON' ? 'json' : 'plaintext'
   }
 
-  get rules() {
-    return {
-      name: [{ required: true, message: this.$t('common.inputRequired') }],
-    }
-  }
-
-  get vueForm(): VueForm {
-    return this.$refs.form as VueForm
-  }
-
   private created() {
     this.loadData()
   }
@@ -169,25 +159,24 @@ execute(handlePayload)`
     }
   }
 
-  private save() {
-    this.vueForm.validate(async (valid: boolean) => {
-      if (!valid) {
-        return false
+  private async save() {
+    if (!this.record.name) {
+      this.$message.warning(this.$t('script.scriptRequired') as string)
+      return
+    }
+    this.record.script = this.scriptValue
+    const data = { ...this.record }
+    const res = await createScript(data)
+    if (res) {
+      this.$message.success(this.$t('common.createSuccess') as string)
+      this.showDialog = false
+      this.record = {
+        id: '',
+        name: '',
+        script: '',
       }
-      this.record.script = this.scriptValue
-      const data = { ...this.record }
-      const res = await createScript(data)
-      if (res) {
-        this.$message.success(this.$t('common.createSuccess') as string)
-        this.showDialog = false
-        this.record = {
-          id: '',
-          name: '',
-          script: '',
-        }
-        this.loadData()
-      }
-    })
+      this.loadData()
+    }
   }
 
   private async loadData(): Promise<void> {
