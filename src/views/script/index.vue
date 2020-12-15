@@ -79,6 +79,7 @@
       class="save-script"
       width="400px"
       @confirm="save"
+      @keyupEnter="save"
     >
       <el-form ref="form" label-position="left" label-width="120px" :model="record">
         <el-row :gutter="20">
