@@ -478,6 +478,7 @@ export default class ConnectionsDetail extends Vue {
     this.titleName = this.record.name
     this.getConnectionValue(id)
     this.getMessages()
+    this.scrollToBottom()
   }
 
   @Watch('inputHeight')
@@ -557,12 +558,15 @@ export default class ConnectionsDetail extends Vue {
     const connectionFooter: HTMLElement = this.$refs.connectionFooter as HTMLElement
     const connectionTopbar: HTMLElement = this.$refs.connectionTopbar as HTMLElement
     const filterBar: HTMLElement = this.$refs.filterBar as HTMLElement
+
+    const filterBarOffsetHeight = filterBar.offsetHeight
+    const extraAddHeight = filterBarOffsetHeight > 56 ? filterBarOffsetHeight - 51 : 5
     this.messageListHeight =
       document.body.offsetHeight -
       connectionTopbar.offsetHeight -
       connectionFooter.offsetHeight -
-      filterBar.offsetHeight +
-      5
+      filterBarOffsetHeight +
+      extraAddHeight
   }
 
   // Show context menu
