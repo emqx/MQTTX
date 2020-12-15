@@ -45,7 +45,7 @@ export default class MyDialog extends Vue {
   private showDialog: boolean = this.visible
 
   @Watch('visible')
-  private onVisibleChanged(val: boolean, oldVal: boolean) {
+  private onVisibleChanged(val: boolean) {
     this.showDialog = val
   }
 
