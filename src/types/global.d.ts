@@ -2,6 +2,7 @@ import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
 import { MqttClient } from 'mqtt'
 import { MessageModel, ConnectionModel } from '@/views/connections/types'
+import { ScriptState } from '@/views/script/types'
 
 declare global {
   type $TSFixed = any
@@ -71,6 +72,7 @@ declare global {
     willMessageVisible: boolean
     advancedVisible: boolean
     allConnections: ConnectionModel[] | []
+    currentScript: ScriptState | null
   }
 
   interface State {

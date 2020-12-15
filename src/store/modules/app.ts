@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import { ConnectionModel } from '../../views/connections/types'
 import { loadSettings, setSettings } from '@/api/setting'
+import { ScriptState } from '@/views/script/types'
 
 const TOGGLE_THEME = 'TOGGLE_THEME'
 const TOGGLE_LANG = 'TOGGLE_LANG'
@@ -15,6 +16,7 @@ const UNREAD_MESSAGE_COUNT_INCREMENT = 'UNREAD_MESSAGE_COUNT_INCREMENT'
 const TOGGLE_WILL_MESSAGE_VISIBLE = 'TOGGLE_WILL_MESSAGE_VISIBLE'
 const TOGGLE_ADVANCED_VISIBLE = 'TOGGLE_ADVANCED_VISIBLE'
 const CHANGE_ALL_CONNECTIONS = 'CHANGE_ALL_CONNECTIONS'
+const SET_SCRIPT = 'SET_SCRIPT'
 
 const stateRecord: App = loadSettings()
 
@@ -39,6 +41,7 @@ const app = {
     advancedVisible: true,
     willMessageVisible: true,
     allConnections: [],
+    currentScript: null,
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -103,6 +106,9 @@ const app = {
     [CHANGE_ALL_CONNECTIONS](state: App, allConnections: ConnectionModel[] | []) {
       state.allConnections = allConnections
     },
+    [SET_SCRIPT](state: App, currentScript: ScriptState) {
+      state.currentScript = currentScript
+    },
   },
   actions: {
     TOGGLE_THEME({ commit }: any, payload: App) {
@@ -147,6 +153,9 @@ const app = {
     },
     CHANGE_ALL_CONNECTIONS({ commit }: any, payload: App) {
       commit(CHANGE_ALL_CONNECTIONS, payload.allConnections)
+    },
+    SET_SCRIPT({ commit }: any, payload: App) {
+      commit(SET_SCRIPT, payload.currentScript)
     },
   },
 }

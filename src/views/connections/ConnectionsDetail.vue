@@ -318,7 +318,7 @@ import {
   ChartDataModel,
   MessageType,
 } from './types'
-import { ScriptModel } from '../script/types'
+import { ScriptModel, ScriptState } from '../script/types'
 import sandbox from '@/utils/sandbox'
 
 type CommandType =
@@ -362,14 +362,14 @@ export default class ConnectionsDetail extends Vue {
   @Action('SHOW_CLIENT_INFO') private changeShowClientInfo!: (payload: ClientInfo) => void
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
+  @Action('SET_SCRIPT') private setScript!: (payload: { currentScript: ScriptState | null }) => void
 
   @Getter('activeConnection') private activeConnection: $TSFixed
   @Getter('showSubscriptions') private showSubscriptions!: boolean
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('currentTheme') private theme!: Theme
-  @Getter('showClientInfo') private clientInfoVisibles!: {
-    [id: string]: boolean
-  }
+  @Getter('showClientInfo') private clientInfoVisibles!: { [id: string]: boolean }
+  @Getter('currentScript') private scriptOption!: ScriptState | null
 
   private showSubs = true
   private showClientInfo = true
@@ -424,10 +424,6 @@ export default class ConnectionsDetail extends Vue {
   private version = ''
   private uptime = ''
   private bytesTimes = 0
-  private scriptOption: {
-    apply: MessageType
-    content: ScriptModel | null
-  } | null = null
 
   get bodyTop(): TopModel {
     return {
@@ -944,15 +940,16 @@ export default class ConnectionsDetail extends Vue {
   }
   // Set script
   private handleSetScript(script: ScriptModel, applyType: MessageType) {
-    this.scriptOption = {
+    const currentScript: ScriptState = {
       apply: applyType,
       content: script,
     }
+    this.setScript({ currentScript })
     this.$message.success(this.$t('script.startScript') as string)
   }
   // Remove script
   private removeScript() {
-    this.scriptOption = null
+    this.setScript({ currentScript: null })
     this.$message.success(this.$t('script.stopScirpt') as string)
   }
   // Recevied message
