@@ -87,11 +87,15 @@ export default class ConnectionsList extends Vue {
   }
 
   private handleSelectConnection(row: ConnectionModel) {
-    this.unreadMessageIncrement({ id: row.id as string, unreadMessageCount: 0 })
+    this.initUnreadMessageCount(row.id as string)
     if (this.$route.name === 'newWindow') {
       return
     }
     this.$router.push({ path: `/recent_connections/${row.id}` })
+  }
+
+  private initUnreadMessageCount(id: string) {
+    this.unreadMessageIncrement({ id, unreadMessageCount: 0 })
   }
 
   private handleContextMenu(row: ConnectionModel, event: MouseEvent) {

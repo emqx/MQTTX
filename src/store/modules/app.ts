@@ -84,7 +84,13 @@ const app = {
       if (payload.unreadMessageCount !== undefined) {
         Vue.set(state.unreadMessageCount, payload.id, payload.unreadMessageCount)
       } else {
-        const count = (state.unreadMessageCount[payload.id] += 1)
+        const currentCount: number | undefined = state.unreadMessageCount[payload.id]
+        let count = 0
+        if (currentCount !== undefined) {
+          count = currentCount + 1
+        } else {
+          count += 1
+        }
         Vue.set(state.unreadMessageCount, payload.id, count)
       }
     },
