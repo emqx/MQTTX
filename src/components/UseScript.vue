@@ -6,6 +6,7 @@
     width="400px"
     @close="resetData"
     @confirm="save"
+    @keyupEnter="save"
   >
     <el-form ref="form" label-position="left" label-width="120px">
       <el-row :gutter="20">
