@@ -1,5 +1,9 @@
 <template>
-  <div ref="messageListBox" class="message-list messages-display" :style="{ height: `${height}px` }">
+  <div
+    ref="messageListBox"
+    class="message-list messages-display"
+    :style="{ height: `${height}px`, marginTop: `${marginTop}px` }"
+  >
     <span v-show="showLoadingIcon" class="loading-icon"><i class="el-icon-loading"></i></span>
     <div v-for="message in showMessages" :key="message.mid" :id="message.mid">
       <MsgLeftItem
@@ -30,8 +34,9 @@ export default class MessageList extends Vue {
   @Prop({ required: true }) messages!: MessageModel[]
   @Prop({ required: true }) height!: number
   @Prop({ required: true }) subscriptions!: SubscriptionModel[]
+  @Prop({ required: true }) marginTop!: number
 
-  private showMessages: MessageModel[] = []
+  public showMessages: MessageModel[] = []
   private scrollTop: number = -1
   private showLoadingIcon: boolean = false
   private onceAddMessagesMaxNum: number = 20
@@ -40,19 +45,28 @@ export default class MessageList extends Vue {
   private handleMessagesChanged(val: MessageModel[]) {
     if (val.length) {
       const allMessages = _.cloneDeep(val)
-      this.showMessages =
+      const maxShowMessages =
         allMessages.length >= this.onceAddMessagesMaxNum ? allMessages.slice(-this.onceAddMessagesMaxNum) : allMessages
+      const newMessages = this.getNewMessages(maxShowMessages, this.showMessages)
+
+      // sentOneMessage or receivedOneMessage
+      if (newMessages.length === 1) {
+        this.showMessages = this.showMessages.concat(newMessages)
+        return
+      }
+      // active connection changed
+      this.showMessages = maxShowMessages
     } else {
       this.showMessages = []
     }
   }
 
   @Watch('scrollTop')
-  private handleScrollTopChanged(val: number, oldVal: number) {
+  private handleScrollTopChanged(val: number) {
     if (val === 0) {
       const allMessages = _.cloneDeep(this.messages)
       const [...showMessages] = this.showMessages
-      const newMessages = allMessages.filter((item) => showMessages.every((one) => one.mid !== item.mid))
+      const newMessages = this.getNewMessages(allMessages, showMessages)
       const addMessages =
         newMessages.length >= this.onceAddMessagesMaxNum ? newMessages.slice(-this.onceAddMessagesMaxNum) : newMessages
 
@@ -74,6 +88,11 @@ export default class MessageList extends Vue {
         }, 1000)
       }
     }
+  }
+
+  private getNewMessages(newMessageList: MessageModel[], oldMessageList: MessageModel[]) {
+    const newMessages = newMessageList.filter((item) => oldMessageList.every((one) => one.mid !== item.mid))
+    return newMessages
   }
 
   private handleShowContextMenu(msgItemInfo: IArguments, message: MessageModel) {
@@ -105,7 +124,6 @@ export default class MessageList extends Vue {
   overflow-y: scroll;
   overflow-x: hidden;
   padding: 0 16px;
-  margin-top: 19px;
 
   .loading-icon {
     display: inline-block;

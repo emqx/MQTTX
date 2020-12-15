@@ -232,6 +232,7 @@
           :subscriptions="record.subscriptions"
           :messages="messages"
           :height="messageListHeight"
+          :marginTop="messageListMarginTop"
           @showContextMenu="handleContextMenu"
         />
         <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
@@ -402,6 +403,7 @@ export default class ConnectionsDetail extends Vue {
   private inputHeight = 155
   private msgBottom = 160
   private messageListHeight: number = 283
+  private messageListMarginTop: number = 19
 
   private activeTopic = ''
   private mqttVersionDict = {
@@ -470,6 +472,10 @@ export default class ConnectionsDetail extends Vue {
 
   @Watch('record')
   private handleRecordChanged() {
+    // init Messagelist showMessages when selected connection changed
+    const messageList: MessageList = this.$refs.messagesDisplay as MessageList
+    messageList.showMessages = []
+
     const id: string = this.$route.params.id
     this.titleName = this.record.name
     this.getConnectionValue(id)
@@ -554,15 +560,16 @@ export default class ConnectionsDetail extends Vue {
     const connectionFooter: HTMLElement = this.$refs.connectionFooter as HTMLElement
     const connectionTopbar: HTMLElement = this.$refs.connectionTopbar as HTMLElement
     const filterBar: HTMLElement = this.$refs.filterBar as HTMLElement
-
     const filterBarOffsetHeight = filterBar.offsetHeight
-    const extraAddHeight = filterBarOffsetHeight > 56 ? filterBarOffsetHeight - 51 : 5
+
+    this.messageListMarginTop = filterBarOffsetHeight > 56 ? filterBarOffsetHeight - 37 : 19
+
     this.messageListHeight =
       document.body.offsetHeight -
       connectionTopbar.offsetHeight -
       connectionFooter.offsetHeight -
       filterBarOffsetHeight +
-      extraAddHeight
+      5
   }
 
   // Show context menu
