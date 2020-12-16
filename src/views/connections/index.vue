@@ -93,8 +93,10 @@ export default class Connections extends Vue {
     if (val === undefined) {
       ipcRenderer.send('initEditor')
       setTimeout(() => {
-        const connectionsDetailRef = this.$refs.connectionsDetail as ConnectionsDetail
-        connectionsDetailRef.setMessageListHeight()
+        const connectionsDetailRef: ConnectionsDetail | undefined = this.$refs.connectionsDetail as ConnectionsDetail
+        if (connectionsDetailRef !== undefined) {
+          connectionsDetailRef.setMessageListHeight()
+        }
       }, 500)
     }
   }
