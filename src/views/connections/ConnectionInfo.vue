@@ -31,7 +31,7 @@
                 slot="suffix"
                 title="Refresh"
                 class="el-icon-refresh"
-                :class="client.connected ? 'icon-oper-disable' : ''"
+                :class="{ 'icon-oper-disable': client.connected }"
                 @click="refreshClientId"
               >
               </i>
@@ -239,6 +239,10 @@ export default class ConnectionInfo extends Vue {
       // icon disable
       .icon-oper-disable {
         color: var(--color-text-default);
+      }
+      // input disable
+      .is-disabled > input {
+        background: transparent;
       }
     }
     // adjust the position of the clientID timestamp element
