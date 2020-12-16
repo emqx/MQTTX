@@ -35,6 +35,7 @@ export default class MessageList extends Vue {
   @Prop({ required: true }) height!: number
   @Prop({ required: true }) subscriptions!: SubscriptionModel[]
   @Prop({ required: true }) marginTop!: number
+  @Prop({ required: true }) addNewMsg!: boolean
 
   public showMessages: MessageModel[] = []
   private scrollTop: number = -1
@@ -47,14 +48,13 @@ export default class MessageList extends Vue {
       const allMessages = _.cloneDeep(val)
       const maxShowMessages =
         allMessages.length >= this.onceAddMessagesMaxNum ? allMessages.slice(-this.onceAddMessagesMaxNum) : allMessages
-      const newMessages = this.getNewMessages(maxShowMessages, this.showMessages)
 
       // sentOneMessage or receivedOneMessage
-      if (newMessages.length === 1) {
+      if (this.addNewMsg) {
+        const newMessages = allMessages.slice(-1)
         this.showMessages = this.showMessages.concat(newMessages)
         return
       }
-      // active connection changed
       this.showMessages = maxShowMessages
     } else {
       this.showMessages = []
@@ -128,7 +128,7 @@ export default class MessageList extends Vue {
   .loading-icon {
     display: inline-block;
     width: 100%;
-    margin-top: 4px;
+    margin-top: 6px;
     text-align: center;
     font-size: 14px;
     color: var(--color-main-green);
