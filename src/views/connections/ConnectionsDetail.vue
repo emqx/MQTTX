@@ -225,7 +225,7 @@
           :record="record"
           :top="showClientInfo ? bodyTop.open : bodyTop.close"
           @onClickTopic="handleTopicClick"
-          @deleteTopic="getMessages"
+          @deleteTopic="handleTopicDelete"
         />
         <MessageList
           ref="messagesDisplay"
@@ -233,6 +233,7 @@
           :messages="messages"
           :height="messageListHeight"
           :marginTop="messageListMarginTop"
+          :addNewMsg="messagesAddedNewItem"
           @showContextMenu="handleContextMenu"
         />
         <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
@@ -426,6 +427,7 @@ export default class ConnectionsDetail extends Vue {
   private version = ''
   private uptime = ''
   private bytesTimes = 0
+  private messagesAddedNewItem: boolean = false
 
   get bodyTop(): TopModel {
     return {
@@ -480,7 +482,10 @@ export default class ConnectionsDetail extends Vue {
     this.titleName = this.record.name
     this.getConnectionValue(id)
     this.getMessages()
-    this.scrollToBottom()
+    const timer = setTimeout(() => {
+      this.scrollToBottom()
+      clearTimeout(timer)
+    }, 500)
   }
 
   @Watch('inputHeight')
@@ -705,6 +710,7 @@ export default class ConnectionsDetail extends Vue {
   }
   // Return messages
   private getMessages() {
+    this.messagesAddedNewItem = false
     this.msgType = 'all'
     this.messages = _.cloneDeep(this.record.messages)
   }
@@ -721,6 +727,7 @@ export default class ConnectionsDetail extends Vue {
   }
   // Message type changed
   private async handleMsgTypeChanged(type: MessageType) {
+    this.messagesAddedNewItem = false
     const setChangedMessages = (changedType: MessageType, msgData: MessageModel[]) => {
       if (type === 'received') {
         this.messages = msgData.filter(($: MessageModel) => !$.out)
@@ -729,6 +736,7 @@ export default class ConnectionsDetail extends Vue {
       } else {
         this.messages = msgData.slice()
       }
+      this.scrollToBottom()
     }
     if (this.activeTopic !== '') {
       const res = await topicMatch(this.record.messages, this.activeTopic)
@@ -743,6 +751,7 @@ export default class ConnectionsDetail extends Vue {
   }
   // Search messages
   private async searchContent() {
+    this.scrollToBottom()
     const { topic, payload } = this.searchParams
     if (!topic && !payload) {
       return
@@ -763,6 +772,11 @@ export default class ConnectionsDetail extends Vue {
         this.messages = [].slice()
       }
     }
+  }
+  // Delete topic item
+  private handleTopicDelete() {
+    this.getMessages()
+    this.scrollToBottom()
   }
   // Click topic item
   private async handleTopicClick(sub: SubscriptionModel, reset: boolean) {
@@ -1011,6 +1025,7 @@ export default class ConnectionsDetail extends Vue {
         const isFromNotActiveTopic = this.msgType !== 'publish' && !this.activeTopic
         if (isFromActiveTopic || isFromNotActiveTopic) {
           this.messages.push(receivedMessage)
+          this.messagesAddedNewItem = true
         }
       } else {
         this.unreadMessageIncrement({ id })
@@ -1093,6 +1108,7 @@ export default class ConnectionsDetail extends Vue {
       const isFromNotActiveTopic = this.msgType !== 'received' && !this.activeTopic
       if (isFromActiveTopic || isFromNotActiveTopic) {
         this.messages.push(publishMessage)
+        this.messagesAddedNewItem = true
       }
       this.scrollToBottom()
     })
@@ -1164,6 +1180,7 @@ export default class ConnectionsDetail extends Vue {
       this.searchMessage(message).then((res) => {
         if (res) {
           this.messages.push(message)
+          this.messagesAddedNewItem = true
           this.scrollToBottom()
         }
       })
@@ -1324,7 +1341,7 @@ export default class ConnectionsDetail extends Vue {
       }
     }
     .connections-search {
-      padding: 13px 16px 13px 16px;
+      padding: 13px 16px 12px 16px;
       height: auto;
       background-color: var(--color-bg-normal);
       &.topbar {
