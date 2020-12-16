@@ -48,9 +48,10 @@ export default class MessageList extends Vue {
       const allMessages = _.cloneDeep(val)
       const maxShowMessages =
         allMessages.length >= this.onceAddMessagesMaxNum ? allMessages.slice(-this.onceAddMessagesMaxNum) : allMessages
+      const newMessages = this.getNewMessages(maxShowMessages, this.showMessages)
 
       // sentOneMessage or receivedOneMessage
-      if (this.addNewMsg) {
+      if (this.addNewMsg && newMessages.length === 1) {
         const newMessages = allMessages.slice(-1)
         this.showMessages = this.showMessages.concat(newMessages)
         return
