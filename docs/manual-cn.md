@@ -195,6 +195,8 @@ sudo snap install mqttx
 
 ![mqttx-script](../assets/mqttx-script.png)
 
+脚本使用实例可在 [/docs/script-example](https://github.com/emqx/MQTTX/tree/master/docs/script-example) 文件夹中查看，目前提供了两个内置脚本，时间戳转化和温湿度数据模拟。如果在您的使用中有更好的，更实用的脚本也可以提交您的代码到这里，方便让更多的人使用到。
+
 ### 其它
 
 1. 连接操作
