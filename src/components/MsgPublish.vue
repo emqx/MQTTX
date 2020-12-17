@@ -119,9 +119,7 @@ export default class MsgPublish extends Vue {
   private mounted() {
     ipcRenderer.on('initEditor', () => {
       const editorRef = this.$refs.payloadEditor as Editor
-      if (editorRef) {
-        editorRef.initEditor()
-      }
+      editorRef.initEditor()
       ipcRenderer.removeAllListeners('initEditor')
     })
   }
