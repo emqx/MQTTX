@@ -84,6 +84,21 @@ export default {
     en: 'Subscribe Failed',
     ja: 'サブスクリプションが失敗しました',
   },
+  qosSubSysFailed: {
+    zh: '错误的 QOS，MQTT Broker 拒绝了订阅。请检查 ACL 配置',
+    en: 'Unexpected QOS, MQTT Broker declined the subscription. Please check ACL configuration',
+    ja: '予期しないQOS、MQTT Brokerはサブスクリプションを拒否しました。ACL構成を確認してください',
+  },
+  qosSubFailed: {
+    zh: '错误的 QOS',
+    en: 'Unexpected QOS',
+    ja: '予期しないQOS',
+  },
+  emptySubFailed: {
+    zh: '订阅为空',
+    en: 'Subscription is empty',
+    ja: 'サブスクリプションは空です',
+  },
   connected: {
     zh: '已连接',
     en: 'Connected',
