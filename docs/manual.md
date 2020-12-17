@@ -195,6 +195,8 @@ This function is scalable and flexible, and requires users to cooperate with act
 
 ![mqttx-script](../assets/mqttx-script.png)
 
+The script usage examples can be viewed in the [/docs/script-example](https://github.com/emqx/MQTTX/tree/master/docs/script-example) folder. Currently, two built-in scripts are provided, timestamp conversion and temperature and humidity data simulation. If you have a better and more practical script in your use, you can submit your code here, so that more people can use it.
+
 ### Others
 
 1. Connection operation
