@@ -85,19 +85,25 @@ export default {
     ja: 'サブスクリプションが失敗しました',
   },
   qosSubSysFailed: {
-    zh: '错误的 QOS，MQTT Broker 拒绝了订阅。请检查 ACL 配置',
-    en: 'Unexpected QOS, MQTT Broker declined the subscription. Please check ACL configuration',
-    ja: '予期しないQOS、MQTT Brokerはサブスクリプションを拒否しました。ACL構成を確認してください',
+    zh: '拒绝了$SYS主题，错误的 QoS，MQTT Broker 拒绝了订阅。请检查 ACL 配置',
+    en: 'Rejected the $SYS topic,Unexpected QoS, MQTT Broker declined the subscription. Please check ACL configuration',
+    ja:
+      '$SYSトピックを拒否しま。した予期しないQoS、MQTT Brokerはサブスクリプションを拒否しました。ACL構成を確認してください',
   },
   qosSubFailed: {
-    zh: '错误的 QOS',
-    en: 'Unexpected QOS',
-    ja: '予期しないQOS',
+    zh: '错误的 QoS',
+    en: 'Unexpected QoS',
+    ja: '予期しないQoS',
   },
   emptySubFailed: {
     zh: '订阅为空',
     en: 'Subscription is empty',
     ja: 'サブスクリプションは空です',
+  },
+  unknowSubFailed: {
+    zh: '未知的订阅错误',
+    en: 'Unknown subscription error',
+    ja: '不明なサブスクリプションエラー',
   },
   connected: {
     zh: '已连接',

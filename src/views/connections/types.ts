@@ -105,3 +105,10 @@ export interface ChartDataModel {
   recevied: number
   sent: number
 }
+
+export enum SubscribeErrorReason {
+  normal,
+  qosSubFailed, // qos is abnormal
+  qosSubSysFailed, // qos is abnormal becauseof $SYS subscribe
+  emptySubFailed, // subscription returns empty array
+}
