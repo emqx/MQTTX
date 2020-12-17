@@ -103,7 +103,13 @@ import { defineColors, getRandomColor } from '@/utils/colors'
 import LeftPanel from '@/components/LeftPanel.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import { ConnectionModel } from '../views/connections/types'
-
+import VueI18n from 'vue-i18n'
+enum subscribeErrorReason {
+  normal = 0,
+  qosSubFailed = 1 << 0, // qos is abnormal
+  qosSubSysFailed = 1 << 1, // qos is abnormal becauseof $SYS subscribe
+  emptySubFailed = 1 << 2, // subscription returns empty array
+}
 @Component({
   components: {
     LeftPanel,
@@ -200,6 +206,28 @@ export default class SubscriptionsList extends Vue {
     })
   }
 
+  /**
+   * Get the error reason message corresponding to the enumeration.
+   * Check that errorReason not equal `subscribeErrorReason.normal` before using.
+   * @return Return the message of failure subscribe
+   * @param errorReason - Type:enum, The reason cause the failed subscription
+   */
+  private getErrorReasonMsg(errorReason: subscribeErrorReason): VueI18n.TranslateResult {
+    if (errorReason === subscribeErrorReason.normal) return ''
+    switch (errorReason) {
+      case errorReason & subscribeErrorReason.qosSubFailed: {
+        return this.$t('connections.qosSubFailed')
+      }
+      case errorReason & subscribeErrorReason.qosSubSysFailed: {
+        return this.$t('connections.qosSubSysFailed')
+      }
+      case errorReason & subscribeErrorReason.emptySubFailed: {
+        return this.$t('connections.emptySubFailed')
+      }
+    }
+    return 'Unknow Failed'
+  }
+
   public subscribe({ topic, qos }: SubscriptionModel, isAuto?: boolean) {
     if (isAuto) {
       this.subRecord.topic = topic
@@ -211,8 +239,21 @@ export default class SubscriptionsList extends Vue {
         this.$message.error(error)
         return false
       }
-      if (res.length < 1 || ![0, 1, 2].includes(res[0].qos)) {
-        const errorMsg: string = `${topic} ${this.$t('connections.subFailed')}`
+
+      let errorReason: subscribeErrorReason = subscribeErrorReason.normal
+      if (res.length < 1) {
+        errorReason += subscribeErrorReason.emptySubFailed
+      }
+      if (![0, 1, 2].includes(res[0].qos) && topic.match('/^($SYS)//i')?.length) {
+        errorReason += subscribeErrorReason.qosSubSysFailed
+      }
+      if (![0, 1, 2].includes(res[0].qos)) {
+        errorReason += subscribeErrorReason.qosSubFailed
+      }
+
+      if (errorReason !== subscribeErrorReason.normal) {
+        const errorReasonMsg: VueI18n.TranslateResult = this.getErrorReasonMsg(errorReason)
+        const errorMsg: string = `${topic} ${this.$t('connections.subFailed')} ${errorReasonMsg}`
         this.$message.error(errorMsg)
         return false
       }
