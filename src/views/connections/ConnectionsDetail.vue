@@ -42,17 +42,17 @@
                   v-if="sendTimeId"
                   placement="bottom"
                   :effect="theme !== 'light' ? 'light' : 'dark'"
-                  :open-delay="1000"
+                  :open-delay="500"
                   :content="$t('connections.clearIntervalBtn')"
                 >
                   <a class="stop-interval-btn" href="javascript:;" @click="stopTimedSend">
-                    <i class="el-icon-time"></i>
+                    <i class="el-icon-timer"></i>
                   </a>
                 </el-tooltip>
                 <el-tooltip
                   placement="bottom"
                   :effect="theme !== 'light' ? 'light' : 'dark'"
-                  :open-delay="1000"
+                  :open-delay="500"
                   :content="$t('connections.disconnectedBtn')"
                 >
                   <a class="disconnect-btn" href="javascript:;" @click="disconnect">
@@ -62,11 +62,22 @@
                 </el-tooltip>
               </span>
             </transition>
+            <el-tooltip
+              v-if="scriptOption !== null"
+              placement="bottom"
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :open-delay="500"
+              :content="$t('script.removeScript')"
+            >
+              <a class="remove-script-btn" href="javascript:;" @click="removeScript">
+                <i class="el-icon-cpu"></i>
+              </a>
+            </el-tooltip>
             <template v-if="!isNewWindow">
               <el-tooltip
                 placement="bottom"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
-                :open-delay="1000"
+                :open-delay="500"
                 :content="$t('common.config')"
               >
                 <a
@@ -80,7 +91,7 @@
               <el-tooltip
                 placement="bottom"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
-                :open-delay="1000"
+                :open-delay="500"
                 :content="$t('common.newWindow')"
               >
                 <a class="new-window-btn" href="javascript:;" @click="handleNewWindow">
@@ -109,6 +120,9 @@
                   </el-dropdown-item>
                   <el-dropdown-item command="bytesStatistics" :disabled="!client.connected">
                     <i class="el-icon-data-line"></i>{{ $t('connections.bytesStatistics') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="useScript" :disabled="!client.connected">
+                    <i class="el-icon-cpu"></i>{{ $t('script.useScript') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="disconnect" :disabled="!client.connected">
                     <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
@@ -211,13 +225,15 @@
           :record="record"
           :top="showClientInfo ? bodyTop.open : bodyTop.close"
           @onClickTopic="handleTopicClick"
-          @deleteTopic="getMessages"
+          @deleteTopic="handleTopicDelete"
         />
         <MessageList
           ref="messagesDisplay"
           :subscriptions="record.subscriptions"
           :messages="messages"
           :height="messageListHeight"
+          :marginTop="messageListMarginTop"
+          :addNewMsg="messagesAddedNewItem"
           @showContextMenu="handleContextMenu"
         />
         <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
@@ -233,6 +249,7 @@
       <div ref="connectionFooter" class="connections-footer" :style="{ marginLeft: showSubs ? '570px' : '341px' }">
         <ResizeHeight v-model="inputHeight" />
         <MsgPublish
+          ref="msgPublish"
           :editor-height="inputHeight - 75"
           :subs-visible="showSubs"
           :style="{ height: `${inputHeight}px` }"
@@ -246,6 +263,7 @@
     <ExportData :visible.sync="showExportData" :connection="record" />
     <ImportData :visible.sync="showImportData" @updateData="$emit('reload')" />
     <TimedMessage ref="timedMessage" :visible.sync="showTimedMessage" @setTimerSuccess="setTimerSuccess" />
+    <UseScript ref="useScript" :visible.sync="showUseScript" @setScript="handleSetScript" />
     <BytesStatistics
       ref="bytesStatistics"
       :visible.sync="showBytes"
@@ -291,10 +309,20 @@ import ExportData from '@/components/ExportData.vue'
 import ImportData from '@/components/ImportData.vue'
 import TimedMessage from '@/components/TimedMessage.vue'
 import BytesStatistics from '@/components/BytesStatistics.vue'
+import UseScript from '@/components/UseScript.vue'
 
-import { ConnectionModel, MessageModel, SSLPath, SSLContent, ContextmenuModel, ChartDataModel } from './types'
+import {
+  ConnectionModel,
+  MessageModel,
+  SSLPath,
+  SSLContent,
+  ContextmenuModel,
+  ChartDataModel,
+  MessageType,
+} from './types'
+import { ScriptModel, ScriptState } from '../script/types'
+import sandbox from '@/utils/sandbox'
 
-type MessageType = 'all' | 'received' | 'publish'
 type CommandType =
   | 'searchContent'
   | 'clearHistory'
@@ -304,6 +332,7 @@ type CommandType =
   | 'importData'
   | 'timedMessage'
   | 'bytesStatistics'
+  | 'useScript'
 type PayloadConvertType = 'base64' | 'hex'
 
 interface TopModel {
@@ -323,6 +352,7 @@ interface TopModel {
     TimedMessage,
     BytesStatistics,
     MessageList,
+    UseScript,
   },
 })
 export default class ConnectionsDetail extends Vue {
@@ -334,20 +364,22 @@ export default class ConnectionsDetail extends Vue {
   @Action('SHOW_CLIENT_INFO') private changeShowClientInfo!: (payload: ClientInfo) => void
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
+  @Action('SET_SCRIPT') private setScript!: (payload: { currentScript: ScriptState | null }) => void
 
   @Getter('activeConnection') private activeConnection: $TSFixed
   @Getter('showSubscriptions') private showSubscriptions!: boolean
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('currentTheme') private theme!: Theme
-  @Getter('showClientInfo') private clientInfoVisibles!: {
-    [id: string]: boolean
-  }
+  @Getter('showClientInfo') private clientInfoVisibles!: { [id: string]: boolean }
+  @Getter('currentScript') private scriptOption!: ScriptState | null
 
   private showSubs = true
   private showClientInfo = true
   private showExportData = false
   private showImportData = false
   private showTimedMessage = false
+  private showUseScript = false
+
   private connectLoading = false
   private searchVisible = false
   private searchLoading = false
@@ -372,6 +404,7 @@ export default class ConnectionsDetail extends Vue {
   private inputHeight = 155
   private msgBottom = 160
   private messageListHeight: number = 283
+  private messageListMarginTop: number = 19
 
   private activeTopic = ''
   private mqttVersionDict = {
@@ -394,46 +427,7 @@ export default class ConnectionsDetail extends Vue {
   private version = ''
   private uptime = ''
   private bytesTimes = 0
-
-  // Connect
-  public connect(): boolean | void {
-    if (this.client.connected) {
-      return false
-    }
-    this.connectLoading = true
-    this.client = this.createClient()
-    const { id } = this.record
-    if (id && this.client.on) {
-      this.client.on('connect', this.onConnect)
-      this.client.on('error', this.onError)
-      this.client.on('reconnect', this.onReConnect)
-      this.client.on('close', this.onClose)
-      this.client.on('message', this.onMessageArrived(id))
-    }
-  }
-  // Delete connection
-  public removeConnection(currentConnection?: ConnectionModel) {
-    let { id, name } = this.record
-    if (currentConnection) {
-      id = currentConnection.id
-      name = currentConnection.name
-    }
-    const confirmDelete: string = this.$t('common.confirmDelete', { name }) as string
-    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
-      type: 'warning',
-    })
-      .then(async () => {
-        const res: ConnectionModel | null = await deleteConnection(id as string)
-        if (res) {
-          this.$emit('delete')
-          this.$message.success(this.$t('common.deleteSuccess') as string)
-          this.removeActiveConnection({ id: res.id as string })
-        }
-      })
-      .catch((error) => {
-        // ignore(error)
-      })
-  }
+  private messagesAddedNewItem: boolean = false
 
   get bodyTop(): TopModel {
     return {
@@ -480,10 +474,18 @@ export default class ConnectionsDetail extends Vue {
 
   @Watch('record')
   private handleRecordChanged() {
+    // init Messagelist showMessages when selected connection changed
+    const messageList: MessageList = this.$refs.messagesDisplay as MessageList
+    messageList.showMessages = []
+
     const id: string = this.$route.params.id
     this.titleName = this.record.name
     this.getConnectionValue(id)
     this.getMessages()
+    const timer = setTimeout(() => {
+      this.scrollToBottom()
+      clearTimeout(timer)
+    }, 500)
   }
 
   @Watch('inputHeight')
@@ -505,6 +507,76 @@ export default class ConnectionsDetail extends Vue {
       clearTimeout(timer)
     }, 500)
   }
+
+  // Connect
+  public connect(): boolean | void {
+    if (this.client.connected) {
+      return false
+    }
+    this.connectLoading = true
+    this.client = this.createClient()
+    const { id } = this.record
+    if (id && this.client.on) {
+      this.client.on('connect', this.onConnect)
+      this.client.on('error', this.onError)
+      this.client.on('reconnect', this.onReConnect)
+      this.client.on('close', this.onClose)
+      this.client.on('message', this.onMessageArrived(id))
+    }
+  }
+  // Delete connection
+  public removeConnection(currentConnection?: ConnectionModel) {
+    let { id, name } = this.record
+    if (currentConnection) {
+      id = currentConnection.id
+      name = currentConnection.name
+    }
+    const confirmDelete: string = this.$t('common.confirmDelete', { name }) as string
+    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
+      type: 'warning',
+    })
+      .then(async () => {
+        const res: ConnectionModel | null = await deleteConnection(id as string)
+        if (res) {
+          this.$emit('delete')
+          this.$message.success(this.$t('common.deleteSuccess') as string)
+          this.removeActiveConnection({ id: res.id as string })
+        }
+      })
+      .catch((error) => {
+        // ignore(error)
+      })
+  }
+  // Clearn interval
+  public stopTimedSend() {
+    const timedMessageRef: TimedMessage = this.$refs.timedMessage as TimedMessage
+    timedMessageRef['record'] = {
+      sendFrequency: undefined,
+    }
+    this.sendFrequency = undefined
+    if (this.sendTimeId) {
+      clearInterval(this.sendTimeId)
+      this.sendTimeId = null
+      this.$message.success(this.$t('connections.stopTimedMessage') as string)
+    }
+  }
+  // Set messages list height
+  public setMessageListHeight() {
+    const connectionFooter: HTMLElement = this.$refs.connectionFooter as HTMLElement
+    const connectionTopbar: HTMLElement = this.$refs.connectionTopbar as HTMLElement
+    const filterBar: HTMLElement = this.$refs.filterBar as HTMLElement
+    const filterBarOffsetHeight = filterBar.offsetHeight
+
+    this.messageListMarginTop = filterBarOffsetHeight > 56 ? filterBarOffsetHeight - 37 : 19
+
+    this.messageListHeight =
+      document.body.offsetHeight -
+      connectionTopbar.offsetHeight -
+      connectionFooter.offsetHeight -
+      filterBarOffsetHeight +
+      5
+  }
+
   // Show context menu
   private handleContextMenu(msgItemInfo: IArguments, message: MessageModel) {
     const [payload, event] = msgItemInfo
@@ -619,6 +691,9 @@ export default class ConnectionsDetail extends Vue {
       case 'bytesStatistics':
         this.handleSubSystemTopic()
         break
+      case 'useScript':
+        this.handleUseScript()
+        break
       default:
         break
     }
@@ -635,6 +710,7 @@ export default class ConnectionsDetail extends Vue {
   }
   // Return messages
   private getMessages() {
+    this.messagesAddedNewItem = false
     this.msgType = 'all'
     this.messages = _.cloneDeep(this.record.messages)
   }
@@ -651,6 +727,7 @@ export default class ConnectionsDetail extends Vue {
   }
   // Message type changed
   private async handleMsgTypeChanged(type: MessageType) {
+    this.messagesAddedNewItem = false
     const setChangedMessages = (changedType: MessageType, msgData: MessageModel[]) => {
       if (type === 'received') {
         this.messages = msgData.filter(($: MessageModel) => !$.out)
@@ -659,6 +736,7 @@ export default class ConnectionsDetail extends Vue {
       } else {
         this.messages = msgData.slice()
       }
+      this.scrollToBottom()
     }
     if (this.activeTopic !== '') {
       const res = await topicMatch(this.record.messages, this.activeTopic)
@@ -673,6 +751,7 @@ export default class ConnectionsDetail extends Vue {
   }
   // Search messages
   private async searchContent() {
+    this.scrollToBottom()
     const { topic, payload } = this.searchParams
     if (!topic && !payload) {
       return
@@ -693,6 +772,11 @@ export default class ConnectionsDetail extends Vue {
         this.messages = [].slice()
       }
     }
+  }
+  // Delete topic item
+  private handleTopicDelete() {
+    this.getMessages()
+    this.scrollToBottom()
   }
   // Click topic item
   private async handleTopicClick(sub: SubscriptionModel, reset: boolean) {
@@ -875,16 +959,31 @@ export default class ConnectionsDetail extends Vue {
       clearTimeout(timer)
     }, 100)
   }
+  // Set script
+  private handleSetScript(script: ScriptModel, applyType: MessageType) {
+    const currentScript: ScriptState = {
+      apply: applyType,
+      content: script,
+    }
+    this.setScript({ currentScript })
+    this.$message.success(this.$t('script.startScript') as string)
+  }
+  // Remove script
+  private removeScript() {
+    this.setScript({ currentScript: null })
+    this.$message.success(this.$t('script.stopScirpt') as string)
+  }
   // Recevied message
   private onMessageArrived(id: string) {
     return (topic: string, payload: Buffer, packet: SubscriptionModel) => {
-      const $payload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
+      const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
+      const receviedPayload = this.convertPayloadByScript(convertPayload, 'publish')
       const receivedMessage: MessageModel = {
         mid: uuidv4(),
         out: false,
         createAt: time.getNowDate(),
         topic,
-        payload: $payload,
+        payload: receviedPayload,
         qos: packet.qos,
         retain: packet.retain as boolean,
       }
@@ -926,6 +1025,7 @@ export default class ConnectionsDetail extends Vue {
         const isFromNotActiveTopic = this.msgType !== 'publish' && !this.activeTopic
         if (isFromActiveTopic || isFromNotActiveTopic) {
           this.messages.push(receivedMessage)
+          this.messagesAddedNewItem = true
         }
       } else {
         this.unreadMessageIncrement({ id })
@@ -951,28 +1051,13 @@ export default class ConnectionsDetail extends Vue {
   }
   // Set timed message
   private timedSendMessage(time: number, message: MessageModel, type: PayloadType) {
+    this.stopTimedSend()
     this.sendTimeId = window.setInterval(() => {
-      if (!this.client.connected) {
-        this.stopTimedSend()
-      }
       const { ...oneMessage } = message
       let { mid } = oneMessage
       mid = uuidv4()
       this.sendOneMessage(Object.assign(oneMessage, { mid }), type)
     }, time * 1000)
-  }
-  // Clearn interval
-  public stopTimedSend() {
-    const timedMessage: TimedMessage = this.$refs.timedMessage as TimedMessage
-    timedMessage['record'] = {
-      sendFrequency: undefined,
-    }
-    this.sendFrequency = undefined
-    if (this.sendTimeId) {
-      clearInterval(this.sendTimeId)
-      this.sendTimeId = null
-      this.$message.success(this.$t('connections.stopTimedMessage') as string)
-    }
   }
   // Send one message
   private sendOneMessage(message: MessageModel, type: PayloadType): void | boolean {
@@ -984,18 +1069,22 @@ export default class ConnectionsDetail extends Vue {
         duration: 3000,
         offset: 30,
       })
+      this.stopTimedSend()
       return false
     }
     const { mid, topic, qos, payload, retain } = message
     if (!topic) {
       this.$message.warning(this.$t('connections.topicReuired') as string)
+      this.stopTimedSend()
       return false
     }
-    const $payload = this.convertPayloadByType(payload, type, 'publish')
-    this.client.publish!(topic, $payload, { qos, retain }, (error: Error) => {
+    const convertPayload = this.convertPayloadByScript(payload, 'received')
+    const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
+    this.client.publish!(topic, sendPayload, { qos, retain }, (error: Error) => {
       if (error) {
         const errorMsg = error.toString()
         this.$message.error(errorMsg)
+        this.stopTimedSend()
         return false
       }
       const publishMessage: MessageModel = {
@@ -1003,7 +1092,7 @@ export default class ConnectionsDetail extends Vue {
         out: true,
         createAt: time.getNowDate(),
         topic,
-        payload,
+        payload: convertPayload,
         qos,
         retain,
       }
@@ -1019,6 +1108,7 @@ export default class ConnectionsDetail extends Vue {
       const isFromNotActiveTopic = this.msgType !== 'received' && !this.activeTopic
       if (isFromActiveTopic || isFromNotActiveTopic) {
         this.messages.push(publishMessage)
+        this.messagesAddedNewItem = true
       }
       this.scrollToBottom()
     })
@@ -1073,6 +1163,16 @@ export default class ConnectionsDetail extends Vue {
     return value
   }
 
+  // Use script to apply to payload
+  private convertPayloadByScript(payload: string, notType: MessageType): string {
+    let convertPayload = payload
+    if (this.scriptOption !== null && this.scriptOption.content && this.scriptOption.apply !== notType) {
+      // Enable script function
+      convertPayload = sandbox.executeScript(payload, this.scriptOption.content.script, this.receivedMsgType)
+    }
+    return convertPayload
+  }
+
   // Conditions when searching and filtering
   private filterBySearchConditions(topic: string, message: MessageModel): boolean {
     const { topic: searchTopic, payload: searchPayload } = this.searchParams
@@ -1080,6 +1180,7 @@ export default class ConnectionsDetail extends Vue {
       this.searchMessage(message).then((res) => {
         if (res) {
           this.messages.push(message)
+          this.messagesAddedNewItem = true
           this.scrollToBottom()
         }
       })
@@ -1103,11 +1204,16 @@ export default class ConnectionsDetail extends Vue {
     this.showTimedMessage = true
   }
 
-  // Auto subscribe system topic
+  // Auto subscribe system topic and show dialog
   private handleSubSystemTopic() {
     this.showBytes = true
-    const subList = this.$refs.subList as SubscriptionsList
-    subList.subscribe({ topic: '$SYS/#', qos: 0 }, true)
+    const subListRef = this.$refs.subList as SubscriptionsList
+    subListRef.subscribe({ topic: '$SYS/#', qos: 0 }, true)
+  }
+
+  // Show use script dialog
+  private handleUseScript() {
+    this.showUseScript = true
   }
 
   // Register connected clients message event listeners
@@ -1145,19 +1251,6 @@ export default class ConnectionsDetail extends Vue {
         client.removeAllListeners('message')
       }
     })
-  }
-
-  // Set messages list height
-  private setMessageListHeight() {
-    const connectionFooter: HTMLElement = this.$refs.connectionFooter as HTMLElement
-    const connectionTopbar: HTMLElement = this.$refs.connectionTopbar as HTMLElement
-    const filterBar: HTMLElement = this.$refs.filterBar as HTMLElement
-    this.messageListHeight =
-      document.body.offsetHeight -
-      connectionTopbar.offsetHeight -
-      connectionFooter.offsetHeight -
-      filterBar.offsetHeight +
-      5
   }
 
   private created() {
@@ -1217,20 +1310,21 @@ export default class ConnectionsDetail extends Vue {
         i {
           font-size: 18px;
         }
+        .remove-script-btn,
         .disconnect-btn,
         .stop-interval-btn {
-          margin-right: 10px;
+          margin-right: 12px;
           color: var(--color-second-red);
         }
+        .edit-btn,
         .new-window-btn {
-          margin-right: 10px;
+          margin-right: 12px;
         }
         .edit-btn {
           &.disabled {
             cursor: not-allowed;
             color: var(--color-text-light);
           }
-          margin-right: 10px;
         }
         .el-dropdown.connection-oper {
           a {
@@ -1247,7 +1341,7 @@ export default class ConnectionsDetail extends Vue {
       }
     }
     .connections-search {
-      padding: 13px 16px 13px 16px;
+      padding: 13px 16px 12px 16px;
       height: auto;
       background-color: var(--color-bg-normal);
       &.topbar {

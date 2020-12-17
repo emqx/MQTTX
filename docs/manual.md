@@ -179,6 +179,24 @@ In the settings page, you can choose to click the data backup and data recovery 
 
 ![mqttx-advance](../assets/mqttx-advance.png)
 
+### Script
+
+After the v1.4.2 version, MQTT X has added a script editing function. In this function, users can write custom scripts (JavaScript) to perform custom conversions on sent and received `Payload`. With the timing sending function, realize the automated test function for the simulation data report.
+
+> Note: This feature is test feature in the beta stage
+
+Click the `script` button in the menu bar on the left to enter the script editing page. In this page, users can write JavaScript code in the code editor at the top. There is only one `execute` API globally, and the user needs write a script function that receives a `value` parameter, which is `Payload`, and the function can be customized to modify the `value`, and finally the function can be executed by passing it as a parameter to the `execute` custom-written functions.
+
+There is also an `input` and `output` box below. You can enter the expected input value. Click the `test` button on the right to view the execution result in the `output` box. The format of the input value includes `JSON` With `Plaintext`, it is convenient for users to debug custom-written script functions in advance. After completing the test, you can click the `Save` button in the upper right corner and enter the name of the script to save the script. After saving, you can go to the connection page for use. The saved script can also be edited and deleted.
+
+In the connection page, click the drop-down menu in the upper right corner, select `Use script`, in the pop-up window, select the pre-saved script you need to use, and then select the script to be applied, including: Published, Received, and All. After the selection is completed, select the data format to be sent or received according to the data type, and use the message sending and receiving normally. At this time, if the expected effect is seen, a script function is completed. If the user needs to cancel the script, you can click the red `Stop script` button in the top status bar to stop using the script.
+
+This function is scalable and flexible, and requires users to cooperate with actual needs to use it.
+
+![mqttx-script](../assets/mqttx-script.png)
+
+The script usage examples can be viewed in the [/docs/script-example](https://github.com/emqx/MQTTX/tree/master/docs/script-example) folder. Currently, two built-in scripts are provided, timestamp conversion and temperature and humidity data simulation. If you have a better and more practical script in your use, you can submit your code here, so that more people can use it.
+
 ### Others
 
 1. Connection operation

@@ -179,6 +179,24 @@ sudo snap install mqttx
 
 ![mqttx-advance](../assets/mqttx-advance.png)
 
+### 脚本
+
+在 v1.4.2 版本以后，MQTT X 新增了脚本编辑功能，在该功能中，用户可编写自定义脚本（JavaScript）对发送和接收到的 `Payload` 进行自定义转化，配合定时发送功能，可实现一些模拟数据上报的自动化测试功能。
+
+> 注意：该功能目前属于测试 Beta 阶段。
+
+点击左侧菜单栏中的 `脚本` 按钮，可进入到脚本编辑页面，在该页面中，用户可在最上方的代码编辑器中，编写 JavaScript 代码，全局只包含一个 `execute` API，用户需要编写一个脚本函数，该函数接收一个 `value` 参数，即为 `Payload`, 函数中便可对 `value` 进行自定义修改转化，最后将该函数作为参数传入到 `execute` 中即可执行自定义编写的函数。
+
+下方还包含了一个 `输入` 和 `输出` 框，可输入预想输入值，点击右边的 `测试` 按钮，便可在 `输出` 框中查看执行结果，输入的值的格式包含了 `JSON` 和 `Plaintext`，方便用户提前调试自定义编写的脚本功能。完成测试后，可点击最右上角的 `保存` 按钮，输入该脚本的名称后就可对该脚本进行保存。保存完成后就可以到连接页面进行使用了。保存完成的脚本还可进行编辑和删除。
+
+在连接页面中，点击右上角的下拉功能菜单，选择 `使用脚本`，在弹出窗中，选择你需要使用的预先保存好的脚本，然后选择应用类型，包含了，发送时，接收时和全部。选择完成后，根据数据类型选择发送或接收的数据格式，正常使用消息的收发，此时如果看到预期效果，便完成了一个完整的脚本使用的功能。如果用户需要取消脚本，可点击顶部状态栏中的红色的 `停止脚本` 按钮，便可停止使用脚本。
+
+该功能具有一定的扩展性和灵活性，需用户配合实际需求来进行使用。
+
+![mqttx-script](../assets/mqttx-script.png)
+
+脚本使用实例可在 [/docs/script-example](https://github.com/emqx/MQTTX/tree/master/docs/script-example) 文件夹中查看，目前提供了两个内置脚本，时间戳转化和温湿度数据模拟。如果在您的使用中有更好的，更实用的脚本也可以提交您的代码到这里，方便让更多的人使用到。
+
 ### 其它
 
 1. 连接操作
@@ -263,4 +281,8 @@ Linux: `vue-cli-service electron:build --linux`
 |  方式   | 内容  |
 |  ----  | ----  |
 | QQ 群（EMQ X 官方群3）| 937041105 |
-| EMQ X 官方公众号 | <img src="../assets/wx_qr_code.png" width="160" alt="MQTTX Logo"/> |
+| EMQ X 官方公众号 | <img src="../assets/wx_qr_code.png" width="160" alt="WeChat QR code"/> |
+| EMQ X 微信群（扫码添加后邀请入群）| <img src="../assets/emqx_wx.jpeg" width="160" alt="EMQ X Wechat"/> |
+| 微博 | [@emqtt](https://weibo.com/emqtt) |
+| Twitter | [@emqtt](https://twitter.com/emqtt/) |
+| Slack | [EMQ X](https://slack-invite.emqx.io/) |

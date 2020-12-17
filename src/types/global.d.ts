@@ -2,6 +2,7 @@ import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
 import { MqttClient } from 'mqtt'
 import { MessageModel, ConnectionModel } from '@/views/connections/types'
+import { ScriptState } from '@/views/script/types'
 
 declare global {
   type $TSFixed = any
@@ -18,10 +19,6 @@ declare global {
     validate: (validate: (valid: boolean) => void) => void
     clearValidate: () => void
     resetFields: () => void
-  }
-
-  type EditorRef = Vue & {
-    editorLayout: () => void
   }
 
   interface ActiveConnection {
@@ -53,13 +50,6 @@ declare global {
     showSubscriptions: boolean
   }
 
-  type PluginFunction<T> = (Vue: any, options?: T) => void
-
-  interface PluginObject<T> {
-    install: PluginFunction<T>
-    [key: string]: any
-  }
-
   interface App {
     currentTheme: Theme
     currentLang: Language
@@ -82,6 +72,7 @@ declare global {
     willMessageVisible: boolean
     advancedVisible: boolean
     allConnections: ConnectionModel[] | []
+    currentScript: ScriptState | null
   }
 
   interface State {

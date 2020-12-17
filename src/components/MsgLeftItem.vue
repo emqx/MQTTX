@@ -41,8 +41,8 @@ export default class MsgLeftItem extends Vue {
   }
 
   private mounted() {
-    const leftPayload = this.$refs.leftPayload as HTMLElement
-    this.topicColorHeight = `${leftPayload.offsetHeight - 6}px`
+    const leftPayloadRef = this.$refs.leftPayload as HTMLElement
+    this.topicColorHeight = `${leftPayloadRef.offsetHeight - 6}px`
     this.setCurrentTopicColor()
   }
 }

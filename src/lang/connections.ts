@@ -84,6 +84,27 @@ export default {
     en: 'Subscribe Failed',
     ja: 'サブスクリプションが失敗しました',
   },
+  qosSubSysFailed: {
+    zh: '拒绝了$SYS主题，错误的 QoS，MQTT Broker 拒绝了订阅。请检查 ACL 配置',
+    en: 'Rejected the $SYS topic,Unexpected QoS, MQTT Broker declined the subscription. Please check ACL configuration',
+    ja:
+      '$SYSトピックを拒否しま。した予期しないQoS、MQTT Brokerはサブスクリプションを拒否しました。ACL構成を確認してください',
+  },
+  qosSubFailed: {
+    zh: '错误的 QoS',
+    en: 'Unexpected QoS',
+    ja: '予期しないQoS',
+  },
+  emptySubFailed: {
+    zh: '订阅为空',
+    en: 'Subscription is empty',
+    ja: 'サブスクリプションは空です',
+  },
+  unknowSubFailed: {
+    zh: '未知的订阅错误',
+    en: 'Unknown subscription error',
+    ja: '不明なサブスクリプションエラー',
+  },
   connected: {
     zh: '已连接',
     en: 'Connected',
@@ -279,6 +300,11 @@ export default {
     en: 'Quick selection of created connection configurations',
     ja: '作成された接続構成を早めに選択することができます',
   },
+  clientIdWithTimeTip: {
+    zh: '附加时间戳到 ClientID 后，以防止重复的连接',
+    en: 'Append a timestamp to the ClientID to prevent duplicate connections',
+    ja: '重複接続を防ぐために、ClientIDにタイムスタンプを追加します',
+  },
   publishMsg: {
     zh: '发送消息',
     en: 'Publish message',
@@ -385,51 +411,52 @@ export default {
   timedMessage: {
     zh: '定时消息',
     en: 'Timed message',
-    ja: '定時メッセージ',
+    ja: '自動送信',
   },
   msgFrequency: {
     zh: '消息频率（秒）',
     en: 'Message frequency(s)',
-    ja: 'メッセージ頻度（秒）',
+    ja: '送信間隔（秒）',
   },
   clearIntervalBtn: {
     zh: '清理定时器',
     en: 'Clear timer',
-    ja: 'タイマーをクリーンする',
+    ja: '自動送信を解除する',
   },
   setTimerSuccess: {
     zh: '成功设置定时器，发送一条消息将触发定时消息',
     en: 'Timer set successfully, sending a message will trigger timed messages',
-    ja: 'タイマーを正しく設定した。メッセージ一通を送信すれば、定時メッセージを触発する',
+    ja: `自動送信を設定しました。
+    これから一つのメッセージを送信すると、設定した時間間隔で自動的に該当メッセージを送信できます`,
   },
   startTimedMessage: {
     zh: '成功开启定时消息，消息频率（秒）：',
     en: 'Opened timed message successfully, frequency(s): ',
-    ja: '定時メッセージを正しく設定した。メッセージ頻度（秒）: ',
+    ja: 'メッセージの自動送信が始まりました。送信間隔（秒）: ',
   },
   stopTimedMessage: {
     zh: '已停止发送定时消息',
     en: 'Stopped sending timed messages',
-    ja: '定時メッセージを発送中止した',
+    ja: '自動送信設定を解除しました',
   },
   systemTopic: {
     zh: '系统主题',
     en: 'System topic',
-    ja: 'システムテーマ',
+    ja: 'システムトピック',
   },
   bytesStatistics: {
     zh: '收发流量统计',
     en: 'Bytes statistics',
-    ja: 'データ通信量の送受信を統計する',
+    ja: 'データ通信の利用状況',
   },
   bytesReceived: {
     zh: '累计接收流量',
     en: 'Accumulated received bytes',
-    ja: 'データ通信量の受信を累算する',
+    ja: '累積受信バイト数',
   },
   bytesSent: {
     zh: '累计发送流量',
     en: 'Accumulated sent bytes',
-    ja: 'データ通信量の送信を累算する',
+    ja: '累積送信バイト数',
   },
 }

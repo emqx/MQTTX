@@ -4,33 +4,62 @@
       <el-row :gutter="20">
         <el-col :span="8">
           <el-form-item :label="$t('connections.name')" prop="name">
-            <el-input size="mini" v-model="connection.name"></el-input>
+            <el-input size="mini" v-model="connection.name" :disabled="client.connected"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="Client ID" prop="clientId">
-            <el-input size="mini" v-model="connection.clientId">
-              <i slot="suffix" title="Refresh" class="el-icon-refresh" @click="refreshClientId"> </i>
+            <el-tooltip
+              class="icon-client-time"
+              placement="top"
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :open-delay="500"
+              :offset="80"
+              :content="$t('connections.clientIdWithTimeTip')"
+            >
+              <a
+                href="javascript:;"
+                class="icon-oper"
+                @click="reverseClientIDWithTime"
+                :class="{ 'icon-oper-active': clientIdWithTime }"
+              >
+                <i class="el-icon-time"></i>
+              </a>
+            </el-tooltip>
+            <el-input size="mini" v-model="connection.clientId" :disabled="client.connected">
+              <i
+                slot="suffix"
+                title="Refresh"
+                class="el-icon-refresh"
+                :class="{ 'icon-oper-disable': client.connected }"
+                @click="refreshClientId"
+              >
+              </i>
             </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('connections.username')">
-            <el-input size="mini" v-model="connection.username"></el-input>
+            <el-input size="mini" v-model="connection.username" :disabled="client.connected"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('connections.password')">
-            <el-input size="mini" type="password" v-model="connection.password"></el-input>
+            <el-input size="mini" type="password" v-model="connection.password" :disabled="client.connected"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="Keep Alive">
-            <el-input size="mini" type="number" v-model.number="connection.keepalive"></el-input>
+            <el-input
+              size="mini"
+              type="number"
+              v-model.number="connection.keepalive"
+              :disabled="client.connected"
+            ></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8" class="connection.ssl">
-          <el-checkbox v-model="connection.clean">Clean Session</el-checkbox>
+          <el-checkbox v-model="connection.clean" :disabled="client.connected">Clean Session</el-checkbox>
         </el-col>
         <el-col :span="24">
           <el-button
@@ -86,9 +115,10 @@ import { Getter } from 'vuex-class'
 export default class ConnectionInfo extends Vue {
   @Prop({ required: true }) public connection!: ConnectionModel
   @Prop({ required: true }) public btnLoading!: boolean
-  @Prop({ required: true }) public client!: MqttClient | {}
+  @Prop({ required: true }) public client!: MqttClient | { connected: Boolean }
   @Prop({ required: true }) public titleName!: string
 
+  @Getter('currentTheme') private theme!: Theme
   @Getter('allConnections') private allConnections!: ConnectionModel[] | []
 
   private oldName = ''
@@ -110,6 +140,25 @@ export default class ConnectionInfo extends Vue {
 
   get vueForm(): VueForm {
     return this.$refs.form as VueForm
+  }
+
+  get clientIdWithTime(): boolean {
+    if (this.connection.clientIdWithTime === undefined) {
+      this.connection.clientIdWithTime = false
+    }
+    return this.connection.clientIdWithTime
+  }
+
+  // Reverse the status of clientIdWithTime.
+  private reverseClientIDWithTime() {
+    // when the client connected, we should disable this icon event
+    if (this.isClientConnected) {
+      return
+    }
+    if (this.connection.clientIdWithTime === undefined) {
+      this.connection.clientIdWithTime = false
+    }
+    this.connection.clientIdWithTime = !this.connection.clientIdWithTime
   }
 
   private async validateName(rule: FormRule, name: string, callBack: NameCallBack['callBack']) {
@@ -146,7 +195,16 @@ export default class ConnectionInfo extends Vue {
   }
 
   private refreshClientId() {
+    // when the client connected, we should disable this icon event
+    if (this.isClientConnected) {
+      return
+    }
     this.connection.clientId = getClientId()
+  }
+
+  // Return the status of client connection
+  private get isClientConnected() {
+    return this.client.connected
   }
 }
 </script>
@@ -168,7 +226,32 @@ export default class ConnectionInfo extends Vue {
         line-height: 35px;
         height: 35px;
       }
+      // normal icon
+      .icon-oper {
+        color: var(--color-text-tips);
+        line-height: 43px;
+        transition: 0.2s color ease;
+      }
+      // icon active
+      .icon-oper-active {
+        color: var(--color-main-green);
+      }
+      // icon disable
+      .icon-oper-disable {
+        color: var(--color-text-default);
+      }
+      // input disable
+      .is-disabled > input {
+        background: transparent;
+      }
     }
+    // adjust the position of the clientID timestamp element
+    .icon-client-time {
+      position: absolute;
+      top: -2.65em;
+      left: 5em;
+    }
+
     .el-checkbox {
       margin-top: 42px;
     }

@@ -4,6 +4,8 @@ type QoS = 0 | 1 | 2
 type searchCallBack = (data: ConnectionModel[]) => ConnectionModel[]
 type nameCallBack = (name: string) => string
 
+export type MessageType = 'all' | 'received' | 'publish'
+
 export interface SearchCallBack {
   callBack: searchCallBack
 }
@@ -84,6 +86,7 @@ export interface ConnectionModel extends SSLPath {
     lastWillRetain: boolean
     properties?: WillPropertiesModel
   }
+  clientIdWithTime?: boolean //Fill in client_id.Ensure that client_id field is unique.
 }
 
 export interface SSLContent {
@@ -101,4 +104,11 @@ export interface ChartDataModel {
   label: string
   recevied: number
   sent: number
+}
+
+export enum SubscribeErrorReason {
+  normal,
+  qosSubFailed, // qos is abnormal
+  qosSubSysFailed, // qos is abnormal becauseof $SYS subscribe
+  emptySubFailed, // subscription returns empty array
 }

@@ -14,6 +14,8 @@ export default class Editor extends Vue {
   @Prop({ required: true }) public id!: string
   @Prop({ required: true }) public lang!: string
   @Prop({ default: 14 }) public fontSize!: number
+  @Prop({ default: 'off' }) public lineNumbers!: 'off' | 'on'
+  @Prop({ default: 'none' }) public renderHighlight!: 'none' | 'line'
   @Prop({ default: 'hidden' }) public scrollbarStatus: 'auto' | 'visible' | 'hidden' | undefined
   @Prop({ default: false }) public disabled!: boolean
 
@@ -48,15 +50,15 @@ export default class Editor extends Vue {
     }
   }
 
-  private initEditor(): void | boolean {
+  public initEditor(): void | boolean {
     const defaultOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
       value: this.value,
       language: this.lang,
       readOnly: this.disabled,
       fontSize: this.fontSize,
       scrollBeyondLastLine: false,
-      lineNumbers: 'off',
-      renderLineHighlight: 'none',
+      lineNumbers: this.lineNumbers,
+      renderLineHighlight: this.renderHighlight,
       matchBrackets: 'near',
       folding: false,
       theme: this.getTheme(),
@@ -94,6 +96,13 @@ export default class Editor extends Vue {
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
       this.$emit('enter-event', this.value)
     })
+    // tslint:disable-next-line:no-bitwise
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      this.$emit('enter-event', this.value)
+    })
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
+      this.$emit('qucik-save', this.value)
+    })
     // Update editor options
     const model = this.editor.getModel()
     if (model) {
@@ -106,7 +115,7 @@ export default class Editor extends Vue {
       this.$emit('blur')
     })
   }
-  private editorLayout() {
+  public editorLayout() {
     if (this.editor) {
       this.editor.layout()
     }
