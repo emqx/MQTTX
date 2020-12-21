@@ -21,6 +21,7 @@
     "chart.js": "^2.9.4",
     "core-js": "^2.6.11",
     "csvtojson": "^2.0.10",
+    "electron-log": "^4.3.1",
     "element-ui": "^2.13.0",
     "fs-extra": "^8.1.0",
     "json2csv": "^5.0.3",
