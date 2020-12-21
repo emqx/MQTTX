@@ -22,6 +22,11 @@
             <i class="iconfont icon-coding"></i>
           </a>
         </div>
+        <div :class="[{ active: isLog }, 'leftbar-item']">
+          <a href="javascript:;" @click="routeToPage('/log')">
+            <i class="iconfont icon-icon_log"></i>
+          </a>
+        </div>
       </template>
     </section>
 
@@ -63,6 +68,9 @@ export default class Leftbar extends Vue {
   }
   get isScript(): boolean {
     return this.$route.path === '/script'
+  }
+  get isLog(): boolean {
+    return this.$route.path === '/log'
   }
   get isNewWindow(): boolean {
     return this.$route.name === 'newWindow'
