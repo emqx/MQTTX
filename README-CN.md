@@ -104,7 +104,11 @@ yarn run electron:build
 |  方式   | 内容  |
 |  ----  | ----  |
 | QQ 群（EMQ X 官方群3）| 937041105 |
-| EMQ X 官方公众号 | <img src="./assets/wx_qr_code.png" width="160" width="160" alt="MQTTX Logo"/> |
+| EMQ X 官方公众号 | <img src="../assets/wx_qr_code.png" width="160" alt="WeChat QR code"/> |
+| EMQ X 微信群（扫码添加后邀请入群）| <img src="../assets/emqx_wx.jpeg" width="160" alt="EMQ X Wechat"/> |
+| 微博 | [@emqtt](https://weibo.com/emqtt) |
+| Twitter | [@emqtt](https://twitter.com/emqtt/) |
+| Slack | [EMQ X](https://slack-invite.emqx.io/) |
 
 ## License
 
