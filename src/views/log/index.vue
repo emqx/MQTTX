@@ -3,12 +3,7 @@
     <h1 class="titlebar">
       {{ $t('log.log') }}
     </h1>
-    <div
-      class="editor-container log-editor"
-      :style="{
-        height: '80%',
-      }"
-    >
+    <div class="editor-container log-editor">
       <Editor
         ref="scriptEditor"
         id="log"
@@ -23,19 +18,16 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Watch } from 'vue-property-decorator'
-import { Getter, Action } from 'vuex-class'
+import { Component, Vue } from 'vue-property-decorator'
 import Editor from '@/components/Editor.vue'
-import { LogModel } from './types'
 import log from '@/lang/log'
+
 @Component({
   components: {
     Editor,
   },
 })
 export default class Script extends Vue {
-  @Getter('currentTheme') private theme!: Theme
-
   private logValue = ''
 
   private async loadData(): Promise<void> {
@@ -60,6 +52,7 @@ export default class Script extends Vue {
     }
   }
   .log-editor {
+    height: 90%;
     background: var(--color-bg-normal);
     border: 1px solid var(--color-border-default);
     padding: 10px 1px 1px 1px;
