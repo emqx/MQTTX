@@ -8,6 +8,36 @@ import fs from 'fs-extra'
  * @param level - the level of log getter, logger will only display logs larger than this level.
  */
 export const getlogger = (scope: string, level: string): Logger => {
+  const LOG_PATH = getOrCreateLogDir()
+  // all < trace < debug < info < warn < error < fatal < mark < off
+  configure({
+    appenders: {
+      fileOutput: {
+        type: 'file',
+        filename: `${LOG_PATH}/log`,
+        pattern: 'yyyy-MM-dd-hh.log',
+        alwaysIncludePattern: true,
+        maxLogSize: 10485760,
+      },
+      consoleOutput: {
+        type: 'console',
+      },
+    },
+    categories: {
+      default: {
+        appenders: ['fileOutput', 'consoleOutput'],
+        // only output greater than debug level. such as info/warn
+        // set to all if you want to print all level logger
+        level: 'debug',
+      },
+    },
+  })
+  const newLogger = getLogger(scope)
+  newLogger.level = level
+  return newLogger
+}
+
+export const getOrCreateLogDir = () => {
   const isRenderer: boolean = process.type === 'renderer'
   // Render process use remote app
   const APP: Electron.App = isRenderer ? remote.app : app
@@ -26,31 +56,5 @@ export const getlogger = (scope: string, level: string): Logger => {
   if (!fs.pathExistsSync(LOG_PATH)) {
     fs.mkdirSync(LOG_PATH)
   }
-
-  // all < trace < debug < info < warn < error < fatal < mark < off
-  configure({
-    appenders: {
-      fileOutput: {
-        type: 'file',
-        filename: `${LOG_PATH}/log`,
-        pattern: 'yyyy-MM-dd-hh.log',
-        alwaysIncludePattern: true,
-        maxLogSize: 102400,
-      },
-      consoleOutput: {
-        type: 'console',
-      },
-    },
-    categories: {
-      default: {
-        appenders: ['fileOutput', 'consoleOutput'],
-        // only output greater than debug level. such as info/warn
-        // set to all if you want to print all level logger
-        level: 'debug',
-      },
-    },
-  })
-  const newLogger = getLogger(scope)
-  newLogger.level = level
-  return newLogger
+  return LOG_PATH
 }
