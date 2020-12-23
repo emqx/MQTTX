@@ -55,7 +55,7 @@ module.exports = {
     electronBuilder: {
       // Prevent bundling of certain imported packages and instead retrieve these external dependencies at runtime.
       // In order to connect to websocket.
-      externals: ['mqtt', 'vm2'],
+      externals: ['mqtt', 'vm2', 'log4js', 'chokidar'],
       builderOptions: {
         productName: 'MQTTX',
         win: {
