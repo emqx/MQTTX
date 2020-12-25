@@ -24,7 +24,7 @@
         </div>
         <div :class="[{ active: isLog }, 'leftbar-item']">
           <a href="javascript:;" @click="routeToPage('/log')">
-            <i class="iconfont icon-icon_log"></i>
+            <i class="iconfont icon-log"></i>
           </a>
         </div>
       </template>

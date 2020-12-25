@@ -6,11 +6,11 @@
   "description": "",
   "glyphs": [
     {
-      "icon_id": "16903002",
+      "icon_id": "19023717",
       "name": "log",
-      "font_class": "icon_log",
-      "unicode": "e652",
-      "unicode_decimal": 58962
+      "font_class": "log",
+      "unicode": "ea07",
+      "unicode_decimal": 59911
     },
     {
       "icon_id": "11348940",
