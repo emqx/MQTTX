@@ -3,7 +3,7 @@
 import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
 import { updateConnectionMessage } from '@/api/connection'
-import { getlogger } from './utils/logger'
+import { getlogger, quitAndRenameLogger } from './utils/logger'
 import db from './database/index'
 import updateChecker from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
@@ -66,6 +66,14 @@ function handleIpcMessages() {
   })
 }
 
+// handle event when APP quit
+function handleAppQuit() {
+  // close all log appender and rename log file with date
+  quitAndRenameLogger()
+  // quit APP
+  app.quit()
+}
+
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
@@ -80,7 +88,7 @@ function createWindow() {
     icon: `${__static}/app.ico`,
   })
   const logger = getlogger('main thread', 'info')
-  logger.info('App Init')
+  logger.info('App init')
 
   // Menu Manger
   const templateMenu = getMenuTemplate(win)
@@ -101,7 +109,7 @@ function createWindow() {
 
   win.on('closed', () => {
     win = null
-    app.quit()
+    handleAppQuit()
   })
 }
 
@@ -110,7 +118,7 @@ app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (!isMac) {
-    app.quit()
+    handleAppQuit()
   }
 })
 
@@ -158,12 +166,12 @@ if (isDevelopment) {
   if (process.platform === 'win32') {
     process.on('message', (data) => {
       if (data === 'graceful-exit') {
-        app.quit()
+        handleAppQuit()
       }
     })
   } else {
     process.on('SIGTERM', () => {
-      app.quit()
+      handleAppQuit()
     })
   }
 }
