@@ -35,43 +35,6 @@ import path from 'path'
 export default class Script extends Vue {
   private logValue = ''
 
-  private getNewestLogFileName(LOG_PATH: string) {
-    const DATEREGEXP = /log\.([0-9]*)-([0-9]*)-([0-9]*)-([0-9]*)\.log/
-
-    const res = fs.readdirSync(LOG_PATH, {
-      withFileTypes: true,
-    })
-
-    const logFileList = res
-      .filter((e) => {
-        const matchRes = e.name.match(DATEREGEXP)
-        if (matchRes === null) {
-          return false
-        }
-        return !e.isDirectory() && matchRes.length === 5
-      })
-      .map((e) => {
-        return e.name
-      })
-    if (!logFileList.length) return false
-
-    logFileList.sort((l, r) => {
-      const lMatched = l.match(DATEREGEXP)
-      const rMatched = r.match(DATEREGEXP)
-      if (!lMatched || !rMatched) return 0
-      for (let i = 1; i <= lMatched.length; i++) {
-        const lDate = parseInt(lMatched[i])
-        const rDate = parseInt(rMatched[i])
-        if (lDate == rDate) {
-          continue
-        }
-        return lDate - rDate
-      }
-      return 0
-    })
-    return logFileList[logFileList.length - 1]
-  }
-
   private async loadData(): Promise<void> {}
 
   private created() {
@@ -85,9 +48,7 @@ export default class Script extends Vue {
       persistent: true,
     })
     watcher.on('add', () => {
-      const newestLog = this.getNewestLogFileName(LOG_PATH)
-      if (!newestLog) return
-      this.logValue = fs.readFileSync(path.join(LOG_PATH, newestLog)).toString()
+      this.logValue = fs.readFileSync(path.join(LOG_PATH, 'log')).toString()
     })
   }
 }
