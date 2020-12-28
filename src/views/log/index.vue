@@ -23,8 +23,7 @@ import Editor from '@/components/Editor.vue'
 import log from '@/lang/log'
 import fs from 'fs-extra'
 import { app, remote } from 'electron'
-import chokidar from 'chokidar'
-import { getlogger, getOrCreateLogDir } from '@/utils/logger'
+import { getlogger, getOrCreateLogDir, watchFileAppender } from '@/utils/logger'
 import path from 'path'
 
 @Component({
@@ -35,21 +34,46 @@ import path from 'path'
 export default class Script extends Vue {
   private logValue = ''
 
-  private async loadData(): Promise<void> {}
+  private async loadData(): Promise<void> {
+    const logger = getlogger('logs', 'info')
+    const LOG_DIR = getOrCreateLogDir()
+    const LOG_PATH = path.join(LOG_DIR, 'log')
+    logger.info(LOG_PATH)
+    fs.readFile(LOG_PATH, 'utf-8', (error, data) => {
+      if (error) {
+        const logger = getlogger('logs', 'error')
+        logger.error(error.toString())
+        return
+      } else {
+        this.logValue = data
+      }
+    })
+  }
+
+  private appendLine(msg: string): void {
+    this.logValue = this.logValue + msg
+  }
+
+  private onLogReadErrorHandle(err: NodeJS.ErrnoException): void {
+    if (err) {
+      const logger = getlogger('logs', 'error')
+      logger.error(err.toString())
+    }
+  }
+
+  private onLogReadDataHandle(msg: Buffer): void {
+    //append new buffer to logValue
+    this.appendLine(msg.toString())
+  }
 
   private created() {
-    const logger = getlogger('logs', 'info')
-    logger.info('logs page init')
+    this.loadData()
+  }
 
-    const LOG_PATH = getOrCreateLogDir()
-
-    const watcher = chokidar.watch(LOG_PATH, {
-      ignored: /(^|[\/\\])\../,
-      persistent: true,
-    })
-    watcher.on('add', () => {
-      this.logValue = fs.readFileSync(path.join(LOG_PATH, 'log')).toString()
-    })
+  private mounted() {
+    const LOG_DIR = getOrCreateLogDir()
+    const LOG_PATH = path.join(LOG_DIR, 'log')
+    watchFileAppender(LOG_PATH, this.onLogReadDataHandle, this.onLogReadErrorHandle)
   }
 }
 </script>
