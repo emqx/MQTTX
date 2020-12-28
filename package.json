@@ -21,15 +21,16 @@
     "chart.js": "^2.9.4",
     "core-js": "^2.6.11",
     "csvtojson": "^2.0.10",
-    "chokidar": "^3.4.3",
     "element-ui": "^2.13.0",
     "fs-extra": "^8.1.0",
     "json2csv": "^5.0.3",
     "lodash-id": "^0.14.0",
+    "log4js": "^6.3.0",
     "lowdb": "^1.0.0",
     "moment": "^2.24.0",
     "monaco-editor": "^0.20.0",
     "mqtt": "4.2.1",
+    "vm2": "latest",
     "vue": "^2.6.12",
     "vue-class-component": "^7.0.2",
     "vue-click-outside": "^1.1.0",
@@ -40,9 +41,7 @@
     "vuex": "^3.0.1",
     "vuex-class": "^0.3.2",
     "xlsx": "^0.16.8",
-    "xml-js": "^1.6.11",
-    "log4js": "^6.3.0",
-    "vm2": "latest"
+    "xml-js": "^1.6.11"
   },
   "devDependencies": {
     "@types/chai": "^4.1.0",

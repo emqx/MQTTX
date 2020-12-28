@@ -73,3 +73,65 @@ export const quitAndRenameLogger = () => {
   // rename current log to yy-mm-dd-hh-mm.log
   fs.renameSync(`${LOG_DIR}/log`, `${LOG_DIR}/${curDate}.log`)
 }
+
+/**
+ * the watcher of file appender, when the file changed trigger the onDataHandler callback funtion.
+ * @param filename - the file name
+ * @param onDataHandler - data stream handle
+ * @param onErrorHandler - data error handle
+ */
+export const watchFileAppender = (
+  filename: string,
+  onDataHandler: (buffer: Buffer) => void,
+  onErrorHandler: (err: NodeJS.ErrnoException) => void,
+) => {
+  // Open the file for reading and appending
+  fs.open(filename, 'r', function (err, fd) {
+    if (err) {
+      onErrorHandler(err)
+    }
+    let buffer
+    fs.watchFile(
+      filename,
+      {
+        persistent: true,
+        interval: 100,
+      },
+      (curr, prev) => {
+        // Compare the time before and after
+        if (curr.mtime > prev.mtime && curr.size - prev.size > 0) {
+          // Changes in the contents of documents
+          buffer = Buffer.alloc(curr.size - prev.size)
+          // (curr.size - prev.size) this is the newly added length of the log file
+          handleReadFile(fd, buffer, curr.size - prev.size, prev.size, onDataHandler, onErrorHandler)
+        }
+      },
+    )
+  })
+}
+
+/**
+ * Read data from stream and copy to stream
+ * @param fd - the file descriptor
+ * @param buffer - the file buffer
+ * @param length - the length of buffer
+ * @param position - the start position of buffer read
+ * @param onDataHandler - handle data callback function
+ * @param onErrorHandler - handle read error callback function
+ */
+export const handleReadFile = (
+  fd: number,
+  buffer: Buffer,
+  length: number,
+  position: number,
+  onDataHandler: (buffer: Buffer) => void,
+  onErrorHandler: (err: NodeJS.ErrnoException) => void,
+) => {
+  fs.read(fd, buffer, 0, length, position, function (err, bytesRead, buffer) {
+    if (err) {
+      onErrorHandler(err)
+    } else {
+      onDataHandler(buffer)
+    }
+  })
+}
