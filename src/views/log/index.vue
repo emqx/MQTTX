@@ -35,18 +35,16 @@ export default class Script extends Vue {
   private logValue = ''
 
   private async loadData(): Promise<void> {
-    const logger = getlogger('logs', 'info')
     const LOG_DIR = getOrCreateLogDir()
     const LOG_PATH = path.join(LOG_DIR, 'log')
-    logger.info(LOG_PATH)
     fs.readFile(LOG_PATH, 'utf-8', (error, data) => {
       if (error) {
         const logger = getlogger('logs', 'error')
         logger.error(error.toString())
+        this.$message.error(error.toString())
         return
-      } else {
-        this.logValue = data
       }
+      this.logValue = data
     })
   }
 
