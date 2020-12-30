@@ -8,6 +8,7 @@ import { Getter } from 'vuex-class'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import EditorDark from '@/assets/scss/theme/editor-dark.json'
 import EditorNight from '@/assets/scss/theme/editor-night.json'
+import LogEditor from '@/assets/scss/theme/log-editor.json'
 
 @Component
 export default class Editor extends Vue {
@@ -18,7 +19,7 @@ export default class Editor extends Vue {
   @Prop({ default: 'none' }) public renderHighlight!: 'none' | 'line'
   @Prop({ default: 'hidden' }) public scrollbarStatus: 'auto' | 'visible' | 'hidden' | undefined
   @Prop({ default: false }) public disabled!: boolean
-
+  @Prop({ default: 'vs' }) public editorTheme!: Theme
   @Model('change', { type: String }) private readonly value!: string
 
   @Getter('currentTheme') private theme!: Theme
@@ -50,7 +51,32 @@ export default class Editor extends Vue {
     }
   }
 
+  // init and register customer editor style
+  private initCustomerLanguages() {
+    this.registerLog()
+  }
+
+  // register log style editor
+  private registerLog() {
+    monaco.languages.register({ id: 'logLanguage' })
+    // set tokens for the logLanguage
+    monaco.languages.setMonarchTokensProvider('logLanguage', {
+      tokenizer: {
+        root: [
+          [/\[TRACE\]/i, 'custom-trace'],
+          [/\[DEBUG\]/i, 'custom-debug'],
+          [/\[INFO\]/i, 'custom-info'],
+          [/\[WARN\]/i, 'custom-warn'],
+          [/\[ERROR\]/i, 'custom-error'],
+          [/\[FATAL\]/i, 'custom-fatal'],
+          [/\[[0-9][a-zA-Z.0-9:\-]+\]/i, 'custom-date'],
+        ],
+      },
+    })
+  }
+
   public initEditor(): void | boolean {
+    this.initCustomerLanguages()
     const defaultOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
       value: this.value,
       language: this.lang,
@@ -61,7 +87,7 @@ export default class Editor extends Vue {
       renderLineHighlight: this.renderHighlight,
       matchBrackets: 'near',
       folding: false,
-      theme: this.getTheme(),
+      theme: this.editorTheme || this.getTheme(),
       lightbulb: {
         enabled: false,
       },
@@ -123,17 +149,22 @@ export default class Editor extends Vue {
   private defineTheme() {
     const dark = EditorDark as monaco.editor.IStandaloneThemeData
     const night = EditorNight as monaco.editor.IStandaloneThemeData
+    const log = LogEditor as monaco.editor.IStandaloneThemeData
     monaco.editor.defineTheme('editor-dark', dark)
     monaco.editor.defineTheme('editor-night', night)
+    monaco.editor.defineTheme('editor-log', log)
   }
+
   private getTheme(): string {
-    if (this.theme === 'dark') {
-      return 'editor-dark'
-    } else if (this.theme === 'night') {
-      return 'editor-night'
-    } else {
-      return 'vs'
+    switch (this.theme) {
+      case 'dark':
+        return 'editor-dark'
+        break
+      case 'night':
+        return 'editor-night'
+        break
     }
+    return 'vs'
   }
 
   private mounted() {

@@ -7,11 +7,12 @@
       <Editor
         ref="scriptEditor"
         id="log"
-        lang="json"
+        lang="logLanguage"
         v-model="logValue"
         lineNumbers="on"
         renderHighlight="line"
         disabled="true"
+        editorTheme="editor-log"
       />
     </div>
   </div>
