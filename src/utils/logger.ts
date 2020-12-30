@@ -89,8 +89,9 @@ export const watchFileAppender = (
   fs.open(filename, 'r', function (err, fd) {
     if (err) {
       onErrorHandler(err)
+      return
     }
-    let buffer
+    let buffer: Buffer
     fs.watchFile(
       filename,
       {
