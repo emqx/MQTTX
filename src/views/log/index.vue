@@ -12,7 +12,7 @@
         lineNumbers="on"
         renderHighlight="line"
         disabled="true"
-        editorTheme="editor-log"
+        :editorTheme="this.theme === 'light' ? 'editor-log' : 'editor-log-dark'"
       />
     </div>
   </div>
@@ -21,6 +21,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import Editor from '@/components/Editor.vue'
+import { Getter } from 'vuex-class'
 import log from '@/lang/log'
 import fs from 'fs-extra'
 import { app, remote } from 'electron'
@@ -32,7 +33,9 @@ import path from 'path'
     Editor,
   },
 })
-export default class Script extends Vue {
+export default class Logs extends Vue {
+  @Getter('currentTheme') private theme!: Theme
+
   private logValue = ''
 
   private async loadData(): Promise<void> {
