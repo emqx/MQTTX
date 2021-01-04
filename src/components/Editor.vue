@@ -9,6 +9,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import EditorDark from '@/assets/scss/theme/editor-dark.json'
 import EditorNight from '@/assets/scss/theme/editor-night.json'
 import LogEditor from '@/assets/scss/theme/log-editor.json'
+import LogEditorDark from '@/assets/scss/theme/log-editor-dark.json'
 
 @Component
 export default class Editor extends Vue {
@@ -19,7 +20,7 @@ export default class Editor extends Vue {
   @Prop({ default: 'none' }) public renderHighlight!: 'none' | 'line'
   @Prop({ default: 'hidden' }) public scrollbarStatus: 'auto' | 'visible' | 'hidden' | undefined
   @Prop({ default: false }) public disabled!: boolean
-  @Prop({ default: 'vs' }) public editorTheme!: Theme
+  @Prop({ default: undefined }) public editorTheme!: Theme
   @Model('change', { type: String }) private readonly value!: string
 
   @Getter('currentTheme') private theme!: Theme
@@ -69,14 +70,17 @@ export default class Editor extends Vue {
           [/\[WARN\]/i, 'custom-warn'],
           [/\[ERROR\]/i, 'custom-error'],
           [/\[FATAL\]/i, 'custom-fatal'],
-          [/\[[0-9][a-zA-Z.0-9:\-]+\]/i, 'custom-date'],
+          [/\[[0-9]{4}-[0-9]{2}-[0-9]{2}T[a-zA-Z.0-9:]+\]/i, 'custom-date'],
         ],
       },
     })
   }
 
   public initEditor(): void | boolean {
-    this.initCustomerLanguages()
+    // if customer editorTheme is not empty, then init the editor theme
+    if (!this.editorTheme) {
+      this.initCustomerLanguages()
+    }
     const defaultOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
       value: this.value,
       language: this.lang,
@@ -150,9 +154,11 @@ export default class Editor extends Vue {
     const dark = EditorDark as monaco.editor.IStandaloneThemeData
     const night = EditorNight as monaco.editor.IStandaloneThemeData
     const log = LogEditor as monaco.editor.IStandaloneThemeData
+    const logDark = LogEditorDark as monaco.editor.IStandaloneThemeData
     monaco.editor.defineTheme('editor-dark', dark)
     monaco.editor.defineTheme('editor-night', night)
     monaco.editor.defineTheme('editor-log', log)
+    monaco.editor.defineTheme('editor-log-dark', logDark)
   }
 
   private getTheme(): string {
@@ -163,8 +169,9 @@ export default class Editor extends Vue {
       case 'night':
         return 'editor-night'
         break
+      default:
+        return 'vs'
     }
-    return 'vs'
   }
 
   private mounted() {
