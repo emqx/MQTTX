@@ -5,6 +5,7 @@
     </h1>
     <div class="editor-container log-editor">
       <Editor
+        isCustomerLang="true"
         ref="scriptEditor"
         id="log"
         lang="logLanguage"

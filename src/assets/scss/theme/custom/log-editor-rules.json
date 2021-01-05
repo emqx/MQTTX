@@ -1,6 +1,4 @@
 {
-  "base": "vs",
-  "inherit": false,
   "rules": [{
       "token": "custom-trace",
       "foreground": "00aabb"
