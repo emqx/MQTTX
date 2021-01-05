@@ -43,7 +43,7 @@
     <div class="about-footer">
       <img class="emqx-logo" src="../../assets/images/emqx-logo.png" alt="emqx" width="35" />
       <span class="copyright"
-        >Copyright &copy; 2020
+        >Copyright &copy; 2021
         <a :href="emqxWebsite" target="_blank" rel="noopener noreferrer"> EMQ X</a>
       </span>
       <div class="follow-items">

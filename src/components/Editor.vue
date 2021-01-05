@@ -8,8 +8,9 @@ import { Getter } from 'vuex-class'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import EditorDark from '@/assets/scss/theme/editor-dark.json'
 import EditorNight from '@/assets/scss/theme/editor-night.json'
-import LogEditor from '@/assets/scss/theme/log-editor.json'
-import LogEditorDark from '@/assets/scss/theme/log-editor-dark.json'
+import LogEditor from '@/assets/scss/theme/custom/log-editor.json'
+import LogEditorDark from '@/assets/scss/theme/custom/log-editor-dark.json'
+import LogEditorRules from '@/assets/scss/theme/custom/log-editor-rules.json'
 
 @Component
 export default class Editor extends Vue {
@@ -21,6 +22,7 @@ export default class Editor extends Vue {
   @Prop({ default: 'hidden' }) public scrollbarStatus: 'auto' | 'visible' | 'hidden' | undefined
   @Prop({ default: false }) public disabled!: boolean
   @Prop({ default: undefined }) public editorTheme!: Theme
+  @Prop({ default: false }) public isCustomerLang!: boolean
   @Model('change', { type: String }) private readonly value!: string
 
   @Getter('currentTheme') private theme!: Theme
@@ -78,7 +80,7 @@ export default class Editor extends Vue {
 
   public initEditor(): void | boolean {
     // if customer editorTheme is not empty, then init the editor theme
-    if (!this.editorTheme) {
+    if (this.isCustomerLang) {
       this.initCustomerLanguages()
     }
     const defaultOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
@@ -153,12 +155,15 @@ export default class Editor extends Vue {
   private defineTheme() {
     const dark = EditorDark as monaco.editor.IStandaloneThemeData
     const night = EditorNight as monaco.editor.IStandaloneThemeData
-    const log = LogEditor as monaco.editor.IStandaloneThemeData
-    const logDark = LogEditorDark as monaco.editor.IStandaloneThemeData
     monaco.editor.defineTheme('editor-dark', dark)
     monaco.editor.defineTheme('editor-night', night)
-    monaco.editor.defineTheme('editor-log', log)
-    monaco.editor.defineTheme('editor-log-dark', logDark)
+    if (this.isCustomerLang) {
+      const log = { ...LogEditor, ...LogEditorRules } as monaco.editor.IStandaloneThemeData
+      const logDark = { ...LogEditorDark, ...LogEditorRules } as monaco.editor.IStandaloneThemeData
+      // customer language theme
+      monaco.editor.defineTheme('editor-log', log)
+      monaco.editor.defineTheme('editor-log-dark', logDark)
+    }
   }
 
   private getTheme(): string {
