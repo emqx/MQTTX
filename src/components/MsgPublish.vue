@@ -56,6 +56,7 @@ import Editor from '@/components/Editor.vue'
 import { MessageModel } from '../views/connections/types'
 import convertPayload from '@/utils/convertPayload'
 import { v4 as uuidv4 } from 'uuid'
+import { Route } from 'vue-router'
 
 @Component({
   components: {
@@ -115,13 +116,12 @@ export default class MsgPublish extends Vue {
       ipcRenderer.removeAllListeners('sendPayload')
     }
   }
-
-  private mounted() {
-    ipcRenderer.on('initEditor', () => {
+  @Watch('$route.params.id', { immediate: true, deep: true }) private handleIdChanged(to: string, from: string) {
+    if (from === '0' && to !== '0') {
+      // Init the editor when rout jump from creation page
       const editorRef = this.$refs.payloadEditor as Editor
       editorRef.initEditor()
-      ipcRenderer.removeAllListeners('initEditor')
-    })
+    }
   }
 
   private send() {
