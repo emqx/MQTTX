@@ -91,7 +91,6 @@ export default class Connections extends Vue {
   @Watch('oper')
   private handleOperChange(val: string | undefined) {
     if (val === undefined) {
-      ipcRenderer.send('initEditor')
       setTimeout(() => {
         const connectionsDetailRef: ConnectionsDetail | undefined = this.$refs.connectionsDetail as ConnectionsDetail
         if (connectionsDetailRef !== undefined) {
