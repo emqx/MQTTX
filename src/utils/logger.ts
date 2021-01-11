@@ -7,7 +7,7 @@ import fs from 'fs-extra'
  * @param scope - the scope of module, you should describe it semantically.
  * @param level - the level of log getter, logger will only display logs larger than this level.
  */
-export const getlogger = (scope: string, level: string): log4js.Logger => {
+export const getCustomLogger = (scope: string, level: string): log4js.Logger => {
   const LOG_DIR = getOrCreateLogDir()
   // all < trace < debug < info < warn < error < fatal < mark < off
   log4js.configure({
