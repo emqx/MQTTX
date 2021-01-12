@@ -2,42 +2,6 @@ import log4js from 'log4js'
 import { app, remote } from 'electron'
 import fs from 'fs-extra'
 
-/**
- * Get a logger above the specified level with scope.
- * @param scope - the scope of module, you should describe it semantically.
- * @param level - the level of log getter, logger will only display logs larger than this level.
- */
-export const getCustomLogger = (scope: string, level: string): log4js.Logger => {
-  const LOG_DIR = getOrCreateLogDir()
-  // all < trace < debug < info < warn < error < fatal < mark < off
-  log4js.configure({
-    appenders: {
-      fileOutput: {
-        type: 'file',
-        filename: `${LOG_DIR}/log`,
-        // pattern: 'yyyy-MM-dd-hh.log',
-        alwaysIncludePattern: true,
-        maxLogSize: 10485760,
-      },
-      consoleOutput: {
-        type: 'stdout',
-      },
-    },
-    categories: {
-      default: {
-        appenders: ['fileOutput', 'consoleOutput'],
-        // only output greater than debug level. such as info/warn
-        // set to all if you want to print all level logger
-        level: 'debug',
-        enableCallStack: true,
-      },
-    },
-  })
-  const newLogger = log4js.getLogger(scope)
-  newLogger.level = level
-  return newLogger
-}
-
 export const getOrCreateLogDir = () => {
   const isRenderer: boolean = process.type === 'renderer'
   // Render process use remote app

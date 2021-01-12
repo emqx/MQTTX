@@ -1,0 +1,20 @@
+{
+  "appenders": {
+    "fileOutput": {
+      "type": "file",
+      "alwaysIncludePattern": true,
+      "maxLogSize": 10485760,
+      "filename": ""
+    },
+    "consoleOutput": {
+      "type": "stdout"
+    }
+  },
+  "categories": {
+    "default": {
+      "appenders": ["fileOutput", "consoleOutput"],
+      "level": "debug",
+      "enableCallStack": true
+    }
+  }
+}
