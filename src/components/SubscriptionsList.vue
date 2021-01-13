@@ -105,7 +105,6 @@ import MyDialog from '@/components/MyDialog.vue'
 import { ConnectionModel, SubscribeErrorReason } from '../views/connections/types'
 import VueI18n from 'vue-i18n'
 import log4js from 'log4js'
-import { getCustomLogger } from '@/utils/logger'
 
 @Component({
   components: {
@@ -118,10 +117,6 @@ export default class SubscriptionsList extends Vue {
   @Prop({ required: true }) public connectionId!: string
   @Prop({ required: true }) public record!: ConnectionModel
   @Prop({ type: String, default: '60px' }) public top!: string
-  @Prop({
-    default: () => getCustomLogger('SubscriptionsList', process.env.NODE_ENV === 'production' ? 'dubug' : 'info'),
-  })
-  private logger!: log4js.Logger
 
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
@@ -204,7 +199,7 @@ export default class SubscriptionsList extends Vue {
       this.subRecord.alias = this.subRecord.alias ? this.subRecord.alias.trim() : this.subRecord.alias
       this.subRecord.color = this.topicColor || this.getBorderColor()
       this.subscribe(this.subRecord)
-      this.logger.info(`save subscription topic:${this.subRecord.topic} successed`)
+      Vue.$log.info(`save subscription topic:${this.subRecord.topic} successed`)
     })
   }
 
@@ -239,7 +234,7 @@ export default class SubscriptionsList extends Vue {
     this.currentConnection.client.subscribe(topic, { qos }, (error: string, res: SubscriptionModel[]) => {
       if (error) {
         this.$message.error(error)
-        this.logger.error(`topic: ${topic} subscribe error ${error} `)
+        Vue.$log.error(`topic: ${topic} subscribe error ${error} `)
         return false
       }
 
@@ -255,7 +250,7 @@ export default class SubscriptionsList extends Vue {
       if (errorReason !== SubscribeErrorReason.normal) {
         const errorReasonMsg: VueI18n.TranslateResult = this.getErrorReasonMsg(errorReason)
         const errorMsg: string = `${topic} ${this.$t('connections.subFailed')} ${errorReasonMsg}`
-        this.logger.error(`topic: ${topic} subscribe error ${errorReasonMsg} `)
+        Vue.$log.error(`topic: ${topic} subscribe error ${errorReasonMsg} `)
         this.$message.error(errorMsg)
         return false
       }
@@ -300,7 +295,7 @@ export default class SubscriptionsList extends Vue {
       this.changeSubs(payload)
       this.subsList = payload.subscriptions
       this.$emit('deleteTopic')
-      this.logger.info(`unsubscribe topic: ${topic}`)
+      Vue.$log.info(`unsubscribe topic: ${topic}`)
       return true
     })
   }

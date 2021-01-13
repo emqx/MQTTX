@@ -3,7 +3,7 @@
 import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
 import { createProtocol, installVueDevtools } from 'vue-cli-plugin-electron-builder/lib'
 import { updateConnectionMessage } from '@/api/connection'
-import { getCustomLogger, quitAndRenameLogger } from './utils/logger'
+import { quitAndRenameLogger } from './utils/logger'
 import db from './database/index'
 import updateChecker from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
@@ -84,8 +84,6 @@ function createWindow() {
     backgroundColor: theme === 'dark' ? '#232323' : '#ffffff',
     icon: `${__static}/app.ico`,
   })
-  const logger = getCustomLogger('main thread', 'info')
-  logger.info('App init')
 
   // Menu Manger
   const templateMenu = getMenuTemplate(win)
