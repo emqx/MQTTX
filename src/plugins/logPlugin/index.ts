@@ -12,6 +12,7 @@ const VueLog4js = {
 
     // Attach logger to Vue instance
     Vue.prototype.$log = Vue.$log
+    Vue.prototype.$logRegsity = log4js.getLogger
   },
 }
 

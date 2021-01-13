@@ -26,7 +26,7 @@ import { Getter } from 'vuex-class'
 import log from '@/lang/log'
 import fs from 'fs-extra'
 import { app, remote } from 'electron'
-import { getCustomLogger, getOrCreateLogDir, watchFileAppender } from '@/utils/logger'
+import { getOrCreateLogDir, watchFileAppender } from '@/utils/logger'
 import path from 'path'
 
 @Component({
@@ -44,8 +44,7 @@ export default class Logs extends Vue {
     const LOG_PATH = path.join(LOG_DIR, 'log')
     fs.readFile(LOG_PATH, 'utf-8', (error, data) => {
       if (error) {
-        const logger = getCustomLogger('logs', 'error')
-        logger.error(error.toString())
+        Vue.$log.error(error.toString())
         this.$message.error(error.toString())
         return
       }
@@ -59,8 +58,7 @@ export default class Logs extends Vue {
 
   private onLogReadErrorHandle(err: NodeJS.ErrnoException): void {
     if (err) {
-      const logger = getCustomLogger('logs', 'error')
-      logger.error(err.toString())
+      Vue.$log.error(err.toString())
     }
   }
 
