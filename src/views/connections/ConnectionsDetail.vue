@@ -282,7 +282,6 @@ import { ipcRenderer } from 'electron'
 import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
-import { getCustomLogger } from '@/utils/logger'
 import log4js from 'log4js'
 
 import {
@@ -359,10 +358,6 @@ interface TopModel {
 })
 export default class ConnectionsDetail extends Vue {
   @Prop({ required: true }) public record!: ConnectionModel
-  @Prop({
-    default: () => getCustomLogger('ConnectionsDetail', process.env.NODE_ENV === 'production' ? 'dubug' : 'info'),
-  })
-  private logger!: log4js.Logger
 
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
@@ -523,7 +518,7 @@ export default class ConnectionsDetail extends Vue {
     this.client = this.createClient()
     const { id } = this.record
     if (id && this.client.on) {
-      this.logger.info(`MQTTX client with ID ${id} assigned`)
+      Vue.$log.info(`MQTTX client with ID ${id} assigned`)
       this.client.on('connect', this.onConnect)
       this.client.on('error', this.onError)
       this.client.on('reconnect', this.onReConnect)
@@ -548,7 +543,7 @@ export default class ConnectionsDetail extends Vue {
           this.$emit('delete')
           this.$message.success(this.$t('common.deleteSuccess') as string)
           this.removeActiveConnection({ id: res.id as string })
-          this.logger.info(`MQTTX remove connection ${res.name}(clientID ${res.clientId}) success`)
+          Vue.$log.info(`MQTTX remove connection ${res.name}(clientID ${res.clientId}) success`)
         }
       })
       .catch((error) => {
@@ -626,11 +621,11 @@ export default class ConnectionsDetail extends Vue {
       this.showContextmenu = false
       this.$message.success(this.$t('common.deleteSuccess') as string)
       await this.$emit('reload')
-      this.logger.info(`Delete message success, connectID ${connectID}`)
+      Vue.$log.info(`Delete message success, connectID ${connectID}`)
     } else {
       this.showContextmenu = false
       this.$message.error(this.$t('common.deletefailed') as string)
-      this.logger.info('Delete message failed')
+      Vue.$log.info('Delete message failed')
     }
   }
   // Get current connection
@@ -740,7 +735,7 @@ export default class ConnectionsDetail extends Vue {
       messages: this.messages,
     })
     updateConnection(this.record.id as string, this.record)
-    this.logger.info('cleaned history connection message')
+    Vue.$log.info('cleaned history connection message')
   }
   // Message type changed
   private async handleMsgTypeChanged(type: MessageType) {
@@ -847,7 +842,7 @@ export default class ConnectionsDetail extends Vue {
   private createClient(): MqttClient {
     const options: IClientOptions = getClientOptions(this.record)
     return mqtt.connect(this.connectUrl, options)
-    this.logger.info(
+    Vue.$log.info(
       `connect client options  ${options.host}:${options.port}, protocol:${options.protocol}, wsOption: ${options.wsOptions}`,
     )
   }
@@ -856,7 +851,7 @@ export default class ConnectionsDetail extends Vue {
     this.connectLoading = false
     this.client.end!(true)
     this.retryTimes = 0
-    this.logger.info('MQTTX client connection cancel')
+    Vue.$log.info('MQTTX client connection cancel')
   }
   // Disconnect
   private disconnect(): boolean | void {
@@ -890,7 +885,7 @@ export default class ConnectionsDetail extends Vue {
         this.setShowClientInfo(true)
       }
       this.$emit('reload')
-      this.logger.info('MQTTX client disconnect')
+      Vue.$log.info('MQTTX client disconnect')
     })
   }
   // Connect callback
@@ -908,7 +903,7 @@ export default class ConnectionsDetail extends Vue {
       duration: 3000,
       offset: 30,
     })
-    this.logger.info('Connect success, MQTT.js onConnect trigger')
+    Vue.$log.info('Connect success, MQTT.js onConnect trigger')
     this.setShowClientInfo(false)
     this.$emit('reload')
   }
@@ -928,7 +923,7 @@ export default class ConnectionsDetail extends Vue {
       duration: 3000,
       offset: 30,
     })
-    this.logger.error(`MQTT.js connectFailed, ${JSON.stringify(error)}`)
+    Vue.$log.error(`MQTT.js connectFailed, ${JSON.stringify(error)}`)
     this.$emit('reload')
   }
   // Reconnect callback
@@ -947,12 +942,12 @@ export default class ConnectionsDetail extends Vue {
       this.$emit('reload')
     } else {
       if (this.retryTimes > this.maxReconnectTimes) {
-        this.logger.warn('Connection maxReconnectTimes limit, stop retry')
+        Vue.$log.warn('Connection maxReconnectTimes limit, stop retry')
         this.client.end!(true)
         this.retryTimes = 0
         this.connectLoading = false
       } else {
-        this.logger.info(`Connection ${this.retryTimes} times retry`)
+        Vue.$log.info(`Connection ${this.retryTimes} times retry`)
         this.retryTimes += 1
         this.connectLoading = true
         this.$notify({
@@ -967,7 +962,7 @@ export default class ConnectionsDetail extends Vue {
   }
   // Close connection callback
   private onClose() {
-    this.logger.info('Connect close, MQTT.js onClose trigger')
+    Vue.$log.info('Connect close, MQTT.js onClose trigger')
     this.connectLoading = false
   }
   // Search message
@@ -996,13 +991,13 @@ export default class ConnectionsDetail extends Vue {
     }
     this.setScript({ currentScript })
     this.$message.success(this.$t('script.startScript') as string)
-    this.logger.info('Set script successed')
+    Vue.$log.info('Set script successed')
   }
   // Remove script
   private removeScript() {
     this.setScript({ currentScript: null })
     this.$message.success(this.$t('script.stopScirpt') as string)
-    this.logger.info('Remove script successed')
+    Vue.$log.info('Remove script successed')
   }
   // Recevied message
   private onMessageArrived(id: string) {
@@ -1055,10 +1050,10 @@ export default class ConnectionsDetail extends Vue {
         const isFromActiveTopic = this.msgType !== 'publish' && this.activeTopic && isActiveTopicMessages
         const isFromNotActiveTopic = this.msgType !== 'publish' && !this.activeTopic
         if (isFromActiveTopic || isFromNotActiveTopic) {
-          this.logger.info(`Message Arrived with topic: ${topic}`)
+          Vue.$log.info(`Message Arrived with topic: ${topic}`)
           this.messages.push(receivedMessage)
           this.messagesAddedNewItem = true
-          this.logger.info(
+          Vue.$log.info(
             `Message Arrived: message added #${JSON.stringify(
               receivedMessage.mid,
             )} added to topic ${topic}, MQTT.js onMessageArrived trigger`,
@@ -1122,7 +1117,7 @@ export default class ConnectionsDetail extends Vue {
         const errorMsg = error.toString()
         this.$message.error(errorMsg)
         this.stopTimedSend()
-        this.logger.error(`Client message publish failed, ${errorMsg}`)
+        Vue.$log.error(`Client message publish failed, ${errorMsg}`)
         return false
       }
       const publishMessage: MessageModel = {
@@ -1147,7 +1142,7 @@ export default class ConnectionsDetail extends Vue {
       if (isFromActiveTopic || isFromNotActiveTopic) {
         this.messages.push(publishMessage)
         this.messagesAddedNewItem = true
-        this.logger.info(
+        Vue.$log.info(
           `sucessfully published message ${JSON.stringify(publishMessage.payload)} to topic ${JSON.stringify(
             publishMessage.topic,
           )}`,
