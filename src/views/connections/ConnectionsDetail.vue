@@ -735,7 +735,7 @@ export default class ConnectionsDetail extends Vue {
       messages: this.messages,
     })
     updateConnection(this.record.id as string, this.record)
-    this.$log.info('cleaned history connection message')
+    this.$log.info('Cleaned history connection message')
   }
   // Message type changed
   private async handleMsgTypeChanged(type: MessageType) {
@@ -843,7 +843,7 @@ export default class ConnectionsDetail extends Vue {
     const options: IClientOptions = getClientOptions(this.record)
     return mqtt.connect(this.connectUrl, options)
     this.$log.info(
-      `connect client options  ${options.host}:${options.port}, protocol:${options.protocol}, wsOption: ${options.wsOptions}`,
+      `Connect client options  ${options.host}:${options.port}, protocol:${options.protocol}, wsOption: ${options.wsOptions}`,
     )
   }
   // Cancel connect
@@ -1143,7 +1143,7 @@ export default class ConnectionsDetail extends Vue {
         this.messages.push(publishMessage)
         this.messagesAddedNewItem = true
         this.$log.info(
-          `sucessfully published message ${JSON.stringify(publishMessage.payload)} to topic ${JSON.stringify(
+          `Sucessfully published message ${JSON.stringify(publishMessage.payload)} to topic ${JSON.stringify(
             publishMessage.topic,
           )}`,
         )

@@ -72,7 +72,7 @@ export default class Editor extends Vue {
           [/\[WARN\]/i, 'custom-warn'],
           [/\[ERROR\]/i, 'custom-error'],
           [/\[FATAL\]/i, 'custom-fatal'],
-          [/\[[0-9]{4}-[0-9]{2}-[0-9]{2}T[a-zA-Z.0-9:]+\]/i, 'custom-date'],
+          [/\[[0-9]{4}-[0-9]{2}-[0-9]{2} [a-zA-Z.0-9:]+\]/i, 'custom-date'],
         ],
       },
     })
