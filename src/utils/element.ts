@@ -1,6 +1,7 @@
 import '@/assets/scss/element/element-variables.scss'
 import '@/assets/scss/element/element-reset.scss'
 import CollapseTransition from 'element-ui/lib/transitions/collapse-transition'
+import _Vue from 'vue'
 
 import {
   // Pagination,
@@ -73,7 +74,7 @@ import {
   Divider,
 } from 'element-ui'
 
-export default (Vue: any) => {
+export default (Vue: typeof _Vue) => {
   // Vue.use(Pagination)
   Vue.use(Dialog)
   Vue.use(Autocomplete)

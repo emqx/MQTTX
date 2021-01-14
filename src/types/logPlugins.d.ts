@@ -1,7 +1,6 @@
-import Vue from 'vue'
 import { Logger } from 'log4js'
 declare module 'vue/types/vue' {
-  export interface VueConstructor<V extends Vue = Vue> {
+  interface Vue {
     $log: {
       trace(message: string): void
       debug(message: string): void
