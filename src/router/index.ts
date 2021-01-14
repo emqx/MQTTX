@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import routes from './routes'
 import { loadConnections } from '@/api/connection'
-import { ConnectionModel } from '@/views/Connections/types'
+import { ConnectionModel } from '@/views/connections/types'
 
 Vue.use(Router)
 
