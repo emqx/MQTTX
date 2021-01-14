@@ -518,7 +518,7 @@ export default class ConnectionsDetail extends Vue {
     this.client = this.createClient()
     const { id } = this.record
     if (id && this.client.on) {
-      Vue.$log.info(`MQTTX client with ID ${id} assigned`)
+      this.$log.info(`MQTTX client with ID ${id} assigned`)
       this.client.on('connect', this.onConnect)
       this.client.on('error', this.onError)
       this.client.on('reconnect', this.onReConnect)
@@ -543,7 +543,7 @@ export default class ConnectionsDetail extends Vue {
           this.$emit('delete')
           this.$message.success(this.$t('common.deleteSuccess') as string)
           this.removeActiveConnection({ id: res.id as string })
-          Vue.$log.info(`MQTTX remove connection ${res.name}(clientID ${res.clientId}) success`)
+          this.$log.info(`MQTTX remove connection ${res.name}(clientID ${res.clientId}) success`)
         }
       })
       .catch((error) => {
@@ -621,11 +621,11 @@ export default class ConnectionsDetail extends Vue {
       this.showContextmenu = false
       this.$message.success(this.$t('common.deleteSuccess') as string)
       await this.$emit('reload')
-      Vue.$log.info(`Delete message success, connectID ${connectID}`)
+      this.$log.info(`Delete message success, connectID ${connectID}`)
     } else {
       this.showContextmenu = false
       this.$message.error(this.$t('common.deletefailed') as string)
-      Vue.$log.info('Delete message failed')
+      this.$log.info('Delete message failed')
     }
   }
   // Get current connection
@@ -735,7 +735,7 @@ export default class ConnectionsDetail extends Vue {
       messages: this.messages,
     })
     updateConnection(this.record.id as string, this.record)
-    Vue.$log.info('cleaned history connection message')
+    this.$log.info('cleaned history connection message')
   }
   // Message type changed
   private async handleMsgTypeChanged(type: MessageType) {
@@ -842,7 +842,7 @@ export default class ConnectionsDetail extends Vue {
   private createClient(): MqttClient {
     const options: IClientOptions = getClientOptions(this.record)
     return mqtt.connect(this.connectUrl, options)
-    Vue.$log.info(
+    this.$log.info(
       `connect client options  ${options.host}:${options.port}, protocol:${options.protocol}, wsOption: ${options.wsOptions}`,
     )
   }
@@ -851,7 +851,7 @@ export default class ConnectionsDetail extends Vue {
     this.connectLoading = false
     this.client.end!(true)
     this.retryTimes = 0
-    Vue.$log.info('MQTTX client connection cancel')
+    this.$log.info('MQTTX client connection cancel')
   }
   // Disconnect
   private disconnect(): boolean | void {
@@ -885,7 +885,7 @@ export default class ConnectionsDetail extends Vue {
         this.setShowClientInfo(true)
       }
       this.$emit('reload')
-      Vue.$log.info('MQTTX client disconnect')
+      this.$log.info('MQTTX client disconnect')
     })
   }
   // Connect callback
@@ -903,7 +903,7 @@ export default class ConnectionsDetail extends Vue {
       duration: 3000,
       offset: 30,
     })
-    Vue.$log.info('Connect success, MQTT.js onConnect trigger')
+    this.$log.info('Connect success, MQTT.js onConnect trigger')
     this.setShowClientInfo(false)
     this.$emit('reload')
   }
@@ -923,7 +923,7 @@ export default class ConnectionsDetail extends Vue {
       duration: 3000,
       offset: 30,
     })
-    Vue.$log.error(`MQTT.js connectFailed, ${JSON.stringify(error)}`)
+    this.$log.error(`MQTT.js connectFailed, ${JSON.stringify(error)}`)
     this.$emit('reload')
   }
   // Reconnect callback
@@ -942,12 +942,12 @@ export default class ConnectionsDetail extends Vue {
       this.$emit('reload')
     } else {
       if (this.retryTimes > this.maxReconnectTimes) {
-        Vue.$log.warn('Connection maxReconnectTimes limit, stop retry')
+        this.$log.warn('Connection maxReconnectTimes limit, stop retry')
         this.client.end!(true)
         this.retryTimes = 0
         this.connectLoading = false
       } else {
-        Vue.$log.info(`Connection ${this.retryTimes} times retry`)
+        this.$log.info(`Connection ${this.retryTimes} times retry`)
         this.retryTimes += 1
         this.connectLoading = true
         this.$notify({
@@ -962,7 +962,7 @@ export default class ConnectionsDetail extends Vue {
   }
   // Close connection callback
   private onClose() {
-    Vue.$log.info('Connect close, MQTT.js onClose trigger')
+    this.$log.info('Connect close, MQTT.js onClose trigger')
     this.connectLoading = false
   }
   // Search message
@@ -991,13 +991,13 @@ export default class ConnectionsDetail extends Vue {
     }
     this.setScript({ currentScript })
     this.$message.success(this.$t('script.startScript') as string)
-    Vue.$log.info('Set script successed')
+    this.$log.info('Set script successed')
   }
   // Remove script
   private removeScript() {
     this.setScript({ currentScript: null })
     this.$message.success(this.$t('script.stopScirpt') as string)
-    Vue.$log.info('Remove script successed')
+    this.$log.info('Remove script successed')
   }
   // Recevied message
   private onMessageArrived(id: string) {
@@ -1050,10 +1050,10 @@ export default class ConnectionsDetail extends Vue {
         const isFromActiveTopic = this.msgType !== 'publish' && this.activeTopic && isActiveTopicMessages
         const isFromNotActiveTopic = this.msgType !== 'publish' && !this.activeTopic
         if (isFromActiveTopic || isFromNotActiveTopic) {
-          Vue.$log.info(`Message Arrived with topic: ${topic}`)
+          this.$log.info(`Message Arrived with topic: ${topic}`)
           this.messages.push(receivedMessage)
           this.messagesAddedNewItem = true
-          Vue.$log.info(
+          this.$log.info(
             `Message Arrived: message added #${JSON.stringify(
               receivedMessage.mid,
             )} added to topic ${topic}, MQTT.js onMessageArrived trigger`,
@@ -1117,7 +1117,7 @@ export default class ConnectionsDetail extends Vue {
         const errorMsg = error.toString()
         this.$message.error(errorMsg)
         this.stopTimedSend()
-        Vue.$log.error(`Client message publish failed, ${errorMsg}`)
+        this.$log.error(`Client message publish failed, ${errorMsg}`)
         return false
       }
       const publishMessage: MessageModel = {
@@ -1142,7 +1142,7 @@ export default class ConnectionsDetail extends Vue {
       if (isFromActiveTopic || isFromNotActiveTopic) {
         this.messages.push(publishMessage)
         this.messagesAddedNewItem = true
-        Vue.$log.info(
+        this.$log.info(
           `sucessfully published message ${JSON.stringify(publishMessage.payload)} to topic ${JSON.stringify(
             publishMessage.topic,
           )}`,
