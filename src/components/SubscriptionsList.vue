@@ -199,7 +199,7 @@ export default class SubscriptionsList extends Vue {
       this.subRecord.alias = this.subRecord.alias ? this.subRecord.alias.trim() : this.subRecord.alias
       this.subRecord.color = this.topicColor || this.getBorderColor()
       this.subscribe(this.subRecord)
-      this.$log.info(`save subscription topic:${this.subRecord.topic} successed`)
+      this.$log.info(`Save subscription topic:${this.subRecord.topic} successed`)
     })
   }
 
@@ -234,7 +234,7 @@ export default class SubscriptionsList extends Vue {
     this.currentConnection.client.subscribe(topic, { qos }, (error: string, res: SubscriptionModel[]) => {
       if (error) {
         this.$message.error(error)
-        this.$log.error(`topic: ${topic} subscribe error ${error} `)
+        this.$log.error(`Topic: ${topic} subscribe error ${error} `)
         return false
       }
 
@@ -250,7 +250,7 @@ export default class SubscriptionsList extends Vue {
       if (errorReason !== SubscribeErrorReason.normal) {
         const errorReasonMsg: VueI18n.TranslateResult = this.getErrorReasonMsg(errorReason)
         const errorMsg: string = `${topic} ${this.$t('connections.subFailed')} ${errorReasonMsg}`
-        this.$log.error(`topic: ${topic} subscribe error ${errorReasonMsg} `)
+        this.$log.error(`Topic: ${topic} subscribe error ${errorReasonMsg} `)
         this.$message.error(errorMsg)
         return false
       }
@@ -295,7 +295,7 @@ export default class SubscriptionsList extends Vue {
       this.changeSubs(payload)
       this.subsList = payload.subscriptions
       this.$emit('deleteTopic')
-      this.$log.info(`unsubscribe topic: ${topic}`)
+      this.$log.info(`Unsubscribe topic: ${topic}`)
       return true
     })
   }
