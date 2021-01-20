@@ -77,27 +77,18 @@ export const getClientOptions = (record: ConnectionModel): IClientOptions => {
   }
   // SSL
   if (ssl) {
-    switch (certType) {
-      case 'self':
-        const sslRes: SSLContent | undefined = getSSLFile({
-          ca: record.ca,
-          cert: record.cert,
-          key: record.key,
-        })
-        if (sslRes) {
-          options.ca = sslRes.ca
-          options.cert = sslRes.cert
-          options.key = sslRes.key
-          if (rejectUnauthorized === undefined) {
-            options.rejectUnauthorized = false
-          } else {
-            options.rejectUnauthorized = rejectUnauthorized
-          }
-        }
-        break
-      default:
-        options.rejectUnauthorized = false
-        break
+    options.rejectUnauthorized = rejectUnauthorized === undefined ? true : rejectUnauthorized
+    if (certType === 'self') {
+      const sslRes: SSLContent | undefined = getSSLFile({
+        ca: record.ca,
+        cert: record.cert,
+        key: record.key,
+      })
+      if (sslRes) {
+        options.ca = sslRes.ca
+        options.cert = sslRes.cert
+        options.key = sslRes.key
+      }
     }
   }
   // Will Message
