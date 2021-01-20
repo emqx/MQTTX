@@ -246,8 +246,8 @@ export default {
     ja: '遺言',
   },
   strictValidateCertificate: {
-    zh: '严格证书验证',
-    en: 'Strict validate Certificate',
+    zh: 'SSL 安全',
+    en: 'SSL Secure',
     ja: 'SSL証明書',
   },
   willTopic: {
@@ -458,5 +458,10 @@ export default {
     zh: '累计发送流量',
     en: 'Accumulated sent bytes',
     ja: '累積送信バイト数',
+  },
+  secureTip: {
+    zh: '是否验证服务端证书链和地址名称',
+    en: "Whether a client verifies the server's certificate chain and host name",
+    ja: "Whether a client verifies the server's certificate chain and host name",
   },
 }

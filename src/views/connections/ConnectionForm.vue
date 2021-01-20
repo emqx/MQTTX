@@ -144,6 +144,29 @@
                 </el-form-item>
               </el-col>
               <el-col :span="2"></el-col>
+              <el-col :span="22">
+                <el-form-item
+                  :label="$t('connections.strictValidateCertificate')"
+                  label-width="93px"
+                  prop="rejectUnauthorized"
+                >
+                  <el-switch v-model="record.rejectUnauthorized" active-color="#13ce66" inactive-color="#A2A9B0">
+                  </el-switch>
+                  <el-tooltip
+                    class="tooltip-secure"
+                    placement="top"
+                    :effect="theme !== 'light' ? 'light' : 'dark'"
+                    :open-delay="500"
+                    :offset="80"
+                    :content="$t('connections.secureTip')"
+                  >
+                    <a href="javascript:;" class="icon-oper">
+                      <i class="el-icon-warning-outline"></i>
+                    </a>
+                  </el-tooltip>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2"> </el-col>
             </template>
           </el-row>
         </el-card>
@@ -186,17 +209,6 @@
                     <i class="el-icon-folder-opened"></i>
                   </a>
                 </el-col>
-                <el-col :span="22">
-                  <el-form-item
-                    :label="$t('connections.strictValidateCertificate')"
-                    :label-width="getterLang === 'zh' ? '' : '200'"
-                    prop="rejectUnauthorized"
-                  >
-                    <el-switch v-model="record.rejectUnauthorized" active-color="#13ce66" inactive-color="#A2A9B0">
-                    </el-switch>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="2"></el-col>
               </el-row>
             </el-card>
           </template>
@@ -485,7 +497,7 @@ export default class ConnectionCreate extends Vue {
     port: 1883,
     ssl: false,
     certType: '',
-    rejectUnauthorized: false,
+    rejectUnauthorized: true,
     ca: '',
     cert: '',
     key: '',
@@ -552,9 +564,6 @@ export default class ConnectionCreate extends Vue {
       deepMerge(this.record, res)
       this.oldName = res.name
       this.record.protocol = getMQTTProtocol(res)
-      if (res.rejectUnauthorized === undefined) {
-        this.record.rejectUnauthorized = false
-      }
     }
   }
 
@@ -761,6 +770,9 @@ export default class ConnectionCreate extends Vue {
       top: 1px;
     }
     @include collapse-btn-transform(0deg, 180deg);
+  }
+  .tooltip-secure {
+    margin-left: 10px;
   }
 }
 </style>
