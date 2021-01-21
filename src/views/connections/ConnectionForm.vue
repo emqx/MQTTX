@@ -146,6 +146,7 @@
               <el-col :span="2"></el-col>
               <el-col :span="22">
                 <el-form-item
+                  class="item-secure"
                   :label="$t('connections.strictValidateCertificate')"
                   label-width="93px"
                   prop="rejectUnauthorized"
@@ -771,8 +772,14 @@ export default class ConnectionCreate extends Vue {
     }
     @include collapse-btn-transform(0deg, 180deg);
   }
-  .tooltip-secure {
-    margin-left: 10px;
+  .item-secure {
+    .el-form-item__content {
+      display: flex;
+      align-items: center;
+      .tooltip-secure {
+        margin-left: 10px;
+      }
+    }
   }
 }
 </style>
