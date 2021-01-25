@@ -483,7 +483,9 @@ export default class ConnectionCreate extends Vue {
   private suggestConnections: ConnectionModel[] | [] = []
   private oldName = ''
 
-  private record: ConnectionModel = {
+  private record: ConnectionModel = Object.assign({}, ConnectionCreate.defaultRecord)
+
+  private static defaultRecord: ConnectionModel = {
     clientId: getClientId(),
     name: '',
     clean: true,
@@ -533,6 +535,15 @@ export default class ConnectionCreate extends Vue {
       this.willLabelWidth = 160
     } else {
       this.willLabelWidth = 180
+    }
+  }
+
+  @Watch('oper', { immediate: true, deep: true })
+  private handleCreateNewConnection(val: string) {
+    this.$log.info(`${val}`)
+    if (val === 'create') {
+      // Init the editor when rout jump from creation page
+      this.record = Object.assign({}, ConnectionCreate.defaultRecord)
     }
   }
 
