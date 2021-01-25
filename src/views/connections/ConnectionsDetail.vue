@@ -841,10 +841,10 @@ export default class ConnectionsDetail extends Vue {
   // Return client
   private createClient(): MqttClient {
     const options: IClientOptions = getClientOptions(this.record)
-    return mqtt.connect(this.connectUrl, options)
-    this.$log.info(
-      `Connect client options  ${options.host}:${options.port}, protocol:${options.protocol}, wsOption: ${options.wsOptions}`,
-    )
+    this.$log.info(JSON.stringify(options))
+    const curConnectClient: mqtt.MqttClient = mqtt.connect(this.connectUrl, options)
+    this.$log.info(`Connect client options  ${this.connectUrl}, wsOptions: ${JSON.stringify(options.wsOptions)}`)
+    return curConnectClient
   }
   // Cancel connect
   private cancel() {
