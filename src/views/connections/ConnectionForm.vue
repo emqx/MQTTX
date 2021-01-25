@@ -98,7 +98,15 @@
             <el-col :span="2"></el-col>
             <el-col :span="22">
               <el-form-item label-width="93px" :label="$t('connections.brokerPort')" prop="port">
-                <el-input size="mini" type="number" :min="0" v-model.number="record.port"> </el-input>
+                <el-input-number
+                  size="mini"
+                  type="number"
+                  :min="0"
+                  :max="65535"
+                  v-model="record.port"
+                  controls-position="right"
+                >
+                </el-input-number>
               </el-form-item>
             </el-col>
 
@@ -235,13 +243,27 @@
                   :label="`${$t('connections.connectionTimeout')} (${$t('common.unitS')})`"
                   prop="connectTimeout"
                 >
-                  <el-input size="mini" type="number" :min="0" v-model.number="record.connectTimeout"> </el-input>
+                  <el-input-number
+                    size="mini"
+                    type="number"
+                    :min="0"
+                    v-model="record.connectTimeout"
+                    controls-position="right"
+                  >
+                  </el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :span="2"></el-col>
               <el-col :span="22">
                 <el-form-item :label="`Keep Alive (${$t('common.unitS')})`" prop="keepalive">
-                  <el-input size="mini" type="number" :min="0" v-model.number="record.keepalive"> </el-input>
+                  <el-input-number
+                    size="mini"
+                    type="number"
+                    :min="0"
+                    v-model="record.keepalive"
+                    controls-position="right"
+                  >
+                  </el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :span="2"> </el-col>
@@ -277,20 +299,40 @@
               <template v-if="record.mqttVersion === '5.0'">
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.sessionExpiryInterval')" prop="sessionExpiryInterval">
-                    <el-input size="mini" type="number" :min="0" v-model.number="record.sessionExpiryInterval">
-                    </el-input>
+                    <el-input-number
+                      size="mini"
+                      type="number"
+                      :min="0"
+                      v-model="record.sessionExpiryInterval"
+                      controls-position="right"
+                    >
+                    </el-input-number>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.receiveMaximum')" prop="receiveMaximum">
-                    <el-input size="mini" type="number" :min="0" v-model.number="record.receiveMaximum"> </el-input>
+                    <el-input-number
+                      size="mini"
+                      type="number"
+                      :min="0"
+                      v-model="record.receiveMaximum"
+                      controls-position="right"
+                    >
+                    </el-input-number>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.topicAliasMaximum')" prop="topicAliasMaximum">
-                    <el-input size="mini" type="number" :min="0" v-model.number="record.topicAliasMaximum"> </el-input>
+                    <el-input-number
+                      size="mini"
+                      type="number"
+                      :min="0"
+                      v-model="record.topicAliasMaximum"
+                      controls-position="right"
+                    >
+                    </el-input-number>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
