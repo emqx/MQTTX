@@ -61,6 +61,11 @@
                   </a>
                 </el-tooltip>
               </span>
+              <span v-if="!showClientInfo && this.connectLoading">
+                <a class="connect-loading" href="javascript:;">
+                  <i class="el-icon-loading"></i>
+                </a>
+              </span>
             </transition>
             <el-tooltip
               v-if="scriptOption !== null"
@@ -841,7 +846,6 @@ export default class ConnectionsDetail extends Vue {
   // Return client
   private createClient(): MqttClient {
     const options: IClientOptions = getClientOptions(this.record)
-    this.$log.info(JSON.stringify(options))
     const curConnectClient: mqtt.MqttClient = mqtt.connect(this.connectUrl, options)
     this.$log.info(`Connect client options  ${this.connectUrl}, wsOptions: ${JSON.stringify(options.wsOptions)}`)
     return curConnectClient
@@ -1354,6 +1358,7 @@ export default class ConnectionsDetail extends Vue {
           margin-right: 12px;
           color: var(--color-second-red);
         }
+        .connect-loading,
         .edit-btn,
         .new-window-btn {
           margin-right: 12px;
