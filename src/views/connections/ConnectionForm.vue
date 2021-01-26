@@ -582,9 +582,8 @@ export default class ConnectionCreate extends Vue {
 
   @Watch('oper', { immediate: true, deep: true })
   private handleCreateNewConnection(val: string) {
-    this.$log.info(`${val}`)
     if (val === 'create') {
-      // Init the editor when rout jump from creation page
+      // reinit the form when page jump to creation page
       this.record = Object.assign({}, ConnectionCreate.defaultRecord)
     }
   }
