@@ -923,7 +923,7 @@ export default class ConnectionsDetail extends Vue {
       duration: 3000,
       offset: 30,
     })
-    this.$log.error(`MQTT.js connectFailed, ${JSON.stringify(error)}`)
+    this.$log.error(`Connect fail, MQTT.js onError ${JSON.stringify(error)}`)
     this.$emit('reload')
   }
   // Reconnect callback
@@ -1054,7 +1054,7 @@ export default class ConnectionsDetail extends Vue {
           this.messages.push(receivedMessage)
           this.messagesAddedNewItem = true
           this.$log.info(
-            `Message Arrived: message added #${JSON.stringify(
+            `Message arrived: message added #${JSON.stringify(
               receivedMessage.mid,
             )} added to topic ${topic}, MQTT.js onMessageArrived trigger`,
           )
