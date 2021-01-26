@@ -5,8 +5,10 @@
     </h1>
     <div class="editor-container log-editor">
       <Editor
+        wordWrap="on"
+        lineHeight="22"
         isCustomerLang="true"
-        ref="scriptEditor"
+        ref="logEditor"
         id="log"
         lang="logLanguage"
         v-model="logValue"
@@ -25,7 +27,6 @@ import Editor from '@/components/Editor.vue'
 import { Getter } from 'vuex-class'
 import log from '@/lang/log'
 import fs from 'fs-extra'
-import { app, remote } from 'electron'
 import { getOrCreateLogDir, watchFileAppender } from '@/utils/logger'
 import path from 'path'
 
@@ -52,6 +53,12 @@ export default class Logs extends Vue {
     })
   }
 
+  private scrollDown() {
+    const thisEditor: Editor = this.$refs.logEditor as Editor
+    if (!thisEditor) return
+    thisEditor.scrollToBottom()
+  }
+
   private appendLine(msg: string): void {
     this.logValue = this.logValue + msg
   }
@@ -65,6 +72,7 @@ export default class Logs extends Vue {
   private onLogReadDataHandle(msg: Buffer): void {
     //append new buffer to logValue
     this.appendLine(msg.toString())
+    this.scrollDown()
   }
 
   private created() {

@@ -23,6 +23,8 @@ export default class Editor extends Vue {
   @Prop({ default: false }) public disabled!: boolean
   @Prop({ default: undefined }) public editorTheme!: Theme
   @Prop({ default: false }) public isCustomerLang!: boolean
+  @Prop({ default: 'off' }) public wordWrap!: 'off' | 'on'
+  @Prop({ default: undefined }) public lineHeight!: number
   @Model('change', { type: String }) private readonly value!: string
 
   @Getter('currentTheme') private theme!: Theme
@@ -78,6 +80,15 @@ export default class Editor extends Vue {
     })
   }
 
+  public scrollToBottom() {
+    if (this.editor) {
+      const thisEditorModel = this.editor.getModel()
+      if (!thisEditorModel) return
+      const maxLine = thisEditorModel.getLineCount()
+      this.editor.revealLine(maxLine)
+    }
+  }
+
   public initEditor(): void | boolean {
     // if customer editorTheme is not empty, then init the editor theme
     if (this.isCustomerLang) {
@@ -87,6 +98,8 @@ export default class Editor extends Vue {
       value: this.value,
       language: this.lang,
       readOnly: this.disabled,
+      wordWrap: this.wordWrap,
+      lineHeight: this.lineHeight,
       fontSize: this.fontSize,
       scrollBeyondLastLine: false,
       lineNumbers: this.lineNumbers,
