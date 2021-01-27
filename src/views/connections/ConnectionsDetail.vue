@@ -688,7 +688,6 @@ export default class ConnectionsDetail extends Vue {
         break
       case 'searchContent':
         this.handleSearchOpen()
-        // FIXME: I think here should `not` set the loggger, becauseof it control UI and impact the data of MQTTX weekly
         break
       case 'exportData':
         this.handleExportData()
@@ -846,8 +845,19 @@ export default class ConnectionsDetail extends Vue {
   // Return client
   private createClient(): MqttClient {
     const options: IClientOptions = getClientOptions(this.record)
+    // Print the protocol connection used
     const curConnectClient: mqtt.MqttClient = mqtt.connect(this.connectUrl, options)
-    this.$log.info(`Connect client options  ${this.connectUrl}, wsOptions: ${JSON.stringify(options.wsOptions)}`)
+    const protocolLogMap: { [key: string]: string } = {
+      mqtt: 'MQTT/TCP connection',
+      mqtts: 'MQTT/SSL connection',
+      ws: 'MQTT/WS connection',
+      wss: 'MQTT/WSS connection',
+    } as { [key: string]: string }
+    const curOptionsProtocol: string = curConnectClient.options.protocol as string
+    if (curOptionsProtocol) {
+      const connectLogoInfo = protocolLogMap[curOptionsProtocol]
+      this.$log.info(`Connect client, ${connectLogoInfo}: ${this.connectUrl}`)
+    }
     return curConnectClient
   }
   // Cancel connect
@@ -889,7 +899,7 @@ export default class ConnectionsDetail extends Vue {
         this.setShowClientInfo(true)
       }
       this.$emit('reload')
-      this.$log.info('MQTTX client disconnect')
+      this.$log.info(`MQTTX client disconnect, client ID : ${this.record.clientId}`)
     })
   }
   // Connect callback
