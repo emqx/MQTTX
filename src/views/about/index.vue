@@ -61,13 +61,7 @@
             <i class="iconfont icon-weibo"></i>
           </a>
           <el-popover placement="top-start" width="30" trigger="click">
-            <img class="emqx-qq" src="../../assets/images/qq-qr_code.png" alt="qq" />
-            <span class="follow-link" slot="reference">
-              <i class="iconfont icon-qq"></i>
-            </span>
-          </el-popover>
-          <el-popover placement="top-start" width="30" style="margin-left: 16px" trigger="click">
-            <img class="emqx-qq" src="../../assets/images/wx_qr_code.png" alt="qq" />
+            <img class="emqx-wechat" src="../../assets/images/wx_qr_code.png" alt="qq" />
             <span class="follow-link" slot="reference">
               <i class="iconfont icon-we-chat"></i>
             </span>
