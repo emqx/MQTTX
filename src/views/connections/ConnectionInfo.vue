@@ -50,12 +50,15 @@
         </el-col>
         <el-col :span="8">
           <el-form-item label="Keep Alive">
-            <el-input
+            <el-input-number
               size="mini"
               type="number"
-              v-model.number="connection.keepalive"
+              :min="0"
+              v-model="connection.keepalive"
+              controls-position="right"
               :disabled="client.connected"
-            ></el-input>
+            >
+            </el-input-number>
           </el-form-item>
         </el-col>
         <el-col :span="8" class="connection.ssl">
