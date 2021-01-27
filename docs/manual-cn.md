@@ -9,11 +9,11 @@
 
 ## 简介
 
-[MQTT X](https://mqttx.app) 是 [EMQ](http://emqx.io/cn) 开源的一款优雅的跨平台 MQTT 5.0 桌面客户端，它支持 macOS, Linux, Windows。
+[MQTT X](https://mqttx.app/cn/) 是 [EMQ](http://emqx.cn) 开源的一款优雅的跨平台 MQTT 5.0 桌面客户端，它支持 macOS, Linux, Windows。
 
-[MQTT X](https://mqttx.app) 的 `UI` 采用了聊天界面形式，简化了页面操作逻辑，用户可以快速创建连接，允许保存多个客户端，方便用户快速测试 `MQTT/MQTTS` 连接，及 `MQTT` 消息的订阅和发布。
+[MQTT X](https://mqttx.app/cn/) 的 `UI` 采用了聊天界面形式，简化了页面操作逻辑，用户可以快速创建连接，允许保存多个客户端，方便用户快速测试 `MQTT/MQTTS` 连接，及 `MQTT` 消息的订阅和发布。
 
-在下载和安装前请访问我们的 [官网](https://mqttx.app) 或者是 [GitHub](https://github.com/emqx/MQTTX) 来了解并获取到最新的版本信息，使用最新版本有助于提高使用体验。如果你对本项目了解也可以直接 Clone [MQTT X](https://mqttx.app) 的仓库源码，自行打包和使用。使用过程中，有任何问题都可以到 [GitHub issues](https://github.com/emqx/MQTTX/issues) 来发表问题和看法或者是 Fork 我们的项目，并向我们提交修改后的 PR，我们将会认真查阅和回复。
+在下载和安装前请访问我们的 [官网](https://mqttx.app/cn/) 或者是 [GitHub](https://github.com/emqx/MQTTX) 来了解并获取到最新的版本信息，使用最新版本有助于提高使用体验。如果你对本项目了解也可以直接 Clone [MQTT X](https://mqttx.app/cn/) 的仓库源码，自行打包和使用。使用过程中，有任何问题都可以到 [GitHub issues](https://github.com/emqx/MQTTX/issues) 来发表问题和看法或者是 Fork 我们的项目，并向我们提交修改后的 PR，我们将会认真查阅和回复。
 
 ### 快速预览
 
@@ -33,7 +33,7 @@
 
 请从 [GitHub Releases](https://github.com/emqx/MQTTX/releases) 下载符合您的版本并安装使用。
 
-如果出现网络原因，导致从 GitHub 下载时会出现网速较慢或卡顿的情况时，也可以点击 [这里](https://www.emqx.io/downloads/MQTTX/) ，选择符合您的版本并安装使用。
+如果出现网络原因，导致从 GitHub 下载时会出现网速较慢或卡顿的情况时，也可以点击 [这里](https://www.emqx.cn/downloads/MQTTX/) ，选择符合您的版本并安装使用。
 
 **注意**：下载时，请尽量选择下载最新版本。
 
@@ -218,7 +218,7 @@ sudo snap install mqttx
 
 3. 检查更新
 
-    点击左侧底部的 `i` 按钮，可进入到 `About` 页面，了解 [MQTT X](https://mqttx.app) 的版本信息和 [EMQ X](https://emqx.io) 的相关信息。点击 `Check for Updates` 可以检查是否有更新版本。
+    点击左侧底部的 `i` 按钮，可进入到 `About` 页面，了解 [MQTT X](https://mqttx.app/cn/) 的版本信息和 [EMQ X](https://emqx.cn) 的相关信息。点击 `Check for Updates` 可以检查是否有更新版本。
 
 ![mqttx-update](../assets/mqttx-update.png)
 
