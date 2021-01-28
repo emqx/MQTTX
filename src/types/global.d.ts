@@ -13,6 +13,17 @@ declare global {
 
   type Protocol = 'ws' | 'wss' | 'mqtt' | 'mqtts'
 
+  enum ProtocolOption {
+    ws = 'ws',
+    wss = 'wss',
+    mqtt = 'mqtt',
+    mqtts = 'mqtts',
+  }
+
+  type ProtocolMap = {
+    [key in ProtocolOption]: string
+  }
+
   type PayloadType = 'Plaintext' | 'Base64' | 'JSON' | 'Hex'
 
   type VueForm = Vue & {
