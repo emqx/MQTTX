@@ -7,18 +7,16 @@ assignees: ''
 
 ---
 
-## what did I do
-
+**what did I do**
 something you have done.
 
-## what happened
-
+**what happened**
 get an error
 
-## environment
+**environment**
 
-- ubuntu
+- OS: OS version, e.g. MacOS Big Sur 11.1
+- MQTTX version, e.g. v1.5.0
 
-## log/Screenshot/context
-
-xxxx
+**more detail**
+more detail include `log` information\screenshot
