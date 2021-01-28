@@ -45,7 +45,6 @@ export interface WillPropertiesModel {
   contentType?: string
   responseTopic?: string
   correlationData?: Buffer
-  // tslint:disable-next-line:ban-types
   userProperties?: Object
 }
 

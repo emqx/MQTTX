@@ -104,7 +104,6 @@ import LeftPanel from '@/components/LeftPanel.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import { ConnectionModel, SubscribeErrorReason } from '../views/connections/types'
 import VueI18n from 'vue-i18n'
-import log4js from 'log4js'
 
 @Component({
   components: {

@@ -96,13 +96,12 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { Getter, Action } from 'vuex-class'
+import { Getter } from 'vuex-class'
 import Editor from '@/components/Editor.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import sandbox from '@/utils/sandbox'
 import { createScript, deleteScript, loadScript, loadScripts, updateScript } from '@/api/script'
 import { ScriptModel } from './types'
-import script from '@/lang/script'
 
 @Component({
   components: {
