@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Model, Prop } from 'vue-property-decorator'
+import { Component, Vue, Model } from 'vue-property-decorator'
 
 @Component
 export default class ResizeHeight extends Vue {

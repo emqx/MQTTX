@@ -56,7 +56,6 @@ import Editor from '@/components/Editor.vue'
 import { MessageModel } from '../views/connections/types'
 import convertPayload from '@/utils/convertPayload'
 import { v4 as uuidv4 } from 'uuid'
-import { Route } from 'vue-router'
 
 @Component({
   components: {
