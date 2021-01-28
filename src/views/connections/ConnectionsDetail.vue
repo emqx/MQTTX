@@ -287,24 +287,14 @@ import { ipcRenderer } from 'electron'
 import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
-import log4js from 'log4js'
 
-import {
-  deleteConnection,
-  deleteMessage,
-  updateConnection,
-  updateConnectionMessage,
-  loadConnection,
-  loadConnections,
-} from '@/api/connection'
+import { deleteConnection, deleteMessage, updateConnection, updateConnectionMessage } from '@/api/connection'
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
 import { getClientOptions, getMQTTProtocol } from '@/utils/mqttUtils'
 import { getBytes, getUptime, getVersion } from '@/utils/SystemTopicUtils'
 
-import MsgRightItem from '@/components/MsgRightItem.vue'
-import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import MessageList from '@/components/MessageList.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
 import SubscriptionsList from '@/components/SubscriptionsList.vue'
@@ -317,15 +307,7 @@ import TimedMessage from '@/components/TimedMessage.vue'
 import BytesStatistics from '@/components/BytesStatistics.vue'
 import UseScript from '@/components/UseScript.vue'
 
-import {
-  ConnectionModel,
-  MessageModel,
-  SSLPath,
-  SSLContent,
-  ContextmenuModel,
-  ChartDataModel,
-  MessageType,
-} from './types'
+import { ConnectionModel, MessageModel, ContextmenuModel, ChartDataModel, MessageType } from './types'
 import { ScriptModel, ScriptState } from '../script/types'
 import sandbox from '@/utils/sandbox'
 
