@@ -829,13 +829,13 @@ export default class ConnectionsDetail extends Vue {
     const options: IClientOptions = getClientOptions(this.record)
     // Print the protocol connection used
     const curConnectClient: mqtt.MqttClient = mqtt.connect(this.connectUrl, options)
-    const protocolLogMap: { [key: string]: string } = {
+    const protocolLogMap: ProtocolMap = {
       mqtt: 'MQTT/TCP connection',
       mqtts: 'MQTT/SSL connection',
       ws: 'MQTT/WS connection',
       wss: 'MQTT/WSS connection',
-    } as { [key: string]: string }
-    const curOptionsProtocol: string = curConnectClient.options.protocol as string
+    }
+    const curOptionsProtocol: Protocol = curConnectClient.options.protocol as Protocol
     if (curOptionsProtocol) {
       const connectLogoInfo = protocolLogMap[curOptionsProtocol]
       this.$log.info(`Connect client, ${connectLogoInfo}: ${this.connectUrl}`)
