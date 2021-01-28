@@ -89,7 +89,7 @@ yarn run electron:build
 
 3. コードをローカルで変更して、新しいブランチにcommitを追加します。
 
-4. Pull Requestをupstreamリポジトリのdevelopブランチに送信すると、我々は確認します。
+4. Pull Requestをupstreamリポジトリの`dev/*`ブランチに送信すると、我々は確認します。
 
 ## テクノロジースタック
 
