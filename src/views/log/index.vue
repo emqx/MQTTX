@@ -25,7 +25,6 @@
 import { Component, Vue } from 'vue-property-decorator'
 import Editor from '@/components/Editor.vue'
 import { Getter } from 'vuex-class'
-import log from '@/lang/log'
 import fs from 'fs-extra'
 import { getOrCreateLogDir, watchFileAppender } from '@/utils/logger'
 import path from 'path'
