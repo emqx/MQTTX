@@ -6,8 +6,9 @@
 ![Support Platforms](https://camo.githubusercontent.com/a50c47295f350646d08f2e1ccd797ceca3840e52/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f706c6174666f726d2d6d61634f5325323025374325323057696e646f77732532302537432532304c696e75782d6c69676874677265792e737667)
 [![Total Downloads](https://img.shields.io/github/downloads/emqx/mqttx/total.svg)](https://github.com/emqx/mqttx/releases)
 [![Slack Invite](<https://slack-invite.emqx.io/badge.svg>)](https://slack-invite.emqx.io)
-[![Twitter](https://img.shields.io/badge/Twitter-EMQ%20X-1DA1F2?logo=twitter)](https://twitter.com/emqtt)
 [![Reddit](https://img.shields.io/badge/Reddit-EMQ%20X-orange?logo=reddit)](https://www.reddit.com/r/emqx/)
+[![Twitter](https://img.shields.io/badge/Follow-EMQ%20X-1DA1F2?logo=twitter)](https://twitter.com/emqtt)
+[![Community](https://img.shields.io/badge/Community-MQTT%20X-yellow?logo=github)](https://github.com/emqx/MQTTX/discussions)
 
 [English](./README.md) | 简体中文 | [日本語](./README-JP.md)
 
@@ -90,7 +91,7 @@ yarn run electron:build
 
 3. 本地修改代码，添加一个 commit 在您本地新的分支里；
 
-4. 向 upstream 仓库的 develop 分支提交一个 Pull Request，我们将会审核它。
+4. 向 upstream 仓库的 `dev/*` 分支提交一个 Pull Request，我们将会审核它。
 
 ## 技术栈
 
