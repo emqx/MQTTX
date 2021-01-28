@@ -197,6 +197,22 @@ sudo snap install mqttx
 
 脚本使用实例可在 [/docs/script-example](https://github.com/emqx/MQTTX/tree/master/docs/script-example) 文件夹中查看，目前提供了两个内置脚本，时间戳转化和温湿度数据模拟。如果在您的使用中有更好的，更实用的脚本也可以提交您的代码到这里，方便让更多的人使用到。
 
+## 日志
+
+在 v1.5.0 版本后，MQTT X 引入了日志记录功能，方便用户调试连接、报告错误。生产环境下，日志系统显示 3 个级别的信息:
+
+* INFO 用于提示用户操作信息
+* WARN 产生不安全/潜在风险的警告
+* ERROR 产生失败的错误
+
+默认情况下，日志会被写入 log 文件：
+
+* Linux: `~/.config/MQTTX/logs/log`
+* macOS: `~/Library/Application Support/MQTTX/logs/log`
+* Windows: `%USERPROFILE%\AppData\Roaming\MQTTX\logs\log`
+
+在每次关闭 MQTTX 时，当前的日志文件会被重命名为 timestamp `[YY]-[MM]-[DD]T[hh]:[mm].log` 格式。
+
 ### 其它
 
 1. 连接操作

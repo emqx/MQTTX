@@ -197,6 +197,24 @@ This function is scalable and flexible, and requires users to cooperate with act
 
 The script usage examples can be viewed in the [/docs/script-example](https://github.com/emqx/MQTTX/tree/master/docs/script-example) folder. Currently, two built-in scripts are provided, timestamp conversion and temperature and humidity data simulation. If you have a better and more practical script in your use, you can submit your code here, so that more people can use it.
 
+
+## Log
+
+After v1.5.0, MQTT X has introduced a logging function to facilitate users to debug connections and report errors. In a production environment, the log system displays 3 levels of information:
+
+
+* INFO is used to prompt user operation information
+* WARN generates a warning of unsafe/potential risks
+* ERROR produces a failed error
+
+By default, the log will be written to the log file:
+
+* Linux: `~/.config/MQTTX/logs/log`
+* macOS: `~/Library/Application Support/MQTTX/logs/log`
+* Windows: `%USERPROFILE%\AppData\Roaming\MQTTX\logs\log`
+
+Every time MQTTX is closed, the current log file will be renamed to timestamp `[YY]-[MM]-[DD]T[hh]:[mm].log` format.
+
 ### Others
 
 1. Connection operation
