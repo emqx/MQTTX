@@ -198,22 +198,21 @@ v1.4.2以降、MQTTXはスクリプト編集機能を追加しました、この
 
 スクリプトの使用例は [/docs/script-example](https://github.com/emqx/MQTTX/tree/master/docs/script-example) フォルダーで表示できます。現在、タイムスタンプ変換と温度および湿度データシミュレーションの2つの組み込みスクリプトが提供されています。より優れた実用的なスクリプトを使用している場合は、ここにコードを送信して、より多くの人が使用できるようにすることもできます。
 
-## ログ
+### ログ
 
 v1.5.0以降、MQTT Xは、ユーザーが接続をデバッグしてエラーを報告するのを容易にするロギング機能を導入しました。実稼働環境では、ログシステムは次の3つのレベルの情報を表示します。
 
-* INFO は、ユーザー操作情報を求めるために使用されます
-* WARN は、危険/潜在的なリスクの警告を生成します
-* ERROR は失敗したエラーを生成します
+- INFO は、ユーザー操作情報を求めるために使用されます
+- WARN は、危険/潜在的なリスクの警告を生成します
+- ERROR は失敗したエラーを生成します
 
 デフォルトでは、ログはログファイルに書き込まれます。
 
-* Linux: `~/.config/MQTTX/logs/log`
-* macOS: `~/Library/Application Support/MQTTX/logs/log`
-* Windows: `%USERPROFILE%\AppData\Roaming\MQTTX\logs\log`
+- Linux: `~/.config/MQTTX/logs/log`
+- macOS: `~/Library/Application Support/MQTTX/logs/log`
+- Windows: `%USERPROFILE%\AppData\Roaming\MQTTX\logs\log`
 
 MQTTXが閉じられるたびに、現在のログファイルの名前がタイムスタンプ `[YY]-[MM]-[DD] T [hh]：[mm] .log`形式に変更されます。
-
 
 ### その他
 
