@@ -42,6 +42,8 @@ export default class Logs extends Vue {
   private async loadData(): Promise<void> {
     const LOG_DIR = getOrCreateLogDir()
     const LOG_PATH = path.join(LOG_DIR, 'log')
+    // if the log file was removed when the MQTTX running, log4js will not append message to file, so we should do nothing.
+    if (!fs.existsSync(LOG_PATH)) return
     fs.readFile(LOG_PATH, 'utf-8', (error, data) => {
       if (error) {
         this.$log.error(error.toString())
