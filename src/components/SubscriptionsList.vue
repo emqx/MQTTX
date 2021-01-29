@@ -381,7 +381,7 @@ export default class SubscriptionsList extends Vue {
       position: relative;
       top: 0px;
       clear: both;
-      border-radius: 2px;
+      border-radius: 4px;
       -moz-user-select: none;
       -khtml-user-select: none;
       user-select: none;
