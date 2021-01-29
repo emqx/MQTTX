@@ -32,10 +32,12 @@ export const quitAndRenameLogger = () => {
   log4js.shutdown()
 
   const LOG_DIR = getOrCreateLogDir()
-  // YYYY-MM-DD-hh-mm
-  const curDate = new Date().toISOString().slice(0, 16)
-  // rename current log to yy-mm-dd-hh-mm.log
-  fs.renameSync(`${LOG_DIR}/log`, `${LOG_DIR}/${curDate}.log`)
+  if (fs.existsSync(`${LOG_DIR}/log`)) {
+    // YYYY-MM-DD-hh-mm
+    const curDate = new Date().toISOString().slice(0, 16)
+    // rename current log to yy-mm-dd-hh-mm.log
+    fs.renameSync(`${LOG_DIR}/log`, `${LOG_DIR}/${curDate}.log`)
+  }
 }
 
 /**
