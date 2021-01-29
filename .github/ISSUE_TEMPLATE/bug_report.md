@@ -7,16 +7,23 @@ assignees: ''
 
 ---
 
-**what did I do**
-something you have done.
+#### What did I do
 
-**what happened**
-get an error
+Something you have done.
 
-**environment**
+#### What happened
+
+Get an error.
+
+#### Expected
+
+What is the expected result.
+
+#### Environment
 
 - OS: OS version, e.g. MacOS Big Sur 11.1
 - MQTTX version, e.g. v1.5.0
 
-**more detail**
-more detail include `log` information\screenshot
+#### More detail
+
+More detail include `log` information or screenshot
