@@ -71,6 +71,9 @@
 }
 
 /* Button */
+.el-button--mini {
+  border-radius: 4px;
+}
 .el-button--outline {
   background: var(--color-bg-normal);
   border: 2px solid var(--color-main-green);
@@ -94,7 +97,7 @@
 
 /* Message */
 .el-message-box {
-  border-radius: 2px;
+  border-radius: 8px;
   background-color: var(--color-bg-messagebox);
   border-color: var(--color-border-default);
   .el-message-box__title {
@@ -156,7 +159,7 @@
 
 /* Notification */
 .el-notification {
-  border-radius: 4px;
+  border-radius: 8px;
   background-color: var(--color-bg-messagebox);
   border-color: var(--color-border-default);
   .el-notification__title {
@@ -174,6 +177,7 @@
 /* Dialog */
 .el-dialog {
   background: var(--color-bg-normal);
+  border-radius: 8px;
 }
 
 /* Input */
