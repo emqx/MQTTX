@@ -183,10 +183,8 @@ export default class Editor extends Vue {
     switch (this.theme) {
       case 'dark':
         return 'editor-dark'
-        break
       case 'night':
         return 'editor-night'
-        break
       default:
         return 'vs'
     }
