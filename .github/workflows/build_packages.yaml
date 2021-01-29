@@ -1,0 +1,43 @@
+name: build packages
+
+on:
+  pull_request:
+  release:
+    types:
+      - published
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: build
+      run: |
+        docker run --rm -i \
+         --env-file <(env | grep -iE 'DEBUG|NODE_|ELECTRON_|YARN_|NPM_|CI|CIRCLE|TRAVIS_TAG|TRAVIS|TRAVIS_REPO_|TRAVIS_BUILD_|TRAVIS_BRANCH|TRAVIS_PULL_REQUEST_|APPVEYOR_|CSC_|GH_|GITHUB_|BT_|AWS_|STRIP|BUILD_') \
+         --env ELECTRON_CACHE="/root/.cache/electron" \
+         --env ELECTRON_BUILDER_CACHE="/root/.cache/electron-builder" \
+         --env GH_TOKEN=${{ secrets.GITHUB_TOKEN }} \
+         -v ${PWD}:/project \
+         -v ${PWD##*/}-node-modules:/project/node_modules \
+         -v ~/.cache/electron:/root/.cache/electron \
+         -v ~/.cache/electron-builder:/root/.cache/electron-builder \
+         electronuserland/builder:wine \
+         bash -c "yarn && yarn electron:build-linux && yarn electron:build-win"
+    - uses: actions/upload-artifact@v2
+      with:
+        name: dist_electron
+        path: dist_electron
+    - name: upload release asset
+      if: github.event_name == 'release'
+      run: |
+        cd dist_electron
+        for var in $(ls); do
+            $GITHUB_WORKSPACE/.github/workflows/upload_github_release_asset.sh \
+                owner=${{ github.repository_owner }} \
+                repo=mqttx \
+                tag=$(echo ${{ github.ref }} | sed -r  "s ^refs/heads/|^refs/tags/(.*) \1 g") \
+                filename=$var \
+                github_api_token=$(echo ${{ secrets.GITHUB_TOKEN }})
+        done
+
