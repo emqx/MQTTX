@@ -277,7 +277,7 @@ export default {
   },
   messageExpiryInterval: {
     zh: '遗嘱消息过期时间',
-    en: 'Message Expiry Interval',
+    en: 'Will Expiry Interval',
     ja: '遺言有効期限',
   },
   contentType: {

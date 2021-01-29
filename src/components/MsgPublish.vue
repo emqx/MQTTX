@@ -32,15 +32,7 @@
         height: `${editorHeight}px`,
       }"
     >
-      <Editor
-        ref="payloadEditor"
-        id="payload"
-        :lang="payloadLang"
-        v-model="msgRecord.payload"
-        @enter-event="send"
-        @focus="handleInputFoucs"
-        @blur="handleInputBlur"
-      />
+      <Editor ref="payloadEditor" id="payload" :lang="payloadLang" v-model="msgRecord.payload" @enter-event="send" />
     </div>
     <a href="javascript:;" class="send-btn" @click="send">
       <i class="iconfont icon-send"></i>
@@ -115,7 +107,8 @@ export default class MsgPublish extends Vue {
       ipcRenderer.removeAllListeners('sendPayload')
     }
   }
-  @Watch('$route.params.id', { immediate: true, deep: true }) private handleIdChanged(to: string, from: string) {
+  @Watch('$route.params.id', { immediate: true, deep: true })
+  private handleIdChanged(to: string, from: string) {
     if (from === '0' && to !== '0') {
       // Init the editor when rout jump from creation page
       const editorRef = this.$refs.payloadEditor as Editor
