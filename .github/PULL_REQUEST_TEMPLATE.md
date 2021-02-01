@@ -1,3 +1,9 @@
+---
+name: PR template
+name: PR_template
+title: "[PR] the title of PR"
+---
+
 ### PR Checklist
 
 **If your build fails** due to your commit message not passing the build checks, please review the guidelines here: <https://github.com/emqx/MQTTX/blob/master/CONTRIBUTING.md>
