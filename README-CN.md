@@ -50,11 +50,11 @@
 
    - 如果您不需要本地部署的 MQTT Broker，那么可以使用 [EMQ X](https://github.com/emqx/emqx) 的线上公开版进行快速测试；
 
-     ```shell
-     Broker 地址: broker.emqx.io
-     Broker TCP 端口: 1883
-     Broker SSL 端口: 8883
-     ```
+      ```shell
+      Broker 地址: broker.emqx.io
+      Broker TCP 端口: 1883
+      Broker SSL 端口: 8883
+      ```
 
    - 如果您打算部署一个本地运行的 MQTT Broker，那么我们推荐您 [下载 EMQ X](https://github.com/emqx/emqx/releases) 进行安装使用。EMQ X 是一款完全开源，高度可伸缩，高可用的百万级分布式 MQTT 消息服务器，是 5G 时代万物互联的消息引擎，支持 MQTT/CoAP/LwM2M 一站式 IoT 协议接入。
 
@@ -85,13 +85,7 @@ yarn run electron:build
 
 ## 贡献
 
-1. Fork 这个项目；
-
-2. 添加 upstream remote `git remote add upstream git@github.com:emqx/MQTTX.git`；
-
-3. 本地修改代码，添加一个 commit 在您本地新的分支里；
-
-4. 向 upstream 仓库的 `dev/*` 分支提交一个 Pull Request，我们将会审核它。
+请确保在发出 PR 请求前， 已经仔细阅读过了[贡献指南](https://github.com/emqx/MQTTX/blob/master/.github/CONTRIBUTING.md)
 
 ## 技术栈
 

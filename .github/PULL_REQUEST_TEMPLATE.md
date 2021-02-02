@@ -1,6 +1,6 @@
 ### PR Checklist
 
-**If your build fails** due to your commit message not passing the build checks, please review the guidelines here: <https://github.com/emqx/MQTTX/blob/master/CONTRIBUTING.md>
+If you have any questions, you can refer to the [Contributing Guide](https://github.com/emqx/MQTTX/blob/master/.github/CONTRIBUTING.md)
 
 #### What is the current behavior?
 
