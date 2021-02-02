@@ -2,7 +2,7 @@
 
 Hi, thanks for your support to [MQTT X](https://mqttx.app).
 
-If you find a problem 🐛 or have a better idea 💡 during use, you can modify the project code in the following ways and participate in the project contribution.
+If you find a problem 🐛 or have a better idea 💡 during use, you can modify the project code by following ways and participate in the project contribution.
 
 1. Fork this repository
 
