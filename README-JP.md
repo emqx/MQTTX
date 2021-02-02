@@ -48,11 +48,11 @@
 
    - MQTT Brokerをローカルにデプロイするが必要ない場合は、[EMQ X](https://github.com/emqx/emqx)のオンラインパブリックバージョンを使用して簡単にテストできます。
 
-     ```shell
-     Broker アドレス：broker.emqx.io
-     Broker TCPポート：1883
-     Broker SSLポート：8883
-     ```
+      ```shell
+      Broker アドレス：broker.emqx.io
+      Broker TCPポート：1883
+      Broker SSLポート：8883
+      ```
 
    - ローカルでMQTT Brokerを実行したい場合は、[EMQ X Broker](https://github.com/emqx/emqx/releases)をインストールして使用することをお勧めします。 EMQ X Brokerは、完全なオープンソース、高可用性、低レイテンシのミリオンレベルの分散型IoT MQTT 5.0メッセージサーバです。5G時代のIoTのメッセージングエンジンであり、MQTT/CoAP/LwM2MワンストップIoTプロトコルアクセスをサポートします。
 
@@ -83,13 +83,7 @@ yarn run electron:build
 
 ## プロジェクトへの貢献
 
-1. このプロジェクトをForkします。
-
-2. upstream remoteを追加 `git remote add upstream git@github.com:emqx/MQTTX.git`;
-
-3. コードをローカルで変更して、新しいブランチにcommitを追加します。
-
-4. Pull Requestをupstreamリポジトリの`dev/*`ブランチに送信すると、我々は確認します。
+PRを提出する前に、貢献ガイドをよく読んでください。[Contributing Guide](https://github.com/emqx/MQTTX/blob/master/.github/CONTRIBUTING.md)
 
 ## テクノロジースタック
 
