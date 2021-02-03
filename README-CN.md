@@ -83,6 +83,19 @@ yarn run electron:serve
 yarn run electron:build
 ```
 
+构建成功后，会在 `dist_electron` 目录里出现构建成功的相应的安装文件。
+
+如果需要打包为独立操作系统的安装包，请参考以下命令：
+
+```shell
+# For Windows
+yarn run electron:build-win
+# For Linux
+yarn run electron:build-linux
+# For MacOS
+yarn run electron:build-mac
+```
+
 ## 贡献
 
 请确保在发出 PR 请求前， 已经仔细阅读过了[贡献指南](https://github.com/emqx/MQTTX/blob/master/.github/CONTRIBUTING_CN.md)

@@ -88,6 +88,19 @@ yarn run electron:serve
 yarn run electron:build
 ```
 
+After the building is successful, the corresponding installation file for the successful build ing will appear in the `dist_electron` directory.
+
+If you need to package it as an installation package for an independent operating system, please refer to the following command:
+
+```shell
+# For Windows
+yarn run electron:build-win
+# For Linux
+yarn run electron:build-linux
+# For MacOS
+yarn run electron:build-mac
+```
+
 ## Contributing
 
 Please make sure to read the [Contributing Guide](https://github.com/emqx/MQTTX/blob/master/.github/CONTRIBUTING.md) before making a pull request.
