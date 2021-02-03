@@ -211,7 +211,7 @@ sudo snap install mqttx
 - macOS: `~/Library/Application Support/MQTTX/logs/log`
 - Windows: `%USERPROFILE%\AppData\Roaming\MQTTX\logs\log`
 
-在每次关闭 MQTTX 时，当前的日志文件会被重命名为 timestamp `[YY]-[MM]-[DD]T[hh]:[mm].log` 格式。
+在每次关闭 MQTTX 时，当前的日志文件会被重命名为 timestamp `[YY]-[MM]-[DD]T[hh]-[mm]-[ss].log` 格式。
 
 ### 其它
 

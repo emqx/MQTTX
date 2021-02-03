@@ -13,10 +13,11 @@ import VueLog4js from './plugins/logPlugin/index'
 import log4js from 'log4js'
 import { getOrCreateLogDir } from './utils/logger'
 import logConfig from './plugins/logPlugin/logConfig.json'
+import path from 'path'
 
 // set logFile dir
 const LOG_DIR = getOrCreateLogDir()
-const LOG_PATH = `${LOG_DIR}/log`
+const LOG_PATH = path.join(LOG_DIR, 'log')
 logConfig.appenders.fileOutput.filename = LOG_PATH
 const config: log4js.Configuration = logConfig
 

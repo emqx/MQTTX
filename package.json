@@ -95,5 +95,8 @@
     ]
   },
   "license": "Apache",
-  "repository": "https://github.com/emqx/MQTTX"
+  "repository": "https://github.com/emqx/MQTTX",
+  "resolutions": {
+    "electron-builder": "22.2.0"
+  }
 }
