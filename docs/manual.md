@@ -211,7 +211,7 @@ By default, the log will be written to the log file:
 - macOS: `~/Library/Application Support/MQTTX/logs/log`
 - Windows: `%USERPROFILE%\AppData\Roaming\MQTTX\logs\log`
 
-Every time MQTTX is closed, the current log file will be renamed to timestamp `[YY]-[MM]-[DD]T[hh]:[mm].log` format.
+Every time MQTTX is closed, the current log file will be renamed to timestamp `[YY]-[MM]-[DD]T[hh]-[mm]-[ss].log` format.
 
 ### Others
 

@@ -1,6 +1,7 @@
 import log4js from 'log4js'
 import { app, remote } from 'electron'
 import fs from 'fs-extra'
+import path from 'path'
 
 export const getOrCreateLogDir = () => {
   const isRenderer: boolean = process.type === 'renderer'
@@ -8,7 +9,7 @@ export const getOrCreateLogDir = () => {
   const APP: Electron.App = isRenderer ? remote.app : app
 
   const STORE_PATH: string = APP.getPath('userData')
-  const LOG_DIR: string = `${STORE_PATH}/logs`
+  const LOG_DIR: string = path.join(STORE_PATH, 'logs')
 
   // In production mode, during the first open application
   // APP.getPath('userData') gets the path nested.
@@ -32,11 +33,12 @@ export const quitAndRenameLogger = () => {
   log4js.shutdown()
 
   const LOG_DIR = getOrCreateLogDir()
-  if (fs.existsSync(`${LOG_DIR}/log`)) {
+  if (fs.existsSync(path.join(LOG_DIR, 'log'))) {
     // YYYY-MM-DD-hh-mm
-    const curDate = new Date().toISOString().slice(0, 16)
+    const curISODate = new Date().toISOString().slice(0, 19)
+    const curDate = curISODate.replace(/:/g, '-')
     // rename current log to yy-mm-dd-hh-mm.log
-    fs.renameSync(`${LOG_DIR}/log`, `${LOG_DIR}/${curDate}.log`)
+    fs.renameSync(path.join(LOG_DIR, 'log'), path.join(LOG_DIR, `${curDate}.log`))
   }
 }
 

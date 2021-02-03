@@ -212,7 +212,7 @@ v1.5.0以降、MQTT Xは、ユーザーが接続をデバッグしてエラー�
 - macOS: `~/Library/Application Support/MQTTX/logs/log`
 - Windows: `%USERPROFILE%\AppData\Roaming\MQTTX\logs\log`
 
-MQTTXが閉じられるたびに、現在のログファイルの名前がタイムスタンプ `[YY]-[MM]-[DD] T [hh]：[mm] .log`形式に変更されます。
+MQTTXが閉じられるたびに、現在のログファイルの名前がタイムスタンプ `[YY]-[MM]-[DD]T[hh]-[mm]-[ss].log`形式に変更されます。
 
 ### その他
 
