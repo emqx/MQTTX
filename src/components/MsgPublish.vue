@@ -110,10 +110,10 @@ export default class MsgPublish extends Vue {
   @Watch('$route.params.id', { immediate: true, deep: true })
   private handleIdChanged(to: string, from: string) {
     const editorRef = this.$refs.payloadEditor as Editor
-    if (from === '0' && to !== '0') {
+    if (to && from === '0' && to !== '0') {
       // Init the editor when rout jump from creation page
       editorRef.initEditor()
-    } else if (from !== '0' && to === '0') {
+    } else if (from && from !== '0' && to === '0') {
       // destroy the editor when rout jump to creation page
       editorRef.destroyEditor()
     }
