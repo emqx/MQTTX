@@ -59,6 +59,7 @@ module.exports = {
       builderOptions: {
         productName: 'MQTTX',
         win: {
+          artifactName: 'MQTTX.Setup.${version}.${ext}',
           icon: './public/app.ico',
         },
         mac: {
