@@ -92,8 +92,7 @@
   },
   "lint-staged": {
     "*.{vue,ts,js,scss}": [
-      "prettier --write \"src/**/*.ts\" \"src/**/*.vue\" \"src/**/*.scss\"",
-      "git add"
+      "prettier --write \"src/**/*.ts\" \"src/**/*.vue\" \"src/**/*.scss\""
     ]
   },
   "license": "Apache",
