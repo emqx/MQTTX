@@ -90,8 +90,10 @@ yarn run electron:build
 ```shell
 # For Windows
 yarn run electron:build-win
+
 # For Linux
 yarn run electron:build-linux
+
 # For MacOS
 yarn run electron:build-mac
 ```

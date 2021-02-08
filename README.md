@@ -95,8 +95,10 @@ If you need to package it as an installation package for an independent operatin
 ```shell
 # For Windows
 yarn run electron:build-win
+
 # For Linux
 yarn run electron:build-linux
+
 # For MacOS
 yarn run electron:build-mac
 ```
