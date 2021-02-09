@@ -24,4 +24,4 @@ Please describe the new behavior or provide screenshots.
 
 Are there any specific instructions or things that should be known prior to reviewing?
 
-## Other information
+#### Other information
