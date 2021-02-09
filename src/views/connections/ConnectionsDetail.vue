@@ -5,7 +5,7 @@
         <div class="topbar">
           <div class="connection-head">
             <h2 :class="{ offline: !client.connected }">
-              {{ titleName }}
+              <span class="title-name">{{ titleName }}</span>
               <a
                 href="javascript:;"
                 :class="['collapse-btn', showClientInfo ? 'top' : 'bottom']"
@@ -1325,6 +1325,13 @@ export default class ConnectionsDetail extends Vue {
       }
       .connection-head {
         display: flex;
+        .title-name {
+          display: inline-block;
+          max-width: 200px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
         .offline {
           color: var(--color-text-light);
         }
