@@ -904,10 +904,10 @@ export default class ConnectionsDetail extends Vue {
     this.$emit('reload')
   }
   // Error callback
-  private onError(error: string) {
+  private onError(error: Error) {
     let msgTitle = this.$t('connections.connectFailed') as string
     if (error) {
-      msgTitle = error
+      msgTitle = error.toString()
     }
     this.client.end!(true)
     this.retryTimes = 0
@@ -919,7 +919,7 @@ export default class ConnectionsDetail extends Vue {
       duration: 3000,
       offset: 30,
     })
-    this.$log.error(`Connect fail, MQTT.js onError ${JSON.stringify(error)}`)
+    this.$log.error(`Connect fail, MQTT.js onError trigger, ${error.stack}`)
     this.$emit('reload')
   }
   // Reconnect callback
@@ -1113,7 +1113,7 @@ export default class ConnectionsDetail extends Vue {
         const errorMsg = error.toString()
         this.$message.error(errorMsg)
         this.stopTimedSend()
-        this.$log.error(`Client message publish failed, ${errorMsg}`)
+        this.$log.error(`Client message publish failed, ${error.stack}`)
         return false
       }
       const publishMessage: MessageModel = {
