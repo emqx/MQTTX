@@ -84,6 +84,13 @@ export default class Logs extends Vue {
     const LOG_DIR = getOrCreateLogDir()
     const LOG_PATH = path.join(LOG_DIR, 'log')
     watchFileAppender(LOG_PATH, this.onLogReadDataHandle, this.onLogReadErrorHandle)
+
+    const timer = setTimeout(() => {
+      this.$nextTick(() => {
+        this.scrollDown()
+      })
+      clearTimeout(timer)
+    }, 100)
   }
 }
 </script>
