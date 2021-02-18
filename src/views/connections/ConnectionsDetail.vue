@@ -1138,12 +1138,12 @@ export default class ConnectionsDetail extends Vue {
       if (isFromActiveTopic || isFromNotActiveTopic) {
         this.messages.push(publishMessage)
         this.messagesAddedNewItem = true
-        this.$log.info(
-          `Sucessfully published message ${JSON.stringify(publishMessage.payload)} to topic ${JSON.stringify(
-            publishMessage.topic,
-          )}`,
-        )
       }
+      this.$log.info(
+        `Sucessfully published message ${JSON.stringify(publishMessage.payload)} to topic ${JSON.stringify(
+          publishMessage.topic,
+        )}`,
+      )
       this.scrollToBottom()
     })
   }
