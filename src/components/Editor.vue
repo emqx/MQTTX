@@ -81,12 +81,13 @@ export default class Editor extends Vue {
   }
 
   public scrollToBottom() {
-    if (this.editor) {
-      const thisEditorModel = this.editor.getModel()
-      if (!thisEditorModel) return
-      const maxLine = thisEditorModel.getLineCount()
-      this.editor.revealLine(maxLine)
+    if (!this.editor) {
+      return
     }
+    const thisEditorModel = this.editor.getModel()
+    if (!thisEditorModel) return
+    const maxLine = thisEditorModel.getLineCount() || 0
+    this.editor.revealLine(maxLine)
   }
 
   public initEditor(): void | boolean {
@@ -119,6 +120,7 @@ export default class Editor extends Vue {
         useShadows: false,
         alwaysConsumeMouseWheel: false,
       },
+      smoothScrolling: true,
     }
     // Create
     const id = document.getElementById(`monaco-${this.id}`)
