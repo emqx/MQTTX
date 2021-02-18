@@ -37,7 +37,7 @@
           </div>
           <div class="connection-tail">
             <transition name="el-fade-in">
-              <span v-if="!showClientInfo && client.connected">
+              <template v-if="!showClientInfo && client.connected">
                 <el-tooltip
                   v-if="sendTimeId"
                   placement="bottom"
@@ -60,12 +60,19 @@
                     <i v-else class="el-icon-loading"></i>
                   </a>
                 </el-tooltip>
-              </span>
-              <span v-if="!showClientInfo && this.connectLoading">
-                <a class="connect-loading" href="javascript:;">
-                  <i class="el-icon-loading"></i>
+              </template>
+              <el-tooltip
+                v-if="!showClientInfo && !client.connected"
+                placement="bottom"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :open-delay="500"
+                :content="$t('connections.connectBtn')"
+              >
+                <a class="connect-btn" href="javascript:;" @click="connect">
+                  <i v-if="!connectLoading" class="el-icon-caret-right"></i>
+                  <i v-else class="el-icon-loading"></i>
                 </a>
-              </span>
+              </el-tooltip>
             </transition>
             <el-tooltip
               v-if="scriptOption !== null"
@@ -1359,6 +1366,7 @@ export default class ConnectionsDetail extends Vue {
         }
         .connect-loading,
         .edit-btn,
+        .connect-btn,
         .new-window-btn {
           margin-right: 12px;
         }
