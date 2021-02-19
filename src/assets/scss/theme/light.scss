@@ -3,7 +3,7 @@ body.light {
   --color-bg-normal: #ffffff;
   --color-bg-primary: #f9fafd;
   --color-bg-topics: #f8f8f8;
-  --color-bg-topics_active: #efefef;
+  --color-bg-topics_active: #374560d1;
   --color-bg-topics_shadow: #e2e2e2d1;
   --color-bg-leftbar: #333844;
   --color-bg-leftbar_item: #232731;
@@ -24,6 +24,7 @@ body.light {
   --color-text-right_block: #34c388;
   --color-text-right_info: #ffffffde;
   --color-text-left_info: #00000075;
+  --color-text-topics_active: #ffffff;
 
   /* Accent color */
   --color-main-green: #34c388;
