@@ -370,7 +370,7 @@ export default class SubscriptionsList extends Vue {
     }
   }
   .el-card__body {
-    padding: 5px 5px;
+    padding: 6px;
     height: 100%;
     overflow: auto;
     .topics-item {
@@ -380,7 +380,7 @@ export default class SubscriptionsList extends Vue {
       padding: 0px 8px;
       height: 46px;
       line-height: 46px;
-      margin-bottom: 5px;
+      margin-bottom: 8px;
       position: relative;
       top: 0px;
       clear: both;
@@ -389,7 +389,7 @@ export default class SubscriptionsList extends Vue {
       -khtml-user-select: none;
       user-select: none;
       transition: all 0.3s ease;
-      box-shadow: 1px 1px 2px 0px var(--color-bg-topics_shadow);
+      box-shadow: var(--color-bg-topics_shadow) 0px 1px 1px, var(--color-bg-topics_shadow) 0px 0px 1px;
       animation: subItem 0.2s ease-in-out;
       &.active {
         background: var(--color-bg-topics_active);
