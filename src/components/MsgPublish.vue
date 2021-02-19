@@ -107,6 +107,14 @@ export default class MsgPublish extends Vue {
       ipcRenderer.removeAllListeners('sendPayload')
     }
   }
+
+  /**
+   * Notice:
+   * when we jump order by`creation page` <-> `connection page`,
+   * the monaco will not init or destroy, because we use the v-show to hidden Msgpublish componment.
+   * So we need to operate editor creation and destroy manually by listening on route.
+   * relative PR: https://github.com/emqx/MQTTX/pull/518 https://github.com/emqx/MQTTX/pull/446
+   */
   @Watch('$route.params.id', { immediate: true, deep: true })
   private handleIdChanged(to: string, from: string) {
     const editorRef = this.$refs.payloadEditor as Editor
@@ -117,6 +125,16 @@ export default class MsgPublish extends Vue {
       // destroy the editor when rout jump to creation page
       editorRef.destroyEditor()
     }
+  }
+
+  // Notice: add editor creation and destroy manually export for it's father componment.
+  public editorDestory() {
+    const editorRef = this.$refs.payloadEditor as Editor
+    editorRef.destroyEditor()
+  }
+  public editorInit() {
+    const editorRef = this.$refs.payloadEditor as Editor
+    editorRef.initEditor()
   }
 
   private send() {
