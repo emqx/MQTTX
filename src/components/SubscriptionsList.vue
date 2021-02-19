@@ -22,11 +22,14 @@
           v-for="(sub, index) in subsList"
           :key="index"
           :class="['topics-item', index === topicActiveIndex ? 'active' : '']"
-          :style="{
-            borderLeft: `4px solid ${sub.color}`,
-          }"
           @click="handleClickTopic(sub, index)"
         >
+          <div
+            :style="{
+              background: `${sub.color}`,
+            }"
+            class="topics-color-box"
+          ></div>
           <el-tooltip
             :effect="theme !== 'light' ? 'light' : 'dark'"
             :content="copySuccess ? $t('connections.topicCopied') : sub.topic"
@@ -367,9 +370,9 @@ export default class SubscriptionsList extends Vue {
     }
   }
   .el-card__body {
-    padding: 16px;
+    padding: 5px 5px;
     height: 100%;
-    overflow: scroll;
+    overflow: auto;
     .topics-item {
       cursor: pointer;
       color: var(--color-text-title);
@@ -377,7 +380,7 @@ export default class SubscriptionsList extends Vue {
       padding: 0px 8px;
       height: 46px;
       line-height: 46px;
-      margin-bottom: 16px;
+      margin-bottom: 5px;
       position: relative;
       top: 0px;
       clear: both;
@@ -391,6 +394,21 @@ export default class SubscriptionsList extends Vue {
       &.active {
         background: var(--color-bg-topics_active);
         box-shadow: none;
+        .topic,
+        .qos {
+          color: var(--color-text-topics_active);
+        }
+      }
+      .topics-color-box {
+        margin: 0 5px 0 0;
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        vertical-align: top;
+        border-radius: 4px;
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
       }
       .topic {
         max-width: 120px;
