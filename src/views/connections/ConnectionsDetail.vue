@@ -368,6 +368,26 @@ export default class ConnectionsDetail extends Vue {
   @Getter('showClientInfo') private clientInfoVisibles!: { [id: string]: boolean }
   @Getter('currentScript') private scriptOption!: ScriptState | null
 
+  /**
+   * Notice: when we jump order by `other page` -> `creation page` -> `connection page`,
+   * MsgPublish/editor twice which is not we expected, it should be init only once.
+   * `other page` -> `creation page` the MsgPublish/editor will init, `creation page` -> `connection page` init editor again.
+   * So when route jump order by `other page` -> `creation page`, we need to operate editor creation and destroy manually by listening on route.
+   * relative PR: https://github.com/emqx/MQTTX/pull/518 https://github.com/emqx/MQTTX/pull/446
+   */
+  @Watch('$route.path', { immediate: true, deep: true })
+  private handleIdChanged(to: string, from: string) {
+    // When route jump order by `other page` -> `creation page`
+    if (!from && to && to === '/recent_connections/0') {
+      // Destroy the MsgPublish/editor
+      setTimeout(() => {
+        const thisMsgPublish: MsgPublish = this.$refs.msgPublish as MsgPublish
+        thisMsgPublish.editorDestory()
+      }, 100)
+      // When we jump order by `other page` -> `creation page` -> `connection page`, it's should only init once.
+    }
+  }
+
   private showSubs = true
   private showClientInfo = true
   private showExportData = false
