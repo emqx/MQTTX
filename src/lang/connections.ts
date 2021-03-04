@@ -91,9 +91,9 @@ export default {
       '$SYSトピックを拒否しま。した予期しないQoS、MQTT Brokerはサブスクリプションを拒否しました。ACL構成を確認してください',
   },
   qosSubFailed: {
-    zh: '错误的 QoS',
-    en: 'Unexpected QoS',
-    ja: '予期しないQoS',
+    zh: '错误的 QoS, SubACK 失败, 请检查 MQTT broker 设置',
+    en: 'Unexpected QoS, SubACK failed, Please check MQTT broker configuration',
+    ja: '予期しないQoS, MQTT broker 構成を確認してください',
   },
   emptySubFailed: {
     zh: '订阅为空',

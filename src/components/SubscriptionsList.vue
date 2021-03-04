@@ -239,11 +239,10 @@ export default class SubscriptionsList extends Vue {
         this.$log.error(`Topic: ${topic} subscribe error ${error} `)
         return false
       }
-
       let errorReason: SubscribeErrorReason = SubscribeErrorReason.normal
       if (res.length < 1) {
         errorReason = SubscribeErrorReason.emptySubFailed
-      } else if (![0, 1, 2].includes(res[0].qos) && !topic.match('/^($SYS)//i')) {
+      } else if (![0, 1, 2].includes(res[0].qos) && topic.match(/^(\$SYS)/i)) {
         errorReason = SubscribeErrorReason.qosSubSysFailed
       } else if (![0, 1, 2].includes(res[0].qos)) {
         errorReason = SubscribeErrorReason.qosSubFailed
