@@ -26,28 +26,28 @@
     git remote add upstream git@github.com:emqx/MQTTX.git`
     ```
 
-4. 可以灿开以下项目结构来进行源码修改:
+4. 可以参考以下项目结构来进行源码修改:
 
     ```shell
     src
-      ├── App.vue # 主视图组件
-      ├── api # 请求数据的 API 集合
-      ├── assets # 资源
+      ├── App.vue       # 主视图组件
+      ├── api           # 请求数据的 API 集合
+      ├── assets        # 资源
       │   ├── font
       │   ├── images
       │   └── scss
       ├── background.ts # 主进程文件
-      ├── components # 公用组件的集合
-      ├── database # 数据库的配置文件
-      ├── lang # 国际化配置文件
-      ├── main # 操作主进程的代码
-      ├── main.ts # 主渲染进程的文件
-      ├── plugins # 扩展 Vue 的插件
-      ├── router # 视图路由的配置集合
-      ├── store # Vuex 状态管理的配置集合
-      ├── types # 类型定义的集合
-      ├── utils # 通用工具的集合
-      └── views # 视图代码的集合
+      ├── components    # 公用组件的集合
+      ├── database      # 数据库的配置文件
+      ├── lang          # 国际化配置文件
+      ├── main          # 操作主进程的代码
+      ├── main.ts       # 主渲染进程的文件
+      ├── plugins       # 扩展 Vue 的插件
+      ├── router        # 视图路由的配置集合
+      ├── store         # Vuex 状态管理的配置集合
+      ├── types         # 类型定义的集合
+      ├── utils         # 通用工具的集合
+      └── views         # 视图代码的集合
           ├── Home.vue
           ├── about
           ├── connections
