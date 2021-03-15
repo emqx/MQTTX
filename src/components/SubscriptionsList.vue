@@ -30,13 +30,15 @@
             }"
             class="topics-color-box"
           ></div>
-          <el-tooltip
-            :effect="theme !== 'light' ? 'light' : 'dark'"
-            :content="copySuccess ? $t('connections.topicCopied') : sub.topic"
-            :open-delay="!copySuccess ? 0 : 500"
+          <el-popover
             placement="top"
+            trigger="hover"
+            width="100%"
+            popper-class="topic-tooltip"
+            :content="copySuccess ? $t('connections.topicCopied') : sub.topic"
           >
             <a
+              slot="reference"
               v-clipboard:copy="sub.topic"
               v-clipboard:success="onCopySuccess"
               href="javascript:;"
@@ -45,7 +47,7 @@
             >
               {{ sub.alias || sub.topic }}
             </a>
-          </el-tooltip>
+          </el-popover>
           <span class="qos">QoS {{ sub.qos }}</span>
           <a href="javascript:;" class="close" @click.stop="removeSubs(sub)">
             <i class="el-icon-close"></i>
@@ -329,10 +331,10 @@ export default class SubscriptionsList extends Vue {
     this.copySuccess = true
     setTimeout(() => {
       this.copySuccess = false
-    }, 1000)
+    }, 1500)
   }
   private stopClick(): boolean {
-    return false
+    return true
   }
 
   private handleClickTopic(item: SubscriptionModel, index: number) {
@@ -352,6 +354,8 @@ export default class SubscriptionsList extends Vue {
 </script>
 
 <style lang="scss">
+@import '~@/assets/scss/variable.scss';
+
 .subscriptions-list-view {
   &.el-card {
     border-top: 0px;
@@ -461,6 +465,19 @@ export default class SubscriptionsList extends Vue {
       right: 0;
       top: 6px;
     }
+  }
+}
+.topic-tooltip {
+  color: var(--color-bg-normal);
+  padding: 8px;
+  font-size: $font-size--tips;
+  background: var(--color-bg-popover);
+  text-align: center;
+  min-width: auto;
+  border-radius: 4px;
+  .popper__arrow::after {
+    bottom: 0px !important;
+    border-top-color: var(--color-bg-popover) !important;
   }
 }
 </style>
