@@ -21,6 +21,10 @@ const LOG_PATH = path.join(LOG_DIR, 'log')
 logConfig.appenders.fileOutput.filename = LOG_PATH
 const config: log4js.Configuration = logConfig
 
+// Clipboard
+VueClipboard.config.appendToBody = false
+VueClipboard.config.autoSetContainer = true
+
 Vue.use(element)
 Vue.use(VueI18n)
 Vue.use(VueClipboard)
