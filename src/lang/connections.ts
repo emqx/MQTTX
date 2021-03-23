@@ -464,4 +464,14 @@ export default {
     en: "Whether a client verifies the server's certificate chain and host name",
     ja: "Whether a client verifies the server's certificate chain and host name",
   },
+  newFolder: {
+    zh: '新建文件夹',
+    en: 'New Folder',
+    ja: '新しいフォルダ',
+  },
+  collapseFolder: {
+    zh: '收起文件夹',
+    en: 'Collapse Folder',
+    ja: '折りたたみフォルダ',
+  },
 }

@@ -1,7 +1,6 @@
 <template>
   <div class="connections">
     <div class="leftList">
-      <h1 class="titlebar">{{ $t('connections.connections') }}</h1>
       <ConnectionsList :data="records" :connectionId="connectionId" @delete="onDelete" />
     </div>
 
@@ -29,12 +28,12 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Action } from 'vuex-class'
-import { loadConnections, loadConnection } from '@/api/connection'
+import { loadConnections, loadConnection, loadConnectionsWithFolder } from '@/api/connection'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsDetail from './ConnectionsDetail.vue'
 import ConnectionForm from './ConnectionForm.vue'
-import { ConnectionModel } from './types'
+import { ConnectionModel, ConnectionModelFolder } from './types'
 
 @Component({
   components: {
