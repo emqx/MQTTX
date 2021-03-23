@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
 import { MqttClient } from 'mqtt'
-import { MessageModel, ConnectionModel } from '@/views/connections/types'
+import { MessageModel, ConnectionModel, ConnectionModelFolder } from '@/views/connections/types'
 import { ScriptState } from '@/views/script/types'
 
 declare global {
@@ -73,6 +73,7 @@ declare global {
     unreadMessageCount: {
       [id: string]: number
     }
+    connectionCollection: ConnectionModelFolder[] | []
     activeConnection: {
       [id: string]: {
         client: MqttClient | {}

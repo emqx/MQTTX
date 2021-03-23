@@ -87,13 +87,14 @@ export interface ConnectionModel extends SSLPath {
   }
   clientIdWithTime?: boolean //Fill in client_id.Ensure that client_id field is unique.
   folderId?: string
+  isFolder: false
 }
 
 export interface ConnectionModelFolder {
   readonly id?: string
   name: string
-  isFolder: boolean
   children: ConnectionModelTree[] | []
+  isFolder: true
 }
 
 // leaf: ConnectionModel | collection: ConnectionModelFolder
