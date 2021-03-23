@@ -8,6 +8,7 @@ const getters = {
   showClientInfo: (state: State) => state.app.showClientInfo,
   unreadMessageCount: (state: State) => state.app.unreadMessageCount,
   willMessageVisible: (state: State) => state.app.willMessageVisible,
+  connectionCollection: (state: State) => state.app.connectionCollection,
   advancedVisible: (state: State) => state.app.advancedVisible,
   allConnections: (state: State) => state.app.allConnections,
   currentScript: (state: State) => state.app.currentScript,

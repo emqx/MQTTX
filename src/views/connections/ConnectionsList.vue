@@ -3,6 +3,7 @@
     <div class="connection-topbar">
       <h1 class="connection-titlebar">{{ $t('connections.connections') }}</h1>
       <div>
+        <el-button @click="loadData">test</el-button>
         <!-- topbar left icon -->
       </div>
       <div class="connection-tailbar">
@@ -28,10 +29,18 @@
         </el-tooltip>
       </div>
     </div>
-    <div class="connections-list" @click="getCheckedKeys">
+    <div class="connections-list">
       <template>
         <!-- TOOD: 规定不能移动连接节电含有子节点 -->
-        <el-tree ref="tree" :data="listdata" node-key="id" draggable highlight-current :allow-drop="allowDrop">
+        <el-tree
+          ref="tree"
+          :data="treeData"
+          node-key="id"
+          draggable
+          highlight-current
+          :current-node-key="connectionId"
+          :allow-drop="allowDrop"
+        >
           <span class="custom-tree-node" slot-scope="{ node, data }">
             <!-- connection -->
             <div
@@ -92,8 +101,8 @@ import { Getter, Action } from 'vuex-class'
 import Contextmenu from '@/components/Contextmenu.vue'
 import { ConnectionModel, ContextmenuModel, ConnectionModelFolder, ConnectionModelTree } from './types'
 import { ipcRenderer } from 'electron'
-import ElementUI from 'element-ui'
 import { TreeNode } from 'element-ui/types/tree'
+import { nextTick } from 'process'
 
 @Component({
   components: {
@@ -101,9 +110,9 @@ import { TreeNode } from 'element-ui/types/tree'
   },
 })
 export default class ConnectionsList extends Vue {
-  // @Prop({ required: true }) public data!: ConnectionModel[] | []
-  @Prop({ required: true }) public resdata!: ConnectionModelFolder[] | []
-  @Prop({ required: false }) public testdata!: any
+  @Prop({ required: true }) public ConnectionModelData!: ConnectionModel[] | []
+  @Prop({ required: true }) public ModelFolderData!: ConnectionModelFolder[] | []
+  // @Prop({ required: false }) public treeData!: ConnectionModelTree[] | []
   @Prop({ required: true }) public connectionId!: string
 
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
@@ -111,6 +120,7 @@ export default class ConnectionsList extends Vue {
   @Getter('activeConnection') private activeConnection: Client | undefined
   @Getter('unreadMessageCount') private unreadMessageCount: UnreadMessage | undefined
   @Getter('currentTheme') private theme!: Theme
+  // @Getter('connectionCollection') private getConnectionCollection!: ConnectionModelFolder[]|[]
 
   private showContextmenu: boolean = false
   private selectedConnection: ConnectionModel | null = null
@@ -118,11 +128,20 @@ export default class ConnectionsList extends Vue {
     top: 0,
     left: 0,
   }
+  private treeData: ConnectionModelTree[] | [] = []
 
   @Watch('showContextmenu')
   private handleShowContextmenuChange(val: boolean) {
     if (!val) {
       this.selectedConnection = null
+    }
+  }
+  @Watch('treeData')
+  private handleTreeDataChange(val: ConnectionModelTree[] | []) {
+    console.log('watch')
+
+    if (!val) {
+      this.treeData = val
     }
   }
 
@@ -131,9 +150,9 @@ export default class ConnectionsList extends Vue {
     dropNode: TreeNode<ConnectionModelFolder['id'], ConnectionModelFolder>,
     type: 'prev' | 'inner' | 'next',
   ) {
-    if (draggingNode.data.isFolder && !dropNode.data.isFolder) {
-      // drag folder to connction is not allow
-      return false
+    if (!dropNode.data.isFolder) {
+      // drag node to connction is not allowed
+      return type !== 'inner'
     }
     return true
   }
@@ -143,21 +162,61 @@ export default class ConnectionsList extends Vue {
     return []
   }
 
-  private sortCollections(arr: any[] | []) {}
+  private created() {
+    this.$nextTick(() => {
+      this.loadData()
+      this.$forceUpdate()
+    })
+  }
 
-  private handleNewFolder(data: any) {
-    // TODO: new folder
-    const fileid = 102421
-    const newChild = { id: fileid + 1, name: 'testtest', children: [] }
-    if (!data.children) {
-      data.children = []
+  private loadData() {
+    const connections: ConnectionModel[] = this.ConnectionModelData
+    const folders: ConnectionModelFolder[] = this.ModelFolderData
+    let treeData: ConnectionModelTree[] = []
+    if (!folders || (folders && !folders.length)) {
+      treeData = [...connections]
+      return
     }
-    data.children.push(newChild)
-    this.listdata = [...this.listdata]
+    treeData = [...folders]
+    connections.forEach((connection: ConnectionModel) => {
+      const curConnectionFolderId = connection.folderId
+      if (curConnectionFolderId) {
+        // current connection in a collection
+        const findCollection = (treeElement: ConnectionModelTree[], connection: ConnectionModel) => {
+          treeElement.forEach((e: ConnectionModelTree) => {
+            if (e.isFolder) {
+              const children = e.children as ConnectionModelTree[]
+              if (e.id === curConnectionFolderId) {
+                // found cur connection's collection
+                children.push(connection)
+                return
+              } else {
+                if (!children.length) {
+                  return
+                }
+                findCollection(e.children, connection)
+              }
+            }
+          })
+        }
+        findCollection(treeData, connection)
+      } else {
+        // current connection not in any connection
+        treeData.push(connection)
+      }
+    })
+    this.treeData = treeData
+    console.log(treeData)
+    console.log('loaddata')
   }
 
   private handleCollapseFolder() {
-    // TODO: fold folder
+    const treeRef = this.$refs.tree as $TSFixed
+    if (!treeRef) return
+    const nodes = treeRef.store.nodesMap
+    for (const idx in nodes) {
+      nodes[idx].expanded = false
+    }
   }
 
   private handleSelectConnection(row: ConnectionModel) {
@@ -196,10 +255,6 @@ export default class ConnectionsList extends Vue {
       ipcRenderer.send('newWindow', this.selectedConnection.id)
       this.showContextmenu = false
     }
-  }
-  private getCheckedKeys() {
-    const treeRef = this.$refs.tree as any
-    console.log(treeRef.getCheckedKeys())
   }
 }
 </script>
@@ -302,7 +357,6 @@ export default class ConnectionsList extends Vue {
       padding: 16px;
     }
     .connection-tailbar {
-      margin-top: 25px;
       .new-folder-btn,
       .collapse-folder-btn {
         margin-right: 12px;

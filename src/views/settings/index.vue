@@ -134,12 +134,12 @@ export default class Settings extends Vue {
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
   @Action('TOGGLE_AUTO_CHECK') private actionAutoCheck!: (payload: { autoCheck: boolean }) => void
   @Action('SET_MAX_RECONNECT_TIMES') private actionMaxReconnectTimes!: (payload: { maxReconnectTimes: number }) => void
-  @Getter('currentTheme') private getterTheme!: 'light' | 'dark' | 'night'
+  @Getter('currentTheme') private getterTheme!: Theme
   @Getter('currentLang') private getterLang!: Language
   @Getter('autoCheck') private getterAutoCheck!: boolean
   @Getter('maxReconnectTimes') private getterMaxReconnectTimes!: number
 
-  private currentTheme: 'light' | 'dark' | 'night' = 'light'
+  private currentTheme: Theme = 'light'
   private currentLang: Language = 'en'
   private autoCheck = false
   private maxReconnectTimes = 10
