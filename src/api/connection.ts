@@ -1,6 +1,13 @@
 import db from '@/database/index'
 import { ConnectionModel, MessageModel, ConnectionModelFolder } from '@/views/connections/types'
 
+export const setConnectionCollection = (
+  id: string,
+  data: ConnectionModelFolder[] | [],
+): ConnectionModelFolder[] | [] => {
+  return db.set<ConnectionModelFolder[] | []>('connectionsFolder', data)
+}
+
 export const loadConnection = (id: string): ConnectionModel => {
   return db.find<ConnectionModel>('connections', id)
 }

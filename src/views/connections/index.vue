@@ -1,7 +1,12 @@
 <template>
   <div class="connections">
     <div class="leftList">
-      <ConnectionsList :data="records" :connectionId="connectionId" @delete="onDelete" />
+      <ConnectionsList
+        :ConnectionModelData="records"
+        :ModelFolderData="data"
+        :connectionId="connectionId"
+        @delete="onDelete"
+      />
     </div>
 
     <div class="connections-view">
@@ -75,6 +80,7 @@ export default class Connections extends Vue {
     ca: '',
     cert: '',
     key: '',
+    isFolder: false,
   }
 
   @Watch('$route.params.id')

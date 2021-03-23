@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { ConnectionModel } from '../../views/connections/types'
+import { ConnectionModel, ConnectionModelFolder } from '../../views/connections/types'
 import { loadSettings, setSettings } from '@/api/setting'
 import { ScriptState } from '@/views/script/types'
 
@@ -17,6 +17,7 @@ const TOGGLE_WILL_MESSAGE_VISIBLE = 'TOGGLE_WILL_MESSAGE_VISIBLE'
 const TOGGLE_ADVANCED_VISIBLE = 'TOGGLE_ADVANCED_VISIBLE'
 const CHANGE_ALL_CONNECTIONS = 'CHANGE_ALL_CONNECTIONS'
 const SET_SCRIPT = 'SET_SCRIPT'
+const CHANGE_CONNECTION_COLLECTION = 'CHANGE_CONNECTION_COLLECTION'
 
 const stateRecord: App = loadSettings()
 
@@ -42,8 +43,12 @@ const app = {
     willMessageVisible: true,
     allConnections: [],
     currentScript: null,
+    connectionCollection: [],
   },
   mutations: {
+    [CHANGE_CONNECTION_COLLECTION](state: App, payload: ConnectionModelFolder[] | []) {
+      state.connectionCollection = payload
+    },
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
       state.currentTheme = currentTheme
     },

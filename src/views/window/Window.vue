@@ -48,6 +48,7 @@ export default class Window extends Vue {
     ca: '',
     cert: '',
     key: '',
+    isFolder: false,
   }
 
   get connectionId(): string {
