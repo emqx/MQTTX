@@ -1,7 +1,6 @@
 <template>
   <div class="window connections">
     <div class="leftList">
-      <h1 class="titlebar">{{ $t('connections.connections') }}</h1>
       <ConnectionsList :data="records" :connectionId="connectionId" />
     </div>
     <div class="connections-view">

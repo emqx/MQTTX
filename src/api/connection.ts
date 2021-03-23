@@ -1,5 +1,5 @@
 import db from '@/database/index'
-import { ConnectionModel, MessageModel } from '@/views/connections/types'
+import { ConnectionModel, MessageModel, ConnectionModelFolder } from '@/views/connections/types'
 
 export const loadConnection = (id: string): ConnectionModel => {
   return db.find<ConnectionModel>('connections', id)
@@ -11,6 +11,10 @@ export const loadConnections = (): ConnectionModel[] | [] => {
 
 export const loadSuggestConnections = (): ConnectionModel[] | [] => {
   return db.get<ConnectionModel[] | []>('suggestConnections')
+}
+
+export const loadConnectionsWithFolder = (): ConnectionModelFolder[] | [] => {
+  return db.get<ConnectionModelFolder[] | []>('connectionsFolder')
 }
 
 export const createSuggestConnection = (data: ConnectionModel): ConnectionModel => {

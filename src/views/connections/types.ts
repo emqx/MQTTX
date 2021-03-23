@@ -86,7 +86,18 @@ export interface ConnectionModel extends SSLPath {
     properties?: WillPropertiesModel
   }
   clientIdWithTime?: boolean //Fill in client_id.Ensure that client_id field is unique.
+  folderId?: string
 }
+
+export interface ConnectionModelFolder {
+  readonly id?: string
+  name: string
+  isFolder: boolean
+  children: ConnectionModelTree[] | []
+}
+
+// leaf: ConnectionModel | collection: ConnectionModelFolder
+export type ConnectionModelTree = ConnectionModelFolder | ConnectionModel
 
 export interface SSLContent {
   ca: string | string[] | Buffer | Buffer[] | undefined
