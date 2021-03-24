@@ -3,7 +3,6 @@
     <div class="connection-topbar">
       <h1 class="connection-titlebar">{{ $t('connections.connections') }}</h1>
       <div>
-        <el-button @click="loadData">test</el-button>
         <!-- topbar left icon -->
       </div>
       <div class="connection-tailbar">
@@ -31,21 +30,24 @@
     </div>
     <div class="connections-list">
       <template>
-        <!-- TOOD: 规定不能移动连接节电含有子节点 -->
         <el-tree
           ref="tree"
           :data="treeData"
           node-key="id"
-          draggable
           highlight-current
+          default-expand-all
           :current-node-key="connectionId"
           :allow-drop="allowDrop"
         >
           <span class="custom-tree-node" slot-scope="{ node, data }">
+            <div v-if="data.isEdit">
+              <!-- <el-input></el-input> -->
+              <el-input size="small" @keyup.enter.native="handleRenameEnter(data)" v-model="data.name"></el-input>
+            </div>
             <!-- connection -->
             <div
+              v-else-if="!data.isFolder"
               class="connection-item"
-              v-if="data.host"
               @click="handleSelectConnection(data)"
               @contextmenu="handleContextMenu(data, $event)"
             >
@@ -77,7 +79,7 @@
               </div>
             </div>
             <!-- folder -->
-            <div class="custom-tree-node-folder" v-else>
+            <div v-else class="custom-tree-node-folder" @contextmenu="handleCollectionContextMenu($event, data)">
               <div>{{ data.name }}</div>
             </div>
           </span>
@@ -91,6 +93,17 @@
           <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
         </a>
       </contextmenu>
+      <contextmenu :visible.sync="showCollectionsContextmenu" v-bind="collectionsContextmenuConfig">
+        <a href="javascript:;" class="context-menu__item" @click="handleNewCollection">
+          <i class="el-icon-plus"></i>{{ $t('connections.newCollection') }}
+        </a>
+        <a href="javascript:;" class="context-menu__item danger" @click="handleDeleteCollection">
+          <i class="iconfont icon-delete"></i>{{ $t('connections.deleteCollection') }}
+        </a>
+        <a href="javascript:;" class="context-menu__item" @click="handleRenameCollection">
+          <i class="iconfont icon-edit"></i>{{ $t('connections.renameCollection') }}
+        </a>
+      </contextmenu>
     </div>
   </div>
 </template>
@@ -102,7 +115,8 @@ import Contextmenu from '@/components/Contextmenu.vue'
 import { ConnectionModel, ContextmenuModel, ConnectionModelFolder, ConnectionModelTree } from './types'
 import { ipcRenderer } from 'electron'
 import { TreeNode } from 'element-ui/types/tree'
-import { nextTick } from 'process'
+import getCollectionId from '@/utils/getCollectionId'
+import _ from 'lodash'
 
 @Component({
   components: {
@@ -111,8 +125,7 @@ import { nextTick } from 'process'
 })
 export default class ConnectionsList extends Vue {
   @Prop({ required: true }) public ConnectionModelData!: ConnectionModel[] | []
-  @Prop({ required: true }) public ModelFolderData!: ConnectionModelFolder[] | []
-  // @Prop({ required: false }) public treeData!: ConnectionModelTree[] | []
+  @Prop({ required: false }) public ModelFolderData!: ConnectionModelFolder[] | []
   @Prop({ required: true }) public connectionId!: string
 
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
@@ -120,15 +133,21 @@ export default class ConnectionsList extends Vue {
   @Getter('activeConnection') private activeConnection: Client | undefined
   @Getter('unreadMessageCount') private unreadMessageCount: UnreadMessage | undefined
   @Getter('currentTheme') private theme!: Theme
-  // @Getter('connectionCollection') private getConnectionCollection!: ConnectionModelFolder[]|[]
 
   private showContextmenu: boolean = false
+  private showCollectionsContextmenu: boolean = false
   private selectedConnection: ConnectionModel | null = null
+  private selectedCollection: ConnectionModelFolder | null = null
   private contextmenuConfig: ContextmenuModel = {
     top: 0,
     left: 0,
   }
+  private collectionsContextmenuConfig: ContextmenuModel = {
+    top: 0,
+    left: 0,
+  }
   private treeData: ConnectionModelTree[] | [] = []
+  // private name: string = ''
 
   @Watch('showContextmenu')
   private handleShowContextmenuChange(val: boolean) {
@@ -136,12 +155,10 @@ export default class ConnectionsList extends Vue {
       this.selectedConnection = null
     }
   }
-  @Watch('treeData')
-  private handleTreeDataChange(val: ConnectionModelTree[] | []) {
-    console.log('watch')
-
+  @Watch('showCollectionsContextmenu')
+  private handleShowCollectionContextMenuChange(val: boolean) {
     if (!val) {
-      this.treeData = val
+      this.selectedCollection = null
     }
   }
 
@@ -157,27 +174,16 @@ export default class ConnectionsList extends Vue {
     return true
   }
 
-  get listdata(): ConnectionModelTree[] | [] {
-    //TODO: sort
-    return []
-  }
-
-  private created() {
-    this.$nextTick(() => {
-      this.loadData()
-      this.$forceUpdate()
-    })
-  }
-
   private loadData() {
     const connections: ConnectionModel[] = this.ConnectionModelData
     const folders: ConnectionModelFolder[] = this.ModelFolderData
-    let treeData: ConnectionModelTree[] = []
+    // let treeData: ConnectionModelTree[] = []
     if (!folders || (folders && !folders.length)) {
-      treeData = [...connections]
+      // this.treeData = [...connections]
+      this.treeData = _.cloneDeep(folders)
       return
     }
-    treeData = [...folders]
+    this.treeData = _.cloneDeep(folders)
     connections.forEach((connection: ConnectionModel) => {
       const curConnectionFolderId = connection.folderId
       if (curConnectionFolderId) {
@@ -199,15 +205,17 @@ export default class ConnectionsList extends Vue {
             }
           })
         }
-        findCollection(treeData, connection)
+        findCollection(this.treeData, connection)
       } else {
         // current connection not in any connection
-        treeData.push(connection)
+        ;(this.treeData as ConnectionModelTree[]).push(connection as ConnectionModel)
       }
     })
-    this.treeData = treeData
-    console.log(treeData)
-    console.log('loaddata')
+    return
+  }
+
+  private handleRenameEnter(data: ConnectionModelFolder) {
+    data.isEdit = false
   }
 
   private handleCollapseFolder() {
@@ -246,6 +254,18 @@ export default class ConnectionsList extends Vue {
     }
   }
 
+  private handleCollectionContextMenu(event: MouseEvent, row: ConnectionModelFolder) {
+    if (!this.showCollectionsContextmenu) {
+      const { clientX, clientY } = event
+      this.collectionsContextmenuConfig.top = clientY
+      this.collectionsContextmenuConfig.left = clientX
+      this.showCollectionsContextmenu = true
+      this.selectedCollection = row
+    } else {
+      this.showCollectionsContextmenu = false
+    }
+  }
+
   private handleDelete() {
     this.$emit('delete', this.selectedConnection)
   }
@@ -255,6 +275,38 @@ export default class ConnectionsList extends Vue {
       ipcRenderer.send('newWindow', this.selectedConnection.id)
       this.showContextmenu = false
     }
+  }
+
+  private handleNewCollection() {
+    if (this.selectedCollection) {
+      const collectionChildren = this.selectedCollection.children as ConnectionModelFolder[]
+      collectionChildren.push({
+        id: getCollectionId(),
+        name: '',
+        isFolder: true,
+        children: [],
+        isEdit: true,
+      })
+    }
+    this.showCollectionsContextmenu = false
+  }
+  private handleDeleteCollection() {}
+
+  private handleRenameCollection() {
+    if (this.selectedCollection) {
+      this.selectedCollection.isEdit = true
+      console.log(this.selectedCollection)
+      this.$forceUpdate()
+    }
+    this.showCollectionsContextmenu = false
+  }
+
+  private mounted() {
+    this.$nextTick(() => {
+      setTimeout(() => {
+        this.loadData()
+      })
+    })
   }
 }
 </script>

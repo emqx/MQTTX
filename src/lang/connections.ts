@@ -474,4 +474,19 @@ export default {
     en: 'Collapse Folder',
     ja: '折りたたみフォルダ',
   },
+  newCollection: {
+    zh: '新建文件夹',
+    en: 'New Collection',
+    ja: '新しいフォルダ',
+  },
+  deleteCollection: {
+    zh: '删除文件夹',
+    en: 'Delete Collection',
+    ja: 'フォルダを削除する',
+  },
+  renameCollection: {
+    zh: '重命名文件夹',
+    en: 'Rename Collection',
+    ja: '名前を変更する',
+  },
 }

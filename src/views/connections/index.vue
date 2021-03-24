@@ -3,7 +3,7 @@
     <div class="leftList">
       <ConnectionsList
         :ConnectionModelData="records"
-        :ModelFolderData="data"
+        :ModelFolderData="collections"
         :connectionId="connectionId"
         @delete="onDelete"
       />
@@ -56,6 +56,7 @@ export default class Connections extends Vue {
 
   private isEmpty: boolean = false
   private records: ConnectionModel[] = []
+  private collections: ConnectionModelFolder[] = []
   private currentConnection: ConnectionModel = {
     clientId: '',
     name: '',
@@ -125,8 +126,10 @@ export default class Connections extends Vue {
 
   private async loadData(reload: boolean = false): Promise<void> {
     const connections: ConnectionModel[] | [] = await loadConnections()
+    const connectionCollections: ConnectionModelFolder[] | [] = await loadConnectionsWithFolder()
     this.changeAllConnections({ allConnections: connections })
     this.records = connections
+    this.collections = connectionCollections
     if (reload && connections.length) {
       this.$router.push({ path: `/recent_connections/${connections[0].id}` })
     }
