@@ -91,10 +91,11 @@ export interface ConnectionModel extends SSLPath {
 }
 
 export interface ConnectionModelFolder {
-  readonly id?: string
+  readonly id: string
   name: string
   children: ConnectionModelTree[] | []
   isFolder: true
+  isEdit?: boolean
 }
 
 // leaf: ConnectionModel | collection: ConnectionModelFolder

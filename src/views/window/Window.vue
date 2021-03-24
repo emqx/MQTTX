@@ -1,7 +1,7 @@
 <template>
   <div class="window connections">
     <div class="leftList">
-      <ConnectionsList :data="records" :connectionId="connectionId" />
+      <ConnectionsList :ConnectionModelData="records" :connectionId="connectionId" />
     </div>
     <div class="connections-view">
       <ConnectionsDetail ref="ConnectionsDetail" :record="currentConnection" @reload="loadDetail(connectionId, true)" />
