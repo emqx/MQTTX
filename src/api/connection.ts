@@ -1,10 +1,7 @@
 import db from '@/database/index'
 import { ConnectionModel, MessageModel, ConnectionModelFolder } from '@/views/connections/types'
 
-export const setConnectionCollection = (
-  id: string,
-  data: ConnectionModelFolder[] | [],
-): ConnectionModelFolder[] | [] => {
+export const setConnectionCollection = (data: ConnectionModelFolder[] | []): ConnectionModelFolder[] | [] => {
   return db.set<ConnectionModelFolder[] | []>('connectionsFolder', data)
 }
 

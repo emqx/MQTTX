@@ -12,7 +12,7 @@
           :open-delay="500"
           :content="$t('connections.newFolder')"
         >
-          <a class="new-folder-btn" href="javascript:;">
+          <a class="new-folder-btn" href="javascript:;" @click="handleNewCollectionOnTop">
             <i class="el-icon-folder-add"></i>
           </a>
         </el-tooltip>
@@ -31,18 +31,26 @@
     <div class="connections-list">
       <template>
         <el-tree
+          draggable
           ref="tree"
           :data="treeData"
           node-key="id"
           highlight-current
           default-expand-all
           :current-node-key="connectionId"
+          @node-drop="handleDrop"
           :allow-drop="allowDrop"
         >
           <span class="custom-tree-node" slot-scope="{ node, data }">
             <div v-if="data.isEdit">
               <!-- <el-input></el-input> -->
-              <el-input size="small" @keyup.enter.native="handleRenameEnter(data)" v-model="data.name"></el-input>
+              <el-input
+                size="small"
+                @blur="handleEditCompeleted(data)"
+                @keyup.enter.native="handleEditCompeleted(data)"
+                @keyup.esc.native="handleEditCancel(node, data)"
+                v-model="data.name"
+              ></el-input>
             </div>
             <!-- connection -->
             <div
@@ -79,7 +87,12 @@
               </div>
             </div>
             <!-- folder -->
-            <div v-else class="custom-tree-node-folder" @contextmenu="handleCollectionContextMenu($event, data)">
+            <div
+              v-else
+              class="custom-tree-node-folder"
+              @click="handleSelectCollection(data)"
+              @contextmenu="handleCollectionContextMenu($event, data)"
+            >
               <div>{{ data.name }}</div>
             </div>
           </span>
@@ -117,6 +130,7 @@ import { ipcRenderer } from 'electron'
 import { TreeNode } from 'element-ui/types/tree'
 import getCollectionId from '@/utils/getCollectionId'
 import _ from 'lodash'
+import { setConnectionCollection } from '@/api/connection'
 
 @Component({
   components: {
@@ -147,7 +161,6 @@ export default class ConnectionsList extends Vue {
     left: 0,
   }
   private treeData: ConnectionModelTree[] | [] = []
-  // private name: string = ''
 
   @Watch('showContextmenu')
   private handleShowContextmenuChange(val: boolean) {
@@ -174,13 +187,49 @@ export default class ConnectionsList extends Vue {
     return true
   }
 
+  // flush the Collection change to local storage
+  private async flushCollectionChange() {
+    const tree = _.cloneDeep(this.treeData)
+    const travelCollection = (treeElements: ConnectionModelTree[]) => {
+      const res = [] as ConnectionModelFolder[]
+      if (!treeElements || (treeElements && !treeElements.length)) {
+        return [] as ConnectionModelFolder[]
+      }
+      treeElements.forEach((el: ConnectionModelTree) => {
+        if (el.isFolder) {
+          const curCollection = _.cloneDeep(el) as ConnectionModelFolder
+          const curCollectionChildren = _.cloneDeep(travelCollection(el.children))
+          curCollection.children = curCollectionChildren
+          res.push(curCollection)
+        }
+      })
+      return res
+    }
+    const CollectionsData = travelCollection(tree)
+
+    const res = await setConnectionCollection(CollectionsData)
+    if (!res) {
+      this.$log.error('Async Collection change failed')
+    }
+  }
+
+  private handleDrop(
+    draggingNode: TreeNode<ConnectionModelFolder['id'], ConnectionModelFolder>,
+    dropNode: TreeNode<ConnectionModelFolder['id'], ConnectionModelFolder>,
+    position: 'before' | 'after' | 'inner',
+    event: $TSFixed,
+  ) {
+    // set to db.json
+    this.flushCollectionChange()
+  }
+
   private loadData() {
     const connections: ConnectionModel[] = this.ConnectionModelData
     const folders: ConnectionModelFolder[] = this.ModelFolderData
     // let treeData: ConnectionModelTree[] = []
     if (!folders || (folders && !folders.length)) {
       // this.treeData = [...connections]
-      this.treeData = _.cloneDeep(folders)
+      this.treeData = _.cloneDeep(connections)
       return
     }
     this.treeData = _.cloneDeep(folders)
@@ -188,8 +237,8 @@ export default class ConnectionsList extends Vue {
       const curConnectionFolderId = connection.folderId
       if (curConnectionFolderId) {
         // current connection in a collection
-        const findCollection = (treeElement: ConnectionModelTree[], connection: ConnectionModel) => {
-          treeElement.forEach((e: ConnectionModelTree) => {
+        const findCollection = (treeElements: ConnectionModelTree[], connection: ConnectionModel) => {
+          treeElements.forEach((e: ConnectionModelTree) => {
             if (e.isFolder) {
               const children = e.children as ConnectionModelTree[]
               if (e.id === curConnectionFolderId) {
@@ -205,6 +254,7 @@ export default class ConnectionsList extends Vue {
             }
           })
         }
+
         findCollection(this.treeData, connection)
       } else {
         // current connection not in any connection
@@ -214,8 +264,16 @@ export default class ConnectionsList extends Vue {
     return
   }
 
-  private handleRenameEnter(data: ConnectionModelFolder) {
+  private handleEditCompeleted(data: ConnectionModelFolder) {
     data.isEdit = false
+  }
+
+  private handleEditCancel(node: $TSFixed, data: ConnectionModelFolder) {
+    const parent = node.parent
+    const children = parent.data.children || parent.data
+    const index = children.findIndex((d: ConnectionModelTree) => d.id === data.id)
+    children.splice(index, 1)
+    this.treeData = [...this.treeData]
   }
 
   private handleCollapseFolder() {
@@ -228,6 +286,7 @@ export default class ConnectionsList extends Vue {
   }
 
   private handleSelectConnection(row: ConnectionModel) {
+    this.handleConnectionTreeClick(row)
     this.initUnreadMessageCount(row.id as string)
     if (this.$route.name === 'newWindow') {
       return
@@ -235,8 +294,18 @@ export default class ConnectionsList extends Vue {
     this.$router.push({ path: `/recent_connections/${row.id}` })
   }
 
-  private initUnreadMessageCount(id: string) {
-    this.unreadMessageIncrement({ id, unreadMessageCount: 0 })
+  private handleSelectCollection(row: ConnectionModelTree) {
+    this.handleConnectionTreeClick(row)
+  }
+
+  private handleConnectionTreeClick(treeNode: ConnectionModelTree) {
+    if (treeNode.isFolder) {
+      this.selectedCollection = treeNode
+      this.selectedConnection = null
+    } else {
+      this.selectedConnection = treeNode
+      this.selectedCollection = null
+    }
   }
 
   private handleContextMenu(row: ConnectionModel, event: MouseEvent) {
@@ -266,6 +335,10 @@ export default class ConnectionsList extends Vue {
     }
   }
 
+  private initUnreadMessageCount(id: string) {
+    this.unreadMessageIncrement({ id, unreadMessageCount: 0 })
+  }
+
   private handleDelete() {
     this.$emit('delete', this.selectedConnection)
   }
@@ -287,16 +360,31 @@ export default class ConnectionsList extends Vue {
         children: [],
         isEdit: true,
       })
+    } else if (this.selectedConnection) {
+      //TODO: find father and add collection
     }
+    this.flushCollectionChange()
     this.showCollectionsContextmenu = false
   }
-  private handleDeleteCollection() {}
+  private handleNewCollectionOnTop() {
+    const treeRef = this.treeData as ConnectionModelTree[]
+    treeRef.push({
+      id: getCollectionId(),
+      name: '',
+      isFolder: true,
+      children: [],
+      isEdit: true,
+    })
+    this.flushCollectionChange()
+  }
+
+  private handleDeleteCollection() {
+    //TODO:rename feature
+  }
 
   private handleRenameCollection() {
     if (this.selectedCollection) {
       this.selectedCollection.isEdit = true
-      console.log(this.selectedCollection)
-      this.$forceUpdate()
     }
     this.showCollectionsContextmenu = false
   }
