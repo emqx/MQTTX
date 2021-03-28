@@ -130,7 +130,7 @@ import { ipcRenderer } from 'electron'
 import { TreeNode } from 'element-ui/types/tree'
 import getCollectionId from '@/utils/getCollectionId'
 import _ from 'lodash'
-import { setConnectionCollection } from '@/api/connection'
+import { setConnectionCollection, updateConnectionCollectionId } from '@/api/connection'
 
 @Component({
   components: {
@@ -174,6 +174,10 @@ export default class ConnectionsList extends Vue {
       this.selectedCollection = null
     }
   }
+  @Watch('ConnectionModelData')
+  private handleConnectionModelDataChange() {
+    this.loadData()
+  }
 
   private allowDrop(
     draggingNode: TreeNode<ConnectionModelFolder['id'], ConnectionModelFolder>,
@@ -189,7 +193,9 @@ export default class ConnectionsList extends Vue {
 
   // flush the Collection change to local storage
   private async flushCollectionChange() {
+    this.treeData = [...this.treeData]
     const tree = _.cloneDeep(this.treeData)
+    // get Collection without connection children
     const travelCollection = (treeElements: ConnectionModelTree[]) => {
       const res = [] as ConnectionModelFolder[]
       if (!treeElements || (treeElements && !treeElements.length)) {
@@ -199,6 +205,7 @@ export default class ConnectionsList extends Vue {
         if (el.isFolder) {
           const curCollection = _.cloneDeep(el) as ConnectionModelFolder
           const curCollectionChildren = _.cloneDeep(travelCollection(el.children))
+          curCollection.isEdit = false
           curCollection.children = curCollectionChildren
           res.push(curCollection)
         }
@@ -214,58 +221,77 @@ export default class ConnectionsList extends Vue {
   }
 
   private handleDrop(
-    draggingNode: TreeNode<ConnectionModelFolder['id'], ConnectionModelFolder>,
+    draggingNode: TreeNode<ConnectionModelTree['id'], ConnectionModelTree>,
     dropNode: TreeNode<ConnectionModelFolder['id'], ConnectionModelFolder>,
     position: 'before' | 'after' | 'inner',
-    event: $TSFixed,
   ) {
+    // handle connection
+    if (!draggingNode || !draggingNode.data || !dropNode || !dropNode.data || !draggingNode.data.id) {
+      return
+    }
+    if (!draggingNode.data.isFolder) {
+      switch (position) {
+        case 'inner':
+          draggingNode.data.folderId = dropNode.data.id
+          updateConnectionCollectionId(draggingNode.data.id, dropNode.data.id)
+          break
+        default:
+          if (!dropNode.parent) return
+          if (Array.isArray(dropNode.parent.data)) {
+            draggingNode.data.folderId = null
+            updateConnectionCollectionId(draggingNode.data.id, null)
+          } else {
+            draggingNode.data.folderId = dropNode.parent.data.id
+            updateConnectionCollectionId(draggingNode.data.id, dropNode.parent.data.id)
+          }
+          break
+      }
+    }
     // set to db.json
     this.flushCollectionChange()
   }
 
   private loadData() {
-    const connections: ConnectionModel[] = this.ConnectionModelData
-    const folders: ConnectionModelFolder[] = this.ModelFolderData
-    // let treeData: ConnectionModelTree[] = []
+    const connections: ConnectionModel[] = _.cloneDeep(this.ConnectionModelData)
+    const folders: ConnectionModelFolder[] = _.cloneDeep(this.ModelFolderData)
     if (!folders || (folders && !folders.length)) {
-      // this.treeData = [...connections]
-      this.treeData = _.cloneDeep(connections)
+      this.treeData = folders
       return
-    }
-    this.treeData = _.cloneDeep(folders)
-    connections.forEach((connection: ConnectionModel) => {
-      const curConnectionFolderId = connection.folderId
-      if (curConnectionFolderId) {
-        // current connection in a collection
-        const findCollection = (treeElements: ConnectionModelTree[], connection: ConnectionModel) => {
-          treeElements.forEach((e: ConnectionModelTree) => {
-            if (e.isFolder) {
-              const children = e.children as ConnectionModelTree[]
-              if (e.id === curConnectionFolderId) {
-                // found cur connection's collection
-                children.push(connection)
-                return
-              } else {
-                if (!children.length) {
-                  return
+    } else {
+      this.treeData = folders
+      connections.forEach((connection: ConnectionModel) => {
+        const curConnectionFolderId = connection.folderId
+        if (curConnectionFolderId) {
+          // current connection in a collection
+          const findCollection = (treeElements: ConnectionModelTree[], connection: ConnectionModel) => {
+            treeElements.forEach((e: ConnectionModelTree) => {
+              if (e.isFolder) {
+                const children = e.children as ConnectionModelTree[]
+                if (e.id === curConnectionFolderId) {
+                  // found cur connection's collection
+                  children.push(connection)
+                } else {
+                  if (!children.length) {
+                    return
+                  }
+                  findCollection(e.children, connection)
                 }
-                findCollection(e.children, connection)
               }
-            }
-          })
+            })
+          }
+          findCollection(this.treeData, connection)
+        } else {
+          // current connection not in any connection
+          ;(this.treeData as ConnectionModelTree[]).push(connection as ConnectionModel)
         }
-
-        findCollection(this.treeData, connection)
-      } else {
-        // current connection not in any connection
-        ;(this.treeData as ConnectionModelTree[]).push(connection as ConnectionModel)
-      }
-    })
+      })
+    }
     return
   }
 
   private handleEditCompeleted(data: ConnectionModelFolder) {
     data.isEdit = false
+    this.flushCollectionChange()
   }
 
   private handleEditCancel(node: $TSFixed, data: ConnectionModelFolder) {
@@ -273,7 +299,7 @@ export default class ConnectionsList extends Vue {
     const children = parent.data.children || parent.data
     const index = children.findIndex((d: ConnectionModelTree) => d.id === data.id)
     children.splice(index, 1)
-    this.treeData = [...this.treeData]
+    this.flushCollectionChange()
   }
 
   private handleCollapseFolder() {
@@ -378,8 +404,71 @@ export default class ConnectionsList extends Vue {
     this.flushCollectionChange()
   }
 
+  private getTreeNodeParent(node: ConnectionModelTree): ConnectionModelTree | ConnectionModelTree[] | null {
+    let findRes = false
+    let res: ConnectionModelTree | ConnectionModelTree[] | null = null
+    const treeData = this.treeData
+    treeData.forEach((e: ConnectionModelTree) => {
+      if (e.id === node.id) {
+        findRes = true
+        res = treeData
+        return
+      }
+    })
+    if (!findRes) {
+      const treeTravel = (rootNode: ConnectionModelTree, parentNode: ConnectionModelTree | null) => {
+        if (rootNode.id === node.id) {
+          findRes = true
+          res = parentNode
+        }
+        if (rootNode.isFolder) {
+          rootNode.children.forEach((element) => {
+            treeTravel(element, rootNode)
+          })
+        }
+      }
+      //travel tree to get parent
+      treeData.forEach((e: ConnectionModelTree) => {
+        treeTravel(e, null)
+      })
+    }
+    if (!findRes) {
+      return this.treeData
+    }
+    return res
+  }
+
   private handleDeleteCollection() {
-    //TODO:rename feature
+    const selectedCollection = this.selectedCollection
+    if (selectedCollection && selectedCollection.isFolder) {
+      const nodeParent: ConnectionModelTree[] | ConnectionModelTree = this.getTreeNodeParent(selectedCollection) as
+        | ConnectionModelTree[]
+        | ConnectionModelTree
+      let childrenNode: ConnectionModelTree[]
+      if (Array.isArray(nodeParent)) {
+        childrenNode = nodeParent
+      } else {
+        childrenNode = (nodeParent as ConnectionModelFolder).children
+      }
+      // delete collection
+      const index = childrenNode.findIndex((d: ConnectionModelTree) => d.id === selectedCollection.id)
+      const deletedNode = childrenNode.splice(index, 1)
+      // delete the chilren
+      const treeTravel = (e: ConnectionModelTree) => {
+        if (e.isFolder) {
+          e.children.forEach((e: ConnectionModelTree) => {
+            treeTravel(e)
+          })
+        } else {
+          e.folderId = null
+          this.$emit('delete', e)
+        }
+      }
+      treeTravel(deletedNode[0])
+      this.flushCollectionChange()
+    }
+
+    this.showCollectionsContextmenu = false
   }
 
   private handleRenameCollection() {

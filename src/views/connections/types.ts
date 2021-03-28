@@ -86,7 +86,7 @@ export interface ConnectionModel extends SSLPath {
     properties?: WillPropertiesModel
   }
   clientIdWithTime?: boolean //Fill in client_id.Ensure that client_id field is unique.
-  folderId?: string
+  folderId?: string | null // if folder is null set to default
   isFolder: false
 }
 

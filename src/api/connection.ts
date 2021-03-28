@@ -5,6 +5,18 @@ export const setConnectionCollection = (data: ConnectionModelFolder[] | []): Con
   return db.set<ConnectionModelFolder[] | []>('connectionsFolder', data)
 }
 
+export const loadConnectionsWithFolder = (): ConnectionModelFolder[] | [] => {
+  return db.get<ConnectionModelFolder[] | []>('connectionsFolder')
+}
+
+export const updateConnectionCollectionId = (id: string, collectionId: string | null): ConnectionModel => {
+  const connection: ConnectionModel = loadConnection(id)
+  if (connection) {
+    connection.folderId = collectionId
+  }
+  return db.update<ConnectionModel>('connections', id, connection)
+}
+
 export const loadConnection = (id: string): ConnectionModel => {
   return db.find<ConnectionModel>('connections', id)
 }
@@ -15,10 +27,6 @@ export const loadConnections = (): ConnectionModel[] | [] => {
 
 export const loadSuggestConnections = (): ConnectionModel[] | [] => {
   return db.get<ConnectionModel[] | []>('suggestConnections')
-}
-
-export const loadConnectionsWithFolder = (): ConnectionModelFolder[] | [] => {
-  return db.get<ConnectionModelFolder[] | []>('connectionsFolder')
 }
 
 export const createSuggestConnection = (data: ConnectionModel): ConnectionModel => {
