@@ -23,7 +23,7 @@
           :content="$t('connections.collapseCollection')"
         >
           <a class="collapse-collection-btn" href="javascript:;" @click="handleCollapseCollection">
-            <i class="el-icon-s-fold"></i>
+            <i class="iconfont icon-collapse"></i>
           </a>
         </el-tooltip>
       </div>
@@ -31,6 +31,7 @@
     <div class="connections-list">
       <template>
         <el-tree
+          :indent="4"
           draggable
           ref="tree"
           :data="treeData"
@@ -45,9 +46,10 @@
             <div v-if="data.isEdit">
               <el-input
                 size="small"
-                @blur="handleEditCompeleted(data)"
-                @keyup.enter.native="handleEditCompeleted(data)"
+                @blur="handleEditCompeleted(node, data)"
+                @keyup.enter.native="handleEditCompeleted(node, data)"
                 @keyup.esc.native="handleEditCancel(node, data)"
+                :placeholder="$t('connections.collectionPlaceholder')"
                 v-model="data.name"
               ></el-input>
             </div>
@@ -92,7 +94,11 @@
               @click="handleSelectCollection(data)"
               @contextmenu="handleCollectionContextMenu($event, data)"
             >
-              <div>{{ data.name }}</div>
+              <div class="collection-name">
+                <i v-if="!node.expanded" class="el-icon-folder"> </i>
+                <i v-else class="el-icon-folder-opened"> </i>
+                {{ data.name }}
+              </div>
             </div>
           </span>
         </el-tree>
@@ -283,9 +289,17 @@ export default class ConnectionsList extends Vue {
     return
   }
 
-  private handleEditCompeleted(data: ConnectionModelCollection) {
-    data.isEdit = false
-    this.flushCollectionChange()
+  private handleEditCompeleted(node: $TSFixed, data: ConnectionModelCollection) {
+    if (!this.handleCollectionNameValidate(data.name)) {
+      this.handleEditCancel(node, data)
+    } else {
+      data.isEdit = false
+      this.flushCollectionChange()
+    }
+  }
+
+  private handleCollectionNameValidate(name: string): boolean {
+    return name && !name.match(/(^\s+$)/g) ? true : false
   }
 
   private handleEditCancel(node: $TSFixed, data: ConnectionModelCollection) {
@@ -481,8 +495,28 @@ export default class ConnectionsList extends Vue {
 .connection-container {
   height: 100%;
   width: 100%;
+  .connection-topbar {
+    @include flex-space-between;
+    min-height: 10px;
+    height: 59px;
+    padding: 0 4px;
+    i {
+      font-size: 18px;
+    }
+    .connection-titlebar {
+      padding: 16px;
+    }
+    .connection-tailbar {
+      .new-collection-btn,
+      .collapse-collection-btn {
+        margin-right: 12px;
+      }
+    }
+  }
   .connections-list {
+    height: calc(100% - 59px);
     .el-tree {
+      height: 100%;
       background-color: var(--color-bg-primary);
       .el-tree-node__content {
         height: 100%;
@@ -559,26 +593,35 @@ export default class ConnectionsList extends Vue {
             width: 100%;
             height: 36px;
             @include flex-space-between;
+            .collection-name {
+              display: block;
+              font-size: $font-size--body;
+              font-weight: 500;
+              color: var(--color-text-title);
+              max-width: 150px;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              overflow: hidden;
+              i {
+                font-size: 18px;
+                color: #c0c4cc;
+              }
+            }
           }
         }
       }
-    }
-  }
-  .connection-topbar {
-    @include flex-space-between;
-    min-height: 10px;
-    padding: 0 4px;
-    border-bottom: 1px solid var(--color-border-default);
-    i {
-      font-size: 18px;
-    }
-    .connection-titlebar {
-      padding: 16px;
-    }
-    .connection-tailbar {
-      .new-collection-btn,
-      .collapse-collection-btn {
-        margin-right: 12px;
+
+      // arrow icon
+      .el-icon-caret-right:before,
+      .expanded:before {
+        // not expanded
+        content: '\e6e0';
+        font-size: 14px;
+      }
+      .expanded {
+        // transform rotate
+        -webkit-transform: rotate(90deg);
+        transform: rotate(90deg);
       }
     }
   }

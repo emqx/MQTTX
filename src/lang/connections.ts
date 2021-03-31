@@ -469,6 +469,11 @@ export default {
     en: 'New Collection',
     ja: '新しいフォルダ',
   },
+  collectionPlaceholder: {
+    zh: '文件夹名称',
+    en: 'collection name',
+    ja: 'フォルダ名',
+  },
   collapseCollection: {
     zh: '收起文件夹',
     en: 'Collapse Collection',
