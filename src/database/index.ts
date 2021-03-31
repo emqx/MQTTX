@@ -15,7 +15,7 @@ interface DBSchema {
     currentLang: string
     currentTheme: string
   }
-  connectionsFolder: []
+  connectionsCollection: []
   connections: []
   suggestConnections: []
   scripts: []
@@ -71,8 +71,8 @@ class DB {
     if (!this.db.has('suggestConnections').value()) {
       this.db.set('suggestConnections', []).write()
     }
-    if (!this.db.has('connectionsFolder').value()) {
-      this.db.set('connectionsFolder', []).write()
+    if (!this.db.has('connectionsCollection').value()) {
+      this.db.set('connectionsCollection', []).write()
     }
     if (!this.db.has('scripts').value()) {
       this.db.set('scripts', []).write()
