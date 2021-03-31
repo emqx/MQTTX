@@ -85,21 +85,21 @@ export interface ConnectionModel extends SSLPath {
     lastWillRetain: boolean
     properties?: WillPropertiesModel
   }
-  clientIdWithTime?: boolean //Fill in client_id.Ensure that client_id field is unique.
-  folderId?: string | null // if folder is null set to default
-  isFolder: false
+  clientIdWithTime?: boolean // fill in client_id.Ensure that client_id field is unique.
+  collectionId?: string | null // if collection is null set to default
+  isCollection: false
 }
 
-export interface ConnectionModelFolder {
+export interface ConnectionModelCollection {
   readonly id: string
   name: string
   children: ConnectionModelTree[] | []
-  isFolder: true
+  isCollection: true
   isEdit?: boolean
 }
 
-// leaf: ConnectionModel | collection: ConnectionModelFolder
-export type ConnectionModelTree = ConnectionModelFolder | ConnectionModel
+// leaf: ConnectionModel | collection: ConnectionModelCollection
+export type ConnectionModelTree = ConnectionModelCollection | ConnectionModel
 
 export interface SSLContent {
   ca: string | string[] | Buffer | Buffer[] | undefined

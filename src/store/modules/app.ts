@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { ConnectionModel, ConnectionModelFolder } from '../../views/connections/types'
+import { ConnectionModel, ConnectionModelCollection } from '../../views/connections/types'
 import { loadSettings, setSettings } from '@/api/setting'
 import { ScriptState } from '@/views/script/types'
 
@@ -46,7 +46,7 @@ const app = {
     connectionCollection: [],
   },
   mutations: {
-    [CHANGE_CONNECTION_COLLECTION](state: App, payload: ConnectionModelFolder[] | []) {
+    [CHANGE_CONNECTION_COLLECTION](state: App, payload: ConnectionModelCollection[] | []) {
       state.connectionCollection = payload
     },
     [TOGGLE_THEME](state: App, currentTheme: Theme) {

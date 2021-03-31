@@ -10,9 +10,9 @@
           placement="bottom"
           :effect="theme !== 'light' ? 'light' : 'dark'"
           :open-delay="500"
-          :content="$t('connections.newFolder')"
+          :content="$t('connections.newCollection')"
         >
-          <a class="new-folder-btn" href="javascript:;" @click="handleNewCollectionOnTop">
+          <a class="new-collection-btn" href="javascript:;" @click="handleNewCollectionOnTop">
             <i class="el-icon-folder-add"></i>
           </a>
         </el-tooltip>
@@ -20,9 +20,9 @@
           placement="bottom"
           :effect="theme !== 'light' ? 'light' : 'dark'"
           :open-delay="500"
-          :content="$t('connections.collapseFolder')"
+          :content="$t('connections.collapseCollection')"
         >
-          <a class="collapse-folder-btn" href="javascript:;" @click="handleCollapseFolder">
+          <a class="collapse-collection-btn" href="javascript:;" @click="handleCollapseCollection">
             <i class="el-icon-s-fold"></i>
           </a>
         </el-tooltip>
@@ -43,7 +43,6 @@
         >
           <span class="custom-tree-node" slot-scope="{ node, data }">
             <div v-if="data.isEdit">
-              <!-- <el-input></el-input> -->
               <el-input
                 size="small"
                 @blur="handleEditCompeleted(data)"
@@ -54,7 +53,7 @@
             </div>
             <!-- connection -->
             <div
-              v-else-if="!data.isFolder"
+              v-else-if="!data.isCollection"
               class="connection-item"
               @click="handleSelectConnection(data)"
               @contextmenu="handleContextMenu(data, $event)"
@@ -86,10 +85,10 @@
                 {{ unreadMessageCount[data.id] }}
               </div>
             </div>
-            <!-- folder -->
+            <!-- collection -->
             <div
               v-else
-              class="custom-tree-node-folder"
+              class="custom-tree-node-collection"
               @click="handleSelectCollection(data)"
               @contextmenu="handleCollectionContextMenu($event, data)"
             >
@@ -125,7 +124,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import Contextmenu from '@/components/Contextmenu.vue'
-import { ConnectionModel, ContextmenuModel, ConnectionModelFolder, ConnectionModelTree } from './types'
+import { ConnectionModel, ContextmenuModel, ConnectionModelCollection, ConnectionModelTree } from './types'
 import { ipcRenderer } from 'electron'
 import { TreeNode } from 'element-ui/types/tree'
 import getCollectionId from '@/utils/getCollectionId'
@@ -139,7 +138,7 @@ import { setConnectionCollection, updateConnectionCollectionId } from '@/api/con
 })
 export default class ConnectionsList extends Vue {
   @Prop({ required: true }) public ConnectionModelData!: ConnectionModel[] | []
-  @Prop({ required: false }) public ModelFolderData!: ConnectionModelFolder[] | []
+  @Prop({ required: false }) public CollectionModelData!: ConnectionModelCollection[] | []
   @Prop({ required: true }) public connectionId!: string
 
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
@@ -151,7 +150,7 @@ export default class ConnectionsList extends Vue {
   private showContextmenu: boolean = false
   private showCollectionsContextmenu: boolean = false
   private selectedConnection: ConnectionModel | null = null
-  private selectedCollection: ConnectionModelFolder | null = null
+  private selectedCollection: ConnectionModelCollection | null = null
   private contextmenuConfig: ContextmenuModel = {
     top: 0,
     left: 0,
@@ -180,11 +179,11 @@ export default class ConnectionsList extends Vue {
   }
 
   private allowDrop(
-    draggingNode: TreeNode<ConnectionModelFolder['id'], ConnectionModelFolder>,
-    dropNode: TreeNode<ConnectionModelFolder['id'], ConnectionModelFolder>,
+    draggingNode: TreeNode<ConnectionModelCollection['id'], ConnectionModelCollection>,
+    dropNode: TreeNode<ConnectionModelCollection['id'], ConnectionModelCollection>,
     type: 'prev' | 'inner' | 'next',
   ) {
-    if (!dropNode.data.isFolder) {
+    if (!dropNode.data.isCollection) {
       // drag node to connction is not allowed
       return type !== 'inner'
     }
@@ -193,17 +192,16 @@ export default class ConnectionsList extends Vue {
 
   // flush the Collection change to local storage
   private async flushCollectionChange() {
-    this.treeData = [...this.treeData]
     const tree = _.cloneDeep(this.treeData)
     // get Collection without connection children
     const travelCollection = (treeElements: ConnectionModelTree[]) => {
-      const res = [] as ConnectionModelFolder[]
-      if (!treeElements || (treeElements && !treeElements.length)) {
-        return [] as ConnectionModelFolder[]
+      const res = [] as ConnectionModelCollection[]
+      if (!treeElements || !treeElements.length) {
+        return [] as ConnectionModelCollection[]
       }
       treeElements.forEach((el: ConnectionModelTree) => {
-        if (el.isFolder) {
-          const curCollection = _.cloneDeep(el) as ConnectionModelFolder
+        if (el.isCollection) {
+          const curCollection = _.cloneDeep(el) as ConnectionModelCollection
           const curCollectionChildren = _.cloneDeep(travelCollection(el.children))
           curCollection.isEdit = false
           curCollection.children = curCollectionChildren
@@ -222,28 +220,23 @@ export default class ConnectionsList extends Vue {
 
   private handleDrop(
     draggingNode: TreeNode<ConnectionModelTree['id'], ConnectionModelTree>,
-    dropNode: TreeNode<ConnectionModelFolder['id'], ConnectionModelFolder>,
+    dropNode: TreeNode<ConnectionModelCollection['id'], ConnectionModelCollection>,
     position: 'before' | 'after' | 'inner',
   ) {
     // handle connection
     if (!draggingNode || !draggingNode.data || !dropNode || !dropNode.data || !draggingNode.data.id) {
       return
     }
-    if (!draggingNode.data.isFolder) {
+    if (!draggingNode.data.isCollection) {
       switch (position) {
         case 'inner':
-          draggingNode.data.folderId = dropNode.data.id
+          draggingNode.data.collectionId = dropNode.data.id
           updateConnectionCollectionId(draggingNode.data.id, dropNode.data.id)
           break
         default:
           if (!dropNode.parent) return
-          if (Array.isArray(dropNode.parent.data)) {
-            draggingNode.data.folderId = null
-            updateConnectionCollectionId(draggingNode.data.id, null)
-          } else {
-            draggingNode.data.folderId = dropNode.parent.data.id
-            updateConnectionCollectionId(draggingNode.data.id, dropNode.parent.data.id)
-          }
+          draggingNode.data.collectionId = Array.isArray(dropNode.parent.data) ? null : dropNode.parent.data.id
+          updateConnectionCollectionId(draggingNode.data.id, dropNode.parent.data.id)
           break
       }
     }
@@ -253,48 +246,49 @@ export default class ConnectionsList extends Vue {
 
   private loadData() {
     const connections: ConnectionModel[] = _.cloneDeep(this.ConnectionModelData)
-    const folders: ConnectionModelFolder[] = _.cloneDeep(this.ModelFolderData)
-    if (!folders || (folders && !folders.length)) {
-      this.treeData = folders
+    const collections: ConnectionModelCollection[] = _.cloneDeep(this.CollectionModelData)
+
+    if (!collections || !collections.length) {
+      this.treeData = connections
       return
     } else {
-      this.treeData = folders
-      connections.forEach((connection: ConnectionModel) => {
-        const curConnectionFolderId = connection.folderId
-        if (curConnectionFolderId) {
+      this.treeData = collections
+      connections.forEach((el: ConnectionModel) => {
+        const curConnectionCollectionId = el.collectionId
+        if (curConnectionCollectionId) {
           // current connection in a collection
           const findCollection = (treeElements: ConnectionModelTree[], connection: ConnectionModel) => {
-            treeElements.forEach((e: ConnectionModelTree) => {
-              if (e.isFolder) {
-                const children = e.children as ConnectionModelTree[]
-                if (e.id === curConnectionFolderId) {
+            treeElements.forEach((treeNode: ConnectionModelTree) => {
+              if (treeNode.isCollection) {
+                const children = treeNode.children as ConnectionModelTree[]
+                if (treeNode.id === curConnectionCollectionId) {
                   // found cur connection's collection
                   children.push(connection)
                 } else {
                   if (!children.length) {
                     return
                   }
-                  findCollection(e.children, connection)
+                  findCollection(treeNode.children, connection)
                 }
               }
             })
           }
-          findCollection(this.treeData, connection)
+          findCollection(this.treeData, el)
         } else {
           // current connection not in any connection
-          ;(this.treeData as ConnectionModelTree[]).push(connection as ConnectionModel)
+          ;(this.treeData as ConnectionModelTree[]).push(el as ConnectionModel)
         }
       })
     }
     return
   }
 
-  private handleEditCompeleted(data: ConnectionModelFolder) {
+  private handleEditCompeleted(data: ConnectionModelCollection) {
     data.isEdit = false
     this.flushCollectionChange()
   }
 
-  private handleEditCancel(node: $TSFixed, data: ConnectionModelFolder) {
+  private handleEditCancel(node: $TSFixed, data: ConnectionModelCollection) {
     const parent = node.parent
     const children = parent.data.children || parent.data
     const index = children.findIndex((d: ConnectionModelTree) => d.id === data.id)
@@ -302,7 +296,7 @@ export default class ConnectionsList extends Vue {
     this.flushCollectionChange()
   }
 
-  private handleCollapseFolder() {
+  private handleCollapseCollection() {
     const treeRef = this.$refs.tree as $TSFixed
     if (!treeRef) return
     const nodes = treeRef.store.nodesMap
@@ -325,7 +319,7 @@ export default class ConnectionsList extends Vue {
   }
 
   private handleConnectionTreeClick(treeNode: ConnectionModelTree) {
-    if (treeNode.isFolder) {
+    if (treeNode.isCollection) {
       this.selectedCollection = treeNode
       this.selectedConnection = null
     } else {
@@ -349,7 +343,7 @@ export default class ConnectionsList extends Vue {
     }
   }
 
-  private handleCollectionContextMenu(event: MouseEvent, row: ConnectionModelFolder) {
+  private handleCollectionContextMenu(event: MouseEvent, row: ConnectionModelCollection) {
     if (!this.showCollectionsContextmenu) {
       const { clientX, clientY } = event
       this.collectionsContextmenuConfig.top = clientY
@@ -378,11 +372,11 @@ export default class ConnectionsList extends Vue {
 
   private handleNewCollection() {
     if (this.selectedCollection) {
-      const collectionChildren = this.selectedCollection.children as ConnectionModelFolder[]
+      const collectionChildren = this.selectedCollection.children as ConnectionModelCollection[]
       collectionChildren.push({
         id: getCollectionId(),
         name: '',
-        isFolder: true,
+        isCollection: true,
         children: [],
         isEdit: true,
       })
@@ -397,7 +391,7 @@ export default class ConnectionsList extends Vue {
     treeRef.push({
       id: getCollectionId(),
       name: '',
-      isFolder: true,
+      isCollection: true,
       children: [],
       isEdit: true,
     })
@@ -408,8 +402,8 @@ export default class ConnectionsList extends Vue {
     let findRes = false
     let res: ConnectionModelTree | ConnectionModelTree[] | null = null
     const treeData = this.treeData
-    treeData.forEach((e: ConnectionModelTree) => {
-      if (e.id === node.id) {
+    treeData.forEach((treeNode: ConnectionModelTree) => {
+      if (treeNode.id === node.id) {
         findRes = true
         res = treeData
         return
@@ -421,15 +415,15 @@ export default class ConnectionsList extends Vue {
           findRes = true
           res = parentNode
         }
-        if (rootNode.isFolder) {
+        if (rootNode.isCollection) {
           rootNode.children.forEach((element) => {
             treeTravel(element, rootNode)
           })
         }
       }
       //travel tree to get parent
-      treeData.forEach((e: ConnectionModelTree) => {
-        treeTravel(e, null)
+      treeData.forEach((treeNode: ConnectionModelTree) => {
+        treeTravel(treeNode, null)
       })
     }
     if (!findRes) {
@@ -440,28 +434,25 @@ export default class ConnectionsList extends Vue {
 
   private handleDeleteCollection() {
     const selectedCollection = this.selectedCollection
-    if (selectedCollection && selectedCollection.isFolder) {
+    if (selectedCollection && selectedCollection.isCollection) {
       const nodeParent: ConnectionModelTree[] | ConnectionModelTree = this.getTreeNodeParent(selectedCollection) as
         | ConnectionModelTree[]
         | ConnectionModelTree
-      let childrenNode: ConnectionModelTree[]
-      if (Array.isArray(nodeParent)) {
-        childrenNode = nodeParent
-      } else {
-        childrenNode = (nodeParent as ConnectionModelFolder).children
-      }
+      const childrenNode: ConnectionModelTree[] = Array.isArray(nodeParent)
+        ? nodeParent
+        : (nodeParent as ConnectionModelCollection).children
       // delete collection
       const index = childrenNode.findIndex((d: ConnectionModelTree) => d.id === selectedCollection.id)
       const deletedNode = childrenNode.splice(index, 1)
       // delete the chilren
-      const treeTravel = (e: ConnectionModelTree) => {
-        if (e.isFolder) {
-          e.children.forEach((e: ConnectionModelTree) => {
-            treeTravel(e)
+      const treeTravel = (treeNode: ConnectionModelTree) => {
+        if (treeNode.isCollection) {
+          treeNode.children.forEach((treeNode: ConnectionModelTree) => {
+            treeTravel(treeNode)
           })
         } else {
-          e.folderId = null
-          this.$emit('delete', e)
+          treeNode.collectionId = null
+          this.$emit('delete', treeNode)
         }
       }
       treeTravel(deletedNode[0])
@@ -479,11 +470,7 @@ export default class ConnectionsList extends Vue {
   }
 
   private mounted() {
-    this.$nextTick(() => {
-      setTimeout(() => {
-        this.loadData()
-      })
-    })
+    this.loadData()
   }
 }
 </script>
@@ -495,81 +482,84 @@ export default class ConnectionsList extends Vue {
   height: 100%;
   width: 100%;
   .connections-list {
-    .el-tree-node__content {
-      height: 100%;
-      .custom-tree-node {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        .connection-item {
-          @include flex-space-between;
-          height: 64px;
-          width: 100%;
-          cursor: pointer;
-          position: relative;
-          transition: background 0.3s ease;
-          user-select: none;
-          .client-info {
-            display: inline-block;
-            margin-left: 8px;
-            .client-name {
-              display: block;
-              font-size: $font-size--body;
-              font-weight: 500;
-              color: var(--color-text-title);
-              max-width: 150px;
-              white-space: nowrap;
-              text-overflow: ellipsis;
-              overflow: hidden;
+    .el-tree {
+      background-color: var(--color-bg-primary);
+      .el-tree-node__content {
+        height: 100%;
+        .custom-tree-node {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          .connection-item {
+            @include flex-space-between;
+            height: 64px;
+            width: 100%;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.3s ease;
+            user-select: none;
+            .client-info {
+              display: inline-block;
+              margin-left: 8px;
+              .client-name {
+                display: block;
+                font-size: $font-size--body;
+                font-weight: 500;
+                color: var(--color-text-title);
+                max-width: 150px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+              }
             }
-          }
-          .ssl-tag {
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 0;
-            height: 0;
-            border-top: 36px solid var(--color-main-green);
-            border-left: 36px solid transparent;
-            div {
+            .ssl-tag {
               position: absolute;
-              top: -32px;
-              right: -1px;
-              font-size: 12px;
-              transform: rotate(45deg);
-              color: #fff;
+              right: 0;
+              top: 0;
+              width: 0;
+              height: 0;
+              border-top: 36px solid var(--color-main-green);
+              border-left: 36px solid transparent;
+              div {
+                position: absolute;
+                top: -32px;
+                right: -1px;
+                font-size: 12px;
+                transform: rotate(45deg);
+                color: #fff;
+              }
             }
-          }
-          .new-msg-count {
-            margin-right: 8px;
-            min-width: 18px;
-            height: 18px;
-            line-height: 18px;
-            background: var(--color-main-green);
-            border-radius: 9px;
-            padding: 0 6px;
-            color: #fff;
-            font-size: $font-size--tips;
-            text-align: center;
-          }
-          .connection-status {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 4px;
-            background: var(--color-bg-item_status);
-            vertical-align: top;
-            margin-top: 8px;
-            &.online {
+            .new-msg-count {
+              margin-right: 8px;
+              min-width: 18px;
+              height: 18px;
+              line-height: 18px;
               background: var(--color-main-green);
+              border-radius: 9px;
+              padding: 0 6px;
+              color: #fff;
+              font-size: $font-size--tips;
+              text-align: center;
+            }
+            .connection-status {
+              display: inline-block;
+              width: 8px;
+              height: 8px;
+              border-radius: 4px;
+              background: var(--color-bg-item_status);
+              vertical-align: top;
+              margin-top: 8px;
+              &.online {
+                background: var(--color-main-green);
+              }
             }
           }
-        }
-        .custom-tree-node-folder {
-          width: 100%;
-          height: 36px;
-          @include flex-space-between;
+          .custom-tree-node-collection {
+            width: 100%;
+            height: 36px;
+            @include flex-space-between;
+          }
         }
       }
     }
@@ -586,8 +576,8 @@ export default class ConnectionsList extends Vue {
       padding: 16px;
     }
     .connection-tailbar {
-      .new-folder-btn,
-      .collapse-folder-btn {
+      .new-collection-btn,
+      .collapse-collection-btn {
         margin-right: 12px;
       }
     }

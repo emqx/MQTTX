@@ -3,7 +3,7 @@
     <div class="leftList">
       <ConnectionsList
         :ConnectionModelData="records"
-        :ModelFolderData="collections"
+        :CollectionModelData="collections"
         :connectionId="connectionId"
         @delete="onDelete"
       />
@@ -33,12 +33,12 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Action } from 'vuex-class'
-import { loadConnections, loadConnection, loadConnectionsWithFolder } from '@/api/connection'
+import { loadConnections, loadConnection, loadConnectionsWithCollection } from '@/api/connection'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsDetail from './ConnectionsDetail.vue'
 import ConnectionForm from './ConnectionForm.vue'
-import { ConnectionModel, ConnectionModelFolder } from './types'
+import { ConnectionModel, ConnectionModelCollection } from './types'
 
 @Component({
   components: {
@@ -56,7 +56,7 @@ export default class Connections extends Vue {
 
   private isEmpty: boolean = false
   private records: ConnectionModel[] = []
-  private collections: ConnectionModelFolder[] = []
+  private collections: ConnectionModelCollection[] = []
   private currentConnection: ConnectionModel = {
     clientId: '',
     name: '',
@@ -81,7 +81,8 @@ export default class Connections extends Vue {
     ca: '',
     cert: '',
     key: '',
-    isFolder: false,
+    isCollection: false,
+    collectionId: null,
   }
 
   @Watch('$route.params.id')
@@ -126,7 +127,7 @@ export default class Connections extends Vue {
 
   private async loadData(reload: boolean = false): Promise<void> {
     const connections: ConnectionModel[] | [] = await loadConnections()
-    const connectionCollections: ConnectionModelFolder[] | [] = await loadConnectionsWithFolder()
+    const connectionCollections: ConnectionModelCollection[] | [] = await loadConnectionsWithCollection()
     this.changeAllConnections({ allConnections: connections })
     this.records = connections
     this.collections = connectionCollections

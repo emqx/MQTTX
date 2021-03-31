@@ -554,7 +554,8 @@ export default class ConnectionCreate extends Vue {
     receiveMaximum: undefined,
     topicAliasMaximum: undefined,
     clientIdWithTime: false,
-    isFolder: false,
+    isCollection: false,
+    collectionId: null,
   }
 
   private record: ConnectionModel = _.cloneDeep(this.defaultRecord)
