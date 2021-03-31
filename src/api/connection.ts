@@ -1,18 +1,18 @@
 import db from '@/database/index'
-import { ConnectionModel, MessageModel, ConnectionModelFolder } from '@/views/connections/types'
+import { ConnectionModel, MessageModel, ConnectionModelCollection } from '@/views/connections/types'
 
-export const setConnectionCollection = (data: ConnectionModelFolder[] | []): ConnectionModelFolder[] | [] => {
-  return db.set<ConnectionModelFolder[] | []>('connectionsFolder', data)
+export const setConnectionCollection = (data: ConnectionModelCollection[] | []): ConnectionModelCollection[] | [] => {
+  return db.set<ConnectionModelCollection[] | []>('connectionsCollection', data)
 }
 
-export const loadConnectionsWithFolder = (): ConnectionModelFolder[] | [] => {
-  return db.get<ConnectionModelFolder[] | []>('connectionsFolder')
+export const loadConnectionsWithCollection = (): ConnectionModelCollection[] | [] => {
+  return db.get<ConnectionModelCollection[] | []>('connectionsCollection')
 }
 
 export const updateConnectionCollectionId = (id: string, collectionId: string | null): ConnectionModel => {
   const connection: ConnectionModel = loadConnection(id)
   if (connection) {
-    connection.folderId = collectionId
+    connection.collectionId = collectionId
   }
   return db.update<ConnectionModel>('connections', id, connection)
 }
