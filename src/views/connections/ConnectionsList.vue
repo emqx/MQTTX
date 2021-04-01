@@ -40,6 +40,7 @@
           default-expand-all
           :current-node-key="connectionId"
           @node-drop="handleDrop"
+          @node-drag-end="handleDragEnd"
           :allow-drop="allowDrop"
         >
           <span class="custom-tree-node" slot-scope="{ node, data }">
@@ -222,6 +223,24 @@ export default class ConnectionsList extends Vue {
     if (!res) {
       this.$log.error('Async Collection change failed')
     }
+  }
+
+  private handleDragEnd(
+    draggingNode: TreeNode<ConnectionModelTree['id'], ConnectionModelTree>,
+    dropNode: TreeNode<ConnectionModelCollection['id'], ConnectionModelCollection>,
+    position: 'before' | 'after' | 'inner',
+    event: MouseEvent,
+  ) {
+    const { clientX, clientY } = event
+    ipcRenderer.send('getWindowSize')
+    // IpcRendererEvent
+    ipcRenderer.on('getWindowSize', (event: Electron.Event, ...args: any[]) => {
+      const { height, width } = args[0]
+      if (clientX > width || clientX < 0 || clientY > height || clientY < 0) {
+        ipcRenderer.send('newWindow', draggingNode.data.id)
+      }
+    })
+    this.showContextmenu = false
   }
 
   private handleDrop(

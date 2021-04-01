@@ -62,6 +62,11 @@ function handleIpcMessages() {
     const { id, receivedMessage } = args[0]
     updateConnectionMessage(id, { ...receivedMessage })
   })
+  ipcMain.on('getWindowSize', (event: Electron.Event, ...args: any[]) => {
+    if (win) {
+      event.sender.send('getWindowSize', win.getBounds())
+    }
+  })
 }
 
 // handle event when APP quit
