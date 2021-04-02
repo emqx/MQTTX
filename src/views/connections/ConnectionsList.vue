@@ -234,12 +234,14 @@ export default class ConnectionsList extends Vue {
     const { clientX, clientY } = event
     ipcRenderer.send('getWindowSize')
     // IpcRendererEvent
-    ipcRenderer.on('getWindowSize', (event: Electron.Event, ...args: any[]) => {
+    const ipcHandler = (event: Electron.Event, ...args: any[]) => {
       const { height, width } = args[0]
       if (clientX > width || clientX < 0 || clientY > height || clientY < 0) {
         ipcRenderer.send('newWindow', draggingNode.data.id)
+        ipcRenderer.removeListener('getWindowSize', ipcHandler)
       }
-    })
+    }
+    const id = ipcRenderer.on('getWindowSize', ipcHandler)
     this.showContextmenu = false
   }
 
