@@ -16,16 +16,6 @@
             <i class="el-icon-folder-add"></i>
           </a>
         </el-tooltip>
-        <el-tooltip
-          placement="bottom"
-          :effect="theme !== 'light' ? 'light' : 'dark'"
-          :open-delay="500"
-          :content="$t('connections.collapseCollection')"
-        >
-          <a class="collapse-collection-btn" href="javascript:;" @click="handleCollapseCollection">
-            <i class="iconfont icon-collapse"></i>
-          </a>
-        </el-tooltip>
       </div>
     </div>
     <div class="connections-list">
@@ -98,7 +88,7 @@
               <div class="collection-name">
                 <i v-if="!node.expanded" class="el-icon-folder"> </i>
                 <i v-else class="el-icon-folder-opened"> </i>
-                {{ data.name }}
+                <span>{{ data.name }}</span>
               </div>
             </div>
           </span>
@@ -116,11 +106,11 @@
         <a href="javascript:;" class="context-menu__item" @click="handleNewCollection">
           <i class="el-icon-plus"></i>{{ $t('connections.newCollection') }}
         </a>
-        <a href="javascript:;" class="context-menu__item danger" @click="handleDeleteCollection">
-          <i class="iconfont icon-delete"></i>{{ $t('connections.deleteCollection') }}
-        </a>
         <a href="javascript:;" class="context-menu__item" @click="handleRenameCollection">
           <i class="iconfont icon-edit"></i>{{ $t('connections.renameCollection') }}
+        </a>
+        <a href="javascript:;" class="context-menu__item danger" @click="handleDeleteCollection">
+          <i class="iconfont icon-delete"></i>{{ $t('connections.deleteCollection') }}
         </a>
       </contextmenu>
     </div>
@@ -327,15 +317,6 @@ export default class ConnectionsList extends Vue {
     const index = children.findIndex((d: ConnectionModelTree) => d.id === data.id)
     children.splice(index, 1)
     this.flushCollectionChange()
-  }
-
-  private handleCollapseCollection() {
-    const treeRef = this.$refs.tree as $TSFixed
-    if (!treeRef) return
-    const nodes = treeRef.store.nodesMap
-    for (const idx in nodes) {
-      nodes[idx].expanded = false
-    }
   }
 
   private handleSelectConnection(row: ConnectionModel) {
@@ -546,7 +527,7 @@ export default class ConnectionsList extends Vue {
           justify-content: space-between;
           .connection-item {
             @include flex-space-between;
-            height: 64px;
+            height: 48px;
             width: 100%;
             cursor: pointer;
             position: relative;
@@ -584,7 +565,7 @@ export default class ConnectionsList extends Vue {
               }
             }
             .new-msg-count {
-              margin-right: 8px;
+              margin-right: 28px;
               min-width: 18px;
               height: 18px;
               line-height: 18px;
@@ -610,10 +591,11 @@ export default class ConnectionsList extends Vue {
           }
           .custom-tree-node-collection {
             width: 100%;
-            height: 36px;
+            height: 48px;
             @include flex-space-between;
             .collection-name {
-              display: block;
+              display: flex;
+              align-items: center;
               font-size: $font-size--body;
               font-weight: 500;
               color: var(--color-text-title);
@@ -624,6 +606,7 @@ export default class ConnectionsList extends Vue {
               i {
                 font-size: 18px;
                 color: #c0c4cc;
+                padding-right: 6px;
               }
             }
           }

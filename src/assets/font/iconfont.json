@@ -6,18 +6,11 @@
   "description": "",
   "glyphs": [
     {
-      "icon_id": "20730817",
-      "name": "collapse",
-      "font_class": "collapse",
-      "unicode": "ea08",
-      "unicode_decimal": 59912
-    },
-    {
-      "icon_id": "17504370",
-      "name": "triangle",
-      "font_class": "triangle",
-      "unicode": "e691",
-      "unicode_decimal": 59025
+      "icon_id": "19526525",
+      "name": "折叠",
+      "font_class": "fold",
+      "unicode": "e663",
+      "unicode_decimal": 58979
     },
     {
       "icon_id": "19023717",
