@@ -474,11 +474,6 @@ export default {
     en: 'collection name',
     ja: 'フォルダ名',
   },
-  collapseCollection: {
-    zh: '收起文件夹',
-    en: 'Collapse Collection',
-    ja: '折りたたみフォルダ',
-  },
   deleteCollection: {
     zh: '删除文件夹',
     en: 'Delete Collection',
