@@ -4,7 +4,7 @@
     <div class="about-content">
       <img class="logo" :src="logo" alt="mqttx" />
 
-      <p class="version">v1.5.2</p>
+      <p class="version">v1.5.3</p>
 
       <p class="about-help">
         <a class="web-link" href="javascript:;" @click="checkUpdate">{{ $t('about.update') }}</a>
