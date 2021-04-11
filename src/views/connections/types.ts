@@ -31,6 +31,19 @@ export interface MessageModel {
   topic: string
 }
 
+export interface HistoryMessageHeaderModel {
+  id?: string
+  retain: boolean
+  topic: string
+  qos: QoS
+}
+
+export interface HistoryMessagePayloadModel {
+  id?: string
+  payload: string
+  payloadType: PayloadType
+}
+
 export interface SSLPath {
   rejectUnauthorized?: boolean
   ca: string
