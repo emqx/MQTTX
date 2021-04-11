@@ -1,5 +1,11 @@
 import db from '@/database/index'
-import { ConnectionModel, MessageModel, ConnectionModelCollection } from '@/views/connections/types'
+import {
+  ConnectionModel,
+  MessageModel,
+  ConnectionModelCollection,
+  HistoryMessageHeaderModel,
+  HistoryMessagePayloadModel,
+} from '@/views/connections/types'
 
 export const setConnectionCollection = (data: ConnectionModelCollection[] | []): ConnectionModelCollection[] | [] => {
   return db.set<ConnectionModelCollection[] | []>('connectionsCollection', data)
@@ -30,8 +36,9 @@ export const loadSuggestConnections = (): ConnectionModel[] | [] => {
 }
 
 export const createSuggestConnection = (data: ConnectionModel): ConnectionModel => {
-  if (loadSuggestConnections().length > 9) {
-    const deleteId = loadSuggestConnections()[0].id
+  const suggestConnections = loadSuggestConnections()
+  if (suggestConnections.length > 9) {
+    const deleteId = suggestConnections[0].id
     if (deleteId !== undefined) {
       deleteSuggestConnection(deleteId)
     }
@@ -53,6 +60,72 @@ export const loadAllConnectionsIds = async (type: 'connections' | 'suggestConnec
     }
   })
   return connectionsIds
+}
+
+// Message history
+export const loadHistoryMessageHeaders = async (): Promise<HistoryMessageHeaderModel[] | []> => {
+  return db.get<HistoryMessageHeaderModel[] | []>('historyMessageHeader')
+}
+
+export const updateHistoryMessageHeader = (
+  id: string,
+  headerData: HistoryMessageHeaderModel,
+): HistoryMessageHeaderModel => {
+  return db.update<HistoryMessageHeaderModel>('historyMessageHeader', id, headerData)
+}
+
+export const createHistoryMessageHeader = async (
+  data: HistoryMessageHeaderModel,
+): Promise<HistoryMessageHeaderModel> => {
+  const headers = await loadHistoryMessageHeaders()
+  if (headers.length > 9) {
+    const deleteId = headers[0].id
+    if (deleteId !== undefined) {
+      deleteHistoryMessageHeader(deleteId)
+    }
+  }
+  return db.insert<HistoryMessageHeaderModel>('historyMessageHeader', data)
+}
+
+export const deleteHistoryMessageHeader = (id: string): HistoryMessageHeaderModel => {
+  return db.remove<HistoryMessageHeaderModel>('historyMessageHeader', id)
+}
+
+export const loadLatestHistoryMessageHeader = (): HistoryMessageHeaderModel | null => {
+  const res: HistoryMessageHeaderModel[] | [] = db.get<HistoryMessageHeaderModel[] | []>('historyMessageHeader')
+  return res.length ? res[0] : null
+}
+
+//
+export const loadLatestHistoryMessagePayload = (): HistoryMessagePayloadModel | null => {
+  const res: HistoryMessagePayloadModel[] | [] = db.get<HistoryMessagePayloadModel[] | []>('historyMessagePayload')
+  return res.length ? res[0] : null
+}
+
+export const loadHistoryMessagePayload = (): HistoryMessagePayloadModel[] | [] => {
+  return db.get<HistoryMessagePayloadModel[] | []>('historyMessagePayload')
+}
+
+export const updateHistoryMessagePayload = (
+  id: string,
+  headerData: HistoryMessagePayloadModel,
+): HistoryMessagePayloadModel => {
+  return db.update<HistoryMessagePayloadModel>('historyMessagePayload', id, headerData)
+}
+
+export const createHistoryMessagePayload = (data: HistoryMessagePayloadModel): HistoryMessagePayloadModel => {
+  const payloads = loadHistoryMessagePayload()
+  if (payloads.length > 9) {
+    const deleteId = payloads[0].id
+    if (deleteId !== undefined) {
+      deleteHistoryMessagePayload(deleteId)
+    }
+  }
+  return db.insert<HistoryMessagePayloadModel>('historyMessagePayload', data)
+}
+
+export const deleteHistoryMessagePayload = (id: string): HistoryMessagePayloadModel => {
+  return db.remove<HistoryMessagePayloadModel>('historyMessagePayload', id)
 }
 
 export const createConnection = (data: ConnectionModel): ConnectionModel => {
