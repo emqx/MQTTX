@@ -295,7 +295,14 @@ import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
 
-import { deleteConnection, deleteMessage, updateConnection, updateConnectionMessage } from '@/api/connection'
+import {
+  deleteConnection,
+  deleteMessage,
+  updateConnection,
+  updateConnectionMessage,
+  createHistoryMessagePayload,
+  createHistoryMessageHeader,
+} from '@/api/connection'
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
@@ -1154,6 +1161,18 @@ export default class ConnectionsDetail extends Vue {
       }
       updateConnectionMessage(this.record.id as string, { ...publishMessage })
       this.record.messages.push({ ...publishMessage })
+      // TODO: add to local storage when we send message
+      const historyMessagePayload = createHistoryMessagePayload({
+        payload: sendPayload as string,
+        payloadType: type,
+      })
+
+      const historyMessageHeader = createHistoryMessageHeader({
+        retain,
+        topic,
+        qos,
+      })
+
       // Filter by conditions (topic, payload, etc)
       const filterRes = this.filterBySearchConditions(topic, publishMessage)
       if (filterRes) {
