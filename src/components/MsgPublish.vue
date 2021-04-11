@@ -26,17 +26,22 @@
       >
       </el-input>
     </div>
-    <div
-      class="editor-container publish-footer"
-      :style="{
-        height: `${editorHeight}px`,
-      }"
-    >
-      <Editor ref="payloadEditor" id="payload" :lang="payloadLang" v-model="msgRecord.payload" @enter-event="send" />
+    <div class="editor-container">
+      <div
+        class="publish-footer"
+        :style="{
+          height: `${editorHeight}px`,
+        }"
+      >
+        <Editor ref="payloadEditor" id="payload" :lang="payloadLang" v-model="msgRecord.payload" @enter-event="send" />
+      </div>
+      <div class="publish-right-bar">
+        <div class="temp-selector">Selector Here</div>
+        <a href="javascript:;" class="send-btn" @click="send">
+          <i class="iconfont icon-send"></i>
+        </a>
+      </div>
     </div>
-    <a href="javascript:;" class="send-btn" @click="send">
-      <i class="iconfont icon-send"></i>
-    </a>
     <div v-if="disabled" class="disabled-mask" @click.stop></div>
   </div>
 </template>
@@ -45,9 +50,11 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { ipcRenderer } from 'electron'
 import Editor from '@/components/Editor.vue'
-import { MessageModel } from '../views/connections/types'
+import { MessageModel, HistoryMessageHeaderModel, HistoryMessagePayloadModel } from '../views/connections/types'
 import convertPayload from '@/utils/convertPayload'
 import { v4 as uuidv4 } from 'uuid'
+import _ from 'lodash'
+import { loadLatestHistoryMessagePayload, loadLatestHistoryMessageHeader } from '@/api/connection'
 
 @Component({
   components: {
@@ -59,6 +66,8 @@ export default class MsgPublish extends Vue {
   @Prop({ required: true }) public subsVisible!: boolean
   @Prop({ default: false }) public disabled!: boolean
 
+  // private historyMessageHeader: HistoryMessageHeaderModel | null = null
+  // private historyMessagePayload: HistoryMessagePayloadModel | null = null
   private msgRecord: MessageModel = {
     mid: '',
     createAt: '',
@@ -148,9 +157,11 @@ export default class MsgPublish extends Vue {
     })
     this.$emit('foucs')
   }
+
   private handleInputBlur() {
     ipcRenderer.removeAllListeners('sendPayload')
   }
+
   private handleLayout() {
     const editorRef = this.$refs.payloadEditor as Editor
     editorRef.editorLayout()
@@ -158,6 +169,11 @@ export default class MsgPublish extends Vue {
 
   private beforeDestroy() {
     ipcRenderer.removeAllListeners('sendPayload')
+  }
+  private created() {
+    const historyMessageHeader = loadLatestHistoryMessageHeader()
+    const historyMessagePayload = loadLatestHistoryMessagePayload()
+    this.msgRecord = Object.assign(this.msgRecord, historyMessageHeader, historyMessagePayload)
   }
 }
 </script>
@@ -175,9 +191,6 @@ export default class MsgPublish extends Vue {
     padding: 0 16px;
     margin-bottom: 4px;
   }
-  .publish-footer {
-    padding: 0 6px;
-  }
   .topic-input.el-input {
     .el-input__inner {
       border: 0px;
@@ -186,6 +199,29 @@ export default class MsgPublish extends Vue {
       height: 36px;
       line-height: 36px;
       border-bottom: 1px solid var(--color-border-default);
+    }
+  }
+  .editor-container {
+    padding: 0 6px;
+    display: flex;
+    justify-content: space-around;
+    .publish-footer {
+      flex: 1 1 auto;
+    }
+    .publish-right-bar {
+      width: 200px;
+      .temp-selector {
+        width: 10px;
+        height: 10px;
+      }
+      .send-btn {
+        position: fixed;
+        right: 16px;
+        bottom: 10px;
+        .icon-send {
+          font-size: $font-size--send;
+        }
+      }
     }
   }
   .qos-retain {
@@ -209,14 +245,7 @@ export default class MsgPublish extends Vue {
       border-radius: 100%;
     }
   }
-  .send-btn {
-    position: fixed;
-    right: 16px;
-    bottom: 10px;
-    .icon-send {
-      font-size: $font-size--send;
-    }
-  }
+
   .disabled-mask {
     position: absolute;
     width: 100%;

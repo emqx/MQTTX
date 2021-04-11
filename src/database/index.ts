@@ -74,6 +74,12 @@ class DB {
     if (!this.db.has('connectionsCollection').value()) {
       this.db.set('connectionsCollection', []).write()
     }
+    if (!this.db.has('historyMessageHeader').value()) {
+      this.db.set('historyMessageHeader', []).write()
+    }
+    if (!this.db.has('historyMessagePayload').value()) {
+      this.db.set('historyMessagePayload', []).write()
+    }
     if (!this.db.has('scripts').value()) {
       this.db.set('scripts', []).write()
     }
