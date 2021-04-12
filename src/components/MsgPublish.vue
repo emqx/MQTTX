@@ -36,11 +36,27 @@
         <Editor ref="payloadEditor" id="payload" :lang="payloadLang" v-model="msgRecord.payload" @enter-event="send" />
       </div>
       <div class="publish-right-bar">
-        <div class="temp-selector">Selector Here</div>
-        <a href="javascript:;" class="send-btn" @click="send">
-          <i class="iconfont icon-send"></i>
-        </a>
+        <div class="history-icon">
+          <el-button
+            :disabled="historyIndex === 0"
+            circle
+            size="mini"
+            icon="el-icon-back"
+            @click="decrease"
+          ></el-button>
+          <el-button circle size="mini" icon="el-icon-minus" @click="back"></el-button>
+          <el-button
+            :disabled="historyIndex === payloadHistory.length - 1"
+            circle
+            size="mini"
+            icon="el-icon-right"
+            @click="increase"
+          ></el-button>
+        </div>
       </div>
+      <a href="javascript:;" class="send-btn" @click="send">
+        <i class="iconfont icon-send"></i>
+      </a>
     </div>
     <div v-if="disabled" class="disabled-mask" @click.stop></div>
   </div>
@@ -54,7 +70,12 @@ import { MessageModel, HistoryMessageHeaderModel, HistoryMessagePayloadModel } f
 import convertPayload from '@/utils/convertPayload'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
-import { loadLatestHistoryMessagePayload, loadLatestHistoryMessageHeader } from '@/api/connection'
+import {
+  createHistoryMessagePayload,
+  createHistoryMessageHeader,
+  loadHistoryMessageHeaders,
+  loadHistoryMessagePayloads,
+} from '@/api/connection'
 
 @Component({
   components: {
@@ -66,9 +87,10 @@ export default class MsgPublish extends Vue {
   @Prop({ required: true }) public subsVisible!: boolean
   @Prop({ default: false }) public disabled!: boolean
 
-  // private historyMessageHeader: HistoryMessageHeaderModel | null = null
-  // private historyMessagePayload: HistoryMessagePayloadModel | null = null
-  private msgRecord: MessageModel = {
+  private headerHistory: HistoryMessageHeaderModel[] | [] = []
+  private payloadHistory: HistoryMessagePayloadModel[] | [] = []
+  private historyIndex: number = -1
+  private defaultMsgRecord: MessageModel = {
     mid: '',
     createAt: '',
     out: true,
@@ -77,6 +99,7 @@ export default class MsgPublish extends Vue {
     topic: '',
     payload: JSON.stringify({ msg: 'hello' }, null, 2),
   }
+  private msgRecord: MessageModel = _.cloneDeep(this.defaultMsgRecord)
 
   private payloadLang = 'json'
   private payloadType: PayloadType = 'JSON'
@@ -116,6 +139,12 @@ export default class MsgPublish extends Vue {
       ipcRenderer.removeAllListeners('sendPayload')
     }
   }
+  @Watch('historyIndex', { immediate: true, deep: true })
+  private handleHistoryIndexChange(val: number, lastval: number) {
+    if (lastval !== val && val >= 0 && val < this.payloadHistory.length) {
+      this.msgRecord = Object.assign(this.msgRecord, this.payloadHistory[val])
+    }
+  }
 
   /**
    * Notice:
@@ -146,9 +175,29 @@ export default class MsgPublish extends Vue {
     editorRef.initEditor()
   }
 
-  private send() {
+  private async send() {
     this.msgRecord.mid = uuidv4()
     this.$emit('handleSend', this.msgRecord, this.payloadType)
+    await this.insertHistory() // insert message into local storage
+  }
+
+  private async insertHistory() {
+    const payload: HistoryMessagePayloadModel = {
+      payload: this.msgRecord.payload,
+      payloadType: this.payloadType,
+    } as HistoryMessagePayloadModel
+    const header: HistoryMessageHeaderModel = {
+      retain: this.msgRecord.retain,
+      topic: this.msgRecord.topic,
+      qos: this.msgRecord.qos,
+    } as HistoryMessageHeaderModel
+    await createHistoryMessagePayload(payload)
+    await createHistoryMessageHeader(header)
+    const payloads: HistoryMessagePayloadModel[] = this.payloadHistory as HistoryMessagePayloadModel[]
+    const headers: HistoryMessageHeaderModel[] = this.headerHistory as HistoryMessageHeaderModel[]
+    payloads.push(payload)
+    headers.push(header)
+    this.historyIndex = this.payloadHistory.length - 1
   }
 
   private handleInputFoucs() {
@@ -170,11 +219,31 @@ export default class MsgPublish extends Vue {
   private beforeDestroy() {
     ipcRenderer.removeAllListeners('sendPayload')
   }
-  private created() {
-    const historyMessageHeader = loadLatestHistoryMessageHeader()
-    const historyMessagePayload = loadLatestHistoryMessagePayload()
-    this.msgRecord = Object.assign(this.msgRecord, historyMessageHeader, historyMessagePayload)
+
+  private async loadData() {
+    this.headerHistory = await loadHistoryMessageHeaders()
+    this.payloadHistory = await loadHistoryMessagePayloads()
+    Object.assign(this.msgRecord, this.defaultMsgRecord, this.headerHistory, this.payloadHistory)
+    this.historyIndex = this.payloadHistory.length - 1
   }
+
+  private created() {
+    this.loadData()
+  }
+
+  private decrease() {
+    this.historyIndex = this.historyIndex - 1 >= 0 ? this.historyIndex - 1 : 0
+  }
+
+  private back() {
+    this.historyIndex = this.payloadHistory.length - 1
+  }
+
+  private increase() {
+    this.historyIndex =
+      this.historyIndex + 1 <= this.payloadHistory.length - 1 ? this.historyIndex + 1 : this.payloadHistory.length - 1
+  }
+  //TODO: don't insert if value has dup
 }
 </script>
 
@@ -209,18 +278,24 @@ export default class MsgPublish extends Vue {
       flex: 1 1 auto;
     }
     .publish-right-bar {
-      width: 200px;
-      .temp-selector {
-        width: 10px;
+      width: 85px;
+      .history-icon {
+        width: 70px;
         height: 10px;
-      }
-      .send-btn {
-        position: fixed;
-        right: 16px;
-        bottom: 10px;
-        .icon-send {
-          font-size: $font-size--send;
+        .el-button + .el-button {
+          margin-left: 5px;
         }
+        .el-button--mini.is-circle {
+          padding: 3px;
+        }
+      }
+    }
+    .send-btn {
+      position: fixed;
+      right: 16px;
+      bottom: 10px;
+      .icon-send {
+        font-size: $font-size--send;
       }
     }
   }
@@ -245,7 +320,6 @@ export default class MsgPublish extends Vue {
       border-radius: 100%;
     }
   }
-
   .disabled-mask {
     position: absolute;
     width: 100%;
