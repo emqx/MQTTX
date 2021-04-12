@@ -268,6 +268,8 @@
           :disabled="sendTimeId !== null"
           @foucs="scrollToBottom"
           @handleSend="sendMessage"
+          :headerHistory="headerHistory"
+          :payloadHistory="payloadHistory"
         />
       </div>
     </div>
@@ -295,14 +297,7 @@ import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
 
-import {
-  deleteConnection,
-  deleteMessage,
-  updateConnection,
-  updateConnectionMessage,
-  createHistoryMessagePayload,
-  createHistoryMessageHeader,
-} from '@/api/connection'
+import { deleteConnection, deleteMessage, updateConnection, updateConnectionMessage } from '@/api/connection'
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
@@ -707,18 +702,14 @@ export default class ConnectionsDetail extends Vue {
         break
       case 'exportData':
         this.handleExportData()
-        // TODO: We should set logger to record ExportData result in ExportData.vue
         break
       case 'importData':
         this.handleImportData()
-        // TODO: We should set logger to record ImportData result in src/views/connections/index.vue#loadData
         break
       case 'timedMessage':
-        // TODO: We should set logger to record TimedMessage result(the notice of set frequence success) in src/components/TimedMessage.vue
         this.handleTimedMessage()
         break
       case 'bytesStatistics':
-        // TODO: I think this should `not` set logger, it jsut look up some data but not modified them.
         this.handleSubSystemTopic()
         break
       case 'useScript':
@@ -759,7 +750,6 @@ export default class ConnectionsDetail extends Vue {
   }
   // Message type changed
   private async handleMsgTypeChanged(type: MessageType) {
-    //TODO: I don't think we should set logger here, it's only effect the UI layout
     this.messagesAddedNewItem = false
     const setChangedMessages = (changedType: MessageType, msgData: MessageModel[]) => {
       if (type === 'received') {
@@ -784,7 +774,6 @@ export default class ConnectionsDetail extends Vue {
   }
   // Search messages
   private async searchContent() {
-    //TODO: I don't think we should set logger here, it's only effect the UI layout
     this.scrollToBottom()
     const { topic, payload } = this.searchParams
     if (!topic && !payload) {
@@ -1161,18 +1150,6 @@ export default class ConnectionsDetail extends Vue {
       }
       updateConnectionMessage(this.record.id as string, { ...publishMessage })
       this.record.messages.push({ ...publishMessage })
-      // TODO: add to local storage when we send message
-      const historyMessagePayload = createHistoryMessagePayload({
-        payload: sendPayload as string,
-        payloadType: type,
-      })
-
-      const historyMessageHeader = createHistoryMessageHeader({
-        retain,
-        topic,
-        qos,
-      })
-
       // Filter by conditions (topic, payload, etc)
       const filterRes = this.filterBySearchConditions(topic, publishMessage)
       if (filterRes) {
