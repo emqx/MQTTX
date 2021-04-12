@@ -91,18 +91,7 @@ export const deleteHistoryMessageHeader = (id: string): HistoryMessageHeaderMode
   return db.remove<HistoryMessageHeaderModel>('historyMessageHeader', id)
 }
 
-export const loadLatestHistoryMessageHeader = (): HistoryMessageHeaderModel | null => {
-  const res: HistoryMessageHeaderModel[] | [] = db.get<HistoryMessageHeaderModel[] | []>('historyMessageHeader')
-  return res.length ? res[0] : null
-}
-
-//
-export const loadLatestHistoryMessagePayload = (): HistoryMessagePayloadModel | null => {
-  const res: HistoryMessagePayloadModel[] | [] = db.get<HistoryMessagePayloadModel[] | []>('historyMessagePayload')
-  return res.length ? res[0] : null
-}
-
-export const loadHistoryMessagePayload = (): HistoryMessagePayloadModel[] | [] => {
+export const loadHistoryMessagePayloads = async (): Promise<HistoryMessagePayloadModel[] | []> => {
   return db.get<HistoryMessagePayloadModel[] | []>('historyMessagePayload')
 }
 
@@ -113,8 +102,10 @@ export const updateHistoryMessagePayload = (
   return db.update<HistoryMessagePayloadModel>('historyMessagePayload', id, headerData)
 }
 
-export const createHistoryMessagePayload = (data: HistoryMessagePayloadModel): HistoryMessagePayloadModel => {
-  const payloads = loadHistoryMessagePayload()
+export const createHistoryMessagePayload = async (
+  data: HistoryMessagePayloadModel,
+): Promise<HistoryMessagePayloadModel> => {
+  const payloads = await loadHistoryMessagePayloads()
   if (payloads.length > 9) {
     const deleteId = payloads[0].id
     if (deleteId !== undefined) {
