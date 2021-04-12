@@ -299,5 +299,5 @@ You can reach the EMQ community and developers via the following channels:
 - [EMQX Slack](https://slack-invite.emqx.io/)
 - [Twitter](https://twitter.com/EMQTech)
 - [Forum](https://groups.google.com/d/forum/emqtt)
-- [Blog](https://medium.com/@emqtt)
+- [Blog](https://emqx.medium.com/)
 - [Reddit](https://www.reddit.com/r/emqx/)
