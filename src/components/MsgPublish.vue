@@ -46,7 +46,7 @@
           ></el-button>
           <el-button circle size="mini" icon="el-icon-minus" @click="back"></el-button>
           <el-button
-            :disabled="historyIndex === payloadHistory.length - 1"
+            :disabled="historyIndex === payloadsHistory.length - 1"
             circle
             size="mini"
             icon="el-icon-right"
@@ -87,8 +87,8 @@ export default class MsgPublish extends Vue {
   @Prop({ required: true }) public subsVisible!: boolean
   @Prop({ default: false }) public disabled!: boolean
 
-  private headerHistory: HistoryMessageHeaderModel[] | [] = []
-  private payloadHistory: HistoryMessagePayloadModel[] | [] = []
+  private headersHistory: HistoryMessageHeaderModel[] | [] = []
+  private payloadsHistory: HistoryMessagePayloadModel[] | [] = []
   private historyIndex: number = -1
   private defaultMsgRecord: MessageModel = {
     mid: '',
@@ -141,8 +141,8 @@ export default class MsgPublish extends Vue {
   }
   @Watch('historyIndex', { immediate: true, deep: true })
   private handleHistoryIndexChange(val: number, lastval: number) {
-    if (lastval !== val && val >= 0 && val < this.payloadHistory.length) {
-      this.msgRecord = Object.assign(this.msgRecord, this.payloadHistory[val])
+    if (lastval !== val && val >= 0 && val < this.payloadsHistory.length) {
+      this.msgRecord = Object.assign(this.msgRecord, this.payloadsHistory[val])
     }
   }
 
@@ -193,11 +193,11 @@ export default class MsgPublish extends Vue {
     } as HistoryMessageHeaderModel
     await createHistoryMessagePayload(payload)
     await createHistoryMessageHeader(header)
-    const payloads: HistoryMessagePayloadModel[] = this.payloadHistory as HistoryMessagePayloadModel[]
-    const headers: HistoryMessageHeaderModel[] = this.headerHistory as HistoryMessageHeaderModel[]
+    const payloads: HistoryMessagePayloadModel[] = this.payloadsHistory as HistoryMessagePayloadModel[]
+    const headers: HistoryMessageHeaderModel[] = this.headersHistory as HistoryMessageHeaderModel[]
     payloads.push(payload)
     headers.push(header)
-    this.historyIndex = this.payloadHistory.length - 1
+    this.historyIndex = this.payloadsHistory.length - 1
   }
 
   private handleInputFoucs() {
@@ -221,10 +221,15 @@ export default class MsgPublish extends Vue {
   }
 
   private async loadData() {
-    this.headerHistory = await loadHistoryMessageHeaders()
-    this.payloadHistory = await loadHistoryMessagePayloads()
-    Object.assign(this.msgRecord, this.defaultMsgRecord, this.headerHistory, this.payloadHistory)
-    this.historyIndex = this.payloadHistory.length - 1
+    this.headersHistory = await loadHistoryMessageHeaders()
+    this.payloadsHistory = await loadHistoryMessagePayloads()
+    Object.assign(
+      this.msgRecord,
+      this.defaultMsgRecord,
+      this.headersHistory[this.headersHistory.length - 1],
+      this.payloadsHistory[this.payloadsHistory.length - 1],
+    )
+    this.historyIndex = this.payloadsHistory.length - 1
   }
 
   private created() {
@@ -236,12 +241,12 @@ export default class MsgPublish extends Vue {
   }
 
   private back() {
-    this.historyIndex = this.payloadHistory.length - 1
+    this.historyIndex = this.payloadsHistory.length - 1
   }
 
   private increase() {
     this.historyIndex =
-      this.historyIndex + 1 <= this.payloadHistory.length - 1 ? this.historyIndex + 1 : this.payloadHistory.length - 1
+      this.historyIndex + 1 <= this.payloadsHistory.length - 1 ? this.historyIndex + 1 : this.payloadsHistory.length - 1
   }
   //TODO: don't insert if value has dup
 }
