@@ -32,7 +32,7 @@ export interface MessageModel {
 }
 
 export interface HistoryMessageHeaderModel {
-  recordId?: string
+  connectionId?: string
   id?: string
   retain: boolean
   topic: string
@@ -40,7 +40,7 @@ export interface HistoryMessageHeaderModel {
 }
 
 export interface HistoryMessagePayloadModel {
-  recordId?: string
+  connectionId?: string
   id?: string
   payload: string
   payloadType: PayloadType
