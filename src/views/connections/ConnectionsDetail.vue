@@ -268,8 +268,6 @@
           :disabled="sendTimeId !== null"
           @foucs="scrollToBottom"
           @handleSend="sendMessage"
-          :headerHistory="headerHistory"
-          :payloadHistory="payloadHistory"
         />
       </div>
     </div>
