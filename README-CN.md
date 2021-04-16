@@ -7,7 +7,7 @@
 [![Total Downloads](https://img.shields.io/github/downloads/emqx/mqttx/total.svg)](https://github.com/emqx/mqttx/releases)
 [![Slack Invite](<https://slack-invite.emqx.io/badge.svg>)](https://slack-invite.emqx.io)
 [![Reddit](https://img.shields.io/badge/Reddit-EMQ%20X-orange?logo=reddit)](https://www.reddit.com/r/emqx/)
-[![Twitter](https://img.shields.io/badge/Follow-EMQ%20X-1DA1F2?logo=twitter)](https://twitter.com/emqtt)
+[![Twitter](https://img.shields.io/badge/Follow-EMQ%20X-1DA1F2?logo=twitter)](https://twitter.com/EMQTech)
 [![社区](https://img.shields.io/badge/社区-MQTT%20X-yellow?logo=github)](https://askemq.com/c/tools/11)
 ![build packages](https://github.com/emqx/MQTTX/workflows/build%20packages/badge.svg)
 
@@ -118,7 +118,7 @@ yarn run electron:build-mac
 | EMQ X 官方公众号 | <img src="../assets/wx_qr_code.png" width="160" alt="WeChat QR code"/> |
 | EMQ X 微信群（扫码添加后邀请入群）| <img src="../assets/emqx_wx.jpeg" width="160" alt="EMQ X Wechat"/> |
 | 微博 | [@emqtt](https://weibo.com/emqtt) |
-| Twitter | [@emqtt](https://twitter.com/emqtt/) |
+| Twitter | [@emqtt](https://twitter.com/EMQTech/) |
 | Slack | [EMQ X](https://slack-invite.emqx.io/) |
 
 ## License
