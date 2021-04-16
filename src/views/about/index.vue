@@ -47,7 +47,7 @@
         <a :href="emqxWebsite" target="_blank" rel="noopener noreferrer"> EMQ X</a>
       </span>
       <div class="follow-items">
-        <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://twitter.com/emqtt">
+        <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://twitter.com/EMQTech">
           <i class="iconfont icon-ttww"></i>
         </a>
         <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://slack-invite.emqx.io/">

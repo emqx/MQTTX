@@ -280,7 +280,7 @@ Linux: `vue-cli-service electron:build --linux`
 ## 連絡先
 
 - [EMQX Slack](https://slack-invite.emqx.io/)
-- [Twitter](https://twitter.com/emqtt)
+- [Twitter](https://twitter.com/EMQTech)
 - [Forum](https://groups.google.com/d/forum/emqtt)
 - [Blog](https://medium.com/@emqtt)
 - [Reddit](https://www.reddit.com/r/emqx/)
