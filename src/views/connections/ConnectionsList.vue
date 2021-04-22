@@ -28,7 +28,6 @@
           node-key="id"
           highlight-current
           default-expand-all
-          :current-node-key="connectionId"
           @node-drop="handleDrop"
           @node-drag-end="handleDragEnd"
           :allow-drop="allowDrop"
@@ -123,7 +122,7 @@ import { Getter, Action } from 'vuex-class'
 import Contextmenu from '@/components/Contextmenu.vue'
 import { ConnectionModel, ContextmenuModel, ConnectionModelCollection, ConnectionModelTree } from './types'
 import { ipcRenderer } from 'electron'
-import { TreeNode } from 'element-ui/types/tree'
+import { TreeNode, ElTree } from 'element-ui/types/tree'
 import getCollectionId from '@/utils/getCollectionId'
 import _ from 'lodash'
 import { setConnectionCollection, updateConnectionCollectionId } from '@/api/connection'
@@ -136,7 +135,6 @@ import { setConnectionCollection, updateConnectionCollectionId } from '@/api/con
 export default class ConnectionsList extends Vue {
   @Prop({ required: true }) public ConnectionModelData!: ConnectionModel[] | []
   @Prop({ required: false }) public CollectionModelData!: ConnectionModelCollection[] | []
-  @Prop({ required: true }) public connectionId!: string
 
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
 
@@ -144,6 +142,7 @@ export default class ConnectionsList extends Vue {
   @Getter('unreadMessageCount') private unreadMessageCount: UnreadMessage | undefined
   @Getter('currentTheme') private theme!: Theme
 
+  private connectionId: string = this.$route.params.id
   private showContextmenu: boolean = false
   private showCollectionsContextmenu: boolean = false
   private selectedConnection: ConnectionModel | null = null
@@ -173,6 +172,14 @@ export default class ConnectionsList extends Vue {
   @Watch('ConnectionModelData')
   private handleConnectionModelDataChange() {
     this.loadData()
+  }
+  @Watch('$route.params.id')
+  private handleConnectionIdChanged(id: string) {
+    if (id) {
+      const treeRef = this.$refs.tree as ElTree<ConnectionModelTree['id'], ConnectionModelTree>
+      treeRef.setCurrentKey(id)
+      this.connectionId = id
+    }
   }
 
   private allowDrop(
@@ -223,7 +230,6 @@ export default class ConnectionsList extends Vue {
   ) {
     const { clientX, clientY } = event
     ipcRenderer.send('getWindowSize')
-    // IpcRendererEvent
     const ipcHandler = (event: Electron.Event, ...args: any[]) => {
       const { height, width } = args[0]
       if (clientX > width || clientX < 0 || clientY > height || clientY < 0) {
@@ -262,6 +268,15 @@ export default class ConnectionsList extends Vue {
   }
 
   private loadData() {
+    const { id } = this.$route.params
+    const treeRef = this.$refs.tree as ElTree<ConnectionModelTree['id'], ConnectionModelTree>
+    this.$nextTick(() => {
+      if (id) {
+        treeRef.setCurrentKey(id)
+        this.connectionId = id
+      }
+    })
+
     const connections: ConnectionModel[] = _.cloneDeep(this.ConnectionModelData)
     const collections: ConnectionModelCollection[] = _.cloneDeep(this.CollectionModelData)
 
@@ -303,7 +318,7 @@ export default class ConnectionsList extends Vue {
   private handleEditCompeleted(node: $TSFixed, data: ConnectionModelCollection) {
     if (!this.handleCollectionNameValidate(data.name)) {
       this.handleEditCancel(node, data)
-    } else {
+    } else if (data) {
       data.isEdit = false
       this.flushCollectionChange()
     }
