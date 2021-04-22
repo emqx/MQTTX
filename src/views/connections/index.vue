@@ -1,12 +1,7 @@
 <template>
   <div class="connections">
     <div class="leftList">
-      <ConnectionsList
-        :ConnectionModelData="records"
-        :CollectionModelData="collections"
-        :connectionId="connectionId"
-        @delete="onDelete"
-      />
+      <ConnectionsList :ConnectionModelData="records" :CollectionModelData="collections" @delete="onDelete" />
     </div>
 
     <div class="connections-view">
