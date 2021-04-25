@@ -139,3 +139,14 @@ export enum SubscribeErrorReason {
   qosSubSysFailed, // qos is abnormal becauseof $SYS subscribe
   emptySubFailed, // subscription returns empty array
 }
+
+export interface ConnectionTreeState {
+  id: string
+  expanded: boolean
+}
+
+export interface ConnectionTreeStateMap {
+  [id: string]: {
+    expanded: boolean
+  }
+}

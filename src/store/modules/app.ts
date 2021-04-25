@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { ConnectionModel, ConnectionModelCollection } from '../../views/connections/types'
+import { ConnectionModel, ConnectionModelCollection, ConnectionTreeState } from '../../views/connections/types'
 import { loadSettings, setSettings } from '@/api/setting'
 import { ScriptState } from '@/views/script/types'
 
@@ -13,6 +13,7 @@ const CHANGE_SUBSCRIPTIONS = 'CHANGE_SUBSCRIPTIONS'
 const SHOW_CLIENT_INFO = 'SHOW_CLIENT_INFO'
 const SHOW_SUBSCRIPTIONS = 'SHOW_SUBSCRIPTIONS'
 const UNREAD_MESSAGE_COUNT_INCREMENT = 'UNREAD_MESSAGE_COUNT_INCREMENT'
+const SET_CONNECTIONS_TREE = 'SET_CONNECTIONS_TREE'
 const TOGGLE_WILL_MESSAGE_VISIBLE = 'TOGGLE_WILL_MESSAGE_VISIBLE'
 const TOGGLE_ADVANCED_VISIBLE = 'TOGGLE_ADVANCED_VISIBLE'
 const CHANGE_ALL_CONNECTIONS = 'CHANGE_ALL_CONNECTIONS'
@@ -38,6 +39,7 @@ const app = {
     showSubscriptions: getShowSubscriptions(),
     showClientInfo: {},
     unreadMessageCount: {},
+    connectionTreeState: {},
     activeConnection: {},
     advancedVisible: true,
     willMessageVisible: true,
@@ -87,6 +89,10 @@ const app = {
     [SHOW_SUBSCRIPTIONS](state: App, payload: SubscriptionsVisible) {
       state.showSubscriptions = payload.showSubscriptions
       localStorage.setItem('showSubscriptions', JSON.stringify(state.showSubscriptions))
+    },
+    [SET_CONNECTIONS_TREE](state: App, payload: ConnectionTreeState) {
+      const { id } = payload
+      state.connectionTreeState[id] = { expanded: payload.expanded }
     },
     [UNREAD_MESSAGE_COUNT_INCREMENT](state: App, payload: UnreadMessage) {
       if (payload.unreadMessageCount !== undefined) {
@@ -143,6 +149,9 @@ const app = {
     },
     SHOW_CLIENT_INFO({ commit }: any, payload: App) {
       commit(SHOW_CLIENT_INFO, payload)
+    },
+    SET_CONNECTIONS_TREE({ commit }: any, payload: App) {
+      commit(SET_CONNECTIONS_TREE, payload)
     },
     SHOW_SUBSCRIPTIONS({ commit }: any, payload: App) {
       commit(SHOW_SUBSCRIPTIONS, payload)
