@@ -27,9 +27,9 @@
           :data="treeData"
           node-key="id"
           highlight-current
-          default-expand-all
           @node-drop="handleDrop"
           @node-drag-end="handleDragEnd"
+          @node-click="handleNodeExpand"
           :allow-drop="allowDrop"
         >
           <span class="custom-tree-node" slot-scope="{ node, data }">
@@ -120,7 +120,14 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import Contextmenu from '@/components/Contextmenu.vue'
-import { ConnectionModel, ContextmenuModel, ConnectionModelCollection, ConnectionModelTree } from './types'
+import {
+  ConnectionModel,
+  ContextmenuModel,
+  ConnectionModelCollection,
+  ConnectionModelTree,
+  ConnectionTreeState,
+  ConnectionTreeStateMap,
+} from './types'
 import { ipcRenderer } from 'electron'
 import { TreeNode, ElTree } from 'element-ui/types/tree'
 import getCollectionId from '@/utils/getCollectionId'
@@ -137,10 +144,12 @@ export default class ConnectionsList extends Vue {
   @Prop({ required: false }) public CollectionModelData!: ConnectionModelCollection[] | []
 
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
+  @Action('SET_CONNECTIONS_TREE') private setConnectionsTree!: (payload: ConnectionTreeState) => void
 
   @Getter('activeConnection') private activeConnection: Client | undefined
   @Getter('unreadMessageCount') private unreadMessageCount: UnreadMessage | undefined
   @Getter('currentTheme') private theme!: Theme
+  @Getter('connectionTreeState') private treeState!: ConnectionTreeStateMap
 
   private connectionId: string = this.$route.params.id
   private showContextmenu: boolean = false
@@ -179,6 +188,29 @@ export default class ConnectionsList extends Vue {
       const treeRef = this.$refs.tree as ElTree<ConnectionModelTree['id'], ConnectionModelTree>
       treeRef.setCurrentKey(id)
       this.connectionId = id
+    }
+  }
+
+  private handleNodeExpand(data: ConnectionModelTree, node: TreeNode<ConnectionModelTree['id'], ConnectionModelTree>) {
+    if (data && node && data.isCollection) {
+      if (!data.id) return
+      this.setConnectionsTree({
+        id: data.id,
+        expanded: node.expanded,
+      } as ConnectionTreeState)
+    }
+  }
+
+  private loadConnectionState() {
+    const treeRef = this.$refs.tree as $TSFixed // nodesMap is not an export function
+    const treeState = this.treeState as ConnectionTreeStateMap
+    if (!treeRef || !treeState) return
+
+    const nodes = treeRef.store.nodesMap
+    for (const id in nodes) {
+      if (treeState[id] && treeState[id].expanded) {
+        nodes[id].expanded = treeState[id].expanded || false
+      }
     }
   }
 
@@ -268,6 +300,12 @@ export default class ConnectionsList extends Vue {
   }
 
   private loadData() {
+    //load collection expanded state
+    this.$nextTick(() => {
+      this.loadConnectionState()
+    })
+
+    //load selected connection active state
     const { id } = this.$route.params
     const treeRef = this.$refs.tree as ElTree<ConnectionModelTree['id'], ConnectionModelTree>
     this.$nextTick(() => {
@@ -277,6 +315,7 @@ export default class ConnectionsList extends Vue {
       }
     })
 
+    // composiotion connection and collection to treeData
     const connections: ConnectionModel[] = _.cloneDeep(this.ConnectionModelData)
     const collections: ConnectionModelCollection[] = _.cloneDeep(this.CollectionModelData)
 
