@@ -1,7 +1,12 @@
 import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
 import { MqttClient } from 'mqtt'
-import { MessageModel, ConnectionModel, ConnectionModelCollection } from '@/views/connections/types'
+import {
+  MessageModel,
+  ConnectionModel,
+  ConnectionModelCollection,
+  ConnectionTreeStateMap,
+} from '@/views/connections/types'
 import { ScriptState } from '@/views/script/types'
 
 declare global {
@@ -85,6 +90,7 @@ declare global {
     advancedVisible: boolean
     allConnections: ConnectionModel[] | []
     currentScript: ScriptState | null
+    connectionTreeState: ConnectionTreeStateMap
   }
 
   interface State {
