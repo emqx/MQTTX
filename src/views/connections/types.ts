@@ -103,6 +103,7 @@ export interface ConnectionModel extends SSLPath {
   clientIdWithTime?: boolean // fill in client_id.Ensure that client_id field is unique.
   collectionId?: string | null // if collection is null set to default
   isCollection: false
+  orderId?: number
 }
 
 export interface ConnectionModelCollection {
@@ -111,6 +112,7 @@ export interface ConnectionModelCollection {
   children: ConnectionModelTree[] | []
   isCollection: true
   isEdit?: boolean
+  orderId?: number
 }
 
 // leaf: ConnectionModel | collection: ConnectionModelCollection
