@@ -38,7 +38,7 @@
       <div class="publish-right-bar">
         <div class="history-icon">
           <el-button
-            :disabled="historyIndex === (0 || -1)"
+            :disabled="historyIndex === 0"
             circle
             size="mini"
             icon="el-icon-back"
@@ -46,13 +46,13 @@
           ></el-button>
           <el-button
             circle
-            :disabled="historyIndex === (payloadsHistory.length - 1 || -1)"
+            :disabled="historyIndex === payloadsHistory.length - 1"
             size="mini"
             icon="el-icon-minus"
             @click="back"
           ></el-button>
           <el-button
-            :disabled="historyIndex === (payloadsHistory.length - 1 || -1)"
+            :disabled="historyIndex === payloadsHistory.length - 1"
             circle
             size="mini"
             icon="el-icon-right"
