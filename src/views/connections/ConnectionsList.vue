@@ -132,7 +132,8 @@ import { ipcRenderer } from 'electron'
 import { TreeNode, ElTree } from 'element-ui/types/tree'
 import getCollectionId from '@/utils/getCollectionId'
 import _ from 'lodash'
-import { setConnectionCollection, updateConnectionCollectionId } from '@/api/connection'
+import { setConnectionCollection, updateConnectionCollectionId, updateConnectionSequenceId } from '@/api/connection'
+import { sortConnectionTree } from '../../utils/connections'
 
 @Component({
   components: {
@@ -235,7 +236,11 @@ export default class ConnectionsList extends Vue {
       if (!treeElements || !treeElements.length) {
         return [] as ConnectionModelCollection[]
       }
-      treeElements.forEach((el: ConnectionModelTree) => {
+      treeElements.forEach((el: ConnectionModelTree, idx: number) => {
+        el.orderId = idx
+        if (el.id) {
+          updateConnectionSequenceId(el.id, el.orderId)
+        }
         if (el.isCollection) {
           const curCollection = _.cloneDeep(el) as ConnectionModelCollection
           const curCollectionChildren = _.cloneDeep(travelCollection(el.children))
@@ -351,6 +356,14 @@ export default class ConnectionsList extends Vue {
         }
       })
     }
+    // sort collection trees
+    this.treeData.forEach((el: ConnectionModelTree) => {
+      if (el.isCollection) {
+        sortConnectionTree(el.children)
+      }
+    })
+    sortConnectionTree(this.treeData)
+
     return
   }
 
