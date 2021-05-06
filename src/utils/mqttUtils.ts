@@ -2,6 +2,8 @@ import { IClientOptions } from 'mqtt'
 import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
 import { ConnectionModel, SSLContent, WillPropertiesModel } from '@/views/connections/types'
+import { HistoryMessagePayloadModel, HistoryMessageHeaderModel } from '../views/connections/types'
+import { loadHistoryMessageHeaders, loadHistoryMessagePayloads } from '@/api/connection'
 
 const setMQTT5Properties = (option: IClientOptions['properties']): IClientOptions['properties'] | undefined => {
   if (option === undefined) {
@@ -129,6 +131,22 @@ export const getMQTTProtocol = (data: ConnectionModel): Protocol => {
     return ssl ? 'mqtts' : 'mqtt'
   }
   return protocol
+}
+
+export const hasMessagePayload = async (data: HistoryMessagePayloadModel): Promise<boolean> => {
+  const payloads = await loadHistoryMessagePayloads()
+  const res = payloads.some((el: HistoryMessagePayloadModel) => {
+    return data.payload === el.payload && data.payloadType === el.payloadType
+  })
+  return res
+}
+
+export const hasMessageHeader = async (data: HistoryMessageHeaderModel): Promise<boolean> => {
+  const headers = await loadHistoryMessageHeaders()
+  const res = headers.some((el: HistoryMessageHeaderModel) => {
+    return data.qos === el.qos && data.topic === el.topic && data.retain === el.retain
+  })
+  return res
 }
 
 export default {}
