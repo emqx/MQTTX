@@ -38,15 +38,21 @@
       <div class="publish-right-bar">
         <div class="history-icon">
           <el-button
-            :disabled="historyIndex === 0"
+            :disabled="historyIndex === (0 || -1)"
             circle
             size="mini"
             icon="el-icon-back"
             @click="decrease"
           ></el-button>
-          <el-button circle size="mini" icon="el-icon-minus" @click="back"></el-button>
           <el-button
-            :disabled="historyIndex === payloadsHistory.length - 1"
+            circle
+            :disabled="historyIndex === (payloadsHistory.length - 1 || -1)"
+            size="mini"
+            icon="el-icon-minus"
+            @click="back"
+          ></el-button>
+          <el-button
+            :disabled="historyIndex === (payloadsHistory.length - 1 || -1)"
             circle
             size="mini"
             icon="el-icon-right"
@@ -76,6 +82,7 @@ import {
   loadHistoryMessageHeaders,
   loadHistoryMessagePayloads,
 } from '@/api/connection'
+import { hasMessagePayload, hasMessageHeader } from '@/utils/mqttUtils'
 
 @Component({
   components: {
@@ -191,8 +198,8 @@ export default class MsgPublish extends Vue {
       topic: this.msgRecord.topic,
       qos: this.msgRecord.qos,
     } as HistoryMessageHeaderModel
-    await createHistoryMessagePayload(payload)
-    await createHistoryMessageHeader(header)
+    !(await hasMessagePayload(payload)) && (await createHistoryMessagePayload(payload))
+    !(await hasMessageHeader(header)) && (await createHistoryMessageHeader(header))
     const payloads: HistoryMessagePayloadModel[] = this.payloadsHistory as HistoryMessagePayloadModel[]
     const headers: HistoryMessageHeaderModel[] = this.headersHistory as HistoryMessageHeaderModel[]
     payloads.push(payload)
@@ -248,7 +255,6 @@ export default class MsgPublish extends Vue {
     this.historyIndex =
       this.historyIndex + 1 <= this.payloadsHistory.length - 1 ? this.historyIndex + 1 : this.payloadsHistory.length - 1
   }
-  //TODO: don't insert if value has dup
 }
 </script>
 
