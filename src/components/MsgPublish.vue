@@ -25,6 +25,21 @@
         @blur="handleInputBlur"
       >
       </el-input>
+      <el-select class="header-select" v-model="headerValue" placeholder="" size="mini" @change="handleHeaderChange">
+        <el-option
+          class="header-option"
+          v-for="item in headersHistory"
+          :key="item.id"
+          :label="item.label"
+          :value="item"
+        >
+          <span style="float: left; width: 160px; overflow: hidden; text-overflow: ellipsis">{{ item.topic }}</span>
+          <span style="color: #8492a6; font-size: 12px; margin-left: 4px">QOS:{{ item.qos }}</span>
+          <span style="float: right; color: #8492a6; font-size: 13px; font-weight: 400; margin-left: 4px"
+            >retain:{{ item.retain ? '1' : '0' }}</span
+          >
+        </el-option>
+      </el-select>
     </div>
     <div class="editor-container">
       <div
@@ -107,7 +122,11 @@ export default class MsgPublish extends Vue {
     payload: JSON.stringify({ msg: 'hello' }, null, 2),
   }
   private msgRecord: MessageModel = _.cloneDeep(this.defaultMsgRecord)
-
+  private headerValue: HistoryMessageHeaderModel = {
+    qos: this.msgRecord.qos,
+    retain: this.msgRecord.retain,
+    topic: this.msgRecord.topic,
+  }
   private payloadLang = 'json'
   private payloadType: PayloadType = 'JSON'
   private payloadOptions: PayloadType[] = ['Plaintext', 'Base64', 'JSON', 'Hex']
@@ -169,6 +188,13 @@ export default class MsgPublish extends Vue {
     } else if (from && from !== '0' && to === '0') {
       // destroy the editor when rout jump to creation page
       editorRef.destroyEditor()
+    }
+  }
+
+  private handleHeaderChange(val: HistoryMessageHeaderModel) {
+    if (val) {
+      const { retain, topic, qos } = val
+      Object.assign(this.msgRecord, { retain, topic, qos })
     }
   }
 
@@ -272,6 +298,10 @@ export default class MsgPublish extends Vue {
     margin-bottom: 4px;
   }
   .topic-input.el-input {
+    width: calc(100% - 20px);
+    vertical-align: top;
+
+    display: inline-block;
     .el-input__inner {
       border: 0px;
       border-radius: 0px;
@@ -279,6 +309,31 @@ export default class MsgPublish extends Vue {
       height: 36px;
       line-height: 36px;
       border-bottom: 1px solid var(--color-border-default);
+    }
+  }
+  .header-select.el-select {
+    vertical-align: top;
+    width: 20px;
+    display: inline-block;
+    .el-input {
+      .el-input__inner {
+        border: 0px;
+        border-radius: 0px;
+        padding: 0px;
+        height: 36px;
+        line-height: 36px;
+        border-bottom: 1px solid var(--color-border-default);
+      }
+      &.is-focus {
+        .el-input__inner {
+          border: 0px;
+          border-radius: 0px;
+          padding: 0px;
+          height: 36px;
+          line-height: 36px;
+          border-bottom: 1px solid var(--color-border-default);
+        }
+      }
     }
   }
   .editor-container {
@@ -341,5 +396,8 @@ export default class MsgPublish extends Vue {
     z-index: 9;
     top: 0;
   }
+}
+.el-select-dropdown.el-popper {
+  width: 300px;
 }
 </style>
