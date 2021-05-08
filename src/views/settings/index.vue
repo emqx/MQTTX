@@ -280,6 +280,9 @@ export default class Settings extends Vue {
   .el-input-number__increase {
     border-left: 1px solid var(--color-border-default);
   }
+  .el-input-number--mini .el-input__inner {
+    text-align: center;
+  }
 
   i {
     font-size: 16px;
