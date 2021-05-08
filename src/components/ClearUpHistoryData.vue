@@ -6,7 +6,6 @@
     width="450px"
     @confirm="cleanHistoryData"
     @close="resetData"
-    @keyupEnter="exportData"
   >
     {{ $t('connections.cleanHistoryDialogMessage') }}
   </my-dialog>
