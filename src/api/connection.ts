@@ -99,6 +99,10 @@ export const deleteHistoryMessageHeader = (id: string): HistoryMessageHeaderMode
   return db.remove<HistoryMessageHeaderModel>('historyMessageHeader', id)
 }
 
+export const cleanUpHistoryMessageHeader = (): HistoryMessageHeaderModel[] | [] => {
+  return db.cleanUpArray<HistoryMessageHeaderModel[] | []>('historyMessageHeader')
+}
+
 export const loadHistoryMessagePayloads = async (): Promise<HistoryMessagePayloadModel[] | []> => {
   return db.get<HistoryMessagePayloadModel[] | []>('historyMessagePayload')
 }
@@ -125,6 +129,10 @@ export const createHistoryMessagePayload = async (
 
 export const deleteHistoryMessagePayload = (id: string): HistoryMessagePayloadModel => {
   return db.remove<HistoryMessagePayloadModel>('historyMessagePayload', id)
+}
+
+export const cleanUpHistoryMessagePayload = (): HistoryMessagePayloadModel[] | [] => {
+  return db.cleanUpArray<HistoryMessagePayloadModel[] | []>('historyMessagePayload')
 }
 
 export const createConnection = (data: ConnectionModel): ConnectionModel => {
@@ -179,6 +187,10 @@ export const importConnections = (data: ConnectionModel[]): Promise<string> => {
       return err.toString()
     })
   return importDataResult
+}
+
+export const cleanUpSuggestConnections = (): ConnectionModel[] | [] => {
+  return db.cleanUpArray<ConnectionModel[] | []>('suggestConnections')
 }
 
 export default {}

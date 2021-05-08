@@ -102,6 +102,9 @@ class DB {
   public set<T>(key: string, value: T): T {
     return this.read().set(key, value).write()
   }
+  public cleanUpArray<T>(key: string): T {
+    return this.read().set(key, []).write()
+  }
   public insert<T>(key: string, value: T): T {
     const data: $TSFixed = this.read().get(key)
     return data.insert(value).write()
