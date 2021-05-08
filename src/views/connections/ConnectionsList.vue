@@ -587,8 +587,14 @@ export default class ConnectionsList extends Vue {
     .el-tree {
       height: 100%;
       background-color: var(--color-bg-primary);
+      .is-current > .el-tree-node__content {
+        background-color: var(--color-bg-item);
+      }
       .el-tree-node__content {
         height: 100%;
+        &:hover {
+          background-color: var(--color-bg-item);
+        }
         .custom-tree-node {
           flex: 1;
           display: flex;
