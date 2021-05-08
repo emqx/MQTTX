@@ -1107,13 +1107,18 @@ export default class ConnectionsDetail extends Vue {
     this.sendFrequency = time
   }
   // Set timed message
-  private async sendMessage(message: MessageModel, type: PayloadType, afterCallback: () => void): Promise<void> {
-    await this.sendOneMessage(message, type)
+  private async sendMessage(
+    message: MessageModel,
+    type: PayloadType,
+    aftersendOneMessageCallback?: (isNewPayload: boolean) => void,
+    afterCallback?: () => void,
+  ): Promise<void> {
+    await this.sendOneMessage(message, type, aftersendOneMessageCallback)
     if (this.sendFrequency) {
       this.$message.success(`${this.$t('connections.startTimedMessage')}${this.sendFrequency}`)
       this.timedSendMessage(this.sendFrequency, message, type)
     }
-    afterCallback()
+    afterCallback && afterCallback()
   }
   // Set timed message
   private timedSendMessage(time: number, message: MessageModel, type: PayloadType) {
@@ -1127,12 +1132,19 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private async insertHistory(payload: HistoryMessagePayloadModel, header: HistoryMessageHeaderModel) {
-    !(await hasMessagePayload(payload)) && (await createHistoryMessagePayload(payload))
-    !(await hasMessageHeader(header)) && (await createHistoryMessageHeader(header))
+    const isNewPayload = !(await hasMessagePayload(payload))
+    const isNewHeader = !(await hasMessageHeader(header))
+    isNewPayload && (await createHistoryMessagePayload(payload))
+    isNewHeader && (await createHistoryMessageHeader(header))
+    return { isNewPayload, isNewHeader }
   }
 
   // Send one message
-  private async sendOneMessage(message: MessageModel, type: PayloadType): Promise<void | boolean> {
+  private async sendOneMessage(
+    message: MessageModel,
+    type: PayloadType,
+    afterSendCallback?: (isNewPayload: boolean) => void,
+  ): Promise<void | boolean> {
     if (!this.client.connected) {
       this.$notify({
         title: this.$t('connections.notConnect') as string,
@@ -1153,7 +1165,7 @@ export default class ConnectionsDetail extends Vue {
     const convertPayload = this.convertPayloadByScript(payload, 'received')
     const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
 
-    await this.insertHistory(
+    const { isNewPayload } = await this.insertHistory(
       { payload: sendPayload, payloadType: type } as HistoryMessagePayloadModel,
       { qos, topic, retain } as HistoryMessageHeaderModel,
     ) // insert message into local storage
@@ -1196,6 +1208,7 @@ export default class ConnectionsDetail extends Vue {
       )
       this.scrollToBottom()
     })
+    afterSendCallback && afterSendCallback(isNewPayload)
   }
 
   // Show top connection client info
