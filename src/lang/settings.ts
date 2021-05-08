@@ -59,6 +59,11 @@ export default {
     en: 'Data recovery',
     ja: 'データ復旧',
   },
+  historyCleanup: {
+    zh: '清除历史数据',
+    en: 'Clear history data',
+    ja: '履歴データをクリアする',
+  },
   dataManage: {
     zh: '数据管理',
     en: 'Data management',
