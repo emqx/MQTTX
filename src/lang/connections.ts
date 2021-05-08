@@ -335,6 +335,21 @@ export default {
     en: 'Export format',
     ja: 'エクスポートフォーマット',
   },
+  cleanHistoryData: {
+    zh: '清除历史数据',
+    en: 'Clean history data',
+    ja: 'クリーンな履歴データ',
+  },
+  cleanHistoryDialogMessage: {
+    zh: '将会清除历史建议信息，包括历史 payload/Qos/retain/topic/Connection',
+    en: 'it will clear the historical suggestion information, including historical payload/Qos/retain/topic/Connection',
+    ja: 'ペイロード/ Qos /保持/トピック/接続を含む過去の提案情報をクリアします',
+  },
+  cleanHistorySuccess: {
+    zh: '清除历史数据成功',
+    en: 'Clear history successfully',
+    ja: '履歴を正常にクリアする',
+  },
   allConnections: {
     zh: '全部数据',
     en: 'All connections',

@@ -53,7 +53,7 @@
       <div class="publish-right-bar">
         <div class="history-icon">
           <el-button
-            :disabled="historyIndex === 0"
+            :disabled="historyIndex === 0 || historyIndex === -1"
             circle
             size="mini"
             icon="el-icon-back"
@@ -61,13 +61,13 @@
           ></el-button>
           <el-button
             circle
-            :disabled="historyIndex === payloadsHistory.length - 1"
+            :disabled="historyIndex === payloadsHistory.length - 1 || historyIndex === -1"
             size="mini"
             icon="el-icon-minus"
             @click="back"
           ></el-button>
           <el-button
-            :disabled="historyIndex === payloadsHistory.length - 1"
+            :disabled="historyIndex === payloadsHistory.length - 1 || historyIndex === -1"
             circle
             size="mini"
             icon="el-icon-right"
@@ -91,13 +91,7 @@ import { MessageModel, HistoryMessageHeaderModel, HistoryMessagePayloadModel } f
 import convertPayload from '@/utils/convertPayload'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
-import {
-  createHistoryMessagePayload,
-  createHistoryMessageHeader,
-  loadHistoryMessageHeaders,
-  loadHistoryMessagePayloads,
-} from '@/api/connection'
-import { hasMessagePayload, hasMessageHeader } from '@/utils/mqttUtils'
+import { loadHistoryMessageHeaders, loadHistoryMessagePayloads } from '@/api/connection'
 
 @Component({
   components: {

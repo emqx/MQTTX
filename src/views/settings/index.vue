@@ -113,8 +113,26 @@
       </el-row>
       <el-divider></el-divider>
 
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
+          <label>{{ $t('settings.historyCleanup') }}</label>
+        </el-col>
+        <el-col :span="4">
+          <el-button
+            class="data-manager-btn"
+            type="primary"
+            size="mini"
+            icon="el-icon-delete"
+            @click="handleCleanupHistoryData"
+          >
+          </el-button>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
       <ImportData :visible.sync="showImportData" />
       <ExportData :visible.sync="showExportData" />
+      <ClearUpHistoryData :visible.sync="showHistoryData" />
     </div>
   </div>
 </template>
@@ -125,9 +143,10 @@ import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
 import ImportData from '@/components/ImportData.vue'
 import ExportData from '@/components/ExportData.vue'
+import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
 
 @Component({
-  components: { ImportData, ExportData },
+  components: { ImportData, ExportData, ClearUpHistoryData },
 })
 export default class Settings extends Vue {
   @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
@@ -155,6 +174,7 @@ export default class Settings extends Vue {
   ]
   private showImportData = false
   private showExportData = false
+  private showHistoryData = false
 
   private handleSelectChange(type: 'lang' | 'theme', value: string | number | boolean): void {
     if (type === 'theme') {
@@ -179,6 +199,10 @@ export default class Settings extends Vue {
 
   private handleExportData() {
     this.showExportData = true
+  }
+
+  private handleCleanupHistoryData() {
+    this.showHistoryData = true
   }
 
   private created() {
