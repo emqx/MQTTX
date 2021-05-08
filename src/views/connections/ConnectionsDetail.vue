@@ -295,7 +295,14 @@ import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
 
-import { deleteConnection, deleteMessage, updateConnection, updateConnectionMessage } from '@/api/connection'
+import {
+  createHistoryMessagePayload,
+  createHistoryMessageHeader,
+  deleteConnection,
+  deleteMessage,
+  updateConnection,
+  updateConnectionMessage,
+} from '@/api/connection'
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
@@ -314,9 +321,18 @@ import TimedMessage from '@/components/TimedMessage.vue'
 import BytesStatistics from '@/components/BytesStatistics.vue'
 import UseScript from '@/components/UseScript.vue'
 
-import { ConnectionModel, MessageModel, ContextmenuModel, ChartDataModel, MessageType } from './types'
+import {
+  ConnectionModel,
+  MessageModel,
+  HistoryMessageHeaderModel,
+  ContextmenuModel,
+  ChartDataModel,
+  MessageType,
+  HistoryMessagePayloadModel,
+} from './types'
 import { ScriptModel, ScriptState } from '../script/types'
 import sandbox from '@/utils/sandbox'
+import { hasMessagePayload, hasMessageHeader } from '@/utils/mqttUtils'
 
 type CommandType =
   | 'searchContent'
@@ -1091,12 +1107,13 @@ export default class ConnectionsDetail extends Vue {
     this.sendFrequency = time
   }
   // Set timed message
-  private sendMessage(message: MessageModel, type: PayloadType): void {
-    this.sendOneMessage(message, type)
+  private async sendMessage(message: MessageModel, type: PayloadType, afterCallback: () => void): Promise<void> {
+    await this.sendOneMessage(message, type)
     if (this.sendFrequency) {
       this.$message.success(`${this.$t('connections.startTimedMessage')}${this.sendFrequency}`)
       this.timedSendMessage(this.sendFrequency, message, type)
     }
+    afterCallback()
   }
   // Set timed message
   private timedSendMessage(time: number, message: MessageModel, type: PayloadType) {
@@ -1108,8 +1125,14 @@ export default class ConnectionsDetail extends Vue {
       this.sendOneMessage(Object.assign(oneMessage, { mid }), type)
     }, time * 1000)
   }
+
+  private async insertHistory(payload: HistoryMessagePayloadModel, header: HistoryMessageHeaderModel) {
+    !(await hasMessagePayload(payload)) && (await createHistoryMessagePayload(payload))
+    !(await hasMessageHeader(header)) && (await createHistoryMessageHeader(header))
+  }
+
   // Send one message
-  private sendOneMessage(message: MessageModel, type: PayloadType): void | boolean {
+  private async sendOneMessage(message: MessageModel, type: PayloadType): Promise<void | boolean> {
     if (!this.client.connected) {
       this.$notify({
         title: this.$t('connections.notConnect') as string,
@@ -1129,6 +1152,12 @@ export default class ConnectionsDetail extends Vue {
     }
     const convertPayload = this.convertPayloadByScript(payload, 'received')
     const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
+
+    await this.insertHistory(
+      { payload: sendPayload, payloadType: type } as HistoryMessagePayloadModel,
+      { qos, topic, retain } as HistoryMessageHeaderModel,
+    ) // insert message into local storage
+
     this.client.publish!(topic, sendPayload, { qos, retain }, (error: Error) => {
       if (error) {
         const errorMsg = error.toString()

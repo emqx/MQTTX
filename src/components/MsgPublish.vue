@@ -210,27 +210,7 @@ export default class MsgPublish extends Vue {
 
   private async send() {
     this.msgRecord.mid = uuidv4()
-    this.$emit('handleSend', this.msgRecord, this.payloadType)
-    await this.insertHistory() // insert message into local storage
-  }
-
-  private async insertHistory() {
-    const payload: HistoryMessagePayloadModel = {
-      payload: this.msgRecord.payload,
-      payloadType: this.payloadType,
-    } as HistoryMessagePayloadModel
-    const header: HistoryMessageHeaderModel = {
-      retain: this.msgRecord.retain,
-      topic: this.msgRecord.topic,
-      qos: this.msgRecord.qos,
-    } as HistoryMessageHeaderModel
-    !(await hasMessagePayload(payload)) && (await createHistoryMessagePayload(payload))
-    !(await hasMessageHeader(header)) && (await createHistoryMessageHeader(header))
-    const payloads: HistoryMessagePayloadModel[] = this.payloadsHistory as HistoryMessagePayloadModel[]
-    const headers: HistoryMessageHeaderModel[] = this.headersHistory as HistoryMessageHeaderModel[]
-    payloads.push(payload)
-    headers.push(header)
-    this.historyIndex = this.payloadsHistory.length - 1
+    this.$emit('handleSend', this.msgRecord, this.payloadType, this.loadHistoryData)
   }
 
   private handleInputFoucs() {
@@ -253,16 +233,20 @@ export default class MsgPublish extends Vue {
     ipcRenderer.removeAllListeners('sendPayload')
   }
 
-  private async loadData() {
+  private async loadHistoryData() {
     this.headersHistory = await loadHistoryMessageHeaders()
     this.payloadsHistory = await loadHistoryMessagePayloads()
+    this.historyIndex = this.payloadsHistory.length - 1
+  }
+
+  private async loadData() {
+    await this.loadHistoryData()
     Object.assign(
       this.msgRecord,
       this.defaultMsgRecord,
       this.headersHistory[this.headersHistory.length - 1],
       this.payloadsHistory[this.payloadsHistory.length - 1],
     )
-    this.historyIndex = this.payloadsHistory.length - 1
   }
 
   private created() {
