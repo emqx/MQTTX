@@ -23,7 +23,7 @@ If you find a problem 🐛 or have a better idea 💡 during use, you can modify
 3. Add upstream remote
 
     ```shell
-    git remote add upstream git@github.com:emqx/MQTTX.git`
+    git remote add upstream git@github.com:emqx/MQTTX.git
     ```
 
 4. The code can be modified according to the following project structure:
