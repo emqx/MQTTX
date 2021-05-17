@@ -149,4 +149,12 @@ export default {
     en: 'It is a test feature in the beta stage',
     ja: 'この機能はベータテスト中です',
   },
+  cloud: {
+    zh:
+      '需要一个云原生的全托管 MQTT 服务？一键部署 <a href="https://cloud.emqx.cn/" target="_blank" rel="noopener noreferrer">EMQ X Cloud</a>',
+    en:
+      'Need a Cloud-Native fully-managed MQTT broker? Try <a href="https://cloud.emqx.io/" target="_blank" rel="noopener noreferrer">EMQ X Cloud</a> now!',
+    ja:
+      'Need a Cloud-Native fully-managed MQTT broker? Try <a href="https://cloud.emqx.io/" target="_blank" rel="noopener noreferrer">EMQ X Cloud</a> now!',
+  },
 }

@@ -7,7 +7,7 @@
     <div class="connections-view">
       <EmptyPage
         v-if="isEmpty && !oper"
-        name="connections"
+        name="connections.svg"
         :btn-title="$t('connections.newConnections')"
         :click-method="toCreateConnection"
       />
