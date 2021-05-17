@@ -16,6 +16,17 @@
         </a>
       </p>
 
+      <div class="emqx-desc" style="width: 100%">
+        <p v-html="$t('common.cloud')"></p>
+      </div>
+
+      <div class="emqx-desc">
+        {{ $t('about.emqxDocker') }}
+        <div class="docker-code">
+          docker run -d --name emqx -p 1883:1883 -p 8083:8083 -p 8883:8883 -p 8084:8084 -p 18083:18083 emqx/emqx
+        </div>
+      </div>
+
       <div class="emqx-desc">
         <i18n path="about.emqxLocal.local" tag="span">
           <a href="https://github.com/emqx/emqx" target="_blank" rel="noopener noreferrer">{{
@@ -26,13 +37,6 @@
           >EMQ X</a
         >
         {{ $t('about.emqxDesc') }}
-      </div>
-
-      <div class="emqx-desc">
-        {{ $t('about.emqxDocker') }}
-        <div class="docker-code">
-          docker run -d --name emqx -p 1883:1883 -p 8083:8083 -p 8883:8883 -p 8084:8084 -p 18083:18083 emqx/emqx
-        </div>
       </div>
 
       <el-button class="about-website github-btn" type="primary" @click="goToLink('https://github.com/emqx/MQTTX')">
