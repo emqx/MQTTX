@@ -4,6 +4,13 @@ import path from 'path'
 import fs from 'fs-extra'
 import LodashID from 'lodash-id'
 import { app, remote } from 'electron'
+import {
+  ConnectionModel,
+  ConnectionModelCollection,
+  HistoryMessageHeaderModel,
+  HistoryMessagePayloadModel,
+} from '@/views/connections/types'
+import { ScriptModel } from '@/views/script/types'
 
 interface DBSchema {
   windowSize: {
@@ -14,11 +21,14 @@ interface DBSchema {
     autoCheck: boolean
     currentLang: string
     currentTheme: string
+    maxReconnectTimes: number
   }
-  connectionsCollection: []
-  connections: []
-  suggestConnections: []
-  scripts: []
+  connectionsCollection: ConnectionModelCollection[]
+  connections: ConnectionModel[]
+  suggestConnections: ConnectionModel[]
+  scripts: ScriptModel[]
+  historyMessageHeader: HistoryMessageHeaderModel[]
+  historyMessagePayload: HistoryMessagePayloadModel[]
 }
 
 const isRenderer: boolean = process.type === 'renderer'
