@@ -2,6 +2,7 @@ const getters = {
   currentTheme: (state: State) => state.app.currentTheme,
   currentLang: (state: State) => state.app.currentLang,
   autoCheck: (state: State) => state.app.autoCheck,
+  autoResub: (state: State) => state.app.autoResub,
   maxReconnectTimes: (state: State) => state.app.maxReconnectTimes,
   showSubscriptions: (state: State) => state.app.showSubscriptions,
   connectionTreeState: (state: State) => state.app.connectionTreeState,

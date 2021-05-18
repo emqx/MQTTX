@@ -30,7 +30,39 @@
           <label>{{ $t('settings.automatically') }}</label>
         </el-col>
         <el-col :span="4">
-          <el-switch v-model="autoCheck" active-color="#13ce66" inactive-color="#A2A9B0" @change="handleSwitchChange">
+          <el-switch
+            v-model="autoCheck"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleAutoCheckSwitchChange"
+          >
+          </el-switch>
+        </el-col>
+      </el-row>
+
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
+          <label>{{ $t('settings.autoResub') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('settings.autoResubDesc')"
+          >
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            v-model="autoResub"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleAutoResubSwitchChange"
+          >
           </el-switch>
         </el-col>
       </el-row>
@@ -152,15 +184,18 @@ export default class Settings extends Vue {
   @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
   @Action('TOGGLE_AUTO_CHECK') private actionAutoCheck!: (payload: { autoCheck: boolean }) => void
+  @Action('TOGGLE_AUTO_RESUB') private actionAutoResub!: (payload: { autoResub: boolean }) => void
   @Action('SET_MAX_RECONNECT_TIMES') private actionMaxReconnectTimes!: (payload: { maxReconnectTimes: number }) => void
   @Getter('currentTheme') private getterTheme!: Theme
   @Getter('currentLang') private getterLang!: Language
   @Getter('autoCheck') private getterAutoCheck!: boolean
+  @Getter('autoResub') private getterAutoResub!: boolean
   @Getter('maxReconnectTimes') private getterMaxReconnectTimes!: number
 
   private currentTheme: Theme = 'light'
   private currentLang: Language = 'en'
   private autoCheck = false
+  private autoResub = true
   private maxReconnectTimes = 10
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
@@ -185,8 +220,12 @@ export default class Settings extends Vue {
     ipcRenderer.send('setting', type, value)
   }
 
-  private handleSwitchChange(value: boolean) {
+  private handleAutoCheckSwitchChange(value: boolean) {
     this.actionAutoCheck({ autoCheck: value })
+  }
+
+  private handleAutoResubSwitchChange(value: boolean) {
+    this.actionAutoResub({ autoResub: value })
   }
 
   private handleInputChage(value: number) {
@@ -207,6 +246,7 @@ export default class Settings extends Vue {
 
   private created() {
     this.autoCheck = this.getterAutoCheck
+    this.autoResub = this.getterAutoResub
     this.currentTheme = this.getterTheme
     this.currentLang = this.getterLang
     this.maxReconnectTimes = this.getterMaxReconnectTimes
@@ -289,6 +329,12 @@ export default class Settings extends Vue {
   }
   .data-manager-btn {
     width: 90px;
+  }
+  .icon-oper {
+    position: relative;
+    top: 1px;
+    left: 5px;
+    color: var(--color-text-default);
   }
 }
 </style>
