@@ -379,6 +379,7 @@ export default class ConnectionsDetail extends Vue {
 
   @Getter('activeConnection') private activeConnection: $TSFixed
   @Getter('showSubscriptions') private showSubscriptions!: boolean
+  @Getter('autoResub') private autoResub!: boolean
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: { [id: string]: boolean }
@@ -501,6 +502,10 @@ export default class ConnectionsDetail extends Vue {
       received,
       publish,
     }
+  }
+
+  get subListRef(): SubscriptionsList {
+    return this.$refs.subList as SubscriptionsList
   }
 
   @Watch('record')
@@ -894,11 +899,6 @@ export default class ConnectionsDetail extends Vue {
     this.stopTimedSend()
     this.disconnectLoding = true
     const { id } = this.$route.params
-    if (this.record.clean) {
-      this.record.subscriptions = []
-      this.changeSubs({ id, subscriptions: [] })
-      updateConnection(id, this.record)
-    }
     this.client.end!(false, () => {
       this.disconnectLoding = false
       this.retryTimes = 0
@@ -939,6 +939,7 @@ export default class ConnectionsDetail extends Vue {
     this.$log.info('Connect success, MQTT.js onConnect trigger')
     this.setShowClientInfo(false)
     this.$emit('reload')
+    this.handleReSubTopics()
   }
   // Error callback
   private onError(error: Error) {
@@ -1304,8 +1305,18 @@ export default class ConnectionsDetail extends Vue {
   // Auto subscribe system topic and show dialog
   private handleSubSystemTopic() {
     this.showBytes = true
-    const subListRef = this.$refs.subList as SubscriptionsList
-    subListRef.subscribe({ topic: '$SYS/#', qos: 0 }, true)
+    this.subListRef.subscribe({ topic: '$SYS/#', qos: 0 }, true)
+  }
+
+  // Re-subscribe topic
+  private handleReSubTopics() {
+    if (this.client.options) {
+      const { clean } = this.client.options
+      const { subscriptions } = this.record
+      if (this.autoResub && clean && subscriptions.length) {
+        this.subListRef.resubscribe()
+      }
+    }
   }
 
   // Show use script dialog
