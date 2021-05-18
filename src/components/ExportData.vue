@@ -113,24 +113,15 @@ export default class ExportData extends Vue {
     })
   }
 
-  private handleSubscriptions(data: ConnectionModel[]): ConnectionModel[] {
-    const handleConnection = (oneConnection: ConnectionModel): ConnectionModel => {
-      const { clean, subscriptions, ...otherProps } = oneConnection
-      const realSubscriptions = clean ? [] : subscriptions
-      return { ...otherProps, clean, subscriptions: realSubscriptions }
-    }
-    return data.map((oneConnection) => handleConnection(oneConnection))
-  }
-
   private async getStringifyContent(): Promise<string> {
     if (!this.record.allConnections) {
       const { ...connection } = this.connection
-      const data = this.handleSubscriptions([connection])
+      const data = [connection]
       const content = JSON.stringify(data[0], null, 2)
       return content
     } else {
       const connections: ConnectionModel[] | [] = await loadConnections()
-      const data = this.handleSubscriptions(connections)
+      const data = connections
       const content = JSON.stringify(data, null, 2)
       return content
     }
@@ -171,7 +162,7 @@ export default class ExportData extends Vue {
       this.$message.warning(this.$t('common.noData') as string)
       return
     }
-    const jsonContent = this.handleSubscriptions(data)
+    const jsonContent = data
     const sheet = ExcelConvert.utils.json_to_sheet(jsonContent)
     Object.keys(sheet).forEach((item) => {
       // format nested object/array to string
@@ -226,7 +217,7 @@ export default class ExportData extends Vue {
       this.$message.warning(this.$t('common.noData') as string)
       return
     }
-    const jsonContent = this.handleSubscriptions(data)
+    const jsonContent = data
     exportDataToCSV(jsonContent)
   }
 

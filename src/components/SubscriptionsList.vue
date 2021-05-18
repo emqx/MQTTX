@@ -158,6 +158,7 @@ export default class SubscriptionsList extends Vue {
   private handleRecordChanged(val: ConnectionModel) {
     this.topicActiveIndex = null
     this.getCurrentConnection(val.id as string)
+    this.subsList = val.subscriptions
   }
 
   private setColor() {
@@ -203,7 +204,7 @@ export default class SubscriptionsList extends Vue {
       this.subRecord.alias = this.subRecord.alias ? this.subRecord.alias.trim() : this.subRecord.alias
       this.subRecord.color = this.topicColor || this.getBorderColor()
       this.subscribe(this.subRecord)
-      this.$log.info(`Save subscription topic:${this.subRecord.topic} successed`)
+      this.$log.info(`Save subscription topic: ${this.subRecord.topic} successed`)
     })
   }
 
@@ -227,6 +228,17 @@ export default class SubscriptionsList extends Vue {
       }
     }
     return this.$t('connections.unknowSubFailed')
+  }
+
+  public resubscribe() {
+    this.getCurrentConnection(this.connectionId)
+    this.subsList.forEach((sub) => {
+      this.$log.info(`Topic: ${sub.topic} is resubscribing`)
+      this.subRecord.topic = sub.topic
+      this.subRecord.qos = sub.qos
+      this.subRecord.color = sub.color
+      this.subscribe(this.subRecord)
+    })
   }
 
   public subscribe({ topic, qos }: SubscriptionModel, isAuto?: boolean) {
@@ -257,19 +269,17 @@ export default class SubscriptionsList extends Vue {
         this.$message.error(errorMsg)
         return false
       }
-      const subscriptions: SubscriptionModel[] = this.currentConnection.subscriptions || []
-      const existTopicIndex: number = subscriptions.findIndex((item: SubscriptionModel) => item.topic === topic)
+      const existTopicIndex: number = this.subsList.findIndex((item: SubscriptionModel) => item.topic === topic)
       if (existTopicIndex !== -1) {
-        subscriptions[existTopicIndex].qos = qos
+        this.subsList[existTopicIndex].qos = qos
       } else {
-        subscriptions.push({ ...this.subRecord })
+        this.subsList.push({ ...this.subRecord })
       }
-      this.record.subscriptions = subscriptions
+      this.record.subscriptions = this.subsList
       updateConnection(this.record.id as string, this.record)
-      this.changeSubs({ id: this.connectionId, subscriptions })
-      this.subsList = subscriptions
+      this.changeSubs({ id: this.connectionId, subscriptions: this.subsList })
       this.showDialog = false
-      return true
+      this.$log.info(`Topic: ${topic} successfully subscribed`)
     })
   }
 
@@ -313,17 +323,10 @@ export default class SubscriptionsList extends Vue {
 
   private getCurrentConnection(id: string) {
     const $activeConnection = this.activeConnection[id]
-    const { clean } = this.record
     if ($activeConnection) {
       this.currentConnection = $activeConnection
-      if (clean) {
-        this.subsList = $activeConnection.subscriptions || []
-      } else {
-        this.subsList = this.record.subscriptions
-      }
     } else {
       this.currentConnection = {}
-      this.subsList = this.record.subscriptions
     }
   }
 
