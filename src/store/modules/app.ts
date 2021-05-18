@@ -6,6 +6,7 @@ import { ScriptState } from '@/views/script/types'
 const TOGGLE_THEME = 'TOGGLE_THEME'
 const TOGGLE_LANG = 'TOGGLE_LANG'
 const TOGGLE_AUTO_CHECK = 'TOGGLE_AUTO_CHECK'
+const TOGGLE_AUTO_RESUB = 'TOGGLE_AUTO_RESUB'
 const SET_MAX_RECONNECT_TIMES = 'SET_MAX_RECONNECT_TIMES'
 const CHANGE_ACTIVE_CONNECTION = 'CHANGE_ACTIVE_CONNECTION'
 const REMOVE_ACTIVE_CONNECTION = 'REMOVE_ACTIVE_CONNECTION'
@@ -35,6 +36,7 @@ const app = {
     currentTheme: stateRecord.currentTheme || 'light',
     currentLang: stateRecord.currentLang || 'en',
     autoCheck: stateRecord.autoCheck,
+    autoResub: stateRecord.autoResub,
     maxReconnectTimes: stateRecord.maxReconnectTimes || 10,
     showSubscriptions: getShowSubscriptions(),
     showClientInfo: {},
@@ -59,6 +61,9 @@ const app = {
     },
     [TOGGLE_AUTO_CHECK](state: App, autoCheck: boolean) {
       state.autoCheck = autoCheck
+    },
+    [TOGGLE_AUTO_RESUB](state: App, autoResub: boolean) {
+      state.autoResub = autoResub
     },
     [SET_MAX_RECONNECT_TIMES](state: App, maxReconnectTimes: number) {
       state.maxReconnectTimes = maxReconnectTimes
@@ -133,6 +138,10 @@ const app = {
     TOGGLE_AUTO_CHECK({ commit }: any, payload: App) {
       setSettings('settings.autoCheck', payload.autoCheck)
       commit(TOGGLE_AUTO_CHECK, payload.autoCheck)
+    },
+    TOGGLE_AUTO_RESUB({ commit }: any, payload: App) {
+      setSettings('settings.autoResub', payload.autoResub)
+      commit(TOGGLE_AUTO_RESUB, payload.autoResub)
     },
     SET_MAX_RECONNECT_TIMES({ commit }: any, payload: App) {
       setSettings('settings.maxReconnectTimes', payload.maxReconnectTimes)
