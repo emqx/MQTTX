@@ -25,7 +25,14 @@
         @blur="handleInputBlur"
       >
       </el-input>
-      <el-select class="header-select" v-model="headerValue" placeholder="" size="mini" @change="handleHeaderChange">
+      <el-select
+        class="header-select"
+        popper-class="header-select--popper"
+        v-model="headerValue"
+        placeholder=""
+        size="mini"
+        @change="handleHeaderChange"
+      >
         <el-option
           class="header-option"
           v-for="item in headersHistory"
@@ -378,7 +385,7 @@ export default class MsgPublish extends Vue {
     top: 0;
   }
 }
-.el-select-dropdown.el-popper {
-  width: 300px;
+.el-select-dropdown.el-popper.header-select--popper {
+  max-width: 300px;
 }
 </style>
