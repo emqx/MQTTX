@@ -22,6 +22,7 @@ interface DBSchema {
     currentLang: string
     currentTheme: string
     maxReconnectTimes: number
+    autoResub: boolean
   }
   connectionsCollection: ConnectionModelCollection[]
   connections: ConnectionModel[]
@@ -68,6 +69,7 @@ class DB {
           currentLang: 'en',
           currentTheme: 'light',
           maxReconnectTimes: 10,
+          autoResub: true,
         })
         .write()
     }
