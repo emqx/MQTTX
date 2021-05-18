@@ -341,9 +341,9 @@ export default {
     ja: 'クリーンな履歴データ',
   },
   cleanHistoryDialogMessage: {
-    zh: '将会清除历史建议信息，包括历史 payload/Qos/retain/topic/Connection',
-    en: 'it will clear the historical suggestion information, including historical payload/Qos/retain/topic/Connection',
-    ja: 'ペイロード/ Qos /保持/トピック/接続を含む過去の提案情報をクリアします',
+    zh: '将会清除历史建议信息，包括历史 Payload/QoS/Retain/Topic/Connection',
+    en: 'it will clear the historical suggestion information, including historical Payload/QoS/Retain/Topic/Connection',
+    ja: 'ペイロード/ QoS /保持/トピック/接続を含む過去の提案情報をクリアします',
   },
   cleanHistorySuccess: {
     zh: '清除历史数据成功',
