@@ -22,6 +22,6 @@ Please describe the new behavior or provide screenshots.
 
 #### Specific Instructions
 
-Are there any specific instructions or things that should be known prior to reviewing?
+Are there any specific instructions or things that should be known prior to review?
 
 #### Other information
