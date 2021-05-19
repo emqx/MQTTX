@@ -170,6 +170,7 @@ export default class MsgPublish extends Vue {
   private handleHistoryIndexChange(val: number, lastval: number) {
     if (lastval !== val && val >= 0 && val < this.payloadsHistory.length) {
       this.msgRecord = Object.assign(this.msgRecord, this.payloadsHistory[val])
+      this.payloadType = this.payloadsHistory[val].payloadType
     }
   }
 
@@ -251,6 +252,7 @@ export default class MsgPublish extends Vue {
       this.headersHistory[this.headersHistory.length - 1],
       this.payloadsHistory[this.payloadsHistory.length - 1],
     )
+    this.payloadType = this.payloadsHistory[this.historyIndex].payloadType
   }
 
   private created() {
