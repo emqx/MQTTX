@@ -67,7 +67,7 @@
     "babel-plugin-component": "^1.1.1",
     "chai": "^4.1.2",
     "electron": "^5.0.13",
-    "electron-devtools-installer": "^3.1.1",
+    "electron-devtools-installer": "^3.2.0",
     "eslint": "6.5.1",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
@@ -78,7 +78,7 @@
     "prettier": "^2.0.5",
     "sass-loader": "^7.3.1",
     "typescript": "^3.7.4",
-    "vue-cli-plugin-electron-builder": "^1.4.6",
+    "vue-cli-plugin-electron-builder": "^2.0.0",
     "vue-template-compiler": "^2.6.12"
   },
   "browserslist": [
@@ -96,8 +96,5 @@
     ]
   },
   "license": "Apache",
-  "repository": "https://github.com/emqx/MQTTX",
-  "resolutions": {
-    "electron-builder": "22.2.0"
-  }
+  "repository": "https://github.com/emqx/MQTTX"
 }
