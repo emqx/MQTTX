@@ -67,6 +67,17 @@
 
 ![mqttx-gif](./assets/mqttx-gif.gif)
 
+## 社区
+
+访问 [EMQ 问答社区](https://askemq.com/) 以获取帮助，也可以分享您的想法或项目。
+
+可通过以下方式与其他社区成员进行沟通
+
+|  方式   | 内容  |
+|  ----  | ----  |
+| EMQ X 官方公众号 | <img src="./assets/emqx_wx.jpeg" width="160" alt="WeChat QR code"/> |
+| EMQ X 微信群（扫码添加后邀请入群）| <img src="./assets/wx_qr_code.png" width="160" alt="EMQ X Wechat"/> |
+
 ## 开发
 
 ``` shell
@@ -109,17 +120,6 @@ yarn run electron:build-mac
 - [Vue](https://vuejs.org/) + [Element](https://element.eleme.io)
 - [TypeScript](https://www.typescriptlang.org/)
 - [Lowdb](https://github.com/typicode/lowdb)
-
-## 联系方式
-
-|  方式   | 内容  |
-|  ----  | ----  |
-| QQ 群（EMQ X 官方群3）| 937041105 |
-| EMQ X 官方公众号 | <img src="../assets/wx_qr_code.png" width="160" alt="WeChat QR code"/> |
-| EMQ X 微信群（扫码添加后邀请入群）| <img src="../assets/emqx_wx.jpeg" width="160" alt="EMQ X Wechat"/> |
-| 微博 | [@emqtt](https://weibo.com/emqtt) |
-| Twitter | [@emqtt](https://twitter.com/EMQTech/) |
-| Slack | [EMQ X](https://slack-invite.emqx.io/) |
 
 ## License
 
