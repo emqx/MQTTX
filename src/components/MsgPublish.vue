@@ -252,7 +252,10 @@ export default class MsgPublish extends Vue {
       this.headersHistory[this.headersHistory.length - 1],
       this.payloadsHistory[this.payloadsHistory.length - 1],
     )
-    this.payloadType = this.payloadsHistory[this.historyIndex].payloadType
+    const headersHistoryIndex = this.payloadsHistory[this.historyIndex]
+    if (headersHistoryIndex) {
+      this.payloadType = headersHistoryIndex.payloadType
+    }
   }
 
   private created() {
