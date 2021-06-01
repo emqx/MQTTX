@@ -1,16 +1,12 @@
 module.exports = {
-root: true,
+  root: true,
   env: {
     browser: true,
     node: true,
     es6: true,
   },
   parser: 'vue-eslint-parser',
-  extends: [
-    "@vue/prettier",
-    'prettier/@typescript-eslint',
-    'plugin:@typescript-eslint/recommended',
-  ],
+  extends: ['@vue/prettier', 'prettier/@typescript-eslint', 'plugin:@typescript-eslint/recommended'],
   plugins: ['@typescript-eslint'],
   parserOptions: {
     parser: '@typescript-eslint/parser',
@@ -30,9 +26,13 @@ root: true,
     'vue/require-component-is': 0,
     'vue/require-default-prop': 0,
     'comma-dangle': [2, 'always-multiline'],
-    'vue/eqeqeq': [2, 'always', {
-      null: 'ignore'
-    }],
+    'vue/eqeqeq': [
+      2,
+      'always',
+      {
+        null: 'ignore',
+      },
+    ],
     'object-curly-spacing': [2, 'always'],
     'vue/singleline-html-element-content-newline': 0,
     'vue/html-closing-bracket-newline': [
@@ -56,10 +56,10 @@ root: true,
       },
     ],
 
-    // 设置 typescript-eslint 规则
+    // Set typescript-eslint rules
     // https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin/docs/rules
-    '@typescript-eslint/camelcase': 0, // 目前埋点有部分字段无法更换
-    '@typescript-eslint/no-non-null-assertion': 0, // 允许非空断言运算符
+    '@typescript-eslint/camelcase': 0, // At present, some fields of the buried point cannot be replaced
+    '@typescript-eslint/no-non-null-assertion': 0, // Allow non-empty assertion operator
     '@typescript-eslint/member-delimiter-style': [
       2,
       {
@@ -73,9 +73,12 @@ root: true,
         },
       },
     ],
-    '@typescript-eslint/no-unused-vars': [0, {
-      args: 'none'
-    }],
+    '@typescript-eslint/no-unused-vars': [
+      0,
+      {
+        args: 'none',
+      },
+    ],
     '@typescript-eslint/interface-name-prefix': 0,
     '@typescript-eslint/explicit-function-return-type': 0,
     '@typescript-eslint/no-empty-function': 0,
