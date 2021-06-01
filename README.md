@@ -33,6 +33,14 @@ Currently available for download from these app stores
 
 [![Get it from the Snap Store](./assets/app-store-download.svg)](https://apps.apple.com/us/app/mqttx/id1514074565?mt=12)
 
+### Homebrew
+
+The MacOS users can install MQTT X using brew cask
+
+```shell
+brew install --cask mqttx
+```
+
 ### Linux
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/mqttx)
