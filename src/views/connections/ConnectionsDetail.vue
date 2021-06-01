@@ -1163,13 +1163,14 @@ export default class ConnectionsDetail extends Vue {
       this.stopTimedSend()
       return false
     }
-    const convertPayload = this.convertPayloadByScript(payload, 'received')
-    const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
 
     const { isNewPayload } = await this.insertHistory(
-      { payload: sendPayload, payloadType: type } as HistoryMessagePayloadModel,
+      { payload, payloadType: type } as HistoryMessagePayloadModel,
       { qos, topic, retain } as HistoryMessageHeaderModel,
     ) // insert message into local storage
+
+    const convertPayload = this.convertPayloadByScript(payload, 'received')
+    const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
 
     this.client.publish!(topic, sendPayload, { qos, retain }, (error: Error) => {
       if (error) {
