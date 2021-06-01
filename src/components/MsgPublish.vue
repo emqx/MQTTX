@@ -41,8 +41,8 @@
           :value="item"
         >
           <span style="float: left; width: 160px; overflow: hidden; text-overflow: ellipsis">{{ item.topic }}</span>
-          <span style="color: #8492a6; font-size: 12px; margin-left: 4px">QOS:{{ item.qos }}</span>
-          <span style="float: right; color: #8492a6; font-size: 13px; font-weight: 400; margin-left: 4px"
+          <span style="color: #8492a6; font-size: 12px; margin-left: 4px">QoS:{{ item.qos }}</span>
+          <span style="float: right; color: #8492a6; font-size: 13px; margin-left: 4px"
             >retain:{{ item.retain ? '1' : '0' }}</span
           >
         </el-option>
@@ -392,5 +392,8 @@ export default class MsgPublish extends Vue {
 }
 .el-select-dropdown.el-popper.header-select--popper {
   max-width: 300px;
+  .el-select-dropdown__empty {
+    width: 80px;
+  }
 }
 </style>
