@@ -59,7 +59,7 @@ import {
   // CarouselItem,
   // Collapse,
   // CollapseItem,
-  Cascader,
+  // Cascader,
   ColorPicker,
   // Transfer,
   // Container,
@@ -130,7 +130,7 @@ export default (Vue: typeof _Vue) => {
   // Vue.use(CarouselItem)
   // Vue.use(Collapse)
   // Vue.use(CollapseItem)
-  Vue.use(Cascader)
+  // Vue.use(Cascader)
   Vue.use(ColorPicker)
   // Vue.use(Transfer)
   // Vue.use(Container)
