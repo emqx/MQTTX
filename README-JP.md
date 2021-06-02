@@ -10,6 +10,7 @@
 [![Twitter](https://img.shields.io/badge/Follow-EMQ-1DA1F2?logo=twitter)](https://twitter.com/EMQTech)
 [![Community](https://img.shields.io/badge/Community-MQTT%20X-yellow?logo=github)](https://github.com/emqx/MQTTX/discussions)
 ![build packages](https://github.com/emqx/MQTTX/workflows/build%20packages/badge.svg)
+[![YouTube](https://img.shields.io/badge/Subscribe-EMQ-FF0000?logo=youtube)](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q)
 
 [English](./README.md) | [简体中文](./README-CN.md) | 日本語
 
