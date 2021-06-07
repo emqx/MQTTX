@@ -32,7 +32,7 @@
     "lowdb": "^1.0.0",
     "moment": "^2.24.0",
     "monaco-editor": "^0.20.0",
-    "mqtt": "4.2.1",
+    "mqtt": "4.2.6",
     "vm2": "latest",
     "vue": "^2.6.12",
     "vue-class-component": "^7.0.2",
