@@ -83,6 +83,10 @@ To chat with other community members you can join the [EMQ X Slack](https://slac
 
 ## Develop
 
+Recommended version for Node environment:
+
+- v14.\*.\*
+
 ``` shell
 # Clone
 git clone git@github.com:emqx/MQTTX.git
