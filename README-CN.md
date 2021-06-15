@@ -89,6 +89,10 @@ brew install --cask mqttx
 
 ## 开发
 
+Node 环境的推荐版本:
+
+- v14.\*.\*
+
 ``` shell
 # 克隆项目
 git clone git@github.com:emqx/MQTTX.git
