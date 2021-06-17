@@ -2,11 +2,11 @@
   <div>
     <left-panel>
       <el-card
-        v-if="subsVisible"
+        v-show="subsVisible"
         shadow="never"
         class="subscriptions-list-view"
         :style="{
-          top: top,
+          top,
         }"
       >
         <div slot="header" class="clearfix">

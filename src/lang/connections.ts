@@ -87,8 +87,7 @@ export default {
   qosSubSysFailed: {
     zh: '拒绝了$SYS主题，错误的 QoS，MQTT Broker 拒绝了订阅。请检查 ACL 配置',
     en: 'Rejected the $SYS topic,Unexpected QoS, MQTT Broker declined the subscription. Please check ACL configuration',
-    ja:
-      '$SYSトピックを拒否しま。した予期しないQoS、MQTT Brokerはサブスクリプションを拒否しました。ACL構成を確認してください',
+    ja: '$SYSトピックを拒否しま。した予期しないQoS、MQTT Brokerはサブスクリプションを拒否しました。ACL構成を確認してください',
   },
   qosSubFailed: {
     zh: '错误的 QoS, SubACK 失败, 请检查 MQTT broker 设置',
