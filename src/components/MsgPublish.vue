@@ -42,9 +42,9 @@
         >
           <span style="float: left; width: 160px; overflow: hidden; text-overflow: ellipsis">{{ item.topic }}</span>
           <span style="color: #8492a6; font-size: 12px; margin-left: 4px">QoS:{{ item.qos }}</span>
-          <span style="float: right; color: #8492a6; font-size: 13px; margin-left: 4px"
-            >retain:{{ item.retain ? '1' : '0' }}</span
-          >
+          <span style="float: right; color: #8492a6; font-size: 13px; margin-left: 4px">
+            retain:{{ item.retain ? '1' : '0' }}
+          </span>
         </el-option>
       </el-select>
     </div>
@@ -334,10 +334,13 @@ export default class MsgPublish extends Vue {
     display: flex;
     justify-content: space-around;
     .publish-footer {
+      width: 100%;
       flex: 1 1 auto;
     }
     .publish-right-bar {
       width: 85px;
+      position: absolute;
+      right: 0;
       .history-icon {
         width: 70px;
         height: 10px;

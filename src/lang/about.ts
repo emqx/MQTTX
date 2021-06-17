@@ -32,8 +32,7 @@ export default {
   emqxDesc: {
     zh: '一款完全开源，高可用低时延的百万级分布式物联网 MQTT 5.0 消息服务器。',
     // tslint:disable-next-line:max-line-length
-    en:
-      'is a fully open source, highly scalable, highly available distributed MQTT 5.0 messaging broker for IoT, M2M and mobile applications.',
+    en: 'is a fully open source, highly scalable, highly available distributed MQTT 5.0 messaging broker for IoT, M2M and mobile applications.',
     ja: 'は完全なオープンソース、高可用性、低レイテンシのミリオンレベルの分散型IoT MQTT 5.0メッセージサーバです。',
   },
   emqxLocal: {
