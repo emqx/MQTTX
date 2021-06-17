@@ -69,6 +69,7 @@ module.exports = {
         },
         linux: {
           icon: './public/app.png',
+          target: ['AppImage', 'deb', 'rpm', 'snap'],
         },
       },
     },
