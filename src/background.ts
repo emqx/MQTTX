@@ -88,6 +88,7 @@ function createWindow() {
       webSecurity: false,
       enableRemoteModule: true,
       nodeIntegration: true,
+      contextIsolation: false,
     },
     titleBarStyle: isMac ? 'hidden' : 'default',
     backgroundColor: theme === 'dark' ? '#232323' : '#ffffff',
