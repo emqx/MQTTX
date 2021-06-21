@@ -24,6 +24,7 @@ const newWindow = (id: string, options: WindowOptions) => {
     y,
     webPreferences: {
       webSecurity: false,
+      enableRemoteModule: true,
       nodeIntegration: true,
     },
     titleBarStyle: options.isMac ? 'hidden' : 'default',
