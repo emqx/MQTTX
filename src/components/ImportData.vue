@@ -116,22 +116,22 @@ export default class ImportData extends Vue {
   private getFileData() {
     const lowerFormat = this.record.importFormat.toLowerCase()
     const extensionName = lowerFormat === 'excel' ? 'xlsx' : lowerFormat
-    remote.dialog.showOpenDialog(
-      {
+    remote.dialog
+      .showOpenDialog({
         properties: ['openFile'],
         filters: [{ name: '', extensions: [`${extensionName}`] }],
-      },
-      (files) => {
-        if (files) {
-          const filePath = files[0]
+      })
+      .then((res) => {
+        const { filePaths } = res
+        if (filePaths) {
+          const filePath = filePaths[0]
           if (extensionName === 'xlsx') {
             this.getExcelContentByXlsx(filePath)
           } else {
             this.getFileContentByFs(filePath)
           }
         }
-      },
-    )
+      })
   }
 
   private getExcelContentByXlsx(filePath: string) {
