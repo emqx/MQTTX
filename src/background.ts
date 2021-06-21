@@ -36,13 +36,13 @@ const theme = db.get<Theme>('settings.currentTheme')
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }])
 
 function handleIpcMessages() {
-  ipcMain.on('setting', (event: Electron.Event, ...args: any[]) => {
+  ipcMain.on('setting', (event: Electron.IpcMainEvent, ...args: any[]) => {
     event.sender.send('setting', ...args)
   })
   ipcMain.on('checkUpdate', () => {
     updateChecker(false)
   })
-  ipcMain.on('exportData', (event: Electron.Event, ...args: any[]) => {
+  ipcMain.on('exportData', (event: Electron.IpcMainEvent, ...args: any[]) => {
     const [filename, content, type] = args
     if (win) {
       if (typeof content === 'string') {
@@ -52,17 +52,17 @@ function handleIpcMessages() {
       }
     }
   })
-  ipcMain.on('newWindow', (event: Electron.Event, ...args: any[]) => {
+  ipcMain.on('newWindow', (event: Electron.IpcMainEvent, ...args: any[]) => {
     if (win) {
       const id = args[0]
       newWindow(id, { isMac, theme, static: __static, path: '/new_window' })
     }
   })
-  ipcMain.on('saveMessages', (event: Electron.Event, ...args: any[]) => {
+  ipcMain.on('saveMessages', (event: Electron.IpcMainEvent, ...args: any[]) => {
     const { id, receivedMessage } = args[0]
     updateConnectionMessage(id, { ...receivedMessage })
   })
-  ipcMain.on('getWindowSize', (event: Electron.Event, ...args: any[]) => {
+  ipcMain.on('getWindowSize', (event: Electron.IpcMainEvent, ...args: any[]) => {
     if (win) {
       event.sender.send('getWindowSize', win.getBounds())
     }
