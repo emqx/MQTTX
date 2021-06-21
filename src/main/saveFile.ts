@@ -2,13 +2,13 @@ import { BrowserWindow, dialog } from 'electron'
 import fs from 'fs'
 
 const saveFile = (win: BrowserWindow, filename: string, content: string, type: string) => {
-  dialog.showSaveDialog(
-    win,
-    {
+  dialog
+    .showSaveDialog(win, {
       title: 'Dowload file',
       defaultPath: `${filename}.${type}`,
-    },
-    (filePath) => {
+    })
+    .then((res) => {
+      const { filePath } = res
       if (filePath) {
         fs.writeFile(filePath, content, 'utf8', (err) => {
           if (err) {
@@ -21,8 +21,7 @@ const saveFile = (win: BrowserWindow, filename: string, content: string, type: s
           win.webContents.send('saved')
         })
       }
-    },
-  )
+    })
 }
 
 export default saveFile

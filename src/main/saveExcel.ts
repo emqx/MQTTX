@@ -2,13 +2,13 @@ import { BrowserWindow, dialog } from 'electron'
 import xlsx, { WorkBook } from 'xlsx'
 
 const saveExcel = (win: BrowserWindow, filename: string, workbook: WorkBook) => {
-  dialog.showSaveDialog(
-    win,
-    {
+  dialog
+    .showSaveDialog(win, {
       title: 'Dowload file',
       defaultPath: `${filename}.xlsx`,
-    },
-    (filePath) => {
+    })
+    .then((res) => {
+      const { filePath } = res
       let caughtError = false
       if (filePath) {
         try {
@@ -25,8 +25,7 @@ const saveExcel = (win: BrowserWindow, filename: string, workbook: WorkBook) => 
           win.webContents.send('saved')
         }
       }
-    },
-  )
+    })
 }
 
 export default saveExcel

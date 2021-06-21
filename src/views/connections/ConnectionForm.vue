@@ -640,17 +640,17 @@ export default class ConnectionCreate extends Vue {
   }
 
   private getFilePath(key: 'ca' | 'cert' | 'key') {
-    remote.dialog.showOpenDialog(
-      {
+    remote.dialog
+      .showOpenDialog({
         properties: ['openFile'],
         filters: [{ name: 'CA', extensions: ['crt', 'key', 'pem', 'jks', 'der', 'cer', 'pfx'] }],
-      },
-      (files) => {
-        if (files) {
-          this.record[key] = files[0]
+      })
+      .then((res) => {
+        const { filePaths } = res
+        if (filePaths) {
+          this.record[key] = filePaths[0]
         }
-      },
-    )
+      })
   }
 
   private handleSSL(val: boolean) {
