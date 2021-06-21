@@ -86,6 +86,7 @@ function createWindow() {
     webPreferences: {
       devTools: isDevelopment,
       webSecurity: false,
+      enableRemoteModule: true,
       nodeIntegration: true,
     },
     titleBarStyle: isMac ? 'hidden' : 'default',
