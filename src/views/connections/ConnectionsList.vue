@@ -651,7 +651,7 @@ export default class ConnectionsList extends Vue {
               min-width: 18px;
               height: 18px;
               line-height: 18px;
-              background: var(--color-bg-msg_count);
+              background: var(--color-bg-dark);
               border-radius: 9px;
               padding: 0 3px;
               color: #fff;
