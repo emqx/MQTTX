@@ -48,7 +48,7 @@
       <img class="emqx-logo" src="../../assets/images/emqx-logo.png" alt="emqx" width="35" />
       <span class="copyright"
         >Copyright &copy; 2021
-        <a :href="emqxWebsite" target="_blank" rel="noopener noreferrer"> EMQ X</a>
+        <a :href="emqxWebsite" target="_blank" rel="noopener noreferrer">EMQ</a>
       </span>
       <div class="follow-items">
         <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://twitter.com/EMQTech">
@@ -58,7 +58,7 @@
           <i class="iconfont icon-slack"></i>
         </a>
         <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://www.reddit.com/r/emqx/">
-          <i class="iconfont icon-reddit"></i>
+          <i class="iconfont icon-reddit-circle"></i>
         </a>
         <template v-if="getterLang === 'zh'">
           <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://weibo.com/emqtt">

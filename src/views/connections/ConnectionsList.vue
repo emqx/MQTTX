@@ -84,8 +84,9 @@
               @contextmenu="handleCollectionContextMenu($event, data)"
             >
               <div class="collection-name">
-                <i v-if="!node.expanded" class="el-icon-folder"> </i>
-                <i v-else class="el-icon-folder-opened"> </i>
+                <svg class="icon" aria-hidden="true">
+                  <use :xlink:href="!node.expanded ? '#icon-fold' : '#icon-unfold'"></use>
+                </svg>
                 <span>{{ data.name }}</span>
               </div>
             </div>
@@ -94,7 +95,7 @@
       </template>
       <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
         <a href="javascript:;" class="context-menu__item" @click="handleNewWindow">
-          <i class="el-icon-monitor"></i>{{ $t('common.newWindow') }}
+          <i class="iconfont icon-a-newwindow"></i>{{ $t('common.newWindow') }}
         </a>
         <a href="javascript:;" class="context-menu__item danger" @click="handleDelete">
           <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
@@ -102,7 +103,7 @@
       </contextmenu>
       <contextmenu :visible.sync="showCollectionsContextmenu" v-bind="collectionsContextmenuConfig">
         <a href="javascript:;" class="context-menu__item" @click="handleNewCollection">
-          <i class="el-icon-plus"></i>{{ $t('connections.newCollection') }}
+          <i class="iconfont icon-new"></i>{{ $t('connections.newCollection') }}
         </a>
         <a href="javascript:;" class="context-menu__item" @click="handleRenameCollection">
           <i class="iconfont icon-edit"></i>{{ $t('connections.renameCollection') }}
@@ -133,6 +134,7 @@ import getCollectionId from '@/utils/getCollectionId'
 import _ from 'lodash'
 import { setConnectionCollection, updateConnectionCollectionId, updateConnectionSequenceId } from '@/api/connection'
 import { sortConnectionTree } from '../../utils/connections'
+import '@/assets/font/iconfont'
 
 @Component({
   components: {
@@ -685,9 +687,9 @@ export default class ConnectionsList extends Vue {
               white-space: nowrap;
               text-overflow: ellipsis;
               overflow: hidden;
-              i {
-                font-size: 18px;
-                color: #c0c4cc;
+              svg {
+                width: 24px;
+                height: 24px;
                 padding-right: 6px;
               }
             }

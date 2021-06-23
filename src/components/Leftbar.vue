@@ -9,17 +9,17 @@
       <template v-if="!isNewWindow">
         <div :class="[{ active: isConnection }, 'leftbar-item']">
           <a href="javascript:;" @click="routeToPage('/recent_connections')">
-            <i class="iconfont icon-connections"></i>
+            <i class="iconfont icon-connect"></i>
           </a>
         </div>
         <div class="leftbar-item">
           <a href="javascript:;" @click="routeToPage('/recent_connections/0?oper=create')">
-            <i class="iconfont icon-plus"></i>
+            <i class="iconfont icon-new"></i>
           </a>
         </div>
         <div :class="[{ active: isScript }, 'leftbar-item']">
           <a href="javascript:;" @click="routeToPage('/script')">
-            <i class="iconfont icon-coding"></i>
+            <i class="iconfont icon-script"></i>
           </a>
         </div>
         <div :class="[{ active: isLog }, 'leftbar-item']">
@@ -145,7 +145,12 @@ export default class Leftbar extends Vue {
 
   .iconfont {
     color: var(--color-leftbar-icon);
-    font-size: $font-size--leftbar_title;
+  }
+  .leftbar-center .iconfont {
+    font-size: 24px;
+  }
+  .leftbar-bottom .iconfont {
+    font-size: 20px;
   }
 }
 </style>

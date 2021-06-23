@@ -46,7 +46,7 @@
                   :content="$t('connections.clearIntervalBtn')"
                 >
                   <a class="stop-interval-btn" href="javascript:;" @click="stopTimedSend">
-                    <i class="el-icon-timer"></i>
+                    <i class="iconfont icon-a-stoptiming"></i>
                   </a>
                 </el-tooltip>
                 <el-tooltip
@@ -56,7 +56,7 @@
                   :content="$t('connections.disconnectedBtn')"
                 >
                   <a class="disconnect-btn" href="javascript:;" @click="disconnect">
-                    <i v-if="!disconnectLoding" class="el-icon-switch-button"></i>
+                    <i v-if="!disconnectLoding" class="iconfont icon-disconnect"></i>
                     <i v-else class="el-icon-loading"></i>
                   </a>
                 </el-tooltip>
@@ -82,7 +82,7 @@
               :content="$t('script.removeScript')"
             >
               <a class="remove-script-btn" href="javascript:;" @click="removeScript">
-                <i class="el-icon-cpu"></i>
+                <i class="iconfont icon-a-stopscrip"></i>
               </a>
             </el-tooltip>
             <template v-if="!isNewWindow">
@@ -97,7 +97,7 @@
                   href="javascript:;"
                   @click="handleEdit($route.params.id)"
                 >
-                  <i class="el-icon-edit-outline"></i>
+                  <i class="iconfont icon-edit"></i>
                 </a>
               </el-tooltip>
               <el-tooltip
@@ -107,34 +107,34 @@
                 :content="$t('common.newWindow')"
               >
                 <a class="new-window-btn" href="javascript:;" @click="handleNewWindow">
-                  <i class="el-icon-monitor"></i>
+                  <i class="iconfont icon-a-newwindow"></i>
                 </a>
               </el-tooltip>
               <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
                 <a href="javascript:;">
                   <i class="el-icon-more"></i>
                 </a>
-                <el-dropdown-menu slot="dropdown">
+                <el-dropdown-menu class="connection-oper-item" slot="dropdown">
                   <el-dropdown-item command="searchContent">
                     <i class="iconfont icon-search"></i>{{ $t('connections.searchContent') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="clearHistory">
-                    <i class="iconfont icon-clear"></i>{{ $t('connections.clearHistory') }}
+                    <i class="iconfont icon-a-clearhistory"></i>{{ $t('connections.clearHistory') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="exportData">
-                    <i class="el-icon-printer"></i>{{ $t('connections.exportData') }}
+                    <i class="iconfont icon-a-exportdata"></i>{{ $t('connections.exportData') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="importData">
-                    <i class="el-icon-upload2"></i>{{ $t('connections.importData') }}
+                    <i class="iconfont icon-a-importdata"></i>{{ $t('connections.importData') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="timedMessage" :disabled="!client.connected || sendTimeId !== null">
-                    <i class="el-icon-timer"></i>{{ $t('connections.timedMessage') }}
+                    <i class="iconfont icon-a-timedmessage"></i>{{ $t('connections.timedMessage') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="bytesStatistics" :disabled="!client.connected">
-                    <i class="el-icon-data-line"></i>{{ $t('connections.bytesStatistics') }}
+                    <i class="iconfont icon-a-bytesstatistics"></i>{{ $t('connections.bytesStatistics') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="useScript" :disabled="!client.connected">
-                    <i class="el-icon-cpu"></i>{{ $t('script.useScript') }}
+                    <i class="iconfont icon-a-usescript"></i>{{ $t('script.useScript') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="disconnect" :disabled="!client.connected">
                     <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
@@ -206,7 +206,7 @@
           <span class="subs-title">
             {{ this.$t('connections.subscriptions') }}
             <a class="subs-btn" href="javascript:;" @click="handleShowSubs">
-              <i class="iconfont icon-zhedie"></i>
+              <i class="iconfont icon-collapse"></i>
             </a>
           </span>
           <div class="message-type">
@@ -250,7 +250,7 @@
         />
         <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
           <a href="javascript:;" class="context-menu__item" @click="handleCopyMessage">
-            <i class="el-icon-document-copy"></i>{{ $t('common.copy') }}
+            <i class="iconfont icon-copy"></i>{{ $t('common.copy') }}
           </a>
           <a href="javascript:;" class="context-menu__item danger" @click="handleDeleteMessage">
             <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
@@ -1424,7 +1424,7 @@ export default class ConnectionsDetail extends Vue {
       }
       .connection-tail {
         i {
-          font-size: 18px;
+          font-size: 20px;
         }
         .remove-script-btn,
         .disconnect-btn,
@@ -1509,8 +1509,10 @@ export default class ConnectionsDetail extends Vue {
         }
         .subs-btn {
           position: relative;
-          top: 1px;
+          top: 2px;
           left: 3px;
+          display: inline-block;
+          transform: rotate(180deg);
           .icon-zhedie {
             display: inline-block;
             transform: rotate(180deg);
@@ -1541,18 +1543,27 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 }
-.el-popper {
+.connection-oper-item.el-dropdown-menu {
+  .iconfont {
+    font-size: 18px;
+  }
+  .el-dropdown-menu__item {
+    display: flex;
+    align-items: center;
+    .iconfont {
+      margin-right: 8px;
+    }
+  }
   li.delete-item {
+    display: block;
     color: var(--color-second-red);
     &:hover {
       color: var(--color-second-red);
       background: var(--color-third-red);
     }
   }
-  i {
-    font-size: 16px;
-  }
 }
+
 .message-popover {
   .popover-item {
     margin-top: 10px;

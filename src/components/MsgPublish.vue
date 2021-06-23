@@ -349,6 +349,14 @@ export default class MsgPublish extends Vue {
         }
         .el-button--mini.is-circle {
           padding: 3px;
+          background: #dfefe7;
+          border: 1px solid #dfefe7;
+          color: #25465f;
+        }
+        .el-button.is-disabled,
+        .el-button.is-disabled:hover,
+        .el-button.is-disabled:focus {
+          color: #c0c4cc;
         }
       }
     }
@@ -356,8 +364,16 @@ export default class MsgPublish extends Vue {
       position: fixed;
       right: 16px;
       bottom: 10px;
+      background: #2dc177;
+      border-radius: 50%;
+      text-align: center;
+      box-shadow: 0px 4px 6px 0px #2dc17769;
+      width: 26px;
+      height: 26px;
+      line-height: 26px;
       .icon-send {
-        font-size: $font-size--send;
+        font-size: 16px;
+        color: var(--color-text-topics_active);
       }
     }
   }

@@ -14,7 +14,7 @@
             {{ $t('connections.newSubscription') }}
           </el-button>
           <a class="hide-btn" href="javascript:;" @click="hideSubsList">
-            <i class="iconfont icon-zhedie"></i>
+            <i class="iconfont icon-collapse"></i>
           </a>
         </div>
         <div
