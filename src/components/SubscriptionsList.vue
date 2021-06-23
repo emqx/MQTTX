@@ -376,7 +376,7 @@ export default class SubscriptionsList extends Vue {
     }
   }
   .el-card__body {
-    padding: 6px;
+    padding: 8px 16px;
     height: 100%;
     overflow: auto;
     .topics-item {

@@ -1,11 +1,11 @@
 <template>
   <div class="leftbar">
-    <section class="leftbar-top">
-      <div class="app-logo leftbar-item">
-        <a :href="siteLink" target="_blank" rel="noopener noreferrer">
-          <img src="../assets/images/app-logo.png" alt="app-logo" />
-        </a>
-      </div>
+    <div class="app-logo leftbar-top leftbar-item">
+      <a :href="siteLink" target="_blank" rel="noopener noreferrer">
+        <img src="../assets/images/app-logo.png" alt="app-logo" />
+      </a>
+    </div>
+    <section class="leftbar-center">
       <template v-if="!isNewWindow">
         <div :class="[{ active: isConnection }, 'leftbar-item']">
           <a href="javascript:;" @click="routeToPage('/recent_connections')">
@@ -94,7 +94,7 @@ export default class Leftbar extends Vue {
   width: 80px;
   top: 0;
   bottom: 0;
-  background: var(--color-bg-leftbar);
+  background: linear-gradient(135deg, var(--color-bg-leftbar_top) 0%, var(--color-bg-leftbar_bottom) 100%);
   padding: 45px 0;
   z-index: 1001;
   display: flex;
@@ -102,6 +102,9 @@ export default class Leftbar extends Vue {
   -webkit-app-region: drag;
 
   & > .leftbar-top {
+    flex: 1;
+  }
+  & > .leftbar-center {
     flex: 3;
   }
   & > .leftbar-bottom {
@@ -120,12 +123,12 @@ export default class Leftbar extends Vue {
     }
     &.active a {
       background-color: var(--color-bg-leftbar_item);
-      border-radius: 50%;
+      border-radius: 8px;
     }
     &.active a,
     a:hover {
       .iconfont {
-        color: var(--color-main-green);
+        color: var(--color-bg-normal);
       }
     }
     &:last-child {
@@ -134,7 +137,6 @@ export default class Leftbar extends Vue {
   }
 
   .app-logo {
-    margin-bottom: 35px;
     img {
       width: 40px;
       height: 40px;
@@ -142,7 +144,7 @@ export default class Leftbar extends Vue {
   }
 
   .iconfont {
-    color: var(--color-text-light);
+    color: var(--color-leftbar-icon);
     font-size: $font-size--leftbar_title;
   }
 }

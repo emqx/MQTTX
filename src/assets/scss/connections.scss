@@ -1,5 +1,6 @@
-.leftList {
+.left-list {
   position: fixed;
+  box-shadow: 1px 0px 8px 0px var(--color-leftlist-shadow);
   width: 260px;
   height: 100%;
   left: 81px;
@@ -8,7 +9,7 @@
   overflow-x: hidden;
   z-index: 1000;
   border-right: 1px solid var(--color-border-default);
-  background-color: var(--color-bg-primary);
+  background-color: var(--color-bg-normal);
   .no-data {
     text-align: center;
     position: absolute;

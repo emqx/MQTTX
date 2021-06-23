@@ -1,6 +1,6 @@
 <template>
   <div class="connections">
-    <div class="leftList">
+    <div class="left-list">
       <ConnectionsList :ConnectionModelData="records" :CollectionModelData="collections" @delete="onDelete" />
     </div>
 

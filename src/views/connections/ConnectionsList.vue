@@ -2,20 +2,10 @@
   <div class="connection-container">
     <div class="connection-topbar">
       <h1 class="connection-titlebar">{{ $t('connections.connections') }}</h1>
-      <div>
-        <!-- topbar left icon -->
-      </div>
       <div class="connection-tailbar">
-        <el-tooltip
-          placement="bottom"
-          :effect="theme !== 'light' ? 'light' : 'dark'"
-          :open-delay="500"
-          :content="$t('connections.newCollection')"
-        >
-          <a class="new-collection-btn" href="javascript:;" @click="handleNewCollectionOnTop">
-            <i class="el-icon-folder-add"></i>
-          </a>
-        </el-tooltip>
+        <el-button class="btn new-collection-btn" plain type="outline" size="mini" @click="handleNewCollectionOnTop">
+          {{ $t('connections.newCollection') }}
+        </el-button>
       </div>
     </div>
     <div class="connections-list">
@@ -66,7 +56,16 @@
                     :open-delay="500"
                     placement="top"
                   >
-                    <div class="client-name">{{ data.name }}@{{ data.host }}:{{ data.port }}</div>
+                    <div
+                      :class="[
+                        'client-name',
+                        {
+                          online: activeConnection[data.id] ? activeConnection[data.id].client.connected : false,
+                        },
+                      ]"
+                    >
+                      {{ data.name }}@{{ data.host }}:{{ data.port }}
+                    </div>
                   </el-tooltip>
                 </div>
               </div>
@@ -568,7 +567,7 @@ export default class ConnectionsList extends Vue {
     @include flex-space-between;
     min-height: 10px;
     height: 59px;
-    padding: 0 4px;
+    -webkit-app-region: drag;
     i {
       font-size: 18px;
     }
@@ -579,6 +578,9 @@ export default class ConnectionsList extends Vue {
       .new-collection-btn,
       .collapse-collection-btn {
         margin-right: 12px;
+        padding: 6px;
+        border-width: 1px;
+        background: transparent;
       }
     }
   }
@@ -586,12 +588,14 @@ export default class ConnectionsList extends Vue {
     height: calc(100% - 59px);
     .el-tree {
       height: 100%;
-      background-color: var(--color-bg-primary);
+      background-color: var(--color-bg-normal);
       .is-current > .el-tree-node__content {
         background-color: var(--color-bg-item);
       }
       .el-tree-node__content {
         height: 100%;
+        margin: 0 8px;
+        border-radius: 8px;
         &:hover {
           background-color: var(--color-bg-item);
         }
@@ -620,6 +624,9 @@ export default class ConnectionsList extends Vue {
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
+                &.online {
+                  color: var(--color-main-green);
+                }
               }
             }
             .ssl-tag {
@@ -644,9 +651,9 @@ export default class ConnectionsList extends Vue {
               min-width: 18px;
               height: 18px;
               line-height: 18px;
-              background: var(--color-main-green);
+              background: var(--color-bg-msg_count);
               border-radius: 9px;
-              padding: 0 6px;
+              padding: 0 3px;
               color: #fff;
               font-size: $font-size--tips;
               text-align: center;
@@ -686,19 +693,6 @@ export default class ConnectionsList extends Vue {
             }
           }
         }
-      }
-
-      // arrow icon
-      .el-icon-caret-right:before,
-      .expanded:before {
-        // not expanded
-        content: '\e6e0';
-        font-size: 14px;
-      }
-      .expanded {
-        // transform rotate
-        -webkit-transform: rotate(90deg);
-        transform: rotate(90deg);
       }
     }
   }
