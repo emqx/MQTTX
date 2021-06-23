@@ -10,10 +10,9 @@
         }"
       >
         <div slot="header" class="clearfix">
-          <a href="javascript:;" class="new-subs" @click="openDialog">
-            <i class="el-icon-plus"></i>
+          <el-button class="btn new-subs-btn" icon="el-icon-plus" plain type="outline" size="mini" @click="openDialog">
             {{ $t('connections.newSubscription') }}
-          </a>
+          </el-button>
           <a class="hide-btn" href="javascript:;" @click="hideSubsList">
             <i class="iconfont icon-zhedie"></i>
           </a>
@@ -22,13 +21,16 @@
           v-for="(sub, index) in subsList"
           :key="index"
           :class="['topics-item', index === topicActiveIndex ? 'active' : '']"
+          :style="{
+            background: `${sub.color}10`,
+          }"
           @click="handleClickTopic(sub, index)"
         >
           <div
             :style="{
               background: `${sub.color}`,
             }"
-            class="topics-color-box"
+            class="topics-color-line"
           ></div>
           <el-popover
             placement="top"
@@ -43,6 +45,9 @@
               v-clipboard:success="onCopySuccess"
               href="javascript:;"
               class="topic"
+              :style="{
+                color: sub.color,
+              }"
               @click.stop="stopClick"
             >
               {{ sub.alias || sub.topic }}
@@ -369,24 +374,29 @@ export default class SubscriptionsList extends Vue {
     border-left: 0px;
   }
   .el-card__header {
-    border-bottom: 1px solid var(--color-border-default);
+    border-bottom: none;
     text-align: center;
     position: relative;
+    padding: 16px 16px 0 16px;
+    text-align: initial;
+    .new-subs-btn {
+      border-width: 1px;
+      border-style: dashed;
+    }
     .hide-btn {
       font-size: 20px;
       position: absolute;
-      top: 13px;
+      top: 15px;
       right: 0px;
     }
   }
   .el-card__body {
-    padding: 8px 16px;
+    padding: 16px 16px 0 16px;
     height: 100%;
     overflow: auto;
     .topics-item {
       cursor: pointer;
       color: var(--color-text-title);
-      background: var(--color-bg-topics);
       padding: 0px 8px;
       height: 46px;
       line-height: 46px;
@@ -394,28 +404,27 @@ export default class SubscriptionsList extends Vue {
       position: relative;
       top: 0px;
       clear: both;
-      border-radius: 4px;
+      border-radius: 8px;
       -moz-user-select: none;
       -khtml-user-select: none;
       user-select: none;
       transition: all 0.3s ease;
-      box-shadow: var(--color-bg-topics_shadow) 0px 1px 1px, var(--color-bg-topics_shadow) 0px 0px 1px;
       animation: subItem 0.2s ease-in-out;
       &.active {
-        background: var(--color-bg-topics_active);
+        background: var(--color-bg-dark) !important;
         box-shadow: none;
         .topic,
         .qos {
-          color: var(--color-text-topics_active);
+          color: var(--color-text-topics_active) !important;
         }
       }
-      .topics-color-box {
-        margin: 0 5px 0 0;
+      .topics-color-line {
+        margin-right: 3px;
         display: inline-block;
-        width: 16px;
-        height: 16px;
+        width: 4px;
+        height: 24px;
         vertical-align: top;
-        border-radius: 4px;
+        border-radius: 8px;
         position: relative;
         top: 50%;
         transform: translateY(-50%);
@@ -427,7 +436,6 @@ export default class SubscriptionsList extends Vue {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        color: var(--color-text-default);
       }
       .qos {
         float: right;
