@@ -41,7 +41,11 @@ export default class Contextmenu extends Vue {
     padding: 8px 0px;
     .context-menu__item {
       padding: 4px 12px;
-      display: block;
+      display: flex;
+      align-items: center;
+      .iconfont {
+        font-size: 18px;
+      }
       &:hover {
         color: var(--color-main-green);
         background: var(--color-thrid-green);
