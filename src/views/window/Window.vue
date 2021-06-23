@@ -1,6 +1,6 @@
 <template>
   <div class="window connections">
-    <div class="leftList">
+    <div class="left-list">
       <ConnectionsList :ConnectionModelData="records" :connectionId="connectionId" />
     </div>
     <div class="connections-view">

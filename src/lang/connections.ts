@@ -479,22 +479,22 @@ export default {
     ja: "Whether a client verifies the server's certificate chain and host name",
   },
   newCollection: {
-    zh: '新建文件夹',
+    zh: '新建分组',
     en: 'New Collection',
     ja: '新しいフォルダ',
   },
   collectionPlaceholder: {
-    zh: '文件夹名称',
-    en: 'collection name',
+    zh: '分组名称',
+    en: 'Collection name',
     ja: 'フォルダ名',
   },
   deleteCollection: {
-    zh: '删除文件夹',
+    zh: '删除分组',
     en: 'Delete Collection',
     ja: 'フォルダを削除する',
   },
   renameCollection: {
-    zh: '重命名文件夹',
+    zh: '重命名分组',
     en: 'Rename Collection',
     ja: '名前を変更する',
   },
