@@ -5,9 +5,10 @@ body.light {
   --color-bg-topics: #f8f8f8;
   --color-bg-topics_active: #374560d1;
   --color-bg-topics_shadow: #172b4d30;
-  --color-bg-leftbar: #333844;
-  --color-bg-leftbar_item: #232731;
-  --color-bg-item: #ebf8f2;
+  --color-bg-leftbar_top: #2e424a;
+  --color-bg-leftbar_bottom: #212b3b;
+  --color-bg-leftbar_item: #394452;
+  --color-bg-item: #f1f8fc;
   --color-bg-item_status: #9ea3b1;
   --color-bg-input: #ffffff;
   --color-bg-messagebox: #ffffff;
@@ -16,6 +17,7 @@ body.light {
   --color-bg-input_btn: #f5f7fa;
   --color-bg-radio: #f6f7fb;
   --color-bg-popover: #303133f0;
+  --color-bg-msg_count: #082537;
 
   /* Font color */
   --color-text-title: #262626;
@@ -26,6 +28,7 @@ body.light {
   --color-text-right_info: #ffffffde;
   --color-text-left_info: #00000075;
   --color-text-topics_active: #ffffff;
+  --color-leftbar-icon: #83929b;
 
   /* Accent color */
   --color-main-green: #34c388;
@@ -42,4 +45,7 @@ body.light {
   --color-border-bold: #979797;
   --color-shadow-card: #0000001a;
   --color-shadow-message: #dcdcdc;
+
+  /* Shadow color */
+  --color-leftlist-shadow: #5b769438;
 }

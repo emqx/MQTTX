@@ -5,7 +5,8 @@ body.night {
   --color-bg-topics: #414556;
   --color-bg-topics_active: #324a74;
   --color-bg-topics_shadow: #231d1dd1;
-  --color-bg-leftbar: #333844;
+  --color-bg-leftbar_top: #2e424a;
+  --color-bg-leftbar_bottom: #212b3b;
   --color-bg-leftbar_item: #31333f;
   --color-bg-item: #31333f;
   --color-bg-item_status: #9ea3b1;
@@ -16,6 +17,7 @@ body.night {
   --color-bg-input_btn: transparent;
   --color-bg-radio: #262529b3;
   --color-bg-popover: #ffffff;
+  --color-bg-msg_count: #082537;
 
   /* Font color */
   --color-text-title: #ffffff;
@@ -26,6 +28,7 @@ body.night {
   --color-text-right_info: #b4b4b4;
   --color-text-left_info: #959599;
   --color-text-topics_active: #ffffff;
+  --color-leftbar-icon: #83929b;
 
   /* Accent color */
   --color-main-green: #34c388;
@@ -42,4 +45,7 @@ body.night {
   --color-border-bold: #4f5367;
   --color-shadow-card: #00000085;
   --color-shadow-message: #151515;
+
+  /* Shadow color */
+  --color-leftlist-shadow: #5b769438;
 }
