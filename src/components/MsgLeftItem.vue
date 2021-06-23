@@ -42,7 +42,7 @@ export default class MsgLeftItem extends Vue {
 
   private mounted() {
     const leftPayloadRef = this.$refs.leftPayload as HTMLElement
-    this.topicColorHeight = `${leftPayloadRef.offsetHeight - 6}px`
+    this.topicColorHeight = `${leftPayloadRef.offsetHeight - 12}px`
     this.setCurrentTopicColor()
   }
 }
@@ -57,10 +57,11 @@ export default class MsgLeftItem extends Vue {
   position: relative;
   .topic-color {
     display: inline-block;
-    width: 3px;
+    width: 4px;
     position: absolute;
-    top: 10px;
-    left: -3px;
+    top: 11px;
+    border-radius: 8px;
+    left: -4px;
   }
   .left-payload {
     background: var(--color-main-grey);
