@@ -88,8 +88,12 @@ img {
       padding: 10px 20px;
     }
   }
-  .iconfont {
-    font-size: $font-size--title;
+  .icon {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.15em;
+    fill: currentColor;
+    overflow: hidden;
   }
   .el-form {
     .el-form-item {
