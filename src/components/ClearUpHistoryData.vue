@@ -54,12 +54,6 @@ export default class ClearUpHistoryData extends Vue {
   .el-dialog__body {
     padding-bottom: 0px;
     word-break: normal;
-    .el-tooltip.icon-tip {
-      position: absolute;
-      right: 195px;
-      font-size: 16px;
-      color: var(--color-text-tips);
-    }
   }
 }
 </style>

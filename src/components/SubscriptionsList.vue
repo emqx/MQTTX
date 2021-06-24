@@ -415,7 +415,7 @@ export default class SubscriptionsList extends Vue {
         box-shadow: none;
         .topic,
         .qos {
-          color: var(--color-text-topics_active) !important;
+          color: var(--color-text-active) !important;
         }
       }
       .topics-color-line {
@@ -444,7 +444,7 @@ export default class SubscriptionsList extends Vue {
       .close {
         display: none;
         border-radius: 50%;
-        background: var(--color-second-red);
+        background: var(--color-minor-red);
         position: absolute;
         right: -5px;
         top: -5px;
@@ -453,7 +453,7 @@ export default class SubscriptionsList extends Vue {
         text-align: center;
         line-height: 18px;
         .el-icon-close {
-          color: #fff;
+          color: var(--color-text-active);
         }
       }
       &:hover {

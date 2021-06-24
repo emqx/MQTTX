@@ -48,13 +48,13 @@ export default class Contextmenu extends Vue {
       }
       &:hover {
         color: var(--color-main-green);
-        background: var(--color-thrid-green);
+        background: var(--color-light-green);
       }
       &.danger {
-        color: var(--color-second-red);
+        color: var(--color-minor-red);
         &:hover {
-          color: var(--color-second-red);
-          background: var(--color-third-red);
+          color: var(--color-minor-red);
+          background: var(--color-light-red);
         }
       }
     }

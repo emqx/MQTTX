@@ -156,7 +156,7 @@ export default class BytesStatistics extends Vue {
     line-height: 60px;
     text-align: center;
     font-size: 16px;
-    color: #fff;
+    color: var(--color-text-active);
     .el-card__body {
       padding: 0px;
     }

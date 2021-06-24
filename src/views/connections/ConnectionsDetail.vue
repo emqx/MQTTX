@@ -1430,7 +1430,7 @@ export default class ConnectionsDetail extends Vue {
         .stop-interval-btn {
           margin-right: 12px;
           i {
-            color: var(--color-second-red);
+            color: var(--color-minor-red);
           }
         }
         .connect-loading,
@@ -1561,10 +1561,10 @@ export default class ConnectionsDetail extends Vue {
   }
   li.delete-item {
     display: block;
-    color: var(--color-second-red);
+    color: var(--color-minor-red);
     &:hover {
-      color: var(--color-second-red);
-      background: var(--color-third-red);
+      color: var(--color-minor-red);
+      background: var(--color-light-red);
     }
   }
 }

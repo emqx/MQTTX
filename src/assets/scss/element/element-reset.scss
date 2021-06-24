@@ -110,7 +110,7 @@
     color: var(--color-text-light);
     background: transparent;
     &:hover {
-      color: var(--color-second-green);
+      color: var(--color-minor-green);
       background: transparent;
     }
   }
@@ -118,7 +118,7 @@
     background: transparent;
     &:hover {
       background: transparent;
-      color: var(--color-second-green);
+      color: var(--color-minor-green);
     }
   }
   button:nth-child(2) {
@@ -147,7 +147,7 @@
     box-shadow: 3px 3px 5px 0px var(--color-shadow-message);
   }
   &--error {
-    border: 1px solid var(--color-second-red);
+    border: 1px solid var(--color-minor-red);
     box-shadow: 3px 3px 5px 0px var(--color-shadow-message);
   }
 }
@@ -245,7 +245,7 @@
 
 /* Tootip */
 .el-tooltip__popper.is-light {
-  color: #616161;
+  color: var(--color-text-default);
 }
 
 /* Color picker */
