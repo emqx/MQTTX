@@ -22,6 +22,10 @@ body {
   color: var(--color-text-default);
 }
 
+::-webkit-scrollbar {
+  display: none;
+}
+
 body.select-none {
   -moz-user-select: none;
   -khtml-user-select: none;
