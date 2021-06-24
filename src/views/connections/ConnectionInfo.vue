@@ -269,6 +269,12 @@ export default class ConnectionInfo extends Vue {
       color: var(--color-second-red);
       border-color: var(--color-second-red);
     }
+    .el-form-item.is-success .el-input__inner,
+    .el-form-item.is-success .el-input__inner:focus,
+    .el-form-item.is-success .el-textarea__inner,
+    .el-form-item.is-success .el-textarea__inner:focus {
+      border: 1px solid var(--color-border-default);
+    }
   }
 }
 </style>

@@ -112,7 +112,7 @@
               </el-tooltip>
               <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
                 <a href="javascript:;">
-                  <i class="el-icon-more"></i>
+                  <i class="iconfont icon-more"></i>
                 </a>
                 <el-dropdown-menu class="connection-oper-item" slot="dropdown">
                   <el-dropdown-item command="searchContent">
@@ -1423,12 +1423,15 @@ export default class ConnectionsDetail extends Vue {
       .connection-tail {
         i {
           font-size: 20px;
+          color: var(--color-text-title);
         }
         .remove-script-btn,
         .disconnect-btn,
         .stop-interval-btn {
           margin-right: 12px;
-          color: var(--color-second-red);
+          i {
+            color: var(--color-second-red);
+          }
         }
         .connect-loading,
         .edit-btn,

@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "22444844",
+      "name": "more",
+      "font_class": "more",
+      "unicode": "e6e5",
+      "unicode_decimal": 59109
+    },
+    {
+      "icon_id": "22444281",
+      "name": "edit",
+      "font_class": "edit",
+      "unicode": "e6e2",
+      "unicode_decimal": 59106
+    },
+    {
       "icon_id": "22420295",
       "name": "stop scrip",
       "font_class": "a-stopscrip",
@@ -130,13 +144,6 @@
       "font_class": "about",
       "unicode": "e6ce",
       "unicode_decimal": 59086
-    },
-    {
-      "icon_id": "22407881",
-      "name": "edit",
-      "font_class": "edit",
-      "unicode": "e6d0",
-      "unicode_decimal": 59088
     },
     {
       "icon_id": "22407882",
