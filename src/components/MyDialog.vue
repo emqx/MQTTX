@@ -103,7 +103,7 @@ export default class MyDialog extends Vue {
       margin-left: 24px;
       color: var(--color-main-green);
       &:hover {
-        color: var(--color-second-green);
+        color: var(--color-minor-green);
       }
     }
   }

@@ -2,49 +2,49 @@ body.dark {
   /* Backgroud color */
   --color-bg-normal: #282828;
   --color-bg-primary: #232323;
-  --color-bg-topics: #484848;
-  --color-bg-topics_shadow: #151515;
   --color-bg-leftbar_top: #2e424a;
   --color-bg-leftbar_bottom: #212b3b;
   --color-bg-leftbar_item: #303030;
   --color-bg-item: #395449;
   --color-bg-item_status: #9ea3b1;
-  --color-bg-input: #323232;
   --color-bg-messagebox: #303133;
   --color-bg-follows: #4a4a4a;
   --color-bg-code: #38404a;
-  --color-bg-input_btn: transparent;
-  --color-bg-radio: #37363d80;
-  --color-bg-popover: #ffffff;
+  --color-bg-select_lang: #37363d80;
+  --color-bg-popover: #fff;
   --color-bg-dark: #082537e8;
+  --color-bg-historybtn: #dfefe7;
 
   /* Font color */
-  --color-text-title: #ffffff;
+  --color-text-title: #fff;
   --color-text-default: #d3d3d3;
   --color-text-light: #a3a3a3;
   --color-text-tips: #b4b4b4;
   --color-text-right_block: #484848;
   --color-text-right_info: #959599;
   --color-text-left_info: #959599;
-  --color-text-topics_active: #ffffff;
-  --color-leftbar-icon: #83929b;
+  --color-text-active: #fff;
+  --color-text-leftbar_icon: #83929b;
+  --color-text-historybtn: #25465f;
+  --color-text-historybtn_disabled: #c0c4cc;
 
   /* Accent color */
   --color-main-green: #34c388;
-  --color-second-green: #53daa2;
-  --color-thrid-green: #ebf8f2;
+  --color-minor-green: #53daa2;
+  --color-light-green: #ebf8f2;
   --color-main-red: #e86aa6;
-  --color-second-red: #f56c6c;
-  --color-third-red: #fcdee4;
+  --color-minor-red: #f56c6c;
+  --color-light-red: #fcdee4;
   --color-main-grey: #323232;
   --color-main-yellow: #e6a23cb3;
 
   /* Border color */
   --color-border-default: #383838;
   --color-border-bold: #969696;
-  --color-shadow-card: #00000059;
-  --color-shadow-message: #1f1f1f;
 
   /* Shadow color */
-  --color-leftlist-shadow: #5b769438;
+  --color-shadow-leftlist: #5b769438;
+  --color-shadow-sendbtn: #2dc17769;
+  --color-shadow-card: #00000059;
+  --color-shadow-message: #1f1f1f;
 }

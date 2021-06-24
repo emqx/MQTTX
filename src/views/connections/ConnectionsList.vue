@@ -645,7 +645,7 @@ export default class ConnectionsList extends Vue {
                 right: -1px;
                 font-size: 12px;
                 transform: rotate(45deg);
-                color: #fff;
+                color: var(--color-text-active);
               }
             }
             .new-msg-count {
@@ -656,7 +656,7 @@ export default class ConnectionsList extends Vue {
               background: var(--color-bg-dark);
               border-radius: 9px;
               padding: 0 3px;
-              color: #fff;
+              color: var(--color-text-active);
               font-size: $font-size--tips;
               text-align: center;
             }

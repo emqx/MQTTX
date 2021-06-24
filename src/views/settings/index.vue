@@ -312,7 +312,7 @@ export default class Settings extends Vue {
 
   .el-input-number__increase,
   .el-input-number__decrease {
-    background: var(--color-bg-input_btn);
+    background: transparent;
   }
   .el-input-number__decrease {
     border-right: 1px solid var(--color-border-default);
