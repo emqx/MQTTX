@@ -1,7 +1,7 @@
 <template>
   <div class="msg-publish message">
     <div class="publish-header">
-      <div class="qos-retain">
+      <div class="publish-metadata">
         <span class="publish-label">Payload: </span>
         <el-select class="payload-select" size="mini" v-model="payloadType">
           <el-option v-for="(type, index) in payloadOptions" :key="index" :value="type"> </el-option>
@@ -12,13 +12,10 @@
           <el-option :value="1"></el-option>
           <el-option :value="2"></el-option>
         </el-select>
-        <div class="retain-block">
-          <span class="publish-label">Retain: </span>
-          <el-checkbox v-model="msgRecord.retain"></el-checkbox>
-        </div>
+        <el-checkbox class="retain-block" v-model="msgRecord.retain" label="Retain" border size="mini"></el-checkbox>
       </div>
       <el-input
-        class="topic-input"
+        class="publish-topic-input"
         placeholder="Topic"
         v-model="msgRecord.topic"
         @focus="handleInputFoucs"
@@ -287,18 +284,16 @@ export default class MsgPublish extends Vue {
   transition: 0.3s height;
   border-top: 1px solid var(--color-border-default);
   .publish-header {
-    padding: 0 16px;
     margin-bottom: 4px;
   }
-  .topic-input.el-input {
+  .publish-topic-input.el-input {
     width: calc(100% - 20px);
     vertical-align: top;
-
     display: inline-block;
     .el-input__inner {
       border: 0px;
       border-radius: 0px;
-      padding: 0px;
+      padding: 0px 16px;
       height: 36px;
       line-height: 36px;
       border-bottom: 1px solid var(--color-border-default);
@@ -377,9 +372,10 @@ export default class MsgPublish extends Vue {
       }
     }
   }
-  .qos-retain {
+  .publish-metadata {
     line-height: 35px;
     background: var(--color-bg-normal);
+    padding: 0 16px;
     .publish-label {
       color: var(--color-text-default);
       margin-right: 8px;
@@ -392,7 +388,7 @@ export default class MsgPublish extends Vue {
       width: 55px;
     }
     .retain-block {
-      float: right;
+      margin-left: 24px;
     }
     .el-checkbox__inner {
       border-radius: 100%;
