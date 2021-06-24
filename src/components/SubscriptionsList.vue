@@ -89,7 +89,7 @@
             <el-form-item :label="$t('connections.color')">
               <el-color-picker v-model="topicColor" size="mini" color-format="hex" :predefine="predefineColors">
               </el-color-picker>
-              <el-input v-model="topicColor" size="small" placeholder="#34C388">
+              <el-input v-model="topicColor" size="small" placeholder="#34c388">
                 <i slot="suffix" title="Refresh" class="el-icon-refresh" @click="setColor"> </i>
               </el-input>
             </el-form-item>

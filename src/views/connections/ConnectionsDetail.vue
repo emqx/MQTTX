@@ -223,11 +223,7 @@
             <el-select class="received-type-select" size="small" v-model="receivedMsgType">
               <el-option v-for="(type, index) in payloadOptions" :key="index" :value="type"> </el-option>
             </el-select>
-            <el-radio-group v-model="msgType" size="mini" @change="handleMsgTypeChanged">
-              <el-radio-button label="all">{{ $t('connections.all') }}</el-radio-button>
-              <el-radio-button label="received">{{ $t('connections.received') }}</el-radio-button>
-              <el-radio-button label="publish">{{ $t('connections.published') }}</el-radio-button>
-            </el-radio-group>
+            <MsgTypeTabs v-model="msgType" @change="handleMsgTypeChanged" />
           </div>
         </div>
         <SubscriptionsList
@@ -320,6 +316,7 @@ import ImportData from '@/components/ImportData.vue'
 import TimedMessage from '@/components/TimedMessage.vue'
 import BytesStatistics from '@/components/BytesStatistics.vue'
 import UseScript from '@/components/UseScript.vue'
+import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 
 import {
   ConnectionModel,
@@ -364,6 +361,7 @@ interface TopModel {
     BytesStatistics,
     MessageList,
     UseScript,
+    MsgTypeTabs,
   },
 })
 export default class ConnectionsDetail extends Vue {
@@ -434,8 +432,8 @@ export default class ConnectionsDetail extends Vue {
 
   private retryTimes = 0
   private inputHeight = 155
-  private msgBottom = 160
-  private messageListHeight: number = 283
+  private msgBottom = 166
+  private messageListHeight: number = 284
   private messageListMarginTop: number = 19
 
   private activeTopic = ''
@@ -470,8 +468,8 @@ export default class ConnectionsDetail extends Vue {
 
   get msgTop(): TopModel {
     return {
-      open: '286px',
-      close: '88px',
+      open: '280px',
+      close: '86px',
     }
   }
 
@@ -611,7 +609,7 @@ export default class ConnectionsDetail extends Vue {
       document.body.offsetHeight -
       connectionTopbar.offsetHeight -
       connectionFooter.offsetHeight -
-      filterBarOffsetHeight +
+      filterBarOffsetHeight -
       5
   }
 
@@ -1495,17 +1493,21 @@ export default class ConnectionsDetail extends Vue {
     transition: all 0.5s;
     .connections-body {
       .filter-bar {
-        padding: 12px 16px;
-        background: var(--color-bg-primary);
+        padding: 6px 16px;
+        background: var(--color-bg-normal);
+        border-bottom: 1px solid var(--color-border-default);
         position: fixed;
         left: 341px;
         right: 0;
         z-index: 1;
         transition: all 0.4s;
+        .el-input .el-input__inner {
+          border: none;
+          color: var(--color-main-green);
+        }
         .subs-title {
           color: var(--color-text-title);
           position: absolute;
-          top: 15px;
         }
         .subs-btn {
           position: relative;
@@ -1521,12 +1523,12 @@ export default class ConnectionsDetail extends Vue {
         .message-type {
           @include flex-space-between;
           .received-type-select {
-            width: 110px;
+            width: 95px;
             margin-left: 245px;
           }
           .icon-tip {
             position: absolute;
-            left: 239px;
+            left: 245px;
             font-size: 16px;
             color: var(--color-text-tips);
           }
