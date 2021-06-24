@@ -266,8 +266,8 @@ export default class ConnectionInfo extends Vue {
       margin-right: 10px;
     }
     .el-button.disconnect {
-      color: var(--color-second-red);
-      border-color: var(--color-second-red);
+      color: var(--color-minor-red);
+      border-color: var(--color-minor-red);
     }
     .el-form-item.is-success .el-input__inner,
     .el-form-item.is-success .el-input__inner:focus,

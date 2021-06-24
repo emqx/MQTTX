@@ -32,7 +32,7 @@ export default class EmptyPage extends Vue {
   .empty-page__block {
     .primary-btn {
       background: linear-gradient(134deg, #37dc85 0%, #35ca8d 100%);
-      color: #fff;
+      color: var(--color-text-active);
       border: 1px solid #37dc85;
     }
     img {

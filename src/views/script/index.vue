@@ -253,8 +253,8 @@ execute(handlePayload)`
       border: 2px solid #22bb7a;
     }
     .delete-btn {
-      color: var(--color-second-red);
-      border-color: var(--color-second-red);
+      color: var(--color-minor-red);
+      border-color: var(--color-minor-red);
     }
   }
   .script-editor {
