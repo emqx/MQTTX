@@ -23,16 +23,16 @@
           :allow-drop="allowDrop"
         >
           <span class="custom-tree-node" slot-scope="{ node, data }">
-            <div v-if="data.isEdit">
-              <el-input
-                size="small"
-                @blur="handleEditCompeleted(node, data)"
-                @keyup.enter.native="handleEditCompeleted(node, data)"
-                @keyup.esc.native="handleEditCancel(node, data)"
-                :placeholder="$t('connections.collectionPlaceholder')"
-                v-model="data.name"
-              ></el-input>
-            </div>
+            <el-input
+              v-if="data.isEdit"
+              ref="newCollectionInput"
+              size="small"
+              @blur="handleEditCompeleted(node, data)"
+              @keyup.enter.native="handleEditCompeleted(node, data)"
+              @keyup.esc.native="handleEditCancel(node, data)"
+              :placeholder="$t('connections.collectionPlaceholder')"
+              v-model="data.name"
+            ></el-input>
             <!-- connection -->
             <div
               v-else-if="!data.isCollection"
@@ -478,6 +478,13 @@ export default class ConnectionsList extends Vue {
       isCollection: true,
       children: [],
       isEdit: true,
+    })
+    this.$nextTick(() => {
+      const newCollectionInputDom = this.$refs.newCollectionInput as Vue
+      if (newCollectionInputDom) {
+        const input = newCollectionInputDom.$el.children[0] as HTMLElement
+        input.focus()
+      }
     })
     this.flushCollectionChange()
   }
