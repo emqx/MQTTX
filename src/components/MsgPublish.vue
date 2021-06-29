@@ -52,7 +52,15 @@
           height: `${editorHeight}px`,
         }"
       >
-        <Editor ref="payloadEditor" id="payload" :lang="payloadLang" v-model="msgRecord.payload" @enter-event="send" />
+        <Editor
+          ref="payloadEditor"
+          id="payload"
+          :lang="payloadLang"
+          lineNumbers="on"
+          v-model="msgRecord.payload"
+          :useShadows="true"
+          @enter-event="send"
+        />
       </div>
       <div class="publish-right-bar">
         <div class="history-icon">
@@ -283,20 +291,13 @@ export default class MsgPublish extends Vue {
   background: var(--color-bg-normal);
   transition: 0.3s height;
   border-top: 1px solid var(--color-border-default);
-  .publish-header {
-    margin-bottom: 4px;
-  }
   .publish-topic-input.el-input {
     width: calc(100% - 20px);
     vertical-align: top;
     display: inline-block;
+    @include topic-input__inner;
     .el-input__inner {
-      border: 0px;
-      border-radius: 0px;
       padding: 0px 16px;
-      height: 36px;
-      line-height: 36px;
-      border-bottom: 1px solid var(--color-border-default);
     }
   }
   .header-select.el-select {
@@ -304,23 +305,9 @@ export default class MsgPublish extends Vue {
     width: 20px;
     display: inline-block;
     .el-input {
-      .el-input__inner {
-        border: 0px;
-        border-radius: 0px;
-        padding: 0px;
-        height: 36px;
-        line-height: 36px;
-        border-bottom: 1px solid var(--color-border-default);
-      }
+      @include topic-input__inner;
       &.is-focus {
-        .el-input__inner {
-          border: 0px;
-          border-radius: 0px;
-          padding: 0px;
-          height: 36px;
-          line-height: 36px;
-          border-bottom: 1px solid var(--color-border-default);
-        }
+        @include topic-input__inner;
       }
     }
   }
@@ -336,6 +323,7 @@ export default class MsgPublish extends Vue {
       width: 85px;
       position: absolute;
       right: 0;
+      top: 70px;
       .history-icon {
         width: 70px;
         height: 10px;
@@ -373,9 +361,9 @@ export default class MsgPublish extends Vue {
     }
   }
   .publish-metadata {
-    line-height: 35px;
     background: var(--color-bg-normal);
     padding: 0 16px;
+    margin-top: 6px;
     .publish-label {
       color: var(--color-text-default);
       margin-right: 8px;
