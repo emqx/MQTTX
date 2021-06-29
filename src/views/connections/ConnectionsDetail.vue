@@ -461,14 +461,14 @@ export default class ConnectionsDetail extends Vue {
 
   get bodyTop(): TopModel {
     return {
-      open: '254px',
+      open: '251px',
       close: '60px',
     }
   }
 
   get msgTop(): TopModel {
     return {
-      open: '280px',
+      open: '277px',
       close: '86px',
     }
   }
@@ -606,11 +606,7 @@ export default class ConnectionsDetail extends Vue {
     this.messageListMarginTop = filterBarOffsetHeight > 56 ? filterBarOffsetHeight - 37 : 19
 
     this.messageListHeight =
-      document.body.offsetHeight -
-      connectionTopbar.offsetHeight -
-      connectionFooter.offsetHeight -
-      filterBarOffsetHeight -
-      5
+      document.body.offsetHeight - connectionTopbar.offsetHeight - connectionFooter.offsetHeight - filterBarOffsetHeight
   }
 
   // Show context menu
