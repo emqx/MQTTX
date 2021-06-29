@@ -15,6 +15,8 @@
         lineNumbers="on"
         renderHighlight="line"
         disabled="true"
+        :fontSize="14"
+        :lineNumbersMinChars="5"
         :editorTheme="this.theme === 'light' ? 'editor-log' : 'editor-log-dark'"
       />
     </div>

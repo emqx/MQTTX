@@ -16,10 +16,12 @@ import LogEditorRules from '@/assets/scss/theme/custom/log-editor-rules.json'
 export default class Editor extends Vue {
   @Prop({ required: true }) public id!: string
   @Prop({ required: true }) public lang!: string
-  @Prop({ default: 14 }) public fontSize!: number
+  @Prop({ default: 12 }) public fontSize!: number
   @Prop({ default: 'off' }) public lineNumbers!: 'off' | 'on'
+  @Prop({ default: 1 }) public lineNumbersMinChars!: number
   @Prop({ default: 'none' }) public renderHighlight!: 'none' | 'line'
-  @Prop({ default: 'hidden' }) public scrollbarStatus: 'auto' | 'visible' | 'hidden' | undefined
+  @Prop({ default: 'auto' }) public scrollbarStatus: 'auto' | 'visible' | 'hidden' | undefined
+  @Prop({ default: false }) public useShadows!: boolean
   @Prop({ default: false }) public disabled!: boolean
   @Prop({ default: undefined }) public editorTheme!: Theme
   @Prop({ default: false }) public isCustomerLang!: boolean
@@ -104,6 +106,7 @@ export default class Editor extends Vue {
       fontSize: this.fontSize,
       scrollBeyondLastLine: false,
       lineNumbers: this.lineNumbers,
+      lineNumbersMinChars: this.lineNumbersMinChars,
       renderLineHighlight: this.renderHighlight,
       matchBrackets: 'near',
       folding: false,
@@ -116,8 +119,10 @@ export default class Editor extends Vue {
       },
       scrollbar: {
         horizontal: this.scrollbarStatus,
+        horizontalScrollbarSize: 8,
         vertical: this.scrollbarStatus,
-        useShadows: false,
+        verticalScrollbarSize: 8,
+        useShadows: this.useShadows,
         alwaysConsumeMouseWheel: false,
       },
       smoothScrolling: true,
