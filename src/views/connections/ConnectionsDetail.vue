@@ -431,7 +431,7 @@ export default class ConnectionsDetail extends Vue {
   private titleName: string = this.record.name
 
   private retryTimes = 0
-  private inputHeight = 155
+  private inputHeight = 160
   private msgBottom = 166
   private messageListHeight: number = 284
   private messageListMarginTop: number = 19

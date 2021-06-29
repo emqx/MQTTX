@@ -70,3 +70,14 @@
     border-bottom-right-radius: 4px;
   }
 }
+
+@mixin topic-input__inner {
+  .el-input__inner {
+    border: 0px;
+    border-radius: 0px;
+    padding: 0px;
+    height: 32px;
+    line-height: 32px;
+    border-bottom: 1px solid var(--color-border-default);
+  }
+}

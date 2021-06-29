@@ -17,7 +17,7 @@
           <el-option v-for="script in scripts" :key="script.id" :value="script.id" :label="script.name"></el-option>
         </el-select>
         <a v-if="this.currentScriptId" href="javascript:;" @click="handleCreate">
-          <i class="iconfont icon-plus"></i>
+          <i class="iconfont icon-new"></i>
         </a>
       </div>
       <div>
@@ -39,6 +39,7 @@
         lang="javascript"
         v-model="scriptValue"
         lineNumbers="on"
+        :lineNumbersMinChars="5"
         renderHighlight="line"
         @qucik-save="handleTestFunc"
       />
@@ -59,7 +60,14 @@
         height: '80px',
       }"
     >
-      <Editor ref="scriptInput" id="script-input" :lang="editorLang" v-model="inputValue" />
+      <Editor
+        ref="scriptInput"
+        id="script-input"
+        :lang="editorLang"
+        lineNumbers="on"
+        :lineNumbersMinChars="2"
+        v-model="inputValue"
+      />
     </div>
     <div class="lang-type">
       <el-radio-group v-model="inputType">
@@ -250,7 +258,7 @@ execute(handlePayload)`
       margin-right: 12px;
     }
     .save-btn {
-      border: 2px solid #22bb7a;
+      border: 2px solid var(--color-main-green);
     }
     .delete-btn {
       color: var(--color-minor-red);
