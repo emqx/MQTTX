@@ -61,8 +61,12 @@
             </el-input-number>
           </el-form-item>
         </el-col>
-        <el-col :span="8" class="connection.ssl">
-          <el-checkbox v-model="connection.clean" :disabled="client.connected">Clean Session</el-checkbox>
+        <el-col :span="8">
+          <el-form-item label="Clean Session">
+            <el-checkbox v-model="connection.clean" :disabled="client.connected" border>{{
+              connection.clean ? 'true' : 'false'
+            }}</el-checkbox>
+          </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-button
@@ -256,10 +260,16 @@ export default class ConnectionInfo extends Vue {
     }
 
     .el-checkbox {
-      margin-top: 42px;
+      border: 1px solid var(--color-border-default);
+      padding: 4px 10px;
+      height: 28px;
+      width: 100%;
+      .el-checkbox__label {
+        font-size: 12px;
+      }
     }
     .el-button.btn {
-      margin-top: 13px;
+      margin-top: 10px;
       float: right;
     }
     .el-button.cancel {
