@@ -56,7 +56,6 @@
           ref="payloadEditor"
           id="payload"
           :lang="payloadLang"
-          lineNumbers="on"
           v-model="msgRecord.payload"
           :useShadows="true"
           @enter-event="send"

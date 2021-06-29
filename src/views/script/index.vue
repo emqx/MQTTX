@@ -2,14 +2,6 @@
   <div class="script-view rightbar">
     <h1 class="titlebar">
       {{ $t('script.script') }}
-      <el-tooltip
-        placement="bottom"
-        :effect="theme !== 'light' ? 'light' : 'dark'"
-        :open-delay="500"
-        :content="$t('common.betaInfo')"
-      >
-        <el-badge value="Beta"></el-badge>
-      </el-tooltip>
     </h1>
     <div class="script-view-header">
       <div>
@@ -256,6 +248,10 @@ execute(handlePayload)`
     .el-select {
       width: 230px;
       margin-right: 12px;
+    }
+    .icon-new {
+      position: relative;
+      top: 3px;
     }
     .save-btn {
       border: 2px solid var(--color-main-green);
