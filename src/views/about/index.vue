@@ -45,7 +45,7 @@
           <div class="emq-logo">
             <img src="../../assets/images/emq-logo.png" alt="emqx" width="40" />
             <span class="copyright">
-              Copyright &copy; 2021 <a :href="emqxWebsite" target="_blank" rel="noopener noreferrer">EMQ</a>
+              &copy;2021 <a :href="emqxWebsite" target="_blank" rel="noopener noreferrer">EMQ</a> Technologies Co., Ltd.
             </span>
           </div>
           <div class="follow-items">
@@ -126,7 +126,7 @@ export default class About extends Vue {
     justify-content: center;
     align-items: center;
     .about-logo {
-      margin-left: 120px;
+      margin-left: 60px;
       img {
         max-width: none;
       }
@@ -197,6 +197,7 @@ export default class About extends Vue {
         }
         .follow-items {
           float: right;
+          margin-top: 2px;
           .follow-link {
             cursor: pointer;
             width: 24px;
