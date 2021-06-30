@@ -137,7 +137,7 @@ export default class About extends Vue {
       .version {
         font-size: 24px;
         margin-bottom: 16px;
-        color: #222b3b;
+        color: var(--color-text-title);
         font-weight: 600;
       }
       .help {
