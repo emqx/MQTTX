@@ -135,9 +135,9 @@ export default {
     ja: '新しいウィンドウ',
   },
   version: {
-    zh: '系统版本',
-    en: 'Version',
-    ja: 'システムバージョン',
+    zh: '版本：',
+    en: 'Version: ',
+    ja: 'システムバージョン:',
   },
   uptime: {
     zh: '运行时间',
