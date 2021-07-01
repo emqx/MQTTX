@@ -1,7 +1,7 @@
 import { dialog, shell } from 'electron'
 import axios from 'axios'
+import version from '@/version'
 
-const version = 'v1.6.0'
 const release = 'https://api.github.com/repos/emqx/MQTTX/releases/latest'
 const downloadUrl = 'https://github.com/emqx/MQTTX/releases/latest'
 
@@ -24,7 +24,7 @@ const updateChecker = async (isAuto: boolean = true): Promise<void | boolean> =>
   if (response.status === 200) {
     const latest: string = response.data.name
     const isPrerelease: boolean = response.data.prerelease
-    if (isUpdate(latest.slice(1, 6), version.slice(1, 6)) && !isPrerelease) {
+    if (isUpdate(latest.slice(1, 6), version) && !isPrerelease) {
       dialog
         .showMessageBox({
           type: 'info',
