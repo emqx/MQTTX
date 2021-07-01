@@ -3,7 +3,7 @@
     <h1 class="titlebar">{{ $t('about.about') }}</h1>
     <div class="about-block">
       <div class="about-logo">
-        <img :src="logoSrc" alt="mqttx-app-logo" width="200" height="192" />
+        <img :src="mqttxLogoSrc" alt="mqttx-app-logo" width="200" height="192" />
       </div>
       <div class="about-content">
         <div class="about-content__header">
@@ -43,7 +43,7 @@
         </div>
         <div class="about-content__footer">
           <div class="emq-logo">
-            <img src="../../assets/images/emq-logo.png" alt="emqx" width="40" />
+            <img :src="emqLogoSrc" alt="emqx" width="40" />
             <span class="copyright">
               &copy;2021 <a :href="emqxWebsite" target="_blank" rel="noopener noreferrer">EMQ</a> Technologies Co., Ltd.
             </span>
@@ -86,11 +86,18 @@ export default class About extends Vue {
   @Getter('currentTheme') private getterTheme!: Theme
   @Getter('currentLang') private getterLang!: Language
 
-  get logoSrc(): string {
+  get mqttxLogoSrc(): string {
     if (this.getterTheme === 'light') {
-      return require('../../assets/images/mqttx-light.png')
+      return require('../../assets/images/mqttx-dark.png')
     }
     return require('../../assets/images/mqttx-light.png')
+  }
+
+  get emqLogoSrc(): string {
+    if (this.getterTheme === 'light') {
+      return require('../../assets/images/emq-logo-dark.png')
+    }
+    return require('../../assets/images/emq-logo-light.png')
   }
 
   get emqxWebsite(): string {
@@ -133,7 +140,7 @@ export default class About extends Vue {
     }
     .about-content {
       margin-left: 120px;
-      margin-right: 64px;
+      margin-right: 60px;
       .version {
         font-size: 24px;
         margin-bottom: 16px;
@@ -186,18 +193,14 @@ export default class About extends Vue {
         margin-top: 25px;
         display: flex;
         justify-content: space-between;
+        align-items: center;
         .emq-logo {
           img {
-            margin-right: 12px;
-          }
-          .copyright {
-            position: relative;
-            top: -13px;
+            margin-right: 6px;
           }
         }
         .follow-items {
           float: right;
-          margin-top: 2px;
           .follow-link {
             cursor: pointer;
             width: 24px;
