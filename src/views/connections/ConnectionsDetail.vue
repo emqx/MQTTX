@@ -1245,6 +1245,8 @@ export default class ConnectionsDetail extends Vue {
       }
       if (receiveType === 'JSON') {
         validJSONType(receiveValue.toString(), this.$t('connections.receivedMsg'))
+        const jsonValue = JSON.parse(receiveValue.toString())
+        return JSON.stringify(jsonValue, null, 2)
       }
       return receiveValue.toString()
     }
