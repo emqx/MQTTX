@@ -7,7 +7,7 @@
       </div>
       <div class="about-content">
         <div class="about-content__header">
-          <p class="version">{{ $t('common.version') }} v1.6.0</p>
+          <p class="version">{{ $t('common.version') }} v{{ version }}</p>
           <p class="help">
             <a class="web-link" href="javascript:;" @click="checkUpdate">{{ $t('about.update') }}</a>
             <a class="web-link" href="https://github.com/emqx/MQTTX/releases" target="_blank" rel="noopener noreferrer">
@@ -80,11 +80,16 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import { ipcRenderer } from 'electron'
+import version from '@/version'
 
 @Component
 export default class About extends Vue {
   @Getter('currentTheme') private getterTheme!: Theme
   @Getter('currentLang') private getterLang!: Language
+
+  get version(): string {
+    return version
+  }
 
   get mqttxLogoSrc(): string {
     if (this.getterTheme === 'light') {
