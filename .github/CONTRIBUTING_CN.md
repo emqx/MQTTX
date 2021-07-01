@@ -85,4 +85,6 @@
 
 6. 最后，向上游仓库中的 `dev/*` 分支发起一个 pull request 请求，我们将对其进行认真的审查，该仓库中至少会包含一个 `dev/${version}` 的分支。
 
+7. 发版流程，在当前 `dev/*` 分支拉下最新的主分支 `maste`，使用 `npm version [patch | minor | major] 'commit message'` 产生一个新的 commit，最后使用 rebase merge 合并到主分支 `master`。
+
 谢谢您的耐心阅读！并感谢您对 MQTT X 的贡献！:)

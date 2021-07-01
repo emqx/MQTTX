@@ -86,4 +86,6 @@ If you find a problem 🐛 or have a better idea 💡 during use, you can modify
 
 6. Submit a pull request to the `dev/*` branch of the upstream repository, and we will review it. The repository will contain at least one `dev/${version}` branch.
 
+7. Release process, pull down the latest master branch `maste` in the current `dev/*` branch, use `npm version [patch | minor | major]'commit message'` to generate a new commit, and finally use rebase merge to merge into The master branch `master`.
+
 Thanks for your reading! Hope enjoying! :)
