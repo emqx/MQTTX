@@ -1375,6 +1375,7 @@ export default class ConnectionsDetail extends Vue {
     ipcRenderer.removeAllListeners('searchContent')
     this.removeClinetsMessageListener()
     this.stopTimedSend()
+    window.onresize = null
   }
 }
 </script>
