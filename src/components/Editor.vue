@@ -162,6 +162,8 @@ export default class Editor extends Vue {
     this.editor.onDidBlurEditorText(() => {
       this.$emit('blur')
     })
+    // Add contextmenu item
+    this.addContextmenuItem()
   }
   public editorLayout() {
     if (this.editor) {
@@ -181,7 +183,19 @@ export default class Editor extends Vue {
       monaco.editor.defineTheme('editor-log-dark', logDark)
     }
   }
-
+  private addContextmenuItem() {
+    if (this.lang === 'json' && this.editor) {
+      this.editor.addAction({
+        id: 'beautifyFormat',
+        label: 'Beautify format',
+        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_B],
+        contextMenuGroupId: '9_cutcopypaste',
+        run: () => {
+          this.$emit('format')
+        },
+      })
+    }
+  }
   private getTheme(): string {
     switch (this.theme) {
       case 'dark':

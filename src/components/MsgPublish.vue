@@ -59,6 +59,7 @@
           v-model="msgRecord.payload"
           :useShadows="true"
           @enter-event="send"
+          @format="formatJsonValue"
         />
       </div>
       <div class="publish-right-bar">
@@ -259,6 +260,17 @@ export default class MsgPublish extends Vue {
     const headersHistoryIndex = this.payloadsHistory[this.historyIndex]
     if (headersHistoryIndex) {
       this.payloadType = headersHistoryIndex.payloadType
+    }
+  }
+
+  private formatJsonValue() {
+    try {
+      const jsonValue = JSON.parse(this.msgRecord.payload)
+      if (jsonValue) {
+        this.msgRecord.payload = JSON.stringify(jsonValue, null, 2)
+      }
+    } catch (error) {
+      this.$message.warning(error.toString())
     }
   }
 
