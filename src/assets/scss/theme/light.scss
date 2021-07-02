@@ -13,6 +13,7 @@ body.light {
   --color-bg-select_lang: #f6f7fb;
   --color-bg-popover: #303133f0;
   --color-bg-dark: #082537e8;
+  --color-bg-unreadmsg: #082537e8;
   --color-bg-historybtn: #dfefe7;
 
   /* Font color */
@@ -37,10 +38,12 @@ body.light {
   --color-light-red: #fcdee4;
   --color-main-grey: #edeef3;
   --color-main-yellow: #e6a23cb3;
+  --color-main-white: #fff;
 
   /* Border color */
   --color-border-default: #e6e8f1;
   --color-border-bold: #979797;
+  --color-border-rightbar: transparent;
 
   /* Shadow color */
   --color-shadow-leftlist: #5b769438;

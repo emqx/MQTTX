@@ -128,7 +128,7 @@ export default class Leftbar extends Vue {
     &.active a,
     a:hover {
       .iconfont {
-        color: var(--color-bg-normal);
+        color: var(--color-main-white);
       }
     }
     &:last-child {

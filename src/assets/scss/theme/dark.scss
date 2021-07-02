@@ -1,19 +1,20 @@
 body.dark {
   /* Backgroud color */
-  --color-bg-normal: #282828;
-  --color-bg-primary: #232323;
-  --color-bg-leftbar_top: #2e424a;
-  --color-bg-leftbar_bottom: #212b3b;
-  --color-bg-leftbar_item: #303030;
-  --color-bg-item: #395449;
+  --color-bg-normal: #262729;
+  --color-bg-primary: #212223;
+  --color-bg-leftbar_top: #232325;
+  --color-bg-leftbar_bottom: #1f2122;
+  --color-bg-leftbar_item: #1f2021;
+  --color-bg-item: #1f2021;
   --color-bg-item_status: #9ea3b1;
   --color-bg-messagebox: #303133;
   --color-bg-follows: #4a4a4a;
   --color-bg-code: #38404a;
   --color-bg-select_lang: #37363d80;
   --color-bg-popover: #fff;
-  --color-bg-dark: #082537e8;
-  --color-bg-historybtn: #dfefe7;
+  --color-bg-dark: #131415d9;
+  --color-bg-unreadmsg: #1c1f22e8;
+  --color-bg-historybtn: #393a3c;
 
   /* Font color */
   --color-text-title: #fff;
@@ -24,9 +25,9 @@ body.dark {
   --color-text-right_info: #959599;
   --color-text-left_info: #959599;
   --color-text-active: #fff;
-  --color-text-leftbar_icon: #83929b;
-  --color-text-historybtn: #25465f;
-  --color-text-historybtn_disabled: #c0c4cc;
+  --color-text-leftbar_icon: #868787;
+  --color-text-historybtn: #fff;
+  --color-text-historybtn_disabled: #6f6f6f;
 
   /* Accent color */
   --color-main-green: #34c388;
@@ -37,13 +38,15 @@ body.dark {
   --color-light-red: #fcdee4;
   --color-main-grey: #323232;
   --color-main-yellow: #e6a23cb3;
+  --color-main-white: #fff;
 
   /* Border color */
   --color-border-default: #383838;
   --color-border-bold: #969696;
+  --color-border-rightbar: #2f2f2f;
 
   /* Shadow color */
-  --color-shadow-leftlist: #5b769438;
+  --color-shadow-leftlist: #00000061;
   --color-shadow-sendbtn: #2dc17769;
   --color-shadow-card: #00000059;
   --color-shadow-message: #1f1f1f;

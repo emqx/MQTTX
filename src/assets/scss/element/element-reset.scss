@@ -29,6 +29,15 @@
   border-left: 2px solid var(--color-border-bold);
 }
 
+/* Checkbox */
+.el-checkbox.is-bordered {
+  border: 1px solid var(--color-border-default);
+  .el-checkbox__label {
+    color: var(--color-text-default);
+    font-weight: 400;
+  }
+}
+
 /* Card */
 .el-card {
   border: 1px solid var(--color-border-default);
@@ -185,6 +194,9 @@
       color: var(--color-text-light);
     }
   }
+  &.is-disabled .el-input__inner {
+    border-color: var(--color-border-default);
+  }
 }
 .el-textarea {
   .el-textarea__inner {
@@ -245,7 +257,7 @@
 
 /* Tootip */
 .el-tooltip__popper.is-light {
-  color: var(--color-text-default);
+  color: var(--color-text-light);
 }
 
 /* Color picker */
