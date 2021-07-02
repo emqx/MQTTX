@@ -412,7 +412,7 @@
               <!-- MQTT v5.0 -->
               <template v-if="record.mqttVersion === '5.0'">
                 <el-col :span="22">
-                  <el-form-item label-width="160px" :label="$t('connections.isUTF8Data')" prop="payloadFormatIndicator">
+                  <el-form-item label-width="170px" :label="$t('connections.isUTF8Data')" prop="payloadFormatIndicator">
                     <el-radio-group v-model="record.will.properties.payloadFormatIndicator">
                       <el-radio :label="true"></el-radio>
                       <el-radio :label="false"></el-radio>
