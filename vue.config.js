@@ -20,7 +20,7 @@ module.exports = {
           'codelens',
           'colorDetector',
           '!comment',
-          '!contextmenu',
+          'contextmenu',
           'coreCommands',
           'cursorUndo',
           '!dnd',
