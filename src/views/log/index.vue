@@ -17,7 +17,7 @@
         disabled="true"
         :fontSize="14"
         :lineNumbersMinChars="5"
-        :editorTheme="this.theme === 'light' ? 'editor-log' : 'editor-log-dark'"
+        :editorTheme="editorTheme"
       />
     </div>
   </div>
@@ -40,6 +40,17 @@ export default class Logs extends Vue {
   @Getter('currentTheme') private theme!: Theme
 
   private logValue = ''
+
+  get editorTheme(): 'editor-log' | 'editor-log-dark' | 'editor-log-night' {
+    switch (this.theme) {
+      case 'dark':
+        return 'editor-log-dark'
+      case 'night':
+        return 'editor-log-night'
+      default:
+        return 'editor-log'
+    }
+  }
 
   private async loadData(): Promise<void> {
     const LOG_DIR = getOrCreateLogDir()
