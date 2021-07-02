@@ -104,6 +104,7 @@ import convertPayload from '@/utils/convertPayload'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
 import { loadHistoryMessageHeaders, loadHistoryMessagePayloads } from '@/api/connection'
+import validFormatJson from '@/utils/validFormatJson'
 
 @Component({
   components: {
@@ -264,13 +265,9 @@ export default class MsgPublish extends Vue {
   }
 
   private formatJsonValue() {
-    try {
-      const jsonValue = JSON.parse(this.msgRecord.payload)
-      if (jsonValue) {
-        this.msgRecord.payload = JSON.stringify(jsonValue, null, 2)
-      }
-    } catch (error) {
-      this.$message.warning(error.toString())
+    const jsonValue = validFormatJson(this.msgRecord.payload)
+    if (jsonValue) {
+      this.msgRecord.payload = jsonValue
     }
   }
 
