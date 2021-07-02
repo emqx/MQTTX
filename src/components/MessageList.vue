@@ -38,7 +38,7 @@ export default class MessageList extends Vue {
   @Prop({ required: true }) addNewMsg!: boolean
 
   public showMessages: MessageModel[] = []
-  private scrollTop: number = -1
+  public scrollTop: number = -1
   private showLoadingIcon: boolean = false
   private onceAddMessagesMaxNum: number = 20
 
@@ -99,31 +99,11 @@ export default class MessageList extends Vue {
   private handleShowContextMenu(msgItemInfo: IArguments, message: MessageModel) {
     this.$emit('showContextMenu', msgItemInfo, message)
   }
-
-  private getScrollBox() {
-    const scrollBox = this.$refs.messageListBox as Element
-    return scrollBox
-  }
-
-  private getScrollOffsetToTop() {
-    const { scrollTop } = this.getScrollBox()
-    this.scrollTop = scrollTop
-  }
-
-  private mounted() {
-    this.getScrollBox().addEventListener('scroll', this.getScrollOffsetToTop)
-  }
-
-  private beforeDestroy() {
-    this.getScrollBox().removeEventListener('scroll', this.getScrollOffsetToTop)
-  }
 }
 </script>
 
 <style lang="scss">
 .message-list {
-  overflow-y: scroll;
-  overflow-x: hidden;
   padding: 0 16px;
 
   .loading-icon {

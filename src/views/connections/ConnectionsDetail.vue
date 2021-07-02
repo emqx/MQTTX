@@ -37,7 +37,7 @@
           </div>
           <div class="connection-tail">
             <transition name="el-fade-in">
-              <template v-if="!showClientInfo && client.connected">
+              <div v-if="!showClientInfo && client.connected">
                 <el-tooltip
                   v-if="sendTimeId"
                   placement="bottom"
@@ -60,7 +60,7 @@
                     <i v-else class="el-icon-loading"></i>
                   </a>
                 </el-tooltip>
-              </template>
+              </div>
               <el-tooltip
                 v-if="!showClientInfo && !client.connected"
                 placement="bottom"
@@ -235,15 +235,17 @@
           @onClickTopic="handleTopicClick"
           @deleteTopic="handleTopicDelete"
         />
-        <MessageList
-          ref="messagesDisplay"
-          :subscriptions="record.subscriptions"
-          :messages="messages"
-          :height="messageListHeight"
-          :marginTop="messageListMarginTop"
-          :addNewMsg="messagesAddedNewItem"
-          @showContextMenu="handleContextMenu"
-        />
+        <el-scrollbar class="messages-scroll" ref="messagesWrapper">
+          <MessageList
+            ref="messagesDisplay"
+            :subscriptions="record.subscriptions"
+            :messages="messages"
+            :height="messageListHeight"
+            :marginTop="messageListMarginTop"
+            :addNewMsg="messagesAddedNewItem"
+            @showContextMenu="handleContextMenu"
+          />
+        </el-scrollbar>
         <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
           <a href="javascript:;" class="context-menu__item" @click="handleCopyMessage">
             <i class="iconfont icon-copy"></i>{{ $t('common.copy') }}
@@ -1002,13 +1004,9 @@ export default class ConnectionsDetail extends Vue {
   // Scroll to page bottom
   private scrollToBottom = () => {
     const timer = setTimeout(() => {
-      const messagesDisplay = this.$refs.messagesDisplay as Vue
-      const messagesDisplayDOM = messagesDisplay.$el
-      messagesDisplayDOM.scrollTo({
-        top: messagesDisplayDOM.scrollHeight + 160,
-        left: 0,
-        behavior: 'smooth',
-      })
+      const messagesWrapper: any = this.$refs.messagesWrapper
+      const { scrollHeight } = messagesWrapper.wrap
+      messagesWrapper.wrap.scrollTop = scrollHeight
       clearTimeout(timer)
     }, 100)
   }
@@ -1353,6 +1351,20 @@ export default class ConnectionsDetail extends Vue {
     })
   }
 
+  private getMsgBoxScrollTop = (event: any) => {
+    const messagesDisplay = this.$refs.messagesDisplay as Element
+    messagesDisplay.scrollTop = event.target.scrollTop
+  }
+
+  private handleScrollEventListener = (type: string) => {
+    const messagesWrapper: any = this.$refs.messagesWrapper
+    if (type === 'add') {
+      messagesWrapper.wrap.addEventListener('scroll', this.getMsgBoxScrollTop)
+    } else {
+      messagesWrapper.wrap.removeEventListener('scroll', this.getMsgBoxScrollTop)
+    }
+  }
+
   private created() {
     const { id } = this.$route.params
     this.getConnectionValue(id)
@@ -1366,6 +1378,7 @@ export default class ConnectionsDetail extends Vue {
     window.onresize = () => {
       this.setMessageListHeight()
     }
+    this.handleScrollEventListener('add')
   }
 
   private beforeDestroy() {
@@ -1373,6 +1386,7 @@ export default class ConnectionsDetail extends Vue {
     this.removeClinetsMessageListener()
     this.stopTimedSend()
     window.onresize = null
+    this.handleScrollEventListener('remove')
   }
 }
 </script>
@@ -1496,7 +1510,7 @@ export default class ConnectionsDetail extends Vue {
         position: fixed;
         left: 341px;
         right: 0;
-        z-index: 1;
+        z-index: 2;
         transition: all 0.4s;
         .el-input .el-input__inner {
           border: none;
@@ -1576,6 +1590,12 @@ export default class ConnectionsDetail extends Vue {
     label {
       margin-right: 8px;
     }
+  }
+}
+
+.messages-scroll {
+  .el-scrollbar__bar.is-horizontal {
+    display: none;
   }
 }
 </style>

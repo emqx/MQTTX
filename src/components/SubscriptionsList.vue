@@ -372,6 +372,7 @@ export default class SubscriptionsList extends Vue {
   &.el-card {
     border-top: 0px;
     border-left: 0px;
+    z-index: 3;
   }
   .el-card__header {
     border-bottom: none;

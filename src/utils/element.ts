@@ -72,6 +72,7 @@ import {
   Message,
   Notification,
   Divider,
+  Scrollbar,
 } from 'element-ui'
 
 export default (Vue: typeof _Vue) => {
@@ -139,6 +140,7 @@ export default (Vue: typeof _Vue) => {
   // Vue.use(Main)
   // Vue.use(Footer)
   Vue.use(Divider)
+  Vue.use(Scrollbar)
 
   Vue.use(Loading.directive)
 
