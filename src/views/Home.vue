@@ -65,6 +65,7 @@ export default class Home extends Vue {
     margin-left: 81px;
     height: 100%;
     background-color: var(--color-bg-primary);
+    border-left: 1px solid var(--color-border-rightbar);
   }
   .right-content {
     margin-left: 341px;

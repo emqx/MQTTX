@@ -10,6 +10,7 @@ import EditorDark from '@/assets/scss/theme/editor-dark.json'
 import EditorNight from '@/assets/scss/theme/editor-night.json'
 import LogEditor from '@/assets/scss/theme/custom/log-editor.json'
 import LogEditorDark from '@/assets/scss/theme/custom/log-editor-dark.json'
+import LogEditorNight from '@/assets/scss/theme/custom/log-editor-night.json'
 import LogEditorRules from '@/assets/scss/theme/custom/log-editor-rules.json'
 
 @Component
@@ -178,9 +179,11 @@ export default class Editor extends Vue {
     if (this.isCustomerLang) {
       const log = { ...LogEditor, ...LogEditorRules } as monaco.editor.IStandaloneThemeData
       const logDark = { ...LogEditorDark, ...LogEditorRules } as monaco.editor.IStandaloneThemeData
+      const logNight = { ...LogEditorNight, ...LogEditorRules } as monaco.editor.IStandaloneThemeData
       // customer language theme
       monaco.editor.defineTheme('editor-log', log)
       monaco.editor.defineTheme('editor-log-dark', logDark)
+      monaco.editor.defineTheme('editor-log-night', logNight)
     }
   }
   private addContextmenuItem() {
