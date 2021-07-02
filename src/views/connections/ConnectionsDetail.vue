@@ -1223,7 +1223,7 @@ export default class ConnectionsDetail extends Vue {
   private convertPayloadByType(value: Buffer | string, type: PayloadType, way: 'publish' | 'receive'): Buffer | string {
     const validJSONType = (jsonValue: string, warnMessage: TranslateResult) => {
       try {
-        JSON.parse(jsonValue)
+        return JSON.parse(jsonValue)
       } catch (error) {
         this.$message.warning(`${warnMessage} ${error.toString()}`)
       }
@@ -1244,9 +1244,10 @@ export default class ConnectionsDetail extends Vue {
         return receiveValue.toString($type)
       }
       if (receiveType === 'JSON') {
-        validJSONType(receiveValue.toString(), this.$t('connections.receivedMsg'))
-        const jsonValue = JSON.parse(receiveValue.toString())
-        return JSON.stringify(jsonValue, null, 2)
+        const jsonValue = validJSONType(receiveValue.toString(), this.$t('connections.receivedMsg'))
+        if (jsonValue) {
+          return JSON.stringify(jsonValue, null, 2)
+        }
       }
       return receiveValue.toString()
     }
