@@ -304,6 +304,7 @@ import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
 import { getClientOptions, getMQTTProtocol } from '@/utils/mqttUtils'
 import { getBytes, getUptime, getVersion } from '@/utils/SystemTopicUtils'
+import validFormatJson from '@/utils/validFormatJson'
 
 import MessageList from '@/components/MessageList.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
@@ -1221,20 +1222,13 @@ export default class ConnectionsDetail extends Vue {
 
   // Convert payload by type
   private convertPayloadByType(value: Buffer | string, type: PayloadType, way: 'publish' | 'receive'): Buffer | string {
-    const validJSONType = (jsonValue: string, warnMessage: TranslateResult) => {
-      try {
-        return JSON.parse(jsonValue)
-      } catch (error) {
-        this.$message.warning(`${warnMessage} ${error.toString()}`)
-      }
-    }
     const genPublishPayload = (publishType: PayloadType, publishValue: string) => {
       if (publishType === 'Base64' || publishType === 'Hex') {
         const $type = publishType.toLowerCase() as PayloadConvertType
         return Buffer.from(publishValue, $type)
       }
       if (publishType === 'JSON') {
-        validJSONType(publishValue, this.$t('connections.publishMsg'))
+        validFormatJson(publishValue, this.$t('connections.publishMsg'))
       }
       return publishValue
     }
@@ -1244,9 +1238,9 @@ export default class ConnectionsDetail extends Vue {
         return receiveValue.toString($type)
       }
       if (receiveType === 'JSON') {
-        const jsonValue = validJSONType(receiveValue.toString(), this.$t('connections.receivedMsg'))
+        const jsonValue = validFormatJson(receiveValue.toString(), this.$t('connections.receivedMsg'))
         if (jsonValue) {
-          return JSON.stringify(jsonValue, null, 2)
+          return jsonValue
         }
       }
       return receiveValue.toString()
