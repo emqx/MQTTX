@@ -3,7 +3,8 @@
 
 html,
 body,
-#app {
+#app,
+.app {
   height: 100%;
   margin: 0px;
   padding: 0px;
@@ -20,11 +21,7 @@ body {
   color: var(--color-text-default);
 }
 
-textarea {
-  font-family: $font-family;
-}
-
-::-webkit-scrollbar {
+body::-webkit-scrollbar {
   display: none;
 }
 
@@ -76,6 +73,10 @@ a {
 
 img {
   max-width: 100%;
+}
+
+textarea {
+  font-family: $font-family;
 }
 
 /* Card form */
