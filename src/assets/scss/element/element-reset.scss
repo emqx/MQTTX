@@ -254,6 +254,10 @@
 .el-select-dropdown__item:hover {
   background: var(--color-bg-item);
 }
+// Fix css style bug in open el-dialog
+.el-popup-parent--hidden {
+  padding-right: 0px !important;
+}
 
 /* Tootip */
 .el-tooltip__popper.is-light {
