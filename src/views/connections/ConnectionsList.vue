@@ -368,7 +368,7 @@ export default class ConnectionsList extends Vue {
     return
   }
 
-  private handleEditCompeleted(node: $TSFixed, data: ConnectionModelCollection) {
+  private handleEditCompeleted(node: TreeNode<'id', ConnectionModelCollection>, data: ConnectionModelCollection) {
     if (!this.handleCollectionNameValidate(data.name)) {
       this.handleEditCancel(node, data)
     } else if (data) {
@@ -381,12 +381,14 @@ export default class ConnectionsList extends Vue {
     return name && !name.match(/(^\s+$)/g) ? true : false
   }
 
-  private handleEditCancel(node: $TSFixed, data: ConnectionModelCollection) {
+  private handleEditCancel(node: TreeNode<'id', ConnectionModelCollection>, data: ConnectionModelCollection) {
     const parent = node.parent
-    const children = parent.data.children || parent.data
-    const index = children.findIndex((d: ConnectionModelTree) => d.id === data.id)
-    children.splice(index, 1)
-    this.flushCollectionChange()
+    if (parent) {
+      const children = parent.data.children || parent.data
+      const index = children.findIndex((d: ConnectionModelTree) => d.id === data.id)
+      children.splice(index, 1)
+      this.flushCollectionChange()
+    }
   }
 
   private handleSelectConnection(row: ConnectionModel) {
