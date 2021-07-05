@@ -7,7 +7,7 @@
     @confirm="cleanHistoryData"
     @close="resetData"
   >
-    {{ $t('connections.cleanHistoryDialogMessage') }}
+    <i class="el-icon-warning"></i>{{ $t('settings.cleanHistoryDialogMessage') }}
   </my-dialog>
 </template>
 
@@ -51,6 +51,11 @@ export default class ClearUpHistoryData extends Vue {
 
 <style lang="scss">
 .clean-data {
+  .el-icon-warning {
+    color: var(--color-main-yellow);
+    margin-right: 5px;
+    font-size: 20px;
+  }
   .el-dialog__body {
     padding-bottom: 0px;
     word-break: normal;
