@@ -1,7 +1,7 @@
 <template>
   <div
     ref="messageListBox"
-    class="message-list messages-display"
+    :class="['message-list', 'messages-display', isScrolling ? 'scrolling' : 'still']"
     :style="{ height: `${height}px`, marginTop: `${marginTop}px` }"
   >
     <span v-show="showLoadingIcon" class="loading-icon"><i class="el-icon-loading"></i></span>
@@ -41,6 +41,8 @@ export default class MessageList extends Vue {
   private scrollTop: number = -1
   private showLoadingIcon: boolean = false
   private onceAddMessagesMaxNum: number = 20
+  private isScrolling = false
+  private timeout: undefined | number = undefined
 
   @Watch('messages')
   private handleMessagesChanged(val: MessageModel[]) {
@@ -85,7 +87,7 @@ export default class MessageList extends Vue {
               this.showLoadingIcon = false
             }
           })
-          clearTimeout(timer)
+          window.clearTimeout(timer)
         }, 1000)
       }
     }
@@ -106,8 +108,20 @@ export default class MessageList extends Vue {
   }
 
   private getScrollOffsetToTop() {
+    this.isScrolling = true
+    window.clearTimeout(this.timeout)
+    this.timeout = undefined
     const { scrollTop } = this.getScrollBox()
     this.scrollTop = scrollTop
+    if (this.timeout === undefined) {
+      this.timeout = window.setTimeout(() => {
+        if (this.getScrollBox().scrollTop === this.scrollTop) {
+          this.isScrolling = false
+          window.clearTimeout(this.timeout)
+          this.timeout = undefined
+        }
+      }, 3000)
+    }
   }
 
   private mounted() {
@@ -116,15 +130,35 @@ export default class MessageList extends Vue {
 
   private beforeDestroy() {
     this.getScrollBox().removeEventListener('scroll', this.getScrollOffsetToTop)
+    window.clearTimeout(this.timeout)
   }
 }
 </script>
 
 <style lang="scss">
 .message-list {
-  overflow-y: scroll;
-  overflow-x: hidden;
   padding: 0 16px;
+  overflow-x: hidden;
+  overflow-y: overlay;
+
+  &.scrolling {
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+    &::-webkit-scrollbar-track {
+      width: 8px;
+    }
+    &::-webkit-scrollbar-thumb {
+      border-radius: 4px;
+      background: var(--color-bg-scrollbar);
+      width: 8px;
+    }
+  }
+  &.still {
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
 
   .loading-icon {
     display: inline-block;

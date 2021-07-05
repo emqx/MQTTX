@@ -285,7 +285,6 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { TranslateResult } from 'vue-i18n'
 import { ipcRenderer } from 'electron'
 import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { v4 as uuidv4 } from 'uuid'
