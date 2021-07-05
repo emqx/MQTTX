@@ -79,4 +79,9 @@ export default {
     en: 'When reconnecting, the subscription list of the connection will be automatically resubscribed, which is only valid when Clean Session is True',
     ja: '再接続すると、接続のサブスクリプションリストが自動的に再サブスクライブされます。これは、クリーンセッションがTrueの場合にのみ有効です',
   },
+  cleanHistoryDialogMessage: {
+    zh: '将会清除历史建议信息，包括历史 Payload/QoS/Retain/Topic/Connection 数据',
+    en: 'It will clear the historical suggestion information, including historical Payload/QoS/Retain/Topic/Connection',
+    ja: 'ペイロード/ QoS /保持/トピック/接続を含む過去の提案情報をクリアします',
+  },
 }
