@@ -66,14 +66,14 @@ module.exports = {
         productName: 'MQTTX',
         win: {
           artifactName: 'MQTTX.Setup.${version}.${ext}',
-          icon: './public/app.ico',
+          icon: './public/icons/app.ico',
         },
         mac: {
-          icon: './public/icons/Icon.icns',
+          icon: './public/icons/mac/Icon.icns',
           target: ['pkg', 'dmg', 'zip'],
         },
         linux: {
-          icon: './public/app.png',
+          icon: './public/icons/app.png',
           target: ['AppImage', 'deb', 'rpm', 'snap'],
         },
       },
