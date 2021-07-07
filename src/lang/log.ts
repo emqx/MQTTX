@@ -3,5 +3,6 @@ export default {
     zh: '日志',
     en: 'Log',
     ja: 'ログ',
+    tr: 'Günlük',
   },
 }

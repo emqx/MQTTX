@@ -200,6 +200,7 @@ export default class Settings extends Vue {
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
     { label: 'English', value: 'en' },
+    { label: 'Türkçe', value: 'tr' },
     { label: '日本語', value: 'ja' },
   ]
   private themeOptions: Options[] = [
