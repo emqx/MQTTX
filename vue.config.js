@@ -70,7 +70,20 @@ module.exports = {
         },
         mac: {
           icon: './public/icons/mac/Icon.icns',
-          target: ['pkg', 'dmg', 'zip'],
+          target: [
+            {
+              target: 'dmg',
+              arch: 'universal',
+            },
+            {
+              target: 'pkg',
+              arch: 'universal',
+            },
+            {
+              target: 'zip',
+              arch: 'universal',
+            },
+          ],
         },
         linux: {
           icon: './public/icons/app.png',
