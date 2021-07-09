@@ -42,16 +42,22 @@ export default {
     ja: 'テーマ',
   },
   light: {
-    zh: '浅色',
+    zh: '明亮',
     en: 'Light',
     tr: 'Açık',
     ja: 'ライト',
   },
   dark: {
-    zh: '深色',
+    zh: '暗黑',
     en: 'Dark',
     tr: 'Koyu',
     ja: 'ダーク',
+  },
+  night: {
+    zh: '夜间',
+    en: 'Night',
+    tr: 'Geceleyin',
+    ja: '夜',
   },
   advanced: {
     zh: '高级',
