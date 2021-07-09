@@ -98,7 +98,12 @@
             size="mini"
             @change="handleSelectChange('theme', $event)"
           >
-            <el-option v-for="(theme, index) in themeOptions" :key="index" :label="theme.label" :value="theme.value">
+            <el-option
+              v-for="(theme, index) in themeOptions"
+              :key="index"
+              :label="$t(`settings.${theme.value}`)"
+              :value="theme.value"
+            >
             </el-option>
           </el-select>
         </el-col>
