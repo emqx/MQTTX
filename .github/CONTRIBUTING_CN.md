@@ -83,9 +83,11 @@
       - ci: 持续集成
       - build || chore: 构建过程或辅助工具的变动
 
-6. 最后，向上游仓库中的 `dev/*` 分支发起一个 pull request 请求，我们将对其进行认真的审查，该仓库中至少会包含一个 `dev/${version}` 的分支。
+6. 最后，向上游仓库中的 `master` 分支发起一个 pull request 请求，我们将对其进行认真的审查。
 
-7. 发版流程，在当前 `dev/*` 分支拉下最新的主分支 `maste`，使用下面这个命令行产生一个新的 commit，最后使用 rebase merge 合并到主分支 `master`。
+    > 注意：master 分支为不稳定代码分支，新的代码都会 merge 到 master，如果您需要使用稳定代码，可以切换到对应的 tag。git checkout ${tag_name}
+
+7. 发版流程，拉下最新的主分支 `maste`，使用下面这个命令行产生一个新的 commit，最后使用 rebase merge 合并到主分支 `master`。
 
     ```shell
     npm version [patch | minor | major] -m '${Commit message}'
