@@ -7,7 +7,7 @@
     "version": "yarn run gen:version && git add -A .",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "gen:version": "node gen-version",
+    "gen:version": "node ./scripts/gen-version.js",
     "electron:build": "yarn run gen:version && vue-cli-service electron:build --win --linux --mac",
     "electron:build-win": "yarn run gen:version && vue-cli-service electron:build --win",
     "electron:build-linux": "yarn run gen:version && vue-cli-service electron:build --linux",
