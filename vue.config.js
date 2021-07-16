@@ -1,6 +1,7 @@
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 
 module.exports = {
+  productionSourceMap: false,
   devServer: {
     hot: true,
     host: '0.0.0.0',
