@@ -35,6 +35,8 @@ const theme = db.get<Theme>('settings.currentTheme')
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }])
 
+app.allowRendererProcessReuse = false
+
 function handleIpcMessages() {
   ipcMain.on('setting', (event: Electron.IpcMainEvent, ...args: any[]) => {
     event.sender.send('setting', ...args)

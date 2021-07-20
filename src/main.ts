@@ -1,3 +1,4 @@
+import 'reflect-metadata' // Required by TypoORM.
 import Vue from 'vue'
 
 import 'element-ui/lib/theme-chalk/index.css'
