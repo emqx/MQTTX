@@ -5,16 +5,16 @@
     </h1>
     <div class="editor-container log-editor">
       <Editor
-        wordWrap="on"
-        lineHeight="22"
-        isCustomerLang="true"
         ref="logEditor"
         id="log"
-        lang="logLanguage"
         v-model="logValue"
         lineNumbers="on"
         renderHighlight="line"
-        disabled="true"
+        wordWrap="on"
+        lang="logLanguage"
+        :lineHeight="22"
+        :isCustomerLang="true"
+        :disabled="true"
         :fontSize="14"
         :lineNumbersMinChars="5"
         :editorTheme="editorTheme"
