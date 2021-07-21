@@ -28,13 +28,11 @@
           </div>
           <div class="description">
             <i18n path="about.emqxLocal.local" tag="span">
-              <a href="https://github.com/emqx/emqx" target="_blank" rel="noopener noreferrer">{{
+              <a :href="emqxBrokerWebsite" target="_blank" rel="noopener noreferrer">{{
                 $t('about.emqxLocal.emqx')
               }}</a>
             </i18n>
-            <a v-if="getterLang !== 'zh'" href="https://github.com/emqx/emqx" target="_blank" rel="noopener noreferrer"
-              >EMQ X</a
-            >
+            <a v-if="getterLang !== 'zh'" :href="emqxBrokerWebsite" target="_blank" rel="noopener noreferrer">EMQ X</a>
             {{ $t('about.emqxDesc') }}
           </div>
           <el-button class="github-btn" type="primary" @click="goToLink('https://github.com/emqx/MQTTX')">
@@ -45,7 +43,7 @@
           <div class="emq-logo">
             <img :src="emqLogoSrc" alt="emqx" width="40" />
             <span class="copyright">
-              &copy;2021 <a :href="emqxWebsite" target="_blank" rel="noopener noreferrer">EMQ</a> Technologies Co., Ltd.
+              &copy;2021 <a :href="emqWebsite" target="_blank" rel="noopener noreferrer">EMQ</a> Technologies Co., Ltd.
             </span>
           </div>
           <div class="follow-items">
@@ -105,12 +103,20 @@ export default class About extends Vue {
     return require('../../assets/images/emq-logo-light.png')
   }
 
-  get emqxWebsite(): string {
-    let url = 'https://www.emqx.io'
+  get emqWebsite(): string {
+    const url = 'https://www.emqx.com'
+    const utm = '?utm_source=mqttx&utm_medium=app&utm_campaign=2021'
+    const lang = this.getterLang === 'zh' ? 'zh' : 'en'
+    return `${url}/${lang}${utm}`
+  }
+
+  get emqxBrokerWebsite(): string {
+    const url = 'https://www.emqx.io'
+    const utm = '?utm_source=mqttx&utm_medium=app&utm_campaign=2021'
     if (this.getterLang === 'zh') {
-      url = `${url}/cn/`
+      return `${url}/zh${utm}`
     }
-    return url
+    return `${url}/${utm}`
   }
 
   private checkUpdate(): void {
