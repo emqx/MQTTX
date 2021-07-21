@@ -38,7 +38,6 @@ class Database {
     if (!this.connection) {
       return null
     }
-    console.log(value)
     const repository = this.connection.getRepository(model)
     const data: T = value
     return repository.save(data)
