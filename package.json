@@ -4,6 +4,13 @@
   "description": "MQTT desktop client",
   "author": "EMQ X Team <yusf@emqx.io>",
   "scripts": {
+    "db:log": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm schema:log -c MQTTX -f ormconfig.ts",
+    "db:migration:show": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:show -c MQTTX -f ormconfig.ts",
+    "db:migration:generate": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:generate -f ormconfig.ts -c MQTTX --pretty",
+    "db:migration:run": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:run -c MQTTX -f ormconfig.ts",
+    "db:migration:revert": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:revert -f ormconfig.ts -c MQTTX",
+    "db:migration:sync": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm schema:sync -f ormconfig.ts -c MQTTX",
+    "db:diagram": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm-uml ormconfig.ts -c MQTTX -d ./src/database/database.png",
     "version": "yarn run gen:version && git add -A .",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -22,6 +29,7 @@
   },
   "main": "background.js",
   "dependencies": {
+    "appdata-path": "^1.0.0",
     "axios": "^0.21.1",
     "chart.js": "^2.9.4",
     "core-js": "^2.6.11",
@@ -82,6 +90,7 @@
     "prettier": "^2.0.5",
     "sass": "~1.32.13",
     "sass-loader": "^8.0.2",
+    "typeorm-uml": "^1.6.4",
     "typescript": "^3.7.4",
     "vue-cli-plugin-electron-builder": "^2.0.0",
     "vue-template-compiler": "^2.6.12"
