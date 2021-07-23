@@ -21,10 +21,6 @@ declare global {
     [key in ProtocolOption]: string
   }
 
-  type searchCallBack = (data: ConnectionModel[]) => ConnectionModel[]
-
-  type nameCallBack = (name: string) => string
-
   enum ProtocolOption {
     ws = 'ws',
     wss = 'wss',
@@ -67,15 +63,18 @@ declare global {
     disabled?: boolean
   }
 
-  interface SearchCallBack {
-    callBack: searchCallBack
-  }
+  type SearchCallBack = (data: ConnectionModel[]) => ConnectionModel[]
 
-  interface NameCallBack {
-    callBack: nameCallBack
-  }
+  type NameCallBack = (name: string) => string
 
   // Vuex state
+  interface ActiveConnection {
+    [id: string]: {
+      client: MqttClient | {}
+      messages: MessageModel[]
+      subscriptions?: SubscriptionModel[]
+    }
+  }
   interface App {
     currentTheme: Theme
     currentLang: Language
@@ -90,13 +89,7 @@ declare global {
       [id: string]: number
     }
     connectionCollection: ConnectionModelCollection[]
-    activeConnection: {
-      [id: string]: {
-        client: MqttClient | {}
-        messages: MessageModel[]
-        subscriptions?: SubscriptionModel[]
-      }
-    }
+    activeConnection: ActiveConnection
     willMessageVisible: boolean
     advancedVisible: boolean
     allConnections: ConnectionModel[]
@@ -118,28 +111,29 @@ declare global {
   }
 
   // Connections
-  interface ActiveConnection {
+  interface Client {
     readonly id: string
-  }
-
-  interface Client extends ActiveConnection {
-    client: MqttClient | {}
+    client: Partial<MqttClient>
     messages: MessageModel[]
   }
 
-  interface Message extends ActiveConnection {
+  interface Message {
+    readonly id: string
     message: MessageModel
   }
 
-  interface ClientInfo extends ActiveConnection {
+  interface ClientInfo {
+    readonly id: string
     showClientInfo: boolean
   }
 
-  interface Subscriptions extends ActiveConnection {
+  interface Subscriptions {
+    readonly id: string
     subscriptions: SubscriptionModel[]
   }
 
-  interface UnreadMessage extends ActiveConnection {
+  interface UnreadMessage {
+    readonly id: string
     unreadMessageCount?: 0
   }
 
@@ -194,6 +188,14 @@ declare global {
     contentType?: string
   }
 
+  interface WillModel {
+    lastWillTopic: string
+    lastWillPayload: string
+    lastWillQos: QoS
+    lastWillRetain: boolean
+    properties?: WillPropertiesModel
+  }
+
   interface ConnectionModel extends SSLPath {
     readonly id?: string
     clientId: string
@@ -214,25 +216,15 @@ declare global {
     unreadMessageCount: number
     messages: MessageModel[]
     subscriptions: SubscriptionModel[]
-    client:
-      | MqttClient
-      | {
-          connected: boolean
-        }
+    client: Partial<MqttClient>
     sessionExpiryInterval?: number
     receiveMaximum?: number
     topicAliasMaximum?: number
     requestResponseInformation?: boolean
     requestProblemInformation?: boolean
-    will?: {
-      lastWillTopic: string
-      lastWillPayload: string
-      lastWillQos: QoS
-      lastWillRetain: boolean
-      properties?: WillPropertiesModel
-    }
-    clientIdWithTime?: boolean // fill in client_id.Ensure that client_id field is unique.
-    collectionId?: string | null // if collection is null set to default
+    will?: WillModel
+    clientIdWithTime?: boolean
+    collectionId?: string | null
     isCollection: false
     orderId?: number
   }
@@ -246,7 +238,6 @@ declare global {
     orderId?: number
   }
 
-  // leaf: ConnectionModel | collection: ConnectionModelCollection
   type ConnectionModelTree = ConnectionModelCollection | ConnectionModel
 
   interface SSLContent {
