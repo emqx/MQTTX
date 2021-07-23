@@ -1,4 +1,4 @@
-import Home from '../views/Home.vue'
+import Home from '@/views/Home.vue'
 
 const routes: Routes[] = [
   {
@@ -7,17 +7,17 @@ const routes: Routes[] = [
     name: 'Home',
     component: Home,
     children: [
-      { path: '/recent_connections', name: 'Connections', component: () => import('../views/connections/index.vue') },
+      { path: '/recent_connections', name: 'Connections', component: () => import('@/views/connections/index.vue') },
       {
         path: '/recent_connections/:id',
         name: 'ConnectionDetails',
-        component: () => import('../views/connections/index.vue'),
+        component: () => import('@/views/connections/index.vue'),
       },
-      { path: '/settings', name: 'Settings', component: () => import('../views/settings/index.vue') },
-      { path: '/about', name: 'About', component: () => import('../views/about/index.vue') },
-      { path: '/script', name: 'Script', component: () => import('../views/script/index.vue') },
-      { path: '/log', name: 'Log', component: () => import('../views/log/index.vue') },
-      { path: '/new_window/:id', name: 'newWindow', component: () => import('../views/window/Window.vue') },
+      { path: '/settings', name: 'Settings', component: () => import('@/views/settings/index.vue') },
+      { path: '/about', name: 'About', component: () => import('@/views/about/index.vue') },
+      { path: '/script', name: 'Script', component: () => import('@/views/script/index.vue') },
+      { path: '/log', name: 'Log', component: () => import('@/views/log/index.vue') },
+      { path: '/new_window/:id', name: 'newWindow', component: () => import('@/views/window/Window.vue') },
     ],
   },
 ]

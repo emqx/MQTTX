@@ -2,7 +2,7 @@
   <div class="leftbar">
     <div class="app-logo leftbar-top leftbar-item">
       <a :href="siteLink" target="_blank" rel="noopener noreferrer">
-        <img src="../assets/images/app-logo.png" alt="app-logo" />
+        <img src="@/assets/images/app-logo.png" alt="app-logo" />
       </a>
     </div>
     <section class="leftbar-center">

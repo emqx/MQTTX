@@ -4,13 +4,6 @@ import path from 'path'
 import fs from 'fs-extra'
 import LodashID from 'lodash-id'
 import { app, remote } from 'electron'
-import {
-  ConnectionModel,
-  ConnectionModelCollection,
-  HistoryMessageHeaderModel,
-  HistoryMessagePayloadModel,
-} from '@/views/connections/types'
-import { ScriptModel } from '@/views/script/types'
 
 interface DBSchema {
   windowSize: {

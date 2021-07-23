@@ -12,9 +12,8 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { loadConnection } from '@/api/connection'
-import { ConnectionModel } from '../connections/types'
-import ConnectionsDetail from '../connections/ConnectionsDetail.vue'
-import ConnectionsList from '../connections/ConnectionsList.vue'
+import ConnectionsDetail from '@/views/connections/ConnectionsDetail.vue'
+import ConnectionsList from '@/views/connections/ConnectionsList.vue'
 
 @Component({
   components: {

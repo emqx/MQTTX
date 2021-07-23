@@ -120,20 +120,12 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import Contextmenu from '@/components/Contextmenu.vue'
-import {
-  ConnectionModel,
-  ContextmenuModel,
-  ConnectionModelCollection,
-  ConnectionModelTree,
-  ConnectionTreeState,
-  ConnectionTreeStateMap,
-} from './types'
 import { ipcRenderer } from 'electron'
 import { TreeNode, ElTree } from 'element-ui/types/tree'
 import getCollectionId from '@/utils/getCollectionId'
 import _ from 'lodash'
 import { setConnectionCollection, updateConnectionCollectionId, updateConnectionSequenceId } from '@/api/connection'
-import { sortConnectionTree } from '../../utils/connections'
+import { sortConnectionTree } from '@/utils/connections'
 import '@/assets/font/iconfont'
 
 @Component({

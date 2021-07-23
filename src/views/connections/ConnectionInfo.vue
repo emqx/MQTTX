@@ -114,7 +114,6 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import getClientId from '@/utils/getClientId'
 import { updateConnection } from '@/api/connection'
-import { ConnectionModel, FormRule, NameCallBack } from './types'
 import { MqttClient } from 'mqtt'
 import { Getter } from 'vuex-class'
 

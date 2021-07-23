@@ -1,7 +1,5 @@
 import Vue from 'vue'
-import { ConnectionModel, ConnectionModelCollection, ConnectionTreeState } from '../../views/connections/types'
 import { loadSettings, setSettings } from '@/api/setting'
-import { ScriptState } from '@/views/script/types'
 
 const TOGGLE_THEME = 'TOGGLE_THEME'
 const TOGGLE_LANG = 'TOGGLE_LANG'

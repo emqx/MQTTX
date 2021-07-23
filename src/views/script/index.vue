@@ -101,7 +101,6 @@ import Editor from '@/components/Editor.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import sandbox from '@/utils/sandbox'
 import { createScript, deleteScript, loadScript, loadScripts, updateScript } from '@/api/script'
-import { ScriptModel } from './types'
 
 @Component({
   components: {

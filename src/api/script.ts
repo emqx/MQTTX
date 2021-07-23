@@ -1,5 +1,4 @@
 import db from '@/database/index'
-import { ScriptModel } from '@/views/script/types'
 
 export const createScript = (data: ScriptModel): ScriptModel => {
   return db.insert<ScriptModel>('scripts', data)

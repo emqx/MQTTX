@@ -1,5 +1,4 @@
 import time from '@/utils/time'
-import { MessageModel, ChartDataModel } from '@/views/connections/types'
 
 const res: ChartDataModel = {
   label: '',

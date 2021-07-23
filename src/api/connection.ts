@@ -1,11 +1,4 @@
 import db from '@/database/index'
-import {
-  ConnectionModel,
-  MessageModel,
-  ConnectionModelCollection,
-  HistoryMessageHeaderModel,
-  HistoryMessagePayloadModel,
-} from '@/views/connections/types'
 
 export const setConnectionCollection = (data: ConnectionModelCollection[] | []): ConnectionModelCollection[] | [] => {
   return db.set<ConnectionModelCollection[] | []>('connectionsCollection', data)

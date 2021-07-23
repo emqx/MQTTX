@@ -1,6 +1,5 @@
 import fs from 'fs'
 import { Notification } from 'element-ui'
-import { SSLPath, SSLContent } from '@/views/connections/types'
 
 export const getSSLFile = (sslPath: SSLPath): SSLContent | undefined => {
   const { ca, cert, key } = sslPath
