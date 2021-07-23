@@ -61,7 +61,7 @@
                 <i class="iconfont icon-weibo"></i>
               </a>
               <el-popover placement="top-start" width="30" trigger="click">
-                <img class="emqx-wechat" src="../../assets/images/wx_qr_code.png" alt="qq" />
+                <img class="emqx-wechat" src="@/assets/images/wx_qr_code.png" alt="qq" />
                 <span class="follow-link" slot="reference">
                   <i class="iconfont icon-we-chat"></i>
                 </span>
@@ -91,16 +91,16 @@ export default class About extends Vue {
 
   get mqttxLogoSrc(): string {
     if (this.getterTheme === 'light') {
-      return require('../../assets/images/mqttx-dark.png')
+      return require('@/assets/images/mqttx-dark.png')
     }
-    return require('../../assets/images/mqttx-light.png')
+    return require('@/assets/images/mqttx-light.png')
   }
 
   get emqLogoSrc(): string {
     if (this.getterTheme === 'light') {
-      return require('../../assets/images/emq-logo-dark.png')
+      return require('@/assets/images/emq-logo-dark.png')
     }
-    return require('../../assets/images/emq-logo-light.png')
+    return require('@/assets/images/emq-logo-light.png')
   }
 
   get emqWebsite(): string {

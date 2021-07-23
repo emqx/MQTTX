@@ -1,5 +1,3 @@
-import { MessageModel } from '@/views/connections/types'
-
 export const matchTopicMethod = (filter: string, topic: string): boolean => {
   // Topic matching algorithm
   const filterArray: string[] = filter.split('/')

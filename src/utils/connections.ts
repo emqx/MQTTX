@@ -1,5 +1,3 @@
-import { ConnectionModelTree } from '../views/connections/types'
-
 import _ from 'lodash'
 export const flushCurSequenceId = (data: ConnectionModelTree[]): void => {
   data.forEach((el: ConnectionModelTree, idx: number) => {

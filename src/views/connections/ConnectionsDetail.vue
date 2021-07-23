@@ -318,16 +318,6 @@ import BytesStatistics from '@/components/BytesStatistics.vue'
 import UseScript from '@/components/UseScript.vue'
 import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 
-import {
-  ConnectionModel,
-  MessageModel,
-  HistoryMessageHeaderModel,
-  ContextmenuModel,
-  ChartDataModel,
-  MessageType,
-  HistoryMessagePayloadModel,
-} from './types'
-import { ScriptModel, ScriptState } from '../script/types'
 import sandbox from '@/utils/sandbox'
 import { hasMessagePayload, hasMessageHeader } from '@/utils/mqttUtils'
 

@@ -20,7 +20,6 @@
 
 <script lang="ts">
 import { Component, Vue, Model } from 'vue-property-decorator'
-import { MessageType } from '@/views/connections/types'
 
 @Component
 export default class ResizeHeight extends Vue {

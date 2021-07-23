@@ -38,8 +38,6 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { loadScript, loadScripts } from '@/api/script'
 import MyDialog from './MyDialog.vue'
-import { ScriptModel } from '@/views/script/types'
-import { MessageType } from '@/views/connections/types'
 
 @Component({
   components: {

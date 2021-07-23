@@ -99,7 +99,6 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { ipcRenderer } from 'electron'
 import Editor from '@/components/Editor.vue'
-import { MessageModel, HistoryMessageHeaderModel, HistoryMessagePayloadModel } from '../views/connections/types'
 import convertPayload from '@/utils/convertPayload'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'

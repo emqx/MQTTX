@@ -20,7 +20,6 @@
 <script lang="ts">
 import _ from 'lodash'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { MessageModel } from '@/views/connections/types'
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
 
