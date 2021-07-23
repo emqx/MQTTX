@@ -618,7 +618,9 @@ export default class ConnectionCreate extends Vue {
       if (res) {
         this.changeActiveConnection({
           id: res.id as string,
-          client: {},
+          client: {
+            connected: false,
+          },
           messages: [],
         })
         this.$emit('connect')
@@ -700,7 +702,7 @@ export default class ConnectionCreate extends Vue {
     }
   }
 
-  private async validateName(rule: FormRule, name: string, callBack: NameCallBack['callBack']) {
+  private async validateName(rule: FormRule, name: string, callBack: NameCallBack) {
     for (const connection of this.allConnections) {
       if (this.oper === 'create' && connection.name === name) {
         callBack(`${this.$t('connections.duplicateName')}`)
@@ -720,7 +722,7 @@ export default class ConnectionCreate extends Vue {
     }
   }
 
-  private querySearchName(queryName: string, cb: SearchCallBack['callBack']) {
+  private querySearchName(queryName: string, cb: SearchCallBack) {
     const connections = [...this.suggestConnections]
     const results = queryName ? connections.filter(this.createFilter(queryName)) : connections
     cb(results.reverse())
