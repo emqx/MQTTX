@@ -69,9 +69,6 @@ export default class Connections extends Vue {
     subscriptions: [],
     messages: [],
     unreadMessageCount: 0,
-    client: {
-      connected: false,
-    },
     ca: '',
     cert: '',
     key: '',

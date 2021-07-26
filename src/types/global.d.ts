@@ -70,7 +70,7 @@ declare global {
   // Vuex state
   interface ActiveConnection {
     [id: string]: {
-      client: MqttClient | {}
+      client: MqttClient
       messages: MessageModel[]
       subscriptions?: SubscriptionModel[]
     }
@@ -216,7 +216,6 @@ declare global {
     unreadMessageCount: number
     messages: MessageModel[]
     subscriptions: SubscriptionModel[]
-    client: Partial<MqttClient>
     sessionExpiryInterval?: number
     receiveMaximum?: number
     topicAliasMaximum?: number
@@ -244,13 +243,6 @@ declare global {
     ca: string | string[] | Buffer | Buffer[] | undefined
     cert: string | string[] | Buffer | Buffer[] | undefined
     key: string | string[] | Buffer | Buffer[] | undefined
-  }
-
-  enum SubscribeErrorReason {
-    normal,
-    qosSubFailed, // qos is abnormal
-    qosSubSysFailed, // qos is abnormal becauseof $SYS subscribe
-    emptySubFailed, // subscription returns empty array
   }
 
   interface ConnectionTreeState {
