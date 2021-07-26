@@ -365,7 +365,7 @@ export default class ConnectionsDetail extends Vue {
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
   @Action('SET_SCRIPT') private setScript!: (payload: { currentScript: ScriptState | null }) => void
 
-  @Getter('activeConnection') private activeConnection: $TSFixed
+  @Getter('activeConnection') private activeConnection!: ActiveConnection
   @Getter('showSubscriptions') private showSubscriptions!: boolean
   @Getter('autoResub') private autoResub!: boolean
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
@@ -649,12 +649,7 @@ export default class ConnectionsDetail extends Vue {
   }
   // Get current connection
   private getConnectionValue(id: string) {
-    const currentActiveConnection:
-      | {
-          id?: string
-          client: MqttClient
-        }
-      | undefined = this.activeConnection[id]
+    const currentActiveConnection = this.activeConnection[id]
     const $clientInfoVisible: boolean | undefined = this.clientInfoVisibles[id]
     if ($clientInfoVisible === undefined) {
       this.showClientInfo = true
@@ -1308,11 +1303,8 @@ export default class ConnectionsDetail extends Vue {
   // Register connected clients message event listeners
   private setClientsMessageListener() {
     Object.keys(this.activeConnection).forEach((connectionID: string) => {
-      const $connection: {
-        id?: string
-        client: MqttClient
-      } = this.activeConnection[connectionID]
-      const client: MqttClient = $connection.client
+      const $connection = this.activeConnection[connectionID]
+      const { client } = $connection
       let msgEventCount = 0
       if (client.listenerCount) {
         msgEventCount = client.listenerCount('message')
@@ -1331,11 +1323,8 @@ export default class ConnectionsDetail extends Vue {
   // Remove connected clients message event listeners
   private removeClinetsMessageListener() {
     Object.keys(this.activeConnection).forEach((connectionID: string) => {
-      const currentActiveConnection: {
-        id?: string
-        client: MqttClient
-      } = this.activeConnection[connectionID]
-      const client: MqttClient = currentActiveConnection.client
+      const currentActiveConnection = this.activeConnection[connectionID]
+      const { client } = currentActiveConnection
       if (client.removeAllListeners) {
         client.removeAllListeners('message')
       }

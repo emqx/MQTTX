@@ -113,6 +113,14 @@ import { defineColors, getRandomColor } from '@/utils/colors'
 import LeftPanel from '@/components/LeftPanel.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import VueI18n from 'vue-i18n'
+import { ClientSubscribeCallback, MqttClient } from 'mqtt'
+
+enum SubscribeErrorReason {
+  normal,
+  qosSubFailed, // qos is abnormal
+  qosSubSysFailed, // qos is abnormal becauseof $SYS subscribe
+  emptySubFailed, // subscription returns empty array
+}
 
 @Component({
   components: {
@@ -128,11 +136,13 @@ export default class SubscriptionsList extends Vue {
 
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
-  @Getter('activeConnection') private activeConnection: $TSFixed
+  @Getter('activeConnection') private activeConnection!: ActiveConnection
   @Getter('currentTheme') private theme!: Theme
 
   private topicColor = ''
-  private currentConnection: $TSFixed = {}
+  private client: Partial<MqttClient> = {
+    connected: false,
+  }
   private showDialog: boolean = false
   private subRecord: SubscriptionModel = {
     topic: 'testtopic/#',
@@ -196,7 +206,7 @@ export default class SubscriptionsList extends Vue {
 
   private saveSubs(): void | boolean {
     this.getCurrentConnection(this.connectionId)
-    if (!this.currentConnection.client || !this.currentConnection.client.connected) {
+    if (!this.client || !this.client.connected) {
       this.$message.warning(this.$t('connections.notConnect') as string)
       return false
     }
@@ -251,44 +261,45 @@ export default class SubscriptionsList extends Vue {
       this.subRecord.qos = qos
       this.subRecord.color = getRandomColor()
     }
-    this.currentConnection.client.subscribe(topic, { qos }, (error: string, res: SubscriptionModel[]) => {
-      if (error) {
-        this.$message.error(error)
-        this.$log.error(`Topic: ${topic} subscribe error ${error} `)
-        return false
-      }
-      let errorReason: SubscribeErrorReason = SubscribeErrorReason.normal
-      if (res.length < 1) {
-        errorReason = SubscribeErrorReason.emptySubFailed
-      } else if (![0, 1, 2].includes(res[0].qos) && topic.match(/^(\$SYS)/i)) {
-        errorReason = SubscribeErrorReason.qosSubSysFailed
-      } else if (![0, 1, 2].includes(res[0].qos)) {
-        errorReason = SubscribeErrorReason.qosSubFailed
-      }
-
-      if (errorReason !== SubscribeErrorReason.normal) {
-        const errorReasonMsg: VueI18n.TranslateResult = this.getErrorReasonMsg(errorReason)
-        const errorMsg: string = `${topic} ${this.$t('connections.subFailed')} ${errorReasonMsg}`
-        this.$log.error(`Topic: ${topic} subscribe error ${errorReasonMsg} `)
-        this.$message.error(errorMsg)
-        return false
-      }
-      const existTopicIndex: number = this.subsList.findIndex((item: SubscriptionModel) => item.topic === topic)
-      if (existTopicIndex !== -1) {
-        this.subsList[existTopicIndex].qos = qos
-      } else {
-        this.subsList.push({ ...this.subRecord })
-      }
-      this.record.subscriptions = this.subsList
-      updateConnection(this.record.id as string, this.record)
-      this.changeSubs({ id: this.connectionId, subscriptions: this.subsList })
-      this.showDialog = false
-      this.$log.info(`Topic: ${topic} successfully subscribed`)
-    })
+    if (this.client.subscribe) {
+      this.client.subscribe(topic, { qos }, (error, res) => {
+        if (error) {
+          this.$message.error(error)
+          this.$log.error(`Topic: ${topic} subscribe error ${error} `)
+          return false
+        }
+        let errorReason = SubscribeErrorReason.normal
+        if (res.length < 1) {
+          errorReason = SubscribeErrorReason.emptySubFailed
+        } else if (![0, 1, 2].includes(res[0].qos) && topic.match(/^(\$SYS)/i)) {
+          errorReason = SubscribeErrorReason.qosSubSysFailed
+        } else if (![0, 1, 2].includes(res[0].qos)) {
+          errorReason = SubscribeErrorReason.qosSubFailed
+        }
+        if (errorReason !== SubscribeErrorReason.normal) {
+          const errorReasonMsg: VueI18n.TranslateResult = this.getErrorReasonMsg(errorReason)
+          const errorMsg: string = `${topic} ${this.$t('connections.subFailed')} ${errorReasonMsg}`
+          this.$log.error(`Topic: ${topic} subscribe error ${errorReasonMsg} `)
+          this.$message.error(errorMsg)
+          return false
+        }
+        const existTopicIndex: number = this.subsList.findIndex((item: SubscriptionModel) => item.topic === topic)
+        if (existTopicIndex !== -1) {
+          this.subsList[existTopicIndex].qos = qos
+        } else {
+          this.subsList.push({ ...this.subRecord })
+        }
+        this.record.subscriptions = this.subsList
+        updateConnection(this.record.id as string, this.record)
+        this.changeSubs({ id: this.connectionId, subscriptions: this.subsList })
+        this.showDialog = false
+        this.$log.info(`Topic: ${topic} successfully subscribed`)
+      })
+    }
   }
 
   private removeSubs(row: SubscriptionModel): void | boolean {
-    if (!this.currentConnection.client || !this.currentConnection.client.connected) {
+    if (!this.client || !this.client.connected) {
       this.$notify({
         title: this.$t('connections.notConnect') as string,
         message: '',
@@ -299,26 +310,28 @@ export default class SubscriptionsList extends Vue {
       return false
     }
     const { topic, qos } = row
-    this.currentConnection.client.unsubscribe(topic, { qos }, (error: string) => {
-      if (error) {
-        this.$message.error(error)
-        return false
-      }
-      const payload: {
-        id: string
-        subscriptions: SubscriptionModel[]
-      } = {
-        id: this.record.id as string,
-        subscriptions: this.subsList.filter(($: SubscriptionModel) => $.topic !== topic),
-      }
-      this.record.subscriptions = payload.subscriptions
-      updateConnection(this.record.id as string, this.record)
-      this.changeSubs(payload)
-      this.subsList = payload.subscriptions
-      this.$emit('deleteTopic')
-      this.$log.info(`Unsubscribe topic: ${topic}`)
-      return true
-    })
+    if (this.client.unsubscribe) {
+      this.client.unsubscribe(topic, { qos }, (error) => {
+        if (error) {
+          this.$message.error(error)
+          return false
+        }
+        const payload: {
+          id: string
+          subscriptions: SubscriptionModel[]
+        } = {
+          id: this.record.id as string,
+          subscriptions: this.subsList.filter(($: SubscriptionModel) => $.topic !== topic),
+        }
+        this.record.subscriptions = payload.subscriptions
+        updateConnection(this.record.id as string, this.record)
+        this.changeSubs(payload)
+        this.subsList = payload.subscriptions
+        this.$emit('deleteTopic')
+        this.$log.info(`Unsubscribe topic: ${topic}`)
+        return true
+      })
+    }
   }
 
   private resetSubs() {
@@ -332,9 +345,7 @@ export default class SubscriptionsList extends Vue {
   private getCurrentConnection(id: string) {
     const $activeConnection = this.activeConnection[id]
     if ($activeConnection) {
-      this.currentConnection = $activeConnection
-    } else {
-      this.currentConnection = {}
+      this.client = $activeConnection.client
     }
   }
 

@@ -2,7 +2,6 @@ import { IClientOptions } from 'mqtt'
 import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
 import { loadHistoryMessageHeaders, loadHistoryMessagePayloads } from '@/api/connection'
-import { Connection } from 'typeorm'
 
 const setMQTT5Properties = (option: IClientOptions['properties']): IClientOptions['properties'] | undefined => {
   if (option === undefined) {

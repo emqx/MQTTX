@@ -534,9 +534,6 @@ export default class ConnectionCreate extends Vue {
     subscriptions: [],
     messages: [],
     unreadMessageCount: 0,
-    client: {
-      connected: false,
-    },
     will: {
       lastWillTopic: '',
       lastWillPayload: '',
