@@ -53,14 +53,8 @@ export default class ConnectionEntity {
   @Column({ type: 'varchar' })
   mqttVersion?: string
 
-  @Column({ type: 'number' })
+  @Column({ type: 'integer' })
   unreadMessageCount?: number
-
-  // @Column()
-  // client!: string//TODO
-
-  // @Column()
-  // will!: string //TODO
 
   @Column({ type: 'boolean' })
   clientIdWithTime!: boolean

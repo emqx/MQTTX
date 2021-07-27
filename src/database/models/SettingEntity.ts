@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, UpdateDateColumn, CreateDateColumn } from 'typeorm'
 
 @Entity('SettingEntity')
 export default class SettingEntity {
@@ -15,7 +15,4 @@ export default class SettingEntity {
   // 0: text 1: number 2: boolean
   @Column({ type: 'integer' })
   settingType!: number
-
-  @Column({ type: 'timestamp' })
-  updateTime!: string
 }
