@@ -13,13 +13,13 @@ export default class SubscriptionEntity {
   qos!: number
 
   @Column({ type: 'varchar' })
-  alias?: string
+  alias!: string
 
   @Column({ type: 'boolean' })
-  retain?: boolean
+  retain!: boolean
 
   @Column({ type: 'varchar' })
-  color?: string
+  color!: string
 
   @ManyToOne(() => ConnectionEntity, (connection) => connection.messages)
   connection!: ConnectionEntity

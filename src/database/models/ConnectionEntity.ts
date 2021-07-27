@@ -1,8 +1,9 @@
 // see https://typeorm.io/#/entities/column-types-for-sqlite--cordova--react-native--expo
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne } from 'typeorm'
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, OneToOne, JoinColumn } from 'typeorm'
 import MessageEntity from './MessageEntity'
 import SubscriptionEntity from './SubscriptionEntity'
 import CollectionEntity from './CollectionEntity'
+import WillEntity from './WillEntity'
 @Entity('ConnectionEntity')
 export default class ConnectionEntity {
   @PrimaryGeneratedColumn({ type: 'integer' })
@@ -11,50 +12,50 @@ export default class ConnectionEntity {
   @Column({ type: 'varchar' })
   clientId!: string
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar' })
   name!: string
 
   @Column({ type: 'boolean', default: true })
   clean!: boolean
 
   @Column({ type: 'varchar' })
-  protocol?: string
+  protocol!: string
 
   @Column({ type: 'varchar' })
-  host?: string
+  host!: string
 
   @Column({ type: 'integer' })
-  port?: number
+  port!: number
 
   @Column({ type: 'integer', default: 60 })
-  keepalive?: number
+  keepalive!: number
 
   @Column({ type: 'integer' })
-  connectTimeout?: number
+  connectTimeout!: number
 
   @Column({ type: 'boolean' })
-  reconnect?: boolean
+  reconnect!: boolean
 
   @Column({ type: 'varchar' })
-  username?: string
+  username!: string
 
   @Column({ type: 'varchar' })
-  password?: string
+  password!: string
 
   @Column({ type: 'varchar' })
-  path?: string
+  path!: string
 
   @Column({ type: 'varchar' })
-  certType?: string
+  certType!: string
 
   @Column({ type: 'boolean' })
-  ssl?: boolean
+  ssl!: boolean
 
   @Column({ type: 'varchar' })
-  mqttVersion?: string
+  mqttVersion!: string
 
   @Column({ type: 'integer' })
-  unreadMessageCount?: number
+  unreadMessageCount!: number
 
   @Column({ type: 'boolean' })
   clientIdWithTime!: boolean
@@ -76,6 +77,10 @@ export default class ConnectionEntity {
 
   @Column({ type: 'varchar' })
   key!: string
+
+  @OneToOne(() => WillEntity, (will) => will.connection)
+  @JoinColumn()
+  will!: WillEntity
 
   @OneToMany(() => MessageEntity, (message) => message.connection)
   messages!: MessageEntity[]

@@ -1,7 +1,6 @@
 import { join } from 'path'
 import fs from 'fs-extra'
 import { getAppDataPath } from 'appdata-path'
-const STORE_PATH = getAppDataPath('MQTTX')
 import ConnectionEntity from './models/ConnectionEntity'
 import MessageEntity from './models/MessageEntity'
 import SubscriptionEntity from './models/SubscriptionEntity'
@@ -10,8 +9,10 @@ import SettingEntity from './models/SettingEntity'
 import CollectionEntity from './models/CollectionEntity'
 import HistoryMessageHeaderEntity from './models/HistoryMessageHeaderEntity'
 import HistoryMessagePayloadEntity from './models/HistoryMessagePayloadEntity'
+import WillEntity from './models/WillEntity'
 import { ConnectionOptions } from 'typeorm'
 
+const STORE_PATH = getAppDataPath('MQTTX')
 try {
   if (!fs.pathExistsSync(STORE_PATH)) {
     fs.mkdirpSync(STORE_PATH)
@@ -39,6 +40,7 @@ const ORMConfig = {
     CollectionEntity,
     HistoryMessageHeaderEntity,
     HistoryMessagePayloadEntity,
+    WillEntity,
   ],
   cli: {
     migrationsDir: 'src/database/migration',
