@@ -94,3 +94,54 @@
     ```
 
 谢谢您的耐心阅读！并感谢您对 MQTT X 的贡献！:)
+
+## 数据库迁移
+
+如果数据库模型发生变化，请仔细阅读本节内容。
+
+以下命令可以安全使用
+
+```shell
+# 展示运行 db:sync 后将要执行的 SQL 命令
+yarn run db:log
+
+# 展示当前哪些迁移任务需要运行或是还未运行
+yarn run db:migration:show
+
+# 根据当前的模型定义，自动生成新数据库模型的迁移文件
+yarn run db:migration:generate -n ${migration_name}
+
+# 生成数据模型 ER 图
+yarn run db:diagram
+```
+
+以下是危险的命令，将会影响数据库数据
+
+```shell
+# 危险，只可以在开发环境下使用！
+# 直接同步当前的数据模型到数据库
+yarn run db:migration:sync
+
+# 执行或者回滚当前的数据库迁移文件
+yarn run db:migration:[run|revert]
+```
+
+如果你正处于开发模式，并且在数据库中没有实际的数据，那么你可以放心地按照以下步骤同步
+
+1. `yarn run db:log` 用于确定当前迁移将会执行的 SQL 语句
+2. `db:migration:sync` 同步数据模型到数据库
+3. `yarn run db:diagram` (可选的) 生成一个最新的 ER 关系图
+
+否则，你应该遵循以下步骤，并且知道你正在做的每一步在干什么，否则将会有失去数据库的风险。
+
+1. `yarn run db:log` 用于确定当前迁移将会执行的 SQL 语句
+2. `db:migration:generate -n {migration_name}` 自动生成迁移脚本
+3. `db:migration:run` 运行迁移脚本。在版本更新时应该本地运行该迁移脚本
+4. `db:diagram` (可选的) 生成一个最新的 ER 关系图
+
+请使用 `db:migration:revert` 命令撤回上一次迁移, 执行 `db:migration:run`, `db:migration:sync` 命令时请当心.
+
+参考:
+
+- [typeorm migrations](https://github.com/typeorm/typeorm/blob/master/docs/migrations.md#creating-a-new-migration)
+- [typeorm CLI](https://github.com/typeorm/typeorm/blob/master/docs/using-cli.md#installing-cli)
