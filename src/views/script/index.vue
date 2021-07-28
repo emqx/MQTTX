@@ -253,7 +253,7 @@ execute(handlePayload)`
       top: 3px;
     }
     .save-btn {
-      border: 2px solid var(--color-main-green);
+      border: 1px solid var(--color-main-green);
     }
     .delete-btn {
       color: var(--color-minor-red);
