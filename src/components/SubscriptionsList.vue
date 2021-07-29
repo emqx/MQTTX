@@ -171,8 +171,10 @@ export default class SubscriptionsList extends Vue {
   @Watch('record')
   private handleRecordChanged(val: ConnectionModel) {
     this.topicActiveIndex = null
-    this.getCurrentConnection(val.id as string)
-    this.subsList = val.subscriptions
+    if (val.id) {
+      this.getCurrentConnection(val.id.toString() as string)
+      this.subsList = val.subscriptions
+    }
   }
 
   private setColor() {
@@ -262,7 +264,7 @@ export default class SubscriptionsList extends Vue {
       this.subRecord.color = getRandomColor()
     }
     if (this.client.subscribe) {
-      this.client.subscribe(topic, { qos }, (error, res) => {
+      this.client.subscribe(topic, { qos: qos as QoS }, (error, res) => {
         if (error) {
           this.$message.error(error)
           this.$log.error(`Topic: ${topic} subscribe error ${error} `)
@@ -290,10 +292,12 @@ export default class SubscriptionsList extends Vue {
           this.subsList.push({ ...this.subRecord })
         }
         this.record.subscriptions = this.subsList
-        updateConnection(this.record.id as string, this.record)
-        this.changeSubs({ id: this.connectionId, subscriptions: this.subsList })
-        this.showDialog = false
-        this.$log.info(`Topic: ${topic} successfully subscribed`)
+        if (this.record.id) {
+          updateConnection(this.record.id.toString() as string, this.record)
+          this.changeSubs({ id: this.connectionId, subscriptions: this.subsList })
+          this.showDialog = false
+          this.$log.info(`Topic: ${topic} successfully subscribed`)
+        }
       })
     }
   }
@@ -316,20 +320,24 @@ export default class SubscriptionsList extends Vue {
           this.$message.error(error)
           return false
         }
-        const payload: {
-          id: string
-          subscriptions: SubscriptionModel[]
-        } = {
-          id: this.record.id as string,
-          subscriptions: this.subsList.filter(($: SubscriptionModel) => $.topic !== topic),
+        if (this.record.id) {
+          const payload: {
+            id: string
+            subscriptions: SubscriptionModel[]
+          } = {
+            id: this.record.id.toString() as string,
+            subscriptions: this.subsList.filter(($: SubscriptionModel) => $.topic !== topic),
+          }
+          this.record.subscriptions = payload.subscriptions
+          if (this.record.id) {
+            updateConnection(this.record.id.toString() as string, this.record)
+            this.changeSubs(payload)
+            this.subsList = payload.subscriptions
+            this.$emit('deleteTopic')
+            this.$log.info(`Unsubscribe topic: ${topic}`)
+            return true
+          }
         }
-        this.record.subscriptions = payload.subscriptions
-        updateConnection(this.record.id as string, this.record)
-        this.changeSubs(payload)
-        this.subsList = payload.subscriptions
-        this.$emit('deleteTopic')
-        this.$log.info(`Unsubscribe topic: ${topic}`)
-        return true
       })
     }
   }

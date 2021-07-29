@@ -21,6 +21,10 @@ declare global {
     [key in ProtocolOption]: string
   }
 
+  type CertType = '' | 'server' | 'self'
+
+  type MqttVersion = '3.1.1' | '5.0'
+
   enum ProtocolOption {
     ws = 'ws',
     wss = 'wss',
@@ -143,18 +147,18 @@ declare global {
 
   interface SubscriptionModel {
     topic: string
-    qos: QoS
+    qos: number
     alias?: string
     retain?: boolean
     color?: string
   }
 
   interface MessageModel {
-    mid: string
+    mid: number
     createAt: string
     out: boolean
     payload: string
-    qos: QoS
+    qos: number
     retain: boolean
     topic: string
   }
@@ -164,7 +168,7 @@ declare global {
     id?: string
     retain: boolean
     topic: string
-    qos: QoS
+    qos: number
   }
 
   interface HistoryMessagePayloadModel {
@@ -191,13 +195,13 @@ declare global {
   interface WillModel {
     lastWillTopic: string
     lastWillPayload: string
-    lastWillQos: QoS
+    lastWillQos: number
     lastWillRetain: boolean
     properties?: WillPropertiesModel
   }
 
   interface ConnectionModel extends SSLPath {
-    readonly id?: string
+    readonly id?: number
     clientId: string
     name: string
     clean: boolean
@@ -210,9 +214,9 @@ declare global {
     username: string
     password: string
     path: string
-    certType?: '' | 'server' | 'self'
+    certType?: CertType
     ssl: boolean
-    mqttVersion: '3.1.1' | '5.0'
+    mqttVersion: MqttVersion
     unreadMessageCount: number
     messages: MessageModel[]
     subscriptions: SubscriptionModel[]

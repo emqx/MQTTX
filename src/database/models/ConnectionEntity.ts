@@ -87,4 +87,10 @@ export default class ConnectionEntity {
 
   @OneToMany(() => SubscriptionEntity, (subscription) => subscription.connection)
   subscriptions!: SubscriptionEntity[]
+
+  @Column({ type: 'datetime' })
+  createAt!: string
+
+  @Column({ type: 'datetime' })
+  updateAt!: string
 }

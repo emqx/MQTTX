@@ -546,7 +546,7 @@ export default class ConnectionsDetail extends Vue {
       this.client.on('error', this.onError)
       this.client.on('reconnect', this.onReConnect)
       this.client.on('close', this.onClose)
-      this.client.on('message', this.onMessageArrived(id))
+      this.client.on('message', this.onMessageArrived(id.toString() as string))
     }
   }
   // Delete connection
@@ -561,12 +561,16 @@ export default class ConnectionsDetail extends Vue {
       type: 'warning',
     })
       .then(async () => {
-        const res: ConnectionModel | null = await deleteConnection(id as string)
-        if (res) {
-          this.$emit('delete')
-          this.$message.success(this.$t('common.deleteSuccess') as string)
-          this.removeActiveConnection({ id: res.id as string })
-          this.$log.info(`MQTTX remove connection ${res.name}(clientID ${res.clientId}) success`)
+        if (id) {
+          const res: ConnectionModel | null = await deleteConnection(id.toString() as string)
+          if (res) {
+            this.$emit('delete')
+            this.$message.success(this.$t('common.deleteSuccess') as string)
+            if (res.id) {
+              this.removeActiveConnection({ id: res.id.toString() as string })
+              this.$log.info(`MQTTX remove connection ${res.name}(clientID ${res.clientId}) success`)
+            }
+          }
         }
       })
       .catch((error) => {
@@ -633,18 +637,20 @@ export default class ConnectionsDetail extends Vue {
     const connectID = this.record.id
     let mid = ''
     if (this.selectedMessage) {
-      mid = this.selectedMessage.mid
+      mid = this.selectedMessage.mid.toString()
     }
-    const res: ConnectionModel | null = await deleteMessage(connectID as string, mid as string)
-    if (res) {
-      this.showContextmenu = false
-      this.$message.success(this.$t('common.deleteSuccess') as string)
-      await this.$emit('reload')
-      this.$log.info(`Delete message success, connectID ${connectID}`)
-    } else {
-      this.showContextmenu = false
-      this.$message.error(this.$t('common.deletefailed') as string)
-      this.$log.info('Delete message failed')
+    if (connectID) {
+      const res: ConnectionModel | null = await deleteMessage(connectID.toString() as string, mid as string)
+      if (res) {
+        this.showContextmenu = false
+        this.$message.success(this.$t('common.deleteSuccess') as string)
+        await this.$emit('reload')
+        this.$log.info(`Delete message success, connectID ${connectID}`)
+      } else {
+        this.showContextmenu = false
+        this.$message.error(this.$t('common.deletefailed') as string)
+        this.$log.info('Delete message failed')
+      }
     }
   }
   // Get current connection
@@ -743,8 +749,10 @@ export default class ConnectionsDetail extends Vue {
       client: this.client,
       messages: this.messages,
     })
-    updateConnection(this.record.id as string, this.record)
-    this.$log.info('Cleaned history connection message')
+    if (this.record.id) {
+      updateConnection(this.record.id.toString() as string, this.record)
+      this.$log.info('Cleaned history connection message')
+    }
   }
   // Message type changed
   private async handleMsgTypeChanged(type: MessageType) {
@@ -1151,7 +1159,7 @@ export default class ConnectionsDetail extends Vue {
     const convertPayload = this.convertPayloadByScript(payload, 'received')
     const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
 
-    this.client.publish!(topic, sendPayload, { qos, retain }, (error: Error) => {
+    this.client.publish!(topic, sendPayload, { qos: qos as QoS, retain }, (error: Error) => {
       if (error) {
         const errorMsg = error.toString()
         this.$message.error(errorMsg)
@@ -1168,26 +1176,28 @@ export default class ConnectionsDetail extends Vue {
         qos,
         retain,
       }
-      updateConnectionMessage(this.record.id as string, { ...publishMessage })
-      this.record.messages.push({ ...publishMessage })
-      // Filter by conditions (topic, payload, etc)
-      const filterRes = this.filterBySearchConditions(topic, publishMessage)
-      if (filterRes) {
-        return
+      if (this.record.id) {
+        updateConnectionMessage(this.record.id.toString() as string, { ...publishMessage })
+        this.record.messages.push({ ...publishMessage })
+        // Filter by conditions (topic, payload, etc)
+        const filterRes = this.filterBySearchConditions(topic, publishMessage)
+        if (filterRes) {
+          return
+        }
+        const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+        const isFromActiveTopic = this.activeTopic && isActiveTopicMessages && this.msgType !== 'received'
+        const isFromNotActiveTopic = this.msgType !== 'received' && !this.activeTopic
+        if (isFromActiveTopic || isFromNotActiveTopic) {
+          this.messages.push(publishMessage)
+          this.messagesAddedNewItem = true
+        }
+        this.$log.info(
+          `Sucessfully published message ${JSON.stringify(publishMessage.payload)} to topic ${JSON.stringify(
+            publishMessage.topic,
+          )}`,
+        )
+        this.scrollToBottom()
       }
-      const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
-      const isFromActiveTopic = this.activeTopic && isActiveTopicMessages && this.msgType !== 'received'
-      const isFromNotActiveTopic = this.msgType !== 'received' && !this.activeTopic
-      if (isFromActiveTopic || isFromNotActiveTopic) {
-        this.messages.push(publishMessage)
-        this.messagesAddedNewItem = true
-      }
-      this.$log.info(
-        `Sucessfully published message ${JSON.stringify(publishMessage.payload)} to topic ${JSON.stringify(
-          publishMessage.topic,
-        )}`,
-      )
-      this.scrollToBottom()
     })
     afterSendCallback && afterSendCallback(isNewPayload)
   }
@@ -1196,11 +1206,13 @@ export default class ConnectionsDetail extends Vue {
   private setShowClientInfo(show: boolean) {
     const timer = setTimeout(() => {
       this.showClientInfo = show
-      this.changeShowClientInfo({
-        id: this.record.id as string,
-        showClientInfo: this.showClientInfo,
-      })
-      clearTimeout(timer)
+      if (this.record.id) {
+        this.changeShowClientInfo({
+          id: this.record.id.toString() as string,
+          showClientInfo: this.showClientInfo,
+        })
+        clearTimeout(timer)
+      }
     }, 500)
   }
 

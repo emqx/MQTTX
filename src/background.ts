@@ -11,6 +11,7 @@ import getMenuTemplate from './main/getMenuTemplate'
 import saveFile from './main/saveFile'
 import saveExcel from './main/saveExcel'
 import newWindow from './main/newWindow'
+import useConnection, { initOptionModel } from '@/database/useConnection'
 
 interface WindowSizeModel {
   width: number
@@ -36,6 +37,11 @@ const theme = db.get<Theme>('settings.currentTheme')
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }])
 
 app.allowRendererProcessReuse = false
+
+let { ConnectionInit, ConnectionDestory } = useConnection({
+  doMigrations: false,
+  undoMigrations: false,
+} as initOptionModel)
 
 function handleIpcMessages() {
   ipcMain.on('setting', (event: Electron.IpcMainEvent, ...args: any[]) => {
@@ -72,11 +78,17 @@ function handleIpcMessages() {
 }
 
 // handle event when APP quit
-function handleAppQuit() {
+function beforeAppQuit() {
   // close all log appender and rename log file with date
   quitAndRenameLogger()
+  // close all SQLite connection
+  ConnectionDestory()
   // quit APP
   app.quit()
+}
+
+async function beforeWindowReady() {
+  await ConnectionInit()
 }
 
 function createWindow() {
@@ -116,7 +128,7 @@ function createWindow() {
 
   win.on('closed', () => {
     win = null
-    handleAppQuit()
+    beforeAppQuit()
   })
 }
 
@@ -125,7 +137,7 @@ app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (!isMac) {
-    handleAppQuit()
+    beforeAppQuit()
   }
 })
 
@@ -141,6 +153,7 @@ app.on('activate', () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
+  await beforeWindowReady()
   const autoCheckUpdate = db.get<boolean>('settings.autoCheck')
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
@@ -173,12 +186,12 @@ if (isDevelopment) {
   if (process.platform === 'win32') {
     process.on('message', (data) => {
       if (data === 'graceful-exit') {
-        handleAppQuit()
+        beforeAppQuit()
       }
     })
   } else {
     process.on('SIGTERM', () => {
-      handleAppQuit()
+      beforeAppQuit()
     })
   }
 }

@@ -79,7 +79,7 @@ export default class MessageList extends Vue {
           this.$nextTick(() => {
             if (addMessages.length > 0) {
               const id = addMessages[addMessages.length - 1].mid
-              const idBox = document.getElementById(id)
+              const idBox = document.getElementById(id.toString() as string)
               if (idBox) {
                 idBox.scrollIntoView(true)
               }

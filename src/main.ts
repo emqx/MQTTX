@@ -15,35 +15,40 @@ import log4js from 'log4js'
 import { getOrCreateLogDir } from './utils/logger'
 import logConfig from './plugins/logPlugin/logConfig.json'
 import path from 'path'
+import useConnection, { initOptionModel } from './database/useConnection'
 
-// set logFile dir
-const LOG_DIR = getOrCreateLogDir()
-const LOG_PATH = path.join(LOG_DIR, 'log')
-logConfig.appenders.fileOutput.filename = LOG_PATH
-const config: log4js.Configuration = logConfig
+const { ConnectionInit } = useConnection({ doMigrations: false, undoMigrations: false } as initOptionModel)
 
-// Clipboard
-VueClipboard.config.appendToBody = false
-VueClipboard.config.autoSetContainer = true
+// Init typeORM connection before Vue APP start, after this DI services are available.
+ConnectionInit().then(() => {
+  const LOG_DIR = getOrCreateLogDir()
+  const LOG_PATH = path.join(LOG_DIR, 'log')
+  logConfig.appenders.fileOutput.filename = LOG_PATH
+  const config: log4js.Configuration = logConfig
 
-Vue.use(element)
-Vue.use(VueI18n)
-Vue.use(VueClipboard)
-Vue.use(VueLog4js, config)
+  // Clipboard
+  VueClipboard.config.appendToBody = false
+  VueClipboard.config.autoSetContainer = true
 
-const locale: Language = store.state.app.currentLang
-const vueI18n: VueI18n = new VueI18n({
-  locale,
-  messages: Lang,
+  Vue.use(element)
+  Vue.use(VueI18n)
+  Vue.use(VueClipboard)
+  Vue.use(VueLog4js, config)
+
+  const locale: Language = store.state.app.currentLang
+  const vueI18n: VueI18n = new VueI18n({
+    locale,
+    messages: Lang,
+  })
+  const { i18n }: any = ElementLocale
+  i18n((key: any, value: any) => vueI18n.t(key, value))
+
+  Vue.config.productionTip = false
+
+  new Vue({
+    router,
+    store,
+    i18n: vueI18n,
+    render: (h) => h(App),
+  }).$mount('#app')
 })
-const { i18n }: any = ElementLocale
-i18n((key: any, value: any) => vueI18n.t(key, value))
-
-Vue.config.productionTip = false
-
-new Vue({
-  router,
-  store,
-  i18n: vueI18n,
-  render: (h) => h(App),
-}).$mount('#app')

@@ -4,7 +4,7 @@ import ConnectionEntity from './ConnectionEntity'
 @Entity('MessageEntity')
 export default class MessageEntity {
   @PrimaryGeneratedColumn({ type: 'integer' })
-  mid?: number
+  mid!: number
 
   @Column({ type: 'datetime' })
   createAt!: string

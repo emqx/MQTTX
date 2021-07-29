@@ -180,9 +180,14 @@ export default class ConnectionInfo extends Vue {
       if (!valid) {
         return false
       }
-      const res: ConnectionModel | null = await updateConnection(this.connection.id as string, this.connection)
-      if (res) {
-        this.$emit('handleConnect', this.connection)
+      if (this.connection.id) {
+        const res: ConnectionModel | null = await updateConnection(
+          this.connection.id.toString() as string,
+          this.connection,
+        )
+        if (res) {
+          this.$emit('handleConnect', this.connection)
+        }
       }
     })
   }
