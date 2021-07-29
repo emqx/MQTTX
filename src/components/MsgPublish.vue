@@ -119,7 +119,7 @@ export default class MsgPublish extends Vue {
   private payloadsHistory: HistoryMessagePayloadModel[] | [] = []
   private historyIndex: number = -1
   private defaultMsgRecord: MessageModel = {
-    mid: '',
+    mid: 0,
     createAt: '',
     out: true,
     qos: 0,

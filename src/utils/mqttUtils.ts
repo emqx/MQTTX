@@ -95,7 +95,7 @@ export const getClientOptions = (record: ConnectionModel): IClientOptions => {
   if (will) {
     const { lastWillTopic: topic, lastWillPayload: payload, lastWillQos: qos, lastWillRetain: retain } = will
     if (topic) {
-      options.will = { topic, payload, qos, retain }
+      options.will = { topic, payload, qos: qos as QoS, retain }
       if (protocolVersion === 5) {
         const { properties } = will
         const willProperties: WillPropertiesModel | undefined = {}

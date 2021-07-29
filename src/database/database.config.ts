@@ -23,14 +23,14 @@ try {
 
 const ORMConfig = {
   type: 'sqlite',
-  name: 'MQTTX',
   driver: 'sqlite',
+  name: 'MQTTX',
   synchronize: false,
   logging: process.env.NODE_ENV !== 'production',
   database: join(STORE_PATH, 'MQTTX.db'),
-  migrations: ['database/migration/*{.ts,.js}'],
+  cache: true,
+  migrations: [],
   migrationsTableName: 'temp_migration_table',
-  migrationsRun: true,
   entities: [
     ConnectionEntity,
     MessageEntity,

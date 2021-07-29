@@ -41,7 +41,7 @@ export const createSuggestConnection = (data: ConnectionModel): ConnectionModel 
   if (suggestConnections.length > 9) {
     const deleteId = suggestConnections[0].id
     if (deleteId !== undefined) {
-      deleteSuggestConnection(deleteId)
+      deleteSuggestConnection(deleteId.toString())
     }
   }
   return db.insert<ConnectionModel>('suggestConnections', data)
@@ -57,7 +57,7 @@ export const loadAllConnectionsIds = async (type: 'connections' | 'suggestConnec
   allConnections = type === 'connections' ? await loadConnections() : await loadSuggestConnections()
   allConnections.forEach((connection: ConnectionModel) => {
     if (connection.id) {
-      connectionsIds.push(connection.id)
+      connectionsIds.push(connection.id.toString())
     }
   })
   return connectionsIds
@@ -130,7 +130,7 @@ export const cleanUpHistoryMessagePayload = (): HistoryMessagePayloadModel[] | [
 
 export const createConnection = (data: ConnectionModel): ConnectionModel => {
   loadAllConnectionsIds('suggestConnections').then((res) => {
-    if (data.id && res.indexOf(data.id) === -1) {
+    if (data.id && res.indexOf(data.id.toString()) === -1) {
       createSuggestConnection(data)
     }
   })
@@ -164,10 +164,10 @@ export const importConnections = (data: ConnectionModel[]): Promise<string> => {
         data.forEach((item: ConnectionModel) => {
           const { id } = item
           if (id) {
-            if (res.indexOf(id) === -1) {
+            if (res.indexOf(id.toString()) === -1) {
               createConnection(item)
             } else {
-              updateConnection(id, item)
+              updateConnection(id.toString() as string, item)
             }
           }
         })

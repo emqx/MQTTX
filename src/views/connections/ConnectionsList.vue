@@ -232,7 +232,7 @@ export default class ConnectionsList extends Vue {
       treeElements.forEach((el: ConnectionModelTree, idx: number) => {
         el.orderId = idx
         if (el.id) {
-          updateConnectionSequenceId(el.id, el.orderId)
+          updateConnectionSequenceId(el.id.toString() as string, el.orderId)
         }
         if (el.isCollection) {
           const curCollection = _.cloneDeep(el) as ConnectionModelCollection
@@ -284,12 +284,12 @@ export default class ConnectionsList extends Vue {
       switch (position) {
         case 'inner':
           draggingNode.data.collectionId = dropNode.data.id
-          updateConnectionCollectionId(draggingNode.data.id, dropNode.data.id)
+          updateConnectionCollectionId(draggingNode.data.id.toString(), dropNode.data.id.toString())
           break
         default:
           if (!dropNode.parent) return
           draggingNode.data.collectionId = Array.isArray(dropNode.parent.data) ? null : dropNode.parent.data.id
-          updateConnectionCollectionId(draggingNode.data.id, dropNode.parent.data.id)
+          updateConnectionCollectionId(draggingNode.data.id.toString(), dropNode.parent.data.id.toString())
           break
       }
     }
@@ -385,7 +385,9 @@ export default class ConnectionsList extends Vue {
 
   private handleSelectConnection(row: ConnectionModel) {
     this.handleConnectionTreeClick(row)
-    this.initUnreadMessageCount(row.id as string)
+    if (row.id) {
+      this.initUnreadMessageCount(row.id.toString() as string)
+    }
     if (this.$route.name === 'newWindow') {
       return
     }

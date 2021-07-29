@@ -12,8 +12,8 @@ export default class WillEntity {
   @Column({ type: 'varchar' })
   lastWillPayload!: string
 
-  @Column({ type: 'varchar' })
-  lastWillQos!: string
+  @Column({ type: 'integer' })
+  lastWillQos!: number
 
   @Column({ type: 'boolean' })
   lastWillRetain!: boolean

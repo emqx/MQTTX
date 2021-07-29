@@ -484,6 +484,7 @@ import { getMQTTProtocol } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
 import deepMerge from '@/utils/deepMerge'
 import _ from 'lodash'
+import useServices from '@/database/useServices'
 
 @Component({
   components: {
@@ -609,19 +610,23 @@ export default class ConnectionCreate extends Vue {
         res = await createConnection(data)
         msgError = this.$t('common.createfailed') as string
       } else {
-        res = await updateConnection(data.id as string, data)
-        msgError = this.$t('common.editfailed') as string
+        if (data.id) {
+          res = await updateConnection(data.id.toString() as string, data)
+          msgError = this.$t('common.editfailed') as string
+        }
       }
       if (res) {
-        this.changeActiveConnection({
-          id: res.id as string,
-          client: {
-            connected: false,
-          },
-          messages: [],
-        })
-        this.$emit('connect')
-        this.$router.push(`/recent_connections/${res.id}`)
+        if (res.id) {
+          this.changeActiveConnection({
+            id: res.id.toString() as string,
+            client: {
+              connected: false,
+            },
+            messages: [],
+          })
+          this.$emit('connect')
+          this.$router.push(`/recent_connections/${res.id}`)
+        }
       } else {
         this.$message.error(msgError)
       }
