@@ -24,6 +24,6 @@ export default class MessageEntity {
   @Column({ type: 'varchar' })
   topic!: string
 
-  @ManyToOne(() => ConnectionEntity, (connection) => connection.messages)
+  @ManyToOne(() => ConnectionEntity, (connection) => connection.messages, { onDelete: 'CASCADE' })
   connection!: ConnectionEntity
 }

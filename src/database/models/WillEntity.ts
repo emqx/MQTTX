@@ -30,6 +30,6 @@ export default class WillEntity {
   @Column({ type: 'varchar' })
   contentType!: string
 
-  @OneToOne(() => ConnectionEntity, (connection) => connection.will)
+  @OneToOne(() => ConnectionEntity, (connection) => connection.will, { onDelete: 'CASCADE' })
   connection!: ConnectionEntity
 }

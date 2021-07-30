@@ -21,6 +21,6 @@ export default class SubscriptionEntity {
   @Column({ type: 'varchar' })
   color!: string
 
-  @ManyToOne(() => ConnectionEntity, (connection) => connection.messages)
+  @ManyToOne(() => ConnectionEntity, (connection) => connection.messages, { onDelete: 'CASCADE' })
   connection!: ConnectionEntity
 }

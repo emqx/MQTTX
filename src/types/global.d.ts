@@ -205,7 +205,7 @@ declare global {
     clientId: string
     name: string
     clean: boolean
-    protocol?: Protocol
+    protocol?: string
     host: string
     port: number
     keepalive: number
@@ -214,9 +214,9 @@ declare global {
     username: string
     password: string
     path: string
-    certType?: CertType
+    certType?: string
     ssl: boolean
-    mqttVersion: MqttVersion
+    mqttVersion: string
     unreadMessageCount: number
     messages: MessageModel[]
     subscriptions: SubscriptionModel[]
