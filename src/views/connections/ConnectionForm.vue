@@ -658,9 +658,11 @@ export default class ConnectionCreate extends Vue {
 
   private handleSSL(val: boolean) {
     const { protocol } = this.record
-    this.changeProtocol(protocol, val)
-    if (!val) {
-      this.record.certType = ''
+    if (protocol) {
+      this.changeProtocol(protocol as Protocol, val)
+      if (!val) {
+        this.record.certType = ''
+      }
     }
   }
 

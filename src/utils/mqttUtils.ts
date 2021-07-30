@@ -42,7 +42,7 @@ export const getClientOptions = (record: ConnectionModel): IClientOptions => {
   } = record
   // reconnectPeriod = 0 disabled automatic reconnection in the client
   const reconnectPeriod = reconnect ? 4000 : 0
-  const protocolVersion = mqttVersionDict[mqttVersion]
+  const protocolVersion = mqttVersionDict[mqttVersion as '3.1.1' | '5.0']
   const options: IClientOptions = {
     clientId,
     keepalive,
@@ -128,7 +128,7 @@ export const getMQTTProtocol = (data: ConnectionModel): Protocol => {
   if (!protocol) {
     return ssl ? 'mqtts' : 'mqtt'
   }
-  return protocol
+  return protocol as Protocol
 }
 
 export const hasMessagePayload = async (data: HistoryMessagePayloadModel): Promise<boolean> => {

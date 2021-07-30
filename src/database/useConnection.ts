@@ -6,9 +6,9 @@ export interface initOptionModel {
   doMigrations: boolean
   undoMigrations: boolean
 }
-const useConnection = (initOption: Partial<initOptionModel>) => {
+const useConnection = () => {
   let sqlConnection: Connection | undefined = undefined
-  async function ConnectionInit() {
+  async function ConnectionInit(initOption: Partial<initOptionModel>) {
     useContainer(Container)
     sqlConnection = await createConnection(ORMConfig)
     if (initOption.doMigrations) {

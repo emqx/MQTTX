@@ -38,10 +38,7 @@ protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: tru
 
 app.allowRendererProcessReuse = false
 
-let { ConnectionInit, ConnectionDestory } = useConnection({
-  doMigrations: false,
-  undoMigrations: false,
-} as initOptionModel)
+const { ConnectionInit, ConnectionDestory } = useConnection()
 
 function handleIpcMessages() {
   ipcMain.on('setting', (event: Electron.IpcMainEvent, ...args: any[]) => {
@@ -88,7 +85,10 @@ function beforeAppQuit() {
 }
 
 async function beforeWindowReady() {
-  await ConnectionInit()
+  await ConnectionInit({
+    doMigrations: true,
+    undoMigrations: false,
+  } as initOptionModel)
 }
 
 function createWindow() {

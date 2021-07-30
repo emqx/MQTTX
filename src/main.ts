@@ -17,10 +17,10 @@ import logConfig from './plugins/logPlugin/logConfig.json'
 import path from 'path'
 import useConnection, { initOptionModel } from './database/useConnection'
 
-const { ConnectionInit } = useConnection({ doMigrations: false, undoMigrations: false } as initOptionModel)
+const { ConnectionInit } = useConnection()
 
 // Init typeORM connection before Vue APP start, after this DI services are available.
-ConnectionInit().then(() => {
+ConnectionInit({ doMigrations: false, undoMigrations: false } as initOptionModel).then(() => {
   const LOG_DIR = getOrCreateLogDir()
   const LOG_PATH = path.join(LOG_DIR, 'log')
   logConfig.appenders.fileOutput.filename = LOG_PATH

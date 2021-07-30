@@ -60,7 +60,7 @@ export default class ConnectionEntity {
   @Column({ type: 'boolean' })
   clientIdWithTime!: boolean
 
-  @ManyToOne(() => CollectionEntity, (collection) => collection.collections)
+  @ManyToOne(() => CollectionEntity, (collection) => collection.collections, { onDelete: 'CASCADE' })
   collection!: ConnectionEntity
 
   @Column({ type: 'integer', comment: 'order in the collection' })
@@ -78,7 +78,7 @@ export default class ConnectionEntity {
   @Column({ type: 'varchar' })
   key!: string
 
-  @OneToOne(() => WillEntity, (will) => will.connection)
+  @OneToOne(() => WillEntity, (will) => will.connection, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn()
   will!: WillEntity
 

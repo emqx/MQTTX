@@ -29,9 +29,6 @@ export default class ConnectionService {
     }
     res = {
       ...query,
-      protocol: query.protocol as Protocol,
-      certType: query.certType as CertType,
-      mqttVersion: query.mqttVersion as MqttVersion,
       isCollection: false,
     }
     return res
