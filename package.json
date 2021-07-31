@@ -19,13 +19,13 @@
     "lint": "eslint --fix --ext .ts,.vue src",
     "test:e2e": "vue-cli-service test:e2e",
     "test:unit": "vue-cli-service test:unit",
-    "db:log": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm schema:log -c MQTTX -f ormconfig.ts",
-    "db:migration:show": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:show -c MQTTX -f ormconfig.ts",
-    "db:migration:generate": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:generate -f ormconfig.ts -c MQTTX --pretty",
-    "db:migration:run": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:run -c MQTTX -f ormconfig.ts",
-    "db:migration:revert": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:revert -f ormconfig.ts -c MQTTX",
-    "db:migration:sync": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm schema:sync -f ormconfig.ts -c MQTTX",
-    "db:diagram": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm-uml ormconfig.ts -c MQTTX -d ./src/database/database.png"
+    "db:log": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm schema:log -f ormconfig.ts",
+    "db:migration:show": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:show -f ormconfig.ts",
+    "db:migration:generate": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:generate -f ormconfig.ts --pretty",
+    "db:migration:run": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:run -f ormconfig.ts",
+    "db:migration:revert": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:revert -f ormconfig.ts",
+    "db:migration:sync": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm schema:sync -f ormconfig.ts",
+    "db:diagram": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm-uml ormconfig.ts -d ./src/database/database.png"
   },
   "main": "background.js",
   "dependencies": {
