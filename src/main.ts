@@ -1,24 +1,24 @@
 import 'reflect-metadata' // Required by TypoORM.
 import Vue from 'vue'
+import VueI18n from 'vue-i18n'
+import VueClipboard from 'vue-clipboard2'
+import path from 'path'
+import log4js from 'log4js'
 
 import 'element-ui/lib/theme-chalk/index.css'
 import ElementLocale from 'element-ui/lib/locale'
+
 import App from './App.vue'
 import router from './router/index'
 import store from './store/index'
-import VueI18n from 'vue-i18n'
-import VueClipboard from 'vue-clipboard2'
 import Lang from './lang'
 import element from './utils/element'
 import VueLog4js from './plugins/logPlugin/index'
-import log4js from 'log4js'
 import { getOrCreateLogDir } from './utils/logger'
 import logConfig from './plugins/logPlugin/logConfig.json'
-import path from 'path'
 import useConnection, { initOptionModel } from './database/useConnection'
 
 const { ConnectionInit } = useConnection()
-
 // Init typeORM connection before Vue APP start, after this DI services are available.
 ConnectionInit({ doMigrations: false, undoMigrations: false } as initOptionModel).then(() => {
   const LOG_DIR = getOrCreateLogDir()

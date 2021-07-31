@@ -12,10 +12,11 @@ const useConnection = () => {
     useContainer(Container)
     sqlConnection = await createConnection(ORMConfig)
     if (initOption.doMigrations) {
-      sqlConnection.runMigrations()
+      await sqlConnection.runMigrations()
     } else if (initOption.undoMigrations) {
-      sqlConnection.undoLastMigration()
+      await sqlConnection.undoLastMigration()
     }
+    return sqlConnection
   }
   async function ConnectionDestory() {
     if (sqlConnection) {
