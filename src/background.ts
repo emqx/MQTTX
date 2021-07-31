@@ -12,6 +12,7 @@ import saveFile from './main/saveFile'
 import saveExcel from './main/saveExcel'
 import newWindow from './main/newWindow'
 import useConnection, { initOptionModel } from '@/database/useConnection'
+import useServices from '@/database/useServices'
 
 interface WindowSizeModel {
   width: number
@@ -89,6 +90,8 @@ async function beforeWindowReady() {
     doMigrations: true,
     undoMigrations: false,
   } as initOptionModel)
+  const { settingService } = useServices()
+  await settingService.setSetting()
 }
 
 function createWindow() {

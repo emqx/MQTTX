@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
 
-export class initTable1627614417814 implements MigrationInterface {
-  name = 'initTable1627614417814'
+export class initTable1627697951611 implements MigrationInterface {
+  name = 'initTable1627697951611'
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
@@ -89,10 +89,14 @@ export class initTable1627614417814 implements MigrationInterface {
         `)
     await queryRunner.query(`
             CREATE TABLE "SettingEntity" (
-                "settingID" integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-                "settingKey" varchar NOT NULL,
-                "settingValue" varchar NOT NULL,
-                "settingType" integer NOT NULL
+                "id" varchar PRIMARY KEY NOT NULL,
+                "width" integer NOT NULL DEFAULT (1025),
+                "height" integer NOT NULL DEFAULT (749),
+                "autoCheck" boolean NOT NULL DEFAULT (1),
+                "currentLang" varchar CHECK(currentLang IN ('zh', 'en', 'ja', 'tr')) NOT NULL DEFAULT ('en'),
+                "currentTheme" varchar CHECK(currentTheme IN ('light', 'dark', 'night')) NOT NULL DEFAULT ('light'),
+                "maxReconnectTimes" integer NOT NULL DEFAULT (10),
+                "autoResub" boolean NOT NULL DEFAULT (1)
             )
         `)
     await queryRunner.query(`
