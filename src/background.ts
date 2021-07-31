@@ -1,11 +1,10 @@
-'use strict'
-
+import 'reflect-metadata' // Required by TypoORM.
+;('use strict')
 import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { updateConnectionMessage } from '@/api/connection'
 import { quitAndRenameLogger } from './utils/logger'
-import db from './database/index'
 import updateChecker from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
 import saveFile from './main/saveFile'
@@ -14,13 +13,14 @@ import newWindow from './main/newWindow'
 import useConnection, { initOptionModel } from '@/database/useConnection'
 import useServices from '@/database/useServices'
 
-interface WindowSizeModel {
-  width: number
-  height: number
-}
-
 declare const __static: string
 
+let theme: Theme = 'light'
+let autoCheckUpdate: boolean = true
+const windowSize = {
+  width: 1025,
+  height: 749,
+}
 const isDevelopment: boolean = process.env.NODE_ENV !== 'production'
 const isMac: boolean = process.platform === 'darwin'
 
@@ -81,29 +81,18 @@ function beforeAppQuit() {
   app.quit()
 }
 
-let windowSize: WindowSizeModel
-let theme: Theme
-let autoCheckUpdate: boolean
-
-async function beforeWindowReady() {
-  await ConnectionInit({
-    doMigrations: true,
-    undoMigrations: false,
-  } as initOptionModel)
+async function createWindow() {
+  // Init tables and connect to local database.
+  await ConnectionInit({ doMigrations: true } as initOptionModel)
   const { settingService } = useServices()
   await settingService.setSetting()
   const setting = await settingService.getSetting()
   if (setting) {
-    windowSize = {
-      height: setting.height,
-      width: setting.width,
-    }
     theme = setting.currentTheme
     autoCheckUpdate = setting.autoCheck
+    windowSize.height = setting.height
+    windowSize.width = setting.width
   }
-}
-
-function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
     ...windowSize,
@@ -142,13 +131,16 @@ function createWindow() {
     win = null
     beforeAppQuit()
   })
+  handleIpcMessages()
+  if (autoCheckUpdate) {
+    updateChecker()
+  }
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
-  await beforeWindowReady()
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
     try {
@@ -158,10 +150,6 @@ app.on('ready', async () => {
     }
   }
   createWindow()
-  handleIpcMessages()
-  if (autoCheckUpdate) {
-    updateChecker()
-  }
 })
 
 // Quit when all windows are closed.
