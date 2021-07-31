@@ -11,6 +11,18 @@ export default class SettingService {
   ) {}
 
   public async setSetting() {
+    const data = await this.collectionRepository.find()
+    if (data.length) {
+      return
+    }
     return await this.collectionRepository.insert({})
+  }
+
+  public async getSetting() {
+    const data = await this.collectionRepository.find()
+    if (!data.length) {
+      return
+    }
+    return data[0]
   }
 }
