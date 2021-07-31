@@ -30,10 +30,6 @@ let win: BrowserWindow | null
 
 let menu: Menu | null
 
-const windowSize = db.get<WindowSizeModel>('windowSize')
-
-const theme = db.get<Theme>('settings.currentTheme')
-
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }])
 
@@ -85,6 +81,10 @@ function beforeAppQuit() {
   app.quit()
 }
 
+let windowSize: WindowSizeModel
+let theme: Theme
+let autoCheckUpdate: boolean
+
 async function beforeWindowReady() {
   await ConnectionInit({
     doMigrations: true,
@@ -92,6 +92,15 @@ async function beforeWindowReady() {
   } as initOptionModel)
   const { settingService } = useServices()
   await settingService.setSetting()
+  const setting = await settingService.getSetting()
+  if (setting) {
+    windowSize = {
+      height: setting.height,
+      width: setting.width,
+    }
+    theme = setting.currentTheme
+    autoCheckUpdate = setting.autoCheck
+  }
 }
 
 function createWindow() {
@@ -135,6 +144,26 @@ function createWindow() {
   })
 }
 
+// This method will be called when Electron has finished
+// initialization and is ready to create browser windows.
+// Some APIs can only be used after this event occurs.
+app.on('ready', async () => {
+  await beforeWindowReady()
+  if (isDevelopment && !process.env.IS_TEST) {
+    // Install Vue Devtools
+    try {
+      await installExtension(VUEJS_DEVTOOLS)
+    } catch (e) {
+      console.error('Vue Devtools failed to install:', e.toString())
+    }
+  }
+  createWindow()
+  handleIpcMessages()
+  if (autoCheckUpdate) {
+    updateChecker()
+  }
+})
+
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
   // On macOS it is common for applications and their menu bar
@@ -149,27 +178,6 @@ app.on('activate', () => {
   // dock icon is clicked and there are no other windows open.
   if (win === null) {
     createWindow()
-  }
-})
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-app.on('ready', async () => {
-  await beforeWindowReady()
-  const autoCheckUpdate = db.get<boolean>('settings.autoCheck')
-  if (isDevelopment && !process.env.IS_TEST) {
-    // Install Vue Devtools
-    try {
-      await installExtension(VUEJS_DEVTOOLS)
-    } catch (e) {
-      console.error('Vue Devtools failed to install:', e.toString())
-    }
-  }
-  createWindow()
-  handleIpcMessages()
-  if (autoCheckUpdate) {
-    updateChecker()
   }
 })
 
