@@ -36,16 +36,16 @@ export default class ConnectionEntity {
   @Column({ type: 'boolean' })
   reconnect!: boolean
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   username!: string
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   password!: string
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   path!: string
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   certType!: string
 
   @Column({ type: 'boolean' })
@@ -63,7 +63,7 @@ export default class ConnectionEntity {
   @ManyToOne(() => CollectionEntity, (collection) => collection.collections, { onDelete: 'CASCADE' })
   collection!: ConnectionEntity
 
-  @Column({ type: 'integer', comment: 'order in the collection' })
+  @Column({ type: 'integer', nullable: true, comment: 'order in the collection' })
   orderId!: number
 
   @Column({ type: 'boolean' })
@@ -78,6 +78,9 @@ export default class ConnectionEntity {
   @Column({ type: 'varchar' })
   key!: string
 
+  @Column({ type: 'boolean', default: false })
+  isCollection!: false
+
   @OneToOne(() => WillEntity, (will) => will.connection, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn()
   will!: WillEntity
@@ -88,9 +91,9 @@ export default class ConnectionEntity {
   @OneToMany(() => SubscriptionEntity, (subscription) => subscription.connection)
   subscriptions!: SubscriptionEntity[]
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createAt!: string
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   updateAt!: string
 }
