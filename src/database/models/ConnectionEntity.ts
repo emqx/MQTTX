@@ -6,8 +6,8 @@ import CollectionEntity from './CollectionEntity'
 import WillEntity from './WillEntity'
 @Entity('ConnectionEntity')
 export default class ConnectionEntity {
-  @PrimaryGeneratedColumn({ type: 'integer' })
-  id?: number
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
 
   @Column({ type: 'varchar' })
   clientId!: string
@@ -18,8 +18,8 @@ export default class ConnectionEntity {
   @Column({ type: 'boolean', default: true })
   clean!: boolean
 
-  @Column({ type: 'varchar' })
-  protocol!: string
+  @Column({ type: 'simple-enum', enum: ['ws', 'wss', 'mqtt', 'mqtts'], default: 'mqtt' })
+  protocol!: Protocol
 
   @Column({ type: 'varchar' })
   host!: string
@@ -45,8 +45,8 @@ export default class ConnectionEntity {
   @Column({ type: 'varchar', nullable: true })
   path!: string
 
-  @Column({ type: 'varchar', nullable: true })
-  certType!: string
+  @Column({ type: 'varchar', enum: ['', 'server', 'self'], default: '', nullable: true })
+  certType!: CertType
 
   @Column({ type: 'boolean' })
   ssl!: boolean

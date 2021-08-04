@@ -3,8 +3,8 @@ import ConnectionEntity from './ConnectionEntity'
 
 @Entity('CollectionEntity')
 export default class CollectionEntity {
-  @PrimaryGeneratedColumn({ type: 'integer' })
-  id?: number
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
 
   @Column({ type: 'varchar' })
   name!: string
@@ -17,7 +17,7 @@ export default class CollectionEntity {
 
   // current collection parent
   @ManyToOne(() => CollectionEntity, (collection) => collection.collection, { onDelete: 'CASCADE' })
-  collection!: CollectionEntity[]
+  collection!: CollectionEntity
 
   // collections children
   @OneToMany(() => CollectionEntity, (collection) => collection.collection)

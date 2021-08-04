@@ -2,8 +2,8 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity('ScriptEntity')
 export default class ScriptEntity {
-  @PrimaryGeneratedColumn({ type: 'integer' })
-  id?: number
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
 
   @Column({ type: 'varchar' })
   name!: string

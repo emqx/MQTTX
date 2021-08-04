@@ -635,12 +635,12 @@ export default class ConnectionsDetail extends Vue {
   // Delete message
   private async handleDeleteMessage() {
     const connectID = this.record.id
-    let mid = ''
-    if (this.selectedMessage) {
-      mid = this.selectedMessage.mid.toString()
+    let id = ''
+    if (this.selectedMessage && this.selectedMessage.id) {
+      id = this.selectedMessage.id.toString()
     }
     if (connectID) {
-      const res: ConnectionModel | null = await deleteMessage(connectID.toString() as string, mid as string)
+      const res: ConnectionModel | null = await deleteMessage(connectID.toString() as string, id as string)
       if (res) {
         this.showContextmenu = false
         this.$message.success(this.$t('common.deleteSuccess') as string)
@@ -1026,7 +1026,7 @@ export default class ConnectionsDetail extends Vue {
       const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
       const receviedPayload = this.convertPayloadByScript(convertPayload, 'publish')
       const receivedMessage: MessageModel = {
-        mid: uuidv4(),
+        id: uuidv4(),
         out: false,
         createAt: time.getNowDate(),
         topic,
@@ -1076,7 +1076,7 @@ export default class ConnectionsDetail extends Vue {
           this.messagesAddedNewItem = true
           this.$log.info(
             `Message arrived: message added #${JSON.stringify(
-              receivedMessage.mid,
+              receivedMessage.id,
             )} added to topic ${topic}, MQTT.js onMessageArrived trigger`,
           )
         }
@@ -1113,9 +1113,9 @@ export default class ConnectionsDetail extends Vue {
     this.stopTimedSend()
     this.sendTimeId = window.setInterval(() => {
       const { ...oneMessage } = message
-      let { mid } = oneMessage
-      mid = uuidv4()
-      this.sendOneMessage(Object.assign(oneMessage, { mid }), type)
+      let { id } = oneMessage
+      id = uuidv4()
+      this.sendOneMessage(Object.assign(oneMessage, { id }), type)
     }, time * 1000)
   }
 
@@ -1144,7 +1144,7 @@ export default class ConnectionsDetail extends Vue {
       this.stopTimedSend()
       return false
     }
-    const { mid, topic, qos, payload, retain } = message
+    const { id, topic, qos, payload, retain } = message
     if (!topic) {
       this.$message.warning(this.$t('connections.topicReuired') as string)
       this.stopTimedSend()
@@ -1168,7 +1168,7 @@ export default class ConnectionsDetail extends Vue {
         return false
       }
       const publishMessage: MessageModel = {
-        mid,
+        id,
         out: true,
         createAt: time.getNowDate(),
         topic,

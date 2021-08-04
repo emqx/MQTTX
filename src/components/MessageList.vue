@@ -5,7 +5,7 @@
     :style="{ height: `${height}px`, marginTop: `${marginTop}px` }"
   >
     <span v-show="showLoadingIcon" class="loading-icon"><i class="el-icon-loading"></i></span>
-    <div v-for="message in showMessages" :key="message.mid" :id="message.mid">
+    <div v-for="message in showMessages" :key="message.id" :id="message.id">
       <MsgLeftItem
         v-if="!message.out"
         :subsList="subscriptions"
@@ -78,12 +78,14 @@ export default class MessageList extends Vue {
           this.showMessages = addMessages.concat(this.showMessages)
           this.$nextTick(() => {
             if (addMessages.length > 0) {
-              const id = addMessages[addMessages.length - 1].mid
-              const idBox = document.getElementById(id.toString() as string)
-              if (idBox) {
-                idBox.scrollIntoView(true)
+              const id = addMessages[addMessages.length - 1].id
+              if (id) {
+                const idBox = document.getElementById(id.toString() as string)
+                if (idBox) {
+                  idBox.scrollIntoView(true)
+                }
+                this.showLoadingIcon = false
               }
-              this.showLoadingIcon = false
             }
           })
           window.clearTimeout(timer)
@@ -93,7 +95,7 @@ export default class MessageList extends Vue {
   }
 
   private getNewMessages(newMessageList: MessageModel[], oldMessageList: MessageModel[]) {
-    const newMessages = newMessageList.filter((item) => oldMessageList.every((one) => one.mid !== item.mid))
+    const newMessages = newMessageList.filter((item) => oldMessageList.every((one) => one.id !== item.id))
     return newMessages
   }
 

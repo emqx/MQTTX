@@ -3,14 +3,14 @@ import ConnectionEntity from './ConnectionEntity'
 
 @Entity('SubscriptionEntity')
 export default class SubscriptionEntity {
-  @PrimaryGeneratedColumn({ type: 'integer' })
-  id?: number
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
 
   @Column({ type: 'varchar' })
   topic!: string
 
-  @Column({ type: 'integer' })
-  qos!: number
+  @Column({ type: 'simple-enum', enum: [0, 1, 2], default: 0 })
+  qos!: QoS
 
   @Column({ type: 'varchar' })
   alias!: string

@@ -3,8 +3,8 @@ import ConnectionEntity from './ConnectionEntity'
 
 @Entity('WillEntity')
 export default class WillEntity {
-  @PrimaryGeneratedColumn({ type: 'integer' })
-  id?: number
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
 
   @Column({ type: 'varchar' })
   lastWillTopic!: string
@@ -12,8 +12,8 @@ export default class WillEntity {
   @Column({ type: 'varchar' })
   lastWillPayload!: string
 
-  @Column({ type: 'integer' })
-  lastWillQos!: number
+  @Column({ type: 'simple-enum', enum: [0, 1, 2], default: 0 })
+  lastWillQos!: QoS
 
   @Column({ type: 'boolean' })
   lastWillRetain!: boolean

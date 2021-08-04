@@ -13,7 +13,7 @@ export default class ConnectionService {
 
   public async updateConnectionCollectionId(
     id: number,
-    updatedCollectionId: number,
+    updatedCollectionId: string,
   ): Promise<ConnectionModel | undefined> {
     const query: ConnectionEntity | undefined = await this.connectionRepository.findOne({
       where: {
@@ -36,7 +36,7 @@ export default class ConnectionService {
     }
     deepMerge(res, data)
     const query: ConnectionEntity | undefined = await this.connectionRepository.save(res)
-    return query
+    return query as ConnectionModel
   }
 
   public async importConnections(data: ConnectionModel[]): Promise<string> {
@@ -102,8 +102,8 @@ export default class ConnectionService {
     return removed as ConnectionEntity
   }
 
-  public async loadAllConnectionsIds(): Promise<number[] | undefined> {
-    const res: number[] = []
+  public async loadAllConnectionsIds(): Promise<string[] | undefined> {
+    const res: string[] = []
     const query: ConnectionEntity[] | undefined = await this.connectionRepository.find({
       select: ['id'],
     })
@@ -111,8 +111,8 @@ export default class ConnectionService {
       return
     }
     query.forEach((entity) => {
-      if (entity && entity.id) res?.push(entity.id)
+      if (entity && entity.id) res.push(entity.id)
     })
-    return res as number[]
+    return res as string[]
   }
 }
