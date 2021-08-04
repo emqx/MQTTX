@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm'
 import ConnectionEntity from './ConnectionEntity'
 
 @Entity('CollectionEntity')
@@ -7,17 +7,23 @@ export default class CollectionEntity {
   id?: number
 
   @Column({ type: 'varchar' })
-  payload!: string
+  name!: string
 
-  @Column({ type: 'varchar' })
-  payloadType!: string
-
-  @Column({ type: 'integer', comment: 'order in the collection' })
+  @Column({ type: 'integer', nullable: true, comment: 'order in the collection' })
   orderId!: number
 
+  @Column({ type: 'boolean', default: true })
+  isCollection!: true
+
+  // current collection parent
+  @ManyToOne(() => CollectionEntity, (collection) => collection.collection, { onDelete: 'CASCADE' })
+  collection!: CollectionEntity[]
+
+  // collections children
+  @OneToMany(() => CollectionEntity, (collection) => collection.collection)
+  collections!: CollectionEntity[]
+
+  // connections children
   @OneToMany(() => ConnectionEntity, (connection) => connection.collection)
   connections!: ConnectionEntity[]
-
-  @OneToMany(() => CollectionEntity, (collection) => collection.id)
-  collections!: CollectionEntity[]
 }

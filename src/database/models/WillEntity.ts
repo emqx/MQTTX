@@ -18,16 +18,16 @@ export default class WillEntity {
   @Column({ type: 'boolean' })
   lastWillRetain!: boolean
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', nullable: true })
   willDelayInterval!: number
 
-  @Column({ type: 'boolean' })
+  @Column({ type: 'boolean', nullable: true })
   payloadFormatIndicator!: boolean
 
-  @Column({ type: 'integer' })
+  @Column({ type: 'integer', nullable: true })
   messageExpiryInterval!: number
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', default: '' })
   contentType!: string
 
   @OneToOne(() => ConnectionEntity, (connection) => connection.will, { onDelete: 'CASCADE' })

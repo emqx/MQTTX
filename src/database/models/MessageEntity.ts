@@ -6,7 +6,7 @@ export default class MessageEntity {
   @PrimaryGeneratedColumn({ type: 'integer' })
   mid!: number
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createAt!: string
 
   @Column({ type: 'boolean' })
