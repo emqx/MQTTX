@@ -3,8 +3,8 @@ import ConnectionEntity from './ConnectionEntity'
 
 @Entity('MessageEntity')
 export default class MessageEntity {
-  @PrimaryGeneratedColumn({ type: 'integer' })
-  mid!: number
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createAt!: string
@@ -15,8 +15,8 @@ export default class MessageEntity {
   @Column({ type: 'varchar' })
   payload!: string
 
-  @Column({ type: 'integer' })
-  qos!: number
+  @Column({ type: 'simple-enum', enum: [0, 1, 2], default: 0 })
+  qos!: QoS
 
   @Column({ type: 'boolean' })
   retain!: boolean

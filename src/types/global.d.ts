@@ -147,18 +147,18 @@ declare global {
 
   interface SubscriptionModel {
     topic: string
-    qos: number
+    qos: QoS
     alias?: string
     retain?: boolean
     color?: string
   }
 
   interface MessageModel {
-    mid: number
+    id?: string
     createAt: string
     out: boolean
     payload: string
-    qos: number
+    qos: QoS
     retain: boolean
     topic: string
   }
@@ -168,7 +168,7 @@ declare global {
     id?: string
     retain: boolean
     topic: string
-    qos: number
+    qos: QoS
   }
 
   interface HistoryMessagePayloadModel {
@@ -195,17 +195,17 @@ declare global {
   interface WillModel {
     lastWillTopic: string
     lastWillPayload: string
-    lastWillQos: number
+    lastWillQos: QoS
     lastWillRetain: boolean
     properties?: WillPropertiesModel
   }
 
   interface ConnectionModel extends SSLPath {
-    readonly id?: number
+    readonly id?: string
     clientId: string
     name: string
     clean: boolean
-    protocol?: string
+    protocol?: Protocol
     host: string
     port: number
     keepalive: number
@@ -214,7 +214,7 @@ declare global {
     username: string
     password: string
     path: string
-    certType?: string
+    certType?: CertType
     ssl: boolean
     mqttVersion: string
     unreadMessageCount: number

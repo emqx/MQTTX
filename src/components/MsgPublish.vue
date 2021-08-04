@@ -119,7 +119,6 @@ export default class MsgPublish extends Vue {
   private payloadsHistory: HistoryMessagePayloadModel[] | [] = []
   private historyIndex: number = -1
   private defaultMsgRecord: MessageModel = {
-    mid: 0,
     createAt: '',
     out: true,
     qos: 0,
@@ -216,7 +215,7 @@ export default class MsgPublish extends Vue {
   }
 
   private async send() {
-    this.msgRecord.mid = uuidv4()
+    this.msgRecord.id = uuidv4()
     this.$emit('handleSend', this.msgRecord, this.payloadType, this.loadHistoryData)
   }
 

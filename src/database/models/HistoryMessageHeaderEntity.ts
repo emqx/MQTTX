@@ -2,8 +2,8 @@ import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
 
 @Entity('historyMessageHeaderEntity')
 export default class historyMessageHeaderEntity {
-  @PrimaryGeneratedColumn({ type: 'integer' })
-  id?: number
+  @PrimaryGeneratedColumn('uuid')
+  id!: string
 
   @Column({ type: 'boolean' })
   retain!: boolean
@@ -11,6 +11,6 @@ export default class historyMessageHeaderEntity {
   @Column({ type: 'varchar' })
   topic!: string
 
-  @Column({ type: 'integer' })
-  qos!: number
+  @Column({ type: 'simple-enum', enum: [0, 1, 2], default: 0 })
+  qos!: QoS
 }
