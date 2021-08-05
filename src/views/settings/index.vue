@@ -181,6 +181,7 @@ import { ipcRenderer } from 'electron'
 import ImportData from '@/components/ImportData.vue'
 import ExportData from '@/components/ExportData.vue'
 import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
+import useServices from '@/database/useServices'
 
 @Component({
   components: { ImportData, ExportData, ClearUpHistoryData },

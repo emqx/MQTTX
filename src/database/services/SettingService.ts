@@ -10,7 +10,7 @@ export default class SettingService {
     private collectionRepository: Repository<SettingEntity>,
   ) {}
 
-  public async setSetting() {
+  public async set() {
     const data = await this.collectionRepository.find()
     if (data.length) {
       return
@@ -18,11 +18,19 @@ export default class SettingService {
     return await this.collectionRepository.insert({})
   }
 
-  public async getSetting() {
+  public async get() {
     const data = await this.collectionRepository.find()
     if (!data.length) {
       return
     }
     return data[0]
+  }
+  public async update(payload: SettingModel) {
+    const setting = await this.get()
+    if (!setting) {
+      return
+    }
+    const { id } = setting
+    return await this.collectionRepository.update(id, payload)
   }
 }

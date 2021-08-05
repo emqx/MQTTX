@@ -273,4 +273,12 @@ declare global {
     apply: MessageType
     content: ScriptModel | null
   }
+
+  interface SettingModel {
+    autoCheck?: boolean
+    currentLang?: Language
+    currentTheme?: Theme
+    maxReconnectTimes?: number
+    autoResub?: boolean
+  }
 }

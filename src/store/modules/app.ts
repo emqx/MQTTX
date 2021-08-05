@@ -1,5 +1,6 @@
 import Vue from 'vue'
-import { loadSettings, setSettings } from '@/api/setting'
+import useServices from '@/database/useServices'
+import { remote } from 'electron'
 
 const TOGGLE_THEME = 'TOGGLE_THEME'
 const TOGGLE_LANG = 'TOGGLE_LANG'
@@ -19,8 +20,6 @@ const CHANGE_ALL_CONNECTIONS = 'CHANGE_ALL_CONNECTIONS'
 const SET_SCRIPT = 'SET_SCRIPT'
 const CHANGE_CONNECTION_COLLECTION = 'CHANGE_CONNECTION_COLLECTION'
 
-const stateRecord: App = loadSettings()
-
 const getShowSubscriptions = (): boolean => {
   const $showSubscriptions: string | null = localStorage.getItem('showSubscriptions')
   if (!$showSubscriptions) {
@@ -29,13 +28,15 @@ const getShowSubscriptions = (): boolean => {
   return JSON.parse($showSubscriptions)
 }
 
+const settingData = remote.getGlobal('sharedData')
+
 const app = {
   state: {
-    currentTheme: stateRecord.currentTheme || 'light',
-    currentLang: stateRecord.currentLang || 'en',
-    autoCheck: stateRecord.autoCheck,
-    autoResub: stateRecord.autoResub,
-    maxReconnectTimes: stateRecord.maxReconnectTimes || 10,
+    currentTheme: settingData.currentTheme || 'light',
+    currentLang: settingData.currentLang || 'en',
+    autoCheck: settingData.autoCheck,
+    autoResub: settingData.autoResub,
+    maxReconnectTimes: settingData.maxReconnectTimes || 10,
     showSubscriptions: getShowSubscriptions(),
     showClientInfo: {},
     unreadMessageCount: {},
@@ -125,25 +126,30 @@ const app = {
     },
   },
   actions: {
-    TOGGLE_THEME({ commit }: any, payload: App) {
-      setSettings('settings.currentTheme', payload.currentTheme)
+    async TOGGLE_THEME({ commit }: any, payload: App) {
+      const { settingService } = useServices()
       commit(TOGGLE_THEME, payload.currentTheme)
+      await settingService.update(payload)
     },
-    TOGGLE_LANG({ commit }: any, payload: App) {
-      setSettings('settings.currentLang', payload.currentLang)
+    async TOGGLE_LANG({ commit }: any, payload: App) {
+      const { settingService } = useServices()
       commit(TOGGLE_LANG, payload.currentLang)
+      await settingService.update(payload)
     },
-    TOGGLE_AUTO_CHECK({ commit }: any, payload: App) {
-      setSettings('settings.autoCheck', payload.autoCheck)
+    async TOGGLE_AUTO_CHECK({ commit }: any, payload: App) {
+      const { settingService } = useServices()
       commit(TOGGLE_AUTO_CHECK, payload.autoCheck)
+      await settingService.update(payload)
     },
-    TOGGLE_AUTO_RESUB({ commit }: any, payload: App) {
-      setSettings('settings.autoResub', payload.autoResub)
+    async TOGGLE_AUTO_RESUB({ commit }: any, payload: App) {
+      const { settingService } = useServices()
       commit(TOGGLE_AUTO_RESUB, payload.autoResub)
+      await settingService.update(payload)
     },
-    SET_MAX_RECONNECT_TIMES({ commit }: any, payload: App) {
-      setSettings('settings.maxReconnectTimes', payload.maxReconnectTimes)
+    async SET_MAX_RECONNECT_TIMES({ commit }: any, payload: App) {
+      const { settingService } = useServices()
       commit(SET_MAX_RECONNECT_TIMES, payload.maxReconnectTimes)
+      await settingService.update(payload)
     },
     CHANGE_ACTIVE_CONNECTION({ commit }: any, payload: App) {
       commit(CHANGE_ACTIVE_CONNECTION, payload)

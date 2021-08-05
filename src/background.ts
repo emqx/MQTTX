@@ -85,13 +85,21 @@ async function createWindow() {
   // Init tables and connect to local database.
   await ConnectionInit({ doMigrations: true } as initOptionModel)
   const { settingService } = useServices()
-  await settingService.setSetting()
-  const setting = await settingService.getSetting()
+  await settingService.set()
+  const setting = await settingService.get()
   if (setting) {
     theme = setting.currentTheme
     autoCheckUpdate = setting.autoCheck
     windowSize.height = setting.height
     windowSize.width = setting.width
+    //@ts-ignore
+    global.sharedData = {
+      currentTheme: setting.currentTheme,
+      currentLang: setting.currentLang,
+      autoCheck: setting.autoCheck,
+      autoResub: setting.autoResub,
+      maxReconnectTimes: setting.maxReconnectTimes,
+    }
   }
   // Create the browser window.
   win = new BrowserWindow({
@@ -106,7 +114,7 @@ async function createWindow() {
       contextIsolation: false,
     },
     titleBarStyle: isMac ? 'hidden' : 'default',
-    backgroundColor: theme === 'dark' ? '#232323' : '#ffffff',
+    backgroundColor: theme === 'dark' ? '#232323' : theme === 'night' ? '#212328' : '#ffffff',
     icon: `${__static}/app.ico`,
   })
 
