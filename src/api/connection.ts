@@ -1,11 +1,11 @@
 import db from '@/database/index'
 
-export const setConnectionCollection = (data: ConnectionModelCollection[] | []): ConnectionModelCollection[] | [] => {
-  return db.set<ConnectionModelCollection[] | []>('connectionsCollection', data)
+export const setConnectionCollection = (data: CollectionModel[] | []): CollectionModel[] | [] => {
+  return db.set<CollectionModel[] | []>('connectionsCollection', data)
 }
 
-export const loadConnectionsWithCollection = (): ConnectionModelCollection[] | [] => {
-  return db.get<ConnectionModelCollection[] | []>('connectionsCollection')
+export const loadConnectionsWithCollection = (): CollectionModel[] | [] => {
+  return db.get<CollectionModel[] | []>('connectionsCollection')
 }
 
 export const updateConnectionCollectionId = (id: string, collectionId: string | null): ConnectionModel => {
@@ -66,13 +66,6 @@ export const loadAllConnectionsIds = async (type: 'connections' | 'suggestConnec
 // Message history
 export const loadHistoryMessageHeaders = async (): Promise<HistoryMessageHeaderModel[] | []> => {
   return db.get<HistoryMessageHeaderModel[] | []>('historyMessageHeader')
-}
-
-export const updateHistoryMessageHeader = (
-  id: string,
-  headerData: HistoryMessageHeaderModel,
-): HistoryMessageHeaderModel => {
-  return db.update<HistoryMessageHeaderModel>('historyMessageHeader', id, headerData)
 }
 
 export const createHistoryMessageHeader = async (

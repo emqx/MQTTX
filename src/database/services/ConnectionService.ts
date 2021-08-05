@@ -1,6 +1,8 @@
 import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import ConnectionEntity from '../models/ConnectionEntity'
+import WillEntity from '../models/WillEntity'
+import SubscriptionEntity from '../models/SubscriptionEntity'
 import { Repository } from 'typeorm'
 import deepMerge from '@/utils/deepMerge'
 
@@ -9,6 +11,11 @@ export default class ConnectionService {
   constructor(
     @InjectRepository(ConnectionEntity)
     private connectionRepository: Repository<ConnectionEntity>,
+    // TODO: test will & subscript insert issue
+    @InjectRepository(WillEntity)
+    private willRepository: Repository<WillEntity>,
+    @InjectRepository(WillEntity)
+    private subscriptionRepository: Repository<SubscriptionEntity>,
   ) {}
 
   public async updateConnectionCollectionId(

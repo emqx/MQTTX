@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
 
 @Entity('historyMessageHeaderEntity')
-export default class historyMessageHeaderEntity {
+export default class HistoryMessageHeaderEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string
 
@@ -13,4 +13,7 @@ export default class historyMessageHeaderEntity {
 
   @Column({ type: 'simple-enum', enum: [0, 1, 2], default: 0 })
   qos!: QoS
+
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  createAt?: Date
 }

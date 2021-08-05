@@ -92,7 +92,7 @@ declare global {
     unreadMessageCount: {
       [id: string]: number
     }
-    connectionCollection: ConnectionModelCollection[]
+    connectionCollection: CollectionModel[]
     activeConnection: ActiveConnection
     willMessageVisible: boolean
     advancedVisible: boolean
@@ -169,6 +169,7 @@ declare global {
     retain: boolean
     topic: string
     qos: QoS
+    createAt?: Date
   }
 
   interface HistoryMessagePayloadModel {
@@ -176,6 +177,7 @@ declare global {
     id?: string
     payload: string
     payloadType: PayloadType
+    createAt?: Date
   }
 
   interface SSLPath {
@@ -232,7 +234,7 @@ declare global {
     orderId?: number
   }
 
-  interface ConnectionModelCollection {
+  interface CollectionModel {
     readonly id: string
     name: string
     children: ConnectionModelTree[]
@@ -241,7 +243,7 @@ declare global {
     orderId?: number
   }
 
-  type ConnectionModelTree = ConnectionModelCollection | ConnectionModel
+  type ConnectionModelTree = CollectionModel | ConnectionModel
 
   interface SSLContent {
     ca: string | string[] | Buffer | Buffer[] | undefined
