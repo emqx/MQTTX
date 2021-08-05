@@ -50,7 +50,7 @@ export default class Connections extends Vue {
 
   private isEmpty: boolean = false
   private records: ConnectionModel[] = []
-  private collections: ConnectionModelCollection[] = []
+  private collections: CollectionModel[] = []
   private currentConnection: ConnectionModel = {
     clientId: '',
     name: '',
@@ -118,7 +118,7 @@ export default class Connections extends Vue {
 
   private async loadData(reload: boolean = false): Promise<void> {
     const connections: ConnectionModel[] | [] = await loadConnections()
-    const connectionCollections: ConnectionModelCollection[] | [] = await loadConnectionsWithCollection()
+    const connectionCollections: CollectionModel[] | [] = await loadConnectionsWithCollection()
     this.changeAllConnections({ allConnections: connections })
     this.records = connections
     this.collections = connectionCollections

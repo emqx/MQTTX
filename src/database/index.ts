@@ -17,7 +17,7 @@ interface DBSchema {
     maxReconnectTimes: number
     autoResub: boolean
   }
-  connectionsCollection: ConnectionModelCollection[]
+  connectionsCollection: CollectionModel[]
   connections: ConnectionModel[]
   suggestConnections: ConnectionModel[]
   scripts: ScriptModel[]

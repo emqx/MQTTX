@@ -1177,7 +1177,7 @@ export default class ConnectionsDetail extends Vue {
         retain,
       }
       if (this.record.id) {
-        updateConnectionMessage(this.record.id.toString() as string, { ...publishMessage })
+        updateConnectionMessage(this.record.id, { ...publishMessage })
         this.record.messages.push({ ...publishMessage })
         // Filter by conditions (topic, payload, etc)
         const filterRes = this.filterBySearchConditions(topic, publishMessage)

@@ -48,7 +48,7 @@ const app = {
     connectionCollection: [],
   },
   mutations: {
-    [CHANGE_CONNECTION_COLLECTION](state: App, payload: ConnectionModelCollection[] | []) {
+    [CHANGE_CONNECTION_COLLECTION](state: App, payload: CollectionModel[] | []) {
       state.connectionCollection = payload
     },
     [TOGGLE_THEME](state: App, currentTheme: Theme) {

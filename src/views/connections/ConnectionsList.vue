@@ -135,7 +135,7 @@ import '@/assets/font/iconfont'
 })
 export default class ConnectionsList extends Vue {
   @Prop({ required: true }) public ConnectionModelData!: ConnectionModel[] | []
-  @Prop({ required: false }) public CollectionModelData!: ConnectionModelCollection[] | []
+  @Prop({ required: false }) public CollectionModelData!: CollectionModel[] | []
 
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
   @Action('SET_CONNECTIONS_TREE') private setConnectionsTree!: (payload: ConnectionTreeState) => void
@@ -149,7 +149,7 @@ export default class ConnectionsList extends Vue {
   private showContextmenu: boolean = false
   private showCollectionsContextmenu: boolean = false
   private selectedConnection: ConnectionModel | null = null
-  private selectedCollection: ConnectionModelCollection | null = null
+  private selectedCollection: CollectionModel | null = null
   private contextmenuConfig: ContextmenuModel = {
     top: 0,
     left: 0,
@@ -209,8 +209,8 @@ export default class ConnectionsList extends Vue {
   }
 
   private allowDrop(
-    draggingNode: TreeNode<ConnectionModelCollection['id'], ConnectionModelCollection>,
-    dropNode: TreeNode<ConnectionModelCollection['id'], ConnectionModelCollection>,
+    draggingNode: TreeNode<CollectionModel['id'], CollectionModel>,
+    dropNode: TreeNode<CollectionModel['id'], CollectionModel>,
     type: 'prev' | 'inner' | 'next',
   ) {
     if (!dropNode.data.isCollection) {
@@ -225,9 +225,9 @@ export default class ConnectionsList extends Vue {
     const tree = _.cloneDeep(this.treeData)
     // get Collection without connection children
     const travelCollection = (treeElements: ConnectionModelTree[]) => {
-      const res = [] as ConnectionModelCollection[]
+      const res = [] as CollectionModel[]
       if (!treeElements || !treeElements.length) {
-        return [] as ConnectionModelCollection[]
+        return [] as CollectionModel[]
       }
       treeElements.forEach((el: ConnectionModelTree, idx: number) => {
         el.orderId = idx
@@ -235,7 +235,7 @@ export default class ConnectionsList extends Vue {
           updateConnectionSequenceId(el.id.toString() as string, el.orderId)
         }
         if (el.isCollection) {
-          const curCollection = _.cloneDeep(el) as ConnectionModelCollection
+          const curCollection = _.cloneDeep(el) as CollectionModel
           const curCollectionChildren = _.cloneDeep(travelCollection(el.children))
           curCollection.isEdit = false
           curCollection.children = curCollectionChildren
@@ -254,7 +254,7 @@ export default class ConnectionsList extends Vue {
 
   private handleDragEnd(
     draggingNode: TreeNode<ConnectionModelTree['id'], ConnectionModelTree>,
-    dropNode: TreeNode<ConnectionModelCollection['id'], ConnectionModelCollection>,
+    dropNode: TreeNode<CollectionModel['id'], CollectionModel>,
     position: 'before' | 'after' | 'inner',
     event: MouseEvent,
   ) {
@@ -273,7 +273,7 @@ export default class ConnectionsList extends Vue {
 
   private handleDrop(
     draggingNode: TreeNode<ConnectionModelTree['id'], ConnectionModelTree>,
-    dropNode: TreeNode<ConnectionModelCollection['id'], ConnectionModelCollection>,
+    dropNode: TreeNode<CollectionModel['id'], CollectionModel>,
     position: 'before' | 'after' | 'inner',
   ) {
     // handle connection
@@ -315,7 +315,7 @@ export default class ConnectionsList extends Vue {
 
     // composiotion connection and collection to treeData
     const connections: ConnectionModel[] = _.cloneDeep(this.ConnectionModelData)
-    const collections: ConnectionModelCollection[] = _.cloneDeep(this.CollectionModelData)
+    const collections: CollectionModel[] = _.cloneDeep(this.CollectionModelData)
 
     if (!collections || !collections.length) {
       this.treeData = connections
@@ -360,7 +360,7 @@ export default class ConnectionsList extends Vue {
     return
   }
 
-  private handleEditCompeleted(node: TreeNode<'id', ConnectionModelCollection>, data: ConnectionModelCollection) {
+  private handleEditCompeleted(node: TreeNode<'id', CollectionModel>, data: CollectionModel) {
     if (!this.handleCollectionNameValidate(data.name)) {
       this.handleEditCancel(node, data)
     } else if (data) {
@@ -373,7 +373,7 @@ export default class ConnectionsList extends Vue {
     return name && !name.match(/(^\s+$)/g) ? true : false
   }
 
-  private handleEditCancel(node: TreeNode<'id', ConnectionModelCollection>, data: ConnectionModelCollection) {
+  private handleEditCancel(node: TreeNode<'id', CollectionModel>, data: CollectionModel) {
     const parent = node.parent
     if (parent) {
       const children = parent.data.children || parent.data
@@ -423,7 +423,7 @@ export default class ConnectionsList extends Vue {
     }
   }
 
-  private handleCollectionContextMenu(event: MouseEvent, row: ConnectionModelCollection) {
+  private handleCollectionContextMenu(event: MouseEvent, row: CollectionModel) {
     if (!this.showCollectionsContextmenu) {
       const { clientX, clientY } = event
       this.collectionsContextmenuConfig.top = clientY
@@ -452,7 +452,7 @@ export default class ConnectionsList extends Vue {
 
   private handleNewCollection() {
     if (this.selectedCollection) {
-      const collectionChildren = this.selectedCollection.children as ConnectionModelCollection[]
+      const collectionChildren = this.selectedCollection.children as CollectionModel[]
       collectionChildren.push({
         id: getCollectionId(),
         name: '',
@@ -527,7 +527,7 @@ export default class ConnectionsList extends Vue {
         | ConnectionModelTree
       const childrenNode: ConnectionModelTree[] = Array.isArray(nodeParent)
         ? nodeParent
-        : (nodeParent as ConnectionModelCollection).children
+        : (nodeParent as CollectionModel).children
       // delete collection
       const index = childrenNode.findIndex((d: ConnectionModelTree) => d.id === selectedCollection.id)
       const deletedNode = childrenNode.splice(index, 1)
