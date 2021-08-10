@@ -4,7 +4,7 @@ import ConnectionEntity from './ConnectionEntity'
 @Entity('WillEntity')
 export default class WillEntity {
   @PrimaryGeneratedColumn('uuid')
-  id!: string
+  id?: string
 
   @Column({ type: 'varchar' })
   lastWillTopic!: string
@@ -19,17 +19,17 @@ export default class WillEntity {
   lastWillRetain!: boolean
 
   @Column({ type: 'integer', nullable: true })
-  willDelayInterval!: number
+  willDelayInterval?: number
 
   @Column({ type: 'boolean', nullable: true })
-  payloadFormatIndicator!: boolean
+  payloadFormatIndicator?: boolean
 
   @Column({ type: 'integer', nullable: true })
-  messageExpiryInterval!: number
+  messageExpiryInterval?: number
 
-  @Column({ type: 'varchar', default: '' })
-  contentType!: string
+  @Column({ type: 'varchar', default: '', nullable: true })
+  contentType?: string
 
   @OneToOne(() => ConnectionEntity, (connection) => connection.will, { onDelete: 'CASCADE' })
-  connection!: ConnectionEntity
+  connection?: ConnectionEntity
 }

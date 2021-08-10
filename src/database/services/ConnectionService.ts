@@ -11,6 +11,8 @@ export default class ConnectionService {
   constructor(
     @InjectRepository(ConnectionEntity)
     private connectionRepository: Repository<ConnectionEntity>,
+    @InjectRepository(ConnectionEntity)
+    private collectionRepository: Repository<CollectionModel>,
     // TODO: test will & subscript insert issue
     @InjectRepository(WillEntity)
     private willRepository: Repository<WillEntity>,
@@ -18,25 +20,24 @@ export default class ConnectionService {
     private subscriptionRepository: Repository<SubscriptionEntity>,
   ) {}
 
-  public async updateConnectionCollectionId(
-    id: number,
-    updatedCollectionId: string,
-  ): Promise<ConnectionModel | undefined> {
+  // update connection's collection ID
+  public async updateCollectionId(id: number, updatedCollectionId: string): Promise<ConnectionModel | undefined> {
     const query: ConnectionEntity | undefined = await this.connectionRepository.findOne({
       where: {
         id,
       },
+      relations: ['CollectionEntity'],
     })
     if (!query) {
       return
     }
-    query.collection.id = updatedCollectionId
+    query.parentId = updatedCollectionId
     await this.connectionRepository.save(query)
     const res: ConnectionModel = query
     return res
   }
 
-  public async updateConnection(id: number, data: Partial<ConnectionModel>): Promise<ConnectionModel | undefined> {
+  public async update(id: number, data: Partial<ConnectionModel>): Promise<ConnectionModel | undefined> {
     let res: ConnectionEntity | undefined = await this.connectionRepository.findOne(id)
     if (!res) {
       return
@@ -46,7 +47,7 @@ export default class ConnectionService {
     return query as ConnectionModel
   }
 
-  public async importConnections(data: ConnectionModel[]): Promise<string> {
+  public async import(data: ConnectionModel[]): Promise<string> {
     try {
       await this.connectionRepository.save(data)
     } catch (err) {
@@ -55,7 +56,8 @@ export default class ConnectionService {
     return 'ok'
   }
 
-  public async updateConnectionSequenceId(id: number, updatedOrder: number): Promise<ConnectionModel | undefined> {
+  // update Sequence ID
+  public async updateSequenceId(id: number, updatedOrder: number): Promise<ConnectionModel | undefined> {
     const query: ConnectionEntity | undefined = await this.connectionRepository.findOne({
       where: {
         id,
@@ -69,7 +71,7 @@ export default class ConnectionService {
     return query as ConnectionModel
   }
 
-  public async loadOneConnectionById(id: number): Promise<ConnectionModel | undefined> {
+  public async get(id: number): Promise<ConnectionModel | undefined> {
     const query: ConnectionEntity | undefined = await this.connectionRepository.findOne({
       where: {
         id,
@@ -81,7 +83,7 @@ export default class ConnectionService {
     return query as ConnectionModel
   }
 
-  public async loadAllConnections(): Promise<ConnectionModel[] | undefined> {
+  public async getAll(): Promise<ConnectionModel[] | undefined> {
     const query: ConnectionEntity[] | undefined = await this.connectionRepository.find()
     if (!query) {
       return
@@ -89,7 +91,7 @@ export default class ConnectionService {
     return query as ConnectionModel[]
   }
 
-  public async createConnection(connectionInsertParam: ConnectionModel): Promise<ConnectionModel | undefined> {
+  public async create(connectionInsertParam: ConnectionModel): Promise<ConnectionModel | undefined> {
     let res: ConnectionModel | undefined = connectionInsertParam
     res = {
       ...res,
@@ -100,7 +102,7 @@ export default class ConnectionService {
     return res as ConnectionModel
   }
 
-  public async deleteConnectionById(id: number): Promise<ConnectionModel | undefined> {
+  public async delete(id: number): Promise<ConnectionModel | undefined> {
     const query: ConnectionEntity | undefined = await this.connectionRepository.findOne(id)
     if (!query) {
       return
@@ -109,7 +111,7 @@ export default class ConnectionService {
     return removed as ConnectionEntity
   }
 
-  public async loadAllConnectionsIds(): Promise<string[] | undefined> {
+  public async getByIDs(): Promise<string[] | undefined> {
     const res: string[] = []
     const query: ConnectionEntity[] | undefined = await this.connectionRepository.find({
       select: ['id'],

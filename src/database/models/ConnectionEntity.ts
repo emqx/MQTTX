@@ -7,7 +7,7 @@ import WillEntity from './WillEntity'
 @Entity('ConnectionEntity')
 export default class ConnectionEntity {
   @PrimaryGeneratedColumn('uuid')
-  id!: string
+  id?: string
 
   @Column({ type: 'varchar' })
   clientId!: string
@@ -19,7 +19,7 @@ export default class ConnectionEntity {
   clean!: boolean
 
   @Column({ type: 'simple-enum', enum: ['ws', 'wss', 'mqtt', 'mqtts'], default: 'mqtt' })
-  protocol!: Protocol
+  protocol?: Protocol
 
   @Column({ type: 'varchar' })
   host!: string
@@ -46,7 +46,7 @@ export default class ConnectionEntity {
   path!: string
 
   @Column({ type: 'varchar', enum: ['', 'server', 'self'], default: '', nullable: true })
-  certType!: CertType
+  certType?: CertType
 
   @Column({ type: 'boolean' })
   ssl!: boolean
@@ -57,17 +57,23 @@ export default class ConnectionEntity {
   @Column({ type: 'integer' })
   unreadMessageCount!: number
 
-  @Column({ type: 'boolean' })
-  clientIdWithTime!: boolean
+  @Column({ type: 'boolean', default: false, nullable: true })
+  clientIdWithTime?: boolean
 
-  @ManyToOne(() => CollectionEntity, (collection) => collection.collections, { onDelete: 'CASCADE' })
-  collection!: ConnectionEntity
+  // ManyToOne entities
+  @ManyToOne(() => CollectionEntity, (collection) => collection.connections, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'parent_id', referencedColumnName: 'id' })
+  parent?: CollectionEntity
+
+  @Column({ name: 'parent_id', nullable: true })
+  parentId?: string
+  // ManyToOne entities ends
 
   @Column({ type: 'integer', nullable: true, comment: 'order in the collection' })
-  orderId!: number
+  orderId?: number
 
-  @Column({ type: 'boolean' })
-  rejectUnauthorized!: boolean
+  @Column({ type: 'boolean', default: true, nullable: true })
+  rejectUnauthorized?: boolean
 
   @Column({ type: 'varchar' })
   ca!: string
@@ -82,8 +88,8 @@ export default class ConnectionEntity {
   isCollection!: false
 
   @OneToOne(() => WillEntity, (will) => will.connection, { cascade: true, onDelete: 'CASCADE' })
-  @JoinColumn()
-  will!: WillEntity
+  @JoinColumn({ name: 'id', referencedColumnName: 'id' })
+  will?: WillEntity
 
   @OneToMany(() => MessageEntity, (message) => message.connection)
   messages!: MessageEntity[]
@@ -92,8 +98,8 @@ export default class ConnectionEntity {
   subscriptions!: SubscriptionEntity[]
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-  createAt!: string
+  createAt?: string
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-  updateAt!: string
+  updateAt?: string
 }

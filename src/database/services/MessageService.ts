@@ -13,7 +13,7 @@ export default class MessageService {
     private connectionRepository: Repository<ConnectionEntity>,
   ) {}
 
-  public async updateConnectionMessage(id: string, message: MessageModel): Promise<MessageModel | undefined> {
+  public async update(id: string, message: MessageModel): Promise<MessageModel | undefined> {
     const connection: ConnectionEntity | undefined = await this.connectionRepository.findOne(id)
     if (!connection) {
       return

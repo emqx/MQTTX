@@ -1,10 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm'
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm'
 import ConnectionEntity from './ConnectionEntity'
 
 @Entity('MessageEntity')
 export default class MessageEntity {
   @PrimaryGeneratedColumn('uuid')
-  id!: string
+  id?: string
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createAt!: string
@@ -24,6 +24,12 @@ export default class MessageEntity {
   @Column({ type: 'varchar' })
   topic!: string
 
+  // ManyToOne entities
   @ManyToOne(() => ConnectionEntity, (connection) => connection.messages, { onDelete: 'CASCADE' })
-  connection!: ConnectionEntity
+  @JoinColumn({ name: 'connection_id', referencedColumnName: 'id' })
+  connection?: ConnectionEntity
+
+  @Column({ name: 'connection_id', nullable: true })
+  connectionId?: string
+  // ManyToOne entities ends
 }
