@@ -10,15 +10,15 @@ export default class ScriptService {
     private scriptRepository: Repository<ScriptEntity>,
   ) {}
 
-  public async createScript(data: ScriptModel): Promise<ScriptModel | undefined> {
+  public async creat(data: ScriptModel): Promise<ScriptModel | undefined> {
     return (await this.scriptRepository.save(data)) as ScriptEntity | undefined
   }
 
-  public async loadScripts(): Promise<ScriptModel[] | undefined> {
+  public async getAll(): Promise<ScriptModel[] | undefined> {
     return (await this.scriptRepository.find()) as ScriptEntity[] | undefined
   }
 
-  public async deleteScript(id: string): Promise<ScriptModel | undefined> {
+  public async delete(id: string): Promise<ScriptModel | undefined> {
     const query: ScriptEntity | undefined = await this.scriptRepository.findOne(id)
     if (!query) {
       return
@@ -27,7 +27,7 @@ export default class ScriptService {
     return query
   }
 
-  public async updateScript(id: string, data: ScriptModel): Promise<ScriptModel | undefined> {
+  public async update(id: string, data: ScriptModel): Promise<ScriptModel | undefined> {
     const query: ScriptEntity | undefined = await this.scriptRepository.findOne(id)
     if (!query) {
       return
@@ -39,7 +39,7 @@ export default class ScriptService {
     return res
   }
 
-  public async loadScript(id: string): Promise<ScriptModel | undefined> {
+  public async get(id: string): Promise<ScriptModel | undefined> {
     return (await this.scriptRepository.findOne(id)) as ScriptEntity | undefined
   }
 }

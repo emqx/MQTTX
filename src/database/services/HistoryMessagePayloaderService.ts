@@ -10,7 +10,7 @@ export default class HistoryMessagePayloadService {
     private messageRepository: Repository<HistoryMessagePayloadEntity>,
   ) {}
 
-  public async loadHistoryMessagePayloads(): Promise<HistoryMessagePayloadModel[] | undefined> {
+  public async getAll(): Promise<HistoryMessagePayloadModel[] | undefined> {
     const query: HistoryMessagePayloadEntity[] | undefined = await this.messageRepository.find()
     if (!query) {
       return
@@ -18,10 +18,7 @@ export default class HistoryMessagePayloadService {
     return query
   }
 
-  public async updateHistoryMessagePayload(
-    id: string,
-    data: HistoryMessagePayloadModel,
-  ): Promise<HistoryMessagePayloadModel | undefined> {
+  public async update(id: string, data: HistoryMessagePayloadModel): Promise<HistoryMessagePayloadModel | undefined> {
     const query: HistoryMessagePayloadEntity | undefined = await this.messageRepository.findOne(id)
     if (!query) {
       return
@@ -29,7 +26,7 @@ export default class HistoryMessagePayloadService {
     return await this.messageRepository.save({ ...query, data })
   }
 
-  public async deleteHistoryMessageHeader(id: string): Promise<HistoryMessagePayloadModel | undefined> {
+  public async delete(id: string): Promise<HistoryMessagePayloadModel | undefined> {
     const query = await this.messageRepository.findOne(id)
     if (!query) {
       return
@@ -37,9 +34,7 @@ export default class HistoryMessagePayloadService {
     return await this.messageRepository.remove(query)
   }
 
-  public async createHistoryMessageHeader(
-    data: HistoryMessagePayloadModel,
-  ): Promise<HistoryMessagePayloadModel | undefined> {
+  public async create(data: HistoryMessagePayloadModel): Promise<HistoryMessagePayloadModel | undefined> {
     const query: [HistoryMessagePayloadModel[], number] = await this.messageRepository.findAndCount({
       order: {
         createAt: 'DESC',
@@ -48,13 +43,13 @@ export default class HistoryMessagePayloadService {
     if (query) {
       const res = query[0]
       if (res && res[0] && res[0].id && query[1] >= 10) {
-        await this.deleteHistoryMessageHeader(res[0].id)
+        await this.delete(res[0].id)
       }
     }
     return await this.messageRepository.save(data)
   }
 
-  public async cleanUpHistoryMessageHeader(): Promise<HistoryMessagePayloadModel[] | undefined> {
+  public async clean(): Promise<HistoryMessagePayloadModel[] | undefined> {
     const query: HistoryMessagePayloadEntity[] | undefined = await this.messageRepository.find()
     if (!query) {
       return

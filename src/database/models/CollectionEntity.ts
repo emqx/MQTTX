@@ -1,7 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Tree, TreeChildren, TreeParent } from 'typeorm'
 import ConnectionEntity from './ConnectionEntity'
 
 @Entity('CollectionEntity')
+@Tree('closure-table')
 export default class CollectionEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string
@@ -9,21 +10,21 @@ export default class CollectionEntity {
   @Column({ type: 'varchar' })
   name!: string
 
-  @Column({ type: 'integer', nullable: true, comment: 'order in the collection' })
-  orderId!: number
+  @Column({ type: 'integer', nullable: true, default: 0, comment: 'order in the collection' })
+  orderId?: number
 
   @Column({ type: 'boolean', default: true })
   isCollection!: true
 
   // current collection parent
-  @ManyToOne(() => CollectionEntity, (collection) => collection.collection, { onDelete: 'CASCADE' })
-  collection!: CollectionEntity
+  @TreeParent()
+  parent?: CollectionEntity
 
   // collections children
-  @OneToMany(() => CollectionEntity, (collection) => collection.collection)
+  @TreeChildren()
   collections!: CollectionEntity[]
 
   // connections children
-  @OneToMany(() => ConnectionEntity, (connection) => connection.collection)
+  @OneToMany(() => ConnectionEntity, (connection) => connection.parent)
   connections!: ConnectionEntity[]
 }
