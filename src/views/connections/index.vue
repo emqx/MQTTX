@@ -72,7 +72,7 @@ export default class Connections extends Vue {
     cert: '',
     key: '',
     isCollection: false,
-    collectionId: null,
+    parentId: null,
   }
 
   @Watch('$route.params.id')

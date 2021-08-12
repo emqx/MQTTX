@@ -262,13 +262,13 @@ export default class ConnectionsList extends Vue {
       const { connectionService } = useServices()
       switch (position) {
         case 'inner':
-          draggingNode.data.collectionId = dropNode.data.id
+          draggingNode.data.parentId = dropNode.data.id
           updateConnectionCollectionId(draggingNode.data.id, dropNode.data.id)
           await connectionService.updateCollectionId(draggingNode.data.id, dropNode.data.id)
           break
         default:
           if (!dropNode.parent) return
-          draggingNode.data.collectionId = Array.isArray(dropNode.parent.data) ? null : dropNode.parent.data.id
+          draggingNode.data.parentId = Array.isArray(dropNode.parent.data) ? null : dropNode.parent.data.id
           updateConnectionCollectionId(draggingNode.data.id, dropNode.parent.data.id)
           await connectionService.updateCollectionId(draggingNode.data.id, dropNode.parent.data.id)
           break
@@ -484,7 +484,7 @@ export default class ConnectionsList extends Vue {
             treeTravel(treeNode)
           })
         } else {
-          treeNode.collectionId = null
+          treeNode.parentId = null
           this.$emit('delete', treeNode)
         }
       }

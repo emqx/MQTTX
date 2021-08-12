@@ -56,6 +56,10 @@ export default class ConnectionService {
   ): Promise<{ collection: CollectionEntity[]; connection: ConnectionEntity[] }> {
     let collection: CollectionEntity[] = []
     let connection: ConnectionEntity[] = []
+    let parent: CollectionEntity | undefined = undefined
+    if (parentId) {
+      parent = await this.collectionRepository.findOne(parentId)
+    }
     await Promise.all(
       children.map(async (treeNode: ConnectionModelTree) => {
         if (treeNode.isCollection) {
@@ -69,14 +73,11 @@ export default class ConnectionService {
             connections: topConnection,
           } as CollectionEntity)
         } else if (!treeNode.isCollection) {
-          if (parentId) {
-            const parent: CollectionEntity | undefined = await this.collectionRepository.findOne(parentId)
-            if (parent) {
-              connection.push({
-                ...treeNode,
-                parent,
-              } as ConnectionEntity)
-            }
+          if (parent) {
+            connection.push({
+              ...treeNode,
+              parent,
+            } as ConnectionEntity)
           } else {
             connection.push(treeNode as ConnectionEntity)
           }
@@ -108,16 +109,17 @@ export default class ConnectionService {
     }
     const { collection, connection } = await this.travelModel(data)
     if (collection && connection) {
-      // maybe not this condition
-      return data
+      return [...collection, ...connection]
     }
     return
   }
 
   public async getAll(): Promise<ConnectionModelTree[] | undefined> {
+    // get top collections
     const topConnections: ConnectionEntity[] = await this.connectionRepository.find({
-      parentId: '',
+      parentId: null,
     })
+    // get top collections
     const query: CollectionEntity[] = await this.collectionRepository.manager
       .getTreeRepository(CollectionEntity)
       .findTrees()

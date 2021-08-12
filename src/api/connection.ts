@@ -3,7 +3,7 @@ import db from '@/database/index'
 export const updateConnectionCollectionId = (id: string, collectionId: string | null): ConnectionModel => {
   const connection: ConnectionModel = loadConnection(id)
   if (connection) {
-    connection.collectionId = collectionId
+    connection.parentId = collectionId
   }
   return db.update<ConnectionModel>('connections', id, connection)
 }

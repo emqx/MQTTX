@@ -230,7 +230,7 @@ declare global {
     requestProblemInformation?: boolean
     will?: WillModel
     clientIdWithTime?: boolean
-    collectionId?: string | null
+    parentId?: string | null
     isCollection: false
     orderId?: number
   }
