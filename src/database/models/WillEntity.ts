@@ -1,6 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne } from 'typeorm'
 import ConnectionEntity from './ConnectionEntity'
 
+type QoS = 0 | 1 | 2
+
 @Entity('WillEntity')
 export default class WillEntity {
   @PrimaryGeneratedColumn('uuid')

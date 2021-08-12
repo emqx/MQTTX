@@ -128,18 +128,19 @@ yarn run db:migration:[run|revert]
 
 如果你正处于开发模式，并且在数据库中没有实际的数据，那么你可以放心地按照以下步骤同步
 
-1. `yarn run db:log` 用于确定当前迁移将会执行的 SQL 语句
-2. `db:migration:sync` 同步数据模型到数据库
-3. `yarn run db:diagram` (可选的) 生成一个最新的 ER 关系图
+1. `yarn run db:migration:drop` (可选的) 删除所有表格
+2. `yarn run db:log` (可选的) 用于确定当前迁移将会执行的 SQL 语句
+3. `db:migration:sync` 同步数据模型到数据库
+4. `yarn run db:diagram` (可选的) 生成一个最新的 ER 关系图
 
 否则，你应该遵循以下步骤，并且知道你正在做的每一步在干什么，否则将会有失去数据库的风险。
 
-1. `yarn run db:log` 用于确定当前迁移将会执行的 SQL 语句
+1. `yarn run db:log` (可选的) 用于确定当前迁移将会执行的 SQL 语句
 2. `db:migration:generate -n {migration_name}` 自动生成迁移脚本
 3. `db:migration:run` 运行迁移脚本。在版本更新时应该本地运行该迁移脚本
 4. `db:diagram` (可选的) 生成一个最新的 ER 关系图
 
-请使用 `db:migration:revert` 命令撤回上一次迁移, 执行 `db:migration:run`, `db:migration:sync` 命令时请当心.
+请使用 `db:migration:revert` 命令撤回上一次迁移, 执行 `db:migration:drop`, `db:migration:sync` 命令时请当心.
 
 参考:
 

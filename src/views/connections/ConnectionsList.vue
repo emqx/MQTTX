@@ -124,9 +124,10 @@ import { ipcRenderer } from 'electron'
 import { TreeNode, ElTree } from 'element-ui/types/tree'
 import getCollectionId from '@/utils/getCollectionId'
 import _ from 'lodash'
-import { setConnectionCollection, updateConnectionCollectionId, updateConnectionSequenceId } from '@/api/connection'
+import { updateConnectionCollectionId } from '@/api/connection'
 import { sortConnectionTree } from '@/utils/connections'
 import '@/assets/font/iconfont'
+import useServices from '@/database/useServices'
 
 @Component({
   components: {
@@ -135,7 +136,6 @@ import '@/assets/font/iconfont'
 })
 export default class ConnectionsList extends Vue {
   @Prop({ required: true }) public ConnectionModelData!: ConnectionModel[] | []
-  @Prop({ required: false }) public CollectionModelData!: CollectionModel[] | []
 
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
   @Action('SET_CONNECTIONS_TREE') private setConnectionsTree!: (payload: ConnectionTreeState) => void
@@ -173,8 +173,8 @@ export default class ConnectionsList extends Vue {
     }
   }
   @Watch('ConnectionModelData')
-  private handleConnectionModelDataChange() {
-    this.loadData()
+  private async handleConnectionModelDataChange() {
+    await this.loadData()
   }
   @Watch('$route.params.id')
   private handleConnectionIdChanged(id: string) {
@@ -223,30 +223,8 @@ export default class ConnectionsList extends Vue {
   // flush the Collection change to local storage
   private async flushCollectionChange() {
     const tree = _.cloneDeep(this.treeData)
-    // get Collection without connection children
-    const travelCollection = (treeElements: ConnectionModelTree[]) => {
-      const res = [] as CollectionModel[]
-      if (!treeElements || !treeElements.length) {
-        return [] as CollectionModel[]
-      }
-      treeElements.forEach((el: ConnectionModelTree, idx: number) => {
-        el.orderId = idx
-        if (el.id) {
-          updateConnectionSequenceId(el.id.toString() as string, el.orderId)
-        }
-        if (el.isCollection) {
-          const curCollection = _.cloneDeep(el) as CollectionModel
-          const curCollectionChildren = _.cloneDeep(travelCollection(el.children))
-          curCollection.isEdit = false
-          curCollection.children = curCollectionChildren
-          res.push(curCollection)
-        }
-      })
-      return res
-    }
-    const CollectionsData = travelCollection(tree)
-
-    const res = await setConnectionCollection(CollectionsData)
+    const { collectionService } = useServices()
+    const res = await collectionService.setAll(tree)
     if (!res) {
       this.$log.error('Async Collection change failed')
     }
@@ -271,7 +249,7 @@ export default class ConnectionsList extends Vue {
     this.showContextmenu = false
   }
 
-  private handleDrop(
+  private async handleDrop(
     draggingNode: TreeNode<ConnectionModelTree['id'], ConnectionModelTree>,
     dropNode: TreeNode<CollectionModel['id'], CollectionModel>,
     position: 'before' | 'after' | 'inner',
@@ -281,15 +259,18 @@ export default class ConnectionsList extends Vue {
       return
     }
     if (!draggingNode.data.isCollection) {
+      const { connectionService } = useServices()
       switch (position) {
         case 'inner':
           draggingNode.data.collectionId = dropNode.data.id
-          updateConnectionCollectionId(draggingNode.data.id.toString(), dropNode.data.id.toString())
+          updateConnectionCollectionId(draggingNode.data.id, dropNode.data.id)
+          await connectionService.updateCollectionId(draggingNode.data.id, dropNode.data.id)
           break
         default:
           if (!dropNode.parent) return
           draggingNode.data.collectionId = Array.isArray(dropNode.parent.data) ? null : dropNode.parent.data.id
-          updateConnectionCollectionId(draggingNode.data.id.toString(), dropNode.parent.data.id.toString())
+          updateConnectionCollectionId(draggingNode.data.id, dropNode.parent.data.id)
+          await connectionService.updateCollectionId(draggingNode.data.id, dropNode.parent.data.id)
           break
       }
     }
@@ -297,7 +278,7 @@ export default class ConnectionsList extends Vue {
     this.flushCollectionChange()
   }
 
-  private loadData() {
+  private async loadData() {
     //load collection expanded state
     this.$nextTick(() => {
       this.loadConnectionState()
@@ -312,43 +293,9 @@ export default class ConnectionsList extends Vue {
         this.connectionId = id
       }
     })
-
-    // composiotion connection and collection to treeData
-    const connections: ConnectionModel[] = _.cloneDeep(this.ConnectionModelData)
-    const collections: CollectionModel[] = _.cloneDeep(this.CollectionModelData)
-
-    if (!collections || !collections.length) {
-      this.treeData = connections
-      return
-    } else {
-      this.treeData = collections
-      connections.forEach((el: ConnectionModel) => {
-        const curConnectionCollectionId = el.collectionId
-        if (curConnectionCollectionId) {
-          // current connection in a collection
-          const findCollection = (treeElements: ConnectionModelTree[], connection: ConnectionModel) => {
-            treeElements.forEach((treeNode: ConnectionModelTree) => {
-              if (treeNode.isCollection) {
-                const children = treeNode.children as ConnectionModelTree[]
-                if (treeNode.id === curConnectionCollectionId) {
-                  // found cur connection's collection
-                  children.push(connection)
-                } else {
-                  if (!children.length) {
-                    return
-                  }
-                  findCollection(treeNode.children, connection)
-                }
-              }
-            })
-          }
-          findCollection(this.treeData, el)
-        } else {
-          // current connection not in any connection
-          ;(this.treeData as ConnectionModelTree[]).push(el as ConnectionModel)
-        }
-      })
-    }
+    const { collectionService } = useServices()
+    const treeData: ConnectionModelTree[] | undefined = await collectionService.getAll()
+    treeData && (this.treeData = treeData)
     // sort collection trees
     this.treeData.forEach((el: ConnectionModelTree) => {
       if (el.isCollection) {
@@ -356,7 +303,6 @@ export default class ConnectionsList extends Vue {
       }
     })
     sortConnectionTree(this.treeData)
-
     return
   }
 
@@ -556,8 +502,8 @@ export default class ConnectionsList extends Vue {
     this.showCollectionsContextmenu = false
   }
 
-  private mounted() {
-    this.loadData()
+  private async mounted() {
+    await this.loadData()
   }
 }
 </script>

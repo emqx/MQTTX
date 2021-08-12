@@ -195,6 +195,7 @@ declare global {
   }
 
   interface WillModel {
+    id?: string
     lastWillTopic: string
     lastWillPayload: string
     lastWillQos: QoS

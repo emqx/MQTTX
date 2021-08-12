@@ -130,18 +130,19 @@ yarn run db:migration:[run|revert]
 
 If your table models is not stable, and there are development mode without any data. you could just use:
 
-1. `yarn run db:log` check CLI sync execute SQL queries
-2. `db:migration:sync` sync models to database
-3. `yarn run db:diagram` (optional) get a latest ER diagram
+1. `yarn run db:migration:drop` (optional) drop all DDL schema includes its entities
+2. `yarn run db:log` (optional) check CLI sync execute SQL queries
+3. `db:migration:sync` sync models to database
+4. `yarn run db:diagram` (optional) get a latest ER diagram
 
 Otherwise, Please follow bellow steps and know clearly what you do. Or there is a high risk to lost data.
 
-1. `yarn run db:log` check CLI sync execute SQL queries
+1. `yarn run db:log` (optional) check CLI sync execute SQL queries
 2. `db:migration:generate -n {migration_name}` Automatic migration generate
 3. `db:migration:run` make pending migrations executed. NOTICE: you should execute this code before the APP open since the table model changed.
 4. `db:diagram` (optional) get a latest ER diagram.
 
-Please use `db:migration:revert` to revert changes, and executing `db:migration:run`, `db:migration:sync` carefully.
+Please use `db:migration:revert` to revert changes, and executing `db:migration:drop`, `db:migration:sync` carefully.
 
 Reference:
 

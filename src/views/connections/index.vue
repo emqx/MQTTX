@@ -1,7 +1,7 @@
 <template>
   <div class="connections">
     <div class="left-list">
-      <ConnectionsList :ConnectionModelData="records" :CollectionModelData="collections" @delete="onDelete" />
+      <ConnectionsList :ConnectionModelData="records" @delete="onDelete" />
     </div>
 
     <div class="connections-view">
@@ -28,7 +28,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Action } from 'vuex-class'
-import { loadConnections, loadConnection, loadConnectionsWithCollection } from '@/api/connection'
+import { loadConnections, loadConnection } from '@/api/connection'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsDetail from './ConnectionsDetail.vue'
@@ -50,7 +50,6 @@ export default class Connections extends Vue {
 
   private isEmpty: boolean = false
   private records: ConnectionModel[] = []
-  private collections: CollectionModel[] = []
   private currentConnection: ConnectionModel = {
     clientId: '',
     name: '',
@@ -118,10 +117,8 @@ export default class Connections extends Vue {
 
   private async loadData(reload: boolean = false): Promise<void> {
     const connections: ConnectionModel[] | [] = await loadConnections()
-    const connectionCollections: CollectionModel[] | [] = await loadConnectionsWithCollection()
     this.changeAllConnections({ allConnections: connections })
     this.records = connections
-    this.collections = connectionCollections
     if (reload && connections.length) {
       this.$router.push({ path: `/recent_connections/${connections[0].id}` })
     }

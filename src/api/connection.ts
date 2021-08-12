@@ -1,13 +1,5 @@
 import db from '@/database/index'
 
-export const setConnectionCollection = (data: CollectionModel[] | []): CollectionModel[] | [] => {
-  return db.set<CollectionModel[] | []>('connectionsCollection', data)
-}
-
-export const loadConnectionsWithCollection = (): CollectionModel[] | [] => {
-  return db.get<CollectionModel[] | []>('connectionsCollection')
-}
-
 export const updateConnectionCollectionId = (id: string, collectionId: string | null): ConnectionModel => {
   const connection: ConnectionModel = loadConnection(id)
   if (connection) {

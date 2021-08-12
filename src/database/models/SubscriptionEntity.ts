@@ -1,6 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm'
 import ConnectionEntity from './ConnectionEntity'
 
+type QoS = 0 | 1 | 2
+
 @Entity('SubscriptionEntity')
 export default class SubscriptionEntity {
   @PrimaryGeneratedColumn('uuid')

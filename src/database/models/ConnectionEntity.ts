@@ -1,15 +1,20 @@
 // see https://typeorm.io/#/entities/column-types-for-sqlite--cordova--react-native--expo
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, OneToOne, JoinColumn } from 'typeorm'
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, OneToOne, JoinColumn, Index } from 'typeorm'
 import MessageEntity from './MessageEntity'
 import SubscriptionEntity from './SubscriptionEntity'
 import CollectionEntity from './CollectionEntity'
 import WillEntity from './WillEntity'
+
+type Protocol = 'ws' | 'wss' | 'mqtt' | 'mqtts'
+type CertType = '' | 'server' | 'self'
+
 @Entity('ConnectionEntity')
 export default class ConnectionEntity {
   @PrimaryGeneratedColumn('uuid')
   id?: string
 
-  @Column({ type: 'varchar' })
+  @Index({ unique: true })
+  @Column({ type: 'varchar', name: 'client_id' })
   clientId!: string
 
   @Column({ type: 'varchar' })
@@ -65,7 +70,7 @@ export default class ConnectionEntity {
   @JoinColumn({ name: 'parent_id', referencedColumnName: 'id' })
   parent?: CollectionEntity
 
-  @Column({ name: 'parent_id', nullable: true })
+  @Column({ name: 'parent_id', nullable: true, default: '' })
   parentId?: string
   // ManyToOne entities ends
 
@@ -87,8 +92,8 @@ export default class ConnectionEntity {
   @Column({ type: 'boolean', default: false })
   isCollection!: false
 
-  @OneToOne(() => WillEntity, (will) => will.connection, { cascade: true, onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'id', referencedColumnName: 'id' })
+  @OneToOne(() => WillEntity, (will) => will.connection, { onDelete: 'CASCADE' })
+  @JoinColumn()
   will?: WillEntity
 
   @OneToMany(() => MessageEntity, (message) => message.connection)

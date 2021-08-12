@@ -1,5 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
 
+type QoS = 0 | 1 | 2
+
 @Entity('historyMessageHeaderEntity')
 export default class HistoryMessageHeaderEntity {
   @PrimaryGeneratedColumn('uuid')
