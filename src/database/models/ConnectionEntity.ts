@@ -68,10 +68,10 @@ export default class ConnectionEntity {
   // ManyToOne entities
   @ManyToOne(() => CollectionEntity, (collection) => collection.connections, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'parent_id', referencedColumnName: 'id' })
-  parent?: CollectionEntity
+  parent?: CollectionEntity | null
 
-  @Column({ name: 'parent_id', nullable: true, default: '' })
-  parentId?: string
+  @Column({ name: 'parent_id', nullable: true, default: null })
+  parentId?: string | null
   // ManyToOne entities ends
 
   @Column({ type: 'integer', nullable: true, comment: 'order in the collection' })

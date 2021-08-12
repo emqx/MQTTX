@@ -44,6 +44,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import { ipcRenderer } from 'electron'
 import { loadConnections } from '@/api/connection'
+import useService from '@/database/useServices'
 import MyDialog from './MyDialog.vue'
 import XMLConvert from 'xml-js'
 import { parse as CSVConvert } from 'json2csv'
@@ -119,9 +120,9 @@ export default class ExportData extends Vue {
       const content = JSON.stringify(data[0], null, 2)
       return content
     } else {
-      const connections: ConnectionModel[] | [] = await loadConnections()
-      const data = connections
-      const content = JSON.stringify(data, null, 2)
+      const { connectionService } = useService()
+      const connections: ConnectionModel[] | undefined = await connectionService.getAll()
+      const content = JSON.stringify(connections, null, 2)
       return content
     }
   }

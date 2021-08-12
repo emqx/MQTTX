@@ -552,7 +552,7 @@ export default class ConnectionCreate extends Vue {
     topicAliasMaximum: undefined,
     clientIdWithTime: false,
     isCollection: false,
-    collectionId: null,
+    parentId: null,
   }
 
   private record: ConnectionModel = _.cloneDeep(this.defaultRecord)
@@ -597,17 +597,19 @@ export default class ConnectionCreate extends Vue {
     }
   }
 
-  private save() {
+  private async save() {
     this.vueForm.validate(async (valid: boolean) => {
       if (!valid) {
         return false
       }
       const data = { ...this.record }
       this.trimString(data)
-      let res: ConnectionModel | null = null
+      let res: ConnectionModel | undefined = undefined
       let msgError = ''
       if (this.oper === 'create') {
         res = await createConnection(data)
+        const { connectionService } = useServices()
+        await connectionService.create(data)
         msgError = this.$t('common.createfailed') as string
       } else {
         if (data.id) {
@@ -629,6 +631,7 @@ export default class ConnectionCreate extends Vue {
         }
       } else {
         this.$message.error(msgError)
+        this.$log.error(msgError.toString())
       }
     })
   }
