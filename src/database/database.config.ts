@@ -30,7 +30,7 @@ const ORMConfig = {
   database: join(STORE_PATH, 'MQTTX.db'),
   cache: true,
   timezone: 'Z',
-  migrations: [initTable1627697951611],
+  migrations: [],
   migrationsTableName: 'temp_migration_table',
   entities: [
     ConnectionEntity,

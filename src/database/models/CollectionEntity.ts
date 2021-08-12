@@ -22,7 +22,7 @@ export default class CollectionEntity {
 
   // collections children
   @TreeChildren()
-  collections!: CollectionEntity[]
+  children!: CollectionEntity[]
 
   // connections children
   @OneToMany(() => ConnectionEntity, (connection) => connection.parent)

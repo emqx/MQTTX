@@ -21,23 +21,17 @@ export default class ConnectionService {
   ) {}
 
   // update connection's collection ID
-  public async updateCollectionId(id: number, updatedCollectionId: string): Promise<ConnectionModel | undefined> {
-    const query: ConnectionEntity | undefined = await this.connectionRepository.findOne({
-      where: {
-        id,
-      },
-      relations: ['CollectionEntity'],
-    })
+  public async updateCollectionId(id: string, updatedCollectionId: string): Promise<ConnectionModel | undefined> {
+    const query: ConnectionEntity | undefined = await this.connectionRepository.findOne(id)
     if (!query) {
       return
     }
     query.parentId = updatedCollectionId
     await this.connectionRepository.save(query)
-    const res: ConnectionModel = query
-    return res
+    return query as ConnectionModel
   }
 
-  public async update(id: number, data: Partial<ConnectionModel>): Promise<ConnectionModel | undefined> {
+  public async update(id: string, data: Partial<ConnectionModel>): Promise<ConnectionModel | undefined> {
     let res: ConnectionEntity | undefined = await this.connectionRepository.findOne(id)
     if (!res) {
       return
@@ -57,7 +51,7 @@ export default class ConnectionService {
   }
 
   // update Sequence ID
-  public async updateSequenceId(id: number, updatedOrder: number): Promise<ConnectionModel | undefined> {
+  public async updateSequenceId(id: string, updatedOrder: number): Promise<ConnectionModel | undefined> {
     const query: ConnectionEntity | undefined = await this.connectionRepository.findOne({
       where: {
         id,
@@ -71,12 +65,8 @@ export default class ConnectionService {
     return query as ConnectionModel
   }
 
-  public async get(id: number): Promise<ConnectionModel | undefined> {
-    const query: ConnectionEntity | undefined = await this.connectionRepository.findOne({
-      where: {
-        id,
-      },
-    })
+  public async get(id: string): Promise<ConnectionModel | undefined> {
+    const query: ConnectionEntity | undefined = await this.connectionRepository.findOne(id)
     if (query === undefined) {
       return undefined
     }
@@ -93,16 +83,11 @@ export default class ConnectionService {
 
   public async create(connectionInsertParam: ConnectionModel): Promise<ConnectionModel | undefined> {
     let res: ConnectionModel | undefined = connectionInsertParam
-    res = {
-      ...res,
-      // FIXME: current DB don't need id generator
-      id: undefined,
-    }
-    this.connectionRepository.save(res)
+    await this.connectionRepository.save(res)
     return res as ConnectionModel
   }
 
-  public async delete(id: number): Promise<ConnectionModel | undefined> {
+  public async delete(id: string): Promise<ConnectionModel | undefined> {
     const query: ConnectionEntity | undefined = await this.connectionRepository.findOne(id)
     if (!query) {
       return
