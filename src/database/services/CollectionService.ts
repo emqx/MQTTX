@@ -61,7 +61,7 @@ export default class ConnectionService {
       parent = await this.collectionRepository.findOne(parentId)
     }
     await Promise.all(
-      children.map(async (treeNode: ConnectionModelTree) => {
+      children.map(async (treeNode: ConnectionModelTree, index: number) => {
         if (treeNode.isCollection) {
           const { collection: topCollection, connection: topConnection } = await this.travelModel(
             treeNode.children ? treeNode.children : [],
@@ -71,6 +71,7 @@ export default class ConnectionService {
             ...treeNode,
             children: topCollection,
             connections: topConnection,
+            orderId: index,
           } as CollectionEntity)
         } else if (!treeNode.isCollection) {
           if (parent) {
@@ -92,12 +93,31 @@ export default class ConnectionService {
         clientId: connection[i].clientId,
       })
       if (query) {
-        const updatedConnection: ConnectionEntity = { ...connection[i], id: query.id } as ConnectionEntity
-        await this.willRepository.save(updatedConnection.will as WillEntity)
+        const updatedConnection: ConnectionEntity = { ...connection[i], id: query.id, orderId: i } as ConnectionEntity
+        let savedWill: WillEntity | undefined
+        if (!updatedConnection.will) {
+          // TODO: replace this with default will mdoel
+          savedWill = await this.willRepository.save({
+            lastWillTopic: '',
+            lastWillPayload: '',
+            lastWillQos: 0,
+            lastWillRetain: false,
+          } as WillEntity)
+        } else {
+          savedWill = await this.willRepository.save(updatedConnection.will as WillEntity)
+        }
+        updatedConnection.will = savedWill
         await this.connectionRepository.save(updatedConnection)
       } else {
-        await this.willRepository.save(connection[i].will as WillEntity)
-        await this.connectionRepository.insert(connection[i])
+        // TODO: replace this with default will mdoel
+        const savedWill = await this.willRepository.save({
+          lastWillTopic: '',
+          lastWillPayload: '',
+          lastWillQos: 0,
+          lastWillRetain: false,
+        } as WillEntity)
+        connection[i].will = savedWill
+        await this.connectionRepository.insert({ ...connection[i], orderId: i })
       }
     }
     return { collection, connection }

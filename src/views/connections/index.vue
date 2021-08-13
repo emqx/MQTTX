@@ -33,6 +33,7 @@ import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsDetail from './ConnectionsDetail.vue'
 import ConnectionForm from './ConnectionForm.vue'
+import useServices from '@/database/useServices'
 
 @Component({
   components: {
@@ -109,7 +110,9 @@ export default class Connections extends Vue {
   }
 
   private async loadDetail(id: string): Promise<void> {
-    const res: ConnectionModel | null = await loadConnection(id)
+    // const res: ConnectionModel | null = await loadConnection(id)
+    const { connectionService } = useServices()
+    const res = await connectionService.get(id)
     if (res) {
       this.currentConnection = res
     }
