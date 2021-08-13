@@ -1,8 +1,9 @@
 import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
-import ConnectionEntity from '../models/ConnectionEntity'
-import WillEntity from '../models/WillEntity'
-import SubscriptionEntity from '../models/SubscriptionEntity'
+import ConnectionEntity from '@/database/models/ConnectionEntity'
+import WillEntity from '@/database/models/WillEntity'
+import MessageEntity from '@/database/models/MessageEntity'
+import SubscriptionEntity from '@/database/models/SubscriptionEntity'
 import { Repository } from 'typeorm'
 import deepMerge from '@/utils/deepMerge'
 
@@ -13,7 +14,6 @@ export default class ConnectionService {
     private connectionRepository: Repository<ConnectionEntity>,
     @InjectRepository(ConnectionEntity)
     private collectionRepository: Repository<CollectionModel>,
-    // TODO: test will & subscript insert issue
     @InjectRepository(WillEntity)
     private willRepository: Repository<WillEntity>,
     @InjectRepository(WillEntity)
@@ -66,7 +66,12 @@ export default class ConnectionService {
   }
 
   public async get(id: string): Promise<ConnectionModel | undefined> {
-    const query: ConnectionEntity | undefined = await this.connectionRepository.findOne(id)
+    const query: ConnectionEntity | undefined = await this.connectionRepository
+      .createQueryBuilder('cn')
+      .leftJoinAndSelect('cn.messages', 'msg')
+      .leftJoinAndSelect('cn.subscriptions', 'sub')
+      .leftJoinAndSelect('cn.will', 'will')
+      .getOne()
     if (query === undefined) {
       return undefined
     }

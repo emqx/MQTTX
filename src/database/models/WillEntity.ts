@@ -8,16 +8,16 @@ export default class WillEntity {
   @PrimaryGeneratedColumn('uuid')
   id?: string
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', default: '' })
   lastWillTopic!: string
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', default: '' })
   lastWillPayload!: string
 
   @Column({ type: 'simple-enum', enum: [0, 1, 2], default: 0 })
   lastWillQos!: QoS
 
-  @Column({ type: 'boolean' })
+  @Column({ type: 'boolean', default: false })
   lastWillRetain!: boolean
 
   @Column({ type: 'integer', nullable: true })

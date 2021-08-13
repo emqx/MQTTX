@@ -1,21 +1,5 @@
 import db from '@/database/index'
 
-export const updateConnectionCollectionId = (id: string, collectionId: string | null): ConnectionModel => {
-  const connection: ConnectionModel = loadConnection(id)
-  if (connection) {
-    connection.parentId = collectionId
-  }
-  return db.update<ConnectionModel>('connections', id, connection)
-}
-
-export const updateConnectionSequenceId = (id: string, orderId: number): ConnectionModel => {
-  const connection: ConnectionModel = loadConnection(id)
-  if (connection) {
-    connection.orderId = orderId
-  }
-  return db.update<ConnectionModel>('connections', id, connection)
-}
-
 export const loadConnection = (id: string): ConnectionModel => {
   return db.find<ConnectionModel>('connections', id)
 }

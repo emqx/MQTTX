@@ -124,7 +124,6 @@ import { ipcRenderer } from 'electron'
 import { TreeNode, ElTree } from 'element-ui/types/tree'
 import getCollectionId from '@/utils/getCollectionId'
 import _ from 'lodash'
-import { updateConnectionCollectionId } from '@/api/connection'
 import { sortConnectionTree } from '@/utils/connections'
 import '@/assets/font/iconfont'
 import useServices from '@/database/useServices'
@@ -263,13 +262,11 @@ export default class ConnectionsList extends Vue {
       switch (position) {
         case 'inner':
           draggingNode.data.parentId = dropNode.data.id
-          updateConnectionCollectionId(draggingNode.data.id, dropNode.data.id)
           await connectionService.updateCollectionId(draggingNode.data.id, dropNode.data.id)
           break
         default:
           if (!dropNode.parent) return
           draggingNode.data.parentId = Array.isArray(dropNode.parent.data) ? null : dropNode.parent.data.id
-          updateConnectionCollectionId(draggingNode.data.id, dropNode.parent.data.id)
           await connectionService.updateCollectionId(draggingNode.data.id, dropNode.parent.data.id)
           break
       }
