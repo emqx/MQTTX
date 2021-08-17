@@ -43,7 +43,6 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import { ipcRenderer } from 'electron'
-import { loadConnections } from '@/api/connection'
 import useService from '@/database/useServices'
 import MyDialog from './MyDialog.vue'
 import XMLConvert from 'xml-js'
@@ -142,38 +141,43 @@ export default class ExportData extends Vue {
   }
 
   private async exportExcelData() {
-    const data: ConnectionModel[] = !this.record.allConnections ? [this.connection] : await loadConnections()
-    const fileName = !this.record.allConnections ? this.connection.name : 'data'
-    const saveExcelData = (workbook: WorkBook) => {
-      let filename = this.$t('connections.allConnections')
-      if (!this.record.allConnections) {
-        filename = this.connection.name
-        ipcRenderer.send('exportData', filename, workbook)
-      } else {
-        ipcRenderer.send('exportData', 'data', workbook)
+    const { connectionService } = useService()
+    const data: ConnectionModel[] | undefined = !this.record.allConnections
+      ? [this.connection]
+      : await connectionService.getAll()
+    if (data) {
+      const fileName = !this.record.allConnections ? this.connection.name : 'data'
+      const saveExcelData = (workbook: WorkBook) => {
+        let filename = this.$t('connections.allConnections')
+        if (!this.record.allConnections) {
+          filename = this.connection.name
+          ipcRenderer.send('exportData', filename, workbook)
+        } else {
+          ipcRenderer.send('exportData', 'data', workbook)
+        }
+        ipcRenderer.on('saved', () => {
+          this.$message.success(`${filename} ${this.$t('common.exportSuccess')}`)
+          this.resetData()
+        })
       }
-      ipcRenderer.on('saved', () => {
-        this.$message.success(`${filename} ${this.$t('common.exportSuccess')}`)
-        this.resetData()
-      })
-    }
 
-    if (!data.length) {
-      this.$message.warning(this.$t('common.noData') as string)
-      return
-    }
-    const jsonContent = data
-    const sheet = ExcelConvert.utils.json_to_sheet(jsonContent)
-    Object.keys(sheet).forEach((item) => {
-      // format nested object/array to string
-      if (sheet[item].t === undefined && item !== '!ref') {
-        const stringValue = JSON.stringify(sheet[item])
-        sheet[item] = { t: 's', v: stringValue }
+      if (!data.length) {
+        this.$message.warning(this.$t('common.noData') as string)
+        return
       }
-    })
-    const newWorkBook = ExcelConvert.utils.book_new()
-    ExcelConvert.utils.book_append_sheet(newWorkBook, sheet)
-    saveExcelData(newWorkBook)
+      const jsonContent = data
+      const sheet = ExcelConvert.utils.json_to_sheet(jsonContent)
+      Object.keys(sheet).forEach((item) => {
+        // format nested object/array to string
+        if (sheet[item].t === undefined && item !== '!ref') {
+          const stringValue = JSON.stringify(sheet[item])
+          sheet[item] = { t: 's', v: stringValue }
+        }
+      })
+      const newWorkBook = ExcelConvert.utils.book_new()
+      ExcelConvert.utils.book_append_sheet(newWorkBook, sheet)
+      saveExcelData(newWorkBook)
+    }
   }
 
   private exportXMLData() {
@@ -204,6 +208,7 @@ export default class ExportData extends Vue {
   }
 
   private async exportCSVData() {
+    const { connectionService } = useService()
     const exportDataToCSV = (jsonContent: ConnectionModel[]) => {
       try {
         const content: string = CSVConvert(jsonContent)
@@ -212,8 +217,10 @@ export default class ExportData extends Vue {
         this.$message.error(err.toString())
       }
     }
-    const data: ConnectionModel[] = !this.record.allConnections ? [this.connection] : await loadConnections()
-    if (!data.length) {
+    const data: ConnectionModel[] | undefined = !this.record.allConnections
+      ? [this.connection]
+      : await connectionService.getAll()
+    if (!data || !data.length) {
       this.$message.warning(this.$t('common.noData') as string)
       return
     }

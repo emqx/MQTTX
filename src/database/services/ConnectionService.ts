@@ -71,6 +71,7 @@ export default class ConnectionService {
       .leftJoinAndSelect('cn.messages', 'msg')
       .leftJoinAndSelect('cn.subscriptions', 'sub')
       .leftJoinAndSelect('cn.will', 'will')
+      .where('cn.id = :id', { id })
       .getOne()
     if (query === undefined) {
       return undefined
@@ -79,15 +80,33 @@ export default class ConnectionService {
   }
 
   public async getAll(): Promise<ConnectionModel[] | undefined> {
-    const query: ConnectionEntity[] | undefined = await this.connectionRepository.find()
-    if (!query) {
-      return
+    const query: ConnectionEntity[] | undefined = await this.connectionRepository
+      .createQueryBuilder('cn')
+      .leftJoinAndSelect('cn.messages', 'msg')
+      .leftJoinAndSelect('cn.subscriptions', 'sub')
+      .leftJoinAndSelect('cn.will', 'will')
+      .getMany()
+    if (query === undefined) {
+      return undefined
     }
     return query as ConnectionModel[]
   }
 
   public async create(connectionInsertParam: ConnectionModel): Promise<ConnectionModel | undefined> {
     let res: ConnectionModel | undefined = connectionInsertParam
+    let savedWill: WillEntity | undefined
+    if (!res.will) {
+      // TODO: replace this with default will mdoel
+      savedWill = await this.willRepository.save({
+        lastWillPayload: '',
+        lastWillQos: 0,
+        lastWillRetain: false,
+        contentType: '',
+      } as WillEntity)
+    } else {
+      savedWill = await this.willRepository.save(res.will as WillEntity)
+    }
+    res.will = savedWill
     await this.connectionRepository.save(res)
     return res as ConnectionModel
   }
@@ -101,7 +120,7 @@ export default class ConnectionService {
     return removed as ConnectionEntity
   }
 
-  public async getByIDs(): Promise<string[] | undefined> {
+  public async getIDs(): Promise<string[] | undefined> {
     const res: string[] = []
     const query: ConnectionEntity[] | undefined = await this.connectionRepository.find({
       select: ['id'],
@@ -113,5 +132,17 @@ export default class ConnectionService {
       if (entity && entity.id) res.push(entity.id)
     })
     return res as string[]
+  }
+
+  public async getLeatest(take: number): Promise<ConnectionModel[] | undefined> {
+    const query: ConnectionEntity[] | undefined = await this.connectionRepository
+      .createQueryBuilder('cn')
+      .addOrderBy('createAt')
+      .take(10)
+      .getMany()
+    if (!query || !query.length) {
+      return
+    }
+    return query
   }
 }
