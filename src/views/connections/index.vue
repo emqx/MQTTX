@@ -28,7 +28,6 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Action } from 'vuex-class'
-import { loadConnections, loadConnection } from '@/api/connection'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsDetail from './ConnectionsDetail.vue'
@@ -110,26 +109,29 @@ export default class Connections extends Vue {
   }
 
   private async loadDetail(id: string): Promise<void> {
-    // const res: ConnectionModel | null = await loadConnection(id)
     const { connectionService } = useServices()
-    const res = await connectionService.get(id)
+    const res: ConnectionModel | undefined = await connectionService.get(id)
     if (res) {
       this.currentConnection = res
     }
   }
 
   private async loadData(reload: boolean = false): Promise<void> {
-    const connections: ConnectionModel[] | [] = await loadConnections()
-    this.changeAllConnections({ allConnections: connections })
-    this.records = connections
-    if (reload && connections.length) {
-      this.$router.push({ path: `/recent_connections/${connections[0].id}` })
-    }
-    if (connections.length && this.connectionId !== 'create') {
-      this.loadDetail(this.connectionId)
-      this.isEmpty = false
-    } else {
-      this.isEmpty = true
+    // TODO: need more test
+    const { connectionService } = useServices()
+    const connections: ConnectionModel[] | undefined = await connectionService.getAll()
+    if (connections) {
+      this.changeAllConnections({ allConnections: connections })
+      this.records = connections
+      if (reload && connections.length) {
+        this.$router.push({ path: `/recent_connections/${connections[0].id}` })
+      }
+      if (connections.length && this.connectionId !== 'create') {
+        this.loadDetail(this.connectionId)
+        this.isEmpty = false
+      } else {
+        this.isEmpty = true
+      }
     }
   }
 

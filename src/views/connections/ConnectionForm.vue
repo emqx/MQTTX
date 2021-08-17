@@ -478,7 +478,7 @@
 import { remote } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { loadConnection, createConnection, updateConnection, loadSuggestConnections } from '@/api/connection'
+import { createConnection, updateConnection } from '@/api/connection'
 import getClientId from '@/utils/getClientId'
 import { getMQTTProtocol } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
@@ -589,7 +589,9 @@ export default class ConnectionCreate extends Vue {
   }
 
   private async loadDetail(id: string) {
-    const res: ConnectionModel | null = await loadConnection(id)
+    const { connectionService } = useServices()
+    const res: ConnectionModel | undefined = await connectionService.get(id)
+
     if (res) {
       deepMerge(this.record, res)
       this.oldName = res.name
@@ -720,7 +722,11 @@ export default class ConnectionCreate extends Vue {
   }
 
   private async loadData(reload: boolean = false): Promise<void> {
-    this.suggestConnections = await loadSuggestConnections()
+    const { connectionService } = useServices()
+    const res: ConnectionModel[] | undefined = await connectionService.getLeatest(10)
+    if (res) {
+      this.suggestConnections = res
+    }
   }
 
   private createFilter(queryName: string) {
@@ -735,10 +741,16 @@ export default class ConnectionCreate extends Vue {
     cb(results.reverse())
   }
 
-  private handleSelectName(item: ConnectionModel) {
-    const { id, ...oneConnection } = item
-    oneConnection.clientId = getClientId()
-    this.record = oneConnection
+  private async handleSelectName(item: ConnectionModel) {
+    const { id } = item
+    const { connectionService } = useServices()
+    if (id) {
+      const query: ConnectionModel | undefined = await connectionService.get(id)
+      if (query) {
+        query.clientId = getClientId()
+        this.record = query
+      }
+    }
   }
 
   private created() {

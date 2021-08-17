@@ -11,9 +11,9 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { loadConnection } from '@/api/connection'
 import ConnectionsDetail from '@/views/connections/ConnectionsDetail.vue'
 import ConnectionsList from '@/views/connections/ConnectionsList.vue'
+import useServices from '@/database/useServices'
 
 @Component({
   components: {
@@ -53,7 +53,9 @@ export default class Window extends Vue {
   }
 
   private async loadDetail(id: string, reload?: boolean): Promise<void> {
-    const res: ConnectionModel | null = await loadConnection(id)
+    const { connectionService } = useServices()
+    const res: ConnectionModel | undefined = await connectionService.get(id)
+
     if (res) {
       this.currentConnection = res
       if (!reload) {

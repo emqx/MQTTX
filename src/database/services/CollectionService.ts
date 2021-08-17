@@ -102,6 +102,7 @@ export default class ConnectionService {
             lastWillPayload: '',
             lastWillQos: 0,
             lastWillRetain: false,
+            contentType: '',
           } as WillEntity)
         } else {
           savedWill = await this.willRepository.save(updatedConnection.will as WillEntity)
@@ -115,6 +116,7 @@ export default class ConnectionService {
           lastWillPayload: '',
           lastWillQos: 0,
           lastWillRetain: false,
+          contentType: '',
         } as WillEntity)
         connection[i].will = savedWill
         await this.connectionRepository.insert({ ...connection[i], orderId: i })
