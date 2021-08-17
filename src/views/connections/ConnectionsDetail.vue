@@ -320,6 +320,7 @@ import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 
 import sandbox from '@/utils/sandbox'
 import { hasMessagePayload, hasMessageHeader } from '@/utils/mqttUtils'
+import useServices from '@/database/useServices'
 
 type CommandType =
   | 'searchContent'
@@ -562,7 +563,8 @@ export default class ConnectionsDetail extends Vue {
     })
       .then(async () => {
         if (id) {
-          const res: ConnectionModel | null = await deleteConnection(id.toString() as string)
+          const { connectionService } = useServices()
+          const res: ConnectionModel | undefined = await connectionService.delete(id)
           if (res) {
             this.$emit('delete')
             this.$message.success(this.$t('common.deleteSuccess') as string)

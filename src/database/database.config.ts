@@ -26,7 +26,7 @@ const ORMConfig = {
   type: 'sqlite',
   driver: 'sqlite',
   synchronize: false,
-  logging: process.env.NODE_ENV !== 'production',
+  logging: process.env.NODE_ENV !== 'production' ? ['query'] : false,
   database: join(STORE_PATH, 'MQTTX.db'),
   cache: true,
   timezone: 'Z',

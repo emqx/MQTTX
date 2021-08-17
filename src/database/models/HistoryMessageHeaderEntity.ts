@@ -17,5 +17,5 @@ export default class HistoryMessageHeaderEntity {
   qos!: QoS
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-  createAt?: Date
+  createAt?: string
 }

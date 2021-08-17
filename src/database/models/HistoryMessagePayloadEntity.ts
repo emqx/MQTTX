@@ -14,5 +14,5 @@ export default class HistoryMessagePayloadEntity {
   payloadType!: PayloadType
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-  createAt?: Date
+  createAt?: string
 }
