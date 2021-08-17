@@ -607,15 +607,14 @@ export default class ConnectionCreate extends Vue {
       const data = { ...this.record }
       this.trimString(data)
       let res: ConnectionModel | undefined = undefined
+      const { connectionService } = useServices()
       let msgError = ''
       if (this.oper === 'create') {
-        res = await createConnection(data)
-        const { connectionService } = useServices()
-        await connectionService.create(data)
+        res = await connectionService.create(data)
         msgError = this.$t('common.createfailed') as string
       } else {
         if (data.id) {
-          res = await updateConnection(data.id.toString() as string, data)
+          res = await connectionService.update(data.id, data)
           msgError = this.$t('common.editfailed') as string
         }
       }
@@ -723,7 +722,7 @@ export default class ConnectionCreate extends Vue {
 
   private async loadData(reload: boolean = false): Promise<void> {
     const { connectionService } = useServices()
-    const res: ConnectionModel[] | undefined = await connectionService.getLeatest(10)
+    const res: ConnectionModel[] | undefined = await connectionService.getLeatest()
     if (res) {
       this.suggestConnections = res
     }

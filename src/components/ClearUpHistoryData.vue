@@ -16,6 +16,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import MyDialog from './MyDialog.vue'
 import { cleanUpHistoryMessageHeader, cleanUpHistoryMessagePayload, cleanUpSuggestConnections } from '@/api/connection'
+import useServices from '@/database/useServices'
 
 @Component({
   components: {
@@ -35,6 +36,8 @@ export default class ClearUpHistoryData extends Vue {
   }
 
   private async cleanHistoryData() {
+    const { connectionService } = useServices()
+    await connectionService.cleanLeatest()
     await cleanUpHistoryMessageHeader()
     await cleanUpHistoryMessagePayload()
     await cleanUpSuggestConnections()

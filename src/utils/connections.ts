@@ -13,8 +13,8 @@ export const sortConnectionTree = (data: ConnectionModelTree[]): void => {
     if ((!a.isCollection || !b.isCollection) && (a.isCollection || b.isCollection)) {
       return a.isCollection ? -1 : 1
     }
-    const sequenceIdA: number = !_.isUndefined(a.orderId) ? a.orderId : Number.MAX_SAFE_INTEGER
-    const sequenceIdB: number = !_.isUndefined(b.orderId) ? b.orderId : Number.MAX_SAFE_INTEGER
+    const sequenceIdA: number = a.orderId === undefined || a.orderId === null ? Number.MAX_SAFE_INTEGER : a.orderId
+    const sequenceIdB: number = b.orderId === undefined || b.orderId === null ? Number.MAX_SAFE_INTEGER : b.orderId
     return sequenceIdA - sequenceIdB
   })
 }

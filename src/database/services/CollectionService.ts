@@ -1,9 +1,10 @@
 import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import { Repository } from 'typeorm'
-import CollectionEntity from '../models/CollectionEntity'
-import ConnectionEntity from '../models/ConnectionEntity'
-import WillEntity from '../models/WillEntity'
+import CollectionEntity from '@/database/models/CollectionEntity'
+import ConnectionEntity from '@/database/models/ConnectionEntity'
+import WillEntity from '@/database/models/WillEntity'
+import time from '@/utils/time'
 
 @Service()
 export default class ConnectionService {
@@ -108,7 +109,10 @@ export default class ConnectionService {
           savedWill = await this.willRepository.save(updatedConnection.will as WillEntity)
         }
         updatedConnection.will = savedWill
-        await this.connectionRepository.save(updatedConnection)
+        await this.connectionRepository.save({
+          ...updatedConnection,
+          updateAt: time.getNowDate(),
+        })
       } else {
         // TODO: replace this with default will mdoel
         const savedWill = await this.willRepository.save({
@@ -119,7 +123,11 @@ export default class ConnectionService {
           contentType: '',
         } as WillEntity)
         connection[i].will = savedWill
-        await this.connectionRepository.insert({ ...connection[i], orderId: i })
+        await this.connectionRepository.insert({
+          ...connection[i],
+          orderId: i,
+          updateAt: time.getNowDate(),
+        })
       }
     }
     return { collection, connection }

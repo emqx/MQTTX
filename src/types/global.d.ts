@@ -169,7 +169,7 @@ declare global {
     retain: boolean
     topic: string
     qos: QoS
-    createAt?: Date
+    createAt?: string
   }
 
   interface HistoryMessagePayloadModel {
@@ -177,7 +177,7 @@ declare global {
     id?: string
     payload: string
     payloadType: PayloadType
-    createAt?: Date
+    createAt?: string
   }
 
   interface SSLPath {
