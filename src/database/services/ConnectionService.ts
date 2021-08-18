@@ -30,6 +30,31 @@ export default class ConnectionService {
     private settingRepository: Repository<SettingEntity>,
   ) {}
 
+  private modelToEntity(data: ConnectionModel): ConnectionEntity {
+    return {
+      ...data,
+      will: {
+        ...data.will,
+        ...data.will?.properties,
+      },
+    } as ConnectionEntity
+  }
+
+  private entityToModel(data: ConnectionEntity): ConnectionModel {
+    return {
+      ...data,
+      will: {
+        ...data.will,
+        properties: {
+          willDelayInterval: data.will?.willDelayInterval,
+          payloadFormatIndicator: data.will?.payloadFormatIndicator,
+          messageExpiryInterval: data.will?.messageExpiryInterval,
+          contentType: data.will?.contentType,
+        },
+      },
+    } as ConnectionModel
+  }
+
   // update connection's collection ID
   public async updateCollectionId(id: string, updatedCollectionId: string): Promise<ConnectionModel | undefined> {
     const query: ConnectionEntity | undefined = await this.connectionRepository.findOne(id)
@@ -42,60 +67,121 @@ export default class ConnectionService {
     return query as ConnectionModel
   }
 
-  public async update(id: string, data: Partial<ConnectionModel>): Promise<ConnectionModel | undefined> {
-    let res: ConnectionEntity | undefined = await this.connectionRepository
+  // cascade update
+  public async updateWithCascade(
+    id: string,
+    data: ConnectionModel,
+    args?: Partial<ConnectionEntity>,
+  ): Promise<ConnectionModel | undefined> {
+    let query: ConnectionEntity | undefined = await this.connectionRepository
       .createQueryBuilder('cn')
       .leftJoinAndSelect('cn.messages', 'msg')
       .leftJoinAndSelect('cn.subscriptions', 'sub')
       .leftJoinAndSelect('cn.will', 'will')
       .where('cn.id = :id', { id })
       .getOne()
+    const res: ConnectionModel = query ? this.entityToModel(query) : data
+    deepMerge(res, data)
+    if (res.will) {
+      const {
+        id,
+        properties = {
+          contentType: '',
+        },
+        lastWillPayload = '',
+        lastWillTopic = '',
+        lastWillQos = 0,
+        lastWillRetain = false,
+      } = res.will
+      if (id) {
+        // sync memory to database
+        res.will = await this.willRepository.save({
+          id,
+          lastWillPayload,
+          lastWillTopic,
+          lastWillQos,
+          lastWillRetain,
+          contentType: properties.contentType ? properties.contentType : '',
+        } as WillEntity)
+      } else {
+        // no will relation in database
+        res.will = await this.willRepository.save({
+          lastWillPayload,
+          lastWillTopic,
+          lastWillQos,
+          lastWillRetain,
+          contentType: properties.contentType ? properties.contentType : '',
+        } as WillEntity)
+      }
+    } else {
+      // no will relation in memory or database
+      res.will = await this.willRepository.save({
+        contentType: '',
+        lastWillPayload: '',
+        lastWillTopic: '',
+        lastWillQos: 0,
+        lastWillRetain: false,
+      })
+    }
+    if (res.subscriptions && res.subscriptions.length) {
+      res.subscriptions = await this.subscriptionRepository.save(res.subscriptions)
+    }
+    if (res.messages && res.messages.length) {
+      res.messages = await this.messageRepository.save(res.messages)
+    }
+    const saved: ConnectionEntity | undefined = await this.connectionRepository.save({
+      ...res,
+      id,
+      updateAt: time.getNowDate(),
+      ...args,
+    } as ConnectionEntity)
+    return saved
+  }
+
+  public async update(id: string, data: Partial<ConnectionModel>): Promise<ConnectionModel | undefined> {
+    let res: ConnectionEntity | undefined = await this.connectionRepository
+      .createQueryBuilder('cn')
+      .where('cn.id = :id', { id })
+      .getOne()
     if (!res) {
       return
     }
+    // safe it's same data struct in single connection table
     deepMerge(res, data)
-    if (res.will && res.will.id) {
-      res.will = await this.willRepository.save(res.will)
-    } else {
-      // TODO: replace this with default will mdoel
-      res.will = await this.willRepository.save({
-        lastWillPayload: '',
-        lastWillQos: 0,
-        lastWillRetain: false,
-        contentType: '',
-      } as WillEntity)
-    }
-    if (res.subscriptions) {
-      res.subscriptions = await this.subscriptionRepository.save(res.subscriptions)
-    }
-    if (res.messages) {
-      res.messages = await this.messageRepository.save(res.messages)
-    }
     const query: ConnectionEntity | undefined = await this.connectionRepository.save({
       ...res,
+      id,
       updateAt: time.getNowDate(),
-    } as ConnectionEntity)
+    } as ConnectionModel)
     return query as ConnectionModel
   }
 
   public async import(data: ConnectionModel[]): Promise<string> {
     try {
-      await this.connectionRepository.save(
-        data.map((entity: ConnectionEntity) => {
-          return {
-            ...entity,
-            updateAt: time.getNowDate(),
-            createAt: entity.createAt ? entity.createAt : time.getNowDate(),
-          }
-        }) as ConnectionEntity[],
-      )
+      for (let i = 0; i < data.length; i++) {
+        const { id } = data[i]
+        if (id) {
+          await this.updateWithCascade(id, data[i])
+        }
+      }
+      // await this.connectionRepository.save(
+      //   data.map((entity: ConnectionEntity) => {
+      //     return {
+      //       ...entity,
+      //       updateAt: time.getNowDate(),
+      //       createAt: entity.createAt ? entity.createAt : time.getNowDate(),
+      //     }
+      //   }) as ConnectionEntity[],
+      // )
     } catch (err) {
+      console.error(err.toString())
+
       return err.toString()
     }
     return 'ok'
   }
 
-  // update Sequence ID
+  // update sequence ID
   public async updateSequenceId(id: string, updatedOrder: number): Promise<ConnectionModel | undefined> {
     const query: ConnectionEntity | undefined = await this.connectionRepository.findOne({
       where: {
@@ -113,6 +199,7 @@ export default class ConnectionService {
     return query as ConnectionModel
   }
 
+  // cascade get
   public async get(id: string): Promise<ConnectionModel | undefined> {
     const query: ConnectionEntity | undefined = await this.connectionRepository
       .createQueryBuilder('cn')
@@ -124,9 +211,11 @@ export default class ConnectionService {
     if (query === undefined) {
       return undefined
     }
-    return query as ConnectionModel
+
+    return this.entityToModel(query)
   }
 
+  // cascade getAll
   public async getAll(): Promise<ConnectionModel[] | undefined> {
     const query: ConnectionEntity[] | undefined = await this.connectionRepository
       .createQueryBuilder('cn')
@@ -140,11 +229,10 @@ export default class ConnectionService {
     return query as ConnectionModel[]
   }
 
-  public async create(connectionInsertParam: ConnectionModel): Promise<ConnectionModel | undefined> {
-    let res: ConnectionModel | undefined = connectionInsertParam
+  public async create(data: ConnectionModel): Promise<ConnectionModel | undefined> {
+    let res: ConnectionModel | undefined = data
     let savedWill: WillEntity | undefined
     if (!res.will) {
-      // TODO: replace this with default will mdoel
       savedWill = await this.willRepository.save({
         lastWillPayload: '',
         lastWillQos: 0,
@@ -155,37 +243,34 @@ export default class ConnectionService {
       savedWill = await this.willRepository.save(res.will as WillEntity)
     }
     res.will = savedWill
-    return (await this.connectionRepository.save({
-      ...res,
-      createAt: time.getNowDate(),
-      updateAt: time.getNowDate(),
-    } as ConnectionEntity)) as ConnectionModel
+    return this.entityToModel(
+      await this.connectionRepository.save({
+        ...res,
+        createAt: time.getNowDate(),
+        updateAt: time.getNowDate(),
+      } as ConnectionEntity),
+    ) as ConnectionModel
   }
 
+  // cascade delete
   public async delete(id: string): Promise<ConnectionModel | undefined> {
-    const query: ConnectionEntity | undefined = await this.connectionRepository.findOne(id)
+    const query: ConnectionEntity | undefined = await this.connectionRepository
+      .createQueryBuilder('cn')
+      .leftJoinAndSelect('cn.messages', 'msg')
+      .leftJoinAndSelect('cn.subscriptions', 'sub')
+      .leftJoinAndSelect('cn.will', 'will')
+      .where('cn.id = :id', { id })
+      .getOne()
     if (!query) {
       return
     }
-    const removed: ConnectionEntity = await this.connectionRepository.remove(query)
-    return removed as ConnectionEntity
+    await this.connectionRepository.delete({
+      id: query.id,
+    })
+    return this.entityToModel(query) as ConnectionModel
   }
 
-  public async getIDs(): Promise<string[] | undefined> {
-    const res: string[] = []
-    const query: ConnectionEntity[] | undefined = await this.connectionRepository.find({
-      select: ['id'],
-    })
-    if (!query) {
-      return
-    }
-    query.forEach((entity) => {
-      if (entity && entity.id) res.push(entity.id)
-    })
-    return res as string[]
-  }
-
-  public async getLeatest(take: number | undefined = 10): Promise<ConnectionModel[] | undefined> {
+  public async getLeatests(take: number | undefined = 10): Promise<ConnectionModel[] | undefined> {
     const settings: SettingEntity | undefined = await this.settingRepository.findOne()
     let query: ConnectionEntity[] | undefined
     if (settings && settings.cleanAt) {
@@ -208,11 +293,10 @@ export default class ConnectionService {
         return
       }
     }
-    query.map((entity) => {
+    return query.map((entity) => {
       entity.id = undefined
-      return entity
+      return this.entityToModel(entity) as ConnectionModel
     })
-    return query
   }
 
   public async cleanLeatest() {

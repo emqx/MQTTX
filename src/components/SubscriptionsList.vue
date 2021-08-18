@@ -108,12 +108,12 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { updateConnection } from '@/api/connection'
 import { defineColors, getRandomColor } from '@/utils/colors'
 import LeftPanel from '@/components/LeftPanel.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import VueI18n from 'vue-i18n'
-import { ClientSubscribeCallback, MqttClient } from 'mqtt'
+import { MqttClient } from 'mqtt'
+import useServices from '@/database/useServices'
 
 enum SubscribeErrorReason {
   normal,
@@ -264,7 +264,7 @@ export default class SubscriptionsList extends Vue {
       this.subRecord.color = getRandomColor()
     }
     if (this.client.subscribe) {
-      this.client.subscribe(topic, { qos: qos as QoS }, (error, res) => {
+      this.client.subscribe(topic, { qos: qos as QoS }, async (error, res) => {
         if (error) {
           this.$message.error(error)
           this.$log.error(`Topic: ${topic} subscribe error ${error} `)
@@ -293,7 +293,8 @@ export default class SubscriptionsList extends Vue {
         }
         this.record.subscriptions = this.subsList
         if (this.record.id) {
-          updateConnection(this.record.id.toString() as string, this.record)
+          const { connectionService } = useServices()
+          await connectionService.updateWithCascade(this.record.id, this.record)
           this.changeSubs({ id: this.connectionId, subscriptions: this.subsList })
           this.showDialog = false
           this.$log.info(`Topic: ${topic} successfully subscribed`)
@@ -315,7 +316,7 @@ export default class SubscriptionsList extends Vue {
     }
     const { topic, qos } = row
     if (this.client.unsubscribe) {
-      this.client.unsubscribe(topic, { qos }, (error) => {
+      this.client.unsubscribe(topic, { qos }, async (error) => {
         if (error) {
           this.$message.error(error)
           return false
@@ -330,7 +331,8 @@ export default class SubscriptionsList extends Vue {
           }
           this.record.subscriptions = payload.subscriptions
           if (this.record.id) {
-            updateConnection(this.record.id.toString() as string, this.record)
+            const { connectionService } = useServices()
+            await connectionService.updateWithCascade(this.record.id, this.record)
             this.changeSubs(payload)
             this.subsList = payload.subscriptions
             this.$emit('deleteTopic')

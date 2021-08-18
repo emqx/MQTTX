@@ -1,4 +1,3 @@
-import _ from 'lodash'
 export const flushCurSequenceId = (data: ConnectionModelTree[]): void => {
   data.forEach((el: ConnectionModelTree, idx: number) => {
     if (el.isCollection) {

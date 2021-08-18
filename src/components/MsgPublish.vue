@@ -102,8 +102,8 @@ import Editor from '@/components/Editor.vue'
 import convertPayload from '@/utils/convertPayload'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
-import { loadHistoryMessageHeaders, loadHistoryMessagePayloads } from '@/api/connection'
 import validFormatJson from '@/utils/validFormatJson'
+import useServices from '@/database/useServices'
 
 @Component({
   components: {
@@ -240,8 +240,15 @@ export default class MsgPublish extends Vue {
   }
 
   private async loadHistoryData(isNewPayload?: boolean) {
-    this.headersHistory = await loadHistoryMessageHeaders()
-    this.payloadsHistory = await loadHistoryMessagePayloads()
+    const { historyMessageHeaderService, historyMessagePayloadService } = useServices()
+    const headersHistory = await historyMessageHeaderService.getAll()
+    const payloadsHistory = await historyMessagePayloadService.getAll()
+    if (headersHistory) {
+      this.headersHistory = headersHistory
+    }
+    if (payloadsHistory) {
+      this.payloadsHistory = payloadsHistory
+    }
     if (isNewPayload) {
       this.historyIndex = this.payloadsHistory.length - 1
     }

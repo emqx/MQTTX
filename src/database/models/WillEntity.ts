@@ -20,6 +20,7 @@ export default class WillEntity {
   @Column({ type: 'boolean', default: false })
   lastWillRetain!: boolean
 
+  // WillPropertiesModel begin
   @Column({ type: 'integer', nullable: true })
   willDelayInterval?: number
 
@@ -31,6 +32,7 @@ export default class WillEntity {
 
   @Column({ type: 'varchar', default: '', nullable: true })
   contentType?: string
+  // WillPropertiesModel end
 
   @OneToOne(() => ConnectionEntity, (connection) => connection.will, { onDelete: 'CASCADE' })
   connection?: ConnectionEntity
