@@ -1,7 +1,7 @@
 import { IClientOptions } from 'mqtt'
 import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
-import { loadHistoryMessageHeaders, loadHistoryMessagePayloads } from '@/api/connection'
+import useServices from '@/database/useServices'
 
 const setMQTT5Properties = (option: IClientOptions['properties']): IClientOptions['properties'] | undefined => {
   if (option === undefined) {
@@ -132,19 +132,27 @@ export const getMQTTProtocol = (data: ConnectionModel): Protocol => {
 }
 
 export const hasMessagePayload = async (data: HistoryMessagePayloadModel): Promise<boolean> => {
-  const payloads = await loadHistoryMessagePayloads()
-  const res = payloads.some((el: HistoryMessagePayloadModel) => {
-    return data.payload === el.payload && data.payloadType === el.payloadType
-  })
-  return res
+  const { historyMessagePayloadService } = useServices()
+  const payloads = await historyMessagePayloadService.getAll()
+  if (payloads) {
+    const res = payloads.some((el: HistoryMessagePayloadModel) => {
+      return data.payload === el.payload && data.payloadType === el.payloadType
+    })
+    return res
+  }
+  return false
 }
 
 export const hasMessageHeader = async (data: HistoryMessageHeaderModel): Promise<boolean> => {
-  const headers = await loadHistoryMessageHeaders()
-  const res = headers.some((el: HistoryMessageHeaderModel) => {
-    return data.qos === el.qos && data.topic === el.topic && data.retain === el.retain
-  })
-  return res
+  const { historyMessageHeaderService } = useServices()
+  const headers = await historyMessageHeaderService.getAll()
+  if (headers) {
+    const res = headers.some((el: HistoryMessageHeaderModel) => {
+      return data.qos === el.qos && data.topic === el.topic && data.retain === el.retain
+    })
+    return res
+  }
+  return false
 }
 
 export default {}

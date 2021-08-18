@@ -64,6 +64,7 @@ import MyDialog from './MyDialog.vue'
 import XMLConvert from 'xml-js'
 import CSVConvert from 'csvtojson'
 import ExcelConvert from 'xlsx'
+import useServices from '@/database/useServices'
 
 type ImportFormat = 'JSON' | 'XML' | 'CSV' | 'Excel'
 
@@ -353,11 +354,12 @@ export default class ImportData extends Vue {
   }
 
   private async importData() {
+    const { connectionService } = useServices()
     if (!this.record.fileContent.length) {
       this.$message.error(this.$t('connections.uploadFileTip') as string)
       return
     }
-    const importDataResult = await importConnections(this.record.fileContent)
+    const importDataResult = await connectionService.import(this.record.fileContent)
     if (importDataResult === 'ok') {
       this.$message.success(this.$t('common.importSuccess') as string)
       this.$emit('updateData')

@@ -223,8 +223,9 @@ export default class ConnectionsList extends Vue {
   private async flushCollectionChange() {
     const tree = _.cloneDeep(this.treeData)
     const { collectionService } = useServices()
+    // BUG: tree set bug -> can't remove collection corrrectly
     const res = await collectionService.setAll(tree)
-    if (!res) {
+    if (tree && !res) {
       this.$log.error('Async Collection change failed')
     }
   }
@@ -271,7 +272,6 @@ export default class ConnectionsList extends Vue {
           break
       }
     }
-    // set to db.json
     this.flushCollectionChange()
   }
 
@@ -313,7 +313,7 @@ export default class ConnectionsList extends Vue {
   }
 
   private handleCollectionNameValidate(name: string): boolean {
-    return name && !name.match(/(^\s+$)/g) ? true : false
+    return (name ? true : false) && !name.match(/(^\s+$)/g)
   }
 
   private handleEditCancel(node: TreeNode<'id', CollectionModel>, data: CollectionModel) {
@@ -463,6 +463,7 @@ export default class ConnectionsList extends Vue {
   }
 
   private handleDeleteCollection() {
+    // BUG: need to solve the undeleted collection because of current set service way.
     const selectedCollection = this.selectedCollection
     if (selectedCollection && selectedCollection.isCollection) {
       const nodeParent: ConnectionModelTree[] | ConnectionModelTree = this.getTreeNodeParent(selectedCollection) as

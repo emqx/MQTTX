@@ -8,29 +8,10 @@ export const loadConnections = (): ConnectionModel[] | [] => {
   return db.get<ConnectionModel[] | []>('connections')
 }
 
-export const loadSuggestConnections = (): ConnectionModel[] | [] => {
-  return db.get<ConnectionModel[] | []>('suggestConnections')
-}
-
-export const createSuggestConnection = (data: ConnectionModel): ConnectionModel => {
-  const suggestConnections = loadSuggestConnections()
-  if (suggestConnections.length > 9) {
-    const deleteId = suggestConnections[0].id
-    if (deleteId !== undefined) {
-      deleteSuggestConnection(deleteId.toString())
-    }
-  }
-  return db.insert<ConnectionModel>('suggestConnections', data)
-}
-
-export const deleteSuggestConnection = (id: string): ConnectionModel => {
-  return db.remove<ConnectionModel>('suggestConnections', id)
-}
-
 export const loadAllConnectionsIds = async (type: 'connections' | 'suggestConnections'): Promise<string[]> => {
   const connectionsIds: string[] = []
   let allConnections: ConnectionModel[]
-  allConnections = type === 'connections' ? await loadConnections() : await loadSuggestConnections()
+  allConnections = await loadConnections()
   allConnections.forEach((connection: ConnectionModel) => {
     if (connection.id) {
       connectionsIds.push(connection.id.toString())
@@ -39,83 +20,8 @@ export const loadAllConnectionsIds = async (type: 'connections' | 'suggestConnec
   return connectionsIds
 }
 
-// Message history
-export const loadHistoryMessageHeaders = async (): Promise<HistoryMessageHeaderModel[] | []> => {
-  return db.get<HistoryMessageHeaderModel[] | []>('historyMessageHeader')
-}
-
-export const createHistoryMessageHeader = async (
-  data: HistoryMessageHeaderModel,
-): Promise<HistoryMessageHeaderModel> => {
-  const headers = await loadHistoryMessageHeaders()
-  if (headers.length > 9) {
-    const deleteId = headers[0].id
-    if (deleteId !== undefined) {
-      deleteHistoryMessageHeader(deleteId)
-    }
-  }
-  return db.insert<HistoryMessageHeaderModel>('historyMessageHeader', data)
-}
-
-export const deleteHistoryMessageHeader = (id: string): HistoryMessageHeaderModel => {
-  return db.remove<HistoryMessageHeaderModel>('historyMessageHeader', id)
-}
-
-export const cleanUpHistoryMessageHeader = (): HistoryMessageHeaderModel[] | [] => {
-  return db.cleanUpArray<HistoryMessageHeaderModel[] | []>('historyMessageHeader')
-}
-
-export const loadHistoryMessagePayloads = async (): Promise<HistoryMessagePayloadModel[] | []> => {
-  return db.get<HistoryMessagePayloadModel[] | []>('historyMessagePayload')
-}
-
-export const updateHistoryMessagePayload = (
-  id: string,
-  headerData: HistoryMessagePayloadModel,
-): HistoryMessagePayloadModel => {
-  return db.update<HistoryMessagePayloadModel>('historyMessagePayload', id, headerData)
-}
-
-export const createHistoryMessagePayload = async (
-  data: HistoryMessagePayloadModel,
-): Promise<HistoryMessagePayloadModel> => {
-  const payloads = await loadHistoryMessagePayloads()
-  if (payloads.length > 9) {
-    const deleteId = payloads[0].id
-    if (deleteId !== undefined) {
-      deleteHistoryMessagePayload(deleteId)
-    }
-  }
-  return db.insert<HistoryMessagePayloadModel>('historyMessagePayload', data)
-}
-
-export const deleteHistoryMessagePayload = (id: string): HistoryMessagePayloadModel => {
-  return db.remove<HistoryMessagePayloadModel>('historyMessagePayload', id)
-}
-
-export const cleanUpHistoryMessagePayload = (): HistoryMessagePayloadModel[] | [] => {
-  return db.cleanUpArray<HistoryMessagePayloadModel[] | []>('historyMessagePayload')
-}
-
-export const createConnection = (data: ConnectionModel): ConnectionModel => {
-  loadAllConnectionsIds('suggestConnections').then((res) => {
-    if (data.id && res.indexOf(data.id.toString()) === -1) {
-      createSuggestConnection(data)
-    }
-  })
-  return db.insert<ConnectionModel>('connections', data)
-}
-
-export const deleteConnection = (id: string): ConnectionModel => {
-  return db.remove<ConnectionModel>('connections', id)
-}
-
 export const deleteMessage = (id: string, mid: string): ConnectionModel => {
   return db.findChild<any>('connections', id).get('messages').remove({ mid }).write()
-}
-
-export const updateConnection = (id: string, data: ConnectionModel): ConnectionModel => {
-  return db.update<ConnectionModel>('connections', id, data)
 }
 
 export const updateConnectionMessage = (id: string, message: MessageModel): ConnectionModel => {
@@ -133,11 +39,11 @@ export const importConnections = (data: ConnectionModel[]): Promise<string> => {
         data.forEach((item: ConnectionModel) => {
           const { id } = item
           if (id) {
-            if (res.indexOf(id.toString()) === -1) {
-              createConnection(item)
-            } else {
-              updateConnection(id.toString() as string, item)
-            }
+            // if (res.indexOf(id.toString()) === -1) {
+            //   createConnection(item)
+            // } else {
+            //   updateConnection(id.toString() as string, item)
+            // }
           }
         })
         return 'ok'
@@ -149,10 +55,6 @@ export const importConnections = (data: ConnectionModel[]): Promise<string> => {
       return err.toString()
     })
   return importDataResult
-}
-
-export const cleanUpSuggestConnections = (): ConnectionModel[] | [] => {
-  return db.cleanUpArray<ConnectionModel[] | []>('suggestConnections')
 }
 
 export default {}

@@ -290,14 +290,7 @@ import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
 
-import {
-  createHistoryMessagePayload,
-  createHistoryMessageHeader,
-  deleteConnection,
-  deleteMessage,
-  updateConnection,
-  updateConnectionMessage,
-} from '@/api/connection'
+import { deleteMessage, updateConnectionMessage } from '@/api/connection'
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
@@ -642,6 +635,7 @@ export default class ConnectionsDetail extends Vue {
       id = this.selectedMessage.id.toString()
     }
     if (connectID) {
+      // FIXME: remove all message use message services
       const res: ConnectionModel | null = await deleteMessage(connectID.toString() as string, id as string)
       if (res) {
         this.showContextmenu = false
@@ -752,7 +746,8 @@ export default class ConnectionsDetail extends Vue {
       messages: this.messages,
     })
     if (this.record.id) {
-      updateConnection(this.record.id.toString() as string, this.record)
+      // FIXME: remove all message use message services
+      // updateConnection(this.record.id.toString() as string, this.record)
       this.$log.info('Cleaned history connection message')
     }
   }
@@ -1122,10 +1117,11 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private async insertHistory(payload: HistoryMessagePayloadModel, header: HistoryMessageHeaderModel) {
+    const { historyMessagePayloadService, historyMessageHeaderService } = useServices()
     const isNewPayload = !(await hasMessagePayload(payload))
     const isNewHeader = !(await hasMessageHeader(header))
-    isNewPayload && (await createHistoryMessagePayload(payload))
-    isNewHeader && (await createHistoryMessageHeader(header))
+    isNewPayload && (await historyMessagePayloadService.create(payload))
+    isNewHeader && (await historyMessageHeaderService.create(header))
     return { isNewPayload, isNewHeader }
   }
 
@@ -1179,6 +1175,7 @@ export default class ConnectionsDetail extends Vue {
         retain,
       }
       if (this.record.id) {
+        // FIXME: remove all message use message services
         updateConnectionMessage(this.record.id, { ...publishMessage })
         this.record.messages.push({ ...publishMessage })
         // Filter by conditions (topic, payload, etc)

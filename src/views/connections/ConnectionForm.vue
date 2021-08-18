@@ -478,7 +478,6 @@
 import { remote } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { createConnection, updateConnection } from '@/api/connection'
 import getClientId from '@/utils/getClientId'
 import { getMQTTProtocol } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
@@ -722,7 +721,7 @@ export default class ConnectionCreate extends Vue {
 
   private async loadData(reload: boolean = false): Promise<void> {
     const { connectionService } = useServices()
-    const res: ConnectionModel[] | undefined = await connectionService.getLeatest()
+    const res: ConnectionModel[] | undefined = await connectionService.getLeatests()
     if (res) {
       this.suggestConnections = res
     }

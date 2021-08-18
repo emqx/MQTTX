@@ -113,9 +113,9 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import getClientId from '@/utils/getClientId'
-import { updateConnection } from '@/api/connection'
 import { MqttClient } from 'mqtt'
 import { Getter } from 'vuex-class'
+import useServices from '@/database/useServices'
 
 @Component
 export default class ConnectionInfo extends Vue {
@@ -180,9 +180,10 @@ export default class ConnectionInfo extends Vue {
       if (!valid) {
         return false
       }
+      const { connectionService } = useServices()
       if (this.connection.id) {
-        const res: ConnectionModel | null = await updateConnection(
-          this.connection.id.toString() as string,
+        const res: ConnectionModel | undefined = await connectionService.updateWithCascade(
+          this.connection.id,
           this.connection,
         )
         if (res) {
