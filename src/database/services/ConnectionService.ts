@@ -75,10 +75,10 @@ export default class ConnectionService {
   ): Promise<ConnectionModel | undefined> {
     let query: ConnectionEntity | undefined = await this.connectionRepository
       .createQueryBuilder('cn')
+      .where('cn.id = :id', { id })
       .leftJoinAndSelect('cn.messages', 'msg')
       .leftJoinAndSelect('cn.subscriptions', 'sub')
       .leftJoinAndSelect('cn.will', 'will')
-      .where('cn.id = :id', { id })
       .getOne()
     const res: ConnectionModel = query ? this.entityToModel(query) : data
     deepMerge(res, data)
@@ -189,10 +189,10 @@ export default class ConnectionService {
   public async get(id: string): Promise<ConnectionModel | undefined> {
     const query: ConnectionEntity | undefined = await this.connectionRepository
       .createQueryBuilder('cn')
+      .where('cn.id = :id', { id })
       .leftJoinAndSelect('cn.messages', 'msg')
       .leftJoinAndSelect('cn.subscriptions', 'sub')
       .leftJoinAndSelect('cn.will', 'will')
-      .where('cn.id = :id', { id })
       .getOne()
     if (query === undefined) {
       return undefined
@@ -242,10 +242,10 @@ export default class ConnectionService {
   public async delete(id: string): Promise<ConnectionModel | undefined> {
     const query: ConnectionEntity | undefined = await this.connectionRepository
       .createQueryBuilder('cn')
+      .where('cn.id = :id', { id })
       .leftJoinAndSelect('cn.messages', 'msg')
       .leftJoinAndSelect('cn.subscriptions', 'sub')
       .leftJoinAndSelect('cn.will', 'will')
-      .where('cn.id = :id', { id })
       .getOne()
     if (!query) {
       return

@@ -9,22 +9,32 @@ export default class MessageService {
   constructor(
     @InjectRepository(MessageEntity)
     private messageRepository: Repository<MessageEntity>,
-    @InjectRepository(ConnectionEntity)
-    private connectionRepository: Repository<ConnectionEntity>,
   ) {}
 
-  public async update(id: string, message: MessageModel): Promise<MessageModel | undefined> {
-    const connection: ConnectionEntity | undefined = await this.connectionRepository.findOne(id)
-    if (!connection) {
+  public async pushToConnection(message: MessageModel, connectionId: string): Promise<MessageModel | undefined> {
+    const query: MessageEntity | undefined = await this.messageRepository.findOne(message.id)
+    if (!query) {
+      return await this.messageRepository.save({ ...message, connectionId } as MessageEntity)
+    }
+    return await this.messageRepository.save({ ...query, ...message, connectionId })
+  }
+
+  public async delete(id: string): Promise<MessageModel | undefined> {
+    const query = await this.messageRepository.delete(id)
+    if (query) {
       return
     }
-    const query: MessageEntity = await this.messageRepository.save({
-      ...message,
-      connection: connection,
-    } as MessageEntity)
+    return query
+  }
+
+  public async cleanInConnection(connectionId: string): Promise<MessageModel[] | undefined> {
+    const query: MessageEntity[] | undefined = await this.messageRepository
+      .createQueryBuilder('ms')
+      .where('ms.connectionId = :connectionId', { connectionId })
+      .getMany()
     if (!query) {
       return
     }
-    return query as MessageModel
+    return await this.messageRepository.remove(query)
   }
 }

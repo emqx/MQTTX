@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import routes from './routes'
-import { loadConnections } from '@/api/connection'
+import useServices from '@/database/useServices'
 
 Vue.use(Router)
 
@@ -24,9 +24,12 @@ Router.prototype.push = function push(location: string) {
   return callRes.catch((err: Error) => err)
 }
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   if (to.name === 'Connections') {
-    const connections: ConnectionModel[] | [] = loadConnections() || []
+    const { connectionService } = useServices()
+    // TODO: Need more test
+    // maybe we should not use async inside the foreach loop
+    const connections: ConnectionModel[] | [] = (await connectionService.getAll()) || []
     if (connections.length) {
       next({ path: `/recent_connections/${connections[0].id}` })
     } else {
