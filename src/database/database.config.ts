@@ -11,6 +11,7 @@ import HistoryMessageHeaderEntity from './models/HistoryMessageHeaderEntity'
 import HistoryMessagePayloadEntity from './models/HistoryMessagePayloadEntity'
 import WillEntity from './models/WillEntity'
 import { ConnectionOptions } from 'typeorm'
+import { initTable1629476510574 } from './migration/1629476510574-initTable'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -29,7 +30,7 @@ const ORMConfig = {
   database: join(STORE_PATH, 'MQTTX.db'),
   cache: true,
   timezone: 'Z',
-  migrations: [],
+  migrations: [initTable1629476510574],
   migrationsTableName: 'temp_migration_table',
   entities: [
     ConnectionEntity,
