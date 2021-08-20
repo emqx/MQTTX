@@ -10,7 +10,7 @@ export default class ScriptService {
     private scriptRepository: Repository<ScriptEntity>,
   ) {}
 
-  public async creat(data: ScriptModel): Promise<ScriptModel | undefined> {
+  public async create(data: ScriptModel): Promise<ScriptModel | undefined> {
     return (await this.scriptRepository.save(data)) as ScriptEntity | undefined
   }
 

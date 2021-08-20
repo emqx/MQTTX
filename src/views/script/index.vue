@@ -100,7 +100,8 @@ import { Getter } from 'vuex-class'
 import Editor from '@/components/Editor.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import sandbox from '@/utils/sandbox'
-import { createScript, deleteScript, loadScript, loadScripts, updateScript } from '@/api/script'
+import useServers from '@/database/useServices'
+import settings from '@/lang/settings'
 
 @Component({
   components: {
@@ -146,11 +147,12 @@ execute(handlePayload)`
     if (!this.currentScriptId) {
       this.showDialog = true
     } else {
-      const currentScript = await loadScript(this.currentScriptId)
+      const { scriptService } = useServers()
+      const currentScript = await scriptService.get(this.currentScriptId)
       if (currentScript) {
         currentScript.script = this.scriptValue
         const data = { ...currentScript }
-        const res = await updateScript(this.currentScriptId, data)
+        const res = await scriptService.update(this.currentScriptId, data)
         if (res) {
           this.$message.success(this.$t('common.editSuccess') as string)
         }
@@ -165,7 +167,8 @@ execute(handlePayload)`
     }
     this.record.script = this.scriptValue
     const data = { ...this.record }
-    const res = await createScript(data)
+    const { scriptService } = useServers()
+    const res = await scriptService.create(data)
     if (res) {
       this.$message.success(this.$t('common.createSuccess') as string)
       this.showDialog = false
@@ -179,7 +182,9 @@ execute(handlePayload)`
   }
 
   private async loadData(): Promise<void> {
-    const scripts: ScriptModel[] | [] = await loadScripts()
+    const { scriptService } = useServers()
+    const scripts: ScriptModel[] | undefined = await scriptService.getAll()
+    if (!scripts) return
     this.scripts = scripts
     const len = scripts.length
     const _firstScript: ScriptModel = this.scripts[len - 1]
@@ -193,7 +198,9 @@ execute(handlePayload)`
   }
 
   private async handleDelete() {
-    const currentScript = await loadScript(this.currentScriptId)
+    const { scriptService } = useServers()
+
+    const currentScript = await scriptService.get(this.currentScriptId)
     if (currentScript) {
       const { name } = currentScript
       const confirmDelete: string = this.$t('common.confirmDelete', { name }) as string
@@ -201,7 +208,7 @@ execute(handlePayload)`
         type: 'warning',
       })
         .then(async () => {
-          const res: ScriptModel | null = await deleteScript(this.currentScriptId)
+          const res: ScriptModel | undefined = await scriptService.delete(this.currentScriptId)
           if (res) {
             this.$message.success(this.$t('common.deleteSuccess') as string)
             this.loadData()
@@ -218,8 +225,9 @@ execute(handlePayload)`
     this.scriptValue = this.defaultScript
   }
 
-  private async handleScriptChange(val: string) {
-    const currentScript = await loadScript(val)
+  private async handleScriptChange(id: string) {
+    const { scriptService } = useServers()
+    const currentScript = await scriptService.get(id)
     if (currentScript) {
       this.scriptValue = currentScript.script
     }
