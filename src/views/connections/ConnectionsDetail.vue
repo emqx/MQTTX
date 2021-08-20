@@ -734,6 +734,8 @@ export default class ConnectionsDetail extends Vue {
     this.msgType = 'all'
     this.messages = _.cloneDeep(this.record.messages)
   }
+
+  // TODO: verification async function affect
   // Clear messages
   private async handleMsgClear() {
     this.messages = []

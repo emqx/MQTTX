@@ -36,8 +36,8 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { loadScript, loadScripts } from '@/api/script'
 import MyDialog from './MyDialog.vue'
+import useServices from '@/database/useServices'
 
 @Component({
   components: {
@@ -76,8 +76,9 @@ export default class UseScript extends Vue {
   }
 
   private async loadData() {
-    const scripts: ScriptModel[] = await loadScripts()
-    this.scripts = scripts
+    const { scriptService } = useServices()
+    const scripts: ScriptModel[] | undefined = await scriptService.getAll()
+    scripts && (this.scripts = scripts)
   }
 
   private resetData() {
@@ -89,7 +90,8 @@ export default class UseScript extends Vue {
       this.$message.warning(this.$t('script.scriptRequired') as string)
       return
     }
-    const currentScript = await loadScript(this.currentScriptId)
+    const { scriptService } = useServices()
+    const currentScript = await scriptService.get(this.currentScriptId)
     if (currentScript) {
       this.$emit('setScript', currentScript, this.scriptApply)
       this.resetData()
