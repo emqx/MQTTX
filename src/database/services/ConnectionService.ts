@@ -93,25 +93,22 @@ export default class ConnectionService {
         lastWillQos = 0,
         lastWillRetain = false,
       } = res.will
+      const data = {
+        lastWillPayload,
+        lastWillTopic,
+        lastWillQos,
+        lastWillRetain,
+        contentType: properties.contentType ? properties.contentType : '',
+      }
       if (id) {
         // sync memory to database
         res.will = await this.willRepository.save({
           id,
-          lastWillPayload,
-          lastWillTopic,
-          lastWillQos,
-          lastWillRetain,
-          contentType: properties.contentType ? properties.contentType : '',
+          ...data,
         } as WillEntity)
       } else {
         // no will relation in database
-        res.will = await this.willRepository.save({
-          lastWillPayload,
-          lastWillTopic,
-          lastWillQos,
-          lastWillRetain,
-          contentType: properties.contentType ? properties.contentType : '',
-        } as WillEntity)
+        res.will = await this.willRepository.save(data as WillEntity)
       }
     } else {
       // no will relation in memory or database
@@ -164,18 +161,7 @@ export default class ConnectionService {
           await this.updateWithCascade(id, data[i])
         }
       }
-      // await this.connectionRepository.save(
-      //   data.map((entity: ConnectionEntity) => {
-      //     return {
-      //       ...entity,
-      //       updateAt: time.getNowDate(),
-      //       createAt: entity.createAt ? entity.createAt : time.getNowDate(),
-      //     }
-      //   }) as ConnectionEntity[],
-      // )
     } catch (err) {
-      console.error(err.toString())
-
       return err.toString()
     }
     return 'ok'

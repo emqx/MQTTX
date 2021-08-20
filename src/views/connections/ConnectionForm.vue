@@ -613,7 +613,7 @@ export default class ConnectionCreate extends Vue {
         msgError = this.$t('common.createfailed') as string
       } else {
         if (data.id) {
-          res = await connectionService.update(data.id, data)
+          res = await connectionService.updateWithCascade(data.id, data)
           msgError = this.$t('common.editfailed') as string
         }
       }

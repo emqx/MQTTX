@@ -7,19 +7,19 @@ import { Repository } from 'typeorm'
 export default class SettingService {
   constructor(
     @InjectRepository(SettingEntity)
-    private collectionRepository: Repository<SettingEntity>,
+    private settingRepository: Repository<SettingEntity>,
   ) {}
 
   public async set() {
-    const data = await this.collectionRepository.find()
+    const data = await this.settingRepository.find()
     if (data.length) {
       return
     }
-    return await this.collectionRepository.insert({})
+    return await this.settingRepository.insert({})
   }
 
   public async get() {
-    const data = await this.collectionRepository.find()
+    const data = await this.settingRepository.find()
     if (!data.length) {
       return
     }
@@ -31,6 +31,6 @@ export default class SettingService {
       return
     }
     const { id } = setting
-    return await this.collectionRepository.update(id, payload)
+    return await this.settingRepository.update(id, payload)
   }
 }
