@@ -3,7 +3,6 @@ import 'reflect-metadata' // Required by TypoORM.
 import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-import { updateConnectionMessage } from '@/api/connection'
 import { quitAndRenameLogger } from './utils/logger'
 import updateChecker from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
@@ -60,9 +59,10 @@ function handleIpcMessages() {
       newWindow(id, { isMac, theme, static: __static, path: '/new_window' })
     }
   })
-  ipcMain.on('saveMessages', (event: Electron.IpcMainEvent, ...args: any[]) => {
+  ipcMain.on('saveMessages', async (event: Electron.IpcMainEvent, ...args: any[]) => {
     const { id, receivedMessage } = args[0]
-    updateConnectionMessage(id, { ...receivedMessage })
+    const { messageService } = useServices()
+    await messageService.pushToConnection({ ...receivedMessage }, id)
   })
   ipcMain.on('getWindowSize', (event: Electron.IpcMainEvent, ...args: any[]) => {
     if (win) {

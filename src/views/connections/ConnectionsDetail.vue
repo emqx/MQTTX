@@ -290,7 +290,6 @@ import mqtt, { MqttClient, IClientOptions } from 'mqtt'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
 
-import { deleteMessage, updateConnectionMessage } from '@/api/connection'
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
@@ -635,8 +634,8 @@ export default class ConnectionsDetail extends Vue {
       id = this.selectedMessage.id.toString()
     }
     if (connectID) {
-      // FIXME: remove all message use message services
-      const res: ConnectionModel | null = await deleteMessage(connectID.toString() as string, id as string)
+      const { messageService } = useServices()
+      const res: MessageModel | undefined = await messageService.delete(id)
       if (res) {
         this.showContextmenu = false
         this.$message.success(this.$t('common.deleteSuccess') as string)
@@ -686,7 +685,7 @@ export default class ConnectionsDetail extends Vue {
     ipcRenderer.send('newWindow', this.$route.params.id)
   }
   // Dropdown command
-  private handleCommand(command: CommandType) {
+  private async handleCommand(command: CommandType) {
     switch (command) {
       case 'disconnect':
         this.disconnect()
@@ -695,7 +694,7 @@ export default class ConnectionsDetail extends Vue {
         this.removeConnection()
         break
       case 'clearHistory':
-        this.handleMsgClear()
+        await this.handleMsgClear()
         break
       case 'searchContent':
         this.handleSearchOpen()
@@ -713,7 +712,6 @@ export default class ConnectionsDetail extends Vue {
         this.handleSubSystemTopic()
         break
       case 'useScript':
-        // TODO: We should record the script import/on/off event
         this.handleUseScript()
         break
       default:
@@ -737,7 +735,7 @@ export default class ConnectionsDetail extends Vue {
     this.messages = _.cloneDeep(this.record.messages)
   }
   // Clear messages
-  private handleMsgClear() {
+  private async handleMsgClear() {
     this.messages = []
     this.record.messages = []
     this.changeActiveConnection({
@@ -746,8 +744,8 @@ export default class ConnectionsDetail extends Vue {
       messages: this.messages,
     })
     if (this.record.id) {
-      // FIXME: remove all message use message services
-      // updateConnection(this.record.id.toString() as string, this.record)
+      const { messageService } = useServices()
+      await messageService.cleanInConnection(this.record.id)
       this.$log.info('Cleaned history connection message')
     }
   }
@@ -1157,7 +1155,7 @@ export default class ConnectionsDetail extends Vue {
     const convertPayload = this.convertPayloadByScript(payload, 'received')
     const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
 
-    this.client.publish!(topic, sendPayload, { qos: qos as QoS, retain }, (error: Error) => {
+    this.client.publish!(topic, sendPayload, { qos: qos as QoS, retain }, async (error: Error) => {
       if (error) {
         const errorMsg = error.toString()
         this.$message.error(errorMsg)
@@ -1175,8 +1173,8 @@ export default class ConnectionsDetail extends Vue {
         retain,
       }
       if (this.record.id) {
-        // FIXME: remove all message use message services
-        updateConnectionMessage(this.record.id, { ...publishMessage })
+        const { messageService } = useServices()
+        await messageService.pushToConnection({ ...publishMessage }, this.record.id)
         this.record.messages.push({ ...publishMessage })
         // Filter by conditions (topic, payload, etc)
         const filterRes = this.filterBySearchConditions(topic, publishMessage)
