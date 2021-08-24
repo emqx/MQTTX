@@ -194,17 +194,16 @@ export default class ConnectionsList extends Vue {
     }
   }
 
-  private loadConnectionState() {
+  private async loadConnectionState() {
     const treeRef = this.$refs.tree as $TSFixed // nodesMap is not an export function
     const treeState = this.treeState as ConnectionTreeStateMap
     if (!treeRef || !treeState) return
-
     const nodes = treeRef.store.nodesMap
-    for (const id in nodes) {
-      if (treeState[id] && treeState[id].expanded) {
-        nodes[id].expanded = treeState[id].expanded || false
+    Object.keys(nodes).map((id: string) => {
+      if (treeState[id]) {
+        nodes[id].expanded = treeState[id]?.expanded ?? false
       }
-    }
+    })
   }
 
   private allowDrop(
@@ -217,17 +216,6 @@ export default class ConnectionsList extends Vue {
       return type !== 'inner'
     }
     return true
-  }
-
-  // flush the Collection change to local storage
-  private async flushCollectionChange() {
-    const tree = _.cloneDeep(this.treeData)
-    const { collectionService } = useServices()
-    // BUG: tree set bug -> can't remove collection corrrectly
-    const res = await collectionService.setAll(tree)
-    if (tree && !res) {
-      this.$log.error('Async Collection change failed')
-    }
   }
 
   private handleDragEnd(
@@ -268,11 +256,10 @@ export default class ConnectionsList extends Vue {
         default:
           if (!dropNode.parent) return
           draggingNode.data.parentId = Array.isArray(dropNode.parent.data) ? null : dropNode.parent.data.id
-          await connectionService.updateCollectionId(draggingNode.data.id, dropNode.parent.data.id)
+          await connectionService.updateCollectionId(draggingNode.data.id, draggingNode.data.parentId)
           break
       }
     }
-    this.flushCollectionChange()
   }
 
   private async loadData() {
@@ -281,7 +268,7 @@ export default class ConnectionsList extends Vue {
       this.loadConnectionState()
     })
 
-    //load selected connection active state
+    // load selected connection active state
     const { id } = this.$route.params
     const treeRef = this.$refs.tree as ElTree<ConnectionModelTree['id'], ConnectionModelTree>
     this.$nextTick(() => {
@@ -290,6 +277,7 @@ export default class ConnectionsList extends Vue {
         this.connectionId = id
       }
     })
+
     const { collectionService } = useServices()
     const treeData: ConnectionModelTree[] | undefined = await collectionService.getAll()
     treeData && (this.treeData = treeData)
@@ -303,27 +291,38 @@ export default class ConnectionsList extends Vue {
     return
   }
 
-  private handleEditCompeleted(node: TreeNode<'id', CollectionModel>, data: CollectionModel) {
+  private async handleEditCompeleted(node: TreeNode<'id', CollectionModel>, data: CollectionModel) {
+    if (!data) return
+    const { collectionService } = useServices()
     if (!this.handleCollectionNameValidate(data.name)) {
-      this.handleEditCancel(node, data)
-    } else if (data) {
-      data.isEdit = false
-      this.flushCollectionChange()
+      await this.handleEditCancel(node, data)
+    } else {
+      await collectionService.update(data, node.parent?.data.id)
     }
+    data.isEdit = false
+    data.isNewing = false
   }
 
   private handleCollectionNameValidate(name: string): boolean {
-    return (name ? true : false) && !name.match(/(^\s+$)/g)
+    return (name ? true : false) && !/(^\s+$)/g.test(name)
   }
 
-  private handleEditCancel(node: TreeNode<'id', CollectionModel>, data: CollectionModel) {
-    const parent = node.parent
-    if (parent) {
-      const children = parent.data.children || parent.data
-      const index = children.findIndex((d: ConnectionModelTree) => d.id === data.id)
-      children.splice(index, 1)
-      this.flushCollectionChange()
+  private async handleEditCancel(node: TreeNode<'id', CollectionModel>, data: CollectionModel) {
+    const { collectionService } = useServices()
+    if (data.isNewing) {
+      //remove because it's new
+      const parent = node.parent
+      if (parent) {
+        const children = parent.data.children || parent.data
+        const index = children.findIndex((d: ConnectionModelTree) => d.id === data.id)
+        children.splice(index, 1)
+        await collectionService.delete(data.id)
+      }
+    } else {
+      await collectionService.update(data)
     }
+    data.isEdit = false
+    data.isNewing = false
   }
 
   private handleSelectConnection(row: ConnectionModel) {
@@ -393,31 +392,37 @@ export default class ConnectionsList extends Vue {
     }
   }
 
-  private handleNewCollection() {
-    if (this.selectedCollection) {
-      const collectionChildren = this.selectedCollection.children as CollectionModel[]
-      collectionChildren.push({
-        id: getCollectionId(),
-        name: '',
-        isCollection: true,
-        children: [],
-        isEdit: true,
-      })
-    } else if (this.selectedConnection) {
-      //TODO: find father and add collection
-    }
-    this.flushCollectionChange()
-    this.showCollectionsContextmenu = false
-  }
-  private handleNewCollectionOnTop() {
-    const treeRef = this.treeData as ConnectionModelTree[]
-    treeRef.push({
+  private async handleNewCollection() {
+    const newCollection = {
       id: getCollectionId(),
       name: '',
       isCollection: true,
       children: [],
       isEdit: true,
-    })
+    } as CollectionModel
+    const { collectionService } = useServices()
+    await collectionService.add(newCollection, this.selectedCollection?.id)
+    if (this.selectedCollection) {
+      const collectionChildren = this.selectedCollection.children as CollectionModel[]
+      newCollection.isNewing = true
+      collectionChildren.push(newCollection)
+    }
+    this.showCollectionsContextmenu = false
+  }
+
+  private async handleNewCollectionOnTop() {
+    const treeRef = this.treeData as ConnectionModelTree[]
+    const newCollection = {
+      id: getCollectionId(),
+      name: '',
+      isCollection: true,
+      children: [],
+      isEdit: true,
+    } as CollectionModel
+    const { collectionService } = useServices()
+    await collectionService.add(newCollection)
+    treeRef.push(newCollection)
+    newCollection.isNewing = true
     this.$nextTick(() => {
       const newCollectionInputDom = this.$refs.newCollectionInput as Vue
       if (newCollectionInputDom) {
@@ -425,7 +430,6 @@ export default class ConnectionsList extends Vue {
         input.focus()
       }
     })
-    this.flushCollectionChange()
   }
 
   private getTreeNodeParent(node: ConnectionModelTree): ConnectionModelTree | ConnectionModelTree[] | null {
@@ -462,8 +466,7 @@ export default class ConnectionsList extends Vue {
     return res
   }
 
-  private handleDeleteCollection() {
-    // BUG: need to solve the undeleted collection because of current set service way.
+  private async handleDeleteCollection() {
     const selectedCollection = this.selectedCollection
     if (selectedCollection && selectedCollection.isCollection) {
       const nodeParent: ConnectionModelTree[] | ConnectionModelTree = this.getTreeNodeParent(selectedCollection) as
@@ -474,20 +477,10 @@ export default class ConnectionsList extends Vue {
         : (nodeParent as CollectionModel).children
       // delete collection
       const index = childrenNode.findIndex((d: ConnectionModelTree) => d.id === selectedCollection.id)
-      const deletedNode = childrenNode.splice(index, 1)
+      childrenNode.splice(index, 1)
       // delete the chilren
-      const treeTravel = (treeNode: ConnectionModelTree) => {
-        if (treeNode.isCollection) {
-          treeNode.children.forEach((treeNode: ConnectionModelTree) => {
-            treeTravel(treeNode)
-          })
-        } else {
-          treeNode.parentId = null
-          this.$emit('delete', treeNode)
-        }
-      }
-      treeTravel(deletedNode[0])
-      this.flushCollectionChange()
+      const { collectionService } = useServices()
+      await collectionService.delete(selectedCollection.id)
     }
 
     this.showCollectionsContextmenu = false

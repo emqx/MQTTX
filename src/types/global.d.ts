@@ -242,6 +242,7 @@ declare global {
     isCollection: true
     isEdit?: boolean
     orderId?: number
+    isNewing?: boolean
   }
 
   type ConnectionModelTree = CollectionModel | ConnectionModel

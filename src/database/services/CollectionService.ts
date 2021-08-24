@@ -7,7 +7,7 @@ import WillEntity from '@/database/models/WillEntity'
 import time from '@/utils/time'
 
 @Service()
-export default class ConnectionService {
+export default class CollectionService {
   constructor(
     @InjectRepository(CollectionEntity)
     private collectionRepository: Repository<CollectionEntity>,
@@ -89,6 +89,13 @@ export default class ConnectionService {
     if (collection.length) {
       await this.collectionRepository.save(collection)
     }
+    const defaultWill = {
+      lastWillTopic: '',
+      lastWillPayload: '',
+      lastWillQos: 0,
+      lastWillRetain: false,
+      contentType: '',
+    }
     for (let i = 0; i < connection.length; i++) {
       const query = await this.connectionRepository.findOne({
         clientId: connection[i].clientId,
@@ -97,14 +104,7 @@ export default class ConnectionService {
         const updatedConnection: ConnectionEntity = { ...connection[i], id: query.id, orderId: i } as ConnectionEntity
         let savedWill: WillEntity | undefined
         if (!updatedConnection.will) {
-          // TODO: replace this with default will mdoel
-          savedWill = await this.willRepository.save({
-            lastWillTopic: '',
-            lastWillPayload: '',
-            lastWillQos: 0,
-            lastWillRetain: false,
-            contentType: '',
-          } as WillEntity)
+          savedWill = await this.willRepository.save(defaultWill as WillEntity)
         } else {
           savedWill = await this.willRepository.save(updatedConnection.will as WillEntity)
         }
@@ -114,14 +114,7 @@ export default class ConnectionService {
           updateAt: time.getNowDate(),
         })
       } else {
-        // TODO: replace this with default will mdoel
-        const savedWill = await this.willRepository.save({
-          lastWillTopic: '',
-          lastWillPayload: '',
-          lastWillQos: 0,
-          lastWillRetain: false,
-          contentType: '',
-        } as WillEntity)
+        const savedWill = await this.willRepository.save(defaultWill as WillEntity)
         connection[i].will = savedWill
         await this.connectionRepository.insert({
           ...connection[i],
@@ -170,5 +163,56 @@ export default class ConnectionService {
       }),
     )
     return [...collectionTree, ...topConnections] as ConnectionModelTree[]
+  }
+
+  public async delete(collectionId: string) {
+    const entity: CollectionEntity | undefined = await this.collectionRepository.findOne(collectionId)
+    if (!entity) return
+    const query: CollectionEntity[] = await this.collectionRepository.manager
+      .getTreeRepository(CollectionEntity)
+      .findDescendants(entity)
+    if (!query) return
+    for (let i = 0; i < query.length; i++) {
+      const children = query[i].children
+      if (!children) continue
+      for (let j = 0; j < children.length; j++) {
+        await this.connectionRepository.delete({
+          parentId: children[j].id,
+        })
+      }
+    }
+    await this.collectionRepository.remove(query)
+  }
+
+  public async add(data: CollectionModel, parentId?: string): Promise<CollectionModel | undefined> {
+    const parent: CollectionEntity | undefined = parentId
+      ? await this.collectionRepository.findOne(parentId)
+      : undefined
+    const query = {
+      id: data.id,
+      name: data.name,
+      orderId: data.orderId,
+      isCollection: true,
+      children: [],
+      connections: [],
+      parent,
+    } as CollectionEntity
+    return await this.collectionRepository.save(query)
+  }
+
+  // only update meta data without connections and children relation
+  public async update(data: CollectionModel, parentId?: string) {
+    const parent: CollectionEntity | undefined = parentId
+      ? await this.collectionRepository.findOne(parentId)
+      : undefined
+    const query = await this.collectionRepository.findOne(data.id)
+    if (!query) return
+    await this.collectionRepository.save({
+      ...query,
+      name: data.name,
+      orderId: data.orderId,
+      isCollection: true,
+      parent,
+    })
   }
 }
