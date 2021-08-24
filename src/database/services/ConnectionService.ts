@@ -56,7 +56,10 @@ export default class ConnectionService {
   }
 
   // update connection's collection ID
-  public async updateCollectionId(id: string, updatedCollectionId: string): Promise<ConnectionModel | undefined> {
+  public async updateCollectionId(
+    id: string,
+    updatedCollectionId: string | null,
+  ): Promise<ConnectionModel | undefined> {
     const query: ConnectionEntity | undefined = await this.connectionRepository.findOne(id)
     if (!query) {
       return
@@ -246,6 +249,7 @@ export default class ConnectionService {
       .leftJoinAndSelect('cn.messages', 'msg')
       .leftJoinAndSelect('cn.subscriptions', 'sub')
       .leftJoinAndSelect('cn.will', 'will')
+      .select('cn.id')
       .getOne()
     if (!query) {
       return
