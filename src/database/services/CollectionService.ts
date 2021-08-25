@@ -215,4 +215,22 @@ export default class CollectionService {
       parent,
     })
   }
+
+  // update collection's collection ID
+  public async updateCollectionId(
+    id: string | undefined,
+    updatedCollectionId: string | null,
+  ): Promise<CollectionModel | undefined> {
+    if (!id) return
+    const query: CollectionEntity | undefined = await this.collectionRepository.findOne(id)
+    if (!query) {
+      return
+    }
+    const parent = updatedCollectionId
+      ? (await this.collectionRepository.findOne(updatedCollectionId)) ?? undefined
+      : undefined
+    query.parent = parent
+    await this.collectionRepository.save(query)
+    return query as CollectionModel
+  }
 }

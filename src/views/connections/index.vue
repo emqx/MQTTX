@@ -5,21 +5,24 @@
     </div>
 
     <div class="connections-view">
-      <EmptyPage
-        v-if="isEmpty && !oper"
-        name="connections.svg"
-        :btn-title="$t('connections.newConnections')"
-        :click-method="toCreateConnection"
-      />
+      <template v-if="isLoadingData"> </template>
       <template v-else>
-        <ConnectionForm v-if="oper" ref="connectionForm" :oper="oper" @connect="onConnect" />
-        <ConnectionsDetail
-          v-show="!oper"
-          ref="connectionsDetail"
-          :record="currentConnection"
-          @reload="loadData"
-          @delete="loadData(true)"
+        <EmptyPage
+          v-if="isEmpty && !oper"
+          name="connections.svg"
+          :btn-title="$t('connections.newConnections')"
+          :click-method="toCreateConnection"
         />
+        <template v-else>
+          <ConnectionForm v-if="oper" ref="connectionForm" :oper="oper" @connect="onConnect" />
+          <ConnectionsDetail
+            v-show="!oper"
+            ref="connectionsDetail"
+            :record="currentConnection"
+            @reload="loadData"
+            @delete="loadData(true)"
+          />
+        </template>
       </template>
     </div>
   </div>
@@ -49,6 +52,7 @@ export default class Connections extends Vue {
   }) => void
 
   private isEmpty: boolean = false
+  private isLoadingData: boolean = false
   private records: ConnectionModel[] = []
   private currentConnection: ConnectionModel = {
     clientId: '',
@@ -117,22 +121,27 @@ export default class Connections extends Vue {
   }
 
   private async loadData(reload: boolean = false): Promise<void> {
-    // TODO: need more test
+    this.isLoadingData = true
     const { connectionService } = useServices()
-    const connections: ConnectionModel[] | undefined = await connectionService.getAll()
-    if (connections) {
-      this.changeAllConnections({ allConnections: connections })
-      this.records = connections
-      if (reload && connections.length) {
-        this.$router.push({ path: `/recent_connections/${connections[0].id}` })
-      }
-      if (connections.length && this.connectionId !== 'create') {
-        this.loadDetail(this.connectionId)
-        this.isEmpty = false
-      } else {
-        this.isEmpty = true
+    const connectionCount: number = await connectionService.length()
+    if (connectionCount && this.connectionId !== 'create') {
+      await this.loadDetail(this.connectionId)
+      this.isEmpty = false
+    } else {
+      this.isEmpty = true
+    }
+    if (connectionCount) {
+      const connections: ConnectionModel[] | undefined = await connectionService.getAll()
+      if (connections) {
+        this.changeAllConnections({ allConnections: connections })
+        this.records = connections
+        if (reload && connectionCount) {
+          const lastestId = await connectionService.getLeatestId()
+          this.$router.push({ path: `/recent_connections/${lastestId}` })
+        }
       }
     }
+    this.isLoadingData = false
   }
 
   private toCreateConnection() {
@@ -152,8 +161,8 @@ export default class Connections extends Vue {
     connectionsDetailRef.removeConnection(data)
   }
 
-  private created() {
-    this.loadData()
+  private async created() {
+    await this.loadData()
   }
 }
 </script>
