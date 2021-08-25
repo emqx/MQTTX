@@ -199,10 +199,13 @@ export default class ConnectionsList extends Vue {
     const treeState = this.treeState as ConnectionTreeStateMap
     if (!treeRef || !treeState) return
     const nodes = treeRef.store.nodesMap
-    Object.keys(nodes).map((id: string) => {
-      if (treeState[id]) {
-        nodes[id].expanded = treeState[id]?.expanded ?? false
-      }
+    // Object.keys(nodes).map((id: string) => {
+    //   if (treeState[id]) {
+    //     nodes[id].expanded = treeState[id]?.expanded ?? false
+    //   }
+    // })
+    Object.keys(treeRef.store.nodesMap).map((id) => {
+      nodes[id].expanded = true
     })
   }
 
@@ -263,6 +266,17 @@ export default class ConnectionsList extends Vue {
   }
 
   private async loadData() {
+    const { collectionService } = useServices()
+    const treeData: ConnectionModelTree[] | undefined = await collectionService.getAll()
+    treeData && (this.treeData = treeData)
+    // sort collection trees
+    this.treeData.forEach((el: ConnectionModelTree) => {
+      if (el.isCollection) {
+        sortConnectionTree(el.children)
+      }
+    })
+    sortConnectionTree(this.treeData)
+
     //load collection expanded state
     this.$nextTick(() => {
       this.loadConnectionState()
@@ -277,17 +291,6 @@ export default class ConnectionsList extends Vue {
         this.connectionId = id
       }
     })
-
-    const { collectionService } = useServices()
-    const treeData: ConnectionModelTree[] | undefined = await collectionService.getAll()
-    treeData && (this.treeData = treeData)
-    // sort collection trees
-    this.treeData.forEach((el: ConnectionModelTree) => {
-      if (el.isCollection) {
-        sortConnectionTree(el.children)
-      }
-    })
-    sortConnectionTree(this.treeData)
     return
   }
 
