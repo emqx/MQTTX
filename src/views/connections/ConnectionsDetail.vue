@@ -227,6 +227,7 @@
           </div>
         </div>
         <SubscriptionsList
+          v-if="$route.params.id"
           ref="subList"
           :subsVisible.sync="showSubs"
           :connectionId="$route.params.id"
@@ -561,7 +562,7 @@ export default class ConnectionsDetail extends Vue {
             this.$emit('delete')
             this.$message.success(this.$t('common.deleteSuccess') as string)
             if (res.id) {
-              this.removeActiveConnection({ id: res.id.toString() as string })
+              this.removeActiveConnection({ id: res.id as string })
               this.$log.info(`MQTTX remove connection ${res.name}(clientID ${res.clientId}) success`)
             }
           }

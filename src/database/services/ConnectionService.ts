@@ -57,9 +57,10 @@ export default class ConnectionService {
 
   // update connection's collection ID
   public async updateCollectionId(
-    id: string,
+    id: string | undefined,
     updatedCollectionId: string | null,
   ): Promise<ConnectionModel | undefined> {
+    if (!id) return
     const query: ConnectionEntity | undefined = await this.connectionRepository.findOne(id)
     if (!query) {
       return
@@ -215,7 +216,9 @@ export default class ConnectionService {
     if (query === undefined) {
       return undefined
     }
-    return query as ConnectionModel[]
+    return query.map((entity) => {
+      return this.entityToModel(entity)
+    }) as ConnectionModel[]
   }
 
   public async create(data: ConnectionModel): Promise<ConnectionModel | undefined> {
@@ -296,5 +299,18 @@ export default class ConnectionService {
     } else {
       await this.settingRepository.save({ ...query, cleanAt: time.getNowDate() })
     }
+  }
+
+  public async length() {
+    return await this.connectionRepository.createQueryBuilder('cn').select('cn.id').getCount()
+  }
+
+  public async getLeatestId(): Promise<string | undefined> {
+    const leatest: ConnectionEntity | undefined = await this.connectionRepository
+      .createQueryBuilder('cn')
+      .addOrderBy('createAt', 'ASC')
+      .select('cn.id')
+      .getOne()
+    return leatest ? leatest.id : undefined
   }
 }

@@ -199,13 +199,10 @@ export default class ConnectionsList extends Vue {
     const treeState = this.treeState as ConnectionTreeStateMap
     if (!treeRef || !treeState) return
     const nodes = treeRef.store.nodesMap
-    // Object.keys(nodes).map((id: string) => {
-    //   if (treeState[id]) {
-    //     nodes[id].expanded = treeState[id]?.expanded ?? false
-    //   }
-    // })
-    Object.keys(treeRef.store.nodesMap).map((id) => {
-      nodes[id].expanded = true
+    Object.keys(nodes).map((id: string) => {
+      if (treeState[id]) {
+        nodes[id].expanded = treeState[id]?.expanded ?? false
+      }
     })
   }
 
@@ -250,16 +247,24 @@ export default class ConnectionsList extends Vue {
       return
     }
     if (!draggingNode.data.isCollection) {
-      const { connectionService } = useServices()
+      const { connectionService, collectionService } = useServices()
       switch (position) {
         case 'inner':
-          draggingNode.data.parentId = dropNode.data.id
-          await connectionService.updateCollectionId(draggingNode.data.id, dropNode.data.id)
+          if (draggingNode.data.isCollection) {
+            // TODO: same for sequenceID
+            await collectionService.updateCollectionId((draggingNode.data as CollectionModel).id, dropNode.data.id)
+          } else {
+            await connectionService.updateCollectionId(draggingNode.data.id, dropNode.data.id)
+          }
           break
         default:
           if (!dropNode.parent) return
-          draggingNode.data.parentId = Array.isArray(dropNode.parent.data) ? null : dropNode.parent.data.id
-          await connectionService.updateCollectionId(draggingNode.data.id, draggingNode.data.parentId)
+          const parentId = Array.isArray(dropNode.parent.data) ? null : dropNode.parent.data.id
+          if (draggingNode.data.isCollection) {
+            await collectionService.updateCollectionId((draggingNode.data as ConnectionModel).id, parentId)
+          } else {
+            await connectionService.updateCollectionId(draggingNode.data.id, parentId)
+          }
           break
       }
     }

@@ -27,11 +27,10 @@ Router.prototype.push = function push(location: string) {
 router.beforeEach(async (to, from, next) => {
   if (to.name === 'Connections') {
     const { connectionService } = useServices()
-    // TODO: Need more test
-    // maybe we should not use async inside the foreach loop
-    const connections: ConnectionModel[] | [] = (await connectionService.getAll()) || []
-    if (connections.length) {
-      next({ path: `/recent_connections/${connections[0].id}` })
+    const connectionCount: number = await connectionService.length()
+    if (connectionCount) {
+      const lastestId = await connectionService.getLeatestId()
+      next({ path: `/recent_connections/${lastestId}` })
     } else {
       next()
     }
