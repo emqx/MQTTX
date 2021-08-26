@@ -3,10 +3,8 @@
     <div class="left-list">
       <ConnectionsList :ConnectionModelData="records" @delete="onDelete" />
     </div>
-
     <div class="connections-view">
-      <template v-if="isLoadingData"> </template>
-      <template v-else>
+      <template v-if="!isLoadingData">
         <EmptyPage
           v-if="isEmpty && !oper"
           name="connections.svg"
@@ -23,6 +21,9 @@
             @delete="loadData(true)"
           />
         </template>
+      </template>
+      <template v-else>
+        <el-skeleton class="empty-page" :row="8" animated />
       </template>
     </div>
   </div>
@@ -52,7 +53,7 @@ export default class Connections extends Vue {
   }) => void
 
   private isEmpty: boolean = false
-  private isLoadingData: boolean = false
+  private isLoadingData: boolean = true
   private records: ConnectionModel[] = []
   private currentConnection: ConnectionModel = {
     clientId: '',
@@ -123,23 +124,19 @@ export default class Connections extends Vue {
   private async loadData(reload: boolean = false): Promise<void> {
     this.isLoadingData = true
     const { connectionService } = useServices()
-    const connectionCount: number = await connectionService.length()
-    if (connectionCount && this.connectionId !== 'create') {
-      await this.loadDetail(this.connectionId)
+    const connections: ConnectionModel[] | [] = (await connectionService.getAll()) ?? []
+    this.changeAllConnections({ allConnections: connections })
+    this.records = connections
+
+    if (connections.length && reload) {
+      const lastestId = await connectionService.getLeatestId()
+      this.$router.push({ path: `/recent_connections/${lastestId}` })
+    }
+    if (connections.length && this.connectionId !== 'create') {
+      this.loadDetail(this.connectionId)
       this.isEmpty = false
     } else {
       this.isEmpty = true
-    }
-    if (connectionCount) {
-      const connections: ConnectionModel[] | undefined = await connectionService.getAll()
-      if (connections) {
-        this.changeAllConnections({ allConnections: connections })
-        this.records = connections
-        if (reload && connectionCount) {
-          const lastestId = await connectionService.getLeatestId()
-          this.$router.push({ path: `/recent_connections/${lastestId}` })
-        }
-      }
     }
     this.isLoadingData = false
   }
@@ -161,8 +158,8 @@ export default class Connections extends Vue {
     connectionsDetailRef.removeConnection(data)
   }
 
-  private async created() {
-    await this.loadData()
+  private created() {
+    this.loadData()
   }
 }
 </script>

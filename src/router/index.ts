@@ -27,9 +27,8 @@ Router.prototype.push = function push(location: string) {
 router.beforeEach(async (to, from, next) => {
   if (to.name === 'Connections') {
     const { connectionService } = useServices()
-    const connectionCount: number = await connectionService.length()
-    if (connectionCount) {
-      const lastestId = await connectionService.getLeatestId()
+    const lastestId: string | undefined = await connectionService.getLeatestId()
+    if (lastestId) {
       next({ path: `/recent_connections/${lastestId}` })
     } else {
       next()

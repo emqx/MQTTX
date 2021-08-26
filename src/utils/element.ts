@@ -4,6 +4,8 @@ import CollapseTransition from 'element-ui/lib/transitions/collapse-transition'
 import _Vue from 'vue'
 
 import {
+  Skeleton,
+  SkeletonItem,
   // Pagination,
   Dialog,
   Autocomplete,
@@ -75,6 +77,8 @@ import {
 } from 'element-ui'
 
 export default (Vue: typeof _Vue) => {
+  Vue.use(Skeleton)
+  Vue.use(SkeletonItem)
   // Vue.use(Pagination)
   Vue.use(Dialog)
   Vue.use(Autocomplete)
