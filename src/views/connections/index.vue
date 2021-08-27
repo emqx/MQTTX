@@ -18,12 +18,12 @@
             ref="connectionsDetail"
             :record="currentConnection"
             @reload="loadData"
-            @delete="loadData(true)"
+            @delete="loadData(true, true)"
           />
         </template>
       </template>
       <template v-else>
-        <el-skeleton class="empty-page" :row="8" animated />
+        <el-skeleton class="connection-skeleton-page" :row="8" animated />
       </template>
     </div>
   </div>
@@ -53,7 +53,7 @@ export default class Connections extends Vue {
   }) => void
 
   private isEmpty: boolean = false
-  private isLoadingData: boolean = true
+  private isLoadingData: boolean = false
   private records: ConnectionModel[] = []
   private currentConnection: ConnectionModel = {
     clientId: '',
@@ -121,24 +121,24 @@ export default class Connections extends Vue {
     }
   }
 
-  private async loadData(reload: boolean = false): Promise<void> {
-    this.isLoadingData = true
+  private async loadData(loadingLeatest: boolean = false, firstLoad: boolean = false): Promise<void> {
+    firstLoad && (this.isLoadingData = true)
     const { connectionService } = useServices()
     const connections: ConnectionModel[] | [] = (await connectionService.getAll()) ?? []
     this.changeAllConnections({ allConnections: connections })
     this.records = connections
 
-    if (connections.length && reload) {
-      const lastestId = await connectionService.getLeatestId()
-      this.$router.push({ path: `/recent_connections/${lastestId}` })
+    if (connections.length && loadingLeatest) {
+      const leatestId = await connectionService.getLeatestId()
+      this.$router.push({ path: `/recent_connections/${leatestId}` })
     }
     if (connections.length && this.connectionId !== 'create') {
-      this.loadDetail(this.connectionId)
+      await this.loadDetail(this.connectionId)
       this.isEmpty = false
     } else {
       this.isEmpty = true
     }
-    this.isLoadingData = false
+    firstLoad && (this.isLoadingData = false)
   }
 
   private toCreateConnection() {
@@ -159,7 +159,7 @@ export default class Connections extends Vue {
   }
 
   private created() {
-    this.loadData()
+    this.loadData(false, true)
   }
 }
 </script>
