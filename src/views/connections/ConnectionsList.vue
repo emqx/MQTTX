@@ -9,7 +9,7 @@
       </div>
     </div>
     <div class="connections-list">
-      <template>
+      <template v-if="!isLoadingData">
         <el-tree
           :indent="4"
           draggable
@@ -93,6 +93,9 @@
           </span>
         </el-tree>
       </template>
+      <template v-else>
+        <el-skeleton class="connections-list-skeleton" :row="8" animated />
+      </template>
       <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
         <a href="javascript:;" class="context-menu__item" @click="handleNewWindow">
           <i class="iconfont icon-a-newwindow"></i>{{ $t('common.newWindow') }}
@@ -144,6 +147,7 @@ export default class ConnectionsList extends Vue {
   @Getter('currentTheme') private theme!: Theme
   @Getter('connectionTreeState') private treeState!: ConnectionTreeStateMap
 
+  private isLoadingData: boolean = false
   private connectionId: string = this.$route.params.id
   private showContextmenu: boolean = false
   private showCollectionsContextmenu: boolean = false
@@ -172,8 +176,8 @@ export default class ConnectionsList extends Vue {
     }
   }
   @Watch('ConnectionModelData')
-  private async handleConnectionModelDataChange() {
-    await this.loadData()
+  private handleConnectionModelDataChange() {
+    this.loadData()
   }
   @Watch('$route.params.id')
   private handleConnectionIdChanged(id: string) {
@@ -270,7 +274,8 @@ export default class ConnectionsList extends Vue {
     }
   }
 
-  private async loadData() {
+  private async loadData(firstLoad: boolean = false) {
+    firstLoad && (this.isLoadingData = true)
     const { collectionService } = useServices()
     const treeData: ConnectionModelTree[] | undefined = await collectionService.getAll()
     treeData && (this.treeData = treeData)
@@ -296,6 +301,7 @@ export default class ConnectionsList extends Vue {
         this.connectionId = id
       }
     })
+    firstLoad && (this.isLoadingData = false)
     return
   }
 
@@ -501,8 +507,8 @@ export default class ConnectionsList extends Vue {
     this.showCollectionsContextmenu = false
   }
 
-  private async mounted() {
-    await this.loadData()
+  private mounted() {
+    this.loadData(true)
   }
 }
 </script>
@@ -536,6 +542,9 @@ export default class ConnectionsList extends Vue {
   }
   .connections-list {
     height: calc(100% - 59px);
+    .connections-list-skeleton {
+      margin: 0 16px;
+    }
     .el-tree {
       height: 100%;
       background-color: var(--color-bg-normal);
