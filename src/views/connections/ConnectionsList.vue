@@ -176,16 +176,18 @@ export default class ConnectionsList extends Vue {
     }
   }
   @Watch('ConnectionModelData')
-  private handleConnectionModelDataChange() {
-    this.loadData()
+  private handleConnectionModelDataChange(val: ConnectionModel[] | [], oldVal: ConnectionModel[] | []) {
+    this.loadData(val.length === 1 && oldVal.length === 0)
   }
   @Watch('$route.params.id')
   private handleConnectionIdChanged(id: string) {
-    if (id) {
-      const treeRef = this.$refs.tree as ElTree<ConnectionModelTree['id'], ConnectionModelTree>
-      treeRef.setCurrentKey(id)
-      this.connectionId = id
-    }
+    this.$nextTick(() => {
+      if (id) {
+        const treeRef = this.$refs.tree as ElTree<ConnectionModelTree['id'], ConnectionModelTree>
+        treeRef?.setCurrentKey(id)
+        this.connectionId = id
+      }
+    })
   }
 
   private handleNodeExpand(data: ConnectionModelTree, node: TreeNode<ConnectionModelTree['id'], ConnectionModelTree>) {
@@ -273,7 +275,6 @@ export default class ConnectionsList extends Vue {
       }
     }
   }
-
   private async loadData(firstLoad: boolean = false) {
     firstLoad && (this.isLoadingData = true)
     const { collectionService } = useServices()
@@ -286,6 +287,7 @@ export default class ConnectionsList extends Vue {
       }
     })
     sortConnectionTree(this.treeData)
+    firstLoad && (this.isLoadingData = false)
 
     //load collection expanded state
     this.$nextTick(() => {
@@ -297,11 +299,10 @@ export default class ConnectionsList extends Vue {
     const treeRef = this.$refs.tree as ElTree<ConnectionModelTree['id'], ConnectionModelTree>
     this.$nextTick(() => {
       if (id) {
-        treeRef.setCurrentKey(id)
+        treeRef?.setCurrentKey(id)
         this.connectionId = id
       }
     })
-    firstLoad && (this.isLoadingData = false)
     return
   }
 

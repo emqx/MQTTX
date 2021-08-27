@@ -86,7 +86,7 @@ export default class Connections extends Vue {
     if (connectionsDetailRef) {
       connectionsDetailRef.stopTimedSend()
     }
-    this.loadData()
+    this.loadData(false, this.isEmpty)
   }
 
   @Watch('oper')

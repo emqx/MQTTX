@@ -620,7 +620,7 @@ export default class ConnectionCreate extends Vue {
       if (res) {
         if (res.id) {
           this.changeActiveConnection({
-            id: res.id.toString() as string,
+            id: res.id,
             client: {
               connected: false,
             },
