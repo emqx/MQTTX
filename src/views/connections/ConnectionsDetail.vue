@@ -445,7 +445,7 @@ export default class ConnectionsDetail extends Vue {
 
   get bodyTop(): TopModel {
     return {
-      open: '251px',
+      open: '249px',
       close: '60px',
     }
   }

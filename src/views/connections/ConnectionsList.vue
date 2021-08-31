@@ -177,7 +177,8 @@ export default class ConnectionsList extends Vue {
   }
   @Watch('ConnectionModelData')
   private handleConnectionModelDataChange(val: ConnectionModel[] | [], oldVal: ConnectionModel[] | []) {
-    this.loadData(val.length === 1 && oldVal.length === 0)
+    const isFirstLoad = val.length === 1 && oldVal.length === 0
+    this.loadData(isFirstLoad)
   }
   @Watch('$route.params.id')
   private handleConnectionIdChanged(id: string) {

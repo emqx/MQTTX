@@ -62,6 +62,7 @@ function handleIpcMessages() {
   ipcMain.on('saveMessages', async (event: Electron.IpcMainEvent, ...args: any[]) => {
     const { id, receivedMessage } = args[0]
     const { messageService } = useServices()
+    console.log(receivedMessage)
     await messageService.pushToConnection({ ...receivedMessage }, id)
   })
   ipcMain.on('getWindowSize', (event: Electron.IpcMainEvent, ...args: any[]) => {
