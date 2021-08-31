@@ -4,7 +4,10 @@
       <ConnectionsList :ConnectionModelData="records" @delete="onDelete" />
     </div>
     <div class="connections-view">
-      <template v-if="!isLoadingData">
+      <template v-if="isLoadingData">
+        <el-skeleton class="connection-skeleton-page" :row="8" animated />
+      </template>
+      <template v-else>
         <EmptyPage
           v-if="isEmpty && !oper"
           name="connections.svg"
@@ -21,9 +24,6 @@
             @delete="loadData(true, true)"
           />
         </template>
-      </template>
-      <template v-else>
-        <el-skeleton class="connection-skeleton-page" :row="8" animated />
       </template>
     </div>
   </div>
@@ -86,7 +86,11 @@ export default class Connections extends Vue {
     if (connectionsDetailRef) {
       connectionsDetailRef.stopTimedSend()
     }
-    this.loadData(false, this.isEmpty)
+    if (val === '0' || val === undefined) {
+      return
+    }
+    const isFirstLoad = this.isEmpty && val !== '0'
+    this.loadData(false, isFirstLoad)
   }
 
   @Watch('oper')
@@ -122,23 +126,24 @@ export default class Connections extends Vue {
   }
 
   private async loadData(loadingLeatest: boolean = false, firstLoad: boolean = false): Promise<void> {
-    firstLoad && (this.isLoadingData = true)
+    if (firstLoad) {
+      this.isLoadingData = true
+    }
     const { connectionService } = useServices()
     const connections: ConnectionModel[] | [] = (await connectionService.getAll()) ?? []
     this.changeAllConnections({ allConnections: connections })
     this.records = connections
-
+    this.isLoadingData = false
     if (connections.length && loadingLeatest) {
       const leatestId = await connectionService.getLeatestId()
       this.$router.push({ path: `/recent_connections/${leatestId}` })
     }
     if (connections.length && this.connectionId !== 'create') {
-      await this.loadDetail(this.connectionId)
       this.isEmpty = false
+      await this.loadDetail(this.connectionId)
     } else {
       this.isEmpty = true
     }
-    firstLoad && (this.isLoadingData = false)
   }
 
   private toCreateConnection() {
@@ -146,6 +151,7 @@ export default class Connections extends Vue {
   }
 
   private onConnect() {
+    this.isEmpty = false
     this.loadData()
     setTimeout(() => {
       const connectionsDetailRef = this.$refs.connectionsDetail as ConnectionsDetail
