@@ -8,7 +8,7 @@ export default class MessageEntity {
   @PrimaryGeneratedColumn('uuid')
   id?: string
 
-  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: 'varchar' })
   createAt!: string
 
   @Column({ type: 'boolean' })
