@@ -172,20 +172,14 @@ export default class ConnectionService {
   }
 
   // update sequence ID
-  public async updateSequenceId(id: string, updatedOrder: number): Promise<ConnectionModel | undefined> {
-    const query: ConnectionEntity | undefined = await this.connectionRepository.findOne({
-      where: {
-        id,
-      },
-    })
+  public async updateSequenceId(id: string | undefined, updatedOrder: number): Promise<ConnectionModel | undefined> {
+    if (!id) return
+    const query: ConnectionEntity | undefined = await this.connectionRepository.findOne(id)
     if (!query) {
       return
     }
     query.orderId = updatedOrder
-    await this.connectionRepository.save({
-      ...query,
-      updateAt: time.getNowDate(),
-    })
+    await this.connectionRepository.save(query)
     return query as ConnectionModel
   }
 

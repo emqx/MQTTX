@@ -1,10 +1,19 @@
-export const flushCurSequenceId = (data: ConnectionModelTree[]): void => {
-  data.forEach((el: ConnectionModelTree, idx: number) => {
-    if (el.isCollection) {
-      flushCurSequenceId(el.children)
-    }
-    el.orderId = idx
-  })
+import useServices from '@/database/useServices'
+
+export const flushCurSequenceId = async (tree: ConnectionModelTree[]) => {
+  if (!tree || !tree.length) return
+  const { connectionService, collectionService } = useServices()
+  await Promise.all(
+    tree.map(async (treeNode: ConnectionModelTree, idx: number) => {
+      treeNode.orderId = idx
+      if (treeNode.isCollection) {
+        await flushCurSequenceId(treeNode.children)
+        await collectionService.updateSequenceId(treeNode.id, treeNode.orderId)
+      } else {
+        await connectionService.updateSequenceId(treeNode.id, treeNode.orderId)
+      }
+    }),
+  )
 }
 
 export const sortConnectionTree = (data: ConnectionModelTree[]): void => {

@@ -18,7 +18,7 @@ export default class CollectionEntity {
 
   // current collection parent
   @TreeParent()
-  parent?: CollectionEntity
+  parent?: CollectionEntity | null
 
   // collections children
   @TreeChildren()

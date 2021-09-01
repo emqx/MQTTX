@@ -226,11 +226,17 @@ export default class CollectionService {
     if (!query) {
       return
     }
-    const parent = updatedCollectionId
-      ? (await this.collectionRepository.findOne(updatedCollectionId)) ?? undefined
-      : undefined
+    const parent = updatedCollectionId ? (await this.collectionRepository.findOne(updatedCollectionId)) ?? null : null
     query.parent = parent
     await this.collectionRepository.save(query)
     return query as CollectionModel
+  }
+
+  public async updateSequenceId(id: string | undefined, sequenceId: number) {
+    if (!id) return
+    const query: CollectionEntity | undefined = await this.collectionRepository.findOne(id)
+    if (!query) return
+    query.orderId = sequenceId
+    await this.collectionRepository.save(query)
   }
 }
