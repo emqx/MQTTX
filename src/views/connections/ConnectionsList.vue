@@ -127,6 +127,7 @@ import { ipcRenderer } from 'electron'
 import { TreeNode, ElTree } from 'element-ui/types/tree'
 import getCollectionId from '@/utils/getCollectionId'
 import _ from 'lodash'
+import { flushCurSequenceId } from '@/utils/connections'
 import { sortConnectionTree } from '@/utils/connections'
 import '@/assets/font/iconfont'
 import useServices from '@/database/useServices'
@@ -216,13 +217,30 @@ export default class ConnectionsList extends Vue {
   private allowDrop(
     draggingNode: TreeNode<CollectionModel['id'], CollectionModel>,
     dropNode: TreeNode<CollectionModel['id'], CollectionModel>,
-    type: 'prev' | 'inner' | 'next',
+    type: 'before' | 'inner' | 'next',
   ) {
-    if (!dropNode.data.isCollection) {
-      // drag node to connction is not allowed
-      return type !== 'inner'
+    let isAllow = true
+    switch (type) {
+      case 'before':
+        // not allow connection prev collection
+        if (!draggingNode.data.isCollection && dropNode.data.isCollection) {
+          isAllow = false
+        }
+        break
+      case 'inner':
+        // not allow drop into collection
+        if (!dropNode.data.isCollection) {
+          isAllow = false
+        }
+        break
+      case 'next':
+        // not allow collection next connection
+        if (draggingNode.data.isCollection && !dropNode.data.isCollection) {
+          isAllow = false
+        }
+        break
     }
-    return true
+    return isAllow
   }
 
   private handleDragEnd(
@@ -253,29 +271,27 @@ export default class ConnectionsList extends Vue {
     if (!draggingNode || !draggingNode.data || !dropNode || !dropNode.data || !draggingNode.data.id) {
       return
     }
-    if (!draggingNode.data.isCollection) {
-      const { connectionService, collectionService } = useServices()
-      switch (position) {
-        case 'inner':
-          if (draggingNode.data.isCollection) {
-            // TODO: same for sequenceID
-            await collectionService.updateCollectionId((draggingNode.data as CollectionModel).id, dropNode.data.id)
-          } else {
-            await connectionService.updateCollectionId(draggingNode.data.id, dropNode.data.id)
-          }
-          break
-        default:
-          if (!dropNode.parent) return
-          const parentId = Array.isArray(dropNode.parent.data) ? null : dropNode.parent.data.id
-          if (draggingNode.data.isCollection) {
-            await collectionService.updateCollectionId((draggingNode.data as ConnectionModel).id, parentId)
-          } else {
-            await connectionService.updateCollectionId(draggingNode.data.id, parentId)
-          }
-          break
-      }
+    const { connectionService, collectionService } = useServices()
+    switch (position) {
+      case 'inner':
+        if (draggingNode.data.isCollection) {
+          await collectionService.updateCollectionId((draggingNode.data as CollectionModel).id, dropNode.data.id)
+        } else {
+          await connectionService.updateCollectionId(draggingNode.data.id, dropNode.data.id)
+        }
+        break
+      default:
+        const parentId = dropNode.parent?.data.id ?? null
+        if (draggingNode.data.isCollection) {
+          await collectionService.updateCollectionId((draggingNode.data as CollectionModel).id, parentId)
+        } else {
+          await connectionService.updateCollectionId(draggingNode.data.id, parentId)
+        }
+        break
     }
+    await flushCurSequenceId(this.treeData)
   }
+
   private async loadData(firstLoad: boolean = false) {
     firstLoad && (this.isLoadingData = true)
     const { collectionService } = useServices()
