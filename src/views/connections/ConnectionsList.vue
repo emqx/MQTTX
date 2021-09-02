@@ -217,26 +217,34 @@ export default class ConnectionsList extends Vue {
   private allowDrop(
     draggingNode: TreeNode<CollectionModel['id'], CollectionModel>,
     dropNode: TreeNode<CollectionModel['id'], CollectionModel>,
-    type: 'before' | 'inner' | 'next',
+    type: 'prev' | 'inner' | 'next',
   ) {
     let isAllow = true
+    const sublings = draggingNode.parent?.childNodes
+    const currentIdx = sublings?.findIndex((e) => e.data.id === draggingNode.data.id) ?? 0
+
+    const orderSequence = function (
+      data: TreeNode<CollectionModel['id'], CollectionModel>[],
+      currentIdx: number,
+    ): boolean {
+      return data.every(
+        (e, idx) =>
+          (e.data.isCollection && idx < currentIdx) || (!e.data.isCollection && idx > currentIdx) || idx === currentIdx,
+      )
+    }
     switch (type) {
-      case 'before':
-        // not allow connection prev collection
-        if (!draggingNode.data.isCollection && dropNode.data.isCollection) {
-          isAllow = false
-        }
-        break
       case 'inner':
         // not allow drop into collection
         if (!dropNode.data.isCollection) {
           isAllow = false
         }
         break
-      case 'next':
-        // not allow collection next connection
-        if (draggingNode.data.isCollection && !dropNode.data.isCollection) {
-          isAllow = false
+      default:
+        // not allow collection next connection or connection prev collection
+        if (draggingNode.data.isCollection && !dropNode.data.isCollection && sublings) {
+          isAllow = type === 'prev' ? orderSequence(sublings, currentIdx) : false
+        } else if (!draggingNode.data.isCollection && dropNode.data.isCollection && sublings) {
+          isAllow = type === 'next' ? orderSequence(sublings, currentIdx) : false
         }
         break
     }
