@@ -4,8 +4,7 @@ import ConnectionEntity from '@/database/models/ConnectionEntity'
 import WillEntity from '@/database/models/WillEntity'
 import MessageEntity from '@/database/models/MessageEntity'
 import SubscriptionEntity from '@/database/models/SubscriptionEntity'
-import CollectionEntity from '@/database/models/CollectionEntity'
-import SettingEntity from '@/database/models/SettingEntity'
+import HistoryConnectionEntity from '@/database/models/HistoryConnectionEntity'
 import { Repository, MoreThan, LessThan } from 'typeorm'
 import { DateUtils } from 'typeorm/util/DateUtils'
 import deepMerge from '@/utils/deepMerge'
@@ -18,16 +17,14 @@ export default class ConnectionService {
   constructor(
     @InjectRepository(ConnectionEntity)
     private connectionRepository: Repository<ConnectionEntity>,
-    @InjectRepository(CollectionEntity)
-    private collectionRepository: Repository<CollectionEntity>,
+    @InjectRepository(HistoryConnectionEntity)
+    private historyConnectionRepository: Repository<HistoryConnectionEntity>,
     @InjectRepository(WillEntity)
     private willRepository: Repository<WillEntity>,
     @InjectRepository(SubscriptionEntity)
     private subscriptionRepository: Repository<SubscriptionEntity>,
     @InjectRepository(MessageEntity)
     private messageRepository: Repository<MessageEntity>,
-    @InjectRepository(SettingEntity)
-    private settingRepository: Repository<SettingEntity>,
   ) {}
 
   private modelToEntity(data: ConnectionModel): ConnectionEntity {
@@ -229,6 +226,7 @@ export default class ConnectionService {
       savedWill = await this.willRepository.save(res.will as WillEntity)
     }
     res.will = savedWill
+    await this.historyConnectionRepository.save(res)
     return this.entityToModel(
       await this.connectionRepository.save({
         ...res,
@@ -258,41 +256,35 @@ export default class ConnectionService {
   }
 
   public async getLeatests(take: number | undefined = 10): Promise<ConnectionModel[] | undefined> {
-    const settings: SettingEntity | undefined = await this.settingRepository.findOne()
-    let query: ConnectionEntity[] | undefined
-    if (settings && settings.cleanAt) {
-      query = await this.connectionRepository
-        .createQueryBuilder('cn')
-        .where(
-          `cn.createAt BETWEEN '${DateUtils.mixedDateToUtcDatetimeString(settings.cleanAt)}' 
-        AND '${DateUtils.mixedDateToUtcDatetimeString(time.getNowDate())}'`,
-        )
-        .addOrderBy('createAt', 'ASC')
-        .take(take)
-        .getMany()
-    } else {
-      query = await this.connectionRepository
-        .createQueryBuilder('cn')
-        .addOrderBy('createAt', 'ASC')
-        .take(take)
-        .getMany()
-      if (!query || !query.length) {
-        return
-      }
+    let query: HistoryConnectionEntity[] | undefined
+    query = await this.historyConnectionRepository
+      .createQueryBuilder('cn')
+      .addOrderBy('createAt', 'ASC')
+      .take(take)
+      .getMany()
+    if (!query || !query.length) {
+      return
     }
-    return query.map((entity) => {
-      entity.id = undefined
-      return this.entityToModel(entity) as ConnectionModel
+    return query.map((data) => {
+      data.id = undefined
+      return {
+        ...data,
+        will: {
+          ...data.will,
+          properties: {
+            willDelayInterval: data.will?.willDelayInterval,
+            payloadFormatIndicator: data.will?.payloadFormatIndicator,
+            messageExpiryInterval: data.will?.messageExpiryInterval,
+            contentType: data.will?.contentType,
+          },
+        },
+      } as ConnectionModel
     })
   }
 
   public async cleanLeatest() {
-    const query: SettingEntity | undefined = await this.settingRepository.findOne()
-    if (!query) {
-      await this.settingRepository.insert({ cleanAt: time.getNowDate() })
-    } else {
-      await this.settingRepository.save({ ...query, cleanAt: time.getNowDate() })
-    }
+    const res: HistoryConnectionEntity[] = await this.historyConnectionRepository.createQueryBuilder().getMany()
+    await this.historyConnectionRepository.remove(res)
   }
 
   public async length() {

@@ -25,7 +25,4 @@ export default class SettingEntity {
 
   @Column({ type: 'boolean', default: true })
   autoResub!: boolean
-
-  @Column({ type: 'datetime', nullable: true })
-  cleanAt?: string
 }
