@@ -59,11 +59,6 @@ function handleIpcMessages() {
       newWindow(id, { isMac, theme, static: __static, path: '/new_window' })
     }
   })
-  ipcMain.on('saveMessages', async (event: Electron.IpcMainEvent, ...args: any[]) => {
-    const { id, receivedMessage } = args[0]
-    const { messageService } = useServices()
-    await messageService.pushToConnection({ ...receivedMessage }, id)
-  })
   ipcMain.on('getWindowSize', (event: Electron.IpcMainEvent, ...args: any[]) => {
     if (win) {
       event.sender.send('getWindowSize', win.getBounds())
