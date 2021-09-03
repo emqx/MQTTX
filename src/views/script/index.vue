@@ -101,7 +101,6 @@ import Editor from '@/components/Editor.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import sandbox from '@/utils/sandbox'
 import useServers from '@/database/useServices'
-import settings from '@/lang/settings'
 
 @Component({
   components: {
