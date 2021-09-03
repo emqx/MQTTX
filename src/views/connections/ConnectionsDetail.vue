@@ -1021,7 +1021,7 @@ export default class ConnectionsDetail extends Vue {
   }
   // Recevied message
   private onMessageArrived(id: string) {
-    return (topic: string, payload: Buffer, packet: SubscriptionModel) => {
+    return async (topic: string, payload: Buffer, packet: SubscriptionModel) => {
       const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
       const receviedPayload = this.convertPayloadByScript(convertPayload, 'publish')
       const receivedMessage: MessageModel = {
@@ -1082,10 +1082,8 @@ export default class ConnectionsDetail extends Vue {
       } else {
         this.unreadMessageIncrement({ id })
       }
-      ipcRenderer.send('saveMessages', {
-        id: _id,
-        receivedMessage,
-      })
+      const { messageService } = useServices()
+      await messageService.pushToConnection({ ...receivedMessage }, _id)
       this.scrollToBottom()
     }
   }
