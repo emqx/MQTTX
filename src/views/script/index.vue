@@ -125,7 +125,7 @@ export default class Script extends Vue {
   }
   private scripts: ScriptModel[] = []
   private readonly defaultScript = `function handlePayload(value) {
-  return value.msg
+  return value['msg']
 }
 
 execute(handlePayload)`
