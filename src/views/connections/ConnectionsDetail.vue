@@ -736,7 +736,6 @@ export default class ConnectionsDetail extends Vue {
     this.messages = _.cloneDeep(this.record.messages)
   }
 
-  // TODO: verification async function affect
   // Clear messages
   private async handleMsgClear() {
     this.messages = []
@@ -994,11 +993,13 @@ export default class ConnectionsDetail extends Vue {
     const timer = setTimeout(() => {
       const messagesDisplay = this.$refs.messagesDisplay as Vue
       const messagesDisplayDOM = messagesDisplay.$el
-      messagesDisplayDOM.scrollTo({
-        top: messagesDisplayDOM.scrollHeight + 160,
-        left: 0,
-        behavior: 'smooth',
-      })
+      if (messagesDisplayDOM) {
+        messagesDisplayDOM.scrollTo({
+          top: messagesDisplayDOM.scrollHeight + 160,
+          left: 0,
+          behavior: 'smooth',
+        })
+      }
       clearTimeout(timer)
     }, 100)
   }

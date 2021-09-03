@@ -490,7 +490,7 @@ import useServices from '@/database/useServices'
     Editor,
   },
 })
-export default class ConnectionCreate extends Vue {
+export default class ConnectionForm extends Vue {
   @Prop({ required: true }) public oper!: 'edit' | 'create' | undefined
 
   @Getter('currentLang') private getterLang!: Language
