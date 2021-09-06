@@ -16,8 +16,8 @@ export const matchTopicMethod = (filter: string, topic: string): boolean => {
   return length === topicArray.length
 }
 
-const topicMatch = (data: MessageModel[], currentTopic: string): Promise<MessageModel[]> => {
-  return new Promise((resolve, reject) => {
+const topicMatch = (data: MessageModel[], currentTopic: string): Promise<MessageModel[]> =>
+  new Promise((resolve, reject) => {
     try {
       const filterData = data.filter((item) => matchTopicMethod(currentTopic, item.topic))
       return resolve(filterData)
@@ -25,6 +25,5 @@ const topicMatch = (data: MessageModel[], currentTopic: string): Promise<Message
       return reject(error)
     }
   })
-}
 
 export default topicMatch

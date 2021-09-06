@@ -27,8 +27,8 @@ const convertHex = (value: string, codeType: 'encode' | 'decode'): string => {
   return convertMap[codeType](value)
 }
 
-const convertJSON = (value: string): Promise<string> => {
-  return new Promise((resolve, reject) => {
+const convertJSON = (value: string): Promise<string> =>
+  new Promise((resolve, reject) => {
     try {
       let $json = JSON.parse(value)
       $json = JSON.stringify($json, null, 2)
@@ -37,7 +37,6 @@ const convertJSON = (value: string): Promise<string> => {
       return reject(error)
     }
   })
-}
 
 const convertPayload = async (payload: string, currentType: PayloadType, fromType: PayloadType): Promise<string> => {
   let $payload = payload

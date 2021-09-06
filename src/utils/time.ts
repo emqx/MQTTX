@@ -12,9 +12,7 @@ export const getNowDate = (format: string = sqliteDateFormat): string => moment(
 
 export const toFormat = (date: Date | string): string => moment(date).format(sqliteDateFormat)
 
-export const convertSecondsToMs = (seconds: number): number => {
-  return seconds * 1000
-}
+export const convertSecondsToMs = (seconds: number): number => seconds * 1000
 
 const time: TimeModel = {
   getNowDate,

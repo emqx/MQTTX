@@ -4,8 +4,8 @@ interface SearchParams {
 
 type MatchMultipleSearch = (data: any[], params: SearchParams) => Promise<any[] | null>
 
-const matchMultipleSearch: MatchMultipleSearch = (data, params) => {
-  return new Promise((resolve, reject) => {
+const matchMultipleSearch: MatchMultipleSearch = (data, params) =>
+  new Promise((resolve, reject) => {
     const paramsKeys = Object.keys(params)
     try {
       const filterData = data.filter(($) => {
@@ -27,6 +27,5 @@ const matchMultipleSearch: MatchMultipleSearch = (data, params) => {
       return reject(error)
     }
   })
-}
 
 export default matchMultipleSearch
