@@ -178,8 +178,7 @@ export default class ConnectionsList extends Vue {
   }
   @Watch('ConnectionModelData')
   private handleConnectionModelDataChange(val: ConnectionModel[] | [], oldVal: ConnectionModel[] | []) {
-    const isFirstLoad = val.length === 1 && oldVal.length === 0
-    this.loadData(isFirstLoad)
+    this.loadData(val.length === 1 && oldVal.length === 0)
   }
   @Watch('$route.params.id')
   private handleConnectionIdChanged(id: string) {
@@ -306,12 +305,15 @@ export default class ConnectionsList extends Vue {
     const treeData: ConnectionModelTree[] | undefined = await collectionService.getAll()
     treeData && (this.treeData = treeData)
     // sort collection trees
-    this.treeData.forEach((el: ConnectionModelTree) => {
-      if (el.isCollection) {
-        sortConnectionTree(el.children)
-      }
-    })
-    sortConnectionTree(this.treeData)
+    const sortTree = () => {
+      this.treeData.forEach((el: ConnectionModelTree) => {
+        if (el.isCollection) {
+          sortConnectionTree(el.children)
+        }
+      })
+      sortConnectionTree(this.treeData)
+    }
+    sortTree()
     firstLoad && (this.isLoadingData = false)
 
     //load collection expanded state
@@ -338,6 +340,7 @@ export default class ConnectionsList extends Vue {
       await this.handleEditCancel(node, data)
     } else {
       await collectionService.update(data, node.parent?.data.id)
+      await this.loadData(false)
     }
     data.isEdit = false
     data.isNewing = false
@@ -363,6 +366,7 @@ export default class ConnectionsList extends Vue {
     }
     data.isEdit = false
     data.isNewing = false
+    await this.loadData(false)
   }
 
   private handleSelectConnection(row: ConnectionModel) {

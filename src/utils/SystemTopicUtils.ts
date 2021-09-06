@@ -29,12 +29,8 @@ export const getBytes = (message: MessageModel): ChartDataModel | null => {
   return null
 }
 
-export const getUptime = (message: MessageModel): string | null => {
-  return getData(message, '/uptime')
-}
+export const getUptime = (message: MessageModel): string | null => getData(message, '/uptime')
 
-export const getVersion = (message: MessageModel): string | null => {
-  return getData(message, '/version')
-}
+export const getVersion = (message: MessageModel): string | null => getData(message, '/version')
 
 export default {}
