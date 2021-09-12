@@ -316,7 +316,7 @@ export default class SubscriptionsList extends Vue {
     }
     const { topic, qos } = row
     if (this.client.unsubscribe) {
-      this.client.unsubscribe(topic, { qos }, async (error) => {
+      this.client.unsubscribe(topic, { qos }, (error) => {
         if (error) {
           this.$message.error(error)
           return false
@@ -326,13 +326,13 @@ export default class SubscriptionsList extends Vue {
             id: string
             subscriptions: SubscriptionModel[]
           } = {
-            id: this.record.id.toString() as string,
+            id: this.record.id,
             subscriptions: this.subsList.filter(($: SubscriptionModel) => $.topic !== topic),
           }
           this.record.subscriptions = payload.subscriptions
           if (this.record.id) {
             const { connectionService } = useServices()
-            await connectionService.updateWithCascade(this.record.id, this.record)
+            connectionService.updateSubscriptions(this.record.id, payload.subscriptions)
             this.changeSubs(payload)
             this.subsList = payload.subscriptions
             this.$emit('deleteTopic')
