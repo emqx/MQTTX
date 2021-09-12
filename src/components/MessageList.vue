@@ -5,15 +5,21 @@
     :style="{ height: `${height}px`, marginTop: `${marginTop}px` }"
   >
     <span v-show="showLoadingIcon" class="loading-icon"><i class="el-icon-loading"></i></span>
-    <div v-for="message in showMessages" :key="message.id" :id="message.id">
-      <MsgLeftItem
-        v-if="!message.out"
-        :subsList="subscriptions"
-        v-bind="message"
-        @showmenu="handleShowContextMenu(arguments, message)"
-      />
-      <MsgRightItem v-else v-bind="message" @showmenu="handleShowContextMenu(arguments, message)" />
-    </div>
+    <template>
+      <DynamicScroller :items="showMessages" :min-item-size="41" class="scroller">
+        <template v-slot="{ item, index, active }">
+          <DynamicScrollerItem :item="item" :active="active" :data-index="index">
+            <MsgLeftItem
+              v-if="!item.out"
+              :subsList="subscriptions"
+              v-bind="item"
+              @showmenu="handleShowContextMenu(arguments, item)"
+            />
+            <MsgRightItem v-else v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
+          </DynamicScrollerItem>
+        </template>
+      </DynamicScroller>
+    </template>
   </div>
 </template>
 
@@ -22,11 +28,14 @@ import _ from 'lodash'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
+import { DynamicScroller } from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 @Component({
   components: {
     MsgRightItem,
     MsgLeftItem,
+    DynamicScroller,
   },
 })
 export default class MessageList extends Vue {
@@ -126,7 +135,10 @@ export default class MessageList extends Vue {
   }
 
   private mounted() {
-    this.getScrollBox().addEventListener('scroll', this.getScrollOffsetToTop)
+    this.$nextTick(() => {
+      const scrollRef = this.getScrollBox()
+      scrollRef.addEventListener('scroll', this.getScrollOffsetToTop)
+    })
   }
 
   private beforeDestroy() {
@@ -141,7 +153,6 @@ export default class MessageList extends Vue {
   padding: 0 16px;
   overflow-x: hidden;
   overflow-y: overlay;
-
   &.scrolling {
     &::-webkit-scrollbar {
       width: 8px;
