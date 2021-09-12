@@ -40,6 +40,8 @@ export default class ConnectionService {
   private entityToModel(data: ConnectionEntity): ConnectionModel {
     return {
       ...data,
+      messages: data.messages ?? [],
+      subscriptions: data.subscriptions ?? [],
       will: {
         ...data.will,
         properties: {
@@ -121,10 +123,10 @@ export default class ConnectionService {
         lastWillRetain: false,
       })
     }
-    if (res.subscriptions && res.subscriptions.length) {
+    if (res.subscriptions && Array.isArray(res.subscriptions) && res.subscriptions.length) {
       res.subscriptions = await this.subscriptionRepository.save(res.subscriptions)
     }
-    if (res.messages && res.messages.length) {
+    if (res.messages && Array.isArray(res.messages) && res.messages.length) {
       res.messages = await this.messageRepository.save(res.messages)
     }
     const saved: ConnectionEntity | undefined = await this.connectionRepository.save({
@@ -185,6 +187,7 @@ export default class ConnectionService {
     const query: ConnectionEntity | undefined = await this.connectionRepository
       .createQueryBuilder('cn')
       .where('cn.id = :id', { id })
+      // TODO: remove this query
       .leftJoinAndSelect('cn.messages', 'msg')
       .leftJoinAndSelect('cn.subscriptions', 'sub')
       .leftJoinAndSelect('cn.will', 'will')
@@ -192,7 +195,6 @@ export default class ConnectionService {
     if (query === undefined) {
       return undefined
     }
-
     return this.entityToModel(query)
   }
 
@@ -262,7 +264,7 @@ export default class ConnectionService {
       .addOrderBy('createAt', 'ASC')
       .take(take)
       .getMany()
-    if (!query || !query.length) {
+    if (!query || !Array.isArray(query) || !query.length) {
       return
     }
     return query.map((data) => {
@@ -298,5 +300,17 @@ export default class ConnectionService {
       .select('cn.id')
       .getOne()
     return leatest ? leatest.id : undefined
+  }
+
+  public async updateSubscriptions(connectionId: string, subs: SubscriptionModel[]) {
+    const query: SubscriptionEntity[] = await this.subscriptionRepository.find({
+      connectionId,
+    })
+    if (!query || !Array.isArray(query) || !query.length) {
+      await this.subscriptionRepository.save(subs)
+      return
+    }
+    await this.subscriptionRepository.remove(query)
+    await this.subscriptionRepository.save(subs)
   }
 }

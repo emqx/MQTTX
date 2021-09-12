@@ -540,7 +540,7 @@ export default class ConnectionsDetail extends Vue {
       this.client.on('error', this.onError)
       this.client.on('reconnect', this.onReConnect)
       this.client.on('close', this.onClose)
-      this.client.on('message', this.onMessageArrived(id.toString() as string))
+      this.client.on('message', this.onMessageArrived(id))
     }
   }
 
@@ -830,7 +830,7 @@ export default class ConnectionsDetail extends Vue {
     }
     this.activeTopic = sub.topic
     const $messages = _.cloneDeep(this.messages)
-    const res = await topicMatch($messages, sub.topic)
+    const res: MessageModel[] = await topicMatch($messages, sub.topic)
     if (res) {
       this.messages = res.slice()
     } else {
@@ -1088,6 +1088,7 @@ export default class ConnectionsDetail extends Vue {
         return
       }
       if (id === connectionId) {
+        // TODO: split messages
         this.record.messages.push({ ...receivedMessage })
         _id = connectionId
         // Filter by conditions (topic, payload, etc)

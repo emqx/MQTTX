@@ -26,7 +26,7 @@ export default class CollectionService {
       const query: ConnectionEntity[] = await this.connectionRepository.find({
         parentId,
       })
-      if (query && query.length) {
+      if (query && Array.isArray(query) && query.length) {
         connections = query as ConnectionModel[]
       }
     }
@@ -86,7 +86,7 @@ export default class CollectionService {
         }
       }),
     )
-    if (collection.length) {
+    if (collection && Array.isArray(collection) && collection.length) {
       await this.collectionRepository.save(collection)
     }
     const defaultWill = {
@@ -127,7 +127,7 @@ export default class CollectionService {
   }
 
   public async setAll(data: ConnectionModelTree[] | undefined): Promise<ConnectionModelTree[] | undefined> {
-    if (!data || !data.length) {
+    if (!data || !Array.isArray(data) || !data.length) {
       return
     }
     const { collection, connection } = await this.travelModel(data)
