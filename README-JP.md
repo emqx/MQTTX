@@ -98,7 +98,8 @@ PRを提出する前に、貢献ガイドをよく読んでください。[Contr
 - [Electron](https://electronjs.org/)
 - [Vue](https://vuejs.org/) + [Element](https://element.eleme.io)
 - [TypeScript](https://www.typescriptlang.org/)
-- [Lowdb](https://github.com/typicode/lowdb)
+- [TypeORM](https://github.com/typeorm/typeorm)
+- [sqlite3](https://github.com/mapbox/node-sqlite3)
 
 ## License
 
