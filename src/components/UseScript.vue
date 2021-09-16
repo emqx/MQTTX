@@ -77,8 +77,8 @@ export default class UseScript extends Vue {
 
   private async loadData() {
     const { scriptService } = useServices()
-    const scripts: ScriptModel[] | undefined = await scriptService.getAll()
-    scripts && (this.scripts = scripts)
+    const scripts: ScriptModel[] | [] = (await scriptService.getAll()) ?? []
+    this.scripts = scripts
   }
 
   private resetData() {

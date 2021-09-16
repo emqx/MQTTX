@@ -182,7 +182,7 @@ execute(handlePayload)`
 
   private async loadData(): Promise<void> {
     const { scriptService } = useServers()
-    const scripts: ScriptModel[] | undefined = await scriptService.getAll()
+    const scripts: ScriptModel[] | [] = (await scriptService.getAll()) ?? []
     if (!scripts) return
     this.scripts = scripts
     const len = scripts.length

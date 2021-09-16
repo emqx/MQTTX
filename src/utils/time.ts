@@ -6,7 +6,7 @@ interface TimeModel {
   sqliteDateFormat: string
   toFormat: (date: Date | string) => string
 }
-export const sqliteDateFormat = 'YYYY-MM-DD HH:mm:ss'
+export const sqliteDateFormat = 'YYYY-MM-DD HH:mm:ss:SSS'
 
 export const getNowDate = (format: string = sqliteDateFormat): string => moment().format(format)
 
