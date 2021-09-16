@@ -120,7 +120,7 @@ export default class ExportData extends Vue {
       return content
     } else {
       const { connectionService } = useService()
-      const connections: ConnectionModel[] | undefined = await connectionService.getAll()
+      const connections: ConnectionModel[] | [] = (await connectionService.getAll()) ?? []
       const content = JSON.stringify(connections, null, 2)
       return content
     }
@@ -142,9 +142,8 @@ export default class ExportData extends Vue {
 
   private async exportExcelData() {
     const { connectionService } = useService()
-    const data: ConnectionModel[] | undefined = !this.record.allConnections
-      ? [this.connection]
-      : await connectionService.getAll()
+    const query = (await connectionService.getAll()) ?? []
+    const data: ConnectionModel[] | [] = !this.record.allConnections ? [this.connection] : query
     if (data) {
       const fileName = !this.record.allConnections ? this.connection.name : 'data'
       const saveExcelData = (workbook: WorkBook) => {

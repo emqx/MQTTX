@@ -2,7 +2,6 @@ import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import MessageEntity from '../models/MessageEntity'
 import { Repository } from 'typeorm'
-import ConnectionEntity from '../models/ConnectionEntity'
 
 @Service()
 export default class MessageService {
@@ -20,10 +19,11 @@ export default class MessageService {
   }
 
   public async delete(id: string): Promise<MessageModel | undefined> {
-    const query = await this.messageRepository.delete(id)
-    if (query) {
+    const query = await this.messageRepository.findOne(id)
+    if (!query || !query.id) {
       return
     }
+    await this.messageRepository.delete(query.id)
     return query
   }
 

@@ -302,7 +302,7 @@ export default class ConnectionsList extends Vue {
   private async loadData(firstLoad: boolean = false) {
     firstLoad && (this.isLoadingData = true)
     const { collectionService } = useServices()
-    const treeData: ConnectionModelTree[] | undefined = await collectionService.getAll()
+    const treeData: ConnectionModelTree[] | [] = (await collectionService.getAll()) ?? []
     treeData && (this.treeData = treeData)
     // sort collection trees
     const sortTree = () => {
