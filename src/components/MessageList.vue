@@ -6,15 +6,10 @@
   >
     <span v-show="showLoadingIcon" class="loading-icon"><i class="el-icon-loading"></i></span>
     <template>
-      <DynamicScroller :items="showMessages" :min-item-size="41" class="scroller">
+      <DynamicScroller :items="showMessages" :min-item-size="40" class="scroller">
         <template v-slot="{ item, index, active }">
-          <DynamicScrollerItem :item="item" :active="active" :data-index="index">
-            <MsgLeftItem
-              v-if="!item.out"
-              :subsList="subscriptions"
-              v-bind="item"
-              @showmenu="handleShowContextMenu(arguments, item)"
-            />
+          <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
+            <MsgLeftItem v-if="!item.out" v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
             <MsgRightItem v-else v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
           </DynamicScrollerItem>
         </template>
@@ -30,6 +25,7 @@ import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import { DynamicScroller } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+import { matchTopicMethod } from '@/utils/topicMatch'
 
 @Component({
   components: {
@@ -63,10 +59,10 @@ export default class MessageList extends Vue {
       // sentOneMessage or receivedOneMessage
       if (this.addNewMsg && newMessages.length === 1) {
         const newMessages = allMessages.slice(-1)
-        this.showMessages = this.showMessages.concat(newMessages)
+        this.showMessages = this.getMessageMatchColor(this.showMessages.concat(newMessages))
         return
       }
-      this.showMessages = maxShowMessages
+      this.showMessages = this.getMessageMatchColor(maxShowMessages)
     } else {
       this.showMessages = []
     }
@@ -84,7 +80,7 @@ export default class MessageList extends Vue {
       if (addMessages.length > 0) {
         this.showLoadingIcon = true
         const timer = setTimeout(() => {
-          this.showMessages = addMessages.concat(this.showMessages)
+          this.showMessages = this.getMessageMatchColor(addMessages.concat(this.showMessages))
           this.$nextTick(() => {
             if (addMessages.length > 0) {
               const id = addMessages[addMessages.length - 1].id
@@ -112,9 +108,20 @@ export default class MessageList extends Vue {
     this.$emit('showContextMenu', msgItemInfo, message)
   }
 
+  private getMessageMatchColor(messages: MessageModel[]): MessageModel[] {
+    return messages.map((msg) => {
+      const topic: SubscriptionModel | undefined = this.subscriptions.find((sub: SubscriptionModel) =>
+        matchTopicMethod(sub.topic, msg.topic),
+      )
+      if (topic && topic.color) {
+        return { ...msg, color: topic.color } as MessageModel
+      }
+      return { ...msg, color: '' } as MessageModel
+    })
+  }
+
   private getScrollBox() {
-    const scrollBox = this.$refs.messageListBox as Element
-    return scrollBox
+    return this.$refs.messageListBox as Element
   }
 
   private getScrollOffsetToTop() {
@@ -153,7 +160,7 @@ export default class MessageList extends Vue {
   padding: 0 16px;
   overflow-x: hidden;
   overflow-y: auto;
-  .vue-recycle-scroller.direction-vertical:not(.page-mode) {
+  .vue-recycle-scroller.scroller.ready.direction-vertical {
     overflow-y: visible;
     .vue-recycle-scroller__item-wrapper {
       overflow: visible;

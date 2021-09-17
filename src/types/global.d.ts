@@ -161,6 +161,7 @@ declare global {
     qos: QoS
     retain: boolean
     topic: string
+    color?: string
   }
 
   interface HistoryMessageHeaderModel {
