@@ -1,6 +1,6 @@
 <template>
   <div class="msg-left-item">
-    <span class="topic-color" :style="{ height: topicColorHeight, background: currentTopicColor }"></span>
+    <span class="topic-color" :style="{ background: color }"></span>
     <div ref="leftPayload" class="left-payload payload" @contextmenu.prevent="customMenu($event)">
       <p class="left-info">
         <span class="topic">Topic: {{ topic }}</span>
@@ -14,7 +14,6 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { matchTopicMethod } from '@/utils/topicMatch'
 
 @Component
 export default class MsgLeftItem extends Vue {
@@ -22,28 +21,10 @@ export default class MsgLeftItem extends Vue {
   @Prop({ required: true }) public qos!: number
   @Prop({ required: true }) public payload!: string
   @Prop({ required: true }) public createAt!: string
-  @Prop({ required: true }) public subsList!: SubscriptionModel[]
-
-  private topicColorHeight = '0px'
-  private currentTopicColor = ''
-
-  private setCurrentTopicColor() {
-    const topic: SubscriptionModel | undefined = this.subsList.find((sub: SubscriptionModel) =>
-      matchTopicMethod(sub.topic, this.topic),
-    )
-    if (topic && topic.color) {
-      this.currentTopicColor = topic.color
-    }
-  }
+  @Prop({ required: false, default: '' }) public color!: string
 
   private customMenu(event: MouseEvent) {
     this.$emit('showmenu', this.payload, event)
-  }
-
-  private mounted() {
-    const leftPayloadRef = this.$refs.leftPayload as HTMLElement
-    this.topicColorHeight = `${leftPayloadRef.offsetHeight - 12}px`
-    this.setCurrentTopicColor()
   }
 }
 </script>
@@ -56,6 +37,7 @@ export default class MsgLeftItem extends Vue {
   text-align: left;
   position: relative;
   .topic-color {
+    height: calc(100% - 44px);
     display: inline-block;
     width: 4px;
     position: absolute;
