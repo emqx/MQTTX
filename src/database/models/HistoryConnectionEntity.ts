@@ -3,6 +3,7 @@ import WillEntity from './WillEntity'
 
 type Protocol = 'ws' | 'wss' | 'mqtt' | 'mqtts'
 type CertType = '' | 'server' | 'self'
+type QoS = 0 | 1 | 2
 
 @Entity('HistoryConnectionEntity')
 export default class HistoryConnectionEntity {
@@ -75,9 +76,30 @@ export default class HistoryConnectionEntity {
   @Column({ type: 'varchar' })
   key!: string
 
-  @OneToOne(() => WillEntity, (will) => will.connection, { onDelete: 'CASCADE' })
-  @JoinColumn()
-  will?: WillEntity
+  @Column({ type: 'varchar', default: '' })
+  lastWillTopic!: string
+
+  @Column({ type: 'varchar', default: '' })
+  lastWillPayload!: string
+
+  @Column({ type: 'simple-enum', enum: [0, 1, 2], default: 0 })
+  lastWillQos!: QoS
+
+  @Column({ type: 'boolean', default: false })
+  lastWillRetain!: boolean
+
+  // WillPropertiesModel begin
+  @Column({ type: 'integer', nullable: true })
+  willDelayInterval?: number
+
+  @Column({ type: 'boolean', nullable: true })
+  payloadFormatIndicator?: boolean
+
+  @Column({ type: 'integer', nullable: true })
+  messageExpiryInterval?: number
+
+  @Column({ type: 'varchar', default: '', nullable: true })
+  contentType?: string
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createAt?: string
