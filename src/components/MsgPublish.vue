@@ -241,14 +241,10 @@ export default class MsgPublish extends Vue {
 
   private async loadHistoryData(isNewPayload?: boolean) {
     const { historyMessageHeaderService, historyMessagePayloadService } = useServices()
-    const headersHistory = await historyMessageHeaderService.getAll()
-    const payloadsHistory = await historyMessagePayloadService.getAll()
-    if (headersHistory) {
-      this.headersHistory = headersHistory
-    }
-    if (payloadsHistory) {
-      this.payloadsHistory = payloadsHistory
-    }
+    const headersHistory = (await historyMessageHeaderService.getAll()) ?? []
+    const payloadsHistory = (await historyMessagePayloadService.getAll()) ?? []
+    this.headersHistory = headersHistory
+    this.payloadsHistory = payloadsHistory
     if (isNewPayload) {
       this.historyIndex = this.payloadsHistory.length - 1
     }

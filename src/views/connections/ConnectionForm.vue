@@ -740,13 +740,13 @@ export default class ConnectionForm extends Vue {
   }
 
   private async handleSelectName(item: ConnectionModel) {
-    const { id } = item
+    const { clientId } = item
     const { connectionService } = useServices()
-    if (id) {
-      const query: ConnectionModel | undefined = await connectionService.get(id)
+    if (clientId) {
+      const query: Partial<ConnectionModel> | undefined = await connectionService.getHistoryByClientID(clientId)
       if (query) {
         query.clientId = getClientId()
-        this.record = query
+        this.record = { ...this.record, ...query }
       }
     }
   }

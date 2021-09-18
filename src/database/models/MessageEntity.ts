@@ -32,6 +32,6 @@ export default class MessageEntity {
   connection?: ConnectionEntity
 
   @Column({ name: 'connection_id', nullable: true })
-  connectionId?: string
+  connectionId?: string | null
   // ManyToOne entities ends
 }

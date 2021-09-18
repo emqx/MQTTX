@@ -123,12 +123,27 @@ export default class ConnectionService {
         lastWillRetain: false,
       })
     }
-    if (res.subscriptions && Array.isArray(res.subscriptions) && res.subscriptions.length) {
-      res.subscriptions = await this.subscriptionRepository.save(res.subscriptions)
+    if (res.subscriptions && Array.isArray(res.subscriptions)) {
+      const curSubs: SubscriptionEntity[] = await this.subscriptionRepository
+        .createQueryBuilder('sub')
+        .where('sub.connectionId = :id', { id })
+        .getMany()
+      await this.subscriptionRepository.remove(curSubs)
+      if (res.subscriptions.length) {
+        res.subscriptions = await this.subscriptionRepository.save(
+          res.subscriptions.map((sub) => {
+            return {
+              ...sub,
+              connectionId: id,
+            } as SubscriptionEntity
+          }),
+        )
+      }
     }
-    if (res.messages && Array.isArray(res.messages) && res.messages.length) {
-      res.messages = await this.messageRepository.save(res.messages)
-    }
+    // TODO: too large cost for message saving, need to refactor
+    // if (res.messages && Array.isArray(res.messages) && res.messages.length) {
+    //   res.messages = await this.messageRepository.save(res.messages)
+    // }
     const saved: ConnectionEntity | undefined = await this.connectionRepository.save({
       ...res,
       id,
@@ -198,6 +213,29 @@ export default class ConnectionService {
     return this.entityToModel(query)
   }
 
+  // cascade get
+  public async getHistoryByClientID(clientID: string): Promise<Partial<ConnectionModel> | undefined> {
+    const query: HistoryConnectionEntity | undefined = await this.historyConnectionRepository
+      .createQueryBuilder('cn')
+      .where('cn.clientId = :clientID', { clientID })
+      .getOne()
+    if (query === undefined) {
+      return undefined
+    }
+    return {
+      ...query,
+      messages: [],
+      subscriptions: [],
+      isCollection: false,
+      will: {
+        ...query,
+        properties: {
+          ...query,
+        },
+      },
+    } as ConnectionModel
+  }
+
   // cascade getAll
   public async getAll(): Promise<ConnectionModel[] | undefined> {
     const query: ConnectionEntity[] | undefined = await this.connectionRepository
@@ -228,7 +266,13 @@ export default class ConnectionService {
       savedWill = await this.willRepository.save(res.will as WillEntity)
     }
     res.will = savedWill
-    await this.historyConnectionRepository.save(res)
+    await this.historyConnectionRepository.save({
+      ...res,
+      lastWillTopic: res.will.lastWillPayload,
+      lastWillPayload: res.will.lastWillPayload,
+      lastWillQos: res.will.lastWillQos,
+      lastWillRetain: res.will.lastWillRetain,
+    } as HistoryConnectionEntity)
     return this.entityToModel(
       await this.connectionRepository.save({
         ...res,
@@ -267,17 +311,17 @@ export default class ConnectionService {
     if (!query || !Array.isArray(query) || !query.length) {
       return
     }
-    return query.map((data) => {
+    return query.map((data: HistoryConnectionEntity) => {
       data.id = undefined
       return {
         ...data,
+        messages: [],
+        subscriptions: [],
+        isCollection: false,
         will: {
-          ...data.will,
+          ...data,
           properties: {
-            willDelayInterval: data.will?.willDelayInterval,
-            payloadFormatIndicator: data.will?.payloadFormatIndicator,
-            messageExpiryInterval: data.will?.messageExpiryInterval,
-            contentType: data.will?.contentType,
+            ...data,
           },
         },
       } as ConnectionModel
