@@ -159,7 +159,7 @@ export default class MessageList extends Vue {
 .message-list {
   padding: 0 16px;
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: overlay;
   .vue-recycle-scroller.scroller.ready.direction-vertical {
     overflow-y: visible;
     .vue-recycle-scroller__item-wrapper {

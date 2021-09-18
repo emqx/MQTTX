@@ -27,6 +27,16 @@
   .topic {
     margin-right: 16px;
   }
+
+  .retain {
+    margin-left: 16px;
+    color: var(--color-text-title);
+    font-weight: 700;
+    background-color: var(--color-border-default);
+    padding: 2px;
+    border-radius: 4px;
+  }
+
   .payload {
     display: inline-block;
     min-height: 41px;

@@ -5,6 +5,7 @@
       <p class="left-info">
         <span class="topic">Topic: {{ topic }}</span>
         <span class="qos">QoS: {{ qos }}</span>
+        <span v-if="retain" class="retain">retain</span>
       </p>
       <pre>{{ payload }}</pre>
     </div>
@@ -21,6 +22,7 @@ export default class MsgLeftItem extends Vue {
   @Prop({ required: true }) public qos!: number
   @Prop({ required: true }) public payload!: string
   @Prop({ required: true }) public createAt!: string
+  @Prop({ required: false }) public retain!: boolean
   @Prop({ required: false, default: '' }) public color!: string
 
   private customMenu(event: MouseEvent) {
