@@ -1088,7 +1088,6 @@ export default class ConnectionsDetail extends Vue {
         return
       }
       if (id === connectionId) {
-        // TODO: split messages
         this.record.messages.push({ ...receivedMessage })
         _id = connectionId
         // Filter by conditions (topic, payload, etc)
@@ -1207,8 +1206,6 @@ export default class ConnectionsDetail extends Vue {
         retain,
       }
       if (this.record.id) {
-        const { messageService } = useServices()
-        await messageService.pushToConnection({ ...publishMessage }, this.record.id)
         this.record.messages.push({ ...publishMessage })
         // Filter by conditions (topic, payload, etc)
         const filterRes = this.filterBySearchConditions(topic, publishMessage)
@@ -1227,6 +1224,8 @@ export default class ConnectionsDetail extends Vue {
             publishMessage.topic,
           )}`,
         )
+        const { messageService } = useServices()
+        await messageService.pushToConnection({ ...publishMessage }, this.record.id)
         this.scrollToBottom()
       }
     })
