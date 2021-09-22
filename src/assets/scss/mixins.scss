@@ -30,11 +30,12 @@
 
   .retain {
     margin-left: 16px;
-    color: var(--color-text-title);
-    font-weight: 700;
-    background-color: var(--color-border-default);
-    padding: 2px;
+    font-size: 12px;
+    color: var(--color-text-active);
+    background-color: #7e848885;
+    padding: 0 4px;
     border-radius: 4px;
+    float: right;
   }
 
   .payload {

@@ -5,7 +5,7 @@
       <p class="left-info">
         <span class="topic">Topic: {{ topic }}</span>
         <span class="qos">QoS: {{ qos }}</span>
-        <span v-if="retain" class="retain">retain</span>
+        <span v-if="retain" class="retain">Retain</span>
       </p>
       <pre>{{ payload }}</pre>
     </div>
