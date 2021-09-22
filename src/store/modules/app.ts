@@ -129,26 +129,31 @@ const app = {
     async TOGGLE_THEME({ commit }: any, payload: App) {
       const { settingService } = useServices()
       commit(TOGGLE_THEME, payload.currentTheme)
+      settingData.currentTheme = payload.currentTheme
       await settingService.update(payload)
     },
     async TOGGLE_LANG({ commit }: any, payload: App) {
       const { settingService } = useServices()
       commit(TOGGLE_LANG, payload.currentLang)
+      settingData.currentLang = payload.currentLang
       await settingService.update(payload)
     },
     async TOGGLE_AUTO_CHECK({ commit }: any, payload: App) {
       const { settingService } = useServices()
       commit(TOGGLE_AUTO_CHECK, payload.autoCheck)
+      settingData.autoCheck = payload.autoCheck
       await settingService.update(payload)
     },
     async TOGGLE_AUTO_RESUB({ commit }: any, payload: App) {
       const { settingService } = useServices()
       commit(TOGGLE_AUTO_RESUB, payload.autoResub)
+      settingData.autoResub = payload.autoResub
       await settingService.update(payload)
     },
     async SET_MAX_RECONNECT_TIMES({ commit }: any, payload: App) {
       const { settingService } = useServices()
       commit(SET_MAX_RECONNECT_TIMES, payload.maxReconnectTimes)
+      settingData.maxReconnectTimes = payload.maxReconnectTimes
       await settingService.update(payload)
     },
     CHANGE_ACTIVE_CONNECTION({ commit }: any, payload: App) {
