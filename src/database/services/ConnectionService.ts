@@ -8,7 +8,8 @@ import HistoryConnectionEntity from '@/database/models/HistoryConnectionEntity'
 import { Repository, MoreThan, LessThan } from 'typeorm'
 import { DateUtils } from 'typeorm/util/DateUtils'
 import deepMerge from '@/utils/deepMerge'
-import time from '@/utils/time'
+import time, { sqliteDateFormat } from '@/utils/time'
+import moment from 'moment'
 export const MoreThanDate = (date: string | Date) => MoreThan(DateUtils.mixedDateToUtcDatetimeString(date))
 export const LessThanDate = (date: string | Date) => LessThan(DateUtils.mixedDateToUtcDatetimeString(date))
 
@@ -40,7 +41,11 @@ export default class ConnectionService {
   private entityToModel(data: ConnectionEntity): ConnectionModel {
     return {
       ...data,
-      messages: data.messages ?? [],
+      // sort message by Date
+      messages:
+        data.messages.sort((a, b) =>
+          moment(new Date(a.createAt), sqliteDateFormat).isBefore(new Date(b.createAt)) ? -1 : 1,
+        ) ?? [],
       subscriptions: data.subscriptions ?? [],
       will: {
         ...data.will,
