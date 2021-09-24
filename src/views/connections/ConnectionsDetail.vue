@@ -645,7 +645,7 @@ export default class ConnectionsDetail extends Vue {
       if (res) {
         this.showContextmenu = false
         this.$message.success(this.$t('common.deleteSuccess') as string)
-        await this.$emit('reload')
+        this.$emit('reload')
         this.$log.info(`Delete message success, connectID ${connectID}`)
       } else {
         this.showContextmenu = false
@@ -941,10 +941,10 @@ export default class ConnectionsDetail extends Vue {
       duration: 3000,
       offset: 30,
     })
-    this.$log.info('Connect success, MQTT.js onConnect trigger')
     this.setShowClientInfo(false)
-    this.$emit('reload')
     this.handleReSubTopics()
+    this.$emit('reload')
+    this.$log.info('Connect success, MQTT.js onConnect trigger')
   }
 
   // Error callback

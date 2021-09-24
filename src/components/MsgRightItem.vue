@@ -45,13 +45,13 @@ export default class MsgrightItem extends Vue {
     left: 0px;
     animation: rightMsg 0.3s ease-in-out;
   }
-  @keyframes rightMsg {
-    from {
-      left: 171px;
-    }
-    to {
-      left: 0px;
-    }
-  }
+  // @keyframes rightMsg {
+  //   from {
+  //     left: 171px;
+  //   }
+  //   to {
+  //     left: 0px;
+  //   }
+  // }
 }
 </style>
