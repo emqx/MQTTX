@@ -253,7 +253,10 @@ export default class SubscriptionsList extends Vue {
       this.subRecord.topic = sub.topic
       this.subRecord.qos = sub.qos
       this.subRecord.color = sub.color
-      this.subscribe(this.subRecord)
+      // TODO sync subscribe with connection without setTimeout maybe better.
+      setTimeout(() => {
+        this.subscribe(this.subRecord)
+      }, 300)
     })
   }
 
