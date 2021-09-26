@@ -10,6 +10,7 @@ import { DateUtils } from 'typeorm/util/DateUtils'
 import deepMerge from '@/utils/deepMerge'
 import time, { sqliteDateFormat } from '@/utils/time'
 import moment from 'moment'
+
 export const MoreThanDate = (date: string | Date) => MoreThan(DateUtils.mixedDateToUtcDatetimeString(date))
 export const LessThanDate = (date: string | Date) => LessThan(DateUtils.mixedDateToUtcDatetimeString(date))
 
@@ -27,16 +28,6 @@ export default class ConnectionService {
     @InjectRepository(MessageEntity)
     private messageRepository: Repository<MessageEntity>,
   ) {}
-
-  private modelToEntity(data: ConnectionModel): ConnectionEntity {
-    return {
-      ...data,
-      will: {
-        ...data.will,
-        ...data.will?.properties,
-      },
-    } as ConnectionEntity
-  }
 
   private entityToModel(data: ConnectionEntity): ConnectionModel {
     return {
@@ -81,7 +72,7 @@ export default class ConnectionService {
     data: ConnectionModel,
     args?: Partial<ConnectionEntity>,
   ): Promise<ConnectionModel | undefined> {
-    let query: ConnectionEntity | undefined = await this.connectionRepository
+    const query: ConnectionEntity | undefined = await this.connectionRepository
       .createQueryBuilder('cn')
       .where('cn.id = :id', { id })
       .leftJoinAndSelect('cn.messages', 'msg')
@@ -159,7 +150,7 @@ export default class ConnectionService {
   }
 
   public async update(id: string, data: Partial<ConnectionModel>): Promise<ConnectionModel | undefined> {
-    let res: ConnectionEntity | undefined = await this.connectionRepository
+    const res: ConnectionEntity | undefined = await this.connectionRepository
       .createQueryBuilder('cn')
       .where('cn.id = :id', { id })
       .getOne()
@@ -258,7 +249,7 @@ export default class ConnectionService {
   }
 
   public async create(data: ConnectionModel): Promise<ConnectionModel | undefined> {
-    let res: ConnectionModel | undefined = data
+    const res: ConnectionModel | undefined = data
     let savedWill: WillEntity | undefined
     if (!res.will) {
       savedWill = await this.willRepository.save({
@@ -284,7 +275,7 @@ export default class ConnectionService {
         createAt: time.getNowDate(),
         updateAt: time.getNowDate(),
       } as ConnectionEntity),
-    ) as ConnectionModel
+    )
   }
 
   // cascade delete
@@ -307,8 +298,7 @@ export default class ConnectionService {
   }
 
   public async getLeatests(take: number | undefined = 10): Promise<ConnectionModel[] | undefined> {
-    let query: HistoryConnectionEntity[] | undefined
-    query = await this.historyConnectionRepository
+    const query: HistoryConnectionEntity[] | undefined = await this.historyConnectionRepository
       .createQueryBuilder('cn')
       .addOrderBy('createAt', 'ASC')
       .take(take)
@@ -329,7 +319,7 @@ export default class ConnectionService {
             ...data,
           },
         },
-      } as ConnectionModel
+      }
     })
   }
 
