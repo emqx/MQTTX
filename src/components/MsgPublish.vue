@@ -239,12 +239,12 @@ export default class MsgPublish extends Vue {
     ipcRenderer.removeAllListeners('sendPayload')
   }
 
-  private async loadHistoryData(isNewPayload?: boolean) {
+  private async loadHistoryData(isNewPayload?: boolean, isLoadData?: boolean) {
     const { historyMessageHeaderService, historyMessagePayloadService } = useServices()
     const headersHistory = (await historyMessageHeaderService.getAll()) ?? []
     const payloadsHistory = (await historyMessagePayloadService.getAll()) ?? []
     const historyMsg = payloadsHistory[payloadsHistory.length - 1]
-    if (historyMsg) {
+    if (historyMsg && isLoadData) {
       this.payloadType = historyMsg.payloadType
     }
     this.headersHistory = headersHistory
@@ -255,7 +255,7 @@ export default class MsgPublish extends Vue {
   }
 
   private async loadData() {
-    await this.loadHistoryData()
+    await this.loadHistoryData(false, true)
     this.historyIndex = this.payloadsHistory.length - 1
     Object.assign(
       this.msgRecord,
