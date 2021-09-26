@@ -286,11 +286,11 @@ export default class ConnectionService {
       .leftJoinAndSelect('cn.messages', 'msg')
       .leftJoinAndSelect('cn.subscriptions', 'sub')
       .leftJoinAndSelect('cn.will', 'will')
-      .select('cn.id')
       .getOne()
     if (!query) {
       return
     }
+    query.will?.id && (await this.willRepository.delete(query.will.id))
     await this.connectionRepository.delete({
       id: query.id,
     })
