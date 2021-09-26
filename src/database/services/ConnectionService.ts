@@ -5,7 +5,7 @@ import WillEntity from '@/database/models/WillEntity'
 import MessageEntity from '@/database/models/MessageEntity'
 import SubscriptionEntity from '@/database/models/SubscriptionEntity'
 import HistoryConnectionEntity from '@/database/models/HistoryConnectionEntity'
-import { Repository, MoreThan, LessThan } from 'typeorm'
+import { Repository, MoreThan, LessThan, DeleteResult } from 'typeorm'
 import { DateUtils } from 'typeorm/util/DateUtils'
 import deepMerge from '@/utils/deepMerge'
 import time, { sqliteDateFormat } from '@/utils/time'
@@ -289,21 +289,14 @@ export default class ConnectionService {
 
   // cascade delete
   public async delete(id: string): Promise<ConnectionModel | undefined> {
-    const query: ConnectionEntity | undefined = await this.connectionRepository
-      .createQueryBuilder('cn')
-      .where('cn.id = :id', { id })
-      .leftJoinAndSelect('cn.messages', 'msg')
-      .leftJoinAndSelect('cn.subscriptions', 'sub')
-      .leftJoinAndSelect('cn.will', 'will')
-      .select('cn.id')
-      .getOne()
+    const query: ConnectionEntity | undefined = await this.get(id)
     if (!query) {
       return
     }
     await this.connectionRepository.delete({
       id: query.id,
     })
-    return this.entityToModel(query) as ConnectionModel
+    return this.entityToModel(query)
   }
 
   public async getLeatests(take: number | undefined = 10): Promise<ConnectionModel[] | undefined> {

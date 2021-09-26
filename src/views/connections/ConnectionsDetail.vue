@@ -558,13 +558,14 @@ export default class ConnectionsDetail extends Vue {
       .then(async () => {
         if (id) {
           const { connectionService } = useServices()
-          const res: ConnectionModel | undefined = await connectionService.delete(id)
+          const res = await connectionService.delete(id)
+          console.log(res)
           if (res) {
-            this.$emit('delete')
+            this.$emit('reload')
             this.$message.success(this.$t('common.deleteSuccess') as string)
             if (res.id) {
               this.removeActiveConnection({ id: res.id })
-              this.$log.info(`MQTTX remove connection ${res.name}(clientID ${res.clientId}) success`)
+              this.$log.info(`MQTTX remove connection ${res.name} (clientID: ${res.clientId}) success`)
             }
           }
         }
