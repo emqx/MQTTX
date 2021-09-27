@@ -187,6 +187,7 @@ export default class ConnectionsList extends Vue {
         const treeRef = this.$refs.tree as ElTree<ConnectionModelTree['id'], ConnectionModelTree>
         treeRef?.setCurrentKey(id)
         this.connectionId = id
+        this.expandTreeNodeAncestor(id)
       }
     })
   }
@@ -199,6 +200,39 @@ export default class ConnectionsList extends Vue {
         expanded: node.expanded,
       } as ConnectionTreeState)
     }
+  }
+
+  private expandTreeNodeAncestor(id: string) {
+    const tree = this.treeData
+    const expandNodeIDs: string[] = []
+    const travelTree = (root: ConnectionModelTree): boolean => {
+      if (root.isCollection) {
+        for (let i = 0; i < root.children.length; i++) {
+          const child = root.children[i]
+          if (child.id === id) {
+            expandNodeIDs.push(root.id)
+            return true
+          }
+          if (child.isCollection) {
+            if (travelTree(child)) {
+              expandNodeIDs.push(root.id)
+              return true
+            }
+          }
+        }
+      }
+      return false
+    }
+    for (let i = 0; i < tree.length; i++) {
+      travelTree(tree[i])
+    }
+
+    expandNodeIDs.map((id) => {
+      this.setConnectionsTree({
+        id,
+        expanded: true,
+      } as ConnectionTreeState)
+    })
   }
 
   private async loadConnectionState() {
@@ -316,11 +350,6 @@ export default class ConnectionsList extends Vue {
     sortTree()
     firstLoad && (this.isLoadingData = false)
 
-    //load collection expanded state
-    this.$nextTick(() => {
-      this.loadConnectionState()
-    })
-
     // load selected connection active state
     const { id } = this.$route.params
     const treeRef = this.$refs.tree as ElTree<ConnectionModelTree['id'], ConnectionModelTree>
@@ -330,6 +359,13 @@ export default class ConnectionsList extends Vue {
         this.connectionId = id
       }
     })
+
+    //load collection expanded state
+    this.$nextTick(() => {
+      this.expandTreeNodeAncestor(id)
+      this.loadConnectionState()
+    })
+
     return
   }
 
