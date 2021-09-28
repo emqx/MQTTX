@@ -125,7 +125,7 @@ Please make sure to read the [Contributing Guide](https://github.com/emqx/MQTTX/
 - [Vue](https://vuejs.org/) + [Element](https://element.eleme.io)
 - [TypeScript](https://www.typescriptlang.org/)
 - [TypeORM](https://github.com/typeorm/typeorm)
-- [sqlite3](https://github.com/mapbox/node-sqlite3)
+- [SQLite](https://github.com/mapbox/node-sqlite3)
 
 ## License
 
