@@ -561,6 +561,7 @@ export default class ConnectionsList extends Vue {
       // delete the chilren
       const { collectionService } = useServices()
       await collectionService.delete(selectedCollection.id)
+      this.$emit('reload')
     }
 
     this.showCollectionsContextmenu = false

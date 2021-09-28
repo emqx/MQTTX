@@ -1,7 +1,7 @@
 <template>
   <div class="connections">
     <div class="left-list">
-      <ConnectionsList :ConnectionModelData="records" @delete="onDelete" />
+      <ConnectionsList :ConnectionModelData="records" @delete="onDelete" @reload="loadData(true, false)" />
     </div>
     <div class="connections-view">
       <template v-if="isLoadingData">
