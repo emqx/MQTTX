@@ -38,6 +38,14 @@ export default class HistoryMessageHeaderService {
     return await this.messageRepository.save(data)
   }
 
+  public async orderChange(
+    id: string,
+    data: HistoryMessageHeaderModel,
+  ): Promise<HistoryMessageHeaderModel | undefined> {
+    await this.delete(id)
+    return await this.messageRepository.save(data)
+  }
+
   public async clean(): Promise<HistoryMessageHeaderModel[] | undefined> {
     const query: HistoryMessageHeaderEntity[] | undefined = await this.messageRepository.find()
     if (!query) {

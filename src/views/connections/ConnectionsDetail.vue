@@ -1150,9 +1150,13 @@ export default class ConnectionsDetail extends Vue {
   private async insertHistory(payload: HistoryMessagePayloadModel, header: HistoryMessageHeaderModel) {
     const { historyMessagePayloadService, historyMessageHeaderService } = useServices()
     const isNewPayload = !(await hasMessagePayload(payload))
-    const isNewHeader = !(await hasMessageHeader(header))
+    const isNewHeader = await hasMessageHeader(header)
     isNewPayload && (await historyMessagePayloadService.create(payload))
-    isNewHeader && (await historyMessageHeaderService.create(header))
+    if (isNewHeader) {
+      await historyMessageHeaderService.orderChange(isNewHeader.id as string, header)
+    } else {
+      await historyMessageHeaderService.create(header)
+    }
     return { isNewPayload, isNewHeader }
   }
 

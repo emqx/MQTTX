@@ -143,16 +143,18 @@ export const hasMessagePayload = async (data: HistoryMessagePayloadModel): Promi
   return false
 }
 
-export const hasMessageHeader = async (data: HistoryMessageHeaderModel): Promise<boolean> => {
+export const hasMessageHeader = async (
+  data: HistoryMessageHeaderModel,
+): Promise<HistoryMessageHeaderModel | undefined> => {
   const { historyMessageHeaderService } = useServices()
   const headers = await historyMessageHeaderService.getAll()
   if (headers) {
-    const res = headers.some((el: HistoryMessageHeaderModel) => {
+    const res = headers.find((el: HistoryMessageHeaderModel) => {
       return data.qos === el.qos && data.topic === el.topic && data.retain === el.retain
     })
     return res
   }
-  return false
+  return undefined
 }
 
 export default {}
