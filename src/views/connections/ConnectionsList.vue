@@ -549,21 +549,31 @@ export default class ConnectionsList extends Vue {
   private async handleDeleteCollection() {
     const selectedCollection = this.selectedCollection
     if (selectedCollection && selectedCollection.isCollection) {
-      const nodeParent: ConnectionModelTree[] | ConnectionModelTree = this.getTreeNodeParent(selectedCollection) as
-        | ConnectionModelTree[]
-        | ConnectionModelTree
-      const childrenNode: ConnectionModelTree[] = Array.isArray(nodeParent)
-        ? nodeParent
-        : (nodeParent as CollectionModel).children
-      // delete collection
-      const index = childrenNode.findIndex((d: ConnectionModelTree) => d.id === selectedCollection.id)
-      childrenNode.splice(index, 1)
-      // delete the chilren
-      const { collectionService } = useServices()
-      await collectionService.delete(selectedCollection.id)
-      this.$emit('reload')
+      const { name } = selectedCollection
+      const confirmDelete: string = this.$t('common.confirmDelete', { name }) as string
+      this.$confirm(confirmDelete, this.$t('common.warning') as string, {
+        type: 'warning',
+      })
+        .then(async () => {
+          const nodeParent: ConnectionModelTree[] | ConnectionModelTree = this.getTreeNodeParent(selectedCollection) as
+            | ConnectionModelTree[]
+            | ConnectionModelTree
+          const childrenNode: ConnectionModelTree[] = Array.isArray(nodeParent)
+            ? nodeParent
+            : (nodeParent as CollectionModel).children
+          // delete collection
+          const index = childrenNode.findIndex((d: ConnectionModelTree) => d.id === selectedCollection.id)
+          childrenNode.splice(index, 1)
+          // delete the chilren
+          const { collectionService } = useServices()
+          await collectionService.delete(selectedCollection.id)
+          this.$message.success(this.$t('common.deleteSuccess') as string)
+          this.$emit('reload')
+        })
+        .catch((error) => {
+          // ignore(error)
+        })
     }
-
     this.showCollectionsContextmenu = false
   }
 
