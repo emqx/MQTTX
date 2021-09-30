@@ -312,7 +312,7 @@ import UseScript from '@/components/UseScript.vue'
 import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 
 import sandbox from '@/utils/sandbox'
-import { hasMessagePayload, hasMessageHeader } from '@/utils/mqttUtils'
+import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/mqttUtils'
 import useServices from '@/database/useServices'
 
 type CommandType =
@@ -1149,11 +1149,15 @@ export default class ConnectionsDetail extends Vue {
 
   private async insertHistory(payload: HistoryMessagePayloadModel, header: HistoryMessageHeaderModel) {
     const { historyMessagePayloadService, historyMessageHeaderService } = useServices()
-    const isNewPayload = !(await hasMessagePayload(payload))
-    const isNewHeader = !(await hasMessageHeader(header))
-    isNewPayload && (await historyMessagePayloadService.create(payload))
-    isNewHeader && (await historyMessageHeaderService.create(header))
-    return { isNewPayload, isNewHeader }
+    const willUpdatePayloadID: string | null = await hasMessagePayloadID(payload)
+    const willUpdateHeaderID: string | null = await hasMessageHeaderID(header)
+    willUpdatePayloadID
+      ? await historyMessagePayloadService.updateCreateAt(willUpdatePayloadID)
+      : await historyMessagePayloadService.create(payload)
+    willUpdateHeaderID
+      ? await historyMessageHeaderService.updateCreateAt(willUpdateHeaderID)
+      : await historyMessageHeaderService.create(header)
+    return { isNewPayload: !willUpdatePayloadID, isNewHeader: !willUpdateHeaderID }
   }
 
   // Send one message
