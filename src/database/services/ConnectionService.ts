@@ -62,8 +62,8 @@ export default class ConnectionService {
     }
     query.parentId = updatedCollectionId
     const updateAt = query.createAt ? query.createAt : time.getNowDate()
-    await this.connectionRepository.save({ ...query, updateAt })
-    return query as ConnectionModel
+
+    return this.entityToModel(await this.connectionRepository.save({ ...query, updateAt }))
   }
 
   // cascade update
@@ -92,7 +92,7 @@ export default class ConnectionService {
         lastWillQos = 0,
         lastWillRetain = false,
       } = res.will
-      const data = {
+      const data: WillEntity = {
         lastWillPayload,
         lastWillTopic,
         lastWillQos,
@@ -137,16 +137,17 @@ export default class ConnectionService {
       }
     }
     // TODO: too large cost for message saving, need to refactor
-    // if (res.messages && Array.isArray(res.messages) && res.messages.length) {
-    //   res.messages = await this.messageRepository.save(res.messages)
-    // }
+    if (res.messages && Array.isArray(res.messages) && res.messages.length) {
+      res.messages = await this.messageRepository.save(res.messages)
+    }
     const saved: ConnectionEntity | undefined = await this.connectionRepository.save({
       ...res,
+      // TODO: support collection import/export
+      parentId: null,
       id,
-      updateAt: time.getNowDate(),
       ...args,
     } as ConnectionEntity)
-    return saved
+    return this.entityToModel(saved)
   }
 
   public async update(id: string, data: Partial<ConnectionModel>): Promise<ConnectionModel | undefined> {
