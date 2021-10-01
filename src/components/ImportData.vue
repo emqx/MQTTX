@@ -319,9 +319,8 @@ export default class ImportData extends Vue {
       .fromString(data)
       .subscribe((jsonObj) => {
         try {
-          let { client, messages, subscriptions, will, ...otherProps } = jsonObj
+          let { messages, subscriptions, will, ...otherProps } = jsonObj
           // format object
-          client = JSON.parse(client)
           messages = JSON.parse(messages)
           subscriptions = JSON.parse(subscriptions)
           will = JSON.parse(will)
@@ -338,7 +337,6 @@ export default class ImportData extends Vue {
             }
           })
           const oneRealJSONObj = {
-            client,
             messages,
             subscriptions,
             will,
