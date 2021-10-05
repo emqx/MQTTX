@@ -146,6 +146,7 @@ declare global {
   }
 
   interface SubscriptionModel {
+    id?: string
     topic: string
     qos: QoS
     alias?: string

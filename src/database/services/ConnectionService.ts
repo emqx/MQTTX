@@ -120,11 +120,6 @@ export default class ConnectionService {
       })
     }
     if (res.subscriptions && Array.isArray(res.subscriptions)) {
-      const curSubs: SubscriptionEntity[] = await this.subscriptionRepository
-        .createQueryBuilder('sub')
-        .where('sub.connectionId = :id', { id })
-        .getMany()
-      await this.subscriptionRepository.remove(curSubs)
       if (res.subscriptions.length) {
         res.subscriptions = await this.subscriptionRepository.save(
           res.subscriptions.map((sub) => {
