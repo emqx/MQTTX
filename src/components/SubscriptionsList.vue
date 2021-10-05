@@ -246,26 +246,25 @@ export default class SubscriptionsList extends Vue {
     return this.$t('connections.unknowSubFailed')
   }
 
-  public resubscribe() {
+  public async resubscribe() {
     this.getCurrentConnection(this.connectionId)
-    this.subsList.forEach((sub) => {
+    for (let i = 0; i < this.subsList.length; i++) {
+      const sub = this.subsList[i]
       this.$log.info(`Topic: ${sub.topic} is resubscribing`)
       this.subRecord.topic = sub.topic
       this.subRecord.qos = sub.qos
       this.subRecord.color = sub.color
-      // TODO sync subscribe with connection without setTimeout maybe better.
-      setTimeout(() => {
-        this.subscribe(this.subRecord)
-      }, 300)
-    })
+      await this.subscribe({ ...this.subRecord })
+    }
   }
 
-  public subscribe({ topic, qos }: SubscriptionModel, isAuto?: boolean) {
+  public async subscribe({ topic, qos }: SubscriptionModel, isAuto?: boolean) {
     if (isAuto) {
       this.subRecord.topic = topic
       this.subRecord.qos = qos
       this.subRecord.color = getRandomColor()
     }
+    let isFinshed = false
     if (this.client.subscribe) {
       this.client.subscribe(topic, { qos: qos as QoS }, async (error, res) => {
         if (error) {
@@ -302,8 +301,19 @@ export default class SubscriptionsList extends Vue {
           this.showDialog = false
           this.$log.info(`Topic: ${topic} successfully subscribed`)
         }
+        isFinshed = true
       })
     }
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
+    // TODO: maybe we should replace mqtt.js to mqtt-async.js
+    await new Promise(async (resolve) => {
+      // long pool query base on sleep
+      while (!isFinshed) {
+        await sleep(100)
+      }
+      resolve(isFinshed)
+    })
   }
 
   private removeSubs(row: SubscriptionModel): void | boolean {
