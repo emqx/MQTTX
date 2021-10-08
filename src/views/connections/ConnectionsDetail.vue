@@ -1327,7 +1327,7 @@ export default class ConnectionsDetail extends Vue {
   // Auto subscribe system topic and show dialog
   private handleSubSystemTopic() {
     this.showBytes = true
-    this.subListRef.subscribe({ topic: '$SYS/#', qos: 0 }, true)
+    this.subListRef.subscribe({ topic: '$SYS/#', qos: 0, createAt: time.getNowDate() }, true)
   }
 
   // Re-subscribe topic

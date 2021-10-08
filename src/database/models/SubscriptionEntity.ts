@@ -23,6 +23,9 @@ export default class SubscriptionEntity {
   @Column({ type: 'varchar', nullable: true })
   color?: string
 
+  @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+  createAt!: string
+
   // ManyToOne entities
   @ManyToOne(() => ConnectionEntity, (connection) => connection.messages, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'connection_id', referencedColumnName: 'id' })

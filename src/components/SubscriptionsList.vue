@@ -114,6 +114,7 @@ import MyDialog from '@/components/MyDialog.vue'
 import VueI18n from 'vue-i18n'
 import { MqttClient } from 'mqtt'
 import useServices from '@/database/useServices'
+import time from '@/utils/time'
 
 enum SubscribeErrorReason {
   normal,
@@ -147,6 +148,8 @@ export default class SubscriptionsList extends Vue {
   private subRecord: SubscriptionModel = {
     topic: 'testtopic/#',
     qos: 0,
+    createAt: time.getNowDate(),
+    alias: '',
   }
   private qosOption: QoSList = [0, 1, 2]
   private subsList: SubscriptionModel[] = []
