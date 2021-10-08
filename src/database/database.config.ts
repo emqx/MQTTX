@@ -17,6 +17,7 @@ import { messages1630403733964 } from './migration/1630403733964-messages'
 import { collection1630497638704 } from './migration/1630497638704-collection'
 import { historyConnections1630572256038 } from './migration/1630572256038-historyConnections'
 import { suggestionConnection1631953873460 } from './migration/1631953873460-suggestionConnection'
+import { subCreateAt1633706652456 } from './migration/1633706652456-subCreateAt'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -41,6 +42,7 @@ const ORMConfig = {
     collection1630497638704,
     historyConnections1630572256038,
     suggestionConnection1631953873460,
+    subCreateAt1633706652456,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [
