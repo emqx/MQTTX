@@ -152,6 +152,7 @@ declare global {
     alias?: string
     retain?: boolean
     color?: string
+    createAt: string
   }
 
   interface MessageModel {

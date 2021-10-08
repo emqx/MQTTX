@@ -37,7 +37,10 @@ export default class ConnectionService {
         data?.messages.sort((a, b) =>
           moment(new Date(a.createAt), sqliteDateFormat).isBefore(new Date(b.createAt)) ? -1 : 1,
         ) ?? [],
-      subscriptions: data.subscriptions ?? [],
+      subscriptions:
+        data.subscriptions.sort((a, b) =>
+          moment(new Date(a.createAt), sqliteDateFormat).isBefore(new Date(b.createAt)) ? -1 : 1,
+        ) ?? [],
       will: {
         ...data.will,
         properties: {
@@ -120,6 +123,15 @@ export default class ConnectionService {
       })
     }
     if (res.subscriptions && Array.isArray(res.subscriptions)) {
+      const curSubs: SubscriptionEntity[] = await this.subscriptionRepository
+        .createQueryBuilder('sub')
+        .where('sub.connectionId = :id', { id })
+        .getMany()
+      await this.subscriptionRepository.remove(
+        curSubs.filter(
+          (subInDataBase) => !res.subscriptions.some((subInMemory) => subInMemory.id === subInDataBase.id),
+        ),
+      )
       if (res.subscriptions.length) {
         res.subscriptions = await this.subscriptionRepository.save(
           res.subscriptions.map((sub) => {
@@ -345,7 +357,9 @@ export default class ConnectionService {
       await this.subscriptionRepository.save(subs)
       return
     }
-    await this.subscriptionRepository.remove(query)
+    await this.subscriptionRepository.remove(
+      query.filter((subInDb) => !subs.some((subInMemory) => subInMemory.id === subInDb.id)),
+    )
     await this.subscriptionRepository.save(subs)
   }
 }
