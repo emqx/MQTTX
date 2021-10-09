@@ -127,25 +127,33 @@ export default class ConnectionService {
         .createQueryBuilder('sub')
         .where('sub.connectionId = :id', { id })
         .getMany()
-      await this.subscriptionRepository.remove(
-        curSubs.filter(
-          (subInDataBase) => !res.subscriptions.some((subInMemory) => subInMemory.id === subInDataBase.id),
-        ),
+      const shouldRemove: SubscriptionEntity[] = curSubs.filter(
+        (subInDataBase) => !res.subscriptions.some((subInMemory) => subInMemory.id === subInDataBase.id),
       )
-      if (res.subscriptions.length) {
-        res.subscriptions = await this.subscriptionRepository.save(
-          res.subscriptions.map((sub) => {
+      const shouldUpdate: SubscriptionEntity[] = res.subscriptions.filter((subInMemory) =>
+        res.subscriptions.some((subInDataBase) => subInMemory.id === subInDataBase.id),
+      )
+      await this.subscriptionRepository.remove(shouldRemove)
+      if (shouldUpdate && shouldUpdate.length) {
+        res.subscriptions = (await this.subscriptionRepository.save(
+          shouldUpdate.map((sub) => {
             return {
               ...sub,
-              connectionId: id,
+              connectionId: undefined,
             } as SubscriptionEntity
           }),
-        )
+        )) as SubscriptionEntity[]
       }
     }
     // TODO: too large cost for message saving, need to refactor
     if (res.messages && Array.isArray(res.messages) && res.messages.length) {
-      res.messages = await this.messageRepository.save(res.messages)
+      const shouldSave: MessageEntity[] = res.messages.map((msg) => {
+        return {
+          ...msg,
+          connectionId: undefined,
+        } as MessageEntity
+      })
+      res.messages = await this.messageRepository.save(shouldSave)
     }
     const saved: ConnectionEntity | undefined = await this.connectionRepository.save({
       ...res,
@@ -360,6 +368,8 @@ export default class ConnectionService {
     await this.subscriptionRepository.remove(
       query.filter((subInDb) => !subs.some((subInMemory) => subInMemory.id === subInDb.id)),
     )
-    await this.subscriptionRepository.save(subs)
+    await this.subscriptionRepository.save(
+      subs.filter((subInMemory) => query.some((subInDb) => subInMemory.id === subInDb.id)),
+    )
   }
 }

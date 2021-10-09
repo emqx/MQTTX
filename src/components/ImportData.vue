@@ -146,9 +146,8 @@ export default class ImportData extends Vue {
     }
 
     const parseStringProps = (connection: any): ConnectionModel => {
-      let { client, messages, will, subscriptions } = connection
+      let { messages, will, subscriptions } = connection
       try {
-        client = JSON.parse(client)
         messages = JSON.parse(messages)
         will = JSON.parse(will)
         subscriptions = JSON.parse(subscriptions)
@@ -156,7 +155,7 @@ export default class ImportData extends Vue {
         this.$message.error(err.toString())
         caughtError = true
       }
-      return Object.assign(connection, { client, messages, will, subscriptions })
+      return Object.assign(connection, { messages, will, subscriptions })
     }
     const jsonContent = content.map((connection): ConnectionModel => parseStringProps(connection))
     if (!caughtError) {
