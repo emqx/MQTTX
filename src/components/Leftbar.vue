@@ -8,38 +8,80 @@
     <section class="leftbar-center">
       <template v-if="!isNewWindow">
         <div :class="[{ active: isConnection }, 'leftbar-item']">
-          <a href="javascript:;" @click="routeToPage('/recent_connections')">
-            <i class="iconfont icon-connect"></i>
-          </a>
+          <el-tooltip
+            placement="top"
+            :effect="theme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('common.connections')"
+          >
+            <a href="javascript:;" @click="routeToPage('/recent_connections')">
+              <i class="iconfont icon-connect"></i>
+            </a>
+          </el-tooltip>
         </div>
         <div class="leftbar-item">
-          <a href="javascript:;" @click="routeToPage('/recent_connections/0?oper=create')">
-            <i class="iconfont icon-new"></i>
-          </a>
+          <el-tooltip
+            placement="top"
+            :effect="theme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('common.newConnections')"
+          >
+            <a href="javascript:;" @click="routeToPage('/recent_connections/0?oper=create')">
+              <i class="iconfont icon-new"></i>
+            </a>
+          </el-tooltip>
         </div>
         <div :class="[{ active: isScript }, 'leftbar-item']">
-          <a href="javascript:;" @click="routeToPage('/script')">
-            <i class="iconfont icon-script"></i>
-          </a>
+          <el-tooltip
+            placement="top"
+            :effect="theme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('common.script')"
+          >
+            <a href="javascript:;" @click="routeToPage('/script')">
+              <i class="iconfont icon-script"></i>
+            </a>
+          </el-tooltip>
         </div>
         <div :class="[{ active: isLog }, 'leftbar-item']">
-          <a href="javascript:;" @click="routeToPage('/log')">
-            <i class="iconfont icon-log"></i>
-          </a>
+          <el-tooltip
+            placement="top"
+            :effect="theme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('common.log')"
+          >
+            <a href="javascript:;" @click="routeToPage('/log')">
+              <i class="iconfont icon-log"></i>
+            </a>
+          </el-tooltip>
         </div>
       </template>
     </section>
 
     <section v-if="!isNewWindow" class="leftbar-bottom">
       <div :class="[{ active: isAbout }, 'leftbar-item']">
-        <a href="javascript:;" @click="routeToPage('/about')">
-          <i class="iconfont icon-about"></i>
-        </a>
+        <el-tooltip
+          placement="top"
+          :effect="theme !== 'light' ? 'light' : 'dark'"
+          :open-delay="500"
+          :content="$t('common.about')"
+        >
+          <a href="javascript:;" @click="routeToPage('/about')">
+            <i class="iconfont icon-about"></i>
+          </a>
+        </el-tooltip>
       </div>
       <div :class="[{ active: isSettings }, 'leftbar-item']">
-        <a href="javascript:;" @click="routeToPage('/settings')">
-          <i class="iconfont icon-settings"></i>
-        </a>
+        <el-tooltip
+          placement="top"
+          :effect="theme !== 'light' ? 'light' : 'dark'"
+          :open-delay="500"
+          :content="$t('common.settings')"
+        >
+          <a href="javascript:;" @click="routeToPage('/settings')">
+            <i class="iconfont icon-settings"></i>
+          </a>
+        </el-tooltip>
       </div>
     </section>
   </div>
@@ -52,6 +94,7 @@ import { Getter } from 'vuex-class'
 @Component
 export default class Leftbar extends Vue {
   @Getter('currentLang') private getterLang!: Language
+  @Getter('currentTheme') private theme!: Theme
 
   get siteLink(): string {
     const link = 'https://mqttx.app/'

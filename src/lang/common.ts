@@ -179,4 +179,40 @@ export default {
     tr: 'Cloud-Native, tam olarak yönetilen bir MQTT aracısına mı ihtiyacınız var? Deneyin <a href="https://www.emqx.com/en/cloud/?utm_source=mqttx&utm_medium=app&utm_campaign=2021" target="_blank" rel="noopener noreferrer">EMQ X Cloud</a> şimdi!',
     ja: 'Need a Cloud-Native fully-managed MQTT broker? Try <a href="https://www.emqx.com/en/cloud/?utm_source=mqttx&utm_medium=app&utm_campaign=2021" target="_blank" rel="noopener noreferrer">EMQ X Cloud</a> now!',
   },
+  connections: {
+    zh: '连接',
+    en: 'Connections',
+    tr: 'Bağlantılar',
+    ja: '接続',
+  },
+  newConnections: {
+    zh: '新建连接',
+    en: 'New Connection',
+    tr: 'Yeni bağlantı',
+    ja: '新しい接続',
+  },
+  script: {
+    zh: '脚本',
+    en: 'Scripts',
+    tr: 'Komut dosyası',
+    ja: 'スクリプト',
+  },
+  log: {
+    zh: '日志',
+    en: 'Log',
+    ja: 'ログ',
+    tr: 'Günlük',
+  },
+  about: {
+    zh: '关于',
+    en: 'About',
+    ja: 'MQTTXについて',
+    tr: 'Hakkında',
+  },
+  settings: {
+    zh: '设置',
+    en: 'Settings',
+    tr: 'Ayarlar',
+    ja: '設定',
+  },
 }
