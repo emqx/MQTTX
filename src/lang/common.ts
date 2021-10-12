@@ -120,10 +120,10 @@ export default {
     ja: 'ミリ秒',
   },
   config: {
-    zh: '高级配置',
-    en: 'Advanced Config',
-    tr: 'Gelişmiş Ayarlar',
-    ja: '詳細設定',
+    zh: '编辑连接',
+    en: 'Edit Connection',
+    tr: 'Bağlantıyı Düzenle',
+    ja: '接続の編集',
   },
   copy: {
     zh: '复 制',
