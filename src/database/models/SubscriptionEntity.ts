@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 't
 import ConnectionEntity from './ConnectionEntity'
 
 type QoS = 0 | 1 | 2
+type RetainHandling = 0 | 1 | 2
 
 @Entity('SubscriptionEntity')
 export default class SubscriptionEntity {
@@ -19,6 +20,15 @@ export default class SubscriptionEntity {
 
   @Column({ type: 'boolean', nullable: true, default: false })
   retain?: boolean
+
+  @Column({ type: 'boolean', nullable: true, default: false })
+  nl?: boolean
+
+  @Column({ type: 'boolean', nullable: true, default: false })
+  rap?: boolean
+
+  @Column({ type: 'simple-enum', enum: [0, 1, 2], default: 0 })
+  rh?: RetainHandling
 
   @Column({ type: 'varchar', nullable: true })
   color?: string

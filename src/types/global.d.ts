@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
 import { MqttClient } from 'mqtt'
+import { type } from 'os'
 
 declare global {
   type $TSFixed = any
@@ -15,7 +16,11 @@ declare global {
 
   type QoS = 0 | 1 | 2
 
+  type RetainHandling = 0 | 1 | 2
+
   type QoSList = [0, 1, 2]
+
+  type RetainHandlingList = [0, 1, 2]
 
   type ProtocolMap = {
     [key in ProtocolOption]: string
@@ -96,6 +101,7 @@ declare global {
     activeConnection: ActiveConnection
     willMessageVisible: boolean
     advancedVisible: boolean
+    subMQTT5Visible: boolean
     allConnections: ConnectionModel[]
     currentScript: ScriptState | null
     connectionTreeState: ConnectionTreeStateMap
@@ -153,6 +159,10 @@ declare global {
     retain?: boolean
     color?: string
     createAt: string
+    // MQTT 5.0 only
+    nl?: boolean
+    rap?: boolean
+    rh?: RetainHandling
   }
 
   interface MessageModel {

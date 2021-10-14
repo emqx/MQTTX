@@ -99,6 +99,51 @@
               <el-input v-model="subRecord.alias" size="small"> </el-input>
             </el-form-item>
           </el-col>
+          <template v-if="record.mqttVersion === '5.0'">
+            <h3 class="topic-mqtt5-title">
+              MQTT 5 Options
+              <a
+                :class="['collapse-btn', subMQTT5Visible ? 'bottom' : 'top']"
+                href="javascript:;"
+                @click="handleCollapse"
+              >
+                <i class="el-icon-caret-top"></i>
+              </a>
+            </h3>
+            <el-collapse-transition>
+              <div v-show="subMQTT5Visible" class="topic-mqtt5">
+                <el-col :span="24">
+                  <el-form-item label-width="180px" label="No Local flag" prop="nl">
+                    <el-radio-group v-model="subRecord.nl">
+                      <el-radio :label="true">true</el-radio>
+                      <el-radio :label="false">false</el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="24">
+                  <el-form-item label-width="180px" label="Retain as Published flag" prop="rap">
+                    <el-radio-group v-model="subRecord.rap">
+                      <el-radio :label="true">true</el-radio>
+                      <el-radio :label="false">false</el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="24">
+                  <el-form-item label-width="180px" label="Retain Handling" prop="rh">
+                    <el-select v-model="subRecord.rh" size="small">
+                      <el-option
+                        v-for="retainOps in retainHandling"
+                        :key="retainOps"
+                        :label="retainOps"
+                        :value="retainOps"
+                      >
+                      </el-option>
+                    </el-select>
+                  </el-form-item>
+                </el-col>
+              </div>
+            </el-collapse-transition>
+          </template>
         </el-form>
       </el-row>
     </my-dialog>
@@ -137,6 +182,7 @@ export default class SubscriptionsList extends Vue {
 
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
+  @Action('TOGGLE_SUBMQTT5_VISIBLE') private toggleSubMQTT5Visible!: (payload: { subMQTT5Visible: boolean }) => void
   @Getter('activeConnection') private activeConnection!: ActiveConnection
   @Getter('currentTheme') private theme!: Theme
 
@@ -145,12 +191,17 @@ export default class SubscriptionsList extends Vue {
     connected: false,
   }
   private showDialog: boolean = false
+  private subMQTT5Visible: boolean = false
   private subRecord: SubscriptionModel = {
     topic: 'testtopic/#',
     qos: 0,
     createAt: time.getNowDate(),
     alias: '',
+    nl: false,
+    rap: false,
+    rh: 0,
   }
+  private retainHandling: RetainHandlingList = [0, 1, 2]
   private qosOption: QoSList = [0, 1, 2]
   private subsList: SubscriptionModel[] = []
   private copySuccess = false
@@ -178,6 +229,13 @@ export default class SubscriptionsList extends Vue {
       this.getCurrentConnection(val.id.toString() as string)
       this.subsList = val.subscriptions
     }
+  }
+
+  private handleCollapse() {
+    this.subMQTT5Visible = !this.subMQTT5Visible
+    this.toggleSubMQTT5Visible({
+      subMQTT5Visible: this.subMQTT5Visible,
+    })
   }
 
   private setColor() {
@@ -261,15 +319,18 @@ export default class SubscriptionsList extends Vue {
     }
   }
 
-  public async subscribe({ topic, qos }: SubscriptionModel, isAuto?: boolean) {
+  public async subscribe({ topic, qos, nl, rap, rh }: SubscriptionModel, isAuto?: boolean) {
     if (isAuto) {
+      this.subRecord.nl = nl
+      this.subRecord.rap = rap
+      this.subRecord.rh = rh
       this.subRecord.topic = topic
       this.subRecord.qos = qos
       this.subRecord.color = getRandomColor()
     }
     let isFinshed = false
     if (this.client.subscribe) {
-      this.client.subscribe(topic, { qos: qos as QoS }, async (error, res) => {
+      this.client.subscribe(topic, { qos: qos as QoS, nl, rap, rh }, async (error, res) => {
         if (error) {
           this.$message.error(error)
           this.$log.error(`Topic: ${topic} subscribe error ${error} `)
@@ -403,6 +464,7 @@ export default class SubscriptionsList extends Vue {
 
 <style lang="scss">
 @import '~@/assets/scss/variable.scss';
+@import '~@/assets/scss/mixins.scss';
 
 .subscriptions-list-view {
   &.el-card {
@@ -516,6 +578,24 @@ export default class SubscriptionsList extends Vue {
       right: 0;
       top: 6px;
     }
+    .topic-mqtt5-title {
+      margin: 0 0 10px 10px;
+    }
+    .topic-mqtt5 {
+      .el-form-item {
+        margin-bottom: 8px;
+        .el-form-item__label {
+          text-align: left;
+        }
+      }
+    }
+    a.collapse-btn {
+      color: var(--color-text-light);
+      font-size: 1rem;
+      position: relative;
+      top: 1px;
+    }
+    @include collapse-btn-transform(0deg, 180deg);
   }
 }
 .topic-tooltip {
