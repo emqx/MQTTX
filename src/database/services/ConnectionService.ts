@@ -7,9 +7,9 @@ import SubscriptionEntity from '@/database/models/SubscriptionEntity'
 import HistoryConnectionEntity from '@/database/models/HistoryConnectionEntity'
 import { Repository, MoreThan, LessThan } from 'typeorm'
 import { DateUtils } from 'typeorm/util/DateUtils'
-import deepMerge from '@/utils/deepMerge'
 import time, { sqliteDateFormat } from '@/utils/time'
 import moment from 'moment'
+import _ from 'lodash'
 
 export const MoreThanDate = (date: string | Date) => MoreThan(DateUtils.mixedDateToUtcDatetimeString(date))
 export const LessThanDate = (date: string | Date) => LessThan(DateUtils.mixedDateToUtcDatetimeString(date))
@@ -69,6 +69,45 @@ export default class ConnectionService {
     return this.entityToModel(await this.connectionRepository.save({ ...query, updateAt }))
   }
 
+  private deepMerge(target: ConnectionModel, source: ConnectionModel): ConnectionModel {
+    const res = _.cloneDeep(target)
+    const _deepMerge = (target: ConnectionModel, source: ConnectionModel) => {
+      return _.mergeWith(target, source, (target, source, key) => {
+        // none empty
+        if (!target || !source) {
+          return target ? target : source
+        }
+        // id property , don't merge
+        if (key === 'id') {
+          return target
+        }
+        // merge array property
+        if (Array.isArray(target) && Array.isArray(source)) {
+          const rightIntersection = source.filter((s) => target.findIndex((t) => s.id === t.id) > -1)
+          const mergedLeft = target.map((t) => {
+            const ri = rightIntersection.find((r) => t.id === r.id)
+            if (ri) {
+              return _.merge(t, ri)
+            }
+            return t
+          })
+          const rightDifference = source.filter((s) => rightIntersection.findIndex((i) => i.id === s.id) === -1)
+          return mergedLeft.concat(rightDifference)
+        }
+        if (source instanceof Object) {
+          return {
+            ...target,
+            ...source,
+            id: target.id,
+          }
+        }
+        return source
+      })
+    }
+    _deepMerge(res, source)
+    return res
+  }
+
   // cascade update
   public async updateWithCascade(
     id: string,
@@ -82,8 +121,8 @@ export default class ConnectionService {
       .leftJoinAndSelect('cn.subscriptions', 'sub')
       .leftJoinAndSelect('cn.will', 'will')
       .getOne()
-    const res: ConnectionModel = query ? this.entityToModel(query) : data
-    deepMerge(res, data)
+    const queryModel: ConnectionModel = query ? this.entityToModel(query) : data
+    const res: ConnectionModel = this.deepMerge(queryModel, data)
     if (res.will) {
       const {
         id,
@@ -138,11 +177,12 @@ export default class ConnectionService {
         res.subscriptions = (await this.subscriptionRepository.save(
           shouldUpdate.map((sub) => {
             return {
+              id: id,
               ...sub,
               connectionId: undefined,
             } as SubscriptionEntity
           }),
-        )) as SubscriptionEntity[]
+        )) as SubscriptionModel[]
       }
     }
     // TODO: too large cost for message saving, need to refactor
@@ -174,9 +214,9 @@ export default class ConnectionService {
       return
     }
     // safe it's same data struct in single connection table
-    deepMerge(res, data)
+    const merged = _.merge(res, data)
     const query: ConnectionEntity | undefined = await this.connectionRepository.save({
-      ...res,
+      ...merged,
       id,
       updateAt: time.getNowDate(),
     } as ConnectionModel)

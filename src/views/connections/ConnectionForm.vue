@@ -478,10 +478,9 @@
 import { remote } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import getClientId from '@/utils/getClientId'
+import { getClientId } from '@/utils/idGenerator'
 import { getMQTTProtocol } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
-import deepMerge from '@/utils/deepMerge'
 import _ from 'lodash'
 import useServices from '@/database/useServices'
 
@@ -590,9 +589,8 @@ export default class ConnectionForm extends Vue {
   private async loadDetail(id: string) {
     const { connectionService } = useServices()
     const res: ConnectionModel | undefined = await connectionService.get(id)
-
     if (res) {
-      deepMerge(this.record, res)
+      this.record = res
       this.oldName = res.name
       this.record.protocol = getMQTTProtocol(res)
     }

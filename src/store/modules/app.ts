@@ -16,7 +16,6 @@ const UNREAD_MESSAGE_COUNT_INCREMENT = 'UNREAD_MESSAGE_COUNT_INCREMENT'
 const SET_CONNECTIONS_TREE = 'SET_CONNECTIONS_TREE'
 const TOGGLE_WILL_MESSAGE_VISIBLE = 'TOGGLE_WILL_MESSAGE_VISIBLE'
 const TOGGLE_ADVANCED_VISIBLE = 'TOGGLE_ADVANCED_VISIBLE'
-const TOGGLE_SUBMQTT5_VISIBLE = 'TOGGLE_SUBMQTT5_VISIBLE'
 const CHANGE_ALL_CONNECTIONS = 'CHANGE_ALL_CONNECTIONS'
 const SET_SCRIPT = 'SET_SCRIPT'
 const CHANGE_CONNECTION_COLLECTION = 'CHANGE_CONNECTION_COLLECTION'
@@ -119,9 +118,6 @@ const app = {
     [TOGGLE_WILL_MESSAGE_VISIBLE](state: App, willMessageVisible: boolean) {
       state.willMessageVisible = willMessageVisible
     },
-    [TOGGLE_SUBMQTT5_VISIBLE](state: App, subMQTT5Visible: boolean) {
-      state.subMQTT5Visible = subMQTT5Visible
-    },
     [CHANGE_ALL_CONNECTIONS](state: App, allConnections: ConnectionModel[] | []) {
       state.allConnections = allConnections
     },
@@ -186,9 +182,6 @@ const app = {
     },
     TOGGLE_WILL_MESSAGE_VISIBLE({ commit }: any, payload: App) {
       commit(TOGGLE_WILL_MESSAGE_VISIBLE, payload.willMessageVisible)
-    },
-    TOGGLE_SUBMQTT5_VISIBLE({ commit }: any, payload: App) {
-      commit(TOGGLE_SUBMQTT5_VISIBLE, payload.subMQTT5Visible)
     },
     CHANGE_ALL_CONNECTIONS({ commit }: any, payload: App) {
       commit(CHANGE_ALL_CONNECTIONS, payload.allConnections)

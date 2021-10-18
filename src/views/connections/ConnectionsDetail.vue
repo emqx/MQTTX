@@ -288,7 +288,6 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
 import mqtt, { MqttClient, IClientOptions } from 'mqtt'
-import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
 
 import time from '@/utils/time'
@@ -314,6 +313,7 @@ import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 import sandbox from '@/utils/sandbox'
 import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/mqttUtils'
 import useServices from '@/database/useServices'
+import { getMessageId, getSubscriptionId } from '@/utils/idGenerator'
 
 type CommandType =
   | 'searchContent'
@@ -1054,7 +1054,7 @@ export default class ConnectionsDetail extends Vue {
       const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
       const receviedPayload = this.convertPayloadByScript(convertPayload, 'publish')
       const receivedMessage: MessageModel = {
-        id: uuidv4(),
+        id: getMessageId(),
         out: false,
         createAt: time.getNowDate(),
         topic,
@@ -1142,7 +1142,7 @@ export default class ConnectionsDetail extends Vue {
     this.sendTimeId = window.setInterval(() => {
       const { ...oneMessage } = message
       let { id } = oneMessage
-      id = uuidv4()
+      id = getMessageId()
       this.sendOneMessage(Object.assign(oneMessage, { id }), type)
     }, time * 1000)
   }
@@ -1327,7 +1327,7 @@ export default class ConnectionsDetail extends Vue {
   // Auto subscribe system topic and show dialog
   private handleSubSystemTopic() {
     this.showBytes = true
-    this.subListRef.subscribe({ topic: '$SYS/#', qos: 0, createAt: time.getNowDate() }, true)
+    this.subListRef.subscribe({ topic: '$SYS/#', id: getSubscriptionId(), qos: 0, createAt: time.getNowDate() }, true)
   }
 
   // Re-subscribe topic
