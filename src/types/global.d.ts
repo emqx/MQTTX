@@ -101,7 +101,6 @@ declare global {
     activeConnection: ActiveConnection
     willMessageVisible: boolean
     advancedVisible: boolean
-    subMQTT5Visible: boolean
     allConnections: ConnectionModel[]
     currentScript: ScriptState | null
     connectionTreeState: ConnectionTreeStateMap

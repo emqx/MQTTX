@@ -100,49 +100,37 @@
             </el-form-item>
           </el-col>
           <template v-if="record.mqttVersion === '5.0'">
-            <h3 class="topic-mqtt5-title">
-              MQTT 5 Options
-              <a
-                :class="['collapse-btn', subMQTT5Visible ? 'bottom' : 'top']"
-                href="javascript:;"
-                @click="handleCollapse"
-              >
-                <i class="el-icon-caret-top"></i>
-              </a>
-            </h3>
-            <el-collapse-transition>
-              <div v-show="subMQTT5Visible" class="topic-mqtt5">
-                <el-col :span="24">
-                  <el-form-item label-width="180px" label="No Local flag" prop="nl">
-                    <el-radio-group v-model="subRecord.nl">
-                      <el-radio :label="true">true</el-radio>
-                      <el-radio :label="false">false</el-radio>
-                    </el-radio-group>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="24">
-                  <el-form-item label-width="180px" label="Retain as Published flag" prop="rap">
-                    <el-radio-group v-model="subRecord.rap">
-                      <el-radio :label="true">true</el-radio>
-                      <el-radio :label="false">false</el-radio>
-                    </el-radio-group>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="24">
-                  <el-form-item label-width="180px" label="Retain Handling" prop="rh">
-                    <el-select v-model="subRecord.rh" size="small">
-                      <el-option
-                        v-for="retainOps in retainHandling"
-                        :key="retainOps"
-                        :label="retainOps"
-                        :value="retainOps"
-                      >
-                      </el-option>
-                    </el-select>
-                  </el-form-item>
-                </el-col>
-              </div>
-            </el-collapse-transition>
+            <div class="topic-mqtt5">
+              <el-col :span="24">
+                <el-form-item label-width="180px" label="No Local flag" prop="nl">
+                  <el-radio-group v-model="subRecord.nl">
+                    <el-radio :label="true">true</el-radio>
+                    <el-radio :label="false">false</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label-width="180px" label="Retain as Published flag" prop="rap">
+                  <el-radio-group v-model="subRecord.rap">
+                    <el-radio :label="true">true</el-radio>
+                    <el-radio :label="false">false</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item label-width="180px" label="Retain Handling" prop="rh">
+                  <el-select v-model="subRecord.rh" size="small">
+                    <el-option
+                      v-for="retainOps in retainHandling"
+                      :key="retainOps"
+                      :label="retainOps"
+                      :value="retainOps"
+                    >
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </div>
           </template>
         </el-form>
       </el-row>
@@ -160,6 +148,7 @@ import VueI18n from 'vue-i18n'
 import { MqttClient } from 'mqtt'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
+import { getSubscriptionId } from '@/utils/idGenerator'
 
 enum SubscribeErrorReason {
   normal,
@@ -182,7 +171,6 @@ export default class SubscriptionsList extends Vue {
 
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
-  @Action('TOGGLE_SUBMQTT5_VISIBLE') private toggleSubMQTT5Visible!: (payload: { subMQTT5Visible: boolean }) => void
   @Getter('activeConnection') private activeConnection!: ActiveConnection
   @Getter('currentTheme') private theme!: Theme
 
@@ -191,8 +179,8 @@ export default class SubscriptionsList extends Vue {
     connected: false,
   }
   private showDialog: boolean = false
-  private subMQTT5Visible: boolean = false
   private subRecord: SubscriptionModel = {
+    id: getSubscriptionId(),
     topic: 'testtopic/#',
     qos: 0,
     createAt: time.getNowDate(),
@@ -226,21 +214,19 @@ export default class SubscriptionsList extends Vue {
   private handleRecordChanged(val: ConnectionModel) {
     this.topicActiveIndex = null
     if (val.id) {
-      this.getCurrentConnection(val.id.toString() as string)
+      this.getCurrentConnection(val.id as string)
       this.subsList = val.subscriptions
     }
-  }
-
-  private handleCollapse() {
-    this.subMQTT5Visible = !this.subMQTT5Visible
-    this.toggleSubMQTT5Visible({
-      subMQTT5Visible: this.subMQTT5Visible,
-    })
   }
 
   private setColor() {
     this.topicColor = getRandomColor()
   }
+
+  private setNewSubscribeId() {
+    this.subRecord.id = getSubscriptionId()
+  }
+
   private getBorderColor(): string {
     let $index: number = this.subsList.length
     const lastSubs: SubscriptionModel = this.subsList[$index - 1]
@@ -265,6 +251,7 @@ export default class SubscriptionsList extends Vue {
   private openDialog() {
     this.showDialog = true
     this.setColor()
+    this.setNewSubscribeId()
   }
 
   private saveSubs(): void | boolean {
@@ -442,6 +429,7 @@ export default class SubscriptionsList extends Vue {
       this.copySuccess = false
     }, 1500)
   }
+
   private stopClick(): boolean {
     return true
   }

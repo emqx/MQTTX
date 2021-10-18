@@ -100,7 +100,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { ipcRenderer } from 'electron'
 import Editor from '@/components/Editor.vue'
 import convertPayload from '@/utils/convertPayload'
-import { v4 as uuidv4 } from 'uuid'
+import { getMessageId } from '@/utils/idGenerator'
 import _ from 'lodash'
 import validFormatJson from '@/utils/validFormatJson'
 import useServices from '@/database/useServices'
@@ -215,7 +215,7 @@ export default class MsgPublish extends Vue {
   }
 
   private async send() {
-    this.msgRecord.id = uuidv4()
+    this.msgRecord.id = getMessageId()
     this.$emit('handleSend', this.msgRecord, this.payloadType, this.loadHistoryData)
   }
 

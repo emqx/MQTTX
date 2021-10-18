@@ -112,7 +112,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import getClientId from '@/utils/getClientId'
+import { getClientId } from '@/utils/idGenerator'
 import { MqttClient } from 'mqtt'
 import { Getter } from 'vuex-class'
 import useServices from '@/database/useServices'
