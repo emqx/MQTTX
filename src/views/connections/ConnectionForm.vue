@@ -482,6 +482,7 @@ import { getClientId } from '@/utils/idGenerator'
 import { getMQTTProtocol } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
 import _ from 'lodash'
+import time from '@/utils/time'
 import useServices from '@/database/useServices'
 
 @Component({
@@ -512,6 +513,8 @@ export default class ConnectionForm extends Vue {
 
   private defaultRecord: ConnectionModel = {
     clientId: getClientId(),
+    createAt: time.getNowDate(),
+    updateAt: time.getNowDate(),
     name: '',
     clean: true,
     protocol: 'mqtt',
@@ -607,11 +610,18 @@ export default class ConnectionForm extends Vue {
       const { connectionService } = useServices()
       let msgError = ''
       if (this.oper === 'create') {
-        res = await connectionService.create(data)
+        res = await connectionService.create({
+          ...data,
+          createAt: time.getNowDate(),
+          updateAt: time.getNowDate(),
+        })
         msgError = this.$t('common.createfailed') as string
       } else {
         if (data.id) {
-          res = await connectionService.updateWithCascade(data.id, data)
+          res = await connectionService.updateWithCascade(data.id, {
+            ...data,
+            updateAt: time.getNowDate(),
+          })
           msgError = this.$t('common.editfailed') as string
         }
       }

@@ -221,6 +221,8 @@ declare global {
     name: string
     clean: boolean
     protocol?: Protocol
+    createAt: string
+    updateAt: string
     host: string
     port: number
     keepalive: number

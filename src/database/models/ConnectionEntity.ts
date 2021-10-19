@@ -103,8 +103,8 @@ export default class ConnectionEntity {
   subscriptions!: SubscriptionEntity[]
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-  createAt?: string
+  createAt!: string
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-  updateAt?: string
+  updateAt!: string
 }

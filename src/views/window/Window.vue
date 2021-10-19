@@ -14,6 +14,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import ConnectionsDetail from '@/views/connections/ConnectionsDetail.vue'
 import ConnectionsList from '@/views/connections/ConnectionsList.vue'
 import useServices from '@/database/useServices'
+import time from '@/utils/time'
 
 @Component({
   components: {
@@ -24,6 +25,8 @@ import useServices from '@/database/useServices'
 export default class Window extends Vue {
   private records: ConnectionModel[] = []
   private currentConnection: ConnectionModel = {
+    createAt: time.getNowDate(),
+    updateAt: time.getNowDate(),
     clientId: '',
     name: '',
     clean: false,
