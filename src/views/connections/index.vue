@@ -37,6 +37,7 @@ import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsDetail from './ConnectionsDetail.vue'
 import ConnectionForm from './ConnectionForm.vue'
 import useServices from '@/database/useServices'
+import time from '@/utils/time'
 
 @Component({
   components: {
@@ -56,6 +57,8 @@ export default class Connections extends Vue {
   private isLoadingData: boolean = false
   private records: ConnectionModel[] = []
   private currentConnection: ConnectionModel = {
+    createAt: time.getNowDate(),
+    updateAt: time.getNowDate(),
     clientId: '',
     name: '',
     clean: false,

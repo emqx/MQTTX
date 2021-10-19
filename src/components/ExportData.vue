@@ -113,17 +113,16 @@ export default class ExportData extends Vue {
   }
 
   private async getStringifyContent(): Promise<string> {
+    let connections: ConnectionModel[] | ConnectionModel = []
     if (!this.record.allConnections) {
       const { ...connection } = this.connection
       const data = [connection]
-      const content = JSON.stringify(data[0], null, 2)
-      return content
+      connections = data[0]
     } else {
       const { connectionService } = useService()
-      const connections: ConnectionModel[] | [] = (await connectionService.getAll()) ?? []
-      const content = JSON.stringify(connections, null, 2)
-      return content
+      connections = (await connectionService.getAll()) ?? []
     }
+    return JSON.stringify(connections, null, 2)
   }
 
   private exportJSONData() {

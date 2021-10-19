@@ -104,6 +104,7 @@ import { getMessageId } from '@/utils/idGenerator'
 import _ from 'lodash'
 import validFormatJson from '@/utils/validFormatJson'
 import useServices from '@/database/useServices'
+import time from '@/utils/time'
 
 @Component({
   components: {
@@ -119,7 +120,7 @@ export default class MsgPublish extends Vue {
   private payloadsHistory: HistoryMessagePayloadModel[] | [] = []
   private historyIndex: number = -1
   private defaultMsgRecord: MessageModel = {
-    createAt: '',
+    createAt: time.getNowDate(),
     out: true,
     qos: 0,
     retain: false,
@@ -216,6 +217,7 @@ export default class MsgPublish extends Vue {
 
   private async send() {
     this.msgRecord.id = getMessageId()
+    this.msgRecord.createAt = time.getNowDate()
     this.$emit('handleSend', this.msgRecord, this.payloadType, this.loadHistoryData)
   }
 

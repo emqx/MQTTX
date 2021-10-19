@@ -375,6 +375,8 @@ export default class ConnectionService {
             ...data,
           },
         },
+        createAt: data?.createAt ?? time.getNowDate(),
+        updateAt: data?.updateAt ?? time.getNowDate(),
       }
     })
   }
