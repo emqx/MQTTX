@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
-import { MqttClient } from 'mqtt'
-import { type } from 'os'
+import { MqttClient, IClientOptions } from 'mqtt'
 
 declare global {
   type $TSFixed = any
@@ -199,11 +198,15 @@ declare global {
     key: string
   }
 
+  // MQTT 5 feature
   interface WillPropertiesModel {
     willDelayInterval?: number
     payloadFormatIndicator?: boolean
     messageExpiryInterval?: number
     contentType?: string
+    responseTopic?: string
+    correlationData?: Buffer
+    userProperties?: Object
   }
 
   interface WillModel {
@@ -237,16 +240,44 @@ declare global {
     unreadMessageCount: number
     messages: MessageModel[]
     subscriptions: SubscriptionModel[]
-    sessionExpiryInterval?: number
-    receiveMaximum?: number
-    topicAliasMaximum?: number
-    requestResponseInformation?: boolean
-    requestProblemInformation?: boolean
     will?: WillModel
     clientIdWithTime?: boolean
     parentId?: string | null
     isCollection: false
     orderId?: number
+    properties?: ClientPropertiesModel
+  }
+
+  // MQTT 5 feature
+  interface ClientPropertiesModel {
+    sessionExpiryInterval?: number
+    receiveMaximum?: number
+    maximumPacketSize?: number
+    topicAliasMaximum?: number
+    requestResponseInformation?: boolean
+    requestProblemInformation?: boolean
+    userProperties?: Object
+    authenticationMethod?: string
+    authenticationData?: Buffer
+  }
+
+  interface PushOptions {
+    qos?: QoS
+    retain?: boolean
+    dup?: boolean
+    properties?: PushPropertiesModel
+  }
+
+  // MQTT 5 feature
+  interface PushPropertiesModel {
+    payloadFormatIndicator?: number
+    messageExpiryInterval?: number
+    topicAlias?: string
+    responseTopic?: string
+    correlationData?: Buffer
+    userProperties?: Object
+    subscriptionIdentifier?: number
+    contentType?: string
   }
 
   interface CollectionModel {

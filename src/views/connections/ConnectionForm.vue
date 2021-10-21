@@ -303,7 +303,7 @@
                       size="mini"
                       type="number"
                       :min="0"
-                      v-model="record.sessionExpiryInterval"
+                      v-model="record.properties.sessionExpiryInterval"
                       controls-position="right"
                     >
                     </el-input-number>
@@ -316,7 +316,7 @@
                       size="mini"
                       type="number"
                       :min="0"
-                      v-model="record.receiveMaximum"
+                      v-model="record.properties.receiveMaximum"
                       controls-position="right"
                     >
                     </el-input-number>
@@ -329,7 +329,7 @@
                       size="mini"
                       type="number"
                       :min="0"
-                      v-model="record.topicAliasMaximum"
+                      v-model="record.properties.topicAliasMaximum"
                       controls-position="right"
                     >
                     </el-input-number>
@@ -542,15 +542,26 @@ export default class ConnectionForm extends Vue {
       lastWillQos: 0,
       lastWillRetain: false,
       properties: {
-        payloadFormatIndicator: undefined,
         willDelayInterval: undefined,
+        payloadFormatIndicator: undefined,
         messageExpiryInterval: undefined,
         contentType: '',
+        responseTopic: '',
+        correlationData: undefined,
+        userProperties: undefined,
       },
     },
-    sessionExpiryInterval: undefined,
-    receiveMaximum: undefined,
-    topicAliasMaximum: undefined,
+    properties: {
+      sessionExpiryInterval: undefined,
+      receiveMaximum: undefined,
+      maximumPacketSize: undefined,
+      topicAliasMaximum: undefined,
+      requestResponseInformation: undefined,
+      requestProblemInformation: undefined,
+      userProperties: undefined,
+      authenticationMethod: undefined,
+      authenticationData: undefined,
+    },
     clientIdWithTime: false,
     isCollection: false,
     parentId: null,

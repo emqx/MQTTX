@@ -34,7 +34,7 @@ export default class CollectionService {
       data.map(async (collection) => {
         let children: ConnectionModelTree[] = []
         if (collection) {
-          const curChildrens = collection.children ? collection.children : []
+          const curChildrens = collection?.children ?? []
           children = await this.travelEntity(curChildrens, collection.id)
         }
         res.push({

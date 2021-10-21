@@ -30,8 +30,18 @@ export default class WillEntity {
   @Column({ type: 'integer', nullable: true })
   messageExpiryInterval?: number
 
-  @Column({ type: 'varchar', default: '', nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   contentType?: string
+
+  @Column({ type: 'varchar', nullable: true })
+  responseTopic?: string
+
+  @Column({ type: 'blob', nullable: true })
+  correlationData?: Buffer
+
+  // origin type `object`
+  @Column({ type: 'varchar', nullable: true })
+  userProperties?: string
   // WillPropertiesModel end
 
   @OneToOne(() => ConnectionEntity, (connection) => connection.will, { onDelete: 'CASCADE' })
