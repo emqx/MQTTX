@@ -19,6 +19,7 @@ import { historyConnections1630572256038 } from './migration/1630572256038-histo
 import { suggestionConnection1631953873460 } from './migration/1631953873460-suggestionConnection'
 import { subCreateAt1633706652456 } from './migration/1633706652456-subCreateAt'
 import { subMQTT51634217810526 } from './migration/1634217810526-subMQTT5'
+import { mqtt51634794446353 } from './migration/1634794446353-mqtt5'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -45,6 +46,7 @@ const ORMConfig = {
     suggestionConnection1631953873460,
     subCreateAt1633706652456,
     subMQTT51634217810526,
+    mqtt51634794446353,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [
