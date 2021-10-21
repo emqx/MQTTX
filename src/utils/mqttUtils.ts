@@ -2,22 +2,22 @@ import { IClientOptions } from 'mqtt'
 import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
 import useServices from '@/database/useServices'
+import _ from 'lodash'
 
 const setMQTT5Properties = (option: IClientOptions['properties']): IClientOptions['properties'] | undefined => {
   if (option === undefined) {
     return undefined
   }
-  const properties: IClientOptions['properties'] = {}
-  if (option.sessionExpiryInterval || option.sessionExpiryInterval === 0) {
-    properties.sessionExpiryInterval = option.sessionExpiryInterval
+  const properties: IClientOptions['properties'] = _.cloneDeep(option)
+  return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined && v !== ''))
+}
+
+const setWillMQTT5Properties = (option: WillPropertiesModel): WillPropertiesModel | undefined => {
+  if (option === undefined) {
+    return undefined
   }
-  if (option.receiveMaximum || option.sessionExpiryInterval === 0) {
-    properties.receiveMaximum = option.receiveMaximum
-  }
-  if (option.topicAliasMaximum || option.topicAliasMaximum === 0) {
-    properties.topicAliasMaximum = option.topicAliasMaximum
-  }
-  return properties
+  const properties: WillPropertiesModel = _.cloneDeep(option)
+  return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined))
 }
 
 export const getClientOptions = (record: ConnectionModel): IClientOptions => {
@@ -64,13 +64,8 @@ export const getClientOptions = (record: ConnectionModel): IClientOptions => {
     options.password = password
   }
   // MQTT Version
-  if (protocolVersion === 5) {
-    const { sessionExpiryInterval, receiveMaximum, topicAliasMaximum } = record
-    const properties = setMQTT5Properties({
-      sessionExpiryInterval,
-      receiveMaximum,
-      topicAliasMaximum,
-    })
+  if (protocolVersion === 5 && record.properties) {
+    const properties = setMQTT5Properties(record.properties)
     if (properties && Object.keys(properties).length > 0) {
       options.properties = properties
     }
@@ -98,23 +93,11 @@ export const getClientOptions = (record: ConnectionModel): IClientOptions => {
       options.will = { topic, payload, qos: qos as QoS, retain }
       if (protocolVersion === 5) {
         const { properties } = will
-        const willProperties: WillPropertiesModel | undefined = {}
-        if (properties !== undefined) {
-          if (properties.willDelayInterval || properties.willDelayInterval === 0) {
-            willProperties.willDelayInterval = properties.willDelayInterval
+        if (properties) {
+          const willProperties = setWillMQTT5Properties(properties)
+          if (willProperties && Object.keys(willProperties).length > 0) {
+            options.will.properties = willProperties
           }
-          if (properties.messageExpiryInterval || properties.messageExpiryInterval === 0) {
-            willProperties.messageExpiryInterval = properties.messageExpiryInterval
-          }
-          if (properties.contentType !== '') {
-            willProperties.contentType = properties.contentType
-          }
-          if (properties.payloadFormatIndicator !== undefined) {
-            willProperties.payloadFormatIndicator = properties.payloadFormatIndicator
-          }
-        }
-        if (willProperties && Object.keys(willProperties).length > 0) {
-          options.will.properties = willProperties
         }
       }
     }

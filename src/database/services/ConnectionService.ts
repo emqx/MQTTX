@@ -29,7 +29,7 @@ export default class ConnectionService {
     private messageRepository: Repository<MessageEntity>,
   ) {}
 
-  private entityToModel(data: ConnectionEntity): ConnectionModel {
+  public static entityToModel(data: ConnectionEntity): ConnectionModel {
     return {
       ...data,
       // sort message by Date
@@ -48,9 +48,54 @@ export default class ConnectionService {
           payloadFormatIndicator: data.will?.payloadFormatIndicator,
           messageExpiryInterval: data.will?.messageExpiryInterval,
           contentType: data.will?.contentType,
+          responseTopic: data.will?.responseTopic,
+          correlationData: data.will?.correlationData,
+          userProperties: data.will?.userProperties,
         },
       },
+      properties: {
+        sessionExpiryInterval: data.sessionExpiryInterval,
+        receiveMaximum: data.receiveMaximum,
+        maximumPacketSize: data.maximumPacketSize,
+        topicAliasMaximum: data.topicAliasMaximum,
+        requestResponseInformation: data.topicAliasMaximum,
+        requestProblemInformation: data.requestProblemInformation,
+        userProperties: data.userProperties ? JSON.parse(data.userProperties) : undefined,
+        authenticationMethod: data.authenticationMethod,
+        authenticationData: data.authenticationData,
+      },
     } as ConnectionModel
+  }
+
+  public static modelToEntity(data: ConnectionModel): ConnectionEntity {
+    if (data.properties) {
+      const {
+        sessionExpiryInterval,
+        receiveMaximum,
+        maximumPacketSize,
+        topicAliasMaximum,
+        requestResponseInformation,
+        requestProblemInformation,
+        userProperties,
+        authenticationMethod,
+        authenticationData,
+      } = data.properties
+      return {
+        ...data,
+        sessionExpiryInterval,
+        receiveMaximum,
+        maximumPacketSize,
+        topicAliasMaximum,
+        requestResponseInformation,
+        requestProblemInformation,
+        authenticationMethod,
+        authenticationData,
+        userProperties: JSON.stringify(userProperties),
+      }
+    }
+    return {
+      ...data,
+    } as ConnectionEntity
   }
 
   // update connection's collection ID
@@ -64,9 +109,10 @@ export default class ConnectionService {
       return
     }
     query.parentId = updatedCollectionId
-    const updateAt = query.createAt ? query.createAt : time.getNowDate()
-
-    return this.entityToModel(await this.connectionRepository.save({ ...query, updateAt }))
+    const updateAt = time.getNowDate()
+    return ConnectionService.entityToModel(
+      await this.connectionRepository.save(ConnectionService.modelToEntity({ ...query, updateAt })),
+    )
   }
 
   private deepMerge(target: ConnectionModel, source: ConnectionModel): ConnectionModel {
@@ -121,8 +167,8 @@ export default class ConnectionService {
       .leftJoinAndSelect('cn.subscriptions', 'sub')
       .leftJoinAndSelect('cn.will', 'will')
       .getOne()
-    const queryModel: ConnectionModel = query ? this.entityToModel(query) : data
-    const res: ConnectionModel = this.deepMerge(queryModel, data)
+    const queryModel: ConnectionModel = query ? ConnectionService.entityToModel(query) : data
+    const res: ConnectionModel = query ? this.deepMerge(queryModel, data) : data
     if (res.will) {
       const {
         id,
@@ -195,17 +241,18 @@ export default class ConnectionService {
       })
       res.messages = await this.messageRepository.save(shouldSave)
     }
-    const saved: ConnectionEntity | undefined = await this.connectionRepository.save({
-      ...res,
-      // TODO: support collection import/export
-      parentId: null,
-      id,
-      ...args,
-    } as ConnectionEntity)
-    return this.entityToModel(saved)
+    const saved: ConnectionEntity | undefined = await this.connectionRepository.save(
+      ConnectionService.modelToEntity({
+        ...res,
+        parentId: null,
+        id,
+        ...args,
+      }) as ConnectionEntity,
+    )
+    return ConnectionService.entityToModel(saved)
   }
 
-  public async update(id: string, data: Partial<ConnectionModel>): Promise<ConnectionModel | undefined> {
+  public async update(id: string, data: ConnectionModel): Promise<ConnectionModel | undefined> {
     const res: ConnectionEntity | undefined = await this.connectionRepository
       .createQueryBuilder('cn')
       .where('cn.id = :id', { id })
@@ -214,12 +261,12 @@ export default class ConnectionService {
       return
     }
     // safe it's same data struct in single connection table
-    const merged = _.merge(res, data)
+    const merged: ConnectionEntity = _.merge(res, ConnectionService.modelToEntity(data))
     const query: ConnectionEntity | undefined = await this.connectionRepository.save({
       ...merged,
       id,
       updateAt: time.getNowDate(),
-    } as ConnectionModel)
+    } as ConnectionEntity)
     return query as ConnectionModel
   }
 
@@ -262,7 +309,7 @@ export default class ConnectionService {
     if (query === undefined) {
       return undefined
     }
-    return this.entityToModel(query)
+    return ConnectionService.entityToModel(query)
   }
 
   // cascade get
@@ -299,9 +346,7 @@ export default class ConnectionService {
     if (query === undefined) {
       return undefined
     }
-    return query.map((entity) => {
-      return this.entityToModel(entity)
-    }) as ConnectionModel[]
+    return query.map((entity) => ConnectionService.entityToModel(entity)) as ConnectionModel[]
   }
 
   public async create(data: ConnectionModel): Promise<ConnectionModel | undefined> {
@@ -309,6 +354,7 @@ export default class ConnectionService {
     let savedWill: WillEntity | undefined
     if (!res.will) {
       savedWill = await this.willRepository.save({
+        // TODO: add all will field
         lastWillPayload: '',
         lastWillQos: 0,
         lastWillRetain: false,
@@ -318,6 +364,7 @@ export default class ConnectionService {
       savedWill = await this.willRepository.save(res.will as WillEntity)
     }
     res.will = savedWill
+    // TODO: refactor historyConnectionRepository field
     await this.historyConnectionRepository.save({
       ...res,
       lastWillTopic: res.will.lastWillPayload,
@@ -325,12 +372,14 @@ export default class ConnectionService {
       lastWillQos: res.will.lastWillQos,
       lastWillRetain: res.will.lastWillRetain,
     } as HistoryConnectionEntity)
-    return this.entityToModel(
-      await this.connectionRepository.save({
-        ...res,
-        createAt: time.getNowDate(),
-        updateAt: time.getNowDate(),
-      } as ConnectionEntity),
+    return ConnectionService.entityToModel(
+      await this.connectionRepository.save(
+        ConnectionService.modelToEntity({
+          ...res,
+          createAt: time.getNowDate(),
+          updateAt: time.getNowDate(),
+        }),
+      ),
     )
   }
 
@@ -350,7 +399,7 @@ export default class ConnectionService {
     await this.connectionRepository.delete({
       id: query.id,
     })
-    return this.entityToModel(query) as ConnectionModel
+    return ConnectionService.entityToModel(query) as ConnectionModel
   }
 
   public async getLeatests(take: number | undefined = 10): Promise<ConnectionModel[] | undefined> {
@@ -396,7 +445,7 @@ export default class ConnectionService {
       .addOrderBy('createAt', 'ASC')
       .select('cn.id')
       .getOne()
-    return leatest ? leatest.id : undefined
+    return leatest?.id
   }
 
   public async updateSubscriptions(connectionId: string, subs: SubscriptionModel[]) {

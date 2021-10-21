@@ -107,4 +107,34 @@ export default class ConnectionEntity {
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   updateAt!: string
+
+  // MQTT5 Properties begin
+  @Column({ type: 'integer', nullable: true })
+  sessionExpiryInterval?: number
+
+  @Column({ type: 'integer', nullable: true })
+  receiveMaximum?: number
+
+  @Column({ type: 'integer', nullable: true })
+  maximumPacketSize?: number
+
+  @Column({ type: 'integer', nullable: true })
+  topicAliasMaximum?: number
+
+  @Column({ type: 'boolean', nullable: true })
+  requestResponseInformation?: boolean
+
+  @Column({ type: 'boolean', nullable: true })
+  requestProblemInformation?: boolean
+
+  // origin type `object`
+  @Column({ type: 'varchar', nullable: true })
+  userProperties?: string
+
+  @Column({ type: 'varchar', nullable: true })
+  authenticationMethod?: string
+
+  @Column({ type: 'blob', nullable: true })
+  authenticationData?: Buffer
+  // MQTT5 Properties end
 }
