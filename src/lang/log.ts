@@ -4,5 +4,6 @@ export default {
     en: 'Log',
     ja: 'ログ',
     tr: 'Günlük',
+    hu: 'Napló',
   },
 }
