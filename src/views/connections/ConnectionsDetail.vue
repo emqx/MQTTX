@@ -942,8 +942,7 @@ export default class ConnectionsDetail extends Vue {
       offset: 30,
     })
     this.setShowClientInfo(false)
-    this.handleReSubTopics()
-    this.$emit('reload')
+    this.$emit('reload', false, false, this.handleReSubTopics)
     this.$log.info('Connect success, MQTT.js onConnect trigger')
   }
 

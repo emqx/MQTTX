@@ -128,7 +128,11 @@ export default class Connections extends Vue {
     }
   }
 
-  private async loadData(loadingLeatest: boolean = false, firstLoad: boolean = false): Promise<void> {
+  private async loadData(
+    loadingLeatest: boolean = false,
+    firstLoad: boolean = false,
+    afterCB?: () => {},
+  ): Promise<void> {
     if (firstLoad) {
       this.isLoadingData = true
     }
@@ -147,6 +151,7 @@ export default class Connections extends Vue {
     } else {
       this.isEmpty = true
     }
+    afterCB && afterCB()
   }
 
   private toCreateConnection() {
