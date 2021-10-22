@@ -317,18 +317,18 @@ export default class SubscriptionsList extends Vue {
     }
     let isFinshed = false
     if (this.client.subscribe) {
-      this.client.subscribe(topic, { qos: qos as QoS, nl, rap, rh }, async (error, res) => {
+      this.client.subscribe(topic, { qos: qos as QoS, nl, rap, rh }, async (error, granted) => {
         if (error) {
           this.$message.error(error)
           this.$log.error(`Topic: ${topic} subscribe error ${error} `)
           return false
         }
         let errorReason = SubscribeErrorReason.normal
-        if (res.length < 1) {
-          errorReason = SubscribeErrorReason.emptySubFailed
-        } else if (![0, 1, 2].includes(res[0].qos) && topic.match(/^(\$SYS)/i)) {
+        if (!granted || (Array.isArray(granted) && granted.length < 1)) {
+          this.$log.info(`Topic: ${topic} subscribe granted empty`)
+        } else if (![0, 1, 2].includes(granted[0].qos) && topic.match(/^(\$SYS)/i)) {
           errorReason = SubscribeErrorReason.qosSubSysFailed
-        } else if (![0, 1, 2].includes(res[0].qos)) {
+        } else if (![0, 1, 2].includes(granted[0].qos)) {
           errorReason = SubscribeErrorReason.qosSubFailed
         }
         if (errorReason !== SubscribeErrorReason.normal) {
