@@ -987,7 +987,7 @@ export default class ConnectionsDetail extends Vue {
         this.retryTimes = 0
         this.connectLoading = false
       } else {
-        this.$log.info(`Connection ${this.retryTimes} times retry`)
+        this.$log.info(`Reconnect: ${this.retryTimes} times retry`)
         this.retryTimes += 1
         this.connectLoading = true
         this.$notify({

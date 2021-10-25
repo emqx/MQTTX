@@ -325,7 +325,7 @@ export default class SubscriptionsList extends Vue {
         }
         let errorReason = SubscribeErrorReason.normal
         if (!granted || (Array.isArray(granted) && granted.length < 1)) {
-          this.$log.info(`Topic: ${topic} subscribe granted empty`)
+          this.$log.error(`Topic: ${topic} subscribe granted empty`)
         } else if (![0, 1, 2].includes(granted[0].qos) && topic.match(/^(\$SYS)/i)) {
           errorReason = SubscribeErrorReason.qosSubSysFailed
         } else if (![0, 1, 2].includes(granted[0].qos)) {
