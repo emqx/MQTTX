@@ -4,7 +4,7 @@ import zhLocale from 'element-ui/lib/locale/lang/zh-CN'
 import enLocale from 'element-ui/lib/locale/lang/en'
 import jaLocale from 'element-ui/lib/locale/lang/ja'
 import trLocale from 'element-ui/lib/locale/lang/tr-TR'
-import trLocale from 'element-ui/lib/locale/lang/hu_HU'
+import huLocale from 'element-ui/lib/locale/lang/hu_HU'
 
 import { formati18n } from '@/utils/i18n'
 
