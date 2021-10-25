@@ -25,4 +25,7 @@ export default class SettingEntity {
 
   @Column({ type: 'boolean', default: true })
   autoResub!: boolean
+
+  @Column({ type: 'boolean', default: true })
+  autoScroll!: boolean
 }
