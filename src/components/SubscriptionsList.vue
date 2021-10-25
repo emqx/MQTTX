@@ -172,7 +172,6 @@ export default class SubscriptionsList extends Vue {
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
   @Getter('activeConnection') private activeConnection!: ActiveConnection
-  @Getter('currentTheme') private theme!: Theme
 
   private topicColor = ''
   private client: Partial<MqttClient> = {
@@ -214,7 +213,7 @@ export default class SubscriptionsList extends Vue {
   private handleRecordChanged(val: ConnectionModel) {
     this.topicActiveIndex = null
     if (val.id) {
-      this.getCurrentConnection(val.id as string)
+      this.getCurrentConnection(val.id)
       this.subsList = val.subscriptions
     }
   }

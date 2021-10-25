@@ -109,8 +109,6 @@ import useServers from '@/database/useServices'
   },
 })
 export default class Script extends Vue {
-  @Getter('currentTheme') private theme!: Theme
-
   private scriptValue = ''
   private showDialog = false
   private inputValue = JSON.stringify({ msg: 'hello' }, null, 2)

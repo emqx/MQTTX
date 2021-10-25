@@ -13,7 +13,7 @@
         <el-col :span="4">
           <el-select
             class="settings-options"
-            v-model="currentLang"
+            :value="currentLang"
             size="mini"
             @change="handleSelectChange('lang', $event)"
           >
@@ -31,7 +31,7 @@
         </el-col>
         <el-col :span="4">
           <el-switch
-            v-model="autoCheck"
+            :value="autoCheck"
             active-color="#13ce66"
             inactive-color="#A2A9B0"
             @change="handleAutoCheckSwitchChange"
@@ -58,7 +58,7 @@
         </el-col>
         <el-col :span="4">
           <el-switch
-            v-model="autoResub"
+            :value="autoResub"
             active-color="#13ce66"
             inactive-color="#A2A9B0"
             @change="handleAutoResubSwitchChange"
@@ -85,7 +85,7 @@
         </el-col>
         <el-col :span="4">
           <el-switch
-            v-model="autoScroll"
+            :value="autoScroll"
             active-color="#13ce66"
             inactive-color="#A2A9B0"
             @change="handleAutoScrollSwitchChange"
@@ -101,7 +101,7 @@
           <label>{{ $t('settings.maxReconnectTimes') }}</label>
         </el-col>
         <el-col :span="4">
-          <el-input-number size="mini" v-model="maxReconnectTimes" :min="1" @change="handleInputChage">
+          <el-input-number size="mini" :value="maxReconnectTimes" :min="1" @change="handleInputChage">
           </el-input-number>
         </el-col>
       </el-row>
@@ -121,7 +121,7 @@
         <el-col :span="4">
           <el-select
             class="settings-options"
-            v-model="currentTheme"
+            :value="currentTheme"
             size="mini"
             @change="handleSelectChange('theme', $event)"
           >
@@ -219,19 +219,13 @@ export default class Settings extends Vue {
   @Action('TOGGLE_AUTO_RESUB') private actionAutoResub!: (payload: { autoResub: boolean }) => void
   @Action('TOGGLE_AUTO_SCROLL') private actionAutoScroll!: (payload: { autoScroll: boolean }) => void
   @Action('SET_MAX_RECONNECT_TIMES') private actionMaxReconnectTimes!: (payload: { maxReconnectTimes: number }) => void
-  @Getter('currentTheme') private getterTheme!: Theme
-  @Getter('currentLang') private getterLang!: Language
-  @Getter('autoCheck') private getterAutoCheck!: boolean
-  @Getter('autoResub') private getterAutoResub!: boolean
-  @Getter('autoScroll') private getterAutoScroll!: boolean
-  @Getter('maxReconnectTimes') private getterMaxReconnectTimes!: number
+  @Getter('currentTheme') private currentTheme!: Theme
+  @Getter('currentLang') private currentLang!: Language
+  @Getter('autoCheck') private autoCheck!: boolean
+  @Getter('autoResub') private autoResub!: boolean
+  @Getter('maxReconnectTimes') private maxReconnectTimes!: number
+  @Getter('maxReconnectTimes') private autoScroll!: boolean
 
-  private currentTheme: Theme = 'light'
-  private currentLang: Language = 'en'
-  private autoCheck = false
-  private autoResub = true
-  private autoScroll = true
-  private maxReconnectTimes = 10
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
     { label: 'English', value: 'en' },
@@ -283,15 +277,6 @@ export default class Settings extends Vue {
 
   private handleCleanupHistoryData() {
     this.showHistoryData = true
-  }
-
-  private created() {
-    this.autoCheck = this.getterAutoCheck
-    this.autoResub = this.getterAutoResub
-    this.autoScroll = this.getterAutoScroll
-    this.currentTheme = this.getterTheme
-    this.currentLang = this.getterLang
-    this.maxReconnectTimes = this.getterMaxReconnectTimes
   }
 }
 </script>

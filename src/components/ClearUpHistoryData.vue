@@ -13,7 +13,6 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
 import MyDialog from './MyDialog.vue'
 import useServices from '@/database/useServices'
 
@@ -23,8 +22,6 @@ import useServices from '@/database/useServices'
   },
 })
 export default class ClearUpHistoryData extends Vue {
-  @Getter('currentTheme') private theme!: Theme
-
   @Prop({ default: false }) public visible!: boolean
 
   private showDialog: boolean = this.visible
