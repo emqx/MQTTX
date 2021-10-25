@@ -97,7 +97,6 @@ declare global {
     unreadMessageCount: {
       [id: string]: number
     }
-    connectionCollection: CollectionModel[]
     activeConnection: ActiveConnection
     willMessageVisible: boolean
     advancedVisible: boolean

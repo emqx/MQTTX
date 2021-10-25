@@ -48,7 +48,6 @@ import time from '@/utils/time'
   },
 })
 export default class Connections extends Vue {
-  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
   @Action('CHANGE_ALL_CONNECTIONS') private changeAllConnections!: (payload: {
     allConnections: ConnectionModel[] | []
   }) => void

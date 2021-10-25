@@ -493,7 +493,6 @@ import useServices from '@/database/useServices'
 export default class ConnectionForm extends Vue {
   @Prop({ required: true }) public oper!: 'edit' | 'create' | undefined
 
-  @Getter('currentLang') private getterLang!: Language
   @Getter('advancedVisible') private getterAdvancedVisible!: boolean
   @Getter('willMessageVisible') private getterWillMessageVisible!: boolean
   @Getter('currentTheme') private theme!: Theme

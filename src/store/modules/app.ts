@@ -48,12 +48,8 @@ const app = {
     willMessageVisible: true,
     allConnections: [],
     currentScript: null,
-    connectionCollection: [],
   },
   mutations: {
-    [CHANGE_CONNECTION_COLLECTION](state: App, payload: CollectionModel[] | []) {
-      state.connectionCollection = payload
-    },
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
       state.currentTheme = currentTheme
     },
@@ -75,9 +71,11 @@ const app = {
     [CHANGE_ACTIVE_CONNECTION](state: App, payload: Client) {
       const { id, client, messages } = payload
       if (state.activeConnection[id]) {
+        // already exists activeConnection
         Vue.set(state.activeConnection[id], 'client', client)
         Vue.set(state.activeConnection[id], 'messages', messages)
       } else {
+        // new activeConnection
         Vue.set(state.activeConnection, id, {
           client,
           messages,
@@ -167,37 +165,37 @@ const app = {
       settingData.maxReconnectTimes = payload.maxReconnectTimes
       await settingService.update(payload)
     },
-    CHANGE_ACTIVE_CONNECTION({ commit }: any, payload: App) {
+    async CHANGE_ACTIVE_CONNECTION({ commit }: any, payload: App) {
       commit(CHANGE_ACTIVE_CONNECTION, payload)
     },
-    REMOVE_ACTIVE_CONNECTION({ commit }: any, { id }: { id: string }) {
+    async REMOVE_ACTIVE_CONNECTION({ commit }: any, { id }: { id: string }) {
       commit(REMOVE_ACTIVE_CONNECTION, id)
     },
-    CHANGE_SUBSCRIPTIONS({ commit }: any, payload: App) {
+    async CHANGE_SUBSCRIPTIONS({ commit }: any, payload: App) {
       commit(CHANGE_SUBSCRIPTIONS, payload)
     },
-    SHOW_CLIENT_INFO({ commit }: any, payload: App) {
+    async SHOW_CLIENT_INFO({ commit }: any, payload: App) {
       commit(SHOW_CLIENT_INFO, payload)
     },
-    SET_CONNECTIONS_TREE({ commit }: any, payload: App) {
+    async SET_CONNECTIONS_TREE({ commit }: any, payload: App) {
       commit(SET_CONNECTIONS_TREE, payload)
     },
-    SHOW_SUBSCRIPTIONS({ commit }: any, payload: App) {
+    async SHOW_SUBSCRIPTIONS({ commit }: any, payload: App) {
       commit(SHOW_SUBSCRIPTIONS, payload)
     },
-    UNREAD_MESSAGE_COUNT_INCREMENT({ commit }: any, payload: App) {
+    async UNREAD_MESSAGE_COUNT_INCREMENT({ commit }: any, payload: App) {
       commit(UNREAD_MESSAGE_COUNT_INCREMENT, payload)
     },
-    TOGGLE_ADVANCED_VISIBLE({ commit }: any, payload: App) {
+    async TOGGLE_ADVANCED_VISIBLE({ commit }: any, payload: App) {
       commit(TOGGLE_ADVANCED_VISIBLE, payload.advancedVisible)
     },
-    TOGGLE_WILL_MESSAGE_VISIBLE({ commit }: any, payload: App) {
+    async TOGGLE_WILL_MESSAGE_VISIBLE({ commit }: any, payload: App) {
       commit(TOGGLE_WILL_MESSAGE_VISIBLE, payload.willMessageVisible)
     },
-    CHANGE_ALL_CONNECTIONS({ commit }: any, payload: App) {
+    async CHANGE_ALL_CONNECTIONS({ commit }: any, payload: App) {
       commit(CHANGE_ALL_CONNECTIONS, payload.allConnections)
     },
-    SET_SCRIPT({ commit }: any, payload: App) {
+    async SET_SCRIPT({ commit }: any, payload: App) {
       commit(SET_SCRIPT, payload.currentScript)
     },
   },
