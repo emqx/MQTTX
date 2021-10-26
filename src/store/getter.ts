@@ -3,6 +3,7 @@ const getters = {
   currentLang: (state: State) => state.app.currentLang,
   autoCheck: (state: State) => state.app.autoCheck,
   autoResub: (state: State) => state.app.autoResub,
+  autoScroll: (state: State) => state.app.autoScroll,
   maxReconnectTimes: (state: State) => state.app.maxReconnectTimes,
   showSubscriptions: (state: State) => state.app.showSubscriptions,
   connectionTreeState: (state: State) => state.app.connectionTreeState,

@@ -6,6 +6,7 @@ const TOGGLE_THEME = 'TOGGLE_THEME'
 const TOGGLE_LANG = 'TOGGLE_LANG'
 const TOGGLE_AUTO_CHECK = 'TOGGLE_AUTO_CHECK'
 const TOGGLE_AUTO_RESUB = 'TOGGLE_AUTO_RESUB'
+const TOGGLE_AUTO_SCROLL = 'TOGGLE_AUTO_SCROLL'
 const SET_MAX_RECONNECT_TIMES = 'SET_MAX_RECONNECT_TIMES'
 const CHANGE_ACTIVE_CONNECTION = 'CHANGE_ACTIVE_CONNECTION'
 const REMOVE_ACTIVE_CONNECTION = 'REMOVE_ACTIVE_CONNECTION'
@@ -36,6 +37,7 @@ const app = {
     currentLang: settingData.currentLang || 'en',
     autoCheck: settingData.autoCheck,
     autoResub: settingData.autoResub,
+    autoScroll: settingData.autoScroll,
     maxReconnectTimes: settingData.maxReconnectTimes || 10,
     showSubscriptions: getShowSubscriptions(),
     showClientInfo: {},
@@ -63,6 +65,9 @@ const app = {
     },
     [TOGGLE_AUTO_RESUB](state: App, autoResub: boolean) {
       state.autoResub = autoResub
+    },
+    [TOGGLE_AUTO_SCROLL](state: App, autoScroll: boolean) {
+      state.autoScroll = autoScroll
     },
     [SET_MAX_RECONNECT_TIMES](state: App, maxReconnectTimes: number) {
       state.maxReconnectTimes = maxReconnectTimes
@@ -148,6 +153,12 @@ const app = {
       const { settingService } = useServices()
       commit(TOGGLE_AUTO_RESUB, payload.autoResub)
       settingData.autoResub = payload.autoResub
+      await settingService.update(payload)
+    },
+    async TOGGLE_AUTO_SCROLL({ commit }: any, payload: App) {
+      const { settingService } = useServices()
+      commit(TOGGLE_AUTO_SCROLL, payload.autoScroll)
+      settingData.autoScroll = payload.autoScroll
       await settingService.update(payload)
     },
     async SET_MAX_RECONNECT_TIMES({ commit }: any, payload: App) {

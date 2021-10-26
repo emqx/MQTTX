@@ -88,6 +88,7 @@ declare global {
     currentLang: Language
     autoCheck: boolean
     autoResub: boolean
+    autoScroll: boolean
     showSubscriptions: boolean
     maxReconnectTimes: number
     showClientInfo: {
