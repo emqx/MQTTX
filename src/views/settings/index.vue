@@ -71,6 +71,33 @@
 
       <el-row class="settings-item" type="flex" justify="space-between">
         <el-col :span="20">
+          <label>{{ $t('settings.autoScroll') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('settings.autoScrollDesc')"
+          >
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            v-model="autoScroll"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleAutoScrollSwitchChange"
+          >
+          </el-switch>
+        </el-col>
+      </el-row>
+
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
           <label>{{ $t('settings.maxReconnectTimes') }}</label>
         </el-col>
         <el-col :span="4">
@@ -181,7 +208,6 @@ import { ipcRenderer } from 'electron'
 import ImportData from '@/components/ImportData.vue'
 import ExportData from '@/components/ExportData.vue'
 import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
-import useServices from '@/database/useServices'
 
 @Component({
   components: { ImportData, ExportData, ClearUpHistoryData },
@@ -191,17 +217,20 @@ export default class Settings extends Vue {
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
   @Action('TOGGLE_AUTO_CHECK') private actionAutoCheck!: (payload: { autoCheck: boolean }) => void
   @Action('TOGGLE_AUTO_RESUB') private actionAutoResub!: (payload: { autoResub: boolean }) => void
+  @Action('TOGGLE_AUTO_SCROLL') private actionAutoScroll!: (payload: { autoScroll: boolean }) => void
   @Action('SET_MAX_RECONNECT_TIMES') private actionMaxReconnectTimes!: (payload: { maxReconnectTimes: number }) => void
   @Getter('currentTheme') private getterTheme!: Theme
   @Getter('currentLang') private getterLang!: Language
   @Getter('autoCheck') private getterAutoCheck!: boolean
   @Getter('autoResub') private getterAutoResub!: boolean
+  @Getter('autoScroll') private getterAutoScroll!: boolean
   @Getter('maxReconnectTimes') private getterMaxReconnectTimes!: number
 
   private currentTheme: Theme = 'light'
   private currentLang: Language = 'en'
   private autoCheck = false
   private autoResub = true
+  private autoScroll = true
   private maxReconnectTimes = 10
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
@@ -235,6 +264,10 @@ export default class Settings extends Vue {
     this.actionAutoResub({ autoResub: value })
   }
 
+  private handleAutoScrollSwitchChange(value: boolean) {
+    this.actionAutoScroll({ autoScroll: value })
+  }
+
   private handleInputChage(value: number) {
     this.actionMaxReconnectTimes({ maxReconnectTimes: value })
   }
@@ -254,6 +287,7 @@ export default class Settings extends Vue {
   private created() {
     this.autoCheck = this.getterAutoCheck
     this.autoResub = this.getterAutoResub
+    this.autoScroll = this.getterAutoScroll
     this.currentTheme = this.getterTheme
     this.currentLang = this.getterLang
     this.maxReconnectTimes = this.getterMaxReconnectTimes

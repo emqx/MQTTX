@@ -95,11 +95,23 @@ export default {
     tr: 'Otomatik yeniden abone ol',
     ja: '自動的に再購読',
   },
+  autoScroll: {
+    zh: '自动滚动',
+    en: 'Auto scroll',
+    tr: 'Otomatik kaydırma',
+    ja: '自動スクロール',
+  },
   autoResubDesc: {
     zh: '重连时，对连接的订阅列表进行恢复订阅，仅在 Clean Session 为 True 时有效',
     en: 'When reconnecting, the subscription list of the connection will be automatically resubscribed, which is only valid when Clean Session is True',
     tr: 'Yeniden bağlanırken, bağlantının abonelik listesi otomatik olarak yeniden abone olur ve bu yalnızca Temiz Oturum Doğru olduğunda geçerlidir.',
     ja: '再接続すると、接続のサブスクリプションリストが自動的に再サブスクライブされます。これは、クリーンセッションがTrueの場合にのみ有効です',
+  },
+  autoScrollDesc: {
+    zh: '是否自动滚动消息列表',
+    en: 'Whether to automatically scroll the list of messages',
+    tr: 'Mesaj listesinin otomatik olarak kaydırılıp kaydırılmayacağı',
+    ja: 'メッセージリストを自動的にスクロールするかどうか',
   },
   cleanHistoryDialogMessage: {
     zh: '将会清除历史建议信息，包括历史 Payload/QoS/Retain/Topic/Connection 数据',

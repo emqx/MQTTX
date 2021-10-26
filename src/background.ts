@@ -93,6 +93,7 @@ async function createWindow() {
       currentLang: setting.currentLang,
       autoCheck: setting.autoCheck,
       autoResub: setting.autoResub,
+      autoScroll: setting.autoScroll,
       maxReconnectTimes: setting.maxReconnectTimes,
     }
   }

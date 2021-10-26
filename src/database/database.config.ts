@@ -69,4 +69,5 @@ const ORMConfig = {
     entitiesDir: 'src/database/models',
   },
 } as ConnectionOptions
+
 export default ORMConfig
