@@ -13,6 +13,7 @@
     "electron:build-linux": "yarn run gen:version && vue-cli-service electron:build --linux",
     "electron:build-mac": "yarn run gen:version && vue-cli-service electron:build --mac",
     "electron:serve": "yarn run gen:version && vue-cli-service electron:serve",
+    "electron:serve:sql_debug": "export VUE_APP_SQL_DEBUG=true && yarn electron:serve",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.vue\" \"src/**/*.scss\"",
