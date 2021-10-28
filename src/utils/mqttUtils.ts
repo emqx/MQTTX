@@ -1,7 +1,7 @@
-import { IClientOptions } from 'mqtt'
+import mqtt, { MqttClient, IClientOptions } from 'mqtt'
+import { getClientId } from '@/utils/idGenerator'
 import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
-import useServices from '@/database/useServices'
 import _ from 'lodash'
 
 const setMQTT5Properties = (option: IClientOptions['properties']): IClientOptions['properties'] | undefined => {
@@ -20,7 +20,7 @@ const setWillMQTT5Properties = (option: WillPropertiesModel): WillPropertiesMode
   return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined))
 }
 
-export const getClientOptions = (record: ConnectionModel): IClientOptions => {
+const getClientOptions = (record: ConnectionModel): IClientOptions => {
   const mqttVersionDict = {
     '3.1.1': 4,
     '5.0': 5,
@@ -39,10 +39,12 @@ export const getClientOptions = (record: ConnectionModel): IClientOptions => {
     will,
     rejectUnauthorized,
     clientIdWithTime,
+    resubscribe,
   } = record
   // reconnectPeriod = 0 disabled automatic reconnection in the client
   const reconnectPeriod = reconnect ? 4000 : 0
   const protocolVersion = mqttVersionDict[mqttVersion as '3.1.1' | '5.0']
+
   const options: IClientOptions = {
     clientId,
     keepalive,
@@ -102,7 +104,30 @@ export const getClientOptions = (record: ConnectionModel): IClientOptions => {
       }
     }
   }
+  // Auto Resubscribe
+  if (resubscribe) {
+    options.resubscribe = resubscribe
+  }
   return options
+}
+
+const getUrl = (record: ConnectionModel): string => {
+  const { host, port, path } = record
+  const protocol = getMQTTProtocol(record)
+
+  let url = `${protocol}://${host}:${port}`
+  if (protocol === 'ws' || protocol === 'wss') {
+    url = `${url}${path.startsWith('/') ? '' : '/'}${path}`
+  }
+  return url
+}
+
+export const createClient = (record: ConnectionModel): { curConnectClient: MqttClient; connectUrl: string } => {
+  const options: IClientOptions = getClientOptions(record)
+  const url = getUrl(record)
+  const curConnectClient: MqttClient = mqtt.connect(url, options)
+
+  return { curConnectClient, connectUrl: url }
 }
 
 // Prevent old data from missing protocol field
@@ -114,28 +139,63 @@ export const getMQTTProtocol = (data: ConnectionModel): Protocol => {
   return protocol as Protocol
 }
 
-export const hasMessagePayloadID = async (data: HistoryMessagePayloadModel): Promise<string | null> => {
-  const { historyMessagePayloadService } = useServices()
-  const payloads = await historyMessagePayloadService.getAll()
-  if (payloads) {
-    const res = payloads.find((el: HistoryMessagePayloadModel) => {
-      return data.payload === el.payload && data.payloadType === el.payloadType
-    })
-    return res?.id ?? null
+export const getDefaultRecord = (): ConnectionModel => {
+  return {
+    clientId: getClientId(),
+    createAt: time.getNowDate(),
+    updateAt: time.getNowDate(),
+    name: '',
+    clean: true,
+    protocol: 'mqtt',
+    host: 'broker.emqx.io',
+    keepalive: 60,
+    connectTimeout: 10,
+    reconnect: false,
+    resubscribe: true,
+    username: '',
+    password: '',
+    path: '/mqtt',
+    port: 1883,
+    ssl: false,
+    certType: '',
+    rejectUnauthorized: true,
+    ca: '',
+    cert: '',
+    key: '',
+    mqttVersion: '3.1.1',
+    subscriptions: [],
+    messages: [],
+    unreadMessageCount: 0,
+    will: {
+      lastWillTopic: '',
+      lastWillPayload: '',
+      lastWillQos: 0,
+      lastWillRetain: false,
+      properties: {
+        willDelayInterval: undefined,
+        payloadFormatIndicator: undefined,
+        messageExpiryInterval: undefined,
+        contentType: '',
+        responseTopic: '',
+        correlationData: undefined,
+        userProperties: undefined,
+      },
+    },
+    properties: {
+      sessionExpiryInterval: undefined,
+      receiveMaximum: undefined,
+      maximumPacketSize: undefined,
+      topicAliasMaximum: undefined,
+      requestResponseInformation: undefined,
+      requestProblemInformation: undefined,
+      userProperties: undefined,
+      authenticationMethod: undefined,
+      authenticationData: undefined,
+    },
+    clientIdWithTime: false,
+    isCollection: false,
+    parentId: null,
   }
-  return null
-}
-
-export const hasMessageHeaderID = async (data: HistoryMessageHeaderModel): Promise<string | null> => {
-  const { historyMessageHeaderService } = useServices()
-  const headers = await historyMessageHeaderService.getAll()
-  if (headers) {
-    const res = headers.find((el: HistoryMessageHeaderModel) => {
-      return data.qos === el.qos && data.topic === el.topic && data.retain === el.retain
-    })
-    return res?.id ?? null
-  }
-  return null
 }
 
 export default {}

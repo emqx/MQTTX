@@ -37,7 +37,7 @@ import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsDetail from './ConnectionsDetail.vue'
 import ConnectionForm from './ConnectionForm.vue'
 import useServices from '@/database/useServices'
-import time from '@/utils/time'
+import { getDefaultRecord } from '@/utils/mqttUtils'
 
 @Component({
   components: {
@@ -55,32 +55,7 @@ export default class Connections extends Vue {
   private isEmpty: boolean = false
   private isLoadingData: boolean = false
   private records: ConnectionModel[] = []
-  private currentConnection: ConnectionModel = {
-    createAt: time.getNowDate(),
-    updateAt: time.getNowDate(),
-    clientId: '',
-    name: '',
-    clean: false,
-    host: '',
-    keepalive: 60,
-    connectTimeout: 4000,
-    reconnect: true,
-    username: '',
-    password: '',
-    path: '/mqtt',
-    port: 1883,
-    certType: '',
-    ssl: false,
-    mqttVersion: '3.1.1',
-    subscriptions: [],
-    messages: [],
-    unreadMessageCount: 0,
-    ca: '',
-    cert: '',
-    key: '',
-    isCollection: false,
-    parentId: null,
-  }
+  private currentConnection: ConnectionModel = { ...getDefaultRecord() }
 
   @Watch('$route.params.id')
   private handleIdChanged(val: string) {
