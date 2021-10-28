@@ -14,8 +14,8 @@ export default class SettingEntity {
   @Column({ type: 'boolean', default: true })
   autoCheck!: boolean
 
-  @Column({ type: 'simple-enum', enum: ['zh', 'en', 'ja', 'tr'], default: 'en' })
-  currentLang!: 'zh' | 'en' | 'ja' | 'tr'
+  @Column({ type: 'simple-enum', enum: ['zh', 'en', 'ja', 'tr', 'hu'], default: 'en' })
+  currentLang!: 'zh' | 'en' | 'ja' | 'tr' | 'hu'
 
   @Column({ type: 'simple-enum', enum: ['light', 'dark', 'night'], default: 'light' })
   currentTheme!: 'light' | 'dark' | 'night'
