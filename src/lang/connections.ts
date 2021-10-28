@@ -596,7 +596,7 @@ export default {
     zh: '消息频率（秒）',
     en: 'Message frequency(s)',
     tr: 'Mesaj sıklık(lar)ı',
-    ja: '送信間隔（秒）'
+    ja: '送信間隔（秒）',
     hu: 'Üzenet gyakoriság',
   },
   clearIntervalBtn: {

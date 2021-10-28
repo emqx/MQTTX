@@ -47,7 +47,6 @@ export default {
     tr: 'Tema',
     ja: 'テーマ',
     hu: 'Téma',
-
   },
   light: {
     zh: '明亮',
@@ -117,6 +116,7 @@ export default {
     en: 'Auto scroll',
     tr: 'Otomatik kaydırma',
     ja: '自動スクロール',
+    hu: 'Automatikus görgetés',
   },
   autoResubDesc: {
     zh: '重连时，对连接的订阅列表进行恢复订阅，仅在 Clean Session 为 True 时有效',
@@ -130,6 +130,7 @@ export default {
     en: 'Whether to automatically scroll the list of messages',
     tr: 'Mesaj listesinin otomatik olarak kaydırılıp kaydırılmayacağı',
     ja: 'メッセージリストを自動的にスクロールするかどうか',
+    hu: 'Az üzenetlista automatikus görgetése',
   },
   cleanHistoryDialogMessage: {
     zh: '将会清除历史建议信息，包括历史 Payload/QoS/Retain/Topic/Connection 数据',

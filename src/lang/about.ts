@@ -66,7 +66,7 @@ export default {
       emqx: 'EMQ X',
       local: 'ローカルでMQTT Brokerを動作させたい場合に、{0}がお勧めです。',
     },
-    en: {
+    hu: {
       emqx: 'EMQ X',
       local: 'Az MQTT bróker helyi futtatásához, {0} ajánlott. ',
     },

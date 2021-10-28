@@ -11,7 +11,7 @@ import { formati18n } from '@/utils/i18n'
 const supportLang: SupportLangModel = ['zh', 'en', 'ja', 'tr', 'hu']
 const i18nModules: i18nLocaleModel = ['connections', 'settings', 'common', 'about', 'script', 'log']
 
-const { en, zh, ja, tr }: VueI18n.LocaleMessages = formati18n(i18nModules, supportLang)
+const { en, zh, ja, tr, hu }: VueI18n.LocaleMessages = formati18n(i18nModules, supportLang)
 
 const lang: VueI18n.LocaleMessages = {
   en: { ...en, ...enLocale },
