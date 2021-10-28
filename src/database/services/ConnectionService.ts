@@ -119,10 +119,6 @@ export default class ConnectionService {
     const res = _.cloneDeep(target)
     const _deepMerge = (target: ConnectionModel, source: ConnectionModel) => {
       return _.mergeWith(target, source, (target, source, key) => {
-        // none empty
-        if (!target || !source) {
-          return target ? target : source
-        }
         // id property , don't merge
         if (key === 'id') {
           return target

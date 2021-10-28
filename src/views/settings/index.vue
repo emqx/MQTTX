@@ -224,7 +224,7 @@ export default class Settings extends Vue {
   @Getter('autoCheck') private autoCheck!: boolean
   @Getter('autoResub') private autoResub!: boolean
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
-  @Getter('maxReconnectTimes') private autoScroll!: boolean
+  @Getter('autoScroll') private autoScroll!: boolean
 
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },

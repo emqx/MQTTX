@@ -221,7 +221,7 @@
               </a>
             </el-tooltip>
             <el-select class="received-type-select" size="small" v-model="receivedMsgType">
-              <el-option v-for="(type, index) in payloadOptions" :key="index" :value="type"> </el-option>
+              <el-option v-for="type in ['Plaintext', 'Base64', 'JSON', 'Hex']" :key="type" :value="type"> </el-option>
             </el-select>
             <MsgTypeTabs v-model="msgType" @change="handleMsgTypeChanged" />
           </div>
@@ -287,13 +287,13 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
-import mqtt, { MqttClient, IClientOptions } from 'mqtt'
+import { MqttClient, IConnackPacket } from 'mqtt'
 import _ from 'lodash'
 
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
-import { getClientOptions, getMQTTProtocol } from '@/utils/mqttUtils'
+import { createClient } from '@/utils/mqttUtils'
 import { getBytes, getUptime, getVersion } from '@/utils/SystemTopicUtils'
 import validFormatJson from '@/utils/validFormatJson'
 
@@ -311,7 +311,7 @@ import UseScript from '@/components/UseScript.vue'
 import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 
 import sandbox from '@/utils/sandbox'
-import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/mqttUtils'
+import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/historyRecordUtils'
 import useServices from '@/database/useServices'
 import { getMessageId, getSubscriptionId } from '@/utils/idGenerator'
 
@@ -360,8 +360,8 @@ export default class ConnectionsDetail extends Vue {
 
   @Getter('activeConnection') private activeConnection!: ActiveConnection
   @Getter('showSubscriptions') private showSubscriptions!: boolean
-  @Getter('autoResub') private autoResub!: boolean
   @Getter('autoScroll') private autoScroll!: boolean
+  @Getter('autoResub') private autoResub!: boolean
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: { [id: string]: boolean }
@@ -404,15 +404,18 @@ export default class ConnectionsDetail extends Vue {
   private sendTimeId: number | null = null
   private receivedMsgType: PayloadType = 'Plaintext'
   private msgType: MessageType = 'all'
+
   private client: Partial<MqttClient> = {
     connected: false,
+    options: {
+      resubscribe: false,
+    },
   }
   private messages: MessageModel[] = this.record.messages
   private searchParams = {
     topic: '',
     payload: '',
   }
-  private titleName: string = this.record.name
 
   private retryTimes = 0
   private inputHeight = 160
@@ -421,11 +424,6 @@ export default class ConnectionsDetail extends Vue {
   private messageListMarginTop: number = 19
 
   private activeTopic = ''
-  private mqttVersionDict = {
-    '3.1.1': 4,
-    '5.0': 5,
-  }
-  private payloadOptions: PayloadType[] = ['Plaintext', 'Base64', 'JSON', 'Hex']
   private showContextmenu: boolean = false
   private selectedMessage: MessageModel | null = null
   private contextmenuConfig: ContextmenuModel = {
@@ -443,6 +441,10 @@ export default class ConnectionsDetail extends Vue {
   private bytesTimes = 0
   private messagesAddedNewItem: boolean = false
 
+  get titleName() {
+    return this.record.name
+  }
+
   get bodyTop(): TopModel {
     return {
       open: '249px',
@@ -455,16 +457,6 @@ export default class ConnectionsDetail extends Vue {
       open: '277px',
       close: '86px',
     }
-  }
-
-  get connectUrl(): string {
-    const { host, port, ssl, path } = this.record
-    const protocol = getMQTTProtocol(this.record)
-    let url = `${protocol}://${host}:${port}`
-    if (protocol === 'ws' || protocol === 'wss') {
-      url = `${url}${path.startsWith('/') ? '' : '/'}${path}`
-    }
-    return url
   }
 
   get isNewWindow(): boolean {
@@ -490,15 +482,21 @@ export default class ConnectionsDetail extends Vue {
     return this.$refs.subList as SubscriptionsList
   }
 
+  get messageListRef(): MessageList {
+    return this.$refs.messagesDisplay as MessageList
+  }
+
+  get curConnectionId(): string {
+    return this.$route.params.id
+  }
+
   @Watch('record')
   private handleRecordChanged() {
     // init Messagelist showMessages when selected connection changed
-    const messageList: MessageList = this.$refs.messagesDisplay as MessageList
+    const messageList: MessageList = this.messageListRef
     messageList.showMessages = []
 
-    const id: string = this.$route.params.id
-    this.titleName = this.record.name
-    this.getConnectionValue(id)
+    this.getConnectionValue(this.curConnectionId)
     this.getMessages()
     const timer = setTimeout(() => {
       this.scrollToBottom()
@@ -532,7 +530,9 @@ export default class ConnectionsDetail extends Vue {
       return false
     }
     this.connectLoading = true
-    this.client = this.createClient()
+    // new client
+    const { curConnectClient, connectUrl } = createClient(this.record)
+    this.client = curConnectClient
     const { id } = this.record
     if (id && this.client.on) {
       this.$log.info(`MQTTX client with ID ${id} assigned`)
@@ -542,6 +542,15 @@ export default class ConnectionsDetail extends Vue {
       this.client.on('close', this.onClose)
       this.client.on('message', this.onMessageArrived(id))
     }
+
+    const protocolLogMap: ProtocolMap = {
+      mqtt: 'MQTT/TCP connection',
+      mqtts: 'MQTT/SSL connection',
+      ws: 'MQTT/WS connection',
+      wss: 'MQTT/WSS connection',
+    }
+    const curOptionsProtocol: Protocol = (this.client as MqttClient).options.protocol as Protocol
+    this.$log.info(`Connect client, ${protocolLogMap[curOptionsProtocol]}: ${connectUrl}`)
   }
 
   // Delete connection
@@ -667,6 +676,7 @@ export default class ConnectionsDetail extends Vue {
     this.showSubs = this.showSubscriptions
     if (currentActiveConnection) {
       this.client = currentActiveConnection.client
+      this.initFromSetting()
       this.setClientsMessageListener()
     } else {
       this.client = {
@@ -692,7 +702,7 @@ export default class ConnectionsDetail extends Vue {
 
   // New window
   private handleNewWindow() {
-    ipcRenderer.send('newWindow', this.$route.params.id)
+    ipcRenderer.send('newWindow', this.curConnectionId)
   }
 
   // Dropdown command
@@ -752,10 +762,11 @@ export default class ConnectionsDetail extends Vue {
   private async handleMsgClear() {
     this.messages = []
     this.record.messages = []
+
     this.changeActiveConnection({
-      id: this.$route.params.id,
+      id: this.curConnectionId,
       client: this.client,
-      messages: this.messages,
+      messages: [],
     })
     if (this.record.id) {
       const { messageService } = useServices()
@@ -868,25 +879,6 @@ export default class ConnectionsDetail extends Vue {
     this.scrollToBottom()
   }
 
-  // Return client
-  private createClient(): MqttClient {
-    const options: IClientOptions = getClientOptions(this.record)
-    // Print the protocol connection used
-    const curConnectClient: mqtt.MqttClient = mqtt.connect(this.connectUrl, options)
-    const protocolLogMap: ProtocolMap = {
-      mqtt: 'MQTT/TCP connection',
-      mqtts: 'MQTT/SSL connection',
-      ws: 'MQTT/WS connection',
-      wss: 'MQTT/WSS connection',
-    }
-    const curOptionsProtocol: Protocol = curConnectClient.options.protocol as Protocol
-    if (curOptionsProtocol) {
-      const connectLogoInfo = protocolLogMap[curOptionsProtocol]
-      this.$log.info(`Connect client, ${connectLogoInfo}: ${this.connectUrl}`)
-    }
-    return curConnectClient
-  }
-
   // Cancel connect
   private cancel() {
     this.connectLoading = false
@@ -902,12 +894,12 @@ export default class ConnectionsDetail extends Vue {
     }
     this.stopTimedSend()
     this.disconnectLoding = true
-    const { id } = this.$route.params
     this.client.end!(false, () => {
       this.disconnectLoding = false
       this.retryTimes = 0
+
       this.changeActiveConnection({
-        id,
+        id: this.curConnectionId,
         client: this.client,
         messages: this.record.messages,
       })
@@ -927,10 +919,11 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Connect callback
-  private onConnect() {
+  private onConnect(conBack: IConnackPacket) {
     this.connectLoading = false
+
     this.changeActiveConnection({
-      id: this.$route.params.id,
+      id: this.curConnectionId,
       client: this.client,
       messages: this.record.messages,
     })
@@ -1019,7 +1012,7 @@ export default class ConnectionsDetail extends Vue {
       return
     }
     const timer = setTimeout(() => {
-      const messagesDisplay = this.$refs.messagesDisplay as Vue
+      const messagesDisplay = this.messageListRef as Vue
       const messagesDisplayDOM = messagesDisplay.$el
       if (messagesDisplayDOM) {
         messagesDisplayDOM.scrollTo({
@@ -1064,7 +1057,7 @@ export default class ConnectionsDetail extends Vue {
         qos: packet.qos,
         retain: packet.retain as boolean,
       }
-      const connectionId = this.$route.params.id
+      const connectionId = this.curConnectionId
       let _id = id
       if (topic.indexOf('$SYS') !== -1 && this.showBytes && id === connectionId) {
         const _chartData = getBytes(receivedMessage)
@@ -1335,9 +1328,9 @@ export default class ConnectionsDetail extends Vue {
   // Re-subscribe topic
   private handleReSubTopics() {
     if (this.client.options) {
-      const { clean } = this.client.options
+      const { clean, resubscribe } = this.client.options
       const { subscriptions } = this.record
-      if (this.autoResub && clean && subscriptions.length) {
+      if (resubscribe && clean && subscriptions.length) {
         this.subListRef.resubscribe()
       }
     }
@@ -1360,6 +1353,7 @@ export default class ConnectionsDetail extends Vue {
       if (client.connected && client.on && msgEventCount === 0) {
         client.on('message', this.onMessageArrived(connectionID))
       }
+
       this.changeActiveConnection({
         id: connectionID,
         client,
@@ -1379,9 +1373,12 @@ export default class ConnectionsDetail extends Vue {
     })
   }
 
+  private initFromSetting() {
+    this.client.options && (this.client.options.resubscribe = this.autoResub)
+  }
+
   private created() {
-    const { id } = this.$route.params
-    this.getConnectionValue(id)
+    this.getConnectionValue(this.curConnectionId)
     ipcRenderer.on('searchContent', () => {
       this.handleSearchOpen()
     })

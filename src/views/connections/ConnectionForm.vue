@@ -479,7 +479,7 @@ import { remote } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { getClientId } from '@/utils/idGenerator'
-import { getMQTTProtocol } from '@/utils/mqttUtils'
+import { getMQTTProtocol, getDefaultRecord } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
 import _ from 'lodash'
 import time from '@/utils/time'
@@ -497,6 +497,7 @@ export default class ConnectionForm extends Vue {
   @Getter('willMessageVisible') private getterWillMessageVisible!: boolean
   @Getter('currentTheme') private theme!: Theme
   @Getter('allConnections') private allConnections!: ConnectionModel[] | []
+  @Getter('autoResub') private autoResub!: boolean
 
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
   @Action('TOGGLE_ADVANCED_VISIBLE') private toggleAdvancedVisible!: (payload: { advancedVisible: boolean }) => void
@@ -510,61 +511,7 @@ export default class ConnectionForm extends Vue {
   private suggestConnections: ConnectionModel[] | [] = []
   private oldName = ''
 
-  private defaultRecord: ConnectionModel = {
-    clientId: getClientId(),
-    createAt: time.getNowDate(),
-    updateAt: time.getNowDate(),
-    name: '',
-    clean: true,
-    protocol: 'mqtt',
-    host: 'broker.emqx.io',
-    keepalive: 60,
-    connectTimeout: 10,
-    reconnect: false,
-    username: '',
-    password: '',
-    path: '/mqtt',
-    port: 1883,
-    ssl: false,
-    certType: '',
-    rejectUnauthorized: true,
-    ca: '',
-    cert: '',
-    key: '',
-    mqttVersion: '3.1.1',
-    subscriptions: [],
-    messages: [],
-    unreadMessageCount: 0,
-    will: {
-      lastWillTopic: '',
-      lastWillPayload: '',
-      lastWillQos: 0,
-      lastWillRetain: false,
-      properties: {
-        willDelayInterval: undefined,
-        payloadFormatIndicator: undefined,
-        messageExpiryInterval: undefined,
-        contentType: '',
-        responseTopic: '',
-        correlationData: undefined,
-        userProperties: undefined,
-      },
-    },
-    properties: {
-      sessionExpiryInterval: undefined,
-      receiveMaximum: undefined,
-      maximumPacketSize: undefined,
-      topicAliasMaximum: undefined,
-      requestResponseInformation: undefined,
-      requestProblemInformation: undefined,
-      userProperties: undefined,
-      authenticationMethod: undefined,
-      authenticationData: undefined,
-    },
-    clientIdWithTime: false,
-    isCollection: false,
-    parentId: null,
-  }
+  private defaultRecord: ConnectionModel = getDefaultRecord()
 
   private record: ConnectionModel = _.cloneDeep(this.defaultRecord)
 
@@ -620,6 +567,7 @@ export default class ConnectionForm extends Vue {
       const { connectionService } = useServices()
       let msgError = ''
       if (this.oper === 'create') {
+        // create a new connection
         res = await connectionService.create({
           ...data,
           createAt: time.getNowDate(),
@@ -627,6 +575,7 @@ export default class ConnectionForm extends Vue {
         })
         msgError = this.$t('common.createfailed') as string
       } else {
+        // update a exisit connection
         if (data.id) {
           res = await connectionService.updateWithCascade(data.id, {
             ...data,
@@ -635,18 +584,17 @@ export default class ConnectionForm extends Vue {
           msgError = this.$t('common.editfailed') as string
         }
       }
-      if (res) {
-        if (res.id) {
-          this.changeActiveConnection({
-            id: res.id,
-            client: {
-              connected: false,
-            },
-            messages: [],
-          })
-          this.$emit('connect')
-          this.$router.push(`/recent_connections/${res.id}`)
-        }
+      // update ActiveConnection & connect
+      if (res && res.id) {
+        this.changeActiveConnection({
+          id: res.id,
+          client: {
+            connected: false,
+          },
+          messages: [],
+        })
+        this.$emit('connect')
+        this.$router.push(`/recent_connections/${res.id}`)
       } else {
         this.$message.error(msgError)
         this.$log.error(msgError.toString())
@@ -769,14 +717,20 @@ export default class ConnectionForm extends Vue {
     }
   }
 
-  private created() {
-    this.loadData()
+  // Fetch record default data from setting page, storage at vuex
+  private initFromSetting() {
+    this.record.resubscribe = this.autoResub
+  }
+
+  private async created() {
+    await this.loadData()
     const { id } = this.$route.params
     if (this.oper === 'edit' && id !== '0') {
       this.loadDetail(id)
     }
     this.advancedVisible = this.getterAdvancedVisible
     this.willMessageVisible = this.getterWillMessageVisible
+    this.initFromSetting()
   }
 }
 </script>

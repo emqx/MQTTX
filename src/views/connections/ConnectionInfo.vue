@@ -4,7 +4,7 @@
       <el-row :gutter="20">
         <el-col :span="8">
           <el-form-item :label="$t('connections.name')" prop="name">
-            <el-input size="mini" v-model="connection.name" :disabled="client.connected"></el-input>
+            <el-input size="mini" v-model="connection.name" :disabled="isClientConnected"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -26,12 +26,12 @@
                 <i class="el-icon-time"></i>
               </a>
             </el-tooltip>
-            <el-input size="mini" v-model="connection.clientId" :disabled="client.connected">
+            <el-input size="mini" v-model="connection.clientId" :disabled="isClientConnected">
               <i
                 slot="suffix"
                 title="Refresh"
                 class="el-icon-refresh"
-                :class="{ 'icon-oper-disable': client.connected }"
+                :class="{ 'icon-oper-disable': isClientConnected }"
                 @click="refreshClientId"
               >
               </i>
@@ -40,12 +40,17 @@
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('connections.username')">
-            <el-input size="mini" v-model="connection.username" :disabled="client.connected"></el-input>
+            <el-input size="mini" v-model="connection.username" :disabled="isClientConnected"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('connections.password')">
-            <el-input size="mini" type="password" v-model="connection.password" :disabled="client.connected"></el-input>
+            <el-input
+              size="mini"
+              type="password"
+              v-model="connection.password"
+              :disabled="isClientConnected"
+            ></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
@@ -56,21 +61,21 @@
               :min="0"
               v-model="connection.keepalive"
               controls-position="right"
-              :disabled="client.connected"
+              :disabled="isClientConnected"
             >
             </el-input-number>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="Clean Session">
-            <el-checkbox v-model="connection.clean" :disabled="client.connected" border>{{
+            <el-checkbox v-model="connection.clean" :disabled="isClientConnected" border>{{
               connection.clean ? 'true' : 'false'
             }}</el-checkbox>
           </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-button
-            v-if="!client.connected"
+            v-if="!isClientConnected"
             class="btn"
             icon="el-icon-caret-right"
             plain
@@ -94,7 +99,7 @@
             {{ $t('connections.disconnectedBtn') }}
           </el-button>
           <el-button
-            v-if="!client.connected && btnLoading"
+            v-if="!isClientConnected && btnLoading"
             class="disconnect cancel btn"
             icon="el-icon-close"
             plain
@@ -121,7 +126,7 @@ import useServices from '@/database/useServices'
 export default class ConnectionInfo extends Vue {
   @Prop({ required: true }) public connection!: ConnectionModel
   @Prop({ required: true }) public btnLoading!: boolean
-  @Prop({ required: true }) public client!: MqttClient | { connected: Boolean }
+  @Prop({ required: true }) public client!: Pick<MqttClient, 'connected'>
   @Prop({ required: true }) public titleName!: string
 
   @Getter('currentTheme') private theme!: Theme
@@ -132,6 +137,11 @@ export default class ConnectionInfo extends Vue {
   @Watch('titleName', { immediate: true, deep: true })
   private handleNameChange(titleName: string) {
     this.oldName = titleName
+  }
+
+  // Return the status of client connection
+  get isClientConnected() {
+    return this.client.connected
   }
 
   get rules() {
@@ -212,11 +222,6 @@ export default class ConnectionInfo extends Vue {
       return
     }
     this.connection.clientId = getClientId()
-  }
-
-  // Return the status of client connection
-  private get isClientConnected() {
-    return this.client.connected
   }
 }
 </script>
