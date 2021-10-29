@@ -34,11 +34,11 @@ export default class ConnectionService {
       ...data,
       // sort message by Date
       messages:
-        data?.messages.sort((a, b) =>
+        data?.messages?.sort((a, b) =>
           moment(new Date(a.createAt), sqliteDateFormat).isBefore(new Date(b.createAt)) ? -1 : 1,
         ) ?? [],
       subscriptions:
-        data.subscriptions.sort((a, b) =>
+        data?.subscriptions?.sort((a, b) =>
           moment(new Date(a.createAt), sqliteDateFormat).isBefore(new Date(b.createAt)) ? -1 : 1,
         ) ?? [],
       will: {

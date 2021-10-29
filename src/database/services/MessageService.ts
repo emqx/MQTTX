@@ -27,14 +27,21 @@ export default class MessageService {
     return query
   }
 
-  public async cleanInConnection(connectionId: string): Promise<MessageModel[] | undefined> {
+  public async cleanInConnection(connectionId: string) {
     const query: MessageEntity[] | undefined = await this.messageRepository
       .createQueryBuilder('ms')
       .where('ms.connectionId = :connectionId', { connectionId })
       .getMany()
-    if (!query) {
+    if (!query || !query.length) {
       return
     }
-    return await this.messageRepository.remove(query)
+    const deleteID: string[] = []
+    query.forEach((entity) => {
+      entity.id && deleteID.push(entity.id)
+    })
+    if (!deleteID.length) {
+      return
+    }
+    await this.messageRepository.delete(deleteID)
   }
 }
