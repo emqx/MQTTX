@@ -55,7 +55,7 @@
           </el-popover>
           <span class="qos">QoS {{ sub.qos }}</span>
           <a href="javascript:;" class="close" @click.stop="removeSubs(sub)">
-            <i class="el-icon-close"></i>
+            <i :class="unsubLoading ? 'el-icon-loading' : 'el-icon-close'"></i>
           </a>
         </div>
       </el-card>
@@ -67,6 +67,7 @@
       :visible.sync="showDialog"
       width="500px"
       class="topic-dialog"
+      :confirmLoading="subLoading"
       @confirm="saveSubs"
       @close="resetSubs"
       @keyupEnter="saveSubs"
@@ -193,6 +194,8 @@ export default class SubscriptionsList extends Vue {
   private subsList: SubscriptionModel[] = []
   private copySuccess = false
   private topicActiveIndex: number | null = null
+  private subLoading = false
+  private unsubLoading = false
 
   get rules() {
     return {
@@ -263,6 +266,7 @@ export default class SubscriptionsList extends Vue {
       if (!valid) {
         return false
       }
+      this.subLoading = true
       this.subRecord.topic = this.subRecord.topic.trim()
       this.subRecord.alias = this.subRecord.alias ? this.subRecord.alias.trim() : this.subRecord.alias
       this.subRecord.color = this.topicColor || this.getBorderColor()
@@ -317,6 +321,7 @@ export default class SubscriptionsList extends Vue {
     let isFinshed = false
     if (this.client.subscribe) {
       this.client.subscribe(topic, { qos: qos as QoS, nl, rap, rh }, async (error, granted) => {
+        this.subLoading = false
         if (error) {
           this.$message.error(error)
           this.$log.error(`Topic: ${topic} subscribe error ${error} `)
@@ -377,9 +382,11 @@ export default class SubscriptionsList extends Vue {
       })
       return false
     }
+    this.unsubLoading = true
     const { topic, qos } = row
     if (this.client.unsubscribe) {
       this.client.unsubscribe(topic, { qos }, (error) => {
+        this.unsubLoading = false
         if (error) {
           this.$message.error(error)
           return false
@@ -537,7 +544,8 @@ export default class SubscriptionsList extends Vue {
         height: 18px;
         text-align: center;
         line-height: 18px;
-        .el-icon-close {
+        .el-icon-close,
+        .el-icon-loading {
           color: var(--color-text-active);
         }
       }

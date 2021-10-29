@@ -106,6 +106,9 @@ export default class MyDialog extends Vue {
         color: var(--color-minor-green);
       }
     }
+    .el-button.is-loading:before {
+      background-color: transparent;
+    }
   }
 }
 </style>
