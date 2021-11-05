@@ -6,10 +6,10 @@ interface CodeType {
 const convertBase64 = (value: string, codeType: 'encode' | 'decode'): string => {
   const convertMap: CodeType = {
     encode(str: string): string {
-      return window.btoa(str)
+      return btoa(unescape(encodeURIComponent(str)))
     },
     decode(str: string): string {
-      return window.atob(str)
+      return decodeURIComponent(escape(atob(str)))
     },
   }
   return convertMap[codeType](value)
