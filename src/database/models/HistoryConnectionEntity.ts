@@ -1,5 +1,4 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
-import WillEntity from './WillEntity'
 
 type Protocol = 'ws' | 'wss' | 'mqtt' | 'mqtts'
 type CertType = '' | 'server' | 'self'

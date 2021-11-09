@@ -319,6 +319,7 @@ export default class ConnectionService {
     }
     return {
       ...query,
+      id: undefined,
       messages: [],
       subscriptions: [],
       isCollection: false,
@@ -363,6 +364,7 @@ export default class ConnectionService {
     // TODO: refactor historyConnectionRepository field
     await this.historyConnectionRepository.save({
       ...res,
+      id: undefined,
       lastWillTopic: res.will.lastWillPayload,
       lastWillPayload: res.will.lastWillPayload,
       lastWillQos: res.will.lastWillQos,
