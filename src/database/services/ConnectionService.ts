@@ -164,6 +164,10 @@ export default class ConnectionService {
       .leftJoinAndSelect('cn.will', 'will')
       .getOne()
     const queryModel: ConnectionModel = query ? ConnectionService.entityToModel(query) : data
+    // FIXME: temporary fix, we shouldn't update connectionList data in the connectionDetail page
+    // such as order | parentId etc.
+    data.parentId = queryModel.parentId
+    // END FIXME
     const res: ConnectionModel = query ? this.deepMerge(queryModel, data) : data
     if (res.will) {
       const {
