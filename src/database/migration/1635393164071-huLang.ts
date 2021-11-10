@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
 
 export class huLang1635392304194 implements MigrationInterface {
+  name = 'huLang1635392304194'
+
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
         CREATE TABLE "temporary_SettingEntity" (

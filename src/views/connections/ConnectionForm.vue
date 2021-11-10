@@ -315,7 +315,7 @@
                     <el-input-number
                       size="mini"
                       type="number"
-                      :min="0"
+                      :min="1"
                       v-model="record.properties.receiveMaximum"
                       controls-position="right"
                     >

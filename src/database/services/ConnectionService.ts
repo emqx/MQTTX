@@ -58,7 +58,7 @@ export default class ConnectionService {
         receiveMaximum: data.receiveMaximum,
         maximumPacketSize: data.maximumPacketSize,
         topicAliasMaximum: data.topicAliasMaximum,
-        requestResponseInformation: data.topicAliasMaximum,
+        requestResponseInformation: data.requestResponseInformation,
         requestProblemInformation: data.requestProblemInformation,
         userProperties: data.userProperties ? JSON.parse(data.userProperties) : undefined,
         authenticationMethod: data.authenticationMethod,

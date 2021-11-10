@@ -132,9 +132,9 @@ export default class Connections extends Vue {
     this.$router.push({ path: '/recent_connections/0?oper=create' })
   }
 
-  private onConnect() {
+  private async onConnect() {
     this.isEmpty = false
-    this.loadData()
+    await this.loadData()
     setTimeout(() => {
       const connectionsDetailRef = this.$refs.connectionsDetail as ConnectionsDetail
       connectionsDetailRef.connect()
