@@ -24,7 +24,7 @@ const updateChecker = async (isAuto: boolean = true): Promise<void | boolean> =>
   if (response.status === 200) {
     const latest: string = response.data.name
     const isPrerelease: boolean = response.data.prerelease
-    if (isUpdate(latest.slice(1, 6), version) && !isPrerelease) {
+    if (latest && isUpdate(latest.slice(1, 6), version) && !isPrerelease) {
       dialog
         .showMessageBox({
           type: 'info',
