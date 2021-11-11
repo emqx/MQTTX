@@ -299,7 +299,7 @@ export default class ConnectionsList extends Vue {
         ipcRenderer.removeListener('getWindowSize', ipcHandler)
       }
     }
-    const id = ipcRenderer.on('getWindowSize', ipcHandler)
+    ipcRenderer.on('getWindowSize', ipcHandler)
     this.showContextmenu = false
   }
 
