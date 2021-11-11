@@ -138,7 +138,7 @@ export default class CollectionService {
   }
 
   public async getAll(): Promise<ConnectionModelTree[] | undefined> {
-    // get top collections
+    // get top connetctions
     const topConnections: ConnectionEntity[] = await this.connectionRepository.find({
       parentId: null,
     })

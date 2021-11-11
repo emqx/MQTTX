@@ -244,7 +244,6 @@ export default class ConnectionService {
     const saved: ConnectionEntity | undefined = await this.connectionRepository.save(
       ConnectionService.modelToEntity({
         ...res,
-        parentId: null,
         id,
         ...args,
       }) as ConnectionEntity,
