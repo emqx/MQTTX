@@ -292,6 +292,26 @@ Windows: `vue-cli-service electron:build --win`
 
 Linux: `vue-cli-service electron:build --linux`
 
+## FAQ
+
+**Q: What is the MQTT Client?**
+
+An MQTT client is any device that runs the MQTT library and connects to the MQTT Broker over the network. Publishers and subscribers refer to whether the client is currently publishing messages or subscribing to receive them. publishers and subscribers can both be an MQTT client, (publishing and subscribing functionality can also be implemented in the same MQTT client). an MQTT client can be a very small device with limited resources, or it can be a typical piece of computer software running a graphical user interface MQTT client, basically for testing purposes. So it can be simply understood that any device or software that connects to the MQTT service over the TCP/IP protocol can be called an MQTT client.
+
+**Q: Why use MQTT X?**
+
+MQTT X is an open source cross-platform MQTT desktop client tool. It can be used by users who are building their own messaging servers for MQTT, or by users who are developing MQTT Broker and studying and learning about MQTT to test connections, subscribe and publish messages, etc. Users can quickly set up multiple connection clients to quickly test MQTT/TCP, MQTT/TLS connections, publish/subscribe functionality and other features. MQTT X provides a quick, in-depth understanding of MQTT protocol-related features for MQTT research and applications.
+
+**Q: Why does MQTT X use the UI design of chat software?**
+
+Based on the understanding of the MQTT protocol of pub/sub model, MQTT X simplifies the operation logic of the page with the help of chatting software. For example, create a new connection as a User A, subscribe to a Topic, just like to join a chat channel, and then create a new connection as a User B, publish a message to the Topic that User A has subscribed to, we can receive the message from User B in User A's page. In fact, in the IoT world as well, devices can use pub/sub feature of MQTT to communicate with each other. MQTT X emulates this and translates it into the user interface to help users understand and test MQTT-related content faster.
+
+**Q: What do you do when you have problems with MQTT X?**
+
+1. You can visit the [GitHub](https://github.com/emqx/MQTTX) for MQTT X, go to the [issue](https://github.com/emqx/MQTTX/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) tab and click on submit issue to give feedback.
+2. or you can go to our GitHub [Discussions](https://github.com/emqx/MQTTX/discussions) tab to give feedback.
+3. Finally, you can contact us at the community information below to give us feedback on any issues you may have.
+
 ## Community, discussion, contribution, and support
 
 You can reach the EMQ community and developers via the following channels:
