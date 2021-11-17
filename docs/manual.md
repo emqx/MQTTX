@@ -296,7 +296,7 @@ Linux: `vue-cli-service electron:build --linux`
 
 **Q: What is the MQTT Client?**
 
-An MQTT client is any device that runs the MQTT library and connects to the MQTT Broker over the network. Publishers and subscribers refer to whether the client is currently publishing messages or subscribing to receive them. publishers and subscribers can both be an MQTT client, (publishing and subscribing functionality can also be implemented in the same MQTT client). an MQTT client can be a very small device with limited resources, or it can be a typical piece of computer software running a graphical user interface MQTT client, basically for testing purposes. So it can be simply understood that any device or software that connects to the MQTT service over the TCP/IP protocol can be called an MQTT client.
+The MQTT client is that any device runs the MQTT library and connects to the MQTT Broker over the network. Publishers and subscribers refer to the client currently is publishing messages or subscribing to receive them. publishers and subscribers can be the same MQTT client, (publishing and subscribing functionality can also be implemented in the same MQTT client). an MQTT client can be a very small device with limited resources, or it can be a typical piece of computer software running a graphical user interface MQTT client, basically for testing purposes. So it can be simply understood that any device or software that connects to the MQTT service over the TCP/IP protocol can be called an MQTT client.
 
 **Q: Why use MQTT X?**
 
