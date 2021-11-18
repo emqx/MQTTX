@@ -306,6 +306,10 @@ MQTT X 是一款开源的跨平台 MQTT 桌面客户端工具。可以用于正�
 
 基于对 MQTT 协议中发布订阅的理解，我们使用聊天软件的交互形式来帮助用户快速理解 MQTT 协议的核心内容，比如新建一个连接，可以想象为用户 A，订阅一个 Topic，即加入一个聊天频道，再新建一个连接，即为用户 B，向用户 A 订阅过的 Topic 发布一条消息，我们可以在用户 A 的页面中接收到用户 B 发送过来的消息。而中间转发消息的服务即为 MQTT Broker。其实在 IoT 世界中也是这样的，设备之间可以利用 MQTT 这样发布订阅的特性来进行通讯。而 MQTT X 将其进行模拟并转化到用户界面中，帮助用户更快的理解和测试 MQTT 相关内容。
 
+**Q: MQTT X 是免费的吗？**
+
+是的。完全开源，详情见 [LICENSE](https://github.com/emqx/MQTTX/blob/master/LICENSE)。
+
 **Q: 当您使用 MQTT X 遇到问题时，该怎么做？**
 
 1. 您可以打开 MQTT X 的 [GitHub](https://github.com/emqx/MQTTX) 链接，进入到 [issue](https://github.com/emqx/MQTTX/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) 区，点击提交 issue 来反馈问题。
