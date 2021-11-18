@@ -306,6 +306,10 @@ MQTT X is an open source cross-platform MQTT desktop client tool. It can be used
 
 Based on the understanding of the MQTT protocol of pub/sub model, MQTT X simplifies the operation logic of the page with the help of chatting software. For example, create a new connection as a User A, subscribe to a Topic, just like to join a chat channel, and then create a new connection as a User B, publish a message to the Topic that User A has subscribed to, we can receive the message from User B in User A's page. In fact, in the IoT world as well, devices can use pub/sub feature of MQTT to communicate with each other. MQTT X emulates this and translates it into the user interface to help users understand and test MQTT-related content faster.
 
+**Q: Is MQTT X free?**
+
+Yes. Fully open source, see the [LICENSE](https://github.com/emqx/MQTTX/blob/master/LICENSE) for details.
+
 **Q: What do you do when you have problems with MQTT X?**
 
 1. You can visit the [GitHub](https://github.com/emqx/MQTTX) for MQTT X, go to the [issue](https://github.com/emqx/MQTTX/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) tab and click on submit issue to give feedback.
