@@ -161,7 +161,6 @@
           />
         </el-collapse-transition>
       </div>
-
       <transition name="el-zoom-in-top">
         <div v-show="searchVisible" class="connections-search topbar">
           <el-input
@@ -192,7 +191,6 @@
         </div>
       </transition>
     </div>
-
     <div
       class="connections-detail-main right-content"
       :style="{
@@ -258,6 +256,7 @@
       <div ref="connectionFooter" class="connections-footer" :style="{ marginLeft: showSubs ? '570px' : '341px' }">
         <ResizeHeight v-model="inputHeight" />
         <MsgPublish
+          :mqtt5PropsEnable="record.mqttVersion === '5.0'"
           ref="msgPublish"
           :editor-height="inputHeight - 75"
           :subs-visible="showSubs"
@@ -268,7 +267,6 @@
         />
       </div>
     </div>
-
     <ExportData :visible.sync="showExportData" :connection="record" />
     <ImportData :visible.sync="showImportData" @updateData="$emit('reload')" />
     <TimedMessage ref="timedMessage" :visible.sync="showTimedMessage" @setTimerSuccess="setTimerSuccess" />
@@ -1562,6 +1560,7 @@ export default class ConnectionsDetail extends Vue {
       bottom: 0;
       left: 0;
       right: 0;
+      z-index: 4;
     }
   }
 }
