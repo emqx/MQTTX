@@ -1,5 +1,88 @@
 <template>
   <div class="msg-publish message">
+    <div class="publish-top">
+      <div v-if="showDialog">
+        <el-card class="box-card">
+          <el-form ref="form" label-width="175px" label-position="left" :model="MQTT5Props" :rules="rules">
+            <el-row class="form-row" :gutter="20">
+              <el-col :span="24">
+                <el-form-item :label="`Content Type`" prop="contentType">
+                  <el-input size="mini" v-model="MQTT5Props.contentType"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item :label="`Payload Format Indicator`" prop="payloadFormatIndicator">
+                  <el-checkbox style="width: 100%" size="mini" v-model="MQTT5Props.payloadFormatIndicator" border>{{
+                    MQTT5Props.payloadFormatIndicator ? 'true' : 'false'
+                  }}</el-checkbox>
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item :label="`Message Expiry Interval`" prop="messageExpiryInterval">
+                  <el-input-number
+                    v-model="MQTT5Props.messageExpiryInterval"
+                    size="mini"
+                    :min="0"
+                    controls-position="right"
+                    type="number"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item :label="`Correlation Data`" prop="correlationData">
+                  <el-input
+                    placeholder="correlation data"
+                    size="mini"
+                    v-model="MQTT5Props.correlationData"
+                    type="text"
+                  />
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item :label="`Topic Alias`" prop="topicAlias">
+                  <el-input placeholder="topic alias" size="mini" v-model="MQTT5Props.topicAlias" type="text" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item :label="`Response Topic`" prop="responseTopic">
+                  <el-input placeholder="response topic" size="mini" v-model="MQTT5Props.responseTopic" type="text" />
+                </el-form-item>
+              </el-col>
+              <el-col :span="24">
+                <el-form-item class="form-user" :label="`User Properties`" prop="userPropertie">
+                  <el-button icon="el-icon-plus" class="btn-props-plus" type="text" @click="addItem" />
+                  <div class="user-props">
+                    <div v-for="(item, index) in listData" class="user-props-row" :key="index">
+                      <a class="btn-check" @click="checkItem(index)">
+                        <i v-if="item.checked" class="iconfont el-icon-check"></i>
+                        <i v-else class="iconfont el-icon-check disable-icon"></i>
+                      </a>
+                      <el-input
+                        placeholder="key"
+                        size="mini"
+                        v-model="item.key"
+                        class="input-user-prop user-prop-key"
+                      />
+                      <el-input
+                        placeholder="value"
+                        size="mini"
+                        v-model="item.value"
+                        class="input-user-prop user-prop-value"
+                      />
+                      <el-button icon="el-icon-delete" class="btn-delete" type="text" @click="deleteItem(index)" />
+                    </div>
+                  </div>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form>
+          <div class="meta-btn">
+            <el-button size="mini" type="outline" @click="submitForm">save</el-button>
+            <el-button size="mini" type="outline" @click="resetForm">reset</el-button>
+          </div>
+        </el-card>
+      </div>
+    </div>
     <div class="publish-header">
       <div class="publish-metadata">
         <span class="publish-label">Payload: </span>
@@ -13,6 +96,18 @@
           <el-option :value="2"></el-option>
         </el-select>
         <el-checkbox class="retain-block" v-model="msgRecord.retain" label="Retain" border size="mini"></el-checkbox>
+        <el-badge :is-dot="hasMqtt5Prop" class="item">
+          <el-button
+            type="outline"
+            plain
+            :disabled="!mqtt5PropsEnable"
+            :class="['meta-block', showDialog ? 'meta-block-active' : '']"
+            @click="changeVisable"
+            label="Meta"
+            size="mini"
+            >Meta</el-button
+          >
+        </el-badge>
       </div>
       <el-input
         class="publish-topic-input"
@@ -106,6 +201,8 @@ import validFormatJson from '@/utils/validFormatJson'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
 
+type UserPairObect = { key: string; value: string; checked: boolean }
+
 @Component({
   components: {
     Editor,
@@ -115,6 +212,90 @@ export default class MsgPublish extends Vue {
   @Prop({ required: true }) public editorHeight!: number
   @Prop({ required: true }) public subsVisible!: boolean
   @Prop({ default: false }) public disabled!: boolean
+  @Prop({ default: false }) public mqtt5PropsEnable!: boolean
+
+  private MQTT5Props: PushPropertiesModel = {
+    payloadFormatIndicator: undefined,
+    messageExpiryInterval: undefined,
+    topicAlias: undefined,
+    responseTopic: undefined,
+    correlationData: undefined,
+    userProperties: undefined,
+    subscriptionIdentifier: undefined,
+    contentType: undefined,
+  }
+
+  private showDialog: boolean = false
+
+  get formRef() {
+    return this.$refs.form as VueForm
+  }
+
+  private resetForm() {
+    this.formRef.resetFields()
+    this.MQTT5Props = {}
+    this.listData = [_.cloneDeep(this.defaultPropObj)]
+    this.hasMqtt5Prop = this.getHasMqtt5PropState()
+  }
+
+  private getHasMqtt5PropState() {
+    return (
+      Object.entries(this.MQTT5Props).filter(([_, v]) => v !== null && v !== undefined).length > 0 ||
+      this.listData.filter((pair) => pair.key !== '').length > 0
+    )
+  }
+
+  private submitForm() {
+    this.formRef.validate((valid) => {
+      if (valid) {
+        const checkedList = this.listData.filter((pair) => !(pair.key === '' || !pair.checked))
+        const userProps: {
+          [key: string]: string
+        } = {}
+        if (checkedList.length > 0) {
+          checkedList.forEach((pair) => {
+            if (pair && pair.key) {
+              userProps[pair.key] = pair.value
+            }
+          })
+        }
+
+        if (Object.keys(userProps).length > 0) {
+          this.MQTT5Props.userProperties = userProps
+        } else {
+          this.MQTT5Props.userProperties = undefined
+        }
+      }
+      this.hasMqtt5Prop = this.getHasMqtt5PropState()
+    })
+  }
+
+  private changeVisable() {
+    this.showDialog = !this.showDialog
+  }
+
+  get rules() {
+    return {}
+  }
+
+  public defaultPropObj = { key: '', value: '', checked: true }
+  public listData: UserPairObect[] = [_.cloneDeep(this.defaultPropObj)]
+
+  private hasMqtt5Prop: boolean = false
+
+  private deleteItem(index: number) {
+    if (this.listData.length > 1) {
+      this.listData.splice(index, 1)
+    }
+  }
+
+  private addItem() {
+    this.listData.push(_.cloneDeep(this.defaultPropObj))
+  }
+
+  private checkItem(index: number) {
+    this.listData[index].checked = !this.listData[index].checked
+  }
 
   private headersHistory: HistoryMessageHeaderModel[] | [] = []
   private payloadsHistory: HistoryMessagePayloadModel[] | [] = []
@@ -306,6 +487,67 @@ export default class MsgPublish extends Vue {
   background: var(--color-bg-normal);
   transition: 0.3s height;
   border-top: 1px solid var(--color-border-default);
+  z-index: 10;
+  .publish-top {
+    position: absolute;
+    transform: translate(0, -100%);
+    width: 100%;
+    z-index: 11;
+    .el-card.box-card {
+      padding: 10px;
+      margin: 4px;
+      user-select: none;
+      .meta-btn {
+        float: right;
+      }
+      .el-card__body {
+        padding: 4px 4px 10px 4px;
+        .form-row {
+          display: flex;
+          flex-wrap: wrap;
+          position: relative;
+          .form-user {
+            max-height: 80px;
+            overflow-y: scroll;
+            white-space: nowrap;
+            .btn-props-plus {
+              position: absolute;
+              left: -40px;
+              top: -0px;
+            }
+            .user-props {
+              .user-props-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                .input-user-prop {
+                  padding: 0px;
+                  margin-right: 10px;
+                }
+                .btn-check {
+                  position: absolute;
+                  left: -20px;
+                  .el-icon-check {
+                    font-size: 14px;
+                  }
+                  .disable-icon {
+                    color: dimgray;
+                  }
+                }
+              }
+            }
+          }
+
+          .el-form-item {
+            margin-bottom: 0;
+            .el-form-item__label {
+              padding-bottom: 0;
+            }
+          }
+        }
+      }
+    }
+  }
   .publish-topic-input.el-input {
     width: calc(100% - 20px);
     vertical-align: top;
@@ -379,19 +621,31 @@ export default class MsgPublish extends Vue {
     background: var(--color-bg-normal);
     padding: 0 16px;
     margin-top: 6px;
+    .el-input__inner {
+      padding: 4px 10px;
+    }
     .publish-label {
       color: var(--color-text-default);
-      margin-right: 8px;
+      margin-right: 0px;
     }
     .payload-select {
-      width: 95px;
-      margin-right: 10px;
+      width: 88px;
+      margin-right: 8px;
     }
     .qos-select {
-      width: 55px;
+      width: 46px;
     }
     .retain-block {
-      margin-left: 24px;
+      margin-left: 4px;
+    }
+    .meta-block {
+      margin-left: 4px;
+      border-color: var(--color-border-default);
+      color: var(--color-text-default);
+      &.meta-block-active {
+        color: var(--color-main-green);
+        border-color: var(--color-main-green);
+      }
     }
     .el-checkbox__inner {
       border-radius: 100%;
