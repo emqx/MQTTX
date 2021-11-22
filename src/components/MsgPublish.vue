@@ -6,19 +6,19 @@
           <el-form ref="form" label-width="175px" label-position="left" :model="MQTT5Props" :rules="rules">
             <el-row class="form-row" :gutter="20">
               <el-col :span="24">
-                <el-form-item :label="`Content Type`" prop="contentType">
+                <el-form-item label="Content Type" prop="contentType">
                   <el-input size="mini" v-model="MQTT5Props.contentType"></el-input>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item :label="`Payload Format Indicator`" prop="payloadFormatIndicator">
+                <el-form-item label="Payload Format Indicator" prop="payloadFormatIndicator">
                   <el-checkbox style="width: 100%" size="mini" v-model="MQTT5Props.payloadFormatIndicator" border>{{
                     MQTT5Props.payloadFormatIndicator ? 'true' : 'false'
                   }}</el-checkbox>
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item :label="`Message Expiry Interval`" prop="messageExpiryInterval">
+                <el-form-item label="Message Expiry Interval" prop="messageExpiryInterval">
                   <el-input-number
                     v-model="MQTT5Props.messageExpiryInterval"
                     size="mini"
@@ -29,7 +29,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item :label="`Correlation Data`" prop="correlationData">
+                <el-form-item label="Correlation Data" prop="correlationData">
                   <el-input
                     placeholder="correlation data"
                     size="mini"
@@ -39,17 +39,23 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item :label="`Topic Alias`" prop="topicAlias">
-                  <el-input placeholder="topic alias" size="mini" v-model="MQTT5Props.topicAlias" type="text" />
+                <el-form-item label="Topic Alias" prop="topicAlias">
+                  <el-input-number
+                    v-model="MQTT5Props.topicAlias"
+                    size="mini"
+                    :min="1"
+                    controls-position="right"
+                    type="number"
+                  />
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item :label="`Response Topic`" prop="responseTopic">
+                <el-form-item label="Response Topic" prop="responseTopic">
                   <el-input placeholder="response topic" size="mini" v-model="MQTT5Props.responseTopic" type="text" />
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item class="form-user" :label="`User Properties`" prop="userPropertie">
+                <el-form-item class="form-user" label="User Properties" prop="userPropertie">
                   <el-button icon="el-icon-plus" class="btn-props-plus" type="text" @click="addItem" />
                   <div class="user-props">
                     <div v-for="(item, index) in listData" class="user-props-row" :key="index">
@@ -77,8 +83,8 @@
             </el-row>
           </el-form>
           <div class="meta-btn">
-            <el-button size="mini" type="outline" @click="submitForm">save</el-button>
-            <el-button size="mini" type="outline" @click="resetForm">reset</el-button>
+            <el-button size="mini" type="outline" @click="submitForm">{{ $t('common.save') }}</el-button>
+            <el-button size="mini" type="outline" @click="resetForm">{{ $t('common.reset') }}</el-button>
           </div>
         </el-card>
       </div>
@@ -399,6 +405,7 @@ export default class MsgPublish extends Vue {
   private async send() {
     this.msgRecord.id = getMessageId()
     this.msgRecord.createAt = time.getNowDate()
+    this.mqtt5PropsEnable && (this.msgRecord.props = this.MQTT5Props)
     this.$emit('handleSend', this.msgRecord, this.payloadType, this.loadHistoryData)
   }
 
@@ -510,10 +517,13 @@ export default class MsgPublish extends Vue {
             max-height: 80px;
             overflow-y: scroll;
             white-space: nowrap;
+            .el-form-item__label {
+              position: fixed;
+            }
             .btn-props-plus {
-              position: absolute;
-              left: -40px;
-              top: -0px;
+              position: fixed;
+              left: 152px;
+              top: 263px;
             }
             .user-props {
               .user-props-row {
@@ -636,12 +646,14 @@ export default class MsgPublish extends Vue {
       width: 46px;
     }
     .retain-block {
-      margin-left: 4px;
+      margin-left: 8px;
     }
     .meta-block {
-      margin-left: 4px;
-      border-color: var(--color-border-default);
-      color: var(--color-text-default);
+      margin-left: 6px;
+      &:not(.is-disabled) {
+        border-color: var(--color-border-default);
+        color: var(--color-text-default);
+      }
       &.meta-block-active {
         color: var(--color-main-green);
         border-color: var(--color-main-green);

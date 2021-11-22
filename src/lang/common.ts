@@ -41,6 +41,13 @@ export default {
     ja: '保存',
     hu: 'Mentés',
   },
+  reset: {
+    zh: '重置',
+    en: 'Reset',
+    tr: 'sıfırlama',
+    ja: 'リセット',
+    hu: 'átszed',
+  },
   noData: {
     zh: '暂无数据',
     en: 'No Data',
