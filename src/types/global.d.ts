@@ -172,6 +172,7 @@ declare global {
     retain: boolean
     topic: string
     color?: string
+    props?: PushPropertiesModel
   }
 
   interface HistoryMessageHeaderModel {
@@ -271,9 +272,9 @@ declare global {
 
   // MQTT 5 feature
   interface PushPropertiesModel {
-    payloadFormatIndicator?: number
+    payloadFormatIndicator?: boolean
     messageExpiryInterval?: number
-    topicAlias?: string
+    topicAlias?: number
     responseTopic?: string
     correlationData?: Buffer
     userProperties?: Object

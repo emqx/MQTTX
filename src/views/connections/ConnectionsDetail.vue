@@ -196,7 +196,7 @@
       :style="{
         paddingTop: showClientInfo ? msgTop.open : msgTop.close,
         paddingBottom: `${msgBottom}px`,
-        marginLeft: showSubs ? '570px' : '341px',
+        marginLeft: showSubs ? '571px' : '341px',
       }"
     >
       <div class="connections-body">
@@ -253,7 +253,7 @@
         </contextmenu>
       </div>
 
-      <div ref="connectionFooter" class="connections-footer" :style="{ marginLeft: showSubs ? '570px' : '341px' }">
+      <div ref="connectionFooter" class="connections-footer" :style="{ marginLeft: showSubs ? '571px' : '341px' }">
         <ResizeHeight v-model="inputHeight" />
         <MsgPublish
           :mqtt5PropsEnable="record.mqttVersion === '5.0'"
@@ -1170,7 +1170,12 @@ export default class ConnectionsDetail extends Vue {
       this.stopTimedSend()
       return false
     }
-    const { id, topic, qos, payload, retain } = message
+    const { id, topic, qos, payload, retain, props } = message
+    let properties: PushPropertiesModel | undefined = undefined
+    if (props && Object.entries(props).filter(([_, v]) => v !== null && v !== undefined).length > 0) {
+      properties = Object.fromEntries(Object.entries(props).filter(([k, v]) => v !== null && v !== undefined))
+    }
+
     if (!topic) {
       this.$message.warning(this.$t('connections.topicReuired') as string)
       this.stopTimedSend()
@@ -1185,7 +1190,8 @@ export default class ConnectionsDetail extends Vue {
     const convertPayload = this.convertPayloadByScript(payload, 'received')
     const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
 
-    this.client.publish!(topic, sendPayload, { qos: qos as QoS, retain }, async (error: Error) => {
+    // @ts-ignore properties issue, waiting PR https://github.com/mqttjs/MQTT.js/pull/1359 merged
+    this.client.publish!(topic, sendPayload, { qos: qos as QoS, retain, properties }, async (error: Error) => {
       if (error) {
         const errorMsg = error.toString()
         this.$message.error(errorMsg)
