@@ -6,6 +6,35 @@
           <el-form ref="form" label-width="175px" label-position="left" :model="MQTT5Props" :rules="rules">
             <el-row class="form-row" :gutter="20">
               <el-col :span="24">
+                <div class="form-user">
+                  <div class="form-user-header">
+                    <span class="form-user-title">User Properties</span>
+                    <el-button icon="el-icon-plus" class="btn-props-plus" type="text" @click="addItem" />
+                  </div>
+                  <div class="user-props">
+                    <div v-for="(item, index) in listData" class="user-props-row" :key="index">
+                      <a class="btn-check" @click="checkItem(index)">
+                        <i v-if="item.checked" class="iconfont el-icon-check"></i>
+                        <i v-else class="iconfont el-icon-check disable-icon"></i>
+                      </a>
+                      <el-input
+                        placeholder="key"
+                        size="mini"
+                        v-model="item.key"
+                        class="input-user-prop user-prop-key"
+                      />
+                      <el-input
+                        placeholder="value"
+                        size="mini"
+                        v-model="item.value"
+                        class="input-user-prop user-prop-value"
+                      />
+                      <el-button icon="el-icon-delete" class="btn-delete" type="text" @click="deleteItem(index)" />
+                    </div>
+                  </div>
+                </div>
+              </el-col>
+              <el-col :span="24">
                 <el-form-item label="Content Type" prop="contentType">
                   <el-input size="mini" v-model="MQTT5Props.contentType"></el-input>
                 </el-form-item>
@@ -54,37 +83,15 @@
                   <el-input placeholder="response topic" size="mini" v-model="MQTT5Props.responseTopic" type="text" />
                 </el-form-item>
               </el-col>
-              <el-col :span="24">
-                <el-form-item class="form-user" label="User Properties" prop="userPropertie">
-                  <el-button icon="el-icon-plus" class="btn-props-plus" type="text" @click="addItem" />
-                  <div class="user-props">
-                    <div v-for="(item, index) in listData" class="user-props-row" :key="index">
-                      <a class="btn-check" @click="checkItem(index)">
-                        <i v-if="item.checked" class="iconfont el-icon-check"></i>
-                        <i v-else class="iconfont el-icon-check disable-icon"></i>
-                      </a>
-                      <el-input
-                        placeholder="key"
-                        size="mini"
-                        v-model="item.key"
-                        class="input-user-prop user-prop-key"
-                      />
-                      <el-input
-                        placeholder="value"
-                        size="mini"
-                        v-model="item.value"
-                        class="input-user-prop user-prop-value"
-                      />
-                      <el-button icon="el-icon-delete" class="btn-delete" type="text" @click="deleteItem(index)" />
-                    </div>
-                  </div>
-                </el-form-item>
-              </el-col>
             </el-row>
           </el-form>
           <div class="meta-btn">
-            <el-button size="mini" type="outline" @click="submitForm">{{ $t('common.save') }}</el-button>
-            <el-button size="mini" type="outline" @click="resetForm">{{ $t('common.reset') }}</el-button>
+            <el-button size="mini" class="meta-btn-submit" type="text" @click="submitForm">{{
+              $t('common.save')
+            }}</el-button>
+            <el-button size="mini" class="meta-btn-reset" type="text" @click="resetForm">{{
+              $t('common.reset')
+            }}</el-button>
           </div>
         </el-card>
       </div>
@@ -237,6 +244,13 @@ export default class MsgPublish extends Vue {
     return this.$refs.form as VueForm
   }
 
+  @Watch('showDialog', { immediate: true })
+  private handleShowDialog(cur: boolean, old: boolean) {
+    if (!cur && old) {
+      this.submitForm()
+    }
+  }
+
   private resetForm() {
     this.formRef.resetFields()
     this.MQTT5Props = {}
@@ -292,6 +306,8 @@ export default class MsgPublish extends Vue {
   private deleteItem(index: number) {
     if (this.listData.length > 1) {
       this.listData.splice(index, 1)
+    } else if (this.listData.length === 1) {
+      this.listData = [_.cloneDeep(this.defaultPropObj)]
     }
   }
 
@@ -505,7 +521,10 @@ export default class MsgPublish extends Vue {
       margin: 4px;
       user-select: none;
       .meta-btn {
-        float: right;
+        text-align: right;
+        .meta-btn-submit {
+          margin-right: 12px;
+        }
       }
       .el-card__body {
         padding: 4px 4px 10px 4px;
@@ -517,13 +536,13 @@ export default class MsgPublish extends Vue {
             max-height: 80px;
             overflow-y: scroll;
             white-space: nowrap;
-            .el-form-item__label {
-              position: fixed;
-            }
-            .btn-props-plus {
-              position: fixed;
-              left: 152px;
-              top: 263px;
+            .form-user-header {
+              .form-user-title {
+                color: var(--color-text-default);
+              }
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
             }
             .user-props {
               .user-props-row {
@@ -535,10 +554,9 @@ export default class MsgPublish extends Vue {
                   margin-right: 10px;
                 }
                 .btn-check {
-                  position: absolute;
-                  left: -20px;
                   .el-icon-check {
                     font-size: 14px;
+                    margin-right: 10px;
                   }
                   .disable-icon {
                     color: dimgray;
