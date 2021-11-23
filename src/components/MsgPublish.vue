@@ -1,7 +1,7 @@
 <template>
-  <div class="msg-publish message">
+  <div class="msg-publish message" v-click-outside="handleClickOutSide">
     <div class="publish-top">
-      <div v-if="showDialog">
+      <div v-if="showMetaCard">
         <el-card class="box-card">
           <el-form ref="form" label-width="175px" label-position="left" :model="MQTT5Props" :rules="rules">
             <el-row class="form-row" :gutter="20">
@@ -86,11 +86,11 @@
             </el-row>
           </el-form>
           <div class="meta-btn">
-            <el-button size="mini" class="meta-btn-submit" type="text" @click="submitForm">{{
-              $t('common.save')
-            }}</el-button>
             <el-button size="mini" class="meta-btn-reset" type="text" @click="resetForm">{{
               $t('common.reset')
+            }}</el-button>
+            <el-button size="mini" class="meta-btn-submit" type="text" @click="submitForm">{{
+              $t('common.save')
             }}</el-button>
           </div>
         </el-card>
@@ -114,7 +114,7 @@
             type="outline"
             plain
             :disabled="!mqtt5PropsEnable"
-            :class="['meta-block', showDialog ? 'meta-block-active' : '']"
+            :class="['meta-block', showMetaCard ? 'meta-block-active' : '']"
             @click="changeVisable"
             label="Meta"
             size="mini"
@@ -213,12 +213,16 @@ import _ from 'lodash'
 import validFormatJson from '@/utils/validFormatJson'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
+import ClickOutside from 'vue-click-outside'
 
 type UserPairObect = { key: string; value: string; checked: boolean }
 
 @Component({
   components: {
     Editor,
+  },
+  directives: {
+    ClickOutside,
   },
 })
 export default class MsgPublish extends Vue {
@@ -238,13 +242,13 @@ export default class MsgPublish extends Vue {
     contentType: undefined,
   }
 
-  private showDialog: boolean = false
+  private showMetaCard: boolean = false
 
   get formRef() {
     return this.$refs.form as VueForm
   }
 
-  @Watch('showDialog', { immediate: true })
+  @Watch('showMetaCard', { immediate: true })
   private handleShowDialog(cur: boolean, old: boolean) {
     if (!cur && old) {
       this.submitForm()
@@ -291,7 +295,7 @@ export default class MsgPublish extends Vue {
   }
 
   private changeVisable() {
-    this.showDialog = !this.showDialog
+    this.showMetaCard = !this.showMetaCard
   }
 
   get rules() {
@@ -498,6 +502,10 @@ export default class MsgPublish extends Vue {
     this.historyIndex =
       this.historyIndex + 1 <= this.payloadsHistory.length - 1 ? this.historyIndex + 1 : this.payloadsHistory.length - 1
   }
+
+  private handleClickOutSide() {
+    this.showMetaCard = false
+  }
 }
 </script>
 
@@ -518,24 +526,29 @@ export default class MsgPublish extends Vue {
     z-index: 11;
     .el-card.box-card {
       padding: 10px;
+      padding-bottom: 0px;
       margin: 4px;
       user-select: none;
       .meta-btn {
+        margin-top: 10px;
         text-align: right;
+        .meta-btn-reset {
+          color: var(--color-text-default);
+          &:hover {
+            color: var(--color-main-green);
+          }
+        }
         .meta-btn-submit {
-          margin-right: 12px;
+          margin-right: 8px;
         }
       }
       .el-card__body {
-        padding: 4px 4px 10px 4px;
+        padding: 4px 4px 6px 4px;
         .form-row {
           display: flex;
           flex-wrap: wrap;
           position: relative;
           .form-user {
-            max-height: 80px;
-            overflow-y: scroll;
-            white-space: nowrap;
             .form-user-header {
               .form-user-title {
                 color: var(--color-text-default);
@@ -545,6 +558,9 @@ export default class MsgPublish extends Vue {
               align-items: center;
             }
             .user-props {
+              max-height: 140px;
+              overflow-y: scroll;
+              white-space: nowrap;
               .user-props-row {
                 display: flex;
                 justify-content: space-between;
