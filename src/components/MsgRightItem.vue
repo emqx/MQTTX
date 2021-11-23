@@ -5,6 +5,9 @@
         <span class="topic">Topic: {{ topic }}</span>
         <span class="qos">QoS: {{ qos }}</span>
       </p>
+      <div v-if="props">
+        <span v-if="props.userProperties">UserProps: {{ props.userProperties }}</span>
+      </div>
       <pre>{{ payload }}</pre>
     </div>
     <p class="right-time time">{{ createAt }}</p>
@@ -20,6 +23,7 @@ export default class MsgrightItem extends Vue {
   @Prop({ required: true }) public qos!: number
   @Prop({ required: true }) public payload!: string
   @Prop({ required: true }) public createAt!: string
+  @Prop({ required: false }) public props!: PushPropertiesModel
 
   private customMenu(event: MouseEvent) {
     this.$emit('showmenu', this.payload, event)

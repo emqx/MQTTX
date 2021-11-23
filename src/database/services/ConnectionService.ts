@@ -5,6 +5,7 @@ import WillEntity from '@/database/models/WillEntity'
 import MessageEntity from '@/database/models/MessageEntity'
 import SubscriptionEntity from '@/database/models/SubscriptionEntity'
 import HistoryConnectionEntity from '@/database/models/HistoryConnectionEntity'
+import MessageService from './MessageService'
 import { Repository, MoreThan, LessThan } from 'typeorm'
 import { DateUtils } from 'typeorm/util/DateUtils'
 import time, { sqliteDateFormat } from '@/utils/time'
@@ -34,9 +35,12 @@ export default class ConnectionService {
       ...data,
       // sort message by Date
       messages:
-        data?.messages?.sort((a, b) =>
-          moment(new Date(a.createAt), sqliteDateFormat).isBefore(new Date(b.createAt)) ? -1 : 1,
-        ) ?? [],
+        data?.messages
+          ?.sort((a, b) => (moment(new Date(a.createAt), sqliteDateFormat).isBefore(new Date(b.createAt)) ? -1 : 1))
+          .map((entity) => ({
+            ...entity,
+            props: { ...entity, userProperties: entity.userProperties ? JSON.parse(entity.userProperties) : undefined },
+          })) ?? [],
       subscriptions:
         data?.subscriptions?.sort((a, b) =>
           moment(new Date(a.createAt), sqliteDateFormat).isBefore(new Date(b.createAt)) ? -1 : 1,
@@ -230,16 +234,6 @@ export default class ConnectionService {
           }),
         )) as SubscriptionModel[]
       }
-    }
-    // TODO: too large cost for message saving, need to refactor
-    if (res.messages && Array.isArray(res.messages) && res.messages.length) {
-      const shouldSave: MessageEntity[] = res.messages.map((msg) => {
-        return {
-          ...msg,
-          connectionId: undefined,
-        } as MessageEntity
-      })
-      res.messages = await this.messageRepository.save(shouldSave)
     }
     const saved: ConnectionEntity | undefined = await this.connectionRepository.save(
       ConnectionService.modelToEntity({
