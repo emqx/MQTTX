@@ -26,6 +26,32 @@ export default class MessageEntity {
   @Column({ type: 'varchar' })
   topic!: string
 
+  // MQTT5 props begin
+  @Column({ type: 'boolean', nullable: true })
+  payloadFormatIndicator?: boolean
+
+  @Column({ type: 'integer', nullable: true })
+  messageExpiryInterval?: number
+
+  @Column({ type: 'integer', nullable: true })
+  topicAlias?: number
+
+  @Column({ type: 'varchar', nullable: true })
+  responseTopic?: string
+
+  @Column({ type: 'varchar', nullable: true })
+  correlationData?: string
+
+  @Column({ type: 'varchar', nullable: true })
+  userProperties?: string
+
+  @Column({ type: 'integer', nullable: true })
+  subscriptionIdentifier?: number
+
+  @Column({ type: 'varchar', nullable: true })
+  contentType?: string
+  // MQTT5 props end
+
   // ManyToOne entities
   @ManyToOne(() => ConnectionEntity, (connection) => connection.messages, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'connection_id', referencedColumnName: 'id' })
