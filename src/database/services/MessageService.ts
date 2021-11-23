@@ -10,12 +10,37 @@ export default class MessageService {
     private messageRepository: Repository<MessageEntity>,
   ) {}
 
+  public static modelToEntity(model: MessageModel, connectionId: string | undefined): MessageEntity {
+    return {
+      ...model,
+      connectionId,
+      payloadFormatIndicator: model.props?.payloadFormatIndicator,
+      messageExpiryInterval: model.props?.messageExpiryInterval,
+      topicAlias: model.props?.topicAlias,
+      responseTopic: model.props?.responseTopic,
+      correlationData: model.props?.correlationData,
+      subscriptionIdentifier: model.props?.subscriptionIdentifier,
+      contentType: model.props?.contentType,
+      userProperties: JSON.stringify(model.props?.userProperties),
+    } as MessageEntity
+  }
+
+  public static entityToModel(entity: MessageEntity): MessageModel {
+    return {
+      ...entity,
+      props: {
+        ...entity,
+        userProperties: entity.userProperties ? JSON.parse(entity.userProperties) : undefined,
+      },
+    } as MessageModel
+  }
+
   public async pushToConnection(message: MessageModel, connectionId: string): Promise<MessageModel | undefined> {
     const query: MessageEntity | undefined = await this.messageRepository.findOne(message.id)
     if (!query) {
-      return await this.messageRepository.save({ ...message, connectionId } as MessageEntity)
+      return await this.messageRepository.save(MessageService.modelToEntity({ ...message }, connectionId))
     }
-    return await this.messageRepository.save({ ...query, ...message, connectionId })
+    return await this.messageRepository.save(MessageService.modelToEntity({ ...query, ...message }, connectionId))
   }
 
   public async delete(id: string): Promise<MessageModel | undefined> {

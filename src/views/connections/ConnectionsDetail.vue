@@ -285,7 +285,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
-import { MqttClient, IConnackPacket } from 'mqtt'
+import { MqttClient, IConnackPacket, IPublishPacket } from 'mqtt'
 import _ from 'lodash'
 
 import time from '@/utils/time'
@@ -1043,7 +1043,7 @@ export default class ConnectionsDetail extends Vue {
 
   // Recevied message
   private onMessageArrived(id: string) {
-    return async (topic: string, payload: Buffer, packet: SubscriptionModel) => {
+    return async (topic: string, payload: Buffer, packet: IPublishPacket) => {
       const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
       const receviedPayload = this.convertPayloadByScript(convertPayload, 'publish')
       const receivedMessage: MessageModel = {
@@ -1054,6 +1054,7 @@ export default class ConnectionsDetail extends Vue {
         payload: receviedPayload,
         qos: packet.qos,
         retain: packet.retain as boolean,
+        props: packet.properties,
       }
       const connectionId = this.curConnectionId
       let _id = id
@@ -1207,6 +1208,7 @@ export default class ConnectionsDetail extends Vue {
         payload: convertPayload,
         qos,
         retain,
+        props,
       }
       if (this.record.id) {
         this.record.messages.push({ ...publishMessage })
