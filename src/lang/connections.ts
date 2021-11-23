@@ -321,6 +321,13 @@ export default {
     ja: 'トピックを入力してください',
     hu: 'Téma szükséges',
   },
+  topicTips: {
+    zh: '可订阅单个或多个主题，订阅多主题时，请使用逗号分隔（,）',
+    en: 'You can subscribe to single or multiple topics, please use comma separation to subscribe to multiple topics (,)',
+    tr: 'Tek veya birden fazla konuya abone olabilirsiniz, birden fazla konuya abone olmak için lütfen virgülle ayırmayı kullanın (,)',
+    ja: '複数のトピックを購読する場合は、カンマで区切ってください（,）。',
+    hu: 'Feliratkozhat egy vagy több témára, kérjük, használjon vesszőt, ha több témára szeretne feliratkozni (,)',
+  },
   payloadReuired: {
     zh: '请输入 Payload',
     en: 'Payload is required',
@@ -453,6 +460,13 @@ export default {
     tr: 'Takma Ad',
     ja: 'エイリアス',
     hu: 'Becenév',
+  },
+  aliasTip: {
+    zh: '为多主题设置别名时，也使用逗号分隔符（,）',
+    en: 'Comma separator (,) is also used when setting aliases for multiple topics',
+    tr: 'Birden çok konu için takma ad ayarlarken ayrıca virgül ayırıcılar (,) kullanın',
+    ja: '複数のトピックにエイリアスを設定する場合は、カンマ区切り（,）も使用されます。',
+    hu: 'Ha több téma álnevét állít be, használjon vesszőt (,) is',
   },
   exportData: {
     zh: '导出数据',
