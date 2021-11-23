@@ -223,7 +223,7 @@ export default class ConnectionService {
         res.subscriptions = (await this.subscriptionRepository.save(
           shouldUpdate.map((sub) => {
             return {
-              id: id,
+              id,
               ...sub,
               connectionId: undefined,
             } as SubscriptionEntity

@@ -65,7 +65,7 @@
     <my-dialog
       :title="$t('connections.newSubscription')"
       :visible.sync="showDialog"
-      width="500px"
+      width="530px"
       class="topic-dialog"
       :confirmLoading="subLoading"
       @confirm="saveSubs"
@@ -76,7 +76,17 @@
         <el-form ref="form" :model="subRecord" :rules="rules">
           <el-col :span="24">
             <el-form-item label="Topic" prop="topic">
-              <el-input v-model="subRecord.topic" placeholder="testtopic/#" size="small"> </el-input>
+              <el-tooltip
+                class="subinfo-tooltip"
+                placement="top-start"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :content="$t('connections.topicTips')"
+              >
+                <a href="javascript:;" class="icon-oper">
+                  <i class="el-icon-warning-outline"></i>
+                </a>
+              </el-tooltip>
+              <el-input v-model="subRecord.topic" type="textarea" placeholder="testtopic/#" size="small"> </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -97,7 +107,17 @@
           </el-col>
           <el-col :span="24">
             <el-form-item :label="$t('connections.alias')">
-              <el-input v-model="subRecord.alias" size="small"> </el-input>
+              <el-tooltip
+                class="subinfo-tooltip"
+                placement="top-start"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :content="$t('connections.aliasTip')"
+              >
+                <a href="javascript:;" class="icon-oper">
+                  <i class="el-icon-warning-outline"></i>
+                </a>
+              </el-tooltip>
+              <el-input v-model="subRecord.alias" type="textarea" size="small"> </el-input>
             </el-form-item>
           </el-col>
           <template v-if="record.mqttVersion === '5.0'">
@@ -172,6 +192,8 @@ export default class SubscriptionsList extends Vue {
 
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
+
+  @Getter('currentTheme') private theme!: Theme
   @Getter('activeConnection') private activeConnection!: ActiveConnection
 
   private topicColor = ''
@@ -309,7 +331,7 @@ export default class SubscriptionsList extends Vue {
     }
   }
 
-  public async subscribe({ topic, qos, nl, rap, rh }: SubscriptionModel, isAuto?: boolean) {
+  public async subscribe({ topic, alias, qos, nl, rap, rh }: SubscriptionModel, isAuto?: boolean) {
     if (isAuto) {
       this.subRecord.nl = nl
       this.subRecord.rap = rap
@@ -320,16 +342,18 @@ export default class SubscriptionsList extends Vue {
     }
     let isFinshed = false
     if (this.client.subscribe) {
-      this.client.subscribe(topic, { qos: qos as QoS, nl, rap, rh }, async (error, granted) => {
+      const topicsArr = topic.split(',')
+      const aliasArr = alias?.split(',')
+      this.client.subscribe(topicsArr, { qos, nl, rap, rh }, async (error, granted) => {
         this.subLoading = false
         if (error) {
           this.$message.error(error)
-          this.$log.error(`Topic: ${topic} subscribe error ${error} `)
+          this.$log.error(`Topic: subscribe error, ${error} `)
           return false
         }
         let errorReason = SubscribeErrorReason.normal
         if (!granted || (Array.isArray(granted) && granted.length < 1)) {
-          this.$log.error(`Topic: ${topic} subscribe granted empty`)
+          this.$log.error('Topic: subscribe granted empty')
         } else if (![0, 1, 2].includes(granted[0].qos) && topic.match(/^(\$SYS)/i)) {
           errorReason = SubscribeErrorReason.qosSubSysFailed
         } else if (![0, 1, 2].includes(granted[0].qos)) {
@@ -337,17 +361,29 @@ export default class SubscriptionsList extends Vue {
         }
         if (errorReason !== SubscribeErrorReason.normal) {
           const errorReasonMsg: VueI18n.TranslateResult = this.getErrorReasonMsg(errorReason)
-          const errorMsg: string = `${topic} ${this.$t('connections.subFailed')} ${errorReasonMsg}`
-          this.$log.error(`Topic: ${topic} subscribe error ${errorReasonMsg} `)
+          const errorMsg: string = `${this.$t('connections.subFailed')} ${errorReasonMsg}`
+          this.$log.error(`Topic: subscribe error, ${errorReasonMsg} `)
           this.$message.error(errorMsg)
           return false
         }
-        const existTopicIndex: number = this.subsList.findIndex((item: SubscriptionModel) => item.topic === topic)
-        if (existTopicIndex !== -1) {
-          this.subsList[existTopicIndex].qos = qos
-        } else {
-          this.subsList.push({ ...this.subRecord })
-        }
+        topicsArr.forEach((topic, index) => {
+          const existTopicIndex: number = this.subsList.findIndex((item: SubscriptionModel) => item.topic === topic)
+          if (existTopicIndex !== -1) {
+            this.subsList[existTopicIndex].qos = qos
+          } else {
+            let { topic: unuseTopic, color, alias, ...others } = this.subRecord
+            alias = aliasArr ? aliasArr[index] : alias
+            if (index > 0) {
+              color = getRandomColor()
+            }
+            this.subsList.push({
+              topic,
+              color,
+              alias,
+              ...others,
+            })
+          }
+        })
         this.record.subscriptions = this.subsList
         if (this.record.id) {
           const { connectionService } = useServices()
@@ -591,6 +627,13 @@ export default class SubscriptionsList extends Vue {
       top: 1px;
     }
     @include collapse-btn-transform(0deg, 180deg);
+    .icon-oper {
+      color: var(--color-text-default);
+      float: right;
+      &:hover {
+        color: var(--color-main-green);
+      }
+    }
   }
 }
 .topic-tooltip {
