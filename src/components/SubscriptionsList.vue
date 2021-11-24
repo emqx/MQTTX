@@ -371,13 +371,15 @@ export default class SubscriptionsList extends Vue {
           if (existTopicIndex !== -1) {
             this.subsList[existTopicIndex].qos = qos
           } else {
-            let { topic: unuseTopic, color, alias, ...others } = this.subRecord
+            let { topic: unuseTopic, color, alias, id, ...others } = this.subRecord
             alias = aliasArr ? aliasArr[index] : alias
             if (index > 0) {
               color = getRandomColor()
+              id = getSubscriptionId()
             }
             this.subsList.push({
               topic,
+              id,
               color,
               alias,
               ...others,
