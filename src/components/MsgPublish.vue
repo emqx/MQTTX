@@ -425,7 +425,7 @@ export default class MsgPublish extends Vue {
   private async send() {
     this.msgRecord.id = getMessageId()
     this.msgRecord.createAt = time.getNowDate()
-    this.mqtt5PropsEnable && (this.msgRecord.props = this.MQTT5Props)
+    this.mqtt5PropsEnable && (this.msgRecord.properties = this.MQTT5Props)
     this.$emit('handleSend', this.msgRecord, this.payloadType, this.loadHistoryData)
   }
 

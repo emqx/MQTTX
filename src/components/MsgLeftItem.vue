@@ -7,8 +7,8 @@
         <span class="qos">QoS: {{ qos }}</span>
         <span v-if="retain" class="retain">Retain</span>
       </p>
-      <div v-if="props">
-        <span v-if="props.userProperties">UserProps: {{ props.userProperties }}</span>
+      <div v-if="properties.userProperties">
+        <span>UserProps: {{ properties.userProperties }}</span>
       </div>
       <pre>{{ payload }}</pre>
     </div>
@@ -26,7 +26,7 @@ export default class MsgLeftItem extends Vue {
   @Prop({ required: true }) public payload!: string
   @Prop({ required: true }) public createAt!: string
   @Prop({ required: false }) public retain!: boolean
-  @Prop({ required: false }) public props!: PushPropertiesModel
+  @Prop({ required: false }) public properties!: PushPropertiesModel
   @Prop({ required: false, default: '' }) public color!: string
 
   private customMenu(event: MouseEvent) {
