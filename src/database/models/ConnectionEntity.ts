@@ -134,7 +134,7 @@ export default class ConnectionEntity {
   @Column({ type: 'varchar', nullable: true })
   authenticationMethod?: string
 
-  @Column({ type: 'blob', nullable: true })
-  authenticationData?: Buffer
+  @Column({ type: 'varchar', nullable: true })
+  authenticationData?: string
   // MQTT5 Properties end
 }
