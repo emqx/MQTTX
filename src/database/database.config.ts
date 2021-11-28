@@ -23,6 +23,7 @@ import { mqtt51634794446353 } from './migration/1634794446353-mqtt5'
 import { autoScroll1635155945767 } from './migration/1635155945767-autoScroll'
 import { huLang1635392304194 } from './migration/1635393164071-huLang'
 import { messageProps1637636965786 } from './migration/1637636965786-messageProps'
+import { enhanceMessageType1638081576988 } from './migration/1638081576988-enhanceMessageType'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -53,6 +54,7 @@ const ORMConfig = {
     autoScroll1635155945767,
     huLang1635392304194,
     messageProps1637636965786,
+    enhanceMessageType1638081576988,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [

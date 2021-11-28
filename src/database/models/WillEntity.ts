@@ -36,8 +36,8 @@ export default class WillEntity {
   @Column({ type: 'varchar', nullable: true })
   responseTopic?: string
 
-  @Column({ type: 'blob', nullable: true })
-  correlationData?: Buffer
+  @Column({ type: 'varchar', nullable: true })
+  correlationData?: string
 
   // origin type `object`
   @Column({ type: 'varchar', nullable: true })
