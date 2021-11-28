@@ -2,10 +2,8 @@ import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import ConnectionEntity from '@/database/models/ConnectionEntity'
 import WillEntity from '@/database/models/WillEntity'
-import MessageEntity from '@/database/models/MessageEntity'
 import SubscriptionEntity from '@/database/models/SubscriptionEntity'
 import HistoryConnectionEntity from '@/database/models/HistoryConnectionEntity'
-import MessageService from './MessageService'
 import { Repository, MoreThan, LessThan } from 'typeorm'
 import { DateUtils } from 'typeorm/util/DateUtils'
 import time, { sqliteDateFormat } from '@/utils/time'
@@ -26,8 +24,6 @@ export default class ConnectionService {
     private willRepository: Repository<WillEntity>,
     @InjectRepository(SubscriptionEntity)
     private subscriptionRepository: Repository<SubscriptionEntity>,
-    @InjectRepository(MessageEntity)
-    private messageRepository: Repository<MessageEntity>,
   ) {}
 
   public static entityToModel(data: ConnectionEntity): ConnectionModel {
@@ -39,7 +35,10 @@ export default class ConnectionService {
           ?.sort((a, b) => (moment(new Date(a.createAt), sqliteDateFormat).isBefore(new Date(b.createAt)) ? -1 : 1))
           .map((entity) => ({
             ...entity,
-            props: { ...entity, userProperties: entity.userProperties ? JSON.parse(entity.userProperties) : undefined },
+            properties: {
+              ...entity,
+              userProperties: entity.userProperties ? JSON.parse(entity.userProperties) : undefined,
+            },
           })) ?? [],
       subscriptions:
         data?.subscriptions?.sort((a, b) =>
@@ -66,7 +65,7 @@ export default class ConnectionService {
         requestProblemInformation: data.requestProblemInformation,
         userProperties: data.userProperties ? JSON.parse(data.userProperties) : undefined,
         authenticationMethod: data.authenticationMethod,
-        authenticationData: data.authenticationData,
+        authenticationData: data.authenticationData ? Buffer.from(data.authenticationData, 'utf8') : undefined,
       },
     } as ConnectionModel
   }
@@ -93,7 +92,7 @@ export default class ConnectionService {
         requestResponseInformation,
         requestProblemInformation,
         authenticationMethod,
-        authenticationData,
+        authenticationData: authenticationData?.toString('utf8'),
         userProperties: JSON.stringify(userProperties),
       }
     }

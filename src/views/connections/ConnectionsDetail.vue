@@ -1054,7 +1054,7 @@ export default class ConnectionsDetail extends Vue {
         payload: receviedPayload,
         qos: packet.qos,
         retain: packet.retain as boolean,
-        props: packet.properties,
+        properties: packet.properties,
       }
       const connectionId = this.curConnectionId
       let _id = id
@@ -1171,10 +1171,10 @@ export default class ConnectionsDetail extends Vue {
       this.stopTimedSend()
       return false
     }
-    const { id, topic, qos, payload, retain, props } = message
-    let properties: PushPropertiesModel | undefined = undefined
-    if (props && Object.entries(props).filter(([_, v]) => v !== null && v !== undefined).length > 0) {
-      properties = Object.fromEntries(Object.entries(props).filter(([k, v]) => v !== null && v !== undefined))
+    const { id, topic, qos, payload, retain, properties } = message
+    let props: PushPropertiesModel | undefined = undefined
+    if (properties && Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined).length > 0) {
+      props = Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined))
     }
 
     if (!topic) {
@@ -1192,7 +1192,7 @@ export default class ConnectionsDetail extends Vue {
     const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
 
     // @ts-ignore properties issue, waiting PR https://github.com/mqttjs/MQTT.js/pull/1359 merged
-    this.client.publish!(topic, sendPayload, { qos: qos as QoS, retain, properties }, async (error: Error) => {
+    this.client.publish!(topic, sendPayload, { qos: qos as QoS, retain, properties: props }, async (error: Error) => {
       if (error) {
         const errorMsg = error.toString()
         this.$message.error(errorMsg)
@@ -1208,7 +1208,7 @@ export default class ConnectionsDetail extends Vue {
         payload: convertPayload,
         qos,
         retain,
-        props,
+        properties: props,
       }
       if (this.record.id) {
         this.record.messages.push({ ...publishMessage })

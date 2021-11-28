@@ -172,7 +172,7 @@ declare global {
     retain: boolean
     topic: string
     color?: string
-    props?: PushPropertiesModel
+    properties?: PushPropertiesModel
   }
 
   interface HistoryMessageHeaderModel {

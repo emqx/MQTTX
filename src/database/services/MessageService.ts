@@ -14,21 +14,21 @@ export default class MessageService {
     return {
       ...model,
       connectionId,
-      payloadFormatIndicator: model.props?.payloadFormatIndicator,
-      messageExpiryInterval: model.props?.messageExpiryInterval,
-      topicAlias: model.props?.topicAlias,
-      responseTopic: model.props?.responseTopic,
-      correlationData: model.props?.correlationData,
-      subscriptionIdentifier: model.props?.subscriptionIdentifier,
-      contentType: model.props?.contentType,
-      userProperties: JSON.stringify(model.props?.userProperties),
+      payloadFormatIndicator: model.properties?.payloadFormatIndicator,
+      messageExpiryInterval: model.properties?.messageExpiryInterval,
+      topicAlias: model.properties?.topicAlias,
+      responseTopic: model.properties?.responseTopic,
+      correlationData: model.properties?.correlationData,
+      subscriptionIdentifier: model.properties?.subscriptionIdentifier,
+      contentType: model.properties?.contentType,
+      userProperties: JSON.stringify(model.properties?.userProperties),
     } as MessageEntity
   }
 
   public static entityToModel(entity: MessageEntity): MessageModel {
     return {
       ...entity,
-      props: {
+      properties: {
         ...entity,
         userProperties: entity.userProperties ? JSON.parse(entity.userProperties) : undefined,
       },
