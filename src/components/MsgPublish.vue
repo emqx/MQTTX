@@ -585,6 +585,7 @@ export default class MsgPublish extends Vue {
                   margin-right: 10px;
                 }
                 .btn-check {
+                  cursor: pointer;
                   .el-icon-check {
                     font-size: 14px;
                     margin-right: 10px;
