@@ -302,7 +302,7 @@
                     <el-input-number
                       size="mini"
                       type="number"
-                      :min="0"
+                      :min="1"
                       v-model="record.properties.sessionExpiryInterval"
                       controls-position="right"
                     >
@@ -324,15 +324,73 @@
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
+                  <el-form-item :label="$t('connections.maximumPacketSize')" prop="maximumPacketSize">
+                    <el-input-number
+                      size="mini"
+                      type="number"
+                      :min="100"
+                      v-model="record.properties.maximumPacketSize"
+                      controls-position="right"
+                    >
+                    </el-input-number>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
+                <el-col :span="22">
                   <el-form-item :label="$t('connections.topicAliasMaximum')" prop="topicAliasMaximum">
                     <el-input-number
                       size="mini"
                       type="number"
-                      :min="0"
+                      :min="1"
                       v-model="record.properties.topicAliasMaximum"
                       controls-position="right"
                     >
                     </el-input-number>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
+                <el-col :span="22">
+                  <el-form-item :label="$t('connections.requestResponseInformation')" prop="requestResponseInformation">
+                    <el-radio-group v-model="record.properties.requestResponseInformation">
+                      <el-radio :label="true"></el-radio>
+                      <el-radio :label="false"></el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
+                <el-col :span="22">
+                  <el-form-item :label="$t('connections.requestProblemInformation')" prop="requestProblemInformation">
+                    <el-radio-group v-model="record.properties.requestProblemInformation">
+                      <el-radio :label="true"></el-radio>
+                      <el-radio :label="false"></el-radio>
+                    </el-radio-group>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
+                <el-col :span="22">
+                  <el-form-item :label="$t('connections.userProperties')">
+                    <div class="user-props">
+                      <el-button icon="el-icon-plus" class="btn-props-plus" type="text" @click="addItem" />
+                      <div v-for="(item, index) in listData" class="user-props-row" :key="index">
+                        <a class="btn-check" @click="checkItem(index)">
+                          <i v-if="item.checked" class="iconfont el-icon-check"></i>
+                          <i v-else class="iconfont el-icon-check disable-icon"></i>
+                        </a>
+                        <el-input
+                          placeholder="key"
+                          size="mini"
+                          v-model="item.key"
+                          class="input-user-prop user-prop-key"
+                        />
+                        <el-input
+                          placeholder="value"
+                          size="mini"
+                          v-model="item.value"
+                          class="input-user-prop user-prop-value"
+                        />
+                        <el-button icon="el-icon-delete" class="btn-delete" type="text" @click="deleteItem(index)" />
+                      </div>
+                    </div>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
@@ -485,6 +543,8 @@ import _ from 'lodash'
 import time from '@/utils/time'
 import useServices from '@/database/useServices'
 
+type UserPairObect = { key: string; value: string; checked: boolean }
+
 @Component({
   components: {
     Editor,
@@ -514,6 +574,25 @@ export default class ConnectionForm extends Vue {
   private defaultRecord: ConnectionModel = getDefaultRecord()
 
   private record: ConnectionModel = _.cloneDeep(this.defaultRecord)
+  public defaultPropObj = { key: '', value: '', checked: true }
+
+  public listData: UserPairObect[] = [_.cloneDeep(this.defaultPropObj)]
+
+  private checkItem(index: number) {
+    this.listData[index].checked = !this.listData[index].checked
+  }
+
+  private deleteItem(index: number) {
+    if (this.listData.length > 1) {
+      this.listData.splice(index, 1)
+    } else if (this.listData.length === 1) {
+      this.listData = [_.cloneDeep(this.defaultPropObj)]
+    }
+  }
+
+  private addItem() {
+    this.listData.push(_.cloneDeep(this.defaultPropObj))
+  }
 
   @Watch('oper')
   private handleCreateNewConnection(val: string) {
@@ -561,6 +640,25 @@ export default class ConnectionForm extends Vue {
       if (!valid) {
         return false
       }
+
+      const checkedList = this.listData.filter((pair) => !(pair.key === '' || !pair.checked))
+      const userProps: {
+        [key: string]: string
+      } = {}
+      if (checkedList.length > 0) {
+        checkedList.forEach((pair) => {
+          if (pair && pair.key) {
+            userProps[pair.key] = pair.value
+          }
+        })
+      }
+
+      if (Object.keys(userProps).length > 0) {
+        this.record.properties = { ...this.record.properties, userProperties: userProps }
+      } else {
+        this.record.properties = { ...this.record.properties, userProperties: undefined }
+      }
+
       const data = { ...this.record }
       this.trimString(data)
       let res: ConnectionModel | undefined = undefined
@@ -746,6 +844,34 @@ export default class ConnectionForm extends Vue {
   .el-form {
     padding-top: 80px;
     padding-bottom: 40px;
+    .user-props {
+      position: relative;
+      .btn-props-plus {
+        position: absolute;
+        left: 0;
+        top: 2px;
+      }
+      .user-props-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-left: 20px;
+        .input-user-prop {
+          padding: 0px;
+          margin-right: 10px;
+        }
+        .btn-check {
+          .el-icon-check {
+            font-size: 14px;
+            margin-right: 10px;
+          }
+          .disable-icon {
+            color: dimgray;
+          }
+        }
+      }
+    }
     // normal icon operation style
     .icon-oper {
       color: var(--color-text-default);

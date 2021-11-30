@@ -4,12 +4,12 @@ import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
 import _ from 'lodash'
 
-const setMQTT5Properties = (option: IClientOptions['properties']): IClientOptions['properties'] | undefined => {
+const setMQTT5Properties = (option: ClientPropertiesModel): ClientPropertiesModel | undefined => {
   if (option === undefined) {
     return undefined
   }
-  const properties: IClientOptions['properties'] = _.cloneDeep(option)
-  return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined && v !== ''))
+  const properties: ClientPropertiesModel = _.cloneDeep(option)
+  return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined))
 }
 
 const setWillMQTT5Properties = (option: WillPropertiesModel): WillPropertiesModel | undefined => {
