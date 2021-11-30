@@ -25,8 +25,8 @@ export default class MsgLeftItem extends Vue {
   @Prop({ required: true }) public qos!: number
   @Prop({ required: true }) public payload!: string
   @Prop({ required: true }) public createAt!: string
-  @Prop({ required: false }) public retain!: boolean
-  @Prop({ required: false }) public properties!: PushPropertiesModel
+  @Prop({ required: false, default: false }) public retain!: boolean
+  @Prop({ required: false, default: () => ({}) }) public properties!: PushPropertiesModel
   @Prop({ required: false, default: '' }) public color!: string
 
   private customMenu(event: MouseEvent) {

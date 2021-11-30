@@ -89,7 +89,7 @@
             <el-button size="mini" class="meta-btn-reset" type="text" @click="resetForm">{{
               $t('common.reset')
             }}</el-button>
-            <el-button size="mini" class="meta-btn-submit" type="text" @click="submitForm">{{
+            <el-button size="mini" class="meta-btn-submit" type="text" @click="saveMeta">{{
               $t('common.save')
             }}</el-button>
           </div>
@@ -251,7 +251,7 @@ export default class MsgPublish extends Vue {
   @Watch('showMetaCard', { immediate: true })
   private handleShowDialog(cur: boolean, old: boolean) {
     if (!cur && old) {
-      this.submitForm()
+      this.saveMeta()
     }
   }
 
@@ -269,7 +269,7 @@ export default class MsgPublish extends Vue {
     )
   }
 
-  private submitForm() {
+  private saveMeta() {
     this.formRef.validate((valid) => {
       if (valid) {
         const checkedList = this.listData.filter((pair) => !(pair.key === '' || !pair.checked))
@@ -289,6 +289,7 @@ export default class MsgPublish extends Vue {
         } else {
           this.MQTT5Props.userProperties = undefined
         }
+        this.showMetaCard = false
       }
       this.hasMqtt5Prop = this.getHasMqtt5PropState()
     })
