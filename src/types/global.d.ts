@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
-import { MqttClient, IClientOptions } from 'mqtt'
+import { MqttClient } from 'mqtt'
 
 declare global {
   type $TSFixed = any
