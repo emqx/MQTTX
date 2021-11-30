@@ -1200,6 +1200,7 @@ export default class ConnectionsDetail extends Vue {
         this.$log.error(`Client message publish failed, ${error.stack}`)
         return false
       }
+      const properties = this.record.mqttVersion === '5.0' ? props : undefined
       const publishMessage: MessageModel = {
         id,
         out: true,
@@ -1208,7 +1209,7 @@ export default class ConnectionsDetail extends Vue {
         payload: convertPayload,
         qos,
         retain,
-        properties: props,
+        properties,
       }
       if (this.record.id) {
         this.record.messages.push({ ...publishMessage })
