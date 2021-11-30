@@ -1,100 +1,102 @@
 <template>
   <div class="msg-publish message" v-click-outside="handleClickOutSide">
     <div class="publish-top">
-      <div v-if="showMetaCard">
-        <el-card class="box-card">
-          <el-form ref="form" label-width="175px" label-position="left" :model="MQTT5Props" :rules="rules">
-            <el-row class="form-row" :gutter="20">
-              <el-col :span="24">
-                <div class="form-user">
-                  <div class="form-user-header">
-                    <span class="form-user-title">User Properties</span>
-                    <el-button icon="el-icon-plus" class="btn-props-plus" type="text" @click="addItem" />
-                  </div>
-                  <div class="user-props">
-                    <div v-for="(item, index) in listData" class="user-props-row" :key="index">
-                      <a class="btn-check" @click="checkItem(index)">
-                        <i v-if="item.checked" class="iconfont el-icon-check"></i>
-                        <i v-else class="iconfont el-icon-check disable-icon"></i>
-                      </a>
-                      <el-input
-                        placeholder="key"
-                        size="mini"
-                        v-model="item.key"
-                        class="input-user-prop user-prop-key"
-                      />
-                      <el-input
-                        placeholder="value"
-                        size="mini"
-                        v-model="item.value"
-                        class="input-user-prop user-prop-value"
-                      />
-                      <el-button icon="el-icon-delete" class="btn-delete" type="text" @click="deleteItem(index)" />
+      <transition name="el-zoom-in-bottom">
+        <div v-show="showMetaCard">
+          <el-card class="box-card">
+            <el-form ref="form" label-width="175px" label-position="left" :model="MQTT5Props" :rules="rules">
+              <el-row class="form-row" :gutter="20">
+                <el-col :span="24">
+                  <div class="form-user">
+                    <div class="form-user-header">
+                      <span class="form-user-title">User Properties</span>
+                      <el-button icon="el-icon-plus" class="btn-props-plus" type="text" @click="addItem" />
+                    </div>
+                    <div class="user-props">
+                      <div v-for="(item, index) in listData" class="user-props-row" :key="index">
+                        <a class="btn-check" @click="checkItem(index)">
+                          <i v-if="item.checked" class="iconfont el-icon-check"></i>
+                          <i v-else class="iconfont el-icon-check disable-icon"></i>
+                        </a>
+                        <el-input
+                          placeholder="key"
+                          size="mini"
+                          v-model="item.key"
+                          class="input-user-prop user-prop-key"
+                        />
+                        <el-input
+                          placeholder="value"
+                          size="mini"
+                          v-model="item.value"
+                          class="input-user-prop user-prop-value"
+                        />
+                        <el-button icon="el-icon-delete" class="btn-delete" type="text" @click="deleteItem(index)" />
+                      </div>
                     </div>
                   </div>
-                </div>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="Content Type" prop="contentType">
-                  <el-input size="mini" v-model="MQTT5Props.contentType"></el-input>
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="Payload Format Indicator" prop="payloadFormatIndicator">
-                  <el-checkbox style="width: 100%" size="mini" v-model="MQTT5Props.payloadFormatIndicator" border>{{
-                    MQTT5Props.payloadFormatIndicator ? 'true' : 'false'
-                  }}</el-checkbox>
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="Message Expiry Interval" prop="messageExpiryInterval">
-                  <el-input-number
-                    v-model="MQTT5Props.messageExpiryInterval"
-                    size="mini"
-                    :min="0"
-                    controls-position="right"
-                    type="number"
-                  />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="Correlation Data" prop="correlationData">
-                  <el-input
-                    placeholder="correlation data"
-                    size="mini"
-                    v-model="MQTT5Props.correlationData"
-                    type="text"
-                  />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="Topic Alias" prop="topicAlias">
-                  <el-input-number
-                    v-model="MQTT5Props.topicAlias"
-                    size="mini"
-                    :min="1"
-                    controls-position="right"
-                    type="number"
-                  />
-                </el-form-item>
-              </el-col>
-              <el-col :span="24">
-                <el-form-item label="Response Topic" prop="responseTopic">
-                  <el-input placeholder="response topic" size="mini" v-model="MQTT5Props.responseTopic" type="text" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </el-form>
-          <div class="meta-btn">
-            <el-button size="mini" class="meta-btn-reset" type="text" @click="resetForm">{{
-              $t('common.reset')
-            }}</el-button>
-            <el-button size="mini" class="meta-btn-submit" type="text" @click="saveMeta">{{
-              $t('common.save')
-            }}</el-button>
-          </div>
-        </el-card>
-      </div>
+                </el-col>
+                <el-col :span="24">
+                  <el-form-item label="Content Type" prop="contentType">
+                    <el-input size="mini" v-model="MQTT5Props.contentType"></el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="24">
+                  <el-form-item label="Payload Format Indicator" prop="payloadFormatIndicator">
+                    <el-checkbox style="width: 100%" size="mini" v-model="MQTT5Props.payloadFormatIndicator" border>{{
+                      MQTT5Props.payloadFormatIndicator ? 'true' : 'false'
+                    }}</el-checkbox>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="24">
+                  <el-form-item label="Message Expiry Interval" prop="messageExpiryInterval">
+                    <el-input-number
+                      v-model="MQTT5Props.messageExpiryInterval"
+                      size="mini"
+                      :min="0"
+                      controls-position="right"
+                      type="number"
+                    />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="24">
+                  <el-form-item label="Correlation Data" prop="correlationData">
+                    <el-input
+                      placeholder="correlation data"
+                      size="mini"
+                      v-model="MQTT5Props.correlationData"
+                      type="text"
+                    />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="24">
+                  <el-form-item label="Topic Alias" prop="topicAlias">
+                    <el-input-number
+                      v-model="MQTT5Props.topicAlias"
+                      size="mini"
+                      :min="1"
+                      controls-position="right"
+                      type="number"
+                    />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="24">
+                  <el-form-item label="Response Topic" prop="responseTopic">
+                    <el-input placeholder="response topic" size="mini" v-model="MQTT5Props.responseTopic" type="text" />
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </el-form>
+            <div class="meta-btn">
+              <el-button size="mini" class="meta-btn-reset" type="text" @click="resetForm">{{
+                $t('common.reset')
+              }}</el-button>
+              <el-button size="mini" class="meta-btn-submit" type="text" @click="saveMeta">{{
+                $t('common.save')
+              }}</el-button>
+            </div>
+          </el-card>
+        </div>
+      </transition>
     </div>
     <div class="publish-header">
       <div class="publish-metadata">
