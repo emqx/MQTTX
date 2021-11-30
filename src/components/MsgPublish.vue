@@ -111,18 +111,27 @@
           <el-option :value="2"></el-option>
         </el-select>
         <el-checkbox class="retain-block" v-model="msgRecord.retain" label="Retain" border size="mini"></el-checkbox>
-        <el-badge :is-dot="hasMqtt5Prop" class="item">
-          <el-button
-            type="outline"
-            plain
-            :disabled="!mqtt5PropsEnable"
-            :class="['meta-block', showMetaCard ? 'meta-block-active' : '']"
-            @click="changeVisable"
-            label="Meta"
-            size="mini"
-            >Meta</el-button
-          >
-        </el-badge>
+        <el-tooltip
+          placement="top"
+          :disabled="mqtt5PropsEnable"
+          :open-delay="500"
+          :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+          :content="$t('connections.metaTips')"
+        >
+          <el-badge :is-dot="hasMqtt5Prop" class="item">
+            <el-button
+              type="outline"
+              plain
+              :disabled="!mqtt5PropsEnable"
+              :class="['meta-block', showMetaCard ? 'meta-block-active' : '']"
+              @click="changeVisable"
+              label="Meta"
+              size="mini"
+            >
+              Meta
+            </el-button>
+          </el-badge>
+        </el-tooltip>
       </div>
       <el-input
         class="publish-topic-input"
@@ -208,6 +217,8 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { ipcRenderer } from 'electron'
+import { Getter } from 'vuex-class'
+import ClickOutside from 'vue-click-outside'
 import Editor from '@/components/Editor.vue'
 import convertPayload from '@/utils/convertPayload'
 import { getMessageId } from '@/utils/idGenerator'
@@ -215,7 +226,6 @@ import _ from 'lodash'
 import validFormatJson from '@/utils/validFormatJson'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
-import ClickOutside from 'vue-click-outside'
 
 type UserPairObect = { key: string; value: string; checked: boolean }
 
@@ -232,6 +242,8 @@ export default class MsgPublish extends Vue {
   @Prop({ required: true }) public subsVisible!: boolean
   @Prop({ default: false }) public disabled!: boolean
   @Prop({ default: false }) public mqtt5PropsEnable!: boolean
+
+  @Getter('currentTheme') private currentTheme!: Theme
 
   private MQTT5Props: PushPropertiesModel = {
     payloadFormatIndicator: undefined,
@@ -687,6 +699,11 @@ export default class MsgPublish extends Vue {
     }
     .meta-block {
       margin-left: 6px;
+      &.el-button.is-disabled {
+        background-color: transparent;
+        border: 1px solid var(--color-border-default);
+        color: var(--color-text-historybtn_disabled);
+      }
       &:not(.is-disabled) {
         border-color: var(--color-border-default);
         color: var(--color-text-default);

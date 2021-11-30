@@ -705,4 +705,11 @@ export default {
     ja: '名前を変更する',
     hu: 'Gyüjtemény átnevezése',
   },
+  metaTips: {
+    zh: '仅在 MQTT 5.0 中启用',
+    en: 'Enabled only with MQTT 5.0',
+    tr: 'Yalnızca MQTT 5.0 ile etkinleştirilir',
+    ja: 'MQTT 5.0でのみ有効',
+    hu: 'Csak MQTT 5.0 esetén engedélyezett',
+  },
 }
