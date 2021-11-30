@@ -5,7 +5,7 @@
         <span class="topic">Topic: {{ topic }}</span>
         <span class="qos">QoS: {{ qos }}</span>
       </p>
-      <div v-if="properties && properties.userProperties">
+      <div v-if="properties.userProperties">
         <span>UserProps: {{ properties.userProperties }}</span>
       </div>
       <pre>{{ payload }}</pre>

@@ -62,14 +62,5 @@ export default class MsgLeftItem extends Vue {
     right: 0px;
     animation: leftMsg 0.3s ease-in-out;
   }
-  // TODO: replace keyframes animation in vue-scroller
-  // @keyframes leftMsg {
-  //   from {
-  //     right: 171px;
-  //   }
-  //   to {
-  //     right: 0px;
-  //   }
-  // }
 }
 </style>
