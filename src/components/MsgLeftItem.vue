@@ -7,9 +7,9 @@
         <span class="qos">QoS: {{ qos }}</span>
         <span v-if="retain" class="retain">Retain</span>
       </p>
-      <div v-if="properties.userProperties">
-        <span>UserProps: {{ properties.userProperties }}</span>
-      </div>
+      <p v-if="properties.userProperties" class="user-properties left">
+        User Properties: {{ properties.userProperties }}
+      </p>
       <pre>{{ payload }}</pre>
     </div>
     <p class="left-time time">{{ createAt }}</p>

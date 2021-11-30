@@ -5,9 +5,9 @@
         <span class="topic">Topic: {{ topic }}</span>
         <span class="qos">QoS: {{ qos }}</span>
       </p>
-      <div v-if="properties.userProperties">
-        <span>UserProps: {{ properties.userProperties }}</span>
-      </div>
+      <p v-if="properties.userProperties" class="user-properties right">
+        User Properties: {{ properties.userProperties }}
+      </p>
       <pre>{{ payload }}</pre>
     </div>
     <p class="right-time time">{{ createAt }}</p>

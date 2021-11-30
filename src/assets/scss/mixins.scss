@@ -27,7 +27,6 @@
   .topic {
     margin-right: 16px;
   }
-
   .retain {
     margin-left: 16px;
     font-size: 12px;
@@ -37,7 +36,6 @@
     border-radius: 4px;
     float: right;
   }
-
   .payload {
     display: inline-block;
     min-height: 41px;
@@ -51,6 +49,22 @@
   .time {
     color: var(--color-text-light);
     margin-bottom: 5px;
+  }
+  .user-properties {
+    margin-top: 10px;
+    padding: 6px 0;
+    &.left {
+      color: var(--color-text-left_info);
+      border: 1px dashed var(--color-border-left_metainfo);
+      border-right: none;
+      border-left: none;
+    }
+    &.right {
+      color: var(--color-text-right_info);
+      border: 1px dashed var(--color-border-right_metainfo);
+      border-right: none;
+      border-left: none;
+    }
   }
 }
 
