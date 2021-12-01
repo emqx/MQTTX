@@ -543,8 +543,6 @@ import _ from 'lodash'
 import time from '@/utils/time'
 import useServices from '@/database/useServices'
 
-type UserPairObect = { key: string; value: string; checked: boolean }
-
 @Component({
   components: {
     Editor,
@@ -575,6 +573,18 @@ export default class ConnectionForm extends Vue {
 
   private record: ConnectionModel = _.cloneDeep(this.defaultRecord)
   public defaultPropObj = { key: '', value: '', checked: true }
+  private initProps() {
+    if (this.record.properties?.userProperties) {
+      const props = this.record.properties.userProperties
+      this.listData = Object.entries(props).map(([key, value]) => {
+        return {
+          key,
+          value,
+          checked: true,
+        } as UserPairObect
+      })
+    }
+  }
 
   public listData: UserPairObect[] = [_.cloneDeep(this.defaultPropObj)]
 
@@ -632,6 +642,7 @@ export default class ConnectionForm extends Vue {
       this.record = res
       this.oldName = res.name
       this.record.protocol = getMQTTProtocol(res)
+      this.initProps()
     }
   }
 
