@@ -65,6 +65,31 @@ export default class ConnectionEntity {
   @Column({ type: 'boolean', default: false, nullable: true })
   clientIdWithTime?: boolean
 
+  // message push props
+  @Column({ type: 'boolean', nullable: true })
+  pushPropsPayloadFormatIndicator?: boolean
+
+  @Column({ type: 'integer', nullable: true })
+  pushPropsMessageExpiryInterval?: number
+
+  @Column({ type: 'integer', nullable: true })
+  pushPropsTopicAlias?: number
+
+  @Column({ type: 'varchar', nullable: true })
+  pushPropsResponseTopic?: string
+
+  @Column({ type: 'varchar', nullable: true })
+  pushPropsCorrelationData?: string
+
+  @Column({ type: 'varchar', nullable: true })
+  pushPropsUserProperties?: string
+
+  @Column({ type: 'integer', nullable: true })
+  pushPropsSubscriptionIdentifier?: number
+
+  @Column({ type: 'varchar', nullable: true })
+  pushPropsContentType?: string
+
   // ManyToOne entities
   @ManyToOne(() => CollectionEntity, (collection) => collection.connections, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'parent_id', referencedColumnName: 'id' })
