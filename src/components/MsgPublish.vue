@@ -227,8 +227,6 @@ import validFormatJson from '@/utils/validFormatJson'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
 
-type UserPairObect = { key: string; value: string; checked: boolean }
-
 @Component({
   components: {
     Editor,
