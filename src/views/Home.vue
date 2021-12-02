@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 import Ipc from '@/components/Ipc.vue'
 import Leftbar from '@/components/Leftbar.vue'
 
@@ -21,6 +21,8 @@ import Leftbar from '@/components/Leftbar.vue'
 export default class Home extends Vue {
   @Getter('currentTheme') private getterTheme!: Theme
   @Getter('currentLang') private getterLang!: Language
+  @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
+  @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
 
   private setTheme(currentTheme: Theme): void {
     const bodyTag: HTMLBodyElement | null = document.querySelector('body')
@@ -28,11 +30,13 @@ export default class Home extends Vue {
       return
     }
     bodyTag.className = currentTheme
+    this.actionTheme({ currentTheme })
   }
 
   private setLang(currentLang: Language): void {
     document.documentElement.lang = currentLang
     this.$i18n.locale = currentLang
+    this.actionLang({ currentLang })
   }
 
   private created() {

@@ -9,6 +9,7 @@ import getMenuTemplate from './main/getMenuTemplate'
 import saveFile from './main/saveFile'
 import saveExcel from './main/saveExcel'
 import newWindow from './main/newWindow'
+import { onSystemThemeChanged } from './main/systemTheme'
 import useConnection, { initOptionModel } from '@/database/useConnection'
 import useServices from '@/database/useServices'
 
@@ -113,7 +114,12 @@ async function createWindow() {
     backgroundColor: theme === 'dark' ? '#232323' : theme === 'night' ? '#212328' : '#ffffff',
     icon: `${__static}/app.ico`,
   })
-
+  // Theme change
+  if (isMac) {
+    onSystemThemeChanged(async (theme) => {
+      win?.webContents.send('setting', 'theme', theme)
+    })
+  }
   // Menu Manger
   const templateMenu = getMenuTemplate(win)
   menu = Menu.buildFromTemplate(templateMenu)
@@ -150,7 +156,7 @@ app.on('ready', async () => {
     try {
       await installExtension(VUEJS_DEVTOOLS)
     } catch (e) {
-      console.error('Vue Devtools failed to install:', e.toString())
+      console.error('Vue Devtools failed to install:', e)
     }
   }
   createWindow()

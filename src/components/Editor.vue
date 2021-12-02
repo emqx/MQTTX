@@ -43,6 +43,13 @@ export default class Editor extends Vue {
     }
   }
 
+  @Watch('theme')
+  private handleThemeChanged(val: Theme) {
+    this.editor?.updateOptions({
+      theme: this.editorTheme || this.getTheme(),
+    })
+  }
+
   @Watch('lang')
   private handleLangChanged(val: string) {
     if (this.editor) {
