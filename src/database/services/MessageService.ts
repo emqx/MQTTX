@@ -1,6 +1,7 @@
 import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import MessageEntity from '../models/MessageEntity'
+import ConnectionEntity from '../models/ConnectionEntity'
 import { Repository } from 'typeorm'
 
 @Service()
@@ -8,6 +9,8 @@ export default class MessageService {
   constructor(
     @InjectRepository(MessageEntity)
     private messageRepository: Repository<MessageEntity>,
+    @InjectRepository(ConnectionEntity)
+    private connectionRepository: Repository<ConnectionEntity>,
   ) {}
 
   public static modelToEntity(model: MessageModel, connectionId: string | undefined): MessageEntity {
@@ -33,6 +36,42 @@ export default class MessageService {
         userProperties: entity.userProperties ? JSON.parse(entity.userProperties) : undefined,
       },
     } as MessageModel
+  }
+
+  public async addMessageProp(properties: MessageModel['properties'], connectionId: string) {
+    if (!properties) return
+    const query = await this.connectionRepository.findOne(connectionId)
+    if (!query) {
+      return
+    }
+    this.connectionRepository.update(connectionId, {
+      ...query,
+      pushPropsPayloadFormatIndicator: properties?.payloadFormatIndicator,
+      pushPropsMessageExpiryInterval: properties?.messageExpiryInterval,
+      pushPropsTopicAlias: properties?.topicAlias,
+      pushPropsResponseTopic: properties?.responseTopic,
+      pushPropsCorrelationData: properties?.correlationData?.toString(),
+      pushPropsUserProperties: JSON.stringify(properties?.userProperties),
+      pushPropsSubscriptionIdentifier: properties?.subscriptionIdentifier,
+      pushPropsContentType: properties?.contentType,
+    })
+  }
+
+  public async getMessageProp(connectionId: string): Promise<MessageModel['properties'] | undefined> {
+    const query = await this.connectionRepository.findOne(connectionId)
+    if (!query) {
+      return
+    }
+    return {
+      payloadFormatIndicator: query.pushPropsPayloadFormatIndicator,
+      messageExpiryInterval: query.pushPropsMessageExpiryInterval,
+      topicAlias: query.pushPropsTopicAlias,
+      responseTopic: query.pushPropsResponseTopic,
+      correlationData: query.pushPropsCorrelationData ? Buffer.from(query.pushPropsCorrelationData) : undefined,
+      userProperties: query.pushPropsUserProperties ? JSON.parse(query.pushPropsUserProperties) : undefined,
+      subscriptionIdentifier: query.pushPropsSubscriptionIdentifier,
+      contentType: query.pushPropsContentType,
+    } as MessageModel['properties']
   }
 
   public async pushToConnection(message: MessageModel, connectionId: string): Promise<MessageModel | undefined> {

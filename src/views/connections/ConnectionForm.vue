@@ -581,12 +581,12 @@ export default class ConnectionForm extends Vue {
           key,
           value,
           checked: true,
-        } as UserPairObect
+        } as UserPropsPairObject
       })
     }
   }
 
-  public listData: UserPairObect[] = [_.cloneDeep(this.defaultPropObj)]
+  public listData: UserPropsPairObject[] = [_.cloneDeep(this.defaultPropObj)]
 
   private checkItem(index: number) {
     this.listData[index].checked = !this.listData[index].checked

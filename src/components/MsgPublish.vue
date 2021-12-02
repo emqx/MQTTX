@@ -316,7 +316,7 @@ export default class MsgPublish extends Vue {
   }
 
   public defaultPropObj = { key: '', value: '', checked: true }
-  public listData: UserPairObect[] = [_.cloneDeep(this.defaultPropObj)]
+  public listData: UserPropsPairObject[] = [_.cloneDeep(this.defaultPropObj)]
 
   private hasMqtt5Prop: boolean = false
 
@@ -463,10 +463,27 @@ export default class MsgPublish extends Vue {
   }
 
   private async loadHistoryData(isNewPayload?: boolean, isLoadData?: boolean) {
-    const { historyMessageHeaderService, historyMessagePayloadService } = useServices()
+    const { historyMessageHeaderService, historyMessagePayloadService, messageService } = useServices()
     const headersHistory = (await historyMessageHeaderService.getAll()) ?? []
     const payloadsHistory = (await historyMessagePayloadService.getAll()) ?? []
+    if (this.mqtt5PropsEnable) {
+      const propHistory = await messageService.getMessageProp(this.$route.params.id)
+      if (propHistory) {
+        this.MQTT5Props = propHistory
+        if (propHistory.userProperties) {
+          this.listData = Object.entries(propHistory.userProperties).map(([key, value]) => {
+            return {
+              key,
+              value,
+              checked: true,
+            } as UserPropsPairObject
+          })
+        }
+      }
+    }
+
     const historyMsg = payloadsHistory[payloadsHistory.length - 1]
+
     if (historyMsg && isLoadData) {
       this.payloadType = historyMsg.payloadType
     }
