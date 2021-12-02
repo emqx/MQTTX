@@ -1,13 +1,13 @@
-import { systemPreferences } from 'electron'
+import { nativeTheme } from 'electron'
 
-type CB = (theme: string) => void
-
-const systemTheme = (updateMethod: CB): void => {
-  systemPreferences.subscribeNotification('AppleInterfaceThemeChangedNotification', function theThemeHasChanged() {
-    const isDarkMode: boolean = systemPreferences.isDarkMode()
-    const theme: Theme = isDarkMode ? 'dark' : 'light'
-    updateMethod(theme)
+export const onSystemThemeChanged = (switchTheme: (theme: Theme) => void) => {
+  const getCurrentTheme = (): Theme => {
+    return nativeTheme.shouldUseDarkColors ? 'night' : 'light'
+  }
+  nativeTheme.addListener('updated', () => {
+    const theme = getCurrentTheme()
+    switchTheme(theme)
   })
 }
 
-export default systemTheme
+export default {}
