@@ -38,7 +38,7 @@ declare global {
 
   type MessageType = 'all' | 'received' | 'publish'
 
-  type UserPairObect = { key: string; value: string; checked: boolean }
+  type UserPropsPairObject = { key: string; value: string; checked: boolean }
 
   // Vue
   type VueForm = Vue & {

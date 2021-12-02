@@ -1174,7 +1174,12 @@ export default class ConnectionsDetail extends Vue {
     const { id, topic, qos, payload, retain, properties } = message
     let props: PushPropertiesModel | undefined = undefined
     if (properties && Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined).length > 0) {
-      props = Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined))
+      const propRecords = Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined)
+      props = Object.fromEntries(propRecords)
+      if (propRecords.length > 0) {
+        const { messageService } = useServices()
+        this.record.id && messageService.addMessageProp(props, this.record.id)
+      }
     }
 
     if (!topic) {
