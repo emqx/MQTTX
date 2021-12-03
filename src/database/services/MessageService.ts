@@ -38,7 +38,7 @@ export default class MessageService {
     } as MessageModel
   }
 
-  public async addMessageProp(properties: MessageModel['properties'], connectionId: string) {
+  public async addPushProp(properties: MessageModel['properties'], connectionId: string) {
     if (!properties) return
     const query = await this.connectionRepository.findOne(connectionId)
     if (!query) {
@@ -57,7 +57,7 @@ export default class MessageService {
     })
   }
 
-  public async getMessageProp(connectionId: string): Promise<MessageModel['properties'] | undefined> {
+  public async getPushProp(connectionId: string): Promise<MessageModel['properties'] | undefined> {
     const query = await this.connectionRepository.findOne(connectionId)
     if (!query) {
       return

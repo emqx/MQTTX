@@ -1178,7 +1178,7 @@ export default class ConnectionsDetail extends Vue {
       props = Object.fromEntries(propRecords)
       if (propRecords.length > 0) {
         const { messageService } = useServices()
-        this.record.id && messageService.addMessageProp(props, this.record.id)
+        this.record.id && messageService.addPushProp(props, this.record.id)
       }
     }
 
