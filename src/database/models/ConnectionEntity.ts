@@ -67,28 +67,28 @@ export default class ConnectionEntity {
 
   // message push props
   @Column({ type: 'boolean', nullable: true })
-  pushPropsPayloadFormatIndicator?: boolean
+  pushPropsPayloadFormatIndicator?: boolean | null
 
   @Column({ type: 'integer', nullable: true })
-  pushPropsMessageExpiryInterval?: number
+  pushPropsMessageExpiryInterval?: number | null
 
   @Column({ type: 'integer', nullable: true })
-  pushPropsTopicAlias?: number
+  pushPropsTopicAlias?: number | null
 
   @Column({ type: 'varchar', nullable: true })
-  pushPropsResponseTopic?: string
+  pushPropsResponseTopic?: string | null
 
   @Column({ type: 'varchar', nullable: true })
-  pushPropsCorrelationData?: string
+  pushPropsCorrelationData?: string | null
 
   @Column({ type: 'varchar', nullable: true })
-  pushPropsUserProperties?: string
+  pushPropsUserProperties?: string | null
 
   @Column({ type: 'integer', nullable: true })
-  pushPropsSubscriptionIdentifier?: number
+  pushPropsSubscriptionIdentifier?: number | null
 
   @Column({ type: 'varchar', nullable: true })
-  pushPropsContentType?: string
+  pushPropsContentType?: string | null
 
   // ManyToOne entities
   @ManyToOne(() => CollectionEntity, (collection) => collection.connections, { onDelete: 'CASCADE', nullable: true })

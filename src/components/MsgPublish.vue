@@ -267,11 +267,12 @@ export default class MsgPublish extends Vue {
     }
   }
 
-  private resetForm() {
+  private async resetForm() {
     this.formRef.resetFields()
     this.MQTT5Props = {}
     this.listData = [_.cloneDeep(this.defaultPropObj)]
     this.hasMqtt5Prop = this.getHasMqtt5PropState()
+    await this.updatePushProp()
   }
 
   private getHasMqtt5PropState() {
@@ -304,6 +305,7 @@ export default class MsgPublish extends Vue {
         this.showMetaCard = false
       }
       this.hasMqtt5Prop = this.getHasMqtt5PropState()
+      this.updatePushProp()
     })
   }
 
@@ -407,7 +409,7 @@ export default class MsgPublish extends Vue {
    * relative PR: https://github.com/emqx/MQTTX/pull/518 https://github.com/emqx/MQTTX/pull/446
    */
   @Watch('$route.params.id', { immediate: true, deep: true })
-  private handleIdChanged(to: string, from: string) {
+  private async handleIdChanged(to: string, from: string) {
     const editorRef = this.$refs.payloadEditor as Editor
     if (to && from === '0' && to !== '0') {
       // Init the editor when rout jump from creation page
@@ -415,6 +417,27 @@ export default class MsgPublish extends Vue {
     } else if (from && from !== '0' && to === '0') {
       // destroy the editor when rout jump to creation page
       editorRef.destroyEditor()
+    }
+    this.listData = []
+    this.MQTT5Props = {}
+    const { messageService } = useServices()
+    if (this.mqtt5PropsEnable) {
+      const propHistory = await messageService.getPushProp(this.$route.params.id)
+      if (propHistory) {
+        this.MQTT5Props = propHistory
+        if (propHistory.userProperties) {
+          this.listData = Object.entries(propHistory.userProperties).map(([key, value]) => {
+            return {
+              key,
+              value,
+              checked: true,
+            } as UserPropsPairObject
+          })
+        } else {
+          return _.cloneDeep(this.defaultMsgRecord)
+        }
+        this.hasMqtt5Prop = this.getHasMqtt5PropState()
+      }
     }
   }
 
@@ -430,15 +453,25 @@ export default class MsgPublish extends Vue {
     const editorRef = this.$refs.payloadEditor as Editor
     editorRef.destroyEditor()
   }
+
   public editorInit() {
     const editorRef = this.$refs.payloadEditor as Editor
     editorRef.initEditor()
+  }
+
+  private async updatePushProp() {
+    const propRecords = Object.entries(this.MQTT5Props).filter(([_, v]) => v !== null && v !== undefined && v !== 0)
+    const props = Object.fromEntries(propRecords)
+
+    const { messageService } = useServices()
+    this.$route.params.id && (await messageService.addPushProp(props, this.$route.params.id))
   }
 
   private async send() {
     this.msgRecord.id = getMessageId()
     this.msgRecord.createAt = time.getNowDate()
     this.mqtt5PropsEnable && (this.msgRecord.properties = this.MQTT5Props)
+    await this.updatePushProp()
     this.$emit('handleSend', this.msgRecord, this.payloadType, this.loadHistoryData)
   }
 
@@ -467,7 +500,7 @@ export default class MsgPublish extends Vue {
     const headersHistory = (await historyMessageHeaderService.getAll()) ?? []
     const payloadsHistory = (await historyMessagePayloadService.getAll()) ?? []
     if (this.mqtt5PropsEnable) {
-      const propHistory = await messageService.getMessageProp(this.$route.params.id)
+      const propHistory = await messageService.getPushProp(this.$route.params.id)
       if (propHistory) {
         this.MQTT5Props = propHistory
         if (propHistory.userProperties) {
