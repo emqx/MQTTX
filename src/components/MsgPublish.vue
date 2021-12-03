@@ -504,7 +504,6 @@ export default class MsgPublish extends Vue {
     if (this.mqtt5PropsEnable) {
       const { messageService } = useServices()
       const pushProps = await messageService.getPushProp(this.$route.params.id)
-      console.log(pushProps)
       if (pushProps) {
         this.MQTT5Props = pushProps
         if (pushProps.userProperties) {
