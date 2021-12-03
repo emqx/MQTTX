@@ -13,7 +13,7 @@
                       <el-button icon="el-icon-plus" class="btn-props-plus" type="text" @click="addItem" />
                     </div>
                     <div class="user-props">
-                      <div v-for="(item, index) in listData" class="user-props-row" :key="index">
+                      <div v-for="(item, index) in userPropsList" class="user-props-row" :key="index">
                         <a class="btn-check" @click="checkItem(index)">
                           <i v-if="item.checked" class="iconfont el-icon-check"></i>
                           <i v-else class="iconfont el-icon-check disable-icon"></i>
@@ -59,16 +59,6 @@
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
-                  <el-form-item label="Correlation Data" prop="correlationData">
-                    <el-input
-                      placeholder="correlation data"
-                      size="mini"
-                      v-model="MQTT5Props.correlationData"
-                      type="text"
-                    />
-                  </el-form-item>
-                </el-col>
-                <el-col :span="24">
                   <el-form-item label="Topic Alias" prop="topicAlias">
                     <el-input-number
                       v-model="MQTT5Props.topicAlias"
@@ -82,6 +72,16 @@
                 <el-col :span="24">
                   <el-form-item label="Response Topic" prop="responseTopic">
                     <el-input placeholder="response topic" size="mini" v-model="MQTT5Props.responseTopic" type="text" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="24">
+                  <el-form-item label="Correlation Data" prop="correlationData">
+                    <el-input
+                      placeholder="correlation data"
+                      size="mini"
+                      v-model="MQTT5Props.correlationData"
+                      type="text"
+                    />
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -118,7 +118,7 @@
           :effect="currentTheme !== 'light' ? 'light' : 'dark'"
           :content="$t('connections.metaTips')"
         >
-          <el-badge :is-dot="hasMqtt5Prop" class="item">
+          <el-badge :is-dot="hasMqtt5Prop && mqtt5PropsEnable" class="item">
             <el-button
               type="outline"
               plain
@@ -260,17 +260,10 @@ export default class MsgPublish extends Vue {
     return this.$refs.form as VueForm
   }
 
-  @Watch('showMetaCard', { immediate: true })
-  private handleShowDialog(cur: boolean, old: boolean) {
-    if (!cur && old) {
-      this.saveMeta()
-    }
-  }
-
   private async resetForm() {
     this.formRef.resetFields()
     this.MQTT5Props = {}
-    this.listData = [_.cloneDeep(this.defaultPropObj)]
+    this.userPropsList = [_.cloneDeep(this.defaultPropObj)]
     this.hasMqtt5Prop = this.getHasMqtt5PropState()
     await this.updatePushProp()
   }
@@ -278,14 +271,14 @@ export default class MsgPublish extends Vue {
   private getHasMqtt5PropState() {
     return (
       Object.entries(this.MQTT5Props).filter(([_, v]) => v !== null && v !== undefined).length > 0 ||
-      this.listData.filter((pair) => pair.key !== '').length > 0
+      this.userPropsList.filter((pair) => pair.key !== '').length > 0
     )
   }
 
   private saveMeta() {
     this.formRef.validate((valid) => {
       if (valid) {
-        const checkedList = this.listData.filter((pair) => !(pair.key === '' || !pair.checked))
+        const checkedList = this.userPropsList.filter((pair) => !(pair.key === '' || !pair.checked))
         const userProps: {
           [key: string]: string
         } = {}
@@ -318,24 +311,24 @@ export default class MsgPublish extends Vue {
   }
 
   public defaultPropObj = { key: '', value: '', checked: true }
-  public listData: UserPropsPairObject[] = [_.cloneDeep(this.defaultPropObj)]
+  public userPropsList: UserPropsPairObject[] = [_.cloneDeep(this.defaultPropObj)]
 
   private hasMqtt5Prop: boolean = false
 
   private deleteItem(index: number) {
-    if (this.listData.length > 1) {
-      this.listData.splice(index, 1)
-    } else if (this.listData.length === 1) {
-      this.listData = [_.cloneDeep(this.defaultPropObj)]
+    if (this.userPropsList.length > 1) {
+      this.userPropsList.splice(index, 1)
+    } else if (this.userPropsList.length === 1) {
+      this.userPropsList = [_.cloneDeep(this.defaultPropObj)]
     }
   }
 
   private addItem() {
-    this.listData.push(_.cloneDeep(this.defaultPropObj))
+    this.userPropsList.push(_.cloneDeep(this.defaultPropObj))
   }
 
   private checkItem(index: number) {
-    this.listData[index].checked = !this.listData[index].checked
+    this.userPropsList[index].checked = !this.userPropsList[index].checked
   }
 
   private headersHistory: HistoryMessageHeaderModel[] | [] = []
@@ -418,27 +411,7 @@ export default class MsgPublish extends Vue {
       // destroy the editor when rout jump to creation page
       editorRef.destroyEditor()
     }
-    this.listData = []
-    this.MQTT5Props = {}
-    const { messageService } = useServices()
-    if (this.mqtt5PropsEnable) {
-      const propHistory = await messageService.getPushProp(this.$route.params.id)
-      if (propHistory) {
-        this.MQTT5Props = propHistory
-        if (propHistory.userProperties) {
-          this.listData = Object.entries(propHistory.userProperties).map(([key, value]) => {
-            return {
-              key,
-              value,
-              checked: true,
-            } as UserPropsPairObject
-          })
-        } else {
-          return _.cloneDeep(this.defaultMsgRecord)
-        }
-        this.hasMqtt5Prop = this.getHasMqtt5PropState()
-      }
-    }
+    this.loadProperties()
   }
 
   private handleHeaderChange(val: HistoryMessageHeaderModel) {
@@ -471,7 +444,6 @@ export default class MsgPublish extends Vue {
     this.msgRecord.id = getMessageId()
     this.msgRecord.createAt = time.getNowDate()
     this.mqtt5PropsEnable && (this.msgRecord.properties = this.MQTT5Props)
-    await this.updatePushProp()
     this.$emit('handleSend', this.msgRecord, this.payloadType, this.loadHistoryData)
   }
 
@@ -496,27 +468,10 @@ export default class MsgPublish extends Vue {
   }
 
   private async loadHistoryData(isNewPayload?: boolean, isLoadData?: boolean) {
-    const { historyMessageHeaderService, historyMessagePayloadService, messageService } = useServices()
+    const { historyMessageHeaderService, historyMessagePayloadService } = useServices()
     const headersHistory = (await historyMessageHeaderService.getAll()) ?? []
     const payloadsHistory = (await historyMessagePayloadService.getAll()) ?? []
-    if (this.mqtt5PropsEnable) {
-      const propHistory = await messageService.getPushProp(this.$route.params.id)
-      if (propHistory) {
-        this.MQTT5Props = propHistory
-        if (propHistory.userProperties) {
-          this.listData = Object.entries(propHistory.userProperties).map(([key, value]) => {
-            return {
-              key,
-              value,
-              checked: true,
-            } as UserPropsPairObject
-          })
-        }
-      }
-    }
-
     const historyMsg = payloadsHistory[payloadsHistory.length - 1]
-
     if (historyMsg && isLoadData) {
       this.payloadType = historyMsg.payloadType
     }
@@ -539,6 +494,32 @@ export default class MsgPublish extends Vue {
     const headersHistoryIndex = this.payloadsHistory[this.historyIndex]
     if (headersHistoryIndex) {
       this.payloadType = headersHistoryIndex.payloadType
+    }
+    this.loadProperties()
+  }
+
+  private async loadProperties() {
+    this.userPropsList = []
+    this.MQTT5Props = {}
+    if (this.mqtt5PropsEnable) {
+      const { messageService } = useServices()
+      const pushProps = await messageService.getPushProp(this.$route.params.id)
+      console.log(pushProps)
+      if (pushProps) {
+        this.MQTT5Props = pushProps
+        if (pushProps.userProperties) {
+          this.userPropsList = Object.entries(pushProps.userProperties).map(([key, value]) => {
+            return {
+              key,
+              value,
+              checked: true,
+            } as UserPropsPairObject
+          })
+        } else {
+          this.userPropsList = [_.cloneDeep(this.defaultPropObj)]
+        }
+        this.hasMqtt5Prop = this.getHasMqtt5PropState()
+      }
     }
   }
 
