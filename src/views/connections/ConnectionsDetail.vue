@@ -1176,10 +1176,6 @@ export default class ConnectionsDetail extends Vue {
     if (properties && Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined).length > 0) {
       const propRecords = Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined)
       props = Object.fromEntries(propRecords)
-      if (propRecords.length > 0) {
-        const { messageService } = useServices()
-        this.record.id && messageService.addPushProp(props, this.record.id)
-      }
     }
 
     if (!topic) {
