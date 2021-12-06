@@ -3,6 +3,7 @@ import { InjectRepository } from 'typeorm-typedi-extensions'
 import MessageEntity from '../models/MessageEntity'
 import ConnectionEntity from '../models/ConnectionEntity'
 import { Repository } from 'typeorm'
+import time from '@/utils/time'
 
 @Service()
 export default class MessageService {
@@ -44,6 +45,7 @@ export default class MessageService {
     if (!query) {
       return
     }
+    const updateAt = time.getNowDate()
     this.connectionRepository.update(connectionId, {
       ...query,
       pushPropsPayloadFormatIndicator: properties?.payloadFormatIndicator,
@@ -54,6 +56,7 @@ export default class MessageService {
       pushPropsUserProperties: JSON.stringify(properties?.userProperties),
       pushPropsSubscriptionIdentifier: properties?.subscriptionIdentifier,
       pushPropsContentType: properties?.contentType,
+      updateAt,
     })
   }
 
