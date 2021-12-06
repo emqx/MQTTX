@@ -172,6 +172,7 @@ export default class ConnectionService {
     data.parentId = queryModel.parentId
     // END FIXME
     const res: ConnectionModel = query ? this.deepMerge(queryModel, data) : data
+    res.createAt = queryModel.createAt
     if (res.will) {
       const {
         id,
@@ -233,11 +234,13 @@ export default class ConnectionService {
         )) as SubscriptionModel[]
       }
     }
+    const updateAt = time.getNowDate()
     const saved: ConnectionEntity | undefined = await this.connectionRepository.save(
       ConnectionService.modelToEntity({
         ...res,
-        id,
         ...args,
+        id,
+        updateAt,
       }) as ConnectionEntity,
     )
     return ConnectionService.entityToModel(saved)
