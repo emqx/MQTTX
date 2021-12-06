@@ -49,24 +49,12 @@
                 </el-col>
                 <el-col :span="24">
                   <el-form-item label="Message Expiry Interval" prop="messageExpiryInterval">
-                    <el-input-number
-                      v-model="MQTT5Props.messageExpiryInterval"
-                      size="mini"
-                      :min="0"
-                      controls-position="right"
-                      type="number"
-                    />
+                    <el-input v-model.number="MQTT5Props.messageExpiryInterval" size="mini" :min="0" type="number" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
                   <el-form-item label="Topic Alias" prop="topicAlias">
-                    <el-input-number
-                      v-model="MQTT5Props.topicAlias"
-                      size="mini"
-                      :min="1"
-                      controls-position="right"
-                      type="number"
-                    />
+                    <el-input v-model.number="MQTT5Props.topicAlias" size="mini" :min="1" type="number" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
@@ -226,6 +214,7 @@ import _ from 'lodash'
 import validFormatJson from '@/utils/validFormatJson'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
+import { emptyToNull } from '@/utils/handleString'
 
 @Component({
   components: {
@@ -433,6 +422,7 @@ export default class MsgPublish extends Vue {
   }
 
   private async updatePushProp() {
+    this.MQTT5Props = emptyToNull(this.MQTT5Props)
     const propRecords = Object.entries(this.MQTT5Props).filter(([_, v]) => v !== null && v !== undefined && v !== 0)
     const props = Object.fromEntries(propRecords)
 

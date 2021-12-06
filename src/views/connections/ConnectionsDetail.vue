@@ -1044,6 +1044,7 @@ export default class ConnectionsDetail extends Vue {
   // Recevied message
   private onMessageArrived(id: string) {
     return async (topic: string, payload: Buffer, packet: IPublishPacket) => {
+      const { qos, retain, properties } = packet
       const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
       const receviedPayload = this.convertPayloadByScript(convertPayload, 'publish')
       const receivedMessage: MessageModel = {
@@ -1052,9 +1053,9 @@ export default class ConnectionsDetail extends Vue {
         createAt: time.getNowDate(),
         topic,
         payload: receviedPayload,
-        qos: packet.qos,
-        retain: packet.retain as boolean,
-        properties: packet.properties,
+        qos,
+        retain,
+        properties,
       }
       const connectionId = this.curConnectionId
       let _id = id
@@ -1193,7 +1194,7 @@ export default class ConnectionsDetail extends Vue {
     const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
 
     // @ts-ignore properties issue, waiting PR https://github.com/mqttjs/MQTT.js/pull/1359 merged
-    this.client.publish!(topic, sendPayload, { qos: qos as QoS, retain, properties: props }, async (error: Error) => {
+    this.client.publish(topic, sendPayload, { qos: qos as QoS, retain, properties: props }, async (error: Error) => {
       if (error) {
         const errorMsg = error.toString()
         this.$message.error(errorMsg)

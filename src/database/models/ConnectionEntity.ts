@@ -65,31 +65,6 @@ export default class ConnectionEntity {
   @Column({ type: 'boolean', default: false, nullable: true })
   clientIdWithTime?: boolean
 
-  // message push props
-  @Column({ type: 'boolean', nullable: true })
-  pushPropsPayloadFormatIndicator?: boolean | null
-
-  @Column({ type: 'integer', nullable: true })
-  pushPropsMessageExpiryInterval?: number | null
-
-  @Column({ type: 'integer', nullable: true })
-  pushPropsTopicAlias?: number | null
-
-  @Column({ type: 'varchar', nullable: true })
-  pushPropsResponseTopic?: string | null
-
-  @Column({ type: 'varchar', nullable: true })
-  pushPropsCorrelationData?: string | null
-
-  @Column({ type: 'varchar', nullable: true })
-  pushPropsUserProperties?: string | null
-
-  @Column({ type: 'integer', nullable: true })
-  pushPropsSubscriptionIdentifier?: number | null
-
-  @Column({ type: 'varchar', nullable: true })
-  pushPropsContentType?: string | null
-
   // ManyToOne entities
   @ManyToOne(() => CollectionEntity, (collection) => collection.connections, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'parent_id', referencedColumnName: 'id' })
@@ -134,32 +109,57 @@ export default class ConnectionEntity {
   updateAt!: string
 
   // MQTT5 Properties begin
-  @Column({ type: 'integer', nullable: true })
-  sessionExpiryInterval?: number
+  @Column({ type: 'integer', nullable: true, default: null })
+  sessionExpiryInterval?: number | null
 
-  @Column({ type: 'integer', nullable: true })
-  receiveMaximum?: number
+  @Column({ type: 'integer', nullable: true, default: null })
+  receiveMaximum?: number | null
 
-  @Column({ type: 'integer', nullable: true })
-  maximumPacketSize?: number
+  @Column({ type: 'integer', nullable: true, default: null })
+  maximumPacketSize?: number | null
 
-  @Column({ type: 'integer', nullable: true })
-  topicAliasMaximum?: number
+  @Column({ type: 'integer', nullable: true, default: null })
+  topicAliasMaximum?: number | null
 
-  @Column({ type: 'boolean', nullable: true })
-  requestResponseInformation?: boolean
+  @Column({ type: 'boolean', nullable: true, default: null })
+  requestResponseInformation?: boolean | null
 
-  @Column({ type: 'boolean', nullable: true })
-  requestProblemInformation?: boolean
+  @Column({ type: 'boolean', nullable: true, default: null })
+  requestProblemInformation?: boolean | null
 
   // origin type `object`
-  @Column({ type: 'varchar', nullable: true })
-  userProperties?: string
+  @Column({ type: 'varchar', nullable: true, default: null })
+  userProperties?: string | null
 
-  @Column({ type: 'varchar', nullable: true })
-  authenticationMethod?: string
+  @Column({ type: 'varchar', nullable: true, default: null })
+  authenticationMethod?: string | null
 
-  @Column({ type: 'varchar', nullable: true })
-  authenticationData?: string
+  @Column({ type: 'varchar', nullable: true, default: null })
+  authenticationData?: string | null
+
+  // message push props
+  @Column({ type: 'boolean', nullable: true, default: null })
+  pushPropsPayloadFormatIndicator?: boolean | null
+
+  @Column({ type: 'integer', nullable: true, default: null })
+  pushPropsMessageExpiryInterval?: number | null
+
+  @Column({ type: 'integer', nullable: true, default: null })
+  pushPropsTopicAlias?: number | null
+
+  @Column({ type: 'varchar', nullable: true, default: null })
+  pushPropsResponseTopic?: string | null
+
+  @Column({ type: 'varchar', nullable: true, default: null })
+  pushPropsCorrelationData?: string | null
+
+  @Column({ type: 'varchar', nullable: true, default: null })
+  pushPropsUserProperties?: string | null
+
+  @Column({ type: 'integer', nullable: true, default: null })
+  pushPropsSubscriptionIdentifier?: number | null
+
+  @Column({ type: 'varchar', nullable: true, default: null })
+  pushPropsContentType?: string | null
   // MQTT5 Properties end
 }

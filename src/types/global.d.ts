@@ -254,12 +254,12 @@ declare global {
 
   // MQTT 5 feature
   interface ClientPropertiesModel {
-    sessionExpiryInterval?: number
-    receiveMaximum?: number
-    maximumPacketSize?: number
-    topicAliasMaximum?: number
-    requestResponseInformation?: boolean
-    requestProblemInformation?: boolean
+    sessionExpiryInterval?: number | null
+    receiveMaximum?: number | null
+    maximumPacketSize?: number | null
+    topicAliasMaximum?: number | null
+    requestResponseInformation?: boolean | null
+    requestProblemInformation?: boolean | null
     userProperties?: Object
     authenticationMethod?: string
     authenticationData?: Buffer

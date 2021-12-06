@@ -28,13 +28,13 @@
                 <el-autocomplete
                   v-if="oper === 'create'"
                   size="mini"
-                  v-model="record.name"
+                  v-model.trim="record.name"
                   value-key="name"
                   :fetch-suggestions="querySearchName"
                   @select="handleSelectName"
                 >
                 </el-autocomplete>
-                <el-input v-else size="mini" v-model="record.name"></el-input>
+                <el-input v-else size="mini" v-model.trim="record.name"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="2">
@@ -91,7 +91,7 @@
                   </el-select>
                 </el-col>
                 <el-col :span="18">
-                  <el-input size="mini" v-model="record.host"> </el-input>
+                  <el-input size="mini" v-model.trim="record.host"> </el-input>
                 </el-col>
               </el-form-item>
             </el-col>
@@ -122,13 +122,13 @@
             <el-col :span="2"></el-col>
             <el-col :span="22">
               <el-form-item label-width="93px" :label="$t('connections.username')" prop="username">
-                <el-input size="mini" v-model="record.username"></el-input>
+                <el-input size="mini" v-model.trim="record.username"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="22">
               <el-form-item label-width="93px" :label="$t('connections.password')" prop="password">
-                <el-input type="password" size="mini" v-model="record.password"></el-input>
+                <el-input type="password" size="mini" v-model.trim="record.password"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
@@ -299,53 +299,34 @@
               <template v-if="record.mqttVersion === '5.0'">
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.sessionExpiryInterval')" prop="sessionExpiryInterval">
-                    <el-input-number
+                    <el-input
                       size="mini"
                       type="number"
                       :min="1"
-                      v-model="record.properties.sessionExpiryInterval"
-                      controls-position="right"
+                      v-model.number="record.properties.sessionExpiryInterval"
                     >
-                    </el-input-number>
+                    </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.receiveMaximum')" prop="receiveMaximum">
-                    <el-input-number
-                      size="mini"
-                      type="number"
-                      :min="1"
-                      v-model="record.properties.receiveMaximum"
-                      controls-position="right"
-                    >
-                    </el-input-number>
+                    <el-input size="mini" type="number" :min="1" v-model.number="record.properties.receiveMaximum">
+                    </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.maximumPacketSize')" prop="maximumPacketSize">
-                    <el-input-number
-                      size="mini"
-                      type="number"
-                      :min="100"
-                      v-model="record.properties.maximumPacketSize"
-                      controls-position="right"
-                    >
-                    </el-input-number>
+                    <el-input size="mini" type="number" :min="100" v-model.number="record.properties.maximumPacketSize">
+                    </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.topicAliasMaximum')" prop="topicAliasMaximum">
-                    <el-input-number
-                      size="mini"
-                      type="number"
-                      :min="1"
-                      v-model="record.properties.topicAliasMaximum"
-                      controls-position="right"
-                    >
-                    </el-input-number>
+                    <el-input size="mini" type="number" :min="1" v-model.number="record.properties.topicAliasMaximum">
+                    </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
@@ -542,6 +523,7 @@ import Editor from '@/components/Editor.vue'
 import _ from 'lodash'
 import time from '@/utils/time'
 import useServices from '@/database/useServices'
+import { emptyToNull } from '@/utils/handleString'
 
 @Component({
   components: {
@@ -671,7 +653,7 @@ export default class ConnectionForm extends Vue {
       }
 
       const data = { ...this.record }
-      this.trimString(data)
+      data.properties = emptyToNull(data.properties)
       let res: ConnectionModel | undefined = undefined
       const { connectionService } = useServices()
       let msgError = ''
@@ -761,13 +743,6 @@ export default class ConnectionForm extends Vue {
     } else {
       this.$router.push(`/recent_connections/${id}`)
     }
-  }
-
-  private trimString(data: ConnectionModel) {
-    const { name, host, password } = data
-    data.name = name.trim()
-    data.host = host.trim()
-    data.password = password.trim()
   }
 
   private handleCollapse(part: 'advanced' | 'willMessage') {
