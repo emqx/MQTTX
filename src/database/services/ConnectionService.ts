@@ -139,7 +139,12 @@ export default class ConnectionService {
           const rightDifference = source.filter((s) => rightIntersection.findIndex((i) => i.id === s.id) === -1)
           return mergedLeft.concat(rightDifference)
         }
-        if (source instanceof Object) {
+        if (
+          source instanceof Object &&
+          target instanceof Object &&
+          source.id !== undefined &&
+          target.id !== undefined
+        ) {
           return {
             ...target,
             ...source,
@@ -166,13 +171,13 @@ export default class ConnectionService {
       .leftJoinAndSelect('cn.subscriptions', 'sub')
       .leftJoinAndSelect('cn.will', 'will')
       .getOne()
+
     const queryModel: ConnectionModel = query ? ConnectionService.entityToModel(query) : data
     // FIXME: temporary fix, we shouldn't update connectionList data in the connectionDetail page
     // such as order | parentId etc.
     data.parentId = queryModel.parentId
     // END FIXME
     const res: ConnectionModel = query ? this.deepMerge(queryModel, data) : data
-    res.createAt = queryModel.createAt
     if (res.will) {
       const {
         id,
