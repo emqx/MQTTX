@@ -249,12 +249,20 @@ export default class MsgPublish extends Vue {
     return this.$refs.form as VueForm
   }
 
-  private async resetForm() {
-    this.formRef.resetFields()
-    this.MQTT5Props = {}
-    this.userPropsList = [_.cloneDeep(this.defaultPropObj)]
-    this.hasMqtt5Prop = this.getHasMqtt5PropState()
-    await this.updatePushProp()
+  private resetForm() {
+    this.$confirm(this.$tc('common.confirmReset'), this.$tc('common.warning'), {
+      type: 'warning',
+    })
+      .then(async () => {
+        this.formRef.resetFields()
+        this.MQTT5Props = {}
+        this.userPropsList = [_.cloneDeep(this.defaultPropObj)]
+        this.hasMqtt5Prop = this.getHasMqtt5PropState()
+        await this.updatePushProp()
+      })
+      .catch((error) => {
+        // ignore(error)
+      })
   }
 
   private getHasMqtt5PropState() {
@@ -401,6 +409,13 @@ export default class MsgPublish extends Vue {
       editorRef.destroyEditor()
     }
     this.loadProperties()
+  }
+
+  @Watch('mqtt5PropsEnable')
+  private async handleMqtt5Enable(val: boolean) {
+    if (val) {
+      this.loadProperties()
+    }
   }
 
   private handleHeaderChange(val: HistoryMessageHeaderModel) {

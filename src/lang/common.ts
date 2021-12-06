@@ -111,6 +111,13 @@ export default {
     ja: '該当操作は{name}を削除してもよろしいですか？',
     hu: '{name} törlésre fog kerülni, folytatja?',
   },
+  confirmReset: {
+    zh: '此操作将重置发送时的属性配置，是否继续？',
+    en: 'This will reset properties, continue?',
+    tr: 'Bu, özellikleri sıfırlayacak, devam edilsin mi?',
+    ja: '該当操作はpropertiesを削除してもよろしいですか？',
+    hu: 'Ez visszaállítja a tulajdonságokat, folytatja?',
+  },
   new: {
     zh: '新 建',
     en: 'New',
