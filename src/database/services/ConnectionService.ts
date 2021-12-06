@@ -1,4 +1,6 @@
 import { Service } from 'typedi'
+import moment from 'moment'
+import _ from 'lodash'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import ConnectionEntity from '@/database/models/ConnectionEntity'
 import WillEntity from '@/database/models/WillEntity'
@@ -7,8 +9,6 @@ import HistoryConnectionEntity from '@/database/models/HistoryConnectionEntity'
 import { Repository, MoreThan, LessThan } from 'typeorm'
 import { DateUtils } from 'typeorm/util/DateUtils'
 import time, { sqliteDateFormat } from '@/utils/time'
-import moment from 'moment'
-import _ from 'lodash'
 
 export const MoreThanDate = (date: string | Date) => MoreThan(DateUtils.mixedDateToUtcDatetimeString(date))
 export const LessThanDate = (date: string | Date) => LessThan(DateUtils.mixedDateToUtcDatetimeString(date))
@@ -270,7 +270,7 @@ export default class ConnectionService {
         }
       }
     } catch (err) {
-      return err.toString()
+      return err as string
     }
     return 'ok'
   }
