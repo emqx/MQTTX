@@ -203,13 +203,13 @@ declare global {
 
   // MQTT 5 feature
   interface WillPropertiesModel {
-    willDelayInterval?: number
-    payloadFormatIndicator?: boolean
-    messageExpiryInterval?: number
-    contentType?: string
-    responseTopic?: string
-    correlationData?: Buffer
-    userProperties?: Object
+    willDelayInterval?: number | null
+    payloadFormatIndicator?: boolean | null
+    messageExpiryInterval?: number | null
+    contentType?: string | null
+    responseTopic?: string | null
+    correlationData?: Buffer | null
+    userProperties?: Object | null
   }
 
   interface WillModel {
@@ -274,14 +274,14 @@ declare global {
 
   // MQTT 5 feature
   interface PushPropertiesModel {
-    payloadFormatIndicator?: boolean
-    messageExpiryInterval?: number
-    topicAlias?: number
-    responseTopic?: string
-    correlationData?: Buffer
-    userProperties?: Object
-    subscriptionIdentifier?: number
-    contentType?: string
+    payloadFormatIndicator?: boolean | null
+    messageExpiryInterval?: number | null
+    topicAlias?: number | null
+    responseTopic?: string | null
+    correlationData?: Buffer | null
+    userProperties?: Object | null
+    subscriptionIdentifier?: number | null
+    contentType?: string | null
   }
 
   interface CollectionModel {
