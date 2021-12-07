@@ -21,27 +21,27 @@ export default class WillEntity {
   lastWillRetain!: boolean
 
   // WillPropertiesModel begin
-  @Column({ type: 'integer', nullable: true })
-  willDelayInterval?: number
+  @Column({ type: 'integer', nullable: true, default: null })
+  willDelayInterval?: number | null
 
-  @Column({ type: 'boolean', nullable: true })
-  payloadFormatIndicator?: boolean
+  @Column({ type: 'boolean', nullable: true, default: null })
+  payloadFormatIndicator?: boolean | null
 
-  @Column({ type: 'integer', nullable: true })
-  messageExpiryInterval?: number
+  @Column({ type: 'integer', nullable: true, default: null })
+  messageExpiryInterval?: number | null
 
-  @Column({ type: 'varchar', nullable: true })
-  contentType?: string
+  @Column({ type: 'varchar', nullable: true, default: null })
+  contentType?: string | null
 
-  @Column({ type: 'varchar', nullable: true })
-  responseTopic?: string
+  @Column({ type: 'varchar', nullable: true, default: null })
+  responseTopic?: string | null
 
-  @Column({ type: 'varchar', nullable: true })
-  correlationData?: string
+  @Column({ type: 'varchar', nullable: true, default: null })
+  correlationData?: string | null
 
   // origin type `object`
-  @Column({ type: 'varchar', nullable: true })
-  userProperties?: string
+  @Column({ type: 'varchar', nullable: true, default: null })
+  userProperties?: string | null
   // WillPropertiesModel end
 
   @OneToOne(() => ConnectionEntity, (connection) => connection.will, { onDelete: 'CASCADE' })

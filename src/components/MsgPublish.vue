@@ -4,7 +4,7 @@
       <transition name="el-zoom-in-bottom">
         <div v-show="showMetaCard">
           <el-card class="box-card">
-            <el-form ref="form" label-width="175px" label-position="left" :model="MQTT5Props" :rules="rules">
+            <el-form ref="form" label-width="185px" label-position="left" :model="MQTT5Props" :rules="rules">
               <el-row class="form-row" :gutter="20">
                 <el-col :span="24">
                   <div class="form-user">
@@ -48,7 +48,7 @@
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
-                  <el-form-item label="Message Expiry Interval" prop="messageExpiryInterval">
+                  <el-form-item label="Message Expiry Interval(s)" prop="messageExpiryInterval">
                     <el-input v-model.number="MQTT5Props.messageExpiryInterval" size="mini" :min="0" type="number" />
                   </el-form-item>
                 </el-col>
@@ -59,13 +59,13 @@
                 </el-col>
                 <el-col :span="24">
                   <el-form-item label="Response Topic" prop="responseTopic">
-                    <el-input placeholder="response topic" size="mini" v-model="MQTT5Props.responseTopic" type="text" />
+                    <el-input placeholder="Response Topic" size="mini" v-model="MQTT5Props.responseTopic" type="text" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
                   <el-form-item label="Correlation Data" prop="correlationData">
                     <el-input
-                      placeholder="correlation data"
+                      placeholder="Correlation Data"
                       size="mini"
                       v-model="MQTT5Props.correlationData"
                       type="text"
