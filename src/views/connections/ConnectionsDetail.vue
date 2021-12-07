@@ -1185,7 +1185,9 @@ export default class ConnectionsDetail extends Vue {
     if (properties && Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined).length > 0) {
       const propRecords = Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined)
       props = Object.fromEntries(propRecords)
-      props.correlationData = Buffer.from(props.correlationData as string)
+      if (props.correlationData && typeof props.correlationData === 'string') {
+        props.correlationData = Buffer.from(props.correlationData)
+      }
     }
 
     const { isNewPayload } = await this.insertHistory(
