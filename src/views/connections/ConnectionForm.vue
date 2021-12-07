@@ -451,7 +451,11 @@
               <!-- MQTT v5.0 -->
               <template v-if="record.mqttVersion === '5.0'">
                 <el-col :span="22">
-                  <el-form-item label-width="170px" :label="$t('connections.isUTF8Data')" prop="payloadFormatIndicator">
+                  <el-form-item
+                    label-width="170px"
+                    :label="$t('connections.payloadFormatIndicator')"
+                    prop="payloadFormatIndicator"
+                  >
                     <el-radio-group v-model="record.will.properties.payloadFormatIndicator">
                       <el-radio :label="true"></el-radio>
                       <el-radio :label="false"></el-radio>
@@ -465,14 +469,13 @@
                     :label="`${$t('connections.willDelayInterval')} (${$t('common.unitS')})`"
                     prop="willDelayInterval"
                   >
-                    <el-input-number
+                    <el-input
                       size="mini"
                       type="number"
                       :min="0"
                       v-model.number="record.will.properties.willDelayInterval"
-                      controls-position="right"
                     >
-                    </el-input-number>
+                    </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
@@ -482,14 +485,13 @@
                     :label="`${$t('connections.messageExpiryInterval')} (${$t('common.unitS')})`"
                     props="messageExpiryInterval"
                   >
-                    <el-input-number
+                    <el-input
                       size="mini"
                       type="number"
                       :min="0"
                       v-model.number="record.will.properties.messageExpiryInterval"
-                      controls-position="right"
                     >
-                    </el-input-number>
+                    </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
@@ -508,7 +510,7 @@
                   <el-form-item
                     class="content-type-item"
                     label-width="160px"
-                    label="Response Topic"
+                    :label="$t('connections.responseTopic')"
                     prop="responseTopic"
                   >
                     <el-input size="mini" v-model="record.will.properties.responseTopic"> </el-input>
@@ -519,7 +521,7 @@
                   <el-form-item
                     class="content-type-item"
                     label-width="160px"
-                    label="Correlation Data"
+                    :label="$t('connections.correlationData')"
                     prop="correlationData"
                   >
                     <el-input size="mini" v-model="record.will.properties.correlationData"> </el-input>

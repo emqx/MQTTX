@@ -9,7 +9,7 @@
                 <el-col :span="24">
                   <div class="form-user">
                     <div class="form-user-header">
-                      <span class="form-user-title">User Properties</span>
+                      <span class="form-user-title">{{ $t('connections.userProperties') }}</span>
                       <el-button icon="el-icon-plus" class="btn-props-plus" type="text" @click="addItem" />
                     </div>
                     <div class="user-props">
@@ -36,34 +36,37 @@
                   </div>
                 </el-col>
                 <el-col :span="24">
-                  <el-form-item label="Content Type" prop="contentType">
+                  <el-form-item :label="$t('connections.contentType')" prop="contentType">
                     <el-input size="mini" v-model="MQTT5Props.contentType"></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
-                  <el-form-item label="Payload Format Indicator" prop="payloadFormatIndicator">
+                  <el-form-item :label="$t('connections.payloadFormatIndicator')" prop="payloadFormatIndicator">
                     <el-checkbox style="width: 100%" size="mini" v-model="MQTT5Props.payloadFormatIndicator" border>{{
                       MQTT5Props.payloadFormatIndicator ? 'true' : 'false'
                     }}</el-checkbox>
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
-                  <el-form-item label="Message Expiry Interval(s)" prop="messageExpiryInterval">
+                  <el-form-item
+                    :label="`${$t('connections.messageExpiryInterval')}(${$t('common.unitS')})`"
+                    prop="messageExpiryInterval"
+                  >
                     <el-input v-model.number="MQTT5Props.messageExpiryInterval" size="mini" :min="0" type="number" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
-                  <el-form-item label="Topic Alias" prop="topicAlias">
+                  <el-form-item :label="$t('connections.topicAlias')" prop="topicAlias">
                     <el-input v-model.number="MQTT5Props.topicAlias" size="mini" :min="1" type="number" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
-                  <el-form-item label="Response Topic" prop="responseTopic">
+                  <el-form-item :label="$t('connections.responseTopic')" prop="responseTopic">
                     <el-input placeholder="Response Topic" size="mini" v-model="MQTT5Props.responseTopic" type="text" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
-                  <el-form-item label="Correlation Data" prop="correlationData">
+                  <el-form-item :label="$t('connections.correlationData')" prop="correlationData">
                     <el-input
                       placeholder="Correlation Data"
                       size="mini"
