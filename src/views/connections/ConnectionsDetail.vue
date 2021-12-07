@@ -1172,17 +1172,20 @@ export default class ConnectionsDetail extends Vue {
       this.stopTimedSend()
       return false
     }
+
     const { id, topic, qos, payload, retain, properties } = message
-    let props: PushPropertiesModel | undefined = undefined
-    if (properties && Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined).length > 0) {
-      const propRecords = Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined)
-      props = Object.fromEntries(propRecords)
-    }
 
     if (!topic) {
       this.$message.warning(this.$t('connections.topicReuired') as string)
       this.stopTimedSend()
       return false
+    }
+
+    let props: PushPropertiesModel | undefined = undefined
+    if (properties && Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined).length > 0) {
+      const propRecords = Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined)
+      props = Object.fromEntries(propRecords)
+      props.correlationData = Buffer.from(props.correlationData as string)
     }
 
     const { isNewPayload } = await this.insertHistory(

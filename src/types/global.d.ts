@@ -208,7 +208,7 @@ declare global {
     messageExpiryInterval?: number | null
     contentType?: string | null
     responseTopic?: string | null
-    correlationData?: Buffer | null
+    correlationData?: string | Buffer | null
     userProperties?: Object | null
   }
 
@@ -278,7 +278,7 @@ declare global {
     messageExpiryInterval?: number | null
     topicAlias?: number | null
     responseTopic?: string | null
-    correlationData?: Buffer | null
+    correlationData?: string | Buffer | null
     userProperties?: Object | null
     subscriptionIdentifier?: number | null
     contentType?: string | null

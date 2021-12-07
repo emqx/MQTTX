@@ -70,7 +70,7 @@ export default class MessageService {
       messageExpiryInterval: query.pushPropsMessageExpiryInterval,
       topicAlias: query.pushPropsTopicAlias,
       responseTopic: query.pushPropsResponseTopic,
-      correlationData: query.pushPropsCorrelationData ? Buffer.from(query.pushPropsCorrelationData) : undefined,
+      correlationData: query.pushPropsCorrelationData,
       userProperties: query.pushPropsUserProperties ? JSON.parse(query.pushPropsUserProperties) : undefined,
       subscriptionIdentifier: query.pushPropsSubscriptionIdentifier,
       contentType: query.pushPropsContentType,
