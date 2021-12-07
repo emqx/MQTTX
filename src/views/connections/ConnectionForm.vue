@@ -500,7 +500,29 @@
                     :label="$t('connections.contentType')"
                     prop="contentType"
                   >
-                    <el-input type="textarea" :rows="2" v-model="record.will.properties.contentType"> </el-input>
+                    <el-input size="mini" v-model="record.will.properties.contentType"> </el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
+                <el-col :span="22">
+                  <el-form-item
+                    class="content-type-item"
+                    label-width="160px"
+                    label="Response Topic"
+                    prop="responseTopic"
+                  >
+                    <el-input size="mini" v-model="record.will.properties.responseTopic"> </el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"></el-col>
+                <el-col :span="22">
+                  <el-form-item
+                    class="content-type-item"
+                    label-width="160px"
+                    label="Correlation Data"
+                    prop="correlationData"
+                  >
+                    <el-input size="mini" v-model="record.will.properties.correlationData"> </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>

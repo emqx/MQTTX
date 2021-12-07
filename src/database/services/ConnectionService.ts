@@ -194,7 +194,12 @@ export default class ConnectionService {
         lastWillTopic,
         lastWillQos,
         lastWillRetain,
-        contentType: properties.contentType ? properties.contentType : '',
+        willDelayInterval: properties.willDelayInterval,
+        payloadFormatIndicator: properties.payloadFormatIndicator,
+        messageExpiryInterval: properties.messageExpiryInterval,
+        contentType: properties.contentType,
+        responseTopic: properties.responseTopic,
+        correlationData: properties.correlationData?.toString(),
       }
       if (id) {
         // sync memory to database
@@ -359,9 +364,30 @@ export default class ConnectionService {
         lastWillQos: 0,
         lastWillRetain: false,
         contentType: '',
-      } as WillEntity)
+      })
     } else {
-      savedWill = await this.willRepository.save(res.will as WillEntity)
+      const {
+        properties = {
+          contentType: '',
+        },
+        lastWillPayload = '',
+        lastWillTopic = '',
+        lastWillQos = 0,
+        lastWillRetain = false,
+      } = res.will
+      const willData: WillEntity = {
+        lastWillPayload,
+        lastWillTopic,
+        lastWillQos,
+        lastWillRetain,
+        willDelayInterval: properties.willDelayInterval,
+        payloadFormatIndicator: properties.payloadFormatIndicator,
+        messageExpiryInterval: properties.messageExpiryInterval,
+        contentType: properties.contentType,
+        responseTopic: properties.responseTopic,
+        correlationData: properties.correlationData?.toString(),
+      }
+      savedWill = await this.willRepository.save(willData)
     }
     res.will = savedWill
     // TODO: refactor historyConnectionRepository field
