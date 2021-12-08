@@ -2,38 +2,16 @@
   <div class="msg-publish message" v-click-outside="handleClickOutSide">
     <div class="publish-top">
       <transition name="el-zoom-in-bottom">
-        <div v-show="showMetaCard">
+        <div v-if="showMetaCard">
           <el-card class="box-card">
             <el-form ref="form" label-width="185px" label-position="left" :model="MQTT5Props" :rules="rules">
               <el-row class="form-row" :gutter="20">
                 <el-col :span="24">
-                  <div class="form-user">
-                    <div class="form-user-header">
-                      <span class="form-user-title">{{ $t('connections.userProperties') }}</span>
-                      <el-button icon="el-icon-plus" class="btn-props-plus" type="text" @click="addItem" />
-                    </div>
-                    <div class="user-props">
-                      <div v-for="(item, index) in userPropsList" class="user-props-row" :key="index">
-                        <a class="btn-check" @click="checkItem(index)">
-                          <i v-if="item.checked" class="iconfont el-icon-check"></i>
-                          <i v-else class="iconfont el-icon-check disable-icon"></i>
-                        </a>
-                        <el-input
-                          placeholder="key"
-                          size="mini"
-                          v-model="item.key"
-                          class="input-user-prop user-prop-key"
-                        />
-                        <el-input
-                          placeholder="value"
-                          size="mini"
-                          v-model="item.value"
-                          class="input-user-prop user-prop-value"
-                        />
-                        <el-button icon="el-icon-delete" class="btn-delete" type="text" @click="deleteItem(index)" />
-                      </div>
-                    </div>
-                  </div>
+                  <KeyValueEditor
+                    :title="$t('connections.userProperties')"
+                    v-model="MQTT5Props.userProperties"
+                    maxHeight="140px"
+                  />
                 </el-col>
                 <el-col :span="24">
                   <el-form-item :label="$t('connections.contentType')" prop="contentType">
@@ -211,6 +189,7 @@ import { ipcRenderer } from 'electron'
 import { Getter } from 'vuex-class'
 import ClickOutside from 'vue-click-outside'
 import Editor from '@/components/Editor.vue'
+import KeyValueEditor from '@/components/KeyValueEditor.vue'
 import convertPayload from '@/utils/convertPayload'
 import { getMessageId } from '@/utils/idGenerator'
 import _ from 'lodash'
@@ -222,6 +201,7 @@ import { emptyToNull } from '@/utils/handleString'
 @Component({
   components: {
     Editor,
+    KeyValueEditor,
   },
   directives: {
     ClickOutside,
@@ -259,7 +239,6 @@ export default class MsgPublish extends Vue {
       .then(async () => {
         this.formRef.resetFields()
         this.MQTT5Props = {}
-        this.userPropsList = [_.cloneDeep(this.defaultPropObj)]
         this.hasMqtt5Prop = this.getHasMqtt5PropState()
         await this.updatePushProp()
       })
@@ -269,36 +248,16 @@ export default class MsgPublish extends Vue {
   }
 
   private getHasMqtt5PropState() {
-    return (
-      Object.entries(this.MQTT5Props).filter(([_, v]) => v !== null && v !== undefined).length > 0 ||
-      this.userPropsList.filter((pair) => pair.key !== '').length > 0
-    )
+    return Object.entries(this.MQTT5Props).filter(([_, v]) => v !== null && v !== undefined).length > 0
   }
 
   private saveMeta() {
     this.formRef.validate((valid) => {
       if (valid) {
-        const checkedList = this.userPropsList.filter((pair) => !(pair.key === '' || !pair.checked))
-        const userProps: {
-          [key: string]: string
-        } = {}
-        if (checkedList.length > 0) {
-          checkedList.forEach((pair) => {
-            if (pair && pair.key) {
-              userProps[pair.key] = pair.value
-            }
-          })
-        }
-
-        if (Object.keys(userProps).length > 0) {
-          this.MQTT5Props.userProperties = userProps
-        } else {
-          this.MQTT5Props.userProperties = undefined
-        }
         this.showMetaCard = false
+        this.hasMqtt5Prop = this.getHasMqtt5PropState()
+        this.updatePushProp()
       }
-      this.hasMqtt5Prop = this.getHasMqtt5PropState()
-      this.updatePushProp()
     })
   }
 
@@ -310,26 +269,7 @@ export default class MsgPublish extends Vue {
     return {}
   }
 
-  public defaultPropObj = { key: '', value: '', checked: true }
-  public userPropsList: UserPropsPairObject[] = [_.cloneDeep(this.defaultPropObj)]
-
   private hasMqtt5Prop: boolean = false
-
-  private deleteItem(index: number) {
-    if (this.userPropsList.length > 1) {
-      this.userPropsList.splice(index, 1)
-    } else if (this.userPropsList.length === 1) {
-      this.userPropsList = [_.cloneDeep(this.defaultPropObj)]
-    }
-  }
-
-  private addItem() {
-    this.userPropsList.push(_.cloneDeep(this.defaultPropObj))
-  }
-
-  private checkItem(index: number) {
-    this.userPropsList[index].checked = !this.userPropsList[index].checked
-  }
 
   private headersHistory: HistoryMessageHeaderModel[] | [] = []
   private payloadsHistory: HistoryMessagePayloadModel[] | [] = []
@@ -445,7 +385,7 @@ export default class MsgPublish extends Vue {
     const props = Object.fromEntries(propRecords)
 
     const { messageService } = useServices()
-    this.$route.params.id && (await messageService.addPushProp(props, this.$route.params.id))
+    await messageService.addPushProp(props, this.$route.params.id)
   }
 
   private async send() {
@@ -507,24 +447,12 @@ export default class MsgPublish extends Vue {
   }
 
   private async loadProperties() {
-    this.userPropsList = []
     this.MQTT5Props = {}
     if (this.mqtt5PropsEnable) {
       const { messageService } = useServices()
       const pushProps = await messageService.getPushProp(this.$route.params.id)
       if (pushProps) {
         this.MQTT5Props = pushProps
-        if (pushProps.userProperties) {
-          this.userPropsList = Object.entries(pushProps.userProperties).map(([key, value]) => {
-            return {
-              key,
-              value,
-              checked: true,
-            } as UserPropsPairObject
-          })
-        } else {
-          this.userPropsList = [_.cloneDeep(this.defaultPropObj)]
-        }
         this.hasMqtt5Prop = this.getHasMqtt5PropState()
       }
     }
@@ -599,41 +527,6 @@ export default class MsgPublish extends Vue {
           display: flex;
           flex-wrap: wrap;
           position: relative;
-          .form-user {
-            .form-user-header {
-              .form-user-title {
-                color: var(--color-text-default);
-              }
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            }
-            .user-props {
-              max-height: 140px;
-              overflow-y: scroll;
-              white-space: nowrap;
-              .user-props-row {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                .input-user-prop {
-                  padding: 0px;
-                  margin-right: 10px;
-                }
-                .btn-check {
-                  cursor: pointer;
-                  .el-icon-check {
-                    font-size: 14px;
-                    margin-right: 10px;
-                  }
-                  .disable-icon {
-                    color: dimgray;
-                  }
-                }
-              }
-            }
-          }
-
           .el-form-item {
             margin-bottom: 0;
             .el-form-item__label {
