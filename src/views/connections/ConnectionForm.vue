@@ -348,37 +348,18 @@
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
-                <el-col :span="22">
-                  <el-form-item :label="$t('connections.userProperties')">
-                    <div class="user-props">
-                      <el-button icon="el-icon-plus" class="btn-props-plus" type="text" @click="addItem" />
-                      <div v-for="(item, index) in listData" class="user-props-row" :key="index">
-                        <a class="btn-check" @click="checkItem(index)">
-                          <i v-if="item.checked" class="iconfont el-icon-check"></i>
-                          <i v-else class="iconfont el-icon-check disable-icon"></i>
-                        </a>
-                        <el-input
-                          placeholder="key"
-                          size="mini"
-                          v-model="item.key"
-                          class="input-user-prop user-prop-key"
-                        />
-                        <el-input
-                          placeholder="value"
-                          size="mini"
-                          v-model="item.value"
-                          class="input-user-prop user-prop-value"
-                        />
-                        <el-button icon="el-icon-delete" class="btn-delete" type="text" @click="deleteItem(index)" />
-                      </div>
-                    </div>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="2"></el-col>
               </template>
             </el-row>
           </el-card>
         </el-collapse-transition>
+
+        <el-card v-if="record.mqttVersion === '5.0' && advancedVisible" shadow="never" class="info-body item-card">
+          <el-row :gutter="20">
+            <el-col :span="22">
+              <KeyValueEditor :title="$t('connections.userProperties')" v-model="record.properties.userProperties" />
+            </el-col>
+          </el-row>
+        </el-card>
 
         <!-- Last-Will Message -->
         <div class="info-header">
@@ -452,7 +433,7 @@
               <template v-if="record.mqttVersion === '5.0'">
                 <el-col :span="22">
                   <el-form-item
-                    label-width="170px"
+                    label-width="185px"
                     :label="$t('connections.payloadFormatIndicator')"
                     prop="payloadFormatIndicator"
                   >
@@ -465,8 +446,8 @@
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item
-                    label-width="160px"
-                    :label="`${$t('connections.willDelayInterval')} (${$t('common.unitS')})`"
+                    label-width="185px"
+                    :label="`${$t('connections.willDelayInterval')}(${$t('common.unitS')})`"
                     prop="willDelayInterval"
                   >
                     <el-input
@@ -481,8 +462,8 @@
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item
-                    label-width="160px"
-                    :label="`${$t('connections.messageExpiryInterval')} (${$t('common.unitS')})`"
+                    label-width="185px"
+                    :label="`${$t('connections.messageExpiryInterval')}(${$t('common.unitS')})`"
                     props="messageExpiryInterval"
                   >
                     <el-input
@@ -498,7 +479,7 @@
                 <el-col :span="22">
                   <el-form-item
                     class="content-type-item"
-                    label-width="160px"
+                    label-width="185px"
                     :label="$t('connections.contentType')"
                     prop="contentType"
                   >
@@ -509,7 +490,7 @@
                 <el-col :span="22">
                   <el-form-item
                     class="content-type-item"
-                    label-width="160px"
+                    label-width="185px"
                     :label="$t('connections.responseTopic')"
                     prop="responseTopic"
                   >
@@ -520,7 +501,7 @@
                 <el-col :span="22">
                   <el-form-item
                     class="content-type-item"
-                    label-width="160px"
+                    label-width="185px"
                     :label="$t('connections.correlationData')"
                     prop="correlationData"
                   >
@@ -541,17 +522,19 @@
 import { remote } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { getClientId } from '@/utils/idGenerator'
-import { getMQTTProtocol, getDefaultRecord } from '@/utils/mqttUtils'
-import Editor from '@/components/Editor.vue'
 import _ from 'lodash'
 import time from '@/utils/time'
 import useServices from '@/database/useServices'
 import { emptyToNull } from '@/utils/handleString'
+import { getClientId } from '@/utils/idGenerator'
+import { getMQTTProtocol, getDefaultRecord } from '@/utils/mqttUtils'
+import Editor from '@/components/Editor.vue'
+import KeyValueEditor from '@/components/KeyValueEditor.vue'
 
 @Component({
   components: {
     Editor,
+    KeyValueEditor,
   },
 })
 export default class ConnectionForm extends Vue {
@@ -578,37 +561,6 @@ export default class ConnectionForm extends Vue {
   private defaultRecord: ConnectionModel = getDefaultRecord()
 
   private record: ConnectionModel = _.cloneDeep(this.defaultRecord)
-  public defaultPropObj = { key: '', value: '', checked: true }
-  private initProps() {
-    if (this.record.properties?.userProperties) {
-      const props = this.record.properties.userProperties
-      this.listData = Object.entries(props).map(([key, value]) => {
-        return {
-          key,
-          value,
-          checked: true,
-        } as UserPropsPairObject
-      })
-    }
-  }
-
-  public listData: UserPropsPairObject[] = [_.cloneDeep(this.defaultPropObj)]
-
-  private checkItem(index: number) {
-    this.listData[index].checked = !this.listData[index].checked
-  }
-
-  private deleteItem(index: number) {
-    if (this.listData.length > 1) {
-      this.listData.splice(index, 1)
-    } else if (this.listData.length === 1) {
-      this.listData = [_.cloneDeep(this.defaultPropObj)]
-    }
-  }
-
-  private addItem() {
-    this.listData.push(_.cloneDeep(this.defaultPropObj))
-  }
 
   @Watch('oper')
   private handleCreateNewConnection(val: string) {
@@ -648,7 +600,6 @@ export default class ConnectionForm extends Vue {
       this.record = res
       this.oldName = res.name
       this.record.protocol = getMQTTProtocol(res)
-      this.initProps()
     }
   }
 
@@ -657,25 +608,6 @@ export default class ConnectionForm extends Vue {
       if (!valid) {
         return false
       }
-
-      const checkedList = this.listData.filter((pair) => !(pair.key === '' || !pair.checked))
-      const userProps: {
-        [key: string]: string
-      } = {}
-      if (checkedList.length > 0) {
-        checkedList.forEach((pair) => {
-          if (pair && pair.key) {
-            userProps[pair.key] = pair.value
-          }
-        })
-      }
-
-      if (Object.keys(userProps).length > 0) {
-        this.record.properties = { ...this.record.properties, userProperties: userProps }
-      } else {
-        this.record.properties = { ...this.record.properties, userProperties: undefined }
-      }
-
       const data = { ...this.record }
       data.properties = emptyToNull(data.properties)
       let res: ConnectionModel | undefined = undefined
@@ -854,34 +786,6 @@ export default class ConnectionForm extends Vue {
   .el-form {
     padding-top: 80px;
     padding-bottom: 40px;
-    .user-props {
-      position: relative;
-      .btn-props-plus {
-        position: absolute;
-        left: 0;
-        top: 2px;
-      }
-      .user-props-row {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        margin-left: 20px;
-        .input-user-prop {
-          padding: 0px;
-          margin-right: 10px;
-        }
-        .btn-check {
-          .el-icon-check {
-            font-size: 14px;
-            margin-right: 10px;
-          }
-          .disable-icon {
-            color: dimgray;
-          }
-        }
-      }
-    }
     // normal icon operation style
     .icon-oper {
       color: var(--color-text-default);
@@ -921,6 +825,9 @@ export default class ConnectionForm extends Vue {
     }
     .content-type-item {
       margin-top: 8px;
+    }
+    .key-value-editor {
+      padding-left: 12px;
     }
     @include editor-lang-type;
   }
