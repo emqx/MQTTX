@@ -4,25 +4,29 @@
       <transition name="el-zoom-in-bottom">
         <div v-if="showMetaCard">
           <el-card class="box-card">
-            <el-form ref="form" label-width="185px" label-position="left" :model="MQTT5Props" :rules="rules">
+            <el-form ref="form" label-width="185px" label-position="left" :model="MQTT5PropsForm" :rules="rules">
               <el-row class="form-row" :gutter="20">
                 <el-col :span="24">
                   <KeyValueEditor
                     :title="$t('connections.userProperties')"
-                    v-model="MQTT5Props.userProperties"
+                    v-model="MQTT5PropsForm.userProperties"
                     maxHeight="140px"
                   />
                 </el-col>
                 <el-col :span="24">
                   <el-form-item :label="$t('connections.contentType')" prop="contentType">
-                    <el-input size="mini" v-model="MQTT5Props.contentType"></el-input>
+                    <el-input size="mini" v-model="MQTT5PropsForm.contentType"></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
                   <el-form-item :label="$t('connections.payloadFormatIndicator')" prop="payloadFormatIndicator">
-                    <el-checkbox style="width: 100%" size="mini" v-model="MQTT5Props.payloadFormatIndicator" border>{{
-                      MQTT5Props.payloadFormatIndicator ? 'true' : 'false'
-                    }}</el-checkbox>
+                    <el-checkbox
+                      style="width: 100%"
+                      size="mini"
+                      v-model="MQTT5PropsForm.payloadFormatIndicator"
+                      border
+                      >{{ MQTT5PropsForm.payloadFormatIndicator ? 'true' : 'false' }}</el-checkbox
+                    >
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
@@ -30,17 +34,27 @@
                     :label="`${$t('connections.messageExpiryInterval')}(${$t('common.unitS')})`"
                     prop="messageExpiryInterval"
                   >
-                    <el-input v-model.number="MQTT5Props.messageExpiryInterval" size="mini" :min="0" type="number" />
+                    <el-input
+                      v-model.number="MQTT5PropsForm.messageExpiryInterval"
+                      size="mini"
+                      :min="0"
+                      type="number"
+                    />
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
                   <el-form-item :label="$t('connections.topicAlias')" prop="topicAlias">
-                    <el-input v-model.number="MQTT5Props.topicAlias" size="mini" :min="1" type="number" />
+                    <el-input v-model.number="MQTT5PropsForm.topicAlias" size="mini" :min="1" type="number" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
                   <el-form-item :label="$t('connections.responseTopic')" prop="responseTopic">
-                    <el-input placeholder="Response Topic" size="mini" v-model="MQTT5Props.responseTopic" type="text" />
+                    <el-input
+                      placeholder="Response Topic"
+                      size="mini"
+                      v-model="MQTT5PropsForm.responseTopic"
+                      type="text"
+                    />
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
@@ -48,7 +62,7 @@
                     <el-input
                       placeholder="Correlation Data"
                       size="mini"
-                      v-model="MQTT5Props.correlationData"
+                      v-model="MQTT5PropsForm.correlationData"
                       type="text"
                     />
                   </el-form-item>
@@ -215,16 +229,9 @@ export default class MsgPublish extends Vue {
 
   @Getter('currentTheme') private currentTheme!: Theme
 
-  private MQTT5Props: PushPropertiesModel = {
-    payloadFormatIndicator: undefined,
-    messageExpiryInterval: undefined,
-    topicAlias: undefined,
-    responseTopic: undefined,
-    correlationData: undefined,
-    userProperties: undefined,
-    subscriptionIdentifier: undefined,
-    contentType: undefined,
-  }
+  private MQTT5PropsForm: PushPropertiesModel = {}
+
+  private MQTT5PropsSend: PushPropertiesModel = {}
 
   private showMetaCard: boolean = false
 
@@ -238,7 +245,7 @@ export default class MsgPublish extends Vue {
     })
       .then(async () => {
         this.formRef.resetFields()
-        this.MQTT5Props = {}
+        this.MQTT5PropsForm = {}
         this.hasMqtt5Prop = this.getHasMqtt5PropState()
         await this.updatePushProp()
       })
@@ -248,7 +255,7 @@ export default class MsgPublish extends Vue {
   }
 
   private getHasMqtt5PropState() {
-    return Object.entries(this.MQTT5Props).filter(([_, v]) => v !== null && v !== undefined).length > 0
+    return Object.entries(this.MQTT5PropsForm).filter(([_, v]) => v !== null && v !== undefined).length > 0
   }
 
   private saveMeta() {
@@ -380,8 +387,9 @@ export default class MsgPublish extends Vue {
   }
 
   private async updatePushProp() {
-    this.MQTT5Props = emptyToNull(this.MQTT5Props)
-    const propRecords = Object.entries(this.MQTT5Props).filter(([_, v]) => v !== null && v !== undefined && v !== 0)
+    this.MQTT5PropsForm = emptyToNull(this.MQTT5PropsForm)
+    this.MQTT5PropsSend = _.cloneDeep(this.MQTT5PropsForm)
+    const propRecords = Object.entries(this.MQTT5PropsForm).filter(([_, v]) => v !== null && v !== undefined && v !== 0)
     const props = Object.fromEntries(propRecords)
 
     const { messageService } = useServices()
@@ -391,7 +399,7 @@ export default class MsgPublish extends Vue {
   private async send() {
     this.msgRecord.id = getMessageId()
     this.msgRecord.createAt = time.getNowDate()
-    this.mqtt5PropsEnable && (this.msgRecord.properties = this.MQTT5Props)
+    this.mqtt5PropsEnable && (this.msgRecord.properties = this.MQTT5PropsSend)
     this.$emit('handleSend', this.msgRecord, this.payloadType, this.loadHistoryData)
   }
 
@@ -447,12 +455,13 @@ export default class MsgPublish extends Vue {
   }
 
   private async loadProperties() {
-    this.MQTT5Props = {}
+    this.MQTT5PropsForm = {}
     if (this.mqtt5PropsEnable) {
       const { messageService } = useServices()
       const pushProps = await messageService.getPushProp(this.$route.params.id)
       if (pushProps) {
-        this.MQTT5Props = pushProps
+        this.MQTT5PropsForm = pushProps
+        this.MQTT5PropsSend = _.cloneDeep(this.MQTT5PropsForm)
         this.hasMqtt5Prop = this.getHasMqtt5PropState()
       }
     }
