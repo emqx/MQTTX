@@ -44,7 +44,7 @@ interface KeyValueObj {
 export default class KeyValueEditor extends Vue {
   @Prop({ required: false, default: '' }) private title!: string
   @Prop({ required: false, default: '100%' }) private maxHeight!: string
-  @Model('change', { type: Object }) private readonly value!: { [key: string]: string }
+  @Model('change', { type: Object }) private readonly value!: { [key: string]: string } | null
 
   private dataList: KeyValueObj[] = []
 
@@ -70,7 +70,7 @@ export default class KeyValueEditor extends Vue {
       this.handleInputChange()
     } else if (this.dataList.length === 1) {
       this.dataList = [{ key: '', value: '', checked: true }]
-      this.$emit('change', undefined)
+      this.$emit('change', null)
     }
   }
   private checkItem(index: number) {
@@ -79,7 +79,7 @@ export default class KeyValueEditor extends Vue {
   }
 
   private processObjToArry() {
-    if (this.value === undefined) {
+    if (this.value === undefined || this.value === null) {
       this.dataList = [{ key: '', value: '', checked: true }]
       return
     }

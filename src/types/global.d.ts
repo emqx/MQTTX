@@ -260,9 +260,9 @@ declare global {
     topicAliasMaximum?: number | null
     requestResponseInformation?: boolean | null
     requestProblemInformation?: boolean | null
-    userProperties?: Object
-    authenticationMethod?: string
-    authenticationData?: Buffer
+    userProperties?: Object | null
+    authenticationMethod?: string | null
+    authenticationData?: Buffer | null
   }
 
   interface PushOptions {
