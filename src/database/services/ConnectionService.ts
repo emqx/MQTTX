@@ -79,10 +79,13 @@ export default class ConnectionService {
         topicAliasMaximum,
         requestResponseInformation,
         requestProblemInformation,
-        userProperties,
         authenticationMethod,
         authenticationData,
       } = data.properties
+      let userProperties = null
+      if (data.properties.userProperties) {
+        userProperties = JSON.stringify(data.properties.userProperties)
+      }
       return {
         ...data,
         sessionExpiryInterval,
@@ -93,12 +96,12 @@ export default class ConnectionService {
         requestProblemInformation,
         authenticationMethod,
         authenticationData: authenticationData?.toString('utf8'),
-        userProperties: JSON.stringify(userProperties),
+        userProperties,
       }
     }
     return {
       ...data,
-    } as ConnectionEntity
+    }
   }
 
   // update connection's collection ID
@@ -178,6 +181,7 @@ export default class ConnectionService {
     data.parentId = queryModel.parentId
     // END FIXME
     const res: ConnectionModel = query ? this.deepMerge(queryModel, data) : data
+    // Will Message table
     if (res.will) {
       const {
         id,
@@ -206,10 +210,10 @@ export default class ConnectionService {
         res.will = await this.willRepository.save({
           id,
           ...data,
-        } as WillEntity)
+        })
       } else {
         // no will relation in database
-        res.will = await this.willRepository.save(data as WillEntity)
+        res.will = await this.willRepository.save(data)
       }
     } else {
       // no will relation in memory or database
@@ -221,6 +225,7 @@ export default class ConnectionService {
         lastWillRetain: false,
       })
     }
+    // Subscriptions table
     if (res.subscriptions && Array.isArray(res.subscriptions)) {
       const curSubs: SubscriptionEntity[] = await this.subscriptionRepository
         .createQueryBuilder('sub')
