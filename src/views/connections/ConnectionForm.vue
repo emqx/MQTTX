@@ -239,10 +239,7 @@
           <el-card v-show="advancedVisible" shadow="never" class="info-body item-card">
             <el-row :gutter="10">
               <el-col :span="22">
-                <el-form-item
-                  :label="`${$t('connections.connectionTimeout')} (${$t('common.unitS')})`"
-                  prop="connectTimeout"
-                >
+                <el-form-item :label="$t('connections.connectionTimeout')" prop="connectTimeout">
                   <el-input-number
                     size="mini"
                     type="number"
@@ -253,9 +250,11 @@
                   </el-input-number>
                 </el-form-item>
               </el-col>
-              <el-col :span="2"></el-col>
+              <el-col :span="2"
+                ><div class="unit">({{ $t('common.unitS') }})</div></el-col
+              >
               <el-col :span="22">
-                <el-form-item :label="`Keep Alive (${$t('common.unitS')})`" prop="keepalive">
+                <el-form-item label="Keep Alive" prop="keepalive">
                   <el-input-number
                     size="mini"
                     type="number"
@@ -266,7 +265,9 @@
                   </el-input-number>
                 </el-form-item>
               </el-col>
-              <el-col :span="2"> </el-col>
+              <el-col :span="2"
+                ><div class="unit">({{ $t('common.unitS') }})</div></el-col
+              >
               <el-col :span="22">
                 <el-form-item :label="$t('connections.cleanSession')" prop="clean">
                   <el-radio-group v-model="record.clean">
@@ -315,14 +316,14 @@
                     </el-input>
                   </el-form-item>
                 </el-col>
-                <el-col :span="2"></el-col>
+                <el-col :span="2"><div class="unit">(Byte)</div></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.maximumPacketSize')" prop="maximumPacketSize">
                     <el-input size="mini" type="number" :min="100" v-model.number="record.properties.maximumPacketSize">
                     </el-input>
                   </el-form-item>
                 </el-col>
-                <el-col :span="2"></el-col>
+                <el-col :span="2"><div class="unit">(Byte)</div></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.topicAliasMaximum')" prop="topicAliasMaximum">
                     <el-input size="mini" type="number" :min="1" v-model.number="record.properties.topicAliasMaximum">
@@ -433,7 +434,7 @@
               <template v-if="record.mqttVersion === '5.0'">
                 <el-col :span="22">
                   <el-form-item
-                    label-width="185px"
+                    label-width="175px"
                     :label="$t('connections.payloadFormatIndicator')"
                     prop="payloadFormatIndicator"
                   >
@@ -446,8 +447,8 @@
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item
-                    label-width="185px"
-                    :label="`${$t('connections.willDelayInterval')}(${$t('common.unitS')})`"
+                    label-width="175px"
+                    :label="$t('connections.willDelayInterval')"
                     prop="willDelayInterval"
                   >
                     <el-input
@@ -459,11 +460,13 @@
                     </el-input>
                   </el-form-item>
                 </el-col>
-                <el-col :span="2"></el-col>
+                <el-col :span="2"
+                  ><div class="unit">({{ $t('common.unitS') }})</div></el-col
+                >
                 <el-col :span="22">
                   <el-form-item
-                    label-width="185px"
-                    :label="`${$t('connections.messageExpiryInterval')}(${$t('common.unitS')})`"
+                    label-width="175px"
+                    :label="$t('connections.messageExpiryInterval')"
                     props="messageExpiryInterval"
                   >
                     <el-input
@@ -475,11 +478,13 @@
                     </el-input>
                   </el-form-item>
                 </el-col>
-                <el-col :span="2"></el-col>
+                <el-col :span="2"
+                  ><div class="unit">({{ $t('common.unitS') }})</div></el-col
+                >
                 <el-col :span="22">
                   <el-form-item
                     class="content-type-item"
-                    label-width="185px"
+                    label-width="175px"
                     :label="$t('connections.contentType')"
                     prop="contentType"
                   >
@@ -490,7 +495,7 @@
                 <el-col :span="22">
                   <el-form-item
                     class="content-type-item"
-                    label-width="185px"
+                    label-width="175px"
                     :label="$t('connections.responseTopic')"
                     prop="responseTopic"
                   >
@@ -501,7 +506,7 @@
                 <el-col :span="22">
                   <el-form-item
                     class="content-type-item"
-                    label-width="185px"
+                    label-width="175px"
                     :label="$t('connections.correlationData')"
                     prop="correlationData"
                   >
@@ -794,6 +799,11 @@ export default class ConnectionForm extends Vue {
       &:hover {
         color: var(--color-main-green);
       }
+    }
+    .unit {
+      color: var(--color-text-default);
+      line-height: 43px;
+      font-size: 12px;
     }
     // icon style without fake class such as `:hover` style
     .icon-oper-pure {
