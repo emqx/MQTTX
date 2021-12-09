@@ -25,6 +25,7 @@ import { huLang1635392304194 } from './migration/1635393164071-huLang'
 import { messageProps1637636965786 } from './migration/1637636965786-messageProps'
 import { enhanceMessageType1638081576988 } from './migration/1638081576988-enhanceMessageType'
 import { messageHistoryProps1638375518392 } from './migration/1638375518392-messageHistoryProps'
+import { clientid1639031638009 } from './migration/1639031638009-clientid'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -57,6 +58,7 @@ const ORMConfig = {
     messageProps1637636965786,
     enhanceMessageType1638081576988,
     messageHistoryProps1638375518392,
+    clientid1639031638009,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [
