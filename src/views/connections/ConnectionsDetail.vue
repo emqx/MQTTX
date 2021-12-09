@@ -1188,6 +1188,10 @@ export default class ConnectionsDetail extends Vue {
       if (props.correlationData && typeof props.correlationData === 'string') {
         props.correlationData = Buffer.from(props.correlationData)
       }
+      if (props.userProperties) {
+        // For convert Vue object to normal JavaScript Object: https://github.com/vuejs/Discussion/issues/292
+        props.userProperties = { ...props.userProperties }
+      }
     }
 
     const { isNewPayload } = await this.insertHistory(
@@ -1199,7 +1203,7 @@ export default class ConnectionsDetail extends Vue {
     const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
 
     // @ts-ignore properties issue, waiting PR https://github.com/mqttjs/MQTT.js/pull/1359 merged
-    this.client.publish(topic, sendPayload, { qos: qos as QoS, retain, properties: props }, async (error: Error) => {
+    this.client.publish(topic, sendPayload, { qos, retain, properties: props }, async (error: Error) => {
       if (error) {
         const errorMsg = error.toString()
         this.$message.error(errorMsg)
