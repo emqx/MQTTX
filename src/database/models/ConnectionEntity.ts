@@ -13,7 +13,6 @@ export default class ConnectionEntity {
   @PrimaryGeneratedColumn('uuid')
   id?: string
 
-  @Index({ unique: true })
   @Column({ type: 'varchar', name: 'client_id' })
   clientId!: string
 
