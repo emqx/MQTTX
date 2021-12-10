@@ -309,7 +309,9 @@
                     </el-input>
                   </el-form-item>
                 </el-col>
-                <el-col :span="2"></el-col>
+                <el-col :span="2">
+                  <div class="unit">({{ $t('common.unitS') }})</div>
+                </el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.receiveMaximum')" prop="receiveMaximum">
                     <el-input size="mini" type="number" :min="1" v-model.number="record.properties.receiveMaximum">
