@@ -26,6 +26,7 @@ import { messageProps1637636965786 } from './migration/1637636965786-messageProp
 import { enhanceMessageType1638081576988 } from './migration/1638081576988-enhanceMessageType'
 import { messageHistoryProps1638375518392 } from './migration/1638375518392-messageHistoryProps'
 import { clientid1639031638009 } from './migration/1639031638009-clientid'
+import { subscriptionIdentifier1639375963172 } from './migration/1639375963172-subscriptionIdentifier'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -59,6 +60,7 @@ const ORMConfig = {
     enhanceMessageType1638081576988,
     messageHistoryProps1638375518392,
     clientid1639031638009,
+    subscriptionIdentifier1639375963172,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [

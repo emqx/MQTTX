@@ -30,6 +30,13 @@ export default class SubscriptionEntity {
   @Column({ type: 'simple-enum', enum: [0, 1, 2], default: 0 })
   rh?: RetainHandling
 
+  @Column({ type: 'integer', nullable: true, default: null })
+  subscriptionIdentifier?: number | null
+
+  // origin type `object`
+  @Column({ type: 'varchar', nullable: true, default: null })
+  userProperties?: string | null
+
   @Column({ type: 'varchar', nullable: true })
   color?: string
 
