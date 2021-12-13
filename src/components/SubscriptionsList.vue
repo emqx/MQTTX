@@ -120,6 +120,7 @@
               <el-input v-model="subRecord.alias" type="textarea" size="small"> </el-input>
             </el-form-item>
           </el-col>
+          <!-- MQTT 5.0 -->
           <template v-if="record.mqttVersion === '5.0'">
             <div class="topic-mqtt5">
               <el-col :span="24">
