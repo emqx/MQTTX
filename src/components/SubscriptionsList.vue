@@ -65,9 +65,10 @@
     <my-dialog
       :title="$t('connections.newSubscription')"
       :visible.sync="showDialog"
+      :confirmLoading="subLoading"
+      :top="record.mqttVersion === '5.0' ? '60px' : '15vh'"
       width="530px"
       class="topic-dialog"
-      :confirmLoading="subLoading"
       @confirm="saveSubs"
       @close="resetSubs"
       @keyupEnter="saveSubs"
@@ -123,6 +124,15 @@
           <!-- MQTT 5.0 -->
           <template v-if="record.mqttVersion === '5.0'">
             <div class="topic-mqtt5">
+              <el-col :span="24">
+                <el-form-item
+                  label-width="180px"
+                  :label="$t('connections.subscriptionIdentifier')"
+                  prop="subscriptionIdentifier"
+                >
+                  <el-input size="small" type="number" v-model.number="subRecord.subscriptionIdentifier"> </el-input>
+                </el-form-item>
+              </el-col>
               <el-col :span="24">
                 <el-form-item label-width="180px" label="No Local flag" prop="nl">
                   <el-radio-group v-model="subRecord.nl">
@@ -211,6 +221,7 @@ export default class SubscriptionsList extends Vue {
     nl: false,
     rap: false,
     rh: 0,
+    subscriptionIdentifier: undefined,
   }
   private retainHandling: RetainHandlingList = [0, 1, 2]
   private qosOption: QoSList = [0, 1, 2]
@@ -332,20 +343,31 @@ export default class SubscriptionsList extends Vue {
     }
   }
 
-  public async subscribe({ topic, alias, qos, nl, rap, rh }: SubscriptionModel, isAuto?: boolean) {
+  public async subscribe(
+    { topic, alias, qos, nl, rap, rh, subscriptionIdentifier }: SubscriptionModel,
+    isAuto?: boolean,
+  ) {
     if (isAuto) {
       this.subRecord.nl = nl
       this.subRecord.rap = rap
       this.subRecord.rh = rh
       this.subRecord.topic = topic
       this.subRecord.qos = qos
+      this.subRecord.subscriptionIdentifier = subscriptionIdentifier
       this.subRecord.color = getRandomColor()
     }
     let isFinshed = false
     if (this.client.subscribe) {
       const topicsArr = topic.split(',')
       const aliasArr = alias?.split(',')
-      this.client.subscribe(topicsArr, { qos, nl, rap, rh }, async (error, granted) => {
+      let properties = undefined
+      if (this.record.mqttVersion === '5.0' && subscriptionIdentifier !== undefined) {
+        properties = {
+          subscriptionIdentifier,
+        }
+      }
+      // @ts-ignore -- wait https://github.com/mqttjs/MQTT.js/pull/1369 merged.
+      this.client.subscribe(topicsArr, { qos, nl, rap, rh, properties }, async (error, granted) => {
         this.subLoading = false
         if (error) {
           this.$message.error(error)
@@ -459,6 +481,7 @@ export default class SubscriptionsList extends Vue {
     this.subRecord.topic = 'testtopic/#'
     this.subRecord.qos = 0
     this.subRecord.alias = ''
+    this.subRecord.subscriptionIdentifier = undefined
   }
 
   private getCurrentConnection(id: string) {
