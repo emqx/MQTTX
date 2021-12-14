@@ -3,7 +3,7 @@
     <div class="publish-top">
       <transition name="el-zoom-in-bottom">
         <div v-if="showMetaCard">
-          <el-card class="box-card">
+          <el-card class="meta-card">
             <el-form ref="form" label-width="185px" label-position="left" :model="MQTT5PropsForm" :rules="rules">
               <el-row class="form-row" :gutter="20">
                 <el-col :span="24">
@@ -65,6 +65,12 @@
                       v-model="MQTT5PropsForm.correlationData"
                       type="text"
                     />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="24">
+                  <el-form-item :label="$t('connections.subscriptionIdentifier')" prop="subscriptionIdentifier">
+                    <el-input size="mini" type="number" v-model.number="MQTT5PropsForm.subscriptionIdentifier">
+                    </el-input>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -512,7 +518,7 @@ export default class MsgPublish extends Vue {
     transform: translate(0, -100%);
     width: 100%;
     z-index: 11;
-    .el-card.box-card {
+    .el-card.meta-card {
       padding: 10px;
       padding-bottom: 0px;
       margin: 4px;

@@ -747,4 +747,11 @@ export default {
     ja: 'MQTT 5.0でのみ有効',
     hu: 'Csak MQTT 5.0 esetén engedélyezett',
   },
+  subscriptionIdentifier: {
+    zh: '订阅标识符',
+    en: 'Subscription Identifier',
+    tr: 'Abonelik Tanımlayıcısı',
+    ja: 'サブスクリプション識別子',
+    hu: 'Előfizetési azonosító',
+  },
 }

@@ -163,6 +163,7 @@ declare global {
     nl?: boolean
     rap?: boolean
     rh?: RetainHandling
+    subscriptionIdentifier?: number | null
   }
 
   interface MessageModel {
