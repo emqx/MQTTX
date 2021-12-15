@@ -1175,7 +1175,7 @@ export default class ConnectionsDetail extends Vue {
 
     const { id, topic, qos, payload, retain, properties } = message
 
-    if (!topic) {
+    if (!topic && !properties?.topicAlias) {
       this.$message.warning(this.$t('connections.topicReuired') as string)
       this.stopTimedSend()
       return false
