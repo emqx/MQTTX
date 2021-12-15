@@ -76,10 +76,10 @@
               </el-row>
             </el-form>
             <div class="meta-btn">
-              <el-button size="mini" class="meta-btn-reset" type="text" @click="resetForm">{{
-                $t('common.reset')
+              <el-button size="mini" class="meta-btn-reset" type="text" @click="showMetaCard = false">{{
+                $t('common.cancel')
               }}</el-button>
-              <el-button size="mini" class="meta-btn-submit" type="text" @click="saveMeta">{{
+              <el-button size="mini" class="meta-btn-submit" type="text" :loading="saveMetaLoading" @click="saveMeta">{{
                 $t('common.save')
               }}</el-button>
             </div>
@@ -241,37 +241,20 @@ export default class MsgPublish extends Vue {
 
   private showMetaCard: boolean = false
 
-  get formRef() {
-    return this.$refs.form as VueForm
-  }
-
-  private resetForm() {
-    this.$confirm(this.$tc('common.confirmReset'), this.$tc('common.warning'), {
-      type: 'warning',
-    })
-      .then(async () => {
-        this.formRef.resetFields()
-        this.MQTT5PropsForm = {}
-        this.hasMqtt5Prop = this.getHasMqtt5PropState()
-        await this.updatePushProp()
-      })
-      .catch((error) => {
-        // ignore(error)
-      })
-  }
+  private saveMetaLoading = false
 
   private getHasMqtt5PropState() {
-    return Object.entries(this.MQTT5PropsForm).filter(([_, v]) => v !== null && v !== undefined).length > 0
+    return (
+      Object.entries(this.MQTT5PropsForm).filter(([_, v]) => v !== null && v !== undefined && v !== false).length > 0
+    )
   }
 
-  private saveMeta() {
-    this.formRef.validate((valid) => {
-      if (valid) {
-        this.showMetaCard = false
-        this.hasMqtt5Prop = this.getHasMqtt5PropState()
-        this.updatePushProp()
-      }
-    })
+  private async saveMeta() {
+    this.hasMqtt5Prop = this.getHasMqtt5PropState()
+    this.saveMetaLoading = true
+    await this.updatePushProp()
+    this.saveMetaLoading = false
+    this.showMetaCard = false
   }
 
   private changeVisable() {
@@ -399,7 +382,7 @@ export default class MsgPublish extends Vue {
     const props = Object.fromEntries(propRecords)
 
     const { messageService } = useServices()
-    await messageService.addPushProp(props, this.$route.params.id)
+    return await messageService.addPushProp(props, this.$route.params.id)
   }
 
   private async send() {
