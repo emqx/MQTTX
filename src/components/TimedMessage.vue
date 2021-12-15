@@ -49,7 +49,7 @@ export default class TimedMessage extends Vue {
     const { sendFrequency } = this.record
     if (sendFrequency) {
       this.$emit('setTimerSuccess', sendFrequency)
-      this.$message.success(this.$t('connections.setTimerSuccess') as string)
+      this.$message.success(this.$tc('connections.setTimerSuccess'))
     }
     this.resetData()
   }

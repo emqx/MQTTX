@@ -559,7 +559,7 @@ export default class ConnectionsDetail extends Vue {
       name = currentConnection.name
     }
     const confirmDelete: string = this.$t('common.confirmDelete', { name }) as string
-    this.$confirm(confirmDelete, this.$t('common.warning') as string, {
+    this.$confirm(confirmDelete, this.$tc('common.warning'), {
       type: 'warning',
     })
       .then(async () => {
@@ -568,7 +568,7 @@ export default class ConnectionsDetail extends Vue {
           const res: ConnectionModel | undefined = await connectionService.delete(id)
           if (res) {
             this.$emit('delete')
-            this.$message.success(this.$t('common.deleteSuccess') as string)
+            this.$message.success(this.$tc('common.deleteSuccess'))
             if (res.id) {
               this.removeActiveConnection({ id: res.id })
               this.$log.info(`MQTTX remove connection ${res.name}(clientID ${res.clientId}) success`)
@@ -591,7 +591,7 @@ export default class ConnectionsDetail extends Vue {
     if (this.sendTimeId) {
       clearInterval(this.sendTimeId)
       this.sendTimeId = null
-      this.$message.success(this.$t('connections.stopTimedMessage') as string)
+      this.$message.success(this.$tc('connections.stopTimedMessage'))
     }
   }
 
@@ -630,10 +630,10 @@ export default class ConnectionsDetail extends Vue {
     if (this.selectedInfo) {
       this.$copyText(this.selectedInfo).then(
         () => {
-          this.$message.success(this.$t('common.copySuccess') as string)
+          this.$message.success(this.$tc('common.copySuccess'))
         },
         () => {
-          this.$message.error(this.$t('common.copyFailed') as string)
+          this.$message.error(this.$tc('common.copyFailed'))
         },
       )
     }
@@ -651,12 +651,12 @@ export default class ConnectionsDetail extends Vue {
       const res: MessageModel | undefined = await messageService.delete(id)
       if (res) {
         this.showContextmenu = false
-        this.$message.success(this.$t('common.deleteSuccess') as string)
+        this.$message.success(this.$tc('common.deleteSuccess'))
         this.$emit('reload')
         this.$log.info(`Delete message success, connectID ${connectID}`)
       } else {
         this.showContextmenu = false
-        this.$message.error(this.$t('common.deletefailed') as string)
+        this.$message.error(this.$tc('common.deletefailed'))
         this.$log.info('Delete message failed')
       }
     }
@@ -902,7 +902,7 @@ export default class ConnectionsDetail extends Vue {
         messages: this.record.messages,
       })
       this.$notify({
-        title: this.$t('connections.disconnected') as string,
+        title: this.$tc('connections.disconnected'),
         message: '',
         type: 'success',
         duration: 3000,
@@ -926,7 +926,7 @@ export default class ConnectionsDetail extends Vue {
       messages: this.record.messages,
     })
     this.$notify({
-      title: this.$t('connections.connected') as string,
+      title: this.$tc('connections.connected'),
       message: '',
       type: 'success',
       duration: 3000,
@@ -939,7 +939,7 @@ export default class ConnectionsDetail extends Vue {
 
   // Error callback
   private onError(error: Error) {
-    let msgTitle = this.$t('connections.connectFailed') as string
+    let msgTitle = this.$tc('connections.connectFailed')
     if (error) {
       msgTitle = error.toString()
     }
@@ -964,7 +964,7 @@ export default class ConnectionsDetail extends Vue {
       this.retryTimes = 0
       this.connectLoading = false
       this.$notify({
-        title: this.$t('connections.connectFailed') as string,
+        title: this.$tc('connections.connectFailed'),
         message: '',
         type: 'error',
         duration: 3000,
@@ -982,7 +982,7 @@ export default class ConnectionsDetail extends Vue {
         this.retryTimes += 1
         this.connectLoading = true
         this.$notify({
-          title: this.$t('connections.reconnect') as string,
+          title: this.$tc('connections.reconnect'),
           message: '',
           type: 'warning',
           duration: 3000,
@@ -1030,14 +1030,14 @@ export default class ConnectionsDetail extends Vue {
       content: script,
     }
     this.setScript({ currentScript })
-    this.$message.success(this.$t('script.startScript') as string)
+    this.$message.success(this.$tc('script.startScript'))
     this.$log.info('Set script successed')
   }
 
   // Remove script
   private removeScript() {
     this.setScript({ currentScript: null })
-    this.$message.success(this.$t('script.stopScirpt') as string)
+    this.$message.success(this.$tc('script.stopScirpt'))
     this.$log.info('Remove script successed')
   }
 
@@ -1163,7 +1163,7 @@ export default class ConnectionsDetail extends Vue {
   ): Promise<void | boolean> {
     if (!this.client.connected) {
       this.$notify({
-        title: this.$t('connections.notConnect') as string,
+        title: this.$tc('connections.notConnect'),
         message: '',
         type: 'error',
         duration: 3000,
@@ -1176,7 +1176,7 @@ export default class ConnectionsDetail extends Vue {
     const { id, topic, qos, payload, retain, properties } = message
 
     if (!topic && !properties?.topicAlias) {
-      this.$message.warning(this.$t('connections.topicReuired') as string)
+      this.$message.warning(this.$tc('connections.topicReuired'))
       this.stopTimedSend()
       return false
     }

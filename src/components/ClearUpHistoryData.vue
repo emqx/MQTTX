@@ -36,7 +36,7 @@ export default class ClearUpHistoryData extends Vue {
     await connectionService.cleanLeatest()
     await historyMessageHeaderService.clean()
     await historyMessagePayloadService.clean()
-    this.$message.success(this.$t('connections.cleanHistorySuccess') as string)
+    this.$message.success(this.$tc('connections.cleanHistorySuccess'))
     this.resetData()
   }
 

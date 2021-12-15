@@ -627,7 +627,7 @@ export default class ConnectionForm extends Vue {
           createAt: time.getNowDate(),
           updateAt: time.getNowDate(),
         })
-        msgError = this.$t('common.createfailed') as string
+        msgError = this.$tc('common.createfailed')
       } else {
         // update a exisit connection
         if (data.id) {
@@ -635,7 +635,7 @@ export default class ConnectionForm extends Vue {
             ...data,
             updateAt: time.getNowDate(),
           })
-          msgError = this.$t('common.editfailed') as string
+          msgError = this.$tc('common.editfailed')
         }
       }
       // update ActiveConnection & connect
