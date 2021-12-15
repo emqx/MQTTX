@@ -35,9 +35,8 @@
           <el-popover
             placement="top"
             trigger="hover"
-            width="100%"
             popper-class="topic-tooltip"
-            :content="copySuccess ? $t('connections.topicCopied') : sub.topic"
+            :content="getPopoverContent(copySuccess, sub)"
           >
             <a
               slot="reference"
@@ -361,7 +360,7 @@ export default class SubscriptionsList extends Vue {
       const topicsArr = topic.split(',')
       const aliasArr = alias?.split(',')
       let properties = undefined
-      if (this.record.mqttVersion === '5.0' && subscriptionIdentifier !== undefined) {
+      if (this.record.mqttVersion === '5.0' && subscriptionIdentifier) {
         properties = {
           subscriptionIdentifier,
         }
@@ -510,6 +509,20 @@ export default class SubscriptionsList extends Vue {
       this.topicActiveIndex = null
       this.$emit('onClickTopic', item, true)
     }
+  }
+
+  private getPopoverContent(copied: boolean, sub: SubscriptionModel): string {
+    if (copied) {
+      return this.$tc('connections.topicCopied')
+    }
+    let topicString = sub.topic
+    if (sub.subscriptionIdentifier) {
+      topicString = `
+        Topic: ${topicString},
+        ${this.$tc('connections.subscriptionIdentifier')}: ${sub.subscriptionIdentifier}
+      `
+    }
+    return topicString
   }
 
   private created() {
@@ -668,7 +681,7 @@ export default class SubscriptionsList extends Vue {
   font-size: $font-size--tips;
   background: var(--color-bg-popover);
   text-align: center;
-  min-width: auto;
+  min-width: 120px;
   border-radius: 4px;
   .popper__arrow::after {
     bottom: 0px !important;
