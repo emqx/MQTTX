@@ -182,7 +182,7 @@ export default class ImportData extends Vue {
     if (fileContent) {
       const res = this.verifyFileContent(fileContent)
       if (!res) {
-        this.$message.error(this.$t('connections.fileContentRequired') as string)
+        this.$message.error(this.$tc('connections.fileContentRequired'))
         return
       }
       this.record.filePath = filePath
@@ -275,7 +275,7 @@ export default class ImportData extends Vue {
         // one message/subscription
         let { messages, subscriptions } = oneConnection
         if (messages === undefined || subscriptions === undefined) {
-          this.$message.error(this.$t('connections.uploadFileTip') as string)
+          this.$message.error(this.$tc('connections.uploadFileTip'))
           return
         }
         messages = JSON.stringify(messages) !== '{}' && !Array.isArray(messages) ? [messages] : messages
@@ -352,12 +352,12 @@ export default class ImportData extends Vue {
   private async importData() {
     const { connectionService } = useServices()
     if (!this.record.fileContent.length) {
-      this.$message.error(this.$t('connections.uploadFileTip') as string)
+      this.$message.error(this.$tc('connections.uploadFileTip'))
       return
     }
     const importDataResult = await connectionService.import(this.record.fileContent)
     if (importDataResult === 'ok') {
-      this.$message.success(this.$t('common.importSuccess') as string)
+      this.$message.success(this.$tc('common.importSuccess'))
       this.$emit('updateData')
       this.resetData()
     } else {

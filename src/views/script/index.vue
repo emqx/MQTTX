@@ -150,7 +150,7 @@ execute(handlePayload)`
         const data = { ...currentScript }
         const res = await scriptService.update(this.currentScriptId, data)
         if (res) {
-          this.$message.success(this.$t('common.editSuccess') as string)
+          this.$message.success(this.$tc('common.editSuccess'))
         }
       }
     }
@@ -158,7 +158,7 @@ execute(handlePayload)`
 
   private async save() {
     if (!this.record.name) {
-      this.$message.warning(this.$t('script.scriptRequired') as string)
+      this.$message.warning(this.$tc('script.scriptRequired'))
       return
     }
     this.record.script = this.scriptValue
@@ -166,7 +166,7 @@ execute(handlePayload)`
     const { scriptService } = useServers()
     const res = await scriptService.create(data)
     if (res) {
-      this.$message.success(this.$t('common.createSuccess') as string)
+      this.$message.success(this.$tc('common.createSuccess'))
       this.showDialog = false
       this.record = {
         id: '',
@@ -200,13 +200,13 @@ execute(handlePayload)`
     if (currentScript) {
       const { name } = currentScript
       const confirmDelete: string = this.$t('common.confirmDelete', { name }) as string
-      this.$confirm(confirmDelete, this.$t('common.warning') as string, {
+      this.$confirm(confirmDelete, this.$tc('common.warning'), {
         type: 'warning',
       })
         .then(async () => {
           const res: ScriptModel | undefined = await scriptService.delete(this.currentScriptId)
           if (res) {
-            this.$message.success(this.$t('common.deleteSuccess') as string)
+            this.$message.success(this.$tc('common.deleteSuccess'))
             this.loadData()
           }
         })

@@ -87,7 +87,7 @@ export default class UseScript extends Vue {
 
   private async save() {
     if (!this.currentScriptId) {
-      this.$message.warning(this.$t('script.scriptRequired') as string)
+      this.$message.warning(this.$tc('script.scriptRequired'))
       return
     }
     const { scriptService } = useServices()

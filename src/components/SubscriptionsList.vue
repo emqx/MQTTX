@@ -292,7 +292,7 @@ export default class SubscriptionsList extends Vue {
   private saveSubs(): void | boolean {
     this.getCurrentConnection(this.connectionId)
     if (!this.client || !this.client.connected) {
-      this.$message.warning(this.$t('connections.notConnect') as string)
+      this.$message.warning(this.$tc('connections.notConnect'))
       return false
     }
     this.subForm.validate((valid: boolean) => {
@@ -434,7 +434,7 @@ export default class SubscriptionsList extends Vue {
   private removeSubs(row: SubscriptionModel): void | boolean {
     if (!this.client || !this.client.connected) {
       this.$notify({
-        title: this.$t('connections.notConnect') as string,
+        title: this.$tc('connections.notConnect'),
         message: '',
         type: 'error',
         duration: 3000,

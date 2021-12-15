@@ -129,7 +129,7 @@ export default class ExportData extends Vue {
     this.getStringifyContent()
       .then((content) => {
         if (content === '[]') {
-          this.$message.warning(this.$t('common.noData') as string)
+          this.$message.warning(this.$tc('common.noData'))
           return
         }
         this.exportDiffFormatData(content, 'JSON')
@@ -160,7 +160,7 @@ export default class ExportData extends Vue {
       }
 
       if (!data.length) {
-        this.$message.warning(this.$t('common.noData') as string)
+        this.$message.warning(this.$tc('common.noData'))
         return
       }
       const jsonContent = data
@@ -195,7 +195,7 @@ export default class ExportData extends Vue {
     this.getStringifyContent()
       .then((content) => {
         if (content === '[]') {
-          this.$message.warning(this.$t('common.noData') as string)
+          this.$message.warning(this.$tc('common.noData'))
           return
         }
         exportDataToXML(content)
@@ -219,7 +219,7 @@ export default class ExportData extends Vue {
       ? [this.connection]
       : await connectionService.getAll()
     if (!data || !data.length) {
-      this.$message.warning(this.$t('common.noData') as string)
+      this.$message.warning(this.$tc('common.noData'))
       return
     }
     const jsonContent = data

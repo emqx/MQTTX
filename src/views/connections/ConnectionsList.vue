@@ -551,7 +551,7 @@ export default class ConnectionsList extends Vue {
     if (selectedCollection && selectedCollection.isCollection) {
       const { name } = selectedCollection
       const confirmDelete: string = this.$t('common.confirmDelete', { name }) as string
-      this.$confirm(confirmDelete, this.$t('common.warning') as string, {
+      this.$confirm(confirmDelete, this.$tc('common.warning'), {
         type: 'warning',
       })
         .then(async () => {
@@ -567,7 +567,7 @@ export default class ConnectionsList extends Vue {
           // delete the chilren
           const { collectionService } = useServices()
           await collectionService.delete(selectedCollection.id)
-          this.$message.success(this.$t('common.deleteSuccess') as string)
+          this.$message.success(this.$tc('common.deleteSuccess'))
           this.$emit('reload')
         })
         .catch((error) => {
