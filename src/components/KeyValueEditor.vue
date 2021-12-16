@@ -2,17 +2,18 @@
   <div class="key-value-editor">
     <div class="editor-header">
       <span class="editor-title">{{ title }}</span>
-      <el-button icon="el-icon-plus" class="btn-props-plus" type="text" @click="addItem" />
+      <el-button v-if="!disabled" icon="el-icon-plus" class="btn-props-plus" type="text" @click="addItem" />
     </div>
     <div class="editor-row" :style="{ 'max-height': maxHeight }">
       <div v-for="(item, index) in dataList" class="editor-row" :key="index">
-        <a class="btn-check" @click="checkItem(index)">
+        <a v-if="!disabled" class="btn-check" @click="checkItem(index)">
           <i v-if="item.checked" class="iconfont el-icon-check"></i>
           <i v-else class="iconfont el-icon-check disable-icon"></i>
         </a>
         <el-input
           placeholder="Key"
           size="mini"
+          :disabled="disabled"
           v-model="item.key"
           class="input-prop user-prop-key"
           @input="handleInputChange"
@@ -20,11 +21,12 @@
         <el-input
           placeholder="Value"
           size="mini"
+          :disabled="disabled"
           v-model="item.value"
           class="input-prop user-prop-value"
           @input="handleInputChange"
         />
-        <el-button icon="el-icon-delete" class="btn-delete" type="text" @click="deleteItem(index)" />
+        <el-button v-if="!disabled" icon="el-icon-delete" class="btn-delete" type="text" @click="deleteItem(index)" />
       </div>
     </div>
   </div>
@@ -44,6 +46,7 @@ interface KeyValueObj {
 export default class KeyValueEditor extends Vue {
   @Prop({ required: false, default: '' }) private title!: string
   @Prop({ required: false, default: '100%' }) private maxHeight!: string
+  @Prop({ required: false, default: false }) private disabled!: boolean
   @Model('change', { type: Object }) private readonly value!: { [key: string]: string } | null
 
   private dataList: KeyValueObj[] = []
