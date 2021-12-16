@@ -6,7 +6,12 @@
         <span class="qos">QoS: {{ qos }}</span>
       </p>
       <p v-if="properties.userProperties" class="user-properties right">
-        User Properties: {{ properties.userProperties }}
+        <KeyValueEditor
+          class="msg-item-props"
+          :title="$t('connections.userProperties')"
+          :disabled="true"
+          :value="properties.userProperties"
+        />
       </p>
       <pre>{{ payload }}</pre>
     </div>
@@ -16,8 +21,13 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import KeyValueEditor from './KeyValueEditor.vue'
 
-@Component
+@Component({
+  components: {
+    KeyValueEditor,
+  },
+})
 export default class MsgrightItem extends Vue {
   @Prop({ required: true }) public topic!: string
   @Prop({ required: true }) public qos!: number
@@ -31,7 +41,7 @@ export default class MsgrightItem extends Vue {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import '~@/assets/scss/mixins.scss';
 
 .msg-right-item {
@@ -49,13 +59,5 @@ export default class MsgrightItem extends Vue {
     left: 0px;
     animation: rightMsg 0.3s ease-in-out;
   }
-  // @keyframes rightMsg {
-  //   from {
-  //     left: 171px;
-  //   }
-  //   to {
-  //     left: 0px;
-  //   }
-  // }
 }
 </style>

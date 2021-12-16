@@ -8,7 +8,12 @@
         <span v-if="retain" class="retain">Retain</span>
       </p>
       <p v-if="properties.userProperties" class="user-properties left">
-        User Properties: {{ properties.userProperties }}
+        <KeyValueEditor
+          class="msg-item-props"
+          :title="$t('connections.userProperties')"
+          :disabled="true"
+          :value="properties.userProperties"
+        />
       </p>
       <pre>{{ payload }}</pre>
     </div>
@@ -18,8 +23,13 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import KeyValueEditor from './KeyValueEditor.vue'
 
-@Component
+@Component({
+  components: {
+    KeyValueEditor,
+  },
+})
 export default class MsgLeftItem extends Vue {
   @Prop({ required: true }) public topic!: string
   @Prop({ required: true }) public qos!: number
@@ -35,7 +45,7 @@ export default class MsgLeftItem extends Vue {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import '~@/assets/scss/mixins.scss';
 
 .msg-left-item {
