@@ -50,6 +50,20 @@
     color: var(--color-text-light);
     margin-bottom: 5px;
   }
+  .subscription-identifier {
+    margin-top: 10px;
+    padding-top: 6px;
+    border-top-width: 1px;
+    border-top-style: dashed;
+    &.left {
+      color: var(--color-text-left_info);
+      border-top-color: var(--color-border-left_metainfo);
+    }
+    &.right {
+      color: var(--color-text-right_info);
+      border-top-color: var(--color-text-right_metainfo);
+    }
+  }
   .user-properties {
     margin-top: 10px;
     padding: 6px 0;
