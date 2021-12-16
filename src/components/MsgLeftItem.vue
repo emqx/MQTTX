@@ -7,6 +7,9 @@
         <span class="qos">QoS: {{ qos }}</span>
         <span v-if="retain" class="retain">Retain</span>
       </p>
+      <p v-if="properties.subscriptionIdentifier" class="subscription-identifier left">
+        <span>{{ $t('connections.subscriptionIdentifier') }}: {{ properties.subscriptionIdentifier }}</span>
+      </p>
       <p v-if="properties.userProperties" class="user-properties left">
         <KeyValueEditor
           class="msg-item-props"
