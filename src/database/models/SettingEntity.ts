@@ -28,4 +28,7 @@ export default class SettingEntity {
 
   @Column({ type: 'boolean', default: true })
   autoScroll!: boolean
+
+  @Column({ type: 'boolean', default: false })
+  syncOsTheme!: boolean
 }
