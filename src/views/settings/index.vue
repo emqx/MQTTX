@@ -116,6 +116,33 @@
 
       <el-row class="settings-item" type="flex" justify="space-between">
         <el-col :span="20">
+          <label>{{ $t('settings.syncOsTheme') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('settings.syncOsThemeDesc')"
+          >
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            :value="syncOsTheme"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleSyncOsThemeSwitchChange"
+          >
+          </el-switch>
+        </el-col>
+      </el-row>
+
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
           <label>{{ $t('settings.theme') }}</label>
         </el-col>
         <el-col :span="4">
@@ -123,6 +150,7 @@
             class="settings-options"
             :value="currentTheme"
             size="mini"
+            :disabled="syncOsTheme"
             @change="handleSelectChange('theme', $event)"
           >
             <el-option
@@ -218,11 +246,13 @@ export default class Settings extends Vue {
   @Action('TOGGLE_AUTO_CHECK') private actionAutoCheck!: (payload: { autoCheck: boolean }) => void
   @Action('TOGGLE_AUTO_RESUB') private actionAutoResub!: (payload: { autoResub: boolean }) => void
   @Action('TOGGLE_AUTO_SCROLL') private actionAutoScroll!: (payload: { autoScroll: boolean }) => void
+  @Action('TOGGLE_SYNC_OS_THEME') private actionSyncOsTheme!: (payload: { syncOsTheme: boolean }) => void
   @Action('SET_MAX_RECONNECT_TIMES') private actionMaxReconnectTimes!: (payload: { maxReconnectTimes: number }) => void
   @Getter('currentTheme') private currentTheme!: Theme
   @Getter('currentLang') private currentLang!: Language
   @Getter('autoCheck') private autoCheck!: boolean
   @Getter('autoResub') private autoResub!: boolean
+  @Getter('syncOsTheme') private syncOsTheme!: boolean
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('autoScroll') private autoScroll!: boolean
 
@@ -257,6 +287,10 @@ export default class Settings extends Vue {
 
   private handleAutoResubSwitchChange(value: boolean) {
     this.actionAutoResub({ autoResub: value })
+  }
+
+  private handleSyncOsThemeSwitchChange(value: boolean) {
+    this.actionSyncOsTheme({ syncOsTheme: value })
   }
 
   private handleAutoScrollSwitchChange(value: boolean) {

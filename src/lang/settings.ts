@@ -139,4 +139,18 @@ export default {
     ja: 'ペイロード/ QoS /保持/トピック/接続を含む過去の提案情報をクリアします',
     hu: 'It will clear the historical suggestion information, including historical Payload/QoS/Retain/Topic/Connection',
   },
+  syncOsTheme: {
+    zh: '同步操作系统主题',
+    en: 'Sync with OS Theme',
+    tr: 'İşletim Sistemi Teması ile Senkronizasyon',
+    ja: 'OSテーマと同期する',
+    hu: 'Szinkronizálás az OS témával',
+  },
+  syncOsThemeDesc: {
+    zh: '开启后，系统将跟随操作系统主题自动切换',
+    en: 'Automatically switch between Light and Night themes when your system does.',
+    tr: 'Sisteminiz yaptığında Işık ve Gece temaları arasında otomatik olarak geçiş yapın.',
+    ja: 'システムが切り替えると、ライトテーマとナイトテーマを自動的に切り替えます。',
+    hu: 'Automatikusan válthat a Világos és az Éjszakai témák között, amikor a rendszer ezt teszi.',
+  },
 }

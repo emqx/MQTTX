@@ -19,7 +19,7 @@ const TOGGLE_WILL_MESSAGE_VISIBLE = 'TOGGLE_WILL_MESSAGE_VISIBLE'
 const TOGGLE_ADVANCED_VISIBLE = 'TOGGLE_ADVANCED_VISIBLE'
 const CHANGE_ALL_CONNECTIONS = 'CHANGE_ALL_CONNECTIONS'
 const SET_SCRIPT = 'SET_SCRIPT'
-const CHANGE_CONNECTION_COLLECTION = 'CHANGE_CONNECTION_COLLECTION'
+const TOGGLE_SYNC_OS_THEME = 'TOGGLE_SYNC_OS_THEME'
 
 const getShowSubscriptions = (): boolean => {
   const $showSubscriptions: string | null = localStorage.getItem('showSubscriptions')
@@ -38,6 +38,7 @@ const app = {
     autoCheck: settingData.autoCheck,
     autoResub: settingData.autoResub,
     autoScroll: settingData.autoScroll,
+    syncOsTheme: settingData.syncOsTheme,
     maxReconnectTimes: settingData.maxReconnectTimes || 10,
     showSubscriptions: getShowSubscriptions(),
     showClientInfo: {},
@@ -64,6 +65,9 @@ const app = {
     },
     [TOGGLE_AUTO_SCROLL](state: App, autoScroll: boolean) {
       state.autoScroll = autoScroll
+    },
+    [TOGGLE_SYNC_OS_THEME](state: App, syncOsTheme: boolean) {
+      state.syncOsTheme = syncOsTheme
     },
     [SET_MAX_RECONNECT_TIMES](state: App, maxReconnectTimes: number) {
       state.maxReconnectTimes = maxReconnectTimes
@@ -157,6 +161,12 @@ const app = {
       const { settingService } = useServices()
       commit(TOGGLE_AUTO_SCROLL, payload.autoScroll)
       settingData.autoScroll = payload.autoScroll
+      await settingService.update(payload)
+    },
+    async TOGGLE_SYNC_OS_THEME({ commit }: any, payload: App) {
+      const { settingService } = useServices()
+      commit(TOGGLE_SYNC_OS_THEME, payload.syncOsTheme)
+      settingData.syncOsTheme = payload.syncOsTheme
       await settingService.update(payload)
     },
     async SET_MAX_RECONNECT_TIMES({ commit }: any, payload: App) {

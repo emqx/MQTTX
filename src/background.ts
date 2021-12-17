@@ -16,6 +16,7 @@ import useServices from '@/database/useServices'
 declare const __static: string
 
 let theme: Theme = 'light'
+let syncOsTheme = false
 let autoCheckUpdate: boolean = true
 const windowSize = {
   width: 1025,
@@ -86,6 +87,7 @@ async function createWindow() {
   if (setting) {
     theme = setting.currentTheme
     autoCheckUpdate = setting.autoCheck
+    syncOsTheme = setting.syncOsTheme
     windowSize.height = setting.height
     windowSize.width = setting.width
     //@ts-ignore
@@ -96,6 +98,7 @@ async function createWindow() {
       autoResub: setting.autoResub,
       autoScroll: setting.autoScroll,
       maxReconnectTimes: setting.maxReconnectTimes,
+      syncOsTheme: setting.syncOsTheme,
     }
   }
   // Create the browser window.
