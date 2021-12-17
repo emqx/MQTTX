@@ -359,7 +359,7 @@ export default class SubscriptionsList extends Vue {
     if (this.client.subscribe) {
       const topicsArr = topic.split(',')
       const aliasArr = alias?.split(',')
-      let properties = undefined
+      let properties: { subscriptionIdentifier: number } | undefined = undefined
       if (this.record.mqttVersion === '5.0' && subscriptionIdentifier) {
         properties = {
           subscriptionIdentifier,
@@ -414,7 +414,11 @@ export default class SubscriptionsList extends Vue {
           await connectionService.updateWithCascade(this.record.id, this.record)
           this.changeSubs({ id: this.connectionId, subscriptions: this.subsList })
           this.showDialog = false
-          this.$log.info(`Topic: ${topic} successfully subscribed`)
+          let subLog = `Topic: ${topic} successfully subscribed`
+          if (this.record.mqttVersion === '5.0') {
+            subLog += `, Subscription Identifier: ${subscriptionIdentifier}, No Local flag: ${nl}, Retain as Published flag: ${rap}, Retain Handling: ${rh}`
+          }
+          this.$log.info(subLog)
         }
         isFinshed = true
       })

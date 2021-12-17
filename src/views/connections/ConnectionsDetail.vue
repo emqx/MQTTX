@@ -548,7 +548,12 @@ export default class ConnectionsDetail extends Vue {
       wss: 'MQTT/WSS connection',
     }
     const curOptionsProtocol: Protocol = (this.client as MqttClient).options.protocol as Protocol
-    this.$log.info(`Connect client, ${protocolLogMap[curOptionsProtocol]}: ${connectUrl}`)
+    let connectLog = `Connect client ${this.record.name}, ${protocolLogMap[curOptionsProtocol]}: ${connectUrl}`
+    if (this.record.mqttVersion === '5.0') {
+      const propertiesLog = JSON.stringify(this.record.properties)
+      connectLog += ` with Properties: ${propertiesLog}`
+    }
+    this.$log.info(connectLog)
   }
 
   // Delete connection
@@ -1097,11 +1102,13 @@ export default class ConnectionsDetail extends Vue {
           this.$log.info(`Message Arrived with topic: ${topic}`)
           this.messages.push(receivedMessage)
           this.messagesAddedNewItem = true
-          this.$log.info(
-            `Message arrived: message added #${JSON.stringify(
-              receivedMessage.id,
-            )} added to topic ${topic}, MQTT.js onMessageArrived trigger`,
-          )
+          const msgIdLog = JSON.stringify(receivedMessage.id)
+          let receivedLog = `Message arrived: message added ${msgIdLog} added to topic "${topic}", MQTT.js onMessageArrived trigger`
+          if (this.record.mqttVersion === '5.0') {
+            const logProperties = JSON.stringify(receivedMessage.properties)
+            receivedLog += ` with Properties: ${logProperties}`
+          }
+          this.$log.info(receivedLog)
         }
       } else {
         this.unreadMessageIncrement({ id })
@@ -1236,11 +1243,14 @@ export default class ConnectionsDetail extends Vue {
           this.messages.push(publishMessage)
           this.messagesAddedNewItem = true
         }
-        this.$log.info(
-          `Sucessfully published message ${JSON.stringify(publishMessage.payload)} to topic ${JSON.stringify(
-            publishMessage.topic,
-          )}`,
-        )
+        const logPayload = JSON.stringify(publishMessage.payload)
+        const logTopic = JSON.stringify(publishMessage.topic)
+        let pubLog = `Sucessfully published message ${logPayload} to topic ${logTopic}`
+        if (this.record.mqttVersion === '5.0') {
+          const logProperties = JSON.stringify(publishMessage.properties)
+          pubLog += ` with Properties: ${logProperties}`
+        }
+        this.$log.info(pubLog)
         const { messageService } = useServices()
         await messageService.pushToConnection({ ...publishMessage }, this.record.id)
         this.scrollToBottom()
