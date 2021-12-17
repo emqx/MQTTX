@@ -335,9 +335,7 @@ export default class SubscriptionsList extends Vue {
     for (let i = 0; i < this.subsList.length; i++) {
       const sub = this.subsList[i]
       this.$log.info(`Topic: ${sub.topic} is resubscribing`)
-      this.subRecord.topic = sub.topic
-      this.subRecord.qos = sub.qos
-      this.subRecord.color = sub.color
+      this.subRecord = sub
       await this.subscribe({ ...this.subRecord })
     }
   }
