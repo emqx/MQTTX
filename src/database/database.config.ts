@@ -27,6 +27,7 @@ import { enhanceMessageType1638081576988 } from './migration/1638081576988-enhan
 import { messageHistoryProps1638375518392 } from './migration/1638375518392-messageHistoryProps'
 import { clientid1639031638009 } from './migration/1639031638009-clientid'
 import { subscriptionIdentifier1639375963172 } from './migration/1639375963172-subscriptionIdentifier'
+import { syncOsTheme1639730106721 } from './migration/1639730106721-syncOsTheme'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -61,6 +62,7 @@ const ORMConfig = {
     messageHistoryProps1638375518392,
     clientid1639031638009,
     subscriptionIdentifier1639375963172,
+    syncOsTheme1639730106721,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [

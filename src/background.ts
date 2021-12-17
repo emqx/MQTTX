@@ -115,11 +115,9 @@ async function createWindow() {
     icon: `${__static}/app.ico`,
   })
   // Theme change
-  if (isMac) {
-    onSystemThemeChanged(async (theme) => {
-      win?.webContents.send('setting', 'theme', theme)
-    })
-  }
+  onSystemThemeChanged(async (theme) => {
+    win?.webContents.send('setting', 'theme', theme)
+  })
   // Menu Manger
   const templateMenu = getMenuTemplate(win)
   menu = Menu.buildFromTemplate(templateMenu)
