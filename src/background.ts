@@ -119,7 +119,10 @@ async function createWindow() {
   })
   // Theme change
   onSystemThemeChanged(async (theme) => {
-    win?.webContents.send('setting', 'theme', theme)
+    // @ts-ignore
+    if (global.sharedData.syncOsTheme) {
+      win?.webContents.send('setting', 'theme', theme)
+    }
   })
   // Menu Manger
   const templateMenu = getMenuTemplate(win)
