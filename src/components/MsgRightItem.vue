@@ -5,8 +5,11 @@
         <span class="topic">Topic: {{ topic }}</span>
         <span class="qos">QoS: {{ qos }}</span>
       </p>
-      <p v-if="properties.subscriptionIdentifier" class="subscription-identifier right">
+      <p v-if="properties.subscriptionIdentifier" class="properties right">
         <span>{{ $t('connections.subscriptionIdentifier') }}: {{ properties.subscriptionIdentifier }}</span>
+      </p>
+      <p v-if="properties.contentType" class="properties right">
+        <span>{{ $t('connections.contentType') }}: {{ properties.contentType }}</span>
       </p>
       <p v-if="properties.userProperties" class="user-properties right">
         <KeyValueEditor
