@@ -6,6 +6,41 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "25711546",
+      "name": "cloud-logo",
+      "font_class": "cloud-logo",
+      "unicode": "e602",
+      "unicode_decimal": 58882
+    },
+    {
+      "icon_id": "2238873",
+      "name": "下载",
+      "font_class": "download",
+      "unicode": "e6ab",
+      "unicode_decimal": 59051
+    },
+    {
+      "icon_id": "17686988",
+      "name": "地球",
+      "font_class": "language",
+      "unicode": "e61b",
+      "unicode_decimal": 58907
+    },
+    {
+      "icon_id": "2591074",
+      "name": "youtube",
+      "font_class": "youtube",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
+      "icon_id": "12294078",
+      "name": "linkin",
+      "font_class": "linkedin",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
       "icon_id": "22444844",
       "name": "more",
       "font_class": "more",
