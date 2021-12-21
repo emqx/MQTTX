@@ -41,7 +41,8 @@ export default class EmptyPage extends Vue {
     text-align: center;
     padding-top: 30%;
     p {
-      margin-top: 32px;
+      margin: 32px auto;
+      max-width: 650px;
     }
   }
 }

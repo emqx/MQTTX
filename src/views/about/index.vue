@@ -18,26 +18,35 @@
             </a>
           </p>
           <div class="description">
+            <p>{{ $t('about.mqttxDesc') }}</p>
+          </div>
+          <div class="description">
             <p v-html="$t('common.cloud')"></p>
           </div>
           <div class="description">
-            {{ $t('about.emqxDocker') }}
+            <i18n path="about.emqxLocal.local" tag="span">
+              <a :href="emqxWebsite" target="_blank" rel="noopener noreferrer">{{ $t('about.emqxLocal.emqx') }}</a>
+            </i18n>
+            {{ $t('about.emqxDesc') }}
+          </div>
+          <div class="description">
+            <i18n path="about.emqxDocker.local" tag="span">
+              <a :href="emqxIoWebsite" target="_blank" rel="noopener noreferrer">
+                {{ $t('about.emqxDocker.emqx') }}
+              </a>
+            </i18n>
             <div class="docker-code">
               docker run -d --name emqx -p 1883:1883 -p 8083:8083 -p 8883:8883 -p 8084:8084 -p 18083:18083 emqx/emqx
             </div>
           </div>
-          <div class="description">
-            <i18n path="about.emqxLocal.local" tag="span">
-              <a :href="emqxBrokerWebsite" target="_blank" rel="noopener noreferrer">{{
-                $t('about.emqxLocal.emqx')
-              }}</a>
-            </i18n>
-            <a v-if="getterLang !== 'zh'" :href="emqxBrokerWebsite" target="_blank" rel="noopener noreferrer">EMQ X</a>
-            {{ $t('about.emqxDesc') }}
+          <div class="btns">
+            <el-button class="link-btn" type="primary" @click="goToLink('https://github.com/emqx/MQTTX')">
+              <i class="iconfont icon-github"></i> {{ $t('about.followGithub') }}
+            </el-button>
+            <el-button class="link-btn" type="primary" @click="goToLink(emqxCloudWebsite)">
+              <i class="iconfont icon-cloud-logo"></i> {{ $t('about.tryMQTTCloud') }}
+            </el-button>
           </div>
-          <el-button class="github-btn" type="primary" @click="goToLink('https://github.com/emqx/MQTTX')">
-            <i class="iconfont icon-github"></i> {{ $t('about.followGithub') }}
-          </el-button>
         </div>
         <div class="about-content__footer">
           <div class="emq-logo">
@@ -85,6 +94,9 @@ export default class About extends Vue {
   @Getter('currentTheme') private getterTheme!: Theme
   @Getter('currentLang') private getterLang!: Language
 
+  private baseUrl = 'https://www.emqx.com'
+  private utm = '?utm_source=mqttx&utm_medium=app&utm_campaign=2021'
+
   get version(): string {
     return version
   }
@@ -104,19 +116,27 @@ export default class About extends Vue {
   }
 
   get emqWebsite(): string {
-    const url = 'https://www.emqx.com'
-    const utm = '?utm_source=mqttx&utm_medium=app&utm_campaign=2021'
     const lang = this.getterLang === 'zh' ? 'zh' : 'en'
-    return `${url}/${lang}${utm}`
+    return `${this.baseUrl}/${lang}${this.utm}`
   }
 
-  get emqxBrokerWebsite(): string {
-    const url = 'https://www.emqx.io'
-    const utm = '?utm_source=mqttx&utm_medium=app&utm_campaign=2021'
-    if (this.getterLang === 'zh') {
-      return `${url}/zh${utm}`
+  get emqxWebsite(): string {
+    const lang = this.getterLang === 'zh' ? 'zh' : 'en'
+    return `${this.baseUrl}/${lang}/products/emqx${this.utm}`
+  }
+
+  get emqxCloudWebsite(): string {
+    const lang = this.getterLang === 'zh' ? 'zh' : 'en'
+    return `${this.baseUrl}/${lang}/cloud${this.utm}`
+  }
+
+  get emqxIoWebsite(): string {
+    const baseUrl = 'https://www.emqx.io/'
+    const lang = this.getterLang === 'zh' ? 'zh' : 'en'
+    if (lang === 'zh') {
+      return `${baseUrl}zh${this.utm}`
     }
-    return `${url}/${utm}`
+    return `${baseUrl}${this.utm}`
   }
 
   private checkUpdate(): void {
@@ -185,16 +205,26 @@ export default class About extends Vue {
           margin-top: 8px;
         }
       }
-      .github-btn {
-        font-size: 1rem;
+      .btns {
         margin-top: 24px;
         margin-bottom: 35px;
-        background: linear-gradient(90deg, #35c98d 0%, #37dc85 100%);
-        border: none;
-        .iconfont {
-          position: relative;
-          top: 2px;
-          margin-right: 5px;
+        display: flex;
+        .el-button + .el-button {
+          margin-left: 16px;
+        }
+        .link-btn {
+          font-size: 1rem;
+          background: linear-gradient(90deg, #35c98d 0%, #37dc85 100%);
+          border: none;
+          padding: 12px;
+          .iconfont {
+            font-size: 20px;
+            margin-right: 8px;
+          }
+          span {
+            display: flex;
+            align-items: center;
+          }
         }
       }
       .about-content__header {

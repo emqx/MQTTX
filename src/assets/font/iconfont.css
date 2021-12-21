@@ -1,16 +1,36 @@
 @font-face {
   font-family: "iconfont"; /* Project id 1257443 */
-  src: url('iconfont.woff2?t=1624518511912') format('woff2'),
-       url('iconfont.woff?t=1624518511912') format('woff'),
-       url('iconfont.ttf?t=1624518511912') format('truetype');
+  src: url('iconfont.woff2?t=1639988546249') format('woff2'),
+       url('iconfont.woff?t=1639988546249') format('woff'),
+       url('iconfont.ttf?t=1639988546249') format('truetype');
 }
 
 .iconfont {
   font-family: "iconfont" !important;
-  font-size: 20px;
+  font-size: 16px;
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-cloud-logo:before {
+  content: "\e602";
+}
+
+.icon-download:before {
+  content: "\e6ab";
+}
+
+.icon-language:before {
+  content: "\e61b";
+}
+
+.icon-youtube:before {
+  content: "\e612";
+}
+
+.icon-linkedin:before {
+  content: "\e601";
 }
 
 .icon-more:before {

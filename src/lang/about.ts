@@ -41,13 +41,19 @@ export default {
     ja: 'Githubでフォローする',
     hu: 'Kövess minket a GitHub-on',
   },
+  mqttxDesc: {
+    zh: 'MQTT X 帮助您更快的开发和调试 MQTT 服务和应用。',
+    en: 'MQTT X helps you develop MQTT services and applications faster.',
+    tr: 'MQTT X, MQTT hizmetlerini ve uygulamalarını daha hızlı geliştirmenize yardımcı olur.',
+    ja: 'MQTT Xは、MQTTサービスとアプリケーションをより迅速に開発するのに役立ちます。',
+    hu: 'Az MQTT X segít az MQTT szolgáltatások és alkalmazások gyorsabb fejlesztésében.',
+  },
   emqxDesc: {
-    zh: '一款完全开源，高可用低时延的百万级分布式物联网 MQTT 5.0 消息服务器。',
-    // tslint:disable-next-line:max-line-length
-    en: 'is a fully open source, highly scalable, highly available distributed MQTT 5.0 messaging broker for IoT, M2M and mobile applications.',
-    tr: 'IoT, M2M ve mobil uygulamalar için tamamen açık kaynaklı, yüksek düzeyde ölçeklenebilir, yüksek düzeyde kullanılabilir dağıtılmış MQTT 5.0 mesajlaşma aracısıdır.',
-    ja: 'は完全なオープンソース、高可用性、低レイテンシのミリオンレベルの分散型IoT MQTT 5.0メッセージサーバです。',
-    hu: 'egy nyílt forráskódú, szélesen skálázható, széleskörben elérhető MQTT 5.0 bróker IoT, M2M és mobil alkalmazásokhoz.',
+    zh: '一款云原生分布式物联网 MQTT 5.0 消息服务器。',
+    en: 'A Cloud-Native, Distributed MQTT 5.0 Broker for IoT.',
+    tr: 'IoT için Bulutta Yerel, Dağıtılmış MQTT 5.0 Aracısıdır.',
+    ja: 'は、IoT向けのクラウドネイティブの分散MQTT 5.0ブローカーです。',
+    hu: 'egy felhő-natív, elosztott MQTT 5.0 bróker az IoT számára.',
   },
   emqxLocal: {
     zh: {
@@ -56,26 +62,48 @@ export default {
     },
     en: {
       emqx: 'EMQ X',
-      local: 'To run MQTT Broker locally, {0} is recommended. ',
+      local: 'To run MQTT Broker locally, {0} is recommended: ',
     },
     tr: {
       emqx: 'EMQ X',
-      local: "MQTT Broker'ı yerel olarak çalıştırmak için {0} önerilir.",
+      local: "MQTT Broker'ı yerel olarak çalıştırmak için {0} önerilir: ",
     },
     ja: {
       emqx: 'EMQ X',
-      local: 'ローカルでMQTT Brokerを動作させたい場合に、{0}がお勧めです。',
+      local: 'ローカルでMQTT Brokerを動作させたい場合に、{0}がお勧めです：',
     },
     hu: {
       emqx: 'EMQ X',
-      local: 'Az MQTT bróker helyi futtatásához, {0} ajánlott. ',
+      local: 'Az MQTT bróker helyi futtatásához, {0} ajánlott: ',
     },
   },
   emqxDocker: {
-    zh: '使用 Docker 安装 EMQ X：',
-    en: 'Install EMQ X by using Docker:',
-    tr: "Docker'ı kullanarak EMQ X'i yükleyin:",
-    ja: 'DockerでEMQ Xをインストール',
-    hu: 'Telepítse EMQ X-et Docker használatával:',
+    zh: {
+      emqx: '开源版 EMQ X',
+      local: '使用 Docker 安装 {0}：',
+    },
+    en: {
+      emqx: 'open-source EMQ X',
+      local: 'Install {0} by using Docker:',
+    },
+    tr: {
+      emqx: `açık kaynaklı EMQ X`,
+      local: `Docker'ı kullanarak {0}'i yükleyin:`,
+    },
+    ja: {
+      emqx: 'オープンソースEMQX',
+      local: 'Dockerで{0}をインストール：',
+    },
+    hu: {
+      emqx: 'nyílt forráskódú EMQ X-et',
+      local: 'Telepítse {0} Docker használatával:',
+    },
+  },
+  tryMQTTCloud: {
+    zh: '试用 MQTT Cloud',
+    en: 'Try MQTT Cloud',
+    tr: `MQTT Cloud'u deneyin`,
+    ja: 'MQTT Cloudをお試しください',
+    hu: 'Próbáld ki az MQTT Cloud-ot',
   },
 }
