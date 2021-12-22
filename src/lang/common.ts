@@ -217,10 +217,10 @@ export default {
     hu: 'Futásidő',
   },
   cloud: {
-    zh: '需要一个云原生的全托管 MQTT 服务？一键部署 <a href="https://www.emqx.com/zh/cloud/?utm_source=mqttx&utm_medium=app&utm_campaign=2021" target="_blank" rel="noopener noreferrer">EMQ X Cloud</a>',
-    en: 'Need a Fully Managed, Cloud-Native MQTT Messaging Service? Try <a href="https://www.emqx.com/en/cloud/?utm_source=mqttx&utm_medium=app&utm_campaign=2021" target="_blank" rel="noopener noreferrer">EMQ X Cloud</a> now!',
-    tr: 'Cloud-Native, tam olarak yönetilen bir MQTT aracısına mı ihtiyacınız var? Deneyin <a href="https://www.emqx.com/en/cloud/?utm_source=mqttx&utm_medium=app&utm_campaign=2021" target="_blank" rel="noopener noreferrer">EMQ X Cloud</a> şimdi!',
-    ja: 'フルマネージドのクラウドネイティブMQTTメッセージングサービスが必要ですか？今すぐ<a href="https://www.emqx.com/en/cloud/?utm_source=mqttx&utm_medium=app&utm_campaign=2021" target="_blank" rel="noopener noreferrer">EMQ X Cloud</a>をお試しください',
-    hu: 'Szüksége van egy Cloud-Native teljesen menedzselt MQTT Brókerre? Próbálja ki az <a href="https://www.emqx.com/en/cloud/?utm_source=mqttx&utm_medium=app&utm_campaign=2021" target="_blank" rel="noopener noreferrer">EMQ X Cloudot</a> most! ',
+    zh: '需要一个云原生的全托管 MQTT 服务？一键部署 <a href="https://www.emqx.com/zh/cloud/?utm_source=mqttx&utm_medium=app&utm_campaign=cloud" target="_blank" rel="noopener noreferrer">EMQ X Cloud</a>！30 天免费试用！',
+    en: 'Need a Fully Managed, Cloud-Native MQTT Messaging Service? Try <a href="https://www.emqx.com/en/cloud/?utm_source=mqttx&utm_medium=app&utm_campaign=cloud" target="_blank" rel="noopener noreferrer">EMQ X Cloud</a> now! 30-day trial, no credit card required.',
+    tr: 'Cloud-Native, tam olarak yönetilen bir MQTT aracısına mı ihtiyacınız var? Deneyin <a href="https://www.emqx.com/en/cloud/?utm_source=mqttx&utm_medium=app&utm_campaign=cloud" target="_blank" rel="noopener noreferrer">EMQ X Cloud</a> şimdi! 30 günlük deneme, kredi kartı gerekmez.',
+    ja: 'フルマネージドのクラウドネイティブMQTTメッセージングサービスが必要ですか？今すぐ<a href="https://www.emqx.com/en/cloud/?utm_source=mqttx&utm_medium=app&utm_campaign=cloud" target="_blank" rel="noopener noreferrer">EMQ X Cloud</a>をお試しください。30日間の試用版で、クレジットカードは必要ありません。',
+    hu: 'Szüksége van egy Cloud-Native teljesen menedzselt MQTT Brókerre? Próbálja ki az <a href="https://www.emqx.com/en/cloud/?utm_source=mqttx&utm_medium=app&utm_campaign=cloud" target="_blank" rel="noopener noreferrer">EMQ X Cloudot</a> most! 30 napos próbaverzió, hitelkártya nélkül.',
   },
 }
