@@ -99,11 +99,4 @@ export default {
       local: 'Telepítse {0} Docker használatával:',
     },
   },
-  tryMQTTCloud: {
-    zh: '试用 MQTT Cloud',
-    en: 'Try MQTT Cloud',
-    tr: `MQTT Cloud'u deneyin`,
-    ja: 'MQTT Cloudをお試しください',
-    hu: 'Próbáld ki az MQTT Cloud-ot',
-  },
 }

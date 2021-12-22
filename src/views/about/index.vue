@@ -40,11 +40,11 @@
             </div>
           </div>
           <div class="btns">
-            <el-button class="link-btn" type="primary" @click="goToLink('https://github.com/emqx/MQTTX')">
-              <i class="iconfont icon-github"></i> {{ $t('about.followGithub') }}
+            <el-button class="link-btn emqx-cloud" type="primary" @click="goToLink(emqxCloudWebsite)">
+              <i class="iconfont icon-cloud-logo"></i> EMQ X Cloud <i class="iconfont icon-right"></i>
             </el-button>
-            <el-button class="link-btn" type="primary" @click="goToLink(emqxCloudWebsite)">
-              <i class="iconfont icon-cloud-logo"></i> {{ $t('about.tryMQTTCloud') }}
+            <el-button class="link-btn github" type="primary" plain @click="goToLink('https://github.com/emqx/MQTTX')">
+              <i class="iconfont icon-github"></i> {{ $t('about.followGithub') }}
             </el-button>
           </div>
         </div>
@@ -95,7 +95,7 @@ export default class About extends Vue {
   @Getter('currentLang') private getterLang!: Language
 
   private baseUrl = 'https://www.emqx.com'
-  private utm = '?utm_source=mqttx&utm_medium=app&utm_campaign=2021'
+  private utm = '?utm_source=mqttx&utm_medium=app&utm_campaign='
 
   get version(): string {
     return version
@@ -117,26 +117,26 @@ export default class About extends Vue {
 
   get emqWebsite(): string {
     const lang = this.getterLang === 'zh' ? 'zh' : 'en'
-    return `${this.baseUrl}/${lang}${this.utm}`
+    return `${this.baseUrl}/${lang}${this.utm}emq`
   }
 
   get emqxWebsite(): string {
     const lang = this.getterLang === 'zh' ? 'zh' : 'en'
-    return `${this.baseUrl}/${lang}/products/emqx${this.utm}`
+    return `${this.baseUrl}/${lang}/products/emqx${this.utm}enterpirse`
   }
 
   get emqxCloudWebsite(): string {
     const lang = this.getterLang === 'zh' ? 'zh' : 'en'
-    return `${this.baseUrl}/${lang}/cloud${this.utm}`
+    return `${this.baseUrl}/${lang}/cloud${this.utm}cloud`
   }
 
   get emqxIoWebsite(): string {
     const baseUrl = 'https://www.emqx.io/'
     const lang = this.getterLang === 'zh' ? 'zh' : 'en'
     if (lang === 'zh') {
-      return `${baseUrl}zh${this.utm}`
+      return `${baseUrl}zh${this.utm}broker`
     }
-    return `${baseUrl}${this.utm}`
+    return `${baseUrl}${this.utm}broker`
   }
 
   private checkUpdate(): void {
@@ -214,16 +214,26 @@ export default class About extends Vue {
         }
         .link-btn {
           font-size: 1rem;
-          background: linear-gradient(90deg, #35c98d 0%, #37dc85 100%);
           border: none;
-          padding: 12px;
+          &.emqx-cloud {
+            padding: 12px;
+            background: linear-gradient(90deg, #35c98d 0%, #37dc85 100%);
+          }
+          &.github {
+            padding: 10px;
+            border: 2px solid var(--color-main-green);
+            background: transparent;
+            &:hover {
+              color: var(--color-main-green);
+            }
+          }
           .iconfont {
             font-size: 20px;
-            margin-right: 8px;
           }
           span {
             display: flex;
             align-items: center;
+            gap: 8px;
           }
         }
       }
