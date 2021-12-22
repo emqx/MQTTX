@@ -213,6 +213,8 @@ By default, the log will be written to the log file:
 
 Every time MQTTX is closed, the current log file will be renamed to timestamp `[YY]-[MM]-[DD]T[hh]-[mm]-[ss].log` format.
 
+![mqttx-log](../assets/mqttx-log.png)
+
 ### Others
 
 1. Connection operation
