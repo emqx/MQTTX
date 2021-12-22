@@ -597,6 +597,7 @@ export default class ConnectionsDetail extends Vue {
       clearInterval(this.sendTimeId)
       this.sendTimeId = null
       this.$message.success(this.$tc('connections.stopTimedMessage'))
+      this.$log.info(`${this.record.name} stopped sending timed messages`)
     }
   }
 
@@ -1133,6 +1134,7 @@ export default class ConnectionsDetail extends Vue {
     await this.sendOneMessage(message, type, aftersendOneMessageCallback)
     if (this.sendFrequency) {
       this.$message.success(`${this.$t('connections.startTimedMessage')}${this.sendFrequency}`)
+      this.$log.info(`${this.record.name} opened timed message successfully, frequency(s): ${this.sendFrequency}s`)
       this.timedSendMessage(this.sendFrequency, message, type)
     }
     afterCallback && afterCallback()

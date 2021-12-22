@@ -40,6 +40,13 @@ export default class Contextmenu extends Vue {
   .el-card__body {
     padding: 8px 0px;
     .context-menu__item {
+      &.disabled {
+        cursor: not-allowed;
+        color: var(--color-text-light);
+        &:hover {
+          color: var(--color-text-light);
+        }
+      }
       padding: 4px 12px;
       display: flex;
       align-items: center;
