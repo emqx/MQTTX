@@ -213,6 +213,8 @@ sudo snap install mqttx
 
 在每次关闭 MQTTX 时，当前的日志文件会被重命名为 timestamp `[YY]-[MM]-[DD]T[hh]-[mm]-[ss].log` 格式。
 
+![mqttx-log](../assets/mqttx-log.png)
+
 ### 其它
 
 1. 连接操作
