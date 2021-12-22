@@ -7,20 +7,31 @@
         <span class="qos">QoS: {{ qos }}</span>
         <span v-if="retain" class="retain">Retain</span>
       </p>
-      <p v-if="properties.subscriptionIdentifier" class="properties left">
-        <span>{{ $t('connections.subscriptionIdentifier') }}: {{ properties.subscriptionIdentifier }}</span>
-      </p>
-      <p v-if="properties.contentType" class="properties left">
-        <span>{{ $t('connections.contentType') }}: {{ properties.contentType }}</span>
-      </p>
-      <p v-if="properties.userProperties" class="user-properties left">
-        <KeyValueEditor
-          class="msg-item-props"
-          :title="$t('connections.userProperties')"
-          :disabled="true"
-          :value="properties.userProperties"
-        />
-      </p>
+      <div class="meta">
+        <p v-if="properties.subscriptionIdentifier" class="properties left">
+          <span>{{ $t('connections.subscriptionIdentifier') }}: {{ properties.subscriptionIdentifier }}</span>
+        </p>
+        <p v-if="properties.contentType" class="properties left">
+          <span>{{ $t('connections.contentType') }}: {{ properties.contentType }}</span>
+        </p>
+        <p v-if="properties.topicAlias" class="properties left">
+          <span>{{ $t('connections.topicAlias') }}: {{ properties.topicAlias }}</span>
+        </p>
+        <p v-if="properties.responseTopic" class="properties left">
+          <span>{{ $t('connections.responseTopic') }}: {{ properties.responseTopic }}</span>
+        </p>
+        <p v-if="properties.correlationData" class="properties left">
+          <span>{{ $t('connections.correlationData') }}: {{ properties.correlationData }}</span>
+        </p>
+        <p v-if="properties.userProperties" class="user-properties properties left">
+          <KeyValueEditor
+            class="msg-item-props"
+            :title="$t('connections.userProperties')"
+            :disabled="true"
+            :value="properties.userProperties"
+          />
+        </p>
+      </div>
       <pre>{{ payload }}</pre>
     </div>
     <p class="left-time time">{{ createAt }}</p>
