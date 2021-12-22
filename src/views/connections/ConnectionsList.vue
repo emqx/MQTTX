@@ -596,6 +596,7 @@ export default class ConnectionsList extends Vue {
           const { collectionService } = useServices()
           await collectionService.delete(selectedCollection.id)
           this.$message.success(this.$tc('common.deleteSuccess'))
+          this.$log.info(`${name} collection was successfully deleted`)
           this.$emit('reload')
         })
         .catch((error) => {
