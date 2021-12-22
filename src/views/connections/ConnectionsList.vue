@@ -100,6 +100,9 @@
         <a href="javascript:;" class="context-menu__item" @click="handleNewWindow">
           <i class="iconfont icon-a-newwindow"></i>{{ $t('common.newWindow') }}
         </a>
+        <a href="javascript:;" :class="['context-menu__item', { disabled: getDisabledStatus() }]" @click="handleEdit">
+          <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
+        </a>
         <a href="javascript:;" class="context-menu__item danger" @click="handleDelete">
           <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
         </a>
@@ -143,7 +146,7 @@ export default class ConnectionsList extends Vue {
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
   @Action('SET_CONNECTIONS_TREE') private setConnectionsTree!: (payload: ConnectionTreeState) => void
 
-  @Getter('activeConnection') private activeConnection: Client | undefined
+  @Getter('activeConnection') private activeConnection!: ActiveConnection
   @Getter('unreadMessageCount') private unreadMessageCount: UnreadMessage | undefined
   @Getter('currentTheme') private theme!: Theme
   @Getter('connectionTreeState') private treeState!: ConnectionTreeStateMap
@@ -162,7 +165,7 @@ export default class ConnectionsList extends Vue {
     top: 0,
     left: 0,
   }
-  private treeData: ConnectionModelTree[] | [] = []
+  private treeData: ConnectionModelTree[] = []
 
   @Watch('showContextmenu')
   private handleShowContextmenuChange(val: boolean) {
@@ -470,6 +473,31 @@ export default class ConnectionsList extends Vue {
       ipcRenderer.send('newWindow', this.selectedConnection.id)
       this.showContextmenu = false
     }
+  }
+
+  private getDisabledStatus() {
+    const id = this.selectedConnection?.id
+    let disabled = false
+    if (id) {
+      const currConnect = this.activeConnection[id]
+      if (currConnect && currConnect.client.connected) {
+        disabled = true
+      }
+    }
+    return disabled
+  }
+
+  private handleEdit() {
+    const disabled = this.getDisabledStatus()
+    if (disabled) {
+      return
+    }
+    const id = this.selectedConnection?.id
+    this.showContextmenu = false
+    this.$router.push({
+      path: `/recent_connections/${id}`,
+      query: { oper: 'edit' },
+    })
   }
 
   private async handleNewCollection() {
