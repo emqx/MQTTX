@@ -284,6 +284,8 @@ export default class ConnectionService {
       for (let i = 0; i < data.length; i++) {
         const { id } = data[i]
         if (id) {
+          // FIXME: remove it after support collection importing
+          data[i].parentId = null
           await this.updateWithCascade(id, data[i])
         }
       }
