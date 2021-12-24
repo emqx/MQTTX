@@ -185,7 +185,7 @@ So far, the test of an `MQTT` message is completed.
 
     Click the Meta button, enter a Response Topic: /ack/1 in the input box, enter a comparison data: light, and subscribe to a /ack/1 in the currently connected client.
 
-! [mqttx-response-topic](... /assets/mqttx-response-topic.png)
+![mqttx-response-topic](../assets/mqttx-response-topic.png)
 
 3. Content Type and Payload Format Indicator
 
