@@ -363,7 +363,6 @@ export default class SubscriptionsList extends Vue {
           subscriptionIdentifier,
         }
       }
-      // @ts-ignore -- wait https://github.com/mqttjs/MQTT.js/pull/1369 merged.
       this.client.subscribe(topicsArr, { qos, nl, rap, rh, properties }, async (error, granted) => {
         this.subLoading = false
         if (error) {

@@ -285,7 +285,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
-import { MqttClient, IConnackPacket, IPublishPacket } from 'mqtt'
+import { MqttClient, IConnackPacket, IPublishPacket, IClientPublishOptions } from 'mqtt'
 import _ from 'lodash'
 
 import time from '@/utils/time'
@@ -524,7 +524,7 @@ export default class ConnectionsDetail extends Vue {
 
   // Connect
   public connect(): boolean | void {
-    if (this.client.connected) {
+    if (this.client.connected || this.connectLoading) {
       return false
     }
     this.connectLoading = true
@@ -893,7 +893,7 @@ export default class ConnectionsDetail extends Vue {
 
   // Disconnect
   private disconnect(): boolean | void {
-    if (!this.client.connected) {
+    if (!this.client.connected || this.disconnectLoding) {
       return false
     }
     this.stopTimedSend()
@@ -1211,53 +1211,57 @@ export default class ConnectionsDetail extends Vue {
     const convertPayload = this.convertPayloadByScript(payload, 'received')
     const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
 
-    // @ts-ignore properties issue, waiting PR https://github.com/mqttjs/MQTT.js/pull/1359 merged
-    this.client.publish(topic, sendPayload, { qos, retain, properties: props }, async (error: Error) => {
-      if (error) {
-        const errorMsg = error.toString()
-        this.$message.error(errorMsg)
-        this.stopTimedSend()
-        this.$log.error(`Client message publish failed, ${error.stack}`)
-        return false
-      }
-      const properties = this.record.mqttVersion === '5.0' ? props : undefined
-      const publishMessage: MessageModel = {
-        id,
-        out: true,
-        createAt: time.getNowDate(),
-        topic,
-        payload: convertPayload,
-        qos,
-        retain,
-        properties,
-      }
-      if (this.record.id) {
-        this.record.messages.push({ ...publishMessage })
-        // Filter by conditions (topic, payload, etc)
-        const filterRes = this.filterBySearchConditions(topic, publishMessage)
-        if (filterRes) {
-          return
+    this.client.publish!(
+      topic,
+      sendPayload,
+      { qos, retain, properties: props as IClientPublishOptions['properties'] },
+      async (error: Error) => {
+        if (error) {
+          const errorMsg = error.toString()
+          this.$message.error(errorMsg)
+          this.stopTimedSend()
+          this.$log.error(`Client message publish failed, ${error.stack}`)
+          return false
         }
-        const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
-        const isFromActiveTopic = this.activeTopic && isActiveTopicMessages && this.msgType !== 'received'
-        const isFromNotActiveTopic = this.msgType !== 'received' && !this.activeTopic
-        if (isFromActiveTopic || isFromNotActiveTopic) {
-          this.messages.push(publishMessage)
-          this.messagesAddedNewItem = true
+        const properties = this.record.mqttVersion === '5.0' ? props : undefined
+        const publishMessage: MessageModel = {
+          id,
+          out: true,
+          createAt: time.getNowDate(),
+          topic,
+          payload: convertPayload,
+          qos,
+          retain,
+          properties,
         }
-        const logPayload = JSON.stringify(publishMessage.payload)
-        const logTopic = JSON.stringify(publishMessage.topic)
-        let pubLog = `Sucessfully published message ${logPayload} to topic ${logTopic}`
-        if (this.record.mqttVersion === '5.0') {
-          const logProperties = JSON.stringify(publishMessage.properties)
-          pubLog += ` with Properties: ${logProperties}`
+        if (this.record.id) {
+          this.record.messages.push({ ...publishMessage })
+          // Filter by conditions (topic, payload, etc)
+          const filterRes = this.filterBySearchConditions(topic, publishMessage)
+          if (filterRes) {
+            return
+          }
+          const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+          const isFromActiveTopic = this.activeTopic && isActiveTopicMessages && this.msgType !== 'received'
+          const isFromNotActiveTopic = this.msgType !== 'received' && !this.activeTopic
+          if (isFromActiveTopic || isFromNotActiveTopic) {
+            this.messages.push(publishMessage)
+            this.messagesAddedNewItem = true
+          }
+          const logPayload = JSON.stringify(publishMessage.payload)
+          const logTopic = JSON.stringify(publishMessage.topic)
+          let pubLog = `Sucessfully published message ${logPayload} to topic ${logTopic}`
+          if (this.record.mqttVersion === '5.0') {
+            const logProperties = JSON.stringify(publishMessage.properties)
+            pubLog += ` with Properties: ${logProperties}`
+          }
+          this.$log.info(pubLog)
+          const { messageService } = useServices()
+          await messageService.pushToConnection({ ...publishMessage }, this.record.id)
+          this.scrollToBottom()
         }
-        this.$log.info(pubLog)
-        const { messageService } = useServices()
-        await messageService.pushToConnection({ ...publishMessage }, this.record.id)
-        this.scrollToBottom()
-      }
-    })
+      },
+    )
     afterSendCallback && afterSendCallback(isNewPayload)
   }
 
