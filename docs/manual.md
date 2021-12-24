@@ -149,11 +149,15 @@ After the configuration is complete, click the `Connect` button in the upper rig
 
    Click the `New Subscription` button in the lower left corner to quickly add a Topic. Each Topic can be marked with a color, which can be randomly generated or opened by the color selector. The rightmost button at the top of the subscription list can hide the subscription list to show more space on the page. After the addition is complete, click on the subscribed Topic items in the subscription list to achieve message filtering. The message view will only display the message content subscribed to the current topic. Click again to cancel the filter; You can also directly click other subscribed Topic items to view the corresponding message content. By clicking on the topic name, you can quickly copy the current topic information. When you need to send a message to this topic, you can quickly paste it into the topic input box of the message bar to modify it, and you can quickly complete the operation.
 
-   When adding `Topic`, you can set an alias for each Topic. This option is an optional. When the subscription is set and added, the `Topic` in the subscription list will be displayed as an alias, and the mouse over the `Topic` item, the prompt box will also display the original value of the `Topic`. This is very helpful when multiple `Topics` that need to be monitored are too long to distinguish the specific meaning of `Topic`.
-
 ![mqttx-topic](../assets/mqttx-topic.png)
 
+   When adding `Topic`, you can set an alias for each Topic. This option is an optional. When the subscription is set and added, the `Topic` in the subscription list will be displayed as an alias, and the mouse over the `Topic` item, the prompt box will also display the original value of the `Topic`. This is very helpful when multiple `Topics` that need to be monitored are too long to distinguish the specific meaning of `Topic`.
+
 ![mqttx-topic-alias](../assets/mqttx-topic-alias.png)
+
+   We open the dialog of the subscription topic, in the Topic input box, enter multiple Topics and use comma (,) to split, click to confirm the success of the subscription, we can see that the subscription list contains multiple Topics. for the use of the client layer alias function can also support the simultaneous setting of multiple Topics, the same use of comma separation (,).
+
+![mqttx-muti-topics](../assets/mqttx-muti-topics.png)
 
 3. Sending and receiving of messages
 
@@ -197,7 +201,7 @@ So far, the test of an `MQTT` message is completed.
 
 ### Setting
 
-Click the settings button at the bottom of the left menu bar, or use shortcut. MacOS users can use the `command +,` shortcut, and other users can use the `control +,` shortcut to jump to the settings page. Currently, language selection is supported, whether to automatically check for updates, select topics is enabled and also data backup and recovery functions in advanced settings.
+Click the settings button at the bottom of the left menu bar, or use shortcut. MacOS users can use the `command +,` shortcut, and other users can use the `control +,` shortcut to jump to the settings page. Currently, language selection is supported, whether to automatically check for updates, Set to sync OS theme or manually select a theme is enabled and also data backup and recovery functions in advanced settings.
 
 ![mqttx-theme](../assets/mqttx-theme.png)
 
@@ -294,6 +298,12 @@ Click on the action bar button at the top and select the `Clear History` item, y
     In the drop-down menu in the upper right corner, you can click the `Timed message` item to set the sending frequency in seconds. After the setting is completed, manually send a message, and the message will be automatically sent according to the set sending frequency.
 
 ![mqttx-timed-message](../assets/mqttx-timed-message.png)
+
+8. Auto scroll
+
+   New control for automatic scrolling of the message list when receiving and publish messages has been added to the settings. You can turn on the Auto Scroll feature in the settings page. Turning off the auto-scroll feature can improve performance when sending and receiving messages in part.
+
+![mqttx-autoscroll](../assets/mqttx-autoscroll.png)
 
 ## Development Guide
 
