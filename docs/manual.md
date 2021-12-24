@@ -165,6 +165,36 @@ After the configuration is complete, click the `Connect` button in the upper rig
 
 So far, the test of an `MQTT` message is completed.
 
+### MQTT 5
+
+1. User Properties
+
+    Click the New button to come to the New Client page, first we need to select the MQTT version 5.0, so you can see the bottom of the card to configure User Properties, the card is a key-value pair can be configured input box, you can click the upper right corner of the Add button to add User Properties configuration, click the Delete button at the end of each line to delete the configuration, and finally enter the required configuration Finally, you can enter the name and content of the property to be configured. After a successful connection, the MQTT server will be able to obtain the content of the client's User Properties.
+
+![mqttx-user-properties-connect](../assets/mqttx-user-properties-connect.png)
+
+    In addition to the configuration of user properties when connecting on the client side, this release also supports the configuration of user properties when publishing messages. When creating a new connection to an MQTT 5.0 client, we can see a Meta button in the bottom right corner of the publish message area, click on it to bring up a card for configuring the properties at publish time, and we can see the user properties configuration at the top of the card.
+
+![mqttx-user-properties-publish](../assets/mqttx-user-properties-publish.png)
+
+2. Request Response
+
+    Click the Meta button, enter a Response Topic: /ack/1 in the input box, enter a comparison data: light, and subscribe to a /ack/1 in the currently connected client.
+
+! [mqttx-response-topic](... /assets/mqttx-response-topic.png)
+
+3. Content Type and Payload Format Indicator
+
+    Click the Meta button, enter the Content Type in the input box, click Set Payload Format Indicator value, and then publish the message.
+
+![mqttx-content-type](../assets/mqttx-content-type.png)
+
+4. Subscribe Flags
+
+    We open the dialog of the subscription topic and we can see that the configuration options containing No Local, Retain as Published and Retain Handling appear at the bottom and the user can use these subscription options to change the behavior of the server.
+
+![mqttx-sub-flag](../assets/mqttx-sub-flag.png)
+
 ### Setting
 
 Click the settings button at the bottom of the left menu bar, or use shortcut. MacOS users can use the `command +,` shortcut, and other users can use the `control +,` shortcut to jump to the settings page. Currently, language selection is supported, whether to automatically check for updates, select topics is enabled and also data backup and recovery functions in advanced settings.
