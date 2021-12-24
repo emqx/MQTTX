@@ -165,6 +165,36 @@ sudo snap install mqttx
 
 至此就完成了一条 `MQTT` 消息的测试。
 
+### MQTT 5
+
+1. 用户属性
+
+    点击新建按钮，来到新建客户端的页面，首先我们需要选择 MQTT 的版本为 5.0，这样就可以看到下方出现了配置用户属性的卡片，卡片内是一个可以配置键值对的输入框，可以点击右上角的添加按钮，来增加用户属性配置，点击每一行末尾的删除按钮可以删除配置，最后输入需要配置的属性名称和内容即可。连接成功后，MQTT 服务器就可以获取到该客户端的用户属性内容。
+
+![mqttx-user-properties-connect](../assets/mqttx-user-properties-connect.png)
+
+    除了客户端连接时的用户属性配置外，该版本还支持配置发布消息时的用户属性。当新建连接为 MQTT 5.0 的客户端时，我们可以看到右下角的发布消息的区域出现了一个 Meta 按钮，点击该按钮即可出现配置发布时的属性的卡片，我们可以在卡片顶部看到用户属性配置。
+
+![mqttx-user-properties-publish](../assets/mqttx-user-properties-publish.png)
+
+2. 请求响应
+
+    点击 Meta 按钮，输入框内输入一个响应主题：/ack/1，输入一个对比数据：light，并在当前连接客户端订阅一个 /ack/1。
+
+![mqttx-response-topic](../assets/mqttx-response-topic.png)
+
+3. 内容类型和载荷格式
+
+    点击 Meta 按钮，在输入框内输入 Content Type，点击设置 Payload Format Indicator 的值后，发布消息即可。
+
+![mqttx-content-type](../assets/mqttx-content-type.png)
+
+4. 订阅选项
+
+    我们打开订阅主题的弹出框，可以看到下方出现了包含了 No Local、Retain as Published 和 Retain Handling 的配置选项，用户可以使用这些订阅选项来改变服务端的行为。
+
+![mqttx-sub-flag](../assets/mqttx-sub-flag.png)
+
 ### 设置
 
 点击左侧菜单栏底部的设置按钮，或使用快捷键，macOS 用户可以使用 `command + ,` 快捷键，其它用户可以使用 `control + ,` 快捷键来跳转到设置页面，目前支持选择语言，开启是否自动检查更新和选择主题，还有高级功能中的数据备份和恢复功能。
