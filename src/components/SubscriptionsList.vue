@@ -25,6 +25,7 @@
             background: `${sub.color}10`,
           }"
           @click="handleClickTopic(sub, index)"
+          @contextmenu="handleContextMenu(sub, $event)"
         >
           <div
             :style="{
@@ -59,10 +60,15 @@
         </div>
       </el-card>
     </left-panel>
+    <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
+      <a href="javascript:;" :class="['context-menu__item']" @click="handleTopicEdit">
+        <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
+      </a>
+    </contextmenu>
 
     <!-- New subscription dialog -->
     <my-dialog
-      :title="$t('connections.newSubscription')"
+      :title="isEdit ? $t('connections.editSubscription') : $t('connections.newSubscription')"
       :visible.sync="showDialog"
       :confirmLoading="subLoading"
       :top="record.mqttVersion === '5.0' ? '60px' : '15vh'"
@@ -77,6 +83,7 @@
           <el-col :span="24">
             <el-form-item label="Topic" prop="topic">
               <el-tooltip
+                v-if="!isEdit"
                 class="subinfo-tooltip"
                 placement="top-start"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
@@ -86,7 +93,8 @@
                   <i class="el-icon-warning-outline"></i>
                 </a>
               </el-tooltip>
-              <el-input v-model="subRecord.topic" type="textarea" placeholder="testtopic/#" size="small"> </el-input>
+              <el-input v-model.trim="subRecord.topic" type="textarea" placeholder="testtopic/#" size="small">
+              </el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -108,6 +116,7 @@
           <el-col :span="24">
             <el-form-item :label="$t('connections.alias')">
               <el-tooltip
+                v-if="!isEdit"
                 class="subinfo-tooltip"
                 placement="top-start"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
@@ -117,7 +126,7 @@
                   <i class="el-icon-warning-outline"></i>
                 </a>
               </el-tooltip>
-              <el-input v-model="subRecord.alias" type="textarea" size="small"> </el-input>
+              <el-input v-model.trim="subRecord.alias" type="textarea" size="small"> </el-input>
             </el-form-item>
           </el-col>
           <!-- MQTT 5.0 -->
@@ -171,12 +180,14 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { MqttClient } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
+import VueI18n from 'vue-i18n'
+import _ from 'lodash'
 import { defineColors, getRandomColor } from '@/utils/colors'
 import LeftPanel from '@/components/LeftPanel.vue'
 import MyDialog from '@/components/MyDialog.vue'
-import VueI18n from 'vue-i18n'
-import { MqttClient } from 'mqtt'
+import Contextmenu from '@/components/Contextmenu.vue'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
 import { getSubscriptionId } from '@/utils/idGenerator'
@@ -192,6 +203,7 @@ enum SubscribeErrorReason {
   components: {
     LeftPanel,
     MyDialog,
+    Contextmenu,
   },
 })
 export default class SubscriptionsList extends Vue {
@@ -217,9 +229,9 @@ export default class SubscriptionsList extends Vue {
     qos: 0,
     createAt: time.getNowDate(),
     alias: '',
-    nl: false,
-    rap: false,
-    rh: 0,
+    nl: undefined,
+    rap: undefined,
+    rh: undefined,
     subscriptionIdentifier: undefined,
   }
   private retainHandling: RetainHandlingList = [0, 1, 2]
@@ -229,6 +241,13 @@ export default class SubscriptionsList extends Vue {
   private topicActiveIndex: number | null = null
   private subLoading = false
   private unsubLoading = false
+  private showContextmenu = false
+  private contextmenuConfig: ContextmenuModel = {
+    top: 0,
+    left: 0,
+  }
+  private isEdit = false
+  private selectedTopic: SubscriptionModel | null = null
 
   get rules() {
     return {
@@ -285,6 +304,7 @@ export default class SubscriptionsList extends Vue {
 
   private openDialog() {
     this.showDialog = true
+    this.isEdit = false
     this.setColor()
     this.setNewSubscribeId()
   }
@@ -300,11 +320,13 @@ export default class SubscriptionsList extends Vue {
         return false
       }
       this.subLoading = true
-      this.subRecord.topic = this.subRecord.topic.trim()
-      this.subRecord.alias = this.subRecord.alias ? this.subRecord.alias.trim() : this.subRecord.alias
       this.subRecord.color = this.topicColor || this.getBorderColor()
-      this.subscribe(this.subRecord)
-      this.$log.info(`Save subscription topic: ${this.subRecord.topic} successed`)
+      if (!this.isEdit) {
+        this.subscribe(this.subRecord)
+        this.$log.info(`Save subscription topic: ${this.subRecord.topic} successed`)
+      } else {
+        this.updateSub()
+      }
     })
   }
 
@@ -432,47 +454,61 @@ export default class SubscriptionsList extends Vue {
     })
   }
 
-  private removeSubs(row: SubscriptionModel): void | boolean {
-    if (!this.client || !this.client.connected) {
-      this.$notify({
-        title: this.$tc('connections.notConnect'),
-        message: '',
-        type: 'error',
-        duration: 3000,
-        offset: 30,
-      })
-      return false
+  private async updateSub() {
+    if (this.selectedTopic) {
+      const res = await this.removeSubs(this.selectedTopic)
+      if (res) {
+        this.subscribe(this.subRecord)
+      }
     }
-    this.unsubLoading = true
-    const { topic, qos } = row
-    if (this.client.unsubscribe) {
-      this.client.unsubscribe(topic, { qos }, (error) => {
-        this.unsubLoading = false
-        if (error) {
-          this.$message.error(error)
-          return false
-        }
-        if (this.record.id) {
-          const payload: {
-            id: string
-            subscriptions: SubscriptionModel[]
-          } = {
-            id: this.record.id,
-            subscriptions: this.subsList.filter(($: SubscriptionModel) => $.topic !== topic),
+  }
+
+  private removeSubs(row: SubscriptionModel): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      if (!this.client || !this.client.connected) {
+        this.$notify({
+          title: this.$tc('connections.notConnect'),
+          message: '',
+          type: 'error',
+          duration: 3000,
+          offset: 30,
+        })
+        resolve(false)
+        return false
+      }
+      this.unsubLoading = true
+      const { topic, qos } = row
+      if (this.client.unsubscribe) {
+        this.client.unsubscribe(topic, { qos }, async (error) => {
+          this.unsubLoading = false
+          if (error) {
+            this.$message.error(error)
+            resolve(false)
+            return false
           }
-          this.record.subscriptions = payload.subscriptions
           if (this.record.id) {
-            const { connectionService } = useServices()
-            connectionService.updateSubscriptions(this.record.id, payload.subscriptions)
-            this.changeSubs(payload)
-            this.subsList = payload.subscriptions
-            this.$emit('deleteTopic')
-            this.$log.info(`Unsubscribe topic: ${topic}`)
-            return true
+            const payload: {
+              id: string
+              subscriptions: SubscriptionModel[]
+            } = {
+              id: this.record.id,
+              subscriptions: this.subsList.filter(($: SubscriptionModel) => $.topic !== topic),
+            }
+            this.record.subscriptions = payload.subscriptions
+            if (this.record.id) {
+              const { connectionService } = useServices()
+              await connectionService.updateSubscriptions(this.record.id, payload.subscriptions)
+              this.changeSubs(payload)
+              this.subsList = payload.subscriptions
+              this.$emit('deleteTopic')
+              this.$log.info(`Unsubscribe topic: ${topic}`)
+              resolve(true)
+              return true
+            }
           }
-        }
-      })
-    }
+        })
+      }
+    })
   }
 
   private resetSubs() {
@@ -481,7 +517,11 @@ export default class SubscriptionsList extends Vue {
     this.subRecord.topic = 'testtopic/#'
     this.subRecord.qos = 0
     this.subRecord.alias = ''
+    this.subRecord.nl = undefined
+    this.subRecord.rap = undefined
+    this.subRecord.rh = undefined
     this.subRecord.subscriptionIdentifier = undefined
+    this.selectedTopic = null
   }
 
   private getCurrentConnection(id: string) {
@@ -509,6 +549,30 @@ export default class SubscriptionsList extends Vue {
     } else if (this.topicActiveIndex === index) {
       this.topicActiveIndex = null
       this.$emit('onClickTopic', item, true)
+    }
+  }
+
+  private handleContextMenu(row: SubscriptionModel, event: MouseEvent) {
+    if (!this.showContextmenu) {
+      const { clientX, clientY } = event
+      this.contextmenuConfig.top = clientY
+      this.contextmenuConfig.left = clientX
+      this.showContextmenu = true
+      this.selectedTopic = row
+    } else {
+      this.showContextmenu = false
+    }
+  }
+
+  private handleTopicEdit() {
+    this.isEdit = true
+    this.showContextmenu = false
+    this.showDialog = true
+    this.setColor()
+    this.setNewSubscribeId()
+    if (this.selectedTopic) {
+      this.subRecord = _.cloneDeep(this.selectedTopic)
+      this.topicColor = this.selectedTopic.color || getRandomColor()
     }
   }
 

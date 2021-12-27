@@ -111,6 +111,13 @@ export default {
     ja: 'サブスクリプション追加',
     hu: 'Új feliratkozás',
   },
+  editSubscription: {
+    zh: '编辑订阅',
+    en: 'Edit Subscription',
+    tr: 'Aboneliği abonelik',
+    ja: 'サブスクリプションの編集',
+    hu: 'Előfizetés feliratkozás',
+  },
   subFailed: {
     zh: '订阅失败',
     en: 'Subscribe Failed',
