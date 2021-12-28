@@ -551,7 +551,6 @@ export default class ConnectionForm extends Vue {
   @Getter('willMessageVisible') private getterWillMessageVisible!: boolean
   @Getter('currentTheme') private theme!: Theme
   @Getter('allConnections') private allConnections!: ConnectionModel[] | []
-  @Getter('autoResub') private autoResub!: boolean
 
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
   @Action('TOGGLE_ADVANCED_VISIBLE') private toggleAdvancedVisible!: (payload: { advancedVisible: boolean }) => void
@@ -766,11 +765,6 @@ export default class ConnectionForm extends Vue {
     }
   }
 
-  // Fetch record default data from setting page, storage at vuex
-  private initFromSetting() {
-    this.record.resubscribe = this.autoResub
-  }
-
   private async created() {
     await this.loadData()
     const { id } = this.$route.params
@@ -779,7 +773,6 @@ export default class ConnectionForm extends Vue {
     }
     this.advancedVisible = this.getterAdvancedVisible
     this.willMessageVisible = this.getterWillMessageVisible
-    this.initFromSetting()
   }
 }
 </script>

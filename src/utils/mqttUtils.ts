@@ -1,4 +1,5 @@
 import mqtt, { MqttClient, IClientOptions } from 'mqtt'
+import Store from '@/store'
 import { getClientId } from '@/utils/idGenerator'
 import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
@@ -39,7 +40,6 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
     will,
     rejectUnauthorized,
     clientIdWithTime,
-    resubscribe,
   } = record
   // reconnectPeriod = 0 disabled automatic reconnection in the client
   const reconnectPeriod = reconnect ? 4000 : 0
@@ -104,10 +104,8 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
       }
     }
   }
-  // Auto Resubscribe
-  if (resubscribe) {
-    options.resubscribe = resubscribe
-  }
+  // Auto Resubscribe, Valid only when reconnecting
+  options.resubscribe = Store.getters.autoResub
   return options
 }
 
@@ -151,7 +149,6 @@ export const getDefaultRecord = (): ConnectionModel => {
     keepalive: 60,
     connectTimeout: 10,
     reconnect: false,
-    resubscribe: true,
     username: '',
     password: '',
     path: '/mqtt',
