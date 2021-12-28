@@ -129,7 +129,6 @@ import Contextmenu from '@/components/Contextmenu.vue'
 import { ipcRenderer } from 'electron'
 import { TreeNode, ElTree } from 'element-ui/types/tree'
 import { getCollectionId } from '@/utils/idGenerator'
-import _ from 'lodash'
 import { flushCurSequenceId } from '@/utils/connections'
 import { sortConnectionTree } from '@/utils/connections'
 import '@/assets/font/iconfont'
@@ -193,6 +192,10 @@ export default class ConnectionsList extends Vue {
         this.expandTreeNodeAncestor(id)
       }
     })
+  }
+
+  get isNewWindow() {
+    return this.$route.name === 'newWindow'
   }
 
   private handleNodeExpand(data: ConnectionModelTree, node: TreeNode<ConnectionModelTree['id'], ConnectionModelTree>) {
@@ -339,8 +342,19 @@ export default class ConnectionsList extends Vue {
   private async loadData(firstLoad: boolean = false) {
     firstLoad && (this.isLoadingData = true)
     const { collectionService } = useServices()
-    const treeData: ConnectionModelTree[] | [] = (await collectionService.getAll()) ?? []
-    treeData && (this.treeData = treeData)
+    const treeData: ConnectionModelTree[] = (await collectionService.getAll()) ?? []
+    this.treeData = treeData
+    // Only display the single connection.
+    if (this.isNewWindow) {
+      const id = this.$route.params.id
+      const findConnection = (id: string, data: ConnectionModelTree[]): ConnectionModelTree => {
+        let res!: ConnectionModelTree
+        data.some(($) => ($.id === id && (res = $)) || ($.isCollection && (res = findConnection(id, $.children))))
+        return res
+      }
+      const res = findConnection(id, this.treeData)
+      this.treeData = [res]
+    }
     // sort collection trees
     const sortTree = () => {
       this.treeData.forEach((el: ConnectionModelTree) => {
@@ -413,7 +427,7 @@ export default class ConnectionsList extends Vue {
     if (row.id) {
       this.initUnreadMessageCount(row.id.toString() as string)
     }
-    if (this.$route.name === 'newWindow') {
+    if (this.isNewWindow) {
       return
     }
     this.$router.push({ path: `/recent_connections/${row.id}` })
@@ -434,7 +448,7 @@ export default class ConnectionsList extends Vue {
   }
 
   private handleContextMenu(row: ConnectionModel, event: MouseEvent) {
-    if (this.$route.name === 'newWindow') {
+    if (this.isNewWindow) {
       return
     }
     if (!this.showContextmenu) {
@@ -501,13 +515,13 @@ export default class ConnectionsList extends Vue {
   }
 
   private async handleNewCollection() {
-    const newCollection = {
+    const newCollection: CollectionModel = {
       id: getCollectionId(),
       name: '',
       isCollection: true,
       children: [],
       isEdit: true,
-    } as CollectionModel
+    }
     const { collectionService } = useServices()
     await collectionService.add(newCollection, this.selectedCollection?.id)
     if (this.selectedCollection) {
