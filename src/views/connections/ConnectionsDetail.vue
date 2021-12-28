@@ -359,7 +359,6 @@ export default class ConnectionsDetail extends Vue {
   @Getter('activeConnection') private activeConnection!: ActiveConnection
   @Getter('showSubscriptions') private showSubscriptions!: boolean
   @Getter('autoScroll') private autoScroll!: boolean
-  @Getter('autoResub') private autoResub!: boolean
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: { [id: string]: boolean }
@@ -393,9 +392,10 @@ export default class ConnectionsDetail extends Vue {
   private showUseScript = false
 
   private connectLoading = false
+  private disconnectLoding = false
+  private isReconnect = false
   private searchVisible = false
   private searchLoading = false
-  private disconnectLoding = false
   private showBytes = false
 
   private sendFrequency: number | undefined = undefined
@@ -405,9 +405,7 @@ export default class ConnectionsDetail extends Vue {
 
   private client: Partial<MqttClient> = {
     connected: false,
-    options: {
-      resubscribe: false,
-    },
+    options: {},
   }
   private messages: MessageModel[] = this.record.messages
   private searchParams = {
@@ -524,6 +522,7 @@ export default class ConnectionsDetail extends Vue {
 
   // Connect
   public connect(): boolean | void {
+    this.isReconnect = false
     if (this.client.connected || this.connectLoading) {
       return false
     }
@@ -680,7 +679,6 @@ export default class ConnectionsDetail extends Vue {
     this.showSubs = this.showSubscriptions
     if (currentActiveConnection) {
       this.client = currentActiveConnection.client
-      this.initFromSetting()
       this.setClientsMessageListener()
     } else {
       this.client = {
@@ -965,6 +963,7 @@ export default class ConnectionsDetail extends Vue {
 
   // Reconnect callback
   private onReConnect() {
+    this.isReconnect = true
     if (!this.record.reconnect) {
       this.client.end!(true)
       this.retryTimes = 0
@@ -1002,6 +1001,7 @@ export default class ConnectionsDetail extends Vue {
   private onClose() {
     this.$log.info('Connect close, MQTT.js onClose trigger')
     this.connectLoading = false
+    this.isReconnect = false
   }
 
   // Search message
@@ -1364,7 +1364,9 @@ export default class ConnectionsDetail extends Vue {
     if (this.client.options) {
       const { clean, resubscribe } = this.client.options
       const { subscriptions } = this.record
-      if (resubscribe && clean && subscriptions.length) {
+      const needResub = resubscribe && subscriptions.length
+      const cleanStatus = (clean && !this.isReconnect) || (!clean && this.isReconnect)
+      if (needResub && cleanStatus) {
         this.subListRef.resubscribe()
       }
     }
@@ -1405,10 +1407,6 @@ export default class ConnectionsDetail extends Vue {
         client.removeAllListeners('message')
       }
     })
-  }
-
-  private initFromSetting() {
-    this.client.options && (this.client.options.resubscribe = this.autoResub)
   }
 
   private created() {

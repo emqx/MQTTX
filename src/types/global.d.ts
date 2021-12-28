@@ -236,7 +236,6 @@ declare global {
     keepalive: number
     connectTimeout: number
     reconnect: boolean
-    resubscribe?: boolean
     username: string
     password: string
     path: string
