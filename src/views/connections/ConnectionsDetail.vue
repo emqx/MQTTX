@@ -575,7 +575,7 @@ export default class ConnectionsDetail extends Vue {
             this.$message.success(this.$tc('common.deleteSuccess'))
             if (res.id) {
               this.removeActiveConnection({ id: res.id })
-              this.$log.info(`MQTTX remove connection ${res.name}(clientID ${res.clientId}) success`)
+              this.$log.info(`MQTTX remove connection ${res.name} (clientID ${res.clientId}) success`)
             }
           }
         }
@@ -646,24 +646,25 @@ export default class ConnectionsDetail extends Vue {
 
   // Delete message
   private async handleDeleteMessage() {
-    const connectID = this.record.id
     let id = ''
     if (this.selectedMessage && this.selectedMessage.id) {
       id = this.selectedMessage.id.toString()
     }
-    if (connectID) {
-      const { messageService } = useServices()
-      const res: MessageModel | undefined = await messageService.delete(id)
-      if (res) {
-        this.showContextmenu = false
-        this.$message.success(this.$tc('common.deleteSuccess'))
-        this.$emit('reload')
-        this.$log.info(`Delete message success, connectID ${connectID}`)
-      } else {
-        this.showContextmenu = false
-        this.$message.error(this.$tc('common.deletefailed'))
-        this.$log.info('Delete message failed')
-      }
+    const { messageService } = useServices()
+    const res: MessageModel | undefined = await messageService.delete(id)
+    if (res) {
+      this.showContextmenu = false
+      this.$message.success(this.$tc('common.deleteSuccess'))
+      this.$emit('reload')
+      this.$log.info(
+        `Delete message success, Name: ${this.record.name} ClientID: ${this.record.clientId}, Payload: ${JSON.stringify(
+          res.payload,
+        )}`,
+      )
+    } else {
+      this.showContextmenu = false
+      this.$message.error(this.$tc('common.deletefailed'))
+      this.$log.info('Delete message failed')
     }
   }
 
@@ -773,7 +774,7 @@ export default class ConnectionsDetail extends Vue {
     if (this.record.id) {
       const { messageService } = useServices()
       await messageService.cleanInConnection(this.record.id)
-      this.$log.info('Cleaned history connection message')
+      this.$log.info(`${this.record.name} was cleaned history connection messages`)
     }
   }
 
@@ -886,7 +887,7 @@ export default class ConnectionsDetail extends Vue {
     this.connectLoading = false
     this.client.end!(true)
     this.retryTimes = 0
-    this.$log.info('MQTTX client connection cancel')
+    this.$log.info(`MQTTX client connection cancel, Name: ${this.record.name}`)
   }
 
   // Disconnect
@@ -916,7 +917,7 @@ export default class ConnectionsDetail extends Vue {
         this.setShowClientInfo(true)
       }
       this.$emit('reload')
-      this.$log.info(`MQTTX client disconnect, client ID : ${this.record.clientId}`)
+      this.$log.info(`MQTTX client disconnect, Name: ${this.record.name}, client ID: ${this.record.clientId}`)
     })
   }
 
@@ -938,7 +939,7 @@ export default class ConnectionsDetail extends Vue {
     })
     this.setShowClientInfo(false)
     this.$emit('reload', false, false, this.handleReSubTopics)
-    this.$log.info('Connect success, MQTT.js onConnect trigger')
+    this.$log.info(`${this.record.name} connect success, MQTT.js onConnect trigger`)
   }
 
   // Error callback
@@ -957,7 +958,7 @@ export default class ConnectionsDetail extends Vue {
       duration: 3000,
       offset: 30,
     })
-    this.$log.error(`Connect fail, MQTT.js onError trigger, ${error.stack}`)
+    this.$log.error(`${this.record.name} connect fail, MQTT.js onError trigger, ${error.stack}`)
     this.$emit('reload')
   }
 
@@ -983,7 +984,7 @@ export default class ConnectionsDetail extends Vue {
         this.retryTimes = 0
         this.connectLoading = false
       } else {
-        this.$log.info(`Reconnect: ${this.retryTimes} times retry`)
+        this.$log.info(`${this.record.name} reconnect: ${this.retryTimes} times retry`)
         this.retryTimes += 1
         this.connectLoading = true
         this.$notify({
@@ -999,7 +1000,7 @@ export default class ConnectionsDetail extends Vue {
 
   // Close connection callback
   private onClose() {
-    this.$log.info('Connect close, MQTT.js onClose trigger')
+    this.$log.info(`${this.record.name} connect close, MQTT.js onClose trigger`)
     this.connectLoading = false
     this.isReconnect = false
   }
@@ -1037,14 +1038,14 @@ export default class ConnectionsDetail extends Vue {
     }
     this.setScript({ currentScript })
     this.$message.success(this.$tc('script.startScript'))
-    this.$log.info('Set script successed')
+    this.$log.info(`${this.record.name} set script successed`)
   }
 
   // Remove script
   private removeScript() {
     this.setScript({ currentScript: null })
     this.$message.success(this.$tc('script.stopScirpt'))
-    this.$log.info('Remove script successed')
+    this.$log.info(`${this.record.name} remove script successed`)
   }
 
   // Recevied message
@@ -1103,8 +1104,11 @@ export default class ConnectionsDetail extends Vue {
           this.$log.info(`Message Arrived with topic: ${topic}`)
           this.messages.push(receivedMessage)
           this.messagesAddedNewItem = true
-          const msgIdLog = JSON.stringify(receivedMessage.id)
-          let receivedLog = `Message arrived: message added ${msgIdLog} added to topic "${topic}", MQTT.js onMessageArrived trigger`
+          let receivedLog = `${this.record.name} message arrived: message added "${
+            receivedMessage.id
+          }" added to topic "${topic}", payload: ${JSON.stringify(
+            receivedMessage.payload,
+          )} MQTT.js onMessageArrived trigger`
           if (this.record.mqttVersion === '5.0') {
             const logProperties = JSON.stringify(receivedMessage.properties)
             receivedLog += ` with Properties: ${logProperties}`
@@ -1220,7 +1224,7 @@ export default class ConnectionsDetail extends Vue {
           const errorMsg = error.toString()
           this.$message.error(errorMsg)
           this.stopTimedSend()
-          this.$log.error(`Client message publish failed, ${error.stack}`)
+          this.$log.error(`${this.record.name} message publish failed, ${error.stack}`)
           return false
         }
         const properties = this.record.mqttVersion === '5.0' ? props : undefined
@@ -1249,8 +1253,7 @@ export default class ConnectionsDetail extends Vue {
             this.messagesAddedNewItem = true
           }
           const logPayload = JSON.stringify(publishMessage.payload)
-          const logTopic = JSON.stringify(publishMessage.topic)
-          let pubLog = `Sucessfully published message ${logPayload} to topic ${logTopic}`
+          let pubLog = `${this.record.name} sucessfully published message ${logPayload} to topic "${publishMessage.topic}"`
           if (this.record.mqttVersion === '5.0') {
             const logProperties = JSON.stringify(publishMessage.properties)
             pubLog += ` with Properties: ${logProperties}`
