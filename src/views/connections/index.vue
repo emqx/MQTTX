@@ -102,11 +102,7 @@ export default class Connections extends Vue {
     }
   }
 
-  private async loadData(
-    loadingLeatest: boolean = false,
-    firstLoad: boolean = false,
-    afterCB?: () => {},
-  ): Promise<void> {
+  private async loadData(loadLatest: boolean = false, firstLoad: boolean = false, callback?: () => {}): Promise<void> {
     if (firstLoad) {
       this.isLoadingData = true
     }
@@ -115,7 +111,7 @@ export default class Connections extends Vue {
     this.changeAllConnections({ allConnections: connections })
     this.records = connections
     this.isLoadingData = false
-    if (connections.length && loadingLeatest) {
+    if (connections.length && loadLatest) {
       const leatestId = await connectionService.getLeatestId()
       this.$router.push({ path: `/recent_connections/${leatestId}` })
     }
@@ -125,7 +121,7 @@ export default class Connections extends Vue {
     } else {
       this.isEmpty = true
     }
-    afterCB && afterCB()
+    callback && callback()
   }
 
   private toCreateConnection() {
