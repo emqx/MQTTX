@@ -132,6 +132,7 @@ yarn run electron:build-mac
 - [TypeScript](https://www.typescriptlang.org/)
 - [TypeORM](https://github.com/typeorm/typeorm)
 - [sqlite3](https://github.com/mapbox/node-sqlite3)
+- [MQTT.js](https://github.com/mqttjs/MQTT.js)
 
 ## License
 
