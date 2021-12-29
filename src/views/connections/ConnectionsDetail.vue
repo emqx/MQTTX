@@ -1064,9 +1064,7 @@ export default class ConnectionsDetail extends Vue {
         retain,
         properties,
       }
-      const connectionId = this.curConnectionId
-      let _id = id
-      if (topic.indexOf('$SYS') !== -1 && this.showBytes && id === connectionId) {
+      if (topic.indexOf('$SYS') !== -1 && this.showBytes && id === this.curConnectionId) {
         const _chartData = getBytes(receivedMessage)
         if (_chartData) {
           this.chartData = _chartData
@@ -1089,9 +1087,10 @@ export default class ConnectionsDetail extends Vue {
         }
         return
       }
-      if (id === connectionId) {
+      const { messageService } = useServices()
+      await messageService.pushToConnection({ ...receivedMessage }, id)
+      if (id === this.curConnectionId) {
         this.record.messages.push({ ...receivedMessage })
-        _id = connectionId
         // Filter by conditions (topic, payload, etc)
         const filterRes = this.filterBySearchConditions(topic, receivedMessage)
         if (filterRes) {
@@ -1118,8 +1117,6 @@ export default class ConnectionsDetail extends Vue {
       } else {
         this.unreadMessageIncrement({ id })
       }
-      const { messageService } = useServices()
-      await messageService.pushToConnection({ ...receivedMessage }, _id)
       this.scrollToBottom()
     }
   }
