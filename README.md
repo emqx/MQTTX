@@ -126,6 +126,7 @@ Please make sure to read the [Contributing Guide](https://github.com/emqx/MQTTX/
 - [TypeScript](https://www.typescriptlang.org/)
 - [TypeORM](https://github.com/typeorm/typeorm)
 - [SQLite](https://github.com/mapbox/node-sqlite3)
+- [MQTT.js](https://github.com/mqttjs/MQTT.js)
 
 ## License
 
