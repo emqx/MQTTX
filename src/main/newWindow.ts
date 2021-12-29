@@ -35,7 +35,7 @@ const newWindow = (id: string, options: WindowOptions) => {
   // Load page
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
-    createWindow.loadURL(`${process.env.WEBPACK_DEV_SERVER_URL as string}#${options.path}/${id}`)
+    createWindow.loadURL(`${process.env.WEBPACK_DEV_SERVER_URL}#${options.path}/${id}`)
     if (!process.env.IS_TEST) {
       createWindow.webContents.openDevTools()
     }

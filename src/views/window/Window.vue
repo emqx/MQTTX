@@ -4,7 +4,7 @@
       <ConnectionsList :ConnectionModelData="records" :connectionId="connectionId" />
     </div>
     <div class="connections-view">
-      <ConnectionsDetail ref="ConnectionsDetail" :record="currentConnection" @reload="loadDetail(connectionId, true)" />
+      <ConnectionsDetail ref="ConnectionsDetail" :record="currentConnection" @reload="handleReload" />
     </div>
   </div>
 </template>
@@ -30,7 +30,11 @@ export default class Window extends Vue {
     return this.$route.params.id
   }
 
-  private async loadDetail(id: string, reload?: boolean): Promise<void> {
+  private handleReload(loadLatest: boolean, firstLoad: boolean, callback?: () => {}) {
+    this.loadDetail(this.connectionId, true, callback)
+  }
+
+  private async loadDetail(id: string, reload?: boolean, callback?: () => {}): Promise<void> {
     const { connectionService } = useServices()
     const res: ConnectionModel | undefined = await connectionService.get(id)
 
@@ -40,6 +44,7 @@ export default class Window extends Vue {
         this.records.push(this.currentConnection)
       }
     }
+    callback && callback()
   }
 
   created() {
