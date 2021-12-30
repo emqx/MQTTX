@@ -156,6 +156,7 @@ declare global {
     id?: string
     topic: string
     qos: QoS
+    disabled: boolean
     alias?: string
     retain?: boolean
     color?: string

@@ -54,15 +54,26 @@
             </a>
           </el-popover>
           <span class="qos">QoS {{ sub.qos }}</span>
-          <a href="javascript:;" class="close" @click.stop="removeSubs(sub)">
+          <a href="javascript:;" class="close" @click.stop="unsubscribe(sub)">
             <i :class="unsubLoading ? 'el-icon-loading' : 'el-icon-close'"></i>
           </a>
         </div>
       </el-card>
     </left-panel>
     <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
-      <a href="javascript:;" :class="['context-menu__item']" @click="handleTopicEdit">
+      <a href="javascript:;" class="context-menu__item" @click="handleTopicEdit">
         <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
+      </a>
+      <a
+        v-if="!getTopicDisabled()"
+        href="javascript:;"
+        class="context-menu__item danger"
+        @click="setTopicDisabled(true)"
+      >
+        <i class="el-icon-remove-outline"></i>{{ $t('common.disable') }}
+      </a>
+      <a v-else href="javascript:;" class="context-menu__item" @click="setTopicDisabled(false)">
+        <i class="el-icon-circle-check"></i>{{ $t('common.enable') }}
       </a>
     </contextmenu>
 
@@ -227,6 +238,7 @@ export default class SubscriptionsList extends Vue {
     id: getSubscriptionId(),
     topic: 'testtopic/#',
     qos: 0,
+    disabled: false,
     createAt: time.getNowDate(),
     alias: '',
     nl: undefined,
@@ -315,15 +327,14 @@ export default class SubscriptionsList extends Vue {
       this.$message.warning(this.$tc('connections.notConnect'))
       return false
     }
-    this.subForm.validate((valid: boolean) => {
+    this.subForm.validate(async (valid: boolean) => {
       if (!valid) {
         return false
       }
       this.subLoading = true
       this.subRecord.color = this.topicColor || this.getBorderColor()
       if (!this.isEdit) {
-        this.subscribe(this.subRecord)
-        this.$log.info(`Save subscription topic: ${this.subRecord.topic} successed`)
+        await this.subscribe(this.subRecord)
       } else {
         this.updateSub()
       }
@@ -358,13 +369,16 @@ export default class SubscriptionsList extends Vue {
       const sub = this.subsList[i]
       this.$log.info(`Topic: ${sub.topic} is resubscribing`)
       this.subRecord = sub
-      await this.subscribe({ ...this.subRecord })
+      if (this.subRecord.disabled === false) {
+        await this.subscribe({ ...this.subRecord })
+      }
     }
   }
 
   public async subscribe(
-    { topic, alias, qos, nl, rap, rh, subscriptionIdentifier }: SubscriptionModel,
+    { topic, alias, qos, nl, rap, rh, subscriptionIdentifier, disabled }: SubscriptionModel,
     isAuto?: boolean,
+    enable?: boolean,
   ) {
     if (isAuto) {
       this.subRecord.nl = nl
@@ -373,6 +387,7 @@ export default class SubscriptionsList extends Vue {
       this.subRecord.topic = topic
       this.subRecord.qos = qos
       this.subRecord.subscriptionIdentifier = subscriptionIdentifier
+      this.subRecord.disabled = disabled
       this.subRecord.color = getRandomColor()
     }
     let isFinshed = false
@@ -407,26 +422,32 @@ export default class SubscriptionsList extends Vue {
           this.$message.error(errorMsg)
           return false
         }
-        topicsArr.forEach((topic, index) => {
-          const existTopicIndex: number = this.subsList.findIndex((item: SubscriptionModel) => item.topic === topic)
-          if (existTopicIndex !== -1) {
-            this.subsList[existTopicIndex].qos = qos
-          } else {
-            let { topic: unuseTopic, color, alias, id, ...others } = this.subRecord
-            alias = aliasArr ? aliasArr[index] : alias
-            if (index > 0) {
-              color = getRandomColor()
-              id = getSubscriptionId()
+        if (enable) {
+          this.subsList = this.setSubsDisable(topic, disabled)
+          this.$log.info(`Enabled topic: ${topic}`)
+        } else {
+          topicsArr.forEach((topic, index) => {
+            const existTopicIndex: number = this.subsList.findIndex((item: SubscriptionModel) => item.topic === topic)
+            if (existTopicIndex !== -1) {
+              this.subsList[existTopicIndex].qos = qos
+            } else {
+              let { topic: unuseTopic, color, alias, id, ...others } = this.subRecord
+              alias = aliasArr ? aliasArr[index] : alias
+              if (index > 0) {
+                color = getRandomColor()
+                id = getSubscriptionId()
+              }
+              this.subsList.push({
+                topic,
+                id,
+                color,
+                alias,
+                ...others,
+              })
             }
-            this.subsList.push({
-              topic,
-              id,
-              color,
-              alias,
-              ...others,
-            })
-          }
-        })
+          })
+          this.$log.info(`Saved topic: ${topic}`)
+        }
         this.record.subscriptions = this.subsList
         if (this.record.id) {
           const { connectionService } = useServices()
@@ -456,14 +477,14 @@ export default class SubscriptionsList extends Vue {
 
   private async updateSub() {
     if (this.selectedTopic) {
-      const res = await this.removeSubs(this.selectedTopic)
+      const res = await this.unsubscribe(this.selectedTopic)
       if (res) {
         this.subscribe(this.subRecord)
       }
     }
   }
 
-  private removeSubs(row: SubscriptionModel): Promise<boolean> {
+  private unsubscribe(row: SubscriptionModel, disable?: boolean): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (!this.client || !this.client.connected) {
         this.$notify({
@@ -477,7 +498,7 @@ export default class SubscriptionsList extends Vue {
         return false
       }
       this.unsubLoading = true
-      const { topic, qos } = row
+      const { topic, qos, disabled } = row
       if (this.client.unsubscribe) {
         this.client.unsubscribe(topic, { qos }, async (error) => {
           this.unsubLoading = false
@@ -487,24 +508,29 @@ export default class SubscriptionsList extends Vue {
             return false
           }
           if (this.record.id) {
-            const payload: {
+            let payload: {
               id: string
               subscriptions: SubscriptionModel[]
             } = {
               id: this.record.id,
-              subscriptions: this.subsList.filter(($: SubscriptionModel) => $.topic !== topic),
+              subscriptions: [],
+            }
+            if (disable) {
+              payload.subscriptions = this.setSubsDisable(topic, disabled)
+              this.$log.info(`Disabled topic: ${topic}`)
+            } else {
+              payload.subscriptions = this.subsList.filter((sub: SubscriptionModel) => sub.topic !== topic)
+              this.$log.info(`Removed topic: ${topic}`)
             }
             this.record.subscriptions = payload.subscriptions
-            if (this.record.id) {
-              const { connectionService } = useServices()
-              await connectionService.updateSubscriptions(this.record.id, payload.subscriptions)
-              this.changeSubs(payload)
-              this.subsList = payload.subscriptions
-              this.$emit('deleteTopic')
-              this.$log.info(`Unsubscribe topic: ${topic}`)
-              resolve(true)
-              return true
-            }
+            const { connectionService } = useServices()
+            await connectionService.updateSubscriptions(this.record.id, payload.subscriptions)
+            this.changeSubs(payload)
+            this.$emit('deleteTopic')
+            this.subsList = payload.subscriptions
+            this.$log.info(`Unsubscribe topic: ${topic}`)
+            resolve(true)
+            return true
           }
         })
       }
@@ -521,7 +547,17 @@ export default class SubscriptionsList extends Vue {
     this.subRecord.rap = undefined
     this.subRecord.rh = undefined
     this.subRecord.subscriptionIdentifier = undefined
+    this.subRecord.disabled = false
     this.selectedTopic = null
+  }
+
+  private setSubsDisable(topic: string, disabled: boolean) {
+    return this.subsList.map((sub: SubscriptionModel) => {
+      if (sub.topic === topic) {
+        sub.disabled = disabled
+      }
+      return sub
+    })
   }
 
   private getCurrentConnection(id: string) {
@@ -588,6 +624,33 @@ export default class SubscriptionsList extends Vue {
       `
     }
     return topicString
+  }
+
+  private getTopicDisabled() {
+    return this.selectedTopic?.disabled
+  }
+
+  private async setTopicDisabled(disable: boolean) {
+    this.showContextmenu = false
+    if (!this.client || !this.client.connected) {
+      this.$notify({
+        title: this.$tc('connections.notConnect'),
+        message: '',
+        type: 'error',
+        duration: 3000,
+        offset: 30,
+      })
+      return
+    }
+    if (!this.selectedTopic) {
+      return
+    }
+    this.selectedTopic.disabled = disable
+    if (disable) {
+      await this.unsubscribe(this.selectedTopic, true)
+    } else {
+      await this.subscribe(this.selectedTopic, false, true)
+    }
   }
 
   private created() {
