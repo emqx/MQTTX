@@ -15,6 +15,9 @@ export default class SubscriptionEntity {
   @Column({ type: 'simple-enum', enum: [0, 1, 2], default: 0 })
   qos!: QoS
 
+  @Column({ type: 'boolean', default: false })
+  disabled!: boolean
+
   @Column({ type: 'varchar', nullable: true })
   alias?: string
 

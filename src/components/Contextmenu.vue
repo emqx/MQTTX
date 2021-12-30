@@ -71,6 +71,11 @@ export default class Contextmenu extends Vue {
     .icon-delete {
       margin-right: 4px;
     }
+    [class^='el-icon-'],
+    [class*=' el-icon-'] {
+      font-weight: 500;
+      font-size: 18px;
+    }
   }
 }
 </style>

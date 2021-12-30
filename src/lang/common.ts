@@ -48,6 +48,20 @@ export default {
     ja: 'リセット',
     hu: 'átszed',
   },
+  disable: {
+    zh: '禁用',
+    en: 'Disable',
+    tr: 'Devre dışı bırakmak',
+    ja: '無効にする',
+    hu: 'Letiltás',
+  },
+  enable: {
+    zh: '启用',
+    en: 'Enable',
+    tr: 'Etkinleştirme',
+    ja: '有効',
+    hu: 'Engedélyezze',
+  },
   noData: {
     zh: '暂无数据',
     en: 'No Data',
