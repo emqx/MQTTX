@@ -20,7 +20,7 @@
         <div
           v-for="(sub, index) in subsList"
           :key="index"
-          :class="['topics-item', index === topicActiveIndex ? 'active' : '']"
+          :class="['topics-item', { active: index === topicActiveIndex, disabled: sub.disabled }]"
           :style="{
             background: `${sub.color}10`,
           }"
@@ -579,6 +579,9 @@ export default class SubscriptionsList extends Vue {
   }
 
   private handleClickTopic(item: SubscriptionModel, index: number) {
+    if (item.disabled) {
+      return
+    }
     if (this.topicActiveIndex === null || this.topicActiveIndex !== index) {
       this.topicActiveIndex = index
       this.$emit('onClickTopic', item, false)
@@ -711,6 +714,18 @@ export default class SubscriptionsList extends Vue {
         .topic,
         .qos {
           color: var(--color-text-active) !important;
+        }
+      }
+      &.disabled {
+        background: transparent !important;
+        border: 1px solid var(--color-border-default);
+        cursor: not-allowed;
+        .topic,
+        .qos {
+          color: var(--color-text-light) !important;
+        }
+        .topics-color-line {
+          background: var(--color-border-default) !important;
         }
       }
       .topics-color-line {
