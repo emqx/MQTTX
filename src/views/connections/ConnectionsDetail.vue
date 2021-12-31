@@ -1116,6 +1116,7 @@ export default class ConnectionsDetail extends Vue {
         }
       } else {
         this.unreadMessageIncrement({ id })
+        this.$log.info(`ID: ${id} received an unread message`)
       }
       this.scrollToBottom()
     }
