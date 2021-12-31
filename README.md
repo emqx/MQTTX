@@ -29,7 +29,7 @@ Currently available for download from these app stores
 
 ### MacOS App Store
 
-[![Get it from the Snap Store](./assets/app-store-download.svg)](https://apps.apple.com/us/app/mqttx/id1514074565?mt=12)
+[![Download on the Mac App Store](./assets/app-store-download.svg)](https://apps.apple.com/us/app/mqttx/id1514074565?mt=12)
 
 ### Homebrew
 
@@ -42,6 +42,7 @@ brew install --cask mqttx
 ### Linux
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/mqttx)
+<a href='https://flathub.org/apps/details/com.emqx.MQTTX'><img height='56' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>
 
 ### Released Packages
 
