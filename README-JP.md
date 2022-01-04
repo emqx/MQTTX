@@ -28,13 +28,13 @@
 
 現在、次のアプリストアからすばやくダウンロードしてインストールできます
 
-### MacOS App Store
+### macOS App Store
 
 [![Download on the Mac App Store](./assets/app-store-download.svg)](https://apps.apple.com/jp/app/mqttx/id1514074565?mt=12)
 
 ### Homebrew
 
-MacOS ユーザーは、brew cask を使用して MQTT X をインストールできます。
+macOS ユーザーは、[brew cask](https://formulae.brew.sh/cask/mqttx) を使用して MQTT X をインストールできます。
 
 ```shell
 brew install --cask mqttx

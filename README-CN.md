@@ -28,13 +28,13 @@
 
 当前可从以下应用商店进行快速下载安装
 
-### MacOS App Store
+### macOS App Store
 
 [![Download on the Mac App Store](./assets/app-store-download.svg)](https://apps.apple.com/cn/app/mqttx/id1514074565?mt=12)
 
 ### Homebrew
 
-MacOS 的用户还可以选择使用 `brew cask` 来安装 MQTT X
+macOS 的用户还可以选择使用 [brew cask](https://formulae.brew.sh/cask/mqttx) 来安装 MQTT X
 
 ```shell
 brew install --cask mqttx
@@ -118,7 +118,7 @@ yarn run electron:build-win
 # For Linux
 yarn run electron:build-linux
 
-# For MacOS
+# For macOS
 yarn run electron:build-mac
 ```
 

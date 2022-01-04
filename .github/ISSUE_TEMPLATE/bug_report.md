@@ -21,7 +21,7 @@ What is the expected result.
 
 #### Environment
 
-- OS: OS version, e.g. MacOS Big Sur 11.1
+- OS: OS version, e.g. macOS Big Sur 11.1
 - MQTTX version, e.g. v1.5.0
 
 #### More detail

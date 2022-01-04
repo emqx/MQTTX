@@ -41,7 +41,7 @@ GitHubからのダウンロード時にネットワーク速度の低下やス�
 
 macOSユーザーの場合、Mac App Storeからダウンロードすることをお勧めします。
 
-[![Get it from the Snap Store](../assets/app-store-download.svg)](https://apps.apple.com/jp/app/mqttx/id1514074565?mt=12)
+[![Download on the Mac App Store](../assets/app-store-download.svg)](https://apps.apple.com/jp/app/mqttx/id1514074565?mt=12)
 
 インストール用のファイルをダウンロードする場合は、`dmg`形式のインストールパッケージが好ましいです。または、`mac.zip`ファイルをダウンロードして解凍することで、すばやく使用することができます。
 

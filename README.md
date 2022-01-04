@@ -27,13 +27,13 @@ English | [简体中文](./README-CN.md) | [日本語](./README-JP.md)
 
 Currently available for download from these app stores
 
-### MacOS App Store
+### macOS App Store
 
 [![Download on the Mac App Store](./assets/app-store-download.svg)](https://apps.apple.com/us/app/mqttx/id1514074565?mt=12)
 
 ### Homebrew
 
-The MacOS users can install MQTT X using brew cask
+The macOS users can install MQTT X using [brew cask](https://formulae.brew.sh/cask/mqttx)
 
 ```shell
 brew install --cask mqttx
@@ -112,7 +112,7 @@ yarn run electron:build-win
 # For Linux
 yarn run electron:build-linux
 
-# For MacOS
+# For macOS
 yarn run electron:build-mac
 ```
 
