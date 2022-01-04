@@ -41,11 +41,17 @@ If there are network reasons that cause slow network speeds or jam when download
 
 For macOS users, it is recommended to download from the Mac App store.
 
-[![Get it from the Snap Store](../assets/app-store-download.svg)](https://apps.apple.com/us/app/mqttx/id1514074565?mt=12)
+[![Download on the Mac App Store](../assets/app-store-download.svg)](https://apps.apple.com/us/app/mqttx/id1514074565?mt=12)
 
 When you need to download files to install, it is recommended to download the installation package file in `dmg` format first. They can also choose to download the compressed file of `mac.zip`, which can be used quickly after decompression.
 
 **Note**: However, for different `macOS` system versions, `zip` compression package may not be opened after decompression in the `10.15.2` system version. Please prefer the `dmg` file.
+
+The macOS users can install MQTT X using [brew cask](https://formulae.brew.sh/cask/mqttx)
+
+```shell
+brew install --cask mqttx
+```
 
 - Windows
 
@@ -166,7 +172,7 @@ After the configuration is complete, click the `Connect` button in the upper rig
 
 3. Sending and receiving of messages
 
-   After the `Topic` is successfully subscribed, you can test the sending and receiving of messages. Fill in the `Topic` information you just subscribed to in the lower right corner of the page. You can select the values of `QoS`, `Retain`, input `payload`, and click the send button on the far right to send a message to the `Topic` you just subscribed. After sending successfully, you can immediately receive the message just sent. Note that in the message box, the right column is the sent message, and the left column is the received message. MacOS users can use the `command + enter` shortcut to quickly send messages, and other users can use the `control + enter` shortcut to do that.
+   After the `Topic` is successfully subscribed, you can test the sending and receiving of messages. Fill in the `Topic` information you just subscribed to in the lower right corner of the page. You can select the values of `QoS`, `Retain`, input `payload`, and click the send button on the far right to send a message to the `Topic` you just subscribed. After sending successfully, you can immediately receive the message just sent. Note that in the message box, the right column is the sent message, and the left column is the received message. macOS users can use the `command + enter` shortcut to quickly send messages, and other users can use the `control + enter` shortcut to do that.
 
    Through the `payload` option in the message bar, the messages can quickly be converted into multiple formats, such as `Base64`, `Hex`,`JSON` and `Plaintext`.
 
@@ -206,7 +212,7 @@ So far, the test of an `MQTT` message is completed.
 
 ### Setting
 
-Click the settings button at the bottom of the left menu bar, or use shortcut. MacOS users can use the `command +,` shortcut, and other users can use the `control +,` shortcut to jump to the settings page. Currently, language selection is supported, whether to automatically check for updates, Set to sync OS theme or manually select a theme is enabled and also data backup and recovery functions in advanced settings.
+Click the settings button at the bottom of the left menu bar, or use shortcut. macOS users can use the `command +,` shortcut, and other users can use the `control +,` shortcut to jump to the settings page. Currently, language selection is supported, whether to automatically check for updates, Set to sync OS theme or manually select a theme is enabled and also data backup and recovery functions in advanced settings.
 
 ![mqttx-theme](../assets/mqttx-theme.png)
 
@@ -266,7 +272,7 @@ Every time MQTTX is closed, the current log file will be renamed to timestamp `[
 
    Through the `All`,`Received`, `Published` buttons in the upper right corner of the message bar, you can filter out all messages, received messages and published messages.
 
-Click the action bar button at the top and select the `Search`  item, or use the shortcut key. MacOS users can use the command + f shortcut and Other users can use the control + f shortcut  to open the `Topic` search function, the fuzzy query of topics and payload is supported.
+Click the action bar button at the top and select the `Search`  item, or use the shortcut key. macOS users can use the command + f shortcut and Other users can use the control + f shortcut  to open the `Topic` search function, the fuzzy query of topics and payload is supported.
 
 Click on the action bar button at the top and select the `Clear History` item, you can quickly clear the messages sent and received by the current connection.
 
