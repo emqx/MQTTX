@@ -57,7 +57,7 @@ brew install --cask mqttx
 
 1. MQTT Broker 准备。
 
-   - 如果您不需要本地部署的 MQTT Broker，那么可以使用 [EMQ X](https://github.com/emqx/emqx) 的线上公开版进行快速测试；
+   - 如果您不需要在本地部署 MQTT Broker，那么可以使用由 [EMQ X Cloud](https://www.emqx.com/zh/cloud) 提供的公共 MQTT 5.0 服务器来进行测试：
 
       ```shell
       Broker 地址: broker.emqx.io
@@ -65,7 +65,7 @@ brew install --cask mqttx
       Broker SSL 端口: 8883
       ```
 
-   - 如果您打算部署一个本地运行的 MQTT Broker，那么我们推荐您 [下载 EMQ X](https://github.com/emqx/emqx/releases) 进行安装使用。EMQ X 是一款完全开源，高度可伸缩，高可用的百万级分布式 MQTT 消息服务器，是 5G 时代万物互联的消息引擎，支持 MQTT/CoAP/LwM2M 一站式 IoT 协议接入。
+   - 如果您打算部署一个本地运行的 MQTT Broker，那么我们推荐您 [下载 EMQ X](https://www.emqx.com/zh/products/emqx) 进行安装和使用。EMQ X 是一款开源云原生分布式物联网 MQTT 消息服务器。
 
 2. 连接配置。点击左侧菜单栏里的 `+` 号按钮，并填写表单中相应的必填项。
 
