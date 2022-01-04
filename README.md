@@ -54,9 +54,9 @@ Alternative, you can download [here](https://www.emqx.io/downloads/MQTTX/).
 
 See our [blog](https://www.emqx.io/blog/mqtt-x-guideline) or [manual](./docs/manual.md) for details.
 
-1. MQTT Broker preparation.
+1. Get MQTT Broker Ready.
 
-    - If you do not need the MQTT Broker deployed locally, you can use the online public version of [EMQ X](https://github.com/emqx/emqx) for quick test;
+    - If you do not need to deploy the MQTT Broker locally, you can use the public MQTT 5.0 Broker provided by [EMQ X Cloud](https://www.emqx.com/en/cloud) for testing:
 
         ```shell
         Broker IP: broker.emqx.io
@@ -64,7 +64,7 @@ See our [blog](https://www.emqx.io/blog/mqtt-x-guideline) or [manual](./docs/man
         Broker SSL Port: 8883
         ```
 
-    - If you plan to deploy a MQTT Broker running locally, we recommend you to download [EMQ X](https://github.com/emqx/emqx/releases) for installation. EMQ X broker is a fully open source, highly scalable, highly available distributed MQTT messaging broker for IoT, M2M and Mobile applications that can handle tens of millions of concurrent clients.
+    - To run MQTT Broker locally, [EMQ X](https://www.emqx.com/en/products/emqx) is recommended: An Open-Source, Cloud-Native, Distributed MQTT Broker for IoT.
 
 2. Connection configuration. Click the `+` button in the left menu bar and fill in the corresponding required fields in the form.
 
