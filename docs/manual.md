@@ -55,9 +55,10 @@ For Windows users, please download the latest version of the `exe` file. After d
 
 For Linux users, please download the latest version of the `AppImage` file or use the snap file for quick installation.
 
-For installation using `snap` file, you can also execute this command to quickly install or visit Snap Store:
+For installation using `snap` file, you can also execute this command to quickly install or visit Snap Store or Flathub:
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/mqttx)
+<a href='https://flathub.org/apps/details/com.emqx.MQTTX'><img height='56' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>
 
 ```shell
 sudo snap install mqttx
@@ -159,6 +160,10 @@ After the configuration is complete, click the `Connect` button in the upper rig
 
 ![mqttx-muti-topics](../assets/mqttx-muti-topics.png)
 
+   Subscribed Topics support **Edit/Disable/Enable**, right click on the subscribed Topic list item, in the context menu we can quickly choose to edit, disable or enable the operation. When subscribing to too many Topics, sometimes not all the Topic messages you want to receive, in order to avoid subscribing to the same Topic again, the disable function is provided, if you want to receive messages from the Topic again, just enable it again.
+
+![mqttx-edit-topic](../assets/mqttx-edit-topic.png)
+
 3. Sending and receiving of messages
 
    After the `Topic` is successfully subscribed, you can test the sending and receiving of messages. Fill in the `Topic` information you just subscribed to in the lower right corner of the page. You can select the values of `QoS`, `Retain`, input `payload`, and click the send button on the far right to send a message to the `Topic` you just subscribed. After sending successfully, you can immediately receive the message just sent. Note that in the message box, the right column is the sent message, and the left column is the received message. MacOS users can use the `command + enter` shortcut to quickly send messages, and other users can use the `control + enter` shortcut to do that.
@@ -193,9 +198,9 @@ So far, the test of an `MQTT` message is completed.
 
 ![mqttx-content-type](../assets/mqttx-content-type.png)
 
-4. Subscribe Flags
+4. Subscription identifier and subscription options
 
-    We open the dialog of the subscription topic and we can see that the configuration options containing No Local, Retain as Published and Retain Handling appear at the bottom and the user can use these subscription options to change the behavior of the server.
+   We open the pop-up box for the Subscription topic, below which you can set the Subscription Identifier and the subscription options that contain No Local, Retain as Published and Retain Handling. The user can specify a numeric subscription identifier in the subscription message and return this identifier when the message is distributed. Clients can establish a mapping of subscription identifiers to message handlers to direct messages to the corresponding message handler via the subscription identifier when a PUBLISH message is received, and can configure these subscription options to change the behavior of the server.
 
 ![mqttx-sub-flag](../assets/mqttx-sub-flag.png)
 

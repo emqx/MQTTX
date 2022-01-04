@@ -55,9 +55,10 @@ Windows 用户请下载最新版本的 `exe` 文件，下载后可根据 Setup �
 
 Linux 用户请下载最新版本的 `AppImage` 文件或使用 `snap` 文件进行快速安装。
 
-对于使用 `snap` 格式文件进行安装的，还可以执行该命令快速安装，或直接访问 Snap Store：
+对于使用 `snap` 格式文件进行安装的，还可以执行该命令快速安装，或直接访问 Snap Store 或 Flathub：
 
 [![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/mqttx)
+<a href='https://flathub.org/apps/details/com.emqx.MQTTX'><img height='56' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>
 
 ```shell
 sudo snap install mqttx
@@ -159,6 +160,10 @@ sudo snap install mqttx
 
 ![mqttx-muti-topics](../assets/mqttx-muti-topics.png)
 
+    订阅过的主题支持**编辑/禁用/启用**，右键点击已经订阅过的 Topic 列表项，在右键菜单中我们可以快速选择编辑、禁用或启用等操作。当订阅的 Topic 过多时，有时候不是所有的 Topic 消息都想要接收到，为了避免再次订阅相同 Topic，提供了禁用功能，如需重新接收该 Topic 的消息，只需再次启用即可。
+
+![mqttx-edit-topic](../assets/mqttx-edit-topic.png)
+
 3. 消息发送和接收
 
     `Topic` 订阅成功后，就可以来测试消息的收发了。在页面右下角填入刚才所订阅的 `Topic` 信息，可选择 `QoS`，`Retain` 的值，输入 `payload` 后，点击最右侧的发送按钮，就向刚才订阅的 `Topic` 发送了一条消息。发送成功后，也可以即时接收到刚才所发送的消息。注意，在消息框内，右边栏为发送的消息。左边栏为接收到的消息。macOS 用户可以使用 `command + enter` 快捷键，其它用户可以使用 `control + enter` 快捷键来快速发送消息。
@@ -193,9 +198,9 @@ sudo snap install mqttx
 
 ![mqttx-content-type](../assets/mqttx-content-type.png)
 
-4. 订阅选项
+4. 订阅标识符和订阅选项
 
-    我们打开订阅主题的弹出框，可以看到下方出现了包含了 No Local、Retain as Published 和 Retain Handling 的配置选项，用户可以使用这些订阅选项来改变服务端的行为。
+    我们打开订阅主题的弹出框，下方可以设置 Subscription Identifier 和包含了 No Local、Retain as Published 和 Retain Handling 的订阅选项。用户可以在订阅报文中指定一个数字订阅标识符，并在消息分发时返回此标识符。客户端可以建立订阅标识符与消息处理程序的映射，以在收到 PUBLISH 报文时直接通过订阅标识符将消息定向至对应的消息处理程序，同时可以配置这些订阅选项来改变服务端的行为。
 
 ![mqttx-sub-flag](../assets/mqttx-sub-flag.png)
 
