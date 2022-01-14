@@ -52,7 +52,7 @@
           <div class="emq-logo">
             <img :src="emqLogoSrc" alt="emqx" width="40" />
             <span class="copyright">
-              &copy;2021 <a :href="emqWebsite" target="_blank" rel="noopener noreferrer">EMQ</a> Technologies Co., Ltd.
+              &copy;2022 <a :href="emqWebsite" target="_blank" rel="noopener noreferrer">EMQ</a> Technologies Co., Ltd.
             </span>
           </div>
           <div class="follow-items">
