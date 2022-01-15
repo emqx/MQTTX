@@ -78,7 +78,7 @@ See our [blog](https://www.emqx.io/blog/mqtt-x-guideline) or [manual](./docs/man
 
 The MQTT X community can be found on [GitHub Discussions](https://github.com/emqx/MQTTX/discussions), where you can ask questions, voice ideas, and share your projects.
 
-To chat with other community members you can join the [EMQ X Slack](https://slack-invite.emqx.io).
+To chat with other community members you can join the [EMQ X Slack](https://slack-invite.emqx.io) or [Discord](https://discord.gg/xYGf3fQnES).
 
 ## Develop
 
