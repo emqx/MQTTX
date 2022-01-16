@@ -36,6 +36,9 @@ export default class HistoryConnectionEntity {
   @Column({ type: 'boolean' })
   reconnect!: boolean
 
+  @Column({ type: 'integer', default: 4000 })
+  reconnectPeriod!: number
+
   @Column({ type: 'varchar', nullable: true })
   username!: string
 

@@ -37,19 +37,17 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
     certType,
     mqttVersion,
     reconnect,
+    reconnectPeriod, // reconnectPeriod = 0 disabled automatic reconnection in the client
     will,
     rejectUnauthorized,
     clientIdWithTime,
   } = record
-  // reconnectPeriod = 0 disabled automatic reconnection in the client
-  const reconnectPeriod = reconnect ? 4000 : 0
   const protocolVersion = mqttVersionDict[mqttVersion as '3.1.1' | '5.0']
-
   const options: IClientOptions = {
     clientId,
     keepalive,
     clean,
-    reconnectPeriod,
+    reconnectPeriod: reconnect ? reconnectPeriod : 0,
     protocolVersion,
   }
   options.connectTimeout = time.convertSecondsToMs(connectTimeout)
@@ -149,6 +147,7 @@ export const getDefaultRecord = (): ConnectionModel => {
     keepalive: 60,
     connectTimeout: 10,
     reconnect: false,
+    reconnectPeriod: 4000,
     username: '',
     password: '',
     path: '/mqtt',
