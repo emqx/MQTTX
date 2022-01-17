@@ -279,6 +279,13 @@ export default {
     ja: '自動再接続',
     hu: 'Automatikus újracsatlakozás',
   },
+  reconnectPeriod: {
+    zh: '重连周期',
+    en: 'Reconnect Period',
+    tr: 'Yeniden Bağlantı Süresi',
+    ja: '再接続期間',
+    hu: 'Újracsatlakozási időszak',
+  },
   mqttVersion: {
     zh: 'MQTT 版本',
     en: 'MQTT Version',

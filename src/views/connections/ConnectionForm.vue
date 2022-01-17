@@ -286,6 +286,23 @@
                 </el-form-item>
               </el-col>
               <el-col :span="2"></el-col>
+              <template v-if="record.reconnect">
+                <el-col :span="22">
+                  <el-form-item :label="$t('connections.reconnectPeriod')" prop="reconnectPeriod">
+                    <el-input-number
+                      size="mini"
+                      type="number"
+                      :min="1"
+                      v-model="record.reconnectPeriod"
+                      controls-position="right"
+                    >
+                    </el-input-number>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2">
+                  <div class="unit">({{ $t('common.unitMS') }})</div>
+                </el-col>
+              </template>
               <el-col :span="22">
                 <el-form-item :label="$t('connections.mqttVersion')" prop="mqttVersion">
                   <el-select size="mini" v-model="record.mqttVersion">
