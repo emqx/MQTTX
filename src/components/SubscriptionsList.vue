@@ -365,12 +365,11 @@ export default class SubscriptionsList extends Vue {
 
   public async resubscribe() {
     this.getCurrentConnection(this.connectionId)
-    for (let i = 0; i < this.subsList.length; i++) {
-      const sub = this.subsList[i]
+    for (let sub of this.subsList) {
       this.$log.info(`Topic: ${sub.topic} is resubscribing`)
-      this.subRecord = sub
+      this.subRecord = { ...sub }
       if (this.subRecord.disabled === false) {
-        await this.subscribe({ ...this.subRecord })
+        await this.subscribe(this.subRecord)
       }
     }
   }
