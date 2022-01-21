@@ -39,7 +39,7 @@
     "element-ui": "^2.15.5",
     "fs-extra": "^8.1.0",
     "json2csv": "^5.0.3",
-    "log4js": "^6.3.0",
+    "log4js": "^6.4.0",
     "moment": "^2.24.0",
     "monaco-editor": "^0.25.2",
     "mqtt": "4.3.1",
