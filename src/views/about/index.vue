@@ -59,11 +59,11 @@
             <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://twitter.com/EMQTech">
               <i class="iconfont icon-ttww"></i>
             </a>
+            <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://discord.gg/xYGf3fQnES">
+              <i class="iconfont icon-discord"></i>
+            </a>
             <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://slack-invite.emqx.io/">
               <i class="iconfont icon-slack"></i>
-            </a>
-            <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://www.reddit.com/r/emqx/">
-              <i class="iconfont icon-reddit-circle"></i>
             </a>
             <template v-if="getterLang === 'zh'">
               <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://weibo.com/emqtt">
