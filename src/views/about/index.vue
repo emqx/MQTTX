@@ -65,17 +65,12 @@
             <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://slack-invite.emqx.io/">
               <i class="iconfont icon-slack"></i>
             </a>
-            <template v-if="getterLang === 'zh'">
-              <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://weibo.com/emqtt">
-                <i class="iconfont icon-weibo"></i>
-              </a>
-              <el-popover placement="top-start" width="30" trigger="click">
-                <img class="emqx-wechat" src="@/assets/images/wx_qr_code.png" alt="qq" />
-                <span class="follow-link" slot="reference">
-                  <i class="iconfont icon-we-chat"></i>
-                </span>
-              </el-popover>
-            </template>
+            <el-popover v-if="getterLang === 'zh'" placement="top-start" width="30" trigger="click">
+              <img class="emqx-wechat" src="@/assets/images/wx_qr_code.png" alt="qq" />
+              <span class="follow-link" slot="reference">
+                <i class="iconfont icon-we-chat"></i>
+              </span>
+            </el-popover>
           </div>
         </div>
       </div>
