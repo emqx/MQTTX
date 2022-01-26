@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "3876491",
+      "name": "discord",
+      "font_class": "discord",
+      "unicode": "e66e",
+      "unicode_decimal": 58990
+    },
+    {
       "icon_id": "25711546",
       "name": "cloud-logo",
       "font_class": "cloud-logo",
@@ -88,13 +95,6 @@
       "font_class": "copy",
       "unicode": "e6e3",
       "unicode_decimal": 59107
-    },
-    {
-      "icon_id": "11263590",
-      "name": "其他_reddit-circle",
-      "font_class": "reddit-circle",
-      "unicode": "e600",
-      "unicode_decimal": 58880
     },
     {
       "icon_id": "22416556",

@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 1257443 */
-  src: url('iconfont.woff2?t=1639988546249') format('woff2'),
-       url('iconfont.woff?t=1639988546249') format('woff'),
-       url('iconfont.ttf?t=1639988546249') format('truetype');
+  src: url('iconfont.woff2?t=1643164608498') format('woff2'),
+       url('iconfont.woff?t=1643164608498') format('woff'),
+       url('iconfont.ttf?t=1643164608498') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,10 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-discord:before {
+  content: "\e66e";
 }
 
 .icon-cloud-logo:before {
@@ -59,10 +63,6 @@
 
 .icon-copy:before {
   content: "\e6e3";
-}
-
-.icon-reddit-circle:before {
-  content: "\e600";
 }
 
 .icon-a-bytesstatistics:before {
