@@ -88,7 +88,13 @@ module.exports = {
         },
         linux: {
           icon: './public/icons/app.png',
-          target: ['AppImage', 'deb', 'rpm', 'snap'],
+          // 'AppImage', 'deb', 'rpm', 'snap'
+          target: [
+            { target: 'AppImage', arch: ['x64', 'arm64'] },
+            { target: 'deb', arch: ['x64', 'arm64'] },
+            { target: 'rpm', arch: ['x64', 'arm64'] },
+            { target: 'snap', arch: ['x64'] },
+          ],
         },
       },
     },
