@@ -74,15 +74,15 @@ module.exports = {
           target: [
             {
               target: 'dmg',
-              arch: 'universal',
+              arch: ['universal', 'x64', 'arm64'],
             },
             {
               target: 'pkg',
-              arch: 'universal',
+              arch: ['universal', 'x64', 'arm64'],
             },
             {
               target: 'zip',
-              arch: 'universal',
+              arch: ['universal', 'x64', 'arm64'],
             },
           ],
         },
