@@ -13,7 +13,7 @@
 
 ---
 
-[MQTT X](https://mqttx.app/)は、[EMQ](http://emqx.io/)によってオープンソース化されたクロスプラットフォームMQTT 5.0クライアントツールです。macOS、Linux、Windows、また、MQTTメッセージ形式の変換をサポートします。
+[MQTT X](https://mqttx.app/)は、[EMQ](http://emqx.com/en)によってオープンソース化されたクロスプラットフォームMQTT 5.0クライアントツールです。macOS、Linux、Windows、また、MQTTメッセージ形式の変換をサポートします。
 
 [MQTT X](https://mqttx.app/)のユーザーインターフェイスは、チャットソフトウェアのような形でページの操作ロジックを簡素化します。ユーザーは、接続をすばやく作成し、複数の接続クライアントを同時に保存および確立できます。 MQTT/TCP、MQTT/TLS、MQTT/WebSocketの**接続/パブリッシュ/サブスクライブ**機能およびその他の機能をすばやくテストすることが便利です。
 
