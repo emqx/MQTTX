@@ -69,7 +69,7 @@ sudo snap install mqttx
 
 ### MQTTブローカーの準備
 
-- MQTT Brokerをローカルにデプロイするが必要ない場合は、[EMQ X](https://github.com/emqx/emqx)のオンラインパブリックBrokerを使用して簡単にテストできます。
+- MQTT Brokerをローカルにデプロイするが必要ない場合は、[EMQX](https://github.com/emqx/emqx)のオンラインパブリックBrokerを使用して簡単にテストできます。
 
   ```shell
   ブローカーアドレス：broker.emqx.io
@@ -77,7 +77,7 @@ sudo snap install mqttx
   ブローカーSSLポート：8883
   ```
 
-- ローカルでMQTT Brokerを実行したい場合は、[EMQ X Broker](https://github.com/emqx/emqx/releases)をインストールして使用することをお勧めします。 EMQ X Brokerは、完全なオープンソース、高可用性、低レイテンシのミリオンレベルの分散型IoT MQTT 5.0メッセージサーバです。
+- ローカルでMQTT Brokerを実行したい場合は、[EMQX Broker](https://github.com/emqx/emqx/releases)をインストールして使用することをお勧めします。 EMQX Brokerは、完全なオープンソース、高可用性、低レイテンシのミリオンレベルの分散型IoT MQTT 5.0メッセージサーバです。
 
   Dockerを使用してEMQXをインストールします。
 
@@ -236,7 +236,7 @@ MQTTXが閉じられるたびに、現在のログファイルの名前がタイ
 
 3. アップデート
 
-    [MQTT X](https://mqttx.app)のバージョン情報と[EMQ X](https://emqx.io)のバージョン情報については、左下の`i`ボタンをクリックして`About`画面で確認できます。 `バージョンチェック`をクリックして、アップデートされたバージョンがあるかどうかを確認します。
+    [MQTT X](https://mqttx.app)のバージョン情報と[EMQX](https://emqx.io)のバージョン情報については、左下の`i`ボタンをクリックして`About`画面で確認できます。 `バージョンチェック`をクリックして、アップデートされたバージョンがあるかどうかを確認します。
 
 ![mqttx-update](../assets/jp/mqttx-update.png)
 
