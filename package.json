@@ -2,7 +2,7 @@
   "name": "MQTTX",
   "version": "1.7.2",
   "description": "MQTT desktop client",
-  "author": "EMQ X Team <yusf@emqx.io>",
+  "author": "EMQX Team <yusf@emqx.io>",
   "scripts": {
     "version": "yarn run gen:version && git add -A .",
     "serve": "vue-cli-service serve",

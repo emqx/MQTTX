@@ -76,7 +76,7 @@ sudo snap install mqttx
 
 ### MQTT Broker 准备
 
-- 如果您不需要本地部署的 MQTT Broker，那么可以使用 [EMQ X](https://github.com/emqx/emqx) 的线上公开版进行快速测试；
+- 如果您不需要本地部署的 MQTT Broker，那么可以使用 [EMQX](https://github.com/emqx/emqx) 的线上公开版进行快速测试；
 
   ```shell
   Broker 地址: broker.emqx.io
@@ -84,9 +84,9 @@ sudo snap install mqttx
   Broker SSL 端口: 8883
   ```
 
-- 如果您打算部署一个本地运行的 MQTT Broker，那么我们推荐您 [下载 EMQ X](https://github.com/emqx/emqx/releases) 进行安装使用。EMQ X 是一款完全开源，高可用低时延的百万级分布式物联网 MQTT 5.0 消息服务器。
+- 如果您打算部署一个本地运行的 MQTT Broker，那么我们推荐您 [下载 EMQX](https://github.com/emqx/emqx/releases) 进行安装使用。EMQX 是一款完全开源，高可用低时延的百万级分布式物联网 MQTT 5.0 消息服务器。
 
-  使用 Docker 快速安装 EMQ X：
+  使用 Docker 快速安装 EMQX：
 
   ```shell
   docker run -d --name emqx -p 1883:1883 -p 8083:8083 -p 8883:8883 -p 8084:8084 -p 18083:18083 emqx/emqx
@@ -281,7 +281,7 @@ sudo snap install mqttx
 
 3. 检查更新
 
-    点击左侧底部的 `i` 按钮，可进入到 `About` 页面，了解 [MQTT X](https://mqttx.app/zh) 的版本信息和 [EMQ X](https://emqx.cn) 的相关信息。点击 `Check for Updates` 可以检查是否有更新版本。
+    点击左侧底部的 `i` 按钮，可进入到 `About` 页面，了解 [MQTT X](https://mqttx.app/zh) 的版本信息和 [EMQX](https://emqx.cn) 的相关信息。点击 `Check for Updates` 可以检查是否有更新版本。
 
 ![mqttx-update](../assets/mqttx-update.png)
 
@@ -300,7 +300,7 @@ sudo snap install mqttx
 6. 流量统计
 
     在右上角的下拉菜单中，可点击流量统计项，MQTT X 会自动订阅系统主题，并可以在页面中展示该 Broker 下的简单的流量统计图表，运行版本和运行时间。
-    > EMQ X 默认只允许本机的 MQTT 客户端订阅 $SYS 主题，请参照 内置 ACL 修改发布订阅 ACL 规则。
+    > EMQX 默认只允许本机的 MQTT 客户端订阅 $SYS 主题，请参照 内置 ACL 修改发布订阅 ACL 规则。
 
 ![mqttx-bytes](../assets/mqttx-bytes.png)
 
@@ -373,9 +373,9 @@ MQTT X 是一款开源的跨平台 MQTT 桌面客户端工具。可以用于正�
 
 |  方式   | 内容  |
 |  ----  | ----  |
-| QQ 群（EMQ X 官方群3）| 937041105 |
-| EMQ X 官方公众号 | <img src="../assets/wx_qr_code.png" width="160" alt="WeChat QR code"/> |
-| EMQ X 微信群（扫码添加后邀请入群）| <img src="../assets/emqx_wx.jpeg" width="160" alt="EMQ X Wechat"/> |
+| QQ 群（EMQX 官方群3）| 937041105 |
+| EMQX 官方公众号 | <img src="../assets/wx_qr_code.png" width="160" alt="WeChat QR code"/> |
+| EMQX 微信群（扫码添加后邀请入群）| <img src="../assets/emqx_wx.jpeg" width="160" alt="EMQX Wechat"/> |
 | 微博 | [@emqtt](https://weibo.com/emqtt) |
 | Twitter | [@emqtt](https://twitter.com/EMQTech/) |
-| Slack | [EMQ X](https://slack-invite.emqx.io/) |
+| Slack | [EMQX](https://slack-invite.emqx.io/) |

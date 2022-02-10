@@ -41,7 +41,7 @@
           </div>
           <div class="btns">
             <el-button class="link-btn emqx-cloud" type="primary" @click="goToLink(emqxCloudWebsite)">
-              <i class="iconfont icon-cloud-logo"></i> EMQ X Cloud <i class="iconfont icon-right"></i>
+              <i class="iconfont icon-cloud-logo"></i> EMQX Cloud <i class="iconfont icon-right"></i>
             </el-button>
             <el-button class="link-btn github" type="primary" plain @click="goToLink('https://github.com/emqx/MQTTX')">
               <i class="iconfont icon-github"></i> {{ $t('about.followGithub') }} <i class="iconfont icon-right"></i>

@@ -76,7 +76,7 @@ sudo snap install mqttx
 
 ### MQTT Broker preparation
 
-- If you don't need to deploy MQTT Broker locally, you can use the online public version of [EMQ X](https://github.com/emqx/emqx) for quick testing;
+- If you don't need to deploy MQTT Broker locally, you can use the online public version of [EMQX](https://github.com/emqx/emqx) for quick testing;
 
   ```shell
   Broker address: broker.emqx.io
@@ -84,9 +84,9 @@ sudo snap install mqttx
   Broker SSL port: 8883
   ```
 
-- If you plan to deploy a MQTT Broker running locally, we recommend you to [download EMQ X](https://github.com/emqx/emqx/releases) for installation and use. EMQ X broker is a fully open source, highly scalable, highly available distributed MQTT messaging broker for IoT, M2M and Mobile applications that can handle tens of millions of concurrent clients.
+- If you plan to deploy a MQTT Broker running locally, we recommend you to [download EMQX](https://github.com/emqx/emqx/releases) for installation and use. EMQX broker is a fully open source, highly scalable, highly available distributed MQTT messaging broker for IoT, M2M and Mobile applications that can handle tens of millions of concurrent clients.
 
-  Install EMQ X by using Docker:
+  Install EMQX by using Docker:
 
   ```shell
   docker run -d --name emqx -p 1883:1883 -p 8083:8083 -p 8883:8883 -p 8084:8084 -p 18083:18083 emqx/emqx
@@ -280,7 +280,7 @@ Click on the action bar button at the top and select the `Clear History` item, y
 
 3. Check update
 
-   Click the `i` button at the bottom left to enter the `About` page to learn about the version information of [MQTT X](https://mqttx.app) and related information of [EMQ X](https://emqx.io) . Click `Check for Updates` to check if there are newer versions.
+   Click the `i` button at the bottom left to enter the `About` page to learn about the version information of [MQTT X](https://mqttx.app) and related information of [EMQX](https://emqx.io) . Click `Check for Updates` to check if there are newer versions.
 
 ![mqttx-update](../assets/mqttx-update.png)
 

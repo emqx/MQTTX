@@ -57,37 +57,37 @@ export default {
   },
   emqxLocal: {
     zh: {
-      emqx: 'EMQ X',
+      emqx: 'EMQX',
       local: '如需本地运行 MQTT Broker 推荐使用 {0}：',
     },
     en: {
-      emqx: 'EMQ X',
+      emqx: 'EMQX',
       local: 'To run MQTT Broker locally, {0} is recommended: ',
     },
     tr: {
-      emqx: 'EMQ X',
+      emqx: 'EMQX',
       local: "MQTT Broker'ı yerel olarak çalıştırmak için {0} önerilir: ",
     },
     ja: {
-      emqx: 'EMQ X',
+      emqx: 'EMQX',
       local: 'ローカルでMQTT Brokerを動作させたい場合に、{0}がお勧めです：',
     },
     hu: {
-      emqx: 'EMQ X',
+      emqx: 'EMQX',
       local: 'Az MQTT bróker helyi futtatásához, {0} ajánlott: ',
     },
   },
   emqxDocker: {
     zh: {
-      emqx: '开源版 EMQ X',
+      emqx: '开源版 EMQX',
       local: '使用 Docker 安装 {0}：',
     },
     en: {
-      emqx: 'open-source EMQ X',
+      emqx: 'open-source EMQX',
       local: 'Install {0} by using Docker:',
     },
     tr: {
-      emqx: `açık kaynaklı EMQ X`,
+      emqx: `açık kaynaklı EMQX`,
       local: `Docker'ı kullanarak {0}'i yükleyin:`,
     },
     ja: {
@@ -95,7 +95,7 @@ export default {
       local: 'Dockerで{0}をインストール：',
     },
     hu: {
-      emqx: 'nyílt forráskódú EMQ X-et',
+      emqx: 'nyílt forráskódú EMQX-et',
       local: 'Telepítse {0} Docker használatával:',
     },
   },

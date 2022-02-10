@@ -56,7 +56,7 @@ brew install --cask mqttx
 
 1. MQTT Broker 准备。
 
-   - 如果您不需要在本地部署 MQTT Broker，那么可以使用由 [EMQ X Cloud](https://www.emqx.com/zh/cloud) 提供的公共 MQTT 5.0 服务器来进行测试：
+   - 如果您不需要在本地部署 MQTT Broker，那么可以使用由 [EMQX Cloud](https://www.emqx.com/zh/cloud) 提供的公共 MQTT 5.0 服务器来进行测试：
 
       ```shell
       Broker 地址: broker.emqx.io
@@ -64,7 +64,7 @@ brew install --cask mqttx
       Broker SSL 端口: 8883
       ```
 
-   - 如果您打算部署一个本地运行的 MQTT Broker，那么我们推荐您 [下载 EMQ X](https://www.emqx.com/zh/products/emqx) 进行安装和使用。EMQ X 是一款开源云原生分布式物联网 MQTT 消息服务器。
+   - 如果您打算部署一个本地运行的 MQTT Broker，那么我们推荐您 [下载 EMQX](https://www.emqx.com/zh/products/emqx) 进行安装和使用。EMQX 是一款开源云原生分布式物联网 MQTT 消息服务器。
 
 2. 连接配置。点击左侧菜单栏里的 `+` 号按钮，并填写表单中相应的必填项。
 
@@ -82,8 +82,8 @@ brew install --cask mqttx
 
 |  方式   | 内容  |
 |  ----  | ----  |
-| EMQ X 官方公众号 | <img src="./assets/wx_qr_code.png" width="160" alt="EMQ X Wechat"/> |
-| EMQ X 微信群（扫码添加后邀请入群）| <img src="./assets/emqx_wx.jpeg" width="160" alt="WeChat QR code"/> |
+| EMQX 官方公众号 | <img src="./assets/wx_qr_code.png" width="160" alt="EMQX Wechat"/> |
+| EMQX 微信群（扫码添加后邀请入群）| <img src="./assets/emqx_wx.jpeg" width="160" alt="WeChat QR code"/> |
 
 ## 开发
 

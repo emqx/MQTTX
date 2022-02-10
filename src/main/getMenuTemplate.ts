@@ -120,7 +120,7 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
           },
         },
         {
-          label: 'Learn more EMQ X',
+          label: 'Learn more EMQX',
           click: async () => {
             await shell.openExternal('https://github.com/emqx/emqx')
           },
@@ -139,7 +139,7 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
           },
         },
         {
-          label: 'EMQ X Website',
+          label: 'EMQX Website',
           click: async () => {
             await shell.openExternal('https://emqx.io')
           },

@@ -56,7 +56,7 @@ See our [blog](https://www.emqx.io/blog/mqtt-x-guideline) or [manual](./docs/man
 
 1. Get MQTT Broker Ready.
 
-    - If you do not need to deploy the MQTT Broker locally, you can use the public MQTT 5.0 Broker provided by [EMQ X Cloud](https://www.emqx.com/en/cloud) for testing:
+    - If you do not need to deploy the MQTT Broker locally, you can use the public MQTT 5.0 Broker provided by [EMQX Cloud](https://www.emqx.com/en/cloud) for testing:
 
         ```shell
         Broker IP: broker.emqx.io
@@ -64,7 +64,7 @@ See our [blog](https://www.emqx.io/blog/mqtt-x-guideline) or [manual](./docs/man
         Broker SSL Port: 8883
         ```
 
-    - To run MQTT Broker locally, [EMQ X](https://www.emqx.com/en/products/emqx) is recommended: An Open-Source, Cloud-Native, Distributed MQTT Broker for IoT.
+    - To run MQTT Broker locally, [EMQX](https://www.emqx.com/en/products/emqx) is recommended: An Open-Source, Cloud-Native, Distributed MQTT Broker for IoT.
 
 2. Connection configuration. Click the `+` button in the left menu bar and fill in the corresponding required fields in the form.
 
@@ -78,7 +78,7 @@ See our [blog](https://www.emqx.io/blog/mqtt-x-guideline) or [manual](./docs/man
 
 The MQTT X community can be found on [GitHub Discussions](https://github.com/emqx/MQTTX/discussions), where you can ask questions, voice ideas, and share your projects.
 
-To chat with other community members you can join the [EMQ X Slack](https://slack-invite.emqx.io) or [Discord](https://discord.gg/xYGf3fQnES).
+To chat with other community members you can join the [EMQX Slack](https://slack-invite.emqx.io) or [Discord](https://discord.gg/xYGf3fQnES).
 
 ## Develop
 

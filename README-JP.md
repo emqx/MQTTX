@@ -54,7 +54,7 @@ brew install --cask mqttx
 
 1. MQTT Brokerの準備。
 
-   - MQTT Brokerをローカルにデプロイするが必要ない場合は、[EMQ X](https://github.com/emqx/emqx)のオンラインパブリックバージョンを使用して簡単にテストできます。
+   - MQTT Brokerをローカルにデプロイするが必要ない場合は、[EMQX](https://github.com/emqx/emqx)のオンラインパブリックバージョンを使用して簡単にテストできます。
 
       ```shell
       Broker アドレス：broker.emqx.io
@@ -62,7 +62,7 @@ brew install --cask mqttx
       Broker SSLポート：8883
       ```
 
-   - ローカルでMQTT Brokerを実行したい場合は、[EMQ X Broker](https://github.com/emqx/emqx/releases)をインストールして使用することをお勧めします。 EMQ X Brokerは、完全なオープンソース、高可用性、低レイテンシのミリオンレベルの分散型IoT MQTT 5.0メッセージサーバです。5G時代のIoTのメッセージングエンジンであり、MQTT/CoAP/LwM2MワンストップIoTプロトコルアクセスをサポートします。
+   - ローカルでMQTT Brokerを実行したい場合は、[EMQX Broker](https://github.com/emqx/emqx/releases)をインストールして使用することをお勧めします。 EMQX Brokerは、完全なオープンソース、高可用性、低レイテンシのミリオンレベルの分散型IoT MQTT 5.0メッセージサーバです。5G時代のIoTのメッセージングエンジンであり、MQTT/CoAP/LwM2MワンストップIoTプロトコルアクセスをサポートします。
 
 2. 接続構成。左側のメニューバーの `+` ボタンをクリックし、フォームの必須項目を入力します。
 
