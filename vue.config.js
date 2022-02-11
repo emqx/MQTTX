@@ -65,9 +65,30 @@ module.exports = {
       externals: ['mqtt', 'vm2', 'log4js', 'typeorm'],
       builderOptions: {
         productName: 'MQTTX',
+        nsis: {
+          oneClick: false,
+          allowElevation: true,
+          allowToChangeInstallationDirectory: true,
+          createDesktopShortcut: true,
+          createStartMenuShortcut: true,
+        },
         win: {
-          artifactName: 'MQTTX.Setup.${version}.${ext}',
+          artifactName: 'MQTTX-Setup-${version}-${arch}.${ext}',
           icon: './public/icons/app.ico',
+          target: [
+            {
+              target: 'nsis',
+              arch: 'x64',
+            },
+            {
+              target: 'nsis',
+              arch: 'ia32',
+            },
+            {
+              target: 'nsis',
+              arch: 'arm64',
+            },
+          ]
         },
         mac: {
           icon: './public/icons/mac/Icon.icns',
@@ -88,7 +109,6 @@ module.exports = {
         },
         linux: {
           icon: './public/icons/app.png',
-          // 'AppImage', 'deb', 'rpm', 'snap'
           target: [
             { target: 'AppImage', arch: ['x64', 'arm64'] },
             { target: 'deb', arch: ['x64', 'arm64'] },
