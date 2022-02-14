@@ -23,6 +23,7 @@ const setWillMQTT5Properties = (option: WillPropertiesModel) => {
 
 const getClientOptions = (record: ConnectionModel): IClientOptions => {
   const mqttVersionDict = {
+    '3.1': 3,
     '3.1.1': 4,
     '5.0': 5,
   }
@@ -42,7 +43,7 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
     rejectUnauthorized,
     clientIdWithTime,
   } = record
-  const protocolVersion = mqttVersionDict[mqttVersion as '3.1.1' | '5.0']
+  const protocolVersion = mqttVersionDict[mqttVersion as '3.1' | '3.1.1' | '5.0']
   const options: IClientOptions = {
     clientId,
     keepalive,
@@ -69,6 +70,8 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
     if (properties && Object.keys(properties).length > 0) {
       options.properties = properties
     }
+  } else if (protocolVersion === 3) {
+    options.protocolId = 'MQIsdp'
   }
   // SSL
   if (ssl) {
