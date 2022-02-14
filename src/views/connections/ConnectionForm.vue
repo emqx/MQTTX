@@ -306,6 +306,7 @@
               <el-col :span="22">
                 <el-form-item :label="$t('connections.mqttVersion')" prop="mqttVersion">
                   <el-select size="mini" v-model="record.mqttVersion">
+                    <el-option value="3.1" label="3.1"></el-option>
                     <el-option value="3.1.1" label="3.1.1"></el-option>
                     <el-option value="5.0" label="5.0"></el-option>
                   </el-select>
