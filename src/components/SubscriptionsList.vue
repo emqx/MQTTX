@@ -110,8 +110,12 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="QoS" prop="qos">
-              <el-select v-model="subRecord.qos" size="small">
-                <el-option v-for="qos in qosOption" :key="qos" :label="qos" :value="qos"> </el-option>
+              <span class="qos-tip">{{ $t(`connections.qos${subRecord.qos}`) }}</span>
+              <el-select class="qos-select" v-model="subRecord.qos" size="small">
+                <el-option v-for="qos in qosOption" :key="qos" :label="qos" :value="qos">
+                  <span style="float: left">{{ qos }}</span>
+                  <span style="float: right; color: #8492a6; font-size: 13px">{{ $t(`connections.qos${qos}`) }}</span>
+                </el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -785,6 +789,16 @@ export default class SubscriptionsList extends Vue {
 .topic-dialog {
   .el-dialog__body {
     padding: 20px 20px 0 20px;
+    .qos-tip {
+      position: absolute;
+      top: 40px;
+      right: 36px;
+    }
+    .qos-select {
+      .el-input .el-input__inner {
+        background: transparent;
+      }
+    }
     .el-color-picker {
       position: absolute;
       right: 0;

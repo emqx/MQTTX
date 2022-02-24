@@ -768,4 +768,25 @@ export default {
     ja: 'サブスクリプション識別子',
     hu: 'Előfizetési azonosító',
   },
+  qos0: {
+    zh: '最多一次',
+    en: 'At most once',
+    tr: 'en fazla bir kere',
+    ja: 'せいぜい一度',
+    hu: 'Legfeljebb egyszer',
+  },
+  qos1: {
+    zh: '至少一次',
+    en: 'At least once',
+    tr: 'En azından bir kere',
+    ja: '少なくとも一度は',
+    hu: 'Legalább egyszer',
+  },
+  qos2: {
+    zh: '仅一次',
+    en: 'Exactly once',
+    tr: 'tam olarak bir kez',
+    ja: 'ちょうど一度',
+    hu: 'Pontosan egyszer',
+  },
 }
