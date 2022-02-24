@@ -39,25 +39,25 @@ const convertJSON = (value: string): Promise<string> =>
   })
 
 const convertPayload = async (payload: string, currentType: PayloadType, fromType: PayloadType): Promise<string> => {
-  let $payload = payload
+  let _payload = payload
   switch (fromType) {
     case 'Base64':
-      $payload = convertBase64(payload, 'decode')
+      _payload = convertBase64(payload, 'decode')
       break
     case 'Hex':
-      $payload = convertHex(payload, 'decode')
+      _payload = convertHex(payload, 'decode')
       break
   }
   if (currentType === 'Base64') {
-    $payload = convertBase64($payload, 'encode')
+    _payload = convertBase64(_payload, 'encode')
   }
   if (currentType === 'JSON') {
-    $payload = await convertJSON($payload)
+    _payload = await convertJSON(_payload)
   }
   if (currentType === 'Hex') {
-    $payload = convertHex($payload, 'encode')
+    _payload = convertHex(_payload, 'encode')
   }
-  return $payload
+  return _payload
 }
 
 export default convertPayload
