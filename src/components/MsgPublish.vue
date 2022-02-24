@@ -95,9 +95,10 @@
         </el-select>
         <span class="publish-label">QoS: </span>
         <el-select class="qos-select" size="mini" v-model="msgRecord.qos">
-          <el-option :value="0"></el-option>
-          <el-option :value="1"></el-option>
-          <el-option :value="2"></el-option>
+          <el-option v-for="qos in [0, 1, 2]" :key="qos" :label="qos" :value="qos">
+            <span style="float: left">{{ qos }}</span>
+            <span style="float: right; color: #8492a6; margin-left: 12px">{{ $t(`connections.qos${qos}`) }}</span>
+          </el-option>
         </el-select>
         <el-checkbox class="retain-block" v-model="msgRecord.retain" label="Retain" border size="mini"></el-checkbox>
         <el-tooltip
