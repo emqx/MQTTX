@@ -10,10 +10,10 @@
   >
     <el-row :gutter="20">
       <el-col :span="12">
-        <el-card class="version-card info-card"> Broker {{ $t('common.version') }}: {{ version }} </el-card>
+        <el-card class="version-card info-card"> Broker {{ $t('common.version') }}{{ version }} </el-card>
       </el-col>
       <el-col :span="12">
-        <el-card class="uptime-card info-card"> {{ $t('common.uptime') }}: {{ uptime }} </el-card>
+        <el-card class="uptime-card info-card"> {{ $t('common.uptime') }}{{ uptime }} </el-card>
       </el-col>
       <el-col :span="24">
         <el-card class="chart-card" v-loading="loading">
