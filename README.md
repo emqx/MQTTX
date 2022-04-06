@@ -13,7 +13,7 @@ English | [简体中文](./README-CN.md) | [日本語](./README-JP.md)
 
 ---
 
-[MQTT X](https://mqttx.app) is a cross-platform MQTT 5.0 client tool open sourced by [EMQ](https://emqx.com/en), which can run on macOS, Linux and Windows, and supports formatting MQTT payload.
+[MQTT X](https://mqttx.app) is a cross-platform MQTT 5.0 client tool open sourced by [EMQ](https://www.emqx.com/en), which can run on macOS, Linux and Windows, and supports formatting MQTT payload.
 
 [MQTT X](https://mqttx.app) simplifies the operation logic of the page with the help of chatting software, makes it easy and quick to create multiple simultaneous online MQTT client connections, test the connection, publish, and subscribe functions of MQTT/TCP, MQTT/TLS, MQTT/WebSocket as well as other MQTT protocol features.
 
@@ -73,6 +73,14 @@ See our [blog](https://www.emqx.io/blog/mqtt-x-guideline) or [manual](./docs/man
 4. After the MQTT is connected successfully, you can perform MQTT publish and subscription tests.
 
 ![mqttx-gif](./assets/mqttx-gif.gif)
+
+## Better Together
+
+MQTT X is designed to connect to test MQTT Brokers such as EMQX, The one-click connection and simple graphical interface make it easy to connect to EMQX or EMQX Cloud to debug and explore functional features.
+
+[Sign up EMQX Cloud for 14 days free trial](https://www.emqx.com/en/try?product=cloud)
+
+[Download EMQX locally right now](https://www.emqx.com/en/try?product=enterprise)
 
 ## Community
 
