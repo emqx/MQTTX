@@ -13,7 +13,7 @@
 
 ---
 
-[MQTT X](https://mqttx.app/zh) 是 [EMQ](http://emqx.com/zh) 开源的一款跨平台 MQTT 5.0 客户端工具，它支持 macOS, Linux, Windows，并且支持 MQTT 消息格式转换。
+[MQTT X](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的一款跨平台 MQTT 5.0 客户端工具，它支持 macOS, Linux, Windows，并且支持 MQTT 消息格式转换。
 
 [MQTT X](https://mqttx.app/zh) 的用户界面借助聊天软件的形式简化了页面的操作逻辑，用户可以快速创建连接保存并同时建立多个连接客户端，方便用户快速测试 MQTT/TCP、MQTT/TLS、MQTT/WebSocket 的 **连接/发布/订阅** 功能及其他特性。
 
@@ -73,6 +73,14 @@ brew install --cask mqttx
 4. MQTT 连接成功后，就可以进行 MQTT 的发布与订阅测试。
 
 ![mqttx-gif](./assets/mqttx-gif.gif)
+
+## 更好的合作
+
+MQTT X 为连接测试 EMQX 等 MQTT 消息服务器而生，一键式的连接方式和简洁的图形界面可以帮助您快速连接到 EMQX 或 EMQX Cloud 调试并探索其功能特性。
+
+[注册 EMQX Cloud 可以享受 14 天免费试用](https://www.emqx.com/zh/try?product=cloud)
+
+[现在就本地下载并安装 EMQX](https://www.emqx.com/zh/try?product=enterprise)
 
 ## 社区
 

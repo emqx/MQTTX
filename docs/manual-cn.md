@@ -9,7 +9,7 @@
 
 ## 简介
 
-[MQTT X](https://mqttx.app/zh) 是 [EMQ](http://emqx.cn) 开源的一款优雅的跨平台 MQTT 5.0 桌面客户端，它支持 macOS, Linux, Windows。
+[MQTT X](https://mqttx.app/zh) 是 [EMQ](https://emqx.cn) 开源的一款优雅的跨平台 MQTT 5.0 桌面客户端，它支持 macOS, Linux, Windows。
 
 [MQTT X](https://mqttx.app/zh) 的 `UI` 采用了聊天界面形式，简化了页面操作逻辑，用户可以快速创建连接，允许保存多个客户端，方便用户快速测试 `MQTT/MQTTS` 连接，及 `MQTT` 消息的订阅和发布。
 
