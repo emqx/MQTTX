@@ -10,7 +10,7 @@
           <p class="version">{{ $t('common.version') }} v{{ version }}</p>
           <p class="help">
             <a class="web-link" href="javascript:;" @click="checkUpdate">{{ $t('about.update') }}</a>
-            <a class="web-link" href="https://github.com/emqx/MQTTX/releases" target="_blank" rel="noopener noreferrer">
+            <a class="web-link" :href="releasesLink" target="_blank" rel="noopener noreferrer">
               {{ $t('about.releases') }}
             </a>
             <a class="web-link" href="https://github.com/emqx/MQTTX/issues" target="_blank" rel="noopener noreferrer">
@@ -20,31 +20,25 @@
           <div class="description">
             <p>{{ $t('about.mqttxDesc') }}</p>
           </div>
-          <div class="description">
-            <p v-html="$t('common.cloud')"></p>
-          </div>
-          <div class="description">
-            <i18n path="about.emqxLocal.local" tag="span">
-              <a :href="emqxWebsite" target="_blank" rel="noopener noreferrer">{{ $t('about.emqxLocal.emqx') }}</a>
-            </i18n>
-            {{ $t('about.emqxDesc') }}
-          </div>
-          <div class="description">
-            <i18n path="about.emqxDocker.local" tag="span">
-              <a :href="emqxIoWebsite" target="_blank" rel="noopener noreferrer">
-                {{ $t('about.emqxDocker.emqx') }}
-              </a>
-            </i18n>
-            <div class="docker-code">
-              docker run -d --name emqx -p 1883:1883 -p 8083:8083 -p 8883:8883 -p 8084:8084 -p 18083:18083 emqx/emqx
-            </div>
-          </div>
           <div class="btns">
-            <el-button class="link-btn emqx-cloud" type="primary" @click="goToLink(emqxCloudWebsite)">
-              <i class="iconfont icon-cloud-logo"></i> EMQX Cloud <i class="iconfont icon-right"></i>
+            <el-button class="link-btn" type="primary" @click="goToLink('https://github.com/emqx/MQTTX')">
+              <i class="iconfont icon-github"></i>
+              GitHub →
             </el-button>
-            <el-button class="link-btn github" type="primary" plain @click="goToLink('https://github.com/emqx/MQTTX')">
-              <i class="iconfont icon-github"></i> {{ $t('about.followGithub') }} <i class="iconfont icon-right"></i>
+            <el-button class="link-btn" type="primary" @click="goToLink(mqttxWebsite)">
+              <i class="iconfont icon-website"></i>
+              {{ $t('about.web') }} →
+            </el-button>
+            <el-button class="link-btn" type="primary" @click="goToLink(`${mqttxWebsite}/docs/faq`)">
+              <i class="iconfont icon-faq"></i>
+              FAQ →
+            </el-button>
+          </div>
+          <div class="emqx-cloud">
+            <h2>{{ $t('about.cloudTitle') }}</h2>
+            <p>{{ $t('about.cloudSummary') }}</p>
+            <el-button class="try-cloud-btn" type="primary" @click="goToLink(emqxCloudWebsite)">
+              {{ $t('about.tryCloud') }} →
             </el-button>
           </div>
         </div>
@@ -134,6 +128,15 @@ export default class About extends Vue {
     return `${baseUrl}${this.utm}broker`
   }
 
+  get mqttxWebsite(): string {
+    const link = 'https://mqttx.app'
+    return this.getterLang === 'zh' ? `${link}/zh` : link
+  }
+
+  get releasesLink(): string {
+    return `${this.mqttxWebsite}/changelogs/v${version}`
+  }
+
   private checkUpdate(): void {
     ipcRenderer.send('checkUpdate')
   }
@@ -174,6 +177,7 @@ export default class About extends Vue {
         font-weight: 600;
       }
       .help {
+        margin-bottom: 24px;
         .web-link {
           padding-right: 12px;
           padding-left: 12px;
@@ -186,50 +190,58 @@ export default class About extends Vue {
             padding-right: 0px;
           }
         }
-        margin-bottom: 48px;
       }
       .description {
         max-width: 560px;
         line-height: 1.6;
         margin-bottom: 24px;
-        .docker-code {
-          background: var(--color-bg-code);
-          padding: 10px;
-          border-radius: 8px;
-          user-select: all;
-          margin-top: 8px;
-        }
       }
       .btns {
         margin-top: 24px;
-        margin-bottom: 35px;
+        margin-bottom: 64px;
         display: flex;
+        align-items: center;
         .el-button + .el-button {
-          margin-left: 16px;
+          margin-left: 24px;
         }
         .link-btn {
-          font-size: 1rem;
+          padding: 12px 24px;
+          min-width: 160px;
+          font-weight: 500;
+          font-size: 0.875rem;
+          color: var(--color-main-green);
           border: none;
-          &.emqx-cloud {
-            padding: 12px;
-            background: linear-gradient(90deg, #35c98d 0%, #37dc85 100%);
-          }
-          &.github {
-            padding: 10px;
-            border: 2px solid var(--color-main-green);
-            background: transparent;
-            &:hover {
-              color: var(--color-main-green);
-            }
-          }
-          .iconfont {
-            font-size: 20px;
-          }
+          border-radius: 8px;
+          background: var(--color-bg-card-normal);
           span {
             display: flex;
             align-items: center;
-            gap: 8px;
           }
+          i {
+            margin-right: 6px;
+            color: var(--color-text-card_icon);
+            font-size: 24px;
+          }
+        }
+      }
+      .emqx-cloud {
+        margin-bottom: 64px;
+        padding: 20px 40px;
+        text-align: center;
+        border-radius: 8px;
+        background: var(--color-bg-card-gradient);
+        h2 {
+          margin-bottom: 16px;
+          font-size: 1.125rem;
+        }
+        p {
+          margin-bottom: 16px;
+        }
+        .try-cloud-btn {
+          padding: 10px 24px;
+          border: none;
+          border-radius: 8px;
+          background: var(--color-bg-btn-gradient);
         }
       }
       .about-content__header {

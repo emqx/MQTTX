@@ -18,6 +18,9 @@ body.light {
   --color-bg-scrollbar: #00000033;
   --color-bg-skeleton: #f2f2f2;
   --color-bg-skeleton_transition: #e6e6e6;
+  --color-bg-card-normal: #edf4fc;
+  --color-bg-card-gradient: linear-gradient(33deg, #e5fafc 0%, #eceeff 100%);
+  --color-bg-btn-gradient: linear-gradient(90deg, #35c98d 0%, #37dc85 100%);
 
   /* Font color */
   --color-text-title: #222b3b;
@@ -31,6 +34,7 @@ body.light {
   --color-text-leftbar_icon: #83929b;
   --color-text-historybtn: #25465f;
   --color-text-historybtn_disabled: #c0c4cc;
+  --color-text-card_icon: #2f4852;
 
   /* Accent color */
   --color-main-green: #34c388;

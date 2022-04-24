@@ -18,6 +18,9 @@ body.night {
   --color-bg-scrollbar: #ffffff33;
   --color-bg-skeleton: #292b33;
   --color-bg-skeleton_transition: #212328;
+  --color-bg-card-normal: #323e4f;
+  --color-bg-card-gradient: linear-gradient(33deg, #263e4b 0%, #2b344d 100%);
+  --color-bg-btn-gradient: linear-gradient(90deg, #35c98d 0%, #37dc85 100%);
 
   /* Font color */
   --color-text-title: #fff;
@@ -31,6 +34,7 @@ body.night {
   --color-text-leftbar_icon: #83929b;
   --color-text-historybtn: #fff;
   --color-text-historybtn_disabled: #9d9fa0;
+  --color-text-card_icon: #eaebec;
 
   /* Accent color */
   --color-main-green: #34c388;

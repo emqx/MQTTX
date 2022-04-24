@@ -34,69 +34,32 @@ export default {
     ja: 'リリース履歴',
     hu: 'Kiadások',
   },
-  followGithub: {
-    zh: '在 GitHub 上关注我们',
-    en: 'Follow us on GitHub',
-    tr: "Bizi GitHub'da takip edin",
-    ja: 'Githubでフォローする',
-    hu: 'Kövess minket a GitHub-on',
-  },
   mqttxDesc: {
-    zh: 'MQTT X 帮助您更快的开发和调试 MQTT 服务和应用。',
-    en: 'MQTT X helps you develop MQTT services and applications faster.',
-    tr: 'MQTT X, MQTT hizmetlerini ve uygulamalarını daha hızlı geliştirmenize yardımcı olur.',
-    ja: 'MQTT Xは、MQTTサービスとアプリケーションをより迅速に開発するのに役立ちます。',
-    hu: 'Az MQTT X segít az MQTT szolgáltatások és alkalmazások gyorsabb fejlesztésében.',
+    zh: 'MQTT X 是一款由 EMQ 开源的 MQTT 5.0 跨平台桌面客户端，旨在帮助开发者更快的开发、调试 MQTT 服务和应用。',
+    en: '',
+    tr: '',
+    ja: '',
+    hu: '',
   },
-  emqxDesc: {
-    zh: '一款云原生分布式物联网 MQTT 5.0 消息服务器。',
-    en: 'A Cloud-Native, Distributed MQTT 5.0 Broker for IoT.',
-    tr: 'IoT için Bulutta Yerel, Dağıtılmış MQTT 5.0 Aracısıdır.',
-    ja: 'は、IoT向けのクラウドネイティブの分散MQTT 5.0ブローカーです。',
-    hu: 'egy felhő-natív, elosztott MQTT 5.0 bróker az IoT számára.',
+  cloudTitle: {
+    zh: '需要一个专属的 MQTT 服务器？',
+    en: '',
+    tr: '',
+    ja: '',
+    hu: '',
   },
-  emqxLocal: {
-    zh: {
-      emqx: 'EMQX',
-      local: '如需本地运行 MQTT Broker 推荐使用 {0}：',
-    },
-    en: {
-      emqx: 'EMQX',
-      local: 'To run MQTT Broker locally, {0} is recommended: ',
-    },
-    tr: {
-      emqx: 'EMQX',
-      local: "MQTT Broker'ı yerel olarak çalıştırmak için {0} önerilir: ",
-    },
-    ja: {
-      emqx: 'EMQX',
-      local: 'ローカルでMQTT Brokerを動作させたい場合に、{0}がお勧めです：',
-    },
-    hu: {
-      emqx: 'EMQX',
-      local: 'Az MQTT bróker helyi futtatásához, {0} ajánlott: ',
-    },
+  cloudSummary: {
+    zh: 'EMQX Cloud 是由 EMQ 提供的全托管 MQTT 云服务平台，可连接海量物联网设备并实时处理数据，且支持按量付费。',
+    en: '',
+    tr: '',
+    ja: '',
+    hu: '',
   },
-  emqxDocker: {
-    zh: {
-      emqx: '开源版 EMQX',
-      local: '使用 Docker 安装 {0}：',
-    },
-    en: {
-      emqx: 'open-source EMQX',
-      local: 'Install {0} by using Docker:',
-    },
-    tr: {
-      emqx: `açık kaynaklı EMQX`,
-      local: `Docker'ı kullanarak {0}'i yükleyin:`,
-    },
-    ja: {
-      emqx: 'オープンソースEMQX',
-      local: 'Dockerで{0}をインストール：',
-    },
-    hu: {
-      emqx: 'nyílt forráskódú EMQX-et',
-      local: 'Telepítse {0} Docker használatával:',
-    },
+  tryCloud: {
+    zh: '免费试用 EMQX Cloud',
+    en: '',
+    tr: '',
+    ja: '',
+    hu: '',
   },
 }
