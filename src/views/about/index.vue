@@ -84,7 +84,7 @@ export default class About extends Vue {
   @Getter('currentLang') private getterLang!: Language
 
   private baseUrl = 'https://www.emqx.com'
-  private utm = '?utm_source=mqttx&utm_medium=app&utm_campaign='
+  private utm = '?utm_source=mqttx&utm_medium=referral&utm_campaign='
 
   get version(): string {
     return version
@@ -106,17 +106,12 @@ export default class About extends Vue {
 
   get emqWebsite(): string {
     const lang = this.getterLang === 'zh' ? 'zh' : 'en'
-    return `${this.baseUrl}/${lang}${this.utm}emq`
-  }
-
-  get emqxWebsite(): string {
-    const lang = this.getterLang === 'zh' ? 'zh' : 'en'
-    return `${this.baseUrl}/${lang}/products/emqx${this.utm}enterpirse`
+    return `${this.baseUrl}/${lang}${this.utm}mqttx-to-homepage`
   }
 
   get emqxCloudWebsite(): string {
     const lang = this.getterLang === 'zh' ? 'zh' : 'en'
-    return `${this.baseUrl}/${lang}/cloud${this.utm}cloud`
+    return `${this.baseUrl}/${lang}/cloud${this.utm}mqttx-to-cloud`
   }
 
   get emqxIoWebsite(): string {
