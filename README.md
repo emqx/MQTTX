@@ -74,7 +74,7 @@ See our [blog](https://www.emqx.io/blog/mqtt-x-guideline) or [manual](./docs/man
 
 ![mqttx-gif](./assets/mqttx-gif.gif)
 
-## Better Together
+## Better Together with EMQX
 
 MQTT X is designed to connect to test MQTT Brokers such as EMQX, The one-click connection and simple graphical interface make it easy to connect to EMQX or EMQX Cloud to debug and explore functional features.
 

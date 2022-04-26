@@ -74,7 +74,7 @@ brew install --cask mqttx
 
 ![mqttx-gif](./assets/mqttx-gif.gif)
 
-## 更好的合作
+## 与 EMQX 更好的合作
 
 MQTT X 为连接测试 EMQX 等 MQTT 消息服务器而生，一键式的连接方式和简洁的图形界面可以帮助您快速连接到 EMQX 或 EMQX Cloud 调试并探索其功能特性。
 
