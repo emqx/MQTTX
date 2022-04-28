@@ -12,7 +12,7 @@
             <i class="iconfont icon-connect"></i>
           </a>
         </div>
-        <div class="leftbar-item">
+        <div :class="[{ active: isCreate }, 'leftbar-item']">
           <a href="javascript:;" @click="routeToPage('/recent_connections/0?oper=create')">
             <i class="iconfont icon-new"></i>
           </a>
@@ -58,7 +58,10 @@ export default class Leftbar extends Vue {
     return this.getterLang === 'zh' ? `${link}/zh` : link
   }
   get isConnection(): boolean {
-    return 'recent_connections' === this.$route.path.split('/')[1]
+    return ['Connections', 'ConnectionDetails'].includes(this.$route.name || '') && this.$route.query.oper !== 'create'
+  }
+  get isCreate(): boolean {
+    return this.$route.name === 'ConnectionDetails' && this.$route.query.oper === 'create'
   }
   get isSettings(): boolean {
     return this.$route.path === '/settings'
