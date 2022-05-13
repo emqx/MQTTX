@@ -118,9 +118,9 @@ export default class About extends Vue {
     const baseUrl = 'https://www.emqx.io/'
     const lang = this.getterLang === 'zh' ? 'zh' : 'en'
     if (lang === 'zh') {
-      return `${baseUrl}zh${this.utm}broker`
+      return `${baseUrl}zh${this.utm}mqttx-to-broker`
     }
-    return `${baseUrl}${this.utm}broker`
+    return `${baseUrl}${this.utm}mqttx-to-broker`
   }
 
   get mqttxWebsite(): string {
