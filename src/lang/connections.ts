@@ -476,8 +476,8 @@ export default {
     hu: 'Kapcsolati beállítások gyors kiválasztása',
   },
   clientIdWithTimeTip: {
-    zh: '附加时间戳到 ClientID 后，以防止重复的连接',
-    en: 'Append a timestamp to the ClientID to prevent duplicate connections',
+    zh: '在连接时附加时间戳到 ClientID，以防止重复的连接',
+    en: 'Append a timestamp to the ClientID at connection time to prevent duplicate connections',
     tr: "Yinelenen bağlantıları önlemek için ClientID'ye bir zaman damgası ekleyin",
     ja: '重複接続を防ぐために、ClientIDにタイムスタンプを追加します',
     hu: 'Adjon hozzá egy időbélyeget a ClientID-hoz, hogy elkerülje a duplikációt.',
