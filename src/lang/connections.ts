@@ -789,4 +789,11 @@ export default {
     ja: 'ちょうど一度',
     hu: 'Pontosan egyszer',
   },
+  duplicated: {
+    zh: '{oldName} 已被复制为 {name}',
+    en: '{oldName} has been duplicated as {name}',
+    tr: '{oldName}, {name} olarak kopyalandı',
+    ja: '{oldName}は{name}として複製されました',
+    hu: 'A(z) {oldName} a(z) {Name} néven másolva',
+  },
 }
