@@ -100,16 +100,6 @@
                   <i class="iconfont icon-edit"></i>
                 </a>
               </el-tooltip>
-              <el-tooltip
-                placement="bottom"
-                :effect="theme !== 'light' ? 'light' : 'dark'"
-                :open-delay="500"
-                :content="$t('common.newWindow')"
-              >
-                <a class="new-window-btn" href="javascript:;" @click="handleNewWindow">
-                  <i class="iconfont icon-a-newwindow"></i>
-                </a>
-              </el-tooltip>
               <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
                 <a href="javascript:;">
                   <i class="iconfont icon-more"></i>
@@ -117,6 +107,9 @@
                 <el-dropdown-menu class="connection-oper-item" slot="dropdown">
                   <el-dropdown-item command="searchContent">
                     <i class="iconfont icon-search"></i>{{ $t('connections.searchContent') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="newWindow">
+                    <i class="iconfont icon-a-newwindow"></i>{{ $t('common.newWindow') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="clearHistory">
                     <i class="iconfont icon-a-clearhistory"></i>{{ $t('connections.clearHistory') }}
@@ -323,6 +316,7 @@ type CommandType =
   | 'timedMessage'
   | 'bytesStatistics'
   | 'useScript'
+  | 'newWindow'
 type PayloadConvertType = 'base64' | 'hex'
 
 interface TopModel {
@@ -737,6 +731,9 @@ export default class ConnectionsDetail extends Vue {
         break
       case 'useScript':
         this.handleUseScript()
+        break
+      case 'newWindow':
+        this.handleNewWindow()
         break
       default:
         break

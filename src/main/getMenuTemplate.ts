@@ -44,7 +44,16 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
     // File
     {
       label: 'File',
-      submenu: [isMac ? { role: 'close' } : { role: 'quit' }],
+      submenu: [
+        {
+          label: 'New Window',
+          accelerator: 'CmdOrCtrl + Shift + N',
+          click: () => {
+            win.webContents.send('newWindow')
+          },
+        },
+        { role: 'close' },
+      ],
     },
     // EditMenu
     {
