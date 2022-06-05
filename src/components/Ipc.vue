@@ -20,6 +20,12 @@ export default class Ipc extends Vue {
     ipcRenderer.on('about', () => {
       this.$router.push({ path: '/about' })
     })
+    ipcRenderer.on('newWindow', () => {
+      const { id } = this.$route.params
+      if (id) {
+        ipcRenderer.send('newWindow', id)
+      }
+    })
   }
 
   private unbindIpcEvents(): void {
