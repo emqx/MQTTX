@@ -42,7 +42,7 @@
     "log4js": "^6.4.0",
     "moment": "^2.29.2",
     "monaco-editor": "^0.25.2",
-    "mqtt": "4.3.1",
+    "mqtt": "4.3.7",
     "reflect-metadata": "^0.1.13",
     "sqlite3": "^5.0.4",
     "typedi": "^0.8.0",
