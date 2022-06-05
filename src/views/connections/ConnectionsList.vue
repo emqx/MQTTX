@@ -100,6 +100,9 @@
         <a href="javascript:;" class="context-menu__item" @click="handleNewWindow">
           <i class="iconfont icon-a-newwindow"></i>{{ $t('common.newWindow') }}
         </a>
+        <a href="javascript:;" class="context-menu__item" @click="handleDuplicate">
+          <i class="el-icon-document-copy"></i>{{ $t('common.duplicate') }}
+        </a>
         <a href="javascript:;" :class="['context-menu__item', { disabled: getDisabledStatus() }]" @click="handleEdit">
           <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
         </a>
@@ -128,11 +131,12 @@ import { Getter, Action } from 'vuex-class'
 import Contextmenu from '@/components/Contextmenu.vue'
 import { ipcRenderer } from 'electron'
 import { TreeNode, ElTree } from 'element-ui/types/tree'
-import { getCollectionId } from '@/utils/idGenerator'
+import { getClientId, getCollectionId } from '@/utils/idGenerator'
 import { flushCurSequenceId } from '@/utils/connections'
 import { sortConnectionTree } from '@/utils/connections'
 import '@/assets/font/iconfont'
 import useServices from '@/database/useServices'
+import time from '@/utils/time'
 
 @Component({
   components: {
@@ -514,6 +518,54 @@ export default class ConnectionsList extends Vue {
     })
   }
 
+  private async handleDuplicate() {
+    const id = this.selectedConnection?.id
+    if (!id) {
+      return
+    }
+    const copyName = (name: string) => {
+      if (name.includes('copy')) {
+        const num = parseInt(name.match(/\d+/g)?.[0] || '0', 10)
+        return `${name.replace(/\d+/g, '')}${num + 1}`
+      }
+      return `${name}_copy`
+    }
+    const { connectionService } = useServices()
+    const res: ConnectionModel | undefined = await connectionService.get(id)
+    if (res) {
+      const { id, createAt, updateAt, ...restConnection } = res
+      if (restConnection.will?.id) {
+        delete restConnection.will.id
+      }
+      restConnection.messages = []
+      restConnection.clientId = getClientId()
+      restConnection.subscriptions = []
+      restConnection.name = copyName(res.name)
+      try {
+        const newConnection = await connectionService.create({
+          ...restConnection,
+          createAt: time.getNowDate(),
+          updateAt: time.getNowDate(),
+        })
+        this.$log.info(`${res.name} has been duplicated as ${newConnection?.name}`)
+        this.$message.success(
+          this.$t('connections.duplicated', {
+            name: newConnection?.name,
+            oldName: res.name,
+          }) as string,
+        )
+        this.loadData(false)
+        this.$router.push({
+          path: `/recent_connections/${newConnection?.id}`,
+        })
+      } catch (error) {
+        this.$message.error(error.toString())
+      } finally {
+        this.showContextmenu = false
+      }
+    }
+  }
+
   private async handleNewCollection() {
     const newCollection: CollectionModel = {
       id: getCollectionId(),
@@ -664,6 +716,9 @@ export default class ConnectionsList extends Vue {
     height: calc(100% - 59px);
     .connections-list-skeleton {
       margin: 0 16px;
+    }
+    .el-icon-document-copy {
+      font-size: 16px;
     }
     .el-tree {
       height: 100%;

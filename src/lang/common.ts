@@ -237,4 +237,11 @@ export default {
     ja: 'フルマネージドのクラウドネイティブMQTTメッセージングサービスが必要ですか？今すぐ<a href="https://www.emqx.com/en/cloud/?utm_source=mqttx&utm_medium=app&utm_campaign=cloud" target="_blank" rel="noopener noreferrer">EMQX Cloud</a>をお試しください。30日間の試用版で、クレジットカードは必要ありません。',
     hu: 'Szüksége van egy Cloud-Native teljesen menedzselt MQTT Brókerre? Próbálja ki az <a href="https://www.emqx.com/en/cloud/?utm_source=mqttx&utm_medium=app&utm_campaign=cloud" target="_blank" rel="noopener noreferrer">EMQX Cloudot</a> most! 14 napos próbaverzió, hitelkártya nélkül.',
   },
+  duplicate: {
+    zh: '复制连接',
+    en: 'Duplicate',
+    tr: 'Kopyala',
+    ja: '複製',
+    hu: 'Másol',
+  },
 }
