@@ -211,7 +211,7 @@ export default {
   },
   newWindow: {
     zh: '新建窗口',
-    en: 'New window',
+    en: 'New Window',
     tr: 'Yeni pencere',
     ja: '新しいウィンドウ',
     hu: 'Új ablak',
