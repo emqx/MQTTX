@@ -58,6 +58,7 @@ export default class ClearUpHistoryData extends Vue {
   .el-dialog__body {
     padding-bottom: 0px;
     word-break: normal;
+    color: var(--color-text-default);
   }
 }
 </style>

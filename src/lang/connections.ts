@@ -650,7 +650,7 @@ export default {
   },
   timedMessage: {
     zh: '定时消息',
-    en: 'Timed message',
+    en: 'Timed Message',
     tr: 'Zamanlanmış mesaj',
     ja: '自動送信',
     hu: 'Időzített üzenet',
@@ -700,7 +700,7 @@ export default {
   },
   bytesStatistics: {
     zh: '收发流量统计',
-    en: 'Bytes statistics',
+    en: 'Bytes Statistics',
     tr: 'Bayt istatistikleri',
     ja: 'データ通信の利用状況',
     hu: 'Bájt statisztika',

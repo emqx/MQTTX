@@ -42,8 +42,8 @@ export default {
     hu: 'Script mentés',
   },
   useScript: {
-    zh: '使用脚本',
-    en: 'Use script',
+    zh: '运行脚本',
+    en: 'Run Script',
     tr: 'Komut dosyası kullan',
     ja: 'スクリプトを使う',
     hu: 'Használja a Scriptet',
