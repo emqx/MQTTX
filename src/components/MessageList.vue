@@ -6,7 +6,7 @@
   >
     <span v-show="showLoadingIcon" class="loading-icon"><i class="el-icon-loading"></i></span>
     <template>
-      <DynamicScroller :items="showMessages" :min-item-size="40" class="scroller">
+      <DynamicScroller v-if="showMessages.length" :items="showMessages" :min-item-size="40" class="scroller">
         <template v-slot="{ item, active }">
           <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
             <MsgLeftItem v-if="!item.out" v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
