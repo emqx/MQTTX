@@ -762,7 +762,6 @@ export default class ConnectionsDetail extends Vue {
   private async handleMsgClear() {
     this.messages = []
     this.record.messages = []
-
     this.changeActiveConnection({
       id: this.curConnectionId,
       client: this.client,
