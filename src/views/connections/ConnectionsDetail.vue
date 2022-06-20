@@ -229,6 +229,7 @@
         />
         <MessageList
           ref="messagesDisplay"
+          :key="$route.params.id"
           :subscriptions="record.subscriptions"
           :messages="messages"
           :height="messageListHeight"
@@ -472,10 +473,6 @@ export default class ConnectionsDetail extends Vue {
     return this.$refs.subList as SubscriptionsList
   }
 
-  get messageListRef(): MessageList {
-    return this.$refs.messagesDisplay as MessageList
-  }
-
   get curConnectionId(): string {
     return this.$route.params.id
   }
@@ -483,9 +480,8 @@ export default class ConnectionsDetail extends Vue {
   @Watch('record')
   private handleRecordChanged() {
     // init Messagelist showMessages when selected connection changed
-    const messageList: MessageList = this.messageListRef
+    const messageList: MessageList = this.$refs.messagesDisplay as MessageList
     messageList.showMessages = []
-
     this.getConnectionValue(this.curConnectionId)
     this.getMessages()
     const timer = setTimeout(() => {
@@ -1013,7 +1009,7 @@ export default class ConnectionsDetail extends Vue {
       return
     }
     const timer = setTimeout(() => {
-      const messagesDisplay = this.messageListRef as Vue
+      const messagesDisplay = this.$refs.messagesDisplay as MessageList
       const messagesDisplayDOM = messagesDisplay.$el
       if (messagesDisplayDOM) {
         messagesDisplayDOM.scrollTo({
