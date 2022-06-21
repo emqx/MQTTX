@@ -1,0 +1,37 @@
+{
+  "name": "mqttx-cli",
+  "version": "0.0.1",
+  "description": "MQTT X Command Line Tools",
+  "keywords": [
+    "mqtt",
+    "publish/subscribe",
+    "publish",
+    "subscribe"
+  ],
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc"
+  },
+  "main": "index.js",
+  "bin": {
+    "mqttx": "./lib/src/index.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^9.3.0",
+    "concat-stream": "^2.0.0",
+    "mqtt": "^4.3.7",
+    "pump": "^3.0.0",
+    "readable-stream": "^3.6.0",
+    "split2": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/concat-stream": "^2.0.0",
+    "@types/node": "^17.0.43",
+    "@types/pump": "^1.1.1",
+    "@types/readable-stream": "^2.3.13",
+    "@types/split2": "^3.2.1",
+    "@types/ws": "^8.5.3",
+    "typescript": "^4.7.3"
+  }
+}
