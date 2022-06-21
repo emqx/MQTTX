@@ -24,3 +24,4 @@ lib
 # Output of 'npm pack'
 *.tgz
 package
+release
