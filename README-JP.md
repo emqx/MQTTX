@@ -1,4 +1,4 @@
-<img src="./assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
+<img src="./app/assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
 
 [![GitHub Release](https://img.shields.io/github/release/emqx/mqttx?color=brightgreen)](https://github.com/emqx/mqttx/releases)
 ![Support Platforms](https://camo.githubusercontent.com/a50c47295f350646d08f2e1ccd797ceca3840e52/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f706c6174666f726d2d6d61634f5325323025374325323057696e646f77732532302537432532304c696e75782d6c69676874677265792e737667)
@@ -21,7 +21,7 @@
 
 ## 機能プレビュー
 
-![mqttx-preview](./assets/mqttx-preview.png)
+![mqttx-preview](./app/assets/mqttx-preview.png)
 
 ## インストール
 
@@ -29,7 +29,7 @@
 
 ### macOS App Store
 
-[![Download on the Mac App Store](./assets/app-store-download.svg)](https://apps.apple.com/jp/app/mqttx/id1514074565?mt=12)
+[![Download on the Mac App Store](./app/assets/app-store-download.svg)](https://apps.apple.com/jp/app/mqttx/id1514074565?mt=12)
 
 ### Homebrew
 
@@ -70,7 +70,7 @@ brew install --cask mqttx
 
 4. MQTT接続が成功したら、MQTTのパブリッシュ/サブスクライブ機能をテストできます。
 
-![mqttx-gif](./assets/mqttx-gif.gif)
+![mqttx-gif](./app/assets/mqttx-gif.gif)
 
 ## 開発
 
