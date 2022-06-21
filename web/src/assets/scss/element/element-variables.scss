@@ -1,0 +1,7 @@
+/* Change element-ui theme variable */
+$--color-primary: #22bb7a;
+
+/* Change icon font path，required */
+$--font-path: '~element-ui/lib/theme-chalk/fonts';
+
+@import '~element-ui/packages/theme-chalk/src/index';
