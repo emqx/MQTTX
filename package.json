@@ -96,7 +96,7 @@
     "sass-loader": "^8.0.2",
     "typeorm-uml": "^1.6.4",
     "typescript": "^3.7.4",
-    "vue-cli-plugin-electron-builder": "^2.0.0",
+    "vue-cli-plugin-electron-builder": "^2.1.1",
     "vue-template-compiler": "^2.6.12"
   },
   "browserslist": [
@@ -114,5 +114,8 @@
     ]
   },
   "license": "Apache",
-  "repository": "https://github.com/emqx/MQTTX"
+  "repository": "https://github.com/emqx/MQTTX",
+  "resolutions": {
+    "electron-builder": "23.0.2"
+  }
 }
