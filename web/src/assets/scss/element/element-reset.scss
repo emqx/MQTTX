@@ -1,0 +1,268 @@
+/* Divider */
+.el-divider {
+  background-color: var(--color-border-default);
+}
+
+/* Radio */
+.el-radio-button {
+  outline: none;
+  user-select: none;
+  margin-right: -2px;
+}
+.el-radio__label {
+  font-size: 13px;
+}
+.el-radio-button--mini .el-radio-button__inner {
+  background: transparent;
+  border: 2px solid var(--color-border-bold);
+  width: 90px;
+  color: var(--color-text-light);
+}
+.el-radio-button__orig-radio:checked + .el-radio-button__inner {
+  background-color: var(--color-bg-item);
+  color: var(--color-main-green);
+  border: 2px solid var(--color-main-green) !important;
+  z-index: 1;
+  box-shadow: none;
+}
+.el-radio-button:first-child .el-radio-button__inner {
+  border-left: 2px solid var(--color-border-bold);
+}
+
+/* Card */
+.el-card {
+  border: 1px solid var(--color-border-default);
+  background-color: var(--color-bg-normal);
+}
+.el-card.is-hover-shadow:hover {
+  box-shadow: 0 2px 12px 0 var(--color-shadow-card);
+}
+
+/* Form */
+.el-form {
+  .el-form-item__error {
+    white-space: nowrap;
+  }
+  .el-form-item__label {
+    color: var(--color-text-default);
+  }
+  .el-form-item:not(.will-payload-box) {
+    .el-form-item__content {
+      span {
+        color: var(--color-text-default);
+      }
+    }
+  }
+  .el-select {
+    width: 100%;
+  }
+  .el-form-item.is-success .el-input__inner,
+  .el-form-item.is-success .el-input__inner:focus,
+  .el-form-item.is-success .el-textarea__inner,
+  .el-form-item.is-success .el-textarea__inner:focus {
+    border-color: var(--color-main-green);
+  }
+}
+
+/* Icon */
+[class^='el-icon-'],
+[class*=' el-icon-'] {
+  font-weight: 600;
+}
+
+/* Button */
+.el-button--outline {
+  background: var(--color-bg-normal);
+  border: 2px solid var(--color-main-green);
+  color: var(--color-main-green);
+}
+.el-button.is-plain:hover,
+.el-button.is-plain:focus {
+  background: var(--color-bg-normal);
+}
+
+/* Cascader */
+.el-cascader {
+  width: 100%;
+}
+
+/* Message */
+.el-message-box {
+  border-radius: 2px;
+  background-color: var(--color-bg-messagebox);
+  border-color: var(--color-border-default);
+  .el-message-box__title {
+    color: var(--color-text-title);
+  }
+  .el-message-box__content {
+    color: var(--color-text-default);
+  }
+}
+.el-message-box__btns {
+  font-size: 14px;
+  .el-button--small {
+    font-size: 14px;
+    border: none;
+    color: var(--color-text-light);
+    background: transparent;
+    &:hover {
+      color: var(--color-minor-green);
+      background: transparent;
+    }
+  }
+  .el-button--primary {
+    background: transparent;
+    &:hover {
+      background: transparent;
+      color: var(--color-minor-green);
+    }
+  }
+  button:nth-child(2) {
+    color: var(--color-main-green);
+    margin-left: 0px;
+  }
+}
+.el-message {
+  padding: 16px;
+  border-radius: 8px;
+  background-color: var(--color-bg-normal);
+  border: none;
+  .el-message__icon {
+    font-size: 18px;
+  }
+  &--success {
+    border: 1px solid var(--color-main-green);
+    box-shadow: 3px 3px 5px 0px var(--color-shadow-message);
+    .el-message__icon,
+    .el-message__content {
+      color: var(--color-main-green);
+    }
+  }
+  &--warning {
+    border: 1px solid var(--color-main-yellow);
+    box-shadow: 3px 3px 5px 0px var(--color-shadow-message);
+  }
+  &--error {
+    border: 1px solid var(--color-minor-red);
+    box-shadow: 3px 3px 5px 0px var(--color-shadow-message);
+  }
+}
+
+/* Notification */
+.el-notification {
+  border-radius: 4px;
+  background-color: var(--color-bg-messagebox);
+  border-color: var(--color-border-default);
+  .el-notification__title {
+    color: var(--color-text-title);
+    font-weight: normal;
+  }
+  .el-icon-success {
+    color: var(--color-main-green);
+  }
+  .el-notification__title {
+    word-break: break-word;
+  }
+}
+
+/* Dialog */
+.el-dialog {
+  background: var(--color-bg-normal);
+}
+
+/* Input */
+.el-input {
+  .el-input__inner {
+    background: var(--color-bg-normal);
+    border: 1px solid var(--color-border-default);
+    color: var(--color-text-default);
+    &::placeholder {
+      color: var(--color-text-light);
+    }
+  }
+}
+.el-textarea {
+  .el-textarea__inner {
+    background: var(--color-bg-normal);
+    border: 1px solid var(--color-border-default);
+    color: var(--color-text-default);
+    &::placeholder {
+      color: var(--color-text-light);
+    }
+  }
+}
+
+/* Popper */
+.el-popper {
+  background: var(--color-bg-messagebox);
+  border-color: var(--color-border-default);
+  li {
+    color: var(--color-text-default);
+  }
+}
+.el-popper[x-placement^='bottom'] .popper__arrow {
+  border-bottom-color: var(--color-border-default);
+  &::after {
+    border-bottom-color: var(--color-bg-messagebox);
+  }
+}
+.el-popper[x-placement^='top'] .popper__arrow {
+  border-top-color: var(--color-border-default);
+  &:after {
+    border-top-color: var(--color-bg-messagebox);
+  }
+}
+.el-select-dropdown__item.hover,
+.el-select-dropdown__item:hover {
+  background: var(--color-bg-item);
+}
+
+/* Cascader */
+.el-cascader-menu {
+  border-right: 1px solid var(--color-border-default);
+}
+.el-cascader-node:not(.is-disabled):hover,
+.el-cascader-node:not(.is-disabled):focus {
+  background: var(--color-bg-item);
+}
+
+/* Tootip */
+.el-tooltip__popper.is-light {
+  color: #616161;
+}
+
+/* Color picker */
+.el-color-picker__panel {
+  background: var(--color-bg-normal);
+  border-color: var(--color-border-default);
+}
+.el-color-dropdown__btn {
+  border-color: var(--color-border-default);
+  background: transparent;
+  color: var(--color-text-default);
+}
+
+/* Icon */
+.el-icon-refresh {
+  cursor: pointer;
+  color: var(--color-main-green);
+}
+
+/* Autocomplete */
+.el-autocomplete {
+  width: 100%;
+}
+.el-autocomplete-suggestion li:hover {
+  color: var(--color-main-green);
+  background-color: var(--color-bg-item);
+}
+
+/* Dropdown */
+.el-dropdown-menu__item--divided:before {
+  background-color: var(--color-bg-messagebox);
+}
+.el-dropdown-menu__item--divided {
+  position: relative;
+  margin-top: 6px;
+  border-top: 1px solid var(--color-border-default);
+}
