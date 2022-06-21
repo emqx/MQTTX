@@ -80,22 +80,22 @@ module.exports = {
               target: 'nsis',
               arch: ['x64', 'ia32', 'arm64'],
             },
-          ]
+          ],
         },
         mac: {
           icon: './public/icons/mac/Icon.icns',
           target: [
             {
               target: 'dmg',
-              arch: ['universal', 'x64', 'arm64'],
+              arch: ['x64', 'arm64'],
             },
             {
               target: 'pkg',
-              arch: ['universal', 'x64', 'arm64'],
+              arch: ['x64', 'arm64'],
             },
             {
               target: 'zip',
-              arch: ['universal', 'x64', 'arm64'],
+              arch: ['x64', 'arm64'],
             },
           ],
         },
