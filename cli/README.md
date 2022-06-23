@@ -75,7 +75,7 @@ Windows users should go to the MQTT X [release page](https://github.com/emqx/MQT
 ### NPM
 
 ```shell
-npm install mqttx -g
+npm install mqttx-cli -g
 ```
 
 ### Other platforms

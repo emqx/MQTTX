@@ -53,7 +53,7 @@ sudo install ./mqttx-cli-macos-arm64 /usr/local/bin/mqttx
 
 下载二进制文件并快速安装最新的 MQTT X CLI 稳定版到 Linux 系统上。
 
->  **注意**：请注意区分当前系统环境的 CPU 架构
+> **注意**：请注意区分当前系统环境的 CPU 架构
 
 #### x86-64
 
@@ -76,7 +76,7 @@ Windows 用户请到 MQTT X 的[发布页面](https://github.com/emqx/MQTTX/rele
 ### NPM
 
 ```shell
-npm install mqttx -g
+npm install mqttx-cli -g
 ```
 
 ### 其它平台
