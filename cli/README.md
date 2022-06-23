@@ -117,7 +117,7 @@ mqttx --help
 mqttx sub --help
 ```
 
-| 参数                   | 描述                                                         |
+| Options                   | Description                                                         |
 | ---------------------- | ------------------------------------------------------------ |
 | -h, --hostname <HOST>  | the broker host (default: "localhost")                       |
 | -p, --port <PORT>      | the broker port                                              |
@@ -146,7 +146,7 @@ mqttx sub --help
 mqttx pub --help
 ```
 
-| 参数                   | 描述                                                |
+| Options                   | Description                                                |
 | ---------------------- | --------------------------------------------------- |
 | -h, --hostname <HOST>  | the broker host                                     |
 | -p, --port <PORT>      | the broker port                                     |
