@@ -34,14 +34,14 @@
 #### Intel Chip
 
 ```shell
-curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.0/mqttx-cli-macos-x64                       
+curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.0/mqttx-cli-macos-x64
 sudo install ./mqttx-cli-macos-x64 /usr/local/bin/mqttx
 ```
 
 #### Apple Silicon
 
 ```shell
-curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.0/mqttx-cli-macos-arm64                       
+curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.0/mqttx-cli-macos-arm64
 sudo install ./mqttx-cli-macos-arm64 /usr/local/bin/mqttx
 ```
 
@@ -53,19 +53,19 @@ sudo install ./mqttx-cli-macos-arm64 /usr/local/bin/mqttx
 
 下载二进制文件并快速安装最新的 MQTT X CLI 稳定版到 Linux 系统上。
 
->  **注意**：请注意区分当前系统环境的 CPU 架构
+> **注意**：请注意区分当前系统环境的 CPU 架构
 
 #### x86-64
 
 ```shell
-curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.0/mqttx-cli-linux-x64                  
+curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.0/mqttx-cli-linux-x64
 sudo install ./mqttx-cli-linux-x64 /usr/local/bin/mqttx
 ```
 
 #### ARM64
 
 ```shell
-curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.0/mqttx-cli-linux-arm64                       
+curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.0/mqttx-cli-linux-arm64
 sudo install ./mqttx-cli-linux-arm64 /usr/local/bin/mqttx
 ```
 
