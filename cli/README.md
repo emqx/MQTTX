@@ -73,6 +73,12 @@ sudo install ./mqttx-cli-linux-arm64 /usr/local/bin/mqttx
 
 Windows users should go to the MQTT X [release page](https://github.com/emqx/MQTTX/releases) and find the `exe` package for the corresponding system architecture, download it manually and execute.
 
+### NPM
+
+```shell
+npm install mqttx -g
+```
+
 ### Other platforms
 
 Download packaged binaries from the [MQTT X releases page](https://github.com/emqx/MQTTX/releases).
