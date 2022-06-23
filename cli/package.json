@@ -1,6 +1,6 @@
 {
   "name": "mqttx-cli",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "MQTT X Command Line Tools",
   "keywords": [
     "mqtt",
@@ -16,7 +16,7 @@
   "bin": {
     "mqttx": "./lib/src/index.js"
   },
-  "license": "MIT",
+  "license": "Apache",
   "dependencies": {
     "commander": "^9.3.0",
     "concat-stream": "^2.0.0",
