@@ -3,7 +3,7 @@
     "incremental": true,
     "target": "ES2018",
     "module": "commonjs",
-    "outDir": "./lib",
+    "outDir": "./dist",
     "lib": ["DOM", "ES2015", "ScriptHost", "ES2019.Array"],
     "strict": true,
     "esModuleInterop": true,

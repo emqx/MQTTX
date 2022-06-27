@@ -65,4 +65,4 @@ const sub = (options: any) => {
   })
 }
 
-module.exports = sub
+export default sub

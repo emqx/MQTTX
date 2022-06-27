@@ -12,9 +12,9 @@
     "dev": "tsc -w",
     "build": "tsc"
   },
-  "main": "index.js",
+  "main": "./dist/src/index.js",
   "bin": {
-    "mqttx": "./lib/src/index.js"
+    "mqttx": "./bin/index.js"
   },
   "license": "Apache",
   "dependencies": {

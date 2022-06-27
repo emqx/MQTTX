@@ -85,4 +85,4 @@ const pub = (options: any) => {
   }
 }
 
-module.exports = pub
+export default pub
