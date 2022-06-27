@@ -7,6 +7,9 @@ module.exports = {
     host: '0.0.0.0',
     disableHostCheck: true,
   },
+  css: {
+    extract: false,
+  },
   configureWebpack: {
     plugins: [
       new MonacoWebpackPlugin({
@@ -78,9 +81,9 @@ module.exports = {
           target: [
             {
               target: 'nsis',
-              arch: ['x64', 'ia32', 'arm64'],
+              arch: ['x64', 'ia32'],
             },
-          ]
+          ],
         },
         mac: {
           icon: './public/icons/mac/Icon.icns',
