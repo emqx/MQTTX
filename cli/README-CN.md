@@ -47,7 +47,9 @@ sudo install ./mqttx-cli-macos-arm64 /usr/local/bin/mqttx
 
 #### Homebrew
 
-等待更新中...
+```shell
+brew install emqx/mqttx/mqttx-cli
+```
 
 ### Linux
 
