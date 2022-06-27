@@ -14,7 +14,7 @@ English | [简体中文](./README-CN.md)
 
 ---
 
-[MQTT X CLI](https://mqttx.app) is an open source MQTT 5.0 command line client and MQTT X on the command line. Designed to help develop and debug MQTT services and applications faster without the need to use a graphical interface.
+[MQTT X CLI](https://mqttx.app) is an open source MQTT 5.0 CLI Client and MQTT X on the command line. Designed to help develop and debug MQTT services and applications faster without the need to use a graphical interface.
 
 > [MQTT](http://mqtt.org/faq) stands for MQ Telemetry Transport. It is a publish/subscribe, extremely simple and lightweight messaging protocol, designed for constrained devices and low-bandwidth, high-latency or unreliable networks.
 
@@ -46,7 +46,9 @@ sudo install ./mqttx-cli-macos-arm64 /usr/local/bin/mqttx
 
 #### Homebrew
 
-Waiting for update...
+```shell
+brew install emqx/mqttx/mqttx-cli
+```
 
 ### Linux
 

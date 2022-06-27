@@ -14,7 +14,7 @@
 
 ---
 
-[MQTT X Web](https://mqttx.app)是一个开源的 MQTT 5.0 浏览器客户端，也是一个在线 MQTT WebSocket 客户端工具。使用 WebSocket 在浏览器中连接到 MQTT，帮助开发者更快地开发和调试你的 MQTT 服务和应用程序，而不必在本地下载和安装 MQTT X。
+[MQTT X Web](https://mqttx.app)是一款开源的 MQTT 5.0 浏览器客户端，也是一个在线 MQTT WebSocket 客户端工具。使用 WebSocket 在浏览器中连接到 MQTT，帮助开发者更快地开发和调试 MQTT 服务和应用程序，而不必在本地下载和安装 MQTT X。
 
 > [MQTT](http://mqtt.org/faq) 全称为 Message Queuing Telemetry Transport（消息队列遥测传输）是一种基于 发布/订阅 范式的“轻量级”消息协议，旨在用于受限设备和低带宽，高延迟或不可靠的网络，由 IBM 发布。
 
