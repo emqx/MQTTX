@@ -19,10 +19,8 @@ yarn-error.log*
 *.sln
 *.sw?
 
-lib
-
 # Output of 'npm pack'
 *.tgz
 package
 release
-lib
+dist

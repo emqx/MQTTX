@@ -7,4 +7,5 @@ tslint.json
 tsconfig.json
 *.log
 /src/
+/release/
 tsconfig.tsbuildinfo
