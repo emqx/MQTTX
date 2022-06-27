@@ -4,7 +4,7 @@ import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { quitAndRenameLogger } from './utils/logger'
-import updateChecker from './main/updateChecker'
+import updateChecker, { createUpdateWindow } from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
 import saveFile from './main/saveFile'
 import saveExcel from './main/saveExcel'
@@ -18,6 +18,7 @@ declare const __static: string
 let theme: Theme = 'light'
 let syncOsTheme = false
 let autoCheckUpdate: boolean = true
+const store = new Store()
 const windowSize = {
   width: 1025,
   height: 749,
@@ -149,6 +150,8 @@ async function createWindow() {
   if (autoCheckUpdate) {
     updateChecker()
   }
+  // 控制更新日志的弹窗
+  store.get('isShow') && createUpdateWindow()
 }
 
 // This method will be called when Electron has finished
