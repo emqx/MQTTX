@@ -1,6 +1,7 @@
 import 'reflect-metadata' // Required by TypoORM.
 ;('use strict')
 import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
+import Store from 'electron-store'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { quitAndRenameLogger } from './utils/logger'
