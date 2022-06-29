@@ -1,6 +1,6 @@
 {
   "name": "MQTTX",
-  "version": "1.8.0",
+  "version": "1.7.3",
   "description": "MQTT desktop client",
   "author": "EMQX Team <yusf@emqx.io>",
   "scripts": {
@@ -36,6 +36,8 @@
     "chart.js": "^2.9.4",
     "core-js": "^2.6.11",
     "csvtojson": "^2.0.10",
+    "electron-store": "^8.0.2",
+    "electron-updater": "^5.0.5",
     "element-ui": "^2.15.5",
     "fs-extra": "^8.1.0",
     "json2csv": "^5.0.3",
