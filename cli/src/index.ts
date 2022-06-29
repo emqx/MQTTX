@@ -1,4 +1,5 @@
 import { Command } from 'commander'
+import { getClientId } from './utils/generator'
 import { parseNumber, parseProtocol } from './utils/parse'
 import pub from './lib/pub'
 import sub from './lib/sub'
@@ -19,7 +20,7 @@ export class Commander {
       .description('Publish a message to a topic.')
       .option('-h, --hostname <HOST>', 'the broker host')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
-      .option('-i, --client-id <ID>', 'the client id')
+      .option('-i, --client-id <ID>', 'the client id', getClientId())
       .option('-q, --qos <0/1/2>', 'the QoS of the message', parseNumber, 0)
       .requiredOption('-t, --topic <TOPIC>', 'the message topic')
       .option('-m, --message <MSG>', 'the message body', 'Hello From MQTT X CLI')
@@ -44,7 +45,7 @@ export class Commander {
       .description('Subscribes to a topic.')
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
-      .option('-i, --client-id <ID>', 'the client id')
+      .option('-i, --client-id <ID>', 'the client id', getClientId())
       .option('-q, --qos <0/1/2>', 'the QoS of the message', parseNumber, 0)
       .option('--clean', 'discard any pending message for the given id', true)
       .requiredOption('-t, --topic <TOPIC>', 'the message topic')
