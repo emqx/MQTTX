@@ -7,6 +7,9 @@ module.exports = {
     host: '0.0.0.0',
     disableHostCheck: true,
   },
+  css: {
+    extract: false,
+  },
   configureWebpack: {
     plugins: [
       new MonacoWebpackPlugin({
