@@ -4,7 +4,7 @@ import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { quitAndRenameLogger } from './utils/logger'
-import updateChecker from './main/updateChecker'
+import updateChecker, { createUpdateWindow } from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
 import saveFile from './main/saveFile'
 import saveExcel from './main/saveExcel'
@@ -15,6 +15,8 @@ import useServices from '@/database/useServices'
 
 declare const __static: string
 
+const Store = require('electron-store')
+const electronStore = new Store()
 let theme: Theme = 'light'
 let syncOsTheme = false
 let autoCheckUpdate: boolean = true
@@ -149,6 +151,8 @@ async function createWindow() {
   if (autoCheckUpdate) {
     updateChecker()
   }
+  // updateWindow
+  electronStore.get('isShow') && createUpdateWindow()
 }
 
 // This method will be called when Electron has finished
