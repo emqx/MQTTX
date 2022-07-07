@@ -26,9 +26,9 @@ const isUpdate = (latest: string, current: string): boolean => {
 
 const autoDownload = (latest: string, language: string): void => {
   if (language === 'zh') {
-    autoUpdater.setFeedURL(`https://www.emqx.com/zh/downloads/MQTTX/${latest}`)
+    autoUpdater.setFeedURL(`https://www.emqx.com/zh/downloads/MQTTX/v1.8.0`)
   } else {
-    autoUpdater.setFeedURL(`https://www.emqx.com/en/downloads/MQTTX/${latest}`)
+    autoUpdater.setFeedURL(`https://www.emqx.com/en/downloads/MQTTX/v1.8.0`)
   }
   autoUpdater.checkForUpdatesAndNotify()
   autoUpdater.on('checking-for-update', () => {})
