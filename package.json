@@ -40,7 +40,7 @@
     "fs-extra": "^8.1.0",
     "json2csv": "^5.0.3",
     "log4js": "^6.4.0",
-    "moment": "^2.29.2",
+    "moment": "^2.29.4",
     "monaco-editor": "^0.25.2",
     "mqtt": "4.3.7",
     "reflect-metadata": "^0.1.13",
