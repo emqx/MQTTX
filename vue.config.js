@@ -75,6 +75,10 @@ module.exports = {
           createDesktopShortcut: true,
           createStartMenuShortcut: true,
         },
+        publish: {
+          provider: 'generic',
+          url: 'http://localhost:7070/dist_electron',
+        },
         win: {
           artifactName: 'MQTTX-Setup-${version}-${arch}.${ext}',
           icon: './public/icons/app.ico',
