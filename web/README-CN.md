@@ -36,14 +36,11 @@ MQTT X 为连接测试 EMQX 等 MQTT 消息服务器而生，一键式的连接�
 
 ## 社区
 
-访问 [EMQ 问答社区](https://askemq.com/) 以获取帮助，也可以分享您的想法或项目。
-
-可通过以下方式与其他社区成员进行沟通
-
-|  方式   | 内容  |
-|  ----  | ----  |
-| EMQX 官方公众号 | <img src="../assets/wx_qr_code.png" width="160" alt="EMQX Wechat"/> |
-| EMQX 微信群（扫码添加后邀请入群）| <img src="../assets/emqx_wx.jpeg" width="160" alt="WeChat QR code"/> |
+- 访问 [EMQ 问答社区](https://askemq.com/) 以获取帮助，也可以分享您的想法或项目。
+- 添加小助手微信号 `emqmkt`，加入 EMQ 微信技术交流群。
+- 加入我们的 [Discord](https://discord.gg/xYGf3fQnES)，参于实时讨论。
+- 关注我们的 [bilibili](https://space.bilibili.com/522222081)，获取最新物联网技术分享。
+- 关注我们的 [微博](https://weibo.com/emqtt) 或 [Twitter](https://twitter.com/EMQTech)，获取 EMQ 最新资讯。
 
 ## 开发
 

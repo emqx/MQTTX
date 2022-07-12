@@ -84,14 +84,11 @@ MQTT X 为连接测试 EMQX 等 MQTT 消息服务器而生，一键式的连接�
 
 ## 社区
 
-访问 [EMQ 问答社区](https://askemq.com/) 以获取帮助，也可以分享您的想法或项目。
-
-可通过以下方式与其他社区成员进行沟通
-
-|  方式   | 内容  |
-|  ----  | ----  |
-| EMQX 官方公众号 | <img src="./assets/wx_qr_code.png" width="160" alt="EMQX Wechat"/> |
-| EMQX 微信群（扫码添加后邀请入群）| <img src="./assets/emqx_wx.jpeg" width="160" alt="WeChat QR code"/> |
+- 访问 [EMQ 问答社区](https://askemq.com/) 以获取帮助，也可以分享您的想法或项目。
+- 添加小助手微信号 `emqmkt`，加入 EMQ 微信技术交流群。
+- 加入我们的 [Discord](https://discord.gg/xYGf3fQnES)，参于实时讨论。
+- 关注我们的 [bilibili](https://space.bilibili.com/522222081)，获取最新物联网技术分享。
+- 关注我们的 [微博](https://weibo.com/emqtt) 或 [Twitter](https://twitter.com/EMQTech)，获取 EMQ 最新资讯。
 
 ## 开发
 
@@ -141,6 +138,16 @@ yarn run electron:build-mac
 - [TypeORM](https://github.com/typeorm/typeorm)
 - [sqlite3](https://github.com/mapbox/node-sqlite3)
 - [MQTT.js](https://github.com/mqttjs/MQTT.js)
+
+## 相关资源
+
+- [MQTT 入门及进阶](https://www.emqx.com/zh/mqtt)
+
+  EMQ 提供了通俗易懂的技术文章及简单易用的客户端工具，帮助您学习 MQTT 并快速入门 MQTT 客户端编程。
+
+- [MQTT SDKs](https://www.emqx.com/zh/mqtt-client-sdk)
+
+  我们选取了各个编程语言中热门的 MQTT 客户端 SDK，并提供代码示例，帮助您快速掌握 MQTT 客户端库的使用。
 
 ## License
 
