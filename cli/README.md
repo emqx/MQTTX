@@ -185,11 +185,12 @@ MQTT X is designed to connect to test MQTT Brokers such as EMQX, The one-click c
 
 [Download EMQX locally right now](https://www.emqx.com/en/try?product=enterprise)
 
-## Community
+## Get Involved
 
-The MQTT X community can be found on [GitHub Discussions](https://github.com/emqx/MQTTX/discussions), where you can ask questions, voice ideas, and share your projects.
-
-To chat with other community members you can join the [EMQX Slack](https://slack-invite.emqx.io) or [Discord](https://discord.gg/xYGf3fQnES).
+- Follow [@EMQTech on Twitter](https://twitter.com/EMQTech).
+- If you have a specific question, check out our [discussion forums](https://github.com/emqx/emqx/discussions).
+- For general discussions, join us on the [official Discord](https://discord.gg/xYGf3fQnES) team.
+- Keep updated on [EMQX YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q) by subscribing.
 
 ## Develop
 
