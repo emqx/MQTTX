@@ -7,7 +7,7 @@ import { ConnectionModel } from '@/views/Connections/types'
 Vue.use(Router)
 
 const router: Router = new Router({
-  mode: 'history',
+  mode: 'hash',
   base: process.env.BASE_URL,
   scrollBehavior(to, from, savedPosition) {
     if (to.meta.keepAlive && savedPosition) {

@@ -1,6 +1,8 @@
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 
 module.exports = {
+  publicPath: '/online-mqtt-client/',
+  outputDir: 'dist/online-mqtt-client',
   configureWebpack: {
     plugins: [
       new MonacoWebpackPlugin({
