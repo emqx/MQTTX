@@ -1,0 +1,34 @@
+name: deploy web
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+    steps:
+    - name: use node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 16.15
+    - uses: actions/checkout@v2
+    - name: set env
+      run: |
+        cd web
+        echo "VUE_APP_PAGE_TITLE=Easy-to-Use Online MQTT Client | Try Now" > .env.local
+        echo "VUE_APP_PAGE_DESCRIPTION=Online MQTT 5.0 client on the web, using MQTT over WebSocket to connect to the MQTT Broker and test message publishing and receiving in the browser." >> .env.local
+    - name: build
+      run: |
+        cd web
+        yarn && yarn build
+    - name: upload dist
+      run: |
+        cd web
+        pip3 install coscmd
+        coscmd config -a ${{ secrets.TENCENT_COS_ID }} -s ${{ secrets.TENCENT_COS_KEY }} -b mqttx-app-1302406139 -r ap-hongkong
+        coscmd delete -r -f online-mqtt-client || true
+        coscmd config -a ${{ secrets.TENCENT_COS_ID }} -s ${{ secrets.TENCENT_COS_KEY }} -b mqttx-app-1302406139 -e cos.accelerate.myqcloud.com
+        coscmd upload -r ./dist/ /
