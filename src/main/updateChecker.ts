@@ -25,11 +25,9 @@ const isUpdate = (latest: string, current: string): boolean => {
 }
 
 const autoDownload = (latest: string, language: string): void => {
-  if (language === 'zh') {
-    autoUpdater.setFeedURL(`https://www.emqx.com/zh/downloads/MQTTX/${latest}`)
-  } else {
-    autoUpdater.setFeedURL(`https://www.emqx.com/en/downloads/MQTTX/${latest}`)
-  }
+  const urlLang = language === 'zh' ? 'zh' : 'en'
+  const downloadUrl = `https://www.emqx.com/${urlLang}/downloads/MQTTX/${latest}`
+  autoUpdater.setFeedURL(downloadUrl)
   autoUpdater.checkForUpdatesAndNotify()
   autoUpdater.on('checking-for-update', () => {})
   autoUpdater.on('update-available', () => {})
@@ -43,7 +41,7 @@ const autoDownload = (latest: string, language: string): void => {
         type: 'info',
         title: 'New Version',
         buttons: ['Download', 'No'],
-        message: `Update available:${latest}`,
+        message: `Update available: ${latest}`,
       })
       .then((res) => {
         if (res.response === 0) {
