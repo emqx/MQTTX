@@ -27,8 +27,7 @@ jobs:
     - name: upload dist
       run: |
         cd web
-        pip3 install coscmd
-        coscmd config -a ${{ secrets.TENCENT_COS_ID }} -s ${{ secrets.TENCENT_COS_KEY }} -b mqttx-app-1302406139 -r ap-hongkong
-        coscmd delete -r -f online-mqtt-client || true
-        coscmd config -a ${{ secrets.TENCENT_COS_ID }} -s ${{ secrets.TENCENT_COS_KEY }} -b mqttx-app-1302406139 -e cos.accelerate.myqcloud.com
-        coscmd upload -r ./dist/ /
+        wget http://gosspublic.alicdn.com/ossutil/1.7.8/ossutil64
+        chmod 755 ./ossutil64
+        ./ossutil64 config -e https://oss-accelerate.aliyuncs.com -i ${{ secrets.ALI_OSS_ACCESSKEY_ID }} -k ${{ secrets.ALI_OSS_ACCESSKEY_SECRET }} -L CH
+        ./ossutil64 cp -r dist/ oss://emqx-io-docs/ -u
