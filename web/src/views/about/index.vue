@@ -72,7 +72,7 @@ export default class About extends Vue {
   @Getter('currentLang') private getterLang!: Language
 
   private baseUrl = 'https://www.emqx.com'
-  private utm = '?utm_source=tools.emqx.io&utm_medium=referral&utm_campaign='
+  private utm = '?utm_source=emqx.io&utm_medium=referral&utm_campaign='
 
   get mqttxLogoSrc(): string {
     if (this.getterTheme === 'light') {

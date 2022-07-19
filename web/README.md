@@ -24,7 +24,7 @@ English | [简体中文](./README-CN.md)
 
 ## Usage
 
-Visit MQTT WebSocket Client (MQTT X Web): [http://tools.emqx.io/](http://tools.emqx.io/)
+Visit MQTT WebSocket Client (MQTT X Web): [http://www.emqx.io/online-mqtt-client](http://www.emqx.io/online-mqtt-client)
 
 ## Better Together with EMQX
 
