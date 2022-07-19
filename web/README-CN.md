@@ -24,7 +24,7 @@
 
 ## 使用
 
-访问 MQTT WebSocket 客户端工具 (MQTT X Web): [http://tools.emqx.io/](http://tools.emqx.io/)
+访问 MQTT WebSocket 客户端工具 (MQTT X Web): [http://www.emqx.io/online-mqtt-client](http://www.emqx.io/online-mqtt-client)
 
 ## 与 EMQX 更好的合作
 
