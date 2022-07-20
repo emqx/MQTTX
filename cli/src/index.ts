@@ -13,7 +13,7 @@ export class Commander {
   }
 
   init(): void {
-    this.program.name('mqttx').description('An MQTT client for the command line').version(version)
+    this.program.name('mqttx').description('An MQTT client for the command line').version(version, '-v, --version')
 
     this.program
       .command('pub')
@@ -61,7 +61,7 @@ export class Commander {
       .option('--will-message <BODY>', 'the will message')
       .option('--will-qos <0/1/2>', 'the will qos', parseNumber)
       .option('--will-retain', 'send a will retained message', false)
-      .option('-v, --verbose', 'print the topic before the message')
+      .option('-vb, --verbose', 'print the topic before the message')
       .action(sub)
   }
 }

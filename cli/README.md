@@ -110,7 +110,7 @@ mqttx --help
 
 | Options       | Description               |
 | ------------- | ------------------------- |
-| -V, --version | output the version number |
+| -v, --version | output the version number |
 | -h, --help    | display help for command  |
 
 | Command | Description                  |
@@ -124,7 +124,7 @@ mqttx --help
 mqttx sub --help
 ```
 
-| Options                   | Description                                                         |
+| Options                | Description                                                  |
 | ---------------------- | ------------------------------------------------------------ |
 | -h, --hostname <HOST>  | the broker host (default: "localhost")                       |
 | -p, --port <PORT>      | the broker port                                              |
@@ -144,7 +144,7 @@ mqttx sub --help
 | --will-message <BODY>  | the will message                                             |
 | --will-qos <0/1/2>     | the will qos                                                 |
 | --will-retain          | send a will retained message (default: false)                |
-| -v, --verbose          | print the topic before the message                           |
+| -vb, --verbose         | print the topic before the message                           |
 | --help                 | display help for sub command                                 |
 
 #### Publish
@@ -153,7 +153,7 @@ mqttx sub --help
 mqttx pub --help
 ```
 
-| Options                   | Description                                                |
+| Options                | Description                                         |
 | ---------------------- | --------------------------------------------------- |
 | -h, --hostname <HOST>  | the broker host                                     |
 | -p, --port <PORT>      | the broker port                                     |
