@@ -17,4 +17,16 @@ const parseProtocol = (value: string) => {
   return value
 }
 
-export { parseNumber, parseProtocol }
+const parseMQTTVersion = (value: string) => {
+  const dict = {
+    '3.1': 3,
+    '3.1.1': 4,
+    '5': 5,
+  }
+  if (!Object.keys(dict).includes(value)) {
+    program.error('Not a valid MQTT version.')
+  }
+  return dict[value as '3.1' | '3.1.1' | '5']
+}
+
+export { parseNumber, parseProtocol, parseMQTTVersion }

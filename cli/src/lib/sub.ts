@@ -2,6 +2,13 @@ import * as mqtt from 'mqtt'
 import * as fs from 'fs'
 
 const sub = (options: any) => {
+  options.protocolVersion = options.mqttVersion
+  if (options.protocolVersion === 5) {
+    // TODO: implement MQTT 5.0
+  } else if (options.protocolVersion === 3) {
+    options.protocolId = 'MQIsdp'
+  }
+
   if (options.key) {
     options.key = fs.readFileSync(options.key)
   }

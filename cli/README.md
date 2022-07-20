@@ -116,7 +116,7 @@ mqttx --help
 | Command | Description                  |
 | ------- | ---------------------------- |
 | pub     | Publish a message to a topic |
-| Sub     | Subscribes to a topic        |
+| sub     | Subscribes to a topic        |
 
 #### Subscribe
 
