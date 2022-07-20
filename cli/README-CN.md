@@ -111,7 +111,7 @@ mqttx --help
 
 | 参数          | 描述                         |
 | ------------- | ---------------------------- |
-| -V, --version | 输出当前 MQTT X CLI 的版本号 |
+| -v, --version | 输出当前 MQTT X CLI 的版本号 |
 | -h, --help    | 展示 mqttx 命令的帮助信息    |
 
 | 命令 | 描述               |
@@ -145,7 +145,7 @@ mqttx sub --help
 | --will-message <BODY>  | 遗嘱消息的 payload                       |
 | --will-qos <0/1/2>     | 遗嘱消息的 QoS                           |
 | --will-retain          | 遗嘱消息的 retain 标志位                 |
-| -v, --verbose          | 在接收到的 Payload 前显示当前 Topic      |
+| -vb, --verbose         | 在接收到的 Payload 前显示当前 Topic      |
 | --help                 | 展示 sub 命令的帮助信息                  |
 
 #### 发布
