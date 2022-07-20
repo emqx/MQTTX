@@ -1,6 +1,6 @@
 import { Command } from 'commander'
 import { getClientId } from './utils/generator'
-import { parseNumber, parseProtocol } from './utils/parse'
+import { parseNumber, parseProtocol, parseMQTTVersion } from './utils/parse'
 import pub from './lib/pub'
 import sub from './lib/sub'
 import { version } from '../package.json'
@@ -18,6 +18,7 @@ export class Commander {
     this.program
       .command('pub')
       .description('Publish a message to a topic.')
+      .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
       .option('-i, --client-id <ID>', 'the client id', getClientId())
@@ -43,6 +44,7 @@ export class Commander {
     this.program
       .command('sub')
       .description('Subscribes to a topic.')
+      .option('-V, --mqtt-version <5.0/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
       .option('-i, --client-id <ID>', 'the client id', getClientId())
