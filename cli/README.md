@@ -1,4 +1,4 @@
-<img src="../assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
+<img src="https://raw.githubusercontent.com/emqx/MQTTX/main/assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
 
 # MQTT X CLI
 
@@ -20,7 +20,7 @@ English | [简体中文](./README-CN.md)
 
 ## Preview
 
-![mqttx-preview](../assets/mqttx-cli-preview.png)
+![mqttx-preview](https://raw.githubusercontent.com/emqx/MQTTX/main/assets/mqttx-cli-preview.png)
 
 ## Installation
 
