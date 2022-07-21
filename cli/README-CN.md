@@ -145,7 +145,7 @@ mqttx sub --help
 | --will-message <BODY>  | 遗嘱消息的 payload                       |
 | --will-qos <0/1/2>     | 遗嘱消息的 QoS                           |
 | --will-retain          | 遗嘱消息的 retain 标志位                 |
-| -vb, --verbose         | 在接收到的 Payload 前显示当前 Topic      |
+| -v, --verbose          | 在接收到的 Payload 前显示当前 Topic      |
 | --help                 | 展示 sub 命令的帮助信息                  |
 
 #### 发布

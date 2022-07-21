@@ -29,4 +29,13 @@ const parseMQTTVersion = (value: string) => {
   return dict[value as '3.1' | '3.1.1' | '5']
 }
 
-export { parseNumber, parseProtocol, parseMQTTVersion }
+const parseUserProperties = (value: string, previous: Record<string, unknown> | undefined) => {
+  const [key, val] = value.split(': ')
+  if (key && val) {
+    return previous ? { ...previous, [key]: val } : { [key]: val }
+  } else {
+    program.error('Not a valid user properties.')
+  }
+}
+
+export { parseNumber, parseProtocol, parseMQTTVersion, parseUserProperties }
