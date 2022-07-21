@@ -10,7 +10,7 @@
 [![YouTube](https://img.shields.io/badge/Subscribe-EMQ-FF0000?logo=youtube)](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q)
 [![Twitter](https://img.shields.io/badge/Follow-EMQ-1DA1F2?logo=twitter)](https://twitter.com/EMQTech)
 
-English | [简体中文](./README-CN.md)
+English | [简体中文](https://github.com/emqx/MQTTX/blob/main/cli/README-CN.md)
 
 ---
 
@@ -90,6 +90,12 @@ After installing it, run `mqttx` on the terminal
 
 ### Quickstart
 
+Connect
+
+```shell
+mqttx conn -h 'broker.emqx.io' -p 1883 -u 'admin' -P 'public'
+```
+
 Subscribe
 
 ```shell
@@ -113,10 +119,39 @@ mqttx --help
 | -v, --version | output the version number |
 | -h, --help    | display help for command  |
 
-| Command | Description                  |
-| ------- | ---------------------------- |
-| pub     | Publish a message to a topic |
-| sub     | Subscribes to a topic        |
+| Command | Description                                    |
+| ------- | ---------------------------------------------- |
+| conn    | Create a connection and connect to MQTT Broker |
+| pub     | Publish a message to a topic                   |
+| sub     | Subscribes to a topic                          |
+
+#### Connect
+
+```shell
+mqttx conn --help
+```
+
+| Options                                    | Description                                                  |
+| ------------------------------------------ | ------------------------------------------------------------ |
+| -V, --mqtt-version <5/3.1.1/3.1>           | the MQTT version (default: 5)                                |
+| -h, --hostname <HOST>                      | the broker host (default: "localhost")                       |
+| -p, --port <PORT>                          | the broker port                                              |
+| -i, --client-id <ID>                       | the client id                                                |
+| --clean                                    | discard any pending message for the given id (default: true) |
+| -k, --keepalive <SEC>                      | send a ping every SEC seconds (default: 30)                  |
+| -u, --username <USER>                      | the username                                                 |
+| -P, --password <PASS>                      | the password                                                 |
+| -l, --protocol <PROTO>                     | the protocol to use, mqtt, mqtts, ws or wss                  |
+| --key <PATH>                               | path to the key file                                         |
+| --cert <PATH>                              | path to the cert file                                        |
+| --ca <PATH>                                | path to the ca certificate                                   |
+| --insecure                                 | do not verify the server certificate                         |
+| -up, --user-properties <USERPROPERTIES...> | properties of will by MQTT 5.0 (e.g. -up "name: mqttx cli")  |
+| --will-topic <TOPIC>                       | the will topic                                               |
+| --will-message <BODY>                      | the will message                                             |
+| --will-qos <0/1/2>                         | the will qos                                                 |
+| --will-retain                              | send a will retained message (default: false)                |
+| --help                                     | display help for conn command                                |
 
 #### Subscribe
 
@@ -124,28 +159,30 @@ mqttx --help
 mqttx sub --help
 ```
 
-| Options                | Description                                                  |
-| ---------------------- | ------------------------------------------------------------ |
-| -h, --hostname <HOST>  | the broker host (default: "localhost")                       |
-| -p, --port <PORT>      | the broker port                                              |
-| -i, --client-id <ID>   | the client id                                                |
-| -q, --qos <0/1/2>      | the QoS of the message (default: 0)                          |
-| --clean                | discard any pending message for the given id (default: true) |
-| -t, --topic <TOPIC>    | the message topic                                            |
-| -k, --keepalive <SEC>  | send a ping every SEC seconds (default: 30)                  |
-| -u, --username <USER>  | the username                                                 |
-| -P, --password <PASS>  | the password                                                 |
-| -l, --protocol <PROTO> | the protocol to use, mqtt, mqtts, ws or wss                  |
-| --key <PATH>           | path to the key file                                         |
-| --cert <PATH>          | path to the cert file                                        |
-| --ca                   | path to the ca certificate                                   |
-| --insecure             | do not verify the server certificate                         |
-| --will-topic <TOPIC>   | the will topic                                               |
-| --will-message <BODY>  | the will message                                             |
-| --will-qos <0/1/2>     | the will qos                                                 |
-| --will-retain          | send a will retained message (default: false)                |
-| -v, --verbose          | print the topic before the message                           |
-| --help                 | display help for sub command                                 |
+| Options                                    | Description                                                  |
+| ------------------------------------------ | ------------------------------------------------------------ |
+| -V, --mqtt-version <5/3.1.1/3.1>           | the MQTT version (default: 5)                                |
+| -h, --hostname <HOST>                      | the broker host (default: "localhost")                       |
+| -p, --port <PORT>                          | the broker port                                              |
+| -i, --client-id <ID>                       | the client id                                                |
+| -q, --qos <0/1/2>                          | the QoS of the message (default: 0)                          |
+| --clean                                    | discard any pending message for the given id (default: true) |
+| -t, --topic <TOPIC>                        | the message topic                                            |
+| -k, --keepalive <SEC>                      | send a ping every SEC seconds (default: 30)                  |
+| -u, --username <USER>                      | the username                                                 |
+| -P, --password <PASS>                      | the password                                                 |
+| -l, --protocol <PROTO>                     | the protocol to use, mqtt, mqtts, ws or wss                  |
+| --key <PATH>                               | path to the key file                                         |
+| --cert <PATH>                              | path to the cert file                                        |
+| --ca                                       | path to the ca certificate                                   |
+| --insecure                                 | do not verify the server certificate                         |
+| -up, --user-properties <USERPROPERTIES...> | properties of will by MQTT 5.0 (e.g. -up "name: mqttx cli")  |
+| --will-topic <TOPIC>                       | the will topic                                               |
+| --will-message <BODY>                      | the will message                                             |
+| --will-qos <0/1/2>                         | the will qos                                                 |
+| --will-retain                              | send a will retained message (default: false)                |
+| -v, --verbose                              | print the topic before the message                           |
+| --help                                     | display help for sub command                                 |
 
 #### Publish
 
@@ -153,29 +190,31 @@ mqttx sub --help
 mqttx pub --help
 ```
 
-| Options                | Description                                         |
-| ---------------------- | --------------------------------------------------- |
-| -h, --hostname <HOST>  | the broker host                                     |
-| -p, --port <PORT>      | the broker port                                     |
-| -i, --client-id <ID>   | the client id                                       |
-| -q, --qos <0/1/2>      | the QoS of the message (default: 0)                 |
-| -t, --topic <TOPIC>    | the message topic                                   |
-| -m, --message<MSG>     | the message body (default: "Hello From MQTT X CLI") |
-| -r, --retain           | send a retained message (default: false)            |
-| -s, --stdin            | read the message body from stdin                    |
-| -M, --multiline        | read lines from stdin as multiple messages          |
-| -u, --username <USER>  | the username                                        |
-| -P, --password <PASS>  | the password                                        |
-| -l, --protocol <PROTO> | the protocol to use, mqtt, mqtts, ws or wss         |
-| --key <PATH>           | path to the key file                                |
-| --cert <PATH>          | path to the cert file                               |
-| --ca                   | path to the ca certificate                          |
-| --insecure             | do not verify the server certificate                |
-| --will-topic <TOPIC>   | the will topic                                      |
-| --will-message <BODY>  | the will message                                    |
-| --will-qos <0/1/2>     | the will qos (default: 0)                           |
-| --will-retain          | send a will retained message (default: false)       |
-| --help                 | display help for pub command                        |
+| Options                                    | Description                                                 |
+| ------------------------------------------ | ----------------------------------------------------------- |
+| -V, --mqtt-version <5/3.1.1/3.1>           | the MQTT version (default: 5)                               |
+| -h, --hostname <HOST>                      | the broker host (default: "localhost")                      |
+| -p, --port <PORT>                          | the broker port                                             |
+| -i, --client-id <ID>                       | the client id                                               |
+| -q, --qos <0/1/2>                          | the QoS of the message (default: 0)                         |
+| -t, --topic <TOPIC>                        | the message topic                                           |
+| -m, --message<MSG>                         | the message body (default: "Hello From MQTT X CLI")         |
+| -r, --retain                               | send a retained message (default: false)                    |
+| -s, --stdin                                | read the message body from stdin                            |
+| -M, --multiline                            | read lines from stdin as multiple messages                  |
+| -u, --username <USER>                      | the username                                                |
+| -P, --password <PASS>                      | the password                                                |
+| -l, --protocol <PROTO>                     | the protocol to use, mqtt, mqtts, ws or wss                 |
+| --key <PATH>                               | path to the key file                                        |
+| --cert <PATH>                              | path to the cert file                                       |
+| --ca                                       | path to the ca certificate                                  |
+| --insecure                                 | do not verify the server certificate                        |
+| -up, --user-properties <USERPROPERTIES...> | properties of will by MQTT 5.0 (e.g. -up "name: mqttx cli") |
+| --will-topic <TOPIC>                       | the will topic                                              |
+| --will-message <BODY>                      | the will message                                            |
+| --will-qos <0/1/2>                         | the will qos (default: 0)                                   |
+| --will-retain                              | send a will retained message (default: false)               |
+| --help                                     | display help for pub command                                |
 
 ## Better Together with EMQX
 
@@ -213,7 +252,7 @@ yarn run dev
 yarn run build
 ```
 
-After a successful build, the corresponding file for the successful build will appear in the `libs` directory and will need to be used in a Node.js environment.
+After a successful build, the corresponding file for the successful build will appear in the `dist` directory and will need to be used in a Node.js environment.
 
 If you need to package a binary executable, please refer to the following command.
 
