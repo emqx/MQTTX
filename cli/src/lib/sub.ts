@@ -4,7 +4,9 @@ import * as fs from 'fs'
 const sub = (options: any) => {
   options.protocolVersion = options.mqttVersion
   if (options.protocolVersion === 5) {
-    // TODO: implement MQTT 5.0
+    if (options.userProperties) {
+      options.properties = { userProperties: options.userProperties }
+    }
   } else if (options.protocolVersion === 3) {
     options.protocolId = 'MQIsdp'
   }
@@ -57,13 +59,14 @@ const sub = (options: any) => {
     })
   })
 
-  client.on('message', (topic, payload) => {
+  client.on('message', (topic, payload, packet) => {
     if (options.verbose) {
       console.log('topic: ', topic)
-      console.log('payload: ', payload.toString())
-    } else {
-      console.log(payload.toString())
     }
+    if (packet.properties && packet.properties.userProperties) {
+      console.log('user properties: ', { ...packet.properties.userProperties })
+    }
+    console.log('payload: ', payload.toString())
   })
 
   client.on('error', (err) => {

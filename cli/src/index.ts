@@ -1,6 +1,6 @@
 import { Command } from 'commander'
 import { getClientId } from './utils/generator'
-import { parseNumber, parseProtocol, parseMQTTVersion } from './utils/parse'
+import { parseNumber, parseProtocol, parseMQTTVersion, parseUserProperties } from './utils/parse'
 import pub from './lib/pub'
 import sub from './lib/sub'
 import { version } from '../package.json'
@@ -13,7 +13,11 @@ export class Commander {
   }
 
   init(): void {
-    this.program.name('mqttx').description('An MQTT client for the command line').version(version, '-v, --version')
+    this.program
+      .name('mqttx')
+      .description('An MQTT client for the command line')
+      .enablePositionalOptions()
+      .version(version, '-v, --version')
 
     this.program
       .command('pub')
@@ -35,6 +39,11 @@ export class Commander {
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
+      .option(
+        '-up, --user-properties <USERPROPERTIES...>',
+        'properties of will by MQTT 5.0 (e.g. -up "name: mqttx cli")',
+        parseUserProperties,
+      )
       .option('--will-topic <TOPIC>', 'the will topic')
       .option('--will-message <BODY>', 'the will message')
       .option('--will-qos <0/1/2>', 'the will qos', parseNumber, 0)
@@ -59,11 +68,16 @@ export class Commander {
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
+      .option(
+        '-up, --user-properties <USERPROPERTIES...>',
+        'properties of will by MQTT 5.0 (e.g. -up "name: mqttx cli")',
+        parseUserProperties,
+      )
       .option('--will-topic <TOPIC>', 'the will topic')
       .option('--will-message <BODY>', 'the will message')
       .option('--will-qos <0/1/2>', 'the will qos', parseNumber)
       .option('--will-retain', 'send a will retained message', false)
-      .option('-vb, --verbose', 'print the topic before the message')
+      .option('-v, --verbose', 'print the topic before the message')
       .action(sub)
   }
 }

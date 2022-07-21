@@ -43,7 +43,9 @@ const multisend = (options: any) => {
 const pub = (options: any) => {
   options.protocolVersion = options.mqttVersion
   if (options.protocolVersion === 5) {
-    // TODO: implement MQTT 5.0
+    if (options.userProperties) {
+      options.properties = { userProperties: options.userProperties }
+    }
   } else if (options.protocolVersion === 3) {
     options.protocolId = 'MQIsdp'
   }

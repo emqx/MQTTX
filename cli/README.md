@@ -144,7 +144,7 @@ mqttx sub --help
 | --will-message <BODY>  | the will message                                             |
 | --will-qos <0/1/2>     | the will qos                                                 |
 | --will-retain          | send a will retained message (default: false)                |
-| -vb, --verbose         | print the topic before the message                           |
+| -v, --verbose          | print the topic before the message                           |
 | --help                 | display help for sub command                                 |
 
 #### Publish
