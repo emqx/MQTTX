@@ -118,6 +118,9 @@ export default class KeyValueEditor extends Vue {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      &:not(:last-child) {
+        margin-bottom: 10px;
+      }
       .input-prop {
         padding: 0px;
         margin-right: 10px;
