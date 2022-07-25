@@ -28,6 +28,10 @@ body.dark {
   --color-text-right_block: #484848;
   --color-text-right_info: #959599;
   --color-text-left_info: #959599;
+  --color-text-active: #fff;
+  --color-text-leftbar_icon: #868787;
+  --color-text-historybtn: #fff;
+  --color-text-historybtn_disabled: #6f6f6f;
   --color-text-card_icon: #eaebec;
 
   /* Accent color */
@@ -44,6 +48,12 @@ body.dark {
   /* Border color */
   --color-border-default: #383838;
   --color-border-bold: #969696;
+  --color-shadow-card: #00000059;
+  --color-shadow-message: #1f1f1f;
+
+  /* Shadow color */
+  --color-shadow-leftlist: #00000061;
+  --color-shadow-sendbtn: #2dc17769;
   --color-shadow-card: #00000059;
   --color-shadow-message: #1f1f1f;
 }
