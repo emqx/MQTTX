@@ -22,6 +22,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+vetur.config.js
 
-#Electron-builder output
+# Electron-builder output
 /dist_electron

@@ -66,7 +66,7 @@ export default class Connections extends Vue {
     port: 8083,
     certType: '',
     ssl: false,
-    mqttVersion: '3.1.1',
+    mqttVersion: '5.0',
     subscriptions: [],
     messages: [],
     unreadMessageCount: 0,
