@@ -114,11 +114,17 @@ export default class ConnectionsList extends Vue {
 
 .connections-list {
   .connection-item {
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 64px;
-    padding: 0 16px;
+    padding: 0 24px 0 16px;
+    margin: 0 8px;
+    border-radius: 8px;
+    &:hover {
+      background-color: var(--color-bg-item);
+    }
     cursor: pointer;
     position: relative;
     transition: background 0.3s ease;
@@ -133,7 +139,7 @@ export default class ConnectionsList extends Vue {
         font-size: $font-size--body;
         font-weight: 500;
         color: var(--color-text-title);
-        max-width: 270px;
+        max-width: 200px;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
@@ -156,7 +162,7 @@ export default class ConnectionsList extends Vue {
         right: -1px;
         font-size: 12px;
         transform: rotate(45deg);
-        color: #fff;
+        color: var(--color-text-active);
       }
     }
     .item-left {

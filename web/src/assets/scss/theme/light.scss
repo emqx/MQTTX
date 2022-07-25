@@ -28,6 +28,10 @@ body.light {
   --color-text-right_block: #34c388;
   --color-text-right_info: #ade7cf;
   --color-text-left_info: #00000075;
+  --color-text-active: #fff;
+  --color-text-leftbar_icon: #83929b;
+  --color-text-historybtn: #25465f;
+  --color-text-historybtn_disabled: #c0c4cc;
   --color-text-card_icon: #2f4852;
 
   /* Accent color */
@@ -44,6 +48,12 @@ body.light {
   /* Border color */
   --color-border-default: #e6e8f1;
   --color-border-bold: #979797;
+  --color-shadow-card: #0000001a;
+  --color-shadow-message: #dcdcdc;
+
+  /* Shadow color */
+  --color-shadow-leftlist: #5b769438;
+  --color-shadow-sendbtn: #2dc17769;
   --color-shadow-card: #0000001a;
   --color-shadow-message: #dcdcdc;
 }

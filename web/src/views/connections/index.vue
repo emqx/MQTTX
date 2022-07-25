@@ -1,6 +1,6 @@
 <template>
   <div class="connections">
-    <div class="leftList">
+    <div class="left-list">
       <h1 class="titlebar">{{ $t('connections.connections') }}</h1>
       <ConnectionsList :data="records" :connectionId="connectionId" @delete="onDelete" />
     </div>
@@ -146,8 +146,9 @@ export default class Connections extends Vue {
     padding: 16px;
   }
 }
-.leftList {
+.left-list {
   position: fixed;
+  box-shadow: 1px 0px 8px 0px var(--color-shadow-leftlist);
   width: 320px;
   left: 81px;
   top: 0;
@@ -155,7 +156,7 @@ export default class Connections extends Vue {
   overflow-x: hidden;
   z-index: 1000;
   border-right: 1px solid var(--color-border-default);
-  background-color: var(--color-bg-primary);
+  background-color: var(--color-bg-normal);
   @media (min-width: 1920px) {
     left: 121px;
     width: 400px;
