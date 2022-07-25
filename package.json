@@ -115,7 +115,7 @@
       "prettier --write \"src/**/*.ts\" \"src/**/*.vue\" \"src/**/*.scss\""
     ]
   },
-  "license": "Apache",
+  "license": "Apache-2.0",
   "repository": "https://github.com/emqx/MQTTX",
   "resolutions": {
     "electron-builder": "23.0.2"

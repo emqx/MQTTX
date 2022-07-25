@@ -16,7 +16,7 @@
   "bin": {
     "mqttx": "./bin/index.js"
   },
-  "license": "Apache",
+  "license": "Apache-2.0",
   "dependencies": {
     "commander": "^9.3.0",
     "concat-stream": "^2.0.0",
