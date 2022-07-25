@@ -161,7 +161,7 @@ export const getDefaultRecord = (): ConnectionModel => {
     ca: '',
     cert: '',
     key: '',
-    mqttVersion: '3.1.1',
+    mqttVersion: '5.0',
     subscriptions: [],
     messages: [],
     unreadMessageCount: 0,
