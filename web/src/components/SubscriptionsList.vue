@@ -233,10 +233,14 @@ export default class SubscriptionsList extends Vue {
   }
 
   private removeSubs(row: SubscriptionModel): void | boolean {
-    if (!this.currentConnection.client) {
-      return false
-    }
-    if (!this.currentConnection.client.connected) {
+    if (!this.currentConnection.client || !this.currentConnection.client.connected) {
+      this.$notify({
+        title: this.$tc('connections.notConnect'),
+        message: '',
+        type: 'error',
+        duration: 3000,
+        offset: 30,
+      })
       return false
     }
     const { topic, qos } = row
