@@ -110,10 +110,7 @@
       }"
     >
       <div class="connections-body">
-        <div
-          class="filter-bar"
-          :style="{ top: showClientInfo ? bodyTop.open : bodyTop.close, left: largeDesktop ? '521px' : '401px' }"
-        >
+        <div ref="filterBar" class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open : bodyTop.close }">
           <span class="subs-title">
             {{ this.$t('connections.subscriptions') }}
             <a class="subs-btn" href="javascript:;" @click="handleShowSubs">
@@ -132,13 +129,9 @@
               </a>
             </el-tooltip>
             <el-select class="received-type-select" size="small" v-model="receivedMsgType">
-              <el-option v-for="(type, index) in payloadOptions" :key="index" :value="type"> </el-option>
+              <el-option v-for="type in ['Plaintext', 'Base64', 'JSON', 'Hex']" :key="type" :value="type"> </el-option>
             </el-select>
-            <el-radio-group v-model="msgType" size="mini" @change="handleMsgTypeChanged">
-              <el-radio-button label="all">{{ $t('connections.all') }}</el-radio-button>
-              <el-radio-button label="received">{{ $t('connections.received') }}</el-radio-button>
-              <el-radio-button label="publish">{{ $t('connections.published') }}</el-radio-button>
-            </el-radio-group>
+            <MsgTypeTabs v-model="msgType" @change="handleMsgTypeChanged" />
           </div>
         </div>
         <SubscriptionsList
@@ -193,6 +186,7 @@ import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
 import SubscriptionsList from '@/components/SubscriptionsList.vue'
 import ResizeHeight from '@/components/ResizeHeight.vue'
+import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
 import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
 
@@ -213,6 +207,7 @@ interface Top {
     MsgPublish,
     SubscriptionsList,
     ResizeHeight,
+    MsgTypeTabs,
   },
 })
 export default class ConnectionsDetail extends Vue {
@@ -256,7 +251,6 @@ export default class ConnectionsDetail extends Vue {
     '3.1.1': 4,
     '5.0': 5,
   }
-  private payloadOptions: PayloadType[] = ['Plaintext', 'Base64', 'JSON', 'Hex']
 
   public connect(): boolean | void {
     if (this.client.connected) {
@@ -300,15 +294,15 @@ export default class ConnectionsDetail extends Vue {
 
   get bodyTop(): Top {
     return {
-      open: '254px',
+      open: '249px',
       close: '60px',
     }
   }
 
   get msgTop(): Top {
     return {
-      open: '286px',
-      close: '88px',
+      open: '277px',
+      close: '86px',
     }
   }
 
@@ -877,23 +871,30 @@ export default class ConnectionsDetail extends Vue {
     .connections-body {
       padding: 16px;
       .filter-bar {
-        padding: 12px 16px;
-        background: var(--color-bg-primary);
+        padding: 6px 16px;
+        background: var(--color-bg-normal);
+        border-bottom: 1px solid var(--color-border-default);
         position: fixed;
-        left: 441px;
+        left: 401px;
         right: 0;
         z-index: 1;
         transition: all 0.4s;
+        .el-input .el-input__inner {
+          border: none;
+          color: var(--color-main-green);
+        }
         .subs-title {
+          line-height: 32px;
           color: var(--color-text-title);
           position: absolute;
-          top: 15px;
         }
         .subs-btn {
           position: relative;
-          top: 1px;
+          top: 2px;
           left: 3px;
-          .icon-collapse {
+          display: inline-block;
+          transform: rotate(180deg);
+          .icon-zhedie {
             display: inline-block;
             transform: rotate(180deg);
           }
@@ -901,20 +902,14 @@ export default class ConnectionsDetail extends Vue {
         .message-type {
           @include flex-space-between;
           .received-type-select {
-            width: 110px;
-            margin-left: 295px;
-            @media (min-width: 1920px) {
-              margin-left: 415px;
-            }
+            width: 95px;
+            margin-left: 300px;
           }
           .icon-tip {
             position: absolute;
-            left: 289px;
+            left: 300px;
             font-size: 16px;
             color: var(--color-text-tips);
-            @media (min-width: 1920px) {
-              left: 409px;
-            }
           }
         }
       }

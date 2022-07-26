@@ -14,6 +14,8 @@ declare global {
 
   type PayloadType = 'Plaintext' | 'Base64' | 'JSON' | 'Hex'
 
+  type MessageType = 'all' | 'received' | 'publish'
+
   type VueForm = Vue & {
     validate: (validate: (valid: boolean) => void) => void
     clearValidate: () => void
