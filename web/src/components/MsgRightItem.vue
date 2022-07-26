@@ -30,10 +30,16 @@ export default class MsgrightItem extends Vue {
   text-align: right;
   @include msg-item;
   .right-payload {
-    color: #fff;
+    color: var(--color-text-active);
     background: var(--color-text-right_block);
     border-radius: 10px 0 10px 10px;
     text-align: left;
+  }
+  .right-payload,
+  .right-time {
+    position: relative;
+    left: 0px;
+    animation: rightMsg 0.3s ease-in-out;
   }
 }
 </style>
