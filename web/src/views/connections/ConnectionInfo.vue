@@ -4,33 +4,56 @@
       <el-row :gutter="20">
         <el-col :span="8">
           <el-form-item :label="$t('connections.name')" prop="name">
-            <el-input size="mini" v-model="connection.name"></el-input>
+            <el-input size="mini" v-model="connection.name" :disabled="isClientConnected"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="Client ID" prop="clientId">
-            <el-input size="mini" v-model="connection.clientId">
-              <i slot="suffix" title="Refresh" class="el-icon-refresh" @click="refreshClientId"> </i>
+            <el-input size="mini" v-model="connection.clientId" :disabled="isClientConnected">
+              <i
+                slot="suffix"
+                title="Refresh"
+                class="el-icon-refresh"
+                :class="{ 'icon-oper-disable': isClientConnected }"
+                @click="refreshClientId"
+              >
+              </i>
             </el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('connections.username')">
-            <el-input size="mini" v-model="connection.username"></el-input>
+            <el-input size="mini" v-model="connection.username" :disabled="isClientConnected"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="$t('connections.password')">
-            <el-input size="mini" type="password" v-model="connection.password"></el-input>
+            <el-input
+              size="mini"
+              type="password"
+              v-model="connection.password"
+              :disabled="isClientConnected"
+            ></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="Keep Alive">
-            <el-input size="mini" type="number" v-model.number="connection.keepalive"></el-input>
+            <el-input-number
+              size="mini"
+              type="number"
+              :min="0"
+              v-model.number="connection.keepalive"
+              controls-position="right"
+              :disabled="isClientConnected"
+            ></el-input-number>
           </el-form-item>
         </el-col>
-        <el-col :span="8" class="connection.ssl">
-          <el-checkbox v-model="connection.clean">Clean Session</el-checkbox>
+        <el-col :span="8">
+          <el-form-item label="Clean Session">
+            <el-checkbox v-model="connection.clean" :disabled="isClientConnected" border>{{
+              connection.clean ? 'true' : 'false'
+            }}</el-checkbox>
+          </el-form-item>
         </el-col>
         <el-col :span="24">
           <el-button
@@ -86,7 +109,7 @@ import { Getter } from 'vuex-class'
 export default class ConnectionInfo extends Vue {
   @Prop({ required: true }) public connection!: ConnectionModel
   @Prop({ required: true }) public btnLoading!: boolean
-  @Prop({ required: true }) public client!: MqttClient | {}
+  @Prop({ required: true }) public client!: Pick<MqttClient, 'connected'>
   @Prop({ required: true }) public titleName!: string
 
   @Getter('allConnections') private allConnections!: ConnectionModel[] | []
@@ -96,6 +119,11 @@ export default class ConnectionInfo extends Vue {
   @Watch('titleName', { immediate: true, deep: true })
   private handleNameChange(titleName: string) {
     this.oldName = titleName
+  }
+
+  // Return the status of client connection
+  get isClientConnected() {
+    return this.client.connected
   }
 
   get rules() {
@@ -115,7 +143,7 @@ export default class ConnectionInfo extends Vue {
   private async validateName(rule: FormRule, name: string, callBack: NameCallBack['callBack']) {
     for (const oneConnection of this.allConnections) {
       if (name !== this.oldName && oneConnection.name === name) {
-        callBack(`${this.$t('connections.duplicateName')}`)
+        callBack(this.$tc('connections.duplicateName'))
       }
     }
   }
@@ -146,6 +174,10 @@ export default class ConnectionInfo extends Vue {
   }
 
   private refreshClientId() {
+    // when the client connected, we should disable this icon event
+    if (this.isClientConnected) {
+      return
+    }
     this.connection.clientId = getClientId()
   }
 }
@@ -168,12 +200,43 @@ export default class ConnectionInfo extends Vue {
         line-height: 35px;
         height: 35px;
       }
+      // normal icon
+      .icon-oper {
+        color: var(--color-text-tips);
+        line-height: 43px;
+        transition: 0.2s color ease;
+      }
+      // icon active
+      .icon-oper-active {
+        color: var(--color-main-green);
+      }
+      // icon disable
+      .icon-oper-disable {
+        color: var(--color-text-default);
+      }
+      // input disable
+      .is-disabled > input {
+        background: transparent;
+      }
     }
+    // adjust the position of the clientID timestamp element
+    .icon-client-time {
+      position: absolute;
+      top: -2.65em;
+      left: 5em;
+    }
+
     .el-checkbox {
-      margin-top: 42px;
+      border: 1px solid var(--color-border-default);
+      padding: 4px 10px;
+      height: 28px;
+      width: 100%;
+      .el-checkbox__label {
+        font-size: 12px;
+      }
     }
     .el-button.btn {
-      margin-top: 13px;
+      margin-top: 10px;
       float: right;
     }
     .el-button.cancel {
@@ -182,6 +245,12 @@ export default class ConnectionInfo extends Vue {
     .el-button.disconnect {
       color: var(--color-minor-red);
       border-color: var(--color-minor-red);
+    }
+    .el-form-item.is-success .el-input__inner,
+    .el-form-item.is-success .el-input__inner:focus,
+    .el-form-item.is-success .el-textarea__inner,
+    .el-form-item.is-success .el-textarea__inner:focus {
+      border: 1px solid var(--color-border-default);
     }
   }
 }

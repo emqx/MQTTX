@@ -180,7 +180,7 @@ export default class ConnectionInfo extends Vue {
   private async validateName(rule: FormRule, name: string, callBack: NameCallBack) {
     for (const oneConnection of this.allConnections) {
       if (name !== this.oldName && oneConnection.name === name) {
-        callBack(`${this.$t('connections.duplicateName')}`)
+        callBack(this.$tc('connections.duplicateName'))
       }
     }
   }

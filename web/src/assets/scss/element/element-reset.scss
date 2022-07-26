@@ -71,14 +71,23 @@
 }
 
 /* Button */
+.el-button--mini {
+  border-radius: 4px;
+}
 .el-button--outline {
   background: var(--color-bg-normal);
-  border: 2px solid var(--color-main-green);
+  border: 1px solid var(--color-main-green);
   color: var(--color-main-green);
 }
 .el-button.is-plain:hover,
 .el-button.is-plain:focus {
   background: var(--color-bg-normal);
+}
+.el-input-number--mini {
+  width: 100%;
+  .el-input__inner {
+    text-align: left;
+  }
 }
 
 /* Cascader */
