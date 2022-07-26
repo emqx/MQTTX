@@ -56,16 +56,24 @@ export default class MsgLeftItem extends Vue {
   text-align: left;
   position: relative;
   .topic-color {
+    height: calc(100% - 44px);
     display: inline-block;
-    width: 3px;
+    width: 4px;
     position: absolute;
-    top: 10px;
-    left: -3px;
+    top: 11px;
+    border-radius: 8px;
+    left: -4px;
   }
   .left-payload {
     background: var(--color-main-grey);
     border-radius: 0px 10px 10px 10px;
     position: relative;
+  }
+  .left-payload,
+  .left-time {
+    position: relative;
+    right: 0px;
+    animation: leftMsg 0.3s ease-in-out;
   }
 }
 </style>

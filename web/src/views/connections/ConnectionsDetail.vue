@@ -912,6 +912,17 @@ export default class ConnectionsDetail extends Vue {
             color: var(--color-text-tips);
           }
         }
+        @media (min-width: 1920px) {
+          left: 521px;
+          .message-type {
+            .received-type-select {
+              margin-left: 420px;
+            }
+            .icon-tip {
+              left: 420px;
+            }
+          }
+        }
       }
     }
     .connections-footer {
