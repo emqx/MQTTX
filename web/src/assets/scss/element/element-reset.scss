@@ -14,19 +14,23 @@
 }
 .el-radio-button--mini .el-radio-button__inner {
   background: transparent;
-  border: 2px solid var(--color-border-bold);
   width: 90px;
   color: var(--color-text-light);
 }
 .el-radio-button__orig-radio:checked + .el-radio-button__inner {
   background-color: var(--color-bg-item);
   color: var(--color-main-green);
-  border: 2px solid var(--color-main-green) !important;
   z-index: 1;
   box-shadow: none;
 }
-.el-radio-button:first-child .el-radio-button__inner {
-  border-left: 2px solid var(--color-border-bold);
+
+/* Checkbox */
+.el-checkbox.is-bordered {
+  border: 1px solid var(--color-border-default);
+  .el-checkbox__label {
+    color: var(--color-text-default);
+    font-weight: 400;
+  }
 }
 
 /* Card */
@@ -90,14 +94,9 @@
   }
 }
 
-/* Cascader */
-.el-cascader {
-  width: 100%;
-}
-
 /* Message */
 .el-message-box {
-  border-radius: 2px;
+  border-radius: 8px;
   background-color: var(--color-bg-messagebox);
   border-color: var(--color-border-default);
   .el-message-box__title {
@@ -159,7 +158,7 @@
 
 /* Notification */
 .el-notification {
-  border-radius: 4px;
+  border-radius: 8px;
   background-color: var(--color-bg-messagebox);
   border-color: var(--color-border-default);
   .el-notification__title {
@@ -177,6 +176,7 @@
 /* Dialog */
 .el-dialog {
   background: var(--color-bg-normal);
+  border-radius: 8px;
 }
 
 /* Input */
@@ -188,6 +188,9 @@
     &::placeholder {
       color: var(--color-text-light);
     }
+  }
+  &.is-disabled .el-input__inner {
+    border-color: var(--color-border-default);
   }
 }
 .el-textarea {
@@ -201,12 +204,33 @@
   }
 }
 
+/* Input Number */
+.el-input-number.is-controls-right {
+  .el-input-number__decrease,
+  .el-input-number__increase {
+    background: var(--color-bg-normal);
+    border-left: 1px solid var(--color-border-default);
+  }
+  .el-input-number__increase {
+    border-bottom: 1px solid var(--color-border-default);
+  }
+}
+
 /* Popper */
+.el-popover__title {
+  color: var(--color-text-title);
+}
 .el-popper {
   background: var(--color-bg-messagebox);
   border-color: var(--color-border-default);
   li {
     color: var(--color-text-default);
+  }
+}
+.el-popper[x-placement^='right'] .popper__arrow {
+  border-right-color: var(--color-border-default);
+  &::after {
+    border-right-color: var(--color-bg-messagebox);
   }
 }
 .el-popper[x-placement^='bottom'] .popper__arrow {
@@ -225,19 +249,14 @@
 .el-select-dropdown__item:hover {
   background: var(--color-bg-item);
 }
-
-/* Cascader */
-.el-cascader-menu {
-  border-right: 1px solid var(--color-border-default);
-}
-.el-cascader-node:not(.is-disabled):hover,
-.el-cascader-node:not(.is-disabled):focus {
-  background: var(--color-bg-item);
+// Fix css style bug in open el-dialog
+.el-popup-parent--hidden {
+  padding-right: 0px !important;
 }
 
 /* Tootip */
 .el-tooltip__popper.is-light {
-  color: #616161;
+  color: var(--color-text-light);
 }
 
 /* Color picker */
@@ -274,4 +293,34 @@
   position: relative;
   margin-top: 6px;
   border-top: 1px solid var(--color-border-default);
+}
+
+/* Loading */
+.el-loading-mask {
+  background-color: var(--color-bg-primary);
+}
+
+/* Tree */
+.el-tree-node__content > .el-tree-node__expand-icon {
+  padding: 3px;
+}
+
+/* Skeleton */
+.el-skeleton.is-animated .el-skeleton__item {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-skeleton) 25%,
+    var(--color-bg-skeleton_transition) 37%,
+    var(--color-bg-skeleton) 63%
+  );
+  background-size: 400% 100%;
+  animation: el-skeleton-loading 1.4s ease infinite;
+  @keyframes el-skeleton-loading {
+    0% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0 50%;
+    }
+  }
 }

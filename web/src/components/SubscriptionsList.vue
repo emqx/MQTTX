@@ -2,7 +2,7 @@
   <div>
     <left-panel>
       <el-card
-        v-if="subsVisible"
+        v-show="subsVisible"
         shadow="never"
         class="subscriptions-list-view"
         :style="{
@@ -10,10 +10,9 @@
         }"
       >
         <div slot="header" class="clearfix">
-          <a href="javascript:;" class="new-subs" @click="openDialog">
-            <i class="el-icon-plus"></i>
+          <el-button class="btn new-subs-btn" icon="el-icon-plus" plain type="outline" size="mini" @click="openDialog">
             {{ $t('connections.newSubscription') }}
-          </a>
+          </el-button>
           <a class="hide-btn" href="javascript:;" @click="hideSubsList">
             <i class="iconfont icon-collapse"></i>
           </a>
@@ -21,12 +20,18 @@
         <div
           v-for="(sub, index) in subsList"
           :key="index"
-          :class="['topics-item', index === topicActiveIndex ? 'active' : '']"
+          :class="['topics-item', { active: index === topicActiveIndex, disabled: sub.disabled }]"
           :style="{
-            borderLeft: `4px solid ${sub.color}`,
+            background: `${sub.color}10`,
           }"
           @click="handleClickTopic(sub, index)"
         >
+          <div
+            :style="{
+              background: `${sub.color}`,
+            }"
+            class="topics-color-line"
+          ></div>
           <el-tooltip
             :effect="theme !== 'light' ? 'light' : 'dark'"
             :content="copySuccess ? $t('connections.topicCopied') : sub.topic"
@@ -38,6 +43,9 @@
               v-clipboard:success="onCopySuccess"
               href="javascript:;"
               class="topic"
+              :style="{
+                color: sub.color,
+              }"
               @click.stop="stopClick"
             >
               {{ sub.alias || sub.topic }}
@@ -306,13 +314,19 @@ export default class SubscriptionsList extends Vue {
     border-left: 0px;
   }
   .el-card__header {
-    border-bottom: 1px solid var(--color-border-default);
+    border-bottom: none;
     text-align: center;
     position: relative;
+    padding: 16px 16px 0 16px;
+    text-align: initial;
+    .new-subs-btn {
+      border-width: 1px;
+      border-style: dashed;
+    }
     .hide-btn {
       font-size: 20px;
       position: absolute;
-      top: 13px;
+      top: 15px;
       right: 0px;
     }
   }
@@ -323,22 +337,49 @@ export default class SubscriptionsList extends Vue {
     .topics-item {
       cursor: pointer;
       color: var(--color-text-title);
-      background: var(--color-bg-topics);
       padding: 0px 8px;
       height: 46px;
       line-height: 46px;
-      margin-bottom: 16px;
+      margin-bottom: 8px;
       position: relative;
+      top: 0px;
       clear: both;
-      border-radius: 2px;
+      border-radius: 8px;
       -moz-user-select: none;
       -khtml-user-select: none;
       user-select: none;
       transition: all 0.3s ease;
-      box-shadow: 1px 1px 2px 0px var(--color-bg-topics_shadow);
+      animation: subItem 0.2s ease-in-out;
       &.active {
-        background: var(--color-bg-topics_active);
+        background: var(--color-bg-dark) !important;
         box-shadow: none;
+        .topic,
+        .qos {
+          color: var(--color-text-active) !important;
+        }
+      }
+      &.disabled {
+        background: transparent !important;
+        border: 1px solid var(--color-border-default);
+        cursor: not-allowed;
+        .topic,
+        .qos {
+          color: var(--color-text-light) !important;
+        }
+        .topics-color-line {
+          background: var(--color-border-default) !important;
+        }
+      }
+      .topics-color-line {
+        margin-right: 3px;
+        display: inline-block;
+        width: 4px;
+        height: 24px;
+        vertical-align: top;
+        border-radius: 8px;
+        position: relative;
+        top: 50%;
+        transform: translateY(-50%);
       }
       .topic {
         max-width: 120px;
@@ -347,7 +388,6 @@ export default class SubscriptionsList extends Vue {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        color: var(--color-text-default);
       }
       .qos {
         float: right;
@@ -364,8 +404,9 @@ export default class SubscriptionsList extends Vue {
         height: 18px;
         text-align: center;
         line-height: 18px;
-        .el-icon-close {
-          color: #fff;
+        .el-icon-close,
+        .el-icon-loading {
+          color: var(--color-text-active);
         }
       }
       &:hover {
@@ -373,6 +414,14 @@ export default class SubscriptionsList extends Vue {
           display: inline;
         }
       }
+    }
+  }
+  @keyframes subItem {
+    from {
+      top: 100px;
+    }
+    to {
+      top: 0px;
     }
   }
 }
