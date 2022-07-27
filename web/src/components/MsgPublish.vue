@@ -12,10 +12,7 @@
           <el-option :value="1"></el-option>
           <el-option :value="2"></el-option>
         </el-select>
-        <div class="retain-block">
-          <span class="publish-label">Retain: </span>
-          <el-checkbox v-model="msgRecord.retain"></el-checkbox>
-        </div>
+        <el-checkbox class="retain-block" v-model="msgRecord.retain" label="Retain" border size="mini"></el-checkbox>
       </div>
       <el-input
         class="topic-input"
@@ -144,7 +141,8 @@ export default class MsgPublish extends Vue {
   border-top: 1px solid var(--color-border-default);
   .publish-header {
     padding: 0 16px;
-    margin-bottom: 4px;
+    margin: 6px 0;
+    border-bottom: 1px solid var(--color-border-default);
   }
   .publish-footer {
     padding: 0 6px;
@@ -156,7 +154,6 @@ export default class MsgPublish extends Vue {
       padding: 0px;
       height: 36px;
       line-height: 36px;
-      border-bottom: 1px solid var(--color-border-default);
     }
   }
   .qos-retain {
@@ -174,7 +171,7 @@ export default class MsgPublish extends Vue {
       width: 55px;
     }
     .retain-block {
-      float: right;
+      margin-left: 8px;
     }
     .el-checkbox__inner {
       border-radius: 100%;
@@ -184,8 +181,16 @@ export default class MsgPublish extends Vue {
     position: fixed;
     right: 16px;
     bottom: 10px;
+    background: var(--color-main-green);
+    border-radius: 50%;
+    text-align: center;
+    box-shadow: 0px 4px 6px 0px var(--color-shadow-sendbtn);
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
     .icon-send {
-      font-size: $font-size--send;
+      font-size: 16px;
+      color: var(--color-text-active);
     }
   }
 }
