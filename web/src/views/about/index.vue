@@ -7,6 +7,15 @@
       </div>
       <div class="about-content">
         <div class="about-content__header">
+          <p class="version">{{ $t('common.version') }} v{{ version }}</p>
+          <p class="help">
+            <a class="web-link" :href="releasesLink" target="_blank" rel="noopener noreferrer">
+              {{ $t('about.releases') }}
+            </a>
+            <a class="web-link" href="https://github.com/emqx/MQTTX/issues" target="_blank" rel="noopener noreferrer">
+              {{ $t('about.support') }}
+            </a>
+          </p>
           <div class="description">
             <p>{{ $t('about.mqttxDesc') }}</p>
           </div>
@@ -36,7 +45,7 @@
           <div class="emq-logo">
             <img :src="emqLogoSrc" alt="emqx" width="40" />
             <span class="copyright">
-              &copy;2022 <a :href="emqWebsite" target="_blank" rel="noopener noreferrer">EMQ</a> Technologies Co., Ltd.
+              &copy;2022 <a :href="emqWebsite" target="_blank" rel="noopener noreferrer">EMQ</a> Technologies Inc.
             </span>
           </div>
           <div class="follow-items">
@@ -73,6 +82,7 @@ export default class About extends Vue {
 
   private baseUrl = 'https://www.emqx.com'
   private utm = '?utm_source=emqx.io&utm_medium=referral&utm_campaign='
+  private version = `${process.env.VUE_APP_VERSION}`
 
   get mqttxLogoSrc(): string {
     if (this.getterTheme === 'light') {
@@ -112,6 +122,10 @@ export default class About extends Vue {
     return this.getterLang === 'zh' ? `${link}/zh` : link
   }
 
+  get releasesLink(): string {
+    return `${this.mqttxWebsite}/changelogs/v${this.version}`
+  }
+
   private goToLink(url: string) {
     const windowUrl = window.open(url)
     if (windowUrl) {
@@ -142,6 +156,27 @@ export default class About extends Vue {
       max-width: 700px;
       margin-left: 120px;
       margin-right: 60px;
+      .version {
+        font-size: 24px;
+        margin-bottom: 16px;
+        color: var(--color-text-title);
+        font-weight: 600;
+      }
+      .help {
+        margin-bottom: 24px;
+        .web-link {
+          padding-right: 12px;
+          padding-left: 12px;
+          border-right: 1px solid var(--color-border-default);
+          &:first-child {
+            padding-left: 0px;
+          }
+          &:last-child {
+            border-right: none;
+            padding-right: 0px;
+          }
+        }
+      }
       .description {
         max-width: 560px;
         line-height: 1.6;

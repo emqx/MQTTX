@@ -421,12 +421,6 @@
             </el-row>
           </el-card>
         </el-collapse-transition>
-
-        <a href="javascript:;" @click="save">
-          <el-button>
-            {{ $t('connections.connectBtn') }}
-          </el-button>
-        </a>
       </div>
     </el-form>
   </div>

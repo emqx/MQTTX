@@ -25,9 +25,9 @@ export default {
     ja: 'リリース履歴',
   },
   mqttxDesc: {
-    zh: 'MQTT X 是一款由 EMQ 开源的 MQTT 5.0 跨平台桌面客户端，旨在帮助开发者更快的开发、调试 MQTT 服务和应用。',
-    en: 'MQTT X is a cross-platform MQTT 5.0 client tool open-sourced by EMQ, designed to help develop and debug MQTT services and applications faster.',
-    ja: 'MQTT Xは、EMQによるオープンソースのMQTT 5.0クロスプラットフォーム・デスクスクライアントで、開発者がMQTTサービスおよびアプリケーションをより速く開発およびデバッグできるよう設計されています。',
+    zh: 'MQTT X Web 是一款开源的可在浏览器运行的 MQTT 5.0 WebSocket 客户端工具，无需本地安装即可帮助您更快地调试 MQTT 服务及应用。',
+    en: 'MQTT X Web is an open-source MQTT 5.0 WebSocket client on the browser to help you debug your MQTT services and applications faster.',
+    ja: 'MQTT X Webは、オープンソースのMQTT 5.0 WebSocketクライアントで、ブラウザ上でMQTTサービスやアプリケーションのデバッグを高速化することができます。',
   },
   cloudTitle: {
     zh: '需要一个专属的 MQTT 服务器？',
