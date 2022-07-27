@@ -1184,6 +1184,12 @@ export default class ConnectionsDetail extends Vue {
       return false
     }
 
+    if (topic && (topic.includes('+') || topic.includes('#') || topic.includes('$'))) {
+      this.$message.warning(this.$tc('connections.topicCannotContain'))
+      this.stopTimedSend()
+      return false
+    }
+
     let props: PushPropertiesModel | undefined = undefined
     if (properties && Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined).length > 0) {
       const propRecords = Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined)
