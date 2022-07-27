@@ -45,7 +45,7 @@
             </el-tooltip>
             <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
               <a href="javascript:;">
-                <i class="el-icon-more"></i>
+                <i class="iconfont icon-more"></i>
               </a>
               <el-dropdown-menu class="connection-oper-item" slot="dropdown">
                 <el-dropdown-item command="searchByTopic">
