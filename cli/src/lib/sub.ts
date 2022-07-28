@@ -44,19 +44,28 @@ const sub = (options: any) => {
   const client = mqtt.connect(options)
 
   client.on('connect', () => {
-    client.subscribe(options.topic, { qos: options.qos }, (err, result) => {
-      if (err) {
-        console.error(err)
-        process.exit(1)
-      }
-
-      result.forEach((sub) => {
-        if (sub.qos > 2) {
-          console.error('subscription negated to', sub.topic, 'with code', sub.qos)
+    const { topic, qos, no_local, retainAsPublished, retainHandling } = options
+    client.subscribe(
+      topic,
+      {
+        qos,
+        nl: no_local,
+        rap: retainAsPublished,
+        rh: retainHandling,
+      },
+      (err, result) => {
+        if (err) {
+          console.error(err)
           process.exit(1)
         }
-      })
-    })
+        result.forEach((sub) => {
+          if (sub.qos > 2) {
+            console.error('subscription negated to', sub.topic, 'with code', sub.qos)
+            process.exit(1)
+          }
+        })
+      },
+    )
   })
 
   client.on('message', (topic, payload, packet) => {
