@@ -16,7 +16,7 @@
     "electron:serve:sql_debug": "export VUE_APP_SQL_DEBUG=true && yarn electron:serve",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
-    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.vue\" \"src/**/*.scss\"",
+    "format": "prettier --write \"src/**/*.ts\" \"src/**/*.vue\" \"src/**/*.scss\" \"web/**/*.ts\" \"web/**/*.vue\" \"web/**/*.scss\" \"cli/**/*.ts\" \"cli/**/*.js\"",
     "lint": "eslint --fix --ext .ts,.vue src",
     "test:e2e": "vue-cli-service test:e2e",
     "test:unit": "vue-cli-service test:unit",
@@ -112,7 +112,7 @@
   },
   "lint-staged": {
     "*.{vue,ts,js,scss}": [
-      "prettier --write \"src/**/*.ts\" \"src/**/*.vue\" \"src/**/*.scss\""
+      "prettier --write \"src/**/*.ts\" \"src/**/*.vue\" \"src/**/*.scss\" \"web/**/*.ts\" \"web/**/*.vue\" \"web/**/*.scss\" \"cli/**/*.ts\" \"cli/**/*.js\""
     ]
   },
   "license": "Apache-2.0",
