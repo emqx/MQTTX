@@ -92,14 +92,13 @@ export class Commander {
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
       .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws or wss', parseProtocol)
+      .option('-nl, --no_local', 'the no local MQTT 5.0 flag')
+      .option('-rap, --retain-as-published', 'the retain as published MQTT 5.0 flag')
+      .option('-rh, --retain-handling <0/1/2>', 'the retain handling MQTT 5.0', parseNumber)
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
-      .option('--asd', 'do not verify the server certificate')
-      .option('-nl, --no_local', 'the no local MQTT 5.0 flag')
-      .option('-rap, --retain-as-published', 'the retain as published MQTT 5.0 flag')
-      .option('-rh, --retain-handling <0/1/2>', 'the retain handling MQTT 5.0', parseNumber)
       .option(
         '-up, --user-properties <USERPROPERTIES...>',
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',

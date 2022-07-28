@@ -1,5 +1,6 @@
 import * as mqtt from 'mqtt'
 import * as fs from 'fs'
+import { IClientSubscribeOptions } from 'mqtt'
 
 const sub = (options: any) => {
   options.protocolVersion = options.mqttVersion
@@ -45,27 +46,31 @@ const sub = (options: any) => {
 
   client.on('connect', () => {
     const { topic, qos, no_local, retainAsPublished, retainHandling } = options
-    client.subscribe(
-      topic,
-      {
-        qos,
-        nl: no_local,
-        rap: retainAsPublished,
-        rh: retainHandling,
-      },
-      (err, result) => {
-        if (err) {
-          console.error(err)
+    const subOptions: {
+      qos: number
+      nl?: boolean
+      rap?: boolean
+      rh?: number
+    } = {
+      qos,
+    }
+    if (options.protocolVersion === 5) {
+      subOptions.nl = no_local
+      subOptions.rap = retainAsPublished
+      subOptions.rh = retainHandling
+    }
+    client.subscribe(topic, subOptions as IClientSubscribeOptions, (err, result) => {
+      if (err) {
+        console.error(err)
+        process.exit(1)
+      }
+      result.forEach((sub) => {
+        if (sub.qos > 2) {
+          console.error('subscription negated to', sub.topic, 'with code', sub.qos)
           process.exit(1)
         }
-        result.forEach((sub) => {
-          if (sub.qos > 2) {
-            console.error('subscription negated to', sub.topic, 'with code', sub.qos)
-            process.exit(1)
-          }
-        })
-      },
-    )
+      })
+    })
   })
 
   client.on('message', (topic, payload, packet) => {
