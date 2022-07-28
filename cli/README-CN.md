@@ -138,7 +138,7 @@ mqttx conn --help
 | -h, --hostname <HOST>                      | MQTT Broker 的 Host 地址，默认为 localhost     |
 | -p, --port <PORT>                          | MQTT Broker 的端口号                           |
 | -i, --client-id <ID>                       | 客户端 ID                                      |
-| --clean                                    | clean session 的标志位，默认为 true            |
+| --no-clean                                    | 取消 clean session 标志位，默认为 true            |
 | -k, --keepalive <SEC>                      | MQTT 的 Keep Alive，默认为 30                  |
 | -u, --username <USER>                      | 连接到 MQTT Broker 的用户名                    |
 | -P, --password <PASS>                      | 连接到 MQTT Broker 的密码                      |
@@ -154,7 +154,6 @@ mqttx conn --help
 | --will-retain                              | 遗嘱消息的 retain 标志位                       |
 | --help                                     | 展示 conn 命令的帮助信息                       |
 
-
 #### 订阅
 
 ```shell
@@ -168,7 +167,7 @@ mqttx sub --help
 | -p, --port <PORT>                          | MQTT Broker 的端口号                           |
 | -i, --client-id <ID>                       | 客户端 ID                                      |
 | -q, --qos <0/1/2>                          | 消息的 QoS，默认为 0                           |
-| --clean                                    | clean session 的标志位，默认为 true            |
+| --no-clean                                    | 取消 clean session 标志位，默认为 true            |
 | -t, --topic <TOPIC>                        | 需要订阅的 Topic                               |
 | -k, --keepalive <SEC>                      | MQTT 的 Keep Alive，默认为 30                  |
 | -u, --username <USER>                      | 连接到 MQTT Broker 的用户名                    |

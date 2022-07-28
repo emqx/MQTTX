@@ -44,7 +44,7 @@ const conn = (options: any) => {
   const client = mqtt.connect(options)
 
   client.on('connect', () => {
-    console.log('connected')
+    console.log('\x1b[32m', 'Connected')
   })
 
   client.on('error', (err) => {
