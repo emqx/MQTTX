@@ -38,7 +38,7 @@ export class Commander {
       .option('--insecure', 'do not verify the server certificate')
       .option(
         '-up, --user-properties <USERPROPERTIES...>',
-        'properties of will by MQTT 5.0 (e.g. -up "name: mqttx cli")',
+        'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
         parseUserProperties,
       )
       .option('--will-topic <TOPIC>', 'the will topic')
@@ -69,7 +69,7 @@ export class Commander {
       .option('--insecure', 'do not verify the server certificate')
       .option(
         '-up, --user-properties <USERPROPERTIES...>',
-        'properties of will by MQTT 5.0 (e.g. -up "name: mqttx cli")',
+        'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
         parseUserProperties,
       )
       .option('--will-topic <TOPIC>', 'the will topic')
@@ -98,7 +98,7 @@ export class Commander {
       .option('--insecure', 'do not verify the server certificate')
       .option(
         '-up, --user-properties <USERPROPERTIES...>',
-        'properties of will by MQTT 5.0 (e.g. -up "name: mqttx cli")',
+        'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
         parseUserProperties,
       )
       .option('--will-topic <TOPIC>', 'the will topic')

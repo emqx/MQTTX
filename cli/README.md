@@ -146,7 +146,7 @@ mqttx conn --help
 | --cert <PATH>                              | path to the cert file                                        |
 | --ca <PATH>                                | path to the ca certificate                                   |
 | --insecure                                 | do not verify the server certificate                         |
-| -up, --user-properties <USERPROPERTIES...> | properties of will by MQTT 5.0 (e.g. -up "name: mqttx cli")  |
+| -up, --user-properties <USERPROPERTIES...> | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")  |
 | --will-topic <TOPIC>                       | the will topic                                               |
 | --will-message <BODY>                      | the will message                                             |
 | --will-qos <0/1/2>                         | the will qos                                                 |
@@ -176,7 +176,7 @@ mqttx sub --help
 | --cert <PATH>                              | path to the cert file                                        |
 | --ca                                       | path to the ca certificate                                   |
 | --insecure                                 | do not verify the server certificate                         |
-| -up, --user-properties <USERPROPERTIES...> | properties of will by MQTT 5.0 (e.g. -up "name: mqttx cli")  |
+| -up, --user-properties <USERPROPERTIES...> | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")  |
 | --will-topic <TOPIC>                       | the will topic                                               |
 | --will-message <BODY>                      | the will message                                             |
 | --will-qos <0/1/2>                         | the will qos                                                 |
@@ -209,7 +209,7 @@ mqttx pub --help
 | --cert <PATH>                              | path to the cert file                                       |
 | --ca                                       | path to the ca certificate                                  |
 | --insecure                                 | do not verify the server certificate                        |
-| -up, --user-properties <USERPROPERTIES...> | properties of will by MQTT 5.0 (e.g. -up "name: mqttx cli") |
+| -up, --user-properties <USERPROPERTIES...> | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli") |
 | --will-topic <TOPIC>                       | the will topic                                              |
 | --will-message <BODY>                      | the will message                                            |
 | --will-qos <0/1/2>                         | the will qos (default: 0)                                   |
