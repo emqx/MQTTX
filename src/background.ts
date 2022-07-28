@@ -145,6 +145,7 @@ async function createWindow() {
 
   win.on('closed', () => {
     win = null
+    console.log('App closed')
     beforeAppQuit()
   })
   handleIpcMessages()
