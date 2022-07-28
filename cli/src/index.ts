@@ -27,7 +27,7 @@ export class Commander {
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
       .option('-i, --client-id <ID>', 'the client id', getClientId())
-      .option('--clean', 'discard any pending message for the given id', true)
+      .option('--no-clean', 'set the clean session flag to false (default: true)')
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
@@ -44,7 +44,7 @@ export class Commander {
       .option('--will-topic <TOPIC>', 'the will topic')
       .option('--will-message <BODY>', 'the will message')
       .option('--will-qos <0/1/2>', 'the will qos', parseNumber)
-      .option('--will-retain', 'send a will retained message', false)
+      .option('--will-retain', 'send a will retained message')
       .action(conn)
 
     this.program
@@ -57,7 +57,7 @@ export class Commander {
       .option('-q, --qos <0/1/2>', 'the QoS of the message', parseNumber, 0)
       .requiredOption('-t, --topic <TOPIC>', 'the message topic')
       .option('-m, --message <MSG>', 'the message body', 'Hello From MQTT X CLI')
-      .option('-r, --retain', 'send a retained message', false)
+      .option('-r, --retain', 'send a retained message')
       .option('-s, --stdin', 'read the message body from stdin')
       .option('-M, --multiline', 'read lines from stdin as multiple messages')
       .option('-u, --username <USER>', 'the username')
@@ -75,7 +75,7 @@ export class Commander {
       .option('--will-topic <TOPIC>', 'the will topic')
       .option('--will-message <BODY>', 'the will message')
       .option('--will-qos <0/1/2>', 'the will qos', parseNumber, 0)
-      .option('--will-retain', 'send a will retained message', false)
+      .option('--will-retain', 'send a will retained message')
       .action(pub)
 
     this.program
@@ -86,7 +86,7 @@ export class Commander {
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
       .option('-i, --client-id <ID>', 'the client id', getClientId())
       .option('-q, --qos <0/1/2>', 'the QoS of the message', parseNumber, 0)
-      .option('--clean', 'discard any pending message for the given id', true)
+      .option('--no-clean', 'set the clean session flag to false (default: true)')
       .requiredOption('-t, --topic <TOPIC>', 'the message topic')
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
       .option('-u, --username <USER>', 'the username')
@@ -104,7 +104,7 @@ export class Commander {
       .option('--will-topic <TOPIC>', 'the will topic')
       .option('--will-message <BODY>', 'the will message')
       .option('--will-qos <0/1/2>', 'the will qos', parseNumber)
-      .option('--will-retain', 'send a will retained message', false)
+      .option('--will-retain', 'send a will retained message')
       .option('-v, --verbose', 'print the topic before the message')
       .action(sub)
   }

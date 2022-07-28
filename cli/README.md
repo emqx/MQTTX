@@ -137,7 +137,7 @@ mqttx conn --help
 | -h, --hostname <HOST>                      | the broker host (default: "localhost")                       |
 | -p, --port <PORT>                          | the broker port                                              |
 | -i, --client-id <ID>                       | the client id                                                |
-| --clean                                    | discard any pending message for the given id (default: true) |
+| --no-clean                                    | set the clean session flag to false (default: true) |
 | -k, --keepalive <SEC>                      | send a ping every SEC seconds (default: 30)                  |
 | -u, --username <USER>                      | the username                                                 |
 | -P, --password <PASS>                      | the password                                                 |
@@ -166,7 +166,7 @@ mqttx sub --help
 | -p, --port <PORT>                          | the broker port                                              |
 | -i, --client-id <ID>                       | the client id                                                |
 | -q, --qos <0/1/2>                          | the QoS of the message (default: 0)                          |
-| --clean                                    | discard any pending message for the given id (default: true) |
+| --no-clean                                    | set the clean session flag to false (default: true) |
 | -t, --topic <TOPIC>                        | the message topic                                            |
 | -k, --keepalive <SEC>                      | send a ping every SEC seconds (default: 30)                  |
 | -u, --username <USER>                      | the username                                                 |
