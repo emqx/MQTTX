@@ -166,17 +166,20 @@ mqttx sub --help
 | -p, --port <PORT>                          | the broker port                                              |
 | -i, --client-id <ID>                       | the client id                                                |
 | -q, --qos <0/1/2>                          | the QoS of the message (default: 0)                          |
-| --no-clean                                    | set the clean session flag to false (default: true) |
+| --no-clean                                 | set the clean session flag to false (default: true)          |
 | -t, --topic <TOPIC>                        | the message topic                                            |
 | -k, --keepalive <SEC>                      | send a ping every SEC seconds (default: 30)                  |
 | -u, --username <USER>                      | the username                                                 |
 | -P, --password <PASS>                      | the password                                                 |
 | -l, --protocol <PROTO>                     | the protocol to use, mqtt, mqtts, ws or wss                  |
+| -nl, --no_local                            | the no local MQTT 5.0 flag                                   |
+| -rap, --retain-as-published                | the retain as published MQTT 5.0 flag                        |
+| -rh, --retain-handling <0/1/2>             | the retain handling MQTT 5.0                                 |
 | --key <PATH>                               | path to the key file                                         |
 | --cert <PATH>                              | path to the cert file                                        |
 | --ca                                       | path to the ca certificate                                   |
 | --insecure                                 | do not verify the server certificate                         |
-| -up, --user-properties <USERPROPERTIES...> | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")  |
+| -up, --user-properties <USERPROPERTIES...> | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli") |
 | --will-topic <TOPIC>                       | the will topic                                               |
 | --will-message <BODY>                      | the will message                                             |
 | --will-qos <0/1/2>                         | the will qos                                                 |
