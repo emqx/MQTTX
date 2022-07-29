@@ -34,14 +34,14 @@
 #### Intel Chip
 
 ```shell
-curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.0/mqttx-cli-macos-x64
+curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.1/mqttx-cli-macos-x64
 sudo install ./mqttx-cli-macos-x64 /usr/local/bin/mqttx
 ```
 
 #### Apple Silicon
 
 ```shell
-curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.0/mqttx-cli-macos-arm64
+curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.1/mqttx-cli-macos-arm64
 sudo install ./mqttx-cli-macos-arm64 /usr/local/bin/mqttx
 ```
 
@@ -60,14 +60,14 @@ brew install emqx/mqttx/mqttx-cli
 #### x86-64
 
 ```shell
-curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.0/mqttx-cli-linux-x64
+curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.1/mqttx-cli-linux-x64
 sudo install ./mqttx-cli-linux-x64 /usr/local/bin/mqttx
 ```
 
 #### ARM64
 
 ```shell
-curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.0/mqttx-cli-linux-arm64
+curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.8.1/mqttx-cli-linux-arm64
 sudo install ./mqttx-cli-linux-arm64 /usr/local/bin/mqttx
 ```
 
@@ -138,7 +138,7 @@ mqttx conn --help
 | -h, --hostname <HOST>                      | MQTT Broker 的 Host 地址，默认为 localhost     |
 | -p, --port <PORT>                          | MQTT Broker 的端口号                           |
 | -i, --client-id <ID>                       | 客户端 ID                                      |
-| --no-clean                                    | 取消 clean session 标志位，默认为 true            |
+| --no-clean                                 | 取消 clean session 标志位，默认为 true         |
 | -k, --keepalive <SEC>                      | MQTT 的 Keep Alive，默认为 30                  |
 | -u, --username <USER>                      | 连接到 MQTT Broker 的用户名                    |
 | -P, --password <PASS>                      | 连接到 MQTT Broker 的密码                      |
@@ -167,15 +167,15 @@ mqttx sub --help
 | -p, --port <PORT>                          | MQTT Broker 的端口号                           |
 | -i, --client-id <ID>                       | 客户端 ID                                      |
 | -q, --qos <0/1/2>                          | 消息的 QoS，默认为 0                           |
-| --no-clean                                    | 取消 clean session 标志位，默认为 true            |
+| --no-clean                                 | 取消 clean session 标志位，默认为 true         |
 | -t, --topic <TOPIC>                        | 需要订阅的 Topic                               |
 | -k, --keepalive <SEC>                      | MQTT 的 Keep Alive，默认为 30                  |
 | -u, --username <USER>                      | 连接到 MQTT Broker 的用户名                    |
 | -P, --password <PASS>                      | 连接到 MQTT Broker 的密码                      |
 | -l, --protocol <PROTO>                     | 连接时的协议，mqtt, mqtts, ws or wss           |
 | -nl, --no_local                            | MQTT 5.0 订阅选项中的 no local 标识            |
-| -rap, --retain-as-published                | MQTT 5.0 订阅选项中的 retain as published 标识    |
-| -rh, --retain-handling <0/1/2>             | MQTT 5.0 订阅选项中的 retain handling 标识   |
+| -rap, --retain-as-published                | MQTT 5.0 订阅选项中的 retain as published 标识 |
+| -rh, --retain-handling <0/1/2>             | MQTT 5.0 订阅选项中的 retain handling 标识     |
 | --key <PATH>                               | key 文件的路径                                 |
 | --cert <PATH>                              | cert 文件的路径                                |
 | --ca                                       | ca 证书的文件路径                              |

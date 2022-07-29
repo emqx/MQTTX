@@ -33,14 +33,14 @@ To install the latest MQTTX CLI stable release on **macOS** using **binary downl
 #### Intel Chip
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.0/mqttx-cli-macos-x64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.1/mqttx-cli-macos-x64
 sudo install ./mqttx-cli-macos-x64 /usr/local/bin/mqttx
 ```
 
 #### Apple Silicon
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.0/mqttx-cli-macos-arm64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.1/mqttx-cli-macos-arm64
 sudo install ./mqttx-cli-macos-arm64 /usr/local/bin/mqttx
 ```
 
@@ -59,14 +59,14 @@ To install the latest MQTTX CLI stable release on **Linux** using **binary downl
 #### x86-64
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.0/mqttx-cli-linux-x64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.1/mqttx-cli-linux-x64
 sudo install ./mqttx-cli-linux-x64 /usr/local/bin/mqttx
 ```
 
 #### ARM64
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.0/mqttx-cli-linux-arm64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.1/mqttx-cli-linux-arm64
 sudo install ./mqttx-cli-linux-arm64 /usr/local/bin/mqttx
 ```
 
@@ -137,7 +137,7 @@ mqttx conn --help
 | -h, --hostname <HOST>                      | the broker host (default: "localhost")                       |
 | -p, --port <PORT>                          | the broker port                                              |
 | -i, --client-id <ID>                       | the client id                                                |
-| --no-clean                                    | set the clean session flag to false (default: true) |
+| --no-clean                                 | set the clean session flag to false (default: true)          |
 | -k, --keepalive <SEC>                      | send a ping every SEC seconds (default: 30)                  |
 | -u, --username <USER>                      | the username                                                 |
 | -P, --password <PASS>                      | the password                                                 |
@@ -146,7 +146,7 @@ mqttx conn --help
 | --cert <PATH>                              | path to the cert file                                        |
 | --ca <PATH>                                | path to the ca certificate                                   |
 | --insecure                                 | do not verify the server certificate                         |
-| -up, --user-properties <USERPROPERTIES...> | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")  |
+| -up, --user-properties <USERPROPERTIES...> | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli") |
 | --will-topic <TOPIC>                       | the will topic                                               |
 | --will-message <BODY>                      | the will message                                             |
 | --will-qos <0/1/2>                         | the will qos                                                 |
@@ -193,31 +193,31 @@ mqttx sub --help
 mqttx pub --help
 ```
 
-| Options                                    | Description                                                 |
-| ------------------------------------------ | ----------------------------------------------------------- |
-| -V, --mqtt-version <5/3.1.1/3.1>           | the MQTT version (default: 5)                               |
-| -h, --hostname <HOST>                      | the broker host (default: "localhost")                      |
-| -p, --port <PORT>                          | the broker port                                             |
-| -i, --client-id <ID>                       | the client id                                               |
-| -q, --qos <0/1/2>                          | the QoS of the message (default: 0)                         |
-| -t, --topic <TOPIC>                        | the message topic                                           |
-| -m, --message<MSG>                         | the message body (default: "Hello From MQTT X CLI")         |
-| -r, --retain                               | send a retained message (default: false)                    |
-| -s, --stdin                                | read the message body from stdin                            |
-| -M, --multiline                            | read lines from stdin as multiple messages                  |
-| -u, --username <USER>                      | the username                                                |
-| -P, --password <PASS>                      | the password                                                |
-| -l, --protocol <PROTO>                     | the protocol to use, mqtt, mqtts, ws or wss                 |
-| --key <PATH>                               | path to the key file                                        |
-| --cert <PATH>                              | path to the cert file                                       |
-| --ca                                       | path to the ca certificate                                  |
-| --insecure                                 | do not verify the server certificate                        |
+| Options                                    | Description                                                  |
+| ------------------------------------------ | ------------------------------------------------------------ |
+| -V, --mqtt-version <5/3.1.1/3.1>           | the MQTT version (default: 5)                                |
+| -h, --hostname <HOST>                      | the broker host (default: "localhost")                       |
+| -p, --port <PORT>                          | the broker port                                              |
+| -i, --client-id <ID>                       | the client id                                                |
+| -q, --qos <0/1/2>                          | the QoS of the message (default: 0)                          |
+| -t, --topic <TOPIC>                        | the message topic                                            |
+| -m, --message<MSG>                         | the message body (default: "Hello From MQTT X CLI")          |
+| -r, --retain                               | send a retained message (default: false)                     |
+| -s, --stdin                                | read the message body from stdin                             |
+| -M, --multiline                            | read lines from stdin as multiple messages                   |
+| -u, --username <USER>                      | the username                                                 |
+| -P, --password <PASS>                      | the password                                                 |
+| -l, --protocol <PROTO>                     | the protocol to use, mqtt, mqtts, ws or wss                  |
+| --key <PATH>                               | path to the key file                                         |
+| --cert <PATH>                              | path to the cert file                                        |
+| --ca                                       | path to the ca certificate                                   |
+| --insecure                                 | do not verify the server certificate                         |
 | -up, --user-properties <USERPROPERTIES...> | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli") |
-| --will-topic <TOPIC>                       | the will topic                                              |
-| --will-message <BODY>                      | the will message                                            |
-| --will-qos <0/1/2>                         | the will qos (default: 0)                                   |
-| --will-retain                              | send a will retained message (default: false)               |
-| --help                                     | display help for pub command                                |
+| --will-topic <TOPIC>                       | the will topic                                               |
+| --will-message <BODY>                      | the will message                                             |
+| --will-qos <0/1/2>                         | the will qos (default: 0)                                    |
+| --will-retain                              | send a will retained message (default: false)                |
+| --help                                     | display help for pub command                                 |
 
 ## Better Together with EMQX
 
