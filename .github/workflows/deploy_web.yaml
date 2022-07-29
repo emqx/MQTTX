@@ -4,6 +4,9 @@ on:
   release:
     types:
       - published
+  pull_request:
+    paths:
+      - 'web/**'
   workflow_dispatch:
 
 jobs:
@@ -25,6 +28,7 @@ jobs:
         cd web
         yarn && yarn build
     - name: upload dist
+      if: github.event_name != 'pull_request'
       run: |
         cd web
         wget http://gosspublic.alicdn.com/ossutil/1.7.8/ossutil64

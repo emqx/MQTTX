@@ -2,7 +2,6 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import routes from './routes'
 import { loadConnections } from '@/utils/api/connection'
-import { ConnectionModel } from '../views/Connections/types'
 
 Vue.use(Router)
 
@@ -27,7 +26,7 @@ Router.prototype.push = function push(location: string) {
 
 router.beforeEach((to, from, next) => {
   if (to.name === 'Connections') {
-    const connections: ConnectionModel[] | [] = loadConnections() || []
+    const connections = loadConnections() || []
     if (connections.length) {
       next({ path: `/recent_connections/${connections[0].id}` })
     } else {
