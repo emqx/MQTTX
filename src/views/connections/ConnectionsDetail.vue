@@ -1184,7 +1184,7 @@ export default class ConnectionsDetail extends Vue {
       return false
     }
 
-    if (topic && (topic.includes('+') || topic.includes('#') || topic.includes('$'))) {
+    if (topic && (topic.includes('+') || topic.includes('#'))) {
       this.$message.warning(this.$tc('connections.topicCannotContain'))
       this.stopTimedSend()
       return false

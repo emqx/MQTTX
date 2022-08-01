@@ -357,11 +357,11 @@ export default {
     hu: 'Téma szükséges',
   },
   topicCannotContain: {
-    zh: '不能向包含通配符 #、+、$ 的 Topic 发布消息',
-    en: 'You cannot publish the message to a Topic that contains wildcards characters #, +, $',
-    tr: '#, +, $ karakterlerini içeren bir Konuya mesaj gönderemezsiniz',
-    ja: 'ワイルドカード文字 #、+、$ を含むトピックにメッセージを送信できません',
-    hu: '#, +, $ karakterlerini tartalmazó témához nem küldhetsz üzenetet',
+    zh: '不能向包含通配符 #、+ 的 Topic 发布消息',
+    en: 'You cannot publish the message to a Topic that contains wildcards characters #, +',
+    tr: '#, + karakterlerini içeren bir Konuya mesaj gönderemezsiniz',
+    ja: 'ワイルドカード文字 #、+ を含むトピックにメッセージを送信できません',
+    hu: '#, + karakterlerini tartalmazó témához nem küldhetsz üzenetet',
   },
   topicTips: {
     zh: '可订阅单个或多个主题，订阅多主题时，请使用逗号分隔（,）',
