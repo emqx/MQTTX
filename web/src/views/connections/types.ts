@@ -47,6 +47,14 @@ export interface WillPropertiesModel {
   userProperties?: Object
 }
 
+interface WillModel {
+  id?: string
+  lastWillTopic: string
+  lastWillPayload: string
+  lastWillQos: QoS
+  lastWillRetain: boolean
+  properties?: WillPropertiesModel
+}
 export interface ConnectionModel extends SSLPath {
   readonly id?: string
   clientId: string
@@ -72,18 +80,21 @@ export interface ConnectionModel extends SSLPath {
     | {
         connected: boolean
       }
-  sessionExpiryInterval?: number
-  receiveMaximum?: number
-  topicAliasMaximum?: number
-  requestResponseInformation?: boolean
-  requestProblemInformation?: boolean
-  will?: {
-    lastWillTopic: string
-    lastWillPayload: string
-    lastWillQos: QoS
-    lastWillRetain: boolean
-    properties?: WillPropertiesModel
-  }
+  will?: WillModel
+  properties?: ClientPropertiesModel
+}
+
+// MQTT 5 feature
+export interface ClientPropertiesModel {
+  sessionExpiryInterval?: number | null
+  receiveMaximum?: number | null
+  maximumPacketSize?: number | null
+  topicAliasMaximum?: number | null
+  requestResponseInformation?: boolean | null
+  requestProblemInformation?: boolean | null
+  userProperties?: Object | null
+  authenticationMethod?: string | null
+  authenticationData?: Buffer | null
 }
 
 export interface SSLContent {
