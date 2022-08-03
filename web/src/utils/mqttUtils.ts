@@ -1,23 +1,15 @@
 import { IClientOptions } from 'mqtt'
 import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
-import { ConnectionModel, SSLContent, WillPropertiesModel } from '@/views/connections/types'
+import { ConnectionModel, SSLContent, WillPropertiesModel, ClientPropertiesModel } from '@/views/connections/types'
+import _ from 'lodash'
 
-const setMQTT5Properties = (option: IClientOptions['properties']): IClientOptions['properties'] | undefined => {
+const setMQTT5Properties = (option: ClientPropertiesModel) => {
   if (option === undefined) {
     return undefined
   }
-  const properties: IClientOptions['properties'] = {}
-  if (option.sessionExpiryInterval || option.sessionExpiryInterval === 0) {
-    properties.sessionExpiryInterval = option.sessionExpiryInterval
-  }
-  if (option.receiveMaximum || option.sessionExpiryInterval === 0) {
-    properties.receiveMaximum = option.receiveMaximum
-  }
-  if (option.topicAliasMaximum || option.topicAliasMaximum === 0) {
-    properties.topicAliasMaximum = option.topicAliasMaximum
-  }
-  return properties
+  const properties: ClientPropertiesModel = _.cloneDeep(option)
+  return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined))
 }
 
 export const getClientOptions = (record: ConnectionModel): IClientOptions => {
@@ -58,13 +50,8 @@ export const getClientOptions = (record: ConnectionModel): IClientOptions => {
     options.password = password
   }
   // MQTT Version
-  if (protocolVersion === 5) {
-    const { sessionExpiryInterval, receiveMaximum, topicAliasMaximum } = record
-    const properties = setMQTT5Properties({
-      sessionExpiryInterval,
-      receiveMaximum,
-      topicAliasMaximum,
-    })
+  if (protocolVersion === 5 && record.properties) {
+    const properties = setMQTT5Properties(record.properties)
     if (properties && Object.keys(properties).length > 0) {
       options.properties = properties
     }

@@ -16,7 +16,7 @@
       </div>
     </div>
 
-    <el-form ref="form" label-position="right" label-width="160px" :model="record" :rules="rules">
+    <el-form ref="form" label-position="right" label-width="180px" :model="record" :rules="rules">
       <div class="client-create__body">
         <div class="info-header">
           <h3>{{ $t('settings.general') }}</h3>
@@ -258,20 +258,54 @@
               <template v-if="record.mqttVersion === '5.0'">
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.sessionExpiryInterval')" prop="sessionExpiryInterval">
-                    <el-input size="mini" type="number" :min="0" v-model.number="record.sessionExpiryInterval">
+                    <el-input
+                      size="mini"
+                      type="number"
+                      :min="1"
+                      v-model.number="record.properties.sessionExpiryInterval"
+                    >
+                    </el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2">
+                  <div class="unit">({{ $t('common.unitS') }})</div>
+                </el-col>
+                <el-col :span="22">
+                  <el-form-item :label="$t('connections.receiveMaximum')" prop="receiveMaximum">
+                    <el-input size="mini" type="number" :min="1" v-model.number="record.properties.receiveMaximum">
+                    </el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"><div class="unit">(Byte)</div></el-col>
+                <el-col :span="22">
+                  <el-form-item :label="$t('connections.maximumPacketSize')" prop="maximumPacketSize">
+                    <el-input size="mini" type="number" :min="100" v-model.number="record.properties.maximumPacketSize">
+                    </el-input>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="2"><div class="unit">(Byte)</div></el-col>
+                <el-col :span="22">
+                  <el-form-item :label="$t('connections.topicAliasMaximum')" prop="topicAliasMaximum">
+                    <el-input size="mini" type="number" :min="1" v-model.number="record.properties.topicAliasMaximum">
                     </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
-                  <el-form-item :label="$t('connections.receiveMaximum')" prop="receiveMaximum">
-                    <el-input size="mini" type="number" :min="0" v-model.number="record.receiveMaximum"> </el-input>
+                  <el-form-item :label="$t('connections.requestResponseInformation')" prop="requestResponseInformation">
+                    <el-radio-group v-model="record.properties.requestResponseInformation">
+                      <el-radio :label="true"></el-radio>
+                      <el-radio :label="false"></el-radio>
+                    </el-radio-group>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
-                  <el-form-item :label="$t('connections.topicAliasMaximum')" prop="topicAliasMaximum">
-                    <el-input size="mini" type="number" :min="0" v-model.number="record.topicAliasMaximum"> </el-input>
+                  <el-form-item :label="$t('connections.requestProblemInformation')" prop="requestProblemInformation">
+                    <el-radio-group v-model="record.properties.requestProblemInformation">
+                      <el-radio :label="true"></el-radio>
+                      <el-radio :label="false"></el-radio>
+                    </el-radio-group>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
@@ -459,7 +493,7 @@ export default class ConnectionCreate extends Vue {
   private willMessageVisible = true
   private advancedVisible = true
   private payloadType = 'plaintext'
-  private willLabelWidth = 160
+  private willLabelWidth = 180
   private suggestConnections: ConnectionModel[] | [] = []
   private oldName = ''
 
@@ -501,15 +535,23 @@ export default class ConnectionCreate extends Vue {
         contentType: '',
       },
     },
-    sessionExpiryInterval: undefined,
-    receiveMaximum: undefined,
-    topicAliasMaximum: undefined,
+    properties: {
+      sessionExpiryInterval: undefined,
+      receiveMaximum: undefined,
+      maximumPacketSize: undefined,
+      topicAliasMaximum: undefined,
+      requestResponseInformation: undefined,
+      requestProblemInformation: undefined,
+      userProperties: undefined,
+      authenticationMethod: undefined,
+      authenticationData: undefined,
+    },
   }
 
   @Watch('record', { immediate: true, deep: true })
   private handleMqttVersionChange(val: ConnectionModel) {
     if (val.mqttVersion === '3.1.1') {
-      this.willLabelWidth = 160
+      this.willLabelWidth = 180
     } else {
       this.willLabelWidth = 180
     }

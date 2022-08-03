@@ -199,14 +199,24 @@ export default {
     en: 'Topic Alias Maximum',
     ja: 'トピックエイリアスの最大値',
   },
+  topicAlias: {
+    zh: '主题别名',
+    en: 'Topic Alias',
+    ja: 'トピックエイリアス',
+  },
+  maximumPacketSize: {
+    zh: '最大数据包大小',
+    en: 'Maximum Packet Size',
+    ja: '最大パケット サイズ',
+  },
   requestResponseInformation: {
     zh: '请求响应信息',
-    en: 'Request Response Information',
+    en: 'Request Response Info',
     ja: 'レスポンス情報をリクエストする',
   },
   requestProblemInformation: {
     zh: '请求失败信息',
-    en: 'Request Problem Information',
+    en: 'Request Problem Info',
     ja: '失敗情報をリクエストする',
   },
   topicReuired: {
