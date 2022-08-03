@@ -357,7 +357,9 @@ MQTT X is an open source cross-platform MQTT desktop client tool. It can be used
 
 **Q: Why does MQTT X use the UI design of chat software?**
 
-Based on the understanding of the MQTT protocol of pub/sub model, MQTT X simplifies the operation logic of the page with the help of chatting software. For example, create a new connection as a User A, subscribe to a Topic, just like to join a chat channel, and then create a new connection as a User B, publish a message to the Topic that User A has subscribed to, we can receive the message from User B in User A's page. In fact, in the IoT world as well, devices can use pub/sub feature of MQTT to communicate with each other. MQTT X emulates this and translates it into the user interface to help users understand and test MQTT-related content faster.
+Based on the understanding of the MQTT protocol of pub/sub model. It simplifies test operation with the help of a familiar, chat-like interface. It’s easy and quick to create multiple, simultaneous online MQTT client connections, and can test the connection, publishing, and subscription functions of MQTT/TCP, MQTT/TLS, MQTT/WebSocket as well as other MQTT protocol features.
+
+For example, create a new connection as a User A, subscribe to a Topic, just like to join a chat channel, and then create a new connection as a User B, publish a message to the Topic that User A has subscribed to, we can receive the message from User B in User A's page. In fact, in the IoT world as well, devices can use pub/sub feature of MQTT to communicate with each other. MQTT X emulates this and translates it into the user interface to help users understand and test MQTT-related content faster.
 
 **Q: Is MQTT X free?**
 
