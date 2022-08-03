@@ -219,6 +219,11 @@ export default {
     en: 'Request Problem Info',
     ja: '失敗情報をリクエストする',
   },
+  userProperties: {
+    zh: '用户属性',
+    en: 'User Properties',
+    ja: 'ユーザー プロパティ',
+  },
   topicReuired: {
     zh: '请输入 Topic',
     en: 'Topic is required',

@@ -314,6 +314,14 @@
           </el-card>
         </el-collapse-transition>
 
+        <el-card v-if="record.mqttVersion === '5.0' && advancedVisible" shadow="never" class="info-body item-card">
+          <el-row :gutter="20">
+            <el-col :span="22">
+              <KeyValueEditor :title="$t('connections.userProperties')" v-model="record.properties.userProperties" />
+            </el-col>
+          </el-row>
+        </el-card>
+
         <!-- Last-Will Message -->
         <div class="info-header">
           <h3>
@@ -470,10 +478,12 @@ import { ConnectionModel, SearchCallBack, NameCallBack, FormRule } from './types
 import { getMQTTProtocol } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
 import deepMerge from '@/utils/deepMerge'
+import KeyValueEditor from '@/components/KeyValueEditor.vue'
 
 @Component({
   components: {
     Editor,
+    KeyValueEditor,
   },
 })
 export default class ConnectionCreate extends Vue {
@@ -738,27 +748,29 @@ export default class ConnectionCreate extends Vue {
   .el-form {
     padding-top: 80px;
     padding-bottom: 40px;
+    // normal icon operation style
     .icon-oper {
       color: var(--color-text-default);
       line-height: 43px;
       transition: 0.2s color ease;
-      &:hover,
-      &:focus {
+      &:hover {
         color: var(--color-main-green);
       }
-      &.file {
-        position: relative;
-        input[type='file'] {
-          cursor: pointer;
-          font-size: 0;
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          right: 0;
-          top: 0;
-          opacity: 0;
-        }
-      }
+    }
+    .unit {
+      color: var(--color-text-default);
+      line-height: 43px;
+      font-size: 12px;
+    }
+    // icon style without fake class such as `:hover` style
+    .icon-oper-pure {
+      color: var(--color-text-default);
+      line-height: 43px;
+      transition: 0.2s color ease;
+    }
+    // icon active
+    .icon-oper-active {
+      color: var(--color-main-green);
     }
     .el-form-item__error {
       top: 80%;
@@ -778,18 +790,13 @@ export default class ConnectionCreate extends Vue {
       border-top-left-radius: 4px;
       border-top-right-radius: 4px;
     }
-    .payload-type {
-      width: 100%;
-      height: 30px;
-      line-height: 30px;
-      padding: 0px 12px;
-      background: var(--color-bg-radio);
-      border: 1px solid var(--color-border-default);
-      border-top: none;
-      text-align: right;
-      border-bottom-left-radius: 4px;
-      border-bottom-right-radius: 4px;
+    .content-type-item {
+      margin-top: 8px;
     }
+    .key-value-editor {
+      padding-left: 12px;
+    }
+    @include editor-lang-type;
   }
   .info-header {
     a.collapse-btn {
@@ -799,6 +806,15 @@ export default class ConnectionCreate extends Vue {
       top: 1px;
     }
     @include collapse-btn-transform(0deg, 180deg);
+  }
+  .item-secure {
+    .el-form-item__content {
+      display: flex;
+      align-items: center;
+      .tooltip-secure {
+        margin-left: 10px;
+      }
+    }
   }
 }
 </style>
