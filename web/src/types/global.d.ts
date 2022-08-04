@@ -114,4 +114,16 @@ declare global {
     retain?: boolean
     color?: string
   }
+
+  // MQTT 5 feature
+  interface PushPropertiesModel {
+    payloadFormatIndicator?: boolean | null
+    messageExpiryInterval?: number | null
+    topicAlias?: number | null
+    responseTopic?: string | null
+    correlationData?: string | Buffer | null
+    userProperties?: Object | null
+    subscriptionIdentifier?: number | null
+    contentType?: string | null
+  }
 }

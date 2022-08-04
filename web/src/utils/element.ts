@@ -49,7 +49,7 @@ import {
   Col,
   // Upload,
   // Progress,
-  // Badge,
+  Badge,
   Card,
   // Rate,
   // Steps,
@@ -120,7 +120,7 @@ export default (Vue: any) => {
   Vue.use(Col)
   // Vue.use(Upload)
   // Vue.use(Progress)
-  // Vue.use(Badge)
+  Vue.use(Badge)
   Vue.use(Card)
   // Vue.use(Rate)
   // Vue.use(Steps)

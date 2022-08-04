@@ -27,6 +27,7 @@ export interface MessageModel {
   qos: QoS
   retain: boolean
   topic: string
+  properties?: PushPropertiesModel
 }
 
 export interface SSLPath {
@@ -95,6 +96,18 @@ export interface ClientPropertiesModel {
   userProperties?: Object | null
   authenticationMethod?: string | null
   authenticationData?: Buffer | null
+}
+
+// MQTT 5 feature
+interface PushPropertiesModel {
+  payloadFormatIndicator?: boolean | null
+  messageExpiryInterval?: number | null
+  topicAlias?: number | null
+  responseTopic?: string | null
+  correlationData?: string | Buffer | null
+  userProperties?: Object | null
+  subscriptionIdentifier?: number | null
+  contentType?: string | null
 }
 
 export interface SSLContent {
