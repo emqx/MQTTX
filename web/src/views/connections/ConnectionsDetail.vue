@@ -150,6 +150,7 @@
       <div class="connections-footer" :style="{ marginLeft: marginLeft }">
         <ResizeHeight v-model="inputHeight" />
         <MsgPublish
+          :mqtt5PropsEnable="record.mqttVersion === '5.0'"
           :editor-height="inputHeight - 75"
           :subs-visible="showSubs"
           :style="{ height: `${inputHeight}px` }"

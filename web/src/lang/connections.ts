@@ -319,4 +319,52 @@ export default {
     en: 'Alias',
     ja: '別名',
   },
+  metaTips: {
+    zh: '仅在 MQTT 5.0 中启用',
+    en: 'Enabled only with MQTT 5.0',
+    tr: 'Yalnızca MQTT 5.0 ile etkinleştirilir',
+    ja: 'MQTT 5.0でのみ有効',
+    hu: 'Csak MQTT 5.0 esetén engedélyezett',
+  },
+  qos0: {
+    zh: '最多一次',
+    en: 'At most once',
+    tr: 'en fazla bir kere',
+    ja: 'せいぜい一度',
+    hu: 'Legfeljebb egyszer',
+  },
+  qos1: {
+    zh: '至少一次',
+    en: 'At least once',
+    tr: 'En azından bir kere',
+    ja: '少なくとも一度は',
+    hu: 'Legalább egyszer',
+  },
+  qos2: {
+    zh: '仅一次',
+    en: 'Exactly once',
+    tr: 'tam olarak bir kez',
+    ja: 'ちょうど一度',
+    hu: 'Pontosan egyszer',
+  },
+  payloadFormatIndicator: {
+    zh: '有效载荷指示器',
+    en: 'Payload Format Indicator',
+    ja: 'ペイロードフォーマットインジケーター',
+  },
+  responseTopic: {
+    zh: '响应主题',
+    en: 'Response Topic',
+    ja: '応答トピック',
+  },
+  correlationData: {
+    zh: '对比数据',
+    en: 'Correlation Data',
+    ja: '相関データ',
+  },
+  subscriptionIdentifier: {
+    zh: '订阅标识符',
+    en: 'Subscription Identifier',
+    ja: 'サブスクリプション識別子',
+  },
 }
