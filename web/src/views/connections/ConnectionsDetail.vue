@@ -165,8 +165,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { TranslateResult } from 'vue-i18n'
-// import { ipcRenderer } from 'electron'
-import mqtt, { MqttClient, IClientOptions } from 'mqtt'
+import mqtt, { MqttClient, IClientOptions, IClientPublishOptions } from 'mqtt'
 import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
 
@@ -624,7 +623,7 @@ export default class ConnectionsDetail extends Vue {
   private sendMessage(message: MessageModel, type: PayloadType): void | boolean {
     if (!this.client.connected) {
       this.$notify({
-        title: this.$t('connections.notConnect') as string,
+        title: this.$tc('connections.notConnect'),
         message: '',
         type: 'error',
         duration: 3000,
@@ -632,39 +631,67 @@ export default class ConnectionsDetail extends Vue {
       })
       return false
     }
-    const { mid, topic, qos, payload, retain } = message
-    if (!topic) {
-      this.$message.warning(this.$t('connections.topicReuired') as string)
+
+    const { mid, topic, qos, payload, retain, properties } = message
+
+    if (!topic && !properties?.topicAlias) {
+      this.$message.warning(this.$tc('connections.topicReuired'))
       return false
     }
+
+    if (topic && (topic.includes('+') || topic.includes('#'))) {
+      this.$message.warning(this.$tc('connections.topicCannotContain'))
+      return false
+    }
+
+    let props: PushPropertiesModel | undefined = undefined
+    if (properties && Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined).length > 0) {
+      const propRecords = Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined)
+      props = Object.fromEntries(propRecords)
+      if (props.correlationData && typeof props.correlationData === 'string') {
+        props.correlationData = Buffer.from(props.correlationData)
+      }
+      if (props.userProperties) {
+        // For convert Vue object to normal JavaScript Object: https://github.com/vuejs/Discussion/issues/292
+        props.userProperties = { ...props.userProperties }
+      }
+    }
+
     const $payload = this.convertPayloadByType(payload, type, 'publish')
-    this.client.publish!(topic, $payload, { qos, retain }, (error: Error) => {
-      if (error) {
-        const errorMsg = error.toString()
-        this.$message.error(errorMsg)
-        return false
-      }
-      const publishMessage: MessageModel = {
-        mid,
-        out: true,
-        createAt: time.getNowDate(),
-        topic,
-        payload,
-        qos,
-        retain,
-      }
-      const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
-      this.record.messages.push({ ...publishMessage })
-      updateConnectionMessage(this.record.id as string, { ...publishMessage })
-      if (this.msgType !== 'received' && !this.activeTopic) {
-        this.messages.push(publishMessage)
-      } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'received') {
-        this.messages.push(publishMessage)
-      }
-      setTimeout(() => {
-        window.scrollTo(0, document.body.scrollHeight + 160)
-      }, 100)
-    })
+    this.client.publish!(
+      topic,
+      $payload,
+      { qos, retain, properties: props as IClientPublishOptions['properties'] },
+      (error: Error) => {
+        if (error) {
+          const errorMsg = error.toString()
+          this.$message.error(errorMsg)
+          return false
+        }
+        const properties = this.record.mqttVersion === '5.0' ? props : undefined
+        const publishMessage: MessageModel = {
+          mid,
+          out: true,
+          createAt: time.getNowDate(),
+          topic,
+          payload,
+          qos,
+          retain,
+          properties,
+        }
+        const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+        this.record.messages.push({ ...publishMessage })
+        updateConnectionMessage(this.record.id as string, { ...publishMessage })
+        if (this.msgType !== 'received' && !this.activeTopic) {
+          this.messages.push(publishMessage)
+        } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'received') {
+          this.messages.push(publishMessage)
+        }
+        setTimeout(() => {
+          window.scrollTo(0, document.body.scrollHeight + 160)
+        }, 100)
+      },
+    )
   }
 
   private setShowClientInfo(show: boolean) {
