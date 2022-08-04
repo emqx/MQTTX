@@ -229,6 +229,11 @@ export default {
     en: 'Topic is required',
     ja: 'トピックを入力してください',
   },
+  topicCannotContain: {
+    zh: '不能向包含通配符 #、+ 的 Topic 发布消息',
+    en: 'You cannot publish the message to a Topic that contains wildcards characters #, +',
+    ja: 'ワイルドカード文字 #、+ を含むトピックにメッセージを送信できません',
+  },
   payloadReuired: {
     zh: '请输入 Payload',
     en: 'Payload is required',
