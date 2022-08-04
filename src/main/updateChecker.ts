@@ -40,7 +40,7 @@ const autoDownload = (latest: string, language: string): void => {
       .showMessageBox({
         type: 'info',
         title: 'New Version',
-        buttons: ['Download', 'No'],
+        buttons: ['Install', 'No'],
         message: `Update available: ${latest}`,
       })
       .then((res) => {
