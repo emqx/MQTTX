@@ -1,6 +1,6 @@
 {
   "name": "MQTTX",
-  "version": "1.8.1",
+  "version": "1.8.2",
   "description": "MQTT desktop client",
   "author": "EMQX Team <yusf@emqx.io>",
   "scripts": {
