@@ -93,6 +93,7 @@ declare global {
     autoScroll: boolean
     showSubscriptions: boolean
     syncOsTheme: boolean
+    multiTopics: boolean
     maxReconnectTimes: number
     showClientInfo: {
       [id: string]: boolean
