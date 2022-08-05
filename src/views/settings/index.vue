@@ -98,6 +98,33 @@
 
       <el-row class="settings-item" type="flex" justify="space-between">
         <el-col :span="20">
+          <label>{{ $t('settings.multiTopics') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('settings.multiTopicsDesc')"
+          >
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            :value="multiTopics"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleMultiTopicsSwitchChange"
+          >
+          </el-switch>
+        </el-col>
+      </el-row>
+
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
           <label>{{ $t('settings.maxReconnectTimes') }}</label>
         </el-col>
         <el-col :span="4">
@@ -248,6 +275,7 @@ export default class Settings extends Vue {
   @Action('TOGGLE_AUTO_SCROLL') private actionAutoScroll!: (payload: { autoScroll: boolean }) => void
   @Action('TOGGLE_SYNC_OS_THEME') private actionSyncOsTheme!: (payload: { syncOsTheme: boolean }) => void
   @Action('SET_MAX_RECONNECT_TIMES') private actionMaxReconnectTimes!: (payload: { maxReconnectTimes: number }) => void
+  @Action('TOGGLE_MULTI_TOPICS') private actionToggleMultiTopics!: (payload: { multiTopics: boolean }) => void
   @Getter('currentTheme') private currentTheme!: Theme
   @Getter('currentLang') private currentLang!: Language
   @Getter('autoCheck') private autoCheck!: boolean
@@ -255,6 +283,7 @@ export default class Settings extends Vue {
   @Getter('syncOsTheme') private syncOsTheme!: boolean
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('autoScroll') private autoScroll!: boolean
+  @Getter('multiTopics') private multiTopics!: boolean
 
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
@@ -299,6 +328,10 @@ export default class Settings extends Vue {
 
   private handleAutoScrollSwitchChange(value: boolean) {
     this.actionAutoScroll({ autoScroll: value })
+  }
+
+  private handleMultiTopicsSwitchChange(value: boolean) {
+    this.actionToggleMultiTopics({ multiTopics: value })
   }
 
   private handleInputChage(value: number) {

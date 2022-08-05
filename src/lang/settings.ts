@@ -118,6 +118,13 @@ export default {
     ja: '自動スクロール',
     hu: 'Automatikus görgetés',
   },
+  multiTopics: {
+    zh: '多主题订阅',
+    en: 'Multi topics subscribe',
+    tr: 'Çoklu başlık abone ol',
+    ja: '複数のトピックを購読',
+    hu: 'Több téma feliratkozás',
+  },
   autoResubDesc: {
     zh: '重连时，对连接的订阅列表进行恢复订阅，仅在 Clean Session 为 True 时有效',
     en: 'When reconnecting, the subscription list of the connection will be automatically resubscribed, which is only valid when Clean Session is True',
@@ -152,5 +159,12 @@ export default {
     tr: 'Sisteminiz yaptığında Işık ve Gece temaları arasında otomatik olarak geçiş yapın.',
     ja: 'システムが切り替えると、ライトテーマとナイトテーマを自動的に切り替えます。',
     hu: 'Automatikusan válthat a Világos és az Éjszakai témák között, amikor a rendszer ezt teszi.',
+  },
+  multiTopicsDesc: {
+    zh: '开启后，将支持一次订阅多个主题，使用逗号（,）分隔',
+    en: 'Enable to subscribe to multiple topics at once, separated by commas',
+    tr: 'Açık kaldığında, birden fazla konu abone olmak için bir kez abone olunabilir.',
+    ja: '複数のトピックを一度に購読することができます。コンマで区切ります。',
+    hu: 'Egy időben több témára feliratkozhat.',
   },
 }
