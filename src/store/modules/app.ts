@@ -20,6 +20,7 @@ const TOGGLE_ADVANCED_VISIBLE = 'TOGGLE_ADVANCED_VISIBLE'
 const CHANGE_ALL_CONNECTIONS = 'CHANGE_ALL_CONNECTIONS'
 const SET_SCRIPT = 'SET_SCRIPT'
 const TOGGLE_SYNC_OS_THEME = 'TOGGLE_SYNC_OS_THEME'
+const TOGGLE_MULTI_TOPICS = 'TOGGLE_MULTI_TOPICS'
 
 const getShowSubscriptions = (): boolean => {
   const $showSubscriptions: string | null = localStorage.getItem('showSubscriptions')
@@ -49,6 +50,7 @@ const app = {
     willMessageVisible: true,
     allConnections: [],
     currentScript: null,
+    multiTopics: true,
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -68,6 +70,9 @@ const app = {
     },
     [TOGGLE_SYNC_OS_THEME](state: App, syncOsTheme: boolean) {
       state.syncOsTheme = syncOsTheme
+    },
+    [TOGGLE_MULTI_TOPICS](state: App, multiTopics: boolean) {
+      state.multiTopics = multiTopics
     },
     [SET_MAX_RECONNECT_TIMES](state: App, maxReconnectTimes: number) {
       state.maxReconnectTimes = maxReconnectTimes
@@ -207,6 +212,9 @@ const app = {
     },
     async SET_SCRIPT({ commit }: any, payload: App) {
       commit(SET_SCRIPT, payload.currentScript)
+    },
+    async TOGGLE_MULTI_TOPICS({ commit }: any, payload: App) {
+      commit(TOGGLE_MULTI_TOPICS, payload.multiTopics)
     },
   },
 }

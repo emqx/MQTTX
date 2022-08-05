@@ -15,6 +15,7 @@ const getters = {
   advancedVisible: (state: State) => state.app.advancedVisible,
   allConnections: (state: State) => state.app.allConnections,
   currentScript: (state: State) => state.app.currentScript,
+  multiTopics: (state: State) => state.app.multiTopics,
 }
 
 export default getters
