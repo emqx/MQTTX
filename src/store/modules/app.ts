@@ -40,6 +40,7 @@ const app = {
     autoResub: settingData.autoResub,
     autoScroll: settingData.autoScroll,
     syncOsTheme: settingData.syncOsTheme,
+    multiTopics: settingData.multiTopics,
     maxReconnectTimes: settingData.maxReconnectTimes || 10,
     showSubscriptions: getShowSubscriptions(),
     showClientInfo: {},
@@ -50,7 +51,6 @@ const app = {
     willMessageVisible: true,
     allConnections: [],
     currentScript: null,
-    multiTopics: true,
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -174,6 +174,12 @@ const app = {
       settingData.syncOsTheme = payload.syncOsTheme
       await settingService.update(payload)
     },
+    async TOGGLE_MULTI_TOPICS({ commit }: any, payload: App) {
+      const { settingService } = useServices()
+      commit(TOGGLE_MULTI_TOPICS, payload.multiTopics)
+      settingData.multiTopics = payload.multiTopics
+      await settingService.update(payload)
+    },
     async SET_MAX_RECONNECT_TIMES({ commit }: any, payload: App) {
       const { settingService } = useServices()
       commit(SET_MAX_RECONNECT_TIMES, payload.maxReconnectTimes)
@@ -212,9 +218,6 @@ const app = {
     },
     async SET_SCRIPT({ commit }: any, payload: App) {
       commit(SET_SCRIPT, payload.currentScript)
-    },
-    async TOGGLE_MULTI_TOPICS({ commit }: any, payload: App) {
-      commit(TOGGLE_MULTI_TOPICS, payload.multiTopics)
     },
   },
 }

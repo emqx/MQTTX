@@ -94,7 +94,7 @@
           <el-col :span="24">
             <el-form-item label="Topic" prop="topic">
               <el-tooltip
-                v-if="!isEdit"
+                v-if="!isEdit && multiTopics"
                 class="subinfo-tooltip"
                 placement="top-start"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
@@ -131,7 +131,7 @@
           <el-col :span="24">
             <el-form-item :label="$t('connections.alias')">
               <el-tooltip
-                v-if="!isEdit"
+                v-if="!isEdit && multiTopics"
                 class="subinfo-tooltip"
                 placement="top-start"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
@@ -231,6 +231,7 @@ export default class SubscriptionsList extends Vue {
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
 
   @Getter('currentTheme') private theme!: Theme
+  @Getter('multiTopics') private multiTopics!: boolean
   @Getter('activeConnection') private activeConnection!: ActiveConnection
 
   private topicColor = ''
@@ -378,6 +379,32 @@ export default class SubscriptionsList extends Vue {
     }
   }
 
+  private saveTopicToSubList(topic: string, qos: QoS, index?: number, aliasArr?: string[]): void {
+    const existTopicIndex: number = this.subsList.findIndex((item: SubscriptionModel) => item.topic === topic)
+    if (existTopicIndex !== -1) {
+      this.subsList[existTopicIndex].qos = qos
+    } else {
+      let { topic: unuseTopic, color, alias, id, ...others } = this.subRecord
+      if (index !== undefined && aliasArr !== undefined) {
+        alias = aliasArr ? aliasArr[index] : alias
+        if (index > 0) {
+          color = getRandomColor()
+          id = getSubscriptionId()
+        }
+      } else {
+        color = getRandomColor()
+        id = getSubscriptionId()
+      }
+      this.subsList.push({
+        topic,
+        id,
+        color,
+        alias,
+        ...others,
+      })
+    }
+  }
+
   public async subscribe(
     { topic, alias, qos, nl, rap, rh, subscriptionIdentifier, disabled }: SubscriptionModel,
     isAuto?: boolean,
@@ -395,8 +422,8 @@ export default class SubscriptionsList extends Vue {
     }
     let isFinshed = false
     if (this.client.subscribe) {
-      const topicsArr = topic.split(',')
-      const aliasArr = alias?.split(',')
+      const topicsArr = this.multiTopics ? topic.split(',') : topic
+      const aliasArr = this.multiTopics ? alias?.split(',') : alias
       let properties: { subscriptionIdentifier: number } | undefined = undefined
       if (this.record.mqttVersion === '5.0' && subscriptionIdentifier) {
         properties = {
@@ -429,26 +456,13 @@ export default class SubscriptionsList extends Vue {
           this.subsList = this.setSubsDisable(topic, disabled)
           this.$log.info(`Enabled topic: ${topic}`)
         } else {
-          topicsArr.forEach((topic, index) => {
-            const existTopicIndex: number = this.subsList.findIndex((item: SubscriptionModel) => item.topic === topic)
-            if (existTopicIndex !== -1) {
-              this.subsList[existTopicIndex].qos = qos
-            } else {
-              let { topic: unuseTopic, color, alias, id, ...others } = this.subRecord
-              alias = aliasArr ? aliasArr[index] : alias
-              if (index > 0) {
-                color = getRandomColor()
-                id = getSubscriptionId()
-              }
-              this.subsList.push({
-                topic,
-                id,
-                color,
-                alias,
-                ...others,
-              })
-            }
-          })
+          if (!Array.isArray(topicsArr)) {
+            this.saveTopicToSubList(topic, qos)
+          } else {
+            topicsArr.forEach((topic, index) => {
+              this.saveTopicToSubList(topic, qos, index, aliasArr as string[])
+            })
+          }
           this.$log.info(`Saved topic: ${topic}`)
         }
         this.record.subscriptions = this.subsList

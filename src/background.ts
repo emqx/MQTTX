@@ -101,6 +101,7 @@ async function createWindow() {
       autoScroll: setting.autoScroll,
       maxReconnectTimes: setting.maxReconnectTimes,
       syncOsTheme: setting.syncOsTheme,
+      multiTopics: setting.multiTopics,
     }
   }
   // Create the browser window.
