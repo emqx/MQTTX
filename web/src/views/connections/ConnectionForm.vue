@@ -475,7 +475,6 @@ import { Getter, Action } from 'vuex-class'
 import _ from 'lodash'
 import { loadConnection, createConnection, updateConnection, loadSuggestConnections } from '@/utils/api/connection'
 import getClientId from '@/utils/getClientId'
-import { SearchCallBack, NameCallBack, FormRule } from './types'
 import { getMQTTProtocol, getDefaultRecord } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
 import deepMerge from '@/utils/deepMerge'
@@ -644,7 +643,7 @@ export default class ConnectionCreate extends Vue {
     }
   }
 
-  private async validateName(rule: FormRule, name: string, callBack: NameCallBack['callBack']) {
+  private async validateName(rule: FormRule, name: string, callBack: NameCallBack) {
     for (const connection of this.allConnections) {
       if (this.oper === 'create' && connection.name === name) {
         callBack(`${this.$t('connections.duplicateName')}`)
@@ -664,7 +663,7 @@ export default class ConnectionCreate extends Vue {
     }
   }
 
-  private querySearchName(queryName: string, cb: SearchCallBack['callBack']) {
+  private querySearchName(queryName: string, cb: SearchCallBack) {
     const connections = [...this.suggestConnections]
     const results = queryName ? connections.filter(this.createFilter(queryName)) : connections
     cb(results.reverse())

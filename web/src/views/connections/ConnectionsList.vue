@@ -49,9 +49,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { MqttClient } from 'mqtt'
 import Contextmenu from '@/components/Contextmenu.vue'
-import { ConnectionModel, ContextmenuModel } from './types'
 
 @Component({
   components: {

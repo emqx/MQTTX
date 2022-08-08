@@ -1,5 +1,4 @@
 import Vue from 'vue'
-import { ConnectionModel } from '../../views/connections/types'
 import { loadSettings, setSettings } from '@/utils/api/setting'
 
 const TOGGLE_THEME = 'TOGGLE_THEME'

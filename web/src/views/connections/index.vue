@@ -34,7 +34,6 @@ import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsDetail from './ConnectionsDetail.vue'
 import ConnectionForm from './ConnectionForm.vue'
-import { ConnectionModel } from './types'
 
 @Component({
   components: {
