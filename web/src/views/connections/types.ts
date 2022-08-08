@@ -20,13 +20,14 @@ export interface FormRule {
 }
 
 export interface MessageModel {
-  mid: string
+  id?: string
   createAt: string
   out: boolean
   payload: string
   qos: QoS
   retain: boolean
   topic: string
+  color?: string
   properties?: PushPropertiesModel
 }
 

@@ -141,7 +141,7 @@
           :top="showClientInfo ? bodyTop.open : bodyTop.close"
           @onClickTopic="handleTopicClick"
         />
-        <div v-for="message in messages" :key="message.mid">
+        <div v-for="message in messages" :key="message.id">
           <MsgLeftItem v-if="!message.out" :subsList="record.subscriptions" v-bind="message" />
           <MsgRightItem v-else v-bind="message" />
         </div>
@@ -166,20 +166,14 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { TranslateResult } from 'vue-i18n'
 import mqtt, { MqttClient, IClientOptions, IClientPublishOptions } from 'mqtt'
-import { v4 as uuidv4 } from 'uuid'
 import _ from 'lodash'
 
-import {
-  deleteConnection,
-  updateConnection,
-  updateConnectionMessage,
-  loadConnection,
-  loadConnections,
-} from '@/utils/api/connection'
+import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
 import matchSearch from '@/utils/matchSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
 import { getClientOptions, getMQTTProtocol } from '@/utils/mqttUtils'
+import { getMessageId } from '@/utils/idGenerator'
 
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
@@ -593,7 +587,7 @@ export default class ConnectionsDetail extends Vue {
     return (topic: string, payload: Buffer, packet: SubscriptionModel) => {
       const $payload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
       const receivedMessage: MessageModel = {
-        mid: uuidv4(),
+        id: getMessageId(),
         out: false,
         createAt: time.getNowDate(),
         topic,
@@ -632,7 +626,7 @@ export default class ConnectionsDetail extends Vue {
       return false
     }
 
-    const { mid, topic, qos, payload, retain, properties } = message
+    const { id, topic, qos, payload, retain, properties } = message
 
     if (!topic && !properties?.topicAlias) {
       this.$message.warning(this.$tc('connections.topicReuired'))
@@ -670,7 +664,7 @@ export default class ConnectionsDetail extends Vue {
         }
         const properties = this.record.mqttVersion === '5.0' ? props : undefined
         const publishMessage: MessageModel = {
-          mid,
+          id,
           out: true,
           createAt: time.getNowDate(),
           topic,

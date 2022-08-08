@@ -181,7 +181,7 @@ export default class MsgPublish extends Vue {
   @Getter('currentTheme') private currentTheme!: Theme
 
   private msgRecord: MessageModel = {
-    mid: '',
+    id: '',
     createAt: '',
     out: true,
     qos: 0,
@@ -264,7 +264,7 @@ export default class MsgPublish extends Vue {
   }
 
   private send() {
-    this.msgRecord.mid = getMessageId()
+    this.msgRecord.id = getMessageId()
     this.mqtt5PropsEnable && (this.msgRecord.properties = this.MQTT5PropsSend)
     this.$emit('handleSend', this.msgRecord, this.payloadType)
   }
