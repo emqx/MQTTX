@@ -127,11 +127,11 @@ export const createClient = (record: ConnectionModel): { curConnectClient: MqttC
 
   // Map options.properties.topicAliasMaximum to options.topicAliasMaximum, as that is where MQTT.js looks for it.
   // TODO: remove after bug fixed in MQTT.js.
-  const optionsTempWorkAround = Object.assign(
-    { topicAliasMaximum: options.properties ? options.properties.topicAliasMaximum : undefined },
-    options,
-  )
-  const curConnectClient: MqttClient = mqtt.connect(url, optionsTempWorkAround)
+  const tempOptions = {
+    ...options,
+    topicAliasMaximum: options.properties ? options.properties.topicAliasMaximum : undefined,
+  }
+  const curConnectClient: MqttClient = mqtt.connect(url, tempOptions)
 
   return { curConnectClient, connectUrl: url }
 }
