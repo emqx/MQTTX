@@ -39,14 +39,13 @@ export interface SSLPath {
 }
 
 export interface WillPropertiesModel {
-  willDelayInterval?: number
-  payloadFormatIndicator?: boolean
-  messageExpiryInterval?: number
-  contentType?: string
-  responseTopic?: string
-  correlationData?: Buffer
-  // tslint:disable-next-line:ban-types
-  userProperties?: Object
+  willDelayInterval?: number | null
+  payloadFormatIndicator?: boolean | null
+  messageExpiryInterval?: number | null
+  contentType?: string | null
+  responseTopic?: string | null
+  correlationData?: string | Buffer | null
+  userProperties?: Object | null
 }
 
 interface WillModel {
