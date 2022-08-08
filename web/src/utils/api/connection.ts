@@ -1,5 +1,4 @@
 import db from '@/database/index'
-import { ConnectionModel, MessageModel } from '@/views/connections/types'
 
 export const loadConnection = (id: string): ConnectionModel => {
   return db.find<ConnectionModel>('connections', id)
