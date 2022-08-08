@@ -472,10 +472,11 @@
 // import { remote } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
+import _ from 'lodash'
 import { loadConnection, createConnection, updateConnection, loadSuggestConnections } from '@/utils/api/connection'
 import getClientId from '@/utils/getClientId'
-import { ConnectionModel, SearchCallBack, NameCallBack, FormRule } from './types'
-import { getMQTTProtocol } from '@/utils/mqttUtils'
+import { SearchCallBack, NameCallBack, FormRule } from './types'
+import { getMQTTProtocol, getDefaultRecord } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
 import deepMerge from '@/utils/deepMerge'
 import KeyValueEditor from '@/components/KeyValueEditor.vue'
@@ -507,56 +508,9 @@ export default class ConnectionCreate extends Vue {
   private suggestConnections: ConnectionModel[] | [] = []
   private oldName = ''
 
-  private record: ConnectionModel = {
-    clientId: getClientId(),
-    name: '',
-    clean: true,
-    protocol: 'ws',
-    host: 'broker.emqx.io',
-    keepalive: 60,
-    connectTimeout: 10,
-    reconnect: false,
-    username: '',
-    password: '',
-    path: '/mqtt',
-    port: 8083,
-    ssl: false,
-    certType: '',
-    rejectUnauthorized: false,
-    ca: '',
-    cert: '',
-    key: '',
-    mqttVersion: '5.0',
-    subscriptions: [],
-    messages: [],
-    unreadMessageCount: 0,
-    client: {
-      connected: false,
-    },
-    will: {
-      lastWillTopic: '',
-      lastWillPayload: '',
-      lastWillQos: 0,
-      lastWillRetain: false,
-      properties: {
-        payloadFormatIndicator: undefined,
-        willDelayInterval: undefined,
-        messageExpiryInterval: undefined,
-        contentType: '',
-      },
-    },
-    properties: {
-      sessionExpiryInterval: undefined,
-      receiveMaximum: undefined,
-      maximumPacketSize: undefined,
-      topicAliasMaximum: undefined,
-      requestResponseInformation: undefined,
-      requestProblemInformation: undefined,
-      userProperties: undefined,
-      authenticationMethod: undefined,
-      authenticationData: undefined,
-    },
-  }
+  private defaultRecord: ConnectionModel = getDefaultRecord()
+
+  private record: ConnectionModel = _.cloneDeep(this.defaultRecord)
 
   @Watch('record', { immediate: true, deep: true })
   private handleMqttVersionChange(val: ConnectionModel) {
@@ -587,14 +541,11 @@ export default class ConnectionCreate extends Vue {
   }
 
   private async loadDetail(id: string) {
-    const res: ConnectionModel | null = await loadConnection(id)
+    const res: ConnectionModel | undefined = await loadConnection(id)
     if (res) {
-      deepMerge(this.record, res)
+      this.record = res
       this.oldName = res.name
       this.record.protocol = getMQTTProtocol(res)
-      if (res.rejectUnauthorized === undefined) {
-        this.record.rejectUnauthorized = false
-      }
     }
   }
 
