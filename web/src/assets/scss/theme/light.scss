@@ -34,7 +34,7 @@ body.light {
   --color-text-light: #a2a9b0;
   --color-text-tips: #b4b4b4;
   --color-text-right_block: #34c388;
-  --color-text-right_info: #ade7cf;
+  --color-text-right_info: #ffffffde;
   --color-text-left_info: #00000075;
   --color-text-active: #fff;
   --color-text-leftbar_icon: #83929b;
@@ -56,8 +56,9 @@ body.light {
   /* Border color */
   --color-border-default: #e6e8f1;
   --color-border-bold: #979797;
-  --color-shadow-card: #0000001a;
-  --color-shadow-message: #dcdcdc;
+  --color-border-rightbar: transparent;
+  --color-border-left_metainfo: #ababab75;
+  --color-border-right_metainfo: #ffffff8c;
 
   /* Shadow color */
   --color-shadow-leftlist: #5b769438;

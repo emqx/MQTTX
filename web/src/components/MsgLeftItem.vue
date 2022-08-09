@@ -1,11 +1,37 @@
 <template>
   <div class="msg-left-item">
-    <span class="topic-color" :style="{ height: topicColorHeight, background: currentTopicColor }"></span>
-    <div ref="leftPayload" class="left-payload payload">
+    <span class="topic-color" :style="{ background: color }"></span>
+    <div ref="leftPayload" class="left-payload payload" @contextmenu.prevent="customMenu($event)">
       <p class="left-info">
         <span class="topic">Topic: {{ topic }}</span>
         <span class="qos">QoS: {{ qos }}</span>
+        <span v-if="retain" class="retain">Retain</span>
       </p>
+      <div class="meta">
+        <p v-if="properties.subscriptionIdentifier" class="properties left">
+          <span>{{ $t('connections.subscriptionIdentifier') }}: {{ properties.subscriptionIdentifier }}</span>
+        </p>
+        <p v-if="properties.contentType" class="properties left">
+          <span>{{ $t('connections.contentType') }}: {{ properties.contentType }}</span>
+        </p>
+        <p v-if="properties.topicAlias" class="properties left">
+          <span>{{ $t('connections.topicAlias') }}: {{ properties.topicAlias }}</span>
+        </p>
+        <p v-if="properties.responseTopic" class="properties left">
+          <span>{{ $t('connections.responseTopic') }}: {{ properties.responseTopic }}</span>
+        </p>
+        <p v-if="properties.correlationData" class="properties left">
+          <span>{{ $t('connections.correlationData') }}: {{ properties.correlationData }}</span>
+        </p>
+        <p v-if="properties.userProperties" class="user-properties properties left">
+          <KeyValueEditor
+            class="msg-item-props"
+            :title="$t('connections.userProperties')"
+            :disabled="true"
+            :value="properties.userProperties"
+          />
+        </p>
+      </div>
       <pre>{{ payload }}</pre>
     </div>
     <p class="left-time time">{{ createAt }}</p>
@@ -13,42 +39,30 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { matchTopicMethod } from '@/utils/topicMatch'
+import { Component, Vue, Prop } from 'vue-property-decorator'
+import KeyValueEditor from './KeyValueEditor.vue'
 
-type LeftPayloadDOM = Vue & {
-  offsetHeight: number
-}
-
-@Component
+@Component({
+  components: {
+    KeyValueEditor,
+  },
+})
 export default class MsgLeftItem extends Vue {
   @Prop({ required: true }) public topic!: string
   @Prop({ required: true }) public qos!: number
   @Prop({ required: true }) public payload!: string
   @Prop({ required: true }) public createAt!: string
-  @Prop({ required: true }) public subsList!: SubscriptionModel[]
+  @Prop({ required: false, default: false }) public retain!: boolean
+  @Prop({ required: false, default: () => ({}) }) public properties!: PushPropertiesModel
+  @Prop({ required: false, default: '' }) public color!: string
 
-  private topicColorHeight = '0px'
-  private currentTopicColor = ''
-
-  private setCurrentTopicColor() {
-    const topic: SubscriptionModel | undefined = this.subsList.find((sub: SubscriptionModel) =>
-      matchTopicMethod(sub.topic, this.topic),
-    )
-    if (topic && topic.color) {
-      this.currentTopicColor = topic.color
-    }
-  }
-
-  private mounted() {
-    const leftPayloadDom = this.$refs.leftPayload as LeftPayloadDOM
-    this.topicColorHeight = `${leftPayloadDom.offsetHeight - 6}px`
-    this.setCurrentTopicColor()
+  private customMenu(event: MouseEvent) {
+    this.$emit('showmenu', this.payload, event)
   }
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import '~@/assets/scss/mixins.scss';
 
 .msg-left-item {
