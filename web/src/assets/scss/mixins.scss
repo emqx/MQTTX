@@ -27,10 +27,19 @@
   .topic {
     margin-right: 16px;
   }
+  .retain {
+    margin-left: 16px;
+    font-size: 12px;
+    color: var(--color-text-active);
+    background-color: #7e848885;
+    padding: 0 4px;
+    border-radius: 4px;
+    float: right;
+  }
   .payload {
     display: inline-block;
     min-height: 41px;
-    max-width: 441px;
+    max-width: 65%;
     min-width: 20px;
     margin: 10px 0 0px 0px;
     padding: 10px;
@@ -40,6 +49,71 @@
   .time {
     color: var(--color-text-light);
     margin-bottom: 5px;
+  }
+  .properties {
+    margin-top: 10px;
+    padding-top: 6px;
+    border-top-width: 1px;
+    border-top-style: dashed;
+    &:last-child {
+      padding-bottom: 10px;
+      border-bottom-width: 1px;
+      border-bottom-style: dashed;
+    }
+    &.left {
+      color: var(--color-text-left_info);
+      border-top-color: var(--color-border-left_metainfo);
+      &:last-child {
+        border-bottom-color: var(--color-border-left_metainfo);
+      }
+    }
+    &.right {
+      color: var(--color-text-right_info);
+      border-top-color: var(--color-text-right_metainfo);
+      &:last-child {
+        border-bottom-color: var(--color-border-right_metainfo);
+      }
+    }
+  }
+  .user-properties {
+    margin-top: 10px;
+    padding: 6px 0;
+    .key-value-editor.msg-item-props {
+      .editor-header {
+        margin-bottom: 10px;
+      }
+      .el-input.is-disabled .el-input__inner {
+        background-color: transparent;
+      }
+    }
+    &.left {
+      .key-value-editor.msg-item-props {
+        .editor-title {
+          color: var(--color-text-left_info);
+        }
+        .el-input.is-disabled .el-input__inner {
+          color: var(--color-text-left_info);
+          border: 1px solid var(--color-border-left_metainfo);
+        }
+      }
+      border: 1px dashed var(--color-border-left_metainfo);
+      border-right: none;
+      border-left: none;
+    }
+    &.right {
+      .key-value-editor.msg-item-props {
+        .editor-title {
+          color: var(--color-text-right_info);
+        }
+        .el-input.is-disabled .el-input__inner {
+          color: var(--color-text-right_info);
+          border: 1px solid var(--color-border-right_metainfo);
+        }
+      }
+      border: 1px dashed var(--color-border-right_metainfo);
+      border-right: none;
+      border-left: none;
+    }
   }
 }
 

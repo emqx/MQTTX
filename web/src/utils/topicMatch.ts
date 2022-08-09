@@ -1,10 +1,19 @@
-import { MessageModel } from '@/views/connections/types'
-
+/**
+ * Topic matching algorithm
+ * @return Return matched result, true or false
+ * @param filter - type: topic string, subscription list topics
+ * @param topic - type: topic string, real send-receive topics
+ */
 export const matchTopicMethod = (filter: string, topic: string): boolean => {
-  // Topic matching algorithm
-  const filterArray: string[] = filter.split('/')
+  let _filter = filter
+  let _topic = topic
+  if (filter.includes('$share')) {
+    // shared subscription format: $share/{ShareName}/{filter}
+    _filter = filter.split('/').slice(2).join('/')
+  }
+  const filterArray: string[] = _filter.split('/')
   const length: number = filterArray.length
-  const topicArray: string[] = topic.split('/')
+  const topicArray: string[] = _topic.split('/')
   for (let i = 0; i < length; i += 1) {
     const left: string = filterArray[i]
     const right: string = topicArray[i]
@@ -18,8 +27,8 @@ export const matchTopicMethod = (filter: string, topic: string): boolean => {
   return length === topicArray.length
 }
 
-const topicMatch = (data: MessageModel[], currentTopic: string): Promise<MessageModel[]> => {
-  return new Promise((resolve, reject) => {
+const topicMatch = (data: MessageModel[], currentTopic: string): Promise<MessageModel[]> =>
+  new Promise((resolve, reject) => {
     try {
       const filterData = data.filter((item) => matchTopicMethod(currentTopic, item.topic))
       return resolve(filterData)
@@ -27,6 +36,5 @@ const topicMatch = (data: MessageModel[], currentTopic: string): Promise<Message
       return reject(error)
     }
   })
-}
 
 export default topicMatch

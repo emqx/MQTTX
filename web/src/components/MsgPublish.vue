@@ -340,7 +340,7 @@ export default class MsgPublish extends Vue {
     }
   }
   .publish-topic-input.el-input {
-    width: calc(100% - 20px);
+    width: 100%;
     vertical-align: top;
     display: inline-block;
     @include topic-input__inner;

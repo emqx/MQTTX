@@ -1,6 +1,6 @@
 <template>
   <div class="connections-detail">
-    <div class="connections-topbar right-topbar">
+    <div ref="connectionTopbar" class="connections-topbar right-topbar">
       <div class="connections-info">
         <div class="topbar">
           <div class="connection-head">
@@ -141,13 +141,18 @@
           :top="showClientInfo ? bodyTop.open : bodyTop.close"
           @onClickTopic="handleTopicClick"
         />
-        <div v-for="message in messages" :key="message.id">
-          <MsgLeftItem v-if="!message.out" :subsList="record.subscriptions" v-bind="message" />
-          <MsgRightItem v-else v-bind="message" />
-        </div>
+        <MessageList
+          ref="messagesDisplay"
+          :key="$route.params.id"
+          :subscriptions="record.subscriptions"
+          :messages="messages"
+          :height="messageListHeight"
+          :marginTop="messageListMarginTop"
+          :addNewMsg="messagesAddedNewItem"
+        />
       </div>
 
-      <div class="connections-footer" :style="{ marginLeft: marginLeft }">
+      <div ref="connectionFooter" class="connections-footer" :style="{ marginLeft: marginLeft }">
         <ResizeHeight v-model="inputHeight" />
         <MsgPublish
           :mqtt5PropsEnable="record.mqttVersion === '5.0'"
@@ -165,24 +170,22 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { TranslateResult } from 'vue-i18n'
-import mqtt, { MqttClient, IClientOptions, IClientPublishOptions } from 'mqtt'
+import mqtt, { MqttClient, IPublishPacket, IClientPublishOptions } from 'mqtt'
 import _ from 'lodash'
 
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
 import matchSearch from '@/utils/matchSearch'
 import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
-import { getClientOptions, getMQTTProtocol } from '@/utils/mqttUtils'
+import { createClient } from '@/utils/mqttUtils'
 import { getMessageId } from '@/utils/idGenerator'
 
-import MsgRightItem from '@/components/MsgRightItem.vue'
-import MsgLeftItem from '@/components/MsgLeftItem.vue'
+import MessageList from '@/components/MessageList.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
 import SubscriptionsList from '@/components/SubscriptionsList.vue'
 import ResizeHeight from '@/components/ResizeHeight.vue'
 import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
-import { ConnectionModel, MessageModel, SSLPath, SSLContent } from './types'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
@@ -195,8 +198,7 @@ interface Top {
 
 @Component({
   components: {
-    MsgRightItem,
-    MsgLeftItem,
+    MessageList,
     ConnectionInfo,
     MsgPublish,
     SubscriptionsList,
@@ -240,6 +242,9 @@ export default class ConnectionsDetail extends Vue {
   private retryTimes = 0
   private inputHeight = 155
   private msgBottom = 160
+  private messageListHeight: number = 284
+  private messageListMarginTop: number = 19
+  private messagesAddedNewItem: boolean = false
   private activeTopic = ''
   private mqttVersionDict = {
     '3.1.1': 4,
@@ -247,13 +252,14 @@ export default class ConnectionsDetail extends Vue {
   }
 
   public connect(): boolean | void {
-    if (this.client.connected) {
+    if (this.client.connected || this.connectLoading) {
       return false
     }
     this.connectLoading = true
-    this.client = this.createClient()
+    // new client
+    const { curConnectClient } = createClient(this.record)
+    this.client = curConnectClient
     const { id } = this.record
-
     if (id && this.client.on) {
       this.client.on('connect', this.onConnect)
       this.client.on('error', this.onError)
@@ -286,6 +292,19 @@ export default class ConnectionsDetail extends Vue {
       })
   }
 
+  // Set messages list height
+  public setMessageListHeight() {
+    const connectionFooter: HTMLElement = this.$refs.connectionFooter as HTMLElement
+    const connectionTopbar: HTMLElement = this.$refs.connectionTopbar as HTMLElement
+    const filterBar: HTMLElement = this.$refs.filterBar as HTMLElement
+    const filterBarOffsetHeight = filterBar.offsetHeight
+
+    this.messageListMarginTop = filterBarOffsetHeight > 56 ? filterBarOffsetHeight - 37 : 19
+
+    this.messageListHeight =
+      document.body.offsetHeight - connectionTopbar.offsetHeight - connectionFooter.offsetHeight - filterBarOffsetHeight
+  }
+
   get bodyTop(): Top {
     return {
       open: '249px',
@@ -298,16 +317,6 @@ export default class ConnectionsDetail extends Vue {
       open: '277px',
       close: '86px',
     }
-  }
-
-  get connectUrl(): string {
-    const { host, port, ssl, path } = this.record
-    const protocol = getMQTTProtocol(this.record)
-    let url = `${protocol}://${host}:${port}`
-    if (protocol === 'ws' || protocol === 'wss') {
-      url = `${url}${path.startsWith('/') ? '' : '/'}${path}`
-    }
-    return url
   }
 
   get marginLeft(): string {
@@ -329,6 +338,18 @@ export default class ConnectionsDetail extends Vue {
     const oldMsgBottom = 160
     const offset = val - oldInputHeight
     this.msgBottom = oldMsgBottom + offset
+    const timer = setTimeout(() => {
+      this.setMessageListHeight()
+      clearTimeout(timer)
+    }, 500)
+  }
+
+  @Watch('showClientInfo')
+  private handleShowClientInfoChange() {
+    const timer = setTimeout(() => {
+      this.setMessageListHeight()
+      clearTimeout(timer)
+    }, 500)
   }
 
   private getConnectionValue(id: string) {
@@ -398,6 +419,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private getMessages() {
+    this.messagesAddedNewItem = false
     this.msgType = 'all'
     this.messages = _.cloneDeep(this.record.messages)
   }
@@ -412,6 +434,7 @@ export default class ConnectionsDetail extends Vue {
     updateConnection(this.record.id as string, this.record)
   }
   private async handleMsgTypeChanged(type: MessageType) {
+    this.messagesAddedNewItem = false
     const setChangedMessages = (changedType: MessageType, msgData: MessageModel[]) => {
       if (type === 'received') {
         this.messages = msgData.filter(($: MessageModel) => !$.out)
@@ -475,11 +498,6 @@ export default class ConnectionsDetail extends Vue {
   private handleSearchClose() {
     this.searchVisible = false
     this.getMessages()
-  }
-
-  private createClient(): MqttClient {
-    const options: IClientOptions = getClientOptions(this.record)
-    return mqtt.connect(this.connectUrl, options)
   }
   private cancel() {
     this.connectLoading = false
@@ -584,20 +602,23 @@ export default class ConnectionsDetail extends Vue {
     this.connectLoading = false
   }
   private onMessageArrived(id: string) {
-    return (topic: string, payload: Buffer, packet: SubscriptionModel) => {
-      const $payload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
+    return (topic: string, payload: Buffer, packet: IPublishPacket) => {
+      const { qos, retain, properties } = packet
+      const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
       const receivedMessage: MessageModel = {
         id: getMessageId(),
         out: false,
         createAt: time.getNowDate(),
         topic,
-        payload: $payload,
-        qos: packet.qos,
-        retain: packet.retain as boolean,
+        payload: convertPayload,
+        qos,
+        retain,
+        properties,
       }
       const connectionId = this.$route.params.id
       if (id === connectionId) {
         this.record.messages.push({ ...receivedMessage })
+        this.messagesAddedNewItem = true
         updateConnectionMessage(connectionId, { ...receivedMessage })
         const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
         if (this.msgType !== 'publish' && !this.activeTopic) {
@@ -614,6 +635,7 @@ export default class ConnectionsDetail extends Vue {
       }, 100)
     }
   }
+
   private sendMessage(message: MessageModel, type: PayloadType): void | boolean {
     if (!this.client.connected) {
       this.$notify({
@@ -680,6 +702,7 @@ export default class ConnectionsDetail extends Vue {
           this.messages.push(publishMessage)
         } else if (this.activeTopic && isActiveTopicMessages && this.msgType !== 'received') {
           this.messages.push(publishMessage)
+          this.messagesAddedNewItem = true
         }
         setTimeout(() => {
           window.scrollTo(0, document.body.scrollHeight + 160)
@@ -743,11 +766,13 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private mounted() {
+    this.setMessageListHeight()
     this.largeDesktop = document.body.clientWidth >= 1920 ? true : false
     window.onresize = () => {
       return (() => {
         this.screenWidth = document.body.clientWidth
         this.largeDesktop = this.screenWidth >= 1920 ? true : false
+        this.setMessageListHeight()
       })()
     }
   }
@@ -891,7 +916,6 @@ export default class ConnectionsDetail extends Vue {
     height: 100%;
     transition: all 0.5s;
     .connections-body {
-      padding: 16px;
       .filter-bar {
         padding: 6px 16px;
         background: var(--color-bg-normal);
