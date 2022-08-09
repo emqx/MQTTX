@@ -112,6 +112,9 @@ export default class Connections extends Vue {
       this.loadDetail(this.connectionId)
       this.isEmpty = false
     } else {
+      if (this.oper === 'edit') {
+        this.$router.push({ path: '/recent_connections' })
+      }
       this.isEmpty = true
     }
   }
