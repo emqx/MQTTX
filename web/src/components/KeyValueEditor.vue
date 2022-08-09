@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Model, Prop, Vue } from 'vue-property-decorator'
+import { Component, Model, Prop, Vue, Watch } from 'vue-property-decorator'
 import _ from 'lodash'
 
 interface KeyValueObj {
@@ -50,6 +50,11 @@ export default class KeyValueEditor extends Vue {
   @Model('change', { type: Object }) private readonly value!: { [key: string]: string } | null
 
   private dataList: KeyValueObj[] = []
+
+  @Watch('value')
+  private handleValueChanged(val: Record<string, any>) {
+    this.processObjToArry()
+  }
 
   private handleInputChange() {
     const checkedList = this.dataList.filter((pair) => pair.checked)

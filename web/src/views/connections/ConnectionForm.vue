@@ -474,10 +474,10 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import _ from 'lodash'
 import { loadConnection, createConnection, updateConnection, loadSuggestConnections } from '@/utils/api/connection'
-import getClientId from '@/utils/getClientId'
+import { emptyToNull } from '@/utils/handleString'
+import { getClientId } from '@/utils/idGenerator'
 import { getMQTTProtocol, getDefaultRecord } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
-import deepMerge from '@/utils/deepMerge'
 import KeyValueEditor from '@/components/KeyValueEditor.vue'
 
 @Component({
@@ -511,12 +511,11 @@ export default class ConnectionCreate extends Vue {
 
   private record: ConnectionModel = _.cloneDeep(this.defaultRecord)
 
-  @Watch('record', { immediate: true, deep: true })
-  private handleMqttVersionChange(val: ConnectionModel) {
-    if (val.mqttVersion === '3.1.1') {
-      this.willLabelWidth = 180
-    } else {
-      this.willLabelWidth = 180
+  @Watch('oper')
+  private handleCreateNewConnection(val: string) {
+    if (val === 'create') {
+      // reinit the form when page jump to creation page
+      this.record = _.cloneDeep(this.defaultRecord)
     }
   }
 
@@ -554,6 +553,7 @@ export default class ConnectionCreate extends Vue {
         return false
       }
       const data = { ...this.record }
+      data.properties = emptyToNull(data.properties)
       this.trimString(data)
       let res: ConnectionModel | null = null
       let msgError = ''

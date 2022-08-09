@@ -630,9 +630,7 @@ export default class ConnectionsDetail extends Vue {
         updateConnectionMessage(id, { ...receivedMessage })
         this.unreadMessageIncrement({ id })
       }
-      setTimeout(() => {
-        window.scrollTo(0, document.body.scrollHeight + 160)
-      }, 100)
+      this.scrollToBottom()
     }
   }
 
@@ -704,11 +702,25 @@ export default class ConnectionsDetail extends Vue {
           this.messages.push(publishMessage)
           this.messagesAddedNewItem = true
         }
-        setTimeout(() => {
-          window.scrollTo(0, document.body.scrollHeight + 160)
-        }, 100)
+        this.scrollToBottom()
       },
     )
+  }
+
+  // Scroll to page bottom
+  private scrollToBottom() {
+    const timer = setTimeout(() => {
+      const messagesDisplay = this.$refs.messagesDisplay as MessageList
+      const messagesDisplayDOM = messagesDisplay.$el
+      if (messagesDisplayDOM) {
+        messagesDisplayDOM.scrollTo({
+          top: messagesDisplayDOM.scrollHeight + 160,
+          left: 0,
+          behavior: 'smooth',
+        })
+      }
+      clearTimeout(timer)
+    }, 100)
   }
 
   private setShowClientInfo(show: boolean) {
