@@ -29,7 +29,7 @@
               <i class="iconfont icon-website"></i>
               {{ $t('about.web') }} →
             </el-button>
-            <el-button class="link-btn" type="primary" @click="goToLink(`${mqttxWebsite}/docs/faq`)">
+            <el-button class="link-btn" type="primary" @click="goToLink(faqLink)">
               <i class="iconfont icon-faq"></i>
               FAQ →
             </el-button>
@@ -77,14 +77,12 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import { ipcRenderer } from 'electron'
 import version from '@/version'
+import gaCustomLinks from '@/utils/gaCustomLinks'
 
 @Component
 export default class About extends Vue {
   @Getter('currentTheme') private getterTheme!: Theme
   @Getter('currentLang') private getterLang!: Language
-
-  private baseUrl = 'https://www.emqx.com'
-  private utm = '?utm_source=mqttx&utm_medium=referral&utm_campaign='
 
   get version(): string {
     return version
@@ -105,31 +103,23 @@ export default class About extends Vue {
   }
 
   get emqWebsite(): string {
-    const lang = this.getterLang === 'zh' ? 'zh' : 'en'
-    return `${this.baseUrl}/${lang}${this.utm}mqttx-to-homepage`
+    return gaCustomLinks(this.getterLang).about.EMQ
   }
 
   get emqxCloudWebsite(): string {
-    const lang = this.getterLang === 'zh' ? 'zh' : 'en'
-    return `${this.baseUrl}/${lang}/cloud${this.utm}mqttx-to-cloud`
-  }
-
-  get emqxIoWebsite(): string {
-    const baseUrl = 'https://www.emqx.io/'
-    const lang = this.getterLang === 'zh' ? 'zh' : 'en'
-    if (lang === 'zh') {
-      return `${baseUrl}zh${this.utm}mqttx-to-broker`
-    }
-    return `${baseUrl}${this.utm}mqttx-to-broker`
+    return gaCustomLinks(this.getterLang).about.EMQXCloud
   }
 
   get mqttxWebsite(): string {
-    const link = 'https://mqttx.app'
-    return this.getterLang === 'zh' ? `${link}/zh` : link
+    return gaCustomLinks(this.getterLang).about.MQTTX
   }
 
   get releasesLink(): string {
-    return `${this.mqttxWebsite}/changelogs/v${version}`
+    return gaCustomLinks(this.getterLang).about.releases
+  }
+
+  get faqLink(): string {
+    return gaCustomLinks(this.getterLang).about.faq
   }
 
   private checkUpdate(): void {
