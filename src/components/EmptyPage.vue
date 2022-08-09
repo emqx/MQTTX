@@ -7,13 +7,19 @@
       <el-button class="primary-btn" icon="el-icon-plus" @click="clickMethod(false)">
         {{ btnTitle }}
       </el-button>
-      <p v-html="$t('common.cloud')"></p>
+      <i18n path="common.cloud" tag="p">
+        <template #cloud>
+          <a :href="emqxCloudWebsite" target="_blank" rel="noopener noreferrer">EMQX Cloud</a>
+        </template>
+      </i18n>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
+import gaCustomLinks from '@/utils/gaCustomLinks'
 
 @Component
 export default class EmptyPage extends Vue {
@@ -21,8 +27,14 @@ export default class EmptyPage extends Vue {
   @Prop({ required: true }) public name!: string
   @Prop() public clickMethod!: <T>() => T | void
 
+  @Getter('currentLang') private getterLang!: Language
+
   get imageSrc(): string {
     return require(`../assets/images/${this.name}`)
+  }
+
+  get emqxCloudWebsite(): string {
+    return gaCustomLinks(this.getterLang).empty.EMQXCloud
   }
 }
 </script>

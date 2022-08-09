@@ -48,14 +48,14 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
+import gaCustomLinks from '@/utils/gaCustomLinks'
 
 @Component
 export default class Leftbar extends Vue {
   @Getter('currentLang') private getterLang!: Language
 
   get siteLink(): string {
-    const link = 'https://mqttx.app/'
-    return this.getterLang === 'zh' ? `${link}/zh` : link
+    return gaCustomLinks(this.getterLang).leftBarLogo
   }
   get isConnection(): boolean {
     return ['Connections', 'ConnectionDetails'].includes(this.$route.name || '') && this.$route.query.oper !== 'create'
