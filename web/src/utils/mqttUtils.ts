@@ -161,6 +161,7 @@ export const getDefaultRecord = (): ConnectionModel => {
     mqttVersion: '5.0',
     subscriptions: [],
     messages: [],
+    pushProps: {},
     unreadMessageCount: 0,
     client: {
       connected: false,

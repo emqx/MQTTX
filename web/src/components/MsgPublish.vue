@@ -154,14 +154,15 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import ClickOutside from 'vue-click-outside'
-import jump from 'jump.js'
 import Editor from '@/components/Editor.vue'
 import KeyValueEditor from '@/components/KeyValueEditor.vue'
 import convertPayload from '@/utils/convertPayload'
 import { getMessageId } from '@/utils/idGenerator'
 import _ from 'lodash'
 import validFormatJson from '@/utils/validFormatJson'
+import time from '@/utils/time'
 import { emptyToNull } from '@/utils/handleString'
+import { getConnectionPushProp, updateConnectionPushProp } from '@/utils/api/connection'
 
 @Component({
   components: {
@@ -178,16 +179,6 @@ export default class MsgPublish extends Vue {
   @Prop({ default: false }) public mqtt5PropsEnable!: boolean
 
   @Getter('currentTheme') private currentTheme!: Theme
-
-  private msgRecord: MessageModel = {
-    id: '',
-    createAt: '',
-    out: true,
-    qos: 0,
-    retain: false,
-    topic: '',
-    payload: JSON.stringify({ msg: 'hello' }, null, 2),
-  }
 
   private MQTT5PropsForm: PushPropertiesModel = {}
 
@@ -220,6 +211,24 @@ export default class MsgPublish extends Vue {
   }
 
   private hasMqtt5Prop: boolean = false
+
+  private headersHistory: HistoryMessageHeaderModel[] | [] = []
+  private payloadsHistory: HistoryMessagePayloadModel[] | [] = []
+  private historyIndex: number = -1
+  private defaultMsgRecord: MessageModel = {
+    createAt: time.getNowDate(),
+    out: true,
+    qos: 0,
+    retain: false,
+    topic: '',
+    payload: JSON.stringify({ msg: 'hello' }, null, 2),
+  }
+  private msgRecord: MessageModel = _.cloneDeep(this.defaultMsgRecord)
+  private headerValue: HistoryMessageHeaderModel = {
+    qos: this.msgRecord.qos,
+    retain: this.msgRecord.retain,
+    topic: this.msgRecord.topic,
+  }
 
   private payloadLang = 'json'
   private payloadType: PayloadType = 'JSON'
@@ -256,20 +265,118 @@ export default class MsgPublish extends Vue {
         this.payloadType = oldVal
       })
   }
+  @Watch('historyIndex', { immediate: true, deep: true })
+  private handleHistoryIndexChange(val: number, lastval: number) {
+    if (lastval !== val && val >= 0 && val < this.payloadsHistory.length) {
+      this.msgRecord = Object.assign(this.msgRecord, this.payloadsHistory[val])
+      this.payloadType = this.payloadsHistory[val].payloadType
+    }
+  }
+  /**
+   * Notice:
+   * when we jump order by`creation page` <-> `connection page`,
+   * the monaco will not init or destroy, because we use the v-show to hidden Msgpublish componment.
+   * So we need to operate editor creation and destroy manually by listening on route.
+   * relative PR: https://github.com/emqx/MQTTX/pull/518 https://github.com/emqx/MQTTX/pull/446
+   */
+  @Watch('$route.params.id', { immediate: true, deep: true })
+  private async handleIdChanged(to: string, from: string) {
+    const editorRef = this.$refs.payloadEditor as Editor
+    if (to && from === '0' && to !== '0') {
+      // Init the editor when rout jump from creation page
+      editorRef.initEditor()
+    } else if (from && from !== '0' && to === '0') {
+      // destroy the editor when rout jump to creation page
+      editorRef.destroyEditor()
+    }
+    this.loadProperties()
+  }
+
+  @Watch('mqtt5PropsEnable')
+  private async handleMqtt5Enable(val: boolean) {
+    if (val) {
+      this.loadProperties()
+    }
+  }
+
+  private handleHeaderChange(val: HistoryMessageHeaderModel) {
+    if (val) {
+      const { retain, topic, qos } = val
+      Object.assign(this.msgRecord, { retain, topic, qos })
+    }
+  }
+
+  // Notice: add editor creation and destroy manually export for it's father componment.
+  public editorDestory() {
+    const editorRef = this.$refs.payloadEditor as Editor
+    editorRef.destroyEditor()
+  }
+
+  public editorInit() {
+    const editorRef = this.$refs.payloadEditor as Editor
+    editorRef.initEditor()
+  }
 
   private async updatePushProp() {
     this.MQTT5PropsForm = emptyToNull(this.MQTT5PropsForm)
     this.MQTT5PropsSend = _.cloneDeep(this.MQTT5PropsForm)
+    const propRecords = Object.entries(this.MQTT5PropsForm).filter(([_, v]) => v !== null && v !== undefined && v !== 0)
+    const props = Object.fromEntries(propRecords)
+    return await updateConnectionPushProp(this.$route.params.id, props)
   }
 
   private send() {
     this.msgRecord.id = getMessageId()
+    this.msgRecord.createAt = time.getNowDate()
     this.mqtt5PropsEnable && (this.msgRecord.properties = this.MQTT5PropsSend)
     this.$emit('handleSend', this.msgRecord, this.payloadType)
   }
 
+  private async loadHistoryData(isNewPayload?: boolean, isLoadData?: boolean) {
+    // const { historyMessageHeaderService, historyMessagePayloadService } = useServices()
+    // const headersHistory = (await historyMessageHeaderService.getAll()) ?? []
+    // const payloadsHistory = (await historyMessagePayloadService.getAll()) ?? []
+    // const historyMsg = payloadsHistory[payloadsHistory.length - 1]
+    // if (historyMsg && isLoadData) {
+    //   this.payloadType = historyMsg.payloadType
+    // }
+    // this.headersHistory = headersHistory
+    // this.payloadsHistory = payloadsHistory
+    // if (isNewPayload) {
+    //   this.historyIndex = this.payloadsHistory.length - 1
+    // }
+  }
+
+  private async loadData() {
+    await this.loadHistoryData(false, true)
+    this.historyIndex = this.payloadsHistory.length - 1
+    Object.assign(
+      this.msgRecord,
+      this.defaultMsgRecord,
+      this.headersHistory[this.headersHistory.length - 1],
+      this.payloadsHistory[this.payloadsHistory.length - 1],
+    )
+    const headersHistoryIndex = this.payloadsHistory[this.historyIndex]
+    if (headersHistoryIndex) {
+      this.payloadType = headersHistoryIndex.payloadType
+    }
+    this.loadProperties()
+  }
+
+  private async loadProperties() {
+    this.MQTT5PropsForm = {}
+    if (this.mqtt5PropsEnable) {
+      const pushProps = await getConnectionPushProp(this.$route.params.id)
+      if (pushProps) {
+        this.MQTT5PropsForm = pushProps
+        this.MQTT5PropsSend = _.cloneDeep(this.MQTT5PropsForm)
+        this.hasMqtt5Prop = this.getHasMqtt5PropState()
+      }
+    }
+  }
+
   private handleInputFoucs() {
-    jump(document.body.scrollHeight)
+    this.$emit('foucs')
   }
 
   private handleLayout() {
@@ -282,6 +389,23 @@ export default class MsgPublish extends Vue {
     if (jsonValue) {
       this.msgRecord.payload = jsonValue
     }
+  }
+
+  private created() {
+    this.loadData()
+  }
+
+  private decrease() {
+    this.historyIndex = this.historyIndex - 1 >= 0 ? this.historyIndex - 1 : 0
+  }
+
+  private back() {
+    this.historyIndex = this.payloadsHistory.length - 1
+  }
+
+  private increase() {
+    this.historyIndex =
+      this.historyIndex + 1 <= this.payloadsHistory.length - 1 ? this.historyIndex + 1 : this.payloadsHistory.length - 1
   }
 
   private handleClickOutSide() {

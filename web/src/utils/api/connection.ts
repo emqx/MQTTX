@@ -45,4 +45,14 @@ export const updateConnectionMessage = (id: string, message: MessageModel): Conn
   return db.update<ConnectionModel>('connections', id, connection)
 }
 
+export const getConnectionPushProp = (id: string): MessageModel['properties'] => {
+  return db.find<ConnectionModel>('connections', id)?.pushProps
+}
+
+export const updateConnectionPushProp = (id: string, properties: MessageModel['properties']): ConnectionModel => {
+  const connection: ConnectionModel = loadConnection(id)
+  properties && (connection.pushProps = properties)
+  return db.update<ConnectionModel>('connections', id, connection)
+}
+
 export default {}

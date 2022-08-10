@@ -162,6 +162,23 @@ declare global {
     properties?: PushPropertiesModel
   }
 
+  interface HistoryMessageHeaderModel {
+    connectionId?: string
+    id?: string
+    retain: boolean
+    topic: string
+    qos: QoS
+    createAt?: string
+  }
+
+  interface HistoryMessagePayloadModel {
+    connectionId?: string
+    id?: string
+    payload: string
+    payloadType: PayloadType
+    createAt?: string
+  }
+
   // MQTT 5 feature
   interface PushPropertiesModel {
     payloadFormatIndicator?: boolean | null
@@ -239,6 +256,7 @@ declare global {
     mqttVersion: '3.1.1' | '5.0'
     unreadMessageCount: number
     messages: MessageModel[]
+    pushProps: PushPropertiesModel
     subscriptions: SubscriptionModel[]
     client:
       | MqttClient
