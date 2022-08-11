@@ -43,7 +43,7 @@ export default class HistoryMessageHeaderService {
   public async create(data: HistoryMessageHeaderModel): Promise<HistoryMessageHeaderModel | undefined> {
     const query: [HistoryMessageHeaderEntity[], number] = await this.messageRepository.findAndCount({
       order: {
-        createAt: 'DESC',
+        createAt: 'ASC',
       },
     })
     if (query && query[0] && query[1] >= HistoryMessageHeaderService.MAX_REMAIN_COUNT) {
