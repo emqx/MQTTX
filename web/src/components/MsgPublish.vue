@@ -125,6 +125,28 @@
       </div>
       <el-input class="publish-topic-input" placeholder="Topic" v-model="msgRecord.topic" @focus="handleInputFoucs">
       </el-input>
+      <el-select
+        class="header-select"
+        popper-class="header-select--popper"
+        v-model="headerValue"
+        placeholder=""
+        size="mini"
+        @change="handleHeaderChange"
+      >
+        <el-option
+          class="header-option"
+          v-for="item in headersHistory"
+          :key="item.id"
+          :label="item.label"
+          :value="item"
+        >
+          <span style="float: left; width: 160px; overflow: hidden; text-overflow: ellipsis">{{ item.topic }}</span>
+          <span style="color: #8492a6; font-size: 12px; margin-left: 4px">QoS:{{ item.qos }}</span>
+          <span style="float: right; color: #8492a6; font-size: 13px; margin-left: 4px">
+            retain:{{ item.retain ? '1' : '0' }}
+          </span>
+        </el-option>
+      </el-select>
     </div>
     <div class="editor-container">
       <div
@@ -142,6 +164,31 @@
           @enter-event="send"
           @format="formatJsonValue"
         />
+      </div>
+      <div class="publish-right-bar">
+        <div class="history-icon">
+          <el-button
+            :disabled="historyIndex === 0 || historyIndex === -1"
+            circle
+            size="mini"
+            icon="el-icon-back"
+            @click="decrease"
+          ></el-button>
+          <el-button
+            circle
+            :disabled="historyIndex === payloadsHistory.length - 1 || historyIndex === -1"
+            size="mini"
+            icon="el-icon-minus"
+            @click="back"
+          ></el-button>
+          <el-button
+            :disabled="historyIndex === payloadsHistory.length - 1 || historyIndex === -1"
+            circle
+            size="mini"
+            icon="el-icon-right"
+            @click="increase"
+          ></el-button>
+        </div>
       </div>
       <a href="javascript:;" class="send-btn" @click="send">
         <i class="iconfont icon-send"></i>
@@ -163,6 +210,8 @@ import validFormatJson from '@/utils/validFormatJson'
 import time from '@/utils/time'
 import { emptyToNull } from '@/utils/handleString'
 import { getConnectionPushProp, updateConnectionPushProp } from '@/utils/api/connection'
+import historyMessageHeaderService from '@/utils/api/historyMessageHeaderService'
+import historyMessagePayloadService from '@/utils/api/historyMessagePayloadService'
 
 @Component({
   components: {
@@ -329,22 +378,21 @@ export default class MsgPublish extends Vue {
     this.msgRecord.id = getMessageId()
     this.msgRecord.createAt = time.getNowDate()
     this.mqtt5PropsEnable && (this.msgRecord.properties = this.MQTT5PropsSend)
-    this.$emit('handleSend', this.msgRecord, this.payloadType)
+    this.$emit('handleSend', this.msgRecord, this.payloadType, this.loadHistoryData)
   }
 
   private async loadHistoryData(isNewPayload?: boolean, isLoadData?: boolean) {
-    // const { historyMessageHeaderService, historyMessagePayloadService } = useServices()
-    // const headersHistory = (await historyMessageHeaderService.getAll()) ?? []
-    // const payloadsHistory = (await historyMessagePayloadService.getAll()) ?? []
-    // const historyMsg = payloadsHistory[payloadsHistory.length - 1]
-    // if (historyMsg && isLoadData) {
-    //   this.payloadType = historyMsg.payloadType
-    // }
-    // this.headersHistory = headersHistory
-    // this.payloadsHistory = payloadsHistory
-    // if (isNewPayload) {
-    //   this.historyIndex = this.payloadsHistory.length - 1
-    // }
+    const payloadsHistory = await historyMessagePayloadService.getAll()
+    const headersHistory = await historyMessageHeaderService.getAll()
+    const historyMsg = payloadsHistory[payloadsHistory.length - 1]
+    if (historyMsg && isLoadData) {
+      this.payloadType = historyMsg.payloadType
+    }
+    this.headersHistory = headersHistory
+    this.payloadsHistory = payloadsHistory
+    if (isNewPayload) {
+      this.historyIndex = this.payloadsHistory.length - 1
+    }
   }
 
   private async loadData() {
@@ -464,7 +512,7 @@ export default class MsgPublish extends Vue {
     }
   }
   .publish-topic-input.el-input {
-    width: 100%;
+    width: calc(100% - 20px);
     vertical-align: top;
     display: inline-block;
     @include topic-input__inner;
