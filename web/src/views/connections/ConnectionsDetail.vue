@@ -189,6 +189,10 @@ import ResizeHeight from '@/components/ResizeHeight.vue'
 import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
 
+import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/historyRecordUtils'
+import historyMessageHeaderService from '@/utils/api/historyMessageHeaderService'
+import historyMessagePayloadService from '@/utils/api/historyMessagePayloadService'
+
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
 type PayloadConvertType = 'base64' | 'hex'
@@ -656,7 +660,25 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
-  private sendMessage(message: MessageModel, type: PayloadType): void | boolean {
+  private async insertHistory(payload: HistoryMessagePayloadModel, header: HistoryMessageHeaderModel) {
+    const willUpdatePayloadID: string | null = await hasMessagePayloadID(payload)
+    const willUpdateHeaderID: string | null = await hasMessageHeaderID(header)
+
+    willUpdatePayloadID
+      ? await historyMessagePayloadService.updateCreateAt(willUpdatePayloadID)
+      : await historyMessagePayloadService.create(payload)
+    willUpdateHeaderID
+      ? await historyMessageHeaderService.updateCreateAt(willUpdateHeaderID)
+      : await historyMessageHeaderService.create(header)
+
+    return { isNewPayload: !willUpdatePayloadID, isNewHeader: !willUpdateHeaderID }
+  }
+
+  private async sendMessage(
+    message: MessageModel,
+    type: PayloadType,
+    afterSendCallback?: (isNewPayload: boolean) => void,
+  ): Promise<void | boolean> {
     if (!this.client.connected) {
       this.$notify({
         title: this.$tc('connections.notConnect'),
@@ -727,6 +749,11 @@ export default class ConnectionsDetail extends Vue {
         this.scrollToBottom()
       },
     )
+
+    // insert message into local storage
+    const { isNewPayload } = await this.insertHistory({ payload, payloadType: type }, { qos, topic, retain })
+
+    afterSendCallback && afterSendCallback(isNewPayload)
   }
 
   // Scroll to page bottom
