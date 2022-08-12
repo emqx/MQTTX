@@ -545,7 +545,6 @@ export default class MsgPublish extends Vue {
       right: 0;
       top: 70px;
       .history-icon {
-        width: 70px;
         height: 10px;
         .el-button + .el-button {
           margin-left: 5px;

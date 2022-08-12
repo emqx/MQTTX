@@ -7,7 +7,7 @@
         :key="item.id"
         :class="['connection-item', { active: item.id === connectionId }]"
         @click="handleSelectConnection(item)"
-        @contextmenu="handleContextMenu(item, $event)"
+        @contextmenu.prevent="handleContextMenu(item, $event)"
       >
         <div class="item-left">
           <div
