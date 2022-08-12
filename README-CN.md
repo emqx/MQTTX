@@ -56,7 +56,7 @@ brew install --cask mqttx
 
 1. MQTT Broker 准备。
 
-   - 如果您不需要在本地部署 MQTT Broker，那么可以使用由 [EMQX Cloud](https://www.emqx.com/zh/cloud) 提供的公共 MQTT 5.0 服务器来进行测试：
+   - 如果您不需要在本地部署 MQTT Broker，那么可以使用由 [EMQX Cloud](https://www.emqx.com/zh/cloud) 提供的[公共 MQTT 5.0 服务器](https://www.emqx.com/zh/mqtt/public-mqtt5-broker)来进行测试：
 
       ```shell
       Broker 地址: broker.emqx.io

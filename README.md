@@ -56,7 +56,7 @@ See our [blog](https://www.emqx.io/blog/mqtt-x-guideline) or [manual](./docs/man
 
 1. Get MQTT Broker Ready.
 
-    - If you do not need to deploy the MQTT Broker locally, you can use the public MQTT 5.0 Broker provided by [EMQX Cloud](https://www.emqx.com/en/cloud) for testing:
+    - If you do not need to deploy the MQTT Broker locally, you can use the [public MQTT 5.0 Broker](https://www.emqx.com/en/mqtt/public-mqtt5-broker) provided by [EMQX Cloud](https://www.emqx.com/en/cloud) for testing:
 
         ```shell
         Broker IP: broker.emqx.io
