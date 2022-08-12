@@ -40,11 +40,22 @@ export default class Contextmenu extends Vue {
   .el-card__body {
     padding: 8px 0px;
     .context-menu__item {
+      &.disabled {
+        cursor: not-allowed;
+        color: var(--color-text-light);
+        &:hover {
+          color: var(--color-text-light);
+        }
+      }
       padding: 4px 12px;
-      display: block;
+      display: flex;
+      align-items: center;
+      .iconfont {
+        font-size: 18px;
+      }
       &:hover {
         color: var(--color-main-green);
-        background: var(--color-minor-green);
+        background: var(--color-light-green);
       }
       &.danger {
         color: var(--color-minor-red);
@@ -56,6 +67,14 @@ export default class Contextmenu extends Vue {
     }
     i {
       margin-right: 5px;
+    }
+    .icon-delete {
+      margin-right: 4px;
+    }
+    [class^='el-icon-'],
+    [class*=' el-icon-'] {
+      font-weight: 500;
+      font-size: 18px;
     }
   }
 }

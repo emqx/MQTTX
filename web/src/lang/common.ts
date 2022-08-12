@@ -104,6 +104,21 @@ export default {
     en: 'Advanced Config',
     ja: '詳細設定',
   },
+  copy: {
+    zh: '复 制',
+    en: 'Copy',
+    ja: 'コピー',
+  },
+  copySuccess: {
+    zh: '复制成功',
+    en: 'Copy Success',
+    ja: 'コピーが成功しました',
+  },
+  copyFailed: {
+    zh: '复制失败',
+    en: 'Copy Failed',
+    ja: 'コピーが失敗しました',
+  },
   version: {
     zh: '版本：',
     en: 'Version: ',
