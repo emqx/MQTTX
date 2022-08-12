@@ -149,7 +149,16 @@
           :height="messageListHeight"
           :marginTop="messageListMarginTop"
           :addNewMsg="messagesAddedNewItem"
+          @showContextMenu="handleContextMenu"
         />
+        <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
+          <a href="javascript:;" class="context-menu__item" @click="handleCopyMessage">
+            <i class="iconfont icon-copy"></i>{{ $t('common.copy') }}
+          </a>
+          <a href="javascript:;" class="context-menu__item danger" @click="handleDeleteMessage">
+            <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
+          </a>
+        </contextmenu>
       </div>
 
       <div ref="connectionFooter" class="connections-footer" :style="{ marginLeft: marginLeft }">
@@ -188,7 +197,9 @@ import SubscriptionsList from '@/components/SubscriptionsList.vue'
 import ResizeHeight from '@/components/ResizeHeight.vue'
 import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
+import Contextmenu from '@/components/Contextmenu.vue'
 
+import connectionMessageService from '@/utils/api/connectionMessageService.ts'
 import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/historyRecordUtils'
 import historyMessageHeaderService from '@/utils/api/historyMessageHeaderService'
 import historyMessagePayloadService from '@/utils/api/historyMessagePayloadService'
@@ -206,6 +217,7 @@ interface Top {
   components: {
     MessageList,
     ConnectionInfo,
+    Contextmenu,
     MsgPublish,
     SubscriptionsList,
     ResizeHeight,
@@ -272,6 +284,13 @@ export default class ConnectionsDetail extends Vue {
   private messageListMarginTop: number = 19
   private messagesAddedNewItem: boolean = false
   private activeTopic = ''
+  private showContextmenu: boolean = false
+  private selectedMessage: MessageModel | null = null
+  private contextmenuConfig: ContextmenuModel = {
+    top: 0,
+    left: 0,
+  }
+  private selectedInfo: string = ''
   private mqttVersionDict = {
     '3.1.1': 4,
     '5.0': 5,
@@ -329,6 +348,54 @@ export default class ConnectionsDetail extends Vue {
 
     this.messageListHeight =
       document.body.offsetHeight - connectionTopbar.offsetHeight - connectionFooter.offsetHeight - filterBarOffsetHeight
+  }
+
+  // Show context menu
+  private handleContextMenu(msgItemInfo: IArguments, message: MessageModel) {
+    const [payload, event] = msgItemInfo
+    if (!this.showContextmenu) {
+      const { clientX, clientY } = event
+      const width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
+      const height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
+      this.contextmenuConfig.left = width - clientX < 95 ? clientX - 75 : clientX
+      this.contextmenuConfig.top = height - clientY < 77 ? clientY - 77 : clientY
+      this.showContextmenu = true
+      this.selectedMessage = message
+      this.selectedInfo = payload
+    } else {
+      this.showContextmenu = false
+    }
+  }
+
+  // Copy message
+  private handleCopyMessage() {
+    if (this.selectedInfo) {
+      this.$copyText(this.selectedInfo).then(
+        () => {
+          this.$message.success(this.$tc('common.copySuccess'))
+        },
+        () => {
+          this.$message.error(this.$tc('common.copyFailed'))
+        },
+      )
+    }
+  }
+
+  // Delete message
+  private async handleDeleteMessage() {
+    let id = ''
+    if (this.selectedMessage && this.selectedMessage.id) {
+      id = this.selectedMessage.id.toString()
+    }
+    const deleteMsg: MessageModel | undefined = await connectionMessageService.delete(this.$route.params.id, id)
+    if (deleteMsg) {
+      this.showContextmenu = false
+      this.$message.success(this.$tc('common.deleteSuccess'))
+      this.$emit('reload')
+    } else {
+      this.showContextmenu = false
+      this.$message.error(this.$tc('common.deletefailed'))
+    }
   }
 
   get bodyTop(): Top {
