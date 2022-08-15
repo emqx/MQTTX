@@ -41,11 +41,19 @@ MQTT X is designed to connect to test MQTT Brokers such as EMQX, The one-click c
 - For general discussions, join us on the [official Discord](https://discord.gg/xYGf3fQnES) team.
 - Keep updated on [EMQX YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q) by subscribing.
 
+## Deploy from Docker Image
+
+```bash
+docker pull emqx/mqttx-web:latest
+
+docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
+```
+
 ## Develop
 
 Recommended version for Node environment:
 
-- v14.\*.\*
+- v16.\*.\*
 
 ``` shell
 # Clone
@@ -60,6 +68,9 @@ yarn run serve
 
 # Compiles and minifies for production
 yarn run build
+
+# Compiles for production & serve generated files of site locally
+yarn run start
 ```
 
 ## Contributing

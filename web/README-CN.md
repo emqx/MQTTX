@@ -42,11 +42,19 @@ MQTT X 为连接测试 EMQX 等 MQTT 消息服务器而生，一键式的连接�
 - 关注我们的 [bilibili](https://space.bilibili.com/522222081)，获取最新物联网技术分享。
 - 关注我们的 [微博](https://weibo.com/emqtt) 或 [Twitter](https://twitter.com/EMQTech)，获取 EMQ 最新资讯。
 
+## Docker 部署
+
+```bash
+docker pull emqx/mqttx-web:latest
+
+docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
+```
+
 ## 开发
 
 Node 环境的推荐版本:
 
-- v14.\*.\*
+- v16.\*.\*
 
 ``` shell
 # 克隆项目
@@ -61,6 +69,9 @@ yarn run serve
 
 # 编译和压缩以构建生产版本
 yarn run build
+
+# 编译并启动一个本地 HTTP 服务器以进行测试
+yarn run start
 ```
 
 ## 贡献
