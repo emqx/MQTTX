@@ -10,28 +10,81 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  deploy_website:
     runs-on: ubuntu-20.04
     steps:
-    - name: use node.js
-      uses: actions/setup-node@v1
-      with:
-        node-version: 16.14
-    - uses: actions/checkout@v2
-    - name: set env
-      run: |
-        cd web
-        echo "VUE_APP_PAGE_TITLE=Easy-to-Use Online MQTT Client | Try Now" > .env.local
-        echo "VUE_APP_PAGE_DESCRIPTION=Online MQTT 5.0 client on the web, using MQTT over WebSocket to connect to the MQTT Broker and test message publishing and receiving in the browser." >> .env.local
-    - name: build
-      run: |
-        cd web
-        yarn && yarn build
-    - name: upload dist
-      if: github.event_name != 'pull_request'
-      run: |
-        cd web
-        wget http://gosspublic.alicdn.com/ossutil/1.7.8/ossutil64
-        chmod 755 ./ossutil64
-        ./ossutil64 config -e https://oss-accelerate.aliyuncs.com -i ${{ secrets.ALI_OSS_ACCESSKEY_ID }} -k ${{ secrets.ALI_OSS_ACCESSKEY_SECRET }} -L CH
-        ./ossutil64 cp -r dist/ oss://emqx-io-docs/ -u
+      - name: use node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.14
+
+      - uses: actions/checkout@v2
+      - name: set env
+        run: |
+          cd web
+          echo "VUE_APP_PAGE_TITLE=Easy-to-Use Online MQTT Client | Try Now" > .env.local
+          echo "VUE_APP_PAGE_DESCRIPTION=Online MQTT 5.0 client on the web, using MQTT over WebSocket to connect to the MQTT Broker and test message publishing and receiving in the browser." >> .env.local
+
+      - name: build
+        run: |
+          cd web
+          yarn && yarn build
+
+      - name: upload dist
+        if: github.event_name != 'pull_request'
+        run: |
+          cd web
+          wget http://gosspublic.alicdn.com/ossutil/1.7.8/ossutil64
+          chmod 755 ./ossutil64
+          ./ossutil64 config -e https://oss-accelerate.aliyuncs.com -i ${{ secrets.ALI_OSS_ACCESSKEY_ID }} -k ${{ secrets.ALI_OSS_ACCESSKEY_SECRET }} -L CH
+          ./ossutil64 cp -r dist/ oss://emqx-io-docs/ -u
+
+  publish_docker:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-20.04
+    steps:
+      - name: use node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.14
+
+      - uses: actions/checkout@v3
+      - name: set env
+        run: |
+          cd web
+          echo "VUE_APP_PAGE_TITLE=Easy-to-Use Online MQTT Client | Try Now" > .env.local
+          echo "VUE_APP_PAGE_DESCRIPTION=Online MQTT 5.0 client on the web, using MQTT over WebSocket to connect to the MQTT Broker and test message publishing and receiving in the browser." >> .env.local
+
+      - name: build
+        run: |
+          cd web
+          yarn && yarn build
+
+      - name: docker meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: emqx/mqttx-web
+          flavor: |
+            latest=true
+          tags: |
+            type=ref,event=tag
+
+      - name: set up qemu
+        uses: docker/setup-qemu-action@v2
+
+      - name: set up docker buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: login to docker hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: ./web
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
