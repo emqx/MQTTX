@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "start": "http-server dist -p 8080 -o /online-mqtt-client",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint"
   },
@@ -55,6 +56,7 @@
     "eslint": "6.5.1",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "http-server": "^14.1.1",
     "monaco-editor-webpack-plugin": "^4.0.0",
     "prettier": "^2.0.5",
     "sass": "1.32.13",
