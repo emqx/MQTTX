@@ -51,7 +51,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: codming/mqttx-cli
+          images: emqx/mqttx-cli
           flavor: |
             latest=true
           tags: |
