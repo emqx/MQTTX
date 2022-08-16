@@ -9,3 +9,5 @@ tsconfig.json
 /src/
 /release/
 tsconfig.tsbuildinfo
+Dockerfile
+.dockerignore
