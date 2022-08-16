@@ -26,6 +26,14 @@
 
 访问 MQTT WebSocket 客户端工具 (MQTT X Web): [http://www.emqx.io/online-mqtt-client](http://www.emqx.io/online-mqtt-client)
 
+## Docker 部署
+
+```bash
+docker pull emqx/mqttx-web:latest
+
+docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
+```
+
 ## 与 EMQX 更好的合作
 
 MQTT X 为连接测试 EMQX 等 MQTT 消息服务器而生，一键式的连接方式和简洁的图形界面可以帮助您快速连接到 EMQX 或 EMQX Cloud 调试并探索其功能特性。
@@ -41,14 +49,6 @@ MQTT X 为连接测试 EMQX 等 MQTT 消息服务器而生，一键式的连接�
 - 加入我们的 [Discord](https://discord.gg/xYGf3fQnES)，参于实时讨论。
 - 关注我们的 [bilibili](https://space.bilibili.com/522222081)，获取最新物联网技术分享。
 - 关注我们的 [微博](https://weibo.com/emqtt) 或 [Twitter](https://twitter.com/EMQTech)，获取 EMQ 最新资讯。
-
-## Docker 部署
-
-```bash
-docker pull emqx/mqttx-web:latest
-
-docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
-```
 
 ## 开发
 

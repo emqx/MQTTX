@@ -26,6 +26,14 @@ English | [简体中文](./README-CN.md)
 
 Visit MQTT WebSocket Client (MQTT X Web): [http://www.emqx.io/online-mqtt-client](http://www.emqx.io/online-mqtt-client)
 
+## Deploy from Docker Image
+
+```bash
+docker pull emqx/mqttx-web:latest
+
+docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
+```
+
 ## Better Together with EMQX
 
 MQTT X is designed to connect to test MQTT Brokers such as EMQX, The one-click connection and simple graphical interface make it easy to connect to EMQX or EMQX Cloud to debug and explore functional features.
@@ -40,14 +48,6 @@ MQTT X is designed to connect to test MQTT Brokers such as EMQX, The one-click c
 - If you have a specific question, check out our [discussion forums](https://github.com/emqx/emqx/discussions).
 - For general discussions, join us on the [official Discord](https://discord.gg/xYGf3fQnES) team.
 - Keep updated on [EMQX YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q) by subscribing.
-
-## Deploy from Docker Image
-
-```bash
-docker pull emqx/mqttx-web:latest
-
-docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
-```
 
 ## Develop
 
