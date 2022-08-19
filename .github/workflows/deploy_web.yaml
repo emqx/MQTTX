@@ -58,7 +58,7 @@ jobs:
       - name: build
         run: |
           cd web
-          yarn && yarn build
+          yarn && yarn build:docker
 
       - name: docker meta
         id: meta

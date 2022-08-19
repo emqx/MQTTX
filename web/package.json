@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build:docker": "export BUILD_MODE=docker && vue-cli-service build",
     "start": "vue-cli-service build && http-server dist -o /online-mqtt-client",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint"

@@ -2,9 +2,11 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 
 process.env.VUE_APP_VERSION = require('./package.json').version
 
+const buildMode = process.env.BUILD_MODE
+
 module.exports = {
-  publicPath: '/online-mqtt-client/',
-  outputDir: 'dist/online-mqtt-client',
+  publicPath: buildMode === 'docker' ? '/' : '/online-mqtt-client/',
+  outputDir: buildMode === 'docker' ? 'dist' : 'dist/online-mqtt-client',
   configureWebpack: {
     plugins: [
       new MonacoWebpackPlugin({
