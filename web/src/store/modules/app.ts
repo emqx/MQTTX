@@ -53,16 +53,17 @@ const app = {
       state.maxReconnectTimes = maxReconnectTimes
     },
     [CHANGE_ACTIVE_CONNECTION](state: App, payload: Client) {
-      const client = payload.client
-      const messages = payload.messages
-      if (state.activeConnection[payload.id]) {
-        state.activeConnection[payload.id].client = client
-        state.activeConnection[payload.id].messages = messages
+      const { id, client, messages } = payload
+      if (state.activeConnection[id]) {
+        // already exists activeConnection
+        Vue.set(state.activeConnection[id], 'client', client)
+        Vue.set(state.activeConnection[id], 'messages', messages)
       } else {
-        state.activeConnection[payload.id] = {
+        // new activeConnection
+        Vue.set(state.activeConnection, id, {
           client,
           messages,
-        }
+        })
       }
     },
     [REMOVE_ACTIVE_CONNECTION](state: App, id: string) {

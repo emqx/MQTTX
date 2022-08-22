@@ -25,7 +25,20 @@
                 :content="$t('connections.disconnectedBtn')"
               >
                 <a class="disconnect-btn" href="javascript:;" @click="disconnect">
-                  <i class="iconfont icon-disconnect"></i>
+                  <i v-if="!disconnectLoding" class="iconfont icon-disconnect"></i>
+                  <i v-else class="iconfont icon-disconnect"></i>
+                </a>
+              </el-tooltip>
+              <el-tooltip
+                v-if="!showClientInfo && !client.connected"
+                placement="bottom"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :open-delay="500"
+                :content="$t('connections.connectBtn')"
+              >
+                <a class="connect-btn" href="javascript:;" @click="connect">
+                  <i v-if="!connectLoading" class="el-icon-caret-right"></i>
+                  <i v-else class="el-icon-loading"></i>
                 </a>
               </el-tooltip>
             </transition>
@@ -267,6 +280,7 @@ export default class ConnectionsDetail extends Vue {
   private screenWidth = document.body.clientWidth
   private showClientInfo = true
   private connectLoading = false
+  private disconnectLoding = false
   private searchVisible = false
   private searchLoading = false
   private receivedMsgType: PayloadType = 'Plaintext'
@@ -415,6 +429,10 @@ export default class ConnectionsDetail extends Vue {
   get marginLeft(): string {
     const left = this.showSubs ? (this.largeDesktop ? '920px' : '680px') : this.largeDesktop ? '521px' : '401px'
     return left
+  }
+
+  get curConnectionId(): string {
+    return this.$route.params.id
   }
 
   @Watch('record')
@@ -598,33 +616,31 @@ export default class ConnectionsDetail extends Vue {
     this.retryTimes = 0
   }
   private disconnect(): boolean | void {
-    if (!this.client.connected) {
+    if (!this.client.connected || this.disconnectLoding) {
       return false
     }
-    const { id } = this.$route.params
-    if (this.record.clean) {
-      this.record.subscriptions = []
-      this.changeSubs({ id, subscriptions: [] })
-      updateConnection(id, this.record)
-    }
-    this.client.end!(true)
-    this.retryTimes = 0
-    this.changeActiveConnection({
-      id,
-      client: this.client,
-      messages: this.record.messages,
+    this.disconnectLoding = true
+    this.client.end!(false, () => {
+      this.disconnectLoding = false
+      this.retryTimes = 0
+
+      this.changeActiveConnection({
+        id: this.curConnectionId,
+        client: this.client,
+        messages: this.record.messages,
+      })
+      this.$notify({
+        title: this.$tc('connections.disconnected'),
+        message: '',
+        type: 'success',
+        duration: 3000,
+        offset: 30,
+      })
+      if (!this.showClientInfo) {
+        this.setShowClientInfo(true)
+      }
+      this.$emit('reload')
     })
-    this.$notify({
-      title: this.$t('connections.disconnected') as string,
-      message: '',
-      type: 'success',
-      duration: 3000,
-      offset: 30,
-    })
-    if (!this.showClientInfo) {
-      this.setShowClientInfo(true)
-    }
-    this.$emit('reload')
   }
   private onConnect() {
     this.connectLoading = false
@@ -985,12 +1001,17 @@ export default class ConnectionsDetail extends Vue {
             color: var(--color-minor-red);
           }
         }
+        .connect-loading,
+        .edit-btn,
+        .connect-btn,
+        .new-window-btn {
+          margin-right: 12px;
+        }
         .edit-btn {
           &.disabled {
             cursor: not-allowed;
             color: var(--color-text-light);
           }
-          margin-right: 12px;
         }
         .el-dropdown.connection-oper {
           a {
