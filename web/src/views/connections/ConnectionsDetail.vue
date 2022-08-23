@@ -148,11 +148,14 @@
           </div>
         </div>
         <SubscriptionsList
+          v-if="$route.params.id"
+          ref="subList"
           :subsVisible.sync="showSubs"
           :connectionId="$route.params.id"
           :record="record"
           :top="showClientInfo ? bodyTop.open : bodyTop.close"
           @onClickTopic="handleTopicClick"
+          @deleteTopic="handleTopicDelete"
         />
         <MessageList
           ref="messagesDisplay"
@@ -242,7 +245,7 @@ export default class ConnectionsDetail extends Vue {
 
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
-  @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection!: (payload: ActiveConnection) => void
+  @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection!: (payload: { readonly id: string }) => void
   @Action('SHOW_CLIENT_INFO') private changeShowClientInfo!: (payload: ClientInfo) => void
   @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
@@ -529,11 +532,14 @@ export default class ConnectionsDetail extends Vue {
     })
   }
 
+  // Return messages
   private getMessages() {
     this.messagesAddedNewItem = false
     this.msgType = 'all'
     this.messages = _.cloneDeep(this.record.messages)
   }
+
+  // Clear messages
   private handleMsgClear() {
     this.messages = []
     this.record.messages = []
@@ -544,6 +550,8 @@ export default class ConnectionsDetail extends Vue {
     })
     updateConnection(this.record.id as string, this.record)
   }
+
+  // Message type changed
   private async handleMsgTypeChanged(type: MessageType) {
     this.messagesAddedNewItem = false
     const setChangedMessages = (changedType: MessageType, msgData: MessageModel[]) => {
@@ -566,6 +574,8 @@ export default class ConnectionsDetail extends Vue {
       setChangedMessages(type, this.record.messages)
     }
   }
+
+  // Search messages
   private async searchByTopic() {
     this.searchLoading = true
     setTimeout(() => {
@@ -582,6 +592,14 @@ export default class ConnectionsDetail extends Vue {
       }
     }
   }
+
+  // Delete topic item
+  private handleTopicDelete() {
+    this.getMessages()
+    this.scrollToBottom()
+  }
+
+  // Click topic item
   private async handleTopicClick(sub: SubscriptionModel, reset: boolean) {
     this.getMessages()
     if (reset) {

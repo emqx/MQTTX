@@ -29,6 +29,21 @@ export default {
     en: 'Save',
     ja: '保存',
   },
+  reset: {
+    zh: '重置',
+    en: 'Reset',
+    ja: 'リセット',
+  },
+  disable: {
+    zh: '禁用',
+    en: 'Disable',
+    ja: '無効にする',
+  },
+  enable: {
+    zh: '启用',
+    en: 'Enable',
+    ja: '有効',
+  },
   noData: {
     zh: '暂无数据',
     en: 'No Data',

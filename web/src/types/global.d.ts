@@ -11,9 +11,15 @@ declare global {
 
   type Protocol = 'ws' | 'wss'
 
+  type PayloadType = 'Plaintext' | 'Base64' | 'JSON' | 'Hex'
+
   type QoS = 0 | 1 | 2
 
-  type PayloadType = 'Plaintext' | 'Base64' | 'JSON' | 'Hex'
+  type QoSList = [0, 1, 2]
+
+  type RetainHandling = 0 | 1 | 2
+
+  type RetainHandlingList = [0, 1, 2]
 
   type MessageType = 'all' | 'received' | 'publish'
 
@@ -57,28 +63,39 @@ declare global {
     editorLayout: () => void
   }
 
+  // Vuex state
   interface ActiveConnection {
-    readonly id: string
+    [id: string]: {
+      client: MqttClient
+      messages: MessageModel[]
+      subscriptions?: SubscriptionModel[]
+    }
   }
 
-  interface Client extends ActiveConnection {
-    client: MqttClient | {}
+  // Connections
+  interface Client {
+    readonly id: string
+    client: Partial<MqttClient>
     messages: MessageModel[]
   }
 
-  interface Message extends ActiveConnection {
+  interface Message {
+    readonly id: string
     message: MessageModel
   }
 
-  interface ClientInfo extends ActiveConnection {
+  interface ClientInfo {
+    readonly id: string
     showClientInfo: boolean
   }
 
-  interface Subscriptions extends ActiveConnection {
+  interface Subscriptions {
+    readonly id: string
     subscriptions: SubscriptionModel[]
   }
 
-  interface UnreadMessage extends ActiveConnection {
+  interface UnreadMessage {
+    readonly id: string
     unreadMessageCount?: 0
   }
 
@@ -140,14 +157,20 @@ declare global {
 
   type NameCallBack = (name: string) => string
 
-  type QoSList = [0, 1, 2]
-
   interface SubscriptionModel {
+    id?: string
     topic: string
+    qos: QoS
+    disabled: boolean
     alias?: string
-    qos: 0 | 1 | 2
     retain?: boolean
     color?: string
+    createAt: string
+    // MQTT 5.0 only
+    nl?: boolean
+    rap?: boolean
+    rh?: RetainHandling
+    subscriptionIdentifier?: number | null
   }
 
   interface MessageModel {
