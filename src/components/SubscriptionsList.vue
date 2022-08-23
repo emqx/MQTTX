@@ -391,9 +391,6 @@ export default class SubscriptionsList extends Vue {
           color = getRandomColor()
           id = getSubscriptionId()
         }
-      } else {
-        color = getRandomColor()
-        id = getSubscriptionId()
       }
       this.subsList.push({
         topic,
