@@ -84,10 +84,35 @@ export default {
     en: 'New Subscription',
     ja: 'サブスクリプション追加',
   },
+  editSubscription: {
+    zh: '编辑订阅',
+    en: 'Edit Subscription',
+    ja: 'サブスクリプションの編集',
+  },
   subFailed: {
     zh: '订阅失败',
     en: 'Subscribe Failed',
     ja: 'サブスクリプションが失敗しました',
+  },
+  qosSubSysFailed: {
+    zh: '拒绝了 $SYS 主题，错误的 QoS，MQTT Broker 拒绝了订阅。请检查 ACL 配置',
+    en: 'Rejected the $SYS topic,Unexpected QoS, MQTT Broker declined the subscription. Please check ACL configuration',
+    ja: '$SYSトピックを拒否しま。した予期しないQoS、MQTT Brokerはサブスクリプションを拒否しました。ACL構成を確認してください',
+  },
+  qosSubFailed: {
+    zh: '错误的 QoS, SubACK 失败, 请检查 MQTT broker ACL 设置',
+    en: 'Unexpected QoS, SubACK failed, Please check MQTT broker ACL configuration',
+    ja: '予期しないQoS, SubACK失敗、MQTT Broker ACL構成を確認してください',
+  },
+  emptySubFailed: {
+    zh: '订阅为空',
+    en: 'Subscription is empty',
+    ja: 'サブスクリプションは空です',
+  },
+  unknowSubFailed: {
+    zh: '未知的订阅错误',
+    en: 'Unknown subscription error',
+    ja: '不明なサブスクリプションエラー',
   },
   connected: {
     zh: '已连接',
@@ -234,6 +259,11 @@ export default {
     en: 'You cannot publish the message to a Topic that contains wildcards characters #, +',
     ja: 'ワイルドカード文字 #、+ を含むトピックにメッセージを送信できません',
   },
+  topicTips: {
+    zh: '可订阅单个或多个主题，订阅多主题时，请使用逗号分隔（,）',
+    en: 'You can subscribe to single or multiple topics, please use comma separation to subscribe to multiple topics (,)',
+    ja: '複数のトピックを購読する場合は、カンマで区切ってください（,）。',
+  },
   payloadReuired: {
     zh: '请输入 Payload',
     en: 'Payload is required',
@@ -323,6 +353,11 @@ export default {
     zh: '别名',
     en: 'Alias',
     ja: '別名',
+  },
+  aliasTip: {
+    zh: '为多主题设置别名时，也使用逗号分隔符（,）',
+    en: 'Comma separator (,) is also used when setting aliases for multiple topics',
+    ja: '複数のトピックにエイリアスを設定する場合は、カンマ区切り（,）も使用されます。',
   },
   metaTips: {
     zh: '仅在 MQTT 5.0 中启用',
