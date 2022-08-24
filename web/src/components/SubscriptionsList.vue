@@ -231,9 +231,7 @@ export default class SubscriptionsList extends Vue {
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
 
   @Getter('currentTheme') private theme!: Theme
-  // TODO: support multi topics subscribe
-  // @Getter('multiTopics') private multiTopics!: boolean
-  private multiTopics = false
+  @Getter('multiTopics') private multiTopics!: boolean
   @Getter('activeConnection') private activeConnection!: ActiveConnection
 
   private topicColor = ''

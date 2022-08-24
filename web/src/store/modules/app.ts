@@ -14,6 +14,7 @@ const UNREAD_MESSAGE_COUNT_INCREMENT = 'UNREAD_MESSAGE_COUNT_INCREMENT'
 const TOGGLE_WILL_MESSAGE_VISIBLE = 'TOGGLE_WILL_MESSAGE_VISIBLE'
 const TOGGLE_ADVANCED_VISIBLE = 'TOGGLE_ADVANCED_VISIBLE'
 const CHANGE_ALL_CONNECTIONS = 'CHANGE_ALL_CONNECTIONS'
+const TOGGLE_MULTI_TOPICS = 'TOGGLE_MULTI_TOPICS'
 
 const stateRecord: App = loadSettings()
 
@@ -30,6 +31,7 @@ const app = {
     currentTheme: stateRecord.currentTheme || 'light',
     currentLang: stateRecord.currentLang || 'en',
     autoCheck: stateRecord.autoCheck,
+    multiTopics: stateRecord.multiTopics,
     maxReconnectTimes: stateRecord.maxReconnectTimes || 10,
     showSubscriptions: getShowSubscriptions(),
     showClientInfo: {},
@@ -48,6 +50,9 @@ const app = {
     },
     [TOGGLE_AUTO_CHECK](state: App, autoCheck: boolean) {
       state.autoCheck = autoCheck
+    },
+    [TOGGLE_MULTI_TOPICS](state: App, multiTopics: boolean) {
+      state.multiTopics = multiTopics
     },
     [SET_MAX_RECONNECT_TIMES](state: App, maxReconnectTimes: number) {
       state.maxReconnectTimes = maxReconnectTimes
@@ -117,6 +122,10 @@ const app = {
     TOGGLE_AUTO_CHECK({ commit }: any, payload: App) {
       setSettings('settings.autoCheck', payload.autoCheck)
       commit(TOGGLE_AUTO_CHECK, payload.autoCheck)
+    },
+    TOGGLE_MULTI_TOPICS({ commit }: any, payload: App) {
+      setSettings('settings.multiTopics', payload.multiTopics)
+      commit(TOGGLE_MULTI_TOPICS, payload.multiTopics)
     },
     SET_MAX_RECONNECT_TIMES({ commit }: any, payload: App) {
       setSettings('settings.maxReconnectTimes', payload.maxReconnectTimes)

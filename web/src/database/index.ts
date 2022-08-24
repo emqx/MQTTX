@@ -37,6 +37,7 @@ class DB {
           autoCheck: true,
           currentLang: 'en',
           currentTheme: 'light',
+          multiTopics: true,
           maxReconnectTimes: 10,
         })
         .write()

@@ -115,6 +115,7 @@ declare global {
     currentLang: Language
     autoCheck: boolean
     showSubscriptions: boolean
+    multiTopics: boolean
     maxReconnectTimes: number
     showClientInfo: {
       [id: string]: boolean
