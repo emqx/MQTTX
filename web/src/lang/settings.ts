@@ -49,4 +49,14 @@ export default {
     en: 'Advanced',
     ja: '詳細',
   },
+  multiTopics: {
+    zh: '多主题订阅',
+    en: 'Multi topics subscribe',
+    ja: '複数のトピックを購読',
+  },
+  multiTopicsDesc: {
+    zh: '开启后，将支持一次订阅多个主题，使用逗号（,）分隔',
+    en: 'Enable to subscribe to multiple topics at once, separated by commas',
+    ja: '複数のトピックを一度に購読することができます。コンマで区切ります。',
+  },
 }
