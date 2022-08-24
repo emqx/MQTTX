@@ -4,6 +4,7 @@ import { loadSettings, setSettings } from '@/utils/api/setting'
 const TOGGLE_THEME = 'TOGGLE_THEME'
 const TOGGLE_LANG = 'TOGGLE_LANG'
 const TOGGLE_AUTO_CHECK = 'TOGGLE_AUTO_CHECK'
+const TOGGLE_AUTO_SCROLL = 'TOGGLE_AUTO_SCROLL'
 const SET_MAX_RECONNECT_TIMES = 'SET_MAX_RECONNECT_TIMES'
 const CHANGE_ACTIVE_CONNECTION = 'CHANGE_ACTIVE_CONNECTION'
 const REMOVE_ACTIVE_CONNECTION = 'REMOVE_ACTIVE_CONNECTION'
@@ -31,6 +32,7 @@ const app = {
     currentTheme: stateRecord.currentTheme || 'light',
     currentLang: stateRecord.currentLang || 'en',
     autoCheck: stateRecord.autoCheck,
+    autoScroll: stateRecord.autoScroll,
     multiTopics: stateRecord.multiTopics,
     maxReconnectTimes: stateRecord.maxReconnectTimes || 10,
     showSubscriptions: getShowSubscriptions(),
@@ -50,6 +52,9 @@ const app = {
     },
     [TOGGLE_AUTO_CHECK](state: App, autoCheck: boolean) {
       state.autoCheck = autoCheck
+    },
+    [TOGGLE_AUTO_SCROLL](state: App, autoScroll: boolean) {
+      state.autoScroll = autoScroll
     },
     [TOGGLE_MULTI_TOPICS](state: App, multiTopics: boolean) {
       state.multiTopics = multiTopics
@@ -122,6 +127,10 @@ const app = {
     TOGGLE_AUTO_CHECK({ commit }: any, payload: App) {
       setSettings('settings.autoCheck', payload.autoCheck)
       commit(TOGGLE_AUTO_CHECK, payload.autoCheck)
+    },
+    TOGGLE_AUTO_SCROLL({ commit }: any, payload: App) {
+      setSettings('settings.autoScroll', payload.autoScroll)
+      commit(TOGGLE_AUTO_SCROLL, payload.autoScroll)
     },
     TOGGLE_MULTI_TOPICS({ commit }: any, payload: App) {
       setSettings('settings.multiTopics', payload.multiTopics)
