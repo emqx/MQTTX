@@ -49,6 +49,16 @@ export default {
     en: 'Advanced',
     ja: '詳細',
   },
+  autoScroll: {
+    zh: '自动滚动',
+    en: 'Auto scroll',
+    ja: '自動スクロール',
+  },
+  autoScrollDesc: {
+    zh: '是否自动滚动消息列表',
+    en: 'Whether to automatically scroll the list of messages',
+    ja: 'メッセージリストを自動的にスクロールするかどうか',
+  },
   multiTopics: {
     zh: '多主题订阅',
     en: 'Multi topics subscribe',

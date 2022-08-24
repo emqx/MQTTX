@@ -252,6 +252,7 @@ export default class ConnectionsDetail extends Vue {
 
   @Getter('activeConnection') private activeConnection: $TSFixed
   @Getter('showSubscriptions') private showSubscriptions!: boolean
+  @Getter('autoScroll') private autoScroll!: boolean
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: {
@@ -859,6 +860,9 @@ export default class ConnectionsDetail extends Vue {
 
   // Scroll to page bottom
   private scrollToBottom() {
+    if (this.autoScroll === false) {
+      return
+    }
     const timer = setTimeout(() => {
       const messagesDisplay = this.$refs.messagesDisplay as MessageList
       const messagesDisplayDOM = messagesDisplay.$el
