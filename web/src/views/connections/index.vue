@@ -78,11 +78,12 @@ export default class Connections extends Vue {
     }
   }
 
-  private async loadData(reload: boolean = false): Promise<void> {
+  private async loadData(loadLatest: boolean = false, _firstLoad: boolean = false, callback?: () => {}): Promise<void> {
     const connections: ConnectionModel[] | [] = await loadConnections()
     this.changeAllConnections({ allConnections: connections })
     this.records = connections
-    if (reload && connections.length) {
+    if (loadLatest && connections.length) {
+      // TODO: load latest connection
       this.$router.push({ path: `/recent_connections/${connections[0].id}` })
     }
     if (connections.length && this.connectionId !== 'create') {
@@ -94,6 +95,7 @@ export default class Connections extends Vue {
       }
       this.isEmpty = true
     }
+    callback && callback()
   }
 
   private toCreateConnection() {

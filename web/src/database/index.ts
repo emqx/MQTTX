@@ -37,6 +37,7 @@ class DB {
           autoCheck: true,
           currentLang: 'en',
           currentTheme: 'light',
+          autoResub: true,
           autoScroll: true,
           multiTopics: true,
           maxReconnectTimes: 10,

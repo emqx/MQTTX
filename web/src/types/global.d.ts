@@ -114,6 +114,7 @@ declare global {
     currentTheme: Theme
     currentLang: Language
     autoCheck: boolean
+    autoResub: boolean
     autoScroll: boolean
     showSubscriptions: boolean
     multiTopics: boolean
