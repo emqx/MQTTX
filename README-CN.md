@@ -48,7 +48,7 @@ brew install --cask mqttx
 
 请从 [GitHub Releases](https://github.com/emqx/MQTTX/releases) 下载符合您的版本并安装使用。
 
-国内用户也可以从 [这里](https://www.emqx.cn/downloads/MQTTX/) 下载。
+国内用户也可以从 [这里](https://www.emqx.com/zh/downloads/MQTTX/) 下载。
 
 ## 使用
 

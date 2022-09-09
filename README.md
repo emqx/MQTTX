@@ -48,7 +48,7 @@ brew install --cask mqttx
 
 Download from [GitHub Releases](https://github.com/emqx/MQTTX/releases) and install it.
 
-Alternative, you can download [here](https://www.emqx.io/downloads/MQTTX/).
+Alternative, you can download [here](https://www.emqx.com/downloads/MQTTX/).
 
 ## Usage
 
