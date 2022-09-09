@@ -27,6 +27,33 @@
 
       <el-row class="settings-item" type="flex" justify="space-between">
         <el-col :span="20">
+          <label>{{ $t('settings.autoResub') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('settings.autoResubDesc')"
+          >
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            :value="autoResub"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleAutoResubSwitchChange"
+          >
+          </el-switch>
+        </el-col>
+      </el-row>
+
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
           <label>{{ $t('settings.autoScroll') }}</label>
           <el-tooltip
             placement="top"
@@ -128,11 +155,13 @@ export default class Settings extends Vue {
   @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
   @Action('SET_MAX_RECONNECT_TIMES') private actionMaxReconnectTimes!: (payload: { maxReconnectTimes: number }) => void
+  @Action('TOGGLE_AUTO_RESUB') private actionAutoResub!: (payload: { autoResub: boolean }) => void
   @Action('TOGGLE_AUTO_SCROLL') private actionAutoScroll!: (payload: { autoScroll: boolean }) => void
   @Action('TOGGLE_MULTI_TOPICS') private actionToggleMultiTopics!: (payload: { multiTopics: boolean }) => void
   @Getter('currentTheme') private getterTheme!: 'light' | 'dark' | 'night'
   @Getter('currentLang') private getterLang!: Language
   @Getter('maxReconnectTimes') private getterMaxReconnectTimes!: number
+  @Getter('autoResub') private autoResub!: boolean
   @Getter('autoScroll') private autoScroll!: boolean
   @Getter('multiTopics') private multiTopics!: boolean
 
@@ -159,6 +188,10 @@ export default class Settings extends Vue {
       document.documentElement.setAttribute('lang', value as string)
       this.$i18n.locale = value as string
     }
+  }
+
+  private handleAutoResubSwitchChange(value: boolean) {
+    this.actionAutoResub({ autoResub: value })
   }
 
   private handleAutoScrollSwitchChange(value: boolean) {

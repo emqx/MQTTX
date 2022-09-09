@@ -285,6 +285,7 @@ export default class ConnectionsDetail extends Vue {
   private showClientInfo = true
   private connectLoading = false
   private disconnectLoding = false
+  private isReconnect = false
   private searchVisible = false
   private searchLoading = false
   private receivedMsgType: PayloadType = 'Plaintext'
@@ -314,7 +315,9 @@ export default class ConnectionsDetail extends Vue {
     '5.0': 5,
   }
 
+  // Connect
   public connect(): boolean | void {
+    this.isReconnect = false
     if (this.client.connected || this.connectLoading) {
       return false
     }
@@ -433,6 +436,10 @@ export default class ConnectionsDetail extends Vue {
   get marginLeft(): string {
     const left = this.showSubs ? (this.largeDesktop ? '920px' : '680px') : this.largeDesktop ? '521px' : '401px'
     return left
+  }
+
+  get subListRef(): SubscriptionsList {
+    return this.$refs.subList as SubscriptionsList
   }
 
   get curConnectionId(): string {
@@ -661,25 +668,30 @@ export default class ConnectionsDetail extends Vue {
       this.$emit('reload')
     })
   }
+
+  // Connect callback
   private onConnect() {
     this.connectLoading = false
+
     this.changeActiveConnection({
       id: this.$route.params.id,
       client: this.client,
       messages: this.record.messages,
     })
     this.$notify({
-      title: this.$t('connections.connected') as string,
+      title: this.$tc('connections.connected'),
       message: '',
       type: 'success',
       duration: 3000,
       offset: 30,
     })
     this.setShowClientInfo(false)
-    this.$emit('reload')
+    this.$emit('reload', false, false, this.handleReSubTopics)
   }
+
+  // Error callback
   private onError(error: string) {
-    let msgTitle = this.$t('connections.connectFailed') as string
+    let msgTitle = this.$tc('connections.connectFailed')
     if (error) {
       msgTitle = error
     }
@@ -695,13 +707,16 @@ export default class ConnectionsDetail extends Vue {
     })
     this.$emit('reload')
   }
+
+  // Reconnect callback
   private onReConnect() {
+    this.isReconnect = true
     if (!this.record.reconnect) {
       this.client.end!(true)
       this.retryTimes = 0
       this.connectLoading = false
       this.$notify({
-        title: this.$t('connections.connectFailed') as string,
+        title: this.$tc('connections.connectFailed'),
         message: '',
         type: 'error',
         duration: 3000,
@@ -717,7 +732,7 @@ export default class ConnectionsDetail extends Vue {
         this.retryTimes += 1
         this.connectLoading = true
         this.$notify({
-          title: this.$t('connections.reconnect') as string,
+          title: this.$tc('connections.reconnect'),
           message: '',
           type: 'warning',
           duration: 3000,
@@ -726,9 +741,13 @@ export default class ConnectionsDetail extends Vue {
       }
     }
   }
+
+  // Close connection callback
   private onClose() {
     this.connectLoading = false
+    this.isReconnect = false
   }
+
   private onMessageArrived(id: string) {
     return (topic: string, payload: Buffer, packet: IPublishPacket) => {
       const { qos, retain, properties } = packet
@@ -921,6 +940,19 @@ export default class ConnectionsDetail extends Vue {
       return genReceivePayload(type, value)
     }
     return value
+  }
+
+  // Re-subscribe topic
+  private handleReSubTopics() {
+    if (this.client.options) {
+      const { clean, resubscribe } = this.client.options
+      const { subscriptions } = this.record
+      const needResub = resubscribe && subscriptions.length
+      const cleanStatus = (clean && !this.isReconnect) || (!clean && this.isReconnect)
+      if (needResub && cleanStatus) {
+        this.subListRef.resubscribe()
+      }
+    }
   }
 
   private created() {

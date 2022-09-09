@@ -106,7 +106,7 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
     }
   }
   // Auto Resubscribe, Valid only when reconnecting
-  // options.resubscribe = Store.getters.autoResub
+  options.resubscribe = Store.getters.autoResub
   return options
 }
 
