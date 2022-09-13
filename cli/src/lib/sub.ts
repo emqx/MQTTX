@@ -1,14 +1,11 @@
 import * as mqtt from 'mqtt'
 import * as fs from 'fs'
 import { IClientSubscribeOptions } from 'mqtt'
+import { getBooleanOption, getNumberOption } from '../utils/generator'
 
 const sub = (options: any) => {
   options.protocolVersion = options.mqttVersion
-  if (options.protocolVersion === 5) {
-    if (options.userProperties) {
-      options.properties = { userProperties: options.userProperties }
-    }
-  } else if (options.protocolVersion === 3) {
+  if (options.protocolVersion === 3) {
     options.protocolId = 'MQIsdp'
   }
 
@@ -45,30 +42,31 @@ const sub = (options: any) => {
   const client = mqtt.connect(options)
 
   client.on('connect', () => {
-    const { topic, qos, no_local, retainAsPublished, retainHandling } = options
-    const subOptions: {
-      qos: number
-      nl?: boolean
-      rap?: boolean
-      rh?: number
-    } = {
-      qos,
-    }
-    if (options.protocolVersion === 5) {
-      subOptions.nl = no_local
-      subOptions.rap = retainAsPublished
-      subOptions.rh = retainHandling
-    }
-    client.subscribe(topic, subOptions as IClientSubscribeOptions, (err, result) => {
-      if (err) {
-        console.error(err)
-        process.exit(1)
+    const { topic, qos, no_local, retainAsPublished, retainHandling, userProperties } = options
+
+    topic.forEach((t: string, index: number) => {
+      const subOptions: IClientSubscribeOptions = {
+        qos: getNumberOption(qos, index, 0) as IClientSubscribeOptions['qos'],
       }
-      result.forEach((sub) => {
-        if (sub.qos > 2) {
-          console.error('subscription negated to', sub.topic, 'with code', sub.qos)
+      if (options.protocolVersion === 5) {
+        subOptions.nl = getBooleanOption(no_local, index)
+        subOptions.rap = getBooleanOption(retainAsPublished, index)
+        subOptions.rh = getNumberOption(retainHandling, index)
+        userProperties && (subOptions.properties = { userProperties })
+      }
+
+      client.subscribe(t, subOptions, (err, result) => {
+        if (err) {
+          console.error(err)
           process.exit(1)
         }
+
+        result.forEach((sub) => {
+          if (sub.qos > 2) {
+            console.error('subscription negated to', sub.topic, 'with code', sub.qos)
+            process.exit(1)
+          }
+        })
       })
     })
   })

@@ -38,4 +38,22 @@ const parseUserProperties = (value: string, previous: Record<string, unknown> | 
   }
 }
 
-export { parseNumber, parseProtocol, parseMQTTVersion, parseUserProperties }
+const parseQoS = (value: string, previous: number[] | undefined) => {
+  const parsedValue = Number(value)
+  if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > 2) {
+    program.error(`${value} is not a valid QoS.`)
+  } else {
+    return previous ? [...previous, parsedValue] : [parsedValue]
+  }
+}
+
+const parseVariadicOfBooleanType = (value: string, previous: boolean[] | undefined) => {
+  if (!['true', 'false'].includes(value)) {
+    program.error(`${value} is not a boolean.`)
+  } else {
+    const booleanValue = value === 'true'
+    return previous ? [...previous, booleanValue] : [booleanValue]
+  }
+}
+
+export { parseNumber, parseProtocol, parseMQTTVersion, parseUserProperties, parseQoS, parseVariadicOfBooleanType }
