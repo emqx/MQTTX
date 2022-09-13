@@ -1,6 +1,13 @@
 import { Command } from 'commander'
 import { getClientId } from './utils/generator'
-import { parseNumber, parseProtocol, parseMQTTVersion, parseUserProperties } from './utils/parse'
+import {
+  parseNumber,
+  parseProtocol,
+  parseMQTTVersion,
+  parseUserProperties,
+  parseQoS,
+  parseVariadicOfBooleanType,
+} from './utils/parse'
 import conn from './lib/conn'
 import pub from './lib/pub'
 import sub from './lib/sub'
@@ -85,16 +92,20 @@ export class Commander {
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
       .option('-i, --client-id <ID>', 'the client id', getClientId())
-      .option('-q, --qos <0/1/2>', 'the QoS of the message', parseNumber, 0)
+      .option('-q, --qos <0/1/2...>', 'the QoS of the message', parseQoS)
       .option('--no-clean', 'set the clean session flag to false (default: true)')
-      .requiredOption('-t, --topic <TOPIC>', 'the message topic')
+      .requiredOption('-t, --topic <TOPIC...>', 'the message topic')
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
       .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws or wss', parseProtocol)
-      .option('-nl, --no_local', 'the no local MQTT 5.0 flag')
-      .option('-rap, --retain-as-published', 'the retain as published MQTT 5.0 flag')
-      .option('-rh, --retain-handling <0/1/2>', 'the retain handling MQTT 5.0', parseNumber)
+      .option('-nl, --no_local [FLAG...]', 'the no local MQTT 5.0 flag', parseVariadicOfBooleanType)
+      .option(
+        '-rap, --retain-as-published [FLAG...]',
+        'the retain as published MQTT 5.0 flag',
+        parseVariadicOfBooleanType,
+      )
+      .option('-rh, --retain-handling <0/1/2...>', 'the retain handling MQTT 5.0', parseQoS)
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
