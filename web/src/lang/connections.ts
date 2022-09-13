@@ -204,6 +204,11 @@ export default {
     en: 'Auto Reconnect',
     ja: '自動再接続',
   },
+  reconnectPeriod: {
+    zh: '重连周期',
+    en: 'Reconnect Period',
+    ja: '再接続期間',
+  },
   mqttVersion: {
     zh: 'MQTT 版本',
     en: 'MQTT Version',
