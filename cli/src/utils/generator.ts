@@ -1,21 +1,29 @@
 const getClientId = () => `mqttx_${Math.random().toString(16).substring(2, 10)}`
 
-const getBooleanOption = (option: boolean | boolean[] | undefined, index: number, defaultVal?: boolean) => {
-  if (typeof option === 'boolean') return option
+function getSpecialTypesOption(
+  option: number | number[] | undefined,
+  index: number,
+  defaultVal?: number,
+): number | undefined
+
+function getSpecialTypesOption(
+  option: boolean | boolean[] | undefined,
+  index: number,
+  defaultVal?: boolean,
+): boolean | undefined
+
+function getSpecialTypesOption(
+  option: number | number[] | boolean | boolean[] | undefined,
+  index: number,
+  defaultVal?: number | boolean,
+) {
+  const typelist = ['boolean', 'number']
+  if (typelist.includes(typeof option)) return option
   if (Array.isArray(option)) {
-    if (typeof option[index] === 'boolean') return option[index]
-    if (typeof option[0] === 'boolean') return option[0]
+    if (typelist.includes(typeof option[index])) return option[index]
+    if (typelist.includes(typeof option[0])) return option[0]
   }
   return defaultVal
 }
 
-const getNumberOption = (option: number | number[] | undefined, index: number, defaultVal?: number) => {
-  if (typeof option === 'number') return option
-  if (Array.isArray(option)) {
-    if (typeof option[index] === 'number') return option[index]
-    if (typeof option[0] === 'number') return option[0]
-  }
-  return defaultVal
-}
-
-export { getClientId, getBooleanOption, getNumberOption }
+export { getClientId, getSpecialTypesOption }

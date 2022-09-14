@@ -1,7 +1,7 @@
 import * as mqtt from 'mqtt'
 import * as fs from 'fs'
 import { IClientSubscribeOptions } from 'mqtt'
-import { getBooleanOption, getNumberOption } from '../utils/generator'
+import { getSpecialTypesOption } from '../utils/generator'
 
 const sub = (options: any) => {
   options.protocolVersion = options.mqttVersion
@@ -46,12 +46,12 @@ const sub = (options: any) => {
 
     topic.forEach((t: string, index: number) => {
       const subOptions: IClientSubscribeOptions = {
-        qos: getNumberOption(qos, index, 0) as IClientSubscribeOptions['qos'],
+        qos: getSpecialTypesOption(qos, index, 0) as IClientSubscribeOptions['qos'],
       }
       if (options.protocolVersion === 5) {
-        subOptions.nl = getBooleanOption(no_local, index)
-        subOptions.rap = getBooleanOption(retainAsPublished, index)
-        subOptions.rh = getNumberOption(retainHandling, index)
+        subOptions.nl = getSpecialTypesOption(no_local as boolean[], index)
+        subOptions.rap = getSpecialTypesOption(retainAsPublished as boolean[], index)
+        subOptions.rh = getSpecialTypesOption(retainHandling as number[], index)
         userProperties && (subOptions.properties = { userProperties })
       }
 
