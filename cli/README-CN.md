@@ -151,7 +151,7 @@ mqttx conn --help
 | -k, --keepalive <SEC>                      | MQTT 的 Keep Alive，默认为 30                  |
 | -u, --username <USER>                      | 连接到 MQTT Broker 的用户名                    |
 | -P, --password <PASS>                      | 连接到 MQTT Broker 的密码                      |
-| -l, --protocol <PROTO>                     | 连接时的协议，mqtt, mqtts, ws or wss           |
+| -l, --protocol <PROTO>                     | 连接时的协议，mqtt 或 mqtts                    |
 | --key <PATH>                               | key 文件的路径                                 |
 | --cert <PATH>                              | cert 文件的路径                                |
 | --ca                                       | ca 证书的文件路径                              |
@@ -181,7 +181,7 @@ mqttx sub --help
 | -k, --keepalive <SEC>                      | MQTT 的 Keep Alive，默认为 30                  |
 | -u, --username <USER>                      | 连接到 MQTT Broker 的用户名                    |
 | -P, --password <PASS>                      | 连接到 MQTT Broker 的密码                      |
-| -l, --protocol <PROTO>                     | 连接时的协议，mqtt, mqtts, ws or wss           |
+| -l, --protocol <PROTO>                     | 连接时的协议，mqtt 或 mqtts                    |
 | -nl, --no_local                            | MQTT 5.0 订阅选项中的 no local 标识            |
 | -rap, --retain-as-published                | MQTT 5.0 订阅选项中的 retain as published 标识 |
 | -rh, --retain-handling <0/1/2>             | MQTT 5.0 订阅选项中的 retain handling 标识     |
@@ -217,7 +217,7 @@ mqttx pub --help
 | -M, --multiline                            | 可以通过多行发布多条消息                       |
 | -u, --username <USER>                      | 连接到 MQTT Broker 的用户名                    |
 | -P, --password <PASS>                      | 连接到 MQTT Broker 的密码                      |
-| -l, --protocol <PROTO>                     | 连接时的协议，mqtt, mqtts, ws or wss           |
+| -l, --protocol <PROTO>                     | 连接时的协议，mqtt 或 mqtts                    |
 | --key <PATH>                               | key 文件的路径                                 |
 | --cert <PATH>                              | cert 文件的路径                                |
 | --ca                                       | ca 证书的文件路径                              |

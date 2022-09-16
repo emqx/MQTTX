@@ -11,8 +11,8 @@ const parseNumber = (value: string) => {
 }
 
 const parseProtocol = (value: string) => {
-  if (!['mqtt', 'mqtts', 'ws', 'wss'].includes(value)) {
-    program.error('Not mqtt, mqtts, ws or wss.')
+  if (!['mqtt', 'mqtts'].includes(value)) {
+    program.error('Only support mqtt and mqtts.')
   }
   return value
 }
