@@ -285,8 +285,8 @@ export default {
     ja: '遺言',
   },
   strictValidateCertificate: {
-    zh: '严格证书验证',
-    en: 'Strict validate Certificate',
+    zh: 'SSL 安全',
+    en: 'SSL Secure',
     ja: 'SSL証明書',
   },
   willTopic: {
@@ -324,11 +324,6 @@ export default {
     en: 'Content Type',
     ja: '遺言詳細情報',
   },
-  isUTF8Data: {
-    zh: '是否为 UTF-8 编码数据',
-    en: 'is UTF-8 Encoded Data',
-    ja: 'UTF-8エンコードデータフラグ',
-  },
   duplicateName: {
     zh: '该名称已存在，请重新命名！',
     en: 'Duplicate name. Please rename it!',
@@ -338,6 +333,16 @@ export default {
     zh: '可快速选择已创建过的连接配置',
     en: 'Quick selection of created connection configurations',
     ja: '作成された接続構成を早めに選択することができます',
+  },
+  clientIdWithTimeTip: {
+    zh: '在连接时附加时间戳到 ClientID，以防止重复的连接',
+    en: 'Append a timestamp to the ClientID at connection time to prevent duplicate connections',
+    ja: '重複接続を防ぐために、ClientIDにタイムスタンプを追加します',
+  },
+  secureTip: {
+    zh: '是否验证服务端证书链和地址名称',
+    en: "Whether a client verifies the server's certificate chain and host name",
+    ja: "Whether a client verifies the server's certificate chain and host name",
   },
   publishMsg: {
     zh: '发送消息',

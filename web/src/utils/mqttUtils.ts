@@ -40,9 +40,9 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
     reconnectPeriod, // reconnectPeriod = 0 disabled automatic reconnection in the client
     will,
     rejectUnauthorized,
-    // clientIdWithTime,
+    clientIdWithTime,
   } = record
-  const protocolVersion = mqttVersionDict[mqttVersion as '3.1.1' | '5.0']
+  const protocolVersion = mqttVersionDict[mqttVersion]
   const options: IClientOptions = {
     clientId,
     keepalive,
@@ -52,10 +52,10 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
   }
   options.connectTimeout = time.convertSecondsToMs(connectTimeout)
   // Append timestamp to MQTT client id
-  // if (clientIdWithTime) {
-  //   const clickIconTime = Date.parse(new Date().toString())
-  //   options.clientId = `${options.clientId}_${clickIconTime}`
-  // }
+  if (clientIdWithTime) {
+    const clickIconTime = Date.parse(new Date().toString())
+    options.clientId = `${options.clientId}_${clickIconTime}`
+  }
   // Auth
   if (username !== '') {
     options.username = username
@@ -141,6 +141,8 @@ export const getMQTTProtocol = (data: ConnectionModel): Protocol => {
 export const getDefaultRecord = (): ConnectionModel => {
   return {
     clientId: getClientId(),
+    createAt: time.getNowDate(),
+    updateAt: time.getNowDate(),
     name: '',
     clean: true,
     protocol: 'ws',
@@ -155,7 +157,7 @@ export const getDefaultRecord = (): ConnectionModel => {
     port: 8083,
     ssl: false,
     certType: '',
-    rejectUnauthorized: false,
+    rejectUnauthorized: true,
     ca: '',
     cert: '',
     key: '',
@@ -177,6 +179,9 @@ export const getDefaultRecord = (): ConnectionModel => {
         willDelayInterval: undefined,
         messageExpiryInterval: undefined,
         contentType: '',
+        responseTopic: '',
+        correlationData: undefined,
+        userProperties: undefined,
       },
     },
     properties: {
@@ -190,6 +195,7 @@ export const getDefaultRecord = (): ConnectionModel => {
       authenticationMethod: undefined,
       authenticationData: undefined,
     },
+    clientIdWithTime: false,
   }
 }
 

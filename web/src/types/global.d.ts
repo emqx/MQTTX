@@ -25,6 +25,8 @@ declare global {
 
   type CertType = '' | 'server' | 'self'
 
+  type MqttVersion = '3.1.1' | '5.0'
+
   enum ProtocolOption {
     ws = 'ws',
     wss = 'wss',
@@ -269,6 +271,8 @@ declare global {
     name: string
     clean: boolean
     protocol?: Protocol
+    createAt: string
+    updateAt: string
     host: string
     port: number
     keepalive: number
@@ -280,7 +284,7 @@ declare global {
     path: string
     certType?: CertType
     ssl: boolean
-    mqttVersion: '3.1.1' | '5.0'
+    mqttVersion: MqttVersion
     unreadMessageCount: number
     messages: MessageModel[]
     pushProps: PushPropertiesModel
@@ -292,5 +296,6 @@ declare global {
         }
     will?: WillModel
     properties?: ClientPropertiesModel
+    clientIdWithTime?: boolean
   }
 }
