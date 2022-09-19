@@ -150,7 +150,7 @@ mqttx conn --help
 | -k, --keepalive <SEC>                      | send a ping every SEC seconds (default: 30)                  |
 | -u, --username <USER>                      | the username                                                 |
 | -P, --password <PASS>                      | the password                                                 |
-| -l, --protocol <PROTO>                     | the protocol to use, mqtt or mqtts                           |
+| -l, --protocol <PROTO>                     | the protocol to use, mqtt or mqtts (default: mqtt)           |
 | --key <PATH>                               | path to the key file                                         |
 | --cert <PATH>                              | path to the cert file                                        |
 | --ca <PATH>                                | path to the ca certificate                                   |
@@ -180,7 +180,7 @@ mqttx sub --help
 | -k, --keepalive <SEC>                      | send a ping every SEC seconds (default: 30)                  |
 | -u, --username <USER>                      | the username                                                 |
 | -P, --password <PASS>                      | the password                                                 |
-| -l, --protocol <PROTO>                     | the protocol to use, mqtt or mqtts                           |
+| -l, --protocol <PROTO>                     | the protocol to use, mqtt or mqtts (default: mqtt)           |
 | -nl, --no_local                            | the no local MQTT 5.0 flag                                   |
 | -rap, --retain-as-published                | the retain as published MQTT 5.0 flag                        |
 | -rh, --retain-handling <0/1/2>             | the retain handling MQTT 5.0                                 |
@@ -216,7 +216,7 @@ mqttx pub --help
 | -M, --multiline                            | read lines from stdin as multiple messages                   |
 | -u, --username <USER>                      | the username                                                 |
 | -P, --password <PASS>                      | the password                                                 |
-| -l, --protocol <PROTO>                     | the protocol to use, mqtt or mqtts                           |
+| -l, --protocol <PROTO>                     | the protocol to use, mqtt or mqtts (default: mqtt)           |
 | --key <PATH>                               | path to the key file                                         |
 | --cert <PATH>                              | path to the cert file                                        |
 | --ca                                       | path to the ca certificate                                   |

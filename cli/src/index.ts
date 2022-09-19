@@ -38,7 +38,7 @@ export class Commander {
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol)
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts (default: mqtt)', parseProtocol)
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
@@ -69,7 +69,7 @@ export class Commander {
       .option('-M, --multiline', 'read lines from stdin as multiple messages')
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol)
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts (default: mqtt)', parseProtocol)
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
@@ -98,7 +98,7 @@ export class Commander {
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol)
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts (default: mqtt)', parseProtocol)
       .option('-nl, --no_local [FLAG...]', 'the no local MQTT 5.0 flag', parseVariadicOfBooleanType)
       .option(
         '-rap, --retain-as-published [FLAG...]',
