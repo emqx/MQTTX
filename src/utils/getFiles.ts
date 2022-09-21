@@ -11,8 +11,9 @@ export const getSSLFile = (sslPath: SSLPath): SSLContent | undefined => {
     }
     return res
   } catch (error) {
+    const err = error as Error
     Notification({
-      title: error.toString(),
+      title: err.toString(),
       message: '',
       type: 'error',
     })

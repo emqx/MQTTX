@@ -1,5 +1,6 @@
 import * as mqtt from 'mqtt'
 import * as fs from 'fs'
+import signale from '../utils/signale'
 
 const conn = (options: any) => {
   options.protocolVersion = options.mqttVersion
@@ -43,12 +44,14 @@ const conn = (options: any) => {
 
   const client = mqtt.connect(options)
 
+  signale.await('Connecting...')
+
   client.on('connect', () => {
-    console.log('\x1b[32m', 'Connected')
+    signale.success('Connected')
   })
 
   client.on('error', (err) => {
-    console.warn(err)
+    signale.error(err)
     client.end()
   })
 }

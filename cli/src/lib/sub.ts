@@ -2,6 +2,7 @@ import * as mqtt from 'mqtt'
 import * as fs from 'fs'
 import { IClientSubscribeOptions } from 'mqtt'
 import { getSpecialTypesOption } from '../utils/generator'
+import { signale, msgLog } from '../utils/signale'
 
 const sub = (options: any) => {
   options.protocolVersion = options.mqttVersion
@@ -41,7 +42,11 @@ const sub = (options: any) => {
 
   const client = mqtt.connect(options)
 
+  signale.await('Connecting...')
+
   client.on('connect', () => {
+    signale.success('Connected')
+
     const { topic, qos, no_local, retainAsPublished, retainHandling, userProperties } = options
 
     topic.forEach((t: string, index: number) => {
@@ -55,15 +60,19 @@ const sub = (options: any) => {
         userProperties && (subOptions.properties = { userProperties })
       }
 
+      signale.await(`Subscribing to ${t}...`)
+
       client.subscribe(t, subOptions, (err, result) => {
         if (err) {
-          console.error(err)
+          signale.error(err)
           process.exit(1)
+        } else {
+          signale.success(`Subscribed to ${t}`)
         }
 
         result.forEach((sub) => {
           if (sub.qos > 2) {
-            console.error('subscription negated to', sub.topic, 'with code', sub.qos)
+            signale.error('subscription negated to', sub.topic, 'with code', sub.qos)
             process.exit(1)
           }
         })
@@ -72,17 +81,19 @@ const sub = (options: any) => {
   })
 
   client.on('message', (topic, payload, packet) => {
+    const msgData: Record<string, unknown>[] = []
     if (options.verbose) {
-      console.log('topic: ', topic)
+      msgData.push({ label: 'topic', value: topic })
     }
     if (packet.properties && packet.properties.userProperties) {
-      console.log('user properties: ', { ...packet.properties.userProperties })
+      msgData.push({ label: 'user properties', value: { ...packet.properties.userProperties } })
     }
-    console.log('payload: ', payload.toString())
+    msgData.push({ label: 'payload', value: payload.toString() })
+    msgLog(msgData)
   })
 
   client.on('error', (err) => {
-    console.warn(err)
+    signale.error(err)
     client.end()
   })
 }
