@@ -7,7 +7,8 @@
     "lib": ["DOM", "ES2015", "ScriptHost", "ES2019.Array"],
     "strict": true,
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["@types/signale"]
   },
   "include": ["src"]
 }

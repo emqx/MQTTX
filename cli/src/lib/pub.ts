@@ -5,26 +5,33 @@ import concat from 'concat-stream'
 import { Writable } from 'readable-stream'
 import split2 from 'split2'
 import { IClientPublishOptions } from 'mqtt'
+import signale from '../utils/signale'
 
 const send = (options: any, pubOptions: IClientPublishOptions) => {
   const client = mqtt.connect(options)
+  signale.await('Connecting...')
   client.on('connect', () => {
+    signale.success('Connected')
     const { topic, message } = options
+    signale.await('Message Publishing...')
     client.publish(topic, message, pubOptions, (err) => {
       if (err) {
-        console.warn(err)
+        signale.warn(err)
+      } else {
+        signale.success('Message published')
       }
       client.end()
     })
   })
   client.on('error', (err) => {
-    console.warn(err)
+    signale.error(err)
     client.end()
   })
 }
 
 const multisend = (options: any, pubOptions: IClientPublishOptions) => {
   const client = mqtt.connect(options)
+  signale.await('Connecting...')
   const sender = new Writable({
     objectMode: true,
   })
@@ -33,6 +40,7 @@ const multisend = (options: any, pubOptions: IClientPublishOptions) => {
   }
 
   client.on('connect', () => {
+    signale.success('Connected, press Enter to publish, press Ctrl+C to exit')
     pump(process.stdin, split2(), sender, (err) => {
       client.end()
       if (err) {
