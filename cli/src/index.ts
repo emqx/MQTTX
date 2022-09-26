@@ -26,7 +26,7 @@ export class Commander {
       .name('mqttx')
       .description('An MQTT client for the command line')
       .enablePositionalOptions()
-      .version(version, '-v, --version')
+      .version(`${version}\nhttps://mqttx.app/changelogs/v${version}`, '-v, --version')
 
     this.program
       .command('conn')
