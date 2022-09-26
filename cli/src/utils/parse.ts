@@ -56,4 +56,19 @@ const parseVariadicOfBooleanType = (value: string, previous: boolean[] | undefin
   }
 }
 
-export { parseNumber, parseProtocol, parseMQTTVersion, parseUserProperties, parseQoS, parseVariadicOfBooleanType }
+const parsePubTopic = (value: string) => {
+  if (value.includes('+') || value.includes('#')) {
+    program.error('You cannot publish the message to a Topic that contains wildcards characters #, +')
+  }
+  return value
+}
+
+export {
+  parseNumber,
+  parseProtocol,
+  parseMQTTVersion,
+  parseUserProperties,
+  parseQoS,
+  parseVariadicOfBooleanType,
+  parsePubTopic,
+}
