@@ -7,6 +7,7 @@ import {
   parseUserProperties,
   parseQoS,
   parseVariadicOfBooleanType,
+  parsePubTopic,
 } from './utils/parse'
 import conn from './lib/conn'
 import pub from './lib/pub'
@@ -62,7 +63,7 @@ export class Commander {
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
       .option('-i, --client-id <ID>', 'the client id', getClientId())
       .option('-q, --qos <0/1/2>', 'the QoS of the message', parseNumber, 0)
-      .requiredOption('-t, --topic <TOPIC>', 'the message topic')
+      .requiredOption('-t, --topic <TOPIC>', 'the message topic', parsePubTopic)
       .option('-m, --message <MSG>', 'the message body', 'Hello From MQTT X CLI')
       .option('-r, --retain', 'send a retained message')
       .option('-s, --stdin', 'read the message body from stdin')
