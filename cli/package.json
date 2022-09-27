@@ -18,8 +18,10 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
+    "axios": "^0.27.2",
     "chalk": "~4.1.2",
     "commander": "^9.3.0",
+    "compare-versions": "^5.0.1",
     "concat-stream": "^2.0.0",
     "mqtt": "^4.3.7",
     "pump": "^3.0.0",

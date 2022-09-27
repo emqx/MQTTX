@@ -1,5 +1,6 @@
 import { Command } from 'commander'
 import { getClientId } from './utils/generator'
+import { checkUpdate } from './utils/checkUpdate'
 import {
   parseNumber,
   parseProtocol,
@@ -27,6 +28,13 @@ export class Commander {
       .description('An MQTT client for the command line')
       .enablePositionalOptions()
       .version(`${version}\nhttps://mqttx.app/changelogs/v${version}`, '-v, --version')
+
+    this.program
+      .command('check')
+      .description('Check for updates.')
+      .action(async () => {
+        await checkUpdate()
+      })
 
     this.program
       .command('conn')
