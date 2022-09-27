@@ -130,6 +130,7 @@ mqttx --help
 
 | Command | Description                                    |
 | ------- | ---------------------------------------------- |
+| check   | Check for updates                              |
 | conn    | Create a connection and connect to MQTT Broker |
 | pub     | Publish a message to a topic                   |
 | sub     | Subscribes to a topic                          |
