@@ -38,7 +38,7 @@ protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: tru
 
 app.allowRendererProcessReuse = false
 
-const { ConnectionInit, ConnectionDestory } = useConnection()
+const { ConnectionInit, ConnectionDestroy } = useConnection()
 
 function handleIpcMessages() {
   ipcMain.on('setting', (event: Electron.IpcMainEvent, ...args: any[]) => {
@@ -75,7 +75,7 @@ function beforeAppQuit() {
   // close all log appender and rename log file with date
   quitAndRenameLogger()
   // close all SQLite connection
-  ConnectionDestory()
+  ConnectionDestroy()
   // quit APP
   app.quit()
 }
