@@ -18,13 +18,13 @@ const useConnection = () => {
     }
     return sqlConnection
   }
-  async function ConnectionDestory() {
+  async function ConnectionDestroy() {
     if (sqlConnection) {
       await sqlConnection.close()
     }
   }
   return {
-    ConnectionDestory,
+    ConnectionDestroy,
     ConnectionInit,
     sqlConnection,
   }
