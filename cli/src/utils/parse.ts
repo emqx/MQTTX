@@ -1,9 +1,12 @@
+import * as fs from 'fs'
 import signale from '../utils/signale'
+
+import { IClientOptions } from 'mqtt'
 
 const parseNumber = (value: string) => {
   const parsedValue = Number(value)
   if (isNaN(parsedValue)) {
-    signale.error('Not a number.')
+    signale.error(`${value} is not a number.`)
     process.exit(1)
   }
   return parsedValue
@@ -68,6 +71,108 @@ const parsePubTopic = (value: string) => {
   return value
 }
 
+const parseConnectOptions = (options: ConnectOptions) => {
+  const {
+    mqttVersion,
+    hostname,
+    port,
+    clientId,
+    clean,
+    keepalive,
+    username,
+    password,
+    protocol,
+    key,
+    cert,
+    ca,
+    insecure,
+    sessionExpiryInterval,
+    receiveMaximum,
+    maximumPacketSize,
+    topicAliasMaximum,
+    reqResponseInfo,
+    reqProblemInfo,
+    userProperties,
+    willTopic,
+    willMessage,
+    willQos,
+    willRetain,
+  } = options
+
+  const connectOptions: IClientOptions = {
+    protocolVersion: mqttVersion,
+    hostname,
+    port,
+    clientId,
+    clean,
+    keepalive,
+    username,
+    password,
+    protocol,
+  }
+
+  if (key) {
+    connectOptions.key = fs.readFileSync(key)
+  }
+
+  if (cert) {
+    connectOptions.cert = fs.readFileSync(cert)
+  }
+
+  if (ca) {
+    connectOptions.ca = fs.readFileSync(ca)
+  }
+
+  if (key && cert && protocol !== 'mqtts') {
+    connectOptions.protocol = 'mqtts'
+  }
+
+  if (insecure) {
+    connectOptions.rejectUnauthorized = false
+  }
+
+  if (willTopic) {
+    const will = {
+      topic: willTopic,
+      payload: willMessage,
+      qos: willQos,
+      retain: willRetain,
+    }
+
+    connectOptions.will = Object.fromEntries(
+      Object.entries(will).filter(([_, v]) => v !== null && v !== undefined),
+    ) as unknown as IClientOptions['will']
+  }
+
+  if (mqttVersion === 3) {
+    connectOptions.protocolId = 'MQIsdp'
+  } else if (mqttVersion === 5) {
+    const properties = {
+      sessionExpiryInterval,
+      receiveMaximum,
+      maximumPacketSize,
+      topicAliasMaximum,
+      requestResponseInformation: reqResponseInfo,
+      requestProblemInformation: reqProblemInfo,
+      userProperties,
+    }
+
+    if (clean === false) {
+      if (sessionExpiryInterval !== undefined) {
+        properties.sessionExpiryInterval = sessionExpiryInterval
+      } else {
+        properties.sessionExpiryInterval = 4294967295
+      }
+    }
+
+    connectOptions.properties = Object.fromEntries(
+      Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined),
+    )
+  }
+
+  return connectOptions
+}
+
 export {
   parseNumber,
   parseProtocol,
@@ -76,4 +181,5 @@ export {
   parseQoS,
   parseVariadicOfBooleanType,
   parsePubTopic,
+  parseConnectOptions,
 }
