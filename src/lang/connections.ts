@@ -796,4 +796,11 @@ export default {
     ja: '{oldName}は{name}として複製されました',
     hu: 'A(z) {oldName} a(z) {Name} néven másolva',
   },
+  sslFileRequired: {
+    zh: '请至少上传一种证书文件',
+    en: 'Please upload at least one certificate file',
+    tr: 'Lütfen en az bir sertifika dosyası yükleyin',
+    ja: '少なくとも1つの証明書ファイルをアップロードしてください',
+    hu: 'Legalább egy tanúsítványfájlt töltsön fel',
+  },
 }
