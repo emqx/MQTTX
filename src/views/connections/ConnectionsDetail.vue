@@ -518,31 +518,43 @@ export default class ConnectionsDetail extends Vue {
     }
     this.connectLoading = true
     // new client
-    const { curConnectClient, connectUrl } = createClient(this.record)
-    this.client = curConnectClient
-    const { id } = this.record
-    if (id && this.client.on) {
-      this.$log.info(`MQTTX client with ID ${id} assigned`)
-      this.client.on('connect', this.onConnect)
-      this.client.on('error', this.onError)
-      this.client.on('reconnect', this.onReConnect)
-      this.client.on('close', this.onClose)
-      this.client.on('message', this.onMessageArrived(id))
-    }
+    try {
+      const { curConnectClient, connectUrl } = createClient(this.record)
+      this.client = curConnectClient
+      const { id } = this.record
+      if (id && this.client.on) {
+        this.$log.info(`MQTTX client with ID ${id} assigned`)
+        this.client.on('connect', this.onConnect)
+        this.client.on('error', this.onError)
+        this.client.on('reconnect', this.onReConnect)
+        this.client.on('close', this.onClose)
+        this.client.on('message', this.onMessageArrived(id))
+      }
 
-    const protocolLogMap: ProtocolMap = {
-      mqtt: 'MQTT/TCP connection',
-      mqtts: 'MQTT/SSL connection',
-      ws: 'MQTT/WS connection',
-      wss: 'MQTT/WSS connection',
+      const protocolLogMap: ProtocolMap = {
+        mqtt: 'MQTT/TCP connection',
+        mqtts: 'MQTT/SSL connection',
+        ws: 'MQTT/WS connection',
+        wss: 'MQTT/WSS connection',
+      }
+      const curOptionsProtocol: Protocol = (this.client as MqttClient).options.protocol as Protocol
+      let connectLog = `Connect client ${this.record.name}, ${protocolLogMap[curOptionsProtocol]}: ${connectUrl}`
+      if (this.record.mqttVersion === '5.0') {
+        const propertiesLog = JSON.stringify(this.record.properties)
+        connectLog += ` with Properties: ${propertiesLog}`
+      }
+      this.$log.info(connectLog)
+    } catch (error) {
+      const err = error as Error
+      this.connectLoading = false
+      this.$notify({
+        title: err.toString(),
+        message: '',
+        type: 'error',
+        duration: 3000,
+        offset: 30,
+      })
     }
-    const curOptionsProtocol: Protocol = (this.client as MqttClient).options.protocol as Protocol
-    let connectLog = `Connect client ${this.record.name}, ${protocolLogMap[curOptionsProtocol]}: ${connectUrl}`
-    if (this.record.mqttVersion === '5.0') {
-      const propertiesLog = JSON.stringify(this.record.properties)
-      connectLog += ` with Properties: ${propertiesLog}`
-    }
-    this.$log.info(connectLog)
   }
 
   // Delete connection

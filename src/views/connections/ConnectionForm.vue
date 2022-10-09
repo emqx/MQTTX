@@ -83,10 +83,10 @@
             <el-col :span="22">
               <el-form-item class="host-item" label-width="93px" :label="$t('connections.brokerIP')" prop="host">
                 <el-col :span="6">
-                  <el-select size="mini" v-model="record.protocol">
-                    <el-option label="mqtt://" value="mqtt" :disabled="record.ssl"></el-option>
+                  <el-select size="mini" v-model="record.protocol" @change="handleProtocol">
+                    <el-option label="mqtt://" value="mqtt"></el-option>
                     <el-option label="mqtts://" value="mqtts"></el-option>
-                    <el-option label="ws://" value="ws" :disabled="record.ssl"></el-option>
+                    <el-option label="ws://" value="ws"></el-option>
                     <el-option label="wss://" value="wss"></el-option>
                   </el-select>
                 </el-col>
@@ -139,17 +139,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
-
             <template v-if="record.ssl">
-              <el-col :span="22">
-                <el-form-item label-width="93px" :label="$t('connections.certType')" prop="certType">
-                  <el-radio-group v-model="record.certType">
-                    <el-radio label="server">CA signed server</el-radio>
-                    <el-radio label="self">Self signed</el-radio>
-                  </el-radio-group>
-                </el-form-item>
-              </el-col>
-              <el-col :span="2"></el-col>
               <el-col :span="22">
                 <el-form-item
                   class="item-secure"
@@ -173,7 +163,16 @@
                   </el-tooltip>
                 </el-form-item>
               </el-col>
-              <el-col :span="2"> </el-col>
+              <el-col :span="2"></el-col>
+              <el-col :span="22">
+                <el-form-item label-width="93px" :label="$t('connections.certType')" prop="certType">
+                  <el-radio-group v-model="record.certType">
+                    <el-radio label="server">CA signed server</el-radio>
+                    <el-radio label="self">Self signed</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2"></el-col>
             </template>
           </el-row>
         </el-card>
@@ -188,7 +187,7 @@
               <el-row :gutter="10">
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.ca')" prop="ca">
-                    <el-input size="mini" v-model="record.ca"></el-input>
+                    <el-input size="mini" v-model="record.ca" clearable></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2">
@@ -198,7 +197,7 @@
                 </el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.cert')" prop="cert">
-                    <el-input size="mini" v-model="record.cert"></el-input>
+                    <el-input size="mini" v-model="record.cert" clearable></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2">
@@ -208,7 +207,7 @@
                 </el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.key')" prop="key">
-                    <el-input size="mini" v-model="record.key"></el-input>
+                    <el-input size="mini" v-model="record.key" clearable></el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2">
@@ -634,8 +633,6 @@ export default class ConnectionForm extends Vue {
       path: [{ required: true, message: this.$t('common.inputRequired') }],
       host: [{ required: true, message: this.$t('common.inputRequired') }],
       port: [{ required: true, message: this.$t('common.inputRequired') }],
-      certType: [{ required: true, message: this.$t('common.selectRequired') }],
-      ca: [{ required: true, message: this.$t('common.inputRequired') }],
     }
   }
 
@@ -663,6 +660,13 @@ export default class ConnectionForm extends Vue {
       let res: ConnectionModel | undefined = undefined
       const { connectionService } = useServices()
       let msgError = ''
+      // SSL File validation
+      if (data.ssl && data.certType === 'self') {
+        if (!data.cert && !data.key && !data.ca) {
+          this.$message.warning(this.$tc('connections.sslFileRequired'))
+          return
+        }
+      }
       if (this.oper === 'create') {
         // create a new connection
         res = await connectionService.create({
@@ -724,12 +728,24 @@ export default class ConnectionForm extends Vue {
       })
   }
 
+  private handleProtocol(val: Protocol) {
+    if (['mqtts', 'wss'].includes(val)) {
+      this.record.ssl = true
+      this.handleSSL(true)
+    } else {
+      this.record.ssl = false
+      this.handleSSL(false)
+    }
+  }
+
   private handleSSL(val: boolean) {
     const { protocol } = this.record
     if (protocol) {
-      this.changeProtocol(protocol as Protocol, val)
+      this.changeProtocol(protocol, val)
       if (!val) {
         this.record.certType = ''
+      } else {
+        this.record.certType = 'server'
       }
     }
   }
