@@ -21,6 +21,7 @@ declare global {
     cert?: string
     ca?: string
     insecure?: boolean
+    // properties of MQTT 5.0
     sessionExpiryInterval?: number
     receiveMaximum?: number
     maximumPacketSize?: number
@@ -28,10 +29,19 @@ declare global {
     reqResponseInfo?: boolean
     reqProblemInfo?: boolean
     userProperties?: Record<string, string>
+    // will message
     willTopic?: string
     willMessage?: string
     willQos?: QoS
     willRetain?: boolean
+    // will message properties of MQTT 5.0
+    willDelayInterval?: number
+    willPayloadFormatIndicator?: boolean
+    willMessageExpiryInterval?: number
+    willContentType?: string
+    willResponseTopic?: string
+    willCorrelationData?: string
+    willUserProperties?: Record<string, string>
   }
 
   interface PublishOptions extends ConnectOptions {
@@ -42,6 +52,7 @@ declare global {
     dup?: boolean
     stdin?: boolean
     multiline?: boolean
+    // properties of MQTT 5.0
     payloadFormatIndicator?: boolean
     messageExpiryInterval?: number
     topicAlias?: number

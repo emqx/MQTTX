@@ -52,6 +52,7 @@ export class Commander {
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
+      // properties options of MQTT 5.0
       .option('-se, --session-expiry-interval <SECONDS>', 'the session expiry interval in seconds', parseNumber)
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
       .option('--maximum-packet-size <NUMBER>', 'the maximum packet size the client is willing to accept', parseNumber)
@@ -63,10 +64,23 @@ export class Commander {
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
         parseUserProperties,
       )
-      .option('--will-topic <TOPIC>', 'the will topic')
-      .option('--will-message <BODY>', 'the will message')
-      .option('--will-qos <0/1/2>', 'the will qos', parseNumber)
-      .option('--will-retain', 'send a will retained message')
+      // will message options
+      .option('-Wt, --will-topic <TOPIC>', 'the will topic')
+      .option('-Wm, --will-message <BODY>', 'the will message')
+      .option('-Wq, --will-qos <0/1/2>', 'the will qos', parseNumber)
+      .option('-Wr, --will-retain', 'send a will retained message')
+      // will message properties options of MQTT 5.0
+      .option('-Wd, --will-delay-interval <SECONDS>', 'the will delay interval in seconds', parseNumber)
+      .option('-Wpf, --will-payload-format-indicator', 'will message is UTF-8 encoded character data or not')
+      .option('-We, --will-message-expiry-interval <SECONDS>', 'lifetime of the will message in seconds', parseNumber)
+      .option('-Wct, --will-content-type <CONTENTTYPE>', 'description of the will message’s content')
+      .option('-Wrt, --will-response-topic <TOPIC>', 'topic name for a response message')
+      .option('-Wcd, --will-correlation-data <DATA>', 'correlation data for the response message')
+      .option(
+        '-Wup, --will-user-properties <USERPROPERTIES...>',
+        'the user properties of will message',
+        parseUserProperties,
+      )
       .action(conn)
 
     this.program
