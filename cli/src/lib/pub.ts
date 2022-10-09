@@ -4,17 +4,21 @@ import pump from 'pump'
 import concat from 'concat-stream'
 import { Writable } from 'readable-stream'
 import split2 from 'split2'
-import { IClientPublishOptions } from 'mqtt'
+import { IClientOptions, IClientPublishOptions } from 'mqtt'
 import signale from '../utils/signale'
+import { parseConnectOptions, parsePublishOptions } from '../utils/parse'
 
-const send = (options: any, pubOptions: IClientPublishOptions) => {
-  const client = mqtt.connect(options)
+const send = (
+  connOpts: IClientOptions,
+  pubOpts: { topic: string; message?: string | Buffer; opts: IClientPublishOptions },
+) => {
+  const client = mqtt.connect(connOpts)
   signale.await('Connecting...')
   client.on('connect', () => {
     signale.success('Connected')
-    const { topic, message } = options
+    const { topic, message } = pubOpts
     signale.await('Message Publishing...')
-    client.publish(topic, message, pubOptions, (err) => {
+    client.publish(topic, message!, pubOpts.opts, (err) => {
       if (err) {
         signale.warn(err)
       } else {
@@ -29,14 +33,18 @@ const send = (options: any, pubOptions: IClientPublishOptions) => {
   })
 }
 
-const multisend = (options: any, pubOptions: IClientPublishOptions) => {
-  const client = mqtt.connect(options)
+const multisend = (
+  connOpts: IClientOptions,
+  pubOpts: { topic: string; message?: string | Buffer; opts: IClientPublishOptions },
+) => {
+  const client = mqtt.connect(connOpts)
   signale.await('Connecting...')
   const sender = new Writable({
     objectMode: true,
   })
   sender._write = (line, _enc, cb) => {
-    client.publish(options.topic, line.trim(), pubOptions, cb)
+    const { topic, opts } = pubOpts
+    client.publish(topic, line.trim(), opts, cb)
   }
 
   client.on('connect', () => {
@@ -50,66 +58,24 @@ const multisend = (options: any, pubOptions: IClientPublishOptions) => {
   })
 }
 
-const pub = (options: any) => {
-  options.protocolVersion = options.mqttVersion
-  if (options.protocolVersion === 3) {
-    options.protocolId = 'MQIsdp'
-  }
+const pub = (options: PublishOptions) => {
+  const connOpts = parseConnectOptions(options, 'pub')
 
-  if (options.key) {
-    options.key = fs.readFileSync(options.key)
-  }
-
-  if (options.cert) {
-    options.cert = fs.readFileSync(options.cert)
-  }
-
-  if (options.ca) {
-    options.ca = fs.readFileSync(options.ca)
-  }
-
-  if (options.key && options.cert && !options.protocol) {
-    options.protocol = 'mqtts'
-  }
-
-  if (options.insecure) {
-    options.rejectUnauthorized = false
-  }
-
-  if (options.willTopic) {
-    options.will = {}
-    options.will.topic = options.willTopic
-    options.will.payload = options.willMessage
-    options.will.qos = options.willQos
-    options.will.retain = options.willRetain
-  }
-
-  const pubOptions: IClientPublishOptions = {}
-
-  if (typeof options.qos === 'number') {
-    pubOptions.qos = options.qos
-  }
-  if (typeof options.retain === 'boolean') {
-    pubOptions.retain = options.retain
-  }
-  if (options.protocolVersion === 5) {
-    const { userProperties } = options
-    userProperties && (pubOptions.properties = { userProperties })
-  }
+  const pubOpts = parsePublishOptions(options)
 
   if (options.stdin) {
     if (options.multiline) {
-      multisend(options, pubOptions)
+      multisend(connOpts, pubOpts)
     } else {
       process.stdin.pipe(
         concat((data) => {
-          options.message = data
-          send(options, pubOptions)
+          pubOpts.message = data
+          send(connOpts, pubOpts)
         }),
       )
     }
   } else {
-    send(options, pubOptions)
+    send(connOpts, pubOpts)
   }
 }
 

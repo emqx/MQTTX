@@ -4,25 +4,25 @@ import { signale, msgLog } from '../utils/signale'
 import { parseConnectOptions, parseSubscribeOptions } from '../utils/parse'
 
 const sub = (options: SubscribeOptions) => {
-  const connectOptions = parseConnectOptions(options, 'sub')
+  const connOpts = parseConnectOptions(options, 'sub')
 
-  const client = mqtt.connect(connectOptions)
+  const client = mqtt.connect(connOpts)
 
   signale.await('Connecting...')
 
   client.on('connect', () => {
     signale.success('Connected')
 
-    const subOptionsArray = parseSubscribeOptions(options, 'sub')
+    const subOptsArray = parseSubscribeOptions(options, 'sub')
 
     const { topic } = options
 
     topic.forEach((t: string, index: number) => {
-      const subOptions = subOptionsArray[index]
+      const subOpts = subOptsArray[index]
 
       signale.await(`Subscribing to ${t}...`)
 
-      client.subscribe(t, subOptions, (err, result) => {
+      client.subscribe(t, subOpts, (err, result) => {
         if (err) {
           signale.error(err)
           process.exit(1)

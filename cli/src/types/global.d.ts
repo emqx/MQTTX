@@ -34,6 +34,23 @@ declare global {
     willRetain?: boolean
   }
 
+  interface PublishOptions extends ConnectOptions {
+    topic: string
+    message?: string | Buffer
+    qos: QoS
+    retain?: boolean
+    dup?: boolean
+    stdin?: boolean
+    multiline?: boolean
+    payloadFormatIndicator?: boolean
+    messageExpiryInterval?: number
+    topicAlias?: number
+    responseTopic?: string
+    correlationData?: string
+    subscriptionIdentifier?: number
+    contentType?: string
+  }
+
   interface SubscribeOptions extends ConnectOptions {
     topic: string[]
     qos?: QoS[]
