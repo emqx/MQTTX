@@ -98,6 +98,13 @@ const parseConnectOptions = (options: ConnectOptions, commandType?: CommandType)
     willMessage,
     willQos,
     willRetain,
+    willDelayInterval,
+    willPayloadFormatIndicator,
+    willMessageExpiryInterval,
+    willContentType,
+    willResponseTopic,
+    willCorrelationData,
+    willUserProperties,
   } = options
 
   const connectOptions: IClientOptions = {
@@ -143,6 +150,21 @@ const parseConnectOptions = (options: ConnectOptions, commandType?: CommandType)
     connectOptions.will = Object.fromEntries(
       Object.entries(will).filter(([_, v]) => v !== null && v !== undefined),
     ) as unknown as IClientOptions['will']
+
+    const willProperties = {
+      willDelayInterval,
+      payloadFormatIndicator: willPayloadFormatIndicator,
+      messageExpiryInterval: willMessageExpiryInterval,
+      contentType: willContentType,
+      responseTopic: willResponseTopic,
+      correlationData: willCorrelationData,
+      userProperties: willUserProperties,
+    }
+
+    connectOptions.will &&
+      (connectOptions.will.properties = Object.fromEntries(
+        Object.entries(willProperties).filter(([_, v]) => v !== null && v !== undefined),
+      ))
   }
 
   if (mqttVersion === 3) {
