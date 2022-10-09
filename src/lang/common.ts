@@ -244,4 +244,11 @@ export default {
     ja: '複製',
     hu: 'Másol',
   },
+  neverExpire: {
+    zh: '永不过期',
+    en: 'Never Expire',
+    tr: 'Süresiz',
+    ja: '期限なし',
+    hu: 'Soha ne járjon le',
+  },
 }

@@ -265,13 +265,6 @@ export default {
     ja: '接続タイムアウト',
     hu: 'Kapcsolat időtúlléps',
   },
-  cleanSession: {
-    zh: '清除会话',
-    en: 'Clean Session',
-    tr: 'Temiz Oturum',
-    ja: 'セッションクリア',
-    hu: 'Munkamenet törlése',
-  },
   autoReconnect: {
     zh: '自动重连',
     en: 'Auto Reconnect',

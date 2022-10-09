@@ -5,11 +5,19 @@ import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
 import _ from 'lodash'
 
-const setMQTT5Properties = (option: ClientPropertiesModel) => {
+const setMQTT5Properties = ({ clean, properties: option }: ConnectionModel) => {
   if (option === undefined) {
     return undefined
   }
   const properties: ClientPropertiesModel = _.cloneDeep(option)
+  if (properties.sessionExpiryInterval === null && !clean) {
+    /**
+      Clean Start set True and Session Expiry Interval set 0, the server MUST delete any Session State it holds for the Client
+      Clean Start set False and Session Expiry Interval set 4294967295, the server MUST NOT delete any Session State it holds for the Client
+      Non-standard usage, user-friendly only, remember that Clean Start needs to be used with sessionExpiryInterval In MQTT 5.0
+    **/
+    properties.sessionExpiryInterval = 4294967295
+  }
   return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined))
 }
 
@@ -66,7 +74,7 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
   }
   // MQTT Version
   if (protocolVersion === 5 && record.properties) {
-    const properties = setMQTT5Properties(record.properties)
+    const properties = setMQTT5Properties(record)
     if (properties && Object.keys(properties).length > 0) {
       options.properties = properties
     }
@@ -188,7 +196,7 @@ export const getDefaultRecord = (): ConnectionModel => {
       },
     },
     properties: {
-      sessionExpiryInterval: undefined,
+      sessionExpiryInterval: 0,
       receiveMaximum: undefined,
       maximumPacketSize: undefined,
       topicAliasMaximum: undefined,

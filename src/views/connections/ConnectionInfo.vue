@@ -67,7 +67,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="Clean Session">
+          <el-form-item :label="connection.mqttVersion === '5.0' ? 'Clean Start' : 'Clean Session'">
             <el-checkbox v-model="connection.clean" :disabled="isClientConnected" border>{{
               connection.clean ? 'true' : 'false'
             }}</el-checkbox>

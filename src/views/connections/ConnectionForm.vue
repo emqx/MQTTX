@@ -237,6 +237,16 @@
           <el-card v-show="advancedVisible" shadow="never" class="info-body item-card">
             <el-row :gutter="10">
               <el-col :span="22">
+                <el-form-item :label="$t('connections.mqttVersion')" prop="mqttVersion">
+                  <el-select size="mini" v-model="record.mqttVersion">
+                    <el-option value="3.1" label="3.1"></el-option>
+                    <el-option value="3.1.1" label="3.1.1"></el-option>
+                    <el-option value="5.0" label="5.0"></el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2"></el-col>
+              <el-col :span="22">
                 <el-form-item :label="$t('connections.connectionTimeout')" prop="connectTimeout">
                   <el-input-number
                     size="mini"
@@ -267,20 +277,8 @@
                 ><div class="unit">({{ $t('common.unitS') }})</div></el-col
               >
               <el-col :span="22">
-                <el-form-item :label="$t('connections.cleanSession')" prop="clean">
-                  <el-radio-group v-model="record.clean">
-                    <el-radio :label="true"></el-radio>
-                    <el-radio :label="false"></el-radio>
-                  </el-radio-group>
-                </el-form-item>
-              </el-col>
-              <el-col :span="2"></el-col>
-              <el-col :span="22">
                 <el-form-item :label="$t('connections.autoReconnect')" prop="reconnect">
-                  <el-radio-group v-model="record.reconnect">
-                    <el-radio :label="true"></el-radio>
-                    <el-radio :label="false"></el-radio>
-                  </el-radio-group>
+                  <el-switch v-model="record.reconnect" active-color="#13ce66" inactive-color="#A2A9B0"> </el-switch>
                 </el-form-item>
               </el-col>
               <el-col :span="2"></el-col>
@@ -302,24 +300,25 @@
                 </el-col>
               </template>
               <el-col :span="22">
-                <el-form-item :label="$t('connections.mqttVersion')" prop="mqttVersion">
-                  <el-select size="mini" v-model="record.mqttVersion">
-                    <el-option value="3.1" label="3.1"></el-option>
-                    <el-option value="3.1.1" label="3.1.1"></el-option>
-                    <el-option value="5.0" label="5.0"></el-option>
-                  </el-select>
+                <el-form-item :label="record.mqttVersion === '5.0' ? 'Clean Start' : 'Clean Session'" prop="clean">
+                  <el-switch
+                    v-model="record.clean"
+                    active-color="#13ce66"
+                    inactive-color="#A2A9B0"
+                    @change="handleClean"
+                  >
+                  </el-switch>
                 </el-form-item>
               </el-col>
               <el-col :span="2"></el-col>
-
-              <!-- MQTT v5.0 -->
               <template v-if="record.mqttVersion === '5.0'">
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.sessionExpiryInterval')" prop="sessionExpiryInterval">
                     <el-input
                       size="mini"
                       type="number"
-                      :min="1"
+                      :min="0"
+                      :placeholder="$t('common.neverExpire')"
                       v-model.number="record.properties.sessionExpiryInterval"
                     >
                     </el-input>
@@ -328,6 +327,10 @@
                 <el-col :span="2">
                   <div class="unit">({{ $t('common.unitS') }})</div>
                 </el-col>
+              </template>
+
+              <!-- MQTT v5.0 -->
+              <template v-if="record.mqttVersion === '5.0'">
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.receiveMaximum')" prop="receiveMaximum">
                     <el-input size="mini" type="number" :min="1" v-model.number="record.properties.receiveMaximum">
@@ -647,6 +650,7 @@ export default class ConnectionForm extends Vue {
       } else {
         // update a exisit connection
         if (data.id) {
+          console.log(data.properties)
           res = await connectionService.updateWithCascade(data.id, {
             ...data,
             updateAt: time.getNowDate(),
@@ -703,6 +707,17 @@ export default class ConnectionForm extends Vue {
       if (!val) {
         this.record.certType = ''
       }
+    }
+  }
+
+  private handleClean(val: boolean) {
+    if (this.record.mqttVersion !== '5.0') {
+      return
+    }
+    if (val && this.record.properties) {
+      this.$set(this.record.properties, 'sessionExpiryInterval', 0)
+    } else if (!val && this.record.properties) {
+      this.$set(this.record.properties, 'sessionExpiryInterval', null)
     }
   }
 
