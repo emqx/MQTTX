@@ -122,13 +122,13 @@
             <el-col :span="2"></el-col>
             <el-col :span="22">
               <el-form-item label-width="93px" :label="$t('connections.username')" prop="username">
-                <el-input size="mini" v-model.trim="record.username"></el-input>
+                <el-input size="mini" clearable v-model.trim="record.username"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
             <el-col :span="22">
               <el-form-item label-width="93px" :label="$t('connections.password')" prop="password">
-                <el-input type="password" size="mini" v-model.trim="record.password"></el-input>
+                <el-input type="password" clearable size="mini" v-model.trim="record.password"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="2"></el-col>
@@ -319,6 +319,7 @@
                       type="number"
                       :min="0"
                       :placeholder="$t('common.neverExpire')"
+                      clearable
                       v-model.number="record.properties.sessionExpiryInterval"
                     >
                     </el-input>
@@ -333,40 +334,62 @@
               <template v-if="record.mqttVersion === '5.0'">
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.receiveMaximum')" prop="receiveMaximum">
-                    <el-input size="mini" type="number" :min="1" v-model.number="record.properties.receiveMaximum">
+                    <el-input
+                      size="mini"
+                      type="number"
+                      :min="1"
+                      clearable
+                      v-model.number="record.properties.receiveMaximum"
+                    >
                     </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"><div class="unit">(Byte)</div></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.maximumPacketSize')" prop="maximumPacketSize">
-                    <el-input size="mini" type="number" :min="100" v-model.number="record.properties.maximumPacketSize">
+                    <el-input
+                      size="mini"
+                      type="number"
+                      :min="100"
+                      clearable
+                      v-model.number="record.properties.maximumPacketSize"
+                    >
                     </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"><div class="unit">(Byte)</div></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.topicAliasMaximum')" prop="topicAliasMaximum">
-                    <el-input size="mini" type="number" :min="1" v-model.number="record.properties.topicAliasMaximum">
+                    <el-input
+                      size="mini"
+                      type="number"
+                      :min="1"
+                      clearable
+                      v-model.number="record.properties.topicAliasMaximum"
+                    >
                     </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.requestResponseInformation')" prop="requestResponseInformation">
-                    <el-radio-group v-model="record.properties.requestResponseInformation">
-                      <el-radio :label="true"></el-radio>
-                      <el-radio :label="false"></el-radio>
-                    </el-radio-group>
+                    <el-switch
+                      v-model="record.properties.requestResponseInformation"
+                      active-color="#13ce66"
+                      inactive-color="#A2A9B0"
+                    >
+                    </el-switch>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.requestProblemInformation')" prop="requestProblemInformation">
-                    <el-radio-group v-model="record.properties.requestProblemInformation">
-                      <el-radio :label="true"></el-radio>
-                      <el-radio :label="false"></el-radio>
-                    </el-radio-group>
+                    <el-switch
+                      v-model="record.properties.requestProblemInformation"
+                      active-color="#13ce66"
+                      inactive-color="#A2A9B0"
+                    >
+                    </el-switch>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
@@ -417,10 +440,8 @@
               <el-col :span="2"></el-col>
               <el-col :span="22">
                 <el-form-item label-width="160px" :label="$t('connections.willRetain')" prop="will.lastWillRetain">
-                  <el-radio-group v-model="record.will.lastWillRetain">
-                    <el-radio :label="true"></el-radio>
-                    <el-radio :label="false"></el-radio>
-                  </el-radio-group>
+                  <el-switch v-model="record.will.lastWillRetain" active-color="#13ce66" inactive-color="#A2A9B0">
+                  </el-switch>
                 </el-form-item>
               </el-col>
               <el-col :span="2"></el-col>
@@ -459,10 +480,12 @@
                     :label="$t('connections.payloadFormatIndicator')"
                     prop="payloadFormatIndicator"
                   >
-                    <el-radio-group v-model="record.will.properties.payloadFormatIndicator">
-                      <el-radio :label="true"></el-radio>
-                      <el-radio :label="false"></el-radio>
-                    </el-radio-group>
+                    <el-switch
+                      v-model="record.will.properties.payloadFormatIndicator"
+                      active-color="#13ce66"
+                      inactive-color="#A2A9B0"
+                    >
+                    </el-switch>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
@@ -476,6 +499,7 @@
                       size="mini"
                       type="number"
                       :min="0"
+                      clearable
                       v-model.number="record.will.properties.willDelayInterval"
                     >
                     </el-input>
@@ -494,14 +518,15 @@
                       size="mini"
                       type="number"
                       :min="0"
+                      clearable
                       v-model.number="record.will.properties.messageExpiryInterval"
                     >
                     </el-input>
                   </el-form-item>
                 </el-col>
-                <el-col :span="2"
-                  ><div class="unit">({{ $t('common.unitS') }})</div></el-col
-                >
+                <el-col :span="2">
+                  <div class="unit">({{ $t('common.unitS') }})</div>
+                </el-col>
                 <el-col :span="22">
                   <el-form-item
                     class="content-type-item"
@@ -509,7 +534,7 @@
                     :label="$t('connections.contentType')"
                     prop="contentType"
                   >
-                    <el-input size="mini" v-model="record.will.properties.contentType"> </el-input>
+                    <el-input size="mini" clearable v-model="record.will.properties.contentType"> </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
@@ -520,7 +545,7 @@
                     :label="$t('connections.responseTopic')"
                     prop="responseTopic"
                   >
-                    <el-input size="mini" v-model="record.will.properties.responseTopic"> </el-input>
+                    <el-input size="mini" clearable v-model="record.will.properties.responseTopic"> </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
@@ -531,7 +556,7 @@
                     :label="$t('connections.correlationData')"
                     prop="correlationData"
                   >
-                    <el-input size="mini" v-model="record.will.properties.correlationData"> </el-input>
+                    <el-input size="mini" clearable v-model="record.will.properties.correlationData"> </el-input>
                   </el-form-item>
                 </el-col>
                 <el-col :span="2"></el-col>
@@ -650,7 +675,6 @@ export default class ConnectionForm extends Vue {
       } else {
         // update a exisit connection
         if (data.id) {
-          console.log(data.properties)
           res = await connectionService.updateWithCascade(data.id, {
             ...data,
             updateAt: time.getNowDate(),
