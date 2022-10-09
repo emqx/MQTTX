@@ -80,8 +80,23 @@ export class Commander {
       .requiredOption('-t, --topic <TOPIC>', 'the message topic', parsePubTopic)
       .option('-m, --message <MSG>', 'the message body', 'Hello From MQTT X CLI')
       .option('-r, --retain', 'send a retained message')
+      .option('-d, --dup', 'mark as duplicate flag')
       .option('-s, --stdin', 'read the message body from stdin')
       .option('-M, --multiline', 'read lines from stdin as multiple messages')
+      .option('-pf, --payload-format-indicator', 'the payload format indicator of the publish message')
+      .option('-me, --message-expiry-interval <NUMBER>', 'the lifetime of the publish message in seconds', parseNumber)
+      .option(
+        '-ta, --topic-alias <NUMBER>',
+        'value that is used to identify the topic instead of using the topic name',
+        parseNumber,
+      )
+      .option('-rt, --response-topic <TOPIC>', 'string which is used as the topic name for a response message')
+      .option(
+        '-cd, --correlation-data <DATA>',
+        'used by the sender of the request message to identify which request the response message is for when it is received',
+      )
+      .option('-si, --subscription-identifier <NUMBER>', 'the identifier of the subscription', parseNumber)
+      .option('-ct, --content-type <TYPE>', 'a description of the content of the publish message')
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
       .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts (default: mqtt)', parseProtocol)
@@ -89,6 +104,12 @@ export class Commander {
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
+      .option('-se, --session-expiry-interval <SECONDS>', 'the session expiry interval in seconds', parseNumber)
+      .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
+      .option('--maximum-packet-size <NUMBER>', 'the maximum packet size the client is willing to accept', parseNumber)
+      .option('--topic-alias-maximum <NUMBER>', 'the topic alias maximum value', parseNumber)
+      .option('--req-response-info', 'the client requests response information from the server')
+      .option('--no-req-problem-info', 'the client requests problem information from the server')
       .option(
         '-up, --user-properties <USERPROPERTIES...>',
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
