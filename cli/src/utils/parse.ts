@@ -72,7 +72,7 @@ const parsePubTopic = (value: string) => {
   return value
 }
 
-const parseConnectOptions = (options: ConnectOptions) => {
+const parseConnectOptions = (options: ConnectOptions, commandType?: CommandType) => {
   const {
     mqttVersion,
     hostname,
@@ -155,7 +155,7 @@ const parseConnectOptions = (options: ConnectOptions) => {
       topicAliasMaximum,
       requestResponseInformation: reqResponseInfo,
       requestProblemInformation: reqProblemInfo,
-      userProperties,
+      userProperties: commandType === 'conn' ? userProperties : undefined,
     }
 
     if (clean === false) {
@@ -174,7 +174,7 @@ const parseConnectOptions = (options: ConnectOptions) => {
   return connectOptions
 }
 
-const parseSubscribeOptions = (options: SubscribeOptions) => {
+const parseSubscribeOptions = (options: SubscribeOptions, commandType?: CommandType) => {
   const {
     mqttVersion,
     topic,
@@ -199,7 +199,7 @@ const parseSubscribeOptions = (options: SubscribeOptions) => {
     if (mqttVersion === 5) {
       const properties = {
         subscriptionIdentifier: getSpecialTypesOption(subscriptionIdentifier as number[], index),
-        userProperties,
+        userProperties: commandType === 'sub' ? userProperties : undefined,
       }
 
       subOptions.properties = Object.fromEntries(

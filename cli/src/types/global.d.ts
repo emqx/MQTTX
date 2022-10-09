@@ -1,4 +1,6 @@
 declare global {
+  type CommandType = 'conn' | 'pub' | 'sub'
+
   type MQTTVersion = 3 | 4 | 5
 
   type Protocol = 'mqtt' | 'mqtts'

@@ -4,7 +4,7 @@ import signale from '../utils/signale'
 import { parseConnectOptions } from '../utils/parse'
 
 const conn = (options: ConnectOptions) => {
-  const connectOptions = parseConnectOptions(options)
+  const connectOptions = parseConnectOptions(options, 'conn')
 
   const client = mqtt.connect(connectOptions)
 
