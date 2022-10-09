@@ -1,7 +1,8 @@
 import * as fs from 'fs'
 import signale from '../utils/signale'
+import { getSpecialTypesOption } from '../utils/generator'
 
-import { IClientOptions } from 'mqtt'
+import { IClientOptions, IClientSubscribeOptions } from 'mqtt'
 
 const parseNumber = (value: string) => {
   const parsedValue = Number(value)
@@ -173,6 +174,45 @@ const parseConnectOptions = (options: ConnectOptions) => {
   return connectOptions
 }
 
+const parseSubscribeOptions = (options: SubscribeOptions) => {
+  const {
+    mqttVersion,
+    topic,
+    qos,
+    no_local,
+    retainAsPublished,
+    retainHandling,
+    subscriptionIdentifier,
+    userProperties,
+  } = options
+
+  const subOptionsArray: IClientSubscribeOptions[] = []
+
+  topic.forEach((t: string, index: number) => {
+    const subOptions: IClientSubscribeOptions = {
+      qos: getSpecialTypesOption(qos, index, 0) as IClientSubscribeOptions['qos'],
+      nl: getSpecialTypesOption(no_local, index),
+      rap: getSpecialTypesOption(retainAsPublished, index),
+      rh: getSpecialTypesOption(retainHandling, index),
+    }
+
+    if (mqttVersion === 5) {
+      const properties = {
+        subscriptionIdentifier: getSpecialTypesOption(subscriptionIdentifier as number[], index),
+        userProperties,
+      }
+
+      subOptions.properties = Object.fromEntries(
+        Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined),
+      )
+    }
+
+    subOptionsArray.push(subOptions)
+  })
+
+  return subOptionsArray
+}
+
 export {
   parseNumber,
   parseProtocol,
@@ -182,4 +222,5 @@ export {
   parseVariadicOfBooleanType,
   parsePubTopic,
   parseConnectOptions,
+  parseSubscribeOptions,
 }

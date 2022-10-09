@@ -1,64 +1,24 @@
 import * as mqtt from 'mqtt'
 import * as fs from 'fs'
-import { IClientSubscribeOptions } from 'mqtt'
-import { getSpecialTypesOption } from '../utils/generator'
 import { signale, msgLog } from '../utils/signale'
+import { parseConnectOptions, parseSubscribeOptions } from '../utils/parse'
 
-const sub = (options: any) => {
-  options.protocolVersion = options.mqttVersion
-  if (options.protocolVersion === 3) {
-    options.protocolId = 'MQIsdp'
-  }
+const sub = (options: SubscribeOptions) => {
+  const connectOptions = parseConnectOptions(options)
 
-  if (options.key) {
-    options.key = fs.readFileSync(options.key)
-  }
-
-  if (options.cert) {
-    options.cert = fs.readFileSync(options.cert)
-  }
-
-  if (options.ca) {
-    options.ca = fs.readFileSync(options.ca)
-  }
-
-  if (options.key && options.cert && !options.protocol) {
-    options.protocol = 'mqtts'
-  }
-
-  if (options.insecure) {
-    options.rejectUnauthorized = false
-  }
-
-  if (options.willTopic) {
-    options.will = {}
-    options.will.topic = options.willTopic
-    options.will.payload = options.willMessage
-    options.will.qos = options.willQos
-    options.will.retain = options.willRetain
-  }
-
-  options.keepAlive = options.keepalive
-
-  const client = mqtt.connect(options)
+  const client = mqtt.connect(connectOptions)
 
   signale.await('Connecting...')
 
   client.on('connect', () => {
     signale.success('Connected')
 
-    const { topic, qos, no_local, retainAsPublished, retainHandling, userProperties } = options
+    const subOptionsArray = parseSubscribeOptions(options)
+
+    const { topic } = options
 
     topic.forEach((t: string, index: number) => {
-      const subOptions: IClientSubscribeOptions = {
-        qos: getSpecialTypesOption(qos, index, 0) as IClientSubscribeOptions['qos'],
-      }
-      if (options.protocolVersion === 5) {
-        subOptions.nl = getSpecialTypesOption(no_local as boolean[], index)
-        subOptions.rap = getSpecialTypesOption(retainAsPublished as boolean[], index)
-        subOptions.rh = getSpecialTypesOption(retainHandling as number[], index)
-        userProperties && (subOptions.properties = { userProperties })
-      }
+      const subOptions = subOptionsArray[index]
 
       signale.await(`Subscribing to ${t}...`)
 

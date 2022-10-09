@@ -31,6 +31,16 @@ declare global {
     willQos?: QoS
     willRetain?: boolean
   }
+
+  interface SubscribeOptions extends ConnectOptions {
+    topic: string[]
+    qos?: QoS[]
+    no_local?: boolean[]
+    retainAsPublished?: boolean[]
+    retainHandling?: QoS[]
+    subscriptionIdentifier?: number[]
+    verbose: boolean
+  }
 }
 
 export {}

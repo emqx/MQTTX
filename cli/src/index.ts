@@ -52,10 +52,10 @@ export class Commander {
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
-      .option('-se, --session-expiry-interval <SECONDS>', 'the Session Expiry Interval in seconds', parseNumber)
-      .option('--rcv-max, --receive-maximum <NUMBER>', 'the Receive Maximum value', parseNumber)
-      .option('--maximum-packet-size <NUMBER>', 'the Maximum Packet Size the client is willing to accept', parseNumber)
-      .option('--topic-alias-maximum <NUMBER>', 'the Topic Alias Maximum value', parseNumber)
+      .option('-se, --session-expiry-interval <SECONDS>', 'the session expiry interval in seconds', parseNumber)
+      .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
+      .option('--maximum-packet-size <NUMBER>', 'the maximum packet size the client is willing to accept', parseNumber)
+      .option('--topic-alias-maximum <NUMBER>', 'the topic alias maximum value', parseNumber)
       .option('--req-response-info', 'the client requests response information from the server')
       .option('--no-req-problem-info', 'the client requests problem information from the server')
       .option(
@@ -121,10 +121,17 @@ export class Commander {
         parseVariadicOfBooleanType,
       )
       .option('-rh, --retain-handling <0/1/2...>', 'the retain handling MQTT 5.0', parseQoS)
+      .option('-si, --subscription-identifier <NUMBER...>', 'the identifier of the subscription', parseNumber)
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
+      .option('-se, --session-expiry-interval <SECONDS>', 'the session expiry interval in seconds', parseNumber)
+      .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
+      .option('--maximum-packet-size <NUMBER>', 'the maximum packet size the client is willing to accept', parseNumber)
+      .option('--topic-alias-maximum <NUMBER>', 'the topic alias maximum value', parseNumber)
+      .option('--req-response-info', 'the client requests response information from the server')
+      .option('--no-req-problem-info', 'the client requests problem information from the server')
       .option(
         '-up, --user-properties <USERPROPERTIES...>',
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
