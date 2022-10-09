@@ -46,7 +46,7 @@ declare global {
 
   interface PublishOptions extends ConnectOptions {
     topic: string
-    message?: string | Buffer
+    message: string | Buffer
     qos: QoS
     retain?: boolean
     dup?: boolean
@@ -60,16 +60,19 @@ declare global {
     correlationData?: string
     subscriptionIdentifier?: number
     contentType?: string
+    connUserProperties?: Record<string, string>
   }
 
   interface SubscribeOptions extends ConnectOptions {
     topic: string[]
     qos?: QoS[]
+    // properties of MQTT 5.0
     no_local?: boolean[]
     retainAsPublished?: boolean[]
     retainHandling?: QoS[]
     subscriptionIdentifier?: number[]
     verbose: boolean
+    connUserProperties?: Record<string, string>
   }
 }
 

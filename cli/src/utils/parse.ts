@@ -72,7 +72,10 @@ const parsePubTopic = (value: string) => {
   return value
 }
 
-const parseConnectOptions = (options: ConnectOptions, commandType?: CommandType) => {
+const parseConnectOptions = (
+  options: ConnectOptions | PublishOptions | SubscribeOptions,
+  commandType?: CommandType,
+) => {
   const {
     mqttVersion,
     hostname,
@@ -93,7 +96,6 @@ const parseConnectOptions = (options: ConnectOptions, commandType?: CommandType)
     topicAliasMaximum,
     reqResponseInfo,
     reqProblemInfo,
-    userProperties,
     willTopic,
     willMessage,
     willQos,
@@ -170,6 +172,8 @@ const parseConnectOptions = (options: ConnectOptions, commandType?: CommandType)
   if (mqttVersion === 3) {
     connectOptions.protocolId = 'MQIsdp'
   } else if (mqttVersion === 5) {
+    const userProperties =
+      commandType === 'conn' ? options.userProperties : (<PublishOptions | SubscribeOptions>options).connUserProperties
     const properties = {
       sessionExpiryInterval,
       receiveMaximum,
@@ -177,7 +181,7 @@ const parseConnectOptions = (options: ConnectOptions, commandType?: CommandType)
       topicAliasMaximum,
       requestResponseInformation: reqResponseInfo,
       requestProblemInformation: reqProblemInfo,
-      userProperties: commandType === 'conn' ? userProperties : undefined,
+      userProperties,
     }
 
     if (clean === false) {
@@ -239,7 +243,7 @@ const parsePublishOptions = (options: PublishOptions) => {
   return { topic, message, opts: publishOptions }
 }
 
-const parseSubscribeOptions = (options: SubscribeOptions, commandType?: CommandType) => {
+const parseSubscribeOptions = (options: SubscribeOptions) => {
   const {
     mqttVersion,
     topic,
@@ -264,7 +268,7 @@ const parseSubscribeOptions = (options: SubscribeOptions, commandType?: CommandT
     if (mqttVersion === 5) {
       const properties = {
         subscriptionIdentifier: getSpecialTypesOption(subscriptionIdentifier as number[], index),
-        userProperties: commandType === 'sub' ? userProperties : undefined,
+        userProperties,
       }
 
       subOptions.properties = Object.fromEntries(

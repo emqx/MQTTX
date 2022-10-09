@@ -1,5 +1,4 @@
 import * as mqtt from 'mqtt'
-import * as fs from 'fs'
 import signale from '../utils/signale'
 import { parseConnectOptions } from '../utils/parse'
 

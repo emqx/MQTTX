@@ -1,5 +1,4 @@
 import * as mqtt from 'mqtt'
-import * as fs from 'fs'
 import pump from 'pump'
 import concat from 'concat-stream'
 import { Writable } from 'readable-stream'
@@ -10,7 +9,7 @@ import { parseConnectOptions, parsePublishOptions } from '../utils/parse'
 
 const send = (
   connOpts: IClientOptions,
-  pubOpts: { topic: string; message?: string | Buffer; opts: IClientPublishOptions },
+  pubOpts: { topic: string; message: string | Buffer; opts: IClientPublishOptions },
 ) => {
   const client = mqtt.connect(connOpts)
   signale.await('Connecting...')
@@ -18,7 +17,7 @@ const send = (
     signale.success('Connected')
     const { topic, message } = pubOpts
     signale.await('Message Publishing...')
-    client.publish(topic, message!, pubOpts.opts, (err) => {
+    client.publish(topic, message, pubOpts.opts, (err) => {
       if (err) {
         signale.warn(err)
       } else {
@@ -35,7 +34,7 @@ const send = (
 
 const multisend = (
   connOpts: IClientOptions,
-  pubOpts: { topic: string; message?: string | Buffer; opts: IClientPublishOptions },
+  pubOpts: { topic: string; message: string | Buffer; opts: IClientPublishOptions },
 ) => {
   const client = mqtt.connect(connOpts)
   signale.await('Connecting...')

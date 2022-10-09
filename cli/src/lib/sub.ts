@@ -1,5 +1,4 @@
 import * as mqtt from 'mqtt'
-import * as fs from 'fs'
 import { signale, msgLog } from '../utils/signale'
 import { parseConnectOptions, parseSubscribeOptions } from '../utils/parse'
 
@@ -13,7 +12,7 @@ const sub = (options: SubscribeOptions) => {
   client.on('connect', () => {
     signale.success('Connected')
 
-    const subOptsArray = parseSubscribeOptions(options, 'sub')
+    const subOptsArray = parseSubscribeOptions(options)
 
     const { topic } = options
 
