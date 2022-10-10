@@ -50,6 +50,7 @@
                   </a>
                 </el-tooltip>
                 <el-tooltip
+                  v-else
                   placement="bottom"
                   :effect="theme !== 'light' ? 'light' : 'dark'"
                   :open-delay="500"
