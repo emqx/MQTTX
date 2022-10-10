@@ -1092,8 +1092,11 @@ export default class ConnectionsDetail extends Vue {
         }
         return
       }
-      const { messageService } = useServices()
-      await messageService.pushToConnection({ ...receivedMessage }, id)
+      // Fixme: The retain message is not displayed when the connection is closed
+      setTimeout(async () => {
+        const { messageService } = useServices()
+        await messageService.pushToConnection({ ...receivedMessage }, id)
+      }, 500)
       if (id === this.curConnectionId) {
         this.record.messages.push({ ...receivedMessage })
         // Filter by conditions (topic, payload, etc)
