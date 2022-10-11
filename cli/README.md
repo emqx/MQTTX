@@ -216,6 +216,7 @@ mqttx sub --help
 | -Wcd, --will-correlation-data <DATA>             | correlation data for the response message                    |
 | -Wup, --will-user-properties <USERPROPERTIES...> | the user properties of will message                          |
 | -se, --session-expiry-interval <SECONDS>         | the session expiry interval in seconds                       |
+| -si, --subscription-identifier <NUMBER>          | the identifier of the subscription                           |
 | --rcv-max, --receive-maximum <NUMBER>            | the receive maximum value                                    |
 | --maximum-packet-size <NUMBER>                   | the maximum packet size the client is willing to accept      |
 | --topic-alias-maximum <NUMBER>                   | the topic alias maximum value                                |
