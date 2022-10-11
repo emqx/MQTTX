@@ -14,9 +14,26 @@
       </div>
       <div>
         <el-button class="save-btn" type="primary" size="mini" @click="handleSave">{{ $t('common.save') }}</el-button>
-        <el-button v-if="currentScriptId" class="delete-btn" type="outline" size="mini" plain @click="handleDelete">{{
-          $t('common.delete')
-        }}</el-button>
+        <el-tooltip
+          placement="top"
+          :disabled="!inUseScript"
+          :effect="theme !== 'light' ? 'light' : 'dark'"
+          :content="$t('script.inUseScript')"
+        >
+          <span>
+            <el-button
+              v-if="currentScriptId"
+              class="delete-btn"
+              :disabled="inUseScript"
+              type="danger"
+              size="mini"
+              plain
+              @click="handleDelete"
+            >
+              {{ $t('common.delete') }}
+            </el-button>
+          </span>
+        </el-tooltip>
       </div>
     </div>
     <div
@@ -96,6 +113,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 import Editor from '@/components/Editor.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import sandbox from '@/utils/sandbox'
@@ -108,6 +126,9 @@ import useServers from '@/database/useServices'
   },
 })
 export default class Script extends Vue {
+  @Getter('currentScript') private scriptOption!: ScriptState | null
+  @Getter('currentTheme') private theme!: Theme
+
   private scriptValue = ''
   private showDialog = false
   private inputValue = JSON.stringify({ msg: 'hello' }, null, 2)
@@ -129,6 +150,10 @@ execute(handlePayload)`
   @Watch('inputType')
   handleInputTypeChange(val: PayloadType) {
     this.editorLang = val === 'JSON' ? 'json' : 'plaintext'
+  }
+
+  get inUseScript() {
+    return this.scriptOption?.content?.id === this.currentScriptId
   }
 
   private created() {
@@ -195,7 +220,6 @@ execute(handlePayload)`
 
   private async handleDelete() {
     const { scriptService } = useServers()
-
     const currentScript = await scriptService.get(this.currentScriptId)
     if (currentScript) {
       const { name } = currentScript
@@ -258,10 +282,12 @@ execute(handlePayload)`
     }
     .save-btn {
       border: 1px solid var(--color-main-green);
+      margin-right: 12px;
     }
-    .delete-btn {
+    .delete-btn:not(.is-disabled) {
       color: var(--color-minor-red);
       border-color: var(--color-minor-red);
+      background-color: transparent;
     }
   }
   .script-editor {

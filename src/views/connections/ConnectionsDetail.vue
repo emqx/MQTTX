@@ -319,7 +319,6 @@ type CommandType =
   | 'bytesStatistics'
   | 'useScript'
   | 'newWindow'
-type PayloadConvertType = 'base64' | 'hex'
 
 interface TopModel {
   open: string

@@ -71,16 +71,23 @@ export default {
   },
   startScript: {
     zh: '脚本功能已开启',
-    en: 'Script is enabled',
+    en: 'Script started',
     tr: 'Komut dosyası aktif',
     ja: 'スクリプトが有効になっています',
     hu: 'Script engedélyezve',
   },
   stopScirpt: {
     zh: '脚本功能已停止',
-    en: 'Script has stopped',
+    en: 'Script stopped',
     tr: 'Komut dosyası durduruldu',
     ja: 'スクリプトが停止しました',
     hu: 'Script le lett állítva',
+  },
+  inUseScript: {
+    zh: '脚本正在使用中',
+    en: 'Script is in use',
+    tr: 'Komut dosyası kullanılıyor',
+    ja: 'スクリプトが使用中です',
+    hu: 'Script használatban van',
   },
 }
