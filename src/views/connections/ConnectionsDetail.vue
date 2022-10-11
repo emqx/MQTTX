@@ -1113,12 +1113,15 @@ export default class ConnectionsDetail extends Vue {
           this.messagesAddedNewItem = true
           let receivedLog = `${this.record.name} message arrived: message added "${
             receivedMessage.id
-          }" added to topic "${topic}", payload: ${JSON.stringify(
+          }" and added to topic: "${topic}", payload: ${JSON.stringify(
             receivedMessage.payload,
           )} MQTT.js onMessageArrived trigger`
           if (this.record.mqttVersion === '5.0') {
             const logProperties = JSON.stringify(receivedMessage.properties)
             receivedLog += ` with Properties: ${logProperties}`
+          }
+          if (retain) {
+            receivedLog += `, Retain Message`
           }
           this.$log.info(receivedLog)
         }
