@@ -74,6 +74,11 @@ declare global {
     verbose: boolean
     connUserProperties?: Record<string, string>
   }
+
+  interface BenchConnectOptions extends ConnectOptions {
+    count: number
+    interval: number
+  }
 }
 
 export {}

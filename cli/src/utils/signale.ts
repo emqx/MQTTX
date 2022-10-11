@@ -23,6 +23,6 @@ const msgLog = (msg: Record<string, unknown>[]) => {
   signale.log(`${chalkString}`)
 }
 
-export { signale, msgLog }
+export { Signale, signale, msgLog }
 
 export default signale
