@@ -217,6 +217,7 @@ mqttx sub --help
 | -Wcd, --will-correlation-data <DATA>             | 响应信息的关联数据                             |
 | -Wup, --will-user-properties <USERPROPERTIES...> | 遗嘱消息的自定义用户属性                       |
 | -se, --session-expiry-interval <SECONDS>         | 会话过期间隔，单位为秒                         |
+| -si, --subscription-identifier <NUMBER>          | 订阅标识符                                 |
 | --rcv-max, --receive-maximum <NUMBER>            | 接收消息的最大值                               |
 | --maximum-packet-size <NUMBER>                   | 客户端愿意接受的最大数据包大小                 |
 | --topic-alias-maximum <NUMBER>                   | 主题别名的最大值                               |
