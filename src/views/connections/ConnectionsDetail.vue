@@ -1297,9 +1297,11 @@ export default class ConnectionsDetail extends Vue {
   // Convert payload by type
   private convertPayloadByType(value: Buffer | string, type: PayloadType, way: 'publish' | 'receive'): Buffer | string {
     const genPublishPayload = (publishType: PayloadType, publishValue: string) => {
-      if (['Base64', 'Hex'].includes(publishType)) {
-        const $type = publishType.toLowerCase() as PayloadConvertType
-        return Buffer.from(publishValue, $type)
+      if (publishType === 'Base64') {
+        return Buffer.from(publishValue, 'base64')
+      }
+      if (publishType === 'Hex') {
+        return Buffer.from(publishValue.replaceAll(' ', ''), 'hex')
       }
       if (publishType === 'JSON') {
         validFormatJson(publishValue, this.$t('connections.publishMsg'))
@@ -1307,9 +1309,11 @@ export default class ConnectionsDetail extends Vue {
       return publishValue
     }
     const genReceivePayload = (receiveType: PayloadType, receiveValue: Buffer) => {
-      if (['Base64', 'Hex'].includes(receiveType)) {
-        const $type = receiveType.toLowerCase() as 'base64' | 'hex'
-        return receiveValue.toString($type)
+      if (receiveType === 'Base64') {
+        return receiveValue.toString('base64')
+      }
+      if (receiveType === 'Hex') {
+        return receiveValue.toString('hex').replace(/(.{4})/g, '$1 ')
       }
       if (receiveType === 'JSON') {
         const jsonValue = validFormatJson(receiveValue.toString(), this.$t('connections.receivedMsg'))
