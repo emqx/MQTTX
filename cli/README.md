@@ -34,14 +34,14 @@ To install the latest MQTTX CLI stable release on **macOS** using **binary downl
 #### Intel Chip
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.2/mqttx-cli-macos-x64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.3/mqttx-cli-macos-x64
 sudo install ./mqttx-cli-macos-x64 /usr/local/bin/mqttx
 ```
 
 #### Apple Silicon
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.2/mqttx-cli-macos-arm64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.3/mqttx-cli-macos-arm64
 sudo install ./mqttx-cli-macos-arm64 /usr/local/bin/mqttx
 ```
 
@@ -60,14 +60,14 @@ To install the latest MQTTX CLI stable release on **Linux** using **binary downl
 #### x86-64
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.2/mqttx-cli-linux-x64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.3/mqttx-cli-linux-x64
 sudo install ./mqttx-cli-linux-x64 /usr/local/bin/mqttx
 ```
 
 #### ARM64
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.2/mqttx-cli-linux-arm64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.8.3/mqttx-cli-linux-arm64
 sudo install ./mqttx-cli-linux-arm64 /usr/local/bin/mqttx
 ```
 
@@ -125,8 +125,8 @@ mqttx --help
 
 | Options       | Description               |
 | ------------- | ------------------------- |
-| -v, --version | output the version number |
-| -h, --help    | display help for command  |
+| -v, --version | Output the version number |
+| -h, --help    | Display help for command  |
 
 | Command | Description                                    |
 | ------- | ---------------------------------------------- |
@@ -141,27 +141,40 @@ mqttx --help
 mqttx conn --help
 ```
 
-| Options                                    | Description                                                  |
-| ------------------------------------------ | ------------------------------------------------------------ |
-| -V, --mqtt-version <5/3.1.1/3.1>           | the MQTT version (default: 5)                                |
-| -h, --hostname <HOST>                      | the broker host (default: "localhost")                       |
-| -p, --port <PORT>                          | the broker port                                              |
-| -i, --client-id <ID>                       | the client id                                                |
-| --no-clean                                 | set the clean session flag to false (default: true)          |
-| -k, --keepalive <SEC>                      | send a ping every SEC seconds (default: 30)                  |
-| -u, --username <USER>                      | the username                                                 |
-| -P, --password <PASS>                      | the password                                                 |
-| -l, --protocol <PROTO>                     | the protocol to use, mqtt or mqtts (default: mqtt)           |
-| --key <PATH>                               | path to the key file                                         |
-| --cert <PATH>                              | path to the cert file                                        |
-| --ca <PATH>                                | path to the ca certificate                                   |
-| --insecure                                 | do not verify the server certificate                         |
-| -up, --user-properties <USERPROPERTIES...> | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli") |
-| --will-topic <TOPIC>                       | the will topic                                               |
-| --will-message <BODY>                      | the will message                                             |
-| --will-qos <0/1/2>                         | the will qos                                                 |
-| --will-retain                              | send a will retained message (default: false)                |
-| --help                                     | display help for conn command                                |
+| Options                                          | Description                                                  |
+| ------------------------------------------------ | ------------------------------------------------------------ |
+| -V, --mqtt-version <5/3.1.1/3.1>                 | the MQTT version (default: 5)                                |
+| -h, --hostname <HOST>                            | the broker host (default: "localhost")                       |
+| -p, --port <PORT>                                | the broker port                                              |
+| -i, --client-id <ID>                             | the client id                                                |
+| --no-clean                                       | set the clean session flag to false (default: true)          |
+| -k, --keepalive <SEC>                            | send a ping every SEC seconds (default: 30)                  |
+| -u, --username <USER>                            | the username                                                 |
+| -P, --password <PASS>                            | the password                                                 |
+| -l, --protocol <PROTO>                           | the protocol to use, mqtt or mqtts (default: mqtt)           |
+| --key <PATH>                                     | path to the key file                                         |
+| --cert <PATH>                                    | path to the cert file                                        |
+| --ca <PATH>                                      | path to the ca certificate                                   |
+| --insecure                                       | do not verify the server certificate                         |
+| -up, --user-properties <USERPROPERTIES...>       | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli") |
+| -Wt, --will-topic <TOPIC>                        | the will topic                                               |
+| -Wm, --will-message <BODY>                       | the will message                                             |
+| -Wq, --will-qos <0/1/2>                          | the will qos                                                 |
+| -Wr, --will-retain                               | send a will retained message (default: false)                |
+| -Wd, --will-delay-interval <SECONDS>             | the will delay interval in seconds                           |
+| -Wpf, --will-payload-format-indicator            | will message is UTF-8 encoded character data or not          |
+| -We, --will-message-expiry-interval <SECONDS>    | lifetime of the will message in seconds                      |
+| -Wct, --will-content-type <CONTENTTYPE>          | description of the will message’s content                    |
+| -Wrt, --will-response-topic <TOPIC>              | topic name for a response message                            |
+| -Wcd, --will-correlation-data <DATA>             | correlation data for the response message                    |
+| -Wup, --will-user-properties <USERPROPERTIES...> | the user properties of will message                          |
+| -se, --session-expiry-interval <SECONDS>         | the session expiry interval in seconds                       |
+| --rcv-max, --receive-maximum <NUMBER>            | the receive maximum value                                    |
+| --maximum-packet-size <NUMBER>                   | the maximum packet size the client is willing to accept      |
+| --topic-alias-maximum <NUMBER>                   | the topic alias maximum value                                |
+| --req-response-info                              | the client requests response information from the server     |
+| --no-req-problem-info                            | the client requests problem information from the server      |
+| --help                                           | display help for conn command                                |
 
 #### Subscribe
 
@@ -190,11 +203,25 @@ mqttx sub --help
 | --ca                                       | path to the ca certificate                                   |
 | --insecure                                 | do not verify the server certificate                         |
 | -up, --user-properties <USERPROPERTIES...> | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli") |
-| --will-topic <TOPIC>                       | the will topic                                               |
-| --will-message <BODY>                      | the will message                                             |
-| --will-qos <0/1/2>                         | the will qos                                                 |
-| --will-retain                              | send a will retained message (default: false)                |
 | -v, --verbose                              | print the topic before the message                           |
+| -Wt, --will-topic <TOPIC>                        | the will topic                                               |
+| -Wm, --will-message <BODY>                       | the will message                                             |
+| -Wq, --will-qos <0/1/2>                          | the will qos                                                 |
+| -Wr, --will-retain                               | send a will retained message (default: false)                |
+| -Wd, --will-delay-interval <SECONDS>             | the will delay interval in seconds                           |
+| -Wpf, --will-payload-format-indicator            | will message is UTF-8 encoded character data or not          |
+| -We, --will-message-expiry-interval <SECONDS>    | lifetime of the will message in seconds                      |
+| -Wct, --will-content-type <CONTENTTYPE>          | description of the will message’s content                    |
+| -Wrt, --will-response-topic <TOPIC>              | topic name for a response message                            |
+| -Wcd, --will-correlation-data <DATA>             | correlation data for the response message                    |
+| -Wup, --will-user-properties <USERPROPERTIES...> | the user properties of will message                          |
+| -se, --session-expiry-interval <SECONDS>         | the session expiry interval in seconds                       |
+| --rcv-max, --receive-maximum <NUMBER>            | the receive maximum value                                    |
+| --maximum-packet-size <NUMBER>                   | the maximum packet size the client is willing to accept      |
+| --topic-alias-maximum <NUMBER>                   | the topic alias maximum value                                |
+| --req-response-info                              | the client requests response information from the server     |
+| --no-req-problem-info                            | the client requests problem information from the server      |
+| -Cup, --conn-user-properties <USERPROPERTIES...> | the connect user properties of MQTT 5.0 (e.g. -Cup "name: mqttx cli")      |
 | --help                                     | display help for sub command                                 |
 
 #### Publish
@@ -203,31 +230,52 @@ mqttx sub --help
 mqttx pub --help
 ```
 
-| Options                                    | Description                                                  |
-| ------------------------------------------ | ------------------------------------------------------------ |
-| -V, --mqtt-version <5/3.1.1/3.1>           | the MQTT version (default: 5)                                |
-| -h, --hostname <HOST>                      | the broker host (default: "localhost")                       |
-| -p, --port <PORT>                          | the broker port                                              |
-| -i, --client-id <ID>                       | the client id                                                |
-| -q, --qos <0/1/2>                          | the QoS of the message (default: 0)                          |
-| -t, --topic <TOPIC>                        | the message topic                                            |
-| -m, --message<MSG>                         | the message body (default: "Hello From MQTT X CLI")          |
-| -r, --retain                               | send a retained message (default: false)                     |
-| -s, --stdin                                | read the message body from stdin                             |
-| -M, --multiline                            | read lines from stdin as multiple messages                   |
-| -u, --username <USER>                      | the username                                                 |
-| -P, --password <PASS>                      | the password                                                 |
-| -l, --protocol <PROTO>                     | the protocol to use, mqtt or mqtts (default: mqtt)           |
-| --key <PATH>                               | path to the key file                                         |
-| --cert <PATH>                              | path to the cert file                                        |
-| --ca                                       | path to the ca certificate                                   |
-| --insecure                                 | do not verify the server certificate                         |
-| -up, --user-properties <USERPROPERTIES...> | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli") |
-| --will-topic <TOPIC>                       | the will topic                                               |
-| --will-message <BODY>                      | the will message                                             |
-| --will-qos <0/1/2>                         | the will qos (default: 0)                                    |
-| --will-retain                              | send a will retained message (default: false)                |
-| --help                                     | display help for pub command                                 |
+| Options                                          | Description                                                  |
+| ------------------------------------------------ | ------------------------------------------------------------ |
+| -V, --mqtt-version <5/3.1.1/3.1>                 | the MQTT version (default: 5)                                |
+| -h, --hostname <HOST>                            | the broker host (default: "localhost")                       |
+| -p, --port <PORT>                                | the broker port                                              |
+| -i, --client-id <ID>                             | the client id                                                |
+| -q, --qos <0/1/2>                                | the QoS of the message (default: 0)                          |
+| -t, --topic <TOPIC>                              | the message topic                                            |
+| -m, --message<MSG>                               | the message body (default: "Hello From MQTT X CLI")          |
+| -r, --retain                                     | send a retained message (default: false)                     |
+| -s, --stdin                                      | read the message body from stdin                             |
+| -M, --multiline                                  | read lines from stdin as multiple messages                   |
+| -u, --username <USER>                            | the username                                                 |
+| -P, --password <PASS>                            | the password                                                 |
+| -l, --protocol <PROTO>                           | the protocol to use, mqtt or mqtts (default: mqtt)           |
+| --key <PATH>                                     | path to the key file                                         |
+| --cert <PATH>                                    | path to the cert file                                        |
+| --ca                                             | path to the ca certificate                                   |
+| --insecure                                       | do not verify the server certificate                         |
+| -up, --user-properties <USERPROPERTIES...>       | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli") |
+| -pf, --payload-format-indicator                  | the payload format indicator of the publish message          |
+| -e, --message-expiry-interval <NUMBER>           | the lifetime of the publish message in seconds               |
+| -ta, --topic-alias <NUMBER>                      | value that is used to identify the topic instead of using the topic name |
+| -rt, --response-topic <TOPIC>                    | string which is used as the topic name for a response message |
+| -cd, --correlation-data <DATA>                   | used by the sender of the request message to identify which request the response message is for when it is received |
+| -si, --subscription-identifier <NUMBER>          | the identifier of the subscription                           |
+| -ct, --content-type <TYPE>                       | a description of the content of the publish message          |
+| -Wt, --will-topic <TOPIC>                        | the will topic                                               |
+| -Wm, --will-message <BODY>                       | the will message                                             |
+| -Wq, --will-qos <0/1/2>                          | the will qos                                                 |
+| -Wr, --will-retain                               | send a will retained message (default: false)                |
+| -Wd, --will-delay-interval <SECONDS>             | the will delay interval in seconds                           |
+| -Wpf, --will-payload-format-indicator            | will message is UTF-8 encoded character data or not          |
+| -We, --will-message-expiry-interval <SECONDS>    | lifetime of the will message in seconds                      |
+| -Wct, --will-content-type <CONTENTTYPE>          | description of the will message’s content                    |
+| -Wrt, --will-response-topic <TOPIC>              | topic name for a response message                            |
+| -Wcd, --will-correlation-data <DATA>             | correlation data for the response message                    |
+| -Wup, --will-user-properties <USERPROPERTIES...> | the user properties of will message                          |
+| -se, --session-expiry-interval <SECONDS>         | the session expiry interval in seconds                       |
+| --rcv-max, --receive-maximum <NUMBER>            | the receive maximum value                                    |
+| --maximum-packet-size <NUMBER>                   | the maximum packet size the client is willing to accept      |
+| --topic-alias-maximum <NUMBER>                   | the topic alias maximum value                                |
+| --req-response-info                              | the client requests response information from the server     |
+| --no-req-problem-info                            | the client requests problem information from the server      |
+| -Cup, --conn-user-properties <USERPROPERTIES...> | the connect user properties of MQTT 5.0 (e.g. -Cup "name: mqttx cli") |
+| --help                                           | display help for pub command                                 |
 
 ## Better Together with EMQX
 

@@ -136,7 +136,7 @@ export class Commander {
       .option('--no-req-problem-info', 'the client requests problem information from the server')
       .option(
         '-Cup, --conn-user-properties <USERPROPERTIES...>',
-        'the connect user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
+        'the connect user properties of MQTT 5.0 (e.g. -Cup "name: mqttx cli")',
         parseUserProperties,
       )
       // will message options
@@ -201,7 +201,7 @@ export class Commander {
       .option('--no-req-problem-info', 'the client requests problem information from the server')
       .option(
         '-Cup, --conn-user-properties <USERPROPERTIES...>',
-        'the connect user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
+        'the connect user properties of MQTT 5.0 (e.g. -Cup "name: mqttx cli")',
         parseUserProperties,
       )
       // will message options
