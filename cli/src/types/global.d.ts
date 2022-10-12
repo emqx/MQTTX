@@ -80,6 +80,13 @@ declare global {
     interval: number
   }
 
+  type OmitScribeOptions = Omit<PublishOptions, 'stdin' | 'multiline'>
+  interface BenchPublishOptions extends OmitScribeOptions {
+    count: number
+    interval: number
+    messageInterval: number
+  }
+
   interface BenchSubscribeOptions extends SubscribeOptions {
     count: number
     interval: number
