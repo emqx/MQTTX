@@ -79,6 +79,11 @@ declare global {
     count: number
     interval: number
   }
+
+  interface BenchSubscribeOptions extends SubscribeOptions {
+    count: number
+    interval: number
+  }
 }
 
 export {}
