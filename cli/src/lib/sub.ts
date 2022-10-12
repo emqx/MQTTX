@@ -71,7 +71,10 @@ const benchSub = async (options: BenchSubscribeOptions) => {
     `Start the subscribe benchmarking, connections: ${count}, req interval: ${interval}ms, topic: ${topic.join(',')}`,
   )
 
-  const start = Date.now()
+  const connStart = Date.now()
+
+  let total = 0
+  let oldTotal = 0
 
   for (let i = 1; i <= count; i++) {
     connOpts.clientId = clientId.includes('%i') ? clientId.replaceAll('%i', i.toString()) : `${clientId}_${i}`
@@ -111,8 +114,8 @@ const benchSub = async (options: BenchSubscribeOptions) => {
       })
     })
 
-    client.on('message', (topic, payload, packet) => {
-      // TODO: add the message handler
+    client.on('message', () => {
+      total += 1
     })
 
     client.on('error', (err) => {
@@ -123,9 +126,19 @@ const benchSub = async (options: BenchSubscribeOptions) => {
     await delay(interval)
   }
 
-  const end = Date.now()
+  const connEnd = Date.now()
 
-  signale.info(`Done, total time: ${(end - start) / 1000}s`)
+  signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
+
+  total = 0
+
+  setInterval(() => {
+    if (total > oldTotal) {
+      const rate = total - oldTotal
+      signale.info(`Received total: ${total}, rate: ${rate}/s`)
+    }
+    oldTotal = total
+  }, 1000)
 }
 
 export default sub
