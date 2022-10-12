@@ -40,6 +40,11 @@ const benchConn = async (options: BenchConnectOptions) => {
 
     client.on('connect', () => {
       interactive.success('[%d/%d] - Connected', i, count)
+
+      if (i === count) {
+        const end = Date.now()
+        signale.info(`Done, total time: ${(end - start) / 1000}s`)
+      }
     })
 
     client.on('error', (err) => {
@@ -49,10 +54,6 @@ const benchConn = async (options: BenchConnectOptions) => {
 
     await delay(interval)
   }
-
-  const end = Date.now()
-
-  signale.info(`Done, total time: ${(end - start) / 1000}s`)
 }
 
 export default conn
