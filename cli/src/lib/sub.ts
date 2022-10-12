@@ -1,6 +1,8 @@
 import * as mqtt from 'mqtt'
-import { signale, msgLog } from '../utils/signale'
+import { Signale, signale, msgLog } from '../utils/signale'
 import { parseConnectOptions, parseSubscribeOptions } from '../utils/parse'
+import { getClientId } from '../utils/generator'
+import delay from '../utils/delay'
 
 const sub = (options: SubscribeOptions) => {
   const connOpts = parseConnectOptions(options, 'sub')
@@ -57,4 +59,76 @@ const sub = (options: SubscribeOptions) => {
   })
 }
 
+const benchSub = async (options: BenchSubscribeOptions) => {
+  const { count, interval, topic, clientId } = options
+
+  const connOpts = parseConnectOptions(options, 'sub')
+
+  const subOptsArray = parseSubscribeOptions(options)
+
+  const interactive = new Signale({ interactive: true })
+
+  signale.info(
+    `Start the subscribe benchmarking, connections: ${count}, req interval: ${interval}ms, topic: ${topic.join(',')}`,
+  )
+
+  const start = Date.now()
+
+  for (let i = 1; i <= count; i++) {
+    connOpts.clientId = clientId.includes('%i') ? clientId.replaceAll('%i', i.toString()) : `${clientId}_${i}`
+
+    const client = mqtt.connect(connOpts)
+
+    interactive.await('[%d/%d] - Connecting...', i, count)
+
+    client.on('connect', () => {
+      interactive.success('[%d/%d] - Connected', i, count)
+
+      topic.forEach((t: string, index: number) => {
+        const { username, clientId } = connOpts
+
+        let topicName = t.replaceAll('%i', i.toString()).replaceAll('%c', clientId!)
+        username && (topicName = topicName.replaceAll('%u', username))
+
+        const subOpts = subOptsArray[index]
+
+        interactive.await('[%d/%d] - Subscribing to %s...', i, count, topicName)
+
+        client.subscribe(topicName, subOpts, (err, result) => {
+          if (err) {
+            signale.error(`[${i}/${count}] - ${err}`)
+            process.exit(1)
+          } else {
+            interactive.success('[%d/%d] - Subscribed to %s', i, count, topicName)
+          }
+
+          result.forEach((sub) => {
+            if (sub.qos > 2) {
+              signale.error(`[${i}/${count}] - subscription negated to ${sub.topic} with code ${sub.qos}`)
+              process.exit(1)
+            }
+          })
+        })
+      })
+    })
+
+    client.on('message', (topic, payload, packet) => {
+      // TODO: add the message handler
+    })
+
+    client.on('error', (err) => {
+      signale.error(`[${i}/${count}] - ${err}`)
+      client.end()
+    })
+
+    await delay(interval)
+  }
+
+  const end = Date.now()
+
+  signale.info(`Done, total time: ${(end - start) / 1000}s`)
+}
+
 export default sub
+
+export { sub, benchSub }
