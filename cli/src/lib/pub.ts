@@ -4,8 +4,9 @@ import concat from 'concat-stream'
 import { Writable } from 'readable-stream'
 import split2 from 'split2'
 import { IClientOptions, IClientPublishOptions } from 'mqtt'
-import signale from '../utils/signale'
+import { Signale, signale } from '../utils/signale'
 import { parseConnectOptions, parsePublishOptions } from '../utils/parse'
+import delay from '../utils/delay'
 
 const send = (
   connOpts: IClientOptions,
@@ -78,4 +79,71 @@ const pub = (options: PublishOptions) => {
   }
 }
 
+const benchPub = async (options: BenchPublishOptions) => {
+  const { count, interval, messageInterval, clientId } = options
+
+  const connOpts = parseConnectOptions(options, 'pub')
+
+  const pubOpts = parsePublishOptions(options)
+
+  const { username } = connOpts
+
+  const { topic, message } = pubOpts
+
+  const interactive = new Signale({ interactive: true })
+
+  signale.info(
+    `Start the publish benchmarking, connections: ${count}, req interval: ${interval}ms, message interval: ${messageInterval}ms`,
+  )
+
+  const connStart = Date.now()
+
+  let total = 0
+
+  for (let i = 1; i <= count; i++) {
+    connOpts.clientId = clientId.includes('%i') ? clientId.replaceAll('%i', i.toString()) : `${clientId}_${i}`
+
+    let topicName = topic.replaceAll('%i', i.toString()).replaceAll('%c', clientId)
+    username && (topicName = topicName.replaceAll('%u', username))
+
+    const client = mqtt.connect(connOpts)
+
+    interactive.await('[%d/%d] - Connecting...', i, count)
+
+    client.on('connect', () => {
+      interactive.success('[%d/%d] - Connected', i, count)
+
+      setInterval(() => {
+        client.publish(topicName, message, pubOpts.opts, (err) => {
+          if (err) {
+            signale.warn(err)
+          } else {
+            total += 1
+          }
+        })
+      }, messageInterval)
+    })
+
+    client.on('error', (err) => {
+      signale.error(`[${i}/${count}] - ${err}`)
+      client.end()
+    })
+
+    await delay(interval)
+  }
+
+  const connEnd = Date.now()
+
+  signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
+
+  total = 0
+
+  setInterval(() => {
+    const rate = (total / ((Date.now() - connEnd) / 1000)).toFixed(0)
+    signale.info(`Published total: ${total}, message rate: ${rate}/s`)
+  }, 1000)
+}
+
 export default pub
+
+export { pub, benchPub }

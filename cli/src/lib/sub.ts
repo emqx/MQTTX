@@ -1,7 +1,6 @@
 import * as mqtt from 'mqtt'
 import { Signale, signale, msgLog } from '../utils/signale'
 import { parseConnectOptions, parseSubscribeOptions } from '../utils/parse'
-import { getClientId } from '../utils/generator'
 import delay from '../utils/delay'
 
 const sub = (options: SubscribeOptions) => {
