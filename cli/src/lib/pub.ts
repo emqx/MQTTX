@@ -80,7 +80,7 @@ const pub = (options: PublishOptions) => {
 }
 
 const benchPub = async (options: BenchPublishOptions) => {
-  const { count, interval, messageInterval, clientId } = options
+  const { count, interval, messageInterval, clientId, verbose } = options
 
   const connOpts = parseConnectOptions(options, 'pub')
 
@@ -91,6 +91,7 @@ const benchPub = async (options: BenchPublishOptions) => {
   const { topic, message } = pubOpts
 
   const interactive = new Signale({ interactive: true })
+  const simpleInteractive = new Signale({ interactive: true, config: { displayLabel: false, displayTimestamp: true } })
 
   signale.info(
     `Start the publish benchmarking, connections: ${count}, req interval: ${interval}ms, message interval: ${messageInterval}ms`,
@@ -122,6 +123,26 @@ const benchPub = async (options: BenchPublishOptions) => {
           }
         })
       }, messageInterval)
+
+      if (i === count) {
+        const connEnd = Date.now()
+
+        signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
+
+        total = 0
+
+        if (!verbose) {
+          setInterval(() => {
+            const rate = (total / ((Date.now() - connEnd) / 1000)).toFixed(0)
+            simpleInteractive.info(`Published total: ${total}, message rate: ${rate}/s`)
+          }, 1000)
+        } else {
+          setInterval(() => {
+            const rate = (total / ((Date.now() - connEnd) / 1000)).toFixed(0)
+            signale.info(`Published total: ${total}, message rate: ${rate}/s`)
+          }, 1000)
+        }
+      }
     })
 
     client.on('error', (err) => {
@@ -131,17 +152,6 @@ const benchPub = async (options: BenchPublishOptions) => {
 
     await delay(interval)
   }
-
-  const connEnd = Date.now()
-
-  signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
-
-  total = 0
-
-  setInterval(() => {
-    const rate = (total / ((Date.now() - connEnd) / 1000)).toFixed(0)
-    signale.info(`Published total: ${total}, message rate: ${rate}/s`)
-  }, 1000)
 }
 
 export default pub

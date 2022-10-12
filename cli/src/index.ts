@@ -314,6 +314,7 @@ export class Commander {
       )
       .option('-si, --subscription-identifier <NUMBER>', 'the identifier of the subscription', parseNumber)
       .option('-ct, --content-type <TYPE>', 'a description of the content of the publish message')
+      .option('-v, --verbose', 'print history published total and message rate')
       // connect options
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
@@ -383,7 +384,7 @@ export class Commander {
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
         parseUserProperties,
       )
-      .option('-v, --verbose', 'print the topic before the message')
+      .option('-v, --verbose', 'print history received messages and rate')
       // connect options
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')

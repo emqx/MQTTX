@@ -59,13 +59,14 @@ const sub = (options: SubscribeOptions) => {
 }
 
 const benchSub = async (options: BenchSubscribeOptions) => {
-  const { count, interval, topic, clientId } = options
+  const { count, interval, topic, clientId, verbose } = options
 
   const connOpts = parseConnectOptions(options, 'sub')
 
   const subOptsArray = parseSubscribeOptions(options)
 
   const interactive = new Signale({ interactive: true })
+  const simpleInteractive = new Signale({ interactive: true, config: { displayLabel: false, displayTimestamp: true } })
 
   signale.info(
     `Start the subscribe benchmarking, connections: ${count}, req interval: ${interval}ms, topic: ${topic.join(',')}`,
@@ -110,6 +111,32 @@ const benchSub = async (options: BenchSubscribeOptions) => {
               process.exit(1)
             }
           })
+
+          if (i === count) {
+            const connEnd = Date.now()
+
+            signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
+
+            total = 0
+
+            if (!verbose) {
+              setInterval(() => {
+                if (total > oldTotal) {
+                  const rate = total - oldTotal
+                  simpleInteractive.info(`Received total: ${total}, rate: ${rate}/s`)
+                }
+                oldTotal = total
+              }, 1000)
+            } else {
+              setInterval(() => {
+                if (total > oldTotal) {
+                  const rate = total - oldTotal
+                  signale.info(`Received total: ${total}, rate: ${rate}/s`)
+                }
+                oldTotal = total
+              }, 1000)
+            }
+          }
         })
       })
     })
@@ -125,20 +152,6 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
     await delay(interval)
   }
-
-  const connEnd = Date.now()
-
-  signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
-
-  total = 0
-
-  setInterval(() => {
-    if (total > oldTotal) {
-      const rate = total - oldTotal
-      signale.info(`Received total: ${total}, rate: ${rate}/s`)
-    }
-    oldTotal = total
-  }, 1000)
 }
 
 export default sub
