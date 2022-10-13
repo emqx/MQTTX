@@ -160,7 +160,7 @@ export class Commander {
 
     this.program
       .command('sub')
-      .description('Subscribes to a or more topics.')
+      .description('Subscribes to one or more topics.')
       .requiredOption('-t, --topic <TOPIC...>', 'the message topic')
       .option('-q, --qos <0/1/2...>', 'the QoS of the message', parseQoS)
       // properties options of MQTT 5.0
@@ -362,7 +362,7 @@ export class Commander {
 
     benchCmd
       .command('sub')
-      .description('Create a custom number of connections then subscribe to a or multiple topics.')
+      .description('Create a custom number of connections then subscribe to one or multiple topics.')
       .option('-c, --count <NUMBER>', 'the number of connections', parseNumber, 1000)
       .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker (default: 10ms)', parseNumber, 10)
       .requiredOption(
