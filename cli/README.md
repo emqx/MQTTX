@@ -117,21 +117,16 @@ Publish
 mqttx pub -t 'hello' -h 'broker.emqx.io' -p 1883 -m 'from MQTTX CLI'
 ```
 
-Connect Benchmark
+Benchmark
 
-```shell
+```bash
+# Connect Benchmark
 mqttx bench conn -c 5000
-```
 
-Subscribe Benchmark
-
-```shell
+# Subscribe Benchmark
 mqttx bench sub -c 5000 -t bench/%i
-```
 
-Publish Benchmark
-
-```shell
+# Publish Benchmark
 mqttx bench pub -c 5000 -t bench/%i
 ```
 
@@ -151,7 +146,7 @@ mqttx --help
 | check   | Check for updates                              |
 | conn    | Create a connection and connect to MQTT Broker |
 | pub     | Publish a message to a topic                   |
-| sub     | Subscribes to one or multiple  topics          |
+| sub     | Subscribes to one or multiple topics           |
 | bench   | MQTT Benchmark in performance testing          |
 
 #### Connect

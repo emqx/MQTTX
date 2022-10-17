@@ -118,21 +118,16 @@ Publish
 mqttx pub -t 'hello' -h 'broker.emqx.io' -p 1883 -m 'from MQTTX CLI'
 ```
 
-Connect Benchmark
+Benchmark
 
-```shell
+```bash
+# Connect Benchmark
 mqttx bench conn -c 5000
-```
 
-Subscribe Benchmark
-
-```shell
+# Subscribe Benchmark
 mqttx bench sub -c 5000 -t bench/%i
-```
 
-Publish Benchmark
-
-```shell
+# Publish Benchmark
 mqttx bench pub -c 5000 -t bench/%i
 ```
 
