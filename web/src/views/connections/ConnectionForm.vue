@@ -140,15 +140,6 @@
 
             <template v-if="record.ssl">
               <el-col :span="22">
-                <el-form-item label-width="93px" :label="$t('connections.certType')" prop="certType">
-                  <el-radio-group v-model="record.certType">
-                    <el-radio label="server">CA signed server</el-radio>
-                    <el-radio label="self">Self signed</el-radio>
-                  </el-radio-group>
-                </el-form-item>
-              </el-col>
-              <el-col :span="2"></el-col>
-              <el-col :span="22">
                 <el-form-item
                   class="item-secure"
                   :label="$t('connections.strictValidateCertificate')"
@@ -175,64 +166,6 @@
             </template>
           </el-row>
         </el-card>
-
-        <!-- SSL -->
-        <transition-group name="el-zoom-in-top">
-          <template v-if="record.certType === 'self'">
-            <div key="title" class="info-header">
-              <h3>Certificates</h3>
-            </div>
-            <el-card key="content" shadow="never" class="info-body item-card">
-              <el-row :gutter="10">
-                <el-col :span="22">
-                  <el-form-item :label="$t('connections.ca')" prop="ca">
-                    <el-input size="mini" v-model="record.ca"></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="2">
-                  <a href="javascript:;" class="icon-oper file">
-                    <i class="el-icon-folder-opened"></i>
-                    <input
-                      type="file"
-                      @change="getFilePath($event, 'ca')"
-                      accept=".crt, .key, .pem, .jks, .der, .cer, .pfx"
-                    />
-                  </a>
-                </el-col>
-                <el-col :span="22">
-                  <el-form-item :label="$t('connections.cert')" prop="cert">
-                    <el-input size="mini" v-model="record.cert"></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="2">
-                  <a href="javascript:;" class="icon-oper file">
-                    <i class="el-icon-folder-opened"></i>
-                    <input
-                      type="file"
-                      @change="getFilePath($event, 'cert')"
-                      accept=".crt, .key, .pem, .jks, .der, .cer, .pfx"
-                    />
-                  </a>
-                </el-col>
-                <el-col :span="22">
-                  <el-form-item :label="$t('connections.key')" prop="key">
-                    <el-input size="mini" v-model="record.key"></el-input>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="2">
-                  <a href="javascript:;" class="icon-oper file">
-                    <i class="el-icon-folder-opened"></i>
-                    <input
-                      type="file"
-                      @change="getFilePath($event, 'key')"
-                      accept=".crt, .key, .pem, .jks, .der, .cer, .pfx"
-                    />
-                  </a>
-                </el-col>
-              </el-row>
-            </el-card>
-          </template>
-        </transition-group>
 
         <div class="info-header">
           <h3>
@@ -690,21 +623,6 @@ export default class ConnectionCreate extends Vue {
   // Reverse the status of clientIdWithTime.
   private reverseClientIDWithTime() {
     this.record.clientIdWithTime = !this.record.clientIdWithTime
-  }
-
-  private getFilePath(e: MouseEvent, key: 'ca' | 'cert' | 'key') {
-    let file = e.target as HTMLInputElement
-    let vue = this
-    if (file.files) {
-      //读取本地文件
-      let reader = new FileReader()
-      reader.readAsText(file.files[0])
-      reader.onload = function () {
-        if (this.result) {
-          vue.record[key] = this.result as string
-        }
-      }
-    }
   }
 
   private handleSSL(val: boolean) {
