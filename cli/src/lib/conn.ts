@@ -48,7 +48,7 @@ const benchConn = async (options: BenchConnectOptions) => {
     })
 
     client.on('error', (err) => {
-      signale.error(`[${i}/${count}] - ${err}`)
+      signale.error(`[${i}/${count}] - Client ID: ${connOpts.clientId}, ${err}`)
       client.end()
     })
 

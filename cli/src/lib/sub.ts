@@ -99,7 +99,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
         client.subscribe(topicName, subOpts, (err, result) => {
           if (err) {
-            signale.error(`[${i}/${count}] - ${err}`)
+            signale.error(`[${i}/${count}] - Client ID: ${connOpts.clientId}, ${err}`)
             process.exit(1)
           } else {
             interactive.success('[%d/%d] - Subscribed to %s', i, count, topicName)
@@ -107,7 +107,9 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
           result.forEach((sub) => {
             if (sub.qos > 2) {
-              signale.error(`[${i}/${count}] - subscription negated to ${sub.topic} with code ${sub.qos}`)
+              signale.error(
+                `[${i}/${count}] - Client ID: ${connOpts.clientId}, subscription negated to ${sub.topic} with code ${sub.qos}`,
+              )
               process.exit(1)
             }
           })
@@ -146,7 +148,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
     })
 
     client.on('error', (err) => {
-      signale.error(`[${i}/${count}] - ${err}`)
+      signale.error(`[${i}/${count}] - Client ID: ${connOpts.clientId}, ${err}`)
       client.end()
     })
 
