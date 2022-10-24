@@ -240,7 +240,7 @@ sudo snap install mqttx
 
 ![mqttx-script](../assets/mqttx-script.png)
 
-脚本使用实例可在 [/docs/script-example](https://github.com/emqx/MQTTX/tree/master/docs/script-example) 文件夹中查看，目前提供了两个内置脚本，时间戳转化和温湿度数据模拟。如果在您的使用中有更好的，更实用的脚本也可以提交您的代码到这里，方便让更多的人使用到。
+脚本使用实例可在 [/docs/script-example](https://github.com/emqx/MQTTX/tree/main/docs/script-example) 文件夹中查看，目前提供了两个内置脚本，时间戳转化和温湿度数据模拟。如果在您的使用中有更好的，更实用的脚本也可以提交您的代码到这里，方便让更多的人使用到。
 
 ### 日志
 
@@ -361,7 +361,7 @@ MQTT X 是一款开源的跨平台 MQTT 桌面客户端工具。可以用于正�
 
 **Q: MQTT X 是免费的吗？**
 
-是的。完全开源，详情见 [LICENSE](https://github.com/emqx/MQTTX/blob/master/LICENSE)。
+是的。完全开源，详情见 [LICENSE](https://github.com/emqx/MQTTX/blob/main/LICENSE)。
 
 **Q: 当您使用 MQTT X 遇到问题时，该怎么做？**
 
@@ -371,11 +371,11 @@ MQTT X 是一款开源的跨平台 MQTT 桌面客户端工具。可以用于正�
 
 ## 联系方式
 
-|  方式   | 内容  |
-|  ----  | ----  |
-| QQ 群（EMQX 官方群3）| 937041105 |
-| EMQX 官方公众号 | <img src="../assets/wx_qr_code.png" width="160" alt="WeChat QR code"/> |
-| EMQX 微信群（扫码添加后邀请入群）| <img src="../assets/emqx_wx.jpeg" width="160" alt="EMQX Wechat"/> |
-| 微博 | [@emqtt](https://weibo.com/emqtt) |
-| Twitter | [@emqtt](https://twitter.com/EMQTech/) |
-| Slack | [EMQX](https://slack-invite.emqx.io/) |
+| 方式                              | 内容                                                                   |
+| --------------------------------- | ---------------------------------------------------------------------- |
+| QQ 群（EMQX 官方群3）             | 937041105                                                              |
+| EMQX 官方公众号                   | <img src="../assets/wx_qr_code.png" width="160" alt="WeChat QR code"/> |
+| EMQX 微信群（扫码添加后邀请入群） | <img src="../assets/emqx_wx.jpeg" width="160" alt="EMQX Wechat"/>      |
+| 微博                              | [@emqtt](https://weibo.com/emqtt)                                      |
+| Twitter                           | [@emqtt](https://twitter.com/EMQTech/)                                 |
+| Slack                             | [EMQX](https://slack-invite.emqx.io/)                                  |

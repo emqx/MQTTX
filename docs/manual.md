@@ -240,7 +240,7 @@ This function is scalable and flexible, and requires users to cooperate with act
 
 ![mqttx-script](../assets/mqttx-script.png)
 
-The script usage examples can be viewed in the [/docs/script-example](https://github.com/emqx/MQTTX/tree/master/docs/script-example) folder. Currently, two built-in scripts are provided, timestamp conversion and temperature and humidity data simulation. If you have a better and more practical script in your use, you can submit your code here, so that more people can use it.
+The script usage examples can be viewed in the [/docs/script-example](https://github.com/emqx/MQTTX/tree/main/docs/script-example) folder. Currently, two built-in scripts are provided, timestamp conversion and temperature and humidity data simulation. If you have a better and more practical script in your use, you can submit your code here, so that more people can use it.
 
 ### Log
 
@@ -363,7 +363,7 @@ For example, create a new connection as a User A, subscribe to a Topic, just lik
 
 **Q: Is MQTT X free?**
 
-Yes. Fully open source, see the [LICENSE](https://github.com/emqx/MQTTX/blob/master/LICENSE) for details.
+Yes. Fully open source, see the [LICENSE](https://github.com/emqx/MQTTX/blob/main/LICENSE) for details.
 
 **Q: What do you do when you have problems with MQTT X?**
 

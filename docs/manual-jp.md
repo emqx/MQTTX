@@ -196,7 +196,7 @@ v1.4.2以降、MQTTXはスクリプト編集機能を追加しました、この
 
 ![mqttx-script](../assets/mqttx-script.png)
 
-スクリプトの使用例は [/docs/script-example](https://github.com/emqx/MQTTX/tree/master/docs/script-example) フォルダーで表示できます。現在、タイムスタンプ変換と温度および湿度データシミュレーションの2つの組み込みスクリプトが提供されています。より優れた実用的なスクリプトを使用している場合は、ここにコードを送信して、より多くの人が使用できるようにすることもできます。
+スクリプトの使用例は [/docs/script-example](https://github.com/emqx/MQTTX/tree/main/docs/script-example) フォルダーで表示できます。現在、タイムスタンプ変換と温度および湿度データシミュレーションの2つの組み込みスクリプトが提供されています。より優れた実用的なスクリプトを使用している場合は、ここにコードを送信して、より多くの人が使用できるようにすることもできます。
 
 ### ログ
 
@@ -295,7 +295,7 @@ MQTTプロトコルのpublish-subscribeの理解に基づき、ユーザーAを�
 
 **Q：MQTT Xは無料ですか？**
 
-はい。 完全なオープンソースです。詳細は[LICENSE](https://github.com/emqx/MQTTX/blob/master/LICENSE)をご覧ください。
+はい。 完全なオープンソースです。詳細は[LICENSE](https://github.com/emqx/MQTTX/blob/main/LICENSE)をご覧ください。
 
 **Q：MQTT Xで問題が発生した場合はどうしますか？**
 
