@@ -91,7 +91,7 @@ yarn run electron:build
 
 ## プロジェクトへの貢献
 
-PRを提出する前に、貢献ガイドをよく読んでください。[Contributing Guide](https://github.com/emqx/MQTTX/blob/master/.github/CONTRIBUTING.md)
+PRを提出する前に、貢献ガイドをよく読んでください。[Contributing Guide](https://github.com/emqx/MQTTX/blob/main/.github/CONTRIBUTING.md)
 
 ## テクノロジースタック
 
@@ -104,4 +104,4 @@ PRを提出する前に、貢献ガイドをよく読んでください。[Contr
 
 ## License
 
-Apache License 2.0, see [LICENSE](https://github.com/emqx/MQTTX/blob/master/LICENSE).
+Apache License 2.0, see [LICENSE](https://github.com/emqx/MQTTX/blob/main/LICENSE).

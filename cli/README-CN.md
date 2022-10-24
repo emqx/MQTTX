@@ -318,7 +318,7 @@ mqttx bench sub --help
 | 参数                          | 描述                                                                 |
 | ----------------------------- | -------------------------------------------------------------------- |
 | -c, --count <NUMBER>          | 连接数量，默认为 1000                                                |
-| -i, --interval <MILLISECONDS> | 创建连接的间隔时间，单位为毫秒，默认为 10ms                                      |
+| -i, --interval <MILLISECONDS> | 创建连接的间隔时间，单位为毫秒，默认为 10ms                          |
 | -I, --client-id <ID>          | 客户端 ID，支持 %i (索引) 占位符                                     |
 | -t, --topic <TOPIC...>        | 需要订阅的 Topic, 支持 %u (用户名), %c (客户端 ID), %i (索引) 占位符 |
 | -v, --verbose                 | 打印接收到的历史消息数量与消息速率                                   |
@@ -332,8 +332,8 @@ mqttx bench pub --help
 | 参数                                   | 描述                                                                 |
 | -------------------------------------- | -------------------------------------------------------------------- |
 | -c, --count <NUMBER>                   | 连接数量，默认为 1000                                                |
-| -i, --interval <MILLISECONDS>          | 创建连接的间隔时间，单位为毫秒，默认为 10ms                                      |
-| -im, --message-interval <MILLISECONDS> | 发布消息的间隔时间，单位为毫秒，默认为 1000ms                                    |
+| -i, --interval <MILLISECONDS>          | 创建连接的间隔时间，单位为毫秒，默认为 10ms                          |
+| -im, --message-interval <MILLISECONDS> | 发布消息的间隔时间，单位为毫秒，默认为 1000ms                        |
 | -I, --client-id <ID>                   | 客户端 ID，支持 %i (索引) 占位符                                     |
 | -t, --topic <TOPIC...>                 | 需要订阅的 Topic, 支持 %u (用户名), %c (客户端 ID), %i (索引) 占位符 |
 | -v, --verbose                          | 打印发送出的历史消息数量与消息速率                                   |
@@ -393,7 +393,7 @@ pkg package.json
 
 ## 贡献
 
-请确保在发出 PR 请求前， 已经仔细阅读过了[贡献指南](https://github.com/emqx/MQTTX/blob/master/.github/CONTRIBUTING_CN.md)
+请确保在发出 PR 请求前， 已经仔细阅读过了[贡献指南](https://github.com/emqx/MQTTX/blob/main/.github/CONTRIBUTING_CN.md)
 
 ## 技术栈
 
@@ -404,4 +404,4 @@ pkg package.json
 
 ## License
 
-Apache License 2.0, see [LICENSE](https://github.com/emqx/MQTTX/blob/master/LICENSE).
+Apache License 2.0, see [LICENSE](https://github.com/emqx/MQTTX/blob/main/LICENSE).

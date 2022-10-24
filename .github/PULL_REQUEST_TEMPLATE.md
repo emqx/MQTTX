@@ -1,6 +1,6 @@
 ### PR Checklist
 
-If you have any questions, you can refer to the [Contributing Guide](https://github.com/emqx/MQTTX/blob/master/.github/CONTRIBUTING.md)
+If you have any questions, you can refer to the [Contributing Guide](https://github.com/emqx/MQTTX/blob/main/.github/CONTRIBUTING.md)
 
 #### What is the current behavior?
 

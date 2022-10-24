@@ -391,7 +391,7 @@ After a successful build, you will see the binary executable for each system in 
 
 ## Contributing
 
-Please make sure to read the [Contributing Guide](https://github.com/emqx/MQTTX/blob/master/.github/CONTRIBUTING.md) before making a pull request.
+Please make sure to read the [Contributing Guide](https://github.com/emqx/MQTTX/blob/main/.github/CONTRIBUTING.md) before making a pull request.
 
 ## Technology Stack
 
@@ -402,4 +402,4 @@ Please make sure to read the [Contributing Guide](https://github.com/emqx/MQTTX/
 
 ## License
 
-Apache License 2.0, see [LICENSE](https://github.com/emqx/MQTTX/blob/master/LICENSE).
+Apache License 2.0, see [LICENSE](https://github.com/emqx/MQTTX/blob/main/LICENSE).
