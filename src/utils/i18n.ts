@@ -14,6 +14,7 @@ export const formati18n = (transItems: i18nLocaleModel, langs: SupportLangModel)
       about: {},
       script: {},
       log: {},
+      help: {},
     }
   })
   transItems.forEach((item) => {
