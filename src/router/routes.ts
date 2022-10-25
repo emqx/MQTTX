@@ -18,6 +18,7 @@ const routes: Routes[] = [
       { path: '/script', name: 'Script', component: () => import('@/views/script/index.vue') },
       { path: '/log', name: 'Log', component: () => import('@/views/log/index.vue') },
       { path: '/new_window/:id', name: 'newWindow', component: () => import('@/views/window/Window.vue') },
+      { path: '/help', name: 'Help', component: () => import('@/views/help/index.vue') },
     ],
   },
 ]
