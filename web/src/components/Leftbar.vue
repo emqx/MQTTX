@@ -19,14 +19,31 @@
     </section>
 
     <section class="leftbar-bottom">
-      <div :class="[{ active: isAbout }, 'leftbar-item']">
-        <a href="javascript:;" @click="routeToPage('/about')">
-          <i class="iconfont icon-about"></i>
-        </a>
-      </div>
       <div :class="[{ active: isSettings }, 'leftbar-item']">
         <a href="javascript:;" @click="routeToPage('/settings')">
           <i class="iconfont icon-settings"></i>
+        </a>
+      </div>
+      <el-popover
+        ref="popover"
+        popper-class="leftbar-tooltip"
+        placement="right"
+        width="120"
+        trigger="manual"
+        v-model="visible"
+      >
+        <div class="popover-centent" @click="visible = !visible">
+          <div class="leftbar-item" @click="routeToPage('/about')">
+            {{ $t('about.about') }}
+          </div>
+          <div class="leftbar-item" @click="routeToPage('/help')">
+            {{ $t('help.help') }}
+          </div>
+        </div>
+      </el-popover>
+      <div :class="[{ active: isAbout || isHelp }, 'leftbar-item']" v-popover:popover @click="visible = !visible">
+        <a href="javascript:;">
+          <i class="iconfont icon-help"></i>
         </a>
       </div>
     </section>
@@ -40,6 +57,8 @@ import { Getter } from 'vuex-class'
 @Component
 export default class Leftbar extends Vue {
   @Getter('currentLang') private getterLang!: Language
+
+  private visible: boolean = false
 
   get siteLink(): string {
     return this.getterLang === 'zh' ? 'https://mqttx.app/zh' : 'https://mqttx.app/'
@@ -55,6 +74,9 @@ export default class Leftbar extends Vue {
   }
   get isAbout(): boolean {
     return this.$route.path === '/about'
+  }
+  get isHelp(): boolean {
+    return this.$route.path === '/help'
   }
 
   private routeToPage(path: string) {
@@ -134,6 +156,31 @@ export default class Leftbar extends Vue {
 
   @media (min-width: 1920px) {
     width: 120px;
+  }
+}
+</style>
+
+<style lang="scss">
+.leftbar-tooltip[x-placement^='right'] {
+  color: var(--color-bg-normal);
+  padding: 0;
+  background: linear-gradient(135deg, var(--color-bg-leftbar_top) 0%, var(--color-bg-leftbar_bottom) 100%) !important;
+  text-align: center;
+  border-radius: 8px;
+  .popper__arrow::after {
+    border-right-color: var(--color-bg-leftbar_top) !important;
+  }
+  .popover-centent {
+    overflow: hidden;
+    border-radius: 8px;
+  }
+  .leftbar-item {
+    cursor: pointer;
+    line-height: 40px;
+    color: var(--color-text-active);
+    &:hover {
+      background-color: var(--color-bg-leftbar_item);
+    }
   }
 }
 </style>

@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "32483181",
+      "name": "Help",
+      "font_class": "help",
+      "unicode": "e78b",
+      "unicode_decimal": 59275
+    },
+    {
+      "icon_id": "29692593",
+      "name": "github",
+      "font_class": "github",
+      "unicode": "e75b",
+      "unicode_decimal": 59227
+    },
+    {
       "icon_id": "29241652",
       "name": "website",
       "font_class": "website",
@@ -298,13 +312,6 @@
       "font_class": "send",
       "unicode": "e62f",
       "unicode_decimal": 58927
-    },
-    {
-      "icon_id": "9552003",
-      "name": "github",
-      "font_class": "github",
-      "unicode": "e62a",
-      "unicode_decimal": 58922
     }
   ]
 }
