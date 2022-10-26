@@ -72,19 +72,38 @@ export default class Help extends Vue {
   }
 
   get helpGuide() {
-    // TODO: add guide articles
     return [
       {
         title: this.$tc('help.guideArticle1'),
-        link: `${this.mqttxWebsite}/blog/1`,
+        link: `${this.emqWebsite}/blog/what-is-the-mqtt-protocol`,
       },
       {
-        title: this.$tc('help.guideArticle1'),
-        link: `${this.mqttxWebsite}/blog/2`,
+        title: this.$tc('help.guideArticle2'),
+        link: `${this.emqWebsite}/blog/the-easiest-guide-to-getting-started-with-mqtt`,
       },
       {
-        title: this.$tc('help.guideArticle1'),
-        link: `${this.mqttxWebsite}/blog/3`,
+        title: this.$tc('help.guideArticle3'),
+        link: `${this.emqWebsite}/blog/mqtt-5-introduction-to-publish-subscribe-model`,
+      },
+      {
+        title: this.$tc('help.guideArticle4'),
+        link: `${this.emqWebsite}/blog/advanced-features-of-mqtt-topics`,
+      },
+      {
+        title: this.$tc('help.guideArticle5'),
+        link: `${this.emqWebsite}/blog/introduction-to-mqtt-qos`,
+      },
+      {
+        title: this.$tc('help.guideArticle6'),
+        link: `${this.emqWebsite}/blog/mqtt-session`,
+      },
+      {
+        title: this.$tc('help.guideArticle7'),
+        link: `${this.emqWebsite}/blog/mqtt5-features-retain-message`,
+      },
+      {
+        title: this.$tc('help.guideArticle8'),
+        link: `${this.emqWebsite}/blog/use-of-mqtt-will-message`,
       },
     ]
   }
