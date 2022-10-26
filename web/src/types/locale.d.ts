@@ -4,7 +4,7 @@ declare module 'element-ui/lib/locale/lang/en' {}
 declare module 'element-ui/lib/locale/lang/zh-CN' {}
 declare module 'element-ui/lib/locale/lang/ja' {}
 
-type i18nLocaleModel = ['connections', 'settings', 'common', 'about']
+type i18nLocaleModel = ['connections', 'settings', 'common', 'about', 'help']
 type SupportLangModel = ['zh', 'en', 'ja']
 
 declare module '*.json' {

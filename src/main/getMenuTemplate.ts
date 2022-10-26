@@ -13,6 +13,7 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
             submenu: [
               {
                 label: 'About MQTTX',
+                accelerator: 'cmd + b',
                 click: () => {
                   win.webContents.send('about')
                 },
