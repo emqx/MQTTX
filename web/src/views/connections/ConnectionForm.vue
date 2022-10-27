@@ -279,14 +279,14 @@
                     </el-input>
                   </el-form-item>
                 </el-col>
-                <el-col :span="2"><div class="unit">(Byte)</div></el-col>
+                <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.maximumPacketSize')" prop="maximumPacketSize">
                     <el-input size="mini" type="number" :min="100" v-model.number="record.properties.maximumPacketSize">
                     </el-input>
                   </el-form-item>
                 </el-col>
-                <el-col :span="2"><div class="unit">(Byte)</div></el-col>
+                <el-col :span="2"></el-col>
                 <el-col :span="22">
                   <el-form-item :label="$t('connections.topicAliasMaximum')" prop="topicAliasMaximum">
                     <el-input size="mini" type="number" :min="1" v-model.number="record.properties.topicAliasMaximum">
