@@ -53,7 +53,12 @@
           </div>
         </div>
       </el-popover>
-      <div :class="[{ active: isAbout || isHelp }, 'leftbar-item']" v-popover:popover @click="visible = !visible">
+      <div
+        :class="[{ active: isAbout || isHelp }, 'leftbar-item']"
+        v-popover:popover
+        @click="visible = !visible"
+        v-click-outside="() => (visible = false)"
+      >
         <a href="javascript:;">
           <i class="iconfont icon-help"></i>
         </a>
@@ -65,9 +70,14 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
+import ClickOutside from 'vue-click-outside'
 import gaCustomLinks from '@/utils/gaCustomLinks'
 
-@Component
+@Component({
+  directives: {
+    ClickOutside,
+  },
+})
 export default class Leftbar extends Vue {
   @Getter('currentLang') private getterLang!: Language
 
