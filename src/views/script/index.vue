@@ -145,7 +145,7 @@ export default class Script extends Vue {
 * @description: default script
 * @param {any} value - Payload
 * @param {string} msgType - Message type, value is 'received' or 'publish'
-* @param {number} index - Index of the message, vaild only when script is used in the publish message and timed message is enabled
+* @param {number} index - Index of the message, valid only when script is used in the publish message and timed message is enabled
 * @return {any} - Payload after script processing
 */
 function handlePayload(value, msgType, index) {
