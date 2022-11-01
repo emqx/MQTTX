@@ -141,7 +141,14 @@ export default class Script extends Vue {
     script: '',
   }
   private scripts: ScriptModel[] = []
-  private readonly defaultScript = `function handlePayload(value) {
+  private readonly defaultScript = `/**
+* @description: default script
+* @param {any} value - Payload
+* @param {string} msgType - Message type, value is 'received' or 'publish'
+* @param {number} index - Index of the message, vaild only when script is used in the publish message and timed message is enabled
+* @return {any} - Payload after script processing
+*/
+function handlePayload(value, msgType, index) {
   return value.msg
 }
 
@@ -161,7 +168,7 @@ execute(handlePayload)`
   }
 
   private handleTestFunc() {
-    this.outputValue = sandbox.executeScript(this.inputValue, this.scriptValue, this.inputType)
+    this.outputValue = sandbox.executeScript(this.scriptValue, this.inputType, this.inputValue, 'publish')
   }
 
   private async handleSave() {

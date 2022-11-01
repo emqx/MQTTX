@@ -395,6 +395,7 @@ export default class ConnectionsDetail extends Vue {
 
   private sendFrequency: number | undefined = undefined
   private sendTimeId: number | null = null
+  private sendTimedMessageCount = 0
   private receivedMsgType: PayloadType = 'Plaintext'
   private msgType: MessageType = 'all'
 
@@ -594,6 +595,7 @@ export default class ConnectionsDetail extends Vue {
       sendFrequency: undefined,
     }
     this.sendFrequency = undefined
+    this.sendTimedMessageCount = 0
     if (this.sendTimeId) {
       clearInterval(this.sendTimeId)
       this.sendTimeId = null
@@ -1056,8 +1058,8 @@ export default class ConnectionsDetail extends Vue {
   private onMessageArrived(id: string) {
     return async (topic: string, payload: Buffer, packet: IPublishPacket) => {
       const { qos, retain, properties } = packet
-      const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
-      const receviedPayload = this.convertPayloadByScript(convertPayload, 'publish')
+      const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'received') as string
+      const receviedPayload = this.convertPayloadByScript(convertPayload, 'received')
       const receivedMessage: MessageModel = {
         id: getMessageId(),
         out: false,
@@ -1155,6 +1157,7 @@ export default class ConnectionsDetail extends Vue {
   // Set timed message
   private timedSendMessage(time: number, message: MessageModel, type: PayloadType) {
     this.stopTimedSend()
+    this.sendTimedMessageCount += 1
     this.sendTimeId = window.setInterval(() => {
       const { ...oneMessage } = message
       let { id } = oneMessage
@@ -1226,7 +1229,7 @@ export default class ConnectionsDetail extends Vue {
       { qos, topic, retain } as HistoryMessageHeaderModel,
     ) // insert message into local storage
 
-    const convertPayload = this.convertPayloadByScript(payload, 'received')
+    const convertPayload = this.convertPayloadByScript(payload, 'publish')
     const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
 
     this.client.publish!(
@@ -1297,7 +1300,11 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Convert payload by type
-  private convertPayloadByType(value: Buffer | string, type: PayloadType, way: 'publish' | 'receive'): Buffer | string {
+  private convertPayloadByType(
+    value: Buffer | string,
+    type: PayloadType,
+    way: 'publish' | 'received',
+  ): Buffer | string {
     const genPublishPayload = (publishType: PayloadType, publishValue: string) => {
       if (publishType === 'Base64') {
         return Buffer.from(publishValue, 'base64')
@@ -1327,18 +1334,30 @@ export default class ConnectionsDetail extends Vue {
     }
     if (way === 'publish' && typeof value === 'string') {
       return genPublishPayload(type, value)
-    } else if (way === 'receive' && typeof value !== 'string') {
+    } else if (way === 'received' && typeof value !== 'string') {
       return genReceivePayload(type, value)
     }
     return value
   }
 
   // Use script to apply to payload
-  private convertPayloadByScript(payload: string, notType: MessageType): string {
+  private convertPayloadByScript(payload: string, msgType: MessageType): string {
     let convertPayload = payload
-    if (this.scriptOption !== null && this.scriptOption.content && this.scriptOption.apply !== notType) {
+    if (this.scriptOption?.content && ['all', msgType].includes(this.scriptOption.apply)) {
+      if (this.sendFrequency || this.sendTimeId !== null) {
+        msgType === 'publish' && (this.sendTimedMessageCount += 1)
+      } else {
+        this.sendTimedMessageCount = 0
+      }
+      const count = this.sendTimedMessageCount || undefined
       // Enable script function
-      convertPayload = sandbox.executeScript(payload, this.scriptOption.content.script, this.receivedMsgType)
+      convertPayload = sandbox.executeScript(
+        this.scriptOption.content.script,
+        this.receivedMsgType,
+        payload,
+        msgType,
+        count,
+      )
     }
     return convertPayload
   }

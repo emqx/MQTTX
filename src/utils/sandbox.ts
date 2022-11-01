@@ -1,17 +1,23 @@
 import { VM, VMScript } from 'vm2'
 
-const executeScript = (input: string | number, script: string, type: PayloadType): string => {
+const executeScript = (
+  script: string,
+  payloadType: PayloadType,
+  input: string,
+  msgType: MessageType,
+  index?: number,
+): string => {
   let output = ''
   try {
     const vm = new VM({
       timeout: 10000,
       sandbox: {
-        execute(callback: (value: any) => any) {
+        execute(callback: (value: any, msgType: MessageType, index?: number) => any) {
           let _inputValue = input
-          if (type === 'JSON' && typeof input === 'string') {
+          if (payloadType === 'JSON' && typeof input === 'string') {
             _inputValue = JSON.parse(input)
           }
-          let _output = callback(_inputValue)
+          let _output = callback(_inputValue, msgType, index)
           if (_output === undefined) {
             _output = 'undefined'
           } else if (_output === null) {
@@ -29,6 +35,7 @@ const executeScript = (input: string | number, script: string, type: PayloadType
     output = vm.run(_script)
     return output
   } catch (error) {
+    // @ts-ignore
     output = error.toString()
     return output
   }
