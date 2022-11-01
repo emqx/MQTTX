@@ -43,6 +43,11 @@ const { ConnectionInit, ConnectionDestroy } = useConnection()
 function handleIpcMessages() {
   ipcMain.on('setting', (event: Electron.IpcMainEvent, ...args: any[]) => {
     event.sender.send('setting', ...args)
+    const [settingType, lang] = args
+    if (settingType === 'lang' && win) {
+      menu = Menu.buildFromTemplate(getMenuTemplate(win, lang))
+      Menu.setApplicationMenu(menu)
+    }
   })
   ipcMain.on('checkUpdate', () => {
     updateChecker(false)
@@ -128,7 +133,7 @@ async function createWindow() {
     }
   })
   // Menu Manger
-  const templateMenu = getMenuTemplate(win)
+  const templateMenu = getMenuTemplate(win, setting?.currentLang)
   menu = Menu.buildFromTemplate(templateMenu)
   Menu.setApplicationMenu(menu)
 

@@ -1,9 +1,15 @@
 import { app, shell, BrowserWindow } from 'electron'
 import updateChecker from './updateChecker'
+import translations from '../lang/menu'
 
 const isMac = process.platform === 'darwin'
 
-const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
+const getMenuTemplate = (win: BrowserWindow, lang?: Language): $TSFixed => {
+  const labels = {} as Record<keyof typeof translations, string>
+  Object.keys(translations).forEach((key: keyof typeof translations) => {
+    labels[key] = translations[key][lang || 'en']
+  })
+
   return [
     // App
     ...(isMac
@@ -12,7 +18,7 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
             label: app.getName(),
             submenu: [
               {
-                label: 'About MQTTX',
+                label: labels.about,
                 accelerator: 'cmd + b',
                 click: () => {
                   win.webContents.send('about')
@@ -20,74 +26,78 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
               },
               { type: 'separator' },
               {
-                label: 'Preferences',
+                label: labels.preferences,
                 accelerator: 'cmd + ,',
                 click: () => {
                   win.webContents.send('preferences')
                 },
               },
               {
-                label: 'Check for update',
+                label: labels.checkForUpdate,
                 click: () => {
                   updateChecker(false)
                 },
               },
               { type: 'separator' },
-              { role: 'hide' },
-              { role: 'hideothers' },
-              { role: 'unhide' },
+              { role: 'hide', label: labels.hideMQTTX },
+              { role: 'hideothers', label: labels.hideOthers },
+              { role: 'unhide', label: labels.unhid },
               { type: 'separator' },
-              { role: 'quit' },
+              { role: 'quit', label: labels.quit },
             ],
           },
         ]
       : []),
     // File
     {
-      label: 'File',
+      label: labels.file,
       submenu: [
         {
-          label: 'New Window',
+          label: labels.newWindow,
           accelerator: 'CmdOrCtrl + Shift + N',
           click: () => {
             win.webContents.send('newWindow')
           },
         },
-        { role: 'close' },
+        { role: 'close', label: labels.closeWindow },
       ],
     },
     // EditMenu
     {
-      label: 'Edit',
+      label: labels.edit,
       submenu: [
-        { role: 'undo' },
-        { role: 'redo' },
+        { role: 'undo', label: labels.undo },
+        { role: 'redo', label: labels.redo },
         { type: 'separator' },
-        { role: 'cut' },
-        { role: 'copy' },
-        { role: 'paste' },
+        { role: 'cut', label: labels.cut },
+        { role: 'copy', label: labels.copy },
+        { role: 'paste', label: labels.paste },
         ...(isMac
           ? [
-              { role: 'pasteAndMatchStyle' },
-              { role: 'delete' },
-              { role: 'selectAll' },
+              { role: 'pasteAndMatchStyle', label: labels.pasteAndMatchStyle },
+              { role: 'delete', label: labels.delete },
+              { role: 'selectAll', label: labels.selectAll },
               { type: 'separator' },
               {
-                label: 'Speech',
+                label: labels.speech,
                 submenu: [{ role: 'startspeaking' }, { role: 'stopspeaking' }],
               },
             ]
-          : [{ role: 'delete' }, { type: 'separator' }, { role: 'selectAll' }]),
+          : [
+              { role: 'delete', label: labels.delete },
+              { type: 'separator' },
+              { role: 'selectAll', label: labels.selectAll },
+            ]),
         { type: 'separator' },
         {
-          label: 'Send payload',
+          label: labels.sendPayload,
           accelerator: 'CmdOrCtrl + Enter',
           click: () => {
             win.webContents.send('sendPayload')
           },
         },
         {
-          label: 'Search',
+          label: labels.search,
           accelerator: 'CmdOrCtrl + F',
           click: () => {
             win.webContents.send('searchContent')
@@ -96,60 +106,60 @@ const getMenuTemplate = (win: BrowserWindow): $TSFixed => {
       ],
     },
     {
-      label: 'View',
+      label: labels.view,
       submenu: [
-        { role: 'reload' },
-        { role: 'forcereload' },
-        { role: 'toggledevtools' },
+        { role: 'reload', label: labels.reload },
+        { role: 'forcereload', label: labels.forceReload },
+        { role: 'toggledevtools', label: labels.toggleDevTools },
         { type: 'separator' },
-        { role: 'resetzoom' },
-        { role: 'zoomin' },
-        { role: 'zoomout' },
+        { role: 'resetzoom', label: labels.actualSize },
+        { role: 'zoomin', label: labels.zoomIn },
+        { role: 'zoomout', label: labels.zoomOut },
         { type: 'separator' },
-        { role: 'togglefullscreen' },
+        { role: 'togglefullscreen', label: labels.toggleFullScreen },
       ],
     },
     // windowMenu
     {
-      label: 'Window',
+      label: labels.window,
       submenu: [
-        { role: 'minimize' },
-        { role: 'zoom' },
+        { role: 'minimize', label: labels.minimize },
+        { role: 'zoom', label: labels.zoom },
         ...(isMac
-          ? [{ type: 'separator' }, { role: 'front' }, { type: 'separator' }, { role: 'window' }]
-          : [{ role: 'close' }]),
+          ? [{ type: 'separator' }, { role: 'front', label: labels.bringAllToFront }]
+          : [{ role: 'close', label: labels.closeWindow }]),
       ],
     },
     {
-      role: 'help',
+      role: labels.help,
       submenu: [
         {
-          label: 'Learn more MQTTX',
+          label: labels.learnMoreMQTTX,
           click: async () => {
             await shell.openExternal('https://github.com/emqx/MQTTX')
           },
         },
         {
-          label: 'Learn more EMQX',
+          label: labels.learnMoreEMQX,
           click: async () => {
             await shell.openExternal('https://github.com/emqx/emqx')
           },
         },
         {
-          label: 'Report problem',
+          label: labels.reportProblem,
           click: async () => {
             await shell.openExternal('https://github.com/emqx/MQTTX/issues')
           },
         },
         { type: 'separator' },
         {
-          label: 'MQTT X Website',
+          label: labels.MQTTXWebsite,
           click: async () => {
             await shell.openExternal('https://mqttx.app')
           },
         },
         {
-          label: 'EMQX Website',
+          label: labels.EMQXWebsite,
           click: async () => {
             await shell.openExternal('https://emqx.io')
           },
