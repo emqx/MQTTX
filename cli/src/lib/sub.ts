@@ -42,13 +42,16 @@ const sub = (options: SubscribeOptions) => {
 
   client.on('message', (topic, payload, packet) => {
     const msgData: Record<string, unknown>[] = []
-    if (options.verbose) {
-      msgData.push({ label: 'topic', value: topic })
-    }
-    if (packet.properties && packet.properties.userProperties) {
-      msgData.push({ label: 'user properties', value: { ...packet.properties.userProperties } })
-    }
+
+    options.verbose && msgData.push({ label: 'topic', value: topic })
+
     msgData.push({ label: 'payload', value: payload.toString() })
+
+    packet.retain && msgData.push({ label: 'retain', value: packet.retain })
+
+    packet.properties?.userProperties &&
+      msgData.push({ label: 'user properties', value: { ...packet.properties.userProperties } })
+
     msgLog(msgData)
   })
 
