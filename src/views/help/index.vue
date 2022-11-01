@@ -12,7 +12,7 @@
       <p>{{ $t('help.guideDesc') }}</p>
       <div class="guide-list">
         <template v-for="item in helpGuide">
-          <div v-if="item.link" :key="item.link" class="card" @click="goToLink(item.link)">
+          <div v-if="item.link" :key="item.link" class="card" @click="goToLink(`${item.link}${blogUtm}`)">
             <p>{{ item.title }} <span>→</span></p>
           </div>
         </template>
@@ -23,7 +23,7 @@
       <p>{{ $t('help.practiceDesc') }}</p>
       <div class="practice-list">
         <template v-for="item in helpPractice">
-          <div v-if="item.link" :key="item.icon" class="card" @click="goToLink(item.link)">
+          <div v-if="item.link" :key="item.icon" class="card" @click="goToLink(`${item.link}${blogUtm}`)">
             <img
               :class="[{ invert: item.invert && item.invert.includes(theme) }]"
               :src="require(`@/assets/images/help/${item.icon}.png`)"
@@ -57,23 +57,27 @@ export default class Help extends Vue {
     return gaCustomLinks(this.getterLang).MQTTXSite
   }
 
+  get blogUtm(): string {
+    return gaCustomLinks(this.getterLang).help.blogUtm
+  }
+
   get helpTop() {
+    const { docs, forum, learnMQTT } = gaCustomLinks(this.getterLang).help
     return [
       {
         icon: 'icon-docs',
         title: this.$tc('help.docs'),
-        link: `${this.mqttxWebsite}/docs`,
+        link: docs,
       },
       {
         icon: 'icon-forum',
         title: this.$tc('help.forum'),
-        link:
-          this.$i18n.locale === 'zh' ? 'https://askemq.com/c/tools/11' : 'https://github.com/emqx/MQTTX/discussions',
+        link: forum,
       },
       {
         icon: 'icon-learn-mqtt',
         title: this.$tc('help.learn'),
-        link: `${this.emqWebsite}/mqtt`,
+        link: learnMQTT,
       },
     ]
   }
