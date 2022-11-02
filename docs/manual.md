@@ -9,7 +9,7 @@
 
 ## Introduction
 
-[MQTT X](https://mqttx.app) is an elegant cross-platform MQTT 5.0 desktop client open-sourced by [EMQ](https://emqx.io/cn), which supports macOS, Linux, Windows.
+[MQTT X](https://mqttx.app) is an elegant cross-platform MQTT 5.0 desktop client open-sourced by [EMQ](https://www.emqx.com/), which supports macOS, Linux, Windows.
 
 The `UI` of [MQTT X](https://mqttx.app) adopts the form of chat interface, which simplifies the page operation logic. It allows  users to quickly create connections and save multiple clients, which facilitate users to quickly test the `MQTT/MQTTS` connection, as well as the subscription and publication of `MQTT` messages.
 
@@ -33,7 +33,7 @@ Before downloading and installing, please visit our [website](https://mqttx.app)
 
 Please download the suitable version from [GitHub Releases](https://github.com/emqx/MQTTX/releases) and install it for use.
 
-If there are network reasons that cause slow network speeds or jam when downloading from GitHub, you can also click [here](https://www.emqx.io/downloads/MQTTX/) and select the versions that matches your requirement and install it.
+If there are network reasons that cause slow network speeds or jam when downloading from GitHub, you can also click [here](https://www.emqx.com/downloads/MQTTX/) and select the versions that matches your requirement and install it.
 
 **Note**: When downloading, please choose to download the latest version whenever possible.
 
@@ -280,7 +280,7 @@ Click on the action bar button at the top and select the `Clear History` item, y
 
 3. Check update
 
-   Click the `i` button at the bottom left to enter the `About` page to learn about the version information of [MQTT X](https://mqttx.app) and related information of [EMQX](https://emqx.io) . Click `Check for Updates` to check if there are newer versions.
+   Click the `i` button at the bottom left to enter the `About` page to learn about the version information of [MQTT X](https://mqttx.app) and related information of [EMQX](https://www.emqx.io) . Click `Check for Updates` to check if there are newer versions.
 
 ![mqttx-update](../assets/mqttx-update.png)
 

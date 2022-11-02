@@ -260,14 +260,14 @@ export default {
   },
   learnMoreMQTTX: {
     en: 'Learn More About MQTT X',
-    zh: '了解更多关于 MQTT X',
+    zh: '了解更多 MQTT X',
     ja: 'MQTT X についてもっと知る',
     tr: 'MQTT X Hakkında Daha Fazla Bilgi Edinin',
     hu: 'Tudjon meg többet az MQTT X-ről',
   },
   learnMoreEMQX: {
     en: 'Learn More About EMQX',
-    zh: '了解更多关于 EMQX',
+    zh: '了解更多 EMQX',
     ja: 'EMQX についてもっと知る',
     tr: 'EMQX Hakkında Daha Fazla Bilgi Edinin',
     hu: 'Tudjon meg többet az EMQX-ről',
