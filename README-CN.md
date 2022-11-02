@@ -52,7 +52,7 @@ brew install --cask mqttx
 
 ## 使用
 
-详细使用，请查看我们的 [博客](https://www.emqx.cn/blog/mqtt-x-guideline) 或 [使用手册](./docs/manual.md)
+详细使用，请查看我们的 [文档](https://mqttx.app/zh/docs) 或 [使用手册](./docs/manual.md)
 
 1. MQTT Broker 准备。
 

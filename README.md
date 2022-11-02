@@ -52,7 +52,7 @@ Alternative, you can download [here](https://www.emqx.com/downloads/MQTTX/).
 
 ## Usage
 
-See our [blog](https://www.emqx.io/blog/mqtt-x-guideline) or [manual](./docs/manual.md) for details.
+See our [documentation](https://mqttx.app/docs) or [manual](./docs/manual.md) for details.
 
 1. Get MQTT Broker Ready.
 

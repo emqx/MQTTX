@@ -80,7 +80,10 @@ const getMenuTemplate = (win: BrowserWindow, lang?: Language): $TSFixed => {
               { type: 'separator' },
               {
                 label: labels.speech,
-                submenu: [{ role: 'startspeaking' }, { role: 'stopspeaking' }],
+                submenu: [
+                  { role: 'startspeaking', label: labels.startSpeaking },
+                  { role: 'stopspeaking', label: labels.stopSpeaking },
+                ],
               },
             ]
           : [
@@ -131,7 +134,8 @@ const getMenuTemplate = (win: BrowserWindow, lang?: Language): $TSFixed => {
       ],
     },
     {
-      role: labels.help,
+      role: 'help',
+      label: labels.help,
       submenu: [
         {
           label: labels.learnMoreMQTTX,
@@ -161,7 +165,7 @@ const getMenuTemplate = (win: BrowserWindow, lang?: Language): $TSFixed => {
         {
           label: labels.EMQXWebsite,
           click: async () => {
-            await shell.openExternal('https://emqx.io')
+            await shell.openExternal('https://www.emqx.io')
           },
         },
       ],
