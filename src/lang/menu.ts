@@ -153,6 +153,13 @@ export default {
     tr: 'Konuşmayı Durdur',
     hu: 'Beszéd leállítása',
   },
+  newConnections: {
+    en: 'New Connection',
+    zh: '新建连接',
+    tr: 'Yeni bağlantı',
+    ja: '新しい接続',
+    hu: 'Új kapcsolat',
+  },
   sendPayload: {
     en: 'Send Payload',
     zh: '发送负载',
