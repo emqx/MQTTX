@@ -93,6 +93,13 @@ const getMenuTemplate = (win: BrowserWindow, lang?: Language): $TSFixed => {
             ]),
         { type: 'separator' },
         {
+          label: labels.newConnections,
+          accelerator: 'CmdOrCtrl + N',
+          click: () => {
+            win.webContents.send('newConnections')
+          },
+        },
+        {
           label: labels.sendPayload,
           accelerator: 'CmdOrCtrl + Enter',
           click: () => {
