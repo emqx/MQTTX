@@ -728,10 +728,10 @@ export default {
   },
   newCollection: {
     zh: '新建分组',
-    en: 'New Collection',
-    tr: 'Yeni koleksiyon',
-    ja: '新しいフォルダ',
-    hu: 'Új kapcsolat',
+    en: 'New Group',
+    tr: 'Yeni Grup',
+    ja: '新しいグループ',
+    hu: 'Új csoport',
   },
   collectionPlaceholder: {
     zh: '分组名称',

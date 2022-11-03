@@ -4,6 +4,7 @@
       <h1 class="connection-titlebar">{{ $t('connections.connections') }}</h1>
       <div class="connection-tailbar">
         <el-tooltip
+          class="new-tooltip"
           :effect="theme !== 'light' ? 'light' : 'dark'"
           :open-delay="500"
           :content="$t('connections.newConnections')"
@@ -13,6 +14,7 @@
           </a>
         </el-tooltip>
         <el-tooltip
+          class="new-tooltip"
           :effect="theme !== 'light' ? 'light' : 'dark'"
           :open-delay="500"
           :content="$t('connections.newCollection')"
@@ -712,10 +714,12 @@ export default class ConnectionsList extends Vue {
     min-height: 10px;
     height: 59px;
     -webkit-app-region: drag;
+    .new-tooltip {
+      margin-right: 14px;
+    }
     i {
       font-size: 20px;
       color: var(--color-text-title);
-      padding-right: 14px;
     }
     .connection-titlebar {
       padding: 16px;
