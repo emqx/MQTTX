@@ -76,7 +76,7 @@
         <el-col :span="24">
           <el-button
             v-if="!isClientConnected"
-            class="btn"
+            class="btn connect"
             icon="el-icon-caret-right"
             type="primary"
             size="mini"
@@ -279,16 +279,16 @@ export default class ConnectionInfo extends Vue {
       margin-top: 6px;
       margin-bottom: 4px;
       float: right;
-      // box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
-      // background: var(--color-bg-btn-gradient);
-      // box-shadow: #09422940 0px 4px 8px -2px, #29bc2e14 0px 0px 0px 1px;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      box-shadow: #00000011 0px 1px 3px, #0000002e 0px 1px 2px;
+      &.connect {
+        background: var(--color-bg-btn-gradient);
+      }
     }
     .el-button.cancel {
       margin-right: 10px;
-    }
-    .el-button.disconnect {
-      color: var(--color-minor-red);
-      border-color: var(--color-minor-red);
     }
     .el-form-item.is-success .el-input__inner,
     .el-form-item.is-success .el-input__inner:focus,

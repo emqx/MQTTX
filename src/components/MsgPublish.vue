@@ -595,13 +595,13 @@ export default class MsgPublish extends Vue {
       position: fixed;
       right: 16px;
       bottom: 10px;
-      background: var(--color-main-green);
+      background: var(--color-bg-btn-gradient);
       border-radius: 50%;
       text-align: center;
-      box-shadow: 0px 4px 6px 0px var(--color-shadow-sendbtn);
-      width: 26px;
-      height: 26px;
-      line-height: 26px;
+      box-shadow: #00000011 0px 1px 3px, #0000002e 0px 1px 2px;
+      width: 28px;
+      height: 28px;
+      line-height: 29px;
       .icon-send {
         font-size: 16px;
         color: var(--color-text-active);
