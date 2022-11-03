@@ -3,9 +3,24 @@
     <div class="connection-topbar">
       <h1 class="connection-titlebar">{{ $t('connections.connections') }}</h1>
       <div class="connection-tailbar">
-        <el-button class="btn new-collection-btn" plain type="outline" size="mini" @click="handleNewCollectionOnTop">
-          {{ $t('connections.newCollection') }}
-        </el-button>
+        <el-tooltip
+          :effect="theme !== 'light' ? 'light' : 'dark'"
+          :open-delay="500"
+          :content="$t('connections.newConnections')"
+        >
+          <a href="javascript:;" @click="$router.push('/recent_connections/0?oper=create')">
+            <i class="iconfont icon-new-connect"></i>
+          </a>
+        </el-tooltip>
+        <el-tooltip
+          :effect="theme !== 'light' ? 'light' : 'dark'"
+          :open-delay="500"
+          :content="$t('connections.newCollection')"
+        >
+          <a href="javascript:;" @click="handleNewCollectionOnTop">
+            <i class="iconfont icon-new-folder"></i>
+          </a>
+        </el-tooltip>
       </div>
     </div>
     <div class="connections-list">
@@ -559,7 +574,8 @@ export default class ConnectionsList extends Vue {
           path: `/recent_connections/${newConnection?.id}`,
         })
       } catch (error) {
-        this.$message.error(error.toString())
+        const err = error as Error
+        this.$message.error(err.toString())
       } finally {
         this.showContextmenu = false
       }
@@ -697,19 +713,12 @@ export default class ConnectionsList extends Vue {
     height: 59px;
     -webkit-app-region: drag;
     i {
-      font-size: 18px;
+      font-size: 20px;
+      color: var(--color-text-title);
+      padding-right: 14px;
     }
     .connection-titlebar {
       padding: 16px;
-    }
-    .connection-tailbar {
-      .new-collection-btn,
-      .collapse-collection-btn {
-        margin-right: 12px;
-        padding: 6px;
-        border-width: 1px;
-        background: transparent;
-      }
     }
   }
   .connections-list {

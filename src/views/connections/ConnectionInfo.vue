@@ -78,8 +78,7 @@
             v-if="!isClientConnected"
             class="btn"
             icon="el-icon-caret-right"
-            plain
-            type="outline"
+            type="primary"
             size="mini"
             :loading="btnLoading"
             @click="connect"
@@ -90,8 +89,7 @@
             v-else
             class="btn disconnect"
             icon="el-icon-switch-button"
-            plain
-            type="outline"
+            type="danger"
             size="mini"
             :loading="btnLoading"
             @click="disconnect"
@@ -102,8 +100,7 @@
             v-if="!isClientConnected && btnLoading"
             class="disconnect cancel btn"
             icon="el-icon-close"
-            plain
-            type="outline"
+            type="danger"
             size="mini"
             @click="cancel"
           >
@@ -279,8 +276,12 @@ export default class ConnectionInfo extends Vue {
       }
     }
     .el-button.btn {
-      margin-top: 10px;
+      margin-top: 6px;
+      margin-bottom: 4px;
       float: right;
+      // box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+      // background: var(--color-bg-btn-gradient);
+      // box-shadow: #09422940 0px 4px 8px -2px, #29bc2e14 0px 0px 0px 1px;
     }
     .el-button.cancel {
       margin-right: 10px;

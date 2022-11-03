@@ -39,7 +39,7 @@
       <el-popover
         ref="popover"
         popper-class="leftbar-tooltip"
-        placement="right"
+        placement="right-end"
         width="120"
         trigger="manual"
         v-model="visible"

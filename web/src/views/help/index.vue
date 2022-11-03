@@ -291,7 +291,7 @@ export default class Help extends Vue {
     .practice-list {
       display: grid;
       grid-template-columns: repeat(auto-fill, 120px);
-      grid-gap: 24px;
+      grid-gap: 28px;
       text-align: center;
       .card {
         cursor: pointer;
