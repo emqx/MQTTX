@@ -1,3 +1,4 @@
+import 'core-js'
 import { Command } from 'commander'
 import { getClientId } from './utils/generator'
 import { checkUpdate } from './utils/checkUpdate'
