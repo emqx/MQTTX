@@ -17,6 +17,7 @@ export default (lang: Language) => {
 
   const leftBarLogo = `${MQTTXSite}${utm}logo-to-homepage`
   const empty = {
+    EMQX: `${EMQSite}/products/emqx${utm}mqttx-to-emqx`,
     EMQXCloud: `${EMQSite}/cloud${utm}mqttx-to-cloud`,
   }
   const about = {

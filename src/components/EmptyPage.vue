@@ -7,6 +7,11 @@
       <el-button class="primary-btn" icon="el-icon-plus" @click="clickMethod(false)">
         {{ btnTitle }}
       </el-button>
+      <i18n path="common.emqx" tag="p">
+        <template #emqx>
+          <a :href="emqxWebsite" target="_blank" rel="noopener noreferrer">EMQX</a>
+        </template>
+      </i18n>
       <i18n path="common.cloud" tag="p">
         <template #cloud>
           <a :href="emqxCloudWebsite" target="_blank" rel="noopener noreferrer">EMQX Cloud</a>
@@ -36,6 +41,10 @@ export default class EmptyPage extends Vue {
   get emqxCloudWebsite(): string {
     return gaCustomLinks(this.getterLang).empty.EMQXCloud
   }
+
+  get emqxWebsite(): string {
+    return gaCustomLinks(this.getterLang).empty.EMQX
+  }
 }
 </script>
 
@@ -53,7 +62,7 @@ export default class EmptyPage extends Vue {
     text-align: center;
     padding-top: 30%;
     p {
-      margin: 32px auto;
+      margin: 24px auto;
       max-width: 650px;
     }
   }

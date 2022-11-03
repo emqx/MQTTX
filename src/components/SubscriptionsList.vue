@@ -691,10 +691,6 @@ export default class SubscriptionsList extends Vue {
     position: relative;
     padding: 16px 16px 0 16px;
     text-align: initial;
-    .new-subs-btn {
-      border-width: 1px;
-      border-style: dashed;
-    }
     .hide-btn {
       font-size: 20px;
       position: absolute;
