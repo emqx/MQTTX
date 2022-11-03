@@ -23,6 +23,7 @@
     "commander": "^9.3.0",
     "compare-versions": "^5.0.1",
     "concat-stream": "^2.0.0",
+    "core-js": "^3.26.0",
     "mqtt": "^4.3.7",
     "pump": "^3.0.0",
     "readable-stream": "^3.6.0",
@@ -41,14 +42,14 @@
   },
   "pkg": {
     "targets": [
-      "node14-linux-x64",
-      "node14-macos-x64",
-      "node14-win-x64",
-      "node14-alpine-x64",
-      "node14-linux-arm64",
-      "node14-macos-arm64",
-      "node14-win-arm64",
-      "node14-alpine-arm64"
+      "node16-linux-x64",
+      "node16-macos-x64",
+      "node16-win-x64",
+      "node16-alpine-x64",
+      "node16-linux-arm64",
+      "node16-macos-arm64",
+      "node16-win-arm64",
+      "node16-alpine-arm64"
     ],
     "outputPath": "release"
   }

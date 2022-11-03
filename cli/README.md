@@ -358,7 +358,7 @@ MQTT X is designed to connect to test MQTT Brokers such as EMQX, The one-click c
 
 Recommended version for Node environment:
 
-- v14.\*.\*
+- v16.\*.\*
 
 ``` shell
 # Clone
