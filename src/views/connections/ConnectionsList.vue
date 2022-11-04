@@ -3,26 +3,19 @@
     <div class="connection-topbar">
       <h1 class="connection-titlebar">{{ $t('connections.connections') }}</h1>
       <div class="connection-tailbar">
-        <el-tooltip
-          class="new-tooltip"
-          :effect="theme !== 'light' ? 'light' : 'dark'"
-          :open-delay="500"
-          :content="$t('connections.newConnections')"
-        >
-          <a href="javascript:;" @click="$router.push('/recent_connections/0?oper=create')">
-            <i class="iconfont icon-new-connect"></i>
+        <el-dropdown class="new-dropdown" trigger="click" @command="handleCommand">
+          <a href="javascript:;" class="new-button">
+            <i class="iconfont icon-a-createnew"></i>
           </a>
-        </el-tooltip>
-        <el-tooltip
-          class="new-tooltip"
-          :effect="theme !== 'light' ? 'light' : 'dark'"
-          :open-delay="500"
-          :content="$t('connections.newCollection')"
-        >
-          <a href="javascript:;" @click="handleNewCollectionOnTop">
-            <i class="iconfont icon-new-folder"></i>
-          </a>
-        </el-tooltip>
+          <el-dropdown-menu class="connection-oper-item" slot="dropdown">
+            <el-dropdown-item command="newConnection">
+              {{ $t('connections.newConnections') }}
+            </el-dropdown-item>
+            <el-dropdown-item command="newGroup">
+              {{ $t('connections.newCollection') }}
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </div>
     </div>
     <div class="connections-list">
@@ -697,6 +690,19 @@ export default class ConnectionsList extends Vue {
     this.showCollectionsContextmenu = false
   }
 
+  private handleCommand(command: 'newConnection' | 'newGroup') {
+    switch (command) {
+      case 'newConnection':
+        this.$router.push('/recent_connections/0?oper=create')
+        break
+      case 'newGroup':
+        this.handleNewCollectionOnTop()
+        break
+      default:
+        break
+    }
+  }
+
   private mounted() {
     this.loadData(true)
   }
@@ -714,12 +720,14 @@ export default class ConnectionsList extends Vue {
     min-height: 10px;
     height: 59px;
     -webkit-app-region: drag;
-    .new-tooltip {
-      margin-right: 14px;
-    }
-    i {
-      font-size: 20px;
-      color: var(--color-text-title);
+    .new-dropdown {
+      margin-right: 16px;
+      .new-button {
+        .icon-a-createnew {
+          font-size: 20px;
+          color: var(--color-text-title);
+        }
+      }
     }
     .connection-titlebar {
       padding: 16px;

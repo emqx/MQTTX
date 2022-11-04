@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 1257443 */
-  src: url('iconfont.woff2?t=1667465328397') format('woff2'),
-       url('iconfont.woff?t=1667465328397') format('woff'),
-       url('iconfont.ttf?t=1667465328397') format('truetype');
+  src: url('iconfont.woff2?t=1667556323520') format('woff2'),
+       url('iconfont.woff?t=1667556323520') format('woff'),
+       url('iconfont.ttf?t=1667556323520') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,22 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-a-createnew:before {
+  content: "\e792";
+}
+
+.icon-disconnect:before {
+  content: "\e78f";
+}
+
+.icon-connect:before {
+  content: "\e791";
+}
+
+.icon-connections:before {
+  content: "\e790";
 }
 
 .icon-new-folder:before {
@@ -97,10 +113,6 @@
   content: "\e6de";
 }
 
-.icon-connect:before {
-  content: "\e6d5";
-}
-
 .icon-log:before {
   content: "\e6d8";
 }
@@ -111,10 +123,6 @@
 
 .icon-new:before {
   content: "\e6db";
-}
-
-.icon-disconnect:before {
-  content: "\e6c4";
 }
 
 .icon-a-timedmessage:before {
