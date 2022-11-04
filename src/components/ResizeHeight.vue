@@ -39,9 +39,14 @@ export default class ResizeHeight extends Vue {
 <style lang="scss">
 .resize-height {
   width: 100%;
-  height: 6px;
+  height: 2px;
   cursor: row-resize;
   text-align: center;
+  transition: all 0.1s;
+  &:hover,
+  &:active {
+    background-color: var(--color-main-green);
+  }
   .el-icon-more {
     position: relative;
     top: -4px;

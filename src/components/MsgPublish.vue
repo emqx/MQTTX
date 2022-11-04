@@ -499,6 +499,7 @@ export default class MsgPublish extends Vue {
   background: var(--color-bg-normal);
   transition: 0.3s height;
   border-top: 1px solid var(--color-border-default);
+  box-shadow: #00000010 0px -1px 4px;
   z-index: 10;
   .publish-top {
     position: absolute;
