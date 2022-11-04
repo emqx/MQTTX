@@ -6,6 +6,34 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "32681832",
+      "name": "create new",
+      "font_class": "a-createnew",
+      "unicode": "e792",
+      "unicode_decimal": 59282
+    },
+    {
+      "icon_id": "32676291",
+      "name": "disconnect",
+      "font_class": "disconnect",
+      "unicode": "e78f",
+      "unicode_decimal": 59279
+    },
+    {
+      "icon_id": "32676292",
+      "name": "connect",
+      "font_class": "connect",
+      "unicode": "e791",
+      "unicode_decimal": 59281
+    },
+    {
+      "icon_id": "32675792",
+      "name": "connections",
+      "font_class": "connections",
+      "unicode": "e790",
+      "unicode_decimal": 59280
+    },
+    {
       "icon_id": "32637231",
       "name": "new-folder",
       "font_class": "new-folder",
@@ -153,13 +181,6 @@
       "unicode_decimal": 59102
     },
     {
-      "icon_id": "22414556",
-      "name": "connect",
-      "font_class": "connect",
-      "unicode": "e6d5",
-      "unicode_decimal": 59093
-    },
-    {
       "icon_id": "22414557",
       "name": "log",
       "font_class": "log",
@@ -179,13 +200,6 @@
       "font_class": "new",
       "unicode": "e6db",
       "unicode_decimal": 59099
-    },
-    {
-      "icon_id": "22406898",
-      "name": "disconnect",
-      "font_class": "disconnect",
-      "unicode": "e6c4",
-      "unicode_decimal": 59076
     },
     {
       "icon_id": "22406900",
