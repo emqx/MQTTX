@@ -13,9 +13,9 @@
           <el-button class="btn new-subs-btn" icon="el-icon-plus" plain type="outline" size="mini" @click="openDialog">
             {{ $t('connections.newSubscription') }}
           </el-button>
-          <a class="hide-btn" href="javascript:;" @click="hideSubsList">
+          <!-- <a class="hide-btn" href="javascript:;" @click="hideSubsList">
             <i class="iconfont icon-collapse"></i>
-          </a>
+          </a> -->
         </div>
         <div
           v-for="(sub, index) in subsList"
@@ -227,7 +227,6 @@ export default class SubscriptionsList extends Vue {
   @Prop({ required: true }) public record!: ConnectionModel
   @Prop({ type: String, default: '60px' }) public top!: string
 
-  @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
 
   @Getter('currentTheme') private theme!: Theme
@@ -312,11 +311,6 @@ export default class SubscriptionsList extends Vue {
       $index = 0
     }
     return this.predefineColors[$index]
-  }
-
-  private hideSubsList() {
-    this.$emit('update:subsVisible', false)
-    this.changeShowSubscriptions({ showSubscriptions: false })
   }
 
   private openDialog() {
@@ -689,8 +683,7 @@ export default class SubscriptionsList extends Vue {
     border-bottom: none;
     text-align: center;
     position: relative;
-    padding: 16px 16px 0 16px;
-    text-align: initial;
+    padding: 12px 16px 0 16px;
     .hide-btn {
       font-size: 20px;
       position: absolute;
@@ -699,7 +692,7 @@ export default class SubscriptionsList extends Vue {
     }
   }
   .el-card__body {
-    padding: 16px 16px 0 16px;
+    padding: 18px 16px 0 16px;
     height: 100%;
     overflow: auto;
     .topics-item {
@@ -708,7 +701,7 @@ export default class SubscriptionsList extends Vue {
       padding: 0px 8px;
       height: 46px;
       line-height: 46px;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       position: relative;
       top: 0px;
       clear: both;
@@ -718,6 +711,7 @@ export default class SubscriptionsList extends Vue {
       user-select: none;
       transition: all 0.3s ease;
       animation: subItem 0.2s ease-in-out;
+      box-shadow: #0000000b 1px 2px 2px;
       &.active {
         background: var(--color-bg-dark) !important;
         box-shadow: none;
@@ -729,6 +723,7 @@ export default class SubscriptionsList extends Vue {
       &.disabled {
         background: transparent !important;
         border: 1px solid var(--color-border-default);
+        box-shadow: none;
         cursor: not-allowed;
         .topic,
         .qos {
