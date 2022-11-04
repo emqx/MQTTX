@@ -446,8 +446,8 @@ export default class ConnectionsDetail extends Vue {
 
   get msgTop(): TopModel {
     return {
-      open: '277px',
-      close: '86px',
+      open: '282px',
+      close: '91px',
     }
   }
 
@@ -1592,9 +1592,10 @@ export default class ConnectionsDetail extends Vue {
     transition: all 0.5s;
     .connections-body {
       .filter-bar {
-        padding: 6px 16px;
+        padding: 7px 16px;
         background: var(--color-bg-normal);
         border-bottom: 1px solid var(--color-border-default);
+        box-shadow: #00000010 0px 2px 4px;
         position: fixed;
         left: 341px;
         right: 0;
