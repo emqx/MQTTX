@@ -126,11 +126,11 @@ export default {
     hu: 'Több téma feliratkozás',
   },
   autoResubDesc: {
-    zh: '重连时，对连接的订阅列表进行恢复订阅，仅在 Clean Session 为 True 时有效',
-    en: 'When reconnecting, the subscription list of the connection will be automatically resubscribed, which is only valid when Clean Session is True',
-    tr: 'Yeniden bağlanırken, bağlantının abonelik listesi otomatik olarak yeniden abone olur ve bu yalnızca Temiz Oturum Doğru olduğunda geçerlidir.',
-    ja: '再接続すると、接続のサブスクリプションリストが自動的に再サブスクライブされます。これは、クリーンセッションがTrueの場合にのみ有効です',
-    hu: 'Újracsatlakozáskor a kapcsolat feliratkozási listájára automatikusan feliratkozik, amely csak akkor érvényes, ha a tiszta munkamenet TRUE',
+    zh: '重连时，对连接的订阅列表进行恢复订阅',
+    en: 'When reconnecting, the subscription list of the connection will be automatically resubscribed',
+    tr: 'Yeniden bağlanırken, bağlantının abonelik listesi otomatik olarak yeniden abone olur',
+    ja: '再接続時に、接続のサブスクリプションリストが自動的に再購読されます',
+    hu: 'Újracsatlakozáskor az előfizetési lista automatikusan újra feliratkozik',
   },
   autoScrollDesc: {
     zh: '是否自动滚动消息列表',

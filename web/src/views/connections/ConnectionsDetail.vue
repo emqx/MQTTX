@@ -945,11 +945,10 @@ export default class ConnectionsDetail extends Vue {
   // Re-subscribe topic
   private handleReSubTopics() {
     if (this.client.options) {
-      const { clean, resubscribe } = this.client.options
+      const { resubscribe } = this.client.options
       const { subscriptions } = this.record
       const needResub = resubscribe && subscriptions.length
-      const cleanStatus = (clean && !this.isReconnect) || (!clean && this.isReconnect)
-      if (needResub && cleanStatus) {
+      if (needResub) {
         this.subListRef.resubscribe()
       }
     }
