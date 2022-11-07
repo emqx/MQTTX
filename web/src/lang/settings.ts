@@ -55,9 +55,9 @@ export default {
     ja: '自動的に再購読',
   },
   autoResubDesc: {
-    zh: '重连时，对连接的订阅列表进行恢复订阅，仅在 Clean Session 为 True 时有效',
-    en: 'When reconnecting, the subscription list of the connection will be automatically resubscribed, which is only valid when Clean Session is True',
-    ja: '再接続すると、接続のサブスクリプションリストが自動的に再サブスクライブされます。これは、クリーンセッションがTrueの場合にのみ有効です',
+    zh: '重连时，对连接的订阅列表进行恢复订阅',
+    en: 'When reconnecting, the subscription list of the connection will be automatically resubscribed',
+    ja: '再接続時に、接続のサブスクリプションリストが自動的に再購読されます',
   },
   autoScroll: {
     zh: '自动滚动',
