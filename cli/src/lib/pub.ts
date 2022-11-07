@@ -37,6 +37,7 @@ const multisend = (
   connOpts: IClientOptions,
   pubOpts: { topic: string; message: string | Buffer; opts: IClientPublishOptions },
 ) => {
+  let isNewConnection = true
   const client = mqtt.connect(connOpts)
   signale.await('Connecting...')
   const sender = new Writable({
@@ -49,12 +50,30 @@ const multisend = (
 
   client.on('connect', () => {
     signale.success('Connected, press Enter to publish, press Ctrl+C to exit')
-    pump(process.stdin, split2(), sender, (err) => {
-      client.end()
-      if (err) {
-        throw err
-      }
-    })
+    isNewConnection &&
+      pump(process.stdin, split2(), sender, (err) => {
+        client.end()
+        if (err) {
+          throw err
+        }
+      })
+  })
+
+  client.on('error', (err) => {
+    signale.error(err)
+    client.end()
+  })
+
+  client.on('reconnect', () => {
+    signale.await('Reconnecting...')
+    isNewConnection = false
+    sender.uncork()
+  })
+
+  client.on('close', () => {
+    signale.error('Connection closed')
+    const { reconnectPeriod } = connOpts
+    reconnectPeriod ? sender.cork() : process.exit(1)
   })
 }
 

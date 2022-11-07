@@ -21,6 +21,7 @@ declare global {
     cert?: string
     ca?: string
     insecure?: boolean
+    reconnectPeriod: number
     // properties of MQTT 5.0
     sessionExpiryInterval?: number
     receiveMaximum?: number

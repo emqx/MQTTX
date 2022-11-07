@@ -59,6 +59,14 @@ const sub = (options: SubscribeOptions) => {
     signale.error(err)
     client.end()
   })
+
+  client.on('reconnect', () => {
+    signale.await('Reconnecting...')
+  })
+
+  client.on('close', () => {
+    signale.error('Connection closed')
+  })
 }
 
 const benchSub = async (options: BenchSubscribeOptions) => {

@@ -90,6 +90,7 @@ const parseConnectOptions = (
     cert,
     ca,
     insecure,
+    reconnectPeriod,
     sessionExpiryInterval,
     receiveMaximum,
     maximumPacketSize,
@@ -119,6 +120,7 @@ const parseConnectOptions = (
     username,
     password,
     protocol,
+    reconnectPeriod,
   }
 
   if (key) {

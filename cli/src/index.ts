@@ -53,6 +53,12 @@ export class Commander {
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
+      .option(
+        '-rp, --reconnect-period <MILLISECONDS>',
+        'Interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
+        parseNumber,
+        1000,
+      )
       // properties options of MQTT 5.0
       .option('-se, --session-expiry-interval <SECONDS>', 'the session expiry interval in seconds', parseNumber)
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
@@ -128,6 +134,12 @@ export class Commander {
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
+      .option(
+        '-rp, --reconnect-period <MILLISECONDS>',
+        'Interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
+        parseNumber,
+        1000,
+      )
       // connect properties options of MQTT 5.0
       .option('-se, --session-expiry-interval <SECONDS>', 'the session expiry interval in seconds', parseNumber)
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
@@ -193,6 +205,12 @@ export class Commander {
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
+      .option(
+        '-rp, --reconnect-period <MILLISECONDS>',
+        'Interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
+        parseNumber,
+        1000,
+      )
       // connect properties options of MQTT 5.0
       .option('-se, --session-expiry-interval <SECONDS>', 'the session expiry interval in seconds', parseNumber)
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)

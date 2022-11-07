@@ -18,6 +18,14 @@ const conn = (options: ConnectOptions) => {
     signale.error(err)
     client.end()
   })
+
+  client.on('reconnect', () => {
+    signale.await('Reconnecting...')
+  })
+
+  client.on('close', () => {
+    signale.error('Connection closed')
+  })
 }
 
 const benchConn = async (options: BenchConnectOptions) => {
