@@ -25,7 +25,7 @@
                 :content="$t('connections.disconnectedBtn')"
               >
                 <a class="disconnect-btn" href="javascript:;" @click="disconnect">
-                  <i v-if="!disconnectLoding" class="iconfont icon-disconnect"></i>
+                  <i v-if="!disconnectLoding" class="el-icon-switch-button"></i>
                   <i v-else class="iconfont icon-disconnect"></i>
                 </a>
               </el-tooltip>
@@ -68,7 +68,7 @@
                   <i class="iconfont icon-a-clearhistory"></i>{{ $t('connections.clearHistory') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="disconnect" :disabled="!client.connected">
-                  <i class="iconfont icon-disconnect"></i>{{ $t('connections.disconnect') }}
+                  <i class="el-icon-switch-button"></i>{{ $t('connections.disconnect') }}
                 </el-dropdown-item>
                 <el-dropdown-item class="delete-item" command="deleteConnect" divided>
                   <i class="iconfont icon-delete"></i>{{ $t('connections.deleteConnect') }}
@@ -1047,6 +1047,7 @@ export default class ConnectionsDetail extends Vue {
         i {
           font-size: 20px;
           color: var(--color-text-title);
+          font-weight: 400;
         }
         .disconnect-btn {
           margin-right: 12px;
@@ -1184,13 +1185,16 @@ export default class ConnectionsDetail extends Vue {
   }
 }
 .connection-oper-item.el-dropdown-menu {
-  .iconfont {
+  .iconfont,
+  [class^='el-icon-'] {
     font-size: 18px;
+    font-weight: 400;
   }
   .el-dropdown-menu__item {
     display: flex;
     align-items: center;
-    .iconfont {
+    .iconfont,
+    [class^='el-icon-'] {
       margin-right: 8px;
     }
   }
