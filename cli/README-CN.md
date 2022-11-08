@@ -24,6 +24,10 @@
 
 ![mqttx-preview](https://raw.githubusercontent.com/emqx/MQTTX/main/assets/mqttx-cli-preview.png)
 
+## 文档
+
+关于介绍、安装和使用，请参阅 [MQTT X CLI 文档](https://mqttx.app/zh/docs/cli)，下面是一个快速入门指南。
+
 ## 安装
 
 ### macOS
