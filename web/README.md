@@ -23,6 +23,10 @@ English | [简体中文](./README-CN.md)
 
 ![mqttx-preview](../assets/mqttx-web-preview.png)
 
+## Documentation
+
+For introduction, and usage, please refer to the [MQTT X Web Documentation](https://mqttx.app/docs/web).
+
 ## Usage
 
 Visit MQTT WebSocket Client (MQTT X Web): [http://www.emqx.io/online-mqtt-client](http://www.emqx.io/online-mqtt-client)

@@ -23,6 +23,10 @@
 
 ![mqttx-preview](../assets/mqttx-web-preview.png)
 
+## 文档
+
+关于介绍和使用，请参考 [MQTT X Web 文档](https://mqttx.app/zh/docs/web).
+
 ## 使用
 
 访问 MQTT WebSocket 客户端工具 (MQTT X Web): [http://www.emqx.io/online-mqtt-client](http://www.emqx.io/online-mqtt-client)
