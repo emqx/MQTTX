@@ -23,6 +23,10 @@ English | [简体中文](https://github.com/emqx/MQTTX/blob/main/cli/README-CN.m
 
 ![mqttx-preview](https://raw.githubusercontent.com/emqx/MQTTX/main/assets/mqttx-cli-preview.png)
 
+## Documentation
+
+For introduction, installation, and usage, see the [MQTT X CLI documentation](https://mqttx.app/docs/cli). Below is a quick start guide.
+
 ## Installation
 
 ### macOS
