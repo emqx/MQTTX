@@ -55,7 +55,7 @@ export class Commander {
       .option('--insecure', 'do not verify the server certificate')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
-        'Interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
+        'interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
         parseNumber,
         1000,
       )
@@ -136,7 +136,7 @@ export class Commander {
       .option('--insecure', 'do not verify the server certificate')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
-        'Interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
+        'interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
         parseNumber,
         1000,
       )
@@ -207,7 +207,7 @@ export class Commander {
       .option('--insecure', 'do not verify the server certificate')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
-        'Interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
+        'interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
         parseNumber,
         1000,
       )
@@ -264,7 +264,7 @@ export class Commander {
       .option('--insecure', 'do not verify the server certificate')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
-        'Interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
+        'interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
         parseNumber,
         1000,
       )
@@ -356,7 +356,7 @@ export class Commander {
       .option('--insecure', 'do not verify the server certificate')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
-        'Interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
+        'interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
         parseNumber,
         1000,
       )
@@ -432,7 +432,7 @@ export class Commander {
       .option('--insecure', 'do not verify the server certificate')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
-        'Interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
+        'interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
         parseNumber,
         1000,
       )
