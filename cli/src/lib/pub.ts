@@ -109,6 +109,8 @@ const benchPub = async (options: BenchPublishOptions) => {
 
   const { topic, message } = pubOpts
 
+  const isNewConnArray = Array(count).fill(true)
+
   const interactive = new Signale({ interactive: true })
   const simpleInteractive = new Signale({ interactive: true, config: { displayLabel: false, displayTimestamp: true } })
 
@@ -119,55 +121,75 @@ const benchPub = async (options: BenchPublishOptions) => {
   const connStart = Date.now()
 
   let total = 0
+  let rate = 0
 
   for (let i = 1; i <= count; i++) {
-    connOpts.clientId = clientId.includes('%i') ? clientId.replaceAll('%i', i.toString()) : `${clientId}_${i}`
+    ;((i: number, connOpts: mqtt.IClientOptions) => {
+      const opts = { ...connOpts }
 
-    let topicName = topic.replaceAll('%i', i.toString()).replaceAll('%c', clientId)
-    username && (topicName = topicName.replaceAll('%u', username))
+      opts.clientId = clientId.includes('%i') ? clientId.replaceAll('%i', i.toString()) : `${clientId}_${i}`
 
-    const client = mqtt.connect(connOpts)
+      let topicName = topic.replaceAll('%i', i.toString()).replaceAll('%c', clientId)
+      username && (topicName = topicName.replaceAll('%u', username))
 
-    interactive.await('[%d/%d] - Connecting...', i, count)
+      const client = mqtt.connect(opts)
 
-    client.on('connect', () => {
-      interactive.success('[%d/%d] - Connected', i, count)
+      interactive.await('[%d/%d] - Connecting...', i, count)
 
-      setInterval(() => {
-        client.publish(topicName, message, pubOpts.opts, (err) => {
-          if (err) {
-            signale.warn(err)
-          } else {
-            total += 1
+      client.on('connect', () => {
+        if (isNewConnArray[i - 1]) {
+          interactive.success('[%d/%d] - Connected', i, count)
+
+          setInterval(() => {
+            client.publish(topicName, message, pubOpts.opts, (err) => {
+              if (err) {
+                signale.warn(err)
+              } else {
+                total += 1
+                rate += 1
+              }
+            })
+          }, messageInterval)
+
+          if (i === count) {
+            const connEnd = Date.now()
+
+            signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
+
+            total = 0
+            rate = 0
+
+            if (!verbose) {
+              setInterval(() => {
+                simpleInteractive.info(`Published total: ${total}, message rate: ${rate}/s`)
+                rate = 0
+              }, 1000)
+            } else {
+              setInterval(() => {
+                signale.info(`Published total: ${total}, message rate: ${rate}/s`)
+                rate = 0
+              }, 1000)
+            }
           }
-        })
-      }, messageInterval)
-
-      if (i === count) {
-        const connEnd = Date.now()
-
-        signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
-
-        total = 0
-
-        if (!verbose) {
-          setInterval(() => {
-            const rate = (total / ((Date.now() - connEnd) / 1000)).toFixed(0)
-            simpleInteractive.info(`Published total: ${total}, message rate: ${rate}/s`)
-          }, 1000)
         } else {
-          setInterval(() => {
-            const rate = (total / ((Date.now() - connEnd) / 1000)).toFixed(0)
-            signale.info(`Published total: ${total}, message rate: ${rate}/s`)
-          }, 1000)
+          signale.success(`[${i}/${count}] - Client ID: ${opts.clientId}, Reconnected`)
         }
-      }
-    })
+      })
 
-    client.on('error', (err) => {
-      signale.error(`[${i}/${count}] - Client ID: ${connOpts.clientId}, ${err}`)
-      client.end()
-    })
+      client.on('error', (err) => {
+        signale.error(`[${i}/${count}] - Client ID: ${opts.clientId}, ${err}`)
+        client.end()
+      })
+
+      client.on('reconnect', () => {
+        signale.await(`[${i}/${count}] - Client ID: ${opts.clientId}, Reconnecting...`)
+        isNewConnArray[i - 1] = false
+      })
+
+      client.on('close', () => {
+        signale.error(`[${i}/${count}] - Client ID: ${opts.clientId}, Connection closed`)
+      })
+    })(i, connOpts)
 
     await delay(interval)
   }
