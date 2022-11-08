@@ -76,6 +76,8 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
   const subOptsArray = parseSubscribeOptions(options)
 
+  const isNewConnArray = Array(count).fill(true)
+
   const interactive = new Signale({ interactive: true })
   const simpleInteractive = new Signale({ interactive: true, config: { displayLabel: false, displayTimestamp: true } })
 
@@ -89,79 +91,96 @@ const benchSub = async (options: BenchSubscribeOptions) => {
   let oldTotal = 0
 
   for (let i = 1; i <= count; i++) {
-    connOpts.clientId = clientId.includes('%i') ? clientId.replaceAll('%i', i.toString()) : `${clientId}_${i}`
+    ;((i: number, connOpts: mqtt.IClientOptions) => {
+      const opts = { ...connOpts }
 
-    const client = mqtt.connect(connOpts)
+      opts.clientId = clientId.includes('%i') ? clientId.replaceAll('%i', i.toString()) : `${clientId}_${i}`
 
-    interactive.await('[%d/%d] - Connecting...', i, count)
+      const client = mqtt.connect(opts)
 
-    client.on('connect', () => {
-      interactive.success('[%d/%d] - Connected', i, count)
+      interactive.await('[%d/%d] - Connecting...', i, count)
 
-      topic.forEach((t: string, index: number) => {
-        const { username, clientId } = connOpts
+      client.on('connect', () => {
+        if (isNewConnArray[i - 1]) {
+          interactive.success('[%d/%d] - Connected', i, count)
 
-        let topicName = t.replaceAll('%i', i.toString()).replaceAll('%c', clientId!)
-        username && (topicName = topicName.replaceAll('%u', username))
+          topic.forEach((t: string, index: number) => {
+            const { username, clientId } = opts
 
-        const subOpts = subOptsArray[index]
+            let topicName = t.replaceAll('%i', i.toString()).replaceAll('%c', clientId!)
+            username && (topicName = topicName.replaceAll('%u', username))
 
-        interactive.await('[%d/%d] - Subscribing to %s...', i, count, topicName)
+            const subOpts = subOptsArray[index]
 
-        client.subscribe(topicName, subOpts, (err, result) => {
-          if (err) {
-            signale.error(`[${i}/${count}] - Client ID: ${connOpts.clientId}, ${err}`)
-            process.exit(1)
-          } else {
-            interactive.success('[%d/%d] - Subscribed to %s', i, count, topicName)
-          }
+            interactive.await('[%d/%d] - Subscribing to %s...', i, count, topicName)
 
-          result.forEach((sub) => {
-            if (sub.qos > 2) {
-              signale.error(
-                `[${i}/${count}] - Client ID: ${connOpts.clientId}, subscription negated to ${sub.topic} with code ${sub.qos}`,
-              )
-              process.exit(1)
-            }
+            client.subscribe(topicName, subOpts, (err, result) => {
+              if (err) {
+                signale.error(`[${i}/${count}] - Client ID: ${opts.clientId}, ${err}`)
+                process.exit(1)
+              } else {
+                interactive.success('[%d/%d] - Subscribed to %s', i, count, topicName)
+              }
+
+              result.forEach((sub) => {
+                if (sub.qos > 2) {
+                  signale.error(
+                    `[${i}/${count}] - Client ID: ${opts.clientId}, subscription negated to ${sub.topic} with code ${sub.qos}`,
+                  )
+                  process.exit(1)
+                }
+              })
+
+              if (i === count) {
+                const connEnd = Date.now()
+
+                signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
+
+                total = 0
+
+                if (!verbose) {
+                  setInterval(() => {
+                    if (total > oldTotal) {
+                      const rate = total - oldTotal
+                      simpleInteractive.info(`Received total: ${total}, rate: ${rate}/s`)
+                    }
+                    oldTotal = total
+                  }, 1000)
+                } else {
+                  setInterval(() => {
+                    if (total > oldTotal) {
+                      const rate = total - oldTotal
+                      signale.info(`Received total: ${total}, rate: ${rate}/s`)
+                    }
+                    oldTotal = total
+                  }, 1000)
+                }
+              }
+            })
           })
-
-          if (i === count) {
-            const connEnd = Date.now()
-
-            signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
-
-            total = 0
-
-            if (!verbose) {
-              setInterval(() => {
-                if (total > oldTotal) {
-                  const rate = total - oldTotal
-                  simpleInteractive.info(`Received total: ${total}, rate: ${rate}/s`)
-                }
-                oldTotal = total
-              }, 1000)
-            } else {
-              setInterval(() => {
-                if (total > oldTotal) {
-                  const rate = total - oldTotal
-                  signale.info(`Received total: ${total}, rate: ${rate}/s`)
-                }
-                oldTotal = total
-              }, 1000)
-            }
-          }
-        })
+        } else {
+          signale.success(`[${i}/${count}] - Client ID: ${opts.clientId}, Reconnected`)
+        }
       })
-    })
 
-    client.on('message', () => {
-      total += 1
-    })
+      client.on('message', () => {
+        total += 1
+      })
 
-    client.on('error', (err) => {
-      signale.error(`[${i}/${count}] - Client ID: ${connOpts.clientId}, ${err}`)
-      client.end()
-    })
+      client.on('error', (err) => {
+        signale.error(`[${i}/${count}] - Client ID: ${opts.clientId}, ${err}`)
+        client.end()
+      })
+
+      client.on('reconnect', () => {
+        signale.await(`[${i}/${count}] - Client ID: ${opts.clientId}, Reconnecting...`)
+        isNewConnArray[i - 1] = false
+      })
+
+      client.on('close', () => {
+        signale.error(`[${i}/${count}] - Client ID: ${opts.clientId}, Connection closed`)
+      })
+    })(i, connOpts)
 
     await delay(interval)
   }
