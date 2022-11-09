@@ -4,7 +4,7 @@ import concat from 'concat-stream'
 import { Writable } from 'readable-stream'
 import split2 from 'split2'
 import { IClientOptions, IClientPublishOptions } from 'mqtt'
-import { Signale, signale } from '../utils/signale'
+import { Signale, signale, benchLog } from '../utils/signale'
 import { parseConnectOptions, parsePublishOptions } from '../utils/parse'
 import delay from '../utils/delay'
 
@@ -175,23 +175,23 @@ const benchPub = async (options: BenchPublishOptions) => {
             }
           }
         } else {
-          signale.success(`[${connectedCount}/${count}] - Client ID: ${opts.clientId}, Reconnected`)
+          benchLog.reconnected(connectedCount, count, opts.clientId!)
         }
       })
 
       client.on('error', (err) => {
-        signale.error(`[${connectedCount}/${count}] - Client ID: ${opts.clientId}, ${err}`)
+        benchLog.error(connectedCount, count, opts.clientId!, err)
         client.end()
       })
 
       client.on('reconnect', () => {
-        signale.await(`[${connectedCount}/${count}] - Client ID: ${opts.clientId}, Reconnecting...`)
+        benchLog.reconnecting(connectedCount, count, opts.clientId!)
         isNewConnArray[i - 1] = false
       })
 
       client.on('close', () => {
         connectedCount > 0 && (connectedCount -= 1)
-        signale.error(`[${connectedCount}/${count}] - Client ID: ${opts.clientId}, Connection closed`)
+        benchLog.close(connectedCount, count, opts.clientId!)
       })
     })(i, connOpts)
 

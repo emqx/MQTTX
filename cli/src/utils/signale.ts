@@ -23,6 +23,21 @@ const msgLog = (msg: Record<string, unknown>[]) => {
   signale.log(`${chalkString}`)
 }
 
-export { Signale, signale, msgLog }
+const benchLog = {
+  error: (count: number, total: number, id: string, err: Error) => {
+    signale.error(`[${count}/${total}] - Client ID: ${id}, ${err}`)
+  },
+  close: (count: number, total: number, id: string) => {
+    signale.error(`[${count}/${total}] - Client ID: ${id}, Connection closed`)
+  },
+  reconnecting: (count: number, total: number, id: string) => {
+    signale.await(`[${count}/${total}] - Client ID: ${id}, Reconnecting...`)
+  },
+  reconnected: (count: number, total: number, id: string) => {
+    signale.success(`[${count}/${total}] - Client ID: ${id}, Reconnected`)
+  },
+}
+
+export { Signale, signale, msgLog, benchLog }
 
 export default signale
