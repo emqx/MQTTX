@@ -74,6 +74,8 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
   const connOpts = parseConnectOptions(options, 'sub')
 
+  let connectedCount = 0
+
   const subOptsArray = parseSubscribeOptions(options)
 
   const isNewConnArray = Array(count).fill(true)
@@ -98,11 +100,12 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
       const client = mqtt.connect(opts)
 
-      interactive.await('[%d/%d] - Connecting...', i, count)
+      interactive.await('[%d/%d] - Connecting...', connectedCount, count)
 
       client.on('connect', () => {
+        connectedCount += 1
         if (isNewConnArray[i - 1]) {
-          interactive.success('[%d/%d] - Connected', i, count)
+          interactive.success('[%d/%d] - Connected', connectedCount, count)
 
           topic.forEach((t: string, index: number) => {
             const { username, clientId } = opts
@@ -112,14 +115,14 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
             const subOpts = subOptsArray[index]
 
-            interactive.await('[%d/%d] - Subscribing to %s...', i, count, topicName)
+            interactive.await('[%d/%d] - Subscribing to %s...', connectedCount, count, topicName)
 
             client.subscribe(topicName, subOpts, (err, result) => {
               if (err) {
                 signale.error(`[${i}/${count}] - Client ID: ${opts.clientId}, ${err}`)
                 process.exit(1)
               } else {
-                interactive.success('[%d/%d] - Subscribed to %s', i, count, topicName)
+                interactive.success('[%d/%d] - Subscribed to %s', connectedCount, count, topicName)
               }
 
               result.forEach((sub) => {
@@ -159,7 +162,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
             })
           })
         } else {
-          signale.success(`[${i}/${count}] - Client ID: ${opts.clientId}, Reconnected`)
+          signale.success(`[${connectedCount}/${count}] - Client ID: ${opts.clientId}, Reconnected`)
         }
       })
 
@@ -168,17 +171,18 @@ const benchSub = async (options: BenchSubscribeOptions) => {
       })
 
       client.on('error', (err) => {
-        signale.error(`[${i}/${count}] - Client ID: ${opts.clientId}, ${err}`)
+        signale.error(`[${connectedCount}/${count}] - Client ID: ${opts.clientId}, ${err}`)
         client.end()
       })
 
       client.on('reconnect', () => {
-        signale.await(`[${i}/${count}] - Client ID: ${opts.clientId}, Reconnecting...`)
+        signale.await(`[${connectedCount}/${count}] - Client ID: ${opts.clientId}, Reconnecting...`)
         isNewConnArray[i - 1] = false
       })
 
       client.on('close', () => {
-        signale.error(`[${i}/${count}] - Client ID: ${opts.clientId}, Connection closed`)
+        connectedCount -= 1
+        signale.error(`[${connectedCount}/${count}] - Client ID: ${opts.clientId}, Connection closed`)
       })
     })(i, connOpts)
 

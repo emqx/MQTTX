@@ -109,6 +109,8 @@ const benchPub = async (options: BenchPublishOptions) => {
 
   const { topic, message } = pubOpts
 
+  let connectedCount = 0
+
   const isNewConnArray = Array(count).fill(true)
 
   const interactive = new Signale({ interactive: true })
@@ -134,11 +136,12 @@ const benchPub = async (options: BenchPublishOptions) => {
 
       const client = mqtt.connect(opts)
 
-      interactive.await('[%d/%d] - Connecting...', i, count)
+      interactive.await('[%d/%d] - Connecting...', connectedCount, count)
 
       client.on('connect', () => {
+        connectedCount += 1
         if (isNewConnArray[i - 1]) {
-          interactive.success('[%d/%d] - Connected', i, count)
+          interactive.success('[%d/%d] - Connected', connectedCount, count)
 
           setInterval(() => {
             client.publish(topicName, message, pubOpts.opts, (err) => {
@@ -172,22 +175,23 @@ const benchPub = async (options: BenchPublishOptions) => {
             }
           }
         } else {
-          signale.success(`[${i}/${count}] - Client ID: ${opts.clientId}, Reconnected`)
+          signale.success(`[${connectedCount}/${count}] - Client ID: ${opts.clientId}, Reconnected`)
         }
       })
 
       client.on('error', (err) => {
-        signale.error(`[${i}/${count}] - Client ID: ${opts.clientId}, ${err}`)
+        signale.error(`[${connectedCount}/${count}] - Client ID: ${opts.clientId}, ${err}`)
         client.end()
       })
 
       client.on('reconnect', () => {
-        signale.await(`[${i}/${count}] - Client ID: ${opts.clientId}, Reconnecting...`)
+        signale.await(`[${connectedCount}/${count}] - Client ID: ${opts.clientId}, Reconnecting...`)
         isNewConnArray[i - 1] = false
       })
 
       client.on('close', () => {
-        signale.error(`[${i}/${count}] - Client ID: ${opts.clientId}, Connection closed`)
+        connectedCount -= 1
+        signale.error(`[${connectedCount}/${count}] - Client ID: ${opts.clientId}, Connection closed`)
       })
     })(i, connOpts)
 
