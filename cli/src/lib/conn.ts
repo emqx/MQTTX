@@ -78,7 +78,7 @@ const benchConn = async (options: BenchConnectOptions) => {
       })
 
       client.on('close', () => {
-        connectedCount -= 1
+        connectedCount > 0 && (connectedCount -= 1)
         signale.error(`[${connectedCount}/${count}] - Client ID: ${opts.clientId}, Connection closed`)
       })
     })(i, connOpts)
