@@ -91,6 +91,7 @@ declare global {
     autoCheck: boolean
     autoResub: boolean
     autoScroll: boolean
+    autoScrollInterval: number
     showSubscriptions: boolean
     syncOsTheme: boolean
     multiTopics: boolean

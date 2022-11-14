@@ -118,6 +118,13 @@ export default {
     ja: '自動スクロール',
     hu: 'Automatikus görgetés',
   },
+  autoScrollInterval: {
+    zh: '自动滚动频率（秒）',
+    en: 'Auto scroll interval (seconds)',
+    tr: 'Otomatik kaydırma aralığı (saniye)',
+    ja: '自動スクロール間隔（秒）',
+    hu: 'Automatikus görgetési időköz (másodperc)',
+  },
   multiTopics: {
     zh: '多主题订阅',
     en: 'Multi topics subscribe',

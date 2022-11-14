@@ -104,6 +104,7 @@ async function createWindow() {
       autoCheck: setting.autoCheck,
       autoResub: setting.autoResub,
       autoScroll: setting.autoScroll,
+      autoScrollInterval: setting.autoScrollInterval,
       maxReconnectTimes: setting.maxReconnectTimes,
       syncOsTheme: setting.syncOsTheme,
       multiTopics: setting.multiTopics,

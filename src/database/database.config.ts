@@ -31,6 +31,7 @@ import { syncOsTheme1639730106721 } from './migration/1639730106721-syncOsTheme'
 import { topicDisabled1640846307653 } from './migration/1640846307653-topicDisabled'
 import { reconnectPeriod1642321826532 } from './migration/1642321826532-reconnectPeriod'
 import { multiTopics1659668384878 } from './migration/1659668384878-multiTopics'
+import { autoScrollInterval1668415942736 } from './migration/1668415942736-autoScrollInterval'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -69,6 +70,7 @@ const ORMConfig = {
     topicDisabled1640846307653,
     reconnectPeriod1642321826532,
     multiTopics1659668384878,
+    autoScrollInterval1668415942736,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [

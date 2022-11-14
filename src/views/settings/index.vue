@@ -6,7 +6,7 @@
 
       <el-divider></el-divider>
 
-      <el-row class="settings-item" type="flex" justify="space-between">
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
           <label>{{ $t('settings.language') }}</label>
         </el-col>
@@ -94,6 +94,20 @@
         </el-col>
       </el-row>
 
+      <template v-if="autoScroll">
+        <el-divider></el-divider>
+
+        <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+          <el-col :span="18">
+            <label>{{ $t('settings.autoScrollInterval') }}</label>
+          </el-col>
+          <el-col :span="4">
+            <el-input-number size="mini" :value="autoScrollInterval" :min="1" @change="handleAutoScrollIntervalChange">
+            </el-input-number>
+          </el-col>
+        </el-row>
+      </template>
+
       <el-divider></el-divider>
 
       <el-row class="settings-item" type="flex" justify="space-between">
@@ -123,7 +137,7 @@
 
       <el-divider></el-divider>
 
-      <el-row class="settings-item" type="flex" justify="space-between">
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
           <label>{{ $t('settings.maxReconnectTimes') }}</label>
         </el-col>
@@ -168,7 +182,7 @@
 
       <el-divider></el-divider>
 
-      <el-row class="settings-item" type="flex" justify="space-between">
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
           <label>{{ $t('settings.theme') }}</label>
         </el-col>
@@ -198,7 +212,7 @@
       <div class="settings-title">{{ $t('settings.advanced') }}</div>
       <el-divider></el-divider>
 
-      <el-row class="settings-item" type="flex" justify="space-between">
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
           <label>{{ $t('settings.dataRecovery') }}</label>
         </el-col>
@@ -215,7 +229,7 @@
       </el-row>
       <el-divider></el-divider>
 
-      <el-row class="settings-item" type="flex" justify="space-between">
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
           <label>{{ $t('settings.dataBackup') }}</label>
         </el-col>
@@ -232,7 +246,7 @@
       </el-row>
       <el-divider></el-divider>
 
-      <el-row class="settings-item" type="flex" justify="space-between">
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
           <label>{{ $t('settings.historyCleanup') }}</label>
         </el-col>
@@ -273,6 +287,9 @@ export default class Settings extends Vue {
   @Action('TOGGLE_AUTO_CHECK') private actionAutoCheck!: (payload: { autoCheck: boolean }) => void
   @Action('TOGGLE_AUTO_RESUB') private actionAutoResub!: (payload: { autoResub: boolean }) => void
   @Action('TOGGLE_AUTO_SCROLL') private actionAutoScroll!: (payload: { autoScroll: boolean }) => void
+  @Action('SET_AUTO_SCROLL_INTERVAL') private actionAutoScrollInterval!: (payload: {
+    autoScrollInterval: number
+  }) => void
   @Action('TOGGLE_SYNC_OS_THEME') private actionSyncOsTheme!: (payload: { syncOsTheme: boolean }) => void
   @Action('SET_MAX_RECONNECT_TIMES') private actionMaxReconnectTimes!: (payload: { maxReconnectTimes: number }) => void
   @Action('TOGGLE_MULTI_TOPICS') private actionToggleMultiTopics!: (payload: { multiTopics: boolean }) => void
@@ -283,6 +300,7 @@ export default class Settings extends Vue {
   @Getter('syncOsTheme') private syncOsTheme!: boolean
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('autoScroll') private autoScroll!: boolean
+  @Getter('autoScrollInterval') private autoScrollInterval!: number
   @Getter('multiTopics') private multiTopics!: boolean
 
   private langOptions: Options[] = [
@@ -336,6 +354,10 @@ export default class Settings extends Vue {
 
   private handleInputChage(value: number) {
     this.actionMaxReconnectTimes({ maxReconnectTimes: value })
+  }
+
+  private handleAutoScrollIntervalChange(value: number) {
+    this.actionAutoScrollInterval({ autoScrollInterval: value })
   }
 
   private handleImportData() {

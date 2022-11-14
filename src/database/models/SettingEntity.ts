@@ -29,6 +29,9 @@ export default class SettingEntity {
   @Column({ type: 'boolean', default: true })
   autoScroll!: boolean
 
+  @Column({ type: 'integer', default: 1 })
+  autoScrollInterval!: number
+
   @Column({ type: 'boolean', default: false })
   syncOsTheme!: boolean
 
