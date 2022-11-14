@@ -282,6 +282,8 @@ import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
 import { MqttClient, IConnackPacket, IPublishPacket, IClientPublishOptions } from 'mqtt'
 import _ from 'lodash'
+import { Subject } from 'rxjs'
+import { throttleTime } from 'rxjs/operators'
 
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
@@ -354,6 +356,7 @@ export default class ConnectionsDetail extends Vue {
   @Getter('activeConnection') private activeConnection!: ActiveConnection
   @Getter('showSubscriptions') private showSubscriptions!: boolean
   @Getter('autoScroll') private autoScroll!: boolean
+  @Getter('autoScrollInterval') private autoScrollInterval!: number
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: { [id: string]: boolean }
@@ -432,6 +435,7 @@ export default class ConnectionsDetail extends Vue {
   private uptime = ''
   private bytesTimes = 0
   private messagesAddedNewItem: boolean = false
+  private scrollSubject = new Subject()
 
   get titleName() {
     return this.record.name
@@ -1018,6 +1022,10 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Scroll to page bottom
+  private scrollToBottomThrottle = () => {
+    this.scrollSubject.next()
+  }
+
   private scrollToBottom() {
     if (this.autoScroll === false) {
       return
@@ -1130,7 +1138,7 @@ export default class ConnectionsDetail extends Vue {
         this.unreadMessageIncrement({ id })
         this.$log.info(`ID: ${id} received an unread message`)
       }
-      this.scrollToBottom()
+      this.scrollToBottomThrottle()
     }
   }
   // Set timed message success
@@ -1457,6 +1465,12 @@ export default class ConnectionsDetail extends Vue {
 
   private created() {
     this.getConnectionValue(this.curConnectionId)
+    this.scrollSubject
+      .asObservable()
+      .pipe(throttleTime(this.autoScrollInterval * 1000))
+      .subscribe(() => {
+        this.scrollToBottom()
+      })
     ipcRenderer.on('searchContent', () => {
       this.handleSearchOpen()
     })
@@ -1472,6 +1486,7 @@ export default class ConnectionsDetail extends Vue {
   private beforeDestroy() {
     ipcRenderer.removeAllListeners('searchContent')
     this.removeClinetsMessageListener()
+    this.scrollSubject.unsubscribe()
     this.stopTimedSend()
     window.onresize = null
   }

@@ -5,6 +5,7 @@ import VueClipboard from 'vue-clipboard2'
 import path from 'path'
 import log4js from 'log4js'
 import VueVirtualScroller from 'vue-virtual-scroller'
+import VueRx from 'vue-rx'
 
 import 'element-ui/lib/theme-chalk/index.css'
 import ElementLocale from 'element-ui/lib/locale'
@@ -36,6 +37,7 @@ ConnectionInit({ doMigrations: false, undoMigrations: false } as initOptionModel
   Vue.use(VueClipboard)
   Vue.use(VueLog4js, config)
   Vue.use(VueVirtualScroller)
+  Vue.use(VueRx)
 
   const locale: Language = store.state.app.currentLang
   const vueI18n: VueI18n = new VueI18n({
