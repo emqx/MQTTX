@@ -118,6 +118,7 @@ declare global {
     autoCheck: boolean
     autoResub: boolean
     autoScroll: boolean
+    autoScrollInterval: number
     showSubscriptions: boolean
     multiTopics: boolean
     maxReconnectTimes: number

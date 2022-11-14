@@ -69,6 +69,11 @@ export default {
     en: 'Whether to automatically scroll the list of messages',
     ja: 'メッセージリストを自動的にスクロールするかどうか',
   },
+  autoScrollInterval: {
+    zh: '自动滚动频率（秒）',
+    en: 'Auto scroll interval (seconds)',
+    ja: '自動スクロール間隔（秒）',
+  },
   multiTopics: {
     zh: '多主题订阅',
     en: 'Multi topics subscribe',
