@@ -197,8 +197,10 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { TranslateResult } from 'vue-i18n'
-import mqtt, { MqttClient, IPublishPacket, IClientPublishOptions } from 'mqtt'
+import { MqttClient, IPublishPacket, IClientPublishOptions } from 'mqtt'
 import _ from 'lodash'
+import { Subject } from 'rxjs'
+import { throttleTime } from 'rxjs/operators'
 
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
@@ -253,6 +255,7 @@ export default class ConnectionsDetail extends Vue {
   @Getter('activeConnection') private activeConnection: $TSFixed
   @Getter('showSubscriptions') private showSubscriptions!: boolean
   @Getter('autoScroll') private autoScroll!: boolean
+  @Getter('autoScrollInterval') private autoScrollInterval!: number
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: {
@@ -314,6 +317,7 @@ export default class ConnectionsDetail extends Vue {
     '3.1.1': 4,
     '5.0': 5,
   }
+  private scrollSubject = new Subject()
 
   // Connect
   public connect(): boolean | void {
@@ -777,7 +781,7 @@ export default class ConnectionsDetail extends Vue {
         updateConnectionMessage(id, { ...receivedMessage })
         this.unreadMessageIncrement({ id })
       }
-      this.scrollToBottom()
+      this.scrollToBottomThrottle()
     }
   }
 
@@ -878,6 +882,10 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Scroll to page bottom
+  private scrollToBottomThrottle = () => {
+    this.scrollSubject.next()
+  }
+
   private scrollToBottom() {
     if (this.autoScroll === false) {
       return
@@ -957,9 +965,12 @@ export default class ConnectionsDetail extends Vue {
   private created() {
     const { id } = this.$route.params
     this.getConnectionValue(id)
-    // ipcRenderer.on('searchByTopic', () => {
-    //   this.handleSearchOpen()
-    // })
+    this.scrollSubject
+      .asObservable()
+      .pipe(throttleTime(this.autoScrollInterval * 1000))
+      .subscribe(() => {
+        this.scrollToBottom()
+      })
   }
 
   private mounted() {
@@ -1014,6 +1025,7 @@ export default class ConnectionsDetail extends Vue {
   private beforeDestroy() {
     // ipcRenderer.removeAllListeners('searchByTopic')
     this.removeClinetsMessageListener()
+    this.scrollSubject.unsubscribe()
   }
 }
 </script>

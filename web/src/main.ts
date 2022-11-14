@@ -10,12 +10,14 @@ import VueClipboard from 'vue-clipboard2'
 import Lang from './lang'
 import element from './utils/element'
 import VueVirtualScroller from 'vue-virtual-scroller'
+import VueRx from 'vue-rx'
 import VueGtag from 'vue-gtag'
 
 Vue.use(element)
 Vue.use(VueI18n)
 Vue.use(VueClipboard)
 Vue.use(VueVirtualScroller)
+Vue.use(VueRx)
 Vue.use(
   VueGtag,
   {

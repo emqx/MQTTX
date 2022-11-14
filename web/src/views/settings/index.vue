@@ -6,7 +6,7 @@
 
       <el-divider></el-divider>
 
-      <el-row class="settings-item" type="flex" justify="space-between">
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
           <label>{{ $t('settings.language') }}</label>
         </el-col>
@@ -77,6 +77,20 @@
         </el-col>
       </el-row>
 
+      <template v-if="autoScroll">
+        <el-divider></el-divider>
+
+        <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+          <el-col :span="18">
+            <label>{{ $t('settings.autoScrollInterval') }}</label>
+          </el-col>
+          <el-col :span="4">
+            <el-input-number size="mini" v-model="autoScrollInterval" :min="1" @change="handleAutoScrollIntervalChange">
+            </el-input-number>
+          </el-col>
+        </el-row>
+      </template>
+
       <el-divider></el-divider>
 
       <el-row class="settings-item" type="flex" justify="space-between">
@@ -106,7 +120,7 @@
 
       <el-divider></el-divider>
 
-      <el-row class="settings-item" type="flex" justify="space-between">
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
           <label>{{ $t('settings.maxReconnectTimes') }}</label>
         </el-col>
@@ -124,7 +138,7 @@
 
       <el-divider></el-divider>
 
-      <el-row class="settings-item" type="flex" justify="space-between">
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
           <label>{{ $t('settings.theme') }}</label>
         </el-col>
@@ -157,16 +171,21 @@ export default class Settings extends Vue {
   @Action('SET_MAX_RECONNECT_TIMES') private actionMaxReconnectTimes!: (payload: { maxReconnectTimes: number }) => void
   @Action('TOGGLE_AUTO_RESUB') private actionAutoResub!: (payload: { autoResub: boolean }) => void
   @Action('TOGGLE_AUTO_SCROLL') private actionAutoScroll!: (payload: { autoScroll: boolean }) => void
+  @Action('SET_AUTO_SCROLL_INTERVAL') private actionAutoScrollInterval!: (payload: {
+    autoScrollInterval: number
+  }) => void
   @Action('TOGGLE_MULTI_TOPICS') private actionToggleMultiTopics!: (payload: { multiTopics: boolean }) => void
   @Getter('currentTheme') private getterTheme!: 'light' | 'dark' | 'night'
   @Getter('currentLang') private getterLang!: Language
   @Getter('maxReconnectTimes') private getterMaxReconnectTimes!: number
   @Getter('autoResub') private autoResub!: boolean
   @Getter('autoScroll') private autoScroll!: boolean
+  @Getter('autoScrollInterval') private getterAutoScrollInterval!: number
   @Getter('multiTopics') private multiTopics!: boolean
 
   private currentTheme: 'light' | 'dark' | 'night' = 'light'
   private currentLang: Language = 'en'
+  private autoScrollInterval = 1
   private maxReconnectTimes = 10
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
@@ -206,9 +225,14 @@ export default class Settings extends Vue {
     this.actionMaxReconnectTimes({ maxReconnectTimes: value })
   }
 
+  private handleAutoScrollIntervalChange(value: number) {
+    this.actionAutoScrollInterval({ autoScrollInterval: value })
+  }
+
   private created() {
     this.currentTheme = this.getterTheme
     this.currentLang = this.getterLang
+    this.autoScrollInterval = this.getterAutoScrollInterval
     this.maxReconnectTimes = this.getterMaxReconnectTimes
   }
 }

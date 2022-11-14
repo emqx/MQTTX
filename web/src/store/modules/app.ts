@@ -6,6 +6,7 @@ const TOGGLE_LANG = 'TOGGLE_LANG'
 const TOGGLE_AUTO_CHECK = 'TOGGLE_AUTO_CHECK'
 const TOGGLE_AUTO_RESUB = 'TOGGLE_AUTO_RESUB'
 const TOGGLE_AUTO_SCROLL = 'TOGGLE_AUTO_SCROLL'
+const SET_AUTO_SCROLL_INTERVAL = 'SET_AUTO_SCROLL_INTERVAL'
 const SET_MAX_RECONNECT_TIMES = 'SET_MAX_RECONNECT_TIMES'
 const CHANGE_ACTIVE_CONNECTION = 'CHANGE_ACTIVE_CONNECTION'
 const REMOVE_ACTIVE_CONNECTION = 'REMOVE_ACTIVE_CONNECTION'
@@ -35,6 +36,7 @@ const app = {
     autoCheck: stateRecord.autoCheck,
     autoResub: stateRecord.autoResub,
     autoScroll: stateRecord.autoScroll,
+    autoScrollInterval: stateRecord.autoScrollInterval,
     multiTopics: stateRecord.multiTopics,
     maxReconnectTimes: stateRecord.maxReconnectTimes || 10,
     showSubscriptions: getShowSubscriptions(),
@@ -60,6 +62,9 @@ const app = {
     },
     [TOGGLE_AUTO_SCROLL](state: App, autoScroll: boolean) {
       state.autoScroll = autoScroll
+    },
+    [SET_AUTO_SCROLL_INTERVAL](state: App, autoScrollInterval: number) {
+      state.autoScrollInterval = autoScrollInterval
     },
     [TOGGLE_MULTI_TOPICS](state: App, multiTopics: boolean) {
       state.multiTopics = multiTopics
@@ -140,6 +145,10 @@ const app = {
     TOGGLE_AUTO_SCROLL({ commit }: any, payload: App) {
       setSettings('settings.autoScroll', payload.autoScroll)
       commit(TOGGLE_AUTO_SCROLL, payload.autoScroll)
+    },
+    SET_AUTO_SCROLL_INTERVAL({ commit }: any, payload: App) {
+      setSettings('settings.autoScrollInterval', payload.autoScrollInterval)
+      commit(SET_AUTO_SCROLL_INTERVAL, payload.autoScrollInterval)
     },
     TOGGLE_MULTI_TOPICS({ commit }: any, payload: App) {
       setSettings('settings.multiTopics', payload.multiTopics)
