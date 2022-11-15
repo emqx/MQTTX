@@ -1465,12 +1465,13 @@ export default class ConnectionsDetail extends Vue {
 
   private created() {
     this.getConnectionValue(this.curConnectionId)
-    this.scrollSubject
-      .asObservable()
-      .pipe(throttleTime(this.autoScrollInterval * 1000))
-      .subscribe(() => {
-        this.scrollToBottom()
-      })
+    this.autoScroll &&
+      this.scrollSubject
+        .asObservable()
+        .pipe(throttleTime(this.autoScrollInterval * 1000))
+        .subscribe(() => {
+          this.scrollToBottom()
+        })
     ipcRenderer.on('searchContent', () => {
       this.handleSearchOpen()
     })
