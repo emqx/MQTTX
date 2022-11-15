@@ -36,8 +36,10 @@ const send = (
 const multisend = (
   connOpts: IClientOptions,
   pubOpts: { topic: string; message: string | Buffer; opts: IClientPublishOptions },
+  maximunReconnectTimes: number,
 ) => {
   let isNewConnection = true
+  let retryTimes = 0
   const client = mqtt.connect(connOpts)
   signale.await('Connecting...')
   const sender = new Writable({
@@ -50,6 +52,7 @@ const multisend = (
 
   client.on('connect', () => {
     signale.success('Connected, press Enter to publish, press Ctrl+C to exit')
+    retryTimes = 0
     isNewConnection &&
       pump(process.stdin, split2(), sender, (err) => {
         client.end()
@@ -65,9 +68,17 @@ const multisend = (
   })
 
   client.on('reconnect', () => {
-    signale.await('Reconnecting...')
-    isNewConnection = false
-    sender.uncork()
+    retryTimes += 1
+    if (retryTimes > maximunReconnectTimes) {
+      client.end(true, {}, () => {
+        signale.error('Exceed the maximum reconnect times limit, stop retry')
+        process.exit(1)
+      })
+    } else {
+      signale.await('Reconnecting...')
+      isNewConnection = false
+      sender.uncork()
+    }
   })
 
   client.on('close', () => {
@@ -84,7 +95,7 @@ const pub = (options: PublishOptions) => {
 
   if (options.stdin) {
     if (options.multiline) {
-      multisend(connOpts, pubOpts)
+      multisend(connOpts, pubOpts, options.maximunReconnectTimes)
     } else {
       process.stdin.pipe(
         concat((data) => {

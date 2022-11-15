@@ -8,10 +8,15 @@ const conn = (options: ConnectOptions) => {
 
   const client = mqtt.connect(connOpts)
 
+  const { maximunReconnectTimes } = options
+
+  let retryTimes = 0
+
   signale.await('Connecting...')
 
   client.on('connect', () => {
     signale.success('Connected')
+    retryTimes = 0
   })
 
   client.on('error', (err) => {
@@ -20,7 +25,14 @@ const conn = (options: ConnectOptions) => {
   })
 
   client.on('reconnect', () => {
-    signale.await('Reconnecting...')
+    retryTimes += 1
+    if (retryTimes > maximunReconnectTimes) {
+      client.end(true, {}, () => {
+        signale.error('Exceed the maximum reconnect times limit, stop retry')
+      })
+    } else {
+      signale.await('Reconnecting...')
+    }
   })
 
   client.on('close', () => {
