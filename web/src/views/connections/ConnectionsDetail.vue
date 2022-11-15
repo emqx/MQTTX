@@ -965,12 +965,13 @@ export default class ConnectionsDetail extends Vue {
   private created() {
     const { id } = this.$route.params
     this.getConnectionValue(id)
-    this.scrollSubject
-      .asObservable()
-      .pipe(throttleTime(this.autoScrollInterval * 1000))
-      .subscribe(() => {
-        this.scrollToBottom()
-      })
+    this.autoScroll &&
+      this.scrollSubject
+        .asObservable()
+        .pipe(throttleTime(this.autoScrollInterval * 1000))
+        .subscribe(() => {
+          this.scrollToBottom()
+        })
   }
 
   private mounted() {
