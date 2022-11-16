@@ -72,6 +72,14 @@ const parsePubTopic = (value: string) => {
   return value
 }
 
+const parseDecode = (value: string) => {
+  if (!['base64', 'json', 'hex'].includes(value)) {
+    signale.error('Not a valid decode type.')
+    process.exit(1)
+  }
+  return value
+}
+
 const parseConnectOptions = (
   options: ConnectOptions | PublishOptions | SubscribeOptions,
   commandType?: CommandType,
@@ -292,6 +300,7 @@ export {
   parseQoS,
   parseVariadicOfBooleanType,
   parsePubTopic,
+  parseDecode,
   parseConnectOptions,
   parsePublishOptions,
   parseSubscribeOptions,
