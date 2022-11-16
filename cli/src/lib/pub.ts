@@ -70,7 +70,7 @@ const multisend = (
   client.on('reconnect', () => {
     retryTimes += 1
     if (retryTimes > maximunReconnectTimes) {
-      client.end(true, {}, () => {
+      client.end(false, {}, () => {
         signale.error('Exceed the maximum reconnect times limit, stop retry')
         process.exit(1)
       })
@@ -110,7 +110,7 @@ const pub = (options: PublishOptions) => {
 }
 
 const benchPub = async (options: BenchPublishOptions) => {
-  const { count, interval, messageInterval, clientId, verbose } = options
+  const { count, interval, messageInterval, clientId, verbose, maximunReconnectTimes } = options
 
   const connOpts = parseConnectOptions(options, 'pub')
 
@@ -123,6 +123,8 @@ const benchPub = async (options: BenchPublishOptions) => {
   let connectedCount = 0
 
   const isNewConnArray = Array(count).fill(true)
+
+  const retryTimesArray = Array(count).fill(0)
 
   const interactive = new Signale({ interactive: true })
   const simpleInteractive = new Signale({ interactive: true, config: { displayLabel: false, displayTimestamp: true } })
@@ -151,18 +153,20 @@ const benchPub = async (options: BenchPublishOptions) => {
 
       client.on('connect', () => {
         connectedCount += 1
+        retryTimesArray[i - 1] = 0
         if (isNewConnArray[i - 1]) {
           interactive.success('[%d/%d] - Connected', connectedCount, count)
 
           setInterval(() => {
-            client.publish(topicName, message, pubOpts.opts, (err) => {
-              if (err) {
-                signale.warn(err)
-              } else {
-                total += 1
-                rate += 1
-              }
-            })
+            client.connected &&
+              client.publish(topicName, message, pubOpts.opts, (err) => {
+                if (err) {
+                  signale.warn(err)
+                } else {
+                  total += 1
+                  rate += 1
+                }
+              })
           }, messageInterval)
 
           if (i === count) {
@@ -196,8 +200,18 @@ const benchPub = async (options: BenchPublishOptions) => {
       })
 
       client.on('reconnect', () => {
-        benchLog.reconnecting(connectedCount, count, opts.clientId!)
-        isNewConnArray[i - 1] = false
+        retryTimesArray[i - 1] += 1
+        if (retryTimesArray[i - 1] > maximunReconnectTimes) {
+          client.end(false, {}, () => {
+            benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
+            if (retryTimesArray.findIndex((times) => times <= maximunReconnectTimes) === -1) {
+              process.exit(1)
+            }
+          })
+        } else {
+          benchLog.reconnecting(connectedCount, count, opts.clientId!)
+          isNewConnArray[i - 1] = false
+        }
       })
 
       client.on('close', () => {
