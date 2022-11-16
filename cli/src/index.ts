@@ -44,22 +44,22 @@ export class Commander {
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
       .option('-i, --client-id <ID>', 'the client id', getClientId())
-      .option('--no-clean', 'set the clean session flag to false (default: true)')
+      .option('--no-clean', 'set the clean session flag to false', true)
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts (default: mqtt)', parseProtocol)
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol, 'mqtt')
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
-        'interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
+        'interval between two reconnections, disable auto reconnect by setting to 0',
         parseNumber,
         1000,
       )
-      .option('--maximun-reconnect-times <NUMBER>', 'the maximum reconnect times (default: 10)', parseNumber, 10)
+      .option('--maximun-reconnect-times <NUMBER>', 'the maximum reconnect times', parseNumber, 10)
       // properties options of MQTT 5.0
       .option('-se, --session-expiry-interval <SECONDS>', 'the session expiry interval in seconds', parseNumber)
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
@@ -126,22 +126,22 @@ export class Commander {
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
       .option('-i, --client-id <ID>', 'the client id', getClientId())
-      .option('--no-clean', 'set the clean session flag to false (default: true)')
+      .option('--no-clean', 'set the clean session flag to false', true)
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts (default: mqtt)', parseProtocol)
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol, 'mqtt')
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
-        'interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
+        'interval between two reconnections, disable auto reconnect by setting to 0',
         parseNumber,
         1000,
       )
-      .option('--maximun-reconnect-times <NUMBER>', 'the maximum reconnect times (default: 10)', parseNumber, 10)
+      .option('--maximun-reconnect-times <NUMBER>', 'the maximum reconnect times', parseNumber, 10)
       // connect properties options of MQTT 5.0
       .option('-se, --session-expiry-interval <SECONDS>', 'the session expiry interval in seconds', parseNumber)
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
@@ -198,22 +198,22 @@ export class Commander {
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
       .option('-i, --client-id <ID>', 'the client id', getClientId())
-      .option('--no-clean', 'set the clean session flag to false (default: true)')
+      .option('--no-clean', 'set the clean session flag to false', true)
 
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts (default: mqtt)', parseProtocol)
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol, 'mqtt')
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
-        'interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
+        'interval between two reconnections, disable auto reconnect by setting to 0',
         parseNumber,
         1000,
       )
-      .option('--maximun-reconnect-times <NUMBER>', 'the maximum reconnect times (default: 10)', parseNumber, 10)
+      .option('--maximun-reconnect-times <NUMBER>', 'the maximum reconnect times', parseNumber, 10)
       // connect properties options of MQTT 5.0
       .option('-se, --session-expiry-interval <SECONDS>', 'the session expiry interval in seconds', parseNumber)
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
@@ -251,27 +251,27 @@ export class Commander {
       .command('conn')
       .description('Create a custom number of connections.')
       .option('-c, --count <NUMBER>', 'the number of connections', parseNumber, 1000)
-      .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker (default: 10ms)', parseNumber, 10)
+      .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
       .option('-I, --client-id <ID>', 'the client id, support %i (index) variable', getClientId())
-      .option('--no-clean', 'set the clean session flag to false (default: true)')
+      .option('--no-clean', 'set the clean session flag to false', true)
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts (default: mqtt)', parseProtocol)
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol, 'mqtt')
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
-        'interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
+        'interval between two reconnections, disable auto reconnect by setting to 0',
         parseNumber,
         1000,
       )
-      .option('--maximun-reconnect-times <NUMBER>', 'the maximum reconnect times (default: 10)', parseNumber, 10)
+      .option('--maximun-reconnect-times <NUMBER>', 'the maximum reconnect times', parseNumber, 10)
       // properties options of MQTT 5.0
       .option('-se, --session-expiry-interval <SECONDS>', 'the session expiry interval in seconds', parseNumber)
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
@@ -307,13 +307,8 @@ export class Commander {
       .command('pub')
       .description('Publish a custom number of messages at a custom rate.')
       .option('-c, --count <NUMBER>', 'the number of connections', parseNumber, 1000)
-      .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker (default: 10ms)', parseNumber, 10)
-      .option(
-        '-im, --message-interval <MILLISECONDS>',
-        'interval of publishing messages (default: 1000ms)',
-        parseNumber,
-        1000,
-      )
+      .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
+      .option('-im, --message-interval <MILLISECONDS>', 'interval of publishing messages', parseNumber, 1000)
       .requiredOption(
         '-t, --topic <TOPIC>',
         'the message topic, support %u (username), %c (client id), %i (index) variables',
@@ -349,22 +344,22 @@ export class Commander {
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
       .option('-I, --client-id <ID>', 'the client id, support %i (index) variable', getClientId())
-      .option('--no-clean', 'set the clean session flag to false (default: true)')
+      .option('--no-clean', 'set the clean session flag to false', true)
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts (default: mqtt)', parseProtocol)
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol, 'mqtt')
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
-        'interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
+        'interval between two reconnections, disable auto reconnect by setting to 0',
         parseNumber,
         1000,
       )
-      .option('--maximun-reconnect-times <NUMBER>', 'the maximum reconnect times (default: 10)', parseNumber, 10)
+      .option('--maximun-reconnect-times <NUMBER>', 'the maximum reconnect times', parseNumber, 10)
       // connect properties options of MQTT 5.0
       .option('-se, --session-expiry-interval <SECONDS>', 'the session expiry interval in seconds', parseNumber)
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
@@ -400,7 +395,7 @@ export class Commander {
       .command('sub')
       .description('Create a custom number of connections then subscribe to one or multiple topics.')
       .option('-c, --count <NUMBER>', 'the number of connections', parseNumber, 1000)
-      .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker (default: 10ms)', parseNumber, 10)
+      .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
       .requiredOption(
         '-t, --topic <TOPIC...>',
         'the message topic, support %u (username), %c (client id), %i (index) variables',
@@ -426,22 +421,22 @@ export class Commander {
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
       .option('-I, --client-id <ID>', 'the client id, support %i (index) variable', getClientId())
-      .option('--no-clean', 'set the clean session flag to false (default: true)')
+      .option('--no-clean', 'set the clean session flag to false', true)
 
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts (default: mqtt)', parseProtocol)
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol, 'mqtt')
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
-        'interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)',
+        'interval between two reconnections, disable auto reconnect by setting to 0',
         parseNumber,
         1000,
       )
-      .option('--maximun-reconnect-times <NUMBER>', 'the maximum reconnect times (default: 10)', parseNumber, 10)
+      .option('--maximun-reconnect-times <NUMBER>', 'the maximum reconnect times', parseNumber, 10)
       // connect properties options of MQTT 5.0
       .option('-se, --session-expiry-interval <SECONDS>', 'the session expiry interval in seconds', parseNumber)
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
