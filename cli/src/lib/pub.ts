@@ -4,7 +4,7 @@ import concat from 'concat-stream'
 import { Writable } from 'readable-stream'
 import split2 from 'split2'
 import { IClientOptions, IClientPublishOptions } from 'mqtt'
-import { Signale, signale, benchLog } from '../utils/signale'
+import { Signale, signale, basicLog, benchLog } from '../utils/signale'
 import { parseConnectOptions, parsePublishOptions } from '../utils/parse'
 import delay from '../utils/delay'
 
@@ -13,22 +13,22 @@ const send = (
   pubOpts: { topic: string; message: string | Buffer; opts: IClientPublishOptions },
 ) => {
   const client = mqtt.connect(connOpts)
-  signale.await('Connecting...')
+  basicLog.connecting()
   client.on('connect', () => {
-    signale.success('Connected')
+    basicLog.connected()
     const { topic, message } = pubOpts
-    signale.await('Message Publishing...')
+    basicLog.publishing()
     client.publish(topic, message, pubOpts.opts, (err) => {
       if (err) {
         signale.warn(err)
       } else {
-        signale.success('Message published')
+        basicLog.published()
       }
       client.end()
     })
   })
   client.on('error', (err) => {
-    signale.error(err)
+    basicLog.error(err)
     client.end()
   })
 }
@@ -41,7 +41,7 @@ const multisend = (
   let isNewConnection = true
   let retryTimes = 0
   const client = mqtt.connect(connOpts)
-  signale.await('Connecting...')
+  basicLog.connecting()
   const sender = new Writable({
     objectMode: true,
   })
@@ -51,7 +51,7 @@ const multisend = (
   }
 
   client.on('connect', () => {
-    signale.success('Connected, press Enter to publish, press Ctrl+C to exit')
+    basicLog.enterToPublish()
     retryTimes = 0
     isNewConnection &&
       pump(process.stdin, split2(), sender, (err) => {
@@ -63,7 +63,7 @@ const multisend = (
   })
 
   client.on('error', (err) => {
-    signale.error(err)
+    basicLog.error(err)
     client.end()
   })
 
@@ -71,18 +71,18 @@ const multisend = (
     retryTimes += 1
     if (retryTimes > maximunReconnectTimes) {
       client.end(false, {}, () => {
-        signale.error('Exceed the maximum reconnect times limit, stop retry')
+        basicLog.reconnectTimesLimit()
         process.exit(1)
       })
     } else {
-      signale.await('Reconnecting...')
+      basicLog.reconnecting()
       isNewConnection = false
       sender.uncork()
     }
   })
 
   client.on('close', () => {
-    signale.error('Connection closed')
+    basicLog.close()
     const { reconnectPeriod } = connOpts
     reconnectPeriod ? sender.cork() : process.exit(1)
   })

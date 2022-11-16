@@ -1,5 +1,5 @@
 import * as mqtt from 'mqtt'
-import { Signale, signale, benchLog } from '../utils/signale'
+import { Signale, signale, basicLog, benchLog } from '../utils/signale'
 import { parseConnectOptions } from '../utils/parse'
 import delay from '../utils/delay'
 
@@ -12,15 +12,15 @@ const conn = (options: ConnectOptions) => {
 
   let retryTimes = 0
 
-  signale.await('Connecting...')
+  basicLog.connecting()
 
   client.on('connect', () => {
-    signale.success('Connected')
+    basicLog.connected()
     retryTimes = 0
   })
 
   client.on('error', (err) => {
-    signale.error(err)
+    basicLog.error(err)
     client.end()
   })
 
@@ -28,15 +28,15 @@ const conn = (options: ConnectOptions) => {
     retryTimes += 1
     if (retryTimes > maximunReconnectTimes) {
       client.end(false, {}, () => {
-        signale.error('Exceed the maximum reconnect times limit, stop retry')
+        basicLog.reconnectTimesLimit()
       })
     } else {
-      signale.await('Reconnecting...')
+      basicLog.reconnecting()
     }
   })
 
   client.on('close', () => {
-    signale.error('Connection closed')
+    basicLog.close()
   })
 }
 

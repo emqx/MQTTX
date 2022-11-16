@@ -1,5 +1,5 @@
 import * as mqtt from 'mqtt'
-import { Signale, signale, msgLog, benchLog } from '../utils/signale'
+import { Signale, signale, msgLog, basicLog, benchLog } from '../utils/signale'
 import { parseConnectOptions, parseSubscribeOptions } from '../utils/parse'
 import delay from '../utils/delay'
 
@@ -12,10 +12,10 @@ const sub = (options: SubscribeOptions) => {
 
   let retryTimes = 0
 
-  signale.await('Connecting...')
+  basicLog.connecting()
 
   client.on('connect', () => {
-    signale.success('Connected')
+    basicLog.connected()
 
     retryTimes = 0
 
@@ -26,19 +26,19 @@ const sub = (options: SubscribeOptions) => {
     topic.forEach((t: string, index: number) => {
       const subOpts = subOptsArray[index]
 
-      signale.await(`Subscribing to ${t}...`)
+      basicLog.subscribing(t)
 
       client.subscribe(t, subOpts, (err, result) => {
         if (err) {
-          signale.error(err)
+          basicLog.error(err)
           process.exit(1)
         } else {
-          signale.success(`Subscribed to ${t}`)
+          basicLog.subscribed(t)
         }
 
         result.forEach((sub) => {
           if (sub.qos > 2) {
-            signale.error('subscription negated to', sub.topic, 'with code', sub.qos)
+            basicLog.subscriptionNegated(sub)
             process.exit(1)
           }
         })
@@ -62,7 +62,7 @@ const sub = (options: SubscribeOptions) => {
   })
 
   client.on('error', (err) => {
-    signale.error(err)
+    basicLog.error(err)
     client.end()
   })
 
@@ -70,15 +70,15 @@ const sub = (options: SubscribeOptions) => {
     retryTimes += 1
     if (retryTimes > maximunReconnectTimes) {
       client.end(false, {}, () => {
-        signale.error('Exceed the maximum reconnect times limit, stop retry')
+        basicLog.reconnectTimesLimit()
       })
     } else {
-      signale.await('Reconnecting...')
+      basicLog.reconnecting()
     }
   })
 
   client.on('close', () => {
-    signale.error('Connection closed')
+    basicLog.close()
   })
 }
 
