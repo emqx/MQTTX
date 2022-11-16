@@ -7,6 +7,8 @@ declare global {
 
   type QoS = 0 | 1 | 2
 
+  type PayloadType = 'base64' | 'json' | 'hex'
+
   interface ConnectOptions {
     mqttVersion: MQTTVersion
     hostname: string
@@ -73,6 +75,7 @@ declare global {
     retainAsPublished?: boolean[]
     retainHandling?: QoS[]
     subscriptionIdentifier?: number[]
+    decode?: PayloadType
     verbose: boolean
     connUserProperties?: Record<string, string>
   }
@@ -83,12 +86,15 @@ declare global {
   }
 
   type OmitPublishOptions = Omit<PublishOptions, 'stdin' | 'multiline'>
+
   interface BenchPublishOptions extends OmitPublishOptions {
     count: number
     interval: number
     messageInterval: number
     verbose: boolean
   }
+
+  type OmitSubscribeOptions = Omit<SubscribeOptions, 'decode'>
 
   interface BenchSubscribeOptions extends SubscribeOptions {
     count: number

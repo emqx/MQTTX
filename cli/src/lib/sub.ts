@@ -2,6 +2,7 @@ import * as mqtt from 'mqtt'
 import { Signale, signale, msgLog, basicLog, benchLog } from '../utils/signale'
 import { parseConnectOptions, parseSubscribeOptions } from '../utils/parse'
 import delay from '../utils/delay'
+import convertPayload from '../utils/convertPayload'
 
 const sub = (options: SubscribeOptions) => {
   const connOpts = parseConnectOptions(options, 'sub')
@@ -47,11 +48,17 @@ const sub = (options: SubscribeOptions) => {
   })
 
   client.on('message', (topic, payload, packet) => {
+    const { decode } = options
+
     const msgData: Record<string, unknown>[] = []
 
     options.verbose && msgData.push({ label: 'topic', value: topic })
 
-    msgData.push({ label: 'payload', value: payload.toString() })
+    if (!decode) {
+      msgData.push({ label: 'payload', value: payload.toString() })
+    } else {
+      msgData.push({ label: 'payload', value: convertPayload(payload.toString(), decode) })
+    }
 
     packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 
