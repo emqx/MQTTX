@@ -176,6 +176,7 @@ mqttx conn --help
 | --ca                                             | ca 证书的文件路径                                              |
 | --insecure                                       | 取消服务器的证书校验                                           |
 | -rp, --reconnect-period <MILLISECONDS>           | 自动重连的间隔时间，通过设置为 0 来禁用自动重连，默认为 1000ms |
+| --maximun-reconnect-times <NUMBER>               | 最大重连次数，默认为 10                                         |
 | -up, --user-properties <USERPROPERTIES...>       | MQTT 5.0 用户属性，例如：-up "name: mqttx cli"                 |
 | -Wt, --will-topic <TOPIC>                        | 遗嘱消息的 Topic                                               |
 | -Wm, --will-message <BODY>                       | 遗嘱消息的 Payload                                             |
@@ -223,7 +224,9 @@ mqttx sub --help
 | --ca                                             | ca 证书的文件路径                                       |
 | --insecure                                       | 取消服务器的证书校验                                    |
 | -rp, --reconnect-period <MILLISECONDS>           | 自动重连的间隔时间，通过设置为 0 来禁用自动重连，默认为 1000ms |
+| --maximun-reconnect-times <NUMBER>               | 最大重连次数，默认为 10                                   |
 | -up, --user-properties <USERPROPERTIES...>       | MQTT 5.0 用户属性，例如：-up "name: mqttx cli"          |
+| -de, --decode <TYPE>                             | 消息解码类型，支持 base64、json、hex                     |
 | -v, --verbose                                    | 在接收到的 Payload 前显示当前 Topic                     |
 | -Wt, --will-topic <TOPIC>                        | 遗嘱消息的 Topic                                        |
 | -Wm, --will-message <BODY>                       | 遗嘱消息的 Payload                                      |
@@ -272,6 +275,7 @@ mqttx pub --help
 | --ca                                             | ca 证书的文件路径                                            |
 | --insecure                                       | 取消服务器的证书校验                                         |
 | -rp, --reconnect-period <MILLISECONDS>           | 自动重连的间隔时间，通过设置为 0 来禁用自动重连，默认为 1000ms |
+| --maximun-reconnect-times <NUMBER>               | 最大重连次数，默认为 10                                      |
 | -up, --user-properties <USERPROPERTIES...>       | MQTT 5.0 用户属性，例如：-up "name: mqttx cli"               |
 | -pf, --payload-format-indicator                  | 发布信息的有效载荷格式指标                                   |
 | -e, --message-expiry-interval <NUMBER>           | 发布信息的有效期，单位为秒                                   |
