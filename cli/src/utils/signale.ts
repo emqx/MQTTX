@@ -36,6 +36,9 @@ const benchLog = {
   reconnected: (count: number, total: number, id: string) => {
     signale.success(`[${count}/${total}] - Client ID: ${id}, Reconnected`)
   },
+  reconnectTimesLimit: (count: number, total: number, id: string) => {
+    signale.error(`[${count}/${total}] - Client ID: ${id}, Exceed the maximum reconnect times limit, stop retry`)
+  },
 }
 
 export { Signale, signale, msgLog, benchLog }

@@ -27,7 +27,7 @@ const conn = (options: ConnectOptions) => {
   client.on('reconnect', () => {
     retryTimes += 1
     if (retryTimes > maximunReconnectTimes) {
-      client.end(true, {}, () => {
+      client.end(false, {}, () => {
         signale.error('Exceed the maximum reconnect times limit, stop retry')
       })
     } else {
@@ -41,13 +41,15 @@ const conn = (options: ConnectOptions) => {
 }
 
 const benchConn = async (options: BenchConnectOptions) => {
-  const { count, interval, clientId } = options
+  const { count, interval, clientId, maximunReconnectTimes } = options
 
   const connOpts = parseConnectOptions(options, 'conn')
 
   let connectedCount = 0
 
   const isNewConnArray = Array(count).fill(true)
+
+  const retryTimesArray = Array(count).fill(0)
 
   const interactive = new Signale({ interactive: true })
 
@@ -67,6 +69,7 @@ const benchConn = async (options: BenchConnectOptions) => {
 
       client.on('connect', () => {
         connectedCount += 1
+        retryTimesArray[i - 1] = 0
         if (isNewConnArray[i - 1]) {
           interactive.success('[%d/%d] - Connected', connectedCount, count)
 
@@ -85,8 +88,15 @@ const benchConn = async (options: BenchConnectOptions) => {
       })
 
       client.on('reconnect', () => {
-        benchLog.reconnecting(connectedCount, count, opts.clientId!)
-        isNewConnArray[i - 1] = false
+        retryTimesArray[i - 1] += 1
+        if (retryTimesArray[i - 1] > maximunReconnectTimes) {
+          client.end(false, {}, () => {
+            benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
+          })
+        } else {
+          benchLog.reconnecting(connectedCount, count, opts.clientId!)
+          isNewConnArray[i - 1] = false
+        }
       })
 
       client.on('close', () => {
