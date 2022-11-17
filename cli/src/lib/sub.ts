@@ -48,17 +48,13 @@ const sub = (options: SubscribeOptions) => {
   })
 
   client.on('message', (topic, payload, packet) => {
-    const { decode } = options
+    const { format } = options
 
     const msgData: Record<string, unknown>[] = []
 
     options.verbose && msgData.push({ label: 'topic', value: topic })
 
-    if (!decode) {
-      msgData.push({ label: 'payload', value: payload.toString() })
-    } else {
-      msgData.push({ label: 'payload', value: convertPayload(payload.toString(), decode) })
-    }
+    msgData.push({ label: 'payload', value: convertPayload(payload, format) })
 
     packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 

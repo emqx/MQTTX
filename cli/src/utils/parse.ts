@@ -72,9 +72,9 @@ const parsePubTopic = (value: string) => {
   return value
 }
 
-const parseDecode = (value: string) => {
+const parseFormat = (value: string) => {
   if (!['base64', 'json', 'hex'].includes(value)) {
-    signale.error('Not a valid decode type.')
+    signale.error('Not a valid format type.')
     process.exit(1)
   }
   return value
@@ -300,7 +300,7 @@ export {
   parseQoS,
   parseVariadicOfBooleanType,
   parsePubTopic,
-  parseDecode,
+  parseFormat,
   parseConnectOptions,
   parsePublishOptions,
   parseSubscribeOptions,

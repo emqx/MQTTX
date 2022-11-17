@@ -497,11 +497,11 @@ export default {
     hu: 'Fogadott üzenet',
   },
   receivedPayloadDecodedBy: {
-    zh: '接收到的 Payload 解码',
-    en: 'Received payload decoded by',
-    tr: 'Alınan yükün kodu çözüldü',
-    ja: '受信したペイロードをデコードする',
-    hu: 'Fogadott üzenet dekodolva',
+    zh: '接收到的 Payload 通过编码格式输出',
+    en: 'Received Payload is output by encoding format',
+    tr: 'Alınan Payload, kodlama biçimiyle çıkarılır',
+    ja: '受信したペイロードは、エンコード形式で出力されます',
+    hu: 'A fogadott Payload kódolási formátum szerint',
   },
   alias: {
     zh: '别名',

@@ -1,55 +1,27 @@
-import { signale } from '../utils/signale'
+import chalk from 'chalk'
 
-interface CodeType {
-  encode: (str: string) => string
-  decode: (str: string) => string
-}
-
-const convertBase64 = (value: string, codeType: 'encode' | 'decode') => {
-  const convertMap: CodeType = {
-    encode(str) {
-      return Buffer.from(str, 'utf-8').toString('base64')
-    },
-    decode(str) {
-      return Buffer.from(str, 'base64').toString('utf-8')
-    },
-  }
-  return convertMap[codeType](value)
-}
-
-const convertHex = (value: string, codeType: 'encode' | 'decode') => {
-  const convertMap: CodeType = {
-    encode(str) {
-      return Buffer.from(str, 'utf-8').toString('hex')
-    },
-    decode(str) {
-      return Buffer.from(str, 'hex').toString('utf-8')
-    },
-  }
-  return convertMap[codeType](value)
-}
-
-const convertJSON = (value: string) => {
+const convertJSON = (value: Buffer) => {
   try {
-    return JSON.parse(value)
+    return JSON.parse(value.toString())
   } catch (err) {
-    signale.error(err)
-    process.exit(1)
+    return chalk.red(err)
   }
 }
 
-const convertPayload = (payload: string, from: PayloadType) => {
-  let $payload: string | Object = payload
-  switch (from) {
+const convertPayload = (payload: Buffer, to?: FormatType) => {
+  let $payload = ''
+  switch (to) {
     case 'base64':
-      $payload = convertBase64(payload, 'decode')
+      $payload = payload.toString('base64')
       break
     case 'json':
       $payload = convertJSON(payload)
       break
     case 'hex':
-      $payload = convertHex(payload, 'decode')
+      $payload = payload.toString('hex').replace(/(.{4})/g, '$1 ')
       break
+    default:
+      $payload = payload.toString('utf-8')
   }
   return $payload
 }
