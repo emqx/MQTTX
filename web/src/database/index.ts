@@ -46,7 +46,7 @@ class DB {
     }
     // Set auto scroll interval to 1 second by default
     if (!this.db.has('settings.autoScrollInterval').value()) {
-      this.db.set('settings.autoScrollInterval', 1).write()
+      this.db.set('settings.autoScrollInterval', 0).write()
     }
     // Set max reconnection times
     if (!this.db.get('settings.maxReconnectTimes').value()) {

@@ -29,7 +29,7 @@ export default class SettingEntity {
   @Column({ type: 'boolean', default: true })
   autoScroll!: boolean
 
-  @Column({ type: 'integer', default: 1 })
+  @Column({ type: 'integer', default: 0 })
   autoScrollInterval!: number
 
   @Column({ type: 'boolean', default: false })
