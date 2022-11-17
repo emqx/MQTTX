@@ -102,7 +102,7 @@
             <label>{{ $t('settings.autoScrollInterval') }}</label>
           </el-col>
           <el-col :span="4">
-            <el-input-number size="mini" :value="autoScrollInterval" :min="1" @change="handleAutoScrollIntervalChange">
+            <el-input-number size="mini" :value="autoScrollInterval" :min="0" @change="handleAutoScrollIntervalChange">
             </el-input-number>
           </el-col>
         </el-row>

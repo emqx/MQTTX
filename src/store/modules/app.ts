@@ -40,7 +40,7 @@ const app = {
     autoCheck: settingData.autoCheck,
     autoResub: settingData.autoResub,
     autoScroll: settingData.autoScroll,
-    autoScrollInterval: settingData.autoScrollInterval || 1,
+    autoScrollInterval: settingData.autoScrollInterval || 0,
     syncOsTheme: settingData.syncOsTheme,
     multiTopics: settingData.multiTopics,
     maxReconnectTimes: settingData.maxReconnectTimes || 10,

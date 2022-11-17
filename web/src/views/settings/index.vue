@@ -13,7 +13,7 @@
         <el-col :span="4">
           <el-select
             class="settings-options"
-            v-model="currentLang"
+            :value="currentLang"
             size="mini"
             @change="handleSelectChange('lang', $event)"
           >
@@ -85,7 +85,7 @@
             <label>{{ $t('settings.autoScrollInterval') }}</label>
           </el-col>
           <el-col :span="4">
-            <el-input-number size="mini" v-model="autoScrollInterval" :min="1" @change="handleAutoScrollIntervalChange">
+            <el-input-number size="mini" :value="autoScrollInterval" :min="0" @change="handleAutoScrollIntervalChange">
             </el-input-number>
           </el-col>
         </el-row>
@@ -125,7 +125,7 @@
           <label>{{ $t('settings.maxReconnectTimes') }}</label>
         </el-col>
         <el-col :span="4">
-          <el-input-number size="mini" v-model="maxReconnectTimes" :min="1" @change="handleInputChage">
+          <el-input-number size="mini" :value="maxReconnectTimes" :min="1" @change="handleInputChage">
           </el-input-number>
         </el-col>
       </el-row>
@@ -145,7 +145,7 @@
         <el-col :span="4">
           <el-select
             class="settings-options"
-            v-model="currentTheme"
+            :value="currentTheme"
             size="mini"
             @change="handleSelectChange('theme', $event)"
           >
@@ -175,18 +175,14 @@ export default class Settings extends Vue {
     autoScrollInterval: number
   }) => void
   @Action('TOGGLE_MULTI_TOPICS') private actionToggleMultiTopics!: (payload: { multiTopics: boolean }) => void
-  @Getter('currentTheme') private getterTheme!: 'light' | 'dark' | 'night'
-  @Getter('currentLang') private getterLang!: Language
-  @Getter('maxReconnectTimes') private getterMaxReconnectTimes!: number
+  @Getter('currentTheme') private currentTheme!: 'light' | 'dark' | 'night'
+  @Getter('currentLang') private currentLang!: Language
+  @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('autoResub') private autoResub!: boolean
   @Getter('autoScroll') private autoScroll!: boolean
-  @Getter('autoScrollInterval') private getterAutoScrollInterval!: number
+  @Getter('autoScrollInterval') private autoScrollInterval!: number
   @Getter('multiTopics') private multiTopics!: boolean
 
-  private currentTheme: 'light' | 'dark' | 'night' = 'light'
-  private currentLang: Language = 'en'
-  private autoScrollInterval = 1
-  private maxReconnectTimes = 10
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
     { label: 'English', value: 'en' },
@@ -227,13 +223,6 @@ export default class Settings extends Vue {
 
   private handleAutoScrollIntervalChange(value: number) {
     this.actionAutoScrollInterval({ autoScrollInterval: value })
-  }
-
-  private created() {
-    this.currentTheme = this.getterTheme
-    this.currentLang = this.getterLang
-    this.autoScrollInterval = this.getterAutoScrollInterval
-    this.maxReconnectTimes = this.getterMaxReconnectTimes
   }
 }
 </script>

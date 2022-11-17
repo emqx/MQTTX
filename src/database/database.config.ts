@@ -32,6 +32,7 @@ import { topicDisabled1640846307653 } from './migration/1640846307653-topicDisab
 import { reconnectPeriod1642321826532 } from './migration/1642321826532-reconnectPeriod'
 import { multiTopics1659668384878 } from './migration/1659668384878-multiTopics'
 import { autoScrollInterval1668415942736 } from './migration/1668415942736-autoScrollInterval'
+import { modifyDefaultValueOfAutoScrollInterval1668672504891 } from './migration/1668672504891-modifyDefaultValueOfAutoScrollInterval'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -71,6 +72,7 @@ const ORMConfig = {
     reconnectPeriod1642321826532,
     multiTopics1659668384878,
     autoScrollInterval1668415942736,
+    modifyDefaultValueOfAutoScrollInterval1668672504891,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [
