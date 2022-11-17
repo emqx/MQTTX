@@ -7,7 +7,7 @@ declare global {
 
   type QoS = 0 | 1 | 2
 
-  type PayloadType = 'base64' | 'json' | 'hex'
+  type FormatType = 'base64' | 'json' | 'hex'
 
   interface ConnectOptions {
     mqttVersion: MQTTVersion
@@ -75,7 +75,7 @@ declare global {
     retainAsPublished?: boolean[]
     retainHandling?: QoS[]
     subscriptionIdentifier?: number[]
-    decode?: PayloadType
+    format?: FormatType
     verbose: boolean
     connUserProperties?: Record<string, string>
   }
@@ -94,7 +94,7 @@ declare global {
     verbose: boolean
   }
 
-  type OmitSubscribeOptions = Omit<SubscribeOptions, 'decode'>
+  type OmitSubscribeOptions = Omit<SubscribeOptions, 'format'>
 
   interface BenchSubscribeOptions extends SubscribeOptions {
     count: number

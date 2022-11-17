@@ -225,7 +225,7 @@ mqttx sub --help
 | -rp, --reconnect-period <MILLISECONDS>           | interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms) |
 | --maximun-reconnect-times <NUMBER>               | the maximum reconnect times (default: 10)                                                    |
 | -up, --user-properties <USERPROPERTIES...>       | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")                                 |
-| -de, --decode <TYPE>                             | decode the message body, support base64, json, hex                                           |
+| -f, --format <TYPE>                              | format the message body, support base64, json, hex                                           |
 | -v, --verbose                                    | print the topic before the message                                                           |
 | -Wt, --will-topic <TOPIC>                        | the will topic                                                                               |
 | -Wm, --will-message <BODY>                       | the will message                                                                             |

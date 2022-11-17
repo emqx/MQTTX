@@ -10,7 +10,7 @@ import {
   parseQoS,
   parseVariadicOfBooleanType,
   parsePubTopic,
-  parseDecode,
+  parseFormat,
 } from './utils/parse'
 import { conn, benchConn } from './lib/conn'
 import { pub, benchPub } from './lib/pub'
@@ -193,7 +193,7 @@ export class Commander {
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
         parseUserProperties,
       )
-      .option('-de, --decode <TYPE>', 'decode the message body, support base64, json, hex', parseDecode)
+      .option('-f, --format <TYPE>', 'format the message body, support base64, json, hex', parseFormat)
       .option('-v, --verbose', 'print the topic before the message')
       // connect options
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
