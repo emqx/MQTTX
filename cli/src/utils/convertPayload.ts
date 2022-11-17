@@ -9,21 +9,16 @@ const convertJSON = (value: Buffer) => {
 }
 
 const convertPayload = (payload: Buffer, to?: FormatType) => {
-  let $payload = ''
   switch (to) {
     case 'base64':
-      $payload = payload.toString('base64')
-      break
+      return payload.toString('base64')
     case 'json':
-      $payload = convertJSON(payload)
-      break
+      return convertJSON(payload)
     case 'hex':
-      $payload = payload.toString('hex').replace(/(.{4})/g, '$1 ')
-      break
+      return payload.toString('hex').replace(/(.{4})/g, '$1 ')
     default:
-      $payload = payload.toString('utf-8')
+      return payload.toString('utf-8')
   }
-  return $payload
 }
 
 export default convertPayload
