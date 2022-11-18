@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 1257443 */
-  src: url('iconfont.woff2?t=1666666599870') format('woff2'),
-       url('iconfont.woff?t=1666666599870') format('woff'),
-       url('iconfont.ttf?t=1666666599870') format('truetype');
+  src: url('iconfont.woff2?t=1668757527838') format('woff2'),
+       url('iconfont.woff?t=1668757527838') format('woff'),
+       url('iconfont.ttf?t=1668757527838') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,18 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-mqtt:before {
+  content: "\e79a";
+}
+
+.icon-a-createnew:before {
+  content: "\e792";
+}
+
+.icon-connections:before {
+  content: "\e790";
 }
 
 .icon-help:before {
@@ -89,10 +101,6 @@
   content: "\e6de";
 }
 
-.icon-connect:before {
-  content: "\e6d5";
-}
-
 .icon-log:before {
   content: "\e6d8";
 }
@@ -103,10 +111,6 @@
 
 .icon-new:before {
   content: "\e6db";
-}
-
-.icon-disconnect:before {
-  content: "\e6c4";
 }
 
 .icon-a-timedmessage:before {

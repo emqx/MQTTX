@@ -1,6 +1,6 @@
 <template>
   <div class="help-view rightbar">
-    <h1 class="titlebar">{{ $t('help.help') }}</h1>
+    <h1 class="titlebar">{{ $t('help.helpMQTT') }}</h1>
     <section class="help-top">
       <div v-for="item in helpTop" :key="item.icon" class="card" @click="goToLink(item.link)">
         <img :src="require(`@/assets/images/help/${item.icon}.png`)" :alt="item.icon" width="24" height="24" />
@@ -242,7 +242,7 @@ export default class Help extends Vue {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-gap: 24px;
-    margin-top: 12px;
+    margin-top: 24px;
     text-align: center;
     .card {
       cursor: pointer;

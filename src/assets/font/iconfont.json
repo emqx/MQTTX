@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "32933818",
+      "name": "mqtt",
+      "font_class": "mqtt",
+      "unicode": "e79a",
+      "unicode_decimal": 59290
+    },
+    {
       "icon_id": "32681832",
       "name": "create new",
       "font_class": "a-createnew",
@@ -13,39 +20,11 @@
       "unicode_decimal": 59282
     },
     {
-      "icon_id": "32676291",
-      "name": "disconnect",
-      "font_class": "disconnect",
-      "unicode": "e78f",
-      "unicode_decimal": 59279
-    },
-    {
-      "icon_id": "32676292",
-      "name": "connect",
-      "font_class": "connect",
-      "unicode": "e791",
-      "unicode_decimal": 59281
-    },
-    {
       "icon_id": "32675792",
       "name": "connections",
       "font_class": "connections",
       "unicode": "e790",
       "unicode_decimal": 59280
-    },
-    {
-      "icon_id": "32637231",
-      "name": "new-folder",
-      "font_class": "new-folder",
-      "unicode": "e78c",
-      "unicode_decimal": 59276
-    },
-    {
-      "icon_id": "32637232",
-      "name": "new-connect",
-      "font_class": "new-connect",
-      "unicode": "e78d",
-      "unicode_decimal": 59277
     },
     {
       "icon_id": "32483181",
