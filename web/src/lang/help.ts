@@ -1,8 +1,10 @@
 export default {
-  help: {
-    zh: '帮助',
-    en: 'Help',
-    ja: 'ヘルプ',
+  helpMQTT: {
+    zh: '关于 MQTT 的一切',
+    en: 'Everything about MQTT',
+    ja: 'MQTT について',
+    tr: 'MQTT hakk',
+    hu: 'Minden MQTT-ről',
   },
   docs: {
     zh: 'MQTT X 文档',
