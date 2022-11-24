@@ -7,6 +7,7 @@ import { IClientOptions, IClientPublishOptions } from 'mqtt'
 import { Signale, signale, basicLog, benchLog } from '../utils/signale'
 import { parseConnectOptions, parsePublishOptions } from '../utils/parse'
 import delay from '../utils/delay'
+import { saveConfig, loadConfig } from '../utils/config'
 
 const send = (
   connOpts: IClientOptions,
@@ -89,6 +90,12 @@ const multisend = (
 }
 
 const pub = (options: PublishOptions) => {
+  const { save, config } = options
+
+  config && (options = loadConfig('pub', config!))
+
+  save && saveConfig('pub', options)
+
   const connOpts = parseConnectOptions(options, 'pub')
 
   const pubOpts = parsePublishOptions(options)
@@ -110,6 +117,12 @@ const pub = (options: PublishOptions) => {
 }
 
 const benchPub = async (options: BenchPublishOptions) => {
+  const { save, config } = options
+
+  config && (options = loadConfig('benchPub', config!))
+
+  save && saveConfig('benchPub', options)
+
   const { count, interval, messageInterval, clientId, verbose, maximunReconnectTimes } = options
 
   const connOpts = parseConnectOptions(options, 'pub')

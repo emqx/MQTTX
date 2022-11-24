@@ -1,5 +1,5 @@
 declare global {
-  type CommandType = 'conn' | 'pub' | 'sub'
+  type CommandType = 'conn' | 'pub' | 'sub' | 'benchConn' | 'benchPub' | 'benchSub'
 
   type MQTTVersion = 3 | 4 | 5
 
@@ -46,6 +46,8 @@ declare global {
     willResponseTopic?: string
     willCorrelationData?: string
     willUserProperties?: Record<string, string>
+    save?: boolean | string
+    config?: boolean | string
   }
 
   interface PublishOptions extends ConnectOptions {
@@ -96,9 +98,19 @@ declare global {
 
   type OmitSubscribeOptions = Omit<SubscribeOptions, 'format'>
 
-  interface BenchSubscribeOptions extends SubscribeOptions {
+  interface BenchSubscribeOptions extends OmitSubscribeOptions {
     count: number
     interval: number
+  }
+
+  type Config = {
+    [key in CommandType]?:
+      | ConnectOptions
+      | PublishOptions
+      | SubscribeOptions
+      | BenchConnectOptions
+      | BenchPublishOptions
+      | BenchSubscribeOptions
   }
 }
 
