@@ -92,7 +92,7 @@ const multisend = (
 const pub = (options: PublishOptions) => {
   const { save, config } = options
 
-  config && (options = loadConfig('pub', config!))
+  config && (options = loadConfig('pub', config))
 
   save && saveConfig('pub', options)
 
@@ -121,7 +121,7 @@ const pub = (options: PublishOptions) => {
 const benchPub = async (options: BenchPublishOptions) => {
   const { save, config } = options
 
-  config && (options = loadConfig('benchPub', config!))
+  config && (options = loadConfig('benchPub', config))
 
   save && saveConfig('benchPub', options)
 

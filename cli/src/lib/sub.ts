@@ -8,7 +8,7 @@ import { saveConfig, loadConfig } from '../utils/config'
 const sub = (options: SubscribeOptions) => {
   const { save, config } = options
 
-  config && (options = loadConfig('sub', config!))
+  config && (options = loadConfig('sub', config))
 
   save && saveConfig('sub', options)
 
@@ -97,7 +97,7 @@ const sub = (options: SubscribeOptions) => {
 const benchSub = async (options: BenchSubscribeOptions) => {
   const { save, config } = options
 
-  config && (options = loadConfig('benchSub', config!))
+  config && (options = loadConfig('benchSub', config))
 
   save && saveConfig('benchSub', options)
 
