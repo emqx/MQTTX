@@ -41,6 +41,19 @@ const processPath = (savePath: boolean | string) => {
   return filePath
 }
 
+const removeUselessOptions = (
+  opts:
+    | ConnectOptions
+    | PublishOptions
+    | SubscribeOptions
+    | BenchConnectOptions
+    | BenchPublishOptions
+    | BenchSubscribeOptions,
+) => {
+  const { save, config, ...rest } = opts
+  return rest
+}
+
 const saveConfig = (
   commandType: CommandType,
   opts:
@@ -54,7 +67,7 @@ const saveConfig = (
   try {
     const filePath = processPath(opts.save!)
     let data: Config = {}
-    data[commandType] = opts
+    data[commandType] = removeUselessOptions(opts)
     if (fileExists(filePath)) {
       const config = readFile(filePath)
       data = mergeConfig(config, data)

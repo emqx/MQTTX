@@ -5,7 +5,7 @@ import { Writable } from 'readable-stream'
 import split2 from 'split2'
 import { IClientOptions, IClientPublishOptions } from 'mqtt'
 import { Signale, signale, basicLog, benchLog } from '../utils/signale'
-import { parseConnectOptions, parsePublishOptions } from '../utils/parse'
+import { parseConnectOptions, parsePublishOptions, checkTopicExists } from '../utils/parse'
 import delay from '../utils/delay'
 import { saveConfig, loadConfig } from '../utils/config'
 
@@ -96,6 +96,8 @@ const pub = (options: PublishOptions) => {
 
   save && saveConfig('pub', options)
 
+  checkTopicExists(options.topic, 'pub')
+
   const connOpts = parseConnectOptions(options, 'pub')
 
   const pubOpts = parsePublishOptions(options)
@@ -122,6 +124,8 @@ const benchPub = async (options: BenchPublishOptions) => {
   config && (options = loadConfig('benchPub', config!))
 
   save && saveConfig('benchPub', options)
+
+  checkTopicExists(options.topic, 'benchPub')
 
   const { count, interval, messageInterval, clientId, verbose, maximunReconnectTimes } = options
 
