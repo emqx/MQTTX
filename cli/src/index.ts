@@ -90,12 +90,17 @@ export class Commander {
         'the user properties of will message',
         parseUserProperties,
       )
+      .option(
+        '--save [PATH]',
+        'save the configuration to the configuration file, default to current directory & filename is mqttx-cli-config.json',
+      )
+      .option('--config [PATH]', 'load the configuration from the configuration file, default to current directory')
       .action(conn)
 
     this.program
       .command('pub')
       .description('Publish a message to a topic.')
-      .requiredOption('-t, --topic <TOPIC>', 'the message topic', parsePubTopic)
+      .option('-t, --topic <TOPIC>', 'the message topic', parsePubTopic)
       .option('-m, --message <BODY>', 'the message body', 'Hello From MQTT X CLI')
       .option('-q, --qos <0/1/2>', 'the QoS of the message', parseNumber, 0)
       .option('-r, --retain', 'send a retained message')
@@ -172,12 +177,17 @@ export class Commander {
         'the user properties of will message',
         parseUserProperties,
       )
+      .option(
+        '--save [PATH]',
+        'save the configuration to the configuration file, default to current directory & filename is mqttx-cli-config.json',
+      )
+      .option('--config [PATH]', 'load the configuration from the configuration file, default to current directory')
       .action(pub)
 
     this.program
       .command('sub')
       .description('Subscribes to one or more topics.')
-      .requiredOption('-t, --topic <TOPIC...>', 'the message topic')
+      .option('-t, --topic <TOPIC...>', 'the message topic')
       .option('-q, --qos <0/1/2...>', 'the QoS of the message', parseQoS)
       // properties options of MQTT 5.0
       .option('-nl, --no_local [FLAG...]', 'the no local MQTT 5.0 flag', parseVariadicOfBooleanType)
@@ -245,6 +255,11 @@ export class Commander {
         'the user properties of will message',
         parseUserProperties,
       )
+      .option(
+        '--save [PATH]',
+        'save the configuration to the configuration file, default to current directory & filename is mqttx-cli-config.json',
+      )
+      .option('--config [PATH]', 'load the configuration from the configuration file, default to current directory')
       .action(sub)
 
     const benchCmd = this.program.command('bench').description('MQTT Benchmark in performance testing.')
@@ -303,6 +318,11 @@ export class Commander {
         'the user properties of will message',
         parseUserProperties,
       )
+      .option(
+        '--save [PATH]',
+        'save the configuration to the configuration file, default to current directory & filename is mqttx-cli-config.json',
+      )
+      .option('--config [PATH]', 'load the configuration from the configuration file, default to current directory')
       .action(benchConn)
 
     benchCmd
@@ -311,7 +331,7 @@ export class Commander {
       .option('-c, --count <NUMBER>', 'the number of connections', parseNumber, 1000)
       .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
       .option('-im, --message-interval <MILLISECONDS>', 'interval of publishing messages', parseNumber, 1000)
-      .requiredOption(
+      .option(
         '-t, --topic <TOPIC>',
         'the message topic, support %u (username), %c (client id), %i (index) variables',
         parsePubTopic,
@@ -391,6 +411,11 @@ export class Commander {
         'the user properties of will message',
         parseUserProperties,
       )
+      .option(
+        '--save [PATH]',
+        'save the configuration to the configuration file, default to current directory & filename is mqttx-cli-config.json',
+      )
+      .option('--config [PATH]', 'load the configuration from the configuration file, default to current directory')
       .action(benchPub)
 
     benchCmd
@@ -398,7 +423,7 @@ export class Commander {
       .description('Create a custom number of connections then subscribe to one or multiple topics.')
       .option('-c, --count <NUMBER>', 'the number of connections', parseNumber, 1000)
       .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
-      .requiredOption(
+      .option(
         '-t, --topic <TOPIC...>',
         'the message topic, support %u (username), %c (client id), %i (index) variables',
       )
@@ -468,6 +493,11 @@ export class Commander {
         'the user properties of will message',
         parseUserProperties,
       )
+      .option(
+        '--save [PATH]',
+        'save the configuration to the configuration file, default to current directory & filename is mqttx-cli-config.json',
+      )
+      .option('--config [PATH]', 'load the configuration from the configuration file, default to current directory')
       .action(benchSub)
   }
 }

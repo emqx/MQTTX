@@ -3,8 +3,15 @@ import { Signale, signale, msgLog, basicLog, benchLog } from '../utils/signale'
 import { parseConnectOptions, parseSubscribeOptions } from '../utils/parse'
 import delay from '../utils/delay'
 import convertPayload from '../utils/convertPayload'
+import { saveConfig, loadConfig } from '../utils/config'
 
 const sub = (options: SubscribeOptions) => {
+  const { save, config } = options
+
+  config && (options = loadConfig('sub', config!))
+
+  save && saveConfig('sub', options)
+
   const connOpts = parseConnectOptions(options, 'sub')
 
   const client = mqtt.connect(connOpts)
@@ -86,6 +93,12 @@ const sub = (options: SubscribeOptions) => {
 }
 
 const benchSub = async (options: BenchSubscribeOptions) => {
+  const { save, config } = options
+
+  config && (options = loadConfig('benchSub', config!))
+
+  save && saveConfig('benchSub', options)
+
   const { count, interval, topic, clientId, verbose, maximunReconnectTimes } = options
 
   const connOpts = parseConnectOptions(options, 'sub')
