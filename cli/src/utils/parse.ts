@@ -64,6 +64,17 @@ const parseVariadicOfBooleanType = (value: string, previous: boolean[] | undefin
   }
 }
 
+const checkTopicExists = (topic: string | string[] | undefined, commandType: CommandType) => {
+  if (!topic) {
+    if (['pub', 'benchPub'].includes(commandType)) {
+      console.log("error: required option '-t, --topic <TOPIC>' not specified")
+    } else if (['sub', 'benchSub'].includes(commandType)) {
+      console.log("error: required option '-t, --topic <TOPIC...>' not specified")
+    }
+    process.exit(1)
+  }
+}
+
 const parsePubTopic = (value: string) => {
   if (value.includes('+') || value.includes('#')) {
     signale.error('You cannot publish the message to a Topic that contains wildcards characters #, +')
@@ -299,6 +310,7 @@ export {
   parseUserProperties,
   parseQoS,
   parseVariadicOfBooleanType,
+  checkTopicExists,
   parsePubTopic,
   parseFormat,
   parseConnectOptions,
