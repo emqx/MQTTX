@@ -7,7 +7,7 @@ import { saveConfig, loadConfig } from '../utils/config'
 const conn = (options: ConnectOptions) => {
   const { save, config } = options
 
-  config && (options = loadConfig('conn', config!))
+  config && (options = loadConfig('conn', config))
 
   save && saveConfig('conn', options)
 
@@ -50,7 +50,7 @@ const conn = (options: ConnectOptions) => {
 const benchConn = async (options: BenchConnectOptions) => {
   const { save, config } = options
 
-  config && (options = loadConfig('benchConn', config!))
+  config && (options = loadConfig('benchConn', config))
 
   save && saveConfig('benchConn', options)
 
