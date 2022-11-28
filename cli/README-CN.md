@@ -16,7 +16,7 @@
 
 ---
 
-[MQTT X CLI](https://mqttx.app/zh) 是一款开源的 MQTT 5.0 命令行客户端工具，也是命令行上的 MQTT X，旨在帮助开发者在不需要使用图形化界面的基础上，也能更快的开发和调试 MQTT 服务与应用。
+[MQTT X CLI](https://mqttx.app/zh/cli) 是一款开源的 MQTT 5.0 命令行客户端工具，也是命令行上的 MQTT X，旨在帮助开发者在不需要使用图形化界面的基础上，也能更快的开发和调试 MQTT 服务与应用。
 
 > [MQTT](http://mqtt.org/faq) 全称为 Message Queuing Telemetry Transport（消息队列遥测传输）是一种基于 发布/订阅 范式的“轻量级”消息协议，旨在用于受限设备和低带宽，高延迟或不可靠的网络，由 IBM 发布。
 
@@ -195,6 +195,8 @@ mqttx conn --help
 | --topic-alias-maximum <NUMBER>                   | 主题别名的最大值                                               |
 | --req-response-info                              | 客户端要求服务器提供的响应信息                                 |
 | --no-req-problem-info                            | 客户端向服务器请求问题信息                                     |
+| --save \[PATH\]                                  | 将参数保存到本地配置文件中，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json |
+| --config \[PATH\]                                | 从本地配置文件加载参数，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json |
 | --help                                           | 展示 conn 命令的帮助信息                                       |
 
 #### 订阅
@@ -247,6 +249,8 @@ mqttx sub --help
 | --req-response-info                              | 客户端要求服务器提供的响应信息                          |
 | --no-req-problem-info                            | 客户端向服务器请求问题信息                              |
 | -Cup, --conn-user-properties <USERPROPERTIES...> | MQTT 5.0 的连接用户属性（例如，-Cup "name: mqttx cli"） |
+| --save \[PATH\]                                  | 将参数保存到本地配置文件中，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json |
+| --config \[PATH\]                                | 从本地配置文件加载参数，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json |
 | --help                                           | 展示 sub 命令的帮助信息                                 |
 
 #### 发布
@@ -302,6 +306,8 @@ mqttx pub --help
 | --req-response-info                              | 客户端要求服务器提供的响应信息                               |
 | --no-req-problem-info                            | 客户端向服务器请求问题信息                                   |
 | -Cup, --conn-user-properties <USERPROPERTIES...> | MQTT 5.0 的连接用户属性（例如，-Cup "name: mqttx cli"）      |
+| --save \[PATH\]                                  | 将参数保存到本地配置文件中，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json |
+| --config \[PATH\]                                | 从本地配置文件加载参数，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json |
 | --help                                           | 展示 pub 命令的帮助信息                                      |
 
 ### 性能测试
