@@ -47,22 +47,34 @@ export default class KeyValueEditor extends Vue {
   @Prop({ required: false, default: '' }) private title!: string
   @Prop({ required: false, default: '100%' }) private maxHeight!: string
   @Prop({ required: false, default: false }) private disabled!: boolean
-  @Model('change', { type: Object }) private readonly value!: { [key: string]: string } | null
+  @Model('change', { type: Object }) private readonly value!: ClientPropertiesModel['userProperties'] | null
 
   private dataList: KeyValueObj[] = []
 
   @Watch('value')
-  private handleValueChanged(val: Record<string, any>) {
-    this.processObjToArry()
+  private handleValueChanged(
+    val: ClientPropertiesModel['userProperties'],
+    oldVal: ClientPropertiesModel['userProperties'],
+  ) {
+    if (oldVal === undefined && val) {
+      this.processObjToArry()
+    }
   }
 
   private handleInputChange() {
     const checkedList = this.dataList.filter((pair) => pair.checked)
-    const objData: {
-      [key: string]: string
-    } = {}
+    const objData: ClientPropertiesModel['userProperties'] = {}
     checkedList.forEach(({ key, value }) => {
-      if (key !== '') {
+      if (key === '') return
+      const objValue = objData[key]
+      if (objValue) {
+        const _value = value as string
+        if (Array.isArray(objValue)) {
+          objData[key] = [...objValue, _value]
+        } else {
+          objData[key] = [objValue, _value]
+        }
+      } else {
         objData[key] = value
       }
     })
@@ -91,11 +103,14 @@ export default class KeyValueEditor extends Vue {
       this.dataList = [{ key: '', value: '', checked: true }]
       return
     }
-    this.dataList = Object.entries(this.value).map(([key, value]) => {
-      return {
-        key,
-        value,
-        checked: true,
+    this.dataList = []
+    Object.entries(this.value).forEach(([key, value]) => {
+      if (typeof value === 'string') {
+        this.dataList.push({ key, value, checked: true })
+      } else {
+        value.forEach((item) => {
+          this.dataList.push({ key, value: item, checked: true })
+        })
       }
     })
   }

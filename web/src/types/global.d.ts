@@ -215,7 +215,7 @@ declare global {
     topicAlias?: number | null
     responseTopic?: string | null
     correlationData?: string | Buffer | null
-    userProperties?: Object | null
+    userProperties?: { [key: string]: string | string[] } | null
     subscriptionIdentifier?: number | null
     contentType?: string | null
   }
@@ -228,7 +228,7 @@ declare global {
     topicAliasMaximum?: number | null
     requestResponseInformation?: boolean | null
     requestProblemInformation?: boolean | null
-    userProperties?: Object | null
+    userProperties?: { [key: string]: string | string[] } | null
     authenticationMethod?: string | null
     authenticationData?: Buffer | null
   }
@@ -241,7 +241,7 @@ declare global {
     contentType?: string | null
     responseTopic?: string | null
     correlationData?: string | Buffer | null
-    userProperties?: Object | null
+    userProperties?: { [key: string]: string | string[] } | null
   }
 
   interface SSLPath {
