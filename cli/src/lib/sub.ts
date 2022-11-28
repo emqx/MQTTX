@@ -22,7 +22,7 @@ const sub = (options: SubscribeOptions) => {
 
   let retryTimes = 0
 
-  basicLog.connecting()
+  basicLog.connecting(config, connOpts.hostname!, connOpts.port, options.topic.join(', '))
 
   client.on('connect', () => {
     basicLog.connected()
@@ -101,9 +101,9 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
   save && saveConfig('benchSub', options)
 
-  checkTopicExists(options.topic, 'benchSub')
+  const { count, interval, topic, hostname, port, clientId, verbose, maximunReconnectTimes } = options
 
-  const { count, interval, topic, clientId, verbose, maximunReconnectTimes } = options
+  checkTopicExists(topic, 'benchSub')
 
   const connOpts = parseConnectOptions(options, 'sub')
 
@@ -118,9 +118,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
   const interactive = new Signale({ interactive: true })
   const simpleInteractive = new Signale({ interactive: true, config: { displayLabel: false, displayTimestamp: true } })
 
-  signale.info(
-    `Start the subscribe benchmarking, connections: ${count}, req interval: ${interval}ms, topic: ${topic.join(',')}`,
-  )
+  benchLog.start.sub(config, count, interval, hostname, port, topic.join(', '))
 
   const connStart = Date.now()
 
@@ -170,7 +168,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
                 }
               })
 
-              if (i === count) {
+              if (i === count && topic[topic.length - 1] === t) {
                 const connEnd = Date.now()
 
                 signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
@@ -179,10 +177,8 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
                 if (!verbose) {
                   setInterval(() => {
-                    if (total > oldTotal) {
-                      const rate = total - oldTotal
-                      simpleInteractive.info(`Received total: ${total}, rate: ${rate}/s`)
-                    }
+                    const rate = total - oldTotal
+                    simpleInteractive.info(`Received total: ${total}, rate: ${rate}/s`)
                     oldTotal = total
                   }, 1000)
                 } else {

@@ -19,7 +19,7 @@ const conn = (options: ConnectOptions) => {
 
   let retryTimes = 0
 
-  basicLog.connecting()
+  basicLog.connecting(config, connOpts.hostname!, connOpts.port)
 
   client.on('connect', () => {
     basicLog.connected()
@@ -54,7 +54,7 @@ const benchConn = async (options: BenchConnectOptions) => {
 
   save && saveConfig('benchConn', options)
 
-  const { count, interval, clientId, maximunReconnectTimes } = options
+  const { count, interval, hostname, port, clientId, maximunReconnectTimes } = options
 
   const connOpts = parseConnectOptions(options, 'conn')
 
@@ -66,7 +66,7 @@ const benchConn = async (options: BenchConnectOptions) => {
 
   const interactive = new Signale({ interactive: true })
 
-  signale.info(`Start the connect benchmarking, connections: ${count}, req interval: ${interval}ms`)
+  benchLog.start.conn(config, count, interval, hostname, port)
 
   const start = Date.now()
 
