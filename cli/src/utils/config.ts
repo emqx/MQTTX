@@ -62,6 +62,14 @@ const removeUselessOptions = (
   return rest
 }
 
+const validateConfig = (commandType: CommandType, filePath: string, config: Config) => {
+  const data = config[commandType]
+  if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
+    signale.error(`No configuration for ${commandType} found in ${filePath}`)
+    process.exit(1)
+  }
+}
+
 const saveConfig = (
   commandType: CommandType,
   opts:
@@ -99,6 +107,7 @@ function loadConfig(commandType: CommandType, savePath: boolean | string) {
     const filePath = processPath(savePath)
     if (fileExists(filePath)) {
       const config = readFile(filePath)
+      validateConfig(commandType, filePath, config)
       return config[commandType]
     } else {
       signale.error(`Configuration file ${filePath} not found`)
