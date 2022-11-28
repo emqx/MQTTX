@@ -10,11 +10,12 @@ import delay from '../utils/delay'
 import { saveConfig, loadConfig } from '../utils/config'
 
 const send = (
+  config: boolean | string | undefined,
   connOpts: IClientOptions,
   pubOpts: { topic: string; message: string | Buffer; opts: IClientPublishOptions },
 ) => {
   const client = mqtt.connect(connOpts)
-  basicLog.connecting()
+  basicLog.connecting(config, connOpts.hostname!, connOpts.port, pubOpts.topic, pubOpts.message.toString())
   client.on('connect', () => {
     basicLog.connected()
     const { topic, message } = pubOpts
@@ -35,6 +36,7 @@ const send = (
 }
 
 const multisend = (
+  config: boolean | string | undefined,
   connOpts: IClientOptions,
   pubOpts: { topic: string; message: string | Buffer; opts: IClientPublishOptions },
   maximunReconnectTimes: number,
@@ -42,7 +44,7 @@ const multisend = (
   let isNewConnection = true
   let retryTimes = 0
   const client = mqtt.connect(connOpts)
-  basicLog.connecting()
+  basicLog.connecting(config, connOpts.hostname!, connOpts.port, pubOpts.topic)
   const sender = new Writable({
     objectMode: true,
   })
@@ -104,17 +106,17 @@ const pub = (options: PublishOptions) => {
 
   if (options.stdin) {
     if (options.multiline) {
-      multisend(connOpts, pubOpts, options.maximunReconnectTimes)
+      multisend(config, connOpts, pubOpts, options.maximunReconnectTimes)
     } else {
       process.stdin.pipe(
         concat((data) => {
           pubOpts.message = data
-          send(connOpts, pubOpts)
+          send(config, connOpts, pubOpts)
         }),
       )
     }
   } else {
-    send(connOpts, pubOpts)
+    send(config, connOpts, pubOpts)
   }
 }
 
@@ -125,9 +127,9 @@ const benchPub = async (options: BenchPublishOptions) => {
 
   save && saveConfig('benchPub', options)
 
-  checkTopicExists(options.topic, 'benchPub')
+  const { count, interval, messageInterval, hostname, port, topic, clientId, verbose, maximunReconnectTimes } = options
 
-  const { count, interval, messageInterval, clientId, verbose, maximunReconnectTimes } = options
+  checkTopicExists(topic, 'benchPub')
 
   const connOpts = parseConnectOptions(options, 'pub')
 
@@ -135,7 +137,7 @@ const benchPub = async (options: BenchPublishOptions) => {
 
   const { username } = connOpts
 
-  const { topic, message } = pubOpts
+  const { message } = pubOpts
 
   let connectedCount = 0
 
@@ -146,9 +148,7 @@ const benchPub = async (options: BenchPublishOptions) => {
   const interactive = new Signale({ interactive: true })
   const simpleInteractive = new Signale({ interactive: true, config: { displayLabel: false, displayTimestamp: true } })
 
-  signale.info(
-    `Start the publish benchmarking, connections: ${count}, req interval: ${interval}ms, message interval: ${messageInterval}ms`,
-  )
+  benchLog.start.pub(config, count, interval, messageInterval, hostname, port, topic, message.toString())
 
   const connStart = Date.now()
 

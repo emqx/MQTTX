@@ -24,7 +24,17 @@ const msgLog = (msg: Record<string, unknown>[]) => {
 }
 
 const basicLog = {
-  connecting: () => signale.await('Connecting...'),
+  connecting: (config: boolean | string | undefined, host: string, port = 1883, topic?: string, message?: string) => {
+    if (!config) {
+      signale.await('Connecting...')
+    } else {
+      signale.await(
+        `Connecting using configuration file, host: ${host}, port: ${port}${topic ? `, topic: ${topic}` : ''}${
+          message ? `, message: ${message}` : ''
+        }`,
+      )
+    }
+  },
   connected: () => signale.success('Connected'),
   subscribing: (t: string) => signale.await(`Subscribing to ${t}...`),
   subscribed: (t: string) => signale.success(`Subscribed to ${t}`),
@@ -40,6 +50,55 @@ const basicLog = {
 }
 
 const benchLog = {
+  start: {
+    conn: (config: boolean | string | undefined, count: number, interval: number, host: string, port = 1883) => {
+      if (!config) {
+        signale.info(`Start the connect benchmarking, connections: ${count}, req interval: ${interval}ms`)
+      } else {
+        signale.info(
+          `Start the connect benchmarking, connections: ${count}, req interval: ${interval}ms, host: ${host}, port: ${port}`,
+        )
+      }
+    },
+    sub: (
+      config: boolean | string | undefined,
+      count: number,
+      interval: number,
+      host: string,
+      port = 1883,
+      topic: string,
+    ) => {
+      if (!config) {
+        signale.info(
+          `Start the subscribe benchmarking, connections: ${count}, req interval: ${interval}ms, topic: ${topic}`,
+        )
+      } else {
+        signale.info(
+          `Start the subscribe benchmarking, connections: ${count}, req interval: ${interval}ms, host: ${host}, port: ${port}, topic: ${topic}`,
+        )
+      }
+    },
+    pub: (
+      config: boolean | string | undefined,
+      count: number,
+      interval: number,
+      messageInterval: number,
+      host: string,
+      port = 1883,
+      topic: string,
+      message: string,
+    ) => {
+      if (!config) {
+        signale.info(
+          `Start the publish benchmarking, connections: ${count}, req interval: ${interval}ms, message interval: ${messageInterval}ms`,
+        )
+      } else {
+        signale.info(
+          `Start the publish benchmarking, connections: ${count}, req interval: ${interval}ms, message interval: ${messageInterval}ms, host: ${host}, port: ${port}, topic: ${topic}, message: ${message}`,
+        )
+      }
+    },
+  },
   error: (count: number, total: number, id: string, err: Error) => {
     signale.error(`[${count}/${total}] - Client ID: ${id}, ${err}`)
   },
