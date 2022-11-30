@@ -32,7 +32,7 @@ declare global {
     topicAliasMaximum?: number
     reqResponseInfo?: boolean
     reqProblemInfo?: boolean
-    userProperties?: Record<string, string>
+    userProperties?: Record<string, string | string[]>
     // will message
     willTopic?: string
     willMessage?: string
@@ -45,7 +45,7 @@ declare global {
     willContentType?: string
     willResponseTopic?: string
     willCorrelationData?: string
-    willUserProperties?: Record<string, string>
+    willUserProperties?: Record<string, string | string[]>
     save?: boolean | string
     config?: boolean | string
   }
@@ -66,7 +66,7 @@ declare global {
     correlationData?: string
     subscriptionIdentifier?: number
     contentType?: string
-    connUserProperties?: Record<string, string>
+    connUserProperties?: Record<string, string | string[]>
   }
 
   interface SubscribeOptions extends ConnectOptions {
@@ -79,7 +79,7 @@ declare global {
     subscriptionIdentifier?: number[]
     format?: FormatType
     verbose: boolean
-    connUserProperties?: Record<string, string>
+    connUserProperties?: Record<string, string | string[]>
   }
 
   interface BenchConnectOptions extends ConnectOptions {
