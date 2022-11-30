@@ -67,8 +67,19 @@ const sub = (options: SubscribeOptions) => {
 
     packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 
-    packet.properties?.userProperties &&
-      msgData.push({ label: 'user properties', value: { ...packet.properties.userProperties } })
+    if (packet.properties?.userProperties) {
+      const up: { key: string; value: string }[] = []
+      Object.entries(packet.properties.userProperties).forEach(([key, value]) => {
+        if (typeof value === 'string') {
+          up.push({ key, value })
+        } else {
+          value.forEach((v) => {
+            up.push({ key, value: v })
+          })
+        }
+      })
+      msgData.push({ label: 'userProperties', value: up })
+    }
 
     msgLog(msgData)
   })
