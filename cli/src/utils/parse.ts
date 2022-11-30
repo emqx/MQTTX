@@ -34,10 +34,23 @@ const parseMQTTVersion = (value: string) => {
   return dict[value as '3.1' | '3.1.1' | '5']
 }
 
-const parseUserProperties = (value: string, previous: Record<string, unknown> | undefined) => {
+const parseUserProperties = (value: string, previous?: Record<string, string | string[]>) => {
   const [key, val] = value.split(': ')
   if (key && val) {
-    return previous ? { ...previous, [key]: val } : { [key]: val }
+    if (!previous) {
+      return { [key]: val }
+    } else {
+      if (previous[key]) {
+        if (Array.isArray(previous[key])) {
+          ;(previous[key] as string[]).push(val)
+        } else {
+          previous[key] = [previous[key] as string, val]
+        }
+        return previous
+      } else {
+        return { ...previous, [key]: val }
+      }
+    }
   } else {
     signale.error('Not a valid user properties.')
     process.exit(1)
