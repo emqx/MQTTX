@@ -10,7 +10,10 @@
   ],
   "scripts": {
     "dev": "tsc -w",
-    "build": "tsc"
+    "build": "tsc",
+    "lint": "eslint --ext .ts src",
+    "lint:fix": "eslint --fix --ext .ts src",
+    "format": "prettier --write \"src/**/*.ts\""
   },
   "main": "./dist/src/index.js",
   "bin": {
@@ -39,6 +42,12 @@
     "@types/signale": "^1.4.4",
     "@types/split2": "^3.2.1",
     "@types/ws": "^8.5.3",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "@typescript-eslint/parser": "^5.45.0",
+    "eslint": "^8.28.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.8.0",
     "typescript": "^4.7.3"
   },
   "pkg": {
