@@ -266,6 +266,7 @@ mqttx pub --help
 | -p, --port <PORT>                                | MQTT Broker 的端口号                                         |
 | -i, --client-id <ID>                             | 客户端 ID                                                    |
 | -q, --qos <0/1/2>                                | 消息的 QoS，默认为 0                                         |
+| --no-clean                                       | 取消 clean session 标志位，默认为 true                         |
 | -t, --topic <TOPIC>                              | 需要发布的 Topic                                             |
 | -m, --message<MSG>                               | 需要发布的 Payload 消息                                      |
 | -r, --retain                                     | 设置发送消息为 Retain 消息，默认为 fasle                     |
