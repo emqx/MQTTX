@@ -265,6 +265,7 @@ mqttx pub --help
 | -p, --port <PORT>                                | the broker port                                                                                                                    |
 | -i, --client-id <ID>                             | the client id                                                                                                                      |
 | -q, --qos <0/1/2>                                | the QoS of the message (default: 0)                                                                                                |
+| --no-clean                                       | set the clean session flag to false (default: true)                                                                                |
 | -t, --topic <TOPIC>                              | the message topic                                                                                                                  |
 | -m, --message<MSG>                               | the message body (default: "Hello From MQTT X CLI")                                                                                |
 | -r, --retain                                     | send a retained message (default: false)                                                                                           |
