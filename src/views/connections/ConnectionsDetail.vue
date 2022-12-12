@@ -1113,9 +1113,35 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
+  // Print message log
+  private printMessageLog(id: string, message: MessageModel) {
+    const { topic, retain } = message
+    if (id === this.curConnectionId) {
+      const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+      const isFromActiveTopic = this.msgType !== 'publish' && this.activeTopic && isActiveTopicMessages
+      const isFromNotActiveTopic = this.msgType !== 'publish' && !this.activeTopic
+      if (isFromActiveTopic || isFromNotActiveTopic) {
+        this.$log.info(`Message Arrived with topic: ${topic}`)
+        let receivedLog = `${this.record.name} message arrived: message added "${
+          message.id
+        }" and added to topic: "${topic}", payload: ${JSON.stringify(message.payload)} MQTT.js onMessageArrived trigger`
+        if (this.record.mqttVersion === '5.0') {
+          const logProperties = JSON.stringify(message.properties)
+          receivedLog += ` with Properties: ${logProperties}`
+        }
+        if (retain) {
+          receivedLog += `, Retain Message`
+        }
+        this.$log.info(receivedLog)
+      }
+    } else {
+      this.$log.info(`ID: ${id} received an unread message`)
+    }
+  }
+
   // Render message
   private renderMessage(id: string, receivedMessage: MessageModel) {
-    const { topic, retain } = receivedMessage
+    const { topic } = receivedMessage
     if (id === this.curConnectionId) {
       this.record.messages.push({ ...receivedMessage })
       // Filter by conditions (topic, payload, etc)
@@ -1127,26 +1153,11 @@ export default class ConnectionsDetail extends Vue {
       const isFromActiveTopic = this.msgType !== 'publish' && this.activeTopic && isActiveTopicMessages
       const isFromNotActiveTopic = this.msgType !== 'publish' && !this.activeTopic
       if (isFromActiveTopic || isFromNotActiveTopic) {
-        this.$log.info(`Message Arrived with topic: ${topic}`)
         this.messages.push(receivedMessage)
         this.messagesAddedNewItem = true
-        let receivedLog = `${this.record.name} message arrived: message added "${
-          receivedMessage.id
-        }" and added to topic: "${topic}", payload: ${JSON.stringify(
-          receivedMessage.payload,
-        )} MQTT.js onMessageArrived trigger`
-        if (this.record.mqttVersion === '5.0') {
-          const logProperties = JSON.stringify(receivedMessage.properties)
-          receivedLog += ` with Properties: ${logProperties}`
-        }
-        if (retain) {
-          receivedLog += `, Retain Message`
-        }
-        this.$log.info(receivedLog)
       }
     } else {
       this.unreadMessageIncrement({ id })
-      this.$log.info(`ID: ${id} received an unread message`)
     }
   }
 
@@ -1177,6 +1188,11 @@ export default class ConnectionsDetail extends Vue {
     const nonSYSMessageSubject$ = processMessageSubject$.pipe(
       filter((m: MessageModel) => !(this.showBytes && id === this.curConnectionId && m.topic.includes('$SYS'))),
     )
+
+    // Print message log
+    nonSYSMessageSubject$.subscribe((message: MessageModel) => {
+      this.printMessageLog(id, message)
+    })
 
     // Render messages
     nonSYSMessageSubject$.pipe(bufferTime(200)).subscribe((messages: MessageModel[]) => {
