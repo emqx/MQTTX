@@ -77,12 +77,16 @@ export default class MessageService {
     } as MessageModel['properties']
   }
 
-  public async pushToConnection(message: MessageModel, connectionId: string): Promise<MessageModel | undefined> {
-    const query: MessageEntity | undefined = await this.messageRepository.findOne(message.id)
-    if (!query) {
+  public async pushToConnection(
+    message: MessageModel | MessageModel[],
+    connectionId: string,
+  ): Promise<MessageModel | MessageModel[] | undefined> {
+    if (!Array.isArray(message)) {
       return await this.messageRepository.save(MessageService.modelToEntity({ ...message }, connectionId))
+    } else {
+      const res = message.map((m) => MessageService.modelToEntity(m, connectionId))
+      return await this.messageRepository.save(res)
     }
-    return await this.messageRepository.save(MessageService.modelToEntity({ ...query, ...message }, connectionId))
   }
 
   public async delete(id: string): Promise<MessageModel | undefined> {
