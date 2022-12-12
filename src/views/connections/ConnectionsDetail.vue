@@ -282,8 +282,8 @@ import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
 import { MqttClient, IConnackPacket, IPublishPacket, IClientPublishOptions } from 'mqtt'
 import _ from 'lodash'
-import { Subject } from 'rxjs'
-import { throttleTime } from 'rxjs/operators'
+import { Subject, fromEvent } from 'rxjs'
+import { throttleTime, bufferTime, map, filter, takeUntil } from 'rxjs/operators'
 
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
@@ -433,7 +433,6 @@ export default class ConnectionsDetail extends Vue {
   }
   private version = ''
   private uptime = ''
-  private bytesTimes = 0
   private messagesAddedNewItem: boolean = false
   private scrollSubject = new Subject()
 
@@ -532,8 +531,7 @@ export default class ConnectionsDetail extends Vue {
         this.client.on('connect', this.onConnect)
         this.client.on('error', this.onError)
         this.client.on('reconnect', this.onReConnect)
-        this.client.on('close', this.onClose)
-        this.client.on('message', this.onMessageArrived(id))
+        this.onMessageArrived(this.client as MqttClient, id)
       }
 
       const protocolLogMap: ProtocolMap = {
@@ -1023,7 +1021,7 @@ export default class ConnectionsDetail extends Vue {
 
   // Scroll to page bottom
   private scrollToBottomThrottle = () => {
-    this.scrollSubject.next()
+    !this.scrollSubject.closed && this.scrollSubject.next()
   }
 
   private scrollToBottom() {
@@ -1032,7 +1030,7 @@ export default class ConnectionsDetail extends Vue {
     }
     const timer = setTimeout(() => {
       const messagesDisplay = this.$refs.messagesDisplay as MessageList
-      const messagesDisplayDOM = messagesDisplay.$el
+      const messagesDisplayDOM = messagesDisplay?.$el
       if (messagesDisplayDOM) {
         messagesDisplayDOM.scrollTo({
           top: messagesDisplayDOM.scrollHeight + 160,
@@ -1062,85 +1060,143 @@ export default class ConnectionsDetail extends Vue {
     this.$log.info(`${this.record.name} remove script successed`)
   }
 
-  // Recevied message
-  private onMessageArrived(id: string) {
-    return async (topic: string, payload: Buffer, packet: IPublishPacket) => {
-      const { qos, retain, properties } = packet
-      const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'received') as string
-      const receviedPayload = this.convertPayloadByScript(convertPayload, 'received')
-      const receivedMessage: MessageModel = {
-        id: getMessageId(),
-        out: false,
-        createAt: time.getNowDate(),
-        topic,
-        payload: receviedPayload,
-        qos,
-        retain,
-        properties,
+  // Processing message
+  private processMessage(topic: string, payload: Buffer, packet: IPublishPacket) {
+    const { qos, retain, properties } = packet
+    const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'received') as string
+    const receviedPayload = this.convertPayloadByScript(convertPayload, 'received')
+    const receivedMessage: MessageModel = {
+      id: getMessageId(),
+      out: false,
+      createAt: time.getNowDate(),
+      topic,
+      payload: receviedPayload,
+      qos,
+      retain,
+      properties,
+    }
+    return receivedMessage
+  }
+
+  // Bytes Statistics
+  private bytesStatistics(messages: MessageModel[]) {
+    if (messages.length) {
+      let bytesTimes = 0
+      let _chartData: ChartDataModel = this.chartData
+      let _version = this.version
+      let _uptime = this.uptime
+      messages.forEach((msg: MessageModel) => {
+        const data = getBytes(msg)
+        const version = getVersion(msg)
+        const uptime = getUptime(msg)
+        data && ((_chartData = data), (bytesTimes += 1))
+        version && (_version = version)
+        uptime && (_uptime = uptime)
+      })
+      this.chartData = _chartData
+      this.version = _version
+      this.uptime = _uptime
+      if (this.chartData && bytesTimes) {
+        const bytesStatistics = this.$refs.bytesStatistics as BytesStatistics
+        this.$nextTick(() => {
+          bytesStatistics.updateChart()
+        })
       }
-      if (topic.indexOf('$SYS') !== -1 && this.showBytes && id === this.curConnectionId) {
-        const _chartData = getBytes(receivedMessage)
-        if (_chartData) {
-          this.chartData = _chartData
-          this.bytesTimes += 1
-          if (this.bytesTimes === 2) {
-            const bytesStatistics = this.$refs.bytesStatistics as BytesStatistics
-            this.$nextTick(() => {
-              bytesStatistics.updateChart()
-              this.bytesTimes = 0
-            })
-          }
-        }
-        const _version = getVersion(receivedMessage)
-        if (_version) {
-          this.version = _version
-        }
-        const _uptime = getUptime(receivedMessage)
-        if (_uptime) {
-          this.uptime = _uptime
-        }
-        return
-      }
-      // Fixme: The retain message is not displayed when the connection is closed
-      setTimeout(async () => {
-        const { messageService } = useServices()
-        await messageService.pushToConnection({ ...receivedMessage }, id)
-      }, 500)
-      if (id === this.curConnectionId) {
-        this.record.messages.push({ ...receivedMessage })
-        // Filter by conditions (topic, payload, etc)
-        const filterRes = this.filterBySearchConditions(topic, receivedMessage)
-        if (filterRes) {
-          return
-        }
-        const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
-        const isFromActiveTopic = this.msgType !== 'publish' && this.activeTopic && isActiveTopicMessages
-        const isFromNotActiveTopic = this.msgType !== 'publish' && !this.activeTopic
-        if (isFromActiveTopic || isFromNotActiveTopic) {
-          this.$log.info(`Message Arrived with topic: ${topic}`)
-          this.messages.push(receivedMessage)
-          this.messagesAddedNewItem = true
-          let receivedLog = `${this.record.name} message arrived: message added "${
-            receivedMessage.id
-          }" and added to topic: "${topic}", payload: ${JSON.stringify(
-            receivedMessage.payload,
-          )} MQTT.js onMessageArrived trigger`
-          if (this.record.mqttVersion === '5.0') {
-            const logProperties = JSON.stringify(receivedMessage.properties)
-            receivedLog += ` with Properties: ${logProperties}`
-          }
-          if (retain) {
-            receivedLog += `, Retain Message`
-          }
-          this.$log.info(receivedLog)
-        }
-      } else {
-        this.unreadMessageIncrement({ id })
-        this.$log.info(`ID: ${id} received an unread message`)
-      }
-      this.scrollToBottomThrottle()
     }
   }
+
+  // Save message
+  private async saveMessage(id: string, messages: MessageModel[]) {
+    if (messages.length) {
+      const { messageService } = useServices()
+      await messageService.pushToConnection(messages, id)
+    }
+  }
+
+  // Render message
+  private renderMessage(id: string, receivedMessage: MessageModel) {
+    const { topic, retain } = receivedMessage
+    if (id === this.curConnectionId) {
+      this.record.messages.push({ ...receivedMessage })
+      // Filter by conditions (topic, payload, etc)
+      const filterRes = this.filterBySearchConditions(topic, receivedMessage)
+      if (filterRes) {
+        return
+      }
+      const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+      const isFromActiveTopic = this.msgType !== 'publish' && this.activeTopic && isActiveTopicMessages
+      const isFromNotActiveTopic = this.msgType !== 'publish' && !this.activeTopic
+      if (isFromActiveTopic || isFromNotActiveTopic) {
+        this.$log.info(`Message Arrived with topic: ${topic}`)
+        this.messages.push(receivedMessage)
+        this.messagesAddedNewItem = true
+        let receivedLog = `${this.record.name} message arrived: message added "${
+          receivedMessage.id
+        }" and added to topic: "${topic}", payload: ${JSON.stringify(
+          receivedMessage.payload,
+        )} MQTT.js onMessageArrived trigger`
+        if (this.record.mqttVersion === '5.0') {
+          const logProperties = JSON.stringify(receivedMessage.properties)
+          receivedLog += ` with Properties: ${logProperties}`
+        }
+        if (retain) {
+          receivedLog += `, Retain Message`
+        }
+        this.$log.info(receivedLog)
+      }
+    } else {
+      this.unreadMessageIncrement({ id })
+      this.$log.info(`ID: ${id} received an unread message`)
+    }
+  }
+
+  // Recevied message
+  private onMessageArrived(client: MqttClient, id: string) {
+    const unsubscribe$ = new Subject()
+
+    fromEvent(client, 'close').subscribe(() => {
+      unsubscribe$.next()
+      unsubscribe$.complete()
+      this.onClose()
+    })
+
+    const messageSubject$ = fromEvent(client, 'message').pipe(takeUntil(unsubscribe$))
+
+    const processMessageSubject$ = messageSubject$.pipe(
+      map(([topic, payload, packet]: [string, Buffer, IPublishPacket]) => {
+        return this.processMessage(topic, payload, packet)
+      }),
+    )
+
+    const SYSMessageSubject$ = processMessageSubject$.pipe(
+      filter((m: MessageModel) => this.showBytes && id === this.curConnectionId && m.topic.includes('$SYS')),
+    )
+
+    const nonSYSMessageSubject$ = processMessageSubject$.pipe(
+      filter((m: MessageModel) => !(this.showBytes && id === this.curConnectionId && m.topic.includes('$SYS'))),
+    )
+
+    // Render messages
+    nonSYSMessageSubject$.pipe(bufferTime(200)).subscribe((messages: MessageModel[]) => {
+      if (messages.length) {
+        messages.forEach((message: MessageModel) => {
+          this.renderMessage(id, message)
+        })
+        this.scrollToBottomThrottle()
+      }
+    })
+
+    // Save messages
+    nonSYSMessageSubject$.pipe(bufferTime(1000)).subscribe((messages: MessageModel[]) => {
+      this.saveMessage(id, messages)
+    })
+
+    // Bytes statistics
+    SYSMessageSubject$.pipe(bufferTime(1000)).subscribe((messages: MessageModel[]) => {
+      this.bytesStatistics(messages)
+    })
+  }
+
   // Set timed message success
   private setTimerSuccess(time: number) {
     this.sendFrequency = time
@@ -1441,9 +1497,8 @@ export default class ConnectionsDetail extends Vue {
         msgEventCount = client.listenerCount('message')
       }
       if (client.connected && client.on && msgEventCount === 0) {
-        client.on('message', this.onMessageArrived(connectionID))
+        this.onMessageArrived(client, connectionID)
       }
-
       this.changeActiveConnection({
         id: connectionID,
         client,
