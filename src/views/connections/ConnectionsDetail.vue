@@ -1154,11 +1154,13 @@ export default class ConnectionsDetail extends Vue {
   private onMessageArrived(client: MqttClient, id: string) {
     const unsubscribe$ = new Subject()
 
-    fromEvent(client, 'close').subscribe(() => {
-      unsubscribe$.next()
-      unsubscribe$.complete()
-      this.onClose()
-    })
+    if (client.listenerCount('close') <= 1) {
+      fromEvent(client, 'close').subscribe(() => {
+        unsubscribe$.next()
+        unsubscribe$.complete()
+        this.onClose()
+      })
+    }
 
     const messageSubject$ = fromEvent(client, 'message').pipe(takeUntil(unsubscribe$))
 
