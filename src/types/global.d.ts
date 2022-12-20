@@ -81,7 +81,6 @@ declare global {
   interface ActiveConnection {
     [id: string]: {
       client: MqttClient
-      messages: MessageModel[]
       subscriptions?: SubscriptionModel[]
     }
   }
@@ -127,7 +126,6 @@ declare global {
   interface Client {
     readonly id: string
     client: Partial<MqttClient>
-    messages: MessageModel[]
   }
 
   interface Message {

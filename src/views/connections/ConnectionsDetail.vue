@@ -777,7 +777,6 @@ export default class ConnectionsDetail extends Vue {
     this.changeActiveConnection({
       id: this.curConnectionId,
       client: this.client,
-      messages: [],
     })
     if (this.record.id) {
       const { messageService } = useServices()
@@ -912,7 +911,6 @@ export default class ConnectionsDetail extends Vue {
       this.changeActiveConnection({
         id: this.curConnectionId,
         client: this.client,
-        messages: this.record.messages,
       })
       this.$notify({
         title: this.$tc('connections.disconnected'),
@@ -936,7 +934,6 @@ export default class ConnectionsDetail extends Vue {
     this.changeActiveConnection({
       id: this.curConnectionId,
       client: this.client,
-      messages: this.record.messages,
     })
     this.$notify({
       title: this.$tc('connections.connected'),
@@ -1520,7 +1517,6 @@ export default class ConnectionsDetail extends Vue {
       this.changeActiveConnection({
         id: connectionID,
         client,
-        messages: this.messages,
       })
     })
   }
