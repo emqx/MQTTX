@@ -343,11 +343,11 @@ export default {
     hu: 'Felhasználói tulajdonságok',
   },
   topicReuired: {
-    zh: '请输入 Topic',
-    en: 'Topic is required',
-    tr: 'Konu gerekli',
-    ja: 'トピックを入力してください',
-    hu: 'Téma szükséges',
+    zh: '请输入 Topic，请注意下方提示',
+    en: 'Topic is required, please check the hint below',
+    tr: 'Konu gerekli, lütfen aşağıdaki ipucunu kontrol edin',
+    ja: 'トピックを入力してください。下のヒントを確認してください',
+    hu: 'Téma szükséges, kérjük ellenőrizze az alábbi tippet',
   },
   topicCannotContain: {
     zh: '不能向包含通配符 #、+ 的 Topic 发布消息',

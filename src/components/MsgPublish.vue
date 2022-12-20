@@ -123,36 +123,38 @@
           </el-badge>
         </el-tooltip>
       </div>
-      <el-input
-        class="publish-topic-input"
-        placeholder="Topic"
-        v-model="msgRecord.topic"
-        @focus="handleInputFoucs"
-        @blur="handleInputBlur"
-      >
-      </el-input>
-      <el-select
-        class="header-select"
-        popper-class="header-select--popper"
-        v-model="headerValue"
-        placeholder=""
-        size="mini"
-        @change="handleHeaderChange"
-      >
-        <el-option
-          class="header-option"
-          v-for="item in headersHistory"
-          :key="item.id"
-          :label="item.label"
-          :value="item"
+      <div :class="['topic-input-contianer', topicRequired ? 'required' : '']">
+        <el-input
+          class="publish-topic-input"
+          placeholder="Topic"
+          v-model="msgRecord.topic"
+          @focus="handleInputFoucs"
+          @blur="handleInputBlur"
         >
-          <span style="float: left; width: 160px; overflow: hidden; text-overflow: ellipsis">{{ item.topic }}</span>
-          <span style="color: #8492a6; font-size: 12px; margin-left: 4px">QoS:{{ item.qos }}</span>
-          <span style="float: right; color: #8492a6; font-size: 13px; margin-left: 4px">
-            retain:{{ item.retain ? '1' : '0' }}
-          </span>
-        </el-option>
-      </el-select>
+        </el-input>
+        <el-select
+          class="header-select"
+          popper-class="header-select--popper"
+          v-model="headerValue"
+          placeholder=""
+          size="mini"
+          @change="handleHeaderChange"
+        >
+          <el-option
+            class="header-option"
+            v-for="item in headersHistory"
+            :key="item.id"
+            :label="item.label"
+            :value="item"
+          >
+            <span style="float: left; width: 160px; overflow: hidden; text-overflow: ellipsis">{{ item.topic }}</span>
+            <span style="color: #8492a6; font-size: 12px; margin-left: 4px">QoS:{{ item.qos }}</span>
+            <span style="float: right; color: #8492a6; font-size: 13px; margin-left: 4px">
+              retain:{{ item.retain ? '1' : '0' }}
+            </span>
+          </el-option>
+        </el-select>
+      </div>
     </div>
     <div class="editor-container">
       <div
@@ -233,6 +235,7 @@ export default class MsgPublish extends Vue {
   @Prop({ required: true }) public subsVisible!: boolean
   @Prop({ default: false }) public disabled!: boolean
   @Prop({ default: false }) public mqtt5PropsEnable!: boolean
+  @Prop({ default: false }) public clientConnected!: boolean
 
   @Getter('currentTheme') private currentTheme!: Theme
 
@@ -243,6 +246,8 @@ export default class MsgPublish extends Vue {
   private showMetaCard: boolean = false
 
   private saveMetaLoading = false
+
+  private topicRequired = false
 
   private getHasMqtt5PropState() {
     return (
@@ -393,10 +398,44 @@ export default class MsgPublish extends Vue {
     this.msgRecord.id = getMessageId()
     this.msgRecord.createAt = time.getNowDate()
     this.mqtt5PropsEnable && (this.msgRecord.properties = this.MQTT5PropsSend)
+    if (!this.clientConnected) {
+      this.$notify({
+        title: this.$tc('connections.notConnect'),
+        message: '',
+        type: 'error',
+        duration: 3000,
+        offset: 30,
+      })
+      return
+    }
+    if (!this.msgRecord.topic && !this.msgRecord?.properties?.topicAlias) {
+      this.topicRequired = true
+      this.$notify({
+        title: this.$tc('connections.topicReuired'),
+        message: '',
+        type: 'warning',
+        duration: 3000,
+        offset: 30,
+      })
+      return
+    }
+    if (this.msgRecord.topic.includes('+') || this.msgRecord.topic.includes('#')) {
+      this.$notify({
+        title: this.$tc('connections.topicCannotContain'),
+        message: '',
+        type: 'warning',
+        duration: 3000,
+        offset: 30,
+      })
+      return
+    }
     this.$emit('handleSend', this.msgRecord, this.payloadType, this.loadHistoryData)
   }
 
   private handleInputFoucs() {
+    if (this.topicRequired) {
+      this.topicRequired = false
+    }
     ipcRenderer.on('sendPayload', () => {
       this.send()
     })
@@ -404,6 +443,9 @@ export default class MsgPublish extends Vue {
   }
 
   private handleInputBlur() {
+    if (this.topicRequired) {
+      this.topicRequired = false
+    }
     ipcRenderer.removeAllListeners('sendPayload')
   }
 
@@ -540,6 +582,13 @@ export default class MsgPublish extends Vue {
       }
     }
   }
+  .topic-input-contianer {
+    &.required {
+      .el-input__inner {
+        border-bottom: 1px solid var(--color-main-yellow) !important;
+      }
+    }
+  }
   .publish-topic-input.el-input {
     width: calc(100% - 20px);
     vertical-align: top;
@@ -555,9 +604,6 @@ export default class MsgPublish extends Vue {
     display: inline-block;
     .el-input {
       @include topic-input__inner;
-      &.is-focus {
-        @include topic-input__inner;
-      }
     }
   }
   .editor-container {

@@ -257,6 +257,7 @@
           :subs-visible="showSubs"
           :style="{ height: `${inputHeight}px` }"
           :disabled="sendTimeId !== null"
+          :clientConnected="client.connected"
           @foucs="scrollToBottom"
           @handleSend="sendMessage"
         />
@@ -1192,7 +1193,7 @@ export default class ConnectionsDetail extends Vue {
     })
 
     // Render messages
-    nonSYSMessageSubject$.pipe(bufferTime(200)).subscribe((messages: MessageModel[]) => {
+    nonSYSMessageSubject$.pipe(bufferTime(500)).subscribe((messages: MessageModel[]) => {
       if (messages.length) {
         messages.forEach((message: MessageModel) => {
           this.renderMessage(id, message)
@@ -1264,31 +1265,7 @@ export default class ConnectionsDetail extends Vue {
     type: PayloadType,
     afterSendCallback?: (isNewPayload: boolean) => void,
   ): Promise<void | boolean> {
-    if (!this.client.connected) {
-      this.$notify({
-        title: this.$tc('connections.notConnect'),
-        message: '',
-        type: 'error',
-        duration: 3000,
-        offset: 30,
-      })
-      this.stopTimedSend()
-      return false
-    }
-
     const { id, topic, qos, payload, retain, properties } = message
-
-    if (!topic && !properties?.topicAlias) {
-      this.$message.warning(this.$tc('connections.topicReuired'))
-      this.stopTimedSend()
-      return false
-    }
-
-    if (topic && (topic.includes('+') || topic.includes('#'))) {
-      this.$message.warning(this.$tc('connections.topicCannotContain'))
-      this.stopTimedSend()
-      return false
-    }
 
     let props: PushPropertiesModel | undefined = undefined
     if (properties && Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined).length > 0) {
