@@ -85,10 +85,6 @@ export default class Connections extends Vue {
     return this.$route.params.id
   }
 
-  get vueForm(): VueForm {
-    return this.$refs.form as VueForm
-  }
-
   private async loadDetail(id: string): Promise<void> {
     const { connectionService } = useServices()
     const res: ConnectionModel | undefined = await connectionService.get(id)
