@@ -693,7 +693,6 @@ export default class ConnectionForm extends Vue {
           client: {
             connected: false,
           },
-          messages: [],
         })
         this.$emit('connect')
         this.$router.push(`/recent_connections/${res.id}`)
