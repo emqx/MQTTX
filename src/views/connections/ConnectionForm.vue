@@ -593,7 +593,6 @@ export default class ConnectionForm extends Vue {
   @Getter('advancedVisible') private getterAdvancedVisible!: boolean
   @Getter('willMessageVisible') private getterWillMessageVisible!: boolean
   @Getter('currentTheme') private theme!: Theme
-  @Getter('allConnections') private allConnections!: ConnectionModel[] | []
 
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
   @Action('TOGGLE_ADVANCED_VISIBLE') private toggleAdvancedVisible!: (payload: { advancedVisible: boolean }) => void
@@ -795,7 +794,9 @@ export default class ConnectionForm extends Vue {
   }
 
   private async validateName(rule: FormRule, name: string, callBack: NameCallBack) {
-    for (const connection of this.allConnections) {
+    const { connectionService } = useServices()
+    const connections = (await connectionService.getAll()) ?? []
+    for (const connection of connections) {
       if (this.oper === 'create' && connection.name === name) {
         callBack(this.$tc('connections.duplicateName'))
       } else if (this.oper === 'edit' && name !== this.oldName && connection.name === name) {

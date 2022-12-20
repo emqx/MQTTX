@@ -31,7 +31,6 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { Action } from 'vuex-class'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsDetail from './ConnectionsDetail.vue'
@@ -48,10 +47,6 @@ import { getDefaultRecord } from '@/utils/mqttUtils'
   },
 })
 export default class Connections extends Vue {
-  @Action('CHANGE_ALL_CONNECTIONS') private changeAllConnections!: (payload: {
-    allConnections: ConnectionModel[] | []
-  }) => void
-
   private isEmpty: boolean = false
   private isLoadingData: boolean = false
   private records: ConnectionModel[] = []
@@ -107,8 +102,7 @@ export default class Connections extends Vue {
       this.isLoadingData = true
     }
     const { connectionService } = useServices()
-    const connections: ConnectionModel[] | [] = (await connectionService.getAll()) ?? []
-    this.changeAllConnections({ allConnections: connections })
+    const connections: ConnectionModel[] | [] = (await connectionService.cascadeGetAll()) ?? []
     this.records = connections
     this.isLoadingData = false
     if (connections.length && loadLatest) {
