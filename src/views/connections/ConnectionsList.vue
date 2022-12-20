@@ -154,7 +154,7 @@ import time from '@/utils/time'
   },
 })
 export default class ConnectionsList extends Vue {
-  @Prop({ required: true }) public ConnectionModelData!: ConnectionModel[] | []
+  @Prop({ required: true }) public connectionCount!: number
 
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
   @Action('SET_CONNECTIONS_TREE') private setConnectionsTree!: (payload: ConnectionTreeState) => void
@@ -192,9 +192,9 @@ export default class ConnectionsList extends Vue {
       this.selectedCollection = null
     }
   }
-  @Watch('ConnectionModelData')
-  private handleConnectionModelDataChange(val: ConnectionModel[] | [], oldVal: ConnectionModel[] | []) {
-    this.loadData(val.length === 1 && oldVal.length === 0)
+  @Watch('connectionCount')
+  private handleConnectionCountChange(val: number, oldVal: number) {
+    this.loadData(val === 1 && oldVal === 0)
   }
   @Watch('$route.params.id')
   private handleConnectionIdChanged(id: string) {
