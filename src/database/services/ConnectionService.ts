@@ -430,9 +430,8 @@ export default class ConnectionService {
   public async delete(id: string): Promise<ConnectionModel | undefined> {
     const query: ConnectionEntity | undefined = await this.connectionRepository
       .createQueryBuilder('cn')
+      .select(['cn.id'])
       .where('cn.id = :id', { id })
-      .leftJoinAndSelect('cn.messages', 'msg')
-      .leftJoinAndSelect('cn.subscriptions', 'sub')
       .leftJoinAndSelect('cn.will', 'will')
       .getOne()
     if (!query) {
