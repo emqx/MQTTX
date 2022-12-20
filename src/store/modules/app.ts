@@ -18,7 +18,6 @@ const UNREAD_MESSAGE_COUNT_INCREMENT = 'UNREAD_MESSAGE_COUNT_INCREMENT'
 const SET_CONNECTIONS_TREE = 'SET_CONNECTIONS_TREE'
 const TOGGLE_WILL_MESSAGE_VISIBLE = 'TOGGLE_WILL_MESSAGE_VISIBLE'
 const TOGGLE_ADVANCED_VISIBLE = 'TOGGLE_ADVANCED_VISIBLE'
-const CHANGE_ALL_CONNECTIONS = 'CHANGE_ALL_CONNECTIONS'
 const SET_SCRIPT = 'SET_SCRIPT'
 const TOGGLE_SYNC_OS_THEME = 'TOGGLE_SYNC_OS_THEME'
 const TOGGLE_MULTI_TOPICS = 'TOGGLE_MULTI_TOPICS'
@@ -51,7 +50,6 @@ const app = {
     activeConnection: {},
     advancedVisible: true,
     willMessageVisible: true,
-    allConnections: [],
     currentScript: null,
   },
   mutations: {
@@ -134,9 +132,6 @@ const app = {
     },
     [TOGGLE_WILL_MESSAGE_VISIBLE](state: App, willMessageVisible: boolean) {
       state.willMessageVisible = willMessageVisible
-    },
-    [CHANGE_ALL_CONNECTIONS](state: App, allConnections: ConnectionModel[] | []) {
-      state.allConnections = allConnections
     },
     [SET_SCRIPT](state: App, currentScript: ScriptState) {
       state.currentScript = currentScript
@@ -223,9 +218,6 @@ const app = {
     },
     async TOGGLE_WILL_MESSAGE_VISIBLE({ commit }: any, payload: App) {
       commit(TOGGLE_WILL_MESSAGE_VISIBLE, payload.willMessageVisible)
-    },
-    async CHANGE_ALL_CONNECTIONS({ commit }: any, payload: App) {
-      commit(CHANGE_ALL_CONNECTIONS, payload.allConnections)
     },
     async SET_SCRIPT({ commit }: any, payload: App) {
       commit(SET_SCRIPT, payload.currentScript)

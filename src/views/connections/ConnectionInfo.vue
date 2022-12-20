@@ -127,7 +127,6 @@ export default class ConnectionInfo extends Vue {
   @Prop({ required: true }) public titleName!: string
 
   @Getter('currentTheme') private theme!: Theme
-  @Getter('allConnections') private allConnections!: ConnectionModel[] | []
 
   private oldName = ''
 
@@ -175,7 +174,9 @@ export default class ConnectionInfo extends Vue {
   }
 
   private async validateName(rule: FormRule, name: string, callBack: NameCallBack) {
-    for (const oneConnection of this.allConnections) {
+    const { connectionService } = useServices()
+    const connections = (await connectionService.getAll()) ?? []
+    for (const oneConnection of connections) {
       if (name !== this.oldName && oneConnection.name === name) {
         callBack(this.$tc('connections.duplicateName'))
       }

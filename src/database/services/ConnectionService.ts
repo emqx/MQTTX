@@ -347,8 +347,17 @@ export default class ConnectionService {
     } as ConnectionModel
   }
 
-  // cascade getAll
+  // getAll
   public async getAll(): Promise<ConnectionModel[] | undefined> {
+    const query: ConnectionEntity[] | undefined = await this.connectionRepository.createQueryBuilder('cn').getMany()
+    if (query === undefined) {
+      return undefined
+    }
+    return query.map((entity) => ConnectionService.entityToModel(entity)) as ConnectionModel[]
+  }
+
+  // cascade getAll
+  public async cascadeGetAll(): Promise<ConnectionModel[] | undefined> {
     const query: ConnectionEntity[] | undefined = await this.connectionRepository
       .createQueryBuilder('cn')
       .leftJoinAndSelect('cn.messages', 'msg')
