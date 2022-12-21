@@ -99,20 +99,10 @@ export default class MessageService {
   }
 
   public async cleanInConnection(connectionId: string) {
-    const query: MessageEntity[] | undefined = await this.messageRepository
-      .createQueryBuilder('ms')
-      .where('ms.connectionId = :connectionId', { connectionId })
-      .getMany()
-    if (!query || !query.length) {
-      return
-    }
-    const deleteID: string[] = []
-    query.forEach((entity) => {
-      entity.id && deleteID.push(entity.id)
-    })
-    if (!deleteID.length) {
-      return
-    }
-    await this.messageRepository.delete(deleteID)
+    await this.messageRepository
+      .createQueryBuilder()
+      .delete()
+      .where('connectionId = :connectionId', { connectionId })
+      .execute()
   }
 }
