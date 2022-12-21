@@ -804,7 +804,7 @@ export default class ConnectionForm extends Vue {
     }
   }
 
-  private async loadData(reload: boolean = false): Promise<void> {
+  private async loadSuggestConnections(reload: boolean = false): Promise<void> {
     const { connectionService } = useServices()
     const res: ConnectionModel[] | undefined = await connectionService.getLeatests()
     if (res) {
@@ -837,7 +837,7 @@ export default class ConnectionForm extends Vue {
   }
 
   private async created() {
-    await this.loadData()
+    await this.loadSuggestConnections()
     const { id } = this.$route.params
     if (this.oper === 'edit' && id !== '0') {
       this.loadDetail(id)

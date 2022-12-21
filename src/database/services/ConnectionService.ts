@@ -505,4 +505,42 @@ export default class ConnectionService {
       subs.filter((subInMemory) => query.some((subInDb) => subInMemory.id === subInDb.id)),
     )
   }
+
+  public async addPushProp(properties: MessageModel['properties'], connectionId: string) {
+    if (!properties) return
+    const query = await this.connectionRepository.findOne(connectionId)
+    if (!query) {
+      return
+    }
+    const updateAt = time.getNowDate()
+    this.connectionRepository.update(connectionId, {
+      ...query,
+      pushPropsPayloadFormatIndicator: properties?.payloadFormatIndicator,
+      pushPropsMessageExpiryInterval: properties?.messageExpiryInterval,
+      pushPropsTopicAlias: properties?.topicAlias,
+      pushPropsResponseTopic: properties?.responseTopic,
+      pushPropsCorrelationData: properties?.correlationData?.toString(),
+      pushPropsUserProperties: JSON.stringify(properties?.userProperties),
+      pushPropsSubscriptionIdentifier: properties?.subscriptionIdentifier,
+      pushPropsContentType: properties?.contentType,
+      updateAt,
+    })
+  }
+
+  public async getPushProp(connectionId: string): Promise<MessageModel['properties'] | undefined> {
+    const query = await this.connectionRepository.findOne(connectionId)
+    if (!query) {
+      return
+    }
+    return {
+      payloadFormatIndicator: query.pushPropsPayloadFormatIndicator,
+      messageExpiryInterval: query.pushPropsMessageExpiryInterval,
+      topicAlias: query.pushPropsTopicAlias,
+      responseTopic: query.pushPropsResponseTopic,
+      correlationData: query.pushPropsCorrelationData,
+      userProperties: query.pushPropsUserProperties ? JSON.parse(query.pushPropsUserProperties) : undefined,
+      subscriptionIdentifier: query.pushPropsSubscriptionIdentifier,
+      contentType: query.pushPropsContentType,
+    } as MessageModel['properties']
+  }
 }

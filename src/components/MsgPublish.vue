@@ -390,8 +390,8 @@ export default class MsgPublish extends Vue {
     const propRecords = Object.entries(this.MQTT5PropsForm).filter(([_, v]) => v !== null && v !== undefined && v !== 0)
     const props = Object.fromEntries(propRecords)
 
-    const { messageService } = useServices()
-    return await messageService.addPushProp(props, this.$route.params.id)
+    const { connectionService } = useServices()
+    return await connectionService.addPushProp(props, this.$route.params.id)
   }
 
   private async send() {
@@ -492,8 +492,8 @@ export default class MsgPublish extends Vue {
   private async loadProperties() {
     this.MQTT5PropsForm = {}
     if (this.mqtt5PropsEnable) {
-      const { messageService } = useServices()
-      const pushProps = await messageService.getPushProp(this.$route.params.id)
+      const { connectionService } = useServices()
+      const pushProps = await connectionService.getPushProp(this.$route.params.id)
       if (pushProps) {
         this.MQTT5PropsForm = pushProps
         this.MQTT5PropsSend = _.cloneDeep(this.MQTT5PropsForm)
