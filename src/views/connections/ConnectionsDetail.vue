@@ -640,14 +640,16 @@ export default class ConnectionsDetail extends Vue {
   // Copy message
   private handleCopyMessage() {
     if (this.selectedInfo) {
-      this.$copyText(this.selectedInfo).then(
-        () => {
+      this.$copyText(this.selectedInfo)
+        .then(() => {
           this.$message.success(this.$tc('common.copySuccess'))
-        },
-        () => {
-          this.$message.error(this.$tc('common.copyFailed'))
-        },
-      )
+        })
+        .catch(() => {
+          this.$message.error(this.$tc('common.copyFail'))
+        })
+        .finally(() => {
+          this.showContextmenu = false
+        })
     }
   }
 
