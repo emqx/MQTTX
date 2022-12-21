@@ -8,7 +8,7 @@
       </div>
       <div :class="[{ active: isConnection }, 'leftbar-item']">
         <a href="javascript:;" @click="routeToPage('/recent_connections')">
-          <i class="iconfont icon-connect"></i>
+          <i class="iconfont icon-connections"></i>
         </a>
       </div>
       <div :class="[{ active: isCreate }, 'leftbar-item']">
