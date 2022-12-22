@@ -678,7 +678,7 @@ export default class ConnectionForm extends Vue {
       } else {
         // update a exisit connection
         if (data.id) {
-          res = await connectionService.updateWithCascade(data.id, {
+          res = await connectionService.update(data.id, {
             ...data,
             updateAt: time.getNowDate(),
           })
