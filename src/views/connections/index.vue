@@ -1,7 +1,7 @@
 <template>
   <div class="connections">
     <div class="left-list">
-      <ConnectionsList :connectionCount="connectionCount" @delete="onDelete" @reload="loadData(true, false)" />
+      <ConnectionsList ref="connectionList" @delete="onDelete" @reload="loadData(true, false)" />
     </div>
     <div class="connections-view">
       <template v-if="isLoadingData">
@@ -49,7 +49,6 @@ import { getDefaultRecord } from '@/utils/mqttUtils'
 export default class Connections extends Vue {
   private isEmpty: boolean = false
   private isLoadingData: boolean = false
-  private connectionCount: number = 0
   private currentConnection: ConnectionModel = { ...getDefaultRecord() }
 
   @Watch('$route.params.id')
@@ -99,7 +98,7 @@ export default class Connections extends Vue {
     }
     const { connectionService } = useServices()
     const connections: ConnectionModel[] | [] = (await connectionService.getAll()) ?? []
-    this.connectionCount = connections.length
+    this.refreshConnectionList()
     this.isLoadingData = false
     if (connections.length && loadLatest) {
       const leatestId = await connectionService.getLeatestId()
@@ -133,6 +132,11 @@ export default class Connections extends Vue {
   private onDelete(data: ConnectionModel) {
     const connectionsDetailRef = this.$refs.connectionsDetail as ConnectionsDetail
     connectionsDetailRef.removeConnection(data)
+  }
+
+  private refreshConnectionList(firstLoad = false) {
+    const connectionListRef = this.$refs.connectionList as ConnectionsList
+    connectionListRef.loadData(firstLoad)
   }
 
   private created() {
