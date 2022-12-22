@@ -136,7 +136,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import Contextmenu from '@/components/Contextmenu.vue'
 import { ipcRenderer } from 'electron'
@@ -154,8 +154,6 @@ import time from '@/utils/time'
   },
 })
 export default class ConnectionsList extends Vue {
-  @Prop({ required: true }) public connectionCount!: number
-
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
   @Action('SET_CONNECTIONS_TREE') private setConnectionsTree!: (payload: ConnectionTreeState) => void
 
@@ -191,10 +189,6 @@ export default class ConnectionsList extends Vue {
     if (!val) {
       this.selectedCollection = null
     }
-  }
-  @Watch('connectionCount')
-  private handleConnectionCountChange(val: number, oldVal: number) {
-    this.loadData(val === 1 && oldVal === 0)
   }
   @Watch('$route.params.id')
   private handleConnectionIdChanged(id: string) {
@@ -353,7 +347,7 @@ export default class ConnectionsList extends Vue {
     await flushCurSequenceId(this.treeData)
   }
 
-  private async loadData(firstLoad: boolean = false) {
+  public async loadData(firstLoad: boolean = false) {
     firstLoad && (this.isLoadingData = true)
     const { collectionService } = useServices()
     const treeData: ConnectionModelTree[] = (await collectionService.getAll()) ?? []
