@@ -490,22 +490,6 @@ export default class ConnectionService {
     return leatest?.id
   }
 
-  public async updateSubscriptions(connectionId: string, subs: SubscriptionModel[]) {
-    const query: SubscriptionEntity[] = await this.subscriptionRepository.find({
-      connectionId,
-    })
-    if (!query || !Array.isArray(query) || !query.length) {
-      await this.subscriptionRepository.save(subs)
-      return
-    }
-    await this.subscriptionRepository.remove(
-      query.filter((subInDb) => !subs.some((subInMemory) => subInMemory.id === subInDb.id)),
-    )
-    await this.subscriptionRepository.save(
-      subs.filter((subInMemory) => query.some((subInDb) => subInMemory.id === subInDb.id)),
-    )
-  }
-
   public async addPushProp(properties: MessageModel['properties'], connectionId: string) {
     if (!properties) return
     const query = await this.connectionRepository.findOne(connectionId)

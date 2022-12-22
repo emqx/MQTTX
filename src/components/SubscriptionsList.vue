@@ -458,8 +458,8 @@ export default class SubscriptionsList extends Vue {
         }
         this.record.subscriptions = this.subsList
         if (this.record.id) {
-          const { connectionService } = useServices()
-          await connectionService.updateWithCascade(this.record.id, this.record)
+          const { subscriptionService } = useServices()
+          await subscriptionService.updateSubscriptions(this.record.id, this.record.subscriptions)
           this.changeSubs({ id: this.connectionId, subscriptions: this.subsList })
           this.showDialog = false
           let subLog = `Topic: ${topic} successfully subscribed`
@@ -531,8 +531,8 @@ export default class SubscriptionsList extends Vue {
               this.$log.info(`Removed topic: ${topic}`)
             }
             this.record.subscriptions = payload.subscriptions
-            const { connectionService } = useServices()
-            await connectionService.updateSubscriptions(this.record.id, payload.subscriptions)
+            const { subscriptionService } = useServices()
+            await subscriptionService.updateSubscriptions(this.record.id, this.record.subscriptions)
             this.changeSubs(payload)
             this.$emit('deleteTopic')
             this.subsList = payload.subscriptions
