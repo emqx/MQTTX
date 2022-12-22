@@ -190,10 +190,7 @@ export default class ConnectionInfo extends Vue {
       }
       const { connectionService } = useServices()
       if (this.connection.id) {
-        const res: ConnectionModel | undefined = await connectionService.updateWithCascade(
-          this.connection.id,
-          this.connection,
-        )
+        const res: ConnectionModel | undefined = await connectionService.update(this.connection.id, this.connection)
         if (res) {
           this.$emit('handleConnect', this.connection)
         }

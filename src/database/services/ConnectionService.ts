@@ -9,6 +9,7 @@ import HistoryConnectionEntity from '@/database/models/HistoryConnectionEntity'
 import { Repository, MoreThan, LessThan } from 'typeorm'
 import { DateUtils } from 'typeorm/util/DateUtils'
 import time, { sqliteDateFormat } from '@/utils/time'
+import useServices from '@/database/useServices'
 
 export const MoreThanDate = (date: string | Date) => MoreThan(DateUtils.mixedDateToUtcDatetimeString(date))
 export const LessThanDate = (date: string | Date) => LessThan(DateUtils.mixedDateToUtcDatetimeString(date))
@@ -70,7 +71,7 @@ export default class ConnectionService {
     } as ConnectionModel
   }
 
-  public static modelToEntity(data: ConnectionModel): ConnectionEntity {
+  public static modelToEntity(data: Partial<ConnectionModel>): Partial<ConnectionEntity> {
     if (data.properties) {
       const {
         sessionExpiryInterval,
@@ -86,8 +87,9 @@ export default class ConnectionService {
       if (data.properties.userProperties) {
         userProperties = JSON.stringify(data.properties.userProperties)
       }
+      const { properties, ...rest } = data
       return {
-        ...data,
+        ...rest,
         sessionExpiryInterval,
         receiveMaximum,
         maximumPacketSize,
@@ -261,22 +263,15 @@ export default class ConnectionService {
     return ConnectionService.entityToModel(saved)
   }
 
-  public async update(id: string, data: ConnectionModel): Promise<ConnectionModel | undefined> {
-    const res: ConnectionEntity | undefined = await this.connectionRepository
-      .createQueryBuilder('cn')
-      .where('cn.id = :id', { id })
-      .getOne()
-    if (!res) {
-      return
-    }
-    // safe it's same data struct in single connection table
-    const merged: ConnectionEntity = _.merge(res, ConnectionService.modelToEntity(data))
-    const query: ConnectionEntity | undefined = await this.connectionRepository.save({
-      ...merged,
-      id,
+  public async update(id: string, data: ConnectionModel) {
+    const { willService } = useServices()
+    const { messages, subscriptions, will, ...rest } = data
+    await this.connectionRepository.update(id, {
+      ...ConnectionService.modelToEntity(rest),
       updateAt: time.getNowDate(),
-    } as ConnectionEntity)
-    return query as ConnectionModel
+    })
+    will && (await willService.save(will))
+    return await this.get(id)
   }
 
   public async import(data: ConnectionModel[]): Promise<string> {
