@@ -555,7 +555,7 @@ export default class ConnectionsDetail extends Vue {
         title: err.toString(),
         message: '',
         type: 'error',
-        duration: 3000,
+        duration: 4000,
         offset: 30,
       })
     }
@@ -963,7 +963,7 @@ export default class ConnectionsDetail extends Vue {
       title: msgTitle,
       message: '',
       type: 'error',
-      duration: 3000,
+      duration: 4000,
       offset: 30,
     })
     this.$log.error(`${this.record.name} connect fail, MQTT.js onError trigger, ${error.stack}`)

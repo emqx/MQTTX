@@ -253,7 +253,7 @@
         <el-col :span="4">
           <el-button
             class="data-manager-btn"
-            type="primary"
+            type="danger"
             size="mini"
             icon="el-icon-delete"
             @click="handleCleanupHistoryData"
