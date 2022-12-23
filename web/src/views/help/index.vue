@@ -98,11 +98,11 @@ export default class Help extends Vue {
       },
       {
         title: this.$tc('help.guideArticle4'),
-        link: `${this.emqWebsite}/blog/advanced-features-of-mqtt-topics`,
+        link: `${this.emqWebsite}/blog/how-to-set-parameters-when-establishing-an-mqtt-connection`,
       },
       {
         title: this.$tc('help.guideArticle5'),
-        link: `${this.emqWebsite}/blog/introduction-to-mqtt-qos`,
+        link: `${this.emqWebsite}/blog/advanced-features-of-mqtt-topics`,
       },
       {
         title: this.$tc('help.guideArticle6'),
@@ -110,11 +110,19 @@ export default class Help extends Vue {
       },
       {
         title: this.$tc('help.guideArticle7'),
-        link: `${this.emqWebsite}/blog/mqtt5-features-retain-message`,
+        link: `${this.emqWebsite}/blog/introduction-to-mqtt-qos`,
       },
       {
         title: this.$tc('help.guideArticle8'),
+        link: `${this.emqWebsite}/blog/mqtt5-features-retain-message`,
+      },
+      {
+        title: this.$tc('help.guideArticle9'),
         link: `${this.emqWebsite}/blog/use-of-mqtt-will-message`,
+      },
+      {
+        title: this.$tc('help.guideArticle10'),
+        link: `${this.emqWebsite}/blog/mqtt-keep-alive`,
       },
     ]
   }
