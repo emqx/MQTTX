@@ -314,6 +314,16 @@ export default class SubscriptionsList extends Vue {
   }
 
   private openDialog() {
+    if (!this.client || !this.client.connected) {
+      this.$notify({
+        title: this.$tc('connections.notConnect'),
+        message: '',
+        type: 'error',
+        duration: 3000,
+        offset: 30,
+      })
+      return false
+    }
     this.showDialog = true
     this.isEdit = false
     this.setColor()
@@ -322,10 +332,6 @@ export default class SubscriptionsList extends Vue {
 
   private saveSubs(): void | boolean {
     this.getCurrentConnection(this.connectionId)
-    if (!this.client || !this.client.connected) {
-      this.$message.warning(this.$tc('connections.notConnect'))
-      return false
-    }
     this.subForm.validate(async (valid: boolean) => {
       if (!valid) {
         return false
@@ -612,8 +618,18 @@ export default class SubscriptionsList extends Vue {
   }
 
   private handleTopicEdit() {
-    this.isEdit = true
     this.showContextmenu = false
+    if (!this.client || !this.client.connected) {
+      this.$notify({
+        title: this.$tc('connections.notConnect'),
+        message: '',
+        type: 'error',
+        duration: 3000,
+        offset: 30,
+      })
+      return
+    }
+    this.isEdit = true
     this.showDialog = true
     this.setColor()
     this.setNewSubscribeId()
