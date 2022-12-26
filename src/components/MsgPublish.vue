@@ -584,8 +584,18 @@ export default class MsgPublish extends Vue {
   }
   .topic-input-contianer {
     &.required {
+      .el-input.publish-topic-input {
+        .el-input__inner {
+          border-right: none !important;
+        }
+      }
+      .el-select {
+        .el-input__inner {
+          border-left: none !important;
+        }
+      }
       .el-input__inner {
-        border-bottom: 1px solid var(--color-main-yellow) !important;
+        border: 1px solid var(--color-minor-red) !important;
       }
     }
   }
