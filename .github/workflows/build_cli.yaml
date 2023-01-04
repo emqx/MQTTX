@@ -53,7 +53,7 @@ jobs:
         with:
           images: emqx/mqttx-cli
           flavor: |
-            latest=true
+            latest=${{ !github.event.release.prerelease }}
           tags: |
             type=ref,event=tag
 
@@ -78,7 +78,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
 
   publish_npm:
-    if: github.event_name == 'release'
+    if: github.event_name == 'release' && !github.event.release.prerelease
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
