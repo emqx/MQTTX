@@ -3,7 +3,12 @@
     <div class="connection-topbar">
       <h1 class="connection-titlebar">{{ $t('connections.connections') }}</h1>
       <div class="connection-tailbar">
-        <el-dropdown class="new-dropdown" trigger="click" @command="handleCommand">
+        <el-dropdown
+          class="new-dropdown"
+          :class="{ 'is-new-window': isNewWindow }"
+          trigger="click"
+          @command="handleCommand"
+        >
           <a href="javascript:;" class="new-button">
             <i class="iconfont icon-a-createnew"></i>
           </a>
@@ -716,6 +721,9 @@ export default class ConnectionsList extends Vue {
     -webkit-app-region: drag;
     .new-dropdown {
       margin-right: 16px;
+      &.is-new-window {
+        display: none;
+      }
       .new-button {
         .icon-a-createnew {
           font-size: 20px;
