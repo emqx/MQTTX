@@ -1,7 +1,7 @@
 <template>
   <div class="window connections">
     <div class="left-list">
-      <ConnectionsList :ConnectionModelData="records" :connectionId="connectionId" />
+      <ConnectionsList ref="connectionList" />
     </div>
     <div class="connections-view">
       <ConnectionsDetail ref="ConnectionsDetail" :record="currentConnection" @reload="handleReload" />
@@ -32,6 +32,7 @@ export default class Window extends Vue {
 
   private handleReload(loadLatest: boolean, firstLoad: boolean, callback?: () => {}) {
     this.loadDetail(this.connectionId, true, callback)
+    this.refreshConnectionList()
   }
 
   private async loadDetail(id: string, reload?: boolean, callback?: () => {}): Promise<void> {
@@ -45,6 +46,11 @@ export default class Window extends Vue {
       }
     }
     callback && callback()
+  }
+
+  private refreshConnectionList(firstLoad = false) {
+    const connectionListRef = this.$refs.connectionList as ConnectionsList
+    connectionListRef.loadData(firstLoad)
   }
 
   created() {
