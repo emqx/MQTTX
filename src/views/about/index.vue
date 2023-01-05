@@ -46,7 +46,8 @@
           <div class="emq-logo">
             <img :src="emqLogoSrc" alt="emqx" width="40" />
             <span class="copyright">
-              &copy;2022 <a :href="emqWebsite" target="_blank" rel="noopener noreferrer">EMQ</a> Technologies Inc.
+              &copy;{{ fullYear }} <a :href="emqWebsite" target="_blank" rel="noopener noreferrer">EMQ</a> Technologies
+              Inc.
             </span>
           </div>
           <div class="follow-items">
@@ -86,6 +87,10 @@ export default class About extends Vue {
 
   get version(): string {
     return version
+  }
+
+  get fullYear(): number {
+    return new Date().getFullYear()
   }
 
   get mqttxLogoSrc(): string {
