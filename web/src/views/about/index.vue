@@ -45,7 +45,8 @@
           <div class="emq-logo">
             <img :src="emqLogoSrc" alt="emqx" width="40" />
             <span class="copyright">
-              &copy;2022 <a :href="emqWebsite" target="_blank" rel="noopener noreferrer">EMQ</a> Technologies Inc.
+              &copy;{{ fullYear }} <a :href="emqWebsite" target="_blank" rel="noopener noreferrer">EMQ</a> Technologies
+              Inc.
             </span>
           </div>
           <div class="follow-items">
@@ -83,6 +84,10 @@ export default class About extends Vue {
   private baseUrl = 'https://www.emqx.com'
   private utm = '?utm_source=emqx.io&utm_medium=referral&utm_campaign='
   private version = `${process.env.VUE_APP_VERSION}`
+
+  get fullYear(): number {
+    return new Date().getFullYear()
+  }
 
   get mqttxLogoSrc(): string {
     if (this.getterTheme === 'light') {
