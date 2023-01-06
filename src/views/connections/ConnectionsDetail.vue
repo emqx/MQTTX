@@ -407,7 +407,15 @@ export default class ConnectionsDetail extends Vue {
     connected: false,
     options: {},
   }
-  private messages: MessageModel[] = this.record.messages
+  private recordMsgs: MessagePaginationModel = {
+    total: 0,
+    publishedTotal: 0,
+    receivedTotal: 0,
+    limit: 20,
+    page: 1,
+    list: [],
+  }
+  private messages: MessageModel[] = this.recordMsgs.list
   private searchParams = {
     topic: '',
     payload: '',
@@ -464,9 +472,9 @@ export default class ConnectionsDetail extends Vue {
     received: number
     publish: number
   } {
-    const count = this.record.messages.length
-    const received = this.record.messages.filter((msg: MessageModel) => !msg.out).length
-    const publish = this.record.messages.filter((msg: MessageModel) => msg.out).length
+    const count = this.recordMsgs.total
+    const received = this.recordMsgs.receivedTotal
+    const publish = this.recordMsgs.publishedTotal
     return {
       count,
       received,
@@ -484,15 +492,14 @@ export default class ConnectionsDetail extends Vue {
 
   @Watch('record')
   private handleRecordChanged() {
-    // init Messagelist showMessages when selected connection changed
-    const messageList: MessageList = this.$refs.messagesDisplay as MessageList
-    messageList.showMessages = []
     this.getConnectionValue(this.curConnectionId)
     this.getMessages()
-    const timer = setTimeout(() => {
-      this.scrollToBottom()
-      clearTimeout(timer)
-    }, 500)
+    this.$nextTick(() => {
+      const timer = setTimeout(() => {
+        this.scrollToBottom()
+        clearTimeout(timer)
+      }, 500)
+    })
   }
 
   @Watch('inputHeight')
@@ -767,16 +774,22 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Return messages
-  private getMessages() {
+  private async getMessages() {
     this.messagesAddedNewItem = false
     this.msgType = 'all'
-    this.messages = _.cloneDeep(this.record.messages)
+    const { messageService } = useServices()
+    this.recordMsgs = await messageService.get(this.curConnectionId)
+    this.messages = _.cloneDeep(this.recordMsgs.list)
   }
 
   // Clear messages
   private async handleMsgClear() {
     this.messages = []
-    this.record.messages = []
+    this.recordMsgs.list = []
+    this.recordMsgs.total = 0
+    this.recordMsgs.publishedTotal = 0
+    this.recordMsgs.receivedTotal = 0
+    this.recordMsgs.page = 1
     this.changeActiveConnection({
       id: this.curConnectionId,
       client: this.client,
@@ -802,14 +815,14 @@ export default class ConnectionsDetail extends Vue {
       this.scrollToBottom()
     }
     if (this.activeTopic !== '') {
-      const res = await topicMatch(this.record.messages, this.activeTopic)
+      const res = await topicMatch(this.recordMsgs.list, this.activeTopic)
       if (res) {
         setChangedMessages(type, res)
       } else {
         this.messages = [].slice()
       }
     } else {
-      setChangedMessages(type, this.record.messages)
+      setChangedMessages(type, this.recordMsgs.list)
     }
   }
 
@@ -828,7 +841,7 @@ export default class ConnectionsDetail extends Vue {
     this.getMessages()
     if (topic !== '' || payload !== '') {
       const $messages =
-        this.activeTopic === '' ? _.cloneDeep(this.messages) : await topicMatch(this.record.messages, this.activeTopic)
+        this.activeTopic === '' ? _.cloneDeep(this.messages) : await topicMatch(this.recordMsgs.list, this.activeTopic)
       const res = await matchMultipleSearch($messages, this.searchParams)
       if (res) {
         this.messages = res.slice()
@@ -1143,7 +1156,13 @@ export default class ConnectionsDetail extends Vue {
   private renderMessage(id: string, receivedMessage: MessageModel) {
     const { topic } = receivedMessage
     if (id === this.curConnectionId) {
-      this.record.messages.push({ ...receivedMessage })
+      if (this.recordMsgs.list.length > 20) {
+        this.recordMsgs.list = [...this.recordMsgs.list.slice(1), receivedMessage]
+      } else {
+        this.recordMsgs.list.push(receivedMessage)
+      }
+      this.recordMsgs.total += 1
+      this.recordMsgs.receivedTotal += 1
       // Filter by conditions (topic, payload, etc)
       const filterRes = this.filterBySearchConditions(topic, receivedMessage)
       if (filterRes) {
@@ -1153,7 +1172,11 @@ export default class ConnectionsDetail extends Vue {
       const isFromActiveTopic = this.msgType !== 'publish' && this.activeTopic && isActiveTopicMessages
       const isFromNotActiveTopic = this.msgType !== 'publish' && !this.activeTopic
       if (isFromActiveTopic || isFromNotActiveTopic) {
-        this.messages.push(receivedMessage)
+        if (this.messages.length > 20) {
+          this.messages = [...this.messages.slice(1), receivedMessage]
+        } else {
+          this.messages.push(receivedMessage)
+        }
         this.messagesAddedNewItem = true
       }
     } else {
@@ -1314,7 +1337,13 @@ export default class ConnectionsDetail extends Vue {
           properties,
         }
         if (this.record.id) {
-          this.record.messages.push({ ...publishMessage })
+          if (this.recordMsgs.list.length > 20) {
+            this.recordMsgs.list = [...this.recordMsgs.list.slice(1), publishMessage]
+          } else {
+            this.recordMsgs.list.push(publishMessage)
+          }
+          this.recordMsgs.total += 1
+          this.recordMsgs.publishedTotal += 1
           // Filter by conditions (topic, payload, etc)
           const filterRes = this.filterBySearchConditions(topic, publishMessage)
           if (filterRes) {
@@ -1324,7 +1353,11 @@ export default class ConnectionsDetail extends Vue {
           const isFromActiveTopic = this.activeTopic && isActiveTopicMessages && this.msgType !== 'received'
           const isFromNotActiveTopic = this.msgType !== 'received' && !this.activeTopic
           if (isFromActiveTopic || isFromNotActiveTopic) {
-            this.messages.push(publishMessage)
+            if (this.messages.length > 20) {
+              this.messages = [...this.messages.slice(1), publishMessage]
+            } else {
+              this.messages.push(publishMessage)
+            }
             this.messagesAddedNewItem = true
           }
           const logPayload = JSON.stringify(publishMessage.payload)

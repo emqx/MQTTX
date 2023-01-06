@@ -86,7 +86,7 @@ export default class Connections extends Vue {
 
   private async loadDetail(id: string): Promise<void> {
     const { connectionService } = useServices()
-    const res: ConnectionModel | undefined = await connectionService.get(id)
+    const res = await connectionService.get(id)
     if (res) {
       this.currentConnection = res
     }

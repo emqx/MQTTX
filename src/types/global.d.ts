@@ -180,6 +180,15 @@ declare global {
     properties?: PushPropertiesModel
   }
 
+  interface MessagePaginationModel {
+    list: MessageModel[]
+    total: number
+    publishedTotal: number
+    receivedTotal: number
+    limit: number
+    page: number
+  }
+
   interface HistoryMessageHeaderModel {
     connectionId?: string
     id?: string
