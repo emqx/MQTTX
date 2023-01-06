@@ -308,7 +308,6 @@ export default class ConnectionService {
       .createQueryBuilder('cn')
       .where('cn.id = :id', { id })
       // TODO: remove this query
-      .leftJoinAndSelect('cn.messages', 'msg')
       .leftJoinAndSelect('cn.subscriptions', 'sub')
       .leftJoinAndSelect('cn.will', 'will')
       .getOne()

@@ -35,6 +35,28 @@ export default class MessageService {
     } as MessageModel
   }
 
+  public async get(connectionId: string, page = 1, limit = 20): Promise<MessagePaginationModel> {
+    const total = await this.messageRepository.count({ connectionId })
+    const publishedTotal = await this.messageRepository.count({ connectionId, out: true })
+    const receivedTotal = await this.messageRepository.count({ connectionId, out: false })
+    const query = await this.messageRepository
+      .createQueryBuilder('msg')
+      .where('msg.connectionId = :connection', { connection: connectionId })
+      .orderBy('msg.createAt', 'DESC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getMany()
+    const messages = query.reverse().map((m) => MessageService.entityToModel(m))
+    return {
+      list: messages,
+      total,
+      publishedTotal,
+      receivedTotal,
+      limit,
+      page,
+    }
+  }
+
   public async pushToConnection(
     message: MessageModel | MessageModel[],
     connectionId: string,
