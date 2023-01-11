@@ -57,6 +57,21 @@ export default class MessageService {
     }
   }
 
+  public async getMore(connectionId: string, createAt: string, mode: 'before' | 'after' = 'before', limit = 20) {
+    const query = await this.messageRepository
+      .createQueryBuilder('msg')
+      .where('msg.connectionId = :connection', { connection: connectionId })
+      .andWhere('msg.createAt ' + (mode === 'before' ? '<' : '>') + ' :createAt', { createAt })
+      .orderBy('msg.createAt', mode === 'before' ? 'DESC' : 'ASC')
+      .take(limit + 1)
+      .getMany()
+    mode === 'before' && query.reverse()
+    const moreMsg = query.length > limit && mode
+    moreMsg && query.pop()
+    const list = query.map((m) => MessageService.entityToModel(m))
+    return { list, moreMsg }
+  }
+
   public async pushToConnection(
     message: MessageModel | MessageModel[],
     connectionId: string,

@@ -6,7 +6,7 @@
   >
     <span v-show="showLoadingIcon" class="loading-icon"><i class="el-icon-loading"></i></span>
     <template>
-      <DynamicScroller v-if="showMessages.length" :items="showMessages" :min-item-size="40" class="scroller">
+      <DynamicScroller v-if="showMessages.length" :items="showMessages" :min-item-size="20" class="scroller">
         <template v-slot="{ item, active }">
           <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
             <MsgLeftItem v-if="!item.out" v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
@@ -15,6 +15,7 @@
         </template>
       </DynamicScroller>
     </template>
+    <span v-show="showLoadingIcon" class="loading-icon after"><i class="el-icon-loading"></i></span>
   </div>
 </template>
 
@@ -39,69 +40,36 @@ export default class MessageList extends Vue {
   @Prop({ required: true }) height!: number
   @Prop({ required: true }) subscriptions!: SubscriptionModel[]
   @Prop({ required: true }) marginTop!: number
-  @Prop({ required: true }) addNewMsg!: boolean
 
   public showMessages: MessageModel[] = []
-  private scrollTop: number = -1
   private showLoadingIcon: boolean = false
-  private onceAddMessagesMaxNum: number = 20
+  private scrollOffset: { offset: number; mode: 'before' | 'after' } = {
+    offset: Number.MAX_SAFE_INTEGER,
+    mode: 'before',
+  }
+  private scrollOffsetMaxNum: number = 100
   private isScrolling = false
   private timeout: undefined | number = undefined
 
   @Watch('messages')
   private handleMessagesChanged(val: MessageModel[]) {
-    if (val.length) {
-      const allMessages = _.cloneDeep(val)
-      const maxShowMessages =
-        allMessages.length >= this.onceAddMessagesMaxNum ? allMessages.slice(-this.onceAddMessagesMaxNum) : allMessages
-      const newMessages = this.getNewMessages(maxShowMessages, this.showMessages)
-
-      // sentOneMessage or receivedOneMessage
-      if (this.addNewMsg && newMessages.length === 1) {
-        const newMessages = allMessages.slice(-1)
-        this.showMessages = this.getMessageMatchColor(this.showMessages.concat(newMessages))
-        return
-      }
-      this.showMessages = this.getMessageMatchColor(maxShowMessages)
-    } else {
-      this.showMessages = []
-    }
+    this.showMessages = this.getMessageMatchColor(val)
   }
 
-  @Watch('scrollTop')
-  private handleScrollTopChanged(val: number) {
-    if (val === 0) {
-      const allMessages = _.cloneDeep(this.messages)
-      const [...showMessages] = this.showMessages
-      const newMessages = this.getNewMessages(allMessages, showMessages)
-      const addMessages =
-        newMessages.length >= this.onceAddMessagesMaxNum ? newMessages.slice(-this.onceAddMessagesMaxNum) : newMessages
-
-      if (addMessages.length > 0) {
-        this.showLoadingIcon = true
-        const timer = setTimeout(() => {
-          this.showMessages = this.getMessageMatchColor(addMessages.concat(this.showMessages))
-          this.$nextTick(() => {
-            if (addMessages.length > 0) {
-              const id = addMessages[addMessages.length - 1].id
-              if (id) {
-                const idBox = document.getElementById(id.toString() as string)
-                if (idBox) {
-                  idBox.scrollIntoView(true)
-                }
-                this.showLoadingIcon = false
-              }
-            }
-          })
-          window.clearTimeout(timer)
-        }, 1000)
-      }
+  @Watch('scrollOffset')
+  private async handleScrollOffsetChanged(val: MessageList['scrollOffset'], oldVal: MessageList['scrollOffset']) {
+    if (this.showLoadingIcon === false && val.offset === 0) {
+      this.$emit(
+        'getMoreMsg',
+        val.mode,
+        () => {
+          this.showLoadingIcon = true
+        },
+        () => {
+          this.showLoadingIcon = false
+        },
+      )
     }
-  }
-
-  private getNewMessages(newMessageList: MessageModel[], oldMessageList: MessageModel[]) {
-    const newMessages = newMessageList.filter((item) => oldMessageList.every((one) => one.id !== item.id))
-    return newMessages
   }
 
   private handleShowContextMenu(msgItemInfo: IArguments, message: MessageModel) {
@@ -124,19 +92,22 @@ export default class MessageList extends Vue {
     return this.$refs.messageListBox as Element
   }
 
-  private getScrollOffsetToTop() {
+  private getScrollOffset() {
     this.isScrolling = true
     window.clearTimeout(this.timeout)
     this.timeout = undefined
-    const { scrollTop } = this.getScrollBox()
-    this.scrollTop = scrollTop
+    const { scrollTop, scrollHeight, clientHeight } = this.getScrollBox()
+    const scrollBottom = scrollHeight - scrollTop - clientHeight
+    if (scrollTop <= this.scrollOffsetMaxNum) {
+      this.scrollOffset = { offset: scrollTop, mode: 'before' }
+    } else if (scrollBottom <= this.scrollOffsetMaxNum) {
+      this.scrollOffset = { offset: scrollBottom, mode: 'after' }
+    }
     if (this.timeout === undefined) {
       this.timeout = window.setTimeout(() => {
-        if (this.getScrollBox().scrollTop === this.scrollTop) {
-          this.isScrolling = false
-          window.clearTimeout(this.timeout)
-          this.timeout = undefined
-        }
+        this.isScrolling = false
+        window.clearTimeout(this.timeout)
+        this.timeout = undefined
       }, 3000)
     }
   }
@@ -144,12 +115,12 @@ export default class MessageList extends Vue {
   private mounted() {
     this.$nextTick(() => {
       const scrollRef = this.getScrollBox()
-      scrollRef.addEventListener('scroll', this.getScrollOffsetToTop)
+      scrollRef.addEventListener('scroll', _.throttle(this.getScrollOffset, 200))
     })
   }
 
   private beforeDestroy() {
-    this.getScrollBox().removeEventListener('scroll', this.getScrollOffsetToTop)
+    this.getScrollBox().removeEventListener('scroll', this.getScrollOffset)
     window.clearTimeout(this.timeout)
   }
 }
@@ -192,6 +163,10 @@ export default class MessageList extends Vue {
     text-align: center;
     font-size: 14px;
     color: var(--color-main-green);
+    &.after {
+      margin-top: 0;
+      margin-bottom: 6px;
+    }
   }
 }
 </style>
