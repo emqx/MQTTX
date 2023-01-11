@@ -235,8 +235,8 @@
           :messages="messages"
           :height="messageListHeight"
           :marginTop="messageListMarginTop"
-          :addNewMsg="messagesAddedNewItem"
           @showContextMenu="handleContextMenu"
+          @getMoreMsg="getMoreMessages"
         />
         <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
           <a href="javascript:;" class="context-menu__item" @click="handleCopyMessage">
@@ -416,6 +416,8 @@ export default class ConnectionsDetail extends Vue {
     list: [],
   }
   private messages: MessageModel[] = this.recordMsgs.list
+  private moreMsgBefore = true
+  private moreMsgAfter = true
   private searchParams = {
     topic: '',
     payload: '',
@@ -442,7 +444,6 @@ export default class ConnectionsDetail extends Vue {
   }
   private version = ''
   private uptime = ''
-  private messagesAddedNewItem: boolean = false
   private scrollSubject = new Subject()
 
   get titleName() {
@@ -491,14 +492,11 @@ export default class ConnectionsDetail extends Vue {
   }
 
   @Watch('record')
-  private handleRecordChanged() {
+  private async handleRecordChanged() {
     this.getConnectionValue(this.curConnectionId)
-    this.getMessages()
+    await this.getMessages()
     this.$nextTick(() => {
-      const timer = setTimeout(() => {
-        this.scrollToBottom()
-        clearTimeout(timer)
-      }, 500)
+      this.scrollToBottom('auto')
     })
   }
 
@@ -775,11 +773,57 @@ export default class ConnectionsDetail extends Vue {
 
   // Return messages
   private async getMessages() {
-    this.messagesAddedNewItem = false
     this.msgType = 'all'
     const { messageService } = useServices()
     this.recordMsgs = await messageService.get(this.curConnectionId)
     this.messages = _.cloneDeep(this.recordMsgs.list)
+  }
+
+  private async getMoreMessages(
+    mode: 'before' | 'after' = 'before',
+    beforeCallback?: () => void,
+    callback?: () => void,
+  ) {
+    if ((mode === 'before' && !this.moreMsgBefore) || (mode === 'after' && !this.moreMsgAfter)) return
+
+    beforeCallback && beforeCallback()
+
+    const { messageService } = useServices()
+    const currentMsg = mode === 'before' ? this.messages[0] : this.messages[this.messages.length - 1]
+    const { createAt } = currentMsg
+    const { list, moreMsg } = await messageService.getMore(this.curConnectionId, createAt, mode)
+
+    moreMsg === 'before' && (this.moreMsgBefore = true)
+    moreMsg === 'after' && (this.moreMsgAfter = true)
+    moreMsg === false && mode === 'before' && (this.moreMsgBefore = false)
+    moreMsg === false && mode === 'after' && (this.moreMsgAfter = false)
+    mode === 'before' && (this.moreMsgAfter = true)
+    mode === 'after' && (this.moreMsgBefore = true)
+
+    if (list.length > 0) {
+      const id = mode === 'before' ? this.messages[0].id : this.messages[this.messages.length - 1].id
+      if (mode === 'before') {
+        this.recordMsgs.list.unshift(...list)
+        this.messages.unshift(...list)
+        if (this.messages.length > 40) {
+          this.messages = this.messages.slice(0, 40)
+        }
+      } else {
+        this.recordMsgs.list.push(...list)
+        this.messages.push(...list)
+        if (this.messages.length > 40) {
+          this.messages = this.messages.slice(this.messages.length - 40, this.messages.length)
+        }
+      }
+      const timer = setTimeout(() => {
+        this.$nextTick(() => {
+          const idBox = document.querySelector(`#${id}`)
+          idBox && idBox.scrollIntoView({ behavior: 'auto', block: mode === 'before' ? 'start' : 'end' })
+        })
+        clearTimeout(timer)
+      }, 100)
+    }
+    callback && callback()
   }
 
   // Clear messages
@@ -803,7 +847,6 @@ export default class ConnectionsDetail extends Vue {
 
   // Message type changed
   private async handleMsgTypeChanged(type: MessageType) {
-    this.messagesAddedNewItem = false
     const setChangedMessages = (changedType: MessageType, msgData: MessageModel[]) => {
       if (type === 'received') {
         this.messages = msgData.filter(($: MessageModel) => !$.out)
@@ -1037,7 +1080,7 @@ export default class ConnectionsDetail extends Vue {
     !this.scrollSubject.closed && this.scrollSubject.next()
   }
 
-  private scrollToBottom() {
+  private scrollToBottom(behavior: 'auto' | 'smooth' = 'smooth') {
     if (this.autoScroll === false) {
       return
     }
@@ -1048,7 +1091,7 @@ export default class ConnectionsDetail extends Vue {
         messagesDisplayDOM.scrollTo({
           top: messagesDisplayDOM.scrollHeight + 160,
           left: 0,
-          behavior: 'smooth',
+          behavior,
         })
       }
       clearTimeout(timer)
@@ -1177,7 +1220,6 @@ export default class ConnectionsDetail extends Vue {
         } else {
           this.messages.push(receivedMessage)
         }
-        this.messagesAddedNewItem = true
       }
     } else {
       this.unreadMessageIncrement({ id })
@@ -1358,7 +1400,6 @@ export default class ConnectionsDetail extends Vue {
             } else {
               this.messages.push(publishMessage)
             }
-            this.messagesAddedNewItem = true
           }
           const logPayload = JSON.stringify(publishMessage.payload)
           let pubLog = `${this.record.name} sucessfully published message ${logPayload} to topic "${publishMessage.topic}"`
@@ -1460,7 +1501,6 @@ export default class ConnectionsDetail extends Vue {
       this.searchMessage(message).then((res) => {
         if (res) {
           this.messages.push(message)
-          this.messagesAddedNewItem = true
           this.scrollToBottom()
         }
       })
