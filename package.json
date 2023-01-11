@@ -60,7 +60,6 @@
     "vue-property-decorator": "^8.5.1",
     "vue-router": "^3.4.9",
     "vue-rx": "6.2.0",
-    "vue-virtual-scroller": "^1.0.10",
     "vuex": "^3.0.1",
     "vuex-class": "^0.3.2",
     "xlsx": "^0.17.0",

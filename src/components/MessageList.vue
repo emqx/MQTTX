@@ -5,16 +5,12 @@
     :style="{ height: `${height}px`, marginTop: `${marginTop}px` }"
   >
     <span v-show="showLoadingIcon" class="loading-icon"><i class="el-icon-loading"></i></span>
-    <template>
-      <DynamicScroller v-if="showMessages.length" :items="showMessages" :min-item-size="20" class="scroller">
-        <template v-slot="{ item, active }">
-          <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
-            <MsgLeftItem v-if="!item.out" v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
-            <MsgRightItem v-else v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
-          </DynamicScrollerItem>
-        </template>
-      </DynamicScroller>
-    </template>
+    <div v-if="showMessages.length" :items="showMessages" class="scroller">
+      <template v-for="item in showMessages">
+        <MsgLeftItem v-if="!item.out" :key="item.id" v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
+        <MsgRightItem v-else :key="item.id" v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
+      </template>
+    </div>
     <span v-show="showLoadingIcon" class="loading-icon after"><i class="el-icon-loading"></i></span>
   </div>
 </template>
@@ -24,15 +20,12 @@ import _ from 'lodash'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
-import { DynamicScroller } from 'vue-virtual-scroller'
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { matchTopicMethod } from '@/utils/topicMatch'
 
 @Component({
   components: {
     MsgRightItem,
     MsgLeftItem,
-    DynamicScroller,
   },
 })
 export default class MessageList extends Vue {
@@ -131,12 +124,6 @@ export default class MessageList extends Vue {
   padding: 0 16px;
   overflow-x: hidden;
   overflow-y: overlay;
-  .vue-recycle-scroller.scroller.ready.direction-vertical {
-    overflow-y: visible;
-    .vue-recycle-scroller__item-wrapper {
-      overflow: visible;
-    }
-  }
   &.scrolling {
     &::-webkit-scrollbar {
       width: 8px;
