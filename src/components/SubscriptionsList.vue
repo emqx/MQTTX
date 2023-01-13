@@ -272,17 +272,12 @@ export default class SubscriptionsList extends Vue {
     }
   }
 
-  get subForm(): VueForm {
-    return this.$refs.form as VueForm
-  }
-
   get predefineColors(): string[] {
     return defineColors
   }
 
   @Watch('record')
   private handleRecordChanged(val: ConnectionModel) {
-    this.topicActiveIndex = null
     if (val.id) {
       this.getCurrentConnection(val.id)
       this.subsList = val.subscriptions
@@ -295,6 +290,10 @@ export default class SubscriptionsList extends Vue {
 
   private setNewSubscribeId() {
     this.subRecord.id = getSubscriptionId()
+  }
+
+  private getSubForm() {
+    return this.$refs.form as VueForm
   }
 
   private getBorderColor(): string {
@@ -332,7 +331,8 @@ export default class SubscriptionsList extends Vue {
 
   private saveSubs(): void | boolean {
     this.getCurrentConnection(this.connectionId)
-    this.subForm.validate(async (valid: boolean) => {
+    const form = this.getSubForm()
+    form.validate(async (valid: boolean) => {
       if (!valid) {
         return false
       }
@@ -540,7 +540,7 @@ export default class SubscriptionsList extends Vue {
             const { subscriptionService } = useServices()
             await subscriptionService.updateSubscriptions(this.record.id, this.record.subscriptions)
             this.changeSubs(payload)
-            this.$emit('deleteTopic')
+            this.$emit('deleteTopic', topic)
             this.subsList = payload.subscriptions
             this.$log.info(`Unsubscribe topic: ${topic}`)
             resolve(true)
@@ -552,8 +552,9 @@ export default class SubscriptionsList extends Vue {
   }
 
   private resetSubs() {
-    this.subForm.clearValidate()
-    this.subForm.resetFields()
+    const form = this.getSubForm()
+    form.clearValidate()
+    form.resetFields()
     this.subRecord.topic = 'testtopic/#'
     this.subRecord.qos = 0
     this.subRecord.alias = ''
