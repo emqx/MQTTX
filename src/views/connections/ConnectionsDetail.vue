@@ -229,10 +229,10 @@
           @deleteTopic="handleTopicDelete"
         />
         <MessageList
-          ref="messagesDisplay"
+          ref="msgList"
           :key="$route.params.id"
           :subscriptions="record.subscriptions"
-          :messages="messages"
+          :messages="recordMsgs.list"
           :height="messageListHeight"
           :marginTop="messageListMarginTop"
           @showContextMenu="handleContextMenu"
@@ -292,6 +292,7 @@ import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
 import { createClient } from '@/utils/mqttUtils'
 import { getBytes, getUptime, getVersion } from '@/utils/SystemTopicUtils'
 import validFormatJson from '@/utils/validFormatJson'
+import delay from '@/utils/delay'
 
 import MessageList from '@/components/MessageList.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
@@ -415,7 +416,6 @@ export default class ConnectionsDetail extends Vue {
     page: 1,
     list: [],
   }
-  private messages: MessageModel[] = this.recordMsgs.list
   private moreMsgBefore = true
   private moreMsgAfter = true
   private searchParams = {
@@ -495,9 +495,7 @@ export default class ConnectionsDetail extends Vue {
   private async handleRecordChanged() {
     this.getConnectionValue(this.curConnectionId)
     await this.getMessages()
-    this.$nextTick(() => {
-      this.scrollToBottom('auto')
-    })
+    this.scrollToBottom()
   }
 
   @Watch('inputHeight')
@@ -772,26 +770,44 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Return messages
-  private async getMessages() {
-    this.msgType = 'all'
+  private async getMessages(limit = 20) {
+    console.log('getMessages')
+
     const { messageService } = useServices()
-    this.recordMsgs = await messageService.get(this.curConnectionId)
-    this.messages = _.cloneDeep(this.recordMsgs.list)
+    this.recordMsgs = await messageService.get(this.curConnectionId, {
+      limit,
+      msgType: this.msgType,
+      topic: this.activeTopic,
+    })
+    this.moreMsgAfter = false
+    if (this.recordMsgs.total > limit) {
+      this.moreMsgBefore = true
+    } else {
+      this.moreMsgBefore = false
+    }
   }
 
-  private async getMoreMessages(
-    mode: 'before' | 'after' = 'before',
-    beforeCallback?: () => void,
-    callback?: () => void,
-  ) {
+  private async getMoreMessages(mode: 'before' | 'after' = 'before') {
     if ((mode === 'before' && !this.moreMsgBefore) || (mode === 'after' && !this.moreMsgAfter)) return
 
-    beforeCallback && beforeCallback()
+    if (this.recordMsgs.list.length === 0) {
+      this.getMessages()
+      return
+    }
+
+    console.log('getMoreMessages', mode)
+
+    const msgListRef = this.getMsgListRef()
+    msgListRef.showLoadingIcon = true
 
     const { messageService } = useServices()
-    const currentMsg = mode === 'before' ? this.messages[0] : this.messages[this.messages.length - 1]
-    const { createAt } = currentMsg
-    const { list, moreMsg } = await messageService.getMore(this.curConnectionId, createAt, mode)
+    let _messages = _.cloneDeep(this.recordMsgs.list)
+    const currentMsg = mode === 'before' ? _messages[0] : _messages[_messages.length - 1]
+    const { id, createAt } = currentMsg
+    const { list, moreMsg } = await messageService.loadMore(this.curConnectionId, createAt, mode, {
+      msgType: this.msgType,
+      topic: this.activeTopic,
+    })
 
     moreMsg === 'before' && (this.moreMsgBefore = true)
     moreMsg === 'after' && (this.moreMsgAfter = true)
@@ -801,34 +817,31 @@ export default class ConnectionsDetail extends Vue {
     mode === 'after' && (this.moreMsgBefore = true)
 
     if (list.length > 0) {
-      const id = mode === 'before' ? this.messages[0].id : this.messages[this.messages.length - 1].id
       if (mode === 'before') {
-        this.recordMsgs.list.unshift(...list)
-        this.messages.unshift(...list)
-        if (this.messages.length > 40) {
-          this.messages = this.messages.slice(0, 40)
+        _messages.unshift(...list)
+        if (_messages.length > 40) {
+          _messages = _messages.slice(0, 40)
         }
       } else {
-        this.recordMsgs.list.push(...list)
-        this.messages.push(...list)
-        if (this.messages.length > 40) {
-          this.messages = this.messages.slice(this.messages.length - 40, this.messages.length)
+        _messages.push(...list)
+        if (_messages.length > 40) {
+          _messages = _messages.slice(_messages.length - 40, _messages.length)
         }
       }
+      this.recordMsgs.list = _.cloneDeep(_messages)
       const timer = setTimeout(() => {
         this.$nextTick(() => {
           const idBox = document.querySelector(`#${id}`)
           idBox && idBox.scrollIntoView({ behavior: 'auto', block: mode === 'before' ? 'start' : 'end' })
         })
         clearTimeout(timer)
-      }, 100)
+      }, 50)
     }
-    callback && callback()
+    msgListRef.showLoadingIcon = false
   }
 
   // Clear messages
   private async handleMsgClear() {
-    this.messages = []
     this.recordMsgs.list = []
     this.recordMsgs.total = 0
     this.recordMsgs.publishedTotal = 0
@@ -847,77 +860,51 @@ export default class ConnectionsDetail extends Vue {
 
   // Message type changed
   private async handleMsgTypeChanged(type: MessageType) {
-    const setChangedMessages = (changedType: MessageType, msgData: MessageModel[]) => {
-      if (type === 'received') {
-        this.messages = msgData.filter(($: MessageModel) => !$.out)
-      } else if (type === 'publish') {
-        this.messages = msgData.filter(($: MessageModel) => $.out)
-      } else {
-        this.messages = msgData.slice()
-      }
-      this.scrollToBottom()
-    }
-    if (this.activeTopic !== '') {
-      const res = await topicMatch(this.recordMsgs.list, this.activeTopic)
-      if (res) {
-        setChangedMessages(type, res)
-      } else {
-        this.messages = [].slice()
-      }
-    } else {
-      setChangedMessages(type, this.recordMsgs.list)
-    }
+    this.msgType = type
+    this.getMessages()
+    this.scrollToBottom()
   }
 
   // Search messages
   private async searchContent() {
-    this.scrollToBottom()
-    const { topic, payload } = this.searchParams
-    if (!topic && !payload) {
-      return
-    }
-    this.searchLoading = true
-    const timer = setTimeout(() => {
-      this.searchLoading = false
-      clearTimeout(timer)
-    }, 500)
-    this.getMessages()
-    if (topic !== '' || payload !== '') {
-      const $messages =
-        this.activeTopic === '' ? _.cloneDeep(this.messages) : await topicMatch(this.recordMsgs.list, this.activeTopic)
-      const res = await matchMultipleSearch($messages, this.searchParams)
-      if (res) {
-        this.messages = res.slice()
-      } else {
-        this.messages = [].slice()
-      }
-    }
+    // TODO: Search messages
+    // this.scrollToBottom()
+    // const { topic, payload } = this.searchParams
+    // if (!topic && !payload) {
+    //   return
+    // }
+    // this.searchLoading = true
+    // const timer = setTimeout(() => {
+    //   this.searchLoading = false
+    //   clearTimeout(timer)
+    // }, 500)
+    // this.getMessages()
+    // if (topic !== '' || payload !== '') {
+    //   const $messages =
+    //     this.activeTopic === '' ? _.cloneDeep(this.messages) : await topicMatch(this.recordMsgs.list, this.activeTopic)
+    //   const res = await matchMultipleSearch($messages, this.searchParams)
+    //   if (res) {
+    //     this.messages = res.slice()
+    //   } else {
+    //     this.messages = [].slice()
+    //   }
+    // }
   }
 
   // Delete topic item
-  private handleTopicDelete() {
+  private handleTopicDelete(topic: string) {
+    if (this.activeTopic === topic) this.activeTopic = ''
     this.getMessages()
     this.scrollToBottom()
   }
 
   // Click topic item
   private async handleTopicClick(sub: SubscriptionModel, reset: boolean) {
+    reset ? (this.activeTopic = '') : (this.activeTopic = sub.topic)
     this.getMessages()
-    if (reset) {
-      this.activeTopic = ''
-      this.searchContent()
-      return false
-    }
-    this.activeTopic = sub.topic
-    const $messages = _.cloneDeep(this.messages)
-    const res: MessageModel[] = await topicMatch($messages, sub.topic)
-    if (res) {
-      this.messages = res.slice()
-    } else {
-      this.messages = [].slice()
-    }
-    this.searchContent()
+    this.scrollToBottom()
   }
+
   private handleSearchOpen() {
     this.searchVisible = true
     const $el = document.getElementById('searchTopic')
@@ -930,22 +917,23 @@ export default class ConnectionsDetail extends Vue {
 
   // Close search bar
   private async handleSearchClose() {
+    // TODO: Close search bar
     this.searchVisible = false
     this.searchParams = {
       topic: '',
       payload: '',
     }
-    this.getMessages()
-    if (this.activeTopic) {
-      const $messages = _.cloneDeep(this.messages)
-      const res = await topicMatch($messages, this.activeTopic)
-      if (res) {
-        this.messages = res.slice()
-      } else {
-        this.messages = [].slice()
-      }
-    }
-    this.scrollToBottom()
+    // this.getMessages()
+    // if (this.activeTopic) {
+    //   const $messages = _.cloneDeep(this.messages)
+    //   const res = await topicMatch($messages, this.activeTopic)
+    //   if (res) {
+    //     this.messages = res.slice()
+    //   } else {
+    //     this.messages = [].slice()
+    //   }
+    // }
+    // this.scrollToBottom()
   }
 
   // Cancel connect
@@ -1084,18 +1072,23 @@ export default class ConnectionsDetail extends Vue {
     if (this.autoScroll === false) {
       return
     }
-    const timer = setTimeout(() => {
-      const messagesDisplay = this.$refs.messagesDisplay as MessageList
-      const messagesDisplayDOM = messagesDisplay?.$el
-      if (messagesDisplayDOM) {
-        messagesDisplayDOM.scrollTo({
-          top: messagesDisplayDOM.scrollHeight + 160,
-          left: 0,
-          behavior,
-        })
-      }
-      clearTimeout(timer)
-    }, 100)
+    this.$nextTick(() => {
+      const timer = setTimeout(async () => {
+        clearTimeout(timer)
+        const msgListRef = this.getMsgListRef()
+        const msgListDOM = msgListRef?.$el
+        if (msgListDOM) {
+          msgListRef.loadinSwitch = false
+          msgListDOM.scrollTo({
+            top: msgListDOM.scrollHeight + 160,
+            left: 0,
+            behavior,
+          })
+          await delay(1000)
+          msgListRef.loadinSwitch = true
+        }
+      }, 100)
+    })
   }
 
   // Set script
@@ -1195,35 +1188,50 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
-  // Render message
-  private renderMessage(id: string, receivedMessage: MessageModel) {
-    const { topic } = receivedMessage
-    if (id === this.curConnectionId) {
-      if (this.recordMsgs.list.length > 20) {
-        this.recordMsgs.list = [...this.recordMsgs.list.slice(1), receivedMessage]
-      } else {
-        this.recordMsgs.list.push(receivedMessage)
-      }
-      this.recordMsgs.total += 1
-      this.recordMsgs.receivedTotal += 1
-      // Filter by conditions (topic, payload, etc)
-      const filterRes = this.filterBySearchConditions(topic, receivedMessage)
-      if (filterRes) {
-        return
-      }
-      const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
-      const isFromActiveTopic = this.msgType !== 'publish' && this.activeTopic && isActiveTopicMessages
-      const isFromNotActiveTopic = this.msgType !== 'publish' && !this.activeTopic
-      if (isFromActiveTopic || isFromNotActiveTopic) {
-        if (this.messages.length > 20) {
-          this.messages = [...this.messages.slice(1), receivedMessage]
-        } else {
-          this.messages.push(receivedMessage)
-        }
-      }
-    } else {
-      this.unreadMessageIncrement({ id })
+  private getMsgListRef() {
+    return this.$refs.msgList as MessageList
+  }
+
+  private isScrollBottom() {
+    const msgListRef = this.getMsgListRef()
+    const msgListDOM = msgListRef?.$el
+    if (msgListDOM) {
+      const { scrollTop, scrollHeight, clientHeight } = msgListDOM
+      const isScrollBottom = scrollTop + clientHeight >= scrollHeight - 250
+      return isScrollBottom
     }
+  }
+
+  // Render message
+  private async renderMessage(id: string, msg: MessageModel, msgType: 'received' | 'publish' = 'received') {
+    console.log('moreMsgAfter: ', this.moreMsgAfter)
+    console.log('isScrollBottom: ', this.isScrollBottom())
+
+    if (id !== this.curConnectionId) {
+      this.unreadMessageIncrement({ id })
+      return
+    }
+    const isScrollBottom = this.isScrollBottom()
+    if (msgType === 'received' && !isScrollBottom) {
+      // TODO: add unread message tip
+      return
+    }
+    if (!this.moreMsgAfter && isScrollBottom) {
+      this.recordMsgs.total += 1
+      msgType === 'received' ? (this.recordMsgs.receivedTotal += 1) : (this.recordMsgs.publishedTotal += 1)
+      const isActiveTopicMessages = matchTopicMethod(this.activeTopic, msg.topic)
+      if (!this.activeTopic || isActiveTopicMessages) {
+        if (this.recordMsgs.list.length > 40) {
+          this.recordMsgs.list = [...this.recordMsgs.list.slice(1), msg]
+        } else {
+          this.recordMsgs.list.push(msg)
+        }
+        this.scrollToBottom()
+      }
+      return
+    }
+    await this.getMessages()
+    this.scrollToBottom()
   }
 
   // Recevied message
@@ -1265,7 +1273,6 @@ export default class ConnectionsDetail extends Vue {
         messages.forEach((message: MessageModel) => {
           this.renderMessage(id, message)
         })
-        this.scrollToBottomThrottle()
       }
     })
 
@@ -1379,28 +1386,20 @@ export default class ConnectionsDetail extends Vue {
           properties,
         }
         if (this.record.id) {
-          if (this.recordMsgs.list.length > 20) {
-            this.recordMsgs.list = [...this.recordMsgs.list.slice(1), publishMessage]
-          } else {
-            this.recordMsgs.list.push(publishMessage)
-          }
-          this.recordMsgs.total += 1
-          this.recordMsgs.publishedTotal += 1
+          // Save message
+          const { messageService } = useServices()
+          await messageService.pushToConnection({ ...publishMessage }, this.record.id)
+
+          // Render messages
+          this.renderMessage(this.curConnectionId, publishMessage, 'publish')
+
           // Filter by conditions (topic, payload, etc)
-          const filterRes = this.filterBySearchConditions(topic, publishMessage)
-          if (filterRes) {
-            return
-          }
-          const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
-          const isFromActiveTopic = this.activeTopic && isActiveTopicMessages && this.msgType !== 'received'
-          const isFromNotActiveTopic = this.msgType !== 'received' && !this.activeTopic
-          if (isFromActiveTopic || isFromNotActiveTopic) {
-            if (this.messages.length > 20) {
-              this.messages = [...this.messages.slice(1), publishMessage]
-            } else {
-              this.messages.push(publishMessage)
-            }
-          }
+          // const filterRes = this.filterBySearchConditions(topic, publishMessage)
+          // if (filterRes) {
+          //   return
+          // }
+
+          // Log
           const logPayload = JSON.stringify(publishMessage.payload)
           let pubLog = `${this.record.name} sucessfully published message ${logPayload} to topic "${publishMessage.topic}"`
           if (this.record.mqttVersion === '5.0') {
@@ -1408,9 +1407,6 @@ export default class ConnectionsDetail extends Vue {
             pubLog += ` with Properties: ${logProperties}`
           }
           this.$log.info(pubLog)
-          const { messageService } = useServices()
-          await messageService.pushToConnection({ ...publishMessage }, this.record.id)
-          this.scrollToBottom()
         }
       },
     )
@@ -1494,20 +1490,21 @@ export default class ConnectionsDetail extends Vue {
     return convertPayload
   }
 
+  // TODO: Conditions when searching and filtering
   // Conditions when searching and filtering
-  private filterBySearchConditions(topic: string, message: MessageModel): boolean {
-    const { topic: searchTopic, payload: searchPayload } = this.searchParams
-    if (searchTopic || searchPayload) {
-      this.searchMessage(message).then((res) => {
-        if (res) {
-          this.messages.push(message)
-          this.scrollToBottom()
-        }
-      })
-      return true
-    }
-    return false
-  }
+  // private filterBySearchConditions(topic: string, message: MessageModel): boolean {
+  //   const { topic: searchTopic, payload: searchPayload } = this.searchParams
+  //   if (searchTopic || searchPayload) {
+  //     this.searchMessage(message).then((res) => {
+  //       if (res) {
+  //         this.messages.push(message)
+  //         this.scrollToBottom()
+  //       }
+  //     })
+  //     return true
+  //   }
+  //   return false
+  // }
 
   // Show export data dialog
   private handleExportData() {
