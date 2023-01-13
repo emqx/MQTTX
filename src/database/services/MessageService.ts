@@ -35,20 +35,42 @@ export default class MessageService {
     } as MessageModel
   }
 
-  public async get(connectionId: string, page = 1, limit = 20): Promise<MessagePaginationModel> {
+  public async get(
+    connectionId: string,
+    options: { page?: number; limit?: number; msgType?: MessageType; topic?: string } = {},
+  ): Promise<MessagePaginationModel> {
+    const defaultOpts = { page: 1, limit: 20, msgType: 'all' }
+    const { page, limit, msgType } = { ...defaultOpts, ...options }
+    let { topic } = { ...defaultOpts, ...options }
+
     const total = await this.messageRepository.count({ connectionId })
     const publishedTotal = await this.messageRepository.count({ connectionId, out: true })
     const receivedTotal = await this.messageRepository.count({ connectionId, out: false })
-    const query = await this.messageRepository
+
+    let query = this.messageRepository
       .createQueryBuilder('msg')
       .where('msg.connectionId = :connection', { connection: connectionId })
+
+    msgType !== 'all' && query.andWhere('msg.out = :out', { out: msgType === 'publish' })
+
+    if (topic && topic !== '#') {
+      topic = topic.replace(/[\\%_]/g, '\\$&')
+      if (topic.startsWith('$share/')) topic = topic.split('/').slice(2).join('/')
+      if (topic.includes('#')) topic = topic.replace('/#', '%')
+      if (topic.includes('+')) topic = topic.replace('+', '%')
+      query.andWhere('msg.topic LIKE :topic', { topic })
+    }
+
+    const res = await query
       .orderBy('msg.createAt', 'DESC')
       .skip((page - 1) * limit)
       .take(limit)
       .getMany()
-    const messages = query.reverse().map((m) => MessageService.entityToModel(m))
+
+    const list = res.reverse().map((m) => MessageService.entityToModel(m))
+
     return {
-      list: messages,
+      list,
       total,
       publishedTotal,
       receivedTotal,
@@ -57,18 +79,43 @@ export default class MessageService {
     }
   }
 
-  public async getMore(connectionId: string, createAt: string, mode: 'before' | 'after' = 'before', limit = 20) {
-    const query = await this.messageRepository
+  public async loadMore(
+    connectionId: string,
+    createAt: string,
+    mode: 'before' | 'after' = 'before',
+    options: { limit?: number; msgType?: MessageType; topic?: string } = {},
+  ) {
+    const defaultOpts = { limit: 20, msgType: 'all' }
+    const { limit, msgType } = { ...defaultOpts, ...options }
+    let { topic } = { ...defaultOpts, ...options }
+
+    let query = await this.messageRepository
       .createQueryBuilder('msg')
       .where('msg.connectionId = :connection', { connection: connectionId })
+
+    msgType !== 'all' && query.andWhere('msg.out = :out', { out: msgType === 'publish' })
+
+    if (topic && topic !== '#') {
+      topic = topic.replace(/[\\%_]/g, '\\$&')
+      if (topic.startsWith('$share/')) topic = topic.split('/').slice(2).join('/')
+      if (topic.includes('#')) topic = topic.replace('/#', '%')
+      if (topic.includes('+')) topic = topic.replace('+', '%')
+      query.andWhere('msg.topic LIKE :topic', { topic })
+    }
+
+    const res = await query
       .andWhere('msg.createAt ' + (mode === 'before' ? '<' : '>') + ' :createAt', { createAt })
       .orderBy('msg.createAt', mode === 'before' ? 'DESC' : 'ASC')
       .take(limit + 1)
       .getMany()
-    mode === 'before' && query.reverse()
-    const moreMsg = query.length > limit && mode
-    moreMsg && query.pop()
-    const list = query.map((m) => MessageService.entityToModel(m))
+
+    mode === 'before' && res.reverse()
+
+    const moreMsg = res.length > limit && mode
+    moreMsg && res.pop()
+
+    const list = res.map((m) => MessageService.entityToModel(m))
+
     return { list, moreMsg }
   }
 
