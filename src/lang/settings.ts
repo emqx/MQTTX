@@ -111,20 +111,6 @@ export default {
     ja: '自動的に再購読',
     hu: 'Automata újra feliratkozás',
   },
-  autoScroll: {
-    zh: '自动滚动',
-    en: 'Auto scroll',
-    tr: 'Otomatik kaydırma',
-    ja: '自動スクロール',
-    hu: 'Automatikus görgetés',
-  },
-  autoScrollInterval: {
-    zh: '自动滚动频率（秒）',
-    en: 'Auto scroll interval (seconds)',
-    tr: 'Otomatik kaydırma aralığı (saniye)',
-    ja: '自動スクロール間隔（秒）',
-    hu: 'Automatikus görgetési időköz (másodperc)',
-  },
   multiTopics: {
     zh: '多主题订阅',
     en: 'Multi topics subscribe',
@@ -138,13 +124,6 @@ export default {
     tr: 'Yeniden bağlanırken, bağlantının abonelik listesi otomatik olarak yeniden abone olur',
     ja: '再接続時に、接続のサブスクリプションリストが自動的に再購読されます',
     hu: 'Újracsatlakozáskor az előfizetési lista automatikusan újra feliratkozik',
-  },
-  autoScrollDesc: {
-    zh: '是否自动滚动消息列表',
-    en: 'Whether to automatically scroll the list of messages',
-    tr: 'Mesaj listesinin otomatik olarak kaydırılıp kaydırılmayacağı',
-    ja: 'メッセージリストを自動的にスクロールするかどうか',
-    hu: 'Az üzenetlista automatikus görgetése',
   },
   cleanHistoryDialogMessage: {
     zh: '将会清除历史建议信息，包括历史 Payload/QoS/Retain/Topic/Connection 数据',

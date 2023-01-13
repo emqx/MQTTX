@@ -361,8 +361,6 @@ export default class ConnectionsDetail extends Vue {
 
   @Getter('activeConnection') private activeConnection!: ActiveConnection
   @Getter('showSubscriptions') private showSubscriptions!: boolean
-  @Getter('autoScroll') private autoScroll!: boolean
-  @Getter('autoScrollInterval') private autoScrollInterval!: number
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: { [id: string]: boolean }
@@ -1088,10 +1086,7 @@ export default class ConnectionsDetail extends Vue {
     !this.scrollSubject.closed && this.scrollSubject.next()
   }
 
-  private scrollToBottom(behavior: 'auto' | 'smooth' = 'smooth') {
-    if (this.autoScroll === false) {
-      return
-    }
+  private scrollToBottom() {
     this.$nextTick(() => {
       const timer = setTimeout(async () => {
         clearTimeout(timer)
@@ -1102,7 +1097,7 @@ export default class ConnectionsDetail extends Vue {
           msgListDOM.scrollTo({
             top: msgListDOM.scrollHeight + 160,
             left: 0,
-            behavior,
+            behavior: 'smooth',
           })
           await delay(1000)
           msgListRef.loadinSwitch = true
@@ -1606,13 +1601,12 @@ export default class ConnectionsDetail extends Vue {
 
   private created() {
     this.getConnectionValue(this.curConnectionId)
-    this.autoScroll &&
-      this.scrollSubject
-        .asObservable()
-        .pipe(throttleTime(this.autoScrollInterval * 1000))
-        .subscribe(() => {
-          this.scrollToBottom()
-        })
+    this.scrollSubject
+      .asObservable()
+      .pipe(throttleTime(1000))
+      .subscribe(() => {
+        this.scrollToBottom()
+      })
     ipcRenderer.on('searchContent', () => {
       this.handleSearchOpen()
     })
