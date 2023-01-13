@@ -236,8 +236,10 @@
           :height="messageListHeight"
           :marginTop="messageListMarginTop"
           @showContextMenu="handleContextMenu"
-          @getMoreMsg="getMoreMessages"
+          @loadMoreMsg="loadMoreMessages"
+          @hideNewMsgsTip="hideNewMsgsTip"
         />
+        <MsgTip :count="newMsgsCount" @loadNewMsg="loadNewMsg" />
         <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
           <a href="javascript:;" class="context-menu__item" @click="handleCopyMessage">
             <i class="iconfont icon-copy"></i>{{ $t('common.copy') }}
@@ -306,6 +308,7 @@ import TimedMessage from '@/components/TimedMessage.vue'
 import BytesStatistics from '@/components/BytesStatistics.vue'
 import UseScript from '@/components/UseScript.vue'
 import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
+import MsgTip from '@/components/MsgTip.vue'
 
 import sandbox from '@/utils/sandbox'
 import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/historyRecordUtils'
@@ -343,6 +346,7 @@ interface TopModel {
     MessageList,
     UseScript,
     MsgTypeTabs,
+    MsgTip,
   },
 })
 export default class ConnectionsDetail extends Vue {
@@ -418,6 +422,7 @@ export default class ConnectionsDetail extends Vue {
   }
   private moreMsgBefore = true
   private moreMsgAfter = true
+  private newMsgsCount = 0
   private searchParams = {
     topic: '',
     payload: '',
@@ -620,7 +625,11 @@ export default class ConnectionsDetail extends Vue {
     this.messageListMarginTop = filterBarOffsetHeight > 56 ? filterBarOffsetHeight - 37 : 19
 
     this.messageListHeight =
-      document.body.offsetHeight - connectionTopbar.offsetHeight - connectionFooter.offsetHeight - filterBarOffsetHeight
+      document.body.offsetHeight -
+      connectionTopbar.offsetHeight -
+      connectionFooter.offsetHeight -
+      filterBarOffsetHeight -
+      8
   }
 
   // Show context menu
@@ -769,10 +778,15 @@ export default class ConnectionsDetail extends Vue {
     })
   }
 
+  private hideNewMsgsTip() {
+    if (!this.moreMsgAfter) this.newMsgsCount = 0
+  }
+
   // Return messages
   private async getMessages(limit = 20) {
     console.log('getMessages')
 
+    this.newMsgsCount = 0
     const { messageService } = useServices()
     this.recordMsgs = await messageService.get(this.curConnectionId, {
       limit,
@@ -787,7 +801,7 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
-  private async getMoreMessages(mode: 'before' | 'after' = 'before') {
+  private async loadMoreMessages(mode: 'before' | 'after' = 'before') {
     if ((mode === 'before' && !this.moreMsgBefore) || (mode === 'after' && !this.moreMsgAfter)) return
 
     if (this.recordMsgs.list.length === 0) {
@@ -795,7 +809,7 @@ export default class ConnectionsDetail extends Vue {
       return
     }
 
-    console.log('getMoreMessages', mode)
+    console.log('loadMoreMessages', mode)
 
     const msgListRef = this.getMsgListRef()
     msgListRef.showLoadingIcon = true
@@ -838,6 +852,12 @@ export default class ConnectionsDetail extends Vue {
       }, 50)
     }
     msgListRef.showLoadingIcon = false
+  }
+
+  private loadNewMsg() {
+    this.msgType = 'all'
+    this.getMessages()
+    this.scrollToBottom()
   }
 
   // Clear messages
@@ -1215,9 +1235,10 @@ export default class ConnectionsDetail extends Vue {
     msgType === 'received' ? (this.recordMsgs.receivedTotal += 1) : (this.recordMsgs.publishedTotal += 1)
     const isScrollBottom = this.isScrollBottom()
     if (msgType === 'received' && !isScrollBottom) {
-      // TODO: add unread message tip
+      this.newMsgsCount += 1
       return
     }
+    this.newMsgsCount = 0
     if (!this.moreMsgAfter && isScrollBottom) {
       const isActiveTopicMessages = matchTopicMethod(this.activeTopic, msg.topic)
       const isActiveMsgType =
@@ -1727,6 +1748,7 @@ export default class ConnectionsDetail extends Vue {
     height: 100%;
     transition: all 0.5s;
     .connections-body {
+      position: relative;
       .filter-bar {
         padding: 7px 16px;
         background: var(--color-bg-normal);

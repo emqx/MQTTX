@@ -5,7 +5,7 @@
     :style="{ height: `${height}px`, marginTop: `${marginTop}px` }"
   >
     <span v-show="showLoadingIcon" class="loading-icon"><i class="el-icon-loading"></i></span>
-    <div v-if="showMessages.length" :items="showMessages" class="scroller">
+    <div v-if="showMessages.length" class="scroller">
       <template v-for="item in showMessages">
         <MsgLeftItem v-if="!item.out" :key="item.id" v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
         <MsgRightItem v-else :key="item.id" v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
@@ -53,7 +53,7 @@ export default class MessageList extends Vue {
   @Watch('scrollOffset')
   private async handleScrollOffsetChanged(val: MessageList['scrollOffset'], oldVal: MessageList['scrollOffset']) {
     if (this.loadinSwitch && this.showLoadingIcon === false && val.offset === 0) {
-      this.$emit('getMoreMsg', val.mode)
+      this.$emit('loadMoreMsg', val.mode)
     }
   }
 
@@ -87,6 +87,7 @@ export default class MessageList extends Vue {
       this.scrollOffset = { offset: scrollTop, mode: 'before' }
     } else if (scrollBottom <= this.scrollOffsetMaxNum) {
       this.scrollOffset = { offset: scrollBottom, mode: 'after' }
+      this.$emit('hideNewMsgsTip')
     }
     if (this.timeout === undefined) {
       this.timeout = window.setTimeout(() => {
@@ -136,15 +137,16 @@ export default class MessageList extends Vue {
   }
 
   .loading-icon {
+    position: absolute;
+    top: 6px;
     display: inline-block;
     width: 100%;
-    margin-top: 6px;
     text-align: center;
     font-size: 14px;
     color: var(--color-main-green);
     &.after {
-      margin-top: 0;
-      margin-bottom: 6px;
+      top: unset;
+      bottom: 6px;
     }
   }
 }

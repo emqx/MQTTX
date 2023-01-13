@@ -276,6 +276,12 @@ export default class SubscriptionsList extends Vue {
     return defineColors
   }
 
+  @Watch('$route.params.id')
+  private handleIdChanged() {
+    this.$emit('onClickTopic', this.topicActiveIndex, true)
+    this.topicActiveIndex = null
+  }
+
   @Watch('record')
   private handleRecordChanged(val: ConnectionModel) {
     if (val.id) {
