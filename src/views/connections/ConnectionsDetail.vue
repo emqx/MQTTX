@@ -1211,16 +1211,18 @@ export default class ConnectionsDetail extends Vue {
       this.unreadMessageIncrement({ id })
       return
     }
+    this.recordMsgs.total += 1
+    msgType === 'received' ? (this.recordMsgs.receivedTotal += 1) : (this.recordMsgs.publishedTotal += 1)
     const isScrollBottom = this.isScrollBottom()
     if (msgType === 'received' && !isScrollBottom) {
       // TODO: add unread message tip
       return
     }
     if (!this.moreMsgAfter && isScrollBottom) {
-      this.recordMsgs.total += 1
-      msgType === 'received' ? (this.recordMsgs.receivedTotal += 1) : (this.recordMsgs.publishedTotal += 1)
       const isActiveTopicMessages = matchTopicMethod(this.activeTopic, msg.topic)
-      if (!this.activeTopic || isActiveTopicMessages) {
+      const isActiveMsgType =
+        this.msgType === 'all' || (this.msgType === 'publish' && msg.out) || (this.msgType === 'received' && !msg.out)
+      if (isActiveMsgType && (!this.activeTopic || isActiveTopicMessages)) {
         if (this.recordMsgs.list.length > 40) {
           this.recordMsgs.list = [...this.recordMsgs.list.slice(1), msg]
         } else {
