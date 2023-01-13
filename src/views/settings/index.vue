@@ -71,47 +71,6 @@
 
       <el-row class="settings-item" type="flex" justify="space-between">
         <el-col :span="20">
-          <label>{{ $t('settings.autoScroll') }}</label>
-          <el-tooltip
-            placement="top"
-            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
-            :open-delay="500"
-            :content="$t('settings.autoScrollDesc')"
-          >
-            <a href="javascript:;" class="icon-oper">
-              <i class="el-icon-warning-outline"></i>
-            </a>
-          </el-tooltip>
-        </el-col>
-        <el-col :span="4">
-          <el-switch
-            :value="autoScroll"
-            active-color="#13ce66"
-            inactive-color="#A2A9B0"
-            @change="handleAutoScrollSwitchChange"
-          >
-          </el-switch>
-        </el-col>
-      </el-row>
-
-      <template v-if="autoScroll">
-        <el-divider></el-divider>
-
-        <el-row class="settings-item" type="flex" justify="space-between" align="middle">
-          <el-col :span="18">
-            <label>{{ $t('settings.autoScrollInterval') }}</label>
-          </el-col>
-          <el-col :span="4">
-            <el-input-number size="mini" :value="autoScrollInterval" :min="0" @change="handleAutoScrollIntervalChange">
-            </el-input-number>
-          </el-col>
-        </el-row>
-      </template>
-
-      <el-divider></el-divider>
-
-      <el-row class="settings-item" type="flex" justify="space-between">
-        <el-col :span="20">
           <label>{{ $t('settings.multiTopics') }}</label>
           <el-tooltip
             placement="top"
@@ -286,10 +245,6 @@ export default class Settings extends Vue {
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
   @Action('TOGGLE_AUTO_CHECK') private actionAutoCheck!: (payload: { autoCheck: boolean }) => void
   @Action('TOGGLE_AUTO_RESUB') private actionAutoResub!: (payload: { autoResub: boolean }) => void
-  @Action('TOGGLE_AUTO_SCROLL') private actionAutoScroll!: (payload: { autoScroll: boolean }) => void
-  @Action('SET_AUTO_SCROLL_INTERVAL') private actionAutoScrollInterval!: (payload: {
-    autoScrollInterval: number
-  }) => void
   @Action('TOGGLE_SYNC_OS_THEME') private actionSyncOsTheme!: (payload: { syncOsTheme: boolean }) => void
   @Action('SET_MAX_RECONNECT_TIMES') private actionMaxReconnectTimes!: (payload: { maxReconnectTimes: number }) => void
   @Action('TOGGLE_MULTI_TOPICS') private actionToggleMultiTopics!: (payload: { multiTopics: boolean }) => void
@@ -299,8 +254,6 @@ export default class Settings extends Vue {
   @Getter('autoResub') private autoResub!: boolean
   @Getter('syncOsTheme') private syncOsTheme!: boolean
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
-  @Getter('autoScroll') private autoScroll!: boolean
-  @Getter('autoScrollInterval') private autoScrollInterval!: number
   @Getter('multiTopics') private multiTopics!: boolean
 
   private langOptions: Options[] = [
@@ -344,20 +297,12 @@ export default class Settings extends Vue {
     this.actionSyncOsTheme({ syncOsTheme: value })
   }
 
-  private handleAutoScrollSwitchChange(value: boolean) {
-    this.actionAutoScroll({ autoScroll: value })
-  }
-
   private handleMultiTopicsSwitchChange(value: boolean) {
     this.actionToggleMultiTopics({ multiTopics: value })
   }
 
   private handleInputChage(value: number) {
     this.actionMaxReconnectTimes({ maxReconnectTimes: value })
-  }
-
-  private handleAutoScrollIntervalChange(value: number) {
-    this.actionAutoScrollInterval({ autoScrollInterval: value })
   }
 
   private handleImportData() {

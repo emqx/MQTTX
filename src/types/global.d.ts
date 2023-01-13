@@ -89,8 +89,6 @@ declare global {
     currentLang: Language
     autoCheck: boolean
     autoResub: boolean
-    autoScroll: boolean
-    autoScrollInterval: number
     showSubscriptions: boolean
     syncOsTheme: boolean
     multiTopics: boolean

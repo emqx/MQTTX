@@ -38,8 +38,6 @@ const app = {
     currentLang: settingData.currentLang || 'en',
     autoCheck: settingData.autoCheck,
     autoResub: settingData.autoResub,
-    autoScroll: settingData.autoScroll,
-    autoScrollInterval: settingData.autoScrollInterval || 0,
     syncOsTheme: settingData.syncOsTheme,
     multiTopics: settingData.multiTopics,
     maxReconnectTimes: settingData.maxReconnectTimes || 10,
@@ -64,12 +62,6 @@ const app = {
     },
     [TOGGLE_AUTO_RESUB](state: App, autoResub: boolean) {
       state.autoResub = autoResub
-    },
-    [TOGGLE_AUTO_SCROLL](state: App, autoScroll: boolean) {
-      state.autoScroll = autoScroll
-    },
-    [SET_AUTO_SCROLL_INTERVAL](state: App, autoScrollInterval: number) {
-      state.autoScrollInterval = autoScrollInterval
     },
     [TOGGLE_SYNC_OS_THEME](state: App, syncOsTheme: boolean) {
       state.syncOsTheme = syncOsTheme
@@ -158,18 +150,6 @@ const app = {
       const { settingService } = useServices()
       commit(TOGGLE_AUTO_RESUB, payload.autoResub)
       settingData.autoResub = payload.autoResub
-      await settingService.update(payload)
-    },
-    async TOGGLE_AUTO_SCROLL({ commit }: any, payload: App) {
-      const { settingService } = useServices()
-      commit(TOGGLE_AUTO_SCROLL, payload.autoScroll)
-      settingData.autoScroll = payload.autoScroll
-      await settingService.update(payload)
-    },
-    async SET_AUTO_SCROLL_INTERVAL({ commit }: any, payload: App) {
-      const { settingService } = useServices()
-      commit(SET_AUTO_SCROLL_INTERVAL, payload.autoScrollInterval)
-      settingData.autoScrollInterval = payload.autoScrollInterval
       await settingService.update(payload)
     },
     async TOGGLE_SYNC_OS_THEME({ commit }: any, payload: App) {
