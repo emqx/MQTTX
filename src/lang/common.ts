@@ -258,4 +258,18 @@ export default {
     ja: '期限なし',
     hu: 'Soha ne járjon le',
   },
+  newMsg: {
+    zh: '条新消息',
+    en: 'new message',
+    tr: 'yeni mesaj',
+    ja: '新しいメッセージ',
+    hu: 'új üzenet',
+  },
+  newMsgs: {
+    zh: '条新消息',
+    en: 'new messages',
+    tr: 'yeni mesajlar',
+    ja: '新しいメッセージ',
+    hu: 'új üzenetek',
+  },
 }
