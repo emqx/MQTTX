@@ -127,7 +127,10 @@ const benchSub = async (options: BenchSubscribeOptions) => {
   const retryTimesArray = Array(count).fill(0)
 
   const interactive = new Signale({ interactive: true })
-  const simpleInteractive = new Signale({ interactive: true, config: { displayLabel: false, displayTimestamp: true } })
+  const simpleInteractive = new Signale({
+    interactive: true,
+    config: { displayLabel: false, displayDate: true, displayTimestamp: true },
+  })
 
   benchLog.start.sub(config, count, interval, hostname, port, topic.join(', '))
 

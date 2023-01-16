@@ -146,7 +146,10 @@ const benchPub = async (options: BenchPublishOptions) => {
   const retryTimesArray = Array(count).fill(0)
 
   const interactive = new Signale({ interactive: true })
-  const simpleInteractive = new Signale({ interactive: true, config: { displayLabel: false, displayTimestamp: true } })
+  const simpleInteractive = new Signale({
+    interactive: true,
+    config: { displayLabel: false, displayDate: true, displayTimestamp: true },
+  })
 
   benchLog.start.pub(config, count, interval, messageInterval, hostname, port, topic, message.toString())
 

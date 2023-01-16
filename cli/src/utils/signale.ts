@@ -5,6 +5,7 @@ import { inspect } from 'util'
 const option = {
   config: {
     displayLabel: false,
+    displayDate: true,
     displayTimestamp: true,
   },
 }
