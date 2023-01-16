@@ -58,13 +58,13 @@ export default {
   },
   guideArticle6: {
     zh: 'MQTT 持久会话与 Clean Session 详解',
-    en: 'MQTT Session',
-    ja: 'MQTT Session',
+    en: 'MQTT Persistent Session and Clean Session Explained',
+    ja: 'MQTT Persistent Session and Clean Session Explained',
   },
   guideArticle7: {
-    zh: 'MQTT QoS（服务质量）介绍',
-    en: 'Introduction to MQTT QoS (Quality of Service)',
-    ja: 'Introduction to MQTT QoS (Quality of Service)',
+    zh: 'MQTT QoS 0, 1, 2 介绍',
+    en: 'Introduction to MQTT QoS 0, 1, 2',
+    ja: 'Introduction to MQTT QoS 0, 1, 2',
   },
   guideArticle8: {
     zh: 'MQTT 保留消息是什么？如何使用？',
