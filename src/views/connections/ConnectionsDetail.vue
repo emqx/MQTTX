@@ -782,14 +782,13 @@ export default class ConnectionsDetail extends Vue {
 
   // Return messages
   private async getMessages(limit = 20) {
-    console.log('getMessages')
-
     this.newMsgsCount = 0
     const { messageService } = useServices()
     this.recordMsgs = await messageService.get(this.curConnectionId, {
       limit,
       msgType: this.msgType,
       topic: this.activeTopic,
+      searchParams: this.searchParams,
     })
     this.moreMsgAfter = false
     if (this.recordMsgs.total > limit) {
@@ -807,8 +806,6 @@ export default class ConnectionsDetail extends Vue {
       return
     }
 
-    console.log('loadMoreMessages', mode)
-
     const msgListRef = this.getMsgListRef()
     msgListRef.showLoadingIcon = true
 
@@ -819,6 +816,7 @@ export default class ConnectionsDetail extends Vue {
     const { list, moreMsg } = await messageService.loadMore(this.curConnectionId, createAt, mode, {
       msgType: this.msgType,
       topic: this.activeTopic,
+      searchParams: this.searchParams,
     })
 
     moreMsg === 'before' && (this.moreMsgBefore = true)
@@ -885,28 +883,10 @@ export default class ConnectionsDetail extends Vue {
 
   // Search messages
   private async searchContent() {
-    // TODO: Search messages
-    // this.scrollToBottom()
-    // const { topic, payload } = this.searchParams
-    // if (!topic && !payload) {
-    //   return
-    // }
-    // this.searchLoading = true
-    // const timer = setTimeout(() => {
-    //   this.searchLoading = false
-    //   clearTimeout(timer)
-    // }, 500)
-    // this.getMessages()
-    // if (topic !== '' || payload !== '') {
-    //   const $messages =
-    //     this.activeTopic === '' ? _.cloneDeep(this.messages) : await topicMatch(this.recordMsgs.list, this.activeTopic)
-    //   const res = await matchMultipleSearch($messages, this.searchParams)
-    //   if (res) {
-    //     this.messages = res.slice()
-    //   } else {
-    //     this.messages = [].slice()
-    //   }
-    // }
+    this.searchLoading = true
+    await this.getMessages()
+    this.searchLoading = false
+    this.scrollToBottom()
   }
 
   // Delete topic item
@@ -935,23 +915,13 @@ export default class ConnectionsDetail extends Vue {
 
   // Close search bar
   private async handleSearchClose() {
-    // TODO: Close search bar
     this.searchVisible = false
     this.searchParams = {
       topic: '',
       payload: '',
     }
-    // this.getMessages()
-    // if (this.activeTopic) {
-    //   const $messages = _.cloneDeep(this.messages)
-    //   const res = await topicMatch($messages, this.activeTopic)
-    //   if (res) {
-    //     this.messages = res.slice()
-    //   } else {
-    //     this.messages = [].slice()
-    //   }
-    // }
-    // this.scrollToBottom()
+    this.getMessages()
+    this.scrollToBottom()
   }
 
   // Cancel connect
@@ -1219,9 +1189,6 @@ export default class ConnectionsDetail extends Vue {
 
   // Render message
   private async renderMessage(id: string, msg: MessageModel, msgType: 'received' | 'publish' = 'received') {
-    console.log('moreMsgAfter: ', this.moreMsgAfter)
-    console.log('isScrollBottom: ', this.isScrollBottom())
-
     if (id !== this.curConnectionId) {
       this.unreadMessageIncrement({ id })
       return
@@ -1411,12 +1378,6 @@ export default class ConnectionsDetail extends Vue {
           // Render messages
           this.renderMessage(this.curConnectionId, publishMessage, 'publish')
 
-          // Filter by conditions (topic, payload, etc)
-          // const filterRes = this.filterBySearchConditions(topic, publishMessage)
-          // if (filterRes) {
-          //   return
-          // }
-
           // Log
           const logPayload = JSON.stringify(publishMessage.payload)
           let pubLog = `${this.record.name} sucessfully published message ${logPayload} to topic "${publishMessage.topic}"`
@@ -1507,22 +1468,6 @@ export default class ConnectionsDetail extends Vue {
     }
     return convertPayload
   }
-
-  // TODO: Conditions when searching and filtering
-  // Conditions when searching and filtering
-  // private filterBySearchConditions(topic: string, message: MessageModel): boolean {
-  //   const { topic: searchTopic, payload: searchPayload } = this.searchParams
-  //   if (searchTopic || searchPayload) {
-  //     this.searchMessage(message).then((res) => {
-  //       if (res) {
-  //         this.messages.push(message)
-  //         this.scrollToBottom()
-  //       }
-  //     })
-  //     return true
-  //   }
-  //   return false
-  // }
 
   // Show export data dialog
   private handleExportData() {

@@ -37,7 +37,13 @@ export default class MessageService {
 
   public async get(
     connectionId: string,
-    options: { page?: number; limit?: number; msgType?: MessageType; topic?: string } = {},
+    options: {
+      page?: number
+      limit?: number
+      msgType?: MessageType
+      topic?: string
+      searchParams?: { topic?: string; payload?: string }
+    } = {},
   ): Promise<MessagePaginationModel> {
     const defaultOpts = { page: 1, limit: 20, msgType: 'all' }
     const { page, limit, msgType } = { ...defaultOpts, ...options }
@@ -59,6 +65,16 @@ export default class MessageService {
       if (topic.includes('#')) topic = topic.replace('/#', '%')
       if (topic.includes('+')) topic = topic.replace('+', '%')
       query.andWhere('msg.topic LIKE :topic', { topic })
+    }
+
+    if (options.searchParams) {
+      const { topic, payload } = options.searchParams
+      if (topic) {
+        query.andWhere('msg.topic LIKE :topic', { topic: `%${topic}%` })
+      }
+      if (payload) {
+        query.andWhere('msg.payload LIKE :payload', { payload: `%${payload}%` })
+      }
     }
 
     const res = await query
@@ -83,7 +99,12 @@ export default class MessageService {
     connectionId: string,
     createAt: string,
     mode: 'before' | 'after' = 'before',
-    options: { limit?: number; msgType?: MessageType; topic?: string } = {},
+    options: {
+      limit?: number
+      msgType?: MessageType
+      topic?: string
+      searchParams?: { topic?: string; payload?: string }
+    } = {},
   ) {
     const defaultOpts = { limit: 20, msgType: 'all' }
     const { limit, msgType } = { ...defaultOpts, ...options }
@@ -101,6 +122,16 @@ export default class MessageService {
       if (topic.includes('#')) topic = topic.replace('/#', '%')
       if (topic.includes('+')) topic = topic.replace('+', '%')
       query.andWhere('msg.topic LIKE :topic', { topic })
+    }
+
+    if (options.searchParams) {
+      const { topic, payload } = options.searchParams
+      if (topic) {
+        query.andWhere('msg.topic LIKE :topic', { topic: `%${topic}%` })
+      }
+      if (payload) {
+        query.andWhere('msg.payload LIKE :payload', { payload: `%${payload}%` })
+      }
     }
 
     const res = await query
