@@ -54,6 +54,7 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
   const protocolVersion = mqttVersionDict[mqttVersion as '3.1' | '3.1.1' | '5.0']
   const options: IClientOptions = {
     clientId,
+    username,
     keepalive,
     clean,
     reconnectPeriod: reconnect ? reconnectPeriod : 0,
@@ -66,9 +67,6 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
     options.clientId = `${options.clientId}_${clickIconTime}`
   }
   // Auth
-  if (username !== '') {
-    options.username = username
-  }
   if (password !== '') {
     options.password = password
   }
