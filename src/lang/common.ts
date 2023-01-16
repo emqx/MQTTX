@@ -259,17 +259,10 @@ export default {
     hu: 'Soha ne járjon le',
   },
   newMsg: {
-    zh: '条新消息',
-    en: 'new message',
-    tr: 'yeni mesaj',
-    ja: '新しいメッセージ',
-    hu: 'új üzenet',
-  },
-  newMsgs: {
-    zh: '条新消息',
-    en: 'new messages',
-    tr: 'yeni mesajlar',
-    ja: '新しいメッセージ',
-    hu: 'új üzenetek',
+    zh: '{count} 条新消息 | {count} 条新消息',
+    en: '{count} new message | {count} new messages',
+    tr: '{count} yeni mesaj | {count} yeni mesaj',
+    ja: '{count}件の新しいメッセージ | {count}件の新しいメッセージ',
+    hu: '{count} új üzenet | {count} új üzenet',
   },
 }

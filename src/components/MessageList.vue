@@ -36,7 +36,7 @@ export default class MessageList extends Vue {
 
   public showMessages: MessageModel[] = []
   public showLoadingIcon: boolean = false
-  public loadinSwitch = true
+  public loadSwitch = true
   private scrollOffset: { offset: number; mode: 'before' | 'after' } = {
     offset: Number.MAX_SAFE_INTEGER,
     mode: 'before',
@@ -52,7 +52,7 @@ export default class MessageList extends Vue {
 
   @Watch('scrollOffset')
   private async handleScrollOffsetChanged(val: MessageList['scrollOffset'], oldVal: MessageList['scrollOffset']) {
-    if (this.loadinSwitch && this.showLoadingIcon === false && val.offset === 0) {
+    if (this.loadSwitch && this.showLoadingIcon === false && val.offset === 0) {
       this.$emit('loadMoreMsg', val.mode)
     }
   }

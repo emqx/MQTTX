@@ -1093,14 +1093,14 @@ export default class ConnectionsDetail extends Vue {
         const msgListRef = this.getMsgListRef()
         const msgListDOM = msgListRef?.$el
         if (msgListDOM) {
-          msgListRef.loadinSwitch = false
+          msgListRef.loadSwitch = false
           msgListDOM.scrollTo({
             top: msgListDOM.scrollHeight + 160,
             left: 0,
             behavior: 'smooth',
           })
           await delay(1000)
-          msgListRef.loadinSwitch = true
+          msgListRef.loadSwitch = true
         }
       }, 100)
     })

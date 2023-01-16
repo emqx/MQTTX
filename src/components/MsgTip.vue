@@ -1,6 +1,6 @@
 <template>
   <el-button v-if="count > 0" class="primary-btn new-msg-tip" icon="el-icon-bottom" @click="handleClick">
-    {{ count }} {{ count === 1 ? $t('common.newMsg') : $t('common.newMsgs') }}
+    {{ $tc('common.newMsg', count, { count }) }}
   </el-button>
 </template>
 
