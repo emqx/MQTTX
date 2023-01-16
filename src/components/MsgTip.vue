@@ -29,10 +29,11 @@ export default class MsgTip extends Vue {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  border: none;
-  padding: 8px 16px;
-  box-shadow: #00000011 0px 4px 8px, #0000002e 0px 4px 8px;
-  background: var(--color-bg-btn-gradient);
+  color: var(--color-main-green);
+  border-radius: 10px;
+  border: 1px solid var(--color-border-default);
+  padding: 10px 16px;
+  box-shadow: var(--color-shadow-card) 2px 4px 6px;
+  background: var(--color-bg-normal);
 }
 </style>
