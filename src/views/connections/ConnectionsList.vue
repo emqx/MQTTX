@@ -98,12 +98,19 @@
               @click="handleSelectCollection(data)"
               @contextmenu="handleCollectionContextMenu($event, data)"
             >
-              <div class="collection-name">
-                <svg class="icon" aria-hidden="true">
-                  <use :xlink:href="!node.expanded ? '#icon-fold' : '#icon-unfold'"></use>
-                </svg>
-                <span>{{ data.name }}</span>
-              </div>
+              <el-tooltip
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :content="`${data.name}`"
+                :open-delay="500"
+                placement="top"
+              >
+                <div class="collection-name">
+                  <svg class="icon" aria-hidden="true">
+                    <use :xlink:href="!node.expanded ? '#icon-fold' : '#icon-unfold'"></use>
+                  </svg>
+                  <span>{{ data.name }}</span>
+                </div>
+              </el-tooltip>
             </div>
           </span>
         </el-tree>
@@ -839,13 +846,16 @@ export default class ConnectionsList extends Vue {
               font-weight: 500;
               color: var(--color-text-title);
               max-width: 150px;
-              white-space: nowrap;
-              text-overflow: ellipsis;
-              overflow: hidden;
               svg {
                 width: 24px;
                 height: 24px;
                 padding-right: 6px;
+                flex-shrink: 0;
+              }
+              span {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
               }
             }
           }
