@@ -663,6 +663,9 @@ export default class MsgPublish extends Vue {
         font-size: 16px;
         color: var(--color-text-active);
       }
+      &:active {
+        box-shadow: none;
+      }
     }
   }
   .publish-metadata {
