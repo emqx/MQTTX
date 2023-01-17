@@ -110,9 +110,9 @@ const app = {
         const currentCount: number | undefined = state.unreadMessageCount[payload.id]
         let count = 0
         if (currentCount !== undefined) {
-          count = currentCount + 1
+          count = currentCount + (payload.increasedCount ?? 1)
         } else {
-          count += 1
+          count += payload.increasedCount ?? 1
         }
         Vue.set(state.unreadMessageCount, payload.id, count)
       }

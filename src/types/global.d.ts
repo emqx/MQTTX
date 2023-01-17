@@ -144,6 +144,7 @@ declare global {
   interface UnreadMessage {
     readonly id: string
     unreadMessageCount?: 0
+    increasedCount?: number
   }
 
   interface SubscriptionsVisible {
