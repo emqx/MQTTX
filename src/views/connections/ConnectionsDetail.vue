@@ -260,7 +260,7 @@
           :style="{ height: `${inputHeight}px` }"
           :disabled="sendTimeId !== null"
           :clientConnected="client.connected"
-          @foucs="scrollToBottom"
+          @foucs="handleMessages"
           @handleSend="sendMessage"
         />
       </div>
@@ -286,11 +286,11 @@ import { ipcRenderer } from 'electron'
 import { MqttClient, IConnackPacket, IPublishPacket, IClientPublishOptions } from 'mqtt'
 import _ from 'lodash'
 import { Subject, fromEvent } from 'rxjs'
-import { throttleTime, bufferTime, map, filter, takeUntil } from 'rxjs/operators'
+import { bufferTime, map, filter, takeUntil } from 'rxjs/operators'
 
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
-import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
+import { matchTopicMethod } from '@/utils/topicMatch'
 import { createClient } from '@/utils/mqttUtils'
 import { getBytes, getUptime, getVersion } from '@/utils/SystemTopicUtils'
 import validFormatJson from '@/utils/validFormatJson'
@@ -447,7 +447,6 @@ export default class ConnectionsDetail extends Vue {
   }
   private version = ''
   private uptime = ''
-  private scrollSubject = new Subject()
 
   get titleName() {
     return this.record.name
@@ -497,8 +496,7 @@ export default class ConnectionsDetail extends Vue {
   @Watch('record')
   private async handleRecordChanged() {
     this.getConnectionValue(this.curConnectionId)
-    await this.getMessages()
-    this.scrollToBottom('auto')
+    this.handleMessages({ behavior: 'auto' })
   }
 
   @Watch('inputHeight')
@@ -802,12 +800,12 @@ export default class ConnectionsDetail extends Vue {
     if ((mode === 'before' && !this.moreMsgBefore) || (mode === 'after' && !this.moreMsgAfter)) return
 
     if (this.recordMsgs.list.length === 0) {
-      this.getMessages()
+      this.handleMessages()
       return
     }
 
     const msgListRef = this.getMsgListRef()
-    msgListRef.showLoadingIcon = true
+    mode === 'before' ? (msgListRef.showBeforeLoadingIcon = true) : (msgListRef.showAfterLoadingIcon = true)
 
     const { messageService } = useServices()
     let _messages = _.cloneDeep(this.recordMsgs.list)
@@ -847,13 +845,19 @@ export default class ConnectionsDetail extends Vue {
         clearTimeout(timer)
       }, 50)
     }
-    msgListRef.showLoadingIcon = false
+    mode === 'before' ? (msgListRef.showBeforeLoadingIcon = false) : (msgListRef.showAfterLoadingIcon = false)
+  }
+
+  private async handleMessages(opts: { limit?: number; behavior?: ScrollBehavior } = {}) {
+    const defaultOpts: { limit?: number; behavior?: ScrollBehavior } = { limit: 20, behavior: 'smooth' }
+    const { limit, behavior } = { ...defaultOpts, ...opts }
+    await this.getMessages(limit)
+    this.scrollToBottom(behavior)
   }
 
   private loadNewMsg() {
     this.msgType = 'all'
-    this.getMessages()
-    this.scrollToBottom('auto')
+    this.handleMessages({ behavior: 'auto' })
   }
 
   // Clear messages
@@ -875,32 +879,28 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Message type changed
-  private async handleMsgTypeChanged(type: MessageType) {
+  private handleMsgTypeChanged(type: MessageType) {
     this.msgType = type
-    this.getMessages()
-    this.scrollToBottom()
+    this.handleMessages()
   }
 
   // Search messages
   private async searchContent() {
     this.searchLoading = true
-    await this.getMessages()
+    await this.handleMessages()
     this.searchLoading = false
-    this.scrollToBottom()
   }
 
   // Delete topic item
   private handleTopicDelete(topic: string) {
     if (this.activeTopic === topic) this.activeTopic = ''
-    this.getMessages()
-    this.scrollToBottom()
+    this.handleMessages()
   }
 
   // Click topic item
-  private async handleTopicClick(sub: SubscriptionModel, reset: boolean) {
+  private handleTopicClick(sub: SubscriptionModel, reset: boolean) {
     reset ? (this.activeTopic = '') : (this.activeTopic = sub.topic)
-    this.getMessages()
-    this.scrollToBottom()
+    this.handleMessages()
   }
 
   private handleSearchOpen() {
@@ -914,14 +914,13 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Close search bar
-  private async handleSearchClose() {
+  private handleSearchClose() {
     this.searchVisible = false
     this.searchParams = {
       topic: '',
       payload: '',
     }
-    this.getMessages()
-    this.scrollToBottom()
+    this.handleMessages()
   }
 
   // Cancel connect
@@ -1051,28 +1050,20 @@ export default class ConnectionsDetail extends Vue {
     return res && res.length ? true : false
   }
 
-  // Scroll to page bottom
-  private scrollToBottomThrottle = () => {
-    !this.scrollSubject.closed && this.scrollSubject.next()
-  }
-
-  private scrollToBottom(behavior: 'auto' | 'smooth' = 'smooth') {
-    this.$nextTick(() => {
-      const timer = setTimeout(async () => {
-        clearTimeout(timer)
-        const msgListRef = this.getMsgListRef()
-        const msgListDOM = msgListRef?.$el
-        if (msgListDOM) {
-          msgListRef.loadSwitch = false
-          msgListDOM.scrollTo({
-            top: msgListDOM.scrollHeight + 160,
-            left: 0,
-            behavior,
-          })
-          await delay(1000)
-          msgListRef.loadSwitch = true
-        }
-      }, 100)
+  private scrollToBottom(behavior: ScrollBehavior = 'smooth') {
+    this.$nextTick(async () => {
+      const msgListRef = this.getMsgListRef()
+      const msgListDOM = msgListRef?.$el
+      if (msgListDOM) {
+        msgListRef.loadSwitch = false
+        msgListDOM.scrollTo({
+          top: msgListDOM.scrollHeight + 160,
+          left: 0,
+          behavior,
+        })
+        await delay(1000)
+        msgListRef.loadSwitch = true
+      }
     })
   }
 
@@ -1188,11 +1179,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Render message
-  private async renderMessage(
-    id: string,
-    msgs: MessageModel | MessageModel[],
-    msgType: 'received' | 'publish' = 'received',
-  ) {
+  private renderMessage(id: string, msgs: MessageModel | MessageModel[], msgType: 'received' | 'publish' = 'received') {
     const unreadMsgIncrement = (count: number) => this.unreadMessageIncrement({ id, increasedCount: count })
     const totalCountIncrement = (count: number) => (this.recordMsgs.total += count)
     const receivedTotalIncrement = (count: number) => (this.recordMsgs.receivedTotal += count)
@@ -1230,8 +1217,7 @@ export default class ConnectionsDetail extends Vue {
       this.scrollToBottom()
       return
     }
-    await this.getMessages()
-    this.scrollToBottom()
+    this.handleMessages()
   }
 
   // Recevied message
@@ -1557,12 +1543,6 @@ export default class ConnectionsDetail extends Vue {
 
   private created() {
     this.getConnectionValue(this.curConnectionId)
-    this.scrollSubject
-      .asObservable()
-      .pipe(throttleTime(1000))
-      .subscribe(() => {
-        this.scrollToBottom()
-      })
     ipcRenderer.on('searchContent', () => {
       this.handleSearchOpen()
     })
@@ -1578,7 +1558,6 @@ export default class ConnectionsDetail extends Vue {
   private beforeDestroy() {
     ipcRenderer.removeAllListeners('searchContent')
     this.removeClinetsMessageListener()
-    this.scrollSubject.unsubscribe()
     this.stopTimedSend()
     window.onresize = null
   }
