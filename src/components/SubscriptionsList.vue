@@ -385,12 +385,12 @@ export default class SubscriptionsList extends Vue {
     }
   }
 
-  private saveTopicToSubList(topic: string, qos: QoS, index?: number, aliasArr?: string[]): void {
+  private saveTopicToSubList(topic: string, qos: QoS, index?: number, aliasArr?: string[], id?: string): void {
     const existTopicIndex: number = this.subsList.findIndex((item: SubscriptionModel) => item.topic === topic)
     if (existTopicIndex !== -1) {
       this.subsList[existTopicIndex].qos = qos
     } else {
-      let { topic: unuseTopic, color, alias, id, ...others } = this.subRecord
+      let { topic: unuseTopic, id: recordID, color, alias, ...others } = this.subRecord
       if (index !== undefined && aliasArr !== undefined) {
         alias = aliasArr ? aliasArr[index] : alias
         if (index > 0) {
@@ -400,7 +400,7 @@ export default class SubscriptionsList extends Vue {
       }
       this.subsList.push({
         topic,
-        id,
+        id: id ?? recordID,
         color,
         alias,
         ...others,
@@ -409,7 +409,7 @@ export default class SubscriptionsList extends Vue {
   }
 
   public async subscribe(
-    { topic, alias, qos, nl, rap, rh, subscriptionIdentifier, disabled }: SubscriptionModel,
+    { topic, alias, qos, nl, rap, rh, subscriptionIdentifier, disabled, id }: SubscriptionModel,
     isAuto?: boolean,
     enable?: boolean,
   ) {
@@ -460,10 +460,10 @@ export default class SubscriptionsList extends Vue {
           this.$log.info(`Enabled topic: ${topic}`)
         } else {
           if (!Array.isArray(topicsArr)) {
-            this.saveTopicToSubList(topic, qos)
+            this.saveTopicToSubList(topic, qos, undefined, undefined, id)
           } else {
             topicsArr.forEach((topic, index) => {
-              this.saveTopicToSubList(topic, qos, index, aliasArr as string[])
+              this.saveTopicToSubList(topic, qos, index, aliasArr as string[], id)
             })
           }
           this.$log.info(`Saved topic: ${topic}`)
