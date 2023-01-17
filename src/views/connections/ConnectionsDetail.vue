@@ -498,7 +498,7 @@ export default class ConnectionsDetail extends Vue {
   private async handleRecordChanged() {
     this.getConnectionValue(this.curConnectionId)
     await this.getMessages()
-    this.scrollToBottom()
+    this.scrollToBottom('auto')
   }
 
   @Watch('inputHeight')
@@ -853,7 +853,7 @@ export default class ConnectionsDetail extends Vue {
   private loadNewMsg() {
     this.msgType = 'all'
     this.getMessages()
-    this.scrollToBottom()
+    this.scrollToBottom('auto')
   }
 
   // Clear messages
@@ -1056,7 +1056,7 @@ export default class ConnectionsDetail extends Vue {
     !this.scrollSubject.closed && this.scrollSubject.next()
   }
 
-  private scrollToBottom() {
+  private scrollToBottom(behavior: 'auto' | 'smooth' = 'smooth') {
     this.$nextTick(() => {
       const timer = setTimeout(async () => {
         clearTimeout(timer)
@@ -1067,7 +1067,7 @@ export default class ConnectionsDetail extends Vue {
           msgListDOM.scrollTo({
             top: msgListDOM.scrollHeight + 160,
             left: 0,
-            behavior: 'smooth',
+            behavior,
           })
           await delay(1000)
           msgListRef.loadSwitch = true
@@ -1188,31 +1188,46 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Render message
-  private async renderMessage(id: string, msg: MessageModel, msgType: 'received' | 'publish' = 'received') {
+  private async renderMessage(
+    id: string,
+    msgs: MessageModel | MessageModel[],
+    msgType: 'received' | 'publish' = 'received',
+  ) {
+    const unreadMsgIncrement = (count: number) => this.unreadMessageIncrement({ id, increasedCount: count })
+    const totalCountIncrement = (count: number) => (this.recordMsgs.total += count)
+    const receivedTotalIncrement = (count: number) => (this.recordMsgs.receivedTotal += count)
+    const publishedTotalIncrement = (count: number) => (this.recordMsgs.publishedTotal += count)
+    const newMsgsCountIncrement = (count: number) => (this.newMsgsCount += count)
+    const pushMsgs = (msgs: MessageModel[]) => {
+      let _messages = _.cloneDeep(this.recordMsgs.list)
+      msgs.forEach((msg: MessageModel) => {
+        const isActiveTopicMessages = matchTopicMethod(this.activeTopic, msg.topic)
+        const isActiveMsgType =
+          this.msgType === 'all' || (this.msgType === 'publish' && msg.out) || (this.msgType === 'received' && !msg.out)
+        if (isActiveMsgType && (!this.activeTopic || isActiveTopicMessages)) _messages.push(msg)
+      })
+      if (_messages.length > 40) _messages = _messages.slice(_messages.length - 40)
+      this.recordMsgs.list = _messages
+    }
+    if (!Array.isArray(msgs)) msgs = [msgs]
     if (id !== this.curConnectionId) {
-      this.unreadMessageIncrement({ id })
+      unreadMsgIncrement(msgs.length)
       return
     }
-    this.recordMsgs.total += 1
-    msgType === 'received' ? (this.recordMsgs.receivedTotal += 1) : (this.recordMsgs.publishedTotal += 1)
+    totalCountIncrement(msgs.length)
+    const receivedMsgs = msgs.filter((msg: MessageModel) => !msg.out)
+    const publishedMsgs = msgs.filter((msg: MessageModel) => msg.out)
+    receivedTotalIncrement(receivedMsgs.length)
+    publishedTotalIncrement(publishedMsgs.length)
     const isScrollBottom = this.isScrollBottom()
     if (msgType === 'received' && !isScrollBottom) {
-      this.newMsgsCount += 1
+      newMsgsCountIncrement(receivedMsgs.length)
       return
     }
     this.newMsgsCount = 0
     if (!this.moreMsgAfter && isScrollBottom) {
-      const isActiveTopicMessages = matchTopicMethod(this.activeTopic, msg.topic)
-      const isActiveMsgType =
-        this.msgType === 'all' || (this.msgType === 'publish' && msg.out) || (this.msgType === 'received' && !msg.out)
-      if (isActiveMsgType && (!this.activeTopic || isActiveTopicMessages)) {
-        if (this.recordMsgs.list.length > 40) {
-          this.recordMsgs.list = [...this.recordMsgs.list.slice(1), msg]
-        } else {
-          this.recordMsgs.list.push(msg)
-        }
-        this.scrollToBottom()
-      }
+      pushMsgs(msgs)
+      this.scrollToBottom()
       return
     }
     await this.getMessages()
@@ -1254,16 +1269,12 @@ export default class ConnectionsDetail extends Vue {
 
     // Render messages
     nonSYSMessageSubject$.pipe(bufferTime(500)).subscribe((messages: MessageModel[]) => {
-      if (messages.length) {
-        messages.forEach((message: MessageModel) => {
-          this.renderMessage(id, message)
-        })
-      }
+      messages.length && this.renderMessage(id, messages)
     })
 
     // Save messages
     nonSYSMessageSubject$.pipe(bufferTime(1000)).subscribe((messages: MessageModel[]) => {
-      this.saveMessage(id, messages)
+      messages.length && this.saveMessage(id, messages)
     })
 
     // Bytes statistics
