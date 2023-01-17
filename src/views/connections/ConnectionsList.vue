@@ -389,8 +389,8 @@ export default class ConnectionsList extends Vue {
 
     // load selected connection active state
     const { id } = this.$route.params
-    const treeRef = this.$refs.tree as ElTree<ConnectionModelTree['id'], ConnectionModelTree>
     this.$nextTick(() => {
+      const treeRef = this.$refs.tree as ElTree<ConnectionModelTree['id'], ConnectionModelTree>
       if (id) {
         treeRef?.setCurrentKey(id)
         this.connectionId = id
