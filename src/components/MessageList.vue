@@ -4,14 +4,14 @@
     :class="['message-list', 'messages-display', isScrolling ? 'scrolling' : 'still']"
     :style="{ height: `${height}px`, marginTop: `${marginTop}px` }"
   >
-    <span v-show="showLoadingIcon" class="loading-icon"><i class="el-icon-loading"></i></span>
+    <span v-show="showBeforeLoadingIcon" class="loading-icon"><i class="el-icon-loading"></i></span>
     <div v-if="showMessages.length" class="scroller">
       <template v-for="item in showMessages">
         <MsgLeftItem v-if="!item.out" :key="item.id" v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
         <MsgRightItem v-else :key="item.id" v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
       </template>
     </div>
-    <span v-show="showLoadingIcon" class="loading-icon after"><i class="el-icon-loading"></i></span>
+    <span v-show="showAfterLoadingIcon" class="loading-icon after"><i class="el-icon-loading"></i></span>
   </div>
 </template>
 
@@ -35,7 +35,8 @@ export default class MessageList extends Vue {
   @Prop({ required: true }) marginTop!: number
 
   public showMessages: MessageModel[] = []
-  public showLoadingIcon: boolean = false
+  public showBeforeLoadingIcon: boolean = false
+  public showAfterLoadingIcon: boolean = false
   public loadSwitch = true
   private scrollOffset: { offset: number; mode: 'before' | 'after' } = {
     offset: Number.MAX_SAFE_INTEGER,
@@ -52,7 +53,12 @@ export default class MessageList extends Vue {
 
   @Watch('scrollOffset')
   private async handleScrollOffsetChanged(val: MessageList['scrollOffset'], oldVal: MessageList['scrollOffset']) {
-    if (this.loadSwitch && this.showLoadingIcon === false && val.offset === 0) {
+    if (
+      this.loadSwitch &&
+      this.showBeforeLoadingIcon === false &&
+      this.showAfterLoadingIcon === false &&
+      val.offset === 0
+    ) {
       this.$emit('loadMoreMsg', val.mode)
     }
   }
