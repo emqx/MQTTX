@@ -251,6 +251,12 @@ export default class ConnectionService {
         )) as SubscriptionModel[]
       }
     }
+    // Messages table
+    if (res.messages && Array.isArray(res.messages)) {
+      const { messageService } = useServices()
+      messageService.pushToConnection(res.messages, id)
+    }
+
     const updateAt = time.getNowDate()
     const saved: ConnectionEntity | undefined = await this.connectionRepository.save(
       ConnectionService.modelToEntity({
