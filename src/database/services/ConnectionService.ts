@@ -348,26 +348,25 @@ export default class ConnectionService {
   }
 
   // getAll
-  public async getAll(): Promise<ConnectionModel[] | undefined> {
+  public async getAll() {
     const query: ConnectionEntity[] | undefined = await this.connectionRepository.createQueryBuilder('cn').getMany()
-    if (query === undefined) {
-      return undefined
-    }
     return query.map((entity) => ConnectionService.entityToModel(entity)) as ConnectionModel[]
   }
 
   // cascade getAll
-  public async cascadeGetAll(): Promise<ConnectionModel[] | undefined> {
-    const query: ConnectionEntity[] | undefined = await this.connectionRepository
-      .createQueryBuilder('cn')
+  public async cascadeGetAll(id?: string) {
+    const query = await this.connectionRepository.createQueryBuilder('cn')
+
+    id && query.where('cn.id = :id', { id })
+
+    query
       .leftJoinAndSelect('cn.messages', 'msg')
       .leftJoinAndSelect('cn.subscriptions', 'sub')
       .leftJoinAndSelect('cn.will', 'will')
-      .getMany()
-    if (query === undefined) {
-      return undefined
-    }
-    return query.map((entity) => ConnectionService.entityToModel(entity)) as ConnectionModel[]
+
+    const res = await query.getMany()
+
+    return res.map((entity) => ConnectionService.entityToModel(entity)) as ConnectionModel[]
   }
 
   public async create(data: ConnectionModel): Promise<ConnectionModel | undefined> {

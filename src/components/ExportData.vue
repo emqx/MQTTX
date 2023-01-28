@@ -112,15 +112,13 @@ export default class ExportData extends Vue {
     })
   }
 
-  private async getStringifyContent(): Promise<string> {
-    let connections: ConnectionModel[] | ConnectionModel = []
+  private async getStringifyContent() {
+    const { connectionService } = useService()
+    let connections: ConnectionModel[] = []
     if (!this.record.allConnections) {
-      const { ...connection } = this.connection
-      const data = [connection]
-      connections = data[0]
+      connections = await connectionService.cascadeGetAll(this.connection.id)
     } else {
-      const { connectionService } = useService()
-      connections = (await connectionService.cascadeGetAll()) ?? []
+      connections = await connectionService.cascadeGetAll()
     }
     return JSON.stringify(connections, null, 2)
   }
@@ -141,41 +139,39 @@ export default class ExportData extends Vue {
 
   private async exportExcelData() {
     const { connectionService } = useService()
-    const query = (await connectionService.cascadeGetAll()) ?? []
-    const data: ConnectionModel[] | [] = !this.record.allConnections ? [this.connection] : query
-    if (data) {
-      const fileName = !this.record.allConnections ? this.connection.name : 'data'
-      const saveExcelData = (workbook: WorkBook) => {
-        let filename = this.$t('connections.allConnections')
-        if (!this.record.allConnections) {
-          filename = this.connection.name
-          ipcRenderer.send('exportData', filename, workbook)
-        } else {
-          ipcRenderer.send('exportData', 'data', workbook)
-        }
-        ipcRenderer.on('saved', () => {
-          this.$message.success(`${filename} ${this.$t('common.exportSuccess')}`)
-          this.resetData()
-        })
-      }
-
-      if (!data.length) {
-        this.$message.warning(this.$tc('common.noData'))
-        return
-      }
-      const jsonContent = data
-      const sheet = ExcelConvert.utils.json_to_sheet(jsonContent)
-      Object.keys(sheet).forEach((item) => {
-        // format nested object/array to string
-        if (sheet[item].t === undefined && item !== '!ref') {
-          const stringValue = JSON.stringify(sheet[item])
-          sheet[item] = { t: 's', v: stringValue }
-        }
-      })
-      const newWorkBook = ExcelConvert.utils.book_new()
-      ExcelConvert.utils.book_append_sheet(newWorkBook, sheet)
-      saveExcelData(newWorkBook)
+    const data: ConnectionModel[] = !this.record.allConnections
+      ? await connectionService.cascadeGetAll(this.connection.id)
+      : await connectionService.cascadeGetAll()
+    if (!data || !data.length) {
+      this.$message.warning(this.$tc('common.noData'))
+      return
     }
+    const fileName = !this.record.allConnections ? this.connection.name : 'data'
+    const saveExcelData = (workbook: WorkBook) => {
+      let filename = this.$t('connections.allConnections')
+      if (!this.record.allConnections) {
+        filename = this.connection.name
+        ipcRenderer.send('exportData', filename, workbook)
+      } else {
+        ipcRenderer.send('exportData', 'data', workbook)
+      }
+      ipcRenderer.on('saved', () => {
+        this.$message.success(`${filename} ${this.$t('common.exportSuccess')}`)
+        this.resetData()
+      })
+    }
+    const jsonContent = data
+    const sheet = ExcelConvert.utils.json_to_sheet(jsonContent)
+    Object.keys(sheet).forEach((item) => {
+      // format nested object/array to string
+      if (sheet[item].t === undefined && item !== '!ref') {
+        const stringValue = JSON.stringify(sheet[item])
+        sheet[item] = { t: 's', v: stringValue }
+      }
+    })
+    const newWorkBook = ExcelConvert.utils.book_new()
+    ExcelConvert.utils.book_append_sheet(newWorkBook, sheet)
+    saveExcelData(newWorkBook)
   }
 
   private exportXMLData() {
@@ -207,6 +203,13 @@ export default class ExportData extends Vue {
 
   private async exportCSVData() {
     const { connectionService } = useService()
+    const data: ConnectionModel[] = !this.record.allConnections
+      ? await connectionService.cascadeGetAll(this.connection.id)
+      : await connectionService.cascadeGetAll()
+    if (!data || !data.length) {
+      this.$message.warning(this.$tc('common.noData'))
+      return
+    }
     const exportDataToCSV = (jsonContent: ConnectionModel[]) => {
       try {
         const content: string = CSVConvert(jsonContent)
@@ -214,13 +217,6 @@ export default class ExportData extends Vue {
       } catch (err) {
         this.$message.error(err.toString())
       }
-    }
-    const data: ConnectionModel[] | undefined = !this.record.allConnections
-      ? [this.connection]
-      : await connectionService.cascadeGetAll()
-    if (!data || !data.length) {
-      this.$message.warning(this.$tc('common.noData'))
-      return
     }
     const jsonContent = data
     exportDataToCSV(jsonContent)
