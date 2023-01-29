@@ -159,6 +159,7 @@ import { sortConnectionTree } from '@/utils/connections'
 import '@/assets/font/iconfont'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
+import getContextmenuPosition from '@/utils/getContextmenuPosition'
 
 @Component({
   components: {
@@ -219,6 +220,8 @@ export default class ConnectionsList extends Vue {
   }
 
   private handleNodeExpand(data: ConnectionModelTree, node: TreeNode<ConnectionModelTree['id'], ConnectionModelTree>) {
+    this.showContextmenu = false
+    this.showCollectionsContextmenu = false
     if (data && node && data.isCollection) {
       if (!data.id) return
       this.setConnectionsTree({
@@ -326,7 +329,6 @@ export default class ConnectionsList extends Vue {
       }
     }
     ipcRenderer.on('getWindowSize', ipcHandler)
-    this.showContextmenu = false
   }
 
   private async handleDrop(
@@ -334,6 +336,8 @@ export default class ConnectionsList extends Vue {
     dropNode: TreeNode<CollectionModel['id'], CollectionModel>,
     position: 'before' | 'after' | 'inner',
   ) {
+    this.showContextmenu = false
+    this.showCollectionsContextmenu = false
     // handle connection
     if (!draggingNode || !draggingNode.data || !dropNode || !dropNode.data || !draggingNode.data.id) {
       return
@@ -472,10 +476,11 @@ export default class ConnectionsList extends Vue {
       return
     }
     if (!this.showContextmenu) {
-      const { clientX, clientY } = event
-      this.contextmenuConfig.top = clientY
-      this.contextmenuConfig.left = clientX
+      const { x, y } = getContextmenuPosition(event as MouseEvent, 140, 160)
+      this.contextmenuConfig.left = x
+      this.contextmenuConfig.top = y
       this.showContextmenu = true
+      this.showCollectionsContextmenu = false
       this.selectedConnection = row
     } else {
       this.showContextmenu = false
@@ -484,10 +489,11 @@ export default class ConnectionsList extends Vue {
 
   private handleCollectionContextMenu(event: MouseEvent, row: CollectionModel) {
     if (!this.showCollectionsContextmenu) {
-      const { clientX, clientY } = event
-      this.collectionsContextmenuConfig.top = clientY
-      this.collectionsContextmenuConfig.left = clientX
+      const { x, y } = getContextmenuPosition(event as MouseEvent, 150, 130)
+      this.collectionsContextmenuConfig.left = x
+      this.collectionsContextmenuConfig.top = y
       this.showCollectionsContextmenu = true
+      this.showContextmenu = false
       this.selectedCollection = row
     } else {
       this.showCollectionsContextmenu = false
