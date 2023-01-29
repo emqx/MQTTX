@@ -212,7 +212,9 @@ export default class ExportData extends Vue {
     }
     const exportDataToCSV = (jsonContent: ConnectionModel[]) => {
       try {
-        const content: string = CSVConvert(jsonContent)
+        // Prevent CSV from automatically converting string with trailing zeros after decimal point to number.
+        // https://stackoverflow.com/questions/165042/stop-excel-from-automatically-converting-certain-text-values-to-dates
+        const content: string = CSVConvert(jsonContent).replace(/"(\d+\.0+)"/g, '="$1"')
         this.exportDiffFormatData(content, 'CSV')
       } catch (err) {
         this.$message.error(err.toString())
