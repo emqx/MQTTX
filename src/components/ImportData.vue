@@ -318,10 +318,11 @@ export default class ImportData extends Vue {
       .fromString(data)
       .subscribe((jsonObj) => {
         try {
-          let { messages, subscriptions, will, ...otherProps } = jsonObj
+          let { messages, subscriptions, properties, will, ...otherProps } = jsonObj
           // format object
           messages = JSON.parse(messages)
           subscriptions = JSON.parse(subscriptions)
+          properties = JSON.parse(properties)
           will = JSON.parse(will)
           Object.keys(otherProps).forEach((item) => {
             // format boolean
@@ -338,6 +339,7 @@ export default class ImportData extends Vue {
           const oneRealJSONObj = {
             messages,
             subscriptions,
+            properties,
             will,
             ...otherProps,
           }

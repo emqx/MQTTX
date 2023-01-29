@@ -355,7 +355,7 @@ export default class ConnectionService {
 
   // cascade getAll
   public async cascadeGetAll(id?: string) {
-    const query = await this.connectionRepository.createQueryBuilder('cn')
+    const query = this.connectionRepository.createQueryBuilder('cn')
 
     id && query.where('cn.id = :id', { id })
 
