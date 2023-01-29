@@ -314,6 +314,7 @@ import sandbox from '@/utils/sandbox'
 import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/historyRecordUtils'
 import useServices from '@/database/useServices'
 import { getMessageId, getSubscriptionId } from '@/utils/idGenerator'
+import getContextmenuPosition from '@/utils/getContextmenuPosition'
 
 type CommandType =
   | 'searchContent'
@@ -632,11 +633,9 @@ export default class ConnectionsDetail extends Vue {
   private handleContextMenu(msgItemInfo: IArguments, message: MessageModel) {
     const [payload, event] = msgItemInfo
     if (!this.showContextmenu) {
-      const { clientX, clientY } = event
-      const width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
-      const height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
-      this.contextmenuConfig.left = width - clientX < 95 ? clientX - 75 : clientX
-      this.contextmenuConfig.top = height - clientY < 77 ? clientY - 77 : clientY
+      const { x, y } = getContextmenuPosition(event as MouseEvent, 95, 77)
+      this.contextmenuConfig.left = x
+      this.contextmenuConfig.top = y
       this.showContextmenu = true
       this.selectedMessage = message
       this.selectedInfo = payload

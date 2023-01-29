@@ -206,6 +206,7 @@ import Contextmenu from '@/components/Contextmenu.vue'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
 import { getSubscriptionId } from '@/utils/idGenerator'
+import getContextmenuPosition from '@/utils/getContextmenuPosition'
 
 enum SubscribeErrorReason {
   normal,
@@ -614,9 +615,9 @@ export default class SubscriptionsList extends Vue {
 
   private handleContextMenu(row: SubscriptionModel, event: MouseEvent) {
     if (!this.showContextmenu) {
-      const { clientX, clientY } = event
-      this.contextmenuConfig.top = clientY
-      this.contextmenuConfig.left = clientX
+      const { x, y } = getContextmenuPosition(event as MouseEvent, 110, 90)
+      this.contextmenuConfig.left = x
+      this.contextmenuConfig.top = y
       this.showContextmenu = true
       this.selectedTopic = row
     } else {
