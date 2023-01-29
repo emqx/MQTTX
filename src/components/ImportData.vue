@@ -331,9 +331,14 @@ export default class ImportData extends Vue {
             } else if (otherProps[item] === 'false') {
               otherProps[item] = false
             } else if (this.stringProps.indexOf(item) === -1 && otherProps[item] !== '') {
-              // format number
-              const numValue = Number(otherProps[item])
-              otherProps[item] = !isNaN(numValue) ? numValue : otherProps[item]
+              if (/^="(\d+\.0+)"/.test(otherProps[item])) {
+                // format string number
+                otherProps[item] = otherProps[item].replace(/^="(\d+\.0+)"/, '$1')
+              } else {
+                // format number
+                const numValue = Number(otherProps[item])
+                otherProps[item] = !isNaN(numValue) ? numValue : otherProps[item]
+              }
             }
           })
           const oneRealJSONObj = {
