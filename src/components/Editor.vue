@@ -219,12 +219,11 @@ export default class Editor extends Vue {
 
   private mounted() {
     this.initEditor()
+    window.addEventListener('resize', this.editorLayout)
   }
+
   private created() {
     this.defineTheme()
-    window.onresize = () => {
-      this.editorLayout()
-    }
   }
 
   public destroyEditor() {
@@ -240,6 +239,7 @@ export default class Editor extends Vue {
 
   private beforeDestroy() {
     this.destroyEditor()
+    window.removeEventListener('resize', this.editorLayout)
   }
 }
 </script>
