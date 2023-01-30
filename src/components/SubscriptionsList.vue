@@ -330,10 +330,11 @@ export default class SubscriptionsList extends Vue {
       })
       return false
     }
-    this.showDialog = true
-    this.isEdit = false
+    this.resetSubs()
     this.setColor()
     this.setNewSubscribeId()
+    this.isEdit = false
+    this.showDialog = true
   }
 
   private saveSubs(): void | boolean {
@@ -560,8 +561,8 @@ export default class SubscriptionsList extends Vue {
 
   private resetSubs() {
     const form = this.getSubForm()
-    form.clearValidate()
-    form.resetFields()
+    form?.clearValidate()
+    form?.resetFields()
     this.subRecord.topic = 'testtopic/#'
     this.subRecord.qos = 0
     this.subRecord.alias = ''
