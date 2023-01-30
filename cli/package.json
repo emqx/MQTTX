@@ -1,6 +1,6 @@
 {
   "name": "mqttx-cli",
-  "version": "1.9.1-beta.2",
+  "version": "1.9.1",
   "description": "MQTT X Command Line Tools",
   "keywords": [
     "mqtt",
