@@ -4,7 +4,6 @@ import _ from 'lodash'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import ConnectionEntity from '@/database/models/ConnectionEntity'
 import WillEntity from '@/database/models/WillEntity'
-import SubscriptionEntity from '@/database/models/SubscriptionEntity'
 import HistoryConnectionEntity from '@/database/models/HistoryConnectionEntity'
 import { Repository, MoreThan, LessThan } from 'typeorm'
 import { DateUtils } from 'typeorm/util/DateUtils'
@@ -23,8 +22,6 @@ export default class ConnectionService {
     private historyConnectionRepository: Repository<HistoryConnectionEntity>,
     @InjectRepository(WillEntity)
     private willRepository: Repository<WillEntity>,
-    @InjectRepository(SubscriptionEntity)
-    private subscriptionRepository: Repository<SubscriptionEntity>,
   ) {}
 
   public static entityToModel(data: ConnectionEntity): ConnectionModel {
@@ -123,160 +120,31 @@ export default class ConnectionService {
     )
   }
 
-  private deepMerge(target: ConnectionModel, source: ConnectionModel): ConnectionModel {
-    const res = _.cloneDeep(target)
-    const _deepMerge = (target: ConnectionModel, source: ConnectionModel) => {
-      return _.mergeWith(target, source, (target, source, key) => {
-        // id property , don't merge
-        if (key === 'id') {
-          return target
-        }
-        // merge array property
-        if (Array.isArray(target) && Array.isArray(source)) {
-          const rightIntersection = source.filter((s) => target.findIndex((t) => s.id === t.id) > -1)
-          const mergedLeft = target.map((t) => {
-            const ri = rightIntersection.find((r) => t.id === r.id)
-            if (ri) {
-              return _.merge(t, ri)
-            }
-            return t
-          })
-          const rightDifference = source.filter((s) => rightIntersection.findIndex((i) => i.id === s.id) === -1)
-          return mergedLeft.concat(rightDifference)
-        }
-        if (
-          source instanceof Object &&
-          target instanceof Object &&
-          source.id !== undefined &&
-          target.id !== undefined
-        ) {
-          return {
-            ...target,
-            ...source,
-            id: target.id,
-          }
-        }
-        return source
-      })
-    }
-    _deepMerge(res, source)
-    return res
-  }
-
-  // cascade update
-  public async updateWithCascade(
-    id: string,
-    data: ConnectionModel,
-    args?: Partial<ConnectionEntity>,
-  ): Promise<ConnectionModel | undefined> {
-    const query: ConnectionEntity | undefined = await this.connectionRepository
-      .createQueryBuilder('cn')
-      .where('cn.id = :id', { id })
-      .leftJoinAndSelect('cn.messages', 'msg')
-      .leftJoinAndSelect('cn.subscriptions', 'sub')
-      .leftJoinAndSelect('cn.will', 'will')
-      .getOne()
-
-    const queryModel: ConnectionModel = query ? ConnectionService.entityToModel(query) : data
-    // FIXME: temporary fix, we shouldn't update connectionList data in the connectionDetail page
-    // such as order | parentId etc.
-    data.parentId = queryModel.parentId
-    // END FIXME
-    const res: ConnectionModel = query ? this.deepMerge(queryModel, data) : data
-    // Will Message table
-    if (res.will) {
-      const {
-        id,
-        properties = {
-          contentType: '',
-        },
-        lastWillPayload = '',
-        lastWillTopic = '',
-        lastWillQos = 0,
-        lastWillRetain = false,
-      } = res.will
-      const data: WillEntity = {
-        lastWillPayload,
-        lastWillTopic,
-        lastWillQos,
-        lastWillRetain,
-        willDelayInterval: properties.willDelayInterval,
-        payloadFormatIndicator: properties.payloadFormatIndicator,
-        messageExpiryInterval: properties.messageExpiryInterval,
-        contentType: properties.contentType,
-        responseTopic: properties.responseTopic,
-        correlationData: properties.correlationData?.toString(),
-      }
-      if (id) {
-        // sync memory to database
-        res.will = await this.willRepository.save({
-          id,
-          ...data,
-        })
-      } else {
-        // no will relation in database
-        res.will = await this.willRepository.save(data)
-      }
-    } else {
-      // no will relation in memory or database
-      res.will = await this.willRepository.save({
-        contentType: '',
-        lastWillPayload: '',
-        lastWillTopic: '',
-        lastWillQos: 0,
-        lastWillRetain: false,
-      })
-    }
+  // import single connection
+  public async importOneConnection(id: string, data: ConnectionModel) {
+    const { connectionService, subscriptionService, messageService } = useServices()
+    // Connection table & Will Message table
+    await connectionService.update(id, data)
     // Subscriptions table
-    if (res.subscriptions && Array.isArray(res.subscriptions)) {
-      const curSubs: SubscriptionEntity[] = await this.subscriptionRepository
-        .createQueryBuilder('sub')
-        .where('sub.connectionId = :id', { id })
-        .getMany()
-      const shouldRemove: SubscriptionEntity[] = curSubs.filter(
-        (subInDataBase) => !res.subscriptions.some((subInMemory) => subInMemory.id === subInDataBase.id),
-      )
-      const shouldUpdate: SubscriptionEntity[] = res.subscriptions.filter((subInMemory) =>
-        res.subscriptions.some((subInDataBase) => subInMemory.id === subInDataBase.id),
-      )
-      await this.subscriptionRepository.remove(shouldRemove)
-      if (shouldUpdate && shouldUpdate.length) {
-        res.subscriptions = (await this.subscriptionRepository.save(
-          shouldUpdate.map((sub) => {
-            return {
-              ...sub,
-              connectionId: undefined,
-            } as SubscriptionEntity
-          }),
-        )) as SubscriptionModel[]
-      }
+    if (Array.isArray(data.subscriptions) && data.subscriptions.length) {
+      await subscriptionService.updateSubscriptions(id, data.subscriptions)
     }
     // Messages table
-    if (res.messages && Array.isArray(res.messages)) {
-      const { messageService } = useServices()
-      messageService.pushToConnection(res.messages, id)
+    if (Array.isArray(data.messages) && data.messages.length) {
+      await messageService.pushToConnection(data.messages, id)
     }
-
-    const updateAt = time.getNowDate()
-    const saved: ConnectionEntity | undefined = await this.connectionRepository.save(
-      ConnectionService.modelToEntity({
-        ...res,
-        ...args,
-        id,
-        updateAt,
-      }) as ConnectionEntity,
-    )
-    return ConnectionService.entityToModel(saved)
   }
 
   public async update(id: string, data: ConnectionModel) {
     const { willService } = useServices()
     const { messages, subscriptions, will, ...rest } = data
-    await this.connectionRepository.update(id, {
+    const savedWill = will && (await willService.save(will))
+    await this.connectionRepository.save({
       ...ConnectionService.modelToEntity(rest),
+      will: savedWill ?? undefined,
       updateAt: time.getNowDate(),
+      id,
     })
-    will && (await willService.save(will))
     return await this.get(id)
   }
 
@@ -287,7 +155,7 @@ export default class ConnectionService {
         if (id) {
           // FIXME: remove it after support collection importing
           data[i].parentId = null
-          await this.updateWithCascade(id, data[i])
+          await this.importOneConnection(id, data[i])
         }
       }
     } catch (err) {
