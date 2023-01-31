@@ -131,10 +131,11 @@ export default class ImportData extends Vue {
           }
         }
       })
+      .catch(() => {})
   }
 
   private getExcelContentByXlsx(filePath: string) {
-    const workbook = ExcelConvert.readFile(filePath)
+    const workbook = ExcelConvert.readFile(filePath, { cellDates: true, dateNF: 'dd/mm/yyyy' })
     const sheets = workbook.Sheets
     let caughtError = false
     let content: any[] = []
@@ -146,16 +147,17 @@ export default class ImportData extends Vue {
     }
 
     const parseStringProps = (connection: any): ConnectionModel => {
-      let { messages, will, subscriptions } = connection
+      let { messages, subscriptions, properties, will } = connection
       try {
         messages = JSON.parse(messages)
-        will = JSON.parse(will)
         subscriptions = JSON.parse(subscriptions)
+        properties = JSON.parse(properties)
+        will = JSON.parse(will)
       } catch (err) {
         this.$message.error(err.toString())
         caughtError = true
       }
-      return Object.assign(connection, { messages, will, subscriptions })
+      return Object.assign(connection, { messages, subscriptions, properties, will })
     }
     const jsonContent = content.map((connection): ConnectionModel => parseStringProps(connection))
     if (!caughtError) {
