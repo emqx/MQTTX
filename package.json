@@ -70,6 +70,7 @@
     "@types/chart.js": "^2.9.28",
     "@types/electron-devtools-installer": "^2.2.0",
     "@types/fs-extra": "^8.0.0",
+    "@types/json2csv": "^5.0.3",
     "@types/lodash": "^4.14.142",
     "@types/mocha": "^5.2.7",
     "@types/node": "^14.16.0",
