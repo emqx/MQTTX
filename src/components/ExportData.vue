@@ -179,7 +179,7 @@ export default class ExportData extends Vue {
     const exportDataToXML = (jsonContent: string) => {
       try {
         let content = replaceSpecialDataTypes(jsonContent)
-        content = XMLConvert.json2xml(jsonContent, { compact: true, ignoreComment: true, spaces: 2 })
+        content = XMLConvert.json2xml(content, { compact: true, ignoreComment: true, spaces: 2 })
         content = '<?xml version="1.0" encoding="utf-8"?>\n<root>\n'.concat(content).concat('\n</root>')
         content = content.replace(/<([0-9]*)>/g, '<oneConnection>').replace(/<(\/[0-9]*)>/g, '</oneConnection>')
         this.exportDiffFormatData(content, 'XML')
@@ -201,26 +201,28 @@ export default class ExportData extends Vue {
   }
 
   private async exportCSVData() {
-    const { connectionService } = useService()
-    const data: ConnectionModel[] = !this.record.allConnections
-      ? await connectionService.cascadeGetAll(this.connection.id)
-      : await connectionService.cascadeGetAll()
-    if (!data || !data.length) {
-      this.$message.warning(this.$tc('common.noData'))
-      return
-    }
-    const exportDataToCSV = (jsonContent: ConnectionModel[]) => {
+    const exportDataToCSV = (jsonContent: string) => {
       try {
+        let content = replaceSpecialDataTypes(jsonContent)
         // Prevent CSV from automatically converting string with trailing zeros after decimal point to number.
         // https://stackoverflow.com/questions/165042/stop-excel-from-automatically-converting-certain-text-values-to-dates
-        const content: string = CSVConvert(jsonContent).replace(/"(\d+\.(\d+)?0)"/g, '="$1"')
+        content = CSVConvert(JSON.parse(content)).replace(/"(\d+\.(\d+)?0)"/g, '="$1"')
         this.exportDiffFormatData(content, 'CSV')
       } catch (err) {
         this.$message.error(err.toString())
       }
     }
-    const jsonContent = data
-    exportDataToCSV(jsonContent)
+    this.getStringifyContent()
+      .then((content) => {
+        if (content === '[]') {
+          this.$message.warning(this.$tc('common.noData'))
+          return
+        }
+        exportDataToCSV(content)
+      })
+      .catch((err) => {
+        this.$message.error(err.toString())
+      })
   }
 
   private resetData() {

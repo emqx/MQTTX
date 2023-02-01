@@ -64,7 +64,13 @@ import XMLConvert from 'xml-js'
 import CSVConvert from 'csvtojson'
 import ExcelConvert from 'xlsx'
 import useServices from '@/database/useServices'
-import { specialDataTypes, recoverSpecialDataTypes } from '@/utils/exportData'
+import {
+  emptyArray,
+  specialDataTypes,
+  stringProps,
+  recoverSpecialDataTypes,
+  recoverSpecialDataTypesFromString,
+} from '@/utils/exportData'
 
 type ImportFormat = 'JSON' | 'XML' | 'CSV' | 'Excel'
 
@@ -96,17 +102,6 @@ export default class ImportData extends Vue {
     fileName: '',
     fileContent: [],
   }
-  // properties with string values may be 'number'
-  private stringProps: string[] = [
-    'clientId',
-    'name',
-    'password',
-    'topic',
-    'username',
-    'lastWillPayload',
-    'lastWillTopic',
-    'contentType',
-  ]
 
   @Watch('visible')
   private onVisibleChanged(val: boolean) {
@@ -239,7 +234,7 @@ export default class ImportData extends Vue {
           } else if (/(\d+\.(\d+)?0)/.test(value)) {
             // format string number
             return value
-          } else if (!this.stringProps.includes(key) && value !== '') {
+          } else if (!stringProps.includes(key) && value !== '') {
             // format number
             const numValue = Number(value)
             return !isNaN(numValue) ? numValue : value
@@ -292,38 +287,37 @@ export default class ImportData extends Vue {
     CSVConvert()
       .fromString(data)
       .subscribe((jsonObj) => {
+        const formatObj = (obj: any) => {
+          if (obj) {
+            const objStr = typeof obj === 'string' ? obj : JSON.stringify(obj)
+            const objStrFormat = recoverSpecialDataTypesFromString(objStr)
+              .replace(/"=\\"(\d+\.(\d+)?0)\\""/g, '"$1"')
+              .replace(/:"true"/g, ':true')
+              .replace(/:"false"/g, ':false')
+            return JSON.parse(objStrFormat)
+          }
+          return obj
+        }
+
+        let { messages, subscriptions, properties, will, ...otherProps } = jsonObj
+
+        if (messages === emptyArray) messages = []
+        if (subscriptions === emptyArray) subscriptions = []
+
         try {
-          let { messages, subscriptions, properties, will, ...otherProps } = jsonObj
-          // format object
-          messages = JSON.parse(messages)
-          subscriptions = JSON.parse(subscriptions)
-          properties = JSON.parse(properties)
-          will = JSON.parse(will)
+          messages = formatObj(messages)
+          subscriptions = formatObj(subscriptions)
+          properties = formatObj(properties)
+          will = formatObj(will)
+          otherProps = formatObj(otherProps)
+          // Convert string number to number
           Object.keys(otherProps).forEach((item) => {
-            // format boolean
-            if (otherProps[item] === 'true') {
-              otherProps[item] = true
-            } else if (otherProps[item] === 'false') {
-              otherProps[item] = false
-            } else if (!this.stringProps.includes(item) && otherProps[item] !== '') {
-              if (/^="(\d+\.(\d+)?0)"/.test(otherProps[item])) {
-                // format string number
-                otherProps[item] = otherProps[item].replace(/^="(\d+\.(\d+)?0)"/, '$1')
-              } else {
-                // format number
-                const numValue = Number(otherProps[item])
-                otherProps[item] = !isNaN(numValue) ? numValue : otherProps[item]
-              }
+            if (typeof otherProps[item] === 'string' && otherProps[item] !== '' && !stringProps.includes(item)) {
+              const numValue = Number(otherProps[item])
+              otherProps[item] = !isNaN(numValue) ? numValue : otherProps[item]
             }
           })
-          const oneRealJSONObj = {
-            messages,
-            subscriptions,
-            properties,
-            will,
-            ...otherProps,
-          }
-          fileContent.push(oneRealJSONObj)
+          fileContent.push({ messages, subscriptions, properties, will, ...otherProps })
         } catch (err) {
           this.$message.error(err.toString())
         }

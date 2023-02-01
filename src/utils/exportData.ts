@@ -6,6 +6,19 @@ const emptyObject = 'EMPTY_OBJECT'
 
 const specialDataTypes = [typeNull, typeUndefined, emptyString, emptyArray, emptyObject]
 
+// properties with string values may be 'number'
+const stringProps = [
+  'clientId',
+  'name',
+  'mqttVersion',
+  'password',
+  'topic',
+  'username',
+  'lastWillPayload',
+  'lastWillTopic',
+  'contentType',
+]
+
 const replaceSpecialDataTypes = (jsonString: string) => {
   return jsonString
     .replace(/: null/g, `: "${typeNull}"`)
@@ -32,6 +45,15 @@ const recoverSpecialDataTypes = (value: string) => {
   }
 }
 
+const recoverSpecialDataTypesFromString = (jsonString: string) => {
+  return jsonString
+    .replace(new RegExp(`"${typeNull}"`, 'g'), 'null')
+    .replace(new RegExp(`"${typeUndefined}"`, 'g'), 'undefined')
+    .replace(new RegExp(`"${emptyString}"`, 'g'), '""')
+    .replace(new RegExp(`"${emptyArray}"`, 'g'), '[]')
+    .replace(new RegExp(`"${emptyObject}"`, 'g'), '{}')
+}
+
 export {
   typeNull,
   typeUndefined,
@@ -39,6 +61,8 @@ export {
   emptyArray,
   emptyObject,
   specialDataTypes,
+  stringProps,
   replaceSpecialDataTypes,
   recoverSpecialDataTypes,
+  recoverSpecialDataTypesFromString,
 }
