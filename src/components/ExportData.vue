@@ -48,6 +48,7 @@ import MyDialog from './MyDialog.vue'
 import XMLConvert from 'xml-js'
 import { parse as CSVConvert } from 'json2csv'
 import ExcelConvert, { WorkBook } from 'xlsx'
+import { replaceSpecialDataTypes } from '@/utils/exportData'
 
 type ExportFormat = 'JSON' | 'XML' | 'CSV' | 'Excel'
 
@@ -176,11 +177,9 @@ export default class ExportData extends Vue {
 
   private exportXMLData() {
     const exportDataToXML = (jsonContent: string) => {
-      // avoid messages: [] & subscriptions: [] being discarded
-      jsonContent = jsonContent.replace(/\[\]/g, '""')
-      const XMLOptions = { compact: true, ignoreComment: true, spaces: 2 }
       try {
-        let content = XMLConvert.json2xml(jsonContent, XMLOptions)
+        let content = replaceSpecialDataTypes(jsonContent)
+        content = XMLConvert.json2xml(jsonContent, { compact: true, ignoreComment: true, spaces: 2 })
         content = '<?xml version="1.0" encoding="utf-8"?>\n<root>\n'.concat(content).concat('\n</root>')
         content = content.replace(/<([0-9]*)>/g, '<oneConnection>').replace(/<(\/[0-9]*)>/g, '</oneConnection>')
         this.exportDiffFormatData(content, 'XML')
@@ -214,7 +213,7 @@ export default class ExportData extends Vue {
       try {
         // Prevent CSV from automatically converting string with trailing zeros after decimal point to number.
         // https://stackoverflow.com/questions/165042/stop-excel-from-automatically-converting-certain-text-values-to-dates
-        const content: string = CSVConvert(jsonContent).replace(/"(\d+\.0+)"/g, '="$1"')
+        const content: string = CSVConvert(jsonContent).replace(/"(\d+\.(\d+)?0)"/g, '="$1"')
         this.exportDiffFormatData(content, 'CSV')
       } catch (err) {
         this.$message.error(err.toString())

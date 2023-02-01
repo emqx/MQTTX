@@ -64,6 +64,7 @@ import XMLConvert from 'xml-js'
 import CSVConvert from 'csvtojson'
 import ExcelConvert from 'xlsx'
 import useServices from '@/database/useServices'
+import { specialDataTypes, recoverSpecialDataTypes } from '@/utils/exportData'
 
 type ImportFormat = 'JSON' | 'XML' | 'CSV' | 'Excel'
 
@@ -227,26 +228,50 @@ export default class ImportData extends Vue {
   private getXMLData(data: string): ConnectionModel[] {
     const removeJsonTextAttribute = (value: string, parentElement: XMLParentElement) => {
       try {
-        const nativeType = (value: string) => {
+        const nativeType = (key: string, value: string) => {
           const lowerValue = value.toLowerCase()
           if (lowerValue === 'true') {
             return true
           } else if (lowerValue === 'false') {
             return false
-          } else if (lowerValue !== '') {
+          } else if (specialDataTypes.includes(value)) {
+            return recoverSpecialDataTypes(value)
+          } else if (/(\d+\.(\d+)?0)/.test(value)) {
+            // format string number
+            return value
+          } else if (!this.stringProps.includes(key) && value !== '') {
             // format number
             const numValue = Number(value)
-            const convertedValue = !isNaN(numValue) ? numValue : value
-            return convertedValue
+            return !isNaN(numValue) ? numValue : value
           }
           return value
         }
         const keyNameIndex = Object.keys(parentElement._parent).length - 1
         const keyName = Object.keys(parentElement._parent)[keyNameIndex]
-        parentElement._parent[keyName] = this.stringProps.indexOf(keyName) !== -1 ? value : nativeType(value)
+        parentElement._parent[keyName] = nativeType(keyName, value)
       } catch (err) {
         this.$message.error(err.toString())
       }
+    }
+    const convertRightStringAndArray = (data: string) => {
+      let fileContent: ConnectionModel[] = []
+      try {
+        const jsonData = JSON.parse(data)
+        const isOneConnection = !jsonData.root.oneConnection || !Array.isArray(jsonData.root.oneConnection)
+        if (isOneConnection) {
+          // { root: {} or root: { oneConnection : {} } }
+          const isSimpleObj = jsonData.root.oneConnection === undefined
+          const oneConnection: ConnectionModel = isSimpleObj ? jsonData.root : jsonData.root.oneConnection
+          fileContent = oneConnection ? [oneConnection] : []
+        } else {
+          // { root: { oneConnection : [] } }
+          const { oneConnection: connections }: { oneConnection: ConnectionModel[] } = jsonData.root
+          fileContent = connections
+        }
+      } catch (err) {
+        this.$message.error(err.toString())
+      }
+      return fileContent
     }
     const XMLOptions = {
       compact: true,
@@ -259,59 +284,7 @@ export default class ImportData extends Vue {
       textFn: removeJsonTextAttribute,
     }
     const formatedData = XMLConvert.xml2json(data, XMLOptions)
-    return this.convertRightStringAndArray(formatedData)
-  }
-
-  private convertRightStringAndArray(data: string): ConnectionModel[] {
-    let fileContent: ConnectionModel[] = []
-    try {
-      const jsonData = JSON.parse(data)
-      const isOneConnection = !jsonData.root.oneConnection || !Array.isArray(jsonData.root.oneConnection)
-
-      const convertOneConnection = (oneConnection: ConnectionModel): ConnectionModel | undefined => {
-        const { ca, cert, certType, key, password, username, will } = oneConnection
-        // empty string
-        const isStringTypeProps = { ca, cert, certType, key, password, username, will }
-        const isStringTypePropsStr = JSON.stringify(isStringTypeProps).replace(/\{\}/g, '""')
-
-        // one message/subscription
-        let { messages, subscriptions } = oneConnection
-        if (messages === undefined || subscriptions === undefined) {
-          this.$message.error(this.$tc('connections.uploadFileTip'))
-          return
-        }
-        messages = JSON.stringify(messages) !== '{}' && !Array.isArray(messages) ? [messages] : messages
-        subscriptions =
-          JSON.stringify(subscriptions) !== '{}' && !Array.isArray(subscriptions) ? [subscriptions] : subscriptions
-
-        // empty message/subscription
-        const isArrayTypeProps = { messages, subscriptions }
-        const isArrayTypePropsStr = JSON.stringify(isArrayTypeProps).replace(/\{\}/g, '[]')
-
-        const convertedString = JSON.parse(isStringTypePropsStr)
-        const convertedArray = JSON.parse(isArrayTypePropsStr)
-
-        return Object.assign(oneConnection, convertedString, convertedArray)
-      }
-
-      if (isOneConnection) {
-        // { root: {} or root: { oneConnection : {} } }
-        const isSimpleObj = jsonData.root.oneConnection === undefined
-        let oneConnection: ConnectionModel = isSimpleObj ? jsonData.root : jsonData.root.oneConnection
-        const convertedResult = convertOneConnection(oneConnection)
-        fileContent = convertedResult ? [convertedResult] : []
-      } else {
-        // { root: { oneConnection : [] } }
-        const { oneConnection: connections }: { oneConnection: ConnectionModel[] } = jsonData.root
-        const convertedArray = connections.map((oneConnection) => convertOneConnection(oneConnection))
-        if (convertedArray.indexOf(undefined) === -1) {
-          fileContent = convertedArray as ConnectionModel[]
-        }
-      }
-    } catch (err) {
-      this.$message.error(err.toString())
-    }
-    return fileContent
+    return convertRightStringAndArray(formatedData)
   }
 
   private getCSVData(data: string): ConnectionModel[] {
@@ -332,10 +305,10 @@ export default class ImportData extends Vue {
               otherProps[item] = true
             } else if (otherProps[item] === 'false') {
               otherProps[item] = false
-            } else if (this.stringProps.indexOf(item) === -1 && otherProps[item] !== '') {
-              if (/^="(\d+\.0+)"/.test(otherProps[item])) {
+            } else if (!this.stringProps.includes(item) && otherProps[item] !== '') {
+              if (/^="(\d+\.(\d+)?0)"/.test(otherProps[item])) {
                 // format string number
-                otherProps[item] = otherProps[item].replace(/^="(\d+\.0+)"/, '$1')
+                otherProps[item] = otherProps[item].replace(/^="(\d+\.(\d+)?0)"/, '$1')
               } else {
                 // format number
                 const numValue = Number(otherProps[item])
