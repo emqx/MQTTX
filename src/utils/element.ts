@@ -45,7 +45,7 @@ import {
   // TabPane,
   // Tag,
   Tree,
-  // Alert,
+  Alert,
   // Slider,
   // Icon,
   Row,
@@ -118,7 +118,7 @@ export default (Vue: typeof _Vue) => {
   // Vue.use(TabPane)
   // Vue.use(Tag)
   Vue.use(Tree)
-  // Vue.use(Alert)
+  Vue.use(Alert)
   // Vue.use(Slider)
   // Vue.use(Icon)
   Vue.use(Row)
