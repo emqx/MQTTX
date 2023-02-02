@@ -8,6 +8,14 @@
     @confirm="importData"
     @close="resetData"
   >
+    <el-alert
+      class="import-data-tip"
+      :title="$t('connections.importDataTip')"
+      type="warning"
+      show-icon
+      :closable="false"
+    >
+    </el-alert>
     <el-form ref="form" label-position="left" label-width="130px" :model="record">
       <el-row :gutter="20">
         <el-col :span="24">
@@ -395,6 +403,9 @@ export default class ImportData extends Vue {
     .el-loading-mask {
       opacity: 0.5;
     }
+  }
+  .import-data-tip {
+    margin-bottom: 12px;
   }
 }
 </style>

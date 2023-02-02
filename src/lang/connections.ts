@@ -566,6 +566,13 @@ export default {
     ja: 'インポート',
     hu: 'Adatok importálása',
   },
+  importDataTip: {
+    zh: '导入完成后会断开所有连接，请手动点击连接进行恢复。',
+    en: 'After import, all connections will be disconnected, please click the connect button manually to restore.',
+    tr: 'İçe aktarmadan sonra tüm bağlantılar kesilecektir, lütfen geri yüklemek için bağlantı düğmesine manuel olarak tıklayın.',
+    ja: 'インポート後、すべての接続が切断されます。復元するには、接続ボタンを手動でクリックしてください。',
+    hu: 'Az importálás után az összes kapcsolat megszakad, kérjük, a visszaállításhoz kattintson a kapcsolódás gombra manuálisan.',
+  },
   importFormat: {
     zh: '导入数据格式',
     en: 'Import format',
