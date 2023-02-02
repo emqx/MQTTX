@@ -406,6 +406,7 @@ export default class ImportData extends Vue {
   }
   .import-data-tip {
     margin-bottom: 12px;
+    word-break: break-word;
   }
 }
 </style>
