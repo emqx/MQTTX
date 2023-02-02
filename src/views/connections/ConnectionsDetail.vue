@@ -266,7 +266,7 @@
       </div>
     </div>
     <ExportData :visible.sync="showExportData" :connection="record" />
-    <ImportData :visible.sync="showImportData" @updateData="$emit('reload')" />
+    <ImportData :visible.sync="showImportData" />
     <TimedMessage ref="timedMessage" :visible.sync="showTimedMessage" @setTimerSuccess="setTimerSuccess" />
     <UseScript ref="useScript" :visible.sync="showUseScript" @setScript="handleSetScript" />
     <BytesStatistics
