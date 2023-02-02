@@ -4,6 +4,7 @@
     :visible.sync="showDialog"
     class="import-data"
     width="350px"
+    :confirmLoading="confirmLoading"
     @confirm="importData"
     @close="resetData"
   >
@@ -71,6 +72,7 @@ import {
   recoverSpecialDataTypes,
   recoverSpecialDataTypesFromString,
 } from '@/utils/exportData'
+import { ElLoadingComponent } from 'element-ui/types/loading'
 
 type ImportFormat = 'JSON' | 'XML' | 'CSV' | 'Excel'
 
@@ -96,6 +98,7 @@ export default class ImportData extends Vue {
   @Prop({ default: false }) public visible!: boolean
 
   private showDialog: boolean = this.visible
+  private confirmLoading: boolean = false
   private record: ImportForm = {
     importFormat: 'JSON',
     filePath: '',
@@ -109,6 +112,7 @@ export default class ImportData extends Vue {
   }
 
   private getFileData() {
+    let loading: ElLoadingComponent | undefined = undefined
     const lowerFormat = this.record.importFormat.toLowerCase()
     const extensionName = lowerFormat === 'excel' ? 'xlsx' : lowerFormat
     remote.dialog
@@ -118,7 +122,11 @@ export default class ImportData extends Vue {
       })
       .then((res) => {
         const { filePaths } = res
-        if (filePaths) {
+        if (filePaths.length) {
+          loading = this.$loading({
+            target: '.import-data .el-dialog',
+            spinner: 'el-icon-loading',
+          })
           const filePath = filePaths[0]
           if (extensionName === 'xlsx') {
             this.getExcelContentByXlsx(filePath)
@@ -128,6 +136,9 @@ export default class ImportData extends Vue {
         }
       })
       .catch(() => {})
+      .finally(() => {
+        loading?.close()
+      })
   }
 
   private getExcelContentByXlsx(filePath: string) {
@@ -326,16 +337,20 @@ export default class ImportData extends Vue {
   }
 
   private async importData() {
+    this.confirmLoading = true
     const { connectionService } = useServices()
     if (!this.record.fileContent.length) {
       this.$message.error(this.$tc('connections.uploadFileTip'))
       return
     }
     const importDataResult = await connectionService.import(this.record.fileContent)
+    this.confirmLoading = false
     if (importDataResult === 'ok') {
       this.$message.success(this.$tc('common.importSuccess'))
-      this.$emit('updateData')
       this.resetData()
+      setTimeout(() => {
+        location.reload()
+      }, 1000)
     } else {
       this.$message.error(importDataResult)
     }
@@ -374,6 +389,12 @@ export default class ImportData extends Vue {
   }
   .el-col-2 {
     padding-left: 5px !important;
+  }
+  .el-dialog {
+    overflow: hidden;
+    .el-loading-mask {
+      opacity: 0.5;
+    }
   }
 }
 </style>
