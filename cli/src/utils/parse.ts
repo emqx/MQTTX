@@ -104,6 +104,14 @@ const parseFormat = (value: string) => {
   return value
 }
 
+const parseOutputMode = (value: string) => {
+  if (!['clean', 'default'].includes(value)) {
+    signale.error('Not a valid output mode.')
+    process.exit(1)
+  }
+  return value
+}
+
 const parseConnectOptions = (
   options: ConnectOptions | PublishOptions | SubscribeOptions,
   commandType?: CommandType,
@@ -326,6 +334,7 @@ export {
   checkTopicExists,
   parsePubTopic,
   parseFormat,
+  parseOutputMode,
   parseConnectOptions,
   parsePublishOptions,
   parseSubscribeOptions,
