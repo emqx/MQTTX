@@ -93,11 +93,11 @@ export class Commander {
       )
       .option(
         '--save [PATH]',
-        'save the parameters to the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json',
+        'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option(
         '--config [PATH]',
-        'load the parameters from the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json',
+        'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .action(conn)
 
@@ -183,11 +183,11 @@ export class Commander {
       )
       .option(
         '--save [PATH]',
-        'save the parameters to the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json',
+        'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option(
         '--config [PATH]',
-        'load the parameters from the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json',
+        'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .action(pub)
 
@@ -214,7 +214,7 @@ export class Commander {
       .option('-v, --verbose', 'print the topic before the message')
       .option(
         '--output-mode <default/clean>',
-        'choose between the default format and the clean mode, the clean mode outputs the complete packet data, allowing users to pipe the output freely',
+        'choose between the default and clean mode, which outputs the complete MQTT packet data, allowing users to pipe the output as they wish',
         parseOutputMode,
         'default',
       )
@@ -270,11 +270,11 @@ export class Commander {
       )
       .option(
         '--save [PATH]',
-        'save the parameters to the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json',
+        'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option(
         '--config [PATH]',
-        'load the parameters from the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json',
+        'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .action(sub)
 
@@ -336,11 +336,11 @@ export class Commander {
       )
       .option(
         '--save [PATH]',
-        'save the parameters to the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json',
+        'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option(
         '--config [PATH]',
-        'load the parameters from the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json',
+        'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .action(benchConn)
 
@@ -432,11 +432,11 @@ export class Commander {
       )
       .option(
         '--save [PATH]',
-        'save the parameters to the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json',
+        'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option(
         '--config [PATH]',
-        'load the parameters from the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json',
+        'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .action(benchPub)
 
@@ -517,11 +517,11 @@ export class Commander {
       )
       .option(
         '--save [PATH]',
-        'save the parameters to the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json',
+        'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option(
         '--config [PATH]',
-        'load the parameters from the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json',
+        'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .action(benchSub)
   }

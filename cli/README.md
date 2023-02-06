@@ -194,8 +194,8 @@ mqttx conn --help
 | --topic-alias-maximum <NUMBER>                   | the topic alias maximum value                                                                                                      |
 | --req-response-info                              | the client requests response information from the server                                                                           |
 | --no-req-problem-info                            | the client requests problem information from the server                                                                            |
-| --save \[PATH\]                                  | save the parameters to the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json   |
-| --config \[PATH\]                                | load the parameters from the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json |
+| --save \[PATH\]                                  | save the parameters to the local configuration file, which supports json and yaml format, default path is `./mqttx-cli-config.json` |
+| --config \[PATH\]                                | load the parameters from the local configuration file, which supports json and yaml format, default path is `./mqttx-cli-config.json` |
 | --help                                           | display help for conn command                                                                                                      |
 
 #### Subscribe
@@ -229,7 +229,7 @@ mqttx sub --help
 | -up, --user-properties <USERPROPERTIES...>       | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")                                                                                    |
 | -f, --format <TYPE>                              | format the message body, support base64, json, hex                                                                                              |
 | -v, --verbose                                    | print the topic before the message                                                                                                              |
-| --output-mode <default/clean>                    | choose between the default format and the clean mode, the clean mode outputs the complete packet data, allowing users to pipe the output freely |
+| --output-mode <default/clean>                    | choose between the default and clean mode, which outputs the complete MQTT packet data, allowing users to pipe the output as they wish          |
 | -Wt, --will-topic <TOPIC>                        | the will topic                                                                                                                                  |
 | -Wm, --will-message <BODY>                       | the will message                                                                                                                                |
 | -Wq, --will-qos <0/1/2>                          | the will qos                                                                                                                                    |
@@ -249,8 +249,8 @@ mqttx sub --help
 | --req-response-info                              | the client requests response information from the server                                                                                        |
 | --no-req-problem-info                            | the client requests problem information from the server                                                                                         |
 | -Cup, --conn-user-properties <USERPROPERTIES...> | the connect user properties of MQTT 5.0 (e.g. -Cup "name: mqttx cli")                                                                           |
-| --save \[PATH\]                                  | save the parameters to the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json                |
-| --config \[PATH\]                                | load the parameters from the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json              |
+| --save \[PATH\]                                  | save the parameters to the local configuration file, which supports json and yaml format, default path is `./mqttx-cli-config.json`                |
+| --config \[PATH\]                                | load the parameters from the local configuration file, which supports json and yaml format, default path is `./mqttx-cli-config.json`              |
 | --help                                           | display help for sub command                                                                                                                    |
 
 #### Publish
@@ -307,8 +307,8 @@ mqttx pub --help
 | --req-response-info                              | the client requests response information from the server                                                                           |
 | --no-req-problem-info                            | the client requests problem information from the server                                                                            |
 | -Cup, --conn-user-properties <USERPROPERTIES...> | the connect user properties of MQTT 5.0 (e.g. -Cup "name: mqttx cli")                                                              |
-| --save \[PATH\]                                  | save the parameters to the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json   |
-| --config \[PATH\]                                | load the parameters from the local configuration file, which supports json and yaml format, default path is./mqttx-cli-config.json |
+| --save \[PATH\]                                  | save the parameters to the local configuration file, which supports json and yaml format, default path is `./mqttx-cli-config.json`   |
+| --config \[PATH\]                                | load the parameters from the local configuration file, which supports json and yaml format, default path is `./mqttx-cli-config.json` |
 | --help                                           | display help for pub command                                                                                                       |
 
 ### Benchmark
