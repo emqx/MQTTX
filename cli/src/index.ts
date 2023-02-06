@@ -11,6 +11,7 @@ import {
   parseVariadicOfBooleanType,
   parsePubTopic,
   parseFormat,
+  parseOutputMode,
 } from './utils/parse'
 import { conn, benchConn } from './lib/conn'
 import { pub, benchPub } from './lib/pub'
@@ -211,6 +212,12 @@ export class Commander {
       )
       .option('-f, --format <TYPE>', 'format the message body, support base64, json, hex', parseFormat)
       .option('-v, --verbose', 'print the topic before the message')
+      .option(
+        '--output-mode <default/clean>',
+        'choose between the default format and the clean mode, the clean mode outputs the complete packet data, allowing users to pipe the output freely',
+        parseOutputMode,
+        'default',
+      )
       // connect options
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')

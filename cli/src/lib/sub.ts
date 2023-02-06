@@ -18,14 +18,16 @@ const sub = (options: SubscribeOptions) => {
 
   const client = mqtt.connect(connOpts)
 
-  const { maximunReconnectTimes } = options
+  const { outputMode, maximunReconnectTimes } = options
+
+  const outputModeClean = outputMode === 'clean'
 
   let retryTimes = 0
 
-  basicLog.connecting(config, connOpts.hostname!, connOpts.port, options.topic.join(', '))
+  !outputModeClean && basicLog.connecting(config, connOpts.hostname!, connOpts.port, options.topic.join(', '))
 
   client.on('connect', () => {
-    basicLog.connected()
+    !outputModeClean && basicLog.connected()
 
     retryTimes = 0
 
@@ -36,19 +38,19 @@ const sub = (options: SubscribeOptions) => {
     topic.forEach((t: string, index: number) => {
       const subOpts = subOptsArray[index]
 
-      basicLog.subscribing(t)
+      !outputModeClean && basicLog.subscribing(t)
 
       client.subscribe(t, subOpts, (err, result) => {
         if (err) {
-          basicLog.error(err)
+          !outputModeClean && basicLog.error(err)
           process.exit(1)
         } else {
-          basicLog.subscribed(t)
+          !outputModeClean && basicLog.subscribed(t)
         }
 
         result.forEach((sub) => {
           if (sub.qos > 2) {
-            basicLog.subscriptionNegated(sub)
+            !outputModeClean && basicLog.subscriptionNegated(sub)
             process.exit(1)
           }
         })
@@ -81,11 +83,13 @@ const sub = (options: SubscribeOptions) => {
       msgData.push({ label: 'userProperties', value: up })
     }
 
-    msgLog(msgData)
+    !outputModeClean
+      ? msgLog(msgData)
+      : console.log(JSON.stringify({ topic, payload: convertPayload(payload, format), packet }, null, 2))
   })
 
   client.on('error', (err) => {
-    basicLog.error(err)
+    !outputModeClean && basicLog.error(err)
     client.end()
   })
 
@@ -93,15 +97,15 @@ const sub = (options: SubscribeOptions) => {
     retryTimes += 1
     if (retryTimes > maximunReconnectTimes) {
       client.end(false, {}, () => {
-        basicLog.reconnectTimesLimit()
+        !outputModeClean && basicLog.reconnectTimesLimit()
       })
     } else {
-      basicLog.reconnecting()
+      !outputModeClean && basicLog.reconnecting()
     }
   })
 
   client.on('close', () => {
-    basicLog.close()
+    !outputModeClean && basicLog.close()
   })
 }
 

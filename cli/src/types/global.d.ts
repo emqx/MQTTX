@@ -9,6 +9,8 @@ declare global {
 
   type FormatType = 'base64' | 'json' | 'hex'
 
+  type OutputMode = 'clean' | 'default'
+
   interface ConnectOptions {
     mqttVersion: MQTTVersion
     hostname: string
@@ -78,6 +80,7 @@ declare global {
     retainHandling?: QoS[]
     subscriptionIdentifier?: number[]
     format?: FormatType
+    outputMode?: OutputMode
     verbose: boolean
     connUserProperties?: Record<string, string | string[]>
   }
@@ -96,7 +99,7 @@ declare global {
     verbose: boolean
   }
 
-  type OmitSubscribeOptions = Omit<SubscribeOptions, 'format'>
+  type OmitSubscribeOptions = Omit<SubscribeOptions, 'format' | 'outputMode'>
 
   interface BenchSubscribeOptions extends OmitSubscribeOptions {
     count: number
