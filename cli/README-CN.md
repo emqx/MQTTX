@@ -230,6 +230,7 @@ mqttx sub --help
 | -up, --user-properties <USERPROPERTIES...>       | MQTT 5.0 用户属性，例如：-up "name: mqttx cli"          |
 | -f, --format <TYPE>                              | 消息格式化类型，支持 base64、json、hex                    |
 | -v, --verbose                                    | 在接收到的 Payload 前显示当前 Topic                     |
+| --output-mode <default/clean>                    | 选择默认或简洁模式，简洁模式会输出完整的数据包，允许用户使用 jq 这类工具自由管理输出 |
 | -Wt, --will-topic <TOPIC>                        | 遗嘱消息的 Topic                                        |
 | -Wm, --will-message <BODY>                       | 遗嘱消息的 Payload                                      |
 | -Wq, --will-qos <0/1/2>                          | 遗嘱消息的 QoS                                          |
