@@ -104,6 +104,7 @@ declare global {
     advancedVisible: boolean
     allConnections: ConnectionModel[]
     currentScript: ScriptState | null
+    currentConnectionId: string | null
     connectionTreeState: ConnectionTreeStateMap
   }
 

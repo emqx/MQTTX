@@ -31,6 +31,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Action } from 'vuex-class'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsDetail from './ConnectionsDetail.vue'
@@ -47,6 +48,8 @@ import { getDefaultRecord } from '@/utils/mqttUtils'
   },
 })
 export default class Connections extends Vue {
+  @Action('SET_CURRENT_CONNECTION_ID') private setCurrentConnectionId!: (id: string) => void
+
   private isEmpty: boolean = false
   private isLoadingData: boolean = false
   private currentConnection: ConnectionModel = { ...getDefaultRecord() }
@@ -85,6 +88,7 @@ export default class Connections extends Vue {
   }
 
   private async loadDetail(id: string): Promise<void> {
+    this.setCurrentConnectionId(id)
     const { connectionService } = useServices()
     const res = await connectionService.get(id)
     if (res) {
