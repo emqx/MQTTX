@@ -19,6 +19,7 @@ const SET_CONNECTIONS_TREE = 'SET_CONNECTIONS_TREE'
 const TOGGLE_WILL_MESSAGE_VISIBLE = 'TOGGLE_WILL_MESSAGE_VISIBLE'
 const TOGGLE_ADVANCED_VISIBLE = 'TOGGLE_ADVANCED_VISIBLE'
 const SET_SCRIPT = 'SET_SCRIPT'
+const SET_CURRENT_CONNECTION_ID = 'SET_CURRENT_CONNECTION_ID'
 const TOGGLE_SYNC_OS_THEME = 'TOGGLE_SYNC_OS_THEME'
 const TOGGLE_MULTI_TOPICS = 'TOGGLE_MULTI_TOPICS'
 
@@ -49,6 +50,7 @@ const app = {
     advancedVisible: true,
     willMessageVisible: true,
     currentScript: null,
+    currentConnectionId: null,
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -126,6 +128,9 @@ const app = {
     [SET_SCRIPT](state: App, currentScript: ScriptState) {
       state.currentScript = currentScript
     },
+    [SET_CURRENT_CONNECTION_ID](state: App, currentConnectionId: string) {
+      state.currentConnectionId = currentConnectionId
+    },
   },
   actions: {
     async TOGGLE_THEME({ commit }: any, payload: App) {
@@ -199,6 +204,9 @@ const app = {
     },
     async SET_SCRIPT({ commit }: any, payload: App) {
       commit(SET_SCRIPT, payload.currentScript)
+    },
+    async SET_CURRENT_CONNECTION_ID({ commit }: any, currentConnectionId: string) {
+      commit(SET_CURRENT_CONNECTION_ID, currentConnectionId)
     },
   },
 }

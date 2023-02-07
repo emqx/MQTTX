@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import routes from './routes'
 import useServices from '@/database/useServices'
+import store from '@/store'
 
 Vue.use(Router)
 
@@ -26,10 +27,11 @@ Router.prototype.push = function push(location: string) {
 
 router.beforeEach(async (to, from, next) => {
   if (to.name === 'Connections') {
+    const { currentConnectionId } = store.state.app || {}
     const { connectionService } = useServices()
     const lastestId: string | undefined = await connectionService.getLeatestId()
     if (lastestId) {
-      next({ path: `/recent_connections/${lastestId}` })
+      next({ path: `/recent_connections/${currentConnectionId || lastestId}` })
     } else {
       next()
     }
