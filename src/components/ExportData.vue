@@ -4,6 +4,7 @@
     :visible.sync="showDialog"
     class="export-data"
     width="350px"
+    :confirmLoading="confirmLoading"
     @confirm="exportData"
     @close="resetData"
     @keyupEnter="exportData"
@@ -69,6 +70,7 @@ export default class ExportData extends Vue {
   @Prop({ default: false }) public visible!: boolean
 
   private showDialog: boolean = this.visible
+  private confirmLoading: boolean = false
   private record: ExportForm = {
     exportFormat: 'JSON',
     allConnections: false,
@@ -125,6 +127,7 @@ export default class ExportData extends Vue {
   }
 
   private exportJSONData() {
+    this.confirmLoading = true
     this.getStringifyContent()
       .then((content) => {
         if (content === '[]') {
@@ -136,15 +139,20 @@ export default class ExportData extends Vue {
       .catch((err) => {
         this.$message.error(err.toString())
       })
+      .finally(() => {
+        this.confirmLoading = false
+      })
   }
 
   private async exportExcelData() {
+    this.confirmLoading = true
     const { connectionService } = useService()
     const data: ConnectionModel[] = !this.record.allConnections
       ? await connectionService.cascadeGetAll(this.connection.id)
       : await connectionService.cascadeGetAll()
     if (!data || !data.length) {
       this.$message.warning(this.$tc('common.noData'))
+      this.confirmLoading = false
       return
     }
     const fileName = !this.record.allConnections ? this.connection.name : 'data'
@@ -173,6 +181,7 @@ export default class ExportData extends Vue {
     const newWorkBook = ExcelConvert.utils.book_new()
     ExcelConvert.utils.book_append_sheet(newWorkBook, sheet)
     saveExcelData(newWorkBook)
+    this.confirmLoading = false
   }
 
   private exportXMLData() {
@@ -187,6 +196,7 @@ export default class ExportData extends Vue {
         this.$message.error(err.toString())
       }
     }
+    this.confirmLoading = true
     this.getStringifyContent()
       .then((content) => {
         if (content === '[]') {
@@ -198,9 +208,12 @@ export default class ExportData extends Vue {
       .catch((err) => {
         this.$message.error(err.toString())
       })
+      .finally(() => {
+        this.confirmLoading = false
+      })
   }
 
-  private async exportCSVData() {
+  private exportCSVData() {
     const exportDataToCSV = (jsonContent: string) => {
       try {
         let content = replaceSpecialDataTypes(jsonContent)
@@ -212,6 +225,7 @@ export default class ExportData extends Vue {
         this.$message.error(err.toString())
       }
     }
+    this.confirmLoading = true
     this.getStringifyContent()
       .then((content) => {
         if (content === '[]') {
@@ -222,6 +236,9 @@ export default class ExportData extends Vue {
       })
       .catch((err) => {
         this.$message.error(err.toString())
+      })
+      .finally(() => {
+        this.confirmLoading = false
       })
   }
 
