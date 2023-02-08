@@ -282,6 +282,11 @@ export default class ImportData extends Vue {
           const { oneConnection: connections }: { oneConnection: ConnectionModel[] } = jsonData.root
           fileContent = connections
         }
+        fileContent.forEach((connection) => {
+          const { messages, subscriptions } = connection
+          if (!Array.isArray(messages)) connection.messages = [messages]
+          if (!Array.isArray(subscriptions)) connection.subscriptions = [subscriptions]
+        })
       } catch (err) {
         this.$message.error(err.toString())
       }
