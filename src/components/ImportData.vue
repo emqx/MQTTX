@@ -21,7 +21,11 @@
         <el-col :span="24">
           <el-form-item :label="$t('connections.importFormat')">
             <el-select size="small" v-model="record.importFormat">
-              <el-option v-for="(format, index) in ['JSON', 'CSV', 'XML', 'Excel']" :key="index" :value="format">
+              <el-option
+                v-for="(format, index) in ['JSON', 'YAML', 'CSV', 'XML', 'Excel']"
+                :key="index"
+                :value="format"
+              >
               </el-option>
             </el-select>
           </el-form-item>
@@ -69,6 +73,7 @@ import { Getter } from 'vuex-class'
 import fs from 'fs'
 import { remote } from 'electron'
 import MyDialog from './MyDialog.vue'
+import YAML from 'js-yaml'
 import XMLConvert from 'xml-js'
 import CSVConvert from 'csvtojson'
 import ExcelConvert from 'xlsx'
@@ -82,7 +87,7 @@ import {
 } from '@/utils/exportData'
 import { ElLoadingComponent } from 'element-ui/types/loading'
 
-type ImportFormat = 'JSON' | 'XML' | 'CSV' | 'Excel'
+type ImportFormat = 'JSON' | 'YAML' | 'XML' | 'CSV' | 'Excel'
 
 interface ImportForm {
   importFormat: ImportFormat
@@ -222,6 +227,9 @@ export default class ImportData extends Vue {
       case 'JSON':
         return this.getJSONData(content)
         break
+      case 'YAML':
+        return this.getYAMLData(content)
+        break
       case 'CSV':
         return this.getCSVData(content)
         break
@@ -236,6 +244,11 @@ export default class ImportData extends Vue {
   private getJSONData(data: string): ConnectionModel[] {
     const _data = JSON.parse(data)
     const fileContent: ConnectionModel[] = Array.isArray(_data) ? _data : [_data]
+    return fileContent
+  }
+
+  private getYAMLData(data: string): ConnectionModel[] {
+    const fileContent = YAML.load(data) as ConnectionModel[]
     return fileContent
   }
 
