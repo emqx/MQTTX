@@ -230,7 +230,7 @@ const parseConnectOptions = (
       if (sessionExpiryInterval !== undefined) {
         properties.sessionExpiryInterval = sessionExpiryInterval
       } else {
-        properties.sessionExpiryInterval = 4294967295
+        properties.sessionExpiryInterval = parseInt('0xFFFFFFFF', 16)
       }
     }
 
