@@ -13,10 +13,10 @@ const setMQTT5Properties = ({ clean, properties: option }: ConnectionModel) => {
   if (properties.sessionExpiryInterval === null && !clean) {
     /**
       Clean Start set True and Session Expiry Interval set 0, the server MUST delete any Session State it holds for the Client
-      Clean Start set False and Session Expiry Interval set 4294967295, the server MUST NOT delete any Session State it holds for the Client
+      Clean Start set False and Session Expiry Interval set 0xFFFFFFFF, the server MUST NOT delete any Session State it holds for the Client
       Non-standard usage, user-friendly only, remember that Clean Start needs to be used with sessionExpiryInterval In MQTT 5.0
     **/
-    properties.sessionExpiryInterval = 4294967295
+    properties.sessionExpiryInterval = parseInt('0xFFFFFFFF', 16)
   }
   return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined))
 }
