@@ -9,8 +9,6 @@
 [![YouTube](https://img.shields.io/badge/Subscribe-EMQ%20中文-FF0000?logo=youtube)](https://www.youtube.com/channel/UCir_r04HIsLjf2qqyZ4A8Cg)
 [![Twitter](https://img.shields.io/badge/Follow-EMQ-1DA1F2?logo=twitter)](https://twitter.com/EMQTech)
 
-[English](./README.md) | 简体中文 | [日本語](./README-JP.md)
-
 ---
 
 [MQTT X](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的一款跨平台 MQTT 5.0 客户端工具，它支持 macOS, Linux, Windows，并且支持 MQTT 消息格式转换。
