@@ -62,22 +62,22 @@ export default class Help extends Vue {
   }
 
   get helpTop() {
-    const { docs, forum, learnMQTT } = gaCustomLinks(this.getterLang).help
+    const { learnMQTT, publicMqttBroker, mqtt5 } = gaCustomLinks(this.getterLang).help
     return [
-      {
-        icon: 'icon-docs',
-        title: this.$tc('help.docs'),
-        link: docs,
-      },
-      {
-        icon: 'icon-forum',
-        title: this.$tc('help.forum'),
-        link: forum,
-      },
       {
         icon: 'icon-learn-mqtt',
         title: this.$tc('help.learn'),
         link: learnMQTT,
+      },
+      {
+        icon: 'icon-public-mqtt-broker',
+        title: this.$tc('help.publicMqttBroker'),
+        link: publicMqttBroker,
+      },
+      {
+        icon: 'icon-mqtt5',
+        title: this.$tc('help.mqtt5Explore'),
+        link: mqtt5,
       },
     ]
   }

@@ -27,6 +27,20 @@ export default {
     tr: 'MQTT öğrenin',
     hu: 'Tanulj MQTT-t',
   },
+  publicMqttBroker: {
+    zh: 'MQTT 公共服务器',
+    en: 'Public MQTT Broker',
+    ja: '公共 MQTT ブローカー',
+    tr: 'Herkese açık MQTT Broker',
+    hu: 'Nyilvános MQTT Broker',
+  },
+  mqtt5Explore: {
+    zh: 'MQTT 5 探索',
+    en: 'MQTT 5 Explore',
+    ja: 'MQTT 5 を探る',
+    tr: 'MQTT 5 Keşfedin',
+    hu: 'Fedezze fel az MQTT 5-öt',
+  },
   guideTitle: {
     zh: 'MQTT 入门',
     en: 'MQTT Beginner’s Guide',
