@@ -30,14 +30,14 @@ export default {
     ja: 'MQTT X Webは、オープンソースのMQTT 5.0 WebSocketクライアントで、ブラウザ上でMQTTサービスやアプリケーションのデバッグを高速化することができます。',
   },
   cloudTitle: {
-    zh: '需要一个专属的 MQTT 服务器？',
-    en: 'Need a dedicated MQTT server?',
-    ja: '専用のMQTTサーバーが必要ですか？',
+    zh: '立即获取一个您专属的 MQTT 服务！',
+    en: 'Get Your Dedicated MQTT Server Now!',
+    ja: '専用のMQTTサーバーを今すぐご利用いただけます！',
   },
   cloudSummary: {
-    zh: 'EMQX Cloud 是由 EMQ 提供的全托管 MQTT 云服务平台，可连接海量物联网设备并实时处理数据，且支持按量付费。',
-    en: 'EMQX Cloud is a fully managed MQTT cloud service platform provided by EMQ that connects massive amounts of IoT devices and processes data in real-time with pay-per-use support.',
-    ja: 'EMQX Cloudは、EMQが提供する、膨大な数のIoTデバイスを接続し、リアルタイムにデータ処理を行うフルマネージドMQTTクラウドサービスプラットフォームで、従量課金制に対応しているのが特徴です。',
+    zh: '发掘物联网的强大能量，尝试使用 EMQX Cloud - 一款全托管的 MQTT 云服务平台，支持连接海量设备，使用灵活按量计费的方式实时处理数据，将物联网连接和数据处理变得更高效便捷。',
+    en: 'Unlock the power of IoT with EMQX Cloud - the fully managed MQTT cloud service platform that connects massive amounts of devices and processes real-time data with flexible pay-per-use billing.',
+    ja: 'EMQX Cloudを使用してIoTの強力な機能を発見しましょう。EMQX Cloudは、大規模なデバイスを接続し、リアルタイムデータを柔軟な使用料金で処理することができる完全に管理されたMQTTクラウドサービスプラットフォームです。',
   },
   tryCloud: {
     zh: '免费试用 EMQX Cloud',
