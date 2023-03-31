@@ -32,6 +32,8 @@ export default (lang: Language) => {
     docs: `${MQTTXSite}/docs${utm}mqttx-help-to-docs`,
     forum: `${forumSite}${utm}mqttx-help-to-forum`,
     learnMQTT: `${EMQSite}/mqtt${utm}mqttx-help-to-learn-mqtt`,
+    publicMqttBroker: `${EMQSite}/mqtt/public-mqtt5-broker`,
+    mqtt5: `${EMQSite}/mqtt/mqtt5`,
     blogUtm: `${utm}mqttx-help-to-blog`,
   }
 
