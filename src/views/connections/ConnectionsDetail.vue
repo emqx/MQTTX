@@ -521,7 +521,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Connect
-  public connect(): boolean | void {
+  public async connect(): Promise<boolean | void> {
     this.isReconnect = false
     if (this.client.connected || this.connectLoading) {
       return false
@@ -529,7 +529,7 @@ export default class ConnectionsDetail extends Vue {
     this.connectLoading = true
     // new client
     try {
-      const { curConnectClient, connectUrl } = createClient(this.record)
+      const { curConnectClient, connectUrl } = await createClient(this.record)
       this.client = curConnectClient
       const { id } = this.record
       if (id && this.client.on) {
