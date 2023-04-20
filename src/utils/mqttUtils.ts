@@ -54,7 +54,6 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
   const protocolVersion = mqttVersionDict[mqttVersion as '3.1' | '3.1.1' | '5.0']
   const options: IClientOptions = {
     clientId,
-    username,
     keepalive,
     clean,
     reconnectPeriod: reconnect ? reconnectPeriod : 0,
@@ -66,10 +65,6 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
     const clickIconTime = Date.parse(new Date().toString())
     options.clientId = `${options.clientId}_${clickIconTime}`
   }
-  // Auth
-  if (password !== '') {
-    options.password = password
-  }
   // MQTT Version
   if (protocolVersion === 5 && record.properties) {
     const properties = setMQTT5Properties(record)
@@ -78,6 +73,15 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
     }
   } else if (protocolVersion === 3) {
     options.protocolId = 'MQIsdp'
+  }
+  // Authentication
+  // MQTT 5 allows Password to be used without a Username
+  // MQTT 3.1.1 requires a Username if a Password is set
+  if (username !== '') {
+    options.username = username
+  }
+  if (password !== '') {
+    options.password = password
   }
   // SSL
   if (ssl) {
@@ -127,19 +131,25 @@ const getUrl = (record: ConnectionModel): string => {
   return url
 }
 
-export const createClient = (record: ConnectionModel): { curConnectClient: MqttClient; connectUrl: string } => {
-  const options: IClientOptions = getClientOptions(record)
-  const url = getUrl(record)
-
-  // Map options.properties.topicAliasMaximum to options.topicAliasMaximum, as that is where MQTT.js looks for it.
-  // TODO: remove after bug fixed in MQTT.js.
-  const tempOptions = {
-    ...options,
-    topicAliasMaximum: options.properties ? options.properties.topicAliasMaximum : undefined,
-  }
-  const curConnectClient: MqttClient = mqtt.connect(url, tempOptions)
-
-  return { curConnectClient, connectUrl: url }
+export const createClient = (
+  record: ConnectionModel,
+): Promise<{ curConnectClient: MqttClient; connectUrl: string }> => {
+  return new Promise((resolve, reject) => {
+    const options: IClientOptions = getClientOptions(record)
+    const url = getUrl(record)
+    // Map options.properties.topicAliasMaximum to options.topicAliasMaximum, as that is where MQTT.js looks for it.
+    // TODO: remove after bug fixed in MQTT.js.
+    const tempOptions = {
+      ...options,
+      topicAliasMaximum: options.properties ? options.properties.topicAliasMaximum : undefined,
+    }
+    const { password, username, protocolVersion } = tempOptions
+    if (password !== '' && username === undefined && protocolVersion !== 5) {
+      return reject(new Error('MQTT 3.1.1 requires a Username if a Password is set'))
+    }
+    const curConnectClient: MqttClient = mqtt.connect(url, tempOptions)
+    return resolve({ curConnectClient, connectUrl: url })
+  })
 }
 
 // Prevent old data from missing protocol field
