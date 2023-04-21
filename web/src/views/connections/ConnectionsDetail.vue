@@ -818,7 +818,7 @@ export default class ConnectionsDetail extends Vue {
     const { id, topic, qos, payload, retain, properties } = message
 
     if (!topic && !properties?.topicAlias) {
-      this.$message.warning(this.$tc('connections.topicReuired'))
+      this.$message.warning(this.$tc('connections.topicRequired'))
       return false
     }
 
