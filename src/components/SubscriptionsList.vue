@@ -246,9 +246,9 @@ export default class SubscriptionsList extends Vue {
     disabled: false,
     createAt: time.getNowDate(),
     alias: '',
-    nl: undefined,
-    rap: undefined,
-    rh: undefined,
+    nl: false,
+    rap: false,
+    rh: 0,
     subscriptionIdentifier: undefined,
   }
   private retainHandling: RetainHandlingList = [0, 1, 2]
@@ -416,16 +416,18 @@ export default class SubscriptionsList extends Vue {
     enable?: boolean,
   ) {
     if (isAuto) {
-      this.subRecord.nl = nl
-      this.subRecord.rap = rap
-      this.subRecord.rh = rh
-      this.subRecord.topic = topic
-      this.subRecord.qos = qos
-      this.subRecord.subscriptionIdentifier = subscriptionIdentifier
-      this.subRecord.disabled = disabled
-      this.subRecord.color = getRandomColor()
+      Object.assign(this.subRecord, {
+        nl,
+        rap,
+        rh,
+        topic,
+        qos,
+        subscriptionIdentifier,
+        disabled,
+        color: getRandomColor(),
+      })
     }
-    let isFinshed = false
+    let isFinished = false
     if (this.client.subscribe) {
       const topicsArr = this.multiTopics ? topic.split(',') : topic
       const aliasArr = this.multiTopics ? alias?.split(',') : alias
@@ -434,6 +436,10 @@ export default class SubscriptionsList extends Vue {
         properties = {
           subscriptionIdentifier,
         }
+      } else if (this.record.mqttVersion !== '5.0') {
+        nl = undefined
+        rap = undefined
+        rh = undefined
       }
       this.client.subscribe(topicsArr, { qos, nl, rap, rh, properties }, async (error, granted) => {
         this.subLoading = false
@@ -443,6 +449,7 @@ export default class SubscriptionsList extends Vue {
           return false
         }
         let errorReason = SubscribeErrorReason.normal
+
         if (!granted || (Array.isArray(granted) && granted.length < 1)) {
           this.$log.error('Topic: subscribe granted empty')
         } else if (![0, 1, 2].includes(granted[0].qos) && topic.match(/^(\$SYS)/i)) {
@@ -450,6 +457,7 @@ export default class SubscriptionsList extends Vue {
         } else if (![0, 1, 2].includes(granted[0].qos)) {
           errorReason = SubscribeErrorReason.qosSubFailed
         }
+
         if (errorReason !== SubscribeErrorReason.normal) {
           const errorReasonMsg: VueI18n.TranslateResult = this.getErrorReasonMsg(errorReason)
           const errorMsg: string = `${this.$t('connections.subFailed')} ${errorReasonMsg}`
@@ -482,18 +490,17 @@ export default class SubscriptionsList extends Vue {
           }
           this.$log.info(subLog)
         }
-        isFinshed = true
+        isFinished = true
       })
     }
     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
     // TODO: maybe we should replace mqtt.js to mqtt-async.js
     await new Promise(async (resolve) => {
       // long pool query base on sleep
-      while (!isFinshed) {
+      while (!isFinished) {
         await sleep(100)
       }
-      resolve(isFinshed)
+      resolve(isFinished)
     })
   }
 
@@ -566,9 +573,9 @@ export default class SubscriptionsList extends Vue {
     this.subRecord.topic = 'testtopic/#'
     this.subRecord.qos = 0
     this.subRecord.alias = ''
-    this.subRecord.nl = undefined
-    this.subRecord.rap = undefined
-    this.subRecord.rh = undefined
+    this.subRecord.nl = false
+    this.subRecord.rap = false
+    this.subRecord.rh = 0
     this.subRecord.subscriptionIdentifier = undefined
     this.subRecord.disabled = false
     this.selectedTopic = null
