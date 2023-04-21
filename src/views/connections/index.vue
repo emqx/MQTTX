@@ -88,7 +88,10 @@ export default class Connections extends Vue {
   }
 
   private async loadDetail(id: string): Promise<void> {
-    this.setCurrentConnectionId(id)
+    // Connection ID only needs to be set for non-new connections.
+    if (id !== '0') {
+      this.setCurrentConnectionId(id)
+    }
     const { connectionService } = useServices()
     const res = await connectionService.get(id)
     if (res) {
