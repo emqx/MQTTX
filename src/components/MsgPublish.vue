@@ -413,7 +413,7 @@ export default class MsgPublish extends Vue {
     if (!this.msgRecord.topic && !this.msgRecord?.properties?.topicAlias) {
       this.topicRequired = true
       this.$notify({
-        title: this.$tc('connections.topicReuired'),
+        title: this.$tc('connections.topicRequired'),
         message: '',
         type: 'warning',
         duration: 3000,

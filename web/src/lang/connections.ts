@@ -254,7 +254,7 @@ export default {
     en: 'User Properties',
     ja: 'ユーザー プロパティ',
   },
-  topicReuired: {
+  topicRequired: {
     zh: '请输入 Topic',
     en: 'Topic is required',
     ja: 'トピックを入力してください',
