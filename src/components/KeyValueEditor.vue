@@ -64,6 +64,11 @@ export default class KeyValueEditor extends Vue {
   private handleInputChange() {
     const checkedList = this.dataList.filter((pair) => pair.checked)
     const objData: ClientPropertiesModel['userProperties'] = {}
+    if (checkedList.length === 0) {
+      // When checkedList is empty, trigger the change event and pass null
+      this.$emit('change', null)
+      return
+    }
     checkedList.forEach(({ key, value }) => {
       if (key === '') return
       const objValue = objData[key]
@@ -99,12 +104,12 @@ export default class KeyValueEditor extends Vue {
   }
 
   private processObjToArry() {
-    if (this.value === undefined || this.value === null) {
+    if (_.isEmpty(this.value)) {
       this.dataList = [{ key: '', value: '', checked: true }]
       return
     }
     this.dataList = []
-    Object.entries(this.value).forEach(([key, value]) => {
+    Object.entries(this.value as { [key: string]: string | string[] }).forEach(([key, value]) => {
       if (typeof value === 'string') {
         this.dataList.push({ key, value, checked: true })
       } else {
