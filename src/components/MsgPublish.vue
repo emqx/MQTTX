@@ -251,18 +251,20 @@ export default class MsgPublish extends Vue {
 
   private topicRequired = false
 
+  private isValidProp(value: any) {
+    return value !== null && value !== undefined && value !== false
+  }
+
   private getHasMqtt5PropState() {
-    return (
-      Object.entries(this.MQTT5PropsForm).filter(([_, v]) => v !== null && v !== undefined && v !== false).length > 0
-    )
+    return Object.values(this.MQTT5PropsForm).some(this.isValidProp)
   }
 
   private async saveMeta() {
-    this.hasMqtt5Prop = this.getHasMqtt5PropState()
     this.saveMetaLoading = true
     await this.updatePushProp()
     this.saveMetaLoading = false
     this.showMetaCard = false
+    this.hasMqtt5Prop = this.getHasMqtt5PropState()
   }
 
   private changeVisable() {
@@ -391,7 +393,6 @@ export default class MsgPublish extends Vue {
     this.MQTT5PropsSend = _.cloneDeep(this.MQTT5PropsForm)
     const propRecords = Object.entries(this.MQTT5PropsForm).filter(([_, v]) => v !== null && v !== undefined && v !== 0)
     const props = Object.fromEntries(propRecords)
-
     const { connectionService } = useServices()
     return await connectionService.addPushProp(props, this.$route.params.id)
   }
