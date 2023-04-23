@@ -6,10 +6,6 @@
     </div>
     <div class="editor-row" :style="{ 'max-height': maxHeight }">
       <div v-for="(item, index) in dataList" class="editor-row" :key="index">
-        <a v-if="!disabled" class="btn-check" @click="checkItem(index)">
-          <i v-if="item.checked" class="iconfont el-icon-check"></i>
-          <i v-else class="iconfont el-icon-check disable-icon"></i>
-        </a>
         <el-input
           placeholder="Key"
           size="mini"
@@ -39,7 +35,6 @@ import _ from 'lodash'
 interface KeyValueObj {
   key: string
   value: string
-  checked: boolean
 }
 
 @Component
@@ -62,14 +57,12 @@ export default class KeyValueEditor extends Vue {
   }
 
   private handleInputChange() {
-    const checkedList = this.dataList.filter((pair) => pair.checked)
-    const objData: ClientPropertiesModel['userProperties'] = {}
-    if (checkedList.length === 0) {
-      // When checkedList is empty, trigger the change event and pass null
+    if (this.dataList.length === 0) {
       this.$emit('change', null)
       return
     }
-    checkedList.forEach(({ key, value }) => {
+    const objData: ClientPropertiesModel['userProperties'] = {}
+    this.dataList.forEach(({ key, value }) => {
       if (key === '') return
       const objValue = objData[key]
       if (objValue) {
@@ -87,34 +80,30 @@ export default class KeyValueEditor extends Vue {
   }
 
   private addItem() {
-    this.dataList.push({ key: '', value: '', checked: true })
+    this.dataList.push({ key: '', value: '' })
   }
   private deleteItem(index: number) {
     if (this.dataList.length > 1) {
       this.dataList.splice(index, 1)
       this.handleInputChange()
     } else if (this.dataList.length === 1) {
-      this.dataList = [{ key: '', value: '', checked: true }]
+      this.dataList = [{ key: '', value: '' }]
       this.$emit('change', null)
     }
-  }
-  private checkItem(index: number) {
-    this.dataList[index].checked = !this.dataList[index].checked
-    this.handleInputChange()
   }
 
   private processObjToArry() {
     if (_.isEmpty(this.value)) {
-      this.dataList = [{ key: '', value: '', checked: true }]
+      this.dataList = [{ key: '', value: '' }]
       return
     }
     this.dataList = []
     Object.entries(this.value as { [key: string]: string | string[] }).forEach(([key, value]) => {
       if (typeof value === 'string') {
-        this.dataList.push({ key, value, checked: true })
+        this.dataList.push({ key, value })
       } else {
         value.forEach((item) => {
-          this.dataList.push({ key, value: item, checked: true })
+          this.dataList.push({ key, value: item })
         })
       }
     })
@@ -149,16 +138,6 @@ export default class KeyValueEditor extends Vue {
       .input-prop {
         padding: 0px;
         margin-right: 10px;
-      }
-      .btn-check {
-        cursor: pointer;
-        .el-icon-check {
-          font-size: 14px;
-          margin-right: 10px;
-        }
-        .disable-icon {
-          color: dimgray;
-        }
       }
     }
   }
