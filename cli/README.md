@@ -354,6 +354,8 @@ mqttx bench pub --help
 | -im, --interval-message <MILLISECONDS> | interval of publishing message to the broker (default: 1000ms)                 |
 | -I, --client-id <ID>                   | the client id, support %i (index) variable                                     |
 | -t, --topic <TOPIC...>                 | the message topic, support %u (username), %c (client id), %i (index) variables |
+| -m, --message <MSG>                               | the message body (default: "Hello From MQTT X CLI")                                                                                |
+| -sim, --simulator <SIMULATOR> | Using the simulator to generate scenario-specific messages, it will override the -m parameter |
 | -v, --verbose                          | print history received messages and rate                                       |
 | ~~-s, --stdin~~                        | ~~read the message body from stdin~~                                           |
 | ~~-M, --multiline~~                    | ~~read lines from stdin as multiple messages~~                                 |

@@ -96,6 +96,7 @@ declare global {
     count: number
     interval: number
     messageInterval: number
+    simulator: string
     verbose: boolean
   }
 

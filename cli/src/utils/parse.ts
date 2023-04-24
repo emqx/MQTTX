@@ -3,6 +3,7 @@ import signale from '../utils/signale'
 import { getSpecialTypesOption } from '../utils/generator'
 
 import { IClientOptions, IClientPublishOptions, IClientSubscribeOptions } from 'mqtt'
+import { getSimulatorList } from './simulator'
 
 const parseNumber = (value: string) => {
   const parsedValue = Number(value)
@@ -11,6 +12,15 @@ const parseNumber = (value: string) => {
     process.exit(1)
   }
   return parsedValue
+}
+
+const parseSimulator = (value: string) => {
+  const simulatorList = getSimulatorList()
+  if (!simulatorList.includes(value)) {
+    signale.error(`Simulator not found in ${simulatorList.join(',')}`, )
+    process.exit(1)
+  }
+  return value
 }
 
 const parseProtocol = (value: string) => {
@@ -338,4 +348,5 @@ export {
   parseConnectOptions,
   parsePublishOptions,
   parseSubscribeOptions,
+  parseSimulator,
 }

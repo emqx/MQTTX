@@ -355,6 +355,8 @@ mqttx bench pub --help
 | -im, --message-interval <MILLISECONDS> | 发布消息的间隔时间，单位为毫秒，默认为 1000ms                        |
 | -I, --client-id <ID>                   | 客户端 ID，支持 %i (索引) 占位符                                     |
 | -t, --topic <TOPIC...>                 | 需要订阅的 Topic, 支持 %u (用户名), %c (客户端 ID), %i (索引) 占位符 |
+| -m, --message <MSG>                               | 需要发布的 Payload 消息                                      |
+| -sim, --simulator <SIMULATOR>           | 使用模拟器生成特定场景的消息，会覆盖 -m 参数 |
 | -v, --verbose                          | 打印发送出的历史消息数量与消息速率                                   |
 | ~~-s, --stdin~~                        | ~~从 stdin 中读取信息体~~                                            |
 | ~~-M, --multiline~~                    | ~~可以通过多行发布多条消息~~                                         |

@@ -12,6 +12,7 @@ import {
   parsePubTopic,
   parseFormat,
   parseOutputMode,
+  parseSimulator,
 } from './utils/parse'
 import { conn, benchConn } from './lib/conn'
 import { pub, benchPub } from './lib/pub'
@@ -355,6 +356,7 @@ export class Commander {
         'the message topic, support %u (username), %c (client id), %i (index) variables',
         parsePubTopic,
       )
+      .option('-sim, --simulator <SIMULATOR>', 'message generation simulator', parseSimulator, '')
       .option('-m, --message <BODY>', 'the message body', 'Hello From MQTT X CLI')
       .option('-q, --qos <0/1/2>', 'the QoS of the message', parseNumber, 0)
       .option('-r, --retain', 'send a retained message')

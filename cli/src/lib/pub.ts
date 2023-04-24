@@ -8,6 +8,7 @@ import { Signale, signale, basicLog, benchLog } from '../utils/signale'
 import { parseConnectOptions, parsePublishOptions, checkTopicExists } from '../utils/parse'
 import delay from '../utils/delay'
 import { saveConfig, loadConfig } from '../utils/config'
+import { loadSimulator } from '../utils/simulator'
 
 const send = (
   config: boolean | string | undefined,
@@ -127,7 +128,7 @@ const benchPub = async (options: BenchPublishOptions) => {
 
   save && saveConfig('benchPub', options)
 
-  const { count, interval, messageInterval, hostname, port, topic, clientId, verbose, maximunReconnectTimes } = options
+  const { count, interval, messageInterval, simulator, hostname, port, topic, clientId, verbose, maximunReconnectTimes } = options
 
   checkTopicExists(topic, 'benchPub')
 
@@ -151,12 +152,15 @@ const benchPub = async (options: BenchPublishOptions) => {
     config: { displayLabel: false, displayDate: true, displayTimestamp: true },
   })
 
-  benchLog.start.pub(config, count, interval, messageInterval, hostname, port, topic, message.toString())
+
+  benchLog.start.pub(config, count, interval, messageInterval, hostname, port, topic, simulator ? `simulator ${simulator} generated message` : message.toString())
 
   const connStart = Date.now()
 
   let total = 0
   let rate = 0
+
+  const simulatorModule = simulator ? loadSimulator(simulator) : null
 
   for (let i = 1; i <= count; i++) {
     ;((i: number, connOpts: mqtt.IClientOptions) => {
@@ -178,8 +182,14 @@ const benchPub = async (options: BenchPublishOptions) => {
           interactive.success('[%d/%d] - Connected', connectedCount, count)
 
           setInterval(() => {
+            let payload = null
+            if (simulatorModule) {
+              payload = simulatorModule.generator(options.clientId)
+            } else {
+              payload = message.toString().replaceAll('%i', i.toString()).replaceAll('%c', clientId)
+            }
             client.connected &&
-              client.publish(topicName, message, pubOpts.opts, (err) => {
+              client.publish(topicName, payload, pubOpts.opts, (err) => {
                 if (err) {
                   signale.warn(err)
                 } else {
