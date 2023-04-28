@@ -37,4 +37,16 @@ router.beforeEach((to, from, next) => {
   }
 })
 
+router.afterEach((to) => {
+  Vue.nextTick(() => {
+    window.dataLayer?.push({
+      event: 'pageView',
+      pageType: 'PageView',
+      routeName: to.name,
+      pageUrl: `${location.pathname}${location.hash}`,
+      pageTitle: to.name,
+    })
+  })
+})
+
 export default router

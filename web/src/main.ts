@@ -11,21 +11,18 @@ import Lang from './lang'
 import element from './utils/element'
 import VueVirtualScroller from 'vue-virtual-scroller'
 import VueRx from 'vue-rx'
-import VueGtag from 'vue-gtag'
+import VueGtm, { VueGtmUseOptions } from '@gtm-support/vue2-gtm'
 
 Vue.use(element)
 Vue.use(VueI18n)
 Vue.use(VueClipboard)
 Vue.use(VueVirtualScroller)
 Vue.use(VueRx)
-Vue.use(
-  VueGtag,
-  {
-    config: { id: 'UA-132213201-1' },
-    enabled: process.env.NODE_ENV === 'production',
-  },
-  router,
-)
+Vue.use(VueGtm, {
+  id: 'GTM-K487G9S',
+  enabled: process.env.NODE_ENV === 'production' && process.env.BASE_URL === '/online-mqtt-client/',
+  debug: false,
+} as VueGtmUseOptions)
 
 const locale: Language = store.state.app.currentLang
 const vueI18n: VueI18n = new VueI18n({
