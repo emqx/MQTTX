@@ -11,7 +11,7 @@ const conn = (options: ConnectOptions) => {
 
   save && saveConfig('conn', options)
 
-  const { maximunReconnectTimes } = options
+  const { maximumReconnectTimes } = options
 
   const connOpts = parseConnectOptions(options, 'conn')
 
@@ -33,7 +33,7 @@ const conn = (options: ConnectOptions) => {
 
   client.on('reconnect', () => {
     retryTimes += 1
-    if (retryTimes > maximunReconnectTimes) {
+    if (retryTimes > maximumReconnectTimes) {
       client.end(false, {}, () => {
         basicLog.reconnectTimesLimit()
       })
@@ -54,7 +54,7 @@ const benchConn = async (options: BenchConnectOptions) => {
 
   save && saveConfig('benchConn', options)
 
-  const { count, interval, hostname, port, clientId, maximunReconnectTimes } = options
+  const { count, interval, hostname, port, clientId, maximumReconnectTimes } = options
 
   const connOpts = parseConnectOptions(options, 'conn')
 
@@ -102,7 +102,7 @@ const benchConn = async (options: BenchConnectOptions) => {
 
       client.on('reconnect', () => {
         retryTimesArray[i - 1] += 1
-        if (retryTimesArray[i - 1] > maximunReconnectTimes) {
+        if (retryTimesArray[i - 1] > maximumReconnectTimes) {
           client.end(false, {}, () => {
             benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
           })
