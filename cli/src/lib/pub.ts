@@ -39,7 +39,7 @@ const multisend = (
   config: boolean | string | undefined,
   connOpts: IClientOptions,
   pubOpts: { topic: string; message: string | Buffer; opts: IClientPublishOptions },
-  maximunReconnectTimes: number,
+  maximumReconnectTimes: number,
 ) => {
   let isNewConnection = true
   let retryTimes = 0
@@ -72,7 +72,7 @@ const multisend = (
 
   client.on('reconnect', () => {
     retryTimes += 1
-    if (retryTimes > maximunReconnectTimes) {
+    if (retryTimes > maximumReconnectTimes) {
       client.end(false, {}, () => {
         basicLog.reconnectTimesLimit()
         process.exit(1)
@@ -106,7 +106,7 @@ const pub = (options: PublishOptions) => {
 
   if (options.stdin) {
     if (options.multiline) {
-      multisend(config, connOpts, pubOpts, options.maximunReconnectTimes)
+      multisend(config, connOpts, pubOpts, options.maximumReconnectTimes)
     } else {
       process.stdin.pipe(
         concat((data) => {
@@ -127,7 +127,7 @@ const benchPub = async (options: BenchPublishOptions) => {
 
   save && saveConfig('benchPub', options)
 
-  const { count, interval, messageInterval, hostname, port, topic, clientId, verbose, maximunReconnectTimes } = options
+  const { count, interval, messageInterval, hostname, port, topic, clientId, verbose, maximumReconnectTimes } = options
 
   checkTopicExists(topic, 'benchPub')
 
@@ -221,10 +221,10 @@ const benchPub = async (options: BenchPublishOptions) => {
 
       client.on('reconnect', () => {
         retryTimesArray[i - 1] += 1
-        if (retryTimesArray[i - 1] > maximunReconnectTimes) {
+        if (retryTimesArray[i - 1] > maximumReconnectTimes) {
           client.end(false, {}, () => {
             benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
-            if (retryTimesArray.findIndex((times) => times <= maximunReconnectTimes) === -1) {
+            if (retryTimesArray.findIndex((times) => times <= maximumReconnectTimes) === -1) {
               process.exit(1)
             }
           })

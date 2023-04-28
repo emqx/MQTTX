@@ -175,7 +175,7 @@ mqttx conn --help
 | --ca <PATH>                                      | path to the ca certificate                                                                                                         |
 | --insecure                                       | do not verify the server certificate                                                                                               |
 | -rp, --reconnect-period <MILLISECONDS>           | interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)                                       |
-| --maximun-reconnect-times <NUMBER>               | the maximum reconnect times (default: 10)                                                                                          |
+| --maximum-reconnect-times <NUMBER>               | the maximum reconnect times (default: 10)                                                                                          |
 | -up, --user-properties <USERPROPERTIES...>       | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")                                                                       |
 | -Wt, --will-topic <TOPIC>                        | the will topic                                                                                                                     |
 | -Wm, --will-message <BODY>                       | the will message                                                                                                                   |
@@ -225,7 +225,7 @@ mqttx sub --help
 | --ca                                             | path to the ca certificate                                                                                                                      |
 | --insecure                                       | do not verify the server certificate                                                                                                            |
 | -rp, --reconnect-period <MILLISECONDS>           | interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)                                                    |
-| --maximun-reconnect-times <NUMBER>               | the maximum reconnect times (default: 10)                                                                                                       |
+| --maximum-reconnect-times <NUMBER>               | the maximum reconnect times (default: 10)                                                                                                       |
 | -up, --user-properties <USERPROPERTIES...>       | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")                                                                                    |
 | -f, --format <TYPE>                              | format the message body, support base64, json, hex                                                                                              |
 | -v, --verbose                                    | print the topic before the message                                                                                                              |
@@ -280,7 +280,7 @@ mqttx pub --help
 | --ca                                             | path to the ca certificate                                                                                                         |
 | --insecure                                       | do not verify the server certificate                                                                                               |
 | -rp, --reconnect-period <MILLISECONDS>           | interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)                                       |
-| --maximun-reconnect-times <NUMBER>               | the maximum reconnect times (default: 10)                                                                                          |
+| --maximum-reconnect-times <NUMBER>               | the maximum reconnect times (default: 10)                                                                                          |
 | -up, --user-properties <USERPROPERTIES...>       | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")                                                                       |
 | -pf, --payload-format-indicator                  | the payload format indicator of the publish message                                                                                |
 | -e, --message-expiry-interval <NUMBER>           | the lifetime of the publish message in seconds                                                                                     |

@@ -18,7 +18,7 @@ const sub = (options: SubscribeOptions) => {
 
   const client = mqtt.connect(connOpts)
 
-  const { outputMode, maximunReconnectTimes } = options
+  const { outputMode, maximumReconnectTimes } = options
 
   const outputModeClean = outputMode === 'clean'
 
@@ -95,7 +95,7 @@ const sub = (options: SubscribeOptions) => {
 
   client.on('reconnect', () => {
     retryTimes += 1
-    if (retryTimes > maximunReconnectTimes) {
+    if (retryTimes > maximumReconnectTimes) {
       client.end(false, {}, () => {
         !outputModeClean && basicLog.reconnectTimesLimit()
       })
@@ -116,7 +116,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
   save && saveConfig('benchSub', options)
 
-  const { count, interval, topic, hostname, port, clientId, verbose, maximunReconnectTimes } = options
+  const { count, interval, topic, hostname, port, clientId, verbose, maximumReconnectTimes } = options
 
   checkTopicExists(topic, 'benchSub')
 
@@ -227,10 +227,10 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
       client.on('reconnect', () => {
         retryTimesArray[i - 1] += 1
-        if (retryTimesArray[i - 1] > maximunReconnectTimes) {
+        if (retryTimesArray[i - 1] > maximumReconnectTimes) {
           client.end(false, {}, () => {
             benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
-            if (retryTimesArray.findIndex((times) => times <= maximunReconnectTimes) === -1) {
+            if (retryTimesArray.findIndex((times) => times <= maximumReconnectTimes) === -1) {
               process.exit(1)
             }
           })
