@@ -1,4 +1,4 @@
-# MQTT X  manual
+# MQTTX  manual
 
 ## Table of Contents
 
@@ -9,11 +9,11 @@
 
 ## Introduction
 
-[MQTT X](https://mqttx.app) is an elegant cross-platform MQTT 5.0 desktop client open-sourced by [EMQ](https://www.emqx.com/), which supports macOS, Linux, Windows.
+[MQTTX](https://mqttx.app) is an elegant cross-platform MQTT 5.0 desktop client open-sourced by [EMQ](https://www.emqx.com/), which supports macOS, Linux, Windows.
 
-The `UI` of [MQTT X](https://mqttx.app) adopts the form of chat interface, which simplifies the page operation logic. It allows  users to quickly create connections and save multiple clients, which facilitate users to quickly test the `MQTT/MQTTS` connection, as well as the subscription and publication of `MQTT` messages.
+The `UI` of [MQTTX](https://mqttx.app) adopts the form of chat interface, which simplifies the page operation logic. It allows  users to quickly create connections and save multiple clients, which facilitate users to quickly test the `MQTT/MQTTS` connection, as well as the subscription and publication of `MQTT` messages.
 
-Before downloading and installing, please visit our [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX) to understand and obtain the latest version information. The latest version helps improve the usage experience. If you are familiar with this project, you can also directly clone the repository source code of [MQTT X](https://mqttx.app)  and build and use it by yourself. During the using process, if you have any questions, you can go to  [GitHub issues](https://github.com/emqx/MQTTX/issues) to express questions and opinions or fork our project, and submit the modified PR to us. We will review and reply carefully.
+Before downloading and installing, please visit our [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX) to understand and obtain the latest version information. The latest version helps improve the usage experience. If you are familiar with this project, you can also directly clone the repository source code of [MQTTX](https://mqttx.app)  and build and use it by yourself. During the using process, if you have any questions, you can go to  [GitHub issues](https://github.com/emqx/MQTTX/issues) to express questions and opinions or fork our project, and submit the modified PR to us. We will review and reply carefully.
 
 ### Preview
 
@@ -47,7 +47,7 @@ When you need to download files to install, it is recommended to download the in
 
 **Note**: However, for different `macOS` system versions, `zip` compression package may not be opened after decompression in the `10.15.2` system version. Please prefer the `dmg` file.
 
-The macOS users can install MQTT X using [brew cask](https://formulae.brew.sh/cask/mqttx)
+The macOS users can install MQTTX using [brew cask](https://formulae.brew.sh/cask/mqttx)
 
 ```shell
 brew install --cask mqttx
@@ -226,7 +226,7 @@ In the settings page, you can choose to click the data backup and data recovery 
 
 ### Script
 
-After the v1.4.2 version, MQTT X has added a script editing function. In this function, users can write custom scripts (JavaScript) to perform custom conversions on sent and received `Payload`. With the timing sending function, realize the automated test function for the simulation data report.
+After the v1.4.2 version, MQTTX has added a script editing function. In this function, users can write custom scripts (JavaScript) to perform custom conversions on sent and received `Payload`. With the timing sending function, realize the automated test function for the simulation data report.
 
 > Note: This feature is test feature in the beta stage
 
@@ -244,7 +244,7 @@ The script usage examples can be viewed in the [/docs/script-example](https://gi
 
 ### Log
 
-After v1.5.0, MQTT X has introduced a logging function to facilitate users to debug connections and report errors. In a production environment, the log system displays 3 levels of information:
+After v1.5.0, MQTTX has introduced a logging function to facilitate users to debug connections and report errors. In a production environment, the log system displays 3 levels of information:
 
 - INFO is used to prompt user operation information
 - WARN generates a warning of unsafe/potential risks
@@ -280,7 +280,7 @@ Click on the action bar button at the top and select the `Clear History` item, y
 
 3. Check update
 
-   Click the `i` button at the bottom left to enter the `About` page to learn about the version information of [MQTT X](https://mqttx.app) and related information of [EMQX](https://www.emqx.io) . Click `Check for Updates` to check if there are newer versions.
+   Click the `i` button at the bottom left to enter the `About` page to learn about the version information of [MQTTX](https://mqttx.app) and related information of [EMQX](https://www.emqx.io) . Click `Check for Updates` to check if there are newer versions.
 
 ![mqttx-update](../assets/mqttx-update.png)
 
@@ -298,7 +298,7 @@ Click on the action bar button at the top and select the `Clear History` item, y
 
 6. Bytes statistics
 
-    In the drop-down menu in the upper right corner, you can click on the `Bytes statistics` item, MQTT X will automatically subscribe to the system topic, and can display the simple `Bytes statistics` chart, version and uptime of the MQTT Broker on the page.
+    In the drop-down menu in the upper right corner, you can click on the `Bytes statistics` item, MQTTX will automatically subscribe to the system topic, and can display the simple `Bytes statistics` chart, version and uptime of the MQTT Broker on the page.
 
     > By default, only MQTT clients on localhost is allowed to subscribe to the $ SYS topic. Please refer to build-in ACL to modify the ACL rules for publish and subscription.
 
@@ -351,23 +351,23 @@ Linux: `vue-cli-service electron:build --linux`
 
 The MQTT client is that any device runs the MQTT library and connects to the MQTT Broker over the network. Publishers and subscribers refer to the client currently is publishing messages or subscribing to receive them. publishers and subscribers can be the same MQTT client, (publishing and subscribing functionality can also be implemented in the same MQTT client). an MQTT client can be a very small device with limited resources, or it can be a typical piece of computer software running a graphical user interface MQTT client, basically for testing purposes. So it can be simply understood that any device or software that connects to the MQTT service over the TCP/IP protocol can be called an MQTT client.
 
-**Q: Why use MQTT X?**
+**Q: Why use MQTTX?**
 
-MQTT X is an open source cross-platform MQTT desktop client tool. It can be used by users who are building their own messaging servers for MQTT, or by users who are developing MQTT Broker and studying and learning about MQTT to test connections, subscribe and publish messages, etc. Users can quickly set up multiple connection clients to quickly test MQTT/TCP, MQTT/TLS connections, publish/subscribe functionality and other features. MQTT X provides a quick, in-depth understanding of MQTT protocol-related features for MQTT research and applications.
+MQTTX is an open source cross-platform MQTT desktop client tool. It can be used by users who are building their own messaging servers for MQTT, or by users who are developing MQTT Broker and studying and learning about MQTT to test connections, subscribe and publish messages, etc. Users can quickly set up multiple connection clients to quickly test MQTT/TCP, MQTT/TLS connections, publish/subscribe functionality and other features. MQTTX provides a quick, in-depth understanding of MQTT protocol-related features for MQTT research and applications.
 
-**Q: Why does MQTT X use the UI design of chat software?**
+**Q: Why does MQTTX use the UI design of chat software?**
 
 Based on the understanding of the MQTT protocol of pub/sub model. It simplifies test operation with the help of a familiar, chat-like interface. It’s easy and quick to create multiple, simultaneous online MQTT client connections, and can test the connection, publishing, and subscription functions of MQTT/TCP, MQTT/TLS, MQTT/WebSocket as well as other MQTT protocol features.
 
-For example, create a new connection as a User A, subscribe to a Topic, just like to join a chat channel, and then create a new connection as a User B, publish a message to the Topic that User A has subscribed to, we can receive the message from User B in User A's page. In fact, in the IoT world as well, devices can use pub/sub feature of MQTT to communicate with each other. MQTT X emulates this and translates it into the user interface to help users understand and test MQTT-related content faster.
+For example, create a new connection as a User A, subscribe to a Topic, just like to join a chat channel, and then create a new connection as a User B, publish a message to the Topic that User A has subscribed to, we can receive the message from User B in User A's page. In fact, in the IoT world as well, devices can use pub/sub feature of MQTT to communicate with each other. MQTTX emulates this and translates it into the user interface to help users understand and test MQTT-related content faster.
 
-**Q: Is MQTT X free?**
+**Q: Is MQTTX free?**
 
 Yes. Fully open source, see the [LICENSE](https://github.com/emqx/MQTTX/blob/main/LICENSE) for details.
 
-**Q: What do you do when you have problems with MQTT X?**
+**Q: What do you do when you have problems with MQTTX?**
 
-1. You can visit the [GitHub](https://github.com/emqx/MQTTX) for MQTT X, go to the [issue](https://github.com/emqx/MQTTX/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) tab and click on submit issue to give feedback.
+1. You can visit the [GitHub](https://github.com/emqx/MQTTX) for MQTTX, go to the [issue](https://github.com/emqx/MQTTX/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) tab and click on submit issue to give feedback.
 2. or you can go to our GitHub [Discussions](https://github.com/emqx/MQTTX/discussions) tab to give feedback.
 3. Finally, you can contact us at the community information below to give us feedback on any issues you may have.
 

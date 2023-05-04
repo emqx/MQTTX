@@ -105,7 +105,7 @@ export class Commander {
       .command('pub')
       .description('Publish a message to a topic.')
       .option('-t, --topic <TOPIC>', 'the message topic', parsePubTopic)
-      .option('-m, --message <BODY>', 'the message body', 'Hello From MQTT X CLI')
+      .option('-m, --message <BODY>', 'the message body', 'Hello From MQTTX CLI')
       .option('-q, --qos <0/1/2>', 'the QoS of the message', parseNumber, 0)
       .option('-r, --retain', 'send a retained message')
       .option('-d, --dup', 'mark as duplicate flag')
@@ -355,7 +355,7 @@ export class Commander {
         'the message topic, support %u (username), %c (client id), %i (index) variables',
         parsePubTopic,
       )
-      .option('-m, --message <BODY>', 'the message body', 'Hello From MQTT X CLI')
+      .option('-m, --message <BODY>', 'the message body', 'Hello From MQTTX CLI')
       .option('-q, --qos <0/1/2>', 'the QoS of the message', parseNumber, 0)
       .option('-r, --retain', 'send a retained message')
       .option('-d, --dup', 'mark as duplicate flag')

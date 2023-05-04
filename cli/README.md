@@ -1,6 +1,6 @@
 <img src="https://raw.githubusercontent.com/emqx/MQTTX/main/assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
 
-# MQTT X CLI
+# MQTTX CLI
 
 [![GitHub Release](https://img.shields.io/github/release/emqx/mqttx?color=brightgreen)](https://github.com/emqx/mqttx/releases)
 ![build packages](https://github.com/emqx/MQTTX/workflows/build%20packages/badge.svg)
@@ -15,7 +15,7 @@ English | [简体中文](https://github.com/emqx/MQTTX/blob/main/cli/README-CN.m
 
 ---
 
-[MQTT X CLI](https://mqttx.app/cli) is an open source MQTT 5.0 CLI Client and MQTT X on the command line. Designed to help develop and debug MQTT services and applications faster without the need to use a graphical interface.
+[MQTTX CLI](https://mqttx.app/cli) is an open source MQTT 5.0 CLI Client and MQTTX on the command line. Designed to help develop and debug MQTT services and applications faster without the need to use a graphical interface.
 
 > [MQTT](http://mqtt.org/faq) stands for MQ Telemetry Transport. It is a publish/subscribe, extremely simple and lightweight messaging protocol, designed for constrained devices and low-bandwidth, high-latency or unreliable networks.
 
@@ -25,7 +25,7 @@ English | [简体中文](https://github.com/emqx/MQTTX/blob/main/cli/README-CN.m
 
 ## Documentation
 
-For introduction, installation, and usage, see the [MQTT X CLI documentation](https://mqttx.app/docs/cli). Below is a quick start guide.
+For introduction, installation, and usage, see the [MQTTX CLI documentation](https://mqttx.app/docs/cli). Below is a quick start guide.
 
 ## Installation
 
@@ -77,7 +77,7 @@ sudo install ./mqttx-cli-linux-arm64 /usr/local/bin/mqttx
 
 ### Windows
 
-Windows users should go to the MQTT X [release page](https://github.com/emqx/MQTTX/releases) and find the `exe` package for the corresponding system architecture, download it manually and execute.
+Windows users should go to the MQTTX [release page](https://github.com/emqx/MQTTX/releases) and find the `exe` package for the corresponding system architecture, download it manually and execute.
 
 ### NPM
 
@@ -95,7 +95,7 @@ docker run -it --rm emqx/mqttx-cli
 
 ### Other platforms
 
-Download packaged binaries from the [MQTT X releases page](https://github.com/emqx/MQTTX/releases).
+Download packaged binaries from the [MQTTX releases page](https://github.com/emqx/MQTTX/releases).
 
 ## Usage
 
@@ -268,7 +268,7 @@ mqttx pub --help
 | -q, --qos <0/1/2>                                | the QoS of the message (default: 0)                                                                                                |
 | --no-clean                                       | set the clean session flag to false (default: true)                                                                                |
 | -t, --topic <TOPIC>                              | the message topic                                                                                                                  |
-| -m, --message<MSG>                               | the message body (default: "Hello From MQTT X CLI")                                                                                |
+| -m, --message<MSG>                               | the message body (default: "Hello From MQTTX CLI")                                                                                |
 | -r, --retain                                     | send a retained message (default: false)                                                                                           |
 | -s, --stdin                                      | read the message body from stdin                                                                                                   |
 | -M, --multiline                                  | read lines from stdin as multiple messages                                                                                         |
@@ -360,7 +360,7 @@ mqttx bench pub --help
 
 ## Better Together with EMQX
 
-MQTT X is designed to connect to test MQTT Brokers such as EMQX, The one-click connection and simple graphical interface make it easy to connect to EMQX or EMQX Cloud to debug and explore functional features.
+MQTTX is designed to connect to test MQTT Brokers such as EMQX, The one-click connection and simple graphical interface make it easy to connect to EMQX or EMQX Cloud to debug and explore functional features.
 
 [Sign up EMQX Cloud for 14 days free trial](https://www.emqx.com/en/try?product=cloud)
 

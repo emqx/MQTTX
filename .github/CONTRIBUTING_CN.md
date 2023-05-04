@@ -1,6 +1,6 @@
 # 贡献指南
 
-您好, 非常感谢您对 [MQTT X](https://mqttx.app/zh) 的支持。
+您好, 非常感谢您对 [MQTTX](https://mqttx.app/zh) 的支持。
 
 如果您在使用过程中发现了问题 🐛 或有更好的意见和建议 💡，都可以参考以下方法修改项目代码并参与到项目中。
 
@@ -93,7 +93,7 @@
     npm version [patch | minor | major] -m '${Commit message}'
     ```
 
-谢谢您的耐心阅读！并感谢您对 MQTT X 的贡献！:)
+谢谢您的耐心阅读！并感谢您对 MQTTX 的贡献！:)
 
 ## 数据库迁移
 

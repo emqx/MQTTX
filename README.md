@@ -11,9 +11,9 @@
 
 ---
 
-[MQTT X](https://mqttx.app) is a cross-platform MQTT 5.0 client tool open sourced by [EMQ](https://www.emqx.com/en), which can run on macOS, Linux and Windows, and supports formatting MQTT payload.
+[MQTTX](https://mqttx.app) is a cross-platform MQTT 5.0 client tool open sourced by [EMQ](https://www.emqx.com/en), which can run on macOS, Linux and Windows, and supports formatting MQTT payload.
 
-[MQTT X](https://mqttx.app) simplifies test operation with the help of a familiar, chat-like interface. It’s easy and quick to create multiple, simultaneous online MQTT client connections, and can test the connection, publishing, and subscription functions of MQTT/TCP, MQTT/TLS, MQTT/WebSocket as well as other MQTT protocol features.
+[MQTTX](https://mqttx.app) simplifies test operation with the help of a familiar, chat-like interface. It’s easy and quick to create multiple, simultaneous online MQTT client connections, and can test the connection, publishing, and subscription functions of MQTT/TCP, MQTT/TLS, MQTT/WebSocket as well as other MQTT protocol features.
 
 > [MQTT](http://mqtt.org/faq) stands for MQ Telemetry Transport. It is a publish/subscribe, extremely simple and lightweight messaging protocol, designed for constrained devices and low-bandwidth, high-latency or unreliable networks.
 
@@ -31,7 +31,7 @@ Currently available for download from these app stores
 
 ### Homebrew
 
-The macOS users can install MQTT X using [brew cask](https://formulae.brew.sh/cask/mqttx)
+The macOS users can install MQTTX using [brew cask](https://formulae.brew.sh/cask/mqttx)
 
 ```shell
 brew install --cask mqttx
@@ -74,7 +74,7 @@ See our [documentation](https://mqttx.app/docs) or [manual](./docs/manual.md) fo
 
 ## Better Together with EMQX
 
-MQTT X is designed to connect to test MQTT Brokers such as EMQX, The one-click connection and simple graphical interface make it easy to connect to EMQX or EMQX Cloud to debug and explore functional features.
+MQTTX is designed to connect to test MQTT Brokers such as EMQX, The one-click connection and simple graphical interface make it easy to connect to EMQX or EMQX Cloud to debug and explore functional features.
 
 [Sign up EMQX Cloud for 14 days free trial](https://www.emqx.com/en/try?product=cloud)
 

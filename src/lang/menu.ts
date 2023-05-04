@@ -1,10 +1,10 @@
 export default {
   about: {
-    en: 'About MQTT X',
-    zh: '关于 MQTT X',
-    ja: 'MQTT X について',
-    tr: 'MQTT X Hakkında',
-    hu: 'A MQTT X-ről',
+    en: 'About MQTTX',
+    zh: '关于 MQTTX',
+    ja: 'MQTTX について',
+    tr: 'MQTTX Hakkında',
+    hu: 'A MQTTX-ről',
   },
   preferences: {
     en: 'Preferences',
@@ -21,11 +21,11 @@ export default {
     hu: 'Frissítések keresése',
   },
   hideMQTTX: {
-    en: 'Hide MQTT X',
-    zh: '隐藏 MQTT X',
-    ja: 'MQTT X を隠す',
-    tr: 'MQTT X Gizle',
-    hu: 'MQTT X elrejtése',
+    en: 'Hide MQTTX',
+    zh: '隐藏 MQTTX',
+    ja: 'MQTTX を隠す',
+    tr: 'MQTTX Gizle',
+    hu: 'MQTTX elrejtése',
   },
   hideOthers: {
     en: 'Hide Others',
@@ -42,11 +42,11 @@ export default {
     hu: 'Mindent mutat',
   },
   quit: {
-    en: 'Quit MQTT X',
-    zh: '退出 MQTT X',
-    ja: 'MQTT X を終了',
-    tr: "MQTT X'i Kapat",
-    hu: 'MQTT X kilépése',
+    en: 'Quit MQTTX',
+    zh: '退出 MQTTX',
+    ja: 'MQTTX を終了',
+    tr: "MQTTX'i Kapat",
+    hu: 'MQTTX kilépése',
   },
   file: {
     en: 'File',
@@ -266,11 +266,11 @@ export default {
     hu: 'Súgó',
   },
   learnMoreMQTTX: {
-    en: 'Learn More About MQTT X',
-    zh: '了解更多 MQTT X',
-    ja: 'MQTT X についてもっと知る',
-    tr: 'MQTT X Hakkında Daha Fazla Bilgi Edinin',
-    hu: 'Tudjon meg többet az MQTT X-ről',
+    en: 'Learn More About MQTTX',
+    zh: '了解更多 MQTTX',
+    ja: 'MQTTX についてもっと知る',
+    tr: 'MQTTX Hakkında Daha Fazla Bilgi Edinin',
+    hu: 'Tudjon meg többet az MQTTX-ről',
   },
   learnMoreEMQX: {
     en: 'Learn More About EMQX',
@@ -287,11 +287,11 @@ export default {
     hu: 'Probléma jelentése',
   },
   MQTTXWebsite: {
-    en: 'MQTT X Website',
-    zh: 'MQTT X 官网',
-    ja: 'MQTT X ウェブサイト',
-    tr: 'MQTT X Web Sitesi',
-    hu: 'MQTT X weboldal',
+    en: 'MQTTX Website',
+    zh: 'MQTTX 官网',
+    ja: 'MQTTX ウェブサイト',
+    tr: 'MQTTX Web Sitesi',
+    hu: 'MQTTX weboldal',
   },
   EMQXWebsite: {
     en: 'EMQX Website',
