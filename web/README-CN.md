@@ -1,6 +1,6 @@
 <img src="../assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
 
-# MQTT X Web
+# MQTTX Web
 
 [![GitHub Release](https://img.shields.io/github/release/emqx/mqttx?color=brightgreen)](https://github.com/emqx/mqttx/releases)
 ![build packages](https://github.com/emqx/MQTTX/workflows/build%20packages/badge.svg)
@@ -15,7 +15,7 @@
 
 ---
 
-[MQTT X Web](https://mqttx.app)是一款开源的 MQTT 5.0 浏览器客户端，也是一个在线 MQTT WebSocket 客户端工具。使用 WebSocket 在浏览器中连接到 MQTT，帮助开发者更快地开发和调试 MQTT 服务和应用程序，而不必在本地下载和安装 MQTT X。
+[MQTTX Web](https://mqttx.app)是一款开源的 MQTT 5.0 浏览器客户端，也是一个在线 MQTT WebSocket 客户端工具。使用 WebSocket 在浏览器中连接到 MQTT，帮助开发者更快地开发和调试 MQTT 服务和应用程序，而不必在本地下载和安装 MQTTX。
 
 > [MQTT](http://mqtt.org/faq) 全称为 Message Queuing Telemetry Transport（消息队列遥测传输）是一种基于 发布/订阅 范式的“轻量级”消息协议，旨在用于受限设备和低带宽，高延迟或不可靠的网络，由 IBM 发布。
 
@@ -25,11 +25,11 @@
 
 ## 文档
 
-关于介绍和使用，请参考 [MQTT X Web 文档](https://mqttx.app/zh/docs/web).
+关于介绍和使用，请参考 [MQTTX Web 文档](https://mqttx.app/zh/docs/web).
 
 ## 使用
 
-访问 MQTT WebSocket 客户端工具 (MQTT X Web): [http://www.emqx.io/online-mqtt-client](http://www.emqx.io/online-mqtt-client)
+访问 MQTT WebSocket 客户端工具 (MQTTX Web): [http://www.emqx.io/online-mqtt-client](http://www.emqx.io/online-mqtt-client)
 
 ## Docker 部署
 
@@ -41,7 +41,7 @@ docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 
 ## 与 EMQX 更好的合作
 
-MQTT X 为连接测试 EMQX 等 MQTT 消息服务器而生，一键式的连接方式和简洁的图形界面可以帮助您快速连接到 EMQX 或 EMQX Cloud 调试并探索其功能特性。
+MQTTX 为连接测试 EMQX 等 MQTT 消息服务器而生，一键式的连接方式和简洁的图形界面可以帮助您快速连接到 EMQX 或 EMQX Cloud 调试并探索其功能特性。
 
 [注册 EMQX Cloud 可以享受 14 天免费试用](https://www.emqx.com/zh/try?product=cloud)
 

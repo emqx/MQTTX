@@ -1,6 +1,6 @@
 <img src="https://raw.githubusercontent.com/emqx/MQTTX/main/assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
 
-# MQTT X 命令行工具
+# MQTTX 命令行工具
 
 [![GitHub Release](https://img.shields.io/github/release/emqx/mqttx?color=brightgreen)](https://github.com/emqx/mqttx/releases)
 ![Support Platforms](https://camo.githubusercontent.com/a50c47295f350646d08f2e1ccd797ceca3840e52/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f706c6174666f726d2d6d61634f5325323025374325323057696e646f77732532302537432532304c696e75782d6c69676874677265792e737667)
@@ -16,7 +16,7 @@
 
 ---
 
-[MQTT X CLI](https://mqttx.app/zh/cli) 是一款开源的 MQTT 5.0 命令行客户端工具，也是命令行上的 MQTT X，旨在帮助开发者在不需要使用图形化界面的基础上，也能更快的开发和调试 MQTT 服务与应用。
+[MQTTX CLI](https://mqttx.app/zh/cli) 是一款开源的 MQTT 5.0 命令行客户端工具，也是命令行上的 MQTTX，旨在帮助开发者在不需要使用图形化界面的基础上，也能更快的开发和调试 MQTT 服务与应用。
 
 > [MQTT](http://mqtt.org/faq) 全称为 Message Queuing Telemetry Transport（消息队列遥测传输）是一种基于 发布/订阅 范式的“轻量级”消息协议，旨在用于受限设备和低带宽，高延迟或不可靠的网络，由 IBM 发布。
 
@@ -26,13 +26,13 @@
 
 ## 文档
 
-关于介绍、安装和使用，请参阅 [MQTT X CLI 文档](https://mqttx.app/zh/docs/cli)，下面是一个快速入门指南。
+关于介绍、安装和使用，请参阅 [MQTTX CLI 文档](https://mqttx.app/zh/docs/cli)，下面是一个快速入门指南。
 
 ## 安装
 
 ### macOS
 
-下载二进制文件并快速安装最新的 MQTT X CLI 稳定版到 macOS 系统上。
+下载二进制文件并快速安装最新的 MQTTX CLI 稳定版到 macOS 系统上。
 
 > **注意**：请注意区分当前系统环境的 CPU 架构
 
@@ -58,7 +58,7 @@ brew install emqx/mqttx/mqttx-cli
 
 ### Linux
 
-下载二进制文件并快速安装最新的 MQTT X CLI 稳定版到 Linux 系统上。
+下载二进制文件并快速安装最新的 MQTTX CLI 稳定版到 Linux 系统上。
 
 > **注意**：请注意区分当前系统环境的 CPU 架构
 
@@ -78,7 +78,7 @@ sudo install ./mqttx-cli-linux-arm64 /usr/local/bin/mqttx
 
 ### Windows
 
-Windows 用户请到 MQTT X 的[发布页面](https://github.com/emqx/MQTTX/releases)内，找到对应的系统架构的 `exe` 包，手动下载后使用
+Windows 用户请到 MQTTX 的[发布页面](https://github.com/emqx/MQTTX/releases)内，找到对应的系统架构的 `exe` 包，手动下载后使用
 
 ### NPM
 
@@ -96,7 +96,7 @@ docker run -it --rm emqx/mqttx-cli
 
 ### 其它平台
 
-从 MQTT X 的[发布页面](https://github.com/emqx/MQTTX/releases)内，下载对应的二进制文件。
+从 MQTTX 的[发布页面](https://github.com/emqx/MQTTX/releases)内，下载对应的二进制文件。
 
 ## 使用
 
@@ -143,7 +143,7 @@ mqttx --help
 
 | 参数          | 描述                         |
 | ------------- | ---------------------------- |
-| -v, --version | 输出当前 MQTT X CLI 的版本号 |
+| -v, --version | 输出当前 MQTTX CLI 的版本号 |
 | -h, --help    | 展示 mqttx 命令的帮助信息    |
 
 | 命令  | 描述                             |
@@ -361,7 +361,7 @@ mqttx bench pub --help
 
 ## 与 EMQX 更好的合作
 
-MQTT X 为连接测试 EMQX 等 MQTT 消息服务器而生，一键式的连接方式和简洁的图形界面可以帮助您快速连接到 EMQX 或 EMQX Cloud 调试并探索其功能特性。
+MQTTX 为连接测试 EMQX 等 MQTT 消息服务器而生，一键式的连接方式和简洁的图形界面可以帮助您快速连接到 EMQX 或 EMQX Cloud 调试并探索其功能特性。
 
 [注册 EMQX Cloud 可以享受 14 天免费试用](https://www.emqx.com/zh/try?product=cloud)
 

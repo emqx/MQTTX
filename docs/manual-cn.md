@@ -1,4 +1,4 @@
-# MQTT X 使用手册
+# MQTTX 使用手册
 
 ## 目录
 
@@ -9,11 +9,11 @@
 
 ## 简介
 
-[MQTT X](https://mqttx.app/zh) 是 [EMQ](https://emqx.com/zh) 开源的一款优雅的跨平台 MQTT 5.0 桌面客户端，它支持 macOS, Linux, Windows。
+[MQTTX](https://mqttx.app/zh) 是 [EMQ](https://emqx.com/zh) 开源的一款优雅的跨平台 MQTT 5.0 桌面客户端，它支持 macOS, Linux, Windows。
 
-[MQTT X](https://mqttx.app/zh) 的 `UI` 采用了聊天界面形式，简化了页面操作逻辑，用户可以快速创建连接，允许保存多个客户端，方便用户快速测试 `MQTT/MQTTS` 连接，及 `MQTT` 消息的订阅和发布。
+[MQTTX](https://mqttx.app/zh) 的 `UI` 采用了聊天界面形式，简化了页面操作逻辑，用户可以快速创建连接，允许保存多个客户端，方便用户快速测试 `MQTT/MQTTS` 连接，及 `MQTT` 消息的订阅和发布。
 
-在下载和安装前请访问我们的 [官网](https://mqttx.app/zh) 或者是 [GitHub](https://github.com/emqx/MQTTX) 来了解并获取到最新的版本信息，使用最新版本有助于提高使用体验。如果你对本项目了解也可以直接 Clone [MQTT X](https://mqttx.app/zh) 的仓库源码，自行打包和使用。使用过程中，有任何问题都可以到 [GitHub issues](https://github.com/emqx/MQTTX/issues) 来发表问题和看法或者是 Fork 我们的项目，并向我们提交修改后的 PR，我们将会认真查阅和回复。
+在下载和安装前请访问我们的 [官网](https://mqttx.app/zh) 或者是 [GitHub](https://github.com/emqx/MQTTX) 来了解并获取到最新的版本信息，使用最新版本有助于提高使用体验。如果你对本项目了解也可以直接 Clone [MQTTX](https://mqttx.app/zh) 的仓库源码，自行打包和使用。使用过程中，有任何问题都可以到 [GitHub issues](https://github.com/emqx/MQTTX/issues) 来发表问题和看法或者是 Fork 我们的项目，并向我们提交修改后的 PR，我们将会认真查阅和回复。
 
 ### 快速预览
 
@@ -47,7 +47,7 @@
 
 **注意**：但是对于 `macOS` 系统版本不同，使用 `zip` 压缩包在 `10.15.2` 系统版本中可能会出现解压后无法打开的情况，因此请优先选择 `dmg` 文件。
 
-macOS 的用户还可以选择使用 [brew cask](https://formulae.brew.sh/cask/mqttx) 来安装 MQTT X
+macOS 的用户还可以选择使用 [brew cask](https://formulae.brew.sh/cask/mqttx) 来安装 MQTTX
 
 ```shell
 brew install --cask mqttx
@@ -226,7 +226,7 @@ sudo snap install mqttx
 
 ### 脚本
 
-在 v1.4.2 版本以后，MQTT X 新增了脚本编辑功能，在该功能中，用户可编写自定义脚本（JavaScript）对发送和接收到的 `Payload` 进行自定义转化，配合定时发送功能，可实现一些模拟数据上报的自动化测试功能。
+在 v1.4.2 版本以后，MQTTX 新增了脚本编辑功能，在该功能中，用户可编写自定义脚本（JavaScript）对发送和接收到的 `Payload` 进行自定义转化，配合定时发送功能，可实现一些模拟数据上报的自动化测试功能。
 
 > 注意：该功能目前属于测试 Beta 阶段。
 
@@ -244,7 +244,7 @@ sudo snap install mqttx
 
 ### 日志
 
-在 v1.5.0 版本后，MQTT X 引入了日志记录功能，方便用户调试连接、报告错误。生产环境下，日志系统显示 3 个级别的信息:
+在 v1.5.0 版本后，MQTTX 引入了日志记录功能，方便用户调试连接、报告错误。生产环境下，日志系统显示 3 个级别的信息:
 
 - INFO 用于提示用户操作信息
 - WARN 产生不安全/潜在风险的警告
@@ -281,7 +281,7 @@ sudo snap install mqttx
 
 3. 检查更新
 
-    点击左侧底部的 `i` 按钮，可进入到 `About` 页面，了解 [MQTT X](https://mqttx.app/zh) 的版本信息和 [EMQX](https://emqx.cn) 的相关信息。点击 `Check for Updates` 可以检查是否有更新版本。
+    点击左侧底部的 `i` 按钮，可进入到 `About` 页面，了解 [MQTTX](https://mqttx.app/zh) 的版本信息和 [EMQX](https://emqx.cn) 的相关信息。点击 `Check for Updates` 可以检查是否有更新版本。
 
 ![mqttx-update](../assets/mqttx-update.png)
 
@@ -299,7 +299,7 @@ sudo snap install mqttx
 
 6. 流量统计
 
-    在右上角的下拉菜单中，可点击流量统计项，MQTT X 会自动订阅系统主题，并可以在页面中展示该 Broker 下的简单的流量统计图表，运行版本和运行时间。
+    在右上角的下拉菜单中，可点击流量统计项，MQTTX 会自动订阅系统主题，并可以在页面中展示该 Broker 下的简单的流量统计图表，运行版本和运行时间。
     > EMQX 默认只允许本机的 MQTT 客户端订阅 $SYS 主题，请参照 内置 ACL 修改发布订阅 ACL 规则。
 
 ![mqttx-bytes](../assets/mqttx-bytes.png)
@@ -351,21 +351,21 @@ Linux: `vue-cli-service electron:build --linux`
 
 MQTT 客户端是任何运行 MQTT 库并通过网络连接到 MQTT Broker 的设备。发布者和订阅者指的是客户端当前是发布消息还是订阅接收消息，发布者和订阅者可以都是一个 MQTT 客户端，（发布和订阅功能也可以在同一个 MQTT 客户端中实现）。MQTT 客户端可以是一个非常小的、资源有限的设备，也可以是一台运行图形化 MQTT 客户端的典型计算机软件，基本上用于测试目的。因此可以简单理解任何通过 TCP/IP 协议连接到 MQTT 服务的设备或软件都可以被称为 MQTT 客户端。
 
-**Q: 为什么使用 MQTT X？**
+**Q: 为什么使用 MQTTX？**
 
-MQTT X 是一款开源的跨平台 MQTT 桌面客户端工具。可以用于正在搭建自己的 MQTT 的消息服务器的用户，或者正在开发 MQTT Broker 和研究学习 MQTT 的相关用户学习来测试连接，订阅和发布消息等。用户可以快速建立多个连接客户端，方便快速测试 MQTT/TCP、MQTT/TLS 的连接、发布/订阅功能及其他特性。在 MQTT 的研究与应用中可以通过 MQTT X 快速、深入地理解 MQTT 协议相关特性。
+MQTTX 是一款开源的跨平台 MQTT 桌面客户端工具。可以用于正在搭建自己的 MQTT 的消息服务器的用户，或者正在开发 MQTT Broker 和研究学习 MQTT 的相关用户学习来测试连接，订阅和发布消息等。用户可以快速建立多个连接客户端，方便快速测试 MQTT/TCP、MQTT/TLS 的连接、发布/订阅功能及其他特性。在 MQTT 的研究与应用中可以通过 MQTTX 快速、深入地理解 MQTT 协议相关特性。
 
-**Q: MQTT X 为什么采用聊天软件的设计？**
+**Q: MQTTX 为什么采用聊天软件的设计？**
 
-基于对 MQTT 协议中发布订阅的理解，我们使用聊天软件的交互形式来帮助用户快速理解 MQTT 协议的核心内容，比如新建一个连接，可以想象为用户 A，订阅一个 Topic，即加入一个聊天频道，再新建一个连接，即为用户 B，向用户 A 订阅过的 Topic 发布一条消息，我们可以在用户 A 的页面中接收到用户 B 发送过来的消息。而中间转发消息的服务即为 MQTT Broker。其实在 IoT 世界中也是这样的，设备之间可以利用 MQTT 这样发布订阅的特性来进行通讯。而 MQTT X 将其进行模拟并转化到用户界面中，帮助用户更快的理解和测试 MQTT 相关内容。
+基于对 MQTT 协议中发布订阅的理解，我们使用聊天软件的交互形式来帮助用户快速理解 MQTT 协议的核心内容，比如新建一个连接，可以想象为用户 A，订阅一个 Topic，即加入一个聊天频道，再新建一个连接，即为用户 B，向用户 A 订阅过的 Topic 发布一条消息，我们可以在用户 A 的页面中接收到用户 B 发送过来的消息。而中间转发消息的服务即为 MQTT Broker。其实在 IoT 世界中也是这样的，设备之间可以利用 MQTT 这样发布订阅的特性来进行通讯。而 MQTTX 将其进行模拟并转化到用户界面中，帮助用户更快的理解和测试 MQTT 相关内容。
 
-**Q: MQTT X 是免费的吗？**
+**Q: MQTTX 是免费的吗？**
 
 是的。完全开源，详情见 [LICENSE](https://github.com/emqx/MQTTX/blob/main/LICENSE)。
 
-**Q: 当您使用 MQTT X 遇到问题时，该怎么做？**
+**Q: 当您使用 MQTTX 遇到问题时，该怎么做？**
 
-1. 您可以打开 MQTT X 的 [GitHub](https://github.com/emqx/MQTTX) 链接，进入到 [issue](https://github.com/emqx/MQTTX/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) 区，点击提交 issue 来反馈问题。
+1. 您可以打开 MQTTX 的 [GitHub](https://github.com/emqx/MQTTX) 链接，进入到 [issue](https://github.com/emqx/MQTTX/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) 区，点击提交 issue 来反馈问题。
 2. 中文用户可以到我们的[EMQ 问答社区](https://askemq.com/c/tools/11)来进行问题反馈。
 3. 最后可以通过以下联系方式联系我们，反馈您使用中的任何问题。
 

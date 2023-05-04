@@ -1,7 +1,7 @@
 {
   "name": "mqttx-cli",
   "version": "1.9.2",
-  "description": "MQTT X Command Line Tools",
+  "description": "MQTTX Command Line Tools",
   "keywords": [
     "mqtt",
     "publish/subscribe",

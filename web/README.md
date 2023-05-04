@@ -1,6 +1,6 @@
 <img src="../assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
 
-# MQTT X Web
+# MQTTX Web
 
 [![GitHub Release](https://img.shields.io/github/release/emqx/mqttx?color=brightgreen)](https://github.com/emqx/mqttx/releases)
 ![build packages](https://github.com/emqx/MQTTX/workflows/build%20packages/badge.svg)
@@ -15,7 +15,7 @@ English | [简体中文](./README-CN.md)
 
 ---
 
-[MQTT X Web](https://mqttx.app) is an open source MQTT 5.0 browser client and an online MQTT WebSocket client tool. Use WebSocket to connect to MQTT in your browser to help you develop and debug your MQTT services and applications faster without having to download and install MQTT X locally.
+[MQTTX Web](https://mqttx.app) is an open source MQTT 5.0 browser client and an online MQTT WebSocket client tool. Use WebSocket to connect to MQTT in your browser to help you develop and debug your MQTT services and applications faster without having to download and install MQTTX locally.
 
 > [MQTT](http://mqtt.org/faq) stands for MQ Telemetry Transport. It is a publish/subscribe, extremely simple and lightweight messaging protocol, designed for constrained devices and low-bandwidth, high-latency or unreliable networks.
 
@@ -25,11 +25,11 @@ English | [简体中文](./README-CN.md)
 
 ## Documentation
 
-For introduction, and usage, please refer to the [MQTT X Web Documentation](https://mqttx.app/docs/web).
+For introduction, and usage, please refer to the [MQTTX Web Documentation](https://mqttx.app/docs/web).
 
 ## Usage
 
-Visit MQTT WebSocket Client (MQTT X Web): [http://www.emqx.io/online-mqtt-client](http://www.emqx.io/online-mqtt-client)
+Visit MQTT WebSocket Client (MQTTX Web): [http://www.emqx.io/online-mqtt-client](http://www.emqx.io/online-mqtt-client)
 
 ## Deploy from Docker Image
 
@@ -41,7 +41,7 @@ docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 
 ## Better Together with EMQX
 
-MQTT X is designed to connect to test MQTT Brokers such as EMQX, The one-click connection and simple graphical interface make it easy to connect to EMQX or EMQX Cloud to debug and explore functional features.
+MQTTX is designed to connect to test MQTT Brokers such as EMQX, The one-click connection and simple graphical interface make it easy to connect to EMQX or EMQX Cloud to debug and explore functional features.
 
 [Sign up EMQX Cloud for 14 days free trial](https://www.emqx.com/en/try?product=cloud)
 

@@ -7,14 +7,14 @@ export default {
     hu: 'Minden MQTT-ről',
   },
   docs: {
-    zh: 'MQTT X 文档',
-    en: 'MQTT X Documentation',
-    ja: 'MQTT X ドキュメント',
+    zh: 'MQTTX 文档',
+    en: 'MQTTX Documentation',
+    ja: 'MQTTX ドキュメント',
   },
   forum: {
-    zh: 'MQTT X 论坛',
-    en: 'MQTT X Forum',
-    ja: 'MQTT X フォーラム',
+    zh: 'MQTTX 论坛',
+    en: 'MQTTX Forum',
+    ja: 'MQTTX フォーラム',
   },
   learn: {
     zh: '学习 MQTT',

@@ -35,11 +35,11 @@ export default {
     hu: 'Kiadások',
   },
   mqttxDesc: {
-    zh: 'MQTT X 是一款由 EMQ 开源的 MQTT 5.0 跨平台桌面客户端，旨在帮助开发者更快的开发、调试 MQTT 服务和应用。',
-    en: 'MQTT X is a cross-platform MQTT 5.0 client tool open-sourced by EMQ, designed to help develop and debug MQTT services and applications faster.',
-    tr: 'MQTT X, geliştiricilerin MQTT hizmetlerini ve uygulamalarını daha hızlı geliştirmelerine ve hata ayıklamalarına yardımcı olmak için tasarlanmış, EMQ tarafından sağlanan açık kaynaklı bir MQTT 5.0 platformlar arası masaüstü istemcisidir.',
-    ja: 'MQTT Xは、EMQによるオープンソースのMQTT 5.0クロスプラットフォーム・デスクスクライアントで、開発者がMQTTサービスおよびアプリケーションをより速く開発およびデバッグできるよう設計されています。',
-    hu: 'Az MQTT X egy nyílt forráskódú MQTT 5.0 cross-platform asztali kliens az EMQ-tól, amelynek célja, hogy segítse a fejlesztőket az MQTT szolgáltatások és alkalmazások gyorsabb fejlesztésében és hibakeresésében.',
+    zh: 'MQTTX 是一款由 EMQ 开源的 MQTT 5.0 跨平台桌面客户端，旨在帮助开发者更快的开发、调试 MQTT 服务和应用。',
+    en: 'MQTTX is a cross-platform MQTT 5.0 client tool open-sourced by EMQ, designed to help develop and debug MQTT services and applications faster.',
+    tr: 'MQTTX, geliştiricilerin MQTT hizmetlerini ve uygulamalarını daha hızlı geliştirmelerine ve hata ayıklamalarına yardımcı olmak için tasarlanmış, EMQ tarafından sağlanan açık kaynaklı bir MQTT 5.0 platformlar arası masaüstü istemcisidir.',
+    ja: 'MQTTXは、EMQによるオープンソースのMQTT 5.0クロスプラットフォーム・デスクスクライアントで、開発者がMQTTサービスおよびアプリケーションをより速く開発およびデバッグできるよう設計されています。',
+    hu: 'Az MQTTX egy nyílt forráskódú MQTT 5.0 cross-platform asztali kliens az EMQ-tól, amelynek célja, hogy segítse a fejlesztőket az MQTT szolgáltatások és alkalmazások gyorsabb fejlesztésében és hibakeresésében.',
   },
   cloudTitle: {
     zh: '立即获取一个您专属的 MQTT 服务！',
