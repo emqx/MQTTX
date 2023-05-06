@@ -1,6 +1,6 @@
 {
   "name": "MQTTX",
-  "version": "1.9.2",
+  "version": "1.9.2-6",
   "description": "MQTT desktop client",
   "author": "EMQX Team <yusf@emqx.io>",
   "scripts": {
@@ -48,7 +48,7 @@
     "mqtt": "4.3.7",
     "reflect-metadata": "^0.1.13",
     "rxjs": "6.2.0",
-    "sqlite3": "^5.1.5",
+    "sqlite3": "5.0.4",
     "typedi": "^0.8.0",
     "typeorm": "^0.2.34",
     "typeorm-typedi-extensions": "^0.2.3",
