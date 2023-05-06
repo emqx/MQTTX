@@ -3,6 +3,7 @@ import signale from '../utils/signale'
 import { getSpecialTypesOption } from '../utils/generator'
 
 import { IClientOptions, IClientPublishOptions, IClientSubscribeOptions } from 'mqtt'
+import { getLocalScenarioList, getScenarioFilePath } from './simulate'
 
 const parseNumber = (value: string) => {
   const parsedValue = Number(value)
@@ -79,7 +80,7 @@ const parseVariadicOfBooleanType = (value: string, previous: boolean[] | undefin
 
 const checkTopicExists = (topic: string | string[] | undefined, commandType: CommandType) => {
   if (!topic) {
-    if (['pub', 'benchPub'].includes(commandType)) {
+    if (['pub', 'benchPub', 'simulate', 'sim'].includes(commandType)) {
       console.log("error: required option '-t, --topic <TOPIC>' not specified")
     } else if (['sub', 'benchSub'].includes(commandType)) {
       console.log("error: required option '-t, --topic <TOPIC...>' not specified")
@@ -110,6 +111,27 @@ const parseOutputMode = (value: string) => {
     process.exit(1)
   }
   return value
+}
+
+const checkScenarioExists = (name?: string, file?: string) => {
+  if (!name && !file) {
+    console.log("error: required option '-sc, --scenario <SCENARIO>' or '-f, --file <SCENARIO FILE PATH>' not specified")
+    process.exit(1)
+  }
+  if (name) {
+    const scenarioList = getLocalScenarioList()
+    if (scenarioList.length === 0) {
+      signale.error('No local scenario found.')
+      process.exit(1)
+    }
+    if (!scenarioList.includes(name)) {
+      signale.error(`Scenario ${name} not found in [${scenarioList.join(', ')}]`)
+      process.exit(1)
+    }
+  } else if (file && !getScenarioFilePath(file)) {
+    signale.error(`Scenario file ${file} not found.`)
+    process.exit(1)
+  }
 }
 
 const parseConnectOptions = (
@@ -332,6 +354,7 @@ export {
   parseQoS,
   parseVariadicOfBooleanType,
   checkTopicExists,
+  checkScenarioExists,
   parsePubTopic,
   parseFormat,
   parseOutputMode,

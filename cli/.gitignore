@@ -24,3 +24,5 @@ yarn-error.log*
 package
 release
 dist
+src/scenarios/*.js
+src/scenarios/*.ts

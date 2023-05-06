@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "incremental": true,
     "target": "ES5",
     "module": "commonjs",
@@ -10,5 +11,5 @@
     "resolveJsonModule": true,
     "types": ["@types/signale"]
   },
-  "include": ["src"]
+  "include": ["src", "scenarios/*.js"]
 }

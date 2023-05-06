@@ -102,6 +102,7 @@ function loadConfig(commandType: 'sub', savePath: boolean | string): SubscribeOp
 function loadConfig(commandType: 'benchConn', savePath: boolean | string): BenchConnectOptions
 function loadConfig(commandType: 'benchPub', savePath: boolean | string): BenchPublishOptions
 function loadConfig(commandType: 'benchSub', savePath: boolean | string): BenchSubscribeOptions
+function loadConfig(commandType: 'simulate', savePath: boolean | string): SimulatePubOptions
 function loadConfig(commandType: CommandType, savePath: boolean | string) {
   try {
     const filePath = processPath(savePath)

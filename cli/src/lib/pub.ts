@@ -4,10 +4,11 @@ import concat from 'concat-stream'
 import { Writable } from 'readable-stream'
 import split2 from 'split2'
 import { IClientOptions, IClientPublishOptions } from 'mqtt'
-import { Signale, signale, basicLog, benchLog } from '../utils/signale'
-import { parseConnectOptions, parsePublishOptions, checkTopicExists } from '../utils/parse'
+import { Signale, signale, basicLog, benchLog, simulateLog } from '../utils/signale'
+import { parseConnectOptions, parsePublishOptions, checkTopicExists, checkScenarioExists } from '../utils/parse'
 import delay from '../utils/delay'
 import { saveConfig, loadConfig } from '../utils/config'
+import { ISimulator, loadSimulator } from '../utils/simulate'
 
 const send = (
   config: boolean | string | undefined,
@@ -120,24 +121,25 @@ const pub = (options: PublishOptions) => {
   }
 }
 
-const benchPub = async (options: BenchPublishOptions) => {
-  const { save, config } = options
+const multiPub = async (options: BenchPublishOptions | SimulatePubOptions, message?: string | Buffer, simulator?: ISimulator) => {
 
-  config && (options = loadConfig('benchPub', config))
-
-  save && saveConfig('benchPub', options)
-
-  const { count, interval, messageInterval, hostname, port, topic, clientId, verbose, maximumReconnectTimes } = options
-
-  checkTopicExists(topic, 'benchPub')
+  const { save, config, count, interval, messageInterval, hostname, port, topic, clientId, verbose, maximumReconnectTimes } = options
+  
+  if (simulator) {
+    config && (options = loadConfig('simulate', config))
+    save && saveConfig('simulate', options)
+    checkTopicExists(topic, 'simulate')
+  } else {
+    config && (options = loadConfig('benchPub', config))
+    save && saveConfig('benchPub', options)
+    checkTopicExists(topic, 'benchPub')
+  }
 
   const connOpts = parseConnectOptions(options, 'pub')
 
   const pubOpts = parsePublishOptions(options)
 
   const { username } = connOpts
-
-  const { message } = pubOpts
 
   let connectedCount = 0
 
@@ -151,7 +153,11 @@ const benchPub = async (options: BenchPublishOptions) => {
     config: { displayLabel: false, displayDate: true, displayTimestamp: true },
   })
 
-  benchLog.start.pub(config, count, interval, messageInterval, hostname, port, topic, message.toString())
+  if (simulator) {
+    simulateLog.start.pub(config, count, interval, messageInterval, hostname, port, topic, simulator.name || simulator.file)
+  } else if (message) {
+    benchLog.start.pub(config, count, interval, messageInterval, hostname, port, topic, message.toString())
+  }
 
   const connStart = Date.now()
 
@@ -166,6 +172,7 @@ const benchPub = async (options: BenchPublishOptions) => {
 
       let topicName = topic.replaceAll('%i', i.toString()).replaceAll('%c', clientId)
       username && (topicName = topicName.replaceAll('%u', username))
+      simulator && (topicName = topicName.replaceAll('%sc', simulator.name))
 
       const client = mqtt.connect(opts)
 
@@ -178,7 +185,19 @@ const benchPub = async (options: BenchPublishOptions) => {
           interactive.success('[%d/%d] - Connected', connectedCount, count)
 
           setInterval(() => {
-            client.connected &&
+            if (simulator) {
+              const { topic, message } = simulator.generator(options as SimulatePubOptions, client.options.clientId)
+              client.connected &&
+              client.publish(topic || topicName, message, pubOpts.opts, (err) => {
+                if (err) {
+                  signale.warn(err)
+                } else {
+                  total += 1
+                  rate += 1
+                }
+              })
+            } else if (message) {
+              client.connected &&
               client.publish(topicName, message, pubOpts.opts, (err) => {
                 if (err) {
                   signale.warn(err)
@@ -187,6 +206,7 @@ const benchPub = async (options: BenchPublishOptions) => {
                   rate += 1
                 }
               })
+            }
           }, messageInterval)
 
           if (i === count) {
@@ -244,6 +264,16 @@ const benchPub = async (options: BenchPublishOptions) => {
   }
 }
 
+const benchPub = async (options: BenchPublishOptions) => {
+  multiPub(options, options.message)
+}
+
+const simulatePub = async (options: SimulatePubOptions) => {
+  checkScenarioExists(options.scenario, options.file)
+  const simulator = loadSimulator(options.scenario, options.file)
+  multiPub(options, undefined, simulator)
+}
+
 export default pub
 
-export { pub, benchPub }
+export { pub, benchPub, simulatePub }
