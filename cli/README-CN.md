@@ -135,6 +135,16 @@ mqttx bench sub -c 5000 -t bench/%i
 mqttx bench pub -c 5000 -t bench/%i
 ```
 
+Simulate
+
+```bash
+# Specify a local scenario and start the simulation
+mqttx simulate -sc tesla -c 10
+
+# Specify a scenario file and start the simulation
+mqttx simulate -f <scenario file path> -c 10
+```
+
 ### 参数介绍
 
 ```shell
@@ -153,6 +163,7 @@ mqttx --help
 | pub   | 向主题发布一条消息               |
 | sub   | 订阅一个或多个主题               |
 | bench | MQTT 性能测试                    |
+| simulate \| sim | MQTT 模拟器 |
 
 #### 连接
 
@@ -358,6 +369,24 @@ mqttx bench pub --help
 | -v, --verbose                          | 打印发送出的历史消息数量与消息速率                                   |
 | ~~-s, --stdin~~                        | ~~从 stdin 中读取信息体~~                                            |
 | ~~-M, --multiline~~                    | ~~可以通过多行发布多条消息~~                                         |
+
+### 模拟器
+
+用于模拟特定场景下 MQTT 发布消息操作。
+
+模拟器命令与[发布性能测试](#发布性能测试)参数基本相同，以下仅列出新增或有变化的参数
+
+```shell
+mqttx sim --help
+```
+
+| 参数                          | 描述                             |
+| ----------------------------- | -------------------------------- |
+| -sc, --scenario <SCENARIO>          | 本地的模拟场景名称           |
+| -f, --file <SCENARIO FILE PATH> | 指定模拟场景文件  |
+| -t, --topic <TOPIC...>                 | 需要发布的 Topic, 可选, 支持 %u (用户名), %c (客户端 ID), %i (索引) 占位符,  %sc (场景) 占位符, 默认为 `mqttx/simulate/%sc/%c` |
+
+`--scenario` 与 `--file` 参数必须指定一个，如果同时指定，优先使用 `--file` 参数。
 
 ## 与 EMQX 更好的合作
 

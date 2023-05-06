@@ -528,14 +528,14 @@ export class Commander {
     this.program.command('simulate')
       .alias('sim')
       .description('Publish scenario-specific simulation messages at a custom rate and a number of connections.')
-      .option('-sc, --scenario <SCENARIO>', 'the name of the scenario to simulate')
+      .option('-sc, --scenario <SCENARIO>', 'the name of the local scenario to simulate')
       .option('-f, --file <SCENARIO FILE PATH>', 'the path of the scenario file')
       .option('-c, --count <NUMBER>', 'the number of connections', parseNumber, 1000)
       .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
       .option('-im, --message-interval <MILLISECONDS>', 'interval of publishing messages', parseNumber, 1000)
       .option(
         '-t, --topic <TOPIC>',
-        'the message topic, support %u (username), %c (client id), %i (index), %sc (sense) variables',
+        'the message topic, support %u (username), %c (client id), %i (index), %sc (scenario) variables',
         parsePubTopic,
         'mqttx/simulate/%sc/%c',
       )
