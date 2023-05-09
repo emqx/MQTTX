@@ -123,8 +123,8 @@ const pub = (options: PublishOptions) => {
 
 const multiPub = async (
   options: BenchPublishOptions | SimulatePubOptions,
+  commandType: CommandType,
   message?: string | Buffer,
-  simulator?: Simulator,
 ) => {
   const {
     save,
@@ -140,13 +140,20 @@ const multiPub = async (
     maximumReconnectTimes,
   } = options
 
-  if (simulator) {
-    config && (options = loadConfig('simulate', config))
+  let simulator: Simulator = {} as Simulator
+  if (commandType === 'simulate') {
+    options = config ? loadConfig('simulate', config) : options
     save && saveConfig('simulate', options)
+
+    const simulateOptions = options as SimulatePubOptions
+    checkScenarioExists(simulateOptions.scenario, simulateOptions.file)
+    simulator = loadSimulator(simulateOptions.scenario, simulateOptions.file)
+
     checkTopicExists(topic, 'simulate')
   } else {
-    config && (options = loadConfig('benchPub', config))
+    options = config ? loadConfig('benchPub', config) : options
     save && saveConfig('benchPub', options)
+
     checkTopicExists(topic, 'benchPub')
   }
 
@@ -168,7 +175,7 @@ const multiPub = async (
     config: { displayLabel: false, displayDate: true, displayTimestamp: true },
   })
 
-  if (simulator) {
+  if (commandType === 'simulate') {
     simulateLog.start.pub(
       config,
       count,
@@ -214,7 +221,7 @@ const multiPub = async (
             }
             let publishTopic = topicName
             let publishMessage = message
-            if (simulator) {
+            if (commandType === 'simulate') {
               const simulationResult = simulator.generator(options as SimulatePubOptions, client.options.clientId)
               if (simulationResult.topic) {
                 publishTopic = simulationResult.topic
@@ -287,13 +294,11 @@ const multiPub = async (
 }
 
 const benchPub = async (options: BenchPublishOptions) => {
-  multiPub(options, options.message)
+  multiPub(options, 'benchPub', options.message)
 }
 
 const simulatePub = async (options: SimulatePubOptions) => {
-  checkScenarioExists(options.scenario, options.file)
-  const simulator = loadSimulator(options.scenario, options.file)
-  multiPub(options, undefined, simulator)
+  multiPub(options, 'simulate')
 }
 
 export default pub
