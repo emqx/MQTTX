@@ -395,6 +395,7 @@ mqttx simulate --help
 ```js
 function generator (option, clientId) {
   return {
+    // 没有返回 topic 时，使用命令行参数中的 topic
     // topic: 'mqttx/simulate/myScenario/' + clientId,
     message: JSON.stringify({
       temp: Math.random() * 10 + 20,
@@ -405,10 +406,6 @@ function generator (option, clientId) {
 module.exports = {
   name: 'myScenario',
   generator,
-  // author: 'mqttx',
-  // version: '1.0.0',
-  // description: 'my scenario description',
-  // dataFormat: 'JSON'
 }
 ```
 

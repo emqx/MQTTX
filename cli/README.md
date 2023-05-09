@@ -392,6 +392,7 @@ Scenario file example:
 ```js
 function generator (option, clientId) {
   return {
+    // If no topic is returned, use the topic in the command line parameters
     // topic: 'mqttx/simulate/myScenario/' + clientId,
     message: JSON.stringify({
       temp: Math.random() * 10 + 20,
@@ -402,10 +403,6 @@ function generator (option, clientId) {
 module.exports = {
   name: 'myScenario',
   generator,
-  // author: 'mqttx',
-  // version: '1.0.0',
-  // description: 'my scenario description',
-  // dataFormat: 'JSON'
 }
 ```
 
