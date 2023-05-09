@@ -126,19 +126,7 @@ const multiPub = async (
   commandType: CommandType,
   message?: string | Buffer,
 ) => {
-  const {
-    save,
-    config,
-    count,
-    interval,
-    messageInterval,
-    hostname,
-    port,
-    topic,
-    clientId,
-    verbose,
-    maximumReconnectTimes,
-  } = options
+  const { save, config } = options
 
   let simulator: Simulator = {} as Simulator
   if (commandType === 'simulate') {
@@ -148,14 +136,14 @@ const multiPub = async (
     const simulateOptions = options as SimulatePubOptions
     checkScenarioExists(simulateOptions.scenario, simulateOptions.file)
     simulator = loadSimulator(simulateOptions.scenario, simulateOptions.file)
-
-    checkTopicExists(topic, 'simulate')
   } else {
     options = config ? loadConfig('benchPub', config) : options
     save && saveConfig('benchPub', options)
-
-    checkTopicExists(topic, 'benchPub')
   }
+
+  const { count, interval, messageInterval, hostname, port, topic, clientId, verbose, maximumReconnectTimes } = options
+
+  checkTopicExists(topic, commandType)
 
   const connOpts = parseConnectOptions(options, 'pub')
 
