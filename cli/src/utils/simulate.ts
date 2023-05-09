@@ -7,13 +7,17 @@ const getLocalScenarioList = function (): string[] {
   if (!fs.existsSync(scenarioFolder)) {
     return []
   }
-  // Read the files in the Sense folder
-  const files = fs.readdirSync(scenarioFolder).sort((a, b) => {
-    const statA = fs.statSync(scenarioFolder + '/' + a);
-    const statB = fs.statSync(scenarioFolder + '/' + b);
-    return statB.birthtime.getTime() - statA.birthtime.getTime();
-  });
-  return files.filter($ => $.endsWith('.js')).map($ => $.replace('.js', ''))
+  // Read the files in the scenario folder
+  const files = fs
+    .readdirSync(scenarioFolder)
+    .filter((file) => file.endsWith('.js') && !file.startsWith('.'))
+    .map((file) => ({
+      name: file.replace('.js', ''),
+      birthtime: fs.statSync(path.join(scenarioFolder, file)).birthtime.getTime(),
+    }))
+    .sort((a, b) => b.birthtime - a.birthtime)
+    .map((file) => file.name)
+  return files
 }
 
 const getScenarioFilePath = function (file: string): string {
@@ -24,45 +28,38 @@ const getScenarioFilePath = function (file: string): string {
   return ''
 }
 
-interface ISimulator {
-  name: string,
-  file: string,
-  realFilePath: string,
-  version?: string
-  description?: string,
-  generator: (option: SimulatePubOptions, clientId?: string) => {
-    topic?: string,
-    message: string | Buffer,
-  },
-}
-
-const loadSimulator = function (name?: string, file?: string): ISimulator {
+const loadSimulator = function (name?: string, file?: string): Simulator {
   try {
-    let filePath = ''
+    let filePath = file ? getScenarioFilePath(file) : path.join(scenarioFolder, `${name}.js`)
+
+    if (!filePath) {
+      throw new Error(`File not found: ${file || name}`)
+    }
+
     if (file) {
-      filePath = getScenarioFilePath(file)
-      if (!filePath) {
-        throw new Error(`File not found: ${file}`)
-      }
-      // Copy file to scenario folder, in order to load it as a module and use faker dependency
       const fileName = path.basename(filePath)
+      name = fileName.replace('.js', '')
       const targetPath = path.join(scenarioFolder, `.tmp_${fileName}`)
+      // Copy the file to the scenario folder to use faker dependencies
       fs.copyFileSync(filePath, targetPath)
       filePath = targetPath
-    } else {
-      filePath = path.join(scenarioFolder, `${name}.js`)
     }
+
     const simulatorModule = require(filePath)
+
     if (typeof simulatorModule.generator !== 'function') {
       throw new Error('Not a valid simulator module')
     }
-    simulatorModule.name = name
-    simulatorModule.file = file
-    simulatorModule.realFilePath = filePath
-    return simulatorModule
+
+    return Object.assign(simulatorModule, {
+      // Use module defined name or the file name as the simulator name
+      name: simulatorModule.name || name,
+      file,
+      realFilePath: filePath,
+    })
   } catch (err) {
     throw new Error(`Load simulator error: ${err}`)
   }
 }
 
-export { getLocalScenarioList, getScenarioFilePath, loadSimulator, ISimulator }
+export { getLocalScenarioList, getScenarioFilePath, loadSimulator }

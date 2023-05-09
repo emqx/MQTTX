@@ -80,7 +80,7 @@ const parseVariadicOfBooleanType = (value: string, previous: boolean[] | undefin
 
 const checkTopicExists = (topic: string | string[] | undefined, commandType: CommandType) => {
   if (!topic) {
-    if (['pub', 'benchPub', 'simulate', 'sim'].includes(commandType)) {
+    if (['pub', 'benchPub', 'simulate'].includes(commandType)) {
       console.log("error: required option '-t, --topic <TOPIC>' not specified")
     } else if (['sub', 'benchSub'].includes(commandType)) {
       console.log("error: required option '-t, --topic <TOPIC...>' not specified")
@@ -115,7 +115,9 @@ const parseOutputMode = (value: string) => {
 
 const checkScenarioExists = (name?: string, file?: string) => {
   if (!name && !file) {
-    console.log("error: required option '-sc, --scenario <SCENARIO>' or '-f, --file <SCENARIO FILE PATH>' not specified")
+    console.log(
+      "error: required option '-sc, --scenario <SCENARIO>' or '-f, --file <SCENARIO FILE PATH>' not specified",
+    )
     process.exit(1)
   }
   if (name) {

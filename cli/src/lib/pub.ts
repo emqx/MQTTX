@@ -8,7 +8,7 @@ import { Signale, signale, basicLog, benchLog, simulateLog } from '../utils/sign
 import { parseConnectOptions, parsePublishOptions, checkTopicExists, checkScenarioExists } from '../utils/parse'
 import delay from '../utils/delay'
 import { saveConfig, loadConfig } from '../utils/config'
-import { ISimulator, loadSimulator } from '../utils/simulate'
+import { loadSimulator } from '../utils/simulate'
 
 const send = (
   config: boolean | string | undefined,
@@ -121,10 +121,25 @@ const pub = (options: PublishOptions) => {
   }
 }
 
-const multiPub = async (options: BenchPublishOptions | SimulatePubOptions, message?: string | Buffer, simulator?: ISimulator) => {
+const multiPub = async (
+  options: BenchPublishOptions | SimulatePubOptions,
+  message?: string | Buffer,
+  simulator?: Simulator,
+) => {
+  const {
+    save,
+    config,
+    count,
+    interval,
+    messageInterval,
+    hostname,
+    port,
+    topic,
+    clientId,
+    verbose,
+    maximumReconnectTimes,
+  } = options
 
-  const { save, config, count, interval, messageInterval, hostname, port, topic, clientId, verbose, maximumReconnectTimes } = options
-  
   if (simulator) {
     config && (options = loadConfig('simulate', config))
     save && saveConfig('simulate', options)
@@ -154,7 +169,16 @@ const multiPub = async (options: BenchPublishOptions | SimulatePubOptions, messa
   })
 
   if (simulator) {
-    simulateLog.start.pub(config, count, interval, messageInterval, hostname, port, topic, simulator.name || simulator.file)
+    simulateLog.start.pub(
+      config,
+      count,
+      interval,
+      messageInterval,
+      hostname,
+      port,
+      topic,
+      simulator.name || simulator.file,
+    )
   } else if (message) {
     benchLog.start.pub(config, count, interval, messageInterval, hostname, port, topic, message.toString())
   }
@@ -185,28 +209,26 @@ const multiPub = async (options: BenchPublishOptions | SimulatePubOptions, messa
           interactive.success('[%d/%d] - Connected', connectedCount, count)
 
           setInterval(() => {
-            if (simulator) {
-              const { topic, message } = simulator.generator(options as SimulatePubOptions, client.options.clientId)
-              client.connected &&
-              client.publish(topic || topicName, message, pubOpts.opts, (err) => {
-                if (err) {
-                  signale.warn(err)
-                } else {
-                  total += 1
-                  rate += 1
-                }
-              })
-            } else if (message) {
-              client.connected &&
-              client.publish(topicName, message, pubOpts.opts, (err) => {
-                if (err) {
-                  signale.warn(err)
-                } else {
-                  total += 1
-                  rate += 1
-                }
-              })
+            if (!client.connected) {
+              return
             }
+            let publishTopic = topicName
+            let publishMessage = message
+            if (simulator) {
+              const simulationResult = simulator.generator(options as SimulatePubOptions, client.options.clientId)
+              if (simulationResult.topic) {
+                publishTopic = simulationResult.topic
+              }
+              publishMessage = simulationResult.message
+            }
+            client.publish(publishTopic, publishMessage as string, pubOpts.opts, (err) => {
+              if (err) {
+                signale.warn(err)
+              } else {
+                total += 1
+                rate += 1
+              }
+            })
           }, messageInterval)
 
           if (i === count) {

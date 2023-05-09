@@ -9,9 +9,8 @@
     "subscribe"
   ],
   "scripts": {
-    "copy": "cpy '../scripts/scenarios/*.js' './src/scenarios/'",
-    "dev": "npm run copy && tsc -w",
-    "build": "npm run copy && tsc"
+    "dev": "tsc -w",
+    "build": "tsc"
   },
   "main": "./dist/src/index.js",
   "bin": {
@@ -34,6 +33,7 @@
     "yaml": "^2.1.3"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
     "@types/concat-stream": "^2.0.0",
     "@types/node": "^17.0.43",
     "@types/pump": "^1.1.1",
@@ -41,7 +41,6 @@
     "@types/signale": "^1.4.4",
     "@types/split2": "^3.2.1",
     "@types/ws": "^8.5.3",
-    "cpy-cli": "^4.2.0",
     "typescript": "^4.7.3"
   },
   "pkg": {

@@ -1,16 +1,16 @@
-const faker = require('faker')
+import { faker } from '@faker-js/faker'
 
-const dataCache = {}
+const dataCache: Record<string, any> = {}
 
-const generator = function (config, clientId) {
-  // Some fields will not change every time data is generated, so store them according to id 
+const generator = function (config: SimulatePubOptions, clientId: string) {
+  // Some fields will not change every time data is generated, so store them according to id
   if (!dataCache[clientId]) {
     dataCache[clientId] = {
       car_id: faker.vehicle.vin(),
       display_name: faker.name.firstName() + "'s Tesla",
-      model: faker.random.arrayElement(['S', '3', 'X', 'Y']),
+      model: faker.helpers.arrayElement(['S', '3', 'X', 'Y']),
       trim_badging: faker.lorem.word(),
-      exterior_color: faker.commerce.color(),
+      exterior_color: faker.color.human(),
       wheel_type: faker.lorem.word(),
       spoiler_type: faker.lorem.word(),
       geofence: faker.address.city(),
@@ -19,7 +19,7 @@ const generator = function (config, clientId) {
 
   const data = {
     ...dataCache[clientId],
-    state: faker.random.arrayElement(['online', 'asleep', 'charging']),
+    state: faker.helpers.arrayElement(['online', 'asleep', 'charging']),
     since: faker.date.recent().toISOString(),
     healthy: faker.datatype.boolean(),
     version: faker.system.semver(),
@@ -27,7 +27,7 @@ const generator = function (config, clientId) {
     update_version: faker.system.semver(),
     latitude: faker.address.latitude(),
     longitude: faker.address.longitude(),
-    shift_state: faker.random.arrayElement(['D', 'N', 'R', 'P']),
+    shift_state: faker.helpers.arrayElement(['D', 'N', 'R', 'P']),
     power: faker.datatype.number({ min: -10000, max: 10000 }),
     speed: faker.datatype.number({ min: 0, max: 200 }),
     heading: faker.datatype.number({ min: 0, max: 359 }),
@@ -58,7 +58,7 @@ const generator = function (config, clientId) {
     charger_voltage: faker.datatype.number({ min: 220, max: 240 }),
     charge_current_request: faker.datatype.number({ min: 10, max: 50 }),
     charge_current_request_max: faker.datatype.number({ min: 10, max: 50 }),
-    scheduled_charging_start_time: faker.date.between('2023-01-01', '2023-12-31').toISOString(),
+    scheduled_charging_start_time: faker.date.future(7, new Date()).toISOString(),
     time_to_full_charge: faker.datatype.number({ min: 0.5, max: 10, precision: 0.01 }),
     tpms_pressure_fl: faker.datatype.number({ min: 2.0, max: 3.5, precision: 0.1 }),
     tpms_pressure_fr: faker.datatype.number({ min: 2.0, max: 3.5, precision: 0.1 }),
@@ -73,15 +73,9 @@ const generator = function (config, clientId) {
 }
 
 const name = 'tesla'
-const dataType = 'JSON'
+const author = 'EMQX Team'
+const dataFormat = 'JSON'
 const version = '0.0.1'
-const description = 'Simulation to generate Tesla\'s data, reference form https://github.com/adriankumpf/teslamate'
+const description = "Simulation to generate Tesla's data, reference form https://github.com/adriankumpf/teslamate"
 
-module.exports = {
-  generator,
-  name,
-  dataType,
-  version,
-  description,
-}
-
+export { generator, name, author, dataFormat, version, description }

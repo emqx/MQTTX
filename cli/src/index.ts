@@ -525,8 +525,8 @@ export class Commander {
       )
       .action(benchSub)
 
-    this.program.command('simulate')
-      .alias('sim')
+    this.program
+      .command('simulate')
       .description('Publish scenario-specific simulation messages at a custom rate and a number of connections.')
       .option('-sc, --scenario <SCENARIO>', 'the name of the local scenario to simulate')
       .option('-f, --file <SCENARIO FILE PATH>', 'the path of the scenario file')

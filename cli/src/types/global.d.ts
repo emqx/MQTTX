@@ -1,5 +1,5 @@
 declare global {
-  type CommandType = 'conn' | 'pub' | 'sub' | 'benchConn' | 'benchPub' | 'benchSub' | 'simulate' | 'sim'
+  type CommandType = 'conn' | 'pub' | 'sub' | 'benchConn' | 'benchPub' | 'benchSub' | 'simulate'
 
   type MQTTVersion = 3 | 4 | 5
 
@@ -108,11 +108,22 @@ declare global {
 
   interface SimulatePubOptions extends BenchPublishOptions {
     scenario: string
-    count: number
-    interval: number
-    messageInterval: number
-    verbose: boolean
     file: string
+  }
+
+  interface Simulator {
+    name: string
+    file: string
+    realFilePath: string
+    version?: string
+    description?: string
+    generator: (
+      option: SimulatePubOptions,
+      clientId?: string,
+    ) => {
+      topic?: string
+      message: string | Buffer
+    }
   }
 
   type Config = {
@@ -124,6 +135,7 @@ declare global {
       | BenchPublishOptions
       | BenchSubscribeOptions
       | SimulatePubOptions
+      | Simulator
   }
 }
 

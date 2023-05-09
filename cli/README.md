@@ -162,7 +162,7 @@ mqttx --help
 | pub     | Publish a message to a topic                   |
 | sub     | Subscribes to one or multiple topics           |
 | bench   | MQTT Benchmark in performance testing          |
-| simulate \| sim | Simulate publishing scenario-specific MQTT messages |
+| simulate | Simulate publishing scenario-specific MQTT messages |
 
 #### Connect
 
@@ -376,7 +376,7 @@ For simulating MQTT publish message in specific scenarios.
 It has basically the same as the [Publish Benchmark](#publish-benchmark) command options, the following will only list the new or changed options.
 
 ```shell
-mqttx sim --help
+mqttx simulate --help
 ```
 
 | Options                          | Description                             |
@@ -386,6 +386,28 @@ mqttx sim --help
 | -t, --topic <TOPIC... > | the message topic, optional, support %u (username), %c (client id), %i (index),  %sc (scenario) variables, defaults to `mqttx/simulate/%sc/%c` |
 
 One of the `--scenario` and `--file` parameters must be specified, and if both are specified, the `--file` parameter is preferred.
+
+Scenario file example:
+
+```js
+function generator (option, clientId) {
+  return {
+    // topic: 'mqttx/simulate/myScenario/' + clientId,
+    message: JSON.stringify({
+      temp: Math.random() * 10 + 20,
+      hum: Math.random() * 10 + 60,
+    })
+  }
+}
+module.exports = {
+  name: 'myScenario',
+  generator,
+  // author: 'mqttx',
+  // version: '1.0.0',
+  // description: 'my scenario description',
+  // dataFormat: 'JSON'
+}
+```
 
 ## Better Together with EMQX
 
