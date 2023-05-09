@@ -24,7 +24,6 @@
     "compare-versions": "^5.0.1",
     "concat-stream": "^2.0.0",
     "core-js": "^3.26.0",
-    "faker": "^5.5.3",
     "mqtt": "^4.3.7",
     "pump": "^3.0.0",
     "readable-stream": "^3.6.0",

@@ -10,5 +10,5 @@
     "resolveJsonModule": true,
     "types": ["@types/signale"]
   },
-  "include": ["src", "scenarios/*.ts"]
+  "include": ["src"]
 }
