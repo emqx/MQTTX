@@ -117,6 +117,27 @@ const benchLog = {
   },
 }
 
-export { Signale, signale, msgLog, basicLog, benchLog }
+const simulateLog = {
+  start: {
+    pub: (
+      config: boolean | string | undefined,
+      count: number,
+      interval: number,
+      messageInterval: number,
+      host: string,
+      port = 1883,
+      topic: string,
+      scenario: string,
+    ) => {
+      let message = `Start simulation publishing, scenario: ${scenario}, connections: ${count}, req interval: ${interval}ms, message interval: ${messageInterval}ms`
+      if (config) {
+        message += `, host: ${host}, port: ${port}, topic: ${topic}`
+      }
+      signale.info(message)
+    },
+  },
+}
+
+export { Signale, signale, msgLog, basicLog, benchLog, simulateLog }
 
 export default signale

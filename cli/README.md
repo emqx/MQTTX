@@ -134,6 +134,16 @@ mqttx bench sub -c 5000 -t bench/%i
 mqttx bench pub -c 5000 -t bench/%i
 ```
 
+Simulate
+
+```bash
+# Specify a local scenario and start the simulation
+mqttx simulate -sc tesla -c 10
+
+# Specify a scenario file and start the simulation
+mqttx simulate -f <scenario file path> -c 10
+```
+
 ### Help
 
 ```shell
@@ -152,6 +162,7 @@ mqttx --help
 | pub     | Publish a message to a topic                   |
 | sub     | Subscribes to one or multiple topics           |
 | bench   | MQTT Benchmark in performance testing          |
+| simulate | Simulate publishing scenario-specific MQTT messages |
 
 #### Connect
 
@@ -357,6 +368,43 @@ mqttx bench pub --help
 | -v, --verbose                          | print history received messages and rate                                       |
 | ~~-s, --stdin~~                        | ~~read the message body from stdin~~                                           |
 | ~~-M, --multiline~~                    | ~~read lines from stdin as multiple messages~~                                 |
+
+### Simulate
+
+For simulating MQTT publish message in specific scenarios.
+
+It has basically the same as the [Publish Benchmark](#publish-benchmark) command options, the following will only list the new or changed options.
+
+```shell
+mqttx simulate --help
+```
+
+| Options                          | Description                             |
+| ----------------------------- | -------------------------------- |
+| -sc, --scenario <SCENARIO>          | the name of the local scenario to simulate           |
+| -f, --file <SCENARIO FILE PATH> | the path of the scenario file  |
+| -t, --topic <TOPIC... > | the message topic, optional, support %u (username), %c (client id), %i (index),  %sc (scenario) variables, defaults to `mqttx/simulate/%sc/%c` |
+
+One of the `--scenario` and `--file` parameters must be specified, and if both are specified, the `--file` parameter is preferred.
+
+Scenario file example:
+
+```js
+function generator (faker, options) {
+  return {
+    // If no topic is returned, use the topic in the command line parameters
+    // topic: 'mqttx/simulate/myScenario/' + clientId,
+    message: JSON.stringify({
+      temp: faker.datatype.number({ min: 20, max: 80 }),
+      hum: faker.datatype.number({ min: 40, max: 90 }),
+    })
+  }
+}
+module.exports = {
+  name: 'myScenario',
+  generator
+}
+```
 
 ## Better Together with EMQX
 

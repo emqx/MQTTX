@@ -4,10 +4,11 @@ import concat from 'concat-stream'
 import { Writable } from 'readable-stream'
 import split2 from 'split2'
 import { IClientOptions, IClientPublishOptions } from 'mqtt'
-import { Signale, signale, basicLog, benchLog } from '../utils/signale'
-import { parseConnectOptions, parsePublishOptions, checkTopicExists } from '../utils/parse'
+import { Signale, signale, basicLog, benchLog, simulateLog } from '../utils/signale'
+import { parseConnectOptions, parsePublishOptions, checkTopicExists, checkScenarioExists } from '../utils/parse'
 import delay from '../utils/delay'
 import { saveConfig, loadConfig } from '../utils/config'
+import { loadSimulator } from '../utils/simulate'
 
 const send = (
   config: boolean | string | undefined,
@@ -120,24 +121,32 @@ const pub = (options: PublishOptions) => {
   }
 }
 
-const benchPub = async (options: BenchPublishOptions) => {
+const multiPub = async (commandType: CommandType, options: BenchPublishOptions | SimulatePubOptions) => {
   const { save, config } = options
 
-  config && (options = loadConfig('benchPub', config))
+  let simulator: Simulator = {} as Simulator
+  if (commandType === 'simulate') {
+    options = config ? loadConfig('simulate', config) : options
+    save && saveConfig('simulate', options)
 
-  save && saveConfig('benchPub', options)
+    const simulateOptions = options as SimulatePubOptions
+    checkScenarioExists(simulateOptions.scenario, simulateOptions.file)
+    simulator = loadSimulator(simulateOptions.scenario, simulateOptions.file)
+  } else {
+    options = config ? loadConfig('benchPub', config) : options
+    save && saveConfig('benchPub', options)
+  }
 
-  const { count, interval, messageInterval, hostname, port, topic, clientId, verbose, maximumReconnectTimes } = options
+  const { count, interval, messageInterval, hostname, port, topic, clientId, message, verbose, maximumReconnectTimes } =
+    options
 
-  checkTopicExists(topic, 'benchPub')
+  checkTopicExists(topic, commandType)
 
   const connOpts = parseConnectOptions(options, 'pub')
 
   const pubOpts = parsePublishOptions(options)
 
   const { username } = connOpts
-
-  const { message } = pubOpts
 
   let connectedCount = 0
 
@@ -151,7 +160,20 @@ const benchPub = async (options: BenchPublishOptions) => {
     config: { displayLabel: false, displayDate: true, displayTimestamp: true },
   })
 
-  benchLog.start.pub(config, count, interval, messageInterval, hostname, port, topic, message.toString())
+  if (commandType === 'simulate') {
+    simulateLog.start.pub(
+      config,
+      count,
+      interval,
+      messageInterval,
+      hostname,
+      port,
+      topic,
+      simulator.name || simulator.file,
+    )
+  } else if (commandType === 'benchPub') {
+    benchLog.start.pub(config, count, interval, messageInterval, hostname, port, topic, message.toString())
+  }
 
   const connStart = Date.now()
 
@@ -166,6 +188,7 @@ const benchPub = async (options: BenchPublishOptions) => {
 
       let topicName = topic.replaceAll('%i', i.toString()).replaceAll('%c', clientId)
       username && (topicName = topicName.replaceAll('%u', username))
+      simulator && (topicName = topicName.replaceAll('%sc', simulator.name))
 
       const client = mqtt.connect(opts)
 
@@ -178,15 +201,26 @@ const benchPub = async (options: BenchPublishOptions) => {
           interactive.success('[%d/%d] - Connected', connectedCount, count)
 
           setInterval(() => {
-            client.connected &&
-              client.publish(topicName, message, pubOpts.opts, (err) => {
-                if (err) {
-                  signale.warn(err)
-                } else {
-                  total += 1
-                  rate += 1
-                }
-              })
+            if (!client.connected) {
+              return
+            }
+            let publishTopic = topicName
+            let publishMessage = message
+            if (commandType === 'simulate') {
+              const simulationResult = simulator.generator(options as SimulatePubOptions)
+              if (simulationResult.topic) {
+                publishTopic = simulationResult.topic
+              }
+              publishMessage = simulationResult.message
+            }
+            client.publish(publishTopic, publishMessage, pubOpts.opts, (err) => {
+              if (err) {
+                signale.warn(err)
+              } else {
+                total += 1
+                rate += 1
+              }
+            })
           }, messageInterval)
 
           if (i === count) {
@@ -244,6 +278,14 @@ const benchPub = async (options: BenchPublishOptions) => {
   }
 }
 
+const benchPub = async (options: BenchPublishOptions) => {
+  multiPub('benchPub', options)
+}
+
+const simulatePub = async (options: SimulatePubOptions) => {
+  multiPub('simulate', options)
+}
+
 export default pub
 
-export { pub, benchPub }
+export { pub, benchPub, simulatePub }

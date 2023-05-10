@@ -1,5 +1,7 @@
+import { Faker } from '@faker-js/faker'
+
 declare global {
-  type CommandType = 'conn' | 'pub' | 'sub' | 'benchConn' | 'benchPub' | 'benchSub'
+  type CommandType = 'conn' | 'pub' | 'sub' | 'benchConn' | 'benchPub' | 'benchSub' | 'simulate'
 
   type MQTTVersion = 3 | 4 | 5
 
@@ -106,6 +108,23 @@ declare global {
     interval: number
   }
 
+  interface SimulatePubOptions extends BenchPublishOptions {
+    scenario: string
+    file: string
+  }
+
+  interface Simulator {
+    name: string
+    file: string
+    realFilePath: string
+    version?: string
+    description?: string
+    generator: (option: SimulatePubOptions) => {
+      topic?: string
+      message: string | Buffer
+    }
+  }
+
   type Config = {
     [key in CommandType]?:
       | ConnectOptions
@@ -114,6 +133,8 @@ declare global {
       | BenchConnectOptions
       | BenchPublishOptions
       | BenchSubscribeOptions
+      | SimulatePubOptions
+      | Simulator
   }
 }
 
