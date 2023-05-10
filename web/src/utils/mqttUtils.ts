@@ -149,7 +149,7 @@ export const getDefaultRecord = (): ConnectionModel => {
     host: 'broker.emqx.io',
     keepalive: 60,
     connectTimeout: 10,
-    reconnect: false,
+    reconnect: true,
     reconnectPeriod: 4000,
     username: '',
     password: '',
