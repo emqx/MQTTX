@@ -1,3 +1,4 @@
+import { faker } from '@faker-js/faker'
 import * as fs from 'fs'
 import * as path from 'path'
 
@@ -10,7 +11,7 @@ const getLocalScenarioList = function (): string[] {
   // Read the files in the scenario folder
   const files = fs
     .readdirSync(scenarioFolder)
-    .filter((file) => file.endsWith('.js') && !file.startsWith('.'))
+    .filter((file) => file.endsWith('.js'))
     .map((file) => ({
       name: file.replace('.js', ''),
       birthtime: fs.statSync(path.join(scenarioFolder, file)).birthtime.getTime(),
@@ -30,19 +31,10 @@ const getScenarioFilePath = function (file: string): string {
 
 const loadSimulator = function (name?: string, file?: string): Simulator {
   try {
-    let filePath = file ? getScenarioFilePath(file) : path.join(scenarioFolder, `${name}.js`)
+    const filePath = file ? getScenarioFilePath(file) : path.join(scenarioFolder, `${name}.js`)
 
     if (!filePath) {
       throw new Error(`File not found: ${file || name}`)
-    }
-
-    if (file) {
-      const fileName = path.basename(filePath)
-      name = fileName.replace('.js', '')
-      const targetPath = path.join(scenarioFolder, `.tmp_${fileName}`)
-      // Copy the file to the scenario folder to use faker dependencies
-      fs.copyFileSync(filePath, targetPath)
-      filePath = targetPath
     }
 
     const simulatorModule = require(filePath)
@@ -51,12 +43,18 @@ const loadSimulator = function (name?: string, file?: string): Simulator {
       throw new Error('Not a valid simulator module')
     }
 
-    return Object.assign(simulatorModule, {
-      // Use module defined name or the file name as the simulator name
+    // Rewrite generator to auto inject faker
+    const generator = (options: SimulatePubOptions) => {
+      return simulatorModule.generator(faker, options)
+    }
+
+    return {
+      ...simulatorModule,
+      generator,
       name: simulatorModule.name || name,
       file,
       realFilePath: filePath,
-    })
+    } as Simulator
   } catch (err) {
     throw new Error(`Load simulator error: ${err}`)
   }

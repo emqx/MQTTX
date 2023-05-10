@@ -1,9 +1,10 @@
-import { faker } from '@faker-js/faker'
+import { Faker } from '@faker-js/faker'
 
 const dataCache: Record<string, any> = {}
 
-const generator = function (config: SimulatePubOptions, clientId: string) {
+const generator = function (faker: Faker, options: SimulatePubOptions) {
   // Some fields will not change every time data is generated, so store them according to id
+  const { clientId } = options
   if (!dataCache[clientId]) {
     dataCache[clientId] = {
       car_id: faker.vehicle.vin(),

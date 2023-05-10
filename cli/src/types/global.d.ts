@@ -1,3 +1,5 @@
+import { Faker } from '@faker-js/faker'
+
 declare global {
   type CommandType = 'conn' | 'pub' | 'sub' | 'benchConn' | 'benchPub' | 'benchSub' | 'simulate'
 
@@ -117,10 +119,7 @@ declare global {
     realFilePath: string
     version?: string
     description?: string
-    generator: (
-      option: SimulatePubOptions,
-      clientId?: string,
-    ) => {
+    generator: (option: SimulatePubOptions) => {
       topic?: string
       message: string | Buffer
     }
