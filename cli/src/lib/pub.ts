@@ -121,11 +121,7 @@ const pub = (options: PublishOptions) => {
   }
 }
 
-const multiPub = async (
-  options: BenchPublishOptions | SimulatePubOptions,
-  commandType: CommandType,
-  message?: string | Buffer,
-) => {
+const multiPub = async (commandType: CommandType, options: BenchPublishOptions | SimulatePubOptions) => {
   const { save, config } = options
 
   let simulator: Simulator = {} as Simulator
@@ -141,7 +137,8 @@ const multiPub = async (
     save && saveConfig('benchPub', options)
   }
 
-  const { count, interval, messageInterval, hostname, port, topic, clientId, verbose, maximumReconnectTimes } = options
+  const { count, interval, messageInterval, hostname, port, topic, clientId, message, verbose, maximumReconnectTimes } =
+    options
 
   checkTopicExists(topic, commandType)
 
@@ -174,7 +171,7 @@ const multiPub = async (
       topic,
       simulator.name || simulator.file,
     )
-  } else if (message) {
+  } else if (commandType === 'benchPub') {
     benchLog.start.pub(config, count, interval, messageInterval, hostname, port, topic, message.toString())
   }
 
@@ -216,7 +213,7 @@ const multiPub = async (
               }
               publishMessage = simulationResult.message
             }
-            client.publish(publishTopic, publishMessage as string, pubOpts.opts, (err) => {
+            client.publish(publishTopic, publishMessage, pubOpts.opts, (err) => {
               if (err) {
                 signale.warn(err)
               } else {
@@ -282,11 +279,11 @@ const multiPub = async (
 }
 
 const benchPub = async (options: BenchPublishOptions) => {
-  multiPub(options, 'benchPub', options.message)
+  multiPub('benchPub', options)
 }
 
 const simulatePub = async (options: SimulatePubOptions) => {
-  multiPub(options, 'simulate')
+  multiPub('simulate', options)
 }
 
 export default pub
