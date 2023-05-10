@@ -393,19 +393,19 @@ mqttx simulate --help
 <!-- TODO 在文档中补充更详细的信息并链接到文档。 -->
 
 ```js
-function generator (option, clientId) {
+function generator (faker, options) {
   return {
     // 没有返回 topic 时，使用命令行参数中的 topic
     // topic: 'mqttx/simulate/myScenario/' + clientId,
     message: JSON.stringify({
-      temp: Math.random() * 10 + 20,
-      hum: Math.random() * 10 + 60,
+      temp: faker.datatype.number({ min: 20, max: 80 }),
+      hum: faker.datatype.number({ min: 40, max: 90 }),
     })
   }
 }
 module.exports = {
   name: 'myScenario',
-  generator,
+  generator
 }
 ```
 

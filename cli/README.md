@@ -390,19 +390,19 @@ One of the `--scenario` and `--file` parameters must be specified, and if both a
 Scenario file example:
 
 ```js
-function generator (option, clientId) {
+function generator (faker, options) {
   return {
     // If no topic is returned, use the topic in the command line parameters
     // topic: 'mqttx/simulate/myScenario/' + clientId,
     message: JSON.stringify({
-      temp: Math.random() * 10 + 20,
-      hum: Math.random() * 10 + 60,
+      temp: faker.datatype.number({ min: 20, max: 80 }),
+      hum: faker.datatype.number({ min: 40, max: 90 }),
     })
   }
 }
 module.exports = {
   name: 'myScenario',
-  generator,
+  generator
 }
 ```
 
