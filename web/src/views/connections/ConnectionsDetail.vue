@@ -49,7 +49,7 @@
               :content="$t('common.config')"
             >
               <a
-                :class="['edit-btn', { disabled: client.connected }]"
+                :class="['edit-btn', { disabled: client.connected || connectLoading }]"
                 href="javascript:;"
                 @click="handleEdit($route.params.id)"
               >
@@ -535,7 +535,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private handleEdit(id: string): boolean | void {
-    if (this.client.connected) {
+    if (this.client.connected || this.connectLoading) {
       return false
     }
     this.$router.push({
