@@ -37,6 +37,10 @@ const loadSimulator = function (name?: string, file?: string): Simulator {
       throw new Error(`File not found: ${file || name}`)
     }
 
+    if (path.extname(filePath) !== '.js') {
+      throw new Error(`Invalid file type: ${filePath}. Only .js files are allowed.`)
+    }
+
     const simulatorModule = require(filePath)
 
     if (typeof simulatorModule.generator !== 'function') {
