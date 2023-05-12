@@ -130,9 +130,15 @@ const checkScenarioExists = (name?: string, file?: string) => {
       signale.error(`Scenario ${name} not found in [${scenarioList.join(', ')}]`)
       process.exit(1)
     }
-  } else if (file && !getScenarioFilePath(file)) {
-    signale.error(`Scenario file ${file} not found.`)
-    process.exit(1)
+  } else if (file) {
+    if (!getScenarioFilePath(file)) {
+      signale.error(`Scenario file ${file} not found.`)
+      process.exit(1)
+    }
+    if (!file.endsWith('.js')) {
+      signale.error(`Scenario file ${file} is not a JavaScript file.`)
+      process.exit(1)
+    }
   }
 }
 
