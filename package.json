@@ -52,7 +52,7 @@
     "typedi": "^0.8.0",
     "typeorm": "^0.2.34",
     "typeorm-typedi-extensions": "^0.2.3",
-    "vm2": "^3.9.17",
+    "vm2": "^3.9.18",
     "vue": "^2.6.12",
     "vue-class-component": "^7.0.2",
     "vue-click-outside": "^1.1.0",
