@@ -382,30 +382,36 @@ mqttx simulate --help
 
 | 参数                          | 描述                             |
 | ----------------------------- | -------------------------------- |
-| -sc, --scenario <SCENARIO>          | 本地的模拟场景名称           |
-| -f, --file <SCENARIO FILE PATH> | 指定模拟场景文件  |
-| -t, --topic <TOPIC...>                 | 需要发布的 Topic, 可选, 支持 %u (用户名), %c (客户端 ID), %i (索引) 占位符,  %sc (场景) 占位符, 默认为 `mqttx/simulate/%sc/%c` |
+| -sc, --scenario <SCENARIO>          | 模拟内置场景的名称          |
+| -f, --file <SCENARIO FILE PATH> | 本地自定义场景脚本的文件路径  |
+| -t, --topic <TOPIC...>                 | 需要发布的消息主题, 可选, 支持 %u (用户名), %c (客户端 ID), %i (索引) 占位符,  %sc (场景) 占位符, 默认为 `mqttx/simulate/%sc/%c` |
 
 `--scenario` 与 `--file` 参数必须指定一个，如果同时指定，优先使用 `--file` 参数。
 
-模拟场景文件示例:
+自定义物联网数据模拟脚本示例：
 
 <!-- TODO 在文档中补充更详细的信息并链接到文档。 -->
 
 ```js
+/**
+ * MQTTX 场景文件示例
+ * 
+ * 此脚本生成随机的温度和湿度数据。
+ */
 function generator (faker, options) {
   return {
-    // 没有返回 topic 时，使用命令行参数中的 topic
-    // topic: 'mqttx/simulate/myScenario/' + clientId,
+    // 如果没有返回主题，则使用命令行参数中的主题。
+    // 主题格式：'mqttx/simulate/myScenario/' + clientId,
     message: JSON.stringify({
-      temp: faker.datatype.number({ min: 20, max: 80 }),
-      hum: faker.datatype.number({ min: 40, max: 90 }),
+      temp: faker.datatype.number({ min: 20, max: 80 }),  // 在 20 到 80 之间生成随机温度。
+      hum: faker.datatype.number({ min: 40, max: 90 }),   // 在 40 到 90 之间生成随机湿度。
     })
   }
 }
+// 导出场景模块
 module.exports = {
-  name: 'myScenario',
-  generator
+  name: 'myScenario',  // 场景名称
+  generator,          // 生成器函数
 }
 ```
 

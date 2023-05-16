@@ -528,8 +528,8 @@ export class Commander {
     this.program
       .command('simulate')
       .description('Publish scenario-specific simulation messages at a custom rate and a number of connections.')
-      .option('-sc, --scenario <SCENARIO>', 'the name of the local scenario to simulate')
-      .option('-f, --file <SCENARIO FILE PATH>', 'the path of the scenario file')
+      .option('-sc, --scenario <SCENARIO>', 'the name of the built-in scenario to execute')
+      .option('-f, --file <SCENARIO FILE PATH>', 'the path of the custom script file to simulate')
       .option('-c, --count <NUMBER>', 'the number of connections', parseNumber, 1000)
       .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
       .option('-im, --message-interval <MILLISECONDS>', 'interval of publishing messages', parseNumber, 1000)

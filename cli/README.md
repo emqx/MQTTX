@@ -379,28 +379,34 @@ mqttx simulate --help
 
 | Options                          | Description                             |
 | ----------------------------- | -------------------------------- |
-| -sc, --scenario <SCENARIO>          | the name of the local scenario to simulate           |
-| -f, --file <SCENARIO FILE PATH> | the path of the scenario file  |
-| -t, --topic <TOPIC... > | the message topic, optional, support %u (username), %c (client id), %i (index),  %sc (scenario) variables, defaults to `mqttx/simulate/%sc/%c` |
+| -sc, --scenario <SCENARIO>          | the name of the built-in scenario to simulate           |
+| -f, --file <SCENARIO FILE PATH> | file path of a local custom scenario script  |
+| -t, --topic <TOPIC... > | the message topic, optional, supports variables such as %u (username), %c (client id), %i (index), %sc (scenario). Default topic format is `mqttx/simulate/%sc/%c` |
 
 One of the `--scenario` and `--file` parameters must be specified, and if both are specified, the `--file` parameter is preferred.
 
-Scenario file example:
+Custom IoT Data Simulation Script Example::
 
 ```js
+/**
+ * MQTTX Scenario file example
+ * 
+ * This script generates random temperature and humidity data.
+ */
 function generator (faker, options) {
   return {
-    // If no topic is returned, use the topic in the command line parameters
-    // topic: 'mqttx/simulate/myScenario/' + clientId,
+    // If no topic is returned, use the topic in the command line parameters.
+    // Topic format: 'mqttx/simulate/myScenario/' + clientId,
     message: JSON.stringify({
-      temp: faker.datatype.number({ min: 20, max: 80 }),
-      hum: faker.datatype.number({ min: 40, max: 90 }),
+      temp: faker.datatype.number({ min: 20, max: 80 }),  // Generate a random temperature between 20 and 80.
+      hum: faker.datatype.number({ min: 40, max: 90 }),   // Generate a random humidity between 40 and 90.
     })
   }
 }
+// Export the scenario module
 module.exports = {
-  name: 'myScenario',
-  generator
+  name: 'myScenario',  // Name of the scenario
+  generator,          // Generator function
 }
 ```
 
