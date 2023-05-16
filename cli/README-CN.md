@@ -415,6 +415,8 @@ module.exports = {
 }
 ```
 
+对于更多示例和详细的编辑指南，请参考 MQTTX GitHub 仓库中的[脚本示例](https://github.com/emqx/MQTTX/tree/main/scripts-example/IoT-data-scenarios)，或查看如何使用 [faker.js](https://fakerjs.dev/) 来生成各种类型的随机数据。
+
 ## 与 EMQX 更好的合作
 
 MQTTX 为连接测试 EMQX 等 MQTT 消息服务器而生，一键式的连接方式和简洁的图形界面可以帮助您快速连接到 EMQX 或 EMQX Cloud 调试并探索其功能特性。
