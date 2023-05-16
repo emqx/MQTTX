@@ -135,7 +135,7 @@ mqttx bench pub -c 5000 -t bench/%i
 Simulate
 
 ```bash
-# Specify a local scenario and start the simulation
+# Specify a built-in local scenario and start the simulation
 mqttx simulate -sc tesla -c 10
 
 # Specify a scenario file and start the simulation
@@ -409,6 +409,8 @@ module.exports = {
   generator,          // Generator function
 }
 ```
+
+For more examples and detailed editing guides, please refer to the [scripts-example](https://github.com/emqx/MQTTX/tree/main/scripts-example/IoT-data-scenarios) in the MQTTX GitHub repository, or see how to use [faker.js](https://fakerjs.dev/) to generate various types of random data.
 
 ## Better Together with EMQX
 
