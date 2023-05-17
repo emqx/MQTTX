@@ -136,6 +136,10 @@ declare global {
       | SimulatePubOptions
       | Simulator
   }
+
+  interface LsOptions {
+    scenarios: boolean
+  }
 }
 
 export {}
