@@ -20,6 +20,7 @@
   "dependencies": {
     "axios": "^0.27.2",
     "chalk": "~4.1.2",
+    "cli-table3": "^0.6.3",
     "commander": "^9.3.0",
     "compare-versions": "^5.0.1",
     "concat-stream": "^2.0.0",
@@ -53,6 +54,9 @@
       "node16-win-arm64",
       "node16-alpine-arm64"
     ],
-    "outputPath": "release"
+    "outputPath": "release",
+    "scripts": [
+      "dist/src/scenarios/**/*"
+    ]
   }
 }

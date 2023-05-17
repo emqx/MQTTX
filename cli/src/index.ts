@@ -16,6 +16,7 @@ import {
 import { conn, benchConn } from './lib/conn'
 import { pub, benchPub, simulatePub } from './lib/pub'
 import { sub, benchSub } from './lib/sub'
+import ls from './lib/ls'
 import { version } from '../package.json'
 
 export class Commander {
@@ -622,6 +623,12 @@ export class Commander {
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .action(simulatePub)
+
+    this.program
+      .command('ls')
+      .description('List information based on the provided options.')
+      .option('-sc, --scenarios', 'List all built-in scenarios')
+      .action(ls)
   }
 }
 
