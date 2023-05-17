@@ -143,6 +143,9 @@ mqttx simulate -sc tesla -c 10
 
 # Specify a scenario file and start the simulation
 mqttx simulate -f <scenario file path> -c 10
+
+# List the built-in scenarios
+mqttx ls -sc
 ```
 
 ### 参数介绍
@@ -165,7 +168,7 @@ mqttx --help
 | bench | MQTT 性能测试                    |
 | simulate | MQTT 模拟器 |
 
-#### 连接
+### 连接
 
 ```shell
 mqttx conn --help
@@ -210,7 +213,7 @@ mqttx conn --help
 | --config \[PATH\]                                | 从本地配置文件加载参数，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json |
 | --help                                           | 展示 conn 命令的帮助信息                                       |
 
-#### 订阅
+### 订阅
 
 ```shell
 mqttx sub --help
@@ -265,7 +268,7 @@ mqttx sub --help
 | --config \[PATH\]                                | 从本地配置文件加载参数，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json |
 | --help                                           | 展示 sub 命令的帮助信息                                 |
 
-#### 发布
+### 发布
 
 ```shell
 mqttx pub --help
@@ -325,7 +328,7 @@ mqttx pub --help
 
 ### 性能测试
 
-性能测试命令与普通命令参数基本相同，以下仅列出新增或有变化的参数
+性能测试命令与普通命令参数基本相同，以下仅列出新增或有变化的参数。
 
 #### 连接性能测试
 
@@ -374,7 +377,7 @@ mqttx bench pub --help
 
 用于模拟特定场景下 MQTT 发布消息操作。
 
-模拟器命令与[发布性能测试](#发布性能测试)参数基本相同，以下仅列出新增或有变化的参数
+模拟器命令与[发布性能测试](#发布性能测试)参数基本相同，以下仅列出新增或有变化的参数。
 
 ```shell
 mqttx simulate --help
@@ -416,6 +419,36 @@ module.exports = {
 ```
 
 对于更多示例和详细的编辑指南，请参考 MQTTX GitHub 仓库中的[脚本示例](https://github.com/emqx/MQTTX/tree/main/scripts-example/IoT-data-scenarios)，或查看如何使用 [faker.js](https://fakerjs.dev/) 来生成各种类型的随机数据。
+
+### 列表
+
+`list` 命令提供了可用资源的概览。
+
+> 目前，该命令仅支持列出内置的场景。
+
+```shell
+mqttx list --help
+```
+
+| 参数                          | 描述                             |
+| ----------------------------- | -------------------------------- |
+| -sc, --scenarios | 列出内置的场景 |
+
+#### 内置场景
+
+可以使用 `--scenarios` 选项来显示内置场景的列表。
+
+```shell
+mqttx list --scenarios
+```
+
+这个命令会输出一个表格，显示每个内置场景的名称和描述。如果想在模拟命令中使用其中一个，只需在 `--scenario` 选项中指定场景名称：
+
+```shell
+mqttx simulate --scenario <SCENARIO>
+```
+
+未来，`list` 命令将添加更多选项和功能。敬请期待！
 
 ## 与 EMQX 更好的合作
 
