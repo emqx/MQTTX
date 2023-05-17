@@ -140,6 +140,9 @@ mqttx simulate -sc tesla -c 10
 
 # Specify a scenario file and start the simulation
 mqttx simulate -f <scenario file path> -c 10
+
+# List the built-in scenarios
+mqttx ls -sc
 ```
 
 ### Help
@@ -162,7 +165,7 @@ mqttx --help
 | bench   | MQTT Benchmark in performance testing          |
 | simulate | Simulate publishing scenario-specific MQTT messages |
 
-#### Connect
+### Connect
 
 ```shell
 mqttx conn --help
@@ -207,7 +210,7 @@ mqttx conn --help
 | --config \[PATH\]                                | load the parameters from the local configuration file, which supports json and yaml format, default path is `./mqttx-cli-config.json` |
 | --help                                           | display help for conn command                                                                                                      |
 
-#### Subscribe
+### Subscribe
 
 ```shell
 mqttx sub --help
@@ -262,7 +265,7 @@ mqttx sub --help
 | --config \[PATH\]                                | load the parameters from the local configuration file, which supports json and yaml format, default path is `./mqttx-cli-config.json`              |
 | --help                                           | display help for sub command                                                                                                                    |
 
-#### Publish
+### Publish
 
 ```shell
 mqttx pub --help
@@ -411,6 +414,36 @@ module.exports = {
 ```
 
 For more examples and detailed editing guides, please refer to the [scripts-example](https://github.com/emqx/MQTTX/tree/main/scripts-example/IoT-data-scenarios) in the MQTTX GitHub repository, or see how to use [faker.js](https://fakerjs.dev/) to generate various types of random data.
+
+### List
+
+The `list` command provides an overview of available resources.
+
+> Currently, it supports listing built-in scenarios.
+
+```shell
+mqttx list --help
+```
+
+| Options                          | Description                             |
+| ----------------------------- | -------------------------------- |
+| -sc, --scenarios | list the built-in scenarios |
+
+#### Built-in Scenarios
+
+You can use the `--scenarios` option to display a list of built-in scenarios.
+
+```shell
+mqttx list --scenarios
+```
+
+This command will output a table that shows the name and description of each built-in scenario. If you want to use one of them in the simulate command, simply specify the scenario name in the `--scenario` option:
+
+```shell
+mqttx simulate --scenario <SCENARIO>
+```
+
+More options and features will be added to the `list` command in the future. Stay tuned!
 
 ## Better Together with EMQX
 
