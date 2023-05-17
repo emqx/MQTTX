@@ -207,6 +207,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
             let publishTopic = topicName
             let publishMessage = message
             if (commandType === 'simulate') {
+              options.clientId = opts.clientId || options.clientId
               const simulationResult = simulator.generator(options as SimulatePubOptions)
               if (simulationResult.topic) {
                 publishTopic = simulationResult.topic
