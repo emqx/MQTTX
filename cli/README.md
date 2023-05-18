@@ -116,7 +116,11 @@ mqttx sub -t 'hello' -h 'broker.emqx.io' -p 1883
 Publish
 
 ```shell
+# Publish a single message
 mqttx pub -t 'hello' -h 'broker.emqx.io' -p 1883 -m 'from MQTTX CLI'
+
+# Publish multiple messages (multiline)
+mqttx pub -t 'hello' -h 'broker.emqx.io' -p 1883 -s -M
 ```
 
 Benchmark
