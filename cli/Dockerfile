@@ -1,8 +1,21 @@
-FROM node:16-alpine
+FROM node:16-alpine AS build
 
 WORKDIR /app
+
+COPY package.json yarn.lock ./
+
+RUN yarn --frozen-lockfile
+
 COPY . ./
 
-RUN yarn && yarn build && yarn link
+RUN yarn build
 
-CMD /bin/bash
+FROM node:16-alpine AS runtime
+
+WORKDIR /app
+
+COPY --from=build /app .
+
+RUN yarn link
+
+CMD /bin/ash
