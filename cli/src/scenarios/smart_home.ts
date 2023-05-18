@@ -95,6 +95,6 @@ const name = 'smart_home'
 const author = 'EMQX Team'
 const dataFormat = 'JSON'
 const version = '0.0.1'
-const description = 'Simulation to generate Smart Home data'
+const description = 'Simulation to generate Smart Home data.'
 
 export { generator, name, author, dataFormat, version, description }
