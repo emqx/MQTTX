@@ -2,7 +2,7 @@ import { Faker } from '@faker-js/faker'
 
 const dataCache: Record<string, any> = {}
 
-const generator = function (faker: Faker, options: SimulatePubOptions) {
+const generator = (faker: Faker, options: SimulatePubOptions) => {
   // Some fields will not change every time data is generated, so store them according to id
   const { clientId } = options
   if (!dataCache[clientId]) {

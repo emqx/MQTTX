@@ -61,7 +61,7 @@ const generateRoomData = (faker, roomType) => {
   return baseData
 }
 
-const generator = function (faker, options) {
+const generator = (faker, options) => {
   const { clientId } = options
   if (!dataCache[clientId]) {
     dataCache[clientId] = {

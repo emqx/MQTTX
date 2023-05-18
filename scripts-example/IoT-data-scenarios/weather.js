@@ -51,7 +51,7 @@ function getTimeOfDay() {
   return 'Evening'
 }
 
-const generator = function (faker, options) {
+const generator = (faker, options) => {
   const { clientId } = options
   if (!dataCache[clientId]) {
     dataCache[clientId] = {
@@ -125,4 +125,4 @@ const dataFormat = 'JSON'
 const version = '0.0.1'
 const description = "Simulation to generate advanced weather station's data."
 
-module.export = { generator, name, author, dataFormat, version, description }
+module.exports = { generator, name, author, dataFormat, version, description }

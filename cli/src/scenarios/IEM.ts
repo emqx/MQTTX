@@ -11,7 +11,7 @@ const calculateEnergyConsumption = (faker: Faker, maxPower: number) => {
 const dataCache: Record<string, any> = {}
 let factoryList: { id: string; name: string }[] = []
 
-const generator = function (faker: Faker, options: SimulatePubOptions) {
+const generator = (faker: Faker, options: SimulatePubOptions) => {
   // Some fields will not change every time data is generated, so store them according to id
   const { clientId, count } = options
   // Initialize the factory list

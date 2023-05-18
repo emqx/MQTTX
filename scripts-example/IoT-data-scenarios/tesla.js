@@ -20,7 +20,7 @@
 
 const dataCache = {}
 
-const generator = function (faker, options) {
+const generator = (faker, options) => {
   // Some fields will not change every time data is generated, so store them according to id
   const { clientId } = options
   if (!dataCache[clientId]) {
