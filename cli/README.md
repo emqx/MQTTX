@@ -36,14 +36,14 @@ To install the latest MQTTX CLI stable release on **macOS** using **binary downl
 #### Intel Chip
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.2/mqttx-cli-macos-x64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.3/mqttx-cli-macos-x64
 sudo install ./mqttx-cli-macos-x64 /usr/local/bin/mqttx
 ```
 
 #### Apple Silicon
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.2/mqttx-cli-macos-arm64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.3/mqttx-cli-macos-arm64
 sudo install ./mqttx-cli-macos-arm64 /usr/local/bin/mqttx
 ```
 
@@ -62,14 +62,14 @@ To install the latest MQTTX CLI stable release on **Linux** using **binary downl
 #### x86-64
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.2/mqttx-cli-linux-x64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.3/mqttx-cli-linux-x64
 sudo install ./mqttx-cli-linux-x64 /usr/local/bin/mqttx
 ```
 
 #### ARM64
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.2/mqttx-cli-linux-arm64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.3/mqttx-cli-linux-arm64
 sudo install ./mqttx-cli-linux-arm64 /usr/local/bin/mqttx
 ```
 
