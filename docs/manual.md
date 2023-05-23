@@ -3,7 +3,7 @@
 ## Table of Contents
 
 - [Introduction](#Introduction)
-- [Downloading and installation](#Downloading-and-Installation)
+- [Installation](#Downloading-and-Installation)
 - [Usage](#Usage)
 - [Development Guide](#Development-Guide)
 
