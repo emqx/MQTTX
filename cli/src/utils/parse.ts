@@ -15,8 +15,8 @@ const parseNumber = (value: string) => {
 }
 
 const parseProtocol = (value: string) => {
-  if (!['mqtt', 'mqtts'].includes(value)) {
-    signale.error('Only mqtt and mqtts are supported.')
+  if (!['mqtt', 'mqtts', 'ws', 'wss'].includes(value)) {
+    signale.error('Only mqtt, mqtts, ws and wss are supported.')
     process.exit(1)
   }
   return value
@@ -156,6 +156,7 @@ const parseConnectOptions = (
     username,
     password,
     protocol,
+    path,
     key,
     cert,
     ca,
@@ -190,6 +191,7 @@ const parseConnectOptions = (
     username,
     password,
     protocol,
+    path,
     reconnectPeriod,
   }
 
