@@ -27,7 +27,14 @@ const send = (
       } else {
         basicLog.published()
       }
-      client.end()
+      // FIXME: When using the ws and wss protocols to connect, and QoS is 0, the message may not have been successfully sent when the publish callback is triggered. Therefore, delay closing the connection for 2 seconds.
+      if (['ws', 'wss'].includes(connOpts.protocol ?? '') && pubOpts.opts.qos === 0) {
+        setTimeout(() => {
+          client.end()
+        }, 2000)
+      } else {
+        client.end()
+      }
     })
   })
   client.on('error', (err) => {

@@ -23,6 +23,7 @@ declare global {
     username?: string
     password?: string
     protocol?: Protocol
+    path?: string
     key?: string
     cert?: string
     ca?: string
