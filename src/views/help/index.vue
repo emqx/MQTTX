@@ -1,6 +1,24 @@
 <template>
   <div class="help-view rightbar">
-    <h1 class="titlebar">{{ $t('help.helpMQTT') }}</h1>
+    <div class="help-view-header">
+      <h1 class="titlebar">{{ $t('help.helpMQTT') }}</h1>
+      <el-tooltip
+        v-if="getterLang === 'zh'"
+        placement="bottom"
+        :effect="theme !== 'light' ? 'light' : 'dark'"
+        content="2023 MQTT 协议入门教程"
+      >
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          class="ebook-link"
+          href="https://www.emqx.com/zh/resources/beginners-guide-to-the-mqtt-protocol?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-mqtt-ebook-zh"
+        >
+          下载 MQTT 电子书
+          <span>→</span>
+        </a>
+      </el-tooltip>
+    </div>
     <section class="help-top">
       <div v-for="item in helpTop" :key="item.icon" class="card" @click="goToLink(item.link)">
         <img :src="require(`@/assets/images/help/${item.icon}.png`)" :alt="item.icon" width="24" height="24" />
@@ -245,6 +263,14 @@ export default class Help extends Vue {
   padding: 0 16px;
   > section:not(:last-child) {
     margin-bottom: 64px;
+  }
+  .help-view-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .ebook-link {
+      display: block;
+    }
   }
   .help-top {
     display: grid;
