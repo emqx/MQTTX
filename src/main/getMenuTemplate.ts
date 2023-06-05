@@ -1,5 +1,4 @@
 import { app, shell, BrowserWindow } from 'electron'
-import updateChecker from './updateChecker'
 import translations from '../lang/menu'
 
 const isMac = process.platform === 'darwin'
@@ -35,7 +34,7 @@ const getMenuTemplate = (win: BrowserWindow, lang?: Language): $TSFixed => {
               {
                 label: labels.checkForUpdate,
                 click: () => {
-                  updateChecker(false)
+                  win.webContents.send('clickUpdate')
                 },
               },
               { type: 'separator' },

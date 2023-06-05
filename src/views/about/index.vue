@@ -9,7 +9,7 @@
         <div class="about-content__header">
           <p class="version">{{ $t('common.version') }} v{{ version }}</p>
           <p class="help">
-            <a class="web-link" href="javascript:;" @click="checkUpdate">{{ $t('about.update') }}</a>
+            <a class="web-link" href="javascript:;" @click.prevent.stop.self="checkUpdate">{{ $t('about.update') }}</a>
             <a class="web-link" :href="releasesLink" target="_blank" rel="noopener noreferrer">
               {{ $t('about.releases') }}
             </a>
@@ -128,7 +128,7 @@ export default class About extends Vue {
   }
 
   private checkUpdate(): void {
-    ipcRenderer.send('checkUpdate')
+    ipcRenderer.send('clickUpdate')
   }
 
   private goToLink(url: string) {
