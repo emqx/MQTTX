@@ -3,6 +3,7 @@
     <Leftbar />
     <RouterView />
     <Ipc @setTheme="setTheme" @setLang="setLang" />
+    <Update />
   </div>
 </template>
 
@@ -12,11 +13,13 @@ import { Getter, Action } from 'vuex-class'
 import { remote } from 'electron'
 import Ipc from '@/components/Ipc.vue'
 import Leftbar from '@/components/Leftbar.vue'
+import Update from '@/views/update/index.vue'
 
 @Component({
   components: {
     Ipc,
     Leftbar,
+    Update,
   },
 })
 export default class Home extends Vue {

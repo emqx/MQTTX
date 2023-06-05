@@ -4,7 +4,8 @@ import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { quitAndRenameLogger } from './utils/logger'
-import updateChecker, { createUpdateWindow } from './main/updateChecker'
+import { createUpdateWindow, autoDownload } from './main/updateDownloader'
+import { getCurrentLang } from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
 import saveFile from './main/saveFile'
 import saveExcel from './main/saveExcel'
@@ -12,6 +13,7 @@ import newWindow from './main/newWindow'
 import { onSystemThemeChanged } from './main/systemTheme'
 import useConnection, { initOptionModel } from '@/database/useConnection'
 import useServices from '@/database/useServices'
+import { dialog } from 'electron'
 
 declare const __static: string
 
@@ -49,8 +51,8 @@ function handleIpcMessages() {
       Menu.setApplicationMenu(menu)
     }
   })
-  ipcMain.on('checkUpdate', () => {
-    updateChecker(false)
+  ipcMain.on('clickUpdate', (event: Electron.IpcMainEvent) => {
+    event.sender.send('clickUpdate')
   })
   ipcMain.on('exportData', (event: Electron.IpcMainEvent, ...args: any[]) => {
     const [filename, content, type] = args
@@ -72,6 +74,20 @@ function handleIpcMessages() {
     if (win) {
       event.sender.send('getWindowSize', win.getBounds())
     }
+  })
+  ipcMain.on('startDownloadProgress', (event, updateDetail) => {
+    getCurrentLang().then((lang) => {
+      electronStore.set('isShow', false)
+      autoDownload(event, updateDetail, lang)
+    })
+  })
+  ipcMain.on('showMsg', (event) => {
+    dialog.showMessageBox({
+      type: 'info',
+      title: '',
+      buttons: ['OK'],
+      message: 'There are currently no updates available.',
+    })
   })
 }
 
@@ -154,10 +170,6 @@ async function createWindow() {
     beforeAppQuit()
   })
   handleIpcMessages()
-  if (autoCheckUpdate) {
-    updateChecker()
-  }
-  // updateWindow
   electronStore.get('isShow') && createUpdateWindow()
 }
 
