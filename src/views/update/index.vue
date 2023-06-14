@@ -256,7 +256,7 @@ export default class Update extends Vue {
       color: #00b173;
       font-weight: 500;
       word-break: break-word;
-      pointer-events: none;
+      // pointer-events: none;
     }
     ul {
       list-style: disc;
@@ -288,7 +288,7 @@ export default class Update extends Vue {
       margin: 0 40px;
     }
     blockquote {
-      background-color: #f3f5f7;
+      background-color: transparent;
       border-color: #42b983;
       padding: 0.1rem 1.5rem;
       border-left-width: 0.5rem;
