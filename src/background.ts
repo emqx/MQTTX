@@ -14,6 +14,7 @@ import { onSystemThemeChanged } from './main/systemTheme'
 import useConnection, { initOptionModel } from '@/database/useConnection'
 import useServices from '@/database/useServices'
 import { dialog } from 'electron'
+import version from '@/version'
 
 declare const __static: string
 
@@ -77,7 +78,6 @@ function handleIpcMessages() {
   })
   ipcMain.on('startDownloadProgress', (event, updateDetail) => {
     getCurrentLang().then((lang) => {
-      electronStore.set('isShow', false)
       autoDownload(event, updateDetail, lang)
     })
   })
@@ -170,7 +170,10 @@ async function createWindow() {
     beforeAppQuit()
   })
   handleIpcMessages()
-  electronStore.get('isShow') && createUpdateWindow()
+  if (electronStore.get('isVersion') !== version) {
+    createUpdateWindow()
+    electronStore.set('isVersion', version)
+  }
 }
 
 // This method will be called when Electron has finished

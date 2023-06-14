@@ -25,7 +25,6 @@ export const autoDownload = (event: IpcMainEvent, updateDetail: versionDetail, l
     event.sender.send('downloadProgressPercent', 100)
   })
   ipcMain.on('toQuitAndInstall', () => {
-    electronStore.set('isShow', true)
     autoUpdater.quitAndInstall()
   })
   ipcMain.on('cancelDownload', () => {
@@ -50,5 +49,4 @@ export async function createUpdateWindow() {
   let link: string = 'https://mqttx.app'
   link = language === 'zh' ? `${link}/zh` : link
   updateWindow.loadURL(`${link}/changelogs/v${version}`)
-  electronStore.set('isShow', false)
 }
