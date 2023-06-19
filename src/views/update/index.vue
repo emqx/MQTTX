@@ -10,7 +10,7 @@
       center
     >
       <div class="scrollable-content">
-        <div class="text-content" v-html="updateDetail.detail"></div>
+        <div ref='detail_display' class="text-content" v-html="detail" ></div>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button size="small" class="update-button left-button" @click="ignoreUpdate">{{
@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Ref, Vue, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import { updateChecker, versionDetail } from '@/main/updateChecker'
 import { ipcRenderer } from 'electron'
@@ -64,17 +64,38 @@ export default class Update extends Vue {
   @Getter('currentTheme') private theme!: Theme
   @Getter('currentLang') private getterLang!: Language
   @Getter('autoCheck') private autoCheck!: boolean
+  @Ref('detail_display') private detail_display:HTMLDivElement
   private showDialog: boolean = false
   private progressVisible: boolean = false
-  private updateDetail: versionDetail = {
-    version: '',
-    detail: '',
-  }
+  private version:string = ''
+  private detail:string = ''
   private progress: number = 0
   private downloaded: boolean = false
 
+  private goToLink(url: string) {
+    const windowUrl = window.open(url)
+    if (windowUrl) {
+      windowUrl.opener = null
+    }
+  }
+
+  private handleATags(){
+    this.$nextTick(
+      ()=>{
+        const aTags = this.detail_display.getElementsByTagName('a')
+        for(let a of aTags){
+          a.onclick =  (e) =>{
+            e.preventDefault()
+            this.goToLink(a.href)
+            return false;
+        }
+        }
+      }
+    )
+}
+
   private ignoreUpdate() {
-    electronStore.set('isIgnore', this.updateDetail.version)
+    electronStore.set('isIgnore', this.version)
     this.showDialog = false
   }
 
@@ -84,8 +105,8 @@ export default class Update extends Vue {
 
   private toUpdate() {
     this.showDialog = false
-    ipcRenderer.send('startDownloadProgress', this.updateDetail)
-    ipcRenderer.on('downloadProgressPercent', (event, percent) => {
+    ipcRenderer.send('startDownloadProgress', {version:this.version,detail:this.detail})
+    ipcRenderer.on('downloadProgressPercent', (_, percent) => {
       let num = Math.trunc(percent)
       if (num > this.progress) {
         this.progress = num
@@ -111,9 +132,10 @@ export default class Update extends Vue {
   private async updateCheck(auto: boolean) {
     let res = await updateChecker(auto)
     if (res && typeof res !== 'boolean') {
-      this.updateDetail.detail = res.detail
-      this.updateDetail.version = res.version
+      this.detail = res.detail
+      this.version = res.version
       this.showDialog = true
+      this.handleATags()
     } else if (!auto) {
       ipcRenderer.send('showMsg')
     }
@@ -127,6 +149,7 @@ export default class Update extends Vue {
       await this.updateCheck(true)
     }
   }
+
 }
 </script>
 
@@ -216,10 +239,11 @@ export default class Update extends Vue {
     }
     code {
       font-family: source-code-pro, Menlo, Monaco, Consolas, Courier New, monospace;
-      color: #476582;
+      color: var(--color-main-green);
       padding: 0.25rem 0.5rem;
       margin: 0;
       font-size: 0.85em;
+      font-weight: 600;
       background-color: #1b1f230d;
       border-radius: 3px;
     }
