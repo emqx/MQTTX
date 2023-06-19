@@ -22,10 +22,10 @@ export const getCurrentLang = async (): Promise<string> => {
 }
 
 const getUpdateDtail = async (current: string): Promise<versionDetail | null> => {
-  const tagsUrl = 'https://api.github.com/repos/emqx/MQTTX/tags'
+  const tagsUrl = 'https://community-sites.emqx.com/api/v1/all_version?product=MQTTX'
   const tagsRes = await axios.get(tagsUrl)
   if (tagsRes.status === 200) {
-    const tagsList: string[] = tagsRes.data.map((item: any) => item.name)
+    const tagsList: string[] = tagsRes.data.data
     const latestTagsList: string[] = tagsList.slice(0, tagsList.indexOf(current))
     while (latestTagsList.length > 0) {
       const latestVersion = latestTagsList.shift()
