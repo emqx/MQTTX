@@ -64,7 +64,7 @@ export default class Update extends Vue {
   @Getter('currentTheme') private theme!: Theme
   @Getter('currentLang') private getterLang!: Language
   @Getter('autoCheck') private autoCheck!: boolean
-  @Ref('detail_display') private detail_display:HTMLDivElement
+  @Ref('detail_display') private detail_display!:HTMLDivElement 
   private showDialog: boolean = false
   private progressVisible: boolean = false
   private version:string = ''
@@ -165,11 +165,7 @@ export default class Update extends Vue {
     if (this.autoCheck) {
       await this.updateCheck(true)
     }
-        window.onresize = () => {
-      return (() => {
-        this.setDialogSize()
-      })()
-    }
+    window.onresize = () => this.setDialogSize()
   }
 
 }
@@ -300,7 +296,6 @@ export default class Update extends Vue {
       color: #00b173;
       font-weight: 500;
       word-break: break-word;
-      // pointer-events: none;
     }
     ul {
       list-style: disc;
