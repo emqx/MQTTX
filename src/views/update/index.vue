@@ -201,7 +201,7 @@ export default class Update extends Vue {
     h2,
     h3,
     h4 {
-      color: #2c3e50;
+      color: var(--color-text-title);
       line-height: 1.25;
       font-weight: 600;
       margin-top: -3.1rem;
