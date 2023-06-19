@@ -4,13 +4,13 @@
       custom-class="detail-dialog"
       :title="$t('update.updateTitle')"
       :visible.sync="showDialog"
-      width="700px"
+      :width="dialogWidth"
       append-to-body
       modal-append-to-body
       center
     >
-      <div class="scrollable-content">
-        <div ref='detail_display' class="text-content" v-html="detail" ></div>
+      <div class="scrollable-content" :style="{'height':dialogHeight}">
+        <div ref='detail_display' class="text-content" v-html="detail" :style="{'height':contentHeight}"></div>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button size="small" class="update-button left-button" @click="ignoreUpdate">{{
@@ -71,6 +71,9 @@ export default class Update extends Vue {
   private detail:string = ''
   private progress: number = 0
   private downloaded: boolean = false
+  private dialogWidth:string = '900px'
+  private dialogHeight:string = '350px'
+  private contentHeight:string = '170px'
 
   private goToLink(url: string) {
     const windowUrl = window.open(url)
@@ -92,7 +95,21 @@ export default class Update extends Vue {
         }
       }
     )
-}
+  }
+
+  private setDialogSize() {
+    const w = document.body.clientWidth
+    const h = document.body.clientHeight
+    const def_w = 900
+    if (w < def_w) {
+      this.dialogWidth = '100%'
+    } else {
+      this.dialogWidth = def_w + 'px' 
+    }
+
+    this.dialogHeight = String(Math.floor(h*0.5)) + 'px' 
+    this.contentHeight = String(Math.floor(h*0.5) - 180) + 'px' 
+  }
 
   private ignoreUpdate() {
     electronStore.set('isIgnore', this.version)
@@ -148,6 +165,11 @@ export default class Update extends Vue {
     if (this.autoCheck) {
       await this.updateCheck(true)
     }
+        window.onresize = () => {
+      return (() => {
+        this.setDialogSize()
+      })()
+    }
   }
 
 }
@@ -187,12 +209,10 @@ export default class Update extends Vue {
 
 .detail-dialog {
   overflow-y: auto;
-  max-height: 400px;
   .el-dialog__footer {
     text-align: right;
   }
   .scrollable-content {
-    height: 200px;
     overflow-y: auto;
     overflow-x: hidden;
   }
