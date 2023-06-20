@@ -9,8 +9,8 @@
       modal-append-to-body
       center
     >
-      <div class="scrollable-content" :style="{'height':dialogHeight}">
-        <div ref='detail_display' class="text-content" v-html="detail" :style="{'height':contentHeight}"></div>
+      <div class="scrollable-content" :style="{ height: dialogHeight }">
+        <div ref="detail_display" class="text-content" v-html="detail" :style="{ height: contentHeight }"></div>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button size="small" class="update-button left-button" @click="ignoreUpdate">{{
@@ -51,9 +51,9 @@
 </template>
 
 <script lang="ts">
-import { Component, Ref, Vue, Watch } from 'vue-property-decorator'
+import { Component, Ref, Vue } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
-import { updateChecker, versionDetail } from '@/main/updateChecker'
+import { updateChecker } from '@/main/updateChecker'
 import { ipcRenderer } from 'electron'
 
 const Store = require('electron-store')
@@ -64,16 +64,16 @@ export default class Update extends Vue {
   @Getter('currentTheme') private theme!: Theme
   @Getter('currentLang') private getterLang!: Language
   @Getter('autoCheck') private autoCheck!: boolean
-  @Ref('detail_display') private detail_display!:HTMLDivElement 
+  @Ref('detail_display') private detail_display!: HTMLDivElement
   private showDialog: boolean = false
   private progressVisible: boolean = false
-  private version:string = ''
-  private detail:string = ''
+  private version: string = ''
+  private detail: string = ''
   private progress: number = 0
   private downloaded: boolean = false
-  private dialogWidth:string = '900px'
-  private dialogHeight:string = '350px'
-  private contentHeight:string = '170px'
+  private dialogWidth: string = '900px'
+  private dialogHeight: string = '350px'
+  private contentHeight: string = '170px'
 
   private goToLink(url: string) {
     const windowUrl = window.open(url)
@@ -82,33 +82,31 @@ export default class Update extends Vue {
     }
   }
 
-  private handleATags(){
-    this.$nextTick(
-      ()=>{
-        const aTags = this.detail_display.getElementsByTagName('a')
-        for(let a of aTags){
-          a.onclick =  (e) =>{
-            e.preventDefault()
-            this.goToLink(a.href)
-            return false;
-        }
+  private handleATags() {
+    this.$nextTick(() => {
+      const aTags = this.detail_display.getElementsByTagName('a')
+      for (let a of aTags) {
+        a.onclick = (e) => {
+          e.preventDefault()
+          this.goToLink(a.href)
+          return false
         }
       }
-    )
+    })
   }
 
   private setDialogSize() {
-    const w = document.body.clientWidth
-    const h = document.body.clientHeight
-    const def_w = 900
-    if (w < def_w) {
+    const width = document.body.clientWidth
+    const height = document.body.clientHeight
+    const def_width = 900
+    if (width < def_width) {
       this.dialogWidth = '100%'
     } else {
-      this.dialogWidth = def_w + 'px' 
+      this.dialogWidth = def_width + 'px'
     }
 
-    this.dialogHeight = String(Math.floor(h*0.5)) + 'px' 
-    this.contentHeight = String(Math.floor(h*0.5) - 180) + 'px' 
+    this.dialogHeight = String(Math.floor(height * 0.5)) + 'px'
+    this.contentHeight = String(Math.floor(height * 0.5) - 180) + 'px'
   }
 
   private ignoreUpdate() {
@@ -122,7 +120,7 @@ export default class Update extends Vue {
 
   private toUpdate() {
     this.showDialog = false
-    ipcRenderer.send('startDownloadProgress', {version:this.version,detail:this.detail})
+    ipcRenderer.send('startDownloadProgress', { version: this.version, detail: this.detail })
     ipcRenderer.on('downloadProgressPercent', (_, percent) => {
       let num = Math.trunc(percent)
       if (num > this.progress) {
@@ -167,7 +165,6 @@ export default class Update extends Vue {
     }
     window.onresize = () => this.setDialogSize()
   }
-
 }
 </script>
 
