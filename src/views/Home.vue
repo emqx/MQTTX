@@ -18,7 +18,7 @@ import Leftbar from '@/components/Leftbar.vue'
   components: {
     Ipc,
     Leftbar,
-    Update:() => import("@/views/update/index.vue"),
+    Update: () => import('@/views/update/index.vue'),
   },
 })
 export default class Home extends Vue {
