@@ -8,7 +8,13 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class App extends Vue {}
+export default class App extends Vue {
+  private created() {
+    window.addEventListener('contextmenu', (e) => {
+      e.preventDefault()
+    })
+  }
+}
 </script>
 
 <style lang="scss">
