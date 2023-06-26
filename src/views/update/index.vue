@@ -5,12 +5,12 @@
       :title="$t('update.updateTitle')"
       :visible.sync="showDialog"
       :width="dialogWidth"
+      :close-on-click-modal="false"
       append-to-body
-      modal-append-to-body
       center
     >
       <div class="scrollable-content" :style="{ height: dialogHeight }">
-        <div ref="detail_display" class="text-content" v-html="detail" :style="{ height: contentHeight }"></div>
+        <div ref="detail_display" class="text-content" v-html="detail"></div>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button size="small" class="update-button left-button" @click="ignoreUpdate">{{
@@ -73,7 +73,6 @@ export default class Update extends Vue {
   private downloaded: boolean = false
   private dialogWidth: string = '900px'
   private dialogHeight: string = '350px'
-  private contentHeight: string = '170px'
 
   private goToLink(url: string) {
     const windowUrl = window.open(url)
@@ -106,7 +105,6 @@ export default class Update extends Vue {
     }
 
     this.dialogHeight = String(Math.floor(height * 0.5)) + 'px'
-    this.contentHeight = String(Math.floor(height * 0.5) - 180) + 'px'
   }
 
   private ignoreUpdate() {
@@ -196,7 +194,7 @@ export default class Update extends Vue {
     }
   }
   .update-button {
-    border-radius: 8px;
+    border-radius: 4px;
   }
 }
 
@@ -220,14 +218,9 @@ export default class Update extends Vue {
     }
     h1 {
       font-size: 2.2rem;
-      &:first-child {
-        margin-top: 0;
-        padding-top: 0;
-      }
     }
     h2 {
       font-size: 1.65rem;
-      padding-bottom: 0.3rem;
       border-bottom: 1px solid #eaecef;
     }
     h3 {
@@ -238,17 +231,19 @@ export default class Update extends Vue {
     h3,
     h4 {
       color: var(--color-text-title);
-      line-height: 1.25;
+      line-height: 1;
       font-weight: 600;
-      margin-top: -3.1rem;
-      padding-top: 4.6rem;
-      margin-bottom: 0;
+    }
+    p {
+      margin-top: 1rem;
     }
     ol,
-    p,
     ul {
-      line-height: 1.4;
-      margin: 1rem 0;
+      margin: 0;
+      padding: 0;
+      li {
+        line-height: 1;
+      }
     }
     code {
       font-family: source-code-pro, Menlo, Monaco, Consolas, Courier New, monospace;
@@ -304,7 +299,6 @@ export default class Update extends Vue {
     }
     table {
       border-collapse: collapse;
-      margin: 1rem 0;
       display: block;
       overflow-x: auto;
     }
@@ -321,7 +315,7 @@ export default class Update extends Vue {
     }
 
     article {
-      margin: 0 40px;
+      margin: 0 20px;
     }
     blockquote {
       background-color: transparent;
@@ -329,7 +323,7 @@ export default class Update extends Vue {
       padding: 0.1rem 1.5rem;
       border-left-width: 0.5rem;
       border-left-style: solid;
-      margin: 1rem 0;
+      margin: 0;
     }
     .language-css .token.string,
     .style .token.string,
