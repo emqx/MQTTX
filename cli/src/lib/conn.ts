@@ -86,7 +86,7 @@ const benchConn = async (options: BenchConnectOptions) => {
         if (isNewConnArray[i - 1]) {
           interactive.success('[%d/%d] - Connected', connectedCount, count)
 
-          if (i === count) {
+          if (connectedCount === count) {
             const end = Date.now()
             signale.info(`Done, total time: ${(end - start) / 1000}s`)
           }

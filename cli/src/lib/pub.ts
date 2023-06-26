@@ -231,7 +231,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
             })
           }, messageInterval)
 
-          if (i === count) {
+          if (connectedCount === count) {
             const connEnd = Date.now()
 
             signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)

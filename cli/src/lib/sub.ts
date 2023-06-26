@@ -186,7 +186,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
                 }
               })
 
-              if (i === count && topic[topic.length - 1] === t) {
+              if (connectedCount === count && topic[topic.length - 1] === t) {
                 const connEnd = Date.now()
 
                 signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
