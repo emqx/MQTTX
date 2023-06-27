@@ -18,6 +18,7 @@ const send = (
     message: string | Buffer
     protobufPath: string | undefined
     protobufMessageName: string | undefined
+    protobufFormat: FormatType | undefined
     opts: IClientPublishOptions
   },
 ) => {
@@ -25,10 +26,10 @@ const send = (
   basicLog.connecting(config, connOpts.hostname!, connOpts.port, pubOpts.topic, pubOpts.message.toString())
   client.on('connect', () => {
     basicLog.connected()
-    const { topic, message, protobufPath, protobufMessageName } = pubOpts
+    const { topic, message, protobufPath, protobufMessageName, protobufFormat } = pubOpts
     basicLog.publishing()
 
-    let bufferMessage = serializeProtobufToBuffer(message, protobufPath, protobufMessageName)
+    let bufferMessage = serializeProtobufToBuffer(message, protobufPath, protobufMessageName, protobufFormat)
     client.publish(topic, bufferMessage, pubOpts.opts, (err) => {
       if (err) {
         signale.warn(err)
@@ -59,6 +60,7 @@ const multisend = (
     message: string | Buffer
     protobufPath: string | undefined
     protobufMessageName: string | undefined
+    protobufFormat: FormatType | undefined
     opts: IClientPublishOptions
   },
   maximumReconnectTimes: number,
@@ -71,9 +73,9 @@ const multisend = (
     objectMode: true,
   })
   sender._write = (line, _enc, cb) => {
-    const { topic, opts, protobufPath, protobufMessageName } = pubOpts
+    const { topic, opts, protobufPath, protobufMessageName, protobufFormat } = pubOpts
 
-    let bufferMessage = serializeProtobufToBuffer(line.trim(), protobufPath, protobufMessageName)
+    let bufferMessage = serializeProtobufToBuffer(line.trim(), protobufPath, protobufMessageName, protobufFormat)
     client.publish(topic, bufferMessage, opts, cb)
   }
 

@@ -74,6 +74,7 @@ declare global {
     connUserProperties?: Record<string, string | string[]>
     protobufPath?: string
     protobufMessageName?: string
+    protobufFormat?: FormatType
   }
 
   interface SubscribeOptions extends ConnectOptions {
@@ -97,7 +98,10 @@ declare global {
     interval: number
   }
 
-  type OmitPublishOptions = Omit<PublishOptions, 'stdin' | 'multiline' | 'protobufPath' | 'protobufMessageName'>
+  type OmitPublishOptions = Omit<
+    PublishOptions,
+    'stdin' | 'multiline' | 'protobufPath' | 'protobufMessageName' | 'protobufFormat'
+  >
 
   interface BenchPublishOptions extends OmitPublishOptions {
     count: number
