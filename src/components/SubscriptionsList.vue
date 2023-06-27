@@ -25,7 +25,7 @@
             background: `${sub.color}10`,
           }"
           @click="handleClickTopic(sub, index)"
-          @contextmenu="handleContextMenu(sub, $event)"
+          @contextmenu.prevent="handleContextMenu(sub, $event)"
         >
           <div
             :style="{
