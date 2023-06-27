@@ -7,11 +7,15 @@ export const serializeProtobufToBuffer = (
 ): Buffer => {
   let bufferMessage = Buffer.from(raw)
   if (protobufPath && protobufMessageName) {
-    const root = protobuf.loadSync(protobufPath)
-    const MyMessage = root.lookupType(protobufMessageName)
-    const data = MyMessage.create(JSON.parse(raw.toString()))
-    const serializedMessage = MyMessage.encode(data).finish()
-    bufferMessage = Buffer.from(serializedMessage)
+    try {
+      const root = protobuf.loadSync(protobufPath)
+      const Message = root.lookupType(protobufMessageName)
+      const data = Message.create(JSON.parse(raw.toString()))
+      const serializedMessage = Message.encode(data).finish()
+      bufferMessage = Buffer.from(serializedMessage)
+    } catch (err) {
+      console.log(err)
+    }
   }
   return bufferMessage
 }
@@ -20,10 +24,15 @@ export const deserializeBufferToProtobuf = (
   payload: Buffer,
   protobufPath: string | undefined,
   protobufMessageName: string | undefined,
+  to?: FormatType,
 ): any => {
   if (protobufPath && protobufMessageName) {
     const root = protobuf.loadSync(protobufPath)
-    const MyMessage = root.lookupType(protobufMessageName)
-    return MyMessage.decode(payload)
+    const Message = root.lookupType(protobufMessageName)
+    const MessageData = Message.decode(payload)
+    if (to) {
+      return Buffer.from(JSON.stringify(MessageData.toJSON()))
+    }
+    return MessageData
   }
 }
