@@ -26,6 +26,7 @@
     "concat-stream": "^2.0.0",
     "core-js": "^3.26.0",
     "mqtt": "^4.3.7",
+    "protobufjs": "^7.2.3",
     "pump": "^3.0.0",
     "readable-stream": "^3.6.0",
     "signale": "^1.4.0",
