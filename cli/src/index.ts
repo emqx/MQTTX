@@ -192,6 +192,8 @@ export class Commander {
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
+      .option('-Pp, --protobuf-path <PATH>', 'the .proto file that defines the message format of protobuf')
+      .option('-Pmn, --protobuf-message-name <NAME>', 'the name of the protobuf message type')
       .action(pub)
 
     this.program
@@ -280,6 +282,8 @@ export class Commander {
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
+      .option('-Pp, --protobuf-path <PATH>', 'the .proto file that defines the message format of protobuf')
+      .option('-Pmn, --protobuf-message-name <NAME>', 'the name of the protobuf message type')
       .action(sub)
 
     const benchCmd = this.program.command('bench').description('MQTT Benchmark in performance testing.')

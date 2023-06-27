@@ -9,19 +9,27 @@ import { parseConnectOptions, parsePublishOptions, checkTopicExists, checkScenar
 import delay from '../utils/delay'
 import { saveConfig, loadConfig } from '../utils/config'
 import { loadSimulator } from '../utils/simulate'
-
+import { serializeProtobufToBuffer } from '../utils/protobuf'
 const send = (
   config: boolean | string | undefined,
   connOpts: IClientOptions,
-  pubOpts: { topic: string; message: string | Buffer; opts: IClientPublishOptions },
+  pubOpts: {
+    topic: string
+    message: string | Buffer
+    protobufPath: string | undefined
+    protobufMessageName: string | undefined
+    opts: IClientPublishOptions
+  },
 ) => {
   const client = mqtt.connect(connOpts)
   basicLog.connecting(config, connOpts.hostname!, connOpts.port, pubOpts.topic, pubOpts.message.toString())
   client.on('connect', () => {
     basicLog.connected()
-    const { topic, message } = pubOpts
+    const { topic, message, protobufPath, protobufMessageName } = pubOpts
     basicLog.publishing()
-    client.publish(topic, message, pubOpts.opts, (err) => {
+
+    let bufferMessage = serializeProtobufToBuffer(message, protobufPath, protobufMessageName)
+    client.publish(topic, bufferMessage, pubOpts.opts, (err) => {
       if (err) {
         signale.warn(err)
       } else {
@@ -46,7 +54,13 @@ const send = (
 const multisend = (
   config: boolean | string | undefined,
   connOpts: IClientOptions,
-  pubOpts: { topic: string; message: string | Buffer; opts: IClientPublishOptions },
+  pubOpts: {
+    topic: string
+    message: string | Buffer
+    protobufPath: string | undefined
+    protobufMessageName: string | undefined
+    opts: IClientPublishOptions
+  },
   maximumReconnectTimes: number,
 ) => {
   let isNewConnection = true
@@ -57,8 +71,10 @@ const multisend = (
     objectMode: true,
   })
   sender._write = (line, _enc, cb) => {
-    const { topic, opts } = pubOpts
-    client.publish(topic, line.trim(), opts, cb)
+    const { topic, opts, protobufPath, protobufMessageName } = pubOpts
+
+    let bufferMessage = serializeProtobufToBuffer(line.trim(), protobufPath, protobufMessageName)
+    client.publish(topic, bufferMessage, opts, cb)
   }
 
   client.on('connect', () => {

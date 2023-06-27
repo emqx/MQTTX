@@ -72,6 +72,8 @@ declare global {
     subscriptionIdentifier?: number
     contentType?: string
     connUserProperties?: Record<string, string | string[]>
+    protobufPath?: string
+    protobufMessageName?: string
   }
 
   interface SubscribeOptions extends ConnectOptions {
@@ -86,6 +88,8 @@ declare global {
     outputMode?: OutputMode
     verbose: boolean
     connUserProperties?: Record<string, string | string[]>
+    protobufPath?: string
+    protobufMessageName?: string
   }
 
   interface BenchConnectOptions extends ConnectOptions {
@@ -93,7 +97,7 @@ declare global {
     interval: number
   }
 
-  type OmitPublishOptions = Omit<PublishOptions, 'stdin' | 'multiline'>
+  type OmitPublishOptions = Omit<PublishOptions, 'stdin' | 'multiline' | 'protobufPath' | 'protobufMessageName'>
 
   interface BenchPublishOptions extends OmitPublishOptions {
     count: number
@@ -102,7 +106,7 @@ declare global {
     verbose: boolean
   }
 
-  type OmitSubscribeOptions = Omit<SubscribeOptions, 'format' | 'outputMode'>
+  type OmitSubscribeOptions = Omit<SubscribeOptions, 'format' | 'outputMode' | 'protobufPath' | 'protobufMessageName'>
 
   interface BenchSubscribeOptions extends OmitSubscribeOptions {
     count: number

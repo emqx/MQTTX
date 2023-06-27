@@ -4,6 +4,7 @@ import { parseConnectOptions, parseSubscribeOptions, checkTopicExists } from '..
 import delay from '../utils/delay'
 import convertPayload from '../utils/convertPayload'
 import { saveConfig, loadConfig } from '../utils/config'
+import { deserializeBufferToProtobuf } from '../utils/protobuf'
 
 const sub = (options: SubscribeOptions) => {
   const { save, config } = options
@@ -59,13 +60,14 @@ const sub = (options: SubscribeOptions) => {
   })
 
   client.on('message', (topic, payload, packet) => {
-    const { format } = options
+    const { format, protobufPath, protobufMessageName } = options
 
     const msgData: Record<string, unknown>[] = []
 
     options.verbose && msgData.push({ label: 'topic', value: topic })
 
-    msgData.push({ label: 'payload', value: convertPayload(payload, format) })
+    let payloadMessage = deserializeBufferToProtobuf(payload, protobufPath, protobufMessageName)
+    msgData.push({ label: 'payload', value: payloadMessage ? payloadMessage : convertPayload(payload, format) })
 
     packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 
