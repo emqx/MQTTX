@@ -66,8 +66,12 @@ const sub = (options: SubscribeOptions) => {
 
     options.verbose && msgData.push({ label: 'topic', value: topic })
 
-    let payloadMessage = deserializeBufferToProtobuf(payload, protobufPath, protobufMessageName)
-    msgData.push({ label: 'payload', value: payloadMessage ? payloadMessage : convertPayload(payload, format) })
+    let payloadMessage = deserializeBufferToProtobuf(payload, protobufPath, protobufMessageName, format)
+    if (payloadMessage) {
+      msgData.push({ label: 'payload', value: format ? convertPayload(payloadMessage, format) : payloadMessage })
+    } else {
+      msgData.push({ label: 'payload', value: convertPayload(payload, format) })
+    }
 
     packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 
