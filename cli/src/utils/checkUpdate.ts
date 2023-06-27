@@ -6,9 +6,10 @@ import { version } from '../../package.json'
 
 const checkUpdate = async () => {
   try {
-    const { data } = await axios.get('https://api.github.com/repos/emqx/MQTTX/git/refs/tags')
-    if (data?.length) {
-      const latestVersion = data[data.length - 1].ref.replace('refs/tags/v', '')
+    const tagsUrl = 'https://community-sites.emqx.com/api/v1/all_version?product=MQTTX'
+    const tagsRes = await axios.get(tagsUrl)
+    if (tagsRes.status === 200) {
+      const latestVersion = tagsRes.data.data[0].replace('v', '')
       if (compareVersions(latestVersion, version) > 0) {
         console.log(
           chalk.yellow(
