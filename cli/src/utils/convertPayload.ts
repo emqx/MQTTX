@@ -2,7 +2,7 @@ import chalk from 'chalk'
 
 const convertJSON = (value: Buffer) => {
   try {
-    return JSON.parse(value.toString())
+    return JSON.stringify(JSON.parse(value.toString()), null, 2)
   } catch (err) {
     return chalk.red(err)
   }
