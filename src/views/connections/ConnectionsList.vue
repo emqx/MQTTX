@@ -53,7 +53,7 @@
               v-else-if="!data.isCollection"
               class="connection-item"
               @click="handleSelectConnection(data)"
-              @contextmenu="handleContextMenu(data, $event)"
+              @contextmenu.prevent="handleContextMenu(data, $event)"
             >
               <div class="item-left">
                 <div
@@ -96,7 +96,7 @@
               v-else
               class="custom-tree-node-collection"
               @click="handleSelectCollection(data)"
-              @contextmenu="handleCollectionContextMenu($event, data)"
+              @contextmenu.prevent="handleCollectionContextMenu($event, data)"
             >
               <el-tooltip
                 :effect="theme !== 'light' ? 'light' : 'dark'"
