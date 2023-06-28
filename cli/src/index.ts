@@ -53,7 +53,7 @@ export class Commander {
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol, 'mqtt')
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws, or wss', parseProtocol, 'mqtt')
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
@@ -140,12 +140,13 @@ export class Commander {
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
+      .option('-f, --format <TYPE>', 'the format type of the input message, support base64, json, hex', parseFormat)
       .option('-i, --client-id <ID>', 'the client id', getClientId())
       .option('--no-clean', 'set the clean session flag to false', true)
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol, 'mqtt')
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws, or wss', parseProtocol, 'mqtt')
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
@@ -195,9 +196,14 @@ export class Commander {
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
-      .option('-Pp, --protobuf-path <PATH>', 'the .proto file that defines the message format of protobuf')
-      .option('-Pmn, --protobuf-message-name <NAME>', 'the name of the protobuf message type')
-      .option('-f, --format <TYPE>', 'the format type of the input message, support base64, json, hex', parseFormat)
+      .option(
+        '-Pp, --protobuf-path <PATH>',
+        'the path to the .proto file that defines the message format for Protocol Buffers (protobuf)',
+      )
+      .option(
+        '-Pmn, --protobuf-message-name <NAME>',
+        'the name of the protobuf message type (must exist in the .proto file)',
+      )
       .allowUnknownOption(false)
       .action(pub)
 
@@ -237,7 +243,7 @@ export class Commander {
 
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol, 'mqtt')
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws, or wss', parseProtocol, 'mqtt')
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
@@ -287,8 +293,14 @@ export class Commander {
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
-      .option('-Pp, --protobuf-path <PATH>', 'the .proto file that defines the message format of protobuf')
-      .option('-Pmn, --protobuf-message-name <NAME>', 'the name of the protobuf message type')
+      .option(
+        '-Pp, --protobuf-path <PATH>',
+        'the path to the .proto file that defines the message format for Protocol Buffers (protobuf)',
+      )
+      .option(
+        '-Pmn, --protobuf-message-name <NAME>',
+        'the name of the protobuf message type (must exist in the .proto file)',
+      )
       .allowUnknownOption(false)
       .action(sub)
 
@@ -307,7 +319,7 @@ export class Commander {
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol, 'mqtt')
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws, or wss', parseProtocol, 'mqtt')
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
@@ -405,7 +417,7 @@ export class Commander {
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol, 'mqtt')
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws, or wss', parseProtocol, 'mqtt')
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
@@ -492,7 +504,7 @@ export class Commander {
 
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol, 'mqtt')
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws, or wss', parseProtocol, 'mqtt')
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
@@ -592,7 +604,7 @@ export class Commander {
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
       .option('-u, --username <USER>', 'the username')
       .option('-P, --password <PASS>', 'the password')
-      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt or mqtts', parseProtocol, 'mqtt')
+      .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws, or wss', parseProtocol, 'mqtt')
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
