@@ -188,7 +188,8 @@ mqttx conn --help
 | -k, --keepalive <SEC>                            | MQTT 的 Keep Alive，默认为 30                                  |
 | -u, --username <USER>                            | 连接到 MQTT Broker 的用户名                                    |
 | -P, --password <PASS>                            | 连接到 MQTT Broker 的密码                                      |
-| -l, --protocol <PROTO>                           | 连接时的协议，mqtt 或 mqtts，默认为 mqtt                       |
+| -l, --protocol <PROTO>                           | 连接时的协议，支持 mqtt、mqtts、ws、wss，默认为 mqtt              |
+| --path <PATH>                                    | websocket 的路径，默认为 /mqtt                                  |
 | --key <PATH>                                     | key 文件的路径                                                 |
 | --cert <PATH>                                    | cert 文件的路径                                                |
 | --ca                                             | ca 证书的文件路径                                              |
@@ -235,7 +236,8 @@ mqttx sub --help
 | -k, --keepalive <SEC>                            | MQTT 的 Keep Alive，默认为 30                           |
 | -u, --username <USER>                            | 连接到 MQTT Broker 的用户名                             |
 | -P, --password <PASS>                            | 连接到 MQTT Broker 的密码                               |
-| -l, --protocol <PROTO>                           | 连接时的协议，mqtt 或 mqtts，默认为 mqtt                |
+| -l, --protocol <PROTO>                           | 连接时的协议，支持 mqtt、mqtts、ws、wss，默认为 mqtt       |
+| --path <PATH>                                    | websocket 的路径，默认为 /mqtt                          |
 | -nl, --no_local                                  | MQTT 5.0 订阅选项中的 no local 标识                     |
 | -rap, --retain-as-published                      | MQTT 5.0 订阅选项中的 retain as published 标识          |
 | -rh, --retain-handling <0/1/2>                   | MQTT 5.0 订阅选项中的 retain handling 标识              |
@@ -271,6 +273,8 @@ mqttx sub --help
 | --save \[PATH\]                                  | 将参数保存到本地配置文件中，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json |
 | --config \[PATH\]                                | 从本地配置文件加载参数，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json |
 | --help                                           | 展示 sub 命令的帮助信息                                 |
+| -Pp, --protobuf-path <PATH>                      | 定义 Protocol Buffers（protobuf）消息格式的 .proto 文件路径 |
+| -Pmn, --protobuf-message-name <NAME>             | Protobuf 消息类型的名称（必须存在于 .proto 文件中）   |
 
 ### 发布
 
@@ -293,7 +297,9 @@ mqttx pub --help
 | -M, --multiline                                  | 可以通过多行发布多条消息                                     |
 | -u, --username <USER>                            | 连接到 MQTT Broker 的用户名                                  |
 | -P, --password <PASS>                            | 连接到 MQTT Broker 的密码                                    |
-| -l, --protocol <PROTO>                           | 连接时的协议，mqtt 或 mqtts，默认为 mqtt                     |
+| -f, --format <TYPE>                              | 输入消息的格式类型，支持 base64、json 和 hex    |
+| -l, --protocol <PROTO>                           | 连接时的协议，支持 mqtt、mqtts、ws、wss，默认为 mqtt            |
+| --path <PATH>                                    | websocket 的路径，默认为 /mqtt                               |
 | --key <PATH>                                     | key 文件的路径                                               |
 | --cert <PATH>                                    | cert 文件的路径                                              |
 | --ca                                             | ca 证书的文件路径                                            |
@@ -329,6 +335,8 @@ mqttx pub --help
 | --save \[PATH\]                                  | 将参数保存到本地配置文件中，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json |
 | --config \[PATH\]                                | 从本地配置文件加载参数，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json |
 | --help                                           | 展示 pub 命令的帮助信息                                      |
+| -Pp, --protobuf-path <PATH>                      | 定义 Protocol Buffers（protobuf）消息格式的 .proto 文件路径 |
+| -Pmn, --protobuf-message-name <NAME>             | Protobuf 消息类型的名称（必须存在于 .proto 文件中）   |
 
 ### 性能测试
 

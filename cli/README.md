@@ -185,7 +185,8 @@ mqttx conn --help
 | -k, --keepalive <SEC>                            | send a ping every SEC seconds (default: 30)                                                                                        |
 | -u, --username <USER>                            | the username                                                                                                                       |
 | -P, --password <PASS>                            | the password                                                                                                                       |
-| -l, --protocol <PROTO>                           | the protocol to use, mqtt or mqtts (default: mqtt)                                                                                 |
+| -l, --protocol <PROTO>                           | the protocol to use, mqtt, mqtts, ws, or wss (default: mqtt)                                                                       |
+| --path <PATH>                                    | the path of websocket (default: /mqtt)                                                                                             |
 | --key <PATH>                                     | path to the key file                                                                                                               |
 | --cert <PATH>                                    | path to the cert file                                                                                                              |
 | --ca <PATH>                                      | path to the ca certificate                                                                                                         |
@@ -232,7 +233,8 @@ mqttx sub --help
 | -k, --keepalive <SEC>                            | send a ping every SEC seconds (default: 30)                                                                                                     |
 | -u, --username <USER>                            | the username                                                                                                                                    |
 | -P, --password <PASS>                            | the password                                                                                                                                    |
-| -l, --protocol <PROTO>                           | the protocol to use, mqtt or mqtts (default: mqtt)                                                                                              |
+| -l, --protocol <PROTO>                           | the protocol to use, mqtt, mqtts, ws, or wss (default: mqtt)                                                                                    |
+| --path <PATH>                                    | the path of websocket (default: /mqtt)                                                                                                          |
 | -nl, --no_local                                  | the no local MQTT 5.0 flag                                                                                                                      |
 | -rap, --retain-as-published                      | the retain as published MQTT 5.0 flag                                                                                                           |
 | -rh, --retain-handling <0/1/2>                   | the retain handling MQTT 5.0                                                                                                                    |
@@ -268,6 +270,8 @@ mqttx sub --help
 | --save \[PATH\]                                  | save the parameters to the local configuration file, which supports json and yaml format, default path is `./mqttx-cli-config.json`                |
 | --config \[PATH\]                                | load the parameters from the local configuration file, which supports json and yaml format, default path is `./mqttx-cli-config.json`              |
 | --help                                           | display help for sub command                                                                                                                    |
+| -Pp, --protobuf-path <PATH>                      | the path to the .proto file that defines the message format for Protocol Buffers (protobuf) |
+| -Pmn, --protobuf-message-name <NAME>             | the name of the protobuf message type (must exist in the .proto file)  |
 
 ### Publish
 
@@ -290,7 +294,9 @@ mqttx pub --help
 | -M, --multiline                                  | read lines from stdin as multiple messages                                                                                         |
 | -u, --username <USER>                            | the username                                                                                                                       |
 | -P, --password <PASS>                            | the password                                                                                                                       |
-| -l, --protocol <PROTO>                           | the protocol to use, mqtt or mqtts (default: mqtt)                                                                                 |
+| -f, --format <TYPE>                              | the format type of the input message, support base64, json, hex    |
+| -l, --protocol <PROTO>                           | the protocol to use, mqtt, mqtts, ws, or wss (default: mqtt)                                                                       |
+| --path <PATH>                                    | the path of websocket (default: /mqtt)                                                                                             |
 | --key <PATH>                                     | path to the key file                                                                                                               |
 | --cert <PATH>                                    | path to the cert file                                                                                                              |
 | --ca                                             | path to the ca certificate                                                                                                         |
@@ -326,6 +332,8 @@ mqttx pub --help
 | --save \[PATH\]                                  | save the parameters to the local configuration file, which supports json and yaml format, default path is `./mqttx-cli-config.json`   |
 | --config \[PATH\]                                | load the parameters from the local configuration file, which supports json and yaml format, default path is `./mqttx-cli-config.json` |
 | --help                                           | display help for pub command                                                                                                       |
+| -Pp, --protobuf-path <PATH>                      | the path to the .proto file that defines the message format for Protocol Buffers (protobuf) |
+| -Pmn, --protobuf-message-name <NAME>             | the name of the protobuf message type (must exist in the .proto file)  |
 
 ### Benchmark
 
