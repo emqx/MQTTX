@@ -74,7 +74,7 @@ declare global {
     connUserProperties?: Record<string, string | string[]>
     protobufPath?: string
     protobufMessageName?: string
-    protobufFormatType?: FormatType
+    format?: FormatType
   }
 
   interface SubscribeOptions extends ConnectOptions {
@@ -100,7 +100,7 @@ declare global {
 
   type OmitPublishOptions = Omit<
     PublishOptions,
-    'stdin' | 'multiline' | 'protobufPath' | 'protobufMessageName' | 'protobufFormatType'
+    'stdin' | 'multiline' | 'protobufPath' | 'protobufMessageName' | 'format'
   >
 
   interface BenchPublishOptions extends OmitPublishOptions {
