@@ -28,7 +28,6 @@ const send = (
     basicLog.connected()
     const { topic, message, protobufPath, protobufMessageName, protobufFormat } = pubOpts
     basicLog.publishing()
-
     let bufferMessage = serializeProtobufToBuffer(message, protobufPath, protobufMessageName, protobufFormat)
     client.publish(topic, bufferMessage, pubOpts.opts, (err) => {
       if (err) {
