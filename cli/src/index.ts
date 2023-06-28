@@ -197,11 +197,7 @@ export class Commander {
       )
       .option('-Pp, --protobuf-path <PATH>', 'the .proto file that defines the message format of protobuf')
       .option('-Pmn, --protobuf-message-name <NAME>', 'the name of the protobuf message type')
-      .option(
-        '-Pft, --protobuf-format-type <TYPE>',
-        'the format type of message body, support base64, json, hex',
-        parseFormat,
-      )
+      .option('-f, --format <TYPE>', 'the format type of the input message, support base64, json, hex', parseFormat)
       .allowUnknownOption(false)
       .action(pub)
 

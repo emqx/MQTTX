@@ -5,11 +5,13 @@ import { transformPBJSError } from './protobufErrors'
 const convertObject = (raw: string | Buffer, format?: FormatType | undefined) => {
   switch (format) {
     case 'base64':
-      return JSON.parse(Buffer.from(raw.toString('utf-8'), 'base64').toString('utf-8'))
+      return Buffer.from(raw.toString('utf-8'), 'base64').toString('utf-8')
     case 'hex':
-      return JSON.parse(Buffer.from(raw.toString('utf-8').replaceAll(' ', ''), 'hex').toString('utf-8'))
+      return Buffer.from(raw.toString('utf-8').replaceAll(' ', ''), 'hex').toString('utf-8')
+    case 'json':
+      return JSON.stringify(JSON.parse(raw.toString('utf-8')), null, 2)
     default:
-      return JSON.parse(raw.toString('utf-8'))
+      return raw.toString('utf-8')
   }
 }
 
@@ -19,22 +21,29 @@ export const serializeProtobufToBuffer = (
   protobufMessageName: string | undefined,
   format?: FormatType | undefined,
 ): Buffer => {
-  let bufferMessage = Buffer.from(raw)
+  let rawData
+  try {
+    rawData = convertObject(raw, format)
+  } catch (error: unknown) {
+    signale.error(`Message format type error : ${(error as Error).message.split('\n')[0]}`)
+    process.exit(1)
+  }
+
+  let bufferMessage = Buffer.from(rawData)
   if (protobufPath && protobufMessageName) {
     try {
       const root = protobuf.loadSync(protobufPath)
       const Message = root.lookupType(protobufMessageName)
-      const rawData = convertObject(raw, format)
-      const err = Message.verify(rawData)
+      const err = Message.verify(JSON.parse(rawData))
       if (err) {
         signale.error(`Message serialization error: ${err}`)
         process.exit(1)
       }
-      const data = Message.create(rawData)
+      const data = Message.create(JSON.parse(rawData))
       const serializedMessage = Message.encode(data).finish()
       bufferMessage = Buffer.from(serializedMessage)
     } catch (error: unknown) {
-      signale.error(`Message format type error : ${(error as Error).message.split('\n')[0]}`)
+      signale.error(`Message serialization error: ${(error as Error).message.split('\n')[0]}`)
       process.exit(1)
     }
   }

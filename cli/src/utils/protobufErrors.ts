@@ -1,3 +1,6 @@
+/**
+ * @reference https://github.com/spluxx/Protoman/blob/master/src/core/protobuf/pbjsErrors.ts
+ */
 function prepend(msg: string): string {
   return `Message deserialization error: ${msg}`
 }
