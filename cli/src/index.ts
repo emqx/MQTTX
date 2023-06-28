@@ -31,11 +31,13 @@ export class Commander {
       .name('mqttx')
       .description('An MQTT client for the command line')
       .enablePositionalOptions()
+      .allowUnknownOption(false)
       .version(`${version}\nhttps://mqttx.app/changelogs/v${version}`, '-v, --version')
 
     this.program
       .command('check')
       .description('Check for updates.')
+      .allowUnknownOption(false)
       .action(async () => {
         await checkUpdate()
       })
@@ -101,6 +103,7 @@ export class Commander {
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
+      .allowUnknownOption(false)
       .action(conn)
 
     this.program
@@ -195,10 +198,11 @@ export class Commander {
       .option('-Pp, --protobuf-path <PATH>', 'the .proto file that defines the message format of protobuf')
       .option('-Pmn, --protobuf-message-name <NAME>', 'the name of the protobuf message type')
       .option(
-        '-Pf, --protobuf-format <TYPE>',
+        '-Pft, --protobuf-format-type <TYPE>',
         'the format type of message body, support base64, json, hex',
         parseFormat,
       )
+      .allowUnknownOption(false)
       .action(pub)
 
     this.program
@@ -289,6 +293,7 @@ export class Commander {
       )
       .option('-Pp, --protobuf-path <PATH>', 'the .proto file that defines the message format of protobuf')
       .option('-Pmn, --protobuf-message-name <NAME>', 'the name of the protobuf message type')
+      .allowUnknownOption(false)
       .action(sub)
 
     const benchCmd = this.program.command('bench').description('MQTT Benchmark in performance testing.')
@@ -356,6 +361,7 @@ export class Commander {
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
+      .allowUnknownOption(false)
       .action(benchConn)
 
     benchCmd
@@ -453,6 +459,7 @@ export class Commander {
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
+      .allowUnknownOption(false)
       .action(benchPub)
 
     benchCmd
@@ -539,6 +546,7 @@ export class Commander {
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
+      .allowUnknownOption(false)
       .action(benchSub)
 
     this.program
@@ -638,12 +646,14 @@ export class Commander {
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
+      .allowUnknownOption(false)
       .action(simulatePub)
 
     this.program
       .command('ls')
       .description('List information based on the provided options.')
       .option('-sc, --scenarios', 'List all built-in scenarios')
+      .allowUnknownOption(false)
       .action(ls)
   }
 }
