@@ -1,4 +1,5 @@
 import protobuf from 'protobufjs'
+import signale from './signale'
 
 const convertObject = (raw: string | Buffer, format?: FormatType | undefined) => {
   switch (format) {
@@ -25,13 +26,13 @@ export const serializeProtobufToBuffer = (
       const rawData = convertObject(raw, format)
       const err = Message.verify(rawData)
       if (err) {
-        throw Error(err)
+        signale.warn(err)
       }
       const data = Message.create(rawData)
       const serializedMessage = Message.encode(data).finish()
       bufferMessage = Buffer.from(serializedMessage)
-    } catch (err) {
-      console.log(err)
+    } catch (err: unknown) {
+      signale.warn((err as Error).message.split('\n')[0])
     }
   }
   return bufferMessage
@@ -44,12 +45,16 @@ export const deserializeBufferToProtobuf = (
   to?: FormatType,
 ): any => {
   if (protobufPath && protobufMessageName) {
-    const root = protobuf.loadSync(protobufPath)
-    const Message = root.lookupType(protobufMessageName)
-    const MessageData = Message.decode(payload)
-    if (to) {
-      return Buffer.from(JSON.stringify(MessageData.toJSON()))
+    try {
+      const root = protobuf.loadSync(protobufPath)
+      const Message = root.lookupType(protobufMessageName)
+      const MessageData = Message.decode(payload)
+      if (to) {
+        return Buffer.from(JSON.stringify(MessageData.toJSON()))
+      }
+      return MessageData
+    } catch (err: unknown) {
+      signale.warn((err as Error).message.split('\n')[0])
     }
-    return MessageData
   }
 }
