@@ -291,7 +291,7 @@ const parsePublishOptions = (options: PublishOptions) => {
     contentType,
     protobufPath,
     protobufMessageName,
-    protobufFormat,
+    protobufFormatType,
   } = options
 
   const publishOptions: IClientPublishOptions = {
@@ -317,7 +317,7 @@ const parsePublishOptions = (options: PublishOptions) => {
     )
   }
 
-  return { topic, message, protobufPath, protobufMessageName, protobufFormat, opts: publishOptions }
+  return { topic, message, protobufPath, protobufMessageName, protobufFormatType, opts: publishOptions }
 }
 
 const parseSubscribeOptions = (options: SubscribeOptions) => {
