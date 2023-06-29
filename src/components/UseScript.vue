@@ -14,19 +14,34 @@
     <el-form ref="form" label-position="left" label-width="120px">
       <el-row :gutter="20">
         <el-col :span="24">
-          <el-form-item :label="$t('script.scriptName')" prop="currentScriptId">
-            <el-select size="small" v-model="currentScriptId">
-              <el-option v-for="script in scripts" :key="script.id" :value="script.id" :label="script.name">
-              </el-option>
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
           <el-form-item :label="$t('script.applyType')" prop="scriptApply">
             <el-select size="small" v-model="scriptApply">
               <el-option v-for="(apply, index) in applyOption" :key="index" :value="apply.value" :label="apply.label">
               </el-option>
             </el-select>
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="24">
+          <el-form-item :label="$t('script.functionName')" prop="currentFunctionId">
+            <el-select size="small" v-model="currentFunctionId">
+              <el-option v-for="func in functions" :key="func.id" :value="func.id" :label="func.name"> </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="24">
+          <el-form-item :label="$t('script.schemaName')" prop="currentSchemaId">
+            <el-select size="small" v-model="currentSchemaId">
+              <el-option v-for="schema in schemas" :key="schema.id" :value="schema.id" :label="schema.name">
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="24" v-if="currentSchemaId">
+          <el-form-item :label="$t('script.protoName')" prop="currentProtoName">
+            <el-input v-model="currentProtoName" size="mini"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -48,9 +63,12 @@ export default class UseScript extends Vue {
   @Prop({ default: false }) public visible!: boolean
 
   private showDialog: boolean = this.visible
-  private scripts: ScriptModel[] = []
-  private currentScriptId: string = ''
-  private scriptApply: MessageType = 'received'
+  private functions: ScriptModel[] = []
+  private schemas: ScriptModel[] = []
+  private currentFunctionId: string = ''
+  private currentSchemaId: string = ''
+  private currentProtoName: string = ''
+  private scriptApply: MessageType = 'all'
   private applyOption = [
     {
       label: this.$t('connections.all'),
@@ -77,23 +95,34 @@ export default class UseScript extends Vue {
 
   private async loadData() {
     const { scriptService } = useServices()
-    const scripts: ScriptModel[] | [] = (await scriptService.getAll()) ?? []
-    this.scripts = scripts
+    const functions: ScriptModel[] | [] = (await scriptService.getAllFunction()) ?? []
+    const schemas: ScriptModel[] | [] = (await scriptService.getAllSchema()) ?? []
+    this.functions = functions
+    this.schemas = schemas
   }
 
   private resetData() {
+    this.currentFunctionId = ''
+    this.currentSchemaId = ''
+    this.currentProtoName = ''
     this.$emit('update:visible', false)
   }
 
   private async save() {
-    if (!this.currentScriptId) {
+    if (!(this.currentFunctionId || this.currentSchemaId)) {
+      this.$message.warning(this.$tc('script.scriptRequired'))
+      return
+    }
+    if (this.currentSchemaId && !this.currentProtoName) {
+      // TODO:modify warning content
       this.$message.warning(this.$tc('script.scriptRequired'))
       return
     }
     const { scriptService } = useServices()
-    const currentScript = await scriptService.get(this.currentScriptId)
-    if (currentScript) {
-      this.$emit('setScript', currentScript, this.scriptApply)
+    const currentFunction = await scriptService.get(this.currentFunctionId)
+    const currentSchema = await scriptService.get(this.currentSchemaId)
+    if (currentFunction || currentSchema) {
+      this.$emit('setScript', currentFunction, currentSchema, { name: this.currentProtoName }, this.scriptApply)
       this.resetData()
     }
   }

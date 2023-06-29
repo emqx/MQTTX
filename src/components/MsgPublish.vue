@@ -319,7 +319,7 @@ export default class MsgPublish extends Vue {
     if (payload === '') {
       return
     }
-    convertPayload(payload, val, oldVal)
+    convertPayload(payload.toString(), val, oldVal)
       .then((res) => {
         this.msgRecord.payload = res
       })
@@ -506,7 +506,7 @@ export default class MsgPublish extends Vue {
   }
 
   private formatJsonValue() {
-    const jsonValue = validFormatJson(this.msgRecord.payload)
+    const jsonValue = validFormatJson(this.msgRecord.payload.toString())
     if (jsonValue) {
       this.msgRecord.payload = jsonValue
     }

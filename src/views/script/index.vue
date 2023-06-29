@@ -3,16 +3,37 @@
     <h1 class="titlebar">
       {{ $t('script.script') }}
     </h1>
+    <div class="script-view-tabs">
+      <el-tabs v-model="activeTab" type="card" @tab-click="handleTabClick">
+        <el-tab-pane :label="$t('script.functionTab')" name="functionTab"></el-tab-pane>
+        <el-tab-pane :label="$t('script.schemaTab')" name="schemaTab"></el-tab-pane>
+      </el-tabs>
+    </div>
     <div class="script-view-header">
       <div>
+        <el-select
+          class="function-select"
+          :value="currentFunction"
+          size="mini"
+          disabled
+          v-if="activeTab == functionTab"
+        >
+          <el-option v-for="item in functionList" :key="item" :value="item" :label="item"></el-option>
+        </el-select>
+        <el-select class="schema-select" :value="currentSchema" size="mini" disabled v-else>
+          <el-option v-for="item in schemaList" :key="item" :value="item" :label="item"></el-option>
+        </el-select>
         <el-select size="mini" v-model="currentScriptId" @change="handleScriptChange">
-          <el-option v-for="script in scripts" :key="script.id" :value="script.id" :label="script.name"></el-option>
+          <el-option v-for="script in scripts" :key="script.id" :label="script.name" :value="script.id"></el-option>
         </el-select>
         <a v-if="this.currentScriptId" href="javascript:;" @click="handleCreate">
           <i class="iconfont icon-new"></i>
         </a>
       </div>
       <div>
+        <el-button class="upload-btn" size="mini" @click="handleUpload">{{
+          activeTab === functionTab ? $t('script.uploadJs') : $t('script.uploadProto')
+        }}</el-button>
         <el-button class="save-btn" type="primary" size="mini" @click="handleSave">{{ $t('common.save') }}</el-button>
         <el-tooltip
           placement="top"
@@ -43,14 +64,28 @@
       }"
     >
       <Editor
+        v-if="activeTab === functionTab"
         ref="scriptEditor"
         id="script"
-        lang="javascript"
-        v-model="scriptValue"
+        :lang="currentFunction"
+        v-model="editorValue"
         lineNumbers="on"
         :lineNumbersMinChars="5"
         renderHighlight="line"
-        @qucik-save="handleTestFunc"
+        @qucik-save="handleTest"
+      />
+      <Editor
+        v-if="activeTab === schemaTab"
+        ref="scriptEditor"
+        id="script"
+        :lang="currentSchema"
+        :editorTheme="currentSchema"
+        :isCustomerLang="true"
+        v-model="editorValue"
+        lineNumbers="on"
+        :lineNumbersMinChars="5"
+        renderHighlight="line"
+        @qucik-save="handleTest"
       />
     </div>
     <el-row class="script-test-row script-test-input" :gutter="20">
@@ -58,9 +93,7 @@
         <label>{{ $t('script.input') }}</label>
       </el-col>
       <el-col :span="6">
-        <el-button class="test-btn" type="outline" size="mini" @click="handleTestFunc">{{
-          $t('script.test')
-        }}</el-button>
+        <el-button class="test-btn" type="outline" size="mini" @click="handleTest">{{ $t('script.test') }}</el-button>
       </el-col>
     </el-row>
     <div
@@ -80,8 +113,12 @@
     </div>
     <div class="lang-type">
       <el-radio-group v-model="inputType">
-        <el-radio label="JSON">JSON</el-radio>
-        <el-radio label="Plaintext">Plaintext</el-radio>
+        <el-radio
+          v-for="item in activeTab === functionTab ? inputTypeList.slice(0, 2) : inputTypeList"
+          :key="item"
+          :label="item"
+          >{{ item }}</el-radio
+        >
       </el-radio-group>
     </div>
     <el-row class="script-test-row script-test-output" :gutter="20">
@@ -90,9 +127,10 @@
         <el-input v-model="outputValue" type="textarea" rows="4" disabled></el-input>
       </el-col>
     </el-row>
+
     <my-dialog
       :title="$t('script.saveScript')"
-      :visible.sync="showDialog"
+      :visible.sync="showSaveDialog"
       class="save-script"
       width="400px"
       @confirm="save"
@@ -101,8 +139,27 @@
       <el-form ref="form" label-position="left" label-width="120px" :model="record">
         <el-row :gutter="20">
           <el-col :span="24">
-            <el-form-item :label="$t('script.scriptName')" prop="name">
-              <el-input v-model="record.name" size="mini"></el-input>
+            <el-form-item :label="$t('script.functionName')" prop="name">
+              <el-input v-model.trim="record.name" size="mini"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+    </my-dialog>
+
+    <my-dialog
+      :title="$t('script.selectMessageName')"
+      :visible.sync="showProtobufDialog"
+      class="save-script"
+      width="400px"
+      @confirm="handleTestProtobuf"
+      @keyupEnter="handleTestProtobuf"
+    >
+      <el-form ref="form" label-position="left" label-width="120px" :model="record">
+        <el-row :gutter="20">
+          <el-col :span="24">
+            <el-form-item :label="$t('script.protoName')" prop="name">
+              <el-input v-model.trim="messageName" size="mini"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -116,8 +173,11 @@ import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import Editor from '@/components/Editor.vue'
 import MyDialog from '@/components/MyDialog.vue'
-import sandbox from '@/utils/sandbox'
 import useServers from '@/database/useServices'
+import { remote } from 'electron'
+import { readFileSync } from 'fs'
+import path from 'path'
+import { scriptTest } from '@/utils/scriptTest'
 
 @Component({
   components: {
@@ -128,20 +188,46 @@ import useServers from '@/database/useServices'
 export default class Script extends Vue {
   @Getter('currentScript') private scriptOption!: ScriptState | null
   @Getter('currentTheme') private theme!: Theme
-
-  private scriptValue = ''
-  private showDialog = false
-  private inputValue = JSON.stringify({ msg: 'hello' }, null, 2)
-  private outputValue = ''
-  private currentScriptId = ''
+  // tab change
+  private readonly functionTab: 'functionTab' = 'functionTab'
+  private readonly schemaTab: 'schemaTab' = 'schemaTab'
+  private activeTab: 'functionTab' | 'schemaTab' = this.functionTab
+  private activeTabIndex: number = 0
+  // script type
+  private schemaList: SchemaList[] = ['protobuf']
+  private functionList: FunctionList[] = ['javascript']
+  private currentSchema: SchemaList = 'protobuf'
+  private currentFunction: FunctionList = 'javascript'
+  private readonly inputTypeList: PayloadType[] = ['JSON', 'Plaintext', 'Base64', 'Hex']
+  // dialog show
+  private showSaveDialog: boolean = false
+  private showProtobufDialog: boolean = false
+  // page temp cache
+  private editorValue: string = ''
+  private tempEditorValue: string = ''
+  private inputValue: string = ''
+  private tempInputValue: string = ''
+  private outputValue: string = ''
+  private tempOutputValue: string = ''
+  private currentScriptId: string = ''
+  private tempScriptId: string = ''
   private inputType: PayloadType = 'JSON'
+  private tempInputType: PayloadType = 'JSON'
   private editorLang = 'json'
+  // record content
+  private messageName: string = ''
   private record: ScriptModel = {
     name: '',
     script: '',
+    type: undefined,
   }
   private scripts: ScriptModel[] = []
-  private readonly defaultScript = `/**
+  // default value
+  private readonly defaultFunction = {
+    javascript: {
+      extension: 'js',
+      input: JSON.stringify({ msg: 'hello' }, null, 2),
+      content: `/**
 * @description: default script
 * @param {any} value - Payload
 * @param {string} msgType - Message type, value is 'received' or 'publish'
@@ -152,7 +238,21 @@ function handlePayload(value, msgType, index) {
   return value.msg
 }
 
-execute(handlePayload)`
+execute(handlePayload)`,
+    },
+  }
+  private readonly defaultSchema = {
+    protobuf: {
+      extension: 'proto',
+      input: JSON.stringify({ id: 123, name: 'John Doe' }, null, 2),
+      content: `syntax = "proto3";
+
+message Person {
+  int32 id = 1;
+  string name = 2;
+}`,
+    },
+  }
 
   @Watch('inputType')
   handleInputTypeChange(val: PayloadType) {
@@ -160,25 +260,63 @@ execute(handlePayload)`
   }
 
   get inUseScript() {
-    return this.scriptOption?.content?.id === this.currentScriptId
+    return (
+      this.scriptOption?.function?.id === this.currentScriptId || this.scriptOption?.schema?.id === this.currentScriptId
+    )
   }
 
   private created() {
-    this.loadData()
+    this.editorValue = this.defaultFunction[this.currentFunction].content
+    this.tempEditorValue = this.defaultSchema[this.currentSchema].content
+    this.inputValue = this.defaultFunction[this.currentFunction].input
+    this.tempInputValue = this.defaultSchema[this.currentSchema].input
+    this.loadData(true)
   }
 
-  private handleTestFunc() {
-    this.outputValue = sandbox.executeScript(this.scriptValue, this.inputType, this.inputValue, 'publish')
+  private handleTabClick(e: any) {
+    if (e.index != this.activeTabIndex) {
+      // page data exchange
+      ;[this.editorValue, this.tempEditorValue] = [this.tempEditorValue, this.editorValue]
+      ;[this.inputValue, this.tempInputValue] = [this.tempInputValue, this.inputValue]
+      ;[this.inputType, this.tempInputType] = [this.tempInputType, this.inputType]
+      ;[this.outputValue, this.tempOutputValue] = [this.tempOutputValue, this.outputValue]
+      ;[this.currentScriptId, this.tempScriptId] = [this.tempScriptId, this.currentScriptId]
+
+      this.activeTab = e.name
+      this.activeTabIndex = e.index
+      this.scripts = []
+
+      this.loadData()
+    }
+  }
+
+  private async handleTest() {
+    if (this.activeTab === this.functionTab) {
+      if (this.currentFunction === 'javascript') {
+        this.outputValue = await scriptTest(this.editorValue, 'javascript', this.inputValue, this.inputType)
+      }
+    } else {
+      if (this.currentSchema === 'protobuf') {
+        this.showProtobufDialog = true
+      }
+    }
+  }
+
+  private async handleTestProtobuf() {
+    this.outputValue = await scriptTest(this.editorValue, 'protobuf', this.inputValue, this.inputType, {
+      name: this.messageName,
+    })
+    this.showProtobufDialog = false
   }
 
   private async handleSave() {
     if (!this.currentScriptId) {
-      this.showDialog = true
+      this.showSaveDialog = true
     } else {
       const { scriptService } = useServers()
       const currentScript = await scriptService.get(this.currentScriptId)
       if (currentScript) {
-        currentScript.script = this.scriptValue
+        currentScript.script = this.editorValue
         const data = { ...currentScript }
         const res = await scriptService.update(this.currentScriptId, data)
         if (res) {
@@ -188,41 +326,58 @@ execute(handlePayload)`
     }
   }
 
+  private addExtension(name: string) {
+    let ext
+    if (this.activeTab === this.functionTab) {
+      ext = '.' + this.defaultFunction[this.currentFunction].extension
+    } else {
+      ext = '.' + this.defaultSchema[this.currentSchema].extension
+    }
+    if (!name.endsWith(ext)) {
+      name += ext
+    }
+    return name
+  }
+
   private async save() {
+    this.showSaveDialog = false
     if (!this.record.name) {
       this.$message.warning(this.$tc('script.scriptRequired'))
       return
     }
-    this.record.script = this.scriptValue
+    this.record.id = undefined
+    this.record.name = this.addExtension(this.record.name)
+    this.record.script = this.editorValue
+    this.record.type = this.activeTab === this.functionTab ? this.currentFunction : this.currentSchema
     const data = { ...this.record }
     const { scriptService } = useServers()
     const res = await scriptService.create(data)
-    if (res) {
+    if (res && res.id) {
       this.$message.success(this.$tc('common.createSuccess'))
-      this.showDialog = false
       this.record = {
         id: '',
         name: '',
         script: '',
+        type: undefined,
       }
+      this.currentScriptId = res.id
       this.loadData()
     }
   }
 
-  private async loadData(): Promise<void> {
+  private async loadData(first: boolean = false): Promise<void> {
     const { scriptService } = useServers()
-    const scripts: ScriptModel[] | [] = (await scriptService.getAll()) ?? []
-    if (!scripts) return
-    this.scripts = scripts
-    const len = scripts.length
-    const _firstScript: ScriptModel = this.scripts[len - 1]
-    if (_firstScript && _firstScript.id) {
-      this.currentScriptId = _firstScript.id
-      this.scriptValue = _firstScript.script
+    let scripts: ScriptModel[] | [] = []
+    if (this.activeTab === this.functionTab) {
+      scripts = (await scriptService.getAllFunction()) ?? []
+      // TODO:add filter by extension (if more function type)
+      // but if there's no extension, default is '.js'
+      // scripts = script.filter((item) => item.endsWith('.js'))
     } else {
-      this.currentScriptId = ''
-      this.scriptValue = this.defaultScript
+      scripts = (await scriptService.getAllSchema()) ?? []
+      scripts = scripts.filter((item) => item.name.endsWith(`.${this.defaultSchema[this.currentSchema].extension}`))
     }
+    this.scripts = scripts
   }
 
   private async handleDelete() {
@@ -238,6 +393,7 @@ execute(handlePayload)`
           const res: ScriptModel | undefined = await scriptService.delete(this.currentScriptId)
           if (res) {
             this.$message.success(this.$tc('common.deleteSuccess'))
+            this.currentScriptId = ''
             this.loadData()
           }
         })
@@ -249,14 +405,56 @@ execute(handlePayload)`
 
   private handleCreate() {
     this.currentScriptId = ''
-    this.scriptValue = this.defaultScript
+    this.record = {
+      id: undefined,
+      name: '',
+      script: '',
+      type: undefined,
+    }
+    this.editorValue =
+      this.activeTab === this.functionTab
+        ? this.defaultFunction[this.currentFunction].content
+        : this.defaultSchema[this.currentSchema].content
+    this.inputValue =
+      this.activeTab === this.functionTab
+        ? this.defaultFunction[this.currentFunction].input
+        : this.defaultSchema[this.currentSchema].input
+    this.outputValue = ''
   }
 
   private async handleScriptChange(id: string) {
     const { scriptService } = useServers()
     const currentScript = await scriptService.get(id)
     if (currentScript) {
-      this.scriptValue = currentScript.script
+      this.editorValue = currentScript.script
+    }
+  }
+
+  private async handleUpload() {
+    const filePath = remote.dialog.showOpenDialogSync({
+      filters:
+        this.activeTab === this.functionTab
+          ? [
+              {
+                name: `.${this.defaultFunction[this.currentFunction].extension} file`,
+                extensions: [this.defaultFunction[this.currentFunction].extension],
+              },
+            ]
+          : [
+              {
+                name: `.${this.defaultSchema[this.currentSchema].extension} file`,
+                extensions: [this.defaultSchema[this.currentSchema].extension],
+              },
+            ],
+      properties: ['openFile'],
+    })
+    if (filePath && filePath[0]) {
+      this.currentScriptId = ''
+      this.record.name = path.basename(filePath[0])
+      this.record.script = readFileSync(filePath[0], 'utf-8')
+      this.record.type = this.activeTab === this.functionTab ? this.currentFunction : this.currentSchema
+      this.editorValue = this.record.script
+      this.handleSave()
     }
   }
 }
@@ -281,6 +479,11 @@ execute(handlePayload)`
     margin-bottom: 10px;
     .el-select {
       width: 230px;
+      margin-right: 12px;
+    }
+    .function-select,
+    .schema-select {
+      width: 105px;
       margin-right: 12px;
     }
     .icon-new {

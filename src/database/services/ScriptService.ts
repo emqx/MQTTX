@@ -1,7 +1,9 @@
 import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
-import { Repository } from 'typeorm'
+import { In, Not, Repository } from 'typeorm'
 import ScriptEntity from '../models/ScriptEntity'
+
+const schemaArray: SchemaList[] = ['protobuf']
 
 @Service()
 export default class ScriptService {
@@ -18,6 +20,32 @@ export default class ScriptService {
     return (await this.scriptRepository.find()) as ScriptEntity[] | undefined
   }
 
+  public async getAllFunction(): Promise<ScriptModel[] | undefined> {
+    const query: ScriptEntity[] | undefined = await this.scriptRepository.find({
+      where: {
+        // FunctionList
+        type: Not(In(schemaArray)),
+      },
+    })
+    if (!query) {
+      return
+    }
+    return query
+  }
+
+  public async getAllSchema(): Promise<ScriptModel[] | undefined> {
+    const query: ScriptEntity[] | undefined = await this.scriptRepository.find({
+      where: {
+        // SchemaList
+        type: In(schemaArray),
+      },
+    })
+    if (!query) {
+      return
+    }
+    return query
+  }
+
   public async delete(id: string): Promise<ScriptModel | undefined> {
     const query: ScriptEntity | undefined = await this.scriptRepository.findOne(id)
     if (!query) {
@@ -25,6 +53,11 @@ export default class ScriptService {
     }
     await this.scriptRepository.delete(id)
     return query
+  }
+
+  // Only for test
+  public async deleteAll() {
+    await this.scriptRepository.clear()
   }
 
   public async update(id: string, data: ScriptModel): Promise<ScriptModel | undefined> {

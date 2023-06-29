@@ -1,4 +1,18 @@
 export default {
+  functionTab: {
+    zh: '自定义函数',
+    en: 'Function',
+    tr: 'Özel Fonksiyonlar',
+    ja: 'カスタム関数',
+    hu: 'Egyedi függvények',
+  },
+  schemaTab: {
+    zh: '编解码',
+    en: 'Schema',
+    tr: 'Şemalar',
+    ja: 'スキーマ',
+    hu: 'Sémák',
+  },
   script: {
     zh: '脚本',
     en: 'Script',
@@ -6,12 +20,19 @@ export default {
     ja: 'スクリプト',
     hu: 'Script',
   },
-  scriptName: {
-    zh: '脚本名称',
-    en: 'Script name',
-    tr: 'Komut adı',
-    ja: 'スクリプト名',
-    hu: 'Script név',
+  functionName: {
+    zh: '函数',
+    en: 'Function',
+    tr: '',
+    ja: '',
+    hu: '',
+  },
+  schemaName: {
+    zh: '编解码',
+    en: 'Schema',
+    tr: '',
+    ja: '',
+    hu: '',
   },
   test: {
     zh: '测 试',
@@ -89,5 +110,33 @@ export default {
     tr: 'Komut dosyası kullanılıyor',
     ja: 'スクリプトが使用中です',
     hu: 'Script használatban van',
+  },
+  uploadJs: {
+    zh: '导入 .js 文件',
+    en: 'Import .js file',
+    tr: '',
+    ja: '',
+    hu: '',
+  },
+  uploadProto: {
+    zh: '导入 .proto 文件',
+    en: 'Import .proto file',
+    tr: '',
+    ja: '',
+    hu: '',
+  },
+  selectMessageName: {
+    zh: '指定类型名称',
+    en: 'Select message name',
+    tr: '',
+    ja: '',
+    hu: '',
+  },
+  protoName: {
+    zh: '类型名称',
+    en: 'Proto name',
+    tr: '',
+    ja: '',
+    hu: '',
   },
 }

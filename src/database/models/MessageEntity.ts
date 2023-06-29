@@ -15,7 +15,7 @@ export default class MessageEntity {
   out!: boolean
 
   @Column({ type: 'varchar' })
-  payload!: string
+  payload!: string | Buffer
 
   @Column({ type: 'simple-enum', enum: [0, 1, 2], default: 0 })
   qos!: QoS
