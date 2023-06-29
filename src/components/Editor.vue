@@ -12,6 +12,7 @@ import LogEditor from '@/assets/scss/theme/custom/log-editor.json'
 import LogEditorDark from '@/assets/scss/theme/custom/log-editor-dark.json'
 import LogEditorNight from '@/assets/scss/theme/custom/log-editor-night.json'
 import LogEditorRules from '@/assets/scss/theme/custom/log-editor-rules.json'
+import registerProtobuf from 'monaco-proto-lint'
 
 @Component
 export default class Editor extends Vue {
@@ -68,6 +69,10 @@ export default class Editor extends Vue {
 
   // init and register customer editor style
   private initCustomerLanguages() {
+    // Register protobuf language
+    if (this.lang === 'protobuf') {
+      registerProtobuf(monaco)
+    }
     this.registerLog()
   }
 

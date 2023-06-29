@@ -170,12 +170,14 @@ declare global {
     id?: string
     createAt: string
     out: boolean
-    payload: string
+    payload: string | Buffer
     qos: QoS
     retain: boolean
     topic: string
     color?: string
     properties?: PushPropertiesModel
+    function?: string
+    schema?: string
   }
 
   interface MessagePaginationModel {
@@ -328,11 +330,14 @@ declare global {
     id?: string
     name: string
     script: string
+    type?: string | null
   }
 
   interface ScriptState {
     apply: MessageType
-    content: ScriptModel | null
+    function?: ScriptModel | null
+    schema?: ScriptModel | null
+    config?: any
   }
 
   interface SettingModel {
@@ -342,4 +347,8 @@ declare global {
     maxReconnectTimes?: number
     autoResub?: boolean
   }
+
+  type SchemaList = 'protobuf'
+
+  type FunctionList = 'javascript'
 }

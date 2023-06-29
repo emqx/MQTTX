@@ -10,4 +10,7 @@ export default class ScriptEntity {
 
   @Column({ type: 'varchar' })
   script!: string
+
+  @Column({ type: 'varchar' })
+  type?: string | null
 }

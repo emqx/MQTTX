@@ -315,6 +315,7 @@ import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/historyRecordUt
 import useServices from '@/database/useServices'
 import { getMessageId, getSubscriptionId } from '@/utils/idGenerator'
 import getContextmenuPosition from '@/utils/getContextmenuPosition'
+import { deserializeBufferToProtobuf, printObjectAsString, serializeProtobufToBuffer } from '@/utils/protobuf'
 
 type CommandType =
   | 'searchContent'
@@ -1067,10 +1068,12 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Set script
-  private handleSetScript(script: ScriptModel, applyType: MessageType) {
+  private handleSetScript(func: ScriptModel, schema: ScriptModel, config: any, applyType: MessageType) {
     const currentScript: ScriptState = {
       apply: applyType,
-      content: script,
+      function: func,
+      schema: schema,
+      config: config,
     }
     this.setScript({ currentScript })
     this.$message.success(this.$tc('script.startScript'))
@@ -1087,8 +1090,21 @@ export default class ConnectionsDetail extends Vue {
   // Processing message
   private processMessage(topic: string, payload: Buffer, packet: IPublishPacket) {
     const { qos, retain, properties } = packet
-    const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'received') as string
-    const receviedPayload = this.convertPayloadByScript(convertPayload, 'received')
+    let receviedPayload: string = ''
+    if (
+      (this.scriptOption?.function && ['all', 'received'].includes(this.scriptOption.apply)) ||
+      this.receivedMsgType !== 'Plaintext'
+    ) {
+      const schemaPayload = this.convertPayloadBySchema(payload, 'received', this.receivedMsgType) || ''
+      const convertPayload = this.convertPayloadByType(schemaPayload, this.receivedMsgType, 'received').toString()
+      receviedPayload = this.convertPayloadByFunction(convertPayload, 'received')
+      if (this.scriptOption?.schema && this.receivedMsgType === 'Plaintext') {
+        receviedPayload = this.scriptOption.config.name + ' ' + printObjectAsString(JSON.parse(receviedPayload))
+      }
+    } else {
+      receviedPayload = (this.convertPayloadBySchema(payload, 'received') as string) || ''
+    }
+
     const receivedMessage: MessageModel = {
       id: getMessageId(),
       out: false,
@@ -1339,13 +1355,17 @@ export default class ConnectionsDetail extends Vue {
       { payload, payloadType: type } as HistoryMessagePayloadModel,
       { qos, topic, retain } as HistoryMessageHeaderModel,
     ) // insert message into local storage
-
-    const convertPayload = this.convertPayloadByScript(payload, 'publish')
-    const sendPayload = this.convertPayloadByType(convertPayload, type, 'publish')
+    const convertPayload = this.convertPayloadByFunction(payload.toString(), 'publish')
+    let handlePayload
+    if (this.scriptOption?.schema && ['all', 'publish'].includes(this.scriptOption.apply)) {
+      handlePayload = this.convertPayloadBySchema(convertPayload, 'publish', type)
+    } else {
+      handlePayload = this.convertPayloadByType(convertPayload, type, 'publish')
+    }
 
     this.client.publish!(
       topic,
-      sendPayload,
+      handlePayload,
       { qos, retain, properties: props as IClientPublishOptions['properties'] },
       async (error: Error) => {
         if (error) {
@@ -1416,7 +1436,7 @@ export default class ConnectionsDetail extends Vue {
         return Buffer.from(publishValue.replaceAll(' ', ''), 'hex')
       }
       if (publishType === 'JSON') {
-        validFormatJson(publishValue, this.$t('connections.publishMsg'))
+        validFormatJson(publishValue.toString(), this.$t('connections.publishMsg'))
       }
       return publishValue
     }
@@ -1443,10 +1463,10 @@ export default class ConnectionsDetail extends Vue {
     return value
   }
 
-  // Use script to apply to payload
-  private convertPayloadByScript(payload: string, msgType: MessageType): string {
+  // Use function to apply to payload
+  private convertPayloadByFunction(payload: string, msgType: MessageType): string {
     let convertPayload = payload
-    if (this.scriptOption?.content && ['all', msgType].includes(this.scriptOption.apply)) {
+    if (this.scriptOption?.function && ['all', msgType].includes(this.scriptOption.apply)) {
       if (this.sendFrequency || this.sendTimeId !== null) {
         msgType === 'publish' && (this.sendTimedMessageCount += 1)
       } else {
@@ -1455,12 +1475,36 @@ export default class ConnectionsDetail extends Vue {
       const count = this.sendTimedMessageCount || undefined
       // Enable script function
       convertPayload = sandbox.executeScript(
-        this.scriptOption.content.script,
+        this.scriptOption.function.script,
         this.receivedMsgType,
         payload,
         msgType,
         count,
       )
+    }
+    return convertPayload
+  }
+
+  // Use schema to apply to payload
+  private convertPayloadBySchema(payload: Buffer | string, msgType: MessageType, to?: PayloadType): string | Buffer {
+    let convertPayload = payload.toString()
+    if (this.scriptOption?.schema && ['all', msgType].includes(this.scriptOption.apply)) {
+      if (msgType === 'publish') {
+        return serializeProtobufToBuffer(
+          payload as string,
+          this.scriptOption.schema.script,
+          this.scriptOption.config.name,
+          to,
+        )
+      }
+      if (msgType === 'received') {
+        return deserializeBufferToProtobuf(
+          payload as Buffer,
+          this.scriptOption.schema.script,
+          this.scriptOption.config.name,
+          to,
+        )
+      }
     }
     return convertPayload
   }

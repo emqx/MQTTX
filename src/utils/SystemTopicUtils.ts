@@ -9,7 +9,7 @@ const res: ChartDataModel = {
 const getData = (message: MessageModel, condition: string): string | null => {
   const { topic, payload } = message
   if (topic.indexOf(condition) !== -1) {
-    return payload
+    return payload.toString()
   }
   return null
 }
