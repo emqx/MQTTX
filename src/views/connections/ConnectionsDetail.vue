@@ -1095,14 +1095,14 @@ export default class ConnectionsDetail extends Vue {
       (this.scriptOption?.function && ['all', 'received'].includes(this.scriptOption.apply)) ||
       this.receivedMsgType !== 'Plaintext'
     ) {
-      const schemaPayload = this.convertPayloadBySchema(payload, 'received', this.receivedMsgType) || ''
+      const schemaPayload = this.convertPayloadBySchema(payload, 'received', this.receivedMsgType)
       const convertPayload = this.convertPayloadByType(schemaPayload, this.receivedMsgType, 'received').toString()
-      receviedPayload = this.convertPayloadByFunction(convertPayload, 'received')
+      receviedPayload = this.convertPayloadByFunction(convertPayload, 'received').replace(/\\/g, '')
       if (this.scriptOption?.schema && this.receivedMsgType === 'Plaintext') {
-        receviedPayload = this.scriptOption.config.name + ' ' + printObjectAsString(JSON.parse(receviedPayload))
+        receviedPayload = this.scriptOption?.config?.name + ' ' + printObjectAsString(JSON.parse(receviedPayload))
       }
     } else {
-      receviedPayload = (this.convertPayloadBySchema(payload, 'received') as string) || ''
+      receviedPayload = this.convertPayloadBySchema(payload, 'received') as string
     }
 
     const receivedMessage: MessageModel = {
@@ -1355,8 +1355,8 @@ export default class ConnectionsDetail extends Vue {
       { payload, payloadType: type } as HistoryMessagePayloadModel,
       { qos, topic, retain } as HistoryMessageHeaderModel,
     ) // insert message into local storage
-    const convertPayload = this.convertPayloadByFunction(payload.toString(), 'publish')
-    let handlePayload
+    const convertPayload = this.convertPayloadByFunction(payload as string, 'publish', type).replace(/\\/g, '')
+    let handlePayload: Buffer | string
     if (this.scriptOption?.schema && ['all', 'publish'].includes(this.scriptOption.apply)) {
       handlePayload = this.convertPayloadBySchema(convertPayload, 'publish', type)
     } else {
@@ -1455,16 +1455,16 @@ export default class ConnectionsDetail extends Vue {
       }
       return receiveValue.toString()
     }
-    if (way === 'publish' && typeof value === 'string') {
-      return genPublishPayload(type, value)
-    } else if (way === 'received' && typeof value !== 'string') {
-      return genReceivePayload(type, value)
+    if (way === 'publish') {
+      return genPublishPayload(type, value as string)
+    } else if (way === 'received') {
+      return genReceivePayload(type, value as Buffer)
     }
     return value
   }
 
   // Use function to apply to payload
-  private convertPayloadByFunction(payload: string, msgType: MessageType): string {
+  private convertPayloadByFunction(payload: string, msgType: MessageType, type?: PayloadType): string {
     let convertPayload = payload
     if (this.scriptOption?.function && ['all', msgType].includes(this.scriptOption.apply)) {
       if (this.sendFrequency || this.sendTimeId !== null) {
@@ -1476,7 +1476,7 @@ export default class ConnectionsDetail extends Vue {
       // Enable script function
       convertPayload = sandbox.executeScript(
         this.scriptOption.function.script,
-        this.receivedMsgType,
+        type || this.receivedMsgType,
         payload,
         msgType,
         count,
@@ -1487,22 +1487,24 @@ export default class ConnectionsDetail extends Vue {
 
   // Use schema to apply to payload
   private convertPayloadBySchema(payload: Buffer | string, msgType: MessageType, to?: PayloadType): string | Buffer {
-    let convertPayload = payload.toString()
+    let convertPayload = payload
     if (this.scriptOption?.schema && ['all', msgType].includes(this.scriptOption.apply)) {
       if (msgType === 'publish') {
         return serializeProtobufToBuffer(
           payload as string,
           this.scriptOption.schema.script,
-          this.scriptOption.config.name,
+          this.scriptOption?.config?.name,
           to,
+          this,
         )
       }
       if (msgType === 'received') {
         return deserializeBufferToProtobuf(
           payload as Buffer,
           this.scriptOption.schema.script,
-          this.scriptOption.config.name,
+          this.scriptOption?.config?.name,
           to,
+          this,
         )
       }
     }
@@ -1563,7 +1565,7 @@ export default class ConnectionsDetail extends Vue {
       if (client.listenerCount) {
         msgEventCount = client.listenerCount('message')
       }
-      if (client.connected && client.on && msgEventCount === 0) {
+      if (client.connected && msgEventCount === 0) {
         this.onMessageArrived(client, connectionID)
       }
       this.changeActiveConnection({

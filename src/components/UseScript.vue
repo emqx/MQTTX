@@ -24,7 +24,7 @@
 
         <el-col :span="24">
           <el-form-item :label="$t('script.functionName')" prop="currentFunctionId">
-            <el-select size="small" v-model="currentFunctionId">
+            <el-select filterable clearable size="small" v-model="currentFunctionId">
               <el-option v-for="func in functions" :key="func.id" :value="func.id" :label="func.name"> </el-option>
             </el-select>
           </el-form-item>
@@ -32,7 +32,7 @@
 
         <el-col :span="24">
           <el-form-item :label="$t('script.schemaName')" prop="currentSchemaId">
-            <el-select size="small" v-model="currentSchemaId">
+            <el-select filterable clearable size="small" v-model="currentSchemaId">
               <el-option v-for="schema in schemas" :key="schema.id" :value="schema.id" :label="schema.name">
               </el-option>
             </el-select>
@@ -102,9 +102,6 @@ export default class UseScript extends Vue {
   }
 
   private resetData() {
-    this.currentFunctionId = ''
-    this.currentSchemaId = ''
-    this.currentProtoName = ''
     this.$emit('update:visible', false)
   }
 
