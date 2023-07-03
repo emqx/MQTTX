@@ -170,7 +170,7 @@ declare global {
     id?: string
     createAt: string
     out: boolean
-    payload: string | Buffer
+    payload: string
     qos: QoS
     retain: boolean
     topic: string
@@ -337,7 +337,11 @@ declare global {
     apply: MessageType
     function?: ScriptModel | null
     schema?: ScriptModel | null
-    config?: any
+    // config of function/schema
+    config?: {
+      // protobuf name
+      name?: string
+    }
   }
 
   interface SettingModel {
@@ -348,7 +352,10 @@ declare global {
     autoResub?: boolean
   }
 
-  type SchemaList = 'protobuf'
-
-  type FunctionList = 'javascript'
+  type SchemaType = 'protobuf'
+  type FunctionType = 'javascript'
+  interface ScriptList {
+    label: string
+    value: SchemaType | FunctionType
+  }
 }

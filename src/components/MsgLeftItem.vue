@@ -50,7 +50,7 @@ import KeyValueEditor from './KeyValueEditor.vue'
 export default class MsgLeftItem extends Vue {
   @Prop({ required: true }) public topic!: string
   @Prop({ required: true }) public qos!: number
-  @Prop({ required: true }) public payload!: any
+  @Prop({ required: true }) public payload!: string
   @Prop({ required: true }) public createAt!: string
   @Prop({ required: false, default: false }) public retain!: boolean
   @Prop({ required: false, default: () => ({}) }) public properties!: PushPropertiesModel

@@ -18,10 +18,10 @@
           disabled
           v-if="activeTab == functionTab"
         >
-          <el-option v-for="item in functionList" :key="item" :value="item" :label="item"></el-option>
+          <el-option v-for="item in functionList" :key="item.value" :value="item.value" :label="item.label"></el-option>
         </el-select>
         <el-select class="schema-select" :value="currentSchema" size="mini" disabled v-else>
-          <el-option v-for="item in schemaList" :key="item" :value="item" :label="item"></el-option>
+          <el-option v-for="item in schemaList" :key="item.value" :value="item.value" :label="item.label"></el-option>
         </el-select>
         <el-select size="mini" v-model="currentScriptId" @change="handleScriptChange">
           <el-option v-for="script in scripts" :key="script.id" :label="script.name" :value="script.id"></el-option>
@@ -139,7 +139,10 @@
       <el-form ref="form" label-position="left" label-width="120px" :model="record">
         <el-row :gutter="20">
           <el-col :span="24">
-            <el-form-item :label="$t('script.functionName')" prop="name">
+            <el-form-item
+              :label="activeTab === functionTab ? $t('script.functionName') : $t('script.schemaName')"
+              prop="name"
+            >
               <el-input v-model.trim="record.name" size="mini"></el-input>
             </el-form-item>
           </el-col>
@@ -194,10 +197,10 @@ export default class Script extends Vue {
   private activeTab: 'functionTab' | 'schemaTab' = this.functionTab
   private activeTabIndex: number = 0
   // script type
-  private schemaList: SchemaList[] = ['protobuf']
-  private functionList: FunctionList[] = ['javascript']
-  private currentSchema: SchemaList = 'protobuf'
-  private currentFunction: FunctionList = 'javascript'
+  private schemaList: ScriptList[] = [{ label: 'Protobuf', value: 'protobuf' }]
+  private functionList: ScriptList[] = [{ label: 'JavaScript', value: 'javascript' }]
+  private currentSchema: SchemaType = 'protobuf'
+  private currentFunction: FunctionType = 'javascript'
   private readonly inputTypeList: PayloadType[] = ['JSON', 'Plaintext', 'Base64', 'Hex']
   // dialog show
   private showSaveDialog: boolean = false
@@ -226,6 +229,7 @@ export default class Script extends Vue {
   private readonly defaultFunction = {
     javascript: {
       extension: 'js',
+      importFile: this.$t('script.uploadJs'),
       input: JSON.stringify({ msg: 'hello' }, null, 2),
       content: `/**
 * @description: default script
@@ -244,6 +248,7 @@ execute(handlePayload)`,
   private readonly defaultSchema = {
     protobuf: {
       extension: 'proto',
+      importFile: this.$t('script.uploadProto'),
       input: JSON.stringify({ id: 123, name: 'John Doe' }, null, 2),
       content: `syntax = "proto3";
 
@@ -305,6 +310,7 @@ message Person {
   private async handleTestProtobuf() {
     this.outputValue = await scriptTest(this.editorValue, 'protobuf', this.inputValue, this.inputType, {
       name: this.messageName,
+      ctx: this,
     })
     this.showProtobufDialog = false
   }
@@ -436,13 +442,13 @@ message Person {
         this.activeTab === this.functionTab
           ? [
               {
-                name: `.${this.defaultFunction[this.currentFunction].extension} file`,
+                name: `${this.defaultFunction[this.currentFunction].importFile}`,
                 extensions: [this.defaultFunction[this.currentFunction].extension],
               },
             ]
           : [
               {
-                name: `.${this.defaultSchema[this.currentSchema].extension} file`,
+                name: `${this.defaultSchema[this.currentSchema].importFile}`,
                 extensions: [this.defaultSchema[this.currentSchema].extension],
               },
             ],
