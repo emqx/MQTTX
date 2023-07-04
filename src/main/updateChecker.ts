@@ -1,6 +1,7 @@
 import axios from 'axios'
 import version from '@/version'
 import useServices from '@/database/useServices'
+import { compareVersions } from 'compare-versions'
 
 const Store = require('electron-store')
 const electronStore = new Store()
@@ -26,15 +27,14 @@ const getUpdateDtail = async (current: string): Promise<versionDetail | null> =>
   const tagsRes = await axios.get(tagsUrl)
   if (tagsRes.status === 200) {
     const tagsList: string[] = tagsRes.data.data
-    const latestTagsList: string[] = tagsList.slice(0, tagsList.indexOf(current))
-    while (latestTagsList.length > 0) {
-      const latestVersion = latestTagsList.shift()
+    const latestTag: string = tagsList[0]
+    if (latestTag && compareVersions(latestTag.replace(/[^0-9.]/g, ''), version) > 0) {
       const versionRes = await axios.get(
-        `https://community-sites.emqx.com/api/v1/changelogs?product=MQTTX&version=${latestVersion}`,
+        `https://community-sites.emqx.com/api/v1/changelogs?product=MQTTX&version=${latestTag}`,
       )
-      if (latestVersion && versionRes.status === 200) {
+      if (latestTag && versionRes.status === 200) {
         return {
-          version: latestVersion,
+          version: latestTag,
           detail: versionRes.data.data.changelog,
         }
       }
