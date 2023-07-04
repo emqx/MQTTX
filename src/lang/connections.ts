@@ -810,4 +810,18 @@ export default {
     ja: '少なくとも1つの証明書ファイルをアップロードしてください',
     hu: 'Legalább egy tanúsítványfájlt töltsön fel',
   },
+  usedScript: {
+    zh: '使用',
+    en: 'Used',
+    tr: '',
+    ja: '',
+    hu: '',
+  },
+  usedScriptAnd: {
+    zh: '和',
+    en: 'And',
+    tr: '',
+    ja: '',
+    hu: '',
+  },
 }

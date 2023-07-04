@@ -26,6 +26,9 @@ export default class MessageEntity {
   @Column({ type: 'varchar' })
   topic!: string
 
+  @Column({ type: 'varchar', nullable: true })
+  meta?: string
+
   // MQTT5 props begin
   @Column({ type: 'boolean', nullable: true })
   payloadFormatIndicator?: boolean

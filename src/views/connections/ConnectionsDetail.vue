@@ -521,6 +521,21 @@ export default class ConnectionsDetail extends Vue {
     }, 500)
   }
 
+  private checkScriptOption(optionName: 'function' | 'schema') {
+    const applyOption: any = this.scriptOption?.apply
+    const optionNameExists = Boolean(this.scriptOption?.[optionName]?.name)
+
+    return this.scriptOption && ['all', 'received'].includes(applyOption) && optionNameExists
+  }
+
+  private updateMeta(message: MessageModel, optionName: 'function' | 'schema') {
+    if (this.checkScriptOption(optionName)) {
+      const metaObj = JSON.parse(message.meta || '{}')
+      metaObj[`${optionName}Name`] = this.scriptOption?.[optionName]?.name
+      message.meta = JSON.stringify(metaObj)
+    }
+  }
+
   // Connect
   public async connect(): Promise<boolean | void> {
     this.isReconnect = false
@@ -1110,11 +1125,14 @@ export default class ConnectionsDetail extends Vue {
       out: false,
       createAt: time.getNowDate(),
       topic,
-      payload: receviedPayload,
+      payload: receviedPayload.toString(),
       qos,
       retain,
       properties,
     }
+    this.updateMeta(receivedMessage, 'function')
+    this.updateMeta(receivedMessage, 'schema')
+
     return receivedMessage
   }
 
@@ -1381,11 +1399,13 @@ export default class ConnectionsDetail extends Vue {
           out: true,
           createAt: time.getNowDate(),
           topic,
-          payload: convertPayload,
+          payload: convertPayload.toString(),
           qos,
           retain,
           properties,
         }
+        this.updateMeta(publishMessage, 'function')
+        this.updateMeta(publishMessage, 'schema')
         if (this.record.id) {
           // Save message
           const { messageService } = useServices()

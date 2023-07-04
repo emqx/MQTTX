@@ -11,6 +11,6 @@ export default class ScriptEntity {
   @Column({ type: 'varchar' })
   script!: string
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true, default: null })
   type?: string | null
 }
