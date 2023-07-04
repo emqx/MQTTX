@@ -34,6 +34,7 @@
     "appdata-path": "^1.0.0",
     "axios": "^0.21.2",
     "chart.js": "^2.9.4",
+    "compare-versions": "^6.0.0-rc.2",
     "core-js": "^2.6.11",
     "csvtojson": "^2.0.10",
     "electron-store": "^8.0.2",
