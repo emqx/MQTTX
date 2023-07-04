@@ -176,8 +176,7 @@ declare global {
     topic: string
     color?: string
     properties?: PushPropertiesModel
-    function?: string
-    schema?: string
+    meta?: string
   }
 
   interface MessagePaginationModel {

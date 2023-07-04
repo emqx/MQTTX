@@ -1,5 +1,20 @@
 <template>
   <div class="msg-right-item">
+    <div v-if="functionName || schemaName">
+      <el-tag size="mini">
+        <span>&nbsp;{{ $t('connections.usedScript') }}</span>
+
+        <span v-if="functionName"
+          >&nbsp;<b>{{ functionName }}</b
+          >&nbsp;{{ $t('script.functionName') }}&nbsp;</span
+        >
+        <span v-if="functionName && schemaName">{{ $t('connections.usedScriptAnd') }}</span
+        ><span v-if="schemaName"
+          >&nbsp;<b>{{ schemaName }}</b
+          >&nbsp;{{ $t('script.schemaName') }}&nbsp;</span
+        ></el-tag
+      >
+    </div>
     <div class="right-payload payload" @contextmenu.prevent="customMenu($event)">
       <p class="right-info">
         <span class="topic">Topic: {{ topic }}</span>
@@ -50,10 +65,19 @@ export default class MsgrightItem extends Vue {
   @Prop({ required: true }) public qos!: number
   @Prop({ required: true }) public payload!: string
   @Prop({ required: true }) public createAt!: string
+  @Prop({ required: false }) public meta?: string
   @Prop({ required: false, default: () => ({}) }) public properties!: PushPropertiesModel
 
   private customMenu(event: MouseEvent) {
     this.$emit('showmenu', this.payload, event)
+  }
+
+  get functionName() {
+    return this.meta ? JSON.parse(this.meta).functionName : null
+  }
+
+  get schemaName() {
+    return this.meta ? JSON.parse(this.meta).schemaName : null
   }
 }
 </script>
@@ -64,6 +88,11 @@ export default class MsgrightItem extends Vue {
 .msg-right-item {
   text-align: right;
   @include msg-item;
+  .el-tag {
+    color: var(--color-text-tags);
+    background: var(--color-bg-tags);
+    border-color: var(--color-border-right_metainfo);
+  }
   .right-payload {
     color: var(--color-text-active);
     background: var(--color-text-right_block);

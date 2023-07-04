@@ -43,7 +43,7 @@ import {
   FormItem,
   Tabs,
   TabPane,
-  // Tag,
+  Tag,
   Tree,
   Alert,
   // Slider,
@@ -116,7 +116,7 @@ export default (Vue: typeof _Vue) => {
   Vue.use(FormItem)
   Vue.use(Tabs)
   Vue.use(TabPane)
-  // Vue.use(Tag)
+  Vue.use(Tag)
   Vue.use(Tree)
   Vue.use(Alert)
   // Vue.use(Slider)

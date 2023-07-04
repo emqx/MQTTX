@@ -9,7 +9,7 @@ export class supportSchemas1688042450818 implements MigrationInterface {
                 "id" varchar PRIMARY KEY NOT NULL,
                 "name" varchar NOT NULL,
                 "script" varchar NOT NULL,
-                "type" varchar NOT NULL
+                "type" varchar NULL DEFAULT NULL
             )
         `)
     await queryRunner.query(`

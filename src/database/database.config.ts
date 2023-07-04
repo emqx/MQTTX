@@ -35,6 +35,7 @@ import { autoScrollInterval1668415942736 } from './migration/1668415942736-autoS
 import { modifyDefaultValueOfAutoScrollInterval1668672504891 } from './migration/1668672504891-modifyDefaultValueOfAutoScrollInterval'
 import { removeAutoScroll1673603594888 } from './migration/1673603594888-removeAutoScroll'
 import { supportSchemas1688042450818 } from './migration/1688042450818-supportSchemas'
+import { saveScriptName1688449795669 } from './migration/1688449795669-saveScriptName'
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
   if (!fs.pathExistsSync(STORE_PATH)) {
@@ -76,6 +77,7 @@ const ORMConfig = {
     modifyDefaultValueOfAutoScrollInterval1668672504891,
     removeAutoScroll1673603594888,
     supportSchemas1688042450818,
+    saveScriptName1688449795669,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [
