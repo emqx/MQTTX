@@ -46,7 +46,6 @@
     "log4js": "^6.4.0",
     "moment": "^2.29.4",
     "monaco-editor": "^0.25.2",
-    "monaco-proto-lint": "^0.0.1",
     "mqtt": "4.3.7",
     "protobufjs": "^7.2.4",
     "reflect-metadata": "^0.1.13",

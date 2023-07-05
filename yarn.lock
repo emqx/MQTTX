@@ -8348,11 +8348,6 @@ monaco-editor@^0.25.2:
   resolved "https://registry.yarnpkg.com/monaco-editor/-/monaco-editor-0.25.2.tgz#119e2b15bbd968a1a99c03cac9c329316d7c37e9"
   integrity sha512-5iylzSJevCnzJn9UVsW8yOZ3yHjmAs4TfvH3zsbftKiFKmHG0xirGN6DK9Kk04VSWxYCZZAIafYJoNJJMAU1KA==
 
-monaco-proto-lint@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/monaco-proto-lint/-/monaco-proto-lint-0.0.1.tgz#271dcd1c40a821f8e39874c38770f756ed7bc8cf"
-  integrity sha512-MC0x2z/JCQm31yrQNgGZSeg8zbPlC2vzcoJ79cwhcyifzJi/DhUQ4GD+wSsGjeqjygC/SgqCMbGmYZqA0iLJZA==
-
 move-concurrently@^1.0.1:
   version "1.0.1"
   resolved "https://registry.npmjs.org/move-concurrently/-/move-concurrently-1.0.1.tgz#be2c005fda32e0b29af1f05d7c4b33214c701f92"

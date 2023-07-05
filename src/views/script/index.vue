@@ -4,7 +4,7 @@
       {{ $t('script.script') }}
     </h1>
     <div class="script-view-tabs">
-      <el-tabs v-model="activeTab" type="card" @tab-click="handleTabClick">
+      <el-tabs stretch v-model="activeTab" type="card" @tab-click="handleTabClick">
         <el-tab-pane :label="$t('script.functionTab')" name="functionTab"></el-tab-pane>
         <el-tab-pane :label="$t('script.schemaTab')" name="schemaTab"></el-tab-pane>
       </el-tabs>
@@ -23,7 +23,12 @@
         <el-select class="schema-select" :value="currentSchema" size="mini" disabled v-else>
           <el-option v-for="item in schemaList" :key="item.value" :value="item.value" :label="item.label"></el-option>
         </el-select>
-        <el-select size="mini" v-model="currentScriptId" @change="handleScriptChange">
+        <el-select
+          size="mini"
+          :value="scripts.some((obj) => obj.id === currentScriptId) ? currentScriptId : null"
+          placeholder=""
+          @change="handleScriptChange"
+        >
           <el-option v-for="script in scripts" :key="script.id" :label="script.name" :value="script.id"></el-option>
         </el-select>
         <a v-if="this.currentScriptId" href="javascript:;" @click="handleCreate">
@@ -65,10 +70,11 @@
     >
       <Editor
         v-if="activeTab === functionTab"
-        ref="scriptEditor"
-        id="script"
+        ref="functionEditor"
+        id="function-editor"
+        :key="1"
         :lang="currentFunction"
-        v-model="editorValue"
+        v-model="functionEditorValue"
         lineNumbers="on"
         :lineNumbersMinChars="5"
         renderHighlight="line"
@@ -76,12 +82,12 @@
       />
       <Editor
         v-if="activeTab === schemaTab"
-        ref="scriptEditor"
-        id="script"
+        ref="schemaEditor"
+        id="schema-editor"
+        :key="2"
         :lang="currentSchema"
-        :editorTheme="currentSchema"
         :isCustomerLang="true"
-        v-model="editorValue"
+        v-model="schemaEditorValue"
         lineNumbers="on"
         :lineNumbersMinChars="5"
         renderHighlight="line"
@@ -103,22 +109,32 @@
       }"
     >
       <Editor
-        ref="scriptInput"
-        id="script-input"
-        :lang="editorLang"
+        v-if="activeTab === functionTab"
+        :key="3"
+        ref="functionInput"
+        id="function-input"
+        :lang="functionEditorLang"
         lineNumbers="on"
         :lineNumbersMinChars="2"
-        v-model="inputValue"
+        v-model="functionInputValue"
+      />
+      <Editor
+        v-if="activeTab === schemaTab"
+        :key="4"
+        ref="schemaInput"
+        id="schema-input"
+        :lang="schemaEditorLang"
+        lineNumbers="on"
+        :lineNumbersMinChars="2"
+        v-model="schemaInputValue"
       />
     </div>
     <div class="lang-type">
-      <el-radio-group v-model="inputType">
-        <el-radio
-          v-for="item in activeTab === functionTab ? inputTypeList.slice(0, 2) : inputTypeList"
-          :key="item"
-          :label="item"
-          >{{ item }}</el-radio
-        >
+      <el-radio-group :key="1" v-model="functionInputType" v-if="activeTab === functionTab">
+        <el-radio v-for="item in inputTypeList.slice(0, 2)" :key="item" :label="item">{{ item }}</el-radio>
+      </el-radio-group>
+      <el-radio-group :key="2" v-model="schemaInputType" v-if="activeTab === schemaTab">
+        <el-radio v-for="item in inputTypeList" :key="item" :label="item">{{ item }}</el-radio>
       </el-radio-group>
     </div>
     <el-row class="script-test-row script-test-output" :gutter="20">
@@ -206,17 +222,18 @@ export default class Script extends Vue {
   private showSaveDialog: boolean = false
   private showProtobufDialog: boolean = false
   // page temp cache
-  private editorValue: string = ''
-  private tempEditorValue: string = ''
-  private inputValue: string = ''
-  private tempInputValue: string = ''
+  private functionEditorValue: string = ''
+  private schemaEditorValue: string = ''
+  private functionInputValue: string = ''
+  private schemaInputValue: string = ''
   private outputValue: string = ''
   private tempOutputValue: string = ''
   private currentScriptId: string = ''
   private tempScriptId: string = ''
-  private inputType: PayloadType = 'JSON'
-  private tempInputType: PayloadType = 'JSON'
-  private editorLang = 'json'
+  private functionInputType: PayloadType = 'JSON'
+  private schemaInputType: PayloadType = 'JSON'
+  private functionEditorLang = 'json'
+  private schemaEditorLang = 'json'
   // record content
   private messageName: string = ''
   private record: ScriptModel = {
@@ -259,9 +276,14 @@ message Person {
     },
   }
 
-  @Watch('inputType')
-  handleInputTypeChange(val: PayloadType) {
-    this.editorLang = val === 'JSON' ? 'json' : 'plaintext'
+  @Watch('functionInputType')
+  handleFunctionInputTypeChange(val: PayloadType) {
+    this.functionEditorLang = val === 'JSON' ? 'json' : 'plaintext'
+  }
+
+  @Watch('schemaInputType')
+  handleSchemaInputTypeChange(val: PayloadType) {
+    this.schemaEditorLang = val === 'JSON' ? 'json' : 'plaintext'
   }
 
   get inUseScript() {
@@ -271,19 +293,17 @@ message Person {
   }
 
   private created() {
-    this.editorValue = this.defaultFunction[this.currentFunction].content
-    this.tempEditorValue = this.defaultSchema[this.currentSchema].content
-    this.inputValue = this.defaultFunction[this.currentFunction].input
-    this.tempInputValue = this.defaultSchema[this.currentSchema].input
+    this.functionEditorValue = this.defaultFunction[this.currentFunction].content
+    this.schemaEditorValue = this.defaultSchema[this.currentSchema].content
+    this.functionInputValue = this.defaultFunction[this.currentFunction].input
+    this.schemaInputValue = this.defaultSchema[this.currentSchema].input
     this.loadData(true)
   }
 
   private handleTabClick(e: any) {
     if (e.index != this.activeTabIndex) {
       // page data exchange
-      ;[this.editorValue, this.tempEditorValue] = [this.tempEditorValue, this.editorValue]
-      ;[this.inputValue, this.tempInputValue] = [this.tempInputValue, this.inputValue]
-      ;[this.inputType, this.tempInputType] = [this.tempInputType, this.inputType]
+
       ;[this.outputValue, this.tempOutputValue] = [this.tempOutputValue, this.outputValue]
       ;[this.currentScriptId, this.tempScriptId] = [this.tempScriptId, this.currentScriptId]
 
@@ -298,7 +318,12 @@ message Person {
   private async handleTest() {
     if (this.activeTab === this.functionTab) {
       if (this.currentFunction === 'javascript') {
-        this.outputValue = await scriptTest(this.editorValue, 'javascript', this.inputValue, this.inputType)
+        this.outputValue = await scriptTest(
+          this.functionEditorValue,
+          'javascript',
+          this.functionInputValue,
+          this.functionInputType,
+        )
       }
     } else {
       if (this.currentSchema === 'protobuf') {
@@ -308,10 +333,16 @@ message Person {
   }
 
   private async handleTestProtobuf() {
-    this.outputValue = await scriptTest(this.editorValue, 'protobuf', this.inputValue, this.inputType, {
-      name: this.messageName,
-      ctx: this,
-    })
+    this.outputValue = await scriptTest(
+      this.schemaEditorValue,
+      'protobuf',
+      this.schemaInputValue,
+      this.schemaInputType,
+      {
+        name: this.messageName,
+        ctx: this,
+      },
+    )
     this.showProtobufDialog = false
   }
 
@@ -322,7 +353,7 @@ message Person {
       const { scriptService } = useServers()
       const currentScript = await scriptService.get(this.currentScriptId)
       if (currentScript) {
-        currentScript.script = this.editorValue
+        currentScript.script = this.activeTab === this.functionTab ? this.functionEditorValue : this.schemaEditorValue
         const data = { ...currentScript }
         const res = await scriptService.update(this.currentScriptId, data)
         if (res) {
@@ -353,7 +384,7 @@ message Person {
     }
     this.record.id = undefined
     this.record.name = this.addExtension(this.record.name)
-    this.record.script = this.editorValue
+    this.record.script = this.activeTab === this.functionTab ? this.functionEditorValue : this.schemaEditorValue
     this.record.type = this.activeTab === this.functionTab ? this.currentFunction : this.currentSchema
     const data = { ...this.record }
     const { scriptService } = useServers()
@@ -417,22 +448,23 @@ message Person {
       script: '',
       type: undefined,
     }
-    this.editorValue =
-      this.activeTab === this.functionTab
-        ? this.defaultFunction[this.currentFunction].content
-        : this.defaultSchema[this.currentSchema].content
-    this.inputValue =
-      this.activeTab === this.functionTab
-        ? this.defaultFunction[this.currentFunction].input
-        : this.defaultSchema[this.currentSchema].input
+    this.functionEditorValue = this.defaultFunction[this.currentFunction].content
+    this.schemaEditorValue = this.defaultSchema[this.currentSchema].content
+    this.functionInputValue = this.defaultFunction[this.currentFunction].input
+    this.schemaInputValue = this.defaultSchema[this.currentSchema].input
     this.outputValue = ''
   }
 
   private async handleScriptChange(id: string) {
     const { scriptService } = useServers()
-    const currentScript = await scriptService.get(id)
+    let currentScript = await scriptService.get(id)
     if (currentScript) {
-      this.editorValue = currentScript.script
+      this.currentScriptId = id
+      if (this.activeTab === this.functionTab) {
+        this.functionEditorValue = currentScript.script
+      } else {
+        this.schemaEditorValue = currentScript.script
+      }
     }
   }
 
@@ -459,7 +491,12 @@ message Person {
       this.record.name = path.basename(filePath[0])
       this.record.script = readFileSync(filePath[0], 'utf-8')
       this.record.type = this.activeTab === this.functionTab ? this.currentFunction : this.currentSchema
-      this.editorValue = this.record.script
+      if (this.activeTab == this.functionTab) {
+        this.functionEditorValue = this.record.script
+      } else {
+        this.schemaEditorValue = this.record.script
+      }
+
       this.handleSave()
     }
   }
@@ -480,6 +517,29 @@ message Person {
       margin-left: 5px;
     }
   }
+  .script-view-tabs {
+    .el-tabs,
+    .el-tabs__content,
+    .el-tabs__nav {
+      background: transparent;
+      border: 0;
+    }
+
+    .el-tabs--card > .el-tabs__header .el-tabs__item {
+      background: var(--color-bg-normal);
+      border: 1px solid var(--color-border-default);
+    }
+
+    .el-tabs__item {
+      color: var(--color-text-title);
+
+      &.is-active {
+        color: var(--color-main-green);
+        background: var(--color-bg-primary);
+      }
+    }
+  }
+
   .script-view-header {
     @include flex-space-between;
     margin-bottom: 10px;
@@ -492,9 +552,19 @@ message Person {
       width: 105px;
       margin-right: 12px;
     }
+    .el-input.is-disabled .el-input__inner {
+      background: var(--color-bg-normal);
+      color: var(--color-text-default);
+      border: 1px solid var(--color-border-default);
+    }
     .icon-new {
       position: relative;
       top: 3px;
+    }
+    .upload-btn {
+      background: var(--color-bg-normal);
+      border: 1px solid var(--color-main-green);
+      color: var(--color-main-green);
     }
     .save-btn {
       border: 1px solid var(--color-main-green);
