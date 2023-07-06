@@ -521,15 +521,15 @@ export default class ConnectionsDetail extends Vue {
     }, 500)
   }
 
-  private checkScriptOption(optionName: 'function' | 'schema') {
+  private checkScriptOption(optionName: 'function' | 'schema', optionMethod: 'received' | 'publish') {
     const applyOption: any = this.scriptOption?.apply
     const optionNameExists = Boolean(this.scriptOption?.[optionName]?.name)
 
-    return this.scriptOption && ['all', 'received'].includes(applyOption) && optionNameExists
+    return this.scriptOption && ['all', optionMethod].includes(applyOption) && optionNameExists
   }
 
-  private updateMeta(message: MessageModel, optionName: 'function' | 'schema') {
-    if (this.checkScriptOption(optionName)) {
+  private updateMeta(message: MessageModel, optionName: 'function' | 'schema', optionMethod: 'received' | 'publish') {
+    if (this.checkScriptOption(optionName, optionMethod)) {
       const metaObj = JSON.parse(message.meta || '{}')
       metaObj[`${optionName}Name`] = this.scriptOption?.[optionName]?.name
       message.meta = JSON.stringify(metaObj)
@@ -1106,27 +1106,31 @@ export default class ConnectionsDetail extends Vue {
   private processMessage(topic: string, payload: Buffer, packet: IPublishPacket) {
     const { qos, retain, properties } = packet
     let receviedPayload: string = ''
-    if (
-      (this.scriptOption?.function && ['all', 'received'].includes(this.scriptOption.apply)) ||
-      this.receivedMsgType !== 'Plaintext'
-    ) {
-      const schemaPayload = this.convertPayloadBySchema(payload, 'received', this.receivedMsgType)
-      if (schemaPayload instanceof Error) {
-        return
+    try {
+      if (
+        (this.scriptOption?.function && ['all', 'received'].includes(this.scriptOption.apply)) ||
+        this.receivedMsgType !== 'Plaintext'
+      ) {
+        const schemaPayload = this.convertPayloadBySchema(payload, 'received', this.receivedMsgType)
+        if (schemaPayload instanceof Error) {
+          return
+        }
+        const convertPayload = this.convertPayloadByType(schemaPayload, this.receivedMsgType, 'received').toString()
+        receviedPayload = this.convertPayloadByFunction(convertPayload, 'received').replace(/\\/g, '')
+        if (this.scriptOption?.schema && this.receivedMsgType === 'Plaintext') {
+          receviedPayload = this.scriptOption?.config?.name + ' ' + printObjectAsString(JSON.parse(receviedPayload))
+        }
+      } else {
+        let tempPayload = this.convertPayloadBySchema(payload, 'received')
+        if (tempPayload instanceof Error) {
+          return
+        }
+        receviedPayload = tempPayload as string
       }
-      const convertPayload = this.convertPayloadByType(schemaPayload, this.receivedMsgType, 'received').toString()
-      receviedPayload = this.convertPayloadByFunction(convertPayload, 'received').replace(/\\/g, '')
-      if (this.scriptOption?.schema && this.receivedMsgType === 'Plaintext') {
-        receviedPayload = this.scriptOption?.config?.name + ' ' + printObjectAsString(JSON.parse(receviedPayload))
-      }
-    } else {
-      let tempPayload = this.convertPayloadBySchema(payload, 'received')
-      if (tempPayload instanceof Error) {
-        return
-      }
-      receviedPayload = tempPayload as string
+    } catch (err) {
+      // ignore(err)
+      return
     }
-
     const receivedMessage: MessageModel = {
       id: getMessageId(),
       out: false,
@@ -1137,8 +1141,8 @@ export default class ConnectionsDetail extends Vue {
       retain,
       properties,
     }
-    this.updateMeta(receivedMessage, 'function')
-    this.updateMeta(receivedMessage, 'schema')
+    this.updateMeta(receivedMessage, 'function', 'received')
+    this.updateMeta(receivedMessage, 'schema', 'received')
 
     return receivedMessage
   }
@@ -1172,35 +1176,47 @@ export default class ConnectionsDetail extends Vue {
 
   // Save message
   private async saveMessage(id: string, messages: MessageModel[]) {
-    if (messages.length) {
-      const { messageService } = useServices()
-      await messageService.pushToConnection(messages, id)
+    try {
+      if (messages.length) {
+        const { messageService } = useServices()
+        await messageService.pushToConnection(messages, id)
+      }
+    } catch (err) {
+      // ignore(err)
+      return
     }
   }
 
   // Print message log
   private printMessageLog(id: string, message: MessageModel) {
-    const { topic, retain } = message
-    if (id === this.curConnectionId) {
-      const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
-      const isFromActiveTopic = this.msgType !== 'publish' && this.activeTopic && isActiveTopicMessages
-      const isFromNotActiveTopic = this.msgType !== 'publish' && !this.activeTopic
-      if (isFromActiveTopic || isFromNotActiveTopic) {
-        this.$log.info(`Message Arrived with topic: ${topic}`)
-        let receivedLog = `${this.record.name} message arrived: message added "${
-          message.id
-        }" and added to topic: "${topic}", payload: ${JSON.stringify(message.payload)} MQTT.js onMessageArrived trigger`
-        if (this.record.mqttVersion === '5.0') {
-          const logProperties = JSON.stringify(message.properties)
-          receivedLog += ` with Properties: ${logProperties}`
+    try {
+      const { topic, retain } = message
+      if (id === this.curConnectionId) {
+        const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
+        const isFromActiveTopic = this.msgType !== 'publish' && this.activeTopic && isActiveTopicMessages
+        const isFromNotActiveTopic = this.msgType !== 'publish' && !this.activeTopic
+        if (isFromActiveTopic || isFromNotActiveTopic) {
+          this.$log.info(`Message Arrived with topic: ${topic}`)
+          let receivedLog = `${this.record.name} message arrived: message added "${
+            message.id
+          }" and added to topic: "${topic}", payload: ${JSON.stringify(
+            message.payload,
+          )} MQTT.js onMessageArrived trigger`
+          if (this.record.mqttVersion === '5.0') {
+            const logProperties = JSON.stringify(message.properties)
+            receivedLog += ` with Properties: ${logProperties}`
+          }
+          if (retain) {
+            receivedLog += `, Retain Message`
+          }
+          this.$log.info(receivedLog)
         }
-        if (retain) {
-          receivedLog += `, Retain Message`
-        }
-        this.$log.info(receivedLog)
+      } else {
+        this.$log.info(`ID: ${id} received an unread message`)
       }
-    } else {
-      this.$log.info(`ID: ${id} received an unread message`)
+    } catch (err) {
+      // ignore(err)
+      return
     }
   }
 
@@ -1220,44 +1236,51 @@ export default class ConnectionsDetail extends Vue {
 
   // Render message
   private renderMessage(id: string, msgs: MessageModel | MessageModel[], msgType: 'received' | 'publish' = 'received') {
-    const unreadMsgIncrement = (count: number) => this.unreadMessageIncrement({ id, increasedCount: count })
-    const totalCountIncrement = (count: number) => (this.recordMsgs.total += count)
-    const receivedTotalIncrement = (count: number) => (this.recordMsgs.receivedTotal += count)
-    const publishedTotalIncrement = (count: number) => (this.recordMsgs.publishedTotal += count)
-    const newMsgsCountIncrement = (count: number) => (this.newMsgsCount += count)
-    const pushMsgs = (msgs: MessageModel[]) => {
-      let _messages = _.cloneDeep(this.recordMsgs.list)
-      msgs.forEach((msg: MessageModel) => {
-        const isActiveTopicMessages = matchTopicMethod(this.activeTopic, msg.topic)
-        const isActiveMsgType =
-          this.msgType === 'all' || (this.msgType === 'publish' && msg.out) || (this.msgType === 'received' && !msg.out)
-        if (isActiveMsgType && (!this.activeTopic || isActiveTopicMessages)) _messages.push(msg)
-      })
-      if (_messages.length > 40) _messages = _messages.slice(_messages.length - 40)
-      this.recordMsgs.list = _messages
-    }
-    if (!Array.isArray(msgs)) msgs = [msgs]
-    if (id !== this.curConnectionId) {
-      unreadMsgIncrement(msgs.length)
+    try {
+      const unreadMsgIncrement = (count: number) => this.unreadMessageIncrement({ id, increasedCount: count })
+      const totalCountIncrement = (count: number) => (this.recordMsgs.total += count)
+      const receivedTotalIncrement = (count: number) => (this.recordMsgs.receivedTotal += count)
+      const publishedTotalIncrement = (count: number) => (this.recordMsgs.publishedTotal += count)
+      const newMsgsCountIncrement = (count: number) => (this.newMsgsCount += count)
+      const pushMsgs = (msgs: MessageModel[]) => {
+        let _messages = _.cloneDeep(this.recordMsgs.list)
+        msgs.forEach((msg: MessageModel) => {
+          const isActiveTopicMessages = matchTopicMethod(this.activeTopic, msg.topic)
+          const isActiveMsgType =
+            this.msgType === 'all' ||
+            (this.msgType === 'publish' && msg.out) ||
+            (this.msgType === 'received' && !msg.out)
+          if (isActiveMsgType && (!this.activeTopic || isActiveTopicMessages)) _messages.push(msg)
+        })
+        if (_messages.length > 40) _messages = _messages.slice(_messages.length - 40)
+        this.recordMsgs.list = _messages
+      }
+      if (!Array.isArray(msgs)) msgs = [msgs]
+      if (id !== this.curConnectionId) {
+        unreadMsgIncrement(msgs.length)
+        return
+      }
+      totalCountIncrement(msgs.length)
+      const receivedMsgs = msgs.filter((msg: MessageModel) => !msg.out)
+      const publishedMsgs = msgs.filter((msg: MessageModel) => msg.out)
+      receivedTotalIncrement(receivedMsgs.length)
+      publishedTotalIncrement(publishedMsgs.length)
+      const isScrollBottom = this.isScrollBottom()
+      if (msgType === 'received' && !isScrollBottom) {
+        newMsgsCountIncrement(receivedMsgs.length)
+        return
+      }
+      this.newMsgsCount = 0
+      if (!this.moreMsgAfter && isScrollBottom) {
+        pushMsgs(msgs)
+        this.scrollToBottom()
+        return
+      }
+      this.handleMessages()
+    } catch (err) {
+      // ignore(err)
       return
     }
-    totalCountIncrement(msgs.length)
-    const receivedMsgs = msgs.filter((msg: MessageModel) => !msg.out)
-    const publishedMsgs = msgs.filter((msg: MessageModel) => msg.out)
-    receivedTotalIncrement(receivedMsgs.length)
-    publishedTotalIncrement(publishedMsgs.length)
-    const isScrollBottom = this.isScrollBottom()
-    if (msgType === 'received' && !isScrollBottom) {
-      newMsgsCountIncrement(receivedMsgs.length)
-      return
-    }
-    this.newMsgsCount = 0
-    if (!this.moreMsgAfter && isScrollBottom) {
-      pushMsgs(msgs)
-      this.scrollToBottom()
-      return
-    }
-    this.handleMessages()
   }
 
   // Recevied message
@@ -1364,6 +1387,7 @@ export default class ConnectionsDetail extends Vue {
     const { id, topic, qos, payload, retain, properties } = message
 
     let props: PushPropertiesModel | undefined = undefined
+
     if (properties && Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined).length > 0) {
       const propRecords = Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined)
       props = Object.fromEntries(propRecords)
@@ -1380,16 +1404,22 @@ export default class ConnectionsDetail extends Vue {
       { payload, payloadType: type } as HistoryMessagePayloadModel,
       { qos, topic, retain } as HistoryMessageHeaderModel,
     ) // insert message into local storage
-    const convertPayload = this.convertPayloadByFunction(payload as string, 'publish', type).replace(/\\/g, '')
     let handlePayload: Buffer | string
-    if (this.scriptOption?.schema && ['all', 'publish'].includes(this.scriptOption.apply)) {
-      let tempPayload = this.convertPayloadBySchema(convertPayload, 'publish', type)
-      if (tempPayload instanceof Error) {
-        return
+    let convertPayload: string = ''
+    try {
+      convertPayload = this.convertPayloadByFunction(payload as string, 'publish', type).replace(/\\/g, '')
+      if (this.scriptOption?.schema && ['all', 'publish'].includes(this.scriptOption.apply)) {
+        let tempPayload = this.convertPayloadBySchema(convertPayload, 'publish', type)
+        if (tempPayload instanceof Error) {
+          return
+        }
+        handlePayload = tempPayload
+      } else {
+        handlePayload = this.convertPayloadByType(convertPayload, type, 'publish')
       }
-      handlePayload = tempPayload
-    } else {
-      handlePayload = this.convertPayloadByType(convertPayload, type, 'publish')
+    } catch (err) {
+      // ignore(err)
+      return
     }
 
     this.client.publish!(
@@ -1415,8 +1445,8 @@ export default class ConnectionsDetail extends Vue {
           retain,
           properties,
         }
-        this.updateMeta(publishMessage, 'function')
-        this.updateMeta(publishMessage, 'schema')
+        this.updateMeta(publishMessage, 'function', 'publish')
+        this.updateMeta(publishMessage, 'schema', 'publish')
         if (this.record.id) {
           // Save message
           const { messageService } = useServices()
