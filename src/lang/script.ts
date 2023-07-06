@@ -83,13 +83,6 @@ export default {
     ja: '適用対象',
     hu: 'Alkazva',
   },
-  scriptRequired: {
-    zh: '请选择脚本',
-    en: 'Script name is required',
-    tr: 'Komut dosyası dosyası adı gerekli',
-    ja: 'スクリプト名を選択してください',
-    hu: 'Script név szükséges',
-  },
   startScript: {
     zh: '脚本功能已开启',
     en: 'Script started',
@@ -152,5 +145,19 @@ export default {
     tr: 'Proto adı',
     ja: 'Proto名',
     hu: 'Proto név',
+  },
+  mustSelect: {
+    zh: '至少选择一个函数或者编解码',
+    en: 'Either function or schema must be chosen, or both can be chosen.',
+    tr: '',
+    ja: '',
+    hu: '',
+  },
+  mustProtoName: {
+    zh: '必须填写类型名称',
+    en: 'Proto name is required',
+    tr: '',
+    ja: '',
+    hu: '',
   },
 }

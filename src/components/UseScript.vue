@@ -41,7 +41,7 @@
 
         <el-col :span="24" v-if="currentSchemaId">
           <el-form-item :label="$t('script.protoName')" prop="currentProtoName">
-            <el-input v-model="currentProtoName" size="mini"></el-input>
+            <el-input v-model.trim="currentProtoName" size="mini"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -107,12 +107,12 @@ export default class UseScript extends Vue {
 
   private async save() {
     if (!(this.currentFunctionId || this.currentSchemaId)) {
-      this.$message.warning(this.$tc('script.scriptRequired'))
+      this.$message.warning(this.$tc('script.mustSelect'))
       return
     }
     if (this.currentSchemaId && !this.currentProtoName) {
       // TODO:modify warning content
-      this.$message.warning(this.$tc('script.scriptRequired'))
+      this.$message.warning(this.$tc('script.mustProtoName'))
       return
     }
     const { scriptService } = useServices()
