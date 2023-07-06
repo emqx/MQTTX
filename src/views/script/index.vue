@@ -186,6 +186,7 @@ import MyDialog from '@/components/MyDialog.vue'
 import useServers from '@/database/useServices'
 import ImportScript from '@/components/ImportScript.vue'
 import { scriptTest } from '@/utils/scriptTest'
+import script from '@/lang/script'
 
 @Component({
   components: {
@@ -288,7 +289,7 @@ message Person {
     this.schemaEditorValue = this.defaultSchema[this.currentSchema].content
     this.functionInputValue = this.defaultFunction[this.currentFunction].input
     this.schemaInputValue = this.defaultSchema[this.currentSchema].input
-    this.loadData(true)
+    this.loadData()
   }
 
   private handleTabClick(e: any) {
@@ -381,7 +382,7 @@ message Person {
     }
   }
 
-  private async loadData(first: boolean = false): Promise<void> {
+  private async loadData(): Promise<void> {
     const { scriptService } = useServers()
     let scripts: ScriptModel[] | [] = []
     if (this.activeTab === this.functionTab) {
@@ -393,9 +394,28 @@ message Person {
       scripts = (await scriptService.getAllSchema()) ?? []
       scripts = scripts.filter((item) => item.name.endsWith(`.${this.defaultSchema[this.currentSchema].extension}`))
     }
+    console.log('scripts:', scripts)
     this.scripts = scripts
     if (this.scripts && this.scripts.length > 0 && this.scripts[this.scripts.length - 1].id) {
-      this.currentScriptId = this.scripts[this.scripts.length - 1].id as string
+      let currentScript = this.scripts[this.scripts.length - 1]
+      this.currentScriptId = currentScript.id as string
+      if (this.activeTab === this.functionTab) {
+        this.functionEditorValue = currentScript.script
+        this.functionInputValue = this.defaultFunction[this.currentFunction].input
+      } else {
+        this.schemaEditorValue = currentScript.script
+        this.schemaInputValue = this.defaultSchema[this.currentSchema].input
+      }
+    } else {
+      this.currentScriptId = ''
+      if (this.activeTab === this.functionTab) {
+        this.functionEditorValue = this.defaultFunction[this.currentFunction].content
+        this.functionInputValue = this.defaultFunction[this.currentFunction].input
+      } else {
+        this.schemaEditorValue = this.defaultSchema[this.currentSchema].content
+        this.schemaInputValue = this.defaultSchema[this.currentSchema].input
+      }
+      this.outputValue = ''
     }
   }
 
@@ -411,6 +431,8 @@ message Person {
         .then(async () => {
           const res: ScriptModel | undefined = await scriptService.delete(this.currentScriptId)
           if (res) {
+            console.log('id:', this.currentScriptId)
+            console.log('scripts:', this.scripts)
             this.$message.success(this.$tc('common.deleteSuccess'))
             this.currentScriptId = ''
             this.loadData()
