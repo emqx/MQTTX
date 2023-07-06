@@ -146,7 +146,8 @@ export default class ImportData extends Vue {
       return
     }
     this.confirmLoading = false
-    this.$message.success(this.$tc('common.importSuccess'))
+    // avoid display twice message
+    // this.$message.success(this.$tc('common.importSuccess'))
     this.$emit('finish', this.record)
     this.resetData()
   }

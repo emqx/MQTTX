@@ -315,25 +315,18 @@ message Person {
   private async handleTest() {
     if (this.activeTab === this.functionTab) {
       if (this.currentFunction === 'javascript') {
-        this.outputValue = await scriptTest(
-          this.functionEditorValue,
-          'javascript',
-          this.functionInputValue,
-          this.functionInputType,
-        )
+        this.outputValue = (
+          await scriptTest(this.functionEditorValue, 'javascript', this.functionInputValue, this.functionInputType)
+        ).toString()
       }
     } else {
       if (this.currentSchema === 'protobuf') {
-        this.outputValue = await scriptTest(
-          this.schemaEditorValue,
-          'protobuf',
-          this.schemaInputValue,
-          this.schemaInputType,
-          {
+        this.outputValue = (
+          await scriptTest(this.schemaEditorValue, 'protobuf', this.schemaInputValue, this.schemaInputType, {
             name: this.messageName,
             ctx: this,
-          },
-        )
+          })
+        ).toString()
       }
     }
   }
