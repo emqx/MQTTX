@@ -1111,13 +1111,20 @@ export default class ConnectionsDetail extends Vue {
       this.receivedMsgType !== 'Plaintext'
     ) {
       const schemaPayload = this.convertPayloadBySchema(payload, 'received', this.receivedMsgType)
+      if (schemaPayload instanceof Error) {
+        return
+      }
       const convertPayload = this.convertPayloadByType(schemaPayload, this.receivedMsgType, 'received').toString()
       receviedPayload = this.convertPayloadByFunction(convertPayload, 'received').replace(/\\/g, '')
       if (this.scriptOption?.schema && this.receivedMsgType === 'Plaintext') {
         receviedPayload = this.scriptOption?.config?.name + ' ' + printObjectAsString(JSON.parse(receviedPayload))
       }
     } else {
-      receviedPayload = this.convertPayloadBySchema(payload, 'received') as string
+      let tempPayload = this.convertPayloadBySchema(payload, 'received')
+      if (tempPayload instanceof Error) {
+        return
+      }
+      receviedPayload = tempPayload as string
     }
 
     const receivedMessage: MessageModel = {
@@ -1376,7 +1383,11 @@ export default class ConnectionsDetail extends Vue {
     const convertPayload = this.convertPayloadByFunction(payload as string, 'publish', type).replace(/\\/g, '')
     let handlePayload: Buffer | string
     if (this.scriptOption?.schema && ['all', 'publish'].includes(this.scriptOption.apply)) {
-      handlePayload = this.convertPayloadBySchema(convertPayload, 'publish', type)
+      let tempPayload = this.convertPayloadBySchema(convertPayload, 'publish', type)
+      if (tempPayload instanceof Error) {
+        return
+      }
+      handlePayload = tempPayload
     } else {
       handlePayload = this.convertPayloadByType(convertPayload, type, 'publish')
     }
@@ -1506,7 +1517,11 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Use schema to apply to payload
-  private convertPayloadBySchema(payload: Buffer | string, msgType: MessageType, to?: PayloadType): string | Buffer {
+  private convertPayloadBySchema(
+    payload: Buffer | string,
+    msgType: MessageType,
+    to?: PayloadType,
+  ): string | Buffer | Error {
     let convertPayload = payload
     if (this.scriptOption?.schema && ['all', msgType].includes(this.scriptOption.apply)) {
       if (msgType === 'publish') {
