@@ -19,7 +19,7 @@ export const printObjectAsString = (obj: any, indent = 2) => {
     }
     str += `\n`
   }
-  str += `${indentation}}`
+  str += `}`
   return str
 }
 
@@ -71,12 +71,13 @@ export const serializeProtobufToBuffer = (
   protobufMessageName: string | undefined,
   format?: PayloadType,
   ctx?: any,
-): Buffer => {
+): Buffer | Error => {
   let rawData: string = ''
   try {
     rawData = convertObject(raw, format)
   } catch (error) {
     ctx.$message.error(`Message format type error : ${(error as Error).message.split('\n')[0]}`)
+    return new Error(`Message format type error : ${(error as Error).message.split('\n')[0]}`)
   }
 
   let bufferMessage = Buffer.from(rawData)
@@ -87,12 +88,14 @@ export const serializeProtobufToBuffer = (
       const err = Message.verify(JSON.parse(rawData))
       if (err) {
         ctx.$message.error(`Message serialization error: ${err}`)
+        return new Error(`Message serialization error: ${err}`)
       }
       const data = Message.create(JSON.parse(rawData))
       const serializedMessage = Message.encode(data).finish()
       bufferMessage = Buffer.from(serializedMessage)
     } catch (error) {
       ctx.$message.error(`Message serialization error: ${(error as Error).message.split('\n')[0]}`)
+      return new Error(`Message serialization error: ${(error as Error).message.split('\n')[0]}`)
     }
   }
   return bufferMessage
@@ -113,6 +116,7 @@ export const deserializeBufferToProtobuf = (
       const err = Message.verify(MessageData)
       if (err) {
         ctx.$message.error(`Message deserialization error: ${err}`)
+        return new Error(`Message deserialization error: ${err}`)
       }
       if (to) {
         return Buffer.from(JSON.stringify(MessageData.toJSON()))
@@ -122,6 +126,7 @@ export const deserializeBufferToProtobuf = (
     } catch (error) {
       let err = transformPBJSError(error as Error)
       ctx.$message.error(err.message.split('\n')[0])
+      return new Error(err.message.split('\n')[0])
     }
   }
 }

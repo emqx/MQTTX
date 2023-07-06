@@ -400,8 +400,8 @@ message Person {
       scripts = scripts.filter((item) => item.name.endsWith(`.${this.defaultSchema[this.currentSchema].extension}`))
     }
     this.scripts = scripts
-    if (this.scripts[0]) {
-      this.currentScriptId = this.scripts[0].id as string
+    if (this.scripts && this.scripts.length > 0 && this.scripts[this.scripts.length - 1].id) {
+      this.currentScriptId = this.scripts[this.scripts.length - 1].id as string
     }
   }
 
