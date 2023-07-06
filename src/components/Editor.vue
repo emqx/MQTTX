@@ -12,9 +12,6 @@ import LogEditor from '@/assets/scss/theme/custom/log-editor.json'
 import LogEditorDark from '@/assets/scss/theme/custom/log-editor-dark.json'
 import LogEditorNight from '@/assets/scss/theme/custom/log-editor-night.json'
 import LogEditorRules from '@/assets/scss/theme/custom/log-editor-rules.json'
-import ProtobufEditor from '@/assets/scss/theme/custom/protobuf-editor.json'
-import ProtobufEditorDark from '@/assets/scss/theme/custom/protobuf-editor-dark.json'
-import ProtobufEditorNight from '@/assets/scss/theme/custom/protobuf-editor-night.json'
 
 @Component
 export default class Editor extends Vue {
@@ -72,7 +69,6 @@ export default class Editor extends Vue {
   // init and register customer editor style
   private initCustomerLanguages() {
     this.registerLog()
-    this.registerProtobuf()
   }
 
   // register log style editor
@@ -94,145 +90,6 @@ export default class Editor extends Vue {
     })
   }
 
-  // register protobuf editor
-  private registerProtobuf() {
-    monaco.languages.register({ id: 'protobuf' })
-    monaco.languages.setMonarchTokensProvider('protobuf', {
-      keywords: [
-        'import',
-        'option',
-        'message',
-        'package',
-        'service',
-        'optional',
-        'rpc',
-        'returns',
-        'return',
-        'true',
-        'false',
-      ],
-      typeKeywords: [
-        'double',
-        'float',
-        'int32',
-        'int64',
-        'uint32',
-        'uint64',
-        'sint32',
-        'sint64',
-        'fixed32',
-        'fixed64',
-        'sfixed32',
-        'sfixed64',
-        'bool',
-        'string',
-        'bytes',
-      ],
-      operators: [
-        '=',
-        '>',
-        '<',
-        '!',
-        '~',
-        '?',
-        ':',
-        '==',
-        '<=',
-        '>=',
-        '!=',
-        '&&',
-        '||',
-        '++',
-        '--',
-        '+',
-        '-',
-        '*',
-        '/',
-        '&',
-        '|',
-        '^',
-        '%',
-        '<<',
-        '>>',
-        '>>>',
-        '+=',
-        '-=',
-        '*=',
-        '/=',
-        '&=',
-        '|=',
-        '^=',
-        '%=',
-        '<<=',
-        '>>=',
-        '>>>=',
-      ],
-      symbols: /[=><!~?:&|+\-*\/^%]+/,
-      escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
-      tokenizer: {
-        root: [
-          [
-            /[a-z_$][\w$]*/,
-            {
-              cases: {
-                '@typeKeywords': 'typeKeyword',
-                '@keywords': 'keyword',
-                '@default': 'identifier',
-              },
-            },
-          ],
-          [/[A-Z][\w\$]*/, 'type.identifier'],
-          { include: '@whitespace' },
-
-          // delimiters and operators
-          [/[{}()\[\]]/, '@brackets'],
-          [/[<>](?!@symbols)/, '@brackets'],
-          [
-            /@symbols/,
-            {
-              cases: {
-                '@operators': 'operator',
-                '@default': '',
-              },
-            },
-          ],
-          // @ annotations.
-          [/@\s*[a-zA-Z_\$][\w\$]*/, { token: 'annotation', log: 'annotation token: $0' }],
-          // numbers
-          [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
-          [/0[xX][0-9a-fA-F]+/, 'number.hex'],
-          [/\d+/, 'number'],
-          // delimiter: after number because of .\d floats
-          [/[;,.]/, 'delimiter'],
-          // strings
-          [/"([^"\\]|\\.)*$/, 'string.invalid'], // non-teminated string
-          [/"/, { token: 'string.quote', bracket: '@open', next: '@string' }],
-          // characters
-          [/'[^\\']'/, 'string'],
-          [/(')(@escapes)(')/, ['string', 'string.escape', 'string']],
-          [/'/, 'string.invalid'],
-        ],
-        comment: [
-          [/[^\/*]+/, 'comment'],
-          [/\/\*/, 'comment', '@push'], // nested comment
-          ['\\*/', 'comment', '@pop'],
-          [/[\/*]/, 'comment'],
-        ],
-        string: [
-          [/[^\\"]+/, 'string'],
-          [/@escapes/, 'string.escape'],
-          [/\\./, 'string.escape.invalid'],
-          [/"/, { token: 'string.quote', bracket: '@close', next: '@pop' }],
-        ],
-        whitespace: [
-          [/[ \t\r\n]+/, 'white'],
-          [/\/\*/, 'comment', '@comment'],
-          [/\/\/.*$/, 'comment'],
-        ],
-      },
-    })
-  }
-
   public scrollToBottom() {
     if (!this.editor) {
       return
@@ -245,7 +102,9 @@ export default class Editor extends Vue {
 
   public initEditor(): void | boolean {
     // if customer editorTheme is not empty, then init the editor theme
-    this.initCustomerLanguages()
+    if (this.isCustomerLang) {
+      this.initCustomerLanguages()
+    }
     const defaultOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
       value: this.value,
       language: this.lang,
@@ -324,21 +183,15 @@ export default class Editor extends Vue {
     const night = EditorNight as monaco.editor.IStandaloneThemeData
     monaco.editor.defineTheme('editor-dark', dark)
     monaco.editor.defineTheme('editor-night', night)
-    // log theme
-    const log = { ...LogEditor, ...LogEditorRules } as monaco.editor.IStandaloneThemeData
-    const logDark = { ...LogEditorDark, ...LogEditorRules } as monaco.editor.IStandaloneThemeData
-    const logNight = { ...LogEditorNight, ...LogEditorRules } as monaco.editor.IStandaloneThemeData
-    monaco.editor.defineTheme('editor-log', log)
-    monaco.editor.defineTheme('editor-log-dark', logDark)
-    monaco.editor.defineTheme('editor-log-night', logNight)
-
-    // protobuf theme
-    const proto = ProtobufEditor as monaco.editor.IStandaloneThemeData
-    const protoDark = ProtobufEditorDark as monaco.editor.IStandaloneThemeData
-    const protoNight = ProtobufEditorNight as monaco.editor.IStandaloneThemeData
-    monaco.editor.defineTheme('protobuf', proto)
-    monaco.editor.defineTheme('protobuf-dark', protoDark)
-    monaco.editor.defineTheme('protobuf-night', protoNight)
+    if (this.isCustomerLang) {
+      // log theme
+      const log = { ...LogEditor, ...LogEditorRules } as monaco.editor.IStandaloneThemeData
+      const logDark = { ...LogEditorDark, ...LogEditorRules } as monaco.editor.IStandaloneThemeData
+      const logNight = { ...LogEditorNight, ...LogEditorRules } as monaco.editor.IStandaloneThemeData
+      monaco.editor.defineTheme('editor-log', log)
+      monaco.editor.defineTheme('editor-log-dark', logDark)
+      monaco.editor.defineTheme('editor-log-night', logNight)
+    }
   }
   private addContextmenuItem() {
     if (this.lang === 'json' && this.editor) {
@@ -356,11 +209,11 @@ export default class Editor extends Vue {
   private getTheme(): string {
     switch (this.theme) {
       case 'dark':
-        return this.lang === 'protobuf' ? 'protobuf-dark' : 'editor-dark'
+        return 'editor-dark'
       case 'night':
-        return this.lang === 'protobuf' ? 'protobuf-night' : 'editor-night'
+        return 'editor-night'
       default:
-        return this.lang === 'protobuf' ? 'protobuf' : 'vs'
+        return 'vs'
     }
   }
 

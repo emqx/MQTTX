@@ -85,7 +85,7 @@
         ref="schemaEditor"
         id="schema-editor"
         :key="2"
-        :lang="currentSchema"
+        :lang="currentFunction"
         :isCustomerLang="true"
         v-model="schemaEditorValue"
         lineNumbers="on"
@@ -211,6 +211,7 @@ export default class Script extends Vue {
   // script type
   private schemaList: ScriptList[] = [{ label: 'Protobuf', value: 'protobuf' }]
   private functionList: ScriptList[] = [{ label: 'JavaScript', value: 'javascript' }]
+  // TODO: Because the editor does not support the parsing of the protobuf language, the editor language is temporarily set to javascript.
   private currentSchema: SchemaType = 'protobuf'
   private currentFunction: FunctionType = 'javascript'
   private readonly inputTypeList: PayloadType[] = ['JSON', 'Plaintext', 'Base64', 'Hex']
