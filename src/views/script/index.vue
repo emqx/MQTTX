@@ -95,10 +95,19 @@
       />
     </div>
     <el-row class="script-test-row script-test-input" :gutter="20">
-      <el-col :span="18">
+      <el-col :span="activeTab == schemaTab ? 15 : 18">
         <label>{{ $t('script.input') }}</label>
       </el-col>
       <el-col :span="6">
+        <el-input
+          v-if="activeTab == schemaTab"
+          :placeholder="$t('script.protoName')"
+          v-model.trim="messageName"
+          size="mini"
+          :label="$t('script.protoName')"
+        ></el-input>
+      </el-col>
+      <el-col :span="activeTab == schemaTab ? 3 : 6">
         <el-button class="test-btn" type="outline" size="mini" @click="handleTest">{{ $t('script.test') }}</el-button>
       </el-col>
     </el-row>
@@ -165,25 +174,6 @@
         </el-row>
       </el-form>
     </my-dialog>
-
-    <my-dialog
-      :title="$t('script.selectMessageName')"
-      :visible.sync="showProtobufDialog"
-      class="save-script"
-      width="400px"
-      @confirm="handleTestProtobuf"
-      @keyupEnter="handleTestProtobuf"
-    >
-      <el-form ref="form" label-position="left" label-width="120px" :model="record">
-        <el-row :gutter="20">
-          <el-col :span="24">
-            <el-form-item :label="$t('script.protoName')" prop="name">
-              <el-input v-model.trim="messageName" size="mini"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-    </my-dialog>
     <ImportScript
       @finish="handleUpload"
       :title="activeTab === functionTab ? $t('script.importFunction') : $t('script.importSchema')"
@@ -226,7 +216,6 @@ export default class Script extends Vue {
   private readonly inputTypeList: PayloadType[] = ['JSON', 'Plaintext', 'Base64', 'Hex']
   // dialog show
   private showSaveDialog: boolean = false
-  private showProtobufDialog: boolean = false
   private showImportScript: boolean = false
   // page temp cache
   private functionEditorValue: string = ''
@@ -334,23 +323,18 @@ message Person {
       }
     } else {
       if (this.currentSchema === 'protobuf') {
-        this.showProtobufDialog = true
+        this.outputValue = await scriptTest(
+          this.schemaEditorValue,
+          'protobuf',
+          this.schemaInputValue,
+          this.schemaInputType,
+          {
+            name: this.messageName,
+            ctx: this,
+          },
+        )
       }
     }
-  }
-
-  private async handleTestProtobuf() {
-    this.outputValue = await scriptTest(
-      this.schemaEditorValue,
-      'protobuf',
-      this.schemaInputValue,
-      this.schemaInputType,
-      {
-        name: this.messageName,
-        ctx: this,
-      },
-    )
-    this.showProtobufDialog = false
   }
 
   private async handleSave() {
