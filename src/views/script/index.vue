@@ -36,7 +36,7 @@
         </a>
       </div>
       <div>
-        <el-button class="upload-btn" size="mini" @click="handleUpload">{{
+        <el-button class="upload-btn" size="mini" @click="showImportScript = true">{{
           activeTab === functionTab ? $t('script.uploadJs') : $t('script.uploadProto')
         }}</el-button>
         <el-button class="save-btn" type="primary" size="mini" @click="handleSave">{{ $t('common.save') }}</el-button>
@@ -184,6 +184,13 @@
         </el-row>
       </el-form>
     </my-dialog>
+    <ImportScript
+      @finish="handleUpload"
+      :title="activeTab === functionTab ? $t('script.importFunction') : $t('script.importSchema')"
+      :extension="extension"
+      :format="activeTab === functionTab ? functionList : schemaList"
+      :visible.sync="showImportScript"
+    />
   </div>
 </template>
 
@@ -193,15 +200,14 @@ import { Getter } from 'vuex-class'
 import Editor from '@/components/Editor.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import useServers from '@/database/useServices'
-import { remote } from 'electron'
-import { readFileSync } from 'fs'
-import path from 'path'
+import ImportScript from '@/components/ImportScript.vue'
 import { scriptTest } from '@/utils/scriptTest'
 
 @Component({
   components: {
     Editor,
     MyDialog,
+    ImportScript,
   },
 })
 export default class Script extends Vue {
@@ -221,6 +227,7 @@ export default class Script extends Vue {
   // dialog show
   private showSaveDialog: boolean = false
   private showProtobufDialog: boolean = false
+  private showImportScript: boolean = false
   // page temp cache
   private functionEditorValue: string = ''
   private schemaEditorValue: string = ''
@@ -468,36 +475,25 @@ message Person {
     }
   }
 
-  private async handleUpload() {
-    const filePath = remote.dialog.showOpenDialogSync({
-      filters:
-        this.activeTab === this.functionTab
-          ? [
-              {
-                name: `${this.defaultFunction[this.currentFunction].importFile}`,
-                extensions: [this.defaultFunction[this.currentFunction].extension],
-              },
-            ]
-          : [
-              {
-                name: `${this.defaultSchema[this.currentSchema].importFile}`,
-                extensions: [this.defaultSchema[this.currentSchema].extension],
-              },
-            ],
-      properties: ['openFile'],
-    })
-    if (filePath && filePath[0]) {
+  get extension() {
+    return this.activeTab === this.functionTab
+      ? this.defaultFunction[this.currentFunction].extension
+      : this.defaultSchema[this.currentSchema].extension
+  }
+
+  private async handleUpload(fileInfo: ImportScriptForm) {
+    this.showImportScript = false
+    if (fileInfo.fileContent && fileInfo.fileName) {
       this.currentScriptId = ''
-      this.record.name = path.basename(filePath[0])
-      this.record.script = readFileSync(filePath[0], 'utf-8')
+      this.record.name = fileInfo.fileName
+      this.record.script = fileInfo.fileContent
       this.record.type = this.activeTab === this.functionTab ? this.currentFunction : this.currentSchema
       if (this.activeTab == this.functionTab) {
         this.functionEditorValue = this.record.script
       } else {
         this.schemaEditorValue = this.record.script
       }
-
-      this.handleSave()
+      this.save()
     }
   }
 }
@@ -555,6 +551,7 @@ message Person {
     }
     .save-btn {
       border: 1px solid var(--color-main-green);
+      margin-left: 12px;
     }
     .delete-btn:not(.is-disabled) {
       color: var(--color-minor-red);
