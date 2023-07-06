@@ -357,4 +357,11 @@ declare global {
     label: string
     value: SchemaType | FunctionType
   }
+
+  interface ImportScriptForm {
+    importFormat: SchemaType | FunctionType | ''
+    filePath: string
+    fileName: string
+    fileContent: string
+  }
 }

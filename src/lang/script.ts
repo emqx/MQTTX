@@ -125,6 +125,20 @@ export default {
     ja: '.protoファイルをインポート',
     hu: '.proto fájl importálása',
   },
+  importFunction: {
+    zh: '导入自定义函数',
+    en: 'Import Function',
+    tr: '',
+    ja: '',
+    hu: '',
+  },
+  importSchema: {
+    zh: '导入编解码',
+    en: 'Import Schema',
+    tr: '',
+    ja: '',
+    hu: '',
+  },
   selectMessageName: {
     zh: '指定类型名称',
     en: 'Select message name',
