@@ -11,16 +11,10 @@
     </div>
     <div class="script-view-header">
       <div>
-        <el-select
-          class="function-select"
-          :value="currentFunction"
-          size="mini"
-          disabled
-          v-if="activeTab == functionTab"
-        >
+        <el-select v-if="activeTab == functionTab" class="function-select" :value="currentFunction" size="mini">
           <el-option v-for="item in functionList" :key="item.value" :value="item.value" :label="item.label"></el-option>
         </el-select>
-        <el-select class="schema-select" :value="currentSchema" size="mini" disabled v-else>
+        <el-select v-else class="schema-select" :value="currentSchema" size="mini">
           <el-option v-for="item in schemaList" :key="item.value" :value="item.value" :label="item.label"></el-option>
         </el-select>
         <el-select
