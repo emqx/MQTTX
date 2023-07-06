@@ -102,7 +102,7 @@
         <el-input
           v-if="activeTab == schemaTab"
           :placeholder="$t('script.protoName')"
-          v-model.trim="messageName"
+          v-model.trim="protoName"
           size="mini"
           :label="$t('script.protoName')"
         ></el-input>
@@ -232,7 +232,7 @@ export default class Script extends Vue {
   private functionEditorLang = 'json'
   private schemaEditorLang = 'json'
   // record content
-  private messageName: string = ''
+  private protoName: string = ''
   private record: ScriptModel = {
     name: '',
     script: '',
@@ -323,7 +323,7 @@ message Person {
       if (this.currentSchema === 'protobuf') {
         this.outputValue = (
           await scriptTest(this.schemaEditorValue, 'protobuf', this.schemaInputValue, this.schemaInputType, {
-            name: this.messageName,
+            name: this.protoName,
             ctx: this,
           })
         ).toString()
