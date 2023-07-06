@@ -407,6 +407,9 @@ message Person {
       scripts = scripts.filter((item) => item.name.endsWith(`.${this.defaultSchema[this.currentSchema].extension}`))
     }
     this.scripts = scripts
+    if (this.scripts[0]) {
+      this.currentScriptId = this.scripts[0].id as string
+    }
   }
 
   private async handleDelete() {
