@@ -4,7 +4,7 @@
       {{ $t('script.script') }}
     </h1>
     <div class="script-view-tabs">
-      <el-tabs stretch v-model="activeTab" type="card" @tab-click="handleTabClick">
+      <el-tabs v-model="activeTab" @tab-click="handleTabClick">
         <el-tab-pane :label="$t('script.functionTab')" name="functionTab"></el-tab-pane>
         <el-tab-pane :label="$t('script.schemaTab')" name="schemaTab"></el-tab-pane>
       </el-tabs>
@@ -518,24 +518,11 @@ message Person {
     }
   }
   .script-view-tabs {
-    .el-tabs,
-    .el-tabs__content,
-    .el-tabs__nav {
-      background: transparent;
-      border: 0;
-    }
-
-    .el-tabs--card > .el-tabs__header .el-tabs__item {
-      background: var(--color-bg-normal);
-      border: 1px solid var(--color-border-default);
-    }
-
     .el-tabs__item {
       color: var(--color-text-title);
 
       &.is-active {
         color: var(--color-main-green);
-        background: var(--color-bg-primary);
       }
     }
   }
