@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import path from 'path'
-import YAML from 'yaml'
+import YAML from 'js-yaml'
 import signale from '../utils/signale'
 
 const defaultPath = `${process.cwd()}/mqttx-cli-config.json`
@@ -11,7 +11,7 @@ const writeFile = (filePath: string, data: Config) => {
   try {
     fs.mkdirSync(path.dirname(filePath), { recursive: true })
     if (filePath.endsWith('.yaml') || filePath.endsWith('.yml')) {
-      fs.writeFileSync(filePath, YAML.stringify(data))
+      fs.writeFileSync(filePath, YAML.dump(data))
     } else {
       fs.writeFileSync(filePath, JSON.stringify(data, null, 2))
     }
@@ -25,7 +25,7 @@ const readFile = (path: string) => {
   try {
     const config = fs.readFileSync(path, 'utf-8')
     if (path.endsWith('.yaml') || path.endsWith('.yml')) {
-      return YAML.parse(config) as Config
+      return YAML.load(config) as Config
     }
     return JSON.parse(config) as Config
   } catch (error) {
