@@ -550,11 +550,13 @@ message Person {
       border: 1px solid var(--color-main-green);
       margin-left: 12px;
     }
+    .delete-btn {
+      margin-left: 12px;
+    }
     .delete-btn:not(.is-disabled) {
       color: var(--color-minor-red);
       border-color: var(--color-minor-red);
       background-color: transparent;
-      margin-left: 12px;
     }
   }
   .script-editor {
