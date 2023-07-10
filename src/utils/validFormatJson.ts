@@ -1,4 +1,3 @@
-import { Message } from 'element-ui'
 import { TranslateResult } from 'vue-i18n'
 
 export default (jsonStrValue: string, warnMessage?: TranslateResult) => {
@@ -14,6 +13,6 @@ export default (jsonStrValue: string, warnMessage?: TranslateResult) => {
     if (warnMessage) {
       errorMessage = `${warnMessage} ${errorMessage}`
     }
-    Message.warning(errorMessage)
+    throw error
   }
 }
