@@ -9,6 +9,8 @@ import { Repository, MoreThan, LessThan } from 'typeorm'
 import { DateUtils } from 'typeorm/util/DateUtils'
 import time, { sqliteDateFormat } from '@/utils/time'
 import useServices from '@/database/useServices'
+const Store = require('electron-store')
+const electronStore = new Store()
 
 export const MoreThanDate = (date: string | Date) => MoreThan(DateUtils.mixedDateToUtcDatetimeString(date))
 export const LessThanDate = (date: string | Date) => LessThan(DateUtils.mixedDateToUtcDatetimeString(date))
@@ -188,6 +190,7 @@ export default class ConnectionService {
     if (query === undefined) {
       return undefined
     }
+    electronStore.set('leatestId', id)
     return ConnectionService.entityToModel(query)
   }
 
@@ -274,7 +277,7 @@ export default class ConnectionService {
     }
     res.will = savedWill
     // TODO: refactor historyConnectionRepository field
-    await this.historyConnectionRepository.save({
+    const result = await this.historyConnectionRepository.save({
       ...res,
       id: undefined,
       lastWillTopic: res.will.lastWillPayload,
@@ -282,6 +285,7 @@ export default class ConnectionService {
       lastWillQos: res.will.lastWillQos,
       lastWillRetain: res.will.lastWillRetain,
     } as HistoryConnectionEntity)
+    electronStore.set('leatestId', result.id)
     return ConnectionService.entityToModel(
       await this.connectionRepository.save(
         ConnectionService.modelToEntity({
@@ -308,6 +312,9 @@ export default class ConnectionService {
     await this.connectionRepository.delete({
       id: query.id,
     })
+    if (electronStore.get('leatestId') === id) {
+      electronStore.set('leatestId', '')
+    }
     return ConnectionService.entityToModel(query) as ConnectionModel
   }
 
@@ -349,6 +356,9 @@ export default class ConnectionService {
   }
 
   public async getLeatestId(): Promise<string | undefined> {
+    if (electronStore.get('leatestId')) {
+      return electronStore.get('leatestId')
+    }
     const leatest: ConnectionEntity | undefined = await this.connectionRepository
       .createQueryBuilder('cn')
       .addOrderBy('createAt', 'ASC')
