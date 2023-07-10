@@ -608,7 +608,7 @@ export default class ConnectionsDetail extends Vue {
         }
       })
       .catch((error) => {
-        // ignore(error)
+        this.$log.error(error.toString())
       })
   }
 
@@ -1105,31 +1105,28 @@ export default class ConnectionsDetail extends Vue {
   // Processing message
   private processMessage(topic: string, payload: Buffer, packet: IPublishPacket) {
     const { qos, retain, properties } = packet
-    let receviedPayload: string = ''
-    try {
-      if (
-        (this.scriptOption?.function && ['all', 'received'].includes(this.scriptOption.apply)) ||
-        this.receivedMsgType !== 'Plaintext'
-      ) {
-        const schemaPayload = this.convertPayloadBySchema(payload, 'received', this.receivedMsgType)
-        if (schemaPayload instanceof Error) {
-          return
-        }
-        const convertPayload = this.convertPayloadByType(schemaPayload, this.receivedMsgType, 'received').toString()
-        receviedPayload = this.convertPayloadByFunction(convertPayload, 'received').replace(/\\/g, '')
-        if (this.scriptOption?.schema && this.receivedMsgType === 'Plaintext') {
-          receviedPayload = this.scriptOption?.config?.name + ' ' + printObjectAsString(JSON.parse(receviedPayload))
-        }
-      } else {
-        let tempPayload = this.convertPayloadBySchema(payload, 'received')
-        if (tempPayload instanceof Error) {
-          return
-        }
-        receviedPayload = tempPayload as string
+    let receviedPayload
+    if (
+      (this.scriptOption?.function && ['all', 'received'].includes(this.scriptOption.apply)) ||
+      this.receivedMsgType !== 'Plaintext'
+    ) {
+      const schemaPayload = this.convertPayloadBySchema(payload, 'received', this.receivedMsgType)
+      if (!schemaPayload) {
+        return
       }
-    } catch (err) {
-      // ignore(err)
-      return
+      const convertPayload = this.convertPayloadByType(schemaPayload, this.receivedMsgType, 'received')
+      if (!convertPayload) {
+        return
+      }
+      receviedPayload = this.convertPayloadByFunction(convertPayload.toString(), 'received').replace(/\\/g, '')
+      if (this.scriptOption?.schema && this.receivedMsgType === 'Plaintext') {
+        receviedPayload = this.scriptOption?.config?.name + ' ' + printObjectAsString(JSON.parse(receviedPayload))
+      }
+    } else {
+      receviedPayload = this.convertPayloadBySchema(payload, 'received')
+      if (!receviedPayload) {
+        return
+      }
     }
     const receivedMessage: MessageModel = {
       id: getMessageId(),
@@ -1181,9 +1178,8 @@ export default class ConnectionsDetail extends Vue {
         const { messageService } = useServices()
         await messageService.pushToConnection(messages, id)
       }
-    } catch (err) {
-      // ignore(err)
-      return
+    } catch (error) {
+      this.$log.error((error as Error).toString())
     }
   }
 
@@ -1214,8 +1210,8 @@ export default class ConnectionsDetail extends Vue {
       } else {
         this.$log.info(`ID: ${id} received an unread message`)
       }
-    } catch (err) {
-      // ignore(err)
+    } catch (error) {
+      this.$log.error((error as Error).toString())
       return
     }
   }
@@ -1277,9 +1273,8 @@ export default class ConnectionsDetail extends Vue {
         return
       }
       this.handleMessages()
-    } catch (err) {
-      // ignore(err)
-      return
+    } catch (error) {
+      this.$log.error((error as Error).toString())
     }
   }
 
@@ -1404,21 +1399,15 @@ export default class ConnectionsDetail extends Vue {
       { payload, payloadType: type } as HistoryMessagePayloadModel,
       { qos, topic, retain } as HistoryMessageHeaderModel,
     ) // insert message into local storage
-    let handlePayload: Buffer | string
-    let convertPayload: string = ''
-    try {
-      convertPayload = this.convertPayloadByFunction(payload as string, 'publish', type).replace(/\\/g, '')
-      if (this.scriptOption?.schema && ['all', 'publish'].includes(this.scriptOption.apply)) {
-        let tempPayload = this.convertPayloadBySchema(convertPayload, 'publish', type)
-        if (tempPayload instanceof Error) {
-          return
-        }
-        handlePayload = tempPayload
-      } else {
-        handlePayload = this.convertPayloadByType(convertPayload, type, 'publish')
-      }
-    } catch (err) {
-      // ignore(err)
+    let convertPayload = ''
+    let handlePayload
+    convertPayload = this.convertPayloadByFunction(payload as string, 'publish', type).replace(/\\/g, '')
+    if (this.scriptOption?.schema && ['all', 'publish'].includes(this.scriptOption.apply)) {
+      handlePayload = this.convertPayloadBySchema(convertPayload, 'publish', type)
+    } else {
+      handlePayload = this.convertPayloadByType(convertPayload, type, 'publish')
+    }
+    if (!handlePayload) {
       return
     }
 
@@ -1488,7 +1477,7 @@ export default class ConnectionsDetail extends Vue {
     value: Buffer | string,
     type: PayloadType,
     way: 'publish' | 'received',
-  ): Buffer | string {
+  ): Buffer | string | undefined {
     const genPublishPayload = (publishType: PayloadType, publishValue: string) => {
       if (publishType === 'Base64') {
         return Buffer.from(publishValue, 'base64')
@@ -1497,7 +1486,12 @@ export default class ConnectionsDetail extends Vue {
         return Buffer.from(publishValue.replaceAll(' ', ''), 'hex')
       }
       if (publishType === 'JSON') {
-        validFormatJson(publishValue.toString(), this.$t('connections.publishMsg'))
+        try {
+          validFormatJson(publishValue.toString(), this.$t('connections.publishMsg'))
+        } catch (error) {
+          this.$message.error((error as Error).toString())
+          return
+        }
       }
       return publishValue
     }
@@ -1551,29 +1545,37 @@ export default class ConnectionsDetail extends Vue {
     payload: Buffer | string,
     msgType: MessageType,
     to?: PayloadType,
-  ): string | Buffer | Error {
+  ): string | Buffer | void {
     let convertPayload = payload
-    if (this.scriptOption?.schema && ['all', msgType].includes(this.scriptOption.apply)) {
-      if (msgType === 'publish') {
-        return serializeProtobufToBuffer(
-          payload as string,
-          this.scriptOption.schema.script,
-          this.scriptOption?.config?.name,
-          to,
-          this,
-        )
+    try {
+      if (this.scriptOption?.schema && ['all', msgType].includes(this.scriptOption.apply)) {
+        switch (msgType) {
+          case 'publish': {
+            const result = serializeProtobufToBuffer(
+              payload as string,
+              this.scriptOption.schema.script,
+              this.scriptOption?.config?.name,
+              to,
+            )
+            if (result) return result
+            break
+          }
+          case 'received': {
+            const result = deserializeBufferToProtobuf(
+              payload as Buffer,
+              this.scriptOption.schema.script,
+              this.scriptOption?.config?.name,
+              to,
+            )
+            if (result) return result
+            break
+          }
+        }
       }
-      if (msgType === 'received') {
-        return deserializeBufferToProtobuf(
-          payload as Buffer,
-          this.scriptOption.schema.script,
-          this.scriptOption?.config?.name,
-          to,
-          this,
-        )
-      }
+      return convertPayload
+    } catch (error) {
+      this.$message.error((error as Error).toString())
     }
-    return convertPayload
   }
 
   // Show export data dialog

@@ -60,7 +60,7 @@ import { ElLoadingComponent } from 'element-ui/types/loading'
     MyDialog,
   },
 })
-export default class ImportData extends Vue {
+export default class ImportScript extends Vue {
   @Getter('currentTheme') private theme!: Theme
 
   @Prop({ default: false }) public visible!: boolean
@@ -140,7 +140,6 @@ export default class ImportData extends Vue {
 
   private async importData() {
     this.confirmLoading = true
-    const { connectionService } = useServices()
     if (!this.record.fileContent.length) {
       this.$message.error(this.$tc('connections.uploadFileTip'))
       return

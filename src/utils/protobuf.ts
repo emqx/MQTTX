@@ -5,19 +5,23 @@ export const printObjectAsString = (obj: any, indent = 2) => {
   const indentation = ' '.repeat(indent)
   let str = `{\n`
   const keys = Object.keys(obj)
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i]
-    const value = obj[key]
-    str += `${indentation}  ${key}: `
-    if (typeof value === 'object' && value !== null) {
-      str += `${printObjectAsString(value, indent + 2)}`
-    } else {
-      str += `${JSON.stringify(value)}`
+  try {
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i]
+      const value = obj[key]
+      str += `${indentation}  ${key}: `
+      if (typeof value === 'object' && value !== null) {
+        str += `${printObjectAsString(value, indent + 2)}`
+      } else {
+        str += `${JSON.stringify(value)}`
+      }
+      if (i < keys.length - 1) {
+        str += `,`
+      }
+      str += `\n`
     }
-    if (i < keys.length - 1) {
-      str += `,`
-    }
-    str += `\n`
+  } catch (error) {
+    throw new TypeError((error as Error).toString())
   }
   str += `}`
   return str
@@ -36,32 +40,32 @@ const convertObject = (raw: string, format?: PayloadType): string => {
   }
 }
 
-export const checkProtobufInput = async (
+export const checkProtobufInput = (
   proto: string,
   input: string,
   name: string,
   format?: PayloadType,
-  ctx?: any,
-) => {
+): string | undefined => {
   try {
     const root = protobuf.parse(proto).root
     const Message = root.lookupType(name)
     const content = JSON.parse(convertObject(input, format))
     const validationResult = Message.verify(content)
     if (validationResult) {
-      ctx.$message.error('Message Test Error:：' + validationResult)
-      return 'Message Test Error:：' + validationResult
+      throw new Error('Message Test Error:：' + validationResult)
     } else {
-      return deserializeBufferToProtobuf(
+      const result = deserializeBufferToProtobuf(
         Buffer.from(Message.encode(Message.create(content)).finish()),
         proto,
         name,
-        ctx,
       )
+      if (!result) {
+        return ''
+      }
+      return result.toString()
     }
   } catch (error) {
-    ctx.$message.error('Message Eest Failed：' + error)
-    return 'Message Eest Failed：' + error
+    throw new Error('Message Test Failed：' + error)
   }
 }
 
@@ -70,14 +74,12 @@ export const serializeProtobufToBuffer = (
   proto: string | undefined,
   protobufMessageName: string | undefined,
   format?: PayloadType,
-  ctx?: any,
-): Buffer | Error => {
+): Buffer | undefined => {
   let rawData: string = ''
   try {
     rawData = convertObject(raw, format)
   } catch (error) {
-    ctx.$message.error(`Message format type error : ${(error as Error).message.split('\n')[0]}`)
-    return new Error(`Message format type error : ${(error as Error).message.split('\n')[0]}`)
+    throw new TypeError(`Message format type error : ${(error as Error).message.split('\n')[0]}`)
   }
 
   let bufferMessage = Buffer.from(rawData)
@@ -87,18 +89,16 @@ export const serializeProtobufToBuffer = (
       const Message = root.lookupType(protobufMessageName)
       const err = Message.verify(JSON.parse(rawData))
       if (err) {
-        ctx.$message.error(`Message serialization error: ${err}`)
-        return new Error(`Message serialization error: ${err}`)
+        throw new SyntaxError(`Message serialization error: ${err}`)
       }
       const data = Message.create(JSON.parse(rawData))
       const serializedMessage = Message.encode(data).finish()
       bufferMessage = Buffer.from(serializedMessage)
+      return bufferMessage
     } catch (error) {
-      ctx.$message.error(`Message serialization error: ${(error as Error).message.split('\n')[0]}`)
-      return new Error(`Message serialization error: ${(error as Error).message.split('\n')[0]}`)
+      throw new SyntaxError(`Message serialization error: ${(error as Error).message.split('\n')[0]}`)
     }
   }
-  return bufferMessage
 }
 
 export const deserializeBufferToProtobuf = (
@@ -106,8 +106,7 @@ export const deserializeBufferToProtobuf = (
   proto: string | undefined,
   protobufMessageName: string | undefined,
   to?: PayloadType,
-  ctx?: any,
-): any => {
+): Buffer | string | undefined => {
   if (proto && protobufMessageName) {
     try {
       const root = protobuf.parse(proto).root
@@ -115,8 +114,7 @@ export const deserializeBufferToProtobuf = (
       const MessageData = Message.decode(Buffer.from(payload))
       const err = Message.verify(MessageData)
       if (err) {
-        ctx.$message.error(`Message deserialization error: ${err}`)
-        return new Error(`Message deserialization error: ${err}`)
+        throw new SyntaxError(`Message deserialization error: ${err}`)
       }
       if (to) {
         return Buffer.from(JSON.stringify(MessageData.toJSON()))
@@ -125,8 +123,7 @@ export const deserializeBufferToProtobuf = (
       return protobufMessageName + ' ' + printObjectAsString(MessageData)
     } catch (error) {
       let err = transformPBJSError(error as Error)
-      ctx.$message.error(err.message.split('\n')[0])
-      return new Error(err.message.split('\n')[0])
+      throw new SyntaxError(err.message.split('\n')[0])
     }
   }
 }

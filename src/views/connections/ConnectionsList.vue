@@ -689,7 +689,7 @@ export default class ConnectionsList extends Vue {
           this.$emit('reload')
         })
         .catch((error) => {
-          // ignore(error)
+          this.$log.error(error.toString())
         })
     }
     this.showCollectionsContextmenu = false
