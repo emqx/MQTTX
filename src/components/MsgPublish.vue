@@ -506,9 +506,13 @@ export default class MsgPublish extends Vue {
   }
 
   private formatJsonValue() {
-    const jsonValue = validFormatJson(this.msgRecord.payload.toString())
-    if (jsonValue) {
-      this.msgRecord.payload = jsonValue
+    try {
+      let jsonValue: string | undefined = validFormatJson(this.msgRecord.payload.toString())
+      if (jsonValue) {
+        this.msgRecord.payload = jsonValue
+      }
+    } catch (error) {
+      this.$message.error((error as Error).toString())
     }
   }
 
