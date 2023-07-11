@@ -599,6 +599,9 @@ message Person {
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
   }
+  .script-test-output {
+    padding-bottom: 10px;
+  }
   @include editor-lang-type;
 }
 </style>
