@@ -813,15 +813,15 @@ export default {
   usedScript: {
     zh: '使用',
     en: 'Used',
-    tr: '',
-    ja: '',
-    hu: '',
+    tr: 'Kullanıldı',
+    ja: '使用済み',
+    hu: 'Használt',
   },
   usedScriptAnd: {
     zh: '和',
     en: 'And',
-    tr: '',
-    ja: '',
-    hu: '',
+    tr: 'Ve',
+    ja: 'そして',
+    hu: 'És',
   },
 }
