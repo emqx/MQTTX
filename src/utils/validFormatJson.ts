@@ -13,6 +13,6 @@ export default (jsonStrValue: string, warnMessage?: TranslateResult) => {
     if (warnMessage) {
       errorMessage = `${warnMessage} ${errorMessage}`
     }
-    throw error
+    throw errorMessage
   }
 }

@@ -1490,7 +1490,6 @@ export default class ConnectionsDetail extends Vue {
           validFormatJson(publishValue.toString(), this.$t('connections.publishMsg'))
         } catch (error) {
           this.$message.error((error as Error).toString())
-          return
         }
       }
       return publishValue
@@ -1503,7 +1502,12 @@ export default class ConnectionsDetail extends Vue {
         return receiveValue.toString('hex').replace(/(.{4})/g, '$1 ')
       }
       if (receiveType === 'JSON') {
-        const jsonValue = validFormatJson(receiveValue.toString(), this.$t('connections.receivedMsg'))
+        let jsonValue: string | undefined
+        try {
+          jsonValue = validFormatJson(receiveValue.toString(), this.$t('connections.receivedMsg'))
+        } catch (error) {
+          this.$message.error((error as Error).toString())
+        }
         if (jsonValue) {
           return jsonValue
         }
