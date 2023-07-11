@@ -1538,7 +1538,7 @@ export default class ConnectionsDetail extends Vue {
           count,
         )
       } catch (error) {
-        this.$message.error((error as Error).toString())
+        this.$message.error(`Function Error: ${(error as Error).toString()}`)
       }
     }
     return convertPayload

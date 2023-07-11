@@ -811,7 +811,7 @@ export default {
     hu: 'Legalább egy tanúsítványfájlt töltsön fel',
   },
   usedScript: {
-    zh: '使用',
+    zh: '已使用',
     en: 'Used',
     tr: '',
     ja: '',
