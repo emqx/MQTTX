@@ -1529,13 +1529,17 @@ export default class ConnectionsDetail extends Vue {
       }
       const count = this.sendTimedMessageCount || undefined
       // Enable script function
-      convertPayload = sandbox.executeScript(
-        this.scriptOption.function.script,
-        type || this.receivedMsgType,
-        payload,
-        msgType,
-        count,
-      )
+      try {
+        convertPayload = sandbox.executeScript(
+          this.scriptOption.function.script,
+          type || this.receivedMsgType,
+          payload,
+          msgType,
+          count,
+        )
+      } catch (error) {
+        this.$message.error((error as Error).toString())
+      }
     }
     return convertPayload
   }
