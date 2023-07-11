@@ -35,9 +35,7 @@ const executeScript = (
     output = vm.run(_script)
     return output
   } catch (error) {
-    // @ts-ignore
-    output = error.toString()
-    return output
+    throw error
   }
 }
 

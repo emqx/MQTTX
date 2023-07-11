@@ -306,7 +306,7 @@ message Person {
     }
   }
 
-  private async handleTest() {
+  private handleTest() {
     try {
       if (this.activeTab === this.functionTab) {
         if (this.currentFunction === 'javascript') {
@@ -320,7 +320,7 @@ message Person {
       } else {
         if (this.currentSchema === 'protobuf') {
           if (!this.protoName) {
-            this.$message.error(this.$tc('script.mustProtoName'))
+            this.$message.warning(this.$tc('script.mustProtoName'))
             return
           }
           this.outputValue = scriptTest(
