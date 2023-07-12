@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: build
       run: |
         docker run --rm -i \
@@ -24,19 +24,23 @@ jobs:
          -v ~/.cache/electron-builder:/root/.cache/electron-builder \
          electronuserland/builder:wine \
          bash -c "yarn && yarn electron:build-linux && yarn electron:build-win"
-    - uses: actions/upload-artifact@v2
+    - uses: aws-actions/configure-aws-credentials@v2
+      if: github.event_name == 'release'
       with:
-        name: dist_electron
-        path: dist_electron
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
     - name: upload release asset
       if: github.event_name == 'release'
       run: |
         cd dist_electron
+        tag=$(echo ${{ github.ref }} | sed -r  "s ^refs/heads/|^refs/tags/(.*) \1 g")
         for var in $(ls); do
             $GITHUB_WORKSPACE/.github/workflows/upload_github_release_asset.sh \
                 owner=${{ github.repository_owner }} \
                 repo=mqttx \
-                tag=$(echo ${{ github.ref }} | sed -r  "s ^refs/heads/|^refs/tags/(.*) \1 g") \
+                tag=$tag \
                 filename=$var \
-                github_api_token=$(echo ${{ secrets.GITHUB_TOKEN }})
+                github_api_token=$(echo ${{ secrets.GITHUB_TOKEN }});
+            aws s3 cp $var s3://${{ secrets.AWS_S3_BUCKET }}/MQTTX/$tag/$var
         done
