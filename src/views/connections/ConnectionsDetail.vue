@@ -1118,7 +1118,7 @@ export default class ConnectionsDetail extends Vue {
       if (!convertPayload) {
         return
       }
-      receviedPayload = this.convertPayloadByFunction(convertPayload.toString(), 'received').replace(/\\/g, '')
+      receviedPayload = this.convertPayloadByFunction(convertPayload.toString(), 'received')
       if (this.scriptOption?.schema && this.receivedMsgType === 'Plaintext') {
         receviedPayload = this.scriptOption?.config?.name + ' ' + printObjectAsString(JSON.parse(receviedPayload))
       }
@@ -1401,7 +1401,7 @@ export default class ConnectionsDetail extends Vue {
     ) // insert message into local storage
     let convertPayload = ''
     let handlePayload
-    convertPayload = this.convertPayloadByFunction(payload as string, 'publish', type).replace(/\\/g, '')
+    convertPayload = this.convertPayloadByFunction(payload as string, 'publish', type)
     if (this.scriptOption?.schema && ['all', 'publish'].includes(this.scriptOption.apply)) {
       handlePayload = this.convertPayloadBySchema(convertPayload, 'publish', type)
     } else {
