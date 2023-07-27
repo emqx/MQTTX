@@ -1831,11 +1831,11 @@ export default class ConnectionsDetail extends Vue {
           @include flex-space-between;
           .received-type-select {
             width: 95px;
-            margin-left: 245px;
+            margin-left: 255px;
           }
           .icon-tip {
             position: absolute;
-            left: 245px;
+            left: 255px;
             font-size: 16px;
             color: var(--color-text-tips);
           }

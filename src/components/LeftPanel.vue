@@ -20,7 +20,7 @@ export default class LeftPanel extends Vue {}
     position: fixed;
     left: 341px;
     z-index: 1;
-    width: 230px;
+    width: 240px;
     background: var(--color-bg-normal);
     border-radius: 0;
     top: 0;
