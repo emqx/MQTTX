@@ -10,37 +10,40 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v3
-    - name: build
-      run: |
-        docker run --rm -i \
-         --env-file <(env | grep -iE 'DEBUG|NODE_|ELECTRON_|YARN_|NPM_|CI|CIRCLE|TRAVIS_TAG|TRAVIS|TRAVIS_REPO_|TRAVIS_BUILD_|TRAVIS_BRANCH|TRAVIS_PULL_REQUEST_|APPVEYOR_|CSC_|GH_|GITHUB_|BT_|AWS_|STRIP|BUILD_') \
-         --env ELECTRON_CACHE="/root/.cache/electron" \
-         --env ELECTRON_BUILDER_CACHE="/root/.cache/electron-builder" \
-         --env GH_TOKEN=${{ secrets.GITHUB_TOKEN }} \
-         -v ${PWD}:/project \
-         -v ${PWD##*/}-node-modules:/project/node_modules \
-         -v ~/.cache/electron:/root/.cache/electron \
-         -v ~/.cache/electron-builder:/root/.cache/electron-builder \
-         electronuserland/builder:wine \
-         bash -c "yarn && yarn electron:build-linux && yarn electron:build-win"
-    - uses: aws-actions/configure-aws-credentials@v2
-      if: github.event_name == 'release'
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-    - name: upload release asset
-      if: github.event_name == 'release'
-      run: |
-        cd dist_electron
-        tag=$(echo ${{ github.ref }} | sed -r  "s ^refs/heads/|^refs/tags/(.*) \1 g")
-        for var in $(ls); do
-            $GITHUB_WORKSPACE/.github/workflows/upload_github_release_asset.sh \
-                owner=${{ github.repository_owner }} \
-                repo=mqttx \
-                tag=$tag \
-                filename=$var \
-                github_api_token=$(echo ${{ secrets.GITHUB_TOKEN }});
-            aws s3 cp $var s3://${{ secrets.AWS_S3_BUCKET }}/MQTTX/$tag/$var
-        done
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16.14
+      - name: build
+        run: |
+          docker run --rm -i \
+           --env-file <(env | grep -iE 'DEBUG|NODE_|ELECTRON_|YARN_|NPM_|CI|CIRCLE|TRAVIS_TAG|TRAVIS|TRAVIS_REPO_|TRAVIS_BUILD_|TRAVIS_BRANCH|TRAVIS_PULL_REQUEST_|APPVEYOR_|CSC_|GH_|GITHUB_|BT_|AWS_|STRIP|BUILD_') \
+           --env ELECTRON_CACHE="/root/.cache/electron" \
+           --env ELECTRON_BUILDER_CACHE="/root/.cache/electron-builder" \
+           --env GH_TOKEN=${{ secrets.GITHUB_TOKEN }} \
+           -v ${PWD}:/project \
+           -v ${PWD##*/}-node-modules:/project/node_modules \
+           -v ~/.cache/electron:/root/.cache/electron \
+           -v ~/.cache/electron-builder:/root/.cache/electron-builder \
+           electronuserland/builder:wine \
+           bash -c "yarn && yarn electron:build-linux && yarn electron:build-win"
+      - uses: aws-actions/configure-aws-credentials@v2
+        if: github.event_name == 'release'
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+      - name: upload release asset
+        if: github.event_name == 'release'
+        run: |
+          cd dist_electron
+          tag=$(echo ${{ github.ref }} | sed -r  "s ^refs/heads/|^refs/tags/(.*) \1 g")
+          for var in $(ls); do
+              $GITHUB_WORKSPACE/.github/workflows/upload_github_release_asset.sh \
+                  owner=${{ github.repository_owner }} \
+                  repo=mqttx \
+                  tag=$tag \
+                  filename=$var \
+                  github_api_token=$(echo ${{ secrets.GITHUB_TOKEN }});
+              aws s3 cp $var s3://${{ secrets.AWS_S3_BUCKET }}/MQTTX/$tag/$var
+          done
