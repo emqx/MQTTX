@@ -11,9 +11,6 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 16.14
       - name: build
         run: |
           docker run --rm -i \
@@ -25,7 +22,7 @@ jobs:
            -v ${PWD##*/}-node-modules:/project/node_modules \
            -v ~/.cache/electron:/root/.cache/electron \
            -v ~/.cache/electron-builder:/root/.cache/electron-builder \
-           electronuserland/builder:wine \
+           electronuserland/builder:16-wine \
            bash -c "yarn && yarn electron:build-linux && yarn electron:build-win"
       - uses: aws-actions/configure-aws-credentials@v2
         if: github.event_name == 'release'
