@@ -39,7 +39,11 @@ export async function createUpdateWindow() {
   const link: string = `https://mqttx.app/${language === 'zh' ? 'zh/' : ''}changelogs/v${version}`
   // check the network connectivity and then open the window to prevent blank windows
   try {
-    const linkRes = await axios.get(link)
+    const linkRes = await axios.request({
+      timeout: 5000,
+      method: 'GET',
+      url: link,
+    })
     if (linkRes.status !== 200) {
       return
     }
