@@ -1670,16 +1670,18 @@ export default class ConnectionsDetail extends Vue {
 
   private mounted() {
     this.setMessageListHeight()
-    window.onresize = () => {
+    window.addEventListener('resize', () => {
       this.setMessageListHeight()
-    }
+    })
   }
 
   private beforeDestroy() {
     ipcRenderer.removeAllListeners('searchContent')
     this.removeClinetsMessageListener()
     this.stopTimedSend()
-    window.onresize = null
+    window.removeEventListener('resize', () => {
+      this.setMessageListHeight()
+    })
   }
 }
 </script>
