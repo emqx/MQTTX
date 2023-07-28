@@ -1,10 +1,9 @@
+import axios from 'axios'
 import { BrowserWindow, IpcMainEvent, ipcMain } from 'electron'
 import version from '@/version'
 import { getCurrentLang, versionDetail } from './updateChecker'
 
 const { autoUpdater } = require('electron-updater')
-const Store = require('electron-store')
-const electronStore = new Store()
 
 export const autoDownload = (event: IpcMainEvent, updateDetail: versionDetail, language: string) => {
   const downloadUrl = `https://www.emqx.com/${language}/downloads/MQTTX/${updateDetail.version}`
@@ -36,17 +35,25 @@ export const autoDownload = (event: IpcMainEvent, updateDetail: versionDetail, l
 }
 
 export async function createUpdateWindow() {
-  const updateWindow = new BrowserWindow({
-    width: 600,
-    height: 500,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      enableRemoteModule: true,
-    },
-  })
   const language: string = await getCurrentLang()
-  let link: string = 'https://mqttx.app'
-  link = language === 'zh' ? `${link}/zh` : link
-  updateWindow.loadURL(`${link}/changelogs/v${version}`)
+  const link: string = `https://mqttx.app/${language === 'zh' ? 'zh/' : ''}changelogs/v${version}`
+  // check the network connectivity and then open the window to prevent blank windows
+  try {
+    const linkRes = await axios.get(link)
+    if (linkRes.status !== 200) {
+      return
+    }
+    const updateWindow = new BrowserWindow({
+      width: 600,
+      height: 500,
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+        enableRemoteModule: true,
+      },
+    })
+    updateWindow.loadURL(link)
+  } catch (e) {
+    return
+  }
 }
