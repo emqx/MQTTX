@@ -125,5 +125,11 @@ export default class MsgLeftItem extends Vue {
     right: 0px;
     animation: leftMsg 0.3s ease-in-out;
   }
+  .input-prop {
+    textarea {
+      color: var(--color-text-left_info) !important;
+      border: 1px solid var(--color-border-left_metainfo) !important;
+    }
+  }
 }
 </style>

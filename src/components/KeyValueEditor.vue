@@ -9,6 +9,8 @@
         <el-input
           placeholder="Key"
           size="mini"
+          type="textarea"
+          autosize
           :disabled="disabled"
           v-model="item.key"
           class="input-prop user-prop-key"
@@ -17,6 +19,8 @@
         <el-input
           placeholder="Value"
           size="mini"
+          type="textarea"
+          autosize
           :disabled="disabled"
           v-model="item.value"
           class="input-prop user-prop-value"
@@ -129,6 +133,7 @@ export default class KeyValueEditor extends Vue {
     overflow-y: scroll;
     white-space: nowrap;
     .editor-row {
+      overflow: hidden;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -138,6 +143,10 @@ export default class KeyValueEditor extends Vue {
       .input-prop {
         padding: 0px;
         margin-right: 10px;
+        textarea {
+          background: transparent;
+          border-radius: 4px;
+        }
       }
     }
   }
