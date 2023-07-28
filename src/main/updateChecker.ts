@@ -24,21 +24,31 @@ export const getCurrentLang = async (): Promise<string> => {
 
 const getUpdateDtail = async (current: string): Promise<versionDetail | null> => {
   const tagsUrl = 'https://community-sites.emqx.com/api/v1/all_version?product=MQTTX'
-  const tagsRes = await axios.get(tagsUrl)
-  if (tagsRes.status === 200) {
-    const tagsList: string[] = tagsRes.data.data
-    const latestTag: string = tagsList[0]
-    if (latestTag && compareVersions(latestTag.replace(/[^0-9.]/g, ''), version) > 0) {
-      const versionRes = await axios.get(
-        `https://community-sites.emqx.com/api/v1/changelogs?product=MQTTX&version=${latestTag}`,
-      )
-      if (latestTag && versionRes.status === 200) {
-        return {
-          version: latestTag,
-          detail: versionRes.data.data.changelog,
+  try {
+    const tagsRes = await axios.request({
+      timeout: 5000,
+      method: 'GET',
+      url: tagsUrl,
+    })
+    if (tagsRes.status === 200) {
+      const tagsList: string[] = tagsRes.data.data
+      const latestTag: string = tagsList[0]
+      if (latestTag && compareVersions(latestTag.replace(/[^0-9.]/g, ''), version) > 0) {
+        const versionRes = await axios.request({
+          timeout: 5000,
+          method: 'GET',
+          url: `https://community-sites.emqx.com/api/v1/changelogs?product=MQTTX&version=${latestTag}`,
+        })
+        if (latestTag && versionRes.status === 200) {
+          return {
+            version: latestTag,
+            detail: versionRes.data.data.changelog,
+          }
         }
       }
     }
+  } catch (e) {
+    // console.log(e)
   }
   return null
 }

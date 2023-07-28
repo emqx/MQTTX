@@ -3,7 +3,7 @@
     <Leftbar />
     <RouterView />
     <Ipc @setTheme="setTheme" @setLang="setLang" />
-    <Update />
+    <Update v-if="updateActive" />
   </div>
 </template>
 
@@ -27,6 +27,7 @@ export default class Home extends Vue {
   @Getter('syncOsTheme') private syncOsTheme!: boolean
   @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
+  private updateActive: boolean = false
 
   private setTheme(theme: Theme): void {
     const { shouldUseDarkColors } = remote.nativeTheme
@@ -51,6 +52,9 @@ export default class Home extends Vue {
   private created() {
     this.setTheme(this.getterTheme)
     this.setLang(this.getterLang)
+    setTimeout(() => {
+      this.updateActive = true
+    }, 3000)
   }
 }
 </script>
