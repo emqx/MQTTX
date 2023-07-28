@@ -36,6 +36,17 @@ body.select-none {
   :focus {
     outline: none;
   }
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background: var(--color-bg-scrollbar);
+    width: 8px;
+  }
 }
 
 h1 {
