@@ -715,7 +715,7 @@ export default class SubscriptionsList extends Vue {
     border-bottom: none;
     text-align: center;
     position: relative;
-    padding: 12px 16px 0 16px;
+    padding: 12px 16px;
     .hide-btn {
       font-size: 20px;
       position: absolute;
@@ -724,9 +724,10 @@ export default class SubscriptionsList extends Vue {
     }
   }
   .el-card__body {
-    padding: 18px 16px 0 16px;
+    padding: 6px 16px;
     height: 100%;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: overlay;
     .topics-item {
       cursor: pointer;
       color: var(--color-text-title);
