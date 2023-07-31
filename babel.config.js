@@ -6,13 +6,20 @@ const plugins = [
       styleLibraryName: 'theme-chalk',
     },
   ],
+  [
+    'prismjs',
+    {
+      languages: ['javascript'],
+      plugins: ['line-numbers'],
+      theme: 'okaidia',
+      css: true,
+    },
+  ],
 ]
 if (process.env.NODE_ENV === 'development') {
   plugins.push('dynamic-import-node')
 }
 module.exports = {
-  presets: [
-    '@vue/app',
-  ],
+  presets: ['@vue/app'],
   plugins,
 }

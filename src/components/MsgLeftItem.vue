@@ -54,7 +54,8 @@
           />
         </p>
       </div>
-      <pre>{{ payload }}</pre>
+      <pre v-if="!hightlight">{{ payload }}</pre>
+      <pre v-else><code class="language-js line-numbers" >{{ payload }}</code></pre>
     </div>
     <p class="left-time time">{{ createAt }}</p>
   </div>
@@ -63,6 +64,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import KeyValueEditor from './KeyValueEditor.vue'
+import Prism from 'prismjs'
 
 @Component({
   components: {
@@ -78,6 +80,7 @@ export default class MsgLeftItem extends Vue {
   @Prop({ required: false, default: false }) public retain!: boolean
   @Prop({ required: false, default: () => ({}) }) public properties!: PushPropertiesModel
   @Prop({ required: false, default: '' }) public color!: string
+  private hightlight: boolean = false
 
   private customMenu(event: MouseEvent) {
     this.$emit('showmenu', this.payload, event)
@@ -89,6 +92,19 @@ export default class MsgLeftItem extends Vue {
 
   get schemaName() {
     return this.meta ? JSON.parse(this.meta).schemaName : null
+  }
+
+  private mounted() {
+    try {
+      if (this.payload && JSON.parse(this.payload)) {
+        this.hightlight = true
+        this.$nextTick(() => {
+          Prism.highlightAll()
+        })
+      }
+    } catch (e) {
+      this.hightlight = false
+    }
   }
 }
 </script>
