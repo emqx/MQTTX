@@ -11,6 +11,7 @@
           size="mini"
           type="textarea"
           resize="none"
+          :autosize="{ minRows: 1, maxRows: 3 }"
           :disabled="disabled"
           v-model="item.key"
           class="input-prop user-prop-key"
@@ -21,6 +22,7 @@
           size="mini"
           type="textarea"
           resize="none"
+          :autosize="{ minRows: 1, maxRows: 3 }"
           :disabled="disabled"
           v-model="item.value"
           class="input-prop user-prop-value"
@@ -135,8 +137,6 @@ export default class KeyValueEditor extends Vue {
     .editor-row {
       overflow: hidden;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
       &:not(:last-child) {
         margin-bottom: 10px;
       }
@@ -144,8 +144,13 @@ export default class KeyValueEditor extends Vue {
         padding: 0px;
         margin-right: 10px;
         textarea {
+          padding: 4px 15px;
           background: transparent;
           border-radius: 4px;
+          overflow-y: hidden;
+          &:hover {
+            overflow-y: overlay;
+          }
         }
       }
     }

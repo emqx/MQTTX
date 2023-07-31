@@ -727,7 +727,10 @@ export default class SubscriptionsList extends Vue {
     padding: 6px 16px;
     height: 100%;
     overflow-x: hidden;
-    overflow-y: overlay;
+    overflow-y: hidden;
+    &:hover {
+      overflow-y: overlay;
+    }
     .topics-item {
       cursor: pointer;
       color: var(--color-text-title);

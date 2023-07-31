@@ -750,6 +750,10 @@ export default class ConnectionsList extends Vue {
   }
   .connections-list {
     height: calc(100% - 59px);
+    overflow-y: hidden;
+    &:hover {
+      overflow-y: overlay;
+    }
     .connections-list-skeleton {
       margin: 0 16px;
     }
