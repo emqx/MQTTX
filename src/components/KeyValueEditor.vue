@@ -7,6 +7,7 @@
     <div class="editor-row" :style="{ 'max-height': maxHeight }">
       <div v-for="(item, index) in dataList" class="editor-row" :key="index">
         <el-input
+          :ref="`KeyRef${index}`"
           placeholder="Key"
           size="mini"
           type="textarea"
@@ -18,6 +19,7 @@
           @input="handleInputChange"
         />
         <el-input
+          :ref="`ValueRef${index}`"
           placeholder="Value"
           size="mini"
           type="textarea"
@@ -115,8 +117,33 @@ export default class KeyValueEditor extends Vue {
     })
   }
 
+  private resizeInput() {
+    interface ResizeTextarea {
+      resizeTextarea: () => void
+    }
+    this.dataList.forEach((_, i) => {
+      if (this.$refs[`ValueRef${i}`]) {
+        const valueRef = this.$refs[`ValueRef${i}`]
+        if (Array.isArray(valueRef)) {
+          ;(valueRef[0] as unknown as ResizeTextarea).resizeTextarea()
+        }
+      }
+      if (this.$refs[`KeyRef${i}`]) {
+        const keyRef = this.$refs[`KeyRef${i}`]
+        if (Array.isArray(keyRef)) {
+          ;(keyRef[0] as unknown as ResizeTextarea).resizeTextarea()
+        }
+      }
+    })
+  }
+
   private created() {
     this.processObjToArry()
+    window.addEventListener('resize', this.resizeInput)
+  }
+
+  private beforeDestroy() {
+    window.removeEventListener('resize', this.resizeInput)
   }
 }
 </script>
