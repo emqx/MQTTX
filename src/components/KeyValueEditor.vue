@@ -10,7 +10,7 @@
           placeholder="Key"
           size="mini"
           type="textarea"
-          autosize
+          resize="none"
           :disabled="disabled"
           v-model="item.key"
           class="input-prop user-prop-key"
@@ -20,7 +20,7 @@
           placeholder="Value"
           size="mini"
           type="textarea"
-          autosize
+          resize="none"
           :disabled="disabled"
           v-model="item.value"
           class="input-prop user-prop-value"
