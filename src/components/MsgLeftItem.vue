@@ -16,33 +16,19 @@
       >
     </div>
     <div v-if="msgError" class="msg-tag">
-      <el-tag size="mini">
+      <el-tag type="warning" size="mini">
         <b style="color: #f56c6c">{{ msgError }}</b>
       </el-tag>
     </div>
     <span
-      v-if="!functionName && !schemaName && !msgError"
       class="topic-color"
       :style="{
         background: color,
-        height: 'calc(100% - 44px)',
-        top: '11px',
+        height: topicColorStyle.height,
+        top: topicColorStyle.top,
       }"
     >
     </span>
-    <span
-      v-else
-      class="topic-color"
-      :style="{
-        background: color,
-        height:
-          ((functionName || schemaName) && !msgError) || (msgError && !schemaName && !functionName)
-            ? 'calc(100% - 62px)'
-            : 'calc(100% - 84px)',
-        top:
-          ((functionName || schemaName) && !msgError) || (msgError && !schemaName && !functionName) ? '32px' : '55px',
-      }"
-    ></span>
     <div ref="leftPayload" class="left-payload payload" @contextmenu.prevent="customMenu($event)">
       <p class="left-info">
         <span class="topic">Topic: {{ topic }}</span>
@@ -100,10 +86,21 @@ export default class MsgLeftItem extends Vue {
   @Prop({ required: false, default: false }) public retain!: boolean
   @Prop({ required: false, default: () => ({}) }) public properties!: PushPropertiesModel
   @Prop({ required: false, default: '' }) public color!: string
-  private hightlight: boolean = false
+  public hightlight: boolean = false
 
-  private customMenu(event: MouseEvent) {
+  public customMenu(event: MouseEvent) {
     this.$emit('showmenu', this.payload, event)
+  }
+
+  get topicColorStyle() {
+    const hasFunctionOrSchema = this.functionName || this.schemaName
+    if (!hasFunctionOrSchema && !this.msgError) {
+      return { height: 'calc(100% - 44px)', top: '11px' }
+    } else if (hasFunctionOrSchema && this.msgError) {
+      return { height: 'calc(100% - 84px)', top: '55px' }
+    } else {
+      return { height: 'calc(100% - 62px)', top: '32px' }
+    }
   }
 
   get functionName() {
