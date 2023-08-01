@@ -536,9 +536,15 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
-  private updateReceivedMsgType(message: MessageModel, msgType: PayloadType) {
+  private updateMetaMsgType(message: MessageModel, msgType: PayloadType) {
     const metaObj = JSON.parse(message.meta || '{}')
     metaObj['msgType'] = msgType
+    message.meta = JSON.stringify(metaObj)
+  }
+
+  private updateMetaError(message: MessageModel, error: string) {
+    const metaObj = JSON.parse(message.meta || '{}')
+    metaObj['msgError'] = error
     message.meta = JSON.stringify(metaObj)
   }
 
@@ -642,13 +648,16 @@ export default class ConnectionsDetail extends Vue {
     const filterBarOffsetHeight = filterBar.offsetHeight
 
     this.messageListMarginTop = filterBarOffsetHeight > 56 ? filterBarOffsetHeight - 37 : 19
-
-    this.messageListHeight =
-      document.body.offsetHeight -
-      connectionTopbar.offsetHeight -
-      connectionFooter.offsetHeight -
-      filterBarOffsetHeight -
-      8
+    try {
+      this.messageListHeight =
+        document.body.offsetHeight -
+        connectionTopbar.offsetHeight -
+        connectionFooter.offsetHeight -
+        filterBarOffsetHeight -
+        8
+    } catch (error) {
+      // ignore(error)
+    }
   }
 
   // Show context menu
@@ -1112,6 +1121,7 @@ export default class ConnectionsDetail extends Vue {
   private processMessage(topic: string, payload: Buffer, packet: IPublishPacket) {
     const { qos, retain, properties } = packet
     let receviedPayload
+    let jsonMsgError = ''
     if (
       (this.scriptOption?.function && ['all', 'received'].includes(this.scriptOption.apply)) ||
       this.receivedMsgType !== 'Plaintext'
@@ -1120,9 +1130,14 @@ export default class ConnectionsDetail extends Vue {
       if (!schemaPayload) {
         return
       }
-      const convertPayload = this.convertPayloadByType(schemaPayload, this.receivedMsgType, 'received')
+      let convertPayload
+      try {
+        convertPayload = this.convertPayloadByType(schemaPayload, this.receivedMsgType, 'received')
+      } catch (e) {
+        jsonMsgError = (e as Error).toString()
+      }
       if (!convertPayload) {
-        return
+        convertPayload = schemaPayload
       }
       receviedPayload = this.convertPayloadByFunction(convertPayload.toString(), 'received')
       if (this.scriptOption?.schema && this.receivedMsgType === 'Plaintext') {
@@ -1146,7 +1161,10 @@ export default class ConnectionsDetail extends Vue {
     }
     this.updateMeta(receivedMessage, 'function', 'received')
     this.updateMeta(receivedMessage, 'schema', 'received')
-    this.updateReceivedMsgType(receivedMessage, this.receivedMsgType)
+    this.updateMetaMsgType(receivedMessage, this.receivedMsgType)
+    if (this.receivedMsgType === 'JSON' && jsonMsgError) {
+      this.updateMetaError(receivedMessage, jsonMsgError)
+    }
 
     return receivedMessage
   }
@@ -1443,6 +1461,7 @@ export default class ConnectionsDetail extends Vue {
         }
         this.updateMeta(publishMessage, 'function', 'publish')
         this.updateMeta(publishMessage, 'schema', 'publish')
+
         if (this.record.id) {
           // Save message
           const { messageService } = useServices()
@@ -1494,9 +1513,12 @@ export default class ConnectionsDetail extends Vue {
       }
       if (publishType === 'JSON') {
         try {
-          validFormatJson(publishValue.toString(), this.$t('connections.publishMsg'))
+          validFormatJson(publishValue.toString())
         } catch (error) {
-          this.$message.error((error as Error).toString())
+          const err = error as Error
+          let errorMessage = `${this.$t('connections.publishMsg')} ${err.toString()}`
+          this.$message.error(errorMessage)
+          return undefined
         }
       }
       return publishValue
@@ -1511,9 +1533,9 @@ export default class ConnectionsDetail extends Vue {
       if (receiveType === 'JSON') {
         let jsonValue: string | undefined
         try {
-          jsonValue = validFormatJson(receiveValue.toString(), this.$t('connections.receivedMsg'))
+          jsonValue = validFormatJson(receiveValue.toString())
         } catch (error) {
-          this.$message.error((error as Error).toString())
+          throw error
         }
         if (jsonValue) {
           return jsonValue

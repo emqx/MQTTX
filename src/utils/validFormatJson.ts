@@ -1,6 +1,4 @@
-import { TranslateResult } from 'vue-i18n'
-
-export default (jsonStrValue: string, warnMessage?: TranslateResult) => {
+export default (jsonStrValue: string) => {
   try {
     const jsonValue = JSON.parse(jsonStrValue)
     if (jsonValue) {
@@ -8,11 +6,6 @@ export default (jsonStrValue: string, warnMessage?: TranslateResult) => {
     }
     return undefined
   } catch (error) {
-    const err = error as Error
-    let errorMessage = err.toString()
-    if (warnMessage) {
-      errorMessage = `${warnMessage} ${errorMessage}`
-    }
-    throw errorMessage
+    throw error
   }
 }
