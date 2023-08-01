@@ -1,6 +1,6 @@
 <template>
   <div class="msg-left-item">
-    <div v-if="functionName || schemaName">
+    <div v-if="functionName || schemaName" class="msg-tag">
       <el-tag size="mini">
         <span>&nbsp;{{ $t('connections.usedScript') }}</span>
 
@@ -15,12 +15,32 @@
         ></el-tag
       >
     </div>
+    <div v-if="msgError" class="msg-tag">
+      <el-tag size="mini">
+        <b style="color: #f56c6c">{{ msgError }}</b>
+      </el-tag>
+    </div>
     <span
+      v-if="!functionName && !schemaName && !msgError"
       class="topic-color"
       :style="{
         background: color,
-        height: functionName || schemaName ? 'calc(100% - 62px)' : 'calc(100% - 44px)',
-        top: functionName || schemaName ? '32px' : '11px',
+        height: 'calc(100% - 44px)',
+        top: '11px',
+      }"
+    >
+    </span>
+    <span
+      v-else
+      class="topic-color"
+      :style="{
+        background: color,
+        height:
+          ((functionName || schemaName) && !msgError) || (msgError && !schemaName && !functionName)
+            ? 'calc(100% - 62px)'
+            : 'calc(100% - 84px)',
+        top:
+          ((functionName || schemaName) && !msgError) || (msgError && !schemaName && !functionName) ? '32px' : '55px',
       }"
     ></span>
     <div ref="leftPayload" class="left-payload payload" @contextmenu.prevent="customMenu($event)">
@@ -98,6 +118,10 @@ export default class MsgLeftItem extends Vue {
     return this.meta ? JSON.parse(this.meta).msgType : null
   }
 
+  get msgError() {
+    return this.meta ? JSON.parse(this.meta).msgError : null
+  }
+
   private mounted() {
     try {
       if (this.payload && this.msgType === 'JSON') {
@@ -124,6 +148,9 @@ export default class MsgLeftItem extends Vue {
     color: var(--color-text-tags);
     background: var(--color-bg-tags);
     border-color: var(--color-border-right_metainfo);
+  }
+  .msg-tag:nth-child(2) {
+    margin-top: 2px;
   }
   .topic-color {
     height: calc(100% - 62px);
