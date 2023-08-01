@@ -536,6 +536,12 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
+  private updateReceivedMsgType(message: MessageModel, msgType: PayloadType) {
+    const metaObj = JSON.parse(message.meta || '{}')
+    metaObj['msgType'] = msgType
+    message.meta = JSON.stringify(metaObj)
+  }
+
   // Connect
   public async connect(): Promise<boolean | void> {
     this.isReconnect = false
@@ -1140,6 +1146,7 @@ export default class ConnectionsDetail extends Vue {
     }
     this.updateMeta(receivedMessage, 'function', 'received')
     this.updateMeta(receivedMessage, 'schema', 'received')
+    this.updateReceivedMsgType(receivedMessage, this.receivedMsgType)
 
     return receivedMessage
   }

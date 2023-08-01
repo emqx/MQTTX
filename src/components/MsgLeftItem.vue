@@ -94,9 +94,13 @@ export default class MsgLeftItem extends Vue {
     return this.meta ? JSON.parse(this.meta).schemaName : null
   }
 
+  get msgType() {
+    return this.meta ? JSON.parse(this.meta).msgType : null
+  }
+
   private mounted() {
     try {
-      if (this.payload && JSON.parse(this.payload)) {
+      if (this.payload && this.msgType === 'JSON') {
         this.hightlight = true
         this.$nextTick(() => {
           Prism.highlightAll()
