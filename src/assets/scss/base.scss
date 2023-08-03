@@ -38,6 +38,7 @@ body.select-none {
   }
   &::-webkit-scrollbar {
     width: 8px;
+    height: 8px;
   }
   &::-webkit-scrollbar-track {
     width: 8px;
@@ -46,6 +47,7 @@ body.select-none {
     border-radius: 4px;
     background: var(--color-bg-scrollbar);
     width: 8px;
+    height: 8px;
   }
 }
 

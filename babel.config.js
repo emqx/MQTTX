@@ -10,8 +10,8 @@ const plugins = [
     'prismjs',
     {
       languages: ['javascript'],
-      plugins: ['line-numbers'],
-      theme: 'okaidia',
+      // plugins: ['line-numbers'],
+      // theme: 'funky',
       css: true,
     },
   ],
