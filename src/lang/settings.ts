@@ -153,4 +153,18 @@ export default {
     ja: '複数のトピックを一度に購読することができます。コンマで区切ります。',
     hu: 'Egy időben több témára feliratkozhat.',
   },
+  jsonHighlight: {
+    zh: 'JSON 数据高亮',
+    en: 'JSON Highlighting',
+    tr: 'JSON Highlighting',
+    ja: 'JSONハイライト',
+    hu: 'JSON Kiemelés',
+  },
+  jsonHighlightDesc: {
+    zh: '启用此选项后，将对接收到的 JSON 格式的 Payload 数据进行实时高亮显示。<br/>注意：这可能影响应用的性能。如果你在使用时遇到性能问题，可以尝试关闭这个选项。',
+    en: "Highlight received payload data in real-time with JSON format. <br/>Enabling this feature may affect the application's performance, so consider turning it off if you experience performance issues.",
+    tr: 'Bu özelliği etkinleştirerek, JSON formatındaki alınan yük verilerini gerçek zamanlı olarak vurgulayabilirsiniz. <br/>Not: Bu, uygulamanın performansını etkileyebilir. Performans sorunları yaşıyorsanız, bu özelliği devre dışı bırakmayı düşünün.',
+    ja: 'この機能を有効にすると、リアルタイムで受信したJSON形式のPayloadデータをハイライト表示します。<br/>注意：これによりアプリケーションのパフォーマンスが影響を受ける可能性があります。パフォーマンスに問題がある場合は、この機能を無効にすることを検討してください。',
+    hu: 'Engedélyezze ezt a funkciót, hogy a JSON formátumú, fogadott terhelési adatokat valós időben kiemelje. <br/>Megjegyzés: Ez befolyásolhatja az alkalmazás teljesítményét. Ha teljesítményproblémákat tapasztal, fontolja meg ennek a funkcióknak a letiltását.',
+  },
 }

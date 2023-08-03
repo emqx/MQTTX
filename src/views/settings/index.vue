@@ -165,6 +165,29 @@
       </el-row>
 
       <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
+          <label>{{ $t('settings.jsonHighlight') }}</label>
+          <el-tooltip placement="top" :effect="currentTheme !== 'light' ? 'light' : 'dark'" :open-delay="500">
+            <div slot="content" v-html="$t('settings.jsonHighlightDesc')"></div>
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            :value="jsonHighlight"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleJsonHighlightSwitchChange"
+          >
+          </el-switch>
+        </el-col>
+      </el-row>
+
+      <el-divider></el-divider>
     </div>
 
     <div class="settings-advanced">
@@ -248,6 +271,8 @@ export default class Settings extends Vue {
   @Action('TOGGLE_SYNC_OS_THEME') private actionSyncOsTheme!: (payload: { syncOsTheme: boolean }) => void
   @Action('SET_MAX_RECONNECT_TIMES') private actionMaxReconnectTimes!: (payload: { maxReconnectTimes: number }) => void
   @Action('TOGGLE_MULTI_TOPICS') private actionToggleMultiTopics!: (payload: { multiTopics: boolean }) => void
+  @Action('TOGGLE_JSON_HIGHLIGHT') private actionToggleJsonHighlight!: (payload: { jsonHighlight: boolean }) => void
+
   @Getter('currentTheme') private currentTheme!: Theme
   @Getter('currentLang') private currentLang!: Language
   @Getter('autoCheck') private autoCheck!: boolean
@@ -255,6 +280,7 @@ export default class Settings extends Vue {
   @Getter('syncOsTheme') private syncOsTheme!: boolean
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('multiTopics') private multiTopics!: boolean
+  @Getter('jsonHighlight') private jsonHighlight!: boolean
 
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
@@ -305,6 +331,10 @@ export default class Settings extends Vue {
     this.actionMaxReconnectTimes({ maxReconnectTimes: value })
   }
 
+  private handleJsonHighlightSwitchChange(value: boolean) {
+    this.actionToggleJsonHighlight({ jsonHighlight: value })
+  }
+
   private handleImportData() {
     this.showImportData = true
   }
@@ -335,7 +365,7 @@ export default class Settings extends Vue {
 
   [class$='general'],
   [class$='appearance'] {
-    margin-bottom: 80px;
+    margin-bottom: 56px;
   }
 
   .el-divider--horizontal {
