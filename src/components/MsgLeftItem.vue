@@ -3,7 +3,6 @@
     <div v-if="functionName || schemaName" class="msg-tag">
       <el-tag size="mini">
         <span>&nbsp;{{ $t('connections.usedScript') }}</span>
-
         <span v-if="functionName"
           >&nbsp;<b>{{ functionName }}</b
           >&nbsp;{{ $t('script.functionName') }}&nbsp;</span
@@ -16,8 +15,8 @@
       >
     </div>
     <div v-if="msgError" class="msg-tag">
-      <el-tag type="warning" size="mini">
-        <b style="color: #f56c6c">{{ msgError }}</b>
+      <el-tag type="danger" size="mini">
+        <span>{{ msgError }}</span>
       </el-tag>
     </div>
     <span
@@ -121,7 +120,7 @@ export default class MsgLeftItem extends Vue {
 
   private mounted() {
     try {
-      if (this.payload && this.msgType === 'JSON') {
+      if (this.payload && this.msgType === 'JSON' && !this.msgError) {
         this.hightlight = true
         this.$nextTick(() => {
           Prism.highlightAll()
@@ -148,11 +147,6 @@ body.night {
   @include msg-item;
   text-align: left;
   position: relative;
-  .el-tag {
-    color: var(--color-text-tags);
-    background: var(--color-bg-tags);
-    border-color: var(--color-border-right_metainfo);
-  }
   .msg-tag:nth-child(2) {
     margin-top: 2px;
   }
