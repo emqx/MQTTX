@@ -15,6 +15,7 @@ const getters = {
   allConnections: (state: State) => state.app.allConnections,
   currentScript: (state: State) => state.app.currentScript,
   multiTopics: (state: State) => state.app.multiTopics,
+  jsonHighlight: (state: State) => state.app.jsonHighlight,
 }
 
 export default getters

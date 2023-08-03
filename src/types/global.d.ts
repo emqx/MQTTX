@@ -104,6 +104,7 @@ declare global {
     currentScript: ScriptState | null
     currentConnectionId: string | null
     connectionTreeState: ConnectionTreeStateMap
+    jsonHighlight: boolean
   }
 
   interface State {

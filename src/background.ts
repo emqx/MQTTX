@@ -122,6 +122,7 @@ async function createWindow() {
       maxReconnectTimes: setting.maxReconnectTimes,
       syncOsTheme: setting.syncOsTheme,
       multiTopics: setting.multiTopics,
+      jsonHighlight: setting.jsonHighlight,
     }
   }
   // Create the browser window.

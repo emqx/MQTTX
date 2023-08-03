@@ -31,4 +31,7 @@ export default class SettingEntity {
 
   @Column({ type: 'boolean', default: true })
   multiTopics!: boolean
+
+  @Column({ type: 'boolean', default: true })
+  jsonHighlight!: boolean
 }
