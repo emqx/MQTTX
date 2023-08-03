@@ -70,6 +70,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import KeyValueEditor from './KeyValueEditor.vue'
 import Prism from 'prismjs'
+import { Getter } from 'vuex-class'
 
 @Component({
   components: {
@@ -85,6 +86,9 @@ export default class MsgLeftItem extends Vue {
   @Prop({ required: false, default: false }) public retain!: boolean
   @Prop({ required: false, default: () => ({}) }) public properties!: PushPropertiesModel
   @Prop({ required: false, default: '' }) public color!: string
+
+  @Getter('jsonHighlight') private jsonHighlight!: boolean
+
   public hightlight: boolean = false
 
   public customMenu(event: MouseEvent) {
@@ -118,7 +122,10 @@ export default class MsgLeftItem extends Vue {
     return this.meta ? JSON.parse(this.meta).msgError : null
   }
 
-  private mounted() {
+  private hightlightJSON() {
+    if (this.jsonHighlight === false) {
+      return
+    }
     try {
       if (this.payload && this.msgType === 'JSON' && !this.msgError) {
         this.hightlight = true
@@ -129,6 +136,10 @@ export default class MsgLeftItem extends Vue {
     } catch (e) {
       this.hightlight = false
     }
+  }
+
+  private mounted() {
+    this.hightlightJSON()
   }
 }
 </script>
