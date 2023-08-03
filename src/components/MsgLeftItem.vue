@@ -60,7 +60,7 @@
         </p>
       </div>
       <pre v-if="!hightlight">{{ payload }}</pre>
-      <pre v-else><code class="language-js line-numbers" >{{ payload }}</code></pre>
+      <pre v-else><code class="language-js" >{{ payload }}</code></pre>
     </div>
     <p class="left-time time">{{ createAt }}</p>
   </div>

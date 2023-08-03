@@ -603,5 +603,8 @@ message Person {
     padding-bottom: 10px;
   }
   @include editor-lang-type;
+  .el-tabs__nav-wrap::after {
+    background-color: var(--color-border-default);
+  }
 }
 </style>
