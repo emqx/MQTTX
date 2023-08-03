@@ -20,6 +20,7 @@ const SET_SCRIPT = 'SET_SCRIPT'
 const SET_CURRENT_CONNECTION_ID = 'SET_CURRENT_CONNECTION_ID'
 const TOGGLE_SYNC_OS_THEME = 'TOGGLE_SYNC_OS_THEME'
 const TOGGLE_MULTI_TOPICS = 'TOGGLE_MULTI_TOPICS'
+const TOGGLE_JSON_HIGHLIGHT = 'TOGGLE_JSON_HIGHLIGHT'
 
 const getShowSubscriptions = (): boolean => {
   const $showSubscriptions: string | null = localStorage.getItem('showSubscriptions')
@@ -39,6 +40,7 @@ const app = {
     autoResub: settingData.autoResub,
     syncOsTheme: settingData.syncOsTheme,
     multiTopics: settingData.multiTopics,
+    jsonHighlight: settingData.jsonHighlight,
     maxReconnectTimes: settingData.maxReconnectTimes || 10,
     showSubscriptions: getShowSubscriptions(),
     showClientInfo: {},
@@ -71,6 +73,9 @@ const app = {
     },
     [SET_MAX_RECONNECT_TIMES](state: App, maxReconnectTimes: number) {
       state.maxReconnectTimes = maxReconnectTimes
+    },
+    [TOGGLE_JSON_HIGHLIGHT](state: App, jsonHighlight: boolean) {
+      state.jsonHighlight = jsonHighlight
     },
     [CHANGE_ACTIVE_CONNECTION](state: App, payload: Client) {
       const { id, client } = payload
@@ -165,6 +170,12 @@ const app = {
       const { settingService } = useServices()
       commit(TOGGLE_MULTI_TOPICS, payload.multiTopics)
       settingData.multiTopics = payload.multiTopics
+      await settingService.update(payload)
+    },
+    async TOGGLE_JSON_HIGHLIGHT({ commit }: any, payload: App) {
+      const { settingService } = useServices()
+      commit(TOGGLE_JSON_HIGHLIGHT, payload.jsonHighlight)
+      settingData.jsonHighlight = payload.jsonHighlight
       await settingService.update(payload)
     },
     async SET_MAX_RECONNECT_TIMES({ commit }: any, payload: App) {
