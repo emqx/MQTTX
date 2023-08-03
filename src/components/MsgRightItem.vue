@@ -3,7 +3,6 @@
     <div v-if="functionName || schemaName">
       <el-tag size="mini">
         <span>&nbsp;{{ $t('connections.usedScript') }}</span>
-
         <span v-if="functionName"
           >&nbsp;<b>{{ functionName }}</b
           >&nbsp;{{ $t('script.functionName') }}&nbsp;</span
@@ -88,11 +87,6 @@ export default class MsgrightItem extends Vue {
 .msg-right-item {
   text-align: right;
   @include msg-item;
-  .el-tag {
-    color: var(--color-text-tags);
-    background: var(--color-bg-tags);
-    border-color: var(--color-border-right_metainfo);
-  }
   .right-payload {
     color: var(--color-text-active);
     background: var(--color-text-right_block);
