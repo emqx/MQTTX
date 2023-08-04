@@ -35,5 +35,5 @@ jobs:
                   tag=$tag \
                   filename=$var \
                   github_api_token=$(echo ${{ secrets.GITHUB_TOKEN }});
-              aws s3 cp $var s3://${{ secrets.AWS_S3_BUCKET }}/MQTTX/$tag/$var
+              aws s3 cp --recursive $var s3://${{ secrets.AWS_S3_BUCKET }}/MQTTX/$tag/$var
           done
