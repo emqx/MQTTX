@@ -37,6 +37,7 @@ import { removeAutoScroll1673603594888 } from './migration/1673603594888-removeA
 import { supportSchemas1688042450818 } from './migration/1688042450818-supportSchemas'
 import { saveScriptName1688449795669 } from './migration/1688449795669-saveScriptName'
 import { jsonHighlight1691071794840 } from './migration/1691071794840-jsonHighlight'
+import { ALPNProtocols1691817588169 } from './migration/1691817588169-ALPNProtocols'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -81,6 +82,7 @@ const ORMConfig = {
     supportSchemas1688042450818,
     saveScriptName1688449795669,
     jsonHighlight1691071794840,
+    ALPNProtocols1691817588169,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [

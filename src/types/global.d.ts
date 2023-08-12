@@ -208,6 +208,7 @@ declare global {
 
   interface SSLPath {
     rejectUnauthorized?: boolean
+    ALPNProtocols?: string | null
     ca: string
     cert: string
     key: string

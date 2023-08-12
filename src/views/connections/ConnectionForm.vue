@@ -165,6 +165,12 @@
               </el-col>
               <el-col :span="2"></el-col>
               <el-col :span="22">
+                <el-form-item label-width="93px" label="ALPN" prop="ALPNProtocols">
+                  <el-input size="mini" clearable v-model.trim="record.ALPNProtocols"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2"></el-col>
+              <el-col :span="22">
                 <el-form-item label-width="93px" :label="$t('connections.certType')" prop="certType">
                   <el-radio-group v-model="record.certType">
                     <el-radio label="server">CA signed server</el-radio>
