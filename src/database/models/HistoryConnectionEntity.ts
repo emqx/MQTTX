@@ -69,6 +69,9 @@ export default class HistoryConnectionEntity {
   @Column({ type: 'boolean', default: true, nullable: true })
   rejectUnauthorized?: boolean
 
+  @Column({ type: 'varchar', nullable: true, default: null })
+  ALPNProtocols?: string | null
+
   @Column({ type: 'varchar' })
   ca!: string
 
