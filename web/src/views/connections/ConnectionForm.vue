@@ -163,6 +163,12 @@
                 </el-form-item>
               </el-col>
               <el-col :span="2"> </el-col>
+              <el-col :span="22">
+                <el-form-item label-width="93px" label="ALPN" prop="ALPNProtocols">
+                  <el-input size="mini" clearable v-model.trim="record.ALPNProtocols"></el-input>
+                </el-form-item>
+              </el-col>
+              <el-col :span="2"></el-col>
             </template>
           </el-row>
         </el-card>
@@ -563,8 +569,6 @@ export default class ConnectionCreate extends Vue {
       path: [{ required: true, message: this.$t('common.inputRequired') }],
       host: [{ required: true, message: this.$t('common.inputRequired') }],
       port: [{ required: true, message: this.$t('common.inputRequired') }],
-      certType: [{ required: true, message: this.$t('common.selectRequired') }],
-      ca: [{ required: true, message: this.$t('common.inputRequired') }],
     }
   }
 
