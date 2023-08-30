@@ -36,14 +36,14 @@ To install the latest MQTTX CLI stable release on **macOS** using **binary downl
 #### Intel Chip
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.3/mqttx-cli-macos-x64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.5/mqttx-cli-macos-x64
 sudo install ./mqttx-cli-macos-x64 /usr/local/bin/mqttx
 ```
 
 #### Apple Silicon
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.3/mqttx-cli-macos-arm64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.5/mqttx-cli-macos-arm64
 sudo install ./mqttx-cli-macos-arm64 /usr/local/bin/mqttx
 ```
 
@@ -62,14 +62,14 @@ To install the latest MQTTX CLI stable release on **Linux** using **binary downl
 #### x86-64
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.3/mqttx-cli-linux-x64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.5/mqttx-cli-linux-x64
 sudo install ./mqttx-cli-linux-x64 /usr/local/bin/mqttx
 ```
 
 #### ARM64
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.3/mqttx-cli-linux-arm64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.5/mqttx-cli-linux-arm64
 sudo install ./mqttx-cli-linux-arm64 /usr/local/bin/mqttx
 ```
 
@@ -191,6 +191,7 @@ mqttx conn --help
 | --cert <PATH>                                    | path to the cert file                                                                                                              |
 | --ca <PATH>                                      | path to the ca certificate                                                                                                         |
 | --insecure                                       | do not verify the server certificate                                                                                               |
+| --alpn <PROTO...>                               | set one or multiple ALPN (Application Layer Protocol Negotiation) protocols                                                        |
 | -rp, --reconnect-period <MILLISECONDS>           | interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)                                       |
 | --maximum-reconnect-times <NUMBER>               | the maximum reconnect times (default: 10)                                                                                          |
 | -up, --user-properties <USERPROPERTIES...>       | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")                                                                       |
@@ -242,6 +243,7 @@ mqttx sub --help
 | --cert <PATH>                                    | path to the cert file                                                                                                                           |
 | --ca                                             | path to the ca certificate                                                                                                                      |
 | --insecure                                       | do not verify the server certificate                                                                                                            |
+| --alpn <PROTO...>                               | set one or multiple ALPN (Application Layer Protocol Negotiation) protocols                                                        |
 | -rp, --reconnect-period <MILLISECONDS>           | interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)                                                    |
 | --maximum-reconnect-times <NUMBER>               | the maximum reconnect times (default: 10)                                                                                                       |
 | -up, --user-properties <USERPROPERTIES...>       | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")                                                                                    |
@@ -301,6 +303,7 @@ mqttx pub --help
 | --cert <PATH>                                    | path to the cert file                                                                                                              |
 | --ca                                             | path to the ca certificate                                                                                                         |
 | --insecure                                       | do not verify the server certificate                                                                                               |
+| --alpn <PROTO...>                               | set one or multiple ALPN (Application Layer Protocol Negotiation) protocols                                                        |
 | -rp, --reconnect-period <MILLISECONDS>           | interval between two reconnections, disable auto reconnect by setting to 0 (default: 1000ms)                                       |
 | --maximum-reconnect-times <NUMBER>               | the maximum reconnect times (default: 10)                                                                                          |
 | -up, --user-properties <USERPROPERTIES...>       | the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")                                                                       |
