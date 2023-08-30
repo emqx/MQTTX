@@ -26,7 +26,7 @@ You can also try the EMQX Cloud which is a fully managed, cloud-native MQTT Mess
 
 ### Self-Managed MQTT Broker
 
-If you want to run an MQTT Broker locally, you are recommended to use [EMQX](https://www.emqx.com/en/products/emqx). It is the world’s most scalable and reliable MQTT messaging platform that can help you to connect, move and process your business data reliably in real time. 
+If you want to run an MQTT Broker locally, you are recommended to use [EMQX](https://www.emqx.com/en/products/emqx). It is the world’s most scalable and reliable MQTT messaging platform that can help you to connect, move and process your business data reliably in real time.
 
 The easiest way to start and run EMQX is using Docker. Follow the steps below for download and installation.
 
@@ -50,7 +50,7 @@ This section demonstrates how to use the MQTTX Desktop to connect to the public 
 
 1. Start your MQTT Broker and MQTTX Desktop. You can create a new client connection in either of the following 3 ways:
 
-   - Click the **+** icon in the left navigation menu. 
+   - Click the **+** icon in the left navigation menu.
 
    - Click the **+ New Connection** button on the main pane.
 
@@ -58,11 +58,11 @@ This section demonstrates how to use the MQTTX Desktop to connect to the public 
 
 <img src="/Users/emqx/Documents/MQTTX/docs/desktop/en/quick-start/assets/new-connection.png" alt="new-connection" style="zoom:40%;" />
 
-2. Enter the connection information of the MQTT broker in the **General** pane. To try a quick connection, you can just enter the name of the new connection, for example, `emqx_test,` and leave other options as default. 
+2. Enter the connection information of the MQTT broker in the **General** pane. To try a quick connection, you can just enter the name of the new connection, for example, `emqx_test,` and leave other options as default.
 
    - If you are using a self-managed MQTT broker, you can replace the hostname with the actual IP, such as `127.0.0.1`.
 
-   ::: tip 
+   ::: tip
 
    For detailed information about the options in the **General** section, see [Create Connection with Generals Settings](../use-desktop/connect.md).
 
@@ -70,7 +70,7 @@ This section demonstrates how to use the MQTTX Desktop to connect to the public 
 
 <img src="./assets/mqttx-brokerinfo.png" alt="mqttx-brokerinfo" style="zoom:40%;" />
 
-3. Click **Connect** at the upper right corner and now you have established an MQTT client connection named `emqx_test`. 
+3. Click **Connect** at the upper right corner and now you have established an MQTT client connection named `emqx_test`.
 
 <img src="./assets/mqttx-connected.png" alt="mqttx-connected" style="zoom:40%;" />
 
@@ -90,7 +90,7 @@ This section demonstrates how to use the MQTTX Desktop to publish and subscribe 
 
 2. Create a new MQTT client connection with the name as `Publisher` by following the steps in [Connect to MQTT Broker](#connect-to-mqtt-broker).
 
-3. In the **Connections** pane, make sure that the client connection `Publisher` is selected. In the publishing area at the lower right corner, enter `test` as the topic and leave the message payload and other options as default. 
+3. In the **Connections** pane, make sure that the client connection `Publisher` is selected. In the publishing area at the lower right corner, enter `test` as the topic and leave the message payload and other options as default.
 
    Click the send button and a number appears on the connection `emqx_test`, indicating that a new message is received.
 

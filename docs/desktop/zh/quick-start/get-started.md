@@ -33,7 +33,7 @@ EMQX 提供全托管的云原生 MQTT 消息服务，能够通过可靠、实时
    ```bash
    docker run -d --name emqx -p 1883:1883 -p 8083:8083 -p 8084:8084 -p 8883:8883 -p 18083:18083 emqx/emqx-enterprise:latest
    ```
-   
+
 2. 启动您的 Web 浏览器，输入 `http://localhost:18083/`（`localhost` 可以替换为您的 IP 地址）在地址栏中访问 [EMQX Dashboard](https://docs.emqx.com/zh/enterprise/v5.1/dashboard/introduction.html)，您可以在此连接客户端或查看运行状态。
 
    默认用户名和密码：`admin` 和 `public`
@@ -58,12 +58,11 @@ EMQX 提供全托管的云原生 MQTT 消息服务，能够通过可靠、实时
 
    - 如果您使用的是自行部署的 MQTT 服务器，您可以将服务器地址替换为实际的 IP 地址，例如 `127.0.0.1`。
 
-   ::: tip 
+   ::: tip
 
    关于**基础**部分中的选项的详细信息，请查看[使用基础设置创建连接](../use-desktop/connect.md)。
 
    :::
-
 
 <img src="./assets/mqttx-brokerinfo.png" alt="mqttx-brokerinfo" style="zoom:40%;" />
 

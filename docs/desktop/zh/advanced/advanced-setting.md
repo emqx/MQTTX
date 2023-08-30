@@ -6,7 +6,7 @@ When you create a new connection, you can configure the advanced settings and se
 
 In the Advanced section, you can configure the MQTT protocol-related features.
 
-The default value of the **MQTT Version** is `5.0` and you can configure the MQTT 5.0 specific features such as `Session Expiry Interval`, `Receive Maximum`, and `Topic Alias Maximum` (optional). You can also select other MQTT protocol versions from the drop-down list. Other optional values are `3.1` and `3.1.1`. 
+The default value of the **MQTT Version** is `5.0` and you can configure the MQTT 5.0 specific features such as `Session Expiry Interval`, `Receive Maximum`, and `Topic Alias Maximum` (optional). You can also select other MQTT protocol versions from the drop-down list. Other optional values are `3.1` and `3.1.1`.
 
 For detailed information on the advanced settings, see [Advanced]. <!--To do: add links later-->
 
