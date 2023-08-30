@@ -59,6 +59,7 @@ export class Commander {
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
+      .option('--alpn <PROTO...>', 'set one or multiple ALPN (Application Layer Protocol Negotiation) protocols')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
         'interval between two reconnections, disable auto reconnect by setting to 0',
@@ -152,6 +153,7 @@ export class Commander {
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
+      .option('--alpn <PROTO...>', 'set one or multiple ALPN (Application Layer Protocol Negotiation) protocols')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
         'interval between two reconnections, disable auto reconnect by setting to 0',
@@ -249,6 +251,7 @@ export class Commander {
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
+      .option('--alpn <PROTO...>', 'set one or multiple ALPN (Application Layer Protocol Negotiation) protocols')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
         'interval between two reconnections, disable auto reconnect by setting to 0',
@@ -325,6 +328,7 @@ export class Commander {
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
+      .option('--alpn <PROTO...>', 'set one or multiple ALPN (Application Layer Protocol Negotiation) protocols')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
         'interval between two reconnections, disable auto reconnect by setting to 0',
@@ -423,6 +427,7 @@ export class Commander {
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
+      .option('--alpn <PROTO...>', 'set one or multiple ALPN (Application Layer Protocol Negotiation) protocols')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
         'interval between two reconnections, disable auto reconnect by setting to 0',
@@ -510,6 +515,7 @@ export class Commander {
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
+      .option('--alpn <PROTO...>', 'set one or multiple ALPN (Application Layer Protocol Negotiation) protocols')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
         'interval between two reconnections, disable auto reconnect by setting to 0',
@@ -610,6 +616,7 @@ export class Commander {
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
       .option('--insecure', 'do not verify the server certificate')
+      .option('--alpn <PROTO...>', 'set one or multiple ALPN (Application Layer Protocol Negotiation) protocols')
       .option(
         '-rp, --reconnect-period <MILLISECONDS>',
         'interval between two reconnections, disable auto reconnect by setting to 0',
