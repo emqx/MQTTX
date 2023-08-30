@@ -40,6 +40,7 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
     reconnectPeriod, // reconnectPeriod = 0 disabled automatic reconnection in the client
     will,
     rejectUnauthorized,
+    ALPNProtocols,
     clientIdWithTime,
   } = record
   const protocolVersion = mqttVersionDict[mqttVersion]
@@ -76,6 +77,10 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
   // SSL
   if (ssl) {
     options.rejectUnauthorized = rejectUnauthorized === undefined ? true : rejectUnauthorized
+    if (ALPNProtocols) {
+      console.log(ALPNProtocols.replace(/[\[\] ]/g, '').split(','))
+      options.ALPNProtocols = ALPNProtocols.replace(/[\[\] ]/g, '').split(',')
+    }
     if (certType === 'self') {
       const sslRes: SSLContent | undefined = getSSLFile({
         ca: record.ca,
@@ -158,6 +163,7 @@ export const getDefaultRecord = (): ConnectionModel => {
     ssl: false,
     certType: '',
     rejectUnauthorized: true,
+    ALPNProtocols: '',
     ca: '',
     cert: '',
     key: '',
