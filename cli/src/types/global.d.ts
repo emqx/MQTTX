@@ -28,6 +28,7 @@ declare global {
     cert?: string
     ca?: string
     insecure?: boolean
+    alpn?: string[]
     reconnectPeriod: number
     maximumReconnectTimes: number
     // properties of MQTT 5.0

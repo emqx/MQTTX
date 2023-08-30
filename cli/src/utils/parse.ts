@@ -161,6 +161,7 @@ const parseConnectOptions = (
     cert,
     ca,
     insecure,
+    alpn,
     reconnectPeriod,
     sessionExpiryInterval,
     receiveMaximum,
@@ -213,6 +214,10 @@ const parseConnectOptions = (
 
   if (insecure) {
     connectOptions.rejectUnauthorized = false
+  }
+
+  if (alpn) {
+    connectOptions.ALPNProtocols = alpn
   }
 
   if (willTopic) {
