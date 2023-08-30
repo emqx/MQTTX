@@ -4,7 +4,7 @@ When you create a new connection, in the **General** section of the **New** pane
 
 ## Broker Information
 
-The broker information contains must-fill fields.  The **Client ID**, **Host**, and **Port** are already filled with default values. You can modify them based on the actual broker information. 
+The broker information contains must-fill fields.  The **Client ID**, **Host**, and **Port** are already filled with default values. You can modify them based on the actual broker information.
 
 - **Name**: Enter a connection, for example `emqx_test`.
 
@@ -49,14 +49,14 @@ You can establish a secured connection between MQTTX and the broker by enabling 
 
     :::
 
-  - **CA signed server**: Verify the server through the Certificate Authority (CA) signed certificate. 
+  - **CA signed server**: Verify the server through the Certificate Authority (CA) signed certificate.
 
-  - **Self signed**: Verify the server through self-signed certificates. When selected, you need to configure the certificates. For a one-way authentication, only your `CA File` needs to be selected. For two-way authentication, you also need to configure the `Client Certificate File` and `Client key file`. 
-    
+  - **Self signed**: Verify the server through self-signed certificates. When selected, you need to configure the certificates. For a one-way authentication, only your `CA File` needs to be selected. For two-way authentication, you also need to configure the `Client Certificate File` and `Client key file`.
+
     - **CA File**: Select the CA file by clicking the folder icon.
     - **Client Certificate File**: Select the client certificate file by clicking the folder icon.
     - **Client key file**: Select the file by clicking the folder icon for two-way authentication.
-    
+
     <!--To do: update the screenshot-->
 
 <img src="./assets/mqttx-certs.png" alt="mqttx-certs" style="zoom:40%;" />
@@ -65,7 +65,7 @@ You can establish a secured connection between MQTTX and the broker by enabling 
 
 In the Advanced section, you can configure the MQTT protocol-related features.
 
-The default value of the **MQTT Version** is `5.0` and you can configure the MQTT 5.0 specific features such as `Session Expiry Interval`, `Receive Maximum`, and `Topic Alias Maximum` (optional). You can also select other MQTT protocol versions from the drop-down list. Other optional values are `3.1` and `3.1.1`. 
+The default value of the **MQTT Version** is `5.0` and you can configure the MQTT 5.0 specific features such as `Session Expiry Interval`, `Receive Maximum`, and `Topic Alias Maximum` (optional). You can also select other MQTT protocol versions from the drop-down list. Other optional values are `3.1` and `3.1.1`.
 
 For detailed information on the advanced settings, see [Advanced]. <!--To do: add links later-->
 
