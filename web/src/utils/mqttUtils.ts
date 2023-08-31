@@ -78,7 +78,6 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
   if (ssl) {
     options.rejectUnauthorized = rejectUnauthorized === undefined ? true : rejectUnauthorized
     if (ALPNProtocols) {
-      console.log(ALPNProtocols.replace(/[\[\] ]/g, '').split(','))
       options.ALPNProtocols = ALPNProtocols.replace(/[\[\] ]/g, '').split(',')
     }
     if (certType === 'self') {
