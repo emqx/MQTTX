@@ -126,11 +126,11 @@ export default {
     hu: 'Újracsatlakozáskor az előfizetési lista automatikusan újra feliratkozik',
   },
   cleanHistoryDialogMessage: {
-    zh: '将会清除历史建议信息，包括历史 Payload/QoS/Retain/Topic/Connection 数据',
-    en: 'It will clear the historical suggestion information, including historical Payload/QoS/Retain/Topic/Connection',
-    tr: 'Geçmiş Yük/QoS/Saklama/Konu/Bağlantı dahil olmak üzere geçmiş öneri bilgilerini temizleyecektir.',
-    ja: 'ペイロード/ QoS /保持/トピック/接続を含む過去の提案情報をクリアします',
-    hu: 'It will clear the historical suggestion information, including historical Payload/QoS/Retain/Topic/Connection',
+    zh: '即将删除所有连接中的历史消息记录、发送端记录的发布消息、主题、保留标志及历史连接配置。确定吗？',
+    en: 'This will delete all historical message records in connections, messages published by the sender, topics, retain flags, and past connection configurations. Confirm?',
+    tr: 'Bağlantılardaki tüm geçmiş mesaj kayıtlarını, gönderen tarafından yayınlanan mesajları, konuları, saklama bayraklarını ve geçmiş bağlantı yapılandırmalarını silmek üzeresiniz. Onaylıyor musunuz?',
+    ja: '接続内のすべての過去のメッセージ記録、送信者によって公開されたメッセージ、トピック、保持フラグ、および過去の接続設定を削除しようとしています。確認してください。',
+    hu: 'Az összes kapcsolatban lévő történelmi üzenetnyilvántartást, az elküldő által közzétett üzeneteket, témákat, megőrzési jelzéseket és a korábbi kapcsolatkonfigurációkat készül törölni. Megerősíti?',
   },
   syncOsTheme: {
     zh: '同步操作系统主题',

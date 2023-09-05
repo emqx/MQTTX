@@ -178,4 +178,8 @@ export default class MessageService {
       .where('connectionId = :connectionId', { connectionId })
       .execute()
   }
+
+  public async cleanAll(): Promise<void> {
+    await this.messageRepository.clear()
+  }
 }
