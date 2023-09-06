@@ -94,7 +94,7 @@
     "babel-plugin-component": "^1.1.1",
     "babel-plugin-prismjs": "^2.1.0",
     "chai": "^4.1.2",
-    "electron": "^13.6.6",
+    "electron": "^22.3.21",
     "electron-devtools-installer": "^3.2.0",
     "eslint": "6.5.1",
     "eslint-config-prettier": "^6.11.0",
