@@ -1357,131 +1357,194 @@ export default class ConnectionsDetail extends Vue {
     this.sendFrequency = time
   }
 
-  // Set timed message
+  /**
+   * Sends a message. If a send frequency is defined, it also sets up a timed message.
+   */
   private async sendMessage(
     message: MessageModel,
     type: PayloadType,
-    aftersendOneMessageCallback?: (isNewPayload: boolean) => void,
+    afterSendOneMessageCallback?: (isNewPayload: boolean) => void,
     afterCallback?: () => void,
   ): Promise<void> {
-    await this.sendOneMessage(message, type, aftersendOneMessageCallback)
+    await this.sendOneMessage(message, type, afterSendOneMessageCallback)
     if (this.sendFrequency) {
-      this.$message.success(`${this.$t('connections.startTimedMessage')}${this.sendFrequency}`)
-      this.$log.info(`${this.record.name} opened timed message successfully, frequency(s): ${this.sendFrequency}s`)
+      this.notifyTimedMessageSuccess()
       this.timedSendMessage(this.sendFrequency, message, type)
     }
-    afterCallback && afterCallback()
+    afterCallback?.()
   }
 
-  // Set timed message
+  /**
+   * Notifies the user about the successful setup of a timed message.
+   */
+  private notifyTimedMessageSuccess() {
+    this.$message.success(`${this.$t('connections.startTimedMessage')}${this.sendFrequency}`)
+    this.$log.info(`${this.record.name} opened timed message successfully, frequency(s): ${this.sendFrequency}s`)
+  }
+
+  /**
+   * Sets up a message to be sent at regular intervals defined by the 'time' parameter.
+   */
   private timedSendMessage(time: number, message: MessageModel, type: PayloadType) {
     this.stopTimedSend()
     this.sendTimedMessageCount += 1
     this.sendTimeId = window.setInterval(() => {
-      const { ...oneMessage } = message
-      let { id } = oneMessage
-      id = getMessageId()
-      this.sendOneMessage(Object.assign(oneMessage, { id }), type)
+      message.id = getMessageId()
+      this.sendOneMessage(message, type)
     }, time * 1000)
   }
 
+  /**
+   * Inserts the message history into local storage.
+   */
   private async insertHistory(payload: HistoryMessagePayloadModel, header: HistoryMessageHeaderModel) {
     const { historyMessagePayloadService, historyMessageHeaderService } = useServices()
-    const willUpdatePayloadID: string | null = await hasMessagePayloadID(payload)
-    const willUpdateHeaderID: string | null = await hasMessageHeaderID(header)
-    willUpdatePayloadID
-      ? await historyMessagePayloadService.updateCreateAt(willUpdatePayloadID)
+    const payloadIdToUpdate = await hasMessagePayloadID(payload)
+    const headerIdToUpdate = await hasMessageHeaderID(header)
+
+    payloadIdToUpdate
+      ? await historyMessagePayloadService.updateCreateAt(payloadIdToUpdate)
       : await historyMessagePayloadService.create(payload)
-    willUpdateHeaderID
-      ? await historyMessageHeaderService.updateCreateAt(willUpdateHeaderID)
+
+    headerIdToUpdate
+      ? await historyMessageHeaderService.updateCreateAt(headerIdToUpdate)
       : await historyMessageHeaderService.create(header)
-    return { isNewPayload: !willUpdatePayloadID, isNewHeader: !willUpdateHeaderID }
+
+    return { isNewPayload: !payloadIdToUpdate, isNewHeader: !headerIdToUpdate }
   }
 
-  // Send one message
+  /**
+   * Filters out entries from an object where the value is null or undefined.
+   */
+  private filterNonNullEntries(properties: any): any {
+    return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v != null))
+  }
+
+  /**
+   * Processes message properties and returns a refined version.
+   */
+  private processProperties(properties: any) {
+    const props = this.filterNonNullEntries(properties)
+    if (props.correlationData && typeof props.correlationData === 'string') {
+      props.correlationData = Buffer.from(props.correlationData)
+    }
+    if (props.userProperties) {
+      props.userProperties = { ...props.userProperties } // Convert Vue object to JS object
+    }
+    return props
+  }
+
+  /**
+   * Sends a single message to the MQTT topic. Inserts the message to the history, processes the payload, and handles the publish process.
+   */
   private async sendOneMessage(
     message: MessageModel,
     type: PayloadType,
     afterSendCallback?: (isNewPayload: boolean) => void,
-  ): Promise<void | boolean> {
-    const { id, topic, qos, payload, retain, properties } = message
+  ): Promise<void> {
+    const { topic, qos, payload, retain, properties } = message
 
-    let props: PushPropertiesModel | undefined = undefined
-
-    if (properties && Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined).length > 0) {
-      const propRecords = Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined)
-      props = Object.fromEntries(propRecords)
-      if (props.correlationData && typeof props.correlationData === 'string') {
-        props.correlationData = Buffer.from(props.correlationData)
-      }
-      if (props.userProperties) {
-        // For convert Vue object to normal JavaScript Object: https://github.com/vuejs/Discussion/issues/292
-        props.userProperties = { ...props.userProperties }
-      }
-    }
+    const props = properties ? this.processProperties(properties) : undefined
 
     const { isNewPayload } = await this.insertHistory(
       { payload, payloadType: type } as HistoryMessagePayloadModel,
       { qos, topic, retain } as HistoryMessageHeaderModel,
-    ) // insert message into local storage
-    let convertPayload = ''
-    let handlePayload
-    convertPayload = this.convertPayloadByFunction(payload as string, 'publish', type)
-    if (this.scriptOption?.schema && ['all', 'publish'].includes(this.scriptOption.apply)) {
-      handlePayload = this.convertPayloadBySchema(convertPayload, 'publish', type)
-    } else {
-      handlePayload = this.convertPayloadByType(convertPayload, type, 'publish')
-    }
-    if (!handlePayload) {
-      return
+    )
+
+    let handledPayload: string | undefined = payload
+
+    // If the payload is not empty, we process it
+    if (payload) {
+      const convertedPayload = this.convertPayloadByFunction(payload as string, 'publish', type)
+      handledPayload = this.handlePayloadBySchemaOrType(convertedPayload, type)
+      if (handledPayload === undefined) return
     }
 
+    // We don't check for empty payload anymore
     this.client.publish!(
       topic,
-      handlePayload,
+      handledPayload,
       { qos, retain, properties: props as IClientPublishOptions['properties'] },
       async (error: Error) => {
         if (error) {
-          const errorMsg = error.toString()
-          this.$message.error(errorMsg)
-          this.stopTimedSend()
-          this.$log.error(`${this.record.name} message publish failed, ${error.stack}`)
-          return false
+          this.handleErrorOnPublish(error)
+          return
         }
-        const properties = this.record.mqttVersion === '5.0' ? props : undefined
-        const publishMessage: MessageModel = {
-          id,
-          out: true,
-          createAt: time.getNowDate(),
-          topic,
-          payload: convertPayload.toString(),
-          qos,
-          retain,
-          properties,
-        }
-        this.updateMeta(publishMessage, 'function', 'publish')
-        this.updateMeta(publishMessage, 'schema', 'publish')
-
-        if (this.record.id) {
-          // Save message
-          const { messageService } = useServices()
-          await messageService.pushToConnection({ ...publishMessage }, this.record.id)
-
-          // Render messages
-          this.renderMessage(this.curConnectionId, publishMessage, 'publish')
-
-          // Log
-          const logPayload = JSON.stringify(publishMessage.payload)
-          let pubLog = `${this.record.name} sucessfully published message ${logPayload} to topic "${publishMessage.topic}"`
-          if (this.record.mqttVersion === '5.0') {
-            const logProperties = JSON.stringify(publishMessage.properties)
-            pubLog += ` with Properties: ${logProperties}`
-          }
-          this.$log.info(pubLog)
-        }
+        await this.handleSuccessfulPublish(message, handledPayload)
       },
     )
-    afterSendCallback && afterSendCallback(isNewPayload)
+
+    afterSendCallback?.(isNewPayload)
+  }
+
+  /**
+   * Converts the given payload based on the specified option. Can return string, undefined or void.
+   */
+  private handlePayloadBySchemaOrType(convertedPayload: string, type: PayloadType): string | undefined {
+    const payload =
+      this.scriptOption?.schema && ['all', 'publish'].includes(this.scriptOption.apply)
+        ? this.convertPayloadBySchema(convertedPayload, 'publish', type)
+        : this.convertPayloadByType(convertedPayload, type, 'publish')
+
+    if (Buffer.isBuffer(payload)) {
+      return payload.toString() // convert Buffer to string
+    }
+    return payload
+  }
+
+  /**
+   * Handles errors that occur during the message publish process.
+   */
+  private handleErrorOnPublish(error: Error) {
+    const errorMsg = error.toString()
+    this.$message.error(errorMsg)
+    this.stopTimedSend()
+    this.$log.error(`${this.record.name} message publish failed, ${error.stack}`)
+  }
+
+  /**
+   * Handles the operations after a successful message publish.
+   */
+  private async handleSuccessfulPublish(message: MessageModel, handledPayload: string | undefined) {
+    if (handledPayload === undefined) {
+      return
+    }
+    const { id, topic, qos, retain } = message
+
+    const properties = this.record.mqttVersion === '5.0' ? this.processProperties(message.properties) : undefined
+    const publishMessage: MessageModel = {
+      id,
+      out: true,
+      createAt: time.getNowDate(),
+      topic,
+      payload: handledPayload.toString(),
+      qos,
+      retain,
+      properties,
+    }
+
+    this.updateMeta(publishMessage, 'function', 'publish')
+    this.updateMeta(publishMessage, 'schema', 'publish')
+
+    if (this.record.id) {
+      const { messageService } = useServices()
+      await messageService.pushToConnection({ ...publishMessage }, this.record.id)
+      this.renderMessage(this.curConnectionId, publishMessage, 'publish')
+      this.logSuccessfulPublish(publishMessage)
+    }
+  }
+
+  /**
+   * Logs details of a successfully published message.
+   */
+  private logSuccessfulPublish(publishMessage: MessageModel) {
+    const logPayload = JSON.stringify(publishMessage.payload)
+    let pubLog = `${this.record.name} successfully published message ${logPayload} to topic "${publishMessage.topic}"`
+    if (this.record.mqttVersion === '5.0') {
+      const logProperties = JSON.stringify(publishMessage.properties)
+      pubLog += ` with Properties: ${logProperties}`
+    }
+    this.$log.info(pubLog)
   }
 
   // Show top connection client info
@@ -1582,7 +1645,7 @@ export default class ConnectionsDetail extends Vue {
     payload: Buffer | string,
     msgType: MessageType,
     to?: PayloadType,
-  ): string | Buffer | void {
+  ): string | Buffer | undefined {
     let convertPayload = payload
     try {
       if (this.scriptOption?.schema && ['all', msgType].includes(this.scriptOption.apply)) {
@@ -1612,6 +1675,7 @@ export default class ConnectionsDetail extends Vue {
       return convertPayload
     } catch (error) {
       this.$message.error((error as Error).toString())
+      return
     }
   }
 
