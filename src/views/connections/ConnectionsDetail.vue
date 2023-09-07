@@ -213,7 +213,7 @@
               </a>
             </el-tooltip>
             <el-select class="received-type-select" size="small" v-model="receivedMsgType">
-              <el-option v-for="type in ['Plaintext', 'Base64', 'JSON', 'Hex']" :key="type" :value="type"> </el-option>
+              <el-option v-for="type in ['Plaintext', 'JSON', 'Base64', 'Hex']" :key="type" :value="type"> </el-option>
             </el-select>
             <MsgTypeTabs v-model="msgType" @change="handleMsgTypeChanged" />
           </div>
