@@ -1117,11 +1117,26 @@ export default class ConnectionsDetail extends Vue {
     this.$log.info(`${this.record.name} remove script successed`)
   }
 
-  // Processing message
-  private processMessage(topic: string, payload: Buffer, packet: IPublishPacket) {
+  /*
+   * Handles the processing of received MQTT messages
+   * according to the specified schema, type, and user-defined function
+   */
+  private processReceivedMessage(topic: string, payload: Buffer, packet: IPublishPacket) {
     const { qos, retain, properties } = packet
-    let receviedPayload
+    let receivedPayload
     let jsonMsgError = ''
+    /*
+     * Payload processing pipeline for receiving a message:
+     *      1. Raw Payload
+     *           ⬇️
+     *      2. [Schema | Type]: Decoding via custom schema (if defined) or default payload type conversion
+     *           ⬇️
+     *      3. [Function]: User-defined script processing to possibly further modify the payload
+     *           ⬇️
+     *      4. Final Payload: Ready for use in the application
+     * Note:
+     * - Function processing happens after schema/type decoding to allow the function to work with a more structured data.
+     */
     if (
       (this.scriptOption?.function && ['all', 'received'].includes(this.scriptOption.apply)) ||
       this.receivedMsgType !== 'Plaintext'
@@ -1130,22 +1145,22 @@ export default class ConnectionsDetail extends Vue {
       if (!schemaPayload) {
         return
       }
-      let convertPayload
+      let convertedPayload
       try {
-        convertPayload = this.convertPayloadByType(schemaPayload, this.receivedMsgType, 'received')
+        convertedPayload = this.convertPayloadByType(schemaPayload, this.receivedMsgType, 'received')
       } catch (e) {
         jsonMsgError = (e as Error).toString()
       }
-      if (!convertPayload) {
-        convertPayload = schemaPayload
+      if (!convertedPayload) {
+        convertedPayload = schemaPayload
       }
-      receviedPayload = this.convertPayloadByFunction(convertPayload.toString(), 'received')
+      receivedPayload = this.convertPayloadByFunction(convertedPayload.toString(), 'received')
       if (this.scriptOption?.schema && this.receivedMsgType === 'Plaintext') {
-        receviedPayload = this.scriptOption?.config?.name + ' ' + printObjectAsString(JSON.parse(receviedPayload))
+        receivedPayload = this.scriptOption?.config?.name + ' ' + printObjectAsString(JSON.parse(receivedPayload))
       }
     } else {
-      receviedPayload = this.convertPayloadBySchema(payload, 'received')
-      if (!receviedPayload) {
+      receivedPayload = this.convertPayloadBySchema(payload, 'received')
+      if (!receivedPayload) {
         return
       }
     }
@@ -1154,7 +1169,7 @@ export default class ConnectionsDetail extends Vue {
       out: false,
       createAt: time.getNowDate(),
       topic,
-      payload: receviedPayload.toString(),
+      payload: receivedPayload.toString(),
       qos,
       retain,
       properties,
@@ -1319,7 +1334,7 @@ export default class ConnectionsDetail extends Vue {
 
     const processMessageSubject$ = messageSubject$.pipe(
       map(([topic, payload, packet]: [string, Buffer, IPublishPacket]) => {
-        return this.processMessage(topic, payload, packet)
+        return this.processReceivedMessage(topic, payload, packet)
       }),
     )
 
@@ -1363,10 +1378,10 @@ export default class ConnectionsDetail extends Vue {
   private async sendMessage(
     message: MessageModel,
     type: PayloadType,
-    afterSendOneMessageCallback?: (isNewPayload: boolean) => void,
+    afterpublishMessageCallback?: (isNewPayload: boolean) => void,
     afterCallback?: () => void,
   ): Promise<void> {
-    await this.sendOneMessage(message, type, afterSendOneMessageCallback)
+    await this.publishMessage(message, type, afterpublishMessageCallback)
     if (this.sendFrequency) {
       this.notifyTimedMessageSuccess()
       this.timedSendMessage(this.sendFrequency, message, type)
@@ -1390,7 +1405,7 @@ export default class ConnectionsDetail extends Vue {
     this.sendTimedMessageCount += 1
     this.sendTimeId = window.setInterval(() => {
       message.id = getMessageId()
-      this.sendOneMessage(message, type)
+      this.publishMessage(message, type)
     }, time * 1000)
   }
 
@@ -1435,9 +1450,10 @@ export default class ConnectionsDetail extends Vue {
   }
 
   /**
-   * Sends a single message to the MQTT topic. Inserts the message to the history, processes the payload, and handles the publish process.
+   * Publih a single message to the MQTT topic. Inserts the message to the history,
+   * processes the payload, and handles the publish process.
    */
-  private async sendOneMessage(
+  private async publishMessage(
     message: MessageModel,
     type: PayloadType,
     afterSendCallback?: (isNewPayload: boolean) => void,
@@ -1451,26 +1467,42 @@ export default class ConnectionsDetail extends Vue {
       { qos, topic, retain } as HistoryMessageHeaderModel,
     )
 
-    let handledPayload: string | undefined = payload
+    let convertedPayload = ''
+    let finalPayload: string | Buffer | undefined = payload
 
-    // If the payload is not empty, we process it
+    /*
+     * Payload processing pipeline for publishing:
+     *      1. Raw Payload
+     *           ⬇️
+     *      2. [Function]: user-defined script processing
+     *           ⬇️
+     *      3. [Schema | Type]: decoding via custom schema (if defined) or default payload type conversion
+     *           ⬇️
+     *      4. Final Payload: ready for publishing
+     * Note:
+     * - Empty payloads are allowed to facilitate the clearing of retained messages.
+     */
     if (payload) {
-      const convertedPayload = this.convertPayloadByFunction(payload as string, 'publish', type)
-      handledPayload = this.handlePayloadBySchemaOrType(convertedPayload, type)
-      if (handledPayload === undefined) return
+      convertedPayload = this.convertPayloadByFunction(payload as string, 'publish', type)
+      finalPayload = this.handlePayloadBySchemaOrType(convertedPayload, type)
+      if (finalPayload === undefined) return
     }
 
-    // We don't check for empty payload anymore
     this.client.publish!(
       topic,
-      handledPayload,
+      finalPayload,
       { qos, retain, properties: props as IClientPublishOptions['properties'] },
       async (error: Error) => {
         if (error) {
           this.handleErrorOnPublish(error)
           return
         }
-        await this.handleSuccessfulPublish(message, handledPayload)
+        /*
+         * Store the message in the database and update the UI. We store the convertedPayload instead of the finalPayload for these reasons:
+         * 1. The finalPayload might be a Buffer, which isn't suitable for storage.
+         * 2. To retain a human-readable payload that reflects the original or the user-script processed data.
+         */
+        await this.handleSuccessfulPublish(message, convertedPayload)
       },
     )
 
@@ -1480,15 +1512,12 @@ export default class ConnectionsDetail extends Vue {
   /**
    * Converts the given payload based on the specified option. Can return string, undefined or void.
    */
-  private handlePayloadBySchemaOrType(convertedPayload: string, type: PayloadType): string | undefined {
+  private handlePayloadBySchemaOrType(convertedPayload: string, type: PayloadType): Buffer | string | undefined {
     const payload =
       this.scriptOption?.schema && ['all', 'publish'].includes(this.scriptOption.apply)
         ? this.convertPayloadBySchema(convertedPayload, 'publish', type)
         : this.convertPayloadByType(convertedPayload, type, 'publish')
 
-    if (Buffer.isBuffer(payload)) {
-      return payload.toString() // convert Buffer to string
-    }
     return payload
   }
 
@@ -1505,8 +1534,8 @@ export default class ConnectionsDetail extends Vue {
   /**
    * Handles the operations after a successful message publish.
    */
-  private async handleSuccessfulPublish(message: MessageModel, handledPayload: string | undefined) {
-    if (handledPayload === undefined) {
+  private async handleSuccessfulPublish(message: MessageModel, publishedPayload: string | undefined) {
+    if (publishedPayload === undefined) {
       return
     }
     const { id, topic, qos, retain } = message
@@ -1517,7 +1546,7 @@ export default class ConnectionsDetail extends Vue {
       out: true,
       createAt: time.getNowDate(),
       topic,
-      payload: handledPayload.toString(),
+      payload: publishedPayload.toString(),
       qos,
       retain,
       properties,
@@ -1616,7 +1645,7 @@ export default class ConnectionsDetail extends Vue {
 
   // Use function to apply to payload
   private convertPayloadByFunction(payload: string, msgType: MessageType, type?: PayloadType): string {
-    let convertPayload = payload
+    let convertedPayload = payload
     if (this.scriptOption?.function && ['all', msgType].includes(this.scriptOption.apply)) {
       if (this.sendFrequency || this.sendTimeId !== null) {
         msgType === 'publish' && (this.sendTimedMessageCount += 1)
@@ -1626,7 +1655,7 @@ export default class ConnectionsDetail extends Vue {
       const count = this.sendTimedMessageCount || undefined
       // Enable script function
       try {
-        convertPayload = sandbox.executeScript(
+        convertedPayload = sandbox.executeScript(
           this.scriptOption.function.script,
           type || this.receivedMsgType,
           payload,
@@ -1637,7 +1666,7 @@ export default class ConnectionsDetail extends Vue {
         this.$message.error(`Function Error: ${(error as Error).toString()}`)
       }
     }
-    return convertPayload
+    return convertedPayload
   }
 
   // Use schema to apply to payload
@@ -1646,7 +1675,7 @@ export default class ConnectionsDetail extends Vue {
     msgType: MessageType,
     to?: PayloadType,
   ): string | Buffer | undefined {
-    let convertPayload = payload
+    let convertedPayload = payload
     try {
       if (this.scriptOption?.schema && ['all', msgType].includes(this.scriptOption.apply)) {
         switch (msgType) {
@@ -1672,7 +1701,7 @@ export default class ConnectionsDetail extends Vue {
           }
         }
       }
-      return convertPayload
+      return convertedPayload
     } catch (error) {
       this.$message.error((error as Error).toString())
       return
