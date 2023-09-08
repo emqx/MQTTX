@@ -10,6 +10,29 @@ import delay from '../utils/delay'
 import { saveConfig, loadConfig } from '../utils/config'
 import { loadSimulator } from '../utils/simulate'
 import { serializeProtobufToBuffer } from '../utils/protobuf'
+import convertPayload from '../utils/convertPayload'
+
+const processPublishMessage = (
+  message: string | Buffer,
+  protobufPath: string | undefined,
+  protobufMessageName: string | undefined,
+  format: FormatType | undefined,
+): Buffer | string => {
+  /*
+   * Pipeline for processing outgoing messages in two potential stages:
+   * 1. Format Conversion --> Applied if a format is specified, transforming the message into that format; if absent, the message retains its initial state.
+   * 2. Protobuf Serialization --> Engaged if both protobuf path and message name are present, encapsulating the message into a protobuf format; without these settings, the message circulates unchanged.
+   */
+  const pipeline = [
+    (msg: string | Buffer) => (format ? convertPayload(Buffer.from(msg.toString()), format, 'encode') : msg),
+    (msg: string | Buffer) =>
+      protobufPath && protobufMessageName
+        ? serializeProtobufToBuffer(msg.toString(), protobufPath, protobufMessageName)
+        : msg,
+  ]
+
+  return pipeline.reduce((msg, transformer) => transformer(msg), message) as Buffer
+}
 
 const send = (
   config: boolean | string | undefined,
@@ -29,8 +52,8 @@ const send = (
     basicLog.connected()
     const { topic, message, protobufPath, protobufMessageName, format } = pubOpts
     basicLog.publishing()
-    let bufferMessage = serializeProtobufToBuffer(message, protobufPath, protobufMessageName, format)
-    client.publish(topic, bufferMessage, pubOpts.opts, (err) => {
+    const publishMessage = processPublishMessage(message, protobufPath, protobufMessageName, format)
+    client.publish(topic, publishMessage, pubOpts.opts, (err) => {
       if (err) {
         signale.warn(err)
       } else {
@@ -74,9 +97,8 @@ const multisend = (
   })
   sender._write = (line, _enc, cb) => {
     const { topic, opts, protobufPath, protobufMessageName, format } = pubOpts
-
-    let bufferMessage = serializeProtobufToBuffer(line.trim(), protobufPath, protobufMessageName, format)
-    client.publish(topic, bufferMessage, opts, cb)
+    const publishMessage = processPublishMessage(line.trim(), protobufPath, protobufMessageName, format)
+    client.publish(topic, publishMessage, opts, cb)
   }
 
   client.on('connect', () => {

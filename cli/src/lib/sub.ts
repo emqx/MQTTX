@@ -6,6 +6,35 @@ import convertPayload from '../utils/convertPayload'
 import { saveConfig, loadConfig } from '../utils/config'
 import { deserializeBufferToProtobuf } from '../utils/protobuf'
 
+const processReceivedMessage = (
+  payload: Buffer,
+  protobufPath: string | undefined,
+  protobufMessageName: string | undefined,
+  format: FormatType | undefined,
+): string => {
+  let message: string | Buffer = payload
+  /*
+   * Pipeline for processing incoming messages, following two potential steps:
+   * 1. Protobuf Deserialization --> Utilized if both protobuf path and message name are defined, otherwise message passes as is.
+   * 2. Format Conversion --> Engaged if a format is defined, converting the message accordingly; if not defined, message passes unchanged.
+   */
+  const pipeline = [
+    (msg: Buffer) =>
+      protobufPath && protobufMessageName
+        ? deserializeBufferToProtobuf(msg, protobufPath, protobufMessageName, format)
+        : msg,
+    (msg: Buffer) => (format ? convertPayload(msg, format, 'decode') : msg),
+  ]
+
+  message = pipeline.reduce((msg, transformer) => transformer(msg), message)
+
+  if (Buffer.isBuffer(message)) {
+    message = message.toString('utf-8')
+  }
+
+  return message
+}
+
 const sub = (options: SubscribeOptions) => {
   const { save, config } = options
 
@@ -66,12 +95,8 @@ const sub = (options: SubscribeOptions) => {
 
     options.verbose && msgData.push({ label: 'topic', value: topic })
 
-    let payloadMessage = deserializeBufferToProtobuf(payload, protobufPath, protobufMessageName, format)
-    if (payloadMessage) {
-      msgData.push({ label: 'payload', value: format ? convertPayload(payloadMessage, format) : payloadMessage })
-    } else {
-      msgData.push({ label: 'payload', value: convertPayload(payload, format) })
-    }
+    let receivedMessage = processReceivedMessage(payload, protobufPath, protobufMessageName, format)
+    msgData.push({ label: 'payload', value: receivedMessage })
 
     packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 
@@ -91,7 +116,7 @@ const sub = (options: SubscribeOptions) => {
 
     !outputModeClean
       ? msgLog(msgData)
-      : console.log(JSON.stringify({ topic, payload: convertPayload(payload, format), packet }, null, 2))
+      : console.log(JSON.stringify({ topic, payload: convertPayload(payload, format, 'decode'), packet }, null, 2))
   })
 
   client.on('error', (err) => {
