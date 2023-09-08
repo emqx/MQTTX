@@ -1,24 +1,36 @@
 import chalk from 'chalk'
 
-const convertJSON = (value: Buffer) => {
+const convertJSON = (value: Buffer | string, action: 'encode' | 'decode') => {
   try {
-    return JSON.stringify(JSON.parse(value.toString()), null, 2)
+    if (action === 'decode') {
+      return JSON.stringify(JSON.parse(value.toString()), null, 2)
+    } else {
+      return Buffer.from(JSON.stringify(JSON.parse(value.toString())))
+    }
   } catch (err) {
     return chalk.red(err)
   }
 }
 
-const convertPayload = (payload: Buffer, to?: FormatType) => {
-  switch (to) {
-    case 'base64':
-      return payload.toString('base64')
-    case 'json':
-      return convertJSON(payload)
-    case 'hex':
-      return payload.toString('hex').replace(/(.{4})/g, '$1 ')
-    default:
-      return payload.toString('utf-8')
+const convertPayload = (payload: Buffer | string, format?: FormatType, action: 'encode' | 'decode' = 'decode') => {
+  const actions = {
+    encode: {
+      base64: () => Buffer.from(payload.toString(), 'base64'),
+      json: () => convertJSON(payload, 'encode'),
+      hex: () => Buffer.from(payload.toString().replace(/\s+/g, ''), 'hex'),
+      default: () => Buffer.from(payload.toString(), 'utf-8'),
+    },
+    decode: {
+      base64: () => payload.toString('base64'),
+      json: () => convertJSON(payload, 'decode'),
+      hex: () => payload.toString('hex').replace(/(.{4})/g, '$1 '),
+      default: () => payload.toString('utf-8'),
+    },
   }
+  const actionSet = actions[action]
+  const runAction = actionSet[format || 'default']
+
+  return runAction ? runAction() : payload
 }
 
 export default convertPayload
