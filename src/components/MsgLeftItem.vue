@@ -41,6 +41,9 @@
         <p v-if="properties.contentType" class="properties left">
           <span>{{ $t('connections.contentType') }}: {{ properties.contentType }}</span>
         </p>
+        <p v-if="properties.payloadFormatIndicator" class="properties left">
+          <span>{{ $t('connections.payloadFormatIndicator') }}: {{ properties.payloadFormatIndicator }}</span>
+        </p>
         <p v-if="properties.topicAlias" class="properties left">
           <span>{{ $t('connections.topicAlias') }}: {{ properties.topicAlias }}</span>
         </p>
@@ -49,6 +52,9 @@
         </p>
         <p v-if="properties.correlationData" class="properties left">
           <span>{{ $t('connections.correlationData') }}: {{ properties.correlationData }}</span>
+        </p>
+        <p v-if="properties.messageExpiryInterval" class="properties left">
+          <span>{{ $t('connections.messageExpiryInterval') }}: {{ properties.messageExpiryInterval }}</span>
         </p>
         <p v-if="properties.userProperties" class="user-properties properties left">
           <KeyValueEditor
