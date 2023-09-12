@@ -26,6 +26,9 @@
         <p v-if="properties.contentType" class="properties right">
           <span>{{ $t('connections.contentType') }}: {{ properties.contentType }}</span>
         </p>
+        <p v-if="properties.payloadFormatIndicator" class="properties right">
+          <span>{{ $t('connections.payloadFormatIndicator') }}: {{ properties.payloadFormatIndicator }}</span>
+        </p>
         <p v-if="properties.topicAlias" class="properties right">
           <span>{{ $t('connections.topicAlias') }}: {{ properties.topicAlias }}</span>
         </p>
@@ -34,6 +37,9 @@
         </p>
         <p v-if="properties.correlationData" class="properties right">
           <span>{{ $t('connections.correlationData') }}: {{ properties.correlationData }}</span>
+        </p>
+        <p v-if="properties.messageExpiryInterval" class="properties right">
+          <span>{{ $t('connections.messageExpiryInterval') }}: {{ properties.messageExpiryInterval }}</span>
         </p>
         <p v-if="properties.userProperties" class="user-properties properties right">
           <KeyValueEditor
@@ -67,7 +73,7 @@ export default class MsgrightItem extends Vue {
   @Prop({ required: false }) public meta?: string
   @Prop({ required: false, default: () => ({}) }) public properties!: PushPropertiesModel
 
-  private customMenu(event: MouseEvent) {
+  public customMenu(event: MouseEvent) {
     this.$emit('showmenu', this.payload, event)
   }
 

@@ -20,13 +20,12 @@
                 </el-col>
                 <el-col :span="24">
                   <el-form-item :label="$t('connections.payloadFormatIndicator')" prop="payloadFormatIndicator">
-                    <el-checkbox
-                      style="width: 100%"
+                    <el-switch
                       size="mini"
                       v-model="MQTT5PropsForm.payloadFormatIndicator"
-                      border
-                      >{{ MQTT5PropsForm.payloadFormatIndicator ? 'true' : 'false' }}</el-checkbox
-                    >
+                      active-color="#13ce66"
+                      inactive-color="#A2A9B0"
+                    ></el-switch>
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
@@ -345,19 +344,23 @@ export default class MsgPublish extends Vue {
 
   /**
    * Notice:
-   * when we jump order by`creation page` <-> `connection page`,
-   * the monaco will not init or destroy, because we use the v-show to hidden Msgpublish componment.
-   * So we need to operate editor creation and destroy manually by listening on route.
-   * relative PR: https://github.com/emqx/MQTTX/pull/518 https://github.com/emqx/MQTTX/pull/446
+   *
+   * When we switch between the `creation page` and `connection page`, the Monaco editor is not initialized or destroyed.
+   * Instead, we use `v-show` to hide the `MsgPublish` component.
+   * Therefore, we need to manually create and destroy the editor by listening to the route.
+   *
+   * Relevant PRs:
+   * - https://github.com/emqx/MQTTX/pull/518
+   * - https://github.com/emqx/MQTTX/pull/446
    */
   @Watch('$route.params.id', { immediate: true, deep: true })
   private async handleIdChanged(to: string, from: string) {
     const editorRef = this.$refs.payloadEditor as Editor
     if (to && from === '0' && to !== '0') {
-      // Init the editor when rout jump from creation page
+      // Initialize the editor when the route jumps from the creation page
       editorRef.initEditor()
     } else if (from && from !== '0' && to === '0') {
-      // destroy the editor when rout jump to creation page
+      // Destroy the editor when the route jumps to the creation page
       editorRef.destroyEditor()
     }
     this.loadProperties()
@@ -377,7 +380,10 @@ export default class MsgPublish extends Vue {
     }
   }
 
-  // Notice: add editor creation and destroy manually export for it's father componment.
+  /**
+   * Manually create and destroy the editor for the parent component.
+   * Note: This function destroys the editor instance.
+   */
   public editorDestory() {
     const editorRef = this.$refs.payloadEditor as Editor
     editorRef.destroyEditor()
