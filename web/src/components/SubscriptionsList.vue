@@ -13,9 +13,9 @@
           <el-button class="btn new-subs-btn" icon="el-icon-plus" plain type="outline" size="mini" @click="openDialog">
             {{ $t('connections.newSubscription') }}
           </el-button>
-          <a class="hide-btn" href="javascript:;" @click="hideSubsList">
+          <!-- <a class="hide-btn" href="javascript:;" @click="hideSubsList">
             <i class="iconfont icon-collapse"></i>
-          </a>
+          </a> -->
         </div>
         <div
           v-for="(sub, index) in subsList"
@@ -674,11 +674,7 @@ export default class SubscriptionsList extends Vue {
     text-align: center;
     position: relative;
     padding: 16px 16px 0 16px;
-    text-align: initial;
-    .new-subs-btn {
-      border-width: 1px;
-      border-style: dashed;
-    }
+    text-align: center;
     .hide-btn {
       font-size: 20px;
       position: absolute;

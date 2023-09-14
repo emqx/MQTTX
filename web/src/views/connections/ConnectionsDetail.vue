@@ -131,18 +131,11 @@
             </a>
           </span>
           <div class="message-type">
-            <el-tooltip
-              placement="top"
-              :effect="theme !== 'light' ? 'light' : 'dark'"
-              :open-delay="500"
-              :content="$t('connections.receivedPayloadDecodedBy')"
-            >
-              <a href="javascript:;" class="icon-tip">
-                <i class="el-icon-question"></i>
-              </a>
-            </el-tooltip>
-            <el-select class="received-type-select" size="small" v-model="receivedMsgType">
-              <el-option v-for="type in ['Plaintext', 'Base64', 'JSON', 'Hex']" :key="type" :value="type"> </el-option>
+            <el-select class="received-type-select" size="mini" v-model="receivedMsgType">
+              <el-option-group :label="$t('connections.receivedPayloadDecodedBy')">
+                <el-option v-for="type in ['Plaintext', 'JSON', 'Base64', 'Hex']" :key="type" :value="type">
+                </el-option>
+              </el-option-group>
             </el-select>
             <MsgTypeTabs v-model="msgType" @change="handleMsgTypeChanged" />
           </div>
@@ -300,7 +293,7 @@ export default class ConnectionsDetail extends Vue {
   private searchTopic = ''
   private titleName: string = this.record.name
   private retryTimes = 0
-  private inputHeight = 155
+  private inputHeight = 180
   private msgBottom = 160
   private messageListHeight: number = 284
   private messageListMarginTop: number = 19
@@ -1141,10 +1134,6 @@ export default class ConnectionsDetail extends Vue {
         right: 0;
         z-index: 1;
         transition: all 0.4s;
-        .el-input .el-input__inner {
-          border: none;
-          color: var(--color-main-green);
-        }
         .subs-title {
           line-height: 32px;
           color: var(--color-text-title);
@@ -1164,8 +1153,11 @@ export default class ConnectionsDetail extends Vue {
         .message-type {
           @include flex-space-between;
           .received-type-select {
-            width: 95px;
-            margin-left: 300px;
+            width: 88px;
+            margin-left: 276px;
+            .el-input__inner {
+              padding: 4px 10px;
+            }
           }
           .icon-tip {
             position: absolute;
@@ -1226,5 +1218,12 @@ export default class ConnectionsDetail extends Vue {
     color: var(--color-minor-red);
     background: var(--color-light-red);
   }
+}
+.el-select-group__title {
+  padding-right: 20px;
+  color: var(--color-text-light) !important;
+  font-size: 13px;
+  height: 34px;
+  border-bottom: 1px solid var(--color-border-default);
 }
 </style>

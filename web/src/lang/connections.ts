@@ -355,9 +355,14 @@ export default {
     ja: 'メッセージを受信する',
   },
   receivedPayloadDecodedBy: {
-    zh: '接收到的 Payload 通过编码格式输出',
-    en: 'Received Payload is output by encoding format',
-    ja: '受信したペイロードは、エンコード形式で出力されます',
+    zh: '使用以下格式编码接收到的 Payload',
+    en: 'Format Received Payload by',
+    ja: '以下の方式で受信 Payload をフォーマット: ',
+  },
+  publishPayloadEncodedBy: {
+    zh: '使用以下格式编码要发布的 Payload',
+    en: 'Format Payload to Publish by',
+    ja: '以下の方式で公開用 Payload をフォーマット: ',
   },
   alias: {
     zh: '别名',

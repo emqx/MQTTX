@@ -24,7 +24,7 @@ import {
   Switch,
   Select,
   Option,
-  // OptionGroup,
+  OptionGroup,
   Button,
   // ButtonGroup,
   // Table,
@@ -95,7 +95,7 @@ export default (Vue: any) => {
   Vue.use(Switch)
   Vue.use(Select)
   Vue.use(Option)
-  // Vue.use(OptionGroup)
+  Vue.use(OptionGroup)
   Vue.use(Button)
   // Vue.use(ButtonGroup)
   // Vue.use(Table)
