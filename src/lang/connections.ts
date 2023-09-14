@@ -497,11 +497,18 @@ export default {
     hu: 'Fogadott üzenet',
   },
   receivedPayloadDecodedBy: {
-    zh: '接收到的 Payload 通过编码格式输出',
-    en: 'Received Payload is output by encoding format',
-    tr: 'Alınan Payload, kodlama biçimiyle çıkarılır',
-    ja: '受信したペイロードは、エンコード形式で出力されます',
-    hu: 'A fogadott Payload kódolási formátum szerint',
+    zh: '使用以下格式编码接收到的 Payload',
+    en: 'Format Received Payload by',
+    tr: 'Alınan Payload’ı şununla biçimlendir: ',
+    ja: '以下の方式で受信 Payload をフォーマット: ',
+    hu: 'Fogadott Payload formázása e szerint: ',
+  },
+  publishPayloadEncodedBy: {
+    zh: '使用以下格式编码要发布的 Payload',
+    en: 'Format Payload to Publish by',
+    tr: 'Yayınlamak için Payload’ı şununla biçimlendir: ',
+    ja: '以下の方式で公開用 Payload をフォーマット: ',
+    hu: 'A közzétételre szánt Payload formázása e szerint: ',
   },
   alias: {
     zh: '别名',
