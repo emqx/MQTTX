@@ -100,7 +100,7 @@
             <span style="float: right; color: #8492a6; margin-left: 12px">{{ $t(`connections.qos${qos}`) }}</span>
           </el-option>
         </el-select>
-        <el-checkbox class="retain-block" v-model="msgRecord.retain" label="Retain" border size="mini"></el-checkbox>
+        <el-checkbox class="retain-checkbox" v-model="msgRecord.retain" label="Retain" border size="mini"></el-checkbox>
         <el-tooltip
           placement="top"
           :disabled="mqtt5PropsEnable"
@@ -602,7 +602,7 @@ export default class MsgPublish extends Vue {
     .qos-select {
       width: 46px;
     }
-    .retain-block {
+    .retain-checkbox {
       margin-left: 8px;
     }
     .meta-block {

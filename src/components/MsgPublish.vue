@@ -88,18 +88,18 @@
     </div>
     <div class="publish-header">
       <div class="publish-metadata">
-        <span class="publish-label">Payload: </span>
         <el-select class="payload-select" size="mini" v-model="payloadType">
-          <el-option v-for="(type, index) in payloadOptions" :key="index" :value="type"> </el-option>
+          <el-option-group :label="$t('connections.publishPayloadEncodedBy')">
+            <el-option v-for="(type, index) in payloadOptions" :key="index" :label="type" :value="type"> </el-option>
+          </el-option-group>
         </el-select>
-        <span class="publish-label">QoS: </span>
         <el-select class="qos-select" size="mini" v-model="msgRecord.qos">
-          <el-option v-for="qos in [0, 1, 2]" :key="qos" :label="qos" :value="qos">
+          <el-option v-for="qos in [0, 1, 2]" :key="qos" :label="`QoS ${qos}`" :value="qos">
             <span style="float: left">{{ qos }}</span>
             <span style="float: right; color: #8492a6; margin-left: 12px">{{ $t(`connections.qos${qos}`) }}</span>
           </el-option>
         </el-select>
-        <el-checkbox class="retain-block" v-model="msgRecord.retain" label="Retain" border size="mini"></el-checkbox>
+        <el-checkbox class="retain-checkbox" v-model="msgRecord.retain" label="Retain" border size="mini"></el-checkbox>
         <el-tooltip
           placement="top"
           :disabled="mqtt5PropsEnable"
@@ -683,8 +683,9 @@ export default class MsgPublish extends Vue {
   }
   .publish-metadata {
     background: var(--color-bg-normal);
-    padding: 0 16px;
+    padding: 0 13px;
     margin-top: 6px;
+    margin-bottom: 2px;
     .el-input__inner {
       padding: 4px 10px;
     }
@@ -697,10 +698,16 @@ export default class MsgPublish extends Vue {
       margin-right: 8px;
     }
     .qos-select {
-      width: 46px;
+      width: 76px;
     }
-    .retain-block {
+    .retain-checkbox {
       margin-left: 8px;
+      .el-checkbox__input {
+        line-height: 1px;
+      }
+      .el-checkbox__label {
+        padding-left: 8px;
+      }
     }
     .meta-block {
       margin-left: 6px;
