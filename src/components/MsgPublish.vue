@@ -133,6 +133,9 @@
             <el-dropdown-item command="clearRetainedMessage" :disabled="!clientConnected">
               <i class="iconfont icon-delete"></i>{{ $t('connections.clearRetainedMessage') }}
             </el-dropdown-item>
+            <el-dropdown-item command="timedMessage" :disabled="!clientConnected || sendTimeId !== null">
+              <i class="iconfont icon-a-timedmessage"></i>{{ $t('connections.timedMessage') }}
+            </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -251,6 +254,7 @@ export default class MsgPublish extends Vue {
   @Prop({ default: false }) public disabled!: boolean
   @Prop({ default: false }) public mqtt5PropsEnable!: boolean
   @Prop({ default: false }) public clientConnected!: boolean
+  @Prop({ default: null }) public sendTimeId!: number | null
 
   @Getter('currentTheme') private currentTheme!: Theme
 
@@ -560,6 +564,8 @@ export default class MsgPublish extends Vue {
   private handleActionCommand(command: string) {
     if (command === 'clearRetainedMessage') {
       this.onClearRetainedMsgPublish()
+    } else if (command === 'timedMessage') {
+      this.$emit('handleSendTimedMessage')
     }
   }
 
