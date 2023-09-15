@@ -1,6 +1,6 @@
 {
   "name": "mqttx-web",
-  "version": "1.9.5",
+  "version": "1.9.6",
   "license": "Apache-2.0",
   "scripts": {
     "serve": "vue-cli-service serve",
