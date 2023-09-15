@@ -32,7 +32,7 @@
       <p class="left-info">
         <span class="topic">Topic: {{ topic }}</span>
         <span class="qos">QoS: {{ qos }}</span>
-        <span v-if="retain" class="retain">Retain</span>
+        <span v-if="retain" class="retain">Retained</span>
       </p>
       <div class="meta">
         <p v-if="properties.subscriptionIdentifier" class="properties left">

@@ -831,4 +831,18 @@ export default {
     ja: 'そして',
     hu: 'És',
   },
+  clearRetainedMessage: {
+    zh: '清除保留消息',
+    en: 'Clear Retained Message',
+    tr: 'Saklı Mesajı Temizle',
+    ja: '保持メッセージをクリア',
+    hu: 'Megőrzött üzenet törlése',
+  },
+  clearRetainedMessageConfirm: {
+    zh: '确定清除该主题的保留消息吗？',
+    en: 'Confirm to clear the retained messages for this topic?',
+    tr: 'Bu konu için saklı mesajları temizlemek istiyor musunuz?',
+    ja: 'このトピックの保持メッセージをクリアしますか？',
+    hu: 'Törölni kívánja a témához kapcsolódó megőrzött üzeneteket?',
+  },
 }
