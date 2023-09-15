@@ -109,11 +109,14 @@
                   <el-dropdown-item command="searchContent">
                     <i class="iconfont icon-search"></i>{{ $t('connections.searchContent') }}
                   </el-dropdown-item>
-                  <el-dropdown-item command="newWindow">
-                    <i class="iconfont icon-a-newwindow"></i>{{ $t('common.newWindow') }}
-                  </el-dropdown-item>
                   <el-dropdown-item command="clearHistory">
                     <i class="iconfont icon-a-clearhistory"></i>{{ $t('connections.clearHistory') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="useScript" :disabled="!client.connected">
+                    <i class="iconfont icon-a-usescript"></i>{{ $t('script.useScript') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item command="newWindow">
+                    <i class="iconfont icon-a-newwindow"></i>{{ $t('common.newWindow') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="exportData">
                     <i class="iconfont icon-a-exportdata"></i>{{ $t('connections.exportData') }}
@@ -121,14 +124,8 @@
                   <el-dropdown-item command="importData">
                     <i class="iconfont icon-a-importdata"></i>{{ $t('connections.importData') }}
                   </el-dropdown-item>
-                  <el-dropdown-item command="timedMessage" :disabled="!client.connected || sendTimeId !== null">
-                    <i class="iconfont icon-a-timedmessage"></i>{{ $t('connections.timedMessage') }}
-                  </el-dropdown-item>
                   <el-dropdown-item command="bytesStatistics" :disabled="!client.connected">
                     <i class="iconfont icon-a-bytesstatistics"></i>{{ $t('connections.bytesStatistics') }}
-                  </el-dropdown-item>
-                  <el-dropdown-item command="useScript" :disabled="!client.connected">
-                    <i class="iconfont icon-a-usescript"></i>{{ $t('script.useScript') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="disconnect" :disabled="!client.connected">
                     <i class="el-icon-switch-button"></i>{{ $t('connections.disconnect') }}
@@ -253,8 +250,10 @@
           :style="{ height: `${inputHeight}px` }"
           :disabled="sendTimeId !== null"
           :clientConnected="client.connected"
+          :sendTimeId="sendTimeId"
           @foucs="handleMessages"
           @handleSend="sendMessage"
+          @handleSendTimedMessage="handleCommand('timedMessage')"
         />
       </div>
     </div>
