@@ -74,13 +74,18 @@
                 </el-col>
               </el-row>
             </el-form>
-            <div class="meta-btn">
-              <el-button size="mini" class="meta-btn-reset" type="text" @click="showMetaCard = false">{{
+            <div class="dropdown-btn">
+              <el-button size="mini" class="dropdown-btn-reset" type="text" @click="showMetaCard = false">{{
                 $t('common.cancel')
               }}</el-button>
-              <el-button size="mini" class="meta-btn-submit" type="text" :loading="saveMetaLoading" @click="saveMeta">{{
-                $t('common.save')
-              }}</el-button>
+              <el-button
+                size="mini"
+                class="dropdown-btn-submit"
+                type="text"
+                :loading="saveMetaLoading"
+                @click="saveMeta"
+                >{{ $t('common.save') }}</el-button
+              >
             </div>
           </el-card>
         </div>
@@ -112,7 +117,7 @@
               type="outline"
               plain
               :disabled="!mqtt5PropsEnable"
-              :class="['meta-block', showMetaCard ? 'meta-block-active' : '']"
+              :class="['dropdown-btn', showMetaCard ? 'dropdown-btn-active' : '']"
               @click="changeVisable"
               label="Meta"
               size="mini"
@@ -121,6 +126,15 @@
             </el-button>
           </el-badge>
         </el-tooltip>
+        <el-dropdown class="actions-dropdown" placement="top" trigger="click" @command="handleActionCommand">
+          <el-button class="dropdown-btn actions-btn" type="outline" plain size="mini" icon="el-icon-caret-top">
+          </el-button>
+          <el-dropdown-menu class="connection-oper-item" slot="dropdown">
+            <el-dropdown-item command="clearRetainedMessage" :disabled="!clientConnected">
+              <i class="iconfont icon-delete"></i>{{ $t('connections.clearRetainedMessage') }}
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </div>
       <div :class="['topic-input-contianer', topicRequired ? 'required' : '']">
         <el-input
@@ -542,6 +556,30 @@ export default class MsgPublish extends Vue {
   private handleClickOutSide() {
     this.showMetaCard = false
   }
+
+  private handleActionCommand(command: string) {
+    if (command === 'clearRetainedMessage') {
+      this.onClearRetainedMsgPublish()
+    }
+  }
+
+  private onClearRetainedMsgPublish() {
+    this.$confirm(
+      `${this.$tc('connections.clearRetainedMessageConfirm')} "${this.msgRecord.topic}"`,
+      this.$tc('common.warning'),
+      {
+        type: 'warning',
+      },
+    )
+      .then(() => {
+        this.msgRecord.payload = ''
+        this.msgRecord.retain = true
+        this.send()
+      })
+      .catch(() => {
+        // The user canceled the action
+      })
+  }
 }
 </script>
 
@@ -566,16 +604,16 @@ export default class MsgPublish extends Vue {
       padding-bottom: 0px;
       margin: 4px;
       user-select: none;
-      .meta-btn {
+      .dropdown-btn {
         margin-top: 10px;
         text-align: right;
-        .meta-btn-reset {
+        .dropdown-btn-reset {
           color: var(--color-text-default);
           &:hover {
             color: var(--color-main-green);
           }
         }
-        .meta-btn-submit {
+        .dropdown-btn-submit {
           margin-right: 8px;
         }
       }
@@ -709,7 +747,7 @@ export default class MsgPublish extends Vue {
         padding-left: 8px;
       }
     }
-    .meta-block {
+    .dropdown-btn {
       margin-left: 6px;
       &.el-button.is-disabled {
         background-color: transparent;
@@ -720,13 +758,16 @@ export default class MsgPublish extends Vue {
         border-color: var(--color-border-default);
         color: var(--color-text-default);
       }
-      &.meta-block-active {
+      &.dropdown-btn-active {
         color: var(--color-main-green);
         border-color: var(--color-main-green);
       }
     }
     .el-checkbox__inner {
       border-radius: 100%;
+    }
+    .actions-dropdown {
+      display: inline;
     }
   }
   .disabled-mask {
