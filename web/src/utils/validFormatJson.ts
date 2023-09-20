@@ -9,6 +9,7 @@ export default (jsonStrValue: string, warnMessage?: TranslateResult) => {
     }
     return undefined
   } catch (error) {
+    // @ts-ignore
     let errorMessage = error.toString()
     if (warnMessage) {
       errorMessage = `${warnMessage} ${errorMessage}`

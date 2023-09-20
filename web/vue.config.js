@@ -1,5 +1,4 @@
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
-
 process.env.VUE_APP_VERSION = require('./package.json').version
 
 const buildMode = process.env.BUILD_MODE

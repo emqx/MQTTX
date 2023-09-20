@@ -49,7 +49,8 @@ class DB {
       this.db.set('settings.autoScrollInterval', 0).write()
     }
     // Set max reconnection times
-    if (!this.db.get('settings.maxReconnectTimes').value()) {
+    // @ts-ignore FIXME
+    if (this.db.get('settings.maxReconnectTimes').value()) {
       this.db.set('settings.maxReconnectTimes', 10).write()
     }
     // Purple to Night

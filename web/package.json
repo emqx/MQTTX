@@ -21,6 +21,7 @@
     "monaco-editor": "^0.25.2",
     "mqtt": "4.3.7",
     "rxjs": "~6.2.0",
+    "url": "^0.11.3",
     "vue": "~2.6.10",
     "vue-class-component": "^7.0.2",
     "vue-click-outside": "^1.1.0",
