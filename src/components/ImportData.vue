@@ -174,6 +174,7 @@ export default class ImportData extends Vue {
         properties = JSON.parse(properties)
         will = JSON.parse(will)
       } catch (err) {
+        // @ts-ignore
         this.$message.error(err.toString())
         caughtError = true
       }
@@ -195,6 +196,7 @@ export default class ImportData extends Vue {
         const fileContent = this.getDiffFormatData(content)
         this.assignValueToRecord(filePath, fileContent)
       } catch (err) {
+        // @ts-ignore
         this.$message.error(err.toString())
       }
     })
@@ -277,6 +279,7 @@ export default class ImportData extends Vue {
         const keyName = Object.keys(parentElement._parent)[keyNameIndex]
         parentElement._parent[keyName] = nativeType(keyName, value)
       } catch (err) {
+        // @ts-ignore
         this.$message.error(err.toString())
       }
     }
@@ -301,6 +304,7 @@ export default class ImportData extends Vue {
           if (!Array.isArray(subscriptions)) connection.subscriptions = [subscriptions]
         })
       } catch (err) {
+        // @ts-ignore
         this.$message.error(err.toString())
       }
       return fileContent
@@ -356,6 +360,7 @@ export default class ImportData extends Vue {
           })
           fileContent.push({ messages, subscriptions, properties, will, ...otherProps })
         } catch (err) {
+          // @ts-ignore
           this.$message.error(err.toString())
         }
       })

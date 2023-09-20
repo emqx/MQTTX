@@ -582,6 +582,7 @@ export default class ConnectionsList extends Vue {
         })
       } catch (error) {
         const err = error as Error
+        // @ts-ignore
         this.$message.error(err.toString())
       } finally {
         this.showContextmenu = false

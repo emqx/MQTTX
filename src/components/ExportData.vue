@@ -150,6 +150,7 @@ export default class ExportData extends Vue {
         this.exportDiffFormatData(content, 'JSON')
       })
       .catch((err) => {
+        // @ts-ignore
         this.$message.error(err.toString())
       })
       .finally(() => {
@@ -169,6 +170,7 @@ export default class ExportData extends Vue {
         this.exportDiffFormatData(yamlContent, 'YAML')
       })
       .catch((err) => {
+        // @ts-ignore
         this.$message.error(err.toString())
       })
       .finally(() => {
@@ -211,6 +213,7 @@ export default class ExportData extends Vue {
         saveExcelData(newWorkBook)
       })
       .catch((err) => {
+        // @ts-ignore
         this.$message.error(err.toString())
       })
       .finally(() => {
@@ -227,6 +230,7 @@ export default class ExportData extends Vue {
         content = content.replace(/<([0-9]*)>/g, '<oneConnection>').replace(/<(\/[0-9]*)>/g, '</oneConnection>')
         this.exportDiffFormatData(content, 'XML')
       } catch (err) {
+        // @ts-ignore
         this.$message.error(err.toString())
       }
     }
@@ -240,6 +244,7 @@ export default class ExportData extends Vue {
         exportDataToXML(content)
       })
       .catch((err) => {
+        // @ts-ignore
         this.$message.error(err.toString())
       })
       .finally(() => {
@@ -256,6 +261,7 @@ export default class ExportData extends Vue {
         content = CSVConvert(JSON.parse(content)).replace(/"(\d+\.(\d+)?0)"/g, '="$1"')
         this.exportDiffFormatData(content, 'CSV')
       } catch (err) {
+        // @ts-ignore
         this.$message.error(err.toString())
       }
     }
@@ -269,6 +275,7 @@ export default class ExportData extends Vue {
         exportDataToCSV(content)
       })
       .catch((err) => {
+        // @ts-ignore
         this.$message.error(err.toString())
       })
       .finally(() => {
