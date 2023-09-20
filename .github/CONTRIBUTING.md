@@ -84,11 +84,11 @@ If you find a problem 🐛 or have a better idea 💡 during use, you can modify
      - ci: Continuous integration
      - build || chore: Changes in build tools or dependent packages
 
-6. Submit a pull request to the `master` branch of the upstream repository, and we will review it.
+6. Submit a pull request to the `main` branch of the upstream repository, and we will review it.
 
-   > Note: The master branch is an unstable code branch, new code will be merged to master, if you need to use stable code, you can switch to the tag. git checkout ${tag_name}
+   > Note: The main branch is an unstable code branch, new code will be merged to main, if you need to use stable code, you can switch to the tag. git checkout ${tag_name}
 
-7. Release process, pull down the latest master branch `maste`, using this command line to generate a new commit, and finally use rebase merge to merge into The master branch `master`.
+7. Release process, pull down the latest `main` branch, using this command line to generate a new commit, and finally use rebase merge to merge into the `main` branch.
 
    ```shell
    npm version [patch | minor | major] -m '${Commit message}'
