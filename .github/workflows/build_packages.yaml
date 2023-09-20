@@ -1,10 +1,6 @@
 name: build packages
 
-on:
-  pull_request:
-  release:
-    types:
-      - published
+on: push
 
 jobs:
   build:
