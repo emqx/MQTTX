@@ -56,7 +56,7 @@
     "prettier": "^2.0.5",
     "sass": "1.32.13",
     "sass-loader": "^10.1.1",
-    "typescript": "^3.7.4",
+    "typescript": "^4",
     "vue-template-compiler": "~2.6.10"
   }
 }
