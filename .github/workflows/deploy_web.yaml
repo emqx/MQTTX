@@ -11,14 +11,14 @@ on:
 
 jobs:
   deploy_website:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: use node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16.14
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: set env
         run: |
           cd web
@@ -41,14 +41,14 @@ jobs:
 
   publish_docker:
     if: github.event_name != 'pull_request'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: use node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: 16.14
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: set env
         run: |
           cd web
