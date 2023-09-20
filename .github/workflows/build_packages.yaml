@@ -13,24 +13,8 @@ jobs:
            -v ${PWD}:/project \
            electronuserland/builder:16-wine \
            bash -c "yarn && yarn electron:build-linux && yarn electron:build-win"
-      - uses: aws-actions/configure-aws-credentials@v2
-        if: github.event_name == 'release'
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-      - name: upload release asset
-        if: github.event_name == 'release'
-        run: |
-          cd dist_electron
-          tag=$(echo ${{ github.ref }} | sed -r  "s ^refs/heads/|^refs/tags/(.*) \1 g")
-          for var in $(ls); do
-              $GITHUB_WORKSPACE/.github/workflows/upload_github_release_asset.sh \
-                  owner=${{ github.repository_owner }} \
-                  repo=mqttx \
-                  tag=$tag \
-                  filename=$var \
-                  github_api_token=$(echo ${{ secrets.GITHUB_TOKEN }});
-          done
-          cd ..
-          aws s3 cp --recursive dist_electron s3://${{ secrets.AWS_S3_BUCKET }}/MQTTX/$tag/
+          path: ./dist_electron
+          retention-days: 8
