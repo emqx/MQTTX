@@ -30,6 +30,9 @@
     "db:diagram": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm-uml ormconfig.ts -d ./src/database/database.png"
   },
   "main": "background.js",
+  "engines": {
+    "node": ">=16"
+  },
   "dependencies": {
     "appdata-path": "^1.0.0",
     "axios": "^0.21.2",
