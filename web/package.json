@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@gtm-support/vue2-gtm": "^1.3.0",
-    "axios": "^0.21.2",
     "core-js": "~2.6.11",
     "element-ui": "^2.13.0",
     "fs-extra": "^8.1.0",
