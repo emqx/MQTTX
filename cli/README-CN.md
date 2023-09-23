@@ -418,8 +418,8 @@ function generator (faker, options) {
     // 如果没有返回主题，则使用命令行参数中的主题。
     // 主题格式：'mqttx/simulate/myScenario/' + clientId,
     message: JSON.stringify({
-      temp: faker.datatype.number({ min: 20, max: 80 }),  // 在 20 到 80 之间生成随机温度。
-      hum: faker.datatype.number({ min: 40, max: 90 }),   // 在 40 到 90 之间生成随机湿度。
+      temp: faker.number.int({ min: 20, max: 80 }),  // 在 20 到 80 之间生成随机温度。
+      hum: faker.number.int({ min: 40, max: 90 }),   // 在 40 到 90 之间生成随机湿度。
     })
   }
 }

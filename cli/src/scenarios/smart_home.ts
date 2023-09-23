@@ -34,8 +34,8 @@ const generateRoomData = (faker: Faker, roomType: string): RoomData | KitchenDat
 
   const baseData: RoomData = {
     room_type: roomType,
-    temperature: faker.datatype.number({ min: 18, max: 26 }),
-    humidity: faker.datatype.number({ min: 30, max: 50 }),
+    temperature: faker.number.int({ min: 18, max: 26 }),
+    humidity: faker.number.int({ min: 30, max: 50 }),
     lights_on: isDaytime ? faker.datatype.boolean() : !isSleepingHours,
     window_open: isDaytime ? faker.datatype.boolean() : false,
   }
@@ -43,7 +43,7 @@ const generateRoomData = (faker: Faker, roomType: string): RoomData | KitchenDat
   if (isKitchen) {
     const kitchenData: KitchenData = {
       ...baseData,
-      fridge_temperature: faker.datatype.number({ min: 2, max: 8 }),
+      fridge_temperature: faker.number.int({ min: 2, max: 8 }),
       oven_on: faker.datatype.boolean(),
     }
     return kitchenData
@@ -53,7 +53,7 @@ const generateRoomData = (faker: Faker, roomType: string): RoomData | KitchenDat
     const bathroomData: BathroomData = {
       ...baseData,
       water_tap_running: faker.datatype.boolean(),
-      bath_water_level: faker.datatype.number({ min: 0, max: 100 }),
+      bath_water_level: faker.number.int({ min: 0, max: 100 }),
     }
     return bathroomData
   }
@@ -73,9 +73,9 @@ const generator = (faker: Faker, options: SimulatePubOptions) => {
   const { clientId } = options
   if (!dataCache[clientId]) {
     dataCache[clientId] = {
-      home_id: faker.datatype.uuid(),
-      owner_name: faker.name.fullName(),
-      address: faker.address.streetAddress(),
+      home_id: faker.string.uuid(),
+      owner_name: faker.person.fullName(),
+      address: faker.location.streetAddress(),
     }
   }
 

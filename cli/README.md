@@ -416,8 +416,8 @@ function generator (faker, options) {
     // If no topic is returned, use the topic in the command line parameters.
     // Topic format: 'mqttx/simulate/myScenario/' + clientId,
     message: JSON.stringify({
-      temp: faker.datatype.number({ min: 20, max: 80 }),  // Generate a random temperature between 20 and 80.
-      hum: faker.datatype.number({ min: 40, max: 90 }),   // Generate a random humidity between 40 and 90.
+      temp: faker.number.int({ min: 20, max: 80 }),  // Generate a random temperature between 20 and 80.
+      hum: faker.number.int({ min: 40, max: 90 }),   // Generate a random humidity between 40 and 90.
     })
   }
 }
