@@ -16,7 +16,7 @@ jobs:
       - name: use node.js
         uses: actions/setup-node@v1
         with:
-          node-version: 16.14
+          node-version-file: '.nvmrc'
 
       - uses: actions/checkout@v3
       - name: set env
@@ -46,7 +46,7 @@ jobs:
       - name: use node.js
         uses: actions/setup-node@v1
         with:
-          node-version: 16.14
+          node-version-file: '.nvmrc'
 
       - uses: actions/checkout@v3
       - name: set env
