@@ -15,9 +15,7 @@
     "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "types": [
-      "webpack-env",
-      "mocha",
-      "chai"
+      "webpack-env"
     ],
     "paths": {
       "@/*": [
@@ -41,8 +39,6 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx",
     "main/**/*.ts"
   ],
   "exclude": [
