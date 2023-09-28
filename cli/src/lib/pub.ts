@@ -95,10 +95,13 @@ const multisend = (
   const sender = new Writable({
     objectMode: true,
   })
+  let count = 0
   sender._write = (line, _enc, cb) => {
     const { topic, opts, protobufPath, protobufMessageName, format } = pubOpts
+    count++
+    let omitTopic = opts.properties?.topicAlias && count >= 2
     const publishMessage = processPublishMessage(line.trim(), protobufPath, protobufMessageName, format)
-    client.publish(topic, publishMessage, opts, cb)
+    client.publish(omitTopic ? '' : topic, publishMessage, opts, cb)
   }
 
   client.on('connect', () => {
