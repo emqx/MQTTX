@@ -157,7 +157,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item label-width="180px" label="No Local flag" prop="nl">
+                <el-form-item label-width="180px" :label="$t('connections.noLocal')" prop="nl">
                   <el-radio-group v-model="subRecord.nl">
                     <el-radio :label="true">true</el-radio>
                     <el-radio :label="false">false</el-radio>
@@ -165,7 +165,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item label-width="180px" label="Retain as Published flag" prop="rap">
+                <el-form-item label-width="180px" :label="$t('connections.retainAsPublished')" prop="rap">
                   <el-radio-group v-model="subRecord.rap">
                     <el-radio :label="true">true</el-radio>
                     <el-radio :label="false">false</el-radio>
@@ -173,7 +173,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item label-width="180px" label="Retain Handling" prop="rh">
+                <el-form-item label-width="180px" :label="$t('connections.retainHandling')" prop="rh">
                   <el-select v-model="subRecord.rh" size="small">
                     <el-option
                       v-for="retainOps in retainHandling"

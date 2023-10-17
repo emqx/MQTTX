@@ -845,4 +845,25 @@ export default {
     ja: 'このトピックの保持メッセージをクリアしますか？',
     hu: 'Törölni kívánja a témához kapcsolódó megőrzött üzeneteket?',
   },
+  noLocal: {
+    zh: '禁止本地转发',
+    en: 'No Local Flag',
+    tr: 'Yerel İletimi Engelle',
+    ja: 'ローカル転送禁止',
+    hu: 'Helyi továbbítás tiltása',
+  },
+  retainAsPublished: {
+    zh: '发布时状态保留',
+    en: 'Retain as Published Flag',
+    tr: 'Yayınlandığı Gibi Sakla',
+    ja: '公開時の状態を維持',
+    hu: 'Megőrzés közzétételként',
+  },
+  retainHandling: {
+    zh: '保留消息处理',
+    en: 'Retain Handling',
+    tr: 'Mesajı Saklama İşlemi',
+    ja: '保持メッセージの取り扱い',
+    hu: 'Üzenetmegőrzés kezelése',
+  },
 }
