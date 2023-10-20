@@ -1,0 +1,31 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": ["**/.env.*local"],
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "release/**", "out/**"]
+    },
+    "build:win": {
+      "dependsOn": ["^build:win"],
+      "outputs": ["dist/**", "out/**"]
+    },
+    "build:linux": {
+      "dependsOn": ["^build:linux"],
+      "outputs": ["dist/**", "out/**"]
+    },
+    "build:mac": {
+      "dependsOn": ["^build:mac"],
+      "outputs": ["dist/**", "out/**"]
+    },
+    "generate:components": {
+      "dependsOn": ["^generate:components"],
+      "outputs": ["dist/**"]
+    },
+    "lint": {},
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "eslint-config-custom",
+  "license": "Apache-2.0",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-config-turbo": "^1.10.12",
+    "eslint-plugin-prettier": "^5.0.1",
+    "eslint-plugin-vue": "^9.17.0",
+    "@electron-toolkit/eslint-config": "^1.0.1",
+    "@electron-toolkit/eslint-config-ts": "^1.0.0",
+    "@vue/eslint-config-prettier": "^8.0.0",
+    "@vue/eslint-config-typescript": "^11.0.3"
+  }
+}

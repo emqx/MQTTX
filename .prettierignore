@@ -1,0 +1,10 @@
+out
+dist
+release
+pnpm-lock.yaml
+pnpm-workspace.yaml
+LICENSE
+LICENSE.md
+tsconfig.json
+tsconfig.*.json
+node_modules

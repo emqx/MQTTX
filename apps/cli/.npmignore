@@ -1,0 +1,15 @@
+/.git/
+/.vscode/
+/node_modules/
+.gitignore
+.npmignore
+tslint.json
+tsconfig.json
+*.log
+/src/
+/release/
+tsconfig.tsbuildinfo
+Dockerfile
+.dockerignore
+.prettierrc
+README-CN.md

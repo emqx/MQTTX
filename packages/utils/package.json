@@ -1,0 +1,13 @@
+{
+  "name": "@mqttx/utils",
+  "version": "0.0.0",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "devDependencies": {
+    "@types/uuid": "^9.0.6",
+    "typescript": "~5.2.0"
+  },
+  "dependencies": {
+    "uuid": "^9.0.1"
+  }
+}

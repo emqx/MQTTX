@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "target": "ES5",
+    "module": "commonjs",
+    "lib": ["ESNext", "ScriptHost"],
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  }
+}

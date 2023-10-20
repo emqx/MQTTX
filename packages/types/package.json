@@ -1,0 +1,12 @@
+{
+  "name": "@types/mqttx",
+  "main": "./index.d.ts",
+  "types": "./index.d.ts",
+  "scripts": {
+    "type-check": "tsc"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
+    "@types/node": "^17.0.43"
+  }
+}

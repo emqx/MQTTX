@@ -1,0 +1,52 @@
+{
+  "name": "@mqttx/desktop",
+  "version": "2.0.0-alpha.1",
+  "description": "MQTTX Desktop - An MQTT client for the desktop",
+  "author": "EMQX Team <yusf@emqx.io>",
+  "homepage": "https://mqttx.app",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "prebuild": "npm run typecheck && electron-vite build",
+    "postinstall": "electron-builder install-app-deps",
+    "build": "npm run prebuild && electron-builder --win --mac --linux --config",
+    "build:win": "npm run prebuild && electron-builder --win --config",
+    "build:mac": "npm run prebuild && electron-builder --mac --config",
+    "build:linux": "npm run prebuild && electron-builder --linux --config",
+    "preview": "electron-vite preview",
+    "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts,.vue --fix",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
+    "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web"
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^2.0.0",
+    "@electron-toolkit/utils": "^2.0.0",
+    "electron-updater": "^6.1.1",
+    "element-plus": "^2.4.1"
+  },
+  "devDependencies": {
+    "@electron-toolkit/tsconfig": "^1.0.1",
+    "@mqttx/tailwind-config": "workspace:*",
+    "@mqttx/tsconfig": "workspace:*",
+    "@mqttx/ui": "workspace:*",
+    "@mqttx/utils": "workspace:*",
+    "@types/mqttx": "workspace:*",
+    "@vitejs/plugin-vue": "^4.3.1",
+    "autoprefixer": "^10.4.16",
+    "electron": "^25.6.0",
+    "electron-builder": "^24.6.3",
+    "electron-vite": "^1.0.27",
+    "eslint-config-custom": "workspace:*",
+    "postcss": "^8.4.31",
+    "sass": "^1.69.3",
+    "tailwindcss": "^3.3.3",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.9",
+    "vue": "^3.3.4",
+    "vue-tsc": "^1.8.8"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
