@@ -7,6 +7,9 @@ const config: Config = {
       green: {
         primary: '#34c388',
       },
+      black: {
+        primary: '#222b3b',
+      }
     },
   },
   plugins: [],
