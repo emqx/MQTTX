@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+declare module '@mqttx/ui'
 
 declare module '*.vue' {
   import type { DefineComponent } from 'vue'

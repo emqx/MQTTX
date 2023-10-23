@@ -19,6 +19,7 @@
   "devDependencies": {
     "@mqttx/tailwind-config": "workspace:*",
     "@mqttx/tsconfig": "workspace:*",
+    "@mqttx/core": "workspace:*",
     "@vitejs/plugin-vue": "^4.3.4",
     "@vitejs/plugin-vue-jsx": "^3.0.2",
     "autoprefixer": "^10.4.16",

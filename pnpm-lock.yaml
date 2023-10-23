@@ -121,6 +121,9 @@ importers:
       '@electron-toolkit/tsconfig':
         specifier: ^1.0.1
         version: 1.0.1(@types/node@17.0.43)
+      '@mqttx/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@mqttx/tailwind-config':
         specifier: workspace:*
         version: link:../../packages/tailwind-config
@@ -130,9 +133,6 @@ importers:
       '@mqttx/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@mqttx/utils':
-        specifier: workspace:*
-        version: link:../../packages/utils
       '@types/mqttx':
         specifier: workspace:*
         version: link:../../packages/types
@@ -185,6 +185,9 @@ importers:
         specifier: ^3.3.4
         version: 3.3.4
     devDependencies:
+      '@mqttx/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       '@mqttx/tailwind-config':
         specifier: workspace:*
         version: link:../../packages/tailwind-config
@@ -194,9 +197,6 @@ importers:
       '@mqttx/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      '@mqttx/utils':
-        specifier: workspace:*
-        version: link:../../packages/utils
       '@tsconfig/node18':
         specifier: ^18.2.2
         version: 18.2.2
@@ -242,6 +242,19 @@ importers:
       vue-tsc:
         specifier: ^1.8.11
         version: 1.8.11(typescript@5.2.2)
+
+  packages/core:
+    dependencies:
+      uuid:
+        specifier: ^9.0.1
+        version: 9.0.1
+    devDependencies:
+      '@types/uuid':
+        specifier: ^9.0.6
+        version: 9.0.6
+      typescript:
+        specifier: ~5.2.0
+        version: 5.2.2
 
   packages/eslint-config-custom:
     devDependencies:
@@ -299,6 +312,9 @@ importers:
         specifier: ^3.3.4
         version: 3.3.4
     devDependencies:
+      '@mqttx/core':
+        specifier: workspace:*
+        version: link:../core
       '@mqttx/tailwind-config':
         specifier: workspace:*
         version: link:../tailwind-config
@@ -338,19 +354,6 @@ importers:
       vue-tsc:
         specifier: ^1.8.5
         version: 1.8.11(typescript@5.2.2)
-
-  packages/utils:
-    dependencies:
-      uuid:
-        specifier: ^9.0.1
-        version: 9.0.1
-    devDependencies:
-      '@types/uuid':
-        specifier: ^9.0.6
-        version: 9.0.6
-      typescript:
-        specifier: ~5.2.0
-        version: 5.2.2
 
 packages:
 

@@ -29,7 +29,7 @@
     "tailwindcss": "^3.3.3",
     "@mqttx/tailwind-config": "workspace:*",
     "@mqttx/tsconfig": "workspace:*",
-    "@mqttx/utils": "workspace:*",
+    "@mqttx/core": "workspace:*",
     "vite": "^4.4.9",
     "vue-tsc": "^1.8.11",
     "eslint-config-custom": "workspace:*",

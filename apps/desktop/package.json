@@ -30,7 +30,7 @@
     "@mqttx/tailwind-config": "workspace:*",
     "@mqttx/tsconfig": "workspace:*",
     "@mqttx/ui": "workspace:*",
-    "@mqttx/utils": "workspace:*",
+    "@mqttx/core": "workspace:*",
     "@types/mqttx": "workspace:*",
     "@vitejs/plugin-vue": "^4.3.1",
     "autoprefixer": "^10.4.16",
