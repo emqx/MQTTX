@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "repository": "https://github.com/emqx/MQTTX",
   "scripts": {
-    "postinstall": "npm run generate:components",
+    "postinstall": "npm run generate:ui",
     "dev": "turbo run dev",
     "dev:desktop": "turbo run dev --filter @mqttx/desktop",
     "dev:web": "turbo run dev --filter @mqttx/web",
@@ -18,7 +18,7 @@
     "build:web": "turbo run build --filter @mqttx/web",
     "build:desktop": "turbo run build --filter @mqttx/desktop",
     "build:utils": "turbo run build --filter @mqttx/core",
-    "generate:components": "turbo run generate:components",
+    "generate:ui": "turbo run generate:ui",
     "build:win": "turbo run build:win",
     "build:linux": "turbo run build:linux",
     "build:mac": "turbo run build:mac",
