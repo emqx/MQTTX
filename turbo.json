@@ -18,8 +18,8 @@
       "dependsOn": ["^build:mac"],
       "outputs": ["dist/**", "out/**"]
     },
-    "generate:components": {
-      "dependsOn": ["^generate:components"],
+    "generate:ui": {
+      "dependsOn": ["^generate:ui"],
       "outputs": ["dist/**"]
     },
     "lint": {},

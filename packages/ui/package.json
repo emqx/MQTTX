@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "dev": "vue-tsc && vite build --watch",
-    "generate:components": "vue-tsc && vite build",
+    "generate:ui": "vue-tsc && vite build",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix"
   },
   "peerDependencies": {
