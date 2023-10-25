@@ -3,12 +3,18 @@ import './styles/index.scss'
 
 import { App } from 'vue'
 
-import MyComponent from './components/MyComponent.vue'
+import ConnectionListView from './components/connections/ListView.vue'
+import ConnectionDetailsView from './components/connections/DetailsView.vue'
+import EmptyView from './components/common/EmptyView.vue'
 
-export { MyComponent }
+export * from './router'
+
+export { ConnectionListView, ConnectionDetailsView, EmptyView }
 
 export default {
   install: (app: App) => {
-    app.component('MyComponent', MyComponent)
+    app.component('ConnectionListView', ConnectionListView)
+    app.component('ConnectionDetailsView', ConnectionDetailsView)
+    app.component('EmptyView', EmptyView)
   },
 }

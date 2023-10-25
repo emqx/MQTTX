@@ -10,6 +10,7 @@ module.exports = {
     'vue/require-default-prop': 'off',
     'vue/multi-word-component-names': 'off',
     'prettier/prettier': ['warn', {}, { usePrettierrc: true }],
+    '@typescript-eslint/no-explicit-any': 'off',
   },
   plugins: ['prettier'],
   parserOptions: {

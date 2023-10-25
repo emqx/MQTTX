@@ -1,0 +1,19 @@
+[
+  {
+    "path": "/",
+    "redirect": "/connections"
+  },
+  {
+    "path": "/connections/",
+    "name": "Connections",
+    "component": "ConnectionsComponent",
+    "children": [
+      {
+        "path": ":id",
+        "name": "ConnectionDetail",
+        "component": "ConnectionDetailsComponent",
+        "props": true
+      }
+    ]
+  }
+]

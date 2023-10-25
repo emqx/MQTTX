@@ -14,12 +14,14 @@
   },
   "peerDependencies": {
     "element-plus": "^2.4.1",
-    "vue": "^3.3.4"
+    "vue": "^3.3.4",
+    "vue-router": "4"
   },
   "devDependencies": {
+    "@mqttx/core": "workspace:*",
     "@mqttx/tailwind-config": "workspace:*",
     "@mqttx/tsconfig": "workspace:*",
-    "@mqttx/core": "workspace:*",
+    "@types/mqttx": "workspace:*",
     "@vitejs/plugin-vue": "^4.3.4",
     "@vitejs/plugin-vue-jsx": "^3.0.2",
     "autoprefixer": "^10.4.16",

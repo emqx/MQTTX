@@ -1,4 +1,4 @@
-import { MQTTVersion, Protocol, QoS } from './base'
+import type { MQTTVersion, Protocol, QoS } from './base'
 
 export type CommandType = 'conn' | 'pub' | 'sub' | 'benchConn' | 'benchPub' | 'benchSub' | 'simulate'
 

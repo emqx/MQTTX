@@ -1,8 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+console.log('MQTTX App init...')
+</script>
 
 <template>
-  App Init
-  <MyComponent></MyComponent>
+  <h1>MQTTX App init</h1>
 </template>
 
 <style lang="scss" scoped></style>

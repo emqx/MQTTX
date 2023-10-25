@@ -23,14 +23,15 @@
     "@electron-toolkit/preload": "^2.0.0",
     "@electron-toolkit/utils": "^2.0.0",
     "electron-updater": "^6.1.1",
-    "element-plus": "^2.4.1"
+    "element-plus": "^2.4.1",
+    "vue-router": "4"
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
+    "@mqttx/core": "workspace:*",
     "@mqttx/tailwind-config": "workspace:*",
     "@mqttx/tsconfig": "workspace:*",
     "@mqttx/ui": "workspace:*",
-    "@mqttx/core": "workspace:*",
     "@types/mqttx": "workspace:*",
     "@vitejs/plugin-vue": "^4.3.1",
     "autoprefixer": "^10.4.16",

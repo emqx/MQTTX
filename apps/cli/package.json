@@ -3,7 +3,7 @@
   "version": "2.0.0-alpha.1",
   "description": "MQTTX CLI - An MQTT client for the command line",
   "author": "EMQX Team <yusf@emqx.io>",
-  "homepage": "https://mqttx.app",
+  "homepage": "https://mqttx.app/cli",
   "keywords": [
     "mqtt",
     "publish/subscribe",
