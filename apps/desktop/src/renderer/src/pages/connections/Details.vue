@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-// Web Data Fetch
+// Desktop Data Fetch
 import { ref, watch } from 'vue'
 import useMockData from '@/composables/useMockData'
 

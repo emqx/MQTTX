@@ -1,5 +1,5 @@
 import routesMeta from './routes.json'
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw, RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
 
 type ComponentMapType = {
   [key: string]: () => any
@@ -37,12 +37,8 @@ export const getRoutes = (componentMap: ComponentMapType): RouteRecordRaw[] => {
   return resolveComponents(basedRoutes, componentMap)
 }
 
-import { RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
-
-type GetFirstConnectionIdCallback = () => string | null
-
-export const createRouterGuard = (getFirstConnectionId: GetFirstConnectionIdCallback) => {
-  return (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
+export const createRouterGuard = (getFirstConnectionId: () => string | null) => {
+  return (to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
     if (to.name === 'Connections' && !to.params.id) {
       const firstConnectionId = getFirstConnectionId()
       if (firstConnectionId) {

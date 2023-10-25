@@ -1,5 +1,6 @@
 /// <reference types="vite/client" />
 declare module '@mqttx/ui'
+declare module '@/composables/useMockData'
 
 declare module '*.vue' {
   import type { DefineComponent } from 'vue'
