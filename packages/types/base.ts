@@ -10,3 +10,14 @@ export interface Connection {
   id: string,
   name: string,
 }
+
+export interface ConnectionDetail {
+  id: string
+  name: string
+  host: string
+  port: number
+  username: string
+  password: string
+  lastConnected: string
+  topics: string[]
+}

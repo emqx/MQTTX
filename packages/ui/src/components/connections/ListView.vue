@@ -3,6 +3,7 @@ import { Connection } from 'mqttx'
 
 defineProps<{
   data: Connection[]
+  activeId: string
 }>()
 </script>
 
@@ -10,7 +11,9 @@ defineProps<{
   <div class="connection-list-view">
     <ul v-if="data.length">
       <li v-for="{ id, name } in data" :key="id">
-        <router-link :to="`/connections/${id}`" class="text-green-primary text-base"> {{ name }} </router-link>
+        <router-link :to="`/connections/${id}`" :class="[activeId === id ? 'text-green-primary' : '', 'text-base']">
+          {{ name }}
+        </router-link>
       </li>
     </ul>
     <div v-else>No Data!</div>

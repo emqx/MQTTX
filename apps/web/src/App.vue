@@ -1,9 +1,9 @@
 <script setup lang="ts">
-console.log('MQTTX App init...')
+console.log('MQTTX Web App init...')
 </script>
 
 <template>
-  <h1 class="m-3">MQTTX App init</h1>
+  <h1 class="m-3">MQTTX Web App init</h1>
   <router-view></router-view>
 </template>
 

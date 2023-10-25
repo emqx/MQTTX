@@ -1,4 +1,4 @@
 module.exports = {
   root: true,
-  extends: ['./base.js', '@electron-toolkit', '@electron-toolkit/eslint-config-ts/eslint-recommended'],
+  extends: ['@electron-toolkit', '@electron-toolkit/eslint-config-ts/eslint-recommended', './base.js'],
 }

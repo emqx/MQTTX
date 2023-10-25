@@ -1,16 +1,9 @@
 <script setup lang="ts">
+import type { ConnectionDetail } from 'mqttx'
 import { defineProps } from 'vue'
 
 defineProps<{
-  connection: {
-    id: string
-    name: string
-    host: string
-    port: number
-    username: string
-    lastConnected: string
-    topics: string[]
-  }
+  connection: ConnectionDetail
 }>()
 </script>
 
