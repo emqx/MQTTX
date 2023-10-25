@@ -1,5 +1,8 @@
 {
   "extends": "@mqttx/tsconfig/types.json",
-  "include": ["base.ts", "cli.ts", "desktop.ts", "index.d.ts"],
-  "exclude": ["node_modules"]
+  "include": ["base.ts", "cli.ts", "desktop.ts", "web.ts", "index.d.ts"],
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "types": ["node"]
+  }
 }

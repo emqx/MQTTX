@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import "./normalize.scss";
 @import './variable.scss';
 
 * {
@@ -29,3 +28,6 @@ body,
 .app {
   height: 100%;
 }
+
+@import "./normalize.scss";
+@import "./connections.scss";

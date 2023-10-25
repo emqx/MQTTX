@@ -1,0 +1,19 @@
+.connections-container {
+  display: flex;
+  padding: 10px;
+
+  .connections-list,
+  .connection-detail {
+    border: 1px solid;
+    padding: 24px;
+  }
+
+  .connections-list {
+    flex: 1;
+    margin-right: 10px;
+  }
+
+  .connection-detail {
+    flex: 2;
+  }
+}
