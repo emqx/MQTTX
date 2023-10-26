@@ -2,12 +2,16 @@ import 'element-plus/dist/index.css'
 import './styles/index.scss'
 
 import type { App } from 'vue'
+import { createPinia } from 'pinia'
 
 import ConnectionListView from './components/connections/ListView.vue'
 import ConnectionDetailsView from './components/connections/DetailsView.vue'
 import EmptyView from './components/common/EmptyView.vue'
 
+export const pinia = createPinia()
+
 export * from './router'
+export * from './stores'
 
 export { ConnectionListView, ConnectionDetailsView, EmptyView }
 
