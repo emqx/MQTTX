@@ -9,6 +9,6 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["element-plus/global", "node", "mqttx"],
+    "types": ["element-plus/global", "node", "mqttx"]
   }
 }

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Connection } from 'mqttx'
+import type { Connection } from 'mqttx'
 
 defineProps<{
   data: Connection[]
