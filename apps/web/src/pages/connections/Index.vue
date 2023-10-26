@@ -11,7 +11,7 @@ const activeId = computed(() => route.params.id)
 </script>
 
 <template>
-  <div class="p-3 text-xl">Connections Count: {{ connStore.count }}</div>
+  <div class="p-3 text-xl">Connections Count: {{ connStore.count + 1 }}</div>
   <div class="p-3 text-xl">
     <el-button class="w-[100px]" @click="connStore.increment()">+</el-button>
   </div>
