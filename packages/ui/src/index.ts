@@ -1,7 +1,7 @@
 import 'element-plus/dist/index.css'
 import './styles/index.scss'
 
-import { App } from 'vue'
+import type { App } from 'vue'
 
 import ConnectionListView from './components/connections/ListView.vue'
 import ConnectionDetailsView from './components/connections/DetailsView.vue'

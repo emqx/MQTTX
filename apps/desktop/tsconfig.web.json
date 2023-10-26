@@ -6,6 +6,7 @@
     "baseUrl": ".",
     "paths": {
       "@renderer/*": ["src/renderer/src/*"]
-    }
+    },
+    "verbatimModuleSyntax": true
   }
 }
