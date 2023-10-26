@@ -3,8 +3,8 @@ import './assets/scss/main.scss'
 
 import { createApp } from 'vue'
 import ElementPlus from 'element-plus'
-import MqttxUI, { getRoutes, createRouterGuard } from '@mqttx/ui'
 import { createRouter, createWebHashHistory } from 'vue-router'
+import MqttxUI, { getRoutes, createRouterGuard, pinia } from '@mqttx/ui'
 import useMockData from '@/composables/useMockData'
 import { routerComponentMap } from './configs/router'
 import App from './App.vue'
@@ -19,5 +19,5 @@ const { getFirstConnectionId } = useMockData()
 router.beforeEach(createRouterGuard(getFirstConnectionId))
 
 // Create Vue
-const app = createApp(App).use(ElementPlus).use(MqttxUI).use(router)
+const app = createApp(App).use(ElementPlus).use(MqttxUI).use(router).use(pinia)
 app.mount('#app')
