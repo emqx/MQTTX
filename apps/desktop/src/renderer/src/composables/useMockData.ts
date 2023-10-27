@@ -37,7 +37,6 @@ export default function useMockData(): {
   }
 
   function getFirstConnectionId(): string | null {
-    console.log(123)
     return connections.value[0]?.id || null
   }
 

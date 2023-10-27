@@ -22,6 +22,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^2.0.0",
     "@electron-toolkit/utils": "^2.0.0",
+    "@mqttx/ui": "workspace:*",
     "electron-updater": "^6.1.1",
     "element-plus": "^2.4.1",
     "pinia": "^2.1.7",
@@ -32,7 +33,6 @@
     "@mqttx/core": "workspace:*",
     "@mqttx/tailwind-config": "workspace:*",
     "@mqttx/tsconfig": "workspace:*",
-    "@mqttx/ui": "workspace:*",
     "@types/mqttx": "workspace:*",
     "@vitejs/plugin-vue": "^4.3.1",
     "autoprefixer": "^10.4.16",
