@@ -111,6 +111,9 @@ importers:
       '@electron-toolkit/utils':
         specifier: ^2.0.0
         version: 2.0.0(electron@27.0.2)
+      '@mqttx/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       electron-updater:
         specifier: ^6.1.1
         version: 6.1.1
@@ -136,9 +139,6 @@ importers:
       '@mqttx/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
-      '@mqttx/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       '@types/mqttx':
         specifier: workspace:*
         version: link:../../packages/types
@@ -184,6 +184,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@mqttx/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       element-plus:
         specifier: ^2.4.1
         version: 2.4.1(vue@3.3.4)
@@ -206,9 +209,6 @@ importers:
       '@mqttx/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
-      '@mqttx/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       '@tsconfig/node18':
         specifier: ^18.2.2
         version: 18.2.2

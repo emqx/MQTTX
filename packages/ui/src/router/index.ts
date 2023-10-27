@@ -40,6 +40,7 @@ export const getRoutes = (componentMap: ComponentMapType): RouteRecordRaw[] => {
 export const createRouterGuard = (getFirstConnectionId: () => string | null) => {
   return (to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
     if (to.name === 'Connections' && !to.params.id) {
+      console.log('Route to Connections Page')
       const firstConnectionId = getFirstConnectionId()
       if (firstConnectionId) {
         next(`/connections/${firstConnectionId}`)

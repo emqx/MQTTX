@@ -4,7 +4,12 @@ console.log('MQTTX Web App init...')
 
 <template>
   <h1 class="m-3">MQTTX Web App init</h1>
-  <router-view></router-view>
+  <div class="layout">
+    <left-bar />
+    <div class="main-view">
+      <router-view></router-view>
+    </div>
+  </div>
 </template>
 
 <style lang="scss" scoped></style>
