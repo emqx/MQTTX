@@ -1,1 +1,3 @@
-# Tailwind CSS Config
+# `@mqttx/tailwind-config`
+
+Shared tailwind config for MQTTX.
