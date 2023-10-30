@@ -22,6 +22,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^2.0.0",
     "@electron-toolkit/utils": "^2.0.0",
+    "@element-plus/icons-vue": "^2.1.0",
     "@mqttx/ui": "workspace:*",
     "electron-updater": "^6.1.1",
     "element-plus": "^2.4.1",

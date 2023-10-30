@@ -1,8 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+@import './tailwind.scss';
 @import './variable.scss';
+@import '../assets/fonts/iconfont.css';
 
 * {
   box-sizing: border-box;
