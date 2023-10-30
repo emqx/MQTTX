@@ -43,7 +43,7 @@
 
 [![Download on the Mac App Store](../assets/app-store-download.svg)](https://apps.apple.com/cn/app/mqttx/id1514074565?mt=12)
 
-当需要下载文件安装时，请优先选择下载 `dmg`  格式的安装包文件。也可以选择下载 `mac.zip` 的压缩包文件，解压后可快速使用。
+当需要下载文件安装时，请优先选择下载 `dmg` 格式的安装包文件。也可以选择下载 `mac.zip` 的压缩包文件，解压后可快速使用。
 
 **注意**：但是对于 `macOS` 系统版本不同，使用 `zip` 压缩包在 `10.15.2` 系统版本中可能会出现解压后无法打开的情况，因此请优先选择 `dmg` 文件。
 
@@ -104,41 +104,41 @@ sudo snap install mqttx
 
 1. Broker 信息
 
-    配置 `Broker` 信息时，`Client ID`、`Host` 和 `Port` 已经默认填写，您也可根据实际的 `Broker` 信息自行修改。点击 `Client ID` 右侧的刷新按钮，可快速生成新的 `Client ID`。
+   配置 `Broker` 信息时，`Client ID`、`Host` 和 `Port` 已经默认填写，您也可根据实际的 `Broker` 信息自行修改。点击 `Client ID` 右侧的刷新按钮，可快速生成新的 `Client ID`。
 
-    `Host` 前的选择框，用来选择该连接的协议，支持 `mqtt://`，`ws://`，如果是 `SSL/TLS` 认证连接的话，需要修改为 `mqtts://`，`wss://`。
+   `Host` 前的选择框，用来选择该连接的协议，支持 `mqtt://`，`ws://`，如果是 `SSL/TLS` 认证连接的话，需要修改为 `mqtts://`，`wss://`。
 
-    **注意**：当协议修改时，需要修改连接的端口。
+   **注意**：当协议修改时，需要修改连接的端口。
 
 ![mqttx-brokerinfo](../assets/mqttx-brokerinfo.png)
 
 2. 用户认证信息
 
-    如果您的 Broker 开启了用户认证，配置项中可填写 `Username` 和 `Password` 信息。
+   如果您的 Broker 开启了用户认证，配置项中可填写 `Username` 和 `Password` 信息。
 
 ![mqttx-user](../assets/mqttx-user.png)
 
 3. SSL/TLS
 
-    当需要开启 `SSL/TLS` 认证时，只需要将配置中的 `SSL/TLS` 配置项设置为 `true`，并提供了 `CA signed self` 和 `Self signed` 两种方式。
+   当需要开启 `SSL/TLS` 认证时，只需要将配置中的 `SSL/TLS` 配置项设置为 `true`，并提供了 `CA signed self` 和 `Self signed` 两种方式。
 
-    如果选择了 `Self signed`，可进行证书配置，点击最右侧的文件夹按钮，选择您已经生成好的各项证书，如果是单向连接，只需要选择您的 `CA File` 即可，如果是双向认证，还需要选择配置 `Client Certificate File` 和 `Client key file`。当开启 `Strict validate Certificate` 的选项后，会启用更完整的证书验证连接，一般推荐在需要测试正式环境时启用。
+   如果选择了 `Self signed`，可进行证书配置，点击最右侧的文件夹按钮，选择您已经生成好的各项证书，如果是单向连接，只需要选择您的 `CA File` 即可，如果是双向认证，还需要选择配置 `Client Certificate File` 和 `Client key file`。当开启 `Strict validate Certificate` 的选项后，会启用更完整的证书验证连接，一般推荐在需要测试正式环境时启用。
 
 ![mqttx-certs](../assets/mqttx-certs.png)
 
 4. 高级配置
 
-    高级配置中，可以配置`连接超时时长`、`KeepAlive`、`Clean Session`、`自动重连`、`MQTT Version` 等。
+   高级配置中，可以配置`连接超时时长`、`KeepAlive`、`Clean Session`、`自动重连`、`MQTT Version` 等。
 
 5. MQTT 5.0
 
-    在高级配置中，可以选择 MQTT 的协议版本，支持 MQTT v3.1.1 和 MQTT v5.0 版本，默认为 v3.1.1, 如果选择了 v5.0 版本后，还可配置 `Session Expiry Interval`、`Receive Maximum` 和 `Topic Alias Maximu`（可选）。
+   在高级配置中，可以选择 MQTT 的协议版本，支持 MQTT v3.1.1 和 MQTT v5.0 版本，默认为 v3.1.1, 如果选择了 v5.0 版本后，还可配置 `Session Expiry Interval`、`Receive Maximum` 和 `Topic Alias Maximu`（可选）。
 
 ![mqttx-v5](../assets/mqttx-v5.png)
 
 6. 遗嘱消息
 
-    在高级配置下方的配置卡片中，可以配置遗嘱消息，`Last-Will-QoS` 和 `Last-Will-Retain` 的值默认填充为 0 和 `False`，当您输入 `Last-Will-Topic` 和 `Last-Will-Payload` 的值后，就可以完成对遗嘱消息的配置。
+   在高级配置下方的配置卡片中，可以配置遗嘱消息，`Last-Will-QoS` 和 `Last-Will-Retain` 的值默认填充为 0 和 `False`，当您输入 `Last-Will-Topic` 和 `Last-Will-Payload` 的值后，就可以完成对遗嘱消息的配置。
 
 ![mqttx-willmessage](../assets/mqttx-willmessage.png)
 
@@ -148,13 +148,13 @@ sudo snap install mqttx
 
 1. 主界面
 
-    连接成功后，即可进入到连接的主界面，点击顶部连接名称旁的折叠按钮，可以展开并显示该配置的几个基础信息，方便快速修改该连接的几个常用配置，修改时需断开连接，重新点击连接后即可生效，每次连接成功后，面板都会自动往上折叠。在断开连接的状态下，也可点击右边配置按钮，进行更多的连接配置修改。
+   连接成功后，即可进入到连接的主界面，点击顶部连接名称旁的折叠按钮，可以展开并显示该配置的几个基础信息，方便快速修改该连接的几个常用配置，修改时需断开连接，重新点击连接后即可生效，每次连接成功后，面板都会自动往上折叠。在断开连接的状态下，也可点击右边配置按钮，进行更多的连接配置修改。
 
 ![mqttx-main](../assets/mqttx-main.png)
 
 2. 添加订阅
 
-    点击左下角的 `New Subscription` 按钮，可以快速添加一个 `Topic`，每个 `Topic` 都可以用一种颜色标记，可以随机生成或打开颜色选择器选择。订阅列表顶部的最右侧的按钮，可以隐藏订阅列表，来显示页面更多的空间。添加完成后，点击订阅列表中已经订阅的 Topic 项，可以实现消息过滤，消息视图内将只显示订阅了当前主题的消息内容，再次点击即可取消过滤；也可直接点击其它已订阅的 Topic 项，查看其对应的消息内容。而点击 Topic 名称，即可快速复制当前的 Topic 信息。当需要向该 Topic 发送消息时，只需快速粘贴到消息栏的 Topic 输入框内进行修改，便可快速完成该操作。
+   点击左下角的 `New Subscription` 按钮，可以快速添加一个 `Topic`，每个 `Topic` 都可以用一种颜色标记，可以随机生成或打开颜色选择器选择。订阅列表顶部的最右侧的按钮，可以隐藏订阅列表，来显示页面更多的空间。添加完成后，点击订阅列表中已经订阅的 Topic 项，可以实现消息过滤，消息视图内将只显示订阅了当前主题的消息内容，再次点击即可取消过滤；也可直接点击其它已订阅的 Topic 项，查看其对应的消息内容。而点击 Topic 名称，即可快速复制当前的 Topic 信息。当需要向该 Topic 发送消息时，只需快速粘贴到消息栏的 Topic 输入框内进行修改，便可快速完成该操作。
 
 ![mqttx-topic](../assets/mqttx-topic.png)
 
@@ -172,9 +172,9 @@ sudo snap install mqttx
 
 3. 消息发送和接收
 
-    `Topic` 订阅成功后，就可以来测试消息的收发了。在页面右下角填入刚才所订阅的 `Topic` 信息，可选择 `QoS`，`Retain` 的值，输入 `payload` 后，点击最右侧的发送按钮，就向刚才订阅的 `Topic` 发送了一条消息。发送成功后，也可以即时接收到刚才所发送的消息。注意，在消息框内，右边栏为发送的消息。左边栏为接收到的消息。macOS 用户可以使用 `command + enter` 快捷键，其它用户可以使用 `control + enter` 快捷键来快速发送消息。
+   `Topic` 订阅成功后，就可以来测试消息的收发了。在页面右下角填入刚才所订阅的 `Topic` 信息，可选择 `QoS`，`Retain` 的值，输入 `payload` 后，点击最右侧的发送按钮，就向刚才订阅的 `Topic` 发送了一条消息。发送成功后，也可以即时接收到刚才所发送的消息。注意，在消息框内，右边栏为发送的消息。左边栏为接收到的消息。macOS 用户可以使用 `command + enter` 快捷键，其它用户可以使用 `control + enter` 快捷键来快速发送消息。
 
-    消息栏的 `payload` 选项，可以快速将消息转化为多种格式，支持 `Base64`，`Hex`，`JSON` 和 `Plaintext`。
+   消息栏的 `payload` 选项，可以快速将消息转化为多种格式，支持 `Base64`，`Hex`，`JSON` 和 `Plaintext`。
 
 ![mqttx-message](../assets/mqttx-message.png)
 
@@ -184,7 +184,7 @@ sudo snap install mqttx
 
 1. 用户属性
 
-    点击新建按钮，来到新建客户端的页面，首先我们需要选择 MQTT 的版本为 5.0，这样就可以看到下方出现了配置用户属性的卡片，卡片内是一个可以配置键值对的输入框，可以点击右上角的添加按钮，来增加用户属性配置，点击每一行末尾的删除按钮可以删除配置，最后输入需要配置的属性名称和内容即可。连接成功后，MQTT 服务器就可以获取到该客户端的用户属性内容。
+   点击新建按钮，来到新建客户端的页面，首先我们需要选择 MQTT 的版本为 5.0，这样就可以看到下方出现了配置用户属性的卡片，卡片内是一个可以配置键值对的输入框，可以点击右上角的添加按钮，来增加用户属性配置，点击每一行末尾的删除按钮可以删除配置，最后输入需要配置的属性名称和内容即可。连接成功后，MQTT 服务器就可以获取到该客户端的用户属性内容。
 
 ![mqttx-user-properties-connect](../assets/mqttx-user-properties-connect.png)
 
@@ -194,19 +194,19 @@ sudo snap install mqttx
 
 2. 请求响应
 
-    点击 Meta 按钮，输入框内输入一个响应主题：/ack/1，输入一个对比数据：light，并在当前连接客户端订阅一个 /ack/1。
+   点击 Meta 按钮，输入框内输入一个响应主题：/ack/1，输入一个对比数据：light，并在当前连接客户端订阅一个 /ack/1。
 
 ![mqttx-response-topic](../assets/mqttx-response-topic.png)
 
 3. 内容类型和载荷格式
 
-    点击 Meta 按钮，在输入框内输入 Content Type，点击设置 Payload Format Indicator 的值后，发布消息即可。
+   点击 Meta 按钮，在输入框内输入 Content Type，点击设置 Payload Format Indicator 的值后，发布消息即可。
 
 ![mqttx-content-type](../assets/mqttx-content-type.png)
 
 4. 订阅标识符和订阅选项
 
-    我们打开订阅主题的弹出框，下方可以设置 Subscription Identifier 和包含了 No Local、Retain as Published 和 Retain Handling 的订阅选项。用户可以在订阅报文中指定一个数字订阅标识符，并在消息分发时返回此标识符。客户端可以建立订阅标识符与消息处理程序的映射，以在收到 PUBLISH 报文时直接通过订阅标识符将消息定向至对应的消息处理程序，同时可以配置这些订阅选项来改变服务端的行为。
+   我们打开订阅主题的弹出框，下方可以设置 Subscription Identifier 和包含了 No Local、Retain as Published 和 Retain Handling 的订阅选项。用户可以在订阅报文中指定一个数字订阅标识符，并在消息分发时返回此标识符。客户端可以建立订阅标识符与消息处理程序的映射，以在收到 PUBLISH 报文时直接通过订阅标识符将消息定向至对应的消息处理程序，同时可以配置这些订阅选项来改变服务端的行为。
 
 ![mqttx-sub-flag](../assets/mqttx-sub-flag.png)
 
@@ -264,34 +264,34 @@ sudo snap install mqttx
 
 1. 连接操作
 
-    点击顶部的操作栏按钮，可以快速断开连接，删除当前连接，当前数据导入导出，定时消息，流量统计等。
+   点击顶部的操作栏按钮，可以快速断开连接，删除当前连接，当前数据导入导出，定时消息，流量统计等。
 
 ![mqttx-connection](../assets/mqttx-connection.png)
 
 2. 消息处理
 
-    在消息栏右上角的 `All`，`Received`， `Published` 按钮可以过滤出
-    全部消息，已接收的消息，和已发布的消息。
+   在消息栏右上角的 `All`，`Received`， `Published` 按钮可以过滤出
+   全部消息，已接收的消息，和已发布的消息。
 
-    点击顶部的操作栏按钮，选择 `Search` 项，或使用快捷键，macOS 用户可以使用 `command + f` 快捷键，其它用户可以使用 `control + f` 快捷键，来打开按 `Topic` 搜索的的功能，支持主题和消息内容的模糊查询。
+   点击顶部的操作栏按钮，选择 `Search` 项，或使用快捷键，macOS 用户可以使用 `command + f` 快捷键，其它用户可以使用 `control + f` 快捷键，来打开按 `Topic` 搜索的的功能，支持主题和消息内容的模糊查询。
 
-    点击顶部的操作栏按钮，选择 `Clear History` 项，可以快速清空当前连接所发送和接收的消息。
+   点击顶部的操作栏按钮，选择 `Clear History` 项，可以快速清空当前连接所发送和接收的消息。
 
 ![mqttx-search](../assets/mqttx-search.png)
 
 3. 检查更新
 
-    点击左侧底部的 `i` 按钮，可进入到 `About` 页面，了解 [MQTTX](https://mqttx.app/zh) 的版本信息和 [EMQX](https://emqx.cn) 的相关信息。点击 `Check for Updates` 可以检查是否有更新版本。
+   点击左侧底部的 `i` 按钮，可进入到 `About` 页面，了解 [MQTTX](https://mqttx.app/zh) 的版本信息和 [EMQX](https://emqx.cn) 的相关信息。点击 `Check for Updates` 可以检查是否有更新版本。
 
 ![mqttx-update](../assets/mqttx-update.png)
 
 4. 最大重连数
 
-    在自动检查更新的下方，有一个最大重连数设置，可以设置一个整数，当 `Broker` 断开，或者连接不上的情况下时，重连次数超过该数值，连接将会彻底断开。
+   在自动检查更新的下方，有一个最大重连数设置，可以设置一个整数，当 `Broker` 断开，或者连接不上的情况下时，重连次数超过该数值，连接将会彻底断开。
 
 5. 多窗口
 
-    在连接列表中，右键点击，选择新建窗口，为该连接创建新窗口。在新窗口中，同样可以进行连接，订阅主题，发布和接受消息等。如果当创建的多个连接之间存在某种联系时，或需要查看同时接受到的消息，可以新建多个视图窗口，同时进行查看。在 v1.4.1 版本以后，用户还可点击顶部的窗口按钮，快速新建窗口。
+   在连接列表中，右键点击，选择新建窗口，为该连接创建新窗口。在新窗口中，同样可以进行连接，订阅主题，发布和接受消息等。如果当创建的多个连接之间存在某种联系时，或需要查看同时接受到的消息，可以新建多个视图窗口，同时进行查看。在 v1.4.1 版本以后，用户还可点击顶部的窗口按钮，快速新建窗口。
 
 ![mqttx-window](../assets/mqttx-window.png)
 
@@ -299,20 +299,21 @@ sudo snap install mqttx
 
 6. 流量统计
 
-    在右上角的下拉菜单中，可点击流量统计项，MQTTX 会自动订阅系统主题，并可以在页面中展示该 Broker 下的简单的流量统计图表，运行版本和运行时间。
-    > EMQX 默认只允许本机的 MQTT 客户端订阅 $SYS 主题，请参照 内置 ACL 修改发布订阅 ACL 规则。
+   在右上角的下拉菜单中，可点击流量统计项，MQTTX 会自动订阅系统主题，并可以在页面中展示该 Broker 下的简单的流量统计图表，运行版本和运行时间。
+
+   > EMQX 默认只允许本机的 MQTT 客户端订阅 $SYS 主题，请参照 内置 ACL 修改发布订阅 ACL 规则。
 
 ![mqttx-bytes](../assets/mqttx-bytes.png)
 
 7. 定时消息
 
-    在右上角的下拉菜单中，可点击定时消息项，设置发送频率，单位为秒，设置完成后手动发送一条消息，将会自动根据设置的发送频率自动发送消息。
+   在右上角的下拉菜单中，可点击定时消息项，设置发送频率，单位为秒，设置完成后手动发送一条消息，将会自动根据设置的发送频率自动发送消息。
 
 ![mqttx-timed-message](../assets/mqttx-timed-message.png)
 
 8. 禁止消息自动滚动
 
-    设置中新增了对接收和发布消息时，消息列表自动滚动的控制。可以到设置页面中开启自动滚动功能。关闭自动滚动功能后，可以提升部分发送和接收消息时的性能。
+   设置中新增了对接收和发布消息时，消息列表自动滚动的控制。可以到设置页面中开启自动滚动功能。关闭自动滚动功能后，可以提升部分发送和接收消息时的性能。
 
 ![mqttx-autoscroll](../assets/mqttx-autoscroll.png)
 
@@ -320,7 +321,7 @@ sudo snap install mqttx
 
 开发时，本机需要具有 `Node`，`Git` 环境，并需要了解 `npm`，`Vue.js`，`Electron`，`TypeScript` 等相关知识。
 
-``` shell
+```shell
 # Fork & Clone 项目
 git clone git@github.com:${name}/MQTTX.git
 

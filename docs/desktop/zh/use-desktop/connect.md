@@ -4,7 +4,7 @@ When you create a new connection, in the **General** section of the **New** pane
 
 ## Broker Information
 
-The broker information contains must-fill fields.  The **Client ID**, **Host**, and **Port** are already filled with default values. You can modify them based on the actual broker information.
+The broker information contains must-fill fields. The **Client ID**, **Host**, and **Port** are already filled with default values. You can modify them based on the actual broker information.
 
 - **Name**: Enter a connection, for example `emqx_test`.
 
@@ -35,7 +35,7 @@ You can establish a secured connection between MQTTX and the broker by enabling 
 
 - **SSL/TLS**: Enable or disable the SSL/TLS connection using the toggle switch; Disabled by default.
 
-  - **SSL Secure**: You can enable or disable the client verification on the certificate chain and hostname of the server on which the broker is deployed during the connection.  When disabled, no verification is performed, allowing connections to be established with unverified servers.
+  - **SSL Secure**: You can enable or disable the client verification on the certificate chain and hostname of the server on which the broker is deployed during the connection. When disabled, no verification is performed, allowing connections to be established with unverified servers.
 
     ::: tip
 

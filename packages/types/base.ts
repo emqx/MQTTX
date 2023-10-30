@@ -7,8 +7,8 @@ export type QoS = 0 | 1 | 2
 export default {}
 
 export interface Connection {
-  id: string,
-  name: string,
+  id: string
+  name: string
 }
 
 export interface ConnectionDetail {

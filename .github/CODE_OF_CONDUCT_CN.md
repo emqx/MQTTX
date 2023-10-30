@@ -10,4 +10,4 @@
 
 5. 可以通过提出问题或联系一个或多个项目维护者来举报虐待，骚扰或其他不可接受的行为。
 
-本行为准则改编自 [Contributor Covenant](https://contributor-covenant.org)版本1.0.0，可在 [https://contributor-covenant.org/version/1/0/0/](https://contributor-covenant.org/version/1/0/0/ )查看
+本行为准则改编自 [Contributor Covenant](https://contributor-covenant.org)版本1.0.0，可在 [https://contributor-covenant.org/version/1/0/0/](https://contributor-covenant.org/version/1/0/0/)查看

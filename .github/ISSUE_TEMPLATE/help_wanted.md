@@ -1,10 +1,9 @@
 ---
 name: Help_Wanted
 about: Confuse about the use of MQTTX
-title: "[Help] the title of Help_Want report"
+title: '[Help] the title of Help_Want report'
 labels: help wanted
 assignees: ''
-
 ---
 
 #### Describe the problem you Confuse

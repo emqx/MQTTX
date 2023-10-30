@@ -1,10 +1,9 @@
 ---
 name: Bug_Report
 about: Create a report to help us improve
-title: "[Bug] the title of bug report"
+title: '[Bug] the title of bug report'
 labels: bug
 assignees: ''
-
 ---
 
 #### What did I do
