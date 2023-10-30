@@ -1,10 +1,9 @@
 ---
 name: Feature_Want
 about: Suggest an idea for MQTTX
-title: "[Feature] the title of Feature_Want report"
+title: '[Feature] the title of Feature_Want report'
 labels: feature
 assignees: ''
-
 ---
 
 #### Motivation

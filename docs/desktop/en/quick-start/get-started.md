@@ -22,7 +22,7 @@ You can also try the EMQX Cloud which is a fully managed, cloud-native MQTT Mess
 
 [Sign up for a 14-day free trial of EMQX Cloud](https://www.emqx.com/en/try?product=cloud)
 
-*No credit card is required*.
+_No credit card is required_.
 
 ### Self-Managed MQTT Broker
 
@@ -54,7 +54,7 @@ This section demonstrates how to use the MQTTX Desktop to connect to the public 
 
    - Click the **+ New Connection** button on the main pane.
 
-   - Click **+** -> **New Connection** in the **Connections** pane.  
+   - Click **+** -> **New Connection** in the **Connections** pane.
 
 <img src="/Users/emqx/Documents/MQTTX/docs/desktop/en/quick-start/assets/new-connection.png" alt="new-connection" style="zoom:40%;" />
 

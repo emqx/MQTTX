@@ -9,7 +9,7 @@ const config: Config = {
       },
       black: {
         primary: '#222b3b',
-      }
+      },
     },
   },
   plugins: [],

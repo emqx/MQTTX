@@ -1,4 +1,4 @@
-# MQTTX  manual
+# MQTTX manual
 
 ## Table of Contents
 
@@ -13,7 +13,7 @@
 
 The `UI` of [MQTTX](https://mqttx.app) adopts the chat interface, simplifying the page operation logic. It allows users to create multiple MQTT connections, which facilitates users to quickly test the `MQTT/MQTTS` connection and the subscription and publication of `MQTT` messages.
 
-Before downloading and installing, please visit our [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX) to understand and obtain the latest version information. The newest version helps improve the user experience. If you are familiar with this project, you can also directly clone the repository source code of [MQTTX](https://mqttx.app)  and build and use it yourself. During the use process, if you have any questions, you can go to  [GitHub issues](https://github.com/emqx/MQTTX/issues) to express queries and opinions or fork our project and submit the modified PR to us. We will review and reply carefully.
+Before downloading and installing, please visit our [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX) to understand and obtain the latest version information. The newest version helps improve the user experience. If you are familiar with this project, you can also directly clone the repository source code of [MQTTX](https://mqttx.app) and build and use it yourself. During the use process, if you have any questions, you can go to [GitHub issues](https://github.com/emqx/MQTTX/issues) to express queries and opinions or fork our project and submit the modified PR to us. We will review and reply carefully.
 
 ### Preview
 
@@ -108,7 +108,7 @@ After entering the creation page, it is required to configure or fill in the rel
 
    The drop-down box in front of `Host` is used to select the connection protocol, which supports `mqtt: //`, `ws: //`. If an `SSL / TLS` authentication connection is used, it needs to be modified to `mqtts: //`. , `Wss: //`.
 
-    **Note**: When the protocol is modified, the connection port needs to be modified.
+   **Note**: When the protocol is modified, the connection port needs to be modified.
 
 ![mqttx-brokerinfo](../assets/mqttx-brokerinfo.png)
 
@@ -138,7 +138,7 @@ After entering the creation page, it is required to configure or fill in the rel
 
 6. Will Message
 
-    Below the advanced configuration, you can configure the Will Message. The values of `Last-Will-QoS` and `Last-Will-Retain` are filled with 0 and `False` by default. When you enter the values of `Last-Will-Topic` and `Last-Will-Payload`, you can complete the configuration of Will Message.
+   Below the advanced configuration, you can configure the Will Message. The values of `Last-Will-QoS` and `Last-Will-Retain` are filled with 0 and `False` by default. When you enter the values of `Last-Will-Topic` and `Last-Will-Payload`, you can complete the configuration of Will Message.
 
 ![mqttx-willmessage](../assets/mqttx-willmessage.png)
 
@@ -158,15 +158,15 @@ After the configuration is complete, click the `Connect` button in the upper rig
 
 ![mqttx-topic](../assets/mqttx-topic.png)
 
-   When adding `Topic`, you can set an alias for each Topic. This option is an optional. When the subscription is set and added, the `Topic` in the subscription list will be displayed as an alias, and the mouse over the `Topic` item, the prompt box will also display the original value of the `Topic`. This is very helpful when multiple `Topics` that need to be monitored are too long to distinguish the specific meaning of `Topic`.
+When adding `Topic`, you can set an alias for each Topic. This option is an optional. When the subscription is set and added, the `Topic` in the subscription list will be displayed as an alias, and the mouse over the `Topic` item, the prompt box will also display the original value of the `Topic`. This is very helpful when multiple `Topics` that need to be monitored are too long to distinguish the specific meaning of `Topic`.
 
 ![mqttx-topic-alias](../assets/mqttx-topic-alias.png)
 
-   We open the dialog of the subscription topic, in the Topic input box, enter multiple Topics and use comma (,) to split, click to confirm the success of the subscription, we can see that the subscription list contains multiple Topics. for the use of the client layer alias function can also support the simultaneous setting of multiple Topics, the same use of comma separation (,).
+We open the dialog of the subscription topic, in the Topic input box, enter multiple Topics and use comma (,) to split, click to confirm the success of the subscription, we can see that the subscription list contains multiple Topics. for the use of the client layer alias function can also support the simultaneous setting of multiple Topics, the same use of comma separation (,).
 
 ![mqttx-muti-topics](../assets/mqttx-muti-topics.png)
 
-   Subscribed Topics support **Edit/Disable/Enable**, right click on the subscribed Topic list item, in the context menu we can quickly choose to edit, disable or enable the operation. When subscribing to too many Topics, sometimes not all the Topic messages you want to receive, in order to avoid subscribing to the same Topic again, the disable function is provided, if you want to receive messages from the Topic again, just enable it again.
+Subscribed Topics support **Edit/Disable/Enable**, right click on the subscribed Topic list item, in the context menu we can quickly choose to edit, disable or enable the operation. When subscribing to too many Topics, sometimes not all the Topic messages you want to receive, in order to avoid subscribing to the same Topic again, the disable function is provided, if you want to receive messages from the Topic again, just enable it again.
 
 ![mqttx-edit-topic](../assets/mqttx-edit-topic.png)
 
@@ -184,7 +184,7 @@ So far, the test of an `MQTT` message is completed.
 
 1. User Properties
 
-    Click the New button to come to the New Client page, first we need to select the MQTT version 5.0, so you can see the bottom of the card to configure User Properties, the card is a key-value pair can be configured input box, you can click the upper right corner of the Add button to add User Properties configuration, click the Delete button at the end of each line to delete the configuration, and finally enter the required configuration Finally, you can enter the name and content of the property to be configured. After a successful connection, the MQTT server will be able to obtain the content of the client's User Properties.
+   Click the New button to come to the New Client page, first we need to select the MQTT version 5.0, so you can see the bottom of the card to configure User Properties, the card is a key-value pair can be configured input box, you can click the upper right corner of the Add button to add User Properties configuration, click the Delete button at the end of each line to delete the configuration, and finally enter the required configuration Finally, you can enter the name and content of the property to be configured. After a successful connection, the MQTT server will be able to obtain the content of the client's User Properties.
 
 ![mqttx-user-properties-connect](../assets/mqttx-user-properties-connect.png)
 
@@ -194,13 +194,13 @@ So far, the test of an `MQTT` message is completed.
 
 2. Request Response
 
-    Click the Meta button, enter a Response Topic: /ack/1 in the input box, enter a comparison data: light, and subscribe to a /ack/1 in the currently connected client.
+   Click the Meta button, enter a Response Topic: /ack/1 in the input box, enter a comparison data: light, and subscribe to a /ack/1 in the currently connected client.
 
 ![mqttx-response-topic](../assets/mqttx-response-topic.png)
 
 3. Content Type and Payload Format Indicator
 
-    Click the Meta button, enter the Content-Type in the input box, click Set Payload Format Indicator value, and publish the message.
+   Click the Meta button, enter the Content-Type in the input box, click Set Payload Format Indicator value, and publish the message.
 
 ![mqttx-content-type](../assets/mqttx-content-type.png)
 
@@ -272,7 +272,7 @@ Every time MQTTX is closed, the current log file will be renamed to timestamp `[
 
 You can filter out all messages, received messages, and published messages through the `All`,`Received`, `Published` buttons in the upper right corner of the message bar.
 
-Click the action bar button at the top, select the `Search`  item, or use the shortcut key. macOS users can use the command + f shortcut, and Other users can use the control + f shortcut to open the `Topic` search function. The fuzzy query of topics and payload is supported.
+Click the action bar button at the top, select the `Search` item, or use the shortcut key. macOS users can use the command + f shortcut, and Other users can use the control + f shortcut to open the `Topic` search function. The fuzzy query of topics and payload is supported.
 
 Click on the action bar button at the top and select the `Clear History` item. You can quickly clear the messages sent and received by the current connection.
 
@@ -286,11 +286,11 @@ Click on the action bar button at the top and select the `Clear History` item. Y
 
 4. Max reconnection times
 
-    Below the automatic check update is a setting for the maximum number of reconnections, which can be set as an integer. When the 'broker' is disconnected or the connection is unavailable, the connection will be completely disconnected if the number of reconnections exceeds this setting value.
+   Below the automatic check update is a setting for the maximum number of reconnections, which can be set as an integer. When the 'broker' is disconnected or the connection is unavailable, the connection will be completely disconnected if the number of reconnections exceeds this setting value.
 
 5. Multi-window
 
-    In the connection list, right-click and select `New window` to create a new window for the connection. In the new window, you can connect, subscribe to topics, publish and receive messages, etc. If there is a connection between multiple connections created, or you need to view messages received simultaneously, you can create numerous view windows and view them simultaneously. After v1.4.1, users can also click the window button at the top to quickly create a new window.
+   In the connection list, right-click and select `New window` to create a new window for the connection. In the new window, you can connect, subscribe to topics, publish and receive messages, etc. If there is a connection between multiple connections created, or you need to view messages received simultaneously, you can create numerous view windows and view them simultaneously. After v1.4.1, users can also click the window button at the top to quickly create a new window.
 
 ![mqttx-window](../assets/mqttx-window.png)
 
@@ -298,15 +298,15 @@ Click on the action bar button at the top and select the `Clear History` item. Y
 
 6. Bytes statistics
 
-    You can click on the `Bytes statistics` item in the drop-down menu in the upper right corner. MQTTX will automatically subscribe to the system topic and can display the simple `Bytes statistics` chart, version, and uptime of the MQTT Broker on the page.
+   You can click on the `Bytes statistics` item in the drop-down menu in the upper right corner. MQTTX will automatically subscribe to the system topic and can display the simple `Bytes statistics` chart, version, and uptime of the MQTT Broker on the page.
 
-    > only MQTT clients on localhost can subscribe to the $ SYS topic by default. Please refer to the build-in ACL to modify the ACL rules for publishing and subscription.
+   > only MQTT clients on localhost can subscribe to the $ SYS topic by default. Please refer to the build-in ACL to modify the ACL rules for publishing and subscription.
 
 ![mqttx-bytes](../assets/mqttx-bytes.png)
 
 7. Timed message
 
-    In the drop-down menu in the upper right corner, you can click the `Timed message` item to set the sending frequency in seconds. After the setting is completed, manually send a message, and the message will be automatically sent according to the set sending frequency.
+   In the drop-down menu in the upper right corner, you can click the `Timed message` item to set the sending frequency in seconds. After the setting is completed, manually send a message, and the message will be automatically sent according to the set sending frequency.
 
 ![mqttx-timed-message](../assets/mqttx-timed-message.png)
 

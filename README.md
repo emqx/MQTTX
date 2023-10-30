@@ -54,15 +54,15 @@ See our [documentation](https://mqttx.app/docs) or [manual](./docs/manual.md) fo
 
 1. Get MQTT Broker Ready.
 
-    - If you do not need to deploy the MQTT Broker locally, you can use the [public MQTT 5.0 Broker](https://www.emqx.com/en/mqtt/public-mqtt5-broker) provided by [EMQX Cloud](https://www.emqx.com/en/cloud) for testing:
+   - If you do not need to deploy the MQTT Broker locally, you can use the [public MQTT 5.0 Broker](https://www.emqx.com/en/mqtt/public-mqtt5-broker) provided by [EMQX Cloud](https://www.emqx.com/en/cloud) for testing:
 
-        ```shell
-        Broker IP: broker.emqx.io
-        Broker TCP Port: 1883
-        Broker SSL Port: 8883
-        ```
+     ```shell
+     Broker IP: broker.emqx.io
+     Broker TCP Port: 1883
+     Broker SSL Port: 8883
+     ```
 
-    - To run MQTT Broker locally, [EMQX](https://www.emqx.com/en/products/emqx) is recommended: An Open-Source, Cloud-Native, Distributed MQTT Broker for IoT.
+   - To run MQTT Broker locally, [EMQX](https://www.emqx.com/en/products/emqx) is recommended: An Open-Source, Cloud-Native, Distributed MQTT Broker for IoT.
 
 2. Connection configuration. Click the `+` button in the left menu bar and fill in the corresponding required fields in the form.
 
@@ -93,7 +93,7 @@ Recommended version for Node environment:
 
 - v16.\*.\*
 
-``` shell
+```shell
 # Clone
 git clone git@github.com:emqx/MQTTX.git
 
