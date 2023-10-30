@@ -6,6 +6,7 @@
   "license": "Apache-2.0",
   "repository": "https://github.com/emqx/MQTTX",
   "scripts": {
+    "prepare": "husky install",
     "postinstall": "npm run generate:ui",
     "dev": "turbo run dev",
     "dev:desktop": "turbo run dev --filter @mqttx/desktop",
@@ -16,10 +17,10 @@
     "build:cli": "turbo run build --filter @mqttx/cli",
     "build:web": "turbo run build --filter @mqttx/web",
     "build:desktop": "turbo run build --filter @mqttx/desktop",
-    "generate:ui": "turbo run generate:ui",
     "build:win": "turbo run build:win",
     "build:linux": "turbo run build:linux",
     "build:mac": "turbo run build:mac",
+    "generate:ui": "turbo run generate:ui",
     "format": "prettier --write .",
     "lint": "turbo run lint"
   },
