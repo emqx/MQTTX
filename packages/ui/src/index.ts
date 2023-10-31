@@ -9,13 +9,14 @@ import ConnectionListView from './components/connections/ListView.vue'
 import ConnectionDetailsView from './components/connections/DetailsView.vue'
 import EmptyView from './components/common/EmptyView.vue'
 import LeftBar from './components/common/LeftBar.vue'
+import MainView from './components/common/MainView.vue'
 
 export const pinia = createPinia()
 
 export * from './router'
 export * from './stores'
 
-export { ConnectionListView, ConnectionDetailsView, EmptyView, LeftBar }
+export { ConnectionListView, ConnectionDetailsView, EmptyView, LeftBar, MainView }
 
 export default {
   install: (app: App) => {
@@ -23,5 +24,6 @@ export default {
     app.component('ConnectionDetailsView', ConnectionDetailsView)
     app.component('EmptyView', EmptyView)
     app.component('LeftBar', LeftBar)
+    app.component('MainView', MainView)
   },
 }
