@@ -29,10 +29,3 @@ body,
 
 @import './normalize.scss';
 @import './connections.scss';
-
-.layout {
-  display: flex;
-  .main-view {
-    flex: 1;
-  }
-}
