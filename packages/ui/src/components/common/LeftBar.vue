@@ -26,7 +26,7 @@ const menus = reactive({
 
 <template>
   <el-aside width="80px" class="flex flex-col justify-between items-center">
-    <a :href="linksMap.homepage" target="_blank" rel="noopener noreferrer" class="w-[40px] h-[40px] block mt-6">
+    <a :href="linksMap.homepage" target="_blank" rel="noopener noreferrer" class="w-[40px] h-[40px] block mt-12">
       <img src="../../assets/images/logo.png" alt="app-logo" width="40" height="40" />
     </a>
     <div class="flex flex-col">
