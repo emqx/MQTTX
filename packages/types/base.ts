@@ -4,6 +4,8 @@ export type Protocol = 'mqtt' | 'mqtts'
 
 export type QoS = 0 | 1 | 2
 
+export type Lang = 'en' | 'zh' | 'ja' | 'hu' | 'tr'
+
 export default {}
 
 export interface Connection {

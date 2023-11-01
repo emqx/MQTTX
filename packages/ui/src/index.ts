@@ -15,6 +15,7 @@ export const pinia = createPinia()
 
 export * from './router'
 export * from './stores'
+export * from './i18n'
 
 export { ConnectionListView, ConnectionDetailsView, EmptyView, LeftBar, MainView }
 
