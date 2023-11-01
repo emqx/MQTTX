@@ -1,7 +1,7 @@
+/* Container */
 .el-container {
   height: 100vh;
-}
-.el-button {
-  background-color: #34c388;
-  border: 1px solid #34c388;
+  .el-main {
+    --el-main-padding: 0px;
+  }
 }

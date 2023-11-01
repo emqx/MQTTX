@@ -1,20 +1,16 @@
 import type { Config } from 'tailwindcss'
+import colors from './colors'
 
 const config: Config = {
+  darkMode: 'class',
   content: [],
   theme: {
-    colors: {
-      green: {
-        primary: '#34c388',
-      },
-      black: {
-        primary: '#222b3b',
-      },
-    },
+    colors,
   },
   plugins: [],
   corePlugins: {
     preflight: false,
   },
 }
+
 export default config

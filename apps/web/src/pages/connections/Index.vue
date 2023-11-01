@@ -10,12 +10,12 @@ const activeId = computed(() => route.params.id)
 
 <template>
   <div class="connections-container">
-    <div class="connections-list">
+    <el-card class="connections-list">
       <connection-list-view :data="connections" :active-id="activeId" />
-    </div>
-    <div class="connection-detail">
+    </el-card>
+    <el-card class="connection-detail">
       <router-view v-if="connections.length" />
       <empty-view v-else />
-    </div>
+    </el-card>
   </div>
 </template>

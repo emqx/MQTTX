@@ -1,3 +1,23 @@
+@import './themes/light.scss';
+@import './themes/dark.scss';
+@import './themes/night.scss';
+
+/* Element UI CSS Vars Colors */
+:root {
+  --el-color-primary: var(--color-main-green);
+  --el-color-primary-light-3: #34c387e0;
+  --el-color-primary-light-5: #34c387b6;
+  --el-color-primary-light-7: #34c3878d;
+  --el-color-primary-light-8: #34c38763;
+  --el-color-primary-light-9: #34c3873c;
+  --el-color-primary-dark-2: #2dad78;
+  --el-color-success: var(--color-main-green);
+  --el-color-warning: var(--color-main-yellow);
+  --el-color-danger: var(--color-minor-red);
+  --el-color-error: var(--color-minor-red);
+}
+
+/* Scss Vars */
 $font-family:
   system,
   -apple-system,
