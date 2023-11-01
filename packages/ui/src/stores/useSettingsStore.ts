@@ -1,13 +1,37 @@
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { defineStore } from 'pinia'
+import type { Lang } from 'mqttx'
+import { i18n } from '../i18n'
 
 const settingsStoreSetup = () => {
   const theme = ref('dark')
+
   function changeTheme(val: 'light' | 'dark') {
     theme.value = val
   }
 
-  return { theme, changeTheme }
+  const getLang = (): Lang => {
+    const lang = localStorage.getItem('lang')
+    return (lang as Lang) || 'en'
+  }
+
+  const lang = ref<Lang>(getLang())
+
+  function changeLang(val: Lang) {
+    lang.value = val
+    localStorage.setItem('lang', val)
+  }
+
+  // Automatically update the i18n locale when the language is changed
+  watch(
+    lang,
+    (newLang) => {
+      i18n.global.locale = newLang
+    },
+    { immediate: true },
+  )
+
+  return { theme, changeTheme, lang, changeLang }
 }
 
 export const useSettingsStore = defineStore('settings', settingsStoreSetup)

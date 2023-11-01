@@ -5,7 +5,7 @@
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
-    "types": ["element-plus/global", "node", "mqttx"],
+    "types": ["element-plus/global", "node", "mqttx", "vite/client"],
     "verbatimModuleSyntax": true,
     /* Bundler mode */
     "moduleResolution": "bundler",
