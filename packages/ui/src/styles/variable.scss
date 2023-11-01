@@ -16,8 +16,12 @@
   --el-color-danger: var(--color-minor-red);
   --el-color-error: var(--color-minor-red);
 }
+/* Uncomment and add this code to change Element UI color for different themes. */
+// html.dark {
+//   --el-color-primary: black;
+// }
 
-/* Scss Vars */
+/* Common Scss Vars */
 $font-family:
   system,
   -apple-system,
