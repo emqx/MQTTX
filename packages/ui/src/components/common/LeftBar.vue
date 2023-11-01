@@ -30,11 +30,11 @@ const menus = reactive({
       <img src="../../assets/images/logo.png" alt="app-logo" width="40" height="40" />
     </a>
     <div class="flex flex-col">
-      <router-link v-for="menu in menus" :key="menu.path" :to="menu.path" class="no-underline mb-6">
+      <router-link v-for="menu in menus" :key="menu.path" :to="menu.path" class="no-underline mb-6 text-main-white">
         <i :class="`iconfont ${menu.icon} text-xl`"></i>
       </router-link>
     </div>
-    <router-link to="/" class="no-underline mb-6">
+    <router-link to="/" class="no-underline mb-6 text-main-white">
       <i class="iconfont icon-help text-xl"></i>
     </router-link>
   </el-aside>
@@ -43,8 +43,6 @@ const menus = reactive({
 <style lang="scss">
 .el-aside {
   background: linear-gradient(135deg, #2e424a 0%, #212b3b 100%);
-  a {
-    color: #fff;
-  }
+  -webkit-app-region: drag;
 }
 </style>
