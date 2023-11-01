@@ -309,6 +309,9 @@ importers:
 
   packages/tailwind-config:
     devDependencies:
+      '@mqttx/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
       cssnano:
         specifier: ^6.0.1
         version: 6.0.1(postcss@8.4.31)

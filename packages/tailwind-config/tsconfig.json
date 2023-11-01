@@ -1,0 +1,6 @@
+{
+  "extends": "@mqttx/tsconfig/base",
+  "compilerOptions": {
+    "verbatimModuleSyntax": false,
+  }
+}
