@@ -10,13 +10,13 @@ const isActive = (id: string): boolean => id === props.activeId
 </script>
 
 <template>
-  <div class="connection-list-view">
+  <div class="connection-list-view p-4">
     <ul v-if="data.length">
       <li v-for="{ id, name } in data" :key="id" class="flex items-center">
         <svg class="icon w-[24px] h-[24px] mr-2" aria-hidden="true">
           <use :xlink:href="isActive(id) ? '#icon-unfold' : '#icon-fold'"></use>
         </svg>
-        <router-link :to="`/connections/${id}`" :class="[isActive(id) ? 'text-green-primary' : '', 'text-base']">
+        <router-link :to="`/connections/${id}`" :class="[isActive(id) ? 'text-main-green' : '', 'text-base']">
           {{ name }}
         </router-link>
       </li>
