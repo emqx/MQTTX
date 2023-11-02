@@ -1,17 +1,6 @@
 .connections-container {
-  display: flex;
-
   .connections-list,
   .connection-detail {
-    padding: 24px;
-  }
-
-  .connections-list {
-    flex: 1;
-    margin-right: 10px;
-  }
-
-  .connection-detail {
-    flex: 2;
+    height: 100%;
   }
 }
