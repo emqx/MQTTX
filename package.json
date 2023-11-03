@@ -22,7 +22,8 @@
     "build:mac": "turbo run build:mac",
     "generate:ui": "turbo run generate:ui",
     "format": "prettier --write .",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "test": "turbo run test"
   },
   "devDependencies": {
     "@mqttx/tsconfig": "workspace:*",
