@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "module": "ESNext",
     "esModuleInterop": true,
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
@@ -11,6 +12,6 @@
     "strict": true,
     "outDir": "./dist",
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "vitest.config.ts"],
   "exclude": ["node_modules"]
 }
