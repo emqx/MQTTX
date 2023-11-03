@@ -1,7 +1,7 @@
 // ExampleComponent.spec.ts
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import EmptyView from '../components/common/EmptyView.vue'
+import EmptyView from '../common/EmptyView.vue'
 
 describe('EmptyView', () => {
   it('should render correctly', () => {

@@ -1,7 +1,7 @@
 // useLinks.spec.ts
 import { describe, it, expect } from 'vitest'
 import { ref } from 'vue'
-import useLinks from '../composables/useLinks'
+import useLinks from '../useLinks'
 
 describe('useLinks', () => {
   it('should initialize linksMap correctly', () => {
