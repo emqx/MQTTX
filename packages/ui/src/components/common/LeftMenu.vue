@@ -49,7 +49,7 @@ const helpMenus = reactive({
         <i :class="`iconfont ${menu.icon} text-xl`"></i>
       </router-link>
     </div>
-    <div class="flex flex-col mb-6">
+    <div class="flex flex-col">
       <router-link v-for="menu in helpMenus" :key="menu.path" :to="menu.path" class="no-underline mb-8 text-main-white">
         <i :class="`iconfont ${menu.icon} text-xl`"></i>
       </router-link>

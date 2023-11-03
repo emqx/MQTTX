@@ -113,7 +113,9 @@ const handleMouseMove = (event: MouseEvent) => {
   }
 
   requestAnimationFrame(() => {
-    panelSize.value = newSize
+    if (panelSize.value !== newSize) {
+      panelSize.value = newSize
+    }
   })
 }
 
