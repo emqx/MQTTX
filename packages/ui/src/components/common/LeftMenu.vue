@@ -22,6 +22,21 @@ const featMenus = reactive({
     path: '/connections',
   },
 })
+
+const helpMenus = reactive({
+  settings: {
+    icon: 'icon-settings',
+    path: '/connections',
+  },
+  mqtt: {
+    icon: 'icon-mqtt',
+    path: '/connections',
+  },
+  about: {
+    icon: 'icon-about',
+    path: '/connections',
+  },
+})
 </script>
 
 <template>
@@ -30,13 +45,13 @@ const featMenus = reactive({
       <img src="../../assets/images/logo.png" alt="app-logo" width="40" height="40" />
     </a>
     <div class="flex flex-col">
-      <router-link v-for="menu in featMenus" :key="menu.path" :to="menu.path" class="no-underline mb-6 text-main-white">
+      <router-link v-for="menu in featMenus" :key="menu.path" :to="menu.path" class="no-underline mb-8 text-main-white">
         <i :class="`iconfont ${menu.icon} text-xl`"></i>
       </router-link>
     </div>
-    <div>
-      <router-link to="/" class="no-underline mb-6 text-main-white">
-        <i class="iconfont icon-help text-xl"></i>
+    <div class="flex flex-col mb-6">
+      <router-link v-for="menu in helpMenus" :key="menu.path" :to="menu.path" class="no-underline mb-8 text-main-white">
+        <i :class="`iconfont ${menu.icon} text-xl`"></i>
       </router-link>
     </div>
   </el-aside>
@@ -44,7 +59,7 @@ const featMenus = reactive({
 
 <style lang="scss">
 .el-aside {
-  background: linear-gradient(135deg, #2e424a 0%, #212b3b 100%);
+  background: linear-gradient(135deg, var(--color-bg-leftbar_top) 0%, var(--color-bg-leftbar_bottom) 100%);
   -webkit-app-region: drag;
   a {
     -webkit-app-region: no-drag;
