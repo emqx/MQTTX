@@ -9,7 +9,7 @@ console.log('MQTTX Desktop App init...')
 <template>
   <el-config-provider :locale="ElementI18nMap[settingsStore.lang]">
     <el-container>
-      <left-bar />
+      <left-menu />
       <main-view />
     </el-container>
   </el-config-provider>
