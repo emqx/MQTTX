@@ -10,11 +10,12 @@
   "scripts": {
     "dev": "vue-tsc && vite build --watch",
     "generate:ui": "vue-tsc && vite build",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix"
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "test": "vitest run"
   },
   "peerDependencies": {
-    "element-plus": "^2.4.1",
     "@element-plus/icons-vue": "^2.1.0",
+    "element-plus": "^2.4.1",
     "pinia": "^2.1.7",
     "vue": "^3.3.4",
     "vue-i18n": "9",
@@ -27,14 +28,17 @@
     "@types/mqttx": "workspace:*",
     "@vitejs/plugin-vue": "^4.3.4",
     "@vitejs/plugin-vue-jsx": "^3.0.2",
+    "@vue/test-utils": "^2.4.1",
     "autoprefixer": "^10.4.16",
     "eslint-config-custom": "workspace:*",
+    "jsdom": "^22.1.0",
     "postcss": "^8.4.31",
     "sass": "^1.69.3",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",
     "vite-plugin-dts": "^3.6.0",
+    "vitest": "^0.34.6",
     "vue-tsc": "^1.8.5"
   }
 }
