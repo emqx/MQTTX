@@ -4,7 +4,7 @@ import useLinks from '../../composables/useLinks'
 
 const { linksMap } = useLinks()
 
-const menus = reactive({
+const featMenus = reactive({
   connections: {
     icon: 'icon-connections',
     path: '/connections',
@@ -30,13 +30,15 @@ const menus = reactive({
       <img src="../../assets/images/logo.png" alt="app-logo" width="40" height="40" />
     </a>
     <div class="flex flex-col">
-      <router-link v-for="menu in menus" :key="menu.path" :to="menu.path" class="no-underline mb-6 text-main-white">
+      <router-link v-for="menu in featMenus" :key="menu.path" :to="menu.path" class="no-underline mb-6 text-main-white">
         <i :class="`iconfont ${menu.icon} text-xl`"></i>
       </router-link>
     </div>
-    <router-link to="/" class="no-underline mb-6 text-main-white">
-      <i class="iconfont icon-help text-xl"></i>
-    </router-link>
+    <div>
+      <router-link to="/" class="no-underline mb-6 text-main-white">
+        <i class="iconfont icon-help text-xl"></i>
+      </router-link>
+    </div>
   </el-aside>
 </template>
 
@@ -44,5 +46,8 @@ const menus = reactive({
 .el-aside {
   background: linear-gradient(135deg, #2e424a 0%, #212b3b 100%);
   -webkit-app-region: drag;
+  a {
+    -webkit-app-region: no-drag;
+  }
 }
 </style>

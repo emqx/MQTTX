@@ -9,7 +9,7 @@ const activeId = computed(() => route.params.id)
 </script>
 
 <template>
-  <split-view class="connections-container" min-size="120px" max-size="400px">
+  <split-view class="connections-container" min-size="180px" max-size="400px">
     <template #panel-1>
       <div class="connections-list">
         <connection-list-view :data="connections" :active-id="activeId" />

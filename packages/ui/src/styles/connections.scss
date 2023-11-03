@@ -3,4 +3,7 @@
   .connection-detail {
     height: 100%;
   }
+  .connections-list {
+    box-shadow: 1px 0px 8px 0px var(--color-shadow-leftlist);
+  }
 }
