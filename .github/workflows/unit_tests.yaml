@@ -17,8 +17,10 @@ jobs:
         with:
           node-version: '18.17'
 
-      - name: Install pnpm
-        run: npm install -g pnpm # Installs pnpm globally
+      - name: use pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
 
       - name: Cache pnpm modules
         uses: actions/cache@v3
