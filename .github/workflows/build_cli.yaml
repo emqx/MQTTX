@@ -9,7 +9,7 @@ on:
       - published
 
 jobs:
-  build_packages:
+  build_cli_packages:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,7 +41,7 @@ jobs:
 
       - name: Package application
         run: |
-          pnpm run build
+          pnpm run build:cli
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
