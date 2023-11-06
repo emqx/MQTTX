@@ -1,4 +1,4 @@
-name: deploy web
+name: Deploy MQTTX Web
 
 on:
   release:
@@ -6,7 +6,7 @@ on:
       - published
   pull_request:
     paths:
-      - 'web/**'
+      - 'apps/web/**'
   workflow_dispatch:
 
 jobs:
