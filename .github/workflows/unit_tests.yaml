@@ -18,7 +18,15 @@ jobs:
           node-version: '18.17'
 
       - name: Install pnpm
-        run: npm install -g pnpm
+        run: npm install -g pnpm # Installs pnpm globally
+
+      - name: Cache pnpm modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
         run: pnpm install
