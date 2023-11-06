@@ -2,8 +2,8 @@ name: Build MQTTX CLI packages
 
 on:
   pull_request:
-    # paths:
-    #   - 'apps/cli/**'
+    paths:
+      - 'apps/cli/**'
   release:
     types:
       - published
