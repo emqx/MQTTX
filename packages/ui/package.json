@@ -11,7 +11,8 @@
     "dev": "vue-tsc && vite build --watch",
     "generate:ui": "vue-tsc && vite build",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
-    "test": "vitest run"
+    "test": "vitest run --coverage",
+    "test:dev": "vitest"
   },
   "peerDependencies": {
     "@element-plus/icons-vue": "^2.1.0",
@@ -28,6 +29,7 @@
     "@types/mqttx": "workspace:*",
     "@vitejs/plugin-vue": "^4.3.4",
     "@vitejs/plugin-vue-jsx": "^3.0.2",
+    "@vitest/coverage-istanbul": "^0.34.6",
     "@vue/test-utils": "^2.4.1",
     "autoprefixer": "^10.4.16",
     "eslint-config-custom": "workspace:*",

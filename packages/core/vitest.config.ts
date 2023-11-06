@@ -7,5 +7,9 @@ export default defineConfig({
     environment: 'node',
     root: fileURLToPath(new URL('./', import.meta.url)),
     include: ['**/*.test.{ts,js}'],
+    coverage: {
+      provider: 'istanbul', // or 'v8'
+      all: true,
+    },
   },
 })
