@@ -1,7 +1,9 @@
-name: build packages
+name: Build MQTTX Desktop packages
 
 on:
   pull_request:
+    paths:
+      - 'apps/Desktop/**'
   release:
     types:
       - published
