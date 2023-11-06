@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "dev": "tsc -w",
-    "build": "tsc && pkg ."
+    "build": "tsc && pkg . -o ./release/mqttx-cli"
   },
   "main": "./dist/src/index.js",
   "bin": {
