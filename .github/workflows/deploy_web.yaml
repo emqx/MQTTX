@@ -31,15 +31,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-
 
-      - name: Install dependencies
-        run: pnpm install
-
       - uses: actions/checkout@v3
       - name: Set env
         run: |
           cd apps/web
           echo "VUE_APP_PAGE_TITLE=Easy-to-Use Online MQTT Client | Try Now" > .env.local
           echo "VUE_APP_PAGE_DESCRIPTION=Online MQTT 5.0 client on the web, using MQTT over WebSocket to connect to the MQTT Broker and test message publishing and receiving in the browser." >> .env.local
+
+      - name: Install dependencies
+        run: |
+          pwd
+          pnpm install
 
       - name: build
         run: |
