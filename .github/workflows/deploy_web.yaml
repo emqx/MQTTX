@@ -40,7 +40,6 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pwd
           pnpm install
 
       - name: build
