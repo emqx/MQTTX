@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, defineProps, computed, type PropType } from 'vue'
+import { ref, onMounted, computed, type PropType } from 'vue'
 
 const props = defineProps({
   fixedPanelSize: {
@@ -54,7 +54,7 @@ const containerStyles = computed(() => {
   return base
 })
 const resizeHandleStyles = computed(() => {
-  const base = 'relative'
+  const base = 'resize-handle relative'
   if (props.vertical) {
     return `${base} w-full h-[1px] cursor-row-resize`
   } else {
@@ -62,6 +62,7 @@ const resizeHandleStyles = computed(() => {
   }
 })
 const resizeHandleHoverStyles = computed(() => [
+  'resize-handle-hover',
   'absolute',
   'transition-all',
   props.handleColor,

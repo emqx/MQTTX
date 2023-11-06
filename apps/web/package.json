@@ -30,6 +30,7 @@
     "@types/node": "^17.0.43",
     "@vitejs/plugin-vue": "^4.3.4",
     "@vitejs/plugin-vue-jsx": "^3.0.2",
+    "@vitest/coverage-istanbul": "^0.34.6",
     "@vue/test-utils": "^2.4.1",
     "@vue/tsconfig": "^0.4.0",
     "autoprefixer": "^10.4.16",

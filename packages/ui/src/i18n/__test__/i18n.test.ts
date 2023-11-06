@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { ElementI18nMap, i18n } from '../index' // Assuming your i18n setup is in 'index.ts'
+import { ElementI18nMap, i18n } from '../index'
 
 describe('i18nSetup', () => {
   it('ElementI18nMap should map language codes to Element Plus locales', () => {
