@@ -2,93 +2,113 @@ name: Build MQTTX CLI packages
 
 on:
   pull_request:
-    paths:
-      - 'appscli/**'
+    # paths:
+    #   - 'apps/cli/**'
   release:
     types:
       - published
 
 jobs:
   build_packages:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 16.14
 
-      - name: build
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.17'
+
+      - name: use pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Cache pnpm modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install pkg globally using pnpm
+        run: pnpm add -g pkg
+
+      - name: Package application
         run: |
-          cd cli
-          yarn && yarn build
-          npm install -g pkg
-          pkg package.json
+          pnpm run build
 
-      - uses: actions/upload-artifact@v2
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
         with:
-          name: cli
-          path: cli/release
+          name: mqttx-cli
+          path: apps/cli/release
 
-      - name: upload release asset
-        if: github.event_name == 'release'
-        run: |
-          cd cli/release
-          for var in $(ls); do
-              $GITHUB_WORKSPACE/.github/workflows/upload_github_release_asset.sh \
-                  owner=${{ github.repository_owner }} \
-                  repo=mqttx \
-                  tag=$(echo ${{ github.ref }} | sed -r  "s ^refs/heads/|^refs/tags/(.*) \1 g") \
-                  filename=$var \
-                  github_api_token=$(echo ${{ secrets.GITHUB_TOKEN }})
-          done
+  #     - name: upload release asset
+  #       if: github.event_name == 'release'
+  #       run: |
+  #         cd cli/release
+  #         for var in $(ls); do
+  #             $GITHUB_WORKSPACE/.github/workflows/upload_github_release_asset.sh \
+  #                 owner=${{ github.repository_owner }} \
+  #                 repo=mqttx \
+  #                 tag=$(echo ${{ github.ref }} | sed -r  "s ^refs/heads/|^refs/tags/(.*) \1 g") \
+  #                 filename=$var \
+  #                 github_api_token=$(echo ${{ secrets.GITHUB_TOKEN }})
+  #         done
 
-  publish_docker:
-    if: github.event_name == 'release'
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - name: docker meta
-        id: meta
-        uses: docker/metadata-action@v4
-        with:
-          images: emqx/mqttx-cli
-          flavor: |
-            latest=${{ !github.event.release.prerelease }}
-          tags: |
-            type=ref,event=tag
+  # publish_docker:
+  #   if: github.event_name == 'release'
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - name: docker meta
+  #       id: meta
+  #       uses: docker/metadata-action@v4
+  #       with:
+  #         images: emqx/mqttx-cli
+  #         flavor: |
+  #           latest=${{ !github.event.release.prerelease }}
+  #         tags: |
+  #           type=ref,event=tag
 
-      - name: set up qemu
-        uses: docker/setup-qemu-action@v2
+  #     - name: set up qemu
+  #       uses: docker/setup-qemu-action@v2
 
-      - name: set up docker buildx
-        uses: docker/setup-buildx-action@v2
+  #     - name: set up docker buildx
+  #       uses: docker/setup-buildx-action@v2
 
-      - name: login to docker hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_HUB_USER }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+  #     - name: login to docker hub
+  #       uses: docker/login-action@v2
+  #       with:
+  #         username: ${{ secrets.DOCKER_HUB_USER }}
+  #         password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: build and push
-        uses: docker/build-push-action@v3
-        with:
-          context: ./cli
-          push: true
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.meta.outputs.tags }}
+  #     - name: build and push
+  #       uses: docker/build-push-action@v3
+  #       with:
+  #         context: ./cli
+  #         push: true
+  #         platforms: linux/amd64,linux/arm64
+  #         tags: ${{ steps.meta.outputs.tags }}
 
-  publish_npm:
-    if: github.event_name == 'release' && !github.event.release.prerelease
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 16.14
-          registry-url: 'https://registry.npmjs.org'
-      - name: build
-        run: |
-          cd cli
-          yarn && yarn build && yarn publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  # publish_npm:
+  #   if: github.event_name == 'release' && !github.event.release.prerelease
+  #   runs-on: ubuntu-20.04
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 16.14
+  #         registry-url: 'https://registry.npmjs.org'
+  #     - name: build
+  #       run: |
+  #         cd cli
+  #         yarn && yarn build && yarn publish
+  #       env:
+  #         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
