@@ -5,8 +5,8 @@ on:
     types:
       - published
   pull_request:
-    # paths:
-    #   - 'apps/web/**'
+    paths:
+      - 'apps/web/**'
   workflow_dispatch:
 
 jobs:
