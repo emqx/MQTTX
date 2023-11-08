@@ -9,7 +9,7 @@ on:
       - published
 
 jobs:
-  build_cli_packages:
+  build:
     runs-on: ubuntu-latest
 
     steps:

@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy_website:
+  build:
     runs-on: ubuntu-20.04
     steps:
       - name: Set up Node.js
