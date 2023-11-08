@@ -17,7 +17,7 @@ export default defineConfig({
     lib: {
       entry: path.resolve(__dirname, '/src/index.ts'),
       name: '@mqttx/ui',
-      fileName: 'index',
+      fileName: 'mqttx-ui',
       formats: ['es'],
     },
     rollupOptions: {

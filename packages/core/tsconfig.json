@@ -12,6 +12,6 @@
     "strict": true,
     "outDir": "./dist",
   },
-  "include": ["src/**/*.ts", "vitest.config.ts"],
+  "include": ["src/**/*.ts", "vitest.config.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "exclude": ["node_modules"]
 }
