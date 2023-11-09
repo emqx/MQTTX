@@ -37,7 +37,6 @@ linux:
   maintainer: electronjs.org
   category: Utility
 appImage:
-  executableName: desiredName
   artifactName: ${productName}-${version}.${ext}
 npmRebuild: false
 publish:
