@@ -62,16 +62,16 @@ jobs:
         with:
           draft: true
           files: |
-            dist/*.exe
-            dist/*.zip
-            dist/*.dmg
-            dist/*.AppImage
-            dist/*.snap
-            dist/*.deb
-            dist/*.rpm
-            dist/*.tar.gz
-            dist/*.yml
-            dist/*.blockmap
+            apps/desktop/dist/*.exe
+            apps/desktop/dist/*.zip
+            apps/desktop/dist/*.dmg
+            apps/desktop/dist/*.AppImage
+            apps/desktop/dist/*.snap
+            apps/desktop/dist/*.deb
+            apps/desktop/dist/*.rpm
+            apps/desktop/dist/*.tar.gz
+            apps/desktop/dist/*.yml
+            apps/desktop/dist/*.blockmap
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 # steps:
