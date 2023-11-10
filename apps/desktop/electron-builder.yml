@@ -28,6 +28,7 @@ asarUnpack:
 #   createDesktopShortcut: always
 
 mac:
+  artifactName: ${productName}-${version}-${arch}.${ext}
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
     - NSCameraUsageDescription: Application requests access to the device's camera.
@@ -38,11 +39,8 @@ mac:
   target:
     - target: dmg
       arch: [x64, arm64]
-    - target: pkg
-      arch: [x64, arm64]
     - target: zip
       arch: [x64, arm64]
-  artifactName: ${productName}-${version}-${arch}.${ext}
 
 linux:
   executableName: ${productName}
