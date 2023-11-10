@@ -12,20 +12,20 @@ files:
 asarUnpack:
   - resources/**
 
-# win:
-#   executableName: ${productName}
-#   artifactName: ${productName}-Setup-${version}-${arch}.${ext}
-#   target:
-#     - target: nsis
-#       arch: [x64, ia32, arm64]
-# nsis:
-#   oneClick: false
-#   allowElevation: true
-#   allowToChangeInstallationDirectory: true
-#   createStartMenuShortcut: true
-#   shortcutName: ${productName}
-#   uninstallDisplayName: ${productName}
-#   createDesktopShortcut: always
+win:
+  executableName: ${productName}
+  artifactName: ${productName}-Setup-${version}-${arch}.${ext}
+  target:
+    - target: nsis
+      arch: [x64, ia32, arm64]
+nsis:
+  oneClick: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  createStartMenuShortcut: true
+  shortcutName: ${productName}
+  uninstallDisplayName: ${productName}
+  createDesktopShortcut: always
 
 mac:
   artifactName: ${productName}-${version}-${arch}.${ext}

@@ -17,8 +17,7 @@ jobs:
 
     strategy:
       matrix:
-        # os: [ubuntu-latest, macos-latest, windows-latest]
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - name: Check out Git repository
@@ -53,9 +52,9 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: pnpm run build:mac
 
-      # - name: Build Win
-      #   if: matrix.os == 'windows-latest'
-      #   run: pnpm run build:win
+      - name: Build Win
+        if: matrix.os == 'windows-latest'
+        run: pnpm run build:win
 
       - name: release
         uses: softprops/action-gh-release@v1
@@ -68,7 +67,6 @@ jobs:
             apps/desktop/dist/*.AppImage
             apps/desktop/dist/*.snap
             apps/desktop/dist/*.deb
-            apps/desktop/dist/*.rpm
             apps/desktop/dist/*.tar.gz
             apps/desktop/dist/*.yml
             apps/desktop/dist/*.blockmap
