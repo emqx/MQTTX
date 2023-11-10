@@ -11,36 +11,39 @@ files:
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
 asarUnpack:
   - resources/**
-win:
-  executableName: ${productName}
-  target:
-    - target: nsis
-      arch: [x64, ia32, arm64]
-  nsis:
-    oneClick: false
-    allowElevation: true
-    allowToChangeInstallationDirectory: true
-    createStartMenuShortcut: true
-    artifactName: ${productName}-Setup-${version}-{arch}.${ext}
-    shortcutName: ${productName}
-    uninstallDisplayName: ${productName}
-    createDesktopShortcut: always
-mac:
-  entitlementsInherit: build/entitlements.mac.plist
-  extendInfo:
-    - NSCameraUsageDescription: Application requests access to the device's camera.
-    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
-    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
-    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
-  notarize: false
-  target:
-    - target: dmg
-      arch: [x64, arm64]
-    - target: pkg
-      arch: [x64, arm64]
-    - target: zip
-      arch: [x64, arm64]
-  artifactName: ${productName}-${version}-{arch}.${ext}
+# win:
+#   executableName: ${productName}
+#   artifactName: ${productName}-Setup-${version}-{arch}.${ext}
+#   target:
+#     - target: nsis
+#       arch: [x64, ia32, arm64]
+
+# nsis:
+#   oneClick: false
+#   allowElevation: true
+#   allowToChangeInstallationDirectory: true
+#   createStartMenuShortcut: true
+#   shortcutName: ${productName}
+#   uninstallDisplayName: ${productName}
+#   createDesktopShortcut: always
+
+# mac:
+#   entitlementsInherit: build/entitlements.mac.plist
+#   extendInfo:
+#     - NSCameraUsageDescription: Application requests access to the device's camera.
+#     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
+#     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
+#     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+#   notarize: false
+#   target:
+#     - target: dmg
+#       arch: [x64, arm64]
+#     - target: pkg
+#       arch: [x64, arm64]
+#     - target: zip
+#       arch: [x64, arm64]
+#   artifactName: ${productName}-${version}-{arch}.${ext}
+
 linux:
   executableName: ${productName}
   target:
