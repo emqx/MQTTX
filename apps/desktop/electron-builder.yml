@@ -29,6 +29,7 @@ mac:
 dmg:
   artifactName: ${productName}-${version}.${ext}
 linux:
+  executableName: MQTTX
   target:
     - AppImage
     - snap
