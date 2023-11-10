@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "appdata-path": "^1.0.0",
-    "axios": "^0.21.2",
+    "axios": "^1.6.0",
     "chart.js": "^2.9.4",
     "compare-versions": "^6.0.0-rc.2",
     "core-js": "^2.6.11",
