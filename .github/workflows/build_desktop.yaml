@@ -74,35 +74,6 @@ jobs:
       #       dist/*.blockmap
       #   env:
       #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-# jobs:
-#   build:
-#     runs-on: ubuntu-20.04
-#     steps:
-#       - uses: actions/checkout@v3
-
-#       - name: Set up Node.js
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: '18.17'
-
-#       - name: use pnpm
-#         uses: pnpm/action-setup@v2
-#         with:
-#           version: 8
-
-#       - name: Cache pnpm modules
-#         uses: actions/cache@v3
-#         with:
-#           path: ~/.pnpm-store
-#           key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-#           restore-keys: |
-#             ${{ runner.os }}-pnpm-
-
-#       - name: Install dependencies
-#         run: pnpm install
-
-#       - name: Build Win and Linux packages
-#         run: pnpm run build:win && pnpm run build:linux
 # steps:
 #   - uses: actions/checkout@v3
 #   - name: build

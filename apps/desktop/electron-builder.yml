@@ -51,14 +51,12 @@ linux:
       arch: [x64, arm64]
     - target: deb
       arch: [x64, arm64]
-    - target: rpm
-      arch: [x64, arm64]
     - target: snap
       arch: [x64]
   maintainer: electronjs.org
   category: Utility
   artifactName: ${productName}-${version}-{arch}.${ext}
 npmRebuild: false
-publish:
-  provider: generic
-  url: https://example.com/auto-updates
+# publish:
+#   provider: generic
+#   url: https://example.com/auto-updates
