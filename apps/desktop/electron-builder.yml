@@ -12,7 +12,7 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: MQTTX
+  executableName: ${productName}
   target:
     - target: nsis
       arch: [x64, ia32, arm64]
@@ -42,6 +42,7 @@ mac:
       arch: [x64, arm64]
   artifactName: ${productName}-${version}-{arch}.${ext}
 linux:
+  executableName: ${productName}
   target:
     - target: AppImage
       arch: [x64, arm64]
