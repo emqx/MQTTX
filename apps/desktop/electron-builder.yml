@@ -11,13 +11,13 @@ files:
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
 asarUnpack:
   - resources/**
+
 # win:
 #   executableName: ${productName}
 #   artifactName: ${productName}-Setup-${version}-${arch}.${ext}
 #   target:
 #     - target: nsis
 #       arch: [x64, ia32, arm64]
-
 # nsis:
 #   oneClick: false
 #   allowElevation: true
@@ -53,7 +53,7 @@ linux:
     - target: deb
       arch: [x64, arm64]
     - target: snap
-      arch: [x64]
+      arch: [x64, arm64]
   maintainer: electronjs.org
   category: Utility
 npmRebuild: false
