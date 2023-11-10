@@ -13,14 +13,14 @@ asarUnpack:
   - resources/**
 
 win:
-  executableName: ${productName}
+  executableName: MQTTX
   target:
     - target: nsis
       arch: [x64, ia32, arm64]
 nsis:
-  artifactName: ${productName}-Setup-${version}-setup.${ext}
-  shortcutName: ${productName}
-  uninstallDisplayName: ${productName}
+  artifactName: MQTTX-Setup-${version}-setup.${ext}
+  shortcutName: MQTTX
+  uninstallDisplayName: MQTTX
   createDesktopShortcut: always
   oneClick: false
   allowElevation: true
