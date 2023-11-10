@@ -13,7 +13,7 @@ asarUnpack:
   - resources/**
 # win:
 #   executableName: ${productName}
-#   artifactName: ${productName}-Setup-${version}-{arch}.${ext}
+#   artifactName: ${productName}-Setup-${version}-${arch}.${ext}
 #   target:
 #     - target: nsis
 #       arch: [x64, ia32, arm64]
@@ -42,10 +42,11 @@ asarUnpack:
 #       arch: [x64, arm64]
 #     - target: zip
 #       arch: [x64, arm64]
-#   artifactName: ${productName}-${version}-{arch}.${ext}
+#   artifactName: ${productName}-${version}-${arch}.${ext}
 
 linux:
   executableName: ${productName}
+  artifactName: ${productName}-${version}-${arch}.${ext}
   target:
     - target: AppImage
       arch: [x64, arm64]
@@ -55,7 +56,6 @@ linux:
       arch: [x64]
   maintainer: electronjs.org
   category: Utility
-  artifactName: ${productName}-${version}-{arch}.${ext}
 npmRebuild: false
 # publish:
 #   provider: generic

@@ -47,7 +47,7 @@ jobs:
 
       - name: Build Linux
         if: matrix.os == 'ubuntu-latest'
-        run: pnpm run build:linux
+        run: pnpm run build:linux && ls -l apps/desktop/dist
 
       # - name: Build macOS
       #   if: matrix.os == 'macos-latest'
