@@ -10,7 +10,7 @@ export default mergeConfig(
       environment: 'jsdom',
       root: fileURLToPath(new URL('./', import.meta.url)),
       coverage: {
-        provider: 'istanbul', // or 'v8'
+        provider: 'istanbul',
         all: true,
       },
     },
