@@ -21,7 +21,7 @@
     "node": ">=16"
   },
   "dependencies": {
-    "axios": "^0.27.2",
+    "axios": "^1.6.0",
     "chalk": "~4.1.2",
     "cli-table3": "^0.6.3",
     "commander": "^9.3.0",
