@@ -16,9 +16,12 @@ win:
   executableName: MQTTX
   target:
     - target: nsis
-      arch: [x64, ia32, arm64]
+      arch:
+        - x64
+        - ia32
+        - arm64
 nsis:
-  artifactName: MQTTX-Setup-${version}-setup.${ext}
+  artifactName: MQTTX-Setup-${version}-${arch}.${ext}
   shortcutName: MQTTX
   uninstallDisplayName: MQTTX
   createDesktopShortcut: always
@@ -38,20 +41,29 @@ mac:
   notarize: false
   target:
     - target: dmg
-      arch: [x64, arm64]
+      arch:
+        - x64
+        - arm64
     - target: zip
-      arch: [x64, arm64]
+      arch:
+        - x64
+        - arm64
 
 linux:
   executableName: ${productName}
   artifactName: ${productName}-${version}-${arch}.${ext}
   target:
     - target: AppImage
-      arch: [x64, arm64]
+      arch:
+        - x64
+        - arm64
     - target: deb
-      arch: [x64, arm64]
+      arch:
+        - x64
+        - arm64
     - target: snap
-      arch: [x64]
+      arch:
+        - x64
   maintainer: electronjs.org
   category: Utility
 npmRebuild: false
