@@ -4,12 +4,9 @@ on:
   pull_request:
     # paths:
     #   - 'apps/desktop/**'
-  release:
-    types:
-      - published
-  # push:
-  #   tags:
-  #     - v*.*.*
+  push:
+    tags:
+      - v*.*.*
 
 jobs:
   build:
