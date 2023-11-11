@@ -2,8 +2,8 @@ name: Build MQTTX Desktop packages
 
 on:
   pull_request:
-    # paths:
-    #   - 'apps/desktop/**'
+    paths:
+      - 'apps/desktop/**'
   push:
     tags:
       - v*.*.*
