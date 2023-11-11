@@ -54,6 +54,7 @@ jobs:
         run: pnpm run build:win
 
       - name: release
+        if: github.event_name == 'release'
         uses: softprops/action-gh-release@v1
         with:
           draft: true
