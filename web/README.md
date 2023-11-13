@@ -58,13 +58,17 @@ Recommended version for Node environment:
 
 - v16.\*.\*
 
-``` shell
-# Clone
+```shell
+# Clone the repository
 git clone git@github.com:emqx/MQTTX.git
 
 # Install dependencies
 cd MQTTX/web
 yarn install
+
+# Set Web app's title and description (customizable as per user requirements)
+echo "VUE_APP_PAGE_TITLE=Easy-to-Use Online MQTT Client | Try Now" > .env.local
+echo "VUE_APP_PAGE_DESCRIPTION=Online MQTT 5.0 client on the web, using MQTT over WebSocket to connect to the MQTT Broker and test message publishing and receiving in the browser." >> .env.local
 
 # Compiles and hot-reloads for development
 yarn run serve
@@ -74,6 +78,9 @@ yarn run build
 
 # Compiles for production & serve generated files of site locally
 yarn run start
+
+# Compiles and prepares for Docker containerization
+yarn run build:docker
 ```
 
 ## Contributing
