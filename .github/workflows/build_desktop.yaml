@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'apps/desktop/**'
+      - 'apps/packages/ui/**'
   push:
     tags:
       - v*.*.*
