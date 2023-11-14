@@ -2,7 +2,6 @@
 
 [![GitHub Release](https://img.shields.io/github/release/emqx/mqttx?label=Release&color=brightgreen)](https://github.com/emqx/mqttx/releases)
 ![Support Platforms](https://camo.githubusercontent.com/a50c47295f350646d08f2e1ccd797ceca3840e52/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f706c6174666f726d2d6d61634f5325323025374325323057696e646f77732532302537432532304c696e75782d6c69676874677265792e737667)
-![build packages](https://github.com/emqx/MQTTX/workflows/build%20packages/badge.svg)
 [![GitHub Downloads](https://img.shields.io/github/downloads/emqx/MQTTX/total?label=GitHub%20Downloads)](https://mqttx.app/downloads)
 [![Docker Web pulls](https://img.shields.io/docker/pulls/emqx/mqttx-web?label=Docker%20Web%20pulls)](https://hub.docker.com/r/emqx/mqttx-web)
 [![Docker CLI pulls](https://img.shields.io/docker/pulls/emqx/mqttx-cli?label=Docker%20CLI%20pulls)](https://hub.docker.com/r/emqx/mqttx-cli)
