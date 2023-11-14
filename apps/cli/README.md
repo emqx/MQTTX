@@ -1,21 +1,6 @@
-<img src="https://raw.githubusercontent.com/emqx/MQTTX/main/assets/mqttx-logo.png" width="480" alt="MQTTX Logo" />
-
 # MQTTX CLI
 
-[![GitHub Release](https://img.shields.io/github/release/emqx/mqttx?color=brightgreen)](https://github.com/emqx/mqttx/releases)
-![build packages](https://github.com/emqx/MQTTX/workflows/build%20packages/badge.svg)
-[![Total Downloads](https://img.shields.io/github/downloads/emqx/mqttx/total.svg)](https://github.com/emqx/mqttx/releases)
-[![Docker](https://img.shields.io/docker/pulls/emqx/mqttx-cli)](https://hub.docker.com/r/emqx/mqttx-cli)
-[![Slack](https://img.shields.io/badge/Slack-EMQX-39AE85?logo=slack)](https://slack-invite.emqx.io/) [![Discord](https://img.shields.io/discord/931086341838622751?label=Discord&logo=discord)](https://discord.gg/xYGf3fQnES)
-[![Community](https://img.shields.io/badge/Community-MQTTX-yellow?logo=github)](https://github.com/emqx/MQTTX/discussions)
-[![YouTube](https://img.shields.io/badge/Subscribe-EMQ-FF0000?logo=youtube)](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q)
-[![Twitter](https://img.shields.io/badge/Follow-EMQ-1DA1F2?logo=twitter)](https://twitter.com/EMQTech)
-
----
-
 [MQTTX CLI](https://mqttx.app/cli) is an open source MQTT 5.0 CLI Client and MQTTX on the command line. Designed to help develop and debug MQTT services and applications faster without the need to use a graphical interface.
-
-> [MQTT](https://mqtt.org/faq) stands for MQ Telemetry Transport. It is a publish/subscribe, extremely simple and lightweight messaging protocol, designed for constrained devices and low-bandwidth, high-latency or unreliable networks.
 
 ## Preview
 
