@@ -4,6 +4,8 @@
 ![Support Platforms](https://camo.githubusercontent.com/a50c47295f350646d08f2e1ccd797ceca3840e52/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f706c6174666f726d2d6d61634f5325323025374325323057696e646f77732532302537432532304c696e75782d6c69676874677265792e737667)
 ![build packages](https://github.com/emqx/MQTTX/workflows/build%20packages/badge.svg)
 [![GitHub Downloads](https://img.shields.io/github/downloads/emqx/MQTTX/total?label=GitHub%20Downloads)](https://mqttx.app/downloads)
+[![Docker Web pulls](https://img.shields.io/docker/pulls/emqx/mqttx-web?label=Docker%20Web%20pulls)](https://hub.docker.com/r/emqx/mqttx-web)
+[![Docker CLI pulls](https://img.shields.io/docker/pulls/emqx/mqttx-cli?label=Docker%20CLI%20pulls)](https://hub.docker.com/r/emqx/mqttx-cli)
 [![Community](https://img.shields.io/badge/Community-MQTTX-yellow?logo=github)](https://github.com/emqx/MQTTX/discussions)
 [![YouTube](https://img.shields.io/badge/Subscribe-EMQ-FF0000?logo=youtube)](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q)
 [![Twitter Follows](https://img.shields.io/twitter/follow/EMQTech?label=Twitter%20Follows)](https://twitter.com/EMQTech)
@@ -65,15 +67,15 @@ MQTTX simplifies working with MQTT Brokers. For a complete understanding and det
 
 ### Graphical User Interface
 
-1. Configure Your Connect
+1. **Configure Your Connect**
 
    Access the MQTTX interface and click the `+` button in the left menu bar. Fill in the required fields in the connection form.
 
-2. Connect to the Broker
+2. **Connect to the Broker**
 
    Once the connection details are set, click the `Connect` button in the upper right corner to establish a connection with your MQTT Broker.
 
-3. Publish and Subscribe
+3. **Publish and Subscribe**
 
    You can now test MQTT publish and subscription functions with a successful connection.
 
@@ -83,19 +85,19 @@ _For a more interactive understanding, check out this MQTTX demonstration:_
 
 ### Command Line Interface
 
-1. Connect
+1. **Connect**
 
    ```shell
    mqttx conn -h 'broker.emqx.io' -p 1883 -u 'admin' -P 'public'
    ```
 
-2. Subscribe
+2. **Subscribe**
 
    ```shell
    mqttx sub -t 'hello' -h 'broker.emqx.io' -p 1883
    ```
 
-3. Publish
+3. **Publish**
 
    Publish a single message.
 
@@ -147,7 +149,7 @@ Start for free with the cloud serverless MQTT messaging services built on EMQX�
 - **Join Discussions**: Connect with the community on our [official Discord](https://discord.gg/xYGf3fQnES).
 - **Watch and Learn**: Subscribe to [EMQX YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q) for insightful content.
 
-## 🛠️ Develop with MQTTX
+## 🛠️ Develop
 
 Explore and contribute to MQTTX development. For setup and build instructions, refer to our development documentation.
 
