@@ -55,7 +55,7 @@ Start for free with the cloud serverless MQTT messaging services built on EMQX�
 - **Join Discussions**: Connect with the community on our [official Discord](https://discord.gg/xYGf3fQnES).
 - **Watch and Learn**: Subscribe to [EMQX YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q) for insightful content.
 
-## 💻 Develop
+## 🔨 Develop
 
 Set up your development environment for MQTTX Web:
 
@@ -65,7 +65,7 @@ Set up your development environment for MQTTX Web:
 ```shell
 # Initial setup
 git clone git@github.com:emqx/MQTTX.git
-cd MQTTX/web
+cd MQTTX
 
 # Install dependencies using pnpm
 pnpm install
