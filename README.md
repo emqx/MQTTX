@@ -118,7 +118,7 @@ Discover more about each version of MQTTX and find the one that fits your needs:
 - [MQTTX CLI](apps/cli/README.md)
 - [MQTTX Web](apps/web/README.md)
 
-## 🌐 Better Together with EMQX
+## ⚙️ Better Together with EMQX
 
 MQTTX enhances EMQX deployments, offering an intuitive client interface for robust MQTT solutions on any platform, and you can quickly deploy EMQX anywhere on-premises or in private, hybrid, and public clouds.
 
