@@ -1,83 +1,111 @@
-# MQTTX Web
+# 🌐 MQTTX Web
 
-[MQTTX Web](https://mqttx.app) is an open source MQTT 5.0 browser client and an online MQTT WebSocket client tool. Use WebSocket to connect to MQTT in your browser to help you develop and debug your MQTT services and applications faster without having to download and install MQTTX locally.
+[MQTTX Web](https://mqttx.app) is an innovative and open-source MQTT 5.0 client tool available directly in your browser. It utilizes WebSocket technology for connecting to MQTT brokers, enabling you to develop, test, and debug MQTT services and applications quickly and efficiently without downloading or installing software.
 
-## Preview
+## 📸 Preview
 
 ![mqttx-preview](../../assets/mqttx-web-preview.png)
 
-## Documentation
+## 📚 Documentation
 
-For introduction, and usage, please refer to the [MQTTX Web Documentation](https://mqttx.app/docs/web).
+Discover comprehensive details on MQTTX Web's features, configuration, and more in the [MQTTX Web Documentation](https://mqttx.app/docs/web).
 
-## Usage
+## 🛠️ Usage
 
-Visit MQTT WebSocket Client (MQTTX Web): [http://www.emqx.io/online-mqtt-client](http://www.emqx.io/online-mqtt-client)
+Experience MQTTX Web's capabilities firsthand:
 
-## Deploy from Docker Image
+Access the MQTT WebSocket Client (MQTTX Web) at [MQTTX Web Client](http://www.emqx.io/online-mqtt-client).
+
+## 🐳 Deploy from Docker Image
+
+Deploy MQTTX Web quickly and securely using Docker:
 
 ```bash
 docker pull emqx/mqttx-web:latest
-
 docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 ```
 
-## Better Together with EMQX
+## 🌐 Better Together with EMQX
 
-MQTTX is designed to connect to test MQTT Brokers such as EMQX, The one-click connection and simple graphical interface make it easy to connect to EMQX or EMQX Cloud to debug and explore functional features.
+MQTTX enhances EMQX deployments, offering an intuitive client interface for robust MQTT solutions on any platform, and you can quickly deploy EMQX anywhere on-premises or in private, hybrid, and public clouds.
 
-[Sign up EMQX Cloud for 14 days free trial](https://www.emqx.com/en/try?product=cloud)
+- [EMQX on AWS MarketPlace →](https://aws.amazon.com/marketplace/pp/prodview-cwa2e6xbrwtzi)
+- [EMQX Kubernetes Operator →](https://www.emqx.com/en/emqx-kubernetes-operator)
+- [EMQX Terraform →](https://www.emqx.com/en/emqx-terraform)
 
-[Download EMQX locally right now](https://www.emqx.com/en/try?product=enterprise)
-
-## Get Involved
-
-- Follow [@EMQTech on Twitter](https://twitter.com/EMQTech).
-- If you have a specific question, check out our [discussion forums](https://github.com/emqx/emqx/discussions).
-- For general discussions, join us on the [official Discord](https://discord.gg/xYGf3fQnES) team.
-- Keep updated on [EMQX YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q) by subscribing.
-
-## Develop
-
-Recommended version for Node environment:
-
-- v16.\*.\*
+🔓 **Open Source**
 
 ```shell
-# Clone the repository
-git clone git@github.com:emqx/MQTTX.git
-
-# Install dependencies
-cd MQTTX/web
-yarn install
-
-# Set Web app's title and description (customizable as per user requirements)
-echo "VUE_APP_PAGE_TITLE=Easy-to-Use Online MQTT Client | Try Now" > .env.local
-echo "VUE_APP_PAGE_DESCRIPTION=Online MQTT 5.0 client on the web, using MQTT over WebSocket to connect to the MQTT Broker and test message publishing and receiving in the browser." >> .env.local
-
-# Compiles and hot-reloads for development
-yarn run serve
-
-# Compiles and minifies for production
-yarn run build
-
-# Compiles for production & serve generated files of site locally
-yarn run start
-
-# Compiles and prepares for Docker containerization
-yarn run build:docker
+docker pull emqx/emqx
+docker run -d --name emqx -p 1883:1883 -p 8083:8083 -p 8084:8084 -p 8883:8883 -p 18083:18083 emqx/emqx
 ```
 
-## Contributing
+- [Download more versions](https://www.emqx.io/downloads)
 
-Please make sure to read the [Contributing Guide](https://github.com/emqx/MQTTX/blob/main/.github/CONTRIBUTING.md) before making a pull request.
+☁️ **Cloud Serverless**
 
-## Technology Stack
+Start for free with the cloud serverless MQTT messaging services built on EMQX—pay-as-you-go with the free tier of 1M session minutes/month.
 
-- [Vue](https://vuejs.org/) + [Element](https://element.eleme.io)
-- [TypeScript](https://www.typescriptlang.org/)
-- [MQTT.js](https://github.com/mqttjs/MQTT.js)
+- [Try Free](https://www.emqx.com/en/cloud/serverless-mqtt)
 
-## License
+## 🌍 Join EMQ Community
 
-Apache License 2.0, see [LICENSE](https://github.com/emqx/MQTTX/blob/main/LICENSE).
+- **Stay Updated**: Follow us on [Twitter @EMQTech](https://twitter.com/EMQTech) for the latest updates.
+- **Ask Questions**: Visit our [discussion forums](https://github.com/emqx/emqx/discussions) for specific queries.
+- **Join Discussions**: Connect with the community on our [official Discord](https://discord.gg/xYGf3fQnES).
+- **Watch and Learn**: Subscribe to [EMQX YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q) for insightful content.
+
+## 💻 Develop
+
+Set up your development environment for MQTTX Web:
+
+- Recommended Node version: `v18.17`.
+- Make sure to have [pnpm](https://pnpm.io/) installed for package management.
+
+```shell
+# Initial setup
+git clone git@github.com:emqx/MQTTX.git
+
+# Install dependencies using pnpm
+pnpm install
+
+# Development and production build commands
+pnpm run dev:web
+pnpm run build:web
+```
+
+## 💻 Develop
+
+Set up your development environment for MQTTX Web:
+
+- Recommended Node version: `v18.17`.
+- Ensure [pnpm](https://pnpm.io/) is installed for package management.
+
+```shell
+# Initial setup
+git clone git@github.com:emqx/MQTTX.git
+cd MQTTX/web
+
+# Install dependencies using pnpm
+pnpm install
+
+# Development and production build commands
+pnpm run dev:web
+pnpm run build:web
+```
+
+For more extensive development guidelines and contribution details:
+
+**📄 [Development Documentation](https://github.com/emqx/MQTTX/blob/main/.github/CONTRIBUTING.md)**
+
+## 🤝 Contributing
+
+Contribute to MQTTX Web's development by reading our [Contributing Guide](https://github.com/emqx/MQTTX/blob/main/.github/CONTRIBUTING.md).
+
+## 💡 Technology Stack
+
+MQTTX Web is crafted using [Vue](https://vuejs.org/), [Element UI](https://element.eleme.io), [TypeScript](https://www.typescriptlang.org/), and [MQTT.js](https://github.com/mqttjs/MQTT.js), providing a seamless and powerful user experience.
+
+## ⚖️ License
+
+MQTTX Web is under Apache License 2.0. For more details, see [LICENSE](https://github.com/emqx/MQTTX/blob/main/LICENSE).
