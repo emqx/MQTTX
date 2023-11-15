@@ -25,7 +25,7 @@ docker pull emqx/mqttx-web:latest
 docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 ```
 
-## 🌐 Better Together with EMQX
+## ⚙️ Better Together with EMQX
 
 MQTTX enhances EMQX deployments, offering an intuitive client interface for robust MQTT solutions on any platform, and you can quickly deploy EMQX anywhere on-premises or in private, hybrid, and public clouds.
 
@@ -54,25 +54,6 @@ Start for free with the cloud serverless MQTT messaging services built on EMQX�
 - **Ask Questions**: Visit our [discussion forums](https://github.com/emqx/emqx/discussions) for specific queries.
 - **Join Discussions**: Connect with the community on our [official Discord](https://discord.gg/xYGf3fQnES).
 - **Watch and Learn**: Subscribe to [EMQX YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q) for insightful content.
-
-## 💻 Develop
-
-Set up your development environment for MQTTX Web:
-
-- Recommended Node version: `v18.17`.
-- Make sure to have [pnpm](https://pnpm.io/) installed for package management.
-
-```shell
-# Initial setup
-git clone git@github.com:emqx/MQTTX.git
-
-# Install dependencies using pnpm
-pnpm install
-
-# Development and production build commands
-pnpm run dev:web
-pnpm run build:web
-```
 
 ## 💻 Develop
 
