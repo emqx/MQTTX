@@ -57,7 +57,7 @@ export default {
   },
   install: {
     zh: '安装并重启',
-    en: 'Install and Relunch',
+    en: 'Install and Relaunch',
     ja: 'インストールして再起動',
     tr: 'Kur ve Tekrar Başlat',
     hu: 'Telepítés és újraindítás',
