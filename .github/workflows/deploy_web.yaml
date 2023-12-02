@@ -13,12 +13,12 @@ jobs:
   deploy_website:
     runs-on: ubuntu-22.04
     steps:
+      - uses: actions/checkout@v4
       - name: use node.js
         uses: actions/setup-node@v3
         with:
           node-version-file: '.nvmrc'
 
-      - uses: actions/checkout@v4
       - name: set env
         run: |
           cd web
@@ -43,12 +43,12 @@ jobs:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-22.04
     steps:
+      - uses: actions/checkout@v4
       - name: use node.js
         uses: actions/setup-node@v3
         with:
           node-version-file: '.nvmrc'
 
-      - uses: actions/checkout@v4
       - name: set env
         run: |
           cd web
