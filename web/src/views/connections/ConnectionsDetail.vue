@@ -214,6 +214,7 @@ import connectionMessageService from '@/utils/api/connectionMessageService.ts'
 import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/historyRecordUtils'
 import historyMessageHeaderService from '@/utils/api/historyMessageHeaderService'
 import historyMessagePayloadService from '@/utils/api/historyMessagePayloadService'
+import { jsonParse, jsonStringify } from '@/utils/jsonUtils'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
@@ -910,7 +911,7 @@ export default class ConnectionsDetail extends Vue {
   private convertPayloadByType(value: Buffer | string, type: PayloadType, way: 'publish' | 'receive'): Buffer | string {
     const validJSONType = (jsonValue: string, warnMessage: TranslateResult) => {
       try {
-        return JSON.parse(jsonValue)
+        return jsonParse(jsonValue)
       } catch (error) {
         this.$message.warning(`${warnMessage} ${error.toString()}`)
         return false
@@ -934,7 +935,7 @@ export default class ConnectionsDetail extends Vue {
       if (receiveType === 'JSON') {
         const jsonValue = validJSONType(receiveValue.toString(), this.$t('connections.receivedMsg'))
         if (jsonValue) {
-          return JSON.stringify(jsonValue, null, 2)
+          return jsonStringify(jsonValue, null, 2)
         }
       }
       return receiveValue.toString()
