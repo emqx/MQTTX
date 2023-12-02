@@ -1,11 +1,12 @@
 import chalk from 'chalk'
+import { jsonParse, jsonStringify } from './jsonUtils'
 
 const convertJSON = (value: Buffer | string, action: 'encode' | 'decode') => {
   try {
     if (action === 'decode') {
-      return JSON.stringify(JSON.parse(value.toString()), null, 2)
+      return jsonStringify(jsonParse(value.toString()), null, 2)
     } else {
-      return Buffer.from(JSON.stringify(JSON.parse(value.toString())))
+      return Buffer.from(jsonStringify(jsonParse(value.toString())))
     }
   } catch (err) {
     return chalk.red(err)
