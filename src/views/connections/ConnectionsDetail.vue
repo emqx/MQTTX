@@ -308,7 +308,7 @@ import useServices from '@/database/useServices'
 import { getMessageId, getSubscriptionId } from '@/utils/idGenerator'
 import getContextmenuPosition from '@/utils/getContextmenuPosition'
 import { deserializeBufferToProtobuf, printObjectAsString, serializeProtobufToBuffer } from '@/utils/protobuf'
-
+import { jsonParse, jsonStringify } from '@/utils/jsonUtils'
 type CommandType =
   | 'searchContent'
   | 'clearHistory'
@@ -696,7 +696,7 @@ export default class ConnectionsDetail extends Vue {
       this.$message.success(this.$tc('common.deleteSuccess'))
       this.$emit('reload')
       this.$log.info(
-        `Delete message success, Name: ${this.record.name} ClientID: ${this.record.clientId}, Payload: ${JSON.stringify(
+        `Delete message success, Name: ${this.record.name} ClientID: ${this.record.clientId}, Payload: ${jsonStringify(
           res.payload,
         )}`,
       )
@@ -1227,7 +1227,7 @@ export default class ConnectionsDetail extends Vue {
           this.$log.info(`Message Arrived with topic: ${topic}`)
           let receivedLog = `${this.record.name} message arrived: message added "${
             message.id
-          }" and added to topic: "${topic}", payload: ${JSON.stringify(
+          }" and added to topic: "${topic}", payload: ${jsonStringify(
             message.payload,
           )} MQTT.js onMessageArrived trigger`
           if (this.record.mqttVersion === '5.0') {
@@ -1559,7 +1559,7 @@ export default class ConnectionsDetail extends Vue {
    * Logs details of a successfully published message.
    */
   private logSuccessfulPublish(publishMessage: MessageModel) {
-    const logPayload = JSON.stringify(publishMessage.payload)
+    const logPayload = jsonStringify(publishMessage.payload)
     let pubLog = `${this.record.name} successfully published message ${logPayload} to topic "${publishMessage.topic}"`
     if (this.record.mqttVersion === '5.0') {
       const logProperties = JSON.stringify(publishMessage.properties)
