@@ -1,8 +1,10 @@
+import { jsonParse, jsonStringify } from './jsonUtils'
+
 export default (jsonStrValue: string) => {
   try {
-    const jsonValue = JSON.parse(jsonStrValue)
+    const jsonValue = jsonParse(jsonStrValue)
     if (jsonValue) {
-      return JSON.stringify(jsonValue, null, 2)
+      return jsonStringify(jsonValue, null, 2)
     }
     return undefined
   } catch (error) {
