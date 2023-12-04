@@ -265,4 +265,32 @@ export default {
     ja: '{count}件の新しいメッセージ | {count}件の新しいメッセージ',
     hu: '{count} új üzenet | {count} új üzenet',
   },
+  thinking: {
+    zh: '思考中...',
+    en: 'Thinking...',
+    tr: 'Düşünüyorum...',
+    ja: '考え中...',
+    hu: 'Gondolkodom...',
+  },
+  welcomeToCopilot: {
+    zh: '您好，欢迎使用 MQTTX Copilot',
+    en: 'Hello! Welcome to MQTTX Copilot',
+    tr: "Merhaba! MQTTX Copilot'a hoş geldiniz",
+    ja: 'こんにちは！MQTTX Copilotへようこそ',
+    hu: 'Szia! Üdvözöljük a MQTTX Copilotban',
+  },
+  copiltePubMsgPlacehoder: {
+    zh: '向 MQTTX Copilot 发送消息...',
+    en: 'Message MQTTX Copilot...',
+    tr: "MQTTX Copilot'a mesaj gönder...",
+    ja: 'MQTTX Copilotにメッセージを送る...',
+    hu: 'Üzenet küldése a MQTTX Copilotnak...',
+  },
+  copilteUser: {
+    zh: '用户',
+    en: 'You',
+    tr: 'Sen',
+    ja: 'あなた',
+    hu: 'Te',
+  },
 }

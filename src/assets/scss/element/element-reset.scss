@@ -41,6 +41,9 @@
 .el-card.is-hover-shadow:hover {
   box-shadow: 0 2px 12px 0 var(--color-shadow-card);
 }
+.el-card__header {
+  border-bottom: 1px solid var(--color-border-default);
+}
 
 /* Form */
 .el-form {
@@ -325,5 +328,14 @@
     100% {
       background-position: 0 50%;
     }
+  }
+}
+
+/* Tag */
+.el-tag {
+  &.el-tag--info {
+    background-color: transparent;
+    border-color: var(--color-border-default);
+    color: var(--color-text-tips);
   }
 }

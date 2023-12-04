@@ -86,6 +86,7 @@
                 <i class="iconfont icon-a-stopscrip"></i>
               </a>
             </el-tooltip>
+            <copilot style="margin-right: 12px" :record="record" mode="connections" />
             <template v-if="!isNewWindow">
               <el-tooltip
                 placement="bottom"
@@ -301,6 +302,7 @@ import BytesStatistics from '@/components/BytesStatistics.vue'
 import UseScript from '@/components/UseScript.vue'
 import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 import MsgTip from '@/components/MsgTip.vue'
+import Copilot from '@/components/Copilot.vue'
 
 import sandbox from '@/utils/sandbox'
 import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/historyRecordUtils'
@@ -341,6 +343,7 @@ interface TopModel {
     UseScript,
     MsgTypeTabs,
     MsgTip,
+    Copilot,
   },
 })
 export default class ConnectionsDetail extends Vue {
@@ -1964,7 +1967,7 @@ export default class ConnectionsDetail extends Vue {
       bottom: 0;
       left: 0;
       right: 0;
-      z-index: 4;
+      z-index: 2;
     }
   }
 }
