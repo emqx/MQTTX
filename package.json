@@ -65,6 +65,7 @@
     "vue-click-outside": "^1.1.0",
     "vue-clipboard2": "^0.3.1",
     "vue-i18n": "^8.11.2",
+    "vue-markdown": "^2.2.4",
     "vue-property-decorator": "^8.5.1",
     "vue-router": "^3.4.9",
     "vue-rx": "6.2.0",

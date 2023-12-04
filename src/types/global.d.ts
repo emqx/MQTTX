@@ -366,4 +366,10 @@ declare global {
     fileName: string
     fileContent: string
   }
+
+  //  ['system', 'assistant', 'user', 'function']
+  interface CopilotMessage {
+    role: 'user' | 'system' | 'assistant' | 'function'
+    content: string
+  }
 }
