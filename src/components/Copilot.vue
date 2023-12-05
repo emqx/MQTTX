@@ -68,7 +68,7 @@ export default class Copilot extends Vue {
   ]
   private currentPublishMsg = ''
   private isSending = false
-  private OPENAI_API_KEY = 'sk-xxx'
+  private OPENAI_API_KEY = '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'
   private roleMap = {
     user: 'You',
     assistant: 'MQTTX Copilot',

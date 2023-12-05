@@ -281,6 +281,8 @@ export default class Settings extends Vue {
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('multiTopics') private multiTopics!: boolean
   @Getter('jsonHighlight') private jsonHighlight!: boolean
+  @Getter('openAIAPIKey') private openAIAPIKey!: string
+  @Getter('model') private model!: AIModel
 
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },

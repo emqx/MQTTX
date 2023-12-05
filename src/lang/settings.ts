@@ -167,4 +167,11 @@ export default {
     ja: 'この機能を有効にすると、リアルタイムで受信したJSON形式のPayloadデータをハイライト表示します。<br/>注意：これによりアプリケーションのパフォーマンスが影響を受ける可能性があります。パフォーマンスに問題がある場合は、この機能を無効にすることを検討してください。',
     hu: 'Engedélyezze ezt a funkciót, hogy a JSON formátumú, fogadott terhelési adatokat valós időben kiemelje. <br/>Megjegyzés: Ez befolyásolhatja az alkalmazás teljesítményét. Ha teljesítményproblémákat tapasztal, fontolja meg ennek a funkcióknak a letiltását.',
   },
+  model: {
+    zh: '模型',
+    en: 'Model',
+    tr: 'Model',
+    ja: 'モデル',
+    hu: 'Modell',
+  },
 }

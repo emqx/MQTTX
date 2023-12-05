@@ -105,6 +105,8 @@ declare global {
     currentConnectionId: string | null
     connectionTreeState: ConnectionTreeStateMap
     jsonHighlight: boolean
+    openAIAPIKey: string
+    model: AIModel
   }
 
   interface State {
@@ -372,4 +374,13 @@ declare global {
     role: 'user' | 'system' | 'assistant' | 'function'
     content: string
   }
+
+  type AIModel =
+    | 'gpt-3.5-turbo'
+    | 'gpt-3.5-turbo-1106'
+    | 'gpt-3.5-turbo-16k'
+    | 'gpt-4'
+    | 'gpt-4-32k'
+    | 'gpt-4-0613'
+    | 'gpt-4-32k-0613'
 }
