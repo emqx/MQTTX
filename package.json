@@ -39,6 +39,7 @@
     "chart.js": "^2.9.4",
     "compare-versions": "^6.0.0-rc.2",
     "core-js": "^2.6.11",
+    "crypto-js": "^4.2.0",
     "csvtojson": "^2.0.10",
     "electron-store": "^8.0.2",
     "electron-updater": "^5.0.5",

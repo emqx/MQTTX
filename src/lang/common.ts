@@ -293,4 +293,18 @@ export default {
     ja: 'あなた',
     hu: 'Te',
   },
+  copilotAPIKeyRequired: {
+    zh: '请先在设置中配置 Copilot 的 API Key',
+    en: 'Please configure the Copilot API Key in the settings first',
+    tr: 'Lütfen önce ayarlarda Copilot API Anahtarını yapılandırın',
+    ja: '最初に設定でCopilot APIキーを構成してください',
+    hu: 'Kérjük, először állítsa be a Copilot API-kulcsot a beállításokban',
+  },
+  goToSetting: {
+    zh: '去设置',
+    en: 'Go Settings',
+    tr: 'Ayarlar',
+    ja: '設定',
+    hu: 'Beállítások',
+  },
 }

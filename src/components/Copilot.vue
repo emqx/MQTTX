@@ -48,6 +48,8 @@ import { Getter } from 'vuex-class'
 import axios from 'axios'
 import VueMarkdown from 'vue-markdown'
 import Prism from 'prismjs'
+import CryptoJS from 'crypto-js'
+import { ENCRYPT_KEY } from '@/utils/idGenerator'
 
 @Component({
   components: {
@@ -73,7 +75,7 @@ export default class Copilot extends Vue {
   private currentPublishMsg = ''
   private isSending = false
   private roleMap = {
-    user: 'You',
+    user: this.$tc('common.copilteUser'),
     assistant: 'MQTTX Copilot',
   }
 
@@ -98,7 +100,22 @@ export default class Copilot extends Vue {
   }
 
   private async sendMessage(msg?: string) {
-    let content = msg || this.currentPublishMsg
+    if (!this.openAIAPIKey) {
+      this.$confirm(this.$tc('common.copilotAPIKeyRequired'), this.$tc('common.warning'), {
+        type: 'warning',
+        confirmButtonText: this.$tc('common.goToSetting'),
+      })
+        .then(() => {
+          this.$router.push({ name: 'Settings' })
+        })
+        .catch(() => {
+          // The user canceled the action
+        })
+
+      return
+    }
+
+    const content = msg || this.currentPublishMsg
     if (!content.trim()) return
 
     this.isSending = true
@@ -112,18 +129,22 @@ export default class Copilot extends Vue {
 
     this.currentPublishMsg = ''
 
+    const bytes = CryptoJS.AES.decrypt(this.openAIAPIKey, ENCRYPT_KEY)
+    const decryptedKey = bytes.toString(CryptoJS.enc.Utf8)
+    console.log('this.openAIAPIKey --->', this.openAIAPIKey)
+    console.log('decryptedKey --->', decryptedKey)
     try {
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',
         {
           model: this.model,
-          temperature: 0.7,
+          temperature: 1.0,
           messages: userMessages,
         },
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.openAIAPIKey}`,
+            Authorization: `Bearer ${decryptedKey}`,
           },
         },
       )
