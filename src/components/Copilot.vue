@@ -44,6 +44,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 import axios from 'axios'
 import VueMarkdown from 'vue-markdown'
 import Prism from 'prismjs'
@@ -57,6 +58,9 @@ export default class Copilot extends Vue {
   @Prop({}) public record?: ConnectionModel
   @Prop({ required: true }) public mode!: 'connections' | 'scripts' | 'help'
 
+  @Getter('openAIAPIKey') private openAIAPIKey!: string
+  @Getter('model') private model!: AIModel
+
   private showCopilot = false
   private messages: CopilotMessage[] = []
   private systemMessages: CopilotMessage[] = [
@@ -68,7 +72,6 @@ export default class Copilot extends Vue {
   ]
   private currentPublishMsg = ''
   private isSending = false
-  private OPENAI_API_KEY = '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'
   private roleMap = {
     user: 'You',
     assistant: 'MQTTX Copilot',
@@ -113,14 +116,14 @@ export default class Copilot extends Vue {
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',
         {
-          model: 'gpt-3.5-turbo',
+          model: this.model,
           temperature: 0.7,
           messages: userMessages,
         },
         {
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.OPENAI_API_KEY}`,
+            Authorization: `Bearer ${this.openAIAPIKey}`,
           },
         },
       )
