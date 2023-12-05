@@ -86,7 +86,7 @@
                 <i class="iconfont icon-a-stopscrip"></i>
               </a>
             </el-tooltip>
-            <copilot style="margin-right: 12px" :record="record" mode="connections" />
+            <copilot ref="copilot" style="margin-right: 12px" :record="record" mode="connections" />
             <template v-if="!isNewWindow">
               <el-tooltip
                 placement="bottom"
@@ -218,6 +218,7 @@
           :top="showClientInfo ? bodyTop.open : bodyTop.close"
           @onClickTopic="handleTopicClick"
           @deleteTopic="handleTopicDelete"
+          @onSubError="handleSubTopicError"
         />
         <MessageList
           ref="msgList"
@@ -579,13 +580,7 @@ export default class ConnectionsDetail extends Vue {
     } catch (error) {
       const err = error as Error
       this.connectLoading = false
-      this.$notify({
-        title: err.toString(),
-        message: '',
-        type: 'error',
-        duration: 4000,
-        offset: 30,
-      })
+      this.notifyErrorWithCopilot(err.toString())
     }
   }
 
@@ -928,6 +923,12 @@ export default class ConnectionsDetail extends Vue {
     this.handleMessages()
   }
 
+  private handleSubTopicError(errMsg: string, info?: string) {
+    this.notifyErrorWithCopilot(errMsg, info, () => {
+      this.subListRef.showDialog = false
+    })
+  }
+
   private handleSearchOpen() {
     this.searchVisible = true
     const $el = document.getElementById('searchTopic')
@@ -1015,13 +1016,7 @@ export default class ConnectionsDetail extends Vue {
     this.client.end!(true)
     this.retryTimes = 0
     this.connectLoading = false
-    this.$notify({
-      title: msgTitle,
-      message: '',
-      type: 'error',
-      duration: 4000,
-      offset: 30,
-    })
+    this.notifyErrorWithCopilot(msgTitle)
     this.$log.error(`${this.record.name} connect fail, MQTT.js onError trigger, ${error.stack}`)
     this.$emit('reload')
   }
@@ -1776,6 +1771,44 @@ export default class ConnectionsDetail extends Vue {
         client.removeAllListeners('message')
       }
     })
+  }
+
+  /**
+   * Notifies the user with an error message using the Copilot feature.
+   *
+   * @param {string} msgTitle - The title of the error message.
+   */
+  private notifyErrorWithCopilot(msgTitle: string, promptInfo?: string, callback?: () => void) {
+    const notify = this.$notify({
+      title: msgTitle,
+      dangerouslyUseHTMLString: true,
+      message: '<button id="notify-copilot-button">Ask Copilot</button>',
+      type: 'error',
+      duration: 0,
+      offset: 30,
+    })
+
+    this.$nextTick(() => {
+      const button = document.getElementById('notify-copilot-button')
+      if (button) {
+        button.addEventListener('click', () => {
+          const sendMsg = promptInfo ? `${promptInfo}\n${msgTitle}` : msgTitle
+          this.askCopilot(`${this.$tc('common.promptError')}\`\`\`${sendMsg}\`\`\``)
+          notify.close()
+          callback?.()
+        })
+      }
+    })
+  }
+
+  /**
+   * Asks Copilot a question and shows the Copilot component.
+   * @param askMsg The question to ask Copilot.
+   */
+  private askCopilot(askMsg: string) {
+    const copilotRef: Copilot = this.$refs.copilot as Copilot
+    copilotRef.showCopilot = true
+    copilotRef.sendMessage(askMsg)
   }
 
   private created() {

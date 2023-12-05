@@ -140,3 +140,16 @@ textarea {
   padding: 16px 0;
   -webkit-app-region: drag;
 }
+
+#notify-copilot-button {
+  margin: 12px 0 4px 0;
+  height: 32px;
+  line-height: 32px;
+  font-size: 13px;
+  background-color: transparent;
+  border: 1px solid var(--color-main-green);
+  color: var(--color-main-green);
+  border-radius: 4px;
+  padding: 0 24px;
+  cursor: pointer;
+}

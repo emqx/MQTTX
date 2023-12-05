@@ -238,7 +238,7 @@ export default class SubscriptionsList extends Vue {
   private client: Partial<MqttClient> = {
     connected: false,
   }
-  private showDialog: boolean = false
+  public showDialog: boolean = false
   private subRecord: SubscriptionModel = {
     id: getSubscriptionId(),
     topic: 'testtopic/#',
@@ -444,7 +444,7 @@ export default class SubscriptionsList extends Vue {
       this.client.subscribe(topicsArr, { qos, nl, rap, rh, properties }, async (error, granted) => {
         this.subLoading = false
         if (error) {
-          this.$message.error(error)
+          this.$emit('onSubError', error.toString(), `Topics: ${JSON.stringify(topicsArr)}`)
           this.$log.error(`Topic: subscribe error, ${error} `)
           return false
         }
@@ -462,7 +462,7 @@ export default class SubscriptionsList extends Vue {
           const errorReasonMsg: VueI18n.TranslateResult = this.getErrorReasonMsg(errorReason)
           const errorMsg: string = `${this.$t('connections.subFailed')} ${errorReasonMsg}`
           this.$log.error(`Topic: subscribe error, ${errorReasonMsg} `)
-          this.$message.error(errorMsg)
+          this.$emit('onSubError', errorMsg, `Topics: ${JSON.stringify(topicsArr)}`)
           return false
         }
         if (enable) {
@@ -532,7 +532,7 @@ export default class SubscriptionsList extends Vue {
         this.client.unsubscribe(topic, { qos }, async (error) => {
           this.unsubLoading = false
           if (error) {
-            this.$message.error(error)
+            this.$emit('onSubError', error.toString(), `Topic: ${topic}`)
             resolve(false)
             return false
           }

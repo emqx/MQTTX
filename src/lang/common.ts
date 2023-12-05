@@ -307,4 +307,11 @@ export default {
     ja: '設定',
     hu: 'Beállítások',
   },
+  promptError: {
+    zh: '请帮助解析并解决以下错误：',
+    en: 'Please help to analyze and resolve the following error: ',
+    tr: 'Lütfen aşağıdaki hata mesajını analiz etmeye ve çözmeye yardımcı olun: ',
+    ja: '以下のエラーメッセージを分析し、解決してください：',
+    hu: 'Kérjük, segítsen elemezni és megoldani az alábbi hibaüzenetet: ',
+  },
 }
