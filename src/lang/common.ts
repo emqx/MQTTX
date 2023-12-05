@@ -273,11 +273,11 @@ export default {
     hu: 'Gondolkodom...',
   },
   welcomeToCopilot: {
-    zh: '您好，欢迎使用 MQTTX Copilot',
-    en: 'Hello! Welcome to MQTTX Copilot',
-    tr: "Merhaba! MQTTX Copilot'a hoş geldiniz",
-    ja: 'こんにちは！MQTTX Copilotへようこそ',
-    hu: 'Szia! Üdvözöljük a MQTTX Copilotban',
+    zh: '您好！我是 MQTTX Copilot 🤖，一个专门设计来帮助解答 MQTT 相关问题，提供常见问题的解决方案，并提供最佳实践见解的 AI 助手。今天我能如何帮助您？',
+    en: 'Hello! I am MQTTX Copilot 🤖, an AI assistant designed to help with MQTT-related queries, provide solutions for common issues, and offer insights on best practices. How can I assist you today?',
+    tr: 'Merhaba! Ben MQTTX Copilot 🤖, MQTT ile ilgili sorgulara yardımcı olmak, yaygın sorunlar için çözümler sağlamak ve en iyi uygulamalar hakkında bilgi vermek üzere tasarlanmış bir AI asistanıyım. Bugün size nasıl yardımcı olabilirim?',
+    ja: 'こんにちは！私は MQTTX Copilot 🤖、MQTT 関連の問い合わせを支援し、一般的な問題の解決策を提供し、ベストプラクティスについての洞察を提供するために設計された AI アシスタントです。今日は何でお手伝いでしょうか？',
+    hu: 'Szia! Én vagyok az MQTTX Copilot 🤖, egy AI asszisztens, amelyet az MQTT-vel kapcsolatos kérdések megválaszolására, a gyakori problémák megoldására és a legjobb gyakorlatok bemutatására terveztek. Hogyan segíthetek ma?',
   },
   copiltePubMsgPlacehoder: {
     zh: '向 MQTTX Copilot 发送消息...',

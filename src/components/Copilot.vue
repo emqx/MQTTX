@@ -58,7 +58,7 @@ export default class Copilot extends Vue {
   @Prop({ required: true }) public mode!: 'connections' | 'scripts' | 'help'
 
   private showCopilot = false
-  private messages: CopilotMessage[] = [{ role: 'assistant', content: `${this.$tc('common.welcomeToCopilot')} 🤖` }]
+  private messages: CopilotMessage[] = []
   private systemMessages: CopilotMessage[] = [
     {
       role: 'system',
@@ -107,8 +107,6 @@ export default class Copilot extends Vue {
       ...this.messages.slice(-20).map((message) => ({ role: message.role, content: message.content })),
     ]
 
-    console.log(userMessages)
-
     this.currentPublishMsg = ''
 
     try {
@@ -143,6 +141,14 @@ export default class Copilot extends Vue {
       this.isSending = false
       this.scrollToBottom()
     }
+  }
+
+  private loadMessages() {
+    this.messages.unshift({ role: 'assistant', content: this.$tc('common.welcomeToCopilot') })
+  }
+
+  private created() {
+    this.loadMessages()
   }
 }
 </script>
