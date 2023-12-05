@@ -34,6 +34,8 @@ const getShowSubscriptions = (): boolean => {
 
 const settingData = remote.getGlobal('sharedData')
 
+console.log(settingData)
+
 const app = {
   state: {
     currentTheme: settingData.currentTheme || 'light',
