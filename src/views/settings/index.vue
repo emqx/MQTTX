@@ -264,6 +264,8 @@
             v-model="aiConfig.openAIAPIKey"
             placeholder="sk-*******"
             type="password"
+            clearable
+            @clear="handleAIConfigChanged('apiKey')"
             @blur="handleAIConfigChanged('apiKey')"
           ></el-input>
         </el-col>
@@ -410,8 +412,11 @@ export default class Settings extends Vue {
 
   private handleAIConfigChanged(action: 'apiKey' | 'model') {
     if (action === 'apiKey') {
-      const encryptedKey = CryptoJS.AES.encrypt(this.aiConfig.openAIAPIKey.trim(), ENCRYPT_KEY).toString()
-      this.actionSetOpenAIAPIKey({ openAIAPIKey: encryptedKey })
+      let saveKey = ''
+      if (this.aiConfig.openAIAPIKey !== '') {
+        saveKey = CryptoJS.AES.encrypt(this.aiConfig.openAIAPIKey.trim(), ENCRYPT_KEY).toString()
+      }
+      this.actionSetOpenAIAPIKey({ openAIAPIKey: saveKey })
     } else if (action === 'model') {
       this.actionSetModel({ model: this.aiConfig.model })
     }

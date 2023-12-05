@@ -63,7 +63,7 @@ export default class Copilot extends Vue {
   @Getter('openAIAPIKey') private openAIAPIKey!: string
   @Getter('model') private model!: AIModel
 
-  private showCopilot = false
+  public showCopilot = false
   private messages: CopilotMessage[] = []
   private systemMessages: CopilotMessage[] = [
     {
@@ -99,7 +99,7 @@ export default class Copilot extends Vue {
     this.showCopilot = !this.showCopilot
   }
 
-  private async sendMessage(msg?: string) {
+  public async sendMessage(msg?: string) {
     if (!this.openAIAPIKey) {
       this.$confirm(this.$tc('common.copilotAPIKeyRequired'), this.$tc('common.warning'), {
         type: 'warning',
@@ -115,8 +115,8 @@ export default class Copilot extends Vue {
       return
     }
 
-    const content = msg || this.currentPublishMsg
-    if (!content.trim()) return
+    const content = (msg || this.currentPublishMsg).replace(/\s+/g, ' ').trim()
+    if (!content) return
 
     this.isSending = true
     this.scrollToBottom()
@@ -128,7 +128,6 @@ export default class Copilot extends Vue {
     ]
 
     this.currentPublishMsg = ''
-
     const bytes = CryptoJS.AES.decrypt(this.openAIAPIKey, ENCRYPT_KEY)
     const decryptedKey = bytes.toString(CryptoJS.enc.Utf8)
     try {
