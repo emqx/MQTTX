@@ -38,6 +38,7 @@ import { supportSchemas1688042450818 } from './migration/1688042450818-supportSc
 import { saveScriptName1688449795669 } from './migration/1688449795669-saveScriptName'
 import { jsonHighlight1691071794840 } from './migration/1691071794840-jsonHighlight'
 import { ALPNProtocols1691817588169 } from './migration/1691817588169-ALPNProtocols'
+import { aiSettings1701761407723 } from './migration/1701761407723-aiSettings'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -83,6 +84,7 @@ const ORMConfig = {
     saveScriptName1688449795669,
     jsonHighlight1691071794840,
     ALPNProtocols1691817588169,
+    aiSettings1701761407723,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [

@@ -21,6 +21,8 @@ const SET_CURRENT_CONNECTION_ID = 'SET_CURRENT_CONNECTION_ID'
 const TOGGLE_SYNC_OS_THEME = 'TOGGLE_SYNC_OS_THEME'
 const TOGGLE_MULTI_TOPICS = 'TOGGLE_MULTI_TOPICS'
 const TOGGLE_JSON_HIGHLIGHT = 'TOGGLE_JSON_HIGHLIGHT'
+const SET_OPEN_AI_API_KEY = 'SET_OPEN_AI_API_KEY'
+const SET_MODEL = 'SET_MODEL'
 
 const getShowSubscriptions = (): boolean => {
   const $showSubscriptions: string | null = localStorage.getItem('showSubscriptions')
@@ -51,6 +53,8 @@ const app = {
     willMessageVisible: true,
     currentScript: null,
     currentConnectionId: null,
+    openAIAPIKey: settingData.openAIAPIKey || '',
+    model: settingData.model || 'gpt-3.5-turbo',
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -134,6 +138,12 @@ const app = {
     [SET_CURRENT_CONNECTION_ID](state: App, currentConnectionId: string) {
       state.currentConnectionId = currentConnectionId
     },
+    [SET_OPEN_AI_API_KEY](state: App, openAIAPIKey: string) {
+      state.openAIAPIKey = openAIAPIKey
+    },
+    [SET_MODEL](state: App, model: AIModel) {
+      state.model = model
+    },
   },
   actions: {
     async TOGGLE_THEME({ commit }: any, payload: App) {
@@ -216,6 +226,18 @@ const app = {
     },
     async SET_CURRENT_CONNECTION_ID({ commit }: any, currentConnectionId: string) {
       commit(SET_CURRENT_CONNECTION_ID, currentConnectionId)
+    },
+    async SET_OPEN_AI_API_KEY({ commit }: any, payload: App) {
+      const { settingService } = useServices()
+      commit(SET_OPEN_AI_API_KEY, payload.openAIAPIKey)
+      settingData.openAIAPIKey = payload.openAIAPIKey
+      await settingService.update(payload)
+    },
+    async SET_MODEL({ commit }: any, payload: App) {
+      const { settingService } = useServices()
+      commit(SET_MODEL, payload.model)
+      settingData.model = payload.model
+      await settingService.update(payload)
     },
   },
 }

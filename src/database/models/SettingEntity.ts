@@ -34,4 +34,10 @@ export default class SettingEntity {
 
   @Column({ type: 'boolean', default: true })
   jsonHighlight!: boolean
+
+  @Column({ type: 'varchar', default: '' })
+  openAIAPIKey!: string
+
+  @Column({ type: 'varchar', default: 'gpt-3.5-turbo' })
+  model!: string
 }

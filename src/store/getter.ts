@@ -16,6 +16,8 @@ const getters = {
   currentScript: (state: State) => state.app.currentScript,
   multiTopics: (state: State) => state.app.multiTopics,
   jsonHighlight: (state: State) => state.app.jsonHighlight,
+  openAIAPIKey: (state: State) => state.app.openAIAPIKey,
+  model: (state: State) => state.app.model,
 }
 
 export default getters

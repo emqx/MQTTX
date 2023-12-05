@@ -123,6 +123,8 @@ async function createWindow() {
       syncOsTheme: setting.syncOsTheme,
       multiTopics: setting.multiTopics,
       jsonHighlight: setting.jsonHighlight,
+      apiKey: setting.openAIAPIKey,
+      model: setting.model,
     }
   }
   // Create the browser window.
