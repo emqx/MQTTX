@@ -1784,7 +1784,7 @@ export default class ConnectionsDetail extends Vue {
       dangerouslyUseHTMLString: true,
       message: '<button id="notify-copilot-button">Ask Copilot</button>',
       type: 'error',
-      duration: 0,
+      duration: 4000,
       offset: 30,
     })
 
