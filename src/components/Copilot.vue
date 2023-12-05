@@ -131,8 +131,6 @@ export default class Copilot extends Vue {
 
     const bytes = CryptoJS.AES.decrypt(this.openAIAPIKey, ENCRYPT_KEY)
     const decryptedKey = bytes.toString(CryptoJS.enc.Utf8)
-    console.log('this.openAIAPIKey --->', this.openAIAPIKey)
-    console.log('decryptedKey --->', decryptedKey)
     try {
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',

@@ -419,7 +419,6 @@ export default class Settings extends Vue {
 
   private getAIConfigs() {
     this.aiConfig.model = this.model
-    console.log('this.openAIAPIKey: ', this.openAIAPIKey)
     this.aiConfig.openAIAPIKey = this.openAIAPIKey
   }
 
