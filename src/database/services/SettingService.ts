@@ -6,6 +6,7 @@ import { Repository } from 'typeorm'
 @Service()
 export default class SettingService {
   constructor(
+    // @ts-ignore
     @InjectRepository(SettingEntity)
     private settingRepository: Repository<SettingEntity>,
   ) {}

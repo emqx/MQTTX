@@ -369,10 +369,12 @@ declare global {
     fileContent: string
   }
 
-  //  ['system', 'assistant', 'user', 'function']
+  type CopilotRole = 'user' | 'system' | 'assistant' | 'function'
   interface CopilotMessage {
-    role: 'user' | 'system' | 'assistant' | 'function'
+    id: string
+    role: CopilotRole
     content: string
+    createAt?: string
   }
 
   type AIModel =
