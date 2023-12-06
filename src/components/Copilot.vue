@@ -93,8 +93,8 @@ export default class Copilot extends Vue {
   }
 
   @Watch('showCopilot')
-  private handleShowCopilotChange() {
-    if (this.showCopilot) {
+  private handleShowCopilotChange(newValue: boolean, oldValue: boolean) {
+    if (newValue === true && oldValue === false && this.isSending === false) {
       this.loadMessages({ reset: true })
     }
   }
@@ -139,11 +139,11 @@ export default class Copilot extends Vue {
     if (!content) return
 
     this.isSending = true
-    this.scrollToBottom()
     const { copilotService } = useServices()
     const requestMessage: CopilotMessage = { id: getCopilotMessageId(), role: 'user', content }
-    this.messages.push(requestMessage)
     await copilotService.create(requestMessage)
+    this.messages.push(requestMessage)
+    this.scrollToBottom()
 
     const userMessages = [
       ...this.systemMessages.map(({ role, content }) => ({ role, content })),
@@ -177,14 +177,14 @@ export default class Copilot extends Vue {
       if (response.data.choices && response.data.choices.length > 0) {
         const { message } = response.data.choices[0]
         Object.assign(responseMessage, message)
-        this.$nextTick(() => {
-          Prism.highlightAll()
-        })
       } else {
         responseMessage.content = 'No response'
       }
       this.messages.push(responseMessage)
       await copilotService.create(responseMessage)
+      this.$nextTick(() => {
+        Prism.highlightAll()
+      })
     } catch (error) {
       const err = error as unknown as Error
       this.$message.error(`API Error: ${String(err)}`)
@@ -237,6 +237,10 @@ export default class Copilot extends Vue {
       seen.add(message.id)
       return !duplicate
     })
+  }
+
+  private created() {
+    this.loadMessages({ reset: true })
   }
 
   private async mounted() {
