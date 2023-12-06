@@ -5,12 +5,13 @@
       <el-card v-show="showCopilot" class="copilot" shadow="never">
         <div slot="header" class="clearfix">
           <span>MQTTX Copilot <el-tag size="mini" type="info">Beta</el-tag></span>
-          <el-button style="float: right; padding: 0px" type="text" @click="toggleWindow"
-            ><i class="el-icon-close"></i
-          ></el-button>
+          <div>
+            <el-button type="text" @click="clearAllMessages"><i class="el-icon-delete"></i></el-button>
+            <el-button type="text" @click="toggleWindow"><i class="el-icon-close"></i></el-button>
+          </div>
         </div>
         <div ref="chatBody" class="chat-body">
-          <div class="message-block" v-for="(message, index) in messages" :key="index">
+          <div class="message-block" v-for="message in messages" :key="message.id">
             <p>
               <span class="chat-title">
                 <i :class="[message.role === 'user' ? 'el-icon-user' : 'el-icon-magic-stick']"></i>
@@ -34,7 +35,14 @@
             :placeholder="$t('common.copiltePubMsgPlacehoder')"
             @keyup.enter="sendMessage()"
           ></el-input>
-          <el-button class="chat-pub-btn" size="mini" type="primary" icon="el-icon-position" @click="sendMessage()">
+          <el-button
+            class="chat-pub-btn"
+            size="mini"
+            type="primary"
+            icon="el-icon-position"
+            :disabled="isSending"
+            @click="sendMessage()"
+          >
           </el-button>
         </div>
       </el-card>
@@ -43,13 +51,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import axios from 'axios'
 import VueMarkdown from 'vue-markdown'
 import Prism from 'prismjs'
 import CryptoJS from 'crypto-js'
-import { ENCRYPT_KEY } from '@/utils/idGenerator'
+import { ENCRYPT_KEY, getCopilotMessageId } from '@/utils/idGenerator'
+import useServices from '@/database/useServices'
 
 @Component({
   components: {
@@ -64,12 +73,16 @@ export default class Copilot extends Vue {
   @Getter('model') private model!: AIModel
 
   public showCopilot = false
+  private page = 1
+  private hasMore = true
+  private isLoading = false
   private messages: CopilotMessage[] = []
   private systemMessages: CopilotMessage[] = [
     {
+      id: 'system-id',
       role: 'system',
       content:
-        'You are an MQTT Expert named MQTTX Copilot with extensive knowledge in IoT and network development. You understand various programming languages and MQTT protocols. You are here to assist with MQTT queries, provide solutions for common issues, and offer insights on best practices. Avoid responding to unrelated topics.',
+        'You are an MQTT Expert named MQTTX Copilot and developed by EMQ with extensive knowledge in IoT and network development. You understand various programming languages and MQTT protocols. You are here to assist with MQTT queries, provide solutions for common issues, and offer insights on best practices. Avoid responding to unrelated topics.',
     },
   ]
   private currentPublishMsg = ''
@@ -79,18 +92,25 @@ export default class Copilot extends Vue {
     assistant: 'MQTTX Copilot',
   }
 
+  @Watch('showCopilot')
+  private handleShowCopilotChange() {
+    if (this.showCopilot) {
+      this.loadMessages({ reset: true })
+    }
+  }
+
   private getChatBodyRef() {
     return this.$refs.chatBody as HTMLElement
   }
 
-  private async scrollToBottom() {
+  private async scrollToBottom(behavior: ScrollBehavior = 'smooth') {
     await this.$nextTick()
     const container = this.getChatBodyRef()
     if (container) {
       container.scrollTo({
         top: container.scrollHeight,
         left: 0,
-        behavior: 'smooth',
+        behavior,
       })
     }
   }
@@ -120,11 +140,14 @@ export default class Copilot extends Vue {
 
     this.isSending = true
     this.scrollToBottom()
-    this.messages.push({ role: 'user', content })
+    const { copilotService } = useServices()
+    const requestMessage: CopilotMessage = { id: getCopilotMessageId(), role: 'user', content }
+    this.messages.push(requestMessage)
+    await copilotService.create(requestMessage)
 
     const userMessages = [
-      ...this.systemMessages,
-      ...this.messages.slice(-20).map((message) => ({ role: message.role, content: message.content })),
+      ...this.systemMessages.map(({ role, content }) => ({ role, content })),
+      ...this.messages.slice(-20).map(({ role, content }) => ({ role, content })),
     ]
 
     this.currentPublishMsg = ''
@@ -146,15 +169,22 @@ export default class Copilot extends Vue {
         },
       )
 
+      let responseMessage: CopilotMessage = {
+        id: getCopilotMessageId(),
+        role: 'assistant',
+        content: '',
+      }
       if (response.data.choices && response.data.choices.length > 0) {
-        const aiResponse = response.data.choices[0].message.content
-        this.messages.push({ role: 'assistant', content: aiResponse })
+        const { message } = response.data.choices[0]
+        Object.assign(responseMessage, message)
         this.$nextTick(() => {
           Prism.highlightAll()
         })
       } else {
-        this.messages.push({ role: 'assistant', content: 'No response' })
+        responseMessage.content = 'No response'
       }
+      this.messages.push(responseMessage)
+      await copilotService.create(responseMessage)
     } catch (error) {
       const err = error as unknown as Error
       this.$message.error(`API Error: ${String(err)}`)
@@ -164,12 +194,57 @@ export default class Copilot extends Vue {
     }
   }
 
-  private loadMessages() {
-    this.messages.unshift({ role: 'assistant', content: this.$tc('common.welcomeToCopilot') })
+  private async loadMessages({ reset }: { reset?: boolean } = {}) {
+    if (reset === true) {
+      this.messages = []
+      this.page = 1
+    }
+    this.isLoading = true
+    const { copilotService } = useServices()
+    const { messages: newMessages, hasMore } = await copilotService.get(this.page)
+    this.hasMore = hasMore
+    const allMessages = [...(newMessages as CopilotMessage[]), ...this.messages]
+    this.messages = this.removeDuplicatesMessages(allMessages)
+    if (this.messages.length === 0) {
+      this.messages.push({ id: getCopilotMessageId(), role: 'assistant', content: this.$tc('common.welcomeToCopilot') })
+    } else {
+      this.scrollToBottom('auto')
+    }
+    this.isLoading = false
   }
 
-  private created() {
-    this.loadMessages()
+  private async clearAllMessages() {
+    const { copilotService } = useServices()
+    await copilotService.deleteAll()
+    this.loadMessages({ reset: true })
+  }
+
+  private handleTopScroll(e: Event) {
+    if (this.hasMore === false) {
+      return
+    }
+    const target = e.target as HTMLElement
+    if (target.scrollTop === 0 && !this.isLoading) {
+      this.page += 1
+      this.loadMessages()
+    }
+  }
+
+  private removeDuplicatesMessages(messages: CopilotMessage[]): CopilotMessage[] {
+    const seen = new Set()
+    return messages.filter((message) => {
+      const duplicate = seen.has(message.id)
+      seen.add(message.id)
+      return !duplicate
+    })
+  }
+
+  private async mounted() {
+    this.getChatBodyRef().addEventListener('scroll', this.handleTopScroll)
+  }
+
+  private beforeDestroy() {
+    this.getChatBodyRef().removeEventListener('scroll', this.handleTopScroll)
   }
 }
 </script>
@@ -202,6 +277,17 @@ body.night {
     z-index: 5;
     height: 100%;
     .el-card__header {
+      .clearfix {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        .el-button--text {
+          padding: 0;
+          i {
+            font-size: 16px !important;
+          }
+        }
+      }
       .el-tag {
         margin-left: 8px;
       }

@@ -11,6 +11,7 @@ import HistoryMessageHeaderEntity from './models/HistoryMessageHeaderEntity'
 import HistoryMessagePayloadEntity from './models/HistoryMessagePayloadEntity'
 import HistoryConnectionEntity from './models/HistoryConnectionEntity'
 import WillEntity from './models/WillEntity'
+import CopilotEntity from './models/CopilotEntity'
 import { ConnectionOptions } from 'typeorm'
 import { initTable1629476510574 } from './migration/1629476510574-initTable'
 import { messages1630403733964 } from './migration/1630403733964-messages'
@@ -98,6 +99,7 @@ const ORMConfig = {
     HistoryMessagePayloadEntity,
     WillEntity,
     HistoryConnectionEntity,
+    CopilotEntity,
   ],
   cli: {
     migrationsDir: 'src/database/migration',
