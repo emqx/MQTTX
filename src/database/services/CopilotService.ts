@@ -17,7 +17,7 @@ export default class CopilotService {
   }
 
   public async get(page: number = 1) {
-    const count = 6
+    const count = 20
     const messages = await this.conversationRepository.find({
       skip: (page - 1) * count,
       take: count,
