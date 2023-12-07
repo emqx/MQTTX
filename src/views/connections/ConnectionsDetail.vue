@@ -396,7 +396,7 @@ export default class ConnectionsDetail extends Vue {
 
   private connectLoading = false
   private disconnectLoding = false
-  private isReconnect = false
+  private isReconnecting = false
   private searchVisible = false
   private searchLoading = false
   private showBytes = false
@@ -427,7 +427,7 @@ export default class ConnectionsDetail extends Vue {
     payload: '',
   }
 
-  private retryTimes = 0
+  private reTryConnectTimes = 0
   private inputHeight = 180
   private msgBottom = 166
   private messageListHeight: number = 284
@@ -549,7 +549,7 @@ export default class ConnectionsDetail extends Vue {
 
   // Connect
   public async connect(): Promise<boolean | void> {
-    this.isReconnect = false
+    this.isReconnecting = false
     if (this.client.connected || this.connectLoading) {
       return false
     }
@@ -788,6 +788,9 @@ export default class ConnectionsDetail extends Vue {
 
   // Route to edit page
   private handleEdit(id: string): boolean | void {
+    if (this.isReconnecting) {
+      this.forceCloseTheConnection()
+    }
     if (this.client.connected || this.connectLoading) {
       return false
     }
@@ -954,9 +957,7 @@ export default class ConnectionsDetail extends Vue {
 
   // Cancel connect
   private cancel() {
-    this.connectLoading = false
-    this.client.end!(true)
-    this.retryTimes = 0
+    this.forceCloseTheConnection()
     this.$log.info(`MQTTX client connection cancel, Name: ${this.record.name}`)
   }
 
@@ -969,7 +970,7 @@ export default class ConnectionsDetail extends Vue {
     this.disconnectLoding = true
     this.client.end!(false, () => {
       this.disconnectLoding = false
-      this.retryTimes = 0
+      this.reTryConnectTimes = 0
 
       this.changeActiveConnection({
         id: this.curConnectionId,
@@ -1016,9 +1017,7 @@ export default class ConnectionsDetail extends Vue {
     if (error) {
       msgTitle = error.toString()
     }
-    this.client.end!(true)
-    this.retryTimes = 0
-    this.connectLoading = false
+    this.forceCloseTheConnection()
     this.notifyErrorWithCopilot(msgTitle)
     this.$log.error(`${this.record.name} connect fail, MQTT.js onError trigger, ${error.stack}`)
     this.$emit('reload')
@@ -1026,11 +1025,9 @@ export default class ConnectionsDetail extends Vue {
 
   // Reconnect callback
   private onReConnect() {
-    this.isReconnect = true
+    this.isReconnecting = true
     if (!this.record.reconnect) {
-      this.client.end!(true)
-      this.retryTimes = 0
-      this.connectLoading = false
+      this.forceCloseTheConnection()
       this.$notify({
         title: this.$tc('connections.connectFailed'),
         message: '',
@@ -1040,14 +1037,13 @@ export default class ConnectionsDetail extends Vue {
       })
       this.$emit('reload')
     } else {
-      if (this.retryTimes > this.maxReconnectTimes) {
+      if (this.reTryConnectTimes > this.maxReconnectTimes) {
         this.$log.warn('Connection maxReconnectTimes limit, stop retry')
-        this.client.end!(true)
-        this.retryTimes = 0
-        this.connectLoading = false
+        this.forceCloseTheConnection()
       } else {
-        this.$log.info(`${this.record.name} reconnect: ${this.retryTimes} times retry`)
-        this.retryTimes += 1
+        this.isReconnecting = true
+        this.$log.info(`${this.record.name} reconnect: ${this.reTryConnectTimes} times retry`)
+        this.reTryConnectTimes += 1
         this.connectLoading = true
         this.$notify({
           title: this.$tc('connections.reconnect'),
@@ -1064,7 +1060,16 @@ export default class ConnectionsDetail extends Vue {
   private onClose() {
     this.$log.info(`${this.record.name} connect close, MQTT.js onClose trigger`)
     this.connectLoading = false
-    this.isReconnect = false
+  }
+
+  private forceCloseTheConnection() {
+    this.client.end!(true)
+    this.reTryConnectTimes = 0
+    this.connectLoading = false
+    this.isReconnecting = false
+    this.$log.warn(
+      `MQTTX force close the connection ${this.record.name} (clientID ${this.record.clientId}), reset the reconnect times to 0`,
+    )
   }
 
   // Search message
@@ -1840,6 +1845,9 @@ export default class ConnectionsDetail extends Vue {
     window.removeEventListener('resize', () => {
       this.setMessageListHeight()
     })
+    if (this.isReconnecting) {
+      this.forceCloseTheConnection()
+    }
   }
 }
 </script>

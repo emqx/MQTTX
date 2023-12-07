@@ -343,7 +343,7 @@ export default class Copilot extends Vue {
       }
     } catch (err) {
       const error = err as unknown as any
-      if (error.response.data) {
+      if (error.response?.data) {
         this.$message.error(`API Error: ${error.response.data.error.message}`)
       } else {
         this.$message.error(`API Error: ${error}`)
