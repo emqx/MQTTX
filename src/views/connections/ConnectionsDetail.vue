@@ -1,5 +1,6 @@
 <template>
   <div class="connections-detail">
+    <copilot ref="copilot" :record="record" mode="connections" />
     <div ref="connectionTopbar" class="connections-topbar right-topbar">
       <div class="connections-info">
         <div class="topbar">
@@ -86,7 +87,9 @@
                 <i class="iconfont icon-a-stopscrip"></i>
               </a>
             </el-tooltip>
-            <copilot ref="copilot" style="margin-right: 12px" :record="record" mode="connections" />
+            <a href="javascript:;" @click="showCopilotPanel" style="margin-right: 12px"
+              ><i class="el-icon-chat-line-square"></i
+            ></a>
             <template v-if="!isNewWindow">
               <el-tooltip
                 placement="bottom"
@@ -1806,9 +1809,14 @@ export default class ConnectionsDetail extends Vue {
    * @param askMsg The question to ask Copilot.
    */
   private askCopilot(askMsg: string) {
+    const copilotRef = this.showCopilotPanel()
+    copilotRef.sendMessage(askMsg)
+  }
+
+  private showCopilotPanel() {
     const copilotRef: Copilot = this.$refs.copilot as Copilot
     copilotRef.showCopilot = true
-    copilotRef.sendMessage(askMsg)
+    return copilotRef
   }
 
   private created() {
@@ -2000,7 +2008,7 @@ export default class ConnectionsDetail extends Vue {
       bottom: 0;
       left: 0;
       right: 0;
-      z-index: 2;
+      z-index: 3;
     }
   }
 }

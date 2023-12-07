@@ -594,7 +594,6 @@ export default class MsgPublish extends Vue {
     position: absolute;
     transform: translate(0, -100%);
     width: 100%;
-    z-index: 11;
     .el-card.meta-card {
       padding: 10px;
       padding-bottom: 0px;

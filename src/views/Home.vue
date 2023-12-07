@@ -75,7 +75,7 @@ export default class Home extends Vue {
     position: fixed;
     left: 341px;
     right: 0;
-    z-index: 3;
+    z-index: 2;
     background: var(--color-bg-normal);
   }
   .rightbar {
