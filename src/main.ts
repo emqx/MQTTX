@@ -18,6 +18,7 @@ import VueLog4js from './plugins/logPlugin/index'
 import { getOrCreateLogDir } from './utils/logger'
 import logConfig from './plugins/logPlugin/logConfig.json'
 import useConnection, { initOptionModel } from './database/useConnection'
+import VueMarkdown from 'vue-markdown'
 
 const { ConnectionInit } = useConnection()
 // Init typeORM connection before Vue APP start, after this DI services are available.
@@ -36,6 +37,7 @@ ConnectionInit({ doMigrations: false, undoMigrations: false } as initOptionModel
   Vue.use(VueClipboard)
   Vue.use(VueLog4js, config)
   Vue.use(VueRx)
+  Vue.use(VueMarkdown, { prism: require('prismjs/components/prism-core') })
 
   const locale: Language = store.state.app.currentLang
   const vueI18n: VueI18n = new VueI18n({
