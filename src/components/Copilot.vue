@@ -1,6 +1,5 @@
 <template>
   <div class="right-panel">
-    <a @click="toggleWindow" href="javascript:;"><i class="el-icon-chat-line-square"></i></a>
     <transition name="pop">
       <el-card v-show="showCopilot" class="copilot" shadow="never">
         <div slot="header" class="clearfix">
@@ -461,7 +460,9 @@ body.night {
         .el-button--text {
           padding: 0;
           i {
-            font-size: 16px !important;
+            font-size: 16px;
+            color: var(--color-text-title);
+            font-weight: 400;
           }
         }
       }
