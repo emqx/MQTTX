@@ -10,18 +10,28 @@
           </div>
         </div>
         <div ref="chatBody" class="chat-body">
+          <!-- The final messages -->
           <div class="message-block" v-for="message in messages" :key="message.id">
             <p>
               <span class="chat-title">
                 <i :class="[message.role === 'user' ? 'el-icon-user' : 'el-icon-magic-stick']"></i>
                 {{ roleMap[message.role] }}
               </span>
-              <vue-markdown class="chat-content">{{ message.content }}</vue-markdown>
+              <vue-markdown class="chat-content" :source="message.content" />
             </p>
             <el-divider></el-divider>
           </div>
           <div v-if="isSending" class="thinking">
             <span class="chat-title"><i class="el-icon-loading"></i>{{ $t('common.thinking') }}</span>
+          </div>
+          <!-- Only Show the response stream text -->
+          <div v-if="responseStreamText">
+            <span class="chat-title">
+              <i class="el-icon-magic-stick"></i>
+              <span>MQTTX Copilot</span>
+            </span>
+            <vue-markdown class="chat-content" :source="responseStreamText" />
+            <el-divider></el-divider>
           </div>
         </div>
         <div class="footer" v-click-outside="handleClickPresetOutside">
@@ -44,7 +54,7 @@
             size="mini"
             type="primary"
             icon="el-icon-position"
-            :disabled="isSending"
+            :disabled="isSending || isResponseStream"
             @click="sendMessage()"
           >
           </el-button>
@@ -57,7 +67,6 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
-import axios from 'axios'
 import VueMarkdown from 'vue-markdown'
 import Prism from 'prismjs'
 import CryptoJS from 'crypto-js'
@@ -66,6 +75,8 @@ import useServices from '@/database/useServices'
 import ClickOutside from 'vue-click-outside'
 import VueI18n from 'vue-i18n'
 import PresetPromptSelect from './PresetPromptSelect.vue'
+import { processStream, SYSTEM_PROMPT } from '@/utils/copilot'
+import { throttle } from 'lodash'
 
 @Component({
   components: {
@@ -93,16 +104,17 @@ export default class Copilot extends Vue {
     {
       id: 'system-id',
       role: 'system',
-      content:
-        'You are an MQTT Expert named MQTTX Copilot and developed by EMQ with extensive knowledge in IoT and network development. You understand various programming languages and MQTT protocols. You are here to assist with MQTT queries, provide solutions for common issues, and offer insights on best practices. Avoid responding to unrelated topics.',
+      content: SYSTEM_PROMPT,
     },
   ]
   private currentPublishMsg = ''
   private isSending = false
+  private isResponseStream = false
   private roleMap = {
     user: this.$tc('common.copilteUser'),
     assistant: 'MQTTX Copilot',
   }
+  private responseStreamText = ''
 
   private currPresetPrompt = ''
 
@@ -114,6 +126,7 @@ export default class Copilot extends Vue {
     this.$nextTick(() => {
       setTimeout(() => {
         Prism.highlightAll()
+        this.scrollToBottom()
       }, 100)
     })
   }
@@ -140,35 +153,33 @@ export default class Copilot extends Vue {
 
   public async sendMessage(msg?: string) {
     if (!this.openAIAPIKey) {
-      this.$confirm(this.$tc('common.copilotAPIKeyRequired'), this.$tc('common.warning'), {
-        type: 'warning',
-        confirmButtonText: this.$tc('common.goToSetting'),
-      })
-        .then(() => {
-          this.$router.push({ name: 'Settings' })
+      try {
+        await this.$confirm(this.$tc('common.copilotAPIKeyRequired'), this.$tc('common.warning'), {
+          type: 'warning',
+          confirmButtonText: this.$tc('common.goToSetting'),
         })
-        .catch(() => {
-          // The user canceled the action
-        })
-
+        this.$router.push({ name: 'Settings' })
+      } catch (error) {
+        // The user canceled the action
+      }
       return
     }
 
     const content = (msg || this.currentPublishMsg).replace(/\s+/g, ' ').trim()
     if (!content) return
 
-    this.isSending = true
     const { copilotService } = useServices()
     const requestMessage: CopilotMessage = { id: getCopilotMessageId(), role: 'user', content }
     await copilotService.create(requestMessage)
     this.messages.push(requestMessage)
     this.scrollToBottom()
+    this.isSending = true
 
     const userMessages = [
       ...this.systemMessages.map(({ role, content }) => ({ role, content })),
       ...this.messages.slice(-20).map(({ role, content }) => {
         if (content.includes('@connection')) {
-          return { role, content: content.replace('@connection', JSON.stringify(this.record)) }
+          content = content.replace('@connection', JSON.stringify(this.record))
         }
         return { role, content }
       }),
@@ -177,50 +188,73 @@ export default class Copilot extends Vue {
     this.currentPublishMsg = ''
     const bytes = CryptoJS.AES.decrypt(this.openAIAPIKey, ENCRYPT_KEY)
     const decryptedKey = bytes.toString(CryptoJS.enc.Utf8)
-    try {
-      const response = await axios.post(
-        'https://api.openai.com/v1/chat/completions',
-        {
-          model: this.model,
-          temperature: 1.0,
-          messages: userMessages,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${decryptedKey}`,
-          },
-        },
-      )
 
-      let responseMessage: CopilotMessage = {
+    try {
+      // Response message
+      const responseMessage = {
         id: getCopilotMessageId(),
         role: 'assistant',
         content: '',
-      }
-      if (response.data.choices && response.data.choices.length > 0) {
-        const { message } = response.data.choices[0]
-        Object.assign(responseMessage, message)
-      } else {
-        responseMessage.content = 'No response'
-      }
-      this.messages.push(responseMessage)
-      await copilotService.create(responseMessage)
-      this.$nextTick(() => {
-        Prism.highlightAll()
+      } as CopilotMessage
+      this.responseStreamText = ''
+
+      // Send request to OpenAI
+      const requestData = JSON.stringify({
+        model: this.model,
+        temperature: 1.0,
+        messages: userMessages,
+        stream: true,
       })
-      if (this.currPresetPrompt === 'autoFillPayload') {
-        this.$emit('autoFillPayload', responseMessage.content)
+      const fetchOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${decryptedKey}`,
+        },
+        body: requestData,
+      }
+
+      this.isResponseStream = true
+      const response = await fetch('https://api.openai.com/v1/chat/completions', fetchOptions)
+      if (response && response.status === 200 && response.ok) {
+        this.isSending = false
+        const throttledScroll = throttle(() => {
+          this.scrollToBottom()
+        }, 500)
+        const done = await processStream(response, (chunkStr) => {
+          this.responseStreamText += chunkStr
+          this.$nextTick(() => {
+            Prism.highlightAll()
+            throttledScroll()
+          })
+        })
+        if (done) {
+          responseMessage.content = this.responseStreamText
+          await copilotService.create(responseMessage)
+          this.messages.push(responseMessage)
+          this.responseStreamText = ''
+          this.$nextTick(() => {
+            Prism.highlightAll()
+          })
+        }
+      } else {
+        const jsonResponse = await response.json()
+        let errorMsg = ''
+        if (jsonResponse && jsonResponse.error) {
+          const { error } = jsonResponse
+          errorMsg = error.message || 'Network Error'
+        } else {
+          errorMsg = response.statusText || 'Network Error'
+        }
+        this.$message.error(`API Error: ${errorMsg}`)
+        this.$log.error(`Copilot API Error: ${errorMsg}`)
       }
     } catch (err) {
       const error = err as unknown as any
-      if (error.response?.data) {
-        this.$message.error(`API Error: ${error.response.data.error.message}`)
-      } else {
-        this.$message.error(`API Error: ${error}`)
-      }
+      console.error(error)
     } finally {
       this.isSending = false
+      this.isResponseStream = false
       this.currPresetPrompt = ''
       this.scrollToBottom()
     }
@@ -246,6 +280,7 @@ export default class Copilot extends Vue {
   }
 
   private async clearAllMessages() {
+    this.responseStreamText = ''
     const { copilotService } = useServices()
     await copilotService.deleteAll()
     this.loadMessages({ reset: true })
