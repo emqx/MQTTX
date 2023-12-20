@@ -103,6 +103,18 @@ export default class PresetPromptSelect extends Vue {
           value: 'mqttProtocol',
           label: this.$tc('common.mqttProtocol'),
         },
+        {
+          value: 'mqtt5',
+          label: this.$tc('common.whatIsMQTT5'),
+        },
+        {
+          value: 'mqttQoS',
+          label: this.$tc('common.mqttQoS'),
+        },
+        {
+          value: 'mqttRetain',
+          label: this.$tc('common.mqttRetain'),
+        },
       ],
     },
     {
@@ -133,6 +145,9 @@ export default class PresetPromptSelect extends Vue {
       erlang: this.$t('common.promptProgrammingLanguage', ['Erlang', '@connection']),
       autoFillPayload: this.$t('common.promptAutoFillPayload'),
       mqttProtocol: this.$t('common.mqttProtocol'),
+      mqtt5: this.$t('common.whatIsMQTT5Desc'),
+      mqttQoS: this.$t('common.mqttQoSDesc'),
+      mqttRetain: this.$t('common.mqttRetainDesc'),
       installEMQX: this.$t('common.installEMQX'),
       emqxRule: this.$t('common.promptEmqxRule'),
       connectionInfo: this.$t('common.promptCurrentConnectionInfo', ['@connection']),
