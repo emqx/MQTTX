@@ -385,4 +385,16 @@ declare global {
     | 'gpt-4-32k'
     | 'gpt-4-0613'
     | 'gpt-4-32k-0613'
+
+  interface AreaLineSeriesData {
+    xData: string[]
+    seriesData: {
+      name: string
+      areaStyle: {
+        colorFrom: string
+        colorTo: string
+      }
+      data: any[]
+    }[]
+  }
 }
