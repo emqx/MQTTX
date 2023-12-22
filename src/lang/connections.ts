@@ -721,17 +721,17 @@ export default {
   },
   bytesReceived: {
     zh: '累计接收流量',
-    en: 'Accumulated received bytes',
-    tr: 'Birikmiş alınan baytlar',
+    en: 'Total Received Bytes',
+    tr: 'Toplam Alınan Baytlar',
     ja: '累積受信バイト数',
-    hu: 'Akkumulált fogadott bájtok',
+    hu: 'Összes Fogadott Bájtok',
   },
   bytesSent: {
     zh: '累计发送流量',
-    en: 'Accumulated sent bytes',
-    tr: 'Birikmiş gönderilen baytlar',
+    en: 'Total Sent Bytes',
+    tr: 'Toplam Gönderilen Baytlar',
     ja: '累積送信バイト数',
-    hu: 'Akkumulált küldött bájtok',
+    hu: 'Összes Küldött Bájtok',
   },
   secureTip: {
     zh: '是否验证服务端证书链和地址名称',
