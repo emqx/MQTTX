@@ -314,6 +314,13 @@ export default {
     ja: '以下のエラーメッセージを分析し、解決してください：',
     hu: 'Kérjük, segítsen elemezni és megoldani az alábbi hibaüzenetet: ',
   },
+  myConnectionInfo: {
+    zh: '有需要的话可以查看这个当前的连接信息：@connection',
+    en: 'If needed, you can check the current connection information: @connection',
+    tr: 'Gerekirse, mevcut bağlantı bilgisini kontrol edebilirsiniz: @connection',
+    ja: '必要な場合は、現在の接続情報を確認できます：@connection',
+    hu: 'Szükség esetén ellenőrizheti a jelenlegi kapcsolati információkat: @connection',
+  },
   promptCodegen: {
     zh: '客户端代码生成',
     en: 'Client Codegen',
