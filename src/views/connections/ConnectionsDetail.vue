@@ -1801,7 +1801,9 @@ export default class ConnectionsDetail extends Vue {
       if (button) {
         button.addEventListener('click', () => {
           const sendMsg = promptInfo ? `${promptInfo}\n${msgTitle}` : msgTitle
-          this.askCopilot(`${this.$tc('common.promptError')}\`\`\`${sendMsg}\`\`\``)
+          this.askCopilot(
+            `${this.$tc('common.promptError')}\n\`\`\`${sendMsg}\`\`\`\n${this.$tc('common.myConnectionInfo')}`,
+          )
           notify.close()
           callback?.()
         })
