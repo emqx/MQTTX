@@ -314,7 +314,8 @@ import useServices from '@/database/useServices'
 import { getMessageId, getSubscriptionId } from '@/utils/idGenerator'
 import getContextmenuPosition from '@/utils/getContextmenuPosition'
 import { deserializeBufferToProtobuf, printObjectAsString, serializeProtobufToBuffer } from '@/utils/protobuf'
-import { jsonParse, jsonStringify } from '@/utils/jsonUtils'
+import { jsonStringify } from '@/utils/jsonUtils'
+
 type CommandType =
   | 'searchContent'
   | 'clearHistory'
