@@ -45,7 +45,7 @@
             class="chat-msg-input"
             v-model="currentPublishMsg"
             :placeholder="$t('common.copiltePubMsgPlacehoder')"
-            @keyup.enter="sendMessage()"
+            @keyup.native.enter="handleEnterKey"
             @focus="showPresetPrompt = true"
             @input="showPresetPrompt = false"
           ></el-input>
@@ -315,6 +315,12 @@ export default class Copilot extends Vue {
 
   private handleClickPresetOutside() {
     this.showPresetPrompt = false
+  }
+
+  private handleEnterKey(event: KeyboardEvent) {
+    if (!event.shiftKey && event.code === 'Enter') {
+      this.sendMessage()
+    }
   }
 
   private created() {
