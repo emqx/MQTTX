@@ -17,7 +17,7 @@
                 <i :class="[message.role === 'user' ? 'el-icon-user' : 'el-icon-magic-stick']"></i>
                 {{ roleMap[message.role] }}
               </span>
-              <vue-markdown class="chat-content" :source="message.content" />
+              <vue-markdown class="chat-content" :source="message.content" :anchor-attributes="{ target: '_blank' }" />
             </p>
             <el-divider></el-divider>
           </div>
