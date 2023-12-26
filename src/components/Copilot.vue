@@ -201,7 +201,7 @@ export default class Copilot extends Vue {
       // Send request to OpenAI
       const requestData = JSON.stringify({
         model: this.model,
-        temperature: 1.0,
+        temperature: 0.8,
         messages: userMessages,
         stream: true,
       })
