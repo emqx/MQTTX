@@ -161,7 +161,7 @@ export default class PresetPromptSelect extends Vue {
 
 <style lang="scss">
 .preset-prompts-select.el-cascader-panel.is-bordered {
-  box-shadow: #0000001a 0px 4px 12px;
+  box-shadow: #00000014 0px 4px 12px;
   background: var(--color-bg-normal);
   position: absolute;
   bottom: 68px;

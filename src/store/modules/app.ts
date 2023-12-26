@@ -23,6 +23,7 @@ const TOGGLE_MULTI_TOPICS = 'TOGGLE_MULTI_TOPICS'
 const TOGGLE_JSON_HIGHLIGHT = 'TOGGLE_JSON_HIGHLIGHT'
 const SET_OPEN_AI_API_KEY = 'SET_OPEN_AI_API_KEY'
 const SET_MODEL = 'SET_MODEL'
+const SET_INSERT_BUTTON_ADDED = 'SET_INSERT_BUTTON_ADDED'
 
 const getShowSubscriptions = (): boolean => {
   const $showSubscriptions: string | null = localStorage.getItem('showSubscriptions')
@@ -55,6 +56,7 @@ const app = {
     currentConnectionId: null,
     openAIAPIKey: settingData.openAIAPIKey || '',
     model: settingData.model || 'gpt-3.5-turbo',
+    isPrismButtonAdded: false,
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -143,6 +145,9 @@ const app = {
     },
     [SET_MODEL](state: App, model: AIModel) {
       state.model = model
+    },
+    [SET_INSERT_BUTTON_ADDED](state: App, isPrismButtonAdded: boolean) {
+      state.isPrismButtonAdded = isPrismButtonAdded
     },
   },
   actions: {
@@ -238,6 +243,9 @@ const app = {
       commit(SET_MODEL, payload.model)
       settingData.model = payload.model
       await settingService.update(payload)
+    },
+    SET_INSERT_BUTTON_ADDED({ commit }: any, payload: App) {
+      commit(SET_INSERT_BUTTON_ADDED, payload.isPrismButtonAdded)
     },
   },
 }

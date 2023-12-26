@@ -18,6 +18,7 @@ const getters = {
   jsonHighlight: (state: State) => state.app.jsonHighlight,
   openAIAPIKey: (state: State) => state.app.openAIAPIKey,
   model: (state: State) => state.app.model,
+  isPrismButtonAdded: (state: State) => state.app.isPrismButtonAdded,
 }
 
 export default getters

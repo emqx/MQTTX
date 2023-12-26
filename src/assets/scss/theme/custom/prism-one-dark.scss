@@ -263,28 +263,73 @@ pre[class*='language-'] {
 
 /* Toolbar plugin overrides */
 /* Space out all buttons and move them away from the right edge of the code block */
-div.code-toolbar > .toolbar.toolbar > .toolbar-item {
-  margin-right: 0.4em;
+/*
+  Global Prism.js toolbar override: This CSS hides toolbar buttons in all code blocks site-wide.
+  Addressing the issue where Prism.js applies toolbar buttons globally without a native removal method 
+  (referenced in https://github.com/PrismJS/prism/issues/459), this ensures a cleaner global appearance 
+  by preventing buttons from showing up where they are not needed or intended.
+*/
+div.code-toolbar {
+  .toolbar {
+    display: none;
+  }
 }
+/*
+  Selective display within #copilot: Within this specific context, the toolbar buttons are explicitly 
+  shown. This creates a controlled environment where the toolbar's enhanced features (like copy and insert 
+  buttons) are available only in the #copilot area. This CSS-based 'namespace' isolation is a practical 
+  solution to selectively enable toolbar functionality in desired areas, avoiding its impact elsewhere.
+*/
+#copilot {
+  div.code-toolbar {
+    position: relative;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background-color: var(--color-main-grey);
+    transition: border-color 0.3s ease-in-out;
+    .toolbar {
+      position: absolute;
+      top: -10px;
+      right: 0;
+      transition: opacity 0.3s ease-in-out;
+      opacity: 0;
+      display: flex;
+    }
+    &:hover {
+      border-color: var(--color-border-default);
+      .toolbar {
+        opacity: 1;
+      }
+    }
+  }
+  div.code-toolbar > .toolbar.toolbar > .toolbar-item {
+    margin-right: 0.4em;
+  }
 
-/* Styling the buttons */
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > button,
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > a,
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > span {
-  background: hsl(220, 13%, 26%);
-  color: hsl(220, 9%, 55%);
-  padding: 0.1em 0.4em;
-  border-radius: 0.3em;
-}
+  /* Styling the buttons */
+  div.code-toolbar > .toolbar.toolbar > .toolbar-item > button,
+  div.code-toolbar > .toolbar.toolbar > .toolbar-item > a,
+  div.code-toolbar > .toolbar.toolbar > .toolbar-item > span {
+    cursor: pointer;
+    font-size: 12px;
+    background-color: var(--color-bg-normal);
+    border: 1px solid var(--color-border-default);
+    color: var(--color-text-default);
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    box-shadow: #00000014 0px 4px 12px;
+  }
 
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > button:hover,
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > button:focus,
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > a:hover,
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > a:focus,
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > span:hover,
-div.code-toolbar > .toolbar.toolbar > .toolbar-item > span:focus {
-  background: hsl(220, 13%, 28%);
-  color: hsl(220, 14%, 71%);
+  div.code-toolbar > .toolbar.toolbar > .toolbar-item > button:hover,
+  div.code-toolbar > .toolbar.toolbar > .toolbar-item > button:focus,
+  div.code-toolbar > .toolbar.toolbar > .toolbar-item > a:hover,
+  div.code-toolbar > .toolbar.toolbar > .toolbar-item > a:focus,
+  div.code-toolbar > .toolbar.toolbar > .toolbar-item > span:hover,
+  div.code-toolbar > .toolbar.toolbar > .toolbar-item > span:focus {
+    border: 1px solid var(--color-main-green);
+    color: var(--color-main-green);
+  }
 }
 
 /* Line Highlight plugin overrides */

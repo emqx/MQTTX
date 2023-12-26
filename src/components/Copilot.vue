@@ -1,7 +1,7 @@
 <template>
   <div class="right-panel">
     <transition name="pop">
-      <el-card v-show="showCopilot" class="copilot" shadow="never">
+      <el-card v-show="showCopilot" id="copilot" class="copilot" shadow="never">
         <div slot="header" class="clearfix">
           <span>MQTTX Copilot <el-tag size="mini" type="info">Beta</el-tag></span>
           <div>
@@ -17,7 +17,17 @@
                 <i :class="[message.role === 'user' ? 'el-icon-user' : 'el-icon-magic-stick']"></i>
                 {{ roleMap[message.role] }}
               </span>
-              <vue-markdown class="chat-content" :source="message.content" :anchor-attributes="{ target: '_blank' }" />
+              <vue-markdown
+                class="chat-content"
+                :data-prismjs-copy="$t('common.copy')"
+                :data-prismjs-copy-error="$t('common.copyFailed')"
+                :data-prismjs-copy-success="$t('common.copied')"
+                :data-prismjs-line-numbers="true"
+                data-download-link
+                data-download-link-label="Download this file"
+                :source="message.content"
+                :anchor-attributes="{ target: '_blank' }"
+              />
             </p>
             <el-divider></el-divider>
           </div>
@@ -66,9 +76,8 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 import VueMarkdown from 'vue-markdown'
-import Prism from 'prismjs'
 import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY, getCopilotMessageId } from '@/utils/idGenerator'
 import useServices from '@/database/useServices'
@@ -77,6 +86,11 @@ import VueI18n from 'vue-i18n'
 import PresetPromptSelect from './PresetPromptSelect.vue'
 import { processStream, SYSTEM_PROMPT } from '@/utils/copilot'
 import { throttle } from 'lodash'
+
+import Prism from 'prismjs'
+import 'prismjs/plugins/toolbar/prism-toolbar.min'
+import 'prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min'
+import { ipcRenderer } from 'electron'
 
 @Component({
   components: {
@@ -90,9 +104,11 @@ import { throttle } from 'lodash'
 export default class Copilot extends Vue {
   @Prop({}) public record?: ConnectionModel
   @Prop({ required: true }) public mode!: 'connections' | 'scripts' | 'help'
+  @Action('SET_INSERT_BUTTON_ADDED') private setisPrismButtonAdded!: (payload: { isPrismButtonAdded: boolean }) => void
 
   @Getter('openAIAPIKey') private openAIAPIKey!: string
   @Getter('model') private model!: AIModel
+  @Getter('isPrismButtonAdded') private isPrismButtonAdded!: boolean
 
   public showCopilot = false
   public showPresetPrompt = false
@@ -125,7 +141,7 @@ export default class Copilot extends Vue {
     }
     this.$nextTick(() => {
       setTimeout(() => {
-        Prism.highlightAll()
+        Prism.highlightAllUnder(this.$refs.chatBody as HTMLElement)
         this.scrollToBottom()
       }, 100)
     })
@@ -224,7 +240,7 @@ export default class Copilot extends Vue {
         const done = await processStream(response, (chunkStr) => {
           this.responseStreamText += chunkStr
           this.$nextTick(() => {
-            Prism.highlightAll()
+            Prism.highlightAllUnder(this.$refs.chatBody as HTMLElement)
             throttledScroll()
           })
         })
@@ -234,7 +250,7 @@ export default class Copilot extends Vue {
           this.messages.push(responseMessage)
           this.responseStreamText = ''
           this.$nextTick(() => {
-            Prism.highlightAll()
+            Prism.highlightAllUnder(this.$refs.chatBody as HTMLElement)
           })
         }
       } else {
@@ -328,12 +344,30 @@ export default class Copilot extends Vue {
     }
   }
 
+  private addInsertButton() {
+    if (this.isPrismButtonAdded) {
+      return
+    }
+    if (!Prism || !Prism.plugins || !Prism.plugins.toolbar) {
+      return
+    }
+    Prism.manual = true
+    Prism.plugins.toolbar.registerButton('insert-button', {
+      text: this.$t('common.insertCodeToEditor'),
+      onClick: ({ code }: { code: string }) => {
+        ipcRenderer.send('insertCodeToEditor', code)
+      },
+    })
+    this.setisPrismButtonAdded({ isPrismButtonAdded: true })
+  }
+
   private created() {
     this.loadMessages({ reset: true })
   }
 
   private async mounted() {
     this.getChatBodyRef().addEventListener('scroll', this.handleTopScroll)
+    this.addInsertButton()
   }
 
   private beforeDestroy() {
