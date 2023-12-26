@@ -295,7 +295,7 @@ export default class MsgPublish extends Vue {
     topic: '',
     payload: JSON.stringify({ msg: 'hello' }, null, 2),
   }
-  private msgRecord: MessageModel = _.cloneDeep(this.defaultMsgRecord)
+  public msgRecord: MessageModel = _.cloneDeep(this.defaultMsgRecord)
   private headerValue: HistoryMessageHeaderModel = {
     qos: this.msgRecord.qos,
     retain: this.msgRecord.retain,
@@ -471,10 +471,6 @@ export default class MsgPublish extends Vue {
     editorRef.editorLayout()
   }
 
-  private beforeDestroy() {
-    ipcRenderer.removeAllListeners('sendPayload')
-  }
-
   private async loadHistoryData(isNewPayload?: boolean, isLoadData?: boolean) {
     const { historyMessageHeaderService, historyMessagePayloadService } = useServices()
     const headersHistory = (await historyMessageHeaderService.getAll()) ?? []
@@ -530,10 +526,6 @@ export default class MsgPublish extends Vue {
     }
   }
 
-  private created() {
-    this.loadData()
-  }
-
   private decrease() {
     this.historyIndex = this.historyIndex - 1 >= 0 ? this.historyIndex - 1 : 0
   }
@@ -575,6 +567,24 @@ export default class MsgPublish extends Vue {
       .catch(() => {
         // The user canceled the action
       })
+  }
+
+  private created() {
+    this.loadData()
+  }
+
+  private mounted() {
+    ipcRenderer.on('insertCodeToEditor', (event: Event, code: string) => {
+      if (code) {
+        this.msgRecord.payload = code
+        this.$emit('onInsertedCode')
+      }
+    })
+  }
+
+  private beforeDestroy() {
+    ipcRenderer.removeAllListeners('sendPayload')
+    ipcRenderer.removeAllListeners('insertCodeToEditor')
   }
 }
 </script>

@@ -89,6 +89,9 @@ function handleIpcMessages() {
       message: 'There are currently no updates available.',
     })
   })
+  ipcMain.on('insertCodeToEditor', (event, ...args) => {
+    event.sender.send('insertCodeToEditor', ...args)
+  })
 }
 
 // handle event when APP quit

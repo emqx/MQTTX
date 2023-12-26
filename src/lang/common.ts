@@ -188,6 +188,13 @@ export default {
     ja: 'コピーが成功しました',
     hu: 'Sikeres másolás',
   },
+  copied: {
+    zh: '已复制',
+    en: 'Copied',
+    tr: 'Kopyalandı',
+    ja: 'コピー済み',
+    hu: 'Másolva',
+  },
   copyFailed: {
     zh: '复制失败',
     en: 'Copy Failed',
@@ -439,5 +446,19 @@ export default {
     tr: 'Açıklayıcı',
     ja: '解説者',
     hu: 'Magyarázó',
+  },
+  insertCodeToEditor: {
+    zh: '插入编辑器',
+    en: 'Insert',
+    tr: 'Ekle',
+    ja: '挿入',
+    hu: 'Beszúrás',
+  },
+  insertCodeSuccess: {
+    zh: '代码已插入编辑器中',
+    en: 'Code has been inserted into the editor',
+    tr: 'Kod editöre eklendi',
+    ja: 'コードがエディタに挿入されました',
+    hu: 'A kód be lett szúrva a szerkesztőbe',
   },
 }

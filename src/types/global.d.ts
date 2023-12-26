@@ -107,6 +107,7 @@ declare global {
     jsonHighlight: boolean
     openAIAPIKey: string
     model: AIModel
+    isPrismButtonAdded: boolean
   }
 
   interface State {

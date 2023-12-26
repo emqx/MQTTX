@@ -87,9 +87,9 @@
                 <i class="iconfont icon-a-stopscrip"></i>
               </a>
             </el-tooltip>
-            <a href="javascript:;" @click="showCopilotPanel" style="margin-right: 12px"
-              ><i class="el-icon-chat-line-square"></i
-            ></a>
+            <a href="javascript:;" @click="toggleShowCopilot" style="margin-right: 12px">
+              <i class="el-icon-chat-line-square"></i>
+            </a>
             <template v-if="!isNewWindow">
               <el-tooltip
                 placement="bottom"
@@ -259,6 +259,7 @@
           @foucs="handleMessages"
           @handleSend="sendMessage"
           @handleSendTimedMessage="handleCommand('timedMessage')"
+          @onInsertedCode="handleInsertedCode"
         />
       </div>
     </div>
@@ -381,8 +382,8 @@ export default class ConnectionsDetail extends Vue {
     if (!from && to && to === '/recent_connections/0') {
       // Destroy the MsgPublish/editor
       setTimeout(() => {
-        const thisMsgPublish: MsgPublish = this.$refs.msgPublish as MsgPublish
-        thisMsgPublish.editorDestory()
+        const msgPublishRef: MsgPublish = this.$refs.msgPublish as MsgPublish
+        msgPublishRef.editorDestory()
       }, 100)
       // When we jump order by `other page` -> `creation page` -> `connection page`, it's should only init once.
     }
@@ -1817,14 +1818,19 @@ export default class ConnectionsDetail extends Vue {
    * @param askMsg The question to ask Copilot.
    */
   private askCopilot(askMsg: string) {
-    const copilotRef = this.showCopilotPanel()
+    const copilotRef = this.toggleShowCopilot()
     copilotRef.sendMessage(askMsg)
   }
 
-  private showCopilotPanel() {
+  private toggleShowCopilot(show: boolean = true) {
     const copilotRef: Copilot = this.$refs.copilot as Copilot
-    copilotRef.showCopilot = true
+    copilotRef.showCopilot = show
     return copilotRef
+  }
+
+  private handleInsertedCode() {
+    this.$message.success(this.$tc('common.insertCodeSuccess'))
+    this.toggleShowCopilot(false)
   }
 
   private created() {
