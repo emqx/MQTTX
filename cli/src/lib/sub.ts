@@ -5,6 +5,7 @@ import delay from '../utils/delay'
 import convertPayload from '../utils/convertPayload'
 import { saveConfig, loadConfig } from '../utils/config'
 import { deserializeBufferToProtobuf } from '../utils/protobuf'
+import * as Debug from 'debug'
 
 const processReceivedMessage = (
   payload: Buffer,
@@ -36,11 +37,13 @@ const processReceivedMessage = (
 }
 
 const sub = (options: SubscribeOptions) => {
-  const { save, config } = options
+  const { debug, save, config } = options
 
   config && (options = loadConfig('sub', config))
 
   save && saveConfig('sub', options)
+
+  debug && Debug.enable('mqttjs*')
 
   checkTopicExists(options.topic, 'sub')
 

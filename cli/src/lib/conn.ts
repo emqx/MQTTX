@@ -3,13 +3,16 @@ import { Signale, signale, basicLog, benchLog } from '../utils/signale'
 import { parseConnectOptions } from '../utils/parse'
 import delay from '../utils/delay'
 import { saveConfig, loadConfig } from '../utils/config'
+import * as Debug from 'debug'
 
 const conn = (options: ConnectOptions) => {
-  const { save, config } = options
+  const { debug, save, config } = options
 
   config && (options = loadConfig('conn', config))
 
   save && saveConfig('conn', options)
+
+  debug && Debug.enable('mqttjs*')
 
   const { maximumReconnectTimes } = options
 

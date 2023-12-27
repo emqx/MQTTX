@@ -54,6 +54,7 @@ declare global {
     willUserProperties?: Record<string, string | string[]>
     save?: boolean | string
     config?: boolean | string
+    debug?: boolean
   }
 
   interface PublishOptions extends ConnectOptions {

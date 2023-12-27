@@ -11,6 +11,7 @@ import { saveConfig, loadConfig } from '../utils/config'
 import { loadSimulator } from '../utils/simulate'
 import { serializeProtobufToBuffer } from '../utils/protobuf'
 import convertPayload from '../utils/convertPayload'
+import * as Debug from 'debug'
 
 const processPublishMessage = (
   message: string | Buffer,
@@ -143,11 +144,13 @@ const multisend = (
 }
 
 const pub = (options: PublishOptions) => {
-  const { save, config } = options
+  const { debug, save, config } = options
 
   config && (options = loadConfig('pub', config))
 
   save && saveConfig('pub', options)
+
+  debug && Debug.enable('mqttjs*')
 
   checkTopicExists(options.topic, 'pub')
 
