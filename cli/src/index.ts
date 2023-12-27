@@ -104,6 +104,7 @@ export class Commander {
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
+      .option('--debug', 'Enable debug mode for MQTT.js', false)
       .allowUnknownOption(false)
       .action(conn)
 
@@ -206,6 +207,7 @@ export class Commander {
         '-Pmn, --protobuf-message-name <NAME>',
         'the name of the protobuf message type (must exist in the .proto file)',
       )
+      .option('--debug', 'Enable debug mode for MQTT.js', false)
       .allowUnknownOption(false)
       .action(pub)
 
@@ -304,6 +306,7 @@ export class Commander {
         '-Pmn, --protobuf-message-name <NAME>',
         'the name of the protobuf message type (must exist in the .proto file)',
       )
+      .option('--debug', 'Enable debug mode for MQTT.js', false)
       .allowUnknownOption(false)
       .action(sub)
 
