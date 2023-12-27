@@ -49,6 +49,7 @@
             <preset-prompt-select v-if="showPresetPrompt" @onChange="handlePresetsChange" />
           </transition>
           <el-input
+            ref="publishMsgInput"
             type="textarea"
             :autosize="{ minRows: 1, maxRows: 4 }"
             :rows="1"
@@ -324,8 +325,18 @@ export default class Copilot extends Vue {
 
   private handlePresetsChange(prompts: string[], promptMap: Record<string, string | VueI18n.TranslateResult>) {
     this.currPresetPrompt = prompts[prompts.length - 1]
-    const sendMessage = promptMap[this.currPresetPrompt]
-    this.sendMessage(sendMessage as string)
+    const sendMessage = promptMap[this.currPresetPrompt] as string
+    if (this.currPresetPrompt === 'emqxLogAnalysis') {
+      this.currentPublishMsg = sendMessage
+      const pubMsgRef = this.$refs.publishMsgInput as Vue
+      if (pubMsgRef) {
+        const input = pubMsgRef.$el.children[0] as HTMLElement
+        input.focus()
+        this.showPresetPrompt = false
+      }
+      return
+    }
+    this.sendMessage(sendMessage)
     this.showPresetPrompt = false
   }
 

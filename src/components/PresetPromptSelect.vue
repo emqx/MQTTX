@@ -76,8 +76,24 @@ export default class PresetPromptSelect extends Vue {
       label: 'Payload',
       children: [
         {
-          value: 'autoFillPayload',
-          label: this.$tc('common.genPayload'),
+          value: 'genSimpleIoTPayload',
+          label: this.$tc('common.genSimpleIoTPayload'),
+        },
+        {
+          value: 'genComplexIoTPayload',
+          label: this.$tc('common.genComplexIoTPayload'),
+        },
+        {
+          value: 'genConnectedCarPayload',
+          label: this.$tc('common.genConnectedCarPayload'),
+        },
+        {
+          value: 'genSmartHomePayload',
+          label: this.$tc('common.genSmartHomePayload'),
+        },
+        {
+          value: 'genIndustrialIoTPayload',
+          label: this.$tc('common.genIndustrialIoTPayload'),
         },
       ],
     },
@@ -92,6 +108,10 @@ export default class PresetPromptSelect extends Vue {
         {
           value: 'emqxRule',
           label: this.$t('common.emqxRule'),
+        },
+        {
+          value: 'emqxLogAnalysis',
+          label: this.$t('common.emqxLogAnalysis'),
         },
       ],
     },
@@ -125,6 +145,10 @@ export default class PresetPromptSelect extends Vue {
           value: 'connectionInfo',
           label: this.$t('common.currentConnectionInfo'),
         },
+        {
+          value: 'genTestDoc',
+          label: this.$t('common.genTestDoc'),
+        },
       ],
     },
   ]
@@ -143,7 +167,13 @@ export default class PresetPromptSelect extends Vue {
       rust: this.$t('common.promptProgrammingLanguage', ['Rust', '@connection']),
       dart: this.$t('common.promptProgrammingLanguage', ['Dart', '@connection']),
       erlang: this.$t('common.promptProgrammingLanguage', ['Erlang', '@connection']),
-      autoFillPayload: this.$t('common.promptAutoFillPayload'),
+      genSimpleIoTPayload: `${this.$t('common.promptGenSimpleIoTPayload')}${this.$t('common.genPayloadFormat')}`,
+      genComplexIoTPayload: `${this.$t('common.promptGenComplexIoTPayload')}${this.$t('common.genPayloadFormat')}`,
+      genConnectedCarPayload: `${this.$t('common.promptGenConnectedCarPayload')}${this.$t('common.genPayloadFormat')}`,
+      genSmartHomePayload: `${this.$t('common.promptGenSmartHomePayload')}${this.$t('common.genPayloadFormat')}`,
+      genIndustrialIoTPayload: `${this.$t('common.promptGenIndustrialIoTPayload')}${this.$t(
+        'common.genPayloadFormat',
+      )}`,
       mqttProtocol: this.$t('common.mqttProtocol'),
       mqtt5: this.$t('common.whatIsMQTT5Desc'),
       mqttQoS: this.$t('common.mqttQoSDesc'),
@@ -151,6 +181,8 @@ export default class PresetPromptSelect extends Vue {
       installEMQX: this.$t('common.installEMQX'),
       emqxRule: this.$t('common.promptEmqxRule'),
       connectionInfo: this.$t('common.promptCurrentConnectionInfo', ['@connection']),
+      genTestDoc: this.$t('common.promptGenTestDoc', ['@connection']),
+      emqxLogAnalysis: this.$t('common.promptEmqxLogAnalysis'),
     }
   }
   private handleChange(vals: string[]) {
