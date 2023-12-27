@@ -174,4 +174,11 @@ export default {
     ja: 'モデル',
     hu: 'Modell',
   },
+  enableCopilot: {
+    zh: '启用 Copilot',
+    en: 'Enable Copilot',
+    tr: "Copilot'u Etkinleştir",
+    ja: 'Copilotを有効にする',
+    hu: 'Copilot engedélyezése',
+  },
 }

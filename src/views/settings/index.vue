@@ -256,6 +256,22 @@
 
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
+          <label>{{ $t('settings.enableCopilot') }}</label>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            :value="enableCopilot"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleEnableCopilotSwitchChange"
+          >
+          </el-switch>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="20">
           <label>OpenAI API Key</label>
         </el-col>
         <el-col :span="4">
@@ -265,6 +281,7 @@
             placeholder="sk-*******"
             type="password"
             clearable
+            :disabled="!enableCopilot"
             @clear="handleAIConfigChanged('apiKey')"
             @blur="handleAIConfigChanged('apiKey')"
           ></el-input>
@@ -281,6 +298,7 @@
             class="settings-options ai-model-select"
             v-model="aiConfig.model"
             size="mini"
+            :disabled="!enableCopilot"
             @change="handleAIConfigChanged('model')"
           >
             <el-option v-for="model in AImodelsOptions" :key="model" :label="model" :value="model"> </el-option>
@@ -314,6 +332,7 @@ export default class Settings extends Vue {
   @Action('SET_MAX_RECONNECT_TIMES') private actionMaxReconnectTimes!: (payload: { maxReconnectTimes: number }) => void
   @Action('TOGGLE_MULTI_TOPICS') private actionToggleMultiTopics!: (payload: { multiTopics: boolean }) => void
   @Action('TOGGLE_JSON_HIGHLIGHT') private actionToggleJsonHighlight!: (payload: { jsonHighlight: boolean }) => void
+  @Action('TOGGLE_ENABLE_COPILOT') private actionToggleEnableCopilot!: (payload: { enableCopilot: boolean }) => void
   @Action('SET_OPEN_AI_API_KEY') private actionSetOpenAIAPIKey!: (payload: { openAIAPIKey: string }) => void
   @Action('SET_MODEL') private actionSetModel!: (payload: { model: AIModel }) => void
 
@@ -325,6 +344,7 @@ export default class Settings extends Vue {
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('multiTopics') private multiTopics!: boolean
   @Getter('jsonHighlight') private jsonHighlight!: boolean
+  @Getter('enableCopilot') private enableCopilot!: boolean
   @Getter('openAIAPIKey') private openAIAPIKey!: string
   @Getter('model') private model!: AIModel
 
@@ -408,6 +428,10 @@ export default class Settings extends Vue {
 
   private handleCleanupHistoryData() {
     this.showHistoryData = true
+  }
+
+  private handleEnableCopilotSwitchChange(value: boolean) {
+    this.actionToggleEnableCopilot({ enableCopilot: value })
   }
 
   private handleAIConfigChanged(action: 'apiKey' | 'model') {

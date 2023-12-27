@@ -16,6 +16,7 @@ const getters = {
   currentScript: (state: State) => state.app.currentScript,
   multiTopics: (state: State) => state.app.multiTopics,
   jsonHighlight: (state: State) => state.app.jsonHighlight,
+  enableCopilot: (state: State) => state.app.enableCopilot,
   openAIAPIKey: (state: State) => state.app.openAIAPIKey,
   model: (state: State) => state.app.model,
   isPrismButtonAdded: (state: State) => state.app.isPrismButtonAdded,

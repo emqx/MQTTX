@@ -35,6 +35,9 @@ export default class SettingEntity {
   @Column({ type: 'boolean', default: true })
   jsonHighlight!: boolean
 
+  @Column({ type: 'boolean', default: true })
+  enableCopilot!: boolean
+
   @Column({ type: 'varchar', default: '' })
   openAIAPIKey!: string
 
