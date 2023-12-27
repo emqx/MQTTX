@@ -41,6 +41,7 @@ import { jsonHighlight1691071794840 } from './migration/1691071794840-jsonHighli
 import { ALPNProtocols1691817588169 } from './migration/1691817588169-ALPNProtocols'
 import { aiSettings1701761407723 } from './migration/1701761407723-aiSettings'
 import { aiTables1701936842016 } from './migration/1701936842016-aiTables'
+import { enableCopilot1703659148195 } from './migration/1703659148195-enableCopilot'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -88,6 +89,7 @@ const ORMConfig = {
     ALPNProtocols1691817588169,
     aiSettings1701761407723,
     aiTables1701936842016,
+    enableCopilot1703659148195,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [

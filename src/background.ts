@@ -126,6 +126,7 @@ async function createWindow() {
       syncOsTheme: setting.syncOsTheme,
       multiTopics: setting.multiTopics,
       jsonHighlight: setting.jsonHighlight,
+      enableCopilot: setting.enableCopilot,
       openAIAPIKey: setting.openAIAPIKey,
       model: setting.model,
     }

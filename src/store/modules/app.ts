@@ -24,6 +24,7 @@ const TOGGLE_JSON_HIGHLIGHT = 'TOGGLE_JSON_HIGHLIGHT'
 const SET_OPEN_AI_API_KEY = 'SET_OPEN_AI_API_KEY'
 const SET_MODEL = 'SET_MODEL'
 const SET_INSERT_BUTTON_ADDED = 'SET_INSERT_BUTTON_ADDED'
+const TOGGLE_ENABLE_COPILOT = 'TOGGLE_ENABLE_COPILOT'
 
 const getShowSubscriptions = (): boolean => {
   const $showSubscriptions: string | null = localStorage.getItem('showSubscriptions')
@@ -54,6 +55,7 @@ const app = {
     willMessageVisible: true,
     currentScript: null,
     currentConnectionId: null,
+    enableCopilot: settingData.enableCopilot,
     openAIAPIKey: settingData.openAIAPIKey || '',
     model: settingData.model || 'gpt-3.5-turbo',
     isPrismButtonAdded: false,
@@ -149,6 +151,9 @@ const app = {
     [SET_INSERT_BUTTON_ADDED](state: App, isPrismButtonAdded: boolean) {
       state.isPrismButtonAdded = isPrismButtonAdded
     },
+    [TOGGLE_ENABLE_COPILOT](state: App, enableCopilot: boolean) {
+      state.enableCopilot = enableCopilot
+    },
   },
   actions: {
     async TOGGLE_THEME({ commit }: any, payload: App) {
@@ -231,6 +236,12 @@ const app = {
     },
     async SET_CURRENT_CONNECTION_ID({ commit }: any, currentConnectionId: string) {
       commit(SET_CURRENT_CONNECTION_ID, currentConnectionId)
+    },
+    async TOGGLE_ENABLE_COPILOT({ commit }: any, payload: App) {
+      const { settingService } = useServices()
+      commit(TOGGLE_ENABLE_COPILOT, payload.enableCopilot)
+      settingData.enableCopilot = payload.enableCopilot
+      await settingService.update(payload)
     },
     async SET_OPEN_AI_API_KEY({ commit }: any, payload: App) {
       const { settingService } = useServices()

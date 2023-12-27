@@ -1,6 +1,6 @@
 <template>
   <div class="connections-detail">
-    <copilot ref="copilot" :record="record" mode="connections" />
+    <copilot v-if="enableCopilot" ref="copilot" :record="record" mode="connections" />
     <div ref="connectionTopbar" class="connections-topbar right-topbar">
       <div class="connections-info">
         <div class="topbar">
@@ -87,7 +87,7 @@
                 <i class="iconfont icon-a-stopscrip"></i>
               </a>
             </el-tooltip>
-            <a href="javascript:;" @click="toggleShowCopilot" style="margin-right: 12px">
+            <a href="javascript:;" v-if="enableCopilot" @click="toggleShowCopilot" style="margin-right: 12px">
               <i class="el-icon-chat-line-square"></i>
             </a>
             <template v-if="!isNewWindow">
@@ -368,6 +368,7 @@ export default class ConnectionsDetail extends Vue {
   @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: { [id: string]: boolean }
   @Getter('currentScript') private scriptOption!: ScriptState | null
+  @Getter('enableCopilot') private enableCopilot!: boolean
 
   /**
    * Notice: when we jump order by `other page` -> `creation page` -> `connection page`,
@@ -1789,10 +1790,14 @@ export default class ConnectionsDetail extends Vue {
    * @param {string} msgTitle - The title of the error message.
    */
   private notifyErrorWithCopilot(msgTitle: string, promptInfo?: string, callback?: () => void) {
+    const askCopilotButton = `
+      <button id="notify-copilot-button">Ask Copilot</button>
+    `
+    const message = this.enableCopilot ? askCopilotButton : ''
     const notify = this.$notify({
       title: msgTitle,
       dangerouslyUseHTMLString: true,
-      message: '<button id="notify-copilot-button">Ask Copilot</button>',
+      message,
       type: 'error',
       duration: 4000,
       offset: 30,

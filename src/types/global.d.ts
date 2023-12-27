@@ -105,6 +105,7 @@ declare global {
     currentConnectionId: string | null
     connectionTreeState: ConnectionTreeStateMap
     jsonHighlight: boolean
+    enableCopilot: boolean
     openAIAPIKey: string
     model: AIModel
     isPrismButtonAdded: boolean
