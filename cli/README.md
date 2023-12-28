@@ -36,14 +36,14 @@ To install the latest MQTTX CLI stable release on **macOS** using **binary downl
 #### Intel Chip
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.5/mqttx-cli-macos-x64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.8/mqttx-cli-macos-x64
 sudo install ./mqttx-cli-macos-x64 /usr/local/bin/mqttx
 ```
 
 #### Apple Silicon
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.5/mqttx-cli-macos-arm64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.8/mqttx-cli-macos-arm64
 sudo install ./mqttx-cli-macos-arm64 /usr/local/bin/mqttx
 ```
 
@@ -62,14 +62,14 @@ To install the latest MQTTX CLI stable release on **Linux** using **binary downl
 #### x86-64
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.5/mqttx-cli-linux-x64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.8/mqttx-cli-linux-x64
 sudo install ./mqttx-cli-linux-x64 /usr/local/bin/mqttx
 ```
 
 #### ARM64
 
 ```shell
-curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.5/mqttx-cli-linux-arm64
+curl -LO https://www.emqx.com/en/downloads/MQTTX/v1.9.8/mqttx-cli-linux-arm64
 sudo install ./mqttx-cli-linux-arm64 /usr/local/bin/mqttx
 ```
 
@@ -214,6 +214,7 @@ mqttx conn --help
 | --no-req-problem-info                            | the client requests problem information from the server                                                                            |
 | --save \[PATH\]                                  | save the parameters to the local configuration file, which supports json and yaml format, default path is `./mqttx-cli-config.json` |
 | --config \[PATH\]                                | load the parameters from the local configuration file, which supports json and yaml format, default path is `./mqttx-cli-config.json` |
+| --debug                                                | Enable debug mode for MQTT.js (default: false)                                    |
 | --help                                           | display help for conn command                                                                                                      |
 
 ### Subscribe
@@ -274,6 +275,7 @@ mqttx sub --help
 | --help                                           | display help for sub command                                                                                                                    |
 | -Pp, --protobuf-path <PATH>                      | the path to the .proto file that defines the message format for Protocol Buffers (protobuf) |
 | -Pmn, --protobuf-message-name <NAME>             | the name of the protobuf message type (must exist in the .proto file)  |
+| --debug                                                | Enable debug mode for MQTT.js (default: false)                                    |
 
 ### Publish
 
@@ -337,6 +339,7 @@ mqttx pub --help
 | --help                                           | display help for pub command                                                                                                       |
 | -Pp, --protobuf-path <PATH>                      | the path to the .proto file that defines the message format for Protocol Buffers (protobuf) |
 | -Pmn, --protobuf-message-name <NAME>             | the name of the protobuf message type (must exist in the .proto file)  |
+| --debug                                                | Enable debug mode for MQTT.js (default: false)                                    |
 
 ### Benchmark
 
