@@ -11,7 +11,7 @@ declare global {
 
   type Protocol = 'ws' | 'wss' | 'mqtt' | 'mqtts'
 
-  type PayloadType = 'Plaintext' | 'Base64' | 'JSON' | 'Hex'
+  type PayloadType = 'Plaintext' | 'Base64' | 'JSON' | 'Hex' | 'CBOR'
 
   type QoS = 0 | 1 | 2
 
