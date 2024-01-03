@@ -205,7 +205,7 @@
           <div class="message-type">
             <el-select class="received-type-select" size="mini" v-model="receivedMsgType">
               <el-option-group :label="$t('connections.receivedPayloadDecodedBy')">
-                <el-option v-for="type in ['Plaintext', 'JSON', 'Base64', 'Hex']" :key="type" :value="type">
+                <el-option v-for="type in ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR']" :key="type" :value="type">
                 </el-option>
               </el-option-group>
             </el-select>
@@ -316,6 +316,7 @@ import { getMessageId, getSubscriptionId } from '@/utils/idGenerator'
 import getContextmenuPosition from '@/utils/getContextmenuPosition'
 import { deserializeBufferToProtobuf, printObjectAsString, serializeProtobufToBuffer } from '@/utils/protobuf'
 import { jsonStringify } from '@/utils/jsonUtils'
+import cbor from 'cbor'
 
 type CommandType =
   | 'searchContent'
@@ -1659,6 +1660,9 @@ export default class ConnectionsDetail extends Vue {
         if (jsonValue) {
           return jsonValue
         }
+      }
+      if (receiveType === 'CBOR') {
+        return jsonStringify(cbor.decodeFirstSync(receiveValue))
       }
       return receiveValue.toString()
     }
