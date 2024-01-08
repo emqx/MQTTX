@@ -281,7 +281,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
-import { MqttClient, IConnackPacket, IPublishPacket, IClientPublishOptions } from 'mqtt'
+import { MqttClient, IConnackPacket, IPublishPacket, IClientPublishOptions, IDisconnectPacket } from 'mqtt'
 import _ from 'lodash'
 import { Subject, fromEvent } from 'rxjs'
 import { bufferTime, map, filter, takeUntil } from 'rxjs/operators'
@@ -567,6 +567,8 @@ export default class ConnectionsDetail extends Vue {
         this.client.on('connect', this.onConnect)
         this.client.on('error', this.onError)
         this.client.on('reconnect', this.onReConnect)
+        this.client.on('disconnect', this.onDisconnect)
+        this.client.on('offline', this.onOffline)
         this.onMessageArrived(this.client as MqttClient, id)
       }
 
@@ -586,7 +588,7 @@ export default class ConnectionsDetail extends Vue {
     } catch (error) {
       const err = error as Error
       this.connectLoading = false
-      this.notifyErrorWithCopilot(err.toString())
+      this.notifyMsgWithCopilot(err.toString())
     }
   }
 
@@ -933,7 +935,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private handleSubTopicError(errMsg: string, info?: string) {
-    this.notifyErrorWithCopilot(errMsg, info, () => {
+    this.notifyMsgWithCopilot(errMsg, info, () => {
       this.subListRef.showDialog = false
     })
   }
@@ -1021,7 +1023,7 @@ export default class ConnectionsDetail extends Vue {
       msgTitle = error.toString()
     }
     this.forceCloseTheConnection()
-    this.notifyErrorWithCopilot(msgTitle)
+    this.notifyMsgWithCopilot(msgTitle)
     this.$log.error(`${this.record.name} connect fail, MQTT.js onError trigger, ${error.stack}`)
     this.$emit('reload')
   }
@@ -1063,6 +1065,21 @@ export default class ConnectionsDetail extends Vue {
   private onClose() {
     this.$log.info(`${this.record.name} connect close, MQTT.js onClose trigger`)
     this.connectLoading = false
+  }
+
+  // Emitted after receiving disconnect packet from broker. MQTT 5.0 feature.
+  private onDisconnect(packet: IDisconnectPacket) {
+    this.notifyMsgWithCopilot(this.$tc('connections.onDisconnect'), JSON.stringify(packet), () => {}, 'warning')
+    const logMessage = `Received disconnect packet from Broker. MQTT.js onDisconnect trigger, the packet details: ${JSON.stringify(
+      packet,
+    )}`
+    this.$log.warn(logMessage)
+  }
+
+  private onOffline() {
+    this.$log.info(
+      `The connection ${this.record.name} (clientID ${this.record.clientId}) is offline. MQTT.js onOffline trigger.`,
+    )
   }
 
   private forceCloseTheConnection() {
@@ -1789,7 +1806,12 @@ export default class ConnectionsDetail extends Vue {
    *
    * @param {string} msgTitle - The title of the error message.
    */
-  private notifyErrorWithCopilot(msgTitle: string, promptInfo?: string, callback?: () => void) {
+  private notifyMsgWithCopilot(
+    msgTitle: string,
+    promptInfo?: string,
+    callback?: () => void,
+    type: 'error' | 'warning' = 'error',
+  ) {
     const askCopilotButton = `
       <button id="notify-copilot-button">Ask Copilot</button>
     `
@@ -1798,7 +1820,7 @@ export default class ConnectionsDetail extends Vue {
       title: msgTitle,
       dangerouslyUseHTMLString: true,
       message,
-      type: 'error',
+      type,
       duration: 4000,
       offset: 30,
     })

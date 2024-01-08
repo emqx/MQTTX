@@ -866,4 +866,11 @@ export default {
     ja: '保持メッセージの取り扱い',
     hu: 'Üzenetmegőrzés kezelése',
   },
+  onDisconnect: {
+    zh: '服务器已主动断开连接',
+    en: 'The Broker has actively disconnected',
+    tr: 'Sunucu aktif bir şekilde bağlantıyı kesmiştir',
+    ja: 'サーバーから積極的に接続が切断されました',
+    hu: 'A kiszolgáló aktívan bontotta a kapcsolatot',
+  },
 }
