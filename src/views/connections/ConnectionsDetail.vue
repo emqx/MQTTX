@@ -1076,6 +1076,7 @@ export default class ConnectionsDetail extends Vue {
     this.$log.warn(logMessage)
   }
 
+  // Emitted when the client goes offline.
   private onOffline() {
     this.$log.info(
       `The connection ${this.record.name} (clientID ${this.record.clientId}) is offline. MQTT.js onOffline trigger.`,
@@ -1802,9 +1803,12 @@ export default class ConnectionsDetail extends Vue {
   }
 
   /**
-   * Notifies the user with an error message using the Copilot feature.
+   * Notifies the user with a message and provides an option to ask Copilot for assistance.
    *
-   * @param {string} msgTitle - The title of the error message.
+   * @param {string} msgTitle - The title of the message.
+   * @param {string} promptInfo - Additional information to prompt the user.
+   * @param {function} callback - The callback function to be executed after asking Copilot.
+   * @param {string} type - The type of the message ('error' or 'warning') defualt error.
    */
   private notifyMsgWithCopilot(
     msgTitle: string,
