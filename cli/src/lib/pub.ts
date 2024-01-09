@@ -141,6 +141,10 @@ const multisend = (
     const { reconnectPeriod } = connOpts
     reconnectPeriod ? sender.cork() : process.exit(1)
   })
+
+  client.on('disconnect', () => {
+    basicLog.disconnect()
+  })
 }
 
 const pub = (options: PublishOptions) => {
@@ -325,6 +329,10 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
       client.on('close', () => {
         connectedCount > 0 && (connectedCount -= 1)
         benchLog.close(connectedCount, count, opts.clientId!)
+      })
+
+      client.on('disconnect', () => {
+        basicLog.disconnect(opts.clientId!)
       })
     })(i, connOpts)
 

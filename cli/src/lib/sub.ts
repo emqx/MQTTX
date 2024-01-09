@@ -141,6 +141,10 @@ const sub = (options: SubscribeOptions) => {
   client.on('close', () => {
     !outputModeClean && basicLog.close()
   })
+
+  client.on('disconnect', () => {
+    !outputModeClean && basicLog.disconnect()
+  })
 }
 
 const benchSub = async (options: BenchSubscribeOptions) => {
@@ -277,6 +281,10 @@ const benchSub = async (options: BenchSubscribeOptions) => {
       client.on('close', () => {
         connectedCount > 0 && (connectedCount -= 1)
         benchLog.close(connectedCount, count, opts.clientId!)
+      })
+
+      client.on('disconnect', () => {
+        basicLog.disconnect(opts.clientId!)
       })
     })(i, connOpts)
 
