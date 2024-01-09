@@ -190,7 +190,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { TranslateResult } from 'vue-i18n'
-import { MqttClient, IPublishPacket, IClientPublishOptions } from 'mqtt'
+import { MqttClient, IPublishPacket, IClientPublishOptions, IDisconnectPacket } from 'mqtt'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { throttleTime } from 'rxjs/operators'
@@ -329,6 +329,7 @@ export default class ConnectionsDetail extends Vue {
       this.client.on('error', this.onError)
       this.client.on('reconnect', this.onReConnect)
       this.client.on('close', this.onClose)
+      this.client.on('disconnect', this.onDisconnect)
       this.client.on('message', this.onMessageArrived(id))
     }
   }
@@ -744,6 +745,17 @@ export default class ConnectionsDetail extends Vue {
   private onClose() {
     this.connectLoading = false
     this.isReconnect = false
+  }
+
+  // Emitted after receiving disconnect packet from broker. MQTT 5.0 feature.
+  private onDisconnect(packet: IDisconnectPacket) {
+    this.$notify({
+      title: this.$tc('connections.onDisconnect'),
+      message: '',
+      type: 'warning',
+      duration: 3000,
+      offset: 30,
+    })
   }
 
   private onMessageArrived(id: string) {
