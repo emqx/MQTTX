@@ -48,6 +48,10 @@ const conn = (options: ConnectOptions) => {
   client.on('close', () => {
     basicLog.close()
   })
+
+  client.on('disconnect', () => {
+    basicLog.disconnect()
+  })
 }
 
 const benchConn = async (options: BenchConnectOptions) => {
@@ -118,6 +122,10 @@ const benchConn = async (options: BenchConnectOptions) => {
       client.on('close', () => {
         connectedCount > 0 && (connectedCount -= 1)
         benchLog.close(connectedCount, count, opts.clientId!)
+      })
+
+      client.on('disconnect', () => {
+        basicLog.disconnect(opts.clientId!)
       })
     })(i, connOpts)
 
