@@ -636,7 +636,7 @@ export default class ConnectionsDetail extends Vue {
       clearInterval(this.sendTimeId)
       this.sendTimeId = null
       this.$message.success(this.$tc('connections.stopTimedMessage'))
-      this.$log.info(`Timed messages sending stopped for ${this.record.name}.`)
+      this.$log.info(`Timed messages sending stopped for ${this.record.name}`)
     }
   }
 
@@ -1253,7 +1253,7 @@ export default class ConnectionsDetail extends Vue {
         if (isFromActiveTopic || isFromNotActiveTopic) {
           let receivedLog = `Message arrived for ${this.record.name} with topic: "${topic}". Message ID: "${
             message.id
-          }", payload: "${jsonStringify(message.payload)}". MQTT.js onMessageArrived trigger`
+          }", payload: ${jsonStringify(message.payload)}. MQTT.js onMessageArrived trigger`
           this.$log.info(receivedLog)
         }
       } else {
@@ -1581,7 +1581,7 @@ export default class ConnectionsDetail extends Vue {
    */
   private logSuccessfulPublish(publishMessage: MessageModel) {
     const logPayload = jsonStringify(publishMessage.payload)
-    let pubLog = `Message with payload ${logPayload} was successfully published to topic "${publishMessage.topic}" by ${this.record.name}.`
+    let pubLog = `Message with payload ${logPayload} was successfully published to topic "${publishMessage.topic}" by ${this.record.name}`
     this.$log.info(pubLog)
   }
 

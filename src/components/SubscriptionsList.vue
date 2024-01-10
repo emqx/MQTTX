@@ -379,7 +379,7 @@ export default class SubscriptionsList extends Vue {
   public async resubscribe() {
     this.getCurrentConnection(this.connectionId)
     for (let sub of this.subsList) {
-      this.$log.info(`Resubscription in progress for topic: ${sub.topic}.`)
+      this.$log.info(`Resubscription in progress for topic: ${sub.topic}`)
       this.subRecord = { ...sub }
       if (this.subRecord.disabled === false) {
         await this.subscribe(this.subRecord)
@@ -461,7 +461,7 @@ export default class SubscriptionsList extends Vue {
         if (errorReason !== SubscribeErrorReason.normal) {
           const errorReasonMsg: VueI18n.TranslateResult = this.getErrorReasonMsg(errorReason)
           const errorMsg: string = `${this.$t('connections.subFailed')} ${errorReasonMsg}`
-          this.$log.error(`Error subscribing to topic: ${errorReasonMsg} `)
+          this.$log.error(`Error subscribing to topic: ${errorReasonMsg}`)
           this.$emit('onSubError', errorMsg, `Topics: ${JSON.stringify(topicsArr)}`)
           return false
         }
