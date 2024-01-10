@@ -569,7 +569,7 @@ export default class ConnectionsList extends Vue {
           createAt: time.getNowDate(),
           updateAt: time.getNowDate(),
         })
-        this.$log.info(`${res.name} has been duplicated as ${newConnection?.name}`)
+        this.$log.info(`Duplicated ${res.name} as ${newConnection?.name}`)
         this.$message.success(
           this.$t('connections.duplicated', {
             name: newConnection?.name,
@@ -685,7 +685,7 @@ export default class ConnectionsList extends Vue {
           const { collectionService } = useServices()
           await collectionService.delete(selectedCollection.id)
           this.$message.success(this.$tc('common.deleteSuccess'))
-          this.$log.info(`${name} collection was successfully deleted`)
+          this.$log.info(`Group ${name} was successfully deleted`)
           this.$emit('reload')
         })
         .catch((error) => {

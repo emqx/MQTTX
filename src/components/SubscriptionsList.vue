@@ -379,7 +379,7 @@ export default class SubscriptionsList extends Vue {
   public async resubscribe() {
     this.getCurrentConnection(this.connectionId)
     for (let sub of this.subsList) {
-      this.$log.info(`Topic: ${sub.topic} is resubscribing`)
+      this.$log.info(`Resubscription in progress for topic: ${sub.topic}.`)
       this.subRecord = { ...sub }
       if (this.subRecord.disabled === false) {
         await this.subscribe(this.subRecord)
@@ -445,13 +445,13 @@ export default class SubscriptionsList extends Vue {
         this.subLoading = false
         if (error) {
           this.$emit('onSubError', error.toString(), `Topics: ${JSON.stringify(topicsArr)}`)
-          this.$log.error(`Topic: subscribe error, ${error} `)
+          this.$log.error(`Error subscribing to topic: ${error}`)
           return false
         }
         let errorReason = SubscribeErrorReason.normal
 
         if (!granted || (Array.isArray(granted) && granted.length < 1)) {
-          this.$log.error('Topic: subscribe granted empty')
+          this.$log.error('Error subscribing to topic: granted empty')
         } else if (![0, 1, 2].includes(granted[0].qos) && topic.match(/^(\$SYS)/i)) {
           errorReason = SubscribeErrorReason.qosSubSysFailed
         } else if (![0, 1, 2].includes(granted[0].qos)) {
@@ -461,7 +461,7 @@ export default class SubscriptionsList extends Vue {
         if (errorReason !== SubscribeErrorReason.normal) {
           const errorReasonMsg: VueI18n.TranslateResult = this.getErrorReasonMsg(errorReason)
           const errorMsg: string = `${this.$t('connections.subFailed')} ${errorReasonMsg}`
-          this.$log.error(`Topic: subscribe error, ${errorReasonMsg} `)
+          this.$log.error(`Error subscribing to topic: ${errorReasonMsg} `)
           this.$emit('onSubError', errorMsg, `Topics: ${JSON.stringify(topicsArr)}`)
           return false
         }
@@ -484,10 +484,7 @@ export default class SubscriptionsList extends Vue {
           await subscriptionService.updateSubscriptions(this.record.id, this.record.subscriptions)
           this.changeSubs({ id: this.connectionId, subscriptions: this.subsList })
           this.showDialog = false
-          let subLog = `Topic: ${topic} successfully subscribed`
-          if (this.record.mqttVersion === '5.0') {
-            subLog += `, Subscription Identifier: ${subscriptionIdentifier}, No Local flag: ${nl}, Retain as Published flag: ${rap}, Retain Handling: ${rh}`
-          }
+          let subLog = `Successfully subscribed to topic: ${topic}`
           this.$log.info(subLog)
         }
         isFinished = true
