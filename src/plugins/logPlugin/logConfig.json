@@ -17,7 +17,7 @@
   "categories": {
     "default": {
       "appenders": ["fileOutput", "consoleOutput"],
-      "level": "debug",
+      "level": "info",
       "enableCallStack": true
     }
   }

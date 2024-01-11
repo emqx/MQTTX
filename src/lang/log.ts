@@ -13,4 +13,11 @@ export default {
     tr: 'Günlük Seviyesi',
     hu: 'Napló Szint',
   },
+  logLevelDesc: {
+    zh: '等级：DEBUG > INFO > WARN > ERROR',
+    en: 'Levels: DEBUG > INFO > WARN > ERROR',
+    ja: 'レベル：DEBUG > INFO > WARN > ERROR',
+    tr: 'Seviyeler: DEBUG > INFO > WARN > ERROR',
+    hu: 'Szintek: DEBUG > INFO > WARN > ERROR',
+  },
 }

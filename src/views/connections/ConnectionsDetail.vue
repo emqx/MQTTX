@@ -281,7 +281,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
-import { MqttClient, IConnackPacket, IPublishPacket, IClientPublishOptions, IDisconnectPacket } from 'mqtt'
+import { MqttClient, IConnackPacket, IPublishPacket, IClientPublishOptions, IDisconnectPacket, Packet } from 'mqtt'
 import _ from 'lodash'
 import { Subject, fromEvent } from 'rxjs'
 import { bufferTime, map, filter, takeUntil } from 'rxjs/operators'
@@ -561,7 +561,7 @@ export default class ConnectionsDetail extends Vue {
     try {
       const { curConnectClient, connectUrl } = await createClient(this.record)
       this.client = curConnectClient
-      const { id } = this.record
+      const { name, id } = this.record
       if (id && this.client.on) {
         this.$log.info(`Assigned ID ${id} to MQTTX client`)
         this.client.on('connect', this.onConnect)
@@ -569,13 +569,10 @@ export default class ConnectionsDetail extends Vue {
         this.client.on('reconnect', this.onReConnect)
         this.client.on('disconnect', this.onDisconnect)
         this.client.on('offline', this.onOffline)
-        // this.client.on('packetsend', (packet) => {
-        //   this.$log.debug(`Packet sent: ${JSON.stringify(packet)}`)
-        // })
-        // this.client.on('packetreceive', (packet) => {
-        //   this.$log.debug(`Packet received: ${JSON.stringify(packet)}`)
-        // })
         this.onMessageArrived(this.client as MqttClient, id)
+        // Debug MQTT Packet Log
+        this.client.on('packetsend', (packet) => this.onPacketSent(packet, name))
+        this.client.on('packetreceive', (packet) => this.onPacketReceived(packet, name))
       }
 
       const protocolLogMap: ProtocolMap = {
@@ -1081,6 +1078,25 @@ export default class ConnectionsDetail extends Vue {
     this.$log.info(
       `The connection ${this.record.name} (clientID ${this.record.clientId}) is offline. MQTT.js onOffline trigger`,
     )
+  }
+
+  /**
+   * Handles the event when a packet is sent.
+   * @param {Packet} packet - The packet that was sent.
+   * @param {string} name - The name of the connection.
+   */
+  private onPacketSent(packet: Packet, name: string) {
+    this.$log.debug(`[${name}] Sent packet: ${JSON.stringify(packet)}`)
+  }
+
+  /**
+   * Handles the event when a packet is received.
+   *
+   * @param {Packet} packet - The received packet.
+   * @param {string} name - The name of the connection.
+   */
+  private onPacketReceived(packet: Packet, name: string) {
+    this.$log.debug(`[${name}] Received packet: ${JSON.stringify(packet)}`)
   }
 
   private forceCloseTheConnection() {
