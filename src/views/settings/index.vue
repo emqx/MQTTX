@@ -194,6 +194,28 @@
       <div class="settings-title">{{ $t('settings.advanced') }}</div>
       <el-divider></el-divider>
 
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
+          <label>{{ $t('log.logLevel') }}</label>
+          <el-tooltip placement="top" :effect="currentTheme !== 'light' ? 'light' : 'dark'" :open-delay="500">
+            <div slot="content" v-html="$t('log.logLevelDesc')"></div>
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-select class="settings-options" :value="logLevel" size="mini" @change="handleLevelChange">
+            <el-option label="DEBUG" value="debug"></el-option>
+            <el-option label="INFO" value="info"></el-option>
+            <el-option label="WARN" value="warn"></el-option>
+            <el-option label="ERROR" value="error"></el-option>
+          </el-select>
+        </el-col>
+      </el-row>
+
+      <el-divider></el-divider>
+
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
           <label>{{ $t('settings.dataRecovery') }}</label>
@@ -335,6 +357,7 @@ export default class Settings extends Vue {
   @Action('TOGGLE_ENABLE_COPILOT') private actionToggleEnableCopilot!: (payload: { enableCopilot: boolean }) => void
   @Action('SET_OPEN_AI_API_KEY') private actionSetOpenAIAPIKey!: (payload: { openAIAPIKey: string }) => void
   @Action('SET_MODEL') private actionSetModel!: (payload: { model: AIModel }) => void
+  @Action('SET_LOG_LEVEL') private actionSetLogLevel!: (payload: { logLevel: LogLevel }) => void
 
   @Getter('currentTheme') private currentTheme!: Theme
   @Getter('currentLang') private currentLang!: Language
@@ -347,6 +370,7 @@ export default class Settings extends Vue {
   @Getter('enableCopilot') private enableCopilot!: boolean
   @Getter('openAIAPIKey') private openAIAPIKey!: string
   @Getter('model') private model!: AIModel
+  @Getter('logLevel') private logLevel!: LogLevel
 
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
@@ -449,6 +473,14 @@ export default class Settings extends Vue {
   private getAIConfigs() {
     this.aiConfig.model = this.model
     this.aiConfig.openAIAPIKey = this.openAIAPIKey
+  }
+
+  private handleLevelChange(val: LogLevel) {
+    const logger = this.$logRegsity()
+    logger.level = val
+    this.actionSetLogLevel({
+      logLevel: val,
+    })
   }
 
   private created() {

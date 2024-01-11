@@ -679,7 +679,7 @@ export default class ConnectionForm extends Vue {
           createAt: time.getNowDate(),
           updateAt: time.getNowDate(),
         })
-        this.$log.info(`First time created, Name: ${res?.name}, ID: ${res?.id}`)
+        this.$log.info(`Created for the first time: ${res?.name}, ID: ${res?.id}`)
         msgError = this.$tc('common.createfailed')
       } else {
         // update a exisit connection
@@ -688,7 +688,7 @@ export default class ConnectionForm extends Vue {
             ...data,
             updateAt: time.getNowDate(),
           })
-          this.$log.info(`${res?.name} was edited, ID: ${res?.id}`)
+          this.$log.info(`Connection ${res?.name} was edited, ID: ${res?.id}`)
           msgError = this.$tc('common.editfailed')
         }
       }

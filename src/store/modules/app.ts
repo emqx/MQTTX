@@ -60,6 +60,7 @@ const app = {
     openAIAPIKey: settingData.openAIAPIKey || '',
     model: settingData.model || 'gpt-3.5-turbo',
     isPrismButtonAdded: false,
+    logLevel: settingData.logLevel || 'info',
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -264,7 +265,7 @@ const app = {
     },
     async SET_LOG_LEVEL({ commit }: any, payload: App) {
       const { settingService } = useServices()
-      commit(SET_MODEL, payload.logLevel)
+      commit(SET_LOG_LEVEL, payload.logLevel)
       settingData.logLevel = payload.logLevel
       await settingService.update(payload)
     },
