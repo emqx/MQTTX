@@ -6,4 +6,11 @@ export default {
     tr: 'Günlük',
     hu: 'Napló',
   },
+  logLevel: {
+    zh: '日志等级',
+    en: 'Log Level',
+    ja: 'ログレベル',
+    tr: 'Günlük Seviyesi',
+    hu: 'Napló Szint',
+  },
 }

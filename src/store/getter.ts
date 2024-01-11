@@ -20,6 +20,7 @@ const getters = {
   openAIAPIKey: (state: State) => state.app.openAIAPIKey,
   model: (state: State) => state.app.model,
   isPrismButtonAdded: (state: State) => state.app.isPrismButtonAdded,
+  logLevel: (state: State) => state.app.logLevel,
 }
 
 export default getters

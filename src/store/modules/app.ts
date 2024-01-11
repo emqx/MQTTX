@@ -25,6 +25,7 @@ const SET_OPEN_AI_API_KEY = 'SET_OPEN_AI_API_KEY'
 const SET_MODEL = 'SET_MODEL'
 const SET_INSERT_BUTTON_ADDED = 'SET_INSERT_BUTTON_ADDED'
 const TOGGLE_ENABLE_COPILOT = 'TOGGLE_ENABLE_COPILOT'
+const SET_LOG_LEVEL = 'SET_LOG_LEVEL'
 
 const getShowSubscriptions = (): boolean => {
   const $showSubscriptions: string | null = localStorage.getItem('showSubscriptions')
@@ -154,6 +155,9 @@ const app = {
     [TOGGLE_ENABLE_COPILOT](state: App, enableCopilot: boolean) {
       state.enableCopilot = enableCopilot
     },
+    [SET_LOG_LEVEL](state: App, logLevel: LogLevel) {
+      state.logLevel = logLevel
+    },
   },
   actions: {
     async TOGGLE_THEME({ commit }: any, payload: App) {
@@ -257,6 +261,12 @@ const app = {
     },
     SET_INSERT_BUTTON_ADDED({ commit }: any, payload: App) {
       commit(SET_INSERT_BUTTON_ADDED, payload.isPrismButtonAdded)
+    },
+    async SET_LOG_LEVEL({ commit }: any, payload: App) {
+      const { settingService } = useServices()
+      commit(SET_MODEL, payload.logLevel)
+      settingData.logLevel = payload.logLevel
+      await settingService.update(payload)
     },
   },
 }

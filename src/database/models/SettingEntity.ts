@@ -43,4 +43,7 @@ export default class SettingEntity {
 
   @Column({ type: 'varchar', default: 'gpt-3.5-turbo' })
   model!: string
+
+  @Column({ type: 'simple-enum', enum: ['debug', 'info', 'warn', 'error'], default: 'info' })
+  logLevel!: 'debug' | 'info' | 'warn' | 'error'
 }
