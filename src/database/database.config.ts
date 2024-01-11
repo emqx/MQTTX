@@ -42,6 +42,7 @@ import { ALPNProtocols1691817588169 } from './migration/1691817588169-ALPNProtoc
 import { aiSettings1701761407723 } from './migration/1701761407723-aiSettings'
 import { aiTables1701936842016 } from './migration/1701936842016-aiTables'
 import { enableCopilot1703659148195 } from './migration/1703659148195-enableCopilot'
+import { logLevel1704941582350 } from './migration/1704941582350-logLevel'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -90,6 +91,7 @@ const ORMConfig = {
     aiSettings1701761407723,
     aiTables1701936842016,
     enableCopilot1703659148195,
+    logLevel1704941582350,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [

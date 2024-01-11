@@ -109,6 +109,7 @@ declare global {
     openAIAPIKey: string
     model: AIModel
     isPrismButtonAdded: boolean
+    logLevel: LogLevel
   }
 
   interface State {
@@ -399,4 +400,6 @@ declare global {
       data: any[]
     }[]
   }
+
+  type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 }

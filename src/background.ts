@@ -129,6 +129,7 @@ async function createWindow() {
       enableCopilot: setting.enableCopilot,
       openAIAPIKey: setting.openAIAPIKey,
       model: setting.model,
+      logLevel: setting.logLevel,
     }
   }
   // Create the browser window.
