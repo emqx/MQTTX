@@ -379,6 +379,8 @@ export default class ConnectionsDetail extends Vue {
    */
   @Watch('$route.path', { immediate: true, deep: true })
   private handleIdChanged(to: string, from: string) {
+    // Stop reconnection attempts if the page changes, as reconnection only works on the current connection page
+    this.forceStopToReconnect()
     // When route jump order by `other page` -> `creation page`
     if (!from && to && to === '/recent_connections/0') {
       // Destroy the MsgPublish/editor
@@ -386,7 +388,6 @@ export default class ConnectionsDetail extends Vue {
         const msgPublishRef: MsgPublish = this.$refs.msgPublish as MsgPublish
         msgPublishRef.editorDestory()
       }, 100)
-      // When we jump order by `other page` -> `creation page` -> `connection page`, it's should only init once.
     }
   }
 
@@ -399,7 +400,6 @@ export default class ConnectionsDetail extends Vue {
 
   private connectLoading = false
   private disconnectLoding = false
-  private isReconnecting = false
   private searchVisible = false
   private searchLoading = false
   private showBytes = false
@@ -552,7 +552,6 @@ export default class ConnectionsDetail extends Vue {
 
   // Connect
   public async connect(): Promise<boolean | void> {
-    this.isReconnecting = false
     if (this.client.connected || this.connectLoading) {
       return false
     }
@@ -792,9 +791,6 @@ export default class ConnectionsDetail extends Vue {
 
   // Route to edit page
   private handleEdit(id: string): boolean | void {
-    if (this.isReconnecting) {
-      this.forceCloseTheConnection()
-    }
     if (this.client.connected || this.connectLoading) {
       return false
     }
@@ -1029,7 +1025,6 @@ export default class ConnectionsDetail extends Vue {
 
   // Reconnect callback
   private onReConnect() {
-    this.isReconnecting = true
     if (!this.record.reconnect) {
       this.forceCloseTheConnection()
       this.$notify({
@@ -1045,7 +1040,6 @@ export default class ConnectionsDetail extends Vue {
         this.$log.warn('Max reconnect limit reached, stopping retries')
         this.forceCloseTheConnection()
       } else {
-        this.isReconnecting = true
         this.$log.info(`Retrying connection for ${this.record.name}, attempt: ${this.reTryConnectTimes}`)
         this.reTryConnectTimes += 1
         this.connectLoading = true
@@ -1100,13 +1094,21 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private forceCloseTheConnection() {
-    this.client.end!(true)
-    this.reTryConnectTimes = 0
-    this.connectLoading = false
-    this.isReconnecting = false
-    this.$log.warn(
-      `MQTTX force close the connection ${this.record.name} (clientID ${this.record.clientId}), reset the reconnect times to 0`,
-    )
+    if (this.client.end) {
+      this.client.end(true, () => {
+        this.reTryConnectTimes = 0
+        this.connectLoading = false
+        this.$log.warn(`MQTTX force closed the connection ${this.record.name} (Client ID: ${this.record.clientId})`)
+      })
+    }
+  }
+
+  private forceStopToReconnect() {
+    if (this.client.reconnecting && this.client.connected === false) {
+      this.client.reconnecting = false
+      this.forceCloseTheConnection()
+      this.$log.warn(`MQTTX force stopped reconnecting for ${this.record.name} (Client ID: ${this.record.clientId})`)
+    }
   }
 
   // Search message
@@ -1888,12 +1890,10 @@ export default class ConnectionsDetail extends Vue {
     ipcRenderer.removeAllListeners('searchContent')
     this.removeClinetsMessageListener()
     this.stopTimedSend()
+    this.forceStopToReconnect()
     window.removeEventListener('resize', () => {
       this.setMessageListHeight()
     })
-    if (this.isReconnecting) {
-      this.forceCloseTheConnection()
-    }
   }
 }
 </script>
