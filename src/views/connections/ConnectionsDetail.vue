@@ -1215,7 +1215,7 @@ export default class ConnectionsDetail extends Vue {
     this.updateMeta(receivedMessage, 'function', 'received')
     this.updateMeta(receivedMessage, 'schema', 'received')
     this.updateMetaMsgType(receivedMessage, this.receivedMsgType)
-    if (this.receivedMsgType === 'JSON' && jsonMsgError) {
+    if (['JSON', 'CBOR'].includes(this.receivedMsgType) && jsonMsgError) {
       this.updateMetaError(receivedMessage, jsonMsgError)
     }
 
@@ -1641,6 +1641,16 @@ export default class ConnectionsDetail extends Vue {
           return undefined
         }
       }
+      if (publishType === 'CBOR') {
+        try {
+          return cbor.encodeOne(JSON.parse(publishValue))
+        } catch (error) {
+          const err = error as Error
+          let errorMessage = `${this.$t('connections.publishMsg')} ${err.toString()}`
+          this.$message.error(errorMessage)
+          return undefined
+        }
+      }
       return publishValue
     }
     const genReceivePayload = (receiveType: PayloadType, receiveValue: Buffer) => {
@@ -1662,7 +1672,11 @@ export default class ConnectionsDetail extends Vue {
         }
       }
       if (receiveType === 'CBOR') {
-        return jsonStringify(cbor.decodeFirstSync(receiveValue), null, 2)
+        try {
+          return jsonStringify(cbor.decodeFirstSync(receiveValue), null, 2)
+        } catch (error) {
+          throw error
+        }
       }
       return receiveValue.toString()
     }

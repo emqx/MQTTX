@@ -303,7 +303,7 @@ export default class MsgPublish extends Vue {
   }
   private payloadLang = 'json'
   private payloadType: PayloadType = 'JSON'
-  private payloadOptions: PayloadType[] = ['Plaintext', 'JSON', 'Base64', 'Hex']
+  private payloadOptions: PayloadType[] = ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR']
 
   @Watch('editorHeight')
   private handleHeightChanged() {
