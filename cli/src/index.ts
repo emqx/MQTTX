@@ -142,7 +142,11 @@ export class Commander {
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
-      .option('-f, --format <TYPE>', 'the format type of the input message, support base64, json, hex', parseFormat)
+      .option(
+        '-f, --format <TYPE>',
+        'the format type of the input message, support base64, json, hex and cbor',
+        parseFormat,
+      )
       .option('-i, --client-id <ID>', 'the client id', getClientId())
       .option('--no-clean', 'set the clean session flag to false', true)
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
@@ -230,7 +234,7 @@ export class Commander {
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
         parseUserProperties,
       )
-      .option('-f, --format <TYPE>', 'format the message body, support base64, json, hex', parseFormat)
+      .option('-f, --format <TYPE>', 'format the message body, support base64, json, hex and cbor', parseFormat)
       .option('-v, --verbose', 'print the topic before the message')
       .option(
         '--output-mode <default/clean>',

@@ -9,9 +9,9 @@ import * as Debug from 'debug'
 
 const processReceivedMessage = (
   payload: Buffer,
-  protobufPath: string | undefined,
-  protobufMessageName: string | undefined,
-  format: FormatType | undefined,
+  protobufPath?: string,
+  protobufMessageName?: string,
+  format?: FormatType,
 ): string => {
   let message: string | Buffer = payload
   /*

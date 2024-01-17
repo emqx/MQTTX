@@ -15,9 +15,9 @@ import * as Debug from 'debug'
 
 const processPublishMessage = (
   message: string | Buffer,
-  protobufPath: string | undefined,
-  protobufMessageName: string | undefined,
-  format: FormatType | undefined,
+  protobufPath?: string,
+  protobufMessageName?: string,
+  format?: FormatType,
 ): Buffer | string => {
   /*
    * Pipeline for processing outgoing messages in two potential stages:

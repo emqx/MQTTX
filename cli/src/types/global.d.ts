@@ -9,7 +9,7 @@ declare global {
 
   type QoS = 0 | 1 | 2
 
-  type FormatType = 'base64' | 'json' | 'hex'
+  type FormatType = 'base64' | 'json' | 'hex' | 'cbor'
 
   type OutputMode = 'clean' | 'default'
 
