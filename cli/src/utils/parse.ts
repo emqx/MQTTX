@@ -98,7 +98,7 @@ const parsePubTopic = (value: string) => {
 }
 
 const parseFormat = (value: string) => {
-  if (!['base64', 'json', 'hex'].includes(value)) {
+  if (!['base64', 'json', 'hex', 'cbor'].includes(value)) {
     signale.error('Not a valid format type.')
     process.exit(1)
   }
