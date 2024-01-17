@@ -207,7 +207,7 @@ declare global {
     connectionId?: string
     id?: string
     payload: string
-    payloadType: PayloadType
+    payloadType: string
     createAt?: string
   }
 
