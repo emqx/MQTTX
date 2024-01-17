@@ -318,7 +318,7 @@ export default class MsgPublish extends Vue {
   @Watch('payloadType')
   private handleTypeChange(val: PayloadType, oldVal: PayloadType) {
     const { payload } = this.msgRecord
-    if (val === 'JSON') {
+    if (['CBOR', 'JSON'].includes(val)) {
       this.payloadLang = 'json'
     } else {
       this.payloadLang = 'plaintext'
@@ -346,7 +346,7 @@ export default class MsgPublish extends Vue {
   private handleHistoryIndexChange(val: number, lastval: number) {
     if (lastval !== val && val >= 0 && val < this.payloadsHistory.length) {
       this.msgRecord = Object.assign(this.msgRecord, this.payloadsHistory[val])
-      this.payloadType = this.payloadsHistory[val].payloadType
+      this.payloadType = this.payloadsHistory[val].payloadType as PayloadType
     }
   }
 
@@ -477,7 +477,7 @@ export default class MsgPublish extends Vue {
     const payloadsHistory = (await historyMessagePayloadService.getAll()) ?? []
     const historyMsg = payloadsHistory[payloadsHistory.length - 1]
     if (historyMsg && isLoadData) {
-      this.payloadType = historyMsg.payloadType
+      this.payloadType = historyMsg.payloadType as PayloadType
     }
     this.headersHistory = headersHistory
     this.payloadsHistory = payloadsHistory
@@ -497,7 +497,7 @@ export default class MsgPublish extends Vue {
     )
     const headersHistoryIndex = this.payloadsHistory[this.historyIndex]
     if (headersHistoryIndex) {
-      this.payloadType = headersHistoryIndex.payloadType
+      this.payloadType = headersHistoryIndex.payloadType as PayloadType
     }
     this.loadProperties()
   }

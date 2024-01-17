@@ -1662,7 +1662,7 @@ export default class ConnectionsDetail extends Vue {
         }
       }
       if (receiveType === 'CBOR') {
-        return jsonStringify(cbor.decodeFirstSync(receiveValue))
+        return jsonStringify(cbor.decodeFirstSync(receiveValue), null, 2)
       }
       return receiveValue.toString()
     }

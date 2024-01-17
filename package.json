@@ -23,6 +23,7 @@
     "db:log": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm schema:log -f ormconfig.ts",
     "db:migration:show": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:show -f ormconfig.ts",
     "db:migration:generate": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:generate -f ormconfig.ts --pretty",
+    "db:migration:create": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:create -f ormconfig.ts",
     "db:migration:run": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:run -f ormconfig.ts",
     "db:migration:revert": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm migration:revert -f ormconfig.ts",
     "db:migration:sync": "TS_NODE_PROJECT=tsconfig.commonjs.json ts-node ./node_modules/.bin/typeorm schema:sync -f ormconfig.ts",
