@@ -55,7 +55,7 @@ const convertPayload = async (payload: string, currentType: PayloadType, fromTyp
   if (currentType === 'Base64') {
     $payload = convertBase64($payload, 'encode')
   }
-  if (currentType === 'JSON') {
+  if (currentType === 'JSON' || currentType === 'CBOR') {
     $payload = await convertJSON($payload)
   }
   if (currentType === 'Hex') {
