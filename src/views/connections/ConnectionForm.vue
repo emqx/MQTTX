@@ -1,6 +1,16 @@
 <template>
-  <div class="connection-form right-content card-form">
-    <div class="right-topbar topbar">
+  <div
+    class="connection-form right-content card-form"
+    :style="{
+      marginLeft: showConnectionList ? '341px' : '81px',
+    }"
+  >
+    <div
+      class="right-topbar topbar"
+      :style="{
+        left: showConnectionList ? '341px' : '81px',
+      }"
+    >
       <div class="header">
         <a href="javascript:;" @click="handleBack($route.params.id)">
           <i class="el-icon-arrow-left"></i>{{ $t('common.back') }}
@@ -599,6 +609,7 @@ export default class ConnectionForm extends Vue {
   @Getter('advancedVisible') private getterAdvancedVisible!: boolean
   @Getter('willMessageVisible') private getterWillMessageVisible!: boolean
   @Getter('currentTheme') private theme!: Theme
+  @Getter('showConnectionList') private showConnectionList!: boolean
 
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
   @Action('TOGGLE_ADVANCED_VISIBLE') private toggleAdvancedVisible!: (payload: { advancedVisible: boolean }) => void

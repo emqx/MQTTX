@@ -21,6 +21,17 @@
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
+        <a
+          href="javascript:;"
+          class="new-button"
+          @click="
+            toggleShowConnectionList({
+              showConnectionList: false,
+            })
+          "
+        >
+          <i class="iconfont icon-collapse" style="font-size: 18px"></i>
+        </a>
       </div>
     </div>
     <div class="connections-list">
@@ -169,6 +180,9 @@ import getContextmenuPosition from '@/utils/getContextmenuPosition'
 export default class ConnectionsList extends Vue {
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
   @Action('SET_CONNECTIONS_TREE') private setConnectionsTree!: (payload: ConnectionTreeState) => void
+  @Action('TOGGLE_SHOW_CONNECTION_LIST') private toggleShowConnectionList!: (payload: {
+    showConnectionList: boolean
+  }) => void
 
   @Getter('activeConnection') private activeConnection!: ActiveConnection
   @Getter('unreadMessageCount') private unreadMessageCount: UnreadMessage | undefined
@@ -733,19 +747,27 @@ export default class ConnectionsList extends Vue {
     height: 59px;
     -webkit-app-region: drag;
     .new-dropdown {
-      margin-right: 16px;
       &.is-new-window {
         display: none;
       }
-      .new-button {
-        .icon-a-createnew {
-          font-size: 20px;
+    }
+    .new-button {
+      margin-right: 16px;
+      .icon-a-createnew,
+      .icon-collapse {
+        font-size: 18px;
+        color: var(--color-text-title);
+        &:hover {
           color: var(--color-text-title);
         }
       }
     }
     .connection-titlebar {
       padding: 16px;
+    }
+    .connection-tailbar {
+      display: flex;
+      align-items: center;
     }
   }
   .connections-list {

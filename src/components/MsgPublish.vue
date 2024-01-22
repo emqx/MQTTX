@@ -240,7 +240,6 @@ import { emptyToNull } from '@/utils/handleString'
 })
 export default class MsgPublish extends Vue {
   @Prop({ required: true }) public editorHeight!: number
-  @Prop({ required: true }) public subsVisible!: boolean
   @Prop({ default: false }) public disabled!: boolean
   @Prop({ default: false }) public mqtt5PropsEnable!: boolean
   @Prop({ default: false }) public clientConnected!: boolean
@@ -308,12 +307,6 @@ export default class MsgPublish extends Vue {
   @Watch('editorHeight')
   private handleHeightChanged() {
     this.handleLayout()
-  }
-  @Watch('subsVisible')
-  private handleSubsChanged(val: boolean) {
-    setTimeout(() => {
-      this.handleLayout()
-    }, 500)
   }
   @Watch('payloadType')
   private handleTypeChange(val: PayloadType, oldVal: PayloadType) {

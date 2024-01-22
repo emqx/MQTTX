@@ -10,6 +10,7 @@
   z-index: 1000;
   border-right: 1px solid var(--color-border-default);
   background-color: var(--color-bg-normal);
+  transition: all 0.3s ease-in-out;
 
   .no-data {
     text-align: center;
@@ -20,9 +21,15 @@
   }
 }
 
+.connections {
+  height: 100%;
+  .connections-view {
+    height: 100%;
+  }
+}
+
 .connection-skeleton-page {
   margin-top: 30px;
-  margin-left: 370px;
   margin-right: 30px;
   overflow-x: hidden;
 }
