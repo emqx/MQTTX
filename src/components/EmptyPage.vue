@@ -1,5 +1,10 @@
 <template>
-  <div class="empty-page right-content">
+  <div
+    class="empty-page right-content"
+    :style="{
+      marginLeft: showConnectionList ? '341px' : '81px',
+    }"
+  >
     <div class="empty-page__block">
       <div>
         <img :src="imageSrc" alt="new connection" />
@@ -33,6 +38,7 @@ export default class EmptyPage extends Vue {
   @Prop() public clickMethod!: <T>() => T | void
 
   @Getter('currentLang') private getterLang!: Language
+  @Getter('showConnectionList') private showConnectionList!: boolean
 
   get imageSrc(): string {
     return require(`../assets/images/${this.name}`)
@@ -50,6 +56,11 @@ export default class EmptyPage extends Vue {
 
 <style lang="scss" scoped>
 .empty-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+
   .empty-page__block {
     .primary-btn {
       background: linear-gradient(134deg, #37dc85 0%, #35ca8d 100%);
@@ -60,7 +71,6 @@ export default class EmptyPage extends Vue {
       margin-bottom: 20px;
     }
     text-align: center;
-    padding-top: 30%;
     p {
       margin: 24px auto;
       max-width: 650px;

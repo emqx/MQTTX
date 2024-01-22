@@ -87,7 +87,6 @@ declare global {
     currentLang: Language
     autoCheck: boolean
     autoResub: boolean
-    showSubscriptions: boolean
     syncOsTheme: boolean
     multiTopics: boolean
     maxReconnectTimes: number
@@ -110,6 +109,7 @@ declare global {
     model: AIModel
     isPrismButtonAdded: boolean
     logLevel: LogLevel
+    showConnectionList: boolean
   }
 
   interface State {
@@ -150,10 +150,6 @@ declare global {
     readonly id: string
     unreadMessageCount?: 0
     increasedCount?: number
-  }
-
-  interface SubscriptionsVisible {
-    showSubscriptions: boolean
   }
 
   interface SubscriptionModel {

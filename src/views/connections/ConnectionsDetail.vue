@@ -1,10 +1,28 @@
 <template>
   <div class="connections-detail">
     <copilot v-if="enableCopilot" ref="copilot" :record="record" mode="connections" />
-    <div ref="connectionTopbar" class="connections-topbar right-topbar">
+    <div
+      ref="connectionTopbar"
+      class="connections-topbar right-topbar"
+      :style="{
+        left: showConnectionList ? '341px' : '81px',
+      }"
+    >
       <div class="connections-info">
         <div class="topbar">
           <div class="connection-head">
+            <a
+              v-if="!showConnectionList"
+              href="javascript:;"
+              class="show-connections-button"
+              @click="
+                toggleShowConnectionList({
+                  showConnectionList: true,
+                })
+              "
+            >
+              <i class="iconfont icon-collapse" style="font-size: 18px"></i>
+            </a>
             <h2 :class="{ offline: !client.connected }">
               <span class="title-name">{{ titleName }}</span>
               <a
@@ -187,21 +205,19 @@
       </transition>
     </div>
     <div
-      class="connections-detail-main right-content"
+      class="connections-detail-main"
       :style="{
         paddingTop: showClientInfo ? msgTop.open : msgTop.close,
         paddingBottom: `${msgBottom}px`,
-        marginLeft: showSubs ? '571px' : '341px',
+        marginLeft: showConnectionList ? '571px' : '311px',
       }"
     >
       <div class="connections-body">
-        <div ref="filterBar" class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open : bodyTop.close }">
-          <span class="subs-title">
-            {{ this.$t('connections.subscriptions') }}
-            <a class="subs-btn" href="javascript:;" @click="handleShowSubs">
-              <i class="iconfont icon-collapse"></i>
-            </a>
-          </span>
+        <div
+          ref="filterBar"
+          class="filter-bar"
+          :style="{ top: showClientInfo ? bodyTop.open : bodyTop.close, left: showConnectionList ? '571px' : '311px' }"
+        >
           <div class="message-type">
             <el-select class="received-type-select" size="mini" v-model="receivedMsgType">
               <el-option-group :label="$t('connections.receivedPayloadDecodedBy')">
@@ -215,7 +231,6 @@
         <SubscriptionsList
           v-if="$route.params.id"
           ref="subList"
-          :subsVisible.sync="showSubs"
           :connectionId="$route.params.id"
           :record="record"
           :top="showClientInfo ? bodyTop.open : bodyTop.close"
@@ -245,13 +260,16 @@
         </contextmenu>
       </div>
 
-      <div ref="connectionFooter" class="connections-footer" :style="{ marginLeft: showSubs ? '571px' : '341px' }">
+      <div
+        ref="connectionFooter"
+        class="connections-footer"
+        :style="{ marginLeft: showConnectionList ? '571px' : '311px' }"
+      >
         <ResizeHeight v-model="inputHeight" />
         <MsgPublish
           :mqtt5PropsEnable="record.mqttVersion === '5.0'"
           ref="msgPublish"
           :editor-height="inputHeight - 75"
-          :subs-visible="showSubs"
           :style="{ height: `${inputHeight}px` }"
           :disabled="sendTimeId !== null"
           :clientConnected="client.connected"
@@ -359,17 +377,19 @@ export default class ConnectionsDetail extends Vue {
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
   @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection!: (payload: { readonly id: string }) => void
   @Action('SHOW_CLIENT_INFO') private changeShowClientInfo!: (payload: ClientInfo) => void
-  @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
   @Action('SET_SCRIPT') private setScript!: (payload: { currentScript: ScriptState | null }) => void
+  @Action('TOGGLE_SHOW_CONNECTION_LIST') private toggleShowConnectionList!: (payload: {
+    showConnectionList: boolean
+  }) => void
 
   @Getter('activeConnection') private activeConnection!: ActiveConnection
-  @Getter('showSubscriptions') private showSubscriptions!: boolean
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: { [id: string]: boolean }
   @Getter('currentScript') private scriptOption!: ScriptState | null
   @Getter('enableCopilot') private enableCopilot!: boolean
+  @Getter('showConnectionList') private showConnectionList!: boolean
 
   /**
    * Notice: when we jump order by `other page` -> `creation page` -> `connection page`,
@@ -392,7 +412,6 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
-  private showSubs = true
   private showClientInfo = true
   private showExportData = false
   private showImportData = false
@@ -721,7 +740,6 @@ export default class ConnectionsDetail extends Vue {
     } else {
       this.showClientInfo = $clientInfoVisible
     }
-    this.showSubs = this.showSubscriptions
     if (currentActiveConnection) {
       this.client = currentActiveConnection.client
       this.setClientsMessageListener()
@@ -730,12 +748,6 @@ export default class ConnectionsDetail extends Vue {
         connected: false,
       }
     }
-  }
-
-  // Show subscription list
-  private handleShowSubs() {
-    this.showSubs = !this.showSubs
-    this.changeShowSubscriptions({ showSubscriptions: this.showSubs })
   }
 
   // Collapse top client info
@@ -1941,6 +1953,12 @@ export default class ConnectionsDetail extends Vue {
         .offline {
           color: var(--color-text-light);
         }
+        a.show-connections-button {
+          margin-right: 12px;
+          transform: rotate(180deg);
+          position: relative;
+          top: -4px;
+        }
         a.collapse-btn {
           font-size: 18px;
           float: right;
@@ -2059,7 +2077,6 @@ export default class ConnectionsDetail extends Vue {
           @include flex-space-between;
           .received-type-select {
             width: 88px;
-            margin-left: 227px;
             .el-input__inner {
               padding: 4px 10px;
             }

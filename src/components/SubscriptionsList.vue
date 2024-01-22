@@ -1,65 +1,60 @@
 <template>
   <div>
-    <left-panel>
-      <el-card
-        v-show="subsVisible"
-        shadow="never"
-        class="subscriptions-list-view"
+    <el-card
+      shadow="never"
+      class="subscriptions-list-view"
+      :style="{
+        top,
+        left: showConnectionList ? '341px' : '81px',
+      }"
+    >
+      <div slot="header" class="clearfix">
+        <el-button class="btn new-subs-btn" icon="el-icon-plus" plain type="outline" size="mini" @click="openDialog">
+          {{ $t('connections.newSubscription') }}
+        </el-button>
+      </div>
+      <div
+        v-for="(sub, index) in subsList"
+        :key="index"
+        :class="['topics-item', { active: index === topicActiveIndex, disabled: sub.disabled }]"
         :style="{
-          top,
+          background: `${sub.color}10`,
         }"
+        @click="handleClickTopic(sub, index)"
+        @contextmenu.prevent="handleContextMenu(sub, $event)"
       >
-        <div slot="header" class="clearfix">
-          <el-button class="btn new-subs-btn" icon="el-icon-plus" plain type="outline" size="mini" @click="openDialog">
-            {{ $t('connections.newSubscription') }}
-          </el-button>
-          <!-- <a class="hide-btn" href="javascript:;" @click="hideSubsList">
-            <i class="iconfont icon-collapse"></i>
-          </a> -->
-        </div>
         <div
-          v-for="(sub, index) in subsList"
-          :key="index"
-          :class="['topics-item', { active: index === topicActiveIndex, disabled: sub.disabled }]"
           :style="{
-            background: `${sub.color}10`,
+            background: `${sub.color}`,
           }"
-          @click="handleClickTopic(sub, index)"
-          @contextmenu.prevent="handleContextMenu(sub, $event)"
+          class="topics-color-line"
+        ></div>
+        <el-popover
+          placement="top"
+          trigger="hover"
+          popper-class="topic-tooltip"
+          :content="getPopoverContent(copySuccess, sub)"
         >
-          <div
+          <a
+            slot="reference"
+            v-clipboard:copy="sub.topic"
+            v-clipboard:success="onCopySuccess"
+            href="javascript:;"
+            class="topic"
             :style="{
-              background: `${sub.color}`,
+              color: sub.color,
             }"
-            class="topics-color-line"
-          ></div>
-          <el-popover
-            placement="top"
-            trigger="hover"
-            popper-class="topic-tooltip"
-            :content="getPopoverContent(copySuccess, sub)"
+            @click.stop="stopClick"
           >
-            <a
-              slot="reference"
-              v-clipboard:copy="sub.topic"
-              v-clipboard:success="onCopySuccess"
-              href="javascript:;"
-              class="topic"
-              :style="{
-                color: sub.color,
-              }"
-              @click.stop="stopClick"
-            >
-              {{ sub.alias || sub.topic }}
-            </a>
-          </el-popover>
-          <span class="qos">QoS {{ sub.qos }}</span>
-          <a href="javascript:;" class="close" @click.stop="unsubscribe(sub)">
-            <i :class="unsubLoading ? 'el-icon-loading' : 'el-icon-close'"></i>
+            {{ sub.alias || sub.topic }}
           </a>
-        </div>
-      </el-card>
-    </left-panel>
+        </el-popover>
+        <span class="qos">QoS {{ sub.qos }}</span>
+        <a href="javascript:;" class="close" @click.stop="unsubscribe(sub)">
+          <i :class="unsubLoading ? 'el-icon-loading' : 'el-icon-close'"></i>
+        </a>
+      </div>
+    </el-card>
     <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
       <a href="javascript:;" class="context-menu__item" @click="handleTopicEdit">
         <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
@@ -223,7 +218,6 @@ enum SubscribeErrorReason {
   },
 })
 export default class SubscriptionsList extends Vue {
-  @Prop({ required: true }) public subsVisible!: boolean
   @Prop({ required: true }) public connectionId!: string
   @Prop({ required: true }) public record!: ConnectionModel
   @Prop({ type: String, default: '60px' }) public top!: string
@@ -233,6 +227,7 @@ export default class SubscriptionsList extends Vue {
   @Getter('currentTheme') private theme!: Theme
   @Getter('multiTopics') private multiTopics!: boolean
   @Getter('activeConnection') private activeConnection!: ActiveConnection
+  @Getter('showConnectionList') private showConnectionList!: boolean
 
   private topicColor = ''
   private client: Partial<MqttClient> = {
@@ -704,6 +699,15 @@ export default class SubscriptionsList extends Vue {
 @import '~@/assets/scss/mixins.scss';
 
 .subscriptions-list-view {
+  position: fixed;
+  z-index: 1;
+  width: 230px;
+  background: var(--color-bg-normal);
+  border-radius: 0;
+  top: 0;
+  bottom: 0;
+  padding-bottom: 42px;
+  border-bottom: 0px;
   &.el-card {
     border-top: 0px;
     border-left: 0px;

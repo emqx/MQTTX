@@ -11,7 +11,6 @@ const CHANGE_ACTIVE_CONNECTION = 'CHANGE_ACTIVE_CONNECTION'
 const REMOVE_ACTIVE_CONNECTION = 'REMOVE_ACTIVE_CONNECTION'
 const CHANGE_SUBSCRIPTIONS = 'CHANGE_SUBSCRIPTIONS'
 const SHOW_CLIENT_INFO = 'SHOW_CLIENT_INFO'
-const SHOW_SUBSCRIPTIONS = 'SHOW_SUBSCRIPTIONS'
 const UNREAD_MESSAGE_COUNT_INCREMENT = 'UNREAD_MESSAGE_COUNT_INCREMENT'
 const SET_CONNECTIONS_TREE = 'SET_CONNECTIONS_TREE'
 const TOGGLE_WILL_MESSAGE_VISIBLE = 'TOGGLE_WILL_MESSAGE_VISIBLE'
@@ -26,13 +25,14 @@ const SET_MODEL = 'SET_MODEL'
 const SET_INSERT_BUTTON_ADDED = 'SET_INSERT_BUTTON_ADDED'
 const TOGGLE_ENABLE_COPILOT = 'TOGGLE_ENABLE_COPILOT'
 const SET_LOG_LEVEL = 'SET_LOG_LEVEL'
+const TOGGLE_SHOW_CONNECTION_LIST = 'TOGGLE_SHOW_CONNECTION_LIST'
 
-const getShowSubscriptions = (): boolean => {
-  const $showSubscriptions: string | null = localStorage.getItem('showSubscriptions')
-  if (!$showSubscriptions) {
+const getShowConnectionList = (): boolean => {
+  const _showConnectionList: string | null = localStorage.getItem('showConnectionList')
+  if (!_showConnectionList) {
     return true
   }
-  return JSON.parse($showSubscriptions)
+  return JSON.parse(_showConnectionList)
 }
 
 const settingData = remote.getGlobal('sharedData')
@@ -47,7 +47,6 @@ const app = {
     multiTopics: settingData.multiTopics,
     jsonHighlight: settingData.jsonHighlight,
     maxReconnectTimes: settingData.maxReconnectTimes || 10,
-    showSubscriptions: getShowSubscriptions(),
     showClientInfo: {},
     unreadMessageCount: {},
     connectionTreeState: {},
@@ -61,6 +60,7 @@ const app = {
     model: settingData.model || 'gpt-3.5-turbo',
     isPrismButtonAdded: false,
     logLevel: settingData.logLevel || 'info',
+    showConnectionList: getShowConnectionList(),
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -110,10 +110,6 @@ const app = {
     [SHOW_CLIENT_INFO](state: App, payload: ClientInfo) {
       state.showClientInfo[payload.id] = payload.showClientInfo
     },
-    [SHOW_SUBSCRIPTIONS](state: App, payload: SubscriptionsVisible) {
-      state.showSubscriptions = payload.showSubscriptions
-      localStorage.setItem('showSubscriptions', JSON.stringify(state.showSubscriptions))
-    },
     [SET_CONNECTIONS_TREE](state: App, payload: ConnectionTreeState) {
       const { id } = payload
       state.connectionTreeState[id] = { expanded: payload.expanded }
@@ -158,6 +154,10 @@ const app = {
     },
     [SET_LOG_LEVEL](state: App, logLevel: LogLevel) {
       state.logLevel = logLevel
+    },
+    [TOGGLE_SHOW_CONNECTION_LIST](state: App, showConnectionList: boolean) {
+      state.showConnectionList = showConnectionList
+      localStorage.setItem('showConnectionList', JSON.stringify(state.showConnectionList))
     },
   },
   actions: {
@@ -224,9 +224,6 @@ const app = {
     async SET_CONNECTIONS_TREE({ commit }: any, payload: App) {
       commit(SET_CONNECTIONS_TREE, payload)
     },
-    async SHOW_SUBSCRIPTIONS({ commit }: any, payload: App) {
-      commit(SHOW_SUBSCRIPTIONS, payload)
-    },
     async UNREAD_MESSAGE_COUNT_INCREMENT({ commit }: any, payload: App) {
       commit(UNREAD_MESSAGE_COUNT_INCREMENT, payload)
     },
@@ -268,6 +265,9 @@ const app = {
       commit(SET_LOG_LEVEL, payload.logLevel)
       settingData.logLevel = payload.logLevel
       await settingService.update(payload)
+    },
+    TOGGLE_SHOW_CONNECTION_LIST({ commit }: any, payload: App) {
+      commit(TOGGLE_SHOW_CONNECTION_LIST, payload.showConnectionList)
     },
   },
 }
