@@ -5,7 +5,7 @@
       class="subscriptions-list-view"
       :style="{
         top,
-        left: showConnectionList ? '341px' : '81px',
+        left: leftValue,
       }"
     >
       <div slot="header" class="clearfix">
@@ -202,6 +202,7 @@ import useServices from '@/database/useServices'
 import time from '@/utils/time'
 import { getSubscriptionId } from '@/utils/idGenerator'
 import getContextmenuPosition from '@/utils/getContextmenuPosition'
+import { LeftValues } from '@/utils/styles'
 
 enum SubscribeErrorReason {
   normal,
@@ -270,6 +271,10 @@ export default class SubscriptionsList extends Vue {
 
   get predefineColors(): string[] {
     return defineColors
+  }
+
+  get leftValue(): string {
+    return this.showConnectionList ? LeftValues.Show : LeftValues.Hide
   }
 
   @Watch('$route.params.id')

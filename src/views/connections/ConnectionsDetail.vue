@@ -5,7 +5,7 @@
       ref="connectionTopbar"
       class="connections-topbar right-topbar"
       :style="{
-        left: showConnectionList ? '341px' : '81px',
+        left: leftValue,
       }"
     >
       <div class="connections-info">
@@ -207,17 +207,13 @@
     <div
       class="connections-detail-main"
       :style="{
-        paddingTop: showClientInfo ? msgTop.open : msgTop.close,
+        paddingTop: msgTopValue,
         paddingBottom: `${msgBottom}px`,
-        marginLeft: showConnectionList ? '571px' : '311px',
+        marginLeft: detailLeftValue,
       }"
     >
       <div class="connections-body">
-        <div
-          ref="filterBar"
-          class="filter-bar"
-          :style="{ top: showClientInfo ? bodyTop.open : bodyTop.close, left: showConnectionList ? '571px' : '311px' }"
-        >
+        <div ref="filterBar" class="filter-bar" :style="{ top: bodyTopValue, left: detailLeftValue }">
           <div class="message-type">
             <el-select class="received-type-select" size="mini" v-model="receivedMsgType">
               <el-option-group :label="$t('connections.receivedPayloadDecodedBy')">
@@ -233,7 +229,7 @@
           ref="subList"
           :connectionId="$route.params.id"
           :record="record"
-          :top="showClientInfo ? bodyTop.open : bodyTop.close"
+          :top="bodyTopValue"
           @onClickTopic="handleTopicClick"
           @deleteTopic="handleTopicDelete"
           @onSubError="handleSubTopicError"
@@ -260,11 +256,7 @@
         </contextmenu>
       </div>
 
-      <div
-        ref="connectionFooter"
-        class="connections-footer"
-        :style="{ marginLeft: showConnectionList ? '571px' : '311px' }"
-      >
+      <div ref="connectionFooter" class="connections-footer" :style="{ marginLeft: detailLeftValue }">
         <ResizeHeight v-model="inputHeight" />
         <MsgPublish
           :mqtt5PropsEnable="record.mqttVersion === '5.0'"
@@ -303,6 +295,7 @@ import { MqttClient, IConnackPacket, IPublishPacket, IClientPublishOptions, IDis
 import _ from 'lodash'
 import { Subject, fromEvent } from 'rxjs'
 import { bufferTime, map, filter, takeUntil } from 'rxjs/operators'
+import cbor from 'cbor'
 
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
@@ -334,7 +327,7 @@ import { getMessageId, getSubscriptionId } from '@/utils/idGenerator'
 import getContextmenuPosition from '@/utils/getContextmenuPosition'
 import { deserializeBufferToProtobuf, printObjectAsString, serializeProtobufToBuffer } from '@/utils/protobuf'
 import { jsonStringify } from '@/utils/jsonUtils'
-import cbor from 'cbor'
+import { LeftValues, BodyTopValues, MsgTopValues, DetailLeftValues } from '@/utils/styles'
 
 type CommandType =
   | 'searchContent'
@@ -476,18 +469,20 @@ export default class ConnectionsDetail extends Vue {
     return this.record.name
   }
 
-  get bodyTop(): TopModel {
-    return {
-      open: '249px',
-      close: '60px',
-    }
+  get bodyTopValue(): string {
+    return this.showClientInfo ? BodyTopValues.Open : BodyTopValues.Close
   }
 
-  get msgTop(): TopModel {
-    return {
-      open: '282px',
-      close: '91px',
-    }
+  get msgTopValue(): string {
+    return this.showClientInfo ? MsgTopValues.Open : MsgTopValues.Close
+  }
+
+  get leftValue(): string {
+    return this.showConnectionList ? LeftValues.Show : LeftValues.Hide
+  }
+
+  get detailLeftValue(): string {
+    return this.showConnectionList ? DetailLeftValues.Show : DetailLeftValues.Hide
   }
 
   get isNewWindow(): boolean {
