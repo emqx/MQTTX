@@ -2,13 +2,13 @@
   <div
     class="connection-form right-content card-form"
     :style="{
-      marginLeft: showConnectionList ? '341px' : '81px',
+      marginLeft: leftValue,
     }"
   >
     <div
       class="right-topbar topbar"
       :style="{
-        left: showConnectionList ? '341px' : '81px',
+        left: leftValue,
       }"
     >
       <div class="header">
@@ -596,6 +596,7 @@ import { getClientId } from '@/utils/idGenerator'
 import { getMQTTProtocol, getDefaultRecord } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
 import KeyValueEditor from '@/components/KeyValueEditor.vue'
+import { LeftValues } from '@/utils/styles'
 
 @Component({
   components: {
@@ -654,6 +655,10 @@ export default class ConnectionForm extends Vue {
 
   get vueForm(): VueForm {
     return this.$refs.form as VueForm
+  }
+
+  get leftValue(): string {
+    return this.showConnectionList ? LeftValues.Show : LeftValues.Hide
   }
 
   private async loadDetail(id: string) {

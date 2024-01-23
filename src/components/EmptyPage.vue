@@ -2,7 +2,7 @@
   <div
     class="empty-page right-content"
     :style="{
-      marginLeft: showConnectionList ? '341px' : '81px',
+      marginLeft: leftValue,
     }"
   >
     <div class="empty-page__block">
@@ -30,6 +30,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import gaCustomLinks from '@/utils/gaCustomLinks'
+import { LeftValues } from '@/utils/styles'
 
 @Component
 export default class EmptyPage extends Vue {
@@ -50,6 +51,10 @@ export default class EmptyPage extends Vue {
 
   get emqxWebsite(): string {
     return gaCustomLinks(this.getterLang).empty.EMQX
+  }
+
+  get leftValue(): string {
+    return this.showConnectionList ? LeftValues.Show : LeftValues.Hide
   }
 }
 </script>
