@@ -390,6 +390,12 @@ export class Commander {
       .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
       .option('-im, --message-interval <MILLISECONDS>', 'interval of publishing messages', parseNumber, 1000)
       .option(
+        '-L, --limit <NUMBER>',
+        'The maximum number of messages to publish. A value of 0 means no limit on the number of messages',
+        parseNumber,
+        0,
+      )
+      .option(
         '-t, --topic <TOPIC>',
         'the message topic, support %u (username), %c (client id), %i (index) variables',
         parsePubTopic,

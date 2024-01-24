@@ -194,8 +194,19 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
     save && saveConfig('benchPub', options)
   }
 
-  const { count, interval, messageInterval, hostname, port, topic, clientId, message, verbose, maximumReconnectTimes } =
-    options
+  const {
+    count,
+    interval,
+    messageInterval,
+    limit,
+    hostname,
+    port,
+    topic,
+    clientId,
+    message,
+    verbose,
+    maximumReconnectTimes,
+  } = options
 
   checkTopicExists(topic, commandType)
 
@@ -205,7 +216,11 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
   const { username } = connOpts
 
+  let initialized = false
+
   let connectedCount = 0
+
+  let inFlightMessageCount = 0
 
   const isNewConnArray = Array(count).fill(true)
 
@@ -257,10 +272,18 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
         if (isNewConnArray[i - 1]) {
           interactive.success('[%d/%d] - Connected', connectedCount, count)
 
-          setInterval(() => {
-            if (!client.connected) {
+          setInterval(async () => {
+            // If the number of messages sent exceeds the limit, exit the process.
+            if (limit > 0 && total >= limit) {
+              // Wait for the total number of sent messages to be printed, then exit the process.
+              await delay(1000)
+              process.exit(0)
+            }
+            // If not initialized or client is not connected or message count exceeds the limit, do not send messages.
+            if (!initialized || !client.connected || (limit > 0 && total + inFlightMessageCount >= limit)) {
               return
             }
+            inFlightMessageCount += 1
             let publishTopic = topicName
             let publishMessage = message
             if (commandType === 'simulate') {
@@ -272,6 +295,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
               publishMessage = simulationResult.message
             }
             client.publish(publishTopic, publishMessage, pubOpts.opts, (err) => {
+              inFlightMessageCount -= 1
               if (err) {
                 signale.warn(err)
               } else {
@@ -282,12 +306,11 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
           }, messageInterval)
 
           if (connectedCount === count) {
+            initialized = true
+
             const connEnd = Date.now()
 
             signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
-
-            total = 0
-            rate = 0
 
             if (!verbose) {
               setInterval(() => {

@@ -111,6 +111,7 @@ declare global {
     count: number
     interval: number
     messageInterval: number
+    limit: number
     verbose: boolean
   }
 
