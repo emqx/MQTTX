@@ -31,6 +31,7 @@ export default class Editor extends Vue {
   @Model('change', { type: String }) private readonly value!: string
 
   @Getter('currentTheme') private theme!: Theme
+  @Getter('showConnectionList') private showConnectionList!: boolean
 
   private editor: monaco.editor.IStandaloneCodeEditor | null = null
 
@@ -64,6 +65,13 @@ export default class Editor extends Vue {
       this.editor.dispose()
       this.initEditor()
     }
+  }
+
+  @Watch('showConnectionList')
+  private handleShowConnectionListChanged(val: boolean) {
+    setTimeout(() => {
+      this.editorLayout()
+    }, 500)
   }
 
   // init and register customer editor style
