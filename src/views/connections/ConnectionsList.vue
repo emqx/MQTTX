@@ -10,7 +10,7 @@
           @command="handleCommand"
         >
           <a href="javascript:;" class="new-button">
-            <i class="iconfont icon-a-createnew"></i>
+            <i class="iconfont icon-create-new"></i>
           </a>
           <el-dropdown-menu class="connection-oper-item" slot="dropdown">
             <el-dropdown-item command="newConnection">
@@ -21,17 +21,24 @@
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
-        <a
-          href="javascript:;"
-          class="new-button"
-          @click="
-            toggleShowConnectionList({
-              showConnectionList: false,
-            })
-          "
+        <el-tooltip
+          placement="bottom"
+          :effect="theme !== 'light' ? 'light' : 'dark'"
+          :open-delay="500"
+          :content="$t('connections.hideConnections')"
         >
-          <i class="iconfont icon-collapse" style="font-size: 18px"></i>
-        </a>
+          <a
+            href="javascript:;"
+            class="new-button"
+            @click="
+              toggleShowConnectionList({
+                showConnectionList: false,
+              })
+            "
+          >
+            <i class="iconfont icon-hide-connections"></i>
+          </a>
+        </el-tooltip>
       </div>
     </div>
     <div class="connections-list">
@@ -131,10 +138,10 @@
       </template>
       <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
         <a href="javascript:;" class="context-menu__item" @click="handleNewWindow">
-          <i class="iconfont icon-a-newwindow"></i>{{ $t('common.newWindow') }}
+          <i class="iconfont icon-new-window"></i>{{ $t('common.newWindow') }}
         </a>
         <a href="javascript:;" class="context-menu__item" @click="handleDuplicate">
-          <i class="el-icon-document-copy"></i>{{ $t('common.duplicate') }}
+          <i class="iconfont icon-copy"></i>{{ $t('common.duplicate') }}
         </a>
         <a href="javascript:;" :class="['context-menu__item', { disabled: getDisabledStatus() }]" @click="handleEdit">
           <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
@@ -753,9 +760,9 @@ export default class ConnectionsList extends Vue {
     }
     .new-button {
       margin-right: 16px;
-      .icon-a-createnew,
-      .icon-collapse {
-        font-size: 18px;
+      .icon-create-new,
+      .icon-hide-connections {
+        font-size: 20px;
         color: var(--color-text-title);
         &:hover {
           color: var(--color-text-title);

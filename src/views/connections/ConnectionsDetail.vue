@@ -11,28 +11,35 @@
       <div class="connections-info">
         <div class="topbar">
           <div class="connection-head">
-            <a
-              v-if="!showConnectionList"
-              href="javascript:;"
-              class="show-connections-button"
-              @click="
-                toggleShowConnectionList({
-                  showConnectionList: true,
-                })
-              "
+            <el-tooltip
+              placement="bottom"
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :open-delay="500"
+              :content="$t('connections.showConnections')"
             >
-              <i class="iconfont icon-collapse" style="font-size: 18px"></i>
-            </a>
+              <a
+                v-if="!showConnectionList"
+                href="javascript:;"
+                class="show-connections-button"
+                @click="
+                  toggleShowConnectionList({
+                    showConnectionList: true,
+                  })
+                "
+              >
+                <i class="iconfont icon-show-connections"></i>
+              </a>
+            </el-tooltip>
             <h2 :class="{ offline: !client.connected }">
               <span class="title-name">{{ titleName }}</span>
-              <a
-                href="javascript:;"
-                :class="['collapse-btn', showClientInfo ? 'top' : 'bottom']"
-                @click="handleCollapse($route.params.id)"
-              >
-                <i class="el-icon-d-arrow-left"></i>
-              </a>
             </h2>
+            <a
+              href="javascript:;"
+              :class="['collapse-btn', showClientInfo ? 'top' : 'bottom']"
+              @click="handleCollapse($route.params.id)"
+            >
+              <i class="iconfont icon-collapse"></i>
+            </a>
             <transition name="el-fade-in">
               <el-popover
                 v-if="client.connected"
@@ -65,7 +72,7 @@
                   :content="$t('connections.clearIntervalBtn')"
                 >
                   <a class="stop-interval-btn" href="javascript:;" @click="stopTimedSend">
-                    <i class="iconfont icon-a-stoptiming"></i>
+                    <i class="iconfont icon-stop-timing"></i>
                   </a>
                 </el-tooltip>
                 <el-tooltip
@@ -102,12 +109,20 @@
               :content="$t('script.removeScript')"
             >
               <a class="remove-script-btn" href="javascript:;" @click="removeScript">
-                <i class="iconfont icon-a-stopscrip"></i>
+                <i class="iconfont icon-stop-script"></i>
               </a>
             </el-tooltip>
-            <a href="javascript:;" v-if="enableCopilot" @click="toggleShowCopilot" style="margin-right: 12px">
-              <i class="el-icon-chat-line-square"></i>
-            </a>
+            <el-tooltip
+              v-if="enableCopilot"
+              placement="bottom"
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :open-delay="500"
+              content="MQTTX Copilot"
+            >
+              <a href="javascript:;" class="copilot-btn" @click="toggleShowCopilot">
+                <i class="iconfont icon-chat"></i>
+              </a>
+            </el-tooltip>
             <template v-if="!isNewWindow">
               <el-tooltip
                 placement="bottom"
@@ -132,22 +147,22 @@
                     <i class="iconfont icon-search"></i>{{ $t('connections.searchContent') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="clearHistory">
-                    <i class="iconfont icon-a-clearhistory"></i>{{ $t('connections.clearHistory') }}
+                    <i class="iconfont icon-clear-history"></i>{{ $t('connections.clearHistory') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="useScript" :disabled="!client.connected">
-                    <i class="iconfont icon-a-usescript"></i>{{ $t('script.useScript') }}
+                    <i class="iconfont icon-use-script"></i>{{ $t('script.useScript') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="newWindow">
-                    <i class="iconfont icon-a-newwindow"></i>{{ $t('common.newWindow') }}
+                    <i class="iconfont icon-new-window"></i>{{ $t('common.newWindow') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="exportData">
-                    <i class="iconfont icon-a-exportdata"></i>{{ $t('connections.exportData') }}
+                    <i class="iconfont icon-export-data"></i>{{ $t('connections.exportData') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="importData">
-                    <i class="iconfont icon-a-importdata"></i>{{ $t('connections.importData') }}
+                    <i class="iconfont icon-import-data"></i>{{ $t('connections.importData') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="bytesStatistics" :disabled="!client.connected">
-                    <i class="iconfont icon-a-bytesstatistics"></i>{{ $t('connections.bytesStatistics') }}
+                    <i class="iconfont icon-bytes-statistics"></i>{{ $t('connections.bytesStatistics') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="disconnect" :disabled="!client.connected">
                     <i class="el-icon-switch-button"></i>{{ $t('connections.disconnect') }}
@@ -1938,33 +1953,33 @@ export default class ConnectionsDetail extends Vue {
       }
       .connection-head {
         display: flex;
-        .title-name {
-          display: inline-block;
+        align-items: center;
+        h2 .title-name {
           max-width: 200px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          margin-right: 12px;
         }
         .offline {
           color: var(--color-text-light);
         }
+        .icon-show-connections,
+        .icon-collapse {
+          font-size: 20px;
+        }
         a.show-connections-button {
-          margin-right: 12px;
-          transform: rotate(180deg);
-          position: relative;
-          top: -4px;
+          color: var(--color-text-title);
+          margin-right: 16px;
         }
-        a.collapse-btn {
-          font-size: 18px;
-          float: right;
-          margin-left: 12px;
-          margin-top: -1px;
+        .icon-collapse {
+          font-weight: bold;
         }
-        @include collapse-btn-transform(90deg, -90deg);
         .connection-message-count {
-          top: 3px;
-          left: 10px;
+          margin-left: 12px;
+          display: flex;
         }
+        @include collapse-btn-transform(0deg, 180deg);
       }
       .connection-tail {
         i {
@@ -1975,7 +1990,7 @@ export default class ConnectionsDetail extends Vue {
         .remove-script-btn,
         .disconnect-btn,
         .stop-interval-btn {
-          margin-right: 12px;
+          margin-right: 16px;
           i {
             color: var(--color-minor-red);
           }
@@ -1983,8 +1998,9 @@ export default class ConnectionsDetail extends Vue {
         .connect-loading,
         .edit-btn,
         .connect-btn,
+        .copilot-btn,
         .new-window-btn {
-          margin-right: 12px;
+          margin-right: 16px;
         }
         .edit-btn {
           &.disabled {
@@ -2063,10 +2079,6 @@ export default class ConnectionsDetail extends Vue {
           left: 3px;
           display: inline-block;
           transform: rotate(180deg);
-          .icon-zhedie {
-            display: inline-block;
-            transform: rotate(180deg);
-          }
         }
         .message-type {
           @include flex-space-between;
@@ -2107,7 +2119,7 @@ export default class ConnectionsDetail extends Vue {
     align-items: center;
     .iconfont,
     [class^='el-icon-'] {
-      margin-right: 8px;
+      margin-right: 10px;
     }
   }
   li.delete-item {

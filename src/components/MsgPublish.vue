@@ -124,7 +124,7 @@
               <i class="iconfont icon-delete"></i>{{ $t('connections.clearRetainedMessage') }}
             </el-dropdown-item>
             <el-dropdown-item command="timedMessage" :disabled="!clientConnected || sendTimeId !== null">
-              <i class="iconfont icon-a-timedmessage"></i>{{ $t('connections.timedMessage') }}
+              <i class="iconfont icon-timed-message"></i>{{ $t('connections.timedMessage') }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
