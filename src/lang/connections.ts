@@ -873,4 +873,18 @@ export default {
     ja: 'サーバーから積極的に接続が切断されました',
     hu: 'A kiszolgáló aktívan bontotta a kapcsolatot',
   },
+  hideConnections: {
+    zh: '隐藏连接列表',
+    en: 'Hide Connections',
+    tr: 'Bağlantıları Gizle',
+    ja: '接続リストを非表示',
+    hu: 'Kapcsolatok elrejtése',
+  },
+  showConnections: {
+    zh: '显示连接列表',
+    en: 'Show Connections',
+    tr: 'Bağlantıları Göster',
+    ja: '接続リストを表示',
+    hu: 'Kapcsolatok mutatása',
+  },
 }

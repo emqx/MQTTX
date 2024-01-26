@@ -402,7 +402,7 @@ body.night {
   & > div {
     box-shadow: -2px 0px 8px 0px var(--color-shadow-leftlist);
     position: fixed;
-    right: 1px;
+    right: 0px;
     width: 45%;
     background: var(--color-bg-normal);
     border-radius: 0;
