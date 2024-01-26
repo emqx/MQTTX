@@ -12,6 +12,7 @@ import {
   parsePubTopic,
   parseFormat,
   parseOutputMode,
+  parseThreads,
 } from './utils/parse'
 import { conn, benchConn } from './lib/conn'
 import { pub, benchPub, simulatePub } from './lib/pub'
@@ -321,6 +322,12 @@ export class Commander {
       .description('Create a custom number of connections.')
       .option('-c, --count <NUMBER>', 'the number of connections', parseNumber, 1000)
       .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
+      .option(
+        '--cores <number>',
+        'the number of CPU cores to use, default is 1, maximum is the number of CPU cores',
+        parseThreads,
+        1,
+      )
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
@@ -391,7 +398,7 @@ export class Commander {
       .option('-im, --message-interval <MILLISECONDS>', 'interval of publishing messages', parseNumber, 1000)
       .option(
         '-L, --limit <NUMBER>',
-        'The maximum number of messages to publish. A value of 0 means no limit on the number of messages',
+        'the maximum number of messages to publish. A value of 0 means no limit on the number of messages',
         parseNumber,
         0,
       )
