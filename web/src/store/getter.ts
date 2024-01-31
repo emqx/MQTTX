@@ -6,7 +6,6 @@ const getters = {
   autoScroll: (state: State) => state.app.autoScroll,
   autoScrollInterval: (state: State) => state.app.autoScrollInterval,
   maxReconnectTimes: (state: State) => state.app.maxReconnectTimes,
-  showSubscriptions: (state: State) => state.app.showSubscriptions,
   activeConnection: (state: State) => state.app.activeConnection,
   showClientInfo: (state: State) => state.app.showClientInfo,
   unreadMessageCount: (state: State) => state.app.unreadMessageCount,

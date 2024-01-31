@@ -65,7 +65,7 @@
                   <i class="iconfont icon-search"></i>{{ $t('connections.searchByTopic') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="clearHistory">
-                  <i class="iconfont icon-a-clearhistory"></i>{{ $t('connections.clearHistory') }}
+                  <i class="iconfont icon-clear-history"></i>{{ $t('connections.clearHistory') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="disconnect" :disabled="!client.connected">
                   <i class="el-icon-switch-button"></i>{{ $t('connections.disconnect') }}
@@ -124,12 +124,6 @@
     >
       <div class="connections-body">
         <div ref="filterBar" class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open : bodyTop.close }">
-          <span class="subs-title">
-            {{ this.$t('connections.subscriptions') }}
-            <a class="subs-btn" href="javascript:;" @click="handleShowSubs">
-              <i class="iconfont icon-collapse"></i>
-            </a>
-          </span>
           <div class="message-type">
             <el-select class="received-type-select" size="mini" v-model="receivedMsgType">
               <el-option-group :label="$t('connections.receivedPayloadDecodedBy')">
@@ -243,11 +237,9 @@ export default class ConnectionsDetail extends Vue {
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
   @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection!: (payload: { readonly id: string }) => void
   @Action('SHOW_CLIENT_INFO') private changeShowClientInfo!: (payload: ClientInfo) => void
-  @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
 
   @Getter('activeConnection') private activeConnection: $TSFixed
-  @Getter('showSubscriptions') private showSubscriptions!: boolean
   @Getter('autoScroll') private autoScroll!: boolean
   @Getter('autoScrollInterval') private autoScrollInterval!: number
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
@@ -486,7 +478,6 @@ export default class ConnectionsDetail extends Vue {
     } else {
       this.showClientInfo = $clientInfoVisible
     }
-    this.showSubs = this.showSubscriptions
     if (currentActiveConnection) {
       this.client = currentActiveConnection.client
       this.setClientsMessageListener()
@@ -495,11 +486,6 @@ export default class ConnectionsDetail extends Vue {
         connected: false,
       }
     }
-  }
-
-  private handleShowSubs() {
-    this.showSubs = !this.showSubs
-    this.changeShowSubscriptions({ showSubscriptions: this.showSubs })
   }
 
   private handleCollapse(id: string) {

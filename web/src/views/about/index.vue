@@ -51,7 +51,7 @@
           </div>
           <div class="follow-items">
             <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://twitter.com/EMQTech">
-              <i class="iconfont icon-ttww"></i>
+              <i class="iconfont icon-x"></i>
             </a>
             <a target="_blank" rel="noopener noreferrer" class="follow-link" href="https://discord.gg/xYGf3fQnES">
               <i class="iconfont icon-discord"></i>

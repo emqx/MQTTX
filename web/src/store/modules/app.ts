@@ -12,7 +12,6 @@ const CHANGE_ACTIVE_CONNECTION = 'CHANGE_ACTIVE_CONNECTION'
 const REMOVE_ACTIVE_CONNECTION = 'REMOVE_ACTIVE_CONNECTION'
 const CHANGE_SUBSCRIPTIONS = 'CHANGE_SUBSCRIPTIONS'
 const SHOW_CLIENT_INFO = 'SHOW_CLIENT_INFO'
-const SHOW_SUBSCRIPTIONS = 'SHOW_SUBSCRIPTIONS'
 const UNREAD_MESSAGE_COUNT_INCREMENT = 'UNREAD_MESSAGE_COUNT_INCREMENT'
 const TOGGLE_WILL_MESSAGE_VISIBLE = 'TOGGLE_WILL_MESSAGE_VISIBLE'
 const TOGGLE_ADVANCED_VISIBLE = 'TOGGLE_ADVANCED_VISIBLE'
@@ -20,14 +19,6 @@ const CHANGE_ALL_CONNECTIONS = 'CHANGE_ALL_CONNECTIONS'
 const TOGGLE_MULTI_TOPICS = 'TOGGLE_MULTI_TOPICS'
 
 const stateRecord: App = loadSettings()
-
-const getShowSubscriptions = (): boolean => {
-  const $showSubscriptions: string | null = localStorage.getItem('showSubscriptions')
-  if (!$showSubscriptions) {
-    return true
-  }
-  return JSON.parse($showSubscriptions)
-}
 
 const app = {
   state: {
@@ -39,7 +30,6 @@ const app = {
     autoScrollInterval: stateRecord.autoScrollInterval,
     multiTopics: stateRecord.multiTopics,
     maxReconnectTimes: stateRecord.maxReconnectTimes || 10,
-    showSubscriptions: getShowSubscriptions(),
     showClientInfo: {},
     unreadMessageCount: {},
     activeConnection: {},
@@ -96,10 +86,6 @@ const app = {
     },
     [SHOW_CLIENT_INFO](state: App, payload: ClientInfo) {
       state.showClientInfo[payload.id] = payload.showClientInfo
-    },
-    [SHOW_SUBSCRIPTIONS](state: App, payload: SubscriptionsVisible) {
-      state.showSubscriptions = payload.showSubscriptions
-      localStorage.setItem('showSubscriptions', JSON.stringify(state.showSubscriptions))
     },
     [UNREAD_MESSAGE_COUNT_INCREMENT](state: App, payload: UnreadMessage) {
       if (payload.unreadMessageCount !== undefined) {
@@ -169,9 +155,6 @@ const app = {
     },
     SHOW_CLIENT_INFO({ commit }: any, payload: App) {
       commit(SHOW_CLIENT_INFO, payload)
-    },
-    SHOW_SUBSCRIPTIONS({ commit }: any, payload: App) {
-      commit(SHOW_SUBSCRIPTIONS, payload)
     },
     UNREAD_MESSAGE_COUNT_INCREMENT({ commit }: any, payload: App) {
       commit(UNREAD_MESSAGE_COUNT_INCREMENT, payload)
