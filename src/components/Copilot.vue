@@ -268,7 +268,8 @@ export default class Copilot extends Vue {
       }
     } catch (err) {
       const error = err as unknown as any
-      console.error(error)
+      this.$message.error(`API Error: ${error.toString()}`)
+      this.$log.error(`Copilot API Error: ${error.toString()}`)
     } finally {
       this.isSending = false
       this.isResponseStream = false
@@ -323,8 +324,8 @@ export default class Copilot extends Vue {
     })
   }
 
-  private handlePresetsChange(prompts: string[], promptMap: Record<string, string | VueI18n.TranslateResult>) {
-    this.currPresetPrompt = prompts[prompts.length - 1]
+  private handlePresetsChange(prompt: string, promptMap: Record<string, string | VueI18n.TranslateResult>) {
+    this.currPresetPrompt = prompt
     const sendMessage = promptMap[this.currPresetPrompt] as string
     if (this.currPresetPrompt === 'emqxLogAnalysis') {
       this.currentPublishMsg = sendMessage

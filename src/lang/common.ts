@@ -552,4 +552,32 @@ export default {
     ja: 'EMQXログを分析してください。アラートとエラーメッセージの説明を含み、解決策を提供します。ログの内容',
     hu: 'Segítsen elemzeni egy EMQX naplót, beleértve az riasztások és hibaüzenetek magyarázatát, és megoldásokat nyújt, naplótartalom:',
   },
+  programmingLang: {
+    zh: '编程语言',
+    en: 'Languages',
+    tr: 'Diller',
+    ja: 'プログラミング言語',
+    hu: 'Programozási',
+  },
+  hardware: {
+    zh: '硬件',
+    en: 'Hardware',
+    tr: 'Donanım',
+    ja: 'ハードウェア',
+    hu: 'Hardver',
+  },
+  mobileApps: {
+    zh: '移动应用',
+    en: 'Mobile Apps',
+    tr: 'Mobil Uygulamalar',
+    ja: 'モバイルアプリ',
+    hu: 'Mobil alkalmazások',
+  },
+  webApps: {
+    zh: 'Web 应用',
+    en: 'Web Apps',
+    tr: 'Web Uygulamalar',
+    ja: 'Webアプリ',
+    hu: 'Web alkalmazások',
+  },
 }
