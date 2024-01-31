@@ -164,6 +164,7 @@ export default class KeyValueEditor extends Vue {
     .editor-row {
       overflow: hidden;
       display: flex;
+      align-items: center;
       &:not(:last-child) {
         margin-bottom: 10px;
       }
