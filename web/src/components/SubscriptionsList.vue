@@ -13,9 +13,6 @@
           <el-button class="btn new-subs-btn" icon="el-icon-plus" plain type="outline" size="mini" @click="openDialog">
             {{ $t('connections.newSubscription') }}
           </el-button>
-          <!-- <a class="hide-btn" href="javascript:;" @click="hideSubsList">
-            <i class="iconfont icon-collapse"></i>
-          </a> -->
         </div>
         <div
           v-for="(sub, index) in subsList"
@@ -227,7 +224,6 @@ export default class SubscriptionsList extends Vue {
   @Prop({ required: true }) public record!: ConnectionModel
   @Prop({ type: String, default: '60px' }) public top!: string
 
-  @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
 
   @Getter('currentTheme') private theme!: Theme
@@ -312,11 +308,6 @@ export default class SubscriptionsList extends Vue {
       $index = 0
     }
     return this.predefineColors[$index]
-  }
-
-  private hideSubsList() {
-    this.$emit('update:subsVisible', false)
-    this.changeShowSubscriptions({ showSubscriptions: false })
   }
 
   private openDialog() {
