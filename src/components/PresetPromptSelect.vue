@@ -2,6 +2,7 @@
   <el-cascader-panel
     class="preset-prompts-select"
     :options="presetPromptOptions"
+    :props="{ expandTrigger: 'hover', emitPath: false }"
     @change="handleChange"
   ></el-cascader-panel>
 </template>
@@ -12,144 +13,97 @@ import { Component, Vue } from 'vue-property-decorator'
 
 @Component
 export default class PresetPromptSelect extends Vue {
+  private langOptions = [
+    { value: 'javascript', label: 'JavaScript' },
+    { value: 'python', label: 'Python' },
+    { value: 'java', label: 'Java' },
+    { value: 'go', label: 'Go' },
+    { value: 'c', label: 'C' },
+    { value: 'cpp', label: 'C++' },
+    { value: 'csharp', label: 'C#' },
+    { value: 'php', label: 'PHP' },
+    { value: 'swift', label: 'Swift' },
+    { value: 'kotlin', label: 'Kotlin' },
+    { value: 'rust', label: 'Rust' },
+    { value: 'dart', label: 'Dart' },
+    { value: 'erlang', label: 'Erlang' },
+  ]
+
+  private hardwareOptions = [
+    { value: 'esp32', label: 'ESP32' },
+    { value: 'esp8266', label: 'ESP8266' },
+    { value: 'arduino', label: 'Arduino' },
+    { value: 'raspberryPi', label: 'Raspberry Pi' },
+  ]
+
+  private mobileAppsOptions = [
+    { value: 'android', label: 'Android' },
+    { value: 'ios', label: 'iOS' },
+    { value: 'reactNative', label: 'React Native' },
+    { value: 'flutter', label: 'Flutter' },
+  ]
+
+  private webAppsOptions = [
+    { value: 'react', label: 'React' },
+    { value: 'vuejs', label: 'Vue.js' },
+  ]
+
+  private payloadOptions = [
+    { value: 'genSimpleIoTPayload', label: this.$tc('common.genSimpleIoTPayload') },
+    { value: 'genComplexIoTPayload', label: this.$tc('common.genComplexIoTPayload') },
+    { value: 'genConnectedCarPayload', label: this.$tc('common.genConnectedCarPayload') },
+    { value: 'genSmartHomePayload', label: this.$tc('common.genSmartHomePayload') },
+    { value: 'genIndustrialIoTPayload', label: this.$tc('common.genIndustrialIoTPayload') },
+  ]
+
+  private emqxOptions = [
+    { value: 'installEMQX', label: this.$t('common.installEMQX') },
+    { value: 'emqxRule', label: this.$t('common.emqxRule') },
+    { value: 'emqxLogAnalysis', label: this.$t('common.emqxLogAnalysis') },
+  ]
+
+  private mqttOptions = [
+    { value: 'mqttProtocol', label: this.$tc('common.mqttProtocol') },
+    { value: 'mqtt5', label: this.$tc('common.whatIsMQTT5') },
+    { value: 'mqttQoS', label: this.$tc('common.mqttQoS') },
+    { value: 'mqttRetain', label: this.$tc('common.mqttRetain') },
+  ]
+
+  private explainOptions = [
+    { value: 'connectionInfo', label: this.$t('common.currentConnectionInfo') },
+    { value: 'genTestDoc', label: this.$t('common.genTestDoc') },
+  ]
+
   private presetPromptOptions = [
     {
       value: 'clientCodegen',
       label: this.$tc('common.promptCodegen'),
       children: [
-        {
-          value: 'javascript',
-          label: 'JavaScript',
-        },
-        {
-          value: 'python',
-          label: 'Python',
-        },
-        {
-          value: 'java',
-          label: 'Java',
-        },
-        {
-          value: 'go',
-          label: 'Go',
-        },
-        {
-          value: 'c',
-          label: 'C',
-        },
-        {
-          value: 'cpp',
-          label: 'C++',
-        },
-        {
-          value: 'csharp',
-          label: 'C#',
-        },
-        {
-          value: 'php',
-          label: 'PHP',
-        },
-        {
-          value: 'swift',
-          label: 'Swift',
-        },
-        {
-          value: 'kotlin',
-          label: 'Kotlin',
-        },
-        {
-          value: 'rust',
-          label: 'Rust',
-        },
-        {
-          value: 'dart',
-          label: 'Dart',
-        },
-        {
-          value: 'erlang',
-          label: 'Erlang',
-        },
+        { value: 'lang', label: this.$tc('common.programmingLang'), children: this.langOptions },
+        { value: 'hardware', label: this.$tc('common.hardware'), children: this.hardwareOptions },
+        { value: 'mobileApps', label: this.$tc('common.mobileApps'), children: this.mobileAppsOptions },
+        { value: 'webApps', label: this.$tc('common.webApps'), children: this.webAppsOptions },
       ],
     },
     {
       value: 'payload',
       label: 'Payload',
-      children: [
-        {
-          value: 'genSimpleIoTPayload',
-          label: this.$tc('common.genSimpleIoTPayload'),
-        },
-        {
-          value: 'genComplexIoTPayload',
-          label: this.$tc('common.genComplexIoTPayload'),
-        },
-        {
-          value: 'genConnectedCarPayload',
-          label: this.$tc('common.genConnectedCarPayload'),
-        },
-        {
-          value: 'genSmartHomePayload',
-          label: this.$tc('common.genSmartHomePayload'),
-        },
-        {
-          value: 'genIndustrialIoTPayload',
-          label: this.$tc('common.genIndustrialIoTPayload'),
-        },
-      ],
+      children: this.payloadOptions,
     },
     {
       value: 'emqx',
       label: 'EMQX',
-      children: [
-        {
-          value: 'installEMQX',
-          label: this.$t('common.installEMQX'),
-        },
-        {
-          value: 'emqxRule',
-          label: this.$t('common.emqxRule'),
-        },
-        {
-          value: 'emqxLogAnalysis',
-          label: this.$t('common.emqxLogAnalysis'),
-        },
-      ],
+      children: this.emqxOptions,
     },
     {
       value: 'mqtt',
       label: 'MQTT FAQs',
-      children: [
-        {
-          value: 'mqttProtocol',
-          label: this.$tc('common.mqttProtocol'),
-        },
-        {
-          value: 'mqtt5',
-          label: this.$tc('common.whatIsMQTT5'),
-        },
-        {
-          value: 'mqttQoS',
-          label: this.$tc('common.mqttQoS'),
-        },
-        {
-          value: 'mqttRetain',
-          label: this.$tc('common.mqttRetain'),
-        },
-      ],
+      children: this.mqttOptions,
     },
     {
       value: 'explain',
       label: this.$t('common.explainer'),
-      children: [
-        {
-          value: 'connectionInfo',
-          label: this.$t('common.currentConnectionInfo'),
-        },
-        {
-          value: 'genTestDoc',
-          label: this.$t('common.genTestDoc'),
-        },
-      ],
+      children: this.explainOptions,
     },
   ]
   get presetPromptsMap(): Record<string, string | VueI18n.TranslateResult> {
@@ -167,6 +121,16 @@ export default class PresetPromptSelect extends Vue {
       rust: this.$t('common.promptProgrammingLanguage', ['Rust', '@connection']),
       dart: this.$t('common.promptProgrammingLanguage', ['Dart', '@connection']),
       erlang: this.$t('common.promptProgrammingLanguage', ['Erlang', '@connection']),
+      react: this.$t('common.promptProgrammingLanguage', ['React', '@connection']),
+      vuejs: this.$t('common.promptProgrammingLanguage', ['Vue.js', '@connection']),
+      reactNative: this.$t('common.promptProgrammingLanguage', ['React Native', '@connection']),
+      flutter: this.$t('common.promptProgrammingLanguage', ['Flutter', '@connection']),
+      esp32: this.$t('common.promptProgrammingLanguage', ['ESP32', '@connection']),
+      esp8266: this.$t('common.promptProgrammingLanguage', ['ESP8266', '@connection']),
+      arduino: this.$t('common.promptProgrammingLanguage', ['Arduino', '@connection']),
+      raspberryPi: this.$t('common.promptProgrammingLanguage', ['Raspberry Pi', '@connection']),
+      android: this.$t('common.promptProgrammingLanguage', ['Android', '@connection']),
+      ios: this.$t('common.promptProgrammingLanguage', ['iOS', '@connection']),
       genSimpleIoTPayload: `${this.$t('common.promptGenSimpleIoTPayload')}${this.$t('common.genPayloadFormat')}`,
       genComplexIoTPayload: `${this.$t('common.promptGenComplexIoTPayload')}${this.$t('common.genPayloadFormat')}`,
       genConnectedCarPayload: `${this.$t('common.promptGenConnectedCarPayload')}${this.$t('common.genPayloadFormat')}`,
@@ -185,8 +149,8 @@ export default class PresetPromptSelect extends Vue {
       emqxLogAnalysis: this.$t('common.promptEmqxLogAnalysis'),
     }
   }
-  private handleChange(vals: string[]) {
-    this.$emit('onChange', vals, this.presetPromptsMap)
+  private handleChange(val: string) {
+    this.$emit('onChange', val, this.presetPromptsMap)
   }
 }
 </script>
