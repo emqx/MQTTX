@@ -164,15 +164,5 @@ export default class Connections extends Vue {
 </script>
 
 <style lang="scss">
-.slide-enter-active,
-.slide-leave-active {
-  transition: all 0.3s ease;
-}
-.slide-enter {
-  transform: translateX(-100%);
-}
-.slide-leave-to {
-  transform: translateX(-100%);
-}
 @import '~@/assets/scss/connections.scss';
 </style>
