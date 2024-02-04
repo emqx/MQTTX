@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
-import { MqttClient } from 'mqtt'
+import { MqttClient, UserProperties } from 'mqtt'
 
 declare global {
   type $TSFixed = any
@@ -223,7 +223,7 @@ declare global {
     contentType?: string | null
     responseTopic?: string | null
     correlationData?: string | Buffer | null
-    userProperties?: { [key: string]: string | string[] } | null
+    userProperties?: UserProperties | null
   }
 
   interface WillModel {
@@ -274,7 +274,7 @@ declare global {
     topicAliasMaximum?: number | null
     requestResponseInformation?: boolean | null
     requestProblemInformation?: boolean | null
-    userProperties?: { [key: string]: string | string[] } | null
+    userProperties?: UserProperties | null
     authenticationMethod?: string | null
     authenticationData?: Buffer | null
   }
@@ -293,7 +293,7 @@ declare global {
     topicAlias?: number | null
     responseTopic?: string | null
     correlationData?: string | Buffer | null
-    userProperties?: { [key: string]: string | string[] } | null
+    userProperties?: UserProperties | null
     subscriptionIdentifier?: number | null
     contentType?: string | null
   }
@@ -398,4 +398,13 @@ declare global {
   }
 
   type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+
+  interface DisconnectPropertiesModel {
+    id?: string
+    connectionId?: string
+    sessionExpiryInterval?: number
+    reasonString?: string
+    serverReference?: string
+    userProperties?: UserProperties
+  }
 }

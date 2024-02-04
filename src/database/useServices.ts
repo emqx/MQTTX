@@ -9,6 +9,7 @@ import HistoryMessagePayloadService from './services/HistoryMessagePayloaderServ
 import MessageService from './services/MessageService'
 import ScriptService from './services/ScriptService'
 import CopilotService from './services/CopilotService'
+import DisconnectPropertiesService from './services/DisconnectPropertiesService'
 
 export default function useServices() {
   const connectionService = Container.get(ConnectionService)
@@ -21,6 +22,8 @@ export default function useServices() {
   const messageService = Container.get(MessageService)
   const scriptService = Container.get(ScriptService)
   const copilotService = Container.get(CopilotService)
+  const disconnectPropertiesService = Container.get(DisconnectPropertiesService)
+
   return {
     connectionService,
     willService,
@@ -32,5 +35,6 @@ export default function useServices() {
     messageService,
     scriptService,
     copilotService,
+    disconnectPropertiesService,
   }
 }

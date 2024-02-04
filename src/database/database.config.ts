@@ -12,6 +12,7 @@ import HistoryMessagePayloadEntity from './models/HistoryMessagePayloadEntity'
 import HistoryConnectionEntity from './models/HistoryConnectionEntity'
 import WillEntity from './models/WillEntity'
 import CopilotEntity from './models/CopilotEntity'
+import DisconnectPropertiesEntity from './models/DisconnectPropertiesEntity'
 import { ConnectionOptions } from 'typeorm'
 import { initTable1629476510574 } from './migration/1629476510574-initTable'
 import { messages1630403733964 } from './migration/1630403733964-messages'
@@ -44,6 +45,7 @@ import { aiTables1701936842016 } from './migration/1701936842016-aiTables'
 import { enableCopilot1703659148195 } from './migration/1703659148195-enableCopilot'
 import { logLevel1704941582350 } from './migration/1704941582350-logLevel'
 import { updatePayloadTypeToVarchar1630403733965 } from './migration/1705478422620-updatePayloadTypeToVarchar'
+import { disconnectProperties1707032213387 } from './migration/1707032213387-disconnectProperties'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -94,6 +96,7 @@ const ORMConfig = {
     enableCopilot1703659148195,
     logLevel1704941582350,
     updatePayloadTypeToVarchar1630403733965,
+    disconnectProperties1707032213387,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [
@@ -108,6 +111,7 @@ const ORMConfig = {
     WillEntity,
     HistoryConnectionEntity,
     CopilotEntity,
+    DisconnectPropertiesEntity,
   ],
   cli: {
     migrationsDir: 'src/database/migration',

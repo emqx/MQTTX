@@ -18,10 +18,13 @@ export const LessThanDate = (date: string | Date) => LessThan(DateUtils.mixedDat
 @Service()
 export default class ConnectionService {
   constructor(
+    // @ts-ignore
     @InjectRepository(ConnectionEntity)
     private connectionRepository: Repository<ConnectionEntity>,
+    // @ts-ignore
     @InjectRepository(HistoryConnectionEntity)
     private historyConnectionRepository: Repository<HistoryConnectionEntity>,
+    // @ts-ignore
     @InjectRepository(WillEntity)
     private willRepository: Repository<WillEntity>,
   ) {}
