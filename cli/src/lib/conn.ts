@@ -1,4 +1,5 @@
 import * as mqtt from 'mqtt'
+import cluster from 'cluster'
 import { Signale, signale, basicLog, benchLog } from '../utils/signale'
 import { parseConnectOptions } from '../utils/parse'
 import delay from '../utils/delay'
@@ -55,81 +56,158 @@ const conn = (options: ConnectOptions) => {
 }
 
 const benchConn = async (options: BenchConnectOptions) => {
-  const { save, config } = options
+  if (cluster.isPrimary) {
+    const { save, config } = options
 
-  config && (options = loadConfig('benchConn', config))
+    config && (options = loadConfig('benchConn', config))
 
-  save && saveConfig('benchConn', options)
+    save && saveConfig('benchConn', options)
 
-  const { count, interval, hostname, port, clientId, maximumReconnectTimes } = options
+    const { count, interval, cores, hostname, port, clientId, maximumReconnectTimes } = options
 
-  const connOpts = parseConnectOptions(options, 'conn')
+    const connOpts = parseConnectOptions(options, 'conn')
 
-  let connectedCount = 0
+    let connectedCount = 0
 
-  const isNewConnArray = Array(count).fill(true)
+    const isNewConnArray = Array(count).fill(true)
 
-  const retryTimesArray = Array(count).fill(0)
+    const retryTimesArray = Array(count).fill(0)
 
-  const interactive = new Signale({ interactive: true })
+    const interactive = new Signale({ interactive: true })
 
-  benchLog.start.conn(config, count, interval, hostname, port)
+    benchLog.start.conn(config, count, interval, hostname, port)
 
-  const start = Date.now()
+    const start = Date.now()
 
-  for (let i = 1; i <= count; i++) {
-    ;((i: number, connOpts: mqtt.IClientOptions) => {
-      const opts = { ...connOpts }
+    let startConnIndex = 1
 
-      opts.clientId = clientId.includes('%i') ? clientId.replaceAll('%i', i.toString()) : `${clientId}_${i}`
+    for (let i = 0; i < cores; i++) {
+      const worker = cluster.fork()
 
-      const client = mqtt.connect(opts)
+      let masterMessage: ConnMasterMessage
+      const connCount = Math.floor(count / cores) + (i < count % cores ? 1 : 0)
+      const endConnIndex = startConnIndex + connCount - 1
 
-      interactive.await('[%d/%d] - Connecting...', connectedCount, count)
+      masterMessage = {
+        type: 'init',
+        data: {
+          startConnIndex,
+          endConnIndex,
+          options,
+          connOpts,
+        },
+      }
+      worker.send(masterMessage)
 
-      client.on('connect', () => {
-        connectedCount += 1
-        retryTimesArray[i - 1] = 0
-        if (isNewConnArray[i - 1]) {
-          interactive.success('[%d/%d] - Connected', connectedCount, count)
+      startConnIndex += connCount
 
-          if (connectedCount === count) {
-            const end = Date.now()
-            signale.info(`Done, total time: ${(end - start) / 1000}s`)
+      worker.on('message', (msg: ConnWorkerMessage) => {
+        const { type } = msg
+        if (type === 'connecting') {
+          interactive.await('[%d/%d] - Connecting...', connectedCount, count)
+        }
+        if (type === 'connected') {
+          const { clientIndex } = msg.data
+          connectedCount += 1
+          retryTimesArray[clientIndex - 1] = 0
+          if (isNewConnArray[clientIndex - 1]) {
+            interactive.success('[%d/%d] - Connected', connectedCount, count)
+
+            if (connectedCount === count) {
+              const end = Date.now()
+              signale.info(`Done, total time: ${(end - start) / 1000}s`)
+            }
+          } else {
+            benchLog.reconnected(connectedCount, count, clientId)
           }
-        } else {
-          benchLog.reconnected(connectedCount, count, opts.clientId!)
+        }
+        if (type === 'error') {
+          const {
+            opts: { clientId },
+            error,
+          } = msg.data
+          benchLog.error(connectedCount, count, clientId!, error)
+        }
+        if (type === 'reconnect') {
+          const {
+            opts: { clientId },
+          } = msg.data
+          retryTimesArray[i - 1] += 1
+          if (retryTimesArray[i - 1] > maximumReconnectTimes) {
+            // TODO: Force close connection
+            // client.end(false, {}, () => {
+            //   benchLog.reconnectTimesLimit(connectedCount, count, clientId!)
+            // })
+          } else {
+            benchLog.reconnecting(connectedCount, count, clientId!)
+            isNewConnArray[i - 1] = false
+          }
+        }
+        if (type === 'close') {
+          const {
+            opts: { clientId },
+          } = msg.data
+          connectedCount > 0 && (connectedCount -= 1)
+          benchLog.close(connectedCount, count, clientId!)
+        }
+        if (type === 'disconnect') {
+          const {
+            opts: { clientId },
+          } = msg.data
+          basicLog.disconnect(clientId!)
         }
       })
+    }
+  } else if (cluster.isWorker) {
+    process.on('message', async (msg: ConnMasterMessage) => {
+      const { type, data } = msg
+      if (type === 'init') {
+        let workerMessage: ConnWorkerMessage
+        const { startConnIndex, endConnIndex, options, connOpts } = data
+        const { interval, clientId } = options
+        for (let i = startConnIndex; i <= endConnIndex; i++) {
+          ;((i: number, connOpts: mqtt.IClientOptions) => {
+            const opts = { ...connOpts }
 
-      client.on('error', (err) => {
-        benchLog.error(connectedCount, count, opts.clientId!, err)
-        client.end()
-      })
+            opts.clientId = clientId.includes('%i') ? clientId.replaceAll('%i', i.toString()) : `${clientId}_${i}`
 
-      client.on('reconnect', () => {
-        retryTimesArray[i - 1] += 1
-        if (retryTimesArray[i - 1] > maximumReconnectTimes) {
-          client.end(false, {}, () => {
-            benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
-          })
-        } else {
-          benchLog.reconnecting(connectedCount, count, opts.clientId!)
-          isNewConnArray[i - 1] = false
+            const client = mqtt.connect(opts)
+
+            workerMessage = { type: 'connecting' }
+            process.send!(workerMessage)
+
+            client.on('connect', () => {
+              workerMessage = { type: 'connected', data: { clientIndex: i } }
+              process.send!(workerMessage)
+            })
+
+            client.on('error', (err) => {
+              workerMessage = { type: 'error', data: { opts, error: err } }
+              process.send!(workerMessage, undefined, undefined, () => {
+                client.end()
+              })
+            })
+
+            client.on('reconnect', () => {
+              workerMessage = { type: 'reconnect', data: { opts } }
+              process.send!(workerMessage)
+            })
+
+            client.on('close', () => {
+              workerMessage = { type: 'close', data: { opts } }
+              process.send!(workerMessage)
+            })
+
+            client.on('disconnect', () => {
+              workerMessage = { type: 'disconnect', data: { opts } }
+              process.send!(workerMessage)
+            })
+          })(i, connOpts)
+
+          await delay(interval)
         }
-      })
-
-      client.on('close', () => {
-        connectedCount > 0 && (connectedCount -= 1)
-        benchLog.close(connectedCount, count, opts.clientId!)
-      })
-
-      client.on('disconnect', () => {
-        basicLog.disconnect(opts.clientId!)
-      })
-    })(i, connOpts)
-
-    await delay(interval)
+      }
+    })
   }
 }
 

@@ -1,4 +1,5 @@
 import * as fs from 'fs'
+import os from 'os'
 import signale from '../utils/signale'
 import { getSpecialTypesOption } from '../utils/generator'
 
@@ -111,6 +112,17 @@ const parseOutputMode = (value: string) => {
     process.exit(1)
   }
   return value
+}
+
+const parseThreads = (value: string) => {
+  const threads = parseInt(value, 10)
+  const cpuCount = os.cpus().length
+
+  if (isNaN(threads) || threads < 1 || threads > cpuCount) {
+    throw new Error(`Invalid number of threads. Please provide a value between 1 and ${cpuCount}.`)
+  }
+
+  return threads
 }
 
 const checkScenarioExists = (name?: string, file?: string) => {
@@ -382,6 +394,7 @@ export {
   parsePubTopic,
   parseFormat,
   parseOutputMode,
+  parseThreads,
   parseConnectOptions,
   parsePublishOptions,
   parseSubscribeOptions,

@@ -1,4 +1,4 @@
-import { Faker } from '@faker-js/faker'
+import type { IClientOptions } from 'mqtt'
 
 declare global {
   type CommandType = 'conn' | 'pub' | 'sub' | 'benchConn' | 'benchPub' | 'benchSub' | 'simulate'
@@ -100,6 +100,7 @@ declare global {
   interface BenchConnectOptions extends OmitConnectOptions {
     count: number
     interval: number
+    cores: number
   }
 
   type OmitPublishOptions = Omit<
@@ -157,6 +158,64 @@ declare global {
   interface LsOptions {
     scenarios: boolean
   }
+
+  interface ConnMasterMessage {
+    type: 'init'
+    data: {
+      startConnIndex: number
+      endConnIndex: number
+      options: BenchConnectOptions
+      connOpts: IClientOptions
+    }
+  }
+
+  interface ConnWorkerMessageConnecting {
+    type: 'connecting'
+  }
+
+  interface ConnWorkerMessageConnected {
+    type: 'connected'
+    data: {
+      clientIndex: number
+    }
+  }
+
+  interface ConnWorkerMessageError {
+    type: 'error'
+    data: {
+      opts: IClientOptions
+      error: Error
+    }
+  }
+
+  interface ConnWorkerMessageReconnect {
+    type: 'reconnect'
+    data: {
+      opts: IClientOptions
+    }
+  }
+
+  interface ConnWorkerMessageClose {
+    type: 'close'
+    data: {
+      opts: IClientOptions
+    }
+  }
+
+  interface ConnWorkerMessageDisconnect {
+    type: 'disconnect'
+    data: {
+      opts: IClientOptions
+    }
+  }
+
+  type ConnWorkerMessage =
+    | ConnWorkerMessageConnecting
+    | ConnWorkerMessageConnected
+    | ConnWorkerMessageError
+    | ConnWorkerMessageReconnect
+    | ConnWorkerMessageClose
+    | ConnWorkerMessageDisconnect
 }
 
 export {}
