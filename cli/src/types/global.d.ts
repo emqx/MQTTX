@@ -1,5 +1,3 @@
-import { Faker } from '@faker-js/faker'
-
 declare global {
   type CommandType = 'conn' | 'pub' | 'sub' | 'benchConn' | 'benchPub' | 'benchSub' | 'simulate'
 

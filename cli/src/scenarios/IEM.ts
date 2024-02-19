@@ -3,7 +3,7 @@ import { Faker } from '@faker-js/faker'
 const calculateEnergyConsumption = (faker: Faker, maxPower: number) => {
   const ratedPower = maxPower * 1000
   const minInstantPower = ratedPower * 0.6
-  const instantPower = faker.datatype.number({ min: minInstantPower, max: ratedPower, precision: 0.001 })
+  const instantPower = faker.number.float({ min: minInstantPower, max: ratedPower, precision: 0.001 })
   const energy = instantPower / 3600
   return new Number(energy.toFixed(2))
 }
