@@ -1,4 +1,4 @@
-import { Logger } from 'log4js'
+import { getLogger } from 'log4js'
 declare module 'vue/types/vue' {
   interface Vue {
     $log: {
@@ -9,6 +9,6 @@ declare module 'vue/types/vue' {
       error(message: string): void
       fatal(message: string): void
     }
-    $logRegsity: Logger
+    $logRegsity: typeof getLogger
   }
 }

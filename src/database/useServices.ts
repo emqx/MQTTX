@@ -8,6 +8,7 @@ import HistoryMessageHeaderService from './services/HistoryMessageHeaderService'
 import HistoryMessagePayloadService from './services/HistoryMessagePayloaderService'
 import MessageService from './services/MessageService'
 import ScriptService from './services/ScriptService'
+import CopilotService from './services/CopilotService'
 
 export default function useServices() {
   const connectionService = Container.get(ConnectionService)
@@ -19,6 +20,7 @@ export default function useServices() {
   const historyMessagePayloadService = Container.get(HistoryMessagePayloadService)
   const messageService = Container.get(MessageService)
   const scriptService = Container.get(ScriptService)
+  const copilotService = Container.get(CopilotService)
   return {
     connectionService,
     willService,
@@ -29,5 +31,6 @@ export default function useServices() {
     historyMessagePayloadService,
     messageService,
     scriptService,
+    copilotService,
   }
 }

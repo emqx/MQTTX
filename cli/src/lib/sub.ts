@@ -5,12 +5,13 @@ import delay from '../utils/delay'
 import convertPayload from '../utils/convertPayload'
 import { saveConfig, loadConfig } from '../utils/config'
 import { deserializeBufferToProtobuf } from '../utils/protobuf'
+import * as Debug from 'debug'
 
 const processReceivedMessage = (
   payload: Buffer,
-  protobufPath: string | undefined,
-  protobufMessageName: string | undefined,
-  format: FormatType | undefined,
+  protobufPath?: string,
+  protobufMessageName?: string,
+  format?: FormatType,
 ): string => {
   let message: string | Buffer = payload
   /*
@@ -36,11 +37,13 @@ const processReceivedMessage = (
 }
 
 const sub = (options: SubscribeOptions) => {
-  const { save, config } = options
+  const { debug, save, config } = options
 
   config && (options = loadConfig('sub', config))
 
   save && saveConfig('sub', options)
+
+  debug && Debug.enable('mqttjs*')
 
   checkTopicExists(options.topic, 'sub')
 
@@ -137,6 +140,10 @@ const sub = (options: SubscribeOptions) => {
 
   client.on('close', () => {
     !outputModeClean && basicLog.close()
+  })
+
+  client.on('disconnect', () => {
+    !outputModeClean && basicLog.disconnect()
   })
 }
 
@@ -274,6 +281,10 @@ const benchSub = async (options: BenchSubscribeOptions) => {
       client.on('close', () => {
         connectedCount > 0 && (connectedCount -= 1)
         benchLog.close(connectedCount, count, opts.clientId!)
+      })
+
+      client.on('disconnect', () => {
+        basicLog.disconnect(opts.clientId!)
       })
     })(i, connOpts)
 

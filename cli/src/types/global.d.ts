@@ -7,7 +7,7 @@ declare global {
 
   type QoS = 0 | 1 | 2
 
-  type FormatType = 'base64' | 'json' | 'hex'
+  type FormatType = 'base64' | 'json' | 'hex' | 'cbor'
 
   type OutputMode = 'clean' | 'default'
 
@@ -52,6 +52,7 @@ declare global {
     willUserProperties?: Record<string, string | string[]>
     save?: boolean | string
     config?: boolean | string
+    debug?: boolean
   }
 
   interface PublishOptions extends ConnectOptions {
@@ -92,24 +93,30 @@ declare global {
     protobufMessageName?: string
   }
 
-  interface BenchConnectOptions extends ConnectOptions {
+  type OmitConnectOptions = Omit<ConnectOptions, 'debug'>
+
+  interface BenchConnectOptions extends OmitConnectOptions {
     count: number
     interval: number
   }
 
   type OmitPublishOptions = Omit<
     PublishOptions,
-    'stdin' | 'multiline' | 'protobufPath' | 'protobufMessageName' | 'format'
+    'stdin' | 'multiline' | 'protobufPath' | 'protobufMessageName' | 'format' | 'debug'
   >
 
   interface BenchPublishOptions extends OmitPublishOptions {
     count: number
     interval: number
     messageInterval: number
+    limit: number
     verbose: boolean
   }
 
-  type OmitSubscribeOptions = Omit<SubscribeOptions, 'format' | 'outputMode' | 'protobufPath' | 'protobufMessageName'>
+  type OmitSubscribeOptions = Omit<
+    SubscribeOptions,
+    'format' | 'outputMode' | 'protobufPath' | 'protobufMessageName' | 'debug'
+  >
 
   interface BenchSubscribeOptions extends OmitSubscribeOptions {
     count: number

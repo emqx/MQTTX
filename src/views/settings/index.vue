@@ -101,7 +101,7 @@
           <label>{{ $t('settings.maxReconnectTimes') }}</label>
         </el-col>
         <el-col :span="4">
-          <el-input-number size="mini" :value="maxReconnectTimes" :min="1" @change="handleInputChage">
+          <el-input-number size="mini" :value="maxReconnectTimes" :min="1" @change="handleInputChanged">
           </el-input-number>
         </el-col>
       </el-row>
@@ -194,6 +194,28 @@
       <div class="settings-title">{{ $t('settings.advanced') }}</div>
       <el-divider></el-divider>
 
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
+          <label>{{ $t('log.logLevel') }}</label>
+          <el-tooltip placement="top" :effect="currentTheme !== 'light' ? 'light' : 'dark'" :open-delay="500">
+            <div slot="content" v-html="$t('log.logLevelDesc')"></div>
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-select class="settings-options" :value="logLevel" size="mini" @change="handleLevelChange">
+            <el-option label="DEBUG" value="debug"></el-option>
+            <el-option label="INFO" value="info"></el-option>
+            <el-option label="WARN" value="warn"></el-option>
+            <el-option label="ERROR" value="error"></el-option>
+          </el-select>
+        </el-col>
+      </el-row>
+
+      <el-divider></el-divider>
+
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
           <label>{{ $t('settings.dataRecovery') }}</label>
@@ -249,6 +271,64 @@
       <ExportData :visible.sync="showExportData" />
       <ClearUpHistoryData :visible.sync="showHistoryData" />
     </div>
+
+    <div class="settings-copilot">
+      <div class="settings-title">MQTTX Copilot</div>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="20">
+          <label>{{ $t('settings.enableCopilot') }}</label>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            :value="enableCopilot"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleEnableCopilotSwitchChange"
+          >
+          </el-switch>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="20">
+          <label>OpenAI API Key</label>
+        </el-col>
+        <el-col :span="4">
+          <el-input
+            size="mini"
+            v-model="aiConfig.openAIAPIKey"
+            placeholder="sk-*******"
+            type="password"
+            clearable
+            :disabled="!enableCopilot"
+            @clear="handleAIConfigChanged('apiKey')"
+            @blur="handleAIConfigChanged('apiKey')"
+          ></el-input>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="20">
+          <label>{{ $t('settings.model') }}</label>
+        </el-col>
+        <el-col :span="4">
+          <el-select
+            class="settings-options ai-model-select"
+            v-model="aiConfig.model"
+            size="mini"
+            :disabled="!enableCopilot"
+            @change="handleAIConfigChanged('model')"
+          >
+            <el-option v-for="model in AImodelsOptions" :key="model" :label="model" :value="model"> </el-option>
+          </el-select>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+    </div>
   </div>
 </template>
 
@@ -259,6 +339,8 @@ import { ipcRenderer, remote } from 'electron'
 import ImportData from '@/components/ImportData.vue'
 import ExportData from '@/components/ExportData.vue'
 import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
+import CryptoJS from 'crypto-js'
+import { ENCRYPT_KEY } from '@/utils/idGenerator'
 
 @Component({
   components: { ImportData, ExportData, ClearUpHistoryData },
@@ -272,6 +354,10 @@ export default class Settings extends Vue {
   @Action('SET_MAX_RECONNECT_TIMES') private actionMaxReconnectTimes!: (payload: { maxReconnectTimes: number }) => void
   @Action('TOGGLE_MULTI_TOPICS') private actionToggleMultiTopics!: (payload: { multiTopics: boolean }) => void
   @Action('TOGGLE_JSON_HIGHLIGHT') private actionToggleJsonHighlight!: (payload: { jsonHighlight: boolean }) => void
+  @Action('TOGGLE_ENABLE_COPILOT') private actionToggleEnableCopilot!: (payload: { enableCopilot: boolean }) => void
+  @Action('SET_OPEN_AI_API_KEY') private actionSetOpenAIAPIKey!: (payload: { openAIAPIKey: string }) => void
+  @Action('SET_MODEL') private actionSetModel!: (payload: { model: AIModel }) => void
+  @Action('SET_LOG_LEVEL') private actionSetLogLevel!: (payload: { logLevel: LogLevel }) => void
 
   @Getter('currentTheme') private currentTheme!: Theme
   @Getter('currentLang') private currentLang!: Language
@@ -281,6 +367,10 @@ export default class Settings extends Vue {
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('multiTopics') private multiTopics!: boolean
   @Getter('jsonHighlight') private jsonHighlight!: boolean
+  @Getter('enableCopilot') private enableCopilot!: boolean
+  @Getter('openAIAPIKey') private openAIAPIKey!: string
+  @Getter('model') private model!: AIModel
+  @Getter('logLevel') private logLevel!: LogLevel
 
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
@@ -294,9 +384,26 @@ export default class Settings extends Vue {
     { label: 'Dark', value: 'dark' },
     { label: 'Night', value: 'night' },
   ]
+  private AImodelsOptions = [
+    'gpt-3.5-turbo',
+    'gpt-3.5-turbo-1106',
+    'gpt-3.5-turbo-16k',
+    'gpt-4',
+    'gpt-4-32k',
+    'gpt-4-0613',
+    'gpt-4-32k-0613',
+  ]
   private showImportData = false
   private showExportData = false
   private showHistoryData = false
+
+  private aiConfig: {
+    model: AIModel
+    openAIAPIKey: string
+  } = {
+    model: 'gpt-3.5-turbo',
+    openAIAPIKey: '',
+  }
 
   private handleSelectChange(type: 'lang' | 'theme', value: string | number | boolean): void {
     if (type === 'theme') {
@@ -327,7 +434,7 @@ export default class Settings extends Vue {
     this.actionToggleMultiTopics({ multiTopics: value })
   }
 
-  private handleInputChage(value: number) {
+  private handleInputChanged(value: number) {
     this.actionMaxReconnectTimes({ maxReconnectTimes: value })
   }
 
@@ -345,6 +452,39 @@ export default class Settings extends Vue {
 
   private handleCleanupHistoryData() {
     this.showHistoryData = true
+  }
+
+  private handleEnableCopilotSwitchChange(value: boolean) {
+    this.actionToggleEnableCopilot({ enableCopilot: value })
+  }
+
+  private handleAIConfigChanged(action: 'apiKey' | 'model') {
+    if (action === 'apiKey') {
+      let saveKey = ''
+      if (this.aiConfig.openAIAPIKey !== '') {
+        saveKey = CryptoJS.AES.encrypt(this.aiConfig.openAIAPIKey.trim(), ENCRYPT_KEY).toString()
+      }
+      this.actionSetOpenAIAPIKey({ openAIAPIKey: saveKey })
+    } else if (action === 'model') {
+      this.actionSetModel({ model: this.aiConfig.model })
+    }
+  }
+
+  private getAIConfigs() {
+    this.aiConfig.model = this.model
+    this.aiConfig.openAIAPIKey = this.openAIAPIKey
+  }
+
+  private handleLevelChange(val: LogLevel) {
+    const logger = this.$logRegsity()
+    logger.level = val
+    this.actionSetLogLevel({
+      logLevel: val,
+    })
+  }
+
+  private created() {
+    this.getAIConfigs()
   }
 }
 </script>
@@ -364,7 +504,9 @@ export default class Settings extends Vue {
   }
 
   [class$='general'],
-  [class$='appearance'] {
+  [class$='appearance'],
+  [class$='advanced'],
+  [class$='copilot'] {
     margin-bottom: 56px;
   }
 
@@ -398,6 +540,9 @@ export default class Settings extends Vue {
 
     &.el-select {
       width: 108px;
+      &.ai-model-select {
+        width: 150px;
+      }
     }
 
     &.el-select .el-input .el-select__caret {

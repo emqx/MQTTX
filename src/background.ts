@@ -89,6 +89,9 @@ function handleIpcMessages() {
       message: 'There are currently no updates available.',
     })
   })
+  ipcMain.on('insertCodeToEditor', (event, ...args) => {
+    event.sender.send('insertCodeToEditor', ...args)
+  })
 }
 
 // handle event when APP quit
@@ -123,6 +126,10 @@ async function createWindow() {
       syncOsTheme: setting.syncOsTheme,
       multiTopics: setting.multiTopics,
       jsonHighlight: setting.jsonHighlight,
+      enableCopilot: setting.enableCopilot,
+      openAIAPIKey: setting.openAIAPIKey,
+      model: setting.model,
+      logLevel: setting.logLevel,
     }
   }
   // Create the browser window.

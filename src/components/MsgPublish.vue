@@ -48,22 +48,12 @@
                 </el-col>
                 <el-col :span="24">
                   <el-form-item :label="$t('connections.responseTopic')" prop="responseTopic">
-                    <el-input
-                      placeholder="Response Topic"
-                      size="mini"
-                      v-model="MQTT5PropsForm.responseTopic"
-                      type="text"
-                    />
+                    <el-input size="mini" v-model="MQTT5PropsForm.responseTopic" type="text" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
                   <el-form-item :label="$t('connections.correlationData')" prop="correlationData">
-                    <el-input
-                      placeholder="Correlation Data"
-                      size="mini"
-                      v-model="MQTT5PropsForm.correlationData"
-                      type="text"
-                    />
+                    <el-input size="mini" v-model="MQTT5PropsForm.correlationData" type="text" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
@@ -134,7 +124,7 @@
               <i class="iconfont icon-delete"></i>{{ $t('connections.clearRetainedMessage') }}
             </el-dropdown-item>
             <el-dropdown-item command="timedMessage" :disabled="!clientConnected || sendTimeId !== null">
-              <i class="iconfont icon-a-timedmessage"></i>{{ $t('connections.timedMessage') }}
+              <i class="iconfont icon-timed-message"></i>{{ $t('connections.timedMessage') }}
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
@@ -250,7 +240,6 @@ import { emptyToNull } from '@/utils/handleString'
 })
 export default class MsgPublish extends Vue {
   @Prop({ required: true }) public editorHeight!: number
-  @Prop({ required: true }) public subsVisible!: boolean
   @Prop({ default: false }) public disabled!: boolean
   @Prop({ default: false }) public mqtt5PropsEnable!: boolean
   @Prop({ default: false }) public clientConnected!: boolean
@@ -305,7 +294,7 @@ export default class MsgPublish extends Vue {
     topic: '',
     payload: JSON.stringify({ msg: 'hello' }, null, 2),
   }
-  private msgRecord: MessageModel = _.cloneDeep(this.defaultMsgRecord)
+  public msgRecord: MessageModel = _.cloneDeep(this.defaultMsgRecord)
   private headerValue: HistoryMessageHeaderModel = {
     qos: this.msgRecord.qos,
     retain: this.msgRecord.retain,
@@ -313,22 +302,16 @@ export default class MsgPublish extends Vue {
   }
   private payloadLang = 'json'
   private payloadType: PayloadType = 'JSON'
-  private payloadOptions: PayloadType[] = ['Plaintext', 'JSON', 'Base64', 'Hex']
+  private payloadOptions: PayloadType[] = ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR']
 
   @Watch('editorHeight')
   private handleHeightChanged() {
     this.handleLayout()
   }
-  @Watch('subsVisible')
-  private handleSubsChanged(val: boolean) {
-    setTimeout(() => {
-      this.handleLayout()
-    }, 500)
-  }
   @Watch('payloadType')
   private handleTypeChange(val: PayloadType, oldVal: PayloadType) {
     const { payload } = this.msgRecord
-    if (val === 'JSON') {
+    if (['CBOR', 'JSON'].includes(val)) {
       this.payloadLang = 'json'
     } else {
       this.payloadLang = 'plaintext'
@@ -356,7 +339,7 @@ export default class MsgPublish extends Vue {
   private handleHistoryIndexChange(val: number, lastval: number) {
     if (lastval !== val && val >= 0 && val < this.payloadsHistory.length) {
       this.msgRecord = Object.assign(this.msgRecord, this.payloadsHistory[val])
-      this.payloadType = this.payloadsHistory[val].payloadType
+      this.payloadType = this.payloadsHistory[val].payloadType as PayloadType
     }
   }
 
@@ -481,17 +464,13 @@ export default class MsgPublish extends Vue {
     editorRef.editorLayout()
   }
 
-  private beforeDestroy() {
-    ipcRenderer.removeAllListeners('sendPayload')
-  }
-
   private async loadHistoryData(isNewPayload?: boolean, isLoadData?: boolean) {
     const { historyMessageHeaderService, historyMessagePayloadService } = useServices()
     const headersHistory = (await historyMessageHeaderService.getAll()) ?? []
     const payloadsHistory = (await historyMessagePayloadService.getAll()) ?? []
     const historyMsg = payloadsHistory[payloadsHistory.length - 1]
     if (historyMsg && isLoadData) {
-      this.payloadType = historyMsg.payloadType
+      this.payloadType = historyMsg.payloadType as PayloadType
     }
     this.headersHistory = headersHistory
     this.payloadsHistory = payloadsHistory
@@ -511,7 +490,7 @@ export default class MsgPublish extends Vue {
     )
     const headersHistoryIndex = this.payloadsHistory[this.historyIndex]
     if (headersHistoryIndex) {
-      this.payloadType = headersHistoryIndex.payloadType
+      this.payloadType = headersHistoryIndex.payloadType as PayloadType
     }
     this.loadProperties()
   }
@@ -538,10 +517,6 @@ export default class MsgPublish extends Vue {
     } catch (error) {
       this.$message.error((error as Error).toString())
     }
-  }
-
-  private created() {
-    this.loadData()
   }
 
   private decrease() {
@@ -586,6 +561,24 @@ export default class MsgPublish extends Vue {
         // The user canceled the action
       })
   }
+
+  private created() {
+    this.loadData()
+  }
+
+  private mounted() {
+    ipcRenderer.on('insertCodeToEditor', (event: Event, code: string) => {
+      if (code) {
+        this.msgRecord.payload = code
+        this.$emit('onInsertedCode')
+      }
+    })
+  }
+
+  private beforeDestroy() {
+    ipcRenderer.removeAllListeners('sendPayload')
+    ipcRenderer.removeAllListeners('insertCodeToEditor')
+  }
 }
 </script>
 
@@ -604,7 +597,6 @@ export default class MsgPublish extends Vue {
     position: absolute;
     transform: translate(0, -100%);
     width: 100%;
-    z-index: 11;
     .el-card.meta-card {
       padding: 10px;
       padding-bottom: 0px;

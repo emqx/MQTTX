@@ -422,4 +422,26 @@ export default {
     en: 'Subscription Identifier',
     ja: 'サブスクリプション識別子',
   },
+  noLocal: {
+    zh: '禁止本地转发',
+    en: 'No Local',
+    ja: 'ローカル転送禁止',
+  },
+  retainAsPublished: {
+    zh: '发布时状态保留',
+    en: 'Retain as Published',
+    tr: 'Yayınlandığı Gibi Sakla',
+    ja: '公開時の状態を維持',
+    hu: 'Megőrzés közzétételként',
+  },
+  retainHandling: {
+    zh: '保留消息处理',
+    en: 'Retain Handling',
+    ja: '保持メッセージの取り扱い',
+  },
+  onDisconnect: {
+    zh: '服务器已主动断开连接',
+    en: 'The Broker has actively disconnected',
+    ja: 'サーバーから積極的に接続が切断されました',
+  },
 }

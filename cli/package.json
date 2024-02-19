@@ -1,6 +1,6 @@
 {
   "name": "mqttx-cli",
-  "version": "1.9.6",
+  "version": "1.9.9",
   "description": "MQTTX Command Line Tools",
   "keywords": [
     "mqtt",
@@ -17,8 +17,12 @@
     "mqttx": "./bin/index.js"
   },
   "license": "Apache-2.0",
+  "engines": {
+    "node": ">=16"
+  },
   "dependencies": {
     "axios": "^0.27.2",
+    "cbor": "^9.0.1",
     "chalk": "~4.1.2",
     "cli-table3": "^0.6.3",
     "commander": "^9.3.0",
@@ -26,6 +30,7 @@
     "concat-stream": "^2.0.0",
     "core-js": "^3.26.0",
     "js-yaml": "^4.1.0",
+    "json-bigint": "^1.0.0",
     "mqtt": "^4.3.7",
     "protobufjs": "^7.2.3",
     "pump": "^3.0.0",
@@ -36,7 +41,9 @@
   "devDependencies": {
     "@faker-js/faker": "^8.1.0",
     "@types/concat-stream": "^2.0.0",
+    "@types/debug": "^4.1.12",
     "@types/js-yaml": "^4.0.5",
+    "@types/json-bigint": "^1.0.4",
     "@types/node": "^17.0.43",
     "@types/pump": "^1.1.1",
     "@types/readable-stream": "^2.3.13",

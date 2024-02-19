@@ -9,7 +9,7 @@
     @keyupEnter="save"
   >
     <router-link class="new-script-btn" to="/script">
-      <i class="iconfont icon-plus"></i>
+      <i class="iconfont icon-new"></i>
     </router-link>
     <el-form ref="form" label-position="left" label-width="120px">
       <el-row :gutter="20">
@@ -130,10 +130,10 @@ export default class UseScript extends Vue {
 .use-script {
   .new-script-btn {
     position: absolute;
-    top: 17px;
+    top: 16px;
     left: 70px;
     i {
-      font-size: 14px;
+      font-weight: bold;
     }
   }
 }

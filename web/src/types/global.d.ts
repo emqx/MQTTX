@@ -101,10 +101,6 @@ declare global {
     unreadMessageCount?: 0
   }
 
-  interface SubscriptionsVisible {
-    showSubscriptions: boolean
-  }
-
   type PluginFunction<T> = (Vue: any, options?: T) => void
 
   interface PluginObject<T> {
@@ -119,7 +115,6 @@ declare global {
     autoResub: boolean
     autoScroll: boolean
     autoScrollInterval: number
-    showSubscriptions: boolean
     multiTopics: boolean
     maxReconnectTimes: number
     showClientInfo: {

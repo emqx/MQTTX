@@ -73,10 +73,10 @@ export default class Home extends Vue {
   }
   .right-topbar {
     position: fixed;
-    left: 341px;
     right: 0;
-    z-index: 3;
+    z-index: 2;
     background: var(--color-bg-normal);
+    transition: all 0.4s;
   }
   .rightbar {
     margin-left: 81px;
@@ -85,7 +85,6 @@ export default class Home extends Vue {
     border-left: 1px solid var(--color-border-rightbar);
   }
   .right-content {
-    margin-left: 341px;
     height: 100%;
     background-color: var(--color-bg-primary);
   }

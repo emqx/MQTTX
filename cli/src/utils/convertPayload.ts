@@ -1,29 +1,68 @@
 import chalk from 'chalk'
+import { jsonParse, jsonStringify } from './jsonUtils'
+import cbor from 'cbor'
+import { basicLog } from './signale'
 
-const convertJSON = (value: Buffer | string, action: 'encode' | 'decode') => {
+type Action = 'encode' | 'decode'
+
+const handleError = (err: unknown, value: Buffer | string, action: Action) => {
+  basicLog.error(err as Error)
+  return action === 'decode' ? chalk.red(value.toString()) : process.exit(1)
+}
+
+/**
+ * Converts a JSON payload to a Buffer or string based on the specified action.
+ * @param value - The JSON payload to convert.
+ * @param action - The action to perform on the payload ('decode' or 'encode').
+ * @returns The converted payload.
+ */
+const convertJSON = (value: Buffer | string, action: Action) => {
   try {
-    if (action === 'decode') {
-      return JSON.stringify(JSON.parse(value.toString()), null, 2)
-    } else {
-      return Buffer.from(JSON.stringify(JSON.parse(value.toString())))
-    }
+    return action === 'decode'
+      ? jsonStringify(jsonParse(value.toString()), null, 2)
+      : Buffer.from(jsonStringify(jsonParse(value.toString())))
   } catch (err) {
-    return chalk.red(err)
+    return handleError(err, value, action)
   }
 }
 
-const convertPayload = (payload: Buffer | string, format?: FormatType, action: 'encode' | 'decode' = 'decode') => {
+/**
+ * Converts a CBOR payload to JSON or vice versa.
+ * @param value - The CBOR payload to convert.
+ * @param action - The action to perform: 'decode' to convert CBOR to JSON, 'encode' to convert JSON to CBOR.
+ * @returns The converted payload.
+ */
+const convertCBOR = (value: Buffer | string, action: Action) => {
+  try {
+    return action === 'decode'
+      ? jsonStringify(cbor.decodeFirstSync(value), null, 2)
+      : cbor.encodeOne(JSON.parse(value.toString()))
+  } catch (err) {
+    return handleError(err, value, action)
+  }
+}
+
+/**
+ * Converts the payload based on the specified format and action.
+ * @param payload - The payload to be converted.
+ * @param format - The format in which the payload should be converted. (Optional)
+ * @param action - The action to be performed on the payload. (Default: 'decode')
+ * @returns The converted payload.
+ */
+const convertPayload = (payload: Buffer | string, format?: FormatType, action: Action = 'decode') => {
   const actions = {
     encode: {
       base64: () => Buffer.from(payload.toString(), 'base64'),
       json: () => convertJSON(payload, 'encode'),
       hex: () => Buffer.from(payload.toString().replace(/\s+/g, ''), 'hex'),
+      cbor: () => convertCBOR(payload, 'encode'),
       default: () => Buffer.from(payload.toString(), 'utf-8'),
     },
     decode: {
       base64: () => payload.toString('base64'),
       json: () => convertJSON(payload, 'decode'),
       hex: () => payload.toString('hex').replace(/(.{4})/g, '$1 '),
+      cbor: () => convertCBOR(payload, 'decode'),
       default: () => payload.toString('utf-8'),
     },
   }

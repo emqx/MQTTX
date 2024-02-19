@@ -1,65 +1,60 @@
 <template>
   <div>
-    <left-panel>
-      <el-card
-        v-show="subsVisible"
-        shadow="never"
-        class="subscriptions-list-view"
+    <el-card
+      shadow="never"
+      class="subscriptions-list-view"
+      :style="{
+        top,
+        left: leftValue,
+      }"
+    >
+      <div slot="header" class="clearfix">
+        <el-button class="btn new-subs-btn" icon="el-icon-plus" plain type="outline" size="mini" @click="openDialog">
+          {{ $t('connections.newSubscription') }}
+        </el-button>
+      </div>
+      <div
+        v-for="(sub, index) in subsList"
+        :key="index"
+        :class="['topics-item', { active: index === topicActiveIndex, disabled: sub.disabled }]"
         :style="{
-          top,
+          background: `${sub.color}10`,
         }"
+        @click="handleClickTopic(sub, index)"
+        @contextmenu.prevent="handleContextMenu(sub, $event)"
       >
-        <div slot="header" class="clearfix">
-          <el-button class="btn new-subs-btn" icon="el-icon-plus" plain type="outline" size="mini" @click="openDialog">
-            {{ $t('connections.newSubscription') }}
-          </el-button>
-          <!-- <a class="hide-btn" href="javascript:;" @click="hideSubsList">
-            <i class="iconfont icon-collapse"></i>
-          </a> -->
-        </div>
         <div
-          v-for="(sub, index) in subsList"
-          :key="index"
-          :class="['topics-item', { active: index === topicActiveIndex, disabled: sub.disabled }]"
           :style="{
-            background: `${sub.color}10`,
+            background: `${sub.color}`,
           }"
-          @click="handleClickTopic(sub, index)"
-          @contextmenu.prevent="handleContextMenu(sub, $event)"
+          class="topics-color-line"
+        ></div>
+        <el-popover
+          placement="top"
+          trigger="hover"
+          popper-class="topic-tooltip"
+          :content="getPopoverContent(copySuccess, sub)"
         >
-          <div
+          <a
+            slot="reference"
+            v-clipboard:copy="sub.topic"
+            v-clipboard:success="onCopySuccess"
+            href="javascript:;"
+            class="topic"
             :style="{
-              background: `${sub.color}`,
+              color: sub.color,
             }"
-            class="topics-color-line"
-          ></div>
-          <el-popover
-            placement="top"
-            trigger="hover"
-            popper-class="topic-tooltip"
-            :content="getPopoverContent(copySuccess, sub)"
+            @click.stop="stopClick"
           >
-            <a
-              slot="reference"
-              v-clipboard:copy="sub.topic"
-              v-clipboard:success="onCopySuccess"
-              href="javascript:;"
-              class="topic"
-              :style="{
-                color: sub.color,
-              }"
-              @click.stop="stopClick"
-            >
-              {{ sub.alias || sub.topic }}
-            </a>
-          </el-popover>
-          <span class="qos">QoS {{ sub.qos }}</span>
-          <a href="javascript:;" class="close" @click.stop="unsubscribe(sub)">
-            <i :class="unsubLoading ? 'el-icon-loading' : 'el-icon-close'"></i>
+            {{ sub.alias || sub.topic }}
           </a>
-        </div>
-      </el-card>
-    </left-panel>
+        </el-popover>
+        <span class="qos">QoS {{ sub.qos }}</span>
+        <a href="javascript:;" class="close" @click.stop="unsubscribe(sub)">
+          <i :class="unsubLoading ? 'el-icon-loading' : 'el-icon-close'"></i>
+        </a>
+      </div>
+    </el-card>
     <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
       <a href="javascript:;" class="context-menu__item" @click="handleTopicEdit">
         <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
@@ -157,7 +152,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item label-width="180px" label="No Local flag" prop="nl">
+                <el-form-item label-width="180px" :label="$t('connections.noLocal')" prop="nl">
                   <el-radio-group v-model="subRecord.nl">
                     <el-radio :label="true">true</el-radio>
                     <el-radio :label="false">false</el-radio>
@@ -165,7 +160,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item label-width="180px" label="Retain as Published flag" prop="rap">
+                <el-form-item label-width="180px" :label="$t('connections.retainAsPublished')" prop="rap">
                   <el-radio-group v-model="subRecord.rap">
                     <el-radio :label="true">true</el-radio>
                     <el-radio :label="false">false</el-radio>
@@ -173,7 +168,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item label-width="180px" label="Retain Handling" prop="rh">
+                <el-form-item label-width="180px" :label="$t('connections.retainHandling')" prop="rh">
                   <el-select v-model="subRecord.rh" size="small">
                     <el-option
                       v-for="retainOps in retainHandling"
@@ -207,6 +202,7 @@ import useServices from '@/database/useServices'
 import time from '@/utils/time'
 import { getSubscriptionId } from '@/utils/idGenerator'
 import getContextmenuPosition from '@/utils/getContextmenuPosition'
+import { LeftValues } from '@/utils/styles'
 
 enum SubscribeErrorReason {
   normal,
@@ -223,7 +219,6 @@ enum SubscribeErrorReason {
   },
 })
 export default class SubscriptionsList extends Vue {
-  @Prop({ required: true }) public subsVisible!: boolean
   @Prop({ required: true }) public connectionId!: string
   @Prop({ required: true }) public record!: ConnectionModel
   @Prop({ type: String, default: '60px' }) public top!: string
@@ -233,12 +228,13 @@ export default class SubscriptionsList extends Vue {
   @Getter('currentTheme') private theme!: Theme
   @Getter('multiTopics') private multiTopics!: boolean
   @Getter('activeConnection') private activeConnection!: ActiveConnection
+  @Getter('showConnectionList') private showConnectionList!: boolean
 
   private topicColor = ''
   private client: Partial<MqttClient> = {
     connected: false,
   }
-  private showDialog: boolean = false
+  public showDialog: boolean = false
   private subRecord: SubscriptionModel = {
     id: getSubscriptionId(),
     topic: 'testtopic/#',
@@ -275,6 +271,10 @@ export default class SubscriptionsList extends Vue {
 
   get predefineColors(): string[] {
     return defineColors
+  }
+
+  get leftValue(): string {
+    return this.showConnectionList ? LeftValues.Show : LeftValues.Hide
   }
 
   @Watch('$route.params.id')
@@ -379,7 +379,7 @@ export default class SubscriptionsList extends Vue {
   public async resubscribe() {
     this.getCurrentConnection(this.connectionId)
     for (let sub of this.subsList) {
-      this.$log.info(`Topic: ${sub.topic} is resubscribing`)
+      this.$log.info(`Resubscription in progress for topic: ${sub.topic}`)
       this.subRecord = { ...sub }
       if (this.subRecord.disabled === false) {
         await this.subscribe(this.subRecord)
@@ -444,14 +444,14 @@ export default class SubscriptionsList extends Vue {
       this.client.subscribe(topicsArr, { qos, nl, rap, rh, properties }, async (error, granted) => {
         this.subLoading = false
         if (error) {
-          this.$message.error(error)
-          this.$log.error(`Topic: subscribe error, ${error} `)
+          this.$emit('onSubError', error.toString(), `Topics: ${JSON.stringify(topicsArr)}`)
+          this.$log.error(`Error subscribing to topic: ${error}`)
           return false
         }
         let errorReason = SubscribeErrorReason.normal
 
         if (!granted || (Array.isArray(granted) && granted.length < 1)) {
-          this.$log.error('Topic: subscribe granted empty')
+          this.$log.error('Error subscribing to topic: granted empty')
         } else if (![0, 1, 2].includes(granted[0].qos) && topic.match(/^(\$SYS)/i)) {
           errorReason = SubscribeErrorReason.qosSubSysFailed
         } else if (![0, 1, 2].includes(granted[0].qos)) {
@@ -461,8 +461,8 @@ export default class SubscriptionsList extends Vue {
         if (errorReason !== SubscribeErrorReason.normal) {
           const errorReasonMsg: VueI18n.TranslateResult = this.getErrorReasonMsg(errorReason)
           const errorMsg: string = `${this.$t('connections.subFailed')} ${errorReasonMsg}`
-          this.$log.error(`Topic: subscribe error, ${errorReasonMsg} `)
-          this.$message.error(errorMsg)
+          this.$log.error(`Error subscribing to topic: ${errorReasonMsg}`)
+          this.$emit('onSubError', errorMsg, `Topics: ${JSON.stringify(topicsArr)}`)
           return false
         }
         if (enable) {
@@ -484,10 +484,7 @@ export default class SubscriptionsList extends Vue {
           await subscriptionService.updateSubscriptions(this.record.id, this.record.subscriptions)
           this.changeSubs({ id: this.connectionId, subscriptions: this.subsList })
           this.showDialog = false
-          let subLog = `Topic: ${topic} successfully subscribed`
-          if (this.record.mqttVersion === '5.0') {
-            subLog += `, Subscription Identifier: ${subscriptionIdentifier}, No Local flag: ${nl}, Retain as Published flag: ${rap}, Retain Handling: ${rh}`
-          }
+          let subLog = `Successfully subscribed to topic: ${topic}`
           this.$log.info(subLog)
         }
         isFinished = true
@@ -532,7 +529,7 @@ export default class SubscriptionsList extends Vue {
         this.client.unsubscribe(topic, { qos }, async (error) => {
           this.unsubLoading = false
           if (error) {
-            this.$message.error(error)
+            this.$emit('onSubError', error.toString(), `Topic: ${topic}`)
             resolve(false)
             return false
           }
@@ -707,6 +704,15 @@ export default class SubscriptionsList extends Vue {
 @import '~@/assets/scss/mixins.scss';
 
 .subscriptions-list-view {
+  position: fixed;
+  z-index: 1;
+  width: 230px;
+  background: var(--color-bg-normal);
+  border-radius: 0;
+  top: 0;
+  bottom: 0;
+  padding-bottom: 42px;
+  border-bottom: 0px;
   &.el-card {
     border-top: 0px;
     border-left: 0px;

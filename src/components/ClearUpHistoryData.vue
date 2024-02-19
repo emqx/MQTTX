@@ -43,7 +43,7 @@ export default class ClearUpHistoryData extends Vue {
     ])
 
     this.$message.success(this.$tc('connections.cleanHistorySuccess'))
-    this.$log.info('Clear history successfully')
+    this.$log.info('History cleared successfully')
     this.resetData()
   }
 

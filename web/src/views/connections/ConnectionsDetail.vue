@@ -65,7 +65,7 @@
                   <i class="iconfont icon-search"></i>{{ $t('connections.searchByTopic') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="clearHistory">
-                  <i class="iconfont icon-a-clearhistory"></i>{{ $t('connections.clearHistory') }}
+                  <i class="iconfont icon-clear-history"></i>{{ $t('connections.clearHistory') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="disconnect" :disabled="!client.connected">
                   <i class="el-icon-switch-button"></i>{{ $t('connections.disconnect') }}
@@ -124,12 +124,6 @@
     >
       <div class="connections-body">
         <div ref="filterBar" class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open : bodyTop.close }">
-          <span class="subs-title">
-            {{ this.$t('connections.subscriptions') }}
-            <a class="subs-btn" href="javascript:;" @click="handleShowSubs">
-              <i class="iconfont icon-collapse"></i>
-            </a>
-          </span>
           <div class="message-type">
             <el-select class="received-type-select" size="mini" v-model="receivedMsgType">
               <el-option-group :label="$t('connections.receivedPayloadDecodedBy')">
@@ -190,7 +184,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { TranslateResult } from 'vue-i18n'
-import { MqttClient, IPublishPacket, IClientPublishOptions } from 'mqtt'
+import { MqttClient, IPublishPacket, IClientPublishOptions, IDisconnectPacket } from 'mqtt'
 import _ from 'lodash'
 import { Subject } from 'rxjs'
 import { throttleTime } from 'rxjs/operators'
@@ -214,6 +208,7 @@ import connectionMessageService from '@/utils/api/connectionMessageService.ts'
 import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/historyRecordUtils'
 import historyMessageHeaderService from '@/utils/api/historyMessageHeaderService'
 import historyMessagePayloadService from '@/utils/api/historyMessagePayloadService'
+import { jsonParse, jsonStringify } from '@/utils/jsonUtils'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
@@ -242,11 +237,9 @@ export default class ConnectionsDetail extends Vue {
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
   @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection!: (payload: { readonly id: string }) => void
   @Action('SHOW_CLIENT_INFO') private changeShowClientInfo!: (payload: ClientInfo) => void
-  @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
 
   @Getter('activeConnection') private activeConnection: $TSFixed
-  @Getter('showSubscriptions') private showSubscriptions!: boolean
   @Getter('autoScroll') private autoScroll!: boolean
   @Getter('autoScrollInterval') private autoScrollInterval!: number
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
@@ -328,6 +321,7 @@ export default class ConnectionsDetail extends Vue {
       this.client.on('error', this.onError)
       this.client.on('reconnect', this.onReConnect)
       this.client.on('close', this.onClose)
+      this.client.on('disconnect', this.onDisconnect)
       this.client.on('message', this.onMessageArrived(id))
     }
   }
@@ -484,7 +478,6 @@ export default class ConnectionsDetail extends Vue {
     } else {
       this.showClientInfo = $clientInfoVisible
     }
-    this.showSubs = this.showSubscriptions
     if (currentActiveConnection) {
       this.client = currentActiveConnection.client
       this.setClientsMessageListener()
@@ -493,11 +486,6 @@ export default class ConnectionsDetail extends Vue {
         connected: false,
       }
     }
-  }
-
-  private handleShowSubs() {
-    this.showSubs = !this.showSubs
-    this.changeShowSubscriptions({ showSubscriptions: this.showSubs })
   }
 
   private handleCollapse(id: string) {
@@ -745,6 +733,17 @@ export default class ConnectionsDetail extends Vue {
     this.isReconnect = false
   }
 
+  // Emitted after receiving disconnect packet from broker. MQTT 5.0 feature.
+  private onDisconnect(packet: IDisconnectPacket) {
+    this.$notify({
+      title: this.$tc('connections.onDisconnect'),
+      message: '',
+      type: 'warning',
+      duration: 3000,
+      offset: 30,
+    })
+  }
+
   private onMessageArrived(id: string) {
     return (topic: string, payload: Buffer, packet: IPublishPacket) => {
       const { qos, retain, properties } = packet
@@ -910,7 +909,7 @@ export default class ConnectionsDetail extends Vue {
   private convertPayloadByType(value: Buffer | string, type: PayloadType, way: 'publish' | 'receive'): Buffer | string {
     const validJSONType = (jsonValue: string, warnMessage: TranslateResult) => {
       try {
-        return JSON.parse(jsonValue)
+        return jsonParse(jsonValue)
       } catch (error) {
         this.$message.warning(`${warnMessage} ${error.toString()}`)
         return false
@@ -934,7 +933,7 @@ export default class ConnectionsDetail extends Vue {
       if (receiveType === 'JSON') {
         const jsonValue = validJSONType(receiveValue.toString(), this.$t('connections.receivedMsg'))
         if (jsonValue) {
-          return JSON.stringify(jsonValue, null, 2)
+          return jsonStringify(jsonValue, null, 2)
         }
       }
       return receiveValue.toString()

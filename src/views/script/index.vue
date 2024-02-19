@@ -555,6 +555,7 @@ message Person {
     .icon-new {
       position: relative;
       top: 3px;
+      font-weight: bold;
     }
     .upload-btn {
       background: var(--color-bg-normal);

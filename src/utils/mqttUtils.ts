@@ -83,6 +83,9 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
   }
   if (password !== '') {
     options.password = password
+    if (username === undefined || username === '') {
+      options.username = ''
+    }
   }
   // SSL
   if (ssl) {
@@ -148,7 +151,7 @@ export const createClient = (
       topicAliasMaximum: options.properties ? options.properties.topicAliasMaximum : undefined,
     }
     const { password, username, protocolVersion } = tempOptions
-    if (password && username === undefined && protocolVersion !== 5) {
+    if (password && (username === undefined || username === '') && protocolVersion !== 5) {
       return reject(new Error('MQTT 3.1.1 requires a Username if a Password is set'))
     }
     const curConnectClient: MqttClient = mqtt.connect(url, tempOptions)

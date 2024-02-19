@@ -104,6 +104,7 @@ export class Commander {
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
+      .option('--debug', 'Enable debug mode for MQTT.js', false)
       .allowUnknownOption(false)
       .action(conn)
 
@@ -141,7 +142,11 @@ export class Commander {
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
-      .option('-f, --format <TYPE>', 'the format type of the input message, support base64, json, hex', parseFormat)
+      .option(
+        '-f, --format <TYPE>',
+        'the format type of the input message, support base64, json, hex and cbor',
+        parseFormat,
+      )
       .option('-i, --client-id <ID>', 'the client id', getClientId())
       .option('--no-clean', 'set the clean session flag to false', true)
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
@@ -206,6 +211,7 @@ export class Commander {
         '-Pmn, --protobuf-message-name <NAME>',
         'the name of the protobuf message type (must exist in the .proto file)',
       )
+      .option('--debug', 'Enable debug mode for MQTT.js', false)
       .allowUnknownOption(false)
       .action(pub)
 
@@ -228,7 +234,7 @@ export class Commander {
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
         parseUserProperties,
       )
-      .option('-f, --format <TYPE>', 'format the message body, support base64, json, hex', parseFormat)
+      .option('-f, --format <TYPE>', 'format the message body, support base64, json, hex and cbor', parseFormat)
       .option('-v, --verbose', 'print the topic before the message')
       .option(
         '--output-mode <default/clean>',
@@ -304,6 +310,7 @@ export class Commander {
         '-Pmn, --protobuf-message-name <NAME>',
         'the name of the protobuf message type (must exist in the .proto file)',
       )
+      .option('--debug', 'Enable debug mode for MQTT.js', false)
       .allowUnknownOption(false)
       .action(sub)
 
@@ -382,6 +389,12 @@ export class Commander {
       .option('-c, --count <NUMBER>', 'the number of connections', parseNumber, 1000)
       .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
       .option('-im, --message-interval <MILLISECONDS>', 'interval of publishing messages', parseNumber, 1000)
+      .option(
+        '-L, --limit <NUMBER>',
+        'The maximum number of messages to publish. A value of 0 means no limit on the number of messages',
+        parseNumber,
+        0,
+      )
       .option(
         '-t, --topic <TOPIC>',
         'the message topic, support %u (username), %c (client id), %i (index) variables',

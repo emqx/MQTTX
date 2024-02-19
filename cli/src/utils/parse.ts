@@ -98,7 +98,7 @@ const parsePubTopic = (value: string) => {
 }
 
 const parseFormat = (value: string) => {
-  if (!['base64', 'json', 'hex'].includes(value)) {
+  if (!['base64', 'json', 'hex', 'cbor'].includes(value)) {
     signale.error('Not a valid format type.')
     process.exit(1)
   }
@@ -247,7 +247,7 @@ const parseConnectOptions = (
         Object.entries(willProperties).filter(([_, v]) => v !== null && v !== undefined),
       ))
   }
-
+  let optionsTempWorkAround
   if (mqttVersion === 3) {
     connectOptions.protocolId = 'MQIsdp'
   } else if (mqttVersion === 5) {
@@ -274,9 +274,15 @@ const parseConnectOptions = (
     connectOptions.properties = Object.fromEntries(
       Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined),
     )
+    // Map options.properties.topicAliasMaximum to options.topicAliasMaximum, as that is where MQTT.js looks for it.
+    // TODO: remove after bug fixed in MQTT.js v5.
+    optionsTempWorkAround = Object.assign(
+      { topicAliasMaximum: connectOptions.properties ? connectOptions.properties.topicAliasMaximum : undefined },
+      connectOptions,
+    )
   }
 
-  return connectOptions
+  return optionsTempWorkAround || connectOptions
 }
 
 const parsePublishOptions = (options: PublishOptions) => {

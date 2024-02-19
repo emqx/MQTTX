@@ -1,6 +1,16 @@
 <template>
-  <div class="connection-form right-content card-form">
-    <div class="right-topbar topbar">
+  <div
+    class="connection-form right-content card-form"
+    :style="{
+      marginLeft: leftValue,
+    }"
+  >
+    <div
+      class="right-topbar topbar"
+      :style="{
+        left: leftValue,
+      }"
+    >
       <div class="header">
         <a href="javascript:;" @click="handleBack($route.params.id)">
           <i class="el-icon-arrow-left"></i>{{ $t('common.back') }}
@@ -173,8 +183,8 @@
               <el-col :span="22">
                 <el-form-item label-width="93px" :label="$t('connections.certType')" prop="certType">
                   <el-radio-group v-model="record.certType">
-                    <el-radio label="server">CA signed server</el-radio>
-                    <el-radio label="self">Self signed</el-radio>
+                    <el-radio label="server">CA signed server certificate</el-radio>
+                    <el-radio label="self">CA or Self signed certificates</el-radio>
                   </el-radio-group>
                 </el-form-item>
               </el-col>
@@ -586,6 +596,7 @@ import { getClientId } from '@/utils/idGenerator'
 import { getMQTTProtocol, getDefaultRecord } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
 import KeyValueEditor from '@/components/KeyValueEditor.vue'
+import { LeftValues } from '@/utils/styles'
 
 @Component({
   components: {
@@ -599,6 +610,7 @@ export default class ConnectionForm extends Vue {
   @Getter('advancedVisible') private getterAdvancedVisible!: boolean
   @Getter('willMessageVisible') private getterWillMessageVisible!: boolean
   @Getter('currentTheme') private theme!: Theme
+  @Getter('showConnectionList') private showConnectionList!: boolean
 
   @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
   @Action('TOGGLE_ADVANCED_VISIBLE') private toggleAdvancedVisible!: (payload: { advancedVisible: boolean }) => void
@@ -645,6 +657,10 @@ export default class ConnectionForm extends Vue {
     return this.$refs.form as VueForm
   }
 
+  get leftValue(): string {
+    return this.showConnectionList ? LeftValues.Show : LeftValues.Hide
+  }
+
   private async loadDetail(id: string) {
     const { connectionService } = useServices()
     const res: ConnectionModel | undefined = await connectionService.get(id)
@@ -679,7 +695,7 @@ export default class ConnectionForm extends Vue {
           createAt: time.getNowDate(),
           updateAt: time.getNowDate(),
         })
-        this.$log.info(`First time created, Name: ${res?.name}, ID: ${res?.id}`)
+        this.$log.info(`Created for the first time: ${res?.name}, ID: ${res?.id}`)
         msgError = this.$tc('common.createfailed')
       } else {
         // update a exisit connection
@@ -688,7 +704,7 @@ export default class ConnectionForm extends Vue {
             ...data,
             updateAt: time.getNowDate(),
           })
-          this.$log.info(`${res?.name} was edited, ID: ${res?.id}`)
+          this.$log.info(`Connection ${res?.name} was edited, ID: ${res?.id}`)
           msgError = this.$tc('common.editfailed')
         }
       }

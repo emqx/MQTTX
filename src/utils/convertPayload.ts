@@ -1,3 +1,5 @@
+import { jsonParse, jsonStringify } from './jsonUtils'
+
 interface CodeType {
   encode: (str: string) => string
   decode: (str: string) => string
@@ -32,8 +34,8 @@ const convertHex = (value: string, codeType: 'encode' | 'decode'): string => {
 const convertJSON = (value: string): Promise<string> =>
   new Promise((resolve, reject) => {
     try {
-      let $json = JSON.parse(value)
-      $json = JSON.stringify($json, null, 2)
+      let $json = jsonParse(value)
+      $json = jsonStringify($json, null, 2)
       return resolve($json)
     } catch (error) {
       return reject(error)
@@ -53,7 +55,7 @@ const convertPayload = async (payload: string, currentType: PayloadType, fromTyp
   if (currentType === 'Base64') {
     $payload = convertBase64($payload, 'encode')
   }
-  if (currentType === 'JSON') {
+  if (currentType === 'JSON' || currentType === 'CBOR') {
     $payload = await convertJSON($payload)
   }
   if (currentType === 'Hex') {

@@ -1,8 +1,14 @@
 <template>
   <div class="log-view rightbar">
-    <h1 class="titlebar">
-      {{ $t('log.log') }}
-    </h1>
+    <div class="titlebar">
+      <h1>{{ $t('log.log') }}</h1>
+      <el-select size="mini" v-model="selectedLogLevel" @change="updateLogLevel">
+        <el-option label="DEBUG" value="debug"></el-option>
+        <el-option label="INFO" value="info"></el-option>
+        <el-option label="WARN" value="warn"></el-option>
+        <el-option label="ERROR" value="error"></el-option>
+      </el-select>
+    </div>
     <div class="editor-container log-editor">
       <Editor
         ref="logEditor"
@@ -26,7 +32,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import Editor from '@/components/Editor.vue'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 import fs from 'fs-extra'
 import { getOrCreateLogDir, watchFileAppender } from '@/utils/logger'
 import path from 'path'
@@ -38,8 +44,12 @@ import path from 'path'
 })
 export default class Logs extends Vue {
   @Getter('currentTheme') private theme!: Theme
+  @Getter('logLevel') private logLevel!: LogLevel
+
+  @Action('SET_LOG_LEVEL') private actionSetLogLevel!: (payload: { logLevel: LogLevel }) => void
 
   private logValue = ''
+  private selectedLogLevel: LogLevel = 'info'
 
   get editorTheme(): 'editor-log' | 'editor-log-dark' | 'editor-log-night' {
     switch (this.theme) {
@@ -65,6 +75,7 @@ export default class Logs extends Vue {
       }
       this.logValue = data
     })
+    this.selectedLogLevel = this.logLevel
   }
 
   private scrollDown() {
@@ -87,6 +98,14 @@ export default class Logs extends Vue {
     //append new buffer to logValue
     this.appendLine(msg.toString())
     this.scrollDown()
+  }
+
+  private updateLogLevel(val: LogLevel) {
+    const logger = this.$logRegsity()
+    logger.level = this.selectedLogLevel
+    this.actionSetLogLevel({
+      logLevel: val,
+    })
   }
 
   private created() {
@@ -113,12 +132,9 @@ export default class Logs extends Vue {
   position: relative;
   padding: 0 16px;
   .titlebar {
-    .el-badge_content {
-      height: 20px;
-      position: relative;
-      top: 3px;
-      margin-left: 5px;
-    }
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
   .log-editor {
     height: 90%;

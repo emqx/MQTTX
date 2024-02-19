@@ -1,5 +1,5 @@
 <template>
-  <div class="msg-left-item">
+  <div ref="msgLeftItem" class="msg-left-item">
     <div v-if="functionName || schemaName" class="msg-tag">
       <el-tag size="mini">
         <span>&nbsp;{{ $t('connections.usedScript') }}</span>
@@ -133,10 +133,10 @@ export default class MsgLeftItem extends Vue {
       return
     }
     try {
-      if (this.payload && this.msgType === 'JSON' && !this.msgError) {
+      if (this.payload && ['JSON', 'CBOR'].includes(this.msgType) && !this.msgError) {
         this.hightlight = true
         this.$nextTick(() => {
-          Prism.highlightAll()
+          Prism.highlightAllUnder(this.$refs.msgLeftItem as HTMLElement)
         })
       }
     } catch (e) {

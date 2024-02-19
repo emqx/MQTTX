@@ -11,7 +11,6 @@ const CHANGE_ACTIVE_CONNECTION = 'CHANGE_ACTIVE_CONNECTION'
 const REMOVE_ACTIVE_CONNECTION = 'REMOVE_ACTIVE_CONNECTION'
 const CHANGE_SUBSCRIPTIONS = 'CHANGE_SUBSCRIPTIONS'
 const SHOW_CLIENT_INFO = 'SHOW_CLIENT_INFO'
-const SHOW_SUBSCRIPTIONS = 'SHOW_SUBSCRIPTIONS'
 const UNREAD_MESSAGE_COUNT_INCREMENT = 'UNREAD_MESSAGE_COUNT_INCREMENT'
 const SET_CONNECTIONS_TREE = 'SET_CONNECTIONS_TREE'
 const TOGGLE_WILL_MESSAGE_VISIBLE = 'TOGGLE_WILL_MESSAGE_VISIBLE'
@@ -21,13 +20,19 @@ const SET_CURRENT_CONNECTION_ID = 'SET_CURRENT_CONNECTION_ID'
 const TOGGLE_SYNC_OS_THEME = 'TOGGLE_SYNC_OS_THEME'
 const TOGGLE_MULTI_TOPICS = 'TOGGLE_MULTI_TOPICS'
 const TOGGLE_JSON_HIGHLIGHT = 'TOGGLE_JSON_HIGHLIGHT'
+const SET_OPEN_AI_API_KEY = 'SET_OPEN_AI_API_KEY'
+const SET_MODEL = 'SET_MODEL'
+const SET_INSERT_BUTTON_ADDED = 'SET_INSERT_BUTTON_ADDED'
+const TOGGLE_ENABLE_COPILOT = 'TOGGLE_ENABLE_COPILOT'
+const SET_LOG_LEVEL = 'SET_LOG_LEVEL'
+const TOGGLE_SHOW_CONNECTION_LIST = 'TOGGLE_SHOW_CONNECTION_LIST'
 
-const getShowSubscriptions = (): boolean => {
-  const $showSubscriptions: string | null = localStorage.getItem('showSubscriptions')
-  if (!$showSubscriptions) {
+const getShowConnectionList = (): boolean => {
+  const _showConnectionList: string | null = localStorage.getItem('showConnectionList')
+  if (!_showConnectionList) {
     return true
   }
-  return JSON.parse($showSubscriptions)
+  return JSON.parse(_showConnectionList)
 }
 
 const settingData = remote.getGlobal('sharedData')
@@ -42,7 +47,6 @@ const app = {
     multiTopics: settingData.multiTopics,
     jsonHighlight: settingData.jsonHighlight,
     maxReconnectTimes: settingData.maxReconnectTimes || 10,
-    showSubscriptions: getShowSubscriptions(),
     showClientInfo: {},
     unreadMessageCount: {},
     connectionTreeState: {},
@@ -51,6 +55,12 @@ const app = {
     willMessageVisible: true,
     currentScript: null,
     currentConnectionId: null,
+    enableCopilot: settingData.enableCopilot,
+    openAIAPIKey: settingData.openAIAPIKey || '',
+    model: settingData.model || 'gpt-3.5-turbo',
+    isPrismButtonAdded: false,
+    logLevel: settingData.logLevel || 'info',
+    showConnectionList: getShowConnectionList(),
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -100,10 +110,6 @@ const app = {
     [SHOW_CLIENT_INFO](state: App, payload: ClientInfo) {
       state.showClientInfo[payload.id] = payload.showClientInfo
     },
-    [SHOW_SUBSCRIPTIONS](state: App, payload: SubscriptionsVisible) {
-      state.showSubscriptions = payload.showSubscriptions
-      localStorage.setItem('showSubscriptions', JSON.stringify(state.showSubscriptions))
-    },
     [SET_CONNECTIONS_TREE](state: App, payload: ConnectionTreeState) {
       const { id } = payload
       state.connectionTreeState[id] = { expanded: payload.expanded }
@@ -133,6 +139,25 @@ const app = {
     },
     [SET_CURRENT_CONNECTION_ID](state: App, currentConnectionId: string) {
       state.currentConnectionId = currentConnectionId
+    },
+    [SET_OPEN_AI_API_KEY](state: App, openAIAPIKey: string) {
+      state.openAIAPIKey = openAIAPIKey
+    },
+    [SET_MODEL](state: App, model: AIModel) {
+      state.model = model
+    },
+    [SET_INSERT_BUTTON_ADDED](state: App, isPrismButtonAdded: boolean) {
+      state.isPrismButtonAdded = isPrismButtonAdded
+    },
+    [TOGGLE_ENABLE_COPILOT](state: App, enableCopilot: boolean) {
+      state.enableCopilot = enableCopilot
+    },
+    [SET_LOG_LEVEL](state: App, logLevel: LogLevel) {
+      state.logLevel = logLevel
+    },
+    [TOGGLE_SHOW_CONNECTION_LIST](state: App, showConnectionList: boolean) {
+      state.showConnectionList = showConnectionList
+      localStorage.setItem('showConnectionList', JSON.stringify(state.showConnectionList))
     },
   },
   actions: {
@@ -199,9 +224,6 @@ const app = {
     async SET_CONNECTIONS_TREE({ commit }: any, payload: App) {
       commit(SET_CONNECTIONS_TREE, payload)
     },
-    async SHOW_SUBSCRIPTIONS({ commit }: any, payload: App) {
-      commit(SHOW_SUBSCRIPTIONS, payload)
-    },
     async UNREAD_MESSAGE_COUNT_INCREMENT({ commit }: any, payload: App) {
       commit(UNREAD_MESSAGE_COUNT_INCREMENT, payload)
     },
@@ -216,6 +238,36 @@ const app = {
     },
     async SET_CURRENT_CONNECTION_ID({ commit }: any, currentConnectionId: string) {
       commit(SET_CURRENT_CONNECTION_ID, currentConnectionId)
+    },
+    async TOGGLE_ENABLE_COPILOT({ commit }: any, payload: App) {
+      const { settingService } = useServices()
+      commit(TOGGLE_ENABLE_COPILOT, payload.enableCopilot)
+      settingData.enableCopilot = payload.enableCopilot
+      await settingService.update(payload)
+    },
+    async SET_OPEN_AI_API_KEY({ commit }: any, payload: App) {
+      const { settingService } = useServices()
+      commit(SET_OPEN_AI_API_KEY, payload.openAIAPIKey)
+      settingData.openAIAPIKey = payload.openAIAPIKey
+      await settingService.update(payload)
+    },
+    async SET_MODEL({ commit }: any, payload: App) {
+      const { settingService } = useServices()
+      commit(SET_MODEL, payload.model)
+      settingData.model = payload.model
+      await settingService.update(payload)
+    },
+    SET_INSERT_BUTTON_ADDED({ commit }: any, payload: App) {
+      commit(SET_INSERT_BUTTON_ADDED, payload.isPrismButtonAdded)
+    },
+    async SET_LOG_LEVEL({ commit }: any, payload: App) {
+      const { settingService } = useServices()
+      commit(SET_LOG_LEVEL, payload.logLevel)
+      settingData.logLevel = payload.logLevel
+      await settingService.update(payload)
+    },
+    TOGGLE_SHOW_CONNECTION_LIST({ commit }: any, payload: App) {
+      commit(TOGGLE_SHOW_CONNECTION_LIST, payload.showConnectionList)
     },
   },
 }

@@ -49,22 +49,12 @@
                 </el-col>
                 <el-col :span="24">
                   <el-form-item :label="$t('connections.responseTopic')" prop="responseTopic">
-                    <el-input
-                      placeholder="Response Topic"
-                      size="mini"
-                      v-model="MQTT5PropsForm.responseTopic"
-                      type="text"
-                    />
+                    <el-input size="mini" v-model="MQTT5PropsForm.responseTopic" type="text" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">
                   <el-form-item :label="$t('connections.correlationData')" prop="correlationData">
-                    <el-input
-                      placeholder="Correlation Data"
-                      size="mini"
-                      v-model="MQTT5PropsForm.correlationData"
-                      type="text"
-                    />
+                    <el-input size="mini" v-model="MQTT5PropsForm.correlationData" type="text" />
                   </el-form-item>
                 </el-col>
                 <el-col :span="24">

@@ -11,7 +11,7 @@ declare global {
 
   type Protocol = 'ws' | 'wss' | 'mqtt' | 'mqtts'
 
-  type PayloadType = 'Plaintext' | 'Base64' | 'JSON' | 'Hex'
+  type PayloadType = 'Plaintext' | 'Base64' | 'JSON' | 'Hex' | 'CBOR'
 
   type QoS = 0 | 1 | 2
 
@@ -87,7 +87,6 @@ declare global {
     currentLang: Language
     autoCheck: boolean
     autoResub: boolean
-    showSubscriptions: boolean
     syncOsTheme: boolean
     multiTopics: boolean
     maxReconnectTimes: number
@@ -105,6 +104,12 @@ declare global {
     currentConnectionId: string | null
     connectionTreeState: ConnectionTreeStateMap
     jsonHighlight: boolean
+    enableCopilot: boolean
+    openAIAPIKey: string
+    model: AIModel
+    isPrismButtonAdded: boolean
+    logLevel: LogLevel
+    showConnectionList: boolean
   }
 
   interface State {
@@ -145,10 +150,6 @@ declare global {
     readonly id: string
     unreadMessageCount?: 0
     increasedCount?: number
-  }
-
-  interface SubscriptionsVisible {
-    showSubscriptions: boolean
   }
 
   interface SubscriptionModel {
@@ -202,7 +203,7 @@ declare global {
     connectionId?: string
     id?: string
     payload: string
-    payloadType: PayloadType
+    payloadType: string
     createAt?: string
   }
 
@@ -366,4 +367,35 @@ declare global {
     fileName: string
     fileContent: string
   }
+
+  type CopilotRole = 'user' | 'system' | 'assistant' | 'function'
+  interface CopilotMessage {
+    id: string
+    role: CopilotRole
+    content: string
+    createAt?: string
+  }
+
+  type AIModel =
+    | 'gpt-3.5-turbo'
+    | 'gpt-3.5-turbo-1106'
+    | 'gpt-3.5-turbo-16k'
+    | 'gpt-4'
+    | 'gpt-4-32k'
+    | 'gpt-4-0613'
+    | 'gpt-4-32k-0613'
+
+  interface AreaLineSeriesData {
+    xData: string[]
+    seriesData: {
+      name: string
+      areaStyle: {
+        colorFrom: string
+        colorTo: string
+      }
+      data: any[]
+    }[]
+  }
+
+  type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 }

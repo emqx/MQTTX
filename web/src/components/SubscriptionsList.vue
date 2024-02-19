@@ -13,9 +13,6 @@
           <el-button class="btn new-subs-btn" icon="el-icon-plus" plain type="outline" size="mini" @click="openDialog">
             {{ $t('connections.newSubscription') }}
           </el-button>
-          <!-- <a class="hide-btn" href="javascript:;" @click="hideSubsList">
-            <i class="iconfont icon-collapse"></i>
-          </a> -->
         </div>
         <div
           v-for="(sub, index) in subsList"
@@ -157,7 +154,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item label-width="180px" label="No Local flag" prop="nl">
+                <el-form-item label-width="180px" :label="$t('connections.noLocal')" prop="nl">
                   <el-radio-group v-model="subRecord.nl">
                     <el-radio :label="true">true</el-radio>
                     <el-radio :label="false">false</el-radio>
@@ -165,7 +162,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item label-width="180px" label="Retain as Published flag" prop="rap">
+                <el-form-item label-width="180px" :label="$t('connections.retainAsPublished')" prop="rap">
                   <el-radio-group v-model="subRecord.rap">
                     <el-radio :label="true">true</el-radio>
                     <el-radio :label="false">false</el-radio>
@@ -173,7 +170,7 @@
                 </el-form-item>
               </el-col>
               <el-col :span="24">
-                <el-form-item label-width="180px" label="Retain Handling" prop="rh">
+                <el-form-item label-width="180px" :label="$t('connections.retainHandling')" prop="rh">
                   <el-select v-model="subRecord.rh" size="small">
                     <el-option
                       v-for="retainOps in retainHandling"
@@ -227,7 +224,6 @@ export default class SubscriptionsList extends Vue {
   @Prop({ required: true }) public record!: ConnectionModel
   @Prop({ type: String, default: '60px' }) public top!: string
 
-  @Action('SHOW_SUBSCRIPTIONS') private changeShowSubscriptions!: (payload: SubscriptionsVisible) => void
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
 
   @Getter('currentTheme') private theme!: Theme
@@ -312,11 +308,6 @@ export default class SubscriptionsList extends Vue {
       $index = 0
     }
     return this.predefineColors[$index]
-  }
-
-  private hideSubsList() {
-    this.$emit('update:subsVisible', false)
-    this.changeShowSubscriptions({ showSubscriptions: false })
   }
 
   private openDialog() {

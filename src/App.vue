@@ -10,7 +10,7 @@ import { Component, Vue } from 'vue-property-decorator'
 @Component
 export default class App extends Vue {
   created() {
-    this.$log.info('APP init')
+    this.$log.info('MQTTX Desktop App init')
   }
 }
 </script>

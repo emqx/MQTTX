@@ -48,6 +48,8 @@ const basicLog = {
   close: () => signale.error('Connection closed'),
   reconnecting: () => signale.await('Reconnecting...'),
   reconnectTimesLimit: () => signale.error('Exceed the maximum reconnect times limit, stop retry'),
+  disconnect: (clientId?: string) =>
+    signale.warn(`${clientId ? `Client ID: ${clientId}, ` : ''}The Broker has actively disconnected`),
 }
 
 const benchLog = {
