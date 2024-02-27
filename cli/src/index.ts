@@ -235,7 +235,7 @@ export class Commander {
         parseUserProperties,
       )
       .option('-f, --format <TYPE>', 'format the message body, support base64, json, hex and cbor', parseFormat)
-      .option('-v, --verbose', 'print the topic before the message')
+      .option('-v, --verbose', 'turn on verbose mode to display incoming MQTT packets')
       .option(
         '--output-mode <default/clean>',
         'choose between the default and clean mode, which outputs the complete MQTT packet data, allowing users to pipe the output as they wish',

@@ -96,12 +96,15 @@ const sub = (options: SubscribeOptions) => {
 
     const msgData: Record<string, unknown>[] = []
 
-    options.verbose && msgData.push({ label: 'topic', value: topic })
+    options.verbose && msgData.push({ label: 'mqtt-packet', value: packet })
+
+    msgData.push({ label: 'topic', value: topic })
+    msgData.push({ label: 'qos', value: packet.qos })
+
+    packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 
     let receivedMessage = processReceivedMessage(payload, protobufPath, protobufMessageName, format)
     msgData.push({ label: 'payload', value: receivedMessage })
-
-    packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 
     if (packet.properties?.userProperties) {
       const up: { key: string; value: string }[] = []
