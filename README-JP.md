@@ -11,11 +11,11 @@
 
 ---
 
-[MQTTX](https://mqttx.app/)は、[EMQ](https://www.emqx.com/en)によってオープンソース化されたクロスプラットフォームMQTT 5.0クライアントツールです。macOS、Linux、Windows、また、MQTTメッセージ形式の変換をサポートします。
+[MQTTX](https://mqttx.app/)は、[EMQ](https://www.emqx.com/en)によってオープンソース化されたクロスプラットフォーム[MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5)クライアントツールです。macOS、Linux、Windows、また、MQTTメッセージ形式の変換をサポートします。
 
 [MQTTX](https://mqttx.app/)のユーザーインターフェイスは、チャットソフトウェアのような形でページの操作ロジックを簡素化します。ユーザーは、接続をすばやく作成し、複数の接続クライアントを同時に保存および確立できます。 MQTT/TCP、MQTT/TLS、MQTT/WebSocketの**接続/パブリッシュ/サブスクライブ**機能およびその他の機能をすばやくテストすることが便利です。
 
-> [MQTT](https://mqtt.org/faq)（Message Queuing Telemetry Transport）は、パブリッシュ/サブスクライブパラダイムに基づいた「軽量」メッセージングプロトコルです。制約のあるデバイスや、低帯域幅、高遅延、または信頼性の低いネットワークで使用するように設計されています。IBMによって公開されています。
+> [MQTT](https://www.emqx.com/ja/blog/the-easiest-guide-to-getting-started-with-mqtt)（Message Queuing Telemetry Transport）は、パブリッシュ/サブスクライブパラダイムに基づいた「軽量」メッセージングプロトコルです。制約のあるデバイスや、低帯域幅、高遅延、または信頼性の低いネットワークで使用するように設計されています。IBMによって公開されています。
 
 ## 機能プレビュー
 
