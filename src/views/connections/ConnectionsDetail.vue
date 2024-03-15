@@ -230,7 +230,7 @@
       <div class="connections-body">
         <div ref="filterBar" class="filter-bar" :style="{ top: bodyTopValue, left: detailLeftValue }">
           <div class="message-type">
-            <el-select class="received-type-select" size="mini" v-model="receivedMsgType">
+            <el-select class="received-type-select" size="mini" v-model="receivedMsgType" @change="handleReceivedMsgTypeChange">
               <el-option-group :label="$t('connections.receivedPayloadDecodedBy')">
                 <el-option v-for="type in ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR']" :key="type" :value="type">
                 </el-option>
@@ -435,7 +435,7 @@ export default class ConnectionsDetail extends Vue {
   private sendFrequency: number | undefined = undefined
   private sendTimeId: number | null = null
   private sendTimedMessageCount = 0
-  private receivedMsgType: PayloadType = 'Plaintext'
+  private receivedMsgType: PayloadType = this.getReceivedMsgType()
   private msgType: MessageType = 'all'
 
   private client: Partial<MqttClient> = {
@@ -907,6 +907,18 @@ export default class ConnectionsDetail extends Vue {
   private loadNewMsg() {
     this.msgType = 'all'
     this.handleMessages({ behavior: 'auto' })
+  }
+
+  private getReceivedMsgType(): PayloadType {
+    const _receivedMsgType = localStorage.getItem('receivedMsgType')
+    if (!_receivedMsgType) {
+      return 'Plaintext'
+    }
+    return _receivedMsgType as PayloadType
+  }
+
+  private handleReceivedMsgTypeChange(receivedMsgType: PayloadType) {
+    localStorage.setItem('receivedMsgType', receivedMsgType)
   }
 
   // Clear messages
