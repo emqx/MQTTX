@@ -60,7 +60,7 @@
     "rxjs": "6.2.0",
     "sqlite3": "^5.0.4",
     "typedi": "^0.8.0",
-    "typeorm": "^0.2.34",
+    "typeorm": "^0.3.0",
     "typeorm-typedi-extensions": "^0.2.3",
     "vm2": "^3.9.18",
     "vue": "^2.6.12",
