@@ -111,6 +111,13 @@ export default {
     ja: '削除に失敗しました',
     hu: 'Sikertelen törlés',
   },
+  saveSuccess: {
+    zh: '保存成功',
+    en: 'Save Success',
+    tr: 'Kaydetme Başarılı',
+    ja: '保存に成功しました',
+    hu: 'Sikeres mentés'
+  },
   warning: {
     zh: '提示',
     en: 'Warning',

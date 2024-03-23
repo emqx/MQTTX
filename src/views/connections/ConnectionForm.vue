@@ -20,9 +20,19 @@
         <h2>{{ oper === 'create' ? $t('common.new') : $t('common.edit') }}</h2>
       </div>
       <div class="tail">
-        <a href="javascript:;" @click="save">
+        <a href="javascript:;" @click="connect" class="connect-btn">
           {{ $t('connections.connectBtn') }}
         </a>
+        <el-dropdown trigger="click" @command="handleActionCommand">
+          <a href="javascript:;">
+            <i class="el-icon-arrow-down"></i>
+          </a>
+          <el-dropdown-menu class="connection-oper-item" slot="dropdown">
+            <el-dropdown-item command="handleSave">
+              <i class="el-icon-folder"></i>{{ $t('common.save') }}
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </div>
     </div>
 
@@ -632,7 +642,7 @@ export default class ConnectionForm extends Vue {
   private handleCreateNewConnection(val: string) {
     if (val === 'create') {
       // reinit the form when page jump to creation page
-      this.record = _.cloneDeep(this.defaultRecord)
+      this.initRecord()
     }
   }
 
@@ -671,58 +681,108 @@ export default class ConnectionForm extends Vue {
     }
   }
 
-  private async save() {
-    this.vueForm.validate(async (valid: boolean) => {
-      if (!valid) {
-        return false
-      }
-      const data = { ...this.record }
-      data.properties = emptyToNull(data.properties)
-      let res: ConnectionModel | undefined = undefined
-      const { connectionService } = useServices()
-      let msgError = ''
-      // SSL File validation
-      if (data.ssl && data.certType === 'self') {
-        if (!data.cert && !data.key && !data.ca) {
-          this.$message.warning(this.$tc('connections.sslFileRequired'))
+  private validateForm(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.vueForm.validate((valid: boolean) => {
+        if (!valid) {
+          resolve(false)
           return
         }
-      }
-      if (this.oper === 'create') {
-        // create a new connection
-        res = await connectionService.create({
+
+        const data = { ...this.record }
+        // SSL File validation
+        if (data.ssl && data.certType === 'self') {
+          if (!data.cert && !data.key && !data.ca) {
+            this.$message.warning(this.$tc('connections.sslFileRequired'))
+            resolve(false)
+            return
+          }
+        }
+        resolve(true)
+      })
+    })
+  }
+
+  private handleActionCommand(command: string) {
+    if (command === 'handleSave') {
+      this.handleSave()
+    }
+  }
+
+  private async handleSave() {
+    const valid = await this.validateForm()
+    if (!valid) {
+      return
+    }
+    const { id } = this.$route.params
+    await this.saveData()
+    this.$message.success(this.$tc('common.saveSuccess'))
+    this.$emit('refresh')
+    this.handleBack(id)
+  }
+
+  private async saveData() {
+    const data = { ...this.record }
+    const { connectionService } = useServices()
+    if (this.oper === 'create') {
+      localStorage.setItem('newConnectionRecord', JSON.stringify(data))
+      return this.record
+    } else {
+      // update a exisit connection
+      if (data.id) {
+        const res = await connectionService.update(data.id, {
           ...data,
-          createAt: time.getNowDate(),
+          properties: emptyToNull(data.properties),
           updateAt: time.getNowDate(),
         })
-        this.$log.info(`Created for the first time: ${res?.name}, ID: ${res?.id}`)
-        msgError = this.$tc('common.createfailed')
+        this.$log.info(`Connection ${res?.name} was edited, ID: ${res?.id}`)
+        return res
       } else {
-        // update a exisit connection
-        if (data.id) {
-          res = await connectionService.update(data.id, {
-            ...data,
-            updateAt: time.getNowDate(),
-          })
-          this.$log.info(`Connection ${res?.name} was edited, ID: ${res?.id}`)
-          msgError = this.$tc('common.editfailed')
-        }
+        return this.record
       }
-      // update ActiveConnection & connect
-      if (res && res.id) {
-        this.changeActiveConnection({
-          id: res.id,
-          client: {
-            connected: false,
-          },
-        })
-        this.$emit('connect')
-        this.$router.push(`/recent_connections/${res.id}`)
-      } else {
-        this.$message.error(msgError)
-        this.$log.error(msgError)
-      }
-    })
+    }
+  }
+
+  private async connect() {
+    const valid = await this.validateForm()
+    if (!valid) {
+      return
+    }
+
+    const { connectionService } = useServices()
+    let msgError = ''
+    let res: ConnectionModel | undefined = undefined
+    const data = (await this.saveData())!
+
+    if (this.oper === 'create') {
+      res = await connectionService.create({
+        ...data,
+        properties: emptyToNull(data.properties),
+        createAt: time.getNowDate(),
+        updateAt: time.getNowDate(),
+      })
+      localStorage.removeItem('newConnectionRecord')
+      this.$log.info(`Created for the first time: ${res?.name}, ID: ${res?.id}`)
+      msgError = this.$tc('common.createfailed')
+    } else {
+      msgError = this.$tc('common.editfailed')
+      res = data
+    }
+
+    // update ActiveConnection & connect
+    if (res && res.id) {
+      this.changeActiveConnection({
+        id: res.id,
+        client: {
+          connected: false,
+        },
+      })
+      this.$emit('connect')
+      this.$router.push(`/recent_connections/${res.id}`)
+    } else {
+      this.$message.error(msgError)
+      this.$log.error(msgError)
+    }
   }
 
   private setClientID() {
@@ -858,12 +918,23 @@ export default class ConnectionForm extends Vue {
     }
   }
 
-  private async created() {
-    await this.loadSuggestConnections()
+  private initRecord() {
     const { id } = this.$route.params
-    if (this.oper === 'edit' && id !== '0') {
+    if (this.oper === 'create') {
+      const oldRecord = localStorage.getItem('newConnectionRecord')
+      if (oldRecord) {
+        this.record = JSON.parse(oldRecord)
+      } else {
+        this.record = _.cloneDeep(this.defaultRecord)
+      }
+    } else if (this.oper === 'edit' && id !== '0') {
       this.loadDetail(id)
     }
+  }
+
+  private async created() {
+    await this.loadSuggestConnections()
+    this.initRecord()
     this.advancedVisible = this.getterAdvancedVisible
     this.willMessageVisible = this.getterWillMessageVisible
   }
@@ -877,6 +948,14 @@ export default class ConnectionForm extends Vue {
   padding: 0 16px;
   .topbar {
     -webkit-app-region: drag;
+    .tail {
+      a {
+        padding: 0 12px;
+      }
+      .connect-btn {
+        border-right: 1px solid var(--color-border-default);
+      }
+    }
   }
   .el-form {
     padding-top: 80px;
