@@ -20,7 +20,7 @@
         <h2>{{ oper === 'create' ? $t('common.new') : $t('common.edit') }}</h2>
       </div>
       <div class="tail">
-        <a href="javascript:;" @click="connect" class="connect-btn">
+        <a href="javascript:;" @click="handleSave('connect')" class="connect-btn">
           {{ $t('connections.connectBtn') }}
         </a>
         <el-dropdown trigger="click" @command="handleActionCommand">
@@ -28,9 +28,7 @@
             <i class="el-icon-arrow-down"></i>
           </a>
           <el-dropdown-menu class="connection-oper-item" slot="dropdown">
-            <el-dropdown-item command="handleSave">
-              <i class="el-icon-folder"></i>{{ $t('common.save') }}
-            </el-dropdown-item>
+            <el-dropdown-item command="save"> <i class="el-icon-folder"></i>{{ $t('common.save') }} </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -689,10 +687,10 @@ export default class ConnectionForm extends Vue {
           return
         }
 
-        const data = { ...this.record }
+        const { ssl, certType, cert, key, ca } = this.record
         // SSL File validation
-        if (data.ssl && data.certType === 'self') {
-          if (!data.cert && !data.key && !data.ca) {
+        if (ssl && certType === 'self') {
+          if (!cert && !key && !ca) {
             this.$message.warning(this.$tc('connections.sslFileRequired'))
             resolve(false)
             return
@@ -703,74 +701,55 @@ export default class ConnectionForm extends Vue {
     })
   }
 
-  private handleActionCommand(command: string) {
-    if (command === 'handleSave') {
-      this.handleSave()
-    }
-  }
-
-  private async handleSave() {
-    const valid = await this.validateForm()
-    if (!valid) {
-      return
-    }
-    const { id } = this.$route.params
-    await this.saveData()
-    this.$message.success(this.$tc('common.saveSuccess'))
-    this.$emit('refresh')
-    this.handleBack(id)
-  }
-
   private async saveData() {
+    const { connectionService } = useServices()
     const data = { ...this.record }
-    const { connectionService } = useServices()
-    if (this.oper === 'create') {
-      localStorage.setItem('newConnectionRecord', JSON.stringify(data))
-      return this.record
-    } else {
-      // update a exisit connection
-      if (data.id) {
-        const res = await connectionService.update(data.id, {
-          ...data,
-          properties: emptyToNull(data.properties),
-          updateAt: time.getNowDate(),
-        })
-        this.$log.info(`Connection ${res?.name} was edited, ID: ${res?.id}`)
-        return res
-      } else {
-        return this.record
-      }
-    }
-  }
-
-  private async connect() {
-    const valid = await this.validateForm()
-    if (!valid) {
-      return
-    }
-
-    const { connectionService } = useServices()
-    let msgError = ''
     let res: ConnectionModel | undefined = undefined
-    const data = (await this.saveData())!
+    data.properties = emptyToNull(data.properties)
 
     if (this.oper === 'create') {
+      // create a new connection
       res = await connectionService.create({
         ...data,
-        properties: emptyToNull(data.properties),
         createAt: time.getNowDate(),
         updateAt: time.getNowDate(),
       })
-      localStorage.removeItem('newConnectionRecord')
       this.$log.info(`Created for the first time: ${res?.name}, ID: ${res?.id}`)
-      msgError = this.$tc('common.createfailed')
     } else {
-      msgError = this.$tc('common.editfailed')
-      res = data
+      // update a exisit connection
+      if (data.id) {
+        res = await connectionService.update(data.id, {
+          ...data,
+          updateAt: time.getNowDate(),
+        })
+        this.$log.info(`Connection ${res?.name} was edited, ID: ${res?.id}`)
+      }
+    }
+    return res
+  }
+
+  private async handleSave(type: 'connect' | 'save') {
+    const valid = await this.validateForm()
+    if (!valid) {
+      return
     }
 
-    // update ActiveConnection & connect
-    if (res && res.id) {
+    const res = await this.saveData()
+    // Save failed
+    if (!(res && res.id)) {
+      const msgError = this.oper === 'create' ? this.$tc('common.createfailed') : this.$tc('common.editfailed')
+      this.$message.error(msgError)
+      this.$log.error(msgError)
+      return
+    }
+
+    if (type === 'save') {
+      const { id } = this.$route.params
+      this.$emit('refresh')
+      this.handleBack(id)
+      this.$message.success(this.$tc('common.saveSuccess'))
+    } else {
+      // update ActiveConnection & connect
       this.changeActiveConnection({
         id: res.id,
         client: {
@@ -779,9 +758,12 @@ export default class ConnectionForm extends Vue {
       })
       this.$emit('connect')
       this.$router.push(`/recent_connections/${res.id}`)
-    } else {
-      this.$message.error(msgError)
-      this.$log.error(msgError)
+    }
+  }
+
+  private handleActionCommand(command: 'save') {
+    if (command === 'save') {
+      this.handleSave('save')
     }
   }
 
@@ -921,12 +903,7 @@ export default class ConnectionForm extends Vue {
   private initRecord() {
     const { id } = this.$route.params
     if (this.oper === 'create') {
-      const oldRecord = localStorage.getItem('newConnectionRecord')
-      if (oldRecord) {
-        this.record = JSON.parse(oldRecord)
-      } else {
-        this.record = _.cloneDeep(this.defaultRecord)
-      }
+      this.record = _.cloneDeep(this.defaultRecord)
     } else if (this.oper === 'edit' && id !== '0') {
       this.loadDetail(id)
     }

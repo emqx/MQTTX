@@ -79,6 +79,11 @@ export default {
     en: 'Delete Failed',
     ja: '削除に失敗しました',
   },
+  saveSuccess: {
+    zh: '保存成功',
+    en: 'Save Success',
+    ja: '保存に成功しました',
+  },
   warning: {
     zh: '提示',
     en: 'Warning',
