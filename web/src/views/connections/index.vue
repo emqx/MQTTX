@@ -13,7 +13,7 @@
         :click-method="toCreateConnection"
       />
       <template v-else>
-        <ConnectionForm v-if="oper" ref="connectionForm" :oper="oper" @connect="onConnect" />
+        <ConnectionForm v-if="oper" ref="connectionForm" :oper="oper" @connect="onConnect" @refresh="loadData" />
         <ConnectionsDetail
           v-show="!oper"
           ref="ConnectionsDetail"
