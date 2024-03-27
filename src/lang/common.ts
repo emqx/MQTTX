@@ -41,6 +41,13 @@ export default {
     ja: '保存',
     hu: 'Mentés',
   },
+  saveOnly: {
+    zh: '仅保存',
+    en: 'Save Only',
+    tr: 'Sadece Kaydet',
+    ja: '保存のみ',
+    hu: 'Csak Mentés',
+  },
   reset: {
     zh: '重置',
     en: 'Reset',
