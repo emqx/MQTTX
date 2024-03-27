@@ -18,7 +18,9 @@
             <i class="el-icon-arrow-down"></i>
           </a>
           <el-dropdown-menu class="connection-oper-item" slot="dropdown">
-            <el-dropdown-item command="save"> <i class="el-icon-folder"></i>{{ $t('common.save') }} </el-dropdown-item>
+            <el-dropdown-item command="save">
+              <i class="iconfont icon-save"></i>{{ $t('common.saveOnly') }}
+            </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>

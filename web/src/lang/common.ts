@@ -29,6 +29,11 @@ export default {
     en: 'Save',
     ja: '保存',
   },
+  saveOnly: {
+    zh: '仅保存',
+    en: 'Save Only',
+    ja: '保存のみ',
+  },
   reset: {
     zh: '重置',
     en: 'Reset',
