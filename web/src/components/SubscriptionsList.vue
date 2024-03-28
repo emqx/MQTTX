@@ -203,6 +203,7 @@ import Contextmenu from '@/components/Contextmenu.vue'
 import { updateConnection } from '@/utils/api/connection'
 import time from '@/utils/time'
 import { getSubscriptionId } from '@/utils/idGenerator'
+import getErrorReason from '@/utils/mqttErrorReason'
 
 enum SubscribeErrorReason {
   normal,
@@ -392,6 +393,16 @@ export default class SubscriptionsList extends Vue {
     }
   }
 
+  private handleSubError(topic: string, qos: number) {
+    const errorReason = getErrorReason(this.record.mqttVersion, qos)
+    let errorReasonMsg: VueI18n.TranslateResult = ''
+    if (qos === 128 || qos === 135) errorReasonMsg = ', ' + this.$t('connections.qosSubFailed')
+
+    this.$message.error(
+      `Failed to subscribed to topic: ${topic}, Error: ${errorReason} (Code: ${qos})${errorReasonMsg}`,
+    )
+  }
+
   public async subscribe(
     { topic, alias, qos, nl, rap, rh, subscriptionIdentifier, disabled }: SubscriptionModel,
     isAuto?: boolean,
@@ -407,9 +418,10 @@ export default class SubscriptionsList extends Vue {
       this.subRecord.disabled = disabled
       this.subRecord.color = getRandomColor()
     }
-    let isFinshed = false
+    let isFinished = false
+
     if (this.client.subscribe) {
-      const topicsArr = this.multiTopics ? topic.split(',') : topic
+      const topicsArr = this.multiTopics ? [...new Set(topic.split(','))].filter(Boolean) : topic
       const aliasArr = this.multiTopics ? alias?.split(',') : alias
       let properties: { subscriptionIdentifier: number } | undefined = undefined
       if (this.record.mqttVersion === '5.0' && subscriptionIdentifier) {
@@ -423,17 +435,21 @@ export default class SubscriptionsList extends Vue {
           this.$message.error(error)
           return false
         }
-        let errorReason = SubscribeErrorReason.normal
-        if (!granted || (Array.isArray(granted) && granted.length < 1)) {
-        } else if (![0, 1, 2].includes(granted[0].qos) && topic.match(/^(\$SYS)/i)) {
-          errorReason = SubscribeErrorReason.qosSubSysFailed
-        } else if (![0, 1, 2].includes(granted[0].qos)) {
-          errorReason = SubscribeErrorReason.qosSubFailed
+        let successSubscriptions: string[] = []
+        if (!granted) {
+          return false
+        } else {
+          granted.forEach((grant) => {
+            if ([0, 1, 2].includes(grant.qos)) {
+              successSubscriptions.push(grant.topic)
+            } else {
+              setTimeout(() => {
+                this.handleSubError(grant.topic, grant.qos)
+              }, 0)
+            }
+          })
         }
-        if (errorReason !== SubscribeErrorReason.normal) {
-          const errorReasonMsg: VueI18n.TranslateResult = this.getErrorReasonMsg(errorReason)
-          const errorMsg: string = `${this.$t('connections.subFailed')} ${errorReasonMsg}`
-          this.$message.error(errorMsg)
+        if (!successSubscriptions.length) {
           return false
         }
         if (enable) {
@@ -443,7 +459,9 @@ export default class SubscriptionsList extends Vue {
             this.saveTopicToSubList(topic, qos)
           } else {
             topicsArr.forEach((topic, index) => {
-              this.saveTopicToSubList(topic, qos, index, aliasArr as string[])
+              if (successSubscriptions.includes(topic)) {
+                this.saveTopicToSubList(topic, qos, index, aliasArr as string[])
+              }
             })
           }
         }
@@ -453,7 +471,7 @@ export default class SubscriptionsList extends Vue {
           this.changeSubs({ id: this.connectionId, subscriptions: this.subsList })
           this.showDialog = false
         }
-        isFinshed = true
+        isFinished = true
       })
     }
     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -461,10 +479,10 @@ export default class SubscriptionsList extends Vue {
     // TODO: maybe we should replace mqtt.js to mqtt-async.js
     await new Promise(async (resolve) => {
       // long pool query base on sleep
-      while (!isFinshed) {
+      while (!isFinished) {
         await sleep(100)
       }
-      resolve(isFinshed)
+      resolve(isFinished)
     })
   }
 
