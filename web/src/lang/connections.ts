@@ -90,29 +90,14 @@ export default {
     ja: 'サブスクリプションの編集',
   },
   subFailed: {
-    zh: '订阅失败',
-    en: 'Subscribe Failed',
-    ja: 'サブスクリプションが失敗しました',
+    zh: '无法订阅 {0}, Error: {1} (Code: {2})',
+    en: 'Failed to Subscribe {0}, Error: {1}(Code: {2})',
+    ja: 'サブスクリプション失敗：{0}, エラー：{1} (コード：{2})',
   },
-  qosSubSysFailed: {
-    zh: '拒绝了 $SYS 主题，错误的 QoS，MQTT Broker 拒绝了订阅。请检查 ACL 配置',
-    en: 'Rejected the $SYS topic,Unexpected QoS, MQTT Broker declined the subscription. Please check ACL configuration',
-    ja: '$SYSトピックを拒否しま。した予期しないQoS、MQTT Brokerはサブスクリプションを拒否しました。ACL構成を確認してください',
-  },
-  qosSubFailed: {
-    zh: '错误的 QoS, SubACK 失败, 请检查 MQTT broker ACL 设置',
-    en: 'Unexpected QoS, SubACK failed, Please check MQTT broker ACL configuration',
-    ja: '予期しないQoS, SubACK失敗、MQTT Broker ACL構成を確認してください',
-  },
-  emptySubFailed: {
-    zh: '订阅为空',
-    en: 'Subscription is empty',
-    ja: 'サブスクリプションは空です',
-  },
-  unknowSubFailed: {
-    zh: '未知的订阅错误',
-    en: 'Unknown subscription error',
-    ja: '不明なサブスクリプションエラー',
+  aclSubFailed: {
+    zh: '请确保权限正确，并检查 MQTT Broker 的 ACL 配置',
+    en: 'Make sure the permissions are correct, and check MQTT broker ACL configuration',
+    ja: '権限が正しいことを確認し、MQTTブローカーのACL設定を確認してください',
   },
   connected: {
     zh: '已连接',
