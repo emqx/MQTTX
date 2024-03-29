@@ -203,13 +203,7 @@ import time from '@/utils/time'
 import { getSubscriptionId } from '@/utils/idGenerator'
 import getContextmenuPosition from '@/utils/getContextmenuPosition'
 import { LeftValues } from '@/utils/styles'
-
-enum SubscribeErrorReason {
-  normal,
-  qosSubFailed, // qos is abnormal
-  qosSubSysFailed, // qos is abnormal becauseof $SYS subscribe
-  emptySubFailed, // subscription returns empty array
-}
+import getErrorReason from '@/utils/mqttErrorReason'
 
 @Component({
   components: {
@@ -354,28 +348,6 @@ export default class SubscriptionsList extends Vue {
     })
   }
 
-  /**
-   * Get the error reason message corresponding to the enumeration.
-   * Check that errorReason not equal `SubscribeErrorReason.normal` before using.
-   * @return Return the message of failure subscribe
-   * @param errorReason - Type:enum, The reason cause the failed subscription
-   */
-  private getErrorReasonMsg(errorReason: SubscribeErrorReason): VueI18n.TranslateResult {
-    if (errorReason === SubscribeErrorReason.normal) return ''
-    switch (errorReason) {
-      case errorReason & SubscribeErrorReason.qosSubFailed: {
-        return this.$t('connections.qosSubFailed')
-      }
-      case errorReason & SubscribeErrorReason.qosSubSysFailed: {
-        return this.$t('connections.qosSubSysFailed')
-      }
-      case errorReason & SubscribeErrorReason.emptySubFailed: {
-        return this.$t('connections.emptySubFailed')
-      }
-    }
-    return this.$t('connections.unknowSubFailed')
-  }
-
   public async resubscribe() {
     this.getCurrentConnection(this.connectionId)
     for (let sub of this.subsList) {
@@ -410,6 +382,23 @@ export default class SubscriptionsList extends Vue {
     }
   }
 
+  private handleSubError(topic: string, qos: number) {
+    const isAclSubFailed = (qos: number) => {
+      return [128, 135].includes(qos)
+    }
+
+    const aclSubFailed = isAclSubFailed(qos)
+    const errorReasonMsg = aclSubFailed ? `. ${this.$t('connections.aclSubFailed')}` : ''
+    const errorReason = getErrorReason(this.record.mqttVersion as '3.1' | '3.1.1' | '5.0', qos)
+    const errorMsg: string = this.$t('connections.subFailed', [topic, errorReason, qos]) + errorReasonMsg
+    this.$emit('onSubError', errorMsg, `Topics: ${topic}`)
+    this.$log.error(
+      `Failed to subscribe: ${topic}, Error: ${errorReason} (Code: ${qos})${
+        aclSubFailed ? '. Make sure the permissions are correct, and check MQTT broker ACL configuration' : ''
+      }`,
+    )
+  }
+
   public async subscribe(
     { topic, alias, qos, nl, rap, rh, subscriptionIdentifier, disabled, id }: SubscriptionModel,
     isAuto?: boolean,
@@ -428,8 +417,9 @@ export default class SubscriptionsList extends Vue {
       })
     }
     let isFinished = false
+
     if (this.client.subscribe) {
-      const topicsArr = this.multiTopics ? topic.split(',') : topic
+      const topicsArr = this.multiTopics ? [...new Set(topic.split(','))].filter(Boolean) : topic
       const aliasArr = this.multiTopics ? alias?.split(',') : alias
       let properties: { subscriptionIdentifier: number } | undefined = undefined
       if (this.record.mqttVersion === '5.0' && subscriptionIdentifier) {
@@ -448,21 +438,21 @@ export default class SubscriptionsList extends Vue {
           this.$log.error(`Error subscribing to topic: ${error}`)
           return false
         }
-        let errorReason = SubscribeErrorReason.normal
-
-        if (!granted || (Array.isArray(granted) && granted.length < 1)) {
+        const successSubscriptions: string[] = []
+        if (!granted) {
           this.$log.error('Error subscribing to topic: granted empty')
-        } else if (![0, 1, 2].includes(granted[0].qos) && topic.match(/^(\$SYS)/i)) {
-          errorReason = SubscribeErrorReason.qosSubSysFailed
-        } else if (![0, 1, 2].includes(granted[0].qos)) {
-          errorReason = SubscribeErrorReason.qosSubFailed
+        } else {
+          granted.forEach((grant) => {
+            if ([0, 1, 2].includes(grant.qos)) {
+              successSubscriptions.push(grant.topic)
+            } else {
+              setTimeout(() => {
+                this.handleSubError(grant.topic, grant.qos)
+              }, 0)
+            }
+          })
         }
-
-        if (errorReason !== SubscribeErrorReason.normal) {
-          const errorReasonMsg: VueI18n.TranslateResult = this.getErrorReasonMsg(errorReason)
-          const errorMsg: string = `${this.$t('connections.subFailed')} ${errorReasonMsg}`
-          this.$log.error(`Error subscribing to topic: ${errorReasonMsg}`)
-          this.$emit('onSubError', errorMsg, `Topics: ${JSON.stringify(topicsArr)}`)
+        if (!successSubscriptions.length) {
           return false
         }
         if (enable) {
@@ -473,10 +463,12 @@ export default class SubscriptionsList extends Vue {
             this.saveTopicToSubList(topic, qos, undefined, undefined, id)
           } else {
             topicsArr.forEach((topic, index) => {
-              this.saveTopicToSubList(topic, qos, index, aliasArr as string[], id)
+              if (successSubscriptions.includes(topic)) {
+                this.saveTopicToSubList(topic, qos, index, aliasArr as string[], id)
+              }
             })
           }
-          this.$log.info(`Saved topic: ${topic}`)
+          this.$log.info(`Saved topic: ${successSubscriptions}`)
         }
         this.record.subscriptions = this.subsList
         if (this.record.id) {
@@ -484,12 +476,12 @@ export default class SubscriptionsList extends Vue {
           await subscriptionService.updateSubscriptions(this.record.id, this.record.subscriptions)
           this.changeSubs({ id: this.connectionId, subscriptions: this.subsList })
           this.showDialog = false
-          let subLog = `Successfully subscribed to topic: ${topic}`
-          this.$log.info(subLog)
+          successSubscriptions.length && this.$log.info(`Successfully subscribed to topic: ${successSubscriptions}`)
         }
         isFinished = true
       })
     }
+
     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
     // TODO: maybe we should replace mqtt.js to mqtt-async.js
     await new Promise(async (resolve) => {
