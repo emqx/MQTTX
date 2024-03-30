@@ -1104,7 +1104,7 @@ export default class ConnectionsDetail extends Vue {
   // Emitted after receiving disconnect packet from broker. MQTT 5.0 feature.
   private onDisconnect(packet: IDisconnectPacket) {
     const reasonCode = packet.reasonCode!
-    const reason = getErrorReason('5.0', reasonCode)
+    const reason = reasonCode === 0 ? 'Normal disconnection' : getErrorReason('5.0', reasonCode)
     this.notifyMsgWithCopilot(
       this.$t('connections.onDisconnect', [reason, reasonCode]) as string,
       JSON.stringify(packet),
