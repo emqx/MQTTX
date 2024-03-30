@@ -145,8 +145,8 @@ const sub = (options: SubscribeOptions) => {
     !outputModeClean && basicLog.close()
   })
 
-  client.on('disconnect', () => {
-    !outputModeClean && basicLog.disconnect()
+  client.on('disconnect', (packet: IDisconnectPacket) => {
+    !outputModeClean && basicLog.disconnect(packet)
   })
 }
 
@@ -286,8 +286,8 @@ const benchSub = async (options: BenchSubscribeOptions) => {
         benchLog.close(connectedCount, count, opts.clientId!)
       })
 
-      client.on('disconnect', () => {
-        basicLog.disconnect(opts.clientId!)
+      client.on('disconnect', (packet: IDisconnectPacket) => {
+        basicLog.disconnect(packet, opts.clientId!)
       })
     })(i, connOpts)
 

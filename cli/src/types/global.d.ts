@@ -155,6 +155,15 @@ declare global {
   interface LsOptions {
     scenarios: boolean
   }
+
+  interface IDisconnectPacket {
+    cmd: 'disconnect',
+    qos: QoS
+    dup: boolean
+    retain: boolean
+    reasonCode: number,
+    length: number
+  }
 }
 
 export {}

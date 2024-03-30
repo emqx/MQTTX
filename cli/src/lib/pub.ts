@@ -142,8 +142,8 @@ const multisend = (
     reconnectPeriod ? sender.cork() : process.exit(1)
   })
 
-  client.on('disconnect', () => {
-    basicLog.disconnect()
+  client.on('disconnect', (packet: IDisconnectPacket) => {
+    basicLog.disconnect(packet)
   })
 }
 
@@ -354,8 +354,8 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
         benchLog.close(connectedCount, count, opts.clientId!)
       })
 
-      client.on('disconnect', () => {
-        basicLog.disconnect(opts.clientId!)
+      client.on('disconnect', (packet: IDisconnectPacket) => {
+        basicLog.disconnect(packet, opts.clientId!)
       })
     })(i, connOpts)
 
