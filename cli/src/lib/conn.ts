@@ -49,8 +49,8 @@ const conn = (options: ConnectOptions) => {
     basicLog.close()
   })
 
-  client.on('disconnect', () => {
-    basicLog.disconnect()
+  client.on('disconnect', (packet: IDisconnectPacket) => {
+    basicLog.disconnect(packet)
   })
 }
 
@@ -78,7 +78,7 @@ const benchConn = async (options: BenchConnectOptions) => {
   const start = Date.now()
 
   for (let i = 1; i <= count; i++) {
-    ;((i: number, connOpts: mqtt.IClientOptions) => {
+    ; ((i: number, connOpts: mqtt.IClientOptions) => {
       const opts = { ...connOpts }
 
       opts.clientId = clientId.includes('%i') ? clientId.replaceAll('%i', i.toString()) : `${clientId}_${i}`
@@ -124,8 +124,8 @@ const benchConn = async (options: BenchConnectOptions) => {
         benchLog.close(connectedCount, count, opts.clientId!)
       })
 
-      client.on('disconnect', () => {
-        basicLog.disconnect(opts.clientId!)
+      client.on('disconnect', (packet: IDisconnectPacket) => {
+        basicLog.disconnect(packet, opts.clientId!)
       })
     })(i, connOpts)
 

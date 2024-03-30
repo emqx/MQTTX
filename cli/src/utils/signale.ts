@@ -1,6 +1,7 @@
 import { Signale } from 'signale'
 import chalk from 'chalk'
 import { inspect } from 'util'
+import getErrorReason from './mqttErrorReason'
 
 const option = {
   config: {
@@ -30,8 +31,7 @@ const basicLog = {
       signale.await('Connecting...')
     } else {
       signale.await(
-        `Connecting using configuration file, host: ${host}, port: ${port}${topic ? `, topic: ${topic}` : ''}${
-          message ? `, message: ${message}` : ''
+        `Connecting using configuration file, host: ${host}, port: ${port}${topic ? `, topic: ${topic}` : ''}${message ? `, message: ${message}` : ''
         }`,
       )
     }
@@ -48,8 +48,11 @@ const basicLog = {
   close: () => signale.error('Connection closed'),
   reconnecting: () => signale.await('Reconnecting...'),
   reconnectTimesLimit: () => signale.error('Exceed the maximum reconnect times limit, stop retry'),
-  disconnect: (clientId?: string) =>
-    signale.warn(`${clientId ? `Client ID: ${clientId}, ` : ''}The Broker has actively disconnected`),
+  disconnect: (packet: IDisconnectPacket, clientId?: string) => {
+    const { reasonCode } = packet
+    const reason = reasonCode === 0 ? 'Normal disconnection' : getErrorReason(reasonCode)
+    signale.warn(`${clientId ? `Client ID: ${clientId}, ` : ''}The Broker has actively disconnected, Reason: ${reason} (Code: ${reasonCode})`)
+  }
 }
 
 const benchLog = {

@@ -1106,7 +1106,7 @@ export default class ConnectionsDetail extends Vue {
     const reasonCode = packet.reasonCode!
     const reason = reasonCode === 0 ? 'Normal disconnection' : getErrorReason('5.0', reasonCode)
     this.notifyMsgWithCopilot(
-      this.$t('connections.onDisconnect', [reason, reasonCode]) as string,
+      this.$t('connections.onDisconnect', { reason, reasonCode }) as string,
       JSON.stringify(packet),
       () => {},
       'warning',

@@ -846,11 +846,11 @@ export default {
     hu: 'Üzenetmegőrzés kezelése',
   },
   onDisconnect: {
-    zh: '服务器已主动断开连接, Reason: {0} (Code: {1})',
-    en: 'The Broker has actively disconnected, Reason: {0} (Code: {1})',
-    tr: 'Sunucu aktif bir şekilde bağlantıyı kesmiştir, Reason: {0} (Code: {1})',
-    ja: 'サーバーから積極的に接続が切断されました, Reason: {0} (Code: {1})',
-    hu: 'A kiszolgáló aktívan bontotta a kapcsolatot, Reason: {0} (Code: {1})',
+    zh: '服务器已主动断开连接, Reason: {reason} (Code: {reasonCode})',
+    en: 'The Broker has actively disconnected, Reason: {reason} (Code: {reasonCode})',
+    tr: 'Sunucu aktif bir şekilde bağlantıyı kesmiştir, Reason: {reason} (Code: {reasonCode})',
+    ja: 'サーバーから積極的に接続が切断されました, Reason: {reason} (Code: {reasonCode})',
+    hu: 'A kiszolgáló aktívan bontotta a kapcsolatot, Reason: {reason} (Code: {reasonCode})',
   },
   hideConnections: {
     zh: '隐藏连接列表',
