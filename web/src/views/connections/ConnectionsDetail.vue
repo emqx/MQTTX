@@ -209,6 +209,7 @@ import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/historyRecordUt
 import historyMessageHeaderService from '@/utils/api/historyMessageHeaderService'
 import historyMessagePayloadService from '@/utils/api/historyMessagePayloadService'
 import { jsonParse, jsonStringify } from '@/utils/jsonUtils'
+import getErrorReason from '@/utils/mqttErrorReason'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
@@ -735,8 +736,10 @@ export default class ConnectionsDetail extends Vue {
 
   // Emitted after receiving disconnect packet from broker. MQTT 5.0 feature.
   private onDisconnect(packet: IDisconnectPacket) {
+    const reasonCode = packet.reasonCode!
+    const reason = reasonCode === 0 ? 'Normal disconnection' : getErrorReason('5.0', reasonCode)
     this.$notify({
-      title: this.$tc('connections.onDisconnect'),
+      title: this.$t('connections.onDisconnect', [reason, reasonCode]) as string,
       message: '',
       type: 'warning',
       duration: 3000,

@@ -425,8 +425,8 @@ export default {
     ja: '保持メッセージの取り扱い',
   },
   onDisconnect: {
-    zh: '服务器已主动断开连接',
-    en: 'The Broker has actively disconnected',
-    ja: 'サーバーから積極的に接続が切断されました',
+    zh: '服务器已主动断开连接, Reason: {0} (Code: {1})',
+    en: 'The Broker has actively disconnected, Reason: {0} (Code: {1})',
+    ja: 'サーバーから積極的に接続が切断されました, Reason: {0} (Code: {1})',
   },
 }
