@@ -230,7 +230,12 @@
       <div class="connections-body">
         <div ref="filterBar" class="filter-bar" :style="{ top: bodyTopValue, left: detailLeftValue }">
           <div class="message-type">
-            <el-select class="received-type-select" size="mini" v-model="receivedMsgType" @change="handleReceivedMsgTypeChange">
+            <el-select
+              class="received-type-select"
+              size="mini"
+              v-model="receivedMsgType"
+              @change="handleReceivedMsgTypeChange"
+            >
               <el-option-group :label="$t('connections.receivedPayloadDecodedBy')">
                 <el-option v-for="type in ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR']" :key="type" :value="type">
                 </el-option>
@@ -343,6 +348,7 @@ import getContextmenuPosition from '@/utils/getContextmenuPosition'
 import { deserializeBufferToProtobuf, printObjectAsString, serializeProtobufToBuffer } from '@/utils/protobuf'
 import { jsonStringify } from '@/utils/jsonUtils'
 import { LeftValues, BodyTopValues, MsgTopValues, DetailLeftValues } from '@/utils/styles'
+import getErrorReason from '@/utils/mqttErrorReason'
 
 type CommandType =
   | 'searchContent'
@@ -1097,7 +1103,14 @@ export default class ConnectionsDetail extends Vue {
 
   // Emitted after receiving disconnect packet from broker. MQTT 5.0 feature.
   private onDisconnect(packet: IDisconnectPacket) {
-    this.notifyMsgWithCopilot(this.$tc('connections.onDisconnect'), JSON.stringify(packet), () => {}, 'warning')
+    const reasonCode = packet.reasonCode!
+    const reason = getErrorReason('5.0', reasonCode)
+    this.notifyMsgWithCopilot(
+      this.$t('connections.onDisconnect', [reason, reasonCode]) as string,
+      JSON.stringify(packet),
+      () => {},
+      'warning',
+    )
     const logMessage = 'Received disconnect packet from Broker. MQTT.js onDisconnect trigger'
     this.$log.warn(logMessage)
   }

@@ -6,6 +6,7 @@ const MqttErrorReason: Record<string, { [code: number]: string }> = {
     128: 'Not authorized',
   },
   '5.0': {
+    0: 'Normal disconnection',
     4: 'Disconnect with Will Message',
     16: 'No matching subscribers',
     17: 'No subscription existed',
