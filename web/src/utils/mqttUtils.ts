@@ -156,7 +156,7 @@ export const getDefaultRecord = (): ConnectionModel => {
     name: '',
     clean: true,
     protocol: 'ws',
-    host: 'broker.emqx.io',
+    host: process.env.VUE_APP_DEFAULT_HOST ?? 'broker.emqx.io',
     keepalive: 60,
     connectTimeout: 10,
     reconnect: true,
