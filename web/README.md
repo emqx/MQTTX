@@ -8,7 +8,7 @@
 
 [![GitHub Downloads](https://img.shields.io/github/downloads/emqx/MQTTX/total?label=GitHub%20Downloads)](https://mqttx.app/downloads)
 [![Docker Web Pulls](https://img.shields.io/docker/pulls/emqx/mqttx-web?label=Docker%20Web%20Pulls)](https://hub.docker.com/r/emqx/mqttx-web)
-[![Docker CLI Pulls](https://img.shields.io/docker/pulls/emqx/mqttx-cli?label=Docker%20CLI%20Pulls)](https://hub.docker.com/r/emqx/mqttx-cli)  
+[![Docker CLI Pulls](https://img.shields.io/docker/pulls/emqx/mqttx-cli?label=Docker%20CLI%20Pulls)](https://hub.docker.com/r/emqx/mqttx-cli)
 
 [![Community](https://img.shields.io/badge/Community-MQTTX-yellow?logo=github)](https://github.com/emqx/MQTTX/discussions)
 [![Slack](https://img.shields.io/badge/Slack-EMQX-39AE85?logo=slack)](https://slack-invite.emqx.io/)
@@ -42,6 +42,10 @@ docker pull emqx/mqttx-web:latest
 docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 ```
 
+## Manual compilation and deployment
+
+If you need to make some personalized settings, such as changing the default connection path, deployment path, etc., you can achieve these modifications by editing the .env configuration file and compiling manually. For information on how to compile the project and package docker images, you can refer to the [development section](#Develop).
+
 ## Better Together with EMQX
 
 MQTTX is designed to connect to test MQTT Brokers such as EMQX, The one-click connection and simple graphical interface make it easy to connect to EMQX or EMQX Cloud to debug and explore functional features.
@@ -71,10 +75,6 @@ git clone git@github.com:emqx/MQTTX.git
 cd MQTTX/web
 yarn install
 
-# Set Web app's title and description (customizable as per user requirements)
-echo "VUE_APP_PAGE_TITLE=Easy-to-Use Online MQTT Client | Try Now" > .env.local
-echo "VUE_APP_PAGE_DESCRIPTION=Online MQTT 5.0 client on the web, using MQTT over WebSocket to connect to the MQTT Broker and test message publishing and receiving in the browser." >> .env.local
-
 # Compiles and hot-reloads for development
 yarn run serve
 
@@ -86,6 +86,12 @@ yarn run start
 
 # Compiles and prepares for Docker containerization
 yarn run build:docker
+
+# Build Docker image
+docker build -t mqttx-web .
+
+# Run Docker image
+docker run -p 80:80 mqttx-web
 ```
 
 ## Contributing
