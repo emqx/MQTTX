@@ -39,6 +39,10 @@ docker pull emqx/mqttx-web:latest
 docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 ```
 
+## 手动编译部署
+
+如果你需要进行某些个性化设置，例如改变默认的连接路径、部署路径等，你可以编辑 .env 配置文件并手动编译来实现这些修改。如果你想知道如何编译项目和打包 docker 镜像，你可以参考我们的[开发部分](#开发)。
+
 ## 与 EMQX 更好的合作
 
 MQTTX 为连接测试 EMQX 等 MQTT 消息服务器而生，一键式的连接方式和简洁的图形界面可以帮助您快速连接到 EMQX 或 EMQX Cloud 调试并探索其功能特性。
@@ -77,6 +81,15 @@ yarn run build
 
 # 编译并启动一个本地 HTTP 服务器以进行测试
 yarn run start
+
+# 编译和压缩以构建生产版本，用于 Docker 容器化
+yarn run build:docker
+
+# 构建 Docker 镜像
+docker build -t mqttx-web .
+
+# 运行 Docker 镜像
+docker run -p 80:80 mqttx-web
 ```
 
 ## 贡献
