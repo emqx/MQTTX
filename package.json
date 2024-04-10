@@ -55,7 +55,7 @@
     "monaco-editor": "^0.25.2",
     "mqtt": "4.3.7",
     "prismjs": "^1.29.0",
-    "protobufjs": "^7.2.4",
+    "protobufjs": "^7.2.5",
     "reflect-metadata": "^0.1.13",
     "rxjs": "6.2.0",
     "sqlite3": "^5.0.4",
