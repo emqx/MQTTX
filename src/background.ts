@@ -4,6 +4,7 @@ import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { quitAndRenameLogger } from './utils/logger'
+import rebuildDatabase from './utils/rebuildDatabase'
 import { createUpdateWindow, autoDownload } from './main/updateDownloader'
 import { getCurrentLang } from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
@@ -14,6 +15,7 @@ import { onSystemThemeChanged } from './main/systemTheme'
 import useConnection, { initOptionModel } from '@/database/useConnection'
 import useServices from '@/database/useServices'
 import { dialog } from 'electron'
+import ORMConfig from './database/database.config'
 import version from '@/version'
 
 declare const __static: string
@@ -92,6 +94,20 @@ function handleIpcMessages() {
   ipcMain.on('insertCodeToEditor', (event, ...args) => {
     event.sender.send('insertCodeToEditor', ...args)
   })
+  ipcMain.on('rebuildDatabase', (event) => {
+    try {
+      rebuildDatabase(ORMConfig.database as string)
+      app.relaunch()
+      app.exit()
+    } catch (error) {
+      dialog.showMessageBox({
+        type: 'error',
+        title: 'Rebuild Database Error',
+        message: 'An error occurred while rebuilding the database.',
+        detail: error.message
+      })
+    }
+  })
 }
 
 // handle event when APP quit
@@ -106,30 +122,41 @@ function beforeAppQuit() {
 
 async function createWindow() {
   // Init tables and connect to local database.
-  await ConnectionInit({ doMigrations: true } as initOptionModel)
-  const { settingService } = useServices()
-  await settingService.set()
-  const setting = await settingService.get()
-  if (setting) {
-    theme = setting.currentTheme
-    autoCheckUpdate = setting.autoCheck
-    syncOsTheme = setting.syncOsTheme
-    windowSize.height = setting.height
-    windowSize.width = setting.width
+  try {
+    await ConnectionInit({ doMigrations: true } as initOptionModel)
+    const { settingService } = useServices()
+    await settingService.set()
+    const setting = await settingService.get()
+    if (setting) {
+      theme = setting.currentTheme
+      autoCheckUpdate = setting.autoCheck
+      syncOsTheme = setting.syncOsTheme
+      windowSize.height = setting.height
+      windowSize.width = setting.width
+      //@ts-ignore
+      global.sharedData = {
+        currentTheme: setting.currentTheme,
+        currentLang: setting.currentLang,
+        autoCheck: setting.autoCheck,
+        autoResub: setting.autoResub,
+        maxReconnectTimes: setting.maxReconnectTimes,
+        syncOsTheme: setting.syncOsTheme,
+        multiTopics: setting.multiTopics,
+        jsonHighlight: setting.jsonHighlight,
+        enableCopilot: setting.enableCopilot,
+        openAIAPIKey: setting.openAIAPIKey,
+        model: setting.model,
+        logLevel: setting.logLevel,
+      }
+    }
+  } catch (error) {
+    console.error('ConnectionInit error:', error)
     //@ts-ignore
     global.sharedData = {
-      currentTheme: setting.currentTheme,
-      currentLang: setting.currentLang,
-      autoCheck: setting.autoCheck,
-      autoResub: setting.autoResub,
-      maxReconnectTimes: setting.maxReconnectTimes,
-      syncOsTheme: setting.syncOsTheme,
-      multiTopics: setting.multiTopics,
-      jsonHighlight: setting.jsonHighlight,
-      enableCopilot: setting.enableCopilot,
-      openAIAPIKey: setting.openAIAPIKey,
-      model: setting.model,
-      logLevel: setting.logLevel,
+      connectDatabaseFailMessage: error.message,
+      currentTheme: 'light',
+      currentLang: 'en',
+      syncOsTheme: false,
     }
   }
   // Create the browser window.
@@ -156,7 +183,8 @@ async function createWindow() {
     }
   })
   // Menu Manger
-  const templateMenu = getMenuTemplate(win, setting?.currentLang)
+  // @ts-ignore
+  const templateMenu = getMenuTemplate(win, global.sharedData.currentLang)
   menu = Menu.buildFromTemplate(templateMenu)
   Menu.setApplicationMenu(menu)
 

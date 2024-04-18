@@ -61,6 +61,7 @@ const app = {
     isPrismButtonAdded: false,
     logLevel: settingData.logLevel || 'info',
     showConnectionList: getShowConnectionList(),
+    connectDatabaseFailMessage: settingData.connectDatabaseFailMessage || '',
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {

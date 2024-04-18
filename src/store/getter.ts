@@ -21,6 +21,7 @@ const getters = {
   isPrismButtonAdded: (state: State) => state.app.isPrismButtonAdded,
   logLevel: (state: State) => state.app.logLevel,
   showConnectionList: (state: State) => state.app.showConnectionList,
+  connectDatabaseFailMessage: (state: State) => state.app.connectDatabaseFailMessage,
 }
 
 export default getters

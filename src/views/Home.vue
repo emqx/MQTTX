@@ -1,5 +1,6 @@
 <template>
-  <div class="home-view">
+  <DatabaseError v-if="connectDatabaseFailMessage" />
+  <div class="home-view" v-else>
     <Leftbar />
     <RouterView />
     <Ipc @setTheme="setTheme" @setLang="setLang" />
@@ -13,18 +14,21 @@ import { Getter, Action } from 'vuex-class'
 import { remote } from 'electron'
 import Ipc from '@/components/Ipc.vue'
 import Leftbar from '@/components/Leftbar.vue'
+import DatabaseError from '@/components/DatabaseError.vue'
 
 @Component({
   components: {
     Ipc,
     Leftbar,
     Update: () => import('@/views/update/index.vue'),
+    DatabaseError,
   },
 })
 export default class Home extends Vue {
   @Getter('currentTheme') private getterTheme!: Theme
   @Getter('currentLang') private getterLang!: Language
   @Getter('syncOsTheme') private syncOsTheme!: boolean
+  @Getter('connectDatabaseFailMessage') private connectDatabaseFailMessage!: string
   @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
   private updateActive: boolean = false
