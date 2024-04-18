@@ -110,6 +110,7 @@ declare global {
     isPrismButtonAdded: boolean
     logLevel: LogLevel
     showConnectionList: boolean
+    connectDatabaseFailMessage: string
   }
 
   interface State {
