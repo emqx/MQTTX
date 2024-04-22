@@ -10,8 +10,11 @@ import delay from '../utils/delay'
 import { saveConfig, loadConfig } from '../utils/config'
 import { loadSimulator } from '../utils/simulate'
 import { serializeProtobufToBuffer } from '../utils/protobuf'
+import { readFile, processPath } from '../utils/fileUtils'
 import convertPayload from '../utils/convertPayload'
 import * as Debug from 'debug'
+
+const MQTT_SINGLE_MESSAGE_BYTE_LIMIT = 256 * 1024 * 1024;
 
 const processPublishMessage = (
   message: string | Buffer,
@@ -162,7 +165,31 @@ const pub = (options: PublishOptions) => {
 
   const pubOpts = parsePublishOptions(options)
 
-  if (options.stdin) {
+  const handleFileRead = () => {
+    const filePath = processPath(options.fileRead!)
+    if (!filePath) {
+      signale.error('File path is required when reading from file.')
+      process.exit(1)
+    }
+
+    try {
+      signale.pending('Reading file...')
+      const bufferData = readFile(filePath)
+      if (bufferData.length >= MQTT_SINGLE_MESSAGE_BYTE_LIMIT) {
+        signale.error('File size over 256MB not supported by MQTT.')
+        process.exit(1)
+      }
+      signale.success('File read successfully')
+
+      pubOpts.message = bufferData
+      send(config, connOpts, pubOpts)
+    } catch(error) {
+      signale.error('Failed to read file:', error)
+      process.exit(1)
+    }
+  }
+
+  const handleStdin = () => {
     if (options.multiline) {
       multisend(config, connOpts, pubOpts, options.maximumReconnectTimes)
     } else {
@@ -170,9 +197,15 @@ const pub = (options: PublishOptions) => {
         concat((data) => {
           pubOpts.message = data
           send(config, connOpts, pubOpts)
-        }),
+        })
       )
     }
+  }
+
+  if (options.fileRead) {
+    handleFileRead()
+  } else if (options.stdin) {
+    handleStdin()
   } else {
     send(config, connOpts, pubOpts)
   }

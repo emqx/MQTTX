@@ -4,7 +4,9 @@ import { parseConnectOptions, parseSubscribeOptions, checkTopicExists } from '..
 import delay from '../utils/delay'
 import convertPayload from '../utils/convertPayload'
 import { saveConfig, loadConfig } from '../utils/config'
+import { createNextNumberedFileName, writeFile, appendFile, processPath, getPathExtname } from '../utils/fileUtils'
 import { deserializeBufferToProtobuf } from '../utils/protobuf'
+import isSupportedBinaryFormatForMQTT from '../utils/binaryFormats'
 import * as Debug from 'debug'
 
 const processReceivedMessage = (
@@ -12,7 +14,7 @@ const processReceivedMessage = (
   protobufPath?: string,
   protobufMessageName?: string,
   format?: FormatType,
-): string => {
+): string | Buffer => {
   let message: string | Buffer = payload
   /*
    * Pipeline for processing incoming messages, following two potential steps:
@@ -29,7 +31,7 @@ const processReceivedMessage = (
 
   message = pipeline.reduce((msg, transformer) => transformer(msg), message)
 
-  if (Buffer.isBuffer(message)) {
+  if (Buffer.isBuffer(message) && format !== 'binary') {
     message = message.toString('utf-8')
   }
 
@@ -92,9 +94,48 @@ const sub = (options: SubscribeOptions) => {
   })
 
   client.on('message', (topic, payload, packet) => {
-    const { format, protobufPath, protobufMessageName } = options
+    const { format, protobufPath, protobufMessageName, fileSave, fileWrite } = options
 
     const msgData: Record<string, unknown>[] = []
+
+    const fileOperate = {
+      BOTH: fileSave && fileWrite,
+      SAVE: fileSave && !fileWrite,
+      WRITE: !fileSave && fileWrite,
+      NONE: !fileSave && !fileWrite,
+    } as const
+
+    if(fileOperate.BOTH) {
+      signale.error('Cannot use both fileSave and fileWrite options')
+      process.exit(1)
+    }
+    else if(fileOperate.SAVE || fileOperate.WRITE) {
+      let savePath = ''
+
+      if(fileSave) {
+        savePath = createNextNumberedFileName(processPath(fileSave))
+      } else if(fileWrite) {
+        savePath = processPath(fileWrite)
+      }
+
+      if(!savePath) {
+        signale.error('A valid file path with extension is required when writing to a file.')
+        process.exit(1)
+      }
+
+      let messageFormat = format
+      if (!format && isSupportedBinaryFormatForMQTT(getPathExtname(savePath))) {
+          signale.warn('Please use the --format binary option for handling binary files')
+          messageFormat = 'binary'
+      }
+      const receivedMessage = processReceivedMessage(payload, protobufPath, protobufMessageName, messageFormat)
+
+      fileOperate.SAVE && writeFile(savePath, receivedMessage)
+      fileOperate.WRITE && appendFile(savePath, receivedMessage)
+
+      const successMessage = fileOperate.SAVE ? 'Saved to file' : 'Appended to file'
+      msgData.push({ label: 'payload', value: `${successMessage}: ${savePath}` })
+    }
 
     options.verbose && msgData.push({ label: 'mqtt-packet', value: packet })
 
@@ -103,8 +144,10 @@ const sub = (options: SubscribeOptions) => {
 
     packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 
-    let receivedMessage = processReceivedMessage(payload, protobufPath, protobufMessageName, format)
-    msgData.push({ label: 'payload', value: receivedMessage })
+    if(fileOperate.NONE) {
+      const receivedMessage = processReceivedMessage(payload, protobufPath, protobufMessageName, format)
+      msgData.push({ label: 'payload', value: receivedMessage })
+    }
 
     if (packet.properties?.userProperties) {
       const up: { key: string; value: string }[] = []
