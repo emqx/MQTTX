@@ -56,6 +56,7 @@ const convertPayload = (payload: Buffer | string, format?: FormatType, action: A
       json: () => convertJSON(payload, 'encode'),
       hex: () => Buffer.from(payload.toString().replace(/\s+/g, ''), 'hex'),
       cbor: () => convertCBOR(payload, 'encode'),
+      binary: () => payload,
       default: () => Buffer.from(payload.toString(), 'utf-8'),
     },
     decode: {
@@ -63,6 +64,7 @@ const convertPayload = (payload: Buffer | string, format?: FormatType, action: A
       json: () => convertJSON(payload, 'decode'),
       hex: () => payload.toString('hex').replace(/(.{4})/g, '$1 '),
       cbor: () => convertCBOR(payload, 'decode'),
+      binary: () => payload,
       default: () => payload.toString('utf-8'),
     },
   }

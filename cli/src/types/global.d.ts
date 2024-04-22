@@ -7,7 +7,7 @@ declare global {
 
   type QoS = 0 | 1 | 2
 
-  type FormatType = 'base64' | 'json' | 'hex' | 'cbor'
+  type FormatType = 'base64' | 'json' | 'hex' | 'cbor' | 'binary'
 
   type OutputMode = 'clean' | 'default'
 
@@ -61,6 +61,7 @@ declare global {
     qos: QoS
     retain?: boolean
     dup?: boolean
+    fileRead?: string
     stdin?: boolean
     multiline?: boolean
     // properties of MQTT 5.0
@@ -81,6 +82,8 @@ declare global {
     topic: string[]
     qos?: QoS[]
     // properties of MQTT 5.0
+    fileWrite?: string
+    fileSave?: string
     no_local?: boolean[]
     retainAsPublished?: boolean[]
     retainHandling?: QoS[]
