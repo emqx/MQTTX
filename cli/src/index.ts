@@ -204,6 +204,10 @@ export class Commander {
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option(
+        '--file-read <PATH>',
+        'read the message body from the file',
+      )
+      .option(
         '-Pp, --protobuf-path <PATH>',
         'the path to the .proto file that defines the message format for Protocol Buffers (protobuf)',
       )
@@ -301,6 +305,14 @@ export class Commander {
       .option(
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
+      )
+      .option(
+        '--file-write <PATH>',
+        'append received messages to a specified file',
+      )
+      .option(
+        '--file-save <PATH>',
+        'save each received message to a new file',
       )
       .option(
         '-Pp, --protobuf-path <PATH>',
