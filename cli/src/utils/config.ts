@@ -1,53 +1,10 @@
-import * as fs from 'fs'
-import path from 'path'
-import YAML from 'js-yaml'
-import signale from '../utils/signale'
+import signale from 'signale'
+import { fileExists, writeFile, readFile, processPath, stringifyToYamlOrJson, parseYamlOrJson, isYaml } from '../utils/fileUtils'
 
 const defaultPath = `${process.cwd()}/mqttx-cli-config.json`
 
-const fileExists = (filePath: string) => fs.existsSync(filePath)
-
-const writeFile = (filePath: string, data: Config) => {
-  try {
-    fs.mkdirSync(path.dirname(filePath), { recursive: true })
-    if (filePath.endsWith('.yaml') || filePath.endsWith('.yml')) {
-      fs.writeFileSync(filePath, YAML.dump(data))
-    } else {
-      fs.writeFileSync(filePath, JSON.stringify(data, null, 2))
-    }
-  } catch (error) {
-    signale.error(error)
-    process.exit(1)
-  }
-}
-
-const readFile = (path: string) => {
-  try {
-    const config = fs.readFileSync(path, 'utf-8')
-    if (path.endsWith('.yaml') || path.endsWith('.yml')) {
-      return YAML.load(config) as Config
-    }
-    return JSON.parse(config) as Config
-  } catch (error) {
-    signale.error(error)
-    process.exit(1)
-  }
-}
-
 const mergeConfig = (oldConfig: Config, newConfig: Config) => Object.assign({}, oldConfig, newConfig)
 
-const processPath = (savePath: boolean | string) => {
-  let filePath = ''
-  if (savePath === true) {
-    filePath = defaultPath
-  } else if (typeof savePath === 'string') {
-    filePath = path.normalize(savePath)
-    if (!path.isAbsolute(filePath)) {
-      filePath = path.resolve(filePath)
-    }
-  }
-  return filePath
-}
 
 const removeUselessOptions = (
   opts:
@@ -81,14 +38,15 @@ const saveConfig = (
     | BenchSubscribeOptions,
 ) => {
   try {
-    const filePath = processPath(opts.save!)
+    const filePath = processPath(opts.save!, defaultPath)
     let data: Config = {}
     data[commandType] = removeUselessOptions(opts)
     if (fileExists(filePath)) {
-      const config = readFile(filePath)
+      const config: Config = parseYamlOrJson(readFile(filePath).toString(), isYaml(filePath))
       data = mergeConfig(config, data)
     }
-    writeFile(filePath, data)
+    const content = stringifyToYamlOrJson(data, isYaml(filePath))
+    writeFile(filePath, content)
     signale.success(`Configurations saved to ${filePath}`)
   } catch (error) {
     signale.error(error)
@@ -105,9 +63,10 @@ function loadConfig(commandType: 'benchSub', savePath: boolean | string): BenchS
 function loadConfig(commandType: 'simulate', savePath: boolean | string): SimulatePubOptions
 function loadConfig(commandType: CommandType, savePath: boolean | string) {
   try {
-    const filePath = processPath(savePath)
+    const filePath = processPath(savePath, defaultPath)
     if (fileExists(filePath)) {
-      const config = readFile(filePath)
+      const data = readFile(filePath).toString()
+      const config = parseYamlOrJson(data, isYaml(filePath))
       validateConfig(commandType, filePath, config)
       return config[commandType]
     } else {
