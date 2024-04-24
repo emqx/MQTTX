@@ -497,6 +497,10 @@ export class Commander {
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
+      .option(
+        '--file-read <PATH>',
+        'read the message body from the file',
+      )
       .allowUnknownOption(false)
       .action(benchPub)
 

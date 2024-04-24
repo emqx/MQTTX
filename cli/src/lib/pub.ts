@@ -150,6 +150,27 @@ const multisend = (
   })
 }
 
+const handleFileRead = (filePath: string) => {
+  if (!filePath) {
+    signale.error('File path is required when reading from file.')
+    process.exit(1)
+  }
+
+  try {
+    basicLog.fileReading()
+    const bufferData = readFile(filePath)
+    if (bufferData.length >= MQTT_SINGLE_MESSAGE_BYTE_LIMIT) {
+      signale.error('File size over 256MB not supported by MQTT.')
+      process.exit(1)
+    }
+    basicLog.fileReadSuccess()
+    return bufferData
+  } catch(error) {
+    signale.error('Failed to read file:', error)
+    process.exit(1)
+  }
+}
+
 const pub = (options: PublishOptions) => {
   const { debug, save, config } = options
 
@@ -165,30 +186,6 @@ const pub = (options: PublishOptions) => {
 
   const pubOpts = parsePublishOptions(options)
 
-  const handleFileRead = () => {
-    const filePath = processPath(options.fileRead!)
-    if (!filePath) {
-      signale.error('File path is required when reading from file.')
-      process.exit(1)
-    }
-
-    try {
-      signale.pending('Reading file...')
-      const bufferData = readFile(filePath)
-      if (bufferData.length >= MQTT_SINGLE_MESSAGE_BYTE_LIMIT) {
-        signale.error('File size over 256MB not supported by MQTT.')
-        process.exit(1)
-      }
-      signale.success('File read successfully')
-
-      pubOpts.message = bufferData
-      send(config, connOpts, pubOpts)
-    } catch(error) {
-      signale.error('Failed to read file:', error)
-      process.exit(1)
-    }
-  }
-
   const handleStdin = () => {
     if (options.multiline) {
       multisend(config, connOpts, pubOpts, options.maximumReconnectTimes)
@@ -203,7 +200,9 @@ const pub = (options: PublishOptions) => {
   }
 
   if (options.fileRead) {
-    handleFileRead()
+    const bufferData = handleFileRead(processPath(options.fileRead!))
+    pubOpts.message = bufferData
+    send(config, connOpts, pubOpts)
   } else if (options.stdin) {
     handleStdin()
   } else {
@@ -237,9 +236,15 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
     topic,
     clientId,
     message,
+    fileRead,
     verbose,
     maximumReconnectTimes,
   } = options
+
+  let fileData: Buffer | string
+  if(fileRead) {
+    fileData = handleFileRead(processPath(fileRead))
+  }
 
   checkTopicExists(topic, commandType)
 
@@ -326,6 +331,9 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
                 publishTopic = simulationResult.topic
               }
               publishMessage = simulationResult.message
+            }
+            if(fileRead) {
+              publishMessage = fileData
             }
             client.publish(publishTopic, publishMessage, pubOpts.opts, (err) => {
               inFlightMessageCount -= 1
