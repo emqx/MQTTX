@@ -62,6 +62,13 @@ const sub = (options: SubscribeOptions) => {
   !outputModeClean && basicLog.connecting(config, connOpts.hostname!, connOpts.port, options.topic.join(', '))
 
   client.on('connect', () => {
+    const { fileWrite, fileSave } = options
+
+    if(fileWrite && fileSave) {
+      signale.error('Connected failed, Cannot use both fileSave and fileWrite options')
+      process.exit(1)
+    }
+
     !outputModeClean && basicLog.connected()
 
     retryTimes = 0
@@ -99,19 +106,13 @@ const sub = (options: SubscribeOptions) => {
     const msgData: Record<string, unknown>[] = []
 
     const fileOperate = {
-      BOTH: fileSave && fileWrite,
       SAVE: fileSave && !fileWrite,
       WRITE: !fileSave && fileWrite,
       NONE: !fileSave && !fileWrite,
     } as const
 
-    if(fileOperate.BOTH) {
-      signale.error('Cannot use both fileSave and fileWrite options')
-      process.exit(1)
-    }
-    else if(fileOperate.SAVE || fileOperate.WRITE) {
+    if(fileOperate.SAVE || fileOperate.WRITE) {
       let savePath = ''
-
       if(fileSave) {
         savePath = createNextNumberedFileName(processPath(fileSave))
       } else if(fileWrite) {
@@ -119,15 +120,18 @@ const sub = (options: SubscribeOptions) => {
       }
 
       if(!savePath) {
-        signale.error('A valid file path with extension is required when writing to a file.')
+        signale.error('A valid file path with extension is required when writing to a file')
         process.exit(1)
       }
 
       let messageFormat = format
-      if (!format && isSupportedBinaryFormatForMQTT(getPathExtname(savePath))) {
-          signale.warn('Please use the --format binary option for handling binary files')
+      if ((!format || format !== 'binary') && isSupportedBinaryFormatForMQTT(getPathExtname(savePath))) {
+        signale.warn('Please use the --format binary option for handling binary files')
+        if(!format) {
           messageFormat = 'binary'
+        }
       }
+
       const receivedMessage = processReceivedMessage(payload, protobufPath, protobufMessageName, messageFormat)
 
       fileOperate.SAVE && writeFile(savePath, receivedMessage)
