@@ -14,8 +14,6 @@ import { readFile, processPath } from '../utils/fileUtils'
 import convertPayload from '../utils/convertPayload'
 import * as Debug from 'debug'
 
-const MQTT_SINGLE_MESSAGE_BYTE_LIMIT = 256 * 1024 * 1024;
-
 const processPublishMessage = (
   message: string | Buffer,
   protobufPath?: string,
@@ -151,22 +149,13 @@ const multisend = (
 }
 
 const handleFileRead = (filePath: string) => {
-  if (!filePath) {
-    signale.error('File path is required when reading from file.')
-    process.exit(1)
-  }
-
   try {
     basicLog.fileReading()
     const bufferData = readFile(filePath)
-    if (bufferData.length >= MQTT_SINGLE_MESSAGE_BYTE_LIMIT) {
-      signale.error('File size over 256MB not supported by MQTT.')
-      process.exit(1)
-    }
     basicLog.fileReadSuccess()
     return bufferData
-  } catch(error) {
-    signale.error('Failed to read file:', error)
+  } catch (err) {
+    signale.error('Failed to read file:', err)
     process.exit(1)
   }
 }
