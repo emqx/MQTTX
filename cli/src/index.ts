@@ -1,5 +1,5 @@
 import 'core-js'
-import { Command } from 'commander'
+import { Command, Option } from 'commander'
 import { getClientId } from './utils/generator'
 import { checkUpdate } from './utils/checkUpdate'
 import {
@@ -10,6 +10,9 @@ import {
   parseQoS,
   parseVariadicOfBooleanType,
   parsePubTopic,
+  parseFileRead,
+  parseFileSave,
+  parseFileWrite,
   parseFormat,
   parseOutputMode,
 } from './utils/parse'
@@ -144,7 +147,7 @@ export class Commander {
       .option('-p, --port <PORT>', 'the broker port', parseNumber)
       .option(
         '-f, --format <TYPE>',
-        'the format type of the input message, support base64, json, hex and cbor',
+        'the format type of the input message, support base64, json, hex, binary and cbor',
         parseFormat,
       )
       .option('-i, --client-id <ID>', 'the client id', getClientId())
@@ -206,6 +209,7 @@ export class Commander {
       .option(
         '--file-read <PATH>',
         'read the message body from the file',
+        parseFileRead
       )
       .option(
         '-Pp, --protobuf-path <PATH>',
@@ -238,7 +242,7 @@ export class Commander {
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
         parseUserProperties,
       )
-      .option('-f, --format <TYPE>', 'format the message body, support base64, json, hex and cbor', parseFormat)
+      .option('-f, --format <TYPE>', 'format the message body, support base64, json, hex, binary and cbor', parseFormat)
       .option('-v, --verbose', 'turn on verbose mode to display incoming MQTT packets')
       .option(
         '--output-mode <default/clean>',
@@ -306,14 +310,9 @@ export class Commander {
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
-      .option(
-        '--file-write <PATH>',
-        'append received messages to a specified file',
-      )
-      .option(
-        '--file-save <PATH>',
-        'save each received message to a new file',
-      )
+      // https://github.com/tj/commander.js/blob/master/examples/options-conflicts.js
+      .addOption(new Option('--file-write <PATH>', 'append received messages to a specified file').default(parseFileWrite).conflicts('fileSave'))
+      .addOption(new Option('--file-save <PATH>', 'save each received message to a new file').default(parseFileSave).conflicts('fileWrite'))
       .option(
         '-Pp, --protobuf-path <PATH>',
         'the path to the .proto file that defines the message format for Protocol Buffers (protobuf)',
@@ -500,6 +499,7 @@ export class Commander {
       .option(
         '--file-read <PATH>',
         'read the message body from the file',
+        parseFileRead
       )
       .allowUnknownOption(false)
       .action(benchPub)

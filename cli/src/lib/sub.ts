@@ -4,7 +4,7 @@ import { parseConnectOptions, parseSubscribeOptions, checkTopicExists } from '..
 import delay from '../utils/delay'
 import convertPayload from '../utils/convertPayload'
 import { saveConfig, loadConfig } from '../utils/config'
-import { createNextNumberedFileName, writeFile, appendFile, processPath, getPathExtname } from '../utils/fileUtils'
+import { writeFile, appendFile, getPathExtname } from '../utils/fileUtils'
 import { deserializeBufferToProtobuf } from '../utils/protobuf'
 import isSupportedBinaryFormatForMQTT from '../utils/binaryFormats'
 import * as Debug from 'debug'
@@ -38,14 +38,28 @@ const processReceivedMessage = (
   return message
 }
 
+const handleDefaultBinaryFile = (format: FormatType | undefined, filePath?: string) => {
+  if(filePath) {
+    if ((!format || format !== 'binary') && isSupportedBinaryFormatForMQTT(getPathExtname(filePath))) {
+      signale.warn('Please use the --format binary option for handling binary files')
+      if(!format) {
+        return 'binary'
+      }
+    }
+  }
+  return format
+}
+
 const sub = (options: SubscribeOptions) => {
-  const { debug, save, config } = options
+  const { config, save } = options
 
   config && (options = loadConfig('sub', config))
 
   save && saveConfig('sub', options)
 
-  debug && Debug.enable('mqttjs*')
+  options.format = handleDefaultBinaryFile(options.format, options.fileSave || options.fileWrite)
+
+  options.debug && Debug.enable('mqttjs*')
 
   checkTopicExists(options.topic, 'sub')
 
@@ -62,13 +76,6 @@ const sub = (options: SubscribeOptions) => {
   !outputModeClean && basicLog.connecting(config, connOpts.hostname!, connOpts.port, options.topic.join(', '))
 
   client.on('connect', () => {
-    const { fileWrite, fileSave } = options
-
-    if(fileWrite && fileSave) {
-      signale.error('Connected failed, Cannot use both fileSave and fileWrite options')
-      process.exit(1)
-    }
-
     !outputModeClean && basicLog.connected()
 
     retryTimes = 0
@@ -105,40 +112,12 @@ const sub = (options: SubscribeOptions) => {
 
     const msgData: Record<string, unknown>[] = []
 
-    const fileOperate = {
-      SAVE: fileSave && !fileWrite,
-      WRITE: !fileSave && fileWrite,
-      NONE: !fileSave && !fileWrite,
-    } as const
+    const receivedMessage = processReceivedMessage(payload, protobufPath, protobufMessageName, format)
 
-    if(fileOperate.SAVE || fileOperate.WRITE) {
-      let savePath = ''
-      if(fileSave) {
-        savePath = createNextNumberedFileName(processPath(fileSave))
-      } else if(fileWrite) {
-        savePath = processPath(fileWrite)
-      }
-
-      if(!savePath) {
-        signale.error('A valid file path with extension is required when writing to a file')
-        process.exit(1)
-      }
-
-      let messageFormat = format
-      if ((!format || format !== 'binary') && isSupportedBinaryFormatForMQTT(getPathExtname(savePath))) {
-        signale.warn('Please use the --format binary option for handling binary files')
-        if(!format) {
-          messageFormat = 'binary'
-        }
-      }
-
-      const receivedMessage = processReceivedMessage(payload, protobufPath, protobufMessageName, messageFormat)
-
-      fileOperate.SAVE && writeFile(savePath, receivedMessage)
-      fileOperate.WRITE && appendFile(savePath, receivedMessage)
-
-      const successMessage = fileOperate.SAVE ? 'Saved to file' : 'Appended to file'
-      msgData.push({ label: 'payload', value: `${successMessage}: ${savePath}` })
+    const savePath = fileSave ?? fileWrite
+    if(savePath) {
+      fileSave && writeFile(savePath, receivedMessage)
+      fileWrite && appendFile(savePath, receivedMessage)
     }
 
     options.verbose && msgData.push({ label: 'mqtt-packet', value: packet })
@@ -148,8 +127,10 @@ const sub = (options: SubscribeOptions) => {
 
     packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 
-    if(fileOperate.NONE) {
-      const receivedMessage = processReceivedMessage(payload, protobufPath, protobufMessageName, format)
+    if(savePath) {
+      const successMessage = fileSave ? 'Saved to file' : 'Appended to file'
+      msgData.push({ label: 'payload', value: `${successMessage}: ${savePath}` })
+    } else {
       msgData.push({ label: 'payload', value: receivedMessage })
     }
 

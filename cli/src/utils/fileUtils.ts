@@ -3,7 +3,7 @@ import path from 'path'
 import YAML from 'js-yaml'
 import signale from 'signale'
 
-export const processPath = (savePath: boolean | string, defaultPath?: string) => {
+const processPath = (savePath: boolean | string, defaultPath?: string) => {
   let filePath = ''
   if (savePath === true && defaultPath) {
     filePath = defaultPath
@@ -16,24 +16,24 @@ export const processPath = (savePath: boolean | string, defaultPath?: string) =>
   return filePath
 }
 
-export const getPathExtname = (filePath: string): string => path.extname(filePath)
+const getPathExtname = (filePath: string): string => path.extname(filePath)
 
-export const fileExists = (filePath: string): boolean => fs.existsSync(filePath)
+const fileExists = (filePath: string): boolean => fs.existsSync(filePath)
 
-export const isYaml = (filePath: string): boolean => {
+const isYaml = (filePath: string): boolean => {
   const fileExtension = getPathExtname(filePath)
   return fileExtension === '.yaml' || fileExtension === '.yml'
 }
 
-export const parseYamlOrJson = (data: string, isYaml: boolean): Config => {
+const parseYamlOrJson = (data: string, isYaml: boolean): Config => {
   return isYaml ? YAML.load(data) : JSON.parse(data)
 }
 
-export const stringifyToYamlOrJson = (data: Config, isYaml: boolean): string => {
+const stringifyToYamlOrJson = (data: Config, isYaml: boolean): string => {
   return isYaml ? YAML.dump(data) : JSON.stringify(data, null, 2)
 }
 
-export const readFile = (filePath: string): Buffer => {
+const readFile = (filePath: string): Buffer => {
   try {
     return fs.readFileSync(filePath)
   } catch (error) {
@@ -42,7 +42,7 @@ export const readFile = (filePath: string): Buffer => {
   }
 }
 
-export const writeFile = (filePath: string, data: string | Buffer): void => {
+const writeFile = (filePath: string, data: string | Buffer): void => {
   try {
     fs.writeFileSync(filePath, data)
   } catch (error) {
@@ -51,7 +51,7 @@ export const writeFile = (filePath: string, data: string | Buffer): void => {
   }
 }
 
-export const appendFile = (filePath: string, data: string | Buffer): void => {
+const appendFile = (filePath: string, data: string | Buffer): void => {
   try {
     fs.appendFileSync(filePath, `${data}\n`)
   } catch (error) {
@@ -60,7 +60,7 @@ export const appendFile = (filePath: string, data: string | Buffer): void => {
   }
 }
 
-export const createNextNumberedFileName = (filePath: string): string => {
+const createNextNumberedFileName = (filePath: string): string => {
   const escapeRegExp = (string: string) => {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
@@ -90,4 +90,17 @@ export const createNextNumberedFileName = (filePath: string): string => {
     signale.error(`Error: Unable to create a new numbered file name for path '${filePath}'.`)
     process.exit(1)
   }
+}
+
+export {
+  processPath,
+  getPathExtname,
+  fileExists,
+  isYaml,
+  parseYamlOrJson,
+  stringifyToYamlOrJson,
+  readFile,
+  writeFile,
+  appendFile,
+  createNextNumberedFileName
 }

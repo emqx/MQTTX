@@ -1,9 +1,12 @@
 import * as fs from 'fs'
 import signale from '../utils/signale'
 import { getSpecialTypesOption } from '../utils/generator'
+import { createNextNumberedFileName, readFile, processPath, getPathExtname } from '../utils/fileUtils'
 
 import { IClientOptions, IClientPublishOptions, IClientSubscribeOptions } from 'mqtt'
 import { getLocalScenarioList, getScenarioFilePath } from './simulate'
+
+const MQTT_SINGLE_MESSAGE_BYTE_LIMIT = 256 * 1024 * 1024
 
 const parseNumber = (value: string) => {
   const parsedValue = Number(value)
@@ -95,6 +98,39 @@ const parsePubTopic = (value: string) => {
     process.exit(1)
   }
   return value
+}
+
+const parseFileRead = (value: string) => {
+  const filePath = processPath(value)
+  if(!filePath) {
+    signale.error('A valid file path is required when reading from file.')
+    process.exit(1)
+  }
+
+  const fileContent = readFile(filePath)
+  if(fileContent.length >= MQTT_SINGLE_MESSAGE_BYTE_LIMIT) {
+    signale.error('File size over 256MB not supported by MQTT.')
+    process.exit(1)
+  }
+  return value
+}
+
+const parseFileSave = (value: string) => {
+  const filePath = createNextNumberedFileName(processPath(value))
+  if(!filePath) {
+    signale.error('A valid file path is required when saving to file.')
+    process.exit(1)
+  }
+  return filePath
+}
+
+const parseFileWrite = (value: string) => {
+  const filePath = processPath(value)
+  if(!filePath) {
+    signale.error('A valid file path is required when writing to file.')
+    process.exit(1)
+  }
+  return filePath
 }
 
 const parseFormat = (value: string) => {
@@ -380,6 +416,9 @@ export {
   checkTopicExists,
   checkScenarioExists,
   parsePubTopic,
+  parseFileRead,
+  parseFileSave,
+  parseFileWrite,
   parseFormat,
   parseOutputMode,
   parseConnectOptions,
