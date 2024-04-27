@@ -8,7 +8,7 @@ export default class MessageService {
   constructor(
     @InjectRepository(MessageEntity)
     private messageRepository: Repository<MessageEntity>,
-  ) {}
+  ) { }
 
   public static modelToEntity(model: MessageModel, connectionId: string | undefined): MessageEntity {
     return {
@@ -64,7 +64,7 @@ export default class MessageService {
       if (topic.startsWith('$share/')) topic = topic.split('/').slice(2).join('/')
       if (topic.includes('#')) topic = topic.replace('/#', '%')
       if (topic.includes('+')) topic = topic.replace('+', '%')
-      query.andWhere('msg.topic LIKE :topic', { topic })
+      query.andWhere('msg.topic LIKE :topic ESCAPE "\\"', { topic })
     }
 
     if (options.searchParams) {
@@ -121,7 +121,7 @@ export default class MessageService {
       if (topic.startsWith('$share/')) topic = topic.split('/').slice(2).join('/')
       if (topic.includes('#')) topic = topic.replace('/#', '%')
       if (topic.includes('+')) topic = topic.replace('+', '%')
-      query.andWhere('msg.topic LIKE :topic', { topic })
+      query.andWhere('msg.topic LIKE :topic ESCAPE "\\"', { topic })
     }
 
     if (options.searchParams) {
