@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import signale from '../utils/signale'
 import { getSpecialTypesOption } from '../utils/generator'
-import { createNextNumberedFileName, readFile, processPath, getPathExtname } from '../utils/fileUtils'
+import { readFile, processPath } from '../utils/fileUtils'
 
 import { IClientOptions, IClientPublishOptions, IClientSubscribeOptions } from 'mqtt'
 import { getLocalScenarioList, getScenarioFilePath } from './simulate'
@@ -116,7 +116,7 @@ const parseFileRead = (value: string) => {
 }
 
 const parseFileSave = (value: string) => {
-  const filePath = createNextNumberedFileName(processPath(value))
+  const filePath = processPath(value)
   if(!filePath) {
     signale.error('A valid file path is required when saving to file.')
     process.exit(1)
