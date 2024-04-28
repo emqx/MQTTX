@@ -4,7 +4,7 @@ import { parseConnectOptions, parseSubscribeOptions, checkTopicExists } from '..
 import delay from '../utils/delay'
 import convertPayload from '../utils/convertPayload'
 import { saveConfig, loadConfig } from '../utils/config'
-import { writeFile, appendFile, getPathExtname } from '../utils/fileUtils'
+import { writeFile, appendFile, getPathExtname, createNextNumberedFileName } from '../utils/fileUtils'
 import { deserializeBufferToProtobuf } from '../utils/protobuf'
 import isSupportedBinaryFormatForMQTT from '../utils/binaryFormats'
 import * as Debug from 'debug'
@@ -114,7 +114,7 @@ const sub = (options: SubscribeOptions) => {
 
     const receivedMessage = processReceivedMessage(payload, protobufPath, protobufMessageName, format)
 
-    const savePath = fileSave ?? fileWrite
+    const savePath = fileSave ? createNextNumberedFileName(fileSave) : fileWrite
     if(savePath) {
       fileSave && writeFile(savePath, receivedMessage)
       fileWrite && appendFile(savePath, receivedMessage)
