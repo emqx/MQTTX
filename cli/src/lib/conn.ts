@@ -78,7 +78,7 @@ const benchConn = async (options: BenchConnectOptions) => {
   const start = Date.now()
 
   for (let i = 1; i <= count; i++) {
-    ; ((i: number, connOpts: mqtt.IClientOptions) => {
+    ;((i: number, connOpts: mqtt.IClientOptions) => {
       const opts = { ...connOpts }
 
       opts.clientId = clientId.includes('%i') ? clientId.replaceAll('%i', i.toString()) : `${clientId}_${i}`

@@ -62,11 +62,10 @@ const appendFile = (filePath: string, data: string | Buffer): void => {
 
 const createNextNumberedFileName = (filePath: string): string => {
   const escapeRegExp = (string: string) => {
-    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
   }
   try {
-    if(!fileExists(filePath))
-      return filePath
+    if (!fileExists(filePath)) return filePath
 
     const dir = path.dirname(filePath)
     const baseNameWithoutExt = path.basename(filePath, path.extname(filePath))
@@ -86,7 +85,7 @@ const createNextNumberedFileName = (filePath: string): string => {
     const newNumber = maxNumber + 1
     const newFileName = `${baseNameWithoutExt}(${newNumber})${ext}`
     return path.join(dir, newFileName)
-  } catch(err) {
+  } catch (err) {
     signale.error(`Error: Unable to create a new numbered file name for path '${filePath}'.`)
     process.exit(1)
   }
@@ -102,5 +101,5 @@ export {
   readFile,
   writeFile,
   appendFile,
-  createNextNumberedFileName
+  createNextNumberedFileName,
 }

@@ -102,13 +102,13 @@ const parsePubTopic = (value: string) => {
 
 const parseFileRead = (value: string) => {
   const filePath = processPath(value)
-  if(!filePath) {
+  if (!filePath) {
     signale.error('A valid file path is required when reading from file.')
     process.exit(1)
   }
 
   const fileContent = readFile(filePath)
-  if(fileContent.length >= MQTT_SINGLE_MESSAGE_BYTE_LIMIT) {
+  if (fileContent.length >= MQTT_SINGLE_MESSAGE_BYTE_LIMIT) {
     signale.error('File size over 256MB not supported by MQTT.')
     process.exit(1)
   }
@@ -117,7 +117,7 @@ const parseFileRead = (value: string) => {
 
 const parseFileSave = (value: string) => {
   const filePath = processPath(value)
-  if(!filePath) {
+  if (!filePath) {
     signale.error('A valid file path is required when saving to file.')
     process.exit(1)
   }
@@ -126,7 +126,7 @@ const parseFileSave = (value: string) => {
 
 const parseFileWrite = (value: string) => {
   const filePath = processPath(value)
-  if(!filePath) {
+  if (!filePath) {
     signale.error('A valid file path is required when writing to file.')
     process.exit(1)
   }

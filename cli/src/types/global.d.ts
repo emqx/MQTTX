@@ -160,11 +160,11 @@ declare global {
   }
 
   interface IDisconnectPacket {
-    cmd: 'disconnect',
+    cmd: 'disconnect'
     qos: QoS
     dup: boolean
     retain: boolean
-    reasonCode: number,
+    reasonCode: number
     length: number
   }
 }

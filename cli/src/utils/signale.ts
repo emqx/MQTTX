@@ -31,7 +31,8 @@ const basicLog = {
       signale.await('Connecting...')
     } else {
       signale.await(
-        `Connecting using configuration file, host: ${host}, port: ${port}${topic ? `, topic: ${topic}` : ''}${message ? `, message: ${message}` : ''
+        `Connecting using configuration file, host: ${host}, port: ${port}${topic ? `, topic: ${topic}` : ''}${
+          message ? `, message: ${message}` : ''
         }`,
       )
     }
@@ -51,7 +52,11 @@ const basicLog = {
   disconnect: (packet: IDisconnectPacket, clientId?: string) => {
     const { reasonCode } = packet
     const reason = reasonCode === 0 ? 'Normal disconnection' : getErrorReason(reasonCode)
-    signale.warn(`${clientId ? `Client ID: ${clientId}, ` : ''}The Broker has actively disconnected, Reason: ${reason} (Code: ${reasonCode})`)
+    signale.warn(
+      `${
+        clientId ? `Client ID: ${clientId}, ` : ''
+      }The Broker has actively disconnected, Reason: ${reason} (Code: ${reasonCode})`,
+    )
   },
   fileReading: () => signale.await('Reading file...'),
   fileReadSuccess: () => signale.success('Read file successfully'),

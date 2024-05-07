@@ -104,7 +104,7 @@ function handleIpcMessages() {
         type: 'error',
         title: 'Rebuild Database Error',
         message: 'An error occurred while rebuilding the database.',
-        detail: error.message
+        detail: error.message,
       })
     }
   })
