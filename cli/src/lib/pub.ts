@@ -183,7 +183,7 @@ const pub = (options: PublishOptions) => {
         concat((data) => {
           pubOpts.message = data
           send(config, connOpts, pubOpts)
-        })
+        }),
       )
     }
   }
@@ -231,7 +231,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
   } = options
 
   let fileData: Buffer | string
-  if(fileRead) {
+  if (fileRead) {
     fileData = handleFileRead(processPath(fileRead))
   }
 
@@ -321,7 +321,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
               }
               publishMessage = simulationResult.message
             }
-            if(fileRead) {
+            if (fileRead) {
               publishMessage = fileData
             }
             client.publish(publishTopic, publishMessage, pubOpts.opts, (err) => {

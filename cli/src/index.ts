@@ -206,11 +206,7 @@ export class Commander {
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
-      .option(
-        '--file-read <PATH>',
-        'read the message body from the file',
-        parseFileRead
-      )
+      .option('--file-read <PATH>', 'read the message body from the file', parseFileRead)
       .option(
         '-Pp, --protobuf-path <PATH>',
         'the path to the .proto file that defines the message format for Protocol Buffers (protobuf)',
@@ -311,8 +307,16 @@ export class Commander {
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       // https://github.com/tj/commander.js/blob/master/examples/options-conflicts.js
-      .addOption(new Option('--file-write <PATH>', 'append received messages to a specified file').argParser(parseFileWrite).conflicts('fileSave'))
-      .addOption(new Option('--file-save <PATH>', 'save each received message to a new file').argParser(parseFileSave).conflicts('fileWrite'))
+      .addOption(
+        new Option('--file-write <PATH>', 'append received messages to a specified file')
+          .argParser(parseFileWrite)
+          .conflicts('fileSave'),
+      )
+      .addOption(
+        new Option('--file-save <PATH>', 'save each received message to a new file')
+          .argParser(parseFileSave)
+          .conflicts('fileWrite'),
+      )
       .option(
         '-Pp, --protobuf-path <PATH>',
         'the path to the .proto file that defines the message format for Protocol Buffers (protobuf)',
@@ -496,11 +500,7 @@ export class Commander {
         '--config [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
-      .option(
-        '--file-read <PATH>',
-        'read the message body from the file',
-        parseFileRead
-      )
+      .option('--file-read <PATH>', 'read the message body from the file', parseFileRead)
       .allowUnknownOption(false)
       .action(benchPub)
 

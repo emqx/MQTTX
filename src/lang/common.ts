@@ -123,7 +123,7 @@ export default {
     en: 'Save Success',
     tr: 'Kaydetme Başarılı',
     ja: '保存に成功しました',
-    hu: 'Sikeres mentés'
+    hu: 'Sikeres mentés',
   },
   warning: {
     zh: '提示',

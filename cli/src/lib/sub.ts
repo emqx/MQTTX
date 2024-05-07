@@ -39,10 +39,10 @@ const processReceivedMessage = (
 }
 
 const handleDefaultBinaryFile = (format: FormatType | undefined, filePath?: string) => {
-  if(filePath) {
+  if (filePath) {
     if ((!format || format !== 'binary') && isSupportedBinaryFormatForMQTT(getPathExtname(filePath))) {
       signale.warn('Please use the --format binary option for handling binary files')
-      if(!format) {
+      if (!format) {
         return 'binary'
       }
     }
@@ -115,7 +115,7 @@ const sub = (options: SubscribeOptions) => {
     const receivedMessage = processReceivedMessage(payload, protobufPath, protobufMessageName, format)
 
     const savePath = fileSave ? createNextNumberedFileName(fileSave) : fileWrite
-    if(savePath) {
+    if (savePath) {
       fileSave && writeFile(savePath, receivedMessage)
       fileWrite && appendFile(savePath, receivedMessage)
     }
@@ -127,7 +127,7 @@ const sub = (options: SubscribeOptions) => {
 
     packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 
-    if(savePath) {
+    if (savePath) {
       const successMessage = fileSave ? 'Saved to file' : 'Appended to file'
       msgData.push({ label: 'payload', value: `${successMessage}: ${savePath}` })
     } else {

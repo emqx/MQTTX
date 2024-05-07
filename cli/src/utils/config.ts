@@ -1,10 +1,17 @@
 import signale from 'signale'
-import { fileExists, writeFile, readFile, processPath, stringifyToYamlOrJson, parseYamlOrJson, isYaml } from '../utils/fileUtils'
+import {
+  fileExists,
+  writeFile,
+  readFile,
+  processPath,
+  stringifyToYamlOrJson,
+  parseYamlOrJson,
+  isYaml,
+} from '../utils/fileUtils'
 
 const defaultPath = `${process.cwd()}/mqttx-cli-config.json`
 
 const mergeConfig = (oldConfig: Config, newConfig: Config) => Object.assign({}, oldConfig, newConfig)
-
 
 const removeUselessOptions = (
   opts:

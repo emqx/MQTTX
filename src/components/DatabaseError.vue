@@ -1,15 +1,15 @@
 <template>
   <div class="connect-database-error-page">
     <div class="page-content">
-      <p class="info">A corruption has been detected in the database file, preventing the software from launching properly. To fix this, please click 'Rebuild Database'.</p>
+      <p class="info">
+        A corruption has been detected in the database file, preventing the software from launching properly. To fix
+        this, please click 'Rebuild Database'.
+      </p>
       <p class="error">Error - {{ connectDatabaseFailMessage }}</p>
     </div>
-    <el-button class="rebuild-database-btn" type="primary" @click="confirmRebuild">
-      Rebuild Database
-    </el-button>
+    <el-button class="rebuild-database-btn" type="primary" @click="confirmRebuild"> Rebuild Database </el-button>
   </div>
 </template>
-
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
@@ -25,25 +25,21 @@ export default class DatabaseError extends Vue {
   }
 
   private confirmRebuild() {
-    this.$confirm(
-      'Proceed with database rebuild now? All data will be lost and cannot be undone',
-      {
-        title:'Database Rebuild Confirmation',
-        showClose: false,
-        closeOnClickModal:false,
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
-        type: 'warning',
-        beforeClose: (action, instance, done) => {
-          if (action === 'confirm') {
-            instance.confirmButtonLoading = true
-            instance.confirmButtonText = 'Loading...'
-          }
-          done()
+    this.$confirm('Proceed with database rebuild now? All data will be lost and cannot be undone', {
+      title: 'Database Rebuild Confirmation',
+      showClose: false,
+      closeOnClickModal: false,
+      confirmButtonText: 'Confirm',
+      cancelButtonText: 'Cancel',
+      type: 'warning',
+      beforeClose: (action, instance, done) => {
+        if (action === 'confirm') {
+          instance.confirmButtonLoading = true
+          instance.confirmButtonText = 'Loading...'
         }
-      }
-    )
-    .then(() => {
+        done()
+      },
+    }).then(() => {
       try {
         this.rebuildDatabase()
         this.$log.info('Database rebuild completed. The application will restart')
