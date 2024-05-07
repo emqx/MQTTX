@@ -7,6 +7,7 @@ import HistoryMessageHeaderEntity from '../models/HistoryMessageHeaderEntity'
 @Service()
 export default class HistoryMessageHeaderService {
   constructor(
+    // @ts-ignore
     @InjectRepository(HistoryMessageHeaderEntity)
     private messageRepository: Repository<HistoryMessageHeaderEntity>,
   ) {}

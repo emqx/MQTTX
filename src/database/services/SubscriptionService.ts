@@ -6,6 +6,7 @@ import { Repository } from 'typeorm'
 @Service()
 export default class SubscriptionService {
   constructor(
+    // @ts-ignore
     @InjectRepository(SubscriptionEntity)
     private subscriptionRepository: Repository<SubscriptionEntity>,
   ) {}

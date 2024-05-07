@@ -6,6 +6,7 @@ import { Repository } from 'typeorm'
 @Service()
 export default class MessageService {
   constructor(
+    // @ts-ignore
     @InjectRepository(MessageEntity)
     private messageRepository: Repository<MessageEntity>,
   ) { }
@@ -63,6 +64,13 @@ export default class MessageService {
       topic = topic.replace(/[\\%_]/g, '\\$&')
       if (topic.startsWith('$share/')) topic = topic.split('/').slice(2).join('/')
       if (topic.includes('#')) topic = topic.replace('/#', '%')
+      /*
+        Known Issue: '+' wildcard handling in MQTT topics is incorrect.
+        '+' is replaced with '%' for SQL LIKE, causing multi-level match.
+          - Incorrect: 'testtopic/+/test' matches 'testtopic/1/2/test'
+          - Incorrect: 'testtopic/+/hello/+' can not matches 'testtopic/hello/hello/hello'
+        TODO: FIX this issue.
+      */
       if (topic.includes('+')) topic = topic.replace('+', '%')
       query.andWhere('msg.topic LIKE :topic ESCAPE "\\"', { topic })
     }

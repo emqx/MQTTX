@@ -8,6 +8,7 @@ const schemaArray: SchemaType[] = ['protobuf']
 @Service()
 export default class ScriptService {
   constructor(
+    // @ts-ignore
     @InjectRepository(ScriptEntity)
     private scriptRepository: Repository<ScriptEntity>,
   ) {}

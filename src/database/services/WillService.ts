@@ -6,6 +6,7 @@ import { Repository } from 'typeorm'
 @Service()
 export default class WillService {
   constructor(
+    // @ts-ignore
     @InjectRepository(WillEntity)
     private willRepository: Repository<WillEntity>,
   ) {}
