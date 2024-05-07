@@ -9,10 +9,13 @@ import time from '@/utils/time'
 @Service()
 export default class CollectionService {
   constructor(
+    // @ts-ignore
     @InjectRepository(CollectionEntity)
     private collectionRepository: Repository<CollectionEntity>,
+    // @ts-ignore
     @InjectRepository(ConnectionEntity)
     private connectionRepository: Repository<ConnectionEntity>,
+    // @ts-ignore
     @InjectRepository(WillEntity)
     private willRepository: Repository<WillEntity>,
   ) {}
