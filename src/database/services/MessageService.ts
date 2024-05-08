@@ -9,7 +9,7 @@ export default class MessageService {
     // @ts-ignore
     @InjectRepository(MessageEntity)
     private messageRepository: Repository<MessageEntity>,
-  ) { }
+  ) {}
 
   public static modelToEntity(model: MessageModel, connectionId: string | undefined): MessageEntity {
     return {
