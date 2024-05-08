@@ -501,6 +501,7 @@ export class Commander {
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option('--file-read <PATH>', 'read the message body from the file', parseFileRead)
+      .option('--split <CHARACTER>', 'split the input message in a single file by a specified character.')
       .allowUnknownOption(false)
       .action(benchPub)
 

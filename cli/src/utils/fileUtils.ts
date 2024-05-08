@@ -91,6 +91,12 @@ const createNextNumberedFileName = (filePath: string): string => {
   }
 }
 
+const fileDataSplitter = (data: string | Buffer, split: string): string[] => {
+  const stringData = data.toString('utf-8')
+  const splitRegex = new RegExp(split, 'g')
+  return stringData.split(splitRegex)
+}
+
 export {
   processPath,
   getPathExtname,
@@ -102,4 +108,5 @@ export {
   writeFile,
   appendFile,
   createNextNumberedFileName,
+  fileDataSplitter,
 }

@@ -114,6 +114,7 @@ declare global {
     messageInterval: number
     limit: number
     verbose: boolean
+    split: string
   }
 
   type OmitSubscribeOptions = Omit<

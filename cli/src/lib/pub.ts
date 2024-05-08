@@ -10,9 +10,10 @@ import delay from '../utils/delay'
 import { saveConfig, loadConfig } from '../utils/config'
 import { loadSimulator } from '../utils/simulate'
 import { serializeProtobufToBuffer } from '../utils/protobuf'
-import { readFile, processPath } from '../utils/fileUtils'
+import { readFile, processPath, fileDataSplitter } from '../utils/fileUtils'
 import convertPayload from '../utils/convertPayload'
 import * as Debug from 'debug'
+import _ from 'lodash'
 
 const processPublishMessage = (
   message: string | Buffer,
@@ -228,11 +229,17 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
     fileRead,
     verbose,
     maximumReconnectTimes,
+    split,
   } = options
 
+  // File Handler
   let fileData: Buffer | string
+  let splitedMessageArr: string[] = []
   if (fileRead) {
     fileData = handleFileRead(processPath(fileRead))
+    if (split) {
+      splitedMessageArr = fileDataSplitter(fileData, split)
+    }
   }
 
   checkTopicExists(topic, commandType)
@@ -280,6 +287,12 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
   let rate = 0
 
   for (let i = 1; i <= count; i++) {
+    // Duplicate splited messages array for each connection
+    let dupSplitedMessageArr: string[] = []
+    if (split && fileRead && splitedMessageArr.length !== 0) {
+      dupSplitedMessageArr = _.cloneDeep(splitedMessageArr)
+    }
+
     ;((i: number, connOpts: mqtt.IClientOptions) => {
       const opts = { ...connOpts }
 
@@ -304,6 +317,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
             if (limit > 0 && total >= limit) {
               // Wait for the total number of sent messages to be printed, then exit the process.
               await delay(1000)
+              signale.success(`All ${total} messages have been sent, reaching the limit of ${limit}.`)
               process.exit(0)
             }
             // If not initialized or client is not connected or message count exceeds the limit, do not send messages.
@@ -322,7 +336,17 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
               publishMessage = simulationResult.message
             }
             if (fileRead) {
-              publishMessage = fileData
+              if (split) {
+                if (dupSplitedMessageArr.length === 0) {
+                  await delay(1000)
+                  signale.success(`All ${total} messages from the ${fileRead} have been successfully sent.`)
+                  process.exit(0)
+                }
+                const unshiftedMessage = dupSplitedMessageArr.shift()
+                publishMessage = Buffer.from(unshiftedMessage!)
+              } else {
+                publishMessage = fileData
+              }
             }
             client.publish(publishTopic, publishMessage, pubOpts.opts, (err) => {
               inFlightMessageCount -= 1
