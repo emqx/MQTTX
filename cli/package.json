@@ -44,6 +44,7 @@
     "@types/debug": "^4.1.12",
     "@types/js-yaml": "^4.0.5",
     "@types/json-bigint": "^1.0.4",
+    "@types/lodash": "^4.17.1",
     "@types/node": "^17.0.43",
     "@types/pump": "^1.1.1",
     "@types/readable-stream": "^2.3.13",
