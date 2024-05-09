@@ -10,7 +10,7 @@ import delay from '../utils/delay'
 import { saveConfig, loadConfig } from '../utils/config'
 import { loadSimulator } from '../utils/simulate'
 import { serializeProtobufToBuffer } from '../utils/protobuf'
-import { readFile, processPath, fileDataSplitter, getPublishMessageFromFile } from '../utils/fileUtils'
+import { readFile, processPath, fileDataSplitter } from '../utils/fileUtils'
 import convertPayload from '../utils/convertPayload'
 import * as Debug from 'debug'
 import _ from 'lodash'
@@ -256,6 +256,8 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
   let inFlightMessageCount = 0
 
+  const splitLimit = splitedMessageArr.length * count
+
   const isNewConnArray = Array(count).fill(true)
 
   const retryTimesArray = Array(count).fill(0)
@@ -288,8 +290,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
   for (let i = 1; i <= count; i++) {
     // Duplicate splited messages array for each connection
-    const dupSplitedMessageArr: string[] =
-      split && fileRead && splitedMessageArr.length !== 0 ? _.cloneDeep(splitedMessageArr) : []
+    const dupSplitedMessageArr = splitedMessageArr.length !== 0 ? _.cloneDeep(splitedMessageArr) : []
 
     ;((i: number, connOpts: mqtt.IClientOptions) => {
       const opts = { ...connOpts }
@@ -318,8 +319,20 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
               signale.success(`All ${total} messages have been sent, reaching the limit of ${limit}.`)
               process.exit(0)
             }
+            // If the segmented message has been completely sent, exit the process.
+            if (splitLimit > 0 && total >= splitLimit) {
+              // Wait for the total number of sent messages to be printed, then exit the process.
+              await delay(1000)
+              signale.success(`All ${total} messages from the ${fileRead} have been successfully sent.`)
+              process.exit(0)
+            }
             // If not initialized or client is not connected or message count exceeds the limit, do not send messages.
-            if (!initialized || !client.connected || (limit > 0 && total + inFlightMessageCount >= limit)) {
+            if (
+              !initialized ||
+              !client.connected ||
+              (limit > 0 && total + inFlightMessageCount >= limit) ||
+              (splitLimit > 0 && total + inFlightMessageCount >= splitLimit)
+            ) {
               return
             }
             inFlightMessageCount += 1
@@ -334,10 +347,14 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
               publishMessage = simulationResult.message
             }
             if (fileRead) {
-              publishMessage = await getPublishMessageFromFile(split, dupSplitedMessageArr, fileData, {
-                total,
-                fileRead,
-              })
+              if (!split) {
+                publishMessage = fileData
+              } else {
+                if (dupSplitedMessageArr.length === 0) {
+                  return
+                }
+                publishMessage = Buffer.from(dupSplitedMessageArr.shift()!)
+              }
             }
             client.publish(publishTopic, publishMessage, pubOpts.opts, (err) => {
               inFlightMessageCount -= 1

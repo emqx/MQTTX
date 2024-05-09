@@ -92,29 +92,14 @@ const createNextNumberedFileName = (filePath: string): string => {
   }
 }
 
-const fileDataSplitter = (data: string | Buffer, split: string): string[] => {
+const fileDataSplitter = (data: string | Buffer, split: true | string): string[] => {
+  let defaultSplit = '\n'
+  if (split === true) {
+    split = defaultSplit
+  }
   const stringData = data.toString('utf-8')
   const splitRegex = new RegExp(split, 'g')
   return stringData.split(splitRegex)
-}
-
-const getPublishMessageFromFile = async (
-  split: string,
-  dupSplitedMessageArr: string[],
-  fileData: string | Buffer,
-  meta: { total: number; fileRead: string },
-): Promise<Buffer | string> => {
-  if (!split) {
-    return fileData
-  }
-  if (dupSplitedMessageArr.length === 0) {
-    await delay(1000)
-    signale.success(`All ${meta.total} messages from the ${meta.fileRead} have been successfully sent.`)
-    process.exit(0)
-  }
-
-  const unshiftedMessage = dupSplitedMessageArr.shift()
-  return Buffer.from(unshiftedMessage!)
 }
 
 export {
@@ -129,5 +114,4 @@ export {
   appendFile,
   createNextNumberedFileName,
   fileDataSplitter,
-  getPublishMessageFromFile,
 }
