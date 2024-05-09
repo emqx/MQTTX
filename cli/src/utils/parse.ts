@@ -244,10 +244,6 @@ const parseConnectOptions = (
     connectOptions.ca = fs.readFileSync(ca)
   }
 
-  if (key && cert && protocol !== 'mqtts') {
-    connectOptions.protocol = 'mqtts'
-  }
-
   if (insecure) {
     connectOptions.rejectUnauthorized = false
   }

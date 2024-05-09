@@ -3,7 +3,7 @@ declare global {
 
   type MQTTVersion = 3 | 4 | 5
 
-  type Protocol = 'mqtt' | 'mqtts'
+  type Protocol = 'mqtt' | 'mqtts' | 'ws' | 'wss'
 
   type QoS = 0 | 1 | 2
 
