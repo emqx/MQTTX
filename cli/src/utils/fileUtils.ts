@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import YAML from 'js-yaml'
 import signale from 'signale'
+import delay from './delay'
 
 const processPath = (savePath: boolean | string, defaultPath?: string) => {
   let filePath = ''
@@ -97,6 +98,25 @@ const fileDataSplitter = (data: string | Buffer, split: string): string[] => {
   return stringData.split(splitRegex)
 }
 
+const getPublishMessageFromFile = async (
+  split: string,
+  dupSplitedMessageArr: string[],
+  fileData: string | Buffer,
+  meta: { total: number; fileRead: string },
+): Promise<Buffer | string> => {
+  if (!split) {
+    return fileData
+  }
+  if (dupSplitedMessageArr.length === 0) {
+    await delay(1000)
+    signale.success(`All ${meta.total} messages from the ${meta.fileRead} have been successfully sent.`)
+    process.exit(0)
+  }
+
+  const unshiftedMessage = dupSplitedMessageArr.shift()
+  return Buffer.from(unshiftedMessage!)
+}
+
 export {
   processPath,
   getPathExtname,
@@ -109,4 +129,5 @@ export {
   appendFile,
   createNextNumberedFileName,
   fileDataSplitter,
+  getPublishMessageFromFile,
 }

@@ -10,7 +10,7 @@ import delay from '../utils/delay'
 import { saveConfig, loadConfig } from '../utils/config'
 import { loadSimulator } from '../utils/simulate'
 import { serializeProtobufToBuffer } from '../utils/protobuf'
-import { readFile, processPath, fileDataSplitter } from '../utils/fileUtils'
+import { readFile, processPath, fileDataSplitter, getPublishMessageFromFile } from '../utils/fileUtils'
 import convertPayload from '../utils/convertPayload'
 import * as Debug from 'debug'
 import _ from 'lodash'
@@ -288,10 +288,8 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
   for (let i = 1; i <= count; i++) {
     // Duplicate splited messages array for each connection
-    let dupSplitedMessageArr: string[] = []
-    if (split && fileRead && splitedMessageArr.length !== 0) {
-      dupSplitedMessageArr = _.cloneDeep(splitedMessageArr)
-    }
+    const dupSplitedMessageArr: string[] =
+      split && fileRead && splitedMessageArr.length !== 0 ? _.cloneDeep(splitedMessageArr) : []
 
     ;((i: number, connOpts: mqtt.IClientOptions) => {
       const opts = { ...connOpts }
@@ -336,17 +334,10 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
               publishMessage = simulationResult.message
             }
             if (fileRead) {
-              if (split) {
-                if (dupSplitedMessageArr.length === 0) {
-                  await delay(1000)
-                  signale.success(`All ${total} messages from the ${fileRead} have been successfully sent.`)
-                  process.exit(0)
-                }
-                const unshiftedMessage = dupSplitedMessageArr.shift()
-                publishMessage = Buffer.from(unshiftedMessage!)
-              } else {
-                publishMessage = fileData
-              }
+              publishMessage = await getPublishMessageFromFile(split, dupSplitedMessageArr, fileData, {
+                total,
+                fileRead,
+              })
             }
             client.publish(publishTopic, publishMessage, pubOpts.opts, (err) => {
               inFlightMessageCount -= 1
