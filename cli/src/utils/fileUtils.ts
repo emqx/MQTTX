@@ -52,9 +52,9 @@ const writeFile = (filePath: string, data: string | Buffer): void => {
   }
 }
 
-const appendFile = (filePath: string, data: string | Buffer): void => {
+const appendFile = (filePath: string, data: string | Buffer, delimiter = '\n'): void => {
   try {
-    fs.appendFileSync(filePath, `${data}\n`)
+    fs.appendFileSync(filePath, `${data}${delimiter}`)
   } catch (error) {
     signale.error(error)
     process.exit(1)
