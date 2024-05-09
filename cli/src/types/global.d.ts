@@ -81,17 +81,19 @@ declare global {
   interface SubscribeOptions extends ConnectOptions {
     topic: string[]
     qos?: QoS[]
-    // properties of MQTT 5.0
-    fileWrite?: string
-    fileSave?: string
+    // Start properties of MQTT 5.0
     no_local?: boolean[]
     retainAsPublished?: boolean[]
     retainHandling?: QoS[]
     subscriptionIdentifier?: number[]
+    connUserProperties?: Record<string, string | string[]>
+    // End properties of MQTT 5.0
+    fileWrite?: string
+    fileSave?: string
+    delimiter?: string
     format?: FormatType
     outputMode?: OutputMode
     verbose: boolean
-    connUserProperties?: Record<string, string | string[]>
     protobufPath?: string
     protobufMessageName?: string
   }

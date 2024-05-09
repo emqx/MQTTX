@@ -317,6 +317,7 @@ export class Commander {
           .argParser(parseFileSave)
           .conflicts('fileWrite'),
       )
+      .option('--delimiter [CHARACTER]', 'append a delimiter to the end of each message, default is "\\n"')
       .option(
         '-Pp, --protobuf-path <PATH>',
         'the path to the .proto file that defines the message format for Protocol Buffers (protobuf)',

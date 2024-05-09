@@ -108,7 +108,7 @@ const sub = (options: SubscribeOptions) => {
   })
 
   client.on('message', (topic, payload, packet) => {
-    const { format, protobufPath, protobufMessageName, fileSave, fileWrite } = options
+    const { format, protobufPath, protobufMessageName, fileSave, fileWrite, delimiter } = options
 
     const msgData: Record<string, unknown>[] = []
 
@@ -117,7 +117,7 @@ const sub = (options: SubscribeOptions) => {
     const savePath = fileSave ? createNextNumberedFileName(fileSave) : fileWrite
     if (savePath) {
       fileSave && writeFile(savePath, receivedMessage)
-      fileWrite && appendFile(savePath, receivedMessage)
+      fileWrite && appendFile(savePath, receivedMessage, delimiter)
     }
 
     options.verbose && msgData.push({ label: 'mqtt-packet', value: packet })
