@@ -121,7 +121,7 @@ declare global {
 
   type OmitSubscribeOptions = Omit<
     SubscribeOptions,
-    'format' | 'outputMode' | 'protobufPath' | 'protobufMessageName' | 'debug' | 'fileWrite' | 'fileSave'
+    'format' | 'outputMode' | 'protobufPath' | 'protobufMessageName' | 'debug' | 'fileWrite' | 'fileSave' | 'delimiter'
   >
 
   interface BenchSubscribeOptions extends OmitSubscribeOptions {
