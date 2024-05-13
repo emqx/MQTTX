@@ -429,4 +429,14 @@ export default {
     en: 'The Broker has actively disconnected, Reason: {reason} (Code: {reasonCode})',
     ja: 'サーバーから積極的に接続が切断されました, Reason: {reason} (Code: {reasonCode})',
   },
+  cleanHistoryData: {
+    zh: '清除历史数据',
+    en: 'Clean history data',
+    ja: 'クリーンな履歴データ',
+  },
+  cleanHistorySuccess: {
+    zh: '清除历史数据成功',
+    en: 'Clear history successfully',
+    ja: '履歴を正常にクリアする',
+  },
 }

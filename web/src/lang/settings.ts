@@ -49,6 +49,26 @@ export default {
     en: 'Advanced',
     ja: '詳細',
   },
+  dataBackup: {
+    zh: '数据备份',
+    en: 'Data backup',
+    ja: 'データバックアップ',
+  },
+  dataRecovery: {
+    zh: '数据恢复',
+    en: 'Data recovery',
+    ja: 'データ復旧',
+  },
+  historyCleanup: {
+    zh: '清除历史数据',
+    en: 'Clear history data',
+    ja: '履歴データをクリアする',
+  },
+  cleanHistoryDialogMessage: {
+    zh: '即将删除所有连接中的历史消息记录、发送端记录的发布消息、主题、保留标志及历史连接配置。确定吗？',
+    en: 'This will delete all historical message records in connections, messages published by the sender, topics, retain flags, and past connection configurations. Confirm?',
+    ja: '接続内のすべての過去のメッセージ記録、送信者によって公開されたメッセージ、トピック、保持フラグ、および過去の接続設定を削除しようとしています。確認してください。',
+  },
   autoResub: {
     zh: '自动恢复订阅',
     en: 'Auto resubscribe',
