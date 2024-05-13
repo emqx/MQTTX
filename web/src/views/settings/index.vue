@@ -157,14 +157,43 @@
 
       <el-divider></el-divider>
     </div>
+
+    <div class="settings-advanced">
+      <div class="settings-title">{{ $t('settings.advanced') }}</div>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="20">
+          <label>{{ $t('settings.historyCleanup') }}</label>
+        </el-col>
+        <el-col :span="4">
+          <el-button
+            class="data-manager-btn"
+            type="danger"
+            size="mini"
+            icon="el-icon-delete"
+            @click="handleCleanupHistoryData"
+          >
+          </el-button>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <ClearUpHistoryData :visible.sync="showHistoryData" />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
+import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
 
-@Component
+@Component({
+  components: {
+    ClearUpHistoryData,
+  },
+})
 export default class Settings extends Vue {
   @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
@@ -193,6 +222,8 @@ export default class Settings extends Vue {
     { label: 'Dark', value: 'dark' },
     { label: 'Night', value: 'night' },
   ]
+
+  private showHistoryData = false
 
   private handleSelectChange(type: 'lang' | 'theme', value: string | number | boolean): void {
     if (type === 'theme') {
@@ -224,6 +255,10 @@ export default class Settings extends Vue {
   private handleAutoScrollIntervalChange(value: number) {
     this.actionAutoScrollInterval({ autoScrollInterval: value })
   }
+
+  private handleCleanupHistoryData() {
+    this.showHistoryData = true
+  }
 }
 </script>
 
@@ -238,7 +273,8 @@ export default class Settings extends Vue {
   user-select: none;
 
   .settings-general,
-  .settings-appearance {
+  .settings-appearance,
+  .settings-advanced {
     max-width: 836px;
     margin: 0 auto;
   }
