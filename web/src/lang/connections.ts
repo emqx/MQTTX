@@ -359,6 +359,26 @@ export default {
     en: 'Comma separator (,) is also used when setting aliases for multiple topics',
     ja: '複数のトピックにエイリアスを設定する場合は、カンマ区切り（,）も使用されます。',
   },
+  allConnections: {
+    zh: '全部数据',
+    en: 'All connections',
+    ja: '全ての接続',
+  },
+  allConnectionsTips: {
+    zh: '当打开此开关后，可以导出全部数据',
+    en: 'When this switch is turned on, all Connections data can be exported',
+    ja: 'このスイッチをオンにすると、全ての接続のデータをエクスポートすることができます',
+  },
+  exportData: {
+    zh: '导出数据',
+    en: 'Export Data',
+    ja: 'エクスポート',
+  },
+  exportFormat: {
+    zh: '导出数据格式',
+    en: 'Export format',
+    ja: 'エクスポートフォーマット',
+  },
   metaTips: {
     zh: '仅在 MQTT 5.0 中启用',
     en: 'Enabled only with MQTT 5.0',
