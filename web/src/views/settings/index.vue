@@ -164,6 +164,23 @@
 
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
+          <label>{{ $t('settings.dataBackup') }}</label>
+        </el-col>
+        <el-col :span="4">
+          <el-button
+            class="data-manager-btn"
+            type="primary"
+            size="mini"
+            icon="el-icon-printer"
+            @click="handleExportData"
+          >
+          </el-button>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="20">
           <label>{{ $t('settings.historyCleanup') }}</label>
         </el-col>
         <el-col :span="4">
@@ -179,6 +196,7 @@
       </el-row>
       <el-divider></el-divider>
 
+      <ExportData :visible.sync="showExportData" />
       <ClearUpHistoryData :visible.sync="showHistoryData" />
     </div>
   </div>
@@ -187,10 +205,12 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
+import ExportData from '@/components/ExportData.vue'
 import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
 
 @Component({
   components: {
+    ExportData,
     ClearUpHistoryData,
   },
 })
@@ -223,6 +243,7 @@ export default class Settings extends Vue {
     { label: 'Night', value: 'night' },
   ]
 
+  private showExportData = false
   private showHistoryData = false
 
   private handleSelectChange(type: 'lang' | 'theme', value: string | number | boolean): void {
@@ -254,6 +275,10 @@ export default class Settings extends Vue {
 
   private handleAutoScrollIntervalChange(value: number) {
     this.actionAutoScrollInterval({ autoScrollInterval: value })
+  }
+
+  private handleExportData() {
+    this.showExportData = true
   }
 
   private handleCleanupHistoryData() {

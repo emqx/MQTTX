@@ -8,6 +8,10 @@ export const setSettings = (key: string, value: string | boolean | number): stri
   return db.set<string | boolean | number>(key, value)
 }
 
+export const getAllData = (): $TSFixed => {
+  return db.read().value()
+}
+
 export const cleanHistoryData = (): void => {
   db.set('connections', [])
   db.set('headersHistory', [])
