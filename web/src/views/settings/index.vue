@@ -164,6 +164,23 @@
 
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
+          <label>{{ $t('settings.dataRecovery') }}</label>
+        </el-col>
+        <el-col :span="4">
+          <el-button
+            class="data-manager-btn"
+            type="primary"
+            size="mini"
+            icon="el-icon-upload2"
+            @click="handleImportData"
+          >
+          </el-button>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="20">
           <label>{{ $t('settings.dataBackup') }}</label>
         </el-col>
         <el-col :span="4">
@@ -196,6 +213,7 @@
       </el-row>
       <el-divider></el-divider>
 
+      <ImportData :visible.sync="showImportData" />
       <ExportData :visible.sync="showExportData" />
       <ClearUpHistoryData :visible.sync="showHistoryData" />
     </div>
@@ -205,11 +223,13 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
+import ImportData from '@/components/ImportData.vue'
 import ExportData from '@/components/ExportData.vue'
 import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
 
 @Component({
   components: {
+    ImportData,
     ExportData,
     ClearUpHistoryData,
   },
@@ -243,6 +263,7 @@ export default class Settings extends Vue {
     { label: 'Night', value: 'night' },
   ]
 
+  private showImportData = false
   private showExportData = false
   private showHistoryData = false
 
@@ -275,6 +296,10 @@ export default class Settings extends Vue {
 
   private handleAutoScrollIntervalChange(value: number) {
     this.actionAutoScrollInterval({ autoScrollInterval: value })
+  }
+
+  private handleImportData() {
+    this.showImportData = true
   }
 
   private handleExportData() {

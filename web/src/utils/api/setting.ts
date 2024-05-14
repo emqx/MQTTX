@@ -8,6 +8,10 @@ export const setSettings = (key: string, value: string | boolean | number): stri
   return db.set<string | boolean | number>(key, value)
 }
 
+export const importAllData = (data: string): void => {
+  localStorage.setItem('db', data)
+}
+
 export const getAllData = (): $TSFixed => {
   return db.read().value()
 }
