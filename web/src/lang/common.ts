@@ -144,6 +144,11 @@ export default {
     en: 'Copy Failed',
     ja: 'コピーが失敗しました',
   },
+  importSuccess: {
+    zh: '导入成功',
+    en: 'Imported successfully',
+    ja: 'インポートが成功しました',
+  },
   exportSuccess: {
     zh: '导出成功',
     en: 'exported successfully',

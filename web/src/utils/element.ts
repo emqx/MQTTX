@@ -42,7 +42,7 @@ import {
   // TabPane,
   // Tag,
   // Tree,
-  // Alert,
+  Alert,
   // Slider,
   // Icon,
   Row,
@@ -113,7 +113,7 @@ export default (Vue: any) => {
   // Vue.use(TabPane)
   // Vue.use(Tag)
   // Vue.use(Tree)
-  // Vue.use(Alert)
+  Vue.use(Alert)
   // Vue.use(Slider)
   // Vue.use(Icon)
   Vue.use(Row)
@@ -141,7 +141,7 @@ export default (Vue: any) => {
 
   Vue.use(Loading.directive)
 
-  // Vue.prototype.$loading = Loading.service
+  Vue.prototype.$loading = Loading.service
   // Vue.prototype.$msgbox = MessageBox
   // Vue.prototype.$alert = MessageBox.alert
   Vue.prototype.$confirm = MessageBox.confirm
