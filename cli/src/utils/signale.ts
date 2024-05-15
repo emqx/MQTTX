@@ -13,16 +13,17 @@ const option = {
 
 const signale = new Signale(option)
 
-const msgLog = (msg: Record<string, unknown>[]) => {
-  let chalkString = ''
-  msg.forEach((item) => {
-    if (typeof item.value === 'object') {
-      chalkString += `${chalk.green(item.label)}: ${inspect(item.value, false, null, true)}\n`
-    } else {
-      chalkString += `${chalk.green(item.label)}: ${item.value}\n`
-    }
-  })
-  signale.log(`${chalkString}`)
+const formatValue = (value: any) => (typeof value === 'object' ? inspect(value, false, null, true) : value)
+
+const msgLog = (msg: Record<string, any>[]) => {
+  const payloadItems = msg.filter((item) => item.label === 'payload')
+  const restItems = msg.filter((item) => item.label !== 'payload')
+
+  const payloadStrings = payloadItems.map((item) => formatValue(item.value))
+  const otherStrings = restItems.map((item) => `${chalk.green(item.label)}: ${formatValue(item.value)}`)
+  const chalkString = `${otherStrings.join(', ')}\n\n${payloadStrings.join('\n')}\n`
+
+  signale.log(chalkString)
 }
 
 const basicLog = {
