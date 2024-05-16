@@ -21,11 +21,14 @@ import { pub, benchPub, simulatePub } from './lib/pub'
 import { sub, benchSub } from './lib/sub'
 import ls from './lib/ls'
 import { version } from '../package.json'
+import { loadConfig, initConfig } from './configs'
 
 export class Commander {
   program: Command
 
   constructor() {
+    const configs = loadConfig()
+    console.log(configs)
     this.program = new Command()
   }
 
@@ -44,6 +47,12 @@ export class Commander {
       .action(async () => {
         await checkUpdate()
       })
+
+    this.program
+      .command('init')
+      .description('Initialize the configuration file.')
+      .allowUnknownOption(false)
+      .action(initConfig)
 
     this.program
       .command('conn')

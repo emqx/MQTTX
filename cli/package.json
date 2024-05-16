@@ -21,6 +21,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "@inquirer/prompts": "^5.0.3",
     "axios": "^0.27.2",
     "cbor": "^9.0.1",
     "chalk": "~4.1.2",
@@ -29,6 +30,7 @@
     "compare-versions": "^5.0.1",
     "concat-stream": "^2.0.0",
     "core-js": "^3.26.0",
+    "ini": "^4.1.2",
     "js-yaml": "^4.1.0",
     "json-bigint": "^1.0.0",
     "lodash": "^4.17.21",
@@ -43,6 +45,7 @@
     "@faker-js/faker": "^8.1.0",
     "@types/concat-stream": "^2.0.0",
     "@types/debug": "^4.1.12",
+    "@types/ini": "^4.1.0",
     "@types/js-yaml": "^4.0.5",
     "@types/json-bigint": "^1.0.4",
     "@types/lodash": "^4.17.1",
