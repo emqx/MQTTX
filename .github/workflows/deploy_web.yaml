@@ -31,7 +31,16 @@ jobs:
           wget https://gosspublic.alicdn.com/ossutil/1.7.8/ossutil64
           chmod 755 ./ossutil64
           ./ossutil64 config -e https://oss-accelerate.aliyuncs.com -i ${{ secrets.ALI_OSS_ACCESSKEY_ID }} -k ${{ secrets.ALI_OSS_ACCESSKEY_SECRET }} -L CH
-          ./ossutil64 cp -r dist/ oss://emqx-io-docs/ -u
+          ./ossutil64 cp -r dist/ oss://mqtt-client-emqx-com/ -u
+
+      - name: refresh cdn cache
+        if: github.event_name == 'release' && !github.event.release.prerelease
+        uses: Swilder-M/refresh-ali-cdn@v1
+        with:
+          access_key_id: ${{ secrets.ALI_OSS_ACCESSKEY_ID }}
+          access_key_secret: ${{ secrets.ALI_OSS_ACCESSKEY_SECRET }}
+          file_paths:
+            http://mqtt-client.emqx.com/
 
   publish_docker:
     if: github.event_name != 'pull_request'
