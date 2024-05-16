@@ -170,6 +170,16 @@ declare global {
     reasonCode: number
     length: number
   }
+
+  interface ConfigModel {
+    output: 'text' | 'json' | 'log'
+    mqtt: {
+      host: string
+      port: number
+      username: string
+      password: string
+    }
+  }
 }
 
 export {}
