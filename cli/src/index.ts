@@ -28,7 +28,6 @@ export class Commander {
 
   constructor() {
     const configs = loadConfig()
-    console.log(configs)
     this.program = new Command()
   }
 
