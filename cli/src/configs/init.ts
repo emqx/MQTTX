@@ -9,14 +9,22 @@ import { CONFIG_FILE_PATH, DEFAULT_CONFIG, USER_HOME_DIR } from './common'
  * @returns The generated configuration file content as a string.
  */
 const generateConfigContent = (config: ConfigModel): string => {
+  let mqttConfig = `host = ${config.mqtt.host}
+port = ${config.mqtt.port}`
+
+  if (config.mqtt.username) {
+    mqttConfig += `\nusername = ${config.mqtt.username}`
+  }
+
+  if (config.mqtt.password) {
+    mqttConfig += `\npassword = ${config.mqtt.password}`
+  }
+
   return `[default]
 output = ${config.output}
 
 [mqtt]
-host = ${config.mqtt.host}
-port = ${config.mqtt.port}
-username = ${config.mqtt.username}
-password = ${config.mqtt.password}`
+${mqttConfig}`
 }
 
 /**
