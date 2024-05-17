@@ -1,7 +1,7 @@
 import { writeFileSync, mkdirSync } from 'fs'
 import { join } from 'path'
 import { select, input, password } from '@inquirer/prompts'
-import { CONFIG_FILE_PATH, DEFAULT_CONFIG, USER_HOME_DIR } from './common'
+import { CONFIG_FILE_PATH, DEFAULT_CONFIG, USER_HOME_DIR } from './common.js'
 
 /**
  * Generates the content of a configuration INI file based on the provided config object.

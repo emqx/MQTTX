@@ -1,7 +1,7 @@
-import { Signale } from 'signale'
+import pkg from 'signale'
 import chalk from 'chalk'
 import { inspect } from 'util'
-import getErrorReason from './mqttErrorReason'
+import getErrorReason from './mqttErrorReason.js'
 
 const option = {
   config: {
@@ -10,6 +10,8 @@ const option = {
     displayTimestamp: true,
   },
 }
+
+const { Signale } = pkg
 
 const signale = new Signale(option)
 

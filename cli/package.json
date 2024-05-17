@@ -1,6 +1,7 @@
 {
   "name": "mqttx-cli",
   "version": "1.9.10",
+  "type": "module",
   "description": "MQTTX Command Line Tools",
   "keywords": [
     "mqtt",
@@ -12,7 +13,7 @@
     "dev": "tsc -w",
     "build": "tsc"
   },
-  "main": "./dist/src/index.js",
+  "exports": "./dist/index.js",
   "bin": {
     "mqttx": "./bin/index.js"
   },

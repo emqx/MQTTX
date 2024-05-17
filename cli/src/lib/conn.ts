@@ -1,8 +1,8 @@
 import * as mqtt from 'mqtt'
-import { Signale, signale, basicLog, benchLog } from '../utils/signale'
-import { parseConnectOptions } from '../utils/parse'
-import delay from '../utils/delay'
-import { saveConfig, loadConfig } from '../utils/config'
+import { Signale, signale, basicLog, benchLog } from '../utils/signale.js'
+import { parseConnectOptions } from '../utils/parse.js'
+import delay from '../utils/delay.js'
+import { saveConfig, loadConfig } from '../utils/config.js'
 import * as Debug from 'debug'
 
 const conn = (options: ConnectOptions) => {

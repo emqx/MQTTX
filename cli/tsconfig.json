@@ -1,8 +1,9 @@
 {
   "compilerOptions": {
     "incremental": true,
-    "target": "ES5",
-    "module": "commonjs",
+    "target": "ES2017",
+    "module": "ESNext",
+    "moduleResolution": "node",
     "outDir": "./dist",
     "lib": ["ESNext", "ScriptHost"],
     "strict": true,

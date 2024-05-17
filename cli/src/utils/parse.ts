@@ -1,10 +1,10 @@
 import * as fs from 'fs'
-import signale from '../utils/signale'
-import { getSpecialTypesOption } from '../utils/generator'
-import { readFile, processPath } from '../utils/fileUtils'
+import signale from '../utils/signale.js'
+import { getSpecialTypesOption } from '../utils/generator.js'
+import { readFile, processPath } from '../utils/fileUtils.js'
 
 import { IClientOptions, IClientPublishOptions, IClientSubscribeOptions } from 'mqtt'
-import { getLocalScenarioList, getScenarioFilePath } from './simulate'
+import { getLocalScenarioList, getScenarioFilePath } from './simulate.js'
 
 const MQTT_SINGLE_MESSAGE_BYTE_LIMIT = 256 * 1024 * 1024
 

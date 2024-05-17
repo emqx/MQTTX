@@ -1,6 +1,6 @@
 import { readFileSync, existsSync } from 'fs'
 import ini from 'ini'
-import { CONFIG_FILE_PATH, DEFAULT_CONFIG, VALID_OUTPUT_MODES } from './common'
+import { CONFIG_FILE_PATH, DEFAULT_CONFIG, VALID_OUTPUT_MODES } from './common.js'
 
 /**
  * Parses the content of a config file and returns a ConfigModel object.

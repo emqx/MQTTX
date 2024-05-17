@@ -1,7 +1,7 @@
 import 'core-js'
 import { Command, Option } from 'commander'
-import { getClientId } from './utils/generator'
-import { checkUpdate } from './utils/checkUpdate'
+import { getClientId } from './utils/generator.js'
+import { checkUpdate } from './utils/checkUpdate.js'
 import {
   parseNumber,
   parseProtocol,
@@ -15,13 +15,14 @@ import {
   parseFileWrite,
   parseFormat,
   parseOutputMode,
-} from './utils/parse'
-import { conn, benchConn } from './lib/conn'
-import { pub, benchPub, simulatePub } from './lib/pub'
-import { sub, benchSub } from './lib/sub'
-import ls from './lib/ls'
-import { version } from '../package.json'
-import { loadConfig, initConfig } from './configs'
+} from './utils/parse.js'
+import { conn, benchConn } from './lib/conn.js'
+import { pub, benchPub, simulatePub } from './lib/pub.js'
+import { sub, benchSub } from './lib/sub.js'
+import ls from './lib/ls.js'
+import { loadConfig, initConfig } from './configs/index.js'
+
+const version = '1.0.0'
 
 export class Commander {
   program: Command

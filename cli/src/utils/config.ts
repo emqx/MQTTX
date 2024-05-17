@@ -7,7 +7,7 @@ import {
   stringifyToYamlOrJson,
   parseYamlOrJson,
   isYaml,
-} from '../utils/fileUtils'
+} from '../utils/fileUtils.js'
 
 const defaultPath = `${process.cwd()}/mqttx-cli-config.json`
 

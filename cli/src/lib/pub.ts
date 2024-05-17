@@ -4,14 +4,14 @@ import concat from 'concat-stream'
 import { Writable } from 'readable-stream'
 import split2 from 'split2'
 import { IClientOptions, IClientPublishOptions } from 'mqtt'
-import { Signale, signale, basicLog, benchLog, simulateLog } from '../utils/signale'
-import { parseConnectOptions, parsePublishOptions, checkTopicExists, checkScenarioExists } from '../utils/parse'
-import delay from '../utils/delay'
-import { saveConfig, loadConfig } from '../utils/config'
-import { loadSimulator } from '../utils/simulate'
-import { serializeProtobufToBuffer } from '../utils/protobuf'
-import { readFile, processPath, fileDataSplitter } from '../utils/fileUtils'
-import convertPayload from '../utils/convertPayload'
+import { Signale, signale, basicLog, benchLog, simulateLog } from '../utils/signale.js'
+import { parseConnectOptions, parsePublishOptions, checkTopicExists, checkScenarioExists } from '../utils/parse.js'
+import delay from '../utils/delay.js'
+import { saveConfig, loadConfig } from '../utils/config.js'
+import { loadSimulator } from '../utils/simulate.js'
+import { serializeProtobufToBuffer } from '../utils/protobuf.js'
+import { readFile, processPath, fileDataSplitter } from '../utils/fileUtils.js'
+import convertPayload from '../utils/convertPayload.js'
 import * as Debug from 'debug'
 import _ from 'lodash'
 
@@ -210,7 +210,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
     const simulateOptions = options as SimulatePubOptions
     checkScenarioExists(simulateOptions.scenario, simulateOptions.file)
-    simulator = loadSimulator(simulateOptions.scenario, simulateOptions.file)
+    simulator = await loadSimulator(simulateOptions.scenario, simulateOptions.file)
   } else {
     options = config ? loadConfig('benchPub', config) : options
     save && saveConfig('benchPub', options)

@@ -1,6 +1,10 @@
 import { faker } from '@faker-js/faker'
 import * as fs from 'fs'
 import * as path from 'path'
+import { fileURLToPath } from 'url'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 const scenarioFolder = path.join(__dirname, '../scenarios')
 
@@ -29,19 +33,18 @@ const getScenarioFilePath = function (file: string): string {
   return ''
 }
 
-const loadSimulator = function (name?: string, file?: string): Simulator {
+const loadSimulator = async function (name?: string, file?: string): Promise<Simulator> {
   try {
     const filePath = file ? getScenarioFilePath(file) : path.join(scenarioFolder, `${name}.js`)
 
     if (!filePath) {
       throw new Error(`File not found: ${file || name}`)
     }
-
     if (path.extname(filePath) !== '.js') {
       throw new Error(`Invalid file type: ${filePath}. Only .js files are allowed.`)
     }
 
-    const simulatorModule = require(filePath)
+    const simulatorModule = await import(filePath)
 
     if (typeof simulatorModule.generator !== 'function') {
       throw new Error('Not a valid simulator module')

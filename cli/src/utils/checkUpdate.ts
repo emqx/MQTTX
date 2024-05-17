@@ -2,7 +2,9 @@ import axios from 'axios'
 import chalk from 'chalk'
 import { compareVersions } from 'compare-versions'
 
-import { version } from '../../package.json'
+// import { version } from '../../package.json'
+
+const version = '1.0.0'
 
 const checkUpdate = async () => {
   try {
