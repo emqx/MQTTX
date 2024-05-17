@@ -40,8 +40,8 @@ const loadSimulator = async function (name?: string, file?: string): Promise<Sim
     if (!filePath) {
       throw new Error(`File not found: ${file || name}`)
     }
-    if (path.extname(filePath) !== '.mjs') {
-      throw new Error(`Invalid file type: ${filePath}. Only ES module files with the .mjs extension are allowed.`)
+    if (!['.mjs', '.js'].includes(path.extname(filePath))) {
+      throw new Error(`Invalid file type: ${filePath}. Only ES module files with the .mjs | .js extension are allowed.`)
     }
 
     const simulatorModule = await import(filePath)

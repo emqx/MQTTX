@@ -171,8 +171,8 @@ const checkScenarioExists = (name?: string, file?: string) => {
       signale.error(`Scenario file ${file} not found.`)
       process.exit(1)
     }
-    if (!file.endsWith('.mjs')) {
-      signale.error(`The file ${file} is not recognized as an ES module. Please use the '.mjs' extension.`)
+    if (!file.endsWith('.mjs') && !file.endsWith('.js')) {
+      signale.error(`The file ${file} is not recognized as an ES module. Please use the '.mjs' | '.js' extension.`)
       process.exit(1)
     }
   }

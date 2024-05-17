@@ -71,7 +71,7 @@
     ],
     "outputPath": "release",
     "scripts": [
-      "dist/src/scenarios/**/*"
+      "dist/scenarios/**/*"
     ]
   }
 }

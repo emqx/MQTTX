@@ -21,14 +21,15 @@ import { pub, benchPub, simulatePub } from './lib/pub.js'
 import { sub, benchSub } from './lib/sub.js'
 import ls from './lib/ls.js'
 import { loadConfig, initConfig } from './configs/index.js'
+import getVersion from './utils/getVersion.js'
 
-const version = '1.0.0'
+const version = getVersion()
 
 export class Commander {
   program: Command
 
   constructor() {
-    const configs = loadConfig()
+    loadConfig()
     this.program = new Command()
   }
 
