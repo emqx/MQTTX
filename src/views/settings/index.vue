@@ -294,12 +294,31 @@
 
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
+          <label>OpenAI API Host</label>
+        </el-col>
+        <el-col :span="4">
+          <el-input
+            size="mini"
+            v-model.trim="aiConfig.openAIAPIHost"
+            placeholder="https://api.openai.com/v1"
+            type="text"
+            clearable
+            :disabled="!enableCopilot"
+            @clear="handleAIConfigChanged('host')"
+            @blur="handleAIConfigChanged('host')"
+          ></el-input>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="20">
           <label>OpenAI API Key</label>
         </el-col>
         <el-col :span="4">
           <el-input
             size="mini"
-            v-model="aiConfig.openAIAPIKey"
+            v-model.trim="aiConfig.openAIAPIKey"
             placeholder="sk-*******"
             type="password"
             clearable
@@ -316,15 +335,17 @@
           <label>{{ $t('settings.model') }}</label>
         </el-col>
         <el-col :span="4">
-          <el-select
-            class="settings-options ai-model-select"
-            v-model="aiConfig.model"
+          <el-autocomplete
             size="mini"
+            type="text"
+            clearable
+            v-model.trim="aiConfig.model"
+            :fetch-suggestions="queryAImodels"
             :disabled="!enableCopilot"
+            placeholder="gpt-3.5-turbo"
+            @select="handleAIConfigModelSelected"
             @change="handleAIConfigChanged('model')"
-          >
-            <el-option v-for="model in AImodelsOptions" :key="model" :label="model" :value="model"> </el-option>
-          </el-select>
+          ></el-autocomplete>
         </el-col>
       </el-row>
       <el-divider></el-divider>
@@ -355,6 +376,7 @@ export default class Settings extends Vue {
   @Action('TOGGLE_MULTI_TOPICS') private actionToggleMultiTopics!: (payload: { multiTopics: boolean }) => void
   @Action('TOGGLE_JSON_HIGHLIGHT') private actionToggleJsonHighlight!: (payload: { jsonHighlight: boolean }) => void
   @Action('TOGGLE_ENABLE_COPILOT') private actionToggleEnableCopilot!: (payload: { enableCopilot: boolean }) => void
+  @Action('SET_OPEN_AI_HOST') private actionSetOpenAIAPIHost!: (payload: { openAIAPIHost: string }) => void
   @Action('SET_OPEN_AI_API_KEY') private actionSetOpenAIAPIKey!: (payload: { openAIAPIKey: string }) => void
   @Action('SET_MODEL') private actionSetModel!: (payload: { model: AIModel }) => void
   @Action('SET_LOG_LEVEL') private actionSetLogLevel!: (payload: { logLevel: LogLevel }) => void
@@ -368,10 +390,10 @@ export default class Settings extends Vue {
   @Getter('multiTopics') private multiTopics!: boolean
   @Getter('jsonHighlight') private jsonHighlight!: boolean
   @Getter('enableCopilot') private enableCopilot!: boolean
+  @Getter('openAIAPIHost') private openAIAPIHost!: string
   @Getter('openAIAPIKey') private openAIAPIKey!: string
   @Getter('model') private model!: AIModel
   @Getter('logLevel') private logLevel!: LogLevel
-
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
     { label: 'English', value: 'en' },
@@ -385,16 +407,16 @@ export default class Settings extends Vue {
     { label: 'Night', value: 'night' },
   ]
   private AImodelsOptions = [
-    'gpt-3.5-turbo',
-    'gpt-3.5-turbo-0125',
-    'gpt-3.5-turbo-1106',
-    'gpt-3.5-turbo-16k',
-    'gpt-4',
-    'gpt-4-32k',
-    'gpt-4-0613',
-    'gpt-4-32k-0613',
-    'gpt-4-turbo',
-    'gpt-4o',
+    { value: 'gpt-3.5-turbo' },
+    { value: 'gpt-3.5-turbo-0125' },
+    { value: 'gpt-3.5-turbo-1106' },
+    { value: 'gpt-3.5-turbo-16k' },
+    { value: 'gpt-4' },
+    { value: 'gpt-4-32k' },
+    { value: 'gpt-4-0613' },
+    { value: 'gpt-4-32k-0613' },
+    { value: 'gpt-4-turbo' },
+    { value: 'gpt-4o' },
   ]
   private showImportData = false
   private showExportData = false
@@ -403,9 +425,11 @@ export default class Settings extends Vue {
   private aiConfig: {
     model: AIModel
     openAIAPIKey: string
+    openAIAPIHost: string
   } = {
     model: 'gpt-3.5-turbo',
     openAIAPIKey: '',
+    openAIAPIHost: 'https://api.openai.com/v1',
   }
 
   private handleSelectChange(type: 'lang' | 'theme', value: string | number | boolean): void {
@@ -461,21 +485,37 @@ export default class Settings extends Vue {
     this.actionToggleEnableCopilot({ enableCopilot: value })
   }
 
-  private handleAIConfigChanged(action: 'apiKey' | 'model') {
-    if (action === 'apiKey') {
-      let saveKey = ''
-      if (this.aiConfig.openAIAPIKey !== '') {
-        saveKey = CryptoJS.AES.encrypt(this.aiConfig.openAIAPIKey.trim(), ENCRYPT_KEY).toString()
-      }
-      this.actionSetOpenAIAPIKey({ openAIAPIKey: saveKey })
-    } else if (action === 'model') {
-      this.actionSetModel({ model: this.aiConfig.model })
+  private handleAIConfigChanged(action: 'apiKey' | 'model' | 'host') {
+    switch (action) {
+      case 'apiKey':
+        const encryptedKey =
+          this.aiConfig.openAIAPIKey.trim() !== ''
+            ? CryptoJS.AES.encrypt(this.aiConfig.openAIAPIKey.trim(), ENCRYPT_KEY).toString()
+            : ''
+        this.actionSetOpenAIAPIKey({ openAIAPIKey: encryptedKey })
+        break
+      case 'model':
+        this.actionSetModel({ model: this.aiConfig.model || 'gpt-3.5-turbo' })
+        break
+      case 'host':
+        this.actionSetOpenAIAPIHost({ openAIAPIHost: this.aiConfig.openAIAPIHost || 'https://api.openai.com/v1' })
+        break
     }
+  }
+
+  private handleAIConfigModelSelected({ value }: { value: string }) {
+    this.aiConfig.model = value
+    this.actionSetModel({ model: value })
+  }
+
+  private queryAImodels(queryString: AIModel, cb: (r: any[]) => {}) {
+    cb(queryString ? this.AImodelsOptions.filter((item) => item.value.includes(queryString)) : this.AImodelsOptions)
   }
 
   private getAIConfigs() {
     this.aiConfig.model = this.model
     this.aiConfig.openAIAPIKey = this.openAIAPIKey
+    this.aiConfig.openAIAPIHost = this.openAIAPIHost
   }
 
   private handleLevelChange(val: LogLevel) {
@@ -543,9 +583,6 @@ export default class Settings extends Vue {
 
     &.el-select {
       width: 108px;
-      &.ai-model-select {
-        width: 150px;
-      }
     }
 
     &.el-select .el-input .el-select__caret {

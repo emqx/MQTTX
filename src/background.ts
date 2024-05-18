@@ -145,6 +145,7 @@ async function createWindow() {
         multiTopics: setting.multiTopics,
         jsonHighlight: setting.jsonHighlight,
         enableCopilot: setting.enableCopilot,
+        openAIAPIHost: setting.openAIAPIHost,
         openAIAPIKey: setting.openAIAPIKey,
         model: setting.model,
         logLevel: setting.logLevel,

@@ -16,6 +16,7 @@ const getters = {
   multiTopics: (state: State) => state.app.multiTopics,
   jsonHighlight: (state: State) => state.app.jsonHighlight,
   enableCopilot: (state: State) => state.app.enableCopilot,
+  openAIAPIHost: (state: State) => state.app.openAIAPIHost,
   openAIAPIKey: (state: State) => state.app.openAIAPIKey,
   model: (state: State) => state.app.model,
   isPrismButtonAdded: (state: State) => state.app.isPrismButtonAdded,

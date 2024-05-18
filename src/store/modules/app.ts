@@ -20,6 +20,7 @@ const SET_CURRENT_CONNECTION_ID = 'SET_CURRENT_CONNECTION_ID'
 const TOGGLE_SYNC_OS_THEME = 'TOGGLE_SYNC_OS_THEME'
 const TOGGLE_MULTI_TOPICS = 'TOGGLE_MULTI_TOPICS'
 const TOGGLE_JSON_HIGHLIGHT = 'TOGGLE_JSON_HIGHLIGHT'
+const SET_OPEN_AI_HOST = 'SET_OPEN_AI_HOST'
 const SET_OPEN_AI_API_KEY = 'SET_OPEN_AI_API_KEY'
 const SET_MODEL = 'SET_MODEL'
 const SET_INSERT_BUTTON_ADDED = 'SET_INSERT_BUTTON_ADDED'
@@ -56,6 +57,7 @@ const app = {
     currentScript: null,
     currentConnectionId: null,
     enableCopilot: settingData.enableCopilot,
+    openAIAPIHost: settingData.openAIAPIHost || 'https://api.openai.com/v1',
     openAIAPIKey: settingData.openAIAPIKey || '',
     model: settingData.model || 'gpt-3.5-turbo',
     isPrismButtonAdded: false,
@@ -140,6 +142,9 @@ const app = {
     },
     [SET_CURRENT_CONNECTION_ID](state: App, currentConnectionId: string) {
       state.currentConnectionId = currentConnectionId
+    },
+    [SET_OPEN_AI_HOST](state: App, openAIHost: string) {
+      state.openAIAPIHost = openAIHost
     },
     [SET_OPEN_AI_API_KEY](state: App, openAIAPIKey: string) {
       state.openAIAPIKey = openAIAPIKey
@@ -244,6 +249,12 @@ const app = {
       const { settingService } = useServices()
       commit(TOGGLE_ENABLE_COPILOT, payload.enableCopilot)
       settingData.enableCopilot = payload.enableCopilot
+      await settingService.update(payload)
+    },
+    async SET_OPEN_AI_HOST({ commit }: any, payload: App) {
+      const { settingService } = useServices()
+      commit(SET_OPEN_AI_HOST, payload.openAIAPIHost)
+      settingData.openAIAPIHost = payload.openAIAPIHost
       await settingService.update(payload)
     },
     async SET_OPEN_AI_API_KEY({ commit }: any, payload: App) {
