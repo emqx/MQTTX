@@ -105,6 +105,7 @@ declare global {
     connectionTreeState: ConnectionTreeStateMap
     jsonHighlight: boolean
     enableCopilot: boolean
+    openAIAPIHost: string
     openAIAPIKey: string
     model: AIModel
     isPrismButtonAdded: boolean
@@ -388,6 +389,7 @@ declare global {
     | 'gpt-4-32k-0613'
     | 'gpt-4-turbo'
     | 'gpt-4o'
+    | string
 
   interface AreaLineSeriesData {
     xData: string[]

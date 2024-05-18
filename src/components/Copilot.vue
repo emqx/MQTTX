@@ -107,6 +107,7 @@ export default class Copilot extends Vue {
   @Prop({ required: true }) public mode!: 'connections' | 'scripts' | 'help'
   @Action('SET_INSERT_BUTTON_ADDED') private setisPrismButtonAdded!: (payload: { isPrismButtonAdded: boolean }) => void
 
+  @Getter('openAIAPIHost') private openAIAPIHost!: string
   @Getter('openAIAPIKey') private openAIAPIKey!: string
   @Getter('model') private model!: AIModel
   @Getter('isPrismButtonAdded') private isPrismButtonAdded!: boolean
@@ -232,7 +233,7 @@ export default class Copilot extends Vue {
       }
 
       this.isResponseStream = true
-      const response = await fetch('https://api.openai.com/v1/chat/completions', fetchOptions)
+      const response = await fetch(`${this.openAIAPIHost}/chat/completions`, fetchOptions)
       if (response && response.status === 200 && response.ok) {
         this.isSending = false
         const throttledScroll = throttle(() => {

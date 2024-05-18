@@ -38,6 +38,9 @@ export default class SettingEntity {
   @Column({ type: 'boolean', default: true })
   enableCopilot!: boolean
 
+  @Column({ type: 'varchar', default: 'https://api.openai.com/v1' })
+  openAIAPIHost!: string
+
   @Column({ type: 'varchar', default: '' })
   openAIAPIKey!: string
 
