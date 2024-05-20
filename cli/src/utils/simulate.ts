@@ -1,10 +1,9 @@
 import { faker } from '@faker-js/faker'
 import * as fs from 'fs'
 import * as path from 'path'
-import { fileURLToPath } from 'url'
+import getDirAndFileName from './getDirAndFileName.js'
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
+const { __dirname } = getDirAndFileName(import.meta.url)
 
 const scenarioFolder = path.join(__dirname, '../scenarios')
 
