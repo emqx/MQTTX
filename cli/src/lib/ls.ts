@@ -1,6 +1,9 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import Table from 'cli-table3'
+import getDirAndFileName from '../utils/getDirAndFileName.js'
+
+const { __dirname } = getDirAndFileName(import.meta.url)
 
 interface Scenario {
   name: string

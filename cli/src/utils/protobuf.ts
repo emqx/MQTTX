@@ -1,6 +1,6 @@
 import protobuf from 'protobufjs'
-import signale from './signale'
-import { transformPBJSError } from './protobufErrors'
+import signale from './signale.js'
+import { transformPBJSError } from './protobufErrors.js'
 
 export const serializeProtobufToBuffer = (
   raw: string | Buffer,

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const { Commander } = require('..')
+import { Commander } from '../dist/index.js'
 
 try {
   const commander = new Commander()

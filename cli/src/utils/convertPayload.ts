@@ -1,7 +1,7 @@
 import chalk from 'chalk'
-import { jsonParse, jsonStringify } from './jsonUtils'
+import { jsonParse, jsonStringify } from './jsonUtils.js'
 import cbor from 'cbor'
-import { basicLog } from './signale'
+import { basicLog } from './signale.js'
 
 type Action = 'encode' | 'decode'
 

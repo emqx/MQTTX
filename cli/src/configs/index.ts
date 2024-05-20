@@ -1,2 +1,2 @@
-export * from './load'
-export * from './init'
+export * from './load.js'
+export * from './init.js'
