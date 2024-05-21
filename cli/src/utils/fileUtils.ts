@@ -2,7 +2,6 @@ import fs from 'fs'
 import path from 'path'
 import YAML from 'js-yaml'
 import signale from 'signale'
-import delay from './delay'
 
 const processPath = (savePath: boolean | string, defaultPath?: string) => {
   let filePath = ''
