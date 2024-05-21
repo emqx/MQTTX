@@ -21,13 +21,13 @@ import { pub, benchPub, simulatePub } from './lib/pub'
 import { sub, benchSub } from './lib/sub'
 import ls from './lib/ls'
 import { version } from '../package.json'
-import { loadConfig, initConfig } from './configs'
+import { initConfig } from './configs'
+import state from './state'
 
 export class Commander {
   program: Command
 
   constructor() {
-    const configs = loadConfig()
     this.program = new Command()
   }
 
@@ -57,13 +57,13 @@ export class Commander {
       .command('conn')
       .description('Create a connection and connect to MQTT Broker.')
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
-      .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
-      .option('-p, --port <PORT>', 'the broker port', parseNumber)
+      .option('-h, --hostname <HOST>', 'the broker host', state.getConfig('host'))
+      .option('-p, --port <PORT>', 'the broker port', parseNumber, state.getConfig('port'))
       .option('-i, --client-id <ID>', 'the client id', getClientId())
       .option('--no-clean', 'set the clean session flag to false', true)
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
-      .option('-u, --username <USER>', 'the username')
-      .option('-P, --password <PASS>', 'the password')
+      .option('-u, --username <USER>', 'the username', state.getConfig('username'))
+      .option('-P, --password <PASS>', 'the password', state.getConfig('password'))
       .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws, or wss', parseProtocol, 'mqtt')
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
       .option('--key <PATH>', 'path to the key file')
@@ -151,8 +151,8 @@ export class Commander {
       .option('-ct, --content-type <TYPE>', 'a description of the content of the publish message')
       // connect options
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
-      .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
-      .option('-p, --port <PORT>', 'the broker port', parseNumber)
+      .option('-h, --hostname <HOST>', 'the broker host', state.getConfig('host'))
+      .option('-p, --port <PORT>', 'the broker port', parseNumber, state.getConfig('port'))
       .option(
         '-f, --format <TYPE>',
         'the format type of the input message, support base64, json, hex, binary and cbor',
@@ -161,8 +161,8 @@ export class Commander {
       .option('-i, --client-id <ID>', 'the client id', getClientId())
       .option('--no-clean', 'set the clean session flag to false', true)
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
-      .option('-u, --username <USER>', 'the username')
-      .option('-P, --password <PASS>', 'the password')
+      .option('-u, --username <USER>', 'the username', state.getConfig('username'))
+      .option('-P, --password <PASS>', 'the password', state.getConfig('password'))
       .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws, or wss', parseProtocol, 'mqtt')
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
       .option('--key <PATH>', 'path to the key file')
@@ -256,13 +256,13 @@ export class Commander {
       )
       // connect options
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
-      .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
-      .option('-p, --port <PORT>', 'the broker port', parseNumber)
+      .option('-h, --hostname <HOST>', 'the broker host', state.getConfig('host'))
+      .option('-p, --port <PORT>', 'the broker port', parseNumber, state.getConfig('port'))
       .option('-i, --client-id <ID>', 'the client id', getClientId())
       .option('--no-clean', 'set the clean session flag to false', true)
 
-      .option('-u, --username <USER>', 'the username')
-      .option('-P, --password <PASS>', 'the password')
+      .option('-u, --username <USER>', 'the username', state.getConfig('username'))
+      .option('-P, --password <PASS>', 'the password', state.getConfig('password'))
       .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws, or wss', parseProtocol, 'mqtt')
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
       .option('--key <PATH>', 'path to the key file')
@@ -346,13 +346,13 @@ export class Commander {
       .option('-c, --count <NUMBER>', 'the number of connections', parseNumber, 1000)
       .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
-      .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
-      .option('-p, --port <PORT>', 'the broker port', parseNumber)
+      .option('-h, --hostname <HOST>', 'the broker host', state.getConfig('host'))
+      .option('-p, --port <PORT>', 'the broker port', parseNumber, state.getConfig('port'))
       .option('-I, --client-id <ID>', 'the client id, support %i (index) variable', getClientId())
       .option('--no-clean', 'set the clean session flag to false', true)
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
-      .option('-u, --username <USER>', 'the username')
-      .option('-P, --password <PASS>', 'the password')
+      .option('-u, --username <USER>', 'the username', state.getConfig('username'))
+      .option('-P, --password <PASS>', 'the password', state.getConfig('password'))
       .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws, or wss', parseProtocol, 'mqtt')
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
       .option('--key <PATH>', 'path to the key file')
@@ -451,13 +451,13 @@ export class Commander {
       .option('-v, --verbose', 'print history published total and message rate')
       // connect options
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
-      .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
-      .option('-p, --port <PORT>', 'the broker port', parseNumber)
+      .option('-h, --hostname <HOST>', 'the broker host', state.getConfig('host'))
+      .option('-p, --port <PORT>', 'the broker port', parseNumber, state.getConfig('port'))
       .option('-I, --client-id <ID>', 'the client id, support %i (index) variable', getClientId())
       .option('--no-clean', 'set the clean session flag to false', true)
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
-      .option('-u, --username <USER>', 'the username')
-      .option('-P, --password <PASS>', 'the password')
+      .option('-u, --username <USER>', 'the username', state.getConfig('username'))
+      .option('-P, --password <PASS>', 'the password', state.getConfig('password'))
       .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws, or wss', parseProtocol, 'mqtt')
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
       .option('--key <PATH>', 'path to the key file')
@@ -544,13 +544,13 @@ export class Commander {
       .option('-v, --verbose', 'print history received messages and rate')
       // connect options
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
-      .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
-      .option('-p, --port <PORT>', 'the broker port', parseNumber)
+      .option('-h, --hostname <HOST>', 'the broker host', state.getConfig('host'))
+      .option('-p, --port <PORT>', 'the broker port', parseNumber, state.getConfig('port'))
       .option('-I, --client-id <ID>', 'the client id, support %i (index) variable', getClientId())
       .option('--no-clean', 'set the clean session flag to false', true)
 
-      .option('-u, --username <USER>', 'the username')
-      .option('-P, --password <PASS>', 'the password')
+      .option('-u, --username <USER>', 'the username', state.getConfig('username'))
+      .option('-P, --password <PASS>', 'the password', state.getConfig('password'))
       .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws, or wss', parseProtocol, 'mqtt')
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
       .option('--key <PATH>', 'path to the key file')
@@ -651,13 +651,13 @@ export class Commander {
       .option('-v, --verbose', 'print history published total and message rate')
       // connect options
       .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
-      .option('-h, --hostname <HOST>', 'the broker host', 'localhost')
-      .option('-p, --port <PORT>', 'the broker port', parseNumber)
+      .option('-h, --hostname <HOST>', 'the broker host', state.getConfig('host'))
+      .option('-p, --port <PORT>', 'the broker port', parseNumber, state.getConfig('port'))
       .option('-I, --client-id <ID>', 'the client id, support %i (index) variable', getClientId())
       .option('--no-clean', 'set the clean session flag to false', true)
       .option('-k, --keepalive <SEC>', 'send a ping every SEC seconds', parseNumber, 30)
-      .option('-u, --username <USER>', 'the username')
-      .option('-P, --password <PASS>', 'the password')
+      .option('-u, --username <USER>', 'the username', state.getConfig('username'))
+      .option('-P, --password <PASS>', 'the password', state.getConfig('password'))
       .option('-l, --protocol <PROTO>', 'the protocol to use, mqtt, mqtts, ws, or wss', parseProtocol, 'mqtt')
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
       .option('--key <PATH>', 'path to the key file')

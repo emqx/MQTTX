@@ -2,12 +2,19 @@ import { Signale } from 'signale'
 import chalk from 'chalk'
 import { inspect } from 'util'
 import getErrorReason from './mqttErrorReason'
+import { loadConfig } from '../configs'
+import state from '../state'
+
+const configs = loadConfig()
+state.setConfigs(configs)
+
+const isLogFormat = state.getConfig('output') === 'log'
 
 const option = {
   config: {
     displayLabel: false,
-    displayDate: true,
-    displayTimestamp: true,
+    displayDate: isLogFormat,
+    displayTimestamp: isLogFormat,
   },
 }
 
