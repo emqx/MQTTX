@@ -172,7 +172,7 @@ declare global {
   }
 
   interface ConfigModel {
-    output: 'text' | 'json' | 'log'
+    output: 'text' | 'log'
     mqtt: {
       host: string
       port: number

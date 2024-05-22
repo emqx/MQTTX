@@ -16,6 +16,6 @@ const DEFAULT_CONFIG: ConfigModel = {
   },
 }
 
-const VALID_OUTPUT_MODES: Array<ConfigModel['output']> = ['text', 'json', 'log']
+const VALID_OUTPUT_MODES: Array<ConfigModel['output']> = ['text', 'log']
 
 export { USER_HOME_DIR, CONFIG_FILE_PATH, DEFAULT_CONFIG, VALID_OUTPUT_MODES }

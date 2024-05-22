@@ -20,8 +20,8 @@ import { conn, benchConn } from './lib/conn'
 import { pub, benchPub, simulatePub } from './lib/pub'
 import { sub, benchSub } from './lib/sub'
 import ls from './lib/ls'
+import { initConfig } from './lib/init'
 import { version } from '../package.json'
-import { initConfig } from './configs'
 import state from './state'
 
 export class Commander {
