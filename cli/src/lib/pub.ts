@@ -14,7 +14,6 @@ import { readFile, processPath, fileDataSplitter } from '../utils/fileUtils'
 import convertPayload from '../utils/convertPayload'
 import * as Debug from 'debug'
 import _ from 'lodash'
-import chalk from 'chalk'
 
 const processPublishMessage = (
   message: string | Buffer,
@@ -374,7 +373,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
             if (!verbose) {
               setInterval(() => {
-                interactivePub.log(`Published total: ${chalk.green(total)}, message rate: ${chalk.green(rate)}/s`)
+                interactivePub.log(`Published total: ${total}, message rate: ${rate}/s`)
                 rate = 0
               }, 1000)
             } else {

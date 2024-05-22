@@ -20,6 +20,13 @@ const singaleConfig = {
 
 const signale = new Signale({
   config: singaleConfig,
+  types: {
+    running: {
+      badge: '❯',
+      color: 'yellow',
+      label: 'Running',
+    },
+  },
 })
 const spinner = ora()
 
@@ -30,6 +37,7 @@ const logWrapper = {
   warn: (msg: string) => (isLogFormat ? signale.warn(msg) : spinner.warn(msg)),
   info: (msg: string) => (isLogFormat ? signale.info(msg) : spinner.info(msg)),
   log: (msg: string) => signale.log(msg),
+  running: (msg: string) => signale.running(msg),
 }
 
 const formatValue = (value: any) => (typeof value === 'object' ? inspect(value, false, null, true) : value)
@@ -86,9 +94,9 @@ const benchLog = {
   start: {
     conn: (config: boolean | string | undefined, count: number, interval: number, host: string, port = 1883) => {
       if (!config) {
-        logWrapper.log(`Starting connect benchmark, connections: ${count}, req interval: ${interval}ms`)
+        logWrapper.running(`Starting connect benchmark, connections: ${count}, req interval: ${interval}ms`)
       } else {
-        logWrapper.log(
+        logWrapper.running(
           `Starting connect benchmark, connections: ${count}, req interval: ${interval}ms, host: ${host}, port: ${port}`,
         )
       }
@@ -102,11 +110,11 @@ const benchLog = {
       topic: string,
     ) => {
       if (!config) {
-        logWrapper.log(
+        logWrapper.running(
           `Starting subscribe benchmark, connections: ${count}, req interval: ${interval}ms, topic: ${topic}`,
         )
       } else {
-        logWrapper.log(
+        logWrapper.running(
           `Starting subscribe benchmark, connections: ${count}, req interval: ${interval}ms, host: ${host}, port: ${port}, topic: ${topic}`,
         )
       }
@@ -122,11 +130,11 @@ const benchLog = {
       message: string,
     ) => {
       if (!config) {
-        logWrapper.log(
+        logWrapper.running(
           `Starting publish benchmark, connections: ${count}, req interval: ${interval}ms, message interval: ${messageInterval}ms`,
         )
       } else {
-        logWrapper.log(
+        logWrapper.running(
           `Starting publish benchmark, connections: ${count}, req interval: ${interval}ms, message interval: ${messageInterval}ms, host: ${host}, port: ${port}, topic: ${topic}, message: ${message}`,
         )
       }
@@ -160,7 +168,7 @@ const simulateLog = {
       if (config) {
         message += `, host: ${host}, port: ${port}, topic: ${topic}`
       }
-      logWrapper.log(message)
+      logWrapper.running(message)
     },
   },
 }
