@@ -1,5 +1,5 @@
 import protobuf from 'protobufjs'
-import signale from './signale'
+import logWrapper from './logWrapper'
 import { transformPBJSError } from './protobufErrors'
 
 export const serializeProtobufToBuffer = (
@@ -14,14 +14,14 @@ export const serializeProtobufToBuffer = (
     const Message = root.lookupType(protobufMessageName)
     const err = Message.verify(JSON.parse(rawData))
     if (err) {
-      signale.error(`Message serialization error: ${err}`)
+      logWrapper.fail(`Message serialization error: ${err}`)
       process.exit(1)
     }
     const data = Message.create(JSON.parse(rawData))
     const serializedMessage = Message.encode(data).finish()
     bufferMessage = Buffer.from(serializedMessage)
   } catch (error: unknown) {
-    signale.error(`Message serialization error: ${(error as Error).message.split('\n')[0]}`)
+    logWrapper.fail(`Message serialization error: ${(error as Error).message.split('\n')[0]}`)
     process.exit(1)
   }
   return bufferMessage
@@ -39,7 +39,7 @@ export const deserializeBufferToProtobuf = (
     const MessageData = Message.decode(payload)
     const err = Message.verify(MessageData)
     if (err) {
-      signale.error(`Message deserialization error: ${err}`)
+      logWrapper.fail(`Message deserialization error: ${err}`)
       process.exit(1)
     }
     if (needFormat) {
@@ -48,7 +48,7 @@ export const deserializeBufferToProtobuf = (
     return MessageData
   } catch (error: unknown) {
     let err = transformPBJSError(error as Error)
-    signale.error(err.message.split('\n')[0])
+    logWrapper.fail(err.message.split('\n')[0])
     process.exit(1)
   }
 }

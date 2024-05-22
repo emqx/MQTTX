@@ -4,7 +4,7 @@ import concat from 'concat-stream'
 import { Writable } from 'readable-stream'
 import split2 from 'split2'
 import { IClientOptions, IClientPublishOptions } from 'mqtt'
-import { Signale, signale, basicLog, benchLog, simulateLog } from '../utils/signale'
+import logWrapper, { Signale, basicLog, benchLog, simulateLog, singaleConfig, signale } from '../utils/logWrapper'
 import { parseConnectOptions, parsePublishOptions, checkTopicExists, checkScenarioExists } from '../utils/parse'
 import delay from '../utils/delay'
 import { saveConfig, loadConfig } from '../utils/config'
@@ -14,6 +14,7 @@ import { readFile, processPath, fileDataSplitter } from '../utils/fileUtils'
 import convertPayload from '../utils/convertPayload'
 import * as Debug from 'debug'
 import _ from 'lodash'
+import chalk from 'chalk'
 
 const processPublishMessage = (
   message: string | Buffer,
@@ -58,7 +59,7 @@ const send = (
     const publishMessage = processPublishMessage(message, protobufPath, protobufMessageName, format)
     client.publish(topic, publishMessage, pubOpts.opts, (err) => {
       if (err) {
-        signale.warn(err)
+        logWrapper.warn(err.toString())
       } else {
         basicLog.published()
       }
@@ -156,7 +157,8 @@ const handleFileRead = (filePath: string) => {
     basicLog.fileReadSuccess()
     return bufferData
   } catch (err) {
-    signale.error('Failed to read file:', err)
+    const error = err as Error
+    logWrapper.fail(`Failed to read file: ${error.toString()}`)
     process.exit(1)
   }
 }
@@ -262,11 +264,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
   const retryTimesArray = Array(count).fill(0)
 
-  const interactive = new Signale({ interactive: true })
-  const simpleInteractive = new Signale({
-    interactive: true,
-    config: { displayLabel: false, displayDate: true, displayTimestamp: true },
-  })
+  const interactivePub = new Signale({ interactive: true, config: singaleConfig })
 
   if (commandType === 'simulate') {
     simulateLog.start.pub(
@@ -303,27 +301,27 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
       const client = mqtt.connect(opts)
 
-      interactive.await('[%d/%d] - Connecting...', connectedCount, count)
+      interactivePub.await('[%d/%d] - Connecting...', connectedCount, count)
 
       client.on('connect', () => {
         connectedCount += 1
         retryTimesArray[i - 1] = 0
         if (isNewConnArray[i - 1]) {
-          interactive.success('[%d/%d] - Connected', connectedCount, count)
+          interactivePub.success('[%d/%d] - Connected', connectedCount, count)
 
           setInterval(async () => {
             // If the number of messages sent exceeds the limit, exit the process.
             if (limit > 0 && total >= limit) {
               // Wait for the total number of sent messages to be printed, then exit the process.
               await delay(1000)
-              signale.success(`All ${total} messages have been sent, reaching the limit of ${limit}.`)
+              logWrapper.success(`All ${total} messages have been sent, reaching the limit of ${limit}.`)
               process.exit(0)
             }
             // If the segmented message has been completely sent, exit the process.
             if (splitLimit > 0 && total >= splitLimit) {
               // Wait for the total number of sent messages to be printed, then exit the process.
               await delay(1000)
-              signale.success(`All ${total} messages from the ${fileRead} have been successfully sent.`)
+              logWrapper.success(`All ${total} messages from the ${fileRead} have been successfully sent.`)
               process.exit(0)
             }
             // If not initialized or client is not connected or message count exceeds the limit, do not send messages.
@@ -359,7 +357,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
             client.publish(publishTopic, publishMessage, pubOpts.opts, (err) => {
               inFlightMessageCount -= 1
               if (err) {
-                signale.warn(err)
+                logWrapper.warn(err.toString())
               } else {
                 total += 1
                 rate += 1
@@ -372,16 +370,16 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
             const connEnd = Date.now()
 
-            signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
+            signale.success(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
 
             if (!verbose) {
               setInterval(() => {
-                simpleInteractive.info(`Published total: ${total}, message rate: ${rate}/s`)
+                interactivePub.log(`Published total: ${chalk.green(total)}, message rate: ${chalk.green(rate)}/s`)
                 rate = 0
               }, 1000)
             } else {
               setInterval(() => {
-                signale.info(`Published total: ${total}, message rate: ${rate}/s`)
+                logWrapper.log(`Published total: ${total}, message rate: ${rate}/s`)
                 rate = 0
               }, 1000)
             }

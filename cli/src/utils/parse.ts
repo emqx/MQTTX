@@ -1,5 +1,5 @@
 import * as fs from 'fs'
-import signale from '../utils/signale'
+import logWrapper from './logWrapper'
 import { getSpecialTypesOption } from '../utils/generator'
 import { readFile, processPath } from '../utils/fileUtils'
 
@@ -11,7 +11,7 @@ const MQTT_SINGLE_MESSAGE_BYTE_LIMIT = 256 * 1024 * 1024
 const parseNumber = (value: string) => {
   const parsedValue = Number(value)
   if (isNaN(parsedValue)) {
-    signale.error(`${value} is not a number.`)
+    logWrapper.fail(`${value} is not a number.`)
     process.exit(1)
   }
   return parsedValue
@@ -19,7 +19,7 @@ const parseNumber = (value: string) => {
 
 const parseProtocol = (value: string) => {
   if (!['mqtt', 'mqtts', 'ws', 'wss'].includes(value)) {
-    signale.error('Only mqtt, mqtts, ws and wss are supported.')
+    logWrapper.fail('Only mqtt, mqtts, ws and wss are supported.')
     process.exit(1)
   }
   return value
@@ -32,7 +32,7 @@ const parseMQTTVersion = (value: string) => {
     '5': 5,
   }
   if (!Object.keys(dict).includes(value)) {
-    signale.error('Not a valid MQTT version.')
+    logWrapper.fail('Not a valid MQTT version.')
     process.exit(1)
   }
   return dict[value as '3.1' | '3.1.1' | '5']
@@ -56,7 +56,7 @@ const parseUserProperties = (value: string, previous?: Record<string, string | s
       }
     }
   } else {
-    signale.error('Not a valid user properties.')
+    logWrapper.fail('Not a valid user properties.')
     process.exit(1)
   }
 }
@@ -64,7 +64,7 @@ const parseUserProperties = (value: string, previous?: Record<string, string | s
 const parseQoS = (value: string, previous: number[] | undefined) => {
   const parsedValue = Number(value)
   if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > 2) {
-    signale.error(`${value} is not a valid QoS.`)
+    logWrapper.fail(`${value} is not a valid QoS.`)
     process.exit(1)
   } else {
     return previous ? [...previous, parsedValue] : [parsedValue]
@@ -73,7 +73,7 @@ const parseQoS = (value: string, previous: number[] | undefined) => {
 
 const parseVariadicOfBooleanType = (value: string, previous: boolean[] | undefined) => {
   if (!['true', 'false'].includes(value)) {
-    signale.error(`${value} is not a boolean.`)
+    logWrapper.fail(`${value} is not a boolean.`)
     process.exit(1)
   } else {
     const booleanValue = value === 'true'
@@ -94,7 +94,7 @@ const checkTopicExists = (topic: string | string[] | undefined, commandType: Com
 
 const parsePubTopic = (value: string) => {
   if (value.includes('+') || value.includes('#')) {
-    signale.error('You cannot publish the message to a Topic that contains wildcards characters #, +')
+    logWrapper.fail('You cannot publish the message to a Topic that contains wildcards characters #, +')
     process.exit(1)
   }
   return value
@@ -103,13 +103,13 @@ const parsePubTopic = (value: string) => {
 const parseFileRead = (value: string) => {
   const filePath = processPath(value)
   if (!filePath) {
-    signale.error('A valid file path is required when reading from file.')
+    logWrapper.fail('A valid file path is required when reading from file.')
     process.exit(1)
   }
 
   const fileContent = readFile(filePath)
   if (fileContent.length >= MQTT_SINGLE_MESSAGE_BYTE_LIMIT) {
-    signale.error('File size over 256MB not supported by MQTT.')
+    logWrapper.fail('File size over 256MB not supported by MQTT.')
     process.exit(1)
   }
   return value
@@ -118,7 +118,7 @@ const parseFileRead = (value: string) => {
 const parseFileSave = (value: string) => {
   const filePath = processPath(value)
   if (!filePath) {
-    signale.error('A valid file path is required when saving to file.')
+    logWrapper.fail('A valid file path is required when saving to file.')
     process.exit(1)
   }
   return filePath
@@ -127,7 +127,7 @@ const parseFileSave = (value: string) => {
 const parseFileWrite = (value: string) => {
   const filePath = processPath(value)
   if (!filePath) {
-    signale.error('A valid file path is required when writing to file.')
+    logWrapper.fail('A valid file path is required when writing to file.')
     process.exit(1)
   }
   return filePath
@@ -135,7 +135,7 @@ const parseFileWrite = (value: string) => {
 
 const parseFormat = (value: string) => {
   if (!['base64', 'json', 'hex', 'cbor', 'binary'].includes(value)) {
-    signale.error('Not a valid format type.')
+    logWrapper.fail('Not a valid format type.')
     process.exit(1)
   }
   return value
@@ -143,7 +143,7 @@ const parseFormat = (value: string) => {
 
 const parseOutputMode = (value: string) => {
   if (!['clean', 'default'].includes(value)) {
-    signale.error('Not a valid output mode.')
+    logWrapper.fail('Not a valid output mode.')
     process.exit(1)
   }
   return value
@@ -159,20 +159,20 @@ const checkScenarioExists = (name?: string, file?: string) => {
   if (name) {
     const scenarioList = getLocalScenarioList()
     if (scenarioList.length === 0) {
-      signale.error('No local scenario found.')
+      logWrapper.fail('No local scenario found.')
       process.exit(1)
     }
     if (!scenarioList.includes(name)) {
-      signale.error(`Scenario ${name} not found in [${scenarioList.join(', ')}]`)
+      logWrapper.fail(`Scenario ${name} not found in [${scenarioList.join(', ')}]`)
       process.exit(1)
     }
   } else if (file) {
     if (!getScenarioFilePath(file)) {
-      signale.error(`Scenario file ${file} not found.`)
+      logWrapper.fail(`Scenario file ${file} not found.`)
       process.exit(1)
     }
     if (!file.endsWith('.js')) {
-      signale.error(`Scenario file ${file} is not a JavaScript file.`)
+      logWrapper.fail(`Scenario file ${file} is not a JavaScript file.`)
       process.exit(1)
     }
   }

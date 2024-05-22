@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import YAML from 'js-yaml'
-import signale from 'signale'
+import logWrapper from './logWrapper'
 
 const processPath = (savePath: boolean | string, defaultPath?: string) => {
   let filePath = ''
@@ -37,7 +37,8 @@ const readFile = (filePath: string): Buffer => {
   try {
     return fs.readFileSync(filePath)
   } catch (error) {
-    signale.error(error)
+    const err = error as Error
+    logWrapper.fail(err.toString())
     process.exit(1)
   }
 }
@@ -46,7 +47,8 @@ const writeFile = (filePath: string, data: string | Buffer): void => {
   try {
     fs.writeFileSync(filePath, data)
   } catch (error) {
-    signale.error(error)
+    const err = error as Error
+    logWrapper.fail(err.toString())
     process.exit(1)
   }
 }
@@ -55,7 +57,8 @@ const appendFile = (filePath: string, data: string | Buffer, delimiter = '\n'): 
   try {
     fs.appendFileSync(filePath, `${data}${delimiter}`)
   } catch (error) {
-    signale.error(error)
+    const err = error as Error
+    logWrapper.fail(err.toString())
     process.exit(1)
   }
 }
@@ -86,7 +89,7 @@ const createNextNumberedFileName = (filePath: string): string => {
     const newFileName = `${baseNameWithoutExt}(${newNumber})${ext}`
     return path.join(dir, newFileName)
   } catch (err) {
-    signale.error(`Error: Unable to create a new numbered file name for path '${filePath}'.`)
+    logWrapper.fail(`Error: Unable to create a new numbered file name for path '${filePath}'.`)
     process.exit(1)
   }
 }

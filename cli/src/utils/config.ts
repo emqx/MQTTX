@@ -1,4 +1,3 @@
-import signale from 'signale'
 import {
   fileExists,
   writeFile,
@@ -8,6 +7,7 @@ import {
   parseYamlOrJson,
   isYaml,
 } from '../utils/fileUtils'
+import logWrapper from './logWrapper'
 
 const defaultPath = `${process.cwd()}/mqttx-cli-config.json`
 
@@ -29,7 +29,7 @@ const removeUselessOptions = (
 const validateConfig = (commandType: CommandType, filePath: string, config: Config) => {
   const data = config[commandType]
   if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
-    signale.error(`No configuration for ${commandType} found in ${filePath}`)
+    logWrapper.fail(`No configuration for ${commandType} found in ${filePath}`)
     process.exit(1)
   }
 }
@@ -54,9 +54,10 @@ const saveConfig = (
     }
     const content = stringifyToYamlOrJson(data, isYaml(filePath))
     writeFile(filePath, content)
-    signale.success(`Configurations saved to ${filePath}`)
+    logWrapper.success(`Configurations saved to ${filePath}`)
   } catch (error) {
-    signale.error(error)
+    const err = error as Error
+    logWrapper.fail(err.toString())
     process.exit(1)
   }
 }
@@ -77,11 +78,12 @@ function loadConfig(commandType: CommandType, savePath: boolean | string) {
       validateConfig(commandType, filePath, config)
       return config[commandType]
     } else {
-      signale.error(`Configuration file ${filePath} not found`)
+      logWrapper.fail(`Configuration file ${filePath} not found`)
       process.exit(1)
     }
   } catch (error) {
-    signale.error(error)
+    const err = error as Error
+    logWrapper.fail(err.toString())
     process.exit(1)
   }
 }
