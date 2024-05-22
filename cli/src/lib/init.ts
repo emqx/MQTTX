@@ -1,7 +1,7 @@
 import { writeFileSync, mkdirSync } from 'fs'
 import { join } from 'path'
 import { select, input, password } from '@inquirer/prompts'
-import { CONFIG_FILE_PATH, DEFAULT_CONFIG, USER_HOME_DIR } from './common'
+import { CONFIG_FILE_PATH, DEFAULT_CONFIG, USER_HOME_DIR } from '../configs/common'
 
 /**
  * Generates the content of a configuration INI file based on the provided config object.
@@ -36,8 +36,7 @@ async function initConfig(): Promise<void> {
     message: 'Select MQTTX CLI output mode',
     choices: [
       { name: 'Text', value: 'text', description: 'Plain text output' },
-      { name: 'JSON', value: 'json', description: 'JSON formatted output' },
-      { name: 'Log', value: 'log', description: 'Log file output' },
+      { name: 'Log', value: 'log', description: 'Log style output' },
     ],
     default: DEFAULT_CONFIG.output,
   })) as ConfigModel['output']
