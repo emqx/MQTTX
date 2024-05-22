@@ -1,5 +1,5 @@
 import * as mqtt from 'mqtt'
-import { Signale, signale, basicLog, benchLog } from '../utils/signale'
+import logWrapper, { Signale, basicLog, benchLog, signale, singaleConfig } from '../utils/logWrapper'
 import { parseConnectOptions } from '../utils/parse'
 import delay from '../utils/delay'
 import { saveConfig, loadConfig } from '../utils/config'
@@ -71,7 +71,7 @@ const benchConn = async (options: BenchConnectOptions) => {
 
   const retryTimesArray = Array(count).fill(0)
 
-  const interactive = new Signale({ interactive: true })
+  const interactiveConn = new Signale({ interactive: true, config: singaleConfig })
 
   benchLog.start.conn(config, count, interval, hostname, port)
 
@@ -85,17 +85,17 @@ const benchConn = async (options: BenchConnectOptions) => {
 
       const client = mqtt.connect(opts)
 
-      interactive.await('[%d/%d] - Connecting...', connectedCount, count)
+      interactiveConn.await('[%d/%d] - Connecting...', connectedCount, count)
 
       client.on('connect', () => {
         connectedCount += 1
         retryTimesArray[i - 1] = 0
         if (isNewConnArray[i - 1]) {
-          interactive.success('[%d/%d] - Connected', connectedCount, count)
+          interactiveConn.success('[%d/%d] - Connected', connectedCount, count)
 
           if (connectedCount === count) {
             const end = Date.now()
-            signale.info(`Done, total time: ${(end - start) / 1000}s`)
+            signale.success(`Created ${count} connections in ${(end - start) / 1000}s`)
           }
         } else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)

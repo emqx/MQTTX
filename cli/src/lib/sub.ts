@@ -1,5 +1,5 @@
 import * as mqtt from 'mqtt'
-import { Signale, signale, msgLog, basicLog, benchLog } from '../utils/signale'
+import logWrapper, { Signale, msgLog, basicLog, benchLog, singaleConfig, signale } from '../utils/logWrapper'
 import { parseConnectOptions, parseSubscribeOptions, checkTopicExists } from '../utils/parse'
 import delay from '../utils/delay'
 import convertPayload from '../utils/convertPayload'
@@ -41,7 +41,7 @@ const processReceivedMessage = (
 const handleDefaultBinaryFile = (format: FormatType | undefined, filePath?: string) => {
   if (filePath) {
     if ((!format || format !== 'binary') && isSupportedBinaryFormatForMQTT(getPathExtname(filePath))) {
-      signale.warn('Please use the --format binary option for handling binary files')
+      logWrapper.warn('Please use the --format binary option for handling binary files')
       if (!format) {
         return 'binary'
       }
@@ -199,11 +199,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
   const retryTimesArray = Array(count).fill(0)
 
-  const interactive = new Signale({ interactive: true })
-  const simpleInteractive = new Signale({
-    interactive: true,
-    config: { displayLabel: false, displayDate: true, displayTimestamp: true },
-  })
+  const interactiveSub = new Signale({ interactive: true, config: singaleConfig })
 
   benchLog.start.sub(config, count, interval, hostname, port, topic.join(', '))
 
@@ -220,13 +216,13 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
       const client = mqtt.connect(opts)
 
-      interactive.await('[%d/%d] - Connecting...', connectedCount, count)
+      interactiveSub.await('[%d/%d] - Connecting...', connectedCount, count)
 
       client.on('connect', () => {
         connectedCount += 1
         retryTimesArray[i - 1] = 0
         if (isNewConnArray[i - 1]) {
-          interactive.success('[%d/%d] - Connected', connectedCount, count)
+          interactiveSub.success('[%d/%d] - Connected', connectedCount, count)
 
           topic.forEach((t: string, index: number) => {
             const { username, clientId } = opts
@@ -236,19 +232,19 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
             const subOpts = subOptsArray[index]
 
-            interactive.await('[%d/%d] - Subscribing to %s...', connectedCount, count, topicName)
+            interactiveSub.await('[%d/%d] - Subscribing to %s...', connectedCount, count, topicName)
 
             client.subscribe(topicName, subOpts, (err, result) => {
               if (err) {
-                signale.error(`[${i}/${count}] - Client ID: ${opts.clientId}, ${err}`)
+                logWrapper.fail(`[${i}/${count}] - Client ID: ${opts.clientId}, ${err}`)
                 process.exit(1)
               } else {
-                interactive.success('[%d/%d] - Subscribed to %s', connectedCount, count, topicName)
+                interactiveSub.success('[%d/%d] - Subscribed to %s', connectedCount, count, topicName)
               }
 
               result.forEach((sub) => {
                 if (sub.qos > 2) {
-                  signale.error(
+                  logWrapper.fail(
                     `[${i}/${count}] - Client ID: ${opts.clientId}, subscription negated to ${sub.topic} with code ${sub.qos}`,
                   )
                   process.exit(1)
@@ -258,21 +254,21 @@ const benchSub = async (options: BenchSubscribeOptions) => {
               if (connectedCount === count && topic[topic.length - 1] === t) {
                 const connEnd = Date.now()
 
-                signale.info(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
+                signale.success(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
 
                 total = 0
 
                 if (!verbose) {
                   setInterval(() => {
                     const rate = total - oldTotal
-                    simpleInteractive.info(`Received total: ${total}, rate: ${rate}/s`)
+                    interactiveSub.log(`Received total: ${total}, rate: ${rate}/s`)
                     oldTotal = total
                   }, 1000)
                 } else {
                   setInterval(() => {
                     if (total > oldTotal) {
                       const rate = total - oldTotal
-                      signale.info(`Received total: ${total}, rate: ${rate}/s`)
+                      logWrapper.log(`Received total: ${total}, rate: ${rate}/s`)
                     }
                     oldTotal = total
                   }, 1000)

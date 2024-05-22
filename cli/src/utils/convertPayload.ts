@@ -1,7 +1,7 @@
 import chalk from 'chalk'
 import { jsonParse, jsonStringify } from './jsonUtils'
 import cbor from 'cbor'
-import { basicLog } from './signale'
+import { basicLog } from './logWrapper'
 
 type Action = 'encode' | 'decode'
 
