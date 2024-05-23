@@ -7,7 +7,7 @@ import { IClientOptions, IClientPublishOptions } from 'mqtt'
 import logWrapper, { Signale, basicLog, benchLog, simulateLog, singaleConfig, signale } from '../utils/logWrapper'
 import { parseConnectOptions, parsePublishOptions, checkTopicExists, checkScenarioExists } from '../utils/parse'
 import delay from '../utils/delay'
-import { saveConfig, loadConfig } from '../utils/config'
+import { handleSaveOptions, handleLoadOptions } from '../utils/options'
 import { loadSimulator } from '../utils/simulate'
 import { serializeProtobufToBuffer } from '../utils/protobuf'
 import { readFile, processPath, fileDataSplitter } from '../utils/fileUtils'
@@ -163,11 +163,11 @@ const handleFileRead = (filePath: string) => {
 }
 
 const pub = (options: PublishOptions) => {
-  const { debug, save, config } = options
+  const { debug, saveOptions, loadOptions } = options
 
-  config && (options = loadConfig('pub', config))
+  loadOptions && (options = handleLoadOptions('pub', loadOptions))
 
-  save && saveConfig('pub', options)
+  saveOptions && handleSaveOptions('pub', options)
 
   debug && Debug.enable('mqttjs*')
 
@@ -179,12 +179,12 @@ const pub = (options: PublishOptions) => {
 
   const handleStdin = () => {
     if (options.multiline) {
-      multisend(config, connOpts, pubOpts, options.maximumReconnectTimes)
+      multisend(loadOptions, connOpts, pubOpts, options.maximumReconnectTimes)
     } else {
       process.stdin.pipe(
         concat((data) => {
           pubOpts.message = data
-          send(config, connOpts, pubOpts)
+          send(loadOptions, connOpts, pubOpts)
         }),
       )
     }
@@ -193,28 +193,28 @@ const pub = (options: PublishOptions) => {
   if (options.fileRead) {
     const bufferData = handleFileRead(processPath(options.fileRead!))
     pubOpts.message = bufferData
-    send(config, connOpts, pubOpts)
+    send(loadOptions, connOpts, pubOpts)
   } else if (options.stdin) {
     handleStdin()
   } else {
-    send(config, connOpts, pubOpts)
+    send(loadOptions, connOpts, pubOpts)
   }
 }
 
 const multiPub = async (commandType: CommandType, options: BenchPublishOptions | SimulatePubOptions) => {
-  const { save, config } = options
+  const { saveOptions, loadOptions } = options
 
   let simulator: Simulator = {} as Simulator
   if (commandType === 'simulate') {
-    options = config ? loadConfig('simulate', config) : options
-    save && saveConfig('simulate', options)
+    options = loadOptions ? handleLoadOptions('simulate', loadOptions) : options
+    saveOptions && handleSaveOptions('simulate', options)
 
     const simulateOptions = options as SimulatePubOptions
     checkScenarioExists(simulateOptions.scenario, simulateOptions.file)
     simulator = loadSimulator(simulateOptions.scenario, simulateOptions.file)
   } else {
-    options = config ? loadConfig('benchPub', config) : options
-    save && saveConfig('benchPub', options)
+    options = loadOptions ? handleLoadOptions('benchPub', loadOptions) : options
+    saveOptions && handleSaveOptions('benchPub', options)
   }
 
   const {
@@ -267,7 +267,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
   if (commandType === 'simulate') {
     simulateLog.start.pub(
-      config,
+      loadOptions,
       count,
       interval,
       messageInterval,
@@ -277,7 +277,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
       simulator.name || simulator.file,
     )
   } else if (commandType === 'benchPub') {
-    benchLog.start.pub(config, count, interval, messageInterval, hostname, port, topic, message.toString())
+    benchLog.start.pub(loadOptions, count, interval, messageInterval, hostname, port, topic, message.toString())
   }
 
   const connStart = Date.now()

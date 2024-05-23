@@ -1,16 +1,16 @@
 import * as mqtt from 'mqtt'
-import logWrapper, { Signale, basicLog, benchLog, signale, singaleConfig } from '../utils/logWrapper'
+import { Signale, basicLog, benchLog, signale, singaleConfig } from '../utils/logWrapper'
 import { parseConnectOptions } from '../utils/parse'
 import delay from '../utils/delay'
-import { saveConfig, loadConfig } from '../utils/config'
+import { handleSaveOptions, handleLoadOptions } from '../utils/options'
 import * as Debug from 'debug'
 
 const conn = (options: ConnectOptions) => {
-  const { debug, save, config } = options
+  const { debug, saveOptions, loadOptions } = options
 
-  config && (options = loadConfig('conn', config))
+  loadOptions && (options = handleLoadOptions('conn', loadOptions))
 
-  save && saveConfig('conn', options)
+  saveOptions && handleSaveOptions('conn', options)
 
   debug && Debug.enable('mqttjs*')
 
@@ -22,7 +22,7 @@ const conn = (options: ConnectOptions) => {
 
   let retryTimes = 0
 
-  basicLog.connecting(config, connOpts.hostname!, connOpts.port)
+  basicLog.connecting(loadOptions, connOpts.hostname!, connOpts.port)
 
   client.on('connect', () => {
     basicLog.connected()
@@ -55,11 +55,11 @@ const conn = (options: ConnectOptions) => {
 }
 
 const benchConn = async (options: BenchConnectOptions) => {
-  const { save, config } = options
+  const { saveOptions, loadOptions } = options
 
-  config && (options = loadConfig('benchConn', config))
+  loadOptions && (options = handleLoadOptions('benchConn', loadOptions))
 
-  save && saveConfig('benchConn', options)
+  saveOptions && handleSaveOptions('benchConn', options)
 
   const { count, interval, hostname, port, clientId, maximumReconnectTimes } = options
 
@@ -73,7 +73,7 @@ const benchConn = async (options: BenchConnectOptions) => {
 
   const interactiveConn = new Signale({ interactive: true, config: singaleConfig })
 
-  benchLog.start.conn(config, count, interval, hostname, port)
+  benchLog.start.conn(loadOptions, count, interval, hostname, port)
 
   const start = Date.now()
 

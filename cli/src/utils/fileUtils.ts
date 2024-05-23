@@ -25,11 +25,11 @@ const isYaml = (filePath: string): boolean => {
   return fileExtension === '.yaml' || fileExtension === '.yml'
 }
 
-const parseYamlOrJson = (data: string, isYaml: boolean): Config => {
+const parseYamlOrJson = (data: string, isYaml: boolean): Options => {
   return isYaml ? YAML.load(data) : JSON.parse(data)
 }
 
-const stringifyToYamlOrJson = (data: Config, isYaml: boolean): string => {
+const stringifyToYamlOrJson = (data: Options, isYaml: boolean): string => {
   return isYaml ? YAML.dump(data) : JSON.stringify(data, null, 2)
 }
 

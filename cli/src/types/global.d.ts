@@ -50,8 +50,8 @@ declare global {
     willResponseTopic?: string
     willCorrelationData?: string
     willUserProperties?: Record<string, string | string[]>
-    save?: boolean | string
-    config?: boolean | string
+    saveOptions?: boolean | string
+    loadOptions?: boolean | string
     debug?: boolean
   }
 
@@ -146,7 +146,7 @@ declare global {
     }
   }
 
-  type Config = {
+  type Options = {
     [key in CommandType]?:
       | ConnectOptions
       | PublishOptions
