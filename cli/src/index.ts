@@ -108,11 +108,11 @@ export class Commander {
         parseUserProperties,
       )
       .option(
-        '--save [PATH]',
+        '-so, --save-options [PATH]',
         'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option(
-        '--config [PATH]',
+        '-lo, --load-options [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option('--debug', 'enable debug mode for MQTT.js', false)
@@ -207,11 +207,11 @@ export class Commander {
         parseUserProperties,
       )
       .option(
-        '--save [PATH]',
+        '-so, --save-options [PATH]',
         'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option(
-        '--config [PATH]',
+        '-lo, --load-options [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option('--file-read <PATH>', 'read the message body from the file', parseFileRead)
@@ -307,11 +307,11 @@ export class Commander {
         parseUserProperties,
       )
       .option(
-        '--save [PATH]',
+        '-so, --save-options [PATH]',
         'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option(
-        '--config [PATH]',
+        '-lo, --load-options [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       // https://github.com/tj/commander.js/blob/master/examples/options-conflicts.js
@@ -397,11 +397,11 @@ export class Commander {
         parseUserProperties,
       )
       .option(
-        '--save [PATH]',
+        '-so, --save-options [PATH]',
         'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option(
-        '--config [PATH]',
+        '-lo, --load-options [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .allowUnknownOption(false)
@@ -502,11 +502,11 @@ export class Commander {
         parseUserProperties,
       )
       .option(
-        '--save [PATH]',
+        '-so, --save-options [PATH]',
         'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option(
-        '--config [PATH]',
+        '-lo, --load-options [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option('--file-read <PATH>', 'read the message body from the file', parseFileRead)
@@ -595,11 +595,11 @@ export class Commander {
         parseUserProperties,
       )
       .option(
-        '--save [PATH]',
+        '-so, --save-options [PATH]',
         'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option(
-        '--config [PATH]',
+        '-lo, --load-options [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .allowUnknownOption(false)
@@ -702,11 +702,11 @@ export class Commander {
         parseUserProperties,
       )
       .option(
-        '--save [PATH]',
+        '-so, --save-options [PATH]',
         'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .option(
-        '--config [PATH]',
+        '-lo, --load-options [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-config.json',
       )
       .allowUnknownOption(false)

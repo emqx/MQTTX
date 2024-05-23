@@ -3,7 +3,7 @@ import logWrapper, { Signale, msgLog, basicLog, benchLog, singaleConfig, signale
 import { parseConnectOptions, parseSubscribeOptions, checkTopicExists } from '../utils/parse'
 import delay from '../utils/delay'
 import convertPayload from '../utils/convertPayload'
-import { saveConfig, loadConfig } from '../utils/config'
+import { handleSaveOptions, handleLoadOptions } from '../utils/options'
 import { writeFile, appendFile, getPathExtname, createNextNumberedFileName } from '../utils/fileUtils'
 import { deserializeBufferToProtobuf } from '../utils/protobuf'
 import isSupportedBinaryFormatForMQTT from '../utils/binaryFormats'
@@ -51,11 +51,11 @@ const handleDefaultBinaryFile = (format: FormatType | undefined, filePath?: stri
 }
 
 const sub = (options: SubscribeOptions) => {
-  const { config, save } = options
+  const { loadOptions, saveOptions } = options
 
-  config && (options = loadConfig('sub', config))
+  loadOptions && (options = handleLoadOptions('sub', loadOptions))
 
-  save && saveConfig('sub', options)
+  saveOptions && handleSaveOptions('sub', options)
 
   options.format = handleDefaultBinaryFile(options.format, options.fileSave || options.fileWrite)
 
@@ -73,7 +73,7 @@ const sub = (options: SubscribeOptions) => {
 
   let retryTimes = 0
 
-  !outputModeClean && basicLog.connecting(config, connOpts.hostname!, connOpts.port, options.topic.join(', '))
+  !outputModeClean && basicLog.connecting(loadOptions, connOpts.hostname!, connOpts.port, options.topic.join(', '))
 
   client.on('connect', () => {
     !outputModeClean && basicLog.connected()
@@ -179,11 +179,11 @@ const sub = (options: SubscribeOptions) => {
 }
 
 const benchSub = async (options: BenchSubscribeOptions) => {
-  const { save, config } = options
+  const { saveOptions, loadOptions } = options
 
-  config && (options = loadConfig('benchSub', config))
+  loadOptions && (options = handleLoadOptions('benchSub', loadOptions))
 
-  save && saveConfig('benchSub', options)
+  saveOptions && handleSaveOptions('benchSub', options)
 
   const { count, interval, topic, hostname, port, clientId, verbose, maximumReconnectTimes } = options
 
@@ -201,7 +201,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
   const interactiveSub = new Signale({ interactive: true, config: singaleConfig })
 
-  benchLog.start.sub(config, count, interval, hostname, port, topic.join(', '))
+  benchLog.start.sub(loadOptions, count, interval, hostname, port, topic.join(', '))
 
   const connStart = Date.now()
 
