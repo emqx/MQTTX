@@ -9,7 +9,7 @@ import {
 } from './fileUtils'
 import logWrapper from './logWrapper'
 
-const defaultPath = `${process.cwd()}/mqttx-cli-config.json`
+const defaultPath = `${process.cwd()}/mqttx-cli-options.json`
 
 const mergeOptions = (oldConfig: Options, newConfig: Options) => Object.assign({}, oldConfig, newConfig)
 
