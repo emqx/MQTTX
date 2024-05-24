@@ -208,6 +208,9 @@ const benchSub = async (options: BenchSubscribeOptions) => {
   let total = 0
   let oldTotal = 0
 
+  let isLogged = false
+  let subscribedCount = 0
+
   for (let i = 1; i <= count; i++) {
     ;((i: number, connOpts: mqtt.IClientOptions) => {
       const opts = { ...connOpts }
@@ -240,6 +243,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
                 process.exit(1)
               } else {
                 interactiveSub.success('[%d/%d] - Subscribed to %s', connectedCount, count, topicName)
+                subscribedCount += 1
               }
 
               result.forEach((sub) => {
@@ -251,28 +255,27 @@ const benchSub = async (options: BenchSubscribeOptions) => {
                 }
               })
 
-              if (connectedCount === count && topic[topic.length - 1] === t) {
+              if (connectedCount === count && subscribedCount === count * topic.length && !isLogged) {
                 const connEnd = Date.now()
-
                 signale.success(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
-
                 total = 0
+                isLogged = true
 
-                if (!verbose) {
-                  setInterval(() => {
-                    const rate = total - oldTotal
-                    interactiveSub.log(`Received total: ${total}, rate: ${rate}/s`)
-                    oldTotal = total
-                  }, 1000)
-                } else {
-                  setInterval(() => {
-                    if (total > oldTotal) {
-                      const rate = total - oldTotal
-                      logWrapper.log(`Received total: ${total}, rate: ${rate}/s`)
-                    }
-                    oldTotal = total
-                  }, 1000)
+                const intervalFunc = () => {
+                  const rate = total - oldTotal
+                  interactiveSub.log(`Received total: ${total}, rate: ${rate}/s`)
+                  oldTotal = total
                 }
+
+                const verboseIntervalFunc = () => {
+                  if (total > oldTotal) {
+                    const rate = total - oldTotal
+                    logWrapper.log(`Received total: ${total}, rate: ${rate}/s`)
+                  }
+                  oldTotal = total
+                }
+
+                setInterval(verbose ? verboseIntervalFunc : intervalFunc, 1000)
               }
             })
           })
