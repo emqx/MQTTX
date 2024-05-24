@@ -47,7 +47,7 @@ const msgLog = (msg: Record<string, any>[]) => {
   const restItems = msg.filter((item) => item.label !== 'payload')
 
   const payloadStrings = payloadItems.map((item) => formatValue(item.value))
-  const otherStrings = restItems.map((item) => `${chalk.green(item.label)}: ${formatValue(item.value)}`)
+  const otherStrings = restItems.map((item) => `${chalk.green(item.label)}: ${chalk.gray(formatValue(item.value))}`)
   const chalkString = `${otherStrings.join(', ')}\n${payloadStrings.join('\n')}`
 
   signale.log(chalkString)
