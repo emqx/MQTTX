@@ -1603,7 +1603,7 @@ export default class ConnectionsDetail extends Vue {
    */
   private handleErrorOnPublish(error: Error) {
     const errorMsg = error.toString()
-    this.$message.error(errorMsg)
+    this.notifyMsgWithCopilot(errorMsg)
     this.stopTimedSend()
     this.$log.error(
       `Failed to publish message for ${this.record.name}. Error: ${errorMsg}. Stack trace: ${error.stack}`,
