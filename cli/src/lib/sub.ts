@@ -93,16 +93,14 @@ const sub = (options: SubscribeOptions) => {
         if (err) {
           !outputModeClean && basicLog.error(err)
           process.exit(1)
-        } else {
-          !outputModeClean && basicLog.subscribed(t)
         }
-
         result.forEach((sub) => {
           if (sub.qos > 2) {
             !outputModeClean && basicLog.subscriptionNegated(sub)
             process.exit(1)
           }
         })
+        !outputModeClean && basicLog.subscribed(t)
       })
     })
   })
@@ -241,9 +239,6 @@ const benchSub = async (options: BenchSubscribeOptions) => {
               if (err) {
                 logWrapper.fail(`[${i}/${count}] - Client ID: ${opts.clientId}, ${err}`)
                 process.exit(1)
-              } else {
-                interactiveSub.success('[%d/%d] - Subscribed to %s', connectedCount, count, topicName)
-                subscribedCount += 1
               }
 
               result.forEach((sub) => {
@@ -254,6 +249,9 @@ const benchSub = async (options: BenchSubscribeOptions) => {
                   process.exit(1)
                 }
               })
+
+              interactiveSub.success('[%d/%d] - Subscribed to %s', connectedCount, count, topicName)
+              subscribedCount += 1
 
               if (connectedCount === count && subscribedCount === count * topic.length && !isLogged) {
                 const connEnd = Date.now()

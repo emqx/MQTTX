@@ -58,7 +58,8 @@ const send = (
     const publishMessage = processPublishMessage(message, protobufPath, protobufMessageName, format)
     client.publish(topic, publishMessage, pubOpts.opts, (err) => {
       if (err) {
-        logWrapper.warn(err.toString())
+        basicLog.error(err)
+        process.exit(1)
       } else {
         basicLog.published()
       }
@@ -114,7 +115,8 @@ const multisend = (
       pump(process.stdin, split2(), sender, (err) => {
         client.end()
         if (err) {
-          throw err
+          basicLog.error(err)
+          process.exit(1)
         }
       })
   })
@@ -356,7 +358,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
             client.publish(publishTopic, publishMessage, pubOpts.opts, (err) => {
               inFlightMessageCount -= 1
               if (err) {
-                logWrapper.warn(err.toString())
+                basicLog.error(err)
               } else {
                 total += 1
                 rate += 1
