@@ -48,10 +48,14 @@ const send = (
     format: FormatType | undefined
     opts: IClientPublishOptions
   },
+  maximumReconnectTimes: number,
 ) => {
+  let retryTimes = 0
+  let isNewConnection = true
   const client = mqtt.connect(connOpts)
   basicLog.connecting(config, connOpts.hostname!, connOpts.port, pubOpts.topic, pubOpts.message.toString())
   client.on('connect', () => {
+    retryTimes = 0
     basicLog.connected()
     const { topic, message, protobufPath, protobufMessageName, format } = pubOpts
     basicLog.publishing()
@@ -77,9 +81,24 @@ const send = (
     basicLog.error(err)
     client.end()
   })
+  client.on('reconnect', () => {
+    retryTimes += 1
+    if (retryTimes > maximumReconnectTimes) {
+      client.end(true, {}, () => {
+        basicLog.reconnectTimesLimit()
+        process.exit(1)
+      })
+    } else {
+      basicLog.reconnecting()
+      isNewConnection = false
+    }
+  })
+  client.on('close', () => {
+    basicLog.close()
+  })
 }
 
-const multisend = (
+const multiSend = (
   config: boolean | string | undefined,
   connOpts: IClientOptions,
   pubOpts: {
@@ -129,7 +148,7 @@ const multisend = (
   client.on('reconnect', () => {
     retryTimes += 1
     if (retryTimes > maximumReconnectTimes) {
-      client.end(false, {}, () => {
+      client.end(true, {}, () => {
         basicLog.reconnectTimesLimit()
         process.exit(1)
       })
@@ -181,12 +200,12 @@ const pub = (options: PublishOptions) => {
 
   const handleStdin = () => {
     if (options.multiline) {
-      multisend(loadOptions, connOpts, pubOpts, options.maximumReconnectTimes)
+      multiSend(loadOptions, connOpts, pubOpts, options.maximumReconnectTimes)
     } else {
       process.stdin.pipe(
         concat((data) => {
           pubOpts.message = data
-          send(loadOptions, connOpts, pubOpts)
+          send(loadOptions, connOpts, pubOpts, options.maximumReconnectTimes)
         }),
       )
     }
@@ -195,11 +214,11 @@ const pub = (options: PublishOptions) => {
   if (options.fileRead) {
     const bufferData = handleFileRead(processPath(options.fileRead!))
     pubOpts.message = bufferData
-    send(loadOptions, connOpts, pubOpts)
+    send(loadOptions, connOpts, pubOpts, options.maximumReconnectTimes)
   } else if (options.stdin) {
     handleStdin()
   } else {
-    send(loadOptions, connOpts, pubOpts)
+    send(loadOptions, connOpts, pubOpts, options.maximumReconnectTimes)
   }
 }
 
