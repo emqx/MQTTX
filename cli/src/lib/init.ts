@@ -10,7 +10,8 @@ import { CONFIG_FILE_PATH, DEFAULT_CONFIG, USER_HOME_DIR } from '../configs/comm
  */
 const generateConfigContent = (config: ConfigModel): string => {
   let mqttConfig = `host = ${config.mqtt.host}
-port = ${config.mqtt.port}`
+port = ${config.mqtt.port}
+max_reconnect_times = ${config.mqtt.maxReconnectTimes}`
 
   if (config.mqtt.username) {
     mqttConfig += `\nusername = ${config.mqtt.username}`
@@ -52,6 +53,12 @@ async function initConfig(): Promise<void> {
     validate: (input) => !isNaN(parseInt(input, 10)) || 'Port must be a number',
   })
 
+  const maxReconnectTimes = await input({
+    message: 'Enter the maximum reconnect times for MQTT connection',
+    default: DEFAULT_CONFIG.mqtt.maxReconnectTimes.toString(),
+    validate: (input) => !isNaN(parseInt(input, 10)) || 'Maximum reconnect times must be a number',
+  })
+
   const username = await input({
     message: 'Enter the default username for MQTT connection authentication',
     default: DEFAULT_CONFIG.mqtt.username,
@@ -67,6 +74,7 @@ async function initConfig(): Promise<void> {
     mqtt: {
       host,
       port: parseInt(port, 10),
+      maxReconnectTimes: parseInt(maxReconnectTimes, 10),
       username,
       password: passwordAnswer,
     },

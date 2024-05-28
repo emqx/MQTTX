@@ -20,6 +20,7 @@ const parseConfigFile = (content: string): ConfigModel => {
     mqtt: {
       host: config.mqtt?.host || DEFAULT_CONFIG.mqtt.host,
       port: parseInt(config.mqtt?.port, 10) || DEFAULT_CONFIG.mqtt.port,
+      maxReconnectTimes: parseInt(config.mqtt?.max_reconnect_times, 10) || DEFAULT_CONFIG.mqtt.maxReconnectTimes,
       username: config.mqtt?.username || DEFAULT_CONFIG.mqtt.username,
       password: config.mqtt?.password || DEFAULT_CONFIG.mqtt.password,
     },
