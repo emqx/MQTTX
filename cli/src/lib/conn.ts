@@ -41,7 +41,7 @@ const conn = (options: ConnectOptions) => {
         basicLog.reconnectTimesLimit()
       })
     } else {
-      basicLog.reconnecting()
+      basicLog.reconnecting(retryTimes, maximumReconnectTimes)
     }
   })
 

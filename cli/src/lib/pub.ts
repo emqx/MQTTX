@@ -92,7 +92,7 @@ const send = (
         process.exit(1)
       })
     } else {
-      basicLog.reconnecting()
+      basicLog.reconnecting(retryTimes, maximumReconnectTimes)
       isNewConnection = false
     }
   })
@@ -161,7 +161,7 @@ const multiSend = (
         process.exit(1)
       })
     } else {
-      basicLog.reconnecting()
+      basicLog.reconnecting(retryTimes, maximumReconnectTimes)
       isNewConnection = false
       sender.uncork()
     }

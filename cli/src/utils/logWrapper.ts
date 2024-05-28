@@ -75,7 +75,8 @@ const basicLog = {
   enterToPublish: () => logWrapper.success('Connected, press Enter to publish, press Ctrl+C to exit'),
   error: (err: Error) => logWrapper.fail(err.toString()),
   close: () => logWrapper.fail('Connection closed'),
-  reconnecting: () => logWrapper.await('Reconnecting...'),
+  reconnecting: (retryTimes: number, maxReTryTimes: number) =>
+    logWrapper.await(`Reconnecting...[${retryTimes}/${maxReTryTimes}]`),
   reconnectTimesLimit: () => logWrapper.fail('Exceed the maximum reconnect times limit, stop retry'),
   disconnect: (packet: IDisconnectPacket, clientId?: string) => {
     const { reasonCode } = packet
