@@ -13,6 +13,7 @@ const DEFAULT_CONFIG: ConfigModel = {
   mqtt: {
     host: 'localhost',
     port: 1883,
+    maxReconnectTimes: 10,
   },
 }
 
