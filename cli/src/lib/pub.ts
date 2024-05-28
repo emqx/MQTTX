@@ -54,6 +54,7 @@ const send = (
   let isNewConnection = true
   const client = mqtt.connect(connOpts)
   basicLog.connecting(config, connOpts.hostname!, connOpts.port, pubOpts.topic, pubOpts.message.toString())
+
   client.on('connect', () => {
     retryTimes = 0
     basicLog.connected()
@@ -77,10 +78,12 @@ const send = (
       }
     })
   })
+
   client.on('error', (err) => {
     basicLog.error(err)
     client.end()
   })
+
   client.on('reconnect', () => {
     retryTimes += 1
     if (retryTimes > maximumReconnectTimes) {
@@ -93,8 +96,13 @@ const send = (
       isNewConnection = false
     }
   })
+
   client.on('close', () => {
     basicLog.close()
+  })
+
+  client.on('disconnect', (packet: IDisconnectPacket) => {
+    basicLog.disconnect(packet)
   })
 }
 
