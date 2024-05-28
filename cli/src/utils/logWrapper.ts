@@ -69,7 +69,7 @@ const basicLog = {
   subscribing: (t: string) => logWrapper.await(`Subscribing to ${t}...`),
   subscribed: (t: string) => logWrapper.success(`Subscribed to ${t}`),
   subscriptionNegated: (sub: { topic: string; qos: number }) =>
-    logWrapper.fail(`Subscription negated to ${sub.topic} with code ${sub.qos}`),
+    logWrapper.fail(`Subscription negated to "${sub.topic}" with code ${sub.qos}`),
   publishing: () => logWrapper.await('Message publishing...'),
   published: () => logWrapper.success('Message published'),
   enterToPublish: () => logWrapper.success('Connected, press Enter to publish, press Ctrl+C to exit'),

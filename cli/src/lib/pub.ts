@@ -97,10 +97,6 @@ const send = (
     }
   })
 
-  client.on('close', () => {
-    basicLog.close()
-  })
-
   client.on('disconnect', (packet: IDisconnectPacket) => {
     basicLog.disconnect(packet)
   })
