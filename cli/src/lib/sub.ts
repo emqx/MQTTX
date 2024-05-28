@@ -75,35 +75,60 @@ const sub = (options: SubscribeOptions) => {
 
   !outputModeClean && basicLog.connecting(loadOptions, connOpts.hostname!, connOpts.port, options.topic.join(', '))
 
-  client.on('connect', () => {
-    !outputModeClean && basicLog.connected()
+  const subscribeToTopics = async () => {
+    if (!outputModeClean) basicLog.connected()
 
     retryTimes = 0
 
     const subOptsArray = parseSubscribeOptions(options)
-
     const { topic } = options
 
-    topic.forEach((t: string, index: number) => {
+    if (!outputModeClean) {
+      topic.forEach((t: string) => basicLog.subscribing(t))
+    }
+
+    const subscribePromises = topic.map((t: string, index: number) => {
       const subOpts = subOptsArray[index]
+      return new Promise<{ successfulSubs: mqtt.ISubscriptionGrant[]; failedSubs: mqtt.ISubscriptionGrant[] }>(
+        (resolve, reject) => {
+          client.subscribe(t, subOpts, (err, result) => {
+            if (err) {
+              if (!outputModeClean) basicLog.error(err)
+              return reject(err)
+            }
 
-      !outputModeClean && basicLog.subscribing(t)
+            const successfulSubs: mqtt.ISubscriptionGrant[] = []
+            const failedSubs: mqtt.ISubscriptionGrant[] = []
 
-      client.subscribe(t, subOpts, (err, result) => {
-        if (err) {
-          !outputModeClean && basicLog.error(err)
-          process.exit(1)
-        }
-        result.forEach((sub) => {
-          if (sub.qos > 2) {
-            !outputModeClean && basicLog.subscriptionNegated(sub)
-            process.exit(1)
-          }
-        })
-        !outputModeClean && basicLog.subscribed(t)
-      })
+            result.forEach((sub) => {
+              if (sub.qos > 2) {
+                failedSubs.push(sub)
+                if (!outputModeClean) basicLog.subscriptionNegated(sub)
+              } else {
+                successfulSubs.push(sub)
+                if (!outputModeClean) basicLog.subscribed(sub.topic)
+              }
+            })
+
+            resolve({ successfulSubs, failedSubs })
+          })
+        },
+      )
     })
-  })
+
+    try {
+      const results = await Promise.all(subscribePromises)
+      const allSuccessfulSubs = results.flatMap((r) => r.successfulSubs)
+
+      if (allSuccessfulSubs.length === 0) {
+        process.exit(1)
+      }
+    } catch (error) {
+      process.exit(1)
+    }
+  }
+
+  client.on('connect', subscribeToTopics)
 
   client.on('message', (topic, payload, packet) => {
     const { format, protobufPath, protobufMessageName, fileSave, fileWrite, delimiter } = options
