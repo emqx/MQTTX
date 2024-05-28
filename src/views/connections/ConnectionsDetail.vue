@@ -1077,12 +1077,14 @@ export default class ConnectionsDetail extends Vue {
       })
       this.$emit('reload')
     } else {
+      this.reTryConnectTimes += 1
       if (this.reTryConnectTimes > this.maxReconnectTimes) {
         this.$log.warn('Max reconnect limit reached, stopping retries')
         this.forceCloseTheConnection()
       } else {
-        this.$log.info(`Retrying connection for ${this.record.name}, attempt: ${this.reTryConnectTimes}`)
-        this.reTryConnectTimes += 1
+        this.$log.info(
+          `Retrying connection for ${this.record.name}, attempt: [${this.reTryConnectTimes}/${this.maxReconnectTimes}]`,
+        )
         this.connectLoading = true
         this.$notify({
           title: this.$tc('connections.reconnect'),

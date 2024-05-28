@@ -163,7 +163,7 @@ const sub = (options: SubscribeOptions) => {
         !outputModeClean && basicLog.reconnectTimesLimit()
       })
     } else {
-      !outputModeClean && basicLog.reconnecting()
+      !outputModeClean && basicLog.reconnecting(retryTimes, maximumReconnectTimes)
     }
   })
 
