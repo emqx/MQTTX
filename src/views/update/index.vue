@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="update">
     <el-dialog
-      custom-class="detail-dialog"
+      custom-class="update-dialog"
       :title="$t('update.updateTitle')"
       :visible.sync="showDialog"
       :width="dialogWidth"
@@ -13,14 +13,14 @@
         <div ref="detail_display" class="text-content" v-html="detail"></div>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" class="update-button left-button" @click="ignoreUpdate">{{
+        <el-button size="mini" class="update-button--normal left-button" @click="ignoreUpdate">{{
           $t('update.ignoreVersion')
         }}</el-button>
         <div class="right-buttons">
-          <el-button size="small" class="update-button" @click="nextUpdate">{{ $t('update.nextRemind') }}</el-button>
-          <el-button size="small" class="update-button" type="primary" @click="toUpdate">{{
-            $t('update.update')
+          <el-button size="mini" class="update-button--normal" @click="nextUpdate">{{
+            $t('update.nextRemind')
           }}</el-button>
+          <el-button size="mini" type="primary" @click="toUpdate">{{ $t('update.update') }}</el-button>
         </div>
       </div>
     </el-dialog>
@@ -34,16 +34,10 @@
     >
       <div class="progress-text">{{ !downloaded ? $t('update.downloading') : $t('update.downloaded') }}</div>
       <el-progress :percentage="progress" show-text :status="downloaded ? 'success' : null"></el-progress>
-      <el-button
-        size="small"
-        class="update-button"
-        v-if="!downloaded"
-        slot="footer"
-        type="danger"
-        @click="cancelDownload"
-        >{{ $t('update.cancel') }}</el-button
-      >
-      <el-button size="small" class="update-button" v-else slot="footer" type="primary" @click="toInstall">{{
+      <el-button size="mini" v-if="!downloaded" slot="footer" type="danger" @click="cancelDownload">{{
+        $t('update.cancel')
+      }}</el-button>
+      <el-button size="mini" v-else slot="footer" type="primary" @click="toInstall">{{
         $t('update.install')
       }}</el-button>
     </el-dialog>
@@ -71,8 +65,8 @@ export default class Update extends Vue {
   private detail: string = ''
   private progress: number = 0
   private downloaded: boolean = false
-  private dialogWidth: string = '900px'
-  private dialogHeight: string = '350px'
+  private dialogWidth: string = '960px'
+  private dialogHeight: string = '450px'
 
   private goToLink(url: string) {
     const windowUrl = window.open(url)
@@ -177,7 +171,7 @@ export default class Update extends Vue {
 <style lang="scss">
 @import '~@/assets/scss/variable.scss';
 
-.detail-dialog,
+.update-dialog,
 .progress-dialog {
   .el-dialog__header {
     padding: 0 20px;
@@ -201,13 +195,20 @@ export default class Update extends Vue {
       }
     }
   }
-  .update-button {
-    border-radius: 4px;
+  .update-button--normal {
+    background: transparent;
+    border: 1px solid var(--color-border-default);
+    color: var(--color-text-default);
+    &:hover {
+      color: var(--color-main-green);
+      border-color: var(--color-main-green);
+    }
   }
 }
 
-.detail-dialog {
+.update-dialog {
   overflow-y: auto;
+  margin-top: 8vh !important;
   .el-dialog__footer {
     text-align: right;
   }
@@ -216,41 +217,51 @@ export default class Update extends Vue {
     overflow-x: hidden;
   }
   .text-content {
-    padding: 10px;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    color: var(--color-text-title);
+    color: var(--color-text-default);
+    padding-bottom: 0.3rem;
     .icon.icon-link {
       display: none;
     }
     h1 {
-      font-size: 2.2rem;
+      font-size: 1.75rem;
+      &:first-child {
+        margin-top: 0;
+        padding-top: 0;
+      }
     }
     h2 {
-      font-size: 1.65rem;
-      border-bottom: 1px solid #eaecef;
+      font-size: 1.5rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid var(--color-border-default);
     }
     h3 {
-      font-size: 1.35rem;
+      font-size: 1rem;
     }
     h1,
     h2,
     h3,
     h4 {
       color: var(--color-text-title);
-      line-height: 1;
+      line-height: 1.25;
       font-weight: 600;
+      margin-top: -6.1rem;
+      padding-top: 7.6rem;
+      margin-bottom: 0;
+      a {
+        color: var(--color-main-green);
+      }
     }
-    p {
-      margin-top: 1rem;
+    h4 {
+      margin-top: 0;
+      padding-top: 0;
     }
     ol,
+    p,
     ul {
-      margin: 0;
-      padding: 0;
+      line-height: 1.7;
+      margin: 1rem 0;
       li {
-        line-height: 1;
+        margin: 1rem 0;
       }
     }
     code {
@@ -258,9 +269,8 @@ export default class Update extends Vue {
       color: var(--color-main-green);
       padding: 0.25rem 0.5rem;
       margin: 0;
-      font-size: 0.85em;
-      font-weight: 600;
-      background-color: #1b1f230d;
+      font-size: 12px;
+      background-color: var(--color-bg-code);
       border-radius: 3px;
     }
     pre,
@@ -293,7 +303,7 @@ export default class Update extends Vue {
       }
     }
     a {
-      color: #00b173;
+      color: var(--color-main-green);
       font-weight: 500;
       word-break: break-word;
     }
@@ -307,71 +317,42 @@ export default class Update extends Vue {
     }
     table {
       border-collapse: collapse;
+      margin: 1rem 0;
       display: block;
       overflow-x: auto;
     }
     tr {
-      border-top: 1px solid #dfe2e5;
+      border-top: 1px solid var(--color-border-default);
     }
     td,
     th {
-      border: 1px solid #dfe2e5;
+      border: 1px solid var(--color-border-default);
       padding: 0.6em 1em;
     }
     tr:nth-child(2n) {
       background-color: #f6f8fa;
     }
-
-    article {
-      margin: 0 20px;
-    }
-    blockquote {
-      background-color: transparent;
-      border-color: #42b983;
-      padding: 0.1rem 1.5rem;
-      border-left-width: 0.5rem;
-      border-left-style: solid;
-      margin: 0;
-    }
-    .language-css .token.string,
-    .style .token.string,
-    .token.entity,
-    .token.operator,
-    .token.url {
-      background-color: transparent;
-    }
-    .table-content {
-      position: sticky;
-      top: 80px;
-      max-width: 200px;
-      .title {
-        color: #a0aec0;
-        margin-bottom: 0.5rem;
-        font-size: 14px;
-        line-height: 1rem;
-        --text-opacity: 1;
-      }
-      .item {
-        font-size: 14px;
-        &.depth-2 {
-          padding-bottom: 8px;
-          padding-top: 8px;
-          border-top: 1px dashed #e2e8f0;
-        }
-        &.depth-3 {
-          padding-bottom: 6px;
-          padding-top: 6px;
-          margin-left: 12px;
-        }
-        a {
-          color: #4a5568;
-          &.is-active,
-          &:hover {
-            color: #00b173;
-          }
-        }
-      }
-    }
+  }
+  article {
+    margin: 0 40px;
+  }
+  blockquote {
+    background-color: var(--color-bg-code);
+    border-color: var(--color-main-green);
+    padding: 0.1rem 1.5rem;
+    border-left-width: 0.5rem;
+    border-left-style: solid;
+    margin: 1rem 0;
+  }
+  strong {
+    color: var(--color-text-title);
+  }
+  .language-css .token.string,
+  .style .token.string,
+  .token.entity,
+  .token.operator,
+  .token.url {
+    background-color: transparent;
   }
   .dialog-footer {
     display: flex;
