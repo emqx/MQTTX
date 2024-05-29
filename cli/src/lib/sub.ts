@@ -214,8 +214,6 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
   const connOpts = parseConnectOptions(options, 'sub')
 
-  let connectedCount = 0
-
   const subOptsArray = parseSubscribeOptions(options)
 
   const isNewConnArray = Array(count).fill(true)
@@ -230,9 +228,11 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
   let total = 0
   let oldTotal = 0
-
   let isLogged = false
+  let connectedCount = 0
   let subscribedCount = 0
+  const allSuccessfulSubs: mqtt.ISubscriptionGrant[] = []
+  const failedSubs: { clientId: string; subItem: mqtt.ISubscriptionGrant }[] = []
 
   for (let i = 1; i <= count; i++) {
     ;((i: number, connOpts: mqtt.IClientOptions) => {
@@ -244,64 +244,78 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
       interactiveSub.await('[%d/%d] - Connecting...', connectedCount, count)
 
-      client.on('connect', () => {
+      client.on('connect', async () => {
         connectedCount += 1
         retryTimesArray[i - 1] = 0
         if (isNewConnArray[i - 1]) {
           interactiveSub.success('[%d/%d] - Connected', connectedCount, count)
 
-          topic.forEach((t: string, index: number) => {
-            const { username, clientId } = opts
+          if (count === connectedCount) {
+            const connEnd = Date.now()
+            signale.success(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
+          }
 
-            let topicName = t.replaceAll('%i', i.toString()).replaceAll('%c', clientId!)
-            username && (topicName = topicName.replaceAll('%u', username))
+          const subscribePromises = topic.map((t: string, index: number) => {
+            return new Promise<void>((resolve, reject) => {
+              const { username, clientId } = opts
+              let topicName = t.replaceAll('%i', i.toString()).replaceAll('%c', clientId!)
+              username && (topicName = topicName.replaceAll('%u', username))
+              const subOpts = subOptsArray[index]
+              client.subscribe(topicName, subOpts, (err, result) => {
+                if (err) {
+                  logWrapper.fail(`[${i}/${count}] - Client ID: ${opts.clientId}, ${err}`)
+                  return reject(err)
+                }
+                result.forEach((sub) => {
+                  if (sub.qos > 2) {
+                    failedSubs.push({
+                      clientId: opts.clientId!,
+                      subItem: sub,
+                    })
+                  } else {
+                    allSuccessfulSubs.push(sub)
+                  }
+                  subscribedCount += 1
+                })
+                resolve()
+              })
+            })
+          })
 
-            const subOpts = subOptsArray[index]
+          try {
+            await Promise.all(subscribePromises)
 
-            interactiveSub.await('[%d/%d] - Subscribing to %s...', connectedCount, count, topicName)
+            if (connectedCount === count && subscribedCount === count * topic.length && !isLogged) {
+              if (allSuccessfulSubs.length > 0) {
+                const uniqueSuccessfulSubs = Array.from(new Set(allSuccessfulSubs.map((t) => t.topic)))
+                logWrapper.success(`All connections subscribed to: ${uniqueSuccessfulSubs.join(', ')}`)
+              }
 
-            client.subscribe(topicName, subOpts, (err, result) => {
-              if (err) {
-                logWrapper.fail(`[${i}/${count}] - Client ID: ${opts.clientId}, ${err}`)
+              if (failedSubs.length > 0) {
+                failedSubs.forEach((sub) => {
+                  basicLog.subscriptionNegated(sub.subItem, sub.clientId)
+                })
+              }
+
+              if (allSuccessfulSubs.length === 0) {
                 process.exit(1)
               }
 
-              result.forEach((sub) => {
-                if (sub.qos > 2) {
-                  logWrapper.fail(
-                    `[${i}/${count}] - Client ID: ${opts.clientId}, subscription negated to ${sub.topic} with code ${sub.qos}`,
-                  )
-                  process.exit(1)
-                }
-              })
+              total = 0
+              isLogged = true
 
-              interactiveSub.success('[%d/%d] - Subscribed to %s', connectedCount, count, topicName)
-              subscribedCount += 1
-
-              if (connectedCount === count && subscribedCount === count * topic.length && !isLogged) {
-                const connEnd = Date.now()
-                signale.success(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
-                total = 0
-                isLogged = true
-
-                const intervalFunc = () => {
-                  const rate = total - oldTotal
-                  interactiveSub.log(`Received total: ${total}, rate: ${rate}/s`)
-                  oldTotal = total
-                }
-
-                const verboseIntervalFunc = () => {
-                  if (total > oldTotal) {
-                    const rate = total - oldTotal
-                    logWrapper.log(`Received total: ${total}, rate: ${rate}/s`)
-                  }
-                  oldTotal = total
-                }
-
-                setInterval(verbose ? verboseIntervalFunc : intervalFunc, 1000)
+              const logRate = () => {
+                const rate = total - oldTotal
+                const logMethod = verbose ? logWrapper.log : interactiveSub.log
+                logMethod(`Received total: ${total}, rate: ${rate}/s`)
+                oldTotal = total
               }
-            })
-          })
+
+              setInterval(logRate, 1000)
+            }
+          } catch (error) {
+            process.exit(1)
+          }
         } else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)
         }
