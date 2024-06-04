@@ -100,11 +100,12 @@ function handleIpcMessages() {
       app.relaunch()
       app.exit()
     } catch (error) {
+      const err = error as unknown as Error
       dialog.showMessageBox({
         type: 'error',
         title: 'Rebuild Database Error',
         message: 'An error occurred while rebuilding the database.',
-        detail: error.message,
+        detail: err.message,
       })
     }
   })
@@ -150,10 +151,11 @@ async function createWindow() {
       }
     }
   } catch (error) {
-    console.error('ConnectionInit error:', error)
+    const err = error as unknown as Error
+    console.error('ConnectionInit error:', err.toString())
     //@ts-ignore
     global.sharedData = {
-      connectDatabaseFailMessage: error.message,
+      connectDatabaseFailMessage: err.message,
       currentTheme: 'light',
       currentLang: 'en',
       syncOsTheme: false,
