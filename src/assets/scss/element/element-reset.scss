@@ -226,6 +226,8 @@
 .el-popper {
   background: var(--color-bg-messagebox);
   border-color: var(--color-border-default);
+  word-break: break-word;
+  color: var(--color-text-default);
   li {
     color: var(--color-text-default);
   }
