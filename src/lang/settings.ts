@@ -119,11 +119,11 @@ export default {
     hu: 'Több téma feliratkozás',
   },
   autoResubDesc: {
-    zh: '重连时，对连接的订阅列表进行恢复订阅',
-    en: 'When reconnecting, the subscription list of the connection will be automatically resubscribed',
-    tr: 'Yeniden bağlanırken, bağlantının abonelik listesi otomatik olarak yeniden abone olur',
-    ja: '再接続時に、接続のサブスクリプションリストが自動的に再購読されます',
-    hu: 'Újracsatlakozáskor az előfizetési lista automatikusan újra feliratkozik',
+    zh: '开启后，MQTTX 连接后会自动重新订阅本地保存的所有订阅',
+    en: 'Once enabled, MQTTX will automatically resubscribe to all locally saved subscriptions after connecting',
+    tr: 'Etkinleştirildiğinde, MQTTX bağlandıktan sonra yerel olarak kaydedilen tüm aboneliklere otomatik olarak yeniden abone olur',
+    ja: '有効にした後、MQTTXは接続した後にローカルに保存されたすべてのサブスクリプションに自動的に再購読します',
+    hu: 'Ha engedélyezve van, az MQTTX csatlakozás után automatikusan újra feliratkozik a helyben mentett összes előfizetésre',
   },
   cleanHistoryDialogMessage: {
     zh: '即将删除所有连接中的历史消息记录、发送端记录的发布消息、主题、保留标志及历史连接配置。确定吗？',

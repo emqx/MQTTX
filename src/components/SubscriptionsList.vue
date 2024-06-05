@@ -77,20 +77,32 @@
       :title="isEdit ? $t('connections.editSubscription') : $t('connections.newSubscription')"
       :visible.sync="showDialog"
       :confirmLoading="subLoading"
-      :top="record.mqttVersion === '5.0' ? '60px' : '15vh'"
+      :top="record.mqttVersion === '5.0' ? '32px' : '15vh'"
       width="530px"
       class="topic-dialog"
       @confirm="saveSubs"
       @close="resetSubs"
       @keyupEnter="saveSubs"
     >
+      <el-popover
+        popper-class="sub-info-popover"
+        placement="top-start"
+        :title="autoResub ? $t('connections.enabledAutoResub') : $t('connections.disabledAutoResub')"
+        width="410"
+        trigger="hover"
+        :content="autoResub ? $t('connections.enabledAutoResubDesc') : $t('connections.disabledAutoResubDesc')"
+      >
+        <a slot="reference" href="javascript:;" class="sub-info-tooltip">
+          <i class="el-icon-warning-outline"></i>
+        </a>
+      </el-popover>
       <el-row :gutter="20">
         <el-form ref="form" :model="subRecord" :rules="rules">
           <el-col :span="24">
             <el-form-item label="Topic" prop="topic">
               <el-tooltip
                 v-if="!isEdit && multiTopics"
-                class="subinfo-tooltip"
+                class="topic-info-tooltip"
                 placement="top-start"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
                 :content="$t('connections.topicTips')"
@@ -127,7 +139,7 @@
             <el-form-item :label="$t('connections.alias')">
               <el-tooltip
                 v-if="!isEdit && multiTopics"
-                class="subinfo-tooltip"
+                class="topic-info-tooltip"
                 placement="top-start"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
                 :content="$t('connections.aliasTip')"
@@ -215,7 +227,7 @@ import getErrorReason from '@/utils/mqttErrorReason'
 export default class SubscriptionsList extends Vue {
   @Prop({ required: true }) public connectionId!: string
   @Prop({ required: true }) public record!: ConnectionModel
-  @Prop({ type: String, default: '60px' }) public top!: string
+  @Prop({ type: String, default: '40px' }) public top!: string
 
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
 
@@ -223,6 +235,7 @@ export default class SubscriptionsList extends Vue {
   @Getter('multiTopics') private multiTopics!: boolean
   @Getter('activeConnection') private activeConnection!: ActiveConnection
   @Getter('showConnectionList') private showConnectionList!: boolean
+  @Getter('autoResub') private autoResub!: boolean
 
   private topicColor = ''
   private client: Partial<MqttClient> = {
@@ -830,6 +843,16 @@ export default class SubscriptionsList extends Vue {
       top: 40px;
       right: 36px;
     }
+    .sub-info-tooltip {
+      font-size: 16px;
+      position: absolute;
+      top: 16px;
+      left: 157px;
+      color: var(--color-text-default);
+      &:hover {
+        color: var(--color-main-green);
+      }
+    }
     .qos-select {
       .el-input .el-input__inner {
         background: transparent;
@@ -878,6 +901,11 @@ export default class SubscriptionsList extends Vue {
   .popper__arrow::after {
     bottom: 0px !important;
     border-top-color: var(--color-bg-popover) !important;
+  }
+}
+.sub-info-popover {
+  .el-popover__title {
+    font-size: 14px;
   }
 }
 </style>
