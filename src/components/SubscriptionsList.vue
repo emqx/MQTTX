@@ -836,6 +836,9 @@ export default class SubscriptionsList extends Vue {
   }
 }
 .topic-dialog {
+  .el-dialog__header {
+    padding-left: 44px;
+  }
   .el-dialog__body {
     padding: 20px 20px 0 20px;
     .qos-tip {
@@ -844,10 +847,9 @@ export default class SubscriptionsList extends Vue {
       right: 36px;
     }
     .sub-info-tooltip {
-      font-size: 16px;
+      font-size: 14px;
       position: absolute;
-      top: 16px;
-      left: 157px;
+      top: 17px;
       color: var(--color-text-default);
       &:hover {
         color: var(--color-main-green);
