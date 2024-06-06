@@ -82,7 +82,7 @@ export default class About extends Vue {
   @Getter('currentLang') private getterLang!: Language
 
   private baseUrl = 'https://www.emqx.com'
-  private utm = '?utm_source=emqx.io&utm_medium=referral&utm_campaign='
+  private utm = '?utm_source=emqx.com&utm_medium=referral&utm_campaign='
   private version = `${process.env.VUE_APP_VERSION}`
 
   get fullYear(): number {
@@ -114,7 +114,7 @@ export default class About extends Vue {
   }
 
   get emqxIoWebsite(): string {
-    const baseUrl = 'https://www.emqx.io/'
+    const baseUrl = 'https://www.emqx.com/'
     const lang = this.getterLang === 'zh' ? 'zh' : 'en'
     if (lang === 'zh') {
       return `${baseUrl}zh${this.utm}mqttx-web-to-broker`
