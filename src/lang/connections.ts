@@ -894,4 +894,25 @@ export default {
     ja: '接続リストを表示',
     hu: 'Kapcsolatok mutatása',
   },
+  messageTooLargeToHide: {
+    zh: '消息内容过大，已隐藏，点击查看完整内容',
+    en: 'Message content is too large, hidden, click to view full content',
+    tr: 'Mesaj içeriği çok büyük, gizlendi, tam içeriği görüntülemek için tıklayın',
+    ja: 'メッセージ内容が大きすぎて非表示になりました。クリックして完全な内容を表示します',
+    hu: 'Az üzenet tartalma túl nagy, elrejtve, kattintson a teljes tartalom megtekintéséhez',
+  },
+  showFullMsg: {
+    zh: '显示完整消息',
+    en: 'Show Full Message',
+    tr: 'Tam Mesajı Göster',
+    ja: '完全なメッセージを表示',
+    hu: 'Teljes üzenet megjelenítése',
+  },
+  payloadSize: {
+    zh: '消息大小',
+    en: 'Payload Size',
+    tr: 'Yük Boyutu',
+    ja: 'ペイロードサイズ',
+    hu: 'A hasznos teher mérete',
+  },
 }

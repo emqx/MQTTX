@@ -7,7 +7,13 @@
     <span v-show="showBeforeLoadingIcon" class="loading-icon"><i class="el-icon-loading"></i></span>
     <div v-if="showMessages.length" class="scroller">
       <template v-for="item in showMessages">
-        <MsgLeftItem v-if="!item.out" :key="item.id" v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
+        <MsgLeftItem
+          v-if="!item.out"
+          :key="item.id"
+          :msgId="item.id"
+          v-bind="item"
+          @showmenu="handleShowContextMenu(arguments, item)"
+        />
         <MsgRightItem v-else :key="item.id" v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
       </template>
     </div>
