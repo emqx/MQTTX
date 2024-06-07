@@ -1417,10 +1417,12 @@ export default class ConnectionsDetail extends Vue {
 
     const SYSMessageSubject$ = messageSubject$.pipe(
       filter((m: MessageModel) => this.showBytes && id === this.curConnectionId && m.topic.includes('$SYS')),
+      shareReplay(1),
     )
 
     const nonSYSMessageSubject$ = messageSubject$.pipe(
       filter((m: MessageModel) => !(this.showBytes && id === this.curConnectionId && m.topic.includes('$SYS'))),
+      shareReplay(1),
     )
 
     // Print message log
