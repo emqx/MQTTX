@@ -349,6 +349,7 @@ import { deserializeBufferToProtobuf, printObjectAsString, serializeProtobufToBu
 import { jsonStringify } from '@/utils/jsonUtils'
 import { LeftValues, BodyTopValues, MsgTopValues, DetailLeftValues } from '@/utils/styles'
 import getErrorReason from '@/utils/mqttErrorReason'
+import { isLargeData } from '@/utils/data'
 
 type CommandType =
   | 'searchContent'
@@ -583,6 +584,12 @@ export default class ConnectionsDetail extends Vue {
   private updateMetaError(message: MessageModel, error: string) {
     const metaObj = JSON.parse(message.meta || '{}')
     metaObj['msgError'] = error
+    message.meta = JSON.stringify(metaObj)
+  }
+
+  private updateMetaBigData(message: MessageModel) {
+    const metaObj = JSON.parse(message.meta || '{}')
+    metaObj['isLargeData'] = true
     message.meta = JSON.stringify(metaObj)
   }
 
@@ -1266,6 +1273,9 @@ export default class ConnectionsDetail extends Vue {
     this.updateMetaMsgType(receivedMessage, this.receivedMsgType)
     if (['JSON', 'CBOR'].includes(this.receivedMsgType) && jsonMsgError) {
       this.updateMetaError(receivedMessage, jsonMsgError)
+    }
+    if (isLargeData(receivedMessage.payload)) {
+      this.updateMetaBigData(receivedMessage)
     }
 
     return receivedMessage

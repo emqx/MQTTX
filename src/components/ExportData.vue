@@ -227,7 +227,8 @@ export default class ExportData extends Vue {
         content = content.replace(/<([0-9]*)>/g, '<oneConnection>').replace(/<(\/[0-9]*)>/g, '</oneConnection>')
         this.exportDiffFormatData(content, 'XML')
       } catch (err) {
-        this.$message.error(err.toString())
+        const error = err as Error
+        this.$message.error(error.toString())
       }
     }
     this.confirmLoading = true
@@ -256,7 +257,8 @@ export default class ExportData extends Vue {
         content = CSVConvert(JSON.parse(content)).replace(/"(\d+\.(\d+)?0)"/g, '="$1"')
         this.exportDiffFormatData(content, 'CSV')
       } catch (err) {
-        this.$message.error(err.toString())
+        const error = err as Error
+        this.$message.error(error.toString())
       }
     }
     this.confirmLoading = true

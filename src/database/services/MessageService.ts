@@ -190,4 +190,9 @@ export default class MessageService {
   public async cleanAll(): Promise<void> {
     await this.messageRepository.clear()
   }
+
+  public async getOne(id: string): Promise<MessageModel | undefined> {
+    const res = await this.messageRepository.findOne(id)
+    return res ? MessageService.entityToModel(res) : undefined
+  }
 }

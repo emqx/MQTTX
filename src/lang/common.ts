@@ -594,4 +594,32 @@ export default {
     ja: 'Webアプリ',
     hu: 'Web alkalmazások',
   },
+  seeMore: {
+    zh: '查看更多',
+    en: 'See More',
+    tr: 'Daha Fazla',
+    ja: 'もっと見る',
+    hu: 'Továbbiak',
+  },
+  viewData: {
+    zh: '查看数据',
+    en: 'View Data',
+    tr: 'Veriyi Görüntüle',
+    ja: 'データを表示',
+    hu: 'Adatok meg',
+  },
+  saveToLocal: {
+    zh: '保存到本地',
+    en: 'Save to Local',
+    tr: 'Yerel olarak kaydet',
+    ja: 'ローカルに保存',
+    hu: 'Mentés helyi',
+  },
+  msgType: {
+    zh: '消息类型',
+    en: 'Message Type',
+    tr: 'Mesaj Türü',
+    ja: 'メッセージタイプ',
+    hu: 'Üzenet típus',
+  },
 }

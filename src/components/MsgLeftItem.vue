@@ -65,22 +65,43 @@
           />
         </p>
       </div>
-      <pre v-if="!hightlight">{{ payload }}</pre>
-      <pre v-else><code class="language-js" >{{ payload }}</code></pre>
+      <template v-if="isLargeMsg">
+        <div class="large-message { .el-button { margin-top: 12px;}}">
+          <pre>{{ payload.substr(0, showMaxLen) }}<span><i class="iconfont icon-more"></i></span></pre>
+          <el-tooltip
+            placement="bottom"
+            :effect="theme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('connections.messageTooLargeToHide')"
+          >
+            <el-button type="info" plain size="mini" class="see-more-btn" @click="handleShowFullMsg()">{{
+              $t('common.seeMore')
+            }}</el-button>
+          </el-tooltip>
+        </div>
+      </template>
+      <template v-else>
+        <pre v-if="!hightlight">{{ payload }}</pre>
+        <pre v-else><code class="language-js" >{{ payload }}</code></pre>
+      </template>
     </div>
     <p class="left-time time">{{ createAt }}</p>
+    <FullMsgDialog v-if="showFullMsg" :visible.sync="showFullMsg" :msgId="msgId" :msgType="msgType" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import KeyValueEditor from './KeyValueEditor.vue'
+import FullMsgDialog from './FullMsgDialog.vue'
 import Prism from 'prismjs'
 import { Getter } from 'vuex-class'
+import { SHOW_MAX_LENGTH } from '@/utils/data'
 
 @Component({
   components: {
     KeyValueEditor,
+    FullMsgDialog,
   },
 })
 export default class MsgLeftItem extends Vue {
@@ -88,14 +109,18 @@ export default class MsgLeftItem extends Vue {
   @Prop({ required: true }) public qos!: number
   @Prop({ required: true }) public payload!: string
   @Prop({ required: true }) public createAt!: string
+  @Prop({ required: true }) public msgId!: string
   @Prop({ required: false }) public meta?: string
   @Prop({ required: false, default: false }) public retain!: boolean
   @Prop({ required: false, default: () => ({}) }) public properties!: PushPropertiesModel
   @Prop({ required: false, default: '' }) public color!: string
 
   @Getter('jsonHighlight') private jsonHighlight!: boolean
+  @Getter('currentTheme') private theme!: Theme
 
   public hightlight: boolean = false
+
+  private showFullMsg: boolean = false
 
   public customMenu(event: MouseEvent) {
     this.$emit('showmenu', this.payload, event)
@@ -128,6 +153,14 @@ export default class MsgLeftItem extends Vue {
     return this.meta ? JSON.parse(this.meta).msgError : null
   }
 
+  get isLargeMsg() {
+    return this.meta ? JSON.parse(this.meta).isLargeData : false
+  }
+
+  get showMaxLen() {
+    return SHOW_MAX_LENGTH
+  }
+
   private hightlightJSON() {
     if (this.jsonHighlight === false) {
       return
@@ -142,6 +175,10 @@ export default class MsgLeftItem extends Vue {
     } catch (e) {
       this.hightlight = false
     }
+  }
+
+  private handleShowFullMsg() {
+    this.showFullMsg = true
   }
 
   private mounted() {
@@ -191,6 +228,18 @@ body.night {
     textarea {
       color: var(--color-text-left_info) !important;
       border: 1px solid var(--color-border-left_metainfo) !important;
+    }
+  }
+  .large-message {
+    .el-button.see-more-btn {
+      margin-top: 6px;
+      background: transparent;
+      color: var(--color-text-left_info);
+      border: 1px solid var(--color-text-left_info);
+      &:hover {
+        background: transparent;
+        color: var(--color-text-default);
+      }
     }
   }
 }
