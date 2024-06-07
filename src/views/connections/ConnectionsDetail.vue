@@ -314,7 +314,7 @@ import { ipcRenderer } from 'electron'
 import { MqttClient, IConnackPacket, IPublishPacket, IClientPublishOptions, IDisconnectPacket, Packet } from 'mqtt'
 import _ from 'lodash'
 import { Subject, fromEvent } from 'rxjs'
-import { bufferTime, map, filter, takeUntil } from 'rxjs/operators'
+import { bufferTime, map, filter, takeUntil, shareReplay } from 'rxjs/operators'
 import cbor from 'cbor'
 
 import time from '@/utils/time'
@@ -1397,7 +1397,7 @@ export default class ConnectionsDetail extends Vue {
 
   // Recevied message
   private onMessageArrived(client: MqttClient, id: string) {
-    const unsubscribe$ = new Subject()
+    const unsubscribe$ = new Subject<void>()
 
     if (client.listenerCount('close') <= 1) {
       fromEvent(client, 'close').subscribe(() => {
@@ -1407,19 +1407,19 @@ export default class ConnectionsDetail extends Vue {
       })
     }
 
-    const messageSubject$ = fromEvent(client, 'message').pipe(takeUntil(unsubscribe$))
-
-    const processMessageSubject$ = messageSubject$.pipe(
+    const messageSubject$ = fromEvent(client, 'message').pipe(
+      takeUntil(unsubscribe$),
       map(([topic, payload, packet]: [string, Buffer, IPublishPacket]) => {
         return this.processReceivedMessage(topic, payload, packet)
       }),
+      shareReplay(1),
     )
 
-    const SYSMessageSubject$ = processMessageSubject$.pipe(
+    const SYSMessageSubject$ = messageSubject$.pipe(
       filter((m: MessageModel) => this.showBytes && id === this.curConnectionId && m.topic.includes('$SYS')),
     )
 
-    const nonSYSMessageSubject$ = processMessageSubject$.pipe(
+    const nonSYSMessageSubject$ = messageSubject$.pipe(
       filter((m: MessageModel) => !(this.showBytes && id === this.curConnectionId && m.topic.includes('$SYS'))),
     )
 
@@ -1430,12 +1430,16 @@ export default class ConnectionsDetail extends Vue {
 
     // Render messages
     nonSYSMessageSubject$.pipe(bufferTime(500)).subscribe((messages: MessageModel[]) => {
-      messages.length && this.renderMessage(id, messages)
+      if (messages.length) {
+        this.renderMessage(id, messages)
+      }
     })
 
     // Save messages
     nonSYSMessageSubject$.pipe(bufferTime(1000)).subscribe((messages: MessageModel[]) => {
-      messages.length && this.saveMessage(id, messages)
+      if (messages.length) {
+        this.saveMessage(id, messages)
+      }
     })
 
     // Bytes statistics
