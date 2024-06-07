@@ -901,13 +901,6 @@ export default {
     ja: 'メッセージ内容が大きすぎて非表示になりました。クリックして完全な内容を表示します',
     hu: 'Az üzenet tartalma túl nagy, elrejtve, kattintson a teljes tartalom megtekintéséhez',
   },
-  showFullMsg: {
-    zh: '显示完整消息',
-    en: 'Show Full Message',
-    tr: 'Tam Mesajı Göster',
-    ja: '完全なメッセージを表示',
-    hu: 'Teljes üzenet megjelenítése',
-  },
   payloadSize: {
     zh: '消息大小',
     en: 'Payload Size',
