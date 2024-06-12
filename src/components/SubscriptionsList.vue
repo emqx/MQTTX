@@ -449,6 +449,7 @@ export default class SubscriptionsList extends Vue {
         if (error) {
           this.$emit('onSubError', error.toString(), `Topics: ${JSON.stringify(topicsArr)}`)
           this.$log.error(`Error subscribing to topic: ${error}`)
+          isFinished = true
           return false
         }
         const successSubscriptions: string[] = []
@@ -466,6 +467,7 @@ export default class SubscriptionsList extends Vue {
           })
         }
         if (!successSubscriptions.length) {
+          isFinished = true
           return false
         }
         if (enable) {
