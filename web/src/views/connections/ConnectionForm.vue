@@ -93,9 +93,39 @@
             <el-col :span="22">
               <el-form-item class="host-item" label-width="93px" :label="$t('connections.brokerIP')" prop="host">
                 <el-col :span="6">
-                  <el-select size="mini" v-model="record.protocol">
-                    <el-option label="ws://" value="ws" :disabled="record.ssl"></el-option>
-                    <el-option label="wss://" value="wss"></el-option>
+                  <el-select size="mini" v-model="record.protocol" popper-class="ws-protocol-select">
+                    <el-option
+                      v-for="item in protocolOptions"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                      :disabled="item.disabled"
+                    >
+                      <template v-if="!isOnline || item.value !== 'ws'">
+                        {{ item.label }}
+                      </template>
+                      <template v-else>
+                        <span style="float: left">{{ item.label }}</span>
+                        <el-tooltip
+                          placement="top"
+                          :effect="theme !== 'light' ? 'light' : 'dark'"
+                          :open-delay="500"
+                          :content="$t('connections.wsProtocolNotAllowed')"
+                          popper-class="ws-protocol-tip"
+                        >
+                          <div slot="content">
+                            <i18n path="connections.wsProtocolNotAllowed" tag="div">
+                              <template v-slot:link>
+                                <a :href="wsAnnouncementLink" target="_blank">{{ wsAnnouncementLink }}</a>
+                              </template>
+                            </i18n>
+                          </div>
+                          <a href="javascript:;" class="icon-tip">
+                            <i class="el-icon-question"></i>
+                          </a>
+                        </el-tooltip>
+                      </template>
+                    </el-option>
                   </el-select>
                 </el-col>
                 <el-col :span="18">
@@ -586,6 +616,23 @@ export default class ConnectionCreate extends Vue {
     return this.$refs.form as VueForm
   }
 
+  get isOnline() {
+    return process.env.BASE_URL === '/web-client/'
+  }
+
+  get wsAnnouncementLink() {
+    // TODO: update the link
+    return 'https://github.com/emqx/MQTTX/discussions'
+  }
+
+  get protocolOptions() {
+    const disabled = this.isOnline || this.record.ssl
+    return [
+      { label: 'ws://', value: 'ws', disabled },
+      { label: 'wss://', value: 'wss', disabled: false },
+    ]
+  }
+
   private async loadDetail(id: string) {
     const res: ConnectionModel | undefined = await loadConnection(id)
     if (res) {
@@ -865,6 +912,22 @@ export default class ConnectionCreate extends Vue {
         margin-left: 10px;
       }
     }
+  }
+}
+
+.ws-protocol-tip {
+  max-width: 300px;
+  a {
+    font-size: 12px;
+  }
+}
+
+.ws-protocol-select {
+  .icon-tip {
+    position: absolute;
+    right: 16px;
+    font-size: 16px;
+    color: var(--color-text-tips);
   }
 }
 </style>
