@@ -319,7 +319,7 @@ export default class ConnectionsDetail extends Vue {
 
   // Connect
   public connect(): boolean | void {
-    if (process.env.BASE_URL === '/web-client/' && this.record.protocol === 'ws') {
+    if (process.env.VUE_APP_IS_ONLINE_ENV === 'true' && this.record.protocol === 'ws') {
       const desktop = `<a href="${this.mqttxWebsite}" target="_blank">MQTTX Desktop</a>`
       const cli = `<a href="${this.mqttxWebsite}/cli" target="_blank">MQTTX CLI</a>`
       const web = `<a href="${this.mqttxWebsite}/downloads?os=docker" target="_blank">MQTTX Web</a>`

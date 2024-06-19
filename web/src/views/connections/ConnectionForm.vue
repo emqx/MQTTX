@@ -626,7 +626,7 @@ export default class ConnectionCreate extends Vue {
   }
 
   get isOnline() {
-    return process.env.BASE_URL === '/web-client/'
+    return process.env.VUE_APP_IS_ONLINE_ENV === 'true'
   }
 
   get mqttxWebsite(): string {
