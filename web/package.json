@@ -4,9 +4,14 @@
   "license": "Apache-2.0",
   "scripts": {
     "serve": "vue-cli-service serve",
+    "serve:online": "vue-cli-service serve --mode online",
+    "serve:docker": "vue-cli-service serve --mode docker",
     "build": "vue-cli-service build",
+    "build:online": "vue-cli-service build --mode online",
     "build:docker": "vue-cli-service build --mode docker",
-    "start": "vue-cli-service build && http-server dist -o /online-mqtt-client",
+    "start": "yarn build && http-server dist -o /",
+    "start:online": "yarn build:online && http-server dist -o /web-client",
+    "start:docker": "yarn build:docker && http-server dist -o /",
     "test:e2e": "vue-cli-service test:e2e",
     "lint": "vue-cli-service lint"
   },
