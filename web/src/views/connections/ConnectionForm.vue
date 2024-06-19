@@ -115,7 +115,16 @@
                         >
                           <div slot="content">
                             <i18n path="connections.wsProtocolNotAllowed" tag="div">
-                              <template v-slot:link>
+                              <template #desktop>
+                                <a :href="mqttxWebsite" target="_blank">MQTTX Desktop</a>
+                              </template>
+                              <template #cli>
+                                <a :href="`${mqttxWebsite}/cli`" target="_blank">MQTTX CLI</a>
+                              </template>
+                              <template #web>
+                                <a :href="`${mqttxWebsite}/downloads?os=docker`" target="_blank">MQTTX Web</a>
+                              </template>
+                              <template #link>
                                 <a :href="wsAnnouncementLink" target="_blank">{{ wsAnnouncementLink }}</a>
                               </template>
                             </i18n>
@@ -618,6 +627,11 @@ export default class ConnectionCreate extends Vue {
 
   get isOnline() {
     return process.env.BASE_URL === '/web-client/'
+  }
+
+  get mqttxWebsite(): string {
+    const link = 'https://mqttx.app'
+    return this.getterLang === 'zh' ? `${link}/zh` : link
   }
 
   get wsAnnouncementLink() {
