@@ -240,6 +240,7 @@ export default class ConnectionsDetail extends Vue {
   @Action('SHOW_CLIENT_INFO') private changeShowClientInfo!: (payload: ClientInfo) => void
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
 
+  @Getter('currentLang') private getterLang!: Language
   @Getter('activeConnection') private activeConnection: $TSFixed
   @Getter('autoScroll') private autoScroll!: boolean
   @Getter('autoScrollInterval') private autoScrollInterval!: number
@@ -306,24 +307,65 @@ export default class ConnectionsDetail extends Vue {
   }
   private scrollSubject = new Subject()
 
+  get mqttxWebsite(): string {
+    const link = 'https://mqttx.app'
+    return this.getterLang === 'zh' ? `${link}/zh` : link
+  }
+
+  get wsAnnouncementLink() {
+    // TODO: update the link
+    return 'https://github.com/emqx/MQTTX/discussions'
+  }
+
   // Connect
   public connect(): boolean | void {
+    if (process.env.BASE_URL === '/web-client/' && this.record.protocol === 'ws') {
+      const desktop = `<a href="${this.mqttxWebsite}" target="_blank">MQTTX Desktop</a>`
+      const cli = `<a href="${this.mqttxWebsite}/cli" target="_blank">MQTTX CLI</a>`
+      const web = `<a href="${this.mqttxWebsite}/downloads?os=docker" target="_blank">MQTTX Web</a>`
+      const announcement = `<a href="${this.wsAnnouncementLink}" target="_blank">${this.$tc(
+        'connections.wsAnnouncement',
+      )}</a>`
+      const message = `<p>${this.$t('connections.wsProtocolNotAllowed', { desktop, cli, web, announcement })}</p>`
+      this.$notify({
+        title: this.$tc('common.warning'),
+        message,
+        dangerouslyUseHTMLString: true,
+        type: 'warning',
+        duration: 0,
+        offset: 30,
+      })
+      return false
+    }
+
     this.isReconnect = false
     if (this.client.connected || this.connectLoading) {
       return false
     }
     this.connectLoading = true
     // new client
-    const { curConnectClient } = createClient(this.record)
-    this.client = curConnectClient
-    const { id } = this.record
-    if (id && this.client.on) {
-      this.client.on('connect', this.onConnect)
-      this.client.on('error', this.onError)
-      this.client.on('reconnect', this.onReConnect)
-      this.client.on('close', this.onClose)
-      this.client.on('disconnect', this.onDisconnect)
-      this.client.on('message', this.onMessageArrived(id))
+    try {
+      const { curConnectClient } = createClient(this.record)
+      this.client = curConnectClient
+      const { id } = this.record
+      if (id && this.client.on) {
+        this.client.on('connect', this.onConnect)
+        this.client.on('error', this.onError)
+        this.client.on('reconnect', this.onReConnect)
+        this.client.on('close', this.onClose)
+        this.client.on('disconnect', this.onDisconnect)
+        this.client.on('message', this.onMessageArrived(id))
+      }
+    } catch (error) {
+      const err = error as Error
+      this.connectLoading = false
+      this.$notify({
+        title: err.toString(),
+        message: '',
+        type: 'error',
+        duration: 3000,
+        offset: 30,
+      })
     }
   }
 

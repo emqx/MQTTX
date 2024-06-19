@@ -508,8 +508,13 @@ export default {
     ja: '履歴を正常にクリアする',
   },
   wsProtocolNotAllowed: {
-    zh: '出于数据安全考虑，我们提供的在线环境将不再支持使用 ws 协议。如需使用 ws 协议，我们建议您使用 {desktop} 或 {cli}，或者通过 Docker 在本地部署 {web}。有关详细信息，请参考：{link}',
-    en: 'For data security reasons, the online environment we provide will no longer support the use of the ws protocol. If you need to use the ws protocol, we recommend that you use {desktop} or {cli}, or deploy {web} locally through Docker. For more information, please refer to: {link}',
-    ja: 'データセキュリティの観点から、提供されるオンライン環境では、wsプロトコルの使用をサポートしなくなります。wsプロトコルを使用する必要がある場合は、{desktop}または{cli}を使用するか、Dockerを使用して{web}をローカルにデプロイすることをお勧めします。詳細については、次を参照してください：{link}',
+    zh: '出于数据安全考虑，我们提供的在线环境将不再支持使用 ws 协议。如需使用 ws 协议，我们建议您使用 {desktop} 或 {cli}，或者通过 Docker 在本地部署 {web}。有关详细信息，请参阅我们的{announcement}。',
+    en: 'For data security reasons, the online environment we provide will no longer support the use of the ws protocol. If you need to use the ws protocol, we recommend that you use {desktop} or {cli}, or deploy {web} locally through Docker. For more information, please refer to our {announcement}.',
+    ja: 'データセキュリティの観点から、提供されているオンライン環境では、wsプロトコルの使用をサポートしなくなります。wsプロトコルを使用する場合は、{desktop}または{cli}を使用するか、Dockerを使用して{web}をローカルにデプロイすることをお勧めします。詳細については、{announcement}をご覧ください。',
+  },
+  wsAnnouncement: {
+    zh: '最新公告',
+    en: 'latest announcement',
+    ja: '最新のお知らせ',
   },
 }

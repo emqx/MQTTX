@@ -124,8 +124,8 @@
                               <template #web>
                                 <a :href="`${mqttxWebsite}/downloads?os=docker`" target="_blank">MQTTX Web</a>
                               </template>
-                              <template #link>
-                                <a :href="wsAnnouncementLink" target="_blank">{{ wsAnnouncementLink }}</a>
+                              <template #announcement>
+                                <a :href="wsAnnouncementLink" target="_blank">{{ $t('connections.wsAnnouncement') }}</a>
                               </template>
                             </i18n>
                           </div>

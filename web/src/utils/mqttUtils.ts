@@ -164,7 +164,7 @@ export const getDefaultRecord = (): ConnectionModel => {
     username: '',
     password: '',
     path: '/mqtt',
-    port: 8083,
+    port: process.env.BASE_URL === '/web-client/' ? 8084 : 8083,
     ssl: false,
     certType: '',
     rejectUnauthorized: true,
