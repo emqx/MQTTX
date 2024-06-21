@@ -181,6 +181,11 @@ declare global {
       password?: string
     }
   }
+
+  interface MsgItem {
+    label: string
+    value: any
+  }
 }
 
 export {}

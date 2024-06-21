@@ -9,6 +9,19 @@ import { deserializeBufferToProtobuf } from '../utils/protobuf'
 import isSupportedBinaryFormatForMQTT from '../utils/binaryFormats'
 import * as Debug from 'debug'
 
+/**
+ *
+ * Pipeline for processing incoming messages, following two potential steps:
+ * 1. Protobuf Deserialization --> Utilized if both protobuf path and message name are defined, otherwise message passes as is.
+ * 2. Format Conversion --> Engaged if a format is defined, converting the message accordingly; if not defined, message passes unchanged.
+ * Flow:
+ *  payload -> [Protobuf Deserialization] -> [Format Conversion] -> Processed Message
+ * @param payload - The message payload to be processed.
+ * @param protobufPath - The path to the Protobuf definition file.
+ * @param protobufMessageName - The name of the Protobuf message.
+ * @param format - The format of the payload.
+ * @returns The processed message as a string or Buffer.
+ */
 const processReceivedMessage = (
   payload: Buffer,
   protobufPath?: string,
@@ -16,11 +29,6 @@ const processReceivedMessage = (
   format?: FormatType,
 ): string | Buffer => {
   let message: string | Buffer = payload
-  /*
-   * Pipeline for processing incoming messages, following two potential steps:
-   * 1. Protobuf Deserialization --> Utilized if both protobuf path and message name are defined, otherwise message passes as is.
-   * 2. Format Conversion --> Engaged if a format is defined, converting the message accordingly; if not defined, message passes unchanged.
-   */
   const pipeline = [
     (msg: Buffer) =>
       protobufPath && protobufMessageName
@@ -133,7 +141,7 @@ const sub = (options: SubscribeOptions) => {
   client.on('message', (topic, payload, packet) => {
     const { format, protobufPath, protobufMessageName, fileSave, fileWrite, delimiter } = options
 
-    const msgData: Record<string, unknown>[] = []
+    const msgData: MsgItem[] = []
 
     const receivedMessage = processReceivedMessage(payload, protobufPath, protobufMessageName, format)
 
