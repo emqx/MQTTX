@@ -1313,7 +1313,7 @@ export default class ConnectionsDetail extends Vue {
     try {
       if (messages.length) {
         const { messageService } = useServices()
-        await messageService.pushToConnection(messages, id)
+        await messageService.pushMsgsToConnection(messages, id)
       }
     } catch (error) {
       this.$log.error((error as Error).toString())
@@ -1654,7 +1654,7 @@ export default class ConnectionsDetail extends Vue {
 
     if (this.record.id) {
       const { messageService } = useServices()
-      await messageService.pushToConnection({ ...publishMessage }, this.record.id)
+      await messageService.pushMsgsToConnection({ ...publishMessage }, this.record.id)
       this.renderMessage(this.curConnectionId, publishMessage, 'publish')
       this.logSuccessfulPublish(publishMessage)
     }

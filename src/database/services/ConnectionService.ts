@@ -126,7 +126,7 @@ export default class ConnectionService {
   }
 
   // import single connection
-  public async importOneConnection(id: string, data: ConnectionModel) {
+  public async importOneConnection(id: string, data: ConnectionModel, getImportProgress?: (progress: number) => void) {
     const { connectionService, subscriptionService, messageService } = useServices()
     // Connection table & Will Message table
     await connectionService.update(id, data)
@@ -136,7 +136,11 @@ export default class ConnectionService {
     }
     // Messages table
     if (Array.isArray(data.messages) && data.messages.length) {
-      await messageService.pushToConnection(data.messages, id)
+      await messageService.importMsgsToConnection(data.messages, id, (progress) => {
+        if (getImportProgress) {
+          getImportProgress(progress)
+        }
+      })
     }
   }
 
@@ -153,14 +157,14 @@ export default class ConnectionService {
     return await this.get(id)
   }
 
-  public async import(data: ConnectionModel[]): Promise<string> {
+  public async import(data: ConnectionModel[], getImportMsgsProgress: (progress: number) => void): Promise<string> {
     try {
       for (let i = 0; i < data.length; i++) {
         const { id } = data[i]
         if (id) {
           // FIXME: remove it after support collection importing
           data[i].parentId = null
-          await this.importOneConnection(id, data[i])
+          await this.importOneConnection(id, data[i], getImportMsgsProgress)
         }
       }
     } catch (err) {
