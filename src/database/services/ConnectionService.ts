@@ -125,22 +125,52 @@ export default class ConnectionService {
     )
   }
 
-  // import single connection
-  public async importOneConnection(id: string, data: ConnectionModel, getImportProgress?: (progress: number) => void) {
+  /**
+   * Imports a single connection with the specified ID and data.
+   *
+   * @param id - The ID of the connection to import.
+   * @param data - The data of the connection to import.
+   * @param getImportProgress - Optional callback function to receive import progress updates.
+   * @returns A Promise that resolves when the import is complete.
+   */
+  public async importOneConnection(
+    id: string,
+    data: ConnectionModel,
+    getImportOneConnProgress?: (progress: number) => void,
+  ) {
     const { connectionService, subscriptionService, messageService } = useServices()
+    let progress = 0
+    // Update connection, update subscriptions, and update messages are each considered as a step
+    const totalSteps = 3
     // Connection table & Will Message table
     await connectionService.update(id, data)
+    progress += 1 / totalSteps
+    if (getImportOneConnProgress) {
+      getImportOneConnProgress(progress)
+    }
     // Subscriptions table
     if (Array.isArray(data.subscriptions) && data.subscriptions.length) {
       await subscriptionService.updateSubscriptions(id, data.subscriptions)
     }
+    progress += 1 / totalSteps
+    if (getImportOneConnProgress) {
+      getImportOneConnProgress(progress)
+    }
     // Messages table
     if (Array.isArray(data.messages) && data.messages.length) {
-      await messageService.importMsgsToConnection(data.messages, id, (progress) => {
-        if (getImportProgress) {
-          getImportProgress(progress)
+      await messageService.importMsgsToConnection(data.messages, id, (msgProgress) => {
+        if (getImportOneConnProgress) {
+          // Combine message import progress with total progress proportionally
+          const combinedProgress = progress + msgProgress / totalSteps
+          getImportOneConnProgress(combinedProgress)
         }
       })
+    } else {
+      // No messages to import, mark progress as 100% for this connection
+      progress += 1 / totalSteps
+      if (getImportOneConnProgress) {
+        getImportOneConnProgress(progress)
+      }
     }
   }
 
@@ -157,14 +187,33 @@ export default class ConnectionService {
     return await this.get(id)
   }
 
-  public async import(data: ConnectionModel[], getImportMsgsProgress: (progress: number) => void): Promise<string> {
+  /**
+   * Imports backup connection data into the database.
+   *
+   * @param data - An array of ConnectionModel objects to import.
+   * @param getImportAllProgress - A callback function to track the import progress.
+   * @returns A Promise that resolves to a string indicating the import status.
+   */
+  public async import(data: ConnectionModel[], getImportAllProgress?: (progress: number) => void): Promise<string> {
     try {
+      let overallProgress = 0
+      // Each connection is considered as a step
+      const totalSteps = data.length
+
       for (let i = 0; i < data.length; i++) {
         const { id } = data[i]
         if (id) {
           // FIXME: remove it after support collection importing
           data[i].parentId = null
-          await this.importOneConnection(id, data[i], getImportMsgsProgress)
+          await this.importOneConnection(id, data[i], (progress) => {
+            if (getImportAllProgress) {
+              // Calculate the progress of a single connection
+              const connectionProgress = progress / totalSteps
+              getImportAllProgress(overallProgress + connectionProgress)
+            }
+          })
+          // Increase progress after processing each connection
+          overallProgress += 1 / totalSteps
         }
       }
     } catch (err) {

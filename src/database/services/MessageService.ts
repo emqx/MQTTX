@@ -176,36 +176,58 @@ export default class MessageService {
     return await this.saveMessages(message, connectionId)
   }
 
+  /**
+   * Imports messages to a connection.
+   * @param message - The message or array of messages to import.
+   * @param connectionId - The ID of the connection.
+   * @param getImportMsgsProgress - Optional callback function to track the import progress.
+   * @returns A promise that resolves to the imported message(s) or undefined.
+   */
   public async importMsgsToConnection(
     message: MessageModel | MessageModel[],
     connectionId: string,
-    onProgress?: (progress: number) => void,
+    getImportMsgsProgress?: (progress: number) => void,
   ): Promise<MessageModel | MessageModel[] | undefined> {
-    const BATCH_SIZE = 999
+    const BATCH_SIZE = 999 // Threshold for batch processing
+
+    const saveMessages = async (messages: MessageModel[]) => {
+      const entities = messages.map((m) => MessageService.modelToEntity(m, connectionId))
+      return await this.messageRepository.save(entities)
+    }
+
     if (!Array.isArray(message)) {
-      const res = await this.saveMessages([message], connectionId)
-      if (onProgress) {
-        onProgress(1)
+      // Single message processing
+      const result = await saveMessages([message])
+      if (getImportMsgsProgress) {
+        getImportMsgsProgress(1)
       }
-      return res
+      return result
     }
+
+    // If the number of messages is less than or equal to the batch processing threshold, process directly
     if (message.length <= BATCH_SIZE) {
-      const res = await this.saveMessages(message, connectionId)
-      if (onProgress) {
-        onProgress(1)
+      const result = await saveMessages(message)
+      if (getImportMsgsProgress) {
+        getImportMsgsProgress(1)
       }
-      return res
+      return result
     }
+
     // If the number of messages exceeds the batch processing threshold, perform batch processing
     const results: MessageModel[] = []
     for (let i = 0; i < message.length; i += BATCH_SIZE) {
       const batch = message.slice(i, i + BATCH_SIZE)
-      const savedBatch = (await this.saveMessages(batch, connectionId)) as MessageModel[]
+      const savedBatch = await saveMessages(batch)
       results.push(...savedBatch)
-      if (onProgress) {
+
+      // Calculate progress and call callback function
+      if (getImportMsgsProgress) {
         const progress = Math.min((i + BATCH_SIZE) / message.length, 1)
-        onProgress(progress)
+        getImportMsgsProgress(progress)
       }
+    }
+    if (getImportMsgsProgress) {
+      getImportMsgsProgress(1)
     }
     return results
   }

@@ -60,14 +60,18 @@
             </el-col>
           </div>
         </el-collapse-transition>
-        <el-col :span="24">
-          <el-progress
-            :text-inside="true"
-            :stroke-width="24"
-            :percentage="getProgressNumber(this.importMsgsProgress)"
-            color="#34c388"
-          ></el-progress>
-        </el-col>
+        <el-collapse-transition>
+          <div v-if="record.fileName">
+            <el-col :span="24">
+              <el-progress
+                :text-inside="true"
+                :stroke-width="24"
+                :percentage="getProgressNumber(this.importMsgsProgress)"
+                color="#34c388"
+              ></el-progress>
+            </el-col>
+          </div>
+        </el-collapse-transition>
       </el-row>
     </el-form>
   </my-dialog>
@@ -92,6 +96,7 @@ import {
   recoverSpecialDataTypesFromString,
 } from '@/utils/exportData'
 import { ElLoadingComponent } from 'element-ui/types/loading'
+import delay from '@/utils/delay'
 
 type ImportFormat = 'JSON' | 'YAML' | 'XML' | 'CSV' | 'Excel'
 
@@ -398,7 +403,6 @@ export default class ImportData extends Vue {
         return
       }
       const importDataResult = await connectionService.import(this.record.fileContent, (progress) => {
-        console.log(progress)
         this.importMsgsProgress = progress
       })
       if (importDataResult === 'ok') {
@@ -406,7 +410,7 @@ export default class ImportData extends Vue {
         setTimeout(() => {
           this.resetData()
           location.reload()
-        }, 1000)
+        }, 2000)
       } else {
         this.$message.error(importDataResult)
       }
@@ -427,6 +431,7 @@ export default class ImportData extends Vue {
       fileName: '',
       fileContent: [],
     }
+    this.importMsgsProgress = 0
   }
 
   private getProgressNumber(progress: number | string) {

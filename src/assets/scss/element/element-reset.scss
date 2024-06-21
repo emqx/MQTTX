@@ -341,3 +341,14 @@
     color: var(--color-text-tips);
   }
 }
+
+/* Progress */
+.el-progress {
+  .el-progress-bar__outer {
+    background-color: var(--color-bg-code);
+    border-radius: 4px;
+    .el-progress-bar__inner {
+      border-radius: 4px;
+    }
+  }
+}
