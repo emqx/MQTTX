@@ -160,7 +160,7 @@ const sub = (options: SubscribeOptions) => {
 
     if (savePath) {
       const successMessage = fileSave ? 'Saved to file' : 'Appended to file'
-      msgData.push({ label: 'payload', value: `${successMessage}: ${savePath}` })
+      msgData.push({ label: 'payload', value: `${receivedMessage}\n${successMessage}: ${savePath}` })
     } else {
       msgData.push({ label: 'payload', value: receivedMessage })
     }
