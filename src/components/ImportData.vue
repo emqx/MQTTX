@@ -60,6 +60,14 @@
             </el-col>
           </div>
         </el-collapse-transition>
+        <el-col :span="24">
+          <el-progress
+            :text-inside="true"
+            :stroke-width="24"
+            :percentage="getProgressNumber(this.importMsgsProgress)"
+            color="#34c388"
+          ></el-progress>
+        </el-col>
       </el-row>
     </el-form>
   </my-dialog>
@@ -108,6 +116,7 @@ export default class ImportData extends Vue {
 
   @Prop({ default: false }) public visible!: boolean
 
+  private importMsgsProgress = 0
   private showDialog: boolean = this.visible
   private confirmLoading: boolean = false
   private record: ImportForm = {
@@ -388,11 +397,14 @@ export default class ImportData extends Vue {
         this.$message.error(this.$tc('connections.uploadFileTip'))
         return
       }
-      const importDataResult = await connectionService.import(this.record.fileContent)
+      const importDataResult = await connectionService.import(this.record.fileContent, (progress) => {
+        console.log(progress)
+        this.importMsgsProgress = progress
+      })
       if (importDataResult === 'ok') {
         this.$message.success(this.$tc('common.importSuccess'))
-        this.resetData()
         setTimeout(() => {
+          this.resetData()
           location.reload()
         }, 1000)
       } else {
@@ -415,6 +427,10 @@ export default class ImportData extends Vue {
       fileName: '',
       fileContent: [],
     }
+  }
+
+  private getProgressNumber(progress: number | string) {
+    return typeof progress === 'string' ? Math.floor(Number(progress) * 100) : Math.floor(progress * 100)
   }
 }
 </script>

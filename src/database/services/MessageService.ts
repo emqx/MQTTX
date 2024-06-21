@@ -158,16 +158,56 @@ export default class MessageService {
     return { list, moreMsg }
   }
 
-  public async pushToConnection(
+  private async saveMessages(
+    messages: MessageModel[],
+    connectionId: string,
+  ): Promise<MessageModel | MessageModel[] | undefined> {
+    const entities = messages.map((m) => MessageService.modelToEntity(m, connectionId))
+    return await this.messageRepository.save(entities)
+  }
+
+  public async pushMsgsToConnection(
     message: MessageModel | MessageModel[],
     connectionId: string,
   ): Promise<MessageModel | MessageModel[] | undefined> {
     if (!Array.isArray(message)) {
-      return await this.messageRepository.save(MessageService.modelToEntity({ ...message }, connectionId))
-    } else {
-      const res = message.map((m) => MessageService.modelToEntity(m, connectionId))
-      return await this.messageRepository.save(res)
+      return await this.saveMessages([message], connectionId)
     }
+    return await this.saveMessages(message, connectionId)
+  }
+
+  public async importMsgsToConnection(
+    message: MessageModel | MessageModel[],
+    connectionId: string,
+    onProgress?: (progress: number) => void,
+  ): Promise<MessageModel | MessageModel[] | undefined> {
+    const BATCH_SIZE = 999
+    if (!Array.isArray(message)) {
+      const res = await this.saveMessages([message], connectionId)
+      if (onProgress) {
+        onProgress(1)
+      }
+      return res
+    }
+    if (message.length <= BATCH_SIZE) {
+      const res = await this.saveMessages(message, connectionId)
+      if (onProgress) {
+        onProgress(1)
+      }
+      return res
+    }
+    // If the number of messages exceeds the batch processing threshold, perform batch processing
+    const results: MessageModel[] = []
+    for (let i = 0; i < message.length; i += BATCH_SIZE) {
+      const batch = message.slice(i, i + BATCH_SIZE)
+      const savedBatch = (await this.saveMessages(batch, connectionId)) as MessageModel[]
+      results.push(...savedBatch)
+      if (onProgress) {
+        const progress = Math.min((i + BATCH_SIZE) / message.length, 1)
+        onProgress(progress)
+      }
+    }
+    return results
   }
 
   public async delete(id: string): Promise<MessageModel | undefined> {
