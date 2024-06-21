@@ -33,14 +33,12 @@
         <el-col :span="22">
           <el-form-item :label="$t('connections.importFile')">
             <el-tooltip placement="top" :effect="theme !== 'light' ? 'light' : 'dark'" :open-delay="500">
-              <div slot="content" v-html="$t('connections.importConnectionsTip')">
-                {{ $t('connections.importConnectionsTip') }}
-              </div>
+              <div slot="content" v-html="$t('connections.importConnectionsTip')"></div>
               <a href="javascript:;" class="icon-tip">
                 <i class="el-icon-question"></i>
               </a>
             </el-tooltip>
-            <el-input size="small" v-model="record.filePath"></el-input>
+            <el-input size="small" v-model="record.filePath" @change="handleFilePathChange"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="2">
@@ -124,10 +122,21 @@ export default class ImportData extends Vue {
     this.showDialog = val
   }
 
+  private handleFilePathChange(val: string) {
+    if (!val) {
+      return
+    }
+    this.readFilePath(val, this.getExtensionName())
+  }
+
+  private getExtensionName() {
+    const lowerFormat = this.record.importFormat.toLowerCase()
+    return lowerFormat === 'excel' ? 'xlsx' : lowerFormat
+  }
+
   private getFileData() {
     let loading: ElLoadingComponent | undefined = undefined
-    const lowerFormat = this.record.importFormat.toLowerCase()
-    const extensionName = lowerFormat === 'excel' ? 'xlsx' : lowerFormat
+    const extensionName = this.getExtensionName()
     remote.dialog
       .showOpenDialog({
         properties: ['openFile'],
@@ -141,11 +150,7 @@ export default class ImportData extends Vue {
             spinner: 'el-icon-loading',
           })
           const filePath = filePaths[0]
-          if (extensionName === 'xlsx') {
-            this.getExcelContentByXlsx(filePath)
-          } else {
-            this.getFileContentByFs(filePath)
-          }
+          this.readFilePath(filePath, extensionName)
         }
       })
       .catch(() => {})
@@ -174,7 +179,8 @@ export default class ImportData extends Vue {
         properties = JSON.parse(properties)
         will = JSON.parse(will)
       } catch (err) {
-        this.$message.error(err.toString())
+        const error = err as unknown as Error
+        this.$message.error(error.toString())
         caughtError = true
       }
       return Object.assign(connection, { messages, subscriptions, properties, will })
@@ -182,6 +188,14 @@ export default class ImportData extends Vue {
     const jsonContent = content.map((connection): ConnectionModel => parseStringProps(connection))
     if (!caughtError) {
       this.assignValueToRecord(filePath, jsonContent)
+    }
+  }
+
+  private readFilePath(filePath: string, extensionName: string) {
+    if (extensionName === 'xlsx') {
+      this.getExcelContentByXlsx(filePath)
+    } else {
+      this.getFileContentByFs(filePath)
     }
   }
 
@@ -195,7 +209,8 @@ export default class ImportData extends Vue {
         const fileContent = this.getDiffFormatData(content)
         this.assignValueToRecord(filePath, fileContent)
       } catch (err) {
-        this.$message.error(err.toString())
+        const error = err as unknown as Error
+        this.$message.error(error.toString())
       }
     })
   }
@@ -277,7 +292,8 @@ export default class ImportData extends Vue {
         const keyName = Object.keys(parentElement._parent)[keyNameIndex]
         parentElement._parent[keyName] = nativeType(keyName, value)
       } catch (err) {
-        this.$message.error(err.toString())
+        const error = err as unknown as Error
+        this.$message.error(error.toString())
       }
     }
     const convertRightStringAndArray = (data: string) => {
@@ -301,7 +317,8 @@ export default class ImportData extends Vue {
           if (!Array.isArray(subscriptions)) connection.subscriptions = [subscriptions]
         })
       } catch (err) {
-        this.$message.error(err.toString())
+        const error = err as unknown as Error
+        this.$message.error(error.toString())
       }
       return fileContent
     }
@@ -356,7 +373,8 @@ export default class ImportData extends Vue {
           })
           fileContent.push({ messages, subscriptions, properties, will, ...otherProps })
         } catch (err) {
-          this.$message.error(err.toString())
+          const error = err as unknown as Error
+          this.$message.error(error.toString())
         }
       })
     return fileContent
@@ -364,21 +382,27 @@ export default class ImportData extends Vue {
 
   private async importData() {
     this.confirmLoading = true
-    const { connectionService } = useServices()
-    if (!this.record.fileContent.length) {
-      this.$message.error(this.$tc('connections.uploadFileTip'))
-      return
-    }
-    const importDataResult = await connectionService.import(this.record.fileContent)
-    this.confirmLoading = false
-    if (importDataResult === 'ok') {
-      this.$message.success(this.$tc('common.importSuccess'))
-      this.resetData()
-      setTimeout(() => {
-        location.reload()
-      }, 1000)
-    } else {
-      this.$message.error(importDataResult)
+    try {
+      const { connectionService } = useServices()
+      if (!this.record.fileContent.length) {
+        this.$message.error(this.$tc('connections.uploadFileTip'))
+        return
+      }
+      const importDataResult = await connectionService.import(this.record.fileContent)
+      if (importDataResult === 'ok') {
+        this.$message.success(this.$tc('common.importSuccess'))
+        this.resetData()
+        setTimeout(() => {
+          location.reload()
+        }, 1000)
+      } else {
+        this.$message.error(importDataResult)
+      }
+    } catch (err) {
+      const error = err as unknown as Error
+      this.$message.error(error.toString())
+    } finally {
+      this.confirmLoading = false
     }
   }
 
