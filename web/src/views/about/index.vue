@@ -15,6 +15,9 @@
             <a class="web-link" href="https://github.com/emqx/MQTTX/issues" target="_blank" rel="noopener noreferrer">
               {{ $t('about.support') }}
             </a>
+            <a class="web-link" href="javascript:;" @click="openDataCollectionPolicyDialog()">
+              {{ $t('about.dataCollectionPolicy') }}
+            </a>
           </p>
           <div class="description">
             <p>{{ $t('about.mqttxDesc') }}</p>
@@ -69,14 +72,21 @@
         </div>
       </div>
     </div>
+
+    <DataCollectionPolicy :visible.sync="showDataCollectionPolicyDialog" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
+import DataCollectionPolicy from '@/components/DataCollectionPolicy.vue'
 
-@Component
+@Component({
+  components: {
+    DataCollectionPolicy,
+  },
+})
 export default class About extends Vue {
   @Getter('currentTheme') private getterTheme!: Theme
   @Getter('currentLang') private getterLang!: Language
@@ -84,6 +94,8 @@ export default class About extends Vue {
   private baseUrl = 'https://www.emqx.com'
   private utm = '?utm_source=emqx.com&utm_medium=referral&utm_campaign='
   private version = `${process.env.VUE_APP_VERSION}`
+
+  private showDataCollectionPolicyDialog = false
 
   get fullYear(): number {
     return new Date().getFullYear()
@@ -136,6 +148,10 @@ export default class About extends Vue {
     if (windowUrl) {
       windowUrl.opener = null
     }
+  }
+
+  private openDataCollectionPolicyDialog() {
+    this.showDataCollectionPolicyDialog = true
   }
 }
 </script>
