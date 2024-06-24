@@ -1,3 +1,5 @@
+@import '~@/assets/scss/variable.scss';
+
 /* Divider */
 .el-divider {
   background-color: var(--color-border-default);
@@ -180,6 +182,15 @@
 .el-dialog {
   background: var(--color-bg-normal);
   border-radius: 8px;
+  .el-dialog__header {
+    padding: 0 20px;
+    line-height: 56px;
+    border-bottom: 1px solid var(--color-border-default);
+    .el-dialog__title {
+      color: var(--color-text-title);
+      font-size: $font-size--subtitle;
+    }
+  }
 }
 
 /* Input */
@@ -350,5 +361,8 @@
     .el-progress-bar__inner {
       border-radius: 4px;
     }
+  }
+  .el-progress__text {
+    color: var(--color-text-default);
   }
 }

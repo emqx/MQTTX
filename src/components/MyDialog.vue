@@ -79,15 +79,6 @@ export default class MyDialog extends Vue {
 @import '~@/assets/scss/variable.scss';
 
 .my-dialog {
-  .el-dialog__header {
-    padding: 0 20px;
-    line-height: 56px;
-    border-bottom: 1px solid var(--color-border-default);
-    .el-dialog__title {
-      color: var(--color-text-title);
-      font-size: $font-size--subtitle;
-    }
-  }
   .el-dialog--center .el-dialog__body {
     padding: 32px 24px 0;
   }
