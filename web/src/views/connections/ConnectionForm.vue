@@ -635,8 +635,8 @@ export default class ConnectionCreate extends Vue {
   }
 
   get wsAnnouncementLink() {
-    // TODO: update the link
-    return 'https://github.com/emqx/MQTTX/discussions'
+    const lang = this.getterLang === 'zh' ? 'zh' : 'en'
+    return `https://www.emqx.com/${lang}/blog/mqttx-web-migration-announcement`
   }
 
   get protocolOptions() {
