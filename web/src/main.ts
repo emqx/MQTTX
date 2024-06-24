@@ -19,8 +19,8 @@ Vue.use(VueClipboard)
 Vue.use(VueVirtualScroller)
 Vue.use(VueRx)
 Vue.use(VueGtm, {
-  id: 'GTM-K487G9S',
-  enabled: process.env.NODE_ENV === 'production' && process.env.BASE_URL === '/online-mqtt-client/',
+  id: 'GTM-KHSFXHT',
+  enabled: process.env.VUE_APP_IS_ONLINE_ENV === 'true',
   debug: false,
 } as VueGtmUseOptions)
 
