@@ -181,4 +181,11 @@ export default {
     ja: 'Copilotを有効にする',
     hu: 'Copilot engedélyezése',
   },
+  importProgress: {
+    zh: '导入进度',
+    en: 'Import Progress',
+    tr: 'İlerleme İçe Aktar',
+    ja: '進捗をインポート',
+    hu: 'Importálás folyamatban',
+  },
 }

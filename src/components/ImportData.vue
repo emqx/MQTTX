@@ -60,20 +60,17 @@
             </el-col>
           </div>
         </el-collapse-transition>
-        <el-collapse-transition>
-          <div v-if="record.fileName">
-            <el-col :span="24">
-              <el-progress
-                :text-inside="true"
-                :stroke-width="24"
-                :percentage="getProgressNumber(this.importMsgsProgress)"
-                color="#34c388"
-              ></el-progress>
-            </el-col>
-          </div>
-        </el-collapse-transition>
       </el-row>
     </el-form>
+    <el-dialog
+      width="50%"
+      :title="$t('settings.importProgress')"
+      :close-on-click-modal="false"
+      :visible.sync="progressVisible"
+      append-to-body
+    >
+      <el-progress :percentage="getProgressNumber(this.importMsgsProgress)" color="#34c388"></el-progress>
+    </el-dialog>
   </my-dialog>
 </template>
 
@@ -96,7 +93,6 @@ import {
   recoverSpecialDataTypesFromString,
 } from '@/utils/exportData'
 import { ElLoadingComponent } from 'element-ui/types/loading'
-import delay from '@/utils/delay'
 
 type ImportFormat = 'JSON' | 'YAML' | 'XML' | 'CSV' | 'Excel'
 
@@ -124,6 +120,7 @@ export default class ImportData extends Vue {
   private importMsgsProgress = 0
   private showDialog: boolean = this.visible
   private confirmLoading: boolean = false
+  private progressVisible = false
   private record: ImportForm = {
     importFormat: 'JSON',
     filePath: '',
@@ -402,6 +399,7 @@ export default class ImportData extends Vue {
         this.$message.error(this.$tc('connections.uploadFileTip'))
         return
       }
+      this.progressVisible = true
       const importDataResult = await connectionService.import(this.record.fileContent, (progress) => {
         this.importMsgsProgress = progress
       })
@@ -423,6 +421,7 @@ export default class ImportData extends Vue {
   }
 
   private resetData() {
+    this.progressVisible = false
     this.showDialog = false
     this.$emit('update:visible', false)
     this.record = {
@@ -435,7 +434,7 @@ export default class ImportData extends Vue {
   }
 
   private getProgressNumber(progress: number | string) {
-    return typeof progress === 'string' ? Math.floor(Number(progress) * 100) : Math.floor(progress * 100)
+    return Number((typeof progress === 'string' ? Number(progress) * 100 : progress * 100).toFixed(1))
   }
 }
 </script>
