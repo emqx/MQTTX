@@ -54,5 +54,18 @@ module.exports = {
         ],
       }),
     ],
+    module: {
+      rules: [
+        {
+          test: /\.mjs$/,
+          include: /node_modules/,
+          type: 'javascript/auto',
+        },
+        {
+          test: /\.md$/,
+          use: 'raw-loader',
+        },
+      ],
+    },
   },
 }

@@ -19,6 +19,11 @@ export default {
     en: 'Support',
     ja: 'サポート',
   },
+  dataCollectionPolicy: {
+    zh: '数据收集政策',
+    en: 'Data Collection Policy',
+    ja: 'データ収集ポリシー',
+  },
   releases: {
     zh: '更新日志',
     en: 'Releases',
