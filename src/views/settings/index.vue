@@ -293,11 +293,22 @@
       <el-divider></el-divider>
 
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
-        <el-col :span="20">
-          <label>OpenAI API Host</label>
+        <el-col :span="18">
+          <label>API Host</label>
         </el-col>
-        <el-col :span="4">
-          <el-input
+        <el-col :span="6">
+          <el-autocomplete
+            size="mini"
+            type="text"
+            clearable
+            v-model.trim="aiConfig.openAIAPIHost"
+            :fetch-suggestions="queryAIAPIHost"
+            :disabled="!enableCopilot"
+            placeholder="https://api.openai.com/v1"
+            @select="handleAIConfigHostSelected"
+            @change="handleAIConfigChanged('host')"
+          ></el-autocomplete>
+          <!-- <el-input
             size="mini"
             v-model.trim="aiConfig.openAIAPIHost"
             placeholder="https://api.openai.com/v1"
@@ -306,16 +317,16 @@
             :disabled="!enableCopilot"
             @clear="handleAIConfigChanged('host')"
             @blur="handleAIConfigChanged('host')"
-          ></el-input>
+          ></el-input> -->
         </el-col>
       </el-row>
       <el-divider></el-divider>
 
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
-        <el-col :span="20">
-          <label>OpenAI API Key</label>
+        <el-col :span="18">
+          <label>API Key</label>
         </el-col>
-        <el-col :span="4">
+        <el-col :span="6">
           <el-input
             size="mini"
             v-model.trim="aiConfig.openAIAPIKey"
@@ -331,21 +342,32 @@
       <el-divider></el-divider>
 
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
-        <el-col :span="20">
+        <el-col :span="18">
           <label>{{ $t('settings.model') }}</label>
         </el-col>
-        <el-col :span="4">
-          <el-autocomplete
+        <el-col :span="6" v-click-outside="handleClickPresetOutside">
+          <transition name="el-zoom-in-bottom">
+            <el-cascader-panel
+              v-if="showAIModelsSelect"
+              class="ai-models-select"
+              :options="AImodelsOptions"
+              :props="{ emitPath: false, label: 'value' }"
+              :value="aiConfig.model"
+              @change="handleAIConfigModelSelected"
+            ></el-cascader-panel>
+          </transition>
+          <el-input
             size="mini"
+            v-model.trim="aiConfig.model"
+            placeholder="gpt-3.5-turbo"
             type="text"
             clearable
-            v-model.trim="aiConfig.model"
-            :fetch-suggestions="queryAImodels"
             :disabled="!enableCopilot"
-            placeholder="gpt-3.5-turbo"
-            @select="handleAIConfigModelSelected"
-            @change="handleAIConfigChanged('model')"
-          ></el-autocomplete>
+            @clear="handleAIConfigChanged('model')"
+            @blur="handleAIConfigChanged('model')"
+            @focus="showAIModelsSelect = true"
+            @input="showAIModelsSelect = false"
+          ></el-input>
         </el-col>
       </el-row>
       <el-divider></el-divider>
@@ -362,9 +384,13 @@ import ExportData from '@/components/ExportData.vue'
 import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
 import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY } from '@/utils/idGenerator'
+import ClickOutside from 'vue-click-outside'
 
 @Component({
   components: { ImportData, ExportData, ClearUpHistoryData },
+  directives: {
+    ClickOutside,
+  },
 })
 export default class Settings extends Vue {
   @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
@@ -394,6 +420,9 @@ export default class Settings extends Vue {
   @Getter('openAIAPIKey') private openAIAPIKey!: string
   @Getter('model') private model!: AIModel
   @Getter('logLevel') private logLevel!: LogLevel
+
+  private showAIModelsSelect = false
+
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
     { label: 'English', value: 'en' },
@@ -407,16 +436,33 @@ export default class Settings extends Vue {
     { label: 'Night', value: 'night' },
   ]
   private AImodelsOptions = [
-    { value: 'gpt-3.5-turbo' },
-    { value: 'gpt-3.5-turbo-0125' },
-    { value: 'gpt-3.5-turbo-1106' },
-    { value: 'gpt-3.5-turbo-16k' },
-    { value: 'gpt-4' },
-    { value: 'gpt-4-32k' },
-    { value: 'gpt-4-0613' },
-    { value: 'gpt-4-32k-0613' },
-    { value: 'gpt-4-turbo' },
-    { value: 'gpt-4o' },
+    {
+      value: 'OpenAI',
+      children: [
+        { value: 'gpt-3.5-turbo' },
+        { value: 'gpt-3.5-turbo-0125' },
+        { value: 'gpt-3.5-turbo-1106' },
+        { value: 'gpt-3.5-turbo-16k' },
+        { value: 'gpt-4' },
+        { value: 'gpt-4-32k' },
+        { value: 'gpt-4-0613' },
+        { value: 'gpt-4-32k-0613' },
+        { value: 'gpt-4-turbo' },
+        { value: 'gpt-4o' },
+      ],
+    },
+    {
+      value: 'Moonshot',
+      children: [{ value: 'moonshot-v1-8k' }, { value: 'moonshot-v1-32k' }, { value: 'moonshot-v1-128k' }],
+    },
+  ]
+  private AIAPIHostOptions = [
+    {
+      value: 'https://api.openai.com/v1',
+    },
+    {
+      value: 'https://api.moonshot.cn/v1',
+    },
   ]
   private showImportData = false
   private showExportData = false
@@ -503,13 +549,15 @@ export default class Settings extends Vue {
     }
   }
 
-  private handleAIConfigModelSelected({ value }: { value: string }) {
+  private handleAIConfigModelSelected(value: AIModel) {
     this.aiConfig.model = value
     this.actionSetModel({ model: value })
+    this.showAIModelsSelect = false
   }
 
-  private queryAImodels(queryString: AIModel, cb: (r: any[]) => {}) {
-    cb(queryString ? this.AImodelsOptions.filter((item) => item.value.includes(queryString)) : this.AImodelsOptions)
+  private handleAIConfigHostSelected({ value }: { value: string }) {
+    this.aiConfig.openAIAPIHost = value
+    this.actionSetOpenAIAPIHost({ openAIAPIHost: value })
   }
 
   private getAIConfigs() {
@@ -524,6 +572,14 @@ export default class Settings extends Vue {
     this.actionSetLogLevel({
       logLevel: val,
     })
+  }
+
+  private handleClickPresetOutside() {
+    this.showAIModelsSelect = false
+  }
+
+  private queryAIAPIHost(queryString: string, cb: (r: any[]) => {}) {
+    cb(queryString ? this.AIAPIHostOptions.filter((item) => item.value.includes(queryString)) : this.AIAPIHostOptions)
   }
 
   private created() {
@@ -615,6 +671,37 @@ export default class Settings extends Vue {
     top: 1px;
     left: 5px;
     color: var(--color-text-default);
+  }
+  .ai-models-select {
+    position: absolute;
+    bottom: 36px;
+    right: 0px;
+    box-shadow: #00000014 0px 4px 12px;
+    background: var(--color-bg-normal);
+    border: 1px solid var(--color-border-default);
+    .el-cascader-menu:last-child {
+      width: 100%;
+    }
+    .el-cascader-menu,
+    i {
+      color: var(--color-text-default);
+    }
+    .el-cascader-menu {
+      border-right: 1px solid var(--color-border-default);
+      &:last-child {
+        border-right: none;
+      }
+    }
+    .el-cascader-node.is-active {
+      .el-icon-check.el-cascader-node__prefix {
+        color: var(--color-main-green);
+      }
+    }
+    .el-cascader-node:not(.is-disabled):hover,
+    .el-cascader-node:not(.is-disabled):focus {
+      background-color: transparent;
+      color: var(--color-main-green);
+    }
   }
 }
 </style>
