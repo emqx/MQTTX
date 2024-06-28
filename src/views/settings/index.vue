@@ -308,16 +308,6 @@
             @select="handleAIConfigHostSelected"
             @change="handleAIConfigChanged('host')"
           ></el-autocomplete>
-          <!-- <el-input
-            size="mini"
-            v-model.trim="aiConfig.openAIAPIHost"
-            placeholder="https://api.openai.com/v1"
-            type="text"
-            clearable
-            :disabled="!enableCopilot"
-            @clear="handleAIConfigChanged('host')"
-            @blur="handleAIConfigChanged('host')"
-          ></el-input> -->
         </el-col>
       </el-row>
       <el-divider></el-divider>
