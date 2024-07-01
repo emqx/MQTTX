@@ -111,27 +111,33 @@ export default class Connections extends Vue {
   }
 
   private async loadData(loadLatest: boolean = false, firstLoad: boolean = false, callback?: () => {}): Promise<void> {
-    if (firstLoad) {
-      this.isLoadingData = true
-    }
-    const { connectionService } = useServices()
-    const connections: ConnectionModel[] | [] = (await connectionService.getAll()) ?? []
-    this.refreshConnectionList()
-    this.isLoadingData = false
-    if (connections.length && loadLatest) {
-      const leatestId = await connectionService.getLeatestId()
-      this.$router.push({ path: `/recent_connections/${leatestId}` })
-    }
-    if (connections.length && this.connectionId !== 'create') {
-      this.isEmpty = false
-      await this.loadDetail(this.connectionId)
-    } else {
-      if (this.oper === 'edit') {
-        this.$router.push({ path: '/recent_connections' })
+    try {
+      if (firstLoad) {
+        this.isLoadingData = true
       }
-      this.isEmpty = true
+      const { connectionService } = useServices()
+      const connections: ConnectionModel[] | [] = (await connectionService.getAll()) ?? []
+      this.refreshConnectionList()
+      this.isLoadingData = false
+      if (connections.length && loadLatest) {
+        const latestId = await connectionService.getLeatestId()
+        this.$router.push({ path: `/recent_connections/${latestId}` })
+      }
+      if (connections.length && this.connectionId !== 'create') {
+        this.isEmpty = false
+        await this.loadDetail(this.connectionId)
+      } else {
+        if (this.oper === 'edit') {
+          this.$router.push({ path: '/recent_connections' })
+        }
+        this.isEmpty = true
+      }
+    } catch (error) {
+      this.$message.error(`Failed to load data: ${error}`)
+      this.$log.error(`Failed to load data: ${JSON.stringify(error)}`)
+    } finally {
+      callback && callback()
     }
-    callback && callback()
   }
 
   private toCreateConnection() {
