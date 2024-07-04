@@ -29,7 +29,7 @@
 
 ## 使用
 
-访问 MQTT WebSocket 客户端工具 (MQTTX Web): [http://www.emqx.io/online-mqtt-client](http://www.emqx.io/online-mqtt-client)
+访问 MQTT WebSocket 客户端工具 (MQTTX Web): <https://mqttx.app/web-client>
 
 ## Docker 部署
 
