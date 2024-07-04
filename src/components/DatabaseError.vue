@@ -50,7 +50,7 @@ export default class DatabaseError extends Vue {
   }
 
   private mounted() {
-    this.$log.error(`Database connect error - ${this.connectDatabaseFailMessage}`)
+    this.$log.error(`Database error - ${this.connectDatabaseFailMessage}`)
   }
 }
 </script>

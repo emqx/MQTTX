@@ -27,6 +27,7 @@ const SET_INSERT_BUTTON_ADDED = 'SET_INSERT_BUTTON_ADDED'
 const TOGGLE_ENABLE_COPILOT = 'TOGGLE_ENABLE_COPILOT'
 const SET_LOG_LEVEL = 'SET_LOG_LEVEL'
 const TOGGLE_SHOW_CONNECTION_LIST = 'TOGGLE_SHOW_CONNECTION_LIST'
+const SET_DATABASE_FAIL_MESSAGE = 'SET_DATABASE_FAIL_MESSAGE'
 
 const getShowConnectionList = (): boolean => {
   const _showConnectionList: string | null = localStorage.getItem('showConnectionList')
@@ -165,6 +166,9 @@ const app = {
       state.showConnectionList = showConnectionList
       localStorage.setItem('showConnectionList', JSON.stringify(state.showConnectionList))
     },
+    [SET_DATABASE_FAIL_MESSAGE](state: App, connectDatabaseFailMessage: string) {
+      state.connectDatabaseFailMessage = connectDatabaseFailMessage
+    },
   },
   actions: {
     async TOGGLE_THEME({ commit }: any, payload: App) {
@@ -280,6 +284,9 @@ const app = {
     },
     TOGGLE_SHOW_CONNECTION_LIST({ commit }: any, payload: App) {
       commit(TOGGLE_SHOW_CONNECTION_LIST, payload.showConnectionList)
+    },
+    SET_DATABASE_FAIL_MESSAGE({ commit }: any, payload: App) {
+      commit(SET_DATABASE_FAIL_MESSAGE, payload.connectDatabaseFailMessage)
     },
   },
 }
