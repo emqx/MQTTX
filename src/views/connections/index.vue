@@ -60,6 +60,11 @@ export default class Connections extends Vue {
   @Getter('showConnectionList') private showConnectionList!: boolean
 
   @Action('SET_CURRENT_CONNECTION_ID') private setCurrentConnectionId!: (id: string) => void
+  @Action('SET_DATABASE_FAIL_MESSAGE') private setDatabaseFailMessage!: ({
+    connectDatabaseFailMessage,
+  }: {
+    connectDatabaseFailMessage: string
+  }) => void
 
   private isEmpty: boolean = false
   private isLoadingData: boolean = false
@@ -110,7 +115,11 @@ export default class Connections extends Vue {
     }
   }
 
-  private async loadData(loadLatest: boolean = false, firstLoad: boolean = false, callback?: () => {}): Promise<void> {
+  private async loadData(
+    shouldLoadLatest: boolean = false,
+    firstLoad: boolean = false,
+    callback?: () => {},
+  ): Promise<void> {
     try {
       if (firstLoad) {
         this.isLoadingData = true
@@ -119,7 +128,7 @@ export default class Connections extends Vue {
       const connections: ConnectionModel[] | [] = (await connectionService.getAll()) ?? []
       this.refreshConnectionList()
       this.isLoadingData = false
-      if (connections.length && loadLatest) {
+      if (connections.length && shouldLoadLatest) {
         const latestId = await connectionService.getLeatestId()
         this.$router.push({ path: `/recent_connections/${latestId}` })
       }
@@ -133,8 +142,11 @@ export default class Connections extends Vue {
         this.isEmpty = true
       }
     } catch (error) {
-      this.$message.error(`Failed to load data: ${error}`)
-      this.$log.error(`Failed to load data: ${JSON.stringify(error)}`)
+      const err = error as any
+      this.$log.error(`Failed to load data: ${JSON.stringify(err, null, 2)}`)
+      if (err.code === 'SQLITE_ERROR') {
+        this.setDatabaseFailMessage({ connectDatabaseFailMessage: `Failed to load data: ${error}` })
+      }
     } finally {
       callback && callback()
     }
