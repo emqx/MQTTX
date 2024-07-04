@@ -32,7 +32,7 @@ For introduction, and usage, please refer to the [MQTTX Web Documentation](https
 
 ## Usage
 
-Visit MQTT WebSocket Client (MQTTX Web): [http://www.emqx.io/online-mqtt-client](http://www.emqx.io/online-mqtt-client)
+Visit MQTT WebSocket Client (MQTTX Web): <https://mqttx.app/web-client>
 
 ## Deploy from Docker Image
 
