@@ -90,17 +90,15 @@ async function downloadMqttxCLI(downloadUrl: string, outputPath: string, win: Br
     response.data.on('data', (chunk: string | any[]) => {
       downloadedLength += chunk.length
       const percent = ((downloadedLength / totalLength) * 100).toFixed(2)
-      console.log(`Downloading... ${percent}%`)
-      win.webContents.send('showProgress', percent) // Send progress to UI
+      // Send progress to UI
+      win.webContents.send('showProgress', percent)
     })
 
     writer.on('finish', () => {
-      console.log(`${outputPath} downloaded.`)
       resolve()
     })
 
     writer.on('error', (err) => {
-      console.error(`Error downloading the file: ${err.message}`)
       writer.close()
       fs.unlink(outputPath, () => {})
       reject(err)
@@ -134,6 +132,29 @@ async function sudoInstall(outputPath: string, win: BrowserWindow): Promise<void
   })
 }
 
+function getArchSuffix(arch: string, isWindows: boolean): string {
+  let suffix: string
+  switch (arch) {
+    case 'arm':
+    case 'arm64':
+    case 'aarch64':
+      suffix = 'arm64'
+      break
+    case 'x64':
+    case 'amd64':
+      suffix = 'x64'
+      break
+    default:
+      suffix = 'x64'
+      break
+  }
+  if (isWindows) {
+    suffix += '.exe'
+  }
+
+  return suffix
+}
+
 /**
  * Installs MQTTX CLI if it is not already installed.
  *
@@ -146,20 +167,25 @@ export default async function installCLI(win: BrowserWindow) {
     return
   }
 
+  const lang = await getCurrentLang()
+
   const { platform, arch } = {
     platform: os.platform(),
     arch: os.arch(),
   }
-  const lang = await getCurrentLang()
-  const suffix = platform === 'darwin' ? 'macos' : 'linux'
-  const binarySuffix = arch === 'x64' ? '-x64' : '-arm64'
-  const fileName = `mqttx-cli-${suffix}${binarySuffix}`
+  const isWindows = platform === 'win32'
+  const isMacOS = platform === 'darwin'
+  const suffix = isWindows ? 'win' : isMacOS ? 'macos' : 'linux'
+  let archSuffix = getArchSuffix(arch, isWindows)
+  const fileName = `mqttx-cli-${suffix}-${archSuffix}`
   const downloadUrl = `https://www.emqx.com/${lang}/downloads/MQTTX/${version}/${fileName}`
   const outputPath = path.join(STORE_PATH, fileName)
 
   try {
     await downloadMqttxCLI(downloadUrl, outputPath, win)
-    await sudoInstall(outputPath, win)
+    if (!isWindows) {
+      await sudoInstall(outputPath, win)
+    }
   } catch (error) {
     dialog.showErrorBox('Error', `Failed to install MQTTX CLI: ${error}`)
   }
