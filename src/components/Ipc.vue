@@ -57,7 +57,6 @@ export default class Ipc extends Vue {
   }
 
   private created(): void {
-    console.log(123)
     this.bindIpcEvents()
   }
 
