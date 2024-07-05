@@ -1,5 +1,6 @@
 import { app, shell, BrowserWindow } from 'electron'
 import translations from '../lang/menu'
+import installCLI from './installCLI'
 
 const isMac = process.platform === 'darwin'
 
@@ -35,6 +36,12 @@ const getMenuTemplate = (win: BrowserWindow, lang?: Language): $TSFixed => {
                 label: labels.checkForUpdate,
                 click: () => {
                   win.webContents.send('clickUpdate')
+                },
+              },
+              {
+                label: labels.installCLI,
+                click: () => {
+                  installCLI(win)
                 },
               },
               { type: 'separator' },

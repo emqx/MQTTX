@@ -300,4 +300,11 @@ export default {
     tr: 'EMQX Web Sitesi',
     hu: 'EMQX weboldal',
   },
+  installCLI: {
+    en: 'Install MQTTX CLI',
+    zh: 'MQTTX 安装 CLI',
+    ja: 'MQTTX CLI をインストール',
+    tr: 'MQTTX CLI Yükleyin',
+    hu: 'MQTTX CLI telepítése',
+  },
 }
