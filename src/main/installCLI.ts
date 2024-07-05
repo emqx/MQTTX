@@ -125,10 +125,18 @@ async function sudoInstall(outputPath: string, win: BrowserWindow): Promise<void
       dialog.showMessageBox({
         type: 'info',
         title: 'Installation Completed',
-        message: 'MQTTX CLI installed successfully.',
+        message: 'MQTTX CLI has been successfully installed. You can run "mqttx" commands in the terminal now.',
       })
       fs.unlink(outputPath, () => console.log('Downloaded file deleted.'))
     }
+  })
+}
+
+function showDownloadedWindowsCLI(outputPath: string, fileName: string) {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Download Completed',
+    message: `MQTTX CLI has been successfully downloaded. Please manually run '${fileName}' located at: ${outputPath} to use it.`,
   })
 }
 
@@ -185,6 +193,8 @@ export default async function installCLI(win: BrowserWindow) {
     await downloadMqttxCLI(downloadUrl, outputPath, win)
     if (!isWindows) {
       await sudoInstall(outputPath, win)
+    } else {
+      showDownloadedWindowsCLI(outputPath, fileName)
     }
   } catch (error) {
     dialog.showErrorBox('Error', `Failed to install MQTTX CLI: ${error}`)
