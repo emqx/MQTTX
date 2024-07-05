@@ -191,6 +191,44 @@
     </div>
 
     <div class="settings-advanced">
+      <div class="settings-title">{{ $t('settings.extends') }}</div>
+      <el-divider></el-divider>
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="20">
+          <label>MQTTX CLI</label>
+          <el-tooltip placement="top" :effect="currentTheme !== 'light' ? 'light' : 'dark'" :open-delay="500">
+            <div slot="content" v-html="$t('settings.installCLITips')"></div>
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-button
+            class="settings-btn"
+            type="primary"
+            size="mini"
+            icon="el-icon-download"
+            :loading="installing"
+            @click="handleInstallCLI"
+          >
+          </el-button>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+      <el-dialog
+        width="50%"
+        :title="$t('settings.downloadingCLI')"
+        :close-on-click-modal="false"
+        :visible.sync="progressVisible"
+        :show-close="false"
+        append-to-body
+      >
+        <el-progress :percentage="progressValue" color="#34c388"></el-progress>
+      </el-dialog>
+    </div>
+
+    <div class="settings-advanced">
       <div class="settings-title">{{ $t('settings.advanced') }}</div>
       <el-divider></el-divider>
 
@@ -221,13 +259,7 @@
           <label>{{ $t('settings.dataRecovery') }}</label>
         </el-col>
         <el-col :span="4">
-          <el-button
-            class="data-manager-btn"
-            type="primary"
-            size="mini"
-            icon="el-icon-upload2"
-            @click="handleImportData"
-          >
+          <el-button class="settings-btn" type="primary" size="mini" icon="el-icon-upload2" @click="handleImportData">
           </el-button>
         </el-col>
       </el-row>
@@ -238,13 +270,7 @@
           <label>{{ $t('settings.dataBackup') }}</label>
         </el-col>
         <el-col :span="4">
-          <el-button
-            class="data-manager-btn"
-            type="primary"
-            size="mini"
-            icon="el-icon-printer"
-            @click="handleExportData"
-          >
+          <el-button class="settings-btn" type="primary" size="mini" icon="el-icon-printer" @click="handleExportData">
           </el-button>
         </el-col>
       </el-row>
@@ -256,7 +282,7 @@
         </el-col>
         <el-col :span="4">
           <el-button
-            class="data-manager-btn"
+            class="settings-btn"
             type="danger"
             size="mini"
             icon="el-icon-delete"
@@ -375,6 +401,7 @@ import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
 import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY } from '@/utils/idGenerator'
 import ClickOutside from 'vue-click-outside'
+import _ from 'lodash'
 
 @Component({
   components: { ImportData, ExportData, ClearUpHistoryData },
@@ -575,6 +602,36 @@ export default class Settings extends Vue {
   private created() {
     this.getAIConfigs()
   }
+
+  private progressVisible = false
+  private installing = false
+  private progressValue = 0
+
+  private handleInstallCLI() {
+    const throttledUpdate = _.throttle((progress, showProgress) => {
+      this.progressValue = parseFloat((progress * 100).toFixed(2))
+      this.progressVisible = showProgress
+    }, 200)
+    this.installing = true
+    ipcRenderer.send('installCLI')
+    ipcRenderer.on('downloadCLI', (event, ...args) => {
+      const progress = args[0]
+      const showProgress = args[1]
+      throttledUpdate(progress, showProgress)
+    })
+    ipcRenderer.on('installedCLI', () => {
+      this.installing = false
+    })
+  }
+
+  private unbindIpcEvents(): void {
+    ipcRenderer.removeAllListeners('downloadCLI')
+    ipcRenderer.removeAllListeners('installedCLI')
+  }
+
+  private destroyed(): void {
+    this.unbindIpcEvents()
+  }
 }
 </script>
 
@@ -653,7 +710,7 @@ export default class Settings extends Vue {
   i {
     font-size: 16px;
   }
-  .data-manager-btn {
+  .settings-btn {
     width: 90px;
   }
   .icon-oper {

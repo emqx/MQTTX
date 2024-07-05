@@ -89,18 +89,20 @@ async function downloadMqttxCLI(downloadUrl: string, outputPath: string, win: Br
 
     response.data.on('data', (chunk: string | any[]) => {
       downloadedLength += chunk.length
-      const percent = (downloadedLength / totalLength).toFixed(2)
-      win.setProgressBar(parseFloat(percent))
+      const percent = parseFloat((downloadedLength / totalLength).toFixed(2))
+      win.webContents.send('downloadCLI', percent, true)
+      win.setProgressBar(percent)
     })
 
     writer.on('finish', () => {
-      win.webContents.send('showProgress', false)
+      win.webContents.send('downloadCLI', 1, false)
       win.setProgressBar(-1)
       resolve()
     })
 
     writer.on('error', (err) => {
       win.setProgressBar(-1)
+      win.webContents.send('downloadCLI', 0, false)
       writer.close()
       fs.unlink(outputPath, () => {})
       reject(err)
@@ -131,15 +133,17 @@ async function sudoInstall(outputPath: string, win: BrowserWindow): Promise<void
       })
       fs.unlink(outputPath, () => console.log('Downloaded file deleted.'))
     }
+    win.webContents.send('installedCLI')
   })
 }
 
-function showDownloadedWindowsCLI(outputPath: string, fileName: string) {
+function showDownloadedWindowsCLI(outputPath: string, fileName: string, win: BrowserWindow) {
   dialog.showMessageBox({
     type: 'info',
     title: 'Download Completed',
     message: `MQTTX CLI has been successfully downloaded.\n\nPlease manually run '${fileName}' located at: ${outputPath} to use it.`,
   })
+  win.webContents.send('installedCLI')
 }
 
 function getArchSuffix(arch: string, isWindows: boolean): string {
@@ -174,6 +178,7 @@ function getArchSuffix(arch: string, isWindows: boolean): string {
 export default async function installCLI(win: BrowserWindow) {
   const isInstalled = await checkInstalledMqttxCLI(win)
   if (isInstalled) {
+    win.webContents.send('installedCLI')
     return
   }
 
@@ -196,9 +201,10 @@ export default async function installCLI(win: BrowserWindow) {
     if (!isWindows) {
       await sudoInstall(outputPath, win)
     } else {
-      showDownloadedWindowsCLI(outputPath, fileName)
+      showDownloadedWindowsCLI(outputPath, fileName, win)
     }
   } catch (error) {
     dialog.showErrorBox('Error', `Failed to install MQTTX CLI: ${error}`)
+    win.webContents.send('installedCLI')
   }
 }

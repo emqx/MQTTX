@@ -188,4 +188,25 @@ export default {
     ja: '進捗をインポート',
     hu: 'Importálás folyamatban',
   },
+  extends: {
+    zh: '扩展',
+    en: 'Extensions',
+    tr: 'Uzantılar',
+    ja: '拡張',
+    hu: 'Kiterjesztések',
+  },
+  downloadingCLI: {
+    zh: '下载 MQTTX CLI 中...',
+    en: 'Downloading MQTTX CLI...',
+    tr: 'MQTTX CLI indiriliyor...',
+    ja: 'MQTTX CLIをダウンロード中...',
+    hu: 'MQTTX CLI letöltése...',
+  },
+  installCLITips: {
+    zh: '一键安装 MQTTX CLI，您将被提示需要管理员权限。安装后，可在终端运行 MQTTX。',
+    en: 'One-click installation of MQTTX CLI. You will be prompted for administrator access. After installation, you can run MQTTX in the terminal.',
+    tr: "MQTTX CLI'yi tek tıklama ile kurun. Kurulum sırasında yönetici erişimi için uyarılacaksınız. Kurulumdan sonra, MQTTX'i terminalde çalıştırabilirsiniz.",
+    ja: 'MQTTX CLIをワンクリックでインストールします。インストール中に管理者アクセスのプロンプトが表示されます。インストール後、ターミナルでMQTTXを実行できます。',
+    hu: 'Egy kattintással telepítheti az MQTTX CLI-t. Telepítés közben rendszergazdai hozzáférésre vonatkozó kérést fog kapni. Telepítés után a terminálban futtathatja az MQTTX-et.',
+  },
 }
