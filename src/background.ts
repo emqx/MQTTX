@@ -111,7 +111,6 @@ function handleIpcMessages() {
     }
   })
   ipcMain.on('installCLI', () => {
-    console.log('Install CLI from settings')
     if (win) {
       installCLI(win)
     }
