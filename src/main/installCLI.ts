@@ -89,16 +89,18 @@ async function downloadMqttxCLI(downloadUrl: string, outputPath: string, win: Br
 
     response.data.on('data', (chunk: string | any[]) => {
       downloadedLength += chunk.length
-      const percent = ((downloadedLength / totalLength) * 100).toFixed(2)
-      // Send progress to UI
-      win.webContents.send('showProgress', percent)
+      const percent = (downloadedLength / totalLength).toFixed(2)
+      win.setProgressBar(parseFloat(percent))
     })
 
     writer.on('finish', () => {
+      win.webContents.send('showProgress', false)
+      win.setProgressBar(-1)
       resolve()
     })
 
     writer.on('error', (err) => {
+      win.setProgressBar(-1)
       writer.close()
       fs.unlink(outputPath, () => {})
       reject(err)
@@ -125,7 +127,7 @@ async function sudoInstall(outputPath: string, win: BrowserWindow): Promise<void
       dialog.showMessageBox({
         type: 'info',
         title: 'Installation Completed',
-        message: 'MQTTX CLI has been successfully installed. You can run "mqttx" commands in the terminal now.',
+        message: 'MQTTX CLI has been successfully installed.\n\nYou can run "mqttx" commands in the terminal now.',
       })
       fs.unlink(outputPath, () => console.log('Downloaded file deleted.'))
     }
@@ -136,7 +138,7 @@ function showDownloadedWindowsCLI(outputPath: string, fileName: string) {
   dialog.showMessageBox({
     type: 'info',
     title: 'Download Completed',
-    message: `MQTTX CLI has been successfully downloaded. Please manually run '${fileName}' located at: ${outputPath} to use it.`,
+    message: `MQTTX CLI has been successfully downloaded.\n\nPlease manually run '${fileName}' located at: ${outputPath} to use it.`,
   })
 }
 

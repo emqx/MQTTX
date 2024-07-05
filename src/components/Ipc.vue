@@ -29,10 +29,6 @@ export default class Ipc extends Vue {
     ipcRenderer.on('newConnections', () => {
       this.$router.push({ path: '/recent_connections/0?oper=create' })
     })
-    ipcRenderer.on('showProgress', (event, args) => {
-      const percentValue: any = args[0]
-      console.log(percentValue)
-    })
   }
 
   private unbindIpcEvents(): void {
