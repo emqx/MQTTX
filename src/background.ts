@@ -11,6 +11,7 @@ import getMenuTemplate from './main/getMenuTemplate'
 import saveFile from './main/saveFile'
 import saveExcel from './main/saveExcel'
 import newWindow from './main/newWindow'
+import installCLI from './main/installCLI'
 import { onSystemThemeChanged } from './main/systemTheme'
 import useConnection, { initOptionModel } from '@/database/useConnection'
 import useServices from '@/database/useServices'
@@ -107,6 +108,12 @@ function handleIpcMessages() {
         message: 'An error occurred while rebuilding the database.',
         detail: err.message,
       })
+    }
+  })
+  ipcMain.on('installCLI', () => {
+    console.log('Install CLI from settings')
+    if (win) {
+      installCLI(win)
     }
   })
 }

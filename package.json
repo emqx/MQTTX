@@ -59,6 +59,7 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "6.2.0",
     "sqlite3": "^5.0.4",
+    "sudo-prompt": "^9.2.1",
     "typedi": "^0.8.0",
     "typeorm": "^0.2.34",
     "typeorm-typedi-extensions": "^0.2.3",
