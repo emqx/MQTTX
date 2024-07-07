@@ -1,18 +1,24 @@
 import { readFileSync, existsSync } from 'fs'
 import ini from 'ini'
-import { CONFIG_FILE_PATH, DEFAULT_CONFIG, VALID_OUTPUT_MODES } from './common'
+import { CONFIG_FILE_PATH, DEFAULT_CONFIG, VALID_OUTPUT_MODES, VALID_PROTOCOLS } from './common'
 
 /**
  * Parses the content of a config file and returns a ConfigModel object.
  * @param content - The content of the config file.
  * @returns The parsed ConfigModel object.
- * @throws Error if the output mode is invalid.
+ * @throws Error if the output mode or protocol is invalid.
  */
 const parseConfigFile = (content: string): ConfigModel => {
   const config = ini.parse(content)
+
   const output = config.default?.output
   if (output && !VALID_OUTPUT_MODES.includes(output)) {
     throw new Error(`Invalid output mode: ${output}. Valid modes are: ${VALID_OUTPUT_MODES.join(', ')}`)
+  }
+
+  const protocol = config.mqtt?.protocol
+  if (protocol && !VALID_PROTOCOLS.includes(protocol)) {
+    throw new Error(`Invalid protocol: ${protocol}. Valid protocols are: ${VALID_PROTOCOLS.join(', ')}`)
   }
 
   return {
@@ -20,6 +26,7 @@ const parseConfigFile = (content: string): ConfigModel => {
     mqtt: {
       host: config.mqtt?.host || DEFAULT_CONFIG.mqtt.host,
       port: parseInt(config.mqtt?.port, 10) || DEFAULT_CONFIG.mqtt.port,
+      protocol: config.mqtt?.protocol || DEFAULT_CONFIG.mqtt.protocol,
       maxReconnectTimes: parseInt(config.mqtt?.max_reconnect_times, 10) || DEFAULT_CONFIG.mqtt.maxReconnectTimes,
       username: config.mqtt?.username || DEFAULT_CONFIG.mqtt.username,
       password: config.mqtt?.password || DEFAULT_CONFIG.mqtt.password,
