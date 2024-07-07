@@ -13,10 +13,27 @@ const DEFAULT_CONFIG: ConfigModel = {
   mqtt: {
     host: 'localhost',
     port: 1883,
+    protocol: 'mqtt',
     maxReconnectTimes: 10,
   },
 }
 
 const VALID_OUTPUT_MODES: Array<ConfigModel['output']> = ['text', 'log']
 
-export { USER_HOME_DIR, CONFIG_FILE_PATH, DEFAULT_CONFIG, VALID_OUTPUT_MODES }
+const VALID_PROTOCOLS: Array<Protocol> = ['mqtt', 'mqtts', 'ws', 'wss']
+
+const RECOMMENDED_PORTS_BY_PROTOCOL: Record<Protocol, number> = {
+  mqtt: 1883,
+  mqtts: 8883,
+  ws: 80,
+  wss: 443,
+}
+
+export {
+  USER_HOME_DIR,
+  CONFIG_FILE_PATH,
+  DEFAULT_CONFIG,
+  VALID_OUTPUT_MODES,
+  VALID_PROTOCOLS,
+  RECOMMENDED_PORTS_BY_PROTOCOL,
+}

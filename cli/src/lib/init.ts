@@ -1,7 +1,7 @@
 import { writeFileSync, mkdirSync } from 'fs'
 import { join } from 'path'
 import { select, input, password } from '@inquirer/prompts'
-import { CONFIG_FILE_PATH, DEFAULT_CONFIG, USER_HOME_DIR } from '../configs/common'
+import { CONFIG_FILE_PATH, DEFAULT_CONFIG, RECOMMENDED_PORTS_BY_PROTOCOL, USER_HOME_DIR } from '../configs/common'
 
 /**
  * Generates the content of a configuration INI file based on the provided config object.
@@ -11,6 +11,7 @@ import { CONFIG_FILE_PATH, DEFAULT_CONFIG, USER_HOME_DIR } from '../configs/comm
 const generateConfigContent = (config: ConfigModel): string => {
   let mqttConfig = `host = ${config.mqtt.host}
 port = ${config.mqtt.port}
+protocol = ${config.mqtt.protocol}
 max_reconnect_times = ${config.mqtt.maxReconnectTimes}`
 
   if (config.mqtt.username) {
@@ -42,6 +43,17 @@ async function initConfig(): Promise<void> {
     default: DEFAULT_CONFIG.output,
   })) as ConfigModel['output']
 
+  const protocol = (await select({
+    message: 'Select the default MQTT protocol',
+    choices: [
+      { name: 'MQTT', value: 'mqtt' },
+      { name: 'MQTTS', value: 'mqtts' },
+      { name: 'WS', value: 'ws' },
+      { name: 'WSS', value: 'wss' },
+    ],
+    default: DEFAULT_CONFIG.mqtt.protocol,
+  })) as Protocol
+
   const host = await input({
     message: 'Enter the default MQTT broker host',
     default: DEFAULT_CONFIG.mqtt.host,
@@ -49,7 +61,7 @@ async function initConfig(): Promise<void> {
 
   const port = await input({
     message: 'Enter the default MQTT port',
-    default: DEFAULT_CONFIG.mqtt.port.toString(),
+    default: RECOMMENDED_PORTS_BY_PROTOCOL[protocol].toString(),
     validate: (input) => !isNaN(parseInt(input, 10)) || 'Port must be a number',
   })
 
@@ -74,6 +86,7 @@ async function initConfig(): Promise<void> {
     mqtt: {
       host,
       port: parseInt(port, 10),
+      protocol,
       maxReconnectTimes: parseInt(maxReconnectTimes, 10),
       username,
       password: passwordAnswer,

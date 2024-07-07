@@ -176,6 +176,7 @@ declare global {
     mqtt: {
       host: string
       port: number
+      protocol?: Protocol
       maxReconnectTimes: number
       username?: string
       password?: string
