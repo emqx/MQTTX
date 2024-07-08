@@ -6,7 +6,7 @@ import { BrowserWindow, dialog } from 'electron'
 import { getAppDataPath } from 'appdata-path'
 import sudo from 'sudo-prompt'
 import version from '@/version'
-import { exec } from 'child_process'
+import { exec, spawnSync } from 'child_process'
 import { compareVersions } from 'compare-versions'
 import { getCurrentLang } from './updateChecker'
 
@@ -137,15 +137,59 @@ async function sudoInstall(outputPath: string, win: BrowserWindow): Promise<void
   })
 }
 
-function showDownloadedWindowsCLI(outputPath: string, fileName: string, win: BrowserWindow) {
+/**
+ * Sets up the MQTTX CLI on Windows.
+ *
+ * @param outputPath - The output path where the MQTTX CLI will be installed.
+ * @param fileName - The name of the file to be renamed.
+ * @param win - The BrowserWindow object.
+ */
+function setupWindows(outputPath: string, fileName: string, win: BrowserWindow) {
+  const newFileName = 'mqttx.exe'
+  const newFilePath = path.join(outputPath, newFileName)
+
+  try {
+    fs.renameSync(path.join(outputPath, fileName), newFilePath)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'An unknown error occurred'
+    dialog.showErrorBox('Rename Error', `Failed to rename ${fileName} to ${newFileName}: ${message}`)
+    win.webContents.send('installedCLI')
+    return
+  }
+
+  const currentPath = process.env.PATH || ''
+  // Always remove the existing outputPath if it exists to update or correct it.
+  const cleanedPath = currentPath
+    .split(';')
+    .filter((p) => !p.trim().startsWith(outputPath))
+    .join(';')
+
+  // Now add the new outputPath
+  const newPath = `${cleanedPath};${outputPath}`
+  const result = spawnSync('setx', ['PATH', newPath])
+
+  if (result.error || (result.stderr && result.stderr.toString().trim())) {
+    const errorMessage = result.error ? result.error.message : result.stderr.toString()
+    dialog.showErrorBox('PATH Update Error', `Failed to update the PATH environment variable: ${errorMessage}`)
+    win.webContents.send('installedCLI')
+    return
+  }
+
   dialog.showMessageBox({
     type: 'info',
-    title: 'Download Completed',
-    message: `MQTTX CLI has been successfully downloaded.\n\nPlease manually run '${fileName}' located at: ${outputPath} to use it.`,
+    title: 'Installation Completed',
+    message: 'MQTTX CLI has been successfully installed.\n\nYou can run "mqttx.exe" commands in the terminal now.',
   })
+
   win.webContents.send('installedCLI')
 }
 
+/**
+ * Returns the architecture suffix based on the provided architecture and operating system.
+ * @param arch - The architecture string.
+ * @param isWindows - Indicates whether the operating system is Windows.
+ * @returns The architecture suffix.
+ */
 function getArchSuffix(arch: string, isWindows: boolean): string {
   let suffix: string
   switch (arch) {
@@ -201,7 +245,7 @@ export default async function installCLI(win: BrowserWindow) {
     if (!isWindows) {
       await sudoInstall(outputPath, win)
     } else {
-      showDownloadedWindowsCLI(outputPath, fileName, win)
+      setupWindows(outputPath, fileName, win)
     }
   } catch (error) {
     dialog.showErrorBox('Error', `Failed to install MQTTX CLI: ${error}`)
