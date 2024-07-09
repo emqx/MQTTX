@@ -25,8 +25,8 @@ const VALID_PROTOCOLS: Array<Protocol> = ['mqtt', 'mqtts', 'ws', 'wss']
 const RECOMMENDED_PORTS_BY_PROTOCOL: Record<Protocol, number> = {
   mqtt: 1883,
   mqtts: 8883,
-  ws: 80,
-  wss: 443,
+  ws: 8083,
+  wss: 8084,
 }
 
 export {
