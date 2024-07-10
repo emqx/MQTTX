@@ -19,7 +19,10 @@ const MQTTX_VERSION = `v${version}`
  * @param win - The BrowserWindow instance.
  * @returns A promise that resolves to a boolean indicating whether the MQTTX CLI is installed and up to date.
  */
-async function checkInstalledMqttxCLI(win: BrowserWindow): Promise<boolean> {
+async function checkInstalledMqttxCLI(win: BrowserWindow, isWindows: boolean): Promise<boolean> {
+  if (isWindows) {
+    return Promise.resolve(false)
+  }
   return new Promise((resolve) => {
     exec('mqttx --version', (error, stdout, stderr) => {
       if (error) {
@@ -220,20 +223,20 @@ function getArchSuffix(arch: string, isWindows: boolean): string {
  * @returns A Promise that resolves when the installation is complete.
  */
 export default async function installCLI(win: BrowserWindow) {
-  const isInstalled = await checkInstalledMqttxCLI(win)
-  if (isInstalled) {
-    win.webContents.send('installedCLI')
-    return
-  }
-
-  const lang = await getCurrentLang()
-
   const { platform, arch } = {
     platform: os.platform(),
     arch: os.arch(),
   }
   const isWindows = platform === 'win32'
   const isMacOS = platform === 'darwin'
+
+  const isInstalled = await checkInstalledMqttxCLI(win, isWindows)
+  if (isInstalled) {
+    win.webContents.send('installedCLI')
+    return
+  }
+
+  const lang = await getCurrentLang()
   const suffix = isWindows ? 'win' : isMacOS ? 'macos' : 'linux'
   let archSuffix = getArchSuffix(arch, isWindows)
   const fileName = `mqttx-cli-${suffix}-${archSuffix}`
