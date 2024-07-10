@@ -60,29 +60,47 @@ async function checkInstalledMqttxCLI(win: BrowserWindow, isWindows: boolean): P
 }
 
 /**
- * Downloads a file from the specified URL and saves it to the specified output path.
- * Also updates the download progress on the UI.
+ * Downloads the Mqttx CLI from the specified URL and saves it to the specified output path.
  *
- * @param downloadUrl - The URL of the file to download.
- * @param outputPath - The path where the downloaded file will be saved.
- * @param win - The BrowserWindow instance used to send progress updates to the UI.
- * @returns A Promise that resolves when the download is complete.
+ * @param downloadUrl - The URL from which to download the Mqttx CLI.
+ * @param defaultOutputPath - The default output path where the downloaded CLI will be saved.
+ * @param win - The BrowserWindow instance.
+ * @param isWindows - A boolean indicating whether the current platform is Windows.
+ * @returns A Promise that resolves to the output path of the downloaded CLI.
+ * @throws An error if no download folder is selected on Windows.
  */
-async function downloadMqttxCLI(downloadUrl: string, outputPath: string, win: BrowserWindow): Promise<void> {
+async function downloadMqttxCLI(
+  downloadUrl: string,
+  defaultOutputPath: string,
+  win: BrowserWindow,
+  isWindows: boolean,
+): Promise<string> {
+  let outputPath = defaultOutputPath
+
+  if (isWindows) {
+    const result = dialog.showOpenDialogSync(win, {
+      title: 'Select Download Folder',
+      properties: ['openDirectory', 'createDirectory'],
+    })
+
+    if (result && result.length > 0) {
+      const fileName = path.basename(downloadUrl)
+      outputPath = path.join(result[0], fileName)
+    } else {
+      throw new Error('No download folder selected.')
+    }
+  }
+
   const response = await axios({
     method: 'get',
     url: downloadUrl,
     responseType: 'stream',
   })
 
-  if (!fs.existsSync(STORE_PATH)) {
-    fs.mkdirSync(STORE_PATH, { recursive: true })
-  }
-
   const writer = fs.createWriteStream(outputPath)
   response.data.pipe(writer)
 
-  await new Promise<void>((resolve, reject) => {
+  return await new Promise<string>((resolve, reject) => {
     const totalLength = parseInt(response.headers['content-length'])
     let downloadedLength = 0
 
@@ -96,7 +114,7 @@ async function downloadMqttxCLI(downloadUrl: string, outputPath: string, win: Br
     writer.on('finish', () => {
       win.webContents.send('downloadCLI', 1, false)
       win.setProgressBar(-1)
-      resolve()
+      resolve(outputPath)
     })
 
     writer.on('error', (err) => {
@@ -111,12 +129,13 @@ async function downloadMqttxCLI(downloadUrl: string, outputPath: string, win: Br
 
 /**
  * Installs MQTTX CLI by executing a sudo command.
- * @param outputPath - The path of the downloaded file to be installed.
+ *
+ * @param installPath - The path of the installation file.
  * @param win - The BrowserWindow instance.
  * @returns A Promise that resolves when the installation is completed.
  */
-async function sudoInstall(outputPath: string, win: BrowserWindow): Promise<void> {
-  const installCommand = `install "${outputPath}" /usr/local/bin/mqttx`
+async function sudoInstall(installPath: string, win: BrowserWindow): Promise<void> {
+  const installCommand = `install "${installPath}" /usr/local/bin/mqttx`
   const options = { name: 'MQTTX' }
 
   sudo.exec(installCommand, options, (error, stdout, stderr) => {
@@ -132,7 +151,7 @@ async function sudoInstall(outputPath: string, win: BrowserWindow): Promise<void
         title: 'Installation Completed',
         message: 'MQTTX CLI has been successfully installed.\n\nYou can run "mqttx" commands in the terminal now.',
       })
-      fs.unlink(outputPath, () => console.log('Downloaded file deleted.'))
+      fs.unlink(installPath, () => console.log('Downloaded file deleted.'))
     }
     win.webContents.send('installedCLI')
   })
@@ -209,14 +228,14 @@ export default async function installCLI(win: BrowserWindow) {
   const archSuffix = getArchSuffix(arch, isWindows)
   const fileName = `mqttx-cli-${suffix}-${archSuffix}`
   const downloadUrl = `https://www.emqx.com/${lang}/downloads/MQTTX/${version}/${fileName}`
-  const outputPath = path.join(STORE_PATH, fileName)
+  const defaultOutputPath = path.join(STORE_PATH, fileName)
 
   try {
-    await downloadMqttxCLI(downloadUrl, outputPath, win)
+    const installPath = await downloadMqttxCLI(downloadUrl, defaultOutputPath, win, isWindows)
     if (!isWindows) {
-      await sudoInstall(outputPath, win)
+      await sudoInstall(installPath, win)
     } else {
-      showDownloadedWindowsCLI(outputPath, fileName, win)
+      showDownloadedWindowsCLI(installPath, fileName, win)
     }
   } catch (error) {
     const err = error as Error
