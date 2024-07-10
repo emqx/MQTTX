@@ -17,19 +17,24 @@ const MQTTX_VERSION = `v${version}`
  * Checks if the MQTTX CLI is installed and up to date.
  *
  * @param win - The BrowserWindow instance.
+ * @param isWindows - Boolean indicating if the OS is Windows.
  * @returns A promise that resolves to a boolean indicating whether the MQTTX CLI is installed and up to date.
  */
-async function checkInstalledMqttxCLI(win: BrowserWindow): Promise<boolean> {
+async function checkInstalledMqttxCLI(win: BrowserWindow, isWindows: boolean): Promise<boolean> {
+  if (isWindows) {
+    return Promise.resolve(false)
+  }
+
   return new Promise((resolve) => {
     exec('mqttx --version', (error, stdout, stderr) => {
       if (error) {
-        // MQTTX CLI is not installed
+        resolve(false)
+      } else if (stderr) {
+        const errorMessage = stderr.toString().trim()
+        dialog.showErrorBox('Error', `An error occurred while checking the MQTTX CLI version: ${errorMessage}`)
         resolve(false)
       } else {
-        // Extract the version from the stdout
-        const lines = stdout.trim().split('\n')
-        const installedVersion = `v${lines[0]}`
-
+        const installedVersion = `v${stdout.trim().split('\n')[0]}`
         if (compareVersions(installedVersion, MQTTX_VERSION) >= 0) {
           dialog.showMessageBox(win, {
             type: 'info',
@@ -46,13 +51,7 @@ async function checkInstalledMqttxCLI(win: BrowserWindow): Promise<boolean> {
               message: `Installed version: ${installedVersion}\nNew version: ${MQTTX_VERSION}\n\nDo you want to upgrade?`,
             })
             .then((response) => {
-              if (response.response === 0) {
-                // User chose 'Yes' to upgrade
-                resolve(false)
-              } else {
-                // User chose 'No' to cancel the upgrade
-                resolve(true)
-              }
+              resolve(response.response === 0 ? false : true)
             })
         }
       }
@@ -87,7 +86,7 @@ async function downloadMqttxCLI(downloadUrl: string, outputPath: string, win: Br
     const totalLength = parseInt(response.headers['content-length'])
     let downloadedLength = 0
 
-    response.data.on('data', (chunk: string | any[]) => {
+    response.data.on('data', (chunk: Buffer) => {
       downloadedLength += chunk.length
       const percent = parseFloat((downloadedLength / totalLength).toFixed(2))
       win.webContents.send('downloadCLI', percent, true)
@@ -118,13 +117,15 @@ async function downloadMqttxCLI(downloadUrl: string, outputPath: string, win: Br
  */
 async function sudoInstall(outputPath: string, win: BrowserWindow): Promise<void> {
   const installCommand = `install "${outputPath}" /usr/local/bin/mqttx`
-  const options = {
-    name: 'MQTTX',
-  }
+  const options = { name: 'MQTTX' }
 
-  sudo.exec(installCommand, options, (error: any, stdout: any, stderr: any) => {
-    if (error) {
-      dialog.showErrorBox('Installation Error', `An error occurred during the installation of MQTTX CLI: ${stderr}`)
+  sudo.exec(installCommand, options, (error, stdout, stderr) => {
+    if (error || stderr) {
+      const errorMessage = error ? error.message : stderr
+      dialog.showErrorBox(
+        'Installation Error',
+        `An error occurred during the installation of MQTTX CLI: ${errorMessage}`,
+      )
     } else {
       dialog.showMessageBox({
         type: 'info',
@@ -137,6 +138,14 @@ async function sudoInstall(outputPath: string, win: BrowserWindow): Promise<void
   })
 }
 
+/**
+ * Displays a message box to inform the user that the MQTTX CLI has been successfully downloaded.
+ * It also provides instructions on how to use the downloaded CLI.
+ *
+ * @param outputPath - The path where the MQTTX CLI is downloaded.
+ * @param fileName - The name of the MQTTX CLI file.
+ * @param win - The BrowserWindow instance.
+ */
 function showDownloadedWindowsCLI(outputPath: string, fileName: string, win: BrowserWindow) {
   dialog.showMessageBox({
     type: 'info',
@@ -146,6 +155,12 @@ function showDownloadedWindowsCLI(outputPath: string, fileName: string, win: Bro
   win.webContents.send('installedCLI')
 }
 
+/**
+ * Returns the architecture suffix based on the provided architecture and operating system.
+ * @param arch - The architecture string.
+ * @param isWindows - Indicates whether the operating system is Windows.
+ * @returns The architecture suffix.
+ */
 function getArchSuffix(arch: string, isWindows: boolean): string {
   let suffix: string
   switch (arch) {
@@ -165,7 +180,6 @@ function getArchSuffix(arch: string, isWindows: boolean): string {
   if (isWindows) {
     suffix += '.exe'
   }
-
   return suffix
 }
 
@@ -176,7 +190,14 @@ function getArchSuffix(arch: string, isWindows: boolean): string {
  * @returns A Promise that resolves when the installation is complete.
  */
 export default async function installCLI(win: BrowserWindow) {
-  const isInstalled = await checkInstalledMqttxCLI(win)
+  const { platform, arch } = {
+    platform: os.platform(),
+    arch: os.arch(),
+  }
+  const isWindows = platform === 'win32'
+  const isMacOS = platform === 'darwin'
+
+  const isInstalled = await checkInstalledMqttxCLI(win, isWindows)
   if (isInstalled) {
     win.webContents.send('installedCLI')
     return
@@ -184,14 +205,8 @@ export default async function installCLI(win: BrowserWindow) {
 
   const lang = await getCurrentLang()
 
-  const { platform, arch } = {
-    platform: os.platform(),
-    arch: os.arch(),
-  }
-  const isWindows = platform === 'win32'
-  const isMacOS = platform === 'darwin'
   const suffix = isWindows ? 'win' : isMacOS ? 'macos' : 'linux'
-  let archSuffix = getArchSuffix(arch, isWindows)
+  const archSuffix = getArchSuffix(arch, isWindows)
   const fileName = `mqttx-cli-${suffix}-${archSuffix}`
   const downloadUrl = `https://www.emqx.com/${lang}/downloads/MQTTX/${version}/${fileName}`
   const outputPath = path.join(STORE_PATH, fileName)
@@ -204,7 +219,8 @@ export default async function installCLI(win: BrowserWindow) {
       showDownloadedWindowsCLI(outputPath, fileName, win)
     }
   } catch (error) {
-    dialog.showErrorBox('Error', `Failed to install MQTTX CLI: ${error}`)
+    const err = error as Error
+    dialog.showErrorBox('Error', `Failed to install MQTTX CLI: ${err.message}`)
     win.webContents.send('installedCLI')
   }
 }
