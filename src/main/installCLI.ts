@@ -25,8 +25,8 @@ async function checkInstalledMqttxCLI(win: BrowserWindow, isWindows: boolean): P
   }
   return new Promise((resolve) => {
     exec('mqttx --version', (error, stdout, stderr) => {
-      if (error) {
-        // MQTTX CLI is not installed
+      if (error || stderr) {
+        dialog.showErrorBox('Error', `Failed to check MQTTX CLI version: ${stderr || error?.message}`)
         resolve(false)
       } else {
         // Extract the version from the stdout
