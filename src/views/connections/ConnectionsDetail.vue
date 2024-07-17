@@ -30,9 +30,16 @@
                 <i class="iconfont icon-show-connections"></i>
               </a>
             </el-tooltip>
-            <h2 :class="{ offline: !client.connected }">
-              <span class="title-name">{{ titleName }}</span>
-            </h2>
+            <el-tooltip
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :content="`${titleName}`"
+              :open-delay="500"
+              placement="top"
+            >
+              <h2 :class="['title-name', !client.connected ? 'offline' : undefined]">
+                {{ titleName }}
+              </h2>
+            </el-tooltip>
             <a
               href="javascript:;"
               :class="['collapse-btn', showClientInfo ? 'top' : 'bottom']"
@@ -1997,7 +2004,7 @@ export default class ConnectionsDetail extends Vue {
       .connection-head {
         display: flex;
         align-items: center;
-        h2 .title-name {
+        h2.title-name {
           max-width: 200px;
           white-space: nowrap;
           overflow: hidden;
