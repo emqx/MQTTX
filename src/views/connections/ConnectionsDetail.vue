@@ -36,7 +36,7 @@
               :open-delay="500"
               placement="top"
             >
-              <h2 :class="['title-name', !client.connected ? 'offline' : undefined]">
+              <h2 :class="[ { 'offline': !client.connected }, 'title-name' ]">
                 {{ titleName }}
               </h2>
             </el-tooltip>
@@ -2010,9 +2010,9 @@ export default class ConnectionsDetail extends Vue {
           overflow: hidden;
           text-overflow: ellipsis;
           margin-right: 12px;
-        }
-        .offline {
-          color: var(--color-text-light);
+          &.offline {
+            color: var(--color-text-light);
+          }
         }
         .icon-show-connections,
         .icon-collapse {
