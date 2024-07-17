@@ -4,16 +4,23 @@
       <div class="connections-info">
         <div class="topbar">
           <div class="connection-head">
-            <h2 :class="{ offline: !client.connected }">
-              {{ titleName }}
-              <a
-                href="javascript:;"
-                :class="['collapse-btn', showClientInfo ? 'top' : 'bottom']"
-                @click="handleCollapse($route.params.id)"
-              >
-                <i class="el-icon-d-arrow-left"></i>
-              </a>
-            </h2>
+            <el-tooltip
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :content="`${titleName}`"
+              :open-delay="500"
+              placement="top"
+            >
+              <h2 :class="[ { offline: !client.connected }, 'title-name' ]">
+                {{ titleName }}
+              </h2>
+            </el-tooltip>
+            <a
+              href="javascript:;"
+              :class="['collapse-btn', showClientInfo ? 'top' : 'bottom']"
+              @click="handleCollapse($route.params.id)"
+            >
+              <i class="el-icon-d-arrow-left"></i>
+            </a>
           </div>
           <div class="connection-tail">
             <transition name="el-fade-in">
@@ -1086,8 +1093,17 @@ export default class ConnectionsDetail extends Vue {
         -webkit-app-region: drag;
       }
       .connection-head {
-        .offline {
-          color: var(--color-text-light);
+        display: flex;
+        align-items: center;
+        h2.title-name {
+          max-width: 200px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin-right: 12px;
+          &.offline {
+            color: var(--color-text-light);
+          }
         }
         a.collapse-btn {
           font-size: 18px;
