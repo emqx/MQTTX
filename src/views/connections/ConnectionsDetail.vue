@@ -36,7 +36,7 @@
               :open-delay="500"
               placement="top"
             >
-              <h2 :class="[ { 'offline': !client.connected }, 'title-name' ]">
+              <h2 :class="[ { offline: !client.connected }, 'title-name' ]">
                 {{ titleName }}
               </h2>
             </el-tooltip>
