@@ -31,12 +31,13 @@
               </a>
             </el-tooltip>
             <el-tooltip
+              :disabled="!showTitleTooltip"
               :effect="theme !== 'light' ? 'light' : 'dark'"
-              :content="`${titleName}`"
+              :content="titleName"
               :open-delay="500"
               placement="top"
             >
-              <h2 :class="[ { offline: !client.connected }, 'title-name' ]">
+              <h2 ref="title" :class="[{ offline: !client.connected }, 'title-name']">
                 {{ titleName }}
               </h2>
             </el-tooltip>
@@ -439,6 +440,7 @@ export default class ConnectionsDetail extends Vue {
   private showImportData = false
   private showTimedMessage = false
   private showUseScript = false
+  private showTitleTooltip = false
 
   private connectLoading = false
   private disconnectLoding = false
@@ -565,6 +567,17 @@ export default class ConnectionsDetail extends Vue {
       this.setMessageListHeight()
       clearTimeout(timer)
     }, 500)
+  }
+
+  @Watch('titleName')
+  private async checkTitleOverflow() {
+    await this.$nextTick()
+    const titleElement = this.$refs.title as HTMLElement
+    if (titleElement?.scrollWidth > 200) {
+      this.showTitleTooltip = true
+    } else {
+      this.showTitleTooltip = false
+    }
   }
 
   private checkScriptOption(optionName: 'function' | 'schema', optionMethod: 'received' | 'publish') {
