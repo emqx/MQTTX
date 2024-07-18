@@ -5,12 +5,13 @@
         <div class="topbar">
           <div class="connection-head">
             <el-tooltip
+              :disabled="!showTitleTooltip"
               :effect="theme !== 'light' ? 'light' : 'dark'"
-              :content="`${titleName}`"
+              :content="titleName"
               :open-delay="500"
               placement="top"
             >
-              <h2 :class="[ { offline: !client.connected }, 'title-name' ]">
+              <h2 ref="title" :class="[{ offline: !client.connected }, 'title-name']">
                 {{ titleName }}
               </h2>
             </el-tooltip>
@@ -278,9 +279,12 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private showSubs = true
+  private showClientInfo = true
+  private showContextmenu: boolean = false
+  private showTitleTooltip = false
+
   private largeDesktop = false
   private screenWidth = document.body.clientWidth
-  private showClientInfo = true
   private connectLoading = false
   private disconnectLoding = false
   private isReconnect = false
@@ -301,7 +305,6 @@ export default class ConnectionsDetail extends Vue {
   private messageListMarginTop: number = 19
   private messagesAddedNewItem: boolean = false
   private activeTopic = ''
-  private showContextmenu: boolean = false
   private selectedMessage: MessageModel | null = null
   private contextmenuConfig: ContextmenuModel = {
     top: 0,
@@ -513,6 +516,17 @@ export default class ConnectionsDetail extends Vue {
       this.setMessageListHeight()
       clearTimeout(timer)
     }, 500)
+  }
+
+  @Watch('titleName')
+  private async checkTitleOverflow() {
+    await this.$nextTick()
+    const titleElement = this.$refs.title as HTMLElement
+    if (titleElement?.scrollWidth > 200) {
+      this.showTitleTooltip = true
+    } else {
+      this.showTitleTooltip = false
+    }
   }
 
   private getConnectionValue(id: string) {
