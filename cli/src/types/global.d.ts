@@ -22,6 +22,7 @@ declare global {
     password?: string
     protocol?: Protocol
     path?: string
+    wsHeaders?: Record<string, string>
     key?: string
     cert?: string
     ca?: string
