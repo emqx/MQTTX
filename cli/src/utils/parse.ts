@@ -38,7 +38,7 @@ const parseMQTTVersion = (value: string) => {
   return dict[value as '3.1' | '3.1.1' | '5']
 }
 
-const parseUserProperties = (value: string, previous?: Record<string, string | string[]>) => {
+const parseKeyValues = (value: string, previous?: Record<string, string | string[]>) => {
   const [key, val] = value.split(': ')
   if (key && val) {
     if (!previous) {
@@ -56,7 +56,7 @@ const parseUserProperties = (value: string, previous?: Record<string, string | s
       }
     }
   } else {
-    logWrapper.fail('Not a valid user properties.')
+    logWrapper.fail(`Invalid key-value pair: "${value}". Expected format is "key: value".`)
     process.exit(1)
   }
 }
@@ -178,6 +178,16 @@ const checkScenarioExists = (name?: string, file?: string) => {
   }
 }
 
+const parseWsHeaders = (wsHeaders: Record<string, string>, protocol: Protocol) => {
+  if (!['ws', 'wss'].includes(protocol)) {
+    logWrapper.fail('WebSocket headers are only supported with WebSocket connections (ws or wss).')
+    process.exit(1)
+  }
+  return {
+    headers: wsHeaders,
+  }
+}
+
 const parseConnectOptions = (
   options: ConnectOptions | PublishOptions | SubscribeOptions,
   commandType?: CommandType,
@@ -193,6 +203,7 @@ const parseConnectOptions = (
     password,
     protocol,
     path,
+    wsHeaders,
     key,
     cert,
     ca,
@@ -250,6 +261,10 @@ const parseConnectOptions = (
 
   if (alpn) {
     connectOptions.ALPNProtocols = alpn
+  }
+
+  if (wsHeaders && protocol) {
+    connectOptions.wsOptions = parseWsHeaders(wsHeaders, protocol)
   }
 
   if (willTopic) {
@@ -406,7 +421,7 @@ export {
   parseNumber,
   parseProtocol,
   parseMQTTVersion,
-  parseUserProperties,
+  parseKeyValues,
   parseQoS,
   parseVariadicOfBooleanType,
   checkTopicExists,

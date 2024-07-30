@@ -6,7 +6,7 @@ import {
   parseNumber,
   parseProtocol,
   parseMQTTVersion,
-  parseUserProperties,
+  parseKeyValues,
   parseQoS,
   parseVariadicOfBooleanType,
   parsePubTopic,
@@ -71,6 +71,11 @@ export class Commander {
         state.getConfig('protocol'),
       )
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
+      .option(
+        '-wh, --ws-headers <WSHEADERS...>',
+        'headers for WebSocket options (only works with MQTT over WebSocket connections, e.g. -wh "Authorization: Bearer token")',
+        parseKeyValues,
+      )
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
@@ -98,7 +103,7 @@ export class Commander {
       .option(
         '-up, --user-properties <USERPROPERTIES...>',
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
-        parseUserProperties,
+        parseKeyValues,
       )
       // will message options
       .option('-Wt, --will-topic <TOPIC>', 'the will topic')
@@ -112,11 +117,7 @@ export class Commander {
       .option('-Wct, --will-content-type <CONTENTTYPE>', 'description of the will message’s content')
       .option('-Wrt, --will-response-topic <TOPIC>', 'topic name for a response message')
       .option('-Wcd, --will-correlation-data <DATA>', 'correlation data for the response message')
-      .option(
-        '-Wup, --will-user-properties <USERPROPERTIES...>',
-        'the user properties of will message',
-        parseUserProperties,
-      )
+      .option('-Wup, --will-user-properties <USERPROPERTIES...>', 'the user properties of will message', parseKeyValues)
       .option(
         '-so, --save-options [PATH]',
         'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
@@ -155,7 +156,7 @@ export class Commander {
       .option(
         '-up, --user-properties <USERPROPERTIES...>',
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
-        parseUserProperties,
+        parseKeyValues,
       )
       .option('-si, --subscription-identifier <NUMBER>', 'the identifier of the subscription', parseNumber)
       .option('-ct, --content-type <TYPE>', 'a description of the content of the publish message')
@@ -180,6 +181,11 @@ export class Commander {
         state.getConfig('protocol'),
       )
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
+      .option(
+        '-wh, --ws-headers <WSHEADERS...>',
+        'headers for WebSocket options (only works with MQTT over WebSocket connections, e.g. -wh "Authorization: Bearer token")',
+        parseKeyValues,
+      )
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
@@ -207,7 +213,7 @@ export class Commander {
       .option(
         '-Cup, --conn-user-properties <USERPROPERTIES...>',
         'the connect user properties of MQTT 5.0 (e.g. -Cup "name: mqttx cli")',
-        parseUserProperties,
+        parseKeyValues,
       )
       // will message options
       .option('-Wt, --will-topic <TOPIC>', 'the will topic')
@@ -221,11 +227,7 @@ export class Commander {
       .option('-Wct, --will-content-type <CONTENTTYPE>', 'description of the will message’s content')
       .option('-Wrt, --will-response-topic <TOPIC>', 'topic name for a response message')
       .option('-Wcd, --will-correlation-data <DATA>', 'correlation data for the response message')
-      .option(
-        '-Wup, --will-user-properties <USERPROPERTIES...>',
-        'the user properties of will message',
-        parseUserProperties,
-      )
+      .option('-Wup, --will-user-properties <USERPROPERTIES...>', 'the user properties of will message', parseKeyValues)
       .option(
         '-so, --save-options [PATH]',
         'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
@@ -264,7 +266,7 @@ export class Commander {
       .option(
         '-up, --user-properties <USERPROPERTIES...>',
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
-        parseUserProperties,
+        parseKeyValues,
       )
       .option('-f, --format <TYPE>', 'format the message body, support base64, json, hex, binary and cbor', parseFormat)
       .option('-v, --verbose', 'turn on verbose mode to display incoming MQTT packets')
@@ -290,6 +292,11 @@ export class Commander {
         state.getConfig('protocol'),
       )
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
+      .option(
+        '-wh, --ws-headers <WSHEADERS...>',
+        'headers for WebSocket options (only works with MQTT over WebSocket connections, e.g. -wh "Authorization: Bearer token")',
+        parseKeyValues,
+      )
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
@@ -317,7 +324,7 @@ export class Commander {
       .option(
         '-Cup, --conn-user-properties <USERPROPERTIES...>',
         'the connect user properties of MQTT 5.0 (e.g. -Cup "name: mqttx cli")',
-        parseUserProperties,
+        parseKeyValues,
       )
       // will message options
       .option('-Wt, --will-topic <TOPIC>', 'the will topic')
@@ -331,11 +338,7 @@ export class Commander {
       .option('-Wct, --will-content-type <CONTENTTYPE>', 'description of the will message’s content')
       .option('-Wrt, --will-response-topic <TOPIC>', 'topic name for a response message')
       .option('-Wcd, --will-correlation-data <DATA>', 'correlation data for the response message')
-      .option(
-        '-Wup, --will-user-properties <USERPROPERTIES...>',
-        'the user properties of will message',
-        parseUserProperties,
-      )
+      .option('-Wup, --will-user-properties <USERPROPERTIES...>', 'the user properties of will message', parseKeyValues)
       .option(
         '-so, --save-options [PATH]',
         'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
@@ -390,6 +393,11 @@ export class Commander {
         state.getConfig('protocol'),
       )
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
+      .option(
+        '-wh, --ws-headers <WSHEADERS...>',
+        'headers for WebSocket options (only works with MQTT over WebSocket connections, e.g. -wh "Authorization: Bearer token")',
+        parseKeyValues,
+      )
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
@@ -417,7 +425,7 @@ export class Commander {
       .option(
         '-up, --user-properties <USERPROPERTIES...>',
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
-        parseUserProperties,
+        parseKeyValues,
       )
       // will message options
       .option('-Wt, --will-topic <TOPIC>', 'the will topic')
@@ -431,11 +439,7 @@ export class Commander {
       .option('-Wct, --will-content-type <CONTENTTYPE>', 'description of the will message’s content')
       .option('-Wrt, --will-response-topic <TOPIC>', 'topic name for a response message')
       .option('-Wcd, --will-correlation-data <DATA>', 'correlation data for the response message')
-      .option(
-        '-Wup, --will-user-properties <USERPROPERTIES...>',
-        'the user properties of will message',
-        parseUserProperties,
-      )
+      .option('-Wup, --will-user-properties <USERPROPERTIES...>', 'the user properties of will message', parseKeyValues)
       .option(
         '-so, --save-options [PATH]',
         'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
@@ -484,7 +488,7 @@ export class Commander {
       .option(
         '-up, --user-properties <USERPROPERTIES...>',
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
-        parseUserProperties,
+        parseKeyValues,
       )
       .option('-si, --subscription-identifier <NUMBER>', 'the identifier of the subscription', parseNumber)
       .option('-ct, --content-type <TYPE>', 'a description of the content of the publish message')
@@ -505,6 +509,11 @@ export class Commander {
         state.getConfig('protocol'),
       )
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
+      .option(
+        '-wh, --ws-headers <WSHEADERS...>',
+        'headers for WebSocket options (only works with MQTT over WebSocket connections, e.g. -wh "Authorization: Bearer token")',
+        parseKeyValues,
+      )
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
@@ -532,7 +541,7 @@ export class Commander {
       .option(
         '-Cup, --conn-user-properties <USERPROPERTIES...>',
         'the connect user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
-        parseUserProperties,
+        parseKeyValues,
       )
       // will message options
       .option('-Wt, --will-topic <TOPIC>', 'the will topic')
@@ -546,11 +555,7 @@ export class Commander {
       .option('-Wct, --will-content-type <CONTENTTYPE>', 'description of the will message’s content')
       .option('-Wrt, --will-response-topic <TOPIC>', 'topic name for a response message')
       .option('-Wcd, --will-correlation-data <DATA>', 'correlation data for the response message')
-      .option(
-        '-Wup, --will-user-properties <USERPROPERTIES...>',
-        'the user properties of will message',
-        parseUserProperties,
-      )
+      .option('-Wup, --will-user-properties <USERPROPERTIES...>', 'the user properties of will message', parseKeyValues)
       .option(
         '-so, --save-options [PATH]',
         'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
@@ -589,7 +594,7 @@ export class Commander {
       .option(
         '-up, --user-properties <USERPROPERTIES...>',
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
-        parseUserProperties,
+        parseKeyValues,
       )
       .option('-v, --verbose', 'print history received messages and rate')
       // connect options
@@ -608,6 +613,11 @@ export class Commander {
         state.getConfig('protocol'),
       )
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
+      .option(
+        '-wh, --ws-headers <WSHEADERS...>',
+        'headers for WebSocket options (only works with MQTT over WebSocket connections, e.g. -wh "Authorization: Bearer token")',
+        parseKeyValues,
+      )
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
@@ -635,7 +645,7 @@ export class Commander {
       .option(
         '-Cup, --conn-user-properties <USERPROPERTIES...>',
         'the connect user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
-        parseUserProperties,
+        parseKeyValues,
       )
       // will message options
       .option('-Wt, --will-topic <TOPIC>', 'the will topic')
@@ -649,11 +659,7 @@ export class Commander {
       .option('-Wct, --will-content-type <CONTENTTYPE>', 'description of the will message’s content')
       .option('-Wrt, --will-response-topic <TOPIC>', 'topic name for a response message')
       .option('-Wcd, --will-correlation-data <DATA>', 'correlation data for the response message')
-      .option(
-        '-Wup, --will-user-properties <USERPROPERTIES...>',
-        'the user properties of will message',
-        parseUserProperties,
-      )
+      .option('-Wup, --will-user-properties <USERPROPERTIES...>', 'the user properties of will message', parseKeyValues)
       .option(
         '-so, --save-options [PATH]',
         'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
@@ -704,7 +710,7 @@ export class Commander {
       .option(
         '-up, --user-properties <USERPROPERTIES...>',
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
-        parseUserProperties,
+        parseKeyValues,
       )
       .option('-si, --subscription-identifier <NUMBER>', 'the identifier of the subscription', parseNumber)
       .option('-ct, --content-type <TYPE>', 'a description of the content of the publish message')
@@ -725,6 +731,11 @@ export class Commander {
         state.getConfig('protocol'),
       )
       .option('--path <PATH>', 'the path of websocket', '/mqtt')
+      .option(
+        '-wh, --ws-headers <WSHEADERS...>',
+        'headers for WebSocket options (only works with MQTT over WebSocket connections, e.g. -wh "Authorization: Bearer token")',
+        parseKeyValues,
+      )
       .option('--key <PATH>', 'path to the key file')
       .option('--cert <PATH>', 'path to the cert file')
       .option('--ca <PATH>', 'path to the ca certificate')
@@ -747,7 +758,7 @@ export class Commander {
       .option(
         '-Cup, --conn-user-properties <USERPROPERTIES...>',
         'the connect user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
-        parseUserProperties,
+        parseKeyValues,
       )
       // will message options
       .option('-Wt, --will-topic <TOPIC>', 'the will topic')
@@ -761,11 +772,7 @@ export class Commander {
       .option('-Wct, --will-content-type <CONTENTTYPE>', 'description of the will message’s content')
       .option('-Wrt, --will-response-topic <TOPIC>', 'topic name for a response message')
       .option('-Wcd, --will-correlation-data <DATA>', 'correlation data for the response message')
-      .option(
-        '-Wup, --will-user-properties <USERPROPERTIES...>',
-        'the user properties of will message',
-        parseUserProperties,
-      )
+      .option('-Wup, --will-user-properties <USERPROPERTIES...>', 'the user properties of will message', parseKeyValues)
       .option(
         '-so, --save-options [PATH]',
         'save the parameters to the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
