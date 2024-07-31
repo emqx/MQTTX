@@ -4,7 +4,7 @@
     "target": "ES5",
     "module": "commonjs",
     "outDir": "./dist",
-    "lib": ["ESNext", "ScriptHost"],
+    "lib": ["ESNext", "ScriptHost", "DOM"],
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
