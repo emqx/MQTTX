@@ -8,6 +8,7 @@ import { writeFile, appendFile, getPathExtname, createNextNumberedFileName } fro
 import { deserializeBufferToProtobuf } from '../utils/protobuf'
 import isSupportedBinaryFormatForMQTT from '../utils/binaryFormats'
 import * as Debug from 'debug'
+import { deserializeBufferToAvro } from '../utils/avro'
 
 /**
  *
@@ -17,27 +18,45 @@ import * as Debug from 'debug'
  * Flow:
  *  payload -> [Protobuf Deserialization] -> [Format Conversion] -> Processed Message
  * @param payload - The message payload to be processed.
- * @param protobufPath - The path to the Protobuf definition file.
- * @param protobufMessageName - The name of the Protobuf message.
+ * @param {SchemaOptions} [schemaOptions] - Options for schema-based encoding
  * @param format - The format of the payload.
  * @returns The processed message as a string or Buffer.
  */
 const processReceivedMessage = (
   payload: Buffer,
-  protobufPath?: string,
-  protobufMessageName?: string,
+  schemaOptions: SchemaOptions,
   format?: FormatType,
 ): string | Buffer => {
   let message: string | Buffer = payload
-  const pipeline = [
-    (msg: Buffer) =>
-      protobufPath && protobufMessageName
-        ? deserializeBufferToProtobuf(msg, protobufPath, protobufMessageName, format)
-        : msg,
-    (msg: Buffer) => (format ? convertPayload(msg, format, 'decode') : msg),
-  ]
 
-  message = pipeline.reduce((msg, transformer) => transformer(msg), message)
+  const convertMessageFormat = (msg: string | Buffer): string | Buffer => {
+    if (!format) {
+      return msg
+    }
+    return convertPayload(msg, format, 'decode')
+  }
+
+  const deserializeWithSchema = (msg: string | Buffer): string | Buffer => {
+    switch (schemaOptions.type) {
+      case 'none':
+        return msg
+
+      case 'protobuf':
+        return deserializeBufferToProtobuf(
+          payload,
+          schemaOptions.protobufPath,
+          schemaOptions.protobufMessageName,
+          format,
+        )
+
+      case 'avro':
+        return deserializeBufferToAvro(payload, schemaOptions.avscPath, format)
+    }
+  }
+
+  const pipeline = [deserializeWithSchema, convertMessageFormat]
+
+  message = pipeline.reduce((msg: string | Buffer, transformer) => transformer(msg), message)
 
   if (Buffer.isBuffer(message) && format !== 'binary') {
     message = message.toString('utf-8')
@@ -139,11 +158,29 @@ const sub = (options: SubscribeOptions) => {
   client.on('connect', subscribeToTopics)
 
   client.on('message', (topic, payload, packet) => {
-    const { format, protobufPath, protobufMessageName, fileSave, fileWrite, delimiter } = options
+    const { format, protobufPath, protobufMessageName, avscPath, fileSave, fileWrite, delimiter } = options
+
+    let schemaOptions: SchemaOptions
+    if (protobufPath && protobufMessageName) {
+      schemaOptions = {
+        type: 'protobuf',
+        protobufPath,
+        protobufMessageName,
+      }
+    } else if (avscPath) {
+      schemaOptions = {
+        type: 'avro',
+        avscPath,
+      }
+    } else {
+      schemaOptions = {
+        type: 'none',
+      }
+    }
 
     const msgData: MsgItem[] = []
 
-    const receivedMessage = processReceivedMessage(payload, protobufPath, protobufMessageName, format)
+    const receivedMessage = processReceivedMessage(payload, schemaOptions, format)
 
     const savePath = fileSave ? createNextNumberedFileName(fileSave) : fileWrite
     if (savePath) {

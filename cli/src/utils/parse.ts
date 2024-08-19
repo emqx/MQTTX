@@ -349,6 +349,7 @@ const parsePublishOptions = (options: PublishOptions) => {
     contentType,
     protobufPath,
     protobufMessageName,
+    avscPath,
     format,
   } = options
 
@@ -356,6 +357,24 @@ const parsePublishOptions = (options: PublishOptions) => {
     qos,
     retain,
     dup,
+  }
+
+  let schemaOptions: SchemaOptions
+  if (protobufPath && protobufMessageName) {
+    schemaOptions = {
+      type: 'protobuf',
+      protobufPath,
+      protobufMessageName,
+    }
+  } else if (avscPath) {
+    schemaOptions = {
+      type: 'avro',
+      avscPath,
+    }
+  } else {
+    schemaOptions = {
+      type: 'none',
+    }
   }
 
   if (options.mqttVersion === 5) {
@@ -375,7 +394,7 @@ const parsePublishOptions = (options: PublishOptions) => {
     )
   }
 
-  return { topic, message, protobufPath, protobufMessageName, format, opts: publishOptions }
+  return { topic, message, schemaOptions, format, opts: publishOptions }
 }
 
 const parseSubscribeOptions = (options: SubscribeOptions) => {

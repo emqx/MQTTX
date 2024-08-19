@@ -245,6 +245,11 @@ export class Commander {
         '-Pmn, --protobuf-message-name <NAME>',
         'the name of the protobuf message type (must exist in the .proto file)',
       )
+      .option(
+        '-Ap, --avsc-path <PATH>',
+        'the path to the .avsc file that defines the avro schema for AVRO decoding',
+        parseFileRead,
+      )
       .option('--debug', 'enable debug mode for MQTT.js', false)
       .allowUnknownOption(false)
       .action(pub)
@@ -366,6 +371,11 @@ export class Commander {
       .option(
         '-Pmn, --protobuf-message-name <NAME>',
         'the name of the protobuf message type (must exist in the .proto file)',
+      )
+      .option(
+        '-Ap, --avsc-path <PATH>',
+        'the path to the .avsc file that defines the avro schema for AVRO decoding',
+        parseFileRead,
       )
       .option('--debug', 'enable debug mode for MQTT.js', false)
       .allowUnknownOption(false)
