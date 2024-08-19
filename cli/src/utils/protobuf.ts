@@ -32,7 +32,7 @@ export const deserializeBufferToProtobuf = (
   protobufPath: string,
   protobufMessageName: string,
   needFormat: FormatType | undefined,
-): any => {
+): string | Buffer => {
   try {
     const root = protobuf.loadSync(protobufPath)
     const Message = root.lookupType(protobufMessageName)
@@ -45,7 +45,7 @@ export const deserializeBufferToProtobuf = (
     if (needFormat) {
       return Buffer.from(JSON.stringify(MessageData.toJSON()))
     }
-    return MessageData
+    return JSON.stringify(MessageData.toJSON())
   } catch (error: unknown) {
     let err = transformPBJSError(error as Error)
     logWrapper.fail(err.message.split('\n')[0])

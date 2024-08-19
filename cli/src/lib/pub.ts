@@ -13,6 +13,7 @@ import logWrapper, { basicLog, benchLog, Signale, signale, simulateLog, singaleC
 import { handleLoadOptions, handleSaveOptions } from '../utils/options'
 import { checkScenarioExists, checkTopicExists, parseConnectOptions, parsePublishOptions } from '../utils/parse'
 import { serializeProtobufToBuffer } from '../utils/protobuf'
+import { serializeAvroToBuffer } from '../utils/avro'
 import { loadSimulator } from '../utils/simulate'
 
 /**
@@ -25,18 +26,16 @@ import { loadSimulator } from '../utils/simulate'
  * Flow:
  *   Input Message -> [Format Conversion] -> [Protobuf Serialization] -> Output Message
  * @param {string | Buffer} message - The message to be processed.
- * @param {string} [protobufPath] - The path to the protobuf definition.
- * @param {string} [protobufMessageName] - The name of the protobuf message.
+ * @param {SchemaOptions} [schemaOptions] - Options for schema-based encoding
  * @param {FormatType} [format] - The format to convert the message to.
  * @returns {Buffer | string} - The processed message.
  */
 const processPublishMessage = (
   message: string | Buffer,
-  protobufPath?: string,
-  protobufMessageName?: string,
+  schemaOptions: SchemaOptions,
   format?: FormatType,
 ): Buffer | string => {
-  const convertMessageFormat = (msg: string | Buffer): Buffer | string => {
+  const convertMessageFormat = (msg: string | Buffer): string | Buffer => {
     if (!format) {
       return msg
     }
@@ -44,16 +43,22 @@ const processPublishMessage = (
     return convertPayload(bufferMsg, format, 'encode')
   }
 
-  const serializeProtobufMessage = (msg: string | Buffer): Buffer | string => {
-    if (protobufPath && protobufMessageName) {
-      return serializeProtobufToBuffer(msg.toString(), protobufPath, protobufMessageName)
+  const serializeWithSchema = (msg: string | Buffer): string | Buffer => {
+    switch (schemaOptions.type) {
+      case 'none':
+        return msg
+
+      case 'protobuf':
+        return serializeProtobufToBuffer(msg, schemaOptions.protobufPath, schemaOptions.protobufMessageName)
+
+      case 'avro':
+        return serializeAvroToBuffer(msg, schemaOptions.avscPath)
     }
-    return msg
   }
 
-  const pipeline = [convertMessageFormat, serializeProtobufMessage]
+  const pipeline = [convertMessageFormat, serializeWithSchema]
 
-  return pipeline.reduce((msg, transformer) => transformer(msg), message) as Buffer
+  return pipeline.reduce((msg: string | Buffer, transformer) => transformer(msg), message) as Buffer
 }
 
 const send = (
@@ -62,8 +67,7 @@ const send = (
   pubOpts: {
     topic: string
     message: string | Buffer
-    protobufPath: string | undefined
-    protobufMessageName: string | undefined
+    schemaOptions: SchemaOptions
     format: FormatType | undefined
     opts: IClientPublishOptions
   },
@@ -77,9 +81,9 @@ const send = (
   client.on('connect', () => {
     retryTimes = 0
     basicLog.connected()
-    const { topic, message, protobufPath, protobufMessageName, format } = pubOpts
+    const { topic, message, schemaOptions, format } = pubOpts
     basicLog.publishing()
-    const publishMessage = processPublishMessage(message, protobufPath, protobufMessageName, format)
+    const publishMessage = processPublishMessage(message, schemaOptions, format)
     client.publish(topic, publishMessage, pubOpts.opts, (err) => {
       if (err) {
         basicLog.error(err)
@@ -127,8 +131,7 @@ const multiSend = (
   pubOpts: {
     topic: string
     message: string | Buffer
-    protobufPath: string | undefined
-    protobufMessageName: string | undefined
+    schemaOptions: SchemaOptions
     format: FormatType | undefined
     opts: IClientPublishOptions
   },
@@ -143,10 +146,10 @@ const multiSend = (
   })
   let count = 0
   sender._write = (line, _enc, cb) => {
-    const { topic, opts, protobufPath, protobufMessageName, format } = pubOpts
+    const { topic, opts, schemaOptions, format } = pubOpts
     count++
     let omitTopic = opts.properties?.topicAlias && count >= 2
-    const publishMessage = processPublishMessage(line.trim(), protobufPath, protobufMessageName, format)
+    const publishMessage = processPublishMessage(line.trim(), schemaOptions, format)
     client.publish(omitTopic ? '' : topic, publishMessage, opts, cb)
   }
 

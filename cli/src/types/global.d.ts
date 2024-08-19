@@ -56,6 +56,23 @@ declare global {
     debug?: boolean
   }
 
+  interface ProtobufSchemaOptions {
+    type: 'protobuf'
+    protobufPath: string
+    protobufMessageName: string
+  }
+
+  interface AvroSchemaOptions {
+    type: 'avro'
+    avscPath: string
+  }
+
+  interface NoSchema {
+    type: 'none'
+  }
+
+  type SchemaOptions = ProtobufSchemaOptions | AvroSchemaOptions | NoSchema
+
   interface PublishOptions extends ConnectOptions {
     topic: string
     message: string | Buffer
@@ -76,6 +93,7 @@ declare global {
     connUserProperties?: Record<string, string | string[]>
     protobufPath?: string
     protobufMessageName?: string
+    avscPath?: string
     format?: FormatType
   }
 
@@ -92,11 +110,12 @@ declare global {
     fileWrite?: string
     fileSave?: string
     delimiter?: string
-    format?: FormatType
     outputMode?: OutputMode
     verbose: boolean
     protobufPath?: string
     protobufMessageName?: string
+    avscPath?: string
+    format?: FormatType
   }
 
   type OmitConnectOptions = Omit<ConnectOptions, 'debug'>
