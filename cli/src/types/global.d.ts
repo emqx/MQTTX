@@ -67,11 +67,7 @@ declare global {
     avscPath: string
   }
 
-  interface NoSchema {
-    type: 'none'
-  }
-
-  type SchemaOptions = ProtobufSchemaOptions | AvroSchemaOptions | NoSchema
+  type SchemaOptions = ProtobufSchemaOptions | AvroSchemaOptions
 
   interface PublishOptions extends ConnectOptions {
     topic: string

@@ -16,7 +16,7 @@ import { deserializeBufferToAvro } from '../utils/avro'
  * 1. Protobuf Deserialization --> Utilized if both protobuf path and message name are defined, otherwise message passes as is.
  * 2. Format Conversion --> Engaged if a format is defined, converting the message accordingly; if not defined, message passes unchanged.
  * Flow:
- *  payload -> [Protobuf Deserialization] -> [Format Conversion] -> Processed Message
+ *  payload -> Schema [Protobuf, Avro] -> [Format Conversion] -> Processed Message
  * @param payload - The message payload to be processed.
  * @param {SchemaOptions} [schemaOptions] - Options for schema-based encoding
  * @param format - The format of the payload.
@@ -24,7 +24,7 @@ import { deserializeBufferToAvro } from '../utils/avro'
  */
 const processReceivedMessage = (
   payload: Buffer,
-  schemaOptions: SchemaOptions,
+  schemaOptions?: SchemaOptions,
   format?: FormatType,
 ): string | Buffer => {
   let message: string | Buffer = payload
@@ -37,10 +37,9 @@ const processReceivedMessage = (
   }
 
   const deserializeWithSchema = (msg: string | Buffer): string | Buffer => {
-    switch (schemaOptions.type) {
-      case 'none':
-        return msg
+    if (!schemaOptions) return msg
 
+    switch (schemaOptions.type) {
       case 'protobuf':
         return deserializeBufferToProtobuf(
           payload,
@@ -160,7 +159,7 @@ const sub = (options: SubscribeOptions) => {
   client.on('message', (topic, payload, packet) => {
     const { format, protobufPath, protobufMessageName, avscPath, fileSave, fileWrite, delimiter } = options
 
-    let schemaOptions: SchemaOptions
+    let schemaOptions: SchemaOptions | undefined
     if (protobufPath && protobufMessageName) {
       schemaOptions = {
         type: 'protobuf',
@@ -171,10 +170,6 @@ const sub = (options: SubscribeOptions) => {
       schemaOptions = {
         type: 'avro',
         avscPath,
-      }
-    } else {
-      schemaOptions = {
-        type: 'none',
       }
     }
 
