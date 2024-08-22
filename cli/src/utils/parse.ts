@@ -359,7 +359,7 @@ const parsePublishOptions = (options: PublishOptions) => {
     dup,
   }
 
-  let schemaOptions: SchemaOptions
+  let schemaOptions: SchemaOptions | undefined
   if (protobufPath && protobufMessageName) {
     schemaOptions = {
       type: 'protobuf',
@@ -370,10 +370,6 @@ const parsePublishOptions = (options: PublishOptions) => {
     schemaOptions = {
       type: 'avro',
       avscPath,
-    }
-  } else {
-    schemaOptions = {
-      type: 'none',
     }
   }
 

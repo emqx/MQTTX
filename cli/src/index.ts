@@ -247,7 +247,7 @@ export class Commander {
       )
       .option(
         '-Ap, --avsc-path <PATH>',
-        'the path to the .avsc file that defines the avro schema for AVRO decoding',
+        'the path to the .avsc file that defines the avro schema for AVRO encoding',
         parseFileRead,
       )
       .option('--debug', 'enable debug mode for MQTT.js', false)

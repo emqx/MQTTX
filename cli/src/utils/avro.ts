@@ -12,6 +12,14 @@ const getAvroType = (schemaPath: string): avro.Type => {
 
   try {
     const schemaStr = fs.readFileSync(schemaPath, 'utf-8')
+
+    try {
+      JSON.parse(schemaStr)
+    } catch (err: unknown) {
+      logWrapper.fail(`Schema not following JSON format: ${(err as Error).message}`)
+      process.exit(1)
+    }
+
     const type = avro.Type.forSchema(JSON.parse(schemaStr))
 
     // cache the parsed schema
@@ -28,6 +36,13 @@ export const serializeAvroToBuffer = (raw: string | Buffer, avscSchemaPath: stri
   const type: avro.Type = getAvroType(avscSchemaPath)
 
   let rawMessage = raw.toString('utf-8')
+
+  try {
+    JSON.parse(rawMessage)
+  } catch (err: unknown) {
+    logWrapper.fail(`Invalid JSON input: ${(err as Error).message}`)
+    process.exit(1)
+  }
 
   try {
     const serializedMessage = type.toBuffer(JSON.parse(rawMessage))

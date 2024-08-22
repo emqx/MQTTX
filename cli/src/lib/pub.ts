@@ -24,7 +24,7 @@ import { loadSimulator } from '../utils/simulate'
  *    encapsulate the message into a protobuf format. If these settings are absent,
  *    the message remains unchanged.
  * Flow:
- *   Input Message -> [Format Conversion] -> [Protobuf Serialization] -> Output Message
+ *   Input Message -> [Format Conversion] -> Schema [Protobuf, Avro] -> Output Message
  * @param {string | Buffer} message - The message to be processed.
  * @param {SchemaOptions} [schemaOptions] - Options for schema-based encoding
  * @param {FormatType} [format] - The format to convert the message to.
@@ -32,7 +32,7 @@ import { loadSimulator } from '../utils/simulate'
  */
 const processPublishMessage = (
   message: string | Buffer,
-  schemaOptions: SchemaOptions,
+  schemaOptions?: SchemaOptions,
   format?: FormatType,
 ): Buffer | string => {
   const convertMessageFormat = (msg: string | Buffer): string | Buffer => {
@@ -44,10 +44,9 @@ const processPublishMessage = (
   }
 
   const serializeWithSchema = (msg: string | Buffer): string | Buffer => {
-    switch (schemaOptions.type) {
-      case 'none':
-        return msg
+    if (!schemaOptions) return msg
 
+    switch (schemaOptions.type) {
       case 'protobuf':
         return serializeProtobufToBuffer(msg, schemaOptions.protobufPath, schemaOptions.protobufMessageName)
 
@@ -67,8 +66,8 @@ const send = (
   pubOpts: {
     topic: string
     message: string | Buffer
-    schemaOptions: SchemaOptions
-    format: FormatType | undefined
+    schemaOptions?: SchemaOptions
+    format?: FormatType
     opts: IClientPublishOptions
   },
   maximumReconnectTimes: number,
@@ -131,8 +130,8 @@ const multiSend = (
   pubOpts: {
     topic: string
     message: string | Buffer
-    schemaOptions: SchemaOptions
-    format: FormatType | undefined
+    schemaOptions?: SchemaOptions
+    format?: FormatType
     opts: IClientPublishOptions
   },
   maximumReconnectTimes: number,
