@@ -2,12 +2,8 @@ import { Signale } from 'signale'
 import chalk from 'chalk'
 import { inspect } from 'util'
 import getErrorReason from './mqttErrorReason'
-import { loadConfig } from '../configs'
 import state from '../state'
 import ora from 'ora'
-
-const configs = loadConfig()
-state.setConfigs(configs)
 
 const isLogFormat = state.getConfig('output') === 'log'
 
