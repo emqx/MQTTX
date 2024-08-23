@@ -1,6 +1,6 @@
 import * as mqtt from 'mqtt'
 import logWrapper, { Signale, msgLog, basicLog, benchLog, singaleConfig, signale } from '../utils/logWrapper'
-import { parseConnectOptions, parseSubscribeOptions, checkTopicExists } from '../utils/parse'
+import { parseConnectOptions, parseSubscribeOptions, parseSchemaOptions, checkTopicExists } from '../utils/parse'
 import delay from '../utils/delay'
 import convertPayload from '../utils/convertPayload'
 import { handleSaveOptions, handleLoadOptions } from '../utils/options'
@@ -159,19 +159,7 @@ const sub = (options: SubscribeOptions) => {
   client.on('message', (topic, payload, packet) => {
     const { format, protobufPath, protobufMessageName, avscPath, fileSave, fileWrite, delimiter } = options
 
-    let schemaOptions: SchemaOptions | undefined
-    if (protobufPath && protobufMessageName) {
-      schemaOptions = {
-        type: 'protobuf',
-        protobufPath,
-        protobufMessageName,
-      }
-    } else if (avscPath) {
-      schemaOptions = {
-        type: 'avro',
-        avscPath,
-      }
-    }
+    const schemaOptions: SchemaOptions | undefined = parseSchemaOptions(protobufPath, protobufMessageName, avscPath)
 
     const msgData: MsgItem[] = []
 

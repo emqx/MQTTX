@@ -141,6 +141,27 @@ const parseFormat = (value: string) => {
   return value
 }
 
+const parseSchemaOptions = (
+  protobufPath?: string,
+  protobufMessageName?: string,
+  avscPath?: string,
+): SchemaOptions | undefined => {
+  if (protobufPath && protobufMessageName) {
+    return {
+      type: 'protobuf',
+      protobufPath,
+      protobufMessageName,
+    }
+  } else if (avscPath) {
+    return {
+      type: 'avro',
+      avscPath,
+    }
+  } else {
+    return undefined
+  }
+}
+
 const parseOutputMode = (value: string) => {
   if (!['clean', 'default'].includes(value)) {
     logWrapper.fail('Not a valid output mode.')
@@ -359,19 +380,7 @@ const parsePublishOptions = (options: PublishOptions) => {
     dup,
   }
 
-  let schemaOptions: SchemaOptions | undefined
-  if (protobufPath && protobufMessageName) {
-    schemaOptions = {
-      type: 'protobuf',
-      protobufPath,
-      protobufMessageName,
-    }
-  } else if (avscPath) {
-    schemaOptions = {
-      type: 'avro',
-      avscPath,
-    }
-  }
+  const schemaOptions: SchemaOptions | undefined = parseSchemaOptions(protobufPath, protobufMessageName, avscPath)
 
   if (options.mqttVersion === 5) {
     const properties = {
@@ -446,6 +455,7 @@ export {
   parseFileSave,
   parseFileWrite,
   parseFormat,
+  parseSchemaOptions,
   parseOutputMode,
   parseConnectOptions,
   parsePublishOptions,
