@@ -1,3 +1,5 @@
+import { loadConfig } from '../configs'
+
 const state = {
   configs: null as ConfigModel | null,
 
@@ -21,5 +23,8 @@ const state = {
     return null
   },
 }
+
+const configs = loadConfig()
+state.setConfigs(configs)
 
 export default state
