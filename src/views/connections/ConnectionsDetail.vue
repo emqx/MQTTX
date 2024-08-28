@@ -328,7 +328,7 @@ import cbor from 'cbor'
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import { matchTopicMethod } from '@/utils/topicMatch'
-import { createClient } from '@/utils/mqttUtils'
+import { createClient, ignoreQoS0Message } from '@/utils/mqttUtils'
 import { getBytes, getUptime, getVersion } from '@/utils/SystemTopicUtils'
 import validFormatJson from '@/utils/validFormatJson'
 import delay from '@/utils/delay'
@@ -1332,8 +1332,12 @@ export default class ConnectionsDetail extends Vue {
   private async saveMessage(id: string, messages: MessageModel[]) {
     try {
       if (messages.length) {
-        const { messageService } = useServices()
-        await messageService.pushMsgsToConnection(messages, id)
+        const filteredMessages = messages.filter((msg) => !ignoreQoS0Message(msg.qos))
+        console.log('filteredMessages', filteredMessages)
+        if (filteredMessages.length) {
+          const { messageService } = useServices()
+          await messageService.pushMsgsToConnection(filteredMessages, id)
+        }
       }
     } catch (error) {
       this.$log.error((error as Error).toString())
@@ -1673,8 +1677,10 @@ export default class ConnectionsDetail extends Vue {
     this.updateMeta(publishMessage, 'schema', 'publish')
 
     if (this.record.id) {
-      const { messageService } = useServices()
-      await messageService.pushMsgsToConnection({ ...publishMessage }, this.record.id)
+      if (!ignoreQoS0Message(qos)) {
+        const { messageService } = useServices()
+        await messageService.pushMsgsToConnection({ ...publishMessage }, this.record.id)
+      }
       this.renderMessage(this.curConnectionId, publishMessage, 'publish')
       this.logSuccessfulPublish(publishMessage)
     }

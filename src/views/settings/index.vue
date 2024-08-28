@@ -293,6 +293,32 @@
       </el-row>
       <el-divider></el-divider>
 
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="20">
+          <label>{{ $t('settings.ignoreQoS0Message') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('settings.ignoreQoS0MessageDesc')"
+          >
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            :value="ignoreQoS0Message"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleIgnoreQoS0MessageSwitchChange"
+          >
+          </el-switch>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
       <ImportData :visible.sync="showImportData" />
       <ExportData :visible.sync="showExportData" />
       <ClearUpHistoryData :visible.sync="showHistoryData" />
@@ -423,6 +449,9 @@ export default class Settings extends Vue {
   @Action('SET_OPEN_AI_API_KEY') private actionSetOpenAIAPIKey!: (payload: { openAIAPIKey: string }) => void
   @Action('SET_MODEL') private actionSetModel!: (payload: { model: AIModel }) => void
   @Action('SET_LOG_LEVEL') private actionSetLogLevel!: (payload: { logLevel: LogLevel }) => void
+  @Action('TOGGLE_IGNORE_QOS0_MESSAGE') private actionToggleIgnoreQoS0Message!: (payload: {
+    ignoreQoS0Message: boolean
+  }) => void
 
   @Getter('currentTheme') private currentTheme!: Theme
   @Getter('currentLang') private currentLang!: Language
@@ -437,6 +466,7 @@ export default class Settings extends Vue {
   @Getter('openAIAPIKey') private openAIAPIKey!: string
   @Getter('model') private model!: AIModel
   @Getter('logLevel') private logLevel!: LogLevel
+  @Getter('ignoreQoS0Message') private ignoreQoS0Message!: boolean
 
   private showAIModelsSelect = false
 
@@ -597,6 +627,10 @@ export default class Settings extends Vue {
 
   private queryAIAPIHost(queryString: string, cb: (r: any[]) => {}) {
     cb(queryString ? this.AIAPIHostOptions.filter((item) => item.value.includes(queryString)) : this.AIAPIHostOptions)
+  }
+
+  private handleIgnoreQoS0MessageSwitchChange(value: boolean) {
+    this.actionToggleIgnoreQoS0Message({ ignoreQoS0Message: value })
   }
 
   private created() {

@@ -49,4 +49,7 @@ export default class SettingEntity {
 
   @Column({ type: 'simple-enum', enum: ['debug', 'info', 'warn', 'error'], default: 'info' })
   logLevel!: 'debug' | 'info' | 'warn' | 'error'
+
+  @Column({ type: 'boolean', default: false })
+  ignoreQoS0Message!: boolean
 }

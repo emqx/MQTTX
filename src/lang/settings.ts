@@ -209,4 +209,18 @@ export default {
     ja: 'MQTTX CLIをワンクリックでインストールします。インストール中に管理者アクセスのプロンプトが表示されます。インストール後、ターミナルでMQTTXを実行できます。',
     hu: 'Egy kattintással telepítheti az MQTTX CLI-t. Telepítés közben rendszergazdai hozzáférésre vonatkozó kérést fog kapni. Telepítés után a terminálban futtathatja az MQTTX-et.',
   },
+  ignoreQoS0Message: {
+    zh: '忽略 QoS 0 消息',
+    en: 'Ignore QoS 0 Message',
+    tr: 'QoS 0 Mesajını Yakalamayın',
+    ja: 'QoS 0 メッセージを無視する',
+    hu: 'QoS 0 üzeneteket figyelmen kívül hagyás',
+  },
+  ignoreQoS0MessageDesc: {
+    zh: '开启后，MQTTX 将忽略 QoS 0 的消息，不会将其存储到本地，已保存的消息不会被自动清除，从而提高性能',
+    en: 'Once enabled, MQTTX will ignore QoS 0 messages and will not store them locally. Already saved messages will not be automatically cleared, improving performance',
+    tr: 'Etkinleştirdiğinizde, MQTTX QoS 0 mesajlarını yok sayacak ve bunları yerel olarak depolamayacaktır. Zaten kaydedilmiş olan mesajlar otomatik olarak temizlenmeyecektir, performansı artıracaktır.',
+    ja: 'この機能を有効にすると、MQTTX は QoS 0 メッセージを無視し、それらをローカルに保存しません。すでに保存されたメッセージは自動的にクリアされません。これにより、パフォーマンスが向上します。',
+    hu: 'Ha engedélyezve van, az MQTTX figyelmen kívül hagyja a QoS 0 üzeneteket, és nem tárolja őket helyben. Már mentett üzeneteket nem fog automatikusan törölni, ami teljesítmény javítását eredményezi.',
+  },
 }
