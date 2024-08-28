@@ -61,7 +61,7 @@ export default class MessageService {
       // Handle '#' wildcard
       if (topic.endsWith('/#')) {
         const baseTopic = topic.slice(0, -2) // Remove '/#'
-        query.andWhere('(msg.topic LIKE :baseTopic OR msg.topic LIKE :topic ESCAPE "\\")', {
+        query.andWhere('(msg.topic = :baseTopic OR msg.topic LIKE :topic ESCAPE "\\")', {
           baseTopic,
           topic: baseTopic + '/%',
         })
