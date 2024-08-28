@@ -155,6 +155,7 @@ async function createWindow() {
         openAIAPIKey: setting.openAIAPIKey,
         model: setting.model,
         logLevel: setting.logLevel,
+        ignoreQoS0Message: setting.ignoreQoS0Message,
       }
     }
   } catch (error) {

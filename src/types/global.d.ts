@@ -112,6 +112,7 @@ declare global {
     logLevel: LogLevel
     showConnectionList: boolean
     connectDatabaseFailMessage: string
+    ignoreQoS0Message: boolean
   }
 
   interface State {

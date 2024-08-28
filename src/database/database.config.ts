@@ -45,6 +45,7 @@ import { enableCopilot1703659148195 } from './migration/1703659148195-enableCopi
 import { logLevel1704941582350 } from './migration/1704941582350-logLevel'
 import { updatePayloadTypeToVarchar1630403733965 } from './migration/1705478422620-updatePayloadTypeToVarchar'
 import { supportOpenAIAPIHost1716044120271 } from './migration/1716044120271-supportOpenAIAPIHost'
+import { ignoreQoS0Message1724839386732 } from './migration/1724839386732-ignoreQoS0Message'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -96,6 +97,7 @@ const ORMConfig = {
     logLevel1704941582350,
     updatePayloadTypeToVarchar1630403733965,
     supportOpenAIAPIHost1716044120271,
+    ignoreQoS0Message1724839386732,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [

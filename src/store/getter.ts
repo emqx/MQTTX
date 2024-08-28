@@ -23,6 +23,7 @@ const getters = {
   logLevel: (state: State) => state.app.logLevel,
   showConnectionList: (state: State) => state.app.showConnectionList,
   connectDatabaseFailMessage: (state: State) => state.app.connectDatabaseFailMessage,
+  ignoreQoS0Message: (state: State) => state.app.ignoreQoS0Message,
 }
 
 export default getters

@@ -228,4 +228,8 @@ export const getDefaultRecord = (): ConnectionModel => {
   }
 }
 
+export const ignoreQoS0Message = (qos: QoS): boolean => {
+  return Store.getters.ignoreQoS0Message && qos === 0
+}
+
 export default {}

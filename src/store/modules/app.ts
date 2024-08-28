@@ -28,6 +28,7 @@ const TOGGLE_ENABLE_COPILOT = 'TOGGLE_ENABLE_COPILOT'
 const SET_LOG_LEVEL = 'SET_LOG_LEVEL'
 const TOGGLE_SHOW_CONNECTION_LIST = 'TOGGLE_SHOW_CONNECTION_LIST'
 const SET_DATABASE_FAIL_MESSAGE = 'SET_DATABASE_FAIL_MESSAGE'
+const TOGGLE_IGNORE_QOS0_MESSAGE = 'TOGGLE_IGNORE_QOS0_MESSAGE'
 
 const getShowConnectionList = (): boolean => {
   const _showConnectionList: string | null = localStorage.getItem('showConnectionList')
@@ -65,6 +66,7 @@ const app = {
     logLevel: settingData.logLevel || 'info',
     showConnectionList: getShowConnectionList(),
     connectDatabaseFailMessage: settingData.connectDatabaseFailMessage || '',
+    ignoreQoS0Message: settingData.ignoreQoS0Message || false,
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -168,6 +170,9 @@ const app = {
     },
     [SET_DATABASE_FAIL_MESSAGE](state: App, connectDatabaseFailMessage: string) {
       state.connectDatabaseFailMessage = connectDatabaseFailMessage
+    },
+    [TOGGLE_IGNORE_QOS0_MESSAGE](state: App, ignoreQoS0Message: boolean) {
+      state.ignoreQoS0Message = ignoreQoS0Message
     },
   },
   actions: {
@@ -287,6 +292,12 @@ const app = {
     },
     SET_DATABASE_FAIL_MESSAGE({ commit }: any, payload: App) {
       commit(SET_DATABASE_FAIL_MESSAGE, payload.connectDatabaseFailMessage)
+    },
+    async TOGGLE_IGNORE_QOS0_MESSAGE({ commit }: any, payload: App) {
+      const { settingService } = useServices()
+      commit(TOGGLE_IGNORE_QOS0_MESSAGE, payload.ignoreQoS0Message)
+      settingData.ignoreQoS0Message = payload.ignoreQoS0Message
+      await settingService.update(payload)
     },
   },
 }
