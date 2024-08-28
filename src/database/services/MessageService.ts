@@ -61,18 +61,36 @@ export default class MessageService {
     msgType !== 'all' && query.andWhere('msg.out = :out', { out: msgType === 'publish' })
 
     if (topic && topic !== '#') {
+      // Escape special characters for SQL LIKE
       topic = topic.replace(/[\\%_]/g, '\\$&')
-      if (topic.startsWith('$share/')) topic = topic.split('/').slice(2).join('/')
-      if (topic.includes('#') && topic.endsWith('/#')) topic = topic.replace('#', '%')
+
+      // Remove $share prefix if present
+      if (topic.startsWith('$share/')) {
+        topic = topic.split('/').slice(2).join('/')
+      }
+
       /*
+        Handle `+` wildcard
         Known Issue: '+' wildcard handling in MQTT topics is incorrect.
         '+' is replaced with '%' for SQL LIKE, causing multi-level match.
           - Incorrect: 'testtopic/+/test' matches 'testtopic/1/2/test'
           - Incorrect: 'testtopic/+/hello/+' can not matches 'testtopic/hello/hello/hello'
         TODO: FIX this issue.
       */
-      if (topic.includes('+')) topic = topic.replace('+', '%')
-      query.andWhere('msg.topic LIKE :topic ESCAPE "\\"', { topic })
+      if (topic.includes('+')) {
+        topic = topic.replace('+', '%')
+      }
+
+      // Handle '#' wildcard
+      if (topic.endsWith('/#')) {
+        const baseTopic = topic.slice(0, -2) // Remove '/#'
+        query.andWhere('(msg.topic LIKE :baseTopic OR msg.topic LIKE :topic ESCAPE "\\")', {
+          baseTopic,
+          topic: baseTopic + '/%',
+        })
+      } else {
+        query.andWhere('msg.topic LIKE :topic ESCAPE "\\"', { topic })
+      }
     }
 
     if (options.searchParams) {
@@ -125,11 +143,36 @@ export default class MessageService {
     msgType !== 'all' && query.andWhere('msg.out = :out', { out: msgType === 'publish' })
 
     if (topic && topic !== '#') {
+      // Escape special characters for SQL LIKE
       topic = topic.replace(/[\\%_]/g, '\\$&')
-      if (topic.startsWith('$share/')) topic = topic.split('/').slice(2).join('/')
-      if (topic.includes('#') && topic.endsWith('/#')) topic = topic.replace('#', '%')
-      if (topic.includes('+')) topic = topic.replace('+', '%')
-      query.andWhere('msg.topic LIKE :topic ESCAPE "\\"', { topic })
+
+      // Remove $share prefix if present
+      if (topic.startsWith('$share/')) {
+        topic = topic.split('/').slice(2).join('/')
+      }
+
+      /*
+      Handle `+` wildcard
+      Known Issue: '+' wildcard handling in MQTT topics is incorrect.
+      '+' is replaced with '%' for SQL LIKE, causing multi-level match.
+        - Incorrect: 'testtopic/+/test' matches 'testtopic/1/2/test'
+        - Incorrect: 'testtopic/+/hello/+' can not matches 'testtopic/hello/hello/hello'
+      TODO: FIX this issue.
+    */
+      if (topic.includes('+')) {
+        topic = topic.replace('+', '%')
+      }
+
+      // Handle '#' wildcard
+      if (topic.endsWith('/#')) {
+        const baseTopic = topic.slice(0, -2) // Remove '/#'
+        query.andWhere('(msg.topic LIKE :baseTopic OR msg.topic LIKE :topic ESCAPE "\\")', {
+          baseTopic,
+          topic: baseTopic + '/%',
+        })
+      } else {
+        query.andWhere('msg.topic LIKE :topic ESCAPE "\\"', { topic })
+      }
     }
 
     if (options.searchParams) {
