@@ -63,7 +63,7 @@ export default class MessageService {
     if (topic && topic !== '#') {
       topic = topic.replace(/[\\%_]/g, '\\$&')
       if (topic.startsWith('$share/')) topic = topic.split('/').slice(2).join('/')
-      if (topic.includes('#')) topic = topic.replace('/#', '%')
+      if (topic.includes('#') && topic.endsWith('/#')) topic = topic.replace('#', '%')
       /*
         Known Issue: '+' wildcard handling in MQTT topics is incorrect.
         '+' is replaced with '%' for SQL LIKE, causing multi-level match.
@@ -127,7 +127,7 @@ export default class MessageService {
     if (topic && topic !== '#') {
       topic = topic.replace(/[\\%_]/g, '\\$&')
       if (topic.startsWith('$share/')) topic = topic.split('/').slice(2).join('/')
-      if (topic.includes('#')) topic = topic.replace('/#', '%')
+      if (topic.includes('#') && topic.endsWith('/#')) topic = topic.replace('#', '%')
       if (topic.includes('+')) topic = topic.replace('+', '%')
       query.andWhere('msg.topic LIKE :topic ESCAPE "\\"', { topic })
     }
