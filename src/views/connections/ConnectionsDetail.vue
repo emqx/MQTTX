@@ -1332,12 +1332,8 @@ export default class ConnectionsDetail extends Vue {
   private async saveMessage(id: string, messages: MessageModel[]) {
     try {
       if (messages.length) {
-        const filteredMessages = messages.filter((msg) => !ignoreQoS0Message(msg.qos))
-        console.log('filteredMessages', filteredMessages)
-        if (filteredMessages.length) {
-          const { messageService } = useServices()
-          await messageService.pushMsgsToConnection(filteredMessages, id)
-        }
+        const { messageService } = useServices()
+        await messageService.pushMsgsToConnection(messages, id)
       }
     } catch (error) {
       this.$log.error((error as Error).toString())
@@ -1471,12 +1467,17 @@ export default class ConnectionsDetail extends Vue {
       }
     })
 
-    // Save messages
-    nonSYSMessageSubject$.pipe(bufferTime(1000)).subscribe((messages: MessageModel[]) => {
-      if (messages.length) {
-        this.saveMessage(id, messages)
-      }
-    })
+    // Save messages with QoS filtering
+    nonSYSMessageSubject$
+      .pipe(
+        filter((message: MessageModel) => !ignoreQoS0Message(message.qos)),
+        bufferTime(1000),
+      )
+      .subscribe((messages: MessageModel[]) => {
+        if (messages.length) {
+          this.saveMessage(id, messages)
+        }
+      })
 
     // Bytes statistics
     SYSMessageSubject$.pipe(bufferTime(1000)).subscribe((messages: MessageModel[]) => {
