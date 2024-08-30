@@ -821,7 +821,7 @@ export default class ConnectionForm extends Vue {
     if (val && this.record.properties) {
       this.$set(this.record.properties, 'sessionExpiryInterval', 0)
     } else if (!val && this.record.properties) {
-      this.$set(this.record.properties, 'sessionExpiryInterval', null)
+      this.$set(this.record.properties, 'sessionExpiryInterval', 7200)
     }
   }
 
