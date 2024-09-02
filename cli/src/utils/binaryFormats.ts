@@ -1,4 +1,4 @@
-const supportedBinaryFormatsForMQTT = [
+export const supportedBinaryFormatsForMQTT = [
   '.png',
   '.jpg',
   '.jpeg',
