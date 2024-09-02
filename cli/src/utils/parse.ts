@@ -26,16 +26,18 @@ const parseProtocol = (value: string) => {
 }
 
 const parseMQTTVersion = (value: string) => {
-  const dict = {
+  const dict: Record<string, number> = {
     '3.1': 3,
     '3.1.1': 4,
     '5': 5,
   }
-  if (!Object.keys(dict).includes(value)) {
+  // Normalize '5.0' to '5'
+  const normalizedValue = value === '5.0' ? '5' : value
+  if (!dict[normalizedValue]) {
     logWrapper.fail('Not a valid MQTT version.')
     process.exit(1)
   }
-  return dict[value as '3.1' | '3.1.1' | '5']
+  return dict[normalizedValue as '3.1' | '3.1.1' | '5']
 }
 
 const parseKeyValues = (value: string, previous?: Record<string, string | string[]>) => {

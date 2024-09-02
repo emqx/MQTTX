@@ -56,7 +56,7 @@ export class Commander {
     this.program
       .command('conn')
       .description('Create a connection and connect to MQTT Broker.')
-      .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
+      .option('-V, --mqtt-version <5.0/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', state.getConfig('host'))
       .option('-p, --port <PORT>', 'the broker port', parseNumber, state.getConfig('port'))
       .option('-i, --client-id <ID>', 'the client id', getClientId())
@@ -161,7 +161,7 @@ export class Commander {
       .option('-si, --subscription-identifier <NUMBER>', 'the identifier of the subscription', parseNumber)
       .option('-ct, --content-type <TYPE>', 'a description of the content of the publish message')
       // connect options
-      .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
+      .option('-V, --mqtt-version <5.0/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', state.getConfig('host'))
       .option('-p, --port <PORT>', 'the broker port', parseNumber, state.getConfig('port'))
       .option(
@@ -282,7 +282,7 @@ export class Commander {
         'default',
       )
       // connect options
-      .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
+      .option('-V, --mqtt-version <5.0/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', state.getConfig('host'))
       .option('-p, --port <PORT>', 'the broker port', parseNumber, state.getConfig('port'))
       .option('-i, --client-id <ID>', 'the client id', getClientId())
@@ -388,7 +388,7 @@ export class Commander {
       .description('Create a custom number of connections.')
       .option('-c, --count <NUMBER>', 'the number of connections', parseNumber, 1000)
       .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
-      .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
+      .option('-V, --mqtt-version <5.0/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', state.getConfig('host'))
       .option('-p, --port <PORT>', 'the broker port', parseNumber, state.getConfig('port'))
       .option('-I, --client-id <ID>', 'the client id, support %i (index) variable', getClientId())
@@ -504,7 +504,7 @@ export class Commander {
       .option('-ct, --content-type <TYPE>', 'a description of the content of the publish message')
       .option('-v, --verbose', 'print history published total and message rate')
       // connect options
-      .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
+      .option('-V, --mqtt-version <5.0/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', state.getConfig('host'))
       .option('-p, --port <PORT>', 'the broker port', parseNumber, state.getConfig('port'))
       .option('-I, --client-id <ID>', 'the client id, support %i (index) variable', getClientId())
@@ -608,7 +608,7 @@ export class Commander {
       )
       .option('-v, --verbose', 'print history received messages and rate')
       // connect options
-      .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
+      .option('-V, --mqtt-version <5.0/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', state.getConfig('host'))
       .option('-p, --port <PORT>', 'the broker port', parseNumber, state.getConfig('port'))
       .option('-I, --client-id <ID>', 'the client id, support %i (index) variable', getClientId())
@@ -726,7 +726,7 @@ export class Commander {
       .option('-ct, --content-type <TYPE>', 'a description of the content of the publish message')
       .option('-v, --verbose', 'print history published total and message rate')
       // connect options
-      .option('-V, --mqtt-version <5/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
+      .option('-V, --mqtt-version <5.0/3.1.1/3.1>', 'the MQTT version', parseMQTTVersion, 5)
       .option('-h, --hostname <HOST>', 'the broker host', state.getConfig('host'))
       .option('-p, --port <PORT>', 'the broker port', parseNumber, state.getConfig('port'))
       .option('-I, --client-id <ID>', 'the client id, support %i (index) variable', getClientId())
