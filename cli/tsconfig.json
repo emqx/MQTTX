@@ -8,7 +8,8 @@
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "types": ["@types/signale"]
+    "types": ["@types/signale", "jest"],
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts", "src/__tests__"]
 }

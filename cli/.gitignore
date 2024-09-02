@@ -24,3 +24,4 @@ yarn-error.log*
 package
 release
 dist
+coverage
