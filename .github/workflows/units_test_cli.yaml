@@ -9,7 +9,7 @@ on:
       - published
 
 jobs:
-  build_and_test:
+  cli_test:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
