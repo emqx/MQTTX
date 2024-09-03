@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import moment from 'moment'
 import { getNowDate, toFormat, convertSecondsToMs, sqliteDateFormat } from '@/utils/time'
 
-describe('time utility functions', () => {
+describe('time utility', () => {
   it('getNowDate should return current date in the specified format', () => {
     const now = getNowDate()
     expect(now).to.match(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}:\d{3}$/)
