@@ -5,7 +5,7 @@ import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
 import _ from 'lodash'
 
-const setMQTT5Properties = ({ clean, properties: option }: ConnectionModel) => {
+export const setMQTT5Properties = ({ clean, properties: option }: ConnectionModel) => {
   if (option === undefined) {
     return undefined
   }
@@ -21,7 +21,7 @@ const setMQTT5Properties = ({ clean, properties: option }: ConnectionModel) => {
   return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined))
 }
 
-const setWillMQTT5Properties = (option: WillPropertiesModel) => {
+export const setWillMQTT5Properties = (option: WillPropertiesModel) => {
   if (option === undefined) {
     return undefined
   }
@@ -29,7 +29,7 @@ const setWillMQTT5Properties = (option: WillPropertiesModel) => {
   return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined))
 }
 
-const getClientOptions = (record: ConnectionModel): IClientOptions => {
+export const getClientOptions = (record: ConnectionModel): IClientOptions => {
   const mqttVersionDict = {
     '3.1': 3,
     '3.1.1': 4,
@@ -127,7 +127,7 @@ const getClientOptions = (record: ConnectionModel): IClientOptions => {
   return options
 }
 
-const getUrl = (record: ConnectionModel): string => {
+export const getUrl = (record: ConnectionModel): string => {
   const { host, port, path } = record
   const protocol = getMQTTProtocol(record)
 

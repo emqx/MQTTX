@@ -51,8 +51,11 @@ const MqttErrorReason: Record<string, { [code: number]: string }> = {
 
 type MqttVersion = '3.1' | '3.1.1' | '5.0'
 
-const getErrorReason = (version: MqttVersion, code: number) => {
+const getErrorReason = (version: MqttVersion, code: number): string => {
   const versionMap = MqttErrorReason[version]
+  if (!versionMap) {
+    return 'Unknown error'
+  }
   return versionMap[code] ?? 'Unknown error'
 }
 
