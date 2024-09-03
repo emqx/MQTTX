@@ -1,0 +1,23 @@
+name: units test desktop
+
+on:
+  pull_request:
+  release:
+    types:
+      - published
+
+jobs:
+  desktop_test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies and run unit tests
+        run: |
+          yarn install
+          yarn test:unit
