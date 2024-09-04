@@ -49,7 +49,7 @@ const processReceivedMessage = (
         )
 
       case 'avro':
-        return deserializeBufferToAvro(payload, schemaOptions.avscPath, format)
+        return deserializeBufferToAvro(payload, schemaOptions.avscPath, format ? true : false)
     }
   }
 

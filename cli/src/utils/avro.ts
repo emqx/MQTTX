@@ -4,7 +4,11 @@ import logWrapper from './logWrapper'
 
 const schemaCache: { [key: string]: avro.Type } = {}
 
-const getAvroType = (schemaPath: string): avro.Type => {
+export const clearCache = (): void => {
+  Object.keys(schemaCache).forEach((key) => delete schemaCache[key])
+}
+
+export const getAvroType = (schemaPath: string): avro.Type => {
   // first search from cache
   if (schemaCache[schemaPath]) {
     return schemaCache[schemaPath]
@@ -12,15 +16,16 @@ const getAvroType = (schemaPath: string): avro.Type => {
 
   try {
     const schemaStr = fs.readFileSync(schemaPath, 'utf-8')
+    let parsedSchema
 
     try {
-      JSON.parse(schemaStr)
+      parsedSchema = JSON.parse(schemaStr)
     } catch (err: unknown) {
       logWrapper.fail(`Schema not following JSON format: ${(err as Error).message}`)
       process.exit(1)
     }
 
-    const type = avro.Type.forSchema(JSON.parse(schemaStr))
+    const type = avro.Type.forSchema(parsedSchema)
 
     // cache the parsed schema
     schemaCache[schemaPath] = type
@@ -32,20 +37,22 @@ const getAvroType = (schemaPath: string): avro.Type => {
   }
 }
 
-export const serializeAvroToBuffer = (raw: string | Buffer, avscSchemaPath: string): Buffer => {
-  const type: avro.Type = getAvroType(avscSchemaPath)
+export const serializeAvroToBuffer = (raw: string | Buffer, avroSchemaPath: string): Buffer => {
+  const type: avro.Type = getAvroType(avroSchemaPath)
 
   let rawMessage = raw.toString('utf-8')
+  let parsedMessage
 
+  // Avro requires structured message as input
   try {
-    JSON.parse(rawMessage)
+    parsedMessage = JSON.parse(rawMessage)
   } catch (err: unknown) {
     logWrapper.fail(`Invalid JSON input: ${(err as Error).message}`)
     process.exit(1)
   }
 
   try {
-    const serializedMessage = type.toBuffer(JSON.parse(rawMessage))
+    const serializedMessage = type.toBuffer(parsedMessage)
     return Buffer.from(serializedMessage)
   } catch (err: unknown) {
     logWrapper.fail(`Unable to serialize message to avro buffer: ${err}`)
@@ -56,7 +63,7 @@ export const serializeAvroToBuffer = (raw: string | Buffer, avscSchemaPath: stri
 export const deserializeBufferToAvro = (
   payload: Buffer,
   avscSchemaPath: string,
-  needFormat?: FormatType,
+  needFormat: boolean,
 ): string | Buffer => {
   const type: avro.Type = getAvroType(avscSchemaPath)
 
