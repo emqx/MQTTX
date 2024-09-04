@@ -1,0 +1,10 @@
+{
+    "type": "record",
+    "name": "SensorData",
+    "fields": [
+        {"name": "deviceId", "type": "string"},
+        {"name": "sensorType", "type": "string"},
+        {"name": "value", "type": "double"},
+        {"name": "timestamp", "type": "long"}
+    ]
+}
