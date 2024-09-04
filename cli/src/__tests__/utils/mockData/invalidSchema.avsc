@@ -1,0 +1,9 @@
+{
+    "type": "record",
+    "name": "Sens
+    "fields": [
+        {"name": "deviceId", "type": "string"}
+        pe", "type": "string"}
+        {"na
+        {"name": "timestamp", "type":}
+}
