@@ -3,6 +3,7 @@ import logWrapper from '../../utils/logWrapper'
 import { expect, describe, it } from '@jest/globals'
 import * as avsc from 'avsc'
 import * as path from 'path'
+import { jest } from '@jest/globals'
 
 // Mock the logWrapper and process.exit
 jest.mock('../../utils/logWrapper', () => ({

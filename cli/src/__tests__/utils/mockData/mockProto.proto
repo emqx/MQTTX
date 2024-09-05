@@ -1,0 +1,7 @@
+syntax = "proto3";
+message SensorData {
+  string deviceId = 1;
+  string sensorType = 2;
+  double value = 3;
+  int64 timestamp = 4;
+}
