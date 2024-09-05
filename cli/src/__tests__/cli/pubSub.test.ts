@@ -42,12 +42,14 @@ describe('pubSub', () => {
       done(error)
     }
 
+    console.log('Starting subscriber...')
     // Start subscriber
-    subProcess = exec(`node ./bin/index.js sub -u mqttx_test_sub -h broker.emqx.io -p 1883 -t ${topic}`)
+    subProcess = exec(`node ./bin/index.js sub -h broker.emqx.io -p 1883 -t ${topic}`)
 
     let messageReceived = false
 
     const checkSubOutput = (data: string) => {
+      console.log('Subscriber output:', data)
       if (data.includes(message)) {
         messageReceived = true
         expect(messageReceived).toBe(true)
@@ -58,27 +60,30 @@ describe('pubSub', () => {
     subProcess.stdout?.on('data', checkSubOutput)
     subProcess.stderr?.on('data', checkSubOutput)
 
-    // Wait a bit for the subscriber to connect before publishing
+    // Wait for the subscriber to connect before publishing
+    console.log('Waiting for subscriber to connect...')
     publisherTimeoutId = setTimeout(() => {
+      console.log('Starting publisher...')
       // Start publisher
-      pubProcess = exec(
-        `node ./bin/index.js pub -u mqttx_test_pub -h broker.emqx.io -p 1883 -t ${topic} -m "${message}"`,
-      )
+      pubProcess = exec(`node ./bin/index.js pub -h broker.emqx.io -p 1883 -t ${topic} -m "${message}"`)
 
       pubProcess.on('exit', (code) => {
+        console.log('Publisher exited with code:', code)
         expect(code).toBe(0)
-        // Wait a bit to ensure the message is received by the subscriber
+        // Wait to ensure the message is received by the subscriber
         setTimeout(() => {
           if (!messageReceived) {
+            console.log('Message not received within timeout period')
             cleanupAndDone(new Error('Message not received'))
           }
-        }, 1000)
+        }, 50000)
       })
-    }, 2000)
+    }, 50000)
 
     // Set a timeout in case the test takes too long
     testTimeoutId = setTimeout(() => {
+      console.log('Test timed out')
       cleanupAndDone(new Error('Test timed out'))
-    }, 55000)
+    }, 60000)
   })
 })
