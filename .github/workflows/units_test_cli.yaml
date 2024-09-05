@@ -21,6 +21,7 @@ jobs:
         run: |
           cd cli
           yarn
+          yarn build
           yarn test:coverage
 
       # - name: Upload coverage reports to Codecov
