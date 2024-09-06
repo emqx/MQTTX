@@ -6,12 +6,13 @@ const execAsync = util.promisify(exec)
 jest.setTimeout(30000) // 30 seconds timeout
 
 describe('sub', () => {
-  let childProcess: ChildProcess | null = null
+  let childProcesses: ChildProcess[] = []
 
   afterAll(() => {
-    if (childProcess) {
-      childProcess.kill()
-    }
+    childProcesses.forEach((process) => {
+      process.kill()
+    })
+    childProcesses = []
   })
 
   it('can get the sub command help info', async () => {
@@ -21,7 +22,8 @@ describe('sub', () => {
 
   it('can subscribe to a topic', (done) => {
     const topic = `test/mqttx/cli/${Date.now()}`
-    childProcess = exec(`node ./bin/index.js sub -h broker.emqx.io -p 1883 -u mqttx_test_sub -t ${topic}`)
+    const childProcess = exec(`node ./bin/index.js sub -h broker.emqx.io -p 1883 -u mqttx_test_sub -t ${topic}`)
+    childProcesses.push(childProcess)
 
     let isSubscribing = false
     let isSubscribed = false
@@ -53,5 +55,47 @@ describe('sub', () => {
         done(new Error('Subscription timed out'))
       }
     }, 25000)
+  })
+
+  it('can receive messages after subscribing', (done) => {
+    const topic = `test/mqttx/cli/${Date.now()}`
+    const message = 'Hello MQTT'
+    const subProcess = exec(`node ./bin/index.js sub -h broker.emqx.io -p 1883 -u mqttx_test_sub -t ${topic}`)
+    childProcesses.push(subProcess)
+
+    let isSubscribed = false
+    let messageReceived = false
+
+    const checkMessageReceived = (data: string) => {
+      if (data.includes(`Subscribed to ${topic}`)) {
+        isSubscribed = true
+        // Publish a message to the subscribed topic
+        const pubProcess = exec(
+          `node ./bin/index.js pub -h broker.emqx.io -p 1883 -u mqttx_test_pub -t ${topic} -m "${message}"`,
+        )
+        childProcesses.push(pubProcess)
+      }
+
+      if (data.includes(message)) {
+        messageReceived = true
+        expect(isSubscribed).toBe(true)
+        expect(messageReceived).toBe(true)
+        clearTimeout(timeoutId)
+        done()
+      }
+    }
+
+    subProcess.stdout?.on('data', checkMessageReceived)
+    subProcess.stderr?.on('data', checkMessageReceived)
+
+    // Set a timeout in case the message is not received
+    const timeoutId = setTimeout(() => {
+      if (!messageReceived) {
+        done(new Error('Message not received within the timeout period'))
+      }
+    }, 25000)
+
+    // Ensure the timer is cleaned up
+    timeoutId.unref()
   })
 })
