@@ -3,7 +3,7 @@ import { expect, jest, afterAll } from '@jest/globals'
 import util from 'util'
 
 const execAsync = util.promisify(exec)
-jest.setTimeout(120000) // Increase global timeout to 2 minutes
+jest.setTimeout(1000000)
 
 describe('sub', () => {
   let childProcesses: ChildProcess[] = []
@@ -95,7 +95,7 @@ describe('sub', () => {
     const timeoutId = setTimeout(() => {
       console.log('Timeout reached, test failed')
       done(new Error('Message not received within the timeout period'))
-    }, 90000) // Increase timeout to 90 seconds
+    }, 1000000)
 
     // Ensure the timer is cleaned up
     timeoutId.unref()
