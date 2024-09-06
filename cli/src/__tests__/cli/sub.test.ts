@@ -3,7 +3,7 @@ import { expect, jest, afterAll } from '@jest/globals'
 import util from 'util'
 
 const execAsync = util.promisify(exec)
-jest.setTimeout(600000)
+jest.setTimeout(300000)
 
 describe('sub', () => {
   let childProcesses: ChildProcess[] = []
@@ -57,9 +57,10 @@ describe('sub', () => {
     }, 25000)
   })
 
+  const topic = `test/mqttx/cli/${Date.now()}`
+  const message = 'Hello MQTT'
+
   it('can receive messages after subscribing', (done) => {
-    const topic = `test/mqttx/cli/${Date.now()}`
-    const message = 'Hello MQTT'
     console.log(`Starting subscription to topic: ${topic}`)
     const subProcess = exec(`node ./bin/index.js sub -h broker.emqx.io -p 1883 -u mqttx_test_sub -t ${topic}`)
     childProcesses.push(subProcess)
@@ -83,6 +84,7 @@ describe('sub', () => {
         const pubProcess = exec(
           `node ./bin/index.js pub -h broker.emqx.io -p 1883 -u mqttx_test_pub -t ${topic} -m "${message}"`,
         )
+        console.log('Published message with message:', message, 'to topic:', topic)
         childProcesses.push(pubProcess)
       }
 
@@ -108,7 +110,7 @@ describe('sub', () => {
       console.log('Timeout reached, test failed')
       clearInterval(pollInterval)
       done(new Error('Message not received within the timeout period'))
-    }, 600000) // 10 minutes
+    }, 60000) // 1 minutes
 
     // Ensure the timer is cleaned up
     timeoutId.unref()
