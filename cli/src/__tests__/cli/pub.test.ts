@@ -3,7 +3,7 @@ import { expect, jest, afterAll } from '@jest/globals'
 import util from 'util'
 
 const execAsync = util.promisify(exec)
-jest.setTimeout(30000) // 30 seconds timeout
+jest.setTimeout(30000)
 
 describe('pub', () => {
   let childProcess: ChildProcess | null = null
