@@ -3,7 +3,7 @@ import { expect, jest, afterAll } from '@jest/globals'
 import util from 'util'
 
 const execAsync = util.promisify(exec)
-jest.setTimeout(1000000)
+jest.setTimeout(600000)
 
 describe('sub', () => {
   let childProcesses: ChildProcess[] = []
@@ -67,7 +67,15 @@ describe('sub', () => {
     let isSubscribed = false
     let messageReceived = false
 
-    const checkMessageReceived = (data: string) => {
+    const checkMessageReceived = () => {
+      if (!isSubscribed) {
+        subProcess.stdout?.emit('data', 'Checking subscription status')
+      } else if (!messageReceived) {
+        subProcess.stdout?.emit('data', 'Checking for received message')
+      }
+    }
+
+    const dataHandler = (data: string) => {
       console.log(`Received data: ${data}`)
       if (data.includes(`Subscribed to ${topic}`)) {
         isSubscribed = true
@@ -83,19 +91,24 @@ describe('sub', () => {
         console.log('Message received')
         expect(isSubscribed).toBe(true)
         expect(messageReceived).toBe(true)
+        clearInterval(pollInterval)
         clearTimeout(timeoutId)
         done()
       }
     }
 
-    subProcess.stdout?.on('data', checkMessageReceived)
-    subProcess.stderr?.on('data', checkMessageReceived)
+    subProcess.stdout?.on('data', dataHandler)
+    subProcess.stderr?.on('data', dataHandler)
+
+    // Set up polling interval
+    const pollInterval = setInterval(checkMessageReceived, 1000)
 
     // Set a timeout in case the message is not received
     const timeoutId = setTimeout(() => {
       console.log('Timeout reached, test failed')
+      clearInterval(pollInterval)
       done(new Error('Message not received within the timeout period'))
-    }, 1000000)
+    }, 600000) // 10 minutes
 
     // Ensure the timer is cleaned up
     timeoutId.unref()
