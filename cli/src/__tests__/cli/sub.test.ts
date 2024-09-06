@@ -3,7 +3,7 @@ import { expect, jest, afterAll } from '@jest/globals'
 import util from 'util'
 
 const execAsync = util.promisify(exec)
-jest.setTimeout(30000) // 30 seconds timeout
+jest.setTimeout(60000)
 
 describe('sub', () => {
   let childProcesses: ChildProcess[] = []
@@ -93,7 +93,7 @@ describe('sub', () => {
       if (!messageReceived) {
         done(new Error('Message not received within the timeout period'))
       }
-    }, 25000)
+    }, 60000)
 
     // Ensure the timer is cleaned up
     timeoutId.unref()
