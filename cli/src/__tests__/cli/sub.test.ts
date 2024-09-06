@@ -3,7 +3,7 @@ import { expect, jest, afterAll } from '@jest/globals'
 import util from 'util'
 
 const execAsync = util.promisify(exec)
-jest.setTimeout(60000)
+jest.setTimeout(120000) // Increase global timeout to 2 minutes
 
 describe('sub', () => {
   let childProcesses: ChildProcess[] = []
@@ -60,6 +60,7 @@ describe('sub', () => {
   it('can receive messages after subscribing', (done) => {
     const topic = `test/mqttx/cli/${Date.now()}`
     const message = 'Hello MQTT'
+    console.log(`Starting subscription to topic: ${topic}`)
     const subProcess = exec(`node ./bin/index.js sub -h broker.emqx.io -p 1883 -u mqttx_test_sub -t ${topic}`)
     childProcesses.push(subProcess)
 
@@ -67,9 +68,10 @@ describe('sub', () => {
     let messageReceived = false
 
     const checkMessageReceived = (data: string) => {
+      console.log(`Received data: ${data}`)
       if (data.includes(`Subscribed to ${topic}`)) {
         isSubscribed = true
-        // Publish a message to the subscribed topic
+        console.log('Subscription confirmed, publishing message')
         const pubProcess = exec(
           `node ./bin/index.js pub -h broker.emqx.io -p 1883 -u mqttx_test_pub -t ${topic} -m "${message}"`,
         )
@@ -78,6 +80,7 @@ describe('sub', () => {
 
       if (data.includes(message)) {
         messageReceived = true
+        console.log('Message received')
         expect(isSubscribed).toBe(true)
         expect(messageReceived).toBe(true)
         clearTimeout(timeoutId)
@@ -90,10 +93,9 @@ describe('sub', () => {
 
     // Set a timeout in case the message is not received
     const timeoutId = setTimeout(() => {
-      if (!messageReceived) {
-        done(new Error('Message not received within the timeout period'))
-      }
-    }, 60000)
+      console.log('Timeout reached, test failed')
+      done(new Error('Message not received within the timeout period'))
+    }, 90000) // Increase timeout to 90 seconds
 
     // Ensure the timer is cleaned up
     timeoutId.unref()
