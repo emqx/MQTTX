@@ -315,8 +315,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
             if (connectedCount === count && subscribedCount === count * topic.length && !isLogged) {
               if (allSuccessfulSubs.length > 0) {
-                const uniqueSuccessfulSubs = Array.from(new Set(allSuccessfulSubs.map((t) => t.topic)))
-                logWrapper.success(`All connections subscribed to: ${uniqueSuccessfulSubs.join(', ')}`)
+                logWrapper.success(`All connections subscribed`)
               }
 
               if (failedSubs.length > 0) {
