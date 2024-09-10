@@ -24,8 +24,17 @@
 
         <el-col :span="24">
           <el-form-item :label="$t('script.functionName')" prop="currentFunctionId">
-            <el-select filterable clearable size="small" v-model="currentFunctionId">
+            <el-select filterable clearable size="small" v-model="currentFunctionId" @change="handleFunctionChange">
               <el-option v-for="func in functions" :key="func.id" :value="func.id" :label="func.name"> </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+
+        <el-col :span="24">
+          <el-form-item :label="$t('script.schemaType')" prop="todo">
+            <el-select filterable clearable size="small" v-model="currentSchemaType" @change="handleSchemaTypeChange">
+              <el-option v-for="schema in schemaList" :key="schema.label" :value="schema.value" :label="schema.label">
+              </el-option>
             </el-select>
           </el-form-item>
         </el-col>
@@ -39,7 +48,7 @@
           </el-form-item>
         </el-col>
 
-        <el-col :span="24" v-if="currentSchemaId">
+        <el-col :span="24" v-if="currentSchemaId && currentSchemaType == 'protobuf'">
           <el-form-item :label="$t('script.protoName')" prop="currentProtoName">
             <el-input v-model.trim="currentProtoName" size="mini"></el-input>
           </el-form-item>
@@ -63,9 +72,14 @@ export default class UseScript extends Vue {
   @Prop({ default: false }) public visible!: boolean
 
   private showDialog: boolean = this.visible
+  private schemaList: SchemaList[] = [
+    { label: 'Protobuf', value: 'protobuf' },
+    { label: 'Avro', value: 'avro' },
+  ]
   private functions: ScriptModel[] = []
   private schemas: ScriptModel[] = []
   private currentFunctionId: string = ''
+  private currentSchemaType: SchemaType | null = null
   private currentSchemaId: string = ''
   private currentProtoName: string = ''
   private scriptApply: MessageType = 'all'
@@ -93,16 +107,39 @@ export default class UseScript extends Vue {
     this.loadData()
   }
 
+  private readonly defaultSchemaTypes = {
+    protobuf: {
+      extension: 'proto',
+    },
+    avro: {
+      extension: 'avsc',
+    },
+  }
+
   private async loadData() {
     const { scriptService } = useServices()
     const functions: ScriptModel[] | [] = (await scriptService.getAllFunction()) ?? []
     const schemas: ScriptModel[] | [] = (await scriptService.getAllSchema()) ?? []
     this.functions = functions
-    this.schemas = schemas
+
+    this.schemas =
+      this.currentSchemaType == null
+        ? []
+        : schemas.filter((s) => s.name.endsWith(this.defaultSchemaTypes[this.currentSchemaType!].extension))
   }
 
   private resetData() {
     this.$emit('update:visible', false)
+  }
+
+  private handleFunctionChange() {
+    this.loadData()
+  }
+
+  private handleSchemaTypeChange(schemaType: SchemaType) {
+    this.currentSchemaType = schemaType
+    this.currentSchemaId = ''
+    this.loadData()
   }
 
   private async save() {
@@ -110,7 +147,11 @@ export default class UseScript extends Vue {
       this.$message.warning(this.$tc('script.mustSelect'))
       return
     }
-    if (this.currentSchemaId && !this.currentProtoName) {
+    if (this.currentSchemaType && !this.currentSchemaId) {
+      this.$message.warning(this.$tc('script.mustSelect'))
+      return
+    }
+    if (this.currentSchemaType === 'protobuf' && !this.currentProtoName) {
       // TODO:modify warning content
       this.$message.warning(this.$tc('script.mustProtoName'))
       return

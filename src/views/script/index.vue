@@ -14,7 +14,7 @@
         <el-select v-if="activeTab == functionTab" class="function-select" :value="currentFunction" size="mini">
           <el-option v-for="item in functionList" :key="item.value" :value="item.value" :label="item.label"></el-option>
         </el-select>
-        <el-select v-else class="schema-select" :value="currentSchema" size="mini">
+        <el-select v-else class="schema-select" :value="currentSchema" size="mini" @change="handleSchemaChange">
           <el-option v-for="item in schemaList" :key="item.value" :value="item.value" :label="item.label"></el-option>
         </el-select>
         <el-select
@@ -25,14 +25,12 @@
         >
           <el-option v-for="script in scripts" :key="script.id" :label="script.name" :value="script.id"></el-option>
         </el-select>
-        <a v-if="this.currentScriptId" href="javascript:;" @click="handleCreate">
+        <a v-if="currentScriptId" href="javascript:;" @click="handleCreate">
           <i class="iconfont icon-new"></i>
         </a>
       </div>
       <div>
-        <el-button class="upload-btn" size="mini" @click="showImportScript = true">{{
-          activeTab === functionTab ? $t('script.uploadJs') : $t('script.uploadProto')
-        }}</el-button>
+        <el-button class="upload-btn" size="mini" @click="showImportScript = true">{{ uploadButtonLabel }}</el-button>
         <el-button class="save-btn" type="primary" size="mini" @click="handleSave">{{ $t('common.save') }}</el-button>
         <el-tooltip
           placement="top"
@@ -75,7 +73,7 @@
         @qucik-save="handleTest"
       />
       <Editor
-        v-if="activeTab === schemaTab"
+        v-if="activeTab === schemaTab && currentSchema === 'protobuf'"
         ref="schemaEditor"
         id="schema-editor"
         :key="2"
@@ -87,21 +85,34 @@
         renderHighlight="line"
         @qucik-save="handleTest"
       />
+      <Editor
+        v-if="activeTab === schemaTab && currentSchema === 'avro'"
+        ref="schemaEditor"
+        id="schema-editor"
+        :key="3"
+        :lang="currentFunction"
+        :isCustomerLang="true"
+        v-model="schemaEditorValue"
+        lineNumbers="on"
+        :lineNumbersMinChars="5"
+        renderHighlight="line"
+        @qucik-save="handleTest"
+      />
     </div>
     <el-row class="script-test-row script-test-input" :gutter="20">
-      <el-col :span="activeTab == schemaTab ? 15 : 18">
+      <el-col :span="activeTab == schemaTab && currentSchema === 'protobuf' ? 15 : 18">
         <label>{{ $t('script.input') }}</label>
       </el-col>
       <el-col :span="6">
         <el-input
-          v-if="activeTab == schemaTab"
+          v-if="activeTab == schemaTab && currentSchema === 'protobuf'"
           :placeholder="$t('script.protoName')"
           v-model.trim="protoName"
           size="mini"
           :label="$t('script.protoName')"
         ></el-input>
       </el-col>
-      <el-col :span="activeTab == schemaTab ? 3 : 6">
+      <el-col :span="activeTab == schemaTab && currentSchema === 'protobuf' ? 3 : 6">
         <el-button class="test-btn" type="outline" size="mini" @click="handleTest">{{ $t('script.test') }}</el-button>
       </el-col>
     </el-row>
@@ -203,12 +214,33 @@ export default class Script extends Vue {
   private activeTab: 'functionTab' | 'schemaTab' = this.functionTab
   private activeTabIndex: number = 0
   // script type
-  private schemaList: ScriptList[] = [{ label: 'Protobuf', value: 'protobuf' }]
-  private functionList: ScriptList[] = [{ label: 'JavaScript', value: 'javascript' }]
+  private schemaList: SchemaList[] = [
+    { label: 'Protobuf', value: 'protobuf' },
+    { label: 'Avro', value: 'avro' },
+  ]
+  private functionList: FunctionList[] = [{ label: 'JavaScript', value: 'javascript' }]
   // TODO: Because the editor does not support the parsing of the protobuf language, the editor language is temporarily set to javascript.
   private currentSchema: SchemaType = 'protobuf'
   private currentFunction: FunctionType = 'javascript'
   private readonly inputTypeList: PayloadType[] = ['JSON', 'Plaintext', 'Base64', 'Hex']
+
+  get uploadButtonLabel(): string {
+    // function tab or schema tab
+    switch (this.activeTab) {
+      case 'functionTab':
+        return this.$t('script.uploadJs') as string
+
+      case 'schemaTab':
+        // protobuf or avro
+        switch (this.currentSchema) {
+          case 'protobuf':
+            return this.$t('script.uploadProto') as string
+
+          case 'avro':
+            return this.$t('script.uploadAvsc') as string
+        }
+    }
+  }
   // dialog show
   private showSaveDialog: boolean = false
   private showImportScript: boolean = false
@@ -265,6 +297,19 @@ message Person {
   string name = 2;
 }`,
     },
+    avro: {
+      extension: 'avsc',
+      importFile: this.$t('script.uploadProto'),
+      input: JSON.stringify({ id: 123, name: 'John Doe' }, null, 2),
+      content: `{
+  "type": "record",
+  "name": "Person",
+  "fields": [
+    {"name": "id", "type": "int"},
+    {"name": "name", "type": "string"}
+  ]
+}`,
+    },
   }
 
   @Watch('functionInputType')
@@ -318,20 +363,32 @@ message Person {
           )
         }
       } else {
-        if (this.currentSchema === 'protobuf') {
-          if (!this.protoName) {
-            this.$message.warning(this.$tc('script.mustProtoName'))
-            return
-          }
-          this.outputValue = scriptTest(
-            this.schemaEditorValue,
-            'protobuf',
-            this.schemaInputValue,
-            this.schemaInputType,
-            {
-              name: this.protoName,
-            },
-          )
+        switch (this.currentSchema) {
+          case 'protobuf':
+            if (!this.protoName) {
+              this.$message.warning(this.$tc('script.mustProtoName'))
+              return
+            }
+
+            this.outputValue = scriptTest(
+              this.schemaEditorValue,
+              this.currentSchema,
+              this.schemaInputValue,
+              this.schemaInputType,
+              {
+                name: this.protoName,
+              },
+            )
+            break
+
+          case 'avro':
+            this.outputValue = scriptTest(
+              this.schemaEditorValue,
+              this.currentSchema,
+              this.schemaInputValue,
+              this.schemaInputType,
+            )
+            break
         }
       }
     } catch (error) {
@@ -485,6 +542,11 @@ message Person {
         this.schemaEditorValue = currentScript.script
       }
     }
+  }
+
+  private handleSchemaChange(schemaType: SchemaType) {
+    this.currentSchema = schemaType
+    this.loadData()
   }
 
   get extension() {

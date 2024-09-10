@@ -3,7 +3,7 @@ import { InjectRepository } from 'typeorm-typedi-extensions'
 import { In, Not, Repository } from 'typeorm'
 import ScriptEntity from '../models/ScriptEntity'
 
-const schemaArray: SchemaType[] = ['protobuf']
+const schemaArray: SchemaType[] = ['protobuf', 'avro']
 
 @Service()
 export default class ScriptService {

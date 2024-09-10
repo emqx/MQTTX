@@ -66,7 +66,7 @@ export default class ImportScript extends Vue {
   @Prop({ default: false }) public visible!: boolean
   @Prop({ required: true }) public title!: string
   @Prop({ required: true }) public extension!: string
-  @Prop({ required: true }) public format!: ScriptList[]
+  @Prop({ required: true }) public format!: FunctionList[]
 
   private showDialog: boolean = this.visible
   private confirmLoading: boolean = false
@@ -83,7 +83,7 @@ export default class ImportScript extends Vue {
   }
 
   @Watch('format')
-  private onFormatChanged(val: ScriptList[]) {
+  private onFormatChanged(val: FunctionList[]) {
     this.record.importFormat = val[0].value
   }
 
