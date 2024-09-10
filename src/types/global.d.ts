@@ -331,6 +331,7 @@ declare global {
   }
 
   // Scripts
+  // TODO: split this
   interface ScriptModel {
     id?: string
     name: string
@@ -338,6 +339,21 @@ declare global {
     type?: string | null
   }
 
+  interface FunctionModel {
+    id?: string
+    name: string
+    script: string
+    type?: string | null
+  }
+
+  interface SchemaModel {
+    id?: string
+    name: string
+    rawSchema: string
+    type: SchemaType
+  }
+
+  // TODO: split this
   interface ScriptState {
     apply: MessageType
     function?: ScriptModel | null
@@ -349,6 +365,26 @@ declare global {
     }
   }
 
+  interface FunctionState {
+    function: ScriptModel | null
+  }
+
+  interface ProtobufSchema {
+    type: 'protobuf'
+    schema: SchemaModel | null
+    protobufMsgName: string
+  }
+
+  interface AvroSchema {
+    type: 'avro'
+    schema: SchemaModel | null
+  }
+
+  type SchemaState = {
+    apply: MessageType
+    schemaOptions: ProtobufSchema | AvroSchema
+  }
+
   interface SettingModel {
     autoCheck?: boolean
     currentLang?: Language
@@ -357,11 +393,15 @@ declare global {
     autoResub?: boolean
   }
 
-  type SchemaType = 'protobuf'
+  type SchemaType = 'protobuf' | 'avro'
   type FunctionType = 'javascript'
-  interface ScriptList {
+  interface SchemaList {
     label: string
-    value: SchemaType | FunctionType
+    value: SchemaType
+  }
+  interface FunctionList {
+    label: string
+    value: FunctionType
   }
 
   interface ImportScriptForm {

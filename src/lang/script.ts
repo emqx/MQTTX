@@ -27,6 +27,13 @@ export default {
     ja: '関数',
     hu: 'Függvény',
   },
+  schemaType: {
+    zh: '编解码类型',
+    en: 'Schema Type',
+    tr: 'Şema Türü',
+    ja: 'スキーマタイプ',
+    hu: 'Séma Típus',
+  },
   schemaName: {
     zh: '编解码',
     en: 'Schema',
@@ -117,6 +124,13 @@ export default {
     tr: '.proto dosyasını içe aktar',
     ja: '.protoファイルをインポート',
     hu: '.proto fájl importálása',
+  },
+  uploadAvsc: {
+    zh: '导入 .avsc 文件',
+    en: 'Import .avsc file',
+    tr: '.avsc dosyasını içe aktar',
+    ja: '.avsc ファイルをインポート',
+    hu: '.avsc fájl importálása',
   },
   importFunction: {
     zh: '导入自定义函数',

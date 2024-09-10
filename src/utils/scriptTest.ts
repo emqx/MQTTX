@@ -1,5 +1,6 @@
 import sandbox from '@/utils/sandbox'
 import { checkProtobufInput } from './protobuf'
+import { checkAvroInput } from './avro'
 
 export const scriptTest = (
   script: string,
@@ -12,8 +13,11 @@ export const scriptTest = (
     case 'javascript':
       return sandbox.executeScript(script, inputType, inputValue, 'publish')
     case 'protobuf':
-      const result = checkProtobufInput(script, inputValue, config.name, inputType)
-      return !result ? '' : result.toString()
+      const protobufResult = checkProtobufInput(script, inputValue, config.name, inputType)
+      return protobufResult
+    case 'avro':
+      const avroResult = checkAvroInput(script, inputValue, inputType)
+      return avroResult
     default:
       return 'Test Error!'
   }

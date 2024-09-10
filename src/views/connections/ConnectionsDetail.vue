@@ -358,6 +358,7 @@ import { jsonStringify } from '@/utils/jsonUtils'
 import { LeftValues, BodyTopValues, MsgTopValues, DetailLeftValues } from '@/utils/styles'
 import getErrorReason from '@/utils/mqttErrorReason'
 import { isLargeData } from '@/utils/data'
+import { serializeAvroToBuffer, deserializeBufferToAvro } from '@/utils/avro'
 
 type CommandType =
   | 'searchContent'
@@ -1806,42 +1807,99 @@ export default class ConnectionsDetail extends Vue {
     return convertedPayload
   }
 
+  private serializeWithSchema(
+    payload: string,
+    rawSchema: string,
+    schemaType: SchemaType,
+    protobufMessageName?: string,
+    format?: PayloadType,
+  ): string | Buffer {
+    switch (schemaType) {
+      case 'protobuf':
+        if (!protobufMessageName) {
+          this.$message.error(`Serialization: No protobuf message name found when serializing message.`)
+          return payload
+        }
+        return serializeProtobufToBuffer(payload as string, rawSchema, protobufMessageName, format)
+
+      case 'avro':
+        return serializeAvroToBuffer(payload as string, rawSchema, format)
+
+      default:
+        this.$message.error(`Serialization: Schema type is not defined or is not supported.`)
+        return payload
+    }
+  }
+
+  private deserializeWithSchema(
+    payload: Buffer,
+    rawSchema: string,
+    schemaType: SchemaType,
+    protobufMessageName?: string,
+    format?: PayloadType,
+  ): string | Buffer {
+    switch (schemaType) {
+      case 'protobuf':
+        if (!protobufMessageName) {
+          this.$message.error('Deserialization: No protobuf message name found when deserializing message.')
+          return payload
+        }
+
+        return deserializeBufferToProtobuf(payload, rawSchema, protobufMessageName, format)
+
+      case 'avro':
+        return deserializeBufferToAvro(payload, rawSchema, format)
+
+      default:
+        this.$message.error(`Deserialization: Schema type is not defined or is not supported.`)
+        return payload
+    }
+  }
+
   // Use schema to apply to payload
   private convertPayloadBySchema(
     payload: Buffer | string,
     msgType: MessageType,
     to?: PayloadType,
   ): string | Buffer | undefined {
-    let convertedPayload = payload
+    // Do nothing if no schema is defined or script type does not apply to this message type
+    if (!this.scriptOption?.schema || !['all', msgType].includes(this.scriptOption.apply)) {
+      return payload
+    }
+
+    // TODO: separate Function and Schema from `ScriptState`
+    if (!this.scriptOption.schema.type || this.scriptOption.schema.type === 'javascript') {
+      this.$message.error('Convertion: Schema type is not defined or is not supported.')
+      return undefined
+    }
+
     try {
-      if (this.scriptOption?.schema && ['all', msgType].includes(this.scriptOption.apply)) {
-        switch (msgType) {
-          case 'publish': {
-            const result = serializeProtobufToBuffer(
-              payload as string,
-              this.scriptOption.schema.script,
-              this.scriptOption?.config?.name,
-              to,
-            )
-            if (result) return result
-            break
-          }
-          case 'received': {
-            const result = deserializeBufferToProtobuf(
-              payload as Buffer,
-              this.scriptOption.schema.script,
-              this.scriptOption?.config?.name,
-              to,
-            )
-            if (result) return result
-            break
-          }
+      switch (msgType) {
+        case 'publish': {
+          return this.serializeWithSchema(
+            payload as string,
+            this.scriptOption.schema.script,
+            this.scriptOption.schema.type as SchemaType,
+            this.scriptOption.config?.name,
+            to,
+          )
         }
+        case 'received': {
+          return this.deserializeWithSchema(
+            payload as Buffer,
+            this.scriptOption.schema.script,
+            this.scriptOption.schema.type as SchemaType,
+            this.scriptOption.config?.name,
+            to,
+          )
+        }
+
+        default:
+          return payload
       }
-      return convertedPayload
     } catch (error) {
       this.$message.error((error as Error).toString())
-      return
+      return undefined
     }
   }
 
