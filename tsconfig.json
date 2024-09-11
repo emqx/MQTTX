@@ -33,6 +33,7 @@
   },
   "vueCompilerOptions": {
     "target": 2,
+    "experimentalUseElementAccessInTemplate": true,
     "extensions": [
       ".vue"
     ],
