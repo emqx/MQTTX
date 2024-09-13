@@ -166,7 +166,7 @@ export default class MsgLeftItem extends Vue {
       return
     }
     try {
-      if (this.payload && ['JSON', 'CBOR'].includes(this.msgType) && !this.msgError) {
+      if (this.payload && ['JSON', 'CBOR', 'MsgPack'].includes(this.msgType) && !this.msgError) {
         this.hightlight = true
         this.$nextTick(() => {
           Prism.highlightAllUnder(this.$refs.msgLeftItem as HTMLElement)

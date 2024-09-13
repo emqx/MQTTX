@@ -245,7 +245,11 @@
               @change="handleReceivedMsgTypeChange"
             >
               <el-option-group :label="$t('connections.receivedPayloadDecodedBy')">
-                <el-option v-for="type in ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR']" :key="type" :value="type">
+                <el-option
+                  v-for="type in ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR', 'MsgPack']"
+                  :key="type"
+                  :value="type"
+                >
                 </el-option>
               </el-option-group>
             </el-select>
@@ -324,6 +328,7 @@ import _ from 'lodash'
 import { Subject, fromEvent } from 'rxjs'
 import { bufferTime, map, filter, takeUntil, shareReplay } from 'rxjs/operators'
 import cbor from 'cbor'
+import { unpack } from 'msgpackr'
 
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
@@ -1766,6 +1771,13 @@ export default class ConnectionsDetail extends Vue {
       if (receiveType === 'CBOR') {
         try {
           return jsonStringify(cbor.decodeFirstSync(receiveValue), null, 2)
+        } catch (error) {
+          throw error
+        }
+      }
+      if (receiveType === 'MsgPack') {
+        try {
+          return jsonStringify(unpack(receiveValue), null, 2)
         } catch (error) {
           throw error
         }

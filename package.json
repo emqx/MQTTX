@@ -54,6 +54,7 @@
     "moment": "^2.29.4",
     "monaco-editor": "^0.25.2",
     "mqtt": "4.3.7",
+    "msgpackr": "^1.11.0",
     "prismjs": "^1.29.0",
     "protobufjs": "^7.2.5",
     "reflect-metadata": "^0.1.13",
