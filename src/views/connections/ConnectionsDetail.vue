@@ -328,7 +328,7 @@ import _ from 'lodash'
 import { Subject, fromEvent } from 'rxjs'
 import { bufferTime, map, filter, takeUntil, shareReplay } from 'rxjs/operators'
 import cbor from 'cbor'
-import { unpack } from 'msgpackr'
+import { pack, unpack } from 'msgpackr'
 
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
@@ -1297,7 +1297,7 @@ export default class ConnectionsDetail extends Vue {
     this.updateMeta(receivedMessage, 'function', 'received')
     this.updateMeta(receivedMessage, 'schema', 'received')
     this.updateMetaMsgType(receivedMessage, this.receivedMsgType)
-    if (['JSON', 'CBOR'].includes(this.receivedMsgType) && jsonMsgError) {
+    if (['JSON', 'CBOR', 'MsgPack'].includes(this.receivedMsgType) && jsonMsgError) {
       this.updateMetaError(receivedMessage, jsonMsgError)
     }
     if (isLargeData(receivedMessage.payload)) {
@@ -1742,6 +1742,16 @@ export default class ConnectionsDetail extends Vue {
       if (publishType === 'CBOR') {
         try {
           return cbor.encodeOne(JSON.parse(publishValue))
+        } catch (error) {
+          const err = error as Error
+          let errorMessage = `${this.$t('connections.publishMsg')} ${err.toString()}`
+          this.$message.error(errorMessage)
+          return undefined
+        }
+      }
+      if (publishType === 'MsgPack') {
+        try {
+          return pack(JSON.parse(publishValue))
         } catch (error) {
           const err = error as Error
           let errorMessage = `${this.$t('connections.publishMsg')} ${err.toString()}`

@@ -1,6 +1,7 @@
 import chalk from 'chalk'
 import { jsonParse, jsonStringify } from './jsonUtils'
 import cbor from 'cbor'
+import { pack, unpack } from 'msgpackr'
 import { basicLog } from './logWrapper'
 
 type Action = 'encode' | 'decode'
@@ -43,6 +44,20 @@ const convertCBOR = (value: Buffer | string, action: Action) => {
 }
 
 /**
+ * Converts a MsgPack payload to JSON or vice versa.
+ * @param value - The MsgPack payload to convert.
+ * @param action - The action to perform: 'decode' to convert MsgPack to JSON, 'encode' to convert JSON to MsgPack.
+ * @returns The converted payload.
+ */
+const convertMsgPack = (value: Buffer | string, action: Action) => {
+  try {
+    return action === 'decode' ? jsonStringify(unpack(value as Buffer), null, 2) : pack(JSON.parse(value.toString()))
+  } catch (err) {
+    return handleError(err, value, action)
+  }
+}
+
+/**
  * Converts the payload based on the specified format and action.
  * @param payload - The payload to be converted.
  * @param format - The format in which the payload should be converted. (Optional)
@@ -56,6 +71,7 @@ const convertPayload = (payload: Buffer | string, format?: FormatType, action: A
       json: () => convertJSON(payload, 'encode'),
       hex: () => Buffer.from(payload.toString().replace(/\s+/g, ''), 'hex'),
       cbor: () => convertCBOR(payload, 'encode'),
+      msgpack: () => convertMsgPack(payload, 'encode'),
       binary: () => payload,
       default: () => Buffer.from(payload.toString(), 'utf-8'),
     },
@@ -64,6 +80,7 @@ const convertPayload = (payload: Buffer | string, format?: FormatType, action: A
       json: () => convertJSON(payload, 'decode'),
       hex: () => payload.toString('hex').replace(/(.{4})/g, '$1 '),
       cbor: () => convertCBOR(payload, 'decode'),
+      msgpack: () => convertMsgPack(payload, 'decode'),
       binary: () => payload,
       default: () => payload.toString('utf-8'),
     },

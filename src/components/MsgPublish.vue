@@ -302,7 +302,7 @@ export default class MsgPublish extends Vue {
   }
   private payloadLang = 'json'
   private payloadType: PayloadType = 'JSON'
-  private payloadOptions: PayloadType[] = ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR']
+  private payloadOptions: PayloadType[] = ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR', 'MsgPack']
 
   @Watch('editorHeight')
   private handleHeightChanged() {
@@ -311,7 +311,7 @@ export default class MsgPublish extends Vue {
   @Watch('payloadType')
   private handleTypeChange(val: PayloadType, oldVal: PayloadType) {
     const { payload } = this.msgRecord
-    if (['CBOR', 'JSON'].includes(val)) {
+    if (['CBOR', 'JSON', 'MsgPack'].includes(val)) {
       this.payloadLang = 'json'
     } else {
       this.payloadLang = 'plaintext'
