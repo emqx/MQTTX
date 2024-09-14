@@ -19,6 +19,6 @@ export const scriptTest = (
       const avroResult = checkAvroInput(script, inputValue, inputType)
       return avroResult
     default:
-      return 'Test Error!'
+      return 'Test Error: Unsupported script type.'
   }
 }

@@ -1867,13 +1867,12 @@ export default class ConnectionsDetail extends Vue {
       return payload
     }
 
-    // TODO: separate Function and Schema from `ScriptState`
-    if (!this.scriptOption.schema.type || this.scriptOption.schema.type === 'javascript') {
-      this.$message.error('Convertion: Schema type is not defined or is not supported.')
-      return undefined
-    }
-
     try {
+      // TODO: separate Function and Schema from `ScriptState`
+      if (!this.scriptOption.schema.type || this.scriptOption.schema.type === 'javascript') {
+        throw new Error('Conversion: Schema type is not defined or not supported.')
+      }
+
       switch (msgType) {
         case 'publish': {
           return this.serializeWithSchema(

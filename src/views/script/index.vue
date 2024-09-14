@@ -119,7 +119,7 @@
     <div
       class="editor-container script-editor script-test-input"
       :style="{
-        height: '80px',
+        height: '160px',
       }"
     >
       <Editor
@@ -154,7 +154,7 @@
     <el-row class="script-test-row script-test-output" :gutter="20">
       <el-col :span="24">
         <label>{{ $t('script.output') }}</label>
-        <el-input v-model="outputValue" type="textarea" rows="4" disabled></el-input>
+        <el-input v-model="outputValue" type="textarea" rows="16" disabled></el-input>
       </el-col>
     </el-row>
 
@@ -228,16 +228,16 @@ export default class Script extends Vue {
     // function tab or schema tab
     switch (this.activeTab) {
       case 'functionTab':
-        return this.$t('script.uploadJs') as string
+        return this.$tc('script.uploadJs')
 
       case 'schemaTab':
         // protobuf or avro
         switch (this.currentSchema) {
           case 'protobuf':
-            return this.$t('script.uploadProto') as string
+            return this.$tc('script.uploadProto')
 
           case 'avro':
-            return this.$t('script.uploadAvsc') as string
+            return this.$tc('script.uploadAvsc')
         }
     }
   }
@@ -363,33 +363,22 @@ message Person {
           )
         }
       } else {
-        switch (this.currentSchema) {
-          case 'protobuf':
-            if (!this.protoName) {
-              this.$message.warning(this.$tc('script.mustProtoName'))
-              return
-            }
-
-            this.outputValue = scriptTest(
-              this.schemaEditorValue,
-              this.currentSchema,
-              this.schemaInputValue,
-              this.schemaInputType,
-              {
-                name: this.protoName,
-              },
-            )
-            break
-
-          case 'avro':
-            this.outputValue = scriptTest(
-              this.schemaEditorValue,
-              this.currentSchema,
-              this.schemaInputValue,
-              this.schemaInputType,
-            )
-            break
+        // Send a warning message if proto name is not defined when testing protobuf
+        if (this.currentSchema === 'protobuf' && this.protoName === '') {
+          this.$message.warning(this.$tc('script.mustProtoName'))
+          return
         }
+
+        // set the value in the output textbox
+        this.outputValue = scriptTest(
+          this.schemaEditorValue,
+          this.currentSchema,
+          this.schemaInputValue,
+          this.schemaInputType,
+          {
+            name: this.protoName,
+          },
+        )
       }
     } catch (error) {
       this.$message.error((error as Error).toString())
