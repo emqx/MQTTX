@@ -123,7 +123,7 @@ export default class UseScript extends Vue {
     this.functions = functions
 
     this.schemas =
-      this.currentSchemaType == null
+      this.currentSchemaType === null
         ? []
         : schemas.filter((s) => s.name.endsWith(this.defaultSchemaTypes[this.currentSchemaType!].extension))
   }
