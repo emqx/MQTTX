@@ -1,13 +1,13 @@
 import * as avro from 'avsc'
 import { convertObject } from './schemaUtils'
 
-const validateSchema = (rawAvroSchema: string): avro.Type => {
+export const parseSchema = (rawAvroSchema: string): avro.Type => {
   let parsedSchema
 
   try {
     parsedSchema = JSON.parse(rawAvroSchema)
   } catch (err) {
-    throw new Error(`Message serialization error: ${(err as Error).message}`)
+    throw new Error(`Schema not following JSON format: ${(err as Error).message}`)
   }
 
   return avro.Type.forSchema(parsedSchema)
@@ -15,7 +15,7 @@ const validateSchema = (rawAvroSchema: string): avro.Type => {
 
 export const checkAvroInput = (rawAvroSchema: string, input: string, format?: PayloadType): string => {
   try {
-    const type: avro.Type = validateSchema(rawAvroSchema)
+    const type: avro.Type = parseSchema(rawAvroSchema)
 
     type.isValid(JSON.parse(input), {
       errorHook: (path, value, type) => {
@@ -34,7 +34,7 @@ export const checkAvroInput = (rawAvroSchema: string, input: string, format?: Pa
 }
 
 export const serializeAvroToBuffer = (raw: string, rawAvroSchema: string, format?: PayloadType): Buffer => {
-  const type: avro.Type = validateSchema(rawAvroSchema)
+  const type: avro.Type = parseSchema(rawAvroSchema)
 
   let rawMessage: string
   try {
@@ -64,7 +64,7 @@ export const deserializeBufferToAvro = (
   rawAvroSchema: string,
   needFormat?: PayloadType,
 ): Buffer | string => {
-  const type: avro.Type = validateSchema(rawAvroSchema)
+  const type: avro.Type = parseSchema(rawAvroSchema)
 
   try {
     const message = type.fromBuffer(payload)
