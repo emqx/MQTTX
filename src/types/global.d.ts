@@ -405,7 +405,6 @@ declare global {
   }
 
   interface ImportScriptForm {
-    importFormat: SchemaType | FunctionType | ''
     filePath: string
     fileName: string
     fileContent: string
