@@ -77,7 +77,7 @@
         ref="schemaEditor"
         id="schema-editor"
         :key="2"
-        :lang="currentFunction"
+        :lang="scriptEditorLang"
         :isCustomerLang="true"
         v-model="schemaEditorValue"
         lineNumbers="on"
@@ -90,7 +90,7 @@
         ref="schemaEditor"
         id="schema-editor"
         :key="3"
-        :lang="currentFunction"
+        :lang="scriptEditorLang"
         :isCustomerLang="true"
         v-model="schemaEditorValue"
         lineNumbers="on"
@@ -127,7 +127,7 @@
         :key="3"
         ref="functionInput"
         id="function-input"
-        :lang="functionEditorLang"
+        :lang="functionInputLang"
         lineNumbers="on"
         :lineNumbersMinChars="2"
         v-model="functionInputValue"
@@ -137,7 +137,7 @@
         :key="4"
         ref="schemaInput"
         id="schema-input"
-        :lang="schemaEditorLang"
+        :lang="schemaInputLang"
         lineNumbers="on"
         :lineNumbersMinChars="2"
         v-model="schemaInputValue"
@@ -255,8 +255,8 @@ export default class Script extends Vue {
   private tempScriptId: string = ''
   private functionInputType: PayloadType = 'JSON'
   private schemaInputType: PayloadType = 'JSON'
-  private functionEditorLang = 'json'
-  private schemaEditorLang = 'json'
+  private functionInputLang = 'json'
+  private schemaInputLang = 'json'
   // record content
   private protoName: string = ''
   private record: ScriptModel = {
@@ -314,18 +314,36 @@ message Person {
 
   @Watch('functionInputType')
   handleFunctionInputTypeChange(val: PayloadType) {
-    this.functionEditorLang = val === 'JSON' ? 'json' : 'plaintext'
+    this.functionInputLang = val === 'JSON' ? 'json' : 'plaintext'
   }
 
   @Watch('schemaInputType')
   handleSchemaInputTypeChange(val: PayloadType) {
-    this.schemaEditorLang = val === 'JSON' ? 'json' : 'plaintext'
+    this.schemaInputLang = val === 'JSON' ? 'json' : 'plaintext'
   }
 
   get inUseScript() {
     return (
       this.scriptOption?.function?.id === this.currentScriptId || this.scriptOption?.schema?.id === this.currentScriptId
     )
+  }
+
+  get scriptEditorLang() {
+    switch (this.activeTab) {
+      case 'functionTab':
+        return 'javascript'
+
+      case 'schemaTab':
+        return (
+          {
+            protobuf: 'plaintext',
+            avro: 'json',
+          }[this.currentSchema] || 'plaintext'
+        )
+
+      default:
+        return 'plaintext'
+    }
   }
 
   private created() {
