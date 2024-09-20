@@ -183,7 +183,7 @@
       @finish="handleUpload"
       :title="activeTab === functionTab ? $t('script.importFunction') : $t('script.importSchema')"
       :extension="extension"
-      :format="activeTab === functionTab ? functionList : schemaList"
+      :format="activeTab === functionTab ? currentFunction : currentSchema"
       :visible.sync="showImportScript"
     />
   </div>

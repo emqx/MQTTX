@@ -12,9 +12,7 @@
       <el-row :gutter="20">
         <el-col :span="24">
           <el-form-item :label="$t('connections.importFormat')">
-            <el-select size="small" v-model="record.importFormat">
-              <el-option v-for="item in format" :key="item.value" :value="item.value" :label="item.label"> </el-option>
-            </el-select>
+            <el-input size="small" v-model="format" readonly></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="22">
@@ -66,12 +64,11 @@ export default class ImportScript extends Vue {
   @Prop({ default: false }) public visible!: boolean
   @Prop({ required: true }) public title!: string
   @Prop({ required: true }) public extension!: string
-  @Prop({ required: true }) public format!: FunctionList[]
+  @Prop({ required: true }) public format!: FunctionType | SchemaType
 
   private showDialog: boolean = this.visible
   private confirmLoading: boolean = false
   private record: ImportScriptForm = {
-    importFormat: this.format[0].value,
     filePath: '',
     fileName: '',
     fileContent: '',
@@ -80,11 +77,6 @@ export default class ImportScript extends Vue {
   @Watch('visible')
   private onVisibleChanged(val: boolean) {
     this.showDialog = val
-  }
-
-  @Watch('format')
-  private onFormatChanged(val: FunctionList[]) {
-    this.record.importFormat = val[0].value
   }
 
   private getFileData() {
@@ -105,7 +97,9 @@ export default class ImportScript extends Vue {
           this.getFileContentByFs(filePath)
         }
       })
-      .catch(() => {})
+      .catch((err: Error) => {
+        this.$message.error(err.message)
+      })
       .finally(() => {
         loading?.close()
       })
@@ -155,7 +149,6 @@ export default class ImportScript extends Vue {
     this.showDialog = false
     this.$emit('update:visible', false)
     this.record = {
-      importFormat: this.format[0].value,
       filePath: '',
       fileName: '',
       fileContent: '',
