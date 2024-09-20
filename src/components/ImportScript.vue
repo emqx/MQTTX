@@ -81,10 +81,11 @@ export default class ImportScript extends Vue {
 
   private getFileData() {
     let loading: ElLoadingComponent | undefined = undefined
+    const extensions = this.extension === 'avsc' ? ['avsc', 'json'] : [`${this.extension}`]
     remote.dialog
       .showOpenDialog({
         properties: ['openFile'],
-        filters: [{ name: '', extensions: [`${this.extension}`] }],
+        filters: [{ name: '', extensions }],
       })
       .then((res) => {
         const { filePaths } = res
