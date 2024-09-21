@@ -73,23 +73,10 @@
         @qucik-save="handleTest"
       />
       <Editor
-        v-if="activeTab === schemaTab && currentSchema === 'protobuf'"
+        v-if="activeTab === schemaTab"
         ref="schemaEditor"
         id="schema-editor"
         :key="2"
-        :lang="scriptEditorLang"
-        :isCustomerLang="true"
-        v-model="schemaEditorValue"
-        lineNumbers="on"
-        :lineNumbersMinChars="5"
-        renderHighlight="line"
-        @qucik-save="handleTest"
-      />
-      <Editor
-        v-if="activeTab === schemaTab && currentSchema === 'avro'"
-        ref="schemaEditor"
-        id="schema-editor"
-        :key="3"
         :lang="scriptEditorLang"
         :isCustomerLang="true"
         v-model="schemaEditorValue"
@@ -219,7 +206,6 @@ export default class Script extends Vue {
     { label: 'Avro', value: 'avro' },
   ]
   private functionList: FunctionList[] = [{ label: 'JavaScript', value: 'javascript' }]
-  // TODO: Because the editor does not support the parsing of the protobuf language, the editor language is temporarily set to javascript.
   private currentSchema: SchemaType = 'protobuf'
   private currentFunction: FunctionType = 'javascript'
   private readonly inputTypeList: PayloadType[] = ['JSON', 'Plaintext', 'Base64', 'Hex']
