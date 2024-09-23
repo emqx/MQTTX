@@ -505,6 +505,10 @@ export default class Settings extends Vue {
       value: 'Moonshot',
       children: [{ value: 'moonshot-v1-8k' }, { value: 'moonshot-v1-32k' }, { value: 'moonshot-v1-128k' }],
     },
+    {
+      value: 'DeepSeek',
+      children: [{ value: 'deepseek-chat' }, { value: 'deepseek-coder' }],
+    },
   ]
   private AIAPIHostOptions = [
     {
@@ -512,6 +516,9 @@ export default class Settings extends Vue {
     },
     {
       value: 'https://api.moonshot.cn/v1',
+    },
+    {
+      value: 'https://api.deepseek.com/v1',
     },
   ]
   private showImportData = false
