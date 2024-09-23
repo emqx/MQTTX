@@ -406,17 +406,26 @@ message Person {
     }
   }
 
-  private addExtension(name: string) {
-    let ext
+  private checkExtension(name: string): string {
+    let ext: string
+    let expectedExt: string
+
     if (this.activeTab === this.functionTab) {
-      ext = '.' + this.defaultFunction[this.currentFunction].extension
+      expectedExt = '.' + this.defaultFunction[this.currentFunction].extension
     } else {
-      ext = '.' + this.defaultSchema[this.currentSchema].extension
+      expectedExt = '.' + this.defaultSchema[this.currentSchema].extension
     }
-    if (!name.endsWith(ext)) {
-      name += ext
+
+    const lastDotIndex = name.lastIndexOf('.')
+    if (lastDotIndex !== -1) {
+      ext = name.slice(lastDotIndex)
+      if (ext !== expectedExt) {
+        name = name.slice(0, lastDotIndex)
+      } else {
+        return name
+      }
     }
-    return name
+    return name + expectedExt
   }
 
   private async save() {
@@ -426,7 +435,7 @@ message Person {
       return
     }
     this.record.id = undefined
-    this.record.name = this.addExtension(this.record.name)
+    this.record.name = this.checkExtension(this.record.name)
     this.record.script = this.activeTab === this.functionTab ? this.functionEditorValue : this.schemaEditorValue
     this.record.type = this.activeTab === this.functionTab ? this.currentFunction : this.currentSchema
     const data = { ...this.record }
