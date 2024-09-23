@@ -429,6 +429,9 @@ declare global {
     | 'gpt-4-32k-0613'
     | 'gpt-4-turbo'
     | 'gpt-4o'
+    | 'gpt-4o-mini'
+    | 'o1-preview'
+    | 'o1-mini'
     | string
 
   interface AreaLineSeriesData {
