@@ -401,7 +401,7 @@
           <el-input
             size="mini"
             v-model.trim="aiConfig.model"
-            placeholder="gpt-3.5-turbo"
+            placeholder="gpt-4o"
             type="text"
             clearable
             :disabled="!enableCopilot"
@@ -496,6 +496,9 @@ export default class Settings extends Vue {
         { value: 'gpt-4-32k-0613' },
         { value: 'gpt-4-turbo' },
         { value: 'gpt-4o' },
+        { value: 'gpt-4o-mini' },
+        { value: 'o1-preview' },
+        { value: 'o1-mini' },
       ],
     },
     {
@@ -588,7 +591,7 @@ export default class Settings extends Vue {
         this.actionSetOpenAIAPIKey({ openAIAPIKey: encryptedKey })
         break
       case 'model':
-        this.actionSetModel({ model: this.aiConfig.model || 'gpt-3.5-turbo' })
+        this.actionSetModel({ model: this.aiConfig.model || 'gpt-4o' })
         break
       case 'host':
         this.actionSetOpenAIAPIHost({ openAIAPIHost: this.aiConfig.openAIAPIHost || 'https://api.openai.com/v1' })

@@ -61,7 +61,7 @@ const app = {
     enableCopilot: settingData.enableCopilot,
     openAIAPIHost: settingData.openAIAPIHost || 'https://api.openai.com/v1',
     openAIAPIKey: settingData.openAIAPIKey || '',
-    model: settingData.model || 'gpt-3.5-turbo',
+    model: settingData.model || 'gpt-4o',
     isPrismButtonAdded: false,
     logLevel: settingData.logLevel || 'info',
     showConnectionList: getShowConnectionList(),

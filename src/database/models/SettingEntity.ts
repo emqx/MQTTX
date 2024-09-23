@@ -44,7 +44,7 @@ export default class SettingEntity {
   @Column({ type: 'varchar', default: '' })
   openAIAPIKey!: string
 
-  @Column({ type: 'varchar', default: 'gpt-3.5-turbo' })
+  @Column({ type: 'varchar', default: 'gpt-4o' })
   model!: string
 
   @Column({ type: 'simple-enum', enum: ['debug', 'info', 'warn', 'error'], default: 'info' })
