@@ -53,6 +53,7 @@ export const getClientOptions = (record: ConnectionModel): IClientOptions => {
     clientIdWithTime,
   } = record
   const protocolVersion = mqttVersionDict[mqttVersion as '3.1' | '3.1.1' | '5.0']
+
   const options: IClientOptions = {
     clientId,
     keepalive,
