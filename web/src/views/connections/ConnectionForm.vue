@@ -62,35 +62,6 @@
               </el-tooltip>
             </el-col>
             <el-col :span="22">
-              <el-form-item label-width="93px" label="Client ID" prop="clientId">
-                <el-input size="mini" v-model="record.clientId"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col :span="1">
-              <a href="javascript:;" class="icon-oper" @click="setClientID">
-                <i class="el-icon-refresh-right"></i>
-              </a>
-            </el-col>
-            <!-- add clientID timestamp check icon -->
-            <el-col :span="1">
-              <el-tooltip
-                placement="top"
-                :effect="theme !== 'light' ? 'light' : 'dark'"
-                :open-delay="500"
-                :offset="80"
-                :content="$t('connections.clientIdWithTimeTip')"
-              >
-                <a
-                  href="javascript:;"
-                  class="icon-oper-pure"
-                  @click="reverseClientIDWithTime"
-                  :class="{ 'icon-oper-active': clientIdWithTime }"
-                >
-                  <i class="el-icon-time"></i>
-                </a>
-              </el-tooltip>
-            </el-col>
-            <el-col :span="22">
               <el-form-item class="host-item" label-width="93px" :label="$t('connections.brokerIP')" prop="host">
                 <el-col :span="6">
                   <el-select size="mini" v-model="record.protocol" popper-class="ws-protocol-select">
@@ -155,6 +126,35 @@
                 >
                 </el-input-number>
               </el-form-item>
+            </el-col>
+            <el-col :span="22">
+              <el-form-item label-width="93px" label="Client ID" prop="clientId">
+                <el-input size="mini" v-model="record.clientId" clearable></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="1">
+              <a href="javascript:;" class="icon-oper" @click="setClientID">
+                <i class="el-icon-refresh-right"></i>
+              </a>
+            </el-col>
+            <!-- add clientID timestamp check icon -->
+            <el-col :span="1">
+              <el-tooltip
+                placement="top"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :open-delay="500"
+                :offset="80"
+                :content="$t('connections.clientIdWithTimeTip')"
+              >
+                <a
+                  href="javascript:;"
+                  class="icon-oper-pure"
+                  @click="reverseClientIDWithTime"
+                  :class="{ 'icon-oper-active': clientIdWithTime }"
+                >
+                  <i class="el-icon-time"></i>
+                </a>
+              </el-tooltip>
             </el-col>
 
             <template v-if="record.protocol === 'ws' || record.protocol === 'wss'">
@@ -614,7 +614,6 @@ export default class ConnectionCreate extends Vue {
         { required: true, message: this.$t('common.inputRequired') },
         { validator: this.validateName, trigger: 'blur' },
       ],
-      clientId: [{ required: true, message: this.$t('common.inputRequired') }],
       path: [{ required: true, message: this.$t('common.inputRequired') }],
       host: [{ required: true, message: this.$t('common.inputRequired') }],
       port: [{ required: true, message: this.$t('common.inputRequired') }],

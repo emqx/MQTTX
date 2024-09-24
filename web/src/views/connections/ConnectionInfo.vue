@@ -131,7 +131,6 @@ export default class ConnectionInfo extends Vue {
         { required: true, message: this.$t('common.inputRequired') },
         { validator: this.validateName, trigger: 'blur' },
       ],
-      clientId: [{ required: true, message: this.$t('common.inputRequired') }],
     }
   }
 
