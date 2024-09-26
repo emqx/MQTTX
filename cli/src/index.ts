@@ -273,7 +273,11 @@ export class Commander {
         'the user properties of MQTT 5.0 (e.g. -up "name: mqttx cli")',
         parseKeyValues,
       )
-      .option('-f, --format <TYPE>', 'format the message body, support base64, json, hex, binary and cbor', parseFormat)
+      .option(
+        '-f, --format <TYPE>',
+        'format the message body, support base64, json, hex, binary, cbor and msgpack',
+        parseFormat,
+      )
       .option('-v, --verbose', 'turn on verbose mode to display incoming MQTT packets')
       .option(
         '--output-mode <default/clean>',
