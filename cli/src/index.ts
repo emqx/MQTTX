@@ -166,7 +166,7 @@ export class Commander {
       .option('-p, --port <PORT>', 'the broker port', parseNumber, state.getConfig('port'))
       .option(
         '-f, --format <TYPE>',
-        'the format type of the input message, support base64, json, hex, binary and cbor',
+        'the format type of the input message, support base64, json, hex, binary, cbor and msgpack',
         parseFormat,
       )
       .option('-i, --client-id <ID>', 'the client id', getClientId())

@@ -118,6 +118,7 @@ describe('parse utilities', () => {
       expect(parseFormat('hex')).toBe('hex')
       expect(parseFormat('cbor')).toBe('cbor')
       expect(parseFormat('binary')).toBe('binary')
+      expect(parseFormat('msgpack')).toBe('msgpack')
     })
 
     it('should throw an error for invalid format types', () => {
