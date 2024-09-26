@@ -37,6 +37,7 @@
     "json-bigint": "^1.0.0",
     "lodash": "^4.17.21",
     "mqtt": "^4.3.7",
+    "msgpackr": "^1.11.0",
     "ora": "^5.4.1",
     "protobufjs": "^7.2.3",
     "pump": "^3.0.0",

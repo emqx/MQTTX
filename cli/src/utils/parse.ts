@@ -136,7 +136,7 @@ const parseFileWrite = (value: string) => {
 }
 
 const parseFormat = (value: string) => {
-  if (!['base64', 'json', 'hex', 'cbor', 'binary'].includes(value)) {
+  if (!['base64', 'json', 'hex', 'cbor', 'binary', 'msgpack'].includes(value)) {
     logWrapper.fail('Not a valid format type.')
     process.exit(1)
   }
