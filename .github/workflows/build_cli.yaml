@@ -24,23 +24,23 @@ jobs:
           npm install -g pkg
           pkg package.json
 
-      - uses: actions/upload-artifact@v2
-        with:
-          name: cli
-          path: cli/release
+      # - uses: actions/upload-artifact@v3
+      #   with:
+      #     name: cli
+      #     path: cli/release
 
-      - name: upload release asset
-        if: github.event_name == 'release'
-        run: |
-          cd cli/release
-          for var in $(ls); do
-              $GITHUB_WORKSPACE/.github/workflows/upload_github_release_asset.sh \
-                  owner=${{ github.repository_owner }} \
-                  repo=mqttx \
-                  tag=$(echo ${{ github.ref }} | sed -r  "s ^refs/heads/|^refs/tags/(.*) \1 g") \
-                  filename=$var \
-                  github_api_token=$(echo ${{ secrets.GITHUB_TOKEN }})
-          done
+      # - name: upload release asset
+      #   if: github.event_name == 'release'
+      #   run: |
+      #     cd cli/release
+      #     for var in $(ls); do
+      #         $GITHUB_WORKSPACE/.github/workflows/upload_github_release_asset.sh \
+      #             owner=${{ github.repository_owner }} \
+      #             repo=mqttx \
+      #             tag=$(echo ${{ github.ref }} | sed -r  "s ^refs/heads/|^refs/tags/(.*) \1 g") \
+      #             filename=$var \
+      #             github_api_token=$(echo ${{ secrets.GITHUB_TOKEN }})
+      #     done
 
   publish_docker:
     if: github.event_name == 'release'
