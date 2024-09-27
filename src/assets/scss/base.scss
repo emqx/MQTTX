@@ -1,5 +1,6 @@
 @import './variable.scss';
 @import './mixins.scss';
+@import './atom.scss';
 
 html,
 body,
@@ -152,4 +153,17 @@ textarea {
   border-radius: 4px;
   padding: 0 24px;
   cursor: pointer;
+}
+
+// Tabs
+.el-tabs {
+  .el-tabs__item {
+    color: var(--color-text-title);
+    &.is-active {
+      color: var(--color-main-green);
+    }
+  }
+  .el-tabs__nav-wrap::after {
+    background-color: var(--color-border-default);
+  }
 }
