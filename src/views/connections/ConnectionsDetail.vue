@@ -1174,11 +1174,7 @@ export default class ConnectionsDetail extends Vue {
    * @param {string} name - The name of the connection.
    */
   private onPacketReceived(packet: Packet, name: string) {
-    globalEventBus.emit('packetReceive', packet, {
-      id: this.record.id,
-      name,
-      clientId: this.record.clientId,
-    })
+    globalEventBus.emit('packetReceive', packet, this.record)
     this.$log.debug(`[${name}] Received packet: ${JSON.stringify(packet)}`)
   }
 
