@@ -1,7 +1,7 @@
 <template>
   <div class="topic-tree-view">
     <el-row :gutter="16">
-      <el-col :span="12">
+      <el-col :span="14">
         <el-card shadow="never" class="topic-tree-card">
           <el-input :placeholder="$t('viewer.filterDesc')" size="small" v-model="filterText" class="mb-3" />
           <el-tree
@@ -13,7 +13,7 @@
           ></el-tree>
         </el-card>
       </el-col>
-      <el-col :span="12">
+      <el-col :span="10">
         <el-card shadow="never" class="topic-info-card">
           {{ selectedTopic }}
         </el-card>
@@ -42,10 +42,10 @@ export default class TopicTree extends Vue {
   private filterText = ''
   private data = [
     {
-      label: 'testtopic',
+      label: '43.123.123.123 (test-env)',
       children: [
         {
-          label: 'device1',
+          label: 'testtopic',
           children: [
             {
               label: 'temperature',
@@ -55,23 +55,28 @@ export default class TopicTree extends Vue {
             },
           ],
         },
-      ],
-    },
-    {
-      label: '$SYS',
-      children: [
         {
-          label: 'broker',
-          children: [
-            {
-              label: 'emqx@127.0.0.1',
-            },
-          ],
+          label: 'test',
         },
       ],
     },
     {
-      label: 'test',
+      label: 'broker.emqx.io (public)',
+      children: [
+        {
+          label: '$SYS',
+          children: [
+            {
+              label: 'brokers',
+              children: [
+                {
+                  label: 'emqx@127.0.0.1',
+                },
+              ],
+            },
+          ],
+        },
+      ],
     },
   ]
 
@@ -81,7 +86,8 @@ export default class TopicTree extends Vue {
   }
 
   private handlePacketReceive = (packet: any, connectionInfo: ConnectionModel) => {
-    console.log(packet, connectionInfo)
+    console.log(JSON.stringify(packet, null, 2))
+    console.log(JSON.stringify(connectionInfo, null, 2))
   }
 
   private filterNode(value: string, data: any) {
@@ -106,9 +112,14 @@ export default class TopicTree extends Vue {
 <style lang="scss">
 .topic-tree-view {
   .topic-tree-card {
+    color: var(--color-text-default);
     min-height: 500px;
+    .el-tree {
+      color: var(--color-text-default);
+    }
   }
   .topic-info-card {
+    color: var(--color-text-default);
     min-height: 320px;
   }
   .el-tree {
