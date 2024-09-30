@@ -589,15 +589,6 @@ message Person {
       margin-left: 5px;
     }
   }
-  .script-view-tabs {
-    .el-tabs__item {
-      color: var(--color-text-title);
-
-      &.is-active {
-        color: var(--color-main-green);
-      }
-    }
-  }
 
   .script-view-header {
     @include flex-space-between;
@@ -668,8 +659,5 @@ message Person {
     padding-bottom: 10px;
   }
   @include editor-lang-type;
-  .el-tabs__nav-wrap::after {
-    background-color: var(--color-border-default);
-  }
 }
 </style>

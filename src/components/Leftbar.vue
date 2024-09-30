@@ -5,45 +5,17 @@
         <img src="@/assets/images/app-logo.png" alt="app-logo" />
       </a>
     </div>
-    <section class="leftbar-center">
-      <template v-if="!isNewWindow">
-        <div :class="[{ active: isConnection }, 'leftbar-item']">
-          <a href="javascript:;" @click="routeToPage('/recent_connections')">
-            <i class="iconfont icon-connections"></i>
-          </a>
-        </div>
-        <div :class="[{ active: isCreate }, 'leftbar-item']">
-          <a href="javascript:;" @click="routeToPage('/recent_connections/0?oper=create')">
-            <i class="iconfont icon-new"></i>
-          </a>
-        </div>
-        <div :class="[{ active: isScript }, 'leftbar-item']">
-          <a href="javascript:;" @click="routeToPage('/script')">
-            <i class="iconfont icon-script"></i>
-          </a>
-        </div>
-        <div :class="[{ active: isLog }, 'leftbar-item']">
-          <a href="javascript:;" @click="routeToPage('/log')">
-            <i class="iconfont icon-log"></i>
-          </a>
-        </div>
-      </template>
+    <section v-if="!isNewWindow" class="leftbar-center">
+      <div v-for="item in menuItems" :key="item.path" :class="['leftbar-item', { active: isActive(item) }]">
+        <a href="javascript:;" @click="routeToPage(item.path, item.query)">
+          <i :class="['iconfont', item.icon]"></i>
+        </a>
+      </div>
     </section>
-
     <section v-if="!isNewWindow" class="leftbar-bottom">
-      <div :class="[{ active: isSettings }, 'leftbar-item']">
-        <a href="javascript:;" @click="routeToPage('/settings')">
-          <i class="iconfont icon-settings"></i>
-        </a>
-      </div>
-      <div :class="[{ active: isHelp }, 'leftbar-item']">
-        <a href="javascript:;" @click="routeToPage('/help')">
-          <i class="iconfont icon-mqtt"></i>
-        </a>
-      </div>
-      <div :class="[{ active: isAbout }, 'leftbar-item']">
-        <a href="javascript:;" @click="routeToPage('/about')">
-          <i class="iconfont icon-about"></i>
+      <div v-for="item in bottomItems" :key="item.path" :class="['leftbar-item', { active: isActive(item) }]">
+        <a href="javascript:;" @click="routeToPage(item.path)">
+          <i :class="['iconfont', item.icon]"></i>
         </a>
       </div>
     </section>
@@ -55,44 +27,54 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import gaCustomLinks from '@/utils/gaCustomLinks'
 
+interface MenuItem {
+  path: string
+  icon: string
+  name?: string
+  query?: { [key: string]: string }
+}
+
 @Component
 export default class Leftbar extends Vue {
   @Getter('currentLang') private getterLang!: Language
 
+  private menuItems: MenuItem[] = [
+    { path: '/recent_connections', icon: 'icon-connections', name: 'Connections' },
+    { path: '/recent_connections/0', icon: 'icon-new', query: { oper: 'create' }, name: 'ConnectionDetails' },
+    { path: '/viewer', icon: 'icon-viewer' },
+    { path: '/script', icon: 'icon-script' },
+    { path: '/log', icon: 'icon-log' },
+  ]
+
+  private bottomItems: MenuItem[] = [
+    { path: '/settings', icon: 'icon-settings' },
+    { path: '/help', icon: 'icon-mqtt' },
+    { path: '/about', icon: 'icon-about' },
+  ]
+
   get siteLink(): string {
     return gaCustomLinks(this.getterLang).leftBarLogo
   }
-  get isConnection(): boolean {
-    return ['Connections', 'ConnectionDetails'].includes(this.$route.name || '') && this.$route.query.oper !== 'create'
-  }
-  get isCreate(): boolean {
-    return this.$route.name === 'ConnectionDetails' && this.$route.query.oper === 'create'
-  }
-  get isSettings(): boolean {
-    return this.$route.path === '/settings'
-  }
-  get isAbout(): boolean {
-    return this.$route.path === '/about'
-  }
-  get isScript(): boolean {
-    return this.$route.path === '/script'
-  }
-  get isLog(): boolean {
-    return this.$route.path === '/log'
-  }
+
   get isNewWindow(): boolean {
     return this.$route.name === 'newWindow'
   }
-  get isHelp(): boolean {
-    return this.$route.path === '/help'
+
+  private isActive(item: MenuItem): boolean {
+    if (item.name === 'Connections' || item.name === 'ConnectionDetails') {
+      return (
+        ['Connections', 'ConnectionDetails'].includes(this.$route.name || '') &&
+        (item.name === 'Connections' ? this.$route.query.oper !== 'create' : this.$route.query.oper === 'create')
+      )
+    }
+    if (item.path === '/viewer') {
+      return this.$route.path.startsWith('/viewer')
+    }
+    return this.$route.path === item.path
   }
 
-  private routeToPage(path: string) {
-    this.$router
-      .push({
-        path,
-      })
-      .catch(() => {})
+  private routeToPage(path: string, query?: { [key: string]: string }) {
+    this.$router.push({ path, query }).catch(() => {})
   }
 }
 </script>
@@ -114,7 +96,7 @@ export default class Leftbar extends Vue {
     flex: 1;
   }
   & > .leftbar-center {
-    flex: 3;
+    flex: 4;
   }
   & > .leftbar-bottom {
     flex: 0;

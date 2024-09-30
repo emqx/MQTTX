@@ -364,6 +364,7 @@ import { LeftValues, BodyTopValues, MsgTopValues, DetailLeftValues } from '@/uti
 import getErrorReason from '@/utils/mqttErrorReason'
 import { isLargeData } from '@/utils/data'
 import { serializeAvroToBuffer, deserializeBufferToAvro } from '@/utils/avro'
+import { globalEventBus } from '@/utils/globalEventBus'
 
 type CommandType =
   | 'searchContent'
@@ -1173,6 +1174,14 @@ export default class ConnectionsDetail extends Vue {
    * @param {string} name - The name of the connection.
    */
   private onPacketReceived(packet: Packet, name: string) {
+    globalEventBus.emit('packetReceive', packet, {
+      id: this.record.id,
+      name: this.record.name,
+      clientId: this.record.clientId,
+      host: this.record.host,
+      port: this.record.port,
+      protocol: this.record.protocol,
+    })
     this.$log.debug(`[${name}] Received packet: ${JSON.stringify(packet)}`)
   }
 

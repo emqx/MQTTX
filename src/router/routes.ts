@@ -13,6 +13,19 @@ const routes: Routes[] = [
         name: 'ConnectionDetails',
         component: () => import('@/views/connections/index.vue'),
       },
+      {
+        path: '/viewer',
+        name: 'Viewer',
+        component: () => import('@/views/viewer/index.vue'),
+        redirect: '/viewer/topic_tree',
+        children: [
+          {
+            path: 'topic_tree',
+            name: 'TopicTree',
+            component: () => import('@/views/viewer/TopicTree.vue'),
+          },
+        ],
+      },
       { path: '/settings', name: 'Settings', component: () => import('@/views/settings/index.vue') },
       { path: '/about', name: 'About', component: () => import('@/views/about/index.vue') },
       { path: '/script', name: 'Script', component: () => import('@/views/script/index.vue') },
