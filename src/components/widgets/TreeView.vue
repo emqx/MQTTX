@@ -19,8 +19,10 @@
         <span class="custom-tree-node">
           <span class="tree-node-info">
             <span>{{ node.label }}</span>
-            <span v-if="data.name"> - [{{ data.name }}]</span>
-            <el-tag v-if="data.latestMessage" size="mini" class="ml-2">{{ data.latestMessage }}</el-tag>
+            <span v-if="data.connectionInfo && data.connectionInfo.name"> - [{{ data.connectionInfo.name }}]</span>
+            <el-tag v-if="data.latestMessage" size="mini" class="value-tag ml-2">
+              {{ data.latestMessage }}
+            </el-tag>
           </span>
           <span class="tree-node-meta">
             <span v-if="data.subTopicCount">{{ data.subTopicCount }} sub-topics</span>
@@ -111,10 +113,24 @@ export default class TreeView extends Vue {
     .tree-node-meta {
       color: var(--color-text-light);
     }
+    .tree-node-info {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      .value-tag {
+        max-width: 350px;
+        width: auto;
+        flex: 0 1 auto;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
   }
 
   .el-tree-node__children {
     padding-left: 12px;
+    width: 100%;
   }
 }
 </style>

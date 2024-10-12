@@ -414,6 +414,9 @@
 }
 
 /* Colors (using CSS variables for consistency) */
+.text-title {
+  color: var(--color-text-title);
+}
 .text-primary {
   color: var(--color-main-green);
 }
@@ -475,4 +478,11 @@
 /* Float */
 .float-right {
   float: right;
+}
+
+/* Ellipsis */
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }

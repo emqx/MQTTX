@@ -908,4 +908,25 @@ export default {
     ja: 'ペイロードサイズ',
     hu: 'A hasznos teher mérete',
   },
+  subTopics: {
+    zh: '子主题',
+    en: 'Sub-Topics',
+    tr: 'Alt Konular',
+    ja: 'サブトピック',
+    hu: 'Al téma',
+  },
+  fullTopic: {
+    zh: '完整主题',
+    en: 'Full Topic',
+    tr: 'Tam Konu',
+    ja: '完全なトピック',
+    hu: 'Teljes téma',
+  },
+  receivedTime: {
+    zh: '接收时间',
+    en: 'Received Time',
+    tr: 'Alındığı Zaman',
+    ja: '受信時間',
+    hu: 'Időbélyeg',
+  },
 }
