@@ -1,7 +1,8 @@
 <template>
   <div class="viewer-view rightbar">
-    <div class="titlebar">
+    <div class="titlebar flex items-center">
       <h1>{{ $t('viewer.viewer') }}</h1>
+      <el-tag class="ml-2" size="mini" type="info">Beta</el-tag>
     </div>
     <div class="viewer-view-tabs">
       <el-tabs v-model="activeTab" @tab-click="handleTabClick">
