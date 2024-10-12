@@ -1,6 +1,6 @@
 <template>
   <div class="topic-tree-view">
-    <el-row :gutter="16">
+    <el-row :gutter="12">
       <el-col :span="16">
         <el-card shadow="never" class="topic-tree-card">
           <TreeView :data="data" @node-click="handleNodeClick" />
@@ -8,7 +8,8 @@
       </el-col>
       <el-col :span="8">
         <el-card shadow="never" class="topic-info-card">
-          {{ selectedNode }}
+          <TreeNodeInfo v-if="selectedNode" :node="selectedNode" :tree-data="data" />
+          <div v-else>{{ $t('viewer.selectedTopicInfo') }}</div>
         </el-card>
       </el-col>
     </el-row>
@@ -21,10 +22,12 @@ import { globalEventBus } from '@/utils/globalEventBus'
 import TreeView from '@/components/widgets/TreeView.vue'
 import { updateTopicTreeData } from '@/utils/topicTree'
 import { IPublishPacket } from 'mqtt-packet/types'
+import TreeNodeInfo from '@/components/widgets/TreeNodeInfo.vue'
 
 @Component({
   components: {
     TreeView,
+    TreeNodeInfo,
   },
 })
 export default class TopicTree extends Vue {
@@ -55,19 +58,22 @@ export default class TopicTree extends Vue {
 
 <style lang="scss">
 .topic-tree-view {
+  .topic-info-card,
+  .topic-tree-card {
+    height: calc(100vh - 130px);
+    overflow-y: auto;
+    margin-bottom: 12px;
+  }
   .topic-tree-card {
     color: var(--color-text-default);
-    min-height: 500px;
     .el-tree {
+      background: transparent;
       color: var(--color-text-default);
+      height: 100%;
     }
   }
   .topic-info-card {
     color: var(--color-text-default);
-    min-height: 320px;
-  }
-  .el-tree {
-    background: transparent;
   }
 }
 </style>

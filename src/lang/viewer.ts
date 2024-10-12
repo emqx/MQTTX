@@ -34,4 +34,9 @@ export default {
     ja: 'すべて折りたたむ',
     hu: 'Összes összecsukás',
   },
+  selectedTopicInfo: {
+    zh: '选择主题以查看详情',
+    en: 'Select a topic to view details',
+    tr: 'Detayları görüntülemek için bir konu seçin',
+  },
 }

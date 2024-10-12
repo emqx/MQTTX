@@ -630,7 +630,7 @@ export default class ConnectionsDetail extends Vue {
     try {
       const { curConnectClient, connectUrl } = await createClient(this.record)
       this.client = curConnectClient
-      const { name, id, host } = this.record
+      const { id, name, host, protocol, port, path, clientId } = this.record
       if (id && this.client.on) {
         this.$log.info(`Assigned ID ${id} to MQTTX client`)
         this.client.on('connect', this.onConnect)
@@ -640,13 +640,9 @@ export default class ConnectionsDetail extends Vue {
         this.client.on('offline', this.onOffline)
         this.onMessageArrived(this.client as MqttClient, id)
         // Debug MQTT Packet Log
-        this.client.on('packetsend', (packet) => this.onPacketSent(packet, host))
+        this.client.on('packetsend', (packet) => this.onPacketSent(packet, name))
         this.client.on('packetreceive', (packet) =>
-          this.onPacketReceived(packet, {
-            name,
-            id,
-            host,
-          }),
+          this.onPacketReceived(packet, { host, name, clientId, id, protocol, port, path }),
         )
       }
 
@@ -1179,11 +1175,34 @@ export default class ConnectionsDetail extends Vue {
    * @param {Packet} packet - The received packet.
    * @param {string} name - The name of the connection.
    */
-  private onPacketReceived(packet: Packet, { name, host, id }: { name: string; host: string; id: string }) {
-    globalEventBus.emit('packetReceive', packet, {
+  private onPacketReceived(
+    packet: Packet,
+    {
       name,
       host,
       id,
+      clientId,
+      protocol,
+      port,
+      path,
+    }: {
+      name: string
+      host: string
+      id: string
+      clientId: string
+      protocol?: string
+      port: number
+      path: string
+    },
+  ) {
+    globalEventBus.emit('packetReceive', packet, {
+      name,
+      clientId,
+      host,
+      id,
+      protocol,
+      port,
+      path,
     })
     this.$log.debug(`[${name}] Received packet: ${JSON.stringify(packet)}`)
   }

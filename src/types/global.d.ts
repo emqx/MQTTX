@@ -450,10 +450,13 @@ declare global {
 
   interface TopicTreeData {
     label: string
-    name?: string
+    qos?: QoS
+    retain?: boolean
+    time?: string
     latestMessage?: string
     messageCount: number
     subTopicCount: number
+    connectionInfo?: ConnectionModel
     children?: TopicTreeData[]
   }
 }
