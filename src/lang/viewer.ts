@@ -20,4 +20,18 @@ export default {
     ja: 'フィルタリングするためにキーワードを入力してください',
     hu: 'Adja meg a kulcsszót a szűréshez',
   },
+  expendAll: {
+    zh: '全部展开',
+    en: 'Expend All',
+    tr: 'Tümünü Genişlet',
+    ja: 'すべて展開',
+    hu: 'Összes kibontás',
+  },
+  collapseAll: {
+    zh: '全部折叠',
+    en: 'Collapse All',
+    tr: 'Tümünü Kapat',
+    ja: 'すべて折りたたむ',
+    hu: 'Összes összecsukás',
+  },
 }

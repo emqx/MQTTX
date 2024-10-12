@@ -447,4 +447,13 @@ declare global {
   }
 
   type LogLevel = 'debug' | 'info' | 'warn' | 'error'
+
+  interface TopicTreeData {
+    label: string
+    name?: string
+    latestMessage?: string
+    messageCount: number
+    subTopicCount: number
+    children?: TopicTreeData[]
+  }
 }
