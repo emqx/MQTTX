@@ -158,3 +158,20 @@ export function findFullTopicPath(treeData: TopicTreeData[], targetLabel: string
   }
   return null
 }
+
+/**
+ * Retrieves all labels from the given topic tree nodes and their children.
+ *
+ * @param nodes - An array of TopicTreeData representing the topic tree nodes.
+ * @returns An array of strings containing all labels from the nodes and their children.
+ */
+export function getAllLabels(nodes: TopicTreeData[]): string[] {
+  let labels: string[] = []
+  for (const node of nodes) {
+    labels.push(node.label)
+    if (node.children && node.children.length > 0) {
+      labels = labels.concat(getAllLabels(node.children))
+    }
+  }
+  return labels
+}
