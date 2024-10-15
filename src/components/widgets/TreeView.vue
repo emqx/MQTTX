@@ -153,6 +153,13 @@ export default class TreeView extends Vue {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      .el-button {
+        border: 1px solid var(--color-border-default);
+        background: transparent;
+        &:hover {
+          border: 1px solid var(--color-main-green);
+        }
+      }
     }
   }
 
