@@ -1,7 +1,25 @@
 <template>
   <div class="tree-view">
-    <div class="tree-view-header">
-      <el-input :placeholder="$t('viewer.filterDesc')" size="small" v-model="filterText" class="mb-3" clearable />
+    <div class="tree-view-header mb-3">
+      <el-input :placeholder="$t('viewer.filterDesc')" size="small" v-model="filterText" clearable class="mr-3" />
+      <div class="tree-view-header-actions">
+        <el-tooltip
+          :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+          placement="top"
+          :content="$t('viewer.expendAll')"
+          :open-delay="500"
+        >
+          <el-button size="small" @click="expandAll" icon="el-icon-arrow-down"> </el-button>
+        </el-tooltip>
+        <el-tooltip
+          :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+          placement="top"
+          :content="$t('viewer.collapseAll')"
+          :open-delay="500"
+        >
+          <el-button size="small" @click="collapseAll" icon="el-icon-arrow-up"> </el-button>
+        </el-tooltip>
+      </div>
     </div>
     <el-tree
       ref="tree"
@@ -38,11 +56,15 @@
 
 <script lang="ts">
 import { Component, Vue, Watch, Prop } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 import { Tree } from 'element-ui'
+import { getAllLabels } from '@/utils/topicTree'
 
 @Component
 export default class TreeView extends Vue {
   @Prop({ default: () => [] }) public data!: TopicTreeData[]
+
+  @Getter('currentTheme') private currentTheme!: Theme
 
   private expandedKeys: string[] = []
   private filterText = ''
@@ -102,6 +124,13 @@ export default class TreeView extends Vue {
     }
   }
 
+  private expandAll() {
+    this.expandedKeys = getAllLabels(this.data)
+  }
+
+  private collapseAll() {
+    this.expandedKeys = []
+  }
   mounted() {
     // Keep the filter text when data changes
     this.$nextTick(() => {
@@ -115,6 +144,18 @@ export default class TreeView extends Vue {
 
 <style lang="scss">
 .tree-view {
+  .tree-view-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    .tree-view-header-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
   .el-tree-node__content {
     border-radius: 8px;
     height: 32px;
