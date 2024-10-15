@@ -50,9 +50,9 @@
         <span>Payload <el-tag v-if="node.retain" type="info" size="mini">Retained</el-tag></span>
         <span>QoS: {{ node.qos }}</span>
       </div>
-      <div class="payload-container mt-2 mb-2">
-        <pre><code :class="`language-${payloadFormat}`" v-html="latestMessage"></code></pre>
-      </div>
+      <pre
+        class="payload-container mt-2 mb-2"
+      ><code :class="`language-${payloadFormat}`" v-html="latestMessage"></code></pre>
     </div>
   </div>
 </template>
@@ -137,6 +137,8 @@ export default class TreeNodeInfo extends Vue {
 </script>
 
 <style lang="scss">
+@import '@/assets/scss/mixins.scss';
+
 body.light {
   @import '@/assets/scss/theme/custom/prism-one-light.scss';
 }
@@ -158,7 +160,6 @@ body.night {
     border: 1px solid var(--color-border-default);
     border-radius: 8px;
     width: 100%;
-
     pre {
       margin: 0;
       white-space: pre-wrap;
