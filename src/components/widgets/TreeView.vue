@@ -1,7 +1,7 @@
 <template>
   <div class="tree-view">
     <div class="tree-view-header">
-      <el-input :placeholder="$t('viewer.filterDesc')" size="small" v-model="filterText" class="mb-3" />
+      <el-input :placeholder="$t('viewer.filterDesc')" size="small" v-model="filterText" class="mb-3" clearable />
     </div>
     <el-tree
       ref="tree"
@@ -53,7 +53,19 @@ export default class TreeView extends Vue {
 
   @Watch('filterText')
   private filterTextChange(val: string) {
-    this.treeRef.filter(val)
+    this.$nextTick(() => {
+      this.treeRef.filter(val)
+    })
+  }
+
+  @Watch('data', { deep: true })
+  private onDataChange() {
+    this.$nextTick(() => {
+      // Keep the filter text when data changes
+      if (this.filterText) {
+        this.treeRef.filter(this.filterText)
+      }
+    })
   }
 
   private defaultProps = {
@@ -88,6 +100,15 @@ export default class TreeView extends Vue {
     if (node.children && node.children.length > 0) {
       node.children.forEach((child) => this.removeExpandedKeysRecursively(child))
     }
+  }
+
+  mounted() {
+    // Keep the filter text when data changes
+    this.$nextTick(() => {
+      if (this.filterText) {
+        this.treeRef.filter(this.filterText)
+      }
+    })
   }
 }
 </script>
