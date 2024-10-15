@@ -19,7 +19,9 @@
         <span class="custom-tree-node">
           <span class="tree-node-info">
             <span>{{ node.label }}</span>
-            <span v-if="data.connectionInfo && data.connectionInfo.name"> - [{{ data.connectionInfo.name }}]</span>
+            <span v-if="data.connectionInfo && data.connectionInfo.name">
+              &nbsp;- [{{ data.connectionInfo.name }}]
+            </span>
             <el-tag v-if="data.latestMessage" size="mini" class="value-tag ml-2">
               {{ data.latestMessage }}
             </el-tag>
@@ -110,6 +112,7 @@ export default class TreeView extends Vue {
     justify-content: space-between;
     width: 100%;
     margin-right: 6px;
+    min-width: 0;
     .tree-node-meta {
       color: var(--color-text-light);
     }
@@ -117,13 +120,15 @@ export default class TreeView extends Vue {
       width: 100%;
       display: flex;
       align-items: center;
+      min-width: 0;
       .value-tag {
-        max-width: 350px;
+        max-width: 75%;
         width: auto;
-        flex: 0 1 auto;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        flex: 0 1 auto;
+        min-width: 0;
       }
     }
   }
