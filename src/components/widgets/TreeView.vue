@@ -129,6 +129,16 @@ export default class TreeView extends Vue {
   }
 
   private collapseAll() {
+    const collapseNode = (node: TopicTreeData) => {
+      if (node.children && node.children.length > 0) {
+        node.children.forEach(collapseNode)
+      }
+      const treeNode = this.treeRef.getNode(node.id)
+      if (treeNode) {
+        treeNode.expanded = false
+      }
+    }
+    this.data.forEach(collapseNode)
     this.expandedKeys = []
   }
 
