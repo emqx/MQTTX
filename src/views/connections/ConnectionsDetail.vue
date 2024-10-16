@@ -704,7 +704,7 @@ export default class ConnectionsDetail extends Vue {
       clearInterval(this.sendTimeId)
       this.sendTimeId = null
       this.$message.success(this.$tc('connections.stopTimedMessage'))
-      this.$log.info(`Timed messages sending stopped for ${this.record.name}`)
+      this.$log.info(`Timed messages sending stopped for ${this.record.name}@${this.record.host}`)
     }
   }
 
@@ -977,7 +977,7 @@ export default class ConnectionsDetail extends Vue {
     if (this.record.id) {
       const { messageService } = useServices()
       await messageService.cleanInConnection(this.record.id)
-      this.$log.info(`History connection messages were cleaned for ${this.record.name}`)
+      this.$log.info(`History connection messages were cleaned for ${this.record.name}@${this.record.host}`)
     }
   }
 
@@ -1085,7 +1085,7 @@ export default class ConnectionsDetail extends Vue {
     })
     this.setShowClientInfo(false)
     this.$emit('reload', false, false, this.handleReSubTopics)
-    this.$log.info(`Successful connection for ${this.record.name}, MQTT.js onConnect trigger`)
+    this.$log.info(`Successful connection for ${this.record.name}@${this.record.host}, MQTT.js onConnect trigger`)
   }
 
   // Error callback
@@ -1096,7 +1096,9 @@ export default class ConnectionsDetail extends Vue {
     }
     this.forceCloseTheConnection()
     this.notifyMsgWithCopilot(msgTitle)
-    this.$log.error(`Connection for ${this.record.name} failed, MQTT.js onError trigger, Error: ${error.stack}`)
+    this.$log.error(
+      `Connection for ${this.record.name}@${this.record.host} failed, MQTT.js onError trigger, Error: ${error.stack}`,
+    )
     this.$emit('reload')
   }
 
@@ -1119,7 +1121,7 @@ export default class ConnectionsDetail extends Vue {
         this.forceCloseTheConnection()
       } else {
         this.$log.info(
-          `Retrying connection for ${this.record.name}, attempt: [${this.reTryConnectTimes}/${this.maxReconnectTimes}]`,
+          `Retrying connection for ${this.record.name}@${this.record.host}, attempt: [${this.reTryConnectTimes}/${this.maxReconnectTimes}]`,
         )
         this.connectLoading = true
         this.$notify({
@@ -1135,7 +1137,7 @@ export default class ConnectionsDetail extends Vue {
 
   // Close connection callback
   private onClose() {
-    this.$log.info(`Connection for ${this.record.name} closed, MQTT.js onClose trigger`)
+    this.$log.info(`Connection for ${this.record.name}@${this.record.host} closed, MQTT.js onClose trigger`)
     this.connectLoading = false
   }
 
@@ -1221,7 +1223,9 @@ export default class ConnectionsDetail extends Vue {
     if (this.client.reconnecting && this.client.connected === false) {
       this.client.reconnecting = false
       this.forceCloseTheConnection()
-      this.$log.warn(`MQTTX force stopped reconnecting for ${this.record.name} (Client ID: ${this.record.clientId})`)
+      this.$log.warn(
+        `MQTTX force stopped reconnecting for ${this.record.name}@${this.record.host} - Client ID: ${this.record.clientId}`,
+      )
     }
   }
 
@@ -1258,14 +1262,14 @@ export default class ConnectionsDetail extends Vue {
     }
     this.setScript({ currentScript })
     this.$message.success(this.$tc('script.startScript'))
-    this.$log.info(`Script set successfully for ${this.record.name}`)
+    this.$log.info(`Script set successfully for ${this.record.name}@${this.record.host}`)
   }
 
   // Remove script
   private removeScript() {
     this.setScript({ currentScript: null })
     this.$message.success(this.$tc('script.stopScirpt'))
-    this.$log.info(`Script removed successfully from ${this.record.name}`)
+    this.$log.info(`Script removed successfully from ${this.record.name}@${this.record.host}`)
   }
 
   /*
@@ -1386,9 +1390,11 @@ export default class ConnectionsDetail extends Vue {
         const isFromActiveTopic = this.msgType !== 'publish' && this.activeTopic && isActiveTopicMessages
         const isFromNotActiveTopic = this.msgType !== 'publish' && !this.activeTopic
         if (isFromActiveTopic || isFromNotActiveTopic) {
-          let receivedLog = `Message arrived for ${this.record.name} with topic: "${topic}". Message ID: "${
-            message.id
-          }", payload: ${jsonStringify(message.payload)}. MQTT.js onMessageArrived trigger`
+          let receivedLog = `Message arrived for ${this.record.name}@${
+            this.record.host
+          } with topic: "${topic}". Message ID: "${message.id}", payload: ${jsonStringify(
+            message.payload,
+          )}. MQTT.js onMessageArrived trigger`
           this.$log.info(receivedLog)
         }
       } else {
@@ -1550,7 +1556,7 @@ export default class ConnectionsDetail extends Vue {
   private notifyTimedMessageSuccess() {
     this.$message.success(`${this.$t('connections.startTimedMessage')}${this.sendFrequency}`)
     this.$log.info(
-      `Timed message for ${this.record.name} started successfully with a frequency of ${this.sendFrequency} seconds.`,
+      `Timed message for ${this.record.name}@${this.record.host} started successfully with a frequency of ${this.sendFrequency} seconds.`,
     )
   }
 
@@ -1686,7 +1692,7 @@ export default class ConnectionsDetail extends Vue {
     this.notifyMsgWithCopilot(errorMsg)
     this.stopTimedSend()
     this.$log.error(
-      `Failed to publish message for ${this.record.name}. Error: ${errorMsg}. Stack trace: ${error.stack}`,
+      `Failed to publish message for ${this.record.name}@${this.record.host}. Error: ${errorMsg}. Stack trace: ${error.stack}`,
     )
   }
 

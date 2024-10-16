@@ -52,6 +52,9 @@ export default class TopicTree extends Vue {
       packet,
       connectionInfo,
     })
+    this.$log.info(
+      `Topic Tree: Updated tree data for connection ${connectionInfo.name}@${connectionInfo.host}. Topic: ${packet.topic}, QoS: ${packet.qos}`,
+    )
     this.queueMessage(packet, connectionInfo.id as string)
   }
 
@@ -80,9 +83,9 @@ export default class TopicTree extends Vue {
       try {
         const processedMessages = messages.map((m) => this.generateMessage(m))
         await messageService.importMsgsToConnection(processedMessages, connectionId)
-        this.$log.info(`Topic Tree: Processed ${messages.length} messages for connection ${connectionId}`)
+        this.$log.info(`Topic Tree: Processed and stored ${messages.length} messages for connection ${connectionId}`)
       } catch (error) {
-        this.$log.error(`Topic Tree: Error processing messages: ${(error as Error).toString()}`)
+        this.$log.error(`Topic Tree: Error processing and storing messages: ${(error as Error).toString()}`)
       }
     })
   }
