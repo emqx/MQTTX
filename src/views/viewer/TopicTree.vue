@@ -24,8 +24,11 @@ import { updateTopicTreeData } from '@/utils/topicTree'
 import { IPublishPacket } from 'mqtt-packet/types'
 import TreeNodeInfo from '@/components/widgets/TreeNodeInfo.vue'
 import { ignoreQoS0Message } from '@/utils/mqttUtils'
-import { messageQueue } from '@/utils/messageQueue'
+import { messageQueue } from '@/utils/mqttMessageQueue'
 import useServices from '@/database/useServices'
+import { getMessageId } from '@/utils/idGenerator'
+import { Subscription } from 'rxjs'
+import { getNowDate } from '@/utils/time'
 
 @Component({
   components: {
@@ -37,6 +40,12 @@ export default class TopicTree extends Vue {
   private data: TopicTreeData[] = []
 
   private selectedNode: TopicTreeData | null = null
+
+  private subscription: Subscription | null = null
+
+  private handleNodeClick(data: TopicTreeData) {
+    this.selectedNode = data
+  }
 
   private handlePacketReceive(packet: IPublishPacket, connectionInfo: ConnectionModel) {
     this.data = updateTopicTreeData(this.data, {
@@ -51,17 +60,26 @@ export default class TopicTree extends Vue {
     messageQueue.queueMessage(packet, id)
   }
 
-  private handleNodeClick(data: TopicTreeData) {
-    this.selectedNode = data
+  private generateMessage(m: QueuedMessage): MessageModel {
+    return {
+      id: getMessageId(),
+      topic: m.packet.topic,
+      payload: m.packet.payload.toString(),
+      qos: m.packet.qos,
+      retain: m.packet.retain,
+      out: false,
+      createAt: getNowDate(),
+      properties: m.packet.properties,
+    }
   }
 
-  private created() {
-    globalEventBus.on('packetReceive', this.handlePacketReceive)
+  private async storeMessages() {
     const { messageService } = useServices()
-    messageQueue.getMessageObservable().subscribe(async ({ messages, connectionId }) => {
+    this.subscription = messageQueue.getMessageObservable().subscribe(async ({ messages, connectionId }) => {
       if (messages.length === 0) return
       try {
-        await messageService.importMsgsToConnection(messages, connectionId)
+        const processedMessages = messages.map((m) => this.generateMessage(m))
+        await messageService.importMsgsToConnection(processedMessages, connectionId)
         this.$log.info(`Topic Tree: Processed ${messages.length} messages for connection ${connectionId}`)
       } catch (error) {
         this.$log.error(`Topic Tree: Error processing messages: ${(error as Error).toString()}`)
@@ -69,8 +87,19 @@ export default class TopicTree extends Vue {
     })
   }
 
+  private created() {
+    globalEventBus.on('packetReceive', this.handlePacketReceive)
+    if (!this.subscription) {
+      this.storeMessages()
+    }
+  }
+
   private beforeDestroy() {
     globalEventBus.off('packetReceive', this.handlePacketReceive)
+    if (this.subscription) {
+      this.subscription.unsubscribe()
+      this.subscription = null
+    }
   }
 }
 </script>
