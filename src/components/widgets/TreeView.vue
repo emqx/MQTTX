@@ -36,9 +36,9 @@
       <template #default="{ node, data }">
         <span class="custom-tree-node">
           <span class="tree-node-info">
-            <span>{{ node.label }}</span>
-            <span v-if="data.connectionInfo && data.connectionInfo.name">
-              &nbsp;- [{{ data.connectionInfo.name }}]
+            <span>
+              <span v-if="data.connectionInfo && data.connectionInfo.name">{{ data.connectionInfo.name }}@</span
+              >{{ node.label }}
             </span>
             <el-tag v-if="!checkPayloadEmpty(data.latestMessage)" size="mini" class="value-tag ml-2">
               {{ data.latestMessage }}
