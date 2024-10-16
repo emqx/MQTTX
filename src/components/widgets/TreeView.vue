@@ -40,7 +40,7 @@
             <span v-if="data.connectionInfo && data.connectionInfo.name">
               &nbsp;- [{{ data.connectionInfo.name }}]
             </span>
-            <el-tag v-if="data.latestMessage" size="mini" class="value-tag ml-2">
+            <el-tag v-if="!checkPayloadEmpty(data.latestMessage)" size="mini" class="value-tag ml-2">
               {{ data.latestMessage }}
             </el-tag>
           </span>
@@ -58,7 +58,7 @@
 import { Component, Vue, Watch, Prop } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import { Tree } from 'element-ui'
-import { getAllIDs } from '@/utils/topicTree'
+import { getAllIDs, isPayloadEmpty } from '@/utils/topicTree'
 
 @Component
 export default class TreeView extends Vue {
@@ -140,6 +140,10 @@ export default class TreeView extends Vue {
     }
     this.data.forEach(collapseNode)
     this.expandedKeys = []
+  }
+
+  private checkPayloadEmpty(payload: string | Buffer | null | undefined): boolean {
+    return isPayloadEmpty(payload)
   }
 
   private mounted() {
