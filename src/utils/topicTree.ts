@@ -11,7 +11,6 @@ import time from './time'
  * @param {ConnectionModel} rawData.connectionInfo - The connection information.
  * @returns {TopicTreeData[]} The updated topic tree data structure.
  */
-
 export function updateTopicTreeData(
   currentTree: TopicTreeData[],
   rawData: {

@@ -23,6 +23,9 @@ import TreeView from '@/components/widgets/TreeView.vue'
 import { updateTopicTreeData } from '@/utils/topicTree'
 import { IPublishPacket } from 'mqtt-packet/types'
 import TreeNodeInfo from '@/components/widgets/TreeNodeInfo.vue'
+import { ignoreQoS0Message } from '@/utils/mqttUtils'
+import { messageQueue } from '@/utils/messageQueue'
+import useServices from '@/database/useServices'
 
 @Component({
   components: {
@@ -40,18 +43,34 @@ export default class TopicTree extends Vue {
       packet,
       connectionInfo,
     })
+    this.queueMessage(packet, connectionInfo.id as string)
   }
 
-  created() {
-    globalEventBus.on('packetReceive', this.handlePacketReceive)
-  }
-
-  beforeDestroy() {
-    globalEventBus.off('packetReceive', this.handlePacketReceive)
+  private queueMessage(packet: IPublishPacket, id: string) {
+    if (packet.cmd !== 'publish' || ignoreQoS0Message(packet.qos)) return
+    messageQueue.queueMessage(packet, id)
   }
 
   private handleNodeClick(data: TopicTreeData) {
     this.selectedNode = data
+  }
+
+  private created() {
+    globalEventBus.on('packetReceive', this.handlePacketReceive)
+    const { messageService } = useServices()
+    messageQueue.getMessageObservable().subscribe(async ({ messages, connectionId }) => {
+      if (messages.length === 0) return
+      try {
+        await messageService.importMsgsToConnection(messages, connectionId)
+        this.$log.info(`Topic Tree: Processed ${messages.length} messages for connection ${connectionId}`)
+      } catch (error) {
+        this.$log.error(`Topic Tree: Error processing messages: ${(error as Error).toString()}`)
+      }
+    })
+  }
+
+  private beforeDestroy() {
+    globalEventBus.off('packetReceive', this.handlePacketReceive)
   }
 }
 </script>
