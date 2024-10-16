@@ -20,7 +20,7 @@
       </div>
     </div>
     <!-- Topic node without payload -->
-    <div v-else-if="!node.latestMessage">
+    <div v-else-if="checkPayloadEmpty(node.latestMessage)">
       <div>{{ $t('connections.fullTopic') }}</div>
       <el-tooltip
         :effect="currentTheme !== 'light' ? 'light' : 'dark'"
@@ -72,7 +72,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
-import { findSubTopics, findFullTopicPath } from '@/utils/topicTree'
+import { findSubTopics, findFullTopicPath, isPayloadEmpty } from '@/utils/topicTree'
 import Prism from 'prismjs'
 
 @Component
@@ -87,15 +87,17 @@ export default class TreeNodeInfo extends Vue {
   }
 
   get latestMessage(): string {
+    const message = this.node.latestMessage || ''
     if (this.payloadFormat === 'json') {
-      return JSON.stringify(JSON.parse(this.node.latestMessage || ''), null, 2)
+      return JSON.stringify(JSON.parse(message.toString()), null, 2)
     }
-    return this.node.latestMessage || ''
+    return message.toString()
   }
 
   get payloadFormat(): string {
     try {
-      JSON.parse(this.latestMessage)
+      const message = this.node.latestMessage || ''
+      JSON.parse(message.toString())
       return 'json'
     } catch (e) {
       return 'plaintext'
@@ -133,6 +135,10 @@ export default class TreeNodeInfo extends Vue {
     const fullPath = findFullTopicPath(this.treeData, node.id)
     if (!fullPath) return node.label
     return fullPath
+  }
+
+  private checkPayloadEmpty(payload: string | Buffer | null | undefined): boolean {
+    return isPayloadEmpty(payload)
   }
 
   private mounted() {

@@ -36,7 +36,7 @@ export function updateTopicTreeData(
     hostNode = {
       id: connectionInfo.id ?? '',
       label: connectionInfo.host,
-      latestMessage: '',
+      latestMessage: undefined,
       messageCount: 0,
       subTopicCount: 0,
       children: [],
@@ -59,7 +59,7 @@ export function updateTopicTreeData(
       childNode = {
         id: currentId,
         label: level,
-        latestMessage: '',
+        latestMessage: undefined,
         messageCount: 0,
         subTopicCount: 0,
         children: [],
@@ -182,4 +182,14 @@ export function getAllIDs(nodes: TopicTreeData[]): string[] {
     }
   }
   return ids
+}
+
+/**
+ * Checks if the given payload is empty.
+ *
+ * @param payload - The payload to check. Can be a string, Buffer, null, or undefined.
+ * @returns True if the payload is null or undefined, false otherwise.
+ */
+export function isPayloadEmpty(payload: string | Buffer | null | undefined): boolean {
+  return payload === null || payload === undefined
 }

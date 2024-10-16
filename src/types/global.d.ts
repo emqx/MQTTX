@@ -454,7 +454,7 @@ declare global {
     qos?: QoS
     retain?: boolean
     time?: string
-    latestMessage?: string
+    latestMessage?: string | Buffer | null
     messageCount: number
     subTopicCount: number
     connectionInfo?: ConnectionModel
