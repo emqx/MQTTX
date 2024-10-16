@@ -74,6 +74,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import { findSubTopics, findFullTopicPath, isPayloadEmpty } from '@/utils/topicTree'
 import Prism from 'prismjs'
+import { jsonStringify, jsonParse } from '@/utils/jsonUtils'
 
 @Component
 export default class TreeNodeInfo extends Vue {
@@ -89,7 +90,7 @@ export default class TreeNodeInfo extends Vue {
   get latestMessage(): string {
     const message = this.node.latestMessage || ''
     if (this.payloadFormat === 'json') {
-      return JSON.stringify(JSON.parse(message.toString()), null, 2)
+      return jsonStringify(jsonParse(message.toString()), null, 2)
     }
     return message.toString()
   }
