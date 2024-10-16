@@ -5,6 +5,7 @@ import {
   findSubTopics,
   findFullTopicPath,
   getAllIDs,
+  isPayloadEmpty,
 } from '@/utils/topicTree'
 import { IPublishPacket } from 'mqtt-packet'
 
@@ -404,5 +405,14 @@ describe('Topic Tree Functions', () => {
 
     const fullPath = findFullTopicPath(tree, 'non-existent')
     expect(fullPath).to.be.null
+  })
+
+  it('should correctly identify empty payloads', () => {
+    expect(isPayloadEmpty(null)).to.be.true
+    expect(isPayloadEmpty(undefined)).to.be.true
+    expect(isPayloadEmpty('')).to.be.false
+    expect(isPayloadEmpty('non-empty')).to.be.false
+    expect(isPayloadEmpty(Buffer.from(''))).to.be.false
+    expect(isPayloadEmpty(Buffer.from('non-empty'))).to.be.false
   })
 })
