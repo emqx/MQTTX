@@ -40,6 +40,7 @@ export default class TopicTree extends Vue {
       packet,
       connectionInfo,
     })
+    console.log(JSON.stringify(this.data, null, 2))
   }
 
   created() {

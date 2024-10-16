@@ -25,7 +25,7 @@
       ref="tree"
       :data="data"
       :props="defaultProps"
-      node-key="label"
+      node-key="id"
       :default-expanded-keys="expandedKeys"
       :expand-on-click-node="false"
       @node-click="handleNodeClick"
@@ -58,7 +58,7 @@
 import { Component, Vue, Watch, Prop } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import { Tree } from 'element-ui'
-import { getAllLabels } from '@/utils/topicTree'
+import { getAllIDs } from '@/utils/topicTree'
 
 @Component
 export default class TreeView extends Vue {
@@ -105,8 +105,8 @@ export default class TreeView extends Vue {
   }
 
   private handleNodeExpand(data: TopicTreeData) {
-    if (!this.expandedKeys.includes(data.label)) {
-      this.expandedKeys.push(data.label)
+    if (!this.expandedKeys.includes(data.id)) {
+      this.expandedKeys.push(data.id)
     }
   }
 
@@ -115,7 +115,7 @@ export default class TreeView extends Vue {
   }
 
   private removeExpandedKeysRecursively(node: TopicTreeData) {
-    const index = this.expandedKeys.indexOf(node.label)
+    const index = this.expandedKeys.indexOf(node.id)
     if (index > -1) {
       this.expandedKeys.splice(index, 1)
     }
@@ -125,13 +125,14 @@ export default class TreeView extends Vue {
   }
 
   private expandAll() {
-    this.expandedKeys = getAllLabels(this.data)
+    this.expandedKeys = getAllIDs(this.data)
   }
 
   private collapseAll() {
     this.expandedKeys = []
   }
-  mounted() {
+
+  private mounted() {
     // Keep the filter text when data changes
     this.$nextTick(() => {
       if (this.filterText) {

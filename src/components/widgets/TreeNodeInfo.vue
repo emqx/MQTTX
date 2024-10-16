@@ -8,7 +8,13 @@
       </template>
       <div>{{ $t('connections.subTopics') }}</div>
       <div class="mt-2">
-        <el-tag v-for="topic in getSubTopics(node)" :key="topic" size="small" class="mr-2 mb-2">
+        <el-tag
+          type="info"
+          v-for="(topic, index) in getSubTopics(node)"
+          :key="`${topic}-${index}`"
+          size="small"
+          class="mr-2 mb-2"
+        >
           {{ topic }}
         </el-tag>
       </div>
@@ -27,7 +33,13 @@
       </el-tooltip>
       <div>{{ $t('connections.subTopics') }}</div>
       <div class="mt-2">
-        <el-tag v-for="topic in getSubTopics(node)" :key="topic" size="small" class="mr-2 mb-2">
+        <el-tag
+          v-for="(topic, index) in getSubTopics(node)"
+          type="info"
+          :key="`${topic}-${index}`"
+          size="small"
+          class="mr-2 mb-2"
+        >
           {{ topic }}
         </el-tag>
       </div>
@@ -118,8 +130,9 @@ export default class TreeNodeInfo extends Vue {
   }
 
   private getFullTopicPath(node: TopicTreeData): string {
-    const fullPath = findFullTopicPath(this.treeData, node.label)
-    return fullPath || node.label
+    const fullPath = findFullTopicPath(this.treeData, node.id)
+    if (!fullPath) return node.label
+    return fullPath
   }
 
   private mounted() {
@@ -148,6 +161,9 @@ body.night {
 }
 
 .tree-node-info {
+  .el-tag.el-tag--info {
+    color: var(--color-text-default);
+  }
   .node-info-item {
     background-color: var(--color-bg-select_lang);
     padding: 6px 12px;

@@ -449,6 +449,7 @@ declare global {
   type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
   interface TopicTreeData {
+    id: string
     label: string
     qos?: QoS
     retain?: boolean
