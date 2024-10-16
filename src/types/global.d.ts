@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
-import { MqttClient } from 'mqtt'
+import { IPublishPacket, MqttClient } from 'mqtt'
 
 declare global {
   type $TSFixed = any
@@ -459,5 +459,10 @@ declare global {
     subTopicCount: number
     connectionInfo?: ConnectionModel
     children?: TopicTreeData[]
+  }
+  interface QueuedMessage {
+    connectionId: string
+    packet: IPublishPacket
+    timestamp: number
   }
 }
