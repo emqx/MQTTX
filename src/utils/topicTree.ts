@@ -30,10 +30,11 @@ export function updateTopicTreeData(
   const currentTime = time.getNowDate()
 
   let updatedTree = [...currentTree]
-  let hostNode = updatedTree.find((node) => node.label === connectionInfo.host)
+  let hostNode = updatedTree.find((node) => node.id === connectionInfo.id)
 
   if (!hostNode) {
     hostNode = {
+      id: connectionInfo.id ?? '',
       label: connectionInfo.host,
       latestMessage: '',
       messageCount: 0,
@@ -47,12 +48,16 @@ export function updateTopicTreeData(
   hostNode.messageCount++
 
   let currentNode = hostNode
+  let currentId = connectionInfo.id
   for (let i = 0; i < topicLevels.length; i++) {
     const level = topicLevels[i]
-    let childNode = currentNode.children?.find((n) => n.label === level)
+    const childIndex = currentNode.children?.findIndex((n) => n.label === level) ?? -1
+    let childNode: TopicTreeData
 
-    if (!childNode) {
+    if (childIndex === -1) {
+      currentId = `${currentId}-${currentNode.children?.length ?? 0 + 1}`
       childNode = {
+        id: currentId,
         label: level,
         latestMessage: '',
         messageCount: 0,
@@ -67,6 +72,9 @@ export function updateTopicTreeData(
       } else {
         currentNode.children = [childNode]
       }
+    } else {
+      childNode = currentNode.children![childIndex]
+      currentId = childNode.id
     }
 
     childNode.messageCount++
@@ -127,15 +135,15 @@ export function findSubTopics(node: TopicTreeData, isRoot: boolean = true): stri
 }
 
 /**
- * Finds the full topic path for a given node label in the topic tree.
+ * Finds the full topic path for a given node ID in the topic tree.
  *
  * @param treeData - The entire topic tree data structure.
- * @param targetLabel - The label of the node to find the full path for.
+ * @param targetId - The ID of the node to find the full path for.
  * @returns The full topic path as a string, or null if the node is not found.
  */
-export function findFullTopicPath(treeData: TopicTreeData[], targetLabel: string): string | null {
+export function findFullTopicPath(treeData: TopicTreeData[], targetId: string): string | null {
   function findPath(node: TopicTreeData, currentPath: string[]): string[] | null {
-    if (node.label === targetLabel) {
+    if (node.id === targetId) {
       return currentPath
     }
     if (node.children) {
@@ -160,18 +168,18 @@ export function findFullTopicPath(treeData: TopicTreeData[], targetLabel: string
 }
 
 /**
- * Retrieves all labels from the given topic tree nodes and their children.
+ * Retrieves all IDs from the given topic tree nodes and their children.
  *
  * @param nodes - An array of TopicTreeData representing the topic tree nodes.
- * @returns An array of strings containing all labels from the nodes and their children.
+ * @returns An array of strings containing all IDs from the nodes and their children.
  */
-export function getAllLabels(nodes: TopicTreeData[]): string[] {
-  let labels: string[] = []
+export function getAllIDs(nodes: TopicTreeData[]): string[] {
+  let ids: string[] = []
   for (const node of nodes) {
-    labels.push(node.label)
+    ids.push(node.id)
     if (node.children && node.children.length > 0) {
-      labels = labels.concat(getAllLabels(node.children))
+      ids = ids.concat(getAllIDs(node.children))
     }
   }
-  return labels
+  return ids
 }

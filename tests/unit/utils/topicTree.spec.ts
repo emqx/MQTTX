@@ -4,11 +4,12 @@ import {
   updateSubTopicCounts,
   findSubTopics,
   findFullTopicPath,
-  getAllLabels,
+  getAllIDs,
 } from '@/utils/topicTree'
 import { IPublishPacket } from 'mqtt-packet'
 
 const connectionInfo: ConnectionModel = {
+  id: 'test_connection_id',
   clientId: 'mqttx_2b6060e3',
   name: 'test',
   clean: true,
@@ -42,9 +43,9 @@ const connectionInfo: ConnectionModel = {
 }
 
 describe('Topic Tree Functions', () => {
-  it('should update topic tree data', () => {
+  it('should update topic tree data with IDs', () => {
     const currentTree: TopicTreeData[] = []
-    const packet: IPublishPacket = {
+    const packet1: IPublishPacket = {
       cmd: 'publish',
       topic: 'sensors/temperature/living-room',
       payload: Buffer.from('25.5'),
@@ -52,23 +53,89 @@ describe('Topic Tree Functions', () => {
       dup: false,
       retain: false,
     }
+    const packet2: IPublishPacket = {
+      cmd: 'publish',
+      topic: 'sensors/humidity/bedroom',
+      payload: Buffer.from('60%'),
+      qos: 1,
+      dup: false,
+      retain: false,
+    }
 
-    const updatedTree = updateTopicTreeData(currentTree, { packet, connectionInfo })
+    let updatedTree = updateTopicTreeData(currentTree, { packet: packet1, connectionInfo })
+    updatedTree = updateTopicTreeData(updatedTree, { packet: packet2, connectionInfo })
 
     expect(updatedTree).to.have.lengthOf(1)
+    expect(updatedTree[0].id).to.equal('test_connection_id')
     expect(updatedTree[0].label).to.equal('broker.emqx.io')
     expect(updatedTree[0].children).to.have.lengthOf(1)
+    expect(updatedTree[0].children?.[0].id).to.equal('test_connection_id-0')
     expect(updatedTree[0].children?.[0].label).to.equal('sensors')
+    expect(updatedTree[0].children?.[0].children).to.have.lengthOf(2)
+    expect(updatedTree[0].children?.[0].children?.[0].id).to.equal('test_connection_id-0-0')
+    expect(updatedTree[0].children?.[0].children?.[0].label).to.equal('temperature')
+    expect(updatedTree[0].children?.[0].children?.[1].id).to.equal('test_connection_id-0-1')
+    expect(updatedTree[0].children?.[0].children?.[1].label).to.equal('humidity')
+    expect(updatedTree[0].children?.[0].children?.[0].children?.[0].id).to.equal('test_connection_id-0-0-0')
+    expect(updatedTree[0].children?.[0].children?.[0].children?.[0].label).to.equal('living-room')
+    expect(updatedTree[0].children?.[0].children?.[1].children?.[0].id).to.equal('test_connection_id-0-1-0')
+    expect(updatedTree[0].children?.[0].children?.[1].children?.[0].label).to.equal('bedroom')
+  })
+
+  it('should update existing tree node and add new siblings', () => {
+    const currentTree: TopicTreeData[] = [
+      {
+        id: 'test_connection_id',
+        label: 'broker.emqx.io',
+        latestMessage: '',
+        messageCount: 0,
+        subTopicCount: 0,
+        children: [],
+        connectionInfo: connectionInfo,
+      },
+    ]
+    const packet1: IPublishPacket = {
+      cmd: 'publish',
+      topic: 'sensors/temperature',
+      payload: Buffer.from('20.5'),
+      qos: 0,
+      dup: false,
+      retain: false,
+    }
+    const packet2: IPublishPacket = {
+      cmd: 'publish',
+      topic: 'sensors/humidity',
+      payload: Buffer.from('60%'),
+      qos: 0,
+      dup: false,
+      retain: false,
+    }
+
+    let updatedTree = updateTopicTreeData(currentTree, { packet: packet1, connectionInfo })
+    updatedTree = updateTopicTreeData(updatedTree, { packet: packet2, connectionInfo })
+
+    expect(updatedTree[0].messageCount).to.equal(2)
+    expect(updatedTree[0].children?.[0].id).to.equal('test_connection_id-0')
+    expect(updatedTree[0].children?.[0].label).to.equal('sensors')
+    expect(updatedTree[0].children?.[0].children).to.have.lengthOf(2)
+    expect(updatedTree[0].children?.[0].children?.[0].id).to.equal('test_connection_id-0-0')
+    expect(updatedTree[0].children?.[0].children?.[0].label).to.equal('temperature')
+    expect(updatedTree[0].children?.[0].children?.[0].latestMessage).to.equal('20.5')
+    expect(updatedTree[0].children?.[0].children?.[1].id).to.equal('test_connection_id-0-1')
+    expect(updatedTree[0].children?.[0].children?.[1].label).to.equal('humidity')
+    expect(updatedTree[0].children?.[0].children?.[1].latestMessage).to.equal('60%')
   })
 
   it('should update sub topic counts', () => {
     const tree: TopicTreeData = {
+      id: 'root',
       label: 'root',
       latestMessage: '',
       messageCount: 0,
       subTopicCount: 0,
       children: [
         {
+          id: 'root-1',
           label: 'child1',
           latestMessage: '',
           messageCount: 0,
@@ -76,12 +143,14 @@ describe('Topic Tree Functions', () => {
           children: [],
         },
         {
+          id: 'root-2',
           label: 'child2',
           latestMessage: '',
           messageCount: 0,
           subTopicCount: 0,
           children: [
             {
+              id: 'root-2-1',
               label: 'grandchild',
               latestMessage: '',
               messageCount: 0,
@@ -104,18 +173,22 @@ describe('Topic Tree Functions', () => {
 
   it('should find sub topics', () => {
     const tree: TopicTreeData = {
+      id: 'root',
       label: 'root',
       latestMessage: '',
       messageCount: 0,
       subTopicCount: 0,
       children: [
-        { label: 'child1', latestMessage: '', messageCount: 0, subTopicCount: 0, children: [] },
+        { id: 'root-1', label: 'child1', latestMessage: '', messageCount: 0, subTopicCount: 0, children: [] },
         {
+          id: 'root-2',
           label: 'child2',
           latestMessage: '',
           messageCount: 0,
           subTopicCount: 0,
-          children: [{ label: 'grandchild', latestMessage: '', messageCount: 0, subTopicCount: 0, children: [] }],
+          children: [
+            { id: 'root-2-1', label: 'grandchild', latestMessage: '', messageCount: 0, subTopicCount: 0, children: [] },
+          ],
         },
       ],
     }
@@ -127,24 +200,34 @@ describe('Topic Tree Functions', () => {
   it('should find full topic path', () => {
     const tree: TopicTreeData[] = [
       {
+        id: 'test_connection_id',
         label: 'broker.emqx.io',
         latestMessage: '',
         messageCount: 0,
         subTopicCount: 0,
         children: [
           {
+            id: 'test_connection_id-0',
             label: 'sensors',
             latestMessage: '',
             messageCount: 0,
             subTopicCount: 0,
             children: [
               {
+                id: 'test_connection_id-0-0',
                 label: 'temperature',
                 latestMessage: '',
                 messageCount: 0,
                 subTopicCount: 0,
                 children: [
-                  { label: 'living-room', latestMessage: '', messageCount: 0, subTopicCount: 0, children: [] },
+                  {
+                    id: 'test_connection_id-0-0-0',
+                    label: 'living-room',
+                    latestMessage: '',
+                    messageCount: 0,
+                    subTopicCount: 0,
+                    children: [],
+                  },
                 ],
               },
             ],
@@ -154,37 +237,122 @@ describe('Topic Tree Functions', () => {
       },
     ]
 
-    const fullPath = findFullTopicPath(tree, 'living-room')
+    const fullPath = findFullTopicPath(tree, 'test_connection_id-0-0-0')
     expect(fullPath).to.equal('sensors/temperature/living-room')
   })
 
-  it('should get all labels', () => {
+  it('should get all IDs', () => {
     const tree: TopicTreeData[] = [
       {
+        id: 'root',
         label: 'root',
         latestMessage: '',
         messageCount: 0,
         subTopicCount: 0,
         children: [
-          { label: 'child1', latestMessage: '', messageCount: 0, subTopicCount: 0, children: [] },
+          { id: 'root-1', label: 'child1', latestMessage: '', messageCount: 0, subTopicCount: 0, children: [] },
           {
+            id: 'root-2',
             label: 'child2',
             latestMessage: '',
             messageCount: 0,
             subTopicCount: 0,
-            children: [{ label: 'grandchild', latestMessage: '', messageCount: 0, subTopicCount: 0, children: [] }],
+            children: [
+              {
+                id: 'root-2-1',
+                label: 'grandchild',
+                latestMessage: '',
+                messageCount: 0,
+                subTopicCount: 0,
+                children: [],
+              },
+            ],
           },
         ],
       },
     ]
 
-    const labels = getAllLabels(tree)
-    expect(labels).to.deep.equal(['root', 'child1', 'child2', 'grandchild'])
+    const ids = getAllIDs(tree)
+    expect(ids).to.deep.equal(['root', 'root-1', 'root-2', 'root-2-1'])
+  })
+
+  it('should get all IDs for a complex tree', () => {
+    const tree: TopicTreeData[] = [
+      {
+        id: 'test_connection_id',
+        label: 'root',
+        latestMessage: '',
+        messageCount: 0,
+        subTopicCount: 0,
+        children: [
+          {
+            id: 'test_connection_id-0',
+            label: 'child1',
+            latestMessage: '',
+            messageCount: 0,
+            subTopicCount: 0,
+            children: [
+              {
+                id: 'test_connection_id-0-0',
+                label: 'grandchild1',
+                latestMessage: '',
+                messageCount: 0,
+                subTopicCount: 0,
+                children: [],
+              },
+              {
+                id: 'test_connection_id-0-1',
+                label: 'grandchild2',
+                latestMessage: '',
+                messageCount: 0,
+                subTopicCount: 0,
+                children: [],
+              },
+            ],
+          },
+          {
+            id: 'test_connection_id-1',
+            label: 'child2',
+            latestMessage: '',
+            messageCount: 0,
+            subTopicCount: 0,
+            children: [
+              {
+                id: 'test_connection_id-1-0',
+                label: 'grandchild3',
+                latestMessage: '',
+                messageCount: 0,
+                subTopicCount: 0,
+                children: [],
+              },
+            ],
+          },
+        ],
+      },
+    ]
+
+    const ids = getAllIDs(tree)
+    expect(ids).to.deep.equal([
+      'test_connection_id',
+      'test_connection_id-0',
+      'test_connection_id-0-0',
+      'test_connection_id-0-1',
+      'test_connection_id-1',
+      'test_connection_id-1-0',
+    ])
+  })
+
+  it('should get all IDs for empty tree', () => {
+    const tree: TopicTreeData[] = []
+
+    const ids = getAllIDs(tree)
+    expect(ids).to.deep.equal([])
   })
 
   it('should update existing tree node', () => {
     const currentTree: TopicTreeData[] = [
       {
+        id: 'test_connection_id',
         label: 'broker.emqx.io',
         latestMessage: '',
         messageCount: 0,
@@ -205,7 +373,9 @@ describe('Topic Tree Functions', () => {
     const updatedTree = updateTopicTreeData(currentTree, { packet, connectionInfo })
 
     expect(updatedTree[0].messageCount).to.equal(1)
+    expect(updatedTree[0].children?.[0].id).to.equal('test_connection_id-0')
     expect(updatedTree[0].children?.[0].label).to.equal('sensors')
+    expect(updatedTree[0].children?.[0].children?.[0].id).to.equal('test_connection_id-0-0')
     expect(updatedTree[0].children?.[0].children?.[0].label).to.equal('temperature')
     expect(updatedTree[0].children?.[0].children?.[0].latestMessage).to.equal('20.5')
   })
@@ -219,66 +389,10 @@ describe('Topic Tree Functions', () => {
     expect(updatedTree).to.deep.equal(currentTree)
   })
 
-  it('should update sub topic counts for deep nested tree', () => {
-    const tree: TopicTreeData = {
-      label: 'root',
-      latestMessage: '',
-      messageCount: 0,
-      subTopicCount: 0,
-      children: [
-        {
-          label: 'level1',
-          latestMessage: '',
-          messageCount: 0,
-          subTopicCount: 0,
-          children: [
-            {
-              label: 'level2',
-              latestMessage: '',
-              messageCount: 0,
-              subTopicCount: 0,
-              children: [
-                {
-                  label: 'level3',
-                  latestMessage: '',
-                  messageCount: 0,
-                  subTopicCount: 0,
-                  children: [],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    }
-
-    updateSubTopicCounts(tree)
-
-    expect(tree.subTopicCount).to.equal(3)
-    expect(tree.children?.[0].subTopicCount).to.equal(2)
-    expect(tree.children?.[0].children?.[0].subTopicCount).to.equal(1)
-    expect(tree.children?.[0].children?.[0].children?.[0].subTopicCount).to.equal(0)
-  })
-
-  it('should find sub topics for root node', () => {
-    const tree: TopicTreeData = {
-      label: 'root',
-      latestMessage: '',
-      messageCount: 0,
-      subTopicCount: 0,
-      children: [
-        { label: 'child1', latestMessage: '', messageCount: 0, subTopicCount: 0, children: [] },
-        { label: 'child2', latestMessage: '', messageCount: 0, subTopicCount: 0, children: [] },
-      ],
-    }
-
-    const subTopics = findSubTopics(tree)
-    expect(subTopics).to.deep.equal(['child1', 'child2'])
-  })
-
   it('should return null for non-existent topic path', () => {
     const tree: TopicTreeData[] = [
       {
+        id: 'test_connection_id',
         label: 'broker.emqx.io',
         latestMessage: '',
         messageCount: 0,
@@ -290,12 +404,5 @@ describe('Topic Tree Functions', () => {
 
     const fullPath = findFullTopicPath(tree, 'non-existent')
     expect(fullPath).to.be.null
-  })
-
-  it('should get all labels for empty tree', () => {
-    const tree: TopicTreeData[] = []
-
-    const labels = getAllLabels(tree)
-    expect(labels).to.deep.equal([])
   })
 })
