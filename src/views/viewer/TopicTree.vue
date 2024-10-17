@@ -20,7 +20,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { globalEventBus } from '@/utils/globalEventBus'
 import TreeView from '@/components/widgets/TreeView.vue'
-import { updateTopicTreeData } from '@/utils/topicTree'
+import { updateTopicTreeNode } from '@/utils/topicTree'
 import { IPublishPacket } from 'mqtt-packet/types'
 import TreeNodeInfo from '@/components/widgets/TreeNodeInfo.vue'
 import { ignoreQoS0Message } from '@/utils/mqttUtils'
@@ -37,18 +37,18 @@ import { getNowDate } from '@/utils/time'
   },
 })
 export default class TopicTree extends Vue {
-  private data: TopicTreeData[] = []
+  private data: TopicTreeNode[] = []
 
-  private selectedNode: TopicTreeData | null = null
+  private selectedNode: TopicTreeNode | null = null
 
   private subscription: Subscription | null = null
 
-  private handleNodeClick(data: TopicTreeData) {
+  private handleNodeClick(data: TopicTreeNode) {
     this.selectedNode = data
   }
 
   private handlePacketReceive(packet: IPublishPacket, connectionInfo: ConnectionModel) {
-    this.data = updateTopicTreeData(this.data, {
+    this.data = updateTopicTreeNode(this.data, {
       packet,
       connectionInfo,
     })

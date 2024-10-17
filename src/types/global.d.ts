@@ -448,7 +448,7 @@ declare global {
 
   type LogLevel = 'debug' | 'info' | 'warn' | 'error'
 
-  interface TopicTreeData {
+  interface TopicTreeNode {
     id: string
     label: string
     qos?: QoS
@@ -458,7 +458,7 @@ declare global {
     messageCount: number
     subTopicCount: number
     connectionInfo?: ConnectionModel
-    children?: TopicTreeData[]
+    children?: TopicTreeNode[]
   }
   interface QueuedMessage {
     connectionId: string

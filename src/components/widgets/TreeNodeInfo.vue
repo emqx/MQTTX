@@ -78,8 +78,8 @@ import { jsonStringify, jsonParse } from '@/utils/jsonUtils'
 
 @Component
 export default class TreeNodeInfo extends Vue {
-  @Prop() private node!: TopicTreeData
-  @Prop() private treeData!: TopicTreeData[]
+  @Prop() private node!: TopicTreeNode
+  @Prop() private treeData!: TopicTreeNode[]
 
   @Getter('currentTheme') private currentTheme!: Theme
 
@@ -128,11 +128,11 @@ export default class TreeNodeInfo extends Vue {
     return fullHost
   }
 
-  private getSubTopics(node: TopicTreeData): string[] {
+  private getSubTopics(node: TopicTreeNode): string[] {
     return findSubTopics(node)
   }
 
-  private getFullTopicPath(node: TopicTreeData): string {
+  private getFullTopicPath(node: TopicTreeNode): string {
     const fullPath = findFullTopicPath(this.treeData, node.id)
     if (!fullPath) return node.label
     return fullPath
