@@ -5,19 +5,19 @@ import time from './time'
 /**
  * Updates the topic tree data structure based on received MQTT packets.
  *
- * @param {TopicTreeData[]} currentTree - The current state of the topic tree.
+ * @param {TopicTreeNode[]} currentTree - The current state of the topic tree.
  * @param {Object} rawData - The raw data containing the MQTT packet and connection information.
  * @param {IPublishPacket} rawData.packet - The MQTT publish packet.
  * @param {ConnectionModel} rawData.connectionInfo - The connection information.
- * @returns {TopicTreeData[]} The updated topic tree data structure.
+ * @returns {TopicTreeNode[]} The updated topic tree data structure.
  */
-export function updateTopicTreeData(
-  currentTree: TopicTreeData[],
+export function updateTopicTreeNode(
+  currentTree: TopicTreeNode[],
   rawData: {
     packet: IPublishPacket
     connectionInfo: ConnectionModel
   },
-): TopicTreeData[] {
+): TopicTreeNode[] {
   const { packet, connectionInfo } = rawData
   if (packet.cmd !== 'publish') {
     return currentTree
@@ -51,7 +51,7 @@ export function updateTopicTreeData(
   for (let i = 0; i < topicLevels.length; i++) {
     const level = topicLevels[i]
     const childIndex = currentNode.children?.findIndex((n) => n.label === level) ?? -1
-    let childNode: TopicTreeData
+    let childNode: TopicTreeNode
 
     if (childIndex === -1) {
       currentId = `${currentId}-${currentNode.children?.length ?? 0 + 1}`
@@ -99,7 +99,7 @@ export function updateTopicTreeData(
  * @param node - The current node in the topic tree to update.
  * @returns The total number of subtopics for the current node and its children.
  */
-export function updateSubTopicCounts(node: TopicTreeData): number {
+export function updateSubTopicCounts(node: TopicTreeNode): number {
   if (!node.children || node.children.length === 0) {
     node.subTopicCount = 0
     return 1
@@ -120,7 +120,7 @@ export function updateSubTopicCounts(node: TopicTreeData): number {
  * @param isRoot - A boolean indicating whether the current node is the root node.
  * @returns An array of strings representing the subtopics.
  */
-export function findSubTopics(node: TopicTreeData, isRoot: boolean = true): string[] {
+export function findSubTopics(node: TopicTreeNode, isRoot: boolean = true): string[] {
   let subTopics: string[] = []
   if (!isRoot && node.label) {
     subTopics.push(node.label)
@@ -140,8 +140,8 @@ export function findSubTopics(node: TopicTreeData, isRoot: boolean = true): stri
  * @param targetId - The ID of the node to find the full path for.
  * @returns The full topic path as a string, or null if the node is not found.
  */
-export function findFullTopicPath(treeData: TopicTreeData[], targetId: string): string | null {
-  function findPath(node: TopicTreeData, currentPath: string[]): string[] | null {
+export function findFullTopicPath(treeData: TopicTreeNode[], targetId: string): string | null {
+  function findPath(node: TopicTreeNode, currentPath: string[]): string[] | null {
     if (node.id === targetId) {
       return currentPath
     }
@@ -169,10 +169,10 @@ export function findFullTopicPath(treeData: TopicTreeData[], targetId: string): 
 /**
  * Retrieves all IDs from the given topic tree nodes and their children.
  *
- * @param nodes - An array of TopicTreeData representing the topic tree nodes.
+ * @param nodes - An array of TopicTreeNode representing the topic tree nodes.
  * @returns An array of strings containing all IDs from the nodes and their children.
  */
-export function getAllIDs(nodes: TopicTreeData[]): string[] {
+export function getAllIDs(nodes: TopicTreeNode[]): string[] {
   let ids: string[] = []
   for (const node of nodes) {
     ids.push(node.id)

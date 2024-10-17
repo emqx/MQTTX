@@ -62,7 +62,7 @@ import { getAllIDs, isPayloadEmpty } from '@/utils/topicTree'
 
 @Component
 export default class TreeView extends Vue {
-  @Prop({ default: () => [] }) public data!: TopicTreeData[]
+  @Prop({ default: () => [] }) public data!: TopicTreeNode[]
 
   @Getter('currentTheme') private currentTheme!: Theme
 
@@ -95,26 +95,26 @@ export default class TreeView extends Vue {
     label: 'label',
   }
 
-  private filterNode(value: string, data: TopicTreeData) {
+  private filterNode(value: string, data: TopicTreeNode) {
     if (!value) return true
     return data.label.toLowerCase().indexOf(value.toLowerCase()) !== -1
   }
 
-  private handleNodeClick(data: TopicTreeData) {
+  private handleNodeClick(data: TopicTreeNode) {
     this.$emit('node-click', data)
   }
 
-  private handleNodeExpand(data: TopicTreeData) {
+  private handleNodeExpand(data: TopicTreeNode) {
     if (!this.expandedKeys.includes(data.id)) {
       this.expandedKeys.push(data.id)
     }
   }
 
-  private handleNodeCollapse(data: TopicTreeData) {
+  private handleNodeCollapse(data: TopicTreeNode) {
     this.removeExpandedKeysRecursively(data)
   }
 
-  private removeExpandedKeysRecursively(node: TopicTreeData) {
+  private removeExpandedKeysRecursively(node: TopicTreeNode) {
     const index = this.expandedKeys.indexOf(node.id)
     if (index > -1) {
       this.expandedKeys.splice(index, 1)
@@ -129,7 +129,7 @@ export default class TreeView extends Vue {
   }
 
   private collapseAll() {
-    const collapseNode = (node: TopicTreeData) => {
+    const collapseNode = (node: TopicTreeNode) => {
       if (node.children && node.children.length > 0) {
         node.children.forEach(collapseNode)
       }
