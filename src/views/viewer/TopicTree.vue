@@ -52,10 +52,13 @@ export default class TopicTree extends Vue {
       packet,
       connectionInfo,
     })
-    this.$log.info(
-      `Topic Tree: Updated tree data for connection ${connectionInfo.name}@${connectionInfo.host}. Topic: ${packet.topic}, QoS: ${packet.qos}`,
-    )
     this.queueMessage(packet, connectionInfo.id as string)
+    if (this.data.length === 0) return
+    this.$log.info(
+      `Topic Tree: Updated tree data for connection ${connectionInfo.name}@${connectionInfo.host}. Topic: ${
+        packet.topic
+      }, QoS: ${packet.qos}${packet.payload ? `, Payload: ${packet.payload.toString()}` : ''}`,
+    )
   }
 
   private queueMessage(packet: IPublishPacket, id: string) {
