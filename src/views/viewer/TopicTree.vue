@@ -20,15 +20,14 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { globalEventBus } from '@/utils/globalEventBus'
 import TreeView from '@/components/widgets/TreeView.vue'
-import { updateTopicTreeNode } from '@/utils/topicTree'
+import { updateTopicTreeNode, groupedMessagesByConnectionID } from '@/utils/topicTree'
 import { IPublishPacket } from 'mqtt-packet/types'
 import TreeNodeInfo from '@/components/widgets/TreeNodeInfo.vue'
 import { ignoreQoS0Message } from '@/utils/mqttUtils'
-import { messageQueue } from '@/utils/mqttMessageQueue'
+import { MessageQueue } from '@/utils/messageQueue'
 import useServices from '@/database/useServices'
-import { getMessageId } from '@/utils/idGenerator'
 import { Subscription } from 'rxjs'
-import { getNowDate } from '@/utils/time'
+import { getMessageId } from '@/utils/idGenerator'
 
 @Component({
   components: {
@@ -40,63 +39,76 @@ export default class TopicTree extends Vue {
   private data: TopicTreeNode[] = []
 
   private selectedNode: TopicTreeNode | null = null
-
   private subscription: Subscription | null = null
+  private messageQueue: MessageQueue<TopicTreeNode[]> | null = null
 
   private handleNodeClick(data: TopicTreeNode) {
     this.selectedNode = data
   }
 
   private handlePacketReceive(packet: IPublishPacket, connectionInfo: ConnectionModel) {
-    this.data = updateTopicTreeNode(this.data, {
+    if (packet.cmd !== 'publish') return
+    const { updatedNodes, updatedTree } = updateTopicTreeNode(this.data, {
       packet,
       connectionInfo,
     })
-    this.queueMessage(packet, connectionInfo.id as string)
+    // Handle Tree View Update
+    this.data = updatedTree
     if (this.data.length === 0) return
     this.$log.info(
       `Topic Tree: Updated tree data for connection ${connectionInfo.name}@${connectionInfo.host}. Topic: ${
         packet.topic
       }, QoS: ${packet.qos}${packet.payload ? `, Payload: ${packet.payload.toString()}` : ''}`,
     )
+    // Handle Tree Data Update
+    this.messageQueue?.queueMessage(updatedNodes)
   }
 
-  private queueMessage(packet: IPublishPacket, id: string) {
-    if (packet.cmd !== 'publish' || ignoreQoS0Message(packet.qos)) return
-    messageQueue.queueMessage(packet, id)
+  private filterQos0Messages(messages: MessageModel[]) {
+    return messages.filter((message) => !ignoreQoS0Message(message.qos))
   }
 
-  private generateMessage(m: QueuedMessage): MessageModel {
-    return {
-      id: getMessageId(),
-      topic: m.packet.topic,
-      payload: m.packet.payload.toString(),
-      qos: m.packet.qos,
-      retain: m.packet.retain,
-      out: false,
-      createAt: getNowDate(),
-      properties: m.packet.properties,
-    }
-  }
-
-  private async storeMessages() {
+  private async saveMqttMessages(messages: MessageModel[], connectionId: string) {
+    if (messages.length === 0) return
     const { messageService } = useServices()
-    this.subscription = messageQueue.getMessageObservable().subscribe(async ({ messages, connectionId }) => {
-      if (messages.length === 0) return
-      try {
-        const processedMessages = messages.map((m) => this.generateMessage(m))
-        await messageService.importMsgsToConnection(processedMessages, connectionId)
-        this.$log.info(`Topic Tree: Processed and stored ${messages.length} messages for connection ${connectionId}`)
-      } catch (error) {
-        this.$log.error(`Topic Tree: Error processing and storing messages: ${(error as Error).toString()}`)
+    return messageService.importMsgsToConnection(messages, connectionId)
+  }
+
+  private async updateTopicNodes(topicNodes: TopicTreeNode[]) {
+    topicNodes.forEach((node) => {
+      if (node.message) {
+        console.log(node.message.id)
       }
     })
   }
 
+  private async subscribeMessageQueue() {
+    this.subscription = this.messageQueue?.getMessageObservable().subscribe(async (updatedNodes) => {
+      const messagesByConnection = groupedMessagesByConnectionID(updatedNodes)
+      for (const [connectionId, messages] of messagesByConnection) {
+        try {
+          const filteredMessages = this.filterQos0Messages(messages)
+          await this.saveMqttMessages(filteredMessages, connectionId)
+          this.$log.info(
+            `Topic Tree: Successfully saved ${filteredMessages.length} messages to connection ${connectionId}`,
+          )
+        } catch (error) {
+          this.$log.error(
+            `Topic Tree: Failed to save messages to connection ${connectionId}: ${(error as Error).toString()}`,
+          )
+        }
+      }
+      updatedNodes.forEach((node) => {
+        this.updateTopicNodes(node)
+      })
+    }) as Subscription | null
+  }
+
   private created() {
+    this.messageQueue = new MessageQueue<TopicTreeNode[]>()
     globalEventBus.on('packetReceive', this.handlePacketReceive)
     if (!this.subscription) {
-      this.storeMessages()
+      this.subscribeMessageQueue()
     }
   }
 

@@ -20,7 +20,7 @@
       </div>
     </div>
     <!-- Topic node without payload -->
-    <div v-else-if="checkPayloadEmpty(node.latestMessage)">
+    <div v-else-if="!node.message || (node.message && checkPayloadEmpty(node.message.payload))">
       <div>{{ $t('connections.fullTopic') }}</div>
       <el-tooltip
         :effect="currentTheme !== 'light' ? 'light' : 'dark'"
@@ -57,10 +57,12 @@
         <div ref="topicPath" class="node-info-item ellipsis">{{ fullTopicPath }}</div>
       </el-tooltip>
       <div>{{ $t('connections.receivedTime') }}</div>
-      <div class="node-info-item">{{ node.time }}</div>
+      <div v-if="node.message" class="node-info-item">{{ node.message.createAt }}</div>
       <div class="flex justify-between">
-        <span>Payload <el-tag v-if="node.retain" type="info" size="mini">Retained</el-tag></span>
-        <span>QoS: {{ node.qos }}</span>
+        <span
+          >Payload <el-tag v-if="node.message && node.message.retain" type="info" size="mini">Retained</el-tag></span
+        >
+        <span v-if="node.message">QoS: {{ node.message.qos }}</span>
       </div>
       <pre
         class="payload-container mt-2 mb-2"
@@ -88,16 +90,16 @@ export default class TreeNodeInfo extends Vue {
   }
 
   get latestMessage(): string {
-    const message = this.node.latestMessage || ''
+    const payload = this.node.message?.payload || ''
     if (this.payloadFormat === 'json') {
-      return jsonStringify(jsonParse(message.toString()), null, 2)
+      return jsonStringify(jsonParse(payload.toString()), null, 2)
     }
-    return message.toString()
+    return payload.toString()
   }
 
   get payloadFormat(): string {
     try {
-      const message = this.node.latestMessage || ''
+      const message = this.node.message?.payload || ''
       JSON.parse(message.toString())
       return 'json'
     } catch (e) {
