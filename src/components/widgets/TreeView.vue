@@ -40,8 +40,8 @@
               <span v-if="data.connectionInfo && data.connectionInfo.name">{{ data.connectionInfo.name }}@</span
               >{{ node.label }}
             </span>
-            <el-tag v-if="!checkPayloadEmpty(data.latestMessage)" size="mini" class="value-tag ml-2">
-              {{ data.latestMessage }}
+            <el-tag v-if="data.message && !checkPayloadEmpty(data.message.payload)" size="mini" class="value-tag ml-2">
+              {{ data.message.payload }}
             </el-tag>
           </span>
           <span class="tree-node-meta">
