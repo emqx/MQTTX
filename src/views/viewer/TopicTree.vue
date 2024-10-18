@@ -3,13 +3,13 @@
     <el-row :gutter="12">
       <el-col :span="16">
         <el-card shadow="never" class="topic-tree-card">
-          <TreeView :data="data" @node-click="handleNodeClick" />
+          <TreeView :data="data" @node-click="handleNodeClick" @clear-tree="handleClearTree" />
         </el-card>
       </el-col>
       <el-col :span="8">
         <el-card shadow="never" class="topic-info-card">
           <TreeNodeInfo v-if="selectedNode" :node="selectedNode" :tree-data="data" />
-          <div v-else>{{ $t('viewer.selectedTopicInfo') }}</div>
+          <div v-else class="empty-text">{{ $t('viewer.selectedTopicInfo') }}</div>
         </el-card>
       </el-col>
     </el-row>
@@ -20,14 +20,13 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { globalEventBus } from '@/utils/globalEventBus'
 import TreeView from '@/components/widgets/TreeView.vue'
-import { updateTopicTreeNode, groupedMessagesByConnectionID } from '@/utils/topicTree'
+import { updateTopicTreeNode } from '@/utils/topicTree'
 import { IPublishPacket } from 'mqtt-packet/types'
 import TreeNodeInfo from '@/components/widgets/TreeNodeInfo.vue'
 import { ignoreQoS0Message } from '@/utils/mqttUtils'
 import { MessageQueue } from '@/utils/messageQueue'
 import useServices from '@/database/useServices'
 import { Subscription } from 'rxjs'
-import { getMessageId } from '@/utils/idGenerator'
 
 @Component({
   components: {
@@ -68,43 +67,60 @@ export default class TopicTree extends Vue {
     return messages.filter((message) => !ignoreQoS0Message(message.qos))
   }
 
-  private async saveMqttMessages(messages: MessageModel[], connectionId: string) {
-    if (messages.length === 0) return
-    const { messageService } = useServices()
-    return messageService.importMsgsToConnection(messages, connectionId)
+  private async loadTopicTree() {
+    const { topicNodeService } = useServices()
+    try {
+      const res = await topicNodeService.getTree()
+      this.data = res
+    } catch (error) {
+      this.$message.error(`Failed to get topic tree: ${(error as Error).toString()}`)
+      this.$log.error(`Topic Tree: Failed to get topic tree: ${(error as Error).toString()}`)
+    }
   }
 
-  private async updateTopicNodes(topicNodes: TopicTreeNode[]) {
-    topicNodes.forEach((node) => {
-      if (node.message) {
-        console.log(node.message.id)
+  private async updateTopicNodes(updatedNodes: TopicTreeNode[][]) {
+    if (updatedNodes.length === 0) return
+    const { topicNodeService } = useServices()
+    for (const topicNodes of updatedNodes) {
+      try {
+        if (topicNodes.length === 0) return
+        const { savedEntitiesCount, savedMessagesCount } = await topicNodeService.saveTopicNodes(topicNodes)
+        this.$log.info(
+          `Topic Tree: Successfully saved ${savedEntitiesCount} topic nodes and ${savedMessagesCount} messages to database`,
+        )
+      } catch (error) {
+        this.$log.error(`Topic Tree: Failed to save topic nodes or messages: ${(error as Error).toString()}`)
       }
-    })
+    }
   }
 
   private async subscribeMessageQueue() {
     this.subscription = this.messageQueue?.getMessageObservable().subscribe(async (updatedNodes) => {
-      const messagesByConnection = groupedMessagesByConnectionID(updatedNodes)
-      for (const [connectionId, messages] of messagesByConnection) {
-        try {
-          const filteredMessages = this.filterQos0Messages(messages)
-          await this.saveMqttMessages(filteredMessages, connectionId)
-          this.$log.info(
-            `Topic Tree: Successfully saved ${filteredMessages.length} messages to connection ${connectionId}`,
-          )
-        } catch (error) {
-          this.$log.error(
-            `Topic Tree: Failed to save messages to connection ${connectionId}: ${(error as Error).toString()}`,
-          )
-        }
-      }
-      updatedNodes.forEach((node) => {
-        this.updateTopicNodes(node)
-      })
+      await this.updateTopicNodes(updatedNodes)
     }) as Subscription | null
   }
 
-  private created() {
+  public async handleClearTree() {
+    this.$confirm(this.$tc('viewer.clearTopicTreeConfirm'), this.$tc('common.warning'), {
+      confirmButtonText: this.$tc('common.confirm'),
+      cancelButtonText: this.$tc('common.cancel'),
+      type: 'warning',
+    }).then(async () => {
+      const { topicNodeService } = useServices()
+      try {
+        await topicNodeService.clearTree()
+        this.loadTopicTree()
+        this.selectedNode = null
+        this.$message.success(this.$tc('viewer.clearTopicTreeSuccess'))
+        this.$log.info('Topic Tree: Successfully clear all topic tree')
+      } catch (error) {
+        this.$log.error(`Topic Tree: Failed to clear topic tree: ${(error as Error).toString()}`)
+      }
+    })
+  }
+
+  private async created() {
+    await this.loadTopicTree()
     this.messageQueue = new MessageQueue<TopicTreeNode[]>()
     globalEventBus.on('packetReceive', this.handlePacketReceive)
     if (!this.subscription) {
@@ -140,6 +156,14 @@ export default class TopicTree extends Vue {
   }
   .topic-info-card {
     color: var(--color-text-default);
+    .empty-text {
+      color: var(--color-text-light);
+    }
+  }
+  .delete-btn:not(.is-disabled) {
+    color: var(--color-minor-red);
+    border-color: var(--color-minor-red);
+    background-color: transparent;
   }
 }
 </style>

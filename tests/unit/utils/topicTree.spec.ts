@@ -6,7 +6,6 @@ import {
   findFullTopicPath,
   getAllIDs,
   isPayloadEmpty,
-  groupedMessagesByConnectionID,
 } from '@/utils/topicTree'
 import { IPublishPacket } from 'mqtt-packet'
 
@@ -347,47 +346,5 @@ describe('Topic Tree Functions', () => {
     expect(isPayloadEmpty(undefined)).to.be.true
     expect(isPayloadEmpty('')).to.be.false
     expect(isPayloadEmpty(Buffer.from(''))).to.be.false
-  })
-
-  it('should group messages by connection ID', () => {
-    const updatedNodes: TopicTreeNode[][] = [
-      [
-        {
-          id: 'conn1_0_0',
-          label: 'topic1',
-          message: { payload: 'message1', topic: 'topic1' } as MessageModel,
-          messageCount: 1,
-          subTopicCount: 0,
-          children: [],
-        },
-        {
-          id: 'conn1_0_1',
-          label: 'topic2',
-          message: { payload: 'message2', topic: 'topic2' } as MessageModel,
-          messageCount: 1,
-          subTopicCount: 0,
-          children: [],
-        },
-      ],
-      [
-        {
-          id: 'conn2_0_0',
-          label: 'topic3',
-          message: { payload: 'message3', topic: 'topic3' } as MessageModel,
-          messageCount: 1,
-          subTopicCount: 0,
-          children: [],
-        },
-      ],
-    ]
-
-    const groupedMessages = groupedMessagesByConnectionID(updatedNodes)
-
-    expect(groupedMessages.size).to.equal(2)
-    expect(groupedMessages.get('conn1')?.length).to.equal(2)
-    expect(groupedMessages.get('conn2')?.length).to.equal(1)
-    expect(groupedMessages.get('conn1')?.[0].payload).to.equal('message1')
-    expect(groupedMessages.get('conn1')?.[1].payload).to.equal('message2')
-    expect(groupedMessages.get('conn2')?.[0].payload).to.equal('message3')
   })
 })

@@ -233,27 +233,3 @@ export function getAllIDs(nodes: TopicTreeNode[]): string[] {
 export function isPayloadEmpty(payload: string | Buffer | null | undefined): boolean {
   return payload === null || payload === undefined
 }
-
-/**
- * Groups messages by connection ID from the given updated nodes.
- *
- * @param updatedNodes - An array of arrays of TopicTreeNode representing the updated nodes.
- * @returns A Map where the keys are connection IDs and the values are arrays of MessageModel.
- */
-export function groupedMessagesByConnectionID(updatedNodes: TopicTreeNode[][]): Map<string, MessageModel[]> {
-  const messagesByConnection = new Map<string, MessageModel[]>()
-
-  updatedNodes.flat().forEach((node) => {
-    if (node.message) {
-      const connectionId = node.id.split('_')[0]
-      if (!messagesByConnection.has(connectionId)) {
-        messagesByConnection.set(connectionId, [])
-      }
-      node.message.id = getMessageId()
-      messagesByConnection.get(connectionId)!.push({
-        ...node.message,
-      })
-    }
-  })
-  return messagesByConnection
-}

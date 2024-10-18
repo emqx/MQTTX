@@ -1,4 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, Tree, TreeChildren, TreeParent, PrimaryColumn } from 'typeorm'
+import { Entity, PrimaryColumn, Column, Tree, TreeChildren, TreeParent, OneToOne, JoinColumn, ManyToOne } from 'typeorm'
+import MessageEntity from './MessageEntity'
+import ConnectionEntity from './ConnectionEntity'
 
 @Entity('TopicNodeEntity')
 @Tree('closure-table')
@@ -15,18 +17,17 @@ export default class TopicNodeEntity {
   @Column({ default: 0 })
   subTopicCount!: number
 
-  @Column({ nullable: true })
-  lastMessageId?: string
-
-  @Column({ nullable: true })
-  connectionId?: string
-
-  @TreeChildren()
-  children?: TopicNodeEntity[]
+  @ManyToOne(() => ConnectionEntity, { nullable: true })
+  @JoinColumn({ name: 'connectionId' })
+  connection?: ConnectionEntity
 
   @TreeParent()
   parent?: TopicNodeEntity
 
-  @Column({ nullable: true })
-  parentId?: string
+  @TreeChildren()
+  children?: TopicNodeEntity[]
+
+  @OneToOne(() => MessageEntity, { nullable: true })
+  @JoinColumn()
+  message?: MessageEntity
 }
