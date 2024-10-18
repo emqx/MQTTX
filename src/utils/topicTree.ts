@@ -3,6 +3,13 @@ import { IPublishPacket } from 'mqtt-packet/types'
 import time from '@/utils/time'
 import { getMessageId } from '@/utils/idGenerator'
 
+/**
+ * Updates the topic tree structure with new message data.
+ *
+ * @param currentTree - The current state of the topic tree.
+ * @param rawData - An object containing the MQTT packet and connection information.
+ * @returns An object containing the updated tree and a list of updated nodes.
+ */
 export function updateTopicTreeNode(
   currentTree: TopicTreeNode[],
   rawData: {
@@ -230,8 +237,8 @@ export function isPayloadEmpty(payload: string | Buffer | null | undefined): boo
 /**
  * Groups messages by connection ID from the given updated nodes.
  *
- * @param updatedNodes - An array of TopicTreeNode representing the updated nodes.
- * @returns An array of objects, each containing messages and their corresponding connection ID.
+ * @param updatedNodes - An array of arrays of TopicTreeNode representing the updated nodes.
+ * @returns A Map where the keys are connection IDs and the values are arrays of MessageModel.
  */
 export function groupedMessagesByConnectionID(updatedNodes: TopicTreeNode[][]): Map<string, MessageModel[]> {
   const messagesByConnection = new Map<string, MessageModel[]>()
