@@ -1,15 +1,14 @@
 import { Buffer } from 'buffer'
 import { IPublishPacket } from 'mqtt-packet/types'
-import time from './time'
+import time from '@/utils/time'
+import { getMessageId } from '@/utils/idGenerator'
 
 /**
- * Updates the topic tree data structure based on received MQTT packets.
+ * Updates the topic tree structure with new message data.
  *
- * @param {TopicTreeNode[]} currentTree - The current state of the topic tree.
- * @param {Object} rawData - The raw data containing the MQTT packet and connection information.
- * @param {IPublishPacket} rawData.packet - The MQTT publish packet.
- * @param {ConnectionModel} rawData.connectionInfo - The connection information.
- * @returns {TopicTreeNode[]} The updated topic tree data structure.
+ * @param currentTree - The current state of the topic tree.
+ * @param rawData - An object containing the MQTT packet and connection information.
+ * @returns An object containing the updated tree and a list of updated nodes.
  */
 export function updateTopicTreeNode(
   currentTree: TopicTreeNode[],
@@ -17,80 +16,122 @@ export function updateTopicTreeNode(
     packet: IPublishPacket
     connectionInfo: ConnectionModel
   },
-): TopicTreeNode[] {
+): {
+  updatedTree: TopicTreeNode[]
+  updatedNodes: TopicTreeNode[]
+} {
   const { packet, connectionInfo } = rawData
-  if (packet.cmd !== 'publish') {
-    return currentTree
-  }
-
-  const { topic, payload, qos, retain } = packet
+  const { topic, payload, qos, retain, properties } = packet
   const payloadString = Buffer.from(payload).toString()
   const topicLevels = topic.split('/')
   const currentTime = time.getNowDate()
+  const currentProperties = properties ?? {}
 
   let updatedTree = [...currentTree]
   let hostNode = updatedTree.find((node) => node.id === connectionInfo.id)
+  let updatedNodes: TopicTreeNode[] = []
+  let isNewHost = false
 
   if (!hostNode) {
     hostNode = {
       id: connectionInfo.id ?? '',
       label: connectionInfo.host,
-      latestMessage: undefined,
+      message: undefined,
       messageCount: 0,
       subTopicCount: 0,
-      children: [],
       connectionInfo,
+      children: [],
     }
     updatedTree.push(hostNode)
+    isNewHost = true
   }
+
+  const originalHostMessageCount = hostNode.messageCount
 
   hostNode.messageCount++
 
   let currentNode = hostNode
   let currentId = connectionInfo.id
+
   for (let i = 0; i < topicLevels.length; i++) {
     const level = topicLevels[i]
     const childIndex = currentNode.children?.findIndex((n) => n.label === level) ?? -1
     let childNode: TopicTreeNode
+    let isNewNode = false
 
     if (childIndex === -1) {
-      currentId = `${currentId}-${currentNode.children?.length ?? 0 + 1}`
+      currentId = `${currentId}_${currentNode.children?.length ?? 0 + 1}`
       childNode = {
         id: currentId,
         label: level,
-        latestMessage: undefined,
+        message: undefined,
         messageCount: 0,
         subTopicCount: 0,
         children: [],
-        qos: undefined,
-        time: undefined,
-        retain: undefined,
+        parentId: currentNode.id,
       }
       if (currentNode.children) {
         currentNode.children.push(childNode)
       } else {
         currentNode.children = [childNode]
       }
+      isNewNode = true
     } else {
       childNode = currentNode.children![childIndex]
       currentId = childNode.id
     }
 
+    const originalChildMessageCount = childNode.messageCount
+    const originalChildSubTopicCount = childNode.subTopicCount
+
     childNode.messageCount++
 
     if (i === topicLevels.length - 1) {
-      childNode.latestMessage = payloadString
-      childNode.qos = qos
-      childNode.time = currentTime
-      childNode.retain = retain
+      childNode.message = {
+        payload: payloadString,
+        qos,
+        retain,
+        createAt: currentTime,
+        out: false,
+        topic,
+        properties: currentProperties,
+      }
+    }
+
+    if (
+      isNewNode ||
+      childNode.messageCount !== originalChildMessageCount ||
+      childNode.subTopicCount !== originalChildSubTopicCount
+    ) {
+      updatedNodes.push(childNode)
     }
 
     currentNode = childNode
   }
 
+  const originalSubTopicCount = hostNode.subTopicCount
   updateSubTopicCounts(hostNode)
 
-  return updatedTree
+  if (
+    isNewHost ||
+    hostNode.messageCount !== originalHostMessageCount ||
+    hostNode.subTopicCount !== originalSubTopicCount
+  ) {
+    updatedNodes.push(hostNode)
+  }
+
+  // Updated nodes are now flattened data; including children here would be redundant
+  const simplifiedUpdatedNodes = updatedNodes.map((node) => ({
+    id: node.id,
+    label: node.label,
+    message: node.message,
+    messageCount: node.messageCount,
+    subTopicCount: node.subTopicCount,
+    parentId: node.parentId,
+    connectionInfo: node.connectionInfo,
+  }))
+
+  return { updatedTree, updatedNodes: simplifiedUpdatedNodes }
 }
 
 /**

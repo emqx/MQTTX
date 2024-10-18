@@ -12,6 +12,7 @@ import HistoryMessagePayloadEntity from './models/HistoryMessagePayloadEntity'
 import HistoryConnectionEntity from './models/HistoryConnectionEntity'
 import WillEntity from './models/WillEntity'
 import CopilotEntity from './models/CopilotEntity'
+import TopicNodeEntity from './models/TopicNodeEntity'
 import { ConnectionOptions } from 'typeorm'
 import { initTable1629476510574 } from './migration/1629476510574-initTable'
 import { messages1630403733964 } from './migration/1630403733964-messages'
@@ -47,6 +48,7 @@ import { updatePayloadTypeToVarchar1630403733965 } from './migration/17054784226
 import { supportOpenAIAPIHost1716044120271 } from './migration/1716044120271-supportOpenAIAPIHost'
 import { ignoreQoS0Message1724839386732 } from './migration/1724839386732-ignoreQoS0Message'
 import { changeDefaultLLMModel1727111519962 } from './migration/1727111519962-changeDefaultLLMModel'
+import { topicNodeTables1729246737362 } from './migration/1729246737362-topicNodeTables'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -100,6 +102,7 @@ const ORMConfig = {
     supportOpenAIAPIHost1716044120271,
     ignoreQoS0Message1724839386732,
     changeDefaultLLMModel1727111519962,
+    topicNodeTables1729246737362,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [
@@ -114,6 +117,7 @@ const ORMConfig = {
     WillEntity,
     HistoryConnectionEntity,
     CopilotEntity,
+    TopicNodeEntity,
   ],
   cli: {
     migrationsDir: 'src/database/migration',

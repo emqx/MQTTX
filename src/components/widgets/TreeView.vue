@@ -19,6 +19,16 @@
         >
           <el-button size="small" @click="collapseAll" icon="el-icon-arrow-up"> </el-button>
         </el-tooltip>
+        <el-tooltip
+          :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+          placement="top"
+          :content="$t('viewer.clearTopicTree')"
+          :open-delay="500"
+        >
+          <el-button size="small" class="clear-btn" :disabled="data.length === 0" @click="clearTree">
+            <i class="iconfont icon-clear-history"></i>
+          </el-button>
+        </el-tooltip>
       </div>
     </div>
     <el-tree
@@ -40,8 +50,8 @@
               <span v-if="data.connectionInfo && data.connectionInfo.name">{{ data.connectionInfo.name }}@</span
               >{{ node.label }}
             </span>
-            <el-tag v-if="!checkPayloadEmpty(data.latestMessage)" size="mini" class="value-tag ml-2">
-              {{ data.latestMessage }}
+            <el-tag v-if="data.message && !checkPayloadEmpty(data.message.payload)" size="mini" class="value-tag ml-2">
+              {{ data.message.payload }}
             </el-tag>
           </span>
           <span class="tree-node-meta">
@@ -146,6 +156,10 @@ export default class TreeView extends Vue {
     return isPayloadEmpty(payload)
   }
 
+  private clearTree() {
+    this.$emit('clear-tree')
+  }
+
   private mounted() {
     // Keep the filter text when data changes
     this.$nextTick(() => {
@@ -168,12 +182,24 @@ export default class TreeView extends Vue {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      .el-button {
+      .el-button,
+      .el-button.is-disabled {
         border: 1px solid var(--color-border-default);
         background: transparent;
-        &:hover {
-          border: 1px solid var(--color-main-green);
+        color: var(--color-text-default);
+        &:not(.is-disabled) {
+          &:hover {
+            border: 1px solid var(--color-main-green);
+            color: var(--color-main-green);
+          }
         }
+      }
+      .el-button.is-disabled {
+        color: var(--color-text-light);
+      }
+      .el-button.clear-btn:not(.is-disabled):hover {
+        border: 1px solid var(--color-minor-red);
+        color: var(--color-minor-red);
       }
     }
   }
@@ -220,6 +246,9 @@ export default class TreeView extends Vue {
   .el-tree-node__children {
     padding-left: 12px;
     width: 100%;
+  }
+  .el-tree__empty-text {
+    color: var(--color-text-light);
   }
 }
 </style>

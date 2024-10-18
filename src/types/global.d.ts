@@ -451,18 +451,22 @@ declare global {
   interface TopicTreeNode {
     id: string
     label: string
-    qos?: QoS
-    retain?: boolean
-    time?: string
-    latestMessage?: string | Buffer | null
     messageCount: number
     subTopicCount: number
+    message?: MessageModel
     connectionInfo?: ConnectionModel
+    parentId?: string
     children?: TopicTreeNode[]
   }
+
+  interface UpdateTopicNodeResult {
+    updatedTree: TopicTreeNode[]
+    updatedNode: TopicTreeNode | null
+  }
+
   interface QueuedMessage {
     connectionId: string
-    packet: IPublishPacket
+    updateNodes: TopicTreeNode[]
     timestamp: number
   }
 }

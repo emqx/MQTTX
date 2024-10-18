@@ -39,4 +39,32 @@ export default {
     en: 'Select a topic to view details',
     tr: 'Detayları görüntülemek için bir konu seçin',
   },
+  clearTopicTree: {
+    zh: '清除主题树',
+    en: 'Clear Topic Tree',
+    tr: 'Konu Ağacını Temizle',
+    ja: 'トピックツリーをクリア',
+    hu: 'Témafa törlése',
+  },
+  clearTopicTreeConfirm: {
+    zh: '确定清除主题树吗？',
+    en: 'Are you sure to clear the topic tree?',
+    tr: 'Konu ağacını temizlemek istediğinizden emin misiniz?',
+    ja: 'トピックツリーをクリアしてもよろしいですか？',
+    hu: 'Témafa törlése megerősítésre kerül?',
+  },
+  clearTopicTreeSuccess: {
+    zh: '成功清除主题树',
+    en: 'Successfully clear topic tree',
+    tr: 'Konu ağacı başarıyla temizlendi',
+    ja: 'トピックツリーが正常にクリアされました',
+    hu: 'Témafa sikeresen törlésre került',
+  },
+  clearTopicTreeNotEffectConnList: {
+    zh: '清除主题树不会影响连接列表的数据',
+    en: 'Clear topic tree will not affect the connection list data',
+    tr: 'Konu ağacını temizlemek, bağlantı listesi verilerini etkilemez',
+    ja: 'トピックツリーをクリアしても接続リストのデータには影響しません',
+    hu: 'Témafa törlése nem befolyásolja a kapcsolatlista adatainak',
+  },
 }
