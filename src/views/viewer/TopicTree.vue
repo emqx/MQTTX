@@ -101,11 +101,15 @@ export default class TopicTree extends Vue {
   }
 
   public async handleClearTree() {
-    this.$confirm(this.$tc('viewer.clearTopicTreeConfirm'), this.$tc('common.warning'), {
-      confirmButtonText: this.$tc('common.confirm'),
-      cancelButtonText: this.$tc('common.cancel'),
-      type: 'warning',
-    }).then(async () => {
+    this.$confirm(
+      `${this.$tc('viewer.clearTopicTreeConfirm')}\n${this.$tc('viewer.clearTopicTreeNotEffectConnList')}`,
+      this.$tc('common.warning'),
+      {
+        confirmButtonText: this.$tc('common.confirm'),
+        cancelButtonText: this.$tc('common.cancel'),
+        type: 'warning',
+      },
+    ).then(async () => {
       const { topicNodeService } = useServices()
       try {
         await topicNodeService.clearTree()
