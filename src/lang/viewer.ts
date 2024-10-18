@@ -60,4 +60,11 @@ export default {
     ja: 'トピックツリーが正常にクリアされました',
     hu: 'Témafa sikeresen törlésre került',
   },
+  clearTopicTreeNotEffectConnList: {
+    zh: '清除主题树不会影响连接列表的数据',
+    en: 'Clear topic tree will not affect the connection list data',
+    tr: 'Konu ağacını temizlemek, bağlantı listesi verilerini etkilemez',
+    ja: 'トピックツリーをクリアしても接続リストのデータには影響しません',
+    hu: 'Témafa törlése nem befolyásolja a kapcsolatlista adatainak',
+  },
 }
