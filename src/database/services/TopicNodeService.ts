@@ -266,7 +266,15 @@ export default class TopicNodeService {
     )
   }
 
-  // TODO: Temporary solution, directly remove message association. Will update tree view in the future.
+  /**
+   * Updates a TopicNode by removing its association with a specific message.
+   *
+   * TODO: This method is a temporary solution to directly remove the message association
+   * from a TopicNode. In the future, this will be updated to reflect changes in the tree view.
+   *
+   * @param messageId - The ID of the message to be disassociated from the TopicNode.
+   * @returns A Promise that resolves when the update operation is complete.
+   */
   public async updateTopicNodeByMessageId(messageId: string): Promise<void> {
     await this.topicNodeRepository
       .createQueryBuilder()
