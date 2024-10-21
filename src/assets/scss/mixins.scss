@@ -155,3 +155,29 @@
     border-bottom: 1px solid var(--color-border-default);
   }
 }
+
+@mixin el-dropdown-menu-common {
+  .el-dropdown-menu {
+    .iconfont,
+    [class^='el-icon-'] {
+      font-size: 18px;
+      font-weight: 400;
+    }
+    .el-dropdown-menu__item {
+      display: flex;
+      align-items: center;
+      .iconfont,
+      [class^='el-icon-'] {
+        margin-right: 10px;
+      }
+    }
+    li.delete-item {
+      display: block;
+      color: var(--color-minor-red);
+      &:hover {
+        color: var(--color-minor-red);
+        background: var(--color-light-red);
+      }
+    }
+  }
+}
