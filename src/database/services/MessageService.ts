@@ -1,7 +1,7 @@
 import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import MessageEntity from '../models/MessageEntity'
-import { EntityManager, Repository } from 'typeorm'
+import { Repository } from 'typeorm'
 
 @Service()
 export default class MessageService {
@@ -273,5 +273,10 @@ export default class MessageService {
   public async getOne(id: string): Promise<MessageModel | undefined> {
     const res = await this.messageRepository.findOne(id)
     return res ? MessageService.entityToModel(res) : undefined
+  }
+
+  public async getAllMessagesByFullTopic(fullTopic: string): Promise<MessageModel[]> {
+    const res = await this.messageRepository.find({ where: { topic: fullTopic }, take: 2 })
+    return res.map((m) => MessageService.entityToModel(m))
   }
 }

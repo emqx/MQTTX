@@ -67,4 +67,11 @@ export default {
     ja: 'トピックツリーをクリアしても接続リストのデータには影響しません',
     hu: 'Témafa törlése nem befolyásolja a kapcsolatlista adatainak',
   },
+  noPayloadFromTopicNode: {
+    zh: '该主题节点的最新消息不可用或已从数据库中删除',
+    en: 'The latest message for this topic node is unavailable or has been removed from the database',
+    tr: 'Bu konu düğümü için en son mesaj mevcut değil veya veritabanından kaldırılmış',
+    ja: 'このトピックノードの最新メッセージは利用できないか、データベースから削除されています',
+    hu: 'A témacsomópont legfrissebb üzenete nem elérhető vagy eltávolításra került a adatbázisból',
+  },
 }

@@ -31,18 +31,25 @@
       >
         <div ref="topicPath" class="node-info-item ellipsis">{{ fullTopicPath }}</div>
       </el-tooltip>
-      <div>{{ $t('connections.subTopics') }}</div>
-      <div class="mt-2">
-        <el-tag
-          v-for="(topic, index) in getSubTopics(node)"
-          type="info"
-          :key="`${topic}-${index}`"
-          size="small"
-          class="mr-2 mb-2"
-        >
-          {{ topic }}
-        </el-tag>
-      </div>
+      <template v-if="node.subTopicCount === 0 && node.messageCount > 0">
+        <el-alert class="no-payload-alert" type="warning" :closable="false">{{
+          $t('viewer.noPayloadFromTopicNode')
+        }}</el-alert>
+      </template>
+      <template v-else>
+        <div>{{ $t('connections.subTopics') }}</div>
+        <div class="mt-2">
+          <el-tag
+            v-for="(topic, index) in getSubTopics(node)"
+            type="info"
+            :key="`${topic}-${index}`"
+            size="small"
+            class="mr-2 mb-2"
+          >
+            {{ topic }}
+          </el-tag>
+        </div>
+      </template>
     </div>
     <!-- Topic node with payload -->
     <div v-else>
@@ -178,6 +185,12 @@ body.night {
     padding: 6px 12px;
     margin: 6px 0 12px 0;
     border-radius: 8px;
+  }
+  .no-payload-alert {
+    padding: 6px 12px;
+    .el-alert__content {
+      padding: 0;
+    }
   }
   .payload-container {
     max-height: 320px;
