@@ -1,7 +1,7 @@
 import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import TopicNodeEntity from '@/database/models/TopicNodeEntity'
-import { Repository, TreeRepository } from 'typeorm'
+import { EntityManager, Repository, TreeRepository } from 'typeorm'
 import ConnectionEntity from '../models/ConnectionEntity'
 import MessageService from './MessageService'
 import { getMessageId } from '@/utils/idGenerator'
@@ -227,5 +227,52 @@ export default class TopicNodeService {
 
   async clearTree() {
     return await this.topicNodeRepository.clear()
+  }
+
+  /**
+   * Deletes all topic nodes associated with a specific connection and their descendants.
+   *
+   * This method uses a recursive Common Table Expression (CTE) to identify all nodes
+   * that are either directly associated with the given connection or are descendants
+   * of such nodes. It then deletes all these nodes in a single operation.
+   *
+   * @param connectionId - The ID of the connection whose associated topic nodes should be deleted.
+   * @param transactionalEntityManager - Optional EntityManager for transactional operations.
+   * @returns A Promise that resolves when the deletion is complete.
+   */
+  public async deleteTopicNodesForConnection(
+    connectionId: string,
+    transactionalEntityManager?: EntityManager,
+  ): Promise<void> {
+    const manager = transactionalEntityManager || this.topicNodeRepository.manager
+
+    await manager.query(
+      `
+      WITH RECURSIVE tree AS (
+        SELECT id, parentId
+        FROM TopicNodeEntity
+        WHERE connectionId = ?
+        
+        UNION ALL
+        
+        SELECT t.id, t.parentId
+        FROM TopicNodeEntity t
+        JOIN tree ON t.parentId = tree.id
+      )
+      DELETE FROM TopicNodeEntity
+      WHERE id IN (SELECT id FROM tree)
+    `,
+      [connectionId],
+    )
+  }
+
+  // TODO: Temporary solution, directly remove message association. Will update tree view in the future.
+  public async updateTopicNodeByMessageId(messageId: string): Promise<void> {
+    await this.topicNodeRepository
+      .createQueryBuilder()
+      .update(TopicNodeEntity)
+      .set({ message: undefined })
+      .where('message.id = :messageId', { messageId })
+      .execute()
   }
 }

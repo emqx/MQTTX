@@ -675,14 +675,20 @@ export default class ConnectionsDetail extends Vue {
     })
       .then(async () => {
         if (id) {
-          const { connectionService } = useServices()
-          const res: ConnectionModel | undefined = await connectionService.delete(id)
-          if (res) {
+          const { connectionService, topicNodeService } = useServices()
+          const res = await Promise.all([
+            topicNodeService.deleteTopicNodesForConnection(id),
+            connectionService.delete(id),
+          ])
+          const [_, connection] = res
+          if (connection) {
             this.$emit('delete')
             this.$message.success(this.$tc('common.deleteSuccess'))
-            if (res.id) {
-              this.removeActiveConnection({ id: res.id })
-              this.$log.info(`Successfully removed MQTTX connection ${res.name} with clientID ${res.clientId}`)
+            if (connection.id) {
+              this.removeActiveConnection({ id: connection.id })
+              this.$log.info(
+                `Successfully removed MQTTX connection ${connection.name}@${connection.host} with clientID ${connection.clientId}`,
+              )
             }
           }
         }
@@ -762,11 +768,20 @@ export default class ConnectionsDetail extends Vue {
   // Delete message
   private async handleDeleteMessage() {
     let id = ''
+    let isOut = false
     if (this.selectedMessage && this.selectedMessage.id) {
       id = this.selectedMessage.id.toString()
+      isOut = this.selectedMessage.out
     }
     const { messageService } = useServices()
-    const res: MessageModel | undefined = await messageService.delete(id)
+    let res: MessageModel | undefined
+    if (isOut) {
+      res = await messageService.delete(id)
+    } else {
+      const { topicNodeService } = useServices()
+      const [_res, _] = await Promise.all([messageService.delete(id), topicNodeService.updateTopicNodeByMessageId(id)])
+      res = _res
+    }
     if (res) {
       this.showContextmenu = false
       this.$message.success(this.$tc('common.deleteSuccess'))
@@ -975,9 +990,14 @@ export default class ConnectionsDetail extends Vue {
       client: this.client,
     })
     if (this.record.id) {
-      const { messageService } = useServices()
-      await messageService.cleanInConnection(this.record.id)
-      this.$log.info(`History connection messages were cleaned for ${this.record.name}@${this.record.host}`)
+      const { messageService, topicNodeService } = useServices()
+      await Promise.all([
+        topicNodeService.deleteTopicNodesForConnection(this.record.id),
+        messageService.cleanInConnection(this.record.id),
+      ])
+      this.$log.info(
+        `History connection messages and topic tree nodes were cleaned for ${this.record.name}@${this.record.host}`,
+      )
     }
   }
 

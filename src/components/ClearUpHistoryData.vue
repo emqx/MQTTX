@@ -32,14 +32,20 @@ export default class ClearUpHistoryData extends Vue {
   }
 
   private async cleanHistoryData() {
-    const { connectionService, historyMessageHeaderService, historyMessagePayloadService, messageService } =
-      useServices()
+    const {
+      connectionService,
+      historyMessageHeaderService,
+      historyMessagePayloadService,
+      messageService,
+      topicNodeService,
+    } = useServices()
 
     await Promise.all([
       connectionService.cleanLeatest(),
       historyMessageHeaderService.clean(),
       historyMessagePayloadService.clean(),
       messageService.cleanAll(),
+      topicNodeService.clearTree(),
     ])
 
     this.$message.success(this.$tc('connections.cleanHistorySuccess'))

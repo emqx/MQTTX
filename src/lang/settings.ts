@@ -126,11 +126,11 @@ export default {
     hu: 'Ha engedélyezve van, az MQTTX csatlakozás után automatikusan újra feliratkozik a helyben mentett összes előfizetésre',
   },
   cleanHistoryDialogMessage: {
-    zh: '即将删除所有连接中的历史消息记录、发送端记录的发布消息、主题、保留标志及历史连接配置。确定吗？',
-    en: 'This will delete all historical message records in connections, messages published by the sender, topics, retain flags, and past connection configurations. Confirm?',
-    tr: 'Bağlantılardaki tüm geçmiş mesaj kayıtlarını, gönderen tarafından yayınlanan mesajları, konuları, saklama bayraklarını ve geçmiş bağlantı yapılandırmalarını silmek üzeresiniz. Onaylıyor musunuz?',
-    ja: '接続内のすべての過去のメッセージ記録、送信者によって公開されたメッセージ、トピック、保持フラグ、および過去の接続設定を削除しようとしています。確認してください。',
-    hu: 'Az összes kapcsolatban lévő történelmi üzenetnyilvántartást, az elküldő által közzétett üzeneteket, témákat, megőrzési jelzéseket és a korábbi kapcsolatkonfigurációkat készül törölni. Megerősíti?',
+    zh: '即将删除所有连接中的历史消息记录、发送端记录的发布消息、主题、保留标志、历史连接配置和主题树数据。确定吗？',
+    en: 'This will delete all historical message records in connections, messages published by the sender, topics, retain flags, past connection configurations and topic tree data. Are you sure?',
+    tr: 'Bu işlem, tüm bağlantılardaki geçmiş mesaj kayıtlarını, gönderen tarafından yayınlanan mesajları, konuları, saklama bayraklarını, geçmiş bağlantı yapılandırmalarını ve konu ağacı verilerini silecektir. Emin misiniz?',
+    ja: 'これにより、すべての接続の履歴メッセージ記録、送信者によって公開されたメッセージ、トピック、保持フラグ、過去の接続設定、およびトピックツリーデータが削除されます。よろしいですか？',
+    hu: 'Ez törölni fogja az összes kapcsolat előzményüzeneteit, a küldő által közzétett üzeneteket, témákat, megtartási jelzőket, korábbi kapcsolati beállításokat és témastruktúra adatokat. Biztos benne?',
   },
   syncOsTheme: {
     zh: '同步操作系统主题',
