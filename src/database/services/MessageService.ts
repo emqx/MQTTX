@@ -275,8 +275,9 @@ export default class MessageService {
     return res ? MessageService.entityToModel(res) : undefined
   }
 
-  public async getAllMessagesByFullTopic(fullTopic: string): Promise<MessageModel[]> {
-    const res = await this.messageRepository.find({ where: { topic: fullTopic }, take: 2 })
+  public async getAllMessagesByFullTopic(fullTopic: string, options: { limit?: number } = {}): Promise<MessageModel[]> {
+    const { limit = 20 } = options
+    const res = await this.messageRepository.find({ where: { topic: fullTopic }, take: limit })
     return res.map((m) => MessageService.entityToModel(m))
   }
 }
