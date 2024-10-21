@@ -74,4 +74,11 @@ export default {
     ja: 'このトピックノードの最新メッセージは利用できないか、データベースから削除されています',
     hu: 'A témacsomópont legfrissebb üzenete nem elérhető vagy eltávolításra került a adatbázisból',
   },
+  visualizeTree: {
+    zh: '可视化主题树',
+    en: 'Visualize Topic Tree',
+    tr: 'Konu Ağacını Görselleştir',
+    ja: 'トピックツリーを視覚化',
+    hu: 'Témafa vizualizálása',
+  },
 }

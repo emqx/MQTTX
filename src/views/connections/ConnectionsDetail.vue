@@ -2314,29 +2314,8 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 }
-.connection-oper-item.el-dropdown-menu {
-  .iconfont,
-  [class^='el-icon-'] {
-    font-size: 18px;
-    font-weight: 400;
-  }
-  .el-dropdown-menu__item {
-    display: flex;
-    align-items: center;
-    .iconfont,
-    [class^='el-icon-'] {
-      margin-right: 10px;
-    }
-  }
-  li.delete-item {
-    display: block;
-    color: var(--color-minor-red);
-    &:hover {
-      color: var(--color-minor-red);
-      background: var(--color-light-red);
-    }
-  }
-}
+
+@include el-dropdown-menu-common;
 
 .message-popover {
   .popover-item {

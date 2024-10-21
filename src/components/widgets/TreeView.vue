@@ -9,7 +9,8 @@
           :content="$t('viewer.expendAll')"
           :open-delay="500"
         >
-          <el-button size="small" @click="expandAll" icon="el-icon-arrow-down"> </el-button>
+          <el-button size="small" @click="expandAll" icon="el-icon-arrow-down" :disabled="data.length === 0">
+          </el-button>
         </el-tooltip>
         <el-tooltip
           :effect="currentTheme !== 'light' ? 'light' : 'dark'"
@@ -17,18 +18,22 @@
           :content="$t('viewer.collapseAll')"
           :open-delay="500"
         >
-          <el-button size="small" @click="collapseAll" icon="el-icon-arrow-up"> </el-button>
-        </el-tooltip>
-        <el-tooltip
-          :effect="currentTheme !== 'light' ? 'light' : 'dark'"
-          placement="top"
-          :content="$t('viewer.clearTopicTree')"
-          :open-delay="500"
-        >
-          <el-button size="small" class="clear-btn" :disabled="data.length === 0" @click="clearTree">
-            <i class="iconfont icon-clear-history"></i>
+          <el-button size="small" @click="collapseAll" icon="el-icon-arrow-up" :disabled="data.length === 0">
           </el-button>
         </el-tooltip>
+        <el-dropdown class="tree-operations" trigger="click" @command="handleCommand">
+          <el-button size="small" class="more-btn">
+            <i class="iconfont icon-more"></i>
+          </el-button>
+          <el-dropdown-menu class="tree-oper-item" slot="dropdown">
+            <el-dropdown-item command="visualizeTree" :disabled="data.length === 0">
+              <i class="el-icon-pie-chart"></i>{{ $t('viewer.visualizeTree') }}
+            </el-dropdown-item>
+            <el-dropdown-item class="delete-item" command="clearTree" :disabled="data.length === 0" divided>
+              <i class="iconfont icon-clear-history"></i>{{ $t('viewer.clearTopicTree') }}
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </div>
     </div>
     <el-tree
@@ -61,6 +66,16 @@
         </span>
       </template>
     </el-tree>
+    <my-dialog
+      top="30px"
+      :fullscreen="true"
+      :visible.sync="visualizeTreeDialogVisible"
+      :title="$t('viewer.visualizeTree')"
+      width="96%"
+      class="visualize-tree-dialog"
+    >
+      <tree-chart id="tree-view" :data="data" style="height: calc(100vh - 170px)" />
+    </my-dialog>
   </div>
 </template>
 
@@ -69,8 +84,15 @@ import { Component, Vue, Watch, Prop } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import { Tree } from 'element-ui'
 import { getAllIDs, isPayloadEmpty } from '@/utils/topicTree'
+import MyDialog from '@/components/MyDialog.vue'
+import TreeChart from '@/components/charts/Tree.vue'
 
-@Component
+@Component({
+  components: {
+    MyDialog,
+    TreeChart,
+  },
+})
 export default class TreeView extends Vue {
   @Prop({ default: () => [] }) public data!: TopicTreeNode[]
 
@@ -78,6 +100,7 @@ export default class TreeView extends Vue {
 
   private expandedKeys: string[] = []
   private filterText = ''
+  private visualizeTreeDialogVisible = false
 
   get treeRef(): Tree {
     return this.$refs.tree as Tree
@@ -156,6 +179,30 @@ export default class TreeView extends Vue {
     return isPayloadEmpty(payload)
   }
 
+  private handleCommand(command: string) {
+    switch (command) {
+      case 'clearTree':
+        this.clearTree()
+        break
+      case 'visualizeTree':
+        this.visualizeTreeDialogVisible = true
+        break
+    }
+  }
+
+  private convertToEChartsFormat(node: TopicTreeNode): any {
+    const result: any = {
+      name: node.label,
+      value: node.messageCount || 0,
+    }
+
+    if (node.children && node.children.length > 0) {
+      result.children = node.children.map((child) => this.convertToEChartsFormat(child))
+    }
+
+    return result
+  }
+
   private clearTree() {
     this.$emit('clear-tree')
   }
@@ -172,16 +219,29 @@ export default class TreeView extends Vue {
 </script>
 
 <style lang="scss">
+@import '@/assets/scss/mixins.scss';
+
+@include el-dropdown-menu-common;
+
 .tree-view {
   .tree-view-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 10px;
     .tree-view-header-actions {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      .tree-operations {
+        margin-left: 10px;
+        .more-btn {
+          .iconfont {
+            font-size: 12px;
+            position: relative;
+            top: 2px;
+          }
+        }
+      }
       .el-button,
       .el-button.is-disabled {
         border: 1px solid var(--color-border-default);
@@ -242,13 +302,18 @@ export default class TreeView extends Vue {
       }
     }
   }
-
   .el-tree-node__children {
     padding-left: 12px;
     width: 100%;
   }
   .el-tree__empty-text {
     color: var(--color-text-light);
+  }
+}
+
+.visualize-tree-dialog {
+  .el-dialog__body {
+    padding: 0px;
   }
 }
 </style>
