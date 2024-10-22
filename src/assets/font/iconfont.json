@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "42190193",
+      "name": "tree-view",
+      "font_class": "tree-view",
+      "unicode": "e803",
+      "unicode_decimal": 59395
+    },
+    {
       "icon_id": "39719291",
       "name": "save",
       "font_class": "save",
@@ -67,13 +74,6 @@
       "font_class": "log",
       "unicode": "e7ed",
       "unicode_decimal": 59373
-    },
-    {
-      "icon_id": "39113445",
-      "name": "viewer",
-      "font_class": "viewer",
-      "unicode": "e7fc",
-      "unicode_decimal": 59388
     },
     {
       "icon_id": "39111040",
