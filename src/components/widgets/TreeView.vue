@@ -75,6 +75,7 @@
       class="visualize-tree-dialog"
       :btn-disabled="true"
       @close="handleVisualizeTreeDialogClose"
+      @open="handleVisualizeTreeDialogOpen"
     >
       <el-select size="small" v-model="selectedTreeRoot" class="my-3 ml-3" :style="{ width: '250px' }">
         <el-option
@@ -85,10 +86,28 @@
         >
         </el-option>
       </el-select>
+      <el-input-number
+        controls-position="right"
+        class="ml-3"
+        v-model="defaultExpandLevel"
+        :min="0"
+        size="small"
+        @change="handleExpandLevelChange"
+      ></el-input-number>
+      <span class="visualize-tree-about">
+        <el-tooltip
+          :content="$t('viewer.visualizeTreeTooltip')"
+          placement="top"
+          :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+        >
+          <i class="iconfont icon-about"></i>
+        </el-tooltip>
+      </span>
       <tree-chart
         v-if="selectedTreeData"
         id="tree-view"
         :data="selectedTreeData"
+        :defaultExpandLevel="defaultExpandLevel"
         style="height: calc(100vh - 230px)"
         :tooltipFormatter="tooltipFormatter"
       />
@@ -119,6 +138,7 @@ export default class TreeView extends Vue {
   private filterText = ''
   private visualizeTreeDialogVisible = false
   private selectedTreeRoot: string | null = null
+  private defaultExpandLevel: number = 4
 
   get selectedTreeData(): EChartsTreeNode | null {
     if (!this.selectedTreeRoot) {
@@ -144,20 +164,25 @@ export default class TreeView extends Vue {
     const tooltipParts = []
 
     if (treeAncestors) {
-      tooltipParts.push(`<div>Full Topic: ${this.transformTreeAncestors(treeAncestors)}</div>`)
+      tooltipParts.push(
+        `<div>Full Topic: <span class="tooltip-topic-value">${this.transformTreeAncestors(treeAncestors)}</span></div>`,
+      )
     }
 
     tooltipParts.push(
-      `<div>Label: ${data.label}</div>`,
-      `<div>Messages: ${data.messageCount}</div>`,
-      `<div>Sub-topics: ${data.subTopicCount}</div>`,
+      `<div>Label: <span class="tooltip-topic-value">${data.label}</span></div>`,
+      `<div>Messages: <span class="tooltip-topic-value">${data.messageCount}</span></div>`,
+      `<div>Sub-topics: <span class="tooltip-topic-value">${data.subTopicCount}</span></div>`,
     )
 
     if (data.message) {
       const maxLength = 50
       const payload = data.message.payload
       const truncatedPayload = payload.length > maxLength ? `${payload.slice(0, maxLength)}...` : payload
-      tooltipParts.push(`<div>Last payload: ${truncatedPayload}</div>`)
+      tooltipParts.push(
+        `<div>Last payload: <span class="tooltip-topic-value">${truncatedPayload}</span></div>`,
+        `<div>Received Time: <span class="tooltip-topic-value">${data.message.createAt}</span></div>`,
+      )
     }
 
     return tooltipParts.join('')
@@ -277,6 +302,15 @@ export default class TreeView extends Vue {
     this.selectedTreeRoot = null
   }
 
+  private handleVisualizeTreeDialogOpen() {
+    const expandLevel = localStorage.getItem('tree-view-expand-level')
+    this.defaultExpandLevel = expandLevel ? parseInt(expandLevel) : 4
+  }
+
+  private handleExpandLevelChange(val: number) {
+    localStorage.setItem('tree-view-expand-level', val.toString())
+  }
+
   private mounted() {
     // Keep the filter text when data changes
     this.$nextTick(() => {
@@ -384,6 +418,14 @@ export default class TreeView extends Vue {
 .visualize-tree-dialog {
   .el-dialog__body {
     padding: 0px;
+  }
+  .tooltip-topic-value {
+    color: var(--color-text-light);
+  }
+  .visualize-tree-about {
+    color: var(--color-text-default);
+    margin-left: 12px;
+    cursor: pointer;
   }
 }
 </style>

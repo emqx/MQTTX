@@ -474,5 +474,6 @@ declare global {
     name: string
     lastMessage?: string
     data?: TopicTreeNode
+    children?: EChartsTreeNode[]
   }
 }

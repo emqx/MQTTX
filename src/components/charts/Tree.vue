@@ -21,6 +21,7 @@ export default class TreeChartComponent extends Vue {
   @Prop({ default: 8 }) public symbolSize!: number
   @Prop({ default: 'transparent' }) public backgroundColor!: string
   @Prop({ default: () => ({}) }) public tooltipFormatter!: (params: any) => string | Record<string, any>
+  @Prop({ default: 4 }) public defaultExpandLevel!: number
 
   @Getter('currentTheme') private theme!: string
 
@@ -28,6 +29,11 @@ export default class TreeChartComponent extends Vue {
 
   @Watch('data', { deep: true })
   private onDataChanged() {
+    this.updateChart()
+  }
+
+  @Watch('defaultExpandLevel')
+  private onDefaultExpandLevelChanged() {
     this.updateChart()
   }
 
@@ -48,7 +54,7 @@ export default class TreeChartComponent extends Vue {
           type: 'tree',
           data: [this.data],
           symbolSize: this.symbolSize,
-          initialTreeDepth: 3,
+          initialTreeDepth: this.defaultExpandLevel,
           itemStyle: {
             color: '#53daa2',
             borderColor: '#53daa2',
@@ -103,10 +109,10 @@ export default class TreeChartComponent extends Vue {
     this.updateChart()
   }
 
-  private updateChart() {
+  public updateChart() {
     if (this.chart) {
       const option = this.generateChartOption()
-      this.chart.setOption(option)
+      this.chart.setOption(option, { notMerge: true })
     }
   }
 
