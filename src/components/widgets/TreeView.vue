@@ -74,6 +74,7 @@
       width="96%"
       class="visualize-tree-dialog"
       :btn-disabled="true"
+      @close="handleVisualizeTreeDialogClose"
     >
       <el-select size="small" v-model="selectedTreeRoot" class="my-3 ml-3" :style="{ width: '250px' }">
         <el-option
@@ -254,6 +255,10 @@ export default class TreeView extends Vue {
 
   private clearTree() {
     this.$emit('clear-tree')
+  }
+
+  private handleVisualizeTreeDialogClose() {
+    this.selectedTreeRoot = null
   }
 
   private mounted() {
