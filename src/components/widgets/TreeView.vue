@@ -128,23 +128,39 @@ export default class TreeView extends Vue {
     return selectedTree ? this.convertToEChartsFormat(selectedTree) : null
   }
 
-  private tooltipFormatter(params: EChartsTreeNode) {
-    let tooltip = `<div>${params.name}</div>`
+  private transformTreeAncestors(treeAncestors: { name: string }[]) {
+    return treeAncestors
+      .filter((ancestor, index) => ancestor.name !== '' && index !== 1)
+      .map((ancestor) => ancestor.name)
+      .join('/')
+  }
 
-    if (params.data) {
-      tooltip = `
-      <div>Label: ${params.data.label}</div>
-      <div>Messages: ${params.data.messageCount}</div>
-      <div>Sub-topics: ${params.data.subTopicCount}</div>
-      `
-      if (params.data.message) {
-        const maxLength = 50
-        const payload = params.data.message.payload
-        const truncatedPayload = payload.length > maxLength ? payload.slice(0, maxLength) + '...' : payload
-        tooltip += `<div>Last payload: ${truncatedPayload}</div>`
-      }
+  private tooltipFormatter(params: Record<string, any>): string {
+    if (!params.data) {
+      return `<div>Label: ${params.name}</div>`
     }
-    return tooltip
+
+    const { data, treeAncestors } = params
+    const tooltipParts = []
+
+    if (treeAncestors) {
+      tooltipParts.push(`<div>Full Topic: ${this.transformTreeAncestors(treeAncestors)}</div>`)
+    }
+
+    tooltipParts.push(
+      `<div>Label: ${data.label}</div>`,
+      `<div>Messages: ${data.messageCount}</div>`,
+      `<div>Sub-topics: ${data.subTopicCount}</div>`,
+    )
+
+    if (data.message) {
+      const maxLength = 50
+      const payload = data.message.payload
+      const truncatedPayload = payload.length > maxLength ? `${payload.slice(0, maxLength)}...` : payload
+      tooltipParts.push(`<div>Last payload: ${truncatedPayload}</div>`)
+    }
+
+    return tooltipParts.join('')
   }
 
   get treeRef(): Tree {
