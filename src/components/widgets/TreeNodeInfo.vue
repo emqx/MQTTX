@@ -6,53 +6,9 @@
         <div :key="`label-${index}`">{{ item.label }}</div>
         <div :key="`value-${index}`" class="node-info-item">{{ item.value }}</div>
       </template>
-      <div>{{ $t('connections.subTopics') }}</div>
-      <div class="mt-2">
-        <el-tag
-          type="info"
-          v-for="(topic, index) in getSubTopics(node)"
-          :key="`${topic}-${index}`"
-          size="small"
-          class="mr-2 mb-2"
-        >
-          {{ topic }}
-        </el-tag>
-      </div>
     </div>
-    <!-- Topic node without payload -->
-    <div v-else-if="!node.message || (node.message && checkPayloadEmpty(node.message.payload))">
-      <div>{{ $t('connections.fullTopic') }}</div>
-      <el-tooltip
-        :effect="currentTheme !== 'light' ? 'light' : 'dark'"
-        :disabled="fullTopicPath.length < 20"
-        placement="top"
-        :content="fullTopicPath"
-        :open-delay="500"
-      >
-        <div ref="topicPath" class="node-info-item ellipsis">{{ fullTopicPath }}</div>
-      </el-tooltip>
-      <template v-if="node.subTopicCount === 0 && node.messageCount > 0">
-        <el-alert class="no-payload-alert" type="warning" :closable="false">{{
-          $t('viewer.noPayloadFromTopicNode')
-        }}</el-alert>
-      </template>
-      <template v-else>
-        <div>{{ $t('connections.subTopics') }}</div>
-        <div class="mt-2">
-          <el-tag
-            v-for="(topic, index) in getSubTopics(node)"
-            type="info"
-            :key="`${topic}-${index}`"
-            size="small"
-            class="mr-2 mb-2"
-          >
-            {{ topic }}
-          </el-tag>
-        </div>
-      </template>
-    </div>
-    <!-- Topic node with payload -->
-    <div v-else>
+    <!-- Full Topic (shown for all nodes except the base node) -->
+    <template v-else>
       <div>{{ $t('connections.fullTopic') }}</div>
       <el-tooltip
         :effect="currentTheme !== 'light' ? 'light' : 'dark'"
@@ -63,13 +19,37 @@
       >
         <div ref="topicPath" class="node-info-item ellipsis">{{ fullTopicPath }}</div>
       </el-tooltip>
-      <div>{{ $t('connections.receivedTime') }}</div>
-      <div v-if="node.message" class="node-info-item">{{ node.message.createAt }}</div>
-      <div class="flex justify-between">
-        <span
-          >Payload <el-tag v-if="node.message && node.message.retain" type="info" size="mini">Retained</el-tag></span
+    </template>
+    <!-- Topic node without payload -->
+    <div v-if="!node.message || (node.message && checkPayloadEmpty(node.message.payload))">
+      <template v-if="node.subTopicCount === 0 && node.messageCount > 0">
+        <el-alert class="no-payload-alert" type="warning" :closable="false">{{
+          $t('viewer.noPayloadFromTopicNode')
+        }}</el-alert>
+      </template>
+    </div>
+    <!-- Sub topics section -->
+    <div v-if="node.subTopicCount > 0">
+      <div>{{ $t('connections.subTopics') }}</div>
+      <div class="mt-2">
+        <el-tag
+          v-for="(topic, index) in getSubTopics(node)"
+          type="info"
+          :key="`${topic}-${index}`"
+          size="small"
+          class="mr-2 mb-2"
         >
-        <span v-if="node.message">QoS: {{ node.message.qos }}</span>
+          {{ topic }}
+        </el-tag>
+      </div>
+    </div>
+    <!-- Topic node with payload -->
+    <div v-if="node.message && !checkPayloadEmpty(node.message.payload)">
+      <div>{{ $t('connections.receivedTime') }}</div>
+      <div class="node-info-item">{{ node.message.createAt }}</div>
+      <div class="flex justify-between">
+        <span>Payload <el-tag v-if="node.message.retain" type="info" size="mini">Retained</el-tag></span>
+        <span>QoS: {{ node.message.qos }}</span>
       </div>
       <pre
         class="payload-container mt-2 mb-2"
