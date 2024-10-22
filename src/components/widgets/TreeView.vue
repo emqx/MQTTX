@@ -73,8 +73,24 @@
       :title="$t('viewer.visualizeTree')"
       width="96%"
       class="visualize-tree-dialog"
+      :btn-disabled="true"
     >
-      <tree-chart id="tree-view" :data="data" style="height: calc(100vh - 170px)" />
+      <el-select size="small" v-model="selectedTreeRoot" class="my-3 ml-3" :style="{ width: '250px' }">
+        <el-option
+          v-for="node in data"
+          :key="node.id"
+          :label="`${node.connectionInfo.name}@${node.label}`"
+          :value="node.id"
+        >
+        </el-option>
+      </el-select>
+      <tree-chart
+        v-if="selectedTreeData"
+        id="tree-view"
+        :data="selectedTreeData"
+        style="height: calc(100vh - 230px)"
+        :tooltipFormatter="tooltipFormatter"
+      />
     </my-dialog>
   </div>
 </template>
@@ -101,6 +117,34 @@ export default class TreeView extends Vue {
   private expandedKeys: string[] = []
   private filterText = ''
   private visualizeTreeDialogVisible = false
+  private selectedTreeRoot: string | null = null
+
+  get selectedTreeData(): EChartsTreeNode | null {
+    if (!this.selectedTreeRoot) {
+      return null
+    }
+    const selectedTree = this.data.find((tree) => tree.id === this.selectedTreeRoot)
+    return selectedTree ? this.convertToEChartsFormat(selectedTree) : null
+  }
+
+  private tooltipFormatter(params: EChartsTreeNode) {
+    let tooltip = `<div>${params.name}</div>`
+
+    if (params.data) {
+      tooltip = `
+      <div>Label: ${params.data.label}</div>
+      <div>Messages: ${params.data.messageCount}</div>
+      <div>Sub-topics: ${params.data.subTopicCount}</div>
+      `
+      if (params.data.message) {
+        const maxLength = 50
+        const payload = params.data.message.payload
+        const truncatedPayload = payload.length > maxLength ? payload.slice(0, maxLength) + '...' : payload
+        tooltip += `<div>Last payload: ${truncatedPayload}</div>`
+      }
+    }
+    return tooltip
+  }
 
   get treeRef(): Tree {
     return this.$refs.tree as Tree
@@ -185,15 +229,20 @@ export default class TreeView extends Vue {
         this.clearTree()
         break
       case 'visualizeTree':
+        this.selectedTreeRoot = this.data.length > 0 ? this.data[0].id : null
         this.visualizeTreeDialogVisible = true
         break
     }
   }
 
-  private convertToEChartsFormat(node: TopicTreeNode): any {
-    const result: any = {
+  private convertToEChartsFormat(node: TopicTreeNode): EChartsTreeNode {
+    const result: EChartsTreeNode = {
       name: node.label,
-      value: node.messageCount || 0,
+      id: node.id,
+      label: node.label,
+      messageCount: node.messageCount || 0,
+      subTopicCount: node.subTopicCount || 0,
+      message: node.message,
     }
 
     if (node.children && node.children.length > 0) {
