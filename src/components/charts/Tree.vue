@@ -17,9 +17,8 @@ export default class TreeChartComponent extends Vue {
   @Prop({ required: true }) public id!: string
   @Prop({ default: '400px' }) public height!: string
   @Prop({ default: '100%' }) public width!: string
-  @Prop({ required: true }) public data!: TopicTreeNode[]
-  @Prop({ default: 'vertical' }) public layout!: 'horizontal' | 'vertical'
-  @Prop({ default: 7 }) public symbolSize!: number
+  @Prop({ required: true }) public data!: EChartsTreeNode
+  @Prop({ default: 8 }) public symbolSize!: number
   @Prop({ default: 'transparent' }) public backgroundColor!: string
   @Prop({ default: () => ({}) }) public tooltipFormatter!: (params: any) => string | Record<string, any>
 
@@ -28,15 +27,15 @@ export default class TreeChartComponent extends Vue {
   private chart: echarts.ECharts | null = null
 
   @Watch('data', { deep: true })
-  @Watch('layout')
-  @Watch('symbolSize')
   private onDataChanged() {
     this.updateChart()
   }
 
-  private generateChartOption(): any {
-    const treeData = this.data
-    console.log(treeData)
+  private generateChartOption() {
+    const isLightTheme = this.theme === 'light'
+    const textColor = isLightTheme ? '#616161' : '#e6e8f1'
+    const backgroundColor = isLightTheme ? '#fff' : this.theme === 'dark' ? '#262729' : '#292b33'
+
     return {
       backgroundColor: this.backgroundColor,
       tooltip: {
@@ -44,35 +43,55 @@ export default class TreeChartComponent extends Vue {
         triggerOn: 'mousemove',
         formatter: this.tooltipFormatter,
       },
-      legend: {
-        data: treeData.map((tree) => ({
-          name: tree.label,
-          icon: 'rectangle',
-        })),
-      },
-      series: treeData.map((tree) => ({
-        type: 'tree',
-        data: [tree],
-        symbolSize: this.symbolSize,
-        label: {
-          position: 'left',
-          verticalAlign: 'middle',
-          align: 'right',
-        },
-        leaves: {
-          label: {
-            position: 'right',
-            verticalAlign: 'middle',
-            align: 'left',
+      series: [
+        {
+          type: 'tree',
+          data: [this.data],
+          symbolSize: this.symbolSize,
+          initialTreeDepth: 3,
+          itemStyle: {
+            color: '#53daa2',
+            borderColor: '#53daa2',
           },
+          label: {
+            color: textColor,
+            position: 'left',
+            verticalAlign: 'middle',
+            align: 'right',
+            backgroundColor,
+            padding: [1, 1],
+            borderRadius: 3,
+            z: 100,
+            fontSize: 13,
+          },
+          leaves: {
+            label: {
+              position: 'right',
+              verticalAlign: 'middle',
+              align: 'left',
+              color: textColor,
+              fontSize: 13,
+            },
+          },
+          emphasis: {
+            focus: 'descendant',
+            itemStyle: {
+              color: '#34c388',
+              borderColor: '#34c388',
+            },
+            label: {
+              color: '#53daa2',
+            },
+          },
+          expandAndCollapse: true,
+          animationDuration: 550,
+          animationDurationUpdate: 750,
+          left: '130px',
+          right: '130px',
+          top: 0,
+          bottom: 0,
         },
-        emphasis: {
-          focus: 'descendant',
-        },
-        expandAndCollapse: true,
-        animationDuration: 550,
-        animationDurationUpdate: 750,
-      })),
+      ],
     }
   }
 

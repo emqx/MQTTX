@@ -469,4 +469,10 @@ declare global {
     updateNodes: TopicTreeNode[]
     timestamp: number
   }
+
+  interface EChartsTreeNode extends TopicTreeNode {
+    name: string
+    lastMessage?: string
+    data?: TopicTreeNode
+  }
 }
