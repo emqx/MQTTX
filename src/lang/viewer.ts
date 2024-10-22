@@ -81,4 +81,11 @@ export default {
     ja: 'トピックツリーを視覚化',
     hu: 'Témafa vizualizálása',
   },
+  visualizeTreeTooltip: {
+    zh: '选择根节点并设置展开层级来可视化主题树。点击节点可展开或折叠子主题。',
+    en: 'Select a root node and set the expand level to visualize the topic tree. Click on nodes to expand or collapse subtopics.',
+    tr: 'Konu ağacını görselleştirmek için bir kök düğüm seçin ve genişletme seviyesini ayarlayın. Alt konuları genişletmek veya daraltmak için düğümlere tıklayın.',
+    ja: 'ルートノードを選択し、展開レベルを設定してトピックツリーを視覚化します。ノードをクリックしてサブトピックを展開または折りたたみます。',
+    hu: 'Válasszon egy gyökércsomópontot és állítsa be a kibontási szintet a témafa vizualizálásához. Kattintson a csomópontokra az altémák kibontásához vagy összecsukásához.',
+  },
 }
