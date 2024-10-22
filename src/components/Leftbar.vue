@@ -41,7 +41,7 @@ export default class Leftbar extends Vue {
   private menuItems: MenuItem[] = [
     { path: '/recent_connections', icon: 'icon-connections', name: 'Connections' },
     { path: '/recent_connections/0', icon: 'icon-new', query: { oper: 'create' }, name: 'ConnectionDetails' },
-    { path: '/viewer', icon: 'icon-viewer' },
+    { path: '/viewer', icon: 'icon-tree-view' },
     { path: '/script', icon: 'icon-script' },
     { path: '/log', icon: 'icon-log' },
   ]
