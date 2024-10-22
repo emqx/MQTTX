@@ -112,7 +112,7 @@ export default class TreeChartComponent extends Vue {
   public updateChart() {
     if (this.chart) {
       const option = this.generateChartOption()
-      this.chart.setOption(option, { notMerge: true })
+      this.chart.setOption(option)
     }
   }
 
