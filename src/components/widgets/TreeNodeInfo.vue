@@ -146,8 +146,6 @@ export default class TreeNodeInfo extends Vue {
 </script>
 
 <style lang="scss">
-@import '@/assets/scss/mixins.scss';
-
 body.light {
   @import '@/assets/scss/theme/custom/prism-one-light.scss';
 }
