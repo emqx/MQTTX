@@ -103,7 +103,7 @@
           <i class="iconfont icon-about"></i>
         </el-tooltip>
       </span>
-      <tree-chart
+      <tree-visual
         v-if="selectedTreeData"
         id="tree-view"
         :data="selectedTreeData"
@@ -121,12 +121,12 @@ import { Getter } from 'vuex-class'
 import { Tree } from 'element-ui'
 import { getAllIDs, isPayloadEmpty } from '@/utils/topicTree'
 import MyDialog from '@/components/MyDialog.vue'
-import TreeChart from '@/components/charts/Tree.vue'
+import TreeVisual from '@/components/charts/TreeVisual.vue'
 
 @Component({
   components: {
     MyDialog,
-    TreeChart,
+    TreeVisual,
   },
 })
 export default class TreeView extends Vue {

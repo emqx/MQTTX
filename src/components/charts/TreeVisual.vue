@@ -13,7 +13,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 echarts.use([TooltipComponent, LegendComponent, TreeChart, CanvasRenderer])
 
 @Component
-export default class TreeChartComponent extends Vue {
+export default class TreeVisual extends Vue {
   @Prop({ required: true }) public id!: string
   @Prop({ default: '400px' }) public height!: string
   @Prop({ default: '100%' }) public width!: string
@@ -48,6 +48,7 @@ export default class TreeChartComponent extends Vue {
         trigger: 'item',
         triggerOn: 'mousemove',
         formatter: this.tooltipFormatter,
+        confine: true,
       },
       series: [
         {
