@@ -33,6 +33,7 @@
           placement="top"
           trigger="hover"
           popper-class="topic-tooltip"
+          :open-delay="600"
           :content="getPopoverContent(copySuccess, sub)"
         >
           <a
