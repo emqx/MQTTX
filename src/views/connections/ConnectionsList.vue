@@ -232,6 +232,7 @@ export default class ConnectionsList extends Vue {
         treeRef?.setCurrentKey(id)
         this.connectionId = id
         this.expandTreeNodeAncestor(id)
+        this.initUnreadMessageCount(id)
       }
     })
   }
@@ -738,6 +739,7 @@ export default class ConnectionsList extends Vue {
 
   private mounted() {
     this.loadData(true)
+    this.initUnreadMessageCount(this.connectionId)
   }
 }
 </script>
@@ -796,6 +798,9 @@ export default class ConnectionsList extends Vue {
         background-color: var(--color-bg-item);
       }
       .el-tree-node__content {
+        .el-tree-node__expand-icon {
+          padding: 4px;
+        }
         height: 100%;
         margin: 0 8px;
         border-radius: 8px;
@@ -860,6 +865,8 @@ export default class ConnectionsList extends Vue {
               color: var(--color-text-active);
               font-size: $font-size--tips;
               text-align: center;
+              position: relative;
+              top: -2px;
             }
             .connection-status {
               display: inline-block;
