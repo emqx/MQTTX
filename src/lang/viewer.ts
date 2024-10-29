@@ -88,4 +88,32 @@ export default {
     ja: 'ルートノードを選択し、展開レベルを設定してトピックツリーを視覚化します。ノードをクリックしてサブトピックを展開または折りたたみます。',
     hu: 'Válasszon egy gyökércsomópontot és állítsa be a kibontási szintet a témafa vizualizálásához. Kattintson a csomópontokra az altémák kibontásához vagy összecsukásához.',
   },
+  trafficMonitor: {
+    zh: '流量监控',
+    en: 'Traffic Monitor',
+    tr: 'Trafik İzleme',
+    ja: 'トラフィックモニター',
+    hu: 'Forgalom figyelés',
+  },
+  brokerTrafficMonitorTooltip: {
+    zh: '选择一个连接来监控该 MQTT Broker 的实时流量数据',
+    en: 'Select a connection to monitor real-time traffic data for this MQTT Broker',
+    tr: 'Bu MQTT Broker için gerçek zamanlı trafik verilerini izlemek için bir bağlantı seçin',
+    ja: 'この MQTT Broker のリアルタイムトラフィックデータを監視する接続を選択してください',
+    hu: 'Válasszon egy kapcsolatot az MQTT Broker valós idejű forgalmi adatainak figyeléséhez',
+  },
+  bytesReceived: {
+    zh: '累计接收流量',
+    en: 'Total Received Bytes',
+    tr: 'Toplam Alınan Baytlar',
+    ja: '累積受信バイト数',
+    hu: 'Összes Fogadott Bájtok',
+  },
+  bytesSent: {
+    zh: '累计发送流量',
+    en: 'Total Sent Bytes',
+    tr: 'Toplam Gönderilen Baytlar',
+    ja: '累積送信バイト数',
+    hu: 'Összes Küldött Bájtok',
+  },
 }

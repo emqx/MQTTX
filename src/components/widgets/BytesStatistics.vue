@@ -1,6 +1,6 @@
 <template>
   <my-dialog
-    :title="$t('connections.bytesStatistics')"
+    :title="$t('viewer.trafficMonitor')"
     :visible.sync="showDialog"
     class="bytes-statistics"
     width="95%"
@@ -50,7 +50,7 @@ export default class BytesStatistics extends Vue {
     xData: [],
     seriesData: [
       {
-        name: this.$tc('connections.bytesReceived'),
+        name: this.$tc('viewer.bytesReceived'),
         areaStyle: {
           colorFrom: 'rgb(128, 255, 165)',
           colorTo: 'rgb(1, 191, 236)',
@@ -58,7 +58,7 @@ export default class BytesStatistics extends Vue {
         data: [],
       },
       {
-        name: this.$tc('connections.bytesSent'),
+        name: this.$tc('viewer.bytesSent'),
         areaStyle: {
           colorFrom: 'rgb(0, 221, 255)',
           colorTo: 'rgb(77, 119, 255)',

@@ -719,27 +719,6 @@ export default {
     ja: 'システムトピック',
     hu: 'Rendszer téma',
   },
-  bytesStatistics: {
-    zh: '收发流量统计',
-    en: 'Bytes Statistics',
-    tr: 'Bayt istatistikleri',
-    ja: 'データ通信の利用状況',
-    hu: 'Bájt statisztika',
-  },
-  bytesReceived: {
-    zh: '累计接收流量',
-    en: 'Total Received Bytes',
-    tr: 'Toplam Alınan Baytlar',
-    ja: '累積受信バイト数',
-    hu: 'Összes Fogadott Bájtok',
-  },
-  bytesSent: {
-    zh: '累计发送流量',
-    en: 'Total Sent Bytes',
-    tr: 'Toplam Gönderilen Baytlar',
-    ja: '累積送信バイト数',
-    hu: 'Összes Küldött Bájtok',
-  },
   secureTip: {
     zh: '是否验证服务端证书链和地址名称',
     en: "Whether a client verifies the server's certificate chain and host name",

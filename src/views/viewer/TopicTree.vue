@@ -21,7 +21,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { globalEventBus } from '@/utils/globalEventBus'
 import TreeView from '@/components/widgets/TreeView.vue'
 import { updateTopicTreeNode } from '@/utils/topicTree'
-import { IPublishPacket } from 'mqtt-packet/types'
+import { Packet } from 'mqtt-packet/types'
 import TreeNodeInfo from '@/components/widgets/TreeNodeInfo.vue'
 import { ignoreQoS0Message } from '@/utils/mqttUtils'
 import { MessageQueue } from '@/utils/messageQueue'
@@ -45,7 +45,7 @@ export default class TopicTree extends Vue {
     this.selectedNode = data
   }
 
-  private handlePacketReceive(packet: IPublishPacket, connectionInfo: ConnectionModel) {
+  private handlePacketReceive(packet: Packet, connectionInfo: ConnectionModel) {
     if (packet.cmd !== 'publish') return
     const { updatedNodes, updatedTree } = updateTopicTreeNode(this.data, {
       packet,

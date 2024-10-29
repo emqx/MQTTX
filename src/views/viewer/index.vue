@@ -7,6 +7,7 @@
     <div class="viewer-view-tabs">
       <el-tabs v-model="activeTab" @tab-click="handleTabClick">
         <el-tab-pane :label="$t('viewer.topicsTree')" name="TopicTree"></el-tab-pane>
+        <el-tab-pane :label="$t('viewer.trafficMonitor')" name="TrafficMonitor"></el-tab-pane>
       </el-tabs>
     </div>
     <router-view></router-view>
@@ -14,21 +15,27 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
+
+enum ViewerTab {
+  TopicTree = 'TopicTree',
+  TrafficMonitor = 'TrafficMonitor',
+}
 
 @Component
 export default class Viewer extends Vue {
-  private activeTab = 'TopicTree'
+  private activeTab = ViewerTab.TopicTree
 
+  @Watch('$route.name', { deep: true })
   private setDefaultTab() {
-    this.activeTab = this.$route.name as string
+    this.activeTab = this.$route.name as ViewerTab
   }
 
   created() {
     this.setDefaultTab()
   }
 
-  private handleTabClick(tab: { name: string }) {
+  private handleTabClick(tab: { name: ViewerTab }) {
     this.$router.push({ name: tab.name })
   }
 }
