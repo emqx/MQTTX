@@ -41,7 +41,7 @@ export default {
     ja: 'クライアントが接続されていません',
     hu: 'Kliens nincs csatlakozva',
   },
-  disconnect: {
+  disconnecte: {
     zh: '断开连接',
     en: 'Disconnect',
     tr: 'Bağlantıyı kes',
@@ -138,6 +138,13 @@ export default {
     tr: 'Bağlı',
     ja: '接続に成功しました',
     hu: 'Csatlakozva',
+  },
+  noConnection: {
+    zh: '未连接',
+    en: 'Disconnected',
+    tr: 'Bağlantı yok',
+    ja: '未接続',
+    hu: 'Nincs kapcsolat',
   },
   connectFailed: {
     zh: '连接失败',

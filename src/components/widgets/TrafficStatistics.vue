@@ -104,9 +104,5 @@ export default class TrafficStatistics extends Vue {
       color: rgba(255, 255, 255, 0.9);
     }
   }
-
-  .chart {
-    margin-top: 20px;
-  }
 }
 </style>
