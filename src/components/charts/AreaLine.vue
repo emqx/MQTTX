@@ -29,6 +29,7 @@ export default class AreaLine extends Vue {
   @Prop({ default: '100%' }) public width!: string
   @Prop({ default: 'transparent' }) public backgroundColor!: string
   @Prop({ default: '' }) public chartTitle!: string
+  @Prop({ default: null }) public formatter?: (value: number) => string
   @Prop({
     default: () => ({
       xData: [],
@@ -47,6 +48,8 @@ export default class AreaLine extends Vue {
   private areaLineChart: echarts.ECharts | null = null
 
   private generateChartOption() {
+    const isLightTheme = this.theme === 'light'
+    const textColor = isLightTheme ? '#616161' : '#e6e8f1'
     return {
       backgroundColor: this.backgroundColor,
       color: this.chartData.seriesData.map((item) => item.areaStyle.colorFrom),
@@ -61,9 +64,20 @@ export default class AreaLine extends Vue {
             backgroundColor: '#6a7985',
           },
         },
+        formatter: (params: any[]) => {
+          let result = `${params[0].axisValue}<br/>`
+          params.forEach((param) => {
+            const value = this.formatter ? this.formatter(param.value) : param.value
+            result += `${param.marker} ${param.seriesName}: ${value}<br/>`
+          })
+          return result
+        },
       },
       legend: {
         data: this.chartData.seriesData.map((item) => item.name),
+        textStyle: {
+          color: textColor,
+        },
       },
       toolbox: {
         feature: {
@@ -86,6 +100,11 @@ export default class AreaLine extends Vue {
       yAxis: [
         {
           type: 'value',
+          axisLabel: {
+            formatter: (value: number) => {
+              return this.formatter ? this.formatter(value) : value
+            },
+          },
         },
       ],
       series: this.chartData.seriesData.map((item) => {

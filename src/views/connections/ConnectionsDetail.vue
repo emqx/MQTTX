@@ -484,11 +484,6 @@ export default class ConnectionsDetail extends Vue {
     left: 0,
   }
   private selectedInfo: string = ''
-  private chartData: ChartDataModel = {
-    label: '',
-    recevied: 0,
-    sent: 0,
-  }
 
   get titleName() {
     return this.record.name
