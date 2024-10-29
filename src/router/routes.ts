@@ -24,6 +24,11 @@ const routes: Routes[] = [
             name: 'TopicTree',
             component: () => import('@/views/viewer/TopicTree.vue'),
           },
+          {
+            path: 'traffic_monitor',
+            name: 'TrafficMonitor',
+            component: () => import('@/views/viewer/TrafficMonitor.vue'),
+          },
         ],
       },
       { path: '/settings', name: 'Settings', component: () => import('@/views/settings/index.vue') },

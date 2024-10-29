@@ -169,8 +169,8 @@
                   <el-dropdown-item command="importData">
                     <i class="iconfont icon-import-data"></i>{{ $t('connections.importData') }}
                   </el-dropdown-item>
-                  <el-dropdown-item command="bytesStatistics" :disabled="!client.connected">
-                    <i class="iconfont icon-bytes-statistics"></i>{{ $t('connections.bytesStatistics') }}
+                  <el-dropdown-item command="trafficMonitor" :disabled="!client.connected">
+                    <i class="iconfont icon-bytes-statistics"></i>{{ $t('viewer.trafficMonitor') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="disconnect" :disabled="!client.connected">
                     <i class="el-icon-switch-button"></i>{{ $t('connections.disconnect') }}
@@ -309,13 +309,6 @@
     <ImportData :visible.sync="showImportData" />
     <TimedMessage ref="timedMessage" :visible.sync="showTimedMessage" @setTimerSuccess="setTimerSuccess" />
     <UseScript ref="useScript" :visible.sync="showUseScript" @setScript="handleSetScript" />
-    <BytesStatistics
-      ref="bytesStatistics"
-      :visible.sync="showBytes"
-      v-bind="chartData"
-      :version="version"
-      :uptime="uptime"
-    />
   </div>
 </template>
 
@@ -334,7 +327,6 @@ import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import { matchTopicMethod } from '@/utils/topicMatch'
 import { createClient, ignoreQoS0Message } from '@/utils/mqttUtils'
-import { getBytes, getUptime, getVersion } from '@/utils/SystemTopicUtils'
 import validFormatJson from '@/utils/validFormatJson'
 import delay from '@/utils/delay'
 
@@ -347,7 +339,6 @@ import Contextmenu from '@/components/Contextmenu.vue'
 import ExportData from '@/components/ExportData.vue'
 import ImportData from '@/components/ImportData.vue'
 import TimedMessage from '@/components/TimedMessage.vue'
-import BytesStatistics from '@/components/widgets/BytesStatistics.vue'
 import UseScript from '@/components/UseScript.vue'
 import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 import MsgTip from '@/components/MsgTip.vue'
@@ -374,7 +365,7 @@ type CommandType =
   | 'exportData'
   | 'importData'
   | 'timedMessage'
-  | 'bytesStatistics'
+  | 'trafficMonitor'
   | 'useScript'
   | 'newWindow'
 
@@ -393,7 +384,6 @@ interface TopModel {
     ExportData,
     ImportData,
     TimedMessage,
-    BytesStatistics,
     MessageList,
     UseScript,
     MsgTypeTabs,
@@ -453,7 +443,6 @@ export default class ConnectionsDetail extends Vue {
   private disconnectLoding = false
   private searchVisible = false
   private searchLoading = false
-  private showBytes = false
 
   private sendFrequency: number | undefined = undefined
   private sendTimeId: number | null = null
@@ -500,8 +489,6 @@ export default class ConnectionsDetail extends Vue {
     recevied: 0,
     sent: 0,
   }
-  private version = ''
-  private uptime = ''
 
   get titleName() {
     return this.record.name
@@ -855,7 +842,7 @@ export default class ConnectionsDetail extends Vue {
       case 'timedMessage':
         this.handleTimedMessage()
         break
-      case 'bytesStatistics':
+      case 'trafficMonitor':
         this.handleSubSystemTopic()
         break
       case 'useScript':
@@ -1362,33 +1349,6 @@ export default class ConnectionsDetail extends Vue {
     return receivedMessage
   }
 
-  // Bytes Statistics
-  private bytesStatistics(messages: MessageModel[]) {
-    if (messages.length) {
-      let bytesTimes = 0
-      let _chartData: ChartDataModel = this.chartData
-      let _version = this.version
-      let _uptime = this.uptime
-      messages.forEach((msg: MessageModel) => {
-        const data = getBytes(msg)
-        const version = getVersion(msg)
-        const uptime = getUptime(msg)
-        data && ((_chartData = data), (bytesTimes += 1))
-        version && (_version = version)
-        uptime && (_uptime = uptime)
-      })
-      this.chartData = _chartData
-      this.version = _version
-      this.uptime = _uptime
-      if (this.chartData && bytesTimes) {
-        const bytesStatistics = this.$refs.bytesStatistics as BytesStatistics
-        this.$nextTick(() => {
-          bytesStatistics.updateChart()
-        })
-      }
-    }
-  }
-
   // Save message
   private async saveMessage(id: string, messages: MessageModel[]) {
     try {
@@ -1492,6 +1452,7 @@ export default class ConnectionsDetail extends Vue {
   private onMessageArrived(client: MqttClient, id: string) {
     const unsubscribe$ = new Subject<void>()
 
+    // Add close event handler if not already present
     if (client.listenerCount('close') <= 1) {
       fromEvent(client, 'close').subscribe(() => {
         unsubscribe$.next()
@@ -1500,6 +1461,7 @@ export default class ConnectionsDetail extends Vue {
       })
     }
 
+    // Process message stream
     const messageSubject$ = fromEvent(client, 'message').pipe(
       takeUntil(unsubscribe$),
       map(([topic, payload, packet]: [string, Buffer, IPublishPacket]) => {
@@ -1508,30 +1470,20 @@ export default class ConnectionsDetail extends Vue {
       shareReplay(1),
     )
 
-    const SYSMessageSubject$ = messageSubject$.pipe(
-      filter((m: MessageModel) => this.showBytes && id === this.curConnectionId && m.topic.includes('$SYS')),
-      shareReplay(1),
-    )
-
-    const nonSYSMessageSubject$ = messageSubject$.pipe(
-      filter((m: MessageModel) => !(this.showBytes && id === this.curConnectionId && m.topic.includes('$SYS'))),
-      shareReplay(1),
-    )
-
     // Print message log
-    nonSYSMessageSubject$.subscribe((message: MessageModel) => {
+    messageSubject$.subscribe((message: MessageModel) => {
       this.printMessageLog(id, message)
     })
 
     // Render messages
-    nonSYSMessageSubject$.pipe(bufferTime(500)).subscribe((messages: MessageModel[]) => {
+    messageSubject$.pipe(bufferTime(500)).subscribe((messages: MessageModel[]) => {
       if (messages.length) {
         this.renderMessage(id, messages)
       }
     })
 
     // Save messages with QoS filtering
-    nonSYSMessageSubject$
+    messageSubject$
       .pipe(
         filter((message: MessageModel) => !ignoreQoS0Message(message.qos)),
         bufferTime(1000),
@@ -1542,10 +1494,15 @@ export default class ConnectionsDetail extends Vue {
         }
       })
 
-    // Bytes statistics
-    SYSMessageSubject$.pipe(bufferTime(1000)).subscribe((messages: MessageModel[]) => {
-      this.bytesStatistics(messages)
-    })
+    // const SYSMessageSubject$ = messageSubject$.pipe(
+    //   filter((m: MessageModel) => id === this.curConnectionId && m.topic.includes('$SYS')),
+    //   shareReplay(1),
+    // )
+
+    // SYSMessageSubject$.pipe(bufferTime(1000)).subscribe((messages: MessageModel[]) => {
+    //   // Handle System Topic Messages Here
+    //   console.log('SYS Topics Messages', messages)
+    // })
   }
 
   // Set timed message success
@@ -1997,8 +1954,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Auto subscribe system topic and show dialog
-  private handleSubSystemTopic() {
-    this.showBytes = true
+  private async handleSubSystemTopic() {
     const sysTopic: SubscriptionModel = {
       topic: '$SYS/#',
       id: getSubscriptionId(),
@@ -2006,7 +1962,8 @@ export default class ConnectionsDetail extends Vue {
       createAt: time.getNowDate(),
       disabled: false,
     }
-    this.subListRef.subscribe(sysTopic, true)
+    await this.subListRef.subscribe(sysTopic, true)
+    this.$router.push({ name: 'TrafficMonitor', query: { connectionId: this.record.id } })
   }
 
   // Re-subscribe topic
