@@ -102,18 +102,25 @@ export default {
     ja: 'この MQTT Broker のリアルタイムトラフィックデータを監視する接続を選択してください',
     hu: 'Válasszon egy kapcsolatot az MQTT Broker valós idejű forgalmi adatainak figyeléséhez',
   },
-  bytesReceived: {
-    zh: '累计接收流量',
-    en: 'Total Received Bytes',
-    tr: 'Toplam Alınan Baytlar',
-    ja: '累積受信バイト数',
-    hu: 'Összes Fogadott Bájtok',
+  accumulatedTotalTraffic: {
+    zh: '累计传输量',
+    en: 'Accumulated Total Traffic',
+    tr: 'Toplam Trafik',
+    ja: '累計トラフィック',
+    hu: 'Összesített Forgalom',
   },
-  bytesSent: {
+  accumulatedReceivedTraffic: {
+    zh: '累计接收流量',
+    en: 'Accumulated Received Traffic',
+    tr: 'Toplam Alınan Trafik',
+    ja: '累計受信トラフィック',
+    hu: 'Összesített Fogadott Forgalom',
+  },
+  accumulatedSentTraffic: {
     zh: '累计发送流量',
-    en: 'Total Sent Bytes',
-    tr: 'Toplam Gönderilen Baytlar',
-    ja: '累積送信バイト数',
-    hu: 'Összes Küldött Bájtok',
+    en: 'Accumulated Sent Traffic',
+    tr: 'Toplam Gönderilen Trafik',
+    ja: '累計送信トラフィック',
+    hu: 'Összesített Küldött Forgalom',
   },
 }
