@@ -41,7 +41,7 @@ export default {
     ja: 'クライアントが接続されていません',
     hu: 'Kliens nincs csatlakozva',
   },
-  disconnecte: {
+  disconnect: {
     zh: '断开连接',
     en: 'Disconnect',
     tr: 'Bağlantıyı kes',

@@ -1,36 +1,73 @@
 import time from '@/utils/time'
 
-const res: ChartDataModel = {
-  label: '',
-  recevied: 0,
-  sent: 0,
+const METRICS_BYTES_PREFIX = '/metrics/bytes/'
+const RECEIVED_TOPIC = `${METRICS_BYTES_PREFIX}received`
+const SENT_TOPIC = `${METRICS_BYTES_PREFIX}sent`
+const UPTIME_TOPIC = '/uptime'
+const VERSION_TOPIC = '/version'
+
+/**
+ * Check if a topic is a system topic
+ * @param topic The MQTT topic to check
+ * @returns True if the topic starts with '$SYS', false otherwise
+ */
+export const isSystemTopic = (topic: string): boolean => topic.startsWith('$SYS')
+
+/**
+ * Extract data from a message for a given topic
+ * @param message The MQTT message to extract data from
+ * @param topic The topic to extract data for
+ * @returns The extracted data as a string, or null if the topic is not found in the message
+ */
+export const extractData = (message: MessageModel, topic: string): string | null => {
+  return message.topic.includes(topic) ? message.payload : null
 }
 
-const getData = (message: MessageModel, condition: string): string | null => {
-  const { topic, payload } = message
-  if (topic.indexOf(condition) !== -1) {
-    return payload
+/**
+ * Parse traffic metrics data
+ * @param message The MQTT message to parse
+ * @returns The parsed data as a MetricsModel, or null if the message is a system topic
+ */
+export const getTrafficMetrics = (message: MessageModel): MetricsModel | null => {
+  if (!isSystemTopic(message.topic)) {
+    return null
   }
+
+  const metrics: MetricsModel = {
+    label: time.getNowDate(),
+    recevied: 0,
+    sent: 0,
+  }
+
+  // Try to parse received bytes
+  const receivedBytes = extractData(message, RECEIVED_TOPIC)
+  if (receivedBytes) {
+    metrics.recevied = parseInt(receivedBytes, 10)
+    return metrics
+  }
+
+  // Try to parse sent bytes
+  const sentBytes = extractData(message, SENT_TOPIC)
+  if (sentBytes) {
+    metrics.sent = parseInt(sentBytes, 10)
+    return metrics
+  }
+
   return null
 }
 
-export const getBytes = (message: MessageModel): ChartDataModel | null => {
-  res.label = time.getNowDate()
-  const _recevied = getData(message, '/metrics/bytes/received')
-  if (_recevied) {
-    res.recevied = parseInt(_recevied, 10)
-    return res
-  }
-  const _sent = getData(message, '/metrics/bytes/sent')
-  if (_sent) {
-    res.sent = parseInt(_sent, 10)
-    return res
-  }
-  return null
-}
+/**
+ * Get the uptime from a message
+ * @param message The MQTT message to get the uptime from
+ * @returns The uptime as a string, or null if the topic is not found in the message
+ */
+export const getUptime = (message: MessageModel): string | null => extractData(message, UPTIME_TOPIC)
 
-export const getUptime = (message: MessageModel): string | null => getData(message, '/uptime')
-
-export const getVersion = (message: MessageModel): string | null => getData(message, '/version')
+/**
+ * Get the version from a message
+ * @param message The MQTT message to get the version from
+ * @returns The version as a string, or null if the topic is not found in the message
+ */
+export const getVersion = (message: MessageModel): string | null => extractData(message, VERSION_TOPIC)
 
 export default {}
