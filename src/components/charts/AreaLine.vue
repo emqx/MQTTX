@@ -62,6 +62,12 @@ export default class AreaLine extends Vue {
           type: 'cross',
           label: {
             backgroundColor: '#6a7985',
+            formatter: (params: any) => {
+              if (params.axisDimension === 'y') {
+                return this.formatter ? this.formatter(params.value) : params.value
+              }
+              return params.value
+            },
           },
         },
         formatter: (params: any[]) => {
