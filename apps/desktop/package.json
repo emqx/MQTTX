@@ -28,7 +28,7 @@
     "element-plus": "^2.4.1",
     "pinia": "^2.1.7",
     "vue-i18n": "9",
-    "vue-router": "4"
+    "vue-router": "^4.4.5"
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
@@ -49,6 +49,7 @@
     "sass": "^1.69.3",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.1.6",
+    "unplugin-vue-router": "^0.10.8",
     "vite": "^4.4.9",
     "vitest": "^0.34.6",
     "vue": "^3.3.4",
