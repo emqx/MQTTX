@@ -125,8 +125,6 @@ export default class TrafficMonitor extends Vue {
         },
       )
 
-      console.log(trafficMessages)
-
       if (trafficMessages.length === 0) return
       this.$nextTick(() => {
         const statsRef = this.$refs.trafficStats as TrafficStatistics

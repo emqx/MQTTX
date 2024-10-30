@@ -1,5 +1,5 @@
 <template>
-  <el-select v-model="modelValue" class="connection-select" v-bind="$attrs" @change="handleChange" :style="{ width }">
+  <el-select v-model="modelValue" class="connection-select" v-bind="$attrs" :style="{ width }">
     <el-option v-for="conn in connections" :key="conn.id" :label="`${conn.name}@${conn.host}`" :value="conn.id">
       <span style="float: left">{{ conn.name }}@{{ conn.host }}</span>
       <span style="float: right; color: #8492a6; font-size: 13px; margin-left: 24px">
@@ -32,10 +32,6 @@ export default class ConnectionSelect extends Vue {
   private onModelValueChange(newVal: string) {
     this.$emit('input', newVal)
     this.$emit('change', newVal)
-  }
-
-  private handleChange(value: string) {
-    this.$emit('change', value)
   }
 
   private getConnectionStatus(connectionId: string) {
