@@ -7,22 +7,28 @@ import App from './App.vue'
 import ElementPlus from 'element-plus'
 
 import { createRouter, createWebHashHistory } from 'vue-router'
-import { routerComponentMap } from './configs/router'
+import { routes, handleHotUpdate } from 'vue-router/auto-routes'
 
-import MqttxUI, { getRoutes, createRouterGuard, pinia, i18n, useSettingsStore } from '@mqttx/ui'
-import useMockData from '@/composables/useMockData'
+import MqttxUI, { pinia, i18n, useSettingsStore } from '@mqttx/ui'
+// import useMockData from '@/composables/useMockData'
 
 // Create Vue
 const app = createApp(App)
 
 // Router
-const routes = getRoutes(routerComponentMap)
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
 })
-const { getFirstConnectionId } = useMockData()
-router.beforeEach(createRouterGuard(getFirstConnectionId))
+
+// This will update routes at runtime without reloading the page
+if (import.meta.hot) {
+  handleHotUpdate(router)
+}
+
+// TODO: Implement Router Guard
+// const { getFirstConnectionId } = useMockData()
+// router.beforeEach(createRouterGuard(getFirstConnectionId))
 
 app.use(router).use(pinia).use(MqttxUI)
 
