@@ -14,7 +14,6 @@ import SplitView from './components/common/SplitView.vue'
 
 export const pinia = createPinia()
 
-export * from './router'
 export * from './stores'
 export * from './i18n'
 
