@@ -44,7 +44,10 @@ describe('SystemTopicUtils', () => {
     })
 
     it('should return metrics for received bytes', () => {
-      const message = { topic: '/metrics/bytes/received', payload: '100' }
+      const message = {
+        topic: '$SYS/metrics/bytes/received',
+        payload: '100',
+      }
       const result = SystemTopicUtils.getTrafficMetrics(message as MessageModel)
       expect(result).to.deep.equal({
         label: '2023-01-01 00:00:00',
@@ -54,7 +57,10 @@ describe('SystemTopicUtils', () => {
     })
 
     it('should return metrics for sent bytes', () => {
-      const message = { topic: '/metrics/bytes/sent', payload: '200' }
+      const message = {
+        topic: '$SYS/metrics/bytes/sent',
+        payload: '200',
+      }
       const result = SystemTopicUtils.getTrafficMetrics(message as MessageModel)
       expect(result).to.deep.equal({
         label: '2023-01-01 00:00:00',
