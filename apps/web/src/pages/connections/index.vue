@@ -1,18 +1,14 @@
 <script lang="ts" setup>
 import useMockData from '@/composables/useMockData'
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
 
 const { connections } = useMockData()
-const route = useRoute()
-const activeId = computed(() => route.params.id)
 </script>
 
 <template>
   <split-view class="connections-container" min-size="180px" max-size="400px">
     <template #panel-1>
       <div class="connections-list">
-        <connection-list-view :data="connections" :active-id="activeId" />
+        <connection-list-view :data="connections" />
       </div>
     </template>
     <template #panel-2>
