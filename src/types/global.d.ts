@@ -52,7 +52,7 @@ declare global {
     validator: () => void
   }
 
-  interface ChartDataModel {
+  interface MetricsModel {
     label: string
     recevied: number
     sent: number

@@ -12,7 +12,7 @@
         </el-tooltip>
       </span>
     </div>
-    <traffic-statistics ref="trafficStats" :label="currentTime" :received="receivedBytes" :sent="sentBytes" />
+    <traffic-statistics ref="trafficStats" :label="receivedTime" :received="receivedBytes" :sent="sentBytes" />
   </div>
 </template>
 
@@ -20,10 +20,10 @@
 import { Component, Vue } from 'vue-property-decorator'
 import ConnectionSelect from '@/components/ConnectionSelect.vue'
 import { globalEventBus } from '@/utils/globalEventBus'
-import { Packet } from 'mqtt'
+import { Packet, IPublishPacket } from 'mqtt'
 import TrafficStatistics from '@/components/widgets/TrafficStatistics.vue'
-import time from '@/utils/time'
 import { Getter } from 'vuex-class'
+import { getTrafficMetrics } from '@/utils/SystemTopicUtils'
 
 @Component({
   components: {
@@ -34,49 +34,61 @@ import { Getter } from 'vuex-class'
 export default class TrafficMonitor extends Vue {
   @Getter('currentTheme') private currentTheme!: Theme
 
-  private currentTime: string = ''
+  private receivedTime: string = ''
   private receivedBytes: number = 0
   private sentBytes: number = 0
-  private timer: number | null = null
   private selectedConnectionId: string = ''
 
-  // Simulate data updates
-  private simulateDataUpdate() {
-    this.timer = window.setInterval(() => {
-      this.currentTime = time.getNowDate()
-      // Simulate growth of received and sent bytes
-      this.receivedBytes += Math.floor(Math.random() * 1000)
-      this.sentBytes += Math.floor(Math.random() * 800)
+  private handlePacketReceive(packet: Packet, connectionInfo: ConnectionModel) {
+    if (packet.cmd !== 'publish' || connectionInfo.id !== this.selectedConnectionId) {
+      return
+    }
+    const _packet = packet as IPublishPacket
+    const message: MessageModel = {
+      topic: _packet.topic,
+      payload: _packet.payload.toString(),
+      createAt: new Date().toISOString(),
+      out: false,
+      qos: 0,
+      retain: false,
+    }
+    const trafficMetrics = getTrafficMetrics(message)
+    if (trafficMetrics) {
+      const { label, recevied, sent } = trafficMetrics
+      this.receivedTime = label
+      if (recevied) {
+        this.receivedBytes = recevied
+      }
+      if (sent) {
+        this.sentBytes = sent
+      }
 
-      // Update chart
       const statsRef = this.$refs.trafficStats as TrafficStatistics
       this.$nextTick(() => {
         if (statsRef) {
           statsRef.updateChart()
         }
       })
-    }, 2000) // Update every 2 seconds
-  }
-
-  private handlePacketReceive(packet: Packet, connectionInfo: ConnectionModel) {
-    if (packet.cmd !== 'publish') return
-    console.log(connectionInfo)
-    console.log(packet)
+    }
   }
 
   private handleConnectionChange(connectionId: string) {
-    console.log(connectionId)
+    this.selectedConnectionId = connectionId
+    this.receivedBytes = 0
+    this.sentBytes = 0
+    this.$nextTick(() => {
+      const statsRef = this.$refs.trafficStats as TrafficStatistics
+      if (statsRef) {
+        statsRef.resetChart()
+      }
+    })
   }
 
-  private async created() {
-    this.simulateDataUpdate()
+  private created() {
     globalEventBus.on('packetReceive', this.handlePacketReceive)
   }
 
   private beforeDestroy() {
-    if (this.timer) {
-      clearInterval(this.timer)
-    }
     globalEventBus.off('packetReceive', this.handlePacketReceive)
   }
 }

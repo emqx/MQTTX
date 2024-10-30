@@ -75,6 +75,12 @@ export default class TrafficStatistics extends Vue {
     this.chartData.seriesData[0].data.push(this.received)
     this.chartData.seriesData[1].data.push(this.sent)
   }
+
+  public resetChart() {
+    this.chartData.xData = []
+    this.chartData.seriesData[0].data = []
+    this.chartData.seriesData[1].data = []
+  }
 }
 </script>
 
