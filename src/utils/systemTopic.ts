@@ -1,5 +1,3 @@
-import time from '@/utils/time'
-
 const METRICS_BYTES_PREFIX = '/metrics/bytes/'
 const RECEIVED_TOPIC = `${METRICS_BYTES_PREFIX}received`
 const SENT_TOPIC = `${METRICS_BYTES_PREFIX}sent`
@@ -26,23 +24,24 @@ export const extractData = (message: MessageModel, topic: string): string | null
 /**
  * Parse traffic metrics data
  * @param message The MQTT message to parse
- * @returns The parsed data as a MetricsModel, or null if the message is a system topic
+ * @param defaultMetrics The default metrics model to use as base
+ * @returns The parsed data as a MetricsModel, or null if the message is not a system topic
  */
-export const getTrafficMetrics = (message: MessageModel): MetricsModel | null => {
+export const getTrafficMetrics = (message: MessageModel, defaultMetrics: MetricsModel): MetricsModel | null => {
   if (!isSystemTopic(message.topic)) {
     return null
   }
 
   const metrics: MetricsModel = {
-    label: time.getNowDate(),
-    recevied: 0,
-    sent: 0,
+    label: message.createAt,
+    received: defaultMetrics.received,
+    sent: defaultMetrics.sent,
   }
 
   // Try to parse received bytes
   const receivedBytes = extractData(message, RECEIVED_TOPIC)
   if (receivedBytes) {
-    metrics.recevied = parseInt(receivedBytes, 10)
+    metrics.received = parseInt(receivedBytes, 10)
     return metrics
   }
 

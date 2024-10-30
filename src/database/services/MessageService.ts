@@ -280,4 +280,49 @@ export default class MessageService {
     const res = await this.messageRepository.find({ where: { topic: fullTopic }, take: limit })
     return res.map((m) => MessageService.entityToModel(m))
   }
+
+  /**
+   * Get traffic messages for a connection within time range
+   * @param connectionId The connection ID
+   * @param startTime Start time of the range
+   * @param endTime End time of the range
+   * @param options Optional parameters (e.g. limit)
+   * @returns Array of metrics data containing received and sent bytes
+   */
+  public async getTrafficMessagesByConnection(
+    connectionId: string,
+    startTime: string,
+    endTime: string,
+    options: { limit?: number } = {},
+  ): Promise<MetricsModel[]> {
+    const { limit = 1000 } = options
+    const LIKE_TOPIC = '$SYS/brokers/%/metrics/bytes/%'
+
+    const messageEntities = await this.messageRepository
+      .createQueryBuilder('msg')
+      .where('msg.connectionId = :connectionId', { connectionId })
+      .andWhere('msg.topic LIKE :topic', { topic: LIKE_TOPIC })
+      .andWhere('msg.createAt BETWEEN :startTime AND :endTime', { startTime, endTime })
+      .orderBy('msg.createAt', 'ASC')
+      .take(limit)
+      .getMany()
+
+    const messages = messageEntities.map((entity) => MessageService.entityToModel(entity))
+
+    const isReceived = (topic: string) => topic.includes('/received')
+    const isSent = (topic: string) => topic.includes('/sent')
+    const metrics: MetricsModel[] = []
+    const metricsItem = { label: '', received: 0, sent: 0 }
+    messages.forEach((m) => {
+      metricsItem.label = m.createAt
+      if (isReceived(m.topic)) {
+        metricsItem.received = parseInt(m.payload, 10)
+      }
+      if (isSent(m.topic)) {
+        metricsItem.sent = parseInt(m.payload, 10)
+      }
+      metrics.push({ ...metricsItem })
+    })
+    return metrics.sort((a, b) => a.label.localeCompare(b.label))
+  }
 }
