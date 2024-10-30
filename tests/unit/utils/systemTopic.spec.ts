@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import * as SystemTopicUtils from '@/utils/SystemTopicUtils'
+import * as SystemTopicUtils from '@/utils/systemTopic'
 import time from '@/utils/time'
 
 describe('SystemTopicUtils', () => {
@@ -37,42 +37,67 @@ describe('SystemTopicUtils', () => {
   })
 
   describe('getTrafficMetrics', () => {
-    it('should return null for system topics', () => {
-      const message = { topic: '$SYS/broker/bytes/received', payload: '100' }
-      const result = SystemTopicUtils.getTrafficMetrics(message as MessageModel)
+    const defaultMetrics: MetricsModel = {
+      label: '',
+      received: 0,
+      sent: 0,
+    }
+
+    it('should return null for non-system topics', () => {
+      const message = { topic: '/broker/bytes/received', payload: '100' }
+      const result = SystemTopicUtils.getTrafficMetrics(message as MessageModel, defaultMetrics)
       expect(result).to.be.null
     })
 
-    it('should return metrics for received bytes', () => {
+    it('should return metrics with inherited values for received bytes', () => {
       const message = {
         topic: '$SYS/metrics/bytes/received',
         payload: '100',
+        createAt: '2024-03-19 15:00:00',
       }
-      const result = SystemTopicUtils.getTrafficMetrics(message as MessageModel)
-      expect(result).to.deep.equal({
-        label: '2023-01-01 00:00:00',
-        recevied: 100,
-        sent: 0,
-      })
-    })
+      const prevMetrics = {
+        label: '2024-03-19 14:59:00',
+        received: 0,
+        sent: 200,
+      }
 
-    it('should return metrics for sent bytes', () => {
-      const message = {
-        topic: '$SYS/metrics/bytes/sent',
-        payload: '200',
-      }
-      const result = SystemTopicUtils.getTrafficMetrics(message as MessageModel)
+      const result = SystemTopicUtils.getTrafficMetrics(message as MessageModel, prevMetrics)
       expect(result).to.deep.equal({
-        label: '2023-01-01 00:00:00',
-        recevied: 0,
+        label: '2024-03-19 15:00:00',
+        received: 100,
         sent: 200,
       })
     })
 
-    it('should return null for unrelated topics', () => {
-      const message = { topic: '/other/topic', payload: '300' }
-      const result = SystemTopicUtils.getTrafficMetrics(message as MessageModel)
-      expect(result).to.be.null
+    it('should return metrics with inherited values for sent bytes', () => {
+      const message = {
+        topic: '$SYS/metrics/bytes/sent',
+        payload: '200',
+        createAt: '2024-03-19 15:00:00',
+      }
+      const prevMetrics = {
+        label: '2024-03-19 14:59:00',
+        received: 100,
+        sent: 0,
+      }
+
+      const result = SystemTopicUtils.getTrafficMetrics(message as MessageModel, prevMetrics)
+      expect(result).to.deep.equal({
+        label: '2024-03-19 15:00:00',
+        received: 100,
+        sent: 200,
+      })
+    })
+
+    it('should use message createAt as label', () => {
+      const message = {
+        topic: '$SYS/metrics/bytes/sent',
+        payload: '200',
+        createAt: '2024-03-19 15:00:00',
+      }
+
+      const result = SystemTopicUtils.getTrafficMetrics(message as MessageModel, defaultMetrics)
+      expect(result?.label).to.equal('2024-03-19 15:00:00')
     })
   })
 

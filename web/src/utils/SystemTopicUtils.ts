@@ -2,7 +2,7 @@ import time from '@/utils/time'
 
 const res: MetricsModel = {
   label: '',
-  recevied: 0,
+  received: 0,
   sent: 0,
 }
 
@@ -16,9 +16,9 @@ const getData = (message: MessageModel, condition: string): string | null => {
 
 export const getBytes = (message: MessageModel): MetricsModel | null => {
   res.label = time.getNowDate()
-  const _recevied = getData(message, '/metrics/bytes/received')
-  if (_recevied) {
-    res.recevied = parseInt(_recevied, 10)
+  const _received = getData(message, '/metrics/bytes/received')
+  if (_received) {
+    res.received = parseInt(_received, 10)
     return res
   }
   const _sent = getData(message, '/metrics/bytes/sent')
