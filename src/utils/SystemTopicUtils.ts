@@ -1,5 +1,3 @@
-import time from '@/utils/time'
-
 const METRICS_BYTES_PREFIX = '/metrics/bytes/'
 const RECEIVED_TOPIC = `${METRICS_BYTES_PREFIX}received`
 const SENT_TOPIC = `${METRICS_BYTES_PREFIX}sent`

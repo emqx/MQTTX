@@ -58,14 +58,14 @@ describe('SystemTopicUtils', () => {
       const prevMetrics = {
         label: '2024-03-19 14:59:00',
         received: 0,
-        sent: 200, // 继承这个值
+        sent: 200,
       }
 
       const result = SystemTopicUtils.getTrafficMetrics(message as MessageModel, prevMetrics)
       expect(result).to.deep.equal({
         label: '2024-03-19 15:00:00',
         received: 100,
-        sent: 200, // 保持上一个值
+        sent: 200,
       })
     })
 
@@ -77,14 +77,14 @@ describe('SystemTopicUtils', () => {
       }
       const prevMetrics = {
         label: '2024-03-19 14:59:00',
-        received: 100, // 继承这个值
+        received: 100,
         sent: 0,
       }
 
       const result = SystemTopicUtils.getTrafficMetrics(message as MessageModel, prevMetrics)
       expect(result).to.deep.equal({
         label: '2024-03-19 15:00:00',
-        received: 100, // 保持上一个值
+        received: 100,
         sent: 200,
       })
     })
