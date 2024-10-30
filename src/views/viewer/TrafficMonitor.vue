@@ -43,14 +43,14 @@ export default class TrafficMonitor extends Vue {
     if (packet.cmd !== 'publish' || connectionInfo.id !== this.selectedConnectionId) {
       return
     }
-    const _packet = packet as IPublishPacket
+    const publishPacket = packet as IPublishPacket
     const message: MessageModel = {
-      topic: _packet.topic,
-      payload: _packet.payload.toString(),
+      topic: publishPacket.topic,
+      payload: publishPacket.payload.toString(),
       createAt: new Date().toISOString(),
       out: false,
-      qos: 0,
-      retain: false,
+      qos: publishPacket.qos,
+      retain: publishPacket.retain,
     }
     const trafficMetrics = getTrafficMetrics(message)
     if (trafficMetrics) {
