@@ -88,18 +88,45 @@ export default class TrafficMonitor extends Vue {
       const statsRef = this.$refs.trafficStats as TrafficStatistics
       if (statsRef) {
         statsRef.resetChart()
-        this.loadTrafficMessages(connectionId)
+        this.loadBrokerTrafficMetrics(connectionId)
       }
     })
   }
 
-  private async loadTrafficMessages(connectionId: string) {
+  private transformTrafficMessages(messages: MessageModel[]): MetricsModel[] {
+    const metrics: MetricsModel[] = []
+    const metricsItem = { label: '', received: 0, sent: 0 }
+    messages.forEach((m) => {
+      metricsItem.label = m.createAt
+      if (m.topic.includes('/received')) {
+        metricsItem.received = parseInt(m.payload, 10)
+      }
+      if (m.topic.includes('/sent')) {
+        metricsItem.sent = parseInt(m.payload, 10)
+      }
+      metrics.push({ ...metricsItem })
+    })
+    return metrics.sort((a, b) => a.label.localeCompare(b.label))
+  }
+
+  private async loadBrokerTrafficMetrics(connectionId: string) {
     if (!connectionId) return
     const { messageService } = useServices()
     const startTime = time.getDateBefore(24 * 60)
     const endTime = time.getNowDate()
     try {
-      const trafficMessages = await messageService.getTrafficMessagesByConnection(connectionId, startTime, endTime)
+      const trafficMessages = await messageService.getMessagesByTopicPattern<MetricsModel>(
+        connectionId,
+        '$SYS/brokers/%/metrics/bytes/%',
+        {
+          startTime,
+          endTime,
+          transform: this.transformTrafficMessages,
+        },
+      )
+
+      console.log(trafficMessages)
+
       if (trafficMessages.length === 0) return
       this.$nextTick(() => {
         const statsRef = this.$refs.trafficStats as TrafficStatistics
@@ -162,7 +189,7 @@ export default class TrafficMonitor extends Vue {
   }
 
   private async created() {
-    await this.loadTrafficMessages(this.selectedConnectionId)
+    await this.loadBrokerTrafficMetrics(this.selectedConnectionId)
     this.messageQueue = new MessageQueue<StoreMessageModel>(1000)
     globalEventBus.on('packetReceive', this.handlePacketReceive)
     if (!this.subscription) {

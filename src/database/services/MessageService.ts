@@ -282,47 +282,44 @@ export default class MessageService {
   }
 
   /**
-   * Get traffic messages for a connection within time range
-   * @param connectionId The connection ID
-   * @param startTime Start time of the range
-   * @param endTime End time of the range
-   * @param options Optional parameters (e.g. limit)
-   * @returns Array of metrics data containing received and sent bytes
+   * Retrieves messages by topic pattern for a specific connection.
+   * @param connectionId - The ID of the connection.
+   * @param topicPattern - The pattern to match topics against.
+   * @param options - Optional parameters for the query.
+   * @param options.startTime - The start time for the date range filter.
+   * @param options.endTime - The end time for the date range filter.
+   * @param options.limit - The maximum number of messages to retrieve (default: 1000).
+   * @param options.transform - A function to transform the retrieved messages.
+   * @returns A promise that resolves to an array of transformed messages or MessageModel[].
    */
-  public async getTrafficMessagesByConnection(
+  public async getMessagesByTopicPattern<T>(
     connectionId: string,
-    startTime: string,
-    endTime: string,
-    options: { limit?: number } = {},
-  ): Promise<MetricsModel[]> {
-    const { limit = 1000 } = options
-    const LIKE_TOPIC = '$SYS/brokers/%/metrics/bytes/%'
-
-    const messageEntities = await this.messageRepository
+    topicPattern: string,
+    {
+      startTime,
+      endTime,
+      limit = 1000,
+      transform,
+    }: {
+      startTime?: string
+      endTime?: string
+      limit?: number
+      transform?: (messages: MessageModel[]) => T[]
+    } = {},
+  ): Promise<T[]> {
+    const query = this.messageRepository
       .createQueryBuilder('msg')
       .where('msg.connectionId = :connectionId', { connectionId })
-      .andWhere('msg.topic LIKE :topic', { topic: LIKE_TOPIC })
-      .andWhere('msg.createAt BETWEEN :startTime AND :endTime', { startTime, endTime })
-      .orderBy('msg.createAt', 'ASC')
-      .take(limit)
-      .getMany()
+      .andWhere('msg.topic LIKE :topic', { topic: topicPattern })
+
+    if (startTime && endTime) {
+      query.andWhere('msg.createAt BETWEEN :startTime AND :endTime', { startTime, endTime })
+    }
+
+    const messageEntities = await query.orderBy('msg.createAt', 'ASC').take(limit).getMany()
 
     const messages = messageEntities.map((entity) => MessageService.entityToModel(entity))
 
-    const isReceived = (topic: string) => topic.includes('/received')
-    const isSent = (topic: string) => topic.includes('/sent')
-    const metrics: MetricsModel[] = []
-    const metricsItem = { label: '', received: 0, sent: 0 }
-    messages.forEach((m) => {
-      metricsItem.label = m.createAt
-      if (isReceived(m.topic)) {
-        metricsItem.received = parseInt(m.payload, 10)
-      }
-      if (isSent(m.topic)) {
-        metricsItem.sent = parseInt(m.payload, 10)
-      }
-      metrics.push({ ...metricsItem })
-    })
-    return metrics.sort((a, b) => a.label.localeCompare(b.label))
+    return transform ? transform(messages) : (messages as unknown as T[])
   }
 }
