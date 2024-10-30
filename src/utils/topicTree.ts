@@ -1,7 +1,6 @@
 import { Buffer } from 'buffer'
 import { IPublishPacket } from 'mqtt-packet/types'
 import time from '@/utils/time'
-import { getMessageId } from '@/utils/idGenerator'
 
 /**
  * Updates the topic tree structure with new message data.

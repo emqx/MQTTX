@@ -51,7 +51,7 @@ declare global {
 
   interface MetricsModel {
     label: string
-    recevied: number
+    received: number
     sent: number
   }
 

@@ -1443,7 +1443,7 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
-  // Recevied message
+  // received message
   private onMessageArrived(client: MqttClient, id: string) {
     const unsubscribe$ = new Subject<void>()
 

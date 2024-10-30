@@ -96,11 +96,11 @@ export default {
     hu: 'Forgalom figyelés',
   },
   brokerTrafficMonitorTooltip: {
-    zh: '选择一个连接来监控该 MQTT Broker 的实时流量数据',
-    en: 'Select a connection to monitor real-time traffic data for this MQTT Broker',
-    tr: 'Bu MQTT Broker için gerçek zamanlı trafik verilerini izlemek için bir bağlantı seçin',
-    ja: 'この MQTT Broker のリアルタイムトラフィックデータを監視する接続を選択してください',
-    hu: 'Válasszon egy kapcsolatot az MQTT Broker valós idejű forgalmi adatainak figyeléséhez',
+    zh: '选择一个连接来监控该 MQTT Broker 的实时流量数据，展示最近 24 小时的流量统计',
+    en: 'Select a connection to monitor real-time traffic data for this MQTT Broker, showing traffic statistics for the last 24 hours',
+    tr: 'Bu MQTT Broker için son 24 saatlik trafik istatistiklerini gösteren gerçek zamanlı trafik verilerini izlemek için bir bağlantı seçin',
+    ja: 'この MQTT Broker のリアルタイムトラフィックデータを監視する接続を選択してください。過去24時間のトラフィック統計を表示します',
+    hu: 'Válasszon egy kapcsolatot az MQTT Broker valós idejű forgalmi adatainak figyeléséhez, az elmúlt 24 óra forgalmi statisztikáinak megjelenítésével',
   },
   accumulatedTotalTraffic: {
     zh: '累计传输量',
