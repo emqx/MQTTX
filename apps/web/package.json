@@ -41,6 +41,7 @@
     "sass": "^1.69.3",
     "tailwindcss": "^3.3.3",
     "typescript": "~5.2.0",
+    "unplugin-vue-components": "^0.27.4",
     "unplugin-vue-router": "^0.10.8",
     "vite": "^4.4.9",
     "vitest": "^0.34.6",
