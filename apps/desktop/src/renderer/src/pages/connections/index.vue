@@ -5,17 +5,17 @@ const { connections } = useMockData()
 </script>
 
 <template>
-  <split-view class="connections-container" min-size="180px" max-size="400px">
+  <CommonSplitView class="connections-container" min-size="180px" max-size="400px">
     <template #panel-1>
       <div class="connections-list">
-        <connection-list-view :data="connections" />
+        <ConnectionsListView :data="connections" />
       </div>
     </template>
     <template #panel-2>
       <div class="connection-detail">
-        <router-view v-if="connections.length" />
-        <empty-view v-else />
+        <RouterView v-if="connections.length" />
+        <CommonEmptyView v-else />
       </div>
     </template>
-  </split-view>
+  </CommonSplitView>
 </template>

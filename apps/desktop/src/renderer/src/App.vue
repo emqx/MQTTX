@@ -7,12 +7,10 @@ console.log('MQTTX Desktop App init...')
 </script>
 
 <template>
-  <el-config-provider :locale="ElementI18nMap[settingsStore.lang]">
-    <el-container>
-      <left-menu />
-      <main-view />
-    </el-container>
-  </el-config-provider>
+  <ElConfigProvider :locale="ElementI18nMap[settingsStore.lang]">
+    <ElContainer>
+      <CommonLeftMenu />
+      <CommonMainView />
+    </ElContainer>
+  </ElConfigProvider>
 </template>
-
-<style lang="scss" scoped></style>
