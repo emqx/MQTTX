@@ -5,7 +5,8 @@
     "src/renderer/src/**/*", 
     "src/renderer/src/**/*.vue", 
     "src/preload/*.d.ts", 
-    "./typed-router.d.ts"
+    "./typed-router.d.ts",
+    "src/renderer/components.d.ts"
   ],
   "compilerOptions": {
     "composite": true,
