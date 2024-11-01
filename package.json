@@ -21,7 +21,7 @@
     "build:linux": "turbo run build:linux",
     "build:mac": "turbo run build:mac",
     "generate:ui": "turbo run generate:ui",
-    "format": "prettier --write .",
+    "format": "",
     "lint": "turbo run lint",
     "test": "turbo run test"
   },
@@ -30,7 +30,6 @@
     "eslint": "^8.48.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.0.2",
-    "prettier": "^3.0.3",
     "turbo": "^2.2.3",
     "typescript": "^4.9.5"
   },
