@@ -4,13 +4,15 @@
   "description": "MQTTX Web - An MQTT client for the Web",
   "author": "EMQX Team <yusf@emqx.io>",
   "homepage": "https://mqttx.app/web",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix"
+    "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",
@@ -34,7 +36,6 @@
     "@vue/test-utils": "^2.4.1",
     "@vue/tsconfig": "^0.4.0",
     "autoprefixer": "^10.4.16",
-    "eslint-config-custom": "workspace:*",
     "jsdom": "^22.1.0",
     "npm-run-all2": "^6.0.6",
     "postcss": "^8.4.31",
@@ -46,8 +47,5 @@
     "vite": "^4.4.9",
     "vitest": "^0.34.6",
     "vue-tsc": "^1.8.11"
-  },
-  "engines": {
-    "node": ">=18"
   }
 }

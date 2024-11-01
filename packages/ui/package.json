@@ -1,7 +1,7 @@
 {
   "name": "@mqttx/ui",
-  "version": "0.0.0",
   "type": "module",
+  "version": "0.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -10,7 +10,6 @@
   "scripts": {
     "dev": "vue-tsc && vite build --watch",
     "generate:ui": "vue-tsc && vite build",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "test": "vitest run --coverage",
     "test:dev": "vitest"
   },
@@ -32,7 +31,6 @@
     "@vitest/coverage-istanbul": "^0.34.6",
     "@vue/test-utils": "^2.4.1",
     "autoprefixer": "^10.4.16",
-    "eslint-config-custom": "workspace:*",
     "jsdom": "^22.1.0",
     "postcss": "^8.4.31",
     "sass": "^1.69.3",

@@ -1,9 +1,10 @@
 {
   "name": "mqttx",
+  "packageManager": "pnpm@8.6.10",
   "description": "A Powerful and All-in-One MQTT 5.0 client toolbox for Desktop, CLI and WebSocket.",
   "author": "EMQX Team <yusf@emqx.io>",
-  "homepage": "https://mqttx.app",
   "license": "Apache-2.0",
+  "homepage": "https://mqttx.app",
   "repository": "https://github.com/emqx/MQTTX",
   "scripts": {
     "prepare": "husky install",
@@ -21,17 +22,19 @@
     "build:linux": "turbo run build:linux",
     "build:mac": "turbo run build:mac",
     "generate:ui": "turbo run generate:ui",
-    "format": "",
-    "lint": "turbo run lint",
+    "lint": "eslint .",
+    "lint:fix": "eslint . || true",
     "test": "turbo run test"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^3.8.0",
     "@mqttx/tsconfig": "workspace:*",
-    "eslint": "^8.48.0",
+    "eslint": "^9.12.0",
+    "eslint-config-turbo": "^1.10.12",
+    "eslint-plugin-format": "^0.1.2",
     "husky": "^8.0.3",
     "lint-staged": "^15.0.2",
     "turbo": "^2.2.3",
     "typescript": "^4.9.5"
-  },
-  "packageManager": "pnpm@8.6.10"
+  }
 }

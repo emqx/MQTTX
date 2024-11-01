@@ -40,16 +40,16 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
+    "@mqttx/tsconfig": "workspace:*",
     "@types/concat-stream": "^2.0.0",
     "@types/js-yaml": "^4.0.5",
+    "@types/mqttx": "workspace:*",
     "@types/node": "^17.0.43",
     "@types/pump": "^1.1.1",
     "@types/readable-stream": "^2.3.13",
     "@types/signale": "^1.4.4",
     "@types/split2": "^3.2.1",
-    "@types/ws": "^8.5.3",
-    "@mqttx/tsconfig": "workspace:*",
-    "@types/mqttx": "workspace:*"
+    "@types/ws": "^8.5.3"
   },
   "pkg": {
     "targets": [
