@@ -12,21 +12,40 @@
         </el-tooltip>
       </span>
     </div>
-    <traffic-statistics ref="trafficStats" :label="receivedTime" :received="receivedBytes" :sent="sentBytes" />
+    <traffic-statistics
+      chart-id="bytes"
+      class="mb-6 bytes"
+      ref="trafficStatsBytes"
+      :label="receivedBytesLastTime"
+      :received="receivedBytes"
+      :sent="sentBytes"
+      :name-config="{ received: $t('viewer.accumulatedReceivedTraffic'), sent: $t('viewer.accumulatedSentTraffic') }"
+    />
+    <traffic-statistics
+      chart-id="rate"
+      class="rate"
+      ref="trafficStatsRate"
+      chart-type="line"
+      unit="/s"
+      :label="receivedRateLastTime"
+      :received="receivedRate"
+      :sent="sentRate"
+      :name-config="{ received: $t('viewer.receivedTrafficRate'), sent: $t('viewer.sentTrafficRate') }"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import ConnectionSelect from '@/components/ConnectionSelect.vue'
-import { globalEventBus } from '@/utils/globalEventBus'
-import { Packet, IPublishPacket } from 'mqtt'
-import TrafficStatistics from '@/components/widgets/TrafficStatistics.vue'
 import { Getter } from 'vuex-class'
-import { getTrafficMetrics } from '@/utils/systemTopic'
+import { Packet, IPublishPacket } from 'mqtt'
+import { Subscription } from 'rxjs'
+import ConnectionSelect from '@/components/ConnectionSelect.vue'
+import TrafficStatistics from '@/widgets/TrafficStatistics.vue'
+import { globalEventBus } from '@/utils/globalEventBus'
+import { calculateTrafficRates, transformTrafficMessages } from '@/utils/systemTopic'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
-import { Subscription } from 'rxjs'
 import { MessageQueue } from '@/utils/messageQueue'
 import { getMessageId } from '@/utils/idGenerator'
 
@@ -43,77 +62,129 @@ interface StoreMessageModel extends MessageModel {
 export default class TrafficMonitor extends Vue {
   @Getter('currentTheme') private currentTheme!: Theme
 
-  private receivedTime: string = ''
+  private receivedBytesLastTime: string = ''
   private receivedBytes: number = 0
   private sentBytes: number = 0
+  private receivedRateLastTime: string = ''
+  private receivedRate: number = 0
+  private sentRate: number = 0
+
   private selectedConnectionId: string = ''
   private subscription: Subscription | null = null
   private messageQueue: MessageQueue<StoreMessageModel> | null = null
 
-  private handlePacketReceive(packet: Packet, connectionInfo: ConnectionModel) {
-    if (packet.cmd !== 'publish') return
-    const publishPacket = packet as IPublishPacket
-    const message: MessageModel = this.createMessage(publishPacket)
-    this.messageQueue?.queueMessage({ ...message, connectionId: connectionInfo.id as string })
-    if (connectionInfo.id !== this.selectedConnectionId) return
-    const trafficMetrics = getTrafficMetrics(message, {
-      label: this.receivedTime,
+  /**
+   * Update traffic rate
+   */
+  private updateTrafficRate(currentMetric: MetricsModel) {
+    const previousMetric = {
+      label: this.receivedBytesLastTime,
       received: this.receivedBytes,
       sent: this.sentBytes,
-    })
-    if (trafficMetrics) {
-      const { label, received, sent } = trafficMetrics
-      this.receivedTime = label
-      if (received) {
-        this.receivedBytes = received
-      }
-      if (sent) {
-        this.sentBytes = sent
-      }
-
-      const statsRef = this.$refs.trafficStats as TrafficStatistics
-      this.$nextTick(() => {
-        if (statsRef) {
-          statsRef.updateChart()
-        }
-      })
     }
+
+    const rates = calculateTrafficRates([previousMetric, currentMetric])
+    if (rates.length === 0) return
+
+    const rate = rates[0]
+    this.receivedRateLastTime = currentMetric.label
+    this.receivedRate = rate.received
+    this.sentRate = rate.sent
+
+    this.updateRateChart()
   }
 
-  private handleConnectionChange(connectionId: string) {
-    this.selectedConnectionId = connectionId
+  /**
+   * Update accumulated traffic
+   */
+  private updateTrafficBytes(metric: MetricsModel) {
+    this.receivedBytesLastTime = metric.label
+    this.receivedBytes = metric.received
+    this.sentBytes = metric.sent
+
+    this.updateBytesChart()
+  }
+
+  /**
+   * Update rate chart
+   */
+  private updateRateChart() {
+    const rateRef = this.$refs.trafficStatsRate as TrafficStatistics
+    this.$nextTick(() => {
+      if (rateRef) rateRef.updateChart()
+    })
+  }
+
+  /**
+   * Update bytes chart
+   */
+  private updateBytesChart() {
+    const statsRef = this.$refs.trafficStatsBytes as TrafficStatistics
+    this.$nextTick(() => {
+      if (statsRef) statsRef.updateChart()
+    })
+  }
+
+  /**
+   * Handle new traffic metrics data
+   */
+  private handleMetricsUpdate(messages: StoreMessageModel[]) {
+    const currentConnectionMessages = this.filterCurrentConnectionMessages(messages)
+    if (currentConnectionMessages.length === 0) return
+
+    const metrics = transformTrafficMessages(currentConnectionMessages)
+    if (metrics.length === 0) return
+
+    metrics.forEach((metric) => {
+      this.updateTrafficRate(metric)
+      this.updateTrafficBytes(metric)
+    })
+  }
+
+  /**
+   * Filter messages for current connection
+   */
+  private filterCurrentConnectionMessages(messages: StoreMessageModel[]): StoreMessageModel[] {
+    return messages.filter((msg) => msg.connectionId === this.selectedConnectionId)
+  }
+
+  /**
+   * Reset traffic statistics
+   */
+  private resetTrafficStats() {
     this.receivedBytes = 0
     this.sentBytes = 0
+    this.receivedRate = 0
+    this.sentRate = 0
+
     this.$nextTick(() => {
-      const statsRef = this.$refs.trafficStats as TrafficStatistics
-      if (statsRef) {
-        statsRef.resetChart()
-        this.loadBrokerTrafficMetrics(connectionId)
-      }
+      const rateRef = this.$refs.trafficStatsRate as TrafficStatistics
+      const statsRef = this.$refs.trafficStatsBytes as TrafficStatistics
+
+      if (rateRef) rateRef.resetChart()
+      if (statsRef) statsRef.resetChart()
     })
   }
 
-  private transformTrafficMessages(messages: MessageModel[]): MetricsModel[] {
-    const metrics: MetricsModel[] = []
-    const metricsItem = { label: '', received: 0, sent: 0 }
-    messages.forEach((m) => {
-      metricsItem.label = m.createAt
-      if (m.topic.includes('/received')) {
-        metricsItem.received = parseInt(m.payload, 10)
-      }
-      if (m.topic.includes('/sent')) {
-        metricsItem.sent = parseInt(m.payload, 10)
-      }
-      metrics.push({ ...metricsItem })
-    })
-    return metrics.sort((a, b) => a.label.localeCompare(b.label))
+  /**
+   * Handle connection change
+   */
+  private handleConnectionChange(connectionId: string) {
+    this.selectedConnectionId = connectionId
+    this.resetTrafficStats()
+    this.loadBrokerTrafficMetrics(connectionId)
   }
 
+  /**
+   * Load historical traffic data
+   */
   private async loadBrokerTrafficMetrics(connectionId: string) {
     if (!connectionId) return
+
     const { messageService } = useServices()
     const startTime = time.getDateBefore(24 * 60)
     const endTime = time.getNowDate()
+
     try {
       const trafficMessages = await messageService.getMessagesByTopicPattern<MetricsModel>(
         connectionId,
@@ -121,36 +192,80 @@ export default class TrafficMonitor extends Vue {
         {
           startTime,
           endTime,
-          transform: this.transformTrafficMessages,
+          transform: transformTrafficMessages,
         },
       )
 
       if (trafficMessages.length === 0) return
-      this.$nextTick(() => {
-        const statsRef = this.$refs.trafficStats as TrafficStatistics
-        if (statsRef) {
-          const lastMetrics = trafficMessages[trafficMessages.length - 1]
-          if (lastMetrics.label) {
-            this.receivedTime = lastMetrics.label
-          }
-          if (lastMetrics.received) {
-            this.receivedBytes = lastMetrics.received
-          }
-          if (lastMetrics.sent) {
-            this.sentBytes = lastMetrics.sent
-          }
-          statsRef.setDefaultChartData(trafficMessages)
-        }
-      })
+      this.initializeCharts(trafficMessages)
     } catch (error) {
       this.$log.error(`Traffic Monitor: Failed to load traffic messages: ${error}`)
     }
   }
 
+  /**
+   * Initialize chart data
+   */
+  private initializeCharts(trafficMessages: MetricsModel[]) {
+    const rates = calculateTrafficRates(trafficMessages)
+
+    this.$nextTick(() => {
+      // Initialize rate chart
+      if (rates.length > 0) {
+        const rateRef = this.$refs.trafficStatsRate as TrafficStatistics
+        if (rateRef) {
+          const lastRate = rates[rates.length - 1]
+          this.receivedRateLastTime = lastRate.label
+          this.receivedRate = lastRate.received
+          this.sentRate = lastRate.sent
+          rateRef.setDefaultChartData(rates)
+        }
+      }
+
+      // Initialize bytes chart
+      const statsRef = this.$refs.trafficStatsBytes as TrafficStatistics
+      if (statsRef) {
+        const lastMetrics = trafficMessages[trafficMessages.length - 1]
+        this.receivedBytesLastTime = lastMetrics.label
+        this.receivedBytes = lastMetrics.received
+        this.sentBytes = lastMetrics.sent
+        statsRef.setDefaultChartData(trafficMessages)
+      }
+    })
+  }
+
+  /**
+   * Handle packet receive
+   */
+  private handlePacketReceive(packet: Packet, connectionInfo: ConnectionModel) {
+    if (packet.cmd !== 'publish') return
+    const publishPacket = packet as IPublishPacket
+    const message: MessageModel = this.createMessage(publishPacket)
+    this.messageQueue?.queueMessage({ ...message, connectionId: connectionInfo.id as string })
+  }
+
+  /**
+   * Create message object
+   */
+  private createMessage(packet: IPublishPacket): MessageModel {
+    return {
+      id: getMessageId(),
+      topic: packet.topic,
+      payload: packet.payload.toString(),
+      createAt: time.getNowDate(),
+      out: false,
+      qos: packet.qos,
+      retain: packet.retain,
+    }
+  }
+
+  /**
+   * Store messages to database
+   */
   private async storeMessages(storeMessages: StoreMessageModel[]) {
     const { messageService } = useServices()
-
     const messagesByConnection = new Map<string, MessageModel[]>()
+
     storeMessages.forEach((msg) => {
       const { connectionId, ...message } = msg
       const list = messagesByConnection.get(connectionId) || []
@@ -168,21 +283,13 @@ export default class TrafficMonitor extends Vue {
     }
   }
 
-  private createMessage(packet: IPublishPacket): MessageModel {
-    return {
-      id: getMessageId(),
-      topic: packet.topic,
-      payload: packet.payload.toString(),
-      createAt: time.getNowDate(),
-      out: false,
-      qos: packet.qos,
-      retain: packet.retain,
-    }
-  }
-
+  /**
+   * Subscribe to message queue
+   */
   private async subscribeMessageQueue() {
     this.subscription = this.messageQueue?.getMessageObservable().subscribe(async (messages) => {
       await this.storeMessages(messages)
+      this.handleMetricsUpdate(messages)
     }) as Subscription | null
   }
 

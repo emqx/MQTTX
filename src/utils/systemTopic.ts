@@ -1,72 +1,119 @@
+import moment from 'moment'
+
 const METRICS_BYTES_PREFIX = '/metrics/bytes/'
 const RECEIVED_TOPIC = `${METRICS_BYTES_PREFIX}received`
 const SENT_TOPIC = `${METRICS_BYTES_PREFIX}sent`
-const UPTIME_TOPIC = '/uptime'
-const VERSION_TOPIC = '/version'
 
 /**
- * Check if a topic is a system topic
- * @param topic The MQTT topic to check
- * @returns True if the topic starts with '$SYS', false otherwise
+ * Merge received and sent data with close timestamps
+ * @param metrics Array of MetricsModel to merge
+ * @returns Merged array of MetricsModel
  */
-export const isSystemTopic = (topic: string): boolean => topic.startsWith('$SYS')
+export const mergeMetrics = (metrics: MetricsModel[]): MetricsModel[] => {
+  const merged: MetricsModel[] = []
+  let current: MetricsModel | null = null
 
-/**
- * Extract data from a message for a given topic
- * @param message The MQTT message to extract data from
- * @param topic The topic to extract data for
- * @returns The extracted data as a string, or null if the topic is not found in the message
- */
-export const extractData = (message: MessageModel, topic: string): string | null => {
-  return message.topic.includes(topic) ? message.payload : null
+  for (const metric of metrics) {
+    if (!current) {
+      current = { ...metric }
+      continue
+    }
+
+    // If timestamps are close (within 1 second), merge the data
+    const currentTime = moment(current.label, 'YYYY-MM-DD HH:mm:ss:SSS')
+    const metricTime = moment(metric.label, 'YYYY-MM-DD HH:mm:ss:SSS')
+    const timeDiff = Math.abs(currentTime.diff(metricTime, 'milliseconds'))
+
+    if (timeDiff <= 1000) {
+      // Merge data, keep non-zero values
+      current.received = current.received || metric.received
+      current.sent = current.sent || metric.sent
+
+      // If both data points are present, add to results and reset current
+      if (current.received && current.sent) {
+        merged.push({ ...current })
+        current = null
+      }
+    } else {
+      // If time difference is too large, save current data and start a new merge
+      if (current.received || current.sent) {
+        merged.push({ ...current })
+      }
+      current = { ...metric }
+    }
+  }
+
+  // Handle the last group of data
+  if (current && (current.received || current.sent)) {
+    merged.push(current)
+  }
+
+  return merged
 }
 
 /**
- * Parse traffic metrics data
- * @param message The MQTT message to parse
- * @param defaultMetrics The default metrics model to use as base
- * @returns The parsed data as a MetricsModel, or null if the message is not a system topic
+ * Parse and merge traffic metrics from raw messages
+ * @param messages Raw MQTT messages to process
+ * @returns Merged array of MetricsModel
  */
-export const getTrafficMetrics = (message: MessageModel, defaultMetrics: MetricsModel): MetricsModel | null => {
-  if (!isSystemTopic(message.topic)) {
-    return null
-  }
+export const transformTrafficMessages = (messages: MessageModel[]): MetricsModel[] => {
+  const metrics = messages
+    .sort((a, b) => a.createAt.localeCompare(b.createAt))
+    .map((m) => ({
+      label: m.createAt,
+      received: m.topic.includes(RECEIVED_TOPIC) ? parseFloat(m.payload) : 0,
+      sent: m.topic.includes(SENT_TOPIC) ? parseFloat(m.payload) : 0,
+    }))
 
-  const metrics: MetricsModel = {
-    label: message.createAt,
-    received: defaultMetrics.received,
-    sent: defaultMetrics.sent,
-  }
-
-  // Try to parse received bytes
-  const receivedBytes = extractData(message, RECEIVED_TOPIC)
-  if (receivedBytes) {
-    metrics.received = parseInt(receivedBytes, 10)
-    return metrics
-  }
-
-  // Try to parse sent bytes
-  const sentBytes = extractData(message, SENT_TOPIC)
-  if (sentBytes) {
-    metrics.sent = parseInt(sentBytes, 10)
-    return metrics
-  }
-
-  return null
+  return mergeMetrics(metrics)
 }
 
 /**
- * Get the uptime from a message
- * @param message The MQTT message to get the uptime from
- * @returns The uptime as a string, or null if the topic is not found in the message
+ * Calculate average rate of change per second between two values
+ * @param current Current value
+ * @param previous Previous value
+ * @param seconds Time difference in seconds
+ * @returns Average rate per second, returns 0 if negative
  */
-export const getUptime = (message: MessageModel): string | null => extractData(message, UPTIME_TOPIC)
+export const calculateAverageRate = (current: number, previous: number, seconds: number): number => {
+  if (seconds <= 0) return 0
+  return Math.max(0, (current - previous) / seconds)
+}
 
 /**
- * Get the version from a message
- * @param message The MQTT message to get the version from
- * @returns The version as a string, or null if the topic is not found in the message
+ * Calculate transmission rate between two measurement points
+ * @param current Current MetricsModel
+ * @param previous Previous MetricsModel
+ * @returns Calculated rate as MetricsModel or null if invalid
  */
-export const getVersion = (message: MessageModel): string | null => extractData(message, VERSION_TOPIC)
+export const calculateRate = (current: MetricsModel, previous: MetricsModel): MetricsModel => {
+  const currentTime = moment(current.label, 'YYYY-MM-DD HH:mm:ss:SSS')
+  const previousTime = moment(previous.label, 'YYYY-MM-DD HH:mm:ss:SSS')
+
+  const timeDiff = currentTime.diff(previousTime, 'seconds')
+  if (timeDiff <= 0) return { label: current.label, received: 0, sent: 0 }
+
+  return {
+    label: current.label,
+
+    received: calculateAverageRate(current.received, previous.received, timeDiff),
+    sent: calculateAverageRate(current.sent, previous.sent, timeDiff),
+  }
+}
+
+/**
+ * Calculate rates for a set of measurement data
+ * @param metrics Array of MetricsModel to calculate rates for
+ * @returns Array of calculated rates as MetricsModel
+ */
+export const calculateTrafficRates = (metrics: MetricsModel[]): MetricsModel[] => {
+  if (metrics.length < 2) return []
+  const rates: MetricsModel[] = []
+
+  for (let i = 1; i < metrics.length; i++) {
+    rates.push(calculateRate(metrics[i], metrics[i - 1]))
+  }
+  return rates
+}
 
 export default {}

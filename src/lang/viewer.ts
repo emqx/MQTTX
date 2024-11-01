@@ -116,4 +116,25 @@ export default {
     ja: '累計送信トラフィック',
     hu: 'Összesített Küldött',
   },
+  receivedTrafficRate: {
+    zh: '接收流量速率',
+    en: 'Received Rate',
+    tr: 'Alınan Hız',
+    ja: '受信速度',
+    hu: 'Fogadott sebesség',
+  },
+  sentTrafficRate: {
+    zh: '发送流量速率',
+    en: 'Sent Rate',
+    tr: 'Gönderilen Hız',
+    ja: '送信速度',
+    hu: 'Küldött sebesség',
+  },
+  current: {
+    zh: '当前',
+    en: 'Current ',
+    tr: 'Şu an ',
+    ja: '現在',
+    hu: 'Jelenlegi ',
+  },
 }
