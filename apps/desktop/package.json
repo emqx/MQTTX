@@ -5,6 +5,9 @@
   "author": "EMQX Team <yusf@emqx.io>",
   "homepage": "https://mqttx.app",
   "main": "./out/main/index.js",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "electron-vite dev",
     "prebuild": "npm run typecheck && electron-vite build",
@@ -14,7 +17,6 @@
     "build:mac": "npm run prebuild && electron-builder --mac --config",
     "build:linux": "npm run prebuild && electron-builder --linux --config",
     "preview": "electron-vite preview",
-    "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts,.vue --fix",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck": "npm run typecheck:node && npm run typecheck:web"
@@ -43,7 +45,6 @@
     "electron": "^27.0.2",
     "electron-builder": "^24.6.3",
     "electron-vite": "^1.0.27",
-    "eslint-config-custom": "workspace:*",
     "jsdom": "^22.1.0",
     "postcss": "^8.4.31",
     "sass": "^1.69.3",
@@ -55,8 +56,5 @@
     "vitest": "^0.34.6",
     "vue": "^3.3.4",
     "vue-tsc": "^1.8.8"
-  },
-  "engines": {
-    "node": ">=18"
   }
 }
