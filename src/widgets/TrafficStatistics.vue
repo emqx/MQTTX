@@ -1,20 +1,20 @@
 <template>
   <el-row class="traffic-statistics-view" :gutter="12">
     <el-col :span="12">
-      <el-card class="info-card received" shadow="never">
-        <div class="value">{{ formatBytes(received) }} <i class="el-icon-bottom ml-2"></i></div>
-        <div class="label">{{ $t('viewer.accumulatedReceivedTraffic') }}</div>
-      </el-card>
+      <number-card class="received" :value="formatBytes(received)" :label="nameConfig.received" icon="el-icon-bottom" />
     </el-col>
     <el-col :span="12">
-      <el-card class="info-card sent" shadow="never">
-        <div class="value">{{ formatBytes(sent) }} <i class="el-icon-top ml-2"></i></div>
-        <div class="label">{{ $t('viewer.accumulatedSentTraffic') }}</div>
-      </el-card>
+      <number-card class="sent" :value="formatBytes(sent)" :label="nameConfig.sent" icon="el-icon-top" />
     </el-col>
     <el-col class="chart mt-3" :span="24">
       <el-card shadow="never">
-        <area-line id="bytesChart" :chartData="chartData" :formatter="formatBytes" height="380px" />
+        <line-chart-extent
+          :id="`${chartId}-traffic-statistics-chart`"
+          :type="chartType"
+          :chartData="chartData"
+          :formatter="formatBytes"
+          height="380px"
+        />
       </el-card>
     </el-col>
   </el-row>
@@ -22,38 +22,44 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
-import AreaLine from '@/components/charts/AreaLine.vue'
+import LineChartExtent from '@/components/charts/LineChartExtent.vue'
 import { formatBytes } from '@/utils/formatter'
+import NumberCard from '@/components/charts/NumberCard.vue'
 
 @Component({
   components: {
-    AreaLine,
+    LineChartExtent,
+    NumberCard,
   },
 })
 export default class TrafficStatistics extends Vue {
+  @Prop({ required: true }) public chartId!: string
+  @Prop({ required: true }) public nameConfig!: {
+    received: string
+    sent: string
+  }
   @Prop({ default: '' }) public label!: string
   @Prop({ default: 0 }) public received!: number
   @Prop({ default: 0 }) public sent!: number
-
-  @Getter('currentTheme') private theme!: Theme
+  @Prop({ default: 'area' }) public chartType!: string
+  @Prop({ default: '' }) public unit!: string
 
   private chartData: AreaLineSeriesData = {
     xData: [],
     seriesData: [
       {
-        name: this.$tc('viewer.accumulatedReceivedTraffic'),
+        name: this.nameConfig.received,
         areaStyle: {
-          colorFrom: 'rgb(128, 255, 165)',
-          colorTo: 'rgb(1, 191, 236)',
+          colorFrom: '#80ffa5d9',
+          colorTo: '#01bfeccc',
         },
         data: [],
       },
       {
-        name: this.$tc('viewer.accumulatedSentTraffic'),
+        name: this.nameConfig.sent,
         areaStyle: {
-          colorFrom: 'rgb(0, 221, 255)',
-          colorTo: 'rgb(77, 119, 255)',
+          colorFrom: '#00ddffd9',
+          colorTo: '#4d77ffcc',
         },
         data: [],
       },
@@ -61,7 +67,9 @@ export default class TrafficStatistics extends Vue {
   }
 
   private formatBytes(bytes: number): string {
-    return formatBytes(bytes)
+    const formattedValue = formatBytes(bytes)
+    if (this.unit) return `${formattedValue}${this.unit}`
+    return formattedValue
   }
 
   public updateChart() {
@@ -92,28 +100,12 @@ export default class TrafficStatistics extends Vue {
 
 <style lang="scss" scoped>
 .traffic-statistics-view {
-  .info-card {
-    padding: 20px;
-    text-align: center;
-    border: 0px;
+  .number-card {
     &.received {
-      background: linear-gradient(135deg, rgba(128, 255, 165, 0.85), rgba(1, 191, 236, 0.8));
+      background: linear-gradient(135deg, #80ffa5d9, #01bfeccc);
     }
-
     &.sent {
-      background: linear-gradient(135deg, rgba(0, 221, 255, 0.85), rgba(77, 119, 255, 0.8));
-    }
-
-    .value {
-      font-size: 24px;
-      font-weight: bold;
-      color: #fff;
-    }
-
-    .label {
-      margin-top: 8px;
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.9);
+      background: linear-gradient(135deg, #00ddffd9, #4d77ffcc);
     }
   }
 }

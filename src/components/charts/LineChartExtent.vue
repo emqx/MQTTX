@@ -23,13 +23,14 @@ echarts.use([
 ])
 
 @Component
-export default class AreaLine extends Vue {
+export default class LineChartExtent extends Vue {
   @Prop({ required: true }) public id!: string
   @Prop({ default: '450px' }) public height!: string
   @Prop({ default: '100%' }) public width!: string
   @Prop({ default: 'transparent' }) public backgroundColor!: string
   @Prop({ default: '' }) public chartTitle!: string
   @Prop({ default: null }) public formatter?: (value: number) => string
+  @Prop({ default: 'area' }) public type!: 'area' | 'line'
   @Prop({
     default: () => ({
       xData: [],
@@ -113,16 +114,17 @@ export default class AreaLine extends Vue {
           },
         },
       ],
-      series: this.chartData.seriesData.map((item) => {
-        return {
-          name: item.name,
-          type: 'line',
-          stack: 'Total',
-          smooth: true,
-          lineStyle: {
-            width: 0,
-          },
-          showSymbol: false,
+      series: this.chartData.seriesData.map((item) => ({
+        name: item.name,
+        type: 'line',
+        stack: 'Total',
+        smooth: this.type === 'area',
+        showSymbol: false,
+        lineStyle: {
+          width: this.type === 'line' ? 2 : 0,
+          color: item.areaStyle.colorFrom,
+        },
+        ...(this.type === 'area' && {
           areaStyle: {
             opacity: 0.8,
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
@@ -136,12 +138,12 @@ export default class AreaLine extends Vue {
               },
             ]),
           },
-          emphasis: {
-            focus: 'series',
-          },
-          data: item.data,
-        }
-      }),
+        }),
+        emphasis: {
+          focus: 'series',
+        },
+        data: item.data,
+      })),
     }
   }
 

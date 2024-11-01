@@ -19,10 +19,10 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { globalEventBus } from '@/utils/globalEventBus'
-import TreeView from '@/components/widgets/TreeView.vue'
+import TreeView from '@/widgets/TreeView.vue'
 import { updateTopicTreeNode } from '@/utils/topicTree'
 import { Packet } from 'mqtt-packet/types'
-import TreeNodeInfo from '@/components/widgets/TreeNodeInfo.vue'
+import TreeNodeInfo from '@/widgets/TreeNodeInfo.vue'
 import { ignoreQoS0Message } from '@/utils/mqttUtils'
 import { MessageQueue } from '@/utils/messageQueue'
 import useServices from '@/database/useServices'
