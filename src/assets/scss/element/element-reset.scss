@@ -205,6 +205,7 @@
   }
   &.is-disabled .el-input__inner {
     border-color: var(--color-border-default);
+    background-color: var(--color-bg-normal);
   }
 }
 .el-textarea {
@@ -372,5 +373,102 @@
   }
   .el-tabs__nav-wrap::after {
     background-color: var(--color-border-default);
+  }
+}
+
+/* Date-picker */
+.el-range-editor {
+  &.el-input__inner {
+    background-color: var(--color-bg-normal);
+    border: 1px solid var(--color-border-default);
+  }
+
+  .el-range-input {
+    color: var(--color-text-default);
+    background-color: var(--color-bg-normal);
+  }
+
+  .el-range-separator {
+    color: var(--color-text-default);
+  }
+}
+
+.el-date-table {
+  th {
+    color: var(--color-text-default);
+    border-bottom: 1px solid var(--color-border-default);
+  }
+
+  td {
+    &.start-date,
+    &.end-date {
+      div {
+        background-color: var(--color-bg-code);
+      }
+    }
+
+    &.in-range div {
+      background-color: var(--color-bg-code);
+    }
+
+    &.disabled div {
+      background-color: var(--color-bg-normal);
+    }
+  }
+}
+
+.el-picker-panel {
+  &__sidebar,
+  *[slot='sidebar'] {
+    background-color: var(--color-bg-messagebox);
+    border-right: 1px solid var(--color-border-default);
+  }
+
+  &__shortcut {
+    color: var(--color-text-default);
+  }
+
+  &__footer {
+    border-top: 1px solid var(--color-border-default);
+    background-color: var(--color-bg-messagebox);
+  }
+
+  &__icon-btn {
+    color: var(--color-text-default);
+  }
+}
+
+.el-date-range-picker {
+  &__time-header {
+    border-bottom: 1px solid var(--color-border-default);
+
+    > .el-icon-arrow-right {
+      color: var(--color-text-default);
+    }
+  }
+
+  &__content.is-left {
+    border-right: 1px solid var(--color-border-default);
+  }
+}
+
+.el-time-spinner__item {
+  &.active:not(.disabled) {
+    color: var(--color-main-green);
+  }
+
+  &:hover {
+    background-color: transparent !important;
+    color: var(--color-main-green) !important;
+  }
+}
+
+.el-time-panel {
+  &__btn {
+    color: var(--color-text-default);
+  }
+
+  &__footer {
+    border-top: 1px solid var(--color-border-default);
   }
 }
