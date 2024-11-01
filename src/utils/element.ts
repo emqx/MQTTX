@@ -32,7 +32,7 @@ import {
   // ButtonGroup,
   // Table,
   // TableColumn,
-  // DatePicker,
+  DatePicker,
   // TimeSelect,
   // TimePicker,
   Popover,
@@ -106,7 +106,7 @@ export default (Vue: typeof _Vue) => {
   // Vue.use(ButtonGroup)
   // Vue.use(Table)
   // Vue.use(TableColumn)
-  // Vue.use(DatePicker)
+  Vue.use(DatePicker)
   // Vue.use(TimeSelect)
   // Vue.use(TimePicker)
   Vue.use(Popover)

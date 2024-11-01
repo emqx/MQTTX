@@ -1,16 +1,19 @@
 <template>
   <div class="traffic-monitor-view">
     <div class="traffic-monitor-header mb-3">
-      <connection-select v-model="selectedConnectionId" size="small" @change="handleConnectionChange" />
-      <span class="traffic-monitor-about ml-3">
-        <el-tooltip
-          :content="$t('viewer.brokerTrafficMonitorTooltip')"
-          placement="top"
-          :effect="currentTheme !== 'light' ? 'light' : 'dark'"
-        >
-          <i class="iconfont icon-about"></i>
-        </el-tooltip>
-      </span>
+      <div>
+        <connection-select v-model="selectedConnectionId" size="small" @change="handleConnectionChange" />
+        <span class="traffic-monitor-about ml-3">
+          <el-tooltip
+            :content="$t('viewer.brokerTrafficMonitorTooltip')"
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+          >
+            <i class="iconfont icon-about"></i>
+          </el-tooltip>
+        </span>
+      </div>
+      <time-range-select v-model="timeRange" class="float-right" @change="handleTimeRangeChange" />
     </div>
     <traffic-statistics
       chart-id="bytes"
@@ -48,6 +51,7 @@ import useServices from '@/database/useServices'
 import time from '@/utils/time'
 import { MessageQueue } from '@/utils/messageQueue'
 import { getMessageId } from '@/utils/idGenerator'
+import TimeRangeSelect from '@/components/TimeRangeSelect.vue'
 
 interface StoreMessageModel extends MessageModel {
   connectionId: string
@@ -57,6 +61,7 @@ interface StoreMessageModel extends MessageModel {
   components: {
     ConnectionSelect,
     TrafficStatistics,
+    TimeRangeSelect,
   },
 })
 export default class TrafficMonitor extends Vue {
@@ -72,6 +77,8 @@ export default class TrafficMonitor extends Vue {
   private selectedConnectionId: string = ''
   private subscription: Subscription | null = null
   private messageQueue: MessageQueue<StoreMessageModel> | null = null
+
+  private timeRange: [string, string] = [time.getDateBefore(24 * 60), time.getNowDate()]
 
   /**
    * Update traffic rate
@@ -152,15 +159,16 @@ export default class TrafficMonitor extends Vue {
    * Reset traffic statistics
    */
   private resetTrafficStats() {
+    this.receivedBytesLastTime = ''
     this.receivedBytes = 0
     this.sentBytes = 0
+    this.receivedRateLastTime = ''
     this.receivedRate = 0
     this.sentRate = 0
 
     this.$nextTick(() => {
       const rateRef = this.$refs.trafficStatsRate as TrafficStatistics
       const statsRef = this.$refs.trafficStatsBytes as TrafficStatistics
-
       if (rateRef) rateRef.resetChart()
       if (statsRef) statsRef.resetChart()
     })
@@ -181,11 +189,9 @@ export default class TrafficMonitor extends Vue {
   private async loadBrokerTrafficMetrics(connectionId: string) {
     if (!connectionId) return
 
-    const { messageService } = useServices()
-    const startTime = time.getDateBefore(24 * 60)
-    const endTime = time.getNowDate()
-
     try {
+      const { messageService } = useServices()
+      const [startTime, endTime] = this.timeRange
       const trafficMessages = await messageService.getMessagesByTopicPattern<MetricsModel>(
         connectionId,
         '$SYS/brokers/%/metrics/bytes/%',
@@ -195,8 +201,10 @@ export default class TrafficMonitor extends Vue {
           transform: transformTrafficMessages,
         },
       )
-
-      if (trafficMessages.length === 0) return
+      if (trafficMessages.length === 0) {
+        this.resetTrafficStats()
+        return
+      }
       this.initializeCharts(trafficMessages)
     } catch (error) {
       this.$log.error(`Traffic Monitor: Failed to load traffic messages: ${error}`)
@@ -309,6 +317,16 @@ export default class TrafficMonitor extends Vue {
       this.subscription = null
     }
   }
+
+  private handleTimeRangeChange(val: [string, string] | null) {
+    if (val) {
+      this.timeRange = val
+    } else {
+      this.timeRange = [time.getDateBefore(24 * 60), time.getNowDate()]
+    }
+    this.resetTrafficStats()
+    this.loadBrokerTrafficMetrics(this.selectedConnectionId)
+  }
 }
 </script>
 
@@ -317,7 +335,7 @@ export default class TrafficMonitor extends Vue {
   .traffic-monitor-header {
     display: flex;
     align-items: center;
-
+    justify-content: space-between;
     .iconfont {
       color: var(--color-text-default);
       cursor: pointer;
