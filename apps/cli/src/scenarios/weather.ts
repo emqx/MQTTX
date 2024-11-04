@@ -6,23 +6,17 @@ const dataCache: Record<string, any> = {}
 function getCurrentSeason() {
   const today = new Date()
   const month = today.getUTCMonth()
-  if (month < 2 || month > 10)
-    return 'Winter'
-  if (month < 5)
-    return 'Spring'
-  if (month < 8)
-    return 'Summer'
+  if (month < 2 || month > 10) return 'Winter'
+  if (month < 5) return 'Spring'
+  if (month < 8) return 'Summer'
   return 'Autumn'
 }
 
 function getTimeOfDay() {
   const hour = new Date().getUTCHours()
-  if (hour < 6 || hour > 20)
-    return 'Night'
-  if (hour < 12)
-    return 'Morning'
-  if (hour < 18)
-    return 'Afternoon'
+  if (hour < 6 || hour > 20) return 'Night'
+  if (hour < 12) return 'Morning'
+  if (hour < 18) return 'Afternoon'
   return 'Evening'
 }
 

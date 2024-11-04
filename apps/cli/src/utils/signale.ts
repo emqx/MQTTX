@@ -17,8 +17,7 @@ function msgLog(msg: Record<string, unknown>[]) {
   msg.forEach((item) => {
     if (typeof item.value === 'object') {
       chalkString += `${chalk.green(item.label)}: ${inspect(item.value, false, null, true)}\n`
-    }
-    else {
+    } else {
       chalkString += `${chalk.green(item.label)}: ${item.value}\n`
     }
   })
@@ -29,8 +28,7 @@ const basicLog = {
   connecting: (config: boolean | string | undefined, host: string, port = 1883, topic?: string, message?: string) => {
     if (!config) {
       signale.await('Connecting...')
-    }
-    else {
+    } else {
       signale.await(
         `Connecting using configuration file, host: ${host}, port: ${port}${topic ? `, topic: ${topic}` : ''}${
           message ? `, message: ${message}` : ''
@@ -57,8 +55,7 @@ const benchLog = {
     conn: (config: boolean | string | undefined, count: number, interval: number, host: string, port = 1883) => {
       if (!config) {
         signale.info(`Start the connect benchmarking, connections: ${count}, req interval: ${interval}ms`)
-      }
-      else {
+      } else {
         signale.info(
           `Start the connect benchmarking, connections: ${count}, req interval: ${interval}ms, host: ${host}, port: ${port}`,
         )
@@ -76,8 +73,7 @@ const benchLog = {
         signale.info(
           `Start the subscribe benchmarking, connections: ${count}, req interval: ${interval}ms, topic: ${topic}`,
         )
-      }
-      else {
+      } else {
         signale.info(
           `Start the subscribe benchmarking, connections: ${count}, req interval: ${interval}ms, host: ${host}, port: ${port}, topic: ${topic}`,
         )
@@ -97,8 +93,7 @@ const benchLog = {
         signale.info(
           `Start the publish benchmarking, connections: ${count}, req interval: ${interval}ms, message interval: ${messageInterval}ms`,
         )
-      }
-      else {
+      } else {
         signale.info(
           `Start the publish benchmarking, connections: ${count}, req interval: ${interval}ms, message interval: ${messageInterval}ms, host: ${host}, port: ${port}, topic: ${topic}, message: ${message}`,
         )

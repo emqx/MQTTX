@@ -33,8 +33,7 @@ function createWindow(): void {
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env.ELECTRON_RENDERER_URL) {
     mainWindow.loadURL(process.env.ELECTRON_RENDERER_URL)
-  }
-  else {
+  } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
 }
@@ -58,8 +57,7 @@ app.whenReady().then(() => {
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0)
-      createWindow()
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
 

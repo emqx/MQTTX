@@ -28,8 +28,7 @@ router.beforeEach((to, _from, next) => {
       return
     }
     next()
-  }
-  else {
+  } else {
     next()
   }
 })

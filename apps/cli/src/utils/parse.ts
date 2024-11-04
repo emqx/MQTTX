@@ -41,23 +41,19 @@ function parseUserProperties(value: string, previous?: Record<string, string | s
   if (key && val) {
     if (!previous) {
       return { [key]: val }
-    }
-    else {
+    } else {
       if (previous[key]) {
         if (Array.isArray(previous[key])) {
           ;(previous[key] as string[]).push(val)
-        }
-        else {
+        } else {
           previous[key] = [previous[key] as string, val]
         }
         return previous
-      }
-      else {
+      } else {
         return { ...previous, [key]: val }
       }
     }
-  }
-  else {
+  } else {
     signale.error('Not a valid user properties.')
     process.exit(1)
   }
@@ -68,8 +64,7 @@ function parseQoS(value: string, previous: number[] | undefined) {
   if (Number.isNaN(parsedValue) || parsedValue < 0 || parsedValue > 2) {
     signale.error(`${value} is not a valid QoS.`)
     process.exit(1)
-  }
-  else {
+  } else {
     return previous ? [...previous, parsedValue] : [parsedValue]
   }
 }
@@ -78,8 +73,7 @@ function parseVariadicOfBooleanType(value: string, previous: boolean[] | undefin
   if (!['true', 'false'].includes(value)) {
     signale.error(`${value} is not a boolean.`)
     process.exit(1)
-  }
-  else {
+  } else {
     const booleanValue = value === 'true'
     return previous ? [...previous, booleanValue] : [booleanValue]
   }
@@ -89,8 +83,7 @@ function checkTopicExists(topic: string | string[] | undefined, commandType: Com
   if (!topic) {
     if (['pub', 'benchPub', 'simulate'].includes(commandType)) {
       console.log('error: required option \'-t, --topic <TOPIC>\' not specified')
-    }
-    else if (['sub', 'benchSub'].includes(commandType)) {
+    } else if (['sub', 'benchSub'].includes(commandType)) {
       console.log('error: required option \'-t, --topic <TOPIC...>\' not specified')
     }
     process.exit(1)
@@ -138,8 +131,7 @@ function checkScenarioExists(name?: string, file?: string) {
       signale.error(`Scenario ${name} not found in [${scenarioList.join(', ')}]`)
       process.exit(1)
     }
-  }
-  else if (file) {
+  } else if (file) {
     if (!getScenarioFilePath(file)) {
       signale.error(`Scenario file ${file} not found.`)
       process.exit(1)
@@ -256,8 +248,7 @@ function parseConnectOptions(options: ConnectOptions | PublishOptions | Subscrib
   let optionsTempWorkAround
   if (mqttVersion === 3) {
     connectOptions.protocolId = 'MQIsdp'
-  }
-  else if (mqttVersion === 5) {
+  } else if (mqttVersion === 5) {
     const userProperties
       = commandType === 'conn' ? options.userProperties : (<PublishOptions | SubscribeOptions>options).connUserProperties
     const properties = {
@@ -273,8 +264,7 @@ function parseConnectOptions(options: ConnectOptions | PublishOptions | Subscrib
     if (clean === false) {
       if (sessionExpiryInterval !== undefined) {
         properties.sessionExpiryInterval = sessionExpiryInterval
-      }
-      else {
+      } else {
         properties.sessionExpiryInterval = Number.parseInt('0xFFFFFFFF', 16)
       }
     }

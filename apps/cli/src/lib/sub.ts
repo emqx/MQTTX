@@ -70,8 +70,7 @@ function sub(options: SubscribeOptions) {
         if (err) {
           !outputModeClean && basicLog.error(err)
           process.exit(1)
-        }
-        else {
+        } else {
           !outputModeClean && basicLog.subscribed(t)
         }
 
@@ -102,8 +101,7 @@ function sub(options: SubscribeOptions) {
       Object.entries(packet.properties.userProperties).forEach(([key, value]) => {
         if (typeof value === 'string') {
           up.push({ key, value })
-        }
-        else {
+        } else {
           value.forEach((v) => {
             up.push({ key, value: v })
           })
@@ -128,8 +126,7 @@ function sub(options: SubscribeOptions) {
       client.end(false, {}, () => {
         !outputModeClean && basicLog.reconnectTimesLimit()
       })
-    }
-    else {
+    } else {
       !outputModeClean && basicLog.reconnecting()
     }
   })
@@ -203,8 +200,7 @@ async function benchSub(options: BenchSubscribeOptions) {
               if (err) {
                 signale.error(`[${i}/${count}] - Client ID: ${opts.clientId}, ${err}`)
                 process.exit(1)
-              }
-              else {
+              } else {
                 interactive.success('[%d/%d] - Subscribed to %s', connectedCount, count, topicName)
               }
 
@@ -230,8 +226,7 @@ async function benchSub(options: BenchSubscribeOptions) {
                     simpleInteractive.info(`Received total: ${total}, rate: ${rate}/s`)
                     oldTotal = total
                   }, 1000)
-                }
-                else {
+                } else {
                   setInterval(() => {
                     if (total > oldTotal) {
                       const rate = total - oldTotal
@@ -243,8 +238,7 @@ async function benchSub(options: BenchSubscribeOptions) {
               }
             })
           })
-        }
-        else {
+        } else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)
         }
       })
@@ -267,8 +261,7 @@ async function benchSub(options: BenchSubscribeOptions) {
               process.exit(1)
             }
           })
-        }
-        else {
+        } else {
           benchLog.reconnecting(connectedCount, count, opts.clientId!)
           isNewConnArray[i - 1] = false
         }

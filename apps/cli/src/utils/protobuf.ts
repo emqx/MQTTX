@@ -17,8 +17,7 @@ export function serializeProtobufToBuffer(raw: string | Buffer, protobufPath: st
     const data = Message.create(JSON.parse(rawData))
     const serializedMessage = Message.encode(data).finish()
     bufferMessage = Buffer.from(serializedMessage)
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     signale.error(`Message serialization error: ${(error as Error).message.split('\n')[0]}`)
     process.exit(1)
   }
@@ -39,8 +38,7 @@ export function deserializeBufferToProtobuf(payload: Buffer, protobufPath: strin
       return Buffer.from(JSON.stringify(MessageData.toJSON()))
     }
     return MessageData
-  }
-  catch (error: unknown) {
+  } catch (error: unknown) {
     const err = transformPBJSError(error as Error)
     signale.error(err.message.split('\n')[0])
     process.exit(1)

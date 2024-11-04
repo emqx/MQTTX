@@ -18,13 +18,11 @@ async function checkUpdate() {
             )}\nhttps://github.com/emqx/MQTTX/releases/tag/v${latestVersion}`,
           ),
         )
-      }
-      else {
+      } else {
         console.log(chalk.green('There are currently no updates available.'))
       }
     }
-  }
-  catch (error) {
+  } catch (error) {
     console.error(error)
   }
 }

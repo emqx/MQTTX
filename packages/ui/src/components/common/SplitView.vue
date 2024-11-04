@@ -41,8 +41,7 @@ function parseSize(size: string | number, containerSize: number): number {
     if (size.endsWith('%')) {
       const percentage = Number.parseFloat(size) / 100
       return containerSize * percentage
-    }
-    else {
+    } else {
       return Number.parseFloat(size)
     }
   }
@@ -51,16 +50,14 @@ function parseSize(size: string | number, containerSize: number): number {
 
 const containerStyles = computed(() => {
   const base = 'split-view relative h-full flex'
-  if (props.vertical)
-    return `${base} flex-col`
+  if (props.vertical) return `${base} flex-col`
   return base
 })
 const resizeHandleStyles = computed(() => {
   const base = 'resize-handle relative'
   if (props.vertical) {
     return `${base} w-full h-[1px] cursor-row-resize`
-  }
-  else {
+  } else {
     return `${base} w-[1px] h-full cursor-col-resize`
   }
 })
@@ -78,8 +75,7 @@ const resizeHandleHoverStyles = computed(() => [
 function getPanelStyles() {
   if (props.vertical) {
     return { height: `${panelSize.value}px` }
-  }
-  else {
+  } else {
     return { width: `${panelSize.value}px` }
   }
 }
@@ -99,8 +95,7 @@ function startResizing(event: MouseEvent) {
 }
 
 function handleMouseMove(event: MouseEvent) {
-  if (!isResizing.value || !resizePanel.value?.parentElement)
-    return
+  if (!isResizing.value || !resizePanel.value?.parentElement) return
 
   const { offsetHeight, offsetWidth } = resizePanel.value.parentElement
   const containerSize = props.vertical ? offsetHeight : offsetWidth
@@ -114,8 +109,7 @@ function handleMouseMove(event: MouseEvent) {
     const maxPanelSize = containerSize - minSize
     const minPanelSize = containerSize - maxSize
     newSize = Math.max(minPanelSize, Math.min(newSize, maxPanelSize))
-  }
-  else {
+  } else {
     newSize = Math.max(minSize, Math.min(newSize, maxSize))
   }
 
@@ -127,8 +121,7 @@ function handleMouseMove(event: MouseEvent) {
 }
 
 function stopResizing() {
-  if (!isResizing.value)
-    return
+  if (!isResizing.value) return
   isResizing.value = false
   document.removeEventListener('mousemove', handleMouseMove)
   document.removeEventListener('mouseup', stopResizing)
