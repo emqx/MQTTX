@@ -21,14 +21,34 @@ export default antfu(
        */
       markdown: 'prettier',
     },
-    // ignores: [
-    //   'public',
-    //   'components/svg',
-    // ],
+    ignores: [
+      '**/assets/fonts',
+    ],
   },
   {
     rules: {
       'no-console': 'warn',
+      'n/prefer-global/process': 'off',
+      'node/prefer-global/buffer': 'off',
+    },
+  },
+  {
+    files: ['apps/cli/**/*.ts'],
+    rules: {
+      'no-console': 'off',
+      'ts/no-require-imports': 'off',
+    },
+  },
+  {
+    files: ['**/*.md'],
+    rules: {
+      'no-irregular-whitespace': 'off',
+    },
+  },
+  {
+    files: ['examples/function/*.js'],
+    rules: {
+      'no-undef': 'off',
     },
   },
 )

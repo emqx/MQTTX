@@ -1,23 +1,23 @@
-import 'core-js'
 import { Command } from 'commander'
-import { getClientId } from './utils/generator'
-import { checkUpdate } from './utils/checkUpdate'
-import {
-  parseNumber,
-  parseProtocol,
-  parseMQTTVersion,
-  parseUserProperties,
-  parseQoS,
-  parseVariadicOfBooleanType,
-  parsePubTopic,
-  parseFormat,
-  parseOutputMode,
-} from './utils/parse'
-import { conn, benchConn } from './lib/conn'
-import { pub, benchPub, simulatePub } from './lib/pub'
-import { sub, benchSub } from './lib/sub'
-import ls from './lib/ls'
 import { version } from '../package.json'
+import { benchConn, conn } from './lib/conn'
+import ls from './lib/ls'
+import { benchPub, pub, simulatePub } from './lib/pub'
+import { benchSub, sub } from './lib/sub'
+import { checkUpdate } from './utils/checkUpdate'
+import { getClientId } from './utils/generator'
+import {
+  parseFormat,
+  parseMQTTVersion,
+  parseNumber,
+  parseOutputMode,
+  parseProtocol,
+  parsePubTopic,
+  parseQoS,
+  parseUserProperties,
+  parseVariadicOfBooleanType,
+} from './utils/parse'
+import 'core-js'
 
 export class Commander {
   program: Command

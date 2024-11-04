@@ -1,9 +1,9 @@
-import { ref, watch } from 'vue'
-import { defineStore } from 'pinia'
 import type { Lang, Theme } from 'mqttx'
+import { defineStore } from 'pinia'
+import { ref, watch } from 'vue'
 import { i18n } from '../i18n'
 
-const settingsStoreSetup = () => {
+function settingsStoreSetup() {
   const theme = ref<Theme>('dark')
   function changeTheme(val: Theme) {
     theme.value = val

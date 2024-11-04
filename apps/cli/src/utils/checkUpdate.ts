@@ -4,7 +4,7 @@ import { compareVersions } from 'compare-versions'
 
 import { version } from '../../package.json'
 
-const checkUpdate = async () => {
+async function checkUpdate() {
   try {
     const tagsUrl = 'https://community-sites.emqx.com/api/v1/all_version?product=MQTTX'
     const tagsRes = await axios.get(tagsUrl)
@@ -18,11 +18,13 @@ const checkUpdate = async () => {
             )}\nhttps://github.com/emqx/MQTTX/releases/tag/v${latestVersion}`,
           ),
         )
-      } else {
+      }
+      else {
         console.log(chalk.green('There are currently no updates available.'))
       }
     }
-  } catch (error) {
+  }
+  catch (error) {
     console.error(error)
   }
 }

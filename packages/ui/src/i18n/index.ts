@@ -1,10 +1,10 @@
-import { createI18n } from 'vue-i18n'
-import ElementPlusZH from 'element-plus/dist/locale/zh-cn.mjs'
-import ElementPlusEN from 'element-plus/dist/locale/en.mjs'
-import ElementPlusJA from 'element-plus/dist/locale/ja.mjs'
-import ElementPlusHU from 'element-plus/dist/locale/hu.mjs'
-import ElementPlusTR from 'element-plus/dist/locale/tr.mjs'
 import type { Lang } from 'mqttx'
+import ElementPlusEN from 'element-plus/dist/locale/en.mjs'
+import ElementPlusHU from 'element-plus/dist/locale/hu.mjs'
+import ElementPlusJA from 'element-plus/dist/locale/ja.mjs'
+import ElementPlusTR from 'element-plus/dist/locale/tr.mjs'
+import ElementPlusZH from 'element-plus/dist/locale/zh-cn.mjs'
+import { createI18n } from 'vue-i18n'
 
 export const ElementI18nMap: Record<Lang, any> = {
   zh: ElementPlusZH,

@@ -1,20 +1,20 @@
 {
   "extends": "@vue/tsconfig/tsconfig.dom.json",
-  "include": [
-    "env.d.ts", 
-    "src/**/*", 
-    "src/**/*.vue", 
-    "./typed-router.d.ts",
-    "./components.d.ts"
-],
-  "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {
-    "esModuleInterop": true,
     "composite": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["element-plus/global", "node", "mqttx"]
-  }
+    "types": ["element-plus/global", "node", "mqttx"],
+    "esModuleInterop": true
+  },
+  "include": [
+    "env.d.ts",
+    "src/**/*",
+    "src/**/*.vue",
+    "./typed-router.d.ts",
+    "./components.d.ts"
+  ],
+  "exclude": ["src/**/__tests__/*"]
 }

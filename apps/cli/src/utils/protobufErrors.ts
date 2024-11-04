@@ -10,7 +10,7 @@ function indexOutOfRange(msg: string): string {
     return `Index out of range: the reader was at position ${pos} and tried to read ${read} more (bytes), but the given buffer was ${len} bytes`
   }
 
-  const regex = /index out of range: ([0-9]+) \+ ([0-9]+) > ([0-9]+)/
+  const regex = /index out of range: (\d+) \+ (\d+) > (\d+)/
 
   const res = msg.match(regex)
 

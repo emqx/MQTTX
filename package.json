@@ -23,7 +23,7 @@
     "build:mac": "turbo run build:mac",
     "generate:ui": "turbo run generate:ui",
     "lint": "eslint .",
-    "lint:fix": "eslint . || true",
+    "lint:fix": "eslint . --fix",
     "test": "turbo run test"
   },
   "devDependencies": {

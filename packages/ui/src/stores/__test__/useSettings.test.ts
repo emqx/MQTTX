@@ -1,5 +1,5 @@
+import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
 import { useSettingsStore } from '../useSettingsStore'
 
 // Mocking a class for localStorage with all necessary methods
@@ -10,12 +10,15 @@ class LocalStorageMock {
   setItem = vi.fn((key: string, value: string): void => {
     this.store[key] = value
   })
+
   removeItem = vi.fn((key: string): void => {
     delete this.store[key]
   })
+
   clear = vi.fn((): void => {
     this.store = {}
   })
+
   key = vi.fn((index: number): string | null => Object.keys(this.store)[index] || null)
   get length(): number {
     return Object.keys(this.store).length
@@ -23,14 +26,14 @@ class LocalStorageMock {
 }
 
 // Set the mock localStorage on the global object
-global.localStorage = new LocalStorageMock() as unknown as Storage
+globalThis.localStorage = new LocalStorageMock() as unknown as Storage
 
 // Set up Pinia store and reset mocks before each test
 beforeEach(() => {
   // Create a fresh instance of Pinia and setActivePinia
   setActivePinia(createPinia())
   // Reset the local storage mock's store
-  ;(global.localStorage as unknown as LocalStorageMock).store = {}
+  ;(globalThis.localStorage as unknown as LocalStorageMock).store = {}
   vi.clearAllMocks()
 })
 

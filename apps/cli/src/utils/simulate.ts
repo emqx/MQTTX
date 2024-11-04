@@ -1,7 +1,7 @@
+import type { SimulatePubOptions, Simulator } from 'mqttx'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import { faker } from '@faker-js/faker'
-import * as fs from 'fs'
-import * as path from 'path'
-import { Simulator, SimulatePubOptions } from 'mqttx'
 
 const scenarioFolder = path.join(__dirname, '../scenarios')
 
@@ -12,13 +12,13 @@ const getLocalScenarioList = function (): string[] {
   // Read the files in the scenario folder
   const files = fs
     .readdirSync(scenarioFolder)
-    .filter((file) => file.endsWith('.js'))
-    .map((file) => ({
+    .filter(file => file.endsWith('.js'))
+    .map(file => ({
       name: file.replace('.js', ''),
       birthtime: fs.statSync(path.join(scenarioFolder, file)).birthtime.getTime(),
     }))
     .sort((a, b) => b.birthtime - a.birthtime)
-    .map((file) => file.name)
+    .map(file => file.name)
   return files
 }
 
@@ -45,7 +45,7 @@ const loadSimulator = function (name?: string, file?: string): Simulator {
     const simulatorModule = require(filePath)
 
     if (typeof simulatorModule.generator !== 'function') {
-      throw new Error('Not a valid simulator module')
+      throw new TypeError('Not a valid simulator module')
     }
 
     // Rewrite generator to auto inject faker
@@ -60,7 +60,8 @@ const loadSimulator = function (name?: string, file?: string): Simulator {
       file,
       realFilePath: filePath,
     } as Simulator
-  } catch (err) {
+  }
+  catch (err) {
     throw new Error(`Load simulator error: ${err}`)
   }
 }

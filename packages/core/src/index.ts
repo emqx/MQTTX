@@ -1,2 +1,2 @@
-export * from './utils'
 export * from './mqtt-core'
+export * from './utils'

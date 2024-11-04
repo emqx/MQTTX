@@ -106,10 +106,10 @@ export default {
   },
   guideArticle8: {
     zh: 'MQTT 保留消息是什么？如何使用？',
-    en: "The Beginner's Guide to MQTT Retained Messages",
-    ja: "The Beginner's Guide to MQTT Retained Messages",
-    tr: "The Beginner's Guide to MQTT Retained Messages",
-    hu: "The Beginner's Guide to MQTT Retained Messages",
+    en: 'The Beginner\'s Guide to MQTT Retained Messages',
+    ja: 'The Beginner\'s Guide to MQTT Retained Messages',
+    tr: 'The Beginner\'s Guide to MQTT Retained Messages',
+    hu: 'The Beginner\'s Guide to MQTT Retained Messages',
   },
   guideArticle9: {
     zh: 'MQTT 遗嘱消息（Will Message）的使用',

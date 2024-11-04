@@ -1,11 +1,11 @@
+import type { BenchConnectOptions, ConnectOptions } from 'mqttx'
 import * as mqtt from 'mqtt'
-import { Signale, signale, basicLog, benchLog } from '../utils/signale'
-import { parseConnectOptions } from '../utils/parse'
+import { loadConfig, saveConfig } from '../utils/config'
 import delay from '../utils/delay'
-import { saveConfig, loadConfig } from '../utils/config'
-import { ConnectOptions, BenchConnectOptions } from 'mqttx'
+import { parseConnectOptions } from '../utils/parse'
+import { basicLog, benchLog, Signale, signale } from '../utils/signale'
 
-const conn = (options: ConnectOptions) => {
+function conn(options: ConnectOptions) {
   const { save, config } = options
 
   config && (options = loadConfig('conn', config))
@@ -37,7 +37,8 @@ const conn = (options: ConnectOptions) => {
       client.end(false, {}, () => {
         basicLog.reconnectTimesLimit()
       })
-    } else {
+    }
+    else {
       basicLog.reconnecting()
     }
   })
@@ -47,7 +48,7 @@ const conn = (options: ConnectOptions) => {
   })
 }
 
-const benchConn = async (options: BenchConnectOptions) => {
+async function benchConn(options: BenchConnectOptions) {
   const { save, config } = options
 
   config && (options = loadConfig('benchConn', config))
@@ -60,9 +61,9 @@ const benchConn = async (options: BenchConnectOptions) => {
 
   let connectedCount = 0
 
-  const isNewConnArray = Array(count).fill(true)
+  const isNewConnArray = Array.from({ length: count }, () => true)
 
-  const retryTimesArray = Array(count).fill(0)
+  const retryTimesArray = Array.from({ length: count }, () => 0)
 
   const interactive = new Signale({ interactive: true })
 
@@ -90,7 +91,8 @@ const benchConn = async (options: BenchConnectOptions) => {
             const end = Date.now()
             signale.info(`Done, total time: ${(end - start) / 1000}s`)
           }
-        } else {
+        }
+        else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)
         }
       })
@@ -106,7 +108,8 @@ const benchConn = async (options: BenchConnectOptions) => {
           client.end(false, {}, () => {
             benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
           })
-        } else {
+        }
+        else {
           benchLog.reconnecting(connectedCount, count, opts.clientId!)
           isNewConnArray[i - 1] = false
         }
@@ -124,4 +127,4 @@ const benchConn = async (options: BenchConnectOptions) => {
 
 export default conn
 
-export { conn, benchConn }
+export { benchConn, conn }

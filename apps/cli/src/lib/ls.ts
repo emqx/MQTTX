@@ -1,7 +1,7 @@
-import * as fs from 'fs'
-import * as path from 'path'
+import type { LsOptions } from 'mqttx'
+import * as fs from 'node:fs'
+import * as path from 'node:path'
 import Table from 'cli-table3'
-import { LsOptions } from 'mqttx'
 
 interface Scenario {
   name: string
@@ -23,13 +23,14 @@ async function listScenarios(): Promise<Scenario[]> {
         })
       }
     }
-  } catch (error) {
+  }
+  catch (error) {
     console.error(`Error reading scenarios directory: ${error}`)
   }
   return scenarios
 }
 
-const ls = async (options: LsOptions) => {
+async function ls(options: LsOptions) {
   if (options.scenarios) {
     try {
       const list = await listScenarios()
@@ -45,7 +46,8 @@ const ls = async (options: LsOptions) => {
       console.log('You can use any of the above scenario names as a parameter to run the scenario.')
       // Log the table
       console.log(table.toString())
-    } catch (err) {
+    }
+    catch (err) {
       console.log(err)
     }
   }

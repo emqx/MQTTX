@@ -1,1 +1,3 @@
-<template>No Data!</template>
+<template>
+  No Data!
+</template>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useSettingsStore } from '@mqttx/ui'
-import { ElementI18nMap } from '@mqttx/ui'
+import { ElementI18nMap, useSettingsStore } from '@mqttx/ui'
 
 const settingsStore = useSettingsStore()
 console.log('MQTTX Desktop App init...')

@@ -12,7 +12,8 @@ function handlePayload(value, msgType, index) {
   }
   if (index % 2 === 0) {
     _value.command = 'on'
-  } else {
+  }
+  else {
     _value.command = 'off'
   }
   return JSON.stringify(_value, null, 2)

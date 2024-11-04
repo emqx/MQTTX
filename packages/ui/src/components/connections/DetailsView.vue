@@ -20,9 +20,9 @@ defineProps<{
 
 <template>
   <div class="connection-details-view text-base h-full">
-    <split-view vertical fixed-panel-size="180px" max-size="500px" min-size="180px" handle-color="bg-border-default">
-      <template #panel-1> </template>
-      <template #panel-2> </template>
-    </split-view>
+    <SplitView vertical fixed-panel-size="180px" max-size="500px" min-size="180px" handle-color="bg-border-default">
+      <template #panel-1 />
+      <template #panel-2 />
+    </SplitView>
   </div>
 </template>

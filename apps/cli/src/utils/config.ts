@@ -1,45 +1,48 @@
-import * as fs from 'fs'
-import path from 'path'
-import YAML from 'js-yaml'
-import signale from '../utils/signale'
-import {
-  Config,
-  ConnectOptions,
+import type {
   BenchConnectOptions,
-  PublishOptions,
-  SubscribeOptions,
   BenchPublishOptions,
   BenchSubscribeOptions,
   CommandType,
+  Config,
+  ConnectOptions,
+  PublishOptions,
   SimulatePubOptions,
+  SubscribeOptions,
 } from 'mqttx'
+import * as fs from 'node:fs'
+import path from 'node:path'
+import YAML from 'js-yaml'
+import signale from '../utils/signale'
 
 const defaultPath = `${process.cwd()}/mqttx-cli-config.json`
 
 const fileExists = (filePath: string) => fs.existsSync(filePath)
 
-const writeFile = (filePath: string, data: Config) => {
+function writeFile(filePath: string, data: Config) {
   try {
     fs.mkdirSync(path.dirname(filePath), { recursive: true })
     if (filePath.endsWith('.yaml') || filePath.endsWith('.yml')) {
       fs.writeFileSync(filePath, YAML.dump(data))
-    } else {
+    }
+    else {
       fs.writeFileSync(filePath, JSON.stringify(data, null, 2))
     }
-  } catch (error) {
+  }
+  catch (error) {
     signale.error(error)
     process.exit(1)
   }
 }
 
-const readFile = (path: string) => {
+function readFile(path: string) {
   try {
     const config = fs.readFileSync(path, 'utf-8')
     if (path.endsWith('.yaml') || path.endsWith('.yml')) {
       return YAML.load(config) as Config
     }
     return JSON.parse(config) as Config
-  } catch (error) {
+  }
+  catch (error) {
     signale.error(error)
     process.exit(1)
   }
@@ -47,11 +50,12 @@ const readFile = (path: string) => {
 
 const mergeConfig = (oldConfig: Config, newConfig: Config) => Object.assign({}, oldConfig, newConfig)
 
-const processPath = (savePath: boolean | string) => {
+function processPath(savePath: boolean | string) {
   let filePath = ''
   if (savePath === true) {
     filePath = defaultPath
-  } else if (typeof savePath === 'string') {
+  }
+  else if (typeof savePath === 'string') {
     filePath = path.normalize(savePath)
     if (!path.isAbsolute(filePath)) {
       filePath = path.resolve(filePath)
@@ -60,20 +64,18 @@ const processPath = (savePath: boolean | string) => {
   return filePath
 }
 
-const removeUselessOptions = (
-  opts:
-    | ConnectOptions
-    | PublishOptions
-    | SubscribeOptions
-    | BenchConnectOptions
-    | BenchPublishOptions
-    | BenchSubscribeOptions,
-) => {
+function removeUselessOptions(opts:
+  | ConnectOptions
+  | PublishOptions
+  | SubscribeOptions
+  | BenchConnectOptions
+  | BenchPublishOptions
+  | BenchSubscribeOptions) {
   const { save, config, ...rest } = opts
   return rest
 }
 
-const validateConfig = (commandType: CommandType, filePath: string, config: Config) => {
+function validateConfig(commandType: CommandType, filePath: string, config: Config) {
   const data = config[commandType]
   if (!data || typeof data !== 'object' || Object.keys(data).length === 0) {
     signale.error(`No configuration for ${commandType} found in ${filePath}`)
@@ -81,16 +83,13 @@ const validateConfig = (commandType: CommandType, filePath: string, config: Conf
   }
 }
 
-const saveConfig = (
-  commandType: CommandType,
-  opts:
-    | ConnectOptions
-    | PublishOptions
-    | SubscribeOptions
-    | BenchConnectOptions
-    | BenchPublishOptions
-    | BenchSubscribeOptions,
-) => {
+function saveConfig(commandType: CommandType, opts:
+  | ConnectOptions
+  | PublishOptions
+  | SubscribeOptions
+  | BenchConnectOptions
+  | BenchPublishOptions
+  | BenchSubscribeOptions) {
   try {
     const filePath = processPath(opts.save!)
     let data: Config = {}
@@ -101,7 +100,8 @@ const saveConfig = (
     }
     writeFile(filePath, data)
     signale.success(`Configurations saved to ${filePath}`)
-  } catch (error) {
+  }
+  catch (error) {
     signale.error(error)
     process.exit(1)
   }
@@ -121,16 +121,18 @@ function loadConfig(commandType: CommandType, savePath: boolean | string) {
       const config = readFile(filePath)
       validateConfig(commandType, filePath, config)
       return config[commandType]
-    } else {
+    }
+    else {
       signale.error(`Configuration file ${filePath} not found`)
       process.exit(1)
     }
-  } catch (error) {
+  }
+  catch (error) {
     signale.error(error)
     process.exit(1)
   }
 }
 
-export { saveConfig, loadConfig }
+export { loadConfig, saveConfig }
 
 export default saveConfig

@@ -1,26 +1,32 @@
-import { Faker } from '@faker-js/faker'
-import { SimulatePubOptions } from 'mqttx'
+import type { Faker } from '@faker-js/faker'
+import type { SimulatePubOptions } from 'mqttx'
 
 const dataCache: Record<string, any> = {}
 
 function getCurrentSeason() {
   const today = new Date()
   const month = today.getUTCMonth()
-  if (month < 2 || month > 10) return 'Winter'
-  if (month < 5) return 'Spring'
-  if (month < 8) return 'Summer'
+  if (month < 2 || month > 10)
+    return 'Winter'
+  if (month < 5)
+    return 'Spring'
+  if (month < 8)
+    return 'Summer'
   return 'Autumn'
 }
 
 function getTimeOfDay() {
   const hour = new Date().getUTCHours()
-  if (hour < 6 || hour > 20) return 'Night'
-  if (hour < 12) return 'Morning'
-  if (hour < 18) return 'Afternoon'
+  if (hour < 6 || hour > 20)
+    return 'Night'
+  if (hour < 12)
+    return 'Morning'
+  if (hour < 18)
+    return 'Afternoon'
   return 'Evening'
 }
 
-const generator = (faker: Faker, options: SimulatePubOptions) => {
+function generator(faker: Faker, options: SimulatePubOptions) {
   const { clientId } = options
   if (!dataCache[clientId]) {
     dataCache[clientId] = {
@@ -71,12 +77,12 @@ const generator = (faker: Faker, options: SimulatePubOptions) => {
       gust_mph: faker.datatype.number({ min: 0, max: 100 }),
       gust_kph: faker.datatype.number({ min: 0, max: 161 }),
       air_quality: {
-        co: faker.datatype.number({ min: 0, max: 500 }),
-        no2: faker.datatype.number({ min: 0, max: 1, precision: 0.01 }),
-        o3: faker.datatype.number({ min: 0, max: 100 }),
-        so2: faker.datatype.number({ min: 0, max: 1, precision: 0.01 }),
-        pm2_5: faker.datatype.number({ min: 0, max: 1, precision: 0.01 }),
-        pm10: faker.datatype.number({ min: 0, max: 5 }),
+        'co': faker.datatype.number({ min: 0, max: 500 }),
+        'no2': faker.datatype.number({ min: 0, max: 1, precision: 0.01 }),
+        'o3': faker.datatype.number({ min: 0, max: 100 }),
+        'so2': faker.datatype.number({ min: 0, max: 1, precision: 0.01 }),
+        'pm2_5': faker.datatype.number({ min: 0, max: 1, precision: 0.01 }),
+        'pm10': faker.datatype.number({ min: 0, max: 5 }),
         'us-epa-index': faker.datatype.number({ min: 0, max: 5 }),
         'gb-defra-index': faker.datatype.number({ min: 0, max: 5 }),
       },
@@ -92,6 +98,6 @@ const name = 'weather'
 const author = 'EMQX Team'
 const dataFormat = 'JSON'
 const version = '0.0.1'
-const description = "Simulation to generate advanced weather station's data."
+const description = 'Simulation to generate advanced weather station\'s data.'
 
-export { generator, name, author, dataFormat, version, description }
+export { author, dataFormat, description, generator, name, version }
