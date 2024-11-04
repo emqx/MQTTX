@@ -58,7 +58,7 @@ export default {
   tryCloud: {
     zh: '免费试用 EMQX Cloud',
     en: 'Try EMQX Cloud for free',
-    tr: "EMQX Cloud'u ücretsiz deneyin",
+    tr: 'EMQX Cloud\'u ücretsiz deneyin',
     ja: 'EMQX Cloudの無料体験',
     hu: 'Az EMQX Cloud ingyenes próbaverziója',
   },

@@ -14,18 +14,18 @@
  * @author EMQX Team
  */
 
-const calculateEnergyConsumption = (faker, maxPower) => {
+function calculateEnergyConsumption(faker, maxPower) {
   const ratedPower = maxPower * 1000
   const minInstantPower = ratedPower * 0.6
   const instantPower = faker.datatype.number({ min: minInstantPower, max: ratedPower, precision: 0.001 })
   const energy = instantPower / 3600
-  return new Number(energy.toFixed(2))
+  return Number(energy.toFixed(2))
 }
 
 const dataCache = {}
 let factoryList = []
 
-const generator = (faker, options) => {
+function generator(faker, options) {
   // Some fields will not change every time data is generated, so store them according to id
   const { clientId, count } = options
   // Initialize the factory list

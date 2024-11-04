@@ -1,19 +1,21 @@
+import type { FormatType } from 'mqttx'
 import chalk from 'chalk'
-import { FormatType } from 'mqttx'
 
-const convertJSON = (value: Buffer | string, action: 'encode' | 'decode') => {
+function convertJSON(value: Buffer | string, action: 'encode' | 'decode') {
   try {
     if (action === 'decode') {
       return JSON.stringify(JSON.parse(value.toString()), null, 2)
-    } else {
+    }
+    else {
       return Buffer.from(JSON.stringify(JSON.parse(value.toString())))
     }
-  } catch (err) {
+  }
+  catch (err) {
     return chalk.red(err)
   }
 }
 
-const convertPayload = (payload: Buffer | string, format?: FormatType, action: 'encode' | 'decode' = 'decode') => {
+function convertPayload(payload: Buffer | string, format?: FormatType, action: 'encode' | 'decode' = 'decode') {
   const actions = {
     encode: {
       base64: () => Buffer.from(payload.toString(), 'base64'),

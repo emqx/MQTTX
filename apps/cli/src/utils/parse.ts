@@ -1,21 +1,21 @@
-import * as fs from 'fs'
-import signale from '../utils/signale'
+import type { IClientOptions, IClientPublishOptions, IClientSubscribeOptions } from 'mqtt'
+import type { CommandType, ConnectOptions, PublishOptions, SubscribeOptions } from 'mqttx'
+import * as fs from 'node:fs'
+
 import { getSpecialTypesOption } from '../utils/generator'
-
-import { IClientOptions, IClientPublishOptions, IClientSubscribeOptions } from 'mqtt'
+import signale from '../utils/signale'
 import { getLocalScenarioList, getScenarioFilePath } from './simulate'
-import { CommandType, ConnectOptions, PublishOptions, SubscribeOptions } from 'mqttx'
 
-const parseNumber = (value: string) => {
+function parseNumber(value: string) {
   const parsedValue = Number(value)
-  if (isNaN(parsedValue)) {
+  if (Number.isNaN(parsedValue)) {
     signale.error(`${value} is not a number.`)
     process.exit(1)
   }
   return parsedValue
 }
 
-const parseProtocol = (value: string) => {
+function parseProtocol(value: string) {
   if (!['mqtt', 'mqtts', 'ws', 'wss'].includes(value)) {
     signale.error('Only mqtt, mqtts, ws and wss are supported.')
     process.exit(1)
@@ -23,7 +23,7 @@ const parseProtocol = (value: string) => {
   return value
 }
 
-const parseMQTTVersion = (value: string) => {
+function parseMQTTVersion(value: string) {
   const dict = {
     '3.1': 3,
     '3.1.1': 4,
@@ -36,61 +36,68 @@ const parseMQTTVersion = (value: string) => {
   return dict[value as '3.1' | '3.1.1' | '5']
 }
 
-const parseUserProperties = (value: string, previous?: Record<string, string | string[]>) => {
+function parseUserProperties(value: string, previous?: Record<string, string | string[]>) {
   const [key, val] = value.split(': ')
   if (key && val) {
     if (!previous) {
       return { [key]: val }
-    } else {
+    }
+    else {
       if (previous[key]) {
         if (Array.isArray(previous[key])) {
           ;(previous[key] as string[]).push(val)
-        } else {
+        }
+        else {
           previous[key] = [previous[key] as string, val]
         }
         return previous
-      } else {
+      }
+      else {
         return { ...previous, [key]: val }
       }
     }
-  } else {
+  }
+  else {
     signale.error('Not a valid user properties.')
     process.exit(1)
   }
 }
 
-const parseQoS = (value: string, previous: number[] | undefined) => {
+function parseQoS(value: string, previous: number[] | undefined) {
   const parsedValue = Number(value)
-  if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > 2) {
+  if (Number.isNaN(parsedValue) || parsedValue < 0 || parsedValue > 2) {
     signale.error(`${value} is not a valid QoS.`)
     process.exit(1)
-  } else {
+  }
+  else {
     return previous ? [...previous, parsedValue] : [parsedValue]
   }
 }
 
-const parseVariadicOfBooleanType = (value: string, previous: boolean[] | undefined) => {
+function parseVariadicOfBooleanType(value: string, previous: boolean[] | undefined) {
   if (!['true', 'false'].includes(value)) {
     signale.error(`${value} is not a boolean.`)
     process.exit(1)
-  } else {
+  }
+  else {
     const booleanValue = value === 'true'
     return previous ? [...previous, booleanValue] : [booleanValue]
   }
 }
 
-const checkTopicExists = (topic: string | string[] | undefined, commandType: CommandType) => {
+function checkTopicExists(topic: string | string[] | undefined, commandType: CommandType) {
   if (!topic) {
     if (['pub', 'benchPub', 'simulate'].includes(commandType)) {
-      console.log("error: required option '-t, --topic <TOPIC>' not specified")
-    } else if (['sub', 'benchSub'].includes(commandType)) {
-      console.log("error: required option '-t, --topic <TOPIC...>' not specified")
+      console.log('error: required option \'-t, --topic <TOPIC>\' not specified')
+    }
+    else if (['sub', 'benchSub'].includes(commandType)) {
+      console.log('error: required option \'-t, --topic <TOPIC...>\' not specified')
     }
     process.exit(1)
   }
 }
 
-const parsePubTopic = (value: string) => {
+function parsePubTopic(value: string) {
   if (value.includes('+') || value.includes('#')) {
     signale.error('You cannot publish the message to a Topic that contains wildcards characters #, +')
     process.exit(1)
@@ -98,7 +105,7 @@ const parsePubTopic = (value: string) => {
   return value
 }
 
-const parseFormat = (value: string) => {
+function parseFormat(value: string) {
   if (!['base64', 'json', 'hex'].includes(value)) {
     signale.error('Not a valid format type.')
     process.exit(1)
@@ -106,7 +113,7 @@ const parseFormat = (value: string) => {
   return value
 }
 
-const parseOutputMode = (value: string) => {
+function parseOutputMode(value: string) {
   if (!['clean', 'default'].includes(value)) {
     signale.error('Not a valid output mode.')
     process.exit(1)
@@ -114,10 +121,10 @@ const parseOutputMode = (value: string) => {
   return value
 }
 
-const checkScenarioExists = (name?: string, file?: string) => {
+function checkScenarioExists(name?: string, file?: string) {
   if (!name && !file) {
     console.log(
-      "error: required option '-sc, --scenario <SCENARIO>' or '-f, --file <SCENARIO FILE PATH>' not specified",
+      'error: required option \'-sc, --scenario <SCENARIO>\' or \'-f, --file <SCENARIO FILE PATH>\' not specified',
     )
     process.exit(1)
   }
@@ -131,7 +138,8 @@ const checkScenarioExists = (name?: string, file?: string) => {
       signale.error(`Scenario ${name} not found in [${scenarioList.join(', ')}]`)
       process.exit(1)
     }
-  } else if (file) {
+  }
+  else if (file) {
     if (!getScenarioFilePath(file)) {
       signale.error(`Scenario file ${file} not found.`)
       process.exit(1)
@@ -143,10 +151,7 @@ const checkScenarioExists = (name?: string, file?: string) => {
   }
 }
 
-const parseConnectOptions = (
-  options: ConnectOptions | PublishOptions | SubscribeOptions,
-  commandType?: CommandType,
-) => {
+function parseConnectOptions(options: ConnectOptions | PublishOptions | SubscribeOptions, commandType?: CommandType) {
   const {
     mqttVersion,
     hostname,
@@ -243,17 +248,18 @@ const parseConnectOptions = (
       userProperties: willUserProperties,
     }
 
-    connectOptions.will &&
-      (connectOptions.will.properties = Object.fromEntries(
-        Object.entries(willProperties).filter(([_, v]) => v !== null && v !== undefined),
-      ))
+    connectOptions.will
+    && (connectOptions.will.properties = Object.fromEntries(
+      Object.entries(willProperties).filter(([_, v]) => v !== null && v !== undefined),
+    ))
   }
   let optionsTempWorkAround
   if (mqttVersion === 3) {
     connectOptions.protocolId = 'MQIsdp'
-  } else if (mqttVersion === 5) {
-    const userProperties =
-      commandType === 'conn' ? options.userProperties : (<PublishOptions | SubscribeOptions>options).connUserProperties
+  }
+  else if (mqttVersion === 5) {
+    const userProperties
+      = commandType === 'conn' ? options.userProperties : (<PublishOptions | SubscribeOptions>options).connUserProperties
     const properties = {
       sessionExpiryInterval,
       receiveMaximum,
@@ -267,8 +273,9 @@ const parseConnectOptions = (
     if (clean === false) {
       if (sessionExpiryInterval !== undefined) {
         properties.sessionExpiryInterval = sessionExpiryInterval
-      } else {
-        properties.sessionExpiryInterval = parseInt('0xFFFFFFFF', 16)
+      }
+      else {
+        properties.sessionExpiryInterval = Number.parseInt('0xFFFFFFFF', 16)
       }
     }
 
@@ -286,7 +293,7 @@ const parseConnectOptions = (
   return optionsTempWorkAround || connectOptions
 }
 
-const parsePublishOptions = (options: PublishOptions) => {
+function parsePublishOptions(options: PublishOptions) {
   const {
     topic,
     message,
@@ -332,7 +339,7 @@ const parsePublishOptions = (options: PublishOptions) => {
   return { topic, message, protobufPath, protobufMessageName, format, opts: publishOptions }
 }
 
-const parseSubscribeOptions = (options: SubscribeOptions) => {
+function parseSubscribeOptions(options: SubscribeOptions) {
   const {
     mqttVersion,
     topic,
@@ -372,18 +379,18 @@ const parseSubscribeOptions = (options: SubscribeOptions) => {
 }
 
 export {
-  parseNumber,
-  parseProtocol,
-  parseMQTTVersion,
-  parseUserProperties,
-  parseQoS,
-  parseVariadicOfBooleanType,
-  checkTopicExists,
   checkScenarioExists,
-  parsePubTopic,
-  parseFormat,
-  parseOutputMode,
+  checkTopicExists,
   parseConnectOptions,
+  parseFormat,
+  parseMQTTVersion,
+  parseNumber,
+  parseOutputMode,
+  parseProtocol,
   parsePublishOptions,
+  parsePubTopic,
+  parseQoS,
   parseSubscribeOptions,
+  parseUserProperties,
+  parseVariadicOfBooleanType,
 }

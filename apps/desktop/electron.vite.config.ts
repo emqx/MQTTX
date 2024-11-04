@@ -1,9 +1,9 @@
-import { resolve } from 'path'
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
+import { resolve } from 'node:path'
 import vue from '@vitejs/plugin-vue'
-import VueRouter from 'unplugin-vue-router/vite'
-import Components from 'unplugin-vue-components/vite'
+import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
+import Components from 'unplugin-vue-components/vite'
+import VueRouter from 'unplugin-vue-router/vite'
 
 export default defineConfig({
   main: {

@@ -20,13 +20,13 @@
 
 const dataCache = {}
 
-const generator = (faker, options) => {
+function generator(faker, options) {
   // Some fields will not change every time data is generated, so store them according to id
   const { clientId } = options
   if (!dataCache[clientId]) {
     dataCache[clientId] = {
       car_id: faker.vehicle.vin(),
-      display_name: faker.name.firstName() + "'s Tesla",
+      display_name: `${faker.name.firstName()}'s Tesla`,
       model: faker.helpers.arrayElement(['S', '3', 'X', 'Y']),
       trim_badging: faker.lorem.word(),
       exterior_color: faker.color.human(),
@@ -94,7 +94,7 @@ const name = 'tesla'
 const author = 'EMQX Team'
 const dataFormat = 'JSON'
 const version = '0.0.1'
-const description = "Simulation to generate Tesla's data, reference form https://github.com/adriankumpf/teslamate"
+const description = 'Simulation to generate Tesla\'s data, reference form https://github.com/adriankumpf/teslamate'
 
 module.exports = {
   generator,

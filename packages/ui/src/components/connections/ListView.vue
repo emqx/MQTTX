@@ -10,5 +10,5 @@
 </script>
 
 <template>
-  <div class="connection-list-view p-4"></div>
+  <div class="connection-list-view p-4" />
 </template>

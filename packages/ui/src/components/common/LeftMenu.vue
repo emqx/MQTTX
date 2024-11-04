@@ -42,16 +42,16 @@ const helpMenus = reactive({
 <template>
   <el-aside width="80px" class="flex flex-col justify-between items-center">
     <a :href="linksMap.homepage" target="_blank" rel="noopener noreferrer" class="w-[40px] h-[40px] block mt-12">
-      <img src="../../assets/images/logo.png" alt="app-logo" width="40" height="40" />
+      <img src="../../assets/images/logo.png" alt="app-logo" width="40" height="40">
     </a>
     <div class="flex flex-col">
       <router-link v-for="menu in featMenus" :key="menu.path" :to="menu.path" class="no-underline mb-8 text-main-white">
-        <i :class="`iconfont ${menu.icon} text-xl`"></i>
+        <i :class="`iconfont ${menu.icon} text-xl`" />
       </router-link>
     </div>
     <div class="flex flex-col">
       <router-link v-for="menu in helpMenus" :key="menu.path" :to="menu.path" class="no-underline mb-8 text-main-white">
-        <i :class="`iconfont ${menu.icon} text-xl`"></i>
+        <i :class="`iconfont ${menu.icon} text-xl`" />
       </router-link>
     </div>
   </el-aside>

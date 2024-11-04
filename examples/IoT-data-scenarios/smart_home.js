@@ -19,7 +19,7 @@
 
 const dataCache = {}
 
-const generateRoomData = (faker, roomType) => {
+function generateRoomData(faker, roomType) {
   const currentHour = new Date().getHours()
   const isDaytime = currentHour > 6 && currentHour < 20
   const isSleepingHours = currentHour > 22 || currentHour < 6
@@ -61,7 +61,7 @@ const generateRoomData = (faker, roomType) => {
   return baseData
 }
 
-const generator = (faker, options) => {
+function generator(faker, options) {
   const { clientId } = options
   if (!dataCache[clientId]) {
     dataCache[clientId] = {
@@ -75,7 +75,7 @@ const generator = (faker, options) => {
 
   const data = {
     ...dataCache[clientId],
-    rooms: roomTypes.map((roomType) => generateRoomData(faker, roomType)),
+    rooms: roomTypes.map(roomType => generateRoomData(faker, roomType)),
     timestamp: Date.now(),
   }
   return {

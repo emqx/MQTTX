@@ -45,7 +45,7 @@ export default {
     en: 'Quit MQTTX',
     zh: '退出 MQTTX',
     ja: 'MQTTX を終了',
-    tr: "MQTTX'i Kapat",
+    tr: 'MQTTX\'i Kapat',
     hu: 'MQTTX kilépése',
   },
   file: {

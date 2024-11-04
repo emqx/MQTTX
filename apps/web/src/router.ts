@@ -1,6 +1,6 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
-import { routes, handleHotUpdate } from 'vue-router/auto-routes'
 import useMockData from '@/composables/useMockData'
+import { createRouter, createWebHashHistory } from 'vue-router'
+import { handleHotUpdate, routes } from 'vue-router/auto-routes'
 
 routes.push({
   path: '/',
@@ -28,7 +28,8 @@ router.beforeEach((to, _from, next) => {
       return
     }
     next()
-  } else {
+  }
+  else {
     next()
   }
 })

@@ -478,7 +478,7 @@ export default {
   clientIdWithTimeTip: {
     zh: '在连接时附加时间戳到 ClientID，以防止重复的连接',
     en: 'Append a timestamp to the ClientID at connection time to prevent duplicate connections',
-    tr: "Yinelenen bağlantıları önlemek için ClientID'ye bir zaman damgası ekleyin",
+    tr: 'Yinelenen bağlantıları önlemek için ClientID\'ye bir zaman damgası ekleyin',
     ja: '重複接続を防ぐために、ClientIDにタイムスタンプを追加します',
     hu: 'Adjon hozzá egy időbélyeget a ClientID-hoz, hogy elkerülje a duplikációt.',
   },
@@ -735,9 +735,9 @@ export default {
   },
   secureTip: {
     zh: '是否验证服务端证书链和地址名称',
-    en: "Whether a client verifies the server's certificate chain and host name",
+    en: 'Whether a client verifies the server\'s certificate chain and host name',
     tr: 'İstemcinin sunucunun sertifika zincirini ve ana bilgisayar adını doğrulayıp doğrulamadığı',
-    ja: "Whether a client verifies the server's certificate chain and host name",
+    ja: 'Whether a client verifies the server\'s certificate chain and host name',
     hu: 'Amennyiben a kliens visszaigazolja a szerver tanusítványt láncot és a kiszolgáló nevét',
   },
   newCollection: {

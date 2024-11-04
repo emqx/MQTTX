@@ -3,6 +3,7 @@
   "version": "2.0.0-alpha.1",
   "description": "MQTTX CLI - An MQTT client for the command line",
   "author": "EMQX Team <yusf@emqx.io>",
+  "license": "Apache-2.0",
   "homepage": "https://mqttx.app/cli",
   "keywords": [
     "mqtt",
@@ -10,17 +11,16 @@
     "publish",
     "subscribe"
   ],
-  "scripts": {
-    "dev": "tsc -w",
-    "build": "tsc && pkg . -o ./release/mqttx-cli"
-  },
   "main": "./dist/src/index.js",
   "bin": {
     "mqttx": "./bin/index.js"
   },
-  "license": "Apache-2.0",
   "engines": {
     "node": ">=16"
+  },
+  "scripts": {
+    "dev": "tsc -w",
+    "build": "tsc && pkg . -o ./release/mqttx-cli"
   },
   "dependencies": {
     "axios": "^0.27.2",

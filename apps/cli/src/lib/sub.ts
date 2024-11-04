@@ -1,18 +1,13 @@
+import type { BenchSubscribeOptions, FormatType, SubscribeOptions } from 'mqttx'
 import * as mqtt from 'mqtt'
-import { Signale, signale, msgLog, basicLog, benchLog } from '../utils/signale'
-import { parseConnectOptions, parseSubscribeOptions, checkTopicExists } from '../utils/parse'
-import delay from '../utils/delay'
+import { loadConfig, saveConfig } from '../utils/config'
 import convertPayload from '../utils/convertPayload'
-import { saveConfig, loadConfig } from '../utils/config'
+import delay from '../utils/delay'
+import { checkTopicExists, parseConnectOptions, parseSubscribeOptions } from '../utils/parse'
 import { deserializeBufferToProtobuf } from '../utils/protobuf'
-import { FormatType, SubscribeOptions, BenchSubscribeOptions } from 'mqttx'
+import { basicLog, benchLog, msgLog, Signale, signale } from '../utils/signale'
 
-const processReceivedMessage = (
-  payload: Buffer,
-  protobufPath: string | undefined,
-  protobufMessageName: string | undefined,
-  format: FormatType | undefined,
-): string => {
+function processReceivedMessage(payload: Buffer, protobufPath: string | undefined, protobufMessageName: string | undefined, format: FormatType | undefined): string {
   let message: string | Buffer = payload
   /*
    * Pipeline for processing incoming messages, following two potential steps:
@@ -36,7 +31,7 @@ const processReceivedMessage = (
   return message
 }
 
-const sub = (options: SubscribeOptions) => {
+function sub(options: SubscribeOptions) {
   const { save, config } = options
 
   config && (options = loadConfig('sub', config))
@@ -75,7 +70,8 @@ const sub = (options: SubscribeOptions) => {
         if (err) {
           !outputModeClean && basicLog.error(err)
           process.exit(1)
-        } else {
+        }
+        else {
           !outputModeClean && basicLog.subscribed(t)
         }
 
@@ -96,17 +92,18 @@ const sub = (options: SubscribeOptions) => {
 
     options.verbose && msgData.push({ label: 'topic', value: topic })
 
-    let receivedMessage = processReceivedMessage(payload, protobufPath, protobufMessageName, format)
+    const receivedMessage = processReceivedMessage(payload, protobufPath, protobufMessageName, format)
     msgData.push({ label: 'payload', value: receivedMessage })
 
     packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 
     if (packet.properties?.userProperties) {
-      const up: { key: string; value: string }[] = []
+      const up: { key: string, value: string }[] = []
       Object.entries(packet.properties.userProperties).forEach(([key, value]) => {
         if (typeof value === 'string') {
           up.push({ key, value })
-        } else {
+        }
+        else {
           value.forEach((v) => {
             up.push({ key, value: v })
           })
@@ -131,7 +128,8 @@ const sub = (options: SubscribeOptions) => {
       client.end(false, {}, () => {
         !outputModeClean && basicLog.reconnectTimesLimit()
       })
-    } else {
+    }
+    else {
       !outputModeClean && basicLog.reconnecting()
     }
   })
@@ -141,7 +139,7 @@ const sub = (options: SubscribeOptions) => {
   })
 }
 
-const benchSub = async (options: BenchSubscribeOptions) => {
+async function benchSub(options: BenchSubscribeOptions) {
   const { save, config } = options
 
   config && (options = loadConfig('benchSub', config))
@@ -158,9 +156,9 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
   const subOptsArray = parseSubscribeOptions(options)
 
-  const isNewConnArray = Array(count).fill(true)
+  const isNewConnArray = Array.from({ length: count }, () => true)
 
-  const retryTimesArray = Array(count).fill(0)
+  const retryTimesArray = Array.from({ length: count }, () => 0)
 
   const interactive = new Signale({ interactive: true })
   const simpleInteractive = new Signale({
@@ -205,7 +203,8 @@ const benchSub = async (options: BenchSubscribeOptions) => {
               if (err) {
                 signale.error(`[${i}/${count}] - Client ID: ${opts.clientId}, ${err}`)
                 process.exit(1)
-              } else {
+              }
+              else {
                 interactive.success('[%d/%d] - Subscribed to %s', connectedCount, count, topicName)
               }
 
@@ -231,7 +230,8 @@ const benchSub = async (options: BenchSubscribeOptions) => {
                     simpleInteractive.info(`Received total: ${total}, rate: ${rate}/s`)
                     oldTotal = total
                   }, 1000)
-                } else {
+                }
+                else {
                   setInterval(() => {
                     if (total > oldTotal) {
                       const rate = total - oldTotal
@@ -243,7 +243,8 @@ const benchSub = async (options: BenchSubscribeOptions) => {
               }
             })
           })
-        } else {
+        }
+        else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)
         }
       })
@@ -262,11 +263,12 @@ const benchSub = async (options: BenchSubscribeOptions) => {
         if (retryTimesArray[i - 1] > maximumReconnectTimes) {
           client.end(false, {}, () => {
             benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
-            if (retryTimesArray.findIndex((times) => times <= maximumReconnectTimes) === -1) {
+            if (retryTimesArray.findIndex(times => times <= maximumReconnectTimes) === -1) {
               process.exit(1)
             }
           })
-        } else {
+        }
+        else {
           benchLog.reconnecting(connectedCount, count, opts.clientId!)
           isNewConnArray[i - 1] = false
         }
@@ -284,4 +286,4 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
 export default sub
 
-export { sub, benchSub }
+export { benchSub, sub }

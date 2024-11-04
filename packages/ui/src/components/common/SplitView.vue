@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, type PropType } from 'vue'
+import { computed, onMounted, type PropType, ref } from 'vue'
 
 const props = defineProps({
   fixedPanelSize: {
@@ -39,10 +39,11 @@ function parseSize(size: string | number, containerSize: number): number {
   if (typeof size === 'string') {
     // Assuming you want to handle percentage values in the string
     if (size.endsWith('%')) {
-      const percentage = parseFloat(size) / 100
+      const percentage = Number.parseFloat(size) / 100
       return containerSize * percentage
-    } else {
-      return parseFloat(size)
+    }
+    else {
+      return Number.parseFloat(size)
     }
   }
   return size
@@ -50,14 +51,16 @@ function parseSize(size: string | number, containerSize: number): number {
 
 const containerStyles = computed(() => {
   const base = 'split-view relative h-full flex'
-  if (props.vertical) return `${base} flex-col`
+  if (props.vertical)
+    return `${base} flex-col`
   return base
 })
 const resizeHandleStyles = computed(() => {
   const base = 'resize-handle relative'
   if (props.vertical) {
     return `${base} w-full h-[1px] cursor-row-resize`
-  } else {
+  }
+  else {
     return `${base} w-[1px] h-full cursor-col-resize`
   }
 })
@@ -72,15 +75,16 @@ const resizeHandleHoverStyles = computed(() => [
     : [props.vertical ? 'h-[4px] bg-main-green' : 'w-[4px] bg-main-green'],
 ])
 
-const getPanelStyles = () => {
+function getPanelStyles() {
   if (props.vertical) {
     return { height: `${panelSize.value}px` }
-  } else {
+  }
+  else {
     return { width: `${panelSize.value}px` }
   }
 }
 
-const startResizing = (event: MouseEvent) => {
+function startResizing(event: MouseEvent) {
   event.preventDefault()
   isResizing.value = true
   startValue = props.vertical ? event.clientY : event.clientX
@@ -94,8 +98,9 @@ const startResizing = (event: MouseEvent) => {
   document.addEventListener('mouseup', stopResizing)
 }
 
-const handleMouseMove = (event: MouseEvent) => {
-  if (!isResizing.value || !resizePanel.value?.parentElement) return
+function handleMouseMove(event: MouseEvent) {
+  if (!isResizing.value || !resizePanel.value?.parentElement)
+    return
 
   const { offsetHeight, offsetWidth } = resizePanel.value.parentElement
   const containerSize = props.vertical ? offsetHeight : offsetWidth
@@ -109,7 +114,8 @@ const handleMouseMove = (event: MouseEvent) => {
     const maxPanelSize = containerSize - minSize
     const minPanelSize = containerSize - maxSize
     newSize = Math.max(minPanelSize, Math.min(newSize, maxPanelSize))
-  } else {
+  }
+  else {
     newSize = Math.max(minSize, Math.min(newSize, maxSize))
   }
 
@@ -120,8 +126,9 @@ const handleMouseMove = (event: MouseEvent) => {
   })
 }
 
-const stopResizing = () => {
-  if (!isResizing.value) return
+function stopResizing() {
+  if (!isResizing.value)
+    return
   isResizing.value = false
   document.removeEventListener('mousemove', handleMouseMove)
   document.removeEventListener('mouseup', stopResizing)
@@ -142,13 +149,13 @@ onMounted(() => {
 <template>
   <div :class="containerStyles">
     <div v-if="hidePanelName !== 'panel-1'" ref="resizePanel" class="panel-1" :style="getPanelStyles()">
-      <slot name="panel-1"></slot>
+      <slot name="panel-1" />
     </div>
     <div :class="resizeHandleStyles" @mousedown="startResizing">
-      <div :class="resizeHandleHoverStyles"></div>
+      <div :class="resizeHandleHoverStyles" />
     </div>
     <div v-if="hidePanelName !== 'panel-2'" class="panel-2 flex-1">
-      <slot name="panel-2"></slot>
+      <slot name="panel-2" />
     </div>
   </div>
 </template>

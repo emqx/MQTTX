@@ -1,5 +1,5 @@
-import { Faker } from '@faker-js/faker'
-import { SimulatePubOptions } from 'mqttx'
+import type { Faker } from '@faker-js/faker'
+import type { SimulatePubOptions } from 'mqttx'
 
 const dataCache: Record<string, any> = {}
 
@@ -25,7 +25,7 @@ interface BedroomData extends RoomData {
   bed_occupancy: boolean
 }
 
-const generateRoomData = (faker: Faker, roomType: string): RoomData | KitchenData | BathroomData | BedroomData => {
+function generateRoomData(faker: Faker, roomType: string): RoomData | KitchenData | BathroomData | BedroomData {
   const currentHour = new Date().getHours()
   const isDaytime = currentHour > 6 && currentHour < 20
   const isSleepingHours = currentHour > 22 || currentHour < 6
@@ -70,7 +70,7 @@ const generateRoomData = (faker: Faker, roomType: string): RoomData | KitchenDat
   return baseData
 }
 
-const generator = (faker: Faker, options: SimulatePubOptions) => {
+function generator(faker: Faker, options: SimulatePubOptions) {
   const { clientId } = options
   if (!dataCache[clientId]) {
     dataCache[clientId] = {
@@ -84,7 +84,7 @@ const generator = (faker: Faker, options: SimulatePubOptions) => {
 
   const data = {
     ...dataCache[clientId],
-    rooms: roomTypes.map((roomType) => generateRoomData(faker, roomType)),
+    rooms: roomTypes.map(roomType => generateRoomData(faker, roomType)),
     timestamp: Date.now(),
   }
   return {
@@ -98,4 +98,4 @@ const dataFormat = 'JSON'
 const version = '0.0.1'
 const description = 'Simulation to generate Smart Home data.'
 
-export { generator, name, author, dataFormat, version, description }
+export { author, dataFormat, description, generator, name, version }

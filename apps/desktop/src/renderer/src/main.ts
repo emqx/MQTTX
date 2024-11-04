@@ -1,11 +1,11 @@
+import { i18n, pinia, useSettingsStore } from '@mqttx/ui'
+import { createApp } from 'vue'
+
+import App from './App.vue'
+import { router } from './router'
+
 import '@mqttx/ui/dist/style.css'
 import './assets/scss/main.scss'
-
-import { createApp } from 'vue'
-import App from './App.vue'
-
-import { router } from './router'
-import { pinia, i18n, useSettingsStore } from '@mqttx/ui'
 
 // Create Vue
 const app = createApp(App)

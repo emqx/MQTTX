@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import SplitView from '../common/SplitView.vue'
 
 interface SplitViewInstance {
@@ -16,7 +16,7 @@ interface SplitViewInstance {
   // Add other properties and methods as needed
 }
 
-describe('SplitView', () => {
+describe('splitView', () => {
   let wrapper: ReturnType<typeof mount>
   beforeEach(() => {
     wrapper = mount(SplitView, {
@@ -117,13 +117,13 @@ describe('SplitView', () => {
     splitViewInstance.handleMouseMove(moveEvent)
 
     // Wait for the animation frame and Vue's next tick
-    await new Promise((resolve) => requestAnimationFrame(resolve))
+    await new Promise(resolve => requestAnimationFrame(resolve))
     await wrapper.vm.$nextTick()
 
     // Assert
     const expectedSize = 310 // 260 + 50 = 310
-    const minSize = parseInt(wrapper.props('minSize'), 10)
-    const maxSize = parseInt(wrapper.props('maxSize'), 10)
+    const minSize = Number.parseInt(wrapper.props('minSize'), 10)
+    const maxSize = Number.parseInt(wrapper.props('maxSize'), 10)
 
     // Check that the panel size has updated correctly within the constraints
     expect(splitViewInstance.panelSize).toBeGreaterThanOrEqual(minSize)
@@ -131,9 +131,11 @@ describe('SplitView', () => {
     // Ensure the panel size has updated to what we expect (within the constraints)
     if (expectedSize >= minSize && expectedSize <= maxSize) {
       expect(splitViewInstance.panelSize).toBe(expectedSize)
-    } else if (expectedSize < minSize) {
+    }
+    else if (expectedSize < minSize) {
       expect(splitViewInstance.panelSize).toBe(minSize)
-    } else if (expectedSize > maxSize) {
+    }
+    else if (expectedSize > maxSize) {
       expect(splitViewInstance.panelSize).toBe(maxSize)
     }
   })

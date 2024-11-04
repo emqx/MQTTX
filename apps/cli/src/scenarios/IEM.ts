@@ -1,18 +1,18 @@
-import { Faker } from '@faker-js/faker'
-import { SimulatePubOptions } from 'mqttx'
+import type { Faker } from '@faker-js/faker'
+import type { SimulatePubOptions } from 'mqttx'
 
-const calculateEnergyConsumption = (faker: Faker, maxPower: number) => {
+function calculateEnergyConsumption(faker: Faker, maxPower: number) {
   const ratedPower = maxPower * 1000
   const minInstantPower = ratedPower * 0.6
   const instantPower = faker.datatype.number({ min: minInstantPower, max: ratedPower, precision: 0.001 })
   const energy = instantPower / 3600
-  return new Number(energy.toFixed(2))
+  return Number(energy.toFixed(2))
 }
 
 const dataCache: Record<string, any> = {}
-let factoryList: { id: string; name: string }[] = []
+let factoryList: { id: string, name: string }[] = []
 
-const generator = (faker: Faker, options: SimulatePubOptions) => {
+function generator(faker: Faker, options: SimulatePubOptions) {
   // Some fields will not change every time data is generated, so store them according to id
   const { clientId, count } = options
   // Initialize the factory list
@@ -60,4 +60,4 @@ const dataFormat = 'JSON'
 const version = '0.0.1'
 const description = 'Simulation to generate Industrial Energy Monitoring data.'
 
-export { generator, name, author, dataFormat, version, description }
+export { author, dataFormat, description, generator, name, version }
