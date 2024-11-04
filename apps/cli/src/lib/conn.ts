@@ -37,8 +37,7 @@ function conn(options: ConnectOptions) {
       client.end(false, {}, () => {
         basicLog.reconnectTimesLimit()
       })
-    }
-    else {
+    } else {
       basicLog.reconnecting()
     }
   })
@@ -91,8 +90,7 @@ async function benchConn(options: BenchConnectOptions) {
             const end = Date.now()
             signale.info(`Done, total time: ${(end - start) / 1000}s`)
           }
-        }
-        else {
+        } else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)
         }
       })
@@ -108,8 +106,7 @@ async function benchConn(options: BenchConnectOptions) {
           client.end(false, {}, () => {
             benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
           })
-        }
-        else {
+        } else {
           benchLog.reconnecting(connectedCount, count, opts.clientId!)
           isNewConnArray[i - 1] = false
         }

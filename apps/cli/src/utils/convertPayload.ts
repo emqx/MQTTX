@@ -5,12 +5,10 @@ function convertJSON(value: Buffer | string, action: 'encode' | 'decode') {
   try {
     if (action === 'decode') {
       return JSON.stringify(JSON.parse(value.toString()), null, 2)
-    }
-    else {
+    } else {
       return Buffer.from(JSON.stringify(JSON.parse(value.toString())))
     }
-  }
-  catch (err) {
+  } catch (err) {
     return chalk.red(err)
   }
 }

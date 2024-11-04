@@ -23,12 +23,10 @@ function writeFile(filePath: string, data: Config) {
     fs.mkdirSync(path.dirname(filePath), { recursive: true })
     if (filePath.endsWith('.yaml') || filePath.endsWith('.yml')) {
       fs.writeFileSync(filePath, YAML.dump(data))
-    }
-    else {
+    } else {
       fs.writeFileSync(filePath, JSON.stringify(data, null, 2))
     }
-  }
-  catch (error) {
+  } catch (error) {
     signale.error(error)
     process.exit(1)
   }
@@ -41,8 +39,7 @@ function readFile(path: string) {
       return YAML.load(config) as Config
     }
     return JSON.parse(config) as Config
-  }
-  catch (error) {
+  } catch (error) {
     signale.error(error)
     process.exit(1)
   }
@@ -54,8 +51,7 @@ function processPath(savePath: boolean | string) {
   let filePath = ''
   if (savePath === true) {
     filePath = defaultPath
-  }
-  else if (typeof savePath === 'string') {
+  } else if (typeof savePath === 'string') {
     filePath = path.normalize(savePath)
     if (!path.isAbsolute(filePath)) {
       filePath = path.resolve(filePath)
@@ -100,8 +96,7 @@ function saveConfig(commandType: CommandType, opts:
     }
     writeFile(filePath, data)
     signale.success(`Configurations saved to ${filePath}`)
-  }
-  catch (error) {
+  } catch (error) {
     signale.error(error)
     process.exit(1)
   }
@@ -121,13 +116,11 @@ function loadConfig(commandType: CommandType, savePath: boolean | string) {
       const config = readFile(filePath)
       validateConfig(commandType, filePath, config)
       return config[commandType]
-    }
-    else {
+    } else {
       signale.error(`Configuration file ${filePath} not found`)
       process.exit(1)
     }
-  }
-  catch (error) {
+  } catch (error) {
     signale.error(error)
     process.exit(1)
   }

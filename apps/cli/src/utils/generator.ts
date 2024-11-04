@@ -18,13 +18,10 @@ function getSpecialTypesOption(
   defaultVal?: number | boolean,
 ) {
   const typelist = ['boolean', 'number']
-  if (typelist.includes(typeof option))
-    return option
+  if (typelist.includes(typeof option)) return option
   if (Array.isArray(option)) {
-    if (typelist.includes(typeof option[index]))
-      return option[index]
-    if (typelist.includes(typeof option[0]))
-      return option[0]
+    if (typelist.includes(typeof option[index])) return option[index]
+    if (typelist.includes(typeof option[0])) return option[0]
   }
   return defaultVal
 }

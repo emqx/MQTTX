@@ -48,8 +48,7 @@ function send(config: boolean | string | undefined, connOpts: IClientOptions, pu
     client.publish(topic, publishMessage, pubOpts.opts, (err) => {
       if (err) {
         signale.warn(err)
-      }
-      else {
+      } else {
         basicLog.published()
       }
       // FIXME: When using the ws and wss protocols to connect, and QoS is 0, the message may not have been successfully sent when the publish callback is triggered. Therefore, delay closing the connection for 2 seconds.
@@ -57,8 +56,7 @@ function send(config: boolean | string | undefined, connOpts: IClientOptions, pu
         setTimeout(() => {
           client.end()
         }, 2000)
-      }
-      else {
+      } else {
         client.end()
       }
     })
@@ -117,8 +115,7 @@ function multisend(config: boolean | string | undefined, connOpts: IClientOption
         basicLog.reconnectTimesLimit()
         process.exit(1)
       })
-    }
-    else {
+    } else {
       basicLog.reconnecting()
       isNewConnection = false
       sender.uncork()
@@ -148,8 +145,7 @@ function pub(options: PublishOptions) {
   if (options.stdin) {
     if (options.multiline) {
       multisend(config, connOpts, pubOpts, options.maximumReconnectTimes)
-    }
-    else {
+    } else {
       process.stdin.pipe(
         concat((data) => {
           pubOpts.message = data
@@ -157,8 +153,7 @@ function pub(options: PublishOptions) {
         }),
       )
     }
-  }
-  else {
+  } else {
     send(config, connOpts, pubOpts)
   }
 }
@@ -174,8 +169,7 @@ async function multiPub(commandType: CommandType, options: BenchPublishOptions |
     const simulateOptions = options as SimulatePubOptions
     checkScenarioExists(simulateOptions.scenario, simulateOptions.file)
     simulator = loadSimulator(simulateOptions.scenario, simulateOptions.file)
-  }
-  else {
+  } else {
     options = config ? loadConfig('benchPub', config) : options
     save && saveConfig('benchPub', options)
   }
@@ -214,8 +208,7 @@ async function multiPub(commandType: CommandType, options: BenchPublishOptions |
       topic,
       simulator.name || simulator.file,
     )
-  }
-  else if (commandType === 'benchPub') {
+  } else if (commandType === 'benchPub') {
     benchLog.start.pub(config, count, interval, messageInterval, hostname, port, topic, message.toString())
   }
 
@@ -261,8 +254,7 @@ async function multiPub(commandType: CommandType, options: BenchPublishOptions |
             client.publish(publishTopic, publishMessage, pubOpts.opts, (err) => {
               if (err) {
                 signale.warn(err)
-              }
-              else {
+              } else {
                 total += 1
                 rate += 1
               }
@@ -282,16 +274,14 @@ async function multiPub(commandType: CommandType, options: BenchPublishOptions |
                 simpleInteractive.info(`Published total: ${total}, message rate: ${rate}/s`)
                 rate = 0
               }, 1000)
-            }
-            else {
+            } else {
               setInterval(() => {
                 signale.info(`Published total: ${total}, message rate: ${rate}/s`)
                 rate = 0
               }, 1000)
             }
           }
-        }
-        else {
+        } else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)
         }
       })
@@ -310,8 +300,7 @@ async function multiPub(commandType: CommandType, options: BenchPublishOptions |
               process.exit(1)
             }
           })
-        }
-        else {
+        } else {
           benchLog.reconnecting(connectedCount, count, opts.clientId!)
           isNewConnArray[i - 1] = false
         }

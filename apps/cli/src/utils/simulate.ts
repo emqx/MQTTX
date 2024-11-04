@@ -60,8 +60,7 @@ const loadSimulator = function (name?: string, file?: string): Simulator {
       file,
       realFilePath: filePath,
     } as Simulator
-  }
-  catch (err) {
+  } catch (err) {
     throw new Error(`Load simulator error: ${err}`)
   }
 }

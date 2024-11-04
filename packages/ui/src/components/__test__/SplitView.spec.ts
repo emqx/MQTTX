@@ -131,11 +131,9 @@ describe('splitView', () => {
     // Ensure the panel size has updated to what we expect (within the constraints)
     if (expectedSize >= minSize && expectedSize <= maxSize) {
       expect(splitViewInstance.panelSize).toBe(expectedSize)
-    }
-    else if (expectedSize < minSize) {
+    } else if (expectedSize < minSize) {
       expect(splitViewInstance.panelSize).toBe(minSize)
-    }
-    else if (expectedSize > maxSize) {
+    } else if (expectedSize > maxSize) {
       expect(splitViewInstance.panelSize).toBe(maxSize)
     }
   })

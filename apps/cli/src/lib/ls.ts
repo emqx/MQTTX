@@ -23,8 +23,7 @@ async function listScenarios(): Promise<Scenario[]> {
         })
       }
     }
-  }
-  catch (error) {
+  } catch (error) {
     console.error(`Error reading scenarios directory: ${error}`)
   }
   return scenarios
@@ -46,8 +45,7 @@ async function ls(options: LsOptions) {
       console.log('You can use any of the above scenario names as a parameter to run the scenario.')
       // Log the table
       console.log(table.toString())
-    }
-    catch (err) {
+    } catch (err) {
       console.log(err)
     }
   }

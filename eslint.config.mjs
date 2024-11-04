@@ -27,6 +27,9 @@ export default antfu(
   },
   {
     rules: {
+      'antfu/if-newline': 'off',
+      'style/brace-style': ['error', '1tbs', { allowSingleLine: true }],
+      'style/nonblock-statement-body-position': ['error', 'beside'],
       'no-console': 'warn',
       'n/prefer-global/process': 'off',
       'node/prefer-global/buffer': 'off',
