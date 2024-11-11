@@ -16,7 +16,7 @@
     "mqttx": "./bin/index.js"
   },
   "engines": {
-    "node": ">=16"
+    "node": "22"
   },
   "scripts": {
     "dev": "tsc -w",

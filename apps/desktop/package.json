@@ -6,7 +6,7 @@
   "homepage": "https://mqttx.app",
   "main": "./out/main/index.js",
   "engines": {
-    "node": ">=18"
+    "node": "22"
   },
   "scripts": {
     "dev": "electron-vite dev",
