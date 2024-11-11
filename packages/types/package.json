@@ -6,7 +6,7 @@
     "type-check": "tsc"
   },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "^9.2.0",
     "@types/node": "^22.9.0"
   }
 }

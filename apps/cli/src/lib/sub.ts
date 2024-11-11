@@ -74,7 +74,7 @@ function sub(options: SubscribeOptions) {
           !outputModeClean && basicLog.subscribed(t)
         }
 
-        result.forEach((sub) => {
+        result?.forEach((sub) => {
           if (sub.qos > 2) {
             !outputModeClean && basicLog.subscriptionNegated(sub)
             process.exit(1)
@@ -204,7 +204,7 @@ async function benchSub(options: BenchSubscribeOptions) {
                 interactive.success('[%d/%d] - Subscribed to %s', connectedCount, count, topicName)
               }
 
-              result.forEach((sub) => {
+              result?.forEach((sub) => {
                 if (sub.qos > 2) {
                   signale.error(
                     `[${i}/${count}] - Client ID: ${opts.clientId}, subscription negated to ${sub.topic} with code ${sub.qos}`,

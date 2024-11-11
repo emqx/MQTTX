@@ -23,33 +23,33 @@
     "build": "tsc && pkg . -o ./release/mqttx-cli"
   },
   "dependencies": {
-    "axios": "^0.27.2",
-    "chalk": "~4.1.2",
-    "cli-table3": "^0.6.3",
-    "commander": "^9.3.0",
-    "compare-versions": "^5.0.1",
+    "axios": "^1.7.7",
+    "chalk": "~5.3.0",
+    "cli-table3": "^0.6.5",
+    "commander": "^12.1.0",
+    "compare-versions": "^6.1.1",
     "concat-stream": "^2.0.0",
-    "core-js": "^3.26.0",
+    "core-js": "^3.39.0",
     "js-yaml": "^4.1.0",
-    "mqtt": "^4.3.7",
-    "protobufjs": "^7.2.3",
-    "pump": "^3.0.0",
-    "readable-stream": "^3.6.0",
+    "mqtt": "^5.10.1",
+    "protobufjs": "^7.4.0",
+    "pump": "^3.0.2",
+    "readable-stream": "^4.5.2",
     "signale": "^1.4.0",
-    "split2": "^4.1.0"
+    "split2": "^4.2.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^7.6.0",
     "@mqttx/tsconfig": "workspace:*",
-    "@types/concat-stream": "^2.0.0",
-    "@types/js-yaml": "^4.0.5",
+    "@types/concat-stream": "^2.0.3",
+    "@types/js-yaml": "^4.0.9",
     "@types/mqttx": "workspace:*",
     "@types/node": "^22.9.0",
-    "@types/pump": "^1.1.1",
-    "@types/readable-stream": "^2.3.13",
-    "@types/signale": "^1.4.4",
-    "@types/split2": "^3.2.1",
-    "@types/ws": "^8.5.3"
+    "@types/pump": "^1.1.3",
+    "@types/readable-stream": "^4.0.18",
+    "@types/signale": "^1.4.7",
+    "@types/split2": "^4.2.3",
+    "@types/ws": "^8.5.13"
   },
   "pkg": {
     "targets": [

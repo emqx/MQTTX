@@ -3,7 +3,7 @@ import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, shell } from 'electron'
 import icon from '../../resources/icon.png?asset'
 
-const IsMacOS = process.platform === 'darwin'
+// const IsMacOS = process.platform === 'darwin'
 
 function createWindow(): void {
   // Create the browser window.
@@ -17,7 +17,8 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
     },
-    titleBarStyle: IsMacOS ? 'hidden' : 'default',
+    // TODO: https://github.com/electron/electron/issues/43125
+    // titleBarStyle: IsMacOS ? 'hidden' : 'default',
   })
 
   mainWindow.on('ready-to-show', () => {
