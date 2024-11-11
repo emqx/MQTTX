@@ -35,6 +35,6 @@
     "husky": "^8.0.3",
     "lint-staged": "^15.0.2",
     "turbo": "^2.2.3",
-    "typescript": "^4.9.5"
+    "typescript": "^5.6.3"
   }
 }

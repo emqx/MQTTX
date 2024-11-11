@@ -35,10 +35,10 @@
     "postcss": "^8.4.31",
     "sass": "^1.69.3",
     "tailwindcss": "^3.3.3",
-    "typescript": "^5.0.2",
+    "typescript": "^5.6.3",
     "vite": "^4.4.5",
     "vite-plugin-dts": "^3.6.0",
     "vitest": "^0.34.6",
-    "vue-tsc": "^1.8.5"
+    "vue-tsc": "^2.1.10"
   }
 }
