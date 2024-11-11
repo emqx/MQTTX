@@ -44,7 +44,7 @@
     "@types/concat-stream": "^2.0.0",
     "@types/js-yaml": "^4.0.5",
     "@types/mqttx": "workspace:*",
-    "@types/node": "^17.0.43",
+    "@types/node": "^22.9.0",
     "@types/pump": "^1.1.1",
     "@types/readable-stream": "^2.3.13",
     "@types/signale": "^1.4.4",

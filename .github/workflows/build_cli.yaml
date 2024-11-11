@@ -15,39 +15,39 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18.17'
+      # - name: Set up Node.js
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: '18.17'
 
-      - name: use pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
+      # - name: use pnpm
+      #   uses: pnpm/action-setup@v2
+      #   with:
+      #     version: 8
 
-      - name: Cache pnpm modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
+      # - name: Cache pnpm modules
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.pnpm-store
+      #     key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-pnpm-
 
-      - name: Install dependencies
-        run: pnpm install
+      # - name: Install dependencies
+      #   run: pnpm install
 
-      - name: Install pkg globally using pnpm
-        run: pnpm add -g pkg
+      # - name: Install pkg globally using pnpm
+      #   run: pnpm add -g pkg
 
-      - name: Package application
-        run: |
-          pnpm run build:cli
+      # - name: Package application
+      #   run: |
+      #     pnpm run build:cli
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: mqttx-cli
-          path: apps/cli/release
+      # - name: Upload build artifacts
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: mqttx-cli
+      #     path: apps/cli/release
 
   #     - name: upload release asset
   #       if: github.event_name == 'release'
