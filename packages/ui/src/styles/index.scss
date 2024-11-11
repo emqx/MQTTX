@@ -1,6 +1,10 @@
-@import './tailwind.scss';
-@import './variable.scss';
-@import '../assets/fonts/iconfont.css';
+@use './variable.scss' as *;
+
+@forward './tailwind.scss';
+// FIXME: fix iconfont
+@forward '../assets/fonts/iconfont.css';
+@forward './normalize.scss';
+@forward './connections.scss';
 
 * {
   box-sizing: border-box;
@@ -26,6 +30,3 @@ body,
 .app {
   height: 100%;
 }
-
-@import './normalize.scss';
-@import './connections.scss';

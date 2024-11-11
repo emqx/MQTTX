@@ -9,12 +9,12 @@
     "test:dev": "vitest"
   },
   "dependencies": {
-    "uuid": "^9.0.1",
-    "vitest": "^0.34.6"
+    "uuid": "^11.0.3",
+    "vitest": "^2.1.4"
   },
   "devDependencies": {
-    "@types/uuid": "^9.0.6",
-    "@vitest/coverage-istanbul": "^0.34.6",
+    "@types/uuid": "^10.0.0",
+    "@vitest/coverage-istanbul": "^2.1.4",
     "typescript": "~5.6.3"
   }
 }
