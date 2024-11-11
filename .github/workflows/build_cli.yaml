@@ -18,7 +18,7 @@ jobs:
       # - name: Set up Node.js
       #   uses: actions/setup-node@v3
       #   with:
-      #     node-version: '18.17'
+      #     node-version-file: .nvmrc
 
       # - name: use pnpm
       #   uses: pnpm/action-setup@v2

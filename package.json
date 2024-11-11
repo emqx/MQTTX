@@ -24,7 +24,6 @@
     "generate:ui": "turbo run generate:ui",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "tsc --noEmit --pretty",
     "test": "turbo run test"
   },
   "devDependencies": {
