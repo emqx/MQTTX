@@ -1,5 +1,6 @@
 {
   "name": "@mqttx/web",
+  "type": "module",
   "version": "2.0.0-alpha.1",
   "description": "MQTTX Web - An MQTT client for the Web",
   "author": "EMQX Team <yusf@emqx.io>",
@@ -29,7 +30,7 @@
     "@mqttx/tsconfig": "workspace:*",
     "@tsconfig/node18": "^18.2.2",
     "@types/mqttx": "workspace:*",
-    "@types/node": "^17.0.43",
+    "@types/node": "^22.9.0",
     "@vitejs/plugin-vue": "^4.3.4",
     "@vitejs/plugin-vue-jsx": "^3.0.2",
     "@vitest/coverage-istanbul": "^0.34.6",
