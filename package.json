@@ -8,7 +8,7 @@
   "repository": "https://github.com/emqx/MQTTX",
   "scripts": {
     "prepare": "husky install",
-    "postinstall": "npm run generate:ui",
+    "postinstall": "pnpm run generate:ui",
     "dev": "turbo run dev",
     "dev:desktop": "turbo run dev --filter @mqttx/desktop",
     "dev:web": "turbo run dev --filter @mqttx/web",

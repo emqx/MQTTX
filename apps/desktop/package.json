@@ -11,16 +11,16 @@
   },
   "scripts": {
     "dev": "electron-vite dev",
-    "prebuild": "npm run typecheck && electron-vite build",
+    "prebuild": "pnpm run typecheck && electron-vite build",
     "postinstall": "electron-builder install-app-deps",
-    "build": "npm run prebuild && electron-builder --win --mac --linux --config",
-    "build:win": "npm run prebuild && electron-builder --win --config",
-    "build:mac": "npm run prebuild && electron-builder --mac --config",
-    "build:linux": "npm run prebuild && electron-builder --linux --config",
+    "build": "pnpm run prebuild && electron-builder --win --mac --linux --config",
+    "build:win": "pnpm run prebuild && electron-builder --win --config",
+    "build:mac": "pnpm run prebuild && electron-builder --mac --config",
+    "build:linux": "pnpm run prebuild && electron-builder --linux --config",
     "preview": "electron-vite preview",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false",
-    "typecheck": "npm run typecheck:node && npm run typecheck:web"
+    "typecheck": "pnpm run typecheck:node && npm run typecheck:web"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^2.0.0",
