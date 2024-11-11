@@ -7,7 +7,7 @@
           <el-tooltip
             :content="$t('viewer.brokerTrafficMonitorTooltip')"
             placement="top"
-            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :effect="theme !== 'light' ? 'light' : 'dark'"
           >
             <i class="iconfont icon-about"></i>
           </el-tooltip>
@@ -65,7 +65,7 @@ interface StoreMessageModel extends MessageModel {
   },
 })
 export default class TrafficMonitor extends Vue {
-  @Getter('currentTheme') private currentTheme!: Theme
+  @Getter('currentTheme') private theme!: Theme
 
   private receivedBytesLastTime: string = ''
   private receivedBytes: number = 0

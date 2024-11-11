@@ -169,6 +169,9 @@
                   <el-dropdown-item command="importData">
                     <i class="iconfont icon-import-data"></i>{{ $t('connections.importData') }}
                   </el-dropdown-item>
+                  <el-dropdown-item command="syncToTopicTree">
+                    <i class="iconfont icon-tree-view"></i>{{ $t('connections.syncToTopicTree') }}
+                  </el-dropdown-item>
                   <el-dropdown-item command="trafficMonitor" :disabled="!client.connected">
                     <i class="iconfont icon-bytes-statistics"></i>{{ $t('viewer.trafficMonitor') }}
                   </el-dropdown-item>
@@ -309,6 +312,12 @@
     <ImportData :visible.sync="showImportData" />
     <TimedMessage ref="timedMessage" :visible.sync="showTimedMessage" @setTimerSuccess="setTimerSuccess" />
     <UseScript ref="useScript" :visible.sync="showUseScript" @setScript="handleSetScript" />
+    <SyncTopicTreeDialog
+      :visible.sync="showSyncTopicTreeDialog"
+      :auto-sync="true"
+      :sync-connection-id="curConnectionId"
+      @success="handleSyncTopicTreeSuccess"
+    />
   </div>
 </template>
 
@@ -356,6 +365,7 @@ import getErrorReason from '@/utils/mqttErrorReason'
 import { isLargeData } from '@/utils/data'
 import { serializeAvroToBuffer, deserializeBufferToAvro } from '@/utils/avro'
 import { globalEventBus } from '@/utils/globalEventBus'
+import SyncTopicTreeDialog from '@/widgets/SyncTopicTreeDialog.vue'
 
 type CommandType =
   | 'searchContent'
@@ -365,6 +375,7 @@ type CommandType =
   | 'exportData'
   | 'importData'
   | 'timedMessage'
+  | 'syncToTopicTree'
   | 'trafficMonitor'
   | 'useScript'
   | 'newWindow'
@@ -389,6 +400,7 @@ interface TopModel {
     MsgTypeTabs,
     MsgTip,
     Copilot,
+    SyncTopicTreeDialog,
   },
 })
 export default class ConnectionsDetail extends Vue {
@@ -438,6 +450,7 @@ export default class ConnectionsDetail extends Vue {
   private showTimedMessage = false
   private showUseScript = false
   private showTitleTooltip = false
+  private showSyncTopicTreeDialog = false
 
   private connectLoading = false
   private disconnectLoding = false
@@ -837,6 +850,9 @@ export default class ConnectionsDetail extends Vue {
       case 'timedMessage':
         this.handleTimedMessage()
         break
+      case 'syncToTopicTree':
+        this.showSyncTopicTreeDialog = true
+        break
       case 'trafficMonitor':
         this.handleSubSystemTopic()
         break
@@ -849,6 +865,14 @@ export default class ConnectionsDetail extends Vue {
       default:
         break
     }
+  }
+
+  private handleSyncTopicTreeSuccess() {
+    setTimeout(() => {
+      this.$router.push({
+        name: 'TopicTree',
+      })
+    }, 1000)
   }
 
   // Route to edit page

@@ -464,6 +464,13 @@ declare global {
     updatedNode: TopicTreeNode | null
   }
 
+  interface TopicNodeStats {
+    msgTopic: string
+    msgCount: number
+    lastTime: string
+    latestMessage?: MessageModel
+  }
+
   interface QueuedMessage {
     connectionId: string
     updateNodes: TopicTreeNode[]

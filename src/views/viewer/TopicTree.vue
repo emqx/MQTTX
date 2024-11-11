@@ -3,7 +3,12 @@
     <el-row :gutter="12">
       <el-col :span="16">
         <el-card shadow="never" class="topic-tree-card">
-          <TreeView :data="data" @node-click="handleNodeClick" @clear-tree="handleClearTree" />
+          <TreeView
+            :data="data"
+            @node-click="handleNodeClick"
+            @clear-tree="handleClearTree"
+            @sync-connection="syncConnectionDialogVisible = true"
+          />
         </el-card>
       </el-col>
       <el-col :span="8">
@@ -13,6 +18,7 @@
         </el-card>
       </el-col>
     </el-row>
+    <sync-topic-tree-dialog :visible.sync="syncConnectionDialogVisible" @success="handleSyncConnectionSuccess" />
   </div>
 </template>
 
@@ -27,11 +33,17 @@ import { ignoreQoS0Message } from '@/utils/mqttUtils'
 import { MessageQueue } from '@/utils/messageQueue'
 import useServices from '@/database/useServices'
 import { Subscription } from 'rxjs'
+import ConnectionSelect from '@/components/ConnectionSelect.vue'
+import MyDialog from '@/components/MyDialog.vue'
+import SyncTopicTreeDialog from '@/widgets/SyncTopicTreeDialog.vue'
 
 @Component({
   components: {
     TreeView,
     TreeNodeInfo,
+    ConnectionSelect,
+    MyDialog,
+    SyncTopicTreeDialog,
   },
 })
 export default class TopicTree extends Vue {
@@ -40,6 +52,8 @@ export default class TopicTree extends Vue {
   private selectedNode: TopicTreeNode | null = null
   private subscription: Subscription | null = null
   private messageQueue: MessageQueue<TopicTreeNode[]> | null = null
+
+  private syncConnectionDialogVisible = false
 
   private handleNodeClick(data: TopicTreeNode) {
     this.selectedNode = data
@@ -84,9 +98,9 @@ export default class TopicTree extends Vue {
     for (const topicNodes of updatedNodes) {
       try {
         if (topicNodes.length === 0) return
-        const { savedEntitiesCount, savedMessagesCount } = await topicNodeService.saveTopicNodes(topicNodes)
+        const { savedEntitiesCount, savedMessagesCount } = await topicNodeService.saveTopicNodesWithMessages(topicNodes)
         this.$log.info(
-          `Topic Tree: Successfully saved ${savedEntitiesCount} topic nodes and ${savedMessagesCount} messages to database`,
+          `Topic Tree: Successfully saved ${savedEntitiesCount} topic nodes and ${savedMessagesCount} messages`,
         )
       } catch (error) {
         this.$log.error(`Topic Tree: Failed to save topic nodes or messages: ${(error as Error).toString()}`)
@@ -121,6 +135,10 @@ export default class TopicTree extends Vue {
         this.$log.error(`Topic Tree: Failed to clear topic tree: ${(error as Error).toString()}`)
       }
     })
+  }
+
+  private handleSyncConnectionSuccess() {
+    this.loadTopicTree()
   }
 
   private async created() {
@@ -168,6 +186,12 @@ export default class TopicTree extends Vue {
     color: var(--color-minor-red);
     border-color: var(--color-minor-red);
     background-color: transparent;
+  }
+}
+.sync-connection-dialog {
+  .sync-connection-tip {
+    margin-top: 12px;
+    word-break: break-word;
   }
 }
 </style>

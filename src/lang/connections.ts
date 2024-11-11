@@ -915,4 +915,11 @@ export default {
     ja: '受信時間',
     hu: 'Időbélyeg',
   },
+  syncToTopicTree: {
+    zh: '同步到主题树',
+    en: 'Sync Topic Tree',
+    tr: 'Konu Ağacına Senkronize Et',
+    ja: 'トピックツリーに同期',
+    hu: 'Témafa szinkronizálása',
+  },
 }
