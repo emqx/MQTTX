@@ -232,3 +232,143 @@ export function getAllIDs(nodes: TopicTreeNode[]): string[] {
 export function isPayloadEmpty(payload: string | Buffer | null | undefined): boolean {
   return payload === null || payload === undefined
 }
+
+// /**
+//  * Build a topic tree from message statistics data
+//  * @param connectionInfo - Connection information
+//  * @param topicStats - Topic statistics data
+//  * @param latestMessages - Latest message data
+//  */
+// export function buildTopicNodesFromStats(
+//   connection: ConnectionModel,
+//   topicStats: Array<TopicNodeStats>,
+// ): TopicTreeNode[] {
+//   const rootNode: TopicTreeNode = {
+//     id: connection.id ?? '',
+//     label: connection.host,
+//     message: undefined,
+//     messageCount: 0,
+//     subTopicCount: 0,
+//     children: [],
+//     connectionInfo: connection,
+//   }
+
+//   rootNode.messageCount = topicStats.reduce((acc, stat) => acc + stat.msgCount, 0)
+
+//   return [rootNode]
+// }
+
+/**
+ * Split topic string into segments
+ */
+function splitTopic(topic: string): string[] {
+  return topic.split('/').filter(Boolean)
+}
+
+/**
+ * Generate node ID based on connection ID and path indices
+ */
+function generateNodeId(connectionId: string, pathIndices: number[]): string {
+  return connectionId + (pathIndices.length > 0 ? '_' + pathIndices.join('_') : '')
+}
+
+/**
+ * Create a new tree node
+ */
+function createNode(
+  id: string,
+  label: string,
+  parentId?: string,
+  messageCount: number = 0,
+  connectionInfo?: any,
+  message?: any,
+): TopicTreeNode {
+  return {
+    id,
+    label,
+    messageCount,
+    subTopicCount: 0,
+    children: [],
+    parentId,
+    connectionInfo,
+    message,
+  }
+}
+
+/**
+ * Calculate total sub topics for a node
+ */
+function calculateSubTopicCount(topicStats: TopicNodeStats[], prefix: string): number {
+  return topicStats.reduce((count, stat) => {
+    if (stat.msgTopic.startsWith(prefix + '/') || stat.msgTopic === prefix) {
+      count++
+    }
+    return count
+  }, 0)
+}
+
+export function buildTopicNodesFromStats(
+  connection: ConnectionModel,
+  topicStats: Array<TopicNodeStats>,
+): TopicTreeNode[] {
+  const result: TopicTreeNode[] = []
+
+  // Create root node
+  const rootNode = createNode(
+    connection.id ?? '',
+    connection.host,
+    undefined,
+    topicStats.reduce((acc, stat) => acc + stat.msgCount, 0),
+    connection,
+  )
+  result.push(rootNode)
+
+  // Get all unique prefixes and their counts
+  const prefixCounts = new Map<string, number>()
+  topicStats.forEach((stat) => {
+    const segments = splitTopic(stat.msgTopic)
+    let currentPath = ''
+
+    segments.forEach((segment, index) => {
+      const prefix = currentPath ? currentPath + '/' + segment : segment
+      const nextSegment = segments[index + 1]
+
+      if (nextSegment) {
+        prefixCounts.set(prefix, (prefixCounts.get(prefix) || 0) + 1)
+      }
+      currentPath = prefix
+    })
+  })
+
+  // Process each topic
+  topicStats.forEach((stat, topicIndex) => {
+    const segments = splitTopic(stat.msgTopic)
+    let parentId = rootNode.id
+    let currentPath = ''
+
+    segments.forEach((segment, segmentIndex) => {
+      currentPath = currentPath ? `${currentPath}/${segment}` : segment
+      const nodeId = generateNodeId(connection.id ?? '', [topicIndex, segmentIndex])
+
+      const node = createNode(
+        nodeId,
+        segment,
+        parentId,
+        stat.msgCount,
+        undefined,
+        segmentIndex === segments.length - 1 ? stat.latestMessage : undefined,
+      )
+
+      // Set subTopicCount from our prefix counts
+      node.subTopicCount = prefixCounts.get(currentPath) || 0
+
+      result.push(node)
+      parentId = nodeId
+    })
+  })
+
+  // Update root node's subTopicCount
+  rootNode.subTopicCount = new Set(topicStats.map((stat) => splitTopic(stat.msgTopic)[0])).size
+
+  return result
+}

@@ -29,7 +29,10 @@
             <el-dropdown-item command="visualizeTree" :disabled="data.length === 0">
               <i class="el-icon-pie-chart"></i>{{ $t('viewer.visualizeTree') }}
             </el-dropdown-item>
-            <el-dropdown-item class="delete-item" command="clearTree" :disabled="data.length === 0" divided>
+            <el-dropdown-item command="syncConnection">
+              <i class="iconfont icon-refresh"></i>{{ $t('viewer.syncConnection') }}
+            </el-dropdown-item>
+            <el-dropdown-item class="delete-item" command="clearTree" divided>
               <i class="iconfont icon-clear-history"></i>{{ $t('viewer.clearTopicTree') }}
             </el-dropdown-item>
           </el-dropdown-menu>
@@ -274,6 +277,9 @@ export default class TreeView extends Vue {
         this.selectedTreeRoot = this.data.length > 0 ? this.data[0].id : null
         this.visualizeTreeDialogVisible = true
         break
+      case 'syncConnection':
+        this.syncConnection()
+        break
     }
   }
 
@@ -296,6 +302,10 @@ export default class TreeView extends Vue {
 
   private clearTree() {
     this.$emit('clear-tree')
+  }
+
+  private syncConnection() {
+    this.$emit('sync-connection')
   }
 
   private handleVisualizeTreeDialogClose() {

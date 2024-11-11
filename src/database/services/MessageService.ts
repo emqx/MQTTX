@@ -2,6 +2,8 @@ import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import MessageEntity from '../models/MessageEntity'
 import { Repository } from 'typeorm'
+import ConnectionEntity from '../models/ConnectionEntity'
+import ConnectionService from './ConnectionService'
 
 @Service()
 export default class MessageService {
@@ -9,6 +11,9 @@ export default class MessageService {
     // @ts-ignore
     @InjectRepository(MessageEntity)
     private messageRepository: Repository<MessageEntity>,
+    // @ts-ignore
+    @InjectRepository(ConnectionEntity)
+    private connectionRepository: Repository<ConnectionEntity>,
   ) {}
 
   public static modelToEntity(model: MessageModel, connectionId: string | undefined): MessageEntity {
@@ -321,5 +326,57 @@ export default class MessageService {
     const messages = messageEntities.map((entity) => MessageService.entityToModel(entity))
 
     return transform ? transform(messages) : (messages as unknown as T[])
+  }
+
+  public async getMessageTopicNodeStats(connectionId: string): Promise<{
+    connection: ConnectionModel
+    topicStats: Array<TopicNodeStats>
+  } | null> {
+    // Get connection info
+    const connectionEntity = await this.connectionRepository.findOne(connectionId)
+    if (!connectionEntity) {
+      return null
+    }
+    const connectionModel = ConnectionService.entityToModel(connectionEntity)
+
+    // Get topic statistics
+    const topicStats: TopicNodeStats[] = await this.messageRepository
+      .createQueryBuilder('msg')
+      .select(['msg.topic as msgTopic', 'COUNT(msg.id) as msgCount', 'MAX(msg.createAt) as lastTime'])
+      .where('msg.connectionId = :connectionId', { connectionId })
+      .andWhere('msg.out = :out', { out: false }) // Only get received messages
+      .groupBy('msg.topic')
+      .orderBy('lastTime', 'DESC')
+      .getRawMany()
+
+    // Get latest messages
+    const latestMessagesModels = await this.messageRepository
+      .createQueryBuilder('msg')
+      .innerJoin(
+        (qb) =>
+          qb
+            .select('sub.topic', 'topic')
+            .addSelect('MAX(sub.createAt)', 'maxTime')
+            .from(MessageEntity, 'sub')
+            .where('sub.connectionId = :connectionId', { connectionId })
+            .andWhere('sub.out = :out', { out: false })
+            .groupBy('sub.topic'),
+        'latest',
+        'msg.topic = latest.topic AND msg.createAt = latest.maxTime',
+      )
+      .where('msg.connectionId = :connectionId', { connectionId })
+      .andWhere('msg.out = :out', { out: false })
+      .getMany()
+      .then((msgs) => msgs.map((msg) => MessageService.entityToModel(msg)))
+
+    topicStats.forEach((topicStat) => {
+      const latestMessage = latestMessagesModels.find((msg) => msg.topic === topicStat.msgTopic)
+      topicStat.latestMessage = latestMessage
+    })
+
+    return {
+      connection: connectionModel,
+      topicStats,
+    }
   }
 }

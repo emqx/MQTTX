@@ -20,22 +20,29 @@ export default class TopicNodeService {
   ) {}
 
   /**
-   * Converts an array of TopicTreeNode models to TopicNodeEntity objects and groups them by connection ID.
-   * Also groups associated messages by connection ID.
+   * Converts a TopicTreeNode model to a TopicNodeEntity
    *
-   * @param nodes - An array of TopicTreeNode objects to be converted
-   * @returns A promise that resolves to an object containing:
-   *          - groupedEntities: A Map of connection IDs to arrays of TopicNodeEntity objects
-   *          - groupedMessages: A Map of connection IDs to arrays of MessageModel objects
+   * @param model - The TopicTreeNode model to convert
+   * @param parent - Optional parent TopicNodeEntity
+   * @returns The converted TopicNodeEntity
    */
-  async topicNodeModelToEntity(nodes: TopicTreeNode[]): Promise<{
-    groupedEntities: Map<string, TopicNodeEntity[]>
-    groupedMessages: Map<string, MessageModel[]>
-  }> {
-    const groupedEntities = new Map<string, TopicNodeEntity[]>()
-    const groupedMessages = this.groupedMessagesByConnectionID(nodes)
+  public static modelToEntity(model: TopicTreeNode, parent?: TopicNodeEntity): TopicNodeEntity {
+    const entity = new TopicNodeEntity()
+    entity.id = model.id
+    entity.label = model.label
+    entity.messageCount = model.messageCount
+    entity.subTopicCount = model.subTopicCount
+    entity.message = model.message
+    entity.parent = parent
+    entity.connection = model.connectionInfo
+    return entity
+  }
 
-    for (const node of nodes) {
+  public async mapTopicNodesToEntities(
+    topicNodes: TopicTreeNode[],
+    callback: (entity: TopicNodeEntity) => void,
+  ): Promise<void> {
+    for (const node of topicNodes) {
       let isRoot = node.connectionInfo !== undefined
       let entity: TopicNodeEntity | null = null
       if (isRoot) {
@@ -45,40 +52,40 @@ export default class TopicNodeService {
           console.warn(`Connection with id ${connectionId} not found`)
           continue
         }
-        entity = this.createTopicNodeEntity(node, connection)
-      } else {
-        entity = this.createTopicNodeEntity(node)
+        node.connectionInfo = connection
       }
-      const connectionId = node.id.split('_')[0]
+      entity = TopicNodeService.modelToEntity(node)
+      callback(entity)
+    }
+  }
+
+  /**
+   * Converts an array of TopicTreeNode models to TopicNodeEntity objects and groups them by connection ID.
+   * Also groups associated messages by connection ID.
+   *
+   * @param nodes - An array of TopicTreeNode objects to be converted
+   * @returns A promise that resolves to an object containing:
+   *          - groupedEntities: A Map of connection IDs to arrays of TopicNodeEntity objects
+   *          - groupedMessages: A Map of connection IDs to arrays of MessageModel objects
+   */
+  async topicNodeModelToEntityWithMsgs(nodes: TopicTreeNode[]): Promise<{
+    groupedEntities: Map<string, TopicNodeEntity[]>
+    groupedMessages: Map<string, MessageModel[]>
+  }> {
+    const groupedEntities = new Map<string, TopicNodeEntity[]>()
+    const groupedMessages = this.groupedMessagesByConnectionID(nodes)
+
+    this.mapTopicNodesToEntities(nodes, (entity) => {
+      const connectionId = entity.id.split('_')[0]
       if (!groupedEntities.has(connectionId)) {
         groupedEntities.set(connectionId, [])
       }
       groupedEntities.get(connectionId)!.push(entity)
-    }
+    })
 
     this.establishParentChildRelationships(nodes, Array.from(groupedEntities.values()).flat())
 
     return { groupedEntities, groupedMessages }
-  }
-
-  /**
-   * Creates a TopicNodeEntity from a TopicTreeNode model.
-   *
-   * @param node - The TopicTreeNode model to convert
-   * @param connection - Optional ConnectionEntity to associate with the node
-   * @returns A new TopicNodeEntity
-   */
-  private createTopicNodeEntity(node: TopicTreeNode, connection?: ConnectionEntity): TopicNodeEntity {
-    const entity = new TopicNodeEntity()
-    entity.id = node.id
-    entity.label = node.label
-    entity.messageCount = node.messageCount
-    entity.subTopicCount = node.subTopicCount
-    entity.message = node.message
-    if (connection) {
-      entity.connection = ConnectionService.entityToModel(connection)
-    }
-    return entity
   }
 
   /**
@@ -125,18 +132,18 @@ export default class TopicNodeService {
   }
 
   /**
-   * Saves TopicTreeNode models to the database.
+   * Saves TopicTreeNode models and messages to the database.
    *
    * @param nodes - An array of TopicTreeNode models to be saved
    * @returns A promise that resolves to an object containing:
    *          - savedEntitiesCount: The number of TopicNodeEntity objects saved
    *          - savedMessagesCount: The number of MessageModel objects saved
    */
-  async saveTopicNodes(nodes: TopicTreeNode[]): Promise<{
+  async saveTopicNodesWithMessages(nodes: TopicTreeNode[]): Promise<{
     savedEntitiesCount: number
     savedMessagesCount: number
   }> {
-    const { groupedEntities, groupedMessages } = await this.topicNodeModelToEntity(nodes)
+    const { groupedEntities, groupedMessages } = await this.topicNodeModelToEntityWithMsgs(nodes)
     const savedEntities: TopicNodeEntity[] = []
     const savedMessages: MessageModel[] = []
 
@@ -225,6 +232,11 @@ export default class TopicNodeService {
     return finalTree
   }
 
+  /**
+   * Clears all topic nodes from the repository.
+   *
+   * @returns A promise that resolves when all nodes have been cleared
+   */
   async clearTree() {
     return await this.topicNodeRepository.clear()
   }
@@ -283,4 +295,13 @@ export default class TopicNodeService {
       .where('message.id = :messageId', { messageId })
       .execute()
   }
+
+  // public async syncTopicNodesFromMessages(topicNodes: TopicTreeNode[]): Promise<void> {
+  //   const topicNodesEntities: TopicNodeEntity[] = []
+  //   await this.mapTopicNodesToEntities(topicNodes, (entity) => {
+  //     topicNodesEntities.push(entity)
+  //   })
+  //   this.establishParentChildRelationships(topicNodes, topicNodesEntities)
+  //   await this.topicNodeRepository.save(topicNodesEntities)
+  // }
 }
