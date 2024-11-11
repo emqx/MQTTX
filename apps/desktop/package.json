@@ -49,12 +49,12 @@
     "postcss": "^8.4.31",
     "sass": "^1.69.3",
     "tailwindcss": "^3.3.3",
-    "typescript": "^5.1.6",
+    "typescript": "^5.6.3",
     "unplugin-vue-components": "^0.27.4",
     "unplugin-vue-router": "^0.10.8",
     "vite": "^4.4.9",
     "vitest": "^0.34.6",
     "vue": "^3.3.4",
-    "vue-tsc": "^1.8.8"
+    "vue-tsc": "^2.1.10"
   }
 }
