@@ -29,13 +29,13 @@ import TreeView from '@/widgets/TreeView.vue'
 import { updateTopicTreeNode } from '@/utils/topicTree'
 import { Packet } from 'mqtt-packet/types'
 import TreeNodeInfo from '@/widgets/TreeNodeInfo.vue'
-import { ignoreQoS0Message } from '@/utils/mqttUtils'
 import { MessageQueue } from '@/utils/messageQueue'
 import useServices from '@/database/useServices'
 import { Subscription } from 'rxjs'
 import ConnectionSelect from '@/components/ConnectionSelect.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import SyncTopicTreeDialog from '@/widgets/SyncTopicTreeDialog.vue'
+import { ignoreQoS0Message } from '@/utils/mqttUtils'
 
 @Component({
   components: {
@@ -74,11 +74,8 @@ export default class TopicTree extends Vue {
       }, QoS: ${packet.qos}${packet.payload ? `, Payload: ${packet.payload.toString()}` : ''}`,
     )
     // Handle Tree Data Update
+    if (ignoreQoS0Message(packet.qos)) return
     this.messageQueue?.queueMessage(updatedNodes)
-  }
-
-  private filterQos0Messages(messages: MessageModel[]) {
-    return messages.filter((message) => !ignoreQoS0Message(message.qos))
   }
 
   private async loadTopicTree() {

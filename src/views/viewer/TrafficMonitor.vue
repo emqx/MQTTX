@@ -52,6 +52,7 @@ import time from '@/utils/time'
 import { MessageQueue } from '@/utils/messageQueue'
 import { getMessageId } from '@/utils/idGenerator'
 import TimeRangeSelect from '@/components/TimeRangeSelect.vue'
+import { ignoreQoS0Message } from '@/utils/mqttUtils'
 
 interface StoreMessageModel extends MessageModel {
   connectionId: string
@@ -274,7 +275,9 @@ export default class TrafficMonitor extends Vue {
     const { messageService } = useServices()
     const messagesByConnection = new Map<string, MessageModel[]>()
 
-    storeMessages.forEach((msg) => {
+    const filterQos0Messages = storeMessages.filter((msg) => !ignoreQoS0Message(msg.qos))
+
+    filterQos0Messages.forEach((msg) => {
       const { connectionId, ...message } = msg
       const list = messagesByConnection.get(connectionId) || []
       list.push(message)
