@@ -328,6 +328,12 @@ export default class MessageService {
     return transform ? transform(messages) : (messages as unknown as T[])
   }
 
+  /**
+   * Retrieves message topic node statistics for a given connection.
+   * @param connectionId - The ID of the connection to retrieve statistics for.
+   * @returns A promise that resolves to an object containing the connection model and topic statistics,
+   *          or null if the connection is not found.
+   */
   public async getMessageTopicNodeStats(connectionId: string): Promise<{
     connection: ConnectionModel
     topicStats: Array<TopicNodeStats>
