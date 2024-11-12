@@ -23,6 +23,7 @@
     "node": "18"
   },
   "dependencies": {
+    "@faker-js/faker": "^8.1.0",
     "@inquirer/prompts": "^5.0.3",
     "avsc": "^5.7.7",
     "cbor": "^9.0.1",
@@ -46,7 +47,6 @@
     "split2": "^4.1.0"
   },
   "devDependencies": {
-    "@faker-js/faker": "^8.1.0",
     "@types/concat-stream": "^2.0.0",
     "@types/debug": "^4.1.12",
     "@types/ini": "^4.1.0",
