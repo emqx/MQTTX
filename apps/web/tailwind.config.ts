@@ -2,7 +2,11 @@ import type { Config } from 'tailwindcss'
 import baseConfig from '@mqttx/tailwind-config/base.config'
 
 const config: Config = {
-  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
+  content: [
+    './index.html',
+    './src/**/*.{vue,js,ts,jsx,tsx}',
+    '../../packages/ui/src/**/*.{vue,js,ts,jsx,tsx}',
+  ],
   presets: [baseConfig],
 }
 
