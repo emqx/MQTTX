@@ -2,6 +2,12 @@
   "name": "@mqttx/ui",
   "type": "module",
   "version": "0.0.0",
+  "exports": {
+    ".": "./src/index.ts",
+    "./i18n": "./src/i18n/index.ts",
+    "./stores": "./src/stores/index.ts",
+    "./styles.scss": "./src/styles/index.scss"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [

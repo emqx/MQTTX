@@ -8,9 +8,6 @@ import MainView from './components/common/MainView.vue'
 import SplitView from './components/common/SplitView.vue'
 import ConnectionDetailsView from './components/connections/DetailsView.vue'
 import ConnectionListView from './components/connections/ListView.vue'
-import 'element-plus/dist/index.css'
-import './styles/index.scss'
-import './assets/fonts/iconfont'
 
 export const pinia = createPinia()
 

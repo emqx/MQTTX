@@ -3,7 +3,11 @@ import baseConfig from '@mqttx/tailwind-config/base.config'
 
 const config: Config = {
   presets: [baseConfig],
-  content: ['./src/renderer/index.html', './src/renderer/src/**/*.{vue,js,ts,jsx,tsx}'],
+  content: [
+    './src/renderer/index.html',
+    './src/renderer/src/**/*.{vue,js,ts,jsx,tsx}',
+    '../../packages/ui/src/**/*.{vue,js,ts,jsx,tsx}',
+  ],
 }
 
 export default config
