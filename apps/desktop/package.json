@@ -44,7 +44,7 @@
     "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.20",
     "electron": "^33.2.0",
-    "electron-builder": "^25.1.8",
+    "electron-builder": "^26.0.0-alpha.6",
     "electron-vite": "^2.3.0",
     "jsdom": "^25.0.1",
     "postcss": "^8.4.48",
