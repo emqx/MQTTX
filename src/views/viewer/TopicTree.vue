@@ -137,8 +137,13 @@ export default class TopicTree extends Vue {
     })
   }
 
-  private handleSyncConnectionSuccess() {
-    this.loadTopicTree()
+  private handleSyncConnectionSuccess(syncedTopicTree: TopicTreeNode) {
+    const findIndex = this.data.findIndex((topicTreeNode) => topicTreeNode.id === syncedTopicTree.id)
+    if (findIndex !== -1) {
+      this.$set(this.data, findIndex, syncedTopicTree)
+    } else {
+      this.data.push(syncedTopicTree)
+    }
   }
 
   private async created() {

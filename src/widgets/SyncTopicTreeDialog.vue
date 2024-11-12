@@ -32,7 +32,7 @@ import { Getter } from 'vuex-class'
 import ConnectionSelect from '@/components/ConnectionSelect.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import useServices from '@/database/useServices'
-import { buildTopicNodesFromStats } from '@/utils/topicTree'
+import { buildTopicTreeFromStats } from '@/utils/topicTree'
 
 @Component({
   components: {
@@ -62,19 +62,15 @@ export default class SyncTopicTreeDialog extends Vue {
       const messageTopicNodeStats = await messageService.getMessageTopicNodeStats(this.selectedConnectionId)
       if (messageTopicNodeStats === null) return
       const { connection, topicStats } = messageTopicNodeStats
-      console.log(topicStats)
-      console.log(JSON.stringify(topicStats, null, 2))
-      const allSyncedTopicNodes = buildTopicNodesFromStats(connection, topicStats)
-      console.log(allSyncedTopicNodes)
-      console.log(JSON.stringify(allSyncedTopicNodes, null, 2))
-      // await topicNodeService.syncTopicNodesFromMessages(allSyncedTopicNodes)
+      const syncedTopicTree = buildTopicTreeFromStats(connection, topicStats)
+      await topicNodeService.updateTopicNodes(syncedTopicTree)
+      this.$emit('success', syncedTopicTree)
       this.$message.success(
         this.$tc('viewer.syncConnectionToTopicTreeSuccess', 0, {
           connectionName: `${connection.name}@${connection.host}`,
         }),
       )
       this.$log.info(`Topic Tree: Successfully sync connection (${connection.name}@${connection.host}) to topic tree`)
-      this.$emit('success')
     } catch (error) {
       this.$message.error(
         this.$tc('viewer.syncConnectionToTopicTreeFailed', 0, {
