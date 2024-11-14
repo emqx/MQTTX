@@ -8,7 +8,7 @@
     /* Bundler mode */
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "types": ["element-plus/global", "node", "mqttx", "vite/client"],
+    "types": ["element-plus/global", "node", "mqttx", "vite/client", "unplugin-icons/types/vue"],
     "allowImportingTsExtensions": true,
     /* Linting */
     "strict": true,
@@ -21,6 +21,13 @@
     "skipLibCheck": true
   },
   "references": [{ "path": "./tsconfig.node.json" }],
-  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue", "__test__"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "__test__",
+    "./components.d.ts"
+  ],
   "exclude": ["node_modules"]
 }

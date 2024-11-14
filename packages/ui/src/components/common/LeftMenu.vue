@@ -1,40 +1,48 @@
 <script setup lang="ts">
+import IconAbout from '~icons/custom/about'
+import IconConnections from '~icons/custom/connections'
+import IconLog from '~icons/custom/log'
+import IconMqtt from '~icons/custom/mqtt'
+import IconNew from '~icons/custom/new'
+import IconScript from '~icons/custom/script'
+import IconSettings from '~icons/custom/settings'
 import { reactive } from 'vue'
+
 import useLinks from '../../composables/useLinks'
 
 const { linksMap } = useLinks()
 
 const featMenus = reactive({
   connections: {
-    icon: 'icon-connections',
+    icon: IconConnections,
     path: '/connections',
   },
   new: {
-    icon: 'icon-new',
-    path: '/connections',
+    icon: IconNew,
+    path: '/new',
   },
   script: {
-    icon: 'icon-script',
-    path: '/connections',
+    icon: IconScript,
+    path: '/script',
   },
   log: {
-    icon: 'icon-log',
-    path: '/connections',
+    icon: IconLog,
+    path: '/log',
   },
 })
 
 const helpMenus = reactive({
   settings: {
-    icon: 'icon-settings',
-    path: '/connections',
+    icon: IconSettings,
+    path: '/settings',
   },
   mqtt: {
-    icon: 'icon-mqtt',
-    path: '/connections',
+    icon: IconMqtt,
+    path: '/mqtt',
   },
   about: {
-    icon: 'icon-about',
-    path: '/connections',
+    icon: IconAbout,
+    path: '/about',
   },
 })
 </script>
@@ -46,14 +54,12 @@ const helpMenus = reactive({
     </a>
     <div class="flex flex-col">
       <router-link v-for="menu in featMenus" :key="menu.path" :to="menu.path" class="no-underline mb-8 text-main-white">
-        <!-- TODO: Add icon -->
-        <!-- <i :class="`iconfont ${menu.icon} text-xl`" /> -->
+        <component :is="menu.icon" class="text-xl" />
       </router-link>
     </div>
     <div class="flex flex-col">
       <router-link v-for="menu in helpMenus" :key="menu.path" :to="menu.path" class="no-underline mb-8 text-main-white">
-        <!-- TODO: Add icon -->
-        <!-- <i :class="`iconfont ${menu.icon} text-xl`" /> -->
+        <component :is="menu.icon" class="text-xl" />
       </router-link>
     </div>
   </el-aside>
