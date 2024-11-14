@@ -21,9 +21,6 @@ export default antfu(
        */
       markdown: 'prettier',
     },
-    ignores: [
-      '**/assets/fonts',
-    ],
   },
   {
     rules: {
