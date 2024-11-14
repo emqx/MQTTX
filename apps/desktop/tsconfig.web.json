@@ -7,7 +7,7 @@
     "paths": {
       "@renderer/*": ["src/renderer/src/*"]
     },
-    "types": ["element-plus/global", "node", "mqttx"],
+    "types": ["element-plus/global", "node", "mqttx", "unplugin-icons/types/vue"],
     "verbatimModuleSyntax": true
   },
   "include": [
