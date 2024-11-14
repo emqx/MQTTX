@@ -46,12 +46,14 @@ const helpMenus = reactive({
     </a>
     <div class="flex flex-col">
       <router-link v-for="menu in featMenus" :key="menu.path" :to="menu.path" class="no-underline mb-8 text-main-white">
-        <i :class="`iconfont ${menu.icon} text-xl`" />
+        <!-- TODO: Add icon -->
+        <!-- <i :class="`iconfont ${menu.icon} text-xl`" /> -->
       </router-link>
     </div>
     <div class="flex flex-col">
       <router-link v-for="menu in helpMenus" :key="menu.path" :to="menu.path" class="no-underline mb-8 text-main-white">
-        <i :class="`iconfont ${menu.icon} text-xl`" />
+        <!-- TODO: Add icon -->
+        <!-- <i :class="`iconfont ${menu.icon} text-xl`" /> -->
       </router-link>
     </div>
   </el-aside>
