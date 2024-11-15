@@ -3,12 +3,18 @@
 import { handleSaveOptions, handleLoadOptions } from '../../utils/options'
 import { existsSync, unlinkSync } from 'fs'
 import { join } from 'path'
-import { expect, afterAll, describe, it } from '@jest/globals'
+import { expect, afterAll, describe, it, jest, beforeAll } from '@jest/globals'
 
 const testFilePath = join(__dirname, 'test-options.json')
 const defaultPath = join(process.cwd(), 'mqttx-cli-options.json')
 
 describe('options', () => {
+  beforeAll(() => {
+    global.command = {
+      getOptionValueSource: jest.fn().mockReturnValue('cli'),
+    } as any
+  })
+
   afterAll(() => {
     if (existsSync(testFilePath)) {
       unlinkSync(testFilePath)

@@ -35,7 +35,7 @@ const removeUselessOptions = (
  */
 const filterOptions = <T extends OptionsType>(source: OptionValueSource, opts: T): Partial<T> => {
   return Object.fromEntries(
-    Object.entries(opts).filter(([key]) => globalThis.command.getOptionValueSource(key) === 'cli'),
+    Object.entries(opts).filter(([key]) => globalThis.command.getOptionValueSource(key) === source),
   ) as Partial<T>
 }
 
