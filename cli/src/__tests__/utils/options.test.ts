@@ -32,7 +32,8 @@ describe('options', () => {
 
     handleSaveOptions('conn', options)
     const loadedOptions = handleLoadOptions('conn', true, {} as ConnectOptions)
-    expect(loadedOptions).toMatchObject(options as unknown as Record<string, unknown>)
+    const { saveOptions, loadOptions, ...expectedOptions } = options
+    expect(loadedOptions).toMatchObject(expectedOptions as unknown as Record<string, unknown>)
   })
 
   it('should save and load options for command type "pub" with custom path', () => {
@@ -52,7 +53,8 @@ describe('options', () => {
 
     handleSaveOptions('pub', options)
     const loadedOptions = handleLoadOptions('pub', testFilePath, {} as PublishOptions)
-    expect(loadedOptions).toMatchObject(options as unknown as Record<string, unknown>)
+    const { saveOptions, loadOptions, ...expectedOptions } = options
+    expect(loadedOptions).toMatchObject(expectedOptions as unknown as Record<string, unknown>)
 
     const userOptions: PublishOptions = {
       mqttVersion: 5,
@@ -90,7 +92,8 @@ describe('options', () => {
 
     handleSaveOptions('sub', options)
     const loadedOptions = handleLoadOptions('sub', true, {} as SubscribeOptions)
-    expect(loadedOptions).toMatchObject(options as unknown as Record<string, unknown>)
+    const { saveOptions, loadOptions, ...expectedOptions } = options
+    expect(loadedOptions).toMatchObject(expectedOptions as unknown as Record<string, unknown>)
   })
 
   it('should save and load options for command type "benchConn" with custom path', () => {
@@ -109,7 +112,8 @@ describe('options', () => {
 
     handleSaveOptions('benchConn', options)
     const loadedOptions = handleLoadOptions('benchConn', testFilePath, {} as BenchConnectOptions)
-    expect(loadedOptions).toMatchObject(options as unknown as Record<string, unknown>)
+    const { saveOptions, loadOptions, ...expectedOptions } = options
+    expect(loadedOptions).toMatchObject(expectedOptions as unknown as Record<string, unknown>)
   })
 
   it('should save and load options for command type "benchPub" with default path', () => {
@@ -134,7 +138,8 @@ describe('options', () => {
 
     handleSaveOptions('benchPub', options)
     const loadedOptions = handleLoadOptions('benchPub', true, {} as BenchPublishOptions)
-    expect(loadedOptions).toMatchObject(options as unknown as Record<string, unknown>)
+    const { saveOptions, loadOptions, ...expectedOptions } = options
+    expect(loadedOptions).toMatchObject(expectedOptions as unknown as Record<string, unknown>)
   })
 
   it('should save and load options for command type "benchSub" with custom path', () => {
@@ -156,7 +161,8 @@ describe('options', () => {
 
     handleSaveOptions('benchSub', options)
     const loadedOptions = handleLoadOptions('benchSub', testFilePath, {} as BenchSubscribeOptions)
-    expect(loadedOptions).toMatchObject(options as unknown as Record<string, unknown>)
+    const { saveOptions, loadOptions, ...expectedOptions } = options
+    expect(loadedOptions).toMatchObject(expectedOptions as unknown as Record<string, unknown>)
   })
 
   it('should save and load options for command type "simulate" with default path', () => {
@@ -183,6 +189,7 @@ describe('options', () => {
 
     handleSaveOptions('simulate', options)
     const loadedOptions = handleLoadOptions('simulate', true, {} as SimulatePubOptions)
-    expect(loadedOptions).toMatchObject(options as unknown as Record<string, unknown>)
+    const { saveOptions, loadOptions, ...expectedOptions } = options
+    expect(loadedOptions).toMatchObject(expectedOptions as unknown as Record<string, unknown>)
   })
 })
