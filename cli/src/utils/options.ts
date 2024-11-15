@@ -1,3 +1,4 @@
+import type { OptionValueSource } from 'commander'
 import {
   fileExists,
   writeFile,
@@ -24,6 +25,18 @@ const removeUselessOptions = (
 ) => {
   const { saveOptions, loadOptions, ...rest } = opts
   return rest
+}
+
+/**
+ * Filters the options based on their source.
+ * @param source - The source of the option values.
+ * @param opts - The options to be filtered.
+ * @returns The filtered options.
+ */
+const filterOptions = <T extends OptionsType>(source: OptionValueSource, opts: T): Partial<T> => {
+  return Object.fromEntries(
+    Object.entries(opts).filter(([key]) => globalThis.command.getOptionValueSource(key) === 'cli'),
+  ) as Partial<T>
 }
 
 /**
@@ -75,9 +88,10 @@ const handleSaveOptions = (
 }
 
 /**
- * Handles loading options from a configuration file based on the command type.
+ * Load the configuration file according to the command type and save path, and merge the options of the current command.
  * @param commandType - The type of command.
  * @param savePath - The path to the configuration file.
+ * @param opts - The options of the current command.
  * @returns The options for the specified command type.
  */
 function handleLoadOptions(commandType: 'conn', savePath: boolean | string, opts: ConnectOptions): ConnectOptions
@@ -110,7 +124,7 @@ function handleLoadOptions(commandType: CommandType, savePath: boolean | string,
       const data = readFile(filePath).toString()
       const config = parseYamlOrJson(data, isYaml(filePath))
       validateOptions(commandType, filePath, config)
-      return { ...config[commandType], ...opts }
+      return { ...config[commandType], ...filterOptions('cli', opts) }
     } else {
       logWrapper.fail(`Configuration file ${filePath} not found`)
       process.exit(1)
