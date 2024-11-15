@@ -79,7 +79,7 @@ const handleDefaultBinaryFile = (format: FormatType | undefined, filePath?: stri
 const sub = (options: SubscribeOptions) => {
   const { loadOptions, saveOptions } = options
 
-  loadOptions && (options = handleLoadOptions('sub', loadOptions))
+  loadOptions && (options = handleLoadOptions('sub', loadOptions, options))
 
   saveOptions && handleSaveOptions('sub', options)
 
@@ -232,7 +232,7 @@ const sub = (options: SubscribeOptions) => {
 const benchSub = async (options: BenchSubscribeOptions) => {
   const { saveOptions, loadOptions } = options
 
-  loadOptions && (options = handleLoadOptions('benchSub', loadOptions))
+  loadOptions && (options = handleLoadOptions('benchSub', loadOptions, options))
 
   saveOptions && handleSaveOptions('benchSub', options)
 

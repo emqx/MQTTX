@@ -211,7 +211,7 @@ const handleFileRead = (filePath: string) => {
 const pub = (options: PublishOptions) => {
   const { debug, saveOptions, loadOptions } = options
 
-  loadOptions && (options = handleLoadOptions('pub', loadOptions))
+  loadOptions && (options = handleLoadOptions('pub', loadOptions, options))
 
   saveOptions && handleSaveOptions('pub', options)
 
@@ -252,14 +252,14 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
   let simulator: Simulator = {} as Simulator
   if (commandType === 'simulate') {
-    options = loadOptions ? handleLoadOptions('simulate', loadOptions) : options
+    options = loadOptions ? handleLoadOptions('simulate', loadOptions, options as SimulatePubOptions) : options
     saveOptions && handleSaveOptions('simulate', options)
 
     const simulateOptions = options as SimulatePubOptions
     checkScenarioExists(simulateOptions.scenario, simulateOptions.file)
     simulator = loadSimulator(simulateOptions.scenario, simulateOptions.file)
   } else {
-    options = loadOptions ? handleLoadOptions('benchPub', loadOptions) : options
+    options = loadOptions ? handleLoadOptions('benchPub', loadOptions, options as BenchPublishOptions) : options
     saveOptions && handleSaveOptions('benchPub', options)
   }
 
