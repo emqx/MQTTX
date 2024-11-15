@@ -6,6 +6,7 @@ import { join } from 'path'
 import { expect, afterAll, describe, it, jest, beforeAll } from '@jest/globals'
 
 const testFilePath = join(__dirname, 'test-options.json')
+const testYamlFilePath = join(__dirname, 'test-options.yaml')
 const defaultPath = join(process.cwd(), 'mqttx-cli-options.json')
 
 describe('options', () => {
@@ -18,6 +19,9 @@ describe('options', () => {
   afterAll(() => {
     if (existsSync(testFilePath)) {
       unlinkSync(testFilePath)
+    }
+    if (existsSync(testYamlFilePath)) {
+      unlinkSync(testYamlFilePath)
     }
     if (existsSync(defaultPath)) {
       unlinkSync(defaultPath)
@@ -77,6 +81,45 @@ describe('options', () => {
     }
 
     const overriddenOptions = handleLoadOptions('pub', testFilePath, userOptions)
+    expect(overriddenOptions.topic).toEqual('user/topic')
+    expect(overriddenOptions.message).toEqual('User message')
+  })
+
+  it('should save and load options for command type "pub" with custom yaml path', () => {
+    const options: PublishOptions = {
+      mqttVersion: 5,
+      hostname: 'localhost',
+      clientId: 'testClient',
+      clean: true,
+      keepalive: 60,
+      reconnectPeriod: 1000,
+      maximumReconnectTimes: 10,
+      topic: 'test/topic',
+      message: 'Hello, MQTT!',
+      qos: 1,
+      saveOptions: testYamlFilePath,
+    }
+
+    handleSaveOptions('pub', options)
+    const loadedOptions = handleLoadOptions('pub', testYamlFilePath, {} as PublishOptions)
+    const { saveOptions, loadOptions, ...expectedOptions } = options
+    expect(loadedOptions).toMatchObject(expectedOptions as unknown as Record<string, unknown>)
+
+    const userOptions: PublishOptions = {
+      mqttVersion: 5,
+      hostname: 'localhost',
+      clientId: 'testClient',
+      clean: true,
+      keepalive: 60,
+      reconnectPeriod: 1000,
+      maximumReconnectTimes: 10,
+      topic: 'user/topic',
+      message: 'User message',
+      qos: 1,
+      saveOptions: testYamlFilePath,
+    }
+
+    const overriddenOptions = handleLoadOptions('pub', testYamlFilePath, userOptions)
     expect(overriddenOptions.topic).toEqual('user/topic')
     expect(overriddenOptions.message).toEqual('User message')
   })
@@ -167,6 +210,29 @@ describe('options', () => {
 
     handleSaveOptions('benchSub', options)
     const loadedOptions = handleLoadOptions('benchSub', testFilePath, {} as BenchSubscribeOptions)
+    const { saveOptions, loadOptions, ...expectedOptions } = options
+    expect(loadedOptions).toMatchObject(expectedOptions as unknown as Record<string, unknown>)
+  })
+
+  it('should save and load options for command type "benchSub" with custom yaml path', () => {
+    const options: BenchSubscribeOptions = {
+      mqttVersion: 5,
+      hostname: 'localhost',
+      clientId: 'testClient',
+      clean: true,
+      keepalive: 60,
+      reconnectPeriod: 1000,
+      maximumReconnectTimes: 10,
+      topic: ['test/topic'],
+      qos: [1],
+      count: 100,
+      interval: 1000,
+      saveOptions: testYamlFilePath,
+      verbose: true,
+    }
+
+    handleSaveOptions('benchSub', options)
+    const loadedOptions = handleLoadOptions('benchSub', testYamlFilePath, {} as BenchSubscribeOptions)
     const { saveOptions, loadOptions, ...expectedOptions } = options
     expect(loadedOptions).toMatchObject(expectedOptions as unknown as Record<string, unknown>)
   })
