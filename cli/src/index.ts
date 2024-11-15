@@ -43,6 +43,9 @@ export class Commander {
       .command('check')
       .description('Check for updates.')
       .allowUnknownOption(false)
+      .hook('preAction', (thisCommand) => {
+        globalThis.command = thisCommand
+      })
       .action(async () => {
         await checkUpdate()
       })
@@ -51,6 +54,9 @@ export class Commander {
       .command('init')
       .description('Initialize the configuration file.')
       .allowUnknownOption(false)
+      .hook('preAction', (thisCommand) => {
+        globalThis.command = thisCommand
+      })
       .action(initConfig)
 
     this.program
@@ -128,6 +134,9 @@ export class Commander {
       )
       .option('--debug', 'enable debug mode for MQTT.js', false)
       .allowUnknownOption(false)
+      .hook('preAction', (thisCommand) => {
+        globalThis.command = thisCommand
+      })
       .action(conn)
 
     this.program
@@ -252,6 +261,9 @@ export class Commander {
       )
       .option('--debug', 'enable debug mode for MQTT.js', false)
       .allowUnknownOption(false)
+      .hook('preAction', (thisCommand) => {
+        globalThis.command = thisCommand
+      })
       .action(pub)
 
     this.program
@@ -383,6 +395,9 @@ export class Commander {
       )
       .option('--debug', 'enable debug mode for MQTT.js', false)
       .allowUnknownOption(false)
+      .hook('preAction', (thisCommand) => {
+        globalThis.command = thisCommand
+      })
       .action(sub)
 
     const benchCmd = this.program.command('bench').description('MQTT Benchmark in performance testing.')
@@ -463,6 +478,9 @@ export class Commander {
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
       )
       .allowUnknownOption(false)
+      .hook('preAction', (thisCommand) => {
+        globalThis.command = thisCommand
+      })
       .action(benchConn)
 
     benchCmd
@@ -584,6 +602,9 @@ export class Commander {
         'split the input message in a single file by a specified character, default is "\\n"',
       )
       .allowUnknownOption(false)
+      .hook('preAction', (thisCommand) => {
+        globalThis.command = thisCommand
+      })
       .action(benchPub)
 
     benchCmd
@@ -683,6 +704,9 @@ export class Commander {
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
       )
       .allowUnknownOption(false)
+      .hook('preAction', (thisCommand) => {
+        globalThis.command = thisCommand
+      })
       .action(benchSub)
 
     this.program
@@ -796,6 +820,9 @@ export class Commander {
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
       )
       .allowUnknownOption(false)
+      .hook('preAction', (thisCommand) => {
+        globalThis.command = thisCommand
+      })
       .action(simulatePub)
 
     this.program
@@ -803,6 +830,9 @@ export class Commander {
       .description('List information based on the provided options.')
       .option('-sc, --scenarios', 'List all built-in scenarios')
       .allowUnknownOption(false)
+      .hook('preAction', (thisCommand) => {
+        globalThis.command = thisCommand
+      })
       .action(ls)
   }
 }

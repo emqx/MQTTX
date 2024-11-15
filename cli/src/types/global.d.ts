@@ -1,4 +1,8 @@
+import { Command } from 'commander'
+
 declare global {
+  var command: Command
+
   type CommandType = 'conn' | 'pub' | 'sub' | 'benchConn' | 'benchPub' | 'benchSub' | 'simulate'
 
   type OptionsType =
