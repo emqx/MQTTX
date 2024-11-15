@@ -8,7 +8,7 @@ import * as Debug from 'debug'
 const conn = (options: ConnectOptions) => {
   const { debug, saveOptions, loadOptions } = options
 
-  loadOptions && (options = handleLoadOptions('conn', loadOptions))
+  loadOptions && (options = handleLoadOptions('conn', loadOptions, options))
 
   saveOptions && handleSaveOptions('conn', options)
 
@@ -57,7 +57,7 @@ const conn = (options: ConnectOptions) => {
 const benchConn = async (options: BenchConnectOptions) => {
   const { saveOptions, loadOptions } = options
 
-  loadOptions && (options = handleLoadOptions('benchConn', loadOptions))
+  loadOptions && (options = handleLoadOptions('benchConn', loadOptions, options))
 
   saveOptions && handleSaveOptions('benchConn', options)
 

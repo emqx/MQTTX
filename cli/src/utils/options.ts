@@ -80,21 +80,37 @@ const handleSaveOptions = (
  * @param savePath - The path to the configuration file.
  * @returns The options for the specified command type.
  */
-function handleLoadOptions(commandType: 'conn', savePath: boolean | string): ConnectOptions
-function handleLoadOptions(commandType: 'pub', savePath: boolean | string): PublishOptions
-function handleLoadOptions(commandType: 'sub', savePath: boolean | string): SubscribeOptions
-function handleLoadOptions(commandType: 'benchConn', savePath: boolean | string): BenchConnectOptions
-function handleLoadOptions(commandType: 'benchPub', savePath: boolean | string): BenchPublishOptions
-function handleLoadOptions(commandType: 'benchSub', savePath: boolean | string): BenchSubscribeOptions
-function handleLoadOptions(commandType: 'simulate', savePath: boolean | string): SimulatePubOptions
-function handleLoadOptions(commandType: CommandType, savePath: boolean | string) {
+function handleLoadOptions(commandType: 'conn', savePath: boolean | string, opts: ConnectOptions): ConnectOptions
+function handleLoadOptions(commandType: 'pub', savePath: boolean | string, opts: PublishOptions): PublishOptions
+function handleLoadOptions(commandType: 'sub', savePath: boolean | string, opts: SubscribeOptions): SubscribeOptions
+function handleLoadOptions(
+  commandType: 'benchConn',
+  savePath: boolean | string,
+  opts: BenchConnectOptions,
+): BenchConnectOptions
+function handleLoadOptions(
+  commandType: 'benchPub',
+  savePath: boolean | string,
+  opts: BenchPublishOptions,
+): BenchPublishOptions
+function handleLoadOptions(
+  commandType: 'benchSub',
+  savePath: boolean | string,
+  opts: BenchSubscribeOptions,
+): BenchSubscribeOptions
+function handleLoadOptions(
+  commandType: 'simulate',
+  savePath: boolean | string,
+  opts: SimulatePubOptions,
+): SimulatePubOptions
+function handleLoadOptions(commandType: CommandType, savePath: boolean | string, opts: OptionsType) {
   try {
     const filePath = processPath(savePath, defaultPath)
     if (fileExists(filePath)) {
       const data = readFile(filePath).toString()
       const config = parseYamlOrJson(data, isYaml(filePath))
       validateOptions(commandType, filePath, config)
-      return config[commandType]
+      return { ...config[commandType], ...opts }
     } else {
       logWrapper.fail(`Configuration file ${filePath} not found`)
       process.exit(1)

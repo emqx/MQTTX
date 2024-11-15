@@ -1,6 +1,15 @@
 declare global {
   type CommandType = 'conn' | 'pub' | 'sub' | 'benchConn' | 'benchPub' | 'benchSub' | 'simulate'
 
+  type OptionsType =
+    | ConnectOptions
+    | PublishOptions
+    | SubscribeOptions
+    | BenchConnectOptions
+    | BenchPublishOptions
+    | BenchSubscribeOptions
+    | SimulatePubOptions
+
   type MQTTVersion = 3 | 4 | 5
 
   type Protocol = 'mqtt' | 'mqtts' | 'ws' | 'wss'
