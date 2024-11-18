@@ -3,7 +3,10 @@
   "compilerOptions": {
     "typeRoots": ["./node_modules/@types"],
     "types": ["signale", "mqttx", "node"],
-    "outDir": "./dist"
+    "outDir": "./dist",
+    // FIXME: Temporary disable type checking, waiting for @types/readable-stream to update.
+    // Issue: https://github.com/DefinitelyTyped/DefinitelyTyped/discussions/70933
+    "skipLibCheck": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "bin"]
