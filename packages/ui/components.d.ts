@@ -15,7 +15,9 @@ declare module 'vue' {
     ConnectionsListView: typeof import('./src/components/connections/ListView.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElMain: typeof import('element-plus/es')['ElMain']
+    HelpView: typeof import('./src/components/HelpView.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SettingsView: typeof import('./src/components/SettingsView.vue')['default']
   }
 }
