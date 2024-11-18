@@ -1,6 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { ref } from 'vue'
-import useLinks from '../useLinks'
 
 describe('useLinks', () => {
   it('should initialize linksMap correctly', () => {

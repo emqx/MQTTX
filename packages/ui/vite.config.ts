@@ -30,6 +30,7 @@ export default defineConfig({
         'vue',
         'vue-router',
         'vue-i18n',
+        'pinia',
       ],
 
       // Auto import for module exports under directories
