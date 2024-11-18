@@ -35,7 +35,7 @@ const helpMenus = reactive({
   },
   mqtt: {
     icon: IconMqtt,
-    path: '/mqtt',
+    path: '/help',
   },
   about: {
     icon: IconAbout,
