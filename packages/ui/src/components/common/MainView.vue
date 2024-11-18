@@ -1,5 +1,5 @@
 <template>
-  <el-main>
-    <router-view />
-  </el-main>
+  <ElMain>
+    <RouterView />
+  </ElMain>
 </template>

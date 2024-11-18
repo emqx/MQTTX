@@ -1,8 +1,9 @@
 /* eslint-env node */
 module.exports = {
   plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
+    'tailwindcss/nesting': {},
+    'tailwindcss': {},
+    'autoprefixer': {},
     ...(process.env.NODE_ENV === 'production' ? { cssnano: {} } : {}),
   },
 }
