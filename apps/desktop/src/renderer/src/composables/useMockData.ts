@@ -1,5 +1,5 @@
 import type { Connection, ConnectionDetail } from 'mqttx'
-import { type Ref, ref } from 'vue'
+import type { Ref } from 'vue'
 
 export default function useMockData(): {
   connections: Ref<Connection[]>

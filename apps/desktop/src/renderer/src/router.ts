@@ -1,4 +1,3 @@
-import useMockData from '@/composables/useMockData'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { handleHotUpdate, routes } from 'vue-router/auto-routes'
 

@@ -1,6 +1,4 @@
 import type { Lang, Theme } from 'mqttx'
-import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
 import { i18n } from '../i18n'
 
 function settingsStoreSetup() {

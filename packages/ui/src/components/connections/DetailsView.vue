@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { ConnectionDetail } from 'mqttx'
-// import { ref } from 'vue'
 import SplitView from '../common/SplitView.vue'
 
 defineProps<{

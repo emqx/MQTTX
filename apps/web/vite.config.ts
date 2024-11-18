@@ -31,12 +31,14 @@ export default defineConfig({
         'vue',
         'vue-router',
         'vue-i18n',
+        'pinia',
       ],
 
       // Auto import for module exports under directories
       // by default it only scan one level of modules under the directory
       dirs: [
         './src/composables', // only root modules
+        '../../packages/ui/src/composables', // only root modules
       ],
 
       // Auto import inside Vue template

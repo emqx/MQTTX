@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import useMockData from '@/composables/useMockData'
-
 const { connections } = useMockData()
 </script>
 

@@ -1,7 +1,5 @@
 import { i18n } from '@mqttx/ui/i18n'
 import { useSettingsStore } from '@mqttx/ui/stores'
-import { createPinia } from 'pinia'
-import { createApp } from 'vue'
 
 import App from './App.vue'
 import { router } from './router'

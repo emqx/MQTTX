@@ -6,9 +6,6 @@ import IconMqtt from '~icons/custom/mqtt'
 import IconNew from '~icons/custom/new'
 import IconScript from '~icons/custom/script'
 import IconSettings from '~icons/custom/settings'
-import { reactive } from 'vue'
-
-import useLinks from '../../composables/useLinks'
 
 const { linksMap } = useLinks()
 

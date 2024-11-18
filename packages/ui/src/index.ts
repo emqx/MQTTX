@@ -1,5 +1,4 @@
 import type { App } from 'vue'
-import { createPinia } from 'pinia'
 import EmptyView from './components/common/EmptyView.vue'
 
 import LeftMenu from './components/common/LeftMenu.vue'

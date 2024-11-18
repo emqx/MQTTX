@@ -1,6 +1,3 @@
-import { defineStore } from 'pinia'
-import { ref } from 'vue'
-
 function connectionsStoreSetup() {
   const count = ref(0)
   function increment() {
