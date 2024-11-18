@@ -2,6 +2,7 @@ import { fileURLToPath, URL } from 'node:url'
 
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import AutoImport from 'unplugin-auto-import/vite'
 import { FileSystemIconLoader } from 'unplugin-icons/loaders'
 import IconsResolver from 'unplugin-icons/resolver'
 import Icons from 'unplugin-icons/vite'
@@ -16,6 +17,31 @@ export default defineConfig({
     VueRouter(),
     vue(),
     vueJsx(),
+    AutoImport({
+      // targets to transform
+      include: [
+        /\.[tj]sx?$/, // .ts, .tsx, .js, .jsx
+        /\.vue$/,
+        /\.vue\?vue/, // .vue
+        /\.md$/, // .md
+      ],
+
+      // global imports to register
+      imports: [
+        'vue',
+        'vue-router',
+        'vue-i18n',
+      ],
+
+      // Auto import for module exports under directories
+      // by default it only scan one level of modules under the directory
+      dirs: [
+        './src/composables', // only root modules
+      ],
+
+      // Auto import inside Vue template
+      vueTemplate: true,
+    }),
     Components({
       dts: true,
       directoryAsNamespace: true,
