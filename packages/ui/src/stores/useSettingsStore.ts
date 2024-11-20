@@ -1,34 +1,35 @@
-import type { Lang, Theme } from 'mqttx'
+import type { Settings } from 'mqttx'
 import { i18n } from '../i18n'
 
-function settingsStoreSetup() {
-  const theme = ref<Theme>('dark')
-  function changeTheme(val: Theme) {
-    theme.value = val
+export const useSettingsStore = defineStore('settings', () => {
+  // mokc db 中的 settings
+  const settingsDB: Settings = {
+    currentLang: 'en',
+    autoCheck: true,
+    autoResub: true,
+    multiTopics: false,
+    maxReconnectTimes: 3,
+    syncOsTheme: true,
+    currentTheme: 'dark',
+    jsonHighlight: true,
+    logLevel: 'debug',
+    ignoreQoS0Message: false,
+    enableCopilot: false,
+    openAIAPIHost: '',
+    openAIAPIKey: '',
+    model: '',
   }
 
-  const getLang = (): Lang => {
-    const lang = localStorage.getItem('lang')
-    return (lang as Lang) || 'en'
-  }
+  const settings = ref<Settings>(settingsDB)
 
-  const lang = ref<Lang>(getLang())
-
-  function changeLang(val: Lang) {
-    lang.value = val
-    localStorage.setItem('lang', val)
+  function updateSettings(newSettings: Settings) {
+    settings.value = newSettings
   }
 
   // Automatically update the i18n locale when the language is changed
-  watch(
-    lang,
-    (newLang) => {
-      i18n.global.locale = newLang
-    },
-    { immediate: true },
-  )
+  watch(() => settings.value.currentLang, (newLang) => {
+    i18n.global.locale = newLang
+  })
 
-  return { theme, changeTheme, lang, changeLang }
-}
-
-export const useSettingsStore = defineStore('settings', settingsStoreSetup)
+  return { settings, updateSettings }
+})
