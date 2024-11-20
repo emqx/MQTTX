@@ -133,7 +133,7 @@ export default {
     hu: 'MQTT programozás',
   },
   practiceDesc: {
-    zh: '丰富的的 MQTT 实战代码，助您快速开发 MQTT 服务及应用。',
+    zh: '丰富的 MQTT 实战代码，助您快速开发 MQTT 服务及应用。',
     en: 'Rich MQTT practice code to help you quickly develop MQTT services and applications.',
     ja: '豊富な MQTT 実践コードで、MQTT サービスとアプリケーションをすぐに開発できます。',
     tr: 'Zengin MQTT uygulama kodu, MQTT hizmetlerini ve uygulamalarını hızlı bir şekilde geliştirmenize yardımcı olur.',
