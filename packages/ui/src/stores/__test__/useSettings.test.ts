@@ -1,6 +1,6 @@
-// import { beforeEach, describe, expect, it, vi } from 'vitest'
-// import { useSettingsStore } from '../useSettingsStore'
-import { beforeEach, vi } from 'vitest'
+import type { Settings } from 'mqttx'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { useSettingsStore } from '../useSettingsStore'
 
 // Mocking a class for localStorage with all necessary methods
 class LocalStorageMock {
@@ -37,25 +37,26 @@ beforeEach(() => {
   vi.clearAllMocks()
 })
 
-// TODO: Fix the test
-// describe('settingsStore', () => {
-//   it('should change theme', () => {
-//     const store = useSettingsStore()
-//     store.changeTheme('light')
-//     expect(store.theme).toBe('light')
-//   })
-
-//   it('should change language and update localStorage', () => {
-//     const store = useSettingsStore()
-//     store.changeLang('ja')
-//     expect(store.lang).toBe('ja')
-//     expect(localStorage.setItem).toHaveBeenCalledWith('lang', 'ja')
-//   })
-
-//   it('should retrieve language from localStorage on initialization', () => {
-//     localStorage.setItem('lang', 'en')
-//     const store = useSettingsStore()
-//     expect(store.lang).toBe('en')
-//     expect(localStorage.getItem).toHaveBeenCalledWith('lang')
-//   })
-// })
+describe('settingsStore', () => {
+  it('should update settings', () => {
+    const store = useSettingsStore()
+    const newSettings: Settings = {
+      currentLang: 'zh',
+      autoCheck: true,
+      autoResub: true,
+      multiTopics: false,
+      maxReconnectTimes: 3,
+      syncOsTheme: true,
+      currentTheme: 'dark',
+      jsonHighlight: true,
+      logLevel: 'debug',
+      ignoreQoS0Message: false,
+      enableCopilot: false,
+      openAIAPIHost: '',
+      openAIAPIKey: '',
+      model: '',
+    }
+    store.updateSettings(newSettings)
+    expect(store.settings).toEqual(newSettings)
+  })
+})
