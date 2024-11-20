@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useSettingsStore } from '@mqttx/ui'
+import useSettingsService from '@/database/services/SettingsService'
 
-const { settings } = useSettingsStore()
+const { settings } = useSettingsService()
 </script>
 
 <template>
