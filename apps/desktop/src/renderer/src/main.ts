@@ -1,5 +1,5 @@
 import { i18n } from '@mqttx/ui/i18n'
-import { useSettingsStore } from '@mqttx/ui/stores'
+// import { useSettingsStore } from '@mqttx/ui/stores'
 
 import App from './App.vue'
 import { router } from './router'
@@ -15,7 +15,7 @@ const pinia = createPinia()
 app.use(router).use(pinia)
 
 // I18n
-const settingsStore = useSettingsStore()
-i18n.global.locale = settingsStore.lang
+// const { settings } = useSettingsStore()
+// i18n.global.locale = settings.currentLang
 
 app.use(i18n).mount('#app')
