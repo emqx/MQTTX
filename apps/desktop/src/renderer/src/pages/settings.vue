@@ -1,3 +1,4 @@
 <template>
-  <SettingsView />
+  <!-- <SettingsView /> -->
+  TODO: Implement desktop database settings
 </template>
