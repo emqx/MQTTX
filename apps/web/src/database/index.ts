@@ -25,7 +25,7 @@ addRxPlugin(RxDBLeaderElectionPlugin)
 addRxPlugin(RxDBUpdatePlugin)
 
 export function useDatabase(): RxMqttxDatabase {
-  return inject<RxMqttxDatabase>(KEY_DATABASE) ?? window.db
+  return window.db ?? inject<RxMqttxDatabase>(KEY_DATABASE)
 }
 
 export async function createDatabase(): Promise<Plugin> {
@@ -37,8 +37,7 @@ export async function createDatabase(): Promise<Plugin> {
     eventReduce: true,
   })
 
-  // write to window for debugging
-  ;(window as any).db = db
+  window.db = db
 
   // show leadership in title
   db.waitForLeadership().then(() => {
