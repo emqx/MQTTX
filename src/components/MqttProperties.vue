@@ -15,7 +15,12 @@
           />
         </template>
         <template v-else>
-          <span>{{ $t(`connections.${field.key}`) }}: {{ properties[field.key] }}</span>
+          <span class="property-item">
+            <span class="label"
+              >{{ $t(`connections.${field.key}`) }}<span v-if="showColon" class="colon">: </span></span
+            >
+            <span class="value">{{ properties[field.key] }}</span>
+          </span>
         </template>
       </p>
     </template>
@@ -38,6 +43,7 @@ interface PropertyField {
 export default class MqttProperties extends Vue {
   @Prop({ required: true }) public properties!: PushPropertiesModel
   @Prop({ default: '' }) public direction!: string
+  @Prop({ default: true }) public showColon!: boolean
 
   private propertyFields: PropertyField[] = [
     { key: 'subscriptionIdentifier' },
