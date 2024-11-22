@@ -19,37 +19,7 @@
         <span class="topic">Topic: {{ topic }}</span>
         <span class="qos">QoS: {{ qos }}</span>
       </p>
-      <div class="meta">
-        <p v-if="properties.subscriptionIdentifier" class="properties right">
-          <span>{{ $t('connections.subscriptionIdentifier') }}: {{ properties.subscriptionIdentifier }}</span>
-        </p>
-        <p v-if="properties.contentType" class="properties right">
-          <span>{{ $t('connections.contentType') }}: {{ properties.contentType }}</span>
-        </p>
-        <p v-if="properties.payloadFormatIndicator" class="properties right">
-          <span>{{ $t('connections.payloadFormatIndicator') }}: {{ properties.payloadFormatIndicator }}</span>
-        </p>
-        <p v-if="properties.topicAlias" class="properties right">
-          <span>{{ $t('connections.topicAlias') }}: {{ properties.topicAlias }}</span>
-        </p>
-        <p v-if="properties.responseTopic" class="properties right">
-          <span>{{ $t('connections.responseTopic') }}: {{ properties.responseTopic }}</span>
-        </p>
-        <p v-if="properties.correlationData" class="properties right">
-          <span>{{ $t('connections.correlationData') }}: {{ properties.correlationData }}</span>
-        </p>
-        <p v-if="properties.messageExpiryInterval" class="properties right">
-          <span>{{ $t('connections.messageExpiryInterval') }}: {{ properties.messageExpiryInterval }}</span>
-        </p>
-        <p v-if="properties.userProperties" class="user-properties properties right">
-          <KeyValueEditor
-            class="msg-item-props"
-            :title="$t('connections.userProperties')"
-            :disabled="true"
-            :value="properties.userProperties"
-          />
-        </p>
-      </div>
+      <MqttProperties class="meta" :properties="properties" direction="right" />
       <pre>{{ payload }}</pre>
     </div>
     <p class="right-time time">{{ createAt }}</p>
@@ -58,11 +28,11 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import KeyValueEditor from './KeyValueEditor.vue'
+import MqttProperties from './MqttProperties.vue'
 
 @Component({
   components: {
-    KeyValueEditor,
+    MqttProperties,
   },
 })
 export default class MsgrightItem extends Vue {
