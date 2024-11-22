@@ -54,6 +54,11 @@
       <pre
         class="payload-container mt-2 mb-2"
       ><code :class="`language-${payloadFormat}`" v-html="latestMessage"></code></pre>
+      <MqttProperties
+        class="tree-node-info-mqtt-properties"
+        :show-colon="false"
+        :properties="node.message.properties"
+      />
     </div>
   </div>
 </template>
@@ -64,8 +69,13 @@ import { Getter } from 'vuex-class'
 import { findSubTopics, findFullTopicPath, isPayloadEmpty } from '@/utils/topicTree'
 import Prism from 'prismjs'
 import { jsonStringify, jsonParse } from '@/utils/jsonUtils'
+import MqttProperties from '@/components/MqttProperties.vue'
 
-@Component
+@Component({
+  components: {
+    MqttProperties,
+  },
+})
 export default class TreeNodeInfo extends Vue {
   @Prop() private node!: TopicTreeNode
   @Prop() private treeData!: TopicTreeNode[]
@@ -180,6 +190,31 @@ body.night {
       margin: 0;
       white-space: pre-wrap;
       word-wrap: break-word;
+    }
+  }
+  .mqtt-properties.tree-node-info-mqtt-properties {
+    margin-top: 12px;
+    .properties {
+      .property-item {
+        display: flex;
+        flex-direction: column;
+        margin: 6px 0 12px 0;
+        .value {
+          background-color: var(--color-bg-select_lang);
+          padding: 6px 12px;
+          border-radius: 8px;
+          margin-top: 6px;
+        }
+      }
+      &.user-properties {
+        .editor-header {
+          margin-bottom: 6px;
+        }
+        .el-textarea.is-disabled .el-textarea__inner {
+          color: var(--color-text-default);
+          border: 1px solid var(--color-border-default);
+        }
+      }
     }
   }
 }
