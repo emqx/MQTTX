@@ -82,6 +82,7 @@ const settingsSchema: RxJsonSchema<RxSettingsDocumentType> = {
     },
   },
   required: ['id'],
+  encrypted: ['openAIAPIKey'],
 }
 
 export default settingsSchema
