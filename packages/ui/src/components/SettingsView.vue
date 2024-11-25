@@ -77,31 +77,31 @@ const AImodelsOptions = [
         {{ $t('settings.settings') }}
       </h1>
 
-      <section :class="$style.section">
-        <div :class="$style['section-title']">
+      <section class="settings-section">
+        <div class="section-title">
           {{ $t('settings.general') }}
         </div>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16">
-            <label :class="$style['settings-item__label']">{{ $t('settings.language') }}</label>
+            <label>{{ $t('settings.language') }}</label>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
-            <ElSelect v-model="settings.currentLang">
+          <ElCol :span="8">
+            <ElSelect v-model="settings.currentLang" automatic-dropdown>
               <ElOption v-for="{ label, value } in langOptions" :key="value" :label="label" :value="value" />
             </ElSelect>
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16">
-            <label :class="$style['settings-item__label']">{{ $t('settings.automatically') }}</label>
+            <label>{{ $t('settings.automatically') }}</label>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElSwitch
               v-model="settings.autoCheck"
               active-color="#13ce66"
@@ -110,23 +110,23 @@ const AImodelsOptions = [
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16" class="flex gap-1">
-            <label :class="$style['settings-item__label']">{{ $t('settings.autoResub') }}</label>
+            <label>{{ $t('settings.autoResub') }}</label>
             <ElTooltip
               placement="top"
               :effect="settings.currentTheme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
               :content="$t('settings.autoResubDesc')"
             >
-              <div :class="$style.icon">
+              <div class="label-icon">
                 <ElIconWarning />
               </div>
             </ElTooltip>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElSwitch
               v-model="settings.autoResub"
               active-color="#13ce66"
@@ -135,23 +135,23 @@ const AImodelsOptions = [
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16" class="flex gap-1">
-            <label :class="$style['settings-item__label']">{{ $t('settings.multiTopics') }}</label>
+            <label>{{ $t('settings.multiTopics') }}</label>
             <ElTooltip
               placement="top"
               :effect="settings.currentTheme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
               :content="$t('settings.multiTopicsDesc')"
             >
-              <div :class="$style.icon">
+              <div class="label-icon">
                 <ElIconWarning />
               </div>
             </ElTooltip>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElSwitch
               v-model="settings.multiTopics"
               active-color="#13ce66"
@@ -160,13 +160,13 @@ const AImodelsOptions = [
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16">
-            <label :class="$style['settings-item__label']">{{ $t('settings.maxReconnectTimes') }}</label>
+            <label>{{ $t('settings.maxReconnectTimes') }}</label>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElInputNumber
               v-model="settings.maxReconnectTimes"
               :min="1"
@@ -174,15 +174,15 @@ const AImodelsOptions = [
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
       </section>
 
-      <section :class="$style.section">
-        <div :class="$style['section-title']">
+      <section class="settings-section">
+        <div class="section-title">
           {{ $t('settings.appearance') }}
         </div>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16" class="flex gap-1">
@@ -193,12 +193,12 @@ const AImodelsOptions = [
               :open-delay="500"
               :content="$t('settings.syncOsThemeDesc')"
             >
-              <div :class="$style.icon">
+              <div class="label-icon">
                 <ElIconWarning />
               </div>
             </ElTooltip>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElSwitch
               v-model="settings.syncOsTheme"
               active-color="#13ce66"
@@ -207,13 +207,13 @@ const AImodelsOptions = [
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16">
             <label>{{ $t('settings.theme') }}</label>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElSelect
               v-model="settings.currentTheme"
               :disabled="settings.syncOsTheme"
@@ -228,7 +228,7 @@ const AImodelsOptions = [
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16" class="flex gap-1">
@@ -241,12 +241,12 @@ const AImodelsOptions = [
               <template #content>
                 <div v-html="$t('settings.jsonHighlightDesc')" />
               </template>
-              <div :class="$style.icon">
+              <div class="label-icon">
                 <ElIconWarning />
               </div>
             </ElTooltip>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElSwitch
               v-model="settings.jsonHighlight"
               active-color="#13ce66"
@@ -255,44 +255,44 @@ const AImodelsOptions = [
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
       </section>
 
-      <section :class="$style.section">
-        <div :class="$style['section-title']">
+      <section class="settings-section">
+        <div class="section-title">
           {{ $t('settings.advanced') }}
         </div>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16" class="flex gap-1">
-            <label :class="$style['settings-item__label']">{{ $t('log.logLevel') }}</label>
+            <label>{{ $t('log.logLevel') }}</label>
             <ElTooltip
               placement="top"
               :effect="settings.currentTheme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
               :content="$t('log.logLevelDesc')"
             >
-              <div :class="$style.icon">
+              <div class="label-icon">
                 <ElIconWarning />
               </div>
             </ElTooltip>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElSelect v-model="settings.logLevel">
               <ElOption v-for="{ label, value } in logLevelOptions" :key="value" :label="label" :value="value" />
             </ElSelect>
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16">
-            <label :class="$style['settings-item__label']">{{ $t('settings.dataRecovery') }}</label>
+            <label>{{ $t('settings.dataRecovery') }}</label>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElButton
               class="w-20"
               type="primary"
@@ -304,13 +304,13 @@ const AImodelsOptions = [
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16">
-            <label :class="$style['settings-item__label']">{{ $t('settings.dataBackup') }}</label>
+            <label>{{ $t('settings.dataBackup') }}</label>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElButton
               class="w-20"
               type="primary"
@@ -322,13 +322,13 @@ const AImodelsOptions = [
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16">
-            <label :class="$style['settings-item__label']">{{ $t('settings.historyCleanup') }}</label>
+            <label>{{ $t('settings.historyCleanup') }}</label>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElButton
               class="w-20"
               type="danger"
@@ -340,23 +340,23 @@ const AImodelsOptions = [
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16" class="flex gap-1">
-            <label :class="$style['settings-item__label']">{{ $t('settings.ignoreQoS0Message') }}</label>
+            <label>{{ $t('settings.ignoreQoS0Message') }}</label>
             <ElTooltip
               placement="top"
               :effect="settings.currentTheme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
               :content="$t('settings.ignoreQoS0MessageDesc')"
             >
-              <div :class="$style.icon">
+              <div class="label-icon">
                 <ElIconWarning />
               </div>
             </ElTooltip>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElSwitch
               v-model="settings.ignoreQoS0Message"
               active-color="#13ce66"
@@ -365,21 +365,21 @@ const AImodelsOptions = [
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
       </section>
 
-      <section :class="$style.section">
-        <div :class="$style['section-title']">
+      <section class="settings-section">
+        <div class="section-title">
           MQTTX Copilot
         </div>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16">
-            <label :class="$style['settings-item__label']">{{ $t('settings.enableCopilot') }}</label>
+            <label>{{ $t('settings.enableCopilot') }}</label>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElSwitch
               v-model="settings.enableCopilot"
               active-color="#13ce66"
@@ -388,13 +388,13 @@ const AImodelsOptions = [
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16">
-            <label :class="$style['settings-item__label']">API Host</label>
+            <label>API Host</label>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElAutocomplete
               v-model.trim="settings.openAIAPIHost"
               type="text"
@@ -406,13 +406,13 @@ const AImodelsOptions = [
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16">
-            <label :class="$style['settings-item__label']">API Key</label>
+            <label>API Key</label>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElInput
               v-model.trim="settings.openAIAPIKey"
               placeholder="sk-*******"
@@ -424,13 +424,13 @@ const AImodelsOptions = [
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16">
-            <label :class="$style['settings-item__label']">{{ $t('settings.model') }}</label>
+            <label>{{ $t('settings.model') }}</label>
           </ElCol>
-          <ElCol :span="8" :class="$style['section-right']">
+          <ElCol :span="8">
             <ElInput
               v-model.trim="settings.model"
               placeholder="gpt-4o"
@@ -454,7 +454,7 @@ const AImodelsOptions = [
           </ElCol>
         </ElRow>
 
-        <ElDivider :class="$style.hr" />
+        <ElDivider />
       </section>
     </div>
   </div>
@@ -462,71 +462,37 @@ const AImodelsOptions = [
 
 <style lang="scss">
 #settings-view {
-  .el-select {
-    --el-select-width: 108px;
-    --el-input-text-color: var(--color-text-default);
-    --el-text-color-placeholder: var(--color-text-default);
-    --el-select-disabled-color: var(--color-text-default);
-    .el-select__wrapper {
-      box-shadow: none !important;
-      background-color: transparent !important;
+  .settings-section {
+    @apply mb-20 last:mb-0;
+    .el-col-16 {
+      @apply text-title;
     }
-  }
-  .ai-models-select {
-    position: absolute;
-    bottom: 36px;
-    right: 0px;
-    box-shadow: #00000014 0px 4px 12px;
-    background: var(--color-bg-normal);
-    border: 1px solid var(--color-border-default);
-    .el-cascader-menu:last-child {
-      width: 100%;
+    .el-col-8 {
+      @apply text-right;
     }
-    .el-cascader-menu {
-      color: var(--color-text-default);
+    .el-divider--horizontal {
+      @apply my-4;
     }
-    .el-cascader-menu {
-      border-right: 1px solid var(--color-border-default);
-      &:last-child {
-        border-right: none;
+    .el-select {
+      --el-select-width: 108px;
+      --el-input-text-color: var(--color-text-default);
+      --el-text-color-placeholder: var(--color-text-default);
+      --el-select-disabled-color: var(--color-text-default);
+      .el-select__wrapper {
+        box-shadow: none !important;
+        background-color: transparent !important;
       }
     }
-    .el-cascader-node.is-active {
-      .el-icon-check.el-cascader-node__prefix {
-        color: var(--color-main-green);
-      }
+    .label-icon {
+      @apply cursor-pointer text-default text-base font-semibold w-4 h-4;
     }
-    .el-cascader-node:not(.is-disabled):hover,
-    .el-cascader-node:not(.is-disabled):focus {
-      background-color: transparent;
-      color: var(--color-main-green);
+    .section-title {
+      @apply text-light mb-[-5px];
+    }
+    .ai-models-select {
+      background-color: var(--el-bg-color-overlay);
+      @apply absolute bottom-9 right-0;
     }
   }
-}
-</style>
-
-<style module>
-.section {
-  @apply mb-20 last:mb-0;
-}
-
-.hr {
-  @apply my-4;
-}
-
-.icon {
-  @apply cursor-pointer text-default text-base font-semibold w-4 h-4;
-}
-
-.section-right {
-  @apply text-right;
-}
-
-.section-title {
-  @apply text-light mb-[-5px];
-}
-
-.settings-item__label {
-  @apply text-title;
 }
 </style>
