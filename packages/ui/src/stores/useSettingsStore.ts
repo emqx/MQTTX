@@ -1,4 +1,5 @@
 import type { Settings } from 'mqttx'
+import { usePreferredDark } from '@vueuse/core'
 import { i18n } from '../i18n'
 
 export const useSettingsStore = defineStore('settings', () => {
@@ -30,6 +31,17 @@ export const useSettingsStore = defineStore('settings', () => {
   watch(() => settings.value?.currentLang, (newLang) => {
     if (!newLang) return
     i18n.global.locale = newLang
+  })
+
+  watch([() => settings.value?.syncOsTheme, () => settings.value?.currentTheme], ([syncOsTheme, currentTheme]) => {
+    const htmlClassList = document.documentElement.classList
+    if (syncOsTheme) {
+      const isDark = usePreferredDark()
+      settings.value!.currentTheme = isDark.value ? 'dark' : 'light'
+      htmlClassList.replace(htmlClassList.value, isDark.value ? 'dark' : 'light')
+    } else {
+      htmlClassList.replace(htmlClassList.value, currentTheme || 'light')
+    }
   })
 
   return { settings, updateSettings }
