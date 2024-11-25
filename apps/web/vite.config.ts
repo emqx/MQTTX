@@ -64,6 +64,16 @@ export default defineConfig({
         custom: FileSystemIconLoader('../../packages/ui/src/assets/icons'),
       },
     }),
+    {
+      name: 'element-plus-night-theme',
+      transform(code, id) {
+        if (id.endsWith('packages/ui/src/styles/index.scss')) {
+          const nightThemeCode = code.replace(/html\.dark/g, 'html.night')
+          return `${code}\n${nightThemeCode}`
+        }
+        return code
+      },
+    },
   ],
   resolve: {
     alias: {
