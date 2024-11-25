@@ -102,11 +102,7 @@ const AImodelsOptions = [
             <label>{{ $t('settings.automatically') }}</label>
           </ElCol>
           <ElCol :span="8">
-            <ElSwitch
-              v-model="settings.autoCheck"
-              active-color="#13ce66"
-              inactive-color="#A2A9B0"
-            />
+            <ElSwitch v-model="settings.autoCheck" />
           </ElCol>
         </ElRow>
 
@@ -117,7 +113,6 @@ const AImodelsOptions = [
             <label>{{ $t('settings.autoResub') }}</label>
             <ElTooltip
               placement="top"
-              :effect="settings.currentTheme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
               :content="$t('settings.autoResubDesc')"
             >
@@ -127,11 +122,7 @@ const AImodelsOptions = [
             </ElTooltip>
           </ElCol>
           <ElCol :span="8">
-            <ElSwitch
-              v-model="settings.autoResub"
-              active-color="#13ce66"
-              inactive-color="#A2A9B0"
-            />
+            <ElSwitch v-model="settings.autoResub" />
           </ElCol>
         </ElRow>
 
@@ -142,7 +133,7 @@ const AImodelsOptions = [
             <label>{{ $t('settings.multiTopics') }}</label>
             <ElTooltip
               placement="top"
-              :effect="settings.currentTheme !== 'light' ? 'light' : 'dark'"
+
               :open-delay="500"
               :content="$t('settings.multiTopicsDesc')"
             >
@@ -152,11 +143,7 @@ const AImodelsOptions = [
             </ElTooltip>
           </ElCol>
           <ElCol :span="8">
-            <ElSwitch
-              v-model="settings.multiTopics"
-              active-color="#13ce66"
-              inactive-color="#A2A9B0"
-            />
+            <ElSwitch v-model="settings.multiTopics" />
           </ElCol>
         </ElRow>
 
@@ -189,7 +176,6 @@ const AImodelsOptions = [
             <label>{{ $t('settings.syncOsTheme') }}</label>
             <ElTooltip
               placement="top"
-              :effect="settings.currentTheme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
               :content="$t('settings.syncOsThemeDesc')"
             >
@@ -199,11 +185,7 @@ const AImodelsOptions = [
             </ElTooltip>
           </ElCol>
           <ElCol :span="8">
-            <ElSwitch
-              v-model="settings.syncOsTheme"
-              active-color="#13ce66"
-              inactive-color="#A2A9B0"
-            />
+            <ElSwitch v-model="settings.syncOsTheme" />
           </ElCol>
         </ElRow>
 
@@ -235,7 +217,6 @@ const AImodelsOptions = [
             <label>{{ $t('settings.jsonHighlight') }}</label>
             <ElTooltip
               placement="top"
-              :effect="settings.currentTheme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
             >
               <template #content>
@@ -247,11 +228,7 @@ const AImodelsOptions = [
             </ElTooltip>
           </ElCol>
           <ElCol :span="8">
-            <ElSwitch
-              v-model="settings.jsonHighlight"
-              active-color="#13ce66"
-              inactive-color="#A2A9B0"
-            />
+            <ElSwitch v-model="settings.jsonHighlight" />
           </ElCol>
         </ElRow>
 
@@ -270,7 +247,6 @@ const AImodelsOptions = [
             <label>{{ $t('log.logLevel') }}</label>
             <ElTooltip
               placement="top"
-              :effect="settings.currentTheme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
               :content="$t('log.logLevelDesc')"
             >
@@ -347,7 +323,6 @@ const AImodelsOptions = [
             <label>{{ $t('settings.ignoreQoS0Message') }}</label>
             <ElTooltip
               placement="top"
-              :effect="settings.currentTheme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
               :content="$t('settings.ignoreQoS0MessageDesc')"
             >
@@ -357,11 +332,7 @@ const AImodelsOptions = [
             </ElTooltip>
           </ElCol>
           <ElCol :span="8">
-            <ElSwitch
-              v-model="settings.ignoreQoS0Message"
-              active-color="#13ce66"
-              inactive-color="#A2A9B0"
-            />
+            <ElSwitch v-model="settings.ignoreQoS0Message" />
           </ElCol>
         </ElRow>
 
@@ -380,11 +351,7 @@ const AImodelsOptions = [
             <label>{{ $t('settings.enableCopilot') }}</label>
           </ElCol>
           <ElCol :span="8">
-            <ElSwitch
-              v-model="settings.enableCopilot"
-              active-color="#13ce66"
-              inactive-color="#A2A9B0"
-            />
+            <ElSwitch v-model="settings.enableCopilot" />
           </ElCol>
         </ElRow>
 

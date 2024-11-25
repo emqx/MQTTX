@@ -34,13 +34,13 @@ export const useSettingsStore = defineStore('settings', () => {
   })
 
   watch([() => settings.value?.syncOsTheme, () => settings.value?.currentTheme], ([syncOsTheme, currentTheme]) => {
-    const htmlClassList = document.documentElement.classList
+    if (typeof document === 'undefined') return
     if (syncOsTheme) {
       const isDark = usePreferredDark()
       settings.value!.currentTheme = isDark.value ? 'dark' : 'light'
-      htmlClassList.replace(htmlClassList.value, isDark.value ? 'dark' : 'light')
+      document.documentElement.className = isDark.value ? 'dark' : 'light'
     } else {
-      htmlClassList.replace(htmlClassList.value, currentTheme || 'light')
+      document.documentElement.className = currentTheme || 'light'
     }
   })
 

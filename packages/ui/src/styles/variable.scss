@@ -1,9 +1,12 @@
-@forward './themes/light.scss';
-@forward './themes/dark.scss';
-@forward './themes/night.scss';
+@use 'element-plus/theme-chalk/dark/css-vars.css' as *;
+@use './themes/light.scss' as *;
+@use './themes/dark.scss' as *;
+@use './themes/night.scss' as *;
 
 /* Element UI CSS Vars Colors */
-:root {
+html.light,
+html.dark,
+html.night {
   --el-color-primary: var(--color-main-green);
   --el-color-primary-light-3: #34c387e0;
   --el-color-primary-light-5: #34c387b6;
@@ -16,10 +19,10 @@
   --el-color-danger: var(--color-minor-red);
   --el-color-error: var(--color-minor-red);
 }
-/* Uncomment and add this code to change Element UI color for different themes. */
-// html.dark {
-//   --el-color-primary: black;
-// }
+
+html.night {
+  color-scheme: night;
+}
 
 /* Common Scss Vars */
 $font-family:
