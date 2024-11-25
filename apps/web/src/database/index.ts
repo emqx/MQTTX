@@ -9,6 +9,7 @@ import settingsSchema from './schemas/Settings.schema'
 
 // import modules
 import { disableWarnings, RxDBDevModePlugin } from 'rxdb/plugins/dev-mode'
+import { wrappedKeyEncryptionCryptoJsStorage } from 'rxdb/plugins/encryption-crypto-js'
 import { RxDBLeaderElectionPlugin } from 'rxdb/plugins/leader-election'
 import { RxDBUpdatePlugin } from 'rxdb/plugins/update'
 import { wrappedValidateAjvStorage } from 'rxdb/plugins/validate-ajv'
@@ -29,11 +30,17 @@ export function useDatabase(): RxMqttxDatabase {
 }
 
 export async function createDatabase(): Promise<Plugin> {
+  // wrap the normal storage with the encryption plugin
+  const encryptedDexieStorage = wrappedKeyEncryptionCryptoJsStorage({
+    storage: getRxStorageDexie(),
+  })
+
   const db = await createRxDatabase<RxMqttxCollections>({
     name: 'mqttx',
     storage: wrappedValidateAjvStorage({
-      storage: getRxStorageDexie(),
+      storage: encryptedDexieStorage,
     }),
+    password: 'EBJ3cru8fun5gtw*tky',
     eventReduce: true,
   })
 
