@@ -15,6 +15,7 @@
     "src/renderer/src/**/*",
     "src/renderer/src/**/*.vue",
     "src/preload/*.d.ts",
+    "src/database/**/*",
     "./typed-router.d.ts",
     "src/renderer/auto-imports.d.ts",
     "src/renderer/components.d.ts"
