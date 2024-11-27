@@ -17,7 +17,6 @@ declare module 'vue' {
     ElConfigProvider: typeof import('element-plus/es')['ElConfigProvider']
     ElContainer: typeof import('element-plus/es')['ElContainer']
     ElMain: typeof import('element-plus/es')['ElMain']
-    Help: typeof import('./../../../../packages/ui/src/components/Help.vue')['default']
     HelpView: typeof import('./../../../../packages/ui/src/components/HelpView.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

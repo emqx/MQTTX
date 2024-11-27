@@ -12,6 +12,7 @@
   "scripts": {
     "dev": "electron-vite dev",
     "prebuild": "pnpm run typecheck && electron-vite build",
+    "rebuild": "electron-rebuild -f -w better-sqlite3",
     "postinstall": "electron-builder install-app-deps",
     "build": "pnpm run prebuild && electron-builder --win --mac --linux --config",
     "build:win": "pnpm run prebuild && electron-builder --win --config",
@@ -20,13 +21,16 @@
     "preview": "electron-vite preview",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false",
-    "typecheck": "pnpm run typecheck:node && npm run typecheck:web"
+    "typecheck": "pnpm run typecheck:node && pnpm run typecheck:web",
+    "db:generate": "pnpm drizzle-kit generate"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^3.0.0",
     "@element-plus/icons-vue": "^2.3.1",
     "@mqttx/ui": "workspace:*",
+    "better-sqlite3": "^11.6.0",
+    "drizzle-orm": "^0.36.4",
     "electron-updater": "^6.3.9",
     "element-plus": "^2.8.7",
     "pinia": "^2.2.6",
@@ -35,14 +39,17 @@
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
+    "@electron/rebuild": "^3.7.1",
     "@mqttx/core": "workspace:*",
     "@mqttx/tailwind-config": "workspace:*",
     "@mqttx/tsconfig": "workspace:*",
+    "@types/better-sqlite3": "^7.6.12",
     "@types/mqttx": "workspace:*",
     "@vitejs/plugin-vue": "^5.1.5",
     "@vitest/coverage-istanbul": "^2.1.4",
     "@vue/test-utils": "^2.4.6",
     "autoprefixer": "^10.4.20",
+    "drizzle-kit": "^0.28.1",
     "electron": "^33.2.0",
     "electron-builder": "^26.0.0-alpha.6",
     "electron-vite": "^2.3.0",
