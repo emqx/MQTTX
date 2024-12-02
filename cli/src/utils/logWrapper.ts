@@ -72,7 +72,7 @@ const basicLog = {
   },
   publishing: () => logWrapper.await('Message publishing...'),
   published: () => logWrapper.success('Message published'),
-  enterToPublish: () => logWrapper.success('Connected, press Enter to publish, press Ctrl+C to exit'),
+  enterToPublish: () => logWrapper.success('Connected, input and press Enter to publish'),
   error: (err: Error) => logWrapper.fail(err.toString()),
   close: () => logWrapper.fail('Connection closed'),
   reconnecting: (retryTimes: number, maxReTryTimes: number) =>
