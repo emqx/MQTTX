@@ -4,6 +4,7 @@ import { parseConnectOptions } from '../utils/parse'
 import delay from '../utils/delay'
 import { handleSaveOptions, handleLoadOptions } from '../utils/options'
 import * as Debug from 'debug'
+import { triggerExitInfo } from '../utils/exitInfo'
 
 const conn = (options: ConnectOptions) => {
   const { debug, saveOptions, loadOptions } = options
@@ -27,6 +28,7 @@ const conn = (options: ConnectOptions) => {
   client.on('connect', () => {
     basicLog.connected()
     retryTimes = 0
+    setTimeout(triggerExitInfo, 1000)
   })
 
   client.on('error', (err) => {
@@ -96,6 +98,7 @@ const benchConn = async (options: BenchConnectOptions) => {
           if (connectedCount === count) {
             const end = Date.now()
             signale.success(`Created ${count} connections in ${(end - start) / 1000}s`)
+            setTimeout(triggerExitInfo, 1000)
           }
         } else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)

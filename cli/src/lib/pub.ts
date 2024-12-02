@@ -15,6 +15,7 @@ import { checkScenarioExists, checkTopicExists, parseConnectOptions, parsePublis
 import { serializeProtobufToBuffer } from '../utils/protobuf'
 import { serializeAvroToBuffer } from '../utils/avro'
 import { loadSimulator } from '../utils/simulate'
+import { triggerExitInfo } from '../utils/exitInfo'
 
 /**
  * Processes the outgoing message through two potential stages:
@@ -154,6 +155,7 @@ const multiSend = (
 
   client.on('connect', () => {
     basicLog.enterToPublish()
+    setTimeout(triggerExitInfo, 1000)
     retryTimes = 0
     isNewConnection &&
       pump(process.stdin, split2(), sender, (err) => {
