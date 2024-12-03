@@ -10,6 +10,11 @@ const dbPath = import.meta.env.DEV ? 'sqlite.db' : path.join(app.getPath('userDa
 
 fs.mkdirSync(path.dirname(dbPath), { recursive: true })
 
+// TODO: Remove this code before production. This is to ensure the database is recreated on each startup to avoid migration issues during development.
+if (fs.existsSync(dbPath)) {
+  fs.unlinkSync(dbPath)
+}
+
 const sqlite = new Database(
   dbPath,
 )
