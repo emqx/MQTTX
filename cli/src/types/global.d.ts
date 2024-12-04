@@ -91,6 +91,7 @@ declare global {
     fileRead?: string
     stdin?: boolean
     multiline?: boolean
+    lineMode?: boolean
     // properties of MQTT 5.0
     payloadFormatIndicator?: boolean
     messageExpiryInterval?: number
