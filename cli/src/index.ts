@@ -149,6 +149,7 @@ export class Commander {
       .option('-d, --dup', 'mark as duplicate flag')
       .option('-s, --stdin', 'read the message body from stdin')
       .option('-M, --multiline', 'read lines from stdin as multiple messages')
+      .option('-lm, --line-mode', 'enter interactive mode to send messages line by line (equivalent to -s -M)', false)
       // properties options of MQTT 5.0
       .option('-pf, --payload-format-indicator', 'the payload format indicator of the publish message')
       .option('-e, --message-expiry-interval <NUMBER>', 'the lifetime of the publish message in seconds', parseNumber)

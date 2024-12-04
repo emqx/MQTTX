@@ -221,6 +221,11 @@ const pub = (options: PublishOptions) => {
 
   checkTopicExists(options.topic, 'pub')
 
+  if (options.lineMode) {
+    options.multiline = true
+    options.stdin = true
+  }
+
   const connOpts = parseConnectOptions(options, 'pub')
 
   const pubOpts = parsePublishOptions(options)
