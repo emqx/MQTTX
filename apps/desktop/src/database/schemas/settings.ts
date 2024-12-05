@@ -3,6 +3,8 @@ import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const settings = sqliteTable('settings', {
   id: integer().primaryKey({ autoIncrement: true }),
+  width: integer({ mode: 'number' }).notNull().default(1024),
+  height: integer({ mode: 'number' }).notNull().default(749),
   currentLang: text().$type<Settings['currentLang']>().notNull().default('en'),
   autoCheck: integer({ mode: 'boolean' }).notNull().default(true),
   autoResub: integer({ mode: 'boolean' }).notNull().default(true),
