@@ -5,7 +5,8 @@
     "baseUrl": ".",
     "moduleResolution": "bundler",
     "paths": {
-      "@renderer/*": ["src/renderer/src/*"]
+      "@renderer/*": ["src/renderer/src/*"],
+      "@database/*": ["src/database/*"]
     },
     "types": ["element-plus/global", "node", "mqttx", "unplugin-icons/types/vue"],
     "verbatimModuleSyntax": true

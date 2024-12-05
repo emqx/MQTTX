@@ -1,5 +1,5 @@
+import useSettingsService from '@database/services/SettingsService'
 import { i18n } from '@mqttx/ui/i18n'
-// import { useSettingsStore } from '@mqttx/ui/stores'
 
 import App from './App.vue'
 import { router } from './router'
@@ -14,8 +14,12 @@ const pinia = createPinia()
 
 app.use(router).use(pinia)
 
-// I18n
-// const { settings } = useSettingsStore()
-// i18n.global.locale = settings.currentLang
+const { getSettingsInDB } = useSettingsService()
 
-app.use(i18n).mount('#app')
+getSettingsInDB().then(() => {
+  // I18n
+  const { settings } = useSettingsService()
+  i18n.global.locale = settings.currentLang
+
+  app.use(i18n).mount('#app')
+})
