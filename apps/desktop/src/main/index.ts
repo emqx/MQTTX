@@ -2,11 +2,18 @@ import { join } from 'node:path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import icon from '../../resources/icon.png?asset'
-import { execute, runMigrate } from '../database/db.main'
+import { db, execute, runMigrate } from '../database/db.main'
+import { type SelectSettings, settings } from '../database/schemas/settings'
 
 // const IsMacOS = process.platform === 'darwin'
 
-function createWindow(): void {
+async function createWindow() {
+  let data: SelectSettings | undefined
+  data = await db.query.settings.findFirst()
+  if (!data) {
+    await db.insert(settings).values({})
+  }
+  data = await db.query.settings.findFirst()
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1024,
@@ -61,7 +68,7 @@ app.whenReady().then(async () => {
 
   await runMigrate()
 
-  createWindow()
+  await createWindow()
 
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the

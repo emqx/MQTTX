@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/sqlite-proxy'
-import { posts } from './schemas/posts'
+import { settings } from './schemas/settings'
 
-export const database = drizzle(async (...args) => {
+export const db = drizzle(async (...args) => {
   try {
     const result = await window.api.execute(...args)
     return { rows: result }
@@ -10,5 +10,5 @@ export const database = drizzle(async (...args) => {
     return { rows: [] }
   }
 }, {
-  schema: { posts },
+  schema: { settings },
 })

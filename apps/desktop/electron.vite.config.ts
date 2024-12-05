@@ -19,6 +19,7 @@ export default defineConfig({
   renderer: {
     resolve: {
       alias: {
+        '@database': resolve('src/database'),
         '@': resolve('src/renderer/src'),
       },
     },

@@ -4,7 +4,7 @@ import Database from 'better-sqlite3'
 import { drizzle } from 'drizzle-orm/better-sqlite3'
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator'
 import { app } from 'electron'
-import { posts } from './schemas/posts'
+import { settings } from './schemas/settings'
 
 const dbPath = import.meta.env.DEV ? 'sqlite.db' : path.join(app.getPath('userData'), 'data.db')
 
@@ -19,7 +19,7 @@ const sqlite = new Database(
   dbPath,
 )
 
-export const db = drizzle(sqlite, { schema: { posts } })
+export const db = drizzle(sqlite, { schema: { settings } })
 
 function toDrizzleResult(row: Record<string, any>)
 function toDrizzleResult(rows: Record<string, any> | Array<Record<string, any>>) {

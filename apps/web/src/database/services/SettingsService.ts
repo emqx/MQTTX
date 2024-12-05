@@ -2,7 +2,7 @@ import type { RxSettingsDocument, RxSettingsDocumentType } from '@/database/sche
 
 import type { Subscription } from 'rxjs'
 import { useDatabase } from '@/database'
-import { useSettingsStore } from '@mqttx/ui'
+import { useSettingsStore } from '@mqttx/ui/stores'
 
 export default function useSettingsService() {
   const db = useDatabase()
