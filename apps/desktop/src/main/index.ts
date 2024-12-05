@@ -1,5 +1,6 @@
 import { join } from 'node:path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
+import { eq } from 'drizzle-orm'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import icon from '../../resources/icon.png?asset'
 import { db, execute, runMigrate } from '../database/db.main'
@@ -13,13 +14,27 @@ async function createWindow() {
   if (!data) {
     await db.insert(settings).values({})
   }
-  data = await db.query.settings.findFirst()
+  data = await db.query.settings.findFirst() as SelectSettings
+
+  const width = data.width || 1024
+  const height = data.height || 749
+  const currentTheme = data.currentTheme || 'light'
+  const bgColor = {
+    dark: '#232323',
+    night: '#212328',
+    light: '#ffffff',
+  }
+  const backgroundColor = bgColor[currentTheme]
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1024,
-    height: 749,
+    width,
+    height,
+    minHeight: 650,
+    minWidth: 997,
     show: false,
     autoHideMenuBar: true,
+    backgroundColor,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
@@ -33,6 +48,14 @@ async function createWindow() {
     mainWindow.show()
     if (is.dev) {
       mainWindow.webContents.openDevTools()
+    }
+  })
+
+  mainWindow.on('resize', async () => {
+    const { width, height } = mainWindow.getBounds()
+    const data = await db.query.settings.findFirst()
+    if (data) {
+      await db.update(settings).set({ width, height }).where(eq(settings.id, data.id))
     }
   })
 
