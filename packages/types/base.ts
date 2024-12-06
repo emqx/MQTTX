@@ -1,3 +1,5 @@
+export type PlatformType = 'desktop' | 'web'
+
 export type MQTTVersion = 3 | 4 | 5
 
 export type Protocol = 'mqtt' | 'mqtts'

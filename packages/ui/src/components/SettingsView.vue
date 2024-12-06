@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import type { AutocompleteFetchSuggestionsCallback } from 'element-plus'
-import type { Settings } from 'mqttx'
+import type { PlatformType, Settings } from 'mqttx'
 
 const settings = defineModel<Settings>({ required: true })
+
+const platformType = inject<PlatformType>('platformType', 'web')
 
 const { t } = useI18n()
 const langOptions = [
@@ -97,19 +99,21 @@ const AImodelsOptions = [
 
         <ElDivider />
 
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16">
-            <label>{{ $t('settings.automatically') }}</label>
-          </ElCol>
-          <ElCol :span="8">
-            <ElSwitch v-model="settings.autoCheck" />
-          </ElCol>
-        </ElRow>
+        <template v-if="platformType === 'desktop'">
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16">
+              <label>{{ $t('settings.automatically') }}</label>
+            </ElCol>
+            <ElCol :span="8">
+              <ElSwitch v-model="settings.autoCheck" />
+            </ElCol>
+          </ElRow>
 
-        <ElDivider />
+          <ElDivider />
+        </template>
 
         <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="flex gap-1">
+          <ElCol :span="16" class="!flex gap-1">
             <label>{{ $t('settings.autoResub') }}</label>
             <ElTooltip
               placement="top"
@@ -129,7 +133,7 @@ const AImodelsOptions = [
         <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="flex gap-1">
+          <ElCol :span="16" class="!flex gap-1">
             <label>{{ $t('settings.multiTopics') }}</label>
             <ElTooltip
               placement="top"
@@ -172,7 +176,7 @@ const AImodelsOptions = [
         <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="flex gap-1">
+          <ElCol :span="16" class="!flex gap-1">
             <label>{{ $t('settings.syncOsTheme') }}</label>
             <ElTooltip
               placement="top"
@@ -213,7 +217,7 @@ const AImodelsOptions = [
         <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="flex gap-1">
+          <ElCol :span="16" class="!flex gap-1">
             <label>{{ $t('settings.jsonHighlight') }}</label>
             <ElTooltip
               placement="top"
@@ -235,20 +239,20 @@ const AImodelsOptions = [
         <ElDivider />
       </section>
 
-      <section class="settings-section">
+      <section v-if="platformType === 'desktop'" class="settings-section">
         <div class="section-title">
-          {{ $t('settings.advanced') }}
+          {{ $t('settings.extends') }}
         </div>
 
         <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="flex gap-1">
-            <label>{{ $t('log.logLevel') }}</label>
+          <ElCol :span="16" class="!flex gap-1">
+            <label>MQTTX CLI</label>
             <ElTooltip
               placement="top"
               :open-delay="500"
-              :content="$t('log.logLevelDesc')"
+              :content="$t('settings.installCLITips')"
             >
               <div class="label-icon">
                 <ElIconWarning />
@@ -256,13 +260,50 @@ const AImodelsOptions = [
             </ElTooltip>
           </ElCol>
           <ElCol :span="8">
-            <ElSelect v-model="settings.logLevel">
-              <ElOption v-for="{ label, value } in logLevelOptions" :key="value" :label="label" :value="value" />
-            </ElSelect>
+            <ElButton
+              class="w-20"
+              type="primary"
+            >
+              <div class="text-main-white w-4 h-4">
+                <ElIconDownload />
+              </div>
+            </ElButton>
           </ElCol>
         </ElRow>
 
         <ElDivider />
+      </section>
+
+      <section class="settings-section">
+        <div class="section-title">
+          {{ $t('settings.advanced') }}
+        </div>
+
+        <ElDivider />
+
+        <template v-if="platformType === 'desktop'">
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16" class="!flex gap-1">
+              <label>{{ $t('log.logLevel') }}</label>
+              <ElTooltip
+                placement="top"
+                :open-delay="500"
+                :content="$t('log.logLevelDesc')"
+              >
+                <div class="label-icon">
+                  <ElIconWarning />
+                </div>
+              </ElTooltip>
+            </ElCol>
+            <ElCol :span="8">
+              <ElSelect v-model="settings.logLevel">
+                <ElOption v-for="{ label, value } in logLevelOptions" :key="value" :label="label" :value="value" />
+              </ElSelect>
+            </ElCol>
+          </ElRow>
+
+          <ElDivider />
+        </template>
 
         <ElRow type="flex" justify="space-between" align="middle">
           <ElCol :span="16">
@@ -319,7 +360,7 @@ const AImodelsOptions = [
         <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="flex gap-1">
+          <ElCol :span="16" class="!flex gap-1">
             <label>{{ $t('settings.ignoreQoS0Message') }}</label>
             <ElTooltip
               placement="top"
