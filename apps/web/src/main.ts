@@ -1,9 +1,10 @@
+import type { PlatformType } from 'mqttx'
 import { i18n } from '@mqttx/ui/i18n'
+
 import App from './App.vue'
-
 import { createDatabase } from './database'
-import useSettingsService from './database/services/SettingsService'
 
+import useSettingsService from './database/services/SettingsService'
 import { router } from './router'
 import '@mqttx/ui/styles.scss'
 import './assets/scss/main.scss'
@@ -12,8 +13,9 @@ const database = createDatabase()
 
 // Create Vue
 const app = createApp(App)
-
 const pinia = createPinia()
+
+app.provide<PlatformType>('platformType', 'web')
 
 app.use(router).use(pinia)
 
