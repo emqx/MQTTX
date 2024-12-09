@@ -1,3 +1,9 @@
+declare global {
+  interface Window {
+    __APP_VERSION__: string
+  }
+}
+
 export type PlatformType = 'desktop' | 'web'
 
 export type MQTTVersion = 3 | 4 | 5

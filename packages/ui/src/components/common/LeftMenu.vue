@@ -7,7 +7,7 @@ import IconNew from '~icons/custom/new'
 import IconScript from '~icons/custom/script'
 import IconSettings from '~icons/custom/settings'
 
-const { linksMap } = useLinks()
+const { leftBarLogo } = useLinks()
 
 const featMenus = reactive({
   connections: {
@@ -46,7 +46,7 @@ const helpMenus = reactive({
 
 <template>
   <ElAside width="80px" class="flex flex-col justify-between items-center">
-    <a :href="linksMap.homepage" target="_blank" rel="noopener noreferrer" class="w-[40px] h-[40px] block mt-12">
+    <a :href="leftBarLogo" target="_blank" rel="noopener" class="w-[40px] h-[40px] block mt-12">
       <img src="../../assets/images/logo.png" alt="app-logo" width="40" height="40">
     </a>
     <div class="flex flex-col">

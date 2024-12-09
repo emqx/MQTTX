@@ -1,9 +1,11 @@
 <script setup lang="ts">
-
+const { help } = useLinks()
 </script>
 
 <template>
   <div>
-    TODO: help page
+    <pre>
+      {{ help }}
+    </pre>
   </div>
 </template>
