@@ -182,7 +182,7 @@ const helpPractice = computed(() => [
   <div id="help-view" class="px-4 pt-4 pb-12 bg-primary min-h-full select-none">
     <div class="mx-auto max-w-screen-lg">
       <div class="mb-12 flex justify-between items-center">
-        <h1 class="text-lg text-title">
+        <h1 class="text-lg text-title font-semibold">
           {{ $t('help.helpMQTT') }}
         </h1>
         <ElTooltip
@@ -193,7 +193,7 @@ const helpPractice = computed(() => [
           <a
             target="_blank"
             rel="noopener"
-            class="text-sm no-underline text-main-green"
+            class="text-sm text-main-green"
             href="https://www.emqx.com/zh/resources/beginners-guide-to-the-mqtt-protocol?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-mqtt-ebook-zh"
           >
             下载 MQTT 电子书
@@ -206,18 +206,18 @@ const helpPractice = computed(() => [
         <a
           v-for="item in helpTop"
           :key="item.icon"
-          class="block text-center cursor-pointer no-underline rounded-lg py-6 px-3 bg-gradient-card"
+          class="block text-center cursor-pointer rounded-lg py-6 px-3 bg-gradient-card"
           :href="item.link"
           target="_blank"
           rel="noopener"
         >
-          <img class="mb-3" :src="getImage(item.icon)" :alt="item.icon" width="24" height="24">
-          <h2 class="text-title text-sm">{{ item.title }}</h2>
+          <img class="mb-3 mx-auto" :src="getImage(item.icon)" :alt="item.icon" width="24" height="24">
+          <h2 class="text-title text-sm font-semibold">{{ item.title }}</h2>
         </a>
       </section>
 
       <section class="mb-16">
-        <h2 class="mb-2 text-lg text-title">
+        <h2 class="mb-2 text-lg text-title font-semibold">
           {{ $t('help.guideTitle') }}
         </h2>
         <p class="mb-6 text-sm text-default">
@@ -227,7 +227,7 @@ const helpPractice = computed(() => [
           <a
             v-for="item in helpGuide"
             :key="item.link"
-            class="block cursor-pointer no-underline rounded-lg p-4 border border-solid border-border-default"
+            class="block cursor-pointer rounded-lg p-4 border border-solid border-border-default"
             :href="`${item.link}${help.blogUtm}`"
             target="_blank"
             rel="noopener"
@@ -243,7 +243,7 @@ const helpPractice = computed(() => [
       </section>
 
       <section>
-        <h2 class="mb-2 text-lg text-title">
+        <h2 class="mb-2 text-lg text-title font-semibold">
           {{ $t('help.practiceTitle') }}
         </h2>
         <p class="mb-6 text-sm text-default">
@@ -254,13 +254,13 @@ const helpPractice = computed(() => [
             <a
               v-if="item.link"
               :key="item.link"
-              class="block cursor-pointer text-center no-underline rounded-lg py-6 px-3 bg-card-normal"
+              class="block cursor-pointer text-center rounded-lg py-6 px-3 bg-card-normal"
               :href="`${item.link}${help.blogUtm}`"
               target="_blank"
               rel="noopener"
             >
               <img
-                class="mb-3"
+                class="mb-3 mx-auto"
                 :class="[{ invert: item.invert?.includes(settings?.currentTheme ?? '') }]"
                 :src="getImage(item.icon)"
                 :alt="item.icon"

@@ -75,7 +75,7 @@ const AImodelsOptions = [
 <template>
   <div id="settings-view" class="px-4 pt-4 pb-12 bg-primary min-h-full select-none">
     <div class="mx-auto max-w-screen-lg">
-      <h1 class="mb-12 text-lg text-title">
+      <h1 class="mb-12 text-lg text-title font-semibold">
         {{ $t('settings.settings') }}
       </h1>
 

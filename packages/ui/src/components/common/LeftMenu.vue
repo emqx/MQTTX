@@ -9,65 +9,89 @@ import IconSettings from '~icons/custom/settings'
 
 const { leftBarLogo } = useLinks()
 
-const featMenus = reactive({
-  connections: {
-    icon: IconConnections,
-    path: '/connections',
-  },
-  new: {
-    icon: IconNew,
-    path: '/new',
-  },
-  script: {
-    icon: IconScript,
-    path: '/script',
-  },
-  log: {
-    icon: IconLog,
-    path: '/log',
-  },
-})
+interface MenuItem {
+  icon: any
+  path: string
+}
 
-const helpMenus = reactive({
-  settings: {
-    icon: IconSettings,
-    path: '/settings',
+interface Menus {
+  top: Record<string, MenuItem>
+  bottom: Record<string, MenuItem>
+}
+
+const menus = reactive<Menus>({
+  top: {
+    connections: {
+      icon: IconConnections,
+      path: '/connections',
+    },
+    new: {
+      icon: IconNew,
+      path: '/new',
+    },
+    script: {
+      icon: IconScript,
+      path: '/script',
+    },
+    log: {
+      icon: IconLog,
+      path: '/log',
+    },
   },
-  mqtt: {
-    icon: IconMqtt,
-    path: '/help',
-  },
-  about: {
-    icon: IconAbout,
-    path: '/about',
+  bottom: {
+    settings: {
+      icon: IconSettings,
+      path: '/settings',
+    },
+    mqtt: {
+      icon: IconMqtt,
+      path: '/help',
+    },
+    about: {
+      icon: IconAbout,
+      path: '/about',
+    },
   },
 })
 </script>
 
 <template>
-  <ElAside width="80px" class="flex flex-col justify-between items-center">
-    <a :href="leftBarLogo" target="_blank" rel="noopener" class="w-[40px] h-[40px] block mt-12">
-      <img src="../../assets/images/logo.png" alt="app-logo" width="40" height="40">
+  <ElAside width="80px" :class="$style.aside">
+    <a :href="leftBarLogo" target="_blank" rel="noopener" class="w-[40px] h-[40px] block">
+      <img src="../../assets/images/logo.png" alt="MQTTX" width="40" height="40">
     </a>
-    <div class="flex flex-col">
-      <RouterLink v-for="menu in featMenus" :key="menu.path" :to="menu.path" class="no-underline mb-8 text-main-white">
-        <component :is="menu.icon" class="text-xl" />
-      </RouterLink>
-    </div>
-    <div class="flex flex-col">
-      <RouterLink v-for="menu in helpMenus" :key="menu.path" :to="menu.path" class="no-underline mb-8 text-main-white">
-        <component :is="menu.icon" class="text-xl" />
+    <div
+      v-for="(menuGroup, index) in menus"
+      :key="index"
+      class="flex flex-col"
+    >
+      <RouterLink
+        v-for="{ path, icon } in menuGroup"
+        :key="path"
+        :to="path"
+        :class="$style.item"
+        :active-class="$style['item-active']"
+      >
+        <component :is="icon" class="text-xl" />
       </RouterLink>
     </div>
   </ElAside>
 </template>
 
-<style lang="scss">
-.el-aside {
+<style module>
+.aside {
+  @apply z-[1001] py-10 flex flex-col gap-8 justify-between items-center border-r border-r-border-leftbar;
   background: linear-gradient(135deg, var(--color-bg-leftbar_top) 0%, var(--color-bg-leftbar_bottom) 100%);
-  -webkit-app-region: drag;
-  a {
-    -webkit-app-region: no-drag;
+}
+
+.item {
+  @apply flex justify-center items-center w-12 h-12 mb-3 last:mb-0 rounded-lg text-leftbar-icon transition-colors;
+  &:hover {
+    @apply text-main-white;
   }
+}
+
+.item-active {
+  @apply text-main-white bg-leftbar-item;
 }
 </style>

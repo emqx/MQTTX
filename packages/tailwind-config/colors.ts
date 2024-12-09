@@ -44,7 +44,7 @@ export default {
   'main-white': 'var(--color-main-white)',
   'border-default': 'var(--color-border-default)',
   'border-bold': 'var(--color-border-bold)',
-  'border-rightbar': 'var(--color-border-rightbar)',
+  'border-leftbar': 'var(--color-border-leftbar)',
   'border-left-metainfo': 'var(--color-border-left_metainfo)',
   'border-right-metainfo': 'var(--color-border-right_metainfo)',
   'shadow-leftlist': 'var(--color-shadow-leftlist)',
