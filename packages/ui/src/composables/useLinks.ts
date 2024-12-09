@@ -39,7 +39,7 @@ export default function useLinks() {
     forum: `${forumSite.value}${utm}mqttx-help-to-forum`,
     learnMQTT: `${EMQSite.value}/mqtt-guide${utm}mqttx-help-to-learn-mqtt`,
     publicMqttBroker: `${EMQSite.value}/mqtt/public-mqtt5-broker`,
-    mqtt5: `${EMQSite.value}/mqtt/mqtt5`,
+    mqtt5: `${EMQSite.value}/blog/introduction-to-mqtt-5`,
     blogUtm: `${utm}mqttx-help-to-blog`,
   }))
 

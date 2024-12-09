@@ -6,6 +6,11 @@ const config: Config = {
   content: [],
   theme: {
     colors,
+    extend: {
+      backgroundImage: () => ({
+        'gradient-card': 'var(--color-bg-card-gradient)',
+      }),
+    },
   },
   plugins: [],
   corePlugins: {
