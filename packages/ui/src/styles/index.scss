@@ -3,27 +3,8 @@
 @forward './tailwind.scss';
 @forward './normalize.scss';
 
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-  :focus {
-    outline: none;
-  }
-}
-
-body {
-  font-family: $font-family;
-  font-size: $font-size--body;
-  font-weight: 400;
-  line-height: 1.5;
-  -webkit-font-smoothing: subpixel-antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-html,
-body,
-#app,
-.app {
-  height: 100%;
+#app {
+  overflow: auto;
+  height: 100vh;
+  min-width: 997px;
 }
