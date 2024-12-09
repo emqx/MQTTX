@@ -1,7 +1,12 @@
 export default function useLinks() {
   const { locale } = useI18n()
 
-  const MQTTXSite = computed(() => locale.value === 'zh' ? 'https://mqttx.app/zh' : 'https://mqttx.app')
+  const MQTTXSite = computed(() => {
+    if (['zh', 'ja'].includes(locale.value)) {
+      return `https://mqttx.app/${locale.value}`
+    }
+    return 'https://mqttx.app'
+  })
 
   const EMQSite = computed(() => {
     if (['en', 'zh', 'ja'].includes(locale.value)) {
