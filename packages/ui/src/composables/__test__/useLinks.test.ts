@@ -120,7 +120,7 @@ describe('useLinks', () => {
       forum: 'https://askemq.com/c/tools/11?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-help-to-forum',
       learnMQTT: 'https://emqx.com/zh/mqtt-guide?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-help-to-learn-mqtt',
       publicMqttBroker: 'https://emqx.com/zh/mqtt/public-mqtt5-broker',
-      mqtt5: 'https://emqx.com/zh/mqtt/mqtt5',
+      mqtt5: 'https://emqx.com/zh/blog/introduction-to-mqtt-5',
       blogUtm: '?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-help-to-blog',
     })
 
@@ -131,7 +131,7 @@ describe('useLinks', () => {
       forum: 'https://github.com/emqx/MQTTX/discussions?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-help-to-forum',
       learnMQTT: 'https://emqx.com/en/mqtt-guide?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-help-to-learn-mqtt',
       publicMqttBroker: 'https://emqx.com/en/mqtt/public-mqtt5-broker',
-      mqtt5: 'https://emqx.com/en/mqtt/mqtt5',
+      mqtt5: 'https://emqx.com/en/blog/introduction-to-mqtt-5',
       blogUtm: '?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-help-to-blog',
     })
   })
