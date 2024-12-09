@@ -9,6 +9,8 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import VueRouter from 'unplugin-vue-router/vite'
 
+import { version } from './package.json'
+
 export default defineConfig({
   main: {
     plugins: [externalizeDepsPlugin()],
@@ -17,6 +19,9 @@ export default defineConfig({
     plugins: [externalizeDepsPlugin()],
   },
   renderer: {
+    define: {
+      __APP_VERSION__: JSON.stringify(version),
+    },
     resolve: {
       alias: {
         '@database': resolve('src/database'),
