@@ -113,7 +113,7 @@ const AImodelsOptions = [
         </template>
 
         <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="!flex gap-1">
+          <ElCol :span="16" class="!flex gap-1 items-center">
             <label>{{ $t('settings.autoResub') }}</label>
             <ElTooltip
               placement="top"
@@ -133,7 +133,7 @@ const AImodelsOptions = [
         <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="!flex gap-1">
+          <ElCol :span="16" class="!flex gap-1 items-center">
             <label>{{ $t('settings.multiTopics') }}</label>
             <ElTooltip
               placement="top"
@@ -176,7 +176,7 @@ const AImodelsOptions = [
         <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="!flex gap-1">
+          <ElCol :span="16" class="!flex gap-1 items-center">
             <label>{{ $t('settings.syncOsTheme') }}</label>
             <ElTooltip
               placement="top"
@@ -217,7 +217,7 @@ const AImodelsOptions = [
         <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="!flex gap-1">
+          <ElCol :span="16" class="!flex gap-1 items-center">
             <label>{{ $t('settings.jsonHighlight') }}</label>
             <ElTooltip
               placement="top"
@@ -247,7 +247,7 @@ const AImodelsOptions = [
         <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="!flex gap-1">
+          <ElCol :span="16" class="!flex gap-1 items-center">
             <label>MQTTX CLI</label>
             <ElTooltip
               placement="top"
@@ -283,7 +283,7 @@ const AImodelsOptions = [
 
         <template v-if="platformType === 'desktop'">
           <ElRow type="flex" justify="space-between" align="middle">
-            <ElCol :span="16" class="!flex gap-1">
+            <ElCol :span="16" class="!flex gap-1 items-center">
               <label>{{ $t('log.logLevel') }}</label>
               <ElTooltip
                 placement="top"
@@ -360,7 +360,7 @@ const AImodelsOptions = [
         <ElDivider />
 
         <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="!flex gap-1">
+          <ElCol :span="16" class="!flex gap-1 items-center">
             <label>{{ $t('settings.ignoreQoS0Message') }}</label>
             <ElTooltip
               placement="top"

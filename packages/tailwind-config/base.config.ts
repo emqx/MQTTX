@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import plugin from 'tailwindcss/plugin'
 import colors from './colors'
 
 const config: Config = {
@@ -12,7 +13,15 @@ const config: Config = {
       }),
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(({ addBase }) => {
+      addBase({
+        body: {
+          fontSize: '14px',
+        },
+      })
+    }),
+  ],
 }
 
 export default config
