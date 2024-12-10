@@ -5,6 +5,7 @@ import delay from '../utils/delay'
 import { handleSaveOptions, handleLoadOptions } from '../utils/options'
 import * as Debug from 'debug'
 import { triggerExitInfo } from '../utils/exitInfo'
+import getBenchClientId from '../utils/getBenchClientId'
 
 const conn = (options: ConnectOptions) => {
   const { debug, saveOptions, loadOptions } = options
@@ -83,7 +84,7 @@ const benchConn = async (options: BenchConnectOptions) => {
     ;((i: number, connOpts: mqtt.IClientOptions) => {
       const opts = { ...connOpts }
 
-      opts.clientId = clientId.includes('%i') ? clientId.replaceAll('%i', i.toString()) : `${clientId}_${i}`
+      opts.clientId = getBenchClientId(clientId, i, count)
 
       const client = mqtt.connect(opts)
 

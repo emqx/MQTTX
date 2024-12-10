@@ -9,6 +9,7 @@ import { deserializeBufferToProtobuf } from '../utils/protobuf'
 import isSupportedBinaryFormatForMQTT from '../utils/binaryFormats'
 import * as Debug from 'debug'
 import { deserializeBufferToAvro } from '../utils/avro'
+import getBenchClientId from '../utils/getBenchClientId'
 
 /**
  *
@@ -266,7 +267,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
     ;((i: number, connOpts: mqtt.IClientOptions) => {
       const opts = { ...connOpts }
 
-      opts.clientId = clientId.includes('%i') ? clientId.replaceAll('%i', i.toString()) : `${clientId}_${i}`
+      opts.clientId = getBenchClientId(clientId, i, count)
 
       const client = mqtt.connect(opts)
 
