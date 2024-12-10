@@ -31,6 +31,7 @@
               </a>
             </el-tooltip>
             <el-tooltip
+              v-if="showConnectionList"
               :disabled="!showTitleTooltip"
               :effect="theme !== 'light' ? 'light' : 'dark'"
               :content="titleName"
@@ -41,6 +42,7 @@
                 {{ titleName }}
               </h2>
             </el-tooltip>
+            <ConnectionSelect v-else size="mini" width="180px" @change="handleConnectionSelect" />
             <a
               href="javascript:;"
               :class="['collapse-btn', showClientInfo ? 'top' : 'bottom']"
@@ -366,6 +368,7 @@ import { isLargeData } from '@/utils/data'
 import { serializeAvroToBuffer, deserializeBufferToAvro } from '@/utils/avro'
 import { globalEventBus } from '@/utils/globalEventBus'
 import SyncTopicTreeDialog from '@/widgets/SyncTopicTreeDialog.vue'
+import ConnectionSelect from '@/components/ConnectionSelect.vue'
 
 type CommandType =
   | 'searchContent'
@@ -401,6 +404,7 @@ interface TopModel {
     MsgTip,
     Copilot,
     SyncTopicTreeDialog,
+    ConnectionSelect,
   },
 })
 export default class ConnectionsDetail extends Vue {
@@ -2094,6 +2098,10 @@ export default class ConnectionsDetail extends Vue {
     this.toggleShowCopilot(false)
   }
 
+  private handleConnectionSelect(connectionId: string) {
+    this.$router.push({ path: `/recent_connections/${connectionId}` })
+  }
+
   private created() {
     this.getConnectionValue(this.curConnectionId)
     ipcRenderer.on('searchContent', () => {
@@ -2146,13 +2154,16 @@ export default class ConnectionsDetail extends Vue {
             color: var(--color-text-light);
           }
         }
+        .connection-select {
+          margin-right: 12px;
+        }
         .icon-show-connections,
         .icon-collapse {
           font-size: 20px;
         }
         a.show-connections-button {
           color: var(--color-text-title);
-          margin-right: 16px;
+          margin-right: 12px;
         }
         .icon-collapse {
           font-weight: bold;
