@@ -16,6 +16,7 @@ import { serializeProtobufToBuffer } from '../utils/protobuf'
 import { serializeAvroToBuffer } from '../utils/avro'
 import { loadSimulator } from '../utils/simulate'
 import { triggerExitInfo } from '../utils/exitInfo'
+import getBenchClientId from '../utils/getBenchClientId'
 
 /**
  * Processes the outgoing message through two potential stages:
@@ -390,7 +391,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
     ;((i: number, connOpts: mqtt.IClientOptions) => {
       const opts = { ...connOpts }
 
-      opts.clientId = clientId.includes('%i') ? clientId.replaceAll('%i', i.toString()) : `${clientId}_${i}`
+      opts.clientId = getBenchClientId(clientId, i, count)
 
       let topicName = topic.replaceAll('%i', i.toString()).replaceAll('%c', clientId)
       username && (topicName = topicName.replaceAll('%u', username))
