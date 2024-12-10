@@ -302,7 +302,7 @@
           :clientConnected="client.connected"
           :sendTimeId="sendTimeId"
           @foucs="handleMessages"
-          @handleSend="sendMessage"
+          @handleSend="throttleSendMessage"
           @handleSendTimedMessage="handleCommand('timedMessage')"
           @onInsertedCode="handleInsertedCode"
         />
@@ -1545,6 +1545,8 @@ export default class ConnectionsDetail extends Vue {
     }
     afterCallback?.()
   }
+
+  private throttleSendMessage = _.throttle(this.sendMessage, 500, { leading: true, trailing: false })
 
   /**
    * Notifies the user about the successful setup of a timed message.
