@@ -245,10 +245,16 @@
     border-top-color: var(--color-bg-messagebox);
   }
 }
+
+/* Select Dropdown Item */
 .el-select-dropdown__item.hover,
 .el-select-dropdown__item:hover {
   background: var(--color-bg-item);
 }
+.el-select-dropdown__item.selected {
+  font-weight: 500;
+}
+
 // Fix css style bug in open el-dialog
 .el-popup-parent--hidden {
   padding-right: 0px !important;
