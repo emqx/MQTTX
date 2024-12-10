@@ -1,9 +1,17 @@
 <template>
-  <el-select v-model="modelValue" class="connection-select" v-bind="$attrs" :style="{ width }">
+  <el-select
+    v-model="modelValue"
+    class="connection-select"
+    v-bind="$attrs"
+    :style="{ width }"
+    popper-class="connection-select__popper"
+  >
     <el-option v-for="conn in connections" :key="conn.id" :label="`${conn.name}@${conn.host}`" :value="conn.id">
-      <span style="float: left">{{ conn.name }}@{{ conn.host }}</span>
+      <span style="float: left"> {{ conn.name }}@{{ conn.host }} </span>
       <span style="float: right; color: #8492a6; font-size: 13px; margin-left: 24px">
-        {{ getConnectionStatus(conn.id) }}
+        <el-tag size="mini" :type="getConnectionStatus(conn.id) ? '' : 'info'">
+          {{ getConnectionStatus(conn.id) ? $t('connections.connected') : $t('connections.noConnection') }}
+        </el-tag>
       </span>
     </el-option>
   </el-select>
@@ -34,13 +42,11 @@ export default class ConnectionSelect extends Vue {
     this.$emit('change', newVal)
   }
 
-  private getConnectionStatus(connectionId: string) {
+  private getConnectionStatus(connectionId: string): boolean {
     if (this.activeConnection[connectionId]) {
       return this.activeConnection[connectionId].client.connected
-        ? this.$tc('connections.connected')
-        : this.$tc('connections.noConnection')
     }
-    return this.$tc('connections.noConnection')
+    return false
   }
 
   private async loadConnections() {
