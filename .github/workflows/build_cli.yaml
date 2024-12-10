@@ -21,6 +21,7 @@ jobs:
         run: |
           cd cli
           yarn && yarn build
+          npm install -g @jridgewell/gen-mapping@0.3.5
           npm install -g pkg
           pkg package.json
 
