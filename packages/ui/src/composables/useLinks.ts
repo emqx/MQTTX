@@ -15,9 +15,24 @@ export default function useLinks() {
     return 'https://emqx.com/en'
   })
 
-  const forumSite = computed(() => locale.value === 'zh' ? 'https://askemq.com/c/tools/11' : 'https://github.com/emqx/MQTTX/discussions')
+  const authSite = computed(() => {
+    if (['ja'].includes(locale.value)) {
+      return `https://accounts.emqx.com/${locale.value}`
+    }
+    if (locale.value === 'zh') {
+      return 'https://accounts-zh.emqx.com'
+    }
+    return 'https://accounts.emqx.com'
+  })
 
   const utm = '?utm_source=mqttx&utm_medium=referral&utm_campaign='
+
+  const cloudTrial = computed(() => {
+    const query = `${utm}mqttx-to-cloud&continue=https%3A%2F%2Fcloud.emqx.com%2Fconsole%2Fdeployments%2Fnew`
+    return `${authSite.value}/signup${query}`
+  })
+
+  const forumSite = computed(() => locale.value === 'zh' ? 'https://askemq.com/c/tools/11' : 'https://github.com/emqx/MQTTX/discussions')
 
   const leftBarLogo = computed(() => `${MQTTXSite.value}${utm}logo-to-homepage`)
 
@@ -31,7 +46,7 @@ export default function useLinks() {
     faq: `${MQTTXSite.value}/docs/faq${utm}about-to-faq`,
     MQTTX: `${MQTTXSite.value}${utm}about-to-mqttx`,
     EMQ: `${EMQSite.value}${utm}mqttx-to-homepage`,
-    EMQXCloud: `${EMQSite.value}/cloud${utm}mqttx-to-cloud`,
+    EMQXCloud: cloudTrial.value,
   }))
 
   const help = computed(() => ({
@@ -46,6 +61,8 @@ export default function useLinks() {
   return {
     MQTTXSite,
     EMQSite,
+    authSite,
+    cloudTrial,
     forumSite,
     leftBarLogo,
     empty,
