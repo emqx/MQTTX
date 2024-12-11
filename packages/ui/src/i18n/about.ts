@@ -34,6 +34,13 @@ export default {
     ja: 'リリース履歴',
     hu: 'Kiadások',
   },
+  dataCollectionPolicy: {
+    zh: '数据收集政策',
+    en: 'Data Collection Policy',
+    tr: 'Veri Toplama Politikası',
+    ja: 'データ収集ポリシー',
+    hu: 'Adatgyűjtési irányelv',
+  },
   mqttxDesc: {
     zh: 'MQTTX 是一款由 EMQ 开源的 MQTT 5.0 跨平台桌面客户端，旨在帮助开发者更快的开发、调试 MQTT 服务和应用。',
     en: 'MQTTX is a cross-platform MQTT 5.0 client tool open-sourced by EMQ, designed to help develop and debug MQTT services and applications faster.',

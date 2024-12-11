@@ -80,7 +80,7 @@ const menus = reactive<Menus>({
 
 <style module>
 .aside {
-  @apply z-[1001] py-10 flex flex-col gap-8 justify-between items-center border-r border-r-border-leftbar;
+  @apply z-[1001] select-none py-10 flex flex-col gap-8 justify-between items-center border-r border-r-border-leftbar;
   background: linear-gradient(135deg, var(--color-bg-leftbar_top) 0%, var(--color-bg-leftbar_bottom) 100%);
 }
 
