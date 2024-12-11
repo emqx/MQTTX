@@ -22,30 +22,16 @@ jobs:
         with:
           node-version-file: .nvmrc
 
-      - name: use pnpm
+      - name: Use pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
-
-      - name: Cache pnpm modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-
-      - name: Set env
-        run: |
-          cd apps/web
-          echo "VUE_APP_PAGE_TITLE=Easy-to-Use Online MQTT Client | Try Now" > .env.local
-          echo "VUE_APP_PAGE_DESCRIPTION=Online MQTT 5.0 client on the web, using MQTT over WebSocket to connect to the MQTT Broker and test message publishing and receiving in the browser." >> .env.local
 
       - name: Install dependencies
         run: |
           pnpm install
 
-      - name: build
+      - name: Build
         run: |
           pnpm run build:web
 
