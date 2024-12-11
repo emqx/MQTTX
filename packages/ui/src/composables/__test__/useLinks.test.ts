@@ -99,7 +99,7 @@ describe('useLinks', () => {
       faq: 'https://mqttx.app/zh/docs/faq?utm_source=mqttx&utm_medium=referral&utm_campaign=about-to-faq',
       MQTTX: 'https://mqttx.app/zh?utm_source=mqttx&utm_medium=referral&utm_campaign=about-to-mqttx',
       EMQ: 'https://emqx.com/zh?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-homepage',
-      EMQXCloud: 'https://emqx.com/zh/cloud?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-cloud',
+      EMQXCloud: 'https://accounts-zh.emqx.com/signup?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-cloud&continue=https%3A%2F%2Fcloud.emqx.com%2Fconsole%2Fdeployments%2Fnew',
     })
 
     await setupI18n('en')
@@ -108,7 +108,7 @@ describe('useLinks', () => {
       faq: 'https://mqttx.app/docs/faq?utm_source=mqttx&utm_medium=referral&utm_campaign=about-to-faq',
       MQTTX: 'https://mqttx.app?utm_source=mqttx&utm_medium=referral&utm_campaign=about-to-mqttx',
       EMQ: 'https://emqx.com/en?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-homepage',
-      EMQXCloud: 'https://emqx.com/en/cloud?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-cloud',
+      EMQXCloud: 'https://accounts.emqx.com/signup?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-cloud&continue=https%3A%2F%2Fcloud.emqx.com%2Fconsole%2Fdeployments%2Fnew',
     })
   })
 
@@ -134,5 +134,29 @@ describe('useLinks', () => {
       mqtt5: 'https://emqx.com/en/blog/introduction-to-mqtt-5',
       blogUtm: '?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-help-to-blog',
     })
+  })
+
+  it('should return correct authSite based on locale', async () => {
+    await setupI18n('zh')
+    const wrapper = mount(createTestComponent(), { global: { plugins: [i18n] } })
+    expect(wrapper.vm.authSite).toBe('https://accounts-zh.emqx.com')
+
+    await setupI18n('ja')
+    expect(wrapper.vm.authSite).toBe('https://accounts.emqx.com/ja')
+
+    await setupI18n('en')
+    expect(wrapper.vm.authSite).toBe('https://accounts.emqx.com')
+  })
+
+  it('should return correct cloudTrial link', async () => {
+    await setupI18n('zh')
+    const wrapper = mount(createTestComponent(), { global: { plugins: [i18n] } })
+    expect(wrapper.vm.cloudTrial).toBe('https://accounts-zh.emqx.com/signup?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-cloud&continue=https%3A%2F%2Fcloud.emqx.com%2Fconsole%2Fdeployments%2Fnew')
+
+    await setupI18n('ja')
+    expect(wrapper.vm.cloudTrial).toBe('https://accounts.emqx.com/ja/signup?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-cloud&continue=https%3A%2F%2Fcloud.emqx.com%2Fconsole%2Fdeployments%2Fnew')
+
+    await setupI18n('en')
+    expect(wrapper.vm.cloudTrial).toBe('https://accounts.emqx.com/signup?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-cloud&continue=https%3A%2F%2Fcloud.emqx.com%2Fconsole%2Fdeployments%2Fnew')
   })
 })
