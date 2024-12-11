@@ -24,6 +24,7 @@ const version = computed(() => `${t('common.version')} v${window.__APP_VERSION__
               {{ version }}
             </div>
             <AboutInfo />
+            <AboutFooter />
           </div>
         </div>
       </div>
