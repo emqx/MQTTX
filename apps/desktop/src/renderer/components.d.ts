@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AboutFooter: typeof import('./../../../../packages/ui/src/components/about/Footer.vue')['default']
     AboutInfo: typeof import('./../../../../packages/ui/src/components/about/Info.vue')['default']
     AboutView: typeof import('./../../../../packages/ui/src/components/about/View.vue')['default']
     CommonEmptyView: typeof import('./../../../../packages/ui/src/components/common/EmptyView.vue')['default']
@@ -26,6 +27,7 @@ declare module 'vue' {
     ElIconDelete: typeof import('@element-plus/icons-vue')['Delete']
     ElIconDownload: typeof import('@element-plus/icons-vue')['Download']
     ElIconPrinter: typeof import('@element-plus/icons-vue')['Printer']
+    ElIconRight: typeof import('@element-plus/icons-vue')['Right']
     ElIconUpload: typeof import('@element-plus/icons-vue')['Upload']
     ElIconWarning: typeof import('@element-plus/icons-vue')['Warning']
     ElInput: typeof import('element-plus/es')['ElInput']
