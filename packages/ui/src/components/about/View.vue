@@ -16,7 +16,7 @@ const version = computed(() => `${t('common.version')} v${window.__APP_VERSION__
       <h1 class="mb-12 text-lg text-title font-semibold">
         {{ $t('about.about') }}
       </h1>
-      <div class="flex flex-col items-center justify-center min-h-[calc(100vh-140px)]">
+      <div class="px-6 flex flex-col items-center justify-center min-h-[calc(100vh-140px)]">
         <div class="flex gap-20 items-center">
           <img :src="logo" alt="MQTTX" width="200" height="192">
           <div>

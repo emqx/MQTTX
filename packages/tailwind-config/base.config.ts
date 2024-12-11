@@ -10,6 +10,7 @@ const config: Config = {
     extend: {
       backgroundImage: () => ({
         'gradient-card': 'var(--color-bg-card-gradient)',
+        'gradient-btn': 'var(--color-bg-btn-gradient)',
       }),
     },
   },

@@ -48,6 +48,13 @@ export default {
     ja: 'MQTTXは、EMQによるオープンソースのMQTT 5.0クロスプラットフォーム・デスクスクライアントで、開発者がMQTTサービスおよびアプリケーションをより速く開発およびデバッグできるよう設計されています。',
     hu: 'Az MQTTX egy nyílt forráskódú MQTT 5.0 cross-platform asztali kliens az EMQ-tól, amelynek célja, hogy segítse a fejlesztőket az MQTT szolgáltatások és alkalmazások gyorsabb fejlesztésében és hibakeresésében.',
   },
+  mqttxWebDesc: {
+    zh: 'MQTTX Web 是一款开源的可在浏览器运行的 MQTT 5.0 WebSocket 客户端工具，无需本地安装即可帮助您更快地调试 MQTT 服务及应用。',
+    en: 'MQTTX Web is an open-source MQTT 5.0 WebSocket client on the browser to help you debug your MQTT services and applications faster.',
+    tr: 'MQTTX Web, MQTT hizmetlerinizi ve uygulamalarınızı daha hızlı hata ayıklamanıza yardımcı olmak için tarayıcıda çalışan açık kaynak kodlu bir MQTT 5.0 WebSocket istemcisidir.',
+    ja: 'MQTTX Webは、オープンソースのMQTT 5.0 WebSocketクライアントで、ブラウザ上でMQTTサービスやアプリケーションのデバッグを高速化することができます。',
+    hu: 'Az MQTTX Web egy nyílt forráskódú MQTT 5.0 WebSocket kliens a böngészőben, amely segít gyorsabban hibakeresni az MQTT szolgáltatásokat és alkalmazásokat.',
+  },
   cloudTitle: {
     zh: '立即获取一个您专属的 MQTT 服务！',
     en: 'Get Your Dedicated MQTT Server Now!',
