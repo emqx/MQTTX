@@ -383,11 +383,6 @@ type CommandType =
   | 'useScript'
   | 'newWindow'
 
-interface TopModel {
-  open: string
-  close: string
-}
-
 @Component({
   components: {
     ConnectionInfo,
@@ -552,7 +547,7 @@ export default class ConnectionsDetail extends Vue {
   @Watch('record')
   private async handleRecordChanged() {
     this.getConnectionValue(this.curConnectionId)
-    this.handleMessages({ behavior: 'auto' })
+    this.loadMessages()
   }
 
   @Watch('inputHeight')
@@ -891,7 +886,9 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private hideNewMsgsTip() {
-    if (!this.moreMsgAfter) this.newMsgsCount = 0
+    if (!this.moreMsgAfter && this.newMsgsCount > 0) {
+      this.loadMessages()
+    }
   }
 
   // Return messages
@@ -916,7 +913,7 @@ export default class ConnectionsDetail extends Vue {
     if ((mode === 'before' && !this.moreMsgBefore) || (mode === 'after' && !this.moreMsgAfter)) return
 
     if (this.recordMsgs.list.length === 0) {
-      this.handleMessages()
+      this.loadMessages()
       return
     }
 
@@ -964,16 +961,16 @@ export default class ConnectionsDetail extends Vue {
     mode === 'before' ? (msgListRef.showBeforeLoadingIcon = false) : (msgListRef.showAfterLoadingIcon = false)
   }
 
-  private async handleMessages(opts: { limit?: number; behavior?: ScrollBehavior } = {}) {
-    const defaultOpts: { limit?: number; behavior?: ScrollBehavior } = { limit: 20, behavior: 'smooth' }
-    const { limit, behavior } = { ...defaultOpts, ...opts }
+  private async loadMessages(opts: { limit?: number } = {}) {
+    const defaultOpts: { limit?: number } = { limit: 20 }
+    const { limit } = { ...defaultOpts, ...opts }
     await this.getMessages(limit)
-    this.scrollToBottom(behavior)
+    this.scrollToBottom()
   }
 
   private loadNewMsg() {
     this.msgType = 'all'
-    this.handleMessages({ behavior: 'auto' })
+    this.loadMessages()
   }
 
   private getReceivedMsgType(): PayloadType {
@@ -1014,26 +1011,26 @@ export default class ConnectionsDetail extends Vue {
   // Message type changed
   private handleMsgTypeChanged(type: MessageType) {
     this.msgType = type
-    this.handleMessages()
+    this.loadMessages()
   }
 
   // Search messages
   private async searchContent() {
     this.searchLoading = true
-    await this.handleMessages()
+    await this.loadMessages()
     this.searchLoading = false
   }
 
   // Delete topic item
   private handleTopicDelete(topic: string) {
     if (this.activeTopic === topic) this.activeTopic = ''
-    this.handleMessages()
+    this.loadMessages()
   }
 
   // Click topic item
   private handleTopicClick(sub: SubscriptionModel, reset: boolean) {
     reset ? (this.activeTopic = '') : (this.activeTopic = sub.topic)
-    this.handleMessages()
+    this.loadMessages()
   }
 
   private handleSubTopicError(errMsg: string, info?: string) {
@@ -1059,7 +1056,7 @@ export default class ConnectionsDetail extends Vue {
       topic: '',
       payload: '',
     }
-    this.handleMessages()
+    this.loadMessages()
   }
 
   // Cancel connect
@@ -1265,7 +1262,7 @@ export default class ConnectionsDetail extends Vue {
     return res && res.length ? true : false
   }
 
-  private scrollToBottom(behavior: ScrollBehavior = 'smooth') {
+  private scrollToBottom() {
     this.$nextTick(async () => {
       const msgListRef = this.getMsgListRef()
       const msgListDOM = msgListRef?.$el
@@ -1274,9 +1271,7 @@ export default class ConnectionsDetail extends Vue {
         msgListDOM.scrollTo({
           top: msgListDOM.scrollHeight + 160,
           left: 0,
-          behavior,
         })
-        await delay(1000)
         msgListRef.loadSwitch = true
       }
     })
@@ -1418,54 +1413,73 @@ export default class ConnectionsDetail extends Vue {
     const msgListDOM = msgListRef?.$el
     if (msgListDOM) {
       const { scrollTop, scrollHeight, clientHeight } = msgListDOM
-      const isScrollBottom = scrollTop + clientHeight >= scrollHeight - 250
+      const isScrollBottom = scrollTop + clientHeight >= scrollHeight - 500
       return isScrollBottom
     }
+  }
+
+  private isMessageTypeActive(msg: MessageModel): boolean {
+    return (
+      this.msgType === 'all' || (this.msgType === 'publish' && msg.out) || (this.msgType === 'received' && !msg.out)
+    )
+  }
+
+  // Push messages to the list
+  private batchUpdateMsgs(incomingMsgs: MessageModel[]) {
+    const MAX_MSGS_COUNT = 40
+    let _messages = _.cloneDeep(this.recordMsgs.list)
+    incomingMsgs.forEach((msg: MessageModel) => {
+      const isActiveTopicMessages = matchTopicMethod(this.activeTopic, msg.topic)
+      const isActiveMsgType = this.isMessageTypeActive(msg)
+      if (isActiveMsgType && (!this.activeTopic || isActiveTopicMessages)) {
+        _messages.push(msg)
+      }
+    })
+    if (_messages.length > MAX_MSGS_COUNT) {
+      _messages = _messages.slice(_messages.length - MAX_MSGS_COUNT)
+    }
+    this.recordMsgs.list = _messages
+    console.log('slice Record List Len', this.recordMsgs.list.length)
   }
 
   // Render message
   private renderMessage(id: string, msgs: MessageModel | MessageModel[], msgType: 'received' | 'publish' = 'received') {
     try {
-      const unreadMsgIncrement = (count: number) => this.unreadMessageIncrement({ id, increasedCount: count })
-      const totalCountIncrement = (count: number) => (this.recordMsgs.total += count)
-      const receivedTotalIncrement = (count: number) => (this.recordMsgs.receivedTotal += count)
-      const publishedTotalIncrement = (count: number) => (this.recordMsgs.publishedTotal += count)
-      const newMsgsCountIncrement = (count: number) => (this.newMsgsCount += count)
-      const pushMsgs = (msgs: MessageModel[]) => {
-        let _messages = _.cloneDeep(this.recordMsgs.list)
-        msgs.forEach((msg: MessageModel) => {
-          const isActiveTopicMessages = matchTopicMethod(this.activeTopic, msg.topic)
-          const isActiveMsgType =
-            this.msgType === 'all' ||
-            (this.msgType === 'publish' && msg.out) ||
-            (this.msgType === 'received' && !msg.out)
-          if (isActiveMsgType && (!this.activeTopic || isActiveTopicMessages)) _messages.push(msg)
-        })
-        if (_messages.length > 40) _messages = _messages.slice(_messages.length - 40)
-        this.recordMsgs.list = _messages
-      }
+      const isScrollBottom = this.isScrollBottom()
+      // Convert single message to array if needed
       if (!Array.isArray(msgs)) msgs = [msgs]
+
+      // Handle unread messages for non-current connections
+      const unreadMsgIncrement = (count: number) => this.unreadMessageIncrement({ id, increasedCount: count })
       if (id !== this.curConnectionId) {
         unreadMsgIncrement(msgs.length)
         return
       }
+
+      // Increment total message count
+      const totalCountIncrement = (count: number) => (this.recordMsgs.total += count)
       totalCountIncrement(msgs.length)
+
+      // Handle received messages count
+      const receivedTotalIncrement = (count: number) => (this.recordMsgs.receivedTotal += count)
       const receivedMsgs = msgs.filter((msg: MessageModel) => !msg.out)
-      const publishedMsgs = msgs.filter((msg: MessageModel) => msg.out)
       receivedTotalIncrement(receivedMsgs.length)
+
+      // Handle published messages count
+      const publishedTotalIncrement = (count: number) => (this.recordMsgs.publishedTotal += count)
+      const publishedMsgs = msgs.filter((msg: MessageModel) => msg.out)
       publishedTotalIncrement(publishedMsgs.length)
-      const isScrollBottom = this.isScrollBottom()
-      if (msgType === 'received' && !isScrollBottom) {
+
+      // Check scroll position and handle new message notifications
+      const newMsgsCountIncrement = (count: number) => (this.newMsgsCount += count)
+      const isReceivedMsg = msgType === 'received'
+      if (isReceivedMsg && !isScrollBottom) {
         newMsgsCountIncrement(receivedMsgs.length)
         return
       }
       this.newMsgsCount = 0
-      if (!this.moreMsgAfter && isScrollBottom) {
-        pushMsgs(msgs)
-        this.scrollToBottom()
-        return
-      }
-      this.handleMessages()
+      this.batchUpdateMsgs(msgs)
+      this.scrollToBottom()
     } catch (error) {
       this.$log.error((error as Error).toString())
     }
@@ -1496,14 +1510,16 @@ export default class ConnectionsDetail extends Vue {
     // Print message log
     messageSubject$.subscribe((message: MessageModel) => {
       this.printMessageLog(id, message)
+      this.renderMessage(id, message)
     })
 
     // Render messages
-    messageSubject$.pipe(bufferTime(500)).subscribe((messages: MessageModel[]) => {
-      if (messages.length) {
-        this.renderMessage(id, messages)
-      }
-    })
+    // 需要接收到的数据量非常大的时候，才动态开启
+    // messageSubject$.pipe(bufferTime(500)).subscribe((messages: MessageModel[]) => {
+    //   if (messages.length) {
+    //     this.renderMessage(id, messages)
+    //   }
+    // })
 
     // Save messages with QoS filtering
     messageSubject$
@@ -1516,16 +1532,6 @@ export default class ConnectionsDetail extends Vue {
           this.saveMessage(id, messages)
         }
       })
-
-    // const SYSMessageSubject$ = messageSubject$.pipe(
-    //   filter((m: MessageModel) => id === this.curConnectionId && m.topic.includes('$SYS')),
-    //   shareReplay(1),
-    // )
-
-    // SYSMessageSubject$.pipe(bufferTime(1000)).subscribe((messages: MessageModel[]) => {
-    //   // Handle System Topic Messages Here
-    //   console.log('SYS Topics Messages', messages)
-    // })
   }
 
   // Set timed message success
@@ -1724,8 +1730,7 @@ export default class ConnectionsDetail extends Vue {
 
     if (this.record.id) {
       if (!ignoreQoS0Message(qos)) {
-        const { messageService } = useServices()
-        await messageService.pushMsgsToConnection({ ...publishMessage }, this.record.id)
+        this.saveMessage(this.record.id, [publishMessage])
       }
       this.renderMessage(this.curConnectionId, publishMessage, 'publish')
       this.logSuccessfulPublish(publishMessage)
