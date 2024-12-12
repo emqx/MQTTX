@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AboutDataCollectionPolicy: typeof import('./src/components/about/DataCollectionPolicy.vue')['default']
     AboutFooter: typeof import('./src/components/about/Footer.vue')['default']
     AboutInfo: typeof import('./src/components/about/Info.vue')['default']
     AboutView: typeof import('./src/components/about/View.vue')['default']
@@ -25,14 +26,12 @@ declare module 'vue' {
     ElIconDelete: typeof import('@element-plus/icons-vue')['Delete']
     ElIconDownload: typeof import('@element-plus/icons-vue')['Download']
     ElIconPrinter: typeof import('@element-plus/icons-vue')['Printer']
-    ElIconRight: typeof import('@element-plus/icons-vue')['Right']
     ElIconUpload: typeof import('@element-plus/icons-vue')['Upload']
     ElIconWarning: typeof import('@element-plus/icons-vue')['Warning']
     ElInput: typeof import('element-plus/es')['ElInput']
     ElInputNumber: typeof import('element-plus/es')['ElInputNumber']
     ElMain: typeof import('element-plus/es')['ElMain']
     ElOption: typeof import('element-plus/es')['ElOption']
-    ElPopover: typeof import('element-plus/es')['ElPopover']
     ElRow: typeof import('element-plus/es')['ElRow']
     ElSelect: typeof import('element-plus/es')['ElSelect']
     ElSwitch: typeof import('element-plus/es')['ElSwitch']

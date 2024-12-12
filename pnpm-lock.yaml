@@ -141,6 +141,9 @@ importers:
       element-plus:
         specifier: ^2.8.7
         version: 2.8.7(vue@3.5.12)
+      markdown-it:
+        specifier: ^14.1.0
+        version: 14.1.0
       pinia:
         specifier: ^2.2.6
         version: 2.2.6(typescript@5.6.3)(vue@3.5.12)
@@ -169,6 +172,9 @@ importers:
       '@types/better-sqlite3':
         specifier: ^7.6.12
         version: 7.6.12
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
       '@types/mqttx':
         specifier: workspace:*
         version: link:../../packages/types
@@ -247,6 +253,9 @@ importers:
       element-plus:
         specifier: ^2.8.7
         version: 2.8.7(vue@3.5.12)
+      markdown-it:
+        specifier: ^14.1.0
+        version: 14.1.0
       pinia:
         specifier: ^2.2.6
         version: 2.2.6(typescript@5.6.3)(vue@3.5.12)
@@ -278,6 +287,9 @@ importers:
       '@tsconfig/node18':
         specifier: ^18.2.4
         version: 18.2.4
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
       '@types/mqttx':
         specifier: workspace:*
         version: link:../../packages/types
@@ -414,6 +426,9 @@ importers:
       '@mqttx/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
+      '@types/markdown-it':
+        specifier: ^14.1.2
+        version: 14.1.2
       '@types/mqttx':
         specifier: workspace:*
         version: link:../types
@@ -435,6 +450,9 @@ importers:
       jsdom:
         specifier: ^25.0.1
         version: 25.0.1
+      markdown-it:
+        specifier: ^14.1.0
+        version: 14.1.0
       postcss:
         specifier: ^8.4.48
         version: 8.4.48
@@ -3084,6 +3102,10 @@ packages:
     dependencies:
       '@types/node': 20.17.6
 
+  /@types/linkify-it@5.0.0:
+    resolution: {integrity: sha512-sVDA58zAw4eWAffKOaQH5/5j3XeayukzDk+ewSsnv3p4yJEZHCCzMDiZM8e0OUrRvmpGZ85jf4yDHkHsgBNr9Q==}
+    dev: true
+
   /@types/lodash-es@4.17.12:
     resolution: {integrity: sha512-0NgftHUcV4v34VhXm8QBSftKVXtbkBG3ViCjs6+eJ5a6y6Mi/jiFGPc1sC7QK+9BFhWrURE3EOggmWaSxL9OzQ==}
     dependencies:
@@ -3094,10 +3116,21 @@ packages:
     resolution: {integrity: sha512-lfx+dftrEZcdBPczf9d0Qv0x+j/rfNCMuC6OcfXmO8gkfeNAY88PgKUbvG56whcN23gc27yenwF6oJZXGFpYxg==}
     dev: false
 
+  /@types/markdown-it@14.1.2:
+    resolution: {integrity: sha512-promo4eFwuiW+TfGxhi+0x3czqTYJkG8qB17ZUJiVF10Xm7NLVRSLUsfRTU/6h1e24VvRnXCx+hG7li58lkzog==}
+    dependencies:
+      '@types/linkify-it': 5.0.0
+      '@types/mdurl': 2.0.0
+    dev: true
+
   /@types/mdast@4.0.4:
     resolution: {integrity: sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==}
     dependencies:
       '@types/unist': 3.0.3
+    dev: true
+
+  /@types/mdurl@2.0.0:
+    resolution: {integrity: sha512-RGdgjQUZba5p6QEFAVx2OGb8rQDL/cPRG7GiedRzMcJ1tYnUANBncjbSB1NRGwbvjcPeikRABz2nshyPk1bhWg==}
     dev: true
 
   /@types/mime@1.3.5:
@@ -7250,6 +7283,11 @@ packages:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
     dev: true
 
+  /linkify-it@5.0.0:
+    resolution: {integrity: sha512-5aHCbzQRADcdP+ATqnDuhhJ/MRIqDkZX5pyjFHRRysS8vZ5AbqGEoFIb6pYHPZ+L/OC2Lc+xT8uHVVR5CAK/wQ==}
+    dependencies:
+      uc.micro: 2.1.0
+
   /lint-staged@15.2.10:
     resolution: {integrity: sha512-5dY5t743e1byO19P9I4b3x8HJwalIznL5E1FWYnU6OWw33KxNBSLAc6Cy7F2PsFEO8FKnLwjwm5hx7aMF0jzZg==}
     engines: {node: '>=18.12.0'}
@@ -7499,6 +7537,17 @@ packages:
       - supports-color
     dev: true
 
+  /markdown-it@14.1.0:
+    resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
+    hasBin: true
+    dependencies:
+      argparse: 2.0.1
+      entities: 4.5.0
+      linkify-it: 5.0.0
+      mdurl: 2.0.0
+      punycode.js: 2.3.1
+      uc.micro: 2.1.0
+
   /markdown-table@3.0.4:
     resolution: {integrity: sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw==}
     dev: true
@@ -7642,6 +7691,9 @@ packages:
   /mdn-data@2.0.30:
     resolution: {integrity: sha512-GaqWWShW4kv/G9IEucWScBx9G1/vsFZZJUO+tD26M8J8z3Kw5RDQjaoZe03YAClgeS/SWPOcb4nkFBTEi5DUEA==}
     dev: true
+
+  /mdurl@2.0.0:
+    resolution: {integrity: sha512-Lf+9+2r+Tdp5wXDXC4PcIBjTDtq4UKjCPMQhKIuzpJNW0b96kVqSwW0bT7FhRSfmAiFYgP+SCRvdrDozfh0U5w==}
 
   /memoize-one@6.0.0:
     resolution: {integrity: sha512-rkpe71W0N0c0Xz6QD0eJETuWAJGnJ9afsl1srmwPrI+yBCkge5EycXXbYRyvL29zZVUWQCY7InPRCv3GDXuZNw==}
@@ -9155,6 +9207,10 @@ packages:
       end-of-stream: 1.4.4
       once: 1.4.0
 
+  /punycode.js@2.3.1:
+    resolution: {integrity: sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA==}
+    engines: {node: '>=6'}
+
   /punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
@@ -10306,6 +10362,9 @@ packages:
     resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
     engines: {node: '>=14.17'}
     hasBin: true
+
+  /uc.micro@2.1.0:
+    resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
 
   /ufo@1.5.4:
     resolution: {integrity: sha512-UsUk3byDzKd04EyoZ7U4DOlxQaD14JUKQl6/P7wiX4FNvUfm3XL246n9W5AmqwW5RSFJ27NAuM0iLscAOYUiGQ==}
