@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AboutDataCollectionPolicy: typeof import('./../../packages/ui/src/components/about/DataCollectionPolicy.vue')['default']
     AboutFooter: typeof import('./../../packages/ui/src/components/about/Footer.vue')['default']
     AboutInfo: typeof import('./../../packages/ui/src/components/about/Info.vue')['default']
     AboutView: typeof import('./../../packages/ui/src/components/about/View.vue')['default']

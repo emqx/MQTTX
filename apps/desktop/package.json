@@ -33,6 +33,7 @@
     "drizzle-orm": "^0.36.4",
     "electron-updater": "^6.3.9",
     "element-plus": "^2.8.7",
+    "markdown-it": "^14.1.0",
     "pinia": "^2.2.6",
     "vue-i18n": "^10.0.4",
     "vue-router": "^4.4.5"
@@ -44,6 +45,7 @@
     "@mqttx/tailwind-config": "workspace:*",
     "@mqttx/tsconfig": "workspace:*",
     "@types/better-sqlite3": "^7.6.12",
+    "@types/markdown-it": "^14.1.2",
     "@types/mqttx": "workspace:*",
     "@vitejs/plugin-vue": "^5.1.5",
     "@vitest/coverage-istanbul": "^2.1.4",
