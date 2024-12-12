@@ -1,5 +1,5 @@
 import { Subject, Observable } from 'rxjs'
-import { bufferTime, filter, mergeMap, map, share } from 'rxjs/operators'
+import { bufferTime, filter, share } from 'rxjs/operators'
 
 /**
  * A generic MessageQueue class for buffering and processing messages.

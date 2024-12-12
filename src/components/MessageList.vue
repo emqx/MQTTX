@@ -52,7 +52,7 @@ export default class MessageList extends Vue {
   private isScrolling = false
   private timeout: undefined | number = undefined
 
-  @Watch('messages')
+  @Watch('messages', { deep: true })
   private handleMessagesChanged(val: MessageModel[]) {
     this.showMessages = this.getMessageMatchColor(val)
   }
