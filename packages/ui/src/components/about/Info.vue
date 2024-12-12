@@ -27,6 +27,8 @@ const btns = computed(() => [
     link: 'https://mqttx.app/faq',
   },
 ])
+
+const dialogVisible = ref(false)
 </script>
 
 <template>
@@ -49,6 +51,7 @@ const btns = computed(() => [
         v-if="platformType === 'web'"
         role="button"
         tabindex="0"
+        @click="dialogVisible = !dialogVisible"
       >
         {{ $t('about.dataCollectionPolicy') }}
       </div>
@@ -88,6 +91,11 @@ const btns = computed(() => [
       </a>
     </div>
   </div>
+
+  <AboutDataCollectionPolicy
+    v-if="platformType === 'web'"
+    v-model="dialogVisible"
+  />
 </template>
 
 <style module>
