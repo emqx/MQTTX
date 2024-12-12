@@ -5,3 +5,9 @@
     --el-main-padding: 0px;
   }
 }
+
+/* Dialog */
+.el-dialog {
+  --el-dialog-border-radius: 8px !important;
+  --el-dialog-bg-color: var(--color-bg-normal) !important;
+}
