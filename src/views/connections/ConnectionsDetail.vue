@@ -303,7 +303,7 @@
           :disabled="sendTimeId !== null"
           :clientConnected="client.connected"
           :sendTimeId="sendTimeId"
-          @foucs="handleMessages"
+          @foucs="loadMessages"
           @handleSend="throttleSendMessage"
           @handleSendTimedMessage="handleCommand('timedMessage')"
           @onInsertedCode="handleInsertedCode"
@@ -1439,7 +1439,6 @@ export default class ConnectionsDetail extends Vue {
       _messages = _messages.slice(_messages.length - MAX_MSGS_COUNT)
     }
     this.recordMsgs.list = _messages
-    console.log('slice Record List Len', this.recordMsgs.list.length)
   }
 
   // Render message
@@ -1507,10 +1506,30 @@ export default class ConnectionsDetail extends Vue {
       shareReplay(1),
     )
 
+    // 消息速率检测流
+    // const rateCheck$ = messageSubject$.pipe(
+    //   bufferTime(1000),
+    //   map((messages) => messages.length),
+    //   map((rate) => {
+    //     console.log('Message Rate', rate)
+    //     if (rate > 10) {
+    //       this.$log.info(`Message rate: ${rate}/s, enabling buffer`)
+    //       return true
+    //     }
+    //     return false
+    //   }),
+    // )
+
+    // // 消息速率检测流
+    // rateCheck$.subscribe((enableBuffer) => {
+    //   console.log('Buffer Enabled', enableBuffer)
+    // })
+
     // Print message log
     messageSubject$.subscribe((message: MessageModel) => {
       this.printMessageLog(id, message)
       this.renderMessage(id, message)
+      console.log('Message Received', message.id)
     })
 
     // Render messages
@@ -1548,7 +1567,7 @@ export default class ConnectionsDetail extends Vue {
     afterpublishMessageCallback?: (isNewPayload: boolean) => void,
     afterCallback?: () => void,
   ): Promise<void> {
-    await this.publishMessage(message, type, afterpublishMessageCallback)
+    await this.publishMessage({ ...message }, type, afterpublishMessageCallback)
     if (this.sendFrequency) {
       this.notifyTimedMessageSuccess()
       this.timedSendMessage(this.sendFrequency, message, type)
@@ -1556,7 +1575,7 @@ export default class ConnectionsDetail extends Vue {
     afterCallback?.()
   }
 
-  private throttleSendMessage = _.throttle(this.sendMessage, 500, { leading: true, trailing: false })
+  private throttleSendMessage = _.throttle(this.sendMessage, 200, { leading: true, trailing: false })
 
   /**
    * Notifies the user about the successful setup of a timed message.
@@ -1733,6 +1752,7 @@ export default class ConnectionsDetail extends Vue {
         this.saveMessage(this.record.id, [publishMessage])
       }
       this.renderMessage(this.curConnectionId, publishMessage, 'publish')
+      console.log('Message Published', publishMessage.id)
       this.logSuccessfulPublish(publishMessage)
     }
   }
