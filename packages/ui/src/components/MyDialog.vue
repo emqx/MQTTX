@@ -1,7 +1,7 @@
 <script setup lang="ts">
 withDefaults(
   defineProps<{
-    title: string
+    title?: string
     width?: string
     cancelText?: string
     confirmText?: string
@@ -9,6 +9,7 @@ withDefaults(
     confirmVisible?: boolean
   }>(),
   {
+    title: '',
     width: '560px',
     cancelVisible: true,
     confirmVisible: true,

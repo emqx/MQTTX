@@ -19,10 +19,9 @@ const dataCollectionPolicy = computed(() => markdown2Html(loadMarkdown(locale.va
 <template>
   <MyDialog
     v-model="dialogVisible"
-    :title="$t('about.dataCollectionPolicy')"
     :cancel-visible="false"
     @confirm="dialogVisible = false"
   >
-    <div v-html="dataCollectionPolicy" />
+    <div class="prose prose-sm" v-html="dataCollectionPolicy" />
   </MyDialog>
 </template>

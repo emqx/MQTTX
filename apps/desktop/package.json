@@ -44,6 +44,7 @@
     "@mqttx/core": "workspace:*",
     "@mqttx/tailwind-config": "workspace:*",
     "@mqttx/tsconfig": "workspace:*",
+    "@tailwindcss/typography": "^0.5.15",
     "@types/better-sqlite3": "^7.6.12",
     "@types/markdown-it": "^14.1.2",
     "@types/mqttx": "workspace:*",
