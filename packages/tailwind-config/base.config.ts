@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss'
+import typography from '@tailwindcss/typography'
 import plugin from 'tailwindcss/plugin'
 import colors from './colors'
 
@@ -12,9 +13,48 @@ const config: Config = {
         'gradient-card': 'var(--color-bg-card-gradient)',
         'gradient-btn': 'var(--color-bg-btn-gradient)',
       }),
+      typography: {
+        DEFAULT: {
+          css: {
+            'color': 'var(--color-text-default)',
+            'a': {
+              'color': 'var(--color-main-green)',
+              '&:hover': {
+                color: 'var(--color-minor-green)',
+              },
+            },
+            'h1': {
+              color: 'var(--color-text-title)',
+            },
+            'h2': {
+              color: 'var(--color-text-title)',
+            },
+            'h3': {
+              color: 'var(--color-text-title)',
+            },
+            'h4': {
+              color: 'var(--color-text-title)',
+            },
+            'ol > li::marker': {
+              color: 'var(--color-text-default)',
+            },
+            'ul > li::marker': {
+              color: 'var(--color-text-default)',
+            },
+          },
+        },
+        sm: {
+          css: {
+            h1: {
+              fontSize: '1.5em',
+            },
+          },
+        },
+      },
     },
   },
   plugins: [
+    typography,
     plugin(({ addBase }) => {
       addBase({
         body: {

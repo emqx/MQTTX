@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AboutDataCollectionPolicy: typeof import('./../../../../packages/ui/src/components/about/DataCollectionPolicy.vue')['default']
     AboutFooter: typeof import('./../../../../packages/ui/src/components/about/Footer.vue')['default']
     AboutInfo: typeof import('./../../../../packages/ui/src/components/about/Info.vue')['default']
     AboutView: typeof import('./../../../../packages/ui/src/components/about/View.vue')['default']
@@ -40,6 +41,7 @@ declare module 'vue' {
     ElSwitch: typeof import('element-plus/es')['ElSwitch']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     HelpView: typeof import('./../../../../packages/ui/src/components/HelpView.vue')['default']
+    MyDialog: typeof import('./../../../../packages/ui/src/components/MyDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SettingsView: typeof import('./../../../../packages/ui/src/components/SettingsView.vue')['default']
