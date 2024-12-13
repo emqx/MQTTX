@@ -369,6 +369,7 @@ import { serializeAvroToBuffer, deserializeBufferToAvro } from '@/utils/avro'
 import { globalEventBus } from '@/utils/globalEventBus'
 import SyncTopicTreeDialog from '@/widgets/SyncTopicTreeDialog.vue'
 import ConnectionSelect from '@/components/ConnectionSelect.vue'
+import { MAX_MESSAGES_COUNT, SCROLL_BOTTOM_THRESHOLD, SCROLL_HEIGHT_COMPENSATION } from '@/utils/constant'
 
 type CommandType =
   | 'searchContent'
@@ -901,64 +902,86 @@ export default class ConnectionsDetail extends Vue {
       topic: this.activeTopic,
       searchParams: this.searchParams,
     })
-    this.moreMsgAfter = false
-    if (this.recordMsgs.total > limit) {
-      this.moreMsgBefore = true
-    } else {
-      this.moreMsgBefore = false
-    }
+    this.moreMsgAfter = true
+    this.moreMsgBefore = this.recordMsgs.total > limit
   }
 
+  // Load More Messages after and before
   private async loadMoreMessages(mode: 'before' | 'after' = 'before') {
-    if ((mode === 'before' && !this.moreMsgBefore) || (mode === 'after' && !this.moreMsgAfter)) return
-
+    if (this.shouldSkipLoading(mode)) return
     if (this.recordMsgs.list.length === 0) {
       this.loadMessages()
       return
     }
-
     const msgListRef = this.getMsgListRef()
-    mode === 'before' ? (msgListRef.showBeforeLoadingIcon = true) : (msgListRef.showAfterLoadingIcon = true)
-
+    try {
+      this.setLoadingState(mode, msgListRef, true)
+      let _messages = _.cloneDeep(this.recordMsgs.list)
+      const { curMsgId, list, moreMsg } = await this.fetchMoreMessages(mode, _messages)
+      this.updatePaginationFlags(mode, moreMsg)
+      if (list.length > 0) {
+        this.updateRecordMsgList(list, mode, _messages)
+        this.scrollToMessage(curMsgId as string, mode)
+      }
+    } catch (error) {
+      const err = error as Error
+      this.$log.error(`Failed to load more messages: ${err.toString()} on scroll ${mode === 'before' ? 'up' : 'down'}`)
+    } finally {
+      this.setLoadingState(mode, msgListRef, false)
+    }
+  }
+  private shouldSkipLoading(mode: 'before' | 'after'): boolean {
+    return (mode === 'before' && !this.moreMsgBefore) || (mode === 'after' && !this.moreMsgAfter)
+  }
+  private setLoadingState(mode: 'before' | 'after', msgListRef: MessageList, isLoading: boolean): void {
+    if (mode === 'before') {
+      msgListRef.showBeforeLoadingIcon = isLoading
+    } else {
+      msgListRef.showAfterLoadingIcon = isLoading
+    }
+  }
+  private async fetchMoreMessages(mode: 'before' | 'after', messages: MessageModel[]) {
     const { messageService } = useServices()
-    let _messages = _.cloneDeep(this.recordMsgs.list)
-    const currentMsg = mode === 'before' ? _messages[0] : _messages[_messages.length - 1]
+    const currentMsg = mode === 'before' ? messages[0] : messages[messages.length - 1]
     const { id, createAt } = currentMsg
     const { list, moreMsg } = await messageService.loadMore(this.curConnectionId, createAt, mode, {
       msgType: this.msgType,
       topic: this.activeTopic,
       searchParams: this.searchParams,
     })
-
+    return { curMsgId: id, list, moreMsg }
+  }
+  private updatePaginationFlags(mode: 'before' | 'after', moreMsg: 'before' | 'after' | false): void {
     moreMsg === 'before' && (this.moreMsgBefore = true)
     moreMsg === 'after' && (this.moreMsgAfter = true)
     moreMsg === false && mode === 'before' && (this.moreMsgBefore = false)
     moreMsg === false && mode === 'after' && (this.moreMsgAfter = false)
     mode === 'before' && (this.moreMsgAfter = true)
     mode === 'after' && (this.moreMsgBefore = true)
-
-    if (list.length > 0) {
-      if (mode === 'before') {
-        _messages.unshift(...list)
-        if (_messages.length > 40) {
-          _messages = _messages.slice(0, 40)
-        }
-      } else {
-        _messages.push(...list)
-        if (_messages.length > 40) {
-          _messages = _messages.slice(_messages.length - 40, _messages.length)
-        }
-      }
-      this.recordMsgs.list = _.cloneDeep(_messages)
-      const timer = setTimeout(() => {
-        this.$nextTick(() => {
-          const idBox = document.querySelector(`#${id}`)
-          idBox && idBox.scrollIntoView({ behavior: 'auto', block: mode === 'before' ? 'start' : 'end' })
-        })
-        clearTimeout(timer)
-      }, 50)
+  }
+  private updateRecordMsgList(
+    newMessages: MessageModel[],
+    mode: 'before' | 'after',
+    currentMessages: MessageModel[],
+  ): void {
+    let updatedMessages = currentMessages
+    if (mode === 'before') {
+      updatedMessages.unshift(...newMessages)
+      updatedMessages = updatedMessages.slice(0, MAX_MESSAGES_COUNT)
+    } else {
+      updatedMessages.push(...newMessages)
+      updatedMessages = updatedMessages.slice(-MAX_MESSAGES_COUNT)
     }
-    mode === 'before' ? (msgListRef.showBeforeLoadingIcon = false) : (msgListRef.showAfterLoadingIcon = false)
+    this.recordMsgs.list = _.cloneDeep(updatedMessages)
+  }
+  private async scrollToMessage(messageId: string, mode: 'before' | 'after'): Promise<void> {
+    const timer = setTimeout(() => {
+      this.$nextTick(() => {
+        const msgIdBox = document.querySelector(`#${messageId}`)
+        msgIdBox && msgIdBox.scrollIntoView({ behavior: 'auto', block: mode === 'before' ? 'start' : 'end' })
+      })
+      clearTimeout(timer)
+    }, 50)
   }
 
   private async loadMessages(opts: { limit?: number } = {}) {
@@ -1269,7 +1292,7 @@ export default class ConnectionsDetail extends Vue {
       if (msgListDOM) {
         msgListRef.loadSwitch = false
         msgListDOM.scrollTo({
-          top: msgListDOM.scrollHeight + 160,
+          top: msgListDOM.scrollHeight + SCROLL_HEIGHT_COMPENSATION,
           left: 0,
         })
         msgListRef.loadSwitch = true
@@ -1413,7 +1436,7 @@ export default class ConnectionsDetail extends Vue {
     const msgListDOM = msgListRef?.$el
     if (msgListDOM) {
       const { scrollTop, scrollHeight, clientHeight } = msgListDOM
-      const isScrollBottom = scrollTop + clientHeight >= scrollHeight - 500
+      const isScrollBottom = scrollTop + clientHeight >= scrollHeight - SCROLL_BOTTOM_THRESHOLD
       return isScrollBottom
     }
   }
@@ -1426,7 +1449,6 @@ export default class ConnectionsDetail extends Vue {
 
   // Push messages to the list
   private batchUpdateMsgs(incomingMsgs: MessageModel[]) {
-    const MAX_MSGS_COUNT = 40
     let _messages = _.cloneDeep(this.recordMsgs.list)
     incomingMsgs.forEach((msg: MessageModel) => {
       const isActiveTopicMessages = matchTopicMethod(this.activeTopic, msg.topic)
@@ -1435,8 +1457,8 @@ export default class ConnectionsDetail extends Vue {
         _messages.push(msg)
       }
     })
-    if (_messages.length > MAX_MSGS_COUNT) {
-      _messages = _messages.slice(_messages.length - MAX_MSGS_COUNT)
+    if (_messages.length > MAX_MESSAGES_COUNT) {
+      _messages = _messages.slice(_messages.length - MAX_MESSAGES_COUNT)
     }
     this.recordMsgs.list = _messages
   }
@@ -1529,7 +1551,6 @@ export default class ConnectionsDetail extends Vue {
     messageSubject$.subscribe((message: MessageModel) => {
       this.printMessageLog(id, message)
       this.renderMessage(id, message)
-      console.log('Message Received', message.id)
     })
 
     // Render messages
@@ -1752,7 +1773,6 @@ export default class ConnectionsDetail extends Vue {
         this.saveMessage(this.record.id, [publishMessage])
       }
       this.renderMessage(this.curConnectionId, publishMessage, 'publish')
-      console.log('Message Published', publishMessage.id)
       this.logSuccessfulPublish(publishMessage)
     }
   }

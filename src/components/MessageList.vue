@@ -27,6 +27,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import { matchTopicMethod } from '@/utils/topicMatch'
+import { SCROLL_OFFSET_MAX_NUM } from '@/utils/constant'
 
 @Component({
   components: {
@@ -48,7 +49,6 @@ export default class MessageList extends Vue {
     offset: Number.MAX_SAFE_INTEGER,
     mode: 'before',
   }
-  private scrollOffsetMaxNum: number = 100
   private isScrolling = false
   private timeout: undefined | number = undefined
 
@@ -95,9 +95,9 @@ export default class MessageList extends Vue {
     this.timeout = undefined
     const { scrollTop, scrollHeight, clientHeight } = this.getScrollBox()
     const scrollBottom = scrollHeight - scrollTop - clientHeight
-    if (scrollTop <= this.scrollOffsetMaxNum) {
+    if (scrollTop <= SCROLL_OFFSET_MAX_NUM) {
       this.scrollOffset = { offset: scrollTop, mode: 'before' }
-    } else if (scrollBottom <= this.scrollOffsetMaxNum) {
+    } else if (scrollBottom <= SCROLL_OFFSET_MAX_NUM) {
       this.scrollOffset = { offset: scrollBottom, mode: 'after' }
       this.$emit('hideNewMsgsTip')
     }
