@@ -12,3 +12,6 @@ export const MAX_MESSAGES_COUNT = 40
 
 // Maximum scroll offset in pixels to trigger loading more messages
 export const SCROLL_OFFSET_MAX_NUM = 100
+
+// Messages buffer time in milliseconds
+export const MESSAGES_BUFFER_TIME = 1000
