@@ -38,25 +38,27 @@ const confirmLoading = defineModel<boolean>('confirmLoading', { default: false }
   >
     <slot />
     <template #footer>
-      <div>
-        <el-button
-          v-if="cancelVisible"
-          text
-          type="default"
-          @click="dialogVisible = false"
-        >
-          {{ cancelText ?? $t('common.cancel') }}
-        </el-button>
-        <el-button
-          v-if="confirmVisible"
-          text
-          type="primary"
-          :loading="confirmLoading"
-          @click="() => emit('confirm')"
-        >
-          {{ confirmText ?? $t('common.confirm') }}
-        </el-button>
-      </div>
+      <slot name="footer">
+        <div>
+          <el-button
+            v-if="cancelVisible"
+            text
+            type="default"
+            @click="dialogVisible = false"
+          >
+            {{ cancelText ?? $t('common.cancel') }}
+          </el-button>
+          <el-button
+            v-if="confirmVisible"
+            text
+            type="primary"
+            :loading="confirmLoading"
+            @click="() => emit('confirm')"
+          >
+            {{ confirmText ?? $t('common.confirm') }}
+          </el-button>
+        </div>
+      </slot>
     </template>
   </ElDialog>
 </template>

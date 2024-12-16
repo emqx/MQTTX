@@ -7,11 +7,11 @@ export default {
     hu: 'Frissítés elérhető',
   },
   ignoreVersion: {
-    zh: '忽略',
-    en: 'Dismiss',
-    ja: '却下',
-    tr: 'Reddet',
-    hu: 'Elutasít',
+    zh: '忽略此版本',
+    en: 'Ignore this version',
+    ja: 'このバージョンを無視',
+    tr: 'Bu sürümü yoksay',
+    hu: 'Ezt a verziót figyelmen kívül hagyja',
   },
   nextRemind: {
     zh: '稍后提醒',
@@ -21,11 +21,11 @@ export default {
     hu: 'Emlékeztessen később',
   },
   update: {
-    zh: '更新',
-    en: 'Update',
-    ja: '更新',
-    tr: 'Güncelle',
-    hu: 'Frissítés',
+    zh: '立即更新',
+    en: 'Update Now',
+    ja: '今すぐ更新',
+    tr: 'Şimdi Güncelle',
+    hu: 'Frissítés most',
   },
   downloadProgress: {
     zh: '下载进度',

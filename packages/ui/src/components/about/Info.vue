@@ -28,8 +28,12 @@ const btns = computed(() => [
 ])
 
 const dialogVisible = ref(false)
-
 const checkForUpdates = inject<Window['api']['checkForUpdates']>('checkForUpdates')
+
+function check() {
+  window.forceCheck = true
+  checkForUpdates?.()
+}
 </script>
 
 <template>
@@ -39,7 +43,7 @@ const checkForUpdates = inject<Window['api']['checkForUpdates']>('checkForUpdate
         v-if="platformType === 'desktop'"
         role="button"
         tabindex="0"
-        @click="checkForUpdates"
+        @click="check"
       >
         {{ $t('about.update') }}
       </div>
