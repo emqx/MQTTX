@@ -5,6 +5,9 @@ import { contextBridge, ipcRenderer } from 'electron'
 const api = {
   execute: (...args) => ipcRenderer.invoke('db:execute', ...args),
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  onUpdateStatus: callback => ipcRenderer.on('update-status', (event, status, data) => {
+    callback(event, { status, data })
+  }),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to
@@ -18,8 +21,6 @@ if (process.contextIsolated) {
     console.error(error)
   }
 } else {
-  // @ts-expect-error (define in dts)
   window.electron = electronAPI
-  // @ts-expect-error (define in dts)
   window.api = api
 }

@@ -1,5 +1,31 @@
 <script setup lang="ts">
+import type { ProgressInfo } from 'electron-updater'
 import useSettingsService from '@database/services/SettingsService'
+import { ElMessage } from 'element-plus'
+
+const updateAvailableDialogVisible = ref(false)
+const version = ref('')
+
+const downloadProgressDialogVisible = ref(false)
+const downloadProgress = ref<ProgressInfo | null>(null)
+
+window.api.onUpdateStatus((_event, updateEvent) => {
+  const { status } = updateEvent
+  if (status === 'update-available') {
+    const ignoreVersion = localStorage.getItem('ignoreVersion')
+    if (!window.forceCheck && ignoreVersion && ignoreVersion === updateEvent.data.version) {
+      return
+    }
+    updateAvailableDialogVisible.value = true
+    version.value = updateEvent.data.version
+    window.forceCheck = false
+  } else if (status === 'download-progress') {
+    downloadProgressDialogVisible.value = true
+    downloadProgress.value = updateEvent.data
+  } else if (status === 'error') {
+    ElMessage.error(updateEvent.data)
+  }
+})
 
 const { settings } = useSettingsService()
 
@@ -11,5 +37,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div />
+  <UpdateAvailable
+    v-model="updateAvailableDialogVisible"
+    :version="version"
+  />
 </template>

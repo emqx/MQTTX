@@ -1,4 +1,5 @@
-import { ipcMain } from 'electron'
+import type { UpdateEvent } from '../preload/index.d'
+import { BrowserWindow, ipcMain } from 'electron'
 import pkg from 'electron-updater'
 
 const { autoUpdater } = pkg
@@ -14,23 +15,34 @@ autoUpdater.autoDownload = false
 // autoUpdater.quitAndInstall()
 
 autoUpdater.on('checking-for-update', () => {
-  console.log('开始检查更新')
+  sendUpdateStatus({ status: 'checking-for-update' })
 })
-autoUpdater.on('update-available', () => {
-  console.log('有新版本需要更新')
+autoUpdater.on('update-available', (info) => {
+  sendUpdateStatus({ status: 'update-available', data: info })
 })
-autoUpdater.on('update-not-available', () => {
-  console.log('无需更新')
+autoUpdater.on('update-not-available', (info) => {
+  sendUpdateStatus({ status: 'update-not-available', data: info })
 })
 autoUpdater.on('download-progress', (progressInfo) => {
-  console.log('更新进度信息', progressInfo)
+  sendUpdateStatus({ status: 'download-progress', data: progressInfo })
 })
-autoUpdater.on('update-downloaded', () => {
-  console.log('更新下载完成')
+autoUpdater.on('update-downloaded', (info) => {
+  sendUpdateStatus({ status: 'update-downloaded', data: info })
 })
-autoUpdater.on('error', (errorMessage) => {
-  console.log('更新时出错了', errorMessage)
+autoUpdater.on('error', (error) => {
+  sendUpdateStatus({ status: 'error', data: error })
 })
+
+function sendUpdateStatus(updateEvent: UpdateEvent) {
+  const windows = BrowserWindow.getAllWindows()
+  windows.forEach((window) => {
+    if ('data' in updateEvent) {
+      window.webContents.send('update-status', updateEvent.status, updateEvent.data)
+    } else {
+      window.webContents.send('update-status', updateEvent.status)
+    }
+  })
+}
 
 function useAppUpdater() {
   ipcMain.handle('check-for-updates', async () => {
