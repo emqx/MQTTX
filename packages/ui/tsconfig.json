@@ -28,7 +28,8 @@
     "src/**/*.vue",
     "__test__",
     "./auto-imports.d.ts",
-    "./components.d.ts"
+    "./components.d.ts",
+    "../../apps/desktop/src/preload/index.d.ts"
   ],
   "exclude": ["node_modules"]
 }

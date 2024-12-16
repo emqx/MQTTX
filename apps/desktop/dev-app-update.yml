@@ -1,3 +1,2 @@
 provider: generic
-url: https://example.com/auto-updates
-updaterCacheDirName: desktop-updater
+url: http://localhost:8080

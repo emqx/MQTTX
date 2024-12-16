@@ -24,6 +24,7 @@ declare module 'vue' {
     ElCol: typeof import('element-plus/es')['ElCol']
     ElConfigProvider: typeof import('element-plus/es')['ElConfigProvider']
     ElContainer: typeof import('element-plus/es')['ElContainer']
+    ElDialog: typeof import('element-plus/es')['ElDialog']
     ElDivider: typeof import('element-plus/es')['ElDivider']
     ElIconDelete: typeof import('@element-plus/icons-vue')['Delete']
     ElIconDownload: typeof import('@element-plus/icons-vue')['Download']
@@ -45,5 +46,6 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SettingsView: typeof import('./../../../../packages/ui/src/components/SettingsView.vue')['default']
+    UpdateView: typeof import('./src/components/update/View.vue')['default']
   }
 }

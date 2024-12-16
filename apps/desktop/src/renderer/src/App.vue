@@ -12,6 +12,7 @@ console.log('MQTTX Web App init...')
     <ElContainer>
       <CommonLeftMenu />
       <CommonMainView />
+      <UpdateView />
     </ElContainer>
   </ElConfigProvider>
 </template>

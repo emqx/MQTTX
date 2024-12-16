@@ -67,6 +67,7 @@ linux:
   maintainer: electronjs.org
   category: Utility
 npmRebuild: false
-# publish:
-#   provider: generic
-#   url: https://example.com/auto-updates
+publish:
+  provider: generic
+  # TODO: change to our own server
+  url: http://localhost:8080
