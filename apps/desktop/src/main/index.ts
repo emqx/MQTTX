@@ -5,6 +5,7 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import icon from '../../resources/icon.png?asset'
 import { db, execute, runMigrate } from '../database/db.main'
 import { type SelectSettings, settings } from '../database/schemas/settings'
+import { useAppUpdater } from './update'
 
 // const IsMacOS = process.platform === 'darwin'
 
@@ -92,6 +93,8 @@ app.whenReady().then(async () => {
   await runMigrate()
 
   await createWindow()
+
+  useAppUpdater()
 
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the

@@ -4,6 +4,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 // Custom APIs for renderer
 const api = {
   execute: (...args) => ipcRenderer.invoke('db:execute', ...args),
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

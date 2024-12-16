@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// TODO: Implement update function, and display data collection policy.
 import type { PlatformType } from 'mqttx'
 import IconFaq from '~icons/custom/faq'
 import IconGithub from '~icons/custom/github'
@@ -29,6 +28,8 @@ const btns = computed(() => [
 ])
 
 const dialogVisible = ref(false)
+
+const checkForUpdates = inject<Window['api']['checkForUpdates']>('checkForUpdates')
 </script>
 
 <template>
@@ -38,6 +39,7 @@ const dialogVisible = ref(false)
         v-if="platformType === 'desktop'"
         role="button"
         tabindex="0"
+        @click="checkForUpdates"
       >
         {{ $t('about.update') }}
       </div>
