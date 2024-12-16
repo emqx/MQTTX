@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { ProgressInfo } from 'electron-updater'
 import useSettingsService from '@database/services/SettingsService'
-import { ElMessage } from 'element-plus'
 
 const updateAvailableDialogVisible = ref(false)
 const version = ref('')
@@ -23,7 +22,11 @@ window.api.onUpdateStatus((_event, updateEvent) => {
     downloadProgressDialogVisible.value = true
     downloadProgress.value = updateEvent.data
   } else if (status === 'error') {
-    ElMessage.error(updateEvent.data)
+    ElMessage({
+      message: updateEvent.data.message,
+      type: 'error',
+      plain: true,
+    })
   }
 })
 

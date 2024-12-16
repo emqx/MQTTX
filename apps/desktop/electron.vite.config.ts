@@ -54,6 +54,11 @@ export default defineConfig({
           'pinia',
         ],
 
+        // Auto import functions from Element Plus, e.g. ElMessage, ElMessageBox... (with style)
+        resolvers: [
+          ElementPlusResolver(),
+        ],
+
         // Auto import for module exports under directories
         // by default it only scan one level of modules under the directory
         dirs: [
