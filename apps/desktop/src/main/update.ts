@@ -1,7 +1,12 @@
+import type { Lang } from 'mqttx'
+import type { SelectSettings } from '../database/schemas/settings'
 import type { UpdateEvent } from '../preload/index.d'
-import { BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron'
+import Store from 'electron-store'
 import pkg from 'electron-updater'
 
+// FIXME: https://github.com/sindresorhus/electron-store/issues/276
+const store = new Store() as any
 const { autoUpdater } = pkg
 
 if (process.env.NODE_ENV === 'development') {
@@ -9,10 +14,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 autoUpdater.autoDownload = false
-
-// autoUpdater.checkForUpdates()
-// autoUpdater.downloadUpdate()
-// autoUpdater.quitAndInstall()
+autoUpdater.autoInstallOnAppQuit = false
 
 autoUpdater.on('checking-for-update', () => {
   sendUpdateStatus({ status: 'checking-for-update' })
@@ -52,6 +54,27 @@ async function fetchReleaseNotes(version: string): Promise<string> {
     })
 }
 
+async function showReleaseNotesWindow(lang: Lang) {
+  const language = ['en', 'zh', 'ja'].includes(lang) ? lang : 'en'
+  const version = app.getVersion()
+  const link = `https://mqttx.app/${language}/changelogs/v${version}`
+
+  try {
+    const response = await fetch(link, { method: 'GET', signal: AbortSignal.timeout(5000) })
+    if (response.status !== 200) {
+      return
+    }
+    const releaseNotesWindow = new BrowserWindow({
+      width: 600,
+      height: 500,
+      alwaysOnTop: true,
+    })
+    releaseNotesWindow.loadURL(link)
+  } catch (e) {
+    console.error(e)
+  }
+}
+
 function sendUpdateStatus(updateEvent: UpdateEvent) {
   const windows = BrowserWindow.getAllWindows()
   windows.forEach((window) => {
@@ -63,7 +86,12 @@ function sendUpdateStatus(updateEvent: UpdateEvent) {
   })
 }
 
-function useAppUpdater() {
+function useAppUpdater(settings: SelectSettings) {
+  const version = app.getVersion()
+  if (store.get('version') !== version) {
+    showReleaseNotesWindow(settings.currentLang)
+    store.set('version', version)
+  }
   ipcMain.handle('check-for-updates', async () => {
     return await autoUpdater.checkForUpdates()
   })
