@@ -17,21 +17,40 @@ autoUpdater.autoDownload = false
 autoUpdater.on('checking-for-update', () => {
   sendUpdateStatus({ status: 'checking-for-update' })
 })
-autoUpdater.on('update-available', (info) => {
-  sendUpdateStatus({ status: 'update-available', data: info })
+
+autoUpdater.on('update-available', async (info) => {
+  const releaseNotes = await fetchReleaseNotes(info.version)
+  sendUpdateStatus({ status: 'update-available', data: { info, releaseNotes } })
 })
+
 autoUpdater.on('update-not-available', (info) => {
   sendUpdateStatus({ status: 'update-not-available', data: info })
 })
+
 autoUpdater.on('download-progress', (progressInfo) => {
   sendUpdateStatus({ status: 'download-progress', data: progressInfo })
 })
+
 autoUpdater.on('update-downloaded', (info) => {
   sendUpdateStatus({ status: 'update-downloaded', data: info })
 })
+
 autoUpdater.on('error', (error) => {
   sendUpdateStatus({ status: 'error', data: error })
 })
+
+async function fetchReleaseNotes(version: string): Promise<string> {
+  // TODO: Remove before official release
+  version = '1.11.1'
+  return fetch(`https://community-sites.emqx.com/api/v1/changelogs?product=MQTTX&version=${version}`)
+    .then(response => response.json())
+    .then((data) => {
+      return data.data?.changelog ?? data.detail
+    })
+    .catch((error) => {
+      return error.message
+    })
+}
 
 function sendUpdateStatus(updateEvent: UpdateEvent) {
   const windows = BrowserWindow.getAllWindows()

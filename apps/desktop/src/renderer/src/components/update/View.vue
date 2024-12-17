@@ -4,6 +4,7 @@ import useSettingsService from '@database/services/SettingsService'
 
 const updateAvailableDialogVisible = ref(false)
 const version = ref('')
+const changelog = ref('')
 
 const downloadProgressDialogVisible = ref(false)
 const downloadProgress = ref<ProgressInfo | null>(null)
@@ -12,11 +13,13 @@ window.api.onUpdateStatus((_event, updateEvent) => {
   const { status } = updateEvent
   if (status === 'update-available') {
     const ignoreVersion = localStorage.getItem('ignoreVersion')
-    if (!window.forceCheck && ignoreVersion && ignoreVersion === updateEvent.data.version) {
+    const { info, releaseNotes } = updateEvent.data
+    if (!window.forceCheck && ignoreVersion && ignoreVersion === info.version) {
       return
     }
     updateAvailableDialogVisible.value = true
-    version.value = updateEvent.data.version
+    version.value = info.version
+    changelog.value = releaseNotes
     window.forceCheck = false
   } else if (status === 'download-progress') {
     downloadProgressDialogVisible.value = true
@@ -43,5 +46,6 @@ onMounted(async () => {
   <UpdateAvailable
     v-model="updateAvailableDialogVisible"
     :version="version"
+    :release-notes="changelog"
   />
 </template>

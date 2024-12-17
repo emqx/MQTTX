@@ -49,4 +49,7 @@ declare module 'vue' {
     UpdateAvailable: typeof import('./src/components/update/Available.vue')['default']
     UpdateView: typeof import('./src/components/update/View.vue')['default']
   }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
+  }
 }

@@ -17,6 +17,9 @@ const config: Config = {
         DEFAULT: {
           css: {
             'color': 'var(--color-text-default)',
+            'strong': {
+              color: 'var(--color-text-title)',
+            },
             'a': {
               'color': 'var(--color-main-green)',
               '&:hover': {
@@ -40,6 +43,14 @@ const config: Config = {
             },
             'ul > li::marker': {
               color: 'var(--color-text-default)',
+            },
+            'blockquote': {
+              color: 'var(--color-text-default)',
+              borderInlineStartColor: 'var(--color-main-green)',
+              backgroundColor: 'var(--color-bg-primary)',
+              paddingInlineEnd: '1.1111111em',
+              paddingTop: '0.1em',
+              paddingBottom: '0.1em',
             },
           },
         },
