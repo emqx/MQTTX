@@ -7,8 +7,10 @@ declare global {
     electron: ElectronAPI
     api: {
       execute: (...args: any[]) => Promise<any>
-      checkForUpdates: () => Promise<UpdateCheckResult | null>
       onUpdateStatus: (callback: (event: Electron.IpcRendererEvent, updateEvent: UpdateEvent) => void) => void
+      checkForUpdates: () => Promise<UpdateCheckResult | null>
+      downloadUpdate: () => Promise<void>
+      installUpdate: () => Promise<void>
     }
   }
 }

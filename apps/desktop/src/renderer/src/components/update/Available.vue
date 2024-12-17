@@ -19,8 +19,7 @@ function remindLater() {
 }
 
 function downloadUpdate() {
-  // TODO: download update
-  // window.api.downloadUpdate()
+  window.api.downloadUpdate()
   dialogVisible.value = false
 }
 

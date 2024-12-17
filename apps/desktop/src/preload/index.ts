@@ -4,10 +4,12 @@ import { contextBridge, ipcRenderer } from 'electron'
 // Custom APIs for renderer
 const api = {
   execute: (...args) => ipcRenderer.invoke('db:execute', ...args),
-  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
   onUpdateStatus: callback => ipcRenderer.on('update-status', (event, status, data) => {
     callback(event, { status, data })
   }),
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  downloadUpdate: () => ipcRenderer.invoke('download-update'),
+  installUpdate: () => ipcRenderer.invoke('install-update'),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

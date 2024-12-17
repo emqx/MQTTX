@@ -37,6 +37,7 @@ declare module 'vue' {
     ElMain: typeof import('element-plus/es')['ElMain']
     ElOption: typeof import('element-plus/es')['ElOption']
     ElPopover: typeof import('element-plus/es')['ElPopover']
+    ElProgress: typeof import('element-plus/es')['ElProgress']
     ElRow: typeof import('element-plus/es')['ElRow']
     ElSelect: typeof import('element-plus/es')['ElSelect']
     ElSwitch: typeof import('element-plus/es')['ElSwitch']
@@ -47,9 +48,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     SettingsView: typeof import('./../../../../packages/ui/src/components/SettingsView.vue')['default']
     UpdateAvailable: typeof import('./src/components/update/Available.vue')['default']
+    UpdateDownloadProgress: typeof import('./src/components/update/DownloadProgress.vue')['default']
     UpdateView: typeof import('./src/components/update/View.vue')['default']
-  }
-  export interface ComponentCustomProperties {
-    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

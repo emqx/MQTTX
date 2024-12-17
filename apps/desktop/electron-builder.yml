@@ -70,4 +70,4 @@ npmRebuild: false
 publish:
   provider: generic
   # TODO: change to our own server
-  url: http://localhost:8080
+  url: http://localhost:8080/

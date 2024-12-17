@@ -8,6 +8,7 @@ const changelog = ref('')
 
 const downloadProgressDialogVisible = ref(false)
 const downloadProgress = ref<ProgressInfo | null>(null)
+const updateDownloaded = ref(false)
 
 window.api.onUpdateStatus((_event, updateEvent) => {
   const { status } = updateEvent
@@ -24,6 +25,9 @@ window.api.onUpdateStatus((_event, updateEvent) => {
   } else if (status === 'download-progress') {
     downloadProgressDialogVisible.value = true
     downloadProgress.value = updateEvent.data
+  } else if (status === 'update-downloaded') {
+    downloadProgressDialogVisible.value = true
+    updateDownloaded.value = true
   } else if (status === 'error') {
     ElMessage({
       message: updateEvent.data.message,
@@ -47,5 +51,10 @@ onMounted(async () => {
     v-model="updateAvailableDialogVisible"
     :version="version"
     :release-notes="changelog"
+  />
+  <UpdateDownloadProgress
+    v-model="downloadProgressDialogVisible"
+    :download-progress="downloadProgress"
+    :update-downloaded="updateDownloaded"
   />
 </template>

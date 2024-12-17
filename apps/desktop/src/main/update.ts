@@ -67,6 +67,12 @@ function useAppUpdater() {
   ipcMain.handle('check-for-updates', async () => {
     return await autoUpdater.checkForUpdates()
   })
+  ipcMain.handle('download-update', async () => {
+    return await autoUpdater.downloadUpdate()
+  })
+  ipcMain.handle('install-update', async () => {
+    autoUpdater.quitAndInstall()
+  })
 }
 
 export { useAppUpdater }
