@@ -1,11 +1,12 @@
 <script setup lang="ts">
 const props = defineProps<{
   version: string
+  releaseNotes: string
 }>()
 
 const dialogVisible = defineModel<boolean>({ default: false })
 
-const { version } = toRefs(props)
+const { version, releaseNotes } = toRefs(props)
 
 function ignoreCurrentVersion() {
   localStorage.setItem('ignoreVersion', version.value)
@@ -22,16 +23,25 @@ function downloadUpdate() {
   // window.api.downloadUpdate()
   dialogVisible.value = false
 }
+
+watch(releaseNotes, () => {
+  nextTick(() => {
+    const links = document.querySelectorAll('.prose a')
+    links.forEach((link) => {
+      link.setAttribute('target', '_blank')
+    })
+  })
+})
 </script>
 
 <template>
   <MyDialog
     v-model="dialogVisible"
-    :title="$t('update.updateTitle')"
+    :title="$t('update.updateTitle', { version })"
     width="min(100vw - 80px, 960px)"
   >
-    <div>
-      TODO: release notes
+    <div class="h-[min(50vh,400px)] overflow-y-auto">
+      <div class="prose prose-sm" v-html="releaseNotes" />
     </div>
     <template #footer>
       <div class="flex gap-6 justify-between">

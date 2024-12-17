@@ -1,21 +1,21 @@
 export default {
   updateTitle: {
-    zh: '有可用更新',
-    en: 'Update Available',
-    ja: '利用可能な更新',
-    tr: 'Güncelleme Mevcut',
-    hu: 'Frissítés elérhető',
+    zh: '新版本 v{version} 可用',
+    en: 'New Version v{version} Available',
+    ja: '新しいバージョン v{version} が利用可能です',
+    tr: 'Yeni Sürüm v{version} Mevcut',
+    hu: 'Új Verzió v{version} Elérhető',
   },
   ignoreVersion: {
     zh: '忽略此版本',
-    en: 'Ignore this version',
+    en: 'Ignore This Version',
     ja: 'このバージョンを無視',
     tr: 'Bu sürümü yoksay',
     hu: 'Ezt a verziót figyelmen kívül hagyja',
   },
   nextRemind: {
     zh: '稍后提醒',
-    en: 'Remind me Later',
+    en: 'Remind Me Later',
     ja: '後でリマインドしてください',
     tr: 'Bana daha sonra hatırlat',
     hu: 'Emlékeztessen később',

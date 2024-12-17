@@ -15,7 +15,7 @@ declare global {
 
 export type UpdateEvent =
   | { status: 'checking-for-update' }
-  | { status: 'update-available', data: UpdateInfo }
+  | { status: 'update-available', data: { info: UpdateInfo, releaseNotes: string } }
   | { status: 'update-not-available', data: UpdateInfo }
   | { status: 'download-progress', data: ProgressInfo }
   | { status: 'update-downloaded', data: UpdateDownloadedEvent }
