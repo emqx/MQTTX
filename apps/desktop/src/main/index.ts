@@ -9,17 +9,18 @@ import { useAppUpdater } from './update'
 
 // const IsMacOS = process.platform === 'darwin'
 
+let existingSettings: SelectSettings | undefined
+
 async function createWindow() {
-  let data: SelectSettings | undefined
-  data = await db.query.settings.findFirst()
-  if (!data) {
+  existingSettings = await db.query.settings.findFirst()
+  if (!existingSettings) {
     await db.insert(settings).values({})
   }
-  data = await db.query.settings.findFirst() as SelectSettings
+  existingSettings = await db.query.settings.findFirst() as SelectSettings
 
-  const width = data.width || 1024
-  const height = data.height || 749
-  const currentTheme = data.currentTheme || 'light'
+  const width = existingSettings.width || 1024
+  const height = existingSettings.height || 749
+  const currentTheme = existingSettings.currentTheme || 'light'
   const bgColor = {
     dark: '#232323',
     night: '#212328',
@@ -94,7 +95,7 @@ app.whenReady().then(async () => {
 
   await createWindow()
 
-  useAppUpdater()
+  useAppUpdater(existingSettings!)
 
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
