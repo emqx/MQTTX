@@ -2,6 +2,7 @@ import { join } from 'node:path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { eq } from 'drizzle-orm'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import icon from '../../resources/icon.png?asset'
 import { db, execute, runMigrate } from '../database/db.main'
 import { type SelectSettings, settings } from '../database/schemas/settings'
@@ -48,8 +49,13 @@ async function createWindow() {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+  })
+
+  mainWindow.webContents.on('did-frame-finish-load', async () => {
     if (is.dev) {
-      mainWindow.webContents.openDevTools()
+      installExtension(VUEJS_DEVTOOLS)
+        .then(() => mainWindow.webContents.openDevTools())
+        .catch(err => console.error('An error occurred: ', err))
     }
   })
 
