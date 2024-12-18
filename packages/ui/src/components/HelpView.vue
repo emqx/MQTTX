@@ -179,99 +179,101 @@ const helpPractice = computed(() => [
 </script>
 
 <template>
-  <div id="help-view" class="px-4 pt-4 pb-12 bg-primary min-h-full select-none">
-    <div class="mx-auto max-w-screen-lg">
-      <div class="mb-12 flex justify-between items-center">
-        <h1 class="text-lg text-title font-semibold">
-          {{ $t('help.helpMQTT') }}
-        </h1>
-        <ElTooltip
-          v-if="locale === 'zh'"
-          placement="bottom"
-          content="2024 MQTT 协议入门教程"
-        >
-          <a
-            target="_blank"
-            rel="noopener"
-            class="text-sm text-main-green"
-            href="https://www.emqx.com/zh/resources/beginners-guide-to-the-mqtt-protocol?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-mqtt-ebook-zh"
+  <ElScrollbar id="help-view" class="bg-primary min-h-full select-none">
+    <div class="px-4 pt-4 pb-12">
+      <div class="mx-auto max-w-screen-lg">
+        <div class="mb-12 flex justify-between items-center">
+          <h1 class="text-lg text-title font-semibold">
+            {{ $t('help.helpMQTT') }}
+          </h1>
+          <ElTooltip
+            v-if="locale === 'zh'"
+            placement="bottom"
+            content="2024 MQTT 协议入门教程"
           >
-            下载 MQTT 电子书
-            <span>→</span>
-          </a>
-        </ElTooltip>
-      </div>
-
-      <section class="mb-16 grid grid-cols-3 gap-6">
-        <a
-          v-for="item in helpTop"
-          :key="item.icon"
-          class="block text-center cursor-pointer rounded-lg py-6 px-3 bg-gradient-card"
-          :href="item.link"
-          target="_blank"
-          rel="noopener"
-        >
-          <img class="mb-3 mx-auto" :src="getImage(item.icon)" :alt="item.icon" width="24" height="24">
-          <h2 class="text-title text-sm font-semibold">{{ item.title }}</h2>
-        </a>
-      </section>
-
-      <section class="mb-16">
-        <h2 class="mb-2 text-lg text-title font-semibold">
-          {{ $t('help.guideTitle') }}
-        </h2>
-        <p class="mb-6 text-sm text-default">
-          {{ $t('help.guideDesc') }}
-        </p>
-        <div class="grid grid-cols-2 gap-6">
-          <a
-            v-for="item in helpGuide"
-            :key="item.link"
-            class="block cursor-pointer rounded-lg p-4 border border-solid border-border-default"
-            :href="`${item.link}${help.blogUtm}`"
-            target="_blank"
-            rel="noopener"
-          >
-            <p class="text-title font-semibold text-sm">
-              {{ item.title }}
-              <span class="text-main-green ml-1">
-                →
-              </span>
-            </p>
-          </a>
-        </div>
-      </section>
-
-      <section>
-        <h2 class="mb-2 text-lg text-title font-semibold">
-          {{ $t('help.practiceTitle') }}
-        </h2>
-        <p class="mb-6 text-sm text-default">
-          {{ $t('help.practiceDesc') }}
-        </p>
-        <div class="grid grid-cols-[repeat(auto-fill,120px)] gap-6">
-          <template v-for="item in helpPractice">
             <a
-              v-if="item.link"
+              target="_blank"
+              rel="noopener"
+              class="text-sm text-main-green"
+              href="https://www.emqx.com/zh/resources/beginners-guide-to-the-mqtt-protocol?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-mqtt-ebook-zh"
+            >
+              下载 MQTT 电子书
+              <span>→</span>
+            </a>
+          </ElTooltip>
+        </div>
+
+        <section class="mb-16 grid grid-cols-3 gap-6">
+          <a
+            v-for="item in helpTop"
+            :key="item.icon"
+            class="block text-center cursor-pointer rounded-lg py-6 px-3 bg-gradient-card"
+            :href="item.link"
+            target="_blank"
+            rel="noopener"
+          >
+            <img class="mb-3 mx-auto" :src="getImage(item.icon)" :alt="item.icon" width="24" height="24">
+            <h2 class="text-title text-sm font-semibold">{{ item.title }}</h2>
+          </a>
+        </section>
+
+        <section class="mb-16">
+          <h2 class="mb-2 text-lg text-title font-semibold">
+            {{ $t('help.guideTitle') }}
+          </h2>
+          <p class="mb-6 text-sm text-default">
+            {{ $t('help.guideDesc') }}
+          </p>
+          <div class="grid grid-cols-2 gap-6">
+            <a
+              v-for="item in helpGuide"
               :key="item.link"
-              class="block cursor-pointer text-center rounded-lg py-6 px-3 bg-card-normal"
+              class="block cursor-pointer rounded-lg p-4 border border-solid border-border-default"
               :href="`${item.link}${help.blogUtm}`"
               target="_blank"
               rel="noopener"
             >
-              <img
-                class="mb-3 mx-auto"
-                :class="[{ invert: item.invert?.includes(settings?.currentTheme ?? '') }]"
-                :src="getImage(item.icon)"
-                :alt="item.icon"
-                width="32"
-                height="32"
-              >
-              <p class="text-default text-sm">{{ item.title }}</p>
+              <p class="text-title font-semibold text-sm">
+                {{ item.title }}
+                <span class="text-main-green ml-1">
+                  →
+                </span>
+              </p>
             </a>
-          </template>
-        </div>
-      </section>
+          </div>
+        </section>
+
+        <section>
+          <h2 class="mb-2 text-lg text-title font-semibold">
+            {{ $t('help.practiceTitle') }}
+          </h2>
+          <p class="mb-6 text-sm text-default">
+            {{ $t('help.practiceDesc') }}
+          </p>
+          <div class="grid grid-cols-[repeat(auto-fill,120px)] gap-6">
+            <template v-for="item in helpPractice">
+              <a
+                v-if="item.link"
+                :key="item.link"
+                class="block cursor-pointer text-center rounded-lg py-6 px-3 bg-card-normal"
+                :href="`${item.link}${help.blogUtm}`"
+                target="_blank"
+                rel="noopener"
+              >
+                <img
+                  class="mb-3 mx-auto"
+                  :class="[{ invert: item.invert?.includes(settings?.currentTheme ?? '') }]"
+                  :src="getImage(item.icon)"
+                  :alt="item.icon"
+                  width="32"
+                  height="32"
+                >
+                <p class="text-default text-sm">{{ item.title }}</p>
+              </a>
+            </template>
+          </div>
+        </section>
+      </div>
     </div>
-  </div>
+  </ElScrollbar>
 </template>

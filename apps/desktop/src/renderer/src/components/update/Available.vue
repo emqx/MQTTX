@@ -37,11 +37,11 @@ watch(releaseNotes, () => {
   <MyDialog
     v-model="dialogVisible"
     :title="$t('update.updateTitle', { version })"
-    width="min(100vw - 80px, 960px)"
+    width="min(100vw - 200px, 960px)"
   >
-    <div class="h-[min(50vh,400px)] overflow-y-auto">
+    <ElScrollbar class="h-[min(50vh,400px)]">
       <div class="prose prose-sm" v-html="releaseNotes" />
-    </div>
+    </ElScrollbar>
     <template #footer>
       <div class="flex gap-6 justify-between">
         <ElButton @click="ignoreCurrentVersion">
