@@ -13,6 +13,11 @@ const { downloadProgress, updateDownloaded } = toRefs(props)
 function installUpdate() {
   window.api.installUpdate()
 }
+
+function cancelDownload() {
+  window.api.cancelDownload()
+  dialogVisible.value = false
+}
 </script>
 
 <template>
@@ -32,7 +37,7 @@ function installUpdate() {
       <ElProgress :percentage="updateDownloaded ? 100 : downloadProgress?.percent" />
     </div>
     <template #footer>
-      <ElButton v-if="!updateDownloaded" type="danger">
+      <ElButton v-if="!updateDownloaded" type="danger" @click="cancelDownload">
         {{ $t('update.cancel') }}
       </ElButton>
       <ElButton v-else type="primary" @click="installUpdate">

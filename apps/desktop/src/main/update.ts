@@ -3,7 +3,7 @@ import type { SelectSettings } from '../database/schemas/settings'
 import type { UpdateEvent } from '../preload/index.d'
 import { app, BrowserWindow, ipcMain } from 'electron'
 import Store from 'electron-store'
-import pkg from 'electron-updater'
+import pkg, { CancellationToken } from 'electron-updater'
 
 // FIXME: https://github.com/sindresorhus/electron-store/issues/276
 const store = new Store() as any
@@ -86,6 +86,8 @@ function sendUpdateStatus(updateEvent: UpdateEvent) {
   })
 }
 
+let downloadCancelToken: CancellationToken | null = null
+
 function useAppUpdater(settings: SelectSettings) {
   const version = app.getVersion()
   if (store.get('version') !== version) {
@@ -96,7 +98,14 @@ function useAppUpdater(settings: SelectSettings) {
     return await autoUpdater.checkForUpdates()
   })
   ipcMain.handle('download-update', async () => {
-    return await autoUpdater.downloadUpdate()
+    downloadCancelToken = new CancellationToken()
+    return await autoUpdater.downloadUpdate(downloadCancelToken)
+  })
+  ipcMain.handle('cancel-download', () => {
+    if (downloadCancelToken) {
+      downloadCancelToken.cancel()
+      downloadCancelToken = null
+    }
   })
   ipcMain.handle('install-update', async () => {
     autoUpdater.quitAndInstall()

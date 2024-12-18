@@ -10,9 +10,20 @@ const downloadProgressDialogVisible = ref(false)
 const downloadProgress = ref<ProgressInfo | null>(null)
 const updateDownloaded = ref(false)
 
+const { t } = useI18n()
+
 window.api.onUpdateStatus((_event, updateEvent) => {
   const { status } = updateEvent
-  if (status === 'update-available') {
+  if (status === 'update-not-available') {
+    if (window.forceCheck) {
+      ElMessage({
+        message: t('update.noUpdateAvailable'),
+        type: 'info',
+        plain: true,
+      })
+      window.forceCheck = false
+    }
+  } else if (status === 'update-available') {
     const ignoreVersion = localStorage.getItem('ignoreVersion')
     const { info, releaseNotes } = updateEvent.data
     if (!window.forceCheck && ignoreVersion && ignoreVersion === info.version) {
