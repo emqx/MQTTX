@@ -73,222 +73,53 @@ const AImodelsOptions = [
 </script>
 
 <template>
-  <div id="settings-view" class="px-4 pt-4 pb-12 bg-primary min-h-full select-none">
-    <div class="mx-auto max-w-screen-lg">
-      <h1 class="mb-12 text-lg text-title font-semibold">
-        {{ $t('settings.settings') }}
-      </h1>
+  <ElScrollbar id="settings-view" class="bg-primary min-h-full select-none">
+    <div class="px-4 pt-4 pb-12">
+      <div class="mx-auto max-w-screen-lg">
+        <h1 class="mb-12 text-lg text-title font-semibold">
+          {{ $t('settings.settings') }}
+        </h1>
 
-      <section class="settings-section">
-        <div class="section-title">
-          {{ $t('settings.general') }}
-        </div>
+        <section class="settings-section">
+          <div class="section-title">
+            {{ $t('settings.general') }}
+          </div>
 
-        <ElDivider />
+          <ElDivider />
 
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16">
-            <label>{{ $t('settings.language') }}</label>
-          </ElCol>
-          <ElCol :span="8">
-            <ElSelect v-model="settings.currentLang" automatic-dropdown>
-              <ElOption v-for="{ label, value } in langOptions" :key="value" :label="label" :value="value" />
-            </ElSelect>
-          </ElCol>
-        </ElRow>
-
-        <ElDivider />
-
-        <template v-if="platformType === 'desktop'">
           <ElRow type="flex" justify="space-between" align="middle">
             <ElCol :span="16">
-              <label>{{ $t('settings.automatically') }}</label>
+              <label>{{ $t('settings.language') }}</label>
             </ElCol>
             <ElCol :span="8">
-              <ElSwitch v-model="settings.autoCheck" />
+              <ElSelect v-model="settings.currentLang" automatic-dropdown>
+                <ElOption v-for="{ label, value } in langOptions" :key="value" :label="label" :value="value" />
+              </ElSelect>
             </ElCol>
           </ElRow>
 
           <ElDivider />
-        </template>
 
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="!flex gap-1 items-center">
-            <label>{{ $t('settings.autoResub') }}</label>
-            <ElTooltip
-              placement="top"
-              :open-delay="500"
-              :content="$t('settings.autoResubDesc')"
-            >
-              <div class="label-icon">
-                <ElIconWarning />
-              </div>
-            </ElTooltip>
-          </ElCol>
-          <ElCol :span="8">
-            <ElSwitch v-model="settings.autoResub" />
-          </ElCol>
-        </ElRow>
+          <template v-if="platformType === 'desktop'">
+            <ElRow type="flex" justify="space-between" align="middle">
+              <ElCol :span="16">
+                <label>{{ $t('settings.automatically') }}</label>
+              </ElCol>
+              <ElCol :span="8">
+                <ElSwitch v-model="settings.autoCheck" />
+              </ElCol>
+            </ElRow>
 
-        <ElDivider />
+            <ElDivider />
+          </template>
 
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="!flex gap-1 items-center">
-            <label>{{ $t('settings.multiTopics') }}</label>
-            <ElTooltip
-              placement="top"
-
-              :open-delay="500"
-              :content="$t('settings.multiTopicsDesc')"
-            >
-              <div class="label-icon">
-                <ElIconWarning />
-              </div>
-            </ElTooltip>
-          </ElCol>
-          <ElCol :span="8">
-            <ElSwitch v-model="settings.multiTopics" />
-          </ElCol>
-        </ElRow>
-
-        <ElDivider />
-
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16">
-            <label>{{ $t('settings.maxReconnectTimes') }}</label>
-          </ElCol>
-          <ElCol :span="8">
-            <ElInputNumber
-              v-model="settings.maxReconnectTimes"
-              :min="1"
-            />
-          </ElCol>
-        </ElRow>
-
-        <ElDivider />
-      </section>
-
-      <section class="settings-section">
-        <div class="section-title">
-          {{ $t('settings.appearance') }}
-        </div>
-
-        <ElDivider />
-
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="!flex gap-1 items-center">
-            <label>{{ $t('settings.syncOsTheme') }}</label>
-            <ElTooltip
-              placement="top"
-              :open-delay="500"
-              :content="$t('settings.syncOsThemeDesc')"
-            >
-              <div class="label-icon">
-                <ElIconWarning />
-              </div>
-            </ElTooltip>
-          </ElCol>
-          <ElCol :span="8">
-            <ElSwitch v-model="settings.syncOsTheme" />
-          </ElCol>
-        </ElRow>
-
-        <ElDivider />
-
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16">
-            <label>{{ $t('settings.theme') }}</label>
-          </ElCol>
-          <ElCol :span="8">
-            <ElSelect
-              v-model="settings.currentTheme"
-              :disabled="settings.syncOsTheme"
-            >
-              <ElOption
-                v-for="{ label, value } in themeOptions"
-                :key="value"
-                :label="label"
-                :value="value"
-              />
-            </ElSelect>
-          </ElCol>
-        </ElRow>
-
-        <ElDivider />
-
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="!flex gap-1 items-center">
-            <label>{{ $t('settings.jsonHighlight') }}</label>
-            <ElTooltip
-              placement="top"
-              :open-delay="500"
-            >
-              <template #content>
-                <div v-html="$t('settings.jsonHighlightDesc')" />
-              </template>
-              <div class="label-icon">
-                <ElIconWarning />
-              </div>
-            </ElTooltip>
-          </ElCol>
-          <ElCol :span="8">
-            <ElSwitch v-model="settings.jsonHighlight" />
-          </ElCol>
-        </ElRow>
-
-        <ElDivider />
-      </section>
-
-      <section v-if="platformType === 'desktop'" class="settings-section">
-        <div class="section-title">
-          {{ $t('settings.extends') }}
-        </div>
-
-        <ElDivider />
-
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="!flex gap-1 items-center">
-            <label>MQTTX CLI</label>
-            <ElTooltip
-              placement="top"
-              :open-delay="500"
-              :content="$t('settings.installCLITips')"
-            >
-              <div class="label-icon">
-                <ElIconWarning />
-              </div>
-            </ElTooltip>
-          </ElCol>
-          <ElCol :span="8">
-            <ElButton
-              class="w-20"
-              type="primary"
-            >
-              <div class="text-main-white w-4 h-4">
-                <ElIconDownload />
-              </div>
-            </ElButton>
-          </ElCol>
-        </ElRow>
-
-        <ElDivider />
-      </section>
-
-      <section class="settings-section">
-        <div class="section-title">
-          {{ $t('settings.advanced') }}
-        </div>
-
-        <ElDivider />
-
-        <template v-if="platformType === 'desktop'">
           <ElRow type="flex" justify="space-between" align="middle">
             <ElCol :span="16" class="!flex gap-1 items-center">
-              <label>{{ $t('log.logLevel') }}</label>
+              <label>{{ $t('settings.autoResub') }}</label>
               <ElTooltip
                 placement="top"
                 :open-delay="500"
-                :content="$t('log.logLevelDesc')"
+                :content="$t('settings.autoResubDesc')"
               >
                 <div class="label-icon">
                   <ElIconWarning />
@@ -296,176 +127,347 @@ const AImodelsOptions = [
               </ElTooltip>
             </ElCol>
             <ElCol :span="8">
-              <ElSelect v-model="settings.logLevel">
-                <ElOption v-for="{ label, value } in logLevelOptions" :key="value" :label="label" :value="value" />
+              <ElSwitch v-model="settings.autoResub" />
+            </ElCol>
+          </ElRow>
+
+          <ElDivider />
+
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16" class="!flex gap-1 items-center">
+              <label>{{ $t('settings.multiTopics') }}</label>
+              <ElTooltip
+                placement="top"
+
+                :open-delay="500"
+                :content="$t('settings.multiTopicsDesc')"
+              >
+                <div class="label-icon">
+                  <ElIconWarning />
+                </div>
+              </ElTooltip>
+            </ElCol>
+            <ElCol :span="8">
+              <ElSwitch v-model="settings.multiTopics" />
+            </ElCol>
+          </ElRow>
+
+          <ElDivider />
+
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16">
+              <label>{{ $t('settings.maxReconnectTimes') }}</label>
+            </ElCol>
+            <ElCol :span="8">
+              <ElInputNumber
+                v-model="settings.maxReconnectTimes"
+                :min="1"
+              />
+            </ElCol>
+          </ElRow>
+
+          <ElDivider />
+        </section>
+
+        <section class="settings-section">
+          <div class="section-title">
+            {{ $t('settings.appearance') }}
+          </div>
+
+          <ElDivider />
+
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16" class="!flex gap-1 items-center">
+              <label>{{ $t('settings.syncOsTheme') }}</label>
+              <ElTooltip
+                placement="top"
+                :open-delay="500"
+                :content="$t('settings.syncOsThemeDesc')"
+              >
+                <div class="label-icon">
+                  <ElIconWarning />
+                </div>
+              </ElTooltip>
+            </ElCol>
+            <ElCol :span="8">
+              <ElSwitch v-model="settings.syncOsTheme" />
+            </ElCol>
+          </ElRow>
+
+          <ElDivider />
+
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16">
+              <label>{{ $t('settings.theme') }}</label>
+            </ElCol>
+            <ElCol :span="8">
+              <ElSelect
+                v-model="settings.currentTheme"
+                :disabled="settings.syncOsTheme"
+              >
+                <ElOption
+                  v-for="{ label, value } in themeOptions"
+                  :key="value"
+                  :label="label"
+                  :value="value"
+                />
               </ElSelect>
             </ElCol>
           </ElRow>
 
           <ElDivider />
-        </template>
 
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16">
-            <label>{{ $t('settings.dataRecovery') }}</label>
-          </ElCol>
-          <ElCol :span="8">
-            <ElButton
-              class="w-20"
-              type="primary"
-            >
-              <div class="text-main-white w-4 h-4">
-                <ElIconUpload />
-              </div>
-            </ElButton>
-          </ElCol>
-        </ElRow>
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16" class="!flex gap-1 items-center">
+              <label>{{ $t('settings.jsonHighlight') }}</label>
+              <ElTooltip
+                placement="top"
+                :open-delay="500"
+              >
+                <template #content>
+                  <div v-html="$t('settings.jsonHighlightDesc')" />
+                </template>
+                <div class="label-icon">
+                  <ElIconWarning />
+                </div>
+              </ElTooltip>
+            </ElCol>
+            <ElCol :span="8">
+              <ElSwitch v-model="settings.jsonHighlight" />
+            </ElCol>
+          </ElRow>
 
-        <ElDivider />
+          <ElDivider />
+        </section>
 
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16">
-            <label>{{ $t('settings.dataBackup') }}</label>
-          </ElCol>
-          <ElCol :span="8">
-            <ElButton
-              class="w-20"
-              type="primary"
-            >
-              <div class="text-main-white w-4 h-4">
-                <ElIconPrinter />
-              </div>
-            </ElButton>
-          </ElCol>
-        </ElRow>
+        <section v-if="platformType === 'desktop'" class="settings-section">
+          <div class="section-title">
+            {{ $t('settings.extends') }}
+          </div>
 
-        <ElDivider />
+          <ElDivider />
 
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16">
-            <label>{{ $t('settings.historyCleanup') }}</label>
-          </ElCol>
-          <ElCol :span="8">
-            <ElButton
-              class="w-20"
-              type="danger"
-            >
-              <div class="text-main-white w-4 h-4">
-                <ElIconDelete />
-              </div>
-            </ElButton>
-          </ElCol>
-        </ElRow>
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16" class="!flex gap-1 items-center">
+              <label>MQTTX CLI</label>
+              <ElTooltip
+                placement="top"
+                :open-delay="500"
+                :content="$t('settings.installCLITips')"
+              >
+                <div class="label-icon">
+                  <ElIconWarning />
+                </div>
+              </ElTooltip>
+            </ElCol>
+            <ElCol :span="8">
+              <ElButton
+                class="w-20"
+                type="primary"
+              >
+                <div class="text-main-white w-4 h-4">
+                  <ElIconDownload />
+                </div>
+              </ElButton>
+            </ElCol>
+          </ElRow>
 
-        <ElDivider />
+          <ElDivider />
+        </section>
 
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16" class="!flex gap-1 items-center">
-            <label>{{ $t('settings.ignoreQoS0Message') }}</label>
-            <ElTooltip
-              placement="top"
-              :open-delay="500"
-              :content="$t('settings.ignoreQoS0MessageDesc')"
-            >
-              <div class="label-icon">
-                <ElIconWarning />
-              </div>
-            </ElTooltip>
-          </ElCol>
-          <ElCol :span="8">
-            <ElSwitch v-model="settings.ignoreQoS0Message" />
-          </ElCol>
-        </ElRow>
+        <section class="settings-section">
+          <div class="section-title">
+            {{ $t('settings.advanced') }}
+          </div>
 
-        <ElDivider />
-      </section>
+          <ElDivider />
 
-      <section class="settings-section">
-        <div class="section-title">
-          MQTTX Copilot
-        </div>
+          <template v-if="platformType === 'desktop'">
+            <ElRow type="flex" justify="space-between" align="middle">
+              <ElCol :span="16" class="!flex gap-1 items-center">
+                <label>{{ $t('log.logLevel') }}</label>
+                <ElTooltip
+                  placement="top"
+                  :open-delay="500"
+                  :content="$t('log.logLevelDesc')"
+                >
+                  <div class="label-icon">
+                    <ElIconWarning />
+                  </div>
+                </ElTooltip>
+              </ElCol>
+              <ElCol :span="8">
+                <ElSelect v-model="settings.logLevel">
+                  <ElOption v-for="{ label, value } in logLevelOptions" :key="value" :label="label" :value="value" />
+                </ElSelect>
+              </ElCol>
+            </ElRow>
 
-        <ElDivider />
+            <ElDivider />
+          </template>
 
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16">
-            <label>{{ $t('settings.enableCopilot') }}</label>
-          </ElCol>
-          <ElCol :span="8">
-            <ElSwitch v-model="settings.enableCopilot" />
-          </ElCol>
-        </ElRow>
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16">
+              <label>{{ $t('settings.dataRecovery') }}</label>
+            </ElCol>
+            <ElCol :span="8">
+              <ElButton
+                class="w-20"
+                type="primary"
+              >
+                <div class="text-main-white w-4 h-4">
+                  <ElIconUpload />
+                </div>
+              </ElButton>
+            </ElCol>
+          </ElRow>
 
-        <ElDivider />
+          <ElDivider />
 
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16">
-            <label>API Host</label>
-          </ElCol>
-          <ElCol :span="8">
-            <ElAutocomplete
-              v-model.trim="settings.openAIAPIHost"
-              type="text"
-              clearable
-              :fetch-suggestions="queryAIAPIHost"
-              :disabled="!settings.enableCopilot"
-              placeholder="https://api.openai.com/v1"
-            />
-          </ElCol>
-        </ElRow>
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16">
+              <label>{{ $t('settings.dataBackup') }}</label>
+            </ElCol>
+            <ElCol :span="8">
+              <ElButton
+                class="w-20"
+                type="primary"
+              >
+                <div class="text-main-white w-4 h-4">
+                  <ElIconPrinter />
+                </div>
+              </ElButton>
+            </ElCol>
+          </ElRow>
 
-        <ElDivider />
+          <ElDivider />
 
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16">
-            <label>API Key</label>
-          </ElCol>
-          <ElCol :span="8">
-            <ElInput
-              v-model.trim="settings.openAIAPIKey"
-              placeholder="sk-*******"
-              type="password"
-              show-password
-              clearable
-              :disabled="!settings.enableCopilot"
-            />
-          </ElCol>
-        </ElRow>
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16">
+              <label>{{ $t('settings.historyCleanup') }}</label>
+            </ElCol>
+            <ElCol :span="8">
+              <ElButton
+                class="w-20"
+                type="danger"
+              >
+                <div class="text-main-white w-4 h-4">
+                  <ElIconDelete />
+                </div>
+              </ElButton>
+            </ElCol>
+          </ElRow>
 
-        <ElDivider />
+          <ElDivider />
 
-        <ElRow type="flex" justify="space-between" align="middle">
-          <ElCol :span="16">
-            <label>{{ $t('settings.model') }}</label>
-          </ElCol>
-          <ElCol :span="8">
-            <ElInput
-              v-model.trim="settings.model"
-              placeholder="gpt-4o"
-              type="text"
-              clearable
-              :disabled="!settings.enableCopilot"
-              @focus="showAIModelsSelect = true"
-              @clear="showAIModelsSelect = true"
-              @input="showAIModelsSelect = false"
-            />
-            <transition name="el-zoom-in-bottom">
-              <ElCascaderPanel
-                v-if="showAIModelsSelect"
-                v-model="settings.model"
-                class="ai-models-select"
-                :options="AImodelsOptions"
-                :props="{ emitPath: false, label: 'value' }"
-                @change="showAIModelsSelect = false"
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16" class="!flex gap-1 items-center">
+              <label>{{ $t('settings.ignoreQoS0Message') }}</label>
+              <ElTooltip
+                placement="top"
+                :open-delay="500"
+                :content="$t('settings.ignoreQoS0MessageDesc')"
+              >
+                <div class="label-icon">
+                  <ElIconWarning />
+                </div>
+              </ElTooltip>
+            </ElCol>
+            <ElCol :span="8">
+              <ElSwitch v-model="settings.ignoreQoS0Message" />
+            </ElCol>
+          </ElRow>
+
+          <ElDivider />
+        </section>
+
+        <section class="settings-section">
+          <div class="section-title">
+            MQTTX Copilot
+          </div>
+
+          <ElDivider />
+
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16">
+              <label>{{ $t('settings.enableCopilot') }}</label>
+            </ElCol>
+            <ElCol :span="8">
+              <ElSwitch v-model="settings.enableCopilot" />
+            </ElCol>
+          </ElRow>
+
+          <ElDivider />
+
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16">
+              <label>API Host</label>
+            </ElCol>
+            <ElCol :span="8">
+              <ElAutocomplete
+                v-model.trim="settings.openAIAPIHost"
+                type="text"
+                clearable
+                :fetch-suggestions="queryAIAPIHost"
+                :disabled="!settings.enableCopilot"
+                placeholder="https://api.openai.com/v1"
               />
-            </transition>
-          </ElCol>
-        </ElRow>
+            </ElCol>
+          </ElRow>
 
-        <ElDivider />
-      </section>
+          <ElDivider />
+
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16">
+              <label>API Key</label>
+            </ElCol>
+            <ElCol :span="8">
+              <ElInput
+                v-model.trim="settings.openAIAPIKey"
+                placeholder="sk-*******"
+                type="password"
+                show-password
+                clearable
+                :disabled="!settings.enableCopilot"
+              />
+            </ElCol>
+          </ElRow>
+
+          <ElDivider />
+
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16">
+              <label>{{ $t('settings.model') }}</label>
+            </ElCol>
+            <ElCol :span="8">
+              <ElInput
+                v-model.trim="settings.model"
+                placeholder="gpt-4o"
+                type="text"
+                clearable
+                :disabled="!settings.enableCopilot"
+                @focus="showAIModelsSelect = true"
+                @clear="showAIModelsSelect = true"
+                @input="showAIModelsSelect = false"
+              />
+              <transition name="el-zoom-in-bottom">
+                <ElCascaderPanel
+                  v-if="showAIModelsSelect"
+                  v-model="settings.model"
+                  class="ai-models-select"
+                  :options="AImodelsOptions"
+                  :props="{ emitPath: false, label: 'value' }"
+                  @change="showAIModelsSelect = false"
+                />
+              </transition>
+            </ElCol>
+          </ElRow>
+
+          <ElDivider />
+        </section>
+      </div>
     </div>
-  </div>
+  </ElScrollbar>
 </template>
 
 <style lang="scss">

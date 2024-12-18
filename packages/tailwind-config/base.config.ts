@@ -17,6 +17,7 @@ const config: Config = {
         DEFAULT: {
           css: {
             'color': 'var(--color-text-default)',
+            'maxWidth': 'unset',
             'strong': {
               color: 'var(--color-text-title)',
             },
@@ -49,6 +50,7 @@ const config: Config = {
               borderInlineStartColor: 'var(--color-main-green)',
               backgroundColor: 'var(--color-bg-primary)',
               paddingInlineEnd: '1.1111111em',
+              marginInlineEnd: '1.1111111em',
               paddingTop: '0.1em',
               paddingBottom: '0.1em',
             },
