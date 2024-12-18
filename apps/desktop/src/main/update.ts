@@ -9,10 +9,6 @@ import pkg, { CancellationToken } from 'electron-updater'
 const store = new Store() as any
 const { autoUpdater } = pkg
 
-if (process.env.NODE_ENV === 'development') {
-  autoUpdater.forceDevUpdateConfig = true
-}
-
 autoUpdater.autoDownload = false
 autoUpdater.autoInstallOnAppQuit = false
 
@@ -75,6 +71,17 @@ async function showReleaseNotesWindow(lang: Lang) {
   }
 }
 
+async function getLatestVersion(): Promise<string> {
+  try {
+    const response = await fetch('https://community-sites.emqx.com/api/v1/all_version?product=MQTTX')
+    const data = await response.json()
+    return data.data?.[0]
+  } catch (error) {
+    console.error('Failed to get latest version:', error)
+    return app.getVersion()
+  }
+}
+
 function sendUpdateStatus(updateEvent: UpdateEvent) {
   const windows = BrowserWindow.getAllWindows()
   windows.forEach((window) => {
@@ -95,6 +102,13 @@ function useAppUpdater(settings: SelectSettings) {
     store.set('version', version)
   }
   ipcMain.handle('check-for-updates', async () => {
+    if (process.env.NODE_ENV === 'development') {
+      autoUpdater.forceDevUpdateConfig = true
+    } else {
+      const latestVersion = await getLatestVersion()
+      const feedUrl = `https://www.emqx.com/en/downloads/MQTTX/${latestVersion}`
+      autoUpdater.setFeedURL({ provider: 'generic', url: feedUrl })
+    }
     return await autoUpdater.checkForUpdates()
   })
   ipcMain.handle('download-update', async () => {
