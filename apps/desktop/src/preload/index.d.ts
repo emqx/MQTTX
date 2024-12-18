@@ -10,6 +10,7 @@ declare global {
       onUpdateStatus: (callback: (event: Electron.IpcRendererEvent, updateEvent: UpdateEvent) => void) => void
       checkForUpdates: () => Promise<UpdateCheckResult | null>
       downloadUpdate: () => Promise<void>
+      cancelDownload: () => Promise<void>
       installUpdate: () => Promise<void>
     }
   }

@@ -15,7 +15,8 @@
     "src/**/*.vue",
     "./typed-router.d.ts",
     "./auto-imports.d.ts",
-    "./components.d.ts"
+    "./components.d.ts",
+    "../desktop/src/preload/index.d.ts"
   ],
   "exclude": ["src/**/__tests__/*"]
 }

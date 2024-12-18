@@ -9,6 +9,7 @@ const api = {
   }),
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
   downloadUpdate: () => ipcRenderer.invoke('download-update'),
+  cancelDownload: () => ipcRenderer.invoke('cancel-download'),
   installUpdate: () => ipcRenderer.invoke('install-update'),
 }
 
