@@ -50,6 +50,7 @@ declare module 'vue' {
     SettingsView: typeof import('./../../../../packages/ui/src/components/SettingsView.vue')['default']
     UpdateAvailable: typeof import('./src/components/update/Available.vue')['default']
     UpdateDownloadProgress: typeof import('./src/components/update/DownloadProgress.vue')['default']
+    UpdateNotAvailable: typeof import('./src/components/update/NotAvailable.vue')['default']
     UpdateView: typeof import('./src/components/update/View.vue')['default']
   }
 }
