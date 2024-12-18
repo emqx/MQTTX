@@ -2,6 +2,8 @@
 import type { ProgressInfo } from 'electron-updater'
 import useSettingsService from '@database/services/SettingsService'
 
+const updateNotAvailableDialogVisible = ref(false)
+
 const updateAvailableDialogVisible = ref(false)
 const version = ref('')
 const changelog = ref('')
@@ -10,17 +12,11 @@ const downloadProgressDialogVisible = ref(false)
 const downloadProgress = ref<ProgressInfo | null>(null)
 const updateDownloaded = ref(false)
 
-const { t } = useI18n()
-
 window.api.onUpdateStatus((_event, updateEvent) => {
   const { status } = updateEvent
   if (status === 'update-not-available') {
     if (window.forceCheck) {
-      ElMessage({
-        message: t('update.noUpdateAvailable'),
-        type: 'info',
-        plain: true,
-      })
+      updateNotAvailableDialogVisible.value = true
       window.forceCheck = false
     }
   } else if (status === 'update-available') {
@@ -58,6 +54,9 @@ onMounted(async () => {
 </script>
 
 <template>
+  <UpdateNotAvailable
+    v-model="updateNotAvailableDialogVisible"
+  />
   <UpdateAvailable
     v-model="updateAvailableDialogVisible"
     :version="version"

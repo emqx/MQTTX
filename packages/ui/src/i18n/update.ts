@@ -63,10 +63,10 @@ export default {
     hu: 'Telepítés és újraindítás',
   },
   noUpdateAvailable: {
-    zh: '您当前使用的已经是最新版本，无需更新。',
-    en: 'You are already on the latest version, no update is necessary.',
-    ja: '現在使用しているバージョンは最新です。更新の必要はありません。',
-    tr: 'Kullandığınız sürüm zaten en son sürüm, güncelleme gerekli değil.',
-    hu: 'A jelenlegi verzió már a legújabb, nincs szükség frissítésre.',
+    zh: '当前没有可用的更新。',
+    en: 'Currently no update available.',
+    ja: '現在、利用可能な更新はありません。',
+    tr: 'Şu anda güncelleme yok.',
+    hu: 'Jelenleg nincs elérhető frissítés.',
   },
 }

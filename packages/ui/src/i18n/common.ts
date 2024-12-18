@@ -13,6 +13,13 @@ export default {
     ja: '確認',
     hu: 'Megerősít',
   },
+  close: {
+    zh: '关闭',
+    en: 'Close',
+    ja: '閉じる',
+    tr: 'Kapat',
+    hu: 'Bezárás',
+  },
   inputRequired: {
     zh: '请输入',
     en: 'Please input',
