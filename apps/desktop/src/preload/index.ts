@@ -2,7 +2,7 @@ import { electronAPI } from '@electron-toolkit/preload'
 import { contextBridge, ipcRenderer } from 'electron'
 
 // Custom APIs for renderer
-const api = {
+const api: Window['api'] = {
   execute: (...args) => ipcRenderer.invoke('db:execute', ...args),
   onUpdateStatus: callback => ipcRenderer.on('update-status', (event, status, data) => {
     callback(event, { status, data })

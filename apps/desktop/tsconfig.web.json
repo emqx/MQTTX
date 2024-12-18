@@ -19,6 +19,7 @@
     "src/database/**/*",
     "./typed-router.d.ts",
     "src/renderer/auto-imports.d.ts",
-    "src/renderer/components.d.ts"
+    "src/renderer/components.d.ts",
+    "../../packages/ui/src/**/*"
   ]
 }

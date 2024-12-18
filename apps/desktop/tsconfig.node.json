@@ -7,7 +7,10 @@
   "include": [
     "electron.vite.config.*",
     "src/main/**/*",
-    "src/preload/**/*",
-    "src/database/db.main.ts"
+    "src/database/**/*"
+  ],
+  "exclude": [
+    "src/database/db.renderer.ts",
+    "src/database/services/**/*"
   ]
 }
