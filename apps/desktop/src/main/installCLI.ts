@@ -117,7 +117,7 @@ async function downloadMqttxCLI(
         downloadedLength += value.length
         const percent = totalLength ? Math.round((downloadedLength / totalLength) * 100) : 0
         sendInstallCLIStatus({ status: 'download-progress', data: { percent } })
-        win.setProgressBar(percent)
+        win.setProgressBar(percent / 100)
         writer.write(Buffer.from(value))
         read()
       }).catch((err) => {
