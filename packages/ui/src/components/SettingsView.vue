@@ -7,6 +7,7 @@ const emit = defineEmits<{
 }>()
 
 const settings = defineModel<Settings>({ required: true })
+const intallCliBtnLoading = defineModel<boolean>('installCliBtnLoading', { default: false })
 
 const platformType = inject<PlatformType>('platformType', 'web')
 
@@ -272,6 +273,7 @@ const AImodelsOptions = [
               <ElButton
                 class="w-20"
                 type="primary"
+                :loading="intallCliBtnLoading"
                 @click="() => emit('installCli')"
               >
                 <div class="text-main-white w-4 h-4">

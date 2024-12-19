@@ -132,6 +132,9 @@ importers:
       better-sqlite3:
         specifier: ^11.6.0
         version: 11.6.0
+      compare-versions:
+        specifier: ^6.1.1
+        version: 6.1.1
       drizzle-orm:
         specifier: ^0.36.4
         version: 0.36.4(@types/better-sqlite3@7.6.12)(better-sqlite3@11.6.0)
@@ -150,6 +153,9 @@ importers:
       pinia:
         specifier: ^2.2.6
         version: 2.2.6(typescript@5.6.3)(vue@3.5.12)
+      sudo-prompt:
+        specifier: ^9.2.1
+        version: 9.2.1
       vue-i18n:
         specifier: ^10.0.4
         version: 10.0.4(vue@3.5.12)
@@ -10135,6 +10141,11 @@ packages:
       pirates: 4.0.6
       ts-interface-checker: 0.1.13
     dev: true
+
+  /sudo-prompt@9.2.1:
+    resolution: {integrity: sha512-Mu7R0g4ig9TUuGSxJavny5Rv0egCEtpZRNMrZaYS1vxkiIxGiGUwoezU3LazIQ+KE04hTrTfNPgxU5gzi7F5Pw==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+    dev: false
 
   /sumchecker@3.0.1:
     resolution: {integrity: sha512-MvjXzkz/BOfyVDkG0oFOtBxHX2u3gKbMHIF/dXblZsgD3BWOFLmHovIpZY7BykJdAjcqRCBi1WYBNdEC9yI7vg==}
