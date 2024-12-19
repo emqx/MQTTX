@@ -2,7 +2,12 @@
 import type { AutocompleteFetchSuggestionsCallback } from 'element-plus'
 import type { PlatformType, Settings } from 'mqttx'
 
+const emit = defineEmits<{
+  (e: 'installCli'): void
+}>()
+
 const settings = defineModel<Settings>({ required: true })
+const intallCliBtnLoading = defineModel<boolean>('installCliBtnLoading', { default: false })
 
 const platformType = inject<PlatformType>('platformType', 'web')
 
@@ -117,6 +122,7 @@ const AImodelsOptions = [
             <ElCol :span="16" class="!flex gap-1 items-center">
               <label>{{ $t('settings.autoResub') }}</label>
               <ElTooltip
+                popper-class="max-w-[420px]"
                 placement="top"
                 :open-delay="500"
                 :content="$t('settings.autoResubDesc')"
@@ -137,8 +143,8 @@ const AImodelsOptions = [
             <ElCol :span="16" class="!flex gap-1 items-center">
               <label>{{ $t('settings.multiTopics') }}</label>
               <ElTooltip
+                popper-class="max-w-[420px]"
                 placement="top"
-
                 :open-delay="500"
                 :content="$t('settings.multiTopicsDesc')"
               >
@@ -180,6 +186,7 @@ const AImodelsOptions = [
             <ElCol :span="16" class="!flex gap-1 items-center">
               <label>{{ $t('settings.syncOsTheme') }}</label>
               <ElTooltip
+                popper-class="max-w-[420px]"
                 placement="top"
                 :open-delay="500"
                 :content="$t('settings.syncOsThemeDesc')"
@@ -221,6 +228,7 @@ const AImodelsOptions = [
             <ElCol :span="16" class="!flex gap-1 items-center">
               <label>{{ $t('settings.jsonHighlight') }}</label>
               <ElTooltip
+                popper-class="max-w-[420px]"
                 placement="top"
                 :open-delay="500"
               >
@@ -240,7 +248,7 @@ const AImodelsOptions = [
           <ElDivider />
         </section>
 
-        <section v-if="platformType === 'desktop'" class="settings-section">
+        <section class="settings-section">
           <div class="section-title">
             {{ $t('settings.extends') }}
           </div>
@@ -251,9 +259,10 @@ const AImodelsOptions = [
             <ElCol :span="16" class="!flex gap-1 items-center">
               <label>MQTTX CLI</label>
               <ElTooltip
+                popper-class="max-w-[420px]"
                 placement="top"
                 :open-delay="500"
-                :content="$t('settings.installCLITips')"
+                :content="platformType === 'desktop' ? $t('settings.installCLITips') : $t('settings.installCLITipsWeb')"
               >
                 <div class="label-icon">
                   <ElIconWarning />
@@ -264,6 +273,8 @@ const AImodelsOptions = [
               <ElButton
                 class="w-20"
                 type="primary"
+                :loading="intallCliBtnLoading"
+                @click="() => emit('installCli')"
               >
                 <div class="text-main-white w-4 h-4">
                   <ElIconDownload />
@@ -287,6 +298,7 @@ const AImodelsOptions = [
               <ElCol :span="16" class="!flex gap-1 items-center">
                 <label>{{ $t('log.logLevel') }}</label>
                 <ElTooltip
+                  popper-class="max-w-[420px]"
                   placement="top"
                   :open-delay="500"
                   :content="$t('log.logLevelDesc')"
@@ -364,6 +376,7 @@ const AImodelsOptions = [
             <ElCol :span="16" class="!flex gap-1 items-center">
               <label>{{ $t('settings.ignoreQoS0Message') }}</label>
               <ElTooltip
+                popper-class="max-w-[420px]"
                 placement="top"
                 :open-delay="500"
                 :content="$t('settings.ignoreQoS0MessageDesc')"

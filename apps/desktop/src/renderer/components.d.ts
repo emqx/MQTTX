@@ -47,6 +47,7 @@ declare module 'vue' {
     MyDialog: typeof import('./../../../../packages/ui/src/components/MyDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SettingsCliDownloadProgress: typeof import('./src/components/settings/cli/DownloadProgress.vue')['default']
     SettingsView: typeof import('./../../../../packages/ui/src/components/SettingsView.vue')['default']
     UpdateAvailable: typeof import('./src/components/update/Available.vue')['default']
     UpdateDownloadProgress: typeof import('./src/components/update/DownloadProgress.vue')['default']

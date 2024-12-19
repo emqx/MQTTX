@@ -209,6 +209,13 @@ export default {
     ja: 'MQTTX CLIをワンクリックでインストールします。インストール中に管理者アクセスのプロンプトが表示されます。インストール後、ターミナルでMQTTXを実行できます。',
     hu: 'Egy kattintással telepítheti az MQTTX CLI-t. Telepítés közben rendszergazdai hozzáférésre vonatkozó kérést fog kapni. Telepítés után a terminálban futtathatja az MQTTX-et.',
   },
+  installCLITipsWeb: {
+    zh: '强大而易用的 MQTT 5.0 命令行工具，帮助您在终端更快地开发和调试 MQTT 服务与应用。',
+    en: 'A powerful and easy-to-use MQTT 5.0 command-line tool that helps you develop and debug MQTT services and applications faster in the terminal.',
+    tr: 'Güçlü ve kullanımı kolay bir MQTT 5.0 komut satırı aracı, terminalde MQTT hizmetlerini ve uygulamalarını daha hızlı geliştirmenize ve hata ayıklamanıza yardımcı olur.',
+    ja: '強力で使いやすいMQTT 5.0コマンドラインツールで、ターミナルでMQTTサービスとアプリケーションをより迅速に開発およびデバッグできます。',
+    hu: 'Egy erős és könnyen használható MQTT 5.0 parancssori eszköz, amely segít gyorsabban fejleszteni és hibakeresni az MQTT szolgáltatásokat és alkalmazásokat a terminálban.',
+  },
   ignoreQoS0Message: {
     zh: '忽略 QoS 0 消息',
     en: 'Ignore QoS 0 Message',

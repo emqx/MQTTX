@@ -11,6 +11,10 @@ const api: Window['api'] = {
   downloadUpdate: () => ipcRenderer.invoke('download-update'),
   cancelDownload: () => ipcRenderer.invoke('cancel-download'),
   installUpdate: () => ipcRenderer.invoke('install-update'),
+  installCLI: () => ipcRenderer.invoke('install-cli'),
+  onInstallCLIStatus: callback => ipcRenderer.on('install-cli-status', (event, status, data) => {
+    callback(event, { status, data })
+  }),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

@@ -12,6 +12,8 @@ declare global {
       downloadUpdate: () => Promise<void>
       cancelDownload: () => Promise<void>
       installUpdate: () => Promise<void>
+      installCLI: () => Promise<void>
+      onInstallCLIStatus: (callback: (event: Electron.IpcRendererEvent, installCLIEvent: InstallCLIEvent) => void) => void
     }
   }
 }
@@ -23,3 +25,7 @@ export type UpdateEvent =
   | { status: 'download-progress', data: ProgressInfo }
   | { status: 'update-downloaded', data: UpdateDownloadedEvent }
   | { status: 'error', data: Error }
+
+export type InstallCLIEvent =
+  | { status: 'download-progress', data: { percent: number } }
+  | { status: 'cli-downloaded' }

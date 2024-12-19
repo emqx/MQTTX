@@ -6,6 +6,7 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import icon from '../../resources/icon.png?asset'
 import { db, execute, runMigrate } from '../database/db.main'
 import { type SelectSettings, settings } from '../database/schemas/settings'
+import { useInstallCLI } from './installCLI'
 import { useAppUpdater } from './update'
 
 // const IsMacOS = process.platform === 'darwin'
@@ -102,6 +103,8 @@ app.whenReady().then(async () => {
   await createWindow()
 
   useAppUpdater(existingSettings!)
+
+  useInstallCLI()
 
   app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
