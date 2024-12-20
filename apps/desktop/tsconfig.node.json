@@ -6,6 +6,7 @@
   },
   "include": [
     "electron.vite.config.*",
+    "src/renderer/src/env.d.ts",
     "src/main/**/*",
     "src/database/**/*"
   ],
