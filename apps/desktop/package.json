@@ -31,6 +31,7 @@
     "@mqttx/ui": "workspace:*",
     "better-sqlite3": "^11.6.0",
     "compare-versions": "^6.1.1",
+    "crypto-js": "^4.2.0",
     "drizzle-orm": "^0.36.4",
     "electron-store": "^10.0.0",
     "electron-updater": "^6.3.9",

@@ -1,5 +1,6 @@
 import type { Settings } from 'mqttx'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
+import { encryptedText } from './encryption'
 
 export const settings = sqliteTable('settings', {
   id: integer().primaryKey({ autoIncrement: true }),
@@ -17,7 +18,7 @@ export const settings = sqliteTable('settings', {
   ignoreQoS0Message: integer({ mode: 'boolean' }).notNull().default(false),
   enableCopilot: integer({ mode: 'boolean' }).notNull().default(true),
   openAIAPIHost: text().notNull().default('https://api.openai.com/v1'),
-  openAIAPIKey: text().notNull().default(''),
+  openAIAPIKey: encryptedText().notNull().default(''),
   model: text().notNull().default('gpt-4o'),
 })
 
