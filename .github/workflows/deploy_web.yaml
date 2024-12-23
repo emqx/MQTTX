@@ -31,6 +31,9 @@ jobs:
         run: |
           pnpm install
 
+      - name: Write secret key to .env file
+        run: echo "VITE_WEB_DB_SECRET_KEY=${{ secrets.VITE_WEB_DB_SECRET_KEY }}" >> ./apps/web/.env
+
       - name: Build
         run: |
           pnpm run build:web
