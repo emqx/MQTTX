@@ -35,12 +35,14 @@ export async function createDatabase(): Promise<Plugin> {
     storage: getRxStorageDexie(),
   })
 
+  const password = import.meta.env.VITE_WEB_DB_SECRET_KEY ?? 'dah9MVR-nxp.qcw_maj'
+
   const db = await createRxDatabase<RxMqttxCollections>({
     name: 'mqttx',
     storage: wrappedValidateAjvStorage({
       storage: encryptedDexieStorage,
     }),
-    password: 'EBJ3cru8fun5gtw*tky',
+    password,
     eventReduce: true,
   })
 
