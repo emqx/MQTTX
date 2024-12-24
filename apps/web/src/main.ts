@@ -27,4 +27,6 @@ database.then(async (db) => {
   sub.unsubscribe()
 
   app.use(i18n).use(db).mount('#app')
+  const { logger } = useLog4()
+  logger.info('App started')
 })
