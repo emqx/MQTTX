@@ -16,7 +16,7 @@ const logLevelOptions = [
 </script>
 
 <template>
-  <div id="log-view" class="bg-primary min-h-full select-none">
+  <div id="log-view" class="bg-primary h-screen select-none">
     <div class="p-4">
       <div class="mx-auto max-w-screen-lg">
         <div class="mb-4 flex justify-between items-center">

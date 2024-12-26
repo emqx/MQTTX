@@ -293,30 +293,28 @@ const AImodelsOptions = [
 
           <ElDivider />
 
-          <template v-if="platformType === 'desktop'">
-            <ElRow type="flex" justify="space-between" align="middle">
-              <ElCol :span="16" class="!flex gap-1 items-center">
-                <label>{{ $t('log.logLevel') }}</label>
-                <ElTooltip
-                  popper-class="max-w-[420px]"
-                  placement="top"
-                  :open-delay="500"
-                  :content="$t('log.logLevelDesc')"
-                >
-                  <div class="label-icon">
-                    <ElIconWarning />
-                  </div>
-                </ElTooltip>
-              </ElCol>
-              <ElCol :span="8">
-                <ElSelect v-model="settings.logLevel">
-                  <ElOption v-for="{ label, value } in logLevelOptions" :key="value" :label="label" :value="value" />
-                </ElSelect>
-              </ElCol>
-            </ElRow>
+          <ElRow type="flex" justify="space-between" align="middle">
+            <ElCol :span="16" class="!flex gap-1 items-center">
+              <label>{{ $t('log.logLevel') }}</label>
+              <ElTooltip
+                popper-class="max-w-[420px]"
+                placement="top"
+                :open-delay="500"
+                :content="$t('log.logLevelDesc')"
+              >
+                <div class="label-icon">
+                  <ElIconWarning />
+                </div>
+              </ElTooltip>
+            </ElCol>
+            <ElCol :span="8">
+              <ElSelect v-model="settings.logLevel">
+                <ElOption v-for="{ label, value } in logLevelOptions" :key="value" :label="label" :value="value" />
+              </ElSelect>
+            </ElCol>
+          </ElRow>
 
-            <ElDivider />
-          </template>
+          <ElDivider />
 
           <ElRow type="flex" justify="space-between" align="middle">
             <ElCol :span="16">

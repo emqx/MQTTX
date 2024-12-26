@@ -2,12 +2,12 @@ import type { editor } from 'monaco-editor/esm/vs/editor/editor.api'
 
 export const logEditorRules: editor.ITokenThemeRule[] = [
   { token: 'log-TRACE', foreground: 'a9a9a9', background: '1e1e1e' },
-  { token: 'log-DEBUG', foreground: '00aabb', background: '1e1e1e' },
-  { token: 'log-INFO', foreground: '6dbb4c', background: '1e1e1e' },
-  { token: 'log-WARN', foreground: 'd57f3b', background: '1e1e1e' },
-  { token: 'log-ERROR', foreground: 'ff465e', fontStyle: 'bold', background: '1e1e1e' },
-  { token: 'log-FATAL', foreground: 'ff0000', fontStyle: 'bold', background: '1e1e1e' },
-  { token: 'log-MARK', foreground: 'ffaa00', fontStyle: 'italic', background: '1e1e1e' },
+  { token: 'log-DEBUG', foreground: '00aaaa', background: '1e1e1e' },
+  { token: 'log-INFO', foreground: '00aa00', background: '1e1e1e' },
+  { token: 'log-WARN', foreground: 'aa5500', background: '1e1e1e' },
+  { token: 'log-ERROR', foreground: 'ff5555', background: '1e1e1e' },
+  { token: 'log-FATAL', foreground: 'aa00aa', background: '1e1e1e' },
+  { token: 'log-MARK', foreground: '555555', background: '1e1e1e' },
   { token: 'log-date', foreground: '008888', background: '2d2d2d' },
 ]
 
