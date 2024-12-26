@@ -1,5 +1,6 @@
 import type { PlatformType } from 'mqttx'
 import useSettingsService from '@database/services/SettingsService'
+import { monacoEnvironment } from '@mqttx/ui'
 
 import { i18n } from '@mqttx/ui/i18n'
 import App from './App.vue'
@@ -7,6 +8,8 @@ import App from './App.vue'
 import { router } from './router'
 import '@mqttx/ui/styles.scss'
 import './assets/scss/main.scss'
+
+monacoEnvironment()
 
 // Create Vue
 const app = createApp(App)
