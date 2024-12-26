@@ -69,9 +69,14 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    alias: {
-      '@': '/src',
-    },
+    alias: [
+      { find: '@', replacement: '/src' },
+      {
+        find: /^monaco-editor$/,
+        replacement:
+          path.resolve(__dirname, 'node_modules/monaco-editor/esm/vs/editor/editor.api'),
+      },
+    ],
   },
   css: {
     preprocessorOptions: {
