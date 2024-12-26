@@ -27,12 +27,12 @@ log4js.configure({
       type: createMemoryAppender(),
       layout: {
         type: 'pattern',
-        pattern: '%[%d{yyyy-MM-dd hh:mm:ss.SSS} [%p]%] - %m',
+        pattern: '[%d{yyyy-MM-dd hh:mm:ss}] [%p] %m',
       },
     },
   },
   categories: {
-    default: { appenders: ['console', 'memory'], level: 'info' },
+    default: { appenders: ['console', 'memory'], level: 'all' },
   },
 })
 
