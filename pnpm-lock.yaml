@@ -156,6 +156,9 @@ importers:
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
+      monaco-editor:
+        specifier: ^0.52.2
+        version: 0.52.2
       pinia:
         specifier: ^2.2.6
         version: 2.2.6(typescript@5.6.3)(vue@3.5.12)
@@ -280,6 +283,9 @@ importers:
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
+      monaco-editor:
+        specifier: ^0.52.2
+        version: 0.52.2
       pinia:
         specifier: ^2.2.6
         version: 2.2.6(typescript@5.6.3)(vue@3.5.12)
@@ -437,6 +443,9 @@ importers:
       log4js:
         specifier: ^6.9.1
         version: 6.9.1
+      monaco-editor:
+        specifier: ^0.52.2
+        version: 0.52.2
       pinia:
         specifier: ^2.2.6
         version: 2.2.6(typescript@5.6.3)(vue@3.5.12)
@@ -8320,6 +8329,10 @@ packages:
       pkg-types: 1.2.1
       ufo: 1.5.4
     dev: true
+
+  /monaco-editor@0.52.2:
+    resolution: {integrity: sha512-GEQWEZmfkOGLdd3XK8ryrfWz3AIP8YymVXiPHEdewrUq7mh0qrKrfHLNCXcbB6sTnMLnOZ3ztSiKcciFUkIJwQ==}
+    dev: false
 
   /mongodb-connection-string-url@3.0.1:
     resolution: {integrity: sha512-XqMGwRX0Lgn05TDB4PyG2h2kKO/FfWJyCzYQbIhXUxz7ETt0I/FqHjUeqj37irJ+Dl1ZtU82uYyj14u2XsZKfg==}

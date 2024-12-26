@@ -9,6 +9,8 @@ import ConnectionListView from './components/connections/ListView.vue'
 import HelpView from './components/HelpView.vue'
 import SettingsView from './components/SettingsView.vue'
 
+export * from './components/monacoEnvironment'
+
 export * from './i18n'
 export * from './stores'
 

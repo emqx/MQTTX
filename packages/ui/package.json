@@ -28,7 +28,8 @@
     "vue-router": "^4.4.5"
   },
   "dependencies": {
-    "log4js": "^6.9.1"
+    "log4js": "^6.9.1",
+    "monaco-editor": "^0.52.2"
   },
   "devDependencies": {
     "@mqttx/core": "workspace:*",

@@ -39,6 +39,7 @@ declare module 'vue' {
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     HelpView: typeof import('./src/components/HelpView.vue')['default']
     LogView: typeof import('./src/components/LogView.vue')['default']
+    MonacoEditor: typeof import('./src/components/MonacoEditor.vue')['default']
     MyDialog: typeof import('./src/components/MyDialog.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

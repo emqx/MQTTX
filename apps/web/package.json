@@ -21,6 +21,7 @@
     "element-plus": "^2.8.7",
     "log4js": "^6.9.1",
     "markdown-it": "^14.1.0",
+    "monaco-editor": "^0.52.2",
     "pinia": "^2.2.6",
     "rxdb": "^15.38.3",
     "rxjs": "^7.8.1",

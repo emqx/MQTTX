@@ -74,6 +74,7 @@ declare global {
   const useId: typeof import('vue')['useId']
   const useLink: typeof import('vue-router')['useLink']
   const useLinks: typeof import('../../../../packages/ui/src/composables/useLinks')['default']
+  const useLog4: typeof import('./src/composables/useLog4')['useLog4']
   const useMockData: typeof import('./src/composables/useMockData')['default']
   const useModel: typeof import('vue')['useModel']
   const useRoute: typeof import('vue-router')['useRoute']
@@ -165,6 +166,7 @@ declare module 'vue' {
     readonly useId: UnwrapRef<typeof import('vue')['useId']>
     readonly useLink: UnwrapRef<typeof import('vue-router')['useLink']>
     readonly useLinks: UnwrapRef<typeof import('../../../../packages/ui/src/composables/useLinks')['default']>
+    readonly useLog4: UnwrapRef<typeof import('./src/composables/useLog4')['useLog4']>
     readonly useMockData: UnwrapRef<typeof import('./src/composables/useMockData')['default']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
     readonly useRoute: UnwrapRef<typeof import('vue-router')['useRoute']>
