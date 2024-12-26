@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import type { Theme } from 'mqttx'
+import { languages } from 'monaco-editor'
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
 import { useSettingsStore } from '../stores'
 
 import EditorDark from '../styles/themes/custom/editor-dark'
 import EditorNight from '../styles/themes/custom/editor-night'
-import LogEditor from '../styles/themes/custom/log-editor'
-import LogEditorDark from '../styles/themes/custom/log-editor-dark'
-import LogEditorNight from '../styles/themes/custom/log-editor-night'
-import LogEditorRules from '../styles/themes/custom/log-editor-rules'
+import { logEditorDark, logEditorLight, logEditorNight } from '../styles/themes/custom/log-themes'
 
 const props = withDefaults(
   defineProps<{
@@ -77,17 +75,30 @@ const editorTheme = computed(() => {
   return themeOptions[settings!.currentTheme]
 })
 
-function defineTheme() {
-  const dark = EditorDark
-  const night = EditorNight
-  monaco.editor.defineTheme('editor-dark', dark)
-  monaco.editor.defineTheme('editor-night', night)
-  const log = { ...LogEditor, ...LogEditorRules }
-  const logDark = { ...LogEditorDark, ...LogEditorRules }
-  const logNight = { ...LogEditorNight, ...LogEditorRules }
-  monaco.editor.defineTheme('editor-log', log)
-  monaco.editor.defineTheme('editor-log-dark', logDark)
-  monaco.editor.defineTheme('editor-log-night', logNight)
+function defineLogLanguage() {
+  monaco.editor.defineTheme('editor-log', logEditorLight)
+  monaco.editor.defineTheme('editor-log-dark', logEditorDark)
+  monaco.editor.defineTheme('editor-log-night', logEditorNight)
+  languages.register({ id: 'log' })
+  languages.setMonarchTokensProvider('log', {
+    tokenizer: {
+      root: [
+        [/\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\]/, 'log-date'],
+        [/\[TRACE\]/, 'log-TRACE'],
+        [/\[DEBUG\]/, 'log-DEBUG'],
+        [/\[INFO\]/, 'log-INFO'],
+        [/\[WARN\]/, 'log-WARN'],
+        [/\[ERROR\]/, 'log-ERROR'],
+        [/\[FATAL\]/, 'log-FATAL'],
+        [/\[MARK\]/, 'log-MARK'],
+      ],
+    },
+  })
+}
+
+function defineDefaultTheme() {
+  monaco.editor.defineTheme('editor-dark', EditorDark)
+  monaco.editor.defineTheme('editor-night', EditorNight)
 }
 
 function initMonacoEditor() {
@@ -114,7 +125,8 @@ watch(value, (newValue) => {
 })
 
 onMounted(() => {
-  defineTheme()
+  defineDefaultTheme()
+  defineLogLanguage()
   initMonacoEditor()
 })
 
