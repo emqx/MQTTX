@@ -116,6 +116,16 @@ watch(value, (newValue) => {
   }
 })
 
+watch(language, (newLanguage) => {
+  if (editor?.getModel()) {
+    monaco.editor.setModelLanguage(editor.getModel()!, newLanguage)
+  }
+})
+
+watch(options, (newOptions) => {
+  editor?.updateOptions(newOptions)
+}, { deep: true })
+
 defineDefaultTheme()
 defineLogLanguage()
 
