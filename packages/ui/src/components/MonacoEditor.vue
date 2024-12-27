@@ -5,9 +5,7 @@ import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 
 import { useSettingsStore } from '../stores'
 
-import EditorDark from '../styles/themes/custom/editor-dark'
-import EditorNight from '../styles/themes/custom/editor-night'
-import { logEditorDark, logEditorLight, logEditorNight } from '../styles/themes/custom/log-themes'
+import { editorDark, editorLight, editorNight } from '../styles/themes/custom/editor-themes'
 
 const props = withDefaults(
   defineProps<{
@@ -36,6 +34,7 @@ let editor: monaco.editor.IStandaloneCodeEditor | null = null
 const defaultOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
   lineHeight: 1,
   fontSize: 14,
+  tabSize: 2,
   automaticLayout: true,
   scrollBeyondLastLine: false,
   lineNumbers: 'off',
@@ -64,21 +63,10 @@ const editorTheme = computed(() => {
     dark: 'editor-dark',
     night: 'editor-night',
   }
-  const logThemeOptions: Record<Theme, string> = {
-    light: 'editor-log',
-    dark: 'editor-log-dark',
-    night: 'editor-log-night',
-  }
-  if (language.value === 'log') {
-    return logThemeOptions[settings!.currentTheme]
-  }
   return themeOptions[settings!.currentTheme]
 })
 
 function defineLogLanguage() {
-  monaco.editor.defineTheme('editor-log', logEditorLight)
-  monaco.editor.defineTheme('editor-log-dark', logEditorDark)
-  monaco.editor.defineTheme('editor-log-night', logEditorNight)
   languages.register({ id: 'log' })
   languages.setMonarchTokensProvider('log', {
     tokenizer: {
@@ -97,8 +85,12 @@ function defineLogLanguage() {
 }
 
 function defineDefaultTheme() {
-  monaco.editor.defineTheme('editor-dark', EditorDark)
-  monaco.editor.defineTheme('editor-night', EditorNight)
+  // Multiple editors cannot have different themes because Monaco Editor sets the theme styles globally
+  // Therefore, an additional Log theme cannot be defined, and the Log theme styles need to be merged into the default theme
+  // Issue: https://github.com/Microsoft/monaco-editor/issues/338
+  monaco.editor.defineTheme('vs', editorLight)
+  monaco.editor.defineTheme('editor-dark', editorDark)
+  monaco.editor.defineTheme('editor-night', editorNight)
 }
 
 function initMonacoEditor() {
@@ -124,9 +116,10 @@ watch(value, (newValue) => {
   }
 })
 
+defineDefaultTheme()
+defineLogLanguage()
+
 onMounted(() => {
-  defineDefaultTheme()
-  defineLogLanguage()
   initMonacoEditor()
 })
 
