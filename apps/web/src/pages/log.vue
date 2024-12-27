@@ -11,7 +11,5 @@ logger.mark('mark')
 </script>
 
 <template>
-  <div>
-    <LogView :log="logMemory" />
-  </div>
+  <LogView :log="logMemory" />
 </template>
