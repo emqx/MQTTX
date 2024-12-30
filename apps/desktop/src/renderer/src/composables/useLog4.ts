@@ -62,14 +62,19 @@ log4js.configure({
 
 const logger = log4js.getLogger()
 
+let watchRegistered = false
+
 export function useLog4() {
   const { settings } = useSettingsService()
 
-  watch(() => settings.logLevel, (newLogLevel) => {
-    if (logger.level !== newLogLevel) {
-      logger.level = newLogLevel
-    }
-  }, { immediate: true })
+  if (!watchRegistered) {
+    watch(() => settings.value.logLevel, (newLogLevel) => {
+      if (logger.level !== newLogLevel) {
+        logger.level = newLogLevel
+      }
+    }, { immediate: true })
+    watchRegistered = true
+  }
 
   return { logger, logMemory }
 }

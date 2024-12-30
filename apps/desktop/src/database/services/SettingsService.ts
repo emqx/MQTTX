@@ -5,19 +5,15 @@ import { eq } from 'drizzle-orm'
 import { db } from '../db.renderer'
 import { settings } from '../schemas/settings'
 
-const isWathching = ref(false)
+let watchRegistered = false
 
 export default function useSettingsService() {
-  const { settings: storeSettings, updateSettings } = useSettingsStore()
+  const store = useSettingsStore()
+  const { settings: storeSettings } = storeToRefs(store)
+  const { updateSettings } = store
 
   async function getSettingsInDB(): Promise<SelectSettings> {
-    let data: SelectSettings | undefined
-    data = await db.query.settings.findFirst()
-    if (!data) {
-      data = await updateSettingsInDB()
-    }
-    updateSettings(data)
-    return data
+    return await db.query.settings.findFirst() ?? await updateSettingsInDB()
   }
   async function updateSettingsInDB(data?: Partial<Settings>): Promise<SelectSettings> {
     const existingSettings = await db.query.settings.findFirst()
@@ -31,20 +27,21 @@ export default function useSettingsService() {
     }
     return await getSettingsInDB()
   }
-
-  if (storeSettings) {
-    if (!isWathching.value) {
-      watch(storeSettings, (newSettings) => {
-        updateSettingsInDB(newSettings)
-      })
-    }
-    isWathching.value = true
+  async function init() {
+    if (watchRegistered) return
+    const data = await getSettingsInDB()
+    updateSettings(data)
+    watch(storeSettings, (newSettings) => {
+      updateSettingsInDB(newSettings!)
+    }, { deep: true })
+    watchRegistered = true
   }
 
   return {
-    settings: storeSettings!,
+    settings: storeSettings as Ref<Settings>,
     updateSettings,
     getSettingsInDB,
     updateSettingsInDB,
+    init,
   }
 }
