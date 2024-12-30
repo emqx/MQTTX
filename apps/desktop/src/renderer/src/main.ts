@@ -19,12 +19,9 @@ app.provide<PlatformType>('platformType', 'desktop')
 
 app.use(router).use(pinia)
 
-const { getSettingsInDB } = useSettingsService()
+const { settings, init } = useSettingsService()
 
-getSettingsInDB().then(() => {
-  // I18n
-  const { settings } = useSettingsService()
-  i18n.global.locale = settings.currentLang
-
+init().then(() => {
+  i18n.global.locale = settings.value.currentLang
   app.use(i18n).mount('#app')
 })

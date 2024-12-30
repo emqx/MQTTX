@@ -23,11 +23,9 @@ app.provide<PlatformType>('platformType', 'web')
 app.use(router).use(pinia)
 
 database.then(async (db) => {
-  const { getSettingsInDB } = useSettingsService()
-  const sub = await getSettingsInDB()
-  const { settings } = useSettingsService()
-  i18n.global.locale = settings.currentLang
-  sub.unsubscribe()
+  const { settings, init } = useSettingsService()
+  await init()
+  i18n.global.locale = settings.value.currentLang
 
   app.use(i18n).use(db).mount('#app')
 })

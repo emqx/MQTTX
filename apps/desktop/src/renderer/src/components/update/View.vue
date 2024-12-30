@@ -47,7 +47,7 @@ window.api.onUpdateStatus((_event, updateEvent) => {
 const { settings } = useSettingsService()
 
 onMounted(async () => {
-  if (settings.autoCheck) {
+  if (settings.value.autoCheck) {
     window.api.checkForUpdates()
   }
 })

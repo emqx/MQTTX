@@ -4,7 +4,9 @@ import { ElementI18nMap } from '@mqttx/ui/i18n'
 
 const { locale } = useI18n()
 
-console.log('MQTTX Web App init...')
+const { logger } = useLog4()
+
+logger.info('MQTTX Desktop App init...')
 </script>
 
 <template>
