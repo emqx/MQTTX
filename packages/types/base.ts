@@ -38,6 +38,12 @@ export interface Settings {
   model: string
 }
 
+export interface ScriptFunction {
+  lang: 'javascript'
+  name: string
+  content: string
+}
+
 export default {}
 
 export interface Connection {

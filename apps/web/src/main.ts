@@ -1,11 +1,11 @@
 import type { PlatformType } from 'mqttx'
+import { initTables, useSettingsService } from '@/database/services'
 import { monacoEnvironment } from '@mqttx/ui'
+
 import { i18n } from '@mqttx/ui/i18n'
-
 import App from './App.vue'
-import { createDatabase } from './database'
 
-import useSettingsService from './database/services/SettingsService'
+import { createDatabase } from './database'
 import { router } from './router'
 import '@mqttx/ui/styles.scss'
 import './assets/scss/main.scss'
@@ -23,8 +23,8 @@ app.provide<PlatformType>('platformType', 'web')
 app.use(router).use(pinia)
 
 database.then(async (db) => {
-  const { settings, init } = useSettingsService()
-  await init()
+  await initTables()
+  const { settings } = useSettingsService()
   i18n.global.locale = settings.value.currentLang
 
   app.use(i18n).use(db).mount('#app')
