@@ -1,4 +1,4 @@
-import useSettingsService from '@/database/services/SettingsService'
+import { useSettingsService } from '@/database/services'
 import log4js, { type AppenderModule, type LayoutFunction } from 'log4js'
 import { Subject } from 'rxjs'
 import { bufferTime } from 'rxjs/operators'

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import useSettingsService from '@/database/services/SettingsService'
+import { useSettingsService } from '@/database/services'
 
 const { settings } = useSettingsService()
 

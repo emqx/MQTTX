@@ -5,6 +5,7 @@ import { getRxStorageDexie } from 'rxdb/plugins/storage-dexie'
 // import typings
 import type { RxMqttxCollections, RxMqttxDatabase } from './schemas/RxDB'
 
+import scriptFunctionSchema from './schemas/ScriptFunction.schema'
 import settingsSchema from './schemas/Settings.schema'
 
 // import modules
@@ -54,7 +55,10 @@ export async function createDatabase(): Promise<Plugin> {
   })
 
   await db.addCollections({
-    settings: {
+    'script-function': {
+      schema: scriptFunctionSchema,
+    },
+    'settings': {
       schema: settingsSchema,
     },
   })
