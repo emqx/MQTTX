@@ -1,7 +1,7 @@
 import type { ScriptFunction } from 'mqttx'
 import type { RxCollection, RxDocument, RxJsonSchema } from 'rxdb'
 
-export type RxScriptFunctionDocumentType = ScriptFunction & { id: string }
+export type RxScriptFunctionDocumentType = ScriptFunction
 
 // ORM methods
 interface RxScriptFunctionDocMethods {

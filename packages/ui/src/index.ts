@@ -14,6 +14,7 @@ import HelpView from './components/HelpView.vue'
 import LogView from './components/LogView.vue'
 import MonacoEditor from './components/MonacoEditor.vue'
 import MyDialog from './components/MyDialog.vue'
+import ScriptView from './components/script/View.vue'
 import SettingsView from './components/SettingsView.vue'
 
 export * from './components/monacoEnvironment'
@@ -35,6 +36,7 @@ export {
   MainView,
   MonacoEditor,
   MyDialog,
+  ScriptView,
   SettingsView,
   SplitView,
 }
