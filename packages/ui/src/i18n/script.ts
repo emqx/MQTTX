@@ -20,6 +20,27 @@ export default {
     ja: 'スクリプト',
     hu: 'Script',
   },
+  scriptName: {
+    zh: '脚本名称',
+    en: 'Script Name',
+    tr: 'Komut dosyası adı',
+    ja: 'スクリプト名',
+    hu: 'Script név',
+  },
+  scriptContentEmpty: {
+    zh: '脚本内容不能为空',
+    en: 'Script content cannot be empty',
+    tr: 'Komut dosyası içeriği boş olamaz',
+    ja: 'スクリプトの内容は空にできません',
+    hu: 'A Script tartalma nem lehet üres',
+  },
+  scriptNameExists: {
+    zh: '脚本名称已存在',
+    en: 'Script name already exists',
+    tr: 'Komut dosyası adı zaten mevcut',
+    ja: 'スクリプト名は既に存在しています',
+    hu: 'A Script név már létezik',
+  },
   functionName: {
     zh: '自定义函数',
     en: 'Function',

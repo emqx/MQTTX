@@ -18,7 +18,9 @@ withDefaults(
 
 const emit = defineEmits<{
   (e: 'open'): void
+  (e: 'opened'): void
   (e: 'close'): void
+  (e: 'closed'): void
   (e: 'enter'): void
   (e: 'confirm'): void
 }>()
@@ -33,7 +35,9 @@ const confirmLoading = defineModel<boolean>('confirmLoading', { default: false }
     :title="title"
     :width="width"
     @open="() => emit('open')"
+    @opened="() => emit('opened')"
     @close="() => emit('close')"
+    @closed="() => emit('closed')"
     @keyup.enter="() => emit('enter')"
   >
     <slot />

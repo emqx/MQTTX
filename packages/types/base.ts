@@ -39,6 +39,7 @@ export interface Settings {
 }
 
 export interface ScriptFunction {
+  id: string
   lang: 'javascript'
   name: string
   content: string

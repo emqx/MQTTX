@@ -23,6 +23,7 @@ declare module 'vue-router/auto-routes' {
     '/connections/[id]': RouteRecordInfo<'/connections/[id]', '/connections/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/help': RouteRecordInfo<'/help', '/help', Record<never, never>, Record<never, never>>,
     '/log': RouteRecordInfo<'/log', '/log', Record<never, never>, Record<never, never>>,
+    '/script': RouteRecordInfo<'/script', '/script', Record<never, never>, Record<never, never>>,
     '/settings': RouteRecordInfo<'/settings', '/settings', Record<never, never>, Record<never, never>>,
   }
 }
