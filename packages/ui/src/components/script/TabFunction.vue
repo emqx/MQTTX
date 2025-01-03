@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { UploadFile, UploadInstance, UploadUserFile } from 'element-plus'
 import type { ScriptFunction } from 'mqttx'
 import { useScriptFunctionStore } from '../../stores'
 
@@ -15,6 +16,7 @@ const langOptions: { label: string, value: ScriptFunction['lang'], extension: st
 ]
 
 const currentLang = ref<ScriptFunction['lang']>(langOptions[0].value)
+const currentExtension = computed(() => langOptions.find(item => item.value === currentLang.value)?.extension)
 const currentFunctions = computed(() => scriptFunctions.value.filter(item => item.lang === currentLang.value))
 const currentFunction = ref<ScriptFunction | undefined>(currentFunctions.value[currentFunctions.value.length - 1])
 
@@ -54,10 +56,18 @@ function handleClickNew() {
 
 const saveScriptDialogVisible = ref(false)
 
-function validateFunction() {
-  if (functionContent.value === '') {
+function validateFunction({ name, content }: { name?: string, content: string }) {
+  if (content === '') {
     ElMessage({
       message: t('script.scriptContentEmpty'),
+      type: 'error',
+      plain: true,
+    })
+    return false
+  }
+  if (name && currentFunctions.value.some(item => item.name === name)) {
+    ElMessage({
+      message: t('script.scriptNameExist'),
       type: 'error',
       plain: true,
     })
@@ -68,8 +78,6 @@ function validateFunction() {
 }
 
 async function handleClickSave() {
-  if (!validateFunction()) return
-
   if (currentFunction.value) {
     updateFunction()
   } else {
@@ -79,6 +87,8 @@ async function handleClickSave() {
 
 async function updateFunction() {
   try {
+    if (!validateFunction({ content: functionContent.value })) return
+
     const data = await scriptFunctionUpsert({
       ...currentFunction.value!,
       content: functionContent.value,
@@ -100,11 +110,13 @@ async function updateFunction() {
   }
 }
 
-async function saveFunction(name: string) {
+async function saveFunction(name: string, content?: string) {
   try {
+    if (!validateFunction({ name, content: content ?? functionContent.value })) return
+
     const data = await scriptFunctionUpsert({
       name,
-      content: functionContent.value,
+      content: content ?? functionContent.value,
       lang: currentLang.value,
     })
     currentFunction.value = data
@@ -156,6 +168,28 @@ async function removeFunction() {
         })
     })
 }
+
+const uploadRef = ref<UploadInstance | null>(null)
+const fileList = ref<UploadUserFile[]>([])
+
+function handleFileRead(file: File) {
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    if (typeof e.target?.result === 'string') {
+      saveFunction(file.name, e.target.result)
+    }
+  }
+  reader.readAsText(file)
+}
+
+function handleFileExceed(files: File[]) {
+  handleFileRead(files[0])
+}
+
+function handleFileChange(uploadFile: UploadFile) {
+  handleFileRead(uploadFile.raw!)
+}
 </script>
 
 <template>
@@ -187,11 +221,24 @@ async function removeFunction() {
           <IconCustomNew class="w-5 h-5 text-main-green" />
         </div>
       </div>
-      <div>
-        <!-- TODO: implement upload js file -->
-        <ElButton plain>
-          {{ $t('script.uploadJs') }}
-        </ElButton>
+      <div class="flex items-center">
+        <ElUpload
+          v-if="currentFunction"
+          ref="uploadRef"
+          v-model:file-list="fileList"
+          class="mr-3"
+          :disabled="inUseScript"
+          :show-file-list="false"
+          :auto-upload="false"
+          :limit="1"
+          :accept="`.${currentExtension}`"
+          @exceed="handleFileExceed"
+          @change="handleFileChange"
+        >
+          <ElButton plain>
+            {{ $t('script.uploadScript', { extension: `.${currentExtension}` }) }}
+          </ElButton>
+        </ElUpload>
         <ElButton type="primary" @click="handleClickSave">
           {{ $t('common.save') }}
         </ElButton>
@@ -202,7 +249,6 @@ async function removeFunction() {
         >
           <ElButton
             v-if="currentFunction"
-            class="delete-btn"
             :disabled="inUseScript"
             type="danger"
             @click="removeFunction"
@@ -224,8 +270,7 @@ async function removeFunction() {
 
   <ScriptSaveDialog
     v-model="saveScriptDialogVisible"
-    :extension="langOptions.find((item) => item.value === currentLang)?.extension"
-    :list="currentFunctions.map((item) => item.name)"
+    :extension="currentExtension"
     @save="saveFunction"
   />
 </template>
