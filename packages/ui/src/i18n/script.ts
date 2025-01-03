@@ -27,12 +27,12 @@ export default {
     ja: 'スクリプト名',
     hu: 'Script név',
   },
-  scriptNameExist: {
-    zh: '脚本名称已存在',
-    en: 'Script name already exists',
-    tr: 'Komut dosyası adı zaten mevcut',
-    ja: 'スクリプト名はすでに存在します',
-    hu: 'A Script név már létezik',
+  scriptNameExistConfirm: {
+    zh: '脚本 {name} 已存在，是否覆盖？',
+    en: 'Script {name} already exists, do you want to overwrite it?',
+    tr: 'Komut dosyası {name} zaten var, üzerine yazmak istiyor musunuz?',
+    ja: 'スクリプト {name} はすでに存在します。上書きしますか？',
+    hu: 'A {name} Script már létezik, felülírja?',
   },
   scriptContentEmpty: {
     zh: '脚本内容不能为空',
