@@ -64,12 +64,25 @@ function validateFunction({ name, content }: { name?: string, content: string })
     })
     return false
   }
-  if (name && currentFunctions.value.some(item => item.name === name)) {
-    ElMessage({
-      message: t('script.scriptNameExist'),
-      type: 'error',
-      plain: true,
-    })
+  if (name) {
+    const existFunction = currentFunctions.value.find(item => item.name === name)
+
+    if (!existFunction) return true
+
+    ElMessageBox.confirm(
+      t('script.scriptNameExistConfirm', { name }),
+      t('common.warning'),
+      {
+        type: 'warning',
+      },
+    )
+      .then(async () => {
+        currentFunction.value = existFunction
+        await nextTick()
+        // Must set functionContent after currentFunction is updated to avoid conflict with the assignment in watch
+        functionContent.value = content
+        updateFunction()
+      })
     return false
   }
 
@@ -93,6 +106,7 @@ async function updateFunction() {
       content: functionContent.value,
     })
     currentFunction.value = data
+    saveScriptDialogVisible.value = false
     ElMessage({
       message: t('common.editSuccess'),
       type: 'success',
@@ -109,13 +123,13 @@ async function updateFunction() {
   }
 }
 
-async function saveFunction(name: string, content?: string) {
+async function saveFunction(name: string) {
   try {
-    if (!validateFunction({ name, content: content ?? functionContent.value })) return
+    if (!validateFunction({ name, content: functionContent.value })) return
 
     const data = await scriptFunctionUpsert({
       name,
-      content: content ?? functionContent.value,
+      content: functionContent.value,
       lang: currentLang.value,
     })
     currentFunction.value = data
@@ -170,10 +184,9 @@ async function removeFunction() {
 
 async function uploadFunction(file: { name: string, content: string }) {
   currentFunction.value = undefined
-  nextTick(() => {
-    // Must set functionContent in nextTick to avoid conflict with the assignment in watch
-    functionContent.value = file.content
-  })
+  await nextTick()
+  // Must set functionContent after currentFunction is updated to avoid conflict with the assignment in watch
+  functionContent.value = file.content
 }
 </script>
 
