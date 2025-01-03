@@ -1,6 +1,6 @@
 import 'reflect-metadata' // Required by TypoORM.
 ;('use strict')
-import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain, shell, Menu, screen } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { quitAndRenameLogger } from './utils/logger'
@@ -185,6 +185,22 @@ async function createWindow() {
     backgroundColor: theme === 'dark' ? '#232323' : theme === 'night' ? '#212328' : '#ffffff',
     icon: `${__static}/app.ico`,
   })
+
+  // Restore window state
+  const savedBounds = electronStore.get('bounds')
+  if (savedBounds !== undefined) {
+    const screenArea = screen.getDisplayMatching(savedBounds).workArea
+    // Check if the window is within the bounds of the screen
+    if (
+      savedBounds.x >= screenArea.x &&
+      savedBounds.x <= screenArea.x + screenArea.width &&
+      savedBounds.y >= screenArea.y &&
+      savedBounds.y <= screenArea.y + screenArea.height
+    ) {
+      win.setBounds(savedBounds)
+    }
+  }
+
   // Theme change
   onSystemThemeChanged(async (theme) => {
     // @ts-ignore
@@ -210,7 +226,11 @@ async function createWindow() {
     win.loadURL('app://./index.html')
   }
 
-  win.on('closed', () => {
+  win.on('close', () => {
+    if (win) {
+      // Save window bounds before closing
+      electronStore.set('bounds', win.getBounds())
+    }
     win = null
     console.log('App closed')
     beforeAppQuit()
