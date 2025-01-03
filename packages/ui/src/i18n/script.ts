@@ -27,19 +27,19 @@ export default {
     ja: 'スクリプト名',
     hu: 'Script név',
   },
+  scriptNameExist: {
+    zh: '脚本名称已存在',
+    en: 'Script name already exists',
+    tr: 'Komut dosyası adı zaten mevcut',
+    ja: 'スクリプト名はすでに存在します',
+    hu: 'A Script név már létezik',
+  },
   scriptContentEmpty: {
     zh: '脚本内容不能为空',
     en: 'Script content cannot be empty',
     tr: 'Komut dosyası içeriği boş olamaz',
     ja: 'スクリプトの内容は空にできません',
     hu: 'A Script tartalma nem lehet üres',
-  },
-  scriptNameExists: {
-    zh: '脚本名称已存在',
-    en: 'Script name already exists',
-    tr: 'Komut dosyası adı zaten mevcut',
-    ja: 'スクリプト名は既に存在しています',
-    hu: 'A Script név már létezik',
   },
   functionName: {
     zh: '自定义函数',
@@ -132,12 +132,12 @@ export default {
     ja: 'スクリプトが使用中です',
     hu: 'Script használatban van',
   },
-  uploadJs: {
-    zh: '导入 .js 文件',
-    en: 'Import .js file',
-    tr: '.js dosyasını içe aktar',
-    ja: '.jsファイルをインポート',
-    hu: '.js fájl importálása',
+  uploadScript: {
+    zh: '导入 {extension} 文件',
+    en: 'Import {extension} file',
+    tr: '{extension} dosyasını içe aktar',
+    ja: '{extension} ファイルをインポート',
+    hu: '{extension} fájl importálása',
   },
   uploadProto: {
     zh: '导入 .proto 文件',
