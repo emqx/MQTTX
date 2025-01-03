@@ -53,6 +53,7 @@ declare module 'vue' {
     LogView: typeof import('./../../../../packages/ui/src/components/LogView.vue')['default']
     MonacoEditor: typeof import('./../../../../packages/ui/src/components/MonacoEditor.vue')['default']
     MyDialog: typeof import('./../../../../packages/ui/src/components/MyDialog.vue')['default']
+    MyUpload: typeof import('./../../../../packages/ui/src/components/MyUpload.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     ScriptSaveDialog: typeof import('./../../../../packages/ui/src/components/script/SaveDialog.vue')['default']
