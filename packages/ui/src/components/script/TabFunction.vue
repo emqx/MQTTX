@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { UploadFile, UploadInstance, UploadUserFile } from 'element-plus'
 import type { ScriptFunction } from 'mqttx'
 import { useScriptFunctionStore } from '../../stores'
 
@@ -16,7 +15,7 @@ const langOptions: { label: string, value: ScriptFunction['lang'], extension: st
 ]
 
 const currentLang = ref<ScriptFunction['lang']>(langOptions[0].value)
-const currentExtension = computed(() => langOptions.find(item => item.value === currentLang.value)?.extension)
+const currentExtension = computed(() => langOptions.find(item => item.value === currentLang.value)!.extension)
 const currentFunctions = computed(() => scriptFunctions.value.filter(item => item.lang === currentLang.value))
 const currentFunction = ref<ScriptFunction | undefined>(currentFunctions.value[currentFunctions.value.length - 1])
 
@@ -169,26 +168,12 @@ async function removeFunction() {
     })
 }
 
-const uploadRef = ref<UploadInstance | null>(null)
-const fileList = ref<UploadUserFile[]>([])
-
-function handleFileRead(file: File) {
-  if (!file) return
-  const reader = new FileReader()
-  reader.onload = (e) => {
-    if (typeof e.target?.result === 'string') {
-      saveFunction(file.name, e.target.result)
-    }
-  }
-  reader.readAsText(file)
-}
-
-function handleFileExceed(files: File[]) {
-  handleFileRead(files[0])
-}
-
-function handleFileChange(uploadFile: UploadFile) {
-  handleFileRead(uploadFile.raw!)
+async function uploadFunction(file: { name: string, content: string }) {
+  currentFunction.value = undefined
+  nextTick(() => {
+    // Must set functionContent in nextTick to avoid conflict with the assignment in watch
+    functionContent.value = file.content
+  })
 }
 </script>
 
@@ -222,23 +207,15 @@ function handleFileChange(uploadFile: UploadFile) {
         </div>
       </div>
       <div class="flex items-center">
-        <ElUpload
-          v-if="currentFunction"
-          ref="uploadRef"
-          v-model:file-list="fileList"
+        <MyUpload
           class="mr-3"
-          :disabled="inUseScript"
-          :show-file-list="false"
-          :auto-upload="false"
-          :limit="1"
           :accept="`.${currentExtension}`"
-          @exceed="handleFileExceed"
-          @change="handleFileChange"
+          @upload="uploadFunction"
         >
           <ElButton plain>
             {{ $t('script.uploadScript', { extension: `.${currentExtension}` }) }}
           </ElButton>
-        </ElUpload>
+        </MyUpload>
         <ElButton type="primary" @click="handleClickSave">
           {{ $t('common.save') }}
         </ElButton>
