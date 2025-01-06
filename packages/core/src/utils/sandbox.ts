@@ -1,7 +1,6 @@
 import type { MessageType } from 'mqttx'
 // eslint-disable-next-line unicorn/prefer-node-protocol
 import { Buffer } from 'buffer'
-// @ts-expect-error uvm is not defined
 import uvm from 'uvm'
 
 export function executeScript(opts: {

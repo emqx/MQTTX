@@ -17,7 +17,8 @@
     "./auto-imports.d.ts",
     "./components.d.ts",
     "../desktop/src/preload/index.d.ts",
-    "../../packages/ui/src/**/*"
+    "../../packages/ui/src/**/*",
+    "../../packages/types/global.d.ts"
   ],
   "exclude": ["src/**/__tests__/*"]
 }

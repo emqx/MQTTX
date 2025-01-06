@@ -20,6 +20,7 @@
     "./typed-router.d.ts",
     "src/renderer/auto-imports.d.ts",
     "src/renderer/components.d.ts",
-    "../../packages/ui/src/**/*"
+    "../../packages/ui/src/**/*",
+    "../../packages/types/global.d.ts"
   ]
 }
