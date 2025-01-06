@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ScriptFunction } from 'mqttx'
+import { executeScript } from '@mqttx/core'
 import { useScriptFunctionStore } from '../../stores'
 
 const { scriptFunctions } = storeToRefs(useScriptFunctionStore())
@@ -31,18 +32,39 @@ const defaultFunction: Record<string, { input: string, content: string }> = {
     input: JSON.stringify({ msg: 'hello' }, null, 2),
     content: `/**
 * @description: default script
-* @param {any} value - Payload
-* @param {string} msgType - Message type, value is 'received' or 'publish'
+* @param {string} message - Message payload
+* @param {string} messageType - Message type, value is 'received' or 'publish'
 * @param {number} index - Index of the message, valid only when script is used in the publish message and timed message is enabled
 * @return {any} - Payload after script processing
 */
-function handlePayload(value, msgType, index) {
-  return value.msg
+function handlePayload(message, messageType, index) {
+  const payload = JSON.parse(message)
+  return payload.msg
 }
 
-execute(handlePayload)`,
+return execute(handlePayload)`,
   },
 }
+onMounted(async () => {
+  await executeScript({
+    script: defaultFunction[currentLang.value].content,
+    payload: defaultFunction[currentLang.value].input,
+    messageType: 'received',
+    index: 0,
+  })
+    .then((result) => {
+      console.log(result)
+    })
+    .catch((error) => {
+      if (error instanceof Error) {
+        ElMessage({
+          message: error.toString(),
+          type: 'error',
+          plain: true,
+        })
+      }
+    })
+})
 const functionContent = ref('')
 watch([currentLang, currentFunction], () => {
   functionContent.value = currentFunction.value ? currentFunction.value.content : defaultFunction[currentLang.value].content

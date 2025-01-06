@@ -13,6 +13,10 @@ export type Protocol = 'mqtt' | 'mqtts'
 
 export type QoS = 0 | 1 | 2
 
+export type PayloadType = 'Plaintext' | 'Base64' | 'JSON' | 'Hex' | 'CBOR' | 'MsgPack'
+
+export type MessageType = 'all' | 'received' | 'publish'
+
 export type Lang = 'en' | 'zh' | 'ja' | 'hu' | 'tr'
 
 export type Theme = 'light' | 'dark' | 'night'
