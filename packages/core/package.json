@@ -9,10 +9,13 @@
     "test:dev": "vitest"
   },
   "dependencies": {
+    "buffer": "^6.0.3",
     "uuid": "^11.0.3",
+    "uvm": "^4.0.0",
     "vitest": "^2.1.4"
   },
   "devDependencies": {
+    "@types/mqttx": "workspace:^",
     "@types/uuid": "^10.0.0",
     "@vitest/coverage-istanbul": "^2.1.4",
     "typescript": "~5.6.3"
