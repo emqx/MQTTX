@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { ScriptFunction } from 'mqttx'
-import { executeScript } from '@mqttx/core'
-import { useScriptFunctionStore } from '../../stores'
+import { useScriptFunctionStore } from '../../../stores'
+
+const modelLang = defineModel<ScriptFunction['lang']>('lang', { default: 'javascript' })
+const modelFunctionContent = defineModel<ScriptFunction['content']>('content', { default: '' })
 
 const { scriptFunctions } = storeToRefs(useScriptFunctionStore())
 const scriptFunctionUpsert = inject<
@@ -45,29 +47,13 @@ function handlePayload(message, messageType, index) {
 return execute(handlePayload)`,
   },
 }
-onMounted(async () => {
-  await executeScript({
-    script: defaultFunction[currentLang.value].content,
-    payload: defaultFunction[currentLang.value].input,
-    messageType: 'received',
-    index: 0,
-  })
-    .then((result) => {
-      console.log(result)
-    })
-    .catch((error) => {
-      if (error instanceof Error) {
-        ElMessage({
-          message: error.toString(),
-          type: 'error',
-          plain: true,
-        })
-      }
-    })
-})
 const functionContent = ref('')
 watch([currentLang, currentFunction], () => {
   functionContent.value = currentFunction.value ? currentFunction.value.content : defaultFunction[currentLang.value].content
+}, { immediate: true })
+watch([currentLang, functionContent], () => {
+  modelLang.value = currentLang.value
+  modelFunctionContent.value = functionContent.value
 }, { immediate: true })
 
 function handleClickNew() {
