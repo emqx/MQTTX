@@ -78,6 +78,7 @@ declare global {
   const useLog4: typeof import('./src/composables/useLog4')['useLog4']
   const useMockData: typeof import('./src/composables/useMockData')['default']
   const useModel: typeof import('vue')['useModel']
+  const usePayloadConverter: typeof import('../../packages/ui/src/composables/usePayloadConverter')['usePayloadConverter']
   const useRoute: typeof import('vue-router')['useRoute']
   const useRouter: typeof import('vue-router')['useRouter']
   const useSlots: typeof import('vue')['useSlots']
@@ -171,6 +172,7 @@ declare module 'vue' {
     readonly useLog4: UnwrapRef<typeof import('./src/composables/useLog4')['useLog4']>
     readonly useMockData: UnwrapRef<typeof import('./src/composables/useMockData')['default']>
     readonly useModel: UnwrapRef<typeof import('vue')['useModel']>
+    readonly usePayloadConverter: UnwrapRef<typeof import('../../packages/ui/src/composables/usePayloadConverter')['usePayloadConverter']>
     readonly useRoute: UnwrapRef<typeof import('vue-router')['useRoute']>
     readonly useRouter: UnwrapRef<typeof import('vue-router')['useRouter']>
     readonly useSlots: UnwrapRef<typeof import('vue')['useSlots']>

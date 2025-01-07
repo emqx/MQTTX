@@ -10,11 +10,15 @@
   },
   "dependencies": {
     "buffer": "^6.0.3",
+    "cbor2": "^1.8.1",
+    "json-bigint": "^1.0.0",
+    "msgpackr": "^1.11.2",
     "uuid": "^11.0.3",
     "uvm": "^4.0.0",
     "vitest": "^2.1.4"
   },
   "devDependencies": {
+    "@types/json-bigint": "^1.0.4",
     "@types/mqttx": "workspace:^",
     "@types/uuid": "^10.0.0",
     "@vitest/coverage-istanbul": "^2.1.4",
