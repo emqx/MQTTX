@@ -32,7 +32,7 @@
   },
   "main": "background.js",
   "engines": {
-    "node": ">=16"
+    "node": "16"
   },
   "dependencies": {
     "appdata-path": "^1.0.0",
