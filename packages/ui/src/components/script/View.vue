@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import TabFunction from './TabFunction.vue'
-import TabSchema from './TabSchema.vue'
+import TabFunction from './function/View.vue'
+import TabSchema from './schema/View.vue'
 
 const { t } = useI18n()
 
@@ -13,7 +13,7 @@ const activeTab = ref(tabs.value[0].name)
 </script>
 
 <template>
-  <div id="script-view" class="bg-primary h-screen select-none">
+  <ElScrollbar id="script-view" class="bg-primary min-h-screen select-none">
     <div class="px-4 pt-4 pb-12">
       <div class="mx-auto max-w-screen-lg">
         <h1 class="mb-5 text-lg text-title font-semibold">
@@ -26,5 +26,5 @@ const activeTab = ref(tabs.value[0].name)
         </ElTabs>
       </div>
     </div>
-  </div>
+  </ElScrollbar>
 </template>
