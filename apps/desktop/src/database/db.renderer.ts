@@ -1,4 +1,5 @@
 import { drizzle } from 'drizzle-orm/sqlite-proxy'
+import { scriptFunction } from './schemas/scriptFunction'
 import { settings } from './schemas/settings'
 
 export const db = drizzle(async (...args) => {
@@ -10,5 +11,5 @@ export const db = drizzle(async (...args) => {
     return { rows: [] }
   }
 }, {
-  schema: { settings },
+  schema: { scriptFunction, settings },
 })

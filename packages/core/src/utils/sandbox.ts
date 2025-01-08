@@ -2,6 +2,7 @@ import type { MessageType } from 'mqttx'
 // eslint-disable-next-line unicorn/prefer-node-protocol
 import { Buffer } from 'buffer'
 import uvm from 'uvm'
+import { jsonStringify } from './jsonUtils'
 
 export function executeScript(opts: {
   script: string
@@ -34,7 +35,13 @@ export function executeScript(opts: {
         if (err) reject(err)
 
         context.on('scriptResult', (result: any) => {
-          resolve(Buffer.from(result?.toString() ?? ''))
+          let resultStr: string
+          if (typeof result === 'object') {
+            resultStr = jsonStringify(result, null, 2)
+          } else {
+            resultStr = String(result)
+          }
+          resolve(Buffer.from(resultStr))
         })
 
         context.on('scriptError', (error?: string) => {
