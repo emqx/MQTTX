@@ -45,7 +45,7 @@ function handleTest(payload: string) {
 <template>
   <section>
     <div class="my-3 flex justify-between items-center">
-      <label>{{ $t('script.input') }}</label>
+      <label class="text-title">{{ $t('script.input') }}</label>
       <ElButton
         type="primary"
         @click="handleTest(payloadString)"
@@ -71,7 +71,7 @@ function handleTest(payload: string) {
   </section>
   <section>
     <div class="my-3 flex justify-between items-center">
-      <label>{{ $t('script.output') }}</label>
+      <label class="text-title">{{ $t('script.output') }}</label>
     </div>
     <section class="h-80 bg-normal border border-b-0 px-0.5 pb-0.5 pt-3 border-border-default rounded-t">
       <MonacoEditor
