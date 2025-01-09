@@ -1,4 +1,5 @@
 import useScriptFunctionService from './ScriptFunctionService'
+import useScriptSchemaService from './ScriptSchemaService'
 import useSettingsService from './SettingsService'
 
 /**
@@ -7,6 +8,7 @@ import useSettingsService from './SettingsService'
 async function initTables() {
   await Promise.all([
     useScriptFunctionService().init(),
+    useScriptSchemaService().init(),
     useSettingsService().init(),
   ])
 }
@@ -14,5 +16,6 @@ async function initTables() {
 export {
   initTables,
   useScriptFunctionService,
+  useScriptSchemaService,
   useSettingsService,
 }

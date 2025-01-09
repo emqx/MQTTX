@@ -49,6 +49,13 @@ export interface ScriptFunction {
   content: string
 }
 
+export interface ScriptSchema {
+  id: string
+  codec: 'protobuf' | 'avro'
+  name: string
+  content: string
+}
+
 export default {}
 
 export interface Connection {
