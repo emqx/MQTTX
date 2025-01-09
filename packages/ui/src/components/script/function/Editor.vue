@@ -48,6 +48,9 @@ return execute(handlePayload)`,
   },
 }
 const functionContent = ref('')
+watch(currentLang, () => {
+  currentFunction.value = currentFunctions.value[currentFunctions.value.length - 1]
+})
 watch([currentLang, currentFunction], () => {
   functionContent.value = currentFunction.value ? currentFunction.value.content : defaultFunction[currentLang.value].content
 }, { immediate: true })

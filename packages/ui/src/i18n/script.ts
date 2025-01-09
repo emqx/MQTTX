@@ -139,20 +139,6 @@ export default {
     ja: '{extension} ファイルをインポート',
     hu: '{extension} fájl importálása',
   },
-  uploadProto: {
-    zh: '导入 .proto 文件',
-    en: 'Import .proto file',
-    tr: '.proto dosyasını içe aktar',
-    ja: '.protoファイルをインポート',
-    hu: '.proto fájl importálása',
-  },
-  uploadAvsc: {
-    zh: '导入 .avsc 文件',
-    en: 'Import .avsc file',
-    tr: '.avsc dosyasını içe aktar',
-    ja: '.avsc ファイルをインポート',
-    hu: '.avsc fájl importálása',
-  },
   importFunction: {
     zh: '导入自定义函数',
     en: 'Import Function',
