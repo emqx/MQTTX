@@ -9,10 +9,12 @@
     "test:dev": "vitest"
   },
   "dependencies": {
+    "avsc": "^5.7.7",
     "buffer": "^6.0.3",
     "cbor2": "^1.8.1",
     "json-bigint": "^1.0.0",
     "msgpackr": "^1.11.2",
+    "protobufjs": "^7.4.0",
     "uuid": "^11.0.3",
     "uvm": "^4.0.0",
     "vitest": "^2.1.4"
