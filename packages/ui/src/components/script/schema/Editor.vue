@@ -30,10 +30,9 @@ const inUseScript = computed(() => {
   return false
 })
 
-const defaultSchema: Record<ScriptSchema['codec'], { editorLangugage: string, input: string, content: string }> = {
+const defaultSchema: Record<ScriptSchema['codec'], { editorLangugage: string, content: string }> = {
   protobuf: {
     editorLangugage: 'plaintext',
-    input: JSON.stringify({ id: 123, name: 'John Doe' }, null, 2),
     content: `syntax = "proto3";
 
 message Person {
@@ -43,7 +42,6 @@ message Person {
   },
   avro: {
     editorLangugage: 'json',
-    input: JSON.stringify({ id: 123, name: 'John Doe' }, null, 2),
     content: `{
   "type": "record",
   "name": "Person",

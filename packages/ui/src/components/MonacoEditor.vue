@@ -32,7 +32,6 @@ const editorRef = ref<HTMLElement | null>(null)
 let editor: monaco.editor.IStandaloneCodeEditor | null = null
 
 const defaultOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
-  lineHeight: 1,
   fontSize: 14,
   tabSize: 2,
   automaticLayout: true,

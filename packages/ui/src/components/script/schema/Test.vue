@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { ScriptFunction } from 'mqttx'
-import { executeScript } from '@mqttx/core'
+import type { ScriptSchema } from 'mqttx'
+import { convertPayloadForDisplay, encodePayloadForSend, payloadCodec } from '@mqttx/core'
 
 const props = defineProps<{
-  currentLang: ScriptFunction['lang']
-  currentFunctionContent: ScriptFunction['content']
+  currentCodec: ScriptSchema['codec']
+  currentSchemaContent: ScriptSchema['content']
 }>()
 
-const { currentLang, currentFunctionContent } = toRefs(props)
+const { currentCodec, currentSchemaContent } = toRefs(props)
 const { payloadTypeList, payloadType, payloadString, monacoEditorLangugage } = usePayloadConverter()
 
 const {
@@ -16,33 +16,58 @@ const {
   monacoEditorLangugage: resultMonacoEditorLangugage,
 } = usePayloadConverter()
 
+const messageName = ref('')
+
+const defaultInput: Record<ScriptSchema['codec'], string> = {
+  protobuf: JSON.stringify({ id: 123, name: 'John Doe' }, null, 2),
+  avro: JSON.stringify({ id: 123, name: 'John Doe' }, null, 2),
+}
+
+watch(currentCodec, (value) => {
+  payloadString.value = defaultInput[value]
+  resultString.value = ''
+  messageName.value = ''
+}, { immediate: true })
+
 function resetResults() {
   resultString.value = ''
-  resultPayloadType.value = 'Plaintext'
+  resultPayloadType.value = 'JSON'
 }
 
 resetResults()
 
+const { t } = useI18n()
+
 function handleTest(payload: string) {
   resetResults()
-  if (currentLang.value === 'javascript') {
-    executeScript({
-      script: currentFunctionContent.value,
-      payload,
-      messageType: 'publish',
+  try {
+    if (currentCodec.value === 'protobuf' && messageName.value === '') {
+      ElMessage({
+        message: t('script.mustProtoName'),
+        type: 'error',
+        plain: true,
+      })
+      return
+    }
+    const { decode, encode } = payloadCodec[currentCodec.value]
+    const buffer = decode({
+      payload: encode({
+        payload: encodePayloadForSend(payload, payloadType.value),
+        schema: currentSchemaContent.value,
+        messageName: messageName.value,
+      }),
+      schema: currentSchemaContent.value,
+      messageName: messageName.value,
     })
-      .then((data) => {
-        resultString.value = data.toString()
+    resultString.value = convertPayloadForDisplay(buffer.toString(), 'Plaintext', 'JSON')
+  } catch (error) {
+    if (error instanceof Error) {
+      ElMessage({
+        message: error.message,
+        type: 'error',
+        plain: true,
       })
-      .catch((error) => {
-        if (error instanceof Error) {
-          ElMessage({
-            message: error.toString(),
-            type: 'error',
-            plain: true,
-          })
-        }
-      })
+    }
   }
 }
 </script>
@@ -51,12 +76,20 @@ function handleTest(payload: string) {
   <section>
     <div class="my-3 flex justify-between items-center">
       <label class="text-title">{{ $t('script.input') }}</label>
-      <ElButton
-        type="primary"
-        @click="handleTest(payloadString)"
-      >
-        {{ $t('script.test') }}
-      </ElButton>
+      <div class="flex items-center gap-3">
+        <ElInput
+          v-if="currentCodec === 'protobuf'"
+          v-model.trim="messageName"
+          :placeholder="$t('script.protoName')"
+          :label="$t('script.protoName')"
+        />
+        <ElButton
+          type="primary"
+          @click="handleTest(payloadString)"
+        >
+          {{ $t('script.test') }}
+        </ElButton>
+      </div>
     </div>
     <section class="h-80 bg-normal border border-b-0 px-0.5 pb-0.5 pt-3 border-border-default rounded-t">
       <MonacoEditor
