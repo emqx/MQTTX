@@ -8,6 +8,7 @@ import Icons from 'unplugin-icons/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import VueRouter from 'unplugin-vue-router/vite'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 import { version } from './package.json'
 
@@ -100,6 +101,10 @@ export default defineConfig({
           return code
         },
       },
+      nodePolyfills({
+        // WORKAROUND: https://github.com/davidmyersdev/vite-plugin-node-polyfills/issues/90
+        exclude: ['crypto'],
+      }),
     ],
     css: {
       preprocessorOptions: {
