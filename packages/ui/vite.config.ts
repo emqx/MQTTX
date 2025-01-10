@@ -10,6 +10,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 export default defineConfig({
   plugins: [
@@ -66,6 +67,10 @@ export default defineConfig({
       customCollections: {
         custom: FileSystemIconLoader('./src/assets/icons'),
       },
+    }),
+    nodePolyfills({
+      // WORKAROUND: https://github.com/davidmyersdev/vite-plugin-node-polyfills/issues/90
+      exclude: ['crypto'],
     }),
   ],
   resolve: {
