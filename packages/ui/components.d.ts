@@ -60,6 +60,7 @@ declare module 'vue' {
     ScriptFunctionView: typeof import('./src/components/script/function/View.vue')['default']
     ScriptSaveDialog: typeof import('./src/components/script/SaveDialog.vue')['default']
     ScriptSchemaEditor: typeof import('./src/components/script/schema/Editor.vue')['default']
+    ScriptSchemaTest: typeof import('./src/components/script/schema/Test.vue')['default']
     ScriptSchemaView: typeof import('./src/components/script/schema/View.vue')['default']
     ScriptView: typeof import('./src/components/script/View.vue')['default']
     SettingsView: typeof import('./src/components/SettingsView.vue')['default']

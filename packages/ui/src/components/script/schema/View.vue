@@ -11,9 +11,9 @@ const currentSchemaContent = ref<ScriptSchema['content']>('')
       v-model:codec="currentCodec"
       v-model:content="currentSchemaContent"
     />
-    <!-- <ScriptFunctionTest
-      :current-lang="currentLang"
-      :current-function-content="currentFunctionContent"
-    /> -->
+    <ScriptSchemaTest
+      :current-codec="currentCodec"
+      :current-schema-content="currentSchemaContent"
+    />
   </div>
 </template>

@@ -29,9 +29,8 @@ const inUseScript = computed(() => {
   return false
 })
 
-const defaultFunction: Record<string, { input: string, content: string }> = {
+const defaultFunction: Record<string, { content: string }> = {
   javascript: {
-    input: JSON.stringify({ msg: 'hello' }, null, 2),
     content: `/**
 * @description: default script
 * @param {string} message - Message payload
