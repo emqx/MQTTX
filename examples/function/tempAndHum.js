@@ -1,21 +1,17 @@
-/**
- * Simulated temperature and humidity reporting
- * @return Return a simulated temperature and humidity JSON data - { "temperature": 23, "humidity": 40 }
- * @param value, MQTT Payload - {}
- */
-
 function random(min, max) {
   return Math.round(Math.random() * (max - min)) + min
 }
 
-function handlePayload(value) {
-  let _value = value
-  if (typeof value === 'string') {
-    _value = JSON.parse(value)
-  }
-  _value.temperature = random(10, 30)
-  _value.humidity = random(20, 40)
-  return JSON.stringify(_value, null, 2)
+/**
+ * @description: Simulated dynamic switch command
+ * @param {string} message - Message payload
+ * @return {string} - Return a simulated temperature and humidity data - { "temperature": 23, "humidity": 40 }
+ */
+function handlePayload(message) {
+  let _message = JSON.parse(message || '{}')
+  _message.temperature = random(10, 30)
+  _message.humidity = random(20, 40)
+  return JSON.stringify(_message, null, 2)
 }
 
-execute(handlePayload)
+return execute(handlePayload)

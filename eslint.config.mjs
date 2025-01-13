@@ -21,6 +21,7 @@ export default antfu(
        */
       markdown: 'prettier',
     },
+    ignores: ['examples/**'],
   },
   {
     rules: {
