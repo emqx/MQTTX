@@ -32,12 +32,12 @@ const inUseScript = computed(() => {
 const defaultFunction: Record<string, { content: string }> = {
   javascript: {
     content: `/**
-* @description: default script
-* @param {string} message - Message payload
-* @param {string} messageType - Message type, value is 'received' or 'publish'
-* @param {number} index - Index of the message, valid only when script is used in the publish message and timed message is enabled
-* @return {any} - Payload after script processing
-*/
+ * @description: Default custom function template
+ * @param {string} message - Message payload
+ * @param {string} messageType - Message type, value is 'received' or 'publish'
+ * @param {number} index - Index of the message, valid only when script is used in the publish message and timed message is enabled
+ * @return {string | object} - Returns a string or an object that can be JSON.stringify
+ */
 function handlePayload(message, messageType, index) {
   const payload = JSON.parse(message)
   return payload.msg
