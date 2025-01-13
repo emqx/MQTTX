@@ -3,6 +3,7 @@
 
 interface ImportMetaEnv {
   readonly VITE_DB_SECRET_KEY: string
+  readonly __APP_VERSION__: string
 }
 
 interface ImportMeta {

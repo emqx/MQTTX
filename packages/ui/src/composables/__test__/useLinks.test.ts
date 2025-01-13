@@ -92,7 +92,8 @@ describe('useLinks', () => {
 
   it('should return correct about links', async () => {
     await setupI18n('zh')
-    window.__APP_VERSION__ = '2.0.0'
+    // @ts-expect-error ignore readonly property error
+    import.meta.env.__APP_VERSION__ = '2.0.0'
     const wrapper = mount(createTestComponent(), { global: { plugins: [i18n] } })
     expect(wrapper.vm.about).toEqual({
       releases: 'https://mqttx.app/zh/changelogs/v2.0.0?utm_source=mqttx&utm_medium=referral&utm_campaign=about-to-release',

@@ -17,8 +17,7 @@ import { version } from './package.json'
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
-    '__APP_VERSION__': JSON.stringify(version),
-    'process.env': {},
+    'import.meta.env.__APP_VERSION__': JSON.stringify(version),
   },
   plugins: [
     VueRouter(),
