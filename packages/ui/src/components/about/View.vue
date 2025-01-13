@@ -7,7 +7,7 @@ const { settings } = useSettingsStore()
 const logo = computed(() => settings!.currentTheme === 'light' ? logoDark : logoLight)
 
 const { t } = useI18n()
-const version = computed(() => `${t('common.version')} v${window.__APP_VERSION__}`)
+const version = computed(() => `${t('common.version')} v${import.meta.env.__APP_VERSION__}`)
 </script>
 
 <template>

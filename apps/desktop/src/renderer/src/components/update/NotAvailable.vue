@@ -3,7 +3,7 @@ import Logo from '../../../../../../../packages/ui/src/assets/images/logo.png'
 
 const dialogVisible = defineModel<boolean>({ default: false })
 
-const version = ref(`v${window.__APP_VERSION__}`)
+const version = ref(`v${import.meta.env.__APP_VERSION__}`)
 </script>
 
 <template>

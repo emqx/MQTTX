@@ -21,8 +21,7 @@ export default defineConfig({
   },
   renderer: {
     define: {
-      '__APP_VERSION__': JSON.stringify(version),
-      'process.env': {},
+      'import.meta.env.__APP_VERSION__': JSON.stringify(version),
     },
     resolve: {
       alias: {

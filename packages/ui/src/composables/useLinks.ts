@@ -42,7 +42,7 @@ export default function useLinks() {
   }))
 
   const about = computed(() => ({
-    releases: `${MQTTXSite.value}/changelogs/v${window.__APP_VERSION__}${utm}about-to-release`,
+    releases: `${MQTTXSite.value}/changelogs/v${import.meta.env.__APP_VERSION__}${utm}about-to-release`,
     faq: `${MQTTXSite.value}/docs/faq${utm}about-to-faq`,
     MQTTX: `${MQTTXSite.value}${utm}about-to-mqttx`,
     EMQ: `${EMQSite.value}${utm}mqttx-to-homepage`,
