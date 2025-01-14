@@ -249,12 +249,12 @@ async function uploadSchema(file: { name: string, content: string }) {
           {{ $t('common.save') }}
         </ElButton>
         <ElTooltip
+          v-if="currentSchema"
           placement="top"
           :disabled="!inUseScript"
           :content="$t('script.inUseScript')"
         >
           <ElButton
-            v-if="currentSchema"
             :disabled="inUseScript"
             type="danger"
             @click="removeSchema"
