@@ -5,9 +5,77 @@
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MQTTX</title>
+    <style>
+      body {
+        margin: 0;
+      }
+      #loading {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .u-loading {
+        width: 128px;
+        height: 128px;
+        display: block;
+        margin: 48px;
+      }
+      .u-loading__symbol {
+        padding: 8px;
+        animation: loading 3s infinite;
+      }
+      .u-loading__symbol img {
+        display: block;
+        max-width: 100%;
+        animation: loading-icon 3s infinite;
+      }
+      @keyframes loading {
+        0% {
+          transform: perspective(250px) rotateX(0deg) rotateY(0deg);
+        }
+        50% {
+          transform: perspective(250px) rotateX(180deg) rotateY(0deg);
+        }
+        100% {
+          transform: perspective(250px) rotateX(180deg) rotateY(-180deg);
+        }
+      }
+      @keyframes loading-icon {
+        0% {
+          transform: perspective(250px) rotateX(0deg) rotateY(0deg);
+        }
+        15% {
+          transform: perspective(250px) rotateX(0deg) rotateY(0deg);
+        }
+        16% {
+          transform: perspective(250px) rotateX(180deg) rotateY(0deg);
+        }
+        50% {
+          transform: perspective(250px) rotateX(180deg) rotateY(0deg);
+        }
+        65% {
+          transform: perspective(250px) rotateX(180deg) rotateY(0deg);
+        }
+        66% {
+          transform: perspective(250px) rotateX(180deg) rotateY(180deg);
+        }
+        100% {
+          transform: perspective(250px) rotateX(180deg) rotateY(180deg);
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+      <div id="loading">
+        <div class="u-loading">
+          <div class="u-loading__symbol">
+            <img src="/icon.png" />
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
