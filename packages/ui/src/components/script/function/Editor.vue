@@ -243,12 +243,12 @@ async function uploadFunction(file: { name: string, content: string }) {
           {{ $t('common.save') }}
         </ElButton>
         <ElTooltip
+          v-if="currentFunction"
           placement="top"
           :disabled="!inUseScript"
           :content="$t('script.inUseScript')"
         >
           <ElButton
-            v-if="currentFunction"
             :disabled="inUseScript"
             type="danger"
             @click="removeFunction"
