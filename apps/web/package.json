@@ -10,7 +10,11 @@
   },
   "scripts": {
     "dev": "vite",
+    "dev:online": "vite --mode online",
+    "dev:docker": "vite --mode docker",
     "build": "run-p type-check \"build-only {@}\" --",
+    "build:online": "run-p type-check \"build-only {@}\" -- --mode online",
+    "build:docker": "run-p type-check \"build-only {@}\" -- --mode docker",
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false"

@@ -29,6 +29,24 @@
     },
     "test": {
       "cache": false
+    },
+    "dev:online": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^dev:online"]
+    },
+    "dev:docker": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^dev:docker"]
+    },
+    "build:online": {
+      "dependsOn": ["^build:online"],
+      "outputs": ["dist/**", "out/**"]
+    },
+    "build:docker": {
+      "dependsOn": ["^build:docker"],
+      "outputs": ["dist/**", "out/**"]
     }
   }
 }
