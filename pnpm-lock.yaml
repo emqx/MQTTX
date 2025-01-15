@@ -277,6 +277,9 @@ importers:
       '@element-plus/icons-vue':
         specifier: ^2.3.1
         version: 2.3.1(vue@3.5.12)
+      '@gtm-support/vue-gtm':
+        specifier: ^3.1.0
+        version: 3.1.0(vue@3.5.12)
       '@mqttx/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -2436,6 +2439,24 @@ packages:
       long: 5.2.3
       protobufjs: 7.4.0
       yargs: 17.7.2
+    dev: false
+
+  /@gtm-support/core@3.0.1:
+    resolution: {integrity: sha512-SctcoqvvAbGAgZzOb7DZ4wjbZF3ZS7Las3qIEByv6g7mzPf4E9LpRXcQzjmywYLcUx2jys7PWJAa3s5slvj/0w==}
+    dev: false
+
+  /@gtm-support/vue-gtm@3.1.0(vue@3.5.12):
+    resolution: {integrity: sha512-kGUnCI+Z5lBeCKd7rzgU7UoFU8Q0EkJfh17SgeyAyx8cLdISqeq54BNJKZrME3WXersoigLZVJ1GLs0buYD3lA==}
+    peerDependencies:
+      vue: '>= 3.2.26 < 4.0.0'
+    peerDependenciesMeta:
+      vue-router:
+        optional: true
+    dependencies:
+      '@gtm-support/core': 3.0.1
+      vue: 3.5.12(typescript@5.6.3)
+    optionalDependencies:
+      vue-router: 4.4.5(vue@3.5.12)
     dev: false
 
   /@humanfs/core@0.19.1:
