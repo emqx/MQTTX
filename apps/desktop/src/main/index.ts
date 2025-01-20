@@ -2,6 +2,7 @@ import { join } from 'node:path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { eq } from 'drizzle-orm'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import contextMenu from 'electron-context-menu'
 import debug from 'electron-debug'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import icon from '../../resources/icon.png?asset'
@@ -11,6 +12,20 @@ import { useInstallCLI } from './installCLI'
 import { useAppUpdater } from './update'
 
 debug()
+
+contextMenu({
+  showCopyImage: false,
+  shouldShowMenu: (_event, parameters) => {
+    // Doesn't show the menu if the link is the internal link
+    const { linkURL, pageURL } = parameters
+    const linkURLPrefix = linkURL?.split('#')[0]
+    const pageURLPrefix = pageURL?.split('#')[0]
+    if (linkURLPrefix === pageURLPrefix) {
+      return false
+    }
+    return true
+  },
+})
 
 // const IsMacOS = process.platform === 'darwin'
 
