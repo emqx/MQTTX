@@ -14,6 +14,10 @@ declare global {
       installUpdate: () => Promise<void>
       installCLI: () => Promise<void>
       onInstallCLIStatus: (callback: (event: Electron.IpcRendererEvent, installCLIEvent: InstallCLIEvent) => void) => void
+      store: {
+        get: <T = any>(key: string) => Promise<T>
+        set: (key: string, value: any) => Promise<void>
+      }
     }
   }
 }
