@@ -135,8 +135,6 @@ async function createWindow() {
       theme = setting.currentTheme
       autoCheckUpdate = setting.autoCheck
       syncOsTheme = setting.syncOsTheme
-      defaultWindowSize.height = setting.height
-      defaultWindowSize.width = setting.width
       //@ts-ignore
       global.sharedData = {
         currentTheme: setting.currentTheme,
