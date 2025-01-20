@@ -15,6 +15,10 @@ const api: Window['api'] = {
   onInstallCLIStatus: callback => ipcRenderer.on('install-cli-status', (event, status, data) => {
     callback(event, { status, data })
   }),
+  store: {
+    get: key => ipcRenderer.invoke('store-send', { action: 'get', key }),
+    set: (key, value) => ipcRenderer.invoke('store-send', { action: 'set', key, value }),
+  },
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

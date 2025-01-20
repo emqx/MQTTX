@@ -34,6 +34,11 @@ export default function useSettingsService() {
     watch(storeSettings, (newSettings) => {
       updateSettingsInDB(newSettings!)
     }, { deep: true })
+    watch(() => storeSettings.value?.currentLang, (lang) => {
+      if (lang) {
+        window.api.store.set('currentLang', lang)
+      }
+    }, { immediate: true })
     watchRegistered = true
   }
 

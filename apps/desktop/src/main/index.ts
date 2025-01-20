@@ -8,24 +8,14 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import icon from '../../resources/icon.png?asset'
 import { db, execute, runMigrate } from '../database/db.main'
 import { type SelectSettings, settings } from '../database/schemas/settings'
+import { contextMenuConfig } from './config'
 import { useInstallCLI } from './installCLI'
+import { useStore } from './store'
 import { useAppUpdater } from './update'
 
 debug()
 
-contextMenu({
-  showCopyImage: false,
-  shouldShowMenu: (_event, parameters) => {
-    // Doesn't show the menu if the link is the internal link
-    const { linkURL, pageURL } = parameters
-    const linkURLPrefix = linkURL?.split('#')[0]
-    const pageURLPrefix = pageURL?.split('#')[0]
-    if (linkURLPrefix === pageURLPrefix) {
-      return false
-    }
-    return true
-  },
-})
+contextMenu(contextMenuConfig)
 
 // const IsMacOS = process.platform === 'darwin'
 
@@ -116,6 +106,8 @@ app.whenReady().then(async () => {
   await runMigrate()
 
   await createWindow()
+
+  useStore()
 
   useAppUpdater(existingSettings!)
 

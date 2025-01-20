@@ -1,0 +1,133 @@
+import type { Labels } from 'electron-context-menu'
+import type { Lang } from 'mqttx'
+
+const labels: Record<keyof Labels, Record<Lang, string>> = {
+  learnSpelling: {
+    zh: '学习拼写',
+    en: 'Learn Spelling',
+    ja: 'スペルを学ぶ',
+    tr: 'Yazımı Öğren',
+    hu: 'Szótagolás Tanulása',
+  },
+  lookUpSelection: {
+    zh: '查找 “{selection}”',
+    en: 'Look Up “{selection}”',
+    ja: '“{selection}”を検索',
+    tr: '“{selection}”\'ı Ara',
+    hu: 'Keresés “{selection}”',
+  },
+  searchWithGoogle: {
+    zh: '使用谷歌搜索',
+    en: 'Search with Google',
+    ja: 'Googleで検索',
+    tr: 'Google ile Ara',
+    hu: 'Keresés Google-lel',
+  },
+  cut: {
+    zh: '剪切',
+    en: 'Cut',
+    ja: '切り取り',
+    tr: 'Kes',
+    hu: 'Kivágás',
+  },
+  copy: {
+    zh: '复制',
+    en: 'Copy',
+    ja: 'コピー',
+    tr: 'Kopyala',
+    hu: 'Másolás',
+  },
+  paste: {
+    zh: '粘贴',
+    en: 'Paste',
+    ja: '貼り付け',
+    tr: 'Yapıştır',
+    hu: 'Beillesztés',
+  },
+  selectAll: {
+    zh: '全选',
+    en: 'Select All',
+    ja: 'すべて選択',
+    tr: 'Hepsini Seç',
+    hu: 'Összes Kijelölése',
+  },
+  saveImage: {
+    zh: '保存图片',
+    en: 'Save Image',
+    ja: '画像を保存',
+    tr: 'Resmi Kaydet',
+    hu: 'Kép Mentése',
+  },
+  saveImageAs: {
+    zh: '另存图片...',
+    en: 'Save Image As…',
+    ja: '画像を名前を付けて保存',
+    tr: 'Resmi Farklı Kaydet…',
+    hu: 'Kép Mentése Másként…',
+  },
+  saveVideo: {
+    zh: '保存视频',
+    en: 'Save Video',
+    ja: 'ビデオを保存',
+    tr: 'Videoyu Kaydet',
+    hu: 'Videó Mentése',
+  },
+  saveVideoAs: {
+    zh: '另存视频...',
+    en: 'Save Video As…',
+    ja: 'ビデオを名前を付けて保存',
+    tr: 'Videoyu Farklı Kaydet…',
+    hu: 'Videó Mentése Másként…',
+  },
+  copyLink: {
+    zh: '复制链接',
+    en: 'Copy Link',
+    ja: 'リンクをコピー',
+    tr: 'Bağlantıyı Kopyala',
+    hu: 'Hivatkozás Másolása',
+  },
+  saveLinkAs: {
+    zh: '另存链接...',
+    en: 'Save Link As…',
+    ja: 'リンクを名前を付けて保存',
+    tr: 'Bağlantıyı Farklı Kaydet…',
+    hu: 'Hivatkozás Mentése Másként…',
+  },
+  copyImage: {
+    zh: '复制图片',
+    en: 'Copy Image',
+    ja: '画像をコピー',
+    tr: 'Resmi Kopyala',
+    hu: 'Kép Másolása',
+  },
+  copyImageAddress: {
+    zh: '复制图片地址',
+    en: 'Copy Image Address',
+    ja: '画像のアドレスをコピー',
+    tr: 'Resim Adresini Kopyala',
+    hu: 'Kép Címének Másolása',
+  },
+  copyVideoAddress: {
+    zh: '复制视频地址',
+    en: 'Copy Video Address',
+    ja: 'ビデオのアドレスをコピー',
+    tr: 'Video Adresini Kopyala',
+    hu: 'Videó Címének Másolása',
+  },
+  inspect: {
+    zh: '检查元素',
+    en: 'Inspect Element',
+    ja: '要素を検証',
+    tr: 'Elemanı İncele',
+    hu: 'Elem Ellenőrzése',
+  },
+  services: {
+    zh: '服务',
+    en: 'Services',
+    ja: 'サービス',
+    tr: 'Hizmetler',
+    hu: 'Szolgáltatások',
+  },
+}
+
+export default labels
