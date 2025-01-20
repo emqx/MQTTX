@@ -1,9 +1,10 @@
 import 'reflect-metadata' // Required by TypoORM.
 ;('use strict')
-import { app, protocol, BrowserWindow, ipcMain, shell, Menu, screen } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { quitAndRenameLogger } from './utils/logger'
+import { defaultWindowSize, restoreWindowState, saveWindowState } from './utils/windowStateManager'
 import rebuildDatabase from './database/rebuildDatabase'
 import { createUpdateWindow, autoDownload } from './main/updateDownloader'
 import { getCurrentLang } from './main/updateChecker'
@@ -26,10 +27,6 @@ const electronStore = new Store()
 let theme: Theme = 'light'
 let syncOsTheme = false
 let autoCheckUpdate: boolean = true
-const windowSize = {
-  width: 1025,
-  height: 749,
-}
 const isDevelopment: boolean = process.env.NODE_ENV !== 'production'
 const isMac: boolean = process.platform === 'darwin'
 
@@ -138,8 +135,8 @@ async function createWindow() {
       theme = setting.currentTheme
       autoCheckUpdate = setting.autoCheck
       syncOsTheme = setting.syncOsTheme
-      windowSize.height = setting.height
-      windowSize.width = setting.width
+      defaultWindowSize.height = setting.height
+      defaultWindowSize.width = setting.width
       //@ts-ignore
       global.sharedData = {
         currentTheme: setting.currentTheme,
@@ -171,9 +168,7 @@ async function createWindow() {
   }
   // Create the browser window.
   win = new BrowserWindow({
-    ...windowSize,
-    minHeight: 650,
-    minWidth: 997,
+    ...defaultWindowSize,
     webPreferences: {
       devTools: isDevelopment,
       webSecurity: false,
@@ -187,19 +182,7 @@ async function createWindow() {
   })
 
   // Restore window state
-  const savedBounds = electronStore.get('bounds')
-  if (savedBounds !== undefined) {
-    const screenArea = screen.getDisplayMatching(savedBounds).workArea
-    // Check if the window is within the bounds of the screen
-    if (
-      savedBounds.x >= screenArea.x &&
-      savedBounds.x <= screenArea.x + screenArea.width &&
-      savedBounds.y >= screenArea.y &&
-      savedBounds.y <= screenArea.y + screenArea.height
-    ) {
-      win.setBounds(savedBounds)
-    }
-  }
+  restoreWindowState(win)
 
   // Theme change
   onSystemThemeChanged(async (theme) => {
@@ -228,8 +211,8 @@ async function createWindow() {
 
   win.on('close', () => {
     if (win) {
-      // Save window bounds before closing
-      electronStore.set('bounds', win.getBounds())
+      // Save window state before closing
+      saveWindowState(win)
     }
     win = null
     console.log('App closed')
