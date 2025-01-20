@@ -33,6 +33,7 @@
     "compare-versions": "^6.1.1",
     "crypto-js": "^4.2.0",
     "drizzle-orm": "^0.36.4",
+    "electron-debug": "^4.1.0",
     "electron-store": "^10.0.0",
     "electron-updater": "^6.3.9",
     "element-plus": "^2.8.7",
