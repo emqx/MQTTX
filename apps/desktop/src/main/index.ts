@@ -2,6 +2,7 @@ import { join } from 'node:path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { eq } from 'drizzle-orm'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import debug from 'electron-debug'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import icon from '../../resources/icon.png?asset'
 import { db, execute, runMigrate } from '../database/db.main'
@@ -9,11 +10,18 @@ import { type SelectSettings, settings } from '../database/schemas/settings'
 import { useInstallCLI } from './installCLI'
 import { useAppUpdater } from './update'
 
+debug()
+
 // const IsMacOS = process.platform === 'darwin'
 
 let existingSettings: SelectSettings | undefined
 
 async function createWindow() {
+  if (is.dev) {
+    installExtension(VUEJS_DEVTOOLS)
+      .catch(err => console.error('An error occurred: ', err))
+  }
+
   existingSettings = await db.query.settings.findFirst()
   if (!existingSettings) {
     await db.insert(settings).values({})
@@ -50,14 +58,6 @@ async function createWindow() {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
-  })
-
-  mainWindow.webContents.on('did-frame-finish-load', async () => {
-    if (is.dev) {
-      installExtension(VUEJS_DEVTOOLS)
-        .then(() => mainWindow.webContents.openDevTools())
-        .catch(err => console.error('An error occurred: ', err))
-    }
   })
 
   mainWindow.on('resize', async () => {
