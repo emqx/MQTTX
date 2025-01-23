@@ -12,11 +12,13 @@ const props = withDefaults(
     value?: monaco.editor.IStandaloneEditorConstructionOptions['value']
     language?: monaco.editor.IStandaloneEditorConstructionOptions['language']
     options?: Partial<monaco.editor.IStandaloneEditorConstructionOptions>
+    actions?: monaco.editor.IActionDescriptor[]
   }>(),
   {
     value: '',
     language: 'json',
     options: () => ({}),
+    actions: () => [],
   },
 )
 
@@ -24,7 +26,7 @@ const emit = defineEmits<{
   (e: 'update', value: string, event: monaco.editor.IModelContentChangedEvent): void
 }>()
 
-const { value, language, options } = toRefs(props)
+const { value, language, options, actions } = toRefs(props)
 
 const editorRef = ref<HTMLElement | null>(null)
 // The editor cannot use ref, using ref will cause the editor to completely freeze when calling getValue or setValue
@@ -106,6 +108,10 @@ function initMonacoEditor() {
     if (value.value !== editorValue) {
       emit('update', editorValue, event)
     }
+  })
+
+  actions.value.forEach((action) => {
+    editor!.addAction(action)
   })
 }
 

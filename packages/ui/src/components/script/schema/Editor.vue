@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ScriptSchema } from 'mqttx'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { useScriptSchemaStore } from '../../../stores'
 
 const modelCodec = defineModel<ScriptSchema['codec']>('codec', { default: 'protobuf' })
@@ -204,6 +205,16 @@ async function uploadSchema(file: { name: string, content: string }) {
   // Must set schemaContent after currentSchema is updated to avoid conflict with the assignment in watch
   schemaContent.value = file.content
 }
+
+const editorActions: monaco.editor.IActionDescriptor[] = [
+  {
+    id: 'save',
+    label: t('common.save'),
+    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+    run: () => handleClickSave(),
+    contextMenuGroupId: 'navigation',
+  },
+]
 </script>
 
 <template>
@@ -269,6 +280,7 @@ async function uploadSchema(file: { name: string, content: string }) {
         :value="schemaContent"
         :language="defaultSchema[currentCodec].editorLangugage"
         :options="{ lineNumbers: 'on' }"
+        :actions="editorActions"
         @update="schemaContent = $event"
       />
     </section>

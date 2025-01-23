@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ScriptFunction } from 'mqttx'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api'
 import { useScriptFunctionStore } from '../../../stores'
 
 const modelLang = defineModel<ScriptFunction['lang']>('lang', { default: 'javascript' })
@@ -198,6 +199,16 @@ async function uploadFunction(file: { name: string, content: string }) {
   // Must set functionContent after currentFunction is updated to avoid conflict with the assignment in watch
   functionContent.value = file.content
 }
+
+const editorActions: monaco.editor.IActionDescriptor[] = [
+  {
+    id: 'save',
+    label: t('common.save'),
+    keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
+    run: () => handleClickSave(),
+    contextMenuGroupId: 'navigation',
+  },
+]
 </script>
 
 <template>
@@ -263,6 +274,7 @@ async function uploadFunction(file: { name: string, content: string }) {
         :value="functionContent"
         :language="currentLang"
         :options="{ lineNumbers: 'on' }"
+        :actions="editorActions"
         @update="functionContent = $event"
       />
     </section>
