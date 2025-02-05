@@ -260,4 +260,4 @@ function useInstallCLI() {
   })
 }
 
-export { useInstallCLI }
+export { installCLI, useInstallCLI }

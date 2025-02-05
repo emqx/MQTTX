@@ -8,7 +8,7 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import icon from '../../resources/icon.png?asset'
 import { db, execute, runMigrate } from '../database/db.main'
 import { type SelectSettings, settings } from '../database/schemas/settings'
-import { contextMenuConfig } from './config'
+import { contextMenuConfig, setMenu } from './config'
 import { useInstallCLI } from './installCLI'
 import { useStore } from './store'
 import { useAppUpdater } from './update'
@@ -60,6 +60,8 @@ async function createWindow() {
     // TODO: https://github.com/electron/electron/issues/43125
     // titleBarStyle: IsMacOS ? 'hidden' : 'default',
   })
+
+  setMenu()
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
