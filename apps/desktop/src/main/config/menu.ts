@@ -19,7 +19,10 @@ function getMenuLabels(lang: Lang) {
 const isMac = process.platform === 'darwin'
 
 function getMenuTemplate(win: BrowserWindow, lang?: Lang) {
-  const labels = getMenuLabels(lang || 'en')
+  const language = lang || 'en'
+  const labels = getMenuLabels(language)
+  const MQTTXWebsite = `https://mqttx.app${['zh', 'ja'].includes(language) ? `/${lang}` : ''}`
+  const EMQWebsite = `https://emqx.com${['en', 'zh', 'ja'].includes(language) ? `/${lang}` : '/en'}`
 
   const macAppMenu: MenuItemConstructorOptions = {
     label: app.getName(),
@@ -159,7 +162,7 @@ function getMenuTemplate(win: BrowserWindow, lang?: Lang) {
         {
           label: labels.documentation,
           click: async () => {
-            await shell.openExternal('https://mqttx.app/docs?utm_source=mqttx&utm_medium=referral&utm_campaign=menu-to-docs')
+            await shell.openExternal(`${MQTTXWebsite}/docs?utm_source=mqttx&utm_medium=referral&utm_campaign=menu-to-docs`)
           },
         },
         {
@@ -171,7 +174,7 @@ function getMenuTemplate(win: BrowserWindow, lang?: Lang) {
         {
           label: labels.contactUs,
           click: async () => {
-            await shell.openExternal('https://www.emqx.com/en/contact?utm_source=mqttx&utm_medium=referral&utm_campaign=menu-to-contact')
+            await shell.openExternal(`${EMQWebsite}/contact?utm_source=mqttx&utm_medium=referral&utm_campaign=menu-to-contact`)
           },
         },
         { type: 'separator' },
@@ -191,13 +194,13 @@ function getMenuTemplate(win: BrowserWindow, lang?: Lang) {
         {
           label: labels.MQTTXWebsite,
           click: async () => {
-            await shell.openExternal('https://mqttx.app?utm_source=mqttx&utm_medium=referral&utm_campaign=menu-to-homepage')
+            await shell.openExternal(`${MQTTXWebsite}?utm_source=mqttx&utm_medium=referral&utm_campaign=menu-to-homepage`)
           },
         },
         {
           label: labels.EMQWebsite,
           click: async () => {
-            await shell.openExternal('https://www.emqx.com/en?utm_source=mqttx&utm_medium=referral&utm_campaign=menu-to-homepage')
+            await shell.openExternal(`${EMQWebsite}?utm_source=mqttx&utm_medium=referral&utm_campaign=menu-to-homepage`)
           },
         },
       ],
