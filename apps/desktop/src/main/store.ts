@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron'
 import Store from 'electron-store'
+import { setMenu } from './config/menu'
 
 // FIXME: https://github.com/sindresorhus/electron-store/issues/276
 const store = new Store() as any
@@ -12,8 +13,13 @@ function useStore() {
       case 'get':
         return store.get(key)
 
-      case 'set':
-        return store.set(key, value)
+      case 'set': {
+        const result = store.set(key, value)
+        if (key === 'currentLang') {
+          setMenu()
+        }
+        return result
+      }
     }
   })
 }

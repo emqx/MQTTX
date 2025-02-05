@@ -1,5 +1,6 @@
 {
   "name": "@mqttx/desktop",
+  "productName": "MQTTX",
   "type": "module",
   "version": "2.0.0-alpha.1",
   "description": "MQTTX Desktop - An MQTT client for the desktop",
