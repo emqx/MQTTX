@@ -12,6 +12,7 @@ const { leftBarLogo } = useLinks()
 interface MenuItem {
   icon: any
   path: string
+  activeMatchRoutes?: string[]
 }
 
 interface Menus {
@@ -24,10 +25,11 @@ const menus = reactive<Menus>({
     connections: {
       icon: IconConnections,
       path: '/connections',
+      activeMatchRoutes: ['/connections', '/connections/', '/connections/[id]', '/connections/[id].edit'],
     },
     new: {
       icon: IconNew,
-      path: '/new',
+      path: '/connections/create',
     },
     script: {
       icon: IconScript,
@@ -66,11 +68,11 @@ const menus = reactive<Menus>({
       class="flex flex-col"
     >
       <RouterLink
-        v-for="{ path, icon } in menuGroup"
+        v-for="{ path, icon, activeMatchRoutes } in menuGroup"
         :key="path"
         :to="path"
-        :class="$style.item"
-        :active-class="$style['item-active']"
+        :class="[$style.item, { [$style['item-active']]: activeMatchRoutes?.includes($route.name as string) }]"
+        :exact-active-class="$style['item-active']"
       >
         <component :is="icon" class="text-xl" />
       </RouterLink>
