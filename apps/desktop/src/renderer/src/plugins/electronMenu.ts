@@ -20,7 +20,7 @@ export function createElectronMenuPlugin() {
             window.api.installCLI()
             break
           case 'newConnection':
-            router.push('/connections/0?oper=new')
+            router.push('/connections/create')
             break
           case 'newWindow':
             // TODO: implement new window

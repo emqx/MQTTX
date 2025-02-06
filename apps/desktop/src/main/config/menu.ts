@@ -72,7 +72,6 @@ function getMenuTemplate(win: BrowserWindow, lang?: Lang) {
           label: labels.newConnection,
           accelerator: 'CmdOrCtrl+N',
           click: () => {
-            // TODO: implement new connection
             win.webContents.send('menu-clicked', 'newConnection')
           },
         },
