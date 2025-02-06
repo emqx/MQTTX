@@ -6,6 +6,7 @@ import { monacoEnvironment } from '@mqttx/ui'
 import { i18n } from '@mqttx/ui/i18n'
 
 import App from './App.vue'
+import { createElectronMenuPlugin } from './plugins/electronMenu'
 import { router } from './router'
 import '@mqttx/ui/styles.scss'
 import './assets/scss/main.scss'
@@ -15,10 +16,11 @@ monacoEnvironment()
 // Create Vue
 const app = createApp(App)
 const pinia = createPinia()
+const electronMenuPlugin = createElectronMenuPlugin()
 
 app.provide<PlatformType>('platformType', 'desktop')
 
-app.use(router).use(pinia)
+app.use(router).use(pinia).use(electronMenuPlugin)
 
 initTables().then(() => {
   const { settings } = useSettingsService()

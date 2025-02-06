@@ -2,7 +2,6 @@ import type { MenuItem, MenuItemConstructorOptions } from 'electron'
 import type { Lang } from 'mqttx'
 import { app, BrowserWindow, Menu, shell } from 'electron'
 import Store from 'electron-store'
-import { installCLI } from '../installCLI'
 import menuLabels from './menuLabels'
 
 // FIXME: https://github.com/sindresorhus/electron-store/issues/276
@@ -50,8 +49,7 @@ function getMenuTemplate(win: BrowserWindow, lang?: Lang) {
       {
         label: labels.installCLI,
         click: () => {
-          // TODO: Need to move the logic for displaying the installation status of CLI to the global scope, not just the settings page
-          installCLI()
+          win.webContents.send('menu-clicked', 'installCLI')
         },
       },
       { type: 'separator' },
@@ -75,7 +73,7 @@ function getMenuTemplate(win: BrowserWindow, lang?: Lang) {
           accelerator: 'CmdOrCtrl+N',
           click: () => {
             // TODO: implement new connection
-            win.webContents.send('menu-clicked', 'newConnections')
+            win.webContents.send('menu-clicked', 'newConnection')
           },
         },
         {
