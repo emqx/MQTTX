@@ -19,6 +19,9 @@ const api: Window['api'] = {
     get: key => ipcRenderer.invoke('store-send', { action: 'get', key }),
     set: (key, value) => ipcRenderer.invoke('store-send', { action: 'set', key, value }),
   },
+  onMenuClicked: callback => ipcRenderer.on('menu-clicked', (event, type) => {
+    callback(event, type)
+  }),
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

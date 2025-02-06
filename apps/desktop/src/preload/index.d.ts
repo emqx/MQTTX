@@ -18,6 +18,10 @@ declare global {
         get: <T = any>(key: string) => Promise<T>
         set: (key: string, value: any) => Promise<void>
       }
+      onMenuClicked: (callback: (
+        event: Electron.IpcRendererEvent,
+        type: 'about' | 'preferences' | 'checkForUpdate' | 'installCLI' | 'newConnection' | 'newWindow'
+      ) => void) => void
     }
   }
 }
