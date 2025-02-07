@@ -15,6 +15,7 @@ logger.info('MQTTX Desktop App init...')
       <CommonLeftMenu />
       <CommonMainView />
       <UpdateView />
+      <CliView />
     </ElContainer>
   </ElConfigProvider>
 </template>

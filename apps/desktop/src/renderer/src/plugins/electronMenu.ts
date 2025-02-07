@@ -1,4 +1,5 @@
 import type { App } from 'vue'
+import { useCLIInstall } from '../components/cli/useCLIInstall'
 
 export function createElectronMenuPlugin() {
   return {
@@ -16,9 +17,11 @@ export function createElectronMenuPlugin() {
             window.forceCheck = true
             window.api.checkForUpdates()
             break
-          case 'installCLI':
-            window.api.installCLI()
+          case 'installCLI': {
+            const { installCli } = useCLIInstall()
+            installCli()
             break
+          }
           case 'newConnection':
             router.push('/connections/create')
             break
