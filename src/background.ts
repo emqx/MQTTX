@@ -207,14 +207,25 @@ async function createWindow() {
     win.loadURL('app://./index.html')
   }
 
-  win.on('close', () => {
-    if (win) {
-      // Save window state before closing
-      saveWindowState(win)
+  win.on('close', (e) => {
+    // When the window is in full-screen mode, exit full-screen before closing.
+    // This ensures that we save the normal (non-full-screen) window bounds.
+    // Otherwise, the saved state would be the full-screen bounds,
+    // causing the window to restore to full-screen dimensions (covering the entire screen)
+    // after leaving full-screen mode in a subsequent launch.
+    const mainWindow = win!
+    if (mainWindow.isFullScreen()) {
+      e.preventDefault()
+      mainWindow.once('leave-full-screen', () => {
+        saveWindowState(mainWindow)
+        mainWindow.close()
+      })
+      mainWindow.setFullScreen(false)
+    } else {
+      saveWindowState(mainWindow)
+      console.log('App closed')
+      beforeAppQuit()
     }
-    win = null
-    console.log('App closed')
-    beforeAppQuit()
   })
   handleIpcMessages()
   if (electronStore.get('isVersion') !== version) {
