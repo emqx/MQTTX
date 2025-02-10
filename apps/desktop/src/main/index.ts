@@ -64,8 +64,22 @@ async function createWindow() {
     mainWindow.show()
   })
 
-  mainWindow.on('close', async () => {
-    saveWindowState(mainWindow)
+  mainWindow.on('close', async (e) => {
+    // When the window is in full-screen mode, exit full-screen before closing.
+    // This ensures that we save the normal (non-full-screen) window bounds.
+    // Otherwise, the saved state would be the full-screen bounds,
+    // causing the window to restore to full-screen dimensions (covering the entire screen)
+    // after leaving full-screen mode in a subsequent launch.
+    if (mainWindow.isFullScreen()) {
+      e.preventDefault()
+      mainWindow.once('leave-full-screen', () => {
+        saveWindowState(mainWindow)
+        mainWindow.close()
+      })
+      mainWindow.setFullScreen(false)
+    } else {
+      saveWindowState(mainWindow)
+    }
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
