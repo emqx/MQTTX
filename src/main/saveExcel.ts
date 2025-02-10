@@ -14,11 +14,13 @@ const saveExcel = (win: BrowserWindow, filename: string, workbook: WorkBook) => 
         try {
           xlsx.writeFile(workbook, filePath)
         } catch (err) {
-          dialog.showMessageBox({
-            type: 'error',
-            title: 'System',
-            message: `An error ocurred creating the file ${err.toString()}`,
-          })
+          if (err instanceof Error) {
+            dialog.showMessageBox({
+              type: 'error',
+              title: 'System',
+              message: `An error ocurred creating the file ${err.toString()}`,
+            })
+          }
           caughtError = true
         }
         if (!caughtError) {

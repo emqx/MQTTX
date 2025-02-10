@@ -14,6 +14,7 @@
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "baseUrl": ".",
+    "skipLibCheck": true,
     "types": [
       "webpack-env",
       "mocha",
