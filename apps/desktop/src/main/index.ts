@@ -1,6 +1,5 @@
 import { join } from 'node:path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { eq } from 'drizzle-orm'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import contextMenu from 'electron-context-menu'
 import debug from 'electron-debug'
@@ -8,7 +7,7 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import icon from '../../resources/icon.png?asset'
 import { db, execute, runMigrate } from '../database/db.main'
 import { type SelectSettings, settings } from '../database/schemas/settings'
-import { contextMenuConfig, setMenu } from './config'
+import { contextMenuConfig, defaultWindowSize, restoreWindowState, saveWindowState, setMenu } from './config'
 import { useInstallCLI } from './installCLI'
 import { useStore } from './store'
 import { useAppUpdater } from './update'
@@ -33,8 +32,6 @@ async function createWindow() {
   }
   existingSettings = await db.query.settings.findFirst() as SelectSettings
 
-  const width = existingSettings.width || 1024
-  const height = existingSettings.height || 749
   const currentTheme = existingSettings.currentTheme || 'light'
   const bgColor = {
     dark: '#232323',
@@ -45,10 +42,7 @@ async function createWindow() {
 
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width,
-    height,
-    minHeight: 650,
-    minWidth: 997,
+    ...defaultWindowSize,
     show: false,
     autoHideMenuBar: true,
     backgroundColor,
@@ -61,18 +55,17 @@ async function createWindow() {
     // titleBarStyle: IsMacOS ? 'hidden' : 'default',
   })
 
+  // Restore window state
+  restoreWindowState(mainWindow)
+
   setMenu()
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
 
-  mainWindow.on('resize', async () => {
-    const { width, height } = mainWindow.getBounds()
-    const data = await db.query.settings.findFirst()
-    if (data) {
-      await db.update(settings).set({ width, height }).where(eq(settings.id, data.id))
-    }
+  mainWindow.on('close', async () => {
+    saveWindowState(mainWindow)
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
