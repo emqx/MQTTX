@@ -117,7 +117,7 @@
     "sass": "~1.32.13",
     "sass-loader": "^8.0.2",
     "typeorm-uml": "^1.6.4",
-    "typescript": "^3.7.4",
+    "typescript": "^4.9.5",
     "vue-cli-plugin-electron-builder": "^2.1.1",
     "vue-template-compiler": "^2.6.12"
   },
