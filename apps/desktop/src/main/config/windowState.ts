@@ -23,27 +23,27 @@ export const defaultWindowSize = {
 export function restoreWindowState(win: BrowserWindow): void {
   try {
     const savedState = store.get('windowState') as WindowState | undefined
-    if (savedState && typeof savedState === 'object') {
-      const screenArea = screen.getDisplayMatching(savedState.bounds).workArea
-      if (savedState.bounds.width > screenArea.width) {
-        savedState.bounds.width = screenArea.width
-      }
-      if (savedState.bounds.height > screenArea.height) {
-        savedState.bounds.height = screenArea.height
-      }
-      if (savedState.bounds.x < screenArea.x) {
-        savedState.bounds.x = screenArea.x
-      }
-      if (savedState.bounds.y < screenArea.y) {
-        savedState.bounds.y = screenArea.y
-      }
-      win.setBounds(savedState.bounds)
-      if (savedState.isMaximized) {
-        win.maximize()
-      }
-      if (savedState.isFullScreen) {
-        win.setFullScreen(true)
-      }
+    if (!savedState || typeof savedState !== 'object') return
+
+    const screenArea = screen.getDisplayMatching(savedState.bounds).workArea
+    if (savedState.bounds.width > screenArea.width) {
+      savedState.bounds.width = screenArea.width
+    }
+    if (savedState.bounds.height > screenArea.height) {
+      savedState.bounds.height = screenArea.height
+    }
+    if (savedState.bounds.x < screenArea.x) {
+      savedState.bounds.x = screenArea.x
+    }
+    if (savedState.bounds.y < screenArea.y) {
+      savedState.bounds.y = screenArea.y
+    }
+    win.setBounds(savedState.bounds)
+    if (savedState.isMaximized) {
+      win.maximize()
+    }
+    if (savedState.isFullScreen) {
+      win.setFullScreen(true)
     }
   } catch (error) {
     console.error('Failed to restore window state:', error)
