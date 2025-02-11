@@ -4,10 +4,11 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import contextMenu from 'electron-context-menu'
 import debug from 'electron-debug'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
+import Store from 'electron-store'
 import icon from '../../resources/icon.png?asset'
 import { db, execute, runMigrate } from '../database/db.main'
 import { type SelectSettings, settings } from '../database/schemas/settings'
-import { contextMenuConfig, defaultWindowSize, restoreWindowState, saveWindowState, setMenu } from './config'
+import { contextMenuConfig, defaultWindowSize, restoreWindowState, saveWindowState, setMenu, setNativeTheme } from './config'
 import { useInstallCLI } from './installCLI'
 import { useStore } from './store'
 import { useAppUpdater } from './update'
@@ -18,7 +19,17 @@ contextMenu(contextMenuConfig)
 
 // const IsMacOS = process.platform === 'darwin'
 
-let existingSettings: SelectSettings | undefined
+// FIXME: https://github.com/sindresorhus/electron-store/issues/276
+const store = new Store() as any
+
+async function setSettingsToStore() {
+  let existingSettings = await db.query.settings.findFirst()
+  if (!existingSettings) {
+    await db.insert(settings).values({})
+  }
+  existingSettings = await db.query.settings.findFirst() as SelectSettings
+  store.set('settings', existingSettings)
+}
 
 async function createWindow() {
   if (is.dev) {
@@ -26,26 +37,11 @@ async function createWindow() {
       .catch(err => console.error('An error occurred: ', err))
   }
 
-  existingSettings = await db.query.settings.findFirst()
-  if (!existingSettings) {
-    await db.insert(settings).values({})
-  }
-  existingSettings = await db.query.settings.findFirst() as SelectSettings
-
-  const currentTheme = existingSettings.currentTheme || 'light'
-  const bgColor = {
-    dark: '#232323',
-    night: '#212328',
-    light: '#ffffff',
-  }
-  const backgroundColor = bgColor[currentTheme]
-
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     ...defaultWindowSize,
     show: false,
     autoHideMenuBar: true,
-    backgroundColor,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.mjs'),
@@ -59,6 +55,8 @@ async function createWindow() {
   restoreWindowState(mainWindow)
 
   setMenu()
+
+  setNativeTheme()
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
@@ -114,11 +112,13 @@ app.whenReady().then(async () => {
 
   await runMigrate()
 
+  await setSettingsToStore()
+
   await createWindow()
 
   useStore()
 
-  useAppUpdater(existingSettings!)
+  useAppUpdater()
 
   useInstallCLI()
 
