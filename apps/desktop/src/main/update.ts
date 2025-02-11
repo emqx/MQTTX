@@ -95,9 +95,10 @@ function sendUpdateStatus(updateEvent: UpdateEvent) {
 
 let downloadCancelToken: CancellationToken | null = null
 
-function useAppUpdater(settings: SelectSettings) {
+function useAppUpdater() {
   const version = app.getVersion()
   if (store.get('version') !== version) {
+    const settings = store.get('settings') as SelectSettings
     showReleaseNotesWindow(settings.currentLang)
     store.set('version', version)
   }

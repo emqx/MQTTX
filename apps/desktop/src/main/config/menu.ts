@@ -1,5 +1,5 @@
 import type { MenuItem, MenuItemConstructorOptions } from 'electron'
-import type { Lang } from 'mqttx'
+import type { Lang, Settings } from 'mqttx'
 import { app, BrowserWindow, Menu, shell } from 'electron'
 import Store from 'electron-store'
 import menuLabels from './menuLabels'
@@ -209,7 +209,8 @@ function getMenuTemplate(win: BrowserWindow, lang?: Lang) {
 
 export function setMenu() {
   const win = BrowserWindow.getFocusedWindow()!
-  const menuTemplate = getMenuTemplate(win, store.get('currentLang') || 'en')
+  const settings = store.get('settings') as Settings | undefined
+  const menuTemplate = getMenuTemplate(win, settings?.currentLang || 'en')
   const menu = Menu.buildFromTemplate(menuTemplate)
   Menu.setApplicationMenu(menu)
 }
