@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron'
 import Store from 'electron-store'
-import { setMenu } from './config/menu'
+import { setMenu, setNativeTheme } from './config'
 
 // FIXME: https://github.com/sindresorhus/electron-store/issues/276
 const store = new Store() as any
@@ -15,8 +15,9 @@ function useStore() {
 
       case 'set': {
         const result = store.set(key, value)
-        if (key === 'currentLang') {
+        if (key === 'settings') {
           setMenu()
+          setNativeTheme()
         }
         return result
       }

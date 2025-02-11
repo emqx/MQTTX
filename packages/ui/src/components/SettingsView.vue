@@ -19,11 +19,11 @@ const langOptions = [
   { label: 'Türkçe', value: 'tr' },
   { label: 'Magyar', value: 'hu' },
 ]
-const themeOptions = [
+const themeOptions = computed(() => [
   { label: t('settings.light'), value: 'light' },
   { label: t('settings.dark'), value: 'dark' },
   { label: t('settings.night'), value: 'night' },
-]
+])
 const logLevelOptions = [
   { label: 'DEBUG', value: 'debug' },
   { label: 'INFO', value: 'info' },
