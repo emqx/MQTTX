@@ -16,16 +16,16 @@ if (import.meta.hot) {
   handleHotUpdate(router)
 }
 
-const { getFirstConnectionId } = useMockData()
+// const { getFirstConnectionId } = useMockData()
 
 router.beforeEach((to, _from, next) => {
   if (to.name === '/connections/') {
-    console.log('Route to Connections Page')
-    const firstConnectionId = getFirstConnectionId()
-    if (firstConnectionId) {
-      next(`/connections/${firstConnectionId}`)
-      return
-    }
+    // console.log('Route to Connections Page')
+    // const firstConnectionId = getFirstConnectionId()
+    // if (firstConnectionId) {
+    //   next(`/connections/${firstConnectionId}`)
+    //   return
+    // }
     next()
   } else {
     next()

@@ -79,14 +79,12 @@ describe('useLinks', () => {
     await setupI18n('zh')
     const wrapper = mount(createTestComponent(), { global: { plugins: [i18n] } })
     expect(wrapper.vm.empty).toEqual({
-      EMQX: 'https://emqx.com/zh/products/emqx?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-emqx',
-      EMQXCloud: 'https://emqx.com/zh/cloud?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-cloud',
+      EMQX: 'https://emqx.com/zh/pricing?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-emqx',
     })
 
     await setupI18n('en')
     expect(wrapper.vm.empty).toEqual({
-      EMQX: 'https://emqx.com/en/products/emqx?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-emqx',
-      EMQXCloud: 'https://emqx.com/en/cloud?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-cloud',
+      EMQX: 'https://emqx.com/en/pricing?utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-emqx',
     })
   })
 
