@@ -1,3 +1,3 @@
 <template>
-  <CommonEmptyView />
+  <ConnectionsEmptyView />
 </template>

@@ -16,6 +16,7 @@ declare module 'vue' {
     CommonMainView: typeof import('./src/components/common/MainView.vue')['default']
     CommonSplitView: typeof import('./src/components/common/SplitView.vue')['default']
     ConnectionsDetailsView: typeof import('./src/components/connections/DetailsView.vue')['default']
+    ConnectionsEmptyView: typeof import('./src/components/connections/EmptyView.vue')['default']
     ConnectionsListView: typeof import('./src/components/connections/ListView.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAutocomplete: typeof import('element-plus/es')['ElAutocomplete']

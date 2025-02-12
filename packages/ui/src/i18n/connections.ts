@@ -13,6 +13,20 @@ export default {
     ja: '新しい接続',
     hu: 'Új kapcsolat',
   },
+  emptyDescription1: {
+    en: 'Don\'t have your own MQTT message server yet? Give {emqx} a try!',
+    zh: '还没有自己的 MQTT 消息服务器？试试 {emqx} 吧！',
+    tr: 'Henüz kendi MQTT mesaj sunucunuz yok mu? {emqx} deneyin!',
+    ja: 'まだ独自の MQTT メッセージサーバーを持っていませんか？ {emqx} を試してみてください！',
+    hu: 'Még nincs saját MQTT üzenetkiszolgálója? Próbálja ki az {emqx}-t!',
+  },
+  emptyDescription2: {
+    en: 'Whether you prefer on-premises deployment or cloud hosting, EMQX offers comprehensive MQTT solutions to meet various needs!',
+    zh: '无论是本地部署还是云端托管，EMQX 都能为您提供全面的 MQTT 解决方案，满足不同场景的需求！',
+    tr: 'Yerinde dağıtımı veya bulut barındırma tercih edin, EMQX çeşitli ihtiyaçları karşılamak için kapsamlı MQTT çözümleri sunar!',
+    ja: '現地デプロイメントまたはクラウドホスティングを選択し、EMQX はさまざまなニーズに対応する包括的な MQTT ソリューションを提供します！',
+    hu: 'Válassza a helyi telepítést vagy a felhőhospedációt, az EMQX széles körű MQTT megoldásokat kínál a különböző igényekhez!',
+  },
   search: {
     zh: '搜索',
     en: 'Search',
