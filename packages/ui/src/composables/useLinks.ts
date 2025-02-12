@@ -37,7 +37,8 @@ export default function useLinks() {
   const leftBarLogo = computed(() => `${MQTTXSite.value}${utm}logo-to-homepage`)
 
   const empty = computed(() => ({
-    EMQX: `${EMQSite.value}/pricing${utm}mqttx-to-emqx`,
+    EMQX: `${EMQSite.value}/products/emqx${utm}mqttx-to-emqx`,
+    EMQXCloud: `${EMQSite.value}/cloud${utm}mqttx-to-cloud`,
   }))
 
   const about = computed(() => ({
