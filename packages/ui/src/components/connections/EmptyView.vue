@@ -18,7 +18,7 @@ const { empty } = useLinks()
       >
         {{ $t('connections.newConnections') }}
       </ElButton>
-      <I18nT scope="global" keypath="connections.emptyDescription1" tag="p" class="mb-2 text-default text-sm max-w-2xl">
+      <I18nT scope="global" keypath="common.emqx" tag="p" class="mb-4 text-default text-sm max-w-2xl">
         <template #emqx>
           <a
             class="text-main-green hover:underline"
@@ -30,9 +30,18 @@ const { empty } = useLinks()
           </a>
         </template>
       </I18nT>
-      <p class="text-default text-sm max-w-2xl">
-        {{ $t('connections.emptyDescription2') }}
-      </p>
+      <I18nT scope="global" keypath="common.cloud" tag="p" class="text-default text-sm max-w-2xl">
+        <template #cloud>
+          <a
+            class="text-main-green hover:underline"
+            :href="empty.EMQXCloud"
+            target="_blank"
+            rel="noopener"
+          >
+            EMQX Cloud
+          </a>
+        </template>
+      </I18nT>
     </div>
   </ElScrollbar>
 </template>
