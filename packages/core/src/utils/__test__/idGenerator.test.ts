@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getMessageId } from '../getMessageId'
+import { getMessageId } from '../idGenerator'
 
 describe('getMessageId', () => {
   it('should return a string that starts with "message_" followed by a UUIDv4', () => {

@@ -24,7 +24,7 @@ function handleCommand(command: string) {
 </script>
 
 <template>
-  <div class="h-16 px-4 flex gap-4 items-center justify-between bg-normal border-b border-border-default">
+  <div class="h-14 px-4 flex gap-4 items-center justify-between bg-normal border-b border-border-default">
     <div>
       <ElButton
         link
@@ -43,13 +43,13 @@ function handleCommand(command: string) {
     <div>
       <!-- FIXME: Eliminate text deprecation warning
       Issue: https://github.com/element-plus/element-plus/discussions/19883 -->
-      <ElDropdown split-button type="text" trigger="click" @click="handleConnect" @command="handleCommand">
+      <ElDropdown :class="$style.dropdown" split-button type="text" trigger="click" @click="handleConnect" @command="handleCommand">
         <span class="px-[9px]">
           {{ $t('connections.connectBtn') }}
         </span>
         <template #dropdown>
           <ElDropdownMenu>
-            <ElDropdownItem class="" command="save">
+            <ElDropdownItem command="save">
               <IconCustomSave class="mr-2" width="18" height="18" />
               {{ $t('common.saveOnly') }}
             </ElDropdownItem>
@@ -59,3 +59,11 @@ function handleCommand(command: string) {
     </div>
   </div>
 </template>
+
+<style module>
+.dropdown {
+  i {
+    @apply !text-base;
+  }
+}
+</style>
