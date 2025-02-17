@@ -3,7 +3,5 @@
 </script>
 
 <template>
-  <div>
-    TODO: Create New Connection
-  </div>
+  <ConnectionsFormView mode="create" />
 </template>

@@ -3,5 +3,7 @@
 </script>
 
 <template>
-  <ConnectionsFormView mode="create" />
+  <div>
+    Last Will
+  </div>
 </template>
