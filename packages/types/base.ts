@@ -9,7 +9,7 @@ export type PlatformType = 'desktop' | 'web'
 
 export type MQTTVersion = 3 | 4 | 5
 
-export type Protocol = 'mqtt' | 'mqtts'
+export type Protocol = 'mqtt' | 'mqtts' | 'ws' | 'wss'
 
 export type QoS = 0 | 1 | 2
 
@@ -57,6 +57,28 @@ export interface ScriptSchema {
 }
 
 export default {}
+
+export interface ConnectionFormGeneral {
+  name: string
+  protocol: Protocol
+  host: string
+  port: number
+  clientId: string
+  clientIdWithTime: boolean
+  path: string
+  username: string
+  password: string
+}
+
+export interface ConnectionFormAdvanced {
+  // TODO: Add more fields
+}
+
+export interface ConnectionFormLastWill {
+  // TODO: Add more fields
+}
+
+export interface ConnectionForm extends ConnectionFormGeneral, ConnectionFormAdvanced, ConnectionFormLastWill {}
 
 export interface Connection {
   id: string

@@ -22,6 +22,7 @@ html.night {
   --color-bg-card-gradient: linear-gradient(33deg, #263e4b 0%, #2b344d 100%);
   --color-bg-btn-gradient: linear-gradient(90deg, #35c98d 0%, #37dc85 100%);
   --color-bg-tags: #262729;
+  --el-bg-color-overlay: var(--color-bg-normal);
 
   /* Font color */
   --color-text-title: #fff;
@@ -54,6 +55,7 @@ html.night {
   --color-border-leftbar: transparent;
   --color-border-left_metainfo: #ffffff61;
   --color-border-right_metainfo: #ffffff54;
+  --el-border-color-light: var(--color-border-default);
 
   /* Shadow color */
   --color-shadow-leftlist: #00000061;
