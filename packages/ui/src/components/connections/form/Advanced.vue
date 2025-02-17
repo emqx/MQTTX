@@ -3,5 +3,7 @@
 </script>
 
 <template>
-  <ConnectionsFormView mode="create" />
+  <div>
+    Advanced
+  </div>
 </template>
