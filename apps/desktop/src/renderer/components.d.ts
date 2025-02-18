@@ -20,6 +20,7 @@ declare module 'vue' {
     ConnectionsDetailsView: typeof import('./../../../../packages/ui/src/components/connections/DetailsView.vue')['default']
     ConnectionsEmptyView: typeof import('./../../../../packages/ui/src/components/connections/EmptyView.vue')['default']
     ConnectionsFormAdvanced: typeof import('./../../../../packages/ui/src/components/connections/form/Advanced.vue')['default']
+    ConnectionsFormCertificates: typeof import('./../../../../packages/ui/src/components/connections/form/Certificates.vue')['default']
     ConnectionsFormGeneral: typeof import('./../../../../packages/ui/src/components/connections/form/General.vue')['default']
     ConnectionsFormHeader: typeof import('./../../../../packages/ui/src/components/connections/form/Header.vue')['default']
     ConnectionsFormLastWill: typeof import('./../../../../packages/ui/src/components/connections/form/LastWill.vue')['default']
@@ -40,15 +41,13 @@ declare module 'vue' {
     ElDropdownMenu: typeof import('element-plus/es')['ElDropdownMenu']
     ElForm: typeof import('element-plus/es')['ElForm']
     ElFormItem: typeof import('element-plus/es')['ElFormItem']
-    ElIconArrowDown: typeof import('@element-plus/icons-vue')['ArrowDown']
     ElIconArrowLeft: typeof import('@element-plus/icons-vue')['ArrowLeft']
     ElIconDelete: typeof import('@element-plus/icons-vue')['Delete']
     ElIconDownload: typeof import('@element-plus/icons-vue')['Download']
-    ElIconPlus: typeof import('@element-plus/icons-vue')['Plus']
+    ElIconFolderOpened: typeof import('@element-plus/icons-vue')['FolderOpened']
     ElIconPrinter: typeof import('@element-plus/icons-vue')['Printer']
     ElIconRefreshRight: typeof import('@element-plus/icons-vue')['RefreshRight']
     ElIconRight: typeof import('@element-plus/icons-vue')['Right']
-    ElIconSave: typeof import('@element-plus/icons-vue')['Save']
     ElIconTimer: typeof import('@element-plus/icons-vue')['Timer']
     ElIconUpload: typeof import('@element-plus/icons-vue')['Upload']
     ElIconWarning: typeof import('@element-plus/icons-vue')['Warning']
@@ -90,5 +89,8 @@ declare module 'vue' {
     UpdateDownloadProgress: typeof import('./src/components/update/DownloadProgress.vue')['default']
     UpdateNotAvailable: typeof import('./src/components/update/NotAvailable.vue')['default']
     UpdateView: typeof import('./src/components/update/View.vue')['default']
+  }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

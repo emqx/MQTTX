@@ -23,6 +23,22 @@ const record = reactive<ConnectionForm>({
   path: '',
   username: '',
   password: '',
+  ssl: false,
+  rejectUnauthorized: true,
+  ALPNProtocols: '',
+  certType: 'server',
+  ca: {
+    name: '',
+    content: '',
+  },
+  cert: {
+    name: '',
+    content: '',
+  },
+  key: {
+    name: '',
+    content: '',
+  },
 })
 </script>
 
@@ -37,6 +53,7 @@ const record = reactive<ConnectionForm>({
       @submit.prevent
     >
       <ConnectionsFormGeneral v-model="record" :mode="mode" />
+      <ConnectionsFormCertificates v-model="record" />
     </ElForm>
   </ElScrollbar>
 </template>
@@ -44,6 +61,7 @@ const record = reactive<ConnectionForm>({
 <style lang="scss">
 #connections-form-view {
   --el-input-height: 28px;
+  --el-disabled-bg-color: transparent;
   .el-input-number {
     @apply w-full;
     .el-input__inner {

@@ -18,6 +18,7 @@ declare module 'vue' {
     ConnectionsDetailsView: typeof import('./src/components/connections/DetailsView.vue')['default']
     ConnectionsEmptyView: typeof import('./src/components/connections/EmptyView.vue')['default']
     ConnectionsFormAdvanced: typeof import('./src/components/connections/form/Advanced.vue')['default']
+    ConnectionsFormCertificates: typeof import('./src/components/connections/form/Certificates.vue')['default']
     ConnectionsFormGeneral: typeof import('./src/components/connections/form/General.vue')['default']
     ConnectionsFormHeader: typeof import('./src/components/connections/form/Header.vue')['default']
     ConnectionsFormLastWill: typeof import('./src/components/connections/form/LastWill.vue')['default']

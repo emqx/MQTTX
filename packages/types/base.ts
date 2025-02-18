@@ -68,6 +68,21 @@ export interface ConnectionFormGeneral {
   path: string
   username: string
   password: string
+  ssl: boolean
+  rejectUnauthorized: boolean
+  ALPNProtocols: string
+  certType: 'server' | 'self'
+}
+
+export interface Certificate {
+  name: string
+  content: string
+}
+
+export interface ConnectionFormCertificates {
+  ca: Certificate
+  cert: Certificate
+  key: Certificate
 }
 
 export interface ConnectionFormAdvanced {
@@ -78,7 +93,7 @@ export interface ConnectionFormLastWill {
   // TODO: Add more fields
 }
 
-export interface ConnectionForm extends ConnectionFormGeneral, ConnectionFormAdvanced, ConnectionFormLastWill {}
+export interface ConnectionForm extends ConnectionFormGeneral, ConnectionFormCertificates, ConnectionFormAdvanced, ConnectionFormLastWill {}
 
 export interface Connection {
   id: string
