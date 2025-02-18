@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { AutocompleteFetchSuggestions, FormItemRule } from 'element-plus'
 import type { Arrayable } from 'element-plus/es/utils/index.mjs'
-import type { ConnectionForm } from 'mqttx'
+import type { ConnectionForm, PlatformType } from 'mqttx'
 import { getClientId } from '@mqttx/core'
 
 const props = withDefaults(defineProps<{
@@ -13,6 +13,8 @@ const props = withDefaults(defineProps<{
 const record = defineModel<ConnectionForm>({ required: true })
 
 const { mode } = toRefs(props)
+
+const platformType = inject<PlatformType>('platformType', 'web')
 
 const { t } = useI18n()
 const nameRules = computed<Arrayable<FormItemRule>>(() => [
@@ -46,10 +48,20 @@ function handleProtocolChange(value: string) {
   // TODO: implement handleProtocolChange
   console.log(value)
 }
+
+function handleSslChange(value: string | number | boolean) {
+  // TODO: implement handleSslChange
+  console.log(value)
+}
+
+const certTypeOptions: { label: string, value: ConnectionForm['certType'] }[] = [
+  { label: 'CA signed server certificate', value: 'server' },
+  { label: 'CA or Self signed certificates', value: 'self' },
+]
 </script>
 
 <template>
-  <div>
+  <div class="mb-8">
     <h2 class="mb-2.5 text-sm text-light font-bold">
       {{ $t('settings.general') }}
     </h2>
@@ -165,6 +177,50 @@ function handleProtocolChange(value: string) {
           </ElFormItem>
         </ElCol>
       </ElRow>
+      <ElRow :gutter="10">
+        <ElCol :span="22">
+          <ElFormItem label-width="96px" label="SSL/TLS" prop="ssl">
+            <ElSwitch v-model="record.ssl" @change="handleSslChange" />
+          </ElFormItem>
+        </ElCol>
+      </ElRow>
+      <template v-if="record.ssl">
+        <ElRow :gutter="10">
+          <ElCol :span="22">
+            <ElFormItem label-width="96px" :label="$t('connections.strictValidateCertificate')" prop="rejectUnauthorized">
+              <ElSwitch v-model="record.rejectUnauthorized" />
+              <ElTooltip
+                popper-class="max-w-[420px]"
+                placement="top"
+                :open-delay="500"
+                :content="$t('connections.secureTip')"
+              >
+                <ElButton link class="ml-2 hover:!text-main-green transition-colors">
+                  <ElIconWarning width="14" height="14" />
+                </ElButton>
+              </ElTooltip>
+            </ElFormItem>
+          </ElCol>
+        </ElRow>
+        <ElRow :gutter="10">
+          <ElCol :span="22">
+            <ElFormItem label-width="96px" label="ALPN" prop="ALPNProtocols">
+              <ElInput v-model.trim="record.ALPNProtocols" clearable />
+            </ElFormItem>
+          </ElCol>
+        </ElRow>
+        <ElRow v-if="platformType === 'desktop'" :gutter="10">
+          <ElCol :span="22">
+            <ElFormItem label-width="96px" :label="$t('connections.certType')" prop="certType">
+              <ElRadioGroup v-model="record.certType">
+                <ElRadio v-for="{ label, value } in certTypeOptions" :key="value" :value="value">
+                  {{ label }}
+                </ElRadio>
+              </ElRadioGroup>
+            </ElFormItem>
+          </ElCol>
+        </ElRow>
+      </template>
     </ElCard>
   </div>
 </template>

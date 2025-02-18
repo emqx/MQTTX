@@ -18,6 +18,7 @@ declare module 'vue' {
     ConnectionsDetailsView: typeof import('./../../packages/ui/src/components/connections/DetailsView.vue')['default']
     ConnectionsEmptyView: typeof import('./../../packages/ui/src/components/connections/EmptyView.vue')['default']
     ConnectionsFormAdvanced: typeof import('./../../packages/ui/src/components/connections/form/Advanced.vue')['default']
+    ConnectionsFormCertificates: typeof import('./../../packages/ui/src/components/connections/form/Certificates.vue')['default']
     ConnectionsFormGeneral: typeof import('./../../packages/ui/src/components/connections/form/General.vue')['default']
     ConnectionsFormHeader: typeof import('./../../packages/ui/src/components/connections/form/Header.vue')['default']
     ConnectionsFormLastWill: typeof import('./../../packages/ui/src/components/connections/form/LastWill.vue')['default']
@@ -43,6 +44,7 @@ declare module 'vue' {
     ElIconArrowLeft: typeof import('@element-plus/icons-vue')['ArrowLeft']
     ElIconDelete: typeof import('@element-plus/icons-vue')['Delete']
     ElIconDownload: typeof import('@element-plus/icons-vue')['Download']
+    ElIconFolderOpened: typeof import('@element-plus/icons-vue')['FolderOpened']
     ElIconPlus: typeof import('@element-plus/icons-vue')['Plus']
     ElIconPrinter: typeof import('@element-plus/icons-vue')['Printer']
     ElIconRefreshRight: typeof import('@element-plus/icons-vue')['RefreshRight']
@@ -84,5 +86,8 @@ declare module 'vue' {
     ScriptSchemaView: typeof import('./../../packages/ui/src/components/script/schema/View.vue')['default']
     ScriptView: typeof import('./../../packages/ui/src/components/script/View.vue')['default']
     SettingsView: typeof import('./../../packages/ui/src/components/SettingsView.vue')['default']
+  }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }
