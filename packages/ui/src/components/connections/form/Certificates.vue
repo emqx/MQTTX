@@ -13,14 +13,14 @@ function handleUploadFile(type: 'ca' | 'cert' | 'key', file: { name: string, con
 </script>
 
 <template>
-  <div v-if="record.certType === 'self'">
+  <div v-if="record.certType === 'self'" class="mb-8">
     <h2 class="mb-2.5 text-sm text-light font-bold">
       Certificates
     </h2>
     <ElCard v-loading="loading" shadow="never">
       <ElRow :gutter="10">
         <ElCol :span="22">
-          <ElFormItem label-width="160px" :label="$t('connections.ca')" prop="ca">
+          <ElFormItem label-width="164px" :label="$t('connections.ca')" prop="ca">
             <ElInput v-model.trim="record.ca.name" disabled />
           </ElFormItem>
         </ElCol>
@@ -38,7 +38,7 @@ function handleUploadFile(type: 'ca' | 'cert' | 'key', file: { name: string, con
       </ElRow>
       <ElRow :gutter="10">
         <ElCol :span="22">
-          <ElFormItem label-width="160px" :label="$t('connections.cert')" prop="cert">
+          <ElFormItem label-width="164px" :label="$t('connections.cert')" prop="cert">
             <ElInput v-model.trim="record.cert.name" disabled />
           </ElFormItem>
         </ElCol>
@@ -56,7 +56,7 @@ function handleUploadFile(type: 'ca' | 'cert' | 'key', file: { name: string, con
       </ElRow>
       <ElRow :gutter="10">
         <ElCol :span="22">
-          <ElFormItem label-width="160px" :label="$t('connections.key')" prop="key">
+          <ElFormItem label-width="164px" :label="$t('connections.key')" prop="key">
             <ElInput v-model.trim="record.key.name" disabled />
           </ElFormItem>
         </ElCol>
