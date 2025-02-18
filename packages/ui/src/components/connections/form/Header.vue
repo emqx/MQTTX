@@ -24,7 +24,7 @@ function handleCommand(command: string) {
 </script>
 
 <template>
-  <div class="h-14 px-4 flex gap-4 items-center justify-between bg-normal border-b border-border-default">
+  <div class="sticky z-[9999] top-0 h-14 px-4 flex gap-4 items-center justify-between bg-normal border-b border-border-default">
     <div>
       <ElButton
         link

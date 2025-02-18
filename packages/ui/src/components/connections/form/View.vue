@@ -60,20 +60,22 @@ const record = reactive<ConnectionForm>({
 </script>
 
 <template>
-  <ElScrollbar id="connections-form-view" class="bg-primary min-h-full select-none">
+  <div id="connections-form-view" class="h-screen select-none">
     <ConnectionsFormHeader :mode="mode" />
-    <ElForm
-      ref="formRef"
-      class="p-5"
-      :model="record"
-      novalidate
-      @submit.prevent
-    >
-      <ConnectionsFormGeneral v-model="record" :mode="mode" />
-      <ConnectionsFormCertificates v-model="record" />
-      <ConnectionsFormAdvanced v-model="record" />
-    </ElForm>
-  </ElScrollbar>
+    <ElScrollbar class="bg-primary h-[calc(100%-56px)]">
+      <ElForm
+        ref="formRef"
+        class="p-5"
+        :model="record"
+        novalidate
+        @submit.prevent
+      >
+        <ConnectionsFormGeneral v-model="record" :mode="mode" />
+        <ConnectionsFormCertificates v-model="record" />
+        <ConnectionsFormAdvanced v-model="record" />
+      </ElForm>
+    </ElScrollbar>
+  </div>
 </template>
 
 <style lang="scss">
