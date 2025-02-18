@@ -85,8 +85,27 @@ export interface ConnectionFormCertificates {
   key: Certificate
 }
 
+// MQTT 5 feature
+export interface ClientProperties {
+  sessionExpiryInterval?: number
+  receiveMaximum?: number
+  maximumPacketSize?: number
+  topicAliasMaximum?: number
+  requestResponseInformation?: boolean
+  requestProblemInformation?: boolean
+  userProperties?: { [key: string]: string | string[] }
+  authenticationMethod?: string
+  authenticationData?: Buffer
+}
+
 export interface ConnectionFormAdvanced {
-  // TODO: Add more fields
+  protocolVersion: MQTTVersion
+  connectTimeout: number
+  keepalive: number
+  reconnect: boolean
+  reconnectPeriod: number
+  clean: boolean
+  properties: ClientProperties
 }
 
 export interface ConnectionFormLastWill {

@@ -39,6 +39,23 @@ const record = reactive<ConnectionForm>({
     name: '',
     content: '',
   },
+  protocolVersion: 5,
+  connectTimeout: 10,
+  keepalive: 60,
+  reconnect: true,
+  reconnectPeriod: 4000,
+  clean: true,
+  properties: {
+    sessionExpiryInterval: 0,
+    receiveMaximum: undefined,
+    maximumPacketSize: undefined,
+    topicAliasMaximum: undefined,
+    requestResponseInformation: undefined,
+    requestProblemInformation: undefined,
+    userProperties: undefined,
+    authenticationMethod: undefined,
+    authenticationData: undefined,
+  },
 })
 </script>
 
@@ -54,6 +71,7 @@ const record = reactive<ConnectionForm>({
     >
       <ConnectionsFormGeneral v-model="record" :mode="mode" />
       <ConnectionsFormCertificates v-model="record" />
+      <ConnectionsFormAdvanced v-model="record" />
     </ElForm>
   </ElScrollbar>
 </template>
