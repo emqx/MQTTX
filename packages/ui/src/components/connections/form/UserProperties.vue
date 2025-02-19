@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import type { InputInstance } from 'element-plus'
 import type { ConnectionForm } from 'mqttx'
+import { useElementSize } from '@vueuse/core'
 
 withDefaults(defineProps<{
   title: string
@@ -68,11 +70,22 @@ function deleteItem(_index: number) {
   }
   dataList.value.splice(_index, 1)
 }
+
+const keyRefs = ref<InputInstance[]>([])
+const valueRefs = ref<InputInstance[]>([])
+const skipUnwrap = { keyRefs, valueRefs }
+const scrollContainer = useTemplateRef('scrollContainer')
+const { width } = useElementSize(scrollContainer)
+
+watch([width], () => {
+  [...keyRefs.value, ...valueRefs.value].forEach((ref) => {
+    ref.resizeTextarea()
+  })
+})
 </script>
 
 <template>
   <div>
-    {{ userProperties }}
     <div class="mb-4 flex items-center justify-between">
       <span class="text-default">{{ title }}</span>
       <ElButton
@@ -84,10 +97,10 @@ function deleteItem(_index: number) {
       </ElButton>
     </div>
     <ElScrollbar>
-      <div class="grid gap-3" :style="{ maxHeight }">
+      <div ref="scrollContainer" class="grid gap-3" :style="{ maxHeight }">
         <div v-for="(item, index) in dataList" :key="index" class="grid gap-3 grid-cols-[1fr_1fr_32px]">
           <ElInput
-            :ref="`KeyRef${index}`"
+            :ref="skipUnwrap.keyRefs"
             v-model="item.key"
             :placeholder="mode === 'readOnly' ? '' : 'Key'"
             type="textarea"
@@ -96,7 +109,7 @@ function deleteItem(_index: number) {
             :disabled="mode === 'readOnly'"
           />
           <ElInput
-            :ref="`ValueRef${index}`"
+            :ref="skipUnwrap.valueRefs"
             v-model="item.value"
             :placeholder="mode === 'readOnly' ? '' : 'Value'"
             type="textarea"
