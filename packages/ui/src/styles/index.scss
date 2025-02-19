@@ -8,3 +8,22 @@
   height: 100vh;
   min-width: 997px;
 }
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar:horizontal {
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  cursor: pointer;
+  background-color: var(--color-bg-scrollbar);
+  border-radius: 10px;
+  transition: all 0.2s ease-in-out;
+}
