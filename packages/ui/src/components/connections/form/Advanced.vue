@@ -29,88 +29,22 @@ function handleCleanChange(value: string | number | boolean) {
       <ElIconCaretRight :style="{ transform: isCollapse ? 'rotate(0deg)' : 'rotate(90deg)', transition: 'transform 0.3s' }" width="14" height="14" />
     </h2>
     <ElCollapseTransition>
-      <ElCard v-show="!isCollapse" shadow="never">
-        <ElRow :gutter="10">
-          <ElCol :span="22">
-            <ElFormItem label-width="164px" :label="$t('connections.mqttVersion')" prop="protocolVersion">
-              <ElSelect v-model="record.protocolVersion">
-                <ElOption v-for="{ label, value } in protocolVersionOptions" :key="value" :label="label" :value="value" />
-              </ElSelect>
-            </ElFormItem>
-          </ElCol>
-        </ElRow>
-        <ElRow :gutter="10">
-          <ElCol :span="22">
-            <ElFormItem label-width="164px" :label="$t('connections.connectionTimeout')" prop="connectTimeout">
-              <ElInputNumber
-                v-model="record.connectTimeout"
-                type="number"
-                :min="0"
-                controls-position="right"
-              />
-            </ElFormItem>
-          </ElCol>
-          <ElCol :span="2">
-            <div class="mt-1.5 text-xs text-default">
-              ({{ $t('common.unitS') }})
-            </div>
-          </ElCol>
-        </ElRow>
-        <ElRow :gutter="10">
-          <ElCol :span="22">
-            <ElFormItem label-width="164px" label="Keep Alive" prop="keepalive">
-              <ElInputNumber
-                v-model="record.keepalive"
-                type="number"
-                :min="0"
-                controls-position="right"
-              />
-            </ElFormItem>
-          </ElCol>
-          <ElCol :span="2">
-            <div class="mt-1.5 text-xs text-default">
-              ({{ $t('common.unitS') }})
-            </div>
-          </ElCol>
-        </ElRow>
-        <ElRow :gutter="10">
-          <ElCol :span="22">
-            <ElFormItem label-width="164px" :label="$t('connections.autoReconnect')" prop="reconnect">
-              <ElSwitch v-model="record.reconnect" />
-            </ElFormItem>
-          </ElCol>
-        </ElRow>
-        <ElRow v-if="record.reconnect" :gutter="10">
-          <ElCol :span="22">
-            <ElFormItem label-width="164px" :label="$t('connections.reconnectPeriod')" prop="reconnectPeriod">
-              <ElInputNumber
-                v-model="record.reconnectPeriod"
-                type="number"
-                :min="1"
-                controls-position="right"
-              />
-            </ElFormItem>
-          </ElCol>
-          <ElCol :span="2">
-            <div class="mt-1.5 text-xs text-default">
-              ({{ $t('common.unitMS') }})
-            </div>
-          </ElCol>
-        </ElRow>
-        <ElRow :gutter="10">
-          <ElCol :span="22">
-            <ElFormItem label-width="164px" :label="record.protocolVersion === 5 ? 'Clean Start' : 'Clean Session'" prop="clean">
-              <ElSwitch v-model="record.clean" @change="handleCleanChange" />
-            </ElFormItem>
-          </ElCol>
-        </ElRow>
-
-        <template v-if="record.protocolVersion === 5">
+      <div v-show="!isCollapse">
+        <ElCard shadow="never">
           <ElRow :gutter="10">
             <ElCol :span="22">
-              <ElFormItem label-width="164px" :label="$t('connections.sessionExpiryInterval')" prop="sessionExpiryInterval">
+              <ElFormItem label-width="164px" :label="$t('connections.mqttVersion')" prop="protocolVersion">
+                <ElSelect v-model="record.protocolVersion">
+                  <ElOption v-for="{ label, value } in protocolVersionOptions" :key="value" :label="label" :value="value" />
+                </ElSelect>
+              </ElFormItem>
+            </ElCol>
+          </ElRow>
+          <ElRow :gutter="10">
+            <ElCol :span="22">
+              <ElFormItem label-width="164px" :label="$t('connections.connectionTimeout')" prop="connectTimeout">
                 <ElInputNumber
-                  v-model="record.properties.sessionExpiryInterval"
+                  v-model="record.connectTimeout"
                   type="number"
                   :min="0"
                   controls-position="right"
@@ -125,56 +59,135 @@ function handleCleanChange(value: string | number | boolean) {
           </ElRow>
           <ElRow :gutter="10">
             <ElCol :span="22">
-              <ElFormItem label-width="164px" :label="$t('connections.receiveMaximum')" prop="receiveMaximum">
+              <ElFormItem label-width="164px" label="Keep Alive" prop="keepalive">
                 <ElInputNumber
-                  v-model="record.properties.receiveMaximum"
+                  v-model="record.keepalive"
+                  type="number"
+                  :min="0"
+                  controls-position="right"
+                />
+              </ElFormItem>
+            </ElCol>
+            <ElCol :span="2">
+              <div class="mt-1.5 text-xs text-default">
+                ({{ $t('common.unitS') }})
+              </div>
+            </ElCol>
+          </ElRow>
+          <ElRow :gutter="10">
+            <ElCol :span="22">
+              <ElFormItem label-width="164px" :label="$t('connections.autoReconnect')" prop="reconnect">
+                <ElSwitch v-model="record.reconnect" />
+              </ElFormItem>
+            </ElCol>
+          </ElRow>
+          <ElRow v-if="record.reconnect" :gutter="10">
+            <ElCol :span="22">
+              <ElFormItem label-width="164px" :label="$t('connections.reconnectPeriod')" prop="reconnectPeriod">
+                <ElInputNumber
+                  v-model="record.reconnectPeriod"
                   type="number"
                   :min="1"
                   controls-position="right"
                 />
               </ElFormItem>
             </ElCol>
-          </ElRow>
-          <ElRow :gutter="10">
-            <ElCol :span="22">
-              <ElFormItem label-width="164px" :label="$t('connections.maximumPacketSize')" prop="maximumPacketSize">
-                <ElInputNumber
-                  v-model="record.properties.maximumPacketSize"
-                  type="number"
-                  :min="100"
-                  controls-position="right"
-                />
-              </ElFormItem>
+            <ElCol :span="2">
+              <div class="mt-1.5 text-xs text-default">
+                ({{ $t('common.unitMS') }})
+              </div>
             </ElCol>
           </ElRow>
           <ElRow :gutter="10">
             <ElCol :span="22">
-              <ElFormItem label-width="164px" :label="$t('connections.topicAliasMaximum')" prop="topicAliasMaximum">
-                <ElInputNumber
-                  v-model="record.properties.topicAliasMaximum"
-                  type="number"
-                  :min="1"
-                  controls-position="right"
-                />
+              <ElFormItem label-width="164px" :label="record.protocolVersion === 5 ? 'Clean Start' : 'Clean Session'" prop="clean">
+                <ElSwitch v-model="record.clean" @change="handleCleanChange" />
               </ElFormItem>
             </ElCol>
           </ElRow>
+
+          <template v-if="record.protocolVersion === 5">
+            <ElRow :gutter="10">
+              <ElCol :span="22">
+                <ElFormItem label-width="164px" :label="$t('connections.sessionExpiryInterval')" prop="sessionExpiryInterval">
+                  <ElInputNumber
+                    v-model="record.properties.sessionExpiryInterval"
+                    type="number"
+                    :min="0"
+                    controls-position="right"
+                  />
+                </ElFormItem>
+              </ElCol>
+              <ElCol :span="2">
+                <div class="mt-1.5 text-xs text-default">
+                  ({{ $t('common.unitS') }})
+                </div>
+              </ElCol>
+            </ElRow>
+            <ElRow :gutter="10">
+              <ElCol :span="22">
+                <ElFormItem label-width="164px" :label="$t('connections.receiveMaximum')" prop="receiveMaximum">
+                  <ElInputNumber
+                    v-model="record.properties.receiveMaximum"
+                    type="number"
+                    :min="1"
+                    controls-position="right"
+                  />
+                </ElFormItem>
+              </ElCol>
+            </ElRow>
+            <ElRow :gutter="10">
+              <ElCol :span="22">
+                <ElFormItem label-width="164px" :label="$t('connections.maximumPacketSize')" prop="maximumPacketSize">
+                  <ElInputNumber
+                    v-model="record.properties.maximumPacketSize"
+                    type="number"
+                    :min="100"
+                    controls-position="right"
+                  />
+                </ElFormItem>
+              </ElCol>
+            </ElRow>
+            <ElRow :gutter="10">
+              <ElCol :span="22">
+                <ElFormItem label-width="164px" :label="$t('connections.topicAliasMaximum')" prop="topicAliasMaximum">
+                  <ElInputNumber
+                    v-model="record.properties.topicAliasMaximum"
+                    type="number"
+                    :min="1"
+                    controls-position="right"
+                  />
+                </ElFormItem>
+              </ElCol>
+            </ElRow>
+            <ElRow :gutter="10">
+              <ElCol :span="22">
+                <ElFormItem label-width="164px" :label="$t('connections.requestResponseInformation')" prop="requestResponseInformation">
+                  <ElSwitch v-model="record.properties.requestResponseInformation" />
+                </ElFormItem>
+              </ElCol>
+            </ElRow>
+            <ElRow :gutter="10">
+              <ElCol :span="22">
+                <ElFormItem label-width="164px" :label="$t('connections.requestProblemInformation')" prop="requestProblemInformation">
+                  <ElSwitch v-model="record.properties.requestProblemInformation" />
+                </ElFormItem>
+              </ElCol>
+            </ElRow>
+          </template>
+        </ElCard>
+
+        <ElCard v-if="record.protocolVersion === 5" class="mt-8" shadow="never">
           <ElRow :gutter="10">
             <ElCol :span="22">
-              <ElFormItem label-width="164px" :label="$t('connections.requestResponseInformation')" prop="requestResponseInformation">
-                <ElSwitch v-model="record.properties.requestResponseInformation" />
-              </ElFormItem>
+              <ConnectionsFormUserProperties
+                v-model="record.properties.userProperties"
+                :title="$t('connections.userProperties')"
+              />
             </ElCol>
           </ElRow>
-          <ElRow :gutter="10">
-            <ElCol :span="22">
-              <ElFormItem label-width="164px" :label="$t('connections.requestProblemInformation')" prop="requestProblemInformation">
-                <ElSwitch v-model="record.properties.requestProblemInformation" />
-              </ElFormItem>
-            </ElCol>
-          </ElRow>
-        </template>
-      </ElCard>
+        </ElCard>
+      </div>
     </ElCollapseTransition>
   </div>
 </template>
