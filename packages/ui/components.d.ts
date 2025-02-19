@@ -22,6 +22,7 @@ declare module 'vue' {
     ConnectionsFormGeneral: typeof import('./src/components/connections/form/General.vue')['default']
     ConnectionsFormHeader: typeof import('./src/components/connections/form/Header.vue')['default']
     ConnectionsFormLastWill: typeof import('./src/components/connections/form/LastWill.vue')['default']
+    ConnectionsFormUserProperties: typeof import('./src/components/connections/form/UserProperties.vue')['default']
     ConnectionsFormView: typeof import('./src/components/connections/form/View.vue')['default']
     ConnectionsListView: typeof import('./src/components/connections/ListView.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
