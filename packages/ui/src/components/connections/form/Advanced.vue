@@ -23,8 +23,14 @@ function handleCleanChange(value: string | number | boolean) {
 </script>
 
 <template>
-  <div>
-    <h2 class="mb-2.5 text-sm text-light font-bold flex gap-2 items-center cursor-pointer" @click="isCollapse = !isCollapse">
+  <div class="mb-8">
+    <h2
+      class="mb-2.5 text-sm text-light font-bold flex gap-2 items-center cursor-pointer"
+      tabindex="0"
+      role="button"
+      @click="isCollapse = !isCollapse"
+      @keydown.enter="isCollapse = !isCollapse"
+    >
       {{ $t('settings.advanced') }}
       <ElIconCaretRight :style="{ transform: isCollapse ? 'rotate(0deg)' : 'rotate(90deg)', transition: 'transform 0.3s' }" width="14" height="14" />
     </h2>
