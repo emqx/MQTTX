@@ -7,6 +7,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "^9.2.0",
-    "@types/node": "^22.9.0"
+    "@types/node": "^22.9.0",
+    "mqtt": "^5.10.1"
   }
 }

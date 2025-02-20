@@ -29,7 +29,8 @@
   },
   "dependencies": {
     "log4js": "^6.9.1",
-    "monaco-editor": "^0.52.2"
+    "monaco-editor": "^0.52.2",
+    "mqtt": "^5.10.1"
   },
   "devDependencies": {
     "@mqttx/core": "workspace:*",
