@@ -130,7 +130,7 @@ const certTypeOptions: { label: string, value: ConnectionForm['certType'] }[] = 
       </ElRow>
       <ElRow :gutter="10">
         <ElCol :span="22">
-          <ElFormItem label-width="96px" label="Client ID" prop="clientId">
+          <ElFormItem label-width="96px" label="Client ID">
             <ElInput v-model="record.clientId" clearable />
           </ElFormItem>
         </ElCol>
@@ -171,21 +171,21 @@ const certTypeOptions: { label: string, value: ConnectionForm['certType'] }[] = 
       </ElRow>
       <ElRow :gutter="10">
         <ElCol :span="22">
-          <ElFormItem label-width="96px" :label="$t('connections.username')" prop="username">
+          <ElFormItem label-width="96px" :label="$t('connections.username')">
             <ElInput v-model.trim="record.username" clearable />
           </ElFormItem>
         </ElCol>
       </ElRow>
       <ElRow :gutter="10">
         <ElCol :span="22">
-          <ElFormItem label-width="96px" :label="$t('connections.password')" prop="password">
+          <ElFormItem label-width="96px" :label="$t('connections.password')">
             <ElInput v-model.trim="record.password" type="password" show-password clearable />
           </ElFormItem>
         </ElCol>
       </ElRow>
       <ElRow :gutter="10">
         <ElCol :span="22">
-          <ElFormItem label-width="96px" label="SSL/TLS" prop="ssl">
+          <ElFormItem label-width="96px" label="SSL/TLS">
             <ElSwitch v-model="record.ssl" @change="handleSslChange" />
           </ElFormItem>
         </ElCol>
@@ -193,7 +193,7 @@ const certTypeOptions: { label: string, value: ConnectionForm['certType'] }[] = 
       <template v-if="record.ssl">
         <ElRow :gutter="10">
           <ElCol :span="22">
-            <ElFormItem label-width="96px" :label="$t('connections.strictValidateCertificate')" prop="rejectUnauthorized">
+            <ElFormItem label-width="96px" :label="$t('connections.strictValidateCertificate')">
               <ElSwitch v-model="record.rejectUnauthorized" />
               <ElTooltip
                 popper-class="max-w-[420px]"
@@ -210,7 +210,7 @@ const certTypeOptions: { label: string, value: ConnectionForm['certType'] }[] = 
         </ElRow>
         <ElRow :gutter="10">
           <ElCol :span="22">
-            <ElFormItem label-width="96px" label="ALPN" prop="ALPNProtocols">
+            <ElFormItem label-width="96px" label="ALPN">
               <ElSelect
                 v-model="record.ALPNProtocols"
                 multiple
@@ -230,7 +230,7 @@ const certTypeOptions: { label: string, value: ConnectionForm['certType'] }[] = 
         </ElRow>
         <ElRow v-if="platformType === 'desktop'" :gutter="10">
           <ElCol :span="22">
-            <ElFormItem label-width="96px" :label="$t('connections.certType')" prop="certType">
+            <ElFormItem label-width="96px" :label="$t('connections.certType')">
               <ElRadioGroup v-model="record.certType">
                 <ElRadio v-for="{ label, value } in certTypeOptions" :key="value" :value="value">
                   {{ label }}

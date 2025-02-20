@@ -39,7 +39,7 @@ function handleCleanChange(value: string | number | boolean) {
         <ElCard shadow="never">
           <ElRow :gutter="10">
             <ElCol :span="22">
-              <ElFormItem label-width="164px" :label="$t('connections.mqttVersion')" prop="protocolVersion">
+              <ElFormItem label-width="180px" :label="$t('connections.mqttVersion')">
                 <ElSelect v-model="record.protocolVersion">
                   <ElOption v-for="{ label, value } in protocolVersionOptions" :key="value" :label="label" :value="value" />
                 </ElSelect>
@@ -48,7 +48,7 @@ function handleCleanChange(value: string | number | boolean) {
           </ElRow>
           <ElRow :gutter="10">
             <ElCol :span="22">
-              <ElFormItem label-width="164px" :label="$t('connections.connectionTimeout')" prop="connectTimeout">
+              <ElFormItem label-width="180px" :label="$t('connections.connectionTimeout')">
                 <ElInputNumber
                   v-model="record.connectTimeout"
                   type="number"
@@ -65,7 +65,7 @@ function handleCleanChange(value: string | number | boolean) {
           </ElRow>
           <ElRow :gutter="10">
             <ElCol :span="22">
-              <ElFormItem label-width="164px" label="Keep Alive" prop="keepalive">
+              <ElFormItem label-width="180px" label="Keep Alive">
                 <ElInputNumber
                   v-model="record.keepalive"
                   type="number"
@@ -82,14 +82,14 @@ function handleCleanChange(value: string | number | boolean) {
           </ElRow>
           <ElRow :gutter="10">
             <ElCol :span="22">
-              <ElFormItem label-width="164px" :label="$t('connections.autoReconnect')" prop="reconnect">
+              <ElFormItem label-width="180px" :label="$t('connections.autoReconnect')">
                 <ElSwitch v-model="record.reconnect" />
               </ElFormItem>
             </ElCol>
           </ElRow>
           <ElRow v-if="record.reconnect" :gutter="10">
             <ElCol :span="22">
-              <ElFormItem label-width="164px" :label="$t('connections.reconnectPeriod')" prop="reconnectPeriod">
+              <ElFormItem label-width="180px" :label="$t('connections.reconnectPeriod')">
                 <ElInputNumber
                   v-model="record.reconnectPeriod"
                   type="number"
@@ -106,7 +106,7 @@ function handleCleanChange(value: string | number | boolean) {
           </ElRow>
           <ElRow :gutter="10">
             <ElCol :span="22">
-              <ElFormItem label-width="164px" :label="record.protocolVersion === 5 ? 'Clean Start' : 'Clean Session'" prop="clean">
+              <ElFormItem label-width="180px" :label="record.protocolVersion === 5 ? 'Clean Start' : 'Clean Session'">
                 <ElSwitch v-model="record.clean" @change="handleCleanChange" />
               </ElFormItem>
             </ElCol>
@@ -115,7 +115,7 @@ function handleCleanChange(value: string | number | boolean) {
           <template v-if="record.protocolVersion === 5">
             <ElRow :gutter="10">
               <ElCol :span="22">
-                <ElFormItem label-width="164px" :label="$t('connections.sessionExpiryInterval')" prop="sessionExpiryInterval">
+                <ElFormItem label-width="180px" :label="$t('connections.sessionExpiryInterval')">
                   <ElInputNumber
                     v-model="record.properties.sessionExpiryInterval"
                     type="number"
@@ -132,7 +132,7 @@ function handleCleanChange(value: string | number | boolean) {
             </ElRow>
             <ElRow :gutter="10">
               <ElCol :span="22">
-                <ElFormItem label-width="164px" :label="$t('connections.receiveMaximum')" prop="receiveMaximum">
+                <ElFormItem label-width="180px" :label="$t('connections.receiveMaximum')">
                   <ElInputNumber
                     v-model="record.properties.receiveMaximum"
                     type="number"
@@ -144,7 +144,7 @@ function handleCleanChange(value: string | number | boolean) {
             </ElRow>
             <ElRow :gutter="10">
               <ElCol :span="22">
-                <ElFormItem label-width="164px" :label="$t('connections.maximumPacketSize')" prop="maximumPacketSize">
+                <ElFormItem label-width="180px" :label="$t('connections.maximumPacketSize')">
                   <ElInputNumber
                     v-model="record.properties.maximumPacketSize"
                     type="number"
@@ -156,7 +156,7 @@ function handleCleanChange(value: string | number | boolean) {
             </ElRow>
             <ElRow :gutter="10">
               <ElCol :span="22">
-                <ElFormItem label-width="164px" :label="$t('connections.topicAliasMaximum')" prop="topicAliasMaximum">
+                <ElFormItem label-width="180px" :label="$t('connections.topicAliasMaximum')">
                   <ElInputNumber
                     v-model="record.properties.topicAliasMaximum"
                     type="number"
@@ -168,14 +168,14 @@ function handleCleanChange(value: string | number | boolean) {
             </ElRow>
             <ElRow :gutter="10">
               <ElCol :span="22">
-                <ElFormItem label-width="164px" :label="$t('connections.requestResponseInformation')" prop="requestResponseInformation">
+                <ElFormItem label-width="180px" :label="$t('connections.requestResponseInformation')">
                   <ElSwitch v-model="record.properties.requestResponseInformation" />
                 </ElFormItem>
               </ElCol>
             </ElRow>
             <ElRow :gutter="10">
               <ElCol :span="22">
-                <ElFormItem label-width="164px" :label="$t('connections.requestProblemInformation')" prop="requestProblemInformation">
+                <ElFormItem label-width="180px" :label="$t('connections.requestProblemInformation')">
                   <ElSwitch v-model="record.properties.requestProblemInformation" />
                 </ElFormItem>
               </ElCol>

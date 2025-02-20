@@ -98,7 +98,7 @@ export interface ConnectionFormAdvanced {
 }
 
 export interface ConnectionFormLastWill {
-  // TODO: Add more fields
+  will: NonNullable<IClientOptions['will']> & { properties: NonNullable<NonNullable<IClientOptions['will']>['properties']> }
 }
 
 export interface ConnectionForm extends ConnectionFormGeneral, ConnectionFormCertificates, ConnectionFormAdvanced, ConnectionFormLastWill {}
