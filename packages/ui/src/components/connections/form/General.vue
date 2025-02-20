@@ -54,6 +54,12 @@ function handleSslChange(value: string | number | boolean) {
   console.log(value)
 }
 
+const ALPNProtocolsOptions = ref<string[]>([
+  'mqtt',
+  'x-amzn-mqtt-ca',
+  'x-amzn-http-ca',
+])
+
 const certTypeOptions: { label: string, value: ConnectionForm['certType'] }[] = [
   { label: 'CA signed server certificate', value: 'server' },
   { label: 'CA or Self signed certificates', value: 'self' },
@@ -205,7 +211,20 @@ const certTypeOptions: { label: string, value: ConnectionForm['certType'] }[] = 
         <ElRow :gutter="10">
           <ElCol :span="22">
             <ElFormItem label-width="96px" label="ALPN" prop="ALPNProtocols">
-              <ElInput v-model.trim="record.ALPNProtocols" clearable />
+              <ElSelect
+                v-model="record.ALPNProtocols"
+                multiple
+                filterable
+                default-first-option
+                allow-create
+              >
+                <ElOption
+                  v-for="item in ALPNProtocolsOptions"
+                  :key="item"
+                  :label="item"
+                  :value="item"
+                />
+              </ElSelect>
             </ElFormItem>
           </ElCol>
         </ElRow>

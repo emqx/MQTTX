@@ -25,7 +25,7 @@ const record = reactive<ConnectionForm>({
   password: '',
   ssl: false,
   rejectUnauthorized: true,
-  ALPNProtocols: '',
+  ALPNProtocols: [],
   certType: 'server',
   ca: {
     name: '',
@@ -73,6 +73,7 @@ const record = reactive<ConnectionForm>({
         <ConnectionsFormGeneral v-model="record" :mode="mode" />
         <ConnectionsFormCertificates v-model="record" />
         <ConnectionsFormAdvanced v-model="record" />
+        <!-- <ConnectionsFormLastWill v-model="record" /> -->
       </ElForm>
     </ElScrollbar>
   </div>

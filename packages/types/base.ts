@@ -1,3 +1,7 @@
+import type { IClientOptions, IClientPublishOptions } from 'mqtt'
+
+export default {}
+
 declare global {
   interface Window {
     __APP_VERSION__: string
@@ -7,11 +11,11 @@ declare global {
 
 export type PlatformType = 'desktop' | 'web'
 
-export type MQTTVersion = 3 | 4 | 5
+export type MQTTVersion = NonNullable<IClientOptions['protocolVersion']>
 
-export type Protocol = 'mqtt' | 'mqtts' | 'ws' | 'wss'
+export type Protocol = Extract<IClientOptions['protocol'], 'mqtt' | 'mqtts' | 'ws' | 'wss'>
 
-export type QoS = 0 | 1 | 2
+export type QoS = NonNullable<IClientPublishOptions['qos']>
 
 export type PayloadType = 'Plaintext' | 'Base64' | 'JSON' | 'Hex' | 'CBOR' | 'MsgPack'
 
@@ -56,8 +60,6 @@ export interface ScriptSchema {
   content: string
 }
 
-export default {}
-
 export interface ConnectionFormGeneral {
   name: string
   protocol: Protocol
@@ -70,7 +72,7 @@ export interface ConnectionFormGeneral {
   password: string
   ssl: boolean
   rejectUnauthorized: boolean
-  ALPNProtocols: string
+  ALPNProtocols: Extract<IClientOptions['ALPNProtocols'], string[]>
   certType: 'server' | 'self'
 }
 
@@ -85,19 +87,6 @@ export interface ConnectionFormCertificates {
   key: Certificate
 }
 
-// MQTT 5 feature
-export interface ClientProperties {
-  sessionExpiryInterval?: number
-  receiveMaximum?: number
-  maximumPacketSize?: number
-  topicAliasMaximum?: number
-  requestResponseInformation?: boolean
-  requestProblemInformation?: boolean
-  userProperties?: { [key: string]: string | string[] }
-  authenticationMethod?: string
-  authenticationData?: Buffer
-}
-
 export interface ConnectionFormAdvanced {
   protocolVersion: MQTTVersion
   connectTimeout: number
@@ -105,7 +94,7 @@ export interface ConnectionFormAdvanced {
   reconnect: boolean
   reconnectPeriod: number
   clean: boolean
-  properties: ClientProperties
+  properties: NonNullable<IClientOptions['properties']>
 }
 
 export interface ConnectionFormLastWill {
