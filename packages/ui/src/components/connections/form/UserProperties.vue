@@ -4,11 +4,13 @@ import type { ConnectionForm } from 'mqttx'
 import { useElementSize } from '@vueuse/core'
 
 withDefaults(defineProps<{
-  title: string
+  title?: string
   mode?: 'readOnly' | 'edit'
   maxHeight?: string
+  layout?: 'vertical' | 'horizontal'
 }>(), {
   mode: 'edit',
+  layout: 'vertical',
 })
 
 const userProperties = defineModel<ConnectionForm['properties']['userProperties']>()
@@ -85,11 +87,15 @@ watch([width], () => {
 </script>
 
 <template>
-  <div>
-    <div class="mb-4 flex items-center justify-between">
-      <span class="text-default">{{ title }}</span>
+  <div class="grid" :class="{ 'gap-4': layout === 'vertical', 'gap-3 grid-cols-[auto_1fr]': layout === 'horizontal' }">
+    <div :class="{ 'flex items-center justify-between': layout === 'vertical' }">
+      <slot name="title">
+        <div v-if="title" class="text-default">
+          {{ title }}
+        </div>
+      </slot>
       <ElButton
-        v-if="mode === 'edit'"
+        v-if="mode === 'edit' && layout === 'vertical'"
         link
         @click="addItem"
       >
@@ -98,7 +104,11 @@ watch([width], () => {
     </div>
     <ElScrollbar>
       <div ref="scrollContainer" class="grid gap-3" :style="{ maxHeight }">
-        <div v-for="(item, index) in dataList" :key="index" class="grid gap-3 grid-cols-[1fr_1fr_32px]">
+        <div
+          v-for="(item, index) in dataList"
+          :key="index"
+          class="grid gap-3 grid-cols-[1fr_1fr_auto]"
+        >
           <ElInput
             :ref="skipUnwrap.keyRefs"
             v-model="item.key"
@@ -117,14 +127,22 @@ watch([width], () => {
             :autosize="{ minRows: 1, maxRows: 3 }"
             :disabled="mode === 'readOnly'"
           />
-          <ElButton
-            v-if="mode === 'edit'"
-            class="mr-4"
-            link
-            @click="deleteItem(index)"
-          >
-            <ElIconDelete class="text-main-green" width="14" height="14" />
-          </ElButton>
+          <div class="flex items-center">
+            <ElButton
+              v-if="mode === 'edit'"
+              link
+              @click="deleteItem(index)"
+            >
+              <ElIconDelete class="text-main-green" width="14" height="14" />
+            </ElButton>
+            <ElButton
+              v-if="mode === 'edit' && layout === 'horizontal' && index === dataList.length - 1"
+              link
+              @click="addItem"
+            >
+              <ElIconPlus class="text-main-green" width="14" height="14" />
+            </ElButton>
+          </div>
         </div>
       </div>
     </ElScrollbar>
