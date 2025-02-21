@@ -147,6 +147,20 @@ watch(correlationDataString, () => {
               </ElFormItem>
             </ElCol>
           </ElRow>
+          <ElRow class="mb-[18px]" :gutter="10">
+            <ElCol :span="22">
+              <ConnectionsFormUserProperties
+                v-model="record.will.properties.userProperties"
+                layout="horizontal"
+              >
+                <template #title>
+                  <div class="text-default text-right leading-[31px] w-[168px]">
+                    {{ $t('connections.userProperties') }}
+                  </div>
+                </template>
+              </ConnectionsFormUserProperties>
+            </ElCol>
+          </ElRow>
         </template>
       </ElCard>
     </ElCollapseTransition>
