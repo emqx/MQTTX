@@ -82,7 +82,7 @@ jobs:
 
   build-mac:
     name: Build macOS Package (Test Only)
-    runs-on: macos-latest
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js Environment
