@@ -212,7 +212,7 @@ import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
 import Contextmenu from '@/components/Contextmenu.vue'
 
-import connectionMessageService from '@/utils/api/connectionMessageService.ts'
+import connectionMessageService from '@/utils/api/connectionMessageService'
 import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/historyRecordUtils'
 import historyMessageHeaderService from '@/utils/api/historyMessageHeaderService'
 import historyMessagePayloadService from '@/utils/api/historyMessagePayloadService'

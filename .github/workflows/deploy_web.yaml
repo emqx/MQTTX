@@ -17,7 +17,7 @@ jobs:
       - name: use node.js
         uses: actions/setup-node@v3
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: 'web/.nvmrc'
 
       - name: build
         run: |
@@ -50,7 +50,7 @@ jobs:
       - name: use node.js
         uses: actions/setup-node@v3
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: 'web/.nvmrc'
 
       - name: build
         run: |
