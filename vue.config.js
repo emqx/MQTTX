@@ -65,6 +65,7 @@ module.exports = {
       externals: ['mqtt', 'vm2', 'log4js', 'typeorm'],
       builderOptions: {
         productName: 'MQTTX',
+        publish: null,
         nsis: {
           oneClick: false,
           allowElevation: true,
@@ -89,12 +90,10 @@ module.exports = {
               target: 'dmg',
               arch: ['x64', 'arm64'],
             },
-            // FIXME: pkg target is not working, it will cause the app to crash when built.
-            // Issue: https://github.com/electron-userland/electron-builder/issues/6015
-            // {
-            //   target: 'pkg',
-            //   arch: ['x64', 'arm64'],
-            // },
+            {
+              target: 'pkg',
+              arch: ['x64', 'arm64'],
+            },
             {
               target: 'zip',
               arch: ['x64', 'arm64'],
