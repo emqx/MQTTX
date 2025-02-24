@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v3
         with:
-          node-version: '18.17'
+          node-version-file: 'cli/.nvmrc'
 
       - name: Install dependencies and run tests
         run: |
