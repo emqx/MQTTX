@@ -7,34 +7,89 @@ on:
       - published
 
 jobs:
-  build:
+  build-linux:
+    name: Build Linux Package
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - name: build
-        run: |
-          docker run --rm -i \
-           -v ${PWD}:/project \
-           electronuserland/builder:18-wine \
-           bash -c "yarn && yarn electron:build-linux && yarn electron:build-win"
-      - uses: aws-actions/configure-aws-credentials@v2
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+      - name: Install Dependencies
+        run: yarn install
+      - name: Build Linux Package
+        run: yarn electron:build-linux
+      - name: Configure AWS Credentials
         if: github.event_name == 'release'
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-      - name: upload release asset
+      - name: Upload Linux Artifacts
         if: github.event_name == 'release'
         run: |
           cd dist_electron
-          tag=$(echo ${{ github.ref }} | sed -r  "s ^refs/heads/|^refs/tags/(.*) \1 g")
-          for var in $(ls); do
-              $GITHUB_WORKSPACE/.github/workflows/upload_github_release_asset.sh \
-                  owner=${{ github.repository_owner }} \
-                  repo=mqttx \
-                  tag=$tag \
-                  filename=$var \
-                  github_api_token=$(echo ${{ secrets.GITHUB_TOKEN }});
+          tag=$(echo "${{ github.ref }}" | sed -r "s/^refs\/heads\/|^refs\/tags\///g")
+          for file in $(ls); do
+            $GITHUB_WORKSPACE/.github/workflows/upload_github_release_asset.sh \
+              owner=${{ github.repository_owner }} \
+              repo=mqttx \
+              tag=$tag \
+              filename=$file \
+              github_api_token=${{ secrets.GITHUB_TOKEN }}
           done
           cd ..
           aws s3 cp --recursive dist_electron s3://${{ secrets.AWS_S3_BUCKET }}/MQTTX/$tag/
+
+  build-win:
+    name: Build Windows Package
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+      - name: Install Dependencies
+        run: yarn install
+      - name: Build Windows Package
+        run: yarn electron:build-win
+      - name: Configure AWS Credentials
+        if: github.event_name == 'release'
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+      - name: Upload Windows Artifacts
+        if: github.event_name == 'release'
+        shell: powershell
+        run: |
+          Set-Location dist_electron
+          $tag = ($env:GITHUB_REF -replace 'refs/heads/','' -replace 'refs/tags/','')
+          Get-ChildItem | ForEach-Object {
+            & "$env:GITHUB_WORKSPACE\.github\workflows\upload_github_release_asset.sh" `
+              owner="${env:GITHUB_REPOSITORY.Split('/')[0]}" `
+              repo="mqttx" `
+              tag=$tag `
+              filename=$($_.Name) `
+              github_api_token="${{ secrets.GITHUB_TOKEN }}"
+          }
+          Set-Location ..
+          aws s3 cp --recursive dist_electron s3://${{ secrets.AWS_S3_BUCKET }}/MQTTX/$tag/
+
+  build-mac:
+    name: Build macOS Package (Test Only)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+      - name: Install Dependencies
+        run: yarn install
+      - name: Build macOS Package
+        run: yarn electron:build-mac
