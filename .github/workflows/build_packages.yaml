@@ -15,7 +15,7 @@ jobs:
         run: |
           docker run --rm -i \
            -v ${PWD}:/project \
-           electronuserland/builder:16-wine \
+           electronuserland/builder:18-wine \
            bash -c "yarn && yarn electron:build-linux && yarn electron:build-win"
       - uses: aws-actions/configure-aws-credentials@v2
         if: github.event_name == 'release'
