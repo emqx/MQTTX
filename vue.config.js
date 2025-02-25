@@ -79,7 +79,13 @@ module.exports = {
           target: [
             {
               target: 'nsis',
-              arch: ['x64', 'ia32', 'arm64'],
+              arch: [
+                'x64',
+                'ia32',
+                // FIXME: sqlite3 does not provide prebuilt binaries for Windows ARM64, needs to be compiled manually
+                // Issue: https://github.com/TryGhost/node-sqlite3/issues/1799
+                // 'arm64'
+              ],
             },
           ],
         },
@@ -90,10 +96,12 @@ module.exports = {
               target: 'dmg',
               arch: ['x64', 'arm64'],
             },
-            {
-              target: 'pkg',
-              arch: ['x64', 'arm64'],
-            },
+            // FIXME: pkg target is not working, it will cause the app to crash when built.
+            // Issue: https://github.com/electron-userland/electron-builder/issues/6015
+            // {
+            //   target: 'pkg',
+            //   arch: ['x64', 'arm64'],
+            // },
             {
               target: 'zip',
               arch: ['x64', 'arm64'],

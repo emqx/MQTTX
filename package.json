@@ -9,7 +9,7 @@
     "build": "vue-cli-service build",
     "gen:version": "node ./scripts/gen-version.js",
     "electron:build": "export NODE_OPTIONS=--openssl-legacy-provider && yarn run gen:version && vue-cli-service electron:build --win --linux --mac",
-    "electron:build-win": "export NODE_OPTIONS=--openssl-legacy-provider && yarn run gen:version && vue-cli-service electron:build --win",
+    "electron:build-win": "yarn run gen:version && vue-cli-service electron:build --win",
     "electron:build-linux": "export NODE_OPTIONS=--openssl-legacy-provider && yarn run gen:version && vue-cli-service electron:build --linux",
     "electron:build-mac": "export NODE_OPTIONS=--openssl-legacy-provider && yarn run gen:version && vue-cli-service electron:build --mac",
     "electron:serve": "yarn run gen:version && vue-cli-service electron:serve",
