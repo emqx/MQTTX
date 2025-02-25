@@ -45,6 +45,8 @@ jobs:
 
   build-win:
     name: Build Windows Package
+    env:
+      NODE_OPTIONS: --openssl-legacy-provider
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -82,7 +84,7 @@ jobs:
 
   build-mac:
     name: Build macOS Package (Test Only)
-    runs-on: macos-13
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js Environment
