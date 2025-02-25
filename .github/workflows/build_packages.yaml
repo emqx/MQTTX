@@ -55,7 +55,7 @@ jobs:
         with:
           node-version-file: '.nvmrc'
       - name: Install Dependencies
-        run: yarn install
+        run: yarn install --network-timeout 1000000
       - name: Build Windows Package
         run: yarn electron:build-win
       - name: Configure AWS Credentials
