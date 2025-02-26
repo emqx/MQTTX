@@ -96,7 +96,7 @@ MQTTX is designed to connect to test MQTT Brokers such as EMQX, The one-click co
 
 Recommended version for Node environment:
 
-- v16.\*.\*
+- v18.\*.\*
 
 ``` shell
 # Clone
