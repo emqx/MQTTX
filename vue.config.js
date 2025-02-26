@@ -7,6 +7,15 @@ module.exports = {
     host: '0.0.0.0',
     disableHostCheck: true,
   },
+  transpileDependencies: ['zod-to-json-schema'],
+  chainWebpack: (config) => {
+    config.module
+      .rule('mjs')
+      .test(/\.mjs$/)
+      .type('javascript/auto')
+      .include.add(/node_modules/)
+      .end()
+  },
   configureWebpack: {
     plugins: [
       new MonacoWebpackPlugin({
