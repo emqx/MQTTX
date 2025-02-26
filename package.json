@@ -35,6 +35,7 @@
     "node": "18"
   },
   "dependencies": {
+    "@ai-sdk/deepseek": "^0.1.12",
     "@ai-sdk/openai": "^1.1.14",
     "ai": "^4.1.46",
     "appdata-path": "^1.0.0",
