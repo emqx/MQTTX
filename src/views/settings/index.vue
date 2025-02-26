@@ -428,6 +428,7 @@ import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY } from '@/utils/idGenerator'
 import ClickOutside from 'vue-click-outside'
 import _ from 'lodash'
+import { AImodelsOptions, AIAPIHostOptions } from '@/utils/copilot'
 
 @Component({
   components: { ImportData, ExportData, ClearUpHistoryData },
@@ -447,7 +448,7 @@ export default class Settings extends Vue {
   @Action('TOGGLE_ENABLE_COPILOT') private actionToggleEnableCopilot!: (payload: { enableCopilot: boolean }) => void
   @Action('SET_OPEN_AI_HOST') private actionSetOpenAIAPIHost!: (payload: { openAIAPIHost: string }) => void
   @Action('SET_OPEN_AI_API_KEY') private actionSetOpenAIAPIKey!: (payload: { openAIAPIKey: string }) => void
-  @Action('SET_MODEL') private actionSetModel!: (payload: { model: AIModel }) => void
+  @Action('SET_MODEL') private actionSetModel!: (payload: { model: App['model'] }) => void
   @Action('SET_LOG_LEVEL') private actionSetLogLevel!: (payload: { logLevel: LogLevel }) => void
   @Action('TOGGLE_IGNORE_QOS0_MESSAGE') private actionToggleIgnoreQoS0Message!: (payload: {
     ignoreQoS0Message: boolean
@@ -464,7 +465,7 @@ export default class Settings extends Vue {
   @Getter('enableCopilot') private enableCopilot!: boolean
   @Getter('openAIAPIHost') private openAIAPIHost!: string
   @Getter('openAIAPIKey') private openAIAPIKey!: string
-  @Getter('model') private model!: AIModel
+  @Getter('model') private model!: App['model']
   @Getter('logLevel') private logLevel!: LogLevel
   @Getter('ignoreQoS0Message') private ignoreQoS0Message!: boolean
 
@@ -482,51 +483,14 @@ export default class Settings extends Vue {
     { label: 'Dark', value: 'dark' },
     { label: 'Night', value: 'night' },
   ]
-  private AImodelsOptions = [
-    {
-      value: 'OpenAI',
-      children: [
-        { value: 'gpt-3.5-turbo' },
-        { value: 'gpt-3.5-turbo-0125' },
-        { value: 'gpt-3.5-turbo-1106' },
-        { value: 'gpt-3.5-turbo-16k' },
-        { value: 'gpt-4' },
-        { value: 'gpt-4-32k' },
-        { value: 'gpt-4-0613' },
-        { value: 'gpt-4-32k-0613' },
-        { value: 'gpt-4-turbo' },
-        { value: 'gpt-4o' },
-        { value: 'gpt-4o-mini' },
-        { value: 'o1-preview' },
-        { value: 'o1-mini' },
-      ],
-    },
-    {
-      value: 'Moonshot',
-      children: [{ value: 'moonshot-v1-8k' }, { value: 'moonshot-v1-32k' }, { value: 'moonshot-v1-128k' }],
-    },
-    {
-      value: 'DeepSeek',
-      children: [{ value: 'deepseek-chat' }, { value: 'deepseek-coder' }],
-    },
-  ]
-  private AIAPIHostOptions = [
-    {
-      value: 'https://api.openai.com/v1',
-    },
-    {
-      value: 'https://api.moonshot.cn/v1',
-    },
-    {
-      value: 'https://api.deepseek.com/v1',
-    },
-  ]
+  private AImodelsOptions = AImodelsOptions
+  private AIAPIHostOptions = AIAPIHostOptions
   private showImportData = false
   private showExportData = false
   private showHistoryData = false
 
   private aiConfig: {
-    model: AIModel
+    model: App['model']
     openAIAPIKey: string
     openAIAPIHost: string
   } = {
@@ -606,7 +570,7 @@ export default class Settings extends Vue {
     }
   }
 
-  private handleAIConfigModelSelected(value: AIModel) {
+  private handleAIConfigModelSelected(value: App['model']) {
     this.aiConfig.model = value
     this.actionSetModel({ model: value })
     this.showAIModelsSelect = false

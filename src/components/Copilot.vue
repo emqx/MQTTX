@@ -85,7 +85,8 @@ import useServices from '@/database/useServices'
 import ClickOutside from 'vue-click-outside'
 import VueI18n from 'vue-i18n'
 import PresetPromptSelect from './PresetPromptSelect.vue'
-import { processStream, SYSTEM_PROMPT } from '@/utils/copilot'
+import { streamText } from 'ai'
+import { processStream, SYSTEM_PROMPT, getModelProvider } from '@/utils/copilot'
 import { throttle } from 'lodash'
 
 import Prism from 'prismjs'
@@ -109,7 +110,7 @@ export default class Copilot extends Vue {
 
   @Getter('openAIAPIHost') private openAIAPIHost!: string
   @Getter('openAIAPIKey') private openAIAPIKey!: string
-  @Getter('model') private model!: AIModel
+  @Getter('model') private model!: App['model']
   @Getter('isPrismButtonAdded') private isPrismButtonAdded!: boolean
 
   public showCopilot = false
@@ -131,6 +132,7 @@ export default class Copilot extends Vue {
   private roleMap = {
     user: this.$tc('common.copilteUser'),
     assistant: 'MQTTX Copilot',
+    system: 'System',
   }
   private responseStreamText = ''
 
@@ -208,65 +210,44 @@ export default class Copilot extends Vue {
     const decryptedKey = bytes.toString(CryptoJS.enc.Utf8)
 
     try {
-      // Response message
-      const responseMessage = {
+      const responseMessage: CopilotMessage = {
         id: getCopilotMessageId(),
         role: 'assistant',
         content: '',
-      } as CopilotMessage
+      }
       this.responseStreamText = ''
-
-      // Send request to OpenAI
-      const requestData = JSON.stringify({
-        model: this.model,
+      this.isResponseStream = true
+      const throttledScroll = throttle(() => {
+        this.scrollToBottom()
+      }, 500)
+      const { textStream } = streamText({
+        model: getModelProvider({
+          model: this.model,
+          baseURL: this.openAIAPIHost,
+          apiKey: decryptedKey,
+        }),
         temperature: 0.8,
         messages: userMessages,
-        stream: true,
-      })
-      const fetchOptions = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${decryptedKey}`,
+        onError: ({ error }) => {
+          this.$message.error(`API Error: ${error?.toString()}`)
+          this.$log.error(`Copilot API Error: ${error?.toString()}`)
         },
-        body: requestData,
-      }
-
-      this.isResponseStream = true
-      const response = await fetch(`${this.openAIAPIHost}/chat/completions`, fetchOptions)
-      if (response && response.status === 200 && response.ok) {
-        this.isSending = false
-        const throttledScroll = throttle(() => {
-          this.scrollToBottom()
-        }, 500)
-        const done = await processStream(response, (chunkStr) => {
-          this.responseStreamText += chunkStr
-          this.$nextTick(() => {
-            Prism.highlightAllUnder(this.$refs.chatBody as HTMLElement)
-            throttledScroll()
-          })
+      })
+      this.isSending = false
+      for await (const textPart of textStream) {
+        this.responseStreamText += textPart
+        this.$nextTick(() => {
+          Prism.highlightAllUnder(this.$refs.chatBody as HTMLElement)
+          throttledScroll()
         })
-        if (done) {
-          responseMessage.content = this.responseStreamText
-          await copilotService.create(responseMessage)
-          this.messages.push(responseMessage)
-          this.responseStreamText = ''
-          this.$nextTick(() => {
-            Prism.highlightAllUnder(this.$refs.chatBody as HTMLElement)
-          })
-        }
-      } else {
-        const jsonResponse = await response.json()
-        let errorMsg = ''
-        if (jsonResponse && jsonResponse.error) {
-          const { error } = jsonResponse
-          errorMsg = error.message || 'Network Error'
-        } else {
-          errorMsg = response.statusText || 'Network Error'
-        }
-        this.$message.error(`API Error: ${errorMsg}`)
-        this.$log.error(`Copilot API Error: ${errorMsg}`)
       }
+      responseMessage.content = this.responseStreamText
+      await copilotService.create(responseMessage)
+      this.messages.push(responseMessage)
+      this.responseStreamText = ''
+      this.$nextTick(() => {
+        Prism.highlightAllUnder(this.$refs.chatBody as HTMLElement)
+      })
     } catch (err) {
       const error = err as unknown as any
       this.$message.error(`API Error: ${error.toString()}`)

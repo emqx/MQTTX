@@ -152,7 +152,7 @@ const app = {
     [SET_OPEN_AI_API_KEY](state: App, openAIAPIKey: string) {
       state.openAIAPIKey = openAIAPIKey
     },
-    [SET_MODEL](state: App, model: AIModel) {
+    [SET_MODEL](state: App, model: App['model']) {
       state.model = model
     },
     [SET_INSERT_BUTTON_ADDED](state: App, isPrismButtonAdded: boolean) {

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
 import { IPublishPacket, MqttClient } from 'mqtt'
+import type { AIModel } from '@/utils/copilot'
 
 declare global {
   type $TSFixed = any
@@ -410,29 +411,13 @@ declare global {
     fileContent: string
   }
 
-  type CopilotRole = 'user' | 'system' | 'assistant' | 'function'
+  type CopilotRole = 'user' | 'system' | 'assistant'
   interface CopilotMessage {
     id: string
     role: CopilotRole
     content: string
     createAt?: string
   }
-
-  type AIModel =
-    | 'gpt-3.5-turbo'
-    | 'gpt-3.5-turbo-0125'
-    | 'gpt-3.5-turbo-1106'
-    | 'gpt-3.5-turbo-16k'
-    | 'gpt-4'
-    | 'gpt-4-32k'
-    | 'gpt-4-0613'
-    | 'gpt-4-32k-0613'
-    | 'gpt-4-turbo'
-    | 'gpt-4o'
-    | 'gpt-4o-mini'
-    | 'o1-preview'
-    | 'o1-mini'
-    | string
 
   interface AreaLineSeriesData {
     xData: string[]

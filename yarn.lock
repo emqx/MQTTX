@@ -7,6 +7,23 @@
   resolved "https://registry.yarnpkg.com/7zip-bin/-/7zip-bin-5.1.1.tgz#9274ec7460652f9c632c59addf24efb1684ef876"
   integrity sha512-sAP4LldeWNz0lNzmTird3uWfFDWWTeg6V/MsmyyLR9X1idwKBWIgt/ZvinqQldJm3LecKEs1emkbquO6PCiLVQ==
 
+"@ai-sdk/deepseek@^0.1.12":
+  version "0.1.12"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/deepseek/-/deepseek-0.1.12.tgz#40578a4efa0d08b9b47443e43911e932dcef40a5"
+  integrity sha512-F6lbsHppRt8bdcGipts1Y+lqZ2YemRa6yFl9xVgb2Q7DuCn5HFVkWJb5CfZhF3/sABJFhQgwGgVe3YUYpNt5Uw==
+  dependencies:
+    "@ai-sdk/openai-compatible" "0.1.12"
+    "@ai-sdk/provider" "1.0.9"
+    "@ai-sdk/provider-utils" "2.1.10"
+
+"@ai-sdk/openai-compatible@0.1.12":
+  version "0.1.12"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/openai-compatible/-/openai-compatible-0.1.12.tgz#7c5d7669122c999d8236d92be54f040c8800ca06"
+  integrity sha512-2bMhAEeiRz4lbW5ixjGjbPhwyqjtujkjLVpqqtqWvvUDvtUM3cw1go9pqWFgaNKSBDaXRUfi8mkAVrn1yRuY2A==
+  dependencies:
+    "@ai-sdk/provider" "1.0.9"
+    "@ai-sdk/provider-utils" "2.1.10"
+
 "@ai-sdk/openai@^1.1.14":
   version "1.1.14"
   resolved "https://registry.yarnpkg.com/@ai-sdk/openai/-/openai-1.1.14.tgz#1dda9a00d9c5874febf8ae91900f1a18dbc5dcf8"
