@@ -38,6 +38,7 @@
     "@ai-sdk/anthropic": "^1.1.11",
     "@ai-sdk/deepseek": "^0.1.12",
     "@ai-sdk/openai": "^1.1.14",
+    "@ai-sdk/xai": "^1.1.12",
     "ai": "^4.1.46",
     "appdata-path": "^1.0.0",
     "avsc": "^5.7.7",
