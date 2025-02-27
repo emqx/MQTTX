@@ -33,11 +33,25 @@ export interface XaiOptionsModel {
   providerCreator: typeof createXai
 }
 
+export interface SiliconFlowOptionsModel {
+  value: 'SiliconFlow'
+  children: {
+    value:
+      | 'deepseek-ai/DeepSeek-V3'
+      | 'deepseek-ai/DeepSeek-R1'
+      | 'Qwen/Qwen2-VL-72B-Instruct'
+      | 'Qwen/Qwen2.5-72B-Instruct'
+      | (string & {})
+  }[]
+  providerCreator: typeof createOpenAI
+}
+
 export type AImodelsOptionsModel = (
   | OpenAIOptionsModel
   | DeepSeekOptionsModel
   | AnthropicOptionsModel
   | XaiOptionsModel
+  | SiliconFlowOptionsModel
 )[]
 
 export const SYSTEM_PROMPT =
@@ -77,6 +91,16 @@ export const AImodelsOptions: AImodelsOptionsModel = [
     children: [{ value: 'grok-2-1212' }],
     providerCreator: createXai,
   },
+  {
+    value: 'SiliconFlow',
+    children: [
+      { value: 'deepseek-ai/DeepSeek-V3' },
+      { value: 'deepseek-ai/DeepSeek-R1' },
+      { value: 'Qwen/Qwen2-VL-72B-Instruct' },
+      { value: 'Qwen/Qwen2.5-72B-Instruct' },
+    ],
+    providerCreator: createOpenAI,
+  },
 ]
 
 export const AIAPIHostOptions = [
@@ -91,6 +115,9 @@ export const AIAPIHostOptions = [
   },
   {
     value: 'https://api.x.ai/v1',
+  },
+  {
+    value: 'https://api.siliconflow.cn/v1',
   },
 ]
 
