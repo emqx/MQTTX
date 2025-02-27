@@ -76,6 +76,15 @@
     "@ai-sdk/provider-utils" "2.1.10"
     zod-to-json-schema "^3.24.1"
 
+"@ai-sdk/xai@^1.1.12":
+  version "1.1.12"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/xai/-/xai-1.1.12.tgz#d14f52c1e3528a15fb3812b73db6a27b55a0f7c0"
+  integrity sha512-e60KtMDOR7vGV7hPpsar4jY6sw6sUSI6zpCVDQEkVv6B0MUzD1s5DQnCvo6+hnqVjZJHgktIFvc5QwnpVZkXPw==
+  dependencies:
+    "@ai-sdk/openai-compatible" "0.1.12"
+    "@ai-sdk/provider" "1.0.9"
+    "@ai-sdk/provider-utils" "2.1.10"
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.14.5":
   version "7.14.5"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.14.5.tgz#23b08d740e83f49c5e59945fbf1b43e80bbf4edb"

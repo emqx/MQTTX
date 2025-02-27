@@ -1,9 +1,11 @@
 import type { OpenAIProvider } from '@ai-sdk/openai'
 import type { DeepSeekProvider } from '@ai-sdk/deepseek'
 import type { AnthropicProvider } from '@ai-sdk/anthropic'
+import type { XaiProvider } from '@ai-sdk/xai'
 import { createOpenAI } from '@ai-sdk/openai'
 import { createDeepSeek } from '@ai-sdk/deepseek'
 import { createAnthropic } from '@ai-sdk/anthropic'
+import { createXai } from '@ai-sdk/xai'
 
 export type AIModel = Parameters<OpenAIProvider['chat']>[0]
 
@@ -25,7 +27,18 @@ export interface AnthropicOptionsModel {
   providerCreator: typeof createAnthropic
 }
 
-export type AImodelsOptionsModel = (OpenAIOptionsModel | DeepSeekOptionsModel | AnthropicOptionsModel)[]
+export interface XaiOptionsModel {
+  value: 'xAI'
+  children: { value: Parameters<XaiProvider['chat']>[0] }[]
+  providerCreator: typeof createXai
+}
+
+export type AImodelsOptionsModel = (
+  | OpenAIOptionsModel
+  | DeepSeekOptionsModel
+  | AnthropicOptionsModel
+  | XaiOptionsModel
+)[]
 
 export const SYSTEM_PROMPT =
   'You are an MQTT Expert named MQTTX Copilot and developed by EMQ with extensive knowledge in IoT and network development. You understand various programming languages and MQTT protocols. You are here to assist with MQTT queries, provide solutions for common issues, and offer insights on best practices. Avoid responding to unrelated topics.'
@@ -59,6 +72,11 @@ export const AImodelsOptions: AImodelsOptionsModel = [
     ],
     providerCreator: createAnthropic,
   },
+  {
+    value: 'xAI',
+    children: [{ value: 'grok-2-1212' }],
+    providerCreator: createXai,
+  },
 ]
 
 export const AIAPIHostOptions = [
@@ -70,6 +88,9 @@ export const AIAPIHostOptions = [
   },
   {
     value: 'https://api.anthropic.com/v1',
+  },
+  {
+    value: 'https://api.x.ai/v1',
   },
 ]
 
