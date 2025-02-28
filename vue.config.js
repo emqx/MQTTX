@@ -7,8 +7,12 @@ module.exports = {
     host: '0.0.0.0',
     disableHostCheck: true,
   },
+  // Instruct Vue CLI to transpile the 'zod-to-json-schema' dependency with Babel,
+  // ensuring compatibility with environments that do not support modern JavaScript features.
   transpileDependencies: ['zod-to-json-schema'],
   chainWebpack: (config) => {
+    // Add a rule to handle .mjs files (JavaScript modules).
+    // This ensures that .mjs files in node_modules are processed correctly.
     config.module
       .rule('mjs')
       .test(/\.mjs$/)

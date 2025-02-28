@@ -36,6 +36,8 @@ const plugins = [
       css: true,
     },
   ],
+  // These plugins transform optional chaining (?.) and nullish coalescing (??)
+  // syntax into compatible JavaScript for environments that do not support these features.
   '@babel/plugin-proposal-optional-chaining',
   '@babel/plugin-proposal-nullish-coalescing-operator',
 ]
