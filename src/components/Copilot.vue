@@ -233,8 +233,8 @@ export default class Copilot extends Vue {
           this.$log.error(`Copilot API Error: ${error?.toString()}`)
         },
       })
-      this.isSending = false
       for await (const textPart of textStream) {
+        this.isSending = false
         this.responseStreamText += textPart
         this.$nextTick(() => {
           Prism.highlightAllUnder(this.$refs.chatBody as HTMLElement)
