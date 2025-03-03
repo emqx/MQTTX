@@ -5,6 +5,7 @@
     <RouterView />
     <Ipc @setTheme="setTheme" @setLang="setLang" />
     <Update v-if="updateActive" />
+    <Copilot ref="copilot" v-if="enableCopilot" :record="{}" />
   </div>
 </template>
 
@@ -15,6 +16,7 @@ import { remote } from 'electron'
 import Ipc from '@/components/Ipc.vue'
 import Leftbar from '@/components/Leftbar.vue'
 import DatabaseError from '@/components/DatabaseError.vue'
+import Copilot from '@/components/Copilot.vue'
 
 @Component({
   components: {
@@ -22,6 +24,7 @@ import DatabaseError from '@/components/DatabaseError.vue'
     Leftbar,
     Update: () => import('@/views/update/index.vue'),
     DatabaseError,
+    Copilot,
   },
 })
 export default class Home extends Vue {
@@ -29,6 +32,7 @@ export default class Home extends Vue {
   @Getter('currentLang') private getterLang!: Language
   @Getter('syncOsTheme') private syncOsTheme!: boolean
   @Getter('connectDatabaseFailMessage') private connectDatabaseFailMessage!: string
+  @Getter('enableCopilot') private enableCopilot!: boolean
   @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
   private updateActive: boolean = false
