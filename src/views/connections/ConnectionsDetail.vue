@@ -1,6 +1,5 @@
 <template>
   <div class="connections-detail">
-    <copilot v-if="enableCopilot" ref="copilot" :record="record" mode="connections" />
     <div
       ref="connectionTopbar"
       class="connections-topbar right-topbar"
@@ -2147,8 +2146,19 @@ export default class ConnectionsDetail extends Vue {
     copilotRef.sendMessage(askMsg)
   }
 
+  private getAncestorRef(refName: string) {
+    let parent = this.$parent
+    while (parent) {
+      if (parent.$refs[refName]) {
+        return parent.$refs[refName]
+      }
+      parent = parent.$parent
+    }
+    return null
+  }
+
   private toggleShowCopilot(show: boolean = true) {
-    const copilotRef: Copilot = this.$refs.copilot as Copilot
+    const copilotRef = this.getAncestorRef('copilot') as Copilot
     copilotRef.showCopilot = show
     return copilotRef
   }

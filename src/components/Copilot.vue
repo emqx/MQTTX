@@ -105,7 +105,6 @@ import { ipcRenderer } from 'electron'
 })
 export default class Copilot extends Vue {
   @Prop({}) public record?: ConnectionModel
-  @Prop({ required: true }) public mode!: 'connections' | 'scripts' | 'help'
   @Action('SET_INSERT_BUTTON_ADDED') private setisPrismButtonAdded!: (payload: { isPrismButtonAdded: boolean }) => void
 
   @Getter('openAIAPIHost') private openAIAPIHost!: string
@@ -382,6 +381,20 @@ body.night {
 
 .right-panel {
   display: inline;
+  .pop-enter-active {
+    animation: rightbarPop 0.4s;
+  }
+  .pop-leave-active {
+    animation: rightbarPop 0.4s reverse;
+  }
+  @keyframes rightbarPop {
+    from {
+      right: -45%;
+    }
+    to {
+      right: 0px;
+    }
+  }
   & > div {
     box-shadow: -2px 0px 8px 0px var(--color-shadow-leftlist);
     position: fixed;
@@ -524,22 +537,6 @@ body.night {
           color: var(--color-text-active);
         }
       }
-    }
-  }
-}
-.pop-enter-active {
-  animation: leftbarPop 0.4s;
-}
-.pop-leave-active {
-  animation: leftbarPop 0.4s reverse;
-}
-.right-panel {
-  @keyframes leftbarPop {
-    from {
-      right: -45%;
-    }
-    to {
-      right: 1px;
     }
   }
 }
