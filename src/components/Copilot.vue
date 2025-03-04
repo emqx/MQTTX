@@ -78,7 +78,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import VueMarkdown from 'vue-markdown'
 import CryptoJS from 'crypto-js'
@@ -95,6 +95,7 @@ import Prism from 'prismjs'
 import 'prismjs/plugins/toolbar/prism-toolbar.min'
 import 'prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min'
 import { ipcRenderer } from 'electron'
+import ConnectionsIndex from '@/views/connections/index.vue'
 
 @Component({
   components: {
@@ -106,7 +107,6 @@ import { ipcRenderer } from 'electron'
   },
 })
 export default class Copilot extends Vue {
-  @Prop({}) public record?: ConnectionModel
   @Action('SET_INSERT_BUTTON_ADDED') private setisPrismButtonAdded!: (payload: { isPrismButtonAdded: boolean }) => void
 
   @Getter('openAIAPIHost') private openAIAPIHost!: string
@@ -139,6 +139,20 @@ export default class Copilot extends Vue {
       assistant: 'MQTTX Copilot',
       system: 'System',
     }
+  }
+
+  /**
+   * Finds the current connection record from ConnectionsDetail component
+   * Returns undefined if no record is found
+   */
+  private getCurrentConnectionRecord(): ConnectionModel | undefined {
+    if (this.$route.name !== 'ConnectionDetails' || this.$route.params.id === '0') {
+      return undefined
+    }
+    const connectionsDetailRef = this.$parent.$children.find((child: any) => child.currentConnection) as
+      | ConnectionsIndex
+      | undefined
+    return connectionsDetailRef ? connectionsDetailRef.currentConnection : undefined
   }
 
   @Watch('$route.path')
@@ -209,7 +223,12 @@ export default class Copilot extends Vue {
       ...this.systemMessages.map(({ role, content }) => ({ role, content })),
       ...this.messages.slice(-20).map(({ role, content }) => {
         if (content.includes('@connection')) {
-          content = content.replace('@connection', JSON.stringify(this.record))
+          // Get the current connection record if available
+          const currentRecord = this.getCurrentConnectionRecord()
+          content = content.replace(
+            '@connection',
+            currentRecord ? JSON.stringify(currentRecord) : 'No connection available',
+          )
         }
         return { role, content }
       }),
