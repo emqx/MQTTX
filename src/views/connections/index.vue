@@ -68,7 +68,7 @@ export default class Connections extends Vue {
 
   private isEmpty: boolean = false
   private isLoadingData: boolean = false
-  private currentConnection: ConnectionModel = { ...getDefaultRecord() }
+  public currentConnection: ConnectionModel = { ...getDefaultRecord() }
 
   @Watch('$route.params.id')
   private handleIdChanged(val: string) {
