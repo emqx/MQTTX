@@ -671,4 +671,313 @@ export default {
     ja: '終了時間',
     hu: 'Befejezés időpontja',
   },
+  customFunction: {
+    zh: '自定义函数',
+    en: 'Custom Function',
+    tr: 'Özel Fonksiyon',
+    ja: 'カスタム関数',
+    hu: 'Egyedi függvény',
+  },
+  customRequirementGenerate: {
+    zh: '自定义需求生成',
+    en: 'Custom Requirement Generate',
+    tr: 'Özel İhtiyaç Oluşturma',
+    ja: 'カスタム要求生成',
+    hu: 'Egyedi igény generálás',
+  },
+  simulateWeatherData: {
+    zh: '模拟天气数据',
+    en: 'Simulate Weather Data',
+    tr: 'Hava Verisi Simüle Et',
+    ja: '天気データをシミュレート',
+    hu: 'Időjárás adatok szimulálása',
+  },
+  dynamicCommandSwitch: {
+    zh: '动态指令切换',
+    en: 'Dynamic Command Switch',
+    tr: 'Dinamik Komut Anahtarı',
+    ja: 'ダイナミックコマンドスイッチ',
+    hu: 'Dinamik parancs kapcsoló',
+  },
+  timeFormatProcessing: {
+    zh: '时间格式处理',
+    en: 'Time Format Processing',
+    tr: 'Zaman Formatı İşleme',
+    ja: '時間フォーマット処理',
+    hu: 'Időformátum feldolgozás',
+  },
+  promptScript: {
+    zh: `请根据所选模式生成 MQTTX 自定义函数，并且给出测试用例和预期结果：
+      【生成模式】
+        - 预设模板快速生成
+        - 自定义需求生成（描述需求）
+        ==== 预设模板库 ====
+        01 模拟天气数据
+        │ 参数格式：{ "temperature":[10,30], "humidity":[20,40] }
+        │ 功能：为指定字段生成随机数值
+        02 动态指令切换
+        │ 参数格式：{ "field": "command", "values": ["on","off"] }
+        │ 功能：根据消息索引交替改变指定字段值
+        03 时间格式处理
+        │ 参数格式：{ "timeField":"timestamp", "timezone":8 }
+        │ 功能：将Unix时间戳转为UTC时间字符串
+        ==== 自定义模式 ====
+        【功能描述】
+        详细说明需要实现的处理逻辑（如："给返回数据附带当前时间戳"）
+        【输入示例】
+        原始 Payload 样本：
+        { 
+          "temperature": 25, 
+          "humidity": 50 
+        }
+        【输出要求】
+        期望处理结果：
+        { 
+          "temperature": 25, 
+          "humidity": 50, 
+          "currentTime": "2023-10-21T14:30:00.000Z"
+        }
+        ==== 通用脚本框架 ====
+        /**
+         * @description {功能名称}
+         * @param {object|string} value - 原始数据（自动解析JSON字符串）
+         * @param {'publish'|'received'} msgType - 消息类型，值为 'received' 或 'publish'
+         * @param {number} [index] - 消息索引，仅在脚本用于发布消息且启用定时消息时有效
+         */
+        function handlePayload(value, msgType, index) {
+          try {
+            // 核心处理逻辑 ▼▼▼
+            {{CORE_LOGIC}}
+            // 返回前处理（保持JSON序列化）
+            return typeof _value === 'object' ? 
+              JSON.stringify(_value, null, 2) : _value;
+          } catch (e) {
+            console.error('处理错误:', e);
+            return value; // 保持原始数据不变
+          }
+        }
+        execute(handlePayload);
+        ==== 生成规则 ====
+        1. 每个字段修改添加注释说明
+        2. 严格区分消息流向处理逻辑
+        3. 生成模拟数据时，为数值字段添加合理的波动
+        4. 兼容旧版本的浏览器，不要使用过于新的 JavaScript 特性
+        5. 确保自定义函数、输入的Payload和预期结果都使用代码块格式`,
+    en: `Please generate MQTTX custom function based on selected mode, and provide test cases with expected results:
+       [Generation Modes]
+        - Preset template quick generation
+        - Custom requirement generation (describe requirements)
+        ==== Preset Templates ====
+        01 Simulate Weather Data
+        │ Parameter format: { "temperature":[10,30], "humidity":[20,40] }
+        │ Function: Generate random values for specified fields
+        02 Dynamic Command Switching
+        │ Parameter format: { "field": "command", "values": ["on","off"] }
+        │ Function: Alternately change specified field value based on message index
+        03 Time Format Processing
+        │ Parameter format: { "timeField":"timestamp", "timezone":8 }
+        │ Function: Convert Unix timestamp to UTC time string
+        ==== Custom Mode ====
+        [Function Description]
+        Detail the processing logic to implement (e.g.: "Add current timestamp to response data")
+        [Input Example]
+        Original Payload sample:
+        { 
+          "temperature": 25, 
+          "humidity": 50 
+        }
+        [Output Requirements]
+        Expected processed result:
+        { 
+          "temperature": 25, 
+          "humidity": 50, 
+          "currentTime": "2023-10-21T14:30:00.000Z"
+        }
+        ==== Script Framework ====
+        /**
+         * @description {Function Name}
+         * @param {object|string} value - Raw data (auto-parse JSON string)
+         * @param {'publish'|'received'} msgType - Message type: 'received' or 'publish'
+         * @param {number} [index] - Message index (valid only when script used for publishing with scheduled message)
+         */
+        function handlePayload(value, msgType, index) {
+          try {
+            // Core processing logic ▼▼▼
+            {{CORE_LOGIC}}
+            // Pre-return processing (keep JSON serialized)
+            return typeof _value === 'object' ? 
+              JSON.stringify(_value, null, 2) : _value;
+          } catch (e) {
+            console.error('Processing error:', e);
+            return value; // Keep original data
+          }
+        }
+        execute(handlePayload);
+        ==== Generation Rules ====
+        1. Add comments for each field modification
+        2. Strictly differentiate message flow handling logic
+        3. Add reasonable fluctuation when generating mock data
+        4. Maintain compatibility with older browsers (avoid latest JS features)
+        5. Ensure custom function, payload samples and expected results use code block format`,
+    tr: `Lütfen seçilen moda göre MQTTX özel fonksiyonunu oluşturun ve test senaryoları ile beklenen sonuçları verin:
+       [Oluşturma Modları]
+        - Hazır şablonla hızlı oluşturma
+        - Özel talep oluşturma (gereksinimleri tanımlayın)
+        ==== Hazır Şablonlar ====
+        01 Hava Verisi Simülasyonu
+        │ Parametre formatı: { "temperature":[10,30], "humidity":[20,40] }
+        │ İşlev: Belirlenmiş alanlar için rastgele değer oluştur
+        02 Dinamik Komut Değişimi
+        │ Parametre formatı: { "field": "command", "values": ["on","off"] }
+        │ İşlev: Mesaj indeksine göre belirlenen alan değerini değiştir
+        03 Zaman Formatlama
+        │ Parametre formatı: { "timeField":"timestamp", "timezone":8 }
+        │ İşlev: Unix zaman damgasını UTC zaman dizgesine çevir
+        ==== Özel Mod ====
+        [İşlev Tanımı]
+        Gerçekleştirilecek işlem mantığını detaylandırın (ör: "Verilere mevcut zaman damgası ekle")
+        [Giriş Örneği]
+        Orijinal Payload örneği:
+        { 
+          "sıcaklık": 25, 
+          "nem": 50 
+        }
+        [Çıktı Gereksinimleri]
+        Beklenen işlenmiş sonuç:
+        { 
+          "sıcaklık": 25, 
+          "nem": 50, 
+          "şuAnkiZaman": "2023-10-21T14:30:00.000Z"
+        }
+        ==== Betik Çerçevesi ====
+        /**
+         * @description {Fonksiyon Adı}
+         * @param {object|string} value - Ham veri (otomatik JSON ayrıştırma)
+         * @param {'publish'|'received'} msgType - Mesaj türü: 'received' veya 'publish'
+         * @param {number} [index] - Mesaj indeksi (zamanlanmış mesaj gönderiminde geçerli)
+         */
+        function handlePayload(value, msgType, index) {
+          try {
+            // Temel işlem mantığı ▼▼▼
+            {{CORE_LOGIC}}
+            // Dönüş öncesi işlem (JSON dizileştirme)
+            return typeof _value === 'object' ? 
+              JSON.stringify(_value, null, 2) : _value;
+          } catch (e) {
+            console.error('İşlem hatası:', e);
+            return value; // Orijinal veriyi koru
+          }
+        }
+        execute(handlePayload);
+        ==== Oluşturma Kuralları ====`,
+    ja: `選択したモードに基づいて MQTTX カスタム関数を生成し、テストケースと予想結果を提供してください：
+       【生成モード】
+        - プリセットテンプレートで即時生成
+        - カスタム要件生成（要件を記載）
+        ==== プリセットテンプレート ====
+        01 気象データシミュレーション
+        │ パラメータ形式：{ "temperature":[10,30], "humidity":[20,40] }
+        │ 機能：指定フィールドにランダム数値を生成
+        02 動的コマンド切替
+        │ パラメータ形式：{ "field": "command", "values": ["on","off"] }
+        │ 機能：メッセージインデックスで指定フィールド値を交互に変更
+        03 時刻形式処理
+        │ パラメータ形式：{ "timeField":"timestamp", "timezone":8 }
+        │ 機能：UnixタイムスタンプをUTC文字列に変換
+        ==== カスタムモード ====
+        【機能説明】
+        実装したい処理ロジックを詳細説明（例："返却データに現在時刻を付加"）
+        【入力例】
+        オリジナル Payload 例：
+        { 
+          "temperature": 25, 
+          "humidity": 50 
+        }
+        【出力要件】
+        期待処理結果：
+        { 
+          "temperature": 25, 
+          "humidity": 50, 
+          "currentTime": "2023-10-21T14:30:00.000Z"
+        }
+        ==== スクリプトフレームワーク ====
+        /**
+         * @description {機能名称}
+         * @param {object|string} value - 生データ（自動JSON解析）
+         * @param {'publish'|'received'} msgType - メッセージ種別：'received' または 'publish'
+         * @param {number} [index] - メッセージインデックス（定期メッセージ送信時のみ有効）
+         */
+        function handlePayload(value, msgType, index) {
+          try {
+            // 核心処理ロジック ▼▼▼
+            {{CORE_LOGIC}}
+            // 返却前処理（JSONシリアライズ保持）
+            return typeof _value === 'object' ? 
+              JSON.stringify(_value, null, 2) : _value;
+          } catch (e) {
+            console.error('処理エラー:', e);
+            return value; // オリジナルデータ維持
+          }
+        }
+        execute(handlePayload);
+        ==== 生成ルール ====`,
+    hu: `Kérjük generálja az MQTTX egyéni függvényt a kiválasztott mód alapján, és adjon teszteseteket várt eredményekkel:
+       [Generálási Módok]
+        - Előre definiált sablonok
+        - Egyéni követelmény generálás (írja le a követelményt)
+        ==== Előre Definált Sablonok ====
+        01 Időjárás Adat Szimuláció
+        │ Paraméter formátum: { "temperature":[10,30], "humidity":[20,40] }
+        │ Funkció: Véletlenszerű érték generálása megadott mezőkhöz
+        02 Dinamikus Parancs Váltás
+        │ Paraméter formátum: { "field": "command", "values": ["on","off"] }
+        │ Funkció: Megadott mező értékének váltása üzenet index alapján
+        03 Időformátum Feldolgozás
+        │ Paraméter formátum: { "timeField":"timestamp", "timezone":8 }
+        │ Funkció: Unix időbélyeg átalakítása UTC időkarakterlánccá
+        ==== Egyéni Mód ====
+        [Funkció Leírás]
+        Részletezze a megvalósítandó feldolgozási logikát (pl.: "Jelenlegi időbélyeg hozzáadása")
+        [Bemeneti Példa]
+        Eredeti Payload minta:
+        { 
+          "hőmérséklet": 25, 
+          "páratartalom": 50 
+        }
+        [Kimeneti Követelmények]
+        Várt eredmény:
+        { 
+          "hőmérséklet": 25, 
+          "páratartalom": 50, 
+          "aktuálisIdő": "2023-10-21T14:30:00.000Z"
+        }
+        ==== Szkript Keretrendszer ====
+        /**
+         * @description {Funkció Név}
+         * @param {object|string} value - Nyers adat (automatikus JSON elemzés)
+         * @param {'publish'|'received'} msgType - Üzenet típus: 'received' vagy 'publish'
+         * @param {number} [index] - Üzenet index (csak időzített üzenetküldésnél érvényes)
+         */
+        function handlePayload(value, msgType, index) {
+          try {
+            // Fő feldolgozási logika ▼▼▼
+            {{CORE_LOGIC}}
+            // Visszaadás előtti feldolgozás (JSON szerializáció)
+            return typeof _value === 'object' ? 
+              JSON.stringify(_value, null, 2) : _value;
+          } catch (e) {
+            console.error('Feldolgozási hiba:', e);
+            return value; // Eredeti adat megtartása
+          }
+        }
+        execute(handlePayload);
+        ==== Generálási Szabályok ====`,
+  },
+  promptScriptCustom: {
+    zh: '请帮我生成一个自定义函数，包含测试用例和预期结果，描述需求：',
+    en: 'Please help me generate a custom function, including test cases and expected results, describe the requirements:',
+    tr: 'Lütfen bana bir özel fonksiyon oluşturma konusunda yardımcı olun, test durumlarını ve beklenen sonuçları içerir, gereksinimleri açıklayın:',
+    ja: 'テストケースと期待される結果を含むカスタム関数を生成するのにお手伝いください。要件を説明してください：',
+    hu: 'Segítsen egy egyedi függvény generálásában, beleértve a teszteseteket és az elvárt eredményeket, írja le az igényeket:',
+  },
 }

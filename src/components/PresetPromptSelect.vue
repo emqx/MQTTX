@@ -1,7 +1,7 @@
 <template>
   <el-cascader-panel
     class="preset-prompts-select"
-    :options="presetPromptOptions"
+    :options="filteredPresetPromptOptions"
     :props="{ expandTrigger: 'hover', emitPath: false }"
     @change="handleChange"
   ></el-cascader-panel>
@@ -74,6 +74,13 @@ export default class PresetPromptSelect extends Vue {
     { value: 'genTestDoc', label: this.$t('common.genTestDoc') },
   ]
 
+  private customFunctionOptions = [
+    { value: 'customRequirementGenerate', label: this.$t('common.customRequirementGenerate') },
+    { value: 'simulateWeatherData', label: this.$t('common.simulateWeatherData') },
+    { value: 'dynamicCommandSwitch', label: this.$t('common.dynamicCommandSwitch') },
+    { value: 'timeFormatProcessing', label: this.$t('common.timeFormatProcessing') },
+  ]
+
   private presetPromptOptions = [
     {
       value: 'clientCodegen',
@@ -84,29 +91,53 @@ export default class PresetPromptSelect extends Vue {
         { value: 'mobileApps', label: this.$tc('common.mobileApps'), children: this.mobileAppsOptions },
         { value: 'webApps', label: this.$tc('common.webApps'), children: this.webAppsOptions },
       ],
+      allowedRoutes: ['/recent_connections'],
     },
     {
       value: 'payload',
       label: 'Payload',
       children: this.payloadOptions,
+      allowedRoutes: ['/recent_connections'],
+    },
+    {
+      value: 'customFunction',
+      label: this.$t('common.customFunction'),
+      children: this.customFunctionOptions,
+      allowedRoutes: ['/script'],
     },
     {
       value: 'emqx',
       label: 'EMQX',
       children: this.emqxOptions,
+      allowedRoutes: ['all'],
     },
     {
       value: 'mqtt',
       label: 'MQTT FAQs',
       children: this.mqttOptions,
+      allowedRoutes: ['all'],
     },
     {
       value: 'explain',
       label: this.$t('common.explainer'),
       children: this.explainOptions,
+      allowedRoutes: ['/recent_connections'],
     },
   ]
-  get presetPromptsMap(): Record<string, string | VueI18n.TranslateResult> {
+
+  get filteredPresetPromptOptions() {
+    const currentPath = this.$route.path
+
+    return this.presetPromptOptions.filter((option) => {
+      if (option.allowedRoutes.includes('all')) {
+        return true
+      }
+
+      return option.allowedRoutes.some((route) => currentPath.startsWith(route))
+    })
+  }
+
+  get presetPromptsMap(): Record<string, VueI18n.TranslateResult | Record<'system' | 'user', VueI18n.TranslateResult>> {
     return {
       javascript: this.$t('common.promptProgrammingLanguage', ['JavaScript', '@connection']),
       python: this.$t('common.promptProgrammingLanguage', ['Python', '@connection']),
@@ -147,6 +178,22 @@ export default class PresetPromptSelect extends Vue {
       connectionInfo: this.$t('common.promptCurrentConnectionInfo', ['@connection']),
       genTestDoc: this.$t('common.promptGenTestDoc', ['@connection']),
       emqxLogAnalysis: this.$t('common.promptEmqxLogAnalysis'),
+      customRequirementGenerate: {
+        system: this.$t('common.promptScript'),
+        user: this.$t('common.promptScriptCustom'),
+      },
+      simulateWeatherData: {
+        system: this.$t('common.promptScript'),
+        user: this.$t('common.simulateWeatherData'),
+      },
+      dynamicCommandSwitch: {
+        system: this.$t('common.promptScript'),
+        user: this.$t('common.dynamicCommandSwitch'),
+      },
+      timeFormatProcessing: {
+        system: this.$t('common.promptScript'),
+        user: this.$t('common.timeFormatProcessing'),
+      },
     }
   }
   private handleChange(val: string) {
