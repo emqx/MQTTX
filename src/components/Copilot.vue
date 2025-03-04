@@ -130,14 +130,23 @@ export default class Copilot extends Vue {
   private currentPublishMsg = ''
   private isSending = false
   private isResponseStream = false
-  private roleMap = {
-    user: this.$tc('common.copilteUser'),
-    assistant: 'MQTTX Copilot',
-    system: 'System',
-  }
   private responseStreamText = ''
-
   private currPresetPrompt = ''
+
+  get roleMap() {
+    return {
+      user: this.$tc('common.copilteUser'),
+      assistant: 'MQTTX Copilot',
+      system: 'System',
+    }
+  }
+
+  @Watch('$route.path')
+  private handleRouteChange() {
+    if (this.showCopilot) {
+      this.showCopilot = false
+    }
+  }
 
   @Watch('showCopilot')
   private handleShowCopilotChange(newValue: boolean, oldValue: boolean) {

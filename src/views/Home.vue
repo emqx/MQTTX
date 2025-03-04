@@ -5,7 +5,7 @@
     <RouterView />
     <Ipc @setTheme="setTheme" @setLang="setLang" />
     <Update v-if="updateActive" />
-    <Copilot ref="copilot" v-if="enableCopilot" :record="{}" />
+    <Copilot ref="copilot" v-if="enableCopilot" :record="{}" :key="getterLang" />
   </div>
 </template>
 
