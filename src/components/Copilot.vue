@@ -11,26 +11,28 @@
         </div>
         <div ref="chatBody" class="chat-body">
           <!-- The final messages -->
-          <div class="message-block" v-for="message in messages" :key="message.id">
-            <p>
-              <span class="chat-title">
-                <i :class="[message.role === 'user' ? 'el-icon-user' : 'el-icon-magic-stick']"></i>
-                {{ roleMap[message.role] }}
-              </span>
-              <vue-markdown
-                class="chat-content"
-                :data-prismjs-copy="$t('common.copy')"
-                :data-prismjs-copy-error="$t('common.copyFailed')"
-                :data-prismjs-copy-success="$t('common.copied')"
-                :data-prismjs-line-numbers="true"
-                data-download-link
-                data-download-link-label="Download this file"
-                :source="message.content"
-                :anchor-attributes="{ target: '_blank' }"
-              />
-            </p>
-            <el-divider></el-divider>
-          </div>
+          <template v-for="message in messages">
+            <div v-if="message.role !== 'system'" class="message-block" :key="message.id">
+              <p>
+                <span class="chat-title">
+                  <i :class="[message.role === 'user' ? 'el-icon-user' : 'el-icon-magic-stick']"></i>
+                  {{ roleMap[message.role] }}
+                </span>
+                <vue-markdown
+                  class="chat-content"
+                  :data-prismjs-copy="$t('common.copy')"
+                  :data-prismjs-copy-error="$t('common.copyFailed')"
+                  :data-prismjs-copy-success="$t('common.copied')"
+                  :data-prismjs-line-numbers="true"
+                  data-download-link
+                  data-download-link-label="Download this file"
+                  :source="message.content"
+                  :anchor-attributes="{ target: '_blank' }"
+                />
+              </p>
+              <el-divider></el-divider>
+            </div>
+          </template>
           <div v-if="isSending" class="thinking">
             <span class="chat-title"><i class="el-icon-loading"></i>{{ $t('common.thinking') }}</span>
           </div>
@@ -305,21 +307,31 @@ export default class Copilot extends Vue {
     })
   }
 
-  private handlePresetsChange(prompt: string, promptMap: Record<string, string | VueI18n.TranslateResult>) {
+  private async handlePresetsChange(
+    prompt: string,
+    promptMap: Record<string, VueI18n.TranslateResult | Record<'system' | 'user', VueI18n.TranslateResult>>,
+  ) {
+    await this.clearAllMessages()
     this.currPresetPrompt = prompt
-    const sendMessage = promptMap[this.currPresetPrompt] as string
-    if (this.currPresetPrompt === 'emqxLogAnalysis') {
-      this.currentPublishMsg = sendMessage
-      const pubMsgRef = this.$refs.publishMsgInput as Vue
-      if (pubMsgRef) {
-        const input = pubMsgRef.$el.children[0] as HTMLElement
-        input.focus()
-        this.showPresetPrompt = false
-      }
-      return
+    const promptValue = promptMap[this.currPresetPrompt]
+    if (typeof promptValue === 'object' && typeof promptValue.system === 'string') {
+      this.messages.push({ id: getCopilotMessageId(), role: 'system', content: promptValue.system })
     }
-    this.sendMessage(sendMessage)
-    this.showPresetPrompt = false
+    const userPrompt = typeof promptValue === 'object' && 'user' in promptValue ? promptValue.user : promptValue
+    if (typeof userPrompt === 'string') {
+      this.currentPublishMsg = userPrompt
+      if (['emqxLogAnalysis', 'customRequirementGenerate'].includes(this.currPresetPrompt)) {
+        const pubMsgRef = this.$refs.publishMsgInput as Vue
+        if (pubMsgRef) {
+          const input = pubMsgRef.$el.children[0] as HTMLElement
+          input.focus()
+          this.showPresetPrompt = false
+          return
+        }
+      }
+      this.sendMessage(this.currentPublishMsg)
+      this.showPresetPrompt = false
+    }
   }
 
   private handleClickPresetOutside() {
@@ -456,28 +468,44 @@ body.night {
           margin-bottom: 12px;
         }
         .chat-content {
+          margin-top: 8px;
+          line-height: 1.6;
+
           h1 {
             font-size: 2em;
+            margin-top: 24px;
+            margin-bottom: 16px;
           }
           h2 {
             font-size: 1.5em;
+            margin-top: 20px;
+            margin-bottom: 14px;
           }
           h3 {
             font-size: 1.25em;
+            margin-top: 18px;
+            margin-bottom: 12px;
           }
           h4 {
             font-size: 1em;
+            margin-top: 16px;
+            margin-bottom: 10px;
           }
           h5 {
             font-size: 0.875em;
+            margin-top: 14px;
+            margin-bottom: 8px;
           }
           h6 {
             font-size: 0.85em;
+            margin-top: 12px;
+            margin-bottom: 8px;
           }
 
           p {
             margin-top: 0;
-            margin-bottom: 10px;
+            margin-bottom: 16px;
+            line-height: 1.6;
           }
           p,
           pre,
@@ -488,21 +516,72 @@ body.night {
           code {
             font-family: Menlo, Monaco, 'Courier New', monospace;
             font-size: 13px !important;
+            padding: 2px 4px;
+            border-radius: 3px;
+          }
+          .code-toolbar {
+            margin: 16px 0;
+          }
+          pre {
+            padding: 16px;
+            border-radius: 4px;
+
+            code {
+              padding: 0;
+            }
           }
           ul,
           ol {
             padding-left: 2em;
             margin-top: 0;
-            margin-bottom: 10px;
+            margin-bottom: 16px;
           }
           li {
-            margin-top: 5px;
+            margin-top: 6px;
+            margin-bottom: 6px;
           }
           blockquote {
-            margin: 0;
-            padding: 0 1em;
-            border-left: 0.25em solid var(--color-border-default);
+            margin: 16px 0;
+            padding: 0 16px;
+            color: var(--color-text-light);
+            border-left: 4px solid var(--color-border-default);
           }
+
+          table {
+            margin: 16px 0;
+            border-collapse: collapse;
+            width: 100%;
+
+            th,
+            td {
+              border: 1px solid var(--color-border-default);
+              padding: 8px 12px;
+            }
+
+            th {
+              background-color: var(--color-bg-primary);
+              font-weight: 600;
+            }
+          }
+
+          hr {
+            margin: 16px 0;
+            border: 0;
+            border-top: 1px solid var(--color-border-default);
+          }
+        }
+
+        .thinking {
+          margin-bottom: 16px;
+          .chat-title {
+            i {
+              margin-right: 8px;
+            }
+          }
+        }
+
+        .el-divider {
+          margin: 16px 0 20px;
         }
       }
     }

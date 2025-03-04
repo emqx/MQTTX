@@ -30,6 +30,17 @@
         </a>
       </div>
       <div>
+        <el-tooltip
+          v-if="enableCopilot"
+          placement="bottom"
+          :effect="theme !== 'light' ? 'light' : 'dark'"
+          :open-delay="500"
+          content="MQTTX Copilot"
+        >
+          <el-button class="copilot-btn" type="text" size="mini" @click="toggleShowCopilot" style="padding: 5px 8px">
+            <i class="iconfont icon-chat"></i>
+          </el-button>
+        </el-tooltip>
         <el-button class="upload-btn" size="mini" @click="showImportScript = true">{{ uploadButtonLabel }}</el-button>
         <el-button class="save-btn" type="primary" size="mini" @click="handleSave">{{ $t('common.save') }}</el-button>
         <el-tooltip
@@ -178,11 +189,13 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
+import { ipcRenderer } from 'electron'
 import { Getter } from 'vuex-class'
 import Editor from '@/components/Editor.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import useServers from '@/database/useServices'
 import ImportScript from '@/components/ImportScript.vue'
+import Copilot from '@/components/Copilot.vue'
 import { scriptTest } from '@/utils/scriptTest'
 
 @Component({
@@ -190,11 +203,13 @@ import { scriptTest } from '@/utils/scriptTest'
     Editor,
     MyDialog,
     ImportScript,
+    Copilot,
   },
 })
 export default class Script extends Vue {
   @Getter('currentScript') private scriptOption!: ScriptState | null
   @Getter('currentTheme') private theme!: Theme
+  @Getter('enableCopilot') private enableCopilot!: boolean
   // tab change
   private readonly functionTab: 'functionTab' = 'functionTab'
   private readonly schemaTab: 'schemaTab' = 'schemaTab'
@@ -571,6 +586,36 @@ message Person {
       }
       this.save()
     }
+  }
+
+  private getAncestorRef(refName: string) {
+    let parent = this.$parent
+    while (parent) {
+      if (parent.$refs[refName]) {
+        return parent.$refs[refName]
+      }
+      parent = parent.$parent
+    }
+    return null
+  }
+
+  private toggleShowCopilot(show: boolean = true) {
+    const copilotRef = this.getAncestorRef('copilot') as Copilot
+    copilotRef.showCopilot = show
+    return copilotRef
+  }
+
+  private mounted() {
+    ipcRenderer.on('insertCodeToEditor', (event: Event, code: string) => {
+      if (code) {
+        this.functionEditorValue = code
+        this.toggleShowCopilot(false)
+      }
+    })
+  }
+
+  private beforeDestroy() {
+    ipcRenderer.removeAllListeners('insertCodeToEditor')
   }
 }
 </script>
