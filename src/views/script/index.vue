@@ -30,17 +30,10 @@
         </a>
       </div>
       <div>
-        <el-tooltip
-          v-if="enableCopilot"
-          placement="bottom"
-          :effect="theme !== 'light' ? 'light' : 'dark'"
-          :open-delay="500"
-          content="MQTTX Copilot"
-        >
-          <el-button class="copilot-btn" type="text" size="mini" @click="toggleShowCopilot" style="padding: 5px 8px">
-            <i class="iconfont icon-chat"></i>
-          </el-button>
-        </el-tooltip>
+        <el-button class="copilot-btn" plain size="mini" @click="toggleShowCopilot">
+          <i class="iconfont icon-chat"></i>
+          MQTTX Copilot
+        </el-button>
         <el-button class="upload-btn" size="mini" @click="showImportScript = true">{{ uploadButtonLabel }}</el-button>
         <el-button class="save-btn" type="primary" size="mini" @click="handleSave">{{ $t('common.save') }}</el-button>
         <el-tooltip
@@ -656,6 +649,22 @@ message Person {
       position: relative;
       top: 3px;
       font-weight: bold;
+    }
+    .copilot-btn {
+      background: var(--color-bg-normal);
+      border: 1px solid var(--color-border-default);
+      color: var(--color-text-default);
+      transition: 0.1s;
+      &:hover {
+        color: var(--color-main-green);
+        border-color: var(--color-main-green);
+      }
+      i {
+        margin-right: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 1;
+      }
     }
     .upload-btn {
       background: var(--color-bg-normal);
