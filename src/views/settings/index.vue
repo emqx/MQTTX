@@ -428,7 +428,7 @@ import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY } from '@/utils/idGenerator'
 import ClickOutside from 'vue-click-outside'
 import _ from 'lodash'
-import { AImodelsOptions, AIAPIHostOptions } from '@/utils/copilot'
+import { AImodelsOptions, AIAPIHostOptions } from '@/utils/ai/copilot'
 
 @Component({
   components: { ImportData, ExportData, ClearUpHistoryData },

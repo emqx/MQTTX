@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
 import { IPublishPacket, MqttClient } from 'mqtt'
-import type { AIModel } from '@/utils/copilot'
+import type { AIModel } from '@/utils/ai/copilot'
 
 declare global {
   type $TSFixed = any

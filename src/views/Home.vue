@@ -16,7 +16,7 @@ import { remote } from 'electron'
 import Ipc from '@/components/Ipc.vue'
 import Leftbar from '@/components/Leftbar.vue'
 import DatabaseError from '@/components/DatabaseError.vue'
-import Copilot from '@/components/Copilot.vue'
+import Copilot from '@/components/ai/Copilot.vue'
 
 @Component({
   components: {

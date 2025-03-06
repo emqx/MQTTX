@@ -351,7 +351,7 @@ import TimedMessage from '@/components/TimedMessage.vue'
 import UseScript from '@/components/UseScript.vue'
 import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 import MsgTip from '@/components/MsgTip.vue'
-import Copilot from '@/components/Copilot.vue'
+import Copilot from '@/components/ai/Copilot.vue'
 
 import sandbox from '@/utils/sandbox'
 import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/historyRecordUtils'
