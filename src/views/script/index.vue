@@ -187,7 +187,7 @@ import Editor from '@/components/Editor.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import useServers from '@/database/useServices'
 import ImportScript from '@/components/ImportScript.vue'
-import Copilot from '@/components/Copilot.vue'
+import Copilot from '@/components/ai/Copilot.vue'
 import { scriptTest } from '@/utils/scriptTest'
 
 @Component({

@@ -88,7 +88,7 @@ import ClickOutside from 'vue-click-outside'
 import VueI18n from 'vue-i18n'
 import PresetPromptSelect from './PresetPromptSelect.vue'
 import { streamText } from 'ai'
-import { SYSTEM_PROMPT, getModelProvider } from '@/utils/copilot'
+import { SYSTEM_PROMPT, getModelProvider } from '@/utils/ai/copilot'
 import { throttle } from 'lodash'
 
 import Prism from 'prismjs'
