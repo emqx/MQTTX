@@ -75,10 +75,35 @@ export default class PresetPromptSelect extends Vue {
   ]
 
   private customFunctionOptions = [
-    { value: 'customRequirementGenerate', label: this.$t('common.customRequirementGenerate') },
+    { value: 'customRequirementGenerateFunc', label: this.$t('common.customRequirementGenerate') },
     { value: 'simulateWeatherData', label: this.$t('common.simulateWeatherData') },
     { value: 'dynamicCommandSwitch', label: this.$t('common.dynamicCommandSwitch') },
     { value: 'timeFormatProcessing', label: this.$t('common.timeFormatProcessing') },
+  ]
+
+  private schemaOptions = [
+    {
+      value: 'Protobuf',
+      label: 'Protobuf',
+      children: [
+        { value: 'protobufCustomRequirementGenerateSchema', label: this.$t('common.customRequirementGenerate') },
+        { value: 'protobufReportSmartHomeStatus', label: this.$t('common.reportSmartHomeStatus') },
+        { value: 'protobufIndustrialDeviceAlarm', label: this.$t('common.industrialDeviceAlarm') },
+        { value: 'protobufConnectedCarTelemetry', label: this.$t('common.connectedCarTelemetry') },
+        { value: 'protobufSmartMeterReadings', label: this.$t('common.smartMeterReadings') },
+      ],
+    },
+    {
+      value: 'Avro',
+      label: 'Avro',
+      children: [
+        { value: 'avroCustomRequirementGenerateSchema', label: this.$t('common.customRequirementGenerate') },
+        { value: 'avroReportSmartHomeStatus', label: this.$t('common.reportSmartHomeStatus') },
+        { value: 'avroIndustrialDeviceAlarm', label: this.$t('common.industrialDeviceAlarm') },
+        { value: 'avroConnectedCarTelemetry', label: this.$t('common.connectedCarTelemetry') },
+        { value: 'avroSmartMeterReadings', label: this.$t('common.smartMeterReadings') },
+      ],
+    },
   ]
 
   private presetPromptOptions = [
@@ -103,6 +128,12 @@ export default class PresetPromptSelect extends Vue {
       value: 'customFunction',
       label: this.$t('common.customFunction'),
       children: this.customFunctionOptions,
+      allowedRoutes: ['/script'],
+    },
+    {
+      value: 'schema',
+      label: this.$t('common.schema'),
+      children: this.schemaOptions,
       allowedRoutes: ['/script'],
     },
     {
@@ -178,21 +209,61 @@ export default class PresetPromptSelect extends Vue {
       connectionInfo: this.$t('common.promptCurrentConnectionInfo', ['@connection']),
       genTestDoc: this.$t('common.promptGenTestDoc', ['@connection']),
       emqxLogAnalysis: this.$t('common.promptEmqxLogAnalysis'),
-      customRequirementGenerate: {
-        system: this.$t('common.promptScript'),
-        user: this.$t('common.promptScriptCustom'),
+      customRequirementGenerateFunc: {
+        system: this.$t('common.promptCustomFunction'),
+        user: this.$t('common.promptCustomFunctionCustomRequirement'),
       },
       simulateWeatherData: {
-        system: this.$t('common.promptScript'),
+        system: this.$t('common.promptCustomFunction'),
         user: this.$t('common.simulateWeatherData'),
       },
       dynamicCommandSwitch: {
-        system: this.$t('common.promptScript'),
+        system: this.$t('common.promptCustomFunction'),
         user: this.$t('common.dynamicCommandSwitch'),
       },
       timeFormatProcessing: {
-        system: this.$t('common.promptScript'),
+        system: this.$t('common.promptCustomFunction'),
         user: this.$t('common.timeFormatProcessing'),
+      },
+      protobufCustomRequirementGenerateSchema: {
+        system: this.$t('common.promptSchema', ['Protobuf']),
+        user: this.$t('common.promptSchemaCustomRequirement'),
+      },
+      protobufReportSmartHomeStatus: {
+        system: this.$t('common.promptSchema', ['Protobuf']),
+        user: this.$t('common.reportSmartHomeStatus'),
+      },
+      protobufIndustrialDeviceAlarm: {
+        system: this.$t('common.promptSchema', ['Protobuf']),
+        user: this.$t('common.industrialDeviceAlarm'),
+      },
+      protobufConnectedCarTelemetry: {
+        system: this.$t('common.promptSchema', ['Protobuf']),
+        user: this.$t('common.connectedCarTelemetry'),
+      },
+      protobufSmartMeterReadings: {
+        system: this.$t('common.promptSchema', ['Protobuf']),
+        user: this.$t('common.smartMeterReadings'),
+      },
+      avroCustomRequirementGenerateSchema: {
+        system: this.$t('common.promptSchema', ['Avro']),
+        user: this.$t('common.promptSchemaCustomRequirement'),
+      },
+      avroReportSmartHomeStatus: {
+        system: this.$t('common.promptSchema', ['Avro']),
+        user: this.$t('common.reportSmartHomeStatus'),
+      },
+      avroIndustrialDeviceAlarm: {
+        system: this.$t('common.promptSchema', ['Avro']),
+        user: this.$t('common.industrialDeviceAlarm'),
+      },
+      avroConnectedCarTelemetry: {
+        system: this.$t('common.promptSchema', ['Avro']),
+        user: this.$t('common.connectedCarTelemetry'),
+      },
+      avroSmartMeterReadings: {
+        system: this.$t('common.promptSchema', ['Avro']),
+        user: this.$t('common.smartMeterReadings'),
       },
     }
   }

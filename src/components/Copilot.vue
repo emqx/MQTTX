@@ -348,7 +348,14 @@ export default class Copilot extends Vue {
     const userPrompt = typeof promptValue === 'object' && 'user' in promptValue ? promptValue.user : promptValue
     if (typeof userPrompt === 'string') {
       this.currentPublishMsg = userPrompt
-      if (['emqxLogAnalysis', 'customRequirementGenerate'].includes(this.currPresetPrompt)) {
+      if (
+        [
+          'emqxLogAnalysis',
+          'customRequirementGenerate',
+          'protobufCustomRequirementGenerateSchema',
+          'avroCustomRequirementGenerateSchema',
+        ].includes(this.currPresetPrompt)
+      ) {
         const pubMsgRef = this.$refs.publishMsgInput as Vue
         if (pubMsgRef) {
           const input = pubMsgRef.$el.children[0] as HTMLElement

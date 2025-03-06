@@ -706,7 +706,7 @@ export default {
     ja: '時間フォーマット処理',
     hu: 'Időformátum feldolgozás',
   },
-  promptScript: {
+  promptCustomFunction: {
     zh: `请根据所选模式生成 MQTTX 自定义函数，并且给出原始 Payload 样本和预期结果：
       【生成模式】
         - 预设模板快速生成
@@ -993,11 +993,404 @@ export default {
         5. Az egyéni függvény, az eredeti Payload minta és az elvárt eredmény sorrendjében adja meg, biztosítva a kódblokk formátumot
         6. Legyen tömör a válaszban, kerülje a hosszú leírásokat, de biztosítsa az információk teljességét`,
   },
-  promptScriptCustom: {
+  promptCustomFunctionCustomRequirement: {
     zh: '请帮我生成一个自定义函数，包含测试用例和预期结果，描述需求：',
     en: 'Please help me generate a custom function, including test cases and expected results, describe the requirements:',
     tr: 'Lütfen bana bir özel fonksiyon oluşturma konusunda yardımcı olun, test durumlarını ve beklenen sonuçları içerir, gereksinimleri açıklayın:',
     ja: 'テストケースと期待される結果を含むカスタム関数を生成するのにお手伝いください。要件を説明してください：',
     hu: 'Segítsen egy egyedi függvény generálásában, beleértve a teszteseteket és az elvárt eredményeket, írja le az igényeket:',
+  },
+  schema: {
+    zh: '编解码',
+    en: 'Schema',
+    tr: 'Şemalar',
+    ja: 'スキーマ',
+    hu: 'Sémák',
+  },
+  reportSmartHomeStatus: {
+    zh: '智能家居设备状态上报',
+    en: 'Smart Home Device Status Reporting',
+    tr: 'Akıllı Ev Cihaz Durum Gönderimi',
+    ja: 'スマートホームデバイス状態報告',
+    hu: 'Intelligens otthoni eszközállapot jelentés',
+  },
+  industrialDeviceAlarm: {
+    zh: '工业设备告警消息',
+    en: 'Industrial Device Alarm Messages',
+    tr: 'Endüstriyel Cihaz Alarm Mesajları',
+    ja: '産業用デバイスアラームメッセージ',
+    hu: 'Ipari eszköz figyelmeztetés üzenetek',
+  },
+  connectedCarTelemetry: {
+    zh: '车联网车辆遥测数据',
+    en: 'Connected Car Telemetry Data',
+    tr: 'Bağlantılı Araba Telemetri Verileri',
+    ja: '車載テレメトリーデータ',
+    hu: 'Csatlakoztatott autó telemetria adatok',
+  },
+  smartMeterReadings: {
+    zh: '智能电表实时读数',
+    en: 'Smart Meter Real-time Readings',
+    tr: 'Akıllı Sayaç Gerçek Zamanlı Okumalar',
+    ja: 'スマートメーターリアルタイム読取値',
+    hu: 'Okos mérőóra valós idejű értékek',
+  },
+  promptSchema: {
+    zh: `请根据选择生成数据 Schema 和对应示例数据：
+[编码格式] => [生成模式]
+- 编码格式选项：Protobuf | Avro
+- 生成模式选项：
+  ├─ 自定义需求生成（需填写下方描述）
+  └─ 预设场景快速生成：
+     │ 智能家居设备状态上报
+     │ 工业设备告警消息
+     │ 车联网车辆遥测数据
+     │ 智能电表实时读数
+==== 自定义模式 ====
+详细说明数据结构需求（如："包含带状态的传感器数据，要求时间戳精度到毫秒"），可以提供示例字段数据，以便更好地理解需求
+==== 预设场景特征 ====
+▶ 智能家居设备状态上报
+  - 必选字段：device_id（字符串）、status（枚举）、temperature（带波动范围）
+  - 可选扩展：在线状态、固件版本、信号强度
+▶ 工业设备告警消息
+  - 必选字段：alarm_code（整型）、severity（枚举）、timestamp（时间戳）
+  - 可选扩展：设备坐标、关联工单号、恢复建议
+▶ 车联网车辆遥测数据
+  - 必选字段：vin（字符串）、gps（坐标对象）、speed（带波动数值）
+  - 可选扩展：剩余电量、胎压数组、驾驶模式
+▶ 智能电表实时读数
+  - 必选字段：meter_id（定长字符串）、voltage（带精度数值）、timestamp（ISO8601）
+  - 可选扩展：相位不平衡度、异常事件标志位
+==== 生成规则 ====
+1. Protobuf 输出顺序：
+   ▼ 完整的 .proto 文件，包含语法声明如 syntax = "proto3";
+   ▼ 数据类型名称（如：类型名称：DeviceStatusReport）
+   ▼ 输入示例数据
+   
+   // 示例结构
+   ## Schema
+   syntax = "proto3";
+   message DeviceReport {
+     string device_id = 1;
+     int32 value = 2;
+     string firmware = 3;
+   }
+   
+   ## 类型名称(使用markdown代码块格式)
+   DeviceReport
+   
+   ## 示例数据
+   {
+     "device_id": "dev12345",
+     "value": 100,
+     "firmware": "1.0.0"
+   }
+   
+2. Avro 输出顺序：
+   ▼ 完整的 .avsc 文件
+   ▼ 输入示例数据
+   
+   // 示例结构
+   {
+     "type": "record",
+     "name": "Person",
+     "fields": [
+       {"name": "id", "type": "int"},
+       {"name": "name", "type": "string"}
+     ]
+   }
+==== 注意事项 ====
+1. Protobuf特别要求：
+   - 枚举值必须使用整数值，示例数据中必须使用枚举对应的整数值（如：status: 2）
+2. 提供JSON格式的保证示例数，并保证示例数据包含Schema中定义的所有字段，字段名称完全一致，不能有任何遗漏
+3. 所有代码和数据必须使用markdown代码块格式输出，便于复制和查看
+选择的编码格式：{0}`,
+
+    en: `Please generate data Schema and corresponding sample data based on your selection:
+[Encoding Format] => [Generation Mode]
+- Encoding Format Options: Protobuf | Avro
+- Generation Mode Options:
+  ├─ Custom Requirements (please fill in description below)
+  └─ Preset Scenarios for Quick Generation:
+     │ Smart Home Device Status Report
+     │ Industrial Equipment Alarm Message
+     │ Connected Vehicle Telemetry Data
+     │ Smart Meter Real-time Readings
+==== Custom Mode ====
+Please provide detailed data structure requirements (e.g., "include sensor data with status, require millisecond timestamp precision"), you can provide sample field data to better understand your needs
+==== Preset Scenario Features ====
+▶ Smart Home Device Status Report
+  - Required fields: device_id (string), status (enum), temperature (with fluctuation range)
+  - Optional extensions: online status, firmware version, signal strength
+▶ Industrial Equipment Alarm Message
+  - Required fields: alarm_code (integer), severity (enum), timestamp (timestamp)
+  - Optional extensions: device coordinates, related work order number, recovery suggestions
+▶ Connected Vehicle Telemetry Data
+  - Required fields: vin (string), gps (coordinate object), speed (fluctuating value)
+  - Optional extensions: remaining battery, tire pressure array, driving mode
+▶ Smart Meter Real-time Readings
+  - Required fields: meter_id (fixed-length string), voltage (value with precision), timestamp (ISO8601)
+  - Optional extensions: phase imbalance, anomaly event flags
+==== Generation Rules ====
+1. Protobuf Output Order:
+   ▼ Complete .proto file, including syntax declaration like syntax = "proto3";
+   ▼ Data type name (e.g., Type name: DeviceStatusReport)
+   ▼ Sample input data
+   
+   // Example structure
+   ## Schema
+   syntax = "proto3";
+   message DeviceReport {
+     string device_id = 1;
+     int32 value = 2;
+     string firmware = 3;
+   }
+   
+   ## Type name (use markdown code block format)
+   DeviceReport
+   
+   ## Sample data
+   {
+     "device_id": "dev12345",
+     "value": 100,
+     "firmware": "1.0.0"
+   }
+   
+2. Avro Output Order:
+   ▼ Complete .avsc file
+   ▼ Sample input data
+   
+   // Example structure
+   {
+     "type": "record",
+     "name": "Person",
+     "fields": [
+       {"name": "id", "type": "int"},
+       {"name": "name", "type": "string"}
+     ]
+   }
+==== Notes ====
+1. Protobuf Special Requirements:
+   - Enum values must use integer values, sample data must use the corresponding integer value for enums (e.g., status: 2)
+2. Provide sample data in JSON format, ensuring all fields defined in the Schema are included, field names match exactly, with no omissions
+3. All code and data must be output in markdown code block format for easy copying and viewing
+Selected encoding format: {0}`,
+
+    ja: `選択に基づいてデータスキーマと対応するサンプルデータを生成します：
+[エンコード形式] => [生成モード]
+- エンコード形式オプション：Protobuf | Avro
+- 生成モードオプション：
+  ├─ カスタム要件生成（下記に詳細を記入）
+  └─ プリセットシナリオ：
+     │ スマートホームデバイスステータスレポート
+     │ 産業機器アラームメッセージ
+     │ コネクテッドカーテレメトリーデータ
+     │ スマートメーターリアルタイム読取値
+==== カスタムモード ====
+データ構造要件を詳細に説明してください（例：「ステータス付きのセンサーデータを含み、タイムスタンプはミリ秒精度が必要」）。サンプルフィールドデータを提供すると要件の理解が進みます
+==== プリセットシナリオの特徴 ====
+▶ スマートホームデバイスステータスレポート
+  - 必須フィールド：device_id（文字列）、status（列挙型）、temperature（変動範囲付き）
+  - オプション拡張：オンラインステータス、ファームウェアバージョン、信号強度
+▶ 産業機器アラームメッセージ
+  - 必須フィールド：alarm_code（整数型）、severity（列挙型）、timestamp（タイムスタンプ）
+  - オプション拡張：デバイス座標、関連作業指示番号、復旧提案
+▶ コネクテッドカーテレメトリーデータ
+  - 必須フィールド：vin（文字列）、gps（座標オブジェクト）、speed（変動値）
+  - オプション拡張：残りバッテリー、タイヤ空気圧配列、運転モード
+▶ スマートメーターリアルタイム読取値
+  - 必須フィールド：meter_id（固定長文字列）、voltage（精度付き値）、timestamp（ISO8601）
+  - オプション拡張：相不均衡度、異常イベントフラグ
+==== 生成ルール ====
+1. Protobuf 出力順序：
+   ▼ 完全な .proto ファイル（syntax = "proto3"; などの構文宣言を含む）
+   ▼ データ型名（例：型名：DeviceStatusReport）
+   ▼ サンプル入力データ
+   
+   // 例構造
+   ## スキーマ
+   syntax = "proto3";
+   message DeviceReport {
+     string device_id = 1;
+     int32 value = 2;
+     string firmware = 3;
+   }
+   
+   ## 型名(マークダウンコードブロック形式使用)
+   DeviceReport
+   
+   ## サンプルデータ
+   {
+     "device_id": "dev12345",
+     "value": 100,
+     "firmware": "1.0.0"
+   }
+   
+2. Avro 出力順序：
+   ▼ 完全な .avsc ファイル
+   ▼ サンプル入力データ
+   
+   // 例構造
+   {
+     "type": "record",
+     "name": "Person",
+     "fields": [
+       {"name": "id", "type": "int"},
+       {"name": "name", "type": "string"}
+     ]
+   }
+==== 注意事項 ====
+1. Protobuf特別要件：
+   - 列挙値は整数値を使用し、サンプルデータでは列挙に対応する整数値を使用すること（例：status: 2）
+2. JSONフォーマットでサンプルデータを提供し、スキーマで定義されたすべてのフィールドが含まれ、フィールド名が完全に一致し、省略がないようにすること
+3. すべてのコードとデータはマークダウンコードブロック形式で出力し、コピーと表示を容易にすること
+選択したエンコード形式: {0}`,
+
+    tr: `Seçiminize göre veri Şeması ve karşılık gelen örnek veriler oluşturun:
+[Kodlama Formatı] => [Oluşturma Modu]
+- Kodlama Formatı Seçenekleri: Protobuf | Avro
+- Oluşturma Modu Seçenekleri:
+  ├─ Özel Gereksinim Oluşturma (lütfen aşağıdaki açıklamayı doldurun)
+  └─ Hazır Senaryolar:
+     │ Akıllı Ev Cihazı Durum Raporu
+     │ Endüstriyel Ekipman Alarm Mesajı
+     │ Bağlantılı Araç Telemetri Verileri
+     │ Akıllı Sayaç Gerçek Zamanlı Okumaları
+==== Özel Mod ====
+Veri yapısı gereksinimlerinizi detaylı olarak açıklayın (örn: "durumlu sensör verilerini içerir, zaman damgası milisaniye hassasiyetinde olmalıdır"), gereksinimlerinizin daha iyi anlaşılması için örnek alan verileri sağlayabilirsiniz
+==== Hazır Senaryo Özellikleri ====
+▶ Akıllı Ev Cihazı Durum Raporu
+  - Zorunlu alanlar: device_id (dize), status (enum), temperature (dalgalanma aralığı ile)
+  - Opsiyonel uzantılar: çevrimiçi durumu, yazılım sürümü, sinyal gücü
+▶ Endüstriyel Ekipman Alarm Mesajı
+  - Zorunlu alanlar: alarm_code (tamsayı), severity (enum), timestamp (zaman damgası)
+  - Opsiyonel uzantılar: cihaz koordinatları, ilgili iş emri numarası, kurtarma önerileri
+▶ Bağlantılı Araç Telemetri Verileri
+  - Zorunlu alanlar: vin (dize), gps (koordinat nesnesi), speed (dalgalanan değer)
+  - Opsiyonel uzantılar: kalan batarya, lastik basıncı dizisi, sürüş modu
+▶ Akıllı Sayaç Gerçek Zamanlı Okumaları
+  - Zorunlu alanlar: meter_id (sabit uzunlukta dize), voltage (hassasiyetli değer), timestamp (ISO8601)
+  - Opsiyonel uzantılar: faz dengesizliği, anormal olay bayrakları
+==== Oluşturma Kuralları ====
+1. Protobuf Çıktı Sırası:
+   ▼ syntax = "proto3"; gibi sözdizimi beyanını içeren tam .proto dosyası
+   ▼ Veri türü adı (örn: Tür adı: DeviceStatusReport)
+   ▼ Örnek girdi verileri
+   
+   // Örnek yapı
+   ## Şema
+   syntax = "proto3";
+   message DeviceReport {
+     string device_id = 1;
+     int32 value = 2;
+     string firmware = 3;
+   }
+   
+   ## Tür adı (markdown kod bloğu formatını kullanın)
+   DeviceReport
+   
+   ## Örnek veri
+   {
+     "device_id": "dev12345",
+     "value": 100,
+     "firmware": "1.0.0"
+   }
+   
+2. Avro Çıktı Sırası:
+   ▼ Tam .avsc dosyası
+   ▼ Örnek girdi verileri
+   
+   // Örnek yapı
+   {
+     "type": "record",
+     "name": "Person",
+     "fields": [
+       {"name": "id", "type": "int"},
+       {"name": "name", "type": "string"}
+     ]
+   }
+==== Notlar ====
+1. Protobuf Özel Gereksinimleri:
+   - Enum değerleri tamsayı değerleri kullanmalı, örnek veriler enum'lara karşılık gelen tamsayı değerlerini kullanmalıdır (örn: status: 2)
+2. JSON formatında örnek veriler sağlayın ve Şemada tanımlanan tüm alanların dahil edildiğinden, alan adlarının tam olarak eşleştiğinden ve hiçbir eksiklik olmadığından emin olun
+3. Tüm kod ve veriler, kolay kopyalama ve görüntüleme için markdown kod bloğu formatında çıktılanmalıdır
+Seçilen kodlama formatı: {0}`,
+
+    hu: `Kérjük, hozzon létre adatsémát és megfelelő mintaadatokat a kiválasztás alapján:
+[Kódolási formátum] => [Generálási mód]
+- Kódolási formátum opciók: Protobuf | Avro
+- Generálási mód opciók:
+  ├─ Egyéni követelmények generálása (kérjük, töltse ki az alábbi leírást)
+  └─ Előre beállított forgatókönyvek:
+     │ Okosotthon eszköz állapotjelentés
+     │ Ipari berendezés riasztási üzenet
+     │ Hálózatba kapcsolt jármű telemetriai adatok
+     │ Okos mérőóra valós idejű leolvasások
+==== Egyéni mód ====
+Részletesen írja le az adatszerkezeti követelményeket (pl.: "tartalmaz állapottal rendelkező szenzor adatokat, milliszekundum pontosságú időbélyeg szükséges"), megadhat minta mezőadatokat a követelmények jobb megértéséhez
+==== Előre beállított forgatókönyv jellemzők ====
+▶ Okosotthon eszköz állapotjelentés
+  - Kötelező mezők: device_id (sztring), status (felsorolás), temperature (ingadozási tartománnyal)
+  - Opcionális kiterjesztések: online állapot, firmware verzió, jelerősség
+▶ Ipari berendezés riasztási üzenet
+  - Kötelező mezők: alarm_code (egész szám), severity (felsorolás), timestamp (időbélyeg)
+  - Opcionális kiterjesztések: eszköz koordináták, kapcsolódó munkarendelési szám, helyreállítási javaslatok
+▶ Hálózatba kapcsolt jármű telemetriai adatok
+  - Kötelező mezők: vin (sztring), gps (koordináta objektum), speed (ingadozó érték)
+  - Opcionális kiterjesztések: maradék akkumulátor, gumiabroncs nyomás tömb, vezetési mód
+▶ Okos mérőóra valós idejű leolvasások
+  - Kötelező mezők: meter_id (fix hosszúságú sztring), voltage (pontossággal rendelkező érték), timestamp (ISO8601)
+  - Opcionális kiterjesztések: fázis egyensúlytalanság, anomália esemény jelzők
+==== Generálási szabályok ====
+1. Protobuf kimeneti sorrend:
+   ▼ Teljes .proto fájl, beleértve a szintaxis deklarációt, mint syntax = "proto3";
+   ▼ Adattípus neve (pl.: Típus neve: DeviceStatusReport)
+   ▼ Minta bemeneti adatok
+   
+   // Példa struktúra
+   ## Séma
+   syntax = "proto3";
+   message DeviceReport {
+     string device_id = 1;
+     int32 value = 2;
+     string firmware = 3;
+   }
+   
+   ## Típus neve (markdown kódblokk formátumban)
+   DeviceReport
+   
+   ## Minta adatok
+   {
+     "device_id": "dev12345",
+     "value": 100,
+     "firmware": "1.0.0"
+   }
+   
+2. Avro kimeneti sorrend:
+   ▼ Teljes .avsc fájl
+   ▼ Minta bemeneti adatok
+   
+   // Példa struktúra
+   {
+     "type": "record",
+     "name": "Person",
+     "fields": [
+       {"name": "id", "type": "int"},
+       {"name": "name", "type": "string"}
+     ]
+   }
+==== Megjegyzések ====
+1. Protobuf speciális követelmények:
+   - A felsorolás értékeknek egész számokat kell használniuk, a mintaadatokban a felsorolásoknak megfelelő egész számértékeket kell használni (pl.: status: 2)
+2. Biztosítson JSON formátumú mintaadatokat, és győződjön meg arról, hogy a Sémában definiált összes mező szerepel, a mezőnevek pontosan egyeznek, nincsenek kihagyások
+3. Minden kódot és adatot markdown kódblokk formátumban kell kimenetre küldeni a könnyű másolás és megtekintés érdekében
+Választott kódolási formátum: {0}`,
+  },
+  promptSchemaCustomRequirement: {
+    zh: '请根据需求生成对应的数据 Schema 和示例数据，描述需求：',
+    en: 'Please generate the corresponding data schema and example data according to the requirements, describe the requirements:',
+    tr: 'lütfen gereksinimlere göre karşılık gelen veri şemasını ve örnek verileri oluşturun, gereksinimleri açıklayın:',
+    ja: '要件に従って対応するデータスキーマと例示データを生成してください。要件を説明してください：',
+    hu: 'kérem generálja a megfelelő adatsémát és példaadatokat az igényeknek megfelelően, írja le az igényeket:',
   },
 }
