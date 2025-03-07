@@ -132,6 +132,7 @@ export default class Copilot extends Vue {
   private isResponseStream = false
   private responseStreamText = ''
   private currPresetPrompt = ''
+  private abortController: AbortController | null = null
 
   get roleMap() {
     return {
@@ -249,6 +250,7 @@ export default class Copilot extends Vue {
       const throttledScroll = throttle(() => {
         this.scrollToBottom()
       }, 500)
+      this.abortController = new AbortController()
       const { textStream } = streamText({
         model: getModelProvider({
           model: this.model,
@@ -257,6 +259,7 @@ export default class Copilot extends Vue {
         }),
         temperature: 0.8,
         messages: userMessages,
+        abortSignal: this.abortController.signal,
         onError: ({ error }) => {
           this.$message.error(`API Error: ${error?.toString()}`)
           this.$log.error(`Copilot API Error: ${error?.toString()}`)
@@ -279,6 +282,10 @@ export default class Copilot extends Vue {
       })
     } catch (err) {
       const error = err as unknown as any
+      if (err instanceof DOMException && err.name === 'AbortError') {
+        // Manually terminated, no record
+        return
+      }
       this.$message.error(`API Error: ${error.toString()}`)
       this.$log.error(`Copilot API Error: ${error.toString()}`)
     } finally {
@@ -339,6 +346,9 @@ export default class Copilot extends Vue {
     prompt: string,
     promptMap: Record<string, VueI18n.TranslateResult | Record<'system' | 'user', VueI18n.TranslateResult>>,
   ) {
+    if (this.abortController) {
+      this.abortController.abort()
+    }
     await this.clearAllMessages()
     this.currPresetPrompt = prompt
     const promptValue = promptMap[this.currPresetPrompt]
