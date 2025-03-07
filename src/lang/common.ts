@@ -1069,6 +1069,7 @@ export default {
    
    // 示例结构
    ## Schema
+   当前 Schema 的描述，说明重要字段的作用（使用markdown普通段落）
    syntax = "proto3";
    message DeviceReport {
      string device_id = 1;
@@ -1091,6 +1092,8 @@ export default {
    ▼ 输入示例数据
    
    // 示例结构
+   ## Schema
+   当前 Schema 的描述，说明重要字段的作用（使用markdown普通段落）
    {
      "type": "record",
      "name": "Person",
@@ -1139,6 +1142,7 @@ Please provide detailed data structure requirements (e.g., "include sensor data 
    
    // Example structure
    ## Schema
+   Description of the current Schema, explaining the purpose of important fields (use markdown plain paragraph)
    syntax = "proto3";
    message DeviceReport {
      string device_id = 1;
@@ -1161,6 +1165,8 @@ Please provide detailed data structure requirements (e.g., "include sensor data 
    ▼ Sample input data
    
    // Example structure
+   ## Schema
+   Description of the current Schema, explaining the purpose of important fields (use markdown plain paragraph)
    {
      "type": "record",
      "name": "Person",
@@ -1209,6 +1215,7 @@ Selected encoding format: {0}`,
    
    // 例構造
    ## スキーマ
+   現在のスキーマの説明，重要なフィールドの役割を解説してください（markdownの通常の段落形式を使用）
    syntax = "proto3";
    message DeviceReport {
      string device_id = 1;
@@ -1231,6 +1238,8 @@ Selected encoding format: {0}`,
    ▼ サンプル入力データ
    
    // 例構造
+   ## スキーマ
+   現在のスキーマの説明，重要なフィールドの役割を解説してください（markdownの通常の段落形式を使用）
    {
      "type": "record",
      "name": "Person",
@@ -1279,6 +1288,7 @@ Veri yapısı gereksinimlerinizi detaylı olarak açıklayın (örn: "durumlu se
    
    // Örnek yapı
    ## Şema
+   Geçerli Şema'nın açıklaması, önemli alanların amacını açıklayın (markdown normal paragraf biçimini kullanın)
    syntax = "proto3";
    message DeviceReport {
      string device_id = 1;
@@ -1301,6 +1311,8 @@ Veri yapısı gereksinimlerinizi detaylı olarak açıklayın (örn: "durumlu se
    ▼ Örnek girdi verileri
    
    // Örnek yapı
+   ## Şema
+   Geçerli Şema'nın açıklaması, önemli alanların amacını açıklayın (markdown normal paragraf biçimini kullanın)
    {
      "type": "record",
      "name": "Person",
@@ -1349,6 +1361,7 @@ Részletesen írja le az adatszerkezeti követelményeket (pl.: "tartalmaz álla
    
    // Példa struktúra
    ## Séma
+   A jelenlegi séma leírása, amely ismerteti a fontos mezők szerepét (markdown sima bekezdést használjon)
    syntax = "proto3";
    message DeviceReport {
      string device_id = 1;
@@ -1371,6 +1384,8 @@ Részletesen írja le az adatszerkezeti követelményeket (pl.: "tartalmaz álla
    ▼ Minta bemeneti adatok
    
    // Példa struktúra
+   ## Séma
+   A jelenlegi séma leírása, amely ismerteti a fontos mezők szerepét (markdown sima bekezdést használjon)
    {
      "type": "record",
      "name": "Person",
