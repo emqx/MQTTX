@@ -10,32 +10,13 @@
           :response-stream-text="responseStreamText"
           @load-more-messages="loadMoreMessages"
         />
-        <div class="footer" v-click-outside="handleClickPresetOutside">
-          <transition name="el-zoom-in-bottom">
-            <preset-prompt-select v-if="showPresetPrompt" @onChange="handlePresetsChange" />
-          </transition>
-          <el-input
-            ref="publishMsgInput"
-            type="textarea"
-            :autosize="{ minRows: 1, maxRows: 4 }"
-            :rows="1"
-            class="chat-msg-input"
-            v-model="currentPublishMsg"
-            :placeholder="$t('common.copiltePubMsgPlacehoder')"
-            @keydown.native.enter="handleEnterKey"
-            @focus="showPresetPrompt = true"
-            @input="showPresetPrompt = false"
-          ></el-input>
-          <el-button
-            class="chat-pub-btn"
-            size="mini"
-            type="primary"
-            icon="el-icon-position"
-            :disabled="isSending || isResponseStream"
-            @click="sendMessage()"
-          >
-          </el-button>
-        </div>
+        <copilot-input
+          ref="copilotInput"
+          v-model="currentPublishMsg"
+          :disabled="isSending || isResponseStream"
+          @send="sendMessage"
+          @preset-change="handleInputPresetChange"
+        />
       </el-card>
     </transition>
   </div>
@@ -47,11 +28,10 @@ import { Getter } from 'vuex-class'
 import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY, getCopilotMessageId } from '@/utils/idGenerator'
 import useServices from '@/database/useServices'
-import ClickOutside from 'vue-click-outside'
 import VueI18n from 'vue-i18n'
-import PresetPromptSelect from './PresetPromptSelect.vue'
 import CopilotHeader from './CopilotHeader.vue'
 import CopilotMessages from './CopilotMessages.vue'
+import CopilotInput from './CopilotInput.vue'
 import { streamText } from 'ai'
 import { SYSTEM_PROMPT, getModelProvider } from '@/utils/ai/copilot'
 import { throttle } from 'lodash'
@@ -59,12 +39,9 @@ import ConnectionsIndex from '@/views/connections/index.vue'
 
 @Component({
   components: {
-    PresetPromptSelect,
     CopilotHeader,
     CopilotMessages,
-  },
-  directives: {
-    ClickOutside,
+    CopilotInput,
   },
 })
 export default class Copilot extends Vue {
@@ -73,7 +50,6 @@ export default class Copilot extends Vue {
   @Getter('model') private model!: App['model']
 
   public showCopilot = false
-  public showPresetPrompt = false
   private page = 1
   private hasMore = true
   private isLoading = false
@@ -100,10 +76,8 @@ export default class Copilot extends Vue {
     if (this.$route.name !== 'ConnectionDetails' || this.$route.params.id === '0') {
       return undefined
     }
-    const connectionsDetailRef = this.$parent.$children.find((child: any) => child.currentConnection) as
-      | ConnectionsIndex
-      | undefined
-    return connectionsDetailRef ? connectionsDetailRef.currentConnection : undefined
+    return (this.$parent.$children.find((child: any) => child.currentConnection) as ConnectionsIndex | undefined)
+      ?.currentConnection
   }
 
   @Watch('$route.path')
@@ -150,7 +124,7 @@ export default class Copilot extends Vue {
       return
     }
 
-    const content = (msg || this.currentPublishMsg).replace(/\s+/g, ' ').trim()
+    const content = msg || this.currentPublishMsg
     if (!content) return
 
     const { copilotService } = useServices()
@@ -159,6 +133,7 @@ export default class Copilot extends Vue {
     this.messages.push(requestMessage)
     this.scrollToBottom()
     this.isSending = true
+    this.currentPublishMsg = ''
 
     const userMessages = [
       ...this.systemMessages.map(({ role, content }) => ({ role, content })),
@@ -175,7 +150,6 @@ export default class Copilot extends Vue {
       }),
     ]
 
-    this.currentPublishMsg = ''
     const bytes = CryptoJS.AES.decrypt(this.openAIAPIKey, ENCRYPT_KEY)
     const decryptedKey = bytes.toString(CryptoJS.enc.Utf8)
 
@@ -237,18 +211,26 @@ export default class Copilot extends Vue {
       this.messages = []
       this.page = 1
     }
+
     this.isLoading = true
     const { copilotService } = useServices()
-    const { messages: newMessages, hasMore } = await copilotService.get(this.page)
-    this.hasMore = hasMore
-    const allMessages = [...(newMessages as CopilotMessage[]), ...this.messages]
-    this.messages = this.removeDuplicatesMessages(allMessages)
-    if (this.messages.length === 0) {
-      this.messages.push({ id: getCopilotMessageId(), role: 'assistant', content: this.$tc('common.welcomeToCopilot') })
-    } else {
-      this.scrollToBottom('auto')
+
+    try {
+      const { messages: newMessages, hasMore } = await copilotService.get(this.page)
+      this.hasMore = hasMore
+      this.messages = this.removeDuplicatesMessages([...(newMessages as CopilotMessage[]), ...this.messages])
+      if (this.messages.length === 0) {
+        this.messages.push({
+          id: getCopilotMessageId(),
+          role: 'assistant',
+          content: this.$tc('common.welcomeToCopilot'),
+        })
+      } else {
+        this.scrollToBottom('auto')
+      }
+    } finally {
+      this.isLoading = false
     }
-    this.isLoading = false
   }
 
   private loadMoreMessages() {
@@ -266,63 +248,55 @@ export default class Copilot extends Vue {
   }
 
   private removeDuplicatesMessages(messages: CopilotMessage[]): CopilotMessage[] {
-    const seen = new Set()
+    const seen = new Set<string>()
     return messages.filter((message) => {
-      const duplicate = seen.has(message.id)
+      const isDuplicate = seen.has(message.id)
       seen.add(message.id)
-      return !duplicate
+      return !isDuplicate
     })
   }
 
-  private async handlePresetsChange(
-    prompt: string,
-    promptMap: Record<string, VueI18n.TranslateResult | Record<'system' | 'user', VueI18n.TranslateResult>>,
-  ) {
+  private async handleInputPresetChange({
+    prompt,
+    promptMap,
+  }: {
+    prompt: string
+    promptMap: Record<string, VueI18n.TranslateResult | Record<'system' | 'user', VueI18n.TranslateResult>>
+  }) {
     if (this.abortController) {
       this.abortController.abort()
     }
+
     await this.clearAllMessages()
     this.currPresetPrompt = prompt
+
     const promptValue = promptMap[this.currPresetPrompt]
+
     if (typeof promptValue === 'object' && typeof promptValue.system === 'string') {
       this.messages.push({ id: getCopilotMessageId(), role: 'system', content: promptValue.system })
     }
+
     const userPrompt = typeof promptValue === 'object' && 'user' in promptValue ? promptValue.user : promptValue
+
     if (typeof userPrompt === 'string') {
       this.currentPublishMsg = userPrompt
-      if (
-        [
-          'emqxLogAnalysis',
-          'customRequirementGenerate',
-          'protobufCustomRequirementGenerateSchema',
-          'avroCustomRequirementGenerateSchema',
-        ].includes(this.currPresetPrompt)
-      ) {
-        const pubMsgRef = this.$refs.publishMsgInput as Vue
-        if (pubMsgRef) {
-          const input = pubMsgRef.$el.children[0] as HTMLElement
-          input.focus()
-          this.showPresetPrompt = false
+
+      const needsUserInput = [
+        'emqxLogAnalysis',
+        'customRequirementGenerate',
+        'protobufCustomRequirementGenerateSchema',
+        'avroCustomRequirementGenerateSchema',
+      ].includes(this.currPresetPrompt)
+
+      if (needsUserInput) {
+        const inputComponent = this.$refs.copilotInput as Vue & { focus: () => void }
+        if (inputComponent && typeof inputComponent.focus === 'function') {
+          inputComponent.focus()
           return
         }
       }
+
       this.sendMessage(this.currentPublishMsg)
-      this.showPresetPrompt = false
-    }
-  }
-
-  private handleClickPresetOutside() {
-    this.showPresetPrompt = false
-  }
-
-  private handleEnterKey(event: KeyboardEvent) {
-    if (this.isSending || this.isResponseStream) {
-      event.preventDefault()
-      return
-    }
-    if (!event.shiftKey && event.code === 'Enter') {
-      event.preventDefault()
-      this.sendMessage()
     }
   }
 
@@ -333,8 +307,6 @@ export default class Copilot extends Vue {
 </script>
 
 <style lang="scss">
-@import '~@/assets/scss/variable.scss';
-
 .right-panel {
   display: inline;
   .pop-enter-active {
@@ -371,38 +343,6 @@ export default class Copilot extends Vue {
       display: flex;
       flex-direction: column;
       height: 100%;
-    }
-    .footer {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 100%;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      .chat-msg-input {
-        flex-grow: 1;
-        textarea {
-          padding: 12px 48px 12px 12px;
-          resize: none;
-        }
-      }
-      .el-button.chat-pub-btn {
-        position: absolute;
-        right: 26px;
-        padding: 0;
-        width: 28px;
-        height: 28px;
-        min-width: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 28px;
-        i {
-          font-size: 16px;
-          color: var(--color-text-active);
-        }
-      }
     }
   }
 }
