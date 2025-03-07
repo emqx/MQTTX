@@ -49,6 +49,7 @@ import Prism from 'prismjs'
 import 'prismjs/plugins/toolbar/prism-toolbar.min'
 import 'prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min'
 import { ipcRenderer } from 'electron'
+import { CopilotMessage } from '@/types/copilot'
 
 @Component({
   components: {

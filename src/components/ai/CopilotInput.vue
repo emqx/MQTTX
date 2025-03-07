@@ -31,7 +31,7 @@
 import { Component, Vue, Prop, Emit } from 'vue-property-decorator'
 import PresetPromptSelect from './PresetPromptSelect.vue'
 import ClickOutside from 'vue-click-outside'
-import VueI18n from 'vue-i18n'
+import { CopilotPresetPrompt } from '@/types/copilot'
 
 @Component({
   components: {
@@ -66,10 +66,7 @@ export default class CopilotInput extends Vue {
   }
 
   @Emit('preset-change')
-  handlePresetsChange(
-    prompt: string,
-    promptMap: Record<string, VueI18n.TranslateResult | Record<'system' | 'user', VueI18n.TranslateResult>>,
-  ) {
+  handlePresetsChange(prompt: string, promptMap: CopilotPresetPrompt['promptMap']) {
     this.showPresetPrompt = false
     return { prompt, promptMap }
   }

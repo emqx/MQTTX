@@ -28,7 +28,6 @@ import { Getter } from 'vuex-class'
 import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY, getCopilotMessageId } from '@/utils/idGenerator'
 import useServices from '@/database/useServices'
-import VueI18n from 'vue-i18n'
 import CopilotHeader from './CopilotHeader.vue'
 import CopilotMessages from './CopilotMessages.vue'
 import CopilotInput from './CopilotInput.vue'
@@ -36,6 +35,7 @@ import { streamText } from 'ai'
 import { SYSTEM_PROMPT, getModelProvider } from '@/utils/ai/copilot'
 import { throttle } from 'lodash'
 import ConnectionsIndex from '@/views/connections/index.vue'
+import { CopilotMessage, CopilotRole, CopilotPresetPrompt, StreamError } from '@/types/copilot'
 
 @Component({
   components: {
@@ -111,35 +111,52 @@ export default class Copilot extends Vue {
   }
 
   public async sendMessage(msg?: string) {
-    if (!this.openAIAPIKey) {
-      try {
-        await this.$confirm(this.$tc('common.copilotAPIKeyRequired'), this.$tc('common.warning'), {
-          type: 'warning',
-          confirmButtonText: this.$tc('common.goToSetting'),
-        })
-        this.$router.push({ name: 'Settings' })
-      } catch (error) {
-        // The user canceled the action
-      }
-      return
-    }
+    if (!(await this.checkAPIKey())) return
 
     const content = msg || this.currentPublishMsg
     if (!content) return
 
+    await this.saveUserMessage(content)
+    await this.generateAIResponse()
+  }
+
+  private async checkAPIKey(): Promise<boolean> {
+    if (this.openAIAPIKey) return true
+    try {
+      await this.$confirm(this.$tc('common.copilotAPIKeyRequired'), this.$tc('common.warning'), {
+        type: 'warning',
+        confirmButtonText: this.$tc('common.goToSetting'),
+      })
+      this.$router.push({ name: 'Settings' })
+    } catch {
+      // ignore cancel
+    }
+    return false
+  }
+
+  private async saveUserMessage(content: string): Promise<void> {
     const { copilotService } = useServices()
-    const requestMessage: CopilotMessage = { id: getCopilotMessageId(), role: 'user', content }
+    const requestMessage: CopilotMessage = {
+      id: getCopilotMessageId(),
+      role: 'user',
+      content,
+    }
+
     await copilotService.create(requestMessage)
     this.messages.push(requestMessage)
     this.scrollToBottom()
     this.isSending = true
     this.currentPublishMsg = ''
+  }
 
-    const userMessages = [
-      ...this.systemMessages.map(({ role, content }) => ({ role, content })),
+  private buildMessageHistory(): Array<{ role: CopilotRole; content: string }> {
+    return [
+      ...this.systemMessages.map(({ role, content }) => ({
+        role,
+        content,
+      })),
       ...this.messages.slice(-20).map(({ role, content }) => {
         if (content.includes('@connection')) {
-          // Get the current connection record if available
           const currentRecord = this.getCurrentConnectionRecord()
           content = content.replace(
             '@connection',
@@ -149,61 +166,80 @@ export default class Copilot extends Vue {
         return { role, content }
       }),
     ]
+  }
 
+  private async generateAIResponse(): Promise<void> {
     const bytes = CryptoJS.AES.decrypt(this.openAIAPIKey, ENCRYPT_KEY)
     const decryptedKey = bytes.toString(CryptoJS.enc.Utf8)
+    const responseMessage: CopilotMessage = {
+      id: getCopilotMessageId(),
+      role: 'assistant',
+      content: '',
+    }
 
     try {
-      const responseMessage: CopilotMessage = {
-        id: getCopilotMessageId(),
-        role: 'assistant',
-        content: '',
-      }
-      this.responseStreamText = ''
-      this.isResponseStream = true
-      const throttledScroll = throttle(() => {
-        this.scrollToBottom()
-      }, 500)
-      this.abortController = new AbortController()
-      const { textStream } = streamText({
-        model: getModelProvider({
-          model: this.model,
-          baseURL: this.openAIAPIHost,
-          apiKey: decryptedKey,
-        }),
-        temperature: 0.8,
-        messages: userMessages,
-        abortSignal: this.abortController.signal,
-        onError: ({ error }) => {
-          this.$message.error(`API Error: ${error?.toString()}`)
-          this.$log.error(`Copilot API Error: ${error?.toString()}`)
-        },
-      })
-      for await (const textPart of textStream) {
-        this.isSending = false
-        this.responseStreamText += textPart
-        this.$nextTick(() => {
-          throttledScroll()
-        })
-      }
-      responseMessage.content = this.responseStreamText
-      await copilotService.create(responseMessage)
-      this.messages.push(responseMessage)
-      this.responseStreamText = ''
+      await this.streamAIResponse(decryptedKey, responseMessage)
     } catch (err) {
-      const error = err as unknown as any
-      if (err instanceof DOMException && err.name === 'AbortError') {
-        // Manually terminated, no record
-        return
-      }
-      this.$message.error(`API Error: ${error.toString()}`)
-      this.$log.error(`Copilot API Error: ${error.toString()}`)
+      this.handleAIResponseError(err)
     } finally {
-      this.isSending = false
-      this.isResponseStream = false
-      this.currPresetPrompt = ''
-      this.scrollToBottom()
+      this.resetResponseState()
     }
+  }
+
+  private async streamAIResponse(apiKey: string, responseMessage: CopilotMessage): Promise<void> {
+    this.responseStreamText = ''
+    this.isResponseStream = true
+    const throttledScroll = throttle(() => this.scrollToBottom(), 500)
+
+    this.abortController = new AbortController()
+    const { textStream } = streamText({
+      model: getModelProvider({
+        model: this.model,
+        baseURL: this.openAIAPIHost,
+        apiKey,
+      }),
+      temperature: 0.8,
+      messages: this.buildMessageHistory(),
+      abortSignal: this.abortController.signal,
+      onError: this.handleStreamError,
+    })
+
+    for await (const textPart of textStream) {
+      this.isSending = false
+      this.responseStreamText += textPart
+      this.$nextTick(throttledScroll)
+    }
+
+    responseMessage.content = this.responseStreamText
+    await this.saveAndDisplayResponse(responseMessage)
+  }
+
+  private handleStreamError = ({ error }: StreamError): void => {
+    this.$message.error(`API Error: ${error?.toString()}`)
+    this.$log.error(`Copilot API Error: ${error?.toString()}`)
+  }
+
+  private async saveAndDisplayResponse(responseMessage: CopilotMessage): Promise<void> {
+    const { copilotService } = useServices()
+    await copilotService.create(responseMessage)
+    this.messages.push(responseMessage)
+    this.responseStreamText = ''
+  }
+
+  private handleAIResponseError(err: unknown): void {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      return
+    }
+    const error = err as any
+    this.$message.error(`API Error: ${error.toString()}`)
+    this.$log.error(`Copilot API Error: ${error.toString()}`)
+  }
+
+  private resetResponseState(): void {
+    this.isSending = false
+    this.isResponseStream = false
+    this.currPresetPrompt = ''
+    this.scrollToBottom()
   }
 
   private async loadMessages({ reset }: { reset?: boolean } = {}) {
@@ -256,21 +292,15 @@ export default class Copilot extends Vue {
     })
   }
 
-  private async handleInputPresetChange({
-    prompt,
-    promptMap,
-  }: {
-    prompt: string
-    promptMap: Record<string, VueI18n.TranslateResult | Record<'system' | 'user', VueI18n.TranslateResult>>
-  }) {
+  private async handleInputPresetChange(data: CopilotPresetPrompt) {
     if (this.abortController) {
       this.abortController.abort()
     }
 
     await this.clearAllMessages()
-    this.currPresetPrompt = prompt
+    this.currPresetPrompt = data.prompt
 
-    const promptValue = promptMap[this.currPresetPrompt]
+    const promptValue = data.promptMap[this.currPresetPrompt]
 
     if (typeof promptValue === 'object' && typeof promptValue.system === 'string') {
       this.messages.push({ id: getCopilotMessageId(), role: 'system', content: promptValue.system })
