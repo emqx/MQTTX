@@ -494,7 +494,7 @@ export default class Settings extends Vue {
     openAIAPIKey: string
     openAIAPIHost: string
   } = {
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4o',
     openAIAPIKey: '',
     openAIAPIHost: 'https://api.openai.com/v1',
   }

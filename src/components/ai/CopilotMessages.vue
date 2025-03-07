@@ -26,7 +26,7 @@
 
     <!-- Thinking Status -->
     <div v-if="isSending" class="thinking">
-      <span class="chat-title"><i class="el-icon-loading"></i>{{ $t('common.thinking') }}</span>
+      <span class="chat-title"><i class="el-icon-loading"></i>{{ $t('copilot.thinking') }}</span>
     </div>
 
     <!-- Response Stream Text -->
@@ -70,7 +70,7 @@ export default class CopilotMessages extends Vue {
 
   get roleMap() {
     return {
-      user: this.$tc('common.copilteUser'),
+      user: this.$tc('copilot.copilteUser'),
       assistant: 'MQTTX Copilot',
       system: 'System',
     }
@@ -128,7 +128,7 @@ export default class CopilotMessages extends Vue {
       return
     }
 
-    const buttonText = String(this.$t('common.insertCodeToEditor'))
+    const buttonText = String(this.$t('copilot.insertCodeToEditor'))
 
     Prism.manual = true
     Prism.plugins.toolbar.registerButton('insert-button', {

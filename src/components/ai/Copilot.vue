@@ -123,9 +123,9 @@ export default class Copilot extends Vue {
   private async checkAPIKey(): Promise<boolean> {
     if (this.openAIAPIKey) return true
     try {
-      await this.$confirm(this.$tc('common.copilotAPIKeyRequired'), this.$tc('common.warning'), {
+      await this.$confirm(this.$tc('copilot.copilotAPIKeyRequired'), this.$tc('copilot.warning'), {
         type: 'warning',
-        confirmButtonText: this.$tc('common.goToSetting'),
+        confirmButtonText: this.$tc('copilot.goToSetting'),
       })
       this.$router.push({ name: 'Settings' })
     } catch {
@@ -259,7 +259,7 @@ export default class Copilot extends Vue {
         this.messages.push({
           id: getCopilotMessageId(),
           role: 'assistant',
-          content: this.$tc('common.welcomeToCopilot'),
+          content: this.$tc('copilot.welcomeToCopilot'),
         })
       } else {
         this.scrollToBottom('auto')
