@@ -30,7 +30,7 @@ export const printObjectAsString = (obj: any, indent = 2) => {
 
 export const checkProtobufInput = (proto: string, input: string, name: string, format?: PayloadType): string => {
   try {
-    const root = protobuf.parse(proto).root
+    const root = protobuf.parse(proto, { keepCase: true }).root
     const Message = root.lookupType(name)
     const content = JSON.parse(convertObject(input, format))
     const validationResult = Message.verify(content)
@@ -67,7 +67,7 @@ export const serializeProtobufToBuffer = (
 
   let bufferMessage = Buffer.from(rawData)
   try {
-    const root = protobuf.parse(proto).root
+    const root = protobuf.parse(proto, { keepCase: true }).root
     const Message = root.lookupType(protobufMessageName)
     const err = Message.verify(JSON.parse(rawData))
     if (err) {
@@ -89,7 +89,7 @@ export const deserializeBufferToProtobuf = (
   to?: PayloadType,
 ): Buffer | string => {
   try {
-    const root = protobuf.parse(proto).root
+    const root = protobuf.parse(proto, { keepCase: true }).root
     const Message = root.lookupType(protobufMessageName)
     const MessageData = Message.decode(Buffer.from(payload))
     const err = Message.verify(MessageData)
