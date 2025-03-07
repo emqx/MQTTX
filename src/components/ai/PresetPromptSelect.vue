@@ -10,10 +10,11 @@
 <script lang="ts">
 import VueI18n from 'vue-i18n'
 import { Component, Vue } from 'vue-property-decorator'
+import { PresetPromptMap, PresetPromptOption } from '@/types/copilot'
 
 @Component
 export default class PresetPromptSelect extends Vue {
-  private langOptions = [
+  private langOptions: PresetPromptOption[] = [
     { value: 'javascript', label: 'JavaScript' },
     { value: 'python', label: 'Python' },
     { value: 'java', label: 'Java' },
@@ -29,26 +30,26 @@ export default class PresetPromptSelect extends Vue {
     { value: 'erlang', label: 'Erlang' },
   ]
 
-  private hardwareOptions = [
+  private hardwareOptions: PresetPromptOption[] = [
     { value: 'esp32', label: 'ESP32' },
     { value: 'esp8266', label: 'ESP8266' },
     { value: 'arduino', label: 'Arduino' },
     { value: 'raspberryPi', label: 'Raspberry Pi' },
   ]
 
-  private mobileAppsOptions = [
+  private mobileAppsOptions: PresetPromptOption[] = [
     { value: 'android', label: 'Android' },
     { value: 'ios', label: 'iOS' },
     { value: 'reactNative', label: 'React Native' },
     { value: 'flutter', label: 'Flutter' },
   ]
 
-  private webAppsOptions = [
+  private webAppsOptions: PresetPromptOption[] = [
     { value: 'react', label: 'React' },
     { value: 'vuejs', label: 'Vue.js' },
   ]
 
-  private payloadOptions = [
+  private payloadOptions: PresetPromptOption[] = [
     { value: 'genSimpleIoTPayload', label: this.$tc('common.genSimpleIoTPayload') },
     { value: 'genComplexIoTPayload', label: this.$tc('common.genComplexIoTPayload') },
     { value: 'genConnectedCarPayload', label: this.$tc('common.genConnectedCarPayload') },
@@ -56,32 +57,32 @@ export default class PresetPromptSelect extends Vue {
     { value: 'genIndustrialIoTPayload', label: this.$tc('common.genIndustrialIoTPayload') },
   ]
 
-  private emqxOptions = [
+  private emqxOptions: PresetPromptOption[] = [
     { value: 'installEMQX', label: this.$t('common.installEMQX') },
     { value: 'emqxRule', label: this.$t('common.emqxRule') },
     { value: 'emqxLogAnalysis', label: this.$t('common.emqxLogAnalysis') },
   ]
 
-  private mqttOptions = [
+  private mqttOptions: PresetPromptOption[] = [
     { value: 'mqttProtocol', label: this.$tc('common.mqttProtocol') },
     { value: 'mqtt5', label: this.$tc('common.whatIsMQTT5') },
     { value: 'mqttQoS', label: this.$tc('common.mqttQoS') },
     { value: 'mqttRetain', label: this.$tc('common.mqttRetain') },
   ]
 
-  private explainOptions = [
+  private explainOptions: PresetPromptOption[] = [
     { value: 'connectionInfo', label: this.$t('common.currentConnectionInfo') },
     { value: 'genTestDoc', label: this.$t('common.genTestDoc') },
   ]
 
-  private customFunctionOptions = [
+  private customFunctionOptions: PresetPromptOption[] = [
     { value: 'customRequirementGenerateFunc', label: this.$t('common.customRequirementGenerate') },
     { value: 'simulateWeatherData', label: this.$t('common.simulateWeatherData') },
     { value: 'dynamicCommandSwitch', label: this.$t('common.dynamicCommandSwitch') },
     { value: 'timeFormatProcessing', label: this.$t('common.timeFormatProcessing') },
   ]
 
-  private schemaOptions = [
+  private schemaOptions: PresetPromptOption[] = [
     {
       value: 'Protobuf',
       label: 'Protobuf',
@@ -106,7 +107,7 @@ export default class PresetPromptSelect extends Vue {
     },
   ]
 
-  private presetPromptOptions = [
+  private presetPromptOptions: PresetPromptOption[] = [
     {
       value: 'clientCodegen',
       label: this.$tc('common.promptCodegen'),
@@ -156,19 +157,19 @@ export default class PresetPromptSelect extends Vue {
     },
   ]
 
-  get filteredPresetPromptOptions() {
+  get filteredPresetPromptOptions(): PresetPromptOption[] {
     const currentPath = this.$route.path
 
     return this.presetPromptOptions.filter((option) => {
-      if (option.allowedRoutes.includes('all')) {
+      if (option.allowedRoutes?.includes('all')) {
         return true
       }
 
-      return option.allowedRoutes.some((route) => currentPath.startsWith(route))
+      return option.allowedRoutes?.some((route) => currentPath.startsWith(route))
     })
   }
 
-  get presetPromptsMap(): Record<string, VueI18n.TranslateResult | Record<'system' | 'user', VueI18n.TranslateResult>> {
+  get presetPromptsMap(): PresetPromptMap {
     return {
       javascript: this.$t('common.promptProgrammingLanguage', ['JavaScript', '@connection']),
       python: this.$t('common.promptProgrammingLanguage', ['Python', '@connection']),
