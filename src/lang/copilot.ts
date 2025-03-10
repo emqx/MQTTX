@@ -7,11 +7,25 @@ export default {
     hu: 'Gondolkodom...',
   },
   welcomeToCopilot: {
-    zh: '您好！我是 MQTTX Copilot 🤖，一个专门设计来帮助解答 MQTT 相关问题，提供常见问题的解决方案，并提供最佳实践见解的 AI 助手。今天我能如何帮助您？',
-    en: 'Hello! I am MQTTX Copilot 🤖, an AI assistant designed to help with MQTT-related queries, provide solutions for common issues, and offer insights on best practices. How can I assist you today?',
-    tr: 'Merhaba! Ben MQTTX Copilot 🤖, MQTT ile ilgili sorgulara yardımcı olmak, yaygın sorunlar için çözümler sağlamak ve en iyi uygulamalar hakkında bilgi vermek üzere tasarlanmış bir AI asistanıyım. Bugün size nasıl yardımcı olabilirim?',
-    ja: 'こんにちは！私は MQTTX Copilot 🤖、MQTT 関連の問い合わせを支援し、一般的な問題の解決策を提供し、ベストプラクティスについての洞察を提供するために設計された AI アシスタントです。今日は何でお手伝いでしょうか？',
-    hu: 'Szia! Én vagyok az MQTTX Copilot 🤖, egy AI asszisztens, amelyet az MQTT-vel kapcsolatos kérdések megválaszolására, a gyakori problémák megoldására és a legjobb gyakorlatok bemutatására terveztek. Hogyan segíthetek ma?',
+    zh: 'MQTTX Copilot 可以帮您生成连接代码、解答 MQTT 问题、创建消息转换脚本和测试数据，成为您的 MQTT 开发助手。',
+    en: 'MQTTX Copilot can help you generate connection code, answer MQTT questions, create message transformation scripts and test data, serving as your MQTT development assistant.',
+    tr: 'MQTTX Copilot, bağlantı kodu oluşturmanıza, MQTT sorularını yanıtlamanıza, mesaj dönüştürme komut dosyaları ve test verileri oluşturmanıza yardımcı olabilir ve MQTT geliştirme asistanınız olarak hizmet verir.',
+    ja: 'MQTTX Copilotは、接続コードの生成、MQTTの質問への回答、メッセージ変換スクリプトとテストデータの作成をサポートし、MQTTの開発アシスタントとして機能します。',
+    hu: 'Az MQTTX Copilot segíthet a kapcsolódási kód generálásában, MQTT kérdések megválaszolásában, üzenet-átalakító szkriptek és tesztadatok létrehozásában, MQTT fejlesztési asszisztensként szolgálva.',
+  },
+  didYouKnow: {
+    zh: '您知道吗？',
+    en: 'Did you know?',
+    tr: 'Biliyor muydunuz?',
+    ja: 'ご存知でしたか？',
+    hu: 'Tudta?',
+  },
+  tipContent: {
+    zh: '遇到连接问题？快速点击错误框中的 "Ask Copilot" 按钮，将帮助您诊断和解决问题。',
+    en: 'Having connection issues? Quickly click the "Ask Copilot" button in the error box, which will help you diagnose and solve the problem.',
+    tr: 'Bağlantı sorunları mı yaşıyorsunuz? Hata kutusundaki "Ask Copilot" düğmesine hızlıca tıklayın, bu size sorunu teşhis etmenize ve çözmenize yardımcı olacaktır.',
+    ja: '接続に問題がありますか？エラーボックスの「Ask Copilot」ボタンをクリックすると、問題の診断と解決をサポートします。',
+    hu: 'Kapcsolódási problémák? Kattintson gyorsan a hiba ablakban található "Ask Copilot" gombra, amely segít diagnosztizálni és megoldani a problémát.',
   },
   copiltePubMsgPlacehoder: {
     zh: '向 MQTTX Copilot 发送消息...',
@@ -20,7 +34,7 @@ export default {
     ja: 'MQTTX Copilotにメッセージを送る...',
     hu: 'Üzenet küldése a MQTTX Copilotnak...',
   },
-  copilteUser: {
+  copilotUser: {
     zh: '用户',
     en: 'You',
     tr: 'Sen',
