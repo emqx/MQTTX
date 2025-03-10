@@ -313,17 +313,19 @@ export default class Copilot extends Vue {
 
       const needsUserInput = [
         'emqxLogAnalysis',
-        'customRequirementGenerate',
+        'customRequirementGenerateFunc',
         'protobufCustomRequirementGenerateSchema',
         'avroCustomRequirementGenerateSchema',
       ].includes(this.currPresetPrompt)
 
       if (needsUserInput) {
-        const inputComponent = this.$refs.copilotInput as Vue & { focus: () => void }
-        if (inputComponent && typeof inputComponent.focus === 'function') {
-          inputComponent.focus()
-          return
-        }
+        this.$nextTick(() => {
+          const inputComponent = this.$refs.copilotInput as Vue & { focus: () => void }
+          if (inputComponent && typeof inputComponent.focus === 'function') {
+            inputComponent.focus()
+          }
+        })
+        return
       }
 
       this.sendMessage(this.currentPublishMsg)
