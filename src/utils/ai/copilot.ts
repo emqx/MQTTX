@@ -5,57 +5,38 @@ import { createAnthropic } from '@ai-sdk/anthropic'
 import { createXai } from '@ai-sdk/xai'
 import basePrompt from './prompts/base.txt'
 import clientCodeGen from './prompts/clientCodeGen.txt'
+import { HARDWARE_PLATFORMS, MOBILE_APPS, PROGRAMMING_LANGUAGES, WEB_APPS } from './preset'
 
 // All code generation related commands
 export const CODE_GENERATION_COMMANDS = [
   // Programming languages
-  'javascript',
-  'python',
-  'java',
-  'go',
-  'c',
-  'cpp',
-  'csharp',
-  'php',
-  'swift',
-  'kotlin',
-  'rust',
-  'dart',
-  'erlang',
-
+  ...PROGRAMMING_LANGUAGES,
   // Hardware platforms
-  'esp32',
-  'esp8266',
-  'arduino',
-  'raspberryPi',
-
+  ...HARDWARE_PLATFORMS,
   // Mobile apps
-  'android',
-  'ios',
-  'reactNative',
-  'flutter',
-
+  ...MOBILE_APPS,
   // Web apps
-  'react',
-  'vuejs',
+  ...WEB_APPS,
 ]
+
+const LANGUAGE_MAP = {
+  zh: '请使用中文回答（简体中文）',
+  en: 'Please answer in English（English）',
+  tr: 'Lütfen Türkçe cevap verin（Turkish）',
+  ja: '日本語で回答してください（Japanese）',
+  hu: 'Kérjük, magyarul válaszoljon（Hungarian）',
+}
 
 export const loadSystemPrompt = (lang: Language, command?: string) => {
   let _basePrompt = basePrompt
 
   // Check if the command is related to code generation
-  if (command && CODE_GENERATION_COMMANDS.includes(command)) {
+  const codeGenCommand = CODE_GENERATION_COMMANDS.find((item) => item.value === command)
+  if (codeGenCommand) {
     _basePrompt = `${_basePrompt}\n\n${clientCodeGen}`
   }
 
-  const langMap = {
-    zh: '请使用中文回答（简体中文）',
-    en: 'Please answer in English（English）',
-    tr: 'Lütfen Türkçe cevap verin（Turkish）',
-    ja: '日本語で回答してください（Japanese）',
-    hu: 'Kérjük, magyarul válaszoljon（Hungarian）',
-  }
-  return `${_basePrompt}\n\n${langMap[lang]}`
+  return `${_basePrompt}\n\n${LANGUAGE_MAP[lang]}`
 }
 
 /**
