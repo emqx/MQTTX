@@ -1,5 +1,8 @@
 <template>
   <div class="copilot-messages chat-body" ref="chatBody">
+    <!-- Welcome Message when no messages -->
+    <copilot-welcome :show="messages.length === 0 && !isSending && !responseStreamText" />
+
     <!-- Message List -->
     <template v-for="message in messages">
       <div v-if="message.role !== 'system'" class="message-block" :key="message.id">
@@ -50,10 +53,12 @@ import 'prismjs/plugins/toolbar/prism-toolbar.min'
 import 'prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min'
 import { ipcRenderer } from 'electron'
 import { CopilotMessage } from '@/types/copilot'
+import CopilotWelcome from './CopilotWelcome.vue'
 
 @Component({
   components: {
     VueMarkdown,
+    CopilotWelcome,
   },
 })
 export default class CopilotMessages extends Vue {
@@ -70,7 +75,7 @@ export default class CopilotMessages extends Vue {
 
   get roleMap() {
     return {
-      user: this.$tc('copilot.copilteUser'),
+      user: this.$tc('copilot.copilotUser'),
       assistant: 'MQTTX Copilot',
       system: 'System',
     }

@@ -19,6 +19,14 @@ module.exports = {
       .type('javascript/auto')
       .include.add(/node_modules/)
       .end()
+
+    // Add a rule to handle .txt files as raw text
+    config.module
+      .rule('txt')
+      .test(/\.txt$/)
+      .use('raw-loader')
+      .loader('raw-loader')
+      .end()
   },
   configureWebpack: {
     plugins: [

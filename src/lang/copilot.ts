@@ -7,11 +7,60 @@ export default {
     hu: 'Gondolkodom...',
   },
   welcomeToCopilot: {
-    zh: '您好！我是 MQTTX Copilot 🤖，一个专门设计来帮助解答 MQTT 相关问题，提供常见问题的解决方案，并提供最佳实践见解的 AI 助手。今天我能如何帮助您？',
-    en: 'Hello! I am MQTTX Copilot 🤖, an AI assistant designed to help with MQTT-related queries, provide solutions for common issues, and offer insights on best practices. How can I assist you today?',
-    tr: 'Merhaba! Ben MQTTX Copilot 🤖, MQTT ile ilgili sorgulara yardımcı olmak, yaygın sorunlar için çözümler sağlamak ve en iyi uygulamalar hakkında bilgi vermek üzere tasarlanmış bir AI asistanıyım. Bugün size nasıl yardımcı olabilirim?',
-    ja: 'こんにちは！私は MQTTX Copilot 🤖、MQTT 関連の問い合わせを支援し、一般的な問題の解決策を提供し、ベストプラクティスについての洞察を提供するために設計された AI アシスタントです。今日は何でお手伝いでしょうか？',
-    hu: 'Szia! Én vagyok az MQTTX Copilot 🤖, egy AI asszisztens, amelyet az MQTT-vel kapcsolatos kérdések megválaszolására, a gyakori problémák megoldására és a legjobb gyakorlatok bemutatására terveztek. Hogyan segíthetek ma?',
+    zh: 'MQTTX Copilot 可以帮您生成连接代码、解答 MQTT 问题、创建消息转换脚本和测试数据，成为您的 MQTT 开发助手。',
+    en: 'MQTTX Copilot can help you generate connection code, answer MQTT questions, create message transformation scripts and test data, serving as your MQTT development assistant.',
+    tr: 'MQTTX Copilot, bağlantı kodu oluşturmanıza, MQTT sorularını yanıtlamanıza, mesaj dönüştürme komut dosyaları ve test verileri oluşturmanıza yardımcı olabilir ve MQTT geliştirme asistanınız olarak hizmet verir.',
+    ja: 'MQTTX Copilotは、接続コードの生成、MQTTの質問への回答、メッセージ変換スクリプトとテストデータの作成をサポートし、MQTTの開発アシスタントとして機能します。',
+    hu: 'Az MQTTX Copilot segíthet a kapcsolódási kód generálásában, MQTT kérdések megválaszolásában, üzenet-átalakító szkriptek és tesztadatok létrehozásában, MQTT fejlesztési asszisztensként szolgálva.',
+  },
+  didYouKnow: {
+    zh: '您知道吗？',
+    en: 'Did you know?',
+    tr: 'Biliyor muydunuz?',
+    ja: 'ご存知でしたか？',
+    hu: 'Tudta?',
+  },
+  tipContent1: {
+    zh: '遇到连接问题？快速点击错误框中的 "Ask Copilot" 按钮，将帮助您诊断和解决问题。',
+    en: 'Having connection issues? Quickly click the "Ask Copilot" button in the error box, which will help you diagnose and solve the problem.',
+    tr: 'Bağlantı sorunları mı yaşıyorsunuz? Hata kutusundaki "Ask Copilot" düğmesine hızlıca tıklayın, bu size sorunu teşhis etmenize ve çözmenize yardımcı olacaktır.',
+    ja: '接続に問題がありますか？エラーボックスの「Ask Copilot」ボタンをクリックすると、問題の診断と解決をサポートします。',
+    hu: 'Kapcsolódási problémák? Kattintson gyorsan a hiba ablakban található "Ask Copilot" gombra, amely segít diagnosztizálni és megoldani a problémát.',
+  },
+  tipContent2: {
+    zh: '使用 "生成连接代码" 功能可以快速获取多种编程语言的 MQTT 客户端代码，直接复制到您的项目中使用。',
+    en: 'Use the "Generate Connection Code" feature to quickly get MQTT client code in various programming languages, ready to copy into your project.',
+    tr: 'Çeşitli programlama dillerinde MQTT istemci kodunu hızlıca almak için "Bağlantı Kodu Oluştur" özelliğini kullanın, projenize kopyalamaya hazır.',
+    ja: '「接続コード生成」機能を使用すると、さまざまなプログラミング言語でMQTTクライアントコードをすぐに取得でき、プロジェクトにコピーできます。',
+    hu: 'Használja a "Kapcsolódási kód generálása" funkciót, hogy gyorsan kapjon MQTT kliens kódot különböző programozási nyelveken, készen a projektbe való másolásra.',
+  },
+  tipContent3: {
+    zh: '试试生成测试数据功能！Copilot 可为您创建各种 IoT 场景的模拟数据，如智能家居、工业物联网、车联网等。',
+    en: 'Try the test data generation feature! Copilot can create simulated data for various IoT scenarios, such as smart homes, industrial IoT, connected vehicles, and more.',
+    tr: 'Test verisi oluşturma özelliğini deneyin! Copilot, akıllı evler, endüstriyel IoT, bağlantılı araçlar ve daha fazlası gibi çeşitli IoT senaryoları için simüle edilmiş veriler oluşturabilir.',
+    ja: 'テストデータ生成機能を試してみてください！Copilotは、スマートホーム、産業用IoT、コネクテッドカーなどのさまざまなIoTシナリオの模擬データを作成できます。',
+    hu: 'Próbálja ki a tesztadat-generálási funkciót! A Copilot szimulált adatokat hozhat létre különböző IoT forgatókönyvekhez, például okosotthonokhoz, ipari IoT-hez, csatlakoztatott járművekhez és egyebekhez.',
+  },
+  tipContent4: {
+    zh: '了解 MQTT QoS？询问 Copilot "MQTT 的 QoS 级别有什么区别"，获取详细解释和实际使用场景。',
+    en: 'Curious about MQTT QoS? Ask Copilot "What are the differences between MQTT QoS levels" for detailed explanations and practical use cases.',
+    tr: 'MQTT QoS hakkında merak mı ediyorsunuz? Ayrıntılı açıklamalar ve pratik kullanım örnekleri için Copilot\'a "MQTT QoS seviyeleri arasındaki farklar nelerdir" diye sorun.',
+    ja: 'MQTT QoSについて知りたいですか？Copilotに「MQTTのQoSレベルの違いは何ですか」と質問すると、詳細な説明と実際の使用例が得られます。',
+    hu: 'Kíváncsi az MQTT QoS-re? Kérdezze meg a Copilot-tól: "Mik a különbségek az MQTT QoS szintek között", hogy részletes magyarázatokat és gyakorlati felhasználási eseteket kapjon.',
+  },
+  tipContent5: {
+    zh: '需要处理消息转换？Copilot 可以帮您编写脚本，处理 JSON 转换、数据过滤、格式转换等任务。',
+    en: 'Need to handle message transformations? Copilot can help you write scripts for JSON transformations, data filtering, format conversions, and more.',
+    tr: 'Mesaj dönüşümlerini ele almanız mı gerekiyor? Copilot, JSON dönüşümleri, veri filtreleme, format dönüşümleri ve daha fazlası için komut dosyaları yazmanıza yardımcı olabilir.',
+    ja: 'メッセージ変換を処理する必要がありますか？Copilotは、JSON変換、データフィルタリング、フォーマット変換などのスクリプトを書くのを手伝います。',
+    hu: 'Üzenet-átalakításokat kell kezelnie? A Copilot segíthet olyan szkripteket írni, amelyek JSON-átalakításokat, adatszűrést, formátum-átalakításokat és egyebeket végeznek.',
+  },
+  tipContent6: {
+    zh: '想了解 MQTT 5.0 的新特性？询问 Copilot 获取详细解释，包括共享订阅、消息过期、主题别名等功能。',
+    en: 'Want to learn about MQTT 5.0 features? Ask Copilot for detailed explanations on shared subscriptions, message expiry, topic aliases, and more.',
+    tr: "MQTT 5.0 özelliklerini öğrenmek mi istiyorsunuz? Paylaşılan abonelikler, mesaj süresi, konu takma adları ve daha fazlası hakkında ayrıntılı açıklamalar için Copilot'a sorun.",
+    ja: 'MQTT 5.0の機能について学びたいですか？共有サブスクリプション、メッセージ有効期限、トピックエイリアスなどの詳細な説明については、Copilotに質問してください。',
+    hu: 'Szeretne többet megtudni az MQTT 5.0 funkcióiról? Kérdezze meg a Copilot-tól a megosztott előfizetésekről, üzenet lejáratról, téma álnevekről és egyebekről szóló részletes magyarázatokat.',
   },
   copiltePubMsgPlacehoder: {
     zh: '向 MQTTX Copilot 发送消息...',
@@ -20,7 +69,7 @@ export default {
     ja: 'MQTTX Copilotにメッセージを送る...',
     hu: 'Üzenet küldése a MQTTX Copilotnak...',
   },
-  copilteUser: {
+  copilotUser: {
     zh: '用户',
     en: 'You',
     tr: 'Sen',
@@ -63,11 +112,11 @@ export default {
     hu: 'Kódgenerálás',
   },
   promptProgrammingLanguage: {
-    zh: '使用当前连接创建 {0} MQTT Client 代码 {1}，如果使用了 MQTT5 的，注意配置属性',
-    en: 'Create {0} MQTT Client code with the current connection {1}, if you use MQTT5, pay attention to the configuration properties',
-    tr: 'Mevcut bağlantı ile {0} MQTT Client kodu oluştur {1}, MQTT5 kullanıyorsanız, yapılandırma özelliklerine dikkat edin',
-    ja: '現在の接続で {0} MQTTクライアントコードを作成する {1}，MQTT5を使用する場合は、構成プロパティに注意してください',
-    hu: 'Hozzon létre {0} MQTT ügyfélkódot az aktuális kapcsolattal {1}, ha MQTT5-öt használ, figyeljen a konfigurációs tulajdonságokra',
+    zh: '使用当前连接创建 {0} MQTT Client 代码 {1}',
+    en: 'Create {0} MQTT Client code with the current connection {1}',
+    tr: 'Mevcut bağlantı ile {0} MQTT Client kodu oluştur {1}',
+    ja: '現在の接続で {0} MQTTクライアントコードを作成する {1}',
+    hu: 'Hozzon létre {0} MQTT ügyfélkódot az aktuális kapcsolattal {1}',
   },
   genSimpleIoTPayload: {
     zh: '生成简单测试数据',
@@ -694,7 +743,7 @@ export default {
               JSON.stringify(_value, null, 2) : _value;
           } catch (e) {
             console.error('Feldolgozási hiba:', e);
-            return value; // Eredeti adat megtartása
+            return value; // Orijinal veriyi koru
           }
         }
         execute(handlePayload);
