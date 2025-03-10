@@ -9,18 +9,31 @@
           <i class="el-icon-info"></i>
           <span>{{ $t('copilot.didYouKnow') }}</span>
         </div>
-        <p>{{ $t('copilot.tipContent') }}</p>
+        <p>{{ randomTip }}</p>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 
 @Component
 export default class CopilotWelcome extends Vue {
   @Prop({ default: true }) readonly show!: boolean
+
+  private tipIndex = Math.floor(Math.random() * 6) + 1
+
+  get randomTip(): string {
+    return this.$t(`copilot.tipContent${this.tipIndex}`) as string
+  }
+
+  @Watch('show')
+  onShowChange(newVal: boolean) {
+    if (newVal) {
+      this.tipIndex = Math.floor(Math.random() * 6) + 1
+    }
+  }
 }
 </script>
 

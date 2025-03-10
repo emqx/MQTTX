@@ -189,7 +189,7 @@ export default class Copilot extends Vue {
   private async streamAIResponse(apiKey: string, responseMessage: CopilotMessage): Promise<void> {
     this.responseStreamText = ''
     this.isResponseStream = true
-    const throttledScroll = throttle(() => this.scrollToBottom(), 500)
+    const throttledScroll = throttle(() => this.scrollToBottom(), 100)
 
     this.abortController = new AbortController()
     const { textStream } = streamText({
