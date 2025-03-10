@@ -112,11 +112,11 @@ export default {
     hu: 'Kódgenerálás',
   },
   promptProgrammingLanguage: {
-    zh: '使用当前连接创建 {0} MQTT Client 代码 {1}，如果使用了 MQTT5 的，注意配置属性',
-    en: 'Create {0} MQTT Client code with the current connection {1}, if you use MQTT5, pay attention to the configuration properties',
-    tr: 'Mevcut bağlantı ile {0} MQTT Client kodu oluştur {1}, MQTT5 kullanıyorsanız, yapılandırma özelliklerine dikkat edin',
-    ja: '現在の接続で {0} MQTTクライアントコードを作成する {1}，MQTT5を使用する場合は、構成プロパティに注意してください',
-    hu: 'Hozzon létre {0} MQTT ügyfélkódot az aktuális kapcsolattal {1}, ha MQTT5-öt használ, figyeljen a konfigurációs tulajdonságokra',
+    zh: '使用当前连接创建 {0} MQTT Client 代码 {1}',
+    en: 'Create {0} MQTT Client code with the current connection {1}',
+    tr: 'Mevcut bağlantı ile {0} MQTT Client kodu oluştur {1}',
+    ja: '現在の接続で {0} MQTTクライアントコードを作成する {1}',
+    hu: 'Hozzon létre {0} MQTT ügyfélkódot az aktuális kapcsolattal {1}',
   },
   genSimpleIoTPayload: {
     zh: '生成简单测试数据',

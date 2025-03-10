@@ -4,8 +4,50 @@ import { createDeepSeek } from '@ai-sdk/deepseek'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createXai } from '@ai-sdk/xai'
 import basePrompt from './prompts/base.txt'
+import clientCodeGen from './prompts/clientCodeGen.txt'
 
-export const loadSystemPrompt = (lang: Language) => {
+// All code generation related commands
+export const CODE_GENERATION_COMMANDS = [
+  // Programming languages
+  'javascript',
+  'python',
+  'java',
+  'go',
+  'c',
+  'cpp',
+  'csharp',
+  'php',
+  'swift',
+  'kotlin',
+  'rust',
+  'dart',
+  'erlang',
+
+  // Hardware platforms
+  'esp32',
+  'esp8266',
+  'arduino',
+  'raspberryPi',
+
+  // Mobile apps
+  'android',
+  'ios',
+  'reactNative',
+  'flutter',
+
+  // Web apps
+  'react',
+  'vuejs',
+]
+
+export const loadSystemPrompt = (lang: Language, command?: string) => {
+  let _basePrompt = basePrompt
+
+  // Check if the command is related to code generation
+  if (command && CODE_GENERATION_COMMANDS.includes(command)) {
+    _basePrompt = `${_basePrompt}\n\n${clientCodeGen}`
+  }
+
   const langMap = {
     zh: '请使用中文回答（简体中文）',
     en: 'Please answer in English（English）',
@@ -13,7 +55,7 @@ export const loadSystemPrompt = (lang: Language) => {
     ja: '日本語で回答してください（Japanese）',
     hu: 'Kérjük, magyarul válaszoljon（Hungarian）',
   }
-  return `${basePrompt}\n\n${langMap[lang]}`
+  return `${_basePrompt}\n\n${langMap[lang]}`
 }
 
 /**

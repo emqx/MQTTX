@@ -8,7 +8,6 @@
 </template>
 
 <script lang="ts">
-import VueI18n from 'vue-i18n'
 import { Component, Vue } from 'vue-property-decorator'
 import { PresetPromptMap, PresetPromptOption } from '@/types/copilot'
 

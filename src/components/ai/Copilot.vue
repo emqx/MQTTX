@@ -153,7 +153,7 @@ export default class Copilot extends Vue {
     return [
       {
         role: this.systemMessage.role as 'system',
-        content: loadSystemPrompt(this.currentLang),
+        content: loadSystemPrompt(this.currentLang, this.currPresetPrompt),
       },
       ...this.messages.slice(-20).map(({ role, content }) => {
         if (content.includes('@connection')) {
