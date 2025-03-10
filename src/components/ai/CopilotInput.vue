@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Emit } from 'vue-property-decorator'
+import { Component, Vue, Prop, Emit, Watch } from 'vue-property-decorator'
 import PresetPromptSelect from './PresetPromptSelect.vue'
 import ClickOutside from 'vue-click-outside'
 import { CopilotPresetPrompt } from '@/types/copilot'
@@ -50,6 +50,11 @@ export default class CopilotInput extends Vue {
 
   created() {
     this.message = this.value
+  }
+
+  @Watch('value')
+  onValueChange(newValue: string) {
+    this.message = newValue
   }
 
   @Emit('input')
@@ -89,8 +94,14 @@ export default class CopilotInput extends Vue {
   focus() {
     const inputEl = this.$refs.publishMsgInput as Vue
     if (inputEl && inputEl.$el) {
-      const input = inputEl.$el.children[0] as HTMLElement
-      input.focus()
+      const textarea = inputEl.$el.querySelector('textarea') as HTMLTextAreaElement
+      if (textarea) {
+        this.$nextTick(() => {
+          textarea.focus()
+          // Position cursor at the end of text
+          textarea.selectionStart = textarea.selectionEnd = textarea.value.length
+        })
+      }
     }
   }
 }
