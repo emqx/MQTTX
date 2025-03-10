@@ -250,6 +250,11 @@ export const MQTT_FAQ_OPTIONS: PromptOptionDefinition[] = [
  */
 export const EMQX_OPTIONS: PromptOptionDefinition[] = [
   {
+    value: 'askEMQX',
+    labelKey: 'askEMQX',
+    prompt: 'promptAskEMQX',
+  },
+  {
     value: 'installEMQX',
     labelKey: 'installEMQX',
     prompt: 'installEMQX',
@@ -265,6 +270,7 @@ export const EMQX_OPTIONS: PromptOptionDefinition[] = [
     prompt: 'promptEmqxLogAnalysis',
   },
 ]
+export const EMQX_COMMAND_VALUES = EMQX_OPTIONS.map((option) => option.value)
 
 /**
  * Explainer options

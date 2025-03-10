@@ -6,7 +6,8 @@ import { createXai } from '@ai-sdk/xai'
 import basePrompt from './prompts/base.txt'
 import clientCodeGen from './prompts/clientCodeGen.txt'
 import payloadGen from './prompts/payloadGen.txt'
-import { ALL_CODE_GENERATION_COMMAND_VALUES, PAYLOAD_GENERATION_COMMAND_VALUES } from './preset'
+import emqxGuide from './prompts/emqxGuide.txt'
+import { ALL_CODE_GENERATION_COMMAND_VALUES, PAYLOAD_GENERATION_COMMAND_VALUES, EMQX_COMMAND_VALUES } from './preset'
 
 const LANGUAGE_MAP = {
   zh: '请使用中文回答（简体中文）',
@@ -27,6 +28,10 @@ export const loadSystemPrompt = (lang: Language, command?: string) => {
   // Check if the command is related to payload generation
   if (command && PAYLOAD_GENERATION_COMMAND_VALUES.includes(command)) {
     _basePrompt = `${_basePrompt}\n\n${payloadGen}`
+  }
+
+  if (command && EMQX_COMMAND_VALUES.includes(command)) {
+    _basePrompt = `${_basePrompt}\n\n${emqxGuide}`
   }
 
   return `${_basePrompt}\n\n${LANGUAGE_MAP[lang]}`

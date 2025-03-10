@@ -1170,4 +1170,18 @@ Választott kódolási formátum: {0}`,
     ja: '要件に従って対応するテストデータを生成してください。要件を説明してください：',
     hu: 'kérem generálja a megfelelő tesztadatokat az igényeknek megfelelően, írja le az igényeket:',
   },
+  askEMQX: {
+    zh: '询问 EMQX 相关问题',
+    en: 'Ask EMQX related questions',
+    tr: 'EMQX ilgili sorunları sor',
+    ja: 'EMQX関連の質問を尋ねる',
+    hu: 'EMQX kapcsolatos kérdéseket kérdezhet',
+  },
+  promptAskEMQX: {
+    zh: '请输入 EMQX 任意相关的问题，问题描述：',
+    en: 'Please input any related question about EMQX, describe the question:',
+    tr: 'EMQX ilgili herhangi bir soruyu girin, soruyu açıklayın:',
+    ja: 'EMQX関連の質問を入力してください。質問を説明してください：',
+    hu: 'Kérjük, bármilyen kapcsolódó kérdést EMQX-re írjon be, a kérdés leírását:',
+  },
 }
