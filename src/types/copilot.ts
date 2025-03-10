@@ -116,3 +116,13 @@ export type AImodelsOptionsModel = (
   | XaiOptionsModel
   | SiliconFlowOptionsModel
 )[]
+
+/**
+ * Type definition for prompt options
+ */
+export interface PromptOptionDefinition {
+  value: string
+  labelKey: string
+  prompt: string | { system: string; user: string }
+  params?: string[]
+}

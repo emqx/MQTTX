@@ -5,19 +5,8 @@ import { createAnthropic } from '@ai-sdk/anthropic'
 import { createXai } from '@ai-sdk/xai'
 import basePrompt from './prompts/base.txt'
 import clientCodeGen from './prompts/clientCodeGen.txt'
-import { HARDWARE_PLATFORMS, MOBILE_APPS, PROGRAMMING_LANGUAGES, WEB_APPS } from './preset'
-
-// All code generation related commands
-export const CODE_GENERATION_COMMANDS = [
-  // Programming languages
-  ...PROGRAMMING_LANGUAGES,
-  // Hardware platforms
-  ...HARDWARE_PLATFORMS,
-  // Mobile apps
-  ...MOBILE_APPS,
-  // Web apps
-  ...WEB_APPS,
-]
+import payloadGen from './prompts/payloadGen.txt'
+import { ALL_CODE_GENERATION_COMMAND_VALUES, PAYLOAD_GENERATION_COMMAND_VALUES } from './preset'
 
 const LANGUAGE_MAP = {
   zh: '请使用中文回答（简体中文）',
@@ -31,9 +20,13 @@ export const loadSystemPrompt = (lang: Language, command?: string) => {
   let _basePrompt = basePrompt
 
   // Check if the command is related to code generation
-  const codeGenCommand = CODE_GENERATION_COMMANDS.find((item) => item.value === command)
-  if (codeGenCommand) {
+  if (command && ALL_CODE_GENERATION_COMMAND_VALUES.includes(command)) {
     _basePrompt = `${_basePrompt}\n\n${clientCodeGen}`
+  }
+
+  // Check if the command is related to payload generation
+  if (command && PAYLOAD_GENERATION_COMMAND_VALUES.includes(command)) {
+    _basePrompt = `${_basePrompt}\n\n${payloadGen}`
   }
 
   return `${_basePrompt}\n\n${LANGUAGE_MAP[lang]}`

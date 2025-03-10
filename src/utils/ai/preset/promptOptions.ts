@@ -3,15 +3,7 @@
  * This file contains all preset prompt options for AI assistant functionality
  */
 
-/**
- * Type definition for prompt options
- */
-export interface PromptOptionDefinition {
-  value: string
-  labelKey: string
-  prompt: string | { system: string; user: string }
-  params?: string[]
-}
+import { PromptOptionDefinition } from '@/types/copilot'
 
 /**
  * Programming language options
@@ -96,6 +88,7 @@ export const PROGRAMMING_LANGUAGES: PromptOptionDefinition[] = [
     params: ['Erlang', '@connection'],
   },
 ]
+export const PROGRAMMING_LANGUAGES_COMMAND_VALUES = PROGRAMMING_LANGUAGES.map((option) => option.value)
 
 /**
  * Hardware platform options
@@ -126,6 +119,7 @@ export const HARDWARE_PLATFORMS: PromptOptionDefinition[] = [
     params: ['Raspberry Pi', '@connection'],
   },
 ]
+export const HARDWARE_PLATFORMS_COMMAND_VALUES = HARDWARE_PLATFORMS.map((option) => option.value)
 
 /**
  * Mobile app options
@@ -156,6 +150,7 @@ export const MOBILE_APPS: PromptOptionDefinition[] = [
     params: ['Flutter', '@connection'],
   },
 ]
+export const MOBILE_APPS_COMMAND_VALUES = MOBILE_APPS.map((option) => option.value)
 
 /**
  * Web app options
@@ -174,11 +169,28 @@ export const WEB_APPS: PromptOptionDefinition[] = [
     params: ['Vue.js', '@connection'],
   },
 ]
+export const WEB_APPS_COMMAND_VALUES = WEB_APPS.map((option) => option.value)
+
+/**
+ * Combined array of all code generation command values
+ * Includes programming languages, hardware platforms, mobile apps, and web apps
+ */
+export const ALL_CODE_GENERATION_COMMAND_VALUES = [
+  ...PROGRAMMING_LANGUAGES_COMMAND_VALUES,
+  ...HARDWARE_PLATFORMS_COMMAND_VALUES,
+  ...MOBILE_APPS_COMMAND_VALUES,
+  ...WEB_APPS_COMMAND_VALUES,
+]
 
 /**
  * Payload options
  */
 export const PAYLOAD_OPTIONS: PromptOptionDefinition[] = [
+  {
+    value: 'customPayload',
+    labelKey: 'customRequirementGenerate',
+    prompt: 'promptCustomPayload',
+  },
   {
     value: 'genSimpleIoTPayload',
     labelKey: 'genSimpleIoTPayload',
@@ -205,6 +217,7 @@ export const PAYLOAD_OPTIONS: PromptOptionDefinition[] = [
     prompt: 'promptGenIndustrialIoTPayload',
   },
 ]
+export const PAYLOAD_GENERATION_COMMAND_VALUES = PAYLOAD_OPTIONS.map((option) => option.value)
 
 /**
  * MQTT FAQ options

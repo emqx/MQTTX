@@ -188,13 +188,6 @@ export default {
     ja: '機械のパフォーマンス、センサーの読み取り、生産ラインの状態を含む、産業用IoTシナリオに適したMQTT IoTテストデータを生成します。',
     hu: 'Generáljon MQTT IoT tesztadatokat ipari IoT forgatókönyvekhez, beleértve a gépek teljesítményét, a szenzorok olvasásait és a termelési sor állapotait.',
   },
-  genPayloadFormat: {
-    zh: '请确保给我一个包含必要信息的完整的 JSON 数据，不需要其它额外信息。这个 JSON 数据应该包含模拟的基础信息，适合基础测试场景，并且可以包含简单的数据结构的介绍。',
-    en: 'Please make sure to give me a complete JSON data containing the necessary information, no other additional information is required. This JSON data should contain simulated basic information, suitable for basic testing scenarios, and can contain an introduction to simple data structures.',
-    tr: 'Lütfen bana gerekli bilgileri içeren tam bir JSON verisi verdiğinizden emin olun, başka ek bilgi gerekmez. Bu JSON verileri, temel test senaryoları için uygun, simüle edilmiş temel bilgileri içermeli ve basit veri yapılarına bir giriş içerebilir.',
-    ja: '必要な情報を含む完全なJSONデータを提供してください。他に追加情報は必要ありません。このJSONデータには、基本的なテストシナリオに適したシミュレートされた基本情報が含まれており、単純なデータ構造の紹介を含む場合があります。',
-    hu: 'Győződjön meg róla, hogy ad nekem egy teljes JSON adatot, amely tartalmazza a szükséges információkat, más további információ nem szükséges. Ez a JSON adat tartalmazhat szimulált alapinformációkat, amelyek alkalmasak az alapvető tesztelési forgatókönyvekre, és tartalmazhatnak egy bevezetést az egyszerű adatszerkezetekhez.',
-  },
   mqttProtocol: {
     zh: 'MQTT 协议是什么',
     en: 'What is MQTT Protocol',
@@ -1169,5 +1162,12 @@ Választott kódolási formátum: {0}`,
     tr: 'lütfen gereksinimlere göre karşılık gelen veri şemasını ve örnek verileri oluşturun, gereksinimleri açıklayın:',
     ja: '要件に従って対応するデータスキーマと例示データを生成してください。要件を説明してください：',
     hu: 'kérem generálja a megfelelő adatsémát és példaadatokat az igényeknek megfelelően, írja le az igényeket:',
+  },
+  promptCustomPayload: {
+    zh: '请根据需求生成对应的测试数据，描述需求：',
+    en: 'Please generate the corresponding test data according to the requirements, describe the requirements:',
+    tr: 'lütfen gereksinimlere göre karşılık gelen test verilerini oluşturun, gereksinimleri açıklayın:',
+    ja: '要件に従って対応するテストデータを生成してください。要件を説明してください：',
+    hu: 'kérem generálja a megfelelő tesztadatokat az igényeknek megfelelően, írja le az igényeket:',
   },
 }

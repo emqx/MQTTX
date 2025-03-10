@@ -9,7 +9,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { PresetPromptMap, PresetPromptOption } from '@/types/copilot'
+import { PresetPromptMap, PresetPromptOption, PromptOptionDefinition } from '@/types/copilot'
 import {
   PROGRAMMING_LANGUAGES,
   HARDWARE_PLATFORMS,
@@ -22,7 +22,6 @@ import {
   CUSTOM_FUNCTION_OPTIONS,
   PROTOBUF_SCHEMA_OPTIONS,
   AVRO_SCHEMA_OPTIONS,
-  PromptOptionDefinition,
 } from '@/utils/ai/preset'
 
 @Component
@@ -161,12 +160,6 @@ export default class PresetPromptSelect extends Vue {
           // If there are parameters, apply i18n and pass in parameters
           return this.$t(`copilot.${option.prompt}`, option.params)
         }
-
-        // Special case handling: Payload format
-        if (option.value.startsWith('gen') && option.value.endsWith('Payload')) {
-          return `${this.$t(`copilot.${option.prompt}`)}${this.$t('copilot.genPayloadFormat')}`
-        }
-
         return this.$t(`copilot.${option.prompt}`)
       } else {
         // For objects with system and user prompts

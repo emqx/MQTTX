@@ -36,6 +36,7 @@ import { loadSystemPrompt, getModelProvider } from '@/utils/ai/copilot'
 import { throttle } from 'lodash'
 import ConnectionsIndex from '@/views/connections/index.vue'
 import { CopilotMessage, CopilotRole, CopilotPresetPrompt, StreamError } from '@/types/copilot'
+import { needsUserInput } from '@/utils/ai/preset'
 
 @Component({
   components: {
@@ -305,14 +306,9 @@ export default class Copilot extends Vue {
     if (typeof userPrompt === 'string') {
       this.currentPublishMsg = userPrompt
 
-      const needsUserInput = [
-        'emqxLogAnalysis',
-        'customRequirementGenerateFunc',
-        'protobufCustomRequirementGenerateSchema',
-        'avroCustomRequirementGenerateSchema',
-      ].includes(this.currPresetPrompt)
+      const isNeedsUserInput = needsUserInput.includes(this.currPresetPrompt)
 
-      if (needsUserInput) {
+      if (isNeedsUserInput) {
         this.$nextTick(() => {
           const inputComponent = this.$refs.copilotInput as Vue & { focus: () => void }
           if (inputComponent && typeof inputComponent.focus === 'function') {
