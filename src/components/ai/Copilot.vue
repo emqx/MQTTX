@@ -32,11 +32,12 @@ import CopilotHeader from './CopilotHeader.vue'
 import CopilotMessages from './CopilotMessages.vue'
 import CopilotInput from './CopilotInput.vue'
 import { streamText } from 'ai'
-import { loadSystemPrompt, getModelProvider } from '@/utils/ai/copilot'
+import { getModelProvider } from '@/utils/ai/copilot'
 import { throttle } from 'lodash'
 import ConnectionsIndex from '@/views/connections/index.vue'
 import { CopilotMessage, CopilotRole, CopilotPresetPrompt, StreamError } from '@/types/copilot'
 import { needsUserInput } from '@/utils/ai/preset'
+import { SessionManager } from '@/utils/ai/SessionManager'
 
 @Component({
   components: {
@@ -62,6 +63,8 @@ export default class Copilot extends Vue {
   private responseStreamText = ''
   private currPresetPrompt = ''
   private abortController: AbortController | null = null
+
+  private sessionManager = new SessionManager()
 
   private systemMessage = {
     id: 'system-id',
@@ -117,6 +120,8 @@ export default class Copilot extends Vue {
     const content = msg || this.currentPublishMsg
     if (!content) return
 
+    this.sessionManager.startSession()
+
     await this.saveUserMessage(content)
     await this.generateAIResponse()
   }
@@ -151,10 +156,12 @@ export default class Copilot extends Vue {
   }
 
   private buildMessageHistory(): Array<{ role: CopilotRole; content: string }> {
+    const systemPrompt = this.sessionManager.getSystemPrompt(this.currentLang)
+
     return [
       {
         role: this.systemMessage.role as 'system',
-        content: loadSystemPrompt(this.currentLang, this.currPresetPrompt),
+        content: systemPrompt,
       },
       ...this.messages.slice(-20).map(({ role, content }) => {
         if (content.includes('@connection')) {
@@ -275,6 +282,7 @@ export default class Copilot extends Vue {
     this.responseStreamText = ''
     const { copilotService } = useServices()
     await copilotService.deleteAll()
+    this.sessionManager.resetSession()
     this.loadMessages({ reset: true })
   }
 
@@ -294,6 +302,7 @@ export default class Copilot extends Vue {
 
     await this.clearAllMessages()
     this.currPresetPrompt = data.prompt
+    this.sessionManager.updatePreset(data.prompt)
 
     const promptValue = data.promptMap[this.currPresetPrompt]
 
