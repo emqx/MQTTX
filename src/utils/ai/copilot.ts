@@ -9,7 +9,8 @@ import payloadGen from './prompts/payloadGen.txt'
 import emqxGuide from './prompts/emqxGuide.txt'
 import mqttFaq from './prompts/mqttFaq.txt'
 import funcGen from './prompts/funcGen.txt'
-import schemaGen from './prompts/schemaGen.txt'
+import protobufSchemaGen from './prompts/protobufSchemaGen.txt'
+import avroSchemaGen from './prompts/avroSchemaGen.txt'
 import {
   ALL_CODE_GENERATION_COMMAND_VALUES,
   PAYLOAD_GENERATION_COMMAND_VALUES,
@@ -17,6 +18,8 @@ import {
   MQTT_FAQ_COMMAND_VALUES,
   CUSTOM_FUNCTION_COMMAND_VALUES,
   ALL_SCHEMA_COMMAND_VALUES,
+  PROTOBUF_SCHEMA_COMMAND_VALUES,
+  AVRO_SCHEMA_COMMAND_VALUES,
 } from './preset'
 
 const LANGUAGE_MAP = {
@@ -57,7 +60,12 @@ export const loadSystemPrompt = (lang: Language, command?: string) => {
 
   // Check if the command is related to schema generation
   if (command && ALL_SCHEMA_COMMAND_VALUES.includes(command)) {
-    _basePrompt = `${_basePrompt}\n\n${schemaGen}`
+    // Use the specific schema prompt based on the command (Protobuf or Avro)
+    if (command && PROTOBUF_SCHEMA_COMMAND_VALUES.includes(command)) {
+      _basePrompt = `${_basePrompt}\n\n${protobufSchemaGen}`
+    } else if (command && AVRO_SCHEMA_COMMAND_VALUES.includes(command)) {
+      _basePrompt = `${_basePrompt}\n\n${avroSchemaGen}`
+    }
   }
 
   return `${_basePrompt}\n\n${LANGUAGE_MAP[lang]}`
