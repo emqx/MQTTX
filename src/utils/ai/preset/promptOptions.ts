@@ -224,6 +224,11 @@ export const PAYLOAD_GENERATION_COMMAND_VALUES = PAYLOAD_OPTIONS.map((option) =>
  */
 export const MQTT_FAQ_OPTIONS: PromptOptionDefinition[] = [
   {
+    value: 'askMQTTFaq',
+    labelKey: 'askMQTTFaq',
+    prompt: 'promptAskMQTTFaq',
+  },
+  {
     value: 'mqttProtocol',
     labelKey: 'mqttProtocol',
     prompt: 'mqttProtocol',
@@ -244,6 +249,8 @@ export const MQTT_FAQ_OPTIONS: PromptOptionDefinition[] = [
     prompt: 'mqttRetainDesc',
   },
 ]
+
+export const MQTT_FAQ_COMMAND_VALUES = MQTT_FAQ_OPTIONS.map((option) => option.value)
 
 /**
  * EMQX options

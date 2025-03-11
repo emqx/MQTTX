@@ -7,7 +7,13 @@ import basePrompt from './prompts/base.txt'
 import clientCodeGen from './prompts/clientCodeGen.txt'
 import payloadGen from './prompts/payloadGen.txt'
 import emqxGuide from './prompts/emqxGuide.txt'
-import { ALL_CODE_GENERATION_COMMAND_VALUES, PAYLOAD_GENERATION_COMMAND_VALUES, EMQX_COMMAND_VALUES } from './preset'
+import mqttFaq from './prompts/mqttFaq.txt'
+import {
+  ALL_CODE_GENERATION_COMMAND_VALUES,
+  PAYLOAD_GENERATION_COMMAND_VALUES,
+  EMQX_COMMAND_VALUES,
+  MQTT_FAQ_COMMAND_VALUES,
+} from './preset'
 
 const LANGUAGE_MAP = {
   zh: '请使用中文回答（简体中文）',
@@ -30,8 +36,14 @@ export const loadSystemPrompt = (lang: Language, command?: string) => {
     _basePrompt = `${_basePrompt}\n\n${payloadGen}`
   }
 
+  // Check if the command is related to EMQX
   if (command && EMQX_COMMAND_VALUES.includes(command)) {
     _basePrompt = `${_basePrompt}\n\n${emqxGuide}`
+  }
+
+  // Check if the command is related to MQTT FAQ
+  if (command && MQTT_FAQ_COMMAND_VALUES.includes(command)) {
+    _basePrompt = `${_basePrompt}\n\n${mqttFaq}`
   }
 
   return `${_basePrompt}\n\n${LANGUAGE_MAP[lang]}`

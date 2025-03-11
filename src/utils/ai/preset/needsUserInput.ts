@@ -9,4 +9,5 @@ export const needsUserInput = [
   'avroCustomRequirementGenerateSchema',
   'customPayload',
   'askEMQX',
+  'askMQTTFaq',
 ]

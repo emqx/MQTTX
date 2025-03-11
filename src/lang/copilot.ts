@@ -1184,4 +1184,18 @@ Választott kódolási formátum: {0}`,
     ja: 'EMQX関連の質問を入力してください。質問を説明してください：',
     hu: 'Kérjük, bármilyen kapcsolódó kérdést EMQX-re írjon be, a kérdés leírását:',
   },
+  askMQTTFaq: {
+    zh: '询问 MQTT 相关问题',
+    en: 'Ask MQTT related questions',
+    tr: 'MQTT ilgili sorunları sor',
+    ja: 'MQTT関連の質問を尋ねる',
+    hu: 'MQTT kapcsolatos kérdéseket kérdezhet',
+  },
+  promptAskMQTTFaq: {
+    zh: '请输入 MQTT 相关问题，问题描述：',
+    en: 'Please input any related question about MQTT, describe the question:',
+    tr: 'MQTT ilgili herhangi bir soruyu girin, soruyu açıklayın:',
+    ja: 'MQTT関連の質問を入力してください。質問を説明してください：',
+    hu: 'Kérjük, bármilyen kapcsolódó kérdést MQTT-re írjon be, a kérdés leírását:',
+  },
 }
