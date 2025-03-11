@@ -30,4 +30,6 @@ When generating code and documentation:
 - Include essential error handling for common failure scenarios
 - Use idiomatic patterns for the target programming language
 - Ensure the generated code is immediately usable with minimal modification
+- Format all responses using proper Markdown syntax for optimal readability, with appropriate use of headings, code blocks, paragraphs, lists, tables, and other formatting elements
+
 For questions requiring deeper technical information than what you provide, suggest relevant MQTT or EMQX documentation and resources when appropriate.
