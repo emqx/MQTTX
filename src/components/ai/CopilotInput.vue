@@ -12,7 +12,7 @@
       v-model="message"
       :placeholder="$t('copilot.copiltePubMsgPlacehoder')"
       @keydown.native.enter="handleEnterKey"
-      @focus="showPresetPrompt = true"
+      @focus="handleFocus"
       @input="handleInput"
     ></el-input>
     <el-button
@@ -47,6 +47,7 @@ export default class CopilotInput extends Vue {
 
   private showPresetPrompt = false
   private message = ''
+  private shouldShowPresetOnFocus = true
 
   created() {
     this.message = this.value
@@ -73,6 +74,7 @@ export default class CopilotInput extends Vue {
   @Emit('preset-change')
   handlePresetsChange(prompt: string, promptMap: CopilotPresetPrompt['promptMap']) {
     this.showPresetPrompt = false
+    this.shouldShowPresetOnFocus = false
     return { prompt, promptMap }
   }
 
@@ -91,6 +93,14 @@ export default class CopilotInput extends Vue {
     }
   }
 
+  handleFocus() {
+    if (this.shouldShowPresetOnFocus) {
+      this.showPresetPrompt = true
+    } else {
+      this.shouldShowPresetOnFocus = true
+    }
+  }
+
   focus() {
     const inputEl = this.$refs.publishMsgInput as Vue
     if (inputEl && inputEl.$el) {
@@ -98,7 +108,6 @@ export default class CopilotInput extends Vue {
       if (textarea) {
         this.$nextTick(() => {
           textarea.focus()
-          // Position cursor at the end of text
           textarea.selectionStart = textarea.selectionEnd = textarea.value.length
         })
       }
