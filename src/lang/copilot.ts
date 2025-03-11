@@ -7,11 +7,60 @@ export default {
     hu: 'Gondolkodom...',
   },
   welcomeToCopilot: {
-    zh: '您好！我是 MQTTX Copilot 🤖，一个专门设计来帮助解答 MQTT 相关问题，提供常见问题的解决方案，并提供最佳实践见解的 AI 助手。今天我能如何帮助您？',
-    en: 'Hello! I am MQTTX Copilot 🤖, an AI assistant designed to help with MQTT-related queries, provide solutions for common issues, and offer insights on best practices. How can I assist you today?',
-    tr: 'Merhaba! Ben MQTTX Copilot 🤖, MQTT ile ilgili sorgulara yardımcı olmak, yaygın sorunlar için çözümler sağlamak ve en iyi uygulamalar hakkında bilgi vermek üzere tasarlanmış bir AI asistanıyım. Bugün size nasıl yardımcı olabilirim?',
-    ja: 'こんにちは！私は MQTTX Copilot 🤖、MQTT 関連の問い合わせを支援し、一般的な問題の解決策を提供し、ベストプラクティスについての洞察を提供するために設計された AI アシスタントです。今日は何でお手伝いでしょうか？',
-    hu: 'Szia! Én vagyok az MQTTX Copilot 🤖, egy AI asszisztens, amelyet az MQTT-vel kapcsolatos kérdések megválaszolására, a gyakori problémák megoldására és a legjobb gyakorlatok bemutatására terveztek. Hogyan segíthetek ma?',
+    zh: 'MQTTX Copilot 可以帮您生成连接代码、解答 MQTT 问题、创建消息转换脚本和测试数据，成为您的 MQTT 开发助手。',
+    en: 'MQTTX Copilot can help you generate connection code, answer MQTT questions, create message transformation scripts and test data, serving as your MQTT development assistant.',
+    tr: 'MQTTX Copilot, bağlantı kodu oluşturmanıza, MQTT sorularını yanıtlamanıza, mesaj dönüştürme komut dosyaları ve test verileri oluşturmanıza yardımcı olabilir ve MQTT geliştirme asistanınız olarak hizmet verir.',
+    ja: 'MQTTX Copilotは、接続コードの生成、MQTTの質問への回答、メッセージ変換スクリプトとテストデータの作成をサポートし、MQTTの開発アシスタントとして機能します。',
+    hu: 'Az MQTTX Copilot segíthet a kapcsolódási kód generálásában, MQTT kérdések megválaszolásában, üzenet-átalakító szkriptek és tesztadatok létrehozásában, MQTT fejlesztési asszisztensként szolgálva.',
+  },
+  didYouKnow: {
+    zh: '您知道吗？',
+    en: 'Did you know?',
+    tr: 'Biliyor muydunuz?',
+    ja: 'ご存知でしたか？',
+    hu: 'Tudta?',
+  },
+  tipContent1: {
+    zh: '遇到连接问题？快速点击错误框中的 "Ask Copilot" 按钮，将帮助您诊断和解决问题。',
+    en: 'Having connection issues? Quickly click the "Ask Copilot" button in the error box, which will help you diagnose and solve the problem.',
+    tr: 'Bağlantı sorunları mı yaşıyorsunuz? Hata kutusundaki "Ask Copilot" düğmesine hızlıca tıklayın, bu size sorunu teşhis etmenize ve çözmenize yardımcı olacaktır.',
+    ja: '接続に問題がありますか？エラーボックスの「Ask Copilot」ボタンをクリックすると、問題の診断と解決をサポートします。',
+    hu: 'Kapcsolódási problémák? Kattintson gyorsan a hiba ablakban található "Ask Copilot" gombra, amely segít diagnosztizálni és megoldani a problémát.',
+  },
+  tipContent2: {
+    zh: '使用 "生成连接代码" 功能可以快速获取多种编程语言的 MQTT 客户端代码，直接复制到您的项目中使用。',
+    en: 'Use the "Generate Connection Code" feature to quickly get MQTT client code in various programming languages, ready to copy into your project.',
+    tr: 'Çeşitli programlama dillerinde MQTT istemci kodunu hızlıca almak için "Bağlantı Kodu Oluştur" özelliğini kullanın, projenize kopyalamaya hazır.',
+    ja: '「接続コード生成」機能を使用すると、さまざまなプログラミング言語でMQTTクライアントコードをすぐに取得でき、プロジェクトにコピーできます。',
+    hu: 'Használja a "Kapcsolódási kód generálása" funkciót, hogy gyorsan kapjon MQTT kliens kódot különböző programozási nyelveken, készen a projektbe való másolásra.',
+  },
+  tipContent3: {
+    zh: '试试生成测试数据功能！Copilot 可为您创建各种 IoT 场景的模拟数据，如智能家居、工业物联网、车联网等。',
+    en: 'Try the test data generation feature! Copilot can create simulated data for various IoT scenarios, such as smart homes, industrial IoT, connected vehicles, and more.',
+    tr: 'Test verisi oluşturma özelliğini deneyin! Copilot, akıllı evler, endüstriyel IoT, bağlantılı araçlar ve daha fazlası gibi çeşitli IoT senaryoları için simüle edilmiş veriler oluşturabilir.',
+    ja: 'テストデータ生成機能を試してみてください！Copilotは、スマートホーム、産業用IoT、コネクテッドカーなどのさまざまなIoTシナリオの模擬データを作成できます。',
+    hu: 'Próbálja ki a tesztadat-generálási funkciót! A Copilot szimulált adatokat hozhat létre különböző IoT forgatókönyvekhez, például okosotthonokhoz, ipari IoT-hez, csatlakoztatott járművekhez és egyebekhez.',
+  },
+  tipContent4: {
+    zh: '了解 MQTT QoS？询问 Copilot "MQTT 的 QoS 级别有什么区别"，获取详细解释和实际使用场景。',
+    en: 'Curious about MQTT QoS? Ask Copilot "What are the differences between MQTT QoS levels" for detailed explanations and practical use cases.',
+    tr: 'MQTT QoS hakkında merak mı ediyorsunuz? Ayrıntılı açıklamalar ve pratik kullanım örnekleri için Copilot\'a "MQTT QoS seviyeleri arasındaki farklar nelerdir" diye sorun.',
+    ja: 'MQTT QoSについて知りたいですか？Copilotに「MQTTのQoSレベルの違いは何ですか」と質問すると、詳細な説明と実際の使用例が得られます。',
+    hu: 'Kíváncsi az MQTT QoS-re? Kérdezze meg a Copilot-tól: "Mik a különbségek az MQTT QoS szintek között", hogy részletes magyarázatokat és gyakorlati felhasználási eseteket kapjon.',
+  },
+  tipContent5: {
+    zh: '需要处理消息转换？Copilot 可以帮您编写脚本，处理 JSON 转换、数据过滤、格式转换等任务。',
+    en: 'Need to handle message transformations? Copilot can help you write scripts for JSON transformations, data filtering, format conversions, and more.',
+    tr: 'Mesaj dönüşümlerini ele almanız mı gerekiyor? Copilot, JSON dönüşümleri, veri filtreleme, format dönüşümleri ve daha fazlası için komut dosyaları yazmanıza yardımcı olabilir.',
+    ja: 'メッセージ変換を処理する必要がありますか？Copilotは、JSON変換、データフィルタリング、フォーマット変換などのスクリプトを書くのを手伝います。',
+    hu: 'Üzenet-átalakításokat kell kezelnie? A Copilot segíthet olyan szkripteket írni, amelyek JSON-átalakításokat, adatszűrést, formátum-átalakításokat és egyebeket végeznek.',
+  },
+  tipContent6: {
+    zh: '想了解 MQTT 5.0 的新特性？询问 Copilot 获取详细解释，包括共享订阅、消息过期、主题别名等功能。',
+    en: 'Want to learn about MQTT 5.0 features? Ask Copilot for detailed explanations on shared subscriptions, message expiry, topic aliases, and more.',
+    tr: "MQTT 5.0 özelliklerini öğrenmek mi istiyorsunuz? Paylaşılan abonelikler, mesaj süresi, konu takma adları ve daha fazlası hakkında ayrıntılı açıklamalar için Copilot'a sorun.",
+    ja: 'MQTT 5.0の機能について学びたいですか？共有サブスクリプション、メッセージ有効期限、トピックエイリアスなどの詳細な説明については、Copilotに質問してください。',
+    hu: 'Szeretne többet megtudni az MQTT 5.0 funkcióiról? Kérdezze meg a Copilot-tól a megosztott előfizetésekről, üzenet lejáratról, téma álnevekről és egyebekről szóló részletes magyarázatokat.',
   },
   copiltePubMsgPlacehoder: {
     zh: '向 MQTTX Copilot 发送消息...',
@@ -20,7 +69,7 @@ export default {
     ja: 'MQTTX Copilotにメッセージを送る...',
     hu: 'Üzenet küldése a MQTTX Copilotnak...',
   },
-  copilteUser: {
+  copilotUser: {
     zh: '用户',
     en: 'You',
     tr: 'Sen',
@@ -63,11 +112,11 @@ export default {
     hu: 'Kódgenerálás',
   },
   promptProgrammingLanguage: {
-    zh: '使用当前连接创建 {0} MQTT Client 代码 {1}，如果使用了 MQTT5 的，注意配置属性',
-    en: 'Create {0} MQTT Client code with the current connection {1}, if you use MQTT5, pay attention to the configuration properties',
-    tr: 'Mevcut bağlantı ile {0} MQTT Client kodu oluştur {1}, MQTT5 kullanıyorsanız, yapılandırma özelliklerine dikkat edin',
-    ja: '現在の接続で {0} MQTTクライアントコードを作成する {1}，MQTT5を使用する場合は、構成プロパティに注意してください',
-    hu: 'Hozzon létre {0} MQTT ügyfélkódot az aktuális kapcsolattal {1}, ha MQTT5-öt használ, figyeljen a konfigurációs tulajdonságokra',
+    zh: '使用当前连接创建 {0} MQTT Client 代码 {1}',
+    en: 'Create {0} MQTT Client code with the current connection {1}',
+    tr: 'Mevcut bağlantı ile {0} MQTT Client kodu oluştur {1}',
+    ja: '現在の接続で {0} MQTTクライアントコードを作成する {1}',
+    hu: 'Hozzon létre {0} MQTT ügyfélkódot az aktuális kapcsolattal {1}',
   },
   genSimpleIoTPayload: {
     zh: '生成简单测试数据',
@@ -138,13 +187,6 @@ export default {
     tr: 'Makine performansını, sensör okumalarını ve üretim hattı durumlarını içeren, endüstriyel IoT senaryoları için uygun MQTT IoT test verileri oluşturun.',
     ja: '機械のパフォーマンス、センサーの読み取り、生産ラインの状態を含む、産業用IoTシナリオに適したMQTT IoTテストデータを生成します。',
     hu: 'Generáljon MQTT IoT tesztadatokat ipari IoT forgatókönyvekhez, beleértve a gépek teljesítményét, a szenzorok olvasásait és a termelési sor állapotait.',
-  },
-  genPayloadFormat: {
-    zh: '请确保给我一个包含必要信息的完整的 JSON 数据，不需要其它额外信息。这个 JSON 数据应该包含模拟的基础信息，适合基础测试场景，并且可以包含简单的数据结构的介绍。',
-    en: 'Please make sure to give me a complete JSON data containing the necessary information, no other additional information is required. This JSON data should contain simulated basic information, suitable for basic testing scenarios, and can contain an introduction to simple data structures.',
-    tr: 'Lütfen bana gerekli bilgileri içeren tam bir JSON verisi verdiğinizden emin olun, başka ek bilgi gerekmez. Bu JSON verileri, temel test senaryoları için uygun, simüle edilmiş temel bilgileri içermeli ve basit veri yapılarına bir giriş içerebilir.',
-    ja: '必要な情報を含む完全なJSONデータを提供してください。他に追加情報は必要ありません。このJSONデータには、基本的なテストシナリオに適したシミュレートされた基本情報が含まれており、単純なデータ構造の紹介を含む場合があります。',
-    hu: 'Győződjön meg róla, hogy ad nekem egy teljes JSON adatot, amely tartalmazza a szükséges információkat, más további információ nem szükséges. Ez a JSON adat tartalmazhat szimulált alapinformációkat, amelyek alkalmasak az alapvető tesztelési forgatókönyvekre, és tartalmazhatnak egy bevezetést az egyszerű adatszerkezetekhez.',
   },
   mqttProtocol: {
     zh: 'MQTT 协议是什么',
@@ -419,293 +461,6 @@ export default {
     ja: '時間フォーマット処理',
     hu: 'Időformátum feldolgozás',
   },
-  promptCustomFunction: {
-    zh: `请根据所选模式生成 MQTTX 自定义函数，并且给出原始 Payload 样本和预期结果：
-      【生成模式】
-        - 预设模板快速生成
-        - 自定义需求生成（描述需求）
-        ==== 预设模板库 ====
-        01 模拟天气数据
-        │ 参数格式：{ "temperature":[10,30], "humidity":[20,40] }
-        │ 功能：为指定字段生成随机数值
-        02 动态指令切换
-        │ 参数格式：{ "field": "command", "values": ["on","off"] }
-        │ 功能：根据消息索引交替改变指定字段值
-        03 时间格式处理
-        │ 参数格式：{ "timeField":"timestamp", "timezone":8 }
-        │ 功能：将Unix时间戳转为UTC时间字符串
-        ==== 自定义模式 ====
-        【功能描述】
-        详细说明需要实现的处理逻辑（如："给返回数据附带当前时间戳"）
-        【输入示例】
-        原始 Payload 样本：
-        { 
-          "temperature": 25, 
-          "humidity": 50 
-        }
-        【输出要求】
-        期望处理结果：
-        { 
-          "temperature": 25, 
-          "humidity": 50, 
-          "currentTime": "2023-10-21T14:30:00.000Z"
-        }
-        ==== 通用脚本框架 ====
-        /**
-         * @description {功能名称}
-         * @param {object|string} value - 原始数据（自动解析JSON字符串）
-         * @param {'publish'|'received'} msgType - 消息类型，值为 'received' 或 'publish'
-         * @param {number} [index] - 消息索引，仅在脚本用于发布消息且启用定时消息时有效
-         */
-        function handlePayload(value, msgType, index) {
-          try {
-            // 核心处理逻辑 ▼▼▼
-            {{CORE_LOGIC}}
-            // 返回前处理（保持JSON序列化）
-            return typeof _value === 'object' ? 
-              JSON.stringify(_value, null, 2) : _value;
-          } catch (e) {
-            console.error('处理错误:', e);
-            return value; // 保持原始数据不变
-          }
-        }
-        execute(handlePayload);
-        ==== 生成规则 ====
-        1. 每个字段修改添加注释说明
-        2. 严格区分消息流向处理逻辑
-        3. 生成模拟数据时，为数值字段添加合理的波动
-        4. 兼容旧版本的浏览器，不要使用过于新的 JavaScript 特性
-        5. 按照自定义函数、原始 Payload 样本和预期结果的顺序提供，确保使用代码块格式
-        6. 简练回答，避免冗长描述，但确保信息完整`,
-    en: `Please generate MQTTX custom function based on selected mode, and provide test cases with expected results:
-       [Generation Modes]
-        - Preset template quick generation
-        - Custom requirement generation (describe requirements)
-        ==== Preset Templates ====
-        01 Simulate Weather Data
-        │ Parameter format: { "temperature":[10,30], "humidity":[20,40] }
-        │ Function: Generate random values for specified fields
-        02 Dynamic Command Switching
-        │ Parameter format: { "field": "command", "values": ["on","off"] }
-        │ Function: Alternately change specified field value based on message index
-        03 Time Format Processing
-        │ Parameter format: { "timeField":"timestamp", "timezone":8 }
-        │ Function: Convert Unix timestamp to UTC time string
-        ==== Custom Mode ====
-        [Function Description]
-        Detail the processing logic to implement (e.g.: "Add current timestamp to response data")
-        [Input Example]
-        Original Payload sample:
-        { 
-          "temperature": 25, 
-          "humidity": 50 
-        }
-        [Output Requirements]
-        Expected processed result:
-        { 
-          "temperature": 25, 
-          "humidity": 50, 
-          "currentTime": "2023-10-21T14:30:00.000Z"
-        }
-        ==== Script Framework ====
-        /**
-         * @description {Function Name}
-         * @param {object|string} value - Raw data (auto-parse JSON string)
-         * @param {'publish'|'received'} msgType - Message type: 'received' or 'publish'
-         * @param {number} [index] - Message index (valid only when script used for publishing with scheduled message)
-         */
-        function handlePayload(value, msgType, index) {
-          try {
-            // Core processing logic ▼▼▼
-            {{CORE_LOGIC}}
-            // Pre-return processing (keep JSON serialized)
-            return typeof _value === 'object' ? 
-              JSON.stringify(_value, null, 2) : _value;
-          } catch (e) {
-            console.error('Processing error:', e);
-            return value; // Keep original data
-          }
-        }
-        execute(handlePayload);
-        ==== Generation Rules ====
-        1. Add comments for each field modification
-        2. Strictly differentiate message flow handling logic
-        3. Add reasonable fluctuation when generating mock data
-        4. Maintain compatibility with older browsers (avoid latest JS features)
-        5. Provide in the order of custom function, original Payload sample, and expected result, ensuring code block format
-        6. Be concise in response, avoid lengthy descriptions, but ensure information completeness`,
-    tr: `Lütfen seçilen moda göre MQTTX özel işlevi oluşturun ve beklenen sonuçlarla test durumlarını sağlayın:
-       [Oluşturma Modları]
-        - Önceden ayarlanmış şablon hızlı oluşturma
-        - Özel gereksinim oluşturma (gereksinimleri tanımlayın)
-        ==== Önceden Ayarlanmış Şablonlar ====
-        01 Hava Durumu Verilerini Simüle Et
-        │ Parametre formatı: { "temperature":[10,30], "humidity":[20,40] }
-        │ İşlev: Belirtilen alanlar için rastgele değerler oluşturma
-        02 Dinamik Komut Değiştirme
-        │ Parametre formatı: { "field": "command", "values": ["on","off"] }
-        │ İşlev: Mesaj dizinine göre belirtilen alan değerini dönüşümlü olarak değiştirme
-        03 Zaman Formatı İşleme
-        │ Parametre formatı: { "timeField":"timestamp", "timezone":8 }
-        │ İşlev: Unix zaman damgasını UTC zaman dizesine dönüştürme
-        ==== Özel Mod ====
-        [İşlev Açıklaması]
-        Uygulanacak işleme mantığını ayrıntılandırın (örneğin: "Yanıt verilerine geçerli zaman damgasını ekle")
-        [Giriş Örneği]
-        Orijinal Payload örneği:
-        { 
-          "temperature": 25, 
-          "humidity": 50 
-        }
-        [Çıktı Gereksinimleri]
-        Beklenen işlenmiş sonuç:
-        { 
-          "temperature": 25, 
-          "humidity": 50, 
-          "currentTime": "2023-10-21T14:30:00.000Z"
-        }
-        ==== Betik Çerçevesi ====
-        /**
-         * @description {İşlev Adı}
-         * @param {object|string} value - Ham veri (otomatik JSON dizesi ayrıştırma)
-         * @param {'publish'|'received'} msgType - Mesaj türü: 'received' veya 'publish'
-         * @param {number} [index] - Mesaj dizini (yalnızca betik zamanlı mesaj ile yayın için kullanıldığında geçerli)
-         */
-        function handlePayload(value, msgType, index) {
-          try {
-            // Temel işlem mantığı ▼▼▼
-            {{CORE_LOGIC}}
-            // Dönüş öncesi işleme (JSON serileştirilmiş tut)
-            return typeof _value === 'object' ? 
-              JSON.stringify(_value, null, 2) : _value;
-          } catch (e) {
-            console.error('İşlem hatası:', e);
-            return value; // Orijinal veriyi koru
-          }
-        }
-        execute(handlePayload);
-        ==== Oluşturma Kuralları ====
-        1. Her alan değişikliği için yorumlar ekleyin
-        2. Mesaj akış işleme mantığını kesin bir şekilde ayırın
-        3. Sahte veri oluştururken makul dalgalanma ekleyin
-        4. Eski tarayıcılarla uyumluluğu koruyun (en son JS özelliklerinden kaçının)
-        5. Özel işlev, orijinal Payload örneği ve beklenen sonuç sırasında, kod bloğu formatını sağlayarak sunun
-        6. Yanıtta özlü olun, uzun açıklamalardan kaçının ancak bilgi bütünlüğünü sağlayın`,
-    ja: `選択したモードに基づいてMQTTXカスタム関数を生成し、予想される結果でテストケースを提供してください：
-       [生成モード]
-        - プリセットテンプレート高速生成
-        - カスタム要件生成（要件を説明する）
-        ==== プリセットテンプレート ====
-        01 気象データシミュレート
-        │ パラメータ形式: { "temperature":[10,30], "humidity":[20,40] }
-        │ 機能: 指定されたフィールドにランダムな値を生成する
-        02 動的コマンド切り替え
-        │ パラメータ形式: { "field": "command", "values": ["on","off"] }
-        │ 機能: メッセージインデックスに基づいて指定されたフィールド値を交互に変更する
-        03 時間フォーマット処理
-        │ パラメータ形式: { "timeField":"timestamp", "timezone":8 }
-        │ 機能: UnixタイムスタンプをUTC時間文字列に変換する
-        ==== カスタムモード ====
-        [機能説明]
-        実装する処理ロジックを詳しく説明する（例：「応答データに現在のタイムスタンプを追加する」）
-        [入力例]
-        元のペイロードサンプル:
-        { 
-          "temperature": 25, 
-          "humidity": 50 
-        }
-        [出力要件]
-        予想される処理結果:
-        { 
-          "temperature": 25, 
-          "humidity": 50, 
-          "currentTime": "2023-10-21T14:30:00.000Z"
-        }
-        ==== スクリプトフレームワーク ====
-        /**
-         * @description {機能名}
-         * @param {object|string} value - 生データ（JSON文字列を自動解析）
-         * @param {'publish'|'received'} msgType - メッセージタイプ：'received'または'publish'
-         * @param {number} [index] - メッセージインデックス（スクリプトがスケジュールされたメッセージで公開に使用される場合のみ有効）
-         */
-        function handlePayload(value, msgType, index) {
-          try {
-            // コア処理ロジック ▼▼▼
-            {{CORE_LOGIC}}
-            // 返却前処理（JSONシリアル化を保持）
-            return typeof _value === 'object' ? 
-              JSON.stringify(_value, null, 2) : _value;
-          } catch (e) {
-            console.error('処理エラー:', e);
-            return value; // 元のデータを維持
-          }
-        }
-        execute(handlePayload);
-        ==== 生成ルール ====
-        1. 各フィールド変更にコメントを追加する
-        2. メッセージフロー処理ロジックを厳密に区別する
-        3. モックデータ生成時に合理的な変動を追加する
-        4. 古いブラウザとの互換性を維持する（最新のJS機能を避ける）
-        5. カスタム関数、元のペイロードサンプル、予想される結果の順に提供し、コードブロック形式を確保する
-        6. 回答は簡潔にし、冗長な説明を避けるが、情報の完全性を確保する`,
-    hu: `Kérem, generáljon MQTTX egyéni függvényt a kiválasztott mód alapján, és adja meg a teszteseteket a várt eredményekkel:
-       [Generálási módok]
-        - Előre beállított sablon gyors generálása
-        - Egyéni igény generálása (követelmények leírása)
-        ==== Előre beállított sablonok ====
-        01 Időjárási adatok szimulálása
-        │ Paraméter formátum: { "temperature":[10,30], "humidity":[20,40] }
-        │ Funkció: Véletlenszerű értékek generálása a megadott mezőkhöz
-        02 Dinamikus parancs kapcsoló
-        │ Paraméter formátum: { "field": "command", "values": ["on","off"] }
-        │ Funkció: A megadott mező értékének váltakozó módosítása az üzenet indexe alapján
-        03 Időformátum feldolgozás
-        │ Paraméter formátum: { "timeField":"timestamp", "timezone":8 }
-        │ Funkció: Unix időbélyeg konvertálása UTC időszöveggé
-        ==== Egyéni mód ====
-        [Funkció leírás]
-        Részletezze a megvalósítandó feldolgozási logikát (pl.: "Aktuális időbélyeg hozzáadása a válaszadatokhoz")
-        [Bemenet példa]
-        Eredeti Payload minta:
-        { 
-          "temperature": 25, 
-          "humidity": 50 
-        }
-        [Kimenet követelmények]
-        Elvárt feldolgozott eredmény:
-        { 
-          "temperature": 25, 
-          "humidity": 50, 
-          "currentTime": "2023-10-21T14:30:00.000Z"
-        }
-        ==== Script keretrendszer ====
-        /**
-         * @description {Funkció név}
-         * @param {object|string} value - Nyers adat (automatikus JSON karakterlánc elemzés)
-         * @param {'publish'|'received'} msgType - Üzenettípus: 'received' vagy 'publish'
-         * @param {number} [index] - Üzenet index (csak akkor érvényes, ha a szkriptet közzétételre használják ütemezett üzenettel)
-         */
-        function handlePayload(value, msgType, index) {
-          try {
-            // Alap feldolgozási logika ▼▼▼
-            {{CORE_LOGIC}}
-            // Visszaküldés előtti feldolgozás (JSON szerializáció megtartása)
-            return typeof _value === 'object' ? 
-              JSON.stringify(_value, null, 2) : _value;
-          } catch (e) {
-            console.error('Feldolgozási hiba:', e);
-            return value; // Eredeti adat megtartása
-          }
-        }
-        execute(handlePayload);
-        ==== Generálási szabályok ====
-        1. Adjon megjegyzéseket minden mezőmódosításhoz
-        2. Szigorúan különböztesse meg az üzenetáramlási logikát
-        3. Adjon hozzá észszerű ingadozást a szimulált adatok generálásakor
-        4. Tartsa fenn a kompatibilitást a régebbi böngészőkkel (kerülje a legújabb JS funkciókat)
-        5. Az egyéni függvény, az eredeti Payload minta és az elvárt eredmény sorrendjében adja meg, biztosítva a kódblokk formátumot
-        6. Legyen tömör a válaszban, kerülje a hosszú leírásokat, de biztosítsa az információk teljességét`,
-  },
   promptCustomFunctionCustomRequirement: {
     zh: '请帮我生成一个自定义函数，包含测试用例和预期结果，描述需求：',
     en: 'Please help me generate a custom function, including test cases and expected results, describe the requirements:',
@@ -748,377 +503,46 @@ export default {
     ja: 'スマートメーターリアルタイム読取値',
     hu: 'Okos mérőóra valós idejű értékek',
   },
-  promptSchema: {
-    zh: `请根据选择生成数据 Schema 和对应示例数据：
-[编码格式] => [生成模式]
-- 编码格式选项：Protobuf | Avro
-- 生成模式选项：
-  ├─ 自定义需求生成（需填写下方描述）
-  └─ 预设场景快速生成：
-     │ 智能家居设备状态上报
-     │ 工业设备告警消息
-     │ 车联网车辆遥测数据
-     │ 智能电表实时读数
-==== 自定义模式 ====
-详细说明数据结构需求（如："包含带状态的传感器数据，要求时间戳精度到毫秒"），可以提供示例字段数据，以便更好地理解需求
-==== 预设场景特征 ====
-▶ 智能家居设备状态上报
-  - 必选字段：device_id（字符串）、status（枚举）、temperature（带波动范围）
-  - 可选扩展：在线状态、固件版本、信号强度
-▶ 工业设备告警消息
-  - 必选字段：alarm_code（整型）、severity（枚举）、timestamp（时间戳）
-  - 可选扩展：设备坐标、关联工单号、恢复建议
-▶ 车联网车辆遥测数据
-  - 必选字段：vin（字符串）、gps（坐标对象）、speed（带波动数值）
-  - 可选扩展：剩余电量、胎压数组、驾驶模式
-▶ 智能电表实时读数
-  - 必选字段：meter_id（定长字符串）、voltage（带精度数值）、timestamp（ISO8601）
-  - 可选扩展：相位不平衡度、异常事件标志位
-==== 生成规则 ====
-1. Protobuf 输出顺序：
-   ▼ 完整的 .proto 文件，包含语法声明如 syntax = "proto3";
-   ▼ 数据类型名称（如：类型名称：DeviceStatusReport）
-   ▼ 输入示例数据
-   
-   // 示例结构
-   ## Schema
-   当前 Schema 的描述，说明重要字段的作用（使用markdown普通段落）
-   syntax = "proto3";
-   message DeviceReport {
-     string device_id = 1;
-     int32 value = 2;
-     string firmware = 3;
-   }
-   
-   ## 类型名称(使用markdown代码块格式)
-   DeviceReport
-   
-   ## 示例数据
-   {
-     "device_id": "dev12345",
-     "value": 100,
-     "firmware": "1.0.0"
-   }
-   
-2. Avro 输出顺序：
-   ▼ 完整的 .avsc 文件
-   ▼ 输入示例数据
-   
-   // 示例结构
-   ## Schema
-   当前 Schema 的描述，说明重要字段的作用（使用markdown普通段落）
-   {
-     "type": "record",
-     "name": "Person",
-     "fields": [
-       {"name": "id", "type": "int"},
-       {"name": "name", "type": "string"}
-     ]
-   }
-==== 注意事项 ====
-1. Protobuf特别要求：
-   - 枚举值必须使用整数值，示例数据中必须使用枚举对应的整数值（如：status: 2）
-2. 提供JSON格式的保证示例数，并保证示例数据包含Schema中定义的所有字段，字段名称完全一致，不能有任何遗漏
-3. 所有代码和数据必须使用markdown代码块格式输出，便于复制和查看
-选择的编码格式：{0}`,
-
-    en: `Please generate data Schema and corresponding sample data based on your selection:
-[Encoding Format] => [Generation Mode]
-- Encoding Format Options: Protobuf | Avro
-- Generation Mode Options:
-  ├─ Custom Requirements (please fill in description below)
-  └─ Preset Scenarios for Quick Generation:
-     │ Smart Home Device Status Report
-     │ Industrial Equipment Alarm Message
-     │ Connected Vehicle Telemetry Data
-     │ Smart Meter Real-time Readings
-==== Custom Mode ====
-Please provide detailed data structure requirements (e.g., "include sensor data with status, require millisecond timestamp precision"), you can provide sample field data to better understand your needs
-==== Preset Scenario Features ====
-▶ Smart Home Device Status Report
-  - Required fields: device_id (string), status (enum), temperature (with fluctuation range)
-  - Optional extensions: online status, firmware version, signal strength
-▶ Industrial Equipment Alarm Message
-  - Required fields: alarm_code (integer), severity (enum), timestamp (timestamp)
-  - Optional extensions: device coordinates, related work order number, recovery suggestions
-▶ Connected Vehicle Telemetry Data
-  - Required fields: vin (string), gps (coordinate object), speed (fluctuating value)
-  - Optional extensions: remaining battery, tire pressure array, driving mode
-▶ Smart Meter Real-time Readings
-  - Required fields: meter_id (fixed-length string), voltage (value with precision), timestamp (ISO8601)
-  - Optional extensions: phase imbalance, anomaly event flags
-==== Generation Rules ====
-1. Protobuf Output Order:
-   ▼ Complete .proto file, including syntax declaration like syntax = "proto3";
-   ▼ Data type name (e.g., Type name: DeviceStatusReport)
-   ▼ Sample input data
-   
-   // Example structure
-   ## Schema
-   Description of the current Schema, explaining the purpose of important fields (use markdown plain paragraph)
-   syntax = "proto3";
-   message DeviceReport {
-     string device_id = 1;
-     int32 value = 2;
-     string firmware = 3;
-   }
-   
-   ## Type name (use markdown code block format)
-   DeviceReport
-   
-   ## Sample data
-   {
-     "device_id": "dev12345",
-     "value": 100,
-     "firmware": "1.0.0"
-   }
-   
-2. Avro Output Order:
-   ▼ Complete .avsc file
-   ▼ Sample input data
-   
-   // Example structure
-   ## Schema
-   Description of the current Schema, explaining the purpose of important fields (use markdown plain paragraph)
-   {
-     "type": "record",
-     "name": "Person",
-     "fields": [
-       {"name": "id", "type": "int"},
-       {"name": "name", "type": "string"}
-     ]
-   }
-==== Notes ====
-1. Protobuf Special Requirements:
-   - Enum values must use integer values, sample data must use the corresponding integer value for enums (e.g., status: 2)
-2. Provide sample data in JSON format, ensuring all fields defined in the Schema are included, field names match exactly, with no omissions
-3. All code and data must be output in markdown code block format for easy copying and viewing
-Selected encoding format: {0}`,
-
-    ja: `選択に基づいてデータスキーマと対応するサンプルデータを生成します：
-[エンコード形式] => [生成モード]
-- エンコード形式オプション：Protobuf | Avro
-- 生成モードオプション：
-  ├─ カスタム要件生成（下記に詳細を記入）
-  └─ プリセットシナリオ：
-     │ スマートホームデバイスステータスレポート
-     │ 産業機器アラームメッセージ
-     │ コネクテッドカーテレメトリーデータ
-     │ スマートメーターリアルタイム読取値
-==== カスタムモード ====
-データ構造要件を詳細に説明してください（例：「ステータス付きのセンサーデータを含み、タイムスタンプはミリ秒精度が必要」）。サンプルフィールドデータを提供すると要件の理解が進みます
-==== プリセットシナリオの特徴 ====
-▶ スマートホームデバイスステータスレポート
-  - 必須フィールド：device_id（文字列）、status（列挙型）、temperature（変動範囲付き）
-  - オプション拡張：オンラインステータス、ファームウェアバージョン、信号強度
-▶ 産業機器アラームメッセージ
-  - 必須フィールド：alarm_code（整数型）、severity（列挙型）、timestamp（タイムスタンプ）
-  - オプション拡張：デバイス座標、関連作業指示番号、復旧提案
-▶ コネクテッドカーテレメトリーデータ
-  - 必須フィールド：vin（文字列）、gps（座標オブジェクト）、speed（変動値）
-  - オプション拡張：残りバッテリー、タイヤ空気圧配列、運転モード
-▶ スマートメーターリアルタイム読取値
-  - 必須フィールド：meter_id（固定長文字列）、voltage（精度付き値）、timestamp（ISO8601）
-  - オプション拡張：相不均衡度、異常イベントフラグ
-==== 生成ルール ====
-1. Protobuf 出力順序：
-   ▼ 完全な .proto ファイル（syntax = "proto3"; などの構文宣言を含む）
-   ▼ データ型名（例：型名：DeviceStatusReport）
-   ▼ サンプル入力データ
-   
-   // 例構造
-   ## スキーマ
-   現在のスキーマの説明，重要なフィールドの役割を解説してください（markdownの通常の段落形式を使用）
-   syntax = "proto3";
-   message DeviceReport {
-     string device_id = 1;
-     int32 value = 2;
-     string firmware = 3;
-   }
-   
-   ## 型名(マークダウンコードブロック形式使用)
-   DeviceReport
-   
-   ## サンプルデータ
-   {
-     "device_id": "dev12345",
-     "value": 100,
-     "firmware": "1.0.0"
-   }
-   
-2. Avro 出力順序：
-   ▼ 完全な .avsc ファイル
-   ▼ サンプル入力データ
-   
-   // 例構造
-   ## スキーマ
-   現在のスキーマの説明，重要なフィールドの役割を解説してください（markdownの通常の段落形式を使用）
-   {
-     "type": "record",
-     "name": "Person",
-     "fields": [
-       {"name": "id", "type": "int"},
-       {"name": "name", "type": "string"}
-     ]
-   }
-==== 注意事項 ====
-1. Protobuf特別要件：
-   - 列挙値は整数値を使用し、サンプルデータでは列挙に対応する整数値を使用すること（例：status: 2）
-2. JSONフォーマットでサンプルデータを提供し、スキーマで定義されたすべてのフィールドが含まれ、フィールド名が完全に一致し、省略がないようにすること
-3. すべてのコードとデータはマークダウンコードブロック形式で出力し、コピーと表示を容易にすること
-選択したエンコード形式: {0}`,
-
-    tr: `Seçiminize göre veri Şeması ve karşılık gelen örnek veriler oluşturun:
-[Kodlama Formatı] => [Oluşturma Modu]
-- Kodlama Formatı Seçenekleri: Protobuf | Avro
-- Oluşturma Modu Seçenekleri:
-  ├─ Özel Gereksinim Oluşturma (lütfen aşağıdaki açıklamayı doldurun)
-  └─ Hazır Senaryolar:
-     │ Akıllı Ev Cihazı Durum Raporu
-     │ Endüstriyel Ekipman Alarm Mesajı
-     │ Bağlantılı Araç Telemetri Verileri
-     │ Akıllı Sayaç Gerçek Zamanlı Okumaları
-==== Özel Mod ====
-Veri yapısı gereksinimlerinizi detaylı olarak açıklayın (örn: "durumlu sensör verilerini içerir, zaman damgası milisaniye hassasiyetinde olmalıdır"), gereksinimlerinizin daha iyi anlaşılması için örnek alan verileri sağlayabilirsiniz
-==== Hazır Senaryo Özellikleri ====
-▶ Akıllı Ev Cihazı Durum Raporu
-  - Zorunlu alanlar: device_id (dize), status (enum), temperature (dalgalanma aralığı ile)
-  - Opsiyonel uzantılar: çevrimiçi durumu, yazılım sürümü, sinyal gücü
-▶ Endüstriyel Ekipman Alarm Mesajı
-  - Zorunlu alanlar: alarm_code (tamsayı), severity (enum), timestamp (zaman damgası)
-  - Opsiyonel uzantılar: cihaz koordinatları, ilgili iş emri numarası, kurtarma önerileri
-▶ Bağlantılı Araç Telemetri Verileri
-  - Zorunlu alanlar: vin (dize), gps (koordinat nesnesi), speed (dalgalanan değer)
-  - Opsiyonel uzantılar: kalan batarya, lastik basıncı dizisi, sürüş modu
-▶ Akıllı Sayaç Gerçek Zamanlı Okumaları
-  - Zorunlu alanlar: meter_id (sabit uzunlukta dize), voltage (hassasiyetli değer), timestamp (ISO8601)
-  - Opsiyonel uzantılar: faz dengesizliği, anormal olay bayrakları
-==== Oluşturma Kuralları ====
-1. Protobuf Çıktı Sırası:
-   ▼ syntax = "proto3"; gibi sözdizimi beyanını içeren tam .proto dosyası
-   ▼ Veri türü adı (örn: Tür adı: DeviceStatusReport)
-   ▼ Örnek girdi verileri
-   
-   // Örnek yapı
-   ## Şema
-   Geçerli Şema'nın açıklaması, önemli alanların amacını açıklayın (markdown normal paragraf biçimini kullanın)
-   syntax = "proto3";
-   message DeviceReport {
-     string device_id = 1;
-     int32 value = 2;
-     string firmware = 3;
-   }
-   
-   ## Tür adı (markdown kod bloğu formatını kullanın)
-   DeviceReport
-   
-   ## Örnek veri
-   {
-     "device_id": "dev12345",
-     "value": 100,
-     "firmware": "1.0.0"
-   }
-   
-2. Avro Çıktı Sırası:
-   ▼ Tam .avsc dosyası
-   ▼ Örnek girdi verileri
-   
-   // Örnek yapı
-   ## Şema
-   Geçerli Şema'nın açıklaması, önemli alanların amacını açıklayın (markdown normal paragraf biçimini kullanın)
-   {
-     "type": "record",
-     "name": "Person",
-     "fields": [
-       {"name": "id", "type": "int"},
-       {"name": "name", "type": "string"}
-     ]
-   }
-==== Notlar ====
-1. Protobuf Özel Gereksinimleri:
-   - Enum değerleri tamsayı değerleri kullanmalı, örnek veriler enum'lara karşılık gelen tamsayı değerlerini kullanmalıdır (örn: status: 2)
-2. JSON formatında örnek veriler sağlayın ve Şemada tanımlanan tüm alanların dahil edildiğinden, alan adlarının tam olarak eşleştiğinden ve hiçbir eksiklik olmadığından emin olun
-3. Tüm kod ve veriler, kolay kopyalama ve görüntüleme için markdown kod bloğu formatında çıktılanmalıdır
-Seçilen kodlama formatı: {0}`,
-
-    hu: `Kérjük, hozzon létre adatsémát és megfelelő mintaadatokat a kiválasztás alapján:
-[Kódolási formátum] => [Generálási mód]
-- Kódolási formátum opciók: Protobuf | Avro
-- Generálási mód opciók:
-  ├─ Egyéni követelmények generálása (kérjük, töltse ki az alábbi leírást)
-  └─ Előre beállított forgatókönyvek:
-     │ Okosotthon eszköz állapotjelentés
-     │ Ipari berendezés riasztási üzenet
-     │ Hálózatba kapcsolt jármű telemetriai adatok
-     │ Okos mérőóra valós idejű leolvasások
-==== Egyéni mód ====
-Részletesen írja le az adatszerkezeti követelményeket (pl.: "tartalmaz állapottal rendelkező szenzor adatokat, milliszekundum pontosságú időbélyeg szükséges"), megadhat minta mezőadatokat a követelmények jobb megértéséhez
-==== Előre beállított forgatókönyv jellemzők ====
-▶ Okosotthon eszköz állapotjelentés
-  - Kötelező mezők: device_id (sztring), status (felsorolás), temperature (ingadozási tartománnyal)
-  - Opcionális kiterjesztések: online állapot, firmware verzió, jelerősség
-▶ Ipari berendezés riasztási üzenet
-  - Kötelező mezők: alarm_code (egész szám), severity (felsorolás), timestamp (időbélyeg)
-  - Opcionális kiterjesztések: eszköz koordináták, kapcsolódó munkarendelési szám, helyreállítási javaslatok
-▶ Hálózatba kapcsolt jármű telemetriai adatok
-  - Kötelező mezők: vin (sztring), gps (koordináta objektum), speed (ingadozó érték)
-  - Opcionális kiterjesztések: maradék akkumulátor, gumiabroncs nyomás tömb, vezetési mód
-▶ Okos mérőóra valós idejű leolvasások
-  - Kötelező mezők: meter_id (fix hosszúságú sztring), voltage (pontossággal rendelkező érték), timestamp (ISO8601)
-  - Opcionális kiterjesztések: fázis egyensúlytalanság, anomália esemény jelzők
-==== Generálási szabályok ====
-1. Protobuf kimeneti sorrend:
-   ▼ Teljes .proto fájl, beleértve a szintaxis deklarációt, mint syntax = "proto3";
-   ▼ Adattípus neve (pl.: Típus neve: DeviceStatusReport)
-   ▼ Minta bemeneti adatok
-   
-   // Példa struktúra
-   ## Séma
-   A jelenlegi séma leírása, amely ismerteti a fontos mezők szerepét (markdown sima bekezdést használjon)
-   syntax = "proto3";
-   message DeviceReport {
-     string device_id = 1;
-     int32 value = 2;
-     string firmware = 3;
-   }
-   
-   ## Típus neve (markdown kódblokk formátumban)
-   DeviceReport
-   
-   ## Minta adatok
-   {
-     "device_id": "dev12345",
-     "value": 100,
-     "firmware": "1.0.0"
-   }
-   
-2. Avro kimeneti sorrend:
-   ▼ Teljes .avsc fájl
-   ▼ Minta bemeneti adatok
-   
-   // Példa struktúra
-   ## Séma
-   A jelenlegi séma leírása, amely ismerteti a fontos mezők szerepét (markdown sima bekezdést használjon)
-   {
-     "type": "record",
-     "name": "Person",
-     "fields": [
-       {"name": "id", "type": "int"},
-       {"name": "name", "type": "string"}
-     ]
-   }
-==== Megjegyzések ====
-1. Protobuf speciális követelmények:
-   - A felsorolás értékeknek egész számokat kell használniuk, a mintaadatokban a felsorolásoknak megfelelő egész számértékeket kell használni (pl.: status: 2)
-2. Biztosítson JSON formátumú mintaadatokat, és győződjön meg arról, hogy a Sémában definiált összes mező szerepel, a mezőnevek pontosan egyeznek, nincsenek kihagyások
-3. Minden kódot és adatot markdown kódblokk formátumban kell kimenetre küldeni a könnyű másolás és megtekintés érdekében
-Választott kódolási formátum: {0}`,
-  },
   promptSchemaCustomRequirement: {
     zh: '请根据需求生成对应的数据 Schema 和示例数据，描述需求：',
     en: 'Please generate the corresponding data schema and example data according to the requirements, describe the requirements:',
     tr: 'lütfen gereksinimlere göre karşılık gelen veri şemasını ve örnek verileri oluşturun, gereksinimleri açıklayın:',
     ja: '要件に従って対応するデータスキーマと例示データを生成してください。要件を説明してください：',
     hu: 'kérem generálja a megfelelő adatsémát és példaadatokat az igényeknek megfelelően, írja le az igényeket:',
+  },
+  promptCustomPayload: {
+    zh: '请根据需求生成对应的测试数据，描述需求：',
+    en: 'Please generate the corresponding test data according to the requirements, describe the requirements:',
+    tr: 'lütfen gereksinimlere göre karşılık gelen test verilerini oluşturun, gereksinimleri açıklayın:',
+    ja: '要件に従って対応するテストデータを生成してください。要件を説明してください：',
+    hu: 'kérem generálja a megfelelő tesztadatokat az igényeknek megfelelően, írja le az igényeket:',
+  },
+  askEMQX: {
+    zh: '询问 EMQX 相关问题',
+    en: 'Ask EMQX related questions',
+    tr: 'EMQX ilgili sorunları sor',
+    ja: 'EMQX関連の質問を尋ねる',
+    hu: 'EMQX kapcsolatos kérdéseket kérdezhet',
+  },
+  promptAskEMQX: {
+    zh: '请输入 EMQX 任意相关的问题，问题描述：',
+    en: 'Please input any related question about EMQX, describe the question:',
+    tr: 'EMQX ilgili herhangi bir soruyu girin, soruyu açıklayın:',
+    ja: 'EMQX関連の質問を入力してください。質問を説明してください：',
+    hu: 'Kérjük, bármilyen kapcsolódó kérdést EMQX-re írjon be, a kérdés leírását:',
+  },
+  askMQTTFaq: {
+    zh: '询问 MQTT 相关问题',
+    en: 'Ask MQTT related questions',
+    tr: 'MQTT ilgili sorunları sor',
+    ja: 'MQTT関連の質問を尋ねる',
+    hu: 'MQTT kapcsolatos kérdéseket kérdezhet',
+  },
+  promptAskMQTTFaq: {
+    zh: '请输入 MQTT 相关问题，问题描述：',
+    en: 'Please input any related question about MQTT, describe the question:',
+    tr: 'MQTT ilgili herhangi bir soruyu girin, soruyu açıklayın:',
+    ja: 'MQTT関連の質問を入力してください。質問を説明してください：',
+    hu: 'Kérjük, bármilyen kapcsolódó kérdést MQTT-re írjon be, a kérdés leírását:',
   },
 }

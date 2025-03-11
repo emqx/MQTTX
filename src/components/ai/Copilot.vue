@@ -32,10 +32,11 @@ import CopilotHeader from './CopilotHeader.vue'
 import CopilotMessages from './CopilotMessages.vue'
 import CopilotInput from './CopilotInput.vue'
 import { streamText } from 'ai'
-import { SYSTEM_PROMPT, getModelProvider } from '@/utils/ai/copilot'
+import { loadSystemPrompt, getModelProvider } from '@/utils/ai/copilot'
 import { throttle } from 'lodash'
 import ConnectionsIndex from '@/views/connections/index.vue'
 import { CopilotMessage, CopilotRole, CopilotPresetPrompt, StreamError } from '@/types/copilot'
+import { needsUserInput } from '@/utils/ai/preset'
 
 @Component({
   components: {
@@ -48,25 +49,25 @@ export default class Copilot extends Vue {
   @Getter('openAIAPIHost') private openAIAPIHost!: string
   @Getter('openAIAPIKey') private openAIAPIKey!: string
   @Getter('model') private model!: App['model']
+  @Getter('currentLang') private currentLang!: Language
 
   public showCopilot = false
   private page = 1
   private hasMore = true
   private isLoading = false
   private messages: CopilotMessage[] = []
-  private systemMessages: CopilotMessage[] = [
-    {
-      id: 'system-id',
-      role: 'system',
-      content: SYSTEM_PROMPT,
-    },
-  ]
   private currentPublishMsg = ''
   private isSending = false
   private isResponseStream = false
   private responseStreamText = ''
   private currPresetPrompt = ''
   private abortController: AbortController | null = null
+
+  private systemMessage = {
+    id: 'system-id',
+    role: 'system',
+    content: '',
+  }
 
   /**
    * Finds the current connection record from ConnectionsDetail component
@@ -151,10 +152,10 @@ export default class Copilot extends Vue {
 
   private buildMessageHistory(): Array<{ role: CopilotRole; content: string }> {
     return [
-      ...this.systemMessages.map(({ role, content }) => ({
-        role,
-        content,
-      })),
+      {
+        role: this.systemMessage.role as 'system',
+        content: loadSystemPrompt(this.currentLang, this.currPresetPrompt),
+      },
       ...this.messages.slice(-20).map(({ role, content }) => {
         if (content.includes('@connection')) {
           const currentRecord = this.getCurrentConnectionRecord()
@@ -189,7 +190,7 @@ export default class Copilot extends Vue {
   private async streamAIResponse(apiKey: string, responseMessage: CopilotMessage): Promise<void> {
     this.responseStreamText = ''
     this.isResponseStream = true
-    const throttledScroll = throttle(() => this.scrollToBottom(), 500)
+    const throttledScroll = throttle(() => this.scrollToBottom(), 100)
 
     this.abortController = new AbortController()
     const { textStream } = streamText({
@@ -255,13 +256,7 @@ export default class Copilot extends Vue {
       const { messages: newMessages, hasMore } = await copilotService.get(this.page)
       this.hasMore = hasMore
       this.messages = this.removeDuplicatesMessages([...(newMessages as CopilotMessage[]), ...this.messages])
-      if (this.messages.length === 0) {
-        this.messages.push({
-          id: getCopilotMessageId(),
-          role: 'assistant',
-          content: this.$tc('copilot.welcomeToCopilot'),
-        })
-      } else {
+      if (this.messages.length !== 0) {
         this.scrollToBottom('auto')
       }
     } finally {
@@ -311,14 +306,9 @@ export default class Copilot extends Vue {
     if (typeof userPrompt === 'string') {
       this.currentPublishMsg = userPrompt
 
-      const needsUserInput = [
-        'emqxLogAnalysis',
-        'customRequirementGenerateFunc',
-        'protobufCustomRequirementGenerateSchema',
-        'avroCustomRequirementGenerateSchema',
-      ].includes(this.currPresetPrompt)
+      const isNeedsUserInput = needsUserInput.includes(this.currPresetPrompt)
 
-      if (needsUserInput) {
+      if (isNeedsUserInput) {
         this.$nextTick(() => {
           const inputComponent = this.$refs.copilotInput as Vue & { focus: () => void }
           if (inputComponent && typeof inputComponent.focus === 'function') {

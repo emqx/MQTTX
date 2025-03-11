@@ -8,102 +8,85 @@
 </template>
 
 <script lang="ts">
-import VueI18n from 'vue-i18n'
 import { Component, Vue } from 'vue-property-decorator'
-import { PresetPromptMap, PresetPromptOption } from '@/types/copilot'
+import { PresetPromptMap, PresetPromptOption, PromptOptionDefinition } from '@/types/copilot'
+import {
+  PROGRAMMING_LANGUAGES,
+  HARDWARE_PLATFORMS,
+  MOBILE_APPS,
+  WEB_APPS,
+  PAYLOAD_OPTIONS,
+  MQTT_FAQ_OPTIONS,
+  EMQX_OPTIONS,
+  EXPLAINER_OPTIONS,
+  CUSTOM_FUNCTION_OPTIONS,
+  PROTOBUF_SCHEMA_OPTIONS,
+  AVRO_SCHEMA_OPTIONS,
+} from '@/utils/ai/preset'
 
 @Component
 export default class PresetPromptSelect extends Vue {
-  private langOptions: PresetPromptOption[] = [
-    { value: 'javascript', label: 'JavaScript' },
-    { value: 'python', label: 'Python' },
-    { value: 'java', label: 'Java' },
-    { value: 'go', label: 'Go' },
-    { value: 'c', label: 'C' },
-    { value: 'cpp', label: 'C++' },
-    { value: 'csharp', label: 'C#' },
-    { value: 'php', label: 'PHP' },
-    { value: 'swift', label: 'Swift' },
-    { value: 'kotlin', label: 'Kotlin' },
-    { value: 'rust', label: 'Rust' },
-    { value: 'dart', label: 'Dart' },
-    { value: 'erlang', label: 'Erlang' },
-  ]
+  private langOptions: PresetPromptOption[] = PROGRAMMING_LANGUAGES.map((option) => ({
+    value: option.value,
+    label: option.labelKey,
+  }))
 
-  private hardwareOptions: PresetPromptOption[] = [
-    { value: 'esp32', label: 'ESP32' },
-    { value: 'esp8266', label: 'ESP8266' },
-    { value: 'arduino', label: 'Arduino' },
-    { value: 'raspberryPi', label: 'Raspberry Pi' },
-  ]
+  private hardwareOptions: PresetPromptOption[] = HARDWARE_PLATFORMS.map((option) => ({
+    value: option.value,
+    label: option.labelKey,
+  }))
 
-  private mobileAppsOptions: PresetPromptOption[] = [
-    { value: 'android', label: 'Android' },
-    { value: 'ios', label: 'iOS' },
-    { value: 'reactNative', label: 'React Native' },
-    { value: 'flutter', label: 'Flutter' },
-  ]
+  private mobileAppsOptions: PresetPromptOption[] = MOBILE_APPS.map((option) => ({
+    value: option.value,
+    label: option.labelKey,
+  }))
 
-  private webAppsOptions: PresetPromptOption[] = [
-    { value: 'react', label: 'React' },
-    { value: 'vuejs', label: 'Vue.js' },
-  ]
+  private webAppsOptions: PresetPromptOption[] = WEB_APPS.map((option) => ({
+    value: option.value,
+    label: option.labelKey,
+  }))
 
-  private payloadOptions: PresetPromptOption[] = [
-    { value: 'genSimpleIoTPayload', label: this.$tc('copilot.genSimpleIoTPayload') },
-    { value: 'genComplexIoTPayload', label: this.$tc('copilot.genComplexIoTPayload') },
-    { value: 'genConnectedCarPayload', label: this.$tc('copilot.genConnectedCarPayload') },
-    { value: 'genSmartHomePayload', label: this.$tc('copilot.genSmartHomePayload') },
-    { value: 'genIndustrialIoTPayload', label: this.$tc('copilot.genIndustrialIoTPayload') },
-  ]
+  private payloadOptions: PresetPromptOption[] = PAYLOAD_OPTIONS.map((option) => ({
+    value: option.value,
+    label: this.$tc(`copilot.${option.labelKey}`),
+  }))
 
-  private emqxOptions: PresetPromptOption[] = [
-    { value: 'installEMQX', label: this.$t('copilot.installEMQX') },
-    { value: 'emqxRule', label: this.$t('copilot.emqxRule') },
-    { value: 'emqxLogAnalysis', label: this.$t('copilot.emqxLogAnalysis') },
-  ]
+  private emqxOptions: PresetPromptOption[] = EMQX_OPTIONS.map((option) => ({
+    value: option.value,
+    label: this.$t(`copilot.${option.labelKey}`),
+  }))
 
-  private mqttOptions: PresetPromptOption[] = [
-    { value: 'mqttProtocol', label: this.$tc('copilot.mqttProtocol') },
-    { value: 'mqtt5', label: this.$tc('copilot.whatIsMQTT5') },
-    { value: 'mqttQoS', label: this.$tc('copilot.mqttQoS') },
-    { value: 'mqttRetain', label: this.$tc('copilot.mqttRetain') },
-  ]
+  private mqttOptions: PresetPromptOption[] = MQTT_FAQ_OPTIONS.map((option) => ({
+    value: option.value,
+    label: this.$tc(`copilot.${option.labelKey}`),
+  }))
 
-  private explainOptions: PresetPromptOption[] = [
-    { value: 'connectionInfo', label: this.$t('copilot.currentConnectionInfo') },
-    { value: 'genTestDoc', label: this.$t('copilot.genTestDoc') },
-  ]
+  private explainOptions: PresetPromptOption[] = EXPLAINER_OPTIONS.map((option) => ({
+    value: option.value,
+    label: this.$t(`copilot.${option.labelKey}`),
+  }))
 
-  private customFunctionOptions: PresetPromptOption[] = [
-    { value: 'customRequirementGenerateFunc', label: this.$t('copilot.customRequirementGenerate') },
-    { value: 'simulateWeatherData', label: this.$t('copilot.simulateWeatherData') },
-    { value: 'dynamicCommandSwitch', label: this.$t('copilot.dynamicCommandSwitch') },
-    { value: 'timeFormatProcessing', label: this.$t('copilot.timeFormatProcessing') },
-  ]
+  private customFunctionOptions: PresetPromptOption[] = CUSTOM_FUNCTION_OPTIONS.map((option) => ({
+    value: option.value,
+    label: this.$t(`copilot.${option.labelKey}`),
+  }))
 
   private schemaOptions: PresetPromptOption[] = [
     {
       value: 'Protobuf',
       label: 'Protobuf',
-      children: [
-        { value: 'protobufCustomRequirementGenerateSchema', label: this.$t('copilot.customRequirementGenerate') },
-        { value: 'protobufReportSmartHomeStatus', label: this.$t('copilot.reportSmartHomeStatus') },
-        { value: 'protobufIndustrialDeviceAlarm', label: this.$t('copilot.industrialDeviceAlarm') },
-        { value: 'protobufConnectedCarTelemetry', label: this.$t('copilot.connectedCarTelemetry') },
-        { value: 'protobufSmartMeterReadings', label: this.$t('copilot.smartMeterReadings') },
-      ],
+      children: PROTOBUF_SCHEMA_OPTIONS.map((option) => ({
+        value: option.value,
+        label: this.$t(`copilot.${option.labelKey}`),
+      })),
     },
     {
       value: 'Avro',
       label: 'Avro',
-      children: [
-        { value: 'avroCustomRequirementGenerateSchema', label: this.$t('copilot.customRequirementGenerate') },
-        { value: 'avroReportSmartHomeStatus', label: this.$t('copilot.reportSmartHomeStatus') },
-        { value: 'avroIndustrialDeviceAlarm', label: this.$t('copilot.industrialDeviceAlarm') },
-        { value: 'avroConnectedCarTelemetry', label: this.$t('copilot.connectedCarTelemetry') },
-        { value: 'avroSmartMeterReadings', label: this.$t('copilot.smartMeterReadings') },
-      ],
+      children: AVRO_SCHEMA_OPTIONS.map((option) => ({
+        value: option.value,
+        label: this.$t(`copilot.${option.labelKey}`),
+      })),
     },
   ]
 
@@ -170,106 +153,52 @@ export default class PresetPromptSelect extends Vue {
   }
 
   get presetPromptsMap(): PresetPromptMap {
-    return {
-      javascript: this.$t('copilot.promptProgrammingLanguage', ['JavaScript', '@connection']),
-      python: this.$t('copilot.promptProgrammingLanguage', ['Python', '@connection']),
-      java: this.$t('copilot.promptProgrammingLanguage', ['Java', '@connection']),
-      go: this.$t('copilot.promptProgrammingLanguage', ['Go', '@connection']),
-      c: this.$t('copilot.promptProgrammingLanguage', ['C', '@connection']),
-      cpp: this.$t('copilot.promptProgrammingLanguage', ['C++', '@connection']),
-      csharp: this.$t('copilot.promptProgrammingLanguage', ['C#', '@connection']),
-      php: this.$t('copilot.promptProgrammingLanguage', ['PHP', '@connection']),
-      swift: this.$t('copilot.promptProgrammingLanguage', ['Swift', '@connection']),
-      kotlin: this.$t('copilot.promptProgrammingLanguage', ['Kotlin', '@connection']),
-      rust: this.$t('copilot.promptProgrammingLanguage', ['Rust', '@connection']),
-      dart: this.$t('copilot.promptProgrammingLanguage', ['Dart', '@connection']),
-      erlang: this.$t('copilot.promptProgrammingLanguage', ['Erlang', '@connection']),
-      react: this.$t('copilot.promptProgrammingLanguage', ['React', '@connection']),
-      vuejs: this.$t('copilot.promptProgrammingLanguage', ['Vue.js', '@connection']),
-      reactNative: this.$t('copilot.promptProgrammingLanguage', ['React Native', '@connection']),
-      flutter: this.$t('copilot.promptProgrammingLanguage', ['Flutter', '@connection']),
-      esp32: this.$t('copilot.promptProgrammingLanguage', ['ESP32', '@connection']),
-      esp8266: this.$t('copilot.promptProgrammingLanguage', ['ESP8266', '@connection']),
-      arduino: this.$t('copilot.promptProgrammingLanguage', ['Arduino', '@connection']),
-      raspberryPi: this.$t('copilot.promptProgrammingLanguage', ['Raspberry Pi', '@connection']),
-      android: this.$t('copilot.promptProgrammingLanguage', ['Android', '@connection']),
-      ios: this.$t('copilot.promptProgrammingLanguage', ['iOS', '@connection']),
-      genSimpleIoTPayload: `${this.$t('copilot.promptGenSimpleIoTPayload')}${this.$t('copilot.genPayloadFormat')}`,
-      genComplexIoTPayload: `${this.$t('copilot.promptGenComplexIoTPayload')}${this.$t('copilot.genPayloadFormat')}`,
-      genConnectedCarPayload: `${this.$t('copilot.promptGenConnectedCarPayload')}${this.$t(
-        'copilot.genPayloadFormat',
-      )}`,
-      genSmartHomePayload: `${this.$t('copilot.promptGenSmartHomePayload')}${this.$t('copilot.genPayloadFormat')}`,
-      genIndustrialIoTPayload: `${this.$t('copilot.promptGenIndustrialIoTPayload')}${this.$t(
-        'copilot.genPayloadFormat',
-      )}`,
-      mqttProtocol: this.$t('copilot.mqttProtocol'),
-      mqtt5: this.$t('copilot.whatIsMQTT5Desc'),
-      mqttQoS: this.$t('copilot.mqttQoSDesc'),
-      mqttRetain: this.$t('copilot.mqttRetainDesc'),
-      installEMQX: this.$t('copilot.installEMQX'),
-      emqxRule: this.$t('copilot.promptEmqxRule'),
-      connectionInfo: this.$t('copilot.promptCurrentConnectionInfo', ['@connection']),
-      genTestDoc: this.$t('copilot.promptGenTestDoc', ['@connection']),
-      emqxLogAnalysis: this.$t('copilot.promptEmqxLogAnalysis'),
-      customRequirementGenerateFunc: {
-        system: this.$t('copilot.promptCustomFunction'),
-        user: this.$t('copilot.promptCustomFunctionCustomRequirement'),
-      },
-      simulateWeatherData: {
-        system: this.$t('copilot.promptCustomFunction'),
-        user: this.$t('copilot.simulateWeatherData'),
-      },
-      dynamicCommandSwitch: {
-        system: this.$t('copilot.promptCustomFunction'),
-        user: this.$t('copilot.dynamicCommandSwitch'),
-      },
-      timeFormatProcessing: {
-        system: this.$t('copilot.promptCustomFunction'),
-        user: this.$t('copilot.timeFormatProcessing'),
-      },
-      protobufCustomRequirementGenerateSchema: {
-        system: this.$t('copilot.promptSchema', ['Protobuf']),
-        user: this.$t('copilot.promptSchemaCustomRequirement'),
-      },
-      protobufReportSmartHomeStatus: {
-        system: this.$t('copilot.promptSchema', ['Protobuf']),
-        user: this.$t('copilot.reportSmartHomeStatus'),
-      },
-      protobufIndustrialDeviceAlarm: {
-        system: this.$t('copilot.promptSchema', ['Protobuf']),
-        user: this.$t('copilot.industrialDeviceAlarm'),
-      },
-      protobufConnectedCarTelemetry: {
-        system: this.$t('copilot.promptSchema', ['Protobuf']),
-        user: this.$t('copilot.connectedCarTelemetry'),
-      },
-      protobufSmartMeterReadings: {
-        system: this.$t('copilot.promptSchema', ['Protobuf']),
-        user: this.$t('copilot.smartMeterReadings'),
-      },
-      avroCustomRequirementGenerateSchema: {
-        system: this.$t('copilot.promptSchema', ['Avro']),
-        user: this.$t('copilot.promptSchemaCustomRequirement'),
-      },
-      avroReportSmartHomeStatus: {
-        system: this.$t('copilot.promptSchema', ['Avro']),
-        user: this.$t('copilot.reportSmartHomeStatus'),
-      },
-      avroIndustrialDeviceAlarm: {
-        system: this.$t('copilot.promptSchema', ['Avro']),
-        user: this.$t('copilot.industrialDeviceAlarm'),
-      },
-      avroConnectedCarTelemetry: {
-        system: this.$t('copilot.promptSchema', ['Avro']),
-        user: this.$t('copilot.connectedCarTelemetry'),
-      },
-      avroSmartMeterReadings: {
-        system: this.$t('copilot.promptSchema', ['Avro']),
-        user: this.$t('copilot.smartMeterReadings'),
-      },
+    // Create a function to build prompt text from PromptOptionDefinition
+    const buildPromptFromOption = (option: PromptOptionDefinition): any => {
+      if (typeof option.prompt === 'string') {
+        if (option.params && option.params.length > 0) {
+          // If there are parameters, apply i18n and pass in parameters
+          return this.$t(`copilot.${option.prompt}`, option.params)
+        }
+        return this.$t(`copilot.${option.prompt}`)
+      } else {
+        // For objects with system and user prompts
+        return {
+          system:
+            option.params && option.params.length > 0
+              ? this.$t(`copilot.${option.prompt.system}`, option.params)
+              : this.$t(`copilot.${option.prompt.system}`),
+          user: this.$t(`copilot.${option.prompt.user}`),
+        }
+      }
     }
+
+    // Create a function to map all options to prompts
+    const mapOptionsToPrompts = (options: PromptOptionDefinition[]): { [key: string]: any } => {
+      return options.reduce((result, option) => {
+        result[option.value] = buildPromptFromOption(option)
+        return result
+      }, {} as { [key: string]: any })
+    }
+
+    // Combine all option groups
+    const allOptions = [
+      ...PROGRAMMING_LANGUAGES,
+      ...HARDWARE_PLATFORMS,
+      ...MOBILE_APPS,
+      ...WEB_APPS,
+      ...PAYLOAD_OPTIONS,
+      ...MQTT_FAQ_OPTIONS,
+      ...EMQX_OPTIONS,
+      ...EXPLAINER_OPTIONS,
+      ...CUSTOM_FUNCTION_OPTIONS,
+      ...PROTOBUF_SCHEMA_OPTIONS,
+      ...AVRO_SCHEMA_OPTIONS,
+    ]
+
+    return mapOptionsToPrompts(allOptions)
   }
+
   private handleChange(val: string) {
     this.$emit('onChange', val, this.presetPromptsMap)
   }
