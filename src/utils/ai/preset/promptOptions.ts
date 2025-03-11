@@ -297,6 +297,8 @@ export const EXPLAINER_OPTIONS: PromptOptionDefinition[] = [
   },
 ]
 
+export const EXPLAINER_COMMAND_VALUES = EXPLAINER_OPTIONS.map((option) => option.value)
+
 /**
  * Custom function options
  */
@@ -304,36 +306,26 @@ export const CUSTOM_FUNCTION_OPTIONS: PromptOptionDefinition[] = [
   {
     value: 'customRequirementGenerateFunc',
     labelKey: 'customRequirementGenerate',
-    prompt: {
-      system: 'promptCustomFunction',
-      user: 'promptCustomFunctionCustomRequirement',
-    },
+    prompt: 'promptCustomFunctionCustomRequirement',
   },
   {
     value: 'simulateWeatherData',
     labelKey: 'simulateWeatherData',
-    prompt: {
-      system: 'promptCustomFunction',
-      user: 'simulateWeatherData',
-    },
+    prompt: 'simulateWeatherData',
   },
   {
     value: 'dynamicCommandSwitch',
     labelKey: 'dynamicCommandSwitch',
-    prompt: {
-      system: 'promptCustomFunction',
-      user: 'dynamicCommandSwitch',
-    },
+    prompt: 'dynamicCommandSwitch',
   },
   {
     value: 'timeFormatProcessing',
     labelKey: 'timeFormatProcessing',
-    prompt: {
-      system: 'promptCustomFunction',
-      user: 'timeFormatProcessing',
-    },
+    prompt: 'timeFormatProcessing',
   },
 ]
+
+export const CUSTOM_FUNCTION_COMMAND_VALUES = CUSTOM_FUNCTION_OPTIONS.map((option) => option.value)
 
 /**
  * Protobuf Schema options
@@ -342,50 +334,35 @@ export const PROTOBUF_SCHEMA_OPTIONS: PromptOptionDefinition[] = [
   {
     value: 'protobufCustomRequirementGenerateSchema',
     labelKey: 'customRequirementGenerate',
-    prompt: {
-      system: 'promptSchema',
-      user: 'promptSchemaCustomRequirement',
-    },
+    prompt: 'promptSchemaCustomRequirement',
     params: ['Protobuf'],
   },
   {
     value: 'protobufReportSmartHomeStatus',
     labelKey: 'reportSmartHomeStatus',
-    prompt: {
-      system: 'promptSchema',
-      user: 'reportSmartHomeStatus',
-    },
+    prompt: 'reportSmartHomeStatus',
     params: ['Protobuf'],
   },
   {
     value: 'protobufIndustrialDeviceAlarm',
     labelKey: 'industrialDeviceAlarm',
-    prompt: {
-      system: 'promptSchema',
-      user: 'industrialDeviceAlarm',
-    },
+    prompt: 'industrialDeviceAlarm',
     params: ['Protobuf'],
   },
   {
     value: 'protobufConnectedCarTelemetry',
     labelKey: 'connectedCarTelemetry',
-    prompt: {
-      system: 'promptSchema',
-      user: 'connectedCarTelemetry',
-    },
+    prompt: 'connectedCarTelemetry',
     params: ['Protobuf'],
   },
   {
     value: 'protobufSmartMeterReadings',
     labelKey: 'smartMeterReadings',
-    prompt: {
-      system: 'promptSchema',
-      user: 'smartMeterReadings',
-    },
+    prompt: 'smartMeterReadings',
     params: ['Protobuf'],
   },
 ]
-
+export const PROTOBUF_SCHEMA_COMMAND_VALUES = PROTOBUF_SCHEMA_OPTIONS.map((option) => option.value)
 /**
  * Avro Schema options
  */
@@ -393,46 +370,35 @@ export const AVRO_SCHEMA_OPTIONS: PromptOptionDefinition[] = [
   {
     value: 'avroCustomRequirementGenerateSchema',
     labelKey: 'customRequirementGenerate',
-    prompt: {
-      system: 'promptSchema',
-      user: 'promptSchemaCustomRequirement',
-    },
+    prompt: 'promptSchemaCustomRequirement',
     params: ['Avro'],
   },
   {
     value: 'avroReportSmartHomeStatus',
     labelKey: 'reportSmartHomeStatus',
-    prompt: {
-      system: 'promptSchema',
-      user: 'reportSmartHomeStatus',
-    },
+    prompt: 'reportSmartHomeStatus',
     params: ['Avro'],
   },
   {
     value: 'avroIndustrialDeviceAlarm',
     labelKey: 'industrialDeviceAlarm',
-    prompt: {
-      system: 'promptSchema',
-      user: 'industrialDeviceAlarm',
-    },
+    prompt: 'industrialDeviceAlarm',
     params: ['Avro'],
   },
   {
     value: 'avroConnectedCarTelemetry',
     labelKey: 'connectedCarTelemetry',
-    prompt: {
-      system: 'promptSchema',
-      user: 'connectedCarTelemetry',
-    },
+    prompt: 'connectedCarTelemetry',
     params: ['Avro'],
   },
   {
     value: 'avroSmartMeterReadings',
     labelKey: 'smartMeterReadings',
-    prompt: {
-      system: 'promptSchema',
-      user: 'smartMeterReadings',
-    },
+    prompt: 'smartMeterReadings',
     params: ['Avro'],
   },
 ]
+
+export const AVRO_SCHEMA_COMMAND_VALUES = AVRO_SCHEMA_OPTIONS.map((option) => option.value)
+
+export const ALL_SCHEMA_COMMAND_VALUES = [...PROTOBUF_SCHEMA_COMMAND_VALUES, ...AVRO_SCHEMA_COMMAND_VALUES]

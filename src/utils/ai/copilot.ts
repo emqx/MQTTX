@@ -8,11 +8,15 @@ import clientCodeGen from './prompts/clientCodeGen.txt'
 import payloadGen from './prompts/payloadGen.txt'
 import emqxGuide from './prompts/emqxGuide.txt'
 import mqttFaq from './prompts/mqttFaq.txt'
+import funcGen from './prompts/funcGen.txt'
+import schemaGen from './prompts/schemaGen.txt'
 import {
   ALL_CODE_GENERATION_COMMAND_VALUES,
   PAYLOAD_GENERATION_COMMAND_VALUES,
   EMQX_COMMAND_VALUES,
   MQTT_FAQ_COMMAND_VALUES,
+  CUSTOM_FUNCTION_COMMAND_VALUES,
+  ALL_SCHEMA_COMMAND_VALUES,
 } from './preset'
 
 const LANGUAGE_MAP = {
@@ -44,6 +48,16 @@ export const loadSystemPrompt = (lang: Language, command?: string) => {
   // Check if the command is related to MQTT FAQ
   if (command && MQTT_FAQ_COMMAND_VALUES.includes(command)) {
     _basePrompt = `${_basePrompt}\n\n${mqttFaq}`
+  }
+
+  // Check if the command is related to custom function
+  if (command && CUSTOM_FUNCTION_COMMAND_VALUES.includes(command)) {
+    _basePrompt = `${_basePrompt}\n\n${funcGen}`
+  }
+
+  // Check if the command is related to schema generation
+  if (command && ALL_SCHEMA_COMMAND_VALUES.includes(command)) {
+    _basePrompt = `${_basePrompt}\n\n${schemaGen}`
   }
 
   return `${_basePrompt}\n\n${LANGUAGE_MAP[lang]}`
