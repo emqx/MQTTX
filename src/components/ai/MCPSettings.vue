@@ -103,7 +103,17 @@
             <span class="server-name">{{ name }}</span>
             <el-button size="mini" type="danger" icon="el-icon-delete" @click="removeMCPServer(name)"></el-button>
           </div>
-          <div class="server-command">{{ server.command }} {{ server.args.join(' ') }}</div>
+          <div class="server-command">
+            {{ server.command }} {{ server.args.join(' ') }}
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-document-copy"
+              class="copy-btn"
+              @click="copyCommand(server.command + ' ' + server.args.join(' '))"
+              title="复制命令"
+            ></el-button>
+          </div>
         </el-card>
       </div>
     </div>
@@ -111,7 +121,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import Editor from '@/components/Editor.vue'
 
@@ -228,6 +238,39 @@ export default class MCPSettings extends Vue {
   private handleEditorFocus() {
     // 清除错误信息
     this.mcpConfigError = ''
+  }
+
+  /**
+   * 复制命令到剪贴板
+   */
+  private copyCommand(command: string) {
+    const textArea = document.createElement('textarea')
+    textArea.value = command
+    document.body.appendChild(textArea)
+    textArea.select()
+
+    try {
+      const successful = document.execCommand('copy')
+      if (successful) {
+        this.$message({
+          message: '命令已复制到剪贴板',
+          type: 'success',
+          duration: 2000,
+        })
+      } else {
+        this.$message({
+          message: '复制失败，请手动选择并复制',
+          type: 'warning',
+        })
+      }
+    } catch (err) {
+      this.$message({
+        message: '复制失败，请手动选择并复制',
+        type: 'warning',
+      })
+    }
+
+    document.body.removeChild(textArea)
   }
 
   /**
@@ -354,6 +397,20 @@ export default class MCPSettings extends Vue {
     background-color: var(--color-bg-lighter);
     padding: 8px;
     border-radius: 4px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .copy-btn {
+      margin-left: 8px;
+      opacity: 0.7;
+      transition: opacity 0.2s ease-in-out;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
   }
 }
 </style>
