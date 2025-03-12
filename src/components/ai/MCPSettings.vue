@@ -103,6 +103,7 @@
             <span class="server-name">{{ name }}</span>
             <el-button size="mini" type="danger" icon="el-icon-delete" @click="removeMCPServer(name)"></el-button>
           </div>
+
           <div class="server-command">
             {{ server.command }} {{ server.args.join(' ') }}
             <el-button
