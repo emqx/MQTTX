@@ -414,6 +414,8 @@
       </el-row>
       <el-divider></el-divider>
     </div>
+
+    <MCP-settings v-if="enableCopilot" />
   </div>
 </template>
 
@@ -430,9 +432,10 @@ import { ENCRYPT_KEY } from '@/utils/idGenerator'
 import ClickOutside from 'vue-click-outside'
 import _ from 'lodash'
 import { AImodelsOptions, AIAPIHostOptions } from '@/utils/ai/copilot'
+import MCPSettings from '@/components/ai/MCPSettings.vue'
 
 @Component({
-  components: { ImportData, ExportData, ClearUpHistoryData },
+  components: { ImportData, ExportData, ClearUpHistoryData, MCPSettings },
   directives: {
     ClickOutside,
   },
