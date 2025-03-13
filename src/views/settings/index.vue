@@ -420,7 +420,8 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { ipcRenderer, remote } from 'electron'
+import { ipcRenderer } from 'electron'
+import { nativeTheme } from '@electron/remote'
 import ImportData from '@/components/ImportData.vue'
 import ExportData from '@/components/ExportData.vue'
 import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
@@ -518,7 +519,7 @@ export default class Settings extends Vue {
 
   private handleSyncOsThemeSwitchChange(value: boolean) {
     if (value) {
-      const theme = remote.nativeTheme.shouldUseDarkColors ? 'night' : 'light'
+      const theme = nativeTheme.shouldUseDarkColors ? 'night' : 'light'
       this.handleSelectChange('theme', theme)
     }
     this.actionSyncOsTheme({ syncOsTheme: value })

@@ -48,7 +48,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import fs from 'fs'
-import { remote } from 'electron'
+import { dialog } from '@electron/remote'
 import MyDialog from './MyDialog.vue'
 import { ElLoadingComponent } from 'element-ui/types/loading'
 
@@ -81,7 +81,7 @@ export default class ImportScript extends Vue {
   private getFileData() {
     let loading: ElLoadingComponent | undefined = undefined
     const extensions = this.extension === 'avsc' ? ['avsc', 'json'] : [`${this.extension}`]
-    remote.dialog
+    dialog
       .showOpenDialog({
         properties: ['openFile'],
         filters: [{ name: '', extensions }],

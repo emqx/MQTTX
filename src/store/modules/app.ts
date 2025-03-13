@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import useServices from '@/database/useServices'
-import { remote } from 'electron'
+import { getGlobal } from '@electron/remote'
 
 const TOGGLE_THEME = 'TOGGLE_THEME'
 const TOGGLE_LANG = 'TOGGLE_LANG'
@@ -38,7 +38,7 @@ const getShowConnectionList = (): boolean => {
   return JSON.parse(_showConnectionList)
 }
 
-const settingData = remote.getGlobal('sharedData')
+const settingData = getGlobal('sharedData')
 
 const app = {
   state: {

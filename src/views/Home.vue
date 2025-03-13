@@ -12,7 +12,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
-import { remote } from 'electron'
+import { nativeTheme } from '@electron/remote'
 import Ipc from '@/components/Ipc.vue'
 import Leftbar from '@/components/Leftbar.vue'
 import DatabaseError from '@/components/DatabaseError.vue'
@@ -38,7 +38,7 @@ export default class Home extends Vue {
   private updateActive: boolean = false
 
   private setTheme(theme: Theme): void {
-    const { shouldUseDarkColors } = remote.nativeTheme
+    const { shouldUseDarkColors } = nativeTheme
     let currentTheme = theme
     if (this.syncOsTheme) {
       currentTheme = shouldUseDarkColors ? 'night' : 'light'

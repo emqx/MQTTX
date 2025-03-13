@@ -216,7 +216,7 @@
                   </el-form-item>
                 </el-col>
                 <el-col :span="2">
-                  <a href="javascript:;" class="icon-oper" @click="getFilePath('ca')">
+                  <a href="javascript:;" class="icon-oper" @click="getFileContent('ca')">
                     <i class="el-icon-folder-opened"></i>
                   </a>
                 </el-col>
@@ -226,7 +226,7 @@
                   </el-form-item>
                 </el-col>
                 <el-col :span="2">
-                  <a href="javascript:;" class="icon-oper" @click="getFilePath('cert')">
+                  <a href="javascript:;" class="icon-oper" @click="getFileContent('cert')">
                     <i class="el-icon-folder-opened"></i>
                   </a>
                 </el-col>
@@ -236,7 +236,7 @@
                   </el-form-item>
                 </el-col>
                 <el-col :span="2">
-                  <a href="javascript:;" class="icon-oper" @click="getFilePath('key')">
+                  <a href="javascript:;" class="icon-oper" @click="getFileContent('key')">
                     <i class="el-icon-folder-opened"></i>
                   </a>
                 </el-col>
@@ -594,9 +594,9 @@
 </template>
 
 <script lang="ts">
-import { remote } from 'electron'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
+import { dialog } from '@electron/remote'
 import _ from 'lodash'
 import time from '@/utils/time'
 import useServices from '@/database/useServices'
@@ -776,8 +776,8 @@ export default class ConnectionForm extends Vue {
     this.record.clientIdWithTime = !this.record.clientIdWithTime
   }
 
-  private getFilePath(key: 'ca' | 'cert' | 'key') {
-    remote.dialog
+  private getFileContent(key: 'ca' | 'cert' | 'key') {
+    dialog
       .showOpenDialog({
         properties: ['openFile'],
         filters: [{ name: 'CA', extensions: ['crt', 'key', 'pem', 'jks', 'der', 'cer', 'pfx'] }],
