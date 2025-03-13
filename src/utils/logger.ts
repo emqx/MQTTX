@@ -1,12 +1,17 @@
 import log4js from 'log4js'
-import { app, remote } from 'electron'
+import { app } from 'electron'
+// 根据进程类型分别导入不同的 remote 模块
+const isRenderer = process.type === 'renderer'
+// 渲染进程使用 @electron/remote
+// 主进程使用 electron 的 app 模块
+const electronApp = isRenderer ? require('@electron/remote').app : app
 import fs from 'fs-extra'
 import path from 'path'
 
 export const getOrCreateLogDir = () => {
   const isRenderer: boolean = process.type === 'renderer'
   // Render process use remote app
-  const APP: Electron.App = isRenderer ? remote.app : app
+  const APP: Electron.App = isRenderer ? electronApp : app
 
   const STORE_PATH: string = APP.getPath('userData')
   const LOG_DIR: string = path.join(STORE_PATH, 'logs')

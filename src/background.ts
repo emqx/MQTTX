@@ -19,6 +19,7 @@ import useServices from '@/database/useServices'
 import { dialog } from 'electron'
 import ORMConfig from './database/database.config'
 import version from '@/version'
+import { initialize } from '@electron/remote/main'
 
 declare const __static: string
 
@@ -38,8 +39,6 @@ let menu: Menu | null
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }])
-
-app.allowRendererProcessReuse = false
 
 const { ConnectionInit, ConnectionDestroy } = useConnection()
 
@@ -170,7 +169,6 @@ async function createWindow() {
     webPreferences: {
       devTools: isDevelopment,
       webSecurity: false,
-      enableRemoteModule: true,
       nodeIntegration: true,
       contextIsolation: false,
     },
@@ -178,6 +176,12 @@ async function createWindow() {
     backgroundColor: theme === 'dark' ? '#232323' : theme === 'night' ? '#212328' : '#ffffff',
     icon: `${__static}/app.ico`,
   })
+
+  // 初始化 @electron/remote
+  initialize()
+  if (win) {
+    require('@electron/remote/main').enable(win.webContents)
+  }
 
   // Restore window state
   restoreWindowState(win)
@@ -268,12 +272,9 @@ app.on('activate', () => {
 
 // Disabled create new window
 app.on('web-contents-created', (event, contents) => {
-  // tslint:disable-next-line:no-shadowed-variable
-  contents.on('new-window', async (event, navigationUrl) => {
-    // In this example, we'll ask the operating system
-    // to open this event's url in the default browser.
-    event.preventDefault()
-    await shell.openExternal(navigationUrl)
+  contents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url)
+    return { action: 'deny' }
   })
 })
 

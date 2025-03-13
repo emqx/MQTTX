@@ -78,7 +78,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import fs from 'fs'
-import { remote } from 'electron'
+import { dialog } from '@electron/remote'
 import MyDialog from './MyDialog.vue'
 import YAML from 'js-yaml'
 import XMLConvert from 'xml-js'
@@ -148,7 +148,7 @@ export default class ImportData extends Vue {
   private getFileData() {
     let loading: ElLoadingComponent | undefined = undefined
     const extensionName = this.getExtensionName()
-    remote.dialog
+    dialog
       .showOpenDialog({
         properties: ['openFile'],
         filters: [{ name: '', extensions: [`${extensionName}`] }],

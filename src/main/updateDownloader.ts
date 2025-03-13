@@ -2,6 +2,7 @@ import axios from 'axios'
 import { BrowserWindow, IpcMainEvent, ipcMain } from 'electron'
 import version from '@/version'
 import { getCurrentLang, versionDetail } from './updateChecker'
+import { enable } from '@electron/remote/main'
 
 const { autoUpdater } = require('electron-updater')
 
@@ -53,9 +54,9 @@ export async function createUpdateWindow() {
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
-        enableRemoteModule: true,
       },
     })
+    enable(updateWindow.webContents)
     updateWindow.loadURL(link)
   } catch (e) {
     return

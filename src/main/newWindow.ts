@@ -1,5 +1,6 @@
 import { BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
+import { enable } from '@electron/remote/main'
 
 interface WindowOptions {
   theme: Theme
@@ -24,7 +25,6 @@ const newWindow = (id: string, options: WindowOptions) => {
     y,
     webPreferences: {
       webSecurity: false,
-      enableRemoteModule: true,
       nodeIntegration: true,
       contextIsolation: false,
     },
@@ -44,6 +44,8 @@ const newWindow = (id: string, options: WindowOptions) => {
     // Load the index.html when not in development
     createWindow.loadURL(`app://./index.html/#${options.path}/${id}`)
   }
+  // 添加 @electron/remote 初始化
+  enable(createWindow.webContents)
   createWindow.on('closed', () => {
     createWindow = null
   })
