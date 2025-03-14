@@ -1,17 +1,17 @@
 <template>
   <div class="settings-mcp">
-    <div class="settings-title">MCP (Model Context Protocol)</div>
+    <div class="settings-title">{{ $t('copilot.mcpTitle') }}</div>
 
     <el-divider></el-divider>
 
     <el-row class="settings-item" type="flex" justify="space-between">
       <el-col :span="20">
-        <label>Enable MCP</label>
+        <label>{{ $t('copilot.mcpEnableLabel') }}</label>
         <el-tooltip
           placement="top"
           :effect="currentTheme !== 'light' ? 'light' : 'dark'"
           :open-delay="500"
-          :content="'Enable MCP to let AI use external tools and services'"
+          :content="$t('copilot.mcpEnableTooltip')"
         >
           <a href="javascript:;" class="icon-oper">
             <i class="el-icon-warning-outline"></i>
@@ -35,12 +35,12 @@
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="24">
           <div class="section-header">
-            <label>MCP Server Configuration</label>
+            <label>{{ $t('copilot.mcpServerConfigLabel') }}</label>
             <el-tooltip
               placement="top"
               :effect="currentTheme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
-              :content="'Configure MCP servers in JSON format, supports multiple servers'"
+              :content="$t('copilot.mcpServerConfigTooltip')"
             >
               <a href="javascript:;" class="icon-oper">
                 <i class="el-icon-warning-outline"></i>
@@ -75,12 +75,12 @@
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="24">
           <div class="section-header">
-            <label>Configured MCP Servers</label>
+            <label>{{ $t('copilot.mcpConfiguredServersLabel') }}</label>
             <el-tooltip
               placement="top"
               :effect="currentTheme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
-              :content="'Display list of currently configured MCP servers'"
+              :content="$t('copilot.mcpConfiguredServersTooltip')"
             >
               <a href="javascript:;" class="icon-oper">
                 <i class="el-icon-warning-outline"></i>
@@ -92,7 +92,7 @@
 
       <el-row class="settings-item" v-if="!mcpConfig.mcpServers || Object.keys(mcpConfig.mcpServers).length === 0">
         <el-col :span="24">
-          <div class="no-servers">No MCP servers configured yet</div>
+          <div class="no-servers">{{ $t('copilot.mcpNoServersConfigured') }}</div>
         </el-col>
       </el-row>
 
@@ -102,7 +102,7 @@
             <span class="server-name">{{ name }}</span>
             <div class="server-actions">
               <div class="server-enabled-switch" v-if="serverResults[name] && serverResults[name].success">
-                <span class="enable-label">Enable:</span>
+                <span class="enable-label">{{ $t('common.enable') }}</span>
                 <el-switch
                   v-model="serverEnabledStatus[name]"
                   active-color="#13ce66"
@@ -131,7 +131,7 @@
               icon="el-icon-document-copy"
               class="copy-btn"
               @click="copyCommand(server.command + ' ' + server.args.join(' '))"
-              title="Copy Command"
+              :title="$t('common.copy')"
             ></el-button>
           </div>
 
@@ -146,7 +146,7 @@
             </div>
 
             <div v-if="serverResults[name].tools && serverResults[name].tools.length > 0" class="tools-list">
-              <div class="tools-header">Available Tools:</div>
+              <div class="tools-header">{{ $t('copilot.mcpAvailableTools') }}</div>
               <div class="tools-container">
                 <el-tag
                   v-for="(tool, index) in serverResults[name].tools"
@@ -215,7 +215,7 @@ export default class MCPSettings extends Vue {
         this.mcpConfigStr = JSON.stringify(this.mcpConfig, null, 2)
       } catch (error) {
         this.$log.error(`[MCP] Failed to parse MCP configuration: ${error}`)
-        this.mcpConfigError = 'Failed to parse stored configuration, reset to default'
+        this.mcpConfigError = this.$t('copilot.mcpFailedParseConfig').toString()
         this.mcpConfig = { mcpServers: {} }
         this.mcpConfigStr = JSON.stringify(this.mcpConfig, null, 2)
       }
@@ -286,13 +286,13 @@ export default class MCPSettings extends Vue {
     if (enabled) {
       this.$log.info(`[MCP] Server ${serverName} enabled`)
       this.$message({
-        message: `Server ${serverName} enabled`,
+        message: `${serverName} ${this.$t('copilot.mcpServerTestSuccess').toString()}`,
         type: 'success',
       })
     } else {
       this.$log.info(`[MCP] Server ${serverName} disabled`)
       this.$message({
-        message: `Server ${serverName} disabled`,
+        message: `${serverName} ${this.$t('common.disable').toString()}`,
         type: 'info',
       })
     }
@@ -310,14 +310,14 @@ export default class MCPSettings extends Vue {
 
       // Validate configuration format
       if (!config.mcpServers || typeof config.mcpServers !== 'object') {
-        this.mcpConfigError = 'Configuration must include mcpServers object'
+        this.mcpConfigError = this.$t('copilot.mcpConfigError').toString()
         return
       }
 
       // Validate each server configuration
       for (const [name, server] of Object.entries(config.mcpServers)) {
         if (!server.command || !Array.isArray(server.args)) {
-          this.mcpConfigError = `Server "${name}" configuration is invalid, must include command and args array`
+          this.mcpConfigError = this.$t('copilot.mcpServerConfigInvalid', [name]).toString()
           return
         }
       }
@@ -347,7 +347,7 @@ export default class MCPSettings extends Vue {
       this.mcpConfig = config
       localStorage.setItem('mcpConfig', value)
     } catch (error) {
-      this.mcpConfigError = 'Invalid JSON format'
+      this.mcpConfigError = this.$t('copilot.mcpInvalidJsonFormat').toString()
     }
   }
 
@@ -383,7 +383,7 @@ export default class MCPSettings extends Vue {
 
         this.$log.info(`[MCP] Successfully connected to server ${serverName}`)
         this.$message({
-          message: `Successfully connected to server ${serverName}`,
+          message: `${this.$t('copilot.mcpServerTestSuccess').toString()}: ${serverName}`,
           type: 'success',
         })
       } else {
@@ -393,7 +393,7 @@ export default class MCPSettings extends Vue {
 
         this.$log.error(`[MCP] Failed to connect to server ${serverName}: ${result.message}`)
         this.$message({
-          message: `Failed to connect to server ${serverName}: ${result.message}`,
+          message: `${this.$t('copilot.mcpServerTestFailed').toString()}: ${serverName}: ${result.message}`,
           type: 'error',
         })
       }
@@ -412,7 +412,9 @@ export default class MCPSettings extends Vue {
 
       this.$log.error(`[MCP] Error during connection test: ${error instanceof Error ? error.message : String(error)}`)
       this.$message({
-        message: `Error during connection test: ${error instanceof Error ? error.message : String(error)}`,
+        message: `${this.$t('copilot.mcpConnectionFailed', [serverName]).toString()}: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
         type: 'error',
       })
     } finally {
@@ -434,21 +436,21 @@ export default class MCPSettings extends Vue {
       if (successful) {
         this.$log.info('[MCP] Command copied to clipboard')
         this.$message({
-          message: 'Command copied to clipboard',
+          message: this.$t('copilot.mcpCopySuccess').toString(),
           type: 'success',
           duration: 2000,
         })
       } else {
         this.$log.warn('[MCP] Copy failed, please select and copy manually')
         this.$message({
-          message: 'Copy failed, please select and copy manually',
+          message: this.$t('copilot.mcpCopyFailed').toString(),
           type: 'warning',
         })
       }
     } catch (err) {
       this.$log.warn(`[MCP] Copy failed: ${err}`)
       this.$message({
-        message: 'Copy failed, please select and copy manually',
+        message: this.$t('copilot.mcpCopyFailed').toString(),
         type: 'warning',
       })
     }
@@ -461,9 +463,7 @@ export default class MCPSettings extends Vue {
    */
   private removeMCPServer(name: string) {
     if (this.mcpConfig.mcpServers && this.mcpConfig.mcpServers[name]) {
-      this.$confirm(`Are you sure you want to delete server "${name}"?`, 'Confirm', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+      this.$confirm(this.$t('copilot.mcpDeleteConfirm', [name]).toString(), {
         type: 'warning',
       })
         .then(async () => {
@@ -490,7 +490,7 @@ export default class MCPSettings extends Vue {
           this.$log.info(`[MCP] Successfully deleted server ${name}`)
           this.$message({
             type: 'success',
-            message: 'Successfully deleted!',
+            message: this.$t('common.deleteSuccess').toString(),
           })
         })
         .catch(() => {
