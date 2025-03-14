@@ -33,7 +33,7 @@ const filesToModify = [
 // Process each file
 filesToModify.forEach((filePath) => {
   if (fs.existsSync(filePath)) {
-    console.log(`Processing file: ${filePath}`)
+    console.log(`🔍 Processing file: ${filePath}`)
     let content = fs.readFileSync(filePath, 'utf8')
 
     // Replace node: prefix imports for compatibility with older Node.js versions
@@ -58,10 +58,12 @@ filesToModify.forEach((filePath) => {
 
     // Write back to file
     fs.writeFileSync(filePath, content)
-    console.log(`Modified imports in file: ${filePath} (removed 'node:' prefixes for compatibility)`)
+    console.log(`✅ Modified imports in file: ${filePath} (removed 'node:' prefixes for compatibility)`)
   } else {
-    console.log(`File not found, skipping: ${filePath}`)
+    console.log(`⚠️ File not found, skipping: ${filePath}`)
   }
 })
 
-console.log('Import modification completed successfully! SDK files are now compatible with Electron environment.')
+console.log(
+  '🎉 Import modification completed successfully! SDK files are now compatible with MQTTX Electron environment.',
+)
