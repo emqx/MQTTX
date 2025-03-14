@@ -38,6 +38,7 @@ import ConnectionsIndex from '@/views/connections/index.vue'
 import { CopilotMessage, CopilotRole, CopilotPresetPrompt, StreamError } from '@/types/copilot'
 import { needsUserInput } from '@/utils/ai/preset'
 import { SessionManager } from '@/utils/ai/SessionManager'
+import { callMCPTool, MCP_CALL_REGEX, processMCPCalls } from '@/utils/ai/mcp'
 
 @Component({
   components: {
@@ -70,6 +71,10 @@ export default class Copilot extends Vue {
     id: 'system-id',
     role: 'system',
     content: '',
+  }
+
+  get shouldProcessMCP() {
+    return localStorage.getItem('mcpEnabled') === 'true' && this.sessionManager.getState().mcpData?.hasMCP === true
   }
 
   /**
@@ -155,8 +160,8 @@ export default class Copilot extends Vue {
     this.currentPublishMsg = ''
   }
 
-  private buildMessageHistory(): Array<{ role: CopilotRole; content: string }> {
-    const systemPrompt = this.sessionManager.getSystemPrompt(this.currentLang)
+  private async buildMessageHistory(): Promise<Array<{ role: CopilotRole; content: string }>> {
+    const systemPrompt = await this.sessionManager.getSystemPrompt(this.currentLang)
 
     return [
       {
@@ -207,7 +212,7 @@ export default class Copilot extends Vue {
         apiKey,
       }),
       temperature: 0.8,
-      messages: this.buildMessageHistory(),
+      messages: await this.buildMessageHistory(),
       abortSignal: this.abortController.signal,
       onError: this.handleStreamError,
     })
@@ -218,7 +223,15 @@ export default class Copilot extends Vue {
       this.$nextTick(throttledScroll)
     }
 
-    responseMessage.content = this.responseStreamText
+    if (this.shouldProcessMCP) {
+      const processedContent = await processMCPCalls(this.responseStreamText)
+      responseMessage.content = processedContent
+      // AI TOOL CALL RESULT
+      console.log(processedContent)
+    } else {
+      responseMessage.content = this.responseStreamText
+    }
+
     await this.saveAndDisplayResponse(responseMessage)
   }
 
@@ -331,6 +344,17 @@ export default class Copilot extends Vue {
     }
   }
 
+  /**
+   * Lifecycle hook when component is mounted
+   */
+  private async mounted() {
+    // Reload MCP data when component is mounted
+    await this.sessionManager.reloadMCPData(this.currentLang)
+  }
+
+  /**
+   * Lifecycle hook when component is created
+   */
   private created() {
     this.loadMessages({ reset: true })
   }
@@ -376,5 +400,74 @@ export default class Copilot extends Vue {
       height: 100%;
     }
   }
+}
+
+/* MCP Tool Call result styles */
+mcp-result {
+  display: block;
+  margin: 8px 0;
+  padding: 12px;
+  border-radius: 6px;
+  font-family: monospace;
+  white-space: pre-wrap;
+}
+
+mcp-result[success='true'] {
+  background-color: rgba(19, 206, 102, 0.1);
+  border: 1px solid rgba(19, 206, 102, 0.3);
+}
+
+mcp-result[success='false'] {
+  background-color: rgba(245, 108, 108, 0.1);
+  border: 1px solid rgba(245, 108, 108, 0.3);
+}
+
+mcp-result server,
+mcp-result tool,
+mcp-result args {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+mcp-result server::before {
+  content: 'Server: ';
+  color: var(--color-text-light);
+}
+
+mcp-result tool::before {
+  content: 'Tool: ';
+  color: var(--color-text-light);
+}
+
+mcp-result args::before {
+  content: 'Arguments: ';
+  color: var(--color-text-light);
+}
+
+mcp-result result,
+mcp-result error {
+  display: block;
+  margin-top: 8px;
+  padding: 8px;
+  background-color: var(--color-bg-lighter);
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+mcp-result result::before {
+  content: 'Result:';
+  display: block;
+  margin-bottom: 4px;
+  font-weight: bold;
+  color: var(--color-text-light);
+}
+
+mcp-result error::before {
+  content: 'Error:';
+  display: block;
+  margin-bottom: 4px;
+  font-weight: bold;
+  color: var(--color-text-light);
 }
 </style>

@@ -20,7 +20,7 @@ import { dialog } from 'electron'
 import ORMConfig from './database/database.config'
 import version from '@/version'
 import { initialize } from '@electron/remote/main'
-import { initMCPHandlers, cleanupMCPConnections } from './main/ai/mpc/MPCManager'
+import { initMCPHandlers, cleanupMCPConnections } from './main/ai/mcp/MCPManager'
 
 declare const __static: string
 

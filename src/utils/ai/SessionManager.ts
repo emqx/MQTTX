@@ -1,6 +1,6 @@
 import { loadSystemPrompt } from './copilot'
-// Language type is globally defined
-// No need to explicitly import Language type
+import { loadEnabledMCPServers } from './mcp'
+import { MCPPromptData } from '@/types/mcp'
 
 /**
  * Session state interface
@@ -10,6 +10,7 @@ export interface SessionState {
   presetPrompt: string // Current preset prompt being used
   isNewSession: boolean // Whether this is a new session
   lastPresetChangeTime: number // Timestamp of the last preset change
+  mcpData?: MCPPromptData // MCP data for prompts
 }
 
 /**
@@ -76,10 +77,10 @@ export class SessionManager {
    * Get system prompt for current session
    * Reloads if necessary
    */
-  public getSystemPrompt(language: Language): string {
+  public async getSystemPrompt(language: Language): Promise<string> {
     // Reload system prompt if new session or empty
     if (this.state.isNewSession || !this.state.systemPrompt) {
-      this.loadSystemPrompt(language)
+      await this.loadSystemPrompt(language)
     }
     return this.state.systemPrompt
   }
@@ -87,8 +88,21 @@ export class SessionManager {
   /**
    * Load system prompt for current session
    */
-  private loadSystemPrompt(language: Language): void {
-    this.state.systemPrompt = loadSystemPrompt(language, this.state.presetPrompt)
+  private async loadSystemPrompt(language: Language): Promise<void> {
+    // Load MCP data if not already loaded
+    if (!this.state.mcpData) {
+      this.state.mcpData = await loadEnabledMCPServers()
+    }
+
+    this.state.systemPrompt = loadSystemPrompt(language, this.state.presetPrompt, this.state.mcpData)
     this.state.isNewSession = false
+  }
+
+  /**
+   * Reload MCP data and update system prompt
+   */
+  public async reloadMCPData(language: Language): Promise<void> {
+    this.state.mcpData = await loadEnabledMCPServers()
+    await this.loadSystemPrompt(language)
   }
 }

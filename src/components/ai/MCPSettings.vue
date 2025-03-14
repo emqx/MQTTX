@@ -117,8 +117,8 @@
                 :loading="testingServer === name"
                 icon="el-icon-connection"
                 @click="testServerConnection(name, server)"
-                >Test Connection</el-button
               >
+              </el-button>
               <el-button size="mini" type="danger" icon="el-icon-delete" @click="removeMCPServer(name)"></el-button>
             </div>
           </div>
@@ -386,13 +386,6 @@ export default class MCPSettings extends Vue {
           message: `Successfully connected to server ${serverName}`,
           type: 'success',
         })
-
-        // Disconnect after testing
-        try {
-          await ipcRenderer.invoke('mcp:disconnect', serverName)
-        } catch (disconnectError) {
-          this.$log.error(`[MCP] Failed to disconnect: ${disconnectError}`)
-        }
       } else {
         // If test fails, disable the server
         this.$set(this.serverEnabledStatus, serverName, false)
