@@ -1,10 +1,11 @@
 import log4js from 'log4js'
 import { app } from 'electron'
-// 根据进程类型分别导入不同的 remote 模块
+
+// Determine if we're in renderer process and import appropriate app module
 const isRenderer = process.type === 'renderer'
-// 渲染进程使用 @electron/remote
-// 主进程使用 electron 的 app 模块
+// Use @electron/remote for renderer process, direct app module for main process
 const electronApp = isRenderer ? require('@electron/remote').app : app
+
 import fs from 'fs-extra'
 import path from 'path'
 

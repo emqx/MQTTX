@@ -177,7 +177,6 @@ async function createWindow() {
     icon: `${__static}/app.ico`,
   })
 
-  // 初始化 @electron/remote
   initialize()
   if (win) {
     require('@electron/remote/main').enable(win.webContents)
