@@ -20,6 +20,7 @@ import { dialog } from 'electron'
 import ORMConfig from './database/database.config'
 import version from '@/version'
 import { initialize } from '@electron/remote/main'
+import { initMCPHandlers, cleanupMCPConnections } from './main/ai/mpc/MPCManager'
 
 declare const __static: string
 
@@ -111,6 +112,8 @@ function handleIpcMessages() {
       installCLI(win)
     }
   })
+  // Initialize MCP handlers
+  initMCPHandlers()
 }
 
 // handle event when APP quit
@@ -119,6 +122,8 @@ function beforeAppQuit() {
   quitAndRenameLogger()
   // close all SQLite connection
   ConnectionDestroy()
+  // cleanup MCP connections
+  cleanupMCPConnections()
   // quit APP
   app.quit()
 }

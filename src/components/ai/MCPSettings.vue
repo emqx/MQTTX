@@ -7,12 +7,12 @@
 
     <el-row class="settings-item" type="flex" justify="space-between">
       <el-col :span="20">
-        <label>启用 MCP</label>
+        <label>Enable MCP</label>
         <el-tooltip
           placement="top"
           :effect="currentTheme !== 'light' ? 'light' : 'dark'"
           :open-delay="500"
-          :content="'启用 MCP 可以让 AI 使用外部工具和服务'"
+          :content="'Enable MCP to let AI use external tools and services'"
         >
           <a href="javascript:;" class="icon-oper">
             <i class="el-icon-warning-outline"></i>
@@ -36,12 +36,12 @@
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="24">
           <div class="section-header">
-            <label>MCP 服务器配置</label>
+            <label>MCP Server Configuration</label>
             <el-tooltip
               placement="top"
               :effect="currentTheme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
-              :content="'配置 MCP 服务器，格式为 JSON 对象，支持多个服务器'"
+              :content="'Configure MCP servers in JSON format, supports multiple servers'"
             >
               <a href="javascript:;" class="icon-oper">
                 <i class="el-icon-warning-outline"></i>
@@ -76,12 +76,12 @@
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="24">
           <div class="section-header">
-            <label>已配置的 MCP 服务器</label>
+            <label>Configured MCP Servers</label>
             <el-tooltip
               placement="top"
               :effect="currentTheme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
-              :content="'显示当前已配置的 MCP 服务器列表'"
+              :content="'Display list of currently configured MCP servers'"
             >
               <a href="javascript:;" class="icon-oper">
                 <i class="el-icon-warning-outline"></i>
@@ -93,7 +93,7 @@
 
       <el-row class="settings-item" v-if="!mcpConfig.mcpServers || Object.keys(mcpConfig.mcpServers).length === 0">
         <el-col :span="24">
-          <div class="no-servers">尚未配置 MCP 服务器</div>
+          <div class="no-servers">No MCP servers configured yet</div>
         </el-col>
       </el-row>
 
@@ -101,7 +101,17 @@
         <el-card v-for="(server, name) in mcpConfig.mcpServers" :key="name" class="server-card" shadow="never">
           <div slot="header" class="server-header">
             <span class="server-name">{{ name }}</span>
-            <el-button size="mini" type="danger" icon="el-icon-delete" @click="removeMCPServer(name)"></el-button>
+            <div class="server-actions">
+              <el-button
+                size="mini"
+                type="primary"
+                :loading="testingServer === name"
+                icon="el-icon-connection"
+                @click="testServerConnection(name, server)"
+                >Test Connection</el-button
+              >
+              <el-button size="mini" type="danger" icon="el-icon-delete" @click="removeMCPServer(name)"></el-button>
+            </div>
           </div>
 
           <div class="server-command">
@@ -112,8 +122,47 @@
               icon="el-icon-document-copy"
               class="copy-btn"
               @click="copyCommand(server.command + ' ' + server.args.join(' '))"
-              title="复制命令"
+              title="Copy Command"
             ></el-button>
+          </div>
+
+          <!-- Connection test results -->
+          <div v-if="serverResults[name]" class="connection-results">
+            <div
+              class="connection-status"
+              :class="{ success: serverResults[name].success, error: !serverResults[name].success }"
+            >
+              <i :class="serverResults[name].success ? 'el-icon-success' : 'el-icon-error'"></i>
+              {{ serverResults[name].message }}
+
+              <!-- Enable/disable switch for successfully tested servers -->
+              <div v-if="serverResults[name].success" class="server-enabled-switch">
+                <span class="enable-label">Enable:</span>
+                <el-switch
+                  v-model="serverEnabledStatus[name]"
+                  active-color="#13ce66"
+                  inactive-color="#A2A9B0"
+                  @change="(val) => handleServerEnabledChange(name, val)"
+                >
+                </el-switch>
+              </div>
+            </div>
+
+            <div v-if="serverResults[name].tools && serverResults[name].tools.length > 0" class="tools-list">
+              <div class="tools-header">Available Tools:</div>
+              <div class="tools-container">
+                <el-tag
+                  v-for="(tool, index) in serverResults[name].tools"
+                  :key="index"
+                  size="mini"
+                  type="info"
+                  effect="plain"
+                  class="tool-tag"
+                >
+                  {{ tool.name }}
+                </el-tag>
+              </div>
+            </div>
           </div>
         </el-card>
       </div>
@@ -125,26 +174,12 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import Editor from '@/components/Editor.vue'
+import { MCPConfig, MCPServer } from '@/types/mcp'
+import { ipcRenderer } from 'electron'
 
 /**
- * MCP 服务器配置接口
- */
-interface MCPServerConfig {
-  command: string
-  args: string[]
-  env?: Record<string, string>
-}
-
-/**
- * MCP 配置接口
- */
-interface MCPConfig {
-  mcpServers: Record<string, MCPServerConfig>
-}
-
-/**
- * MCP 设置组件 - 提供用户配置 Model Context Protocol 服务器的界面
- * 完全独立的组件，不依赖于父组件传入配置
+ * MCP Settings Component - Provides interface for users to configure Model Context Protocol servers
+ * Completely independent component, doesn't rely on parent component for configuration
  */
 @Component({
   components: {
@@ -158,16 +193,21 @@ export default class MCPSettings extends Vue {
   private mcpConfigStr = ''
   private mcpConfigError = ''
   private mcpConfig: MCPConfig = { mcpServers: {} }
+  private testingServer: string | null = null
+  private serverResults: Record<string, any> = {}
+  private serverEnabledStatus: Record<string, boolean> = {}
 
   /**
-   * 组件创建时的生命周期钩子
+   * Lifecycle hook when component is created
    */
   created() {
     this.loadMCPConfig()
+    this.loadServerResults()
+    this.loadServerEnabledStatus()
   }
 
   /**
-   * 从本地存储加载 MCP 配置
+   * Load MCP configuration from local storage
    */
   private loadMCPConfig() {
     const storedConfig = localStorage.getItem('mcpConfig')
@@ -177,8 +217,8 @@ export default class MCPSettings extends Vue {
         this.mcpConfig = JSON.parse(storedConfig)
         this.mcpConfigStr = JSON.stringify(this.mcpConfig, null, 2)
       } catch (error) {
-        console.error('解析 MCP 配置失败:', error)
-        this.mcpConfigError = '解析存储的配置失败，已重置为默认值'
+        console.error('Failed to parse MCP configuration:', error)
+        this.mcpConfigError = 'Failed to parse stored configuration, reset to default'
         this.mcpConfig = { mcpServers: {} }
         this.mcpConfigStr = JSON.stringify(this.mcpConfig, null, 2)
       }
@@ -194,7 +234,45 @@ export default class MCPSettings extends Vue {
   }
 
   /**
-   * 处理启用/禁用 MCP 的开关状态变化
+   * Load server test results from local storage
+   */
+  private loadServerResults() {
+    // Iterate through all configured servers and load their test results
+    if (this.mcpConfig && this.mcpConfig.mcpServers) {
+      for (const serverName of Object.keys(this.mcpConfig.mcpServers)) {
+        const storedResult = localStorage.getItem(`mcpServerResult:${serverName}`)
+        if (storedResult) {
+          try {
+            const parsedResult = JSON.parse(storedResult)
+            this.$set(this.serverResults, serverName, parsedResult)
+          } catch (err) {
+            console.error(`Failed to parse test result for server ${serverName}:`, err)
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * Load server enabled status from local storage
+   */
+  private loadServerEnabledStatus() {
+    // Iterate through all configured servers and load their enabled status
+    if (this.mcpConfig && this.mcpConfig.mcpServers) {
+      for (const serverName of Object.keys(this.mcpConfig.mcpServers)) {
+        const storedStatus = localStorage.getItem(`mcpServerEnabled:${serverName}`)
+        if (storedStatus !== null) {
+          this.$set(this.serverEnabledStatus, serverName, storedStatus === 'true')
+        } else {
+          // Default value is false, ensure each server has an enabled status
+          this.$set(this.serverEnabledStatus, serverName, false)
+        }
+      }
+    }
+  }
+
+  /**
+   * Handle enable/disable MCP switch state change
    */
   private handleMCPEnabledChange(value: boolean) {
     this.mcpEnabled = value
@@ -202,7 +280,27 @@ export default class MCPSettings extends Vue {
   }
 
   /**
-   * 处理 MCP 配置文本变化
+   * Handle server enabled status change
+   */
+  private handleServerEnabledChange(serverName: string, enabled: boolean) {
+    this.$set(this.serverEnabledStatus, serverName, enabled)
+    localStorage.setItem(`mcpServerEnabled:${serverName}`, String(enabled))
+
+    if (enabled) {
+      this.$message({
+        message: `Server ${serverName} enabled`,
+        type: 'success',
+      })
+    } else {
+      this.$message({
+        message: `Server ${serverName} disabled`,
+        type: 'info',
+      })
+    }
+  }
+
+  /**
+   * Handle MCP configuration text change
    */
   private handleMCPConfigChange(value: string) {
     this.mcpConfigStr = value
@@ -211,38 +309,126 @@ export default class MCPSettings extends Vue {
     try {
       const config = JSON.parse(value) as MCPConfig
 
-      // 验证配置格式
+      // Validate configuration format
       if (!config.mcpServers || typeof config.mcpServers !== 'object') {
-        this.mcpConfigError = '配置必须包含 mcpServers 对象'
+        this.mcpConfigError = 'Configuration must include mcpServers object'
         return
       }
 
-      // 验证每个服务器配置
+      // Validate each server configuration
       for (const [name, server] of Object.entries(config.mcpServers)) {
         if (!server.command || !Array.isArray(server.args)) {
-          this.mcpConfigError = `服务器 "${name}" 配置无效，必须包含 command 和 args 数组`
+          this.mcpConfigError = `Server "${name}" configuration is invalid, must include command and args array`
           return
         }
       }
 
-      // 配置有效，更新状态
+      // Find deleted servers
+      const oldServerNames = Object.keys(this.mcpConfig.mcpServers || {})
+      const newServerNames = Object.keys(config.mcpServers || {})
+      const removedServers = oldServerNames.filter((name) => !newServerNames.includes(name))
+
+      // Delete corresponding test results and enabled status
+      for (const name of removedServers) {
+        this.$delete(this.serverResults, name)
+        this.$delete(this.serverEnabledStatus, name)
+        localStorage.removeItem(`mcpServerResult:${name}`)
+        localStorage.removeItem(`mcpServerEnabled:${name}`)
+      }
+
+      // Handle newly added servers
+      for (const name of newServerNames) {
+        if (!oldServerNames.includes(name)) {
+          // Set default enabled status for new servers
+          this.$set(this.serverEnabledStatus, name, false)
+        }
+      }
+
+      // Configuration is valid, update state
       this.mcpConfig = config
       localStorage.setItem('mcpConfig', value)
     } catch (error) {
-      this.mcpConfigError = '无效的 JSON 格式'
+      this.mcpConfigError = 'Invalid JSON format'
     }
   }
 
   /**
-   * 处理编辑器获得焦点
+   * Handle editor focus
    */
   private handleEditorFocus() {
-    // 清除错误信息
+    // Clear error message
     this.mcpConfigError = ''
   }
 
   /**
-   * 复制命令到剪贴板
+   * Test connection to specified MCP server
+   */
+  private async testServerConnection(serverName: string, serverConfig: MCPServer) {
+    try {
+      this.testingServer = serverName
+      console.log(`Testing connection to server: ${serverName}`)
+
+      // Call main process via IPC to test connection
+      const result = await ipcRenderer.invoke('mcp:test-connection', serverConfig, serverName)
+
+      // Save test results
+      this.$set(this.serverResults, serverName, result)
+
+      // Persist test results
+      localStorage.setItem(`mcpServerResult:${serverName}`, JSON.stringify(result))
+
+      if (result.success) {
+        // If test is successful, enable the server by default
+        this.$set(this.serverEnabledStatus, serverName, true)
+        localStorage.setItem(`mcpServerEnabled:${serverName}`, 'true')
+
+        this.$message({
+          message: `Successfully connected to server ${serverName}`,
+          type: 'success',
+        })
+
+        // Disconnect after testing
+        try {
+          await ipcRenderer.invoke('mcp:disconnect', serverName)
+        } catch (disconnectError) {
+          console.error(`Failed to disconnect:`, disconnectError)
+        }
+      } else {
+        // If test fails, disable the server
+        this.$set(this.serverEnabledStatus, serverName, false)
+        localStorage.setItem(`mcpServerEnabled:${serverName}`, 'false')
+
+        this.$message({
+          message: `Failed to connect to server ${serverName}: ${result.message}`,
+          type: 'error',
+        })
+      }
+    } catch (error) {
+      console.error(`Error during connection test:`, error)
+
+      const errorResult = {
+        success: false,
+        message: error instanceof Error ? error.message : String(error),
+      }
+
+      this.$set(this.serverResults, serverName, errorResult)
+      localStorage.setItem(`mcpServerResult:${serverName}`, JSON.stringify(errorResult))
+
+      // Disable server when error occurs
+      this.$set(this.serverEnabledStatus, serverName, false)
+      localStorage.setItem(`mcpServerEnabled:${serverName}`, 'false')
+
+      this.$message({
+        message: `Error during connection test: ${error instanceof Error ? error.message : String(error)}`,
+        type: 'error',
+      })
+    } finally {
+      this.testingServer = null
+    }
+  }
+
+  /**
+   * Copy command to clipboard
    */
   private copyCommand(command: string) {
     const textArea = document.createElement('textarea')
@@ -254,19 +440,19 @@ export default class MCPSettings extends Vue {
       const successful = document.execCommand('copy')
       if (successful) {
         this.$message({
-          message: '命令已复制到剪贴板',
+          message: 'Command copied to clipboard',
           type: 'success',
           duration: 2000,
         })
       } else {
         this.$message({
-          message: '复制失败，请手动选择并复制',
+          message: 'Copy failed, please select and copy manually',
           type: 'warning',
         })
       }
     } catch (err) {
       this.$message({
-        message: '复制失败，请手动选择并复制',
+        message: 'Copy failed, please select and copy manually',
         type: 'warning',
       })
     }
@@ -275,28 +461,43 @@ export default class MCPSettings extends Vue {
   }
 
   /**
-   * 删除指定的 MCP 服务器
+   * Remove specified MCP server
    */
   private removeMCPServer(name: string) {
     if (this.mcpConfig.mcpServers && this.mcpConfig.mcpServers[name]) {
-      this.$confirm(`确定要删除服务器 "${name}" 吗?`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+      this.$confirm(`Are you sure you want to delete server "${name}"?`, 'Confirm', {
+        confirmButtonText: 'Confirm',
+        cancelButtonText: 'Cancel',
         type: 'warning',
       })
-        .then(() => {
-          // 删除服务器并更新配置
+        .then(async () => {
+          // Disconnect first if connected
+          if (this.serverResults[name] && this.serverResults[name].success) {
+            try {
+              await ipcRenderer.invoke('mcp:disconnect', name)
+            } catch (error) {
+              console.error(`Error disconnecting from server:`, error)
+            }
+          }
+
+          // Delete server and update configuration
           delete this.mcpConfig.mcpServers[name]
           this.mcpConfigStr = JSON.stringify(this.mcpConfig, null, 2)
           localStorage.setItem('mcpConfig', this.mcpConfigStr)
 
+          // Delete test results and enabled status
+          this.$delete(this.serverResults, name)
+          this.$delete(this.serverEnabledStatus, name)
+          localStorage.removeItem(`mcpServerResult:${name}`)
+          localStorage.removeItem(`mcpServerEnabled:${name}`)
+
           this.$message({
             type: 'success',
-            message: '删除成功!',
+            message: 'Successfully deleted!',
           })
         })
         .catch(() => {
-          // 用户取消删除操作
+          // User cancelled delete operation
         })
     }
   }
@@ -338,12 +539,12 @@ export default class MCPSettings extends Vue {
       border-radius: 4px;
 
       &.is-error {
-        border-color: #f56c6c;
+        border-color: var(--color-minor-red);
       }
     }
 
     .mcp-config-error {
-      color: #f56c6c;
+      color: var(--color-minor-red);
       font-size: 12px;
       line-height: 1;
       padding-top: 4px;
@@ -383,6 +584,11 @@ export default class MCPSettings extends Vue {
     justify-content: space-between;
   }
 
+  .server-actions {
+    display: flex;
+    gap: 8px;
+  }
+
   .server-name {
     font-weight: bold;
     color: var(--color-text-title);
@@ -410,6 +616,66 @@ export default class MCPSettings extends Vue {
 
       &:hover {
         opacity: 1;
+      }
+    }
+  }
+
+  .connection-results {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px dashed var(--color-border-default);
+
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      position: relative;
+
+      &.success {
+        background-color: rgba(19, 206, 102, 0.1);
+        color: #13ce66;
+      }
+
+      &.error {
+        background-color: rgba(245, 108, 108, 0.1);
+        color: #f56c6c;
+      }
+
+      .server-enabled-switch {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .enable-label {
+          font-size: 13px;
+          color: var(--color-text-light);
+        }
+      }
+    }
+
+    .tools-list {
+      margin-top: 12px;
+
+      .tools-header {
+        margin-bottom: 8px;
+        color: var(--color-text-title);
+      }
+
+      .tools-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+      }
+
+      .tool-tag {
+        margin-right: 0;
+        font-family: Menlo, Monaco, 'Courier New', monospace;
+        font-size: 12px;
       }
     }
   }
