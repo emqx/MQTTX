@@ -1,3 +1,4 @@
+// Used on main process
 import { MCPServer, ToolCallResult } from '@/types/mcp'
 
 const AbortController = require('abort-controller')
