@@ -11,6 +11,8 @@ import mqttFaq from './prompts/mqttFaq.txt'
 import funcGen from './prompts/funcGen.txt'
 import protobufSchemaGen from './prompts/protobufSchemaGen.txt'
 import avroSchemaGen from './prompts/avroSchemaGen.txt'
+import mcpPrompt from './prompts/mcp.txt'
+import { MCPPromptData } from '@/types/mcp'
 import {
   ALL_CODE_GENERATION_COMMAND_VALUES,
   PAYLOAD_GENERATION_COMMAND_VALUES,
@@ -30,8 +32,17 @@ const LANGUAGE_MAP = {
   hu: 'Kérjük, magyarul válaszoljon（Hungarian）',
 }
 
-export const loadSystemPrompt = (lang: Language, command?: string) => {
+export const loadSystemPrompt = (lang: Language, command?: string, mcpData?: MCPPromptData) => {
   let _basePrompt = basePrompt
+
+  // Add MCP system prompt if MCP is enabled and available
+  if (mcpData && mcpData.hasMCP) {
+    let mcpSystemPrompt = mcpPrompt
+      .replace('{{SERVERS_SECTION}}', mcpData.serversSection)
+      .replace('{{TOOLS_SECTION}}', mcpData.toolsSection)
+
+    _basePrompt = `${_basePrompt}\n\n${mcpSystemPrompt}`
+  }
 
   // Check if the command is related to code generation
   if (command && ALL_CODE_GENERATION_COMMAND_VALUES.includes(command)) {
