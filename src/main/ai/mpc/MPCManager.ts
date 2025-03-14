@@ -40,7 +40,6 @@ export function initMCPHandlers(): void {
         return {
           success: true,
           tools,
-
           message: `Successfully connected to MCP server: ${serverName}`,
         }
       } else {

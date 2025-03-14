@@ -1,4 +1,3 @@
-<!-- src/components/ai/MCPSettings.vue -->
 <template>
   <div class="settings-mcp">
     <div class="settings-title">MCP (Model Context Protocol)</div>
@@ -102,6 +101,16 @@
           <div slot="header" class="server-header">
             <span class="server-name">{{ name }}</span>
             <div class="server-actions">
+              <div class="server-enabled-switch" v-if="serverResults[name] && serverResults[name].success">
+                <span class="enable-label">Enable:</span>
+                <el-switch
+                  v-model="serverEnabledStatus[name]"
+                  active-color="#13ce66"
+                  inactive-color="#A2A9B0"
+                  @change="(val) => handleServerEnabledChange(name, val)"
+                >
+                </el-switch>
+              </div>
               <el-button
                 size="mini"
                 type="primary"
@@ -134,18 +143,6 @@
             >
               <i :class="serverResults[name].success ? 'el-icon-success' : 'el-icon-error'"></i>
               {{ serverResults[name].message }}
-
-              <!-- Enable/disable switch for successfully tested servers -->
-              <div v-if="serverResults[name].success" class="server-enabled-switch">
-                <span class="enable-label">Enable:</span>
-                <el-switch
-                  v-model="serverEnabledStatus[name]"
-                  active-color="#13ce66"
-                  inactive-color="#A2A9B0"
-                  @change="(val) => handleServerEnabledChange(name, val)"
-                >
-                </el-switch>
-              </div>
             </div>
 
             <div v-if="serverResults[name].tools && serverResults[name].tools.length > 0" class="tools-list">
@@ -217,7 +214,7 @@ export default class MCPSettings extends Vue {
         this.mcpConfig = JSON.parse(storedConfig)
         this.mcpConfigStr = JSON.stringify(this.mcpConfig, null, 2)
       } catch (error) {
-        console.error('Failed to parse MCP configuration:', error)
+        this.$log.error(`[MCP] Failed to parse MCP configuration: ${error}`)
         this.mcpConfigError = 'Failed to parse stored configuration, reset to default'
         this.mcpConfig = { mcpServers: {} }
         this.mcpConfigStr = JSON.stringify(this.mcpConfig, null, 2)
@@ -246,7 +243,7 @@ export default class MCPSettings extends Vue {
             const parsedResult = JSON.parse(storedResult)
             this.$set(this.serverResults, serverName, parsedResult)
           } catch (err) {
-            console.error(`Failed to parse test result for server ${serverName}:`, err)
+            this.$log.error(`[MCP] Failed to parse test result for server ${serverName}: ${err}`)
           }
         }
       }
@@ -287,11 +284,13 @@ export default class MCPSettings extends Vue {
     localStorage.setItem(`mcpServerEnabled:${serverName}`, String(enabled))
 
     if (enabled) {
+      this.$log.info(`[MCP] Server ${serverName} enabled`)
       this.$message({
         message: `Server ${serverName} enabled`,
         type: 'success',
       })
     } else {
+      this.$log.info(`[MCP] Server ${serverName} disabled`)
       this.$message({
         message: `Server ${serverName} disabled`,
         type: 'info',
@@ -366,7 +365,7 @@ export default class MCPSettings extends Vue {
   private async testServerConnection(serverName: string, serverConfig: MCPServer) {
     try {
       this.testingServer = serverName
-      console.log(`Testing connection to server: ${serverName}`)
+      this.$log.info(`[MCP] Testing connection to server: ${serverName}`)
 
       // Call main process via IPC to test connection
       const result = await ipcRenderer.invoke('mcp:test-connection', serverConfig, serverName)
@@ -382,6 +381,7 @@ export default class MCPSettings extends Vue {
         this.$set(this.serverEnabledStatus, serverName, true)
         localStorage.setItem(`mcpServerEnabled:${serverName}`, 'true')
 
+        this.$log.info(`[MCP] Successfully connected to server ${serverName}`)
         this.$message({
           message: `Successfully connected to server ${serverName}`,
           type: 'success',
@@ -391,21 +391,20 @@ export default class MCPSettings extends Vue {
         try {
           await ipcRenderer.invoke('mcp:disconnect', serverName)
         } catch (disconnectError) {
-          console.error(`Failed to disconnect:`, disconnectError)
+          this.$log.error(`[MCP] Failed to disconnect: ${disconnectError}`)
         }
       } else {
         // If test fails, disable the server
         this.$set(this.serverEnabledStatus, serverName, false)
         localStorage.setItem(`mcpServerEnabled:${serverName}`, 'false')
 
+        this.$log.error(`[MCP] Failed to connect to server ${serverName}: ${result.message}`)
         this.$message({
           message: `Failed to connect to server ${serverName}: ${result.message}`,
           type: 'error',
         })
       }
     } catch (error) {
-      console.error(`Error during connection test:`, error)
-
       const errorResult = {
         success: false,
         message: error instanceof Error ? error.message : String(error),
@@ -418,6 +417,7 @@ export default class MCPSettings extends Vue {
       this.$set(this.serverEnabledStatus, serverName, false)
       localStorage.setItem(`mcpServerEnabled:${serverName}`, 'false')
 
+      this.$log.error(`[MCP] Error during connection test: ${error instanceof Error ? error.message : String(error)}`)
       this.$message({
         message: `Error during connection test: ${error instanceof Error ? error.message : String(error)}`,
         type: 'error',
@@ -439,18 +439,21 @@ export default class MCPSettings extends Vue {
     try {
       const successful = document.execCommand('copy')
       if (successful) {
+        this.$log.info('[MCP] Command copied to clipboard')
         this.$message({
           message: 'Command copied to clipboard',
           type: 'success',
           duration: 2000,
         })
       } else {
+        this.$log.warn('[MCP] Copy failed, please select and copy manually')
         this.$message({
           message: 'Copy failed, please select and copy manually',
           type: 'warning',
         })
       }
     } catch (err) {
+      this.$log.warn(`[MCP] Copy failed: ${err}`)
       this.$message({
         message: 'Copy failed, please select and copy manually',
         type: 'warning',
@@ -476,7 +479,7 @@ export default class MCPSettings extends Vue {
             try {
               await ipcRenderer.invoke('mcp:disconnect', name)
             } catch (error) {
-              console.error(`Error disconnecting from server:`, error)
+              this.$log.error(`[MCP] Error disconnecting from server: ${error}`)
             }
           }
 
@@ -491,6 +494,7 @@ export default class MCPSettings extends Vue {
           localStorage.removeItem(`mcpServerResult:${name}`)
           localStorage.removeItem(`mcpServerEnabled:${name}`)
 
+          this.$log.info(`[MCP] Successfully deleted server ${name}`)
           this.$message({
             type: 'success',
             message: 'Successfully deleted!',
@@ -587,6 +591,20 @@ export default class MCPSettings extends Vue {
   .server-actions {
     display: flex;
     gap: 8px;
+    align-items: center;
+  }
+
+  .server-enabled-switch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 8px;
+
+    .enable-label {
+      font-size: 13px;
+      color: var(--color-text-light);
+      white-space: nowrap;
+    }
   }
 
   .server-name {
@@ -642,18 +660,6 @@ export default class MCPSettings extends Vue {
       &.error {
         background-color: rgba(245, 108, 108, 0.1);
         color: #f56c6c;
-      }
-
-      .server-enabled-switch {
-        margin-left: auto;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-
-        .enable-label {
-          font-size: 13px;
-          color: var(--color-text-light);
-        }
       }
     }
 
