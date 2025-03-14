@@ -5,4 +5,12 @@ export interface MCPConfig {
 export interface MCPServer {
   command: string
   args: string[]
+  env?: Record<string, string>
+}
+
+export interface ToolCallResult {
+  name: string
+  arguments: any
+  content: string
+  error?: string
 }
