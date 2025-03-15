@@ -1,4 +1,5 @@
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
+const path = require('path')
 
 module.exports = {
   productionSourceMap: false,
@@ -27,6 +28,11 @@ module.exports = {
       .use('raw-loader')
       .loader('raw-loader')
       .end()
+
+    // Use Electron mock in test environment
+    if (process.env.NODE_ENV === 'test') {
+      config.resolve.alias.set('electron', path.resolve(__dirname, 'tests/unit/mocks/electron.js'))
+    }
   },
   configureWebpack: {
     plugins: [

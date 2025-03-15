@@ -1,17 +1,6 @@
+import { SessionState } from '@/types/copilot'
 import { loadSystemPrompt } from './copilot'
 import { loadEnabledMCPServers } from './mcp'
-import { MCPPromptData } from '@/types/mcp'
-
-/**
- * Session state interface
- */
-export interface SessionState {
-  systemPrompt: string // Current system prompt for the session
-  presetPrompt: string // Current preset prompt being used
-  isNewSession: boolean // Whether this is a new session
-  lastPresetChangeTime: number // Timestamp of the last preset change
-  mcpData?: MCPPromptData // MCP data for prompts
-}
 
 /**
  * Copilot Session Manager
