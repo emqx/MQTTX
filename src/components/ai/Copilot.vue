@@ -205,6 +205,7 @@ export default class Copilot extends Vue {
     const throttledScroll = throttle(() => this.scrollToBottom(), 100)
 
     this.abortController = new AbortController()
+    this.$log.info(`[Copilot] AI response stream started with provider: "${this.model}" from "${this.openAIAPIHost}"`)
     const { textStream } = streamText({
       model: getModelProvider({
         model: this.model,
@@ -226,8 +227,6 @@ export default class Copilot extends Vue {
     if (this.shouldProcessMCP) {
       const processedContent = await processMCPCalls(this.responseStreamText)
       responseMessage.content = processedContent
-      // AI TOOL CALL RESULT
-      console.log(processedContent)
     } else {
       responseMessage.content = this.responseStreamText
     }
@@ -372,7 +371,7 @@ export default class Copilot extends Vue {
   }
   @keyframes rightbarPop {
     from {
-      right: -45%;
+      right: -50%;
     }
     to {
       right: 0px;
@@ -382,7 +381,7 @@ export default class Copilot extends Vue {
     box-shadow: -2px 0px 8px 0px var(--color-shadow-leftlist);
     position: fixed;
     right: 0px;
-    width: 45%;
+    width: 50%;
     background: var(--color-bg-normal);
     border-radius: 0;
     top: 0;

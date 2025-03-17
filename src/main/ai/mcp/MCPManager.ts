@@ -18,7 +18,7 @@ const activeClients: Map<string, MCPClient> = new Map()
 export function initMCPHandlers(): void {
   // Test connection to a server
   ipcMain.handle('mcp:test-connection', async (_, serverConfig: MCPServer, serverName: string) => {
-    console.log(`Testing connection to MCP server: ${serverName}`)
+    console.log(`[MCP] Testing connection to MCP server: ${serverName}`)
     try {
       const client = new MCPClient()
       const connected = await client.connectToServer(serverConfig)
@@ -60,16 +60,16 @@ export function initMCPHandlers(): void {
 
   // Call a tool on a specific server
   ipcMain.handle('mcp:call-tool', async (_, serverName: string, toolName: string, toolArgs: any) => {
-    console.log(`Calling tool ${toolName} on server ${serverName}`)
+    console.log(`[MCP] Calling tool ${toolName} on server ${serverName}`)
 
     try {
       const client = activeClients.get(serverName)
       if (!client) {
-        // 如果服务器未连接，尝试自动连接
+        // If server is not connected, try to auto-connect
         await autoConnectToServer(serverName)
         const reconnectedClient = activeClients.get(serverName)
         if (!reconnectedClient) {
-          throw new Error(`No active connection to server: ${serverName} and auto-reconnect failed`)
+          throw new Error(`[MCP] No active connection to server: ${serverName} and auto-reconnect failed`)
         }
 
         const result = await reconnectedClient.callTool(toolName, toolArgs)
@@ -80,7 +80,7 @@ export function initMCPHandlers(): void {
       }
 
       if (!client.isConnected()) {
-        throw new Error(`Connection to server ${serverName} has been lost`)
+        throw new Error(`[MCP] Connection to server ${serverName} has been lost`)
       }
 
       const result = await client.callTool(toolName, toolArgs)
@@ -89,7 +89,7 @@ export function initMCPHandlers(): void {
         result,
       }
     } catch (error) {
-      console.error(`Error calling tool ${toolName} on server ${serverName}:`, error)
+      console.error(`[MCP] Error calling tool ${toolName} on server ${serverName}:`, error)
       return {
         success: false,
         message: error instanceof Error ? error.message : String(error),
@@ -99,7 +99,7 @@ export function initMCPHandlers(): void {
 
   // Disconnect from a server
   ipcMain.handle('mcp:disconnect', async (_, serverName: string) => {
-    console.log(`Disconnecting from MCP server: ${serverName}`)
+    console.log(`[MCP] Disconnecting from MCP server: ${serverName}`)
 
     try {
       const client = activeClients.get(serverName)
@@ -116,7 +116,7 @@ export function initMCPHandlers(): void {
         message: `No active connection to server: ${serverName}`,
       }
     } catch (error) {
-      console.error(`Error disconnecting from MCP server: ${serverName}`, error)
+      console.error(`[MCP] Error disconnecting from MCP server: ${serverName}`, error)
       return {
         success: false,
         message: error instanceof Error ? error.message : String(error),
@@ -124,32 +124,32 @@ export function initMCPHandlers(): void {
     }
   })
 
-  // 自动连接已启用的 MCP 服务器
+  // Auto-connect to enabled MCP servers
   autoConnectToEnabledServers()
 }
 
 /**
- * 自动连接到启用的 MCP 服务器
+ * Automatically connect to enabled MCP servers
  */
 async function autoConnectToEnabledServers(): Promise<void> {
-  console.log('Checking for enabled MCP servers to auto-connect')
+  console.log('[MCP] Checking for enabled MCP servers to auto-connect')
 
   try {
-    // 从本地存储中读取 MCP 配置
+    // Read MCP configuration from local storage
     const Store = require('electron-store')
     const store = new Store()
 
-    // 检查 MCP 是否启用
+    // Check if MCP is enabled
     const mcpEnabled = store.get('mcpEnabled')
     if (mcpEnabled !== 'true') {
-      console.log('MCP is not enabled, skipping auto-connect')
+      console.log('[MCP] MCP is not enabled, skipping auto-connect')
       return
     }
 
-    // 获取 MCP 配置
+    // Get MCP configuration
     const mcpConfigStr = store.get('mcpConfig')
     if (!mcpConfigStr) {
-      console.log('No MCP configuration found, skipping auto-connect')
+      console.log('[MCP] No MCP configuration found, skipping auto-connect')
       return
     }
 
@@ -157,16 +157,16 @@ async function autoConnectToEnabledServers(): Promise<void> {
     try {
       mcpConfig = JSON.parse(mcpConfigStr)
     } catch (err) {
-      console.error('Failed to parse MCP configuration:', err)
+      console.error('[MCP] Failed to parse MCP configuration:', err)
       return
     }
 
     if (!mcpConfig.mcpServers) {
-      console.log('No MCP servers configured, skipping auto-connect')
+      console.log('[MCP] No MCP servers configured, skipping auto-connect')
       return
     }
 
-    // 连接所有启用的服务器
+    // Connect to all enabled servers
     for (const [serverName, serverConfig] of Object.entries(mcpConfig.mcpServers)) {
       const serverEnabled = store.get(`mcpServerEnabled:${serverName}`)
       if (serverEnabled === 'true') {
@@ -174,23 +174,23 @@ async function autoConnectToEnabledServers(): Promise<void> {
       }
     }
 
-    console.log(`Auto-connected to ${activeClients.size} MCP servers`)
+    console.log(`[MCP] Auto-connected to ${activeClients.size} MCP servers`)
   } catch (error) {
-    console.error('Error during MCP auto-connect:', error)
+    console.error('[MCP] Error during MCP auto-connect:', error)
   }
 }
 
 /**
- * 自动连接到指定的 MCP 服务器
+ * Automatically connect to a specific MCP server
  *
- * @param serverName 服务器名称
- * @param serverConfig 服务器配置（可选）
+ * @param serverName Server name
+ * @param serverConfig Server configuration (optional)
  */
 async function autoConnectToServer(serverName: string, serverConfig?: MCPServer): Promise<boolean> {
-  console.log(`Auto-connecting to MCP server: ${serverName}`)
+  console.log(`[MCP] Auto-connecting to MCP server: ${serverName}`)
 
   try {
-    // 如果没有提供服务器配置，从存储中获取
+    // If server configuration is not provided, get it from storage
     if (!serverConfig) {
       const Store = require('electron-store')
       const store = new Store()
@@ -205,35 +205,35 @@ async function autoConnectToServer(serverName: string, serverConfig?: MCPServer)
         serverConfig = mcpConfig.mcpServers[serverName] as MCPServer
 
         if (!serverConfig) {
-          console.error(`Server configuration for ${serverName} not found`)
+          console.error(`[MCP] Server configuration for ${serverName} not found`)
           return false
         }
       } catch (err) {
-        console.error('Failed to parse MCP configuration:', err)
+        console.error('[MCP] Failed to parse MCP configuration:', err)
         return false
       }
     }
 
-    // 检查是否已经有连接
+    // Check if connection already exists
     if (activeClients.has(serverName)) {
       const existingClient = activeClients.get(serverName)
       if (existingClient && existingClient.isConnected()) {
-        console.log(`Server ${serverName} is already connected`)
+        console.log(`[MCP] Server ${serverName} is already connected`)
         return true
       }
 
-      // 如果存在但断开连接，先清理
+      // If exists but disconnected, clean up first
       if (existingClient) {
         try {
           await existingClient.disconnect()
         } catch (err) {
-          console.error(`Error disconnecting existing client for ${serverName}:`, err)
+          console.error(`[MCP] Error disconnecting existing client for ${serverName}:`, err)
         }
         activeClients.delete(serverName)
       }
     }
 
-    // 创建并连接新客户端
+    // Create and connect new client
     const client = new MCPClient()
     const connected = await client.connectToServer(serverConfig)
 
@@ -245,11 +245,11 @@ async function autoConnectToServer(serverName: string, serverConfig?: MCPServer)
       activeClients.set(serverName, client)
       return true
     } else {
-      console.error(`Failed to connect to MCP server: ${serverName}`)
+      console.error(`[MCP] Failed to connect to MCP server: ${serverName}`)
       return false
     }
   } catch (error) {
-    console.error(`Error auto-connecting to MCP server ${serverName}:`, error)
+    console.error(`[MCP] Error auto-connecting to MCP server ${serverName}:`, error)
     return false
   }
 }
@@ -258,14 +258,14 @@ async function autoConnectToServer(serverName: string, serverConfig?: MCPServer)
  * Clean up all active connections
  */
 export async function cleanupMCPConnections(): Promise<void> {
-  console.log(`Cleaning up ${activeClients.size} MCP connections`)
+  console.log(`[MCP] Cleaning up ${activeClients.size} MCP connections`)
 
   for (const [name, client] of activeClients.entries()) {
     try {
       await client.disconnect()
-      console.log(`Disconnected from MCP server: ${name}`)
+      console.log(`[MCP] Disconnected from MCP server: ${name}`)
     } catch (error) {
-      console.error(`Error disconnecting from MCP server: ${name}`, error)
+      console.error(`[MCP] Error disconnecting from MCP server: ${name}`, error)
     }
   }
 
