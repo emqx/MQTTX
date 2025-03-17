@@ -20,7 +20,6 @@ import ORMConfig from './database/database.config'
 import version from '@/version'
 import { initialize } from '@electron/remote/main'
 import { initMCPHandlers, cleanupMCPConnections } from './main/ai/mcp/MCPManager'
-// import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 
 declare const __static: string
 
@@ -255,17 +254,16 @@ async function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
-  // if (isDevelopment && !process.env.IS_TEST) {
-  //   // Install Vue Devtools - modified to handle errors better
-  //   try {
-  //     await installExtension(VUEJS_DEVTOOLS, {
-  //       loadExtensionOptions: { allowFileAccess: true },
-  //     })
-  //   } catch (e) {
-  //     console.error('Vue Devtools failed to install:', e)
-  //     // Continue without Vue Devtools if installation fails
-  //   }
-  // }
+  // Install Vue Devtools on development mode
+  if (isDevelopment && !process.env.IS_TEST) {
+    try {
+      const installExtension = require('electron-devtools-installer').default
+      await installExtension('iaajmlceplecbljialhhkmedjlpdblhp')
+      console.log('Vue Devtools installed successfully')
+    } catch (e) {
+      console.error('Vue Devtools failed to install:', e)
+    }
+  }
   createWindow()
 })
 

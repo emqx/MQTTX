@@ -117,7 +117,7 @@
     "babel-plugin-prismjs": "^2.1.0",
     "chai": "^4.1.2",
     "electron": "^22.0.0",
-    "electron-devtools-installer": "^3.2.0",
+    "electron-devtools-installer": "^3.1.1",
     "eslint": "6.5.1",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
