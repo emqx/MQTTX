@@ -20,7 +20,16 @@ const useConnection = () => {
   }
   async function ConnectionDestroy() {
     if (sqlConnection) {
-      await sqlConnection.close()
+      try {
+        if (sqlConnection.isConnected) {
+          await sqlConnection.close()
+        }
+      } catch (error) {
+        console.error('[Database] Error closing database connection:', error)
+        // Gracefully handle errors during connection close
+      } finally {
+        sqlConnection = undefined
+      }
     }
   }
   return {

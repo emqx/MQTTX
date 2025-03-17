@@ -2,7 +2,6 @@ import 'reflect-metadata' // Required by TypoORM.
 ;('use strict')
 import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
-import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import { quitAndRenameLogger } from './utils/logger'
 import { defaultWindowSize, restoreWindowState, saveWindowState } from './utils/windowStateManager'
 import rebuildDatabase from './database/rebuildDatabase'
@@ -21,6 +20,7 @@ import ORMConfig from './database/database.config'
 import version from '@/version'
 import { initialize } from '@electron/remote/main'
 import { initMCPHandlers, cleanupMCPConnections } from './main/ai/mcp/MCPManager'
+// import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 
 declare const __static: string
 
@@ -42,6 +42,9 @@ let menu: Menu | null
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true, standard: true } }])
 
 const { ConnectionInit, ConnectionDestroy } = useConnection()
+
+// Flag to track if connections have been destroyed
+let connectionsDestroyed = false
 
 function handleIpcMessages() {
   ipcMain.on('setting', (event: Electron.IpcMainEvent, ...args: any[]) => {
@@ -120,10 +123,16 @@ function handleIpcMessages() {
 function beforeAppQuit() {
   // close all log appender and rename log file with date
   quitAndRenameLogger()
-  // close all SQLite connection
-  ConnectionDestroy()
+
+  // close all SQLite connection - only if not already destroyed
+  if (!connectionsDestroyed) {
+    connectionsDestroyed = true
+    ConnectionDestroy()
+  }
+
   // cleanup MCP connections
   cleanupMCPConnections()
+
   // quit APP
   app.quit()
 }
@@ -246,14 +255,17 @@ async function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
-  if (isDevelopment && !process.env.IS_TEST) {
-    // Install Vue Devtools
-    try {
-      await installExtension(VUEJS_DEVTOOLS)
-    } catch (e) {
-      console.error('Vue Devtools failed to install:', e)
-    }
-  }
+  // if (isDevelopment && !process.env.IS_TEST) {
+  //   // Install Vue Devtools - modified to handle errors better
+  //   try {
+  //     await installExtension(VUEJS_DEVTOOLS, {
+  //       loadExtensionOptions: { allowFileAccess: true },
+  //     })
+  //   } catch (e) {
+  //     console.error('Vue Devtools failed to install:', e)
+  //     // Continue without Vue Devtools if installation fails
+  //   }
+  // }
   createWindow()
 })
 
