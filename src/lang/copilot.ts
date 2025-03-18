@@ -540,11 +540,11 @@ export default {
     hu: 'Biztosan törölni szeretné a(z) "{0}" szervert?',
   },
   mcpCopySuccess: {
-    zh: '命令已复制到剪贴板',
-    en: 'Command copied to clipboard',
-    tr: 'Komut panoya kopyalandı',
-    ja: 'コマンドがクリップボードにコピーされました',
-    hu: 'Parancs a vágólapra másolva',
+    zh: '已复制到剪贴板',
+    en: 'Copied to clipboard',
+    tr: 'Panoya kopyalandı',
+    ja: 'クリップボードにコピーされました',
+    hu: 'Vágólapra másolva',
   },
   mcpCopyFailed: {
     zh: '复制失败，请手动选择并复制',
@@ -561,11 +561,11 @@ export default {
     hu: 'A konfigurációnak tartalmaznia kell az mcpServers objektumot',
   },
   mcpServerConfigInvalid: {
-    zh: '服务器 "{0}" 配置无效，必须包含 command 和 args 数组',
-    en: 'Server "{0}" configuration is invalid, must include command and args array',
-    tr: 'Sunucu "{0}" yapılandırması geçersiz, komut ve args dizisini içermelidir',
-    ja: 'サーバー「{0}」の構成が無効です。コマンドとargs配列を含める必要があります',
-    hu: 'A(z) "{0}" szerver konfigurációja érvénytelen, tartalmaznia kell a parancsot és az args tömböt',
+    zh: '服务器 "{0}" 配置无效，必须包含 url 或 command+args 数组',
+    en: 'Server "{0}" configuration is invalid, must include either url or command and args array',
+    tr: 'Sunucu "{0}" yapılandırması geçersiz, url veya komut ve args dizisini içermelidir',
+    ja: 'サーバー「{0}」の構成が無効です。urlまたはコマンドとargs配列を含める必要があります',
+    hu: 'A(z) "{0}" szerver konfigurációja érvénytelen, tartalmaznia kell az url-t vagy a parancsot és az args tömböt',
   },
   mcpInvalidJsonFormat: {
     zh: 'JSON 格式无效',

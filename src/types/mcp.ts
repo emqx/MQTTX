@@ -3,9 +3,10 @@ export interface MCPConfig {
 }
 
 export interface MCPServer {
-  command: string
-  args: string[]
+  command?: string
+  args?: string[]
   env?: Record<string, string>
+  url?: string
 }
 
 export interface ToolCallResult {
