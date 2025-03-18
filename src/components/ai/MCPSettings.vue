@@ -123,14 +123,25 @@
             </div>
           </div>
 
-          <div class="server-command">
+          <div v-if="server.url" class="server-url">
+            {{ server.url }}
+            <el-button
+              size="mini"
+              type="text"
+              icon="el-icon-document-copy"
+              class="copy-btn"
+              @click="copyText(server.url)"
+              :title="$t('common.copy')"
+            ></el-button>
+          </div>
+          <div v-else class="server-command">
             {{ server.command }} {{ server.args.join(' ') }}
             <el-button
               size="mini"
               type="text"
               icon="el-icon-document-copy"
               class="copy-btn"
-              @click="copyCommand(server.command + ' ' + server.args.join(' '))"
+              @click="copyText(server.command + ' ' + server.args.join(' '))"
               :title="$t('common.copy')"
             ></el-button>
           </div>
@@ -316,7 +327,7 @@ export default class MCPSettings extends Vue {
 
       // Validate each server configuration
       for (const [name, server] of Object.entries(config.mcpServers)) {
-        if (!server.command || !Array.isArray(server.args)) {
+        if (!server.url && (!server.command || !Array.isArray(server.args))) {
           this.mcpConfigError = this.$t('copilot.mcpServerConfigInvalid', [name]).toString()
           return
         }
@@ -423,18 +434,18 @@ export default class MCPSettings extends Vue {
   }
 
   /**
-   * Copy command to clipboard
+   * Copy text to clipboard
    */
-  private copyCommand(command: string) {
+  private copyText(text: string) {
     const textArea = document.createElement('textarea')
-    textArea.value = command
+    textArea.value = text
     document.body.appendChild(textArea)
     textArea.select()
 
     try {
       const successful = document.execCommand('copy')
       if (successful) {
-        this.$log.info('[MCP] Command copied to clipboard')
+        this.$log.info('[MCP] Text copied to clipboard')
         this.$message({
           message: this.$t('copilot.mcpCopySuccess').toString(),
           type: 'success',
@@ -606,6 +617,7 @@ export default class MCPSettings extends Vue {
     font-size: 14px;
   }
 
+  .server-url,
   .server-command {
     font-family: Menlo, Monaco, 'Courier New', monospace;
     font-size: 12px;

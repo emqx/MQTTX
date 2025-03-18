@@ -6,6 +6,7 @@ global.AbortController = AbortController
 
 const { Client } = require('@modelcontextprotocol/sdk/dist/esm/client/index.js')
 const { StdioClientTransport } = require('@modelcontextprotocol/sdk/dist/esm/client/stdio.js')
+const { SSEClientTransport } = require('@modelcontextprotocol/sdk/dist/esm/client/sse.js')
 const { spawn } = require('child_process')
 const { EventEmitter } = require('events')
 
@@ -37,14 +38,24 @@ export class MCPClient extends EventEmitter {
    */
   async connectToServer(config: MCPServer): Promise<boolean> {
     try {
-      console.log(`Connecting to MCP server: ${config.command} ${config.args.join(' ')}`)
+      // Check if this is an SSE or command-based configuration
+      if (config.url) {
+        console.log(`Connecting to MCP SSE server: ${config.url}`)
 
-      // Create transport layer
-      this.transport = new StdioClientTransport({
-        command: config.command,
-        args: config.args,
-        env: config.env || process.env,
-      })
+        // Create SSE transport layer
+        this.transport = new SSEClientTransport(config.url)
+      } else if (config.command && config.args) {
+        console.log(`Connecting to MCP command server: ${config.command} ${config.args.join(' ')}`)
+
+        // Create stdio transport layer
+        this.transport = new StdioClientTransport({
+          command: config.command,
+          args: config.args,
+          env: config.env || process.env,
+        })
+      } else {
+        throw new Error('Invalid MCP server configuration: must provide either url or command+args')
+      }
 
       // Connect to server
       this.client.connect(this.transport)
