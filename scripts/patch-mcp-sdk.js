@@ -67,3 +67,63 @@ filesToModify.forEach((filePath) => {
 console.log(
   '🎉 Import modification completed successfully! SDK files are now compatible with MQTTX Electron environment.',
 )
+
+// Now patch the pkce-challenge module which has modern syntax issues
+const pkceChallengePath = 'node_modules/pkce-challenge/dist/index.node.js'
+
+if (fs.existsSync(pkceChallengePath)) {
+  console.log(`🔍 Processing pkce-challenge module: ${pkceChallengePath}`)
+
+  // Replace the entire file content with a compatible implementation
+  const replacementCode = `
+let crypto = require('crypto');
+
+/**
+ * Creates an array of length \`size\` of random bytes
+ * @param size
+ */
+function randomBytes(size) {
+    return crypto.randomBytes(size);
+}
+
+/**
+ * Creates a base64url encoded challenge string of random bytes
+ * @param size Size in bytes
+ */
+function generateChallenge(size = 32) {
+    const bytes = randomBytes(size);
+    const challenge = base64url(bytes);
+    return challenge;
+}
+
+/**
+ * Encodes a buffer object as a base64url string
+ * @param buffer Raw buffer data
+ */
+function base64url(buffer) {
+    return buffer.toString('base64')
+        .replace(/\\+/g, '-')
+        .replace(/\\//g, '_')
+        .replace(/=+$/, '');
+}
+
+/**
+ * Creates and returns PKCE challenge and verifier strings
+ */
+function pkceChallenge() {
+    const verifier = generateChallenge();
+    const sha256 = crypto.createHash("sha256").update(verifier).digest();
+    const challenge = base64url(sha256);
+    return { code_challenge: challenge, code_verifier: verifier };
+}
+
+module.exports = pkceChallenge;
+module.exports.default = pkceChallenge;
+`
+
+  // Write the replacement implementation to the file
+  fs.writeFileSync(pkceChallengePath, replacementCode)
+  console.log(`✅ Successfully patched pkce-challenge module with compatible implementation!`)
+} else {
+  console.log(`⚠️ pkce-challenge module not found at: ${pkceChallengePath}`)
+}
