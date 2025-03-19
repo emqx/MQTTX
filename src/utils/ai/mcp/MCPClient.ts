@@ -40,12 +40,12 @@ export class MCPClient extends EventEmitter {
     try {
       // Check if this is an SSE or command-based configuration
       if (config.url) {
-        console.log(`Connecting to MCP SSE server: ${config.url}`)
+        console.log(`[MCP] Connecting to MCP SSE server: ${config.url}`)
 
         // Create SSE transport layer
         this.transport = new SSEClientTransport(new URL(config.url))
       } else if (config.command && config.args) {
-        console.log(`Connecting to MCP command server: ${config.command} ${config.args.join(' ')}`)
+        console.log(`[MCP] Connecting to MCP command server: ${config.command} ${config.args.join(' ')}`)
 
         // Create stdio transport layer
         this.transport = new StdioClientTransport({
@@ -54,7 +54,7 @@ export class MCPClient extends EventEmitter {
           env: config.env,
         })
       } else {
-        throw new Error('Invalid MCP server configuration: must provide either url or command+args')
+        throw new Error('[MCP] Invalid MCP server configuration: must provide either url or command+args')
       }
 
       // Connect to server
@@ -71,7 +71,7 @@ export class MCPClient extends EventEmitter {
       })
 
       console.log(
-        `Connected to MCP server, available tools:`,
+        `[MCP] Connected to MCP server, available tools:`,
         this.tools.map(({ name }: { name: string }) => name),
       )
 
@@ -79,7 +79,7 @@ export class MCPClient extends EventEmitter {
       this.emit('connected', this.tools)
       return true
     } catch (error) {
-      console.error('Failed to connect to MCP server:', error)
+      console.error('[MCP] Failed to connect to MCP server:', error)
       this.emit('error', error)
       return false
     }
@@ -94,9 +94,9 @@ export class MCPClient extends EventEmitter {
         await this.client.close()
         this.connected = false
         this.emit('disconnected')
-        console.log('Disconnected from MCP server')
+        console.log('[MCP] Disconnected from MCP server')
       } catch (error) {
-        console.error('Failed to disconnect from MCP server:', error)
+        console.error('[MCP] Failed to disconnect from MCP server:', error)
         this.emit('error', error)
       }
     }
@@ -118,18 +118,18 @@ export class MCPClient extends EventEmitter {
    */
   async callTool(toolName: string, toolArgs: any): Promise<ToolCallResult> {
     if (!this.connected) {
-      throw new Error('Not connected to MCP server')
+      throw new Error('[MCP] Not connected to MCP server')
     }
 
     try {
-      console.log(`Calling tool: ${toolName}, arguments:`, toolArgs)
+      console.log(`[MCP] Calling tool: ${toolName}, arguments:`, toolArgs)
 
       const result = await this.client.callTool({
         name: toolName,
         arguments: toolArgs,
       })
 
-      console.log(`Tool call result:`, result)
+      console.log(`[MCP] Tool call result:`, result)
 
       return {
         name: toolName,
@@ -137,7 +137,7 @@ export class MCPClient extends EventEmitter {
         content: result.content,
       }
     } catch (error) {
-      console.error(`Tool call failed (${toolName}):`, error)
+      console.error(`[MCP] Tool call failed (${toolName}):`, error)
       this.emit('toolError', { toolName, error })
 
       return {
@@ -160,36 +160,36 @@ export class MCPClient extends EventEmitter {
       const isPy = serverPath.endsWith('.py')
 
       if (!isJs && !isPy) {
-        throw new Error('Server script must be a .js or .py file')
+        throw new Error('[MCP] Server script must be a .js or .py file')
       }
 
       const command = isPy ? (process.platform === 'win32' ? 'python' : 'python3') : process.execPath
 
       const args = [serverPath]
 
-      console.log(`Starting MCP server process: ${command} ${args.join(' ')}`)
+      console.log(`[MCP] Starting MCP server process: ${command} ${args.join(' ')}`)
 
       this.serverProcess = spawn(command, args, {
         stdio: 'pipe',
       })
 
       this.serverProcess.stdout.on('data', (data: any) => {
-        console.log(`MCP server output: ${data}`)
+        console.log(`[MCP] MCP server output: ${data}`)
       })
 
       this.serverProcess.stderr.on('data', (data: any) => {
-        console.error(`MCP server error: ${data}`)
+        console.error(`[MCP] MCP server error: ${data}`)
       })
 
       this.serverProcess.on('close', (code: number) => {
-        console.log(`MCP server process exited with code: ${code}`)
+        console.log(`[MCP] MCP server process exited with code: ${code}`)
         this.serverProcess = null
         this.emit('serverClosed', code)
       })
 
       return this.serverProcess
     } catch (error) {
-      console.error('Failed to start MCP server process:', error)
+      console.error('[MCP] Failed to start MCP server process:', error)
       this.emit('error', error)
       return null
     }
@@ -200,7 +200,7 @@ export class MCPClient extends EventEmitter {
    */
   stopServerProcess(): void {
     if (this.serverProcess) {
-      console.log('Stopping MCP server process')
+      console.log('[MCP] Stopping MCP server process')
       this.serverProcess.kill()
       this.serverProcess = null
     }

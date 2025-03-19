@@ -8,6 +8,7 @@
 import { ipcMain } from 'electron'
 import { MCPClient } from '@/utils/ai/mcp'
 import { MCPServer } from '@/types/mcp'
+import { mcpStore } from './MCPStore'
 
 // Store active MCP client instances
 const activeClients: Map<string, MCPClient> = new Map()
@@ -25,8 +26,7 @@ export function initMCPHandlers(): void {
 
       if (connected) {
         const tools = client.getTools()
-        console.log(`Successfully connected to MCP server: ${serverName}`)
-        console.log(`Available tools: ${tools.map((t) => t.name).join(', ')}`)
+        console.log(`[MCP] Successfully connected to MCP server: ${serverName}`)
 
         // Store client for later use
         if (activeClients.has(serverName)) {
@@ -37,24 +37,36 @@ export function initMCPHandlers(): void {
         }
         activeClients.set(serverName, client)
 
-        return {
+        const result = {
           success: true,
           tools,
           message: `Successfully connected to MCP server: ${serverName}`,
         }
+
+        // Save test results to store
+        mcpStore.setServerTestResults(serverName, result)
+        return result
       } else {
-        console.error(`Failed to connect to MCP server: ${serverName}`)
-        return {
+        console.error(`[MCP] Failed to connect to MCP server: ${serverName}`)
+        const result = {
           success: false,
           message: `Failed to connect to MCP server: ${serverName}`,
         }
+
+        // Save failed test results
+        mcpStore.setServerTestResults(serverName, result)
+        return result
       }
     } catch (error) {
-      console.error(`Error testing connection to MCP server: ${serverName}`, error)
-      return {
+      console.error(`[MCP] Error testing connection to MCP server: ${serverName}`, error)
+      const result = {
         success: false,
         message: error instanceof Error ? error.message : String(error),
       }
+
+      // Save error results
+      mcpStore.setServerTestResults(serverName, result)
+      return result
     }
   })
 
@@ -124,6 +136,57 @@ export function initMCPHandlers(): void {
     }
   })
 
+  // Get MCP configuration
+  ipcMain.handle('mcp:get-config', () => {
+    return mcpStore.getMCPConfig()
+  })
+
+  // Set MCP configuration
+  ipcMain.handle('mcp:set-config', (_, config: string) => {
+    mcpStore.setMCPConfig(config)
+    return { success: true }
+  })
+
+  // Get MCP enabled status
+  ipcMain.handle('mcp:get-enabled', () => {
+    return mcpStore.getMCPEnabled()
+  })
+
+  // Set MCP enabled status
+  ipcMain.handle('mcp:set-enabled', (_, enabled: boolean) => {
+    mcpStore.setMCPEnabled(enabled)
+    return { success: true }
+  })
+
+  // Get server enabled status
+  ipcMain.handle('mcp:get-server-enabled', (_, serverName: string) => {
+    return mcpStore.getServerEnabled(serverName)
+  })
+
+  // Set server enabled status
+  ipcMain.handle('mcp:set-server-enabled', (_, serverName: string, enabled: boolean) => {
+    mcpStore.setServerEnabled(serverName, enabled)
+    return { success: true }
+  })
+
+  // Get server test results
+  ipcMain.handle('mcp:get-server-results', (_, serverName: string) => {
+    return mcpStore.getServerTestResults(serverName)
+  })
+
+  // Delete server data
+  ipcMain.handle('mcp:delete-server', (_, serverName: string) => {
+    // Disconnect first if connected
+    const client = activeClients.get(serverName)
+    if (client) {
+      client.disconnect()
+      activeClients.delete(serverName)
+    }
+
+    mcpStore.deleteServerData(serverName)
+    return { success: true }
+  })
+
   // Auto-connect to enabled MCP servers
   autoConnectToEnabledServers()
 }
@@ -135,43 +198,23 @@ async function autoConnectToEnabledServers(): Promise<void> {
   console.log('[MCP] Checking for enabled MCP servers to auto-connect')
 
   try {
-    // Read MCP configuration from local storage
-    const Store = require('electron-store')
-    const store = new Store()
-
-    // Check if MCP is enabled
-    const mcpEnabled = store.get('mcpEnabled')
-    if (mcpEnabled !== 'true') {
-      console.log('[MCP] MCP is not enabled, skipping auto-connect')
+    // Check if MCP is ready to use
+    if (!mcpStore.isMCPReady()) {
+      console.log('[MCP] MCP is not ready, skipping auto-connect')
       return
     }
 
-    // Get MCP configuration
-    const mcpConfigStr = store.get('mcpConfig')
-    if (!mcpConfigStr) {
-      console.log('[MCP] No MCP configuration found, skipping auto-connect')
-      return
-    }
+    // Get all enabled servers from store
+    const enabledServers = mcpStore.getEnabledServers()
 
-    let mcpConfig
-    try {
-      mcpConfig = JSON.parse(mcpConfigStr)
-    } catch (err) {
-      console.error('[MCP] Failed to parse MCP configuration:', err)
-      return
-    }
-
-    if (!mcpConfig.mcpServers) {
-      console.log('[MCP] No MCP servers configured, skipping auto-connect')
+    if (enabledServers.length === 0) {
+      console.log('[MCP] No enabled MCP servers found, skipping auto-connect')
       return
     }
 
     // Connect to all enabled servers
-    for (const [serverName, serverConfig] of Object.entries(mcpConfig.mcpServers)) {
-      const serverEnabled = store.get(`mcpServerEnabled:${serverName}`)
-      if (serverEnabled === 'true') {
-        await autoConnectToServer(serverName, serverConfig as MCPServer)
-      }
+    for (const [serverName, serverConfig] of enabledServers) {
+      await autoConnectToServer(serverName, serverConfig)
     }
 
     console.log(`[MCP] Auto-connected to ${activeClients.size} MCP servers`)
@@ -190,26 +233,12 @@ async function autoConnectToServer(serverName: string, serverConfig?: MCPServer)
   console.log(`[MCP] Auto-connecting to MCP server: ${serverName}`)
 
   try {
-    // If server configuration is not provided, get it from storage
+    // If server configuration is not provided, get it from store
     if (!serverConfig) {
-      const Store = require('electron-store')
-      const store = new Store()
+      serverConfig = mcpStore.getServerConfig(serverName)
 
-      const mcpConfigStr = store.get('mcpConfig')
-      if (!mcpConfigStr) {
-        return false
-      }
-
-      try {
-        const mcpConfig = JSON.parse(mcpConfigStr)
-        serverConfig = mcpConfig.mcpServers[serverName] as MCPServer
-
-        if (!serverConfig) {
-          console.error(`[MCP] Server configuration for ${serverName} not found`)
-          return false
-        }
-      } catch (err) {
-        console.error('[MCP] Failed to parse MCP configuration:', err)
+      if (!serverConfig) {
+        console.error(`[MCP] Server configuration for ${serverName} not found`)
         return false
       }
     }
@@ -238,10 +267,8 @@ async function autoConnectToServer(serverName: string, serverConfig?: MCPServer)
     const connected = await client.connectToServer(serverConfig)
 
     if (connected) {
-      const tools = client.getTools()
-      console.log(`Successfully connected to MCP server: ${serverName}`)
-      console.log(`Available tools: ${tools.map((t: any) => t.name).join(', ')}`)
-
+      console.log(`[MCP] Successfully connected to MCP server: ${serverName}`)
+      // Store client for later use
       activeClients.set(serverName, client)
       return true
     } else {
