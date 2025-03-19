@@ -40,7 +40,6 @@ export const loadSystemPrompt = (lang: Language, command?: string, mcpData?: MCP
     let mcpSystemPrompt = mcpPrompt
       .replace('{{SERVERS_SECTION}}', mcpData.serversSection)
       .replace('{{TOOLS_SECTION}}', mcpData.toolsSection)
-
     _basePrompt = `${_basePrompt}\n\n${mcpSystemPrompt}`
   }
 

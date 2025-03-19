@@ -13,6 +13,7 @@ export class SessionManager {
     presetPrompt: '',
     isNewSession: true,
     lastPresetChangeTime: 0,
+    mcpData: undefined,
   }
 
   /**
@@ -31,6 +32,7 @@ export class SessionManager {
       presetPrompt: '',
       isNewSession: true,
       lastPresetChangeTime: 0,
+      mcpData: undefined,
     }
   }
 
@@ -59,7 +61,15 @@ export class SessionManager {
     this.state.presetPrompt = preset
     this.state.isNewSession = true
     this.state.lastPresetChangeTime = Date.now()
-    this.state.systemPrompt = '' // Force system prompt reload
+    this.state.systemPrompt = ''
+    this.state.mcpData = undefined
+  }
+
+  /**
+   * Load MCP data
+   */
+  public async loadMCPData(): Promise<void> {
+    this.state.mcpData = await loadEnabledMCPServers()
   }
 
   /**
@@ -78,20 +88,11 @@ export class SessionManager {
    * Load system prompt for current session
    */
   private async loadSystemPrompt(language: Language): Promise<void> {
-    // Load MCP data if not already loaded
-    if (!this.state.mcpData) {
-      this.state.mcpData = await loadEnabledMCPServers()
+    const mcpData = this.getState().mcpData
+    if (!mcpData) {
+      await this.loadMCPData()
     }
-
     this.state.systemPrompt = loadSystemPrompt(language, this.state.presetPrompt, this.state.mcpData)
     this.state.isNewSession = false
-  }
-
-  /**
-   * Reload MCP data and update system prompt
-   */
-  public async reloadMCPData(language: Language): Promise<void> {
-    this.state.mcpData = await loadEnabledMCPServers()
-    await this.loadSystemPrompt(language)
   }
 }

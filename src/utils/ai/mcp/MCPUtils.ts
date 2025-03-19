@@ -5,8 +5,8 @@ import { ipcRenderer } from 'electron'
 export const MCP_CALL_REGEX = /<mcp-call>([\s\S]*?)<\/mcp-call>/g
 
 /**
- * Load enabled MCP servers from local storage
- * @returns Object containing MCP servers info for prompt template
+ * Load enabled MCP servers from Electron Store
+ * @returns An object containing MCP server information for prompt templates
  */
 export async function loadEnabledMCPServers(): Promise<MCPPromptData> {
   const defaultResult: MCPPromptData = {
@@ -15,46 +15,48 @@ export async function loadEnabledMCPServers(): Promise<MCPPromptData> {
     hasMCP: false,
   }
 
-  // Check if MCP is globally enabled
-  const mcpEnabled = localStorage.getItem('mcpEnabled') === 'true'
-  if (!mcpEnabled) {
-    return defaultResult
-  }
-
   try {
-    // Load MCP configuration from local storage
-    const storedConfig = localStorage.getItem('mcpConfig')
-    if (!storedConfig) {
+    const mcpEnabled = await ipcRenderer.invoke('mcp:get-enabled')
+    if (!mcpEnabled) {
       return defaultResult
     }
 
-    const mcpConfig: MCPConfig = JSON.parse(storedConfig)
+    // Retrieve MCP configuration
+    const mcpConfig: MCPConfig = await ipcRenderer.invoke('mcp:get-config')
     if (!mcpConfig.mcpServers || Object.keys(mcpConfig.mcpServers).length === 0) {
       return defaultResult
     }
 
-    // Get enabled servers
+    // Get list of enabled servers
+    const enabledServersData = (await ipcRenderer.invoke('mcp:get-enabled-servers')) as Record<
+      string,
+      {
+        enabled: boolean
+        testResults: {
+          success: boolean
+          tools?: Array<{
+            name: string
+            description: string
+            input_schema: any
+          }>
+        } | null
+      }
+    >
     const enabledServers: EnabledMCPServer[] = []
 
-    for (const [serverName, serverConfig] of Object.entries(mcpConfig.mcpServers)) {
-      const isEnabled = localStorage.getItem(`mcpServerEnabled:${serverName}`) === 'true'
-      if (!isEnabled) {
+    for (const [serverName, serverData] of Object.entries(enabledServersData)) {
+      if (
+        !serverData.enabled ||
+        !serverData.testResults ||
+        !serverData.testResults.success ||
+        !serverData.testResults.tools ||
+        serverData.testResults.tools.length === 0
+      ) {
         continue
       }
-
-      const serverResult = localStorage.getItem(`mcpServerResult:${serverName}`)
-      if (!serverResult) {
-        continue
-      }
-
-      const parsedResult = JSON.parse(serverResult)
-      if (!parsedResult.success || !parsedResult.tools || parsedResult.tools.length === 0) {
-        continue
-      }
-
       enabledServers.push({
         name: serverName,
-        tools: parsedResult.tools,
+        tools: serverData.testResults.tools,
       })
     }
 
@@ -62,21 +64,9 @@ export async function loadEnabledMCPServers(): Promise<MCPPromptData> {
       return defaultResult
     }
 
-    // Format servers section
-    const serversSection = enabledServers.map((server) => `- ${server.name}`).join('\n')
-
-    // Format tools section
-    const toolsSection = enabledServers
-      .map((server) => {
-        const toolsList = server.tools.map((tool) => `  - ${tool.name}: ${tool.description}`).join('\n')
-
-        return `- ${server.name}:\n${toolsList}`
-      })
-      .join('\n\n')
-
     return {
-      serversSection,
-      toolsSection,
+      serversSection: JSON.stringify(enabledServers.map((server) => server.name)),
+      toolsSection: JSON.stringify(enabledServers),
       hasMCP: true,
     }
   } catch (error) {
