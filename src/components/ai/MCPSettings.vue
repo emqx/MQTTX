@@ -215,63 +215,59 @@ export default class MCPSettings extends Vue {
   }
 
   /**
-   * Load MCP configuration from local storage
+   * Load MCP configuration from main process
    */
-  private loadMCPConfig() {
-    const storedConfig = localStorage.getItem('mcpConfig')
+  private async loadMCPConfig() {
+    try {
+      // Get MCP enabled status
+      this.mcpEnabled = await ipcRenderer.invoke('mcp:get-enabled')
 
-    if (storedConfig) {
-      try {
-        this.mcpConfig = JSON.parse(storedConfig)
-        this.mcpConfigStr = JSON.stringify(this.mcpConfig, null, 2)
-      } catch (error) {
-        this.$log.error(`[MCP] Failed to parse MCP configuration: ${error}`)
-        this.mcpConfigError = this.$t('copilot.mcpFailedParseConfig').toString()
-        this.mcpConfig = { mcpServers: {} }
-        this.mcpConfigStr = JSON.stringify(this.mcpConfig, null, 2)
-      }
-    } else {
+      // Get MCP configuration
+      this.mcpConfig = await ipcRenderer.invoke('mcp:get-config')
+      this.mcpConfigStr = JSON.stringify(this.mcpConfig, null, 2)
+
+      // After loading config, immediately load results and status
+      await this.loadServerResults()
+      await this.loadServerEnabledStatus()
+    } catch (error) {
+      this.$log.error(`[MCP] Failed to load MCP configuration: ${error}`)
+      this.mcpConfigError = this.$t('copilot.mcpFailedParseConfig').toString()
       this.mcpConfig = { mcpServers: {} }
       this.mcpConfigStr = JSON.stringify(this.mcpConfig, null, 2)
-    }
-
-    const mcpEnabledStr = localStorage.getItem('mcpEnabled')
-    if (mcpEnabledStr !== null) {
-      this.mcpEnabled = mcpEnabledStr === 'true'
     }
   }
 
   /**
-   * Load server test results from local storage
+   * Load server test results from main process
    */
-  private loadServerResults() {
+  private async loadServerResults() {
     // Iterate through all configured servers and load their test results
     if (this.mcpConfig && this.mcpConfig.mcpServers) {
       for (const serverName of Object.keys(this.mcpConfig.mcpServers)) {
-        const storedResult = localStorage.getItem(`mcpServerResult:${serverName}`)
-        if (storedResult) {
-          try {
-            const parsedResult = JSON.parse(storedResult)
-            this.$set(this.serverResults, serverName, parsedResult)
-          } catch (err) {
-            this.$log.error(`[MCP] Failed to parse test result for server ${serverName}: ${err}`)
+        try {
+          const results = await ipcRenderer.invoke('mcp:get-server-results', serverName)
+          if (results) {
+            this.$set(this.serverResults, serverName, results)
           }
+        } catch (err) {
+          this.$log.error(`[MCP] Failed to load test results for server ${serverName}: ${err}`)
         }
       }
     }
   }
 
   /**
-   * Load server enabled status from local storage
+   * Load server enabled status from main process
    */
-  private loadServerEnabledStatus() {
+  private async loadServerEnabledStatus() {
     // Iterate through all configured servers and load their enabled status
     if (this.mcpConfig && this.mcpConfig.mcpServers) {
       for (const serverName of Object.keys(this.mcpConfig.mcpServers)) {
-        const storedStatus = localStorage.getItem(`mcpServerEnabled:${serverName}`)
-        if (storedStatus !== null) {
-          this.$set(this.serverEnabledStatus, serverName, storedStatus === 'true')
-        } else {
+        try {
+          const enabled = await ipcRenderer.invoke('mcp:get-server-enabled', serverName)
+          this.$set(this.serverEnabledStatus, serverName, enabled)
+        } catch (err) {
+          this.$log.error(`[MCP] Failed to load enabled status for server ${serverName}: ${err}`)
           // Default value is false, ensure each server has an enabled status
           this.$set(this.serverEnabledStatus, serverName, false)
         }
@@ -282,29 +278,45 @@ export default class MCPSettings extends Vue {
   /**
    * Handle enable/disable MCP switch state change
    */
-  private handleMCPEnabledChange(value: boolean) {
-    this.mcpEnabled = value
-    localStorage.setItem('mcpEnabled', String(value))
+  private async handleMCPEnabledChange(value: boolean) {
+    try {
+      this.mcpEnabled = value
+      await ipcRenderer.invoke('mcp:set-enabled', value)
+    } catch (error) {
+      this.$log.error(`[MCP] Failed to set MCP enabled status: ${error}`)
+      this.$message({
+        type: 'error',
+        message: this.$t('common.failed').toString(),
+      })
+    }
   }
 
   /**
    * Handle server enabled status change
    */
-  private handleServerEnabledChange(serverName: string, enabled: boolean) {
-    this.$set(this.serverEnabledStatus, serverName, enabled)
-    localStorage.setItem(`mcpServerEnabled:${serverName}`, String(enabled))
+  private async handleServerEnabledChange(serverName: string, enabled: boolean) {
+    try {
+      this.$set(this.serverEnabledStatus, serverName, enabled)
+      await ipcRenderer.invoke('mcp:set-server-enabled', serverName, enabled)
 
-    if (enabled) {
-      this.$log.info(`[MCP] Server ${serverName} enabled`)
+      if (enabled) {
+        this.$log.info(`[MCP] Server ${serverName} enabled`)
+        this.$message({
+          message: `${serverName} ${this.$t('copilot.mcpServerTestSuccess').toString()}`,
+          type: 'success',
+        })
+      } else {
+        this.$log.info(`[MCP] Server ${serverName} disabled`)
+        this.$message({
+          message: `${serverName} ${this.$t('common.disable').toString()}`,
+          type: 'info',
+        })
+      }
+    } catch (error) {
+      this.$log.error(`[MCP] Failed to set server enabled status: ${error}`)
       this.$message({
-        message: `${serverName} ${this.$t('copilot.mcpServerTestSuccess').toString()}`,
-        type: 'success',
-      })
-    } else {
-      this.$log.info(`[MCP] Server ${serverName} disabled`)
-      this.$message({
-        message: `${serverName} ${this.$t('common.disable').toString()}`,
-        type: 'info',
+        type: 'error',
+        message: this.$t('common.failed').toString(),
       })
     }
   }
@@ -312,7 +324,7 @@ export default class MCPSettings extends Vue {
   /**
    * Handle MCP configuration text change
    */
-  private handleMCPConfigChange(value: string) {
+  private async handleMCPConfigChange(value: string) {
     this.mcpConfigStr = value
     this.mcpConfigError = ''
 
@@ -342,8 +354,7 @@ export default class MCPSettings extends Vue {
       for (const name of removedServers) {
         this.$delete(this.serverResults, name)
         this.$delete(this.serverEnabledStatus, name)
-        localStorage.removeItem(`mcpServerResult:${name}`)
-        localStorage.removeItem(`mcpServerEnabled:${name}`)
+        await ipcRenderer.invoke('mcp:delete-server', name)
       }
 
       // Handle newly added servers
@@ -356,7 +367,7 @@ export default class MCPSettings extends Vue {
 
       // Configuration is valid, update state
       this.mcpConfig = config
-      localStorage.setItem('mcpConfig', value)
+      await ipcRenderer.invoke('mcp:set-config', value)
     } catch (error) {
       this.mcpConfigError = this.$t('copilot.mcpInvalidJsonFormat').toString()
     }
@@ -381,16 +392,13 @@ export default class MCPSettings extends Vue {
       // Call main process via IPC to test connection
       const result = await ipcRenderer.invoke('mcp:test-connection', serverConfig, serverName)
 
-      // Save test results
+      // Save test results in component state
       this.$set(this.serverResults, serverName, result)
-
-      // Persist test results
-      localStorage.setItem(`mcpServerResult:${serverName}`, JSON.stringify(result))
 
       if (result.success) {
         // If test is successful, enable the server by default
         this.$set(this.serverEnabledStatus, serverName, true)
-        localStorage.setItem(`mcpServerEnabled:${serverName}`, 'true')
+        await ipcRenderer.invoke('mcp:set-server-enabled', serverName, true)
 
         this.$log.info(`[MCP] Successfully connected to server ${serverName}`)
         this.$message({
@@ -400,7 +408,7 @@ export default class MCPSettings extends Vue {
       } else {
         // If test fails, disable the server
         this.$set(this.serverEnabledStatus, serverName, false)
-        localStorage.setItem(`mcpServerEnabled:${serverName}`, 'false')
+        await ipcRenderer.invoke('mcp:set-server-enabled', serverName, false)
 
         this.$log.error(`[MCP] Failed to connect to server ${serverName}: ${result.message}`)
         this.$message({
@@ -409,18 +417,6 @@ export default class MCPSettings extends Vue {
         })
       }
     } catch (error) {
-      const errorResult = {
-        success: false,
-        message: error instanceof Error ? error.message : String(error),
-      }
-
-      this.$set(this.serverResults, serverName, errorResult)
-      localStorage.setItem(`mcpServerResult:${serverName}`, JSON.stringify(errorResult))
-
-      // Disable server when error occurs
-      this.$set(this.serverEnabledStatus, serverName, false)
-      localStorage.setItem(`mcpServerEnabled:${serverName}`, 'false')
-
       this.$log.error(`[MCP] Error during connection test: ${error instanceof Error ? error.message : String(error)}`)
       this.$message({
         message: `${this.$t('copilot.mcpConnectionFailed', [serverName]).toString()}: ${
@@ -472,37 +468,37 @@ export default class MCPSettings extends Vue {
   /**
    * Remove specified MCP server
    */
-  private removeMCPServer(name: string) {
+  private async removeMCPServer(name: string) {
     if (this.mcpConfig.mcpServers && this.mcpConfig.mcpServers[name]) {
       this.$confirm(this.$t('copilot.mcpDeleteConfirm', [name]).toString(), {
         type: 'warning',
       })
         .then(async () => {
-          // Disconnect first if connected
-          if (this.serverResults[name] && this.serverResults[name].success) {
-            try {
-              await ipcRenderer.invoke('mcp:disconnect', name)
-            } catch (error) {
-              this.$log.error(`[MCP] Error disconnecting from server: ${error}`)
-            }
+          try {
+            // Delete server via main process
+            await ipcRenderer.invoke('mcp:delete-server', name)
+
+            // Update local config
+            delete this.mcpConfig.mcpServers[name]
+            this.mcpConfigStr = JSON.stringify(this.mcpConfig, null, 2)
+            await ipcRenderer.invoke('mcp:set-config', this.mcpConfigStr)
+
+            // Clean up UI state
+            this.$delete(this.serverResults, name)
+            this.$delete(this.serverEnabledStatus, name)
+
+            this.$log.info(`[MCP] Successfully deleted server ${name}`)
+            this.$message({
+              type: 'success',
+              message: this.$t('common.deleteSuccess').toString(),
+            })
+          } catch (error) {
+            this.$log.error(`[MCP] Error deleting server: ${error}`)
+            this.$message({
+              type: 'error',
+              message: this.$t('common.deleteFailed').toString(),
+            })
           }
-
-          // Delete server and update configuration
-          delete this.mcpConfig.mcpServers[name]
-          this.mcpConfigStr = JSON.stringify(this.mcpConfig, null, 2)
-          localStorage.setItem('mcpConfig', this.mcpConfigStr)
-
-          // Delete test results and enabled status
-          this.$delete(this.serverResults, name)
-          this.$delete(this.serverEnabledStatus, name)
-          localStorage.removeItem(`mcpServerResult:${name}`)
-          localStorage.removeItem(`mcpServerEnabled:${name}`)
-
-          this.$log.info(`[MCP] Successfully deleted server ${name}`)
-          this.$message({
-            type: 'success',
-            message: this.$t('common.deleteSuccess').toString(),
-          })
         })
         .catch(() => {
           // User cancelled delete operation

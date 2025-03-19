@@ -36,3 +36,20 @@ export interface MCPPromptData {
   toolsSection: string
   hasMCP: boolean
 }
+
+/**
+ * Interface for MCP store schema
+ */
+export interface MCPStoreSchema {
+  mcp: {
+    enabled: boolean
+    config: MCPConfig
+    servers: Record<
+      string,
+      {
+        enabled: boolean
+        testResults: any
+      }
+    >
+  }
+}
