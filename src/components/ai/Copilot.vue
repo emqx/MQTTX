@@ -64,6 +64,7 @@ export default class Copilot extends Vue {
   private responseStreamText = ''
   private currPresetPrompt = ''
   private abortController: AbortController | null = null
+  private mcpAvailable = false
 
   private sessionManager = new SessionManager()
 
@@ -71,10 +72,6 @@ export default class Copilot extends Vue {
     id: 'system-id',
     role: 'system',
     content: '',
-  }
-
-  get shouldProcessMCP() {
-    return localStorage.getItem('mcpEnabled') === 'true' && this.sessionManager.getState().mcpData?.hasMCP === true
   }
 
   /**
@@ -100,6 +97,9 @@ export default class Copilot extends Vue {
   private handleShowCopilotChange(newValue: boolean, oldValue: boolean) {
     if (newValue === true && oldValue === false && this.isSending === false) {
       this.loadMessages({ reset: true })
+    }
+    if (newValue) {
+      this.checkMCPAvailability()
     }
     this.$nextTick(() => {
       setTimeout(() => {
@@ -224,7 +224,7 @@ export default class Copilot extends Vue {
       this.$nextTick(throttledScroll)
     }
 
-    if (this.shouldProcessMCP) {
+    if (this.mcpAvailable) {
       const processedContent = await processMCPCalls(this.responseStreamText)
       responseMessage.content = processedContent
     } else {
@@ -343,12 +343,9 @@ export default class Copilot extends Vue {
     }
   }
 
-  /**
-   * Lifecycle hook when component is mounted
-   */
-  private async mounted() {
-    // Reload MCP data when component is mounted
-    await this.sessionManager.reloadMCPData(this.currentLang)
+  private async checkMCPAvailability() {
+    await this.sessionManager.loadMCPData()
+    this.mcpAvailable = this.sessionManager.getState().mcpData?.hasMCP === true
   }
 
   /**
