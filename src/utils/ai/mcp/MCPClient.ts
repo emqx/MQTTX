@@ -1,14 +1,11 @@
 // Used on main process
 import { MCPServer, ToolCallResult } from '@/types/mcp'
-
-const AbortController = require('abort-controller')
-global.AbortController = AbortController
+import { EventEmitter } from 'events'
 
 const { Client } = require('@modelcontextprotocol/sdk/dist/esm/client/index.js')
+const { SSEClientTransport } = require('@modelcontextprotocol/sdk/dist/esm/client/sse.js')
 const { StdioClientTransport } = require('@modelcontextprotocol/sdk/dist/esm/client/stdio.js')
-const { SSEClientTransport } = require('@modelcontextprotocol/sdk/dist/cjs/client/sse.js')
 const { spawn } = require('child_process')
-const { EventEmitter } = require('events')
 
 /**
  * MCPClient class implements communication with MCP server
@@ -44,6 +41,11 @@ export class MCPClient extends EventEmitter {
 
         // Create SSE transport layer
         this.transport = new SSEClientTransport(new URL(config.url))
+
+        this.transport.onerror = (error: Error) => {
+          console.error('[MCP] SSE transport error:', error)
+          this.emit('error', error)
+        }
       } else if (config.command && config.args) {
         console.log(`[MCP] Connecting to MCP command server: ${config.command} ${config.args.join(' ')}`)
 
@@ -53,33 +55,52 @@ export class MCPClient extends EventEmitter {
           args: config.args,
           env: config.env,
         })
+
+        this.transport.onerror = (error: Error) => {
+          console.error('[MCP] Command transport error:', error)
+          this.emit('error', error)
+        }
       } else {
         throw new Error('[MCP] Invalid MCP server configuration: must provide either url or command+args')
       }
 
-      // Connect to server
-      this.client.connect(this.transport)
+      try {
+        // Connect to server
+        await this.client.connect(this.transport)
+        // Get available tools list
+        const toolsResult = await this.client.listTools()
+        this.tools = toolsResult.tools.map((tool: any) => {
+          return {
+            name: tool.name,
+            description: tool.description,
+            input_schema: tool.inputSchema,
+          }
+        })
 
-      // Get available tools list
-      const toolsResult = await this.client.listTools()
-      this.tools = toolsResult.tools.map((tool: any) => {
-        return {
-          name: tool.name,
-          description: tool.description,
-          input_schema: tool.inputSchema,
+        console.log(
+          `[MCP] Connected to MCP server, available tools:`,
+          this.tools.map(({ name }: { name: string }) => name),
+        )
+
+        this.connected = true
+        this.emit('connected', this.tools)
+        return true
+      } catch (connectError) {
+        console.error('[MCP] Failed to connect or list tools:', connectError)
+        this.emit('error', connectError)
+
+        // Clean up transport on connection failure
+        if (this.transport) {
+          try {
+            await this.transport.close()
+          } catch (closeError) {
+            console.error('[MCP] Error closing transport after failed connection:', closeError)
+          }
         }
-      })
-
-      console.log(
-        `[MCP] Connected to MCP server, available tools:`,
-        this.tools.map(({ name }: { name: string }) => name),
-      )
-
-      this.connected = true
-      this.emit('connected', this.tools)
-      return true
+        return false
+      }
     } catch (error) {
-      console.error('[MCP] Failed to connect to MCP server:', error)
+      console.error('[MCP] Failed to initialize MCP server connection:', error)
       this.emit('error', error)
       return false
     }
@@ -91,7 +112,9 @@ export class MCPClient extends EventEmitter {
   async disconnect(): Promise<void> {
     if (this.connected) {
       try {
-        await this.client.close()
+        if (this.transport) {
+          await this.transport.close()
+        }
         this.connected = false
         this.emit('disconnected')
         console.log('[MCP] Disconnected from MCP server')
