@@ -14,7 +14,9 @@
           ref="copilotInput"
           v-model="currentPublishMsg"
           :disabled="isSending || isResponseStream"
+          :is-response-streaming="isResponseStream"
           @send="sendMessage"
+          @abort-response="abortAIResponse"
           @preset-change="handleInputPresetChange"
         />
       </el-card>
@@ -135,8 +137,8 @@ export default class Copilot extends Vue {
         this.scrollToBottom()
       },
       onError: (error) => {
-        this.$message.error(`API Error: ${error?.toString()}`)
-        this.$log.error(`Copilot API Error: ${error?.toString()}`)
+        this.$message.error(`[Copilot] API Error: ${error?.toString()}`)
+        this.$log.error(`[Copilot] Copilot API Error: ${error?.toString()}`)
       },
       onComplete: async (responseMessage) => {
         await this.saveAndDisplayResponse({
@@ -227,8 +229,8 @@ export default class Copilot extends Vue {
       return
     }
     const error = err as any
-    this.$message.error(`API Error: ${error.toString()}`)
-    this.$log.error(`Copilot API Error: ${error.toString()}`)
+    this.$message.error(`[Copilot] API Error: ${error.toString()}`)
+    this.$log.error(`[Copilot] Copilot API Error: ${error.toString()}`)
   }
 
   /**
@@ -297,6 +299,7 @@ export default class Copilot extends Vue {
   private async handleInputPresetChange(data: CopilotPresetPrompt) {
     if (this.aiAgent) {
       this.aiAgent.abort()
+      this.$log.info('[Copilot] AI response stream aborted')
     }
 
     await this.clearAllMessages()
@@ -336,6 +339,16 @@ export default class Copilot extends Vue {
     } else {
       await this.sessionManager.loadMCPData()
       this.mcpAvailable = this.sessionManager.getState().mcpData?.hasMCP === true
+    }
+  }
+
+  /**
+   * Abort the current AI response
+   */
+  private abortAIResponse(): void {
+    if (this.aiAgent) {
+      this.aiAgent.abort()
+      this.$log.info('[Copilot] AI response stream aborted')
     }
   }
 
