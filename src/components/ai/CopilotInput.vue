@@ -18,10 +18,10 @@
     <el-button
       class="chat-pub-btn"
       size="mini"
-      type="primary"
-      icon="el-icon-position"
-      :disabled="disabled"
-      @click="sendMessage"
+      :type="isResponseStreaming ? 'danger' : 'primary'"
+      :icon="isResponseStreaming ? 'el-icon-video-pause' : 'el-icon-position'"
+      :disabled="disabled && !isResponseStreaming"
+      @click="handleButtonClick"
     >
     </el-button>
   </div>
@@ -44,6 +44,7 @@ import { CopilotPresetPrompt } from '@/types/copilot'
 export default class CopilotInput extends Vue {
   @Prop({ default: '' }) readonly value!: string
   @Prop({ default: false }) readonly disabled!: boolean
+  @Prop({ default: false }) readonly isResponseStreaming!: boolean
 
   private showPresetPrompt = false
   private message = ''
@@ -71,6 +72,19 @@ export default class CopilotInput extends Vue {
     return content
   }
 
+  @Emit('abort-response')
+  abortResponse() {
+    return
+  }
+
+  handleButtonClick() {
+    if (this.isResponseStreaming) {
+      this.abortResponse()
+    } else {
+      this.sendMessage()
+    }
+  }
+
   @Emit('preset-change')
   handlePresetsChange(prompt: string, promptMap: CopilotPresetPrompt['promptMap']) {
     this.showPresetPrompt = false
@@ -83,10 +97,16 @@ export default class CopilotInput extends Vue {
   }
 
   handleEnterKey(event: KeyboardEvent) {
+    if (this.isResponseStreaming) {
+      event.preventDefault()
+      return
+    }
+
     if (this.disabled) {
       event.preventDefault()
       return
     }
+
     if (!event.shiftKey && event.code === 'Enter') {
       event.preventDefault()
       this.sendMessage()
