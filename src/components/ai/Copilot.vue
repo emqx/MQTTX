@@ -25,20 +25,16 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
-import CryptoJS from 'crypto-js'
-import { ENCRYPT_KEY, getCopilotMessageId } from '@/utils/idGenerator'
+import { getCopilotMessageId } from '@/utils/idGenerator'
 import useServices from '@/database/useServices'
 import CopilotHeader from './CopilotHeader.vue'
 import CopilotMessages from './CopilotMessages.vue'
 import CopilotInput from './CopilotInput.vue'
-import { streamText } from 'ai'
-import { getModelProvider } from '@/utils/ai/copilot'
-import { throttle } from 'lodash'
 import ConnectionsIndex from '@/views/connections/index.vue'
-import { CopilotMessage, CopilotRole, CopilotPresetPrompt, StreamError } from '@/types/copilot'
+import { CopilotMessage, CopilotPresetPrompt } from '@/types/copilot'
 import { needsUserInput } from '@/utils/ai/preset'
 import { SessionManager } from '@/utils/ai/SessionManager'
-import { callMCPTool, MCP_CALL_REGEX, processMCPCalls } from '@/utils/ai/mcp'
+import { AIAgent } from '@/utils/ai/AIAgent'
 
 @Component({
   components: {
@@ -67,6 +63,7 @@ export default class Copilot extends Vue {
   private mcpAvailable = false
 
   private sessionManager = new SessionManager()
+  private aiAgent: AIAgent | null = null
 
   private systemMessage = {
     id: 'system-id',
@@ -99,6 +96,7 @@ export default class Copilot extends Vue {
       this.loadMessages({ reset: true })
     }
     if (newValue) {
+      this.initializeAIAgent()
       this.checkMCPAvailability()
     }
     this.$nextTick(() => {
@@ -117,6 +115,39 @@ export default class Copilot extends Vue {
 
   private toggleWindow() {
     this.showCopilot = !this.showCopilot
+  }
+
+  /**
+   * Initialize or re-initialize the AI Agent
+   */
+  private initializeAIAgent(): void {
+    this.aiAgent = new AIAgent({
+      openAIAPIHost: this.openAIAPIHost,
+      openAIAPIKey: this.openAIAPIKey,
+      model: this.model,
+      currentLang: this.currentLang,
+      sessionManager: this.sessionManager,
+      onStreamStart: () => {
+        this.isSending = false
+      },
+      onStreamChunk: (text) => {
+        this.responseStreamText = text
+        this.scrollToBottom()
+      },
+      onError: (error) => {
+        this.$message.error(`API Error: ${error?.toString()}`)
+        this.$log.error(`Copilot API Error: ${error?.toString()}`)
+      },
+      onComplete: async (responseMessage) => {
+        await this.saveAndDisplayResponse({
+          ...responseMessage,
+          id: getCopilotMessageId(),
+        })
+      },
+      onAbort: () => {
+        this.resetResponseState()
+      },
+    })
   }
 
   public async sendMessage(msg?: string) {
@@ -160,90 +191,35 @@ export default class Copilot extends Vue {
     this.currentPublishMsg = ''
   }
 
-  private async buildMessageHistory(): Promise<Array<{ role: CopilotRole; content: string }>> {
-    const systemPrompt = await this.sessionManager.getSystemPrompt(this.currentLang)
-
-    return [
-      {
-        role: this.systemMessage.role as 'system',
-        content: systemPrompt,
-      },
-      ...this.messages.slice(-20).map(({ role, content }) => {
-        if (content.includes('@connection')) {
-          const currentRecord = this.getCurrentConnectionRecord()
-          content = content.replace(
-            '@connection',
-            currentRecord ? JSON.stringify(currentRecord) : 'No connection available',
-          )
-        }
-        return { role, content }
-      }),
-    ]
-  }
-
   private async generateAIResponse(): Promise<void> {
-    const bytes = CryptoJS.AES.decrypt(this.openAIAPIKey, ENCRYPT_KEY)
-    const decryptedKey = bytes.toString(CryptoJS.enc.Utf8)
-    const responseMessage: CopilotMessage = {
-      id: getCopilotMessageId(),
-      role: 'assistant',
-      content: '',
+    // Initialize AI Agent if not already done
+    if (!this.aiAgent) {
+      this.initializeAIAgent()
     }
 
     try {
-      await this.streamAIResponse(decryptedKey, responseMessage)
+      if (!this.aiAgent) {
+        throw new Error('AI Agent not initialized')
+      }
+
+      this.isSending = true
+      this.isResponseStream = true
+      this.responseStreamText = ''
+
+      await this.aiAgent.checkMCPAvailability()
+
+      const messageHistory = await this.aiAgent.buildMessageHistory(this.messages, () =>
+        this.getCurrentConnectionRecord(),
+      )
+
+      this.$log.info(`[Copilot] AI response stream started with provider: "${this.model}" from "${this.openAIAPIHost}"`)
+
+      // We don't need to await this, as the callbacks will handle response processing
+      this.aiAgent.generateResponse(messageHistory)
     } catch (err) {
       this.handleAIResponseError(err)
-    } finally {
       this.resetResponseState()
     }
-  }
-
-  private async streamAIResponse(apiKey: string, responseMessage: CopilotMessage): Promise<void> {
-    this.responseStreamText = ''
-    this.isResponseStream = true
-    const throttledScroll = throttle(() => this.scrollToBottom(), 100)
-
-    this.abortController = new AbortController()
-    this.$log.info(`[Copilot] AI response stream started with provider: "${this.model}" from "${this.openAIAPIHost}"`)
-    const { textStream } = streamText({
-      model: getModelProvider({
-        model: this.model,
-        baseURL: this.openAIAPIHost,
-        apiKey,
-      }),
-      temperature: 0.8,
-      messages: await this.buildMessageHistory(),
-      abortSignal: this.abortController.signal,
-      onError: this.handleStreamError,
-    })
-
-    for await (const textPart of textStream) {
-      this.isSending = false
-      this.responseStreamText += textPart
-      this.$nextTick(throttledScroll)
-    }
-
-    if (this.mcpAvailable) {
-      const processedContent = await processMCPCalls(this.responseStreamText)
-      responseMessage.content = processedContent
-    } else {
-      responseMessage.content = this.responseStreamText
-    }
-
-    await this.saveAndDisplayResponse(responseMessage)
-  }
-
-  private handleStreamError = ({ error }: StreamError): void => {
-    this.$message.error(`API Error: ${error?.toString()}`)
-    this.$log.error(`Copilot API Error: ${error?.toString()}`)
-  }
-
-  private async saveAndDisplayResponse(responseMessage: CopilotMessage): Promise<void> {
-    const { copilotService } = useServices()
-    await copilotService.create(responseMessage)
-    this.messages.push(responseMessage)
-    this.responseStreamText = ''
   }
 
   private handleAIResponseError(err: unknown): void {
@@ -253,6 +229,17 @@ export default class Copilot extends Vue {
     const error = err as any
     this.$message.error(`API Error: ${error.toString()}`)
     this.$log.error(`Copilot API Error: ${error.toString()}`)
+  }
+
+  /**
+   * Save and display the AI response message
+   */
+  private async saveAndDisplayResponse(responseMessage: CopilotMessage): Promise<void> {
+    const { copilotService } = useServices()
+    await copilotService.create(responseMessage)
+    this.messages.push(responseMessage)
+    this.responseStreamText = ''
+    this.resetResponseState()
   }
 
   private resetResponseState(): void {
@@ -308,8 +295,8 @@ export default class Copilot extends Vue {
   }
 
   private async handleInputPresetChange(data: CopilotPresetPrompt) {
-    if (this.abortController) {
-      this.abortController.abort()
+    if (this.aiAgent) {
+      this.aiAgent.abort()
     }
 
     await this.clearAllMessages()
@@ -344,8 +331,12 @@ export default class Copilot extends Vue {
   }
 
   private async checkMCPAvailability() {
-    await this.sessionManager.loadMCPData()
-    this.mcpAvailable = this.sessionManager.getState().mcpData?.hasMCP === true
+    if (this.aiAgent) {
+      this.mcpAvailable = await this.aiAgent.checkMCPAvailability()
+    } else {
+      await this.sessionManager.loadMCPData()
+      this.mcpAvailable = this.sessionManager.getState().mcpData?.hasMCP === true
+    }
   }
 
   /**
@@ -353,6 +344,7 @@ export default class Copilot extends Vue {
    */
   private created() {
     this.loadMessages({ reset: true })
+    this.initializeAIAgent()
   }
 }
 </script>

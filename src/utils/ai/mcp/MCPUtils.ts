@@ -93,6 +93,30 @@ export async function callMCPTool(serverName: string, toolName: string, toolArgs
 }
 
 /**
+ * Creates a formatted MCP result string
+ * @param success Whether the operation was successful
+ * @param server Server name
+ * @param tool Tool name
+ * @param args Tool arguments
+ * @param content Result content or error message
+ * @returns Formatted MCP result string
+ */
+function createMCPResultString(success: boolean, server: string, tool: string, args: any, content: string): string {
+  const contentTag = success ? 'result' : 'error'
+
+  return `
+<mcp-result success="${success}">
+<server>${server}</server>
+<tool>${tool}</tool>
+<args>${JSON.stringify(args, null, 2)}</args>
+<${contentTag}>
+${content}
+</${contentTag}>
+</mcp-result>
+`
+}
+
+/**
  * Process MCP tool calls in a message
  * @param content Message content to process
  * @returns Processed content with tool call results
@@ -106,56 +130,40 @@ export async function processMCPCalls(content: string): Promise<string> {
   let processedContent = content
   const mcpCalls = content.match(MCP_CALL_REGEX)
 
-  if (mcpCalls) {
-    for (const mcpCall of mcpCalls) {
-      try {
-        // Extract the JSON part from the MCP call
-        const jsonContent = mcpCall.replace('<mcp-call>', '').replace('</mcp-call>', '').trim()
-        const callData = JSON.parse(jsonContent)
+  if (!mcpCalls) {
+    return content
+  }
 
-        // Call the MCP tool
-        const result = await callMCPTool(callData.server, callData.tool, callData.args)
-        console.log('[MCP] Tool call result:', result)
-        // Format the result
-        let resultContent = ''
-        if (result.success) {
-          resultContent = `
-<mcp-result success="true">
-<server>${callData.server}</server>
-<tool>${callData.tool}</tool>
-<args>${JSON.stringify(callData.args)}</args>
-<result>
-${getMCPResult(result)}
-</result>
-</mcp-result>
-`
-        } else {
-          resultContent = `
-<mcp-result success="false">
-<server>${callData.server}</server>
-<tool>${callData.tool}</tool>
-<args>${JSON.stringify(callData.args)}</args>
-<error>
-${result.message || 'Unknown error'}
-</error>
-</mcp-result>
-`
-        }
+  for (const mcpCall of mcpCalls) {
+    let resultContent: string
 
-        // Replace the MCP call with the result
-        processedContent = processedContent.replace(mcpCall, resultContent)
-      } catch (error) {
-        console.error('[MCP] Error processing MCP call:', error)
-        const errorMessage = `
-<mcp-result success="false">
-<error>
-Failed to process MCP call: ${error instanceof Error ? error.message : String(error)}
-</error>
-</mcp-result>
-`
-        processedContent = processedContent.replace(mcpCall, errorMessage)
+    try {
+      // Extract the JSON part from the MCP call
+      const jsonContent = mcpCall.replace('<mcp-call>', '').replace('</mcp-call>', '').trim()
+      const callData = JSON.parse(jsonContent)
+
+      // Call the MCP tool
+      const result = await callMCPTool(callData.server, callData.tool, callData.args)
+
+      if (result.success) {
+        resultContent = createMCPResultString(true, callData.server, callData.tool, callData.args, getMCPResult(result))
+      } else {
+        resultContent = createMCPResultString(
+          false,
+          callData.server,
+          callData.tool,
+          callData.args,
+          result.message || 'Unknown error',
+        )
       }
+    } catch (error) {
+      console.error('[MCP] Error processing MCP call:', error)
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      resultContent = createMCPResultString(false, '', '', {}, `Failed to process MCP call: ${errorMessage}`)
     }
+
+    // Replace the MCP call with the result
+    processedContent = processedContent.replace(mcpCall, resultContent)
   }
 
   return processedContent

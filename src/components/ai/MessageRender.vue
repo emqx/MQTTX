@@ -139,6 +139,8 @@ mcp-result {
   padding: 16px;
   margin: 12px 0;
   border: 1px solid var(--color-border-default);
+  max-height: 480px;
+  overflow: scroll;
 }
 
 mcp-result[success='true'] {
