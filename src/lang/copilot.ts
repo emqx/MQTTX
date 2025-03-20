@@ -595,4 +595,11 @@ export default {
     ja: 'サーバー接続に失敗しました',
     hu: 'A(z) szerver csatlakoztatása sikertelen',
   },
+  mcpCalling: {
+    zh: 'MCP 调用',
+    en: 'MCP Calling',
+    tr: 'MCP Çağrı',
+    ja: 'MCP呼び出し',
+    hu: 'MCP hívás',
+  },
 }

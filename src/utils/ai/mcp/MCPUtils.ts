@@ -125,7 +125,7 @@ export async function processMCPCalls(content: string): Promise<string> {
 <tool>${callData.tool}</tool>
 <args>${JSON.stringify(callData.args)}</args>
 <result>
-${JSON.stringify(result.result.content[0].text)}
+${getMCPResult(result)}
 </result>
 </mcp-result>
 `
@@ -159,4 +159,24 @@ Failed to process MCP call: ${error instanceof Error ? error.message : String(er
   }
 
   return processedContent
+}
+
+/**
+ * Extracts the result content from an MCP tool call response.
+ *
+ * @param result - The result object from an MCP tool call
+ * @param result.success - Whether the MCP tool call was successful
+ * @param result.result - The result data from the MCP tool call
+ * @param result.result.content - Array of content objects if successful
+ * @param result.result.error - Error message if there was an error
+ * @returns A string representation of the result content or error message
+ */
+const getMCPResult = (result: {
+  success: boolean
+  result: { content: { text: string }[]; error?: string }
+}): string => {
+  if (result.result.error) {
+    return result.result.error
+  }
+  return JSON.stringify(result.result.content[0].text)
 }

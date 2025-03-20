@@ -11,16 +11,12 @@
             <i :class="[message.role === 'user' ? 'el-icon-user' : 'el-icon-magic-stick']"></i>
             {{ roleMap[message.role] }}
           </span>
-          <vue-markdown
+          <message-render
             class="chat-content"
-            :data-prismjs-copy="copyText"
-            :data-prismjs-copy-error="copyFailedText"
-            :data-prismjs-copy-success="copiedText"
-            :data-prismjs-line-numbers="true"
-            data-download-link
-            data-download-link-label="Download this file"
-            :source="message.content"
-            :anchor-attributes="{ target: '_blank' }"
+            :content="message.content"
+            :copy-text="copyText"
+            :copy-failed-text="copyFailedText"
+            :copied-text="copiedText"
           />
         </p>
         <el-divider></el-divider>
@@ -38,7 +34,13 @@
         <i class="el-icon-magic-stick"></i>
         <span>MQTTX Copilot</span>
       </span>
-      <vue-markdown class="chat-content" :source="responseStreamText" />
+      <message-render
+        class="chat-content"
+        :content="responseStreamText"
+        :copy-text="copyText"
+        :copy-failed-text="copyFailedText"
+        :copied-text="copiedText"
+      />
       <el-divider></el-divider>
     </div>
   </div>
@@ -54,11 +56,13 @@ import 'prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min'
 import { ipcRenderer } from 'electron'
 import { CopilotMessage } from '@/types/copilot'
 import CopilotWelcome from './CopilotWelcome.vue'
+import MessageRender from './MessageRender.vue'
 
 @Component({
   components: {
     VueMarkdown,
     CopilotWelcome,
+    MessageRender,
   },
 })
 export default class CopilotMessages extends Vue {
