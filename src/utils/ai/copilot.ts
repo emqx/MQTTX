@@ -12,6 +12,7 @@ import funcGen from './prompts/funcGen.txt'
 import protobufSchemaGen from './prompts/protobufSchemaGen.txt'
 import avroSchemaGen from './prompts/avroSchemaGen.txt'
 import mcpPrompt from './prompts/mcp.txt'
+import mcpResultAnalysis from './prompts/mcpResultAnalysis.txt'
 import { MCPPromptData } from '@/types/mcp'
 import {
   ALL_CODE_GENERATION_COMMAND_VALUES,
@@ -23,8 +24,9 @@ import {
   PROTOBUF_SCHEMA_COMMAND_VALUES,
   AVRO_SCHEMA_COMMAND_VALUES,
 } from './preset'
+import { getCopilotMessageId } from '../idGenerator'
 
-const LANGUAGE_MAP = {
+export const LANGUAGE_MAP = {
   zh: '请使用中文回答（简体中文）',
   en: 'Please answer in English（English）',
   tr: 'Lütfen Türkçe cevap verin（Turkish）',
@@ -183,4 +185,39 @@ export const getModelProvider = (opts: { model: AIModel; baseURL: string; apiKey
   const providerCreator = currentModelOptions?.providerCreator || createOpenAI
   const provider = providerCreator({ baseURL, apiKey })
   return provider(model)
+}
+
+export const buildMCPAnalysisMessages = (
+  currentLang: Language,
+  assistantContent: string,
+  userPrompt: string,
+): CopilotMessage[] => {
+  const systemPrompt = `${mcpResultAnalysis}\n\n${LANGUAGE_MAP[currentLang]}`
+  return [
+    { id: getCopilotMessageId(), role: 'system', content: systemPrompt },
+    { id: getCopilotMessageId(), role: 'assistant', content: assistantContent },
+    { id: getCopilotMessageId(), role: 'user', content: userPrompt },
+  ]
+}
+
+/**
+ * Returns the conditions for determining when to continue or stop MCP analysis.
+ *
+ * @returns An object containing two functions:
+ *   - shouldContinue: Function that returns true if analysis should continue
+ *   - stopCondition: Function that returns true if analysis should stop
+ */
+export const getMCPAnalysisConditions = () => {
+  const COMPLETION_MARKERS = ['[DONE]']
+
+  const shouldContinue = (content: string) =>
+    content.includes('mcp-result') && !COMPLETION_MARKERS.some((marker) => content.includes(marker))
+
+  const stopCondition = (content: string) =>
+    COMPLETION_MARKERS.some((marker) => content.includes(marker)) || !shouldContinue(content)
+
+  return {
+    shouldContinue,
+    stopCondition,
+  }
 }
