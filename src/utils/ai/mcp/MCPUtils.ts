@@ -1,5 +1,8 @@
 import { MCPConfig, MCPPromptData, EnabledMCPServer } from '@/types/mcp'
 import { ipcRenderer } from 'electron'
+import { getCopilotMessageId } from '@/utils/idGenerator'
+import mcpResultAnalysis from '@/utils/ai/prompts/mcpResultAnalysis.txt'
+import { LANGUAGE_MAP } from '@/utils/ai/copilot'
 
 // MCP tool call format regex
 export const MCP_CALL_REGEX = /<mcp-call>([\s\S]*?)<\/mcp-call>/g
@@ -187,4 +190,39 @@ const getMCPResult = (result: {
     return result.result.error
   }
   return JSON.stringify(result.result.content[0].text)
+}
+
+export const buildMCPAnalysisMessages = (
+  currentLang: Language,
+  assistantContent: string,
+  userPrompt: string,
+): CopilotMessage[] => {
+  const systemPrompt = `${mcpResultAnalysis}\n\n${LANGUAGE_MAP[currentLang]}`
+  return [
+    { id: getCopilotMessageId(), role: 'system', content: systemPrompt },
+    { id: getCopilotMessageId(), role: 'assistant', content: assistantContent },
+    { id: getCopilotMessageId(), role: 'user', content: userPrompt },
+  ]
+}
+
+/**
+ * Returns the conditions for determining when to continue or stop MCP analysis.
+ *
+ * @returns An object containing two functions:
+ *   - shouldContinue: Function that returns true if analysis should continue
+ *   - stopCondition: Function that returns true if analysis should stop
+ */
+export const getMCPAnalysisConditions = () => {
+  const COMPLETION_MARKERS = ['[DONE]']
+
+  const shouldContinue = (content: string) =>
+    content.includes('mcp-result') && !COMPLETION_MARKERS.some((marker) => content.includes(marker))
+
+  const stopCondition = (content: string) =>
+    COMPLETION_MARKERS.some((marker) => content.includes(marker)) || !shouldContinue(content)
+
+  return {
+    shouldContinue,
+    stopCondition,
+  }
 }

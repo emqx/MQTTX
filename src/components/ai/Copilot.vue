@@ -37,6 +37,7 @@ import { CopilotMessage, CopilotPresetPrompt } from '@/types/copilot'
 import { needsUserInput } from '@/utils/ai/preset'
 import { SessionManager } from '@/utils/ai/SessionManager'
 import { AIAgent } from '@/utils/ai/AIAgent'
+import { buildMCPAnalysisMessages, getMCPAnalysisConditions } from '@/utils/ai/mcp/MCPUtils'
 
 @Component({
   components: {
@@ -136,13 +137,16 @@ export default class Copilot extends Vue {
       },
       onError: (error) => {
         this.$message.error(`[Copilot] API Error: ${error?.toString()}`)
-        this.$log.error(`[Copilot] Copilot API Error: ${error?.toString()}`)
+        this.$log.error(`[Copilot] API Error: ${error?.toString()}`)
       },
       onComplete: async (responseMessage) => {
         await this.saveAndDisplayResponse({
           ...responseMessage,
           id: getCopilotMessageId(),
         })
+        if (responseMessage.content.includes('mcp-result')) {
+          await this.processMCPResult()
+        }
       },
       onAbort: () => {
         this.resetResponseState()
@@ -193,29 +197,26 @@ export default class Copilot extends Vue {
   }
 
   private async generateAIResponse(): Promise<void> {
-    // Initialize AI Agent if not already done
     if (!this.aiAgent) {
       this.initializeAIAgent()
     }
 
-    try {
-      if (!this.aiAgent) {
-        throw new Error('AI Agent not initialized')
-      }
+    if (!this.aiAgent) {
+      throw new Error('AI Agent not initialized')
+    }
 
+    try {
       this.isSending = true
       this.isResponseStream = true
       this.responseStreamText = ''
 
-      await this.aiAgent.checkMCPAvailability()
+      const mcpAvailable = await this.aiAgent.checkMCPAvailability()
+      this.$log.info(`[Copilot] MCP available: ${mcpAvailable}`)
 
       const messageHistory = await this.aiAgent.buildMessageHistory(this.messages, () =>
         this.getCurrentConnectionRecord(),
       )
 
-      this.$log.info(`[Copilot] AI response stream started with provider: "${this.model}" from "${this.openAIAPIHost}"`)
-
-      // We don't need to await this, as the callbacks will handle response processing
       this.aiAgent.generateResponse(messageHistory)
     } catch (err) {
       this.handleAIResponseError(err)
@@ -229,7 +230,7 @@ export default class Copilot extends Vue {
     }
     const error = err as any
     this.$message.error(`[Copilot] API Error: ${error.toString()}`)
-    this.$log.error(`[Copilot] Copilot API Error: ${error.toString()}`)
+    this.$log.error(`[Copilot] API Error: ${error.toString()}`)
   }
 
   /**
@@ -298,7 +299,6 @@ export default class Copilot extends Vue {
   private async handleInputPresetChange(data: CopilotPresetPrompt) {
     if (this.aiAgent) {
       this.aiAgent.abort()
-      this.$log.info('[Copilot] AI response stream aborted')
     }
 
     await this.clearAllMessages()
@@ -338,7 +338,6 @@ export default class Copilot extends Vue {
   private abortAIResponse(): void {
     if (this.aiAgent) {
       this.aiAgent.abort()
-      this.$log.info('[Copilot] AI response stream aborted')
     }
   }
 
@@ -348,6 +347,77 @@ export default class Copilot extends Vue {
   private created() {
     this.loadMessages({ reset: true })
     this.initializeAIAgent()
+  }
+
+  /**
+   * Update the message in the UI
+   */
+  private updateMessageInUI(messageId: string, newContent: string): void {
+    const messageIndex = this.messages.findIndex((msg) => msg.id === messageId)
+    if (messageIndex !== -1) {
+      this.$set(this.messages, messageIndex, {
+        ...this.messages[messageIndex],
+        content: newContent,
+      })
+      this.scrollToBottom()
+    }
+  }
+
+  /**
+   * Process the message containing MCP result
+   */
+  private async processMCPResult(): Promise<void> {
+    if (this.messages.length === 0 || !this.aiAgent) return
+    const lastMessage = this.messages[this.messages.length - 1]
+
+    this.isSending = true
+    this.isResponseStream = true
+
+    try {
+      const originalStreamChunk = this.aiAgent.onStreamChunk
+
+      this.aiAgent.onStreamChunk = (text: string) => {
+        this.responseStreamText = ''
+        this.isResponseStream = false
+        this.isSending = false
+        this.updateMessageInUI(lastMessage.id, lastMessage.content + '\n\n' + text)
+      }
+
+      const initialHistory: CopilotMessage[] = buildMCPAnalysisMessages(
+        this.currentLang,
+        lastMessage.content,
+        this.$tc('copilot.mcpResultAnalysisPrompts'),
+      )
+
+      const { shouldContinue, stopCondition } = getMCPAnalysisConditions()
+
+      const updateCallbackHandler = async (updatedMessage: CopilotMessage) => {
+        const { copilotService } = useServices()
+        const cleanedContent = updatedMessage.content.replace(/\s*\[DONE\]\s*$/, '')
+        const cleanedMessage = {
+          ...updatedMessage,
+          content: cleanedContent,
+        }
+        await copilotService.update(cleanedMessage)
+        this.updateMessageInUI(lastMessage.id, cleanedContent)
+        this.isResponseStream = false
+        this.isSending = false
+      }
+      try {
+        await this.aiAgent.chatLoop(initialHistory, {
+          existingMessage: lastMessage,
+          shouldContinue,
+          stopCondition,
+          updateCallback: updateCallbackHandler,
+        })
+      } finally {
+        this.aiAgent.onStreamChunk = originalStreamChunk
+      }
+    } catch (err) {
+      this.handleAIResponseError(err)
+    } finally {
+      this.resetResponseState()
+    }
   }
 }
 </script>

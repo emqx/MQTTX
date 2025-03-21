@@ -24,7 +24,7 @@ import {
   AVRO_SCHEMA_COMMAND_VALUES,
 } from './preset'
 
-const LANGUAGE_MAP = {
+export const LANGUAGE_MAP = {
   zh: '请使用中文回答（简体中文）',
   en: 'Please answer in English（English）',
   tr: 'Lütfen Türkçe cevap verin（Turkish）',

@@ -3,7 +3,7 @@ import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY, getCopilotMessageId } from '@/utils/idGenerator'
 import { getModelProvider } from '@/utils/ai/copilot'
 import { processMCPCalls } from '@/utils/ai/mcp/MCPUtils'
-import { AIStreamOptions, CopilotMessage, CopilotRole, StreamError } from '@/types/copilot'
+import { AIStreamOptions, CopilotMessage, CopilotRole, StreamError, ChatLoopOptions } from '@/types/copilot'
 import { SessionManager } from '@/utils/ai/SessionManager'
 
 /**
@@ -22,11 +22,11 @@ export class AIAgent {
   private mcpAvailable = false
 
   // Callback handlers
-  private onStreamChunk: ((text: string) => void) | null = null
-  private onStreamStart: (() => void) | null = null
-  private onError: ((error: unknown) => void) | null = null
-  private onComplete: ((responseMessage: CopilotMessage) => void) | null = null
-  private onAbort: (() => void) | null = null
+  public onStreamChunk: ((text: string) => void) | null = null
+  public onStreamStart: (() => void) | null = null
+  public onError: ((error: unknown) => void) | null = null
+  public onComplete: ((responseMessage: CopilotMessage) => void) | null = null
+  public onAbort: (() => void) | null = null
 
   /**
    * Constructor for AIAgent
@@ -217,5 +217,93 @@ export class AIAgent {
     } finally {
       this.abortController = null
     }
+  }
+
+  /**
+   * Chat in multiple turns within the same message
+   *
+   * @param initialHistory Initial message history (directly used without modifications)
+   * @param options Chat loop configuration options
+   */
+  public async chatLoop(
+    initialHistory: Array<{ role: CopilotRole; content: string }>,
+    options: ChatLoopOptions,
+  ): Promise<CopilotMessage> {
+    const {
+      shouldContinue,
+      updateCallback,
+      formatAppend = (current: string, next: string) => `${current}\n\n${next}`,
+      stopCondition,
+      maxTurns = 3,
+      streamOptions,
+      existingMessage,
+    } = options
+
+    // Initialize state with existing message
+    const responseMessage: CopilotMessage = { ...existingMessage }
+    let currentContent = existingMessage.content
+    let lastContent = ''
+    let turns = 0
+
+    // Main conversation loop
+    while (turns < maxTurns && shouldContinue(currentContent)) {
+      // Check stop condition
+      if (stopCondition && stopCondition(currentContent)) {
+        break
+      }
+
+      // Safety check: exit if content hasn't changed
+      if (lastContent === currentContent && turns > 0) {
+        break
+      }
+
+      lastContent = currentContent
+      turns++
+
+      let responseText = ''
+
+      try {
+        // Send request with provided initial history
+        const { textStream } = this.chatWithStream(initialHistory, streamOptions)
+
+        // Process streaming response
+        for await (const textPart of textStream) {
+          responseText += textPart
+          if (this.onStreamChunk) {
+            this.onStreamChunk(responseText)
+          }
+        }
+
+        // Process MCP calls and update content
+        if (this.mcpAvailable) {
+          responseText = await processMCPCalls(responseText)
+        }
+
+        // Merge new content and update message
+        currentContent = formatAppend(currentContent, responseText)
+        responseMessage.content = currentContent
+
+        // Call update callback
+        await updateCallback(responseMessage)
+
+        // Check stop condition again
+        if (stopCondition && stopCondition(currentContent)) {
+          break
+        }
+      } catch (error) {
+        // Handle aborts and errors
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          if (this.onAbort) this.onAbort()
+        } else if (this.onError) {
+          this.onError(error)
+        }
+        break
+      } finally {
+        // Reset abort controller
+        this.abortController = null
+      }
+    }
+
+    return responseMessage
   }
 }

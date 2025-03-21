@@ -206,3 +206,15 @@ export interface AIStreamOptions {
   frequencyPenalty?: number
   presencePenalty?: number
 }
+
+export interface ChatLoopOptions {
+  // Core control functions
+  shouldContinue: (content: string) => boolean
+  updateCallback: (message: CopilotMessage) => Promise<void>
+  // Optional configuration
+  formatAppend?: (current: string, next: string) => string
+  stopCondition?: (content: string) => boolean
+  maxTurns?: number
+  streamOptions?: AIStreamOptions
+  existingMessage: CopilotMessage
+}
