@@ -195,3 +195,14 @@ export interface SessionState {
   lastPresetChangeTime: number // Timestamp of the last preset change
   mcpData?: MCPPromptData // MCP data for prompts
 }
+
+/**
+ * Options for AI streaming configuration
+ */
+export interface AIStreamOptions {
+  temperature?: number
+  maxTokens?: number
+  topP?: number
+  frequencyPenalty?: number
+  presencePenalty?: number
+}

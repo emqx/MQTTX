@@ -62,7 +62,6 @@ export default class Copilot extends Vue {
   private responseStreamText = ''
   private currPresetPrompt = ''
   private abortController: AbortController | null = null
-  private mcpAvailable = false
 
   private sessionManager = new SessionManager()
   private aiAgent: AIAgent | null = null
@@ -99,7 +98,6 @@ export default class Copilot extends Vue {
     }
     if (newValue) {
       this.initializeAIAgent()
-      this.checkMCPAvailability()
     }
     this.$nextTick(() => {
       setTimeout(() => {
@@ -150,6 +148,7 @@ export default class Copilot extends Vue {
         this.resetResponseState()
       },
     })
+    this.$log.info(`[Copilot] AI Agent initialized with Model: "${this.model}" from "${this.openAIAPIHost}"`)
   }
 
   public async sendMessage(msg?: string) {
@@ -330,15 +329,6 @@ export default class Copilot extends Vue {
       }
 
       this.sendMessage(this.currentPublishMsg)
-    }
-  }
-
-  private async checkMCPAvailability() {
-    if (this.aiAgent) {
-      this.mcpAvailable = await this.aiAgent.checkMCPAvailability()
-    } else {
-      await this.sessionManager.loadMCPData()
-      this.mcpAvailable = this.sessionManager.getState().mcpData?.hasMCP === true
     }
   }
 
