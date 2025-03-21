@@ -3,7 +3,7 @@ import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY, getCopilotMessageId } from '@/utils/idGenerator'
 import { getModelProvider } from '@/utils/ai/copilot'
 import { processMCPCalls } from '@/utils/ai/mcp/MCPUtils'
-import { CopilotMessage, CopilotRole, StreamError } from '@/types/copilot'
+import { AIStreamOptions, CopilotMessage, CopilotRole, StreamError } from '@/types/copilot'
 import { SessionManager } from '@/utils/ai/SessionManager'
 
 /**
@@ -127,14 +127,42 @@ export class AIAgent {
   }
 
   /**
+   * Create a text stream, this method can be called separately to get the textStream
+   *
+   * @param messageHistory Array of message objects representing the message history
+   * @param options Optional configuration options
+   * @returns textStream object
+   */
+  public chatWithStream(messageHistory: Array<{ role: CopilotRole; content: string }>, options?: AIStreamOptions) {
+    const apiKey = this.decryptAPIKey()
+    this.abortController = new AbortController()
+
+    return streamText({
+      model: getModelProvider({
+        model: this.model,
+        baseURL: this.openAIAPIHost,
+        apiKey,
+      }),
+      messages: messageHistory,
+      abortSignal: this.abortController.signal,
+      onError: this.handleStreamError,
+      temperature: options?.temperature ?? 0.5,
+      maxTokens: options?.maxTokens,
+      topP: options?.topP,
+      frequencyPenalty: options?.frequencyPenalty,
+      presencePenalty: options?.presencePenalty,
+    })
+  }
+
+  /**
    * Generate AI response using streaming
    *
    * @param messageHistory Message history to send to the LLM
    */
   public async generateResponse(
     messageHistory: Array<{ role: CopilotRole; content: string }>,
+    options?: AIStreamOptions,
   ): Promise<CopilotMessage> {
-    const apiKey = this.decryptAPIKey()
     let responseText = ''
     let isFirstChunk = true
 
@@ -145,24 +173,11 @@ export class AIAgent {
     }
 
     try {
-      this.abortController = new AbortController()
-
-      const { textStream } = streamText({
-        model: getModelProvider({
-          model: this.model,
-          baseURL: this.openAIAPIHost,
-          apiKey,
-        }),
-        temperature: 0.5,
-        messages: messageHistory,
-        abortSignal: this.abortController.signal,
-        onError: this.handleStreamError,
-      })
+      const { textStream } = this.chatWithStream(messageHistory, options)
 
       for await (const textPart of textStream) {
         responseText += textPart
 
-        // 在第一个文本块接收时触发开始回调
         if (isFirstChunk) {
           isFirstChunk = false
           if (this.onStreamStart) {
@@ -190,7 +205,6 @@ export class AIAgent {
       return responseMessage
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
-        // Handle abort silently
         if (this.onAbort) {
           this.onAbort()
         }
