@@ -62,6 +62,13 @@ export default {
     ja: 'MQTT 5.0の機能について学びたいですか？共有サブスクリプション、メッセージ有効期限、トピックエイリアスなどの詳細な説明については、Copilotに質問してください。',
     hu: 'Szeretne többet megtudni az MQTT 5.0 funkcióiról? Kérdezze meg a Copilot-tól a megosztott előfizetésekről, üzenet lejáratról, téma álnevekről és egyebekről szóló részletes magyarázatokat.',
   },
+  tipContent7: {
+    zh: '试试启用 MCP（模型上下文协议）功能！MCP 允许 Copilot 使用各类外部工具和服务，大幅扩展其功能，帮助您进行更高效的测试、自动化和开发工作。',
+    en: 'Try enabling the MCP (Model Context Protocol) feature! MCP allows Copilot to use various external tools and services, significantly expanding its capabilities to help you with more efficient testing, automation, and development tasks.',
+    tr: "MCP (Model Context Protocol) özelliğini etkinleştirmeyi deneyin! MCP, Copilot'ın çeşitli dış araçları ve hizmetleri kullanmasına izin vererek, daha verimli test, otomasyon ve geliştirme görevlerinde size yardımcı olmak için yeteneklerini önemli ölçüde genişletir.",
+    ja: 'MCP（モデルコンテキストプロトコル）機能を有効にしてみてください！MCPはCopilotにさまざまな外部ツールやサービスを使用することを可能にし、より効率的なテスト、自動化、開発タスクをサポートするためにその機能を大幅に拡張します。',
+    hu: 'Próbálja ki az MCP (Model Context Protocol) funkció engedélyezését! Az MCP lehetővé teszi a Copilot számára különféle külső eszközök és szolgáltatások használatát, jelentősen bővítve képességeit, hogy segítsen a hatékonyabb tesztelésben, automatizálásban és fejlesztési feladatokban.',
+  },
   copiltePubMsgPlacehoder: {
     zh: '向 MQTTX Copilot 发送消息...',
     en: 'Message MQTTX Copilot...',
@@ -150,7 +157,7 @@ export default {
     zh: '车联网测试数据',
     en: 'Connected Car Test Data',
     tr: 'Bağlantılı Araba Test Verisi Oluştur',
-    ja: 'コネクテッドカーのテストデータを生成する',
+    ja: '車載テレメトリーデータ',
     hu: 'Csatlakoztatott Autó Tesztadatok Generálása',
   },
   promptGenConnectedCarPayload: {

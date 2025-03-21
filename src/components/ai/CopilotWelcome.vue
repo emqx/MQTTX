@@ -22,7 +22,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 export default class CopilotWelcome extends Vue {
   @Prop({ default: true }) readonly show!: boolean
 
-  private tipIndex = Math.floor(Math.random() * 6) + 1
+  private tipIndex = Math.floor(Math.random() * 7) + 1
 
   get randomTip(): string {
     return this.$t(`copilot.tipContent${this.tipIndex}`) as string
