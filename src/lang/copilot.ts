@@ -609,4 +609,11 @@ export default {
     ja: 'MCP呼び出し',
     hu: 'MCP hívás',
   },
+  mcpResultAnalysisPrompts: {
+    zh: '请继续分析结果，并以简洁清晰的方式呈现数据。完成后请说明"[DONE]"',
+    en: 'Please continue to analyze the result and present the data in a concise and clear manner. End with "[DONE]"',
+    tr: 'Lütfen sonucu analiz etmeye devam edin ve verileri özlü ve net bir şekilde sunun. "[DONE]" ile bitirin',
+    ja: '結果の分析を続け、データを簡潔かつ明確な方法で提示してください。「[DONE]」で終了してください',
+    hu: 'Kérjük, folytassa az eredmény elemzését, és mutassa be az adatokat tömör és világos módon. Fejezze be "[DONE]" jelzéssel',
+  },
 }
