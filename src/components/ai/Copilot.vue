@@ -8,6 +8,7 @@
           :messages="messages"
           :is-sending="isSending"
           :response-stream-text="responseStreamText"
+          :reasoning="reasoning"
           @load-more-messages="loadMoreMessages"
         />
         <copilot-input
@@ -63,6 +64,7 @@ export default class Copilot extends Vue {
   private responseStreamText = ''
   private currPresetPrompt = ''
   private abortController: AbortController | null = null
+  private reasoning = ''
 
   private sessionManager = new SessionManager()
   private aiAgent: AIAgent | null = null
@@ -150,6 +152,9 @@ export default class Copilot extends Vue {
       },
       onAbort: () => {
         this.resetResponseState()
+      },
+      onReasoningChunk: (reasoning) => {
+        this.reasoning = reasoning
       },
     })
     this.$log.info(`[Copilot] AI Agent initialized with Model: "${this.model}" from "${this.openAIAPIHost}"`)
@@ -247,6 +252,7 @@ export default class Copilot extends Vue {
     this.isSending = false
     this.isResponseStream = false
     this.currPresetPrompt = ''
+    this.reasoning = ''
     this.scrollToBottom()
   }
 
@@ -367,7 +373,7 @@ export default class Copilot extends Vue {
    */
   private async processMCPResult(): Promise<void> {
     if (this.messages.length === 0 || !this.aiAgent) return
-    const lastMessage = this.messages[this.messages.length - 1]
+    const [lastUserMessage, lastAssistantMessage] = this.messages.slice(-2)
 
     this.isSending = true
     this.isResponseStream = true
@@ -379,12 +385,13 @@ export default class Copilot extends Vue {
         this.responseStreamText = ''
         this.isResponseStream = false
         this.isSending = false
-        this.updateMessageInUI(lastMessage.id, lastMessage.content + '\n\n' + text)
+        this.updateMessageInUI(lastAssistantMessage.id, lastAssistantMessage.content + '\n\n' + text)
       }
 
       const initialHistory: CopilotMessage[] = buildMCPAnalysisMessages(
         this.currentLang,
-        lastMessage.content,
+        lastUserMessage.content,
+        lastAssistantMessage.content,
         this.$tc('copilot.mcpResultAnalysisPrompts'),
       )
 
@@ -398,13 +405,13 @@ export default class Copilot extends Vue {
           content: cleanedContent,
         }
         await copilotService.update(cleanedMessage)
-        this.updateMessageInUI(lastMessage.id, cleanedContent)
+        this.updateMessageInUI(lastAssistantMessage.id, cleanedContent)
         this.isResponseStream = false
         this.isSending = false
       }
       try {
         await this.aiAgent.chatLoop(initialHistory, {
-          existingMessage: lastMessage,
+          existingMessage: lastAssistantMessage,
           shouldContinue,
           stopCondition,
           updateCallback: updateCallbackHandler,

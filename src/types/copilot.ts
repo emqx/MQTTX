@@ -22,6 +22,7 @@ export interface CopilotMessage {
   id: string
   role: CopilotRole
   content: string
+  reasoning?: string
 }
 
 /**
@@ -205,6 +206,7 @@ export interface AIStreamOptions {
   topP?: number
   frequencyPenalty?: number
   presencePenalty?: number
+  disabledReasoningShow?: boolean
 }
 
 export interface ChatLoopOptions {

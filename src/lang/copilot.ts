@@ -69,6 +69,13 @@ export default {
     ja: 'MCP（モデルコンテキストプロトコル）機能を有効にしてみてください！MCPはCopilotにさまざまな外部ツールやサービスを使用することを可能にし、より効率的なテスト、自動化、開発タスクをサポートするためにその機能を大幅に拡張します。',
     hu: 'Próbálja ki az MCP (Model Context Protocol) funkció engedélyezését! Az MCP lehetővé teszi a Copilot számára különféle külső eszközök és szolgáltatások használatát, jelentősen bővítve képességeit, hogy segítsen a hatékonyabb tesztelésben, automatizálásban és fejlesztési feladatokban.',
   },
+  showThinking: {
+    zh: '查看思考过程',
+    en: 'View Thinking Process',
+    tr: 'Düşünme Sürecini Görüntüle',
+    ja: '思考プロセスを表示',
+    hu: 'Gondolkodási folyamat megtekintése',
+  },
   copiltePubMsgPlacehoder: {
     zh: '向 MQTTX Copilot 发送消息...',
     en: 'Message MQTTX Copilot...',
