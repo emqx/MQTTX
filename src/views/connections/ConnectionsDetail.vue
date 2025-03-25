@@ -2164,7 +2164,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private handleInsertedCode() {
-    this.$message.success(this.$tc('common.insertCodeSuccess'))
+    this.$message.success(this.$tc('copilot.insertCodeSuccess'))
     this.toggleShowCopilot(false)
   }
 
