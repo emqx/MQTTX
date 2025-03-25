@@ -116,6 +116,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
     value: 'Anthropic',
     children: [
       { value: 'claude-3-7-sonnet-20250219' },
+      { value: 'claude-3-7-sonnet-20250219-thinking' },
       { value: 'claude-3-5-sonnet-latest' },
       { value: 'claude-3-5-haiku-latest' },
       { value: 'claude-3-opus-latest' },
@@ -189,12 +190,14 @@ export const getModelProvider = (opts: { model: AIModel; baseURL: string; apiKey
 
 export const buildMCPAnalysisMessages = (
   currentLang: Language,
+  firstUserMessage: string,
   assistantContent: string,
   userPrompt: string,
 ): CopilotMessage[] => {
   const systemPrompt = `${mcpResultAnalysis}\n\n${LANGUAGE_MAP[currentLang]}`
   return [
     { id: getCopilotMessageId(), role: 'system', content: systemPrompt },
+    { id: getCopilotMessageId(), role: 'user', content: firstUserMessage },
     { id: getCopilotMessageId(), role: 'assistant', content: assistantContent },
     { id: getCopilotMessageId(), role: 'user', content: userPrompt },
   ]
@@ -220,4 +223,16 @@ export const getMCPAnalysisConditions = () => {
     shouldContinue,
     stopCondition,
   }
+}
+
+export const REASONING_MODEL_REGEX = /thinking|reasoner|r1/i
+
+/**
+ * Determines if the provided model is a reasoning-capable model.
+ *
+ * @param model - The AI model to check
+ * @returns True if the model supports reasoning capabilities, false otherwise
+ */
+export const isReasoningModel = (model: AIModel) => {
+  return REASONING_MODEL_REGEX.test(model)
 }

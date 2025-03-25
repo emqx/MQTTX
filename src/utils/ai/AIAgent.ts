@@ -1,7 +1,7 @@
 import { streamText } from 'ai'
 import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY, getCopilotMessageId } from '@/utils/idGenerator'
-import { getModelProvider } from '@/utils/ai/copilot'
+import { getModelProvider, isReasoningModel } from '@/utils/ai/copilot'
 import { processMCPCalls } from '@/utils/ai/mcp/MCPUtils'
 import { AIStreamOptions, CopilotMessage, CopilotRole, StreamError, ChatLoopOptions } from '@/types/copilot'
 import { SessionManager } from '@/utils/ai/SessionManager'
@@ -27,6 +27,7 @@ export class AIAgent {
   public onError: ((error: unknown) => void) | null = null
   public onComplete: ((responseMessage: CopilotMessage) => void) | null = null
   public onAbort: (() => void) | null = null
+  public onReasoningChunk: ((reasoning: string) => void) | null = null
 
   /**
    * Constructor for AIAgent
@@ -44,6 +45,7 @@ export class AIAgent {
     onError?: (error: unknown) => void
     onComplete?: (responseMessage: CopilotMessage) => void
     onAbort?: () => void
+    onReasoningChunk?: (reasoning: string) => void
   }) {
     this.openAIAPIHost = options.openAIAPIHost
     this.openAIAPIKey = options.openAIAPIKey
@@ -55,6 +57,7 @@ export class AIAgent {
     this.onError = options.onError || null
     this.onComplete = options.onComplete || null
     this.onAbort = options.onAbort || null
+    this.onReasoningChunk = options.onReasoningChunk || null
   }
 
   /**
@@ -127,6 +130,25 @@ export class AIAgent {
   }
 
   /**
+   * Process reasoning content chunks from the large language model
+   * @param textDelta New reasoning text to be added
+   * @param reasoningBuffer Current accumulated reasoning content
+   */
+  private handleReasoningChunk(textDelta: string, reasoningBuffer: string): string {
+    if (reasoningBuffer.length === 0 && this.onStreamStart) {
+      this.onStreamStart()
+    }
+
+    const updatedBuffer = reasoningBuffer + textDelta
+
+    if (this.onReasoningChunk) {
+      this.onReasoningChunk(updatedBuffer)
+    }
+
+    return updatedBuffer
+  }
+
+  /**
    * Create a text stream, this method can be called separately to get the textStream
    *
    * @param messageHistory Array of message objects representing the message history
@@ -137,7 +159,10 @@ export class AIAgent {
     const apiKey = this.decryptAPIKey()
     this.abortController = new AbortController()
 
-    return streamText({
+    const supportsReasoning = isReasoningModel(this.model)
+    let reasoningBuffer = ''
+
+    const result = streamText({
       model: getModelProvider({
         model: this.model,
         baseURL: this.openAIAPIHost,
@@ -151,7 +176,16 @@ export class AIAgent {
       topP: options?.topP,
       frequencyPenalty: options?.frequencyPenalty,
       presencePenalty: options?.presencePenalty,
+      onChunk: supportsReasoning
+        ? ({ chunk }) => {
+            if (chunk.type === 'reasoning') {
+              reasoningBuffer = this.handleReasoningChunk(chunk.textDelta, reasoningBuffer)
+            }
+          }
+        : undefined,
     })
+
+    return result
   }
 
   /**
@@ -167,13 +201,13 @@ export class AIAgent {
     let isFirstChunk = true
 
     const responseMessage: CopilotMessage = {
-      id: getCopilotMessageId(), // This will be replaced by the actual ID in Copilot component
+      id: getCopilotMessageId(),
       role: 'assistant',
       content: '',
     }
 
     try {
-      const { textStream } = this.chatWithStream(messageHistory, options)
+      const { textStream, reasoning } = this.chatWithStream(messageHistory, options)
 
       for await (const textPart of textStream) {
         responseText += textPart
@@ -188,6 +222,11 @@ export class AIAgent {
         if (this.onStreamChunk) {
           this.onStreamChunk(responseText)
         }
+      }
+
+      if (reasoning && isReasoningModel(this.model)) {
+        const finalReason = await reasoning
+        responseMessage.reasoning = finalReason
       }
 
       // Process MCP calls if available

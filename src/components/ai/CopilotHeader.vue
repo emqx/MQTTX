@@ -2,7 +2,7 @@
   <div class="copilot-header clearfix">
     <span>MQTTX Copilot <el-tag size="mini" type="info">Beta</el-tag></span>
     <div>
-      <el-button type="text" @click="clearAllMessages"><i class="el-icon-delete"></i></el-button>
+      <el-button type="text" @click="clearAllMessages"><i class="el-icon-plus"></i></el-button>
       <el-button type="text" @click="toggleWindow"><i class="el-icon-close"></i></el-button>
     </div>
   </div>

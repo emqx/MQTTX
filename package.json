@@ -42,7 +42,7 @@
     "@electron/remote": "^2.1.2",
     "@modelcontextprotocol/sdk": "^1.7.0",
     "abort-controller": "^3.0.0",
-    "ai": "^4.1.46",
+    "ai": "^4.2.0",
     "appdata-path": "^1.0.0",
     "avsc": "^5.7.7",
     "axios": "^0.21.2",

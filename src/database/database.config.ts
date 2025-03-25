@@ -49,6 +49,7 @@ import { supportOpenAIAPIHost1716044120271 } from './migration/1716044120271-sup
 import { ignoreQoS0Message1724839386732 } from './migration/1724839386732-ignoreQoS0Message'
 import { changeDefaultLLMModel1727111519962 } from './migration/1727111519962-changeDefaultLLMModel'
 import { topicNodeTables1729246737362 } from './migration/1729246737362-topicNodeTables'
+import { reasonModelSupport1742835643809 } from './migration/1742835643809-reasonModelSupport'
 
 const STORE_PATH = getAppDataPath('MQTTX')
 try {
@@ -103,6 +104,7 @@ const ORMConfig = {
     ignoreQoS0Message1724839386732,
     changeDefaultLLMModel1727111519962,
     topicNodeTables1729246737362,
+    reasonModelSupport1742835643809,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [

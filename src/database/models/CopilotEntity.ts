@@ -13,4 +13,7 @@ export default class CopilotEntity {
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createAt!: string
+
+  @Column({ type: 'text', nullable: true })
+  reasoning?: string
 }

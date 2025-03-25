@@ -11,6 +11,7 @@
             <i :class="[message.role === 'user' ? 'el-icon-user' : 'el-icon-magic-stick']"></i>
             {{ roleMap[message.role] }}
           </span>
+          <copilot-thinking v-if="message.role === 'assistant' && message.reasoning" :reasoning="message.reasoning" />
           <message-render
             class="chat-content"
             :content="message.content"
@@ -29,11 +30,12 @@
     </div>
 
     <!-- Response Stream Text -->
-    <div v-if="responseStreamText">
+    <div v-if="responseStreamText || reasoning">
       <span class="chat-title">
         <i class="el-icon-magic-stick"></i>
         <span>MQTTX Copilot</span>
       </span>
+      <copilot-thinking v-if="reasoning" :reasoning="reasoning" />
       <message-render
         class="chat-content"
         :content="responseStreamText"
@@ -57,12 +59,14 @@ import { ipcRenderer } from 'electron'
 import { CopilotMessage } from '@/types/copilot'
 import CopilotWelcome from './CopilotWelcome.vue'
 import MessageRender from './MessageRender.vue'
+import CopilotThinking from './CopilotThinking.vue'
 
 @Component({
   components: {
     VueMarkdown,
     CopilotWelcome,
     MessageRender,
+    CopilotThinking,
   },
 })
 export default class CopilotMessages extends Vue {
@@ -72,6 +76,7 @@ export default class CopilotMessages extends Vue {
   @Prop({ default: () => [] }) readonly messages!: CopilotMessage[]
   @Prop({ default: false }) readonly isSending!: boolean
   @Prop({ default: '' }) readonly responseStreamText!: string
+  @Prop({ default: '' }) readonly reasoning!: string
 
   private copyText = String(this.$t('common.copy'))
   private copyFailedText = String(this.$t('common.copyFailed'))
