@@ -3,7 +3,7 @@ import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY, getCopilotMessageId } from '@/utils/idGenerator'
 import { getModelProvider, isReasoningModel } from '@/utils/ai/copilot'
 import { processMCPCalls } from '@/utils/ai/mcp/MCPUtils'
-import { AIStreamOptions, CopilotMessage, CopilotRole, StreamError, ChatLoopOptions } from '@/types/copilot'
+import { AIStreamOptions, CopilotMessage, CopilotRole, StreamError, ChatLoopOptions, AIModel } from '@/types/copilot'
 import { SessionManager } from '@/utils/ai/SessionManager'
 
 /**
@@ -149,6 +149,22 @@ export class AIAgent {
   }
 
   /**
+   * Process the AI model to determine if it is a Claude thinking model
+   *
+   * @param model The AI model to process
+   * @returns An object containing the actual model and a boolean indicating if it is a Claude thinking model
+   */
+  private processModel(model: AIModel) {
+    const isClaudeThinking = model.includes('claude') && model.endsWith('-thinking')
+    const actualModel: AIModel = isClaudeThinking ? (model.replace(/-thinking$/, '') as AIModel) : model
+
+    return {
+      actualModel,
+      isClaudeThinking,
+    }
+  }
+
+  /**
    * Create a text stream, this method can be called separately to get the textStream
    *
    * @param messageHistory Array of message objects representing the message history
@@ -159,15 +175,25 @@ export class AIAgent {
     const apiKey = this.decryptAPIKey()
     this.abortController = new AbortController()
 
+    const { actualModel, isClaudeThinking } = this.processModel(this.model)
+
     const supportsReasoning = isReasoningModel(this.model)
     let reasoningBuffer = ''
 
     const result = streamText({
       model: getModelProvider({
-        model: this.model,
+        model: actualModel,
         baseURL: this.openAIAPIHost,
         apiKey,
       }),
+      providerOptions: {
+        anthropic: {
+          thinking: {
+            type: isClaudeThinking ? 'enabled' : 'disabled',
+            budgetTokens: 12000,
+          },
+        },
+      },
       messages: messageHistory,
       abortSignal: this.abortController.signal,
       onError: this.handleStreamError,
@@ -224,9 +250,13 @@ export class AIAgent {
         }
       }
 
-      if (reasoning && isReasoningModel(this.model)) {
-        const finalReason = await reasoning
-        responseMessage.reasoning = finalReason
+      if (isReasoningModel(this.model) && reasoning) {
+        try {
+          const finalReason = await reasoning
+          responseMessage.reasoning = finalReason
+        } catch (error) {
+          console.error('Error getting reasoning:', error)
+        }
       }
 
       // Process MCP calls if available

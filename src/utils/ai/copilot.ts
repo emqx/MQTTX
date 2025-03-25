@@ -171,6 +171,18 @@ export const AIAPIHostOptions = [
   },
 ]
 
+export const REASONING_MODEL_REGEX = /thinking|reasoner|r1/i
+
+/**
+ * Determines if the provided model is a reasoning-capable model.
+ *
+ * @param model - The AI model to check
+ * @returns True if the model supports reasoning capabilities, false otherwise
+ */
+export const isReasoningModel = (model: AIModel) => {
+  return REASONING_MODEL_REGEX.test(model)
+}
+
 /**
  * Gets the appropriate model provider based on the specified model, base URL, and API key.
  *
@@ -223,16 +235,4 @@ export const getMCPAnalysisConditions = () => {
     shouldContinue,
     stopCondition,
   }
-}
-
-export const REASONING_MODEL_REGEX = /thinking|reasoner|r1/i
-
-/**
- * Determines if the provided model is a reasoning-capable model.
- *
- * @param model - The AI model to check
- * @returns True if the model supports reasoning capabilities, false otherwise
- */
-export const isReasoningModel = (model: AIModel) => {
-  return REASONING_MODEL_REGEX.test(model)
 }
