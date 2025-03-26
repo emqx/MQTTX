@@ -67,19 +67,19 @@ jobs:
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
       - name: Upload Windows Artifacts
         if: github.event_name == 'release'
-        shell: powershell
+        shell: bash
         run: |
-          Set-Location dist_electron
-          $tag = ($env:GITHUB_REF -replace 'refs/heads/','' -replace 'refs/tags/','')
-          Get-ChildItem | ForEach-Object {
-            & "$env:GITHUB_WORKSPACE\.github\workflows\upload_github_release_asset.sh" `
-              owner="${env:GITHUB_REPOSITORY.Split('/')[0]}" `
-              repo="mqttx" `
-              tag=$tag `
-              filename=$($_.Name) `
-              github_api_token="${{ secrets.GITHUB_TOKEN }}"
-          }
-          Set-Location ..
+          cd dist_electron
+          tag=$(echo "${{ github.ref }}" | sed -r "s/^refs\/heads\/|^refs\/tags\///g")
+          for file in $(ls); do
+            $GITHUB_WORKSPACE/.github/workflows/upload_github_release_asset.sh \
+              owner=${{ github.repository_owner }} \
+              repo=mqttx \
+              tag=$tag \
+              filename=$file \
+              github_api_token=${{ secrets.GITHUB_TOKEN }}
+          done
+          cd ..
           aws s3 cp --recursive dist_electron s3://${{ secrets.AWS_S3_BUCKET }}/MQTTX/$tag/
 
   build-mac:
