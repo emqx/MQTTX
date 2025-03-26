@@ -31,8 +31,8 @@ import { initMCPHandlers, cleanupMCPConnections } from './main/ai/mcp/MCPManager
  */
 const fixPath = require('fix-path')
 fixPath()
-
 console.log('[PATH] System PATH environment variable has been fixed')
+
 console.log('[ENV] Node.js version:', process.versions.node)
 console.log('[ENV] Electron version:', process.versions.electron)
 console.log('[ENV] Chrome version:', process.versions.chrome)
