@@ -2210,6 +2210,9 @@ export default class ConnectionsDetail extends Vue {
       .topbar {
         border-bottom: 0px;
         -webkit-app-region: drag;
+        a {
+          -webkit-app-region: no-drag;
+        }
       }
       .connection-head {
         display: flex;

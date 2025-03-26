@@ -216,7 +216,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { ipcRenderer } from 'electron'
+import { ipcRenderer, IpcRendererEvent } from 'electron'
 import { Getter } from 'vuex-class'
 import ClickOutside from 'vue-click-outside'
 import Editor from '@/components/Editor.vue'
@@ -567,7 +567,7 @@ export default class MsgPublish extends Vue {
   }
 
   private mounted() {
-    ipcRenderer.on('insertCodeToEditor', (event: Event, code: string) => {
+    ipcRenderer.on('insertCodeToEditor', (event: IpcRendererEvent, code: string) => {
       if (code) {
         this.msgRecord.payload = code
         this.$emit('onInsertedCode')

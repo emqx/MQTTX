@@ -92,6 +92,9 @@ export default class Leftbar extends Vue {
   display: flex;
   flex-direction: column;
   -webkit-app-region: drag;
+  a {
+    -webkit-app-region: no-drag;
+  }
   & > .leftbar-top {
     flex: 1;
   }
