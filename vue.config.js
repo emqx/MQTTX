@@ -92,7 +92,12 @@ module.exports = {
       externals: ['mqtt', 'vm2', 'log4js', 'typeorm'],
       builderOptions: {
         productName: 'MQTTX',
-        publish: null,
+        publish: [
+          {
+            provider: 'generic',
+            url: 'https://mqttx.app/releases',
+          },
+        ],
         nsis: {
           oneClick: false,
           allowElevation: true,
