@@ -755,6 +755,9 @@ export default class ConnectionsList extends Vue {
     min-height: 10px;
     height: 59px;
     -webkit-app-region: drag;
+    a {
+      -webkit-app-region: no-drag;
+    }
     .new-dropdown {
       &.is-new-window {
         display: none;

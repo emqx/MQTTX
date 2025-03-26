@@ -21,6 +21,22 @@ import version from '@/version'
 import { initialize } from '@electron/remote/main'
 import { initMCPHandlers, cleanupMCPConnections } from './main/ai/mcp/MCPManager'
 
+/**
+ * Fix the PATH environment variable in packaged Electron apps
+ *
+ * When running as a GUI app, Electron doesn't inherit the $PATH from shell configs
+ * (.bashrc, .zshrc), causing spawn/exec commands to fail with ENOENT errors.
+ *
+ * fix-path restores the shell's PATH to make external commands work properly.
+ */
+const fixPath = require('fix-path')
+fixPath()
+
+console.log('[PATH] System PATH environment variable has been fixed')
+console.log('[ENV] Node.js version:', process.versions.node)
+console.log('[ENV] Electron version:', process.versions.electron)
+console.log('[ENV] Chrome version:', process.versions.chrome)
+
 declare const __static: string
 
 const Store = require('electron-store')
@@ -287,7 +303,23 @@ app.on('activate', () => {
 // Disabled create new window
 app.on('web-contents-created', (event, contents) => {
   contents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url)
+    // Add URL validation to allow only specific domains
+    const validDomains = ['mqttx.app', 'github.com', 'emqx.io', 'emqx.com']
+    try {
+      const urlObj = new URL(url)
+      const hostname = urlObj.hostname
+      // Check if the domain is allowed
+      const isValidDomain = validDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`))
+
+      if (isValidDomain) {
+        shell.openExternal(url)
+      } else {
+        console.log(`Blocked opening of unsafe URL: ${url}`)
+      }
+    } catch (error) {
+      console.error('Invalid URL:', url)
+    }
+
     return { action: 'deny' }
   })
 })
