@@ -27,21 +27,19 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-      - name: Upload Linux Artifacts
+      - name: Upload Linux Artifacts to GitHub Release
         if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist_electron/*
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Linux Artifacts to S3
+        if: github.event_name == 'release'
+        shell: bash
         run: |
           cd dist_electron
-          tag=$(echo "${{ github.ref }}" | sed -r "s/^refs\/heads\/|^refs\/tags\///g")
-          for file in $(ls); do
-            $GITHUB_WORKSPACE/.github/workflows/upload_github_release_asset.sh \
-              owner=${{ github.repository_owner }} \
-              repo=mqttx \
-              tag=$tag \
-              filename=$file \
-              github_api_token=${{ secrets.GITHUB_TOKEN }}
-          done
-          cd ..
-          aws s3 cp --recursive dist_electron s3://${{ secrets.AWS_S3_BUCKET }}/MQTTX/$tag/
+          tag="${{ github.ref_name }}"
+          aws s3 cp --recursive . s3://${{ secrets.AWS_S3_BUCKET }}/MQTTX/$tag/
 
   build-win:
     name: Build Windows Package
@@ -65,22 +63,19 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
-      - name: Upload Windows Artifacts
+      - name: Upload Windows Artifacts to GitHub Release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist_electron/*
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Windows Artifacts to S3
         if: github.event_name == 'release'
         shell: bash
         run: |
           cd dist_electron
-          tag=$(echo "${{ github.ref }}" | sed -r "s/^refs\/heads\/|^refs\/tags\///g")
-          for file in $(ls); do
-            $GITHUB_WORKSPACE/.github/workflows/upload_github_release_asset.sh \
-              owner=${{ github.repository_owner }} \
-              repo=mqttx \
-              tag=$tag \
-              filename=$file \
-              github_api_token=${{ secrets.GITHUB_TOKEN }}
-          done
-          cd ..
-          aws s3 cp --recursive dist_electron s3://${{ secrets.AWS_S3_BUCKET }}/MQTTX/$tag/
+          tag="${{ github.ref_name }}"
+          aws s3 cp --recursive . s3://${{ secrets.AWS_S3_BUCKET }}/MQTTX/$tag/
 
   build-mac:
     name: Build macOS Package (Test Only)

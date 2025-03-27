@@ -95,7 +95,7 @@ module.exports = {
         publish: [
           {
             provider: 'generic',
-            url: 'https://mqttx.app/releases',
+            url: 'https://www.emqx.com/en/downloads/MQTTX',
           },
         ],
         nsis: {
