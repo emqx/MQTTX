@@ -77,3 +77,9 @@ export default class ConnectionSelect extends Vue {
   }
 }
 </script>
+
+<style lang="scss">
+.connection-select {
+  -webkit-app-region: no-drag;
+}
+</style>
