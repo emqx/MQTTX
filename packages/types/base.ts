@@ -17,7 +17,9 @@ export type Protocol = Extract<IClientOptions['protocol'], 'mqtt' | 'mqtts' | 'w
 
 export type QoS = NonNullable<IClientPublishOptions['qos']>
 
-export type PayloadType = 'Plaintext' | 'Base64' | 'JSON' | 'Hex' | 'CBOR' | 'MsgPack'
+export type OutputFormat = 'Plaintext' | 'Base64' | 'JSON' | 'Hex'
+
+export type SerializationFormat = 'CBOR' | 'MsgPack' | 'Protobuf' | 'Avro'
 
 export type MessageType = 'all' | 'received' | 'publish'
 
