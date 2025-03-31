@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ScriptFunction } from 'mqttx'
+import type { MessageType, ScriptFunction } from 'mqttx'
 import { executeScript } from '@mqttx/core'
 
 const props = defineProps<{
@@ -16,6 +16,18 @@ const {
   monacoEditorLangugage: resultMonacoEditorLangugage,
 } = usePayloadConverter()
 
+const { t } = useI18n()
+const messagesTypeList: {
+  value: MessageType
+  label: string
+}[] = [
+  { value: 'all', label: t('connections.all') },
+  { value: 'received', label: t('connections.received') },
+  { value: 'publish', label: t('script.publish') },
+]
+const messageType = ref<MessageType>('all')
+const sendCounter = ref(1)
+
 function resetResults() {
   resultString.value = ''
   resultPayloadType.value = 'Plaintext'
@@ -30,12 +42,10 @@ function handleTest() {
       script: currentFunctionContent.value,
       payload: payloadString.value,
       payloadRaw: payloadBuffer.value,
-      messageType: 'publish',
+      messageType: messageType.value,
+      sendCounter: sendCounter.value,
     })
       .then((data) => {
-        console.log(data)
-        console.log(data.toString())
-
         resultString.value = data.toString()
       })
       .catch((error) => {
@@ -55,12 +65,33 @@ function handleTest() {
   <section>
     <div class="my-3 flex justify-between items-center">
       <label class="text-title">{{ $t('script.input') }}</label>
-      <ElButton
-        type="primary"
-        @click="handleTest"
-      >
-        {{ $t('script.test') }}
-      </ElButton>
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
+          <span class="text-title">{{ $t('script.messageType') }}:</span>
+          <ElSelect v-model="messageType" style="width: 120px">
+            <ElOption
+              v-for="item in messagesTypeList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </ElSelect>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-title">{{ $t('script.sendCounter') }}:</span>
+          <ElInputNumber
+            v-model="sendCounter"
+            :min="1"
+            style="width: 120px"
+          />
+        </div>
+        <ElButton
+          type="primary"
+          @click="handleTest"
+        >
+          {{ $t('script.test') }}
+        </ElButton>
+      </div>
     </div>
     <section class="h-40 bg-normal border border-b-0 px-0.5 pb-0.5 pt-3 border-border-default rounded-t">
       <MonacoEditor

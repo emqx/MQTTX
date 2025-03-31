@@ -181,4 +181,25 @@ export default {
     ja: 'Proto名は必須です',
     hu: 'Szükséges a Proto név',
   },
+  messageType: {
+    zh: '消息类型',
+    en: 'Message type',
+    tr: 'Mesaj türü',
+    ja: 'メッセージタイプ',
+    hu: 'Üzenet típus',
+  },
+  publish: {
+    zh: '发布',
+    en: 'Publish',
+    tr: 'Yayınla',
+    ja: '公開',
+    hu: 'Közzététel',
+  },
+  sendCounter: {
+    zh: '发送计数',
+    en: 'Send count',
+    tr: 'Gönderim sayısı',
+    ja: '送信カウント',
+    hu: 'Küldési szám',
+  },
 }
