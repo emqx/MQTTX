@@ -1,13 +1,15 @@
 /**
  * @description: Simulated dynamic switch command
- * @param {string} message - Message payload
- * @param {string} messageType - Message type, value is 'received' or 'publish'
- * @param {number} index - Index of the message, valid only when script is used in the publish message and timed message is enabled
+ * @param {object} params - The parameters object
+ * @param {string} params.payload - Message payload
+ * @param {string} params.messageType - Message type, value is 'received' or 'publish'
+ * @param {number} params.sendCounter - Counter for sent messages (only valid when timed sending is enabled)
  * @return {string} - Return two commands alternately, { "command": "on" } or { "command": "off" }
  */
-function handlePayload(message, messageType, index) {
-  let _message = JSON.parse(message || '{}')
-  if (index % 2 === 0) {
+function handlePayload(params) {
+  const { payload, sendCounter } = params
+  let _message = JSON.parse(payload || '{}')
+  if (sendCounter % 2 === 0) {
     _message.command = 'on'
   } else {
     _message.command = 'off'
