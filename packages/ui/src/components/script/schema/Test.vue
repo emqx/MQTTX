@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ScriptSchema } from 'mqttx'
-import { convertPayloadForDisplay, encodePayloadForSend, payloadCodec } from '@mqttx/core'
+import { payloadCodec, payloadConverter } from '@mqttx/core'
 
 const props = defineProps<{
   currentCodec: ScriptSchema['codec']
@@ -8,7 +8,7 @@ const props = defineProps<{
 }>()
 
 const { currentCodec, currentSchemaContent } = toRefs(props)
-const { payloadTypeList, payloadType, payloadString, monacoEditorLangugage } = usePayloadConverter()
+const { payloadTypeList, payloadType, payloadString, payloadBuffer, monacoEditorLangugage } = usePayloadConverter()
 
 const {
   payloadType: resultPayloadType,
@@ -38,7 +38,7 @@ resetResults()
 
 const { t } = useI18n()
 
-function handleTest(payload: string) {
+function handleTest() {
   resetResults()
   try {
     if (currentCodec.value === 'protobuf' && messageName.value === '') {
@@ -52,14 +52,18 @@ function handleTest(payload: string) {
     const { decode, encode } = payloadCodec[currentCodec.value]
     const buffer = decode({
       payload: encode({
-        payload: encodePayloadForSend(payload, payloadType.value),
+        payload: payloadBuffer.value,
         schema: currentSchemaContent.value,
         messageName: messageName.value,
       }),
       schema: currentSchemaContent.value,
       messageName: messageName.value,
     })
-    resultString.value = convertPayloadForDisplay(buffer.toString(), 'Plaintext', 'JSON')
+    resultString.value = payloadConverter.formatPayload({
+      payload: buffer.toString(),
+      from: 'Plaintext',
+      to: 'JSON',
+    })
   } catch (error) {
     if (error instanceof Error) {
       ElMessage({
@@ -85,7 +89,7 @@ function handleTest(payload: string) {
         />
         <ElButton
           type="primary"
-          @click="handleTest(payloadString)"
+          @click="handleTest"
         >
           {{ $t('script.test') }}
         </ElButton>

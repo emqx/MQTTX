@@ -8,7 +8,7 @@ const props = defineProps<{
 }>()
 
 const { currentLang, currentFunctionContent } = toRefs(props)
-const { payloadTypeList, payloadType, payloadString, monacoEditorLangugage } = usePayloadConverter()
+const { payloadTypeList, payloadType, payloadString, payloadBuffer, monacoEditorLangugage } = usePayloadConverter()
 
 const {
   payloadType: resultPayloadType,
@@ -23,15 +23,19 @@ function resetResults() {
 
 resetResults()
 
-function handleTest(payload: string) {
+function handleTest() {
   resetResults()
   if (currentLang.value === 'javascript') {
     executeScript({
       script: currentFunctionContent.value,
-      payload,
+      payload: payloadString.value,
+      payloadRaw: payloadBuffer.value,
       messageType: 'publish',
     })
       .then((data) => {
+        console.log(data)
+        console.log(data.toString())
+
         resultString.value = data.toString()
       })
       .catch((error) => {
@@ -53,7 +57,7 @@ function handleTest(payload: string) {
       <label class="text-title">{{ $t('script.input') }}</label>
       <ElButton
         type="primary"
-        @click="handleTest(payloadString)"
+        @click="handleTest"
       >
         {{ $t('script.test') }}
       </ElButton>

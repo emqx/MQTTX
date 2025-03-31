@@ -1,10 +1,30 @@
 // eslint-disable-next-line unicorn/prefer-node-protocol
 import { Buffer } from 'buffer'
 import avro from 'avsc'
+import { decode as cborDecode, encode as cborEncode } from 'cbor2'
+import { unpack as msgpackDecode, pack as msgpackEncode } from 'msgpackr'
 import protobuf from 'protobufjs'
 
+function encodeCbor(args: { payload: Buffer }): Buffer {
+  return Buffer.from(cborEncode(JSON.parse(args.payload.toString())))
+}
+
+function decodeCbor(args: { payload: Buffer }): Buffer {
+  const decoded = cborDecode(args.payload)
+  return Buffer.from(JSON.stringify(decoded))
+}
+
+function encodeMsgPack(args: { payload: Buffer }): Buffer {
+  return msgpackEncode(JSON.parse(args.payload.toString()))
+}
+
+function decodeMsgPack(args: { payload: Buffer }): Buffer {
+  const decoded = msgpackDecode(args.payload)
+  return Buffer.from(JSON.stringify(decoded))
+}
+
 function getProtobufMessage(schema: string, messageName: string) {
-  const root = protobuf.parse(schema).root
+  const root = protobuf.parse(schema, { keepCase: true }).root
   return root.lookupType(messageName)
 }
 
@@ -55,6 +75,14 @@ function decodeAvro(args: {
 }
 
 export const payloadCodec = {
+  cbor: {
+    encode: encodeCbor,
+    decode: decodeCbor,
+  },
+  msgpack: {
+    encode: encodeMsgPack,
+    decode: decodeMsgPack,
+  },
   protobuf: {
     encode: encodeProtobuf,
     decode: decodeProtobuf,

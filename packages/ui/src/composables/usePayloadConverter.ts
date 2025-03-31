@@ -1,14 +1,32 @@
-import type { PayloadType } from 'mqttx'
-import { convertPayloadForDisplay, encodePayloadForSend } from '@mqttx/core'
+import type { OutputFormat } from 'mqttx'
+import { payloadConverter } from '@mqttx/core'
 
 export function usePayloadConverter() {
-  const payloadTypeList: PayloadType[] = ['Plaintext', 'Base64', 'JSON', 'Hex', 'CBOR', 'MsgPack']
-  const payloadType = ref<PayloadType>('JSON')
+  const payloadTypeList: OutputFormat[] = ['Plaintext', 'Base64', 'JSON', 'Hex']
+  const payloadType = ref<OutputFormat>('JSON')
   const payloadString = ref<string>(JSON.stringify({ msg: 'hello' }, null, 2))
   const isReverting = ref(false)
 
+  const payloadBuffer = computed(() => {
+    try {
+      return payloadConverter.toBuffer({
+        payload: payloadString.value,
+        payloadType: payloadType.value,
+      })
+    } catch (error) {
+      if (error instanceof Error) {
+        ElMessage({
+          message: error.message,
+          type: 'error',
+          plain: true,
+        })
+      }
+      return Buffer.alloc(0)
+    }
+  })
+
   const monacoEditorLangugage = computed(() => {
-    if (['CBOR', 'JSON', 'MsgPack'].includes(payloadType.value)) {
+    if (['JSON'].includes(payloadType.value)) {
       return 'json'
     }
     return 'plaintext'
@@ -20,7 +38,11 @@ export function usePayloadConverter() {
       return
     }
     try {
-      payloadString.value = convertPayloadForDisplay(payloadString.value, oldType, newType)
+      payloadString.value = payloadConverter.formatPayload({
+        payload: payloadString.value,
+        from: oldType,
+        to: newType,
+      })
     } catch (error) {
       if (error instanceof Error) {
         ElMessage({
@@ -38,8 +60,7 @@ export function usePayloadConverter() {
     payloadTypeList,
     payloadType,
     payloadString,
+    payloadBuffer,
     monacoEditorLangugage,
-    convertPayloadForDisplay,
-    encodePayloadForSend,
   }
 }

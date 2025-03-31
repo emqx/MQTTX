@@ -34,14 +34,24 @@ const defaultFunction: Record<string, { content: string }> = {
   javascript: {
     content: `/**
  * @description: Default custom function template
- * @param {string} message - Message payload
- * @param {string} messageType - Message type, value is 'received' or 'publish'
- * @param {number} index - Index of the message, valid only when script is used in the publish message and timed message is enabled
- * @return {string | object} - Returns a string or an object that can be JSON.stringify
+ * @param {object} params - The parameters object
+ * @param {string} params.payload - String representation of the message payload
+ * @param {object} params.payloadRaw - Binary data in JSON serialized format {type: 'Buffer', data: number[]}
+ * @param {string} params.messageType - Message type, value is 'received' or 'publish'
+ * @param {number} params.sendCounter - Counter for sent messages (only valid when timed sending is enabled)
+ * @return {*} - Supported return formats:
+ *         - String: used as message payload
+ *         - Object: converted to JSON string
+ *         - {type: 'Buffer', data: number[]}: treated as binary data
  */
-function handlePayload(message, messageType, index) {
-  const payload = JSON.parse(message)
-  return payload.msg
+function handlePayload(params) {
+  const { payload } = params
+  try {
+    const parsedPayload = JSON.parse(payload)
+    return parsedPayload.msg || parsedPayload
+  } catch (error) {
+    return payload
+  }
 }
 
 return execute(handlePayload)`,
