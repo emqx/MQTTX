@@ -34,7 +34,7 @@ jobs:
           files: dist_electron/*
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload Linux Artifacts to S3
-        if: github.event_name == 'release'
+        if: github.event_name == 'release' && !github.event.release.prerelease
         shell: bash
         run: |
           cd dist_electron
@@ -70,7 +70,7 @@ jobs:
           files: dist_electron/*
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: Upload Windows Artifacts to S3
-        if: github.event_name == 'release'
+        if: github.event_name == 'release' && !github.event.release.prerelease
         shell: bash
         run: |
           cd dist_electron

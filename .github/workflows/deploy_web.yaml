@@ -43,7 +43,7 @@ jobs:
           tccli cdn PurgePathCache --Paths '["https://mqttx.app/"]' --FlushType delete
 
   publish_docker:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'release' && !github.event.release.prerelease
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
