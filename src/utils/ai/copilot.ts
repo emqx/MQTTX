@@ -96,7 +96,7 @@ export const loadSystemPrompt = (lang: Language, command?: string, mcpData?: MCP
  */
 export const AImodelsOptions: AImodelsOptionsModel = [
   {
-    value: 'OpenAI',
+    value: 'OpenAI' as const,
     children: [
       { value: 'gpt-4o' },
       { value: 'gpt-4o-mini' },
@@ -108,7 +108,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
     providerCreator: createOpenAI,
   },
   {
-    value: 'DeepSeek',
+    value: 'DeepSeek' as const,
     children: [{ value: 'deepseek-chat' }, { value: 'deepseek-reasoner' }],
     providerCreator: createDeepSeek,
   },
@@ -125,12 +125,18 @@ export const AImodelsOptions: AImodelsOptionsModel = [
     providerCreator: createAnthropic,
   },
   {
-    value: 'xAI',
-    children: [{ value: 'grok-2-1212' }],
+    value: 'xAI' as const,
+    children: [
+      { value: 'grok-2-1212' },
+      { value: 'grok-3-mini-fast-beta' },
+      { value: 'grok-3-mini-beta' },
+      { value: 'grok-3-fast-beta' },
+      { value: 'grok-3-beta' },
+    ],
     providerCreator: createXai,
   },
   {
-    value: 'SiliconFlow',
+    value: 'SiliconFlow' as const,
     children: [
       { value: 'deepseek-ai/DeepSeek-V3' },
       { value: 'deepseek-ai/DeepSeek-R1' },
