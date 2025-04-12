@@ -3,6 +3,7 @@ import { createOpenAI } from '@ai-sdk/openai'
 import { createDeepSeek } from '@ai-sdk/deepseek'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createXai } from '@ai-sdk/xai'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import basePrompt from './prompts/base.txt'
 import clientCodeGen from './prompts/clientCodeGen.txt'
 import payloadGen from './prompts/payloadGen.txt'
@@ -25,6 +26,7 @@ import {
   AVRO_SCHEMA_COMMAND_VALUES,
 } from './preset'
 import { getCopilotMessageId } from '../idGenerator'
+import type { LanguageModelV1 } from '@ai-sdk/provider'
 
 export const LANGUAGE_MAP = {
   zh: '请使用中文回答（简体中文）',
@@ -127,13 +129,26 @@ export const AImodelsOptions: AImodelsOptionsModel = [
   {
     value: 'xAI' as const,
     children: [
-      { value: 'grok-2-1212' },
-      { value: 'grok-3-mini-fast-beta' },
-      { value: 'grok-3-mini-beta' },
-      { value: 'grok-3-fast-beta' },
       { value: 'grok-3-beta' },
+      { value: 'grok-3-fast-beta' },
+      { value: 'grok-3-mini-beta' },
+      { value: 'grok-3-mini-fast-beta' },
+      { value: 'grok-2-1212' },
     ],
     providerCreator: createXai,
+  },
+  {
+    value: 'Google' as const,
+    children: [
+      { value: 'gemini-2.5-pro-preview-03-25' },
+      { value: 'gemini-2.0-flash' },
+      { value: 'gemini-2.0-flash-thinking-exp-01-21' },
+      { value: 'gemini-2.0-flash-lite' },
+      { value: 'gemini-1.5-pro' },
+      { value: 'gemini-1.5-flash' },
+      { value: 'gemini-1.5-flash-8b' },
+    ],
+    providerCreator: createGoogleGenerativeAI,
   },
   {
     value: 'SiliconFlow' as const,
@@ -155,26 +170,18 @@ export const AImodelsOptions: AImodelsOptionsModel = [
  * - DeepSeek API endpoint
  * - Anthropic API endpoint
  * - xAI API endpoint
+ * - Google API endpoint
  * - SiliconFlow API endpoint
  *
  * These URLs are used when configuring the API client for each provider.
  */
 export const AIAPIHostOptions = [
-  {
-    value: 'https://api.openai.com/v1',
-  },
-  {
-    value: 'https://api.deepseek.com/v1',
-  },
-  {
-    value: 'https://api.anthropic.com/v1',
-  },
-  {
-    value: 'https://api.x.ai/v1',
-  },
-  {
-    value: 'https://api.siliconflow.cn/v1',
-  },
+  { value: 'https://api.openai.com/v1' },
+  { value: 'https://api.deepseek.com/v1' },
+  { value: 'https://api.anthropic.com/v1' },
+  { value: 'https://api.x.ai/v1' },
+  { value: 'https://generativelanguage.googleapis.com/v1beta' },
+  { value: 'https://api.siliconflow.cn/v1' },
 ]
 
 export const REASONING_MODEL_REGEX = /thinking|reasoner|r1/i
@@ -190,20 +197,40 @@ export const isReasoningModel = (model: AIModel) => {
 }
 
 /**
- * Gets the appropriate model provider based on the specified model, base URL, and API key.
+ * Gets the appropriate LanguageModelV1 instance for the specified provider.
  *
  * @param opts - The options for creating the model provider
  * @param opts.model - The AI model to use
- * @param opts.baseURL - The base URL for the API
+ * @param opts.baseURL - The base URL/endpoint for the API
  * @param opts.apiKey - The API key for authentication
- * @returns A configured provider for the specified model
+ * @param opts.providerType - Explicitly specify the provider type
+ * @returns A LanguageModelV1 compatible provider instance
  */
-export const getModelProvider = (opts: { model: AIModel; baseURL: string; apiKey: string }) => {
-  const { model, baseURL, apiKey } = opts
-  const currentModelOptions = AImodelsOptions.find((item) => item.children.some((child) => child.value === model))
-  const providerCreator = currentModelOptions?.providerCreator || createOpenAI
-  const provider = providerCreator({ baseURL, apiKey })
-  return provider(model)
+export const getModelProvider = (opts: {
+  model: AIModel
+  baseURL: string
+  apiKey: string
+  providerType: typeof AImodelsOptions[number]['value']
+}): LanguageModelV1 => {
+  const { model, baseURL, apiKey, providerType } = opts
+
+  const providerConfig = AImodelsOptions.find((p) => p.value === providerType)
+
+  if (!providerConfig || !providerConfig.providerCreator) {
+    console.error(`Unsupported or misconfigured provider type: ${providerType}. Falling back to default OpenAI.`)
+    const fallbackProvider = createOpenAI({ apiKey })
+    return fallbackProvider('gpt-4o')
+  }
+
+  const creatorOptions: Record<string, any> = {
+    baseURL,
+    apiKey,
+  }
+
+  const providerCreator = providerConfig.providerCreator
+  const provider = providerCreator(creatorOptions)
+
+  return provider(model) as LanguageModelV1
 }
 
 export const buildMCPAnalysisMessages = (

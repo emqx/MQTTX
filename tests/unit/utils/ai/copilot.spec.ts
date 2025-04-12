@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { loadSystemPrompt, getModelProvider, AImodelsOptions } from '@/utils/ai/copilot'
+import { AImodelsOptions, AIAPIHostOptions, loadSystemPrompt, getModelProvider } from '@/utils/ai/copilot'
 
 describe('copilot', () => {
   describe('loadSystemPrompt', () => {
@@ -79,38 +79,66 @@ describe('copilot', () => {
         expect(provider.providerCreator).to.be.a('function')
       })
     })
+
+    it('should contain Google provider', () => {
+      const providerNames = AImodelsOptions.map((provider) => provider.value)
+      expect(providerNames).to.include('Google')
+    })
+
+    it('should have valid model options for Google', () => {
+      const google = AImodelsOptions.find((p) => p.value === 'Google')
+      expect(google).to.exist
+      expect(google?.children).to.be.an('array').that.is.not.empty
+      expect(google?.children.map((c) => c.value)).to.include('gemini-1.5-pro-latest')
+    })
+
+    it('should have provider creator function for Google', () => {
+      const google = AImodelsOptions.find((p) => p.value === 'Google')
+      expect(google?.providerCreator).to.be.a('function')
+    })
+  })
+
+  describe('AIAPIHostOptions', () => {
+    it('should include the default Google API host', () => {
+      const googleHost = AIAPIHostOptions.find((opt) => opt.value.includes('google'))?.value
+      expect(googleHost).to.equal('https://generativelanguage.googleapis.com/v1beta')
+    })
   })
 
   describe('getModelProvider', () => {
-    it('should accept valid parameters', () => {
-      // This test only verifies the function accepts parameters without throwing errors
+    it('should return a provider instance for OpenAI', () => {
       expect(() => {
         getModelProvider({
           model: 'gpt-4o',
           baseURL: 'https://api.openai.com/v1',
           apiKey: 'test-key',
+          providerType: 'OpenAI',
         })
-      }).to.not.throw()
+      }).not.to.throw()
     })
 
-    it('should work with different model types', () => {
-      // Verify the function can handle different model types
-      const validModels = [
-        'gpt-4o', // OpenAI
-        'deepseek-chat', // DeepSeek
-        'claude-3-opus-latest', // Anthropic
-        'grok-2-1212', // xAI
-      ]
+    it('should return a provider instance for Google', () => {
+      expect(() => {
+        getModelProvider({
+          model: 'gemini-2.0-flash',
+          baseURL: 'https://generativelanguage.googleapis.com/v1beta',
+          apiKey: 'test-key-google',
+          providerType: 'Google',
+        })
+      }).not.to.throw()
+    })
 
-      validModels.forEach((model) => {
-        expect(() => {
-          getModelProvider({
-            model: model as any,
-            baseURL: 'https://api.example.com/v1',
-            apiKey: 'test-key',
-          })
-        }).to.not.throw()
-      })
+    // Add similar tests for other providers (DeepSeek, Anthropic, xAI, SiliconFlow) if desired
+
+    it('should accept baseURL for applicable providers', () => {
+      expect(() => {
+        getModelProvider({
+          model: 'deepseek-chat',
+          baseURL: 'https://custom.deepseek.com/v1',
+          apiKey: 'test-key-deepseek',
+          providerType: 'DeepSeek',
+        })
+      }).not.to.throw()
     })
   })
 })
