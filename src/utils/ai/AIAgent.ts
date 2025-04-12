@@ -182,26 +182,40 @@ export class AIAgent {
         return provider.value
       }
     }
-    // If model not found directly, infer based on host
-    const googleHost = AIAPIHostOptions.find((h) => h.value.includes('google'))?.value
-    if (host === googleHost) return 'Google'
 
-    const anthropicHost = AIAPIHostOptions.find((h) => h.value.includes('anthropic'))?.value
-    if (host === anthropicHost) return 'Anthropic'
+    // Normalize the input host URL
+    const normalizedHost = this.normalizeUrl(host)
 
-    const deepseekHost = AIAPIHostOptions.find((h) => h.value.includes('deepseek'))?.value
-    if (host === deepseekHost) return 'DeepSeek'
+    // If model not found directly, infer based on normalized host
+    const googleHost = this.normalizeUrl(AIAPIHostOptions.find((h) => h.value.includes('google'))?.value)
+    if (normalizedHost && normalizedHost === googleHost) return 'Google'
 
-    const xaiHost = AIAPIHostOptions.find((h) => h.value.includes('x.ai'))?.value
-    if (host === xaiHost) return 'xAI'
+    const anthropicHost = this.normalizeUrl(AIAPIHostOptions.find((h) => h.value.includes('anthropic'))?.value)
+    if (normalizedHost && normalizedHost === anthropicHost) return 'Anthropic'
 
-    // Add checks for other hosts if necessary (e.g., SiliconFlow)
-    const siliconFlowHost = AIAPIHostOptions.find((h) => h.value.includes('siliconflow'))?.value
-    if (host === siliconFlowHost) return 'SiliconFlow'
+    const deepseekHost = this.normalizeUrl(AIAPIHostOptions.find((h) => h.value.includes('deepseek'))?.value)
+    if (normalizedHost && normalizedHost === deepseekHost) return 'DeepSeek'
+
+    const xaiHost = this.normalizeUrl(AIAPIHostOptions.find((h) => h.value.includes('x.ai'))?.value)
+    if (normalizedHost && normalizedHost === xaiHost) return 'xAI'
+
+    const siliconFlowHost = this.normalizeUrl(AIAPIHostOptions.find((h) => h.value.includes('siliconflow'))?.value)
+    if (normalizedHost && normalizedHost === siliconFlowHost) return 'SiliconFlow'
 
     // Default to OpenAI if no match
     console.warn(`Could not determine provider type for model ${model} and host ${host}. Defaulting to OpenAI.`)
     return 'OpenAI'
+  }
+
+  /**
+   * Normalizes a URL by converting it to lowercase and removing trailing slashes.
+   *
+   * @param url - The URL to normalize
+   * @returns The normalized URL, or an empty string if the input is falsy.
+   */
+  private normalizeUrl(url: string | undefined): string {
+    if (!url) return ''
+    return url.toLowerCase().replace(/\/+$/, '')
   }
 
   /**
