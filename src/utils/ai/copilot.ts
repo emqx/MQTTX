@@ -217,9 +217,11 @@ export const getModelProvider = (opts: {
   const providerConfig = AImodelsOptions.find((p) => p.value === providerType)
 
   if (!providerConfig || !providerConfig.providerCreator) {
-    console.error(`Unsupported or misconfigured provider type: ${providerType}. Falling back to default OpenAI.`)
+    console.warn(
+      `Unsupported or misconfigured provider type: ${providerType}. Falling back to default OpenAI with host ${baseURL} and model ${model}.`,
+    )
     const fallbackProvider = createOpenAI({ apiKey })
-    return fallbackProvider('gpt-4o')
+    return fallbackProvider(model)
   }
 
   const creatorOptions: Record<string, any> = {
