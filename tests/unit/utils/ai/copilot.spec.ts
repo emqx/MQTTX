@@ -89,7 +89,7 @@ describe('copilot', () => {
       const google = AImodelsOptions.find((p) => p.value === 'Google')
       expect(google).to.exist
       expect(google?.children).to.be.an('array').that.is.not.empty
-      expect(google?.children.map((c) => c.value)).to.include('gemini-1.5-pro-latest')
+      expect(google?.children.map((c) => c.value)).to.include('gemini-1.5-pro')
     })
 
     it('should have provider creator function for Google', () => {
