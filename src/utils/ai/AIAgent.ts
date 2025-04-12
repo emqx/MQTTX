@@ -1,7 +1,7 @@
 import { streamText } from 'ai'
 import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY, getCopilotMessageId } from '@/utils/idGenerator'
-import { getModelProvider, isReasoningModel } from '@/utils/ai/copilot'
+import { getModelProvider, isReasoningModel, AImodelsOptions, AIAPIHostOptions } from '@/utils/ai/copilot'
 import { processMCPCalls } from '@/utils/ai/mcp/MCPUtils'
 import { AIStreamOptions, CopilotMessage, CopilotRole, StreamError, ChatLoopOptions, AIModel } from '@/types/copilot'
 import { SessionManager } from '@/utils/ai/SessionManager'
@@ -165,6 +165,46 @@ export class AIAgent {
   }
 
   /**
+   * Determines the AI provider type based on the model name and API host
+   *
+   * This method uses two strategies to identify the correct provider:
+   * 1. First tries to match the model name against known models for each provider
+   * 2. If no match is found, falls back to inferring the provider from the API host URL
+   *
+   * @param model - The AI model identifier
+   * @param host - The API host URL
+   * @returns The provider type (OpenAI, Google, Anthropic, etc.)
+   */
+  private determineProviderType(model: AIModel, host: string): typeof AImodelsOptions[number]['value'] {
+    // Prioritize finding based on which provider lists the specific model
+    for (const provider of AImodelsOptions) {
+      if (provider.children.some((child) => child.value === model)) {
+        return provider.value
+      }
+    }
+    // If model not found directly, infer based on host
+    const googleHost = AIAPIHostOptions.find((h) => h.value.includes('google'))?.value
+    if (host === googleHost) return 'Google'
+
+    const anthropicHost = AIAPIHostOptions.find((h) => h.value.includes('anthropic'))?.value
+    if (host === anthropicHost) return 'Anthropic'
+
+    const deepseekHost = AIAPIHostOptions.find((h) => h.value.includes('deepseek'))?.value
+    if (host === deepseekHost) return 'DeepSeek'
+
+    const xaiHost = AIAPIHostOptions.find((h) => h.value.includes('x.ai'))?.value
+    if (host === xaiHost) return 'xAI'
+
+    // Add checks for other hosts if necessary (e.g., SiliconFlow)
+    const siliconFlowHost = AIAPIHostOptions.find((h) => h.value.includes('siliconflow'))?.value
+    if (host === siliconFlowHost) return 'SiliconFlow'
+
+    // Default to OpenAI if no match
+    console.warn(`Could not determine provider type for model ${model} and host ${host}. Defaulting to OpenAI.`)
+    return 'OpenAI'
+  }
+
+  /**
    * Create a text stream, this method can be called separately to get the textStream
    *
    * @param messageHistory Array of message objects representing the message history
@@ -177,6 +217,9 @@ export class AIAgent {
 
     const { actualModel, isClaudeThinking } = this.processModel(this.model)
 
+    // Determine providerType using the new helper method
+    const providerType = this.determineProviderType(actualModel, this.openAIAPIHost)
+
     const supportsReasoning = isReasoningModel(this.model)
     let reasoningBuffer = ''
 
@@ -185,6 +228,7 @@ export class AIAgent {
         model: actualModel,
         baseURL: this.openAIAPIHost,
         apiKey,
+        providerType,
       }),
       providerOptions: {
         anthropic: {

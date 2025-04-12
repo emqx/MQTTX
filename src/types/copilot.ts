@@ -1,11 +1,8 @@
-import type { OpenAIProvider } from '@ai-sdk/openai'
-import type { DeepSeekProvider } from '@ai-sdk/deepseek'
-import type { AnthropicProvider } from '@ai-sdk/anthropic'
-import type { XaiProvider } from '@ai-sdk/xai'
 import { createOpenAI } from '@ai-sdk/openai'
 import { createDeepSeek } from '@ai-sdk/deepseek'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createXai } from '@ai-sdk/xai'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { MCPPromptData } from '@/types/mcp'
 
 import VueI18n from 'vue-i18n'
@@ -111,48 +108,76 @@ export interface PresetPromptOption {
 /**
  * Type alias for AI model identifiers
  */
-export type AIModel = Parameters<OpenAIProvider['chat']>[0]
+export type AIModel = Parameters<
+  ReturnType<
+    | typeof createOpenAI
+    | typeof createDeepSeek
+    | typeof createAnthropic
+    | typeof createXai
+    | typeof createGoogleGenerativeAI
+  >['chat']
+>[0]
+
+/**
+ * Base interface for common properties
+ */
+interface BaseProviderOptionsModel {
+  value: string
+  children: { value: string }[]
+  providerCreator?: (...args: any[]) => any
+}
 
 /**
  * Configuration for OpenAI models
  */
-export interface OpenAIOptionsModel {
+export interface OpenAIOptionsModel extends BaseProviderOptionsModel {
   value: 'OpenAI'
-  children: { value: Parameters<OpenAIProvider['chat']>[0] }[]
+  children: { value: Parameters<ReturnType<typeof createOpenAI>>[0] }[]
   providerCreator: typeof createOpenAI
 }
 
 /**
  * Configuration for DeepSeek models
  */
-export interface DeepSeekOptionsModel {
+export interface DeepSeekOptionsModel extends BaseProviderOptionsModel {
   value: 'DeepSeek'
-  children: { value: Parameters<DeepSeekProvider['chat']>[0] }[]
+  children: { value: Parameters<ReturnType<typeof createDeepSeek>>[0] }[]
   providerCreator: typeof createDeepSeek
 }
 
 /**
  * Configuration for Anthropic models
  */
-export interface AnthropicOptionsModel {
+export interface AnthropicOptionsModel extends BaseProviderOptionsModel {
   value: 'Anthropic'
-  children: { value: Parameters<AnthropicProvider['languageModel']>[0] }[]
+  children: { value: Parameters<ReturnType<typeof createAnthropic>>[0] }[]
   providerCreator: typeof createAnthropic
 }
 
 /**
  * Configuration for xAI models
  */
-export interface XaiOptionsModel {
+export interface XaiOptionsModel extends BaseProviderOptionsModel {
   value: 'xAI'
-  children: { value: Parameters<XaiProvider['chat']>[0] }[]
+  children: { value: Parameters<ReturnType<typeof createXai>>[0] }[]
   providerCreator: typeof createXai
+}
+
+/**
+ * Configuration for Google Generative AI models
+ */
+export interface GoogleOptionsModel extends BaseProviderOptionsModel {
+  value: 'Google'
+  children: {
+    value: Parameters<ReturnType<typeof createGoogleGenerativeAI>>[0]
+  }[]
+  providerCreator: typeof createGoogleGenerativeAI
 }
 
 /**
  * Configuration for SiliconFlow models
  */
-export interface SiliconFlowOptionsModel {
+export interface SiliconFlowOptionsModel extends BaseProviderOptionsModel {
   value: 'SiliconFlow'
   children: {
     value:
@@ -173,6 +198,7 @@ export type AImodelsOptionsModel = (
   | DeepSeekOptionsModel
   | AnthropicOptionsModel
   | XaiOptionsModel
+  | GoogleOptionsModel
   | SiliconFlowOptionsModel
 )[]
 
