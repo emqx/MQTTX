@@ -76,7 +76,7 @@ export default {
     ja: '思考プロセスを表示',
     hu: 'Gondolkodási folyamat megtekintése',
   },
-  copiltePubMsgPlacehoder: {
+  copilotPubMsgPlaceholder: {
     en: 'Enter message, use / for preset prompts, ↩︎ to send',
     zh: '输入消息，使用 / 打开预设指令，↩︎ 发送',
     ja: 'メッセージを入力し、/ でプリセットプロンプトを開き、↩︎ で送信します',

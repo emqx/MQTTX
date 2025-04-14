@@ -10,7 +10,7 @@
       :rows="1"
       class="chat-msg-input"
       v-model="message"
-      :placeholder="$t('copilot.copiltePubMsgPlacehoder')"
+      :placeholder="$t('copilot.copilotPubMsgPlaceholder')"
       @keydown.native.enter="handleEnterKey"
       @input="handleInput"
     ></el-input>
