@@ -1,7 +1,7 @@
 <template>
   <div class="copilot-input footer" v-click-outside="handleClickPresetOutside">
     <transition name="el-zoom-in-bottom">
-      <preset-prompt-select v-if="showPresetPrompt" @onChange="handlePresetsChange" />
+      <preset-prompt-select v-if="showPresetPrompt" ref="presetSelector" @onChange="handlePresetsChange" />
     </transition>
     <el-input
       ref="publishMsgInput"
@@ -12,7 +12,6 @@
       v-model="message"
       :placeholder="$t('copilot.copiltePubMsgPlacehoder')"
       @keydown.native.enter="handleEnterKey"
-      @focus="handleFocus"
       @input="handleInput"
     ></el-input>
     <el-button
@@ -46,9 +45,11 @@ export default class CopilotInput extends Vue {
   @Prop({ default: false }) readonly disabled!: boolean
   @Prop({ default: false }) readonly isResponseStreaming!: boolean
 
-  private showPresetPrompt = false
   private message = ''
-  private shouldShowPresetOnFocus = true
+
+  get showPresetPrompt(): boolean {
+    return this.message.startsWith('/')
+  }
 
   created() {
     this.message = this.value
@@ -59,9 +60,21 @@ export default class CopilotInput extends Vue {
     this.message = newValue
   }
 
+  @Watch('showPresetPrompt')
+  onShowPresetPromptChanged(isVisible: boolean) {
+    if (isVisible) {
+      this.$nextTick(() => {
+        const selector = this.$refs.presetSelector as PresetPromptSelect
+        selector?.focusPanel()
+      })
+      window.addEventListener('keydown', this.handlePresetPanelEscape)
+    } else {
+      window.removeEventListener('keydown', this.handlePresetPanelEscape)
+    }
+  }
+
   @Emit('input')
   handleInput(value: string) {
-    this.showPresetPrompt = false
     return value
   }
 
@@ -87,13 +100,14 @@ export default class CopilotInput extends Vue {
 
   @Emit('preset-change')
   handlePresetsChange(prompt: string, promptMap: CopilotPresetPrompt['promptMap']) {
-    this.showPresetPrompt = false
-    this.shouldShowPresetOnFocus = false
+    this.message = prompt
     return { prompt, promptMap }
   }
 
   handleClickPresetOutside() {
-    this.showPresetPrompt = false
+    if (this.showPresetPrompt) {
+      this.message = ''
+    }
   }
 
   handleEnterKey(event: KeyboardEvent) {
@@ -113,11 +127,10 @@ export default class CopilotInput extends Vue {
     }
   }
 
-  handleFocus() {
-    if (this.shouldShowPresetOnFocus) {
-      this.showPresetPrompt = true
-    } else {
-      this.shouldShowPresetOnFocus = true
+  handlePresetPanelEscape(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      this.message = ''
+      event.preventDefault()
     }
   }
 
