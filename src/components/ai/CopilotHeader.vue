@@ -25,6 +25,10 @@ export default class CopilotHeader extends Vue {
 
 <style lang="scss">
 .copilot-header {
+  position: relative;
+  z-index: 10;
+  -webkit-app-region: no-drag;
+
   &.clearfix {
     display: flex;
     align-items: center;

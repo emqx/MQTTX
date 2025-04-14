@@ -1,5 +1,6 @@
 <template>
   <el-cascader-panel
+    ref="cascaderPanel"
     class="preset-prompts-select"
     :options="filteredPresetPromptOptions"
     :props="{ expandTrigger: 'hover', emitPath: false }"
@@ -201,6 +202,23 @@ export default class PresetPromptSelect extends Vue {
 
   private handleChange(val: string) {
     this.$emit('onChange', val, this.presetPromptsMap)
+  }
+
+  public focusPanel() {
+    this.$nextTick(() => {
+      const panelComponent = this.$refs.cascaderPanel as Vue
+      if (panelComponent && panelComponent.$el instanceof HTMLElement) {
+        const firstMenuItem = panelComponent.$el.querySelector(
+          '.el-cascader-menu .el-cascader-node:not(.is-disabled)',
+        ) as HTMLElement | null
+
+        if (firstMenuItem) {
+          firstMenuItem.focus()
+        } else {
+          panelComponent.$el.focus()
+        }
+      }
+    })
   }
 }
 </script>

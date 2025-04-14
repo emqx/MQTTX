@@ -77,11 +77,11 @@ export default {
     hu: 'Gondolkodási folyamat megtekintése',
   },
   copiltePubMsgPlacehoder: {
-    zh: '向 MQTTX Copilot 发送消息...',
-    en: 'Message MQTTX Copilot...',
-    tr: "MQTTX Copilot'a mesaj gönder...",
-    ja: 'MQTTX Copilotにメッセージを送る...',
-    hu: 'Üzenet küldése a MQTTX Copilotnak...',
+    en: 'Enter message, use / for preset prompts, ↩︎ to send',
+    zh: '输入消息，使用 / 打开预设指令，↩︎ 发送',
+    ja: 'メッセージを入力し、/ でプリセットプロンプトを開き、↩︎ で送信します',
+    tr: 'Mesajı girin, hazır istemler için / kullanın, göndermek için ↩︎ kullanın',
+    hu: 'Üzenet beírása, használja a / jelet az előre beállított promptokhoz, ↩︎ a küldéshez',
   },
   copilotUser: {
     zh: '用户',
