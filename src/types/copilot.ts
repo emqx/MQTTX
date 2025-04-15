@@ -195,7 +195,7 @@ export interface SiliconFlowOptionsModel extends BaseProviderOptionsModel {
  * Configuration for Azure OpenAI models
  */
 export interface AzureOptionsModel extends BaseProviderOptionsModel {
-  value: 'Azure'
+  value: 'Azure OpenAI'
   children: { value: Parameters<ReturnType<typeof createAzure>>[0] }[]
   providerCreator: typeof createAzure
 }
