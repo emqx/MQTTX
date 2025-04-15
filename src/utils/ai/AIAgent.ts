@@ -296,7 +296,6 @@ export class AIAgent {
         baseURL: this.openAIAPIHost,
         apiKey,
         providerType,
-        azureApiVersion: isAzure ? '2025-01-01-preview' : undefined,
       }),
       providerOptions: {
         anthropic: {

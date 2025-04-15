@@ -219,6 +219,31 @@ export const isReasoningModel = (model: AIModel) => {
 }
 
 /**
+ * Extracts and prepares the specific options needed for the createAzure provider.
+ *
+ * @param baseURL - The original baseURL string which might contain API version or be a resource name.
+ * @returns An object containing the processed `apiVersion` and either `baseURL` or `resourceName`.
+ */
+const getAzureProviderOptions = (baseURL: string): Record<string, any> => {
+  const options: Record<string, any> = {}
+
+  const apiVersionMatch = baseURL.match(/api-version=([^&]+)/)
+  options.apiVersion = apiVersionMatch ? apiVersionMatch[1] : '2025-01-01-preview'
+
+  const normalizedBaseURL = baseURL.split('?')[0].trim()
+
+  if (normalizedBaseURL && normalizedBaseURL.toLowerCase().startsWith('http')) {
+    options.baseURL = normalizedBaseURL.includes('/openai/deployments')
+      ? normalizedBaseURL
+      : `${normalizedBaseURL}/openai/deployments`
+  } else if (normalizedBaseURL) {
+    options.resourceName = normalizedBaseURL
+  }
+
+  return options
+}
+
+/**
  * Gets the appropriate LanguageModelV1 instance for the specified provider.
  *
  * This function creates and configures the appropriate AI model provider based on the specified
@@ -229,9 +254,7 @@ export const isReasoningModel = (model: AIModel) => {
  * @param opts.model - The AI model identifier to use (model name or deployment name for Azure)
  * @param opts.baseURL - The base URL for the API endpoint
  * @param opts.apiKey - The API key for authentication
- * @param opts.providerType - The AI provider type (OpenAI, Azure, Anthropic, etc.)
- * @param opts.azureApiVersion - Optional Azure API version (required for Azure provider)
- * @param opts.azureResourceName - Optional Azure resource name (used instead of baseURL for Azure)
+ * @param opts.providerType - The AI provider type (OpenAI, Azure OpenAI, Anthropic, etc.)
  * @returns A configured LanguageModelV1 compatible provider instance
  */
 export const getModelProvider = (opts: {
@@ -239,9 +262,8 @@ export const getModelProvider = (opts: {
   baseURL: string
   apiKey: string
   providerType: typeof AImodelsOptions[number]['value']
-  azureApiVersion?: string
 }): LanguageModelV1 => {
-  const { model, baseURL, apiKey, providerType, azureApiVersion } = opts
+  const { model, baseURL, apiKey, providerType } = opts
 
   const providerConfig = AImodelsOptions.find((p) => p.value === providerType)
 
@@ -253,22 +275,15 @@ export const getModelProvider = (opts: {
     return fallbackProvider(model) as LanguageModelV1
   }
 
-  const creatorOptions: Record<string, any> = {
+  let creatorOptions: Record<string, any> = {
     apiKey,
   }
 
-  if (providerType === 'Azure OpenAI' && azureApiVersion) {
-    creatorOptions.apiVersion = azureApiVersion
-
-    if (baseURL) {
-      if (baseURL.toLowerCase().startsWith('http')) {
-        creatorOptions.baseURL = !baseURL.includes('/openai/deployments') ? `${baseURL}/openai/deployments` : baseURL
-      } else {
-        creatorOptions.resourceName = baseURL
-      }
-    }
+  if (providerType === 'Azure OpenAI') {
+    const azureOptions = getAzureProviderOptions(baseURL)
+    creatorOptions = { ...creatorOptions, ...azureOptions }
   } else if (baseURL) {
-    creatorOptions.baseURL = baseURL
+    creatorOptions.baseURL = baseURL.trim()
   }
 
   const providerCreator = providerConfig.providerCreator
