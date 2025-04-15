@@ -154,39 +154,89 @@ export class AIAgent {
    * @param model The AI model to process
    * @returns An object containing the actual model and a boolean indicating if it is a Claude thinking model
    */
-  private processModel(model: AIModel) {
+  /**
+   * Process the AI model to extract model information
+   *
+   * @param model The AI model identifier
+   * @returns Object containing the actual model name and provider-specific flags
+   */
+  private processModel(model: AIModel): {
+    actualModel: AIModel
+    isClaudeThinking: boolean
+    isAzure: boolean
+  } {
+    // Check if this is a Claude thinking model
     const isClaudeThinking = model.includes('claude') && model.endsWith('-thinking')
-    const actualModel: AIModel = isClaudeThinking ? (model.replace(/-thinking$/, '') as AIModel) : model
+
+    // Remove the thinking suffix for Claude models
+    let actualModel = model
+    if (isClaudeThinking) {
+      actualModel = model.replace(/-thinking$/, '') as AIModel
+    }
+
+    // Check if this is an Azure deployment
+    const isAzure = actualModel.includes('deployment-')
+
+    // Remove the deployment prefix for Azure models
+    if (isAzure) {
+      actualModel = actualModel.replace('deployment-', '') as AIModel
+    }
 
     return {
       actualModel,
       isClaudeThinking,
+      isAzure,
     }
   }
 
   /**
-   * Determines the AI provider type based on the model name and API host
+   * Determines the AI provider type based on the model name (deployment name for Azure) and API host.
    *
-   * This method uses two strategies to identify the correct provider:
-   * 1. First tries to match the model name against known models for each provider
-   * 2. If no match is found, falls back to inferring the provider from the API host URL
+   * Strategy:
+   * 1. Check if the host matches the Azure OpenAI pattern.
+   * 2. If not Azure, try to identify the provider by matching the model name against known models.
+   * 3. If no model match, try to identify the provider by matching the host against known API endpoints.
+   * 4. Default to OpenAI if no other match is found.
    *
-   * @param model - The AI model identifier
-   * @param host - The API host URL
-   * @returns The provider type (OpenAI, Google, Anthropic, etc.)
+   * @param model - The AI model identifier (could be a base model name or an Azure deployment name).
+   * @param host - The API host URL.
+   * @returns The provider type ('Azure', 'OpenAI', 'Google', 'Anthropic', etc.).
    */
-  private determineProviderType(model: AIModel, host: string): typeof AImodelsOptions[number]['value'] {
-    // Prioritize finding based on which provider lists the specific model
+  /**
+   * Determines the AI provider type based on the model name and API host.
+   *
+   * Strategy:
+   * 1. First checks if the model is an Azure deployment based on the isAzure flag.
+   * 2. If not Azure, attempts to match the model name against known models in AImodelsOptions.
+   * 3. If no model match is found, tries to identify the provider by matching the host URL
+   *    against known API endpoints from AIAPIHostOptions.
+   * 4. Falls back to OpenAI if no other provider can be determined.
+   *
+   * @param model - The AI model identifier (base model name or deployment name)
+   * @param host - The API host URL
+   * @param isAzure - Optional flag indicating if this is an Azure deployment
+   * @returns The provider type ('Azure', 'OpenAI', 'Google', 'Anthropic', 'DeepSeek', 'xAI', 'SiliconFlow')
+   */
+  private determineProviderType(
+    model: AIModel,
+    host: string,
+    isAzure?: boolean,
+  ): typeof AImodelsOptions[number]['value'] {
+    // **Priority 1: Check for Azure host pattern**
+    if (isAzure) {
+      return 'Azure'
+    }
+
+    // **Priority 2: Check if the model name matches a known model for a specific provider**
     for (const provider of AImodelsOptions) {
       if (provider.children.some((child) => child.value === model)) {
         return provider.value
       }
     }
 
-    // Normalize the input host URL
+    // **Priority 3: Infer provider based on known non-Azure host URLs**
     const normalizedHost = this.normalizeUrl(host)
 
-    // If model not found directly, infer based on normalized host
     const googleHost = this.normalizeUrl(AIAPIHostOptions.find((h) => h.value.includes('google'))?.value)
     if (normalizedHost && normalizedHost === googleHost) return 'Google'
 
@@ -202,8 +252,10 @@ export class AIAgent {
     const siliconFlowHost = this.normalizeUrl(AIAPIHostOptions.find((h) => h.value.includes('siliconflow'))?.value)
     if (normalizedHost && normalizedHost === siliconFlowHost) return 'SiliconFlow'
 
-    // Default to OpenAI if no match
-    console.warn(`Could not determine provider type for model ${model} and host ${host}. Defaulting to OpenAI.`)
+    // Fallback: Default to OpenAI
+    console.warn(
+      `Could not definitively determine provider type for model '${model}' and host '${host}'. Defaulting to OpenAI.`,
+    )
     return 'OpenAI'
   }
 
@@ -227,14 +279,15 @@ export class AIAgent {
    */
   public chatWithStream(messageHistory: Array<{ role: CopilotRole; content: string }>, options?: AIStreamOptions) {
     const apiKey = this.decryptAPIKey()
+
     this.abortController = new AbortController()
 
-    const { actualModel, isClaudeThinking } = this.processModel(this.model)
+    const { actualModel, isClaudeThinking, isAzure } = this.processModel(this.model)
 
-    // Determine providerType using the new helper method
-    const providerType = this.determineProviderType(actualModel, this.openAIAPIHost)
+    const providerType = this.determineProviderType(actualModel, this.openAIAPIHost, isAzure)
 
     const supportsReasoning = isReasoningModel(this.model)
+
     let reasoningBuffer = ''
 
     const result = streamText({
@@ -243,6 +296,7 @@ export class AIAgent {
         baseURL: this.openAIAPIHost,
         apiKey,
         providerType,
+        azureApiVersion: isAzure ? '2025-01-01-preview' : undefined,
       }),
       providerOptions: {
         anthropic: {
