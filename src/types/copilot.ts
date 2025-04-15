@@ -3,6 +3,7 @@ import { createDeepSeek } from '@ai-sdk/deepseek'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createXai } from '@ai-sdk/xai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import { createAzure } from '@ai-sdk/azure'
 import { MCPPromptData } from '@/types/mcp'
 
 import VueI18n from 'vue-i18n'
@@ -191,6 +192,15 @@ export interface SiliconFlowOptionsModel extends BaseProviderOptionsModel {
 }
 
 /**
+ * Configuration for Azure OpenAI models
+ */
+export interface AzureOptionsModel extends BaseProviderOptionsModel {
+  value: 'Azure'
+  children: { value: Parameters<ReturnType<typeof createAzure>>[0] }[]
+  providerCreator: typeof createAzure
+}
+
+/**
  * Union type of all AI model option configurations
  */
 export type AImodelsOptionsModel = (
@@ -200,6 +210,7 @@ export type AImodelsOptionsModel = (
   | XaiOptionsModel
   | GoogleOptionsModel
   | SiliconFlowOptionsModel
+  | AzureOptionsModel
 )[]
 
 /**
