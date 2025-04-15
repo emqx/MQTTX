@@ -200,7 +200,7 @@ export class AIAgent {
    *
    * @param model - The AI model identifier (could be a base model name or an Azure deployment name).
    * @param host - The API host URL.
-   * @returns The provider type ('Azure', 'OpenAI', 'Google', 'Anthropic', etc.).
+   * @returns The provider type ('Azure OpenAI', 'OpenAI', 'Google', 'Anthropic', etc.).
    */
   /**
    * Determines the AI provider type based on the model name and API host.
@@ -215,7 +215,7 @@ export class AIAgent {
    * @param model - The AI model identifier (base model name or deployment name)
    * @param host - The API host URL
    * @param isAzure - Optional flag indicating if this is an Azure deployment
-   * @returns The provider type ('Azure', 'OpenAI', 'Google', 'Anthropic', 'DeepSeek', 'xAI', 'SiliconFlow')
+   * @returns The provider type ('Azure OpenAI', 'OpenAI', 'Google', 'Anthropic', 'DeepSeek', 'xAI', 'SiliconFlow')
    */
   private determineProviderType(
     model: AIModel,
@@ -224,7 +224,7 @@ export class AIAgent {
   ): typeof AImodelsOptions[number]['value'] {
     // **Priority 1: Check for Azure host pattern**
     if (isAzure) {
-      return 'Azure'
+      return 'Azure OpenAI'
     }
 
     // **Priority 2: Check if the model name matches a known model for a specific provider**

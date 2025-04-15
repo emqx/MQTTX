@@ -156,7 +156,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
     providerCreator: createGoogleGenerativeAI,
   },
   {
-    value: 'Azure' as const,
+    value: 'Azure OpenAI' as const,
     children: [
       { value: 'deployment-gpt-4o' },
       { value: 'deployment-gpt-4o-mini' },
@@ -203,7 +203,7 @@ export const AIAPIHostOptions = [
   { value: 'https://api.x.ai/v1' },
   { value: 'https://generativelanguage.googleapis.com/v1beta' },
   { value: 'https://api.siliconflow.cn/v1' },
-  { value: 'https://${resourceName}.azure.com' },
+  { value: 'https://${resourceName}.openai.azure.com' },
 ]
 
 export const REASONING_MODEL_REGEX = /thinking|reasoner|r1/i
@@ -257,7 +257,7 @@ export const getModelProvider = (opts: {
     apiKey,
   }
 
-  if (providerType === 'Azure' && azureApiVersion) {
+  if (providerType === 'Azure OpenAI' && azureApiVersion) {
     creatorOptions.apiVersion = azureApiVersion
 
     if (baseURL) {
