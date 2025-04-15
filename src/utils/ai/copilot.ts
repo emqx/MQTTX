@@ -4,6 +4,8 @@ import { createDeepSeek } from '@ai-sdk/deepseek'
 import { createAnthropic } from '@ai-sdk/anthropic'
 import { createXai } from '@ai-sdk/xai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
+import { createAzure } from '@ai-sdk/azure'
+
 import basePrompt from './prompts/base.txt'
 import clientCodeGen from './prompts/clientCodeGen.txt'
 import payloadGen from './prompts/payloadGen.txt'
@@ -154,6 +156,21 @@ export const AImodelsOptions: AImodelsOptionsModel = [
     providerCreator: createGoogleGenerativeAI,
   },
   {
+    value: 'Azure' as const,
+    children: [
+      { value: 'gpt-4o' },
+      { value: 'gpt-4o-mini' },
+      { value: 'gpt-4.1' },
+      { value: 'gpt-4.1-mini' },
+      { value: 'gpt-4.1-nano' },
+      { value: 'o1' },
+      { value: 'o1-mini' },
+      { value: 'o1-preview' },
+      { value: 'o3-mini' },
+    ],
+    providerCreator: createAzure,
+  },
+  {
     value: 'SiliconFlow' as const,
     children: [
       { value: 'deepseek-ai/DeepSeek-V3' },
@@ -175,6 +192,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
  * - xAI API endpoint
  * - Google API endpoint
  * - SiliconFlow API endpoint
+ * - Azure OpenAI (constructed dynamically from resource name)
  *
  * These URLs are used when configuring the API client for each provider.
  */
@@ -185,6 +203,7 @@ export const AIAPIHostOptions = [
   { value: 'https://api.x.ai/v1' },
   { value: 'https://generativelanguage.googleapis.com/v1beta' },
   { value: 'https://api.siliconflow.cn/v1' },
+  { value: 'https://${resourceName}.azure.com' },
 ]
 
 export const REASONING_MODEL_REGEX = /thinking|reasoner|r1/i
@@ -203,10 +222,11 @@ export const isReasoningModel = (model: AIModel) => {
  * Gets the appropriate LanguageModelV1 instance for the specified provider.
  *
  * @param opts - The options for creating the model provider
- * @param opts.model - The AI model to use
- * @param opts.baseURL - The base URL/endpoint for the API
+ * @param opts.model - The AI model to use (Deployment Name for Azure)
+ * @param opts.baseURL - The base URL/endpoint for the API (Endpoint URL for Azure)
  * @param opts.apiKey - The API key for authentication
  * @param opts.providerType - Explicitly specify the provider type
+ * @param opts.azureApiVersion - Optional Azure API Version
  * @returns A LanguageModelV1 compatible provider instance
  */
 export const getModelProvider = (opts: {
@@ -214,8 +234,11 @@ export const getModelProvider = (opts: {
   baseURL: string
   apiKey: string
   providerType: typeof AImodelsOptions[number]['value']
+  azureApiVersion?: string
 }): LanguageModelV1 => {
-  const { model, baseURL, apiKey, providerType } = opts
+  const { model, baseURL, apiKey, providerType, azureApiVersion } = opts
+
+  console.log(providerType)
 
   const providerConfig = AImodelsOptions.find((p) => p.value === providerType)
 
