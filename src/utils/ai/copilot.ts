@@ -102,6 +102,9 @@ export const AImodelsOptions: AImodelsOptionsModel = [
     children: [
       { value: 'gpt-4o' },
       { value: 'gpt-4o-mini' },
+      { value: 'gpt-4.1' },
+      { value: 'gpt-4.1-mini' },
+      { value: 'gpt-4.1-nano' },
       { value: 'o1' },
       { value: 'o1-mini' },
       { value: 'o1-preview' },
@@ -221,7 +224,7 @@ export const getModelProvider = (opts: {
       `Unsupported or misconfigured provider type: ${providerType}. Falling back to default OpenAI with host ${baseURL} and model ${model}.`,
     )
     const fallbackProvider = createOpenAI({ apiKey })
-    return fallbackProvider(model)
+    return fallbackProvider(model) as LanguageModelV1
   }
 
   const creatorOptions: Record<string, any> = {
