@@ -196,7 +196,7 @@ async function createWindow() {
   win = new BrowserWindow({
     ...defaultWindowSize,
     webPreferences: {
-      devTools: isDevelopment,
+      devTools: true,
       webSecurity: false,
       nodeIntegration: true,
       contextIsolation: false,
