@@ -1284,8 +1284,8 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Search message
-  private async searchMessage(oneMessage: MessageModel): Promise<boolean> {
-    const res = await matchMultipleSearch([oneMessage], this.searchParams)
+  private searchMessage(oneMessage: MessageModel): boolean {
+    const res = matchMultipleSearch([oneMessage], this.searchParams)
     return res && res.length ? true : false
   }
 
@@ -1454,13 +1454,20 @@ export default class ConnectionsDetail extends Vue {
   // Push messages to the list
   private batchUpdateMsgs(incomingMsgs: MessageModel[]) {
     let _messages = _.cloneDeep(this.recordMsgs.list)
-    incomingMsgs.forEach((msg: MessageModel) => {
+    for (const msg of incomingMsgs) {
       const isActiveTopicMessages = matchTopicMethod(this.activeTopic, msg.topic)
       const isActiveMsgType = this.isMessageTypeActive(msg)
       if (isActiveMsgType && (!this.activeTopic || isActiveTopicMessages)) {
-        _messages.push(msg)
+        if (this.searchParams.topic !== '' || this.searchParams.payload !== '') {
+          const isMatch = this.searchMessage(msg)
+          if (isMatch) {
+            _messages.push(msg)
+          }
+        } else {
+          _messages.push(msg)
+        }
       }
-    })
+    }
     if (_messages.length > MAX_MESSAGES_COUNT) {
       _messages = _messages.slice(_messages.length - MAX_MESSAGES_COUNT)
     }
