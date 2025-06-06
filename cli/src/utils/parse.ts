@@ -5,8 +5,7 @@ import { readFile, processPath } from '../utils/fileUtils'
 
 import { IClientOptions, IClientPublishOptions, IClientSubscribeOptions } from 'mqtt'
 import { getLocalScenarioList, getScenarioFilePath } from './simulate'
-
-const MQTT_SINGLE_MESSAGE_BYTE_LIMIT = 256 * 1024 * 1024
+import { MQTT_SINGLE_MESSAGE_BYTE_LIMIT } from './constants'
 
 const parseNumber = (value: string) => {
   const parsedValue = Number(value)

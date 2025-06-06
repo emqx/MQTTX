@@ -10,6 +10,7 @@ import isSupportedBinaryFormatForMQTT from '../utils/binaryFormats'
 import * as Debug from 'debug'
 import { deserializeBufferToAvro } from '../utils/avro'
 import getBenchClientId from '../utils/getBenchClientId'
+import { formatBytes } from '../utils/formatter'
 
 /**
  *
@@ -176,6 +177,7 @@ const sub = (options: SubscribeOptions) => {
 
     msgData.push({ label: 'topic', value: topic })
     msgData.push({ label: 'qos', value: packet.qos })
+    msgData.push({ label: 'size', value: `${formatBytes(payload.length)}` })
 
     packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 

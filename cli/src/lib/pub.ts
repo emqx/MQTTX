@@ -17,6 +17,7 @@ import { serializeAvroToBuffer } from '../utils/avro'
 import { loadSimulator } from '../utils/simulate'
 import { triggerExitInfo } from '../utils/exitInfo'
 import getBenchClientId from '../utils/getBenchClientId'
+import { parsePayloadSize, generateRandomPayload } from '../utils/payloadGenerator'
 
 /**
  * Processes the outgoing message through two potential stages:
@@ -238,6 +239,12 @@ const handlePipedMultiline = (connOpts: IClientOptions, pubOpts: { topic: string
   })
 }
 
+/**
+ * Read file content and return as Buffer
+ * @param filePath - Path to the file to read
+ * @returns Buffer containing file data
+ * @throws Process exits with code 1 if file reading fails
+ */
 const handleFileRead = (filePath: string) => {
   try {
     basicLog.fileReading()
@@ -247,6 +254,27 @@ const handleFileRead = (filePath: string) => {
   } catch (err) {
     const error = err as Error
     logWrapper.fail(`Failed to read file: ${error.toString()}`)
+    process.exit(1)
+  }
+}
+
+/**
+ * Generate random payload based on payloadSize option
+ * @param payloadSize - Size string like "1KB", "2MB"
+ * @returns Generated Buffer or null if invalid
+ */
+const handlePayloadSizeGeneration = (payloadSize: string): Buffer | null => {
+  if (!payloadSize) {
+    return null
+  }
+
+  try {
+    const sizeInBytes = parsePayloadSize(payloadSize)
+    const payload = generateRandomPayload(sizeInBytes)
+    logWrapper.success(`Generated random payload of ${payloadSize}.`)
+    return payload
+  } catch (error: any) {
+    logWrapper.fail(`Failed to generate payload: ${error.message}`)
     process.exit(1)
   }
 }
@@ -295,6 +323,12 @@ const pub = (options: PublishOptions) => {
     send(loadOptions, connOpts, pubOpts, options.maximumReconnectTimes)
   } else if (options.stdin) {
     handleStdin()
+  } else if (options.payloadSize && options.message === 'Hello From MQTTX CLI') {
+    const generatedPayload = handlePayloadSizeGeneration(options.payloadSize)
+    if (generatedPayload) {
+      pubOpts.message = generatedPayload
+    }
+    send(loadOptions, connOpts, pubOpts, options.maximumReconnectTimes)
   } else {
     send(loadOptions, connOpts, pubOpts, options.maximumReconnectTimes)
   }
@@ -347,6 +381,12 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
   const connOpts = parseConnectOptions(options, 'pub')
 
   const pubOpts = parsePublishOptions(options)
+
+  // Handle payload size generation for bench/simulate mode
+  let generatedPayload: Buffer | null = null
+  if (options.payloadSize && !fileRead && options.message === 'Hello From MQTTX CLI') {
+    generatedPayload = handlePayloadSizeGeneration(options.payloadSize)
+  }
 
   const { username } = connOpts
 
@@ -434,6 +474,12 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
             inFlightMessageCount += 1
             let publishTopic = topicName
             let publishMessage = message
+
+            // Use generated payload if available and no other message source
+            if (generatedPayload && !fileRead && commandType !== 'simulate') {
+              publishMessage = generatedPayload
+            }
+
             if (commandType === 'simulate') {
               options.clientId = opts.clientId || options.clientId
               const simulationResult = simulator.generator(options as SimulatePubOptions)

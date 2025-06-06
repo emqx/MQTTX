@@ -260,6 +260,10 @@ export class Commander {
         'the path to the .avsc file that defines the avro schema for AVRO encoding',
         parseFileRead,
       )
+      .option(
+        '-S, --payload-size <SIZE>',
+        'generate a random payload of specified size (e.g., 1KB, 512B, 2MB); ignored if -m, -s, -M, or --file-read is present',
+      )
       .option('--debug', 'enable debug mode for MQTT.js', false)
       .allowUnknownOption(false)
       .hook('preAction', (thisCommand) => {
@@ -601,6 +605,10 @@ export class Commander {
       .option(
         '--split [CHARACTER]',
         'split the input message in a single file by a specified character, default is "\\n"',
+      )
+      .option(
+        '-S, --payload-size <SIZE>',
+        'generate a random payload of specified size (e.g., 1KB, 512B, 2MB); ignored if -m, -s, -M, or --file-read is present',
       )
       .allowUnknownOption(false)
       .hook('preAction', (thisCommand) => {
