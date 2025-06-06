@@ -105,6 +105,7 @@ declare global {
     protobufMessageName?: string
     avscPath?: string
     format?: FormatType
+    payloadSize?: string
   }
 
   interface SubscribeOptions extends ConnectOptions {
