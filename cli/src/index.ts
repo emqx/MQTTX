@@ -23,6 +23,7 @@ import ls from './lib/ls'
 import { initConfig } from './lib/init'
 import { version } from '../package.json'
 import state from './state'
+import { DEFAULT_MQTT_PUB_MESSAGE } from './utils/constants'
 
 export class Commander {
   program: Command
@@ -143,7 +144,7 @@ export class Commander {
       .command('pub')
       .description('Publish a message to a topic.')
       .option('-t, --topic <TOPIC>', 'the message topic', parsePubTopic)
-      .option('-m, --message <BODY>', 'the message body', 'Hello From MQTTX CLI')
+      .option('-m, --message <BODY>', 'the message body', DEFAULT_MQTT_PUB_MESSAGE)
       .option('-q, --qos <0/1/2>', 'the QoS of the message', parseNumber, 0)
       .option('-r, --retain', 'send a retained message')
       .option('-d, --dup', 'mark as duplicate flag')
@@ -505,7 +506,7 @@ export class Commander {
         'the message topic, support %u (username), %c (client id), %i (index) variables',
         parsePubTopic,
       )
-      .option('-m, --message <BODY>', 'the message body', 'Hello From MQTTX CLI')
+      .option('-m, --message <BODY>', 'the message body', DEFAULT_MQTT_PUB_MESSAGE)
       .option('-q, --qos <0/1/2>', 'the QoS of the message', parseNumber, 0)
       .option('-r, --retain', 'send a retained message')
       .option('-d, --dup', 'mark as duplicate flag')

@@ -18,6 +18,7 @@ import { loadSimulator } from '../utils/simulate'
 import { triggerExitInfo } from '../utils/exitInfo'
 import getBenchClientId from '../utils/getBenchClientId'
 import { parsePayloadSize, generateRandomPayload } from '../utils/payloadGenerator'
+import { DEFAULT_MQTT_PUB_MESSAGE } from '../utils/constants'
 
 /**
  * Processes the outgoing message through two potential stages:
@@ -323,7 +324,7 @@ const pub = (options: PublishOptions) => {
     send(loadOptions, connOpts, pubOpts, options.maximumReconnectTimes)
   } else if (options.stdin) {
     handleStdin()
-  } else if (options.payloadSize && options.message === 'Hello From MQTTX CLI') {
+  } else if (options.payloadSize && options.message === DEFAULT_MQTT_PUB_MESSAGE) {
     const generatedPayload = handlePayloadSizeGeneration(options.payloadSize)
     if (generatedPayload) {
       pubOpts.message = generatedPayload
@@ -384,7 +385,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
   // Handle payload size generation for bench/simulate mode
   let generatedPayload: Buffer | null = null
-  if (options.payloadSize && !fileRead && options.message === 'Hello From MQTTX CLI') {
+  if (options.payloadSize && !fileRead && options.message === DEFAULT_MQTT_PUB_MESSAGE) {
     generatedPayload = handlePayloadSizeGeneration(options.payloadSize)
   }
 
