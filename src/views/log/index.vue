@@ -135,6 +135,9 @@ export default class Logs extends Vue {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    .el-select {
+      -webkit-app-region: no-drag;
+    }
   }
   .log-editor {
     height: 90%;
