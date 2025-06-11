@@ -128,25 +128,7 @@ export default class MessageList extends Vue {
 .message-list {
   padding: 0 16px;
   overflow-x: hidden;
-  overflow-y: overlay;
-  &.scrolling {
-    &::-webkit-scrollbar {
-      width: 8px;
-    }
-    &::-webkit-scrollbar-track {
-      width: 8px;
-    }
-    &::-webkit-scrollbar-thumb {
-      border-radius: 4px;
-      background: var(--color-bg-scrollbar);
-      width: 8px;
-    }
-  }
-  &.still {
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
+  overflow: scroll;
 
   .loading-icon {
     position: absolute;

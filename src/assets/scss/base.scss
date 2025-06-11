@@ -22,10 +22,6 @@ body {
   color: var(--color-text-default);
 }
 
-body::-webkit-scrollbar {
-  display: none;
-}
-
 body.select-none {
   -moz-user-select: none;
   -khtml-user-select: none;
@@ -37,18 +33,15 @@ body.select-none {
   :focus {
     outline: none;
   }
-  &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-bg-scrollbar) transparent;
+
   &::-webkit-scrollbar-track {
-    width: 8px;
+    background: transparent;
   }
   &::-webkit-scrollbar-thumb {
     border-radius: 4px;
     background: var(--color-bg-scrollbar);
-    width: 8px;
-    height: 8px;
   }
   &::-webkit-scrollbar-corner {
     background: transparent;

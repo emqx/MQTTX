@@ -159,7 +159,7 @@ export default class KeyValueEditor extends Vue {
     align-items: center;
   }
   .editor-row {
-    overflow-y: scroll;
+    overflow: scroll;
     white-space: nowrap;
     .editor-row {
       overflow: hidden;
@@ -175,10 +175,6 @@ export default class KeyValueEditor extends Vue {
           padding: 4px 15px;
           background: transparent;
           border-radius: 4px;
-          overflow-y: hidden;
-          &:hover {
-            overflow-y: overlay;
-          }
         }
       }
     }
