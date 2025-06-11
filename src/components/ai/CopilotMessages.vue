@@ -185,9 +185,7 @@ body.night {
     padding: 16px;
     padding-bottom: 0px;
     margin-bottom: 82px;
-    &:hover {
-      overflow-y: overlay;
-    }
+    overflow: scroll;
     .chat-title {
       color: var(--color-text-light);
       i {
