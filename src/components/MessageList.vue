@@ -11,10 +11,17 @@
           v-if="!item.out"
           :key="item.id"
           :msgId="item.id"
+          :searchParams="searchParams"
           v-bind="item"
           @showmenu="handleShowContextMenu(arguments, item)"
         />
-        <MsgRightItem v-else :key="item.id" v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
+        <MsgRightItem
+          v-else
+          :key="item.id"
+          :searchParams="searchParams"
+          v-bind="item"
+          @showmenu="handleShowContextMenu(arguments, item)"
+        />
       </template>
     </div>
     <span v-show="showAfterLoadingIcon" class="loading-icon after"><i class="el-icon-loading"></i></span>
@@ -40,6 +47,10 @@ export default class MessageList extends Vue {
   @Prop({ required: true }) height!: number
   @Prop({ required: true }) subscriptions!: SubscriptionModel[]
   @Prop({ required: true }) marginTop!: number
+  @Prop({ required: false, default: () => ({ topic: '', payload: '' }) }) searchParams!: {
+    topic: string
+    payload: string
+  }
 
   public showMessages: MessageModel[] = []
   public showBeforeLoadingIcon: boolean = false

@@ -30,14 +30,14 @@
     </span>
     <div ref="leftPayload" class="left-payload payload" @contextmenu.prevent="customMenu($event)">
       <p class="left-info">
-        <span class="topic">Topic: {{ topic }}</span>
+        <span class="topic">Topic: <span v-html="highlightedTopic"></span></span>
         <span class="qos">QoS: {{ qos }}</span>
         <span v-if="retain" class="retain">Retained</span>
       </p>
       <MqttProperties class="meta" :properties="properties" direction="left" />
       <template v-if="isLargeMsg">
-        <div class="large-message { .el-button { margin-top: 12px;}}">
-          <pre>{{ payload.substr(0, showMaxLen) }}<span><i class="iconfont icon-more"></i></span></pre>
+        <div class="large-message">
+          <pre v-html="highlightedPayloadPreview"></pre>
           <el-tooltip
             placement="bottom"
             :effect="theme !== 'light' ? 'light' : 'dark'"
@@ -51,8 +51,8 @@
         </div>
       </template>
       <template v-else>
-        <pre v-if="!hightlight">{{ payload }}</pre>
-        <pre v-else><code class="language-js" >{{ payload }}</code></pre>
+        <pre v-if="!hightlight" v-html="highlightedPayload"></pre>
+        <pre v-else ref="highlightedCode"><code class="language-js">{{ payload }}</code></pre>
       </template>
     </div>
     <p class="left-time time">{{ createAt }}</p>
@@ -61,12 +61,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import FullMsgDialog from './FullMsgDialog.vue'
 import Prism from 'prismjs'
 import { Getter } from 'vuex-class'
 import { SHOW_MAX_LENGTH } from '@/utils/data'
 import MqttProperties from './MqttProperties.vue'
+import { highlightSearchTerm, highlightInPrismCode } from '@/utils/highlightSearch'
 
 @Component({
   components: {
@@ -84,6 +85,10 @@ export default class MsgLeftItem extends Vue {
   @Prop({ required: false, default: false }) public retain!: boolean
   @Prop({ required: false, default: () => ({}) }) public properties!: PushPropertiesModel
   @Prop({ required: false, default: '' }) public color!: string
+  @Prop({ required: false, default: () => ({ topic: '', payload: '' }) }) public searchParams!: {
+    topic: string
+    payload: string
+  }
 
   @Getter('jsonHighlight') private jsonHighlight!: boolean
   @Getter('currentTheme') private theme!: Theme
@@ -91,6 +96,35 @@ export default class MsgLeftItem extends Vue {
   public hightlight: boolean = false
 
   private showFullMsg: boolean = false
+
+  @Watch('searchParams', { deep: true })
+  private onSearchParamsChanged() {
+    this.$nextTick(() => {
+      this.applyHighlighting()
+    })
+  }
+
+  get highlightedTopic(): string {
+    if (this.searchParams.topic) {
+      return highlightSearchTerm(this.topic, this.searchParams.topic, 'search-highlight')
+    }
+    return this.topic
+  }
+
+  get highlightedPayload(): string {
+    if (this.searchParams.payload) {
+      return highlightSearchTerm(this.payload, this.searchParams.payload, 'search-highlight')
+    }
+    return this.payload
+  }
+
+  get highlightedPayloadPreview(): string {
+    const preview = this.payload.substr(0, this.showMaxLen)
+    if (this.searchParams.payload) {
+      return highlightSearchTerm(preview, this.searchParams.payload, 'search-highlight')
+    }
+    return preview
+  }
 
   public customMenu(event: MouseEvent) {
     this.$emit('showmenu', this.payload, event)
@@ -131,6 +165,27 @@ export default class MsgLeftItem extends Vue {
     return SHOW_MAX_LENGTH
   }
 
+  private applyHighlighting() {
+    if (this.hightlight && this.searchParams.payload) {
+      const codeElement = this.$refs.highlightedCode as HTMLElement
+      if (codeElement) {
+        this.clearHighlights(codeElement)
+        highlightInPrismCode(codeElement, this.searchParams.payload, 'search-highlight')
+      }
+    }
+  }
+
+  private clearHighlights(element: HTMLElement) {
+    const highlights = element.querySelectorAll('.search-highlight')
+    highlights.forEach((highlight) => {
+      const parent = highlight.parentNode
+      if (parent) {
+        parent.replaceChild(document.createTextNode(highlight.textContent || ''), highlight)
+        parent.normalize()
+      }
+    })
+  }
+
   private hightlightJSON() {
     if (this.jsonHighlight === false) {
       return
@@ -140,6 +195,7 @@ export default class MsgLeftItem extends Vue {
         this.hightlight = true
         this.$nextTick(() => {
           Prism.highlightAllUnder(this.$refs.msgLeftItem as HTMLElement)
+          this.applyHighlighting()
         })
       }
     } catch (e) {
@@ -211,6 +267,13 @@ body.night {
         color: var(--color-text-default);
       }
     }
+  }
+  .search-highlight {
+    background-color: #ffeb3b !important;
+    color: #000 !important;
+    padding: 1px 2px;
+    border-radius: 2px;
+    font-weight: bold;
   }
 }
 </style>

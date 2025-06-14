@@ -277,6 +277,7 @@
           :messages="recordMsgs.list"
           :height="messageListHeight"
           :marginTop="messageListMarginTop"
+          :searchParams="searchParams"
           @showContextMenu="handleContextMenu"
           @loadMoreMsg="loadMoreMessages"
           @hideNewMsgsTip="hideNewMsgsTip"
@@ -2201,6 +2202,17 @@ export default class ConnectionsDetail extends Vue {
     window.removeEventListener('resize', () => {
       this.setMessageListHeight()
     })
+  }
+
+  get activeSearchTerms() {
+    const terms = []
+    if (this.searchParams.payload && this.searchParams.payload.trim()) {
+      terms.push(this.searchParams.payload.trim())
+    }
+    if (this.searchParams.topic && this.searchParams.topic.trim()) {
+      terms.push(this.searchParams.topic.trim())
+    }
+    return terms
   }
 }
 </script>

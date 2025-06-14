@@ -16,11 +16,11 @@
     </div>
     <div class="right-payload payload" @contextmenu.prevent="customMenu($event)">
       <p class="right-info">
-        <span class="topic">Topic: {{ topic }}</span>
+        <span class="topic">Topic: <span v-html="highlightedTopic"></span></span>
         <span class="qos">QoS: {{ qos }}</span>
       </p>
       <MqttProperties class="meta" :properties="properties" direction="right" />
-      <pre>{{ payload }}</pre>
+      <pre v-html="highlightedPayload"></pre>
     </div>
     <p class="right-time time">{{ createAt }}</p>
   </div>
@@ -29,19 +29,38 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import MqttProperties from './MqttProperties.vue'
+import { highlightSearchTerm } from '@/utils/highlightSearch'
 
 @Component({
   components: {
     MqttProperties,
   },
 })
-export default class MsgrightItem extends Vue {
+export default class MsgRightItem extends Vue {
   @Prop({ required: true }) public topic!: string
   @Prop({ required: true }) public qos!: number
   @Prop({ required: true }) public payload!: string
   @Prop({ required: true }) public createAt!: string
   @Prop({ required: false }) public meta?: string
   @Prop({ required: false, default: () => ({}) }) public properties!: PushPropertiesModel
+  @Prop({ required: false, default: () => ({ topic: '', payload: '' }) }) public searchParams!: {
+    topic: string
+    payload: string
+  }
+
+  get highlightedTopic(): string {
+    if (this.searchParams.topic) {
+      return highlightSearchTerm(this.topic, this.searchParams.topic, 'search-highlight')
+    }
+    return this.topic
+  }
+
+  get highlightedPayload(): string {
+    if (this.searchParams.payload) {
+      return highlightSearchTerm(this.payload, this.searchParams.payload, 'search-highlight')
+    }
+    return this.payload
+  }
 
   public customMenu(event: MouseEvent) {
     this.$emit('showmenu', this.payload, event)
@@ -80,6 +99,13 @@ export default class MsgrightItem extends Vue {
       color: var(--color-text-active) !important;
       border: 1px solid var(--color-border-right_metainfo) !important;
     }
+  }
+  .search-highlight {
+    background-color: #ffeb3b !important;
+    color: #000 !important;
+    padding: 1px 2px;
+    border-radius: 2px;
+    font-weight: bold;
   }
 }
 </style>
