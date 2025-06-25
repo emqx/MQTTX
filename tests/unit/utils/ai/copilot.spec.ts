@@ -83,6 +83,8 @@ describe('copilot', () => {
 
       const google = AImodelsOptions.find((p) => p.value === 'Google')
       expect(google?.children).to.be.an('array').that.is.not.empty
+      expect(google?.children.map((c) => c.value)).to.include('gemini-2.5-pro')
+      expect(google?.children.map((c) => c.value)).to.include('gemini-2.5-pro-thinking')
       expect(google?.children.map((c) => c.value)).to.include('gemini-1.5-pro')
 
       const azure = AImodelsOptions.find((p) => p.value === 'Azure OpenAI')
@@ -174,7 +176,7 @@ describe('copilot', () => {
     it('should return a provider instance for Google', () => {
       expect(() => {
         getModelProvider({
-          model: 'gemini-2.0-flash',
+          model: 'gemini-2.5-pro',
           baseURL: 'https://generativelanguage.googleapis.com/v1beta',
           apiKey: 'test-key-google',
           providerType: 'Google',
