@@ -163,14 +163,18 @@ export class AIAgent {
   private processModel(model: AIModel): {
     actualModel: AIModel
     isClaudeThinking: boolean
+    isGoogleThinking: boolean
     isAzure: boolean
   } {
     // Check if this is a Claude thinking model
     const isClaudeThinking = model.includes('claude') && model.endsWith('-thinking')
 
-    // Remove the thinking suffix for Claude models
+    // Check if this is a Google thinking model
+    const isGoogleThinking = model.includes('gemini') && model.endsWith('-thinking')
+
+    // Remove the thinking suffix for Claude and Google models
     let actualModel = model
-    if (isClaudeThinking) {
+    if (isClaudeThinking || isGoogleThinking) {
       actualModel = model.replace(/-thinking$/, '') as AIModel
     }
 
@@ -185,6 +189,7 @@ export class AIAgent {
     return {
       actualModel,
       isClaudeThinking,
+      isGoogleThinking,
       isAzure,
     }
   }
@@ -282,7 +287,7 @@ export class AIAgent {
 
     this.abortController = new AbortController()
 
-    const { actualModel, isClaudeThinking, isAzure } = this.processModel(this.model)
+    const { actualModel, isClaudeThinking, isGoogleThinking, isAzure } = this.processModel(this.model)
 
     const providerType = this.determineProviderType(actualModel, this.openAIAPIHost, isAzure)
 
@@ -304,6 +309,16 @@ export class AIAgent {
             budgetTokens: 12000,
           },
         },
+        ...(isGoogleThinking
+          ? {
+              google: {
+                thinkingConfig: {
+                  thinkingBudget: 12000,
+                  includeThoughts: true,
+                },
+              },
+            }
+          : {}),
       },
       messages: messageHistory,
       abortSignal: this.abortController.signal,

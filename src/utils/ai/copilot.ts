@@ -154,9 +154,13 @@ export const AImodelsOptions: AImodelsOptionsModel = [
   {
     value: 'Google' as const,
     children: [
-      { value: 'gemini-2.5-pro-preview-03-25' },
+      { value: 'gemini-2.5-pro' },
+      { value: 'gemini-2.5-pro-thinking' },
+      { value: 'gemini-2.5-flash' },
+      { value: 'gemini-2.5-flash-thinking' },
+      { value: 'gemini-2.5-flash-lite-preview-06-17' },
       { value: 'gemini-2.0-flash' },
-      { value: 'gemini-2.0-flash-thinking-exp-01-21' },
+      { value: 'gemini-2.0-flash-thinking' },
       { value: 'gemini-2.0-flash-lite' },
       { value: 'gemini-1.5-pro' },
       { value: 'gemini-1.5-flash' },
