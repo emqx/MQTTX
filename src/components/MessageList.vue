@@ -138,8 +138,8 @@ export default class MessageList extends Vue {
 <style lang="scss">
 .message-list {
   padding: 0 16px;
+  overflow-y: scroll;
   overflow-x: hidden;
-  overflow: scroll;
 
   .loading-icon {
     position: absolute;
