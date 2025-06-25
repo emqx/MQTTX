@@ -180,12 +180,11 @@ body.night {
   &.chat-body {
     flex-grow: 1;
     overflow: auto;
-    overflow-x: hidden;
-    overflow-y: hidden;
+    overflow-x: unset;
+    overflow-y: scroll;
     padding: 16px;
     padding-bottom: 0px;
     margin-bottom: 82px;
-    overflow: scroll;
     .chat-title {
       color: var(--color-text-light);
       i {
