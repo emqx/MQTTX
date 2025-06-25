@@ -73,6 +73,8 @@ describe('copilot', () => {
 
       const anthropic = AImodelsOptions.find((p) => p.value === 'Anthropic')
       expect(anthropic?.children).to.be.an('array').that.is.not.empty
+      expect(anthropic?.children.map((c) => c.value)).to.include('claude-opus-4-20250514')
+      expect(anthropic?.children.map((c) => c.value)).to.include('claude-opus-4-20250514-thinking')
       expect(anthropic?.children.map((c) => c.value)).to.include('claude-3-opus-latest')
 
       const xai = AImodelsOptions.find((p) => p.value === 'xAI')
@@ -150,7 +152,7 @@ describe('copilot', () => {
     it('should return a provider instance for Anthropic', () => {
       expect(() => {
         getModelProvider({
-          model: 'claude-3-opus-latest',
+          model: 'claude-opus-4-20250514',
           baseURL: 'https://api.anthropic.com/v1',
           apiKey: 'test-key-anthropic',
           providerType: 'Anthropic',
