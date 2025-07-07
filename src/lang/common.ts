@@ -13,6 +13,27 @@ export default {
     ja: '確認',
     hu: 'Megerősít',
   },
+  connection: {
+    zh: '连接',
+    en: 'Connection',
+    tr: 'Bağlantı',
+    ja: '接続',
+    hu: 'Kapcsolat',
+  },
+  topic: {
+    zh: '主题',
+    en: 'Topic',
+    tr: 'Konu',
+    ja: 'トピック',
+    hu: 'Téma',
+  },
+  pleaseSelect: {
+    zh: '请选择',
+    en: 'Please select',
+    tr: 'Lütfen seçin',
+    ja: '選択してください',
+    hu: 'Kérjük válassza ki',
+  },
   inputRequired: {
     zh: '请输入',
     en: 'Please input',
