@@ -29,6 +29,11 @@ const routes: Routes[] = [
             name: 'TrafficMonitor',
             component: () => import('@/views/viewer/TrafficMonitor.vue'),
           },
+          {
+            path: 'payload_inspector',
+            name: 'PayloadInspector',
+            component: () => import('@/views/viewer/PayloadInspector.vue'),
+          },
         ],
       },
       { path: '/settings', name: 'Settings', component: () => import('@/views/settings/index.vue') },
