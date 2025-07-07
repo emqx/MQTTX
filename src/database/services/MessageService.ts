@@ -329,6 +329,20 @@ export default class MessageService {
   }
 
   /**
+   * Retrieves all unique topics for a given connection.
+   * @param connectionId - The ID of the connection.
+   * @returns A promise that resolves to an array of unique topics.
+   */
+  public async getAllTopics(connectionId: string): Promise<string[]> {
+    const topics = await this.messageRepository
+      .createQueryBuilder('msg')
+      .select('DISTINCT msg.topic')
+      .where('msg.connectionId = :connectionId', { connectionId })
+      .getRawMany()
+    return topics.map((t) => t.topic)
+  }
+
+  /**
    * Retrieves message topic node statistics for a given connection.
    * @param connectionId - The ID of the connection to retrieve statistics for.
    * @returns A promise that resolves to an object containing the connection model and topic statistics,
