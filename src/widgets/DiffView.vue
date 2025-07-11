@@ -63,15 +63,16 @@
       </div>
 
       <div class="diff-content">
-        <DiffEditor
+        <Editor
           id="message-diff"
           lang="json"
-          :original-value="originalMessage"
-          :modified-value="modifiedMessage"
+          :value="modifiedMessage"
+          :previous-value="originalMessage"
           :font-size="12"
           line-numbers="on"
           word-wrap="on"
           :disabled="true"
+          mode="diff"
           @change="onDiffChange"
           @format="onFormat"
         />
@@ -87,11 +88,12 @@
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
-import DiffEditor from '@/components/DiffEditor.vue'
+import Editor from '@/components/Editor.vue'
+import { calculateTextSize } from '@/utils/data'
 
 @Component({
   components: {
-    DiffEditor,
+    Editor,
   },
 })
 export default class DiffView extends Vue {
@@ -226,14 +228,7 @@ export default class DiffView extends Vue {
   }
 
   private getPayloadSize(payload: string): string {
-    const size = new Blob([payload]).size
-    if (size < 1024) {
-      return `${size} B`
-    } else if (size < 1024 * 1024) {
-      return `${(size / 1024).toFixed(1)} KB`
-    } else {
-      return `${(size / (1024 * 1024)).toFixed(1)} MB`
-    }
+    return calculateTextSize(payload)
   }
 
   private isValidDiffState(index: number): boolean {
