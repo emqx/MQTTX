@@ -336,7 +336,7 @@ export default class MessageService {
   public async getAllTopics(connectionId: string): Promise<string[]> {
     const topics = await this.messageRepository
       .createQueryBuilder('msg')
-      .select('DISTINCT msg.topic')
+      .select('DISTINCT msg.topic', 'topic')
       .where('msg.connectionId = :connectionId', { connectionId })
       .getRawMany()
     return topics.map((t) => t.topic)
