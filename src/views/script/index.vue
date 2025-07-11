@@ -74,7 +74,7 @@
         lineNumbers="on"
         :lineNumbersMinChars="5"
         renderHighlight="line"
-        @qucik-save="handleTest"
+        @quick-save="handleTest"
       />
       <Editor
         v-if="activeTab === schemaTab"
@@ -87,7 +87,7 @@
         lineNumbers="on"
         :lineNumbersMinChars="5"
         renderHighlight="line"
-        @qucik-save="handleTest"
+        @quick-save="handleTest"
       />
     </div>
     <el-row class="script-test-row script-test-input" :gutter="20">

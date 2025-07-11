@@ -157,7 +157,7 @@ export default class Editor extends Vue {
       this.$emit('enter-event', this.value)
     })
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
-      this.$emit('qucik-save', this.value)
+      this.$emit('quick-save', this.value)
     })
     // Update editor options
     const model = this.editor.getModel()

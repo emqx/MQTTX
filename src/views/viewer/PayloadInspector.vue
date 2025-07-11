@@ -2,12 +2,10 @@
   <div class="payload-inspector-view">
     <div class="inspector-controls">
       <div class="control-group">
-        <label>{{ $t('common.connection') }}</label>
         <ConnectionSelect v-model="selectedConnectionId" :width="'300px'" @change="onConnectionChange" />
       </div>
 
       <div class="control-group">
-        <label>{{ $t('common.topic') }}</label>
         <TopicSelect
           v-model="selectedTopic"
           :connection-id="selectedConnectionId"
