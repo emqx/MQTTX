@@ -20,6 +20,13 @@ export default {
     ja: 'ペイロードインスペクター',
     hu: 'Üzenetgövde figyelő',
   },
+  invalidJsonFormat: {
+    zh: '无效的 JSON 格式',
+    en: 'Invalid JSON format',
+    tr: 'Geçersiz JSON formatı',
+    ja: '無効な JSON 形式',
+    hu: 'Érvénytelen JSON formátum',
+  },
   filterDesc: {
     zh: '输入关键字进行过滤',
     en: 'Input keyword to filter',
@@ -243,7 +250,7 @@ export default {
     hu: 'Ugrás a legújabb üzenethez',
   },
   selectTopicWithMessages: {
-    zh: '选择至少包含2条消息的主题以查看差异',
+    zh: '选择至少包含 2 条消息的主题以查看差异',
     en: 'Select a topic with at least 2 messages to view diffs',
     tr: 'Farkları görüntülemek için en az 2 mesaj içeren bir konu seçin',
     ja: '差分を表示するには、少なくとも2つのメッセージを含むトピックを選択してください',
@@ -255,12 +262,5 @@ export default {
     tr: 'Mesajlar yüklenemedi',
     ja: 'メッセージの読み込みに失敗しました',
     hu: 'Nem sikerült betölteni az üzeneteket',
-  },
-  failedToLoadMoreMessages: {
-    zh: '加载更多消息失败',
-    en: 'Failed to load more messages',
-    tr: 'Daha fazla mesaj yüklenemedi',
-    ja: 'より多くのメッセージの読み込みに失敗しました',
-    hu: 'Nem sikerült betölteni a további üzeneteket',
   },
 }

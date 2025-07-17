@@ -3,6 +3,11 @@
     <div class="diff-header">
       <div class="header-content">
         <h3>{{ $t('viewer.messageHistory') }}</h3>
+        <el-select v-model="messageType" size="mini" @change="onMessageTypeChange">
+          <el-option label="All" value="all"></el-option>
+          <el-option label="Recieved" value="recieved"></el-option>
+          <el-option label="Published" value="publish"></el-option>
+        </el-select>
       </div>
       <div class="message-info" v-if="currentMessage && previousMessage">
         <div class="info-item">
@@ -32,29 +37,27 @@
       </div>
     </div>
 
-    <div class="diff-content-wrapper" v-if="messages.length > 1">
+    <div class="diff-content-wrapper" v-if="messages.length >= 2">
       <div class="navigation-controls">
         <button
           class="nav-button nav-button--prev"
-          :disabled="loadingMore"
+          :disabled="!canGoToPrevious && !hasMore"
           @click="goToPrevious"
           :title="$t('viewer.olderMessage')"
         >
-          <i v-if="loadingMore" class="el-icon-loading"></i>
-          <i v-else class="el-icon-arrow-left"></i>
+          <i class="el-icon-arrow-left"></i>
         </button>
         <button
           class="nav-button nav-button--next"
-          :disabled="loadingMore"
-          @click="onNextClicked"
+          :disabled="!canGoToNext"
+          @click="goToNext"
           :title="$t('viewer.newerMessage')"
         >
-          <i v-if="loadingMore" class="el-icon-loading"></i>
-          <i v-else class="el-icon-arrow-right"></i>
+          <i class="el-icon-arrow-right"></i>
         </button>
         <button
           class="nav-button nav-button--latest"
-          :disabled="loadingMore"
+          :disabled="currentIndex === 0"
           @click="goToLatest"
           :title="$t('viewer.goToLatestMessage')"
         >
@@ -73,8 +76,6 @@
           word-wrap="on"
           :disabled="true"
           mode="diff"
-          @change="onDiffChange"
-          @format="onFormat"
         />
       </div>
     </div>
@@ -98,14 +99,22 @@ import { calculateTextSize } from '@/utils/data'
 })
 export default class DiffView extends Vue {
   @Prop({ type: Array, default: () => [] }) private messages!: MessageModel[]
-  @Prop({ type: Function, default: null }) private loadMore!: () => Promise<void>
   @Prop({ type: Boolean, default: false }) private hasMore!: boolean
   @Getter('currentTheme') private theme!: Theme
 
   private currentIndex = 0
-  private originalMessage = ''
-  private modifiedMessage = ''
-  private loadingMore = false
+  private messageType = 'all'
+
+  get filteredMessages(): MessageModel[] {
+    if (this.messageType === 'all') {
+      return this.messages
+    } else if (this.messageType === 'recieved') {
+      return this.messages.filter((message) => !message.out)
+    } else if (this.messageType === 'publish') {
+      return this.messages.filter((message) => message.out)
+    }
+    return []
+  }
 
   get currentMessage(): MessageModel | null {
     return this.messages[this.currentIndex] || null
@@ -115,69 +124,49 @@ export default class DiffView extends Vue {
     return this.messages[this.currentIndex + 1] || null
   }
 
-  @Watch('messages')
-  private onMessagesChanged() {
-    if (
-      this.messages.length > 0 &&
-      this.currentIndex === 0 &&
-      this.originalMessage === '' &&
-      this.modifiedMessage === ''
-    ) {
-      this.resetNavigation()
+  get canGoToPrevious(): boolean {
+    return this.currentIndex < this.messages.length - 2
+  }
+
+  get canGoToNext(): boolean {
+    return this.currentIndex > 0
+  }
+
+  private goToPrevious(): void {
+    if (this.canGoToPrevious) {
+      this.currentIndex++
+    } else if (this.hasMore) {
+      this.$emit('request-older')
     }
-    this.updateDiffContent()
   }
 
-  @Watch('currentIndex')
-  private onCurrentIndexChanged() {
-    this.updateDiffContent()
+  private goToNext(): void {
+    if (this.canGoToNext) {
+      this.currentIndex--
+    }
   }
 
-  private resetNavigation(): void {
+  private goToLatest(): void {
     this.currentIndex = 0
   }
 
-  private updateDiffContent(): void {
-    if (this.messages.length < 2) {
-      this.originalMessage = ''
-      this.modifiedMessage = ''
-      return
-    }
-
-    const current = this.currentMessage
-    const previous = this.previousMessage
-
-    if (!current || !previous) {
-      this.originalMessage = ''
-      this.modifiedMessage = ''
-      return
-    }
-
-    const currentMessageObj = this.createMessageObject(current)
-    const previousMessageObj = this.createMessageObject(previous)
-
+  private get originalMessage(): string {
+    const prev = this.previousMessage
+    if (!prev || !prev.payload) return ''
     try {
-      this.originalMessage = JSON.stringify(previousMessageObj.payload, null, 2)
-      this.modifiedMessage = JSON.stringify(currentMessageObj.payload, null, 2)
-    } catch (error) {
-      this.$log.error(`Failed to format messages for diff: ${error}`)
-      this.originalMessage = previous.payload
-      this.modifiedMessage = current.payload
+      return JSON.stringify(this.parsePayload(prev.payload), null, 2)
+    } catch {
+      return prev.payload
     }
   }
 
-  private createMessageObject(message: MessageModel): any {
-    return {
-      id: message.id,
-      topic: message.topic,
-      payload: this.parsePayload(message.payload),
-      qos: message.qos,
-      retain: message.retain,
-      out: message.out,
-      createAt: message.createAt,
-      color: message.color,
-      properties: message.properties,
-      meta: message.meta,
+  private get modifiedMessage(): string {
+    const curr = this.currentMessage
+    if (!curr || !curr.payload) return ''
+    try {
+      return JSON.stringify(this.parsePayload(curr.payload), null, 2)
+    } catch {
+      return curr.payload
     }
   }
 
@@ -189,32 +178,6 @@ export default class DiffView extends Vue {
     }
   }
 
-  private async goToPrevious(): Promise<void> {
-    await this.findNextValidState('previous')
-  }
-
-  private async goToNext(): Promise<void> {
-    await this.findNextValidState('next')
-  }
-
-  private goToLatest(): void {
-    this.currentIndex = 0
-  }
-
-  private onDiffChange(value: string, event: any): void {
-    console.log('Diff content changed:', value)
-    this.modifiedMessage = value
-  }
-
-  private onFormat(): void {
-    try {
-      const parsed = JSON.parse(this.modifiedMessage)
-      this.modifiedMessage = JSON.stringify(parsed, null, 2)
-    } catch (error) {
-      this.$message.error('Invalid JSON format')
-    }
-  }
-
   private formatTime(timeString: string): string {
     try {
       return new Date(timeString).toLocaleString()
@@ -223,60 +186,13 @@ export default class DiffView extends Vue {
     }
   }
 
-  private async onNextClicked() {
-    await this.goToNext()
-  }
-
   private getPayloadSize(payload: string): string {
     return calculateTextSize(payload)
   }
 
-  private isValidDiffState(index: number): boolean {
-    if (index >= this.messages.length - 1) {
-      return false
-    }
-    const current = this.messages[index]
-    const previous = this.messages[index + 1]
-    return !!(current && previous)
-  }
-
-  private async findNextValidState(direction: 'next' | 'previous'): Promise<boolean> {
-    let targetIndex = direction === 'next' ? this.currentIndex - 1 : this.currentIndex + 1
-
-    while (targetIndex >= 0 && targetIndex < this.messages.length - 1) {
-      if (this.isValidDiffState(targetIndex)) {
-        this.currentIndex = targetIndex
-        return true
-      }
-      targetIndex = direction === 'next' ? targetIndex - 1 : targetIndex + 1
-    }
-
-    if (this.hasMore && this.loadMore) {
-      this.loadingMore = true
-      const prevLength = this.messages.length
-      await this.loadMore()
-      this.loadingMore = false
-
-      if (this.messages.length > prevLength) {
-        if (direction === 'previous') {
-          for (let i = prevLength; i < this.messages.length - 1; i++) {
-            if (this.isValidDiffState(i)) {
-              this.currentIndex = i
-              return true
-            }
-          }
-        } else {
-          const newMessagesCount = this.messages.length - prevLength
-          const adjustedIndex = this.currentIndex + newMessagesCount
-          if (adjustedIndex < this.messages.length - 1 && this.isValidDiffState(adjustedIndex)) {
-            this.currentIndex = adjustedIndex
-            return true
-          }
-        }
-      }
-    }
-
-    return false
+  private onMessageTypeChange(type: MessageType): void {
+    this.messageType = type
+    this.$emit('message-type-change', type)
   }
 }
 </script>
@@ -295,7 +211,14 @@ export default class DiffView extends Vue {
     background: var(--color-bg-primary);
 
     .header-content {
+      .el-select {
+        width: 100px;
+      }
+
       margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
 
       h3 {
         margin: 0;

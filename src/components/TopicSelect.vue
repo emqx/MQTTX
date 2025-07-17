@@ -57,7 +57,7 @@ export default class TopicSelect extends Vue {
 
     const { messageService } = useServices()
     try {
-      this.topics = (await messageService.getAllTopics(this.connectionId)) ?? []
+      this.topics = (await messageService.getAllTopicsFromConnection(this.connectionId)) ?? []
     } catch (error) {
       this.$log.error(`TopicSelect: load topics failed: ${error}`)
       this.topics = []
