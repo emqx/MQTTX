@@ -2,20 +2,25 @@
   <div class="payload-inspector-view">
     <div class="inspector-controls">
       <div class="control-group">
-        <ConnectionSelect v-model="selectedConnectionId" :width="'300px'" @change="onConnectionChange" />
+        <ConnectionSelect v-model="selectedConnectionId" size="small" @change="onConnectionChange" />
       </div>
 
       <div class="control-group">
         <TopicSelect
           v-model="selectedTopic"
           :connection-id="selectedConnectionId"
-          :width="'300px'"
+          size="small"
           @change="onTopicChange"
         />
       </div>
     </div>
     <div class="diff-view-container">
-      <DiffView :messages="messagesData.list" :loadMore="loadMoreMessages" :hasMore="hasMore" />
+      <DiffView
+        :messages="messagesData.list"
+        :hasMore="hasMore"
+        @request-older="loadMessages(true)"
+        @message-type-change="onMessageTypeChange"
+      />
     </div>
   </div>
 </template>
@@ -40,9 +45,7 @@ export default class PayloadInspector extends Vue {
 
   private selectedConnectionId = ''
   private selectedTopic = ''
-  private connectionDisplayName = ''
-  private loading = false
-
+  private hasMoreMessages = true
   private messagesData: MessagePaginationModel = {
     list: [],
     total: 0,
@@ -52,10 +55,11 @@ export default class PayloadInspector extends Vue {
     page: 1,
   }
 
+  private currentMessageType: MessageType = 'all'
+
   private async onConnectionChange(connectionId: string) {
     this.selectedConnectionId = connectionId
     this.selectedTopic = ''
-    this.connectionDisplayName = await this.getConnectionDisplayName(connectionId)
     this.resetMessagesData()
   }
 
@@ -66,19 +70,6 @@ export default class PayloadInspector extends Vue {
     } else {
       this.resetMessagesData()
     }
-  }
-
-  private async getConnectionDisplayName(connectionId: string): Promise<string> {
-    try {
-      const { connectionService } = useServices()
-      const connection = await connectionService.get(connectionId)
-      if (connection) {
-        return `${connection.name}@${connection.host}`
-      }
-    } catch (error) {
-      this.$log.error(`Failed to get connection details: ${error}`)
-    }
-    return connectionId
   }
 
   private resetMessagesData(): void {
@@ -92,74 +83,54 @@ export default class PayloadInspector extends Vue {
     }
   }
 
-  private async loadMessages(): Promise<void> {
+  private async loadMessages(append: boolean = false, msgType?: MessageType): Promise<void> {
     if (!this.selectedConnectionId || !this.selectedTopic) {
       return
     }
+    const page = append ? this.messagesData.page + 1 : 1
+    const typeToUse = msgType || this.currentMessageType || 'all'
 
-    this.loading = true
     try {
       const { messageService } = useServices()
       const result = await messageService.get(this.selectedConnectionId, {
-        page: this.messagesData.page,
+        page,
         limit: this.messagesData.limit,
-        msgType: 'publish',
+        msgType: typeToUse,
         topic: this.selectedTopic,
+        preserveOrder: true,
       })
 
-      this.messagesData = {
-        ...result,
-        list: result.list.reverse(),
+      this.messagesData = append
+        ? {
+            ...this.messagesData,
+            list: [...this.messagesData.list, ...result.list],
+            page: page,
+          }
+        : {
+            ...result,
+            list: result.list,
+            page: page,
+            total: result.total,
+            publishedTotal: result.publishedTotal,
+            receivedTotal: result.receivedTotal,
+          }
+      if (result.list.length < this.messagesData.limit) {
+        this.hasMoreMessages = false
+        return
       }
     } catch (error) {
       this.$log.error(`Failed to load messages: ${error}`)
       this.$message.error(this.$t('viewer.failedToLoadMessages') as string)
-    } finally {
-      this.loading = false
-    }
-  }
-
-  private async loadMoreMessages(): Promise<void> {
-    if (!this.selectedConnectionId || !this.selectedTopic) {
-      return
-    }
-    if (this.loading) return
-    this.loading = true
-    try {
-      const nextPage = this.messagesData.page + 1
-      const { messageService } = useServices()
-      const result = await messageService.get(this.selectedConnectionId, {
-        page: nextPage,
-        limit: this.messagesData.limit,
-        msgType: 'publish',
-        topic: this.selectedTopic,
-      })
-      this.messagesData = {
-        ...this.messagesData,
-        list: [...this.messagesData.list, ...result.list.reverse()],
-        page: nextPage,
-        total: result.total,
-        publishedTotal: result.publishedTotal,
-        receivedTotal: result.receivedTotal,
-      }
-    } catch (error) {
-      this.$log.error(`Failed to load more messages: ${error}`)
-      this.$message.error(this.$t('viewer.failedToLoadMoreMessages') as string)
-    } finally {
-      this.loading = false
     }
   }
 
   private get hasMore(): boolean {
-    return this.messagesData.list.length < this.messagesData.total
+    return this.hasMoreMessages
   }
 
-  private formatTime(timeString: string): string {
-    try {
-      return new Date(timeString).toLocaleString()
-    } catch (error) {
-      return timeString
-    }
+  private onMessageTypeChange(type: MessageType) {
+    this.currentMessageType = type
+    this.loadMessages(false, type)
   }
 }
 </script>
