@@ -3,17 +3,8 @@
     <div class="diff-header">
       <div class="header-content">
         <h3>{{ $t('viewer.messageHistory') }}</h3>
-        <el-select v-model="messageType" size="mini" @change="onMessageTypeChange">
-          <el-option label="All" value="all"></el-option>
-          <el-option label="Recieved" value="recieved"></el-option>
-          <el-option label="Published" value="publish"></el-option>
-        </el-select>
       </div>
       <div class="message-info" v-if="currentMessage && previousMessage">
-        <div class="info-item">
-          <span class="label">Topic:</span>
-          <span class="value">{{ currentMessage.topic }}</span>
-        </div>
         <div class="info-item">
           <span class="label">{{ $t('viewer.previous') }}</span>
           <span class="value">{{ formatTime(previousMessage.createAt) }}</span>
@@ -103,18 +94,6 @@ export default class DiffView extends Vue {
   @Getter('currentTheme') private theme!: Theme
 
   private currentIndex = 0
-  private messageType = 'all'
-
-  get filteredMessages(): MessageModel[] {
-    if (this.messageType === 'all') {
-      return this.messages
-    } else if (this.messageType === 'recieved') {
-      return this.messages.filter((message) => !message.out)
-    } else if (this.messageType === 'publish') {
-      return this.messages.filter((message) => message.out)
-    }
-    return []
-  }
 
   get currentMessage(): MessageModel | null {
     return this.messages[this.currentIndex] || null
@@ -189,11 +168,6 @@ export default class DiffView extends Vue {
   private getPayloadSize(payload: string): string {
     return calculateTextSize(payload)
   }
-
-  private onMessageTypeChange(type: MessageType): void {
-    this.messageType = type
-    this.$emit('message-type-change', type)
-  }
 }
 </script>
 
@@ -265,25 +239,26 @@ export default class DiffView extends Vue {
     .navigation-controls {
       display: flex;
       align-items: center;
+      gap: 8px;
       justify-content: center;
-      gap: 12px;
-      padding: 12px 16px;
+      padding: 0 16px;
       background: var(--color-bg-primary);
       border-bottom: 1px solid var(--color-border-default);
+      height: 57px; // Match .message-header height in JSONTreeView.vue
 
       .nav-button {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
         border: 1px solid var(--color-border-default);
         background: var(--color-bg-normal);
         color: var(--color-text-default);
-        border-radius: 6px;
+        border-radius: 4px;
         cursor: pointer;
         transition: all 0.2s ease;
-        font-size: 14px;
+        font-size: 12px;
 
         &:hover:not(:disabled) {
           background: var(--color-bg-item);
@@ -305,7 +280,7 @@ export default class DiffView extends Vue {
         }
 
         i {
-          font-size: 12px;
+          font-size: 10px;
         }
       }
     }

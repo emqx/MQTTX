@@ -1,6 +1,22 @@
 <template>
   <div class="payload-inspector-view">
     <div class="inspector-controls">
+      <div class="view-mode-selector">
+        <button
+          class="view-mode-button"
+          :class="{ active: activeViewMode === 'diff' }"
+          @click="activeViewMode = 'diff'"
+        >
+          Diff View
+        </button>
+        <button
+          class="view-mode-button"
+          :class="{ active: activeViewMode === 'tree' }"
+          @click="activeViewMode = 'tree'"
+        >
+          JSON Tree
+        </button>
+      </div>
       <div class="control-group">
         <ConnectionSelect v-model="selectedConnectionId" size="small" @change="onConnectionChange" />
       </div>
@@ -13,13 +29,25 @@
           @change="onTopicChange"
         />
       </div>
+
+      <div class="message-type-tabs">
+        <MsgTypeTabs v-model="currentMessageType" @change="onMessageTypeChange" />
+      </div>
     </div>
     <div class="diff-view-container">
       <DiffView
+        v-if="activeViewMode === 'diff'"
+        :key="componentKey"
         :messages="messagesData.list"
         :hasMore="hasMore"
         @request-older="loadMessages(true)"
-        @message-type-change="onMessageTypeChange"
+      />
+      <JsonViewer
+        v-else-if="activeViewMode === 'tree'"
+        :key="componentKey"
+        :messages="messagesData.list"
+        :hasMore="hasMore"
+        @request-older="loadMessages(true)"
       />
     </div>
   </div>
@@ -32,12 +60,16 @@ import ConnectionSelect from '@/components/ConnectionSelect.vue'
 import TopicSelect from '@/components/TopicSelect.vue'
 import useServices from '@/database/useServices'
 import DiffView from '@/widgets/DiffView.vue'
+import JsonViewer from '@/widgets/JSONViewer.vue'
+import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 
 @Component({
   components: {
     ConnectionSelect,
     TopicSelect,
     DiffView,
+    JsonViewer,
+    MsgTypeTabs,
   },
 })
 export default class PayloadInspector extends Vue {
@@ -56,15 +88,31 @@ export default class PayloadInspector extends Vue {
   }
 
   private currentMessageType: MessageType = 'all'
+  private activeViewMode: 'diff' | 'tree' = 'diff'
+
+  get componentKey(): string {
+    return `${this.selectedConnectionId}-${this.selectedTopic}-${this.currentMessageType}-${this.activeViewMode}`
+  }
 
   private async onConnectionChange(connectionId: string) {
     this.selectedConnectionId = connectionId
-    this.selectedTopic = ''
+    this.selectedTopic = this.getRecentTopic()
     this.resetMessagesData()
+  }
+
+  private getRecentTopic(): string {
+    if (!this.selectedConnectionId) return ''
+    const key = `recent_topic_${this.selectedConnectionId}`
+    const topic = localStorage.getItem(key)
+    return topic || ''
   }
 
   private onTopicChange(topic: string) {
     this.selectedTopic = topic
+    if (this.selectedConnectionId && topic) {
+      const key = `recent_topic_${this.selectedConnectionId}`
+      localStorage.setItem(key, topic)
+    }
     if (topic) {
       this.loadMessages()
     } else {
@@ -100,24 +148,20 @@ export default class PayloadInspector extends Vue {
         preserveOrder: true,
       })
 
-      this.messagesData = append
-        ? {
-            ...this.messagesData,
-            list: [...this.messagesData.list, ...result.list],
-            page: page,
-          }
-        : {
-            ...result,
-            list: result.list,
-            page: page,
-            total: result.total,
-            publishedTotal: result.publishedTotal,
-            receivedTotal: result.receivedTotal,
-          }
-      if (result.list.length < this.messagesData.limit) {
-        this.hasMoreMessages = false
-        return
+      if (append) {
+        this.messagesData.list = [...this.messagesData.list, ...result.list]
+        this.messagesData.page = page
+      } else {
+        this.messagesData = {
+          ...result,
+          list: result.list,
+          page: page,
+          total: result.total,
+          publishedTotal: result.publishedTotal,
+          receivedTotal: result.receivedTotal,
+        }
       }
+      this.hasMoreMessages = result.list.length >= this.messagesData.limit
     } catch (error) {
       this.$log.error(`Failed to load messages: ${error}`)
       this.$message.error(this.$t('viewer.failedToLoadMessages') as string)
@@ -141,6 +185,33 @@ export default class PayloadInspector extends Vue {
     display: flex;
     gap: 20px;
 
+    .view-mode-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 5px;
+      min-width: 180px;
+      .view-mode-button {
+        position: relative;
+        z-index: 1;
+        padding: 8px 16px;
+        border: none;
+        background: transparent;
+        border-radius: 4px;
+        font-weight: 500;
+        color: var(--color-text-default);
+        cursor: pointer;
+        &.active {
+          background: #34c38810;
+          color: var(--color-main-green);
+        }
+      }
+    }
+
+    .message-type-tabs {
+      display: flex;
+      align-items: center;
+    }
+
     .control-group {
       label {
         display: block;
@@ -150,13 +221,11 @@ export default class PayloadInspector extends Vue {
       }
     }
   }
-
   .diff-view-container {
-    margin-top: 30px;
-    height: 400px;
+    height: calc(100vh - 174px);
+    margin-top: 12px;
     border: 1px solid var(--color-border-default);
     border-radius: 6px;
-    overflow: hidden;
   }
 }
 </style>
