@@ -20,7 +20,8 @@
         <span class="qos">QoS: {{ qos }}</span>
       </p>
       <MqttProperties class="meta" :properties="properties" direction="right" />
-      <pre v-html="highlightedPayload"></pre>
+      <pre v-if="!searchParams.payload">{{ highlightedPayload }}</pre>
+      <pre v-else v-html="highlightedPayload"></pre>
     </div>
     <p class="right-time time">{{ createAt }}</p>
   </div>
