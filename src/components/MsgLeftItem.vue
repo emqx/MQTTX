@@ -51,7 +51,8 @@
         </div>
       </template>
       <template v-else>
-        <pre v-if="!hightlight" v-html="highlightedPayload"></pre>
+        <pre v-if="!highlight && !searchParams.payload">{{ highlightedPayload }}</pre>
+        <pre v-else-if="!highlight" v-html="highlightedPayload"></pre>
         <pre v-else ref="highlightedCode"><code class="language-js">{{ payload }}</code></pre>
       </template>
     </div>
@@ -93,7 +94,7 @@ export default class MsgLeftItem extends Vue {
   @Getter('jsonHighlight') private jsonHighlight!: boolean
   @Getter('currentTheme') private theme!: Theme
 
-  public hightlight: boolean = false
+  public highlight: boolean = false
 
   private showFullMsg: boolean = false
 
@@ -166,7 +167,7 @@ export default class MsgLeftItem extends Vue {
   }
 
   private applyHighlighting() {
-    if (this.hightlight && this.searchParams.payload) {
+    if (this.highlight && this.searchParams.payload) {
       const codeElement = this.$refs.highlightedCode as HTMLElement
       if (codeElement) {
         this.clearHighlights(codeElement)
@@ -186,20 +187,20 @@ export default class MsgLeftItem extends Vue {
     })
   }
 
-  private hightlightJSON() {
+  private highlightJSON() {
     if (this.jsonHighlight === false) {
       return
     }
     try {
       if (this.payload && ['JSON', 'CBOR', 'MsgPack'].includes(this.msgType) && !this.msgError) {
-        this.hightlight = true
+        this.highlight = true
         this.$nextTick(() => {
           Prism.highlightAllUnder(this.$refs.msgLeftItem as HTMLElement)
           this.applyHighlighting()
         })
       }
     } catch (e) {
-      this.hightlight = false
+      this.highlight = false
     }
   }
 
@@ -208,7 +209,7 @@ export default class MsgLeftItem extends Vue {
   }
 
   private mounted() {
-    this.hightlightJSON()
+    this.highlightJSON()
   }
 }
 </script>

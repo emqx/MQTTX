@@ -7,14 +7,20 @@
  */
 export function highlightSearchTerm(text: string, searchTerm: string, className: string = 'search-highlight'): string {
   if (!searchTerm || !text) {
-    return escapeHtml(text)
+    return text
   }
 
-  const escapedText = escapeHtml(text)
   const escapedSearchTerm = escapeRegExp(searchTerm)
   const regex = new RegExp(`(${escapedSearchTerm})`, 'gi')
-
-  return escapedText.replace(regex, `<span class="${className}">$1</span>`)
+  const parts = text.split(regex)
+  const processedParts = parts.map((part, index) => {
+    if (index % 2 === 1) {
+      return `<span class="${className}">${escapeHtml(part)}</span>`
+    } else {
+      return escapeHtml(part)
+    }
+  })
+  return processedParts.join('')
 }
 
 /**
