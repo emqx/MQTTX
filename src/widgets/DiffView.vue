@@ -30,30 +30,36 @@
 
     <div class="diff-content-wrapper" v-if="messages.length >= 2">
       <div class="navigation-controls">
-        <button
-          class="nav-button nav-button--prev"
-          :disabled="!canGoToPrevious && !hasMore"
-          @click="goToPrevious"
-          :title="$t('viewer.olderMessage')"
+        <el-tooltip
+          :effect="theme !== 'light' ? 'light' : 'dark'"
+          placement="bottom"
+          :open-delay="300"
+          :content="$t('viewer.olderMessage')"
         >
-          <i class="el-icon-arrow-left"></i>
-        </button>
-        <button
-          class="nav-button nav-button--next"
-          :disabled="!canGoToNext"
-          @click="goToNext"
-          :title="$t('viewer.newerMessage')"
+          <button class="nav-button nav-button--prev" :disabled="!canGoToPrevious && !hasMore" @click="goToPrevious">
+            <i class="el-icon-arrow-left"></i>
+          </button>
+        </el-tooltip>
+        <el-tooltip
+          :effect="theme !== 'light' ? 'light' : 'dark'"
+          placement="bottom"
+          :open-delay="300"
+          :content="$t('viewer.newerMessage')"
         >
-          <i class="el-icon-arrow-right"></i>
-        </button>
-        <button
-          class="nav-button nav-button--latest"
-          :disabled="currentIndex === 0"
-          @click="goToLatest"
-          :title="$t('viewer.goToLatestMessage')"
+          <button class="nav-button nav-button--next" :disabled="!canGoToNext" @click="goToNext">
+            <i class="el-icon-arrow-right"></i>
+          </button>
+        </el-tooltip>
+        <el-tooltip
+          :effect="theme !== 'light' ? 'light' : 'dark'"
+          placement="bottom"
+          :open-delay="300"
+          :content="$t('viewer.goToLatestMessage')"
         >
-          <i class="el-icon-top"></i>
-        </button>
+          <button class="nav-button nav-button--latest" :disabled="currentIndex === 0" @click="goToLatest">
+            <i class="el-icon-top"></i>
+          </button>
+        </el-tooltip>
       </div>
 
       <div class="diff-content">
@@ -167,6 +173,28 @@ export default class DiffView extends Vue {
 
   private getPayloadSize(payload: string): string {
     return calculateTextSize(payload)
+  }
+
+  private handleKeydown = (e: KeyboardEvent) => {
+    const active = document.activeElement as HTMLElement | null
+    const isEditable =
+      !!active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)
+    if (isEditable) return
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      this.goToPrevious()
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      this.goToNext()
+    }
+  }
+
+  mounted() {
+    window.addEventListener('keydown', this.handleKeydown)
+  }
+
+  beforeDestroy() {
+    window.removeEventListener('keydown', this.handleKeydown)
   }
 }
 </script>
