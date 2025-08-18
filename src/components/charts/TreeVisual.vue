@@ -128,20 +128,31 @@ export default class TreeVisual extends Vue {
   }
 
   private addJsonFeatures(baseOption: any, baseSeries: any) {
-    const rich = {
-      key: { color: '#2563eb', fontWeight: 'bold' },
-      string: { color: '#7c3aed' },
-      number: { color: '#065f46' },
-      boolean: { color: '#0d9488' },
-      null: { color: '#6b7280' },
-      meta: { color: '#1f2937' },
-    }
+    const isLightTheme = this.theme === 'light'
+
+    const rich = isLightTheme
+      ? {
+          key: { color: '#2563eb', fontWeight: 'bold' },
+          string: { color: '#7c3aed' },
+          number: { color: '#065f46' },
+          boolean: { color: '#0d9488' },
+          null: { color: '#6b7280' },
+          meta: { color: '#1f2937' },
+        }
+      : {
+          key: { color: '#93c5fd', fontWeight: 'bold' },
+          string: { color: '#c4b5fd' },
+          number: { color: '#86efac' },
+          boolean: { color: '#5eead4' },
+          null: { color: '#9ca3af' },
+          meta: { color: '#e5e7eb' },
+        }
 
     const jsonLabelStyle = {
       distance: 8,
       fontFamily: 'monospace',
-      backgroundColor: '#ffffff',
-      borderColor: '#cbd5e1',
+      backgroundColor: isLightTheme ? '#ffffff' : '#111827',
+      borderColor: isLightTheme ? '#cbd5e1' : '#475569',
       borderWidth: 1,
       borderRadius: 8,
       padding: [6, 8],
@@ -175,7 +186,7 @@ export default class TreeVisual extends Vue {
           orient: 'LR',
           roam: true,
           scaleLimit: { min: 0.1, max: 3 },
-          lineStyle: { width: 1.5, color: '#94a3b8' },
+          lineStyle: { width: 1.5, color: isLightTheme ? '#94a3b8' : '#64748b' },
           edgeShape: 'curve',
           edgeForkPosition: '60%',
           label: {

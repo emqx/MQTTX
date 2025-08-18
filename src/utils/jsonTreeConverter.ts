@@ -26,7 +26,7 @@ export class JsonTreeConverter {
   }
 
   private static valBadge(v: any): string {
-    const t = this.valueType(v)
+    const t = JsonTreeConverter.valueType(v)
     if (t === 'string') return `{string|"${v}"}`
     if (t === 'number') return `{number|${String(v)}}`
     if (t === 'boolean') return `{boolean|${String(v)}}`
@@ -60,7 +60,7 @@ export class JsonTreeConverter {
 
   static convertJsonToTreeData(value: any, key: string = 'root', path: string = ''): JsonTreeNode {
     const id = path || key
-    const t = this.valueType(value)
+    const t = JsonTreeConverter.valueType(value)
 
     const node: JsonTreeNode = {
       id,
@@ -69,31 +69,32 @@ export class JsonTreeConverter {
       raw: value,
       name: '',
       itemStyle: {
-        color: this.colorForType(t),
+        color: JsonTreeConverter.colorForType(t),
         borderColor: '#cbd5e1',
         borderWidth: 1,
         borderRadius: 8,
       },
-      label: { color: '#1f2937', fontSize: 12 },
+      label: {},
     }
 
     if (t === 'object') {
       const c = Object.keys(value).length
-      node.name = `${this.keyBadge(key)} ${this.typeBadge('{' + c + '}')}`
+      node.name = `${JsonTreeConverter.keyBadge(key)} ${JsonTreeConverter.typeBadge('{' + c + '}')}`
     } else if (t === 'array') {
-      node.name = `${this.keyBadge(key)} ${this.typeBadge('[' + value.length + ']')}`
+      node.name = `${JsonTreeConverter.keyBadge(key)} ${JsonTreeConverter.typeBadge('[' + value.length + ']')}`
     } else {
-      node.name = `${this.keyBadge(key)}: ${this.valBadge(value)}`
+      node.name = `${JsonTreeConverter.keyBadge(key)}: ${JsonTreeConverter.valBadge(value)}`
     }
 
     if (t === 'object') {
       const entries = Object.entries(value)
       const primitiveObject: any = {}
       const nonPrimitiveChildren: JsonTreeNode[] = []
+      const basePath = path || key
       entries.forEach(([k, v]) => {
-        const vt = this.valueType(v)
+        const vt = JsonTreeConverter.valueType(v)
         if (vt === 'object' || vt === 'array') {
-          nonPrimitiveChildren.push(this.convertJsonToTreeData(v, k, `${path}.${k}`))
+          nonPrimitiveChildren.push(JsonTreeConverter.convertJsonToTreeData(v, k, `${basePath}.${k}`))
         } else {
           primitiveObject[k] = v
         }
@@ -106,9 +107,16 @@ export class JsonTreeConverter {
           key: '(primitives)',
           vtype: 'group',
           raw: primitiveObject,
-          name: primitiveKeys.map((k) => `${this.keyBadge(k)}: ${this.valBadge(primitiveObject[k])}`).join('\n'),
-          itemStyle: { color: this.colorForType('group'), borderColor: '#cbd5e1', borderWidth: 1, borderRadius: 8 },
-          label: { color: '#1f2937', fontSize: 12 },
+          name: primitiveKeys
+            .map((k) => `${JsonTreeConverter.keyBadge(k)}: ${JsonTreeConverter.valBadge(primitiveObject[k])}`)
+            .join('\n'),
+          itemStyle: {
+            color: JsonTreeConverter.colorForType('group'),
+            borderColor: '#cbd5e1',
+            borderWidth: 1,
+            borderRadius: 8,
+          },
+          label: {},
         })
       }
       children.push(...nonPrimitiveChildren)
@@ -116,10 +124,11 @@ export class JsonTreeConverter {
     } else if (t === 'array') {
       const primitiveArray: any[] = []
       const complexChildren: JsonTreeNode[] = []
+      const basePath = path || key
       value.forEach((v: any, i: number) => {
-        const vt = this.valueType(v)
+        const vt = JsonTreeConverter.valueType(v)
         if (vt === 'object' || vt === 'array') {
-          complexChildren.push(this.convertJsonToTreeData(v, String(i), `${path}.${i}`))
+          complexChildren.push(JsonTreeConverter.convertJsonToTreeData(v, String(i), `${basePath}.${i}`))
         } else {
           primitiveArray.push({ index: i, value: v })
         }
@@ -131,9 +140,16 @@ export class JsonTreeConverter {
           key: '(primitives)',
           vtype: 'group',
           raw: primitiveArray.map((p) => p.value),
-          name: primitiveArray.map((p) => `${this.keyBadge(String(p.index))}: ${this.valBadge(p.value)}`).join('\n'),
-          itemStyle: { color: this.colorForType('group'), borderColor: '#cbd5e1', borderWidth: 1, borderRadius: 8 },
-          label: { color: '#1f2937', fontSize: 12 },
+          name: primitiveArray
+            .map((p) => `${JsonTreeConverter.keyBadge(String(p.index))}: ${JsonTreeConverter.valBadge(p.value)}`)
+            .join('\n'),
+          itemStyle: {
+            color: JsonTreeConverter.colorForType('group'),
+            borderColor: '#cbd5e1',
+            borderWidth: 1,
+            borderRadius: 8,
+          },
+          label: {},
         })
       }
       children.push(...complexChildren)
