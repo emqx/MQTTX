@@ -9,6 +9,7 @@ import * as echarts from 'echarts/core'
 import { TooltipComponent, LegendComponent, DataZoomComponent } from 'echarts/components'
 import { TreeChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
+import { stringifySubtree } from '@/utils/jsonUtils'
 
 echarts.use([TooltipComponent, LegendComponent, DataZoomComponent, TreeChart, CanvasRenderer])
 
@@ -205,6 +206,10 @@ export default class TreeVisual extends Vue {
           },
           emphasis: {
             focus: 'descendant',
+            itemStyle: {
+              color: '#34c388',
+              borderColor: '#34c388',
+            },
           },
           right: '250px',
         },
@@ -215,8 +220,27 @@ export default class TreeVisual extends Vue {
   private initChart() {
     const chartDom = document.getElementById(this.id)
     if (!chartDom) return
-
     this.chart = echarts.init(chartDom, this.theme !== 'light' ? 'dark' : 'light')
+
+    // Only register context menu for JSON mode
+    if (this.isJsonMode) {
+      this.chart.on('contextmenu', (params: any) => {
+        try {
+          params?.event?.event?.preventDefault?.()
+        } catch (_) {}
+        const nodeData = params && params.data ? params.data : null
+        if (!nodeData) return
+        const text = stringifySubtree(nodeData, 2)
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            this.$message({ message: this.$t('common.copySuccess').toString(), type: 'success', duration: 1200 })
+          })
+          .catch(() => {
+            this.$message({ message: this.$t('common.copyFailed').toString(), type: 'warning' })
+          })
+      })
+    }
     this.updateChart()
   }
 

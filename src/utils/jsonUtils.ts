@@ -27,3 +27,32 @@ export const jsonStringify: typeof JSON.stringify = (...args: any[]) => {
     return JSONBigNumber.stringify(...args)
   }
 }
+
+/**
+ * Interface representing a node-like object for ECharts JSON tree.
+ * The node may contain a 'raw' property holding the original data,
+ * along with any other arbitrary properties.
+ */
+export interface EChartsJsonTreeNodeLike {
+  raw?: any
+  [key: string]: any
+}
+
+/**
+ * Stringifies the subtree of a given node-like object.
+ * If the object has a 'raw' property, it will be stringified;
+ * otherwise, the object itself is stringified.
+ *
+ * @param nodeLike - The node-like object to stringify.
+ * @param space - Number of spaces to use for indentation (default: 2).
+ * @returns The JSON string representation of the subtree.
+ */
+export function stringifySubtree(nodeLike: EChartsJsonTreeNodeLike, space: number = 2): string {
+  // Use the 'raw' property if it exists, otherwise use the node itself
+  const raw = nodeLike && Object.prototype.hasOwnProperty.call(nodeLike, 'raw') ? nodeLike.raw : nodeLike
+  try {
+    return jsonStringify(raw, null, space)
+  } catch (_err) {
+    return JSON.stringify(raw, null, space)
+  }
+}

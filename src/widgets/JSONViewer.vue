@@ -31,49 +31,65 @@
             <div class="header-left">
               <el-input
                 v-model="searchQuery"
-                placeholder="Search in JSON..."
+                :placeholder="$t('viewer.searchInJson')"
                 size="small"
                 prefix-icon="el-icon-search"
                 clearable
                 @input="onSearchInput"
                 class="search-input"
               />
-              <el-button
-                type="primary"
-                size="small"
-                icon="el-icon-view"
-                @click="openVisualTreeModal"
-                class="visualize-btn"
-                title="Visualize JSON Tree"
+              <el-tooltip
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                placement="bottom"
+                :open-delay="500"
+                :content="$t('viewer.visualizeJsonTree')"
               >
-                {{ $t('viewer.visualize') }}
-              </el-button>
+                <el-button
+                  type="primary"
+                  size="small"
+                  icon="el-icon-view"
+                  @click="openVisualTreeModal"
+                  class="visualize-btn"
+                >
+                  {{ $t('viewer.visualize') }}
+                </el-button>
+              </el-tooltip>
             </div>
             <div class="navigation-controls">
-              <button
-                class="nav-button nav-button--prev"
-                :disabled="!canGoToPrevious && !hasMore"
-                @click="goToPrevious"
-                title="Older Message"
+              <el-tooltip
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                placement="bottom"
+                :open-delay="300"
+                :content="$t('viewer.olderMessage')"
               >
-                <i class="el-icon-arrow-left"></i>
-              </button>
-              <button
-                class="nav-button nav-button--next"
-                :disabled="!canGoToNext"
-                @click="goToNext"
-                title="Newer Message"
+                <button
+                  class="nav-button nav-button--prev"
+                  :disabled="!canGoToPrevious && !hasMore"
+                  @click="goToPrevious"
+                >
+                  <i class="el-icon-arrow-left"></i>
+                </button>
+              </el-tooltip>
+              <el-tooltip
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                placement="bottom"
+                :open-delay="300"
+                :content="$t('viewer.newerMessage')"
               >
-                <i class="el-icon-arrow-right"></i>
-              </button>
-              <button
-                class="nav-button nav-button--latest"
-                :disabled="currentIndex === 0"
-                @click="goToLatest"
-                title="Go to Latest Message"
+                <button class="nav-button nav-button--next" :disabled="!canGoToNext" @click="goToNext">
+                  <i class="el-icon-arrow-right"></i>
+                </button>
+              </el-tooltip>
+              <el-tooltip
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                placement="bottom"
+                :open-delay="300"
+                :content="$t('viewer.goToLatestMessage')"
               >
-                <i class="el-icon-top"></i>
-              </button>
+                <button class="nav-button nav-button--latest" :disabled="currentIndex === 0" @click="goToLatest">
+                  <i class="el-icon-top"></i>
+                </button>
+              </el-tooltip>
             </div>
             <div class="header-right">
               <el-tooltip
@@ -109,7 +125,7 @@
       top="30px"
       :fullscreen="true"
       :visible.sync="showVisualTreeModal"
-      :title="$t('viewer.visualizeTree')"
+      :title="$t('viewer.visualizeJsonTree')"
       width="96%"
       class="visualize-tree-dialog"
       :btn-disabled="true"
@@ -355,6 +371,28 @@ export default class JsonViewer extends Vue {
     this.defaultExpandLevel = value
     localStorage.setItem('json-tree-expand-level', value.toString())
   }
+
+  private handleKeydown = (e: KeyboardEvent) => {
+    const active = document.activeElement as HTMLElement | null
+    const isEditable =
+      !!active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)
+    if (isEditable) return
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault()
+      this.goToPrevious()
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault()
+      this.goToNext()
+    }
+  }
+
+  mounted() {
+    window.addEventListener('keydown', this.handleKeydown)
+  }
+
+  beforeDestroy() {
+    window.removeEventListener('keydown', this.handleKeydown)
+  }
 }
 </script>
 
@@ -452,8 +490,8 @@ export default class JsonViewer extends Vue {
         margin-right: 16px;
         i {
           font-size: 20px;
-          color: var(--color-text-title);
-          font-weight: 400;
+          color: var(--color-text-default);
+          font-weight: 200;
         }
         &.copied {
           i {

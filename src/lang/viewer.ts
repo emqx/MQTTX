@@ -34,6 +34,13 @@ export default {
     ja: 'JSON ツリー',
     hu: 'JSON fa',
   },
+  searchInJson: {
+    zh: '在 JSON 中搜索',
+    en: 'Search in JSON',
+    tr: 'JSON da arama',
+    ja: 'JSON で検索',
+    hu: 'JSON-ban keresés',
+  },
   invalidJsonFormat: {
     zh: '无效的 JSON 格式',
     en: 'Invalid JSON format',
@@ -131,11 +138,11 @@ export default {
     hu: 'Válasszon egy gyökércsomópontot és állítsa be a kibontási szintet a témafa vizualizálásához. Kattintson a csomópontokra az altémák kibontásához vagy összecsukásához.',
   },
   visualizeJsonTreeTooltip: {
-    zh: '设置展开层级以可视化 JSON 树。点击节点可展开或折叠子树。',
-    en: 'Set the expand level to visualize the JSON tree. Click on nodes to expand or collapse subtree.',
-    tr: 'JSON ağacını görselleştirmek için genişletme seviyesini ayarlayın. Alt ağaçları genişletmek veya daraltmak için düğümlere tıklayın.',
-    ja: '展開レベルを設定して JSON ツリーを視覚化します。ノードをクリックしてサブツリーを展開または折りたたみます。',
-    hu: 'Állítsa be a kibontási szintet a JSON fa vizualizálásához. Kattintson a csomópontokra az alfa kibontásához vagy összecsukásához.',
+    zh: '设置展开层级以可视化 JSON 树。点击节点可展开或折叠子树。右键点击可复制子树为 JSON。',
+    en: 'Set the expand level to visualize the JSON tree. Click on nodes to expand or collapse subtree. Right click to copy subtree as JSON.',
+    tr: 'JSON ağacını görselleştirmek için genişletme seviyesini ayarlayın. Alt ağaçları genişletmek veya daraltmak için düğümlere tıklayın. Alt ağacı JSON olarak kopyalamak için sağ tıklayın.',
+    ja: '展開レベルを設定して JSON ツリーを視覚化します。ノードをクリックしてサブツリーを展開または折りたたみます。右クリックでサブツリーをJSONとしてコピーします。',
+    hu: 'Állítsa be a kibontási szintet a JSON fa vizualizálásához. Kattintson a csomópontokra az alfa kibontásához vagy összecsukásához. Jobb kattintással másolja az alfát JSON-ként.',
   },
   trafficMonitor: {
     zh: '流量监控',
