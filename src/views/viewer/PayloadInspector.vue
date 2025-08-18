@@ -7,14 +7,14 @@
           :class="{ active: activeViewMode === 'diff' }"
           @click="activeViewMode = 'diff'"
         >
-          Diff View
+          {{ $t('viewer.diffView') }}
         </button>
         <button
           class="view-mode-button"
           :class="{ active: activeViewMode === 'tree' }"
           @click="activeViewMode = 'tree'"
         >
-          JSON Tree
+          {{ $t('viewer.jsonTree') }}
         </button>
       </div>
       <div class="control-group">
