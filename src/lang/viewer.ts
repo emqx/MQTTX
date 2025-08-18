@@ -20,6 +20,20 @@ export default {
     ja: 'ペイロードインスペクター',
     hu: 'Üzenetgövde figyelő',
   },
+  diffView: {
+    zh: '差异视图',
+    en: 'Diff View',
+    tr: 'Fark Görünümü',
+    ja: '差分ビュー',
+    hu: 'Különbség nézet',
+  },
+  jsonTree: {
+    zh: 'JSON 树',
+    en: 'JSON Tree',
+    tr: 'JSON Ağacı',
+    ja: 'JSON ツリー',
+    hu: 'JSON fa',
+  },
   invalidJsonFormat: {
     zh: '无效的 JSON 格式',
     en: 'Invalid JSON format',
@@ -95,12 +109,33 @@ export default {
     ja: 'トピックツリーを視覚化',
     hu: 'Témafa vizualizálása',
   },
+  visualizeJsonTree: {
+    zh: '可视化 JSON 树',
+    en: 'Visualize JSON Tree',
+    tr: 'JSON Ağacını Görselleştir',
+    ja: 'JSON ツリーを視覚化',
+    hu: 'JSON fa vizualizálása',
+  },
+  visualize: {
+    zh: '可视化',
+    en: 'Visualize',
+    tr: 'Görselleştir',
+    ja: '視覚化',
+    hu: 'Vizualizálás',
+  },
   visualizeTreeTooltip: {
     zh: '选择根节点并设置展开层级来可视化主题树。点击节点可展开或折叠子主题。',
     en: 'Select a root node and set the expand level to visualize the topic tree. Click on nodes to expand or collapse subtopics.',
     tr: 'Konu ağacını görselleştirmek için bir kök düğüm seçin ve genişletme seviyesini ayarlayın. Alt konuları genişletmek veya daraltmak için düğümlere tıklayın.',
     ja: 'ルートノードを選択し、展開レベルを設定してトピックツリーを視覚化します。ノードをクリックしてサブトピックを展開または折りたたみます。',
     hu: 'Válasszon egy gyökércsomópontot és állítsa be a kibontási szintet a témafa vizualizálásához. Kattintson a csomópontokra az altémák kibontásához vagy összecsukásához.',
+  },
+  visualizeJsonTreeTooltip: {
+    zh: '设置展开层级以可视化 JSON 树。点击节点可展开或折叠子树。',
+    en: 'Set the expand level to visualize the JSON tree. Click on nodes to expand or collapse subtree.',
+    tr: 'JSON ağacını görselleştirmek için genişletme seviyesini ayarlayın. Alt ağaçları genişletmek veya daraltmak için düğümlere tıklayın.',
+    ja: '展開レベルを設定して JSON ツリーを視覚化します。ノードをクリックしてサブツリーを展開または折りたたみます。',
+    hu: 'Állítsa be a kibontási szintet a JSON fa vizualizálásához. Kattintson a csomópontokra az alfa kibontásához vagy összecsukásához.',
   },
   trafficMonitor: {
     zh: '流量监控',
@@ -199,6 +234,13 @@ export default {
     tr: 'Mesaj Geçmişi',
     ja: 'メッセージ履歴',
     hu: 'Üzenet történet',
+  },
+  messageJsonViewer: {
+    zh: '消息 JSON 查看器',
+    en: 'Message JSON Viewer',
+    tr: 'Mesaj JSON Görüntüleyici',
+    ja: 'メッセージ JSON ビューア',
+    hu: 'Üzenet JSON Megjelenítő',
   },
   previous: {
     zh: '上一个:',

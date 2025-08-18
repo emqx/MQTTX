@@ -2,7 +2,7 @@
   <div class="json-tree-view">
     <div class="json-header">
       <div class="header-content">
-        <h3>Message JSON Viewer</h3>
+        <h3>{{ $t('viewer.messageJsonViewer') }}</h3>
       </div>
       <div class="message-info" v-if="currentMessage">
         <div class="info-item">
@@ -38,6 +38,16 @@
                 @input="onSearchInput"
                 class="search-input"
               />
+              <el-button
+                type="primary"
+                size="small"
+                icon="el-icon-view"
+                @click="openVisualTreeModal"
+                class="visualize-btn"
+                title="Visualize JSON Tree"
+              >
+                {{ $t('viewer.visualize') }}
+              </el-button>
             </div>
             <div class="navigation-controls">
               <button
@@ -70,7 +80,7 @@
                 placement="bottom"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
                 :open-delay="500"
-                :content="copiedJson ? 'Copied!' : 'Copy JSON'"
+                :content="copiedJson ? $t('common.copySuccess') : $t('common.copy')"
               >
                 <a
                   href="javascript:;"
@@ -92,8 +102,49 @@
     </div>
 
     <div v-else class="no-messages">
-      <p>No messages available.</p>
+      <p>{{ $t('common.noData') }}</p>
     </div>
+
+    <my-dialog
+      top="30px"
+      :fullscreen="true"
+      :visible.sync="showVisualTreeModal"
+      :title="$t('viewer.visualizeTree')"
+      width="96%"
+      class="visualize-tree-dialog"
+      :btn-disabled="true"
+      @close="handleVisualizeTreeDialogClose"
+      @open="handleVisualizeTreeDialogOpen"
+    >
+      <el-input-number
+        controls-position="right"
+        class="my-3 ml-3"
+        v-model="defaultExpandLevel"
+        :min="0"
+        size="small"
+        @change="handleExpandLevelChange"
+      ></el-input-number>
+      <span class="visualize-tree-about">
+        <el-tooltip
+          :content="$t('viewer.visualizeJsonTreeTooltip')"
+          placement="top"
+          :effect="theme !== 'light' ? 'light' : 'dark'"
+        >
+          <i class="iconfont icon-about"></i>
+        </el-tooltip>
+      </span>
+      <tree-visual
+        v-if="treeData"
+        id="json-tree-view"
+        :data="treeData"
+        :defaultExpandLevel="defaultExpandLevel"
+        :is-json-mode="true"
+        :enable-zoom="true"
+        :enable-toolbox="true"
+        style="height: calc(100vh - 230px)"
+        :tooltip-formatter="customTooltipFormatter"
+      />
+    </my-dialog>
   </div>
 </template>
 
@@ -101,12 +152,17 @@
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import TreeView from 'vue-json-tree-view/src/TreeView.vue'
+import TreeVisual from '@/components/charts/TreeVisual.vue'
+import MyDialog from '@/components/MyDialog.vue'
+import { JsonTreeConverter } from '@/utils/jsonTreeConverter'
 import { calculateTextSize } from '@/utils/data'
 import { highlightInPrismCode } from '@/utils/highlightSearch'
 
 @Component({
   components: {
     TreeView,
+    TreeVisual,
+    MyDialog,
   },
 })
 export default class JsonViewer extends Vue {
@@ -123,6 +179,8 @@ export default class JsonViewer extends Vue {
   private currentIndex = 0
   private copiedJson = false
   private searchTimeout: any = null
+  private showVisualTreeModal = false
+  private defaultExpandLevel = 1
 
   get currentTheme(): string {
     return this.theme || 'light'
@@ -150,6 +208,27 @@ export default class JsonViewer extends Vue {
     return this.currentIndex > 0
   }
 
+  get treeData() {
+    try {
+      const parsed = this.parseJson(this.currentMessage.payload)
+      return JsonTreeConverter.convertJsonToTreeData(parsed)
+    } catch {
+      return null
+    }
+  }
+
+  customTooltipFormatter = (params: any) => {
+    const data = params.data
+
+    const lines: string[] = []
+    lines.push(`<div style="font-weight: bold; color: #2563eb; margin-bottom: 4px;">${data.id}</div>`)
+    lines.push(`<div style="color: #6b7280; font-size: 11px;">Type: ${data.vtype}</div>`)
+    const childCount = data.children ? data.children.length : 0
+    lines.push(`<div style="color: #059669; margin-top: 2px;">Children: ${childCount}</div>`)
+
+    return `<div style="max-width: 320px; line-height: 1.4;">${lines.join('')}</div>`
+  }
+
   @Watch('currentIndex')
   private onCurrentIndexChange(): void {
     this.$nextTick(() => {
@@ -157,6 +236,20 @@ export default class JsonViewer extends Vue {
         this.applySearchHighlight()
       }
     })
+  }
+
+  openVisualTreeModal(): void {
+    this.showVisualTreeModal = true
+  }
+
+  handleVisualizeTreeDialogClose(): void {
+    this.showVisualTreeModal = false
+  }
+
+  handleVisualizeTreeDialogOpen(): void {
+    // Load saved expand level from localStorage
+    const expandLevel = localStorage.getItem('json-tree-expand-level')
+    this.defaultExpandLevel = expandLevel ? parseInt(expandLevel) : 1
   }
 
   goToPrevious(): void {
@@ -222,7 +315,7 @@ export default class JsonViewer extends Vue {
 
     const highlighted = container.querySelectorAll('span.search-highlight')
     highlighted.forEach((el) => {
-      const parent = el.parentNode
+      const parent = el.parentNode as Node
       if (parent) {
         const text = el.textContent || ''
         const textNode = document.createTextNode(text)
@@ -256,6 +349,11 @@ export default class JsonViewer extends Vue {
         inline: 'nearest',
       })
     }
+  }
+
+  private handleExpandLevelChange(value: number): void {
+    this.defaultExpandLevel = value
+    localStorage.setItem('json-tree-expand-level', value.toString())
   }
 }
 </script>
@@ -336,6 +434,16 @@ export default class JsonViewer extends Vue {
     position: relative;
     .header-left {
       justify-self: start;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      .search-input {
+        width: 300px;
+        max-width: 100%;
+      }
+      .visualize-btn {
+        white-space: nowrap;
+      }
     }
     .header-right {
       justify-self: end;
@@ -353,10 +461,6 @@ export default class JsonViewer extends Vue {
           }
         }
       }
-    }
-    .search-input {
-      width: 300px;
-      max-width: 100%;
     }
     .navigation-controls {
       display: flex;
@@ -422,6 +526,21 @@ export default class JsonViewer extends Vue {
     }
   }
 }
+
+.visualize-tree-dialog {
+  .el-dialog__body {
+    padding: 0px;
+  }
+  .tooltip-topic-value {
+    color: var(--color-text-light);
+  }
+  .visualize-tree-about {
+    color: var(--color-text-default);
+    margin-left: 12px;
+    cursor: pointer;
+  }
+}
+
 ::v-deep {
   @include search-highlight;
 }
