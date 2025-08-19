@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { jsonParse, jsonStringify } from '@/utils/jsonUtils'
+import { jsonParse, jsonStringify, stringifySubtree } from '@/utils/jsonUtils'
 
 describe('jsonUtils', () => {
   describe('jsonParse', () => {
@@ -71,5 +71,42 @@ describe('jsonUtils', () => {
     //   const result = jsonStringify(arr)
     //   expect(result).to.equal('[9007199254740991,123.456,"test",true]')
     // })
+  })
+
+  describe('stringifySubtree', () => {
+    it('should stringify node.raw when present', () => {
+      const node = { raw: { a: 1, b: 'text', c: true } }
+      const result = stringifySubtree(node, 2)
+      expect(result).to.equal('{\n  "a": 1,\n  "b": "text",\n  "c": true\n}')
+    })
+
+    it('should stringify the node itself when raw is absent', () => {
+      const node = { a: 1, b: 'text', c: true }
+      const result = stringifySubtree(node, 2)
+      expect(result).to.equal('{\n  "a": 1,\n  "b": "text",\n  "c": true\n}')
+    })
+
+    it('should handle arrays and preserve order', () => {
+      const node = { raw: [1, 'two', true, null] }
+      const result = stringifySubtree(node, 2)
+      expect(result).to.equal('[\n  1,\n  "two",\n  true,\n  null\n]')
+    })
+
+    it('should handle nested structures', () => {
+      const node = { raw: { x: { y: [1, { z: 'ok' }] } } }
+      const result = stringifySubtree(node, 2)
+      expect(result).to.equal(
+        '{' +
+          '\n  "x": {' +
+          '\n    "y": [' +
+          '\n      1,' +
+          '\n      {' +
+          '\n        "z": "ok"' +
+          '\n      }' +
+          '\n    ]' +
+          '\n  }' +
+          '\n}',
+      )
+    })
   })
 })

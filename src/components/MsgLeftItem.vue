@@ -225,6 +225,7 @@ body.night {
 
 .msg-left-item {
   @include msg-item;
+  @include search-highlight;
   text-align: left;
   position: relative;
   .msg-tag:nth-child(2) {
@@ -267,13 +268,6 @@ body.night {
         color: var(--color-text-default);
       }
     }
-  }
-  .search-highlight {
-    background-color: #ffeb3b !important;
-    color: #000 !important;
-    padding: 1px 2px;
-    border-radius: 2px;
-    font-weight: bold;
   }
 }
 </style>
