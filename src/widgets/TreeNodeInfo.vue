@@ -173,6 +173,14 @@ body.night {
     padding: 6px 12px;
     margin: 6px 0 12px 0;
     border-radius: 8px;
+    word-break: break-all;
+    overflow-wrap: break-word;
+  }
+  .node-info-item.ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: normal;
   }
   .no-payload-alert {
     padding: 6px 12px;

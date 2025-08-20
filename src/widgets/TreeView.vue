@@ -54,10 +54,22 @@
       <template #default="{ node, data }">
         <span class="custom-tree-node">
           <span class="tree-node-info">
-            <span>
-              <span v-if="data.connectionInfo && data.connectionInfo.name">{{ data.connectionInfo.name }}@</span
-              >{{ node.label }}
-            </span>
+            <el-tooltip
+              :content="
+                data.connectionInfo && data.connectionInfo.name
+                  ? `${data.connectionInfo.name}@${node.label}`
+                  : node.label
+              "
+              placement="top"
+              :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+              :disabled="!isTextOverflow(data, node)"
+              :open-delay="500"
+            >
+              <span class="tree-node-label" :ref="`treeLabel_${data.id}`">
+                <span v-if="data.connectionInfo && data.connectionInfo.name">{{ data.connectionInfo.name }}@</span
+                >{{ node.label }}
+              </span>
+            </el-tooltip>
             <el-tag v-if="data.message && !checkPayloadEmpty(data.message.payload)" size="mini" class="value-tag ml-2">
               {{ data.message.payload }}
             </el-tag>
@@ -268,6 +280,14 @@ export default class TreeView extends Vue {
     return isPayloadEmpty(payload)
   }
 
+  private isTextOverflow(data: TopicTreeNode, node: any): boolean {
+    // Check if text is likely to overflow based on content length
+    const fullText =
+      data.connectionInfo && data.connectionInfo.name ? `${data.connectionInfo.name}@${node.label}` : node.label
+    // Rough estimate: if text is longer than 50 characters, it's likely to overflow
+    return fullText.length > 50
+  }
+
   private handleCommand(command: string) {
     switch (command) {
       case 'clearTree':
@@ -399,20 +419,30 @@ export default class TreeView extends Vue {
     min-width: 0;
     .tree-node-meta {
       color: var(--color-text-light);
+      flex-shrink: 0;
+      margin-left: 8px;
     }
     .tree-node-info {
-      width: 100%;
       display: flex;
       align-items: center;
       min-width: 0;
+      flex: 1;
+      overflow: hidden;
+      .tree-node-label {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+        flex: 1;
+      }
       .value-tag {
-        max-width: 75%;
+        max-width: 200px;
         width: auto;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        flex: 0 1 auto;
-        min-width: 0;
+        flex-shrink: 0;
+        margin-left: 8px;
       }
     }
   }
