@@ -26,3 +26,9 @@ vetur.config.js
 
 # Electron-builder output
 /dist_electron
+
+# AI
+CLAUDE.md
+.cursorrules
+.todos
+.cursor/
