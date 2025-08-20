@@ -30,6 +30,7 @@ const plugins = [
         'yaml',
         'erlang',
         'dart',
+        'xml',
       ],
       // plugins: ['line-numbers'],
       // theme: 'funky',
