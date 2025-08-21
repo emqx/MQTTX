@@ -923,14 +923,14 @@ export default {
     hu: 'Témafa szinkronizálása',
   },
   previousPayload: {
-    zh: '上一个消息',
+    zh: '上一条消息',
     en: 'Previous Payload',
     tr: 'Önceki Yük',
     ja: '前のペイロード',
     hu: 'Előző terhelés',
   },
   nextPayload: {
-    zh: '下一个消息',
+    zh: '下一条消息',
     en: 'Next Payload',
     tr: 'Sonraki Yük',
     ja: '次のペイロード',
