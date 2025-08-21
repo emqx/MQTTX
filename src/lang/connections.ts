@@ -922,4 +922,25 @@ export default {
     ja: 'トピックツリーに同期',
     hu: 'Témafa szinkronizálása',
   },
+  previousPayload: {
+    zh: '上一个消息',
+    en: 'Previous Payload',
+    tr: 'Önceki Yük',
+    ja: '前のペイロード',
+    hu: 'Előző terhelés',
+  },
+  nextPayload: {
+    zh: '下一个消息',
+    en: 'Next Payload',
+    tr: 'Sonraki Yük',
+    ja: '次のペイロード',
+    hu: 'Következő terhelés',
+  },
+  payloadHistory: {
+    zh: '消息历史',
+    en: 'Payload History',
+    tr: 'Yük Geçmişi',
+    ja: 'ペイロード履歴',
+    hu: 'Terhelés előzmények',
+  },
 }

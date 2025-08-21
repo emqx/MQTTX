@@ -128,6 +128,47 @@
             </el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
+        <div class="history-button-group">
+          <el-tooltip
+            :content="$t('connections.previousPayload')"
+            placement="top"
+            :open-delay="500"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+          >
+            <el-button
+              :disabled="historyIndex === 0 || historyIndex === -1"
+              size="mini"
+              icon="el-icon-arrow-left"
+              class="history-btn history-btn-left"
+              @click="decrease"
+            ></el-button>
+          </el-tooltip>
+          <el-tooltip
+            :content="$t('connections.payloadHistory')"
+            placement="top"
+            :open-delay="500"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+          >
+            <el-button size="mini" class="history-btn history-btn-center" @click="back">
+              <span v-if="historyIndex === -1 || payloadsHistory.length === 0">0/0</span>
+              <span v-else>{{ historyIndex + 1 }}/{{ payloadsHistory.length }}</span>
+            </el-button>
+          </el-tooltip>
+          <el-tooltip
+            :content="$t('connections.nextPayload')"
+            placement="top"
+            :open-delay="500"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+          >
+            <el-button
+              :disabled="historyIndex === payloadsHistory.length - 1 || historyIndex === -1"
+              size="mini"
+              icon="el-icon-arrow-right"
+              class="history-btn history-btn-right"
+              @click="increase"
+            ></el-button>
+          </el-tooltip>
+        </div>
       </div>
       <div :class="['topic-input-contianer', topicRequired ? 'required' : '']">
         <el-input
@@ -180,31 +221,6 @@
           @enter-event="send"
           @format="formatJsonValue"
         />
-      </div>
-      <div class="publish-right-bar">
-        <div class="history-icon">
-          <el-button
-            :disabled="historyIndex === 0 || historyIndex === -1"
-            circle
-            size="mini"
-            icon="el-icon-back"
-            @click="decrease"
-          ></el-button>
-          <el-button
-            circle
-            :disabled="historyIndex === payloadsHistory.length - 1 || historyIndex === -1"
-            size="mini"
-            icon="el-icon-minus"
-            @click="back"
-          ></el-button>
-          <el-button
-            :disabled="historyIndex === payloadsHistory.length - 1 || historyIndex === -1"
-            circle
-            size="mini"
-            icon="el-icon-right"
-            @click="increase"
-          ></el-button>
-        </div>
       </div>
       <a href="javascript:;" class="send-btn" @click="send">
         <i class="iconfont icon-send"></i>
@@ -673,30 +689,6 @@ export default class MsgPublish extends Vue {
       width: 100%;
       flex: 1 1 auto;
     }
-    .publish-right-bar {
-      width: 85px;
-      position: absolute;
-      right: 0;
-      top: 70px;
-      .history-icon {
-        width: 70px;
-        height: 10px;
-        .el-button + .el-button {
-          margin-left: 5px;
-        }
-        .el-button--mini.is-circle {
-          padding: 3px;
-          background: var(--color-bg-historybtn);
-          border: 1px solid var(--color-bg-historybtn);
-          color: var(--color-text-historybtn);
-        }
-        .el-button.is-disabled,
-        .el-button.is-disabled:hover,
-        .el-button.is-disabled:focus {
-          color: var(--color-text-historybtn_disabled);
-        }
-      }
-    }
     .send-btn {
       position: fixed;
       right: 16px;
@@ -722,6 +714,9 @@ export default class MsgPublish extends Vue {
     padding: 0 13px;
     margin-top: 6px;
     margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     .el-input__inner {
       padding: 4px 10px;
     }
@@ -766,6 +761,50 @@ export default class MsgPublish extends Vue {
     }
     .actions-dropdown {
       display: inline;
+    }
+    .history-button-group {
+      margin-left: auto;
+      display: flex;
+      gap: 3px;
+
+      .history-btn {
+        height: 28px;
+        padding: 0;
+        border: none;
+        border-radius: 4px;
+        margin: 0;
+        background-color: transparent;
+        min-width: unset;
+
+        &.history-btn-left {
+          width: 18px;
+          font-size: 13px;
+        }
+
+        &.history-btn-center {
+          width: 24px;
+          font-size: 13px;
+          color: var(--color-text-default);
+
+          &:hover {
+            background-color: var(--color-bg-hover);
+          }
+        }
+
+        &.history-btn-right {
+          width: 18px;
+          font-size: 13px;
+        }
+
+        &:hover:not(.is-disabled) {
+          background-color: var(--color-bg-hover);
+        }
+
+        &.is-disabled {
+          background-color: transparent;
+          color: var(--color-text-historybtn_disabled);
+        }
+      }
     }
   }
   .disabled-mask {
