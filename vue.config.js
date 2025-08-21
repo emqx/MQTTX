@@ -141,7 +141,7 @@ module.exports = {
           ],
         },
         linux: {
-          icon: './public/icons/app.png',
+          icon: './public/icons/512x512.png',
           target: [
             { target: 'AppImage', arch: ['x64', 'arm64'] },
             { target: 'deb', arch: ['x64', 'arm64'] },
