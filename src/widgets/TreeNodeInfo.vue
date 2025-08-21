@@ -104,11 +104,9 @@ export default class TreeNodeInfo extends Vue {
       const message = this.node.message?.payload || ''
       const messageStr = message.toString()
 
-      // Check if it's JSON first (keep original logic)
       JSON.parse(messageStr)
       return 'json'
     } catch (e) {
-      // Check if it's XML
       const message = this.node.message?.payload || ''
       const messageStr = message.toString()
       if (isXML(messageStr)) {
