@@ -726,13 +726,14 @@ export default class MsgPublish extends Vue {
     }
     .payload-select {
       width: 88px;
-      margin-right: 8px;
+      margin-right: 4px;
     }
     .qos-select {
       width: 76px;
+      margin-right: 4px;
     }
     .retain-checkbox {
-      margin-left: 8px;
+      margin-right: 4px;
       .el-checkbox__input {
         line-height: 1px;
       }
@@ -741,7 +742,7 @@ export default class MsgPublish extends Vue {
       }
     }
     .dropdown-btn {
-      margin-left: 6px;
+      margin-right: 4px;
       &.el-button.is-disabled {
         background-color: transparent;
         border: 1px solid var(--color-border-default);
@@ -761,6 +762,7 @@ export default class MsgPublish extends Vue {
     }
     .actions-dropdown {
       display: inline;
+      margin-right: 4px;
     }
     .history-button-group {
       margin-left: auto;
