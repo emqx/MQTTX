@@ -5,17 +5,14 @@ export const isXML = (str: string): boolean => {
 
   const trimmed = str.trim()
 
-  // Check basic XML structure
   if (!trimmed.startsWith('<') || !trimmed.endsWith('>')) {
     return false
   }
 
-  // Check for XML declaration
   if (trimmed.startsWith('<?xml')) {
     return true
   }
 
-  // Simple regex to check XML-like structure
   // Matches: <!-- comment --><tag>...</tag>, <tag>...</tag>, or <tag/>
   const xmlPattern =
     /^(<!--[\s\S]*?-->)*<([^\/\s>!]+)(?:\s[^>]*)?>[\s\S]*?<\/\2>$|^(<!--[\s\S]*?-->)*<[^\/\s>!]+(?:\s[^>]*)?\/?>$/

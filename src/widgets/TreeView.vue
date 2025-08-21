@@ -281,10 +281,8 @@ export default class TreeView extends Vue {
   }
 
   private isTextOverflow(data: TopicTreeNode, node: any): boolean {
-    // Check if text is likely to overflow based on content length
     const fullText =
       data.connectionInfo && data.connectionInfo.name ? `${data.connectionInfo.name}@${node.label}` : node.label
-    // Rough estimate: if text is longer than 50 characters, it's likely to overflow
     return fullText.length > 50
   }
 

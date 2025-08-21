@@ -27,7 +27,8 @@ vetur.config.js
 # Electron-builder output
 /dist_electron
 
-# AI
+# AI assistant configurations - excluded from open source repository
+# These files contain local development assistant settings and should remain private
 CLAUDE.md
 .cursorrules
 .todos
