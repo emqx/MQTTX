@@ -6,6 +6,7 @@ import { quitAndRenameLogger } from './utils/logger'
 import { defaultWindowSize, restoreWindowState, saveWindowState } from './utils/windowStateManager'
 import rebuildDatabase from './database/rebuildDatabase'
 import { createUpdateWindow, autoDownload } from './main/updateDownloader'
+import { migrateDataIfNeeded } from './main/appDataPath'
 import { getCurrentLang } from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
 import saveFile from './main/saveFile'
@@ -153,6 +154,18 @@ function beforeAppQuit() {
 }
 
 async function createWindow() {
+  // Check and migrate data if needed (fixes Windows %APPDATA% redirect issue)
+  try {
+    const migrationResult = await migrateDataIfNeeded('MQTTX.db')
+    if (migrationResult.migrated) {
+      console.log('[Migration] Data migration completed successfully')
+    } else if (!migrationResult.success) {
+      console.warn('[Migration] Data migration failed but will continue:', migrationResult.error)
+    }
+  } catch (migrationError) {
+    console.warn('[Migration] Data migration error, continuing with startup:', migrationError)
+  }
+
   // Init tables and connect to local database.
   try {
     await ConnectionInit({ doMigrations: true } as initOptionModel)

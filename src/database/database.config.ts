@@ -1,6 +1,5 @@
 import { join } from 'path'
-import fs from 'fs-extra'
-import { getAppDataPath } from 'appdata-path'
+import { getUnifiedAppDataPath, ensureAppDataDir } from '../main/appDataPath'
 import ConnectionEntity from './models/ConnectionEntity'
 import MessageEntity from './models/MessageEntity'
 import SubscriptionEntity from './models/SubscriptionEntity'
@@ -51,14 +50,15 @@ import { changeDefaultLLMModel1727111519962 } from './migration/1727111519962-ch
 import { topicNodeTables1729246737362 } from './migration/1729246737362-topicNodeTables'
 import { reasonModelSupport1742835643809 } from './migration/1742835643809-reasonModelSupport'
 
-const STORE_PATH = getAppDataPath('MQTTX')
-try {
-  if (!fs.pathExistsSync(STORE_PATH)) {
-    fs.mkdirpSync(STORE_PATH)
-  }
-} catch (err) {
-  console.error(err)
-}
+// Get the unified store path using Electron's native API
+// This fixes the Windows %APPDATA% redirect issue
+const STORE_PATH = getUnifiedAppDataPath('MQTTX')
+
+// Ensure the directory exists
+ensureAppDataDir(STORE_PATH)
+
+// Log the path being used for debugging
+console.log('[Database] Using data path:', STORE_PATH)
 
 const ORMConfig = {
   type: 'sqlite',
