@@ -3,14 +3,14 @@ import * as fs from 'fs'
 import * as path from 'path'
 import axios from 'axios'
 import { BrowserWindow, dialog } from 'electron'
-import { getAppDataPath } from 'appdata-path'
+import { getUnifiedAppDataPath } from './appDataPath'
 import sudo from 'sudo-prompt'
 import version from '@/version'
 import { exec } from 'child_process'
 import { compareVersions } from 'compare-versions'
 import { getCurrentLang } from './updateChecker'
 
-const STORE_PATH = getAppDataPath('MQTTX')
+const STORE_PATH = getUnifiedAppDataPath('MQTTX')
 const MQTTX_VERSION = `v${version}`
 
 /**
