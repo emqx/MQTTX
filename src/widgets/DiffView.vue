@@ -28,7 +28,7 @@
       </div>
     </div>
 
-    <div class="diff-content-wrapper" v-if="messages.length >= 2">
+    <div class="diff-content-wrapper" v-if="messages.length >= 2 && originalMessage && modifiedMessage">
       <div class="navigation-controls">
         <el-tooltip
           :effect="theme !== 'light' ? 'light' : 'dark'"
@@ -88,6 +88,7 @@ import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import Editor from '@/components/Editor.vue'
 import { calculateTextSize } from '@/utils/data'
+import { jsonParse, jsonStringify } from '@/utils/jsonUtils'
 
 @Component({
   components: {
@@ -139,9 +140,9 @@ export default class DiffView extends Vue {
     const prev = this.previousMessage
     if (!prev || !prev.payload) return ''
     try {
-      return JSON.stringify(this.parsePayload(prev.payload), null, 2)
+      return jsonStringify(this.parsePayload(prev.payload), null, 2)
     } catch {
-      return prev.payload
+      return prev.payload || ''
     }
   }
 
@@ -149,15 +150,15 @@ export default class DiffView extends Vue {
     const curr = this.currentMessage
     if (!curr || !curr.payload) return ''
     try {
-      return JSON.stringify(this.parsePayload(curr.payload), null, 2)
+      return jsonStringify(this.parsePayload(curr.payload), null, 2)
     } catch {
-      return curr.payload
+      return curr.payload || ''
     }
   }
 
   private parsePayload(payload: string): any {
     try {
-      return JSON.parse(payload)
+      return jsonParse(payload)
     } catch {
       return payload
     }

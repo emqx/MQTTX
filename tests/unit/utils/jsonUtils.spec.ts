@@ -108,5 +108,117 @@ describe('jsonUtils', () => {
           '\n}',
       )
     })
+
+    it('should handle invalid BigInt', () => {
+      const node = { raw: { a: () => {} } }
+      const result = stringifySubtree(node, 2)
+      expect(result).to.equal('{}')
+    })
+
+    it('should stringify node.raw as array with very large/small numbers', () => {
+      const node = { raw: [Number.MAX_SAFE_INTEGER, Number.MIN_SAFE_INTEGER, Number.MAX_VALUE, Number.MIN_VALUE] }
+      const result = stringifySubtree(node, 2)
+      expect(result).to.equal(
+        '[\n' +
+          `  ${Number.MAX_SAFE_INTEGER},\n` +
+          `  ${Number.MIN_SAFE_INTEGER},\n` +
+          `  ${Number.MAX_VALUE},\n` +
+          `  ${Number.MIN_VALUE}\n` +
+          ']',
+      )
+    })
+  })
+})
+
+describe('toPlainObject', () => {
+  const { toPlainObject } = require('@/utils/jsonUtils')
+
+  it('should return null or undefined as is', () => {
+    expect(toPlainObject(null)).to.equal(null)
+    expect(toPlainObject(undefined)).to.equal(undefined)
+  })
+
+  it('should convert bigint to string', () => {
+    if (typeof BigInt !== 'undefined') {
+      expect(toPlainObject(BigInt('12345678901234567890'))).to.equal('12345678901234567890')
+    }
+  })
+
+  it('should convert BigNumber-like objects to string', () => {
+    const bigNumber = { constructor: { name: 'BigNumber' }, toString: () => '99999999999999999999' }
+    expect(toPlainObject(bigNumber)).to.equal('99999999999999999999')
+  })
+
+  it('should convert BN-like objects to string', () => {
+    const bn = { constructor: { name: 'BN' }, toString: () => '1234567890' }
+    expect(toPlainObject(bn)).to.equal('1234567890')
+  })
+
+  it('should convert array of bigints and BigNumbers', () => {
+    const arr = [1, BigInt ? BigInt('2') : 2, { constructor: { name: 'BigNumber' }, toString: () => '3' }, 'str']
+    const result = toPlainObject(arr)
+    if (typeof BigInt !== 'undefined') {
+      expect(result).to.deep.equal([1, '2', '3', 'str'])
+    } else {
+      expect(result).to.deep.equal([1, 2, '3', 'str'])
+    }
+  })
+
+  it('should recursively convert nested objects', () => {
+    const input = {
+      a: 1,
+      b: BigInt ? BigInt('10') : 10,
+      c: {
+        d: { constructor: { name: 'BigNumber' }, toString: () => '20' },
+        e: [BigInt ? BigInt('30') : 30, { constructor: { name: 'BN' }, toString: () => '40' }],
+      },
+    }
+    const expected = {
+      a: 1,
+      b: typeof BigInt !== 'undefined' ? '10' : 10,
+      c: {
+        d: '20',
+        e: [typeof BigInt !== 'undefined' ? '30' : 30, '40'],
+      },
+    }
+    expect(toPlainObject(input)).to.deep.equal(expected)
+  })
+
+  it('should handle objects with no prototype', () => {
+    const obj = Object.create(null)
+    obj.x = 1
+    obj.y = BigInt ? BigInt('2') : 2
+    const result = toPlainObject(obj)
+    if (typeof BigInt !== 'undefined') {
+      expect(result).to.deep.equal({ x: 1, y: '2' })
+    } else {
+      expect(result).to.deep.equal({ x: 1, y: 2 })
+    }
+  })
+
+  it('should not convert plain numbers, strings, booleans', () => {
+    expect(toPlainObject(42)).to.equal(42)
+    expect(toPlainObject('hello')).to.equal('hello')
+    expect(toPlainObject(true)).to.equal(true)
+    expect(toPlainObject(false)).to.equal(false)
+  })
+
+  it('should skip properties from prototype chain', () => {
+    function Parent() {}
+    Parent.prototype.inherited = BigInt ? BigInt('100') : 100
+    const obj = new (Parent as any)()
+    obj.own = BigInt ? BigInt('200') : 200
+    const result = toPlainObject(obj)
+    if (typeof BigInt !== 'undefined') {
+      expect(result).to.deep.equal({ own: '200' })
+    } else {
+      expect(result).to.deep.equal({ own: 200 })
+    }
+  })
+
+  it('should handle circular references gracefully (should throw)', () => {
+    const obj: any = { a: 1 }
+    obj.self = obj
+    expect(() => toPlainObject(obj)).to.throw()
   })
 })
