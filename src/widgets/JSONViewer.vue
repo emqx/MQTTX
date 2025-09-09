@@ -168,11 +168,13 @@
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import TreeView from 'vue-json-tree-view/src/TreeView.vue'
+import type { TreeViewOptions } from 'vue-json-tree-view/src/TreeView.vue'
 import TreeVisual from '@/components/charts/TreeVisual.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import { JsonTreeConverter } from '@/utils/jsonTreeConverter'
 import { calculateTextSize } from '@/utils/data'
 import { highlightInPrismCode } from '@/utils/highlightSearch'
+import { jsonParse, toPlainObject } from '@/utils/jsonUtils'
 
 @Component({
   components: {
@@ -194,7 +196,7 @@ export default class JsonViewer extends Vue {
   private searchQuery = ''
   private currentIndex = 0
   private copiedJson = false
-  private searchTimeout: any = null
+  private searchTimeout: ReturnType<typeof setTimeout> | null = null
   private showVisualTreeModal = false
   private defaultExpandLevel = 1
 
@@ -202,7 +204,7 @@ export default class JsonViewer extends Vue {
     return this.theme || 'light'
   }
 
-  get treeOptions(): any {
+  get treeOptions(): TreeViewOptions {
     return {
       maxDepth: 4,
       rootObjectKey: 'message',
@@ -296,7 +298,8 @@ export default class JsonViewer extends Vue {
 
   private parseJson(payload: string): any {
     try {
-      return JSON.parse(payload)
+      const parsed = jsonParse(payload)
+      return toPlainObject(parsed)
     } catch {
       return payload
     }
@@ -319,7 +322,9 @@ export default class JsonViewer extends Vue {
   }
 
   private onSearchInput(): void {
-    clearTimeout(this.searchTimeout)
+    if (this.searchTimeout !== null) {
+      clearTimeout(this.searchTimeout)
+    }
     this.searchTimeout = setTimeout(() => {
       this.applySearchHighlight()
     }, 300)
@@ -392,6 +397,10 @@ export default class JsonViewer extends Vue {
 
   beforeDestroy() {
     window.removeEventListener('keydown', this.handleKeydown)
+    if (this.searchTimeout !== null) {
+      clearTimeout(this.searchTimeout)
+      this.searchTimeout = null
+    }
   }
 }
 </script>

@@ -56,3 +56,43 @@ export function stringifySubtree(nodeLike: EChartsJsonTreeNodeLike, space: numbe
     return JSON.stringify(raw, null, space)
   }
 }
+
+/**
+ * Recursively converts BigInt and BigNumber instances to plain numbers or strings,
+ * so that the result can be safely used with ECharts and other consumers.
+ *
+ * @param obj - The object to convert.
+ * @returns The plain object with BigInt/BigNumber converted.
+ */
+export function toPlainObject(obj: any): any {
+  if (obj === null || obj === undefined) {
+    return obj
+  }
+  if (typeof obj === 'bigint') {
+    return obj.toString()
+  }
+  if (
+    typeof obj === 'object' &&
+    obj !== null &&
+    obj.constructor &&
+    (obj.constructor.name === 'BigNumber' || obj.constructor.name === 'BN')
+  ) {
+    if (typeof obj.toString === 'function') {
+      return obj.toString()
+    }
+    return String(obj)
+  }
+  if (Array.isArray(obj)) {
+    return obj.map((item) => toPlainObject(item))
+  }
+  if (typeof obj === 'object') {
+    const result: any = {}
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        result[key] = toPlainObject(obj[key])
+      }
+    }
+    return result
+  }
+  return obj
+}

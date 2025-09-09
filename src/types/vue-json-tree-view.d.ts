@@ -1,7 +1,7 @@
 declare module 'vue-json-tree-view/src/TreeView.vue' {
   import Vue from 'vue'
 
-  interface TreeViewOptions {
+  export interface TreeViewOptions {
     maxDepth?: number
     rootObjectKey?: string
     modifiable?: boolean
