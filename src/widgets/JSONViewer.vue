@@ -44,15 +44,7 @@
                 :open-delay="500"
                 :content="$t('viewer.visualizeJsonTree')"
               >
-                <el-button
-                  type="primary"
-                  size="small"
-                  icon="el-icon-view"
-                  @click="openVisualTreeModal"
-                  class="visualize-btn"
-                >
-                  {{ $t('viewer.visualize') }}
-                </el-button>
+                <i class="el-icon-pie-chart nav-icon" @click="openVisualTreeModal"></i>
               </el-tooltip>
             </div>
             <div class="navigation-controls">
@@ -62,13 +54,11 @@
                 :open-delay="300"
                 :content="$t('viewer.olderMessage')"
               >
-                <button
-                  class="nav-button nav-button--prev"
-                  :disabled="!canGoToPrevious && !hasMore"
+                <i
+                  class="el-icon-arrow-left nav-icon"
+                  :class="{ 'is-disabled': !canGoToPrevious && !hasMore }"
                   @click="goToPrevious"
-                >
-                  <i class="el-icon-arrow-left"></i>
-                </button>
+                ></i>
               </el-tooltip>
               <el-tooltip
                 :effect="theme !== 'light' ? 'light' : 'dark'"
@@ -76,9 +66,7 @@
                 :open-delay="300"
                 :content="$t('viewer.newerMessage')"
               >
-                <button class="nav-button nav-button--next" :disabled="!canGoToNext" @click="goToNext">
-                  <i class="el-icon-arrow-right"></i>
-                </button>
+                <i class="el-icon-arrow-right nav-icon" :class="{ 'is-disabled': !canGoToNext }" @click="goToNext"></i>
               </el-tooltip>
               <el-tooltip
                 :effect="theme !== 'light' ? 'light' : 'dark'"
@@ -86,9 +74,7 @@
                 :open-delay="300"
                 :content="$t('viewer.goToLatestMessage')"
               >
-                <button class="nav-button nav-button--latest" :disabled="currentIndex === 0" @click="goToLatest">
-                  <i class="el-icon-top"></i>
-                </button>
+                <i class="el-icon-top nav-icon" :class="{ 'is-disabled': currentIndex === 0 }" @click="goToLatest"></i>
               </el-tooltip>
             </div>
             <div class="header-right">
@@ -96,16 +82,13 @@
                 placement="bottom"
                 :effect="theme !== 'light' ? 'light' : 'dark'"
                 :open-delay="500"
-                :content="copiedJson ? $t('common.copySuccess') : $t('common.copy')"
+                :content="$t('common.copy')"
               >
-                <a
-                  href="javascript:;"
-                  class="copy-btn"
-                  @click="copyPayload(currentMessage.payload)"
-                  :class="{ copied: copiedJson }"
-                >
-                  <i :class="copiedJson ? 'el-icon-check' : 'el-icon-document-copy'"></i>
-                </a>
+                <i
+                  class="iconfont icon-copy nav-icon"
+                  :class="{ 'is-disabled': !currentMessage || !currentMessage.payload }"
+                  @click="copyPayload(currentMessage && currentMessage.payload ? currentMessage.payload : '')"
+                ></i>
               </el-tooltip>
             </div>
           </div>
@@ -195,7 +178,6 @@ export default class JsonViewer extends Vue {
 
   private searchQuery = ''
   private currentIndex = 0
-  private copiedJson = false
   private searchTimeout: ReturnType<typeof setTimeout> | null = null
   private showVisualTreeModal = false
   private defaultExpandLevel = 1
@@ -315,10 +297,14 @@ export default class JsonViewer extends Vue {
   }
 
   private copyPayload(payload: string): void {
-    navigator.clipboard.writeText(payload).then(() => {
-      this.copiedJson = true
-      setTimeout(() => (this.copiedJson = false), 1200)
-    })
+    if (!payload) return
+    this.$copyText(payload)
+      .then(() => {
+        this.$message.success(this.$tc('common.copySuccess'))
+      })
+      .catch(() => {
+        this.$message.error(this.$tc('common.copyFail'))
+      })
   }
 
   private onSearchInput(): void {
@@ -408,7 +394,6 @@ export default class JsonViewer extends Vue {
 <style lang="scss" scoped>
 @import '@/assets/scss/mixins.scss';
 .json-tree-view {
-  @include search-highlight;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -488,25 +473,25 @@ export default class JsonViewer extends Vue {
         width: 300px;
         max-width: 100%;
       }
-      .visualize-btn {
-        white-space: nowrap;
-      }
     }
     .header-right {
       justify-self: end;
-      .copy-btn {
-        color: var(--color-text-title);
-        margin-right: 16px;
-        i {
-          font-size: 20px;
-          color: var(--color-text-default);
-          font-weight: 200;
-        }
-        &.copied {
-          i {
-            color: var(--color-main-green);
-          }
-        }
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-icon {
+      font-size: 18px;
+      color: var(--color-text-light);
+      cursor: pointer;
+      transition: color 0.15s ease;
+      &:hover {
+        color: var(--color-main-green);
+      }
+      &.is-disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
       }
     }
     .navigation-controls {
@@ -514,39 +499,6 @@ export default class JsonViewer extends Vue {
       align-items: center;
       gap: 8px;
       justify-self: center;
-      .nav-button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border: 1px solid var(--color-border-default);
-        background: var(--color-bg-normal);
-        color: var(--color-text-default);
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        font-size: 12px;
-        &:hover:not(:disabled) {
-          background: var(--color-bg-item);
-          border-color: var(--color-main-green);
-          color: var(--color-main-green);
-        }
-        &:active:not(:disabled) {
-          transform: translateY(0);
-          box-shadow: 0 1px 4px var(--color-shadow-card);
-        }
-        &:disabled {
-          opacity: 0.4;
-          cursor: not-allowed;
-          background: var(--color-bg-primary);
-          border-color: var(--color-border-default);
-          color: var(--color-text-light);
-        }
-        i {
-          font-size: 10px;
-        }
-      }
     }
   }
   .json-container {
@@ -572,6 +524,10 @@ export default class JsonViewer extends Vue {
       background: var(--color-bg-primary);
     }
   }
+}
+
+.el-icon-pie-chart.nav-icon {
+  font-weight: 400;
 }
 
 .visualize-tree-dialog {
@@ -609,19 +565,6 @@ export default class JsonViewer extends Vue {
     }
     &.tree-view-item-value-null {
       color: hsl(35, 99%, 36%) !important;
-    }
-  }
-}
-.theme-night .json-tree-view {
-  .message-header {
-    .header-actions {
-      .navigation-controls {
-        .nav-button {
-          &:hover:not(:disabled) {
-            box-shadow: 0 2px 12px rgba(52, 195, 136, 0.25);
-          }
-        }
-      }
     }
   }
 }
