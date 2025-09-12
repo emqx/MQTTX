@@ -181,10 +181,14 @@ export default class PayloadInspector extends Vue {
 
 <style lang="scss" scoped>
 .payload-inspector-view {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 130px);
+  box-sizing: border-box;
   .inspector-controls {
     display: flex;
+    flex-wrap: wrap;
     gap: 20px;
-
     .view-mode-selector {
       display: flex;
       gap: 10px;
@@ -200,6 +204,7 @@ export default class PayloadInspector extends Vue {
         font-weight: 500;
         color: var(--color-text-default);
         cursor: pointer;
+        white-space: nowrap;
         &.active {
           background: #34c38810;
           color: var(--color-main-green);
@@ -221,11 +226,14 @@ export default class PayloadInspector extends Vue {
       }
     }
   }
+
   .diff-view-container {
-    height: calc(100vh - 174px);
+    flex: 1;
+    min-height: 0;
     margin-top: 12px;
     border: 1px solid var(--color-border-default);
     border-radius: 6px;
+    overflow: hidden;
   }
 }
 </style>

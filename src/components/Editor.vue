@@ -245,6 +245,13 @@ export default class Editor extends Vue {
       original: originalModel,
       modified: modifiedModel,
     })
+    const gutterOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
+      lineNumbersMinChars: Math.max(this.lineNumbersMinChars, 3),
+      lineDecorationsWidth: 8,
+      padding: { top: 8, bottom: 8 },
+    }
+    this.editor.getOriginalEditor().updateOptions(gutterOptions)
+    this.editor.getModifiedEditor().updateOptions(gutterOptions)
     this.editor.getModifiedEditor().updateOptions({ readOnly: this.disabled })
     this.editor.getModifiedEditor().onDidChangeModelContent((event) => {
       if (this.editor) {

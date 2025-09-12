@@ -5,25 +5,45 @@
         <h3>{{ $t('viewer.messageHistory') }}</h3>
       </div>
       <div class="message-info" v-if="currentMessage && previousMessage">
-        <div class="info-item">
-          <span class="label">{{ $t('viewer.previous') }}</span>
-          <span class="value">{{ formatTime(previousMessage.createAt) }}</span>
+        <div class="info-side previous">
+          <div class="side-row">
+            <div class="attr">
+              <span class="label">{{ $t('viewer.previous') }} </span>
+              <span class="value">{{ formatTime(previousMessage.createAt) }}</span>
+            </div>
+            <div class="attr">
+              <span class="label">QoS:</span>
+              <span class="value">{{ previousMessage.qos }}</span>
+            </div>
+            <div class="attr">
+              <span class="label">Retain:</span>
+              <span class="value">{{ previousMessage.retain ? $t('viewer.yes') : $t('viewer.no') }}</span>
+            </div>
+            <div class="attr">
+              <span class="label">Size:</span>
+              <span class="value">{{ getPayloadSize(previousMessage.payload) }}</span>
+            </div>
+          </div>
         </div>
-        <div class="info-item">
-          <span class="label">{{ $t('viewer.currentLabel') }}</span>
-          <span class="value">{{ formatTime(currentMessage.createAt) }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">QoS:</span>
-          <span class="value">{{ currentMessage.qos }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">Retain:</span>
-          <span class="value">{{ currentMessage.retain ? $t('viewer.yes') : $t('viewer.no') }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">Size:</span>
-          <span class="value">{{ getPayloadSize(currentMessage.payload) }}</span>
+        <div class="info-side current">
+          <div class="side-row">
+            <div class="attr">
+              <span class="label">{{ $t('viewer.currentLabel') }} </span>
+              <span class="value">{{ formatTime(currentMessage.createAt) }}</span>
+            </div>
+            <div class="attr">
+              <span class="label">QoS:</span>
+              <span class="value">{{ currentMessage.qos }}</span>
+            </div>
+            <div class="attr">
+              <span class="label">Retain:</span>
+              <span class="value">{{ currentMessage.retain ? $t('viewer.yes') : $t('viewer.no') }}</span>
+            </div>
+            <div class="attr">
+              <span class="label">Size:</span>
+              <span class="value">{{ getPayloadSize(currentMessage.payload) }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -231,27 +251,53 @@ export default class DiffView extends Vue {
 
     .message-info {
       display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: nowrap;
 
-      .info-item {
+      .info-side {
+        flex: 1 1 50%;
+        min-width: 0;
         display: flex;
-        align-items: center;
-        gap: 4px;
+        flex-direction: column;
+        gap: 6px;
 
-        .label {
-          font-size: 12px;
-          color: var(--color-text-light);
-          font-weight: 500;
+        .side-row {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          flex-wrap: wrap;
+          overflow: hidden;
+          white-space: wrap;
         }
 
-        .value {
+        .side-title {
           font-size: 12px;
-          color: var(--color-text-default);
-          max-width: 200px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
+          color: var(--color-text-light);
+          font-weight: 600;
+          flex: 0 0 auto;
+        }
+
+        .attr {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          max-width: 100%;
+
+          .label {
+            font-size: 12px;
+            color: var(--color-text-light);
+            font-weight: 500;
+          }
+
+          .value {
+            font-size: 12px;
+            color: var(--color-text-default);
+            max-width: 240px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
         }
       }
     }
@@ -274,7 +320,8 @@ export default class DiffView extends Vue {
       height: 57px; // Match .message-header height in JSONTreeView.vue
       .nav-icon {
         font-size: 18px;
-        color: var(--color-text-light);
+        font-weight: 400;
+        color: var(--color-text-primary);
         cursor: pointer;
         transition: color 0.15s ease;
         &:hover {

@@ -482,7 +482,8 @@ export default class JsonViewer extends Vue {
     }
     .nav-icon {
       font-size: 18px;
-      color: var(--color-text-light);
+      font-weight: 400;
+      color: var(--color-text-primary);
       cursor: pointer;
       transition: color 0.15s ease;
       &:hover {
@@ -524,10 +525,6 @@ export default class JsonViewer extends Vue {
       background: var(--color-bg-primary);
     }
   }
-}
-
-.el-icon-pie-chart.nav-icon {
-  font-weight: 400;
 }
 
 .visualize-tree-dialog {
