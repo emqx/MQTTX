@@ -8,7 +8,7 @@
     filterable
     allow-create
     default-first-option
-    :placeholder="$t('common.selectRequired')"
+    :placeholder="$t('connections.selectTopic')"
   >
     <el-option v-for="topic in topics" :key="topic" :label="topic" :value="topic">
       <span style="float: left">{{ topic }}</span>
