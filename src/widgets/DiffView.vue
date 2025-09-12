@@ -36,9 +36,11 @@
           :open-delay="300"
           :content="$t('viewer.olderMessage')"
         >
-          <button class="nav-button nav-button--prev" :disabled="!canGoToPrevious && !hasMore" @click="goToPrevious">
-            <i class="el-icon-arrow-left"></i>
-          </button>
+          <i
+            class="el-icon-arrow-left nav-icon"
+            :class="{ 'is-disabled': !canGoToPrevious && !hasMore }"
+            @click="goToPrevious"
+          ></i>
         </el-tooltip>
         <el-tooltip
           :effect="theme !== 'light' ? 'light' : 'dark'"
@@ -46,9 +48,7 @@
           :open-delay="300"
           :content="$t('viewer.newerMessage')"
         >
-          <button class="nav-button nav-button--next" :disabled="!canGoToNext" @click="goToNext">
-            <i class="el-icon-arrow-right"></i>
-          </button>
+          <i class="el-icon-arrow-right nav-icon" :class="{ 'is-disabled': !canGoToNext }" @click="goToNext"></i>
         </el-tooltip>
         <el-tooltip
           :effect="theme !== 'light' ? 'light' : 'dark'"
@@ -56,9 +56,7 @@
           :open-delay="300"
           :content="$t('viewer.goToLatestMessage')"
         >
-          <button class="nav-button nav-button--latest" :disabled="currentIndex === 0" @click="goToLatest">
-            <i class="el-icon-top"></i>
-          </button>
+          <i class="el-icon-top nav-icon" :class="{ 'is-disabled': currentIndex === 0 }" @click="goToLatest"></i>
         </el-tooltip>
       </div>
 
@@ -274,42 +272,18 @@ export default class DiffView extends Vue {
       background: var(--color-bg-primary);
       border-bottom: 1px solid var(--color-border-default);
       height: 57px; // Match .message-header height in JSONTreeView.vue
-
-      .nav-button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 28px;
-        height: 28px;
-        border: 1px solid var(--color-border-default);
-        background: var(--color-bg-normal);
-        color: var(--color-text-default);
-        border-radius: 4px;
+      .nav-icon {
+        font-size: 18px;
+        color: var(--color-text-light);
         cursor: pointer;
-        transition: all 0.2s ease;
-        font-size: 12px;
-
-        &:hover:not(:disabled) {
-          background: var(--color-bg-item);
-          border-color: var(--color-main-green);
+        transition: color 0.15s ease;
+        &:hover {
           color: var(--color-main-green);
         }
-
-        &:active:not(:disabled) {
-          transform: translateY(0);
-          box-shadow: 0 1px 4px var(--color-shadow-card);
-        }
-
-        &:disabled {
+        &.is-disabled {
           opacity: 0.4;
           cursor: not-allowed;
-          background: var(--color-bg-primary);
-          border-color: var(--color-border-default);
-          color: var(--color-text-light);
-        }
-
-        i {
-          font-size: 10px;
+          pointer-events: none;
         }
       }
     }
@@ -337,26 +311,6 @@ export default class DiffView extends Vue {
       border: 1px dashed var(--color-border-default);
       border-radius: 8px;
       background: var(--color-bg-primary);
-    }
-  }
-}
-
-.theme-dark .diff-view {
-  .navigation-controls {
-    .nav-button {
-      &:hover:not(:disabled) {
-        box-shadow: 0 2px 12px rgba(52, 195, 136, 0.2);
-      }
-    }
-  }
-}
-
-.theme-night .diff-view {
-  .navigation-controls {
-    .nav-button {
-      &:hover:not(:disabled) {
-        box-shadow: 0 2px 12px rgba(52, 195, 136, 0.3);
-      }
     }
   }
 }
