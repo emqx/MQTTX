@@ -59,7 +59,7 @@ export default class KeyValueEditor extends Vue {
     val: ClientPropertiesModel['userProperties'],
     oldVal: ClientPropertiesModel['userProperties'],
   ) {
-    if (this.disabled || oldVal === undefined && val) {
+    if (oldVal !== val) {
       this.processObjToArry()
     }
   }
