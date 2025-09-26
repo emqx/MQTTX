@@ -468,4 +468,14 @@ declare global {
     data?: TopicTreeNode
     children?: EChartsTreeNode[]
   }
+  interface DashboardModel {
+    id: string
+    name: string
+    description?: string
+    orderId?: number
+    globalSettings?: any
+    widgets: WidgetModel[]
+    createAt: string
+    updateAt: string
+  }
 }
