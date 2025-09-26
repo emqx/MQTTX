@@ -17,8 +17,13 @@ const routes: Routes[] = [
         path: '/viewer',
         name: 'Viewer',
         component: () => import('@/views/viewer/index.vue'),
-        redirect: '/viewer/topic_tree',
+        redirect: '/viewer/dashboard',
         children: [
+          {
+            path: 'dashboard',
+            name: 'Dashboard',
+            component: () => import('@/views/viewer/dashboard/index.vue'),
+          },
           {
             path: 'topic_tree',
             name: 'TopicTree',

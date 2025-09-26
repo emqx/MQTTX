@@ -12,6 +12,8 @@ import HistoryConnectionEntity from './models/HistoryConnectionEntity'
 import WillEntity from './models/WillEntity'
 import CopilotEntity from './models/CopilotEntity'
 import TopicNodeEntity from './models/TopicNodeEntity'
+import DashboardEntity from './models/DashboardEntity'
+import WidgetEntity from './models/WidgetEntity'
 import { ConnectionOptions } from 'typeorm'
 import { initTable1629476510574 } from './migration/1629476510574-initTable'
 import { messages1630403733964 } from './migration/1630403733964-messages'
@@ -49,10 +51,16 @@ import { ignoreQoS0Message1724839386732 } from './migration/1724839386732-ignore
 import { changeDefaultLLMModel1727111519962 } from './migration/1727111519962-changeDefaultLLMModel'
 import { topicNodeTables1729246737362 } from './migration/1729246737362-topicNodeTables'
 import { reasonModelSupport1742835643809 } from './migration/1742835643809-reasonModelSupport'
+import { dashboardAndWidgetTables1758911209616 } from './migration/1758911209616-dashboardAndWidgetTables'
 
-// Get the unified store path using Electron's native API
-// This fixes the Windows %APPDATA% redirect issue
-const STORE_PATH = getUnifiedAppDataPath('MQTTX')
+// Get store path; fall back when running in CLI (no Electron app)
+let STORE_PATH: string
+try {
+  STORE_PATH = getUnifiedAppDataPath('MQTTX')
+} catch (e) {
+  const home = process.env.HOME || require('os').homedir()
+  STORE_PATH = process.env.MQTTX_DATA_PATH || join(home, '.mqttx')
+}
 
 // Ensure the directory exists
 ensureAppDataDir(STORE_PATH)
@@ -105,6 +113,7 @@ const ORMConfig = {
     changeDefaultLLMModel1727111519962,
     topicNodeTables1729246737362,
     reasonModelSupport1742835643809,
+    dashboardAndWidgetTables1758911209616,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [
@@ -120,6 +129,8 @@ const ORMConfig = {
     HistoryConnectionEntity,
     CopilotEntity,
     TopicNodeEntity,
+    DashboardEntity,
+    WidgetEntity,
   ],
   cli: {
     migrationsDir: 'src/database/migration',
