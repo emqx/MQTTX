@@ -65,6 +65,7 @@ describe('copilot', () => {
     it('should have valid model options for each provider', () => {
       const openAI = AImodelsOptions.find((p) => p.value === 'OpenAI')
       expect(openAI?.children).to.be.an('array').that.is.not.empty
+      expect(openAI?.children.map((c) => c.value)).to.include('gpt-5')
       expect(openAI?.children.map((c) => c.value)).to.include('gpt-4o')
 
       const deepSeek = AImodelsOptions.find((p) => p.value === 'DeepSeek')
@@ -73,13 +74,14 @@ describe('copilot', () => {
 
       const anthropic = AImodelsOptions.find((p) => p.value === 'Anthropic')
       expect(anthropic?.children).to.be.an('array').that.is.not.empty
+      expect(anthropic?.children.map((c) => c.value)).to.include('claude-opus-4-1-20250805')
       expect(anthropic?.children.map((c) => c.value)).to.include('claude-opus-4-20250514')
-      expect(anthropic?.children.map((c) => c.value)).to.include('claude-opus-4-20250514-thinking')
-      expect(anthropic?.children.map((c) => c.value)).to.include('claude-3-opus-latest')
+      expect(anthropic?.children.map((c) => c.value)).to.include('claude-sonnet-4-20250514')
 
       const xai = AImodelsOptions.find((p) => p.value === 'xAI')
       expect(xai?.children).to.be.an('array').that.is.not.empty
-      expect(xai?.children.map((c) => c.value)).to.include('grok-3-beta')
+      expect(xai?.children.map((c) => c.value)).to.include('grok-4-0709')
+      expect(xai?.children.map((c) => c.value)).to.include('grok-4-fast')
 
       const google = AImodelsOptions.find((p) => p.value === 'Google')
       expect(google?.children).to.be.an('array').that.is.not.empty
@@ -154,7 +156,7 @@ describe('copilot', () => {
     it('should return a provider instance for Anthropic', () => {
       expect(() => {
         getModelProvider({
-          model: 'claude-opus-4-20250514',
+          model: 'claude-opus-4-1-20250805',
           baseURL: 'https://api.anthropic.com/v1',
           apiKey: 'test-key-anthropic',
           providerType: 'Anthropic',
@@ -165,7 +167,7 @@ describe('copilot', () => {
     it('should return a provider instance for xAI', () => {
       expect(() => {
         getModelProvider({
-          model: 'grok-3-beta',
+          model: 'grok-4-0709',
           baseURL: 'https://api.x.ai/v1',
           apiKey: 'test-key-xai',
           providerType: 'xAI',
