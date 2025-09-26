@@ -784,7 +784,7 @@ export default class MsgPublish extends Vue {
         }
 
         &.history-btn-center {
-          width: 24px;
+          min-width: 24px;
           font-size: 13px;
           color: var(--color-text-default);
 
