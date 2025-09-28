@@ -14,21 +14,20 @@ import { GaugeChart as EChartsGaugeChart } from 'echarts/charts'
 import { UniversalTransition } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
 
-// Add import
-import { Threshold } from '@/types/widgets'
-
 echarts.use([TitleComponent, TooltipComponent, GridComponent, EChartsGaugeChart, CanvasRenderer, UniversalTransition])
 
 @Component
 export default class GaugeChart extends Vue {
   @Prop({ required: true }) public id!: string
-  @Prop({ default: null }) public value!: number | null
+  // @Prop({ default: null }) public value!: number | null
+  @Prop({ default: () => ({ value: null }) }) public data!: GaugeData
   @Prop({ default: 'Temperature' }) public title!: string
   @Prop({ default: '°C' }) public unit!: string
   @Prop({ default: '#00B572' }) public color!: string
   @Prop({ default: undefined }) public min!: number | undefined
   @Prop({ default: undefined }) public max!: number | undefined
   @Prop({ default: 1 }) public decimals!: number
+  @Prop({ default: '' }) public valueField!: string
 
   // Add thresholds
   @Prop({ default: 'Absolute' }) public thresholdsType!: 'Absolute' | 'Percentage'
@@ -38,29 +37,35 @@ export default class GaugeChart extends Vue {
   private resizeObserver: ResizeObserver | null = null
   private resizeTimeout: number | null = null
 
+  // Dynamic min/max tracking
+  private dynamicMin: number | null = null
+  private dynamicMax: number | null = null
+
   @Getter('currentTheme') private theme!: Theme
 
   private get hasData(): boolean {
-    return this.value !== null
+    return this.data.value !== null
   }
 
   private get effectiveMin(): number {
     if (this.min !== undefined) return this.min
-    // In getChartOption, cache computations if possible
+    if (this.dynamicMin !== null) return this.dynamicMin
     return 0
   }
 
   private get effectiveMax(): number {
     if (this.max !== undefined) return this.max
-    // In getChartOption, cache computations if possible
+    if (this.dynamicMax !== null) return this.dynamicMax
     return 100
   }
 
   @Watch('hasData')
   onHasDataChanged(newVal: boolean) {
     if (newVal && !this.myChart) {
+      this.updateDynamicMinMax()
       this.$nextTick(() => this.initChart())
     } else if (!newVal && this.myChart) {
+      this.resetDynamicMinMax()
       this.myChart.dispose()
       this.myChart = null
       if (this.resizeObserver) {
@@ -84,14 +89,35 @@ export default class GaugeChart extends Vue {
   // Add watch for thresholds and value to update color
   @Watch('thresholds', { deep: true })
   @Watch('thresholdsType')
-  @Watch('value')
+  @Watch('data.value')
   onThresholdOrValueChange() {
+    this.updateDynamicMinMax()
     this.updateChart()
   }
 
-  // Add computed displayColor
+  private updateDynamicMinMax(): void {
+    if (this.data.value === null) return
+
+    if (this.min === undefined) {
+      if (this.dynamicMin === null || this.data.value < this.dynamicMin) {
+        this.dynamicMin = this.data.value
+      }
+    }
+
+    if (this.max === undefined) {
+      if (this.dynamicMax === null || this.data.value > this.dynamicMax) {
+        this.dynamicMax = this.data.value
+      }
+    }
+  }
+
+  public resetDynamicMinMax(): void {
+    this.dynamicMin = null
+    this.dynamicMax = null
+  }
+
   private get displayColor(): string {
-    if (this.value == null || this.thresholds.length === 0) return this.color
+    if (this.data.value == null || this.thresholds.length === 0) return this.color
 
     const absThresholds = this.thresholds
       .map((t) => ({
@@ -105,7 +131,7 @@ export default class GaugeChart extends Vue {
 
     let selectedColor = this.color
     for (const t of absThresholds) {
-      if (this.value >= t.absValue) {
+      if (this.data.value >= t.absValue) {
         selectedColor = t.color
       } else {
         break
@@ -247,14 +273,28 @@ export default class GaugeChart extends Vue {
             fontSize: detailFontSize,
             fontWeight: '600',
             fontFamily: 'system-ui, -apple-system, sans-serif',
-            formatter: (value: number) => `${value.toFixed(this.decimals)}${this.unit}`,
+            formatter: (value: number) => {
+              const mainValue = `${value.toFixed(this.decimals)}${this.unit}`
+              if (this.valueField && this.valueField.trim() !== '') {
+                return `${mainValue}\n{valueField|${this.valueField}}`
+              }
+              return mainValue
+            },
             color: textColor,
             backgroundColor: 'transparent',
             padding: [4, 8],
+            rich: {
+              valueField: {
+                fontSize: Math.max(10, Math.min(16, size / 18)),
+                fontWeight: '400',
+                color: isLightTheme ? '#888' : '#aaa',
+                lineHeight: 18,
+              },
+            },
           },
           data: [
             {
-              value: this.value,
+              value: this.data.value,
             },
           ],
         },
@@ -265,6 +305,7 @@ export default class GaugeChart extends Vue {
   mounted(): void {
     this.$nextTick(() => {
       if (this.hasData) {
+        this.updateDynamicMinMax()
         this.initChart()
       }
     })
@@ -326,7 +367,7 @@ export default class GaugeChart extends Vue {
   }
 
   public updateValue(value: number): void {
-    if (this.myChart && value >= this.effectiveMin && value <= this.effectiveMax) {
+    if (this.myChart && value >= this.effectiveMin && value <= this.effectiveMax && this.data.value !== null) {
       this.myChart.setOption({
         series: [{ data: [{ value }] }],
       })

@@ -3,19 +3,19 @@
     <el-card shadow="never" class="widget-section-body item-card">
       <el-row :gutter="10">
         <el-col :span="22">
-          <el-form-item label-width="120px" label="Color" class="color-picker-item">
-            <ColorPicker v-model="localColor" title="Base" />
+          <el-form-item label-width="120px" :label="$t('viewer.color')" class="color-picker-item">
+            <el-color-picker v-model="localColor" size="mini" color-format="hex" :predefine="predefineColors" />
           </el-form-item>
         </el-col>
         <el-col :span="2"></el-col>
         <el-col :span="22">
-          <el-form-item label-width="120px" label="Smooth Lines">
+          <el-form-item label-width="120px" :label="$t('viewer.smoothLines')">
             <el-switch v-model="localSmooth" />
           </el-form-item>
         </el-col>
         <el-col :span="2"></el-col>
         <el-col :span="22">
-          <el-form-item label-width="120px" label="Area Fill">
+          <el-form-item label-width="120px" :label="$t('viewer.areaFill')">
             <el-switch v-model="localArea" />
           </el-form-item>
         </el-col>
@@ -27,10 +27,9 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import type { LineWidgetOptions } from '@/types/widgets'
-import ColorPicker from '@/components/ColorPicker.vue'
+import { defineColors } from '@/utils/colors'
 
-@Component({ components: { ColorPicker } })
+@Component
 export default class LineConfig extends Vue {
   @Prop({ type: Object, required: true }) readonly options!: LineWidgetOptions
 
@@ -73,6 +72,10 @@ export default class LineConfig extends Vue {
     if (!this.isUpdatingFromProps) this.emitOptions()
   }
 
+  get predefineColors(): string[] {
+    return defineColors
+  }
+
   private emitOptions() {
     const next: LineWidgetOptions = {
       ...this.options,
@@ -85,4 +88,20 @@ export default class LineConfig extends Vue {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.color-picker-item {
+  .el-form-item__content {
+    display: flex !important;
+    align-items: center !important;
+    line-height: normal !important;
+    height: 43px !important;
+    justify-content: flex-start !important;
+  }
+
+  .el-color-picker {
+    vertical-align: middle !important;
+    margin: 0 !important;
+    align-self: center !important;
+  }
+}
+</style>

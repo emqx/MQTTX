@@ -28,18 +28,10 @@
         <el-col :span="2"></el-col>
         <el-col :span="22">
           <el-form-item label-width="93px" label="Color" class="color-picker-item">
-            <ColorPicker v-model="localColor" title="Base" />
+            <el-color-picker v-model="localColor" size="mini" color-format="hex" :predefine="predefineColors" />
           </el-form-item>
         </el-col>
         <el-col :span="2"></el-col>
-      </el-row>
-    </el-card>
-
-    <el-card shadow="never" class="widget-section-body item-card">
-      <el-row :gutter="20">
-        <el-col :span="22">
-          <ThresholdEditor v-model="localThresholds" :thresholds-type.sync="localThresholdsType" />
-        </el-col>
       </el-row>
     </el-card>
   </div>
@@ -47,11 +39,9 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import type { BigNumberWidgetOptions } from '@/types/widgets'
-import ColorPicker from '@/components/ColorPicker.vue'
-import ThresholdEditor from '@/components/ThresholdEditor.vue'
+import { defineColors } from '@/utils/colors'
 
-@Component({ components: { ColorPicker, ThresholdEditor } })
+@Component
 export default class BigNumberConfig extends Vue {
   @Prop({ type: Object, required: true }) readonly options!: BigNumberWidgetOptions
 
@@ -60,10 +50,7 @@ export default class BigNumberConfig extends Vue {
   private localDecimals: string = '1'
   private localUnit: string = ''
   private localColor: string = '#00B572'
-  private localThresholdsType: 'Absolute' | 'Percentage' = 'Absolute'
-  private localThresholds: NonNullable<BigNumberWidgetOptions['thresholds']> = []
 
-  // Add this flag to prevent circular updates
   private isUpdatingFromProps: boolean = false
 
   mounted() {
@@ -76,7 +63,6 @@ export default class BigNumberConfig extends Vue {
   }
 
   private syncFromProps() {
-    // Set flag to prevent watchers from emitting during sync
     this.isUpdatingFromProps = true
 
     const o = this.options || {}
@@ -85,10 +71,7 @@ export default class BigNumberConfig extends Vue {
     this.localDecimals = o.decimals !== undefined ? String(o.decimals) : '1'
     this.localUnit = o.unit || ''
     this.localColor = o.color || '#00B572'
-    this.localThresholdsType = (o.thresholdsType as any) || 'Absolute'
-    this.localThresholds = [...(o.thresholds || [])]
 
-    // Reset flag after Vue's next tick to allow normal updates
     this.$nextTick(() => {
       this.isUpdatingFromProps = false
     })
@@ -109,11 +92,9 @@ export default class BigNumberConfig extends Vue {
   @Watch('localColor') onLocalColor(v: string) {
     if (!this.isUpdatingFromProps) this.emitOptions()
   }
-  @Watch('localThresholds', { deep: true }) onLocalThr() {
-    if (!this.isUpdatingFromProps) this.emitOptions()
-  }
-  @Watch('localThresholdsType') onLocalThrType() {
-    if (!this.isUpdatingFromProps) this.emitOptions()
+
+  get predefineColors(): string[] {
+    return defineColors
   }
 
   private emitOptions() {
@@ -127,12 +108,26 @@ export default class BigNumberConfig extends Vue {
       decimals: isNaN(decNum) ? 1 : Math.min(Math.max(decNum, 0), 6),
       unit: this.localUnit || '',
       color: this.localColor || '#00B572',
-      thresholdsType: this.localThresholdsType,
-      thresholds: [...(this.localThresholds || [])],
     }
     this.$emit('update:options', next)
   }
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.color-picker-item {
+  .el-form-item__content {
+    display: flex !important;
+    align-items: center !important;
+    line-height: normal !important;
+    height: 43px !important;
+    justify-content: flex-start !important;
+  }
+
+  .el-color-picker {
+    vertical-align: middle !important;
+    margin: 0 !important;
+    align-self: center !important;
+  }
+}
+</style>

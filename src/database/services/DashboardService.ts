@@ -3,7 +3,6 @@ import { InjectRepository } from 'typeorm-typedi-extensions'
 import { Repository } from 'typeorm'
 import DashboardEntity from '@/database/models/DashboardEntity'
 import WidgetEntity from '@/database/models/WidgetEntity'
-import { WidgetModel } from '@/types/widgets'
 import time from '@/utils/time'
 
 /**

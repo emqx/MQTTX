@@ -36,7 +36,9 @@
                 :class="{ selected: selectedId === data.id }"
                 @contextmenu.prevent="openContextMenu(data, $event)"
               >
-                <div class="dashboard-status"></div>
+                <div class="dashboard-icon">
+                  <i class="iconfont icon-bytes-statistics"></i>
+                </div>
                 <div class="client-info">
                   <el-tooltip :content="`${data.name}`" :open-delay="500" placement="top">
                     <div class="client-name">{{ data.name }}</div>
@@ -288,7 +290,6 @@ export default class DashboardsList extends Vue {
 
       .client-info {
         flex: 1;
-        margin-left: 8px;
 
         .client-name {
           display: block;
@@ -306,15 +307,18 @@ export default class DashboardsList extends Vue {
         }
       }
 
-      .dashboard-status {
-        width: 8px;
-        height: 8px;
-        border-radius: 4px;
-        background: var(--color-bg-item_status);
+      .dashboard-icon {
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         flex-shrink: 0;
+        margin-right: 8px;
 
-        &.online {
-          background: var(--color-main-green);
+        .iconfont {
+          font-size: 16px;
+          color: var(--color-text-title);
         }
       }
     }
