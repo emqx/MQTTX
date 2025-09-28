@@ -3,6 +3,8 @@ import Store from '@/store'
 import { getClientId } from '@/utils/idGenerator'
 import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
+import { ScramAuth } from '@/utils/scramAuth'
+import { setupScramAuth, setupAuthHandler } from '@/utils/scramUtils'
 import _ from 'lodash'
 
 const setMQTT5Properties = (option: ClientPropertiesModel) => {
@@ -125,9 +127,18 @@ const getUrl = (record: ConnectionModel): string => {
   return url
 }
 
-export const createClient = (record: ConnectionModel): { curConnectClient: MqttClient; connectUrl: string } => {
+export const createClient = async (
+  record: ConnectionModel,
+): Promise<{ curConnectClient: MqttClient; connectUrl: string; scramAuth?: ScramAuth }> => {
   const options: IClientOptions = getClientOptions(record)
   const url = getUrl(record)
+
+  // Setup SCRAM authentication if applicable
+  let scramAuth: ScramAuth | undefined
+  if (record.mqttVersion === '5.0' && record.properties?.authenticationMethod) {
+    scramAuth = await setupScramAuth(record, options)
+  }
+
   // Map options.properties.topicAliasMaximum to options.topicAliasMaximum, as that is where MQTT.js looks for it.
   // TODO: remove after bug fixed in MQTT.js v5.
   const optionsTempWorkAround = Object.assign(
@@ -136,7 +147,12 @@ export const createClient = (record: ConnectionModel): { curConnectClient: MqttC
   )
   const curConnectClient: MqttClient = mqtt.connect(url, optionsTempWorkAround)
 
-  return { curConnectClient, connectUrl: url }
+  // Setup SCRAM auth handler if we have SCRAM auth configured
+  if (scramAuth && record.properties?.authenticationMethod) {
+    setupAuthHandler(curConnectClient, scramAuth, record.properties.authenticationMethod)
+  }
+
+  return { curConnectClient, connectUrl: url, scramAuth }
 }
 
 // Prevent old data from missing protocol field

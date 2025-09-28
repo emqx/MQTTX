@@ -517,4 +517,9 @@ export default {
     en: 'latest announcement',
     ja: '最新のお知らせ',
   },
+  authenticationMethod: {
+    zh: '认证方法',
+    en: 'Authentication Method',
+    ja: '認証方法',
+  },
 }
