@@ -943,4 +943,11 @@ export default {
     ja: 'ペイロード履歴',
     hu: 'Terhelés előzmények',
   },
+  authenticationMethod: {
+    zh: '认证方法',
+    en: 'Authentication Method',
+    tr: 'Kimlik Doğrulama Yöntemi',
+    ja: '認証方法',
+    hu: 'Hitelesítési módszer',
+  },
 }

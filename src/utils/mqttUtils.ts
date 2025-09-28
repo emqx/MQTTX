@@ -4,6 +4,8 @@ import { getClientId } from '@/utils/idGenerator'
 import time from '@/utils/time'
 import { getSSLFile } from '@/utils/getFiles'
 import _ from 'lodash'
+import { ScramAuth } from '@/utils/scramAuth'
+import { setupScramAuth, setupAuthHandler } from '@/utils/scramUtils'
 
 export const setMQTT5Properties = ({ clean, properties: option }: ConnectionModel) => {
   if (option === undefined) {
@@ -141,7 +143,7 @@ export const getUrl = (record: ConnectionModel): string => {
 
 export const createClient = (
   record: ConnectionModel,
-): Promise<{ curConnectClient: MqttClient; connectUrl: string }> => {
+): Promise<{ curConnectClient: MqttClient; connectUrl: string; scramAuth?: ScramAuth }> => {
   return new Promise((resolve, reject) => {
     const options: IClientOptions = getClientOptions(record)
     const url = getUrl(record)
@@ -155,8 +157,21 @@ export const createClient = (
     if (password && (username === undefined || username === '') && protocolVersion !== 5) {
       return reject(new Error('MQTT 3.1.1 requires a Username if a Password is set'))
     }
+
+    // MQTT 5.0 Enhanced Authentication configuration
+    let scramAuth: ScramAuth | undefined
+    if (protocolVersion === 5 && record.properties?.authenticationMethod && record.username && record.password) {
+      scramAuth = setupScramAuth(record, tempOptions)
+    }
+
     const curConnectClient: MqttClient = mqtt.connect(url, tempOptions)
-    return resolve({ curConnectClient, connectUrl: url })
+
+    // MQTT 5.0 Enhanced Authentication handler setup
+    if (scramAuth && record.properties?.authenticationMethod) {
+      setupAuthHandler(curConnectClient, scramAuth, record.properties.authenticationMethod)
+    }
+
+    return resolve({ curConnectClient, connectUrl: url, scramAuth })
   })
 }
 
