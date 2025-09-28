@@ -76,6 +76,12 @@ export default class WidgetEntity {
   @Column({ type: 'varchar', nullable: true })
   schemaMessageName?: string
 
+  @Column({ type: 'simple-enum', enum: ['valid', 'invalid'], nullable: true })
+  schemaValidationState?: 'valid' | 'invalid'
+
+  @Column({ type: 'text', nullable: true })
+  schemaValidationError?: string
+
   @Column({ type: 'simple-json', nullable: true })
   widgetOptions?: {}
 

@@ -1,4 +1,3 @@
-import { WidgetType } from '@/types/widgets'
 import { AsyncComponent } from 'vue'
 
 const GaugeChart = () => import('@/components/charts/Gauge.vue')

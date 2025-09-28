@@ -105,8 +105,17 @@
                 class="add-widget-button"
                 @click="toAddVisualization"
               >
-                New
+                {{ $t('common.new') }}
               </el-button>
+              <TimeRangeSelect
+                v-if="!showDashboardsList && selectedDashboard"
+                v-model="timeRange"
+                :time-range-type="timeRangeType"
+                :duration="duration"
+                size="mini"
+                style="margin-left: 8px; width: 200px"
+                @range-relative="onTimeRangeSelect"
+              />
               <template v-else>
                 <div v-if="selectedDashboard" class="topbar-dashboard-view">
                   <div class="dashboard-info-section">
@@ -123,15 +132,24 @@
                       <i class="el-icon-edit"></i>
                     </a>
                   </div>
-                  <el-button
-                    size="mini"
-                    type="primary"
-                    icon="el-icon-plus"
-                    class="add-widget-button"
-                    @click="toAddVisualization"
-                  >
-                    New
-                  </el-button>
+                  <div class="dashboard-actions-section">
+                    <el-button
+                      size="mini"
+                      type="primary"
+                      icon="el-icon-plus"
+                      class="add-widget-button"
+                      @click="toAddVisualization"
+                    >
+                      {{ $t('common.new') }}
+                    </el-button>
+                    <TimeRangeSelect
+                      v-model="timeRange"
+                      size="mini"
+                      @range-relative="onTimeRangeSelect"
+                      style="margin-left: 8px; width: 200px"
+                      :show-live-mode="true"
+                    />
+                  </div>
                 </div>
               </template>
             </div>
@@ -141,7 +159,7 @@
     </div>
     <!-- Dashboard view (Canvas Layout) -->
     <div class="dashboards-view" :class="{ 'full-height': isAddingWidget }" :style="{ marginLeft: detailLeftValue }">
-      <template v-if="isLoadingData">
+      <template v-if="loadingState.initializing">
         <el-skeleton class="dashboard-skeleton-page" :row="8" animated />
       </template>
       <template v-else>
@@ -151,9 +169,9 @@
         <!-- if no dashboard is selected, show the no dashboards placeholder -->
         <template v-else>
           <div v-if="isEmpty" class="no-dashboards-placeholder">
-            <h2>{{ ' No Dashboards' }}</h2>
+            <h2>{{ $t('viewer.noDashboards') }}</h2>
             <p>
-              {{ 'Create a new dashboard to get started' }}
+              {{ $t('viewer.createDashboardToGetStarted') }}
             </p>
             <el-button
               type="primary"
@@ -162,12 +180,12 @@
               style="font-size: 16px; padding: 10px 32px; border-radius: 6px; margin-top: 16px"
               @click="toCreateDashboard"
             >
-              {{ ' Create Dashboard' }}
+              {{ $t('viewer.createDashboard') }}
             </el-button>
           </div>
           <!-- if a dashboard is selected, show the dashboard view -->
           <template v-else>
-            <template v-if="isLoadingWidgets">
+            <template v-if="loadingState.widgets">
               <el-skeleton class="widget-skeleton-page" :row="6" animated />
             </template>
             <!-- if the dashboard has widgets, show the dashboard view -->
@@ -175,6 +193,9 @@
               <DashboardView
                 :dashboard-id="selectedDashboardId"
                 :widgets="dashboardWidgets"
+                :time-range="timeRange"
+                :time-range-type="timeRangeType"
+                :duration="duration"
                 @layout-changed="onLayoutChanged"
                 @edit-widget="onEditWidget"
                 @remove-widget="onRemoveWidget"
@@ -209,8 +230,9 @@ import EmptyPage from '@/components/EmptyPage.vue'
 import DashboardsList from './DashboardsList.vue'
 import DashboardView from './DashboardView.vue'
 import WidgetConfig from './WidgetConfig.vue'
+import TimeRangeSelect from '@/components/TimeRangeSelect.vue'
 import useServices from '@/database/useServices'
-import { WidgetModel } from '@/types/widgets'
+import time from '@/utils/time'
 
 @Component({
   components: {
@@ -218,16 +240,22 @@ import { WidgetModel } from '@/types/widgets'
     EmptyPage,
     DashboardView,
     WidgetConfig,
+    TimeRangeSelect,
   },
 })
 export default class Dashboards extends Vue {
   private showDashboardsList: boolean = true
-  private isLoadingData: boolean = false
-  private isLoadingWidgets: boolean = false
   private isAddingWidget: boolean = false
   private editingWidget: WidgetModel | null = null
   private creatingInTopbar: boolean = false
   private editingInTopbar: boolean = false
+
+  // === CONSOLIDATED LOADING STATE ===
+  private loadingState = {
+    dashboards: false,
+    widgets: false,
+    initializing: false,
+  }
 
   private dashboards: DashboardModel[] = []
   private selectedDashboard: DashboardModel | null = null
@@ -238,6 +266,9 @@ export default class Dashboards extends Vue {
   private editDashboard: Partial<DashboardModel> = { name: '', description: '' }
 
   private isSelectingDashboard: boolean = false
+  private timeRange: [string, string] = [time.getDateBefore(24 * 60), time.getNowDate()]
+  private timeRangeType: 'live' | 'static' = 'static'
+  private duration: number = 24 * 60
 
   get leftValue(): string {
     return this.showDashboardsList ? '230px' : '0px'
@@ -256,20 +287,27 @@ export default class Dashboards extends Vue {
   }
 
   async mounted() {
-    await this.initializeDashboards()
+    await this.initializeComponent()
   }
 
-  /**
-   * Initialize the dashboard system -- load all dashboards and set initial selection
-   */
-  private async initializeDashboards(): Promise<void> {
-    this.isLoadingData = true
+  // === INITIALIZATION METHODS ===
+  private async initializeComponent(): Promise<void> {
+    this.loadingState.initializing = true
     try {
       await this.loadDashboards()
       await this.setInitialDashboardSelection()
       await this.loadCurrentDashboardWidgets()
     } finally {
-      this.isLoadingData = false
+      this.loadingState.initializing = false
+    }
+  }
+
+  // === ERROR HANDLING ===
+  private handleError(error: Error, context: string, showUser: boolean = true): void {
+    console.error(`[DASHBOARDS-${context}] Error:`, error)
+    this.$log?.error?.(error.toString())
+    if (showUser) {
+      this.$message.error(`${context} failed: ${error.message}`)
     }
   }
 
@@ -277,8 +315,16 @@ export default class Dashboards extends Vue {
    * Load all dashboards (ordered by orderId)
    */
   private async loadDashboards(): Promise<void> {
-    const { dashboardService } = useServices()
-    this.dashboards = await dashboardService.getAll()
+    this.loadingState.dashboards = true
+    try {
+      const { dashboardService } = useServices()
+      this.dashboards = await dashboardService.getAll()
+    } catch (error) {
+      this.handleError(error as Error, 'Loading dashboards')
+      this.dashboards = []
+    } finally {
+      this.loadingState.dashboards = false
+    }
   }
 
   /**
@@ -307,37 +353,51 @@ export default class Dashboards extends Vue {
       return
     }
 
-    this.isLoadingWidgets = true
+    this.loadingState.widgets = true
     try {
       const { widgetService } = useServices()
       this.dashboardWidgets = await widgetService.getAll(this.selectedDashboardId)
     } catch (error) {
-      console.error('[INDEX] Error loading dashboard widgets:', error)
+      this.handleError(error as Error, 'Loading dashboard widgets')
       this.dashboardWidgets = []
     } finally {
-      this.isLoadingWidgets = false
+      this.loadingState.widgets = false
     }
   }
 
-  private async refreshDashboards(): Promise<void> {
-    await this.loadDashboards()
-    if (this.selectedDashboardId) {
-      const found = this.dashboards.find((d) => d.id === this.selectedDashboardId)
-      if (found) {
-        this.selectedDashboard = found
-      } else {
-        this.clearDashboardSelection()
+  // === REFRESH METHODS ===
+  private async refreshData(scope: 'dashboards' | 'widgets' | 'all' = 'all'): Promise<void> {
+    const promises: Promise<void>[] = []
+
+    if (scope === 'dashboards' || scope === 'all') {
+      promises.push(this.loadDashboards())
+    }
+
+    if (scope === 'widgets' || scope === 'all') {
+      promises.push(this.loadCurrentDashboardWidgets())
+    }
+
+    await Promise.all(promises)
+
+    // Update selected dashboard reference if dashboards were refreshed
+    if (scope === 'dashboards' || scope === 'all') {
+      if (this.selectedDashboardId) {
+        const found = this.dashboards.find((d) => d.id === this.selectedDashboardId)
+        if (found) {
+          this.selectedDashboard = found
+        } else {
+          this.clearDashboardSelection()
+        }
       }
     }
-  }
-
-  private async refreshCurrentDashboard(): Promise<void> {
-    await Promise.all([this.refreshDashboards(), this.loadCurrentDashboardWidgets()])
   }
 
   private setSelectedDashboard(dashboard: DashboardModel, persist: boolean = true): void {
     this.selectedDashboard = dashboard
     this.selectedDashboardId = dashboard.id || null
+
+    // Load time range settings from dashboard global settings
+    this.loadTimeRangeSettings()
 
     if (persist && dashboard.id) {
       this.persistDashboardId(dashboard.id)
@@ -351,19 +411,33 @@ export default class Dashboards extends Vue {
     this.clearPersistedDashboardId()
   }
 
-  private async selectDashboard(dashboard: DashboardModel): Promise<void> {
+  // === DASHBOARD SELECTION METHODS ===
+  private async selectDashboard(
+    dashboard: DashboardModel | string,
+    options: { persist?: boolean; skipConfirmation?: boolean } = {},
+  ): Promise<void> {
     if (this.isSelectingDashboard) return
     this.isSelectingDashboard = true
 
     try {
-      if (this.editingInTopbar) {
+      // Handle string ID by finding the dashboard
+      const targetDashboard =
+        typeof dashboard === 'string' ? this.dashboards.find((d) => d.id === dashboard) : dashboard
+
+      if (!targetDashboard) {
+        this.handleError(new Error('Dashboard not found'), 'Dashboard selection', false)
+        return
+      }
+
+      if (this.editingInTopbar && !options.skipConfirmation) {
         await this.handleEditingConfirmation(() => {
-          this.setSelectedDashboard(dashboard)
+          this.setSelectedDashboard(targetDashboard, options.persist)
           this.loadCurrentDashboardWidgets()
         })
         return
       }
-      this.setSelectedDashboard(dashboard)
+
+      this.setSelectedDashboard(targetDashboard, options.persist)
       await this.loadCurrentDashboardWidgets()
     } finally {
       this.isSelectingDashboard = false
@@ -371,10 +445,7 @@ export default class Dashboards extends Vue {
   }
 
   private async selectDashboardById(id: string): Promise<void> {
-    const dashboard = this.dashboards.find((d) => d.id === id)
-    if (dashboard) {
-      await this.selectDashboard(dashboard)
-    }
+    await this.selectDashboard(id)
   }
 
   private getPersistedDashboardId(): string | null {
@@ -403,11 +474,9 @@ export default class Dashboards extends Vue {
 
   private async handleEditingConfirmation(action: () => void): Promise<void> {
     try {
-      await this.$confirm(
-        String(this.$t('common.confirmLeaveEditing') || 'Discard current edits and switch dashboard?'),
-        String(this.$t('common.confirm') || 'Confirm'),
-        { type: 'warning' },
-      )
+      await this.$confirm(String(this.$t('viewer.confirmLeaveEditing')), String(this.$t('common.confirm')), {
+        type: 'warning',
+      })
       this.cancelEditTopbar()
       action()
     } catch (e) {
@@ -452,13 +521,13 @@ export default class Dashboards extends Vue {
 
       const success = await dashboardService.updateOrders(orderUpdates)
       if (!success) {
-        this.$message.error('Failed to save dashboard order')
-        await this.refreshDashboards()
+        this.$message.error(String(this.$t('viewer.failedToSaveDashboardOrder')))
+        await this.refreshData('dashboards')
       }
     } catch (error) {
       console.error('Error updating dashboard order:', error)
-      this.$message.error('Failed to save dashboard order')
-      await this.refreshDashboards()
+      this.$message.error(String(this.$t('viewer.failedToSaveDashboardOrder')))
+      await this.refreshData('dashboards')
     }
   }
 
@@ -471,11 +540,9 @@ export default class Dashboards extends Vue {
     if (!dashboard?.id) return
 
     try {
-      await this.$confirm(
-        String(this.$t('common.confirmDelete') || 'Are you sure to delete this item?'),
-        String(this.$t('common.confirm') || 'Confirm'),
-        { type: 'warning' },
-      )
+      await this.$confirm(String(this.$t('common.confirmDelete')), String(this.$t('common.confirm')), {
+        type: 'warning',
+      })
     } catch (e) {
       return
     }
@@ -504,7 +571,7 @@ export default class Dashboards extends Vue {
 
     if (result?.id) {
       this.$message.success(String(this.$t('common.saveSuccess') || 'Saved'))
-      await this.refreshDashboards()
+      await this.refreshData('dashboards')
       await this.selectDashboard(result)
       this.notifyDashboardsList('upsert', result, true)
     } else {
@@ -518,7 +585,7 @@ export default class Dashboards extends Vue {
 
     if (deleted) {
       this.$message.success(String(this.$t('common.deleteSuccess') || 'Deleted'))
-      await this.refreshDashboards()
+      await this.refreshData('dashboards')
 
       if (this.isEmpty) {
         this.clearDashboardSelection()
@@ -539,21 +606,21 @@ export default class Dashboards extends Vue {
 
   private async createWidget(widgetData: Partial<WidgetModel>): Promise<void> {
     if (!this.selectedDashboardId) {
-      this.$message.error('No dashboard selected')
+      this.$message.error(String(this.$t('viewer.noDashboardSelected')))
       return
     }
 
     try {
       if (!widgetData.type) {
-        throw new Error('Widget type is required')
+        throw new Error(String(this.$t('viewer.widgetTypeRequired')))
       }
 
       if (!widgetData.connectionId) {
-        throw new Error('Connection is required')
+        throw new Error(String(this.$t('viewer.connectionRequired')))
       }
 
       if (!widgetData.topicPattern) {
-        throw new Error('Topic pattern is required')
+        throw new Error(String(this.$t('viewer.topicPatternRequired')))
       }
 
       const { widgetService } = useServices()
@@ -699,11 +766,9 @@ export default class Dashboards extends Vue {
 
   private async onRemoveWidget(id: string): Promise<void> {
     try {
-      await this.$confirm(
-        String(this.$t('common.confirmDelete') || 'Are you sure to delete this item?'),
-        String(this.$t('common.confirm') || 'Confirm'),
-        { type: 'warning' },
-      )
+      await this.$confirm(String(this.$t('common.confirmDelete')), String(this.$t('common.confirm')), {
+        type: 'warning',
+      })
     } catch (e) {
       return
     }
@@ -739,6 +804,87 @@ export default class Dashboards extends Vue {
   private cancelEditTopbar(): void {
     this.editingInTopbar = false
     this.editDashboard = { name: '', description: '' }
+  }
+
+  private onTimeRangeSelect(options: { timeRange: [string, string] | null; duration: number; isLive: boolean }): void {
+    // Update the time range
+    this.timeRange = options.timeRange || [time.getDateBefore(24 * 60), time.getNowDate()]
+
+    // Convert duration from milliseconds to minutes for consistency with DashboardView
+    // Handle edge case where duration might be 0 or undefined
+    const durationInMinutes =
+      options.duration && options.duration > 0 ? Math.round(options.duration / (60 * 1000)) : 24 * 60 // Default to 24 hours if duration is invalid
+    this.duration = durationInMinutes
+
+    if (options.isLive) {
+      // Store live mode settings in dashboard global settings
+      this.timeRangeType = 'live'
+      this.saveTimeRangeSettings({
+        timeRange: this.timeRange,
+        isLive: true,
+        duration: durationInMinutes, // Store in minutes
+        type: 'live',
+      })
+    } else {
+      // Handle static ranges
+      this.timeRangeType = 'static'
+      this.saveTimeRangeSettings({
+        timeRange: this.timeRange,
+        isLive: false,
+        type: 'static',
+      })
+    }
+  }
+
+  private loadTimeRangeSettings(): void {
+    const settings = this.selectedDashboard?.globalSettings?.timeRange
+
+    if (settings) {
+      // Use saved settings if they exist
+      this.timeRangeType = settings.type || 'static'
+      this.duration = settings.duration || 24 * 60
+
+      if (settings.type === 'live') {
+        // For live mode, set time range to current time window
+        const now = new Date()
+        const start = new Date(now.getTime() - this.duration * 60 * 1000)
+        this.timeRange = [time.toFormat(start), time.toFormat(now)]
+      } else {
+        // For static mode, use saved time range
+        this.timeRange = settings.timeRange || [time.getDateBefore(24 * 60), time.getNowDate()]
+      }
+    } else {
+      // Only set defaults if no settings exist
+      this.timeRange = [time.getDateBefore(24 * 60), time.getNowDate()]
+      this.timeRangeType = 'static'
+      this.duration = 24 * 60
+    }
+  }
+
+  private async saveTimeRangeSettings(settings: {
+    timeRange: [string, string]
+    isLive: boolean
+    duration?: number
+    type: 'live' | 'static'
+  }): Promise<void> {
+    if (!this.selectedDashboard?.id) return
+
+    try {
+      const { dashboardService } = useServices()
+      const globalSettings = {
+        ...this.selectedDashboard.globalSettings,
+        timeRange: settings,
+      }
+
+      await dashboardService.update(this.selectedDashboard.id, {
+        globalSettings,
+      })
+
+      this.selectedDashboard.globalSettings = globalSettings
+    } catch (error) {
+      console.error('Failed to save time range settings:', error)
+      this.$message.error(String(this.$t('viewer.failedToSaveTimeRangeSettings')))
+    }
   }
 }
 </script>
@@ -818,6 +964,11 @@ export default class Dashboards extends Vue {
           align-items: center;
           width: 100%;
           .dashboard-info-section {
+            display: flex;
+            align-items: center;
+          }
+
+          .dashboard-actions-section {
             display: flex;
             align-items: center;
           }

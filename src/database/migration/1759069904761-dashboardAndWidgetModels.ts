@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm'
 
-export class dashboardAndWidgetTables1758911209616 implements MigrationInterface {
-  name = 'dashboardAndWidgetTables1758911209616'
+export class dashboardAndWidgetModels1759069904761 implements MigrationInterface {
+  name = 'dashboardAndWidgetModels1759069904761'
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
@@ -26,6 +26,8 @@ export class dashboardAndWidgetTables1758911209616 implements MigrationInterface
                 "schemaType" varchar CHECK(schemaType IN ('protobuf', 'avro')),
                 "schemaId" varchar,
                 "schemaMessageName" varchar,
+                "schemaValidationState" varchar CHECK(schemaValidationState IN ('valid', 'invalid')),
+                "schemaValidationError" text,
                 "widgetOptions" text,
                 "createAt" datetime NOT NULL DEFAULT (CURRENT_TIMESTAMP),
                 "updateAt" datetime NOT NULL DEFAULT (CURRENT_TIMESTAMP)
@@ -64,6 +66,8 @@ export class dashboardAndWidgetTables1758911209616 implements MigrationInterface
                 "schemaType" varchar CHECK(schemaType IN ('protobuf', 'avro')),
                 "schemaId" varchar,
                 "schemaMessageName" varchar,
+                "schemaValidationState" varchar CHECK(schemaValidationState IN ('valid', 'invalid')),
+                "schemaValidationError" text,
                 "widgetOptions" text,
                 "createAt" datetime NOT NULL DEFAULT (CURRENT_TIMESTAMP),
                 "updateAt" datetime NOT NULL DEFAULT (CURRENT_TIMESTAMP),
@@ -92,6 +96,8 @@ export class dashboardAndWidgetTables1758911209616 implements MigrationInterface
                     "schemaType",
                     "schemaId",
                     "schemaMessageName",
+                    "schemaValidationState",
+                    "schemaValidationError",
                     "widgetOptions",
                     "createAt",
                     "updateAt"
@@ -116,6 +122,8 @@ export class dashboardAndWidgetTables1758911209616 implements MigrationInterface
                 "schemaType",
                 "schemaId",
                 "schemaMessageName",
+                "schemaValidationState",
+                "schemaValidationError",
                 "widgetOptions",
                 "createAt",
                 "updateAt"
@@ -157,6 +165,8 @@ export class dashboardAndWidgetTables1758911209616 implements MigrationInterface
                 "schemaType" varchar CHECK(schemaType IN ('protobuf', 'avro')),
                 "schemaId" varchar,
                 "schemaMessageName" varchar,
+                "schemaValidationState" varchar CHECK(schemaValidationState IN ('valid', 'invalid')),
+                "schemaValidationError" text,
                 "widgetOptions" text,
                 "createAt" datetime NOT NULL DEFAULT (CURRENT_TIMESTAMP),
                 "updateAt" datetime NOT NULL DEFAULT (CURRENT_TIMESTAMP)
@@ -184,6 +194,8 @@ export class dashboardAndWidgetTables1758911209616 implements MigrationInterface
                     "schemaType",
                     "schemaId",
                     "schemaMessageName",
+                    "schemaValidationState",
+                    "schemaValidationError",
                     "widgetOptions",
                     "createAt",
                     "updateAt"
@@ -208,6 +220,8 @@ export class dashboardAndWidgetTables1758911209616 implements MigrationInterface
                 "schemaType",
                 "schemaId",
                 "schemaMessageName",
+                "schemaValidationState",
+                "schemaValidationError",
                 "widgetOptions",
                 "createAt",
                 "updateAt"

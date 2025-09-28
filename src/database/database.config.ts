@@ -51,7 +51,7 @@ import { ignoreQoS0Message1724839386732 } from './migration/1724839386732-ignore
 import { changeDefaultLLMModel1727111519962 } from './migration/1727111519962-changeDefaultLLMModel'
 import { topicNodeTables1729246737362 } from './migration/1729246737362-topicNodeTables'
 import { reasonModelSupport1742835643809 } from './migration/1742835643809-reasonModelSupport'
-import { dashboardAndWidgetTables1758911209616 } from './migration/1758911209616-dashboardAndWidgetTables'
+import { dashboardAndWidgetModels1759069904761 } from './migration/1759069904761-dashboardAndWidgetModels'
 
 // Get store path; fall back when running in CLI (no Electron app)
 let STORE_PATH: string
@@ -113,7 +113,7 @@ const ORMConfig = {
     changeDefaultLLMModel1727111519962,
     topicNodeTables1729246737362,
     reasonModelSupport1742835643809,
-    dashboardAndWidgetTables1758911209616,
+    dashboardAndWidgetModels1759069904761,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [

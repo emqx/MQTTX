@@ -2,7 +2,6 @@ import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import { Repository, UpdateResult } from 'typeorm'
 import WidgetEntity from '@/database/models/WidgetEntity'
-import { WidgetModel } from '@/types/widgets'
 import time from '@/utils/time'
 
 @Service()

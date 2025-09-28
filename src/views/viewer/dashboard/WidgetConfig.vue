@@ -2,23 +2,25 @@
   <div class="widget-config card-form">
     <div class="topbar">
       <div class="topbar-left">
-        <a href="javascript:;" @click="$emit('cancel')"> <i class="el-icon-arrow-left"></i>Back </a>
+        <a href="javascript:;" @click="$emit('cancel')"> <i class="el-icon-arrow-left"></i>{{ $t('common.back') }} </a>
       </div>
       <div class="topbar-center">
-        <h2>Add Visualization</h2>
+        <h2>{{ $t('viewer.addVisualization') }}</h2>
       </div>
       <div class="topbar-right">
-        <a href="javascript:;" @click="handleSave" class="connect-btn">Save</a>
+        <a href="javascript:;" @click="handleSave" class="connect-btn">{{ $t('common.save') }}</a>
       </div>
     </div>
 
     <el-form ref="form" label-position="right" label-width="160px" :model="formModel" :rules="rules">
       <!-- General Settings -->
-      <div class="widget-section-header"><h3>General</h3></div>
+      <div class="widget-section-header">
+        <h3>{{ $t('viewer.general') }}</h3>
+      </div>
       <el-card shadow="never" class="widget-section-body item-card">
         <el-row :gutter="10">
           <el-col :span="22">
-            <el-form-item label-width="93px" label="Type" prop="type">
+            <el-form-item label-width="93px" :label="$t('viewer.type')" prop="type">
               <el-select size="mini" v-model="formModel.type">
                 <el-option
                   v-for="type in availableTypes"
@@ -31,7 +33,7 @@
           </el-col>
           <el-col :span="2"></el-col>
           <el-col :span="22">
-            <el-form-item label-width="93px" label="Title" prop="title">
+            <el-form-item label-width="93px" :label="$t('viewer.title')" prop="title">
               <el-input size="mini" v-model="formModel.title" />
             </el-form-item>
           </el-col>
@@ -42,18 +44,20 @@
       <!-- Preview -->
       <el-card shadow="never" class="preview-card">
         <div class="preview-header">
-          <h3>Preview</h3>
-          <a href="javascript:;" class="icon-oper" title="Refresh">
-            <i class="el-icon-refresh-right"></i>
-          </a>
+          <h3>{{ $t('viewer.preview') }}</h3>
+          <el-tooltip content="Refresh the preview with random data" placement="top">
+            <a href="javascript:;" class="icon-oper" @click="refreshPreview">
+              <i class="el-icon-refresh-right"></i>
+            </a>
+          </el-tooltip>
         </div>
         <div class="preview-body">
           <div v-if="!formModel.type" class="preview-placeholder">{{ $t('common.noData') || 'No Data' }}</div>
           <div v-else class="preview-widget">
             <WidgetRenderer
+              :key="`preview-${previewRefreshKey}`"
               :widget="previewWidget"
-              :value="previewValue"
-              :chart-data="previewChartData"
+              :data="previewData"
               style="width: 100%; height: 100%"
             />
           </div>
@@ -63,22 +67,32 @@
       <!-- Type-Specific Options -->
       <div v-if="formModel.type" class="widget-options">
         <div class="widget-section-header">
-          <h3>{{ formModel.type }} Options</h3>
+          <h3>{{ formModel.type }} {{ $t('viewer.options') }}</h3>
         </div>
         <component :is="optionsComponent" :options.sync="formModel.widgetOptions" />
       </div>
+      <!-- Threshold Configuration -->
+      <el-card shadow="never" class="widget-section-body item-card">
+        <el-row :gutter="20">
+          <el-col :span="22">
+            <ThresholdEditor v-model="thresholds" :thresholds-type.sync="thresholdsType" />
+          </el-col>
+        </el-row>
+      </el-card>
 
-      <div class="widget-section-header"><h3>Data Source</h3></div>
+      <div class="widget-section-header">
+        <h3>{{ $t('viewer.dataSource') }}</h3>
+      </div>
       <el-card shadow="never" class="widget-section-body item-card">
         <el-row :gutter="10">
           <el-col :span="22">
-            <el-form-item label-width="175px" label="Connection" prop="connectionId">
+            <el-form-item label-width="175px" :label="$t('viewer.connection')" prop="connectionId">
               <ConnectionSelect v-model="formModel.connectionId" width="100%" size="mini" />
             </el-form-item>
           </el-col>
           <el-col :span="2"></el-col>
           <el-col :span="22">
-            <el-form-item label-width="175px" label="Topic Pattern" prop="topicPattern">
+            <el-form-item label-width="175px" :label="$t('viewer.topicPattern')" prop="topicPattern">
               <TopicSelect
                 v-model="formModel.topicPattern"
                 :connection-id="formModel.connectionId || ''"
@@ -89,7 +103,11 @@
           </el-col>
           <el-col :span="2"></el-col>
           <el-col :span="22">
-            <el-form-item label-width="175px" label="Value Field" title="JSON path or field name for data extraction">
+            <el-form-item
+              label-width="175px"
+              :label="$t('viewer.valueField')"
+              title="JSON path or field name for data extraction"
+            >
               <el-input size="mini" v-model="formModel.valueField" placeholder="$.temp or temp" />
             </el-form-item>
           </el-col>
@@ -97,11 +115,23 @@
         </el-row>
       </el-card>
 
-      <div class="widget-section-header"><h3>Schema Support</h3></div>
+      <div class="widget-section-header">
+        <h3>{{ $t('script.schemaTab') }}</h3>
+      </div>
       <el-card shadow="never" class="widget-section-body item-card">
+        <!-- Schema Validation Warning -->
+        <div v-if="formModel.schemaValidationState === 'invalid'" class="schema-warning">
+          <el-alert
+            :title="formModel.schemaValidationError || 'Schema validation is failing'"
+            type="warning"
+            :closable="false"
+            show-icon
+          />
+        </div>
+
         <el-row :gutter="10">
           <el-col :span="22">
-            <el-form-item label-width="175px" label="Schema Type">
+            <el-form-item label-width="175px" :label="$t('script.schemaType')">
               <el-select size="mini" v-model="formModel.schemaType">
                 <el-option label="None" :value="undefined" />
                 <el-option label="Protobuf" value="protobuf" />
@@ -111,7 +141,7 @@
           </el-col>
           <el-col :span="2"></el-col>
           <el-col :span="22">
-            <el-form-item label-width="175px" label="Schema" title="Select stored schema">
+            <el-form-item label-width="175px" :label="$t('script.schemaName')" title="Select stored schema">
               <el-select
                 size="mini"
                 v-model="formModel.schemaId"
@@ -129,13 +159,17 @@
           </el-col>
           <el-col :span="2"></el-col>
           <el-col v-if="formModel.schemaType === 'protobuf'" :span="22">
-            <el-form-item label-width="175px" label="Message Name" title="Protobuf message name">
+            <el-form-item label-width="175px" :label="$t('viewer.messageName')" title="Protobuf message name">
               <el-input size="mini" v-model="formModel.schemaMessageName" placeholder="MyMessage" />
             </el-form-item>
           </el-col>
           <el-col v-if="formModel.schemaType === 'protobuf'" :span="2"></el-col>
           <el-col :span="22">
-            <el-form-item label-width="175px" label="Fallback Value" title="Default value when no data is available">
+            <el-form-item
+              label-width="175px"
+              :label="$t('viewer.fallbackValue')"
+              title="Default value when no data is available"
+            >
               <el-input type="number" size="mini" v-model.number="formModel.fallbackValue" placeholder="0" />
             </el-form-item>
           </el-col>
@@ -153,13 +187,21 @@ import GaugeConfig from '@/components/widget-configs/GaugeConfig.vue'
 import LineConfig from '@/components/widget-configs/LineConfig.vue'
 import ConnectionSelect from '@/components/ConnectionSelect.vue'
 import TopicSelect from '@/components/TopicSelect.vue'
-import type { WidgetModel, WidgetType } from '@/types/widgets'
+import ThresholdEditor from '@/components/ThresholdEditor.vue'
 import { widgetRegistry } from '@/widgets/widgetRegistry'
 import WidgetRenderer from '@/widgets/WidgetRenderer.vue'
 import useServices from '@/database/useServices'
 
 @Component({
-  components: { ConnectionSelect, TopicSelect, WidgetRenderer, BigNumberConfig, GaugeConfig, LineConfig },
+  components: {
+    ConnectionSelect,
+    TopicSelect,
+    WidgetRenderer,
+    BigNumberConfig,
+    GaugeConfig,
+    LineConfig,
+    ThresholdEditor,
+  },
 })
 export default class WidgetConfig extends Vue {
   @Prop({ type: Object, default: null }) readonly initialWidget!: Partial<WidgetModel> | null
@@ -197,13 +239,115 @@ export default class WidgetConfig extends Vue {
     widgetOptions: {},
   }
 
+  // Threshold configuration (shared across all types)
+  private thresholds: any[] = []
+  private thresholdsType: 'Absolute' | 'Percentage' = 'Absolute'
+
+  // Preview refresh key to force re-rendering
+  private previewRefreshKey: number = 0
+
+  // Flag to track initialization to prevent clearing schema values during setup
+  private isInitializing: boolean = true
+
   get availableTypes() {
     return widgetRegistry.getAvailableTypes()
   }
 
+  // === INITIALIZATION METHODS ===
+  private getBaseFormModel(): Partial<WidgetModel> {
+    return {
+      type: 'Big Number' as WidgetType,
+      title: '',
+      x: 0,
+      y: 0,
+      w: 4,
+      h: 6,
+      static: false,
+      connectionId: '',
+      topicPattern: '',
+      valueField: '',
+      fallbackValue: 0,
+      schemaType: undefined,
+      schemaId: '',
+      schemaMessageName: '',
+      widgetOptions: {},
+    }
+  }
+
+  private resetFormModel() {
+    this.formModel = this.getBaseFormModel()
+    this.thresholds = []
+    this.thresholdsType = 'Absolute'
+  }
+
+  private initializeFormModel(widget?: Partial<WidgetModel>) {
+    this.resetFormModel()
+
+    if (widget) {
+      this.applyWidgetData(widget)
+    } else {
+      this.applyDefaults()
+    }
+
+    this.initializeDerivedState()
+  }
+
+  private applyWidgetData(widget: Partial<WidgetModel>) {
+    this.formModel = {
+      ...this.getBaseFormModel(),
+      ...widget,
+      widgetOptions: widget.widgetOptions ? { ...widget.widgetOptions } : undefined,
+    }
+  }
+
+  private applyDefaults() {
+    const defaultType = 'Big Number' as WidgetType
+    this.formModel = {
+      ...this.getBaseFormModel(),
+      type: defaultType,
+      widgetOptions: { ...widgetRegistry.getDefaultOptions(defaultType) },
+    }
+  }
+
+  private initializeDerivedState() {
+    // Initialize thresholds from widget options
+    if (this.formModel.widgetOptions) {
+      this.thresholds = [...(this.formModel.widgetOptions.thresholds || [])]
+      this.thresholdsType = this.formModel.widgetOptions.thresholdsType || 'Absolute'
+    }
+  }
+
+  // === THRESHOLD MANAGEMENT ===
+  private get effectiveThresholds() {
+    return this.formModel.widgetOptions?.thresholds || []
+  }
+
+  private get effectiveThresholdsType() {
+    return this.formModel.widgetOptions?.thresholdsType || 'Absolute'
+  }
+
+  private updateThresholds(thresholds: any[], type: 'Absolute' | 'Percentage') {
+    if (!this.formModel.widgetOptions) {
+      this.formModel.widgetOptions = {}
+    }
+    this.formModel.widgetOptions.thresholds = [...thresholds]
+    this.formModel.widgetOptions.thresholdsType = type
+  }
+
   @Watch('formModel.type')
-  onTypeChange(newType: WidgetType) {
-    this.formModel.widgetOptions = { ...widgetRegistry.getDefaultOptions(newType) }
+  onTypeChange(newType: WidgetType, oldType: WidgetType) {
+    if (!newType || this.isInitializing) return
+
+    // Only apply defaults if switching to a type without existing options
+    if (!this.formModel.widgetOptions || oldType !== newType) {
+      const defaults = widgetRegistry.getDefaultOptions(newType)
+      this.formModel.widgetOptions = {
+        ...defaults,
+        // Preserve thresholds across type changes
+        thresholds: this.formModel.widgetOptions?.thresholds || [],
+        thresholdsType: this.formModel.widgetOptions?.thresholdsType || 'Absolute',
+      }
+    }
   }
 
   get previewWidget(): WidgetModel | null {
@@ -211,16 +355,22 @@ export default class WidgetConfig extends Vue {
 
     const defaults = widgetRegistry.getDefaultOptions(this.formModel.type || 'Big Number')
 
+    const previewOptions = {
+      ...defaults,
+      ...this.formModel.widgetOptions,
+      color: this.formModel.widgetOptions?.color || '#00B572',
+    }
+
     return {
       id: 'preview-widget',
       dashboardId: 'preview',
       type: this.formModel.type || '',
-      title: this.formModel.title || defaults.title || 'Widget',
+      title: this.formModel.title || 'Sample Widget',
       schemaType: this.formModel.schemaType,
       schemaId: this.formModel.schemaId || '',
       schemaMessageName: this.formModel.schemaMessageName || '',
       fallbackValue: this.formModel.fallbackValue || 0,
-      widgetOptions: { ...defaults, ...this.formModel.widgetOptions },
+      widgetOptions: previewOptions,
       x: this.formModel.x ?? 0,
       y: this.formModel.y ?? 0,
       w: this.formModel.w ?? 4,
@@ -233,40 +383,53 @@ export default class WidgetConfig extends Vue {
   }
 
   async created() {
-    this.applyInitial()
-    await this.loadSchemas()
+    await this.initializeComponent()
+  }
 
-    const currentType = this.formModel.type as WidgetType
-    if (currentType) {
-      this.formModel.widgetOptions = {
-        ...widgetRegistry.getDefaultOptions(currentType),
-        ...this.formModel.widgetOptions,
-      }
+  private async initializeComponent() {
+    this.isInitializing = true
+
+    try {
+      // 1. Initialize form model
+      this.initializeFormModel(this.initialWidget || undefined)
+
+      // 2. Load external data
+      await this.loadSchemas()
+
+      // 3. Setup derived state
+      this.initializeDerivedState()
+    } finally {
+      this.isInitializing = false
     }
   }
 
   @Watch('initialWidget', { immediate: false })
-  onInitialWidgetChanged() {
-    this.applyInitial()
+  async onInitialWidgetChanged() {
+    await this.initializeComponent()
   }
 
   @Watch('formModel.schemaType')
-  async onSchemaTypeChange() {
+  async onSchemaTypeChange(newType: string, oldType: string) {
     await this.loadSchemas()
-    this.formModel.schemaId = ''
-    this.formModel.schemaMessageName = ''
-  }
 
-  private applyInitial() {
-    if (!this.initialWidget) {
-      return
-    }
-    this.formModel = {
-      ...this.formModel,
-      ...this.initialWidget,
+    // Only clear if user actively changed schema type (not during initialization)
+    if (!this.isInitializing && newType !== oldType) {
+      this.formModel.schemaId = ''
+      this.formModel.schemaMessageName = ''
     }
   }
 
+  @Watch('thresholds', { deep: true })
+  onThresholdsChange() {
+    this.updateThresholds(this.thresholds, this.thresholdsType)
+  }
+
+  @Watch('thresholdsType')
+  onThresholdsTypeChange() {
+    this.updateThresholds(this.thresholds, this.thresholdsType)
+  }
+
+  // === SCHEMA METHODS ===
   private async loadSchemas() {
     const { scriptService } = useServices()
     const schemas: ScriptModel[] = (await scriptService.getAllSchema()) ?? []
@@ -284,6 +447,12 @@ export default class WidgetConfig extends Vue {
     this.formModel.schemaMessageName = ''
   }
 
+  // === PREVIEW METHODS ===
+  private refreshPreview() {
+    this.previewRefreshKey++
+  }
+
+  // === VALIDATION METHODS ===
   get rules() {
     return {
       type: [{ required: true, message: this.$t('common.inputRequired') }],
@@ -325,36 +494,119 @@ export default class WidgetConfig extends Vue {
   }
 
   get previewValue() {
-    return null
+    if (!this.formModel.type) return null
+    const seed = this.previewRefreshKey * 1000 + this.formModel.type.length
+    switch (this.formModel.type) {
+      case 'Big Number':
+        return Math.round((75 + Math.sin(seed) * 10) * 10) / 10
+      case 'Gauge':
+        return Math.round((68 + Math.cos(seed) * 15) * 10) / 10
+      default:
+        return null
+    }
   }
 
   get previewChartData() {
-    return []
+    if (!this.formModel.type) return null
+    const seed = this.previewRefreshKey * 1000 + this.formModel.type.length
+
+    const now = new Date()
+    const xData: string[] = []
+    const seriesData: number[] = []
+
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
+      xData.push(date.toISOString().split('T')[0])
+
+      let value: number
+      const randomSeed = (seed + i) * 0.1
+      switch (this.formModel.type) {
+        case 'Big Number':
+          value = 20 + Math.sin(randomSeed) * 5 + Math.sin(i * 0.2 + seed) * 3
+          break
+        case 'Line':
+          // Create more dramatic variations to make smooth/rough difference visible
+          const baseValue = 50
+          const wave1 = Math.sin(i * 0.4 + seed) * 25 // Primary wave
+          const wave2 = Math.sin(i * 0.8 + seed * 0.5) * 15 // Secondary wave
+          const wave3 = Math.sin(i * 1.5 + seed * 0.3) * 8 // High frequency wave
+          const noise = (Math.random() - 0.5) * 10 // Random noise
+
+          // Add some sharp transitions to make the difference more visible
+          const sharpTransition = i % 8 === 0 ? (Math.random() - 0.5) * 30 : 0
+
+          value = baseValue + wave1 + wave2 + wave3 + noise + sharpTransition
+          break
+        default:
+          value = 50 + Math.sin(randomSeed) * 30
+      }
+      seriesData.push(Math.round(value * 100) / 100)
+    }
+
+    return {
+      xData,
+      seriesData: [
+        {
+          name: 'value',
+          data: seriesData,
+        },
+      ],
+    }
+  }
+
+  get previewData() {
+    if (!this.formModel.type) return null
+
+    const chartData = this.previewChartData
+    const value = this.previewValue
+
+    switch (this.formModel.type) {
+      case 'Big Number':
+        return {
+          value,
+          fieldName: this.formModel.valueField || 'temperature',
+          chartData: chartData || { xData: [], seriesData: [{ name: 'value', data: [] }] },
+        } as BigNumberData
+      case 'Gauge':
+        return {
+          value,
+        } as GaugeData
+      case 'Line':
+        return {
+          chartData: chartData || { xData: [], seriesData: [{ name: 'value', data: [] }] },
+        } as LineData
+      default:
+        return null
+    }
   }
 
   private get vueForm(): VueForm {
     return this.$refs.form as VueForm
   }
 
+  // === SAVE METHODS ===
   private handleSave() {
     this.vueForm.validate((valid: boolean) => {
       if (!valid) {
-        this.$message.warning(String(this.$t('common.inputValidationFailed') || 'Please check required fields'))
+        this.$message.warning(String(this.$t('viewer.inputValidationFailed')))
         return
       }
 
       try {
         if (!this.formModel.type) {
-          throw new Error('Widget type is required')
+          throw new Error(String(this.$t('viewer.widgetTypeRequired')))
         }
 
         if (!this.formModel.connectionId) {
-          throw new Error('Connection is required')
+          throw new Error(String(this.$t('viewer.connectionRequired')))
         }
 
         if (!this.formModel.topicPattern) {
-          throw new Error('Topic pattern is required')
+          throw new Error(String(this.$t('viewer.topicPatternRequired')))
         }
+
+        this.formModel.schemaValidationState = undefined
+        this.formModel.schemaValidationError = undefined
 
         const payload: Partial<WidgetModel> = {
           ...this.formModel,
@@ -549,6 +801,10 @@ export default class WidgetConfig extends Vue {
         }
       }
     }
+  }
+
+  .schema-warning {
+    margin-bottom: 16px;
   }
 }
 

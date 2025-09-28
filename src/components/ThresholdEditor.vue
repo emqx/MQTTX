@@ -2,7 +2,7 @@
   <div class="key-value-editor">
     <div class="editor-header">
       <div class="header-left">
-        <span class="editor-title">{{ title }}</span>
+        <span class="editor-title"> {{ title }} </span>
         <el-select
           v-model="localThresholdsType"
           size="mini"
@@ -34,7 +34,7 @@
           />
         </el-col>
         <el-col :span="4">
-          <ColorPicker v-model="threshold.color" title="Color" @input="onThresholdChange" />
+          <el-color-picker v-model="threshold.color" size="mini" color-format="hex" @change="onThresholdChange" />
         </el-col>
         <el-col :span="4">
           <el-button icon="el-icon-delete" class="btn-delete" type="text" @click="removeThreshold(index)" />
@@ -46,11 +46,8 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import ColorPicker from './ColorPicker.vue'
 
-@Component({
-  components: { ColorPicker },
-})
+@Component
 export default class ThresholdEditor extends Vue {
   @Prop({ type: String, default: 'Thresholds' }) readonly title!: string
   @Prop({ type: Array, default: () => [] }) readonly value!: Array<{ value: number; color: string }>
@@ -116,11 +113,15 @@ export default class ThresholdEditor extends Vue {
     }
     .editor-title {
       font-weight: 600;
-      color: var(--color-text-title);
+      color: var(--color-text-default);
     }
   }
   .editor-row {
     margin-top: 10px;
+    .el-col {
+      display: flex;
+      align-items: center;
+    }
   }
   .btn-props-plus {
     font-size: 12px;
