@@ -372,6 +372,22 @@
           </el-card>
         </el-collapse-transition>
 
+        <!-- Enhanced Authentication for MQTT 5.0 -->
+        <el-card v-if="record.mqttVersion === '5.0' && advancedVisible" shadow="never" class="info-body item-card">
+          <el-row :gutter="10">
+            <el-col :span="22">
+              <el-form-item :label="$t('connections.authenticationMethod')" prop="authenticationMethod">
+                <el-select size="mini" v-model="record.properties.authenticationMethod" clearable>
+                  <el-option label="SCRAM-SHA-1" value="SCRAM-SHA-1"></el-option>
+                  <el-option label="SCRAM-SHA-256" value="SCRAM-SHA-256"></el-option>
+                  <el-option label="SCRAM-SHA-512" value="SCRAM-SHA-512"></el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="2"></el-col>
+          </el-row>
+        </el-card>
+
         <el-card v-if="record.mqttVersion === '5.0' && advancedVisible" shadow="never" class="info-body item-card">
           <el-row :gutter="20">
             <el-col :span="22">

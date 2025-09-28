@@ -328,7 +328,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Connect
-  public connect(): boolean | void {
+  public async connect(): Promise<boolean | void> {
     if (process.env.VUE_APP_IS_ONLINE_ENV === 'true' && this.record.protocol === 'ws') {
       const desktop = `<a href="${this.mqttxWebsite}" target="_blank">MQTTX Desktop</a>`
       const cli = `<a href="${this.mqttxWebsite}/cli" target="_blank">MQTTX CLI</a>`
@@ -355,7 +355,7 @@ export default class ConnectionsDetail extends Vue {
     this.connectLoading = true
     // new client
     try {
-      const { curConnectClient } = createClient(this.record)
+      const { curConnectClient } = await createClient(this.record)
       this.client = curConnectClient
       const { id } = this.record
       if (id && this.client.on) {
