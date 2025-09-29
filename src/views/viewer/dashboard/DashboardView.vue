@@ -90,7 +90,6 @@ import { deserializeBufferToAvro } from '@/utils/avro'
 import useServices from '@/database/useServices'
 import { Subscription } from 'rxjs'
 
-// === UNIFIED STATE MANAGEMENT ===
 interface WidgetDataEntry {
   data: BigNumberData | GaugeData | LineData
   validationState: 'valid' | 'invalid'
@@ -111,14 +110,12 @@ interface TimeRangeConfig {
   },
 })
 export default class DashboardCanvas extends Vue {
-  // === CORE PROPS ===
   @Prop({ type: String, required: false, default: null }) readonly dashboardId!: string | null
   @Prop({ type: Array, default: () => [] }) readonly widgets!: WidgetModel[]
   @Prop({ type: Array, default: () => ['', ''] }) readonly timeRange!: [string, string]
   @Prop({ type: String, default: 'static' }) readonly timeRangeType!: 'live' | 'static'
   @Prop({ type: Number, default: 24 * 60 }) readonly duration!: number
 
-  // === UNIFIED STATE MANAGEMENT ===
   private widgetDataStore: Record<string, WidgetDataEntry> = {}
   private messageQueue: MessageQueue<TimeSeriesDataPoint & { widgetId: string }> | null = null
   private subscription: Subscription | null = null
@@ -126,7 +123,6 @@ export default class DashboardCanvas extends Vue {
   private scriptService = useServices().scriptService
   private updateTimeouts: Map<string, NodeJS.Timeout> = new Map()
 
-  // === COMPUTED PROPERTIES ===
   get layout() {
     return this.widgets.map((widget) => ({
       x: widget.x,
@@ -142,7 +138,6 @@ export default class DashboardCanvas extends Vue {
     }))
   }
 
-  // === WATCHERS ===
   @Watch('widgets', { deep: true })
   onWidgetsChanged(newWidgets: WidgetModel[], oldWidgets: WidgetModel[]) {
     this.cleanupRemovedWidgets(newWidgets, oldWidgets)
@@ -276,7 +271,6 @@ export default class DashboardCanvas extends Vue {
   private async processHistoricalMessages(widget: WidgetModel, messages: MessageModel[]): Promise<void> {
     const widgetId = String(widget.id)
 
-    // Messages are already sorted by the database query (ASC order)
     let processedCount = 0
     for (const message of messages) {
       try {
@@ -747,7 +741,6 @@ export default class DashboardCanvas extends Vue {
           throw new Error(`Unsupported schema type: ${widget.schemaType}`)
       }
 
-      // Handle different formats from protobuf deserializer
       if (Buffer.isBuffer(deserializedData)) {
         deserializedData = JSON.parse(deserializedData.toString())
       } else if (typeof deserializedData === 'string') {
@@ -948,7 +941,7 @@ export default class DashboardCanvas extends Vue {
         })
       }
     } catch (error) {
-      // Handle error silently
+      this.handleError(error as Error, 'Update widget schema validation state')
     }
   }
 

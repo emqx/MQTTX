@@ -487,7 +487,13 @@ export default {
     ja: 'オプション',
     hu: 'Beállítások',
   },
-  // Dashboard specific
+  description: {
+    zh: '描述',
+    en: 'Description',
+    tr: 'Açıklama',
+    ja: '説明',
+    hu: 'Leírás',
+  },
   noDashboards: {
     zh: '无仪表盘',
     en: 'No Dashboards',
@@ -502,7 +508,6 @@ export default {
     ja: '新しいダッシュボードを作成して開始',
     hu: 'Hozzon létre egy új irányítópultot a kezdéshez',
   },
-  // Confirmation dialogs
   confirmLeaveEditing: {
     zh: '放弃当前编辑并切换仪表盘？',
     en: 'Discard current edits and switch dashboard?',
