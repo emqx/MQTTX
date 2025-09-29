@@ -51,6 +51,8 @@ declare global {
     reqResponseInfo?: boolean
     reqProblemInfo?: boolean
     userProperties?: Record<string, string | string[]>
+    authenticationMethod?: string
+    authenticationData?: Buffer
     // will message
     willTopic?: string
     willMessage?: string

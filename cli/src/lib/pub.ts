@@ -18,6 +18,7 @@ import { loadSimulator } from '../utils/simulate'
 import { triggerExitInfo } from '../utils/exitInfo'
 import getBenchClientId from '../utils/getBenchClientId'
 import { parsePayloadSize, generateRandomPayload } from '../utils/payloadGenerator'
+import { createMqttClient } from '../utils/mqttConnect'
 import { DEFAULT_MQTT_PUB_MESSAGE } from '../utils/constants'
 
 /**
@@ -78,7 +79,8 @@ const send = (
 ) => {
   let retryTimes = 0
   let isNewConnection = true
-  const client = mqtt.connect(connOpts)
+
+  const client = createMqttClient(connOpts)
   basicLog.connecting(config, connOpts.hostname!, connOpts.port, pubOpts.topic, pubOpts.message.toString())
 
   client.on('connect', () => {
@@ -142,7 +144,8 @@ const multiSend = (
 ) => {
   let isNewConnection = true
   let retryTimes = 0
-  const client = mqtt.connect(connOpts)
+
+  const client = createMqttClient(connOpts)
   basicLog.connecting(config, connOpts.hostname!, connOpts.port, pubOpts.topic)
   const sender = new Writable({
     objectMode: true,
@@ -201,7 +204,7 @@ const multiSend = (
 }
 
 const handlePipedMultiline = (connOpts: IClientOptions, pubOpts: { topic: string; opts: IClientPublishOptions }) => {
-  const client = mqtt.connect(connOpts)
+  const client = createMqttClient(connOpts)
   let messageQueue: string[] = []
   let publishedCount = 0
 
@@ -438,7 +441,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
       username && (topicName = topicName.replaceAll('%u', username))
       simulator && (topicName = topicName.replaceAll('%sc', simulator.name))
 
-      const client = mqtt.connect(opts)
+      const client = createMqttClient(opts)
 
       interactivePub.await('[%d/%d] - Connecting...', connectedCount, count)
 

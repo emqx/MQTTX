@@ -6,6 +6,7 @@ import { handleSaveOptions, handleLoadOptions } from '../utils/options'
 import * as Debug from 'debug'
 import { triggerExitInfo } from '../utils/exitInfo'
 import getBenchClientId from '../utils/getBenchClientId'
+import { createMqttClient } from '../utils/mqttConnect'
 
 const conn = (options: ConnectOptions) => {
   const { debug, saveOptions, loadOptions } = options
@@ -20,7 +21,7 @@ const conn = (options: ConnectOptions) => {
 
   const connOpts = parseConnectOptions(options, 'conn')
 
-  const client = mqtt.connect(connOpts)
+  const client = createMqttClient(connOpts)
 
   let retryTimes = 0
 
@@ -86,7 +87,7 @@ const benchConn = async (options: BenchConnectOptions) => {
 
       opts.clientId = getBenchClientId(clientId, i, count)
 
-      const client = mqtt.connect(opts)
+      const client = createMqttClient(opts)
 
       interactiveConn.await('[%d/%d] - Connecting...', connectedCount, count)
 
