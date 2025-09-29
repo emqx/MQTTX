@@ -890,6 +890,13 @@
   dependencies:
     undici-types "~5.26.4"
 
+"@types/pbkdf2@^3.1.2":
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/@types/pbkdf2/-/pbkdf2-3.1.2.tgz#2dc43808e9985a2c69ff02e2d2027bd4fe33e8dc"
+  integrity sha512-uRwJqmiXmh9++aSu1VNEn3iIxWOhd8AHXNSdlaLfdAAdSTY9jYVeGWnzejM3dvrkbqE3/hyQkQQ29IFATEGlew==
+  dependencies:
+    "@types/node" "*"
+
 "@types/pump@^1.1.1":
   version "1.1.1"
   resolved "https://registry.npmjs.org/@types/pump/-/pump-1.1.1.tgz"
