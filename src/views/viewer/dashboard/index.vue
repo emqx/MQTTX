@@ -109,7 +109,7 @@
               </el-button>
               <TimeRangeSelect
                 v-if="!showDashboardsList && selectedDashboard"
-                v-model="timeRange"
+                v-model="timeRangeModel"
                 :time-range-type="timeRangeType"
                 :duration="duration"
                 size="mini"
@@ -143,7 +143,7 @@
                       {{ $t('common.new') }}
                     </el-button>
                     <TimeRangeSelect
-                      v-model="timeRange"
+                      v-model="timeRangeModel"
                       size="mini"
                       @range-relative="onTimeRangeSelect"
                       style="margin-left: 8px; width: 200px"
@@ -226,7 +226,6 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import EmptyPage from '@/components/EmptyPage.vue'
 import DashboardsList from './DashboardsList.vue'
 import DashboardView from './DashboardView.vue'
 import WidgetConfig from './WidgetConfig.vue'
@@ -237,7 +236,6 @@ import time from '@/utils/time'
 @Component({
   components: {
     DashboardsList,
-    EmptyPage,
     DashboardView,
     WidgetConfig,
     TimeRangeSelect,
@@ -286,11 +284,24 @@ export default class Dashboards extends Vue {
     return this.dashboardWidgets.length > 0
   }
 
+  get timeRangeModel(): [string, string] {
+    if (!this.timeRange || this.timeRange.length !== 2 || !this.timeRange[0] || !this.timeRange[1]) {
+      return [time.getDateBefore(24 * 60), time.getNowDate()]
+    }
+    return this.timeRange
+  }
+
+  set timeRangeModel(val: [string, string] | null) {
+    this.timeRange =
+      val && val.length === 2 && val[0] && val[1]
+        ? (val as [string, string])
+        : [time.getDateBefore(24 * 60), time.getNowDate()]
+  }
+
   async mounted() {
     await this.initializeComponent()
   }
 
-  // === INITIALIZATION METHODS ===
   private async initializeComponent(): Promise<void> {
     this.loadingState.initializing = true
     try {
@@ -302,7 +313,9 @@ export default class Dashboards extends Vue {
     }
   }
 
-  // === ERROR HANDLING ===
+  /**
+   * Properly handle errors
+   */
   private handleError(error: Error, context: string, showUser: boolean = true): void {
     console.error(`[DASHBOARDS-${context}] Error:`, error)
     this.$log?.error?.(error.toString())
@@ -365,7 +378,6 @@ export default class Dashboards extends Vue {
     }
   }
 
-  // === REFRESH METHODS ===
   private async refreshData(scope: 'dashboards' | 'widgets' | 'all' = 'all'): Promise<void> {
     const promises: Promise<void>[] = []
 
@@ -411,7 +423,6 @@ export default class Dashboards extends Vue {
     this.clearPersistedDashboardId()
   }
 
-  // === DASHBOARD SELECTION METHODS ===
   private async selectDashboard(
     dashboard: DashboardModel | string,
     options: { persist?: boolean; skipConfirmation?: boolean } = {},
