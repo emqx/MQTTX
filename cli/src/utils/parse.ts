@@ -171,6 +171,14 @@ const parseOutputMode = (value: string) => {
   return value
 }
 
+const parseAuthenticationMethod = (value: string) => {
+  if (!['SCRAM-SHA-1', 'SCRAM-SHA-256', 'SCRAM-SHA-512'].includes(value)) {
+    logWrapper.fail('Authentication method must be one of: SCRAM-SHA-1, SCRAM-SHA-256, SCRAM-SHA-512')
+    process.exit(1)
+  }
+  return value
+}
+
 const checkScenarioExists = (name?: string, file?: string) => {
   if (!name && !file) {
     console.log(
@@ -238,6 +246,7 @@ const parseConnectOptions = (
     topicAliasMaximum,
     reqResponseInfo,
     reqProblemInfo,
+    authenticationMethod,
     willTopic,
     willMessage,
     willQos,
@@ -330,6 +339,7 @@ const parseConnectOptions = (
       requestResponseInformation: reqResponseInfo,
       requestProblemInformation: reqProblemInfo,
       userProperties,
+      authenticationMethod,
     }
 
     if (clean === false) {
@@ -458,6 +468,7 @@ export {
   parseFormat,
   parseSchemaOptions,
   parseOutputMode,
+  parseAuthenticationMethod,
   parseConnectOptions,
   parsePublishOptions,
   parseSubscribeOptions,

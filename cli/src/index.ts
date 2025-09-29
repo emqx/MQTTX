@@ -15,6 +15,7 @@ import {
   parseFileWrite,
   parseFormat,
   parseOutputMode,
+  parseAuthenticationMethod,
 } from './utils/parse'
 import { conn, benchConn } from './lib/conn'
 import { pub, benchPub, simulatePub } from './lib/pub'
@@ -134,6 +135,11 @@ export class Commander {
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
       )
       .option('--debug', 'enable debug mode for MQTT.js', false)
+      .option(
+        '-am, --authentication-method <METHOD>',
+        'authentication method for MQTT 5.0 enhanced authentication (SCRAM-SHA-1, SCRAM-SHA-256, SCRAM-SHA-512)',
+        parseAuthenticationMethod,
+      )
       .allowUnknownOption(false)
       .hook('preAction', (thisCommand) => {
         globalThis.command = thisCommand
@@ -266,6 +272,11 @@ export class Commander {
         'generate a random payload of specified size (e.g., 1KB, 512B, 2MB); ignored if -m, -s, -M, or --file-read is present',
       )
       .option('--debug', 'enable debug mode for MQTT.js', false)
+      .option(
+        '-am, --authentication-method <METHOD>',
+        'authentication method for MQTT 5.0 enhanced authentication (SCRAM-SHA-1, SCRAM-SHA-256, SCRAM-SHA-512)',
+        parseAuthenticationMethod,
+      )
       .allowUnknownOption(false)
       .hook('preAction', (thisCommand) => {
         globalThis.command = thisCommand
@@ -400,6 +411,11 @@ export class Commander {
         parseFileRead,
       )
       .option('--debug', 'enable debug mode for MQTT.js', false)
+      .option(
+        '-am, --authentication-method <METHOD>',
+        'authentication method for MQTT 5.0 enhanced authentication (SCRAM-SHA-1, SCRAM-SHA-256, SCRAM-SHA-512)',
+        parseAuthenticationMethod,
+      )
       .allowUnknownOption(false)
       .hook('preAction', (thisCommand) => {
         globalThis.command = thisCommand
@@ -482,6 +498,11 @@ export class Commander {
       .option(
         '-lo, --load-options [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
+      )
+      .option(
+        '-am, --authentication-method <METHOD>',
+        'authentication method for MQTT 5.0 enhanced authentication (SCRAM-SHA-1, SCRAM-SHA-256, SCRAM-SHA-512)',
+        parseAuthenticationMethod,
       )
       .allowUnknownOption(false)
       .hook('preAction', (thisCommand) => {
@@ -611,6 +632,11 @@ export class Commander {
         '-S, --payload-size <SIZE>',
         'generate a random payload of specified size (e.g., 1KB, 512B, 2MB); ignored if -m, -s, -M, or --file-read is present',
       )
+      .option(
+        '-am, --authentication-method <METHOD>',
+        'authentication method for MQTT 5.0 enhanced authentication (SCRAM-SHA-1, SCRAM-SHA-256, SCRAM-SHA-512)',
+        parseAuthenticationMethod,
+      )
       .allowUnknownOption(false)
       .hook('preAction', (thisCommand) => {
         globalThis.command = thisCommand
@@ -712,6 +738,11 @@ export class Commander {
       .option(
         '-lo, --load-options [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
+      )
+      .option(
+        '-am, --authentication-method <METHOD>',
+        'authentication method for MQTT 5.0 enhanced authentication (SCRAM-SHA-1, SCRAM-SHA-256, SCRAM-SHA-512)',
+        parseAuthenticationMethod,
       )
       .allowUnknownOption(false)
       .hook('preAction', (thisCommand) => {
@@ -828,6 +859,11 @@ export class Commander {
       .option(
         '-lo, --load-options [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
+      )
+      .option(
+        '-am, --authentication-method <METHOD>',
+        'authentication method for MQTT 5.0 enhanced authentication (SCRAM-SHA-1, SCRAM-SHA-256, SCRAM-SHA-512)',
+        parseAuthenticationMethod,
       )
       .allowUnknownOption(false)
       .hook('preAction', (thisCommand) => {

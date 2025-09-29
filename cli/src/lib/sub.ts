@@ -11,6 +11,7 @@ import * as Debug from 'debug'
 import { deserializeBufferToAvro } from '../utils/avro'
 import getBenchClientId from '../utils/getBenchClientId'
 import { formatBytes } from '../utils/formatter'
+import { createMqttClient } from '../utils/mqttConnect'
 
 /**
  *
@@ -93,7 +94,7 @@ const sub = (options: SubscribeOptions) => {
 
   const connOpts = parseConnectOptions(options, 'sub')
 
-  const client = mqtt.connect(connOpts)
+  const client = createMqttClient(connOpts)
 
   const { outputMode, maximumReconnectTimes } = options
 
@@ -271,7 +272,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
       opts.clientId = getBenchClientId(clientId, i, count)
 
-      const client = mqtt.connect(opts)
+      const client = createMqttClient(opts)
 
       interactiveSub.await('[%d/%d] - Connecting...', connectedCount, count)
 
