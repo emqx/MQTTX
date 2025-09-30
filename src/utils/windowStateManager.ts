@@ -24,7 +24,16 @@ export function restoreWindowState(win: BrowserWindow): void {
     const savedState = store.get('windowState') as WindowState | undefined
     if (!savedState || typeof savedState !== 'object') return
 
-    const screenArea = screen.getDisplayMatching(savedState.bounds).workArea
+    // Safely get display, fallback to primary if saved bounds are invalid
+    let display
+    try {
+      display = screen.getDisplayMatching(savedState.bounds)
+    } catch {
+      display = screen.getPrimaryDisplay()
+    }
+    const screenArea = display.workArea
+
+    // Adjust bounds to fit within screen
     if (savedState.bounds.width > screenArea.width) {
       savedState.bounds.width = screenArea.width
     }
@@ -37,6 +46,7 @@ export function restoreWindowState(win: BrowserWindow): void {
     if (savedState.bounds.y < screenArea.y) {
       savedState.bounds.y = screenArea.y
     }
+
     win.setBounds(savedState.bounds)
     if (savedState.isMaximized) {
       win.maximize()
