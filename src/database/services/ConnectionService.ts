@@ -9,6 +9,7 @@ import { Repository, MoreThan, LessThan } from 'typeorm'
 import { DateUtils } from 'typeorm/util/DateUtils'
 import time, { sqliteDateFormat } from '@/utils/time'
 import useServices from '@/database/useServices'
+
 const Store = require('electron-store')
 const electronStore = new Store()
 
@@ -280,20 +281,28 @@ export default class ConnectionService {
     return query.map((entity) => ConnectionService.entityToModel(entity)) as ConnectionModel[]
   }
 
-  // cascade getAll
-  public async cascadeGetAll(id?: string) {
+  /**
+   * Get connections for export without loading messages into memory
+   * This method avoids the memory issue by not joining messages table
+   * @param id Optional connection ID to get single connection
+   * @returns Connections with basic info (subscriptions and will), messages should be streamed separately
+   */
+  public async getConnectionsForExport(id?: string): Promise<ConnectionModel[]> {
     const query = this.connectionRepository.createQueryBuilder('cn')
 
     id && query.where('cn.id = :id', { id })
 
-    query
-      .leftJoinAndSelect('cn.messages', 'msg')
-      .leftJoinAndSelect('cn.subscriptions', 'sub')
-      .leftJoinAndSelect('cn.will', 'will')
+    // Only join subscriptions and will - NO MESSAGES JOIN to avoid memory issues
+    query.leftJoinAndSelect('cn.subscriptions', 'sub').leftJoinAndSelect('cn.will', 'will')
 
     const res = await query.getMany()
 
-    return res.map((entity) => ConnectionService.entityToModel(entity)) as ConnectionModel[]
+    return res.map((entity) => {
+      const model = ConnectionService.entityToModel(entity)
+      // Initialize empty messages array - will be populated by streaming
+      model.messages = []
+      return model
+    }) as ConnectionModel[]
   }
 
   public async create(data: ConnectionModel): Promise<ConnectionModel | undefined> {

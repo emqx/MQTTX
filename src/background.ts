@@ -9,8 +9,6 @@ import { createUpdateWindow, autoDownload } from './main/updateDownloader'
 import { migrateDataIfNeeded } from './main/appDataPath'
 import { getCurrentLang } from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
-import saveFile from './main/saveFile'
-import saveExcel from './main/saveExcel'
 import newWindow from './main/newWindow'
 import installCLI from './main/installCLI'
 import { onSystemThemeChanged } from './main/systemTheme'
@@ -74,14 +72,45 @@ function handleIpcMessages() {
   ipcMain.on('clickUpdate', (event: Electron.IpcMainEvent) => {
     event.sender.send('clickUpdate')
   })
-  ipcMain.on('exportData', (event: Electron.IpcMainEvent, ...args: any[]) => {
+  ipcMain.on('streamExportData', async (event: Electron.IpcMainEvent, ...args: any[]) => {
+    const [filename, format, connectionId] = args
+    if (win) {
+      const { streamExportData } = await import('./main/streamExportData')
+      await streamExportData(win, {
+        filename,
+        format,
+        connectionId,
+        onProgress: (progress: number) => {
+          event.sender.send('exportProgress', progress)
+        },
+      })
+    }
+  })
+
+  ipcMain.on('exportTextData', (event: Electron.IpcMainEvent, ...args: any[]) => {
     const [filename, content, type] = args
     if (win) {
-      if (typeof content === 'string') {
-        saveFile(win, filename, content, type)
-      } else {
-        saveExcel(win, filename, content)
-      }
+      // Simple text file saver for single message exports
+      dialog
+        .showSaveDialog(win, {
+          title: 'Save file',
+          defaultPath: `${filename}.${type}`,
+        })
+        .then((result) => {
+          if (result.filePath) {
+            require('fs').writeFile(result.filePath, content, 'utf8', (err: any) => {
+              if (err) {
+                dialog.showMessageBox({
+                  type: 'error',
+                  title: 'System',
+                  message: `An error occurred creating the file ${err.message}`,
+                })
+              } else {
+                event.sender.send('saved')
+              }
+            })
+          }
+        })
     }
   })
   ipcMain.on('newWindow', (event: Electron.IpcMainEvent, ...args: any[]) => {

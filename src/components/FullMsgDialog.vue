@@ -88,7 +88,7 @@ export default class FullMsgDialog extends Vue {
   }
 
   private async saveDataToLocal() {
-    ipcRenderer.send('exportData', this.filename, this.fullMsg, this.format)
+    ipcRenderer.send('exportTextData', this.filename, this.fullMsg, this.format)
     ipcRenderer.on('saved', () => {
       this.$message.success(`${this.filename}.${this.format} ${this.$t('common.saveSuccess')}`)
       this.resetData()

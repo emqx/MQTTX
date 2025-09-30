@@ -41,6 +41,15 @@
         </el-col>
       </el-row>
     </el-form>
+    <el-dialog
+      width="50%"
+      :title="$t('settings.exportProgress')"
+      :close-on-click-modal="false"
+      :visible.sync="progressVisible"
+      append-to-body
+    >
+      <el-progress :percentage="getProgressNumber(this.exportProgress)" color="#34c388"></el-progress>
+    </el-dialog>
   </my-dialog>
 </template>
 
@@ -48,13 +57,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import { ipcRenderer } from 'electron'
-import useService from '@/database/useServices'
 import MyDialog from './MyDialog.vue'
-import YAML from 'js-yaml'
-import XMLConvert from 'xml-js'
-import { parse as CSVConvert } from 'json2csv'
-import ExcelConvert, { WorkBook } from 'xlsx'
-import { replaceSpecialDataTypes } from '@/utils/exportData'
 
 type ExportFormat = 'JSON' | 'YAML' | 'XML' | 'CSV' | 'Excel'
 
@@ -76,6 +79,8 @@ export default class ExportData extends Vue {
 
   private showDialog: boolean = this.visible
   private confirmLoading: boolean = false
+  private progressVisible = false
+  private exportProgress = 0
   private record: ExportForm = {
     exportFormat: 'JSON',
     allConnections: false,
@@ -87,201 +92,61 @@ export default class ExportData extends Vue {
   }
 
   private exportData() {
-    switch (this.record.exportFormat) {
-      case 'JSON':
-        this.exportJSONData()
-        break
-      case 'YAML':
-        this.exportYAMLData()
-        break
-      case 'XML':
-        this.exportXMLData()
-        break
-      case 'CSV':
-        this.exportCSVData()
-        break
-      case 'Excel':
-        this.exportExcelData()
-        break
-      default:
-        break
-    }
+    // Use stream export for all formats to avoid memory issues
+    this.streamExportData()
   }
 
-  private exportDiffFormatData(content: string, format: ExportFormat) {
-    const fileFormat = format.toLowerCase() as ExportFormat
-    let filename = this.$t('connections.allConnections')
+  private streamExportData() {
+    this.confirmLoading = true
+
+    let filename = this.$t('connections.allConnections') as string
     if (!this.record.allConnections) {
       filename = this.connection.name
-      ipcRenderer.send('exportData', filename, content, fileFormat)
-    } else {
-      ipcRenderer.send('exportData', 'data', content, fileFormat)
     }
-    ipcRenderer.on('saved', () => {
-      this.$message.success(`${filename} ${this.$t('common.exportSuccess')}`)
-      this.resetData()
-    })
-  }
 
-  private async getContent() {
-    const { connectionService } = useService()
-    let connections: ConnectionModel[] = []
-    if (!this.record.allConnections) {
-      connections = await connectionService.cascadeGetAll(this.connection.id)
-    } else {
-      connections = await connectionService.cascadeGetAll()
-    }
-    return connections
-  }
+    const connectionId = this.record.allConnections ? undefined : this.connection.id
 
-  private async getStringifyContent() {
-    const connections = await this.getContent()
-    return JSON.stringify(connections, null, 2)
-  }
+    ipcRenderer.send('streamExportData', filename, this.record.exportFormat, connectionId)
 
-  private exportJSONData() {
-    this.confirmLoading = true
-    this.getStringifyContent()
-      .then((content) => {
-        if (content === '[]') {
-          this.$message.warning(this.$tc('common.noData'))
-          return
-        }
-        this.exportDiffFormatData(content, 'JSON')
-      })
-      .catch((err) => {
-        this.$message.error(err.toString())
-      })
-      .finally(() => {
-        this.confirmLoading = false
-      })
-  }
-
-  private exportYAMLData() {
-    this.confirmLoading = true
-    this.getContent()
-      .then((content) => {
-        if (!content.length) {
-          this.$message.warning(this.$tc('common.noData'))
-          return
-        }
-        const yamlContent = YAML.dump(content)
-        this.exportDiffFormatData(yamlContent, 'YAML')
-      })
-      .catch((err) => {
-        this.$message.error(err.toString())
-      })
-      .finally(() => {
-        this.confirmLoading = false
-      })
-  }
-
-  private async exportExcelData() {
-    const saveExcelData = (workbook: WorkBook) => {
-      let filename = this.$t('connections.allConnections')
-      if (!this.record.allConnections) {
-        filename = this.connection.name
-        ipcRenderer.send('exportData', filename, workbook)
-      } else {
-        ipcRenderer.send('exportData', 'data', workbook)
+    // Listen for progress updates
+    ipcRenderer.on('exportProgress', (event, progress: number) => {
+      // Show progress dialog when first progress event is received (after user selects save location)
+      if (!this.progressVisible) {
+        this.progressVisible = true
       }
-      ipcRenderer.on('saved', () => {
+      this.exportProgress = progress
+    })
+
+    ipcRenderer.on('saved', () => {
+      // Show 100% progress for a moment before closing
+      this.exportProgress = 1
+
+      setTimeout(() => {
         this.$message.success(`${filename} ${this.$t('common.exportSuccess')}`)
         this.resetData()
-      })
-    }
-    this.confirmLoading = true
-    this.getContent()
-      .then((content) => {
-        if (!content.length) {
-          this.$message.warning(this.$tc('common.noData'))
-          return
-        }
-        const fileName = !this.record.allConnections ? this.connection.name : 'data'
-        const sheet = ExcelConvert.utils.json_to_sheet(content)
-        Object.keys(sheet).forEach((item) => {
-          // format nested object/array to string
-          if (sheet[item].t === undefined && item !== '!ref') {
-            const stringValue = JSON.stringify(sheet[item])
-            sheet[item] = { t: 's', v: stringValue }
-          }
-        })
-        const newWorkBook = ExcelConvert.utils.book_new()
-        ExcelConvert.utils.book_append_sheet(newWorkBook, sheet)
-        saveExcelData(newWorkBook)
-      })
-      .catch((err) => {
-        this.$message.error(err.toString())
-      })
-      .finally(() => {
-        this.confirmLoading = false
-      })
-  }
+      }, 800) // Wait 800ms to let user see the completion
+    })
 
-  private exportXMLData() {
-    const exportDataToXML = (jsonContent: string) => {
-      try {
-        let content = replaceSpecialDataTypes(jsonContent)
-        content = XMLConvert.json2xml(content, { compact: true, ignoreComment: true, spaces: 2 })
-        content = '<?xml version="1.0" encoding="utf-8"?>\n<root>\n'.concat(content).concat('\n</root>')
-        content = content.replace(/<([0-9]*)>/g, '<oneConnection>').replace(/<(\/[0-9]*)>/g, '</oneConnection>')
-        this.exportDiffFormatData(content, 'XML')
-      } catch (err) {
-        const error = err as Error
-        this.$message.error(error.toString())
-      }
-    }
-    this.confirmLoading = true
-    this.getStringifyContent()
-      .then((content) => {
-        if (content === '[]') {
-          this.$message.warning(this.$tc('common.noData'))
-          return
-        }
-        exportDataToXML(content)
-      })
-      .catch((err) => {
-        this.$message.error(err.toString())
-      })
-      .finally(() => {
-        this.confirmLoading = false
-      })
-  }
-
-  private exportCSVData() {
-    const exportDataToCSV = (jsonContent: string) => {
-      try {
-        let content = replaceSpecialDataTypes(jsonContent)
-        // Prevent CSV from automatically converting string with trailing zeros after decimal point to number.
-        // https://stackoverflow.com/questions/165042/stop-excel-from-automatically-converting-certain-text-values-to-dates
-        content = CSVConvert(JSON.parse(content)).replace(/"(\d+\.(\d+)?0)"/g, '="$1"')
-        this.exportDiffFormatData(content, 'CSV')
-      } catch (err) {
-        const error = err as Error
-        this.$message.error(error.toString())
-      }
-    }
-    this.confirmLoading = true
-    this.getStringifyContent()
-      .then((content) => {
-        if (content === '[]') {
-          this.$message.warning(this.$tc('common.noData'))
-          return
-        }
-        exportDataToCSV(content)
-      })
-      .catch((err) => {
-        this.$message.error(err.toString())
-      })
-      .finally(() => {
-        this.confirmLoading = false
-      })
+    ipcRenderer.on('exportError', (event, error: string) => {
+      this.$message.error(`Export failed: ${error}`)
+      this.progressVisible = false
+      this.confirmLoading = false
+    })
   }
 
   private resetData() {
     this.showDialog = false
+    this.progressVisible = false
     this.$emit('update:visible', false)
+    this.confirmLoading = false
+    this.exportProgress = 0
     ipcRenderer.removeAllListeners('saved')
+    ipcRenderer.removeAllListeners('exportProgress')
+    ipcRenderer.removeAllListeners('exportError')
+  }
+
+  private getProgressNumber(progress: number | string) {
+    return Number((typeof progress === 'string' ? Number(progress) * 100 : progress * 100).toFixed(1))
   }
 
   private created() {

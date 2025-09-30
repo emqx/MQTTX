@@ -10,9 +10,9 @@ import {
   replaceSpecialDataTypes,
   recoverSpecialDataTypes,
   recoverSpecialDataTypesFromString,
-} from '@/utils/exportData'
+} from '@/utils/importExportTypes'
 
-describe('exportData utility functions', () => {
+describe('importExportTypes utility functions', () => {
   describe('Constants', () => {
     it('should have correct values for special data types', () => {
       expect(typeNull).to.equal('TYPE_NULL')
