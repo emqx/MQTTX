@@ -188,6 +188,13 @@ export default {
     ja: '進捗をインポート',
     hu: 'Importálás folyamatban',
   },
+  exportProgress: {
+    zh: '导出进度',
+    en: 'Export Progress',
+    tr: 'İlerleme Dışa Aktar',
+    ja: '進捗をエクスポート',
+    hu: 'Exportálás folyamatban',
+  },
   extends: {
     zh: '扩展',
     en: 'Extensions',

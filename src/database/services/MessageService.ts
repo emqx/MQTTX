@@ -297,6 +297,44 @@ export default class MessageService {
    * @param options.transform - A function to transform the retrieved messages.
    * @returns A promise that resolves to an array of transformed messages or MessageModel[].
    */
+
+  /**
+   * Stream messages for export to avoid memory issues with large datasets
+   * @param connectionId - The ID of the connection
+   * @param batchSize - Number of messages to retrieve per batch (default: 1000)
+   * @returns AsyncGenerator that yields batches of messages
+   */
+  public async *streamMessagesForExport(
+    connectionId: string,
+    batchSize: number = 1000,
+  ): AsyncGenerator<MessageModel[], void, unknown> {
+    let offset = 0
+
+    while (true) {
+      const messages = await this.messageRepository
+        .createQueryBuilder('msg')
+        .where('msg.connectionId = :connectionId', { connectionId })
+        .orderBy('msg.createAt', 'ASC')
+        .skip(offset)
+        .take(batchSize)
+        .getMany()
+
+      if (messages.length === 0) {
+        break
+      }
+
+      const messageModels = messages.map((entity) => MessageService.entityToModel(entity))
+      yield messageModels
+
+      offset += batchSize
+
+      // If we got fewer messages than batch size, we've reached the end
+      if (messages.length < batchSize) {
+        break
+      }
+    }
+  }
+
   public async getMessagesByTopicPattern<T>(
     connectionId: string,
     topicPattern: string,
