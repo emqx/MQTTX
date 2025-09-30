@@ -5454,10 +5454,10 @@ electron-updater@^5.3.0:
     semver "^7.3.5"
     typed-emitter "^2.1.0"
 
-electron@^33.0.0:
-  version "33.4.6"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-33.4.6.tgz#45eb4b0964f3c3ac3cf1184cf1030980c3565095"
-  integrity sha512-INNAYGkMWOb10FNMHaSdow0ekFiftFznpn6Cqo/vEgEapBMyNzGJa+0IVCezmgyRUW08FCHd+ngjvynALSndxQ==
+electron@33.4.11:
+  version "33.4.11"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-33.4.11.tgz#225d7f106ed3edf788ced318c63858d8b8a446dc"
+  integrity sha512-xmdAs5QWRkInC7TpXGNvzo/7exojubk+72jn1oJL7keNeIlw7xNglf8TGtJtkR4rWC5FJq0oXiIXPS9BcK2Irg==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^20.9.0"
