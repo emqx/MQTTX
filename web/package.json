@@ -1,6 +1,6 @@
 {
   "name": "mqttx-web",
-  "version": "1.12.1-beta.1",
+  "version": "1.12.1",
   "license": "Apache-2.0",
   "scripts": {
     "serve": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
