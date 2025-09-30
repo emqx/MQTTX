@@ -125,6 +125,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
   {
     value: 'Anthropic',
     children: [
+      { value: 'claude-sonnet-4-5-20250929' },
       { value: 'claude-opus-4-1-20250805' },
       { value: 'claude-opus-4-1-20250805-thinking' },
       { value: 'claude-opus-4-20250514' },
