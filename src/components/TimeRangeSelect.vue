@@ -6,7 +6,7 @@
     :end-placeholder="$t('common.endTime')"
     :picker-options="pickerOptions"
     value-format="yyyy-MM-dd HH:mm:ss:SSS"
-    size="small"
+    :size="size"
     popper-class="time-range-picker-popper"
   >
   </el-date-picker>
@@ -18,18 +18,61 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 @Component
 export default class TimeRangeSelect extends Vue {
   @Prop({ required: true }) public value!: [string, string]
+  @Prop({ default: 'small' }) public size!: string
+  @Prop({ default: false }) public showLiveMode!: boolean
+  @Prop({ default: 'static' }) public timeRangeType!: 'live' | 'static'
+  @Prop({ default: 24 * 60 }) public duration!: number
 
   private modelValue = this.value
+  private currentDuration: number | null = null
+  private isLiveMode: boolean = false
+  private isFromShortcut: boolean = false
+  private shortcutLiveMode: boolean = false
+  private shortcutDuration: number | null = null
+
+  // Initialize with props
+  private mounted() {
+    this.isLiveMode = this.timeRangeType === 'live'
+    this.currentDuration = this.duration * 60 * 1000 // Convert minutes to milliseconds
+  }
 
   @Watch('value')
   private onValueChange(newVal: [string, string]) {
     this.modelValue = newVal
   }
 
+  @Watch('timeRangeType')
+  private onTimeRangeTypeChange() {
+    this.isLiveMode = this.timeRangeType === 'live'
+  }
+
+  @Watch('duration')
+  private onDurationChange() {
+    this.currentDuration = this.duration * 60 * 1000 // Convert minutes to milliseconds
+  }
+
   @Watch('modelValue')
   private onModelValueChange(newVal: [string, string] | null) {
     this.$emit('input', newVal)
     this.$emit('change', newVal)
+
+    // Only emit range-relative for shortcuts, not for external changes (like dashboard switches)
+    if (this.isFromShortcut) {
+      // Use shortcut-specific values
+      const finalIsLive = this.shortcutLiveMode
+      const finalDuration = this.shortcutDuration
+
+      this.$emit('range-relative', {
+        timeRange: newVal,
+        duration: finalDuration || 24 * 60 * 60 * 1000, // Default to 24 hours in milliseconds
+        isLive: finalIsLive,
+      })
+
+      // Reset shortcut flags after emitting
+      this.isFromShortcut = false
+      this.shortcutLiveMode = false
+      this.shortcutDuration = null
+    }
   }
 
   private pickerOptions = {
@@ -39,7 +82,8 @@ export default class TimeRangeSelect extends Vue {
     shortcuts: [
       {
         text: this.$t('common.last5Minutes'),
-        onClick(picker: any) {
+        onClick: (picker: any) => {
+          this.setShortcutValues(true, 5 * 60 * 1000)
           const end = new Date()
           const start = new Date()
           start.setTime(start.getTime() - 5 * 60 * 1000)
@@ -48,7 +92,8 @@ export default class TimeRangeSelect extends Vue {
       },
       {
         text: this.$t('common.last30Minutes'),
-        onClick(picker: any) {
+        onClick: (picker: any) => {
+          this.setShortcutValues(true, 30 * 60 * 1000)
           const end = new Date()
           const start = new Date()
           start.setTime(start.getTime() - 30 * 60 * 1000)
@@ -57,7 +102,8 @@ export default class TimeRangeSelect extends Vue {
       },
       {
         text: this.$t('common.lastHour'),
-        onClick(picker: any) {
+        onClick: (picker: any) => {
+          this.setShortcutValues(true, 60 * 60 * 1000)
           const end = new Date()
           const start = new Date()
           start.setTime(start.getTime() - 60 * 60 * 1000)
@@ -66,7 +112,8 @@ export default class TimeRangeSelect extends Vue {
       },
       {
         text: this.$t('common.lastDay'),
-        onClick(picker: any) {
+        onClick: (picker: any) => {
+          this.setShortcutValues(true, 24 * 60 * 60 * 1000)
           const end = new Date()
           const start = new Date()
           start.setTime(start.getTime() - 24 * 60 * 60 * 1000)
@@ -75,7 +122,8 @@ export default class TimeRangeSelect extends Vue {
       },
       {
         text: this.$t('common.lastWeek'),
-        onClick(picker: any) {
+        onClick: (picker: any) => {
+          this.setShortcutValues(true, 7 * 24 * 60 * 60 * 1000)
           const end = new Date()
           const start = new Date()
           start.setTime(start.getTime() - 7 * 24 * 60 * 60 * 1000)
@@ -83,6 +131,12 @@ export default class TimeRangeSelect extends Vue {
         },
       },
     ],
+  }
+
+  private setShortcutValues(isLive: boolean, duration: number) {
+    this.isFromShortcut = true
+    this.shortcutLiveMode = isLive
+    this.shortcutDuration = duration
   }
 }
 </script>

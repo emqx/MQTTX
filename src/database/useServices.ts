@@ -10,6 +10,8 @@ import MessageService from './services/MessageService'
 import ScriptService from './services/ScriptService'
 import CopilotService from './services/CopilotService'
 import TopicNodeService from './services/TopicNodeService'
+import DashboardService from './services/DashboardService'
+import WidgetService from './services/WidgetService'
 
 export default function useServices() {
   const connectionService = Container.get(ConnectionService)
@@ -23,6 +25,8 @@ export default function useServices() {
   const scriptService = Container.get(ScriptService)
   const copilotService = Container.get(CopilotService)
   const topicNodeService = Container.get(TopicNodeService)
+  const dashboardService = Container.get(DashboardService)
+  const widgetService = Container.get(WidgetService)
 
   return {
     connectionService,
@@ -36,5 +40,7 @@ export default function useServices() {
     scriptService,
     copilotService,
     topicNodeService,
+    dashboardService,
+    widgetService,
   }
 }
