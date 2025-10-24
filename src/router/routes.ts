@@ -17,17 +17,17 @@ const routes: Routes[] = [
         path: '/viewer',
         name: 'Viewer',
         component: () => import('@/views/viewer/index.vue'),
-        redirect: '/viewer/dashboard',
+        redirect: '/viewer/topic_tree',
         children: [
-          {
-            path: 'dashboard',
-            name: 'Dashboard',
-            component: () => import('@/views/viewer/dashboard/index.vue'),
-          },
           {
             path: 'topic_tree',
             name: 'TopicTree',
             component: () => import('@/views/viewer/TopicTree.vue'),
+          },
+          {
+            path: 'dashboard',
+            name: 'Dashboard',
+            component: () => import('@/views/viewer/dashboard/index.vue'),
           },
           {
             path: 'traffic_monitor',

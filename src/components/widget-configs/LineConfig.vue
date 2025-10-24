@@ -29,7 +29,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { defineColors } from '@/utils/colors'
 
-@Component
+@Component({})
 export default class LineConfig extends Vue {
   @Prop({ type: Object, required: true }) readonly options!: LineWidgetOptions
 
@@ -88,20 +88,8 @@ export default class LineConfig extends Vue {
 }
 </script>
 
-<style scoped>
-.color-picker-item {
-  .el-form-item__content {
-    display: flex !important;
-    align-items: center !important;
-    line-height: normal !important;
-    height: 43px !important;
-    justify-content: flex-start !important;
-  }
+<style lang="scss" scoped>
+@import '@/assets/scss/mixins';
 
-  .el-color-picker {
-    vertical-align: middle !important;
-    margin: 0 !important;
-    align-self: center !important;
-  }
-}
+@include color-picker-item;
 </style>

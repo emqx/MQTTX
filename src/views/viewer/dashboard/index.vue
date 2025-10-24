@@ -16,237 +16,66 @@
       </div>
     </transition>
 
-    <div class="dashboard-header" :style="{ left: leftValue }" v-if="!isAddingWidget">
-      <div class="header-container">
-        <div
-          v-if="!showDashboardsList"
-          class="sidebar-toggle-button"
-          @click="showDashboardsList = true"
-          :title="$t('viewer.dashboards')"
-        >
-          <i class="iconfont icon-show-connections"></i>
-        </div>
-        <div class="header-main-content">
-          <transition name="el-zoom-in-top" mode="out-in">
-            <div v-if="creatingInTopbar" class="dashboard-create-form" key="create">
-              <el-input
-                ref="newNameInput"
-                size="mini"
-                v-model="newDashboard.name"
-                :placeholder="$t('connections.name')"
-                style="width: 180px; margin-right: 8px"
-              />
-              <el-input
-                size="mini"
-                v-model="newDashboard.description"
-                :placeholder="$t('viewer.description')"
-                style="width: 220px; margin-right: 8px"
-              />
-              <el-button size="mini" type="primary" @click="handleCreateDashboardTopbar">
-                {{ $t('common.save') }}
-              </el-button>
-              <el-button size="mini" @click="cancelCreateTopbar">
-                {{ $t('common.cancel') }}
-              </el-button>
-            </div>
-            <div v-else-if="editingInTopbar" class="dashboard-edit-form" key="edit">
-              <el-input
-                ref="editNameInput"
-                size="mini"
-                v-model="editDashboard.name"
-                :placeholder="$t('.name')"
-                style="width: 180px; margin-right: 8px"
-              />
-              <el-input
-                size="mini"
-                v-model="editDashboard.description"
-                :placeholder="$t('common.description')"
-                style="width: 220px; margin-right: 8px"
-              />
-              <el-button size="mini" type="primary" @click="handleSaveDashboardEdit">
-                {{ $t('common.save') }}
-              </el-button>
-              <el-button size="mini" @click="cancelEditTopbar">
-                {{ $t('common.cancel') }}
-              </el-button>
-            </div>
-            <div v-else class="dashboard-view-section" key="default">
-              <el-select
-                v-if="!showDashboardsList"
-                v-model="selectedDashboardId"
-                size="mini"
-                :placeholder="$t('viewer.dashboard')"
-                @change="onDashboardSelectChange"
-                style="width: 180px"
-              >
-                <el-option
-                  v-for="dashboard in dashboards"
-                  :key="dashboard.id"
-                  :label="dashboard.name"
-                  :value="dashboard.id"
-                />
-              </el-select>
-              <a
-                v-if="!showDashboardsList && selectedDashboard"
-                href="javascript:;"
-                class="dashboard-edit-icon"
-                style="margin-left: 8px"
-                :title="$t('common.edit') || 'Edit'"
-                @click="toEditDashboard"
-              >
-                <i class="el-icon-edit"></i>
-              </a>
-              <div v-if="!showDashboardsList" class="flex-spacer"></div>
-              <el-button
-                v-if="!showDashboardsList && selectedDashboard"
-                size="mini"
-                type="primary"
-                icon="el-icon-plus"
-                class="add-widget-button"
-                @click="toAddVisualization"
-              >
-                {{ $t('common.new') }}
-              </el-button>
-              <TimeRangeSelect
-                v-if="!showDashboardsList && selectedDashboard"
-                v-model="timeRangeModel"
-                :time-range-type="timeRangeType"
-                :duration="duration"
-                size="mini"
-                style="margin-left: 8px; width: 200px"
-                @range-relative="onTimeRangeSelect"
-              />
-              <template v-else>
-                <div v-if="selectedDashboard" class="topbar-dashboard-view">
-                  <div class="dashboard-info-section">
-                    <h2 class="dashboard-title">
-                      {{ selectedDashboard.name }}
-                    </h2>
-                    <a
-                      href="javascript:;"
-                      class="dashboard-edit-icon"
-                      style="margin-left: 8px"
-                      :title="$t('common.edit') || 'Edit'"
-                      @click="toEditDashboard"
-                    >
-                      <i class="el-icon-edit"></i>
-                    </a>
-                  </div>
-                  <div class="dashboard-actions-section">
-                    <el-button
-                      size="mini"
-                      type="primary"
-                      icon="el-icon-plus"
-                      class="add-widget-button"
-                      @click="toAddVisualization"
-                    >
-                      {{ $t('common.new') }}
-                    </el-button>
-                    <TimeRangeSelect
-                      v-model="timeRangeModel"
-                      size="mini"
-                      @range-relative="onTimeRangeSelect"
-                      style="margin-left: 8px; width: 200px"
-                      :show-live-mode="true"
-                    />
-                  </div>
-                </div>
-              </template>
-            </div>
-          </transition>
-        </div>
-      </div>
-    </div>
-    <!-- Dashboard view (Canvas Layout) -->
-    <div class="dashboards-view" :class="{ 'full-height': isAddingWidget }" :style="{ marginLeft: detailLeftValue }">
-      <template v-if="loadingState.initializing">
-        <el-skeleton class="dashboard-skeleton-page" :row="8" animated />
-      </template>
-      <template v-else>
-        <template v-if="isAddingWidget">
-          <WidgetConfig :initial-widget="editingWidget" @cancel="cancelAddWidget" @save="handleSaveWidgetConfig" />
-        </template>
-        <!-- if no dashboard is selected, show the no dashboards placeholder -->
-        <template v-else>
-          <div v-if="isEmpty" class="no-dashboards-placeholder">
-            <h2>{{ $t('viewer.noDashboards') }}</h2>
-            <p>
-              {{ $t('viewer.createDashboardToGetStarted') }}
-            </p>
-            <el-button
-              type="primary"
-              class="primary-btn"
-              icon="el-icon-plus"
-              style="font-size: 16px; padding: 10px 32px; border-radius: 6px; margin-top: 16px"
-              @click="toCreateDashboard"
-            >
-              {{ $t('viewer.createDashboard') }}
-            </el-button>
-          </div>
-          <!-- if a dashboard is selected, show the dashboard view -->
-          <template v-else>
-            <template v-if="loadingState.widgets">
-              <el-skeleton class="widget-skeleton-page" :row="6" animated />
-            </template>
-            <!-- if the dashboard has widgets, show the dashboard view -->
-            <template v-else-if="selectedDashboardHasWidgets">
-              <DashboardView
-                :dashboard-id="selectedDashboardId"
-                :widgets="dashboardWidgets"
-                :time-range="timeRange"
-                :time-range-type="timeRangeType"
-                :duration="duration"
-                @layout-changed="onLayoutChanged"
-                @edit-widget="onEditWidget"
-                @remove-widget="onRemoveWidget"
-              />
-            </template>
-            <!-- if the dashboard has no widgets, show the no widgets placeholder -->
-            <div v-else class="dashboard-placeholder">
-              <h2>{{ $t('viewer.noWidgetsTitle') }}</h2>
-              <p>
-                {{ $t('viewer.noWidgetsHint') }}
-              </p>
-              <el-button
-                type="primary"
-                class="primary-btn"
-                icon="el-icon-plus"
-                style="font-size: 16px; padding: 10px 32px; border-radius: 6px; margin-top: 16px"
-                @click="toAddVisualization"
-              >
-                {{ $t('viewer.addVisualization') }}
-              </el-button>
-            </div>
-          </template>
-        </template>
-      </template>
-    </div>
+    <DashboardHeader
+      ref="header"
+      :show-dashboards-list="showDashboardsList"
+      :selected-dashboard-id="selectedDashboardId"
+      :dashboards="dashboards"
+      :selected-dashboard="selectedDashboard"
+      :time-range-model="timeRangeModel"
+      :time-range-type="timeRangeType"
+      :duration="duration"
+      :is-adding-widget="isAddingWidget"
+      @toggle-list="showDashboardsList = $event"
+      @dashboard-selected="onDashboardSelected"
+      @add-visualization="toAddVisualization"
+      @time-range-select="onTimeRangeSelect"
+      @create-dashboard="saveDashboard"
+      @save-dashboard="saveDashboard"
+      @cancel-add="cancelAdd"
+    />
+
+    <DashboardContent
+      :loading-state="loadingState"
+      :show-dashboards-list="showDashboardsList"
+      :selected-dashboard-id="selectedDashboardId"
+      :dashboard-widgets="dashboardWidgets"
+      :time-range="timeRange"
+      :time-range-type="timeRangeType"
+      :duration="duration"
+      :is-empty="isEmpty"
+      :selected-dashboard-has-widgets="selectedDashboardHasWidgets"
+      @create-dashboard="toCreateDashboard"
+      @add-visualization="toAddVisualization"
+      @layout-changed="onLayoutChanged"
+      @edit-widget="onEditWidget"
+      @remove-widget="onRemoveWidget"
+      @refresh-widgets="loadCurrentDashboardWidgets"
+      @create-widget="createWidget"
+      @cancel-add="cancelAdd"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import DashboardsList from './DashboardsList.vue'
-import DashboardView from './DashboardView.vue'
-import WidgetConfig from './WidgetConfig.vue'
-import TimeRangeSelect from '@/components/TimeRangeSelect.vue'
+import DashboardHeader from './DashboardHeader.vue'
+import DashboardContent from './DashboardContent.vue'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
 
 @Component({
   components: {
     DashboardsList,
-    DashboardView,
-    WidgetConfig,
-    TimeRangeSelect,
+    DashboardHeader,
+    DashboardContent,
   },
 })
 export default class Dashboards extends Vue {
   private showDashboardsList: boolean = true
   private isAddingWidget: boolean = false
   private editingWidget: WidgetModel | null = null
-  private creatingInTopbar: boolean = false
-  private editingInTopbar: boolean = false
 
   // === CONSOLIDATED LOADING STATE ===
   private loadingState = {
@@ -260,21 +89,10 @@ export default class Dashboards extends Vue {
   private selectedDashboardId: string | null = null
   private dashboardWidgets: WidgetModel[] = []
 
-  private newDashboard: Partial<DashboardModel> = { name: '', description: '' }
-  private editDashboard: Partial<DashboardModel> = { name: '', description: '' }
-
   private isSelectingDashboard: boolean = false
   private timeRange: [string, string] = [time.getDateBefore(24 * 60), time.getNowDate()]
   private timeRangeType: 'live' | 'static' = 'static'
   private duration: number = 24 * 60
-
-  get leftValue(): string {
-    return this.showDashboardsList ? '230px' : '0px'
-  }
-
-  get detailLeftValue(): string {
-    return this.showDashboardsList ? '230px' : '0px'
-  }
 
   get isEmpty(): boolean {
     return this.dashboards.length === 0
@@ -313,9 +131,6 @@ export default class Dashboards extends Vue {
     }
   }
 
-  /**
-   * Properly handle errors
-   */
   private handleError(error: Error, context: string, showUser: boolean = true): void {
     console.error(`[DASHBOARDS-${context}] Error:`, error)
     this.$log?.error?.(error.toString())
@@ -324,9 +139,6 @@ export default class Dashboards extends Vue {
     }
   }
 
-  /**
-   * Load all dashboards (ordered by orderId)
-   */
   private async loadDashboards(): Promise<void> {
     this.loadingState.dashboards = true
     try {
@@ -340,9 +152,6 @@ export default class Dashboards extends Vue {
     }
   }
 
-  /**
-   * Set the initial dashboard selection based on persistence or default
-   */
   private async setInitialDashboardSelection(): Promise<void> {
     if (this.isEmpty) {
       this.clearDashboardSelection()
@@ -357,9 +166,6 @@ export default class Dashboards extends Vue {
     }
   }
 
-  /**
-   * Load widgets for the currently selected dashboard
-   */
   private async loadCurrentDashboardWidgets(): Promise<void> {
     if (!this.selectedDashboardId) {
       this.dashboardWidgets = []
@@ -440,14 +246,6 @@ export default class Dashboards extends Vue {
         return
       }
 
-      if (this.editingInTopbar && !options.skipConfirmation) {
-        await this.handleEditingConfirmation(() => {
-          this.setSelectedDashboard(targetDashboard, options.persist)
-          this.loadCurrentDashboardWidgets()
-        })
-        return
-      }
-
       this.setSelectedDashboard(targetDashboard, options.persist)
       await this.loadCurrentDashboardWidgets()
     } finally {
@@ -483,43 +281,10 @@ export default class Dashboards extends Vue {
     }
   }
 
-  private async handleEditingConfirmation(action: () => void): Promise<void> {
-    try {
-      await this.$confirm(String(this.$t('viewer.confirmLeaveEditing')), String(this.$t('common.confirm')), {
-        type: 'warning',
-      })
-      this.cancelEditTopbar()
-      action()
-    } catch (e) {
-      this.$log?.error?.((e as Error).toString())
-    }
-  }
-
-  private toAddVisualization(): void {
-    this.editingWidget = null
-    this.isAddingWidget = true
-  }
-
-  private toCreateDashboard() {
-    this.creatingInTopbar = true
-    this.$nextTick(() => {
-      const input = this.$refs.newNameInput as unknown as { focus(): void }
-      input && input.focus && input.focus()
-    })
-  }
-
   private async onDashboardSelected(dashboard: DashboardModel): Promise<void> {
     await this.selectDashboard(dashboard)
   }
 
-  private async onDashboardSelectChange(id: string): Promise<void> {
-    await this.selectDashboardById(id)
-  }
-
-  /**
-   * Handle dashboard reordering
-   * @param newOrderIds
-   */
   private async onDashboardsReordered(newOrderIds: string[]): Promise<void> {
     const idToDashboard = new Map(this.dashboards.map((d) => [d.id, d]))
     this.dashboards = newOrderIds.map((id) => idToDashboard.get(id)).filter(Boolean) as DashboardModel[]
@@ -544,7 +309,6 @@ export default class Dashboards extends Vue {
 
   private onEditDashboardFromList(dashboard: DashboardModel): void {
     this.setSelectedDashboard(dashboard)
-    this.toEditDashboard()
   }
 
   private async onDeleteDashboardFromList(dashboard: DashboardModel): Promise<void> {
@@ -732,44 +496,6 @@ export default class Dashboards extends Vue {
     }
   }
 
-  private async handleCreateDashboardTopbar(): Promise<void> {
-    await this.saveDashboard(this.newDashboard)
-    this.cancelCreateTopbar()
-  }
-
-  private cancelCreateTopbar(): void {
-    this.creatingInTopbar = false
-    this.newDashboard = { name: '', description: '' }
-  }
-
-  private async handleSaveDashboardEdit(): Promise<void> {
-    if (!this.selectedDashboard?.id) return
-
-    const updates = {
-      id: this.selectedDashboard.id,
-      ...this.editDashboard,
-    }
-    await this.saveDashboard(updates)
-    this.cancelEditTopbar()
-  }
-
-  private cancelAddWidget(): void {
-    this.isAddingWidget = false
-    this.editingWidget = null
-  }
-
-  private async handleSaveWidgetConfig(payload: Partial<WidgetModel>): Promise<void> {
-    if (this.editingWidget?.id) {
-      const { widgetService } = useServices()
-      await widgetService.update(this.editingWidget.id, payload)
-      this.$message.success(String(this.$t('common.saveSuccess') || 'Saved'))
-      await this.loadCurrentDashboardWidgets()
-    } else {
-      await this.createWidget(payload)
-    }
-    this.cancelAddWidget()
-  }
-
   private onEditWidget(widget: WidgetModel): void {
     this.editingWidget = { ...widget }
     this.isAddingWidget = true
@@ -795,26 +521,6 @@ export default class Dashboards extends Vue {
       this.layoutSaveTimer = null
     }
     this.pendingLayoutUpdates = []
-  }
-
-  private toEditDashboard(): void {
-    if (!this.selectedDashboard) return
-
-    this.editingInTopbar = true
-    this.editDashboard = {
-      name: this.selectedDashboard.name,
-      description: this.selectedDashboard.description,
-    }
-
-    this.$nextTick(() => {
-      const input = this.$refs.editNameInput as unknown as { focus(): void }
-      input?.focus?.()
-    })
-  }
-
-  private cancelEditTopbar(): void {
-    this.editingInTopbar = false
-    this.editDashboard = { name: '', description: '' }
   }
 
   private onTimeRangeSelect(options: { timeRange: [string, string] | null; duration: number; isLive: boolean }): void {
@@ -897,6 +603,20 @@ export default class Dashboards extends Vue {
       this.$message.error(String(this.$t('viewer.failedToSaveTimeRangeSettings')))
     }
   }
+
+  private toAddVisualization() {
+    this.isAddingWidget = true
+    this.editingWidget = null
+  }
+
+  private toCreateDashboard() {
+    ;(this.$refs.header as any).toCreateDashboard()
+  }
+
+  private cancelAdd() {
+    this.isAddingWidget = false
+    this.editingWidget = null
+  }
 }
 </script>
 
@@ -923,181 +643,25 @@ export default class Dashboards extends Vue {
     transition: all 0.3s ease-in-out;
   }
 
-  .dashboard-header {
-    position: absolute;
-    height: 59px;
-    top: 0;
-    right: 0;
-    padding: 16px;
-    background: var(--color-bg-primary);
-    border-bottom: 1px solid var(--color-border-default);
-    z-index: 999;
-    transition: all 0.3s ease-in-out;
-
-    .header-container {
-      display: flex;
-      align-items: center;
-      height: 100%;
-      padding: 0 16px;
-
-      .sidebar-toggle-button {
-        margin-right: 16px;
-
-        .icon-show-connections {
-          font-size: 20px;
-          cursor: pointer;
-          color: var(--color-text-title);
-          &:hover {
-            color: var(--color-text-title);
-          }
-        }
-      }
-
-      .header-main-content {
-        display: flex;
-        align-items: center;
-        flex: 1;
-        width: 100%;
-        .flex-spacer {
-          flex: 1;
-        }
-
-        .dashboard-title {
-          font-size: 16px;
-          font-weight: 600;
-          color: var(--color-text-title);
-          margin: 0;
-        }
-
-        .topbar-dashboard-view {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          width: 100%;
-          .dashboard-info-section {
-            display: flex;
-            align-items: center;
-          }
-
-          .dashboard-actions-section {
-            display: flex;
-            align-items: center;
-          }
-
-          .add-widget-button {
-            flex-shrink: 0;
-          }
-        }
-        .dashboard-create-form,
-        .dashboard-view-section,
-        .dashboard-edit-form {
-          display: flex;
-          align-items: center;
-          width: 100%;
-        }
-        .dashboard-edit-icon {
-          color: var(--color-text-tips);
-          transition: 0.2s color ease;
-          display: inline-flex;
-          align-items: center;
-          height: 20px;
-          line-height: 1;
-          &:hover {
-            color: var(--color-text-title);
-          }
-          .el-icon-edit {
-            font-size: 18px;
-            font-weight: 500;
-          }
-        }
-      }
-    }
+  .slide-enter-active,
+  .slide-leave-active {
+    transition: all 0.3s ease;
+  }
+  .slide-enter {
+    transform: translateX(-100%);
+  }
+  .slide-leave-to {
+    transform: translateX(-100%);
   }
 
-  .dashboards-view {
-    height: calc(100% - 59px);
-    margin-top: 59px;
-    overflow: auto;
-    transition: all 0.3s ease-in-out;
+  .slide-down-enter-active,
+  .slide-down-leave-active {
+    transition: all 0.25s ease;
   }
-  .full-height {
-    height: 100%;
-    margin-top: 0;
+  .slide-down-enter,
+  .slide-down-leave-to {
+    transform: translateY(-100%);
+    opacity: 0;
   }
-}
-
-.dashboard-skeleton-page {
-  margin: 30px;
-  overflow-x: hidden;
-}
-
-.widget-skeleton-page {
-  margin: 30px;
-  overflow-x: hidden;
-}
-
-.dashboard-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 24px;
-  color: var(--color-text-title);
-
-  h2 {
-    margin: 0 0 8px 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--color-text-title);
-  }
-
-  p {
-    margin: 0;
-    color: var(--color-text-light);
-  }
-}
-
-.no-dashboards-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 24px;
-  color: var(--color-text-title);
-
-  h2 {
-    margin: 0 0 8px 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--color-text-title);
-  }
-
-  p {
-    margin: 0;
-    color: var(--color-text-light);
-  }
-}
-
-.slide-enter-active,
-.slide-leave-active {
-  transition: all 0.3s ease;
-}
-.slide-enter {
-  transform: translateX(-100%);
-}
-.slide-leave-to {
-  transform: translateX(-100%);
-}
-
-.slide-down-enter-active,
-.slide-down-leave-active {
-  transition: all 0.25s ease;
-}
-.slide-down-enter,
-.slide-down-leave-to {
-  transform: translateY(-100%);
-  opacity: 0;
 }
 </style>
