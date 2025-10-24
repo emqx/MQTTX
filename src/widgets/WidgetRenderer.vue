@@ -3,7 +3,7 @@
     <!-- @ts-ignore -->
     <component :is="widgetComponent" v-bind="widgetProps" @error="onError" />
     <div v-if="!widgetComponent" class="widget-error">
-      <div class="error-message">Unknown widget type: {{ widget.type }}</div>
+      <div class="error-message">{{ $t('viewer.unknownWidgetType') }}: {{ widget.type }}</div>
     </div>
   </div>
 </template>

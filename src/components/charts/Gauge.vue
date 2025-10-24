@@ -1,7 +1,7 @@
 <template>
   <div class="gauge-container">
     <div v-if="hasData" :id="id" style="width: 100%; height: 100%"></div>
-    <div v-else class="no-data">No Data</div>
+    <div v-else class="no-data">{{ $t('common.noData') }}</div>
   </div>
 </template>
 
@@ -19,7 +19,6 @@ echarts.use([TitleComponent, TooltipComponent, GridComponent, EChartsGaugeChart,
 @Component
 export default class GaugeChart extends Vue {
   @Prop({ required: true }) public id!: string
-  // @Prop({ default: null }) public value!: number | null
   @Prop({ default: () => ({ value: null }) }) public data!: GaugeData
   @Prop({ default: 'Temperature' }) public title!: string
   @Prop({ default: '°C' }) public unit!: string

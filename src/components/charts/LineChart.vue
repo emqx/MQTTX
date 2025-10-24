@@ -1,7 +1,7 @@
 <template>
   <div class="line-chart-container">
     <div :id="id" class="chart-container"></div>
-    <div v-if="!hasData" class="no-data-overlay">No Data</div>
+    <div v-if="!hasData" class="no-data-overlay">{{ $t('common.noData') }}</div>
   </div>
 </template>
 

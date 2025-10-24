@@ -35,7 +35,7 @@ export default {
     hu: 'Irányítópultok elrejtése',
   },
   noWidgetsTitle: {
-    zh: '开始你的新仪表盘，添加一个可视化',
+    zh: '添加可视化组件，开始使用仪表盘',
     en: 'Start your new dashboard by adding a visualization',
     tr: 'Yeni gösterge panelinizi bir görselleştirme ekleyerek başlatın',
     ja: '新しいダッシュボードを可視化の追加から始めましょう',
@@ -49,7 +49,7 @@ export default {
     hu: 'Válasszon ki egy adatforrást, majd lekérdezze és vizualizálja adatait diagramokkal, statisztikákkal és egyéb widgetekkel',
   },
   addVisualization: {
-    zh: '添加可视化',
+    zh: '添加可视化组件',
     en: 'Add Visualization',
     tr: 'Görselleştirme Ekle',
     ja: '可視化を追加',
@@ -397,7 +397,7 @@ export default {
     hu: 'Téma minta',
   },
   valueField: {
-    zh: '值字段',
+    zh: '字段',
     en: 'Value Field',
     tr: 'Değer Alanı',
     ja: '値フィールド',
@@ -535,6 +535,20 @@ export default {
     tr: 'Widget türü gerekli',
     ja: 'ウィジェットタイプが必要です',
     hu: 'Widget típus szükséges',
+  },
+  unknownWidgetType: {
+    zh: '未知的小部件类型',
+    en: 'Unknown widget type',
+    tr: 'Bilinmeyen widget türü',
+    ja: '不明なウィジェットタイプ',
+    hu: 'Ismeretlen widget típus',
+  },
+  fallbackValueTip: {
+    zh: '当没有数据时，显示的值',
+    en: 'The value displayed when no data is available',
+    tr: 'Veri yokken gösterilecek değer',
+    ja: 'データがない場合に表示される値',
+    hu: 'Az adatok esetén megjelenített érték',
   },
   connectionRequired: {
     zh: '需要连接',

@@ -52,7 +52,7 @@
           </el-tooltip>
         </div>
         <div class="preview-body">
-          <div v-if="!formModel.type" class="preview-placeholder">{{ $t('common.noData') || 'No Data' }}</div>
+          <div v-if="!formModel.type" class="preview-placeholder">{{ $t('common.noData') }}</div>
           <div v-else class="preview-widget">
             <WidgetRenderer
               :key="`preview-${previewRefreshKey}`"
@@ -165,12 +165,19 @@
           </el-col>
           <el-col v-if="formModel.schemaType === 'protobuf'" :span="2"></el-col>
           <el-col :span="22">
-            <el-form-item
-              label-width="175px"
-              :label="$t('viewer.fallbackValue')"
-              title="Default value when no data is available"
-            >
-              <el-input type="number" size="mini" v-model.number="formModel.fallbackValue" placeholder="0" />
+            <el-form-item label-width="175px" :label="$t('viewer.fallbackValue')">
+              <el-input
+                type="number"
+                size="mini"
+                v-model.number="formModel.fallbackValue"
+                placeholder="0"
+                style="width: 90%"
+              />
+              <el-tooltip :content="$t('viewer.fallbackValueTip')">
+                <a href="javascript:;" class="icon-oper" style="margin-left: 10px">
+                  <i class="el-icon-warning-outline"></i>
+                </a>
+              </el-tooltip>
             </el-form-item>
           </el-col>
           <el-col :span="2"></el-col>

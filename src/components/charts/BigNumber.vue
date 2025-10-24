@@ -5,7 +5,7 @@
     class="big-stat-panel"
   >
     <div v-if="hasData" :id="id" class="chart-container"></div>
-    <div v-else class="no-data-background">No Data</div>
+    <div v-else class="no-data-background">{{ $t('common.noData') }}</div>
 
     <!-- Value Overlay -->
     <div v-if="hasData" class="value-overlay">
