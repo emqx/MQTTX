@@ -44,6 +44,8 @@
       :time-range-type="timeRangeType"
       :duration="duration"
       :is-empty="isEmpty"
+      :is-adding-widget="isAddingWidget"
+      :editing-widget="editingWidget"
       :selected-dashboard-has-widgets="selectedDashboardHasWidgets"
       @create-dashboard="toCreateDashboard"
       @add-visualization="toAddVisualization"
