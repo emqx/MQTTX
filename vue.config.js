@@ -104,9 +104,10 @@ module.exports = {
           allowToChangeInstallationDirectory: true,
           createDesktopShortcut: true,
           createStartMenuShortcut: true,
+          artifactName: 'MQTTX-Setup-${version}-${arch}.${ext}',
         },
         win: {
-          artifactName: 'MQTTX-Setup-${version}-${arch}.${ext}',
+          artifactName: 'MQTTX-${version}-${arch}-win.${ext}',
           icon: './public/icons/app.ico',
           target: [
             {
@@ -118,6 +119,10 @@ module.exports = {
                 // Issue: https://github.com/TryGhost/node-sqlite3/issues/1799
                 // 'arm64'
               ],
+            },
+            {
+              target: 'zip',
+              arch: ['x64', 'ia32'],
             },
           ],
         },
