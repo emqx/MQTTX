@@ -64,4 +64,160 @@ body.night {
   --color-shadow-sendbtn: #2dc17769;
   --color-shadow-card: #00000085;
   --color-shadow-message: #151515;
+
+  /*
+   * Night Owl highlight.js theme
+   * (c) Carl Baxter, MIT License
+   * Adapted from Sarah Drasner's Night Owl VS Code Theme
+   * https://github.com/highlightjs/highlight.js/blob/main/src/styles/night-owl.css
+   */
+  .hljs {
+    color: #d6deeb;
+  }
+
+  /* General Purpose */
+  .hljs-keyword {
+    color: #c792ea;
+    font-style: italic;
+  }
+  .hljs-built_in {
+    color: #addb67;
+    font-style: italic;
+  }
+  .hljs-type {
+    color: #82aaff;
+  }
+  .hljs-literal {
+    color: #ff5874;
+  }
+  .hljs-number {
+    color: #F78C6C;
+  }
+  .hljs-regexp {
+    color: #5ca7e4;
+  }
+  .hljs-string {
+    color: #ecc48d;
+  }
+  .hljs-subst {
+    color: #d3423e;
+  }
+  .hljs-symbol {
+    color: #82aaff;
+  }
+  .hljs-class {
+    color: #ffcb8b;
+  }
+  .hljs-function {
+    color: #82AAFF;
+  }
+  .hljs-title {
+    color: #DCDCAA;
+    font-style: italic;
+  }
+  .hljs-params {
+    color: #7fdbca;
+  }
+
+  /* Meta */
+  .hljs-comment {
+    color: #637777;
+    font-style: italic;
+  }
+  .hljs-doctag {
+    color: #7fdbca;
+  }
+  .hljs-meta {
+    color: #82aaff;
+  }
+  .hljs-meta .hljs-keyword {
+
+    color: #82aaff;
+  }
+  .hljs-meta .hljs-string {
+    color: #ecc48d;
+  }
+
+  /* Tags, attributes, config */
+  .hljs-section {
+    color: #82b1ff;
+  }
+  .hljs-tag,
+  .hljs-name {
+    color: #7fdbca;
+  }
+  .hljs-attr {
+    color: #7fdbca;
+  }
+  .hljs-attribute {
+    color: #80cbc4;
+  }
+  .hljs-variable {
+    color: #addb67;
+  }
+
+  /* Markup */
+  .hljs-bullet {
+    color: #d9f5dd;
+  }
+  .hljs-code {
+    color: #80CBC4;
+  }
+  .hljs-emphasis {
+    color: #c792ea;
+    font-style: italic;
+  }
+  .hljs-strong {
+    color: #addb67;
+    font-weight: bold;
+  }
+  .hljs-formula {
+    color: #c792ea;
+  }
+  .hljs-link {
+    color: #ff869a;
+  }
+  .hljs-quote {
+    color: #697098;
+    font-style: italic;
+  }
+
+  /* CSS */
+  .hljs-selector-tag {
+    color: #ff6363;
+  }
+
+  .hljs-selector-id {
+    color: #fad430;
+  }
+
+  .hljs-selector-class {
+    color: #addb67;
+    font-style: italic;
+  }
+
+  .hljs-selector-attr,
+  .hljs-selector-pseudo {
+    color: #c792ea;
+    font-style: italic;
+  }
+
+  /* Templates */
+  .hljs-template-tag {
+    color: #c792ea;
+  }
+  .hljs-template-variable {
+    color: #addb67;
+  }
+
+  /* diff */
+  .hljs-addition {
+    color: #addb67ff;
+    font-style: italic;
+  }
+
+  .hljs-deletion {
+    color: #EF535090;
+    font-style: italic;
+  }
 }

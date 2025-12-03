@@ -1,6 +1,11 @@
 import Vue from 'vue'
 
 import 'element-ui/lib/theme-chalk/index.css'
+
+import hljs from 'highlight.js/lib/core'
+import hljsVuePlugin from '@highlightjs/vue-plugin'
+import json from 'highlight.js/lib/languages/json';
+
 import ElementLocale from 'element-ui/lib/locale'
 import App from './App.vue'
 import router from './router/index'
@@ -12,6 +17,9 @@ import element from './utils/element'
 import VueVirtualScroller from 'vue-virtual-scroller'
 import VueRx from 'vue-rx'
 import VueGtm, { VueGtmUseOptions } from '@gtm-support/vue2-gtm'
+
+hljs.registerLanguage('json', json);
+Vue.use(hljsVuePlugin)
 
 Vue.use(element)
 Vue.use(VueI18n)

@@ -32,7 +32,7 @@
           />
         </p>
       </div>
-      <pre>{{ payload }}</pre>
+      <highlightjs autodetect :code="payload" />
     </div>
     <p class="left-time time">{{ createAt }}</p>
   </div>
