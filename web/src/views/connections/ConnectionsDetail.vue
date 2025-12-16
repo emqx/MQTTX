@@ -160,6 +160,7 @@
           :height="messageListHeight"
           :marginTop="messageListMarginTop"
           :addNewMsg="messagesAddedNewItem"
+          :receivedMsgType="receivedMsgType"
           @showContextMenu="handleContextMenu"
         />
         <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">

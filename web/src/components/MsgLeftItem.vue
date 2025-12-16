@@ -32,7 +32,8 @@
           />
         </p>
       </div>
-      <highlightjs autodetect :code="payload" />
+      <highlightjs v-if="receivedMsgType === 'JSON'" language="json" :code="payload" />
+      <pre v-else>{{ payload }}</pre>
     </div>
     <p class="left-time time">{{ createAt }}</p>
   </div>
@@ -55,6 +56,7 @@ export default class MsgLeftItem extends Vue {
   @Prop({ required: false, default: false }) public retain!: boolean
   @Prop({ required: false, default: () => ({}) }) public properties!: PushPropertiesModel
   @Prop({ required: false, default: '' }) public color!: string
+  @Prop({ required: true }) receivedMsgType!: string
 
   private customMenu(event: MouseEvent) {
     this.$emit('showmenu', this.payload, event)
