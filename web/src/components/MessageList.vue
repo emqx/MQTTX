@@ -9,7 +9,12 @@
       <DynamicScroller v-if="showMessages.length" :items="showMessages" :min-item-size="40" class="scroller">
         <template v-slot="{ item, active }">
           <DynamicScrollerItem :item="item" :active="active" :data-index="item.id">
-            <MsgLeftItem v-if="!item.out" v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
+            <MsgLeftItem
+              v-if="!item.out"
+              v-bind="item"
+              :receivedMsgType="receivedMsgType"
+              @showmenu="handleShowContextMenu(arguments, item)"
+            />
             <MsgRightItem v-else v-bind="item" @showmenu="handleShowContextMenu(arguments, item)" />
           </DynamicScrollerItem>
         </template>
@@ -40,6 +45,7 @@ export default class MessageList extends Vue {
   @Prop({ required: true }) subscriptions!: SubscriptionModel[]
   @Prop({ required: true }) marginTop!: number
   @Prop({ required: true }) addNewMsg!: boolean
+  @Prop({ required: true }) receivedMsgType!: string
 
   public showMessages: MessageModel[] = []
   private scrollTop: number = -1
