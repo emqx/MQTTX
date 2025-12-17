@@ -14,6 +14,7 @@ const mockExit = jest.spyOn(process, 'exit').mockImplementation((code?: number) 
 })
 
 const mockProtoPath = path.join(__dirname, 'mockData/mockProto.proto')
+const mockEditions2023Path = path.join(__dirname, 'mockData/mockEditions2023.proto')
 const protoSchema = `
   syntax = "proto3";
   message SensorData {
@@ -21,6 +22,13 @@ const protoSchema = `
     string sensorType = 2;
     double value = 3;
     int64 timestamp = 4;
+  }
+`
+const editions2023Schema = `
+  edition = "2023";
+  message Response {
+    string body = 1;
+    int32 code = 2;
   }
 `
 
@@ -166,6 +174,37 @@ describe('protobuf', () => {
         sensorType: 'Temperature',
         value: 22.5,
         timestamp: '16700',
+      })
+    })
+  })
+
+  describe('Protobuf Editions 2023', () => {
+    const editions2023Message = '{"body":"test message", "code": 200}'
+
+    it('should serialize JSON message with editions 2023 schema correctly', () => {
+      const resultBuffer = serializeProtobufToBuffer(editions2023Message, mockEditions2023Path, 'Response')
+      expect(resultBuffer).toBeInstanceOf(Buffer)
+
+      const root = protobuf.parse(editions2023Schema).root
+      const Response = root.lookupType('Response')
+      const decodedMessage = Response.decode(resultBuffer)
+      expect(decodedMessage.toJSON()).toEqual({
+        body: 'test message',
+        code: 200,
+      })
+    })
+
+    it('should deserialize Buffer with editions 2023 schema correctly', () => {
+      const root = protobuf.parse(editions2023Schema).root
+      const Response = root.lookupType('Response')
+      const msg = { body: 'hello world', code: 100 }
+      const buffer = Response.encode(Response.create(msg)).finish()
+
+      const result = deserializeBufferToProtobuf(Buffer.from(buffer), mockEditions2023Path, 'Response', undefined)
+      expect(typeof result).toBe('string')
+      expect(JSON.parse(result as string)).toEqual({
+        body: 'hello world',
+        code: 100,
       })
     })
   })
