@@ -15,6 +15,15 @@ describe('Protobuf Utils', () => {
     }
   `
 
+  // Protobuf Editions 2023 syntax
+  const editionsProto = `
+    edition = "2023";
+    message Response {
+      string body = 1;
+      int32 code = 2;
+    }
+  `
+
   describe('checkProtobufInput', () => {
     it('should validate correct protobuf input', () => {
       const input = JSON.stringify({ name: 'Alice', age: 30 })
@@ -74,6 +83,35 @@ describe('Protobuf Utils', () => {
       expect(result).to.include('age: 35')
       expect(result).to.include('city: "New York"')
       expect(result).to.include('zip: "10001"')
+    })
+  })
+
+  describe('Protobuf Editions 2023', () => {
+    it('should validate correct editions 2023 protobuf input', () => {
+      const input = JSON.stringify({ body: 'test message', code: 200 })
+      const result = checkProtobufInput(editionsProto, input, 'Response')
+      expect(result).to.be.a('string')
+      expect(result).to.include('test message')
+      expect(result).to.include('200')
+    })
+
+    it('should serialize editions 2023 input to buffer', () => {
+      const input = JSON.stringify({ body: 'hello', code: 100 })
+      const result = serializeProtobufToBuffer(input, editionsProto, 'Response')
+      expect(result).to.be.instanceof(Buffer)
+    })
+
+    it('should deserialize buffer to editions 2023 protobuf object', () => {
+      const input = JSON.stringify({ body: 'world', code: 300 })
+      const buffer = serializeProtobufToBuffer(input, editionsProto, 'Response')
+      if (buffer) {
+        const result = deserializeBufferToProtobuf(buffer, editionsProto, 'Response')
+        expect(result).to.be.a('string')
+        expect(result).to.include('world')
+        expect(result).to.include('300')
+      } else {
+        expect.fail('Buffer should not be undefined')
+      }
     })
   })
 })

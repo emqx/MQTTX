@@ -1,0 +1,6 @@
+edition = "2023";
+
+message Response {
+  string body = 1;
+  int32 code = 2;
+}
