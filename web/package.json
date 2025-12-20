@@ -3,17 +3,18 @@
   "version": "1.12.1",
   "license": "Apache-2.0",
   "scripts": {
-    "serve": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve",
-    "serve:online": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve --mode online",
-    "serve:docker": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service serve --mode docker",
-    "build": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build",
-    "build:online": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build --mode online",
-    "build:docker": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service build --mode docker",
+    "vue:cli": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service",
+    "serve": "yarn vue:cli serve",
+    "serve:online": "yarn vue:cli serve --mode online",
+    "serve:docker": "yarn vue:cli serve --mode docker",
+    "build": "yarn vue:cli build",
+    "build:online": "yarn vue:cli build --mode online",
+    "build:docker": "yarn vue:cli build --mode docker",
     "start": "yarn build && http-server dist -o /",
     "start:online": "yarn build:online && http-server dist -o /web-client",
     "start:docker": "yarn build:docker && http-server dist -o /",
-    "test:e2e": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service test:e2e",
-    "lint": "NODE_OPTIONS=--openssl-legacy-provider vue-cli-service lint"
+    "test:e2e": "yarn vue:cli test:e2e",
+    "lint": "yarn vue:cli lint"
   },
   "engines": {
     "node": "18"
@@ -68,6 +69,7 @@
     "@vue/test-utils": "1.0.0-beta.29",
     "babel-plugin-component": "^1.1.1",
     "chai": "^4.1.2",
+    "cross-env": "^7.0.3",
     "eslint": "6.5.1",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.4",
