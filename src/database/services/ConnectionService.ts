@@ -1,5 +1,6 @@
 import { Service } from 'typedi'
 import moment from 'moment'
+import MessageEntity from '@/database/models/MessageEntity'
 import _ from 'lodash'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import ConnectionEntity from '@/database/models/ConnectionEntity'
@@ -16,6 +17,8 @@ const electronStore = new Store()
 export const MoreThanDate = (date: string | Date) => MoreThan(DateUtils.mixedDateToUtcDatetimeString(date))
 export const LessThanDate = (date: string | Date) => LessThan(DateUtils.mixedDateToUtcDatetimeString(date))
 
+
+
 @Service()
 export default class ConnectionService {
   constructor(
@@ -28,48 +31,83 @@ export default class ConnectionService {
     // @ts-ignore
     @InjectRepository(WillEntity)
     private willRepository: Repository<WillEntity>,
-  ) {}
+  ) { }
 
   public static entityToModel(data: ConnectionEntity): ConnectionModel {
+    const {
+      will,
+      // MQTT 5 Properties
+      sessionExpiryInterval,
+      receiveMaximum,
+      maximumPacketSize,
+      topicAliasMaximum,
+      requestResponseInformation,
+      requestProblemInformation,
+      userProperties,
+      authenticationMethod,
+      authenticationData,
+      // Other properties to exclude from spread
+      pushPropsPayloadFormatIndicator,
+      pushPropsMessageExpiryInterval,
+      pushPropsTopicAlias,
+      pushPropsResponseTopic,
+      pushPropsCorrelationData,
+      pushPropsUserProperties,
+      pushPropsSubscriptionIdentifier,
+      pushPropsContentType,
+      ...rest
+    } = data
+
+    // Handle Will properties
+    let willModel: WillModel | undefined
+    if (will) {
+      const {
+        willDelayInterval,
+        payloadFormatIndicator,
+        messageExpiryInterval,
+        contentType,
+        responseTopic,
+        correlationData,
+        userProperties: willUserProps,
+        ...willRest
+      } = will
+
+      willModel = {
+        ...willRest,
+        properties: {
+          willDelayInterval,
+          payloadFormatIndicator,
+          messageExpiryInterval,
+          contentType,
+          responseTopic,
+          correlationData,
+          userProperties: willUserProps ? JSON.parse(willUserProps) : undefined,
+        },
+      }
+    }
+
     return {
-      ...data,
+      ...rest,
       // sort message by Date
       messages:
         data?.messages
           ?.sort((a, b) => (moment(new Date(a.createAt), sqliteDateFormat).isBefore(new Date(b.createAt)) ? -1 : 1))
-          .map((entity) => ({
-            ...entity,
-            properties: {
-              ...entity,
-              userProperties: entity.userProperties ? JSON.parse(entity.userProperties) : undefined,
-            },
-          })) ?? [],
+          .map((entity) => ConnectionService.messageEntityToModel(entity)) ?? [],
       subscriptions:
         data?.subscriptions?.sort((a, b) =>
           moment(new Date(a.createAt), sqliteDateFormat).isBefore(new Date(b.createAt)) ? -1 : 1,
         ) ?? [],
-      will: {
-        ...data.will,
-        properties: {
-          willDelayInterval: data.will?.willDelayInterval,
-          payloadFormatIndicator: data.will?.payloadFormatIndicator,
-          messageExpiryInterval: data.will?.messageExpiryInterval,
-          contentType: data.will?.contentType,
-          responseTopic: data.will?.responseTopic,
-          correlationData: data.will?.correlationData,
-          userProperties: data.will?.userProperties,
-        },
-      },
+      will: willModel,
       properties: {
-        sessionExpiryInterval: data.sessionExpiryInterval,
-        receiveMaximum: data.receiveMaximum,
-        maximumPacketSize: data.maximumPacketSize,
-        topicAliasMaximum: data.topicAliasMaximum,
-        requestResponseInformation: data.requestResponseInformation,
-        requestProblemInformation: data.requestProblemInformation,
-        userProperties: data.userProperties ? JSON.parse(data.userProperties) : undefined,
-        authenticationMethod: data.authenticationMethod,
-        authenticationData: data.authenticationData ? Buffer.from(data.authenticationData, 'utf8') : undefined,
+        sessionExpiryInterval,
+        receiveMaximum,
+        maximumPacketSize,
+        topicAliasMaximum,
+        requestResponseInformation,
+        requestProblemInformation,
+        userProperties: userProperties ? JSON.parse(userProperties) : undefined,
+        authenticationMethod,
+        authenticationData: authenticationData ? Buffer.from(authenticationData, 'utf8') : undefined,
       },
     } as ConnectionModel
   }
@@ -107,6 +145,34 @@ export default class ConnectionService {
     return {
       ...data,
     }
+  }
+
+  private static messageEntityToModel(entity: MessageEntity): MessageModel {
+    const {
+      payloadFormatIndicator,
+      messageExpiryInterval,
+      topicAlias,
+      responseTopic,
+      correlationData,
+      userProperties,
+      subscriptionIdentifier,
+      contentType,
+      ...rest
+    } = entity
+
+    return {
+      ...rest,
+      properties: {
+        payloadFormatIndicator,
+        messageExpiryInterval,
+        topicAlias,
+        responseTopic,
+        correlationData,
+        subscriptionIdentifier,
+        contentType,
+        userProperties: userProperties ? JSON.parse(userProperties) : undefined,
+      },
+    } as MessageModel
   }
 
   // update connection's collection ID

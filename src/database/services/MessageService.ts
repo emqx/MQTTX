@@ -5,6 +5,8 @@ import { Repository } from 'typeorm'
 import ConnectionEntity from '../models/ConnectionEntity'
 import ConnectionService from './ConnectionService'
 
+
+
 @Service()
 export default class MessageService {
   constructor(
@@ -14,29 +16,48 @@ export default class MessageService {
     // @ts-ignore
     @InjectRepository(ConnectionEntity)
     private connectionRepository: Repository<ConnectionEntity>,
-  ) {}
+  ) { }
 
   public static modelToEntity(model: MessageModel, connectionId: string | undefined): MessageEntity {
+    const { properties, ...rest } = model
     return {
-      ...model,
+      ...rest,
       connectionId,
-      payloadFormatIndicator: model.properties?.payloadFormatIndicator,
-      messageExpiryInterval: model.properties?.messageExpiryInterval,
-      topicAlias: model.properties?.topicAlias,
-      responseTopic: model.properties?.responseTopic,
-      correlationData: model.properties?.correlationData,
-      subscriptionIdentifier: model.properties?.subscriptionIdentifier,
-      contentType: model.properties?.contentType,
-      userProperties: JSON.stringify(model.properties?.userProperties),
+      payloadFormatIndicator: properties?.payloadFormatIndicator,
+      messageExpiryInterval: properties?.messageExpiryInterval,
+      topicAlias: properties?.topicAlias,
+      responseTopic: properties?.responseTopic,
+      correlationData: properties?.correlationData,
+      subscriptionIdentifier: properties?.subscriptionIdentifier,
+      contentType: properties?.contentType,
+      userProperties: JSON.stringify(properties?.userProperties),
     } as MessageEntity
   }
 
   public static entityToModel(entity: MessageEntity): MessageModel {
+    const {
+      payloadFormatIndicator,
+      messageExpiryInterval,
+      topicAlias,
+      responseTopic,
+      correlationData,
+      userProperties,
+      subscriptionIdentifier,
+      contentType,
+      ...rest
+    } = entity
+
     return {
-      ...entity,
+      ...rest,
       properties: {
-        ...entity,
-        userProperties: entity.userProperties ? JSON.parse(entity.userProperties) : undefined,
+        payloadFormatIndicator,
+        messageExpiryInterval,
+        topicAlias,
+        responseTopic,
+        correlationData,
+        subscriptionIdentifier,
+        contentType,
+        userProperties: userProperties ? JSON.parse(userProperties) : undefined,
       },
     } as MessageModel
   }
