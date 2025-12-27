@@ -3,10 +3,10 @@ import { InjectRepository } from 'typeorm-typedi-extensions'
 import TopicNodeEntity from '@/database/models/TopicNodeEntity'
 import { EntityManager, Repository, TreeRepository } from 'typeorm'
 import ConnectionEntity from '../models/ConnectionEntity'
-import MessageService from './MessageService'
-import { getMessageId } from '@/utils/idGenerator'
 import ConnectionService from './ConnectionService'
 import { flattenTopicTree } from '@/utils/topicTree'
+import MessageService from './MessageService'
+import { getMessageId } from '@/utils/idGenerator'
 
 @Service()
 export default class TopicNodeService {
@@ -18,7 +18,7 @@ export default class TopicNodeService {
     @InjectRepository(ConnectionEntity)
     private connectionRepository: Repository<ConnectionEntity>,
     private messageService: MessageService,
-  ) {}
+  ) { }
 
   /**
    * Retrieves the topic tree structure
