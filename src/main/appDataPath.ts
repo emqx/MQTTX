@@ -16,7 +16,13 @@ export const getUnifiedAppDataPath = (subDir?: string): string => {
   const electronApp = isRenderer ? require('@electron/remote').app : app
 
   // Use Electron's native API which handles Windows %APPDATA% redirection correctly
-  const userDataPath = electronApp.getPath('userData')
+  let userDataPath: string
+  if (electronApp) {
+    userDataPath = electronApp.getPath('userData')
+  } else {
+    // CLI / pure Node.js environment (e.g. running TypeORM migrations)
+    userDataPath = getLegacyAppDataPath('MQTTX')
+  }
 
   if (subDir) {
     // For backward compatibility, if subDir is 'MQTTX' and it's already in the path, don't duplicate it
