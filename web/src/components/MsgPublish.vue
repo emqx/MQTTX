@@ -116,17 +116,6 @@
       <div class="topic-input-container">
         <el-input class="publish-topic-input" placeholder="Topic" v-model="msgRecord.topic" @focus="handleInputFoucs">
         </el-input>
-        <div v-if="topicHasWhitespace" class="topic-whitespace-hint">
-          <span class="topic-whitespace-label">{{ $t('connections.topicWhitespaceHint') }}</span>
-          <span class="topic-whitespace-marker">
-            <span
-              v-for="(part, index) in topicWhitespaceParts"
-              :key="index"
-              :class="{ 'space-marker': part.isSpace }"
-              >{{ part.text }}</span
-            >
-          </span>
-        </div>
       </div>
       <el-select
         class="header-select"
@@ -233,7 +222,6 @@ export default class MsgPublish extends Vue {
   @Prop({ default: false }) public mqtt5PropsEnable!: boolean
 
   @Getter('currentTheme') private currentTheme!: Theme
-  @Getter('topicWhitespaceDetection') private topicWhitespaceDetection!: boolean
 
   private MQTT5PropsForm: PushPropertiesModel = {}
 
@@ -263,20 +251,6 @@ export default class MsgPublish extends Vue {
 
   get rules() {
     return {}
-  }
-
-  get topicHasWhitespace(): boolean {
-    return this.topicWhitespaceDetection && /\s/.test(this.msgRecord.topic)
-  }
-
-  get topicWhitespaceParts(): Array<{ text: string; isSpace: boolean }> {
-    return Array.from(this.msgRecord.topic).map((char) => {
-      const isSpace = /\s/.test(char)
-      return {
-        text: isSpace ? '␣' : char,
-        isSpace,
-      }
-    })
   }
 
   private hasMqtt5Prop: boolean = false
@@ -529,44 +503,6 @@ export default class MsgPublish extends Vue {
           }
         }
       }
-    }
-  }
-  .topic-input-container {
-    .topic-whitespace-hint {
-      position: relative;
-      margin-top: 16px;
-      padding: 12px 10px 8px;
-      border: 1px dashed var(--color-border-default);
-      border-radius: 6px;
-      background: var(--color-bg-normal);
-      color: var(--color-text-light);
-      font-size: 11px;
-      line-height: 14px;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-    .topic-whitespace-label {
-      position: absolute;
-      top: 4px;
-      right: 8px;
-      padding: 0 4px;
-      background: var(--color-bg-normal);
-      font-size: 12px;
-      color: var(--color-text-light);
-      opacity: 0.75;
-    }
-    .topic-whitespace-marker {
-      display: block;
-      margin-top: 10px;
-      color: var(--color-text-default);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    }
-    .topic-whitespace-marker .space-marker {
-      color: var(--color-main-yellow);
-      background: rgba(250, 173, 20, 0.18);
-      border-radius: 2px;
-      padding: 0 1px;
-      font-weight: 600;
     }
   }
   .publish-topic-input.el-input {
