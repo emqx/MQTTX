@@ -249,6 +249,11 @@ export default {
     en: 'You cannot publish the message to a Topic that contains wildcards characters #, +',
     ja: 'ワイルドカード文字 #、+ を含むトピックにメッセージを送信できません',
   },
+  topicWhitespaceHint: {
+    zh: '空格检测提示',
+    en: 'Whitespace check',
+    ja: '空白検出',
+  },
   topicTips: {
     zh: '可订阅单个或多个主题，订阅多主题时，请使用逗号分隔（,）',
     en: 'You can subscribe to single or multiple topics, please use comma separation to subscribe to multiple topics (,)',

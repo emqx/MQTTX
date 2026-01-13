@@ -267,8 +267,9 @@
 
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
-          <label>{{ $t('settings.dataBackup') }}</label>
+          <label>{{ $t('settings.dataRecovery') }}</label>
         </el-col>
+
         <el-col :span="4">
           <el-button class="settings-btn" type="primary" size="mini" icon="el-icon-printer" @click="handleExportData">
           </el-button>
@@ -313,6 +314,32 @@
             active-color="#13ce66"
             inactive-color="#A2A9B0"
             @change="handleIgnoreQoS0MessageSwitchChange"
+          >
+          </el-switch>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
+          <label>{{ $t('settings.topicWhitespaceDetection') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('settings.topicWhitespaceDetectionDesc')"
+          >
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            :value="topicWhitespaceDetection"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleTopicWhitespaceDetectionChange"
           >
           </el-switch>
         </el-col>
@@ -457,6 +484,9 @@ export default class Settings extends Vue {
   @Action('TOGGLE_IGNORE_QOS0_MESSAGE') private actionToggleIgnoreQoS0Message!: (payload: {
     ignoreQoS0Message: boolean
   }) => void
+  @Action('TOGGLE_TOPIC_WHITESPACE_DETECTION') private actionToggleTopicWhitespaceDetection!: (payload: {
+    topicWhitespaceDetection: boolean
+  }) => void
 
   @Getter('currentTheme') private currentTheme!: Theme
   @Getter('currentLang') private currentLang!: Language
@@ -472,6 +502,7 @@ export default class Settings extends Vue {
   @Getter('model') private model!: App['model']
   @Getter('logLevel') private logLevel!: LogLevel
   @Getter('ignoreQoS0Message') private ignoreQoS0Message!: boolean
+  @Getter('topicWhitespaceDetection') private topicWhitespaceDetection!: boolean
 
   private showAIModelsSelect = false
 
@@ -530,6 +561,10 @@ export default class Settings extends Vue {
 
   private handleMultiTopicsSwitchChange(value: boolean) {
     this.actionToggleMultiTopics({ multiTopics: value })
+  }
+
+  private handleTopicWhitespaceDetectionChange(value: boolean) {
+    this.actionToggleTopicWhitespaceDetection({ topicWhitespaceDetection: value })
   }
 
   private handleInputChanged(value: number) {

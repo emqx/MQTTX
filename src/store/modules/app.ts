@@ -2,6 +2,9 @@ import Vue from 'vue'
 import useServices from '@/database/useServices'
 import { getGlobal } from '@electron/remote'
 
+const Store = require('electron-store')
+const electronStore = new Store()
+
 const TOGGLE_THEME = 'TOGGLE_THEME'
 const TOGGLE_LANG = 'TOGGLE_LANG'
 const TOGGLE_AUTO_CHECK = 'TOGGLE_AUTO_CHECK'
@@ -29,6 +32,7 @@ const SET_LOG_LEVEL = 'SET_LOG_LEVEL'
 const TOGGLE_SHOW_CONNECTION_LIST = 'TOGGLE_SHOW_CONNECTION_LIST'
 const SET_DATABASE_FAIL_MESSAGE = 'SET_DATABASE_FAIL_MESSAGE'
 const TOGGLE_IGNORE_QOS0_MESSAGE = 'TOGGLE_IGNORE_QOS0_MESSAGE'
+const TOGGLE_TOPIC_WHITESPACE_DETECTION = 'TOGGLE_TOPIC_WHITESPACE_DETECTION'
 
 const getShowConnectionList = (): boolean => {
   const _showConnectionList: string | null = localStorage.getItem('showConnectionList')
@@ -67,6 +71,7 @@ const app = {
     showConnectionList: getShowConnectionList(),
     connectDatabaseFailMessage: settingData.connectDatabaseFailMessage || '',
     ignoreQoS0Message: settingData.ignoreQoS0Message || false,
+    topicWhitespaceDetection: settingData.topicWhitespaceDetection || false,
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -173,6 +178,9 @@ const app = {
     },
     [TOGGLE_IGNORE_QOS0_MESSAGE](state: App, ignoreQoS0Message: boolean) {
       state.ignoreQoS0Message = ignoreQoS0Message
+    },
+    [TOGGLE_TOPIC_WHITESPACE_DETECTION](state: App, topicWhitespaceDetection: boolean) {
+      state.topicWhitespaceDetection = topicWhitespaceDetection
     },
   },
   actions: {
@@ -298,6 +306,11 @@ const app = {
       commit(TOGGLE_IGNORE_QOS0_MESSAGE, payload.ignoreQoS0Message)
       settingData.ignoreQoS0Message = payload.ignoreQoS0Message
       await settingService.update(payload)
+    },
+    TOGGLE_TOPIC_WHITESPACE_DETECTION({ commit }: any, payload: App) {
+      commit(TOGGLE_TOPIC_WHITESPACE_DETECTION, payload.topicWhitespaceDetection)
+      settingData.topicWhitespaceDetection = payload.topicWhitespaceDetection
+      electronStore.set('settings.topicWhitespaceDetection', payload.topicWhitespaceDetection)
     },
   },
 }

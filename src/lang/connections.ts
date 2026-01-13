@@ -342,6 +342,13 @@ export default {
     ja: 'ワイルドカード文字 #、+ を含むトピックにメッセージを送信できません',
     hu: 'Nem lehet üzenetet küldeni az #, + karaktereket tartalmazó témákhoz',
   },
+  topicWhitespaceHint: {
+    zh: '空格检测提示',
+    en: 'Whitespace check',
+    tr: 'Whitespace check',
+    ja: '空白検出',
+    hu: 'Whitespace check',
+  },
   topicTips: {
     zh: '可订阅一个或多个主题。订阅多个主题时，请用逗号（,）分隔每个主题。例如：test1,test2',
     en: 'Subscribe to one or more topics. Use a comma (,) to separate each topic when subscribing to multiple topics. e.g. test1,test2',

@@ -118,6 +118,20 @@ export default {
     ja: '複数のトピックを購読',
     hu: 'Több téma feliratkozás',
   },
+  topicWhitespaceDetection: {
+    zh: '主题空格检测',
+    en: 'Topic whitespace detection',
+    tr: 'Topic whitespace detection',
+    ja: 'トピック空白検出',
+    hu: 'Topic whitespace detection',
+  },
+  topicWhitespaceDetectionDesc: {
+    zh: '用于提示主题中的空格字符，帮助提前识别可能导致发布与订阅不匹配的情况。',
+    en: 'Highlights whitespace in topics to help prevent publish/subscribe mismatches.',
+    tr: 'Highlights whitespace in topics to help prevent publish/subscribe mismatches.',
+    ja: 'トピック内の空白を示し、送受信の不一致を防ぐための確認に役立ちます。',
+    hu: 'Highlights whitespace in topics to help prevent publish/subscribe mismatches.',
+  },
   autoResubDesc: {
     zh: '开启后，MQTTX 连接后会自动重新订阅本地保存的所有订阅',
     en: 'Once enabled, MQTTX will automatically resubscribe to all locally saved subscriptions after connecting',
