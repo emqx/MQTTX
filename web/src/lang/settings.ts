@@ -104,4 +104,14 @@ export default {
     en: 'Enable to subscribe to multiple topics at once, separated by commas',
     ja: '複数のトピックを一度に購読することができます。コンマで区切ります。',
   },
+  topicWhitespaceDetection: {
+    zh: '主题空格检测',
+    en: 'Topic whitespace detection',
+    ja: 'トピック空白検出',
+  },
+  topicWhitespaceDetectionDesc: {
+    zh: '用于提示主题中的空格字符，帮助提前识别可能导致发布与订阅不匹配的情况。',
+    en: 'Highlights whitespace in topics to help prevent publish/subscribe mismatches.',
+    ja: 'トピック内の空白を示し、送受信の不一致を防ぐための確認に役立ちます。',
+  },
 }

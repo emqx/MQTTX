@@ -24,6 +24,7 @@ const getters = {
   showConnectionList: (state: State) => state.app.showConnectionList,
   connectDatabaseFailMessage: (state: State) => state.app.connectDatabaseFailMessage,
   ignoreQoS0Message: (state: State) => state.app.ignoreQoS0Message,
+  topicWhitespaceDetection: (state: State) => state.app.topicWhitespaceDetection,
 }
 
 export default getters

@@ -221,6 +221,7 @@ async function createWindow() {
         model: setting.model,
         logLevel: setting.logLevel,
         ignoreQoS0Message: setting.ignoreQoS0Message,
+        topicWhitespaceDetection: electronStore.get('settings.topicWhitespaceDetection', false),
       }
     }
   } catch (error) {
@@ -232,6 +233,7 @@ async function createWindow() {
       currentTheme: 'light',
       currentLang: 'en',
       syncOsTheme: false,
+      topicWhitespaceDetection: electronStore.get('settings.topicWhitespaceDetection', false),
     }
   }
   // Create the browser window.

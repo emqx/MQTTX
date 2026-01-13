@@ -114,6 +114,7 @@ declare global {
     showConnectionList: boolean
     connectDatabaseFailMessage: string
     ignoreQoS0Message: boolean
+    topicWhitespaceDetection: boolean
   }
 
   interface State {

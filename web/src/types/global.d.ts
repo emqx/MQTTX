@@ -116,6 +116,7 @@ declare global {
     autoScroll: boolean
     autoScrollInterval: number
     multiTopics: boolean
+    topicWhitespaceDetection: boolean
     maxReconnectTimes: number
     showClientInfo: {
       [id: string]: boolean

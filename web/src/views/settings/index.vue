@@ -213,6 +213,32 @@
       </el-row>
       <el-divider></el-divider>
 
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
+          <label>{{ $t('settings.topicWhitespaceDetection') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('settings.topicWhitespaceDetectionDesc')"
+          >
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            :value="topicWhitespaceDetection"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleTopicWhitespaceDetectionChange"
+          >
+          </el-switch>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
       <ImportData :visible.sync="showImportData" />
       <ExportData :visible.sync="showExportData" />
       <ClearUpHistoryData :visible.sync="showHistoryData" />
@@ -244,6 +270,9 @@ export default class Settings extends Vue {
     autoScrollInterval: number
   }) => void
   @Action('TOGGLE_MULTI_TOPICS') private actionToggleMultiTopics!: (payload: { multiTopics: boolean }) => void
+  @Action('TOGGLE_TOPIC_WHITESPACE_DETECTION') private actionToggleTopicWhitespaceDetection!: (payload: {
+    topicWhitespaceDetection: boolean
+  }) => void
   @Getter('currentTheme') private currentTheme!: 'light' | 'dark' | 'night'
   @Getter('currentLang') private currentLang!: Language
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
@@ -251,6 +280,7 @@ export default class Settings extends Vue {
   @Getter('autoScroll') private autoScroll!: boolean
   @Getter('autoScrollInterval') private autoScrollInterval!: number
   @Getter('multiTopics') private multiTopics!: boolean
+  @Getter('topicWhitespaceDetection') private topicWhitespaceDetection!: boolean
 
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
@@ -288,6 +318,10 @@ export default class Settings extends Vue {
 
   private handleMultiTopicsSwitchChange(value: boolean) {
     this.actionToggleMultiTopics({ multiTopics: value })
+  }
+
+  private handleTopicWhitespaceDetectionChange(value: boolean) {
+    this.actionToggleTopicWhitespaceDetection({ topicWhitespaceDetection: value })
   }
 
   private handleInputChage(value: number) {

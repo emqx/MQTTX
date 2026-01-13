@@ -13,6 +13,7 @@ const getters = {
   advancedVisible: (state: State) => state.app.advancedVisible,
   allConnections: (state: State) => state.app.allConnections,
   multiTopics: (state: State) => state.app.multiTopics,
+  topicWhitespaceDetection: (state: State) => state.app.topicWhitespaceDetection,
 }
 
 export default getters

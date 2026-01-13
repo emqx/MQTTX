@@ -40,6 +40,7 @@ class DB {
           autoResub: true,
           autoScroll: true,
           multiTopics: true,
+          topicWhitespaceDetection: false,
           maxReconnectTimes: 10,
         })
         .write()
