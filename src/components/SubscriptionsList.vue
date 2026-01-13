@@ -112,7 +112,7 @@
                   <i class="el-icon-warning-outline"></i>
                 </a>
               </el-tooltip>
-              <el-input v-model="subRecord.topic" type="textarea" placeholder="testtopic/#" size="small"> </el-input>
+              <el-input v-model="topicInput" type="textarea" placeholder="testtopic/#" size="small"> </el-input>
               <div v-if="topicHasWhitespace" class="topic-whitespace-hint">
                 <span class="topic-whitespace-label">{{ $t('connections.topicWhitespaceHint') }}</span>
                 <span class="topic-whitespace-marker">
@@ -286,6 +286,14 @@ export default class SubscriptionsList extends Vue {
       topic: { required: true, message: this.$t('common.inputRequired') },
       qos: { required: true, message: this.$t('common.selectRequired') },
     }
+  }
+
+  get topicInput(): string {
+    return this.subRecord.topic
+  }
+
+  set topicInput(value: string) {
+    this.subRecord.topic = this.topicWhitespaceDetection ? value : value.trim()
   }
 
   get topicHasWhitespace(): boolean {
@@ -930,29 +938,32 @@ export default class SubscriptionsList extends Vue {
       line-height: 14px;
       white-space: pre-wrap;
       word-break: break-word;
-    }
-    .topic-whitespace-label {
-      position: absolute;
-      top: 4px;
-      right: 8px;
-      padding: 0 4px;
-      background: var(--color-bg-normal);
-      font-size: 12px;
-      color: var(--color-text-light);
-      opacity: 0.75;
-    }
-    .topic-whitespace-marker {
-      display: block;
-      margin-top: 10px;
-      color: var(--color-text-default);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    }
-    .topic-whitespace-marker .space-marker {
-      color: var(--color-main-yellow);
-      background: rgba(250, 173, 20, 0.18);
-      border-radius: 2px;
-      padding: 0 1px;
-      font-weight: 600;
+
+      .topic-whitespace-label {
+        position: absolute;
+        top: 4px;
+        right: 8px;
+        padding: 0 4px;
+        background: var(--color-bg-normal);
+        font-size: 12px;
+        color: var(--color-text-light);
+        opacity: 0.75;
+      }
+
+      .topic-whitespace-marker {
+        display: block;
+        margin-top: 10px;
+        color: var(--color-text-default);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+        .space-marker {
+          color: var(--color-main-yellow);
+          background: rgba(250, 173, 20, 0.18);
+          border-radius: 2px;
+          padding: 0 1px;
+          font-weight: 600;
+        }
+      }
     }
   }
 }

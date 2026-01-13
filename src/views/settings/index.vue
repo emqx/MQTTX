@@ -267,7 +267,7 @@
 
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
-          <label>{{ $t('settings.dataRecovery') }}</label>
+          <label>{{ $t('settings.dataBackup') }}</label>
         </el-col>
 
         <el-col :span="4">
