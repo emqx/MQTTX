@@ -101,7 +101,15 @@
                   <i class="el-icon-warning-outline"></i>
                 </a>
               </el-tooltip>
-              <el-input v-model="topicInput" type="textarea" placeholder="testtopic/#" size="small"> </el-input>
+              <el-input
+                v-model="topicInput"
+                type="textarea"
+                placeholder="testtopic/#"
+                size="small"
+                @keydown.enter.native.prevent
+                @keyup.enter.native.prevent
+              >
+              </el-input>
               <div v-if="topicHasWhitespace" class="topic-whitespace-hint">
                 <span class="topic-whitespace-label">{{ $t('connections.topicWhitespaceHint') }}</span>
                 <span class="topic-whitespace-marker">
@@ -148,7 +156,14 @@
                   <i class="el-icon-warning-outline"></i>
                 </a>
               </el-tooltip>
-              <el-input v-model.trim="subRecord.alias" type="textarea" size="small"> </el-input>
+              <el-input
+                v-model.trim="subRecord.alias"
+                type="textarea"
+                size="small"
+                @keydown.enter.native.prevent
+                @keyup.enter.native.prevent
+              >
+              </el-input>
             </el-form-item>
           </el-col>
           <!-- MQTT 5.0 -->
@@ -346,6 +361,8 @@ export default class SubscriptionsList extends Vue {
 
   private saveSubs(): void | boolean {
     this.getCurrentConnection(this.connectionId)
+    this.subRecord.topic = this.subRecord.topic.replace(/[\r\n]+/g, '')
+    this.subRecord.alias = this.subRecord.alias?.replace(/[\r\n]+/g, '') || ''
     if (!this.client || !this.client.connected) {
       this.$message.warning(this.$tc('connections.notConnect'))
       return false
