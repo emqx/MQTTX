@@ -170,7 +170,7 @@
           </el-tooltip>
         </div>
       </div>
-      <div :class="['topic-input-contianer', topicRequired ? 'required' : '']">
+      <div :class="['topic-input-container', topicRequired ? 'required' : '']">
         <el-input
           class="publish-topic-input"
           placeholder="Topic"
@@ -647,7 +647,7 @@ export default class MsgPublish extends Vue {
       }
     }
   }
-  .topic-input-contianer {
+  .topic-input-container {
     position: relative;
     display: flex;
     flex-wrap: nowrap;
