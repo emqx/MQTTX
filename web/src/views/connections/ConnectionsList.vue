@@ -39,6 +39,12 @@
       </div>
     </template>
     <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
+      <a href="javascript:;" class="context-menu__item" @click="handleCopyHost">
+        <i class="iconfont icon-copy"></i>{{ $t('common.copyTarget', { target: 'Host' }) }}
+      </a>
+      <a href="javascript:;" class="context-menu__item" @click="handleCopyBrokerAddress">
+        <i class="iconfont icon-copy"></i>{{ $t('common.copyTarget', { target: 'Broker' }) }}
+      </a>
       <a href="javascript:;" class="context-menu__item danger" @click="handleDelete">
         <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
       </a>
@@ -103,6 +109,38 @@ export default class ConnectionsList extends Vue {
 
   private handleDelete() {
     this.$emit('delete', this.selectedConnection)
+  }
+
+  private copyText(text?: string, target?: string) {
+    if (!text || !target) {
+      return
+    }
+    this.$copyText(text)
+      .then(() => {
+        this.$message.success(this.$t('common.copyTargetSuccess', { target }) as string)
+      })
+      .catch(() => {
+        this.$message.error(this.$t('common.copyTargetFailed', { target }) as string)
+      })
+      .finally(() => {
+        this.showContextmenu = false
+      })
+  }
+
+  private getBrokerAddress(connection?: ConnectionModel | null) {
+    if (!connection) {
+      return ''
+    }
+    const protocol = connection.protocol || 'mqtt'
+    return `${protocol}://${connection.host}:${connection.port}`
+  }
+
+  private handleCopyHost() {
+    this.copyText(this.selectedConnection?.host, 'Host')
+  }
+
+  private handleCopyBrokerAddress() {
+    this.copyText(this.getBrokerAddress(this.selectedConnection), 'Broker')
   }
 }
 </script>
