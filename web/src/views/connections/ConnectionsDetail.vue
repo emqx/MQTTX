@@ -164,8 +164,16 @@
           @showContextMenu="handleContextMenu"
         />
         <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
-          <a href="javascript:;" class="context-menu__item" @click="handleCopyMessage">
-            <i class="iconfont icon-copy"></i>{{ $t('common.copy') }}
+          <a
+            href="javascript:;"
+            class="context-menu__item"
+            :title="$t('common.copyPayloadTip')"
+            @click="handleCopyPayload"
+          >
+            <i class="iconfont icon-copy"></i>{{ $t('common.copyPayload') }}
+          </a>
+          <a href="javascript:;" class="context-menu__item" :title="$t('common.copyTopicTip')" @click="handleCopyTopic">
+            <i class="iconfont icon-copy"></i>{{ $t('common.copyTopic') }}
           </a>
           <a href="javascript:;" class="context-menu__item danger" @click="handleDeleteMessage">
             <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
@@ -311,7 +319,6 @@ export default class ConnectionsDetail extends Vue {
     top: 0,
     left: 0,
   }
-  private selectedInfo: string = ''
   private mqttVersionDict = {
     '3.1.1': 4,
     '5.0': 5,
@@ -418,33 +425,42 @@ export default class ConnectionsDetail extends Vue {
 
   // Show context menu
   private handleContextMenu(msgItemInfo: IArguments, message: MessageModel) {
-    const [payload, event] = msgItemInfo
+    const [, event] = msgItemInfo
     if (!this.showContextmenu) {
       const { clientX, clientY } = event
       const width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
       const height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight
-      this.contextmenuConfig.left = width - clientX < 95 ? clientX - 75 : clientX
-      this.contextmenuConfig.top = height - clientY < 77 ? clientY - 77 : clientY
+      this.contextmenuConfig.left = width - clientX < 120 ? clientX - 95 : clientX
+      this.contextmenuConfig.top = height - clientY < 112 ? clientY - 112 : clientY
       this.showContextmenu = true
       this.selectedMessage = message
-      this.selectedInfo = payload
     } else {
       this.showContextmenu = false
     }
   }
 
-  // Copy message
-  private handleCopyMessage() {
-    if (this.selectedInfo) {
-      this.$copyText(this.selectedInfo).then(
-        () => {
-          this.$message.success(this.$tc('common.copySuccess'))
-        },
-        () => {
-          this.$message.error(this.$tc('common.copyFailed'))
-        },
-      )
+  private copyText(text?: string, successKey: string = 'common.copySuccess', failureKey: string = 'common.copyFailed') {
+    if (!text) {
+      return
     }
+    this.$copyText(text)
+      .then(() => {
+        this.$message.success(this.$tc(successKey))
+      })
+      .catch(() => {
+        this.$message.error(this.$tc(failureKey))
+      })
+      .finally(() => {
+        this.showContextmenu = false
+      })
+  }
+
+  private handleCopyPayload() {
+    this.copyText(this.selectedMessage?.payload, 'common.copyPayloadSuccess', 'common.copyPayloadFailed')
+  }
+
+  private handleCopyTopic() {
+    this.copyText(this.selectedMessage?.topic, 'common.copyTopicSuccess', 'common.copyTopicFailed')
   }
 
   // Delete message

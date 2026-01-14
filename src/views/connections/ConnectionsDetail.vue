@@ -284,8 +284,16 @@
         />
         <MsgTip :count="newMsgsCount" @loadNewMsg="loadNewMsg" />
         <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
-          <a href="javascript:;" class="context-menu__item" @click="handleCopyMessage">
-            <i class="iconfont icon-copy"></i>{{ $t('common.copy') }}
+          <a
+            href="javascript:;"
+            class="context-menu__item"
+            :title="$t('common.copyPayloadTip')"
+            @click="handleCopyPayload"
+          >
+            <i class="iconfont icon-copy"></i>{{ $t('common.copyPayload') }}
+          </a>
+          <a href="javascript:;" class="context-menu__item" :title="$t('common.copyTopicTip')" @click="handleCopyTopic">
+            <i class="iconfont icon-copy"></i>{{ $t('common.copyTopic') }}
           </a>
           <a href="javascript:;" class="context-menu__item danger" @click="handleDeleteMessage">
             <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
@@ -501,7 +509,6 @@ export default class ConnectionsDetail extends Vue {
     top: 0,
     left: 0,
   }
-  private selectedInfo: string = ''
 
   get titleName() {
     return this.record.name
@@ -736,33 +743,40 @@ export default class ConnectionsDetail extends Vue {
 
   // Show context menu
   private handleContextMenu(msgItemInfo: IArguments, message: MessageModel) {
-    const [payload, event] = msgItemInfo
+    const [, event] = msgItemInfo
     if (!this.showContextmenu) {
-      const { x, y } = getContextmenuPosition(event as MouseEvent, 95, 77)
+      const { x, y } = getContextmenuPosition(event as MouseEvent, 120, 112)
       this.contextmenuConfig.left = x
       this.contextmenuConfig.top = y
       this.showContextmenu = true
       this.selectedMessage = message
-      this.selectedInfo = payload
     } else {
       this.showContextmenu = false
     }
   }
 
-  // Copy message
-  private handleCopyMessage() {
-    if (this.selectedInfo) {
-      this.$copyText(this.selectedInfo)
-        .then(() => {
-          this.$message.success(this.$tc('common.copySuccess'))
-        })
-        .catch(() => {
-          this.$message.error(this.$tc('common.copyFail'))
-        })
-        .finally(() => {
-          this.showContextmenu = false
-        })
+  private copyText(text?: string, successKey = 'common.copySuccess', failureKey = 'common.copyFailed') {
+    if (!text) {
+      return
     }
+    this.$copyText(text)
+      .then(() => {
+        this.$message.success(this.$tc(successKey))
+      })
+      .catch(() => {
+        this.$message.error(this.$tc(failureKey))
+      })
+      .finally(() => {
+        this.showContextmenu = false
+      })
+  }
+
+  private handleCopyPayload() {
+    this.copyText(this.selectedMessage?.payload, 'common.copyPayloadSuccess', 'common.copyPayloadFailed')
+  }
+
+  private handleCopyTopic() {
+    this.copyText(this.selectedMessage?.topic, 'common.copyTopicSuccess', 'common.copyTopicFailed')
   }
 
   // Delete message
