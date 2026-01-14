@@ -141,7 +141,13 @@
           <i class="iconfont icon-new-window"></i>{{ $t('common.newWindow') }}
         </a>
         <a href="javascript:;" class="context-menu__item" @click="handleDuplicate">
-          <i class="iconfont icon-copy"></i>{{ $t('common.duplicate') }}
+          <i class="el-icon-document-add"></i>{{ $t('common.duplicate') }}
+        </a>
+        <a href="javascript:;" class="context-menu__item" @click="handleCopyHost">
+          <i class="iconfont icon-copy"></i>{{ $t('common.copyTarget', { target: 'Host' }) }}
+        </a>
+        <a href="javascript:;" class="context-menu__item" @click="handleCopyBrokerAddress">
+          <i class="iconfont icon-copy"></i>{{ $t('common.copyTarget', { target: 'Broker' }) }}
         </a>
         <a href="javascript:;" :class="['context-menu__item', { disabled: getDisabledStatus() }]" @click="handleEdit">
           <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
@@ -498,7 +504,7 @@ export default class ConnectionsList extends Vue {
       return
     }
     if (!this.showContextmenu) {
-      const { x, y } = getContextmenuPosition(event as MouseEvent, 140, 160)
+      const { x, y } = getContextmenuPosition(event as MouseEvent, 180, 220)
       this.contextmenuConfig.left = x
       this.contextmenuConfig.top = y
       this.showContextmenu = true
@@ -528,6 +534,38 @@ export default class ConnectionsList extends Vue {
 
   private handleDelete() {
     this.$emit('delete', this.selectedConnection)
+  }
+
+  private copyText(text?: string, target?: string) {
+    if (!text || !target) {
+      return
+    }
+    this.$copyText(text)
+      .then(() => {
+        this.$message.success(this.$t('common.copyTargetSuccess', { target }) as string)
+      })
+      .catch(() => {
+        this.$message.error(this.$t('common.copyTargetFailed', { target }) as string)
+      })
+      .finally(() => {
+        this.showContextmenu = false
+      })
+  }
+
+  private getBrokerAddress(connection?: ConnectionModel | null) {
+    if (!connection) {
+      return ''
+    }
+    const protocol = connection.protocol || 'mqtt'
+    return `${protocol}://${connection.host}:${connection.port}`
+  }
+
+  private handleCopyHost() {
+    this.copyText(this.selectedConnection?.host, 'Host')
+  }
+
+  private handleCopyBrokerAddress() {
+    this.copyText(this.getBrokerAddress(this.selectedConnection), 'Broker')
   }
 
   private handleNewWindow() {
