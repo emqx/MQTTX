@@ -649,6 +649,9 @@ export default class MsgPublish extends Vue {
   }
   .topic-input-contianer {
     position: relative;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
     &.required {
       .el-input.publish-topic-input {
         .el-input__inner {
@@ -666,18 +669,19 @@ export default class MsgPublish extends Vue {
     }
   }
   .publish-topic-input.el-input {
-    width: calc(100% - 20px);
-    vertical-align: top;
-    display: inline-block;
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    display: block;
     @include topic-input__inner;
     .el-input__inner {
       padding: 0px 16px;
     }
   }
   .header-select.el-select {
-    vertical-align: top;
+    flex: 0 0 20px;
     width: 20px;
-    display: inline-block;
+    display: block;
     .el-input {
       @include topic-input__inner;
     }
@@ -756,6 +760,13 @@ export default class MsgPublish extends Vue {
       &.dropdown-btn-active {
         color: var(--color-main-green);
         border-color: var(--color-main-green);
+      }
+    }
+    .el-badge.item {
+      .el-badge__content.is-dot {
+        top: -1px;
+        right: 2px;
+        transform: none;
       }
     }
     .el-checkbox__inner {
