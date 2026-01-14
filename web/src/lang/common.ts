@@ -134,55 +134,31 @@ export default {
     en: 'Copy',
     ja: 'コピー',
   },
-  copyPayload: {
-    zh: '复制 Payload',
-    en: 'Copy Payload',
-    ja: 'Payload をコピー',
+
+  copyTarget: {
+    zh: '复制 {target}',
+    en: 'Copy {target}',
+    ja: '{target} をコピー',
   },
-  copyTopic: {
-    zh: '复制 Topic',
-    en: 'Copy Topic',
-    ja: 'Topic をコピー',
+  copyTargetSuccess: {
+    zh: '{target} 复制成功',
+    en: '{target} copied',
+    ja: '{target} をコピーしました',
   },
-  copyPayloadTip: {
-    zh: '复制消息 Payload',
-    en: 'Copy message payload',
-    ja: 'メッセージの Payload をコピー',
-  },
-  copyTopicTip: {
-    zh: '复制消息 Topic',
-    en: 'Copy message topic',
-    ja: 'メッセージの Topic をコピー',
+  copyTargetFailed: {
+    zh: '{target} 复制失败',
+    en: '{target} copy failed',
+    ja: '{target} のコピーに失敗しました',
   },
   copySuccess: {
     zh: '复制成功',
     en: 'Copy Success',
     ja: 'コピーが成功しました',
   },
-  copyPayloadSuccess: {
-    zh: 'Payload 复制成功',
-    en: 'Payload copied',
-    ja: 'Payload をコピーしました',
-  },
-  copyTopicSuccess: {
-    zh: 'Topic 复制成功',
-    en: 'Topic copied',
-    ja: 'Topic をコピーしました',
-  },
   copyFailed: {
     zh: '复制失败',
     en: 'Copy Failed',
     ja: 'コピーが失敗しました',
-  },
-  copyPayloadFailed: {
-    zh: 'Payload 复制失败',
-    en: 'Payload copy failed',
-    ja: 'Payload のコピーに失敗しました',
-  },
-  copyTopicFailed: {
-    zh: 'Topic 复制失败',
-    en: 'Topic copy failed',
-    ja: 'Topic のコピーに失敗しました',
   },
   importSuccess: {
     zh: '导入成功',

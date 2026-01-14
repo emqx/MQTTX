@@ -284,16 +284,11 @@
         />
         <MsgTip :count="newMsgsCount" @loadNewMsg="loadNewMsg" />
         <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
-          <a
-            href="javascript:;"
-            class="context-menu__item"
-            :title="$t('common.copyPayloadTip')"
-            @click="handleCopyPayload"
-          >
-            <i class="iconfont icon-copy"></i>{{ $t('common.copyPayload') }}
+          <a href="javascript:;" class="context-menu__item" @click="handleCopyPayload">
+            <i class="iconfont icon-copy"></i>{{ $t('common.copyTarget', { target: 'Payload' }) }}
           </a>
-          <a href="javascript:;" class="context-menu__item" :title="$t('common.copyTopicTip')" @click="handleCopyTopic">
-            <i class="iconfont icon-copy"></i>{{ $t('common.copyTopic') }}
+          <a href="javascript:;" class="context-menu__item" @click="handleCopyTopic">
+            <i class="iconfont icon-copy"></i>{{ $t('common.copyTarget', { target: 'Topic' }) }}
           </a>
           <a href="javascript:;" class="context-menu__item danger" @click="handleDeleteMessage">
             <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
@@ -755,16 +750,16 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
-  private copyText(text?: string, successKey = 'common.copySuccess', failureKey = 'common.copyFailed') {
-    if (!text) {
+  private copyText(text?: string, target?: string) {
+    if (!text || !target) {
       return
     }
     this.$copyText(text)
       .then(() => {
-        this.$message.success(this.$tc(successKey))
+        this.$message.success(this.$t('common.copyTargetSuccess', { target }) as string)
       })
       .catch(() => {
-        this.$message.error(this.$tc(failureKey))
+        this.$message.error(this.$t('common.copyTargetFailed', { target }) as string)
       })
       .finally(() => {
         this.showContextmenu = false
@@ -772,11 +767,11 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private handleCopyPayload() {
-    this.copyText(this.selectedMessage?.payload, 'common.copyPayloadSuccess', 'common.copyPayloadFailed')
+    this.copyText(this.selectedMessage?.payload, 'Payload')
   }
 
   private handleCopyTopic() {
-    this.copyText(this.selectedMessage?.topic, 'common.copyTopicSuccess', 'common.copyTopicFailed')
+    this.copyText(this.selectedMessage?.topic, 'Topic')
   }
 
   // Delete message
