@@ -113,34 +113,40 @@
           </el-badge>
         </el-tooltip>
       </div>
-      <div class="topic-input-container">
-        <el-input class="publish-topic-input" placeholder="Topic" v-model="msgRecord.topic" @focus="handleInputFoucs">
-        </el-input>
-      </div>
-      <el-select
-        class="header-select"
-        popper-class="header-select--popper"
-        v-model="headerValue"
-        placeholder=""
-        size="mini"
-        @change="handleHeaderChange"
-      >
-        <el-option
-          class="header-option"
-          v-for="item in headersHistory"
-          :key="item.id"
-          :label="item.label"
-          :value="item"
+      <div :class="['topic-input-container', topicRequired ? 'required' : '', topicInvalid ? 'invalid' : '']">
+        <el-input
+          class="publish-topic-input"
+          placeholder="Topic"
+          v-model="msgRecord.topic"
+          @focus="handleInputFoucs"
+          @blur="handleInputBlur"
         >
-          <span style="float: left; width: 160px; overflow: hidden; text-overflow: ellipsis" :title="item.topic">{{
-            item.topic
-          }}</span>
-          <span style="color: #8492a6; font-size: 12px; margin-left: 4px">QoS:{{ item.qos }}</span>
-          <span style="float: right; color: #8492a6; font-size: 13px; margin-left: 4px">
-            retain:{{ item.retain ? '1' : '0' }}
-          </span>
-        </el-option>
-      </el-select>
+        </el-input>
+        <el-select
+          class="header-select"
+          popper-class="header-select--popper"
+          v-model="headerValue"
+          placeholder=""
+          size="mini"
+          @change="handleHeaderChange"
+        >
+          <el-option
+            class="header-option"
+            v-for="item in headersHistory"
+            :key="item.id"
+            :label="item.label"
+            :value="item"
+          >
+            <span style="float: left; width: 160px; overflow: hidden; text-overflow: ellipsis" :title="item.topic">{{
+              item.topic
+            }}</span>
+            <span style="color: #8492a6; font-size: 12px; margin-left: 4px">QoS:{{ item.qos }}</span>
+            <span style="float: right; color: #8492a6; font-size: 13px; margin-left: 4px">
+              retain:{{ item.retain ? '1' : '0' }}
+            </span>
+          </el-option>
+        </el-select>
+      </div>
     </div>
     <div class="editor-container">
       <div
@@ -230,6 +236,9 @@ export default class MsgPublish extends Vue {
   private showMetaCard: boolean = false
 
   private saveMetaLoading = false
+
+  private topicRequired = false
+  private topicInvalid = false
 
   private getHasMqtt5PropState() {
     return (
@@ -417,8 +426,31 @@ export default class MsgPublish extends Vue {
     }
   }
 
+  public setTopicRequired(isRequired = true) {
+    this.topicRequired = isRequired
+  }
+
+  public setTopicInvalid(isInvalid = true) {
+    this.topicInvalid = isInvalid
+  }
+
   private handleInputFoucs() {
+    if (this.topicRequired) {
+      this.topicRequired = false
+    }
+    if (this.topicInvalid) {
+      this.topicInvalid = false
+    }
     this.$emit('foucs')
+  }
+
+  private handleInputBlur() {
+    if (this.topicRequired) {
+      this.topicRequired = false
+    }
+    if (this.topicInvalid) {
+      this.topicInvalid = false
+    }
   }
 
   private handleLayout() {
@@ -505,19 +537,42 @@ export default class MsgPublish extends Vue {
       }
     }
   }
+  .topic-input-container {
+    position: relative;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    &.required,
+    &.invalid {
+      .el-input.publish-topic-input {
+        .el-input__inner {
+          border-right: none !important;
+        }
+      }
+      .el-select {
+        .el-input__inner {
+          border-left: none !important;
+        }
+      }
+      .el-input__inner {
+        border: 1px solid var(--color-minor-red) !important;
+      }
+    }
+  }
   .publish-topic-input.el-input {
-    width: calc(100% - 20px);
-    vertical-align: top;
-    display: inline-block;
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+    display: block;
     @include topic-input__inner;
     .el-input__inner {
       padding: 0px 16px;
     }
   }
   .header-select.el-select {
-    vertical-align: top;
+    flex: 0 0 20px;
     width: 20px;
-    display: inline-block;
+    display: block;
     .el-input {
       @include topic-input__inner;
       &.is-focus {
