@@ -888,11 +888,19 @@ export default class ConnectionsDetail extends Vue {
     const { id, topic, qos, payload, retain, properties } = message
 
     if (!topic && !properties?.topicAlias) {
+      const msgPublish = this.$refs.msgPublish as MsgPublish
+      if (msgPublish) {
+        msgPublish.setTopicRequired()
+      }
       this.$message.warning(this.$tc('connections.topicRequired'))
       return false
     }
 
     if (topic && (topic.includes('+') || topic.includes('#'))) {
+      const msgPublish = this.$refs.msgPublish as MsgPublish
+      if (msgPublish) {
+        msgPublish.setTopicInvalid()
+      }
       this.$message.warning(this.$tc('connections.topicCannotContain'))
       return false
     }
