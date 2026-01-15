@@ -113,12 +113,12 @@
           </el-badge>
         </el-tooltip>
       </div>
-      <div :class="['topic-input-container', topicRequired ? 'required' : '', topicInvalid ? 'invalid' : '']">
+      <div :class="['topic-input-container', { required: topicRequired, invalid: topicInvalid }]">
         <el-input
           class="publish-topic-input"
           placeholder="Topic"
           v-model="msgRecord.topic"
-          @focus="handleInputFoucs"
+          @focus="handleInputFocus"
           @blur="handleInputBlur"
         >
         </el-input>
@@ -434,23 +434,22 @@ export default class MsgPublish extends Vue {
     this.topicInvalid = isInvalid
   }
 
-  private handleInputFoucs() {
+  private clearTopicValidationErrors() {
     if (this.topicRequired) {
       this.topicRequired = false
     }
     if (this.topicInvalid) {
       this.topicInvalid = false
     }
-    this.$emit('foucs')
+  }
+
+  private handleInputFocus() {
+    this.clearTopicValidationErrors()
+    this.$emit('focus')
   }
 
   private handleInputBlur() {
-    if (this.topicRequired) {
-      this.topicRequired = false
-    }
-    if (this.topicInvalid) {
-      this.topicInvalid = false
-    }
+    this.clearTopicValidationErrors()
   }
 
   private handleLayout() {
