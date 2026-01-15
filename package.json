@@ -35,7 +35,7 @@
   },
   "main": "background.js",
   "engines": {
-    "node": "18"
+    "node": ">=18"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.1.11",
@@ -124,7 +124,7 @@
     "babel-plugin-prismjs": "^2.1.0",
     "chai": "^4.1.2",
     "cross-env": "^7.0.3",
-    "electron": "33.4.11",
+    "electron": "39.2.7",
     "electron-devtools-installer": "^3.1.1",
     "eslint": "6.5.1",
     "eslint-config-prettier": "^6.11.0",
