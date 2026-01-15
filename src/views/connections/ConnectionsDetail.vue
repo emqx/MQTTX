@@ -306,7 +306,7 @@
           :disabled="sendTimeId !== null"
           :clientConnected="client.connected"
           :sendTimeId="sendTimeId"
-          @foucs="loadMessages"
+          @focus="loadMessages"
           @handleSend="throttleSendMessage"
           @handleSendTimedMessage="handleCommand('timedMessage')"
           @onInsertedCode="handleInsertedCode"

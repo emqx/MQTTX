@@ -184,7 +184,7 @@
           :editor-height="inputHeight - 75"
           :subs-visible="showSubs"
           :style="{ height: `${inputHeight}px` }"
-          @foucs="scrollToBottom"
+          @focus="scrollToBottom"
           @handleSend="sendMessage"
         />
       </div>
