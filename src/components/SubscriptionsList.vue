@@ -536,14 +536,8 @@ export default class SubscriptionsList extends Vue {
           }
           this.$log.info(`Saved topic: ${successSubscriptions}`)
         }
-        this.record.subscriptions = this.subsList
-        if (this.record.id) {
-          const { subscriptionService } = useServices()
-          await subscriptionService.updateSubscriptions(this.record.id, this.record.subscriptions)
-          this.changeSubs({ id: this.connectionId, subscriptions: this.subsList })
-          this.showDialog = false
-          successSubscriptions.length && this.$log.info(`Successfully subscribed to topic: ${successSubscriptions}`)
-        }
+        await this.syncSubscriptions(this.subsList, true)
+        successSubscriptions.length && this.$log.info(`Successfully subscribed to topic: ${successSubscriptions}`)
         isFinished = true
       })
     }
@@ -559,13 +553,36 @@ export default class SubscriptionsList extends Vue {
     })
   }
 
-  private async updateSub() {
-    if (this.selectedTopic) {
-      const res = await this.unsubscribe(this.selectedTopic)
-      if (res) {
-        this.subscribe(this.subRecord)
-      }
+  // Sync subscriptions list with persistent storage.
+  private async syncSubscriptions(subscriptions: SubscriptionModel[], closeDialog = false) {
+    this.subsList = subscriptions
+    this.record.subscriptions = subscriptions
+    if (this.record.id) {
+      const { subscriptionService } = useServices()
+      await subscriptionService.updateSubscriptions(this.record.id, this.record.subscriptions)
+      this.changeSubs({ id: this.connectionId, subscriptions })
     }
+    if (closeDialog) {
+      this.showDialog = false
+    }
+  }
+
+  private async updateSub() {
+    if (!this.selectedTopic) {
+      return
+    }
+    const selectedTopic = this.selectedTopic
+    const disabled = this.subRecord.disabled
+    const res = await this.unsubscribe({ ...selectedTopic, disabled }, disabled)
+    if (!res) {
+      return
+    }
+    if (!disabled) {
+      this.subscribe(this.subRecord)
+      return
+    }
+    const updatedSubs = this.subsList.map((sub) => (sub.id === selectedTopic.id ? { ...this.subRecord } : sub))
+    await this.syncSubscriptions(updatedSubs, true)
   }
 
   private unsubscribe(row: SubscriptionModel, disable?: boolean): Promise<boolean> {
@@ -606,12 +623,8 @@ export default class SubscriptionsList extends Vue {
               payload.subscriptions = this.subsList.filter((sub: SubscriptionModel) => sub.topic !== topic)
               this.$log.info(`Removed topic: ${topic}`)
             }
-            this.record.subscriptions = payload.subscriptions
-            const { subscriptionService } = useServices()
-            await subscriptionService.updateSubscriptions(this.record.id, this.record.subscriptions)
-            this.changeSubs(payload)
+            await this.syncSubscriptions(payload.subscriptions)
             this.$emit('deleteTopic', topic)
-            this.subsList = payload.subscriptions
             this.$log.info(`Unsubscribe topic: ${topic}`)
             resolve(true)
             return true
