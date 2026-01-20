@@ -73,26 +73,24 @@
               @click="handleSelectConnection(data)"
               @contextmenu.prevent="handleContextMenu(data, $event)"
             >
-              <div class="item-left">
-                <div class="client-info">
-                  <el-tooltip
-                    :effect="theme !== 'light' ? 'light' : 'dark'"
-                    :content="`${data.name}@${data.host}:${data.port}`"
-                    :open-delay="500"
-                    placement="top"
+              <div class="client-info">
+                <el-tooltip
+                  :effect="theme !== 'light' ? 'light' : 'dark'"
+                  :content="`${data.name}@${data.host}:${data.port}`"
+                  :open-delay="500"
+                  placement="top"
+                >
+                  <div
+                    :class="[
+                      'client-name',
+                      {
+                        online: activeConnection[data.id] ? activeConnection[data.id].client.connected : false,
+                      },
+                    ]"
                   >
-                    <div
-                      :class="[
-                        'client-name',
-                        {
-                          online: activeConnection[data.id] ? activeConnection[data.id].client.connected : false,
-                        },
-                      ]"
-                    >
-                      {{ data.name }}@{{ data.host }}:{{ data.port }}
-                    </div>
-                  </el-tooltip>
-                </div>
+                    {{ data.name }}@{{ data.host }}:{{ data.port }}
+                  </div>
+                </el-tooltip>
               </div>
               <div v-if="data.ssl" class="ssl-tag">
                 <div>SSL</div>
@@ -890,18 +888,18 @@ export default class ConnectionsList extends Vue {
               }
             }
             .new-msg-count {
-              margin-right: 28px;
+              position: absolute;
+              right: 8px;
               min-width: 18px;
               height: 18px;
               line-height: 18px;
               background: var(--color-bg-unreadmsg);
               border-radius: 9px;
-              padding: 0 3px;
+              padding: 0 5px;
               color: var(--color-text-active);
               font-size: $font-size--tips;
               text-align: center;
-              position: relative;
-              top: -2px;
+              box-shadow: -8px 0 12px 4px var(--color-bg-item);
             }
           }
           .custom-tree-node-collection {
