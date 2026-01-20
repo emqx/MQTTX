@@ -655,6 +655,13 @@ export default {
     ja: 'トピックを入力してください',
     hu: 'Kérjük adjon meg egy témát',
   },
+  selectTopic: {
+    zh: '请选择主题',
+    en: 'Please select topic',
+    tr: 'Lütfen Konu Seçin',
+    ja: 'トピックを選択してください',
+    hu: 'Kérjük válasszon egy témát',
+  },
   inputMsgContent: {
     zh: '请输入消息内容',
     en: 'Please input Message',

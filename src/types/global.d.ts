@@ -469,4 +469,117 @@ declare global {
     data?: TopicTreeNode
     children?: EChartsTreeNode[]
   }
+  interface DashboardModel {
+    id: string
+    name: string
+    description?: string
+    orderId?: number
+    globalSettings?: any
+    widgets: WidgetModel[]
+    createAt: string
+    updateAt: string
+  }
+
+  type WidgetType = 'Big Number' | 'Gauge' | 'Line'
+  interface WidgetModel {
+    id?: string
+    type: WidgetType
+    title?: string
+
+    x: number
+    y: number
+    w: number
+    h: number
+    static?: boolean
+    minW?: number
+    minH?: number
+    maxW?: number
+    maxH?: number
+
+    dashboardId: string
+
+    connectionId?: string
+    topicPattern?: string
+    valueField?: string
+    fallbackValue: number
+
+    schemaType?: 'protobuf' | 'avro'
+    schemaId?: string
+    schemaMessageName?: string
+
+    // Schema validation state tracking
+    schemaValidationState?: 'valid' | 'invalid'
+    schemaValidationError?: string
+
+    widgetOptions?: GaugeWidgetOptions | BigNumberWidgetOptions | LineWidgetOptions
+
+    createAt?: string
+    updateAt?: string
+  }
+  interface GaugeWidgetOptions {
+    thresholdsType?: 'Absolute' | 'Percentage'
+    min?: number
+    max?: number
+    thresholds?: Threshold[]
+    decimals?: number
+    unit?: string
+    color?: string
+  }
+  interface BigNumberWidgetOptions {
+    thresholdsType?: 'Absolute' | 'Percentage'
+    thresholds?: Threshold[]
+    min?: number
+    max?: number
+    decimals?: number
+    unit?: string
+    color?: string
+  }
+  interface LineWidgetOptions {
+    thresholdsType?: 'Absolute' | 'Percentage'
+    thresholds?: Threshold[]
+    smooth?: boolean
+    area?: boolean
+    color?: string
+  }
+  interface Threshold {
+    value: number
+    color: string
+  }
+
+  interface TimeSeriesDataPoint {
+    timestamp: string
+    values: { [fieldName: string]: any }
+    topic: string
+    connectionId: string
+    metadata: { qos: QoS; retain: boolean }
+  }
+
+  interface BigNumberData {
+    value: number | null
+    fieldName?: string
+    chartData: {
+      xData: string[]
+      seriesData: [
+        {
+          name: string
+          data: number[]
+        },
+      ]
+    }
+  }
+  interface GaugeData {
+    value: number | null
+    fieldName?: string
+  }
+  interface LineData {
+    chartData: {
+      xData: string[]
+      seriesData: [
+        {
+          name: string
+          data: number[]
+        },
+      ]
+    }
+  }
 }

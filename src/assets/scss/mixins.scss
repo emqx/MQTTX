@@ -181,3 +181,31 @@
     }
   }
 }
+
+@mixin search-highlight {
+  .search-highlight {
+    background-color: #ffeb3b !important;
+    color: #000 !important;
+    padding: 1px 2px;
+    border-radius: 2px;
+    font-weight: bold;
+  }
+}
+
+@mixin color-picker-item {
+  .color-picker-item {
+    .el-form-item__content {
+      display: flex !important;
+      align-items: center !important;
+      line-height: normal !important;
+      height: 43px !important;
+      justify-content: flex-start !important;
+    }
+
+    .el-color-picker {
+      vertical-align: middle !important;
+      margin: 0 !important;
+      align-self: center !important;
+    }
+  }
+}

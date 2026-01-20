@@ -84,11 +84,12 @@ export default class MessageService {
       limit?: number
       msgType?: MessageType
       topic?: string
+      preserveOrder?: boolean
       searchParams?: { topic?: string; payload?: string }
     } = {},
   ): Promise<MessagePaginationModel> {
     const defaultOpts = { page: 1, limit: 20, msgType: 'all' }
-    const { page, limit, msgType } = { ...defaultOpts, ...options }
+    const { page, limit, msgType, preserveOrder } = { ...defaultOpts, ...options }
     let { topic } = { ...defaultOpts, ...options }
 
     const total = await this.messageRepository.count({ connectionId })
@@ -119,7 +120,9 @@ export default class MessageService {
       .take(limit)
       .getMany()
 
-    const list = res.reverse().map((m) => MessageService.entityToModel(m))
+    const list = preserveOrder
+      ? res.map((m) => MessageService.entityToModel(m))
+      : res.reverse().map((m) => MessageService.entityToModel(m))
 
     return {
       list,
@@ -364,6 +367,20 @@ export default class MessageService {
     const messages = messageEntities.map((entity) => MessageService.entityToModel(entity))
 
     return transform ? transform(messages) : (messages as unknown as T[])
+  }
+
+  /**
+   * Retrieves all unique topics for a given connection.
+   * @param connectionId - The ID of the connection.
+   * @returns A promise that resolves to an array of unique topics.
+   */
+  public async getAllTopicsFromConnection(connectionId: string): Promise<string[]> {
+    const topics = await this.messageRepository
+      .createQueryBuilder('msg')
+      .select('DISTINCT msg.topic', 'topic')
+      .where('msg.connectionId = :connectionId', { connectionId })
+      .getRawMany()
+    return topics.map((t) => t.topic)
   }
 
   /**

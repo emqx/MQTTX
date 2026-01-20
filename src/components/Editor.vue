@@ -28,18 +28,42 @@ export default class Editor extends Vue {
   @Prop({ default: false }) public isCustomerLang!: boolean
   @Prop({ default: 'off' }) public wordWrap!: 'off' | 'on'
   @Prop({ default: undefined }) public lineHeight!: number
+  @Prop({ default: 'single' }) public mode!: 'single' | 'diff'
+  @Prop({ default: '' }) public previousValue!: string
   @Model('change', { type: String }) private readonly value!: string
 
   @Getter('currentTheme') private theme!: Theme
   @Getter('showConnectionList') private showConnectionList!: boolean
 
-  private editor: monaco.editor.IStandaloneCodeEditor | null = null
+  private editor: monaco.editor.IStandaloneCodeEditor | monaco.editor.IStandaloneDiffEditor | null = null
 
   @Watch('value')
   private handleValueChanged(val: string) {
     if (this.editor) {
-      if (val !== this.editor.getValue()) {
-        this.editor.setValue(val)
+      if (this.mode === 'single') {
+        const singleEditor = this.editor as monaco.editor.IStandaloneCodeEditor
+        if (val !== singleEditor.getValue()) {
+          singleEditor.setValue(val)
+        }
+      } else {
+        const diffEditor = this.editor as monaco.editor.IStandaloneDiffEditor
+        const modifiedModel = diffEditor.getModifiedEditor().getModel()
+        if (modifiedModel && val !== modifiedModel.getValue()) {
+          modifiedModel.setValue(val)
+        }
+      }
+    }
+  }
+
+  @Watch('previousValue')
+  private handlePreviousValueChanged(val: string) {
+    if (this.mode === 'diff') {
+      if (this.editor) {
+        const diffEditor = this.editor as monaco.editor.IStandaloneDiffEditor
+        const originalModel = diffEditor.getOriginalEditor().getModel()
+        if (originalModel && val !== originalModel.getValue()) {
+          originalModel.setValue(val)
+        }
       }
     }
   }
@@ -102,37 +126,33 @@ export default class Editor extends Vue {
     if (!this.editor) {
       return
     }
-    const thisEditorModel = this.editor.getModel()
-    if (!thisEditorModel) return
-    const maxLine = thisEditorModel.getLineCount() || 0
-    this.editor.revealLine(maxLine)
+    if (this.mode === 'single') {
+      const singleEditor = this.editor as monaco.editor.IStandaloneCodeEditor
+      const model = singleEditor.getModel()
+      if (model) {
+        const maxLine = model.getLineCount() || 0
+        singleEditor.revealLine(maxLine)
+      }
+    } else {
+      const diffEditor = this.editor as monaco.editor.IStandaloneDiffEditor
+      const modifiedModel = diffEditor.getModifiedEditor().getModel()
+      if (modifiedModel) {
+        const maxLine = modifiedModel.getLineCount() || 0
+        diffEditor.getModifiedEditor().revealLine(maxLine)
+      }
+    }
   }
 
-  public initEditor(): void | boolean {
-    // if customer editorTheme is not empty, then init the editor theme
-    if (this.isCustomerLang) {
-      this.initCustomerLanguages()
-    }
-    const defaultOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
-      value: this.value,
-      language: this.lang,
+  private getBaseOptions() {
+    return {
       readOnly: this.disabled,
       wordWrap: this.wordWrap,
-      lineHeight: this.lineHeight,
+      theme: this.editorTheme || this.getTheme(),
       fontSize: this.fontSize,
-      scrollBeyondLastLine: false,
+      lineHeight: this.lineHeight,
       lineNumbers: this.lineNumbers,
       lineNumbersMinChars: this.lineNumbersMinChars,
       renderLineHighlight: this.renderHighlight,
-      matchBrackets: 'near',
-      folding: false,
-      theme: this.editorTheme || this.getTheme(),
-      lightbulb: {
-        enabled: false,
-      },
-      minimap: {
-        enabled: false,
-      },
       scrollbar: {
         horizontal: this.scrollbarStatus,
         horizontalScrollbarSize: 8,
@@ -141,33 +161,61 @@ export default class Editor extends Vue {
         useShadows: this.useShadows,
         alwaysConsumeMouseWheel: false,
       },
+      minimap: {
+        enabled: false,
+      },
+      lightbulb: {
+        enabled: false,
+      },
       smoothScrolling: true,
     }
-    // Create
+  }
+
+  public initEditor(): void | boolean {
+    // if customer editorTheme is not empty, then init the editor theme
+    if (this.isCustomerLang) {
+      this.initCustomerLanguages()
+    }
     const id = document.getElementById(`monaco-${this.id}`)
     if (!id) {
       return false
     }
-    this.editor = monaco.editor.create(id, defaultOptions)
+    switch (this.mode) {
+      case 'diff':
+        this.createDiffEditor(id)
+        break
+      default:
+        this.createSingleEditor(id)
+        break
+    }
+  }
+  private createSingleEditor(id: HTMLElement) {
+    const options: monaco.editor.IStandaloneEditorConstructionOptions = {
+      ...this.getBaseOptions(),
+      value: this.value,
+      language: this.lang,
+      scrollBeyondLastLine: false,
+      matchBrackets: 'near',
+      folding: false,
+      lightbulb: { enabled: false },
+    }
+    this.editor = monaco.editor.create(id, options)
     // event changed
     this.editor.onDidChangeModelContent((event) => {
       if (this.editor) {
-        const value = this.editor.getValue()
+        const value = (this.editor as monaco.editor.IStandaloneCodeEditor).getValue()
         if (value !== this.value) {
           this.$emit('input', value, event)
           this.$emit('change', value, event)
         }
       }
     })
-    // Command method
-    // tslint:disable-next-line:no-bitwise
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
       this.$emit('enter-event', this.value)
     })
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => {
-      this.$emit('qucik-save', this.value)
+      this.$emit('quick-save', this.value)
     })
-    // Update editor options
     const model = this.editor.getModel()
     if (model) {
       model.updateOptions({ tabSize: 2 })
@@ -180,6 +228,40 @@ export default class Editor extends Vue {
     })
     // Add contextmenu item
     this.addContextmenuItem()
+  }
+  private createDiffEditor(id: HTMLElement) {
+    const options: monaco.editor.IDiffEditorConstructionOptions = {
+      ...this.getBaseOptions(),
+      originalEditable: false,
+      scrollBeyondLastLine: false,
+      matchBrackets: 'near',
+      folding: false,
+      lightbulb: { enabled: false },
+    }
+    this.editor = monaco.editor.createDiffEditor(id, options)
+    const originalModel = monaco.editor.createModel(this.previousValue, this.lang)
+    const modifiedModel = monaco.editor.createModel(this.value, this.lang)
+    this.editor.setModel({
+      original: originalModel,
+      modified: modifiedModel,
+    })
+    const gutterOptions: monaco.editor.IStandaloneEditorConstructionOptions = {
+      lineNumbersMinChars: Math.max(this.lineNumbersMinChars, 3),
+      lineDecorationsWidth: 8,
+      padding: { top: 8, bottom: 8 },
+    }
+    this.editor.getOriginalEditor().updateOptions(gutterOptions)
+    this.editor.getModifiedEditor().updateOptions(gutterOptions)
+    this.editor.getModifiedEditor().updateOptions({ readOnly: this.disabled })
+    this.editor.getModifiedEditor().onDidChangeModelContent((event) => {
+      if (this.editor) {
+        const value = (this.editor as monaco.editor.IStandaloneDiffEditor).getModifiedEditor().getValue()
+        if (value !== this.value) {
+          this.$emit('input', value, event)
+          this.$emit('change', value, event)
+        }
+      }
+    })
   }
   public editorLayout() {
     if (this.editor) {
@@ -236,9 +318,22 @@ export default class Editor extends Vue {
 
   public destroyEditor() {
     if (this.editor) {
-      const model = this.editor.getModel()
-      if (model) {
-        model.dispose()
+      if (this.mode === 'diff') {
+        const diffEditor = this.editor as monaco.editor.IStandaloneDiffEditor
+        const originalModel = diffEditor.getOriginalEditor().getModel()
+        const modifiedModel = diffEditor.getModifiedEditor().getModel()
+        if (originalModel) {
+          originalModel.dispose()
+        }
+        if (modifiedModel) {
+          modifiedModel.dispose()
+        }
+      } else {
+        const singleEditor = this.editor as monaco.editor.IStandaloneCodeEditor
+        const model = singleEditor.getModel()
+        if (model) {
+          model.dispose()
+        }
       }
       this.editor.dispose()
       this.editor = null

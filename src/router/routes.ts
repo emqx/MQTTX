@@ -25,9 +25,19 @@ const routes: Routes[] = [
             component: () => import('@/views/viewer/TopicTree.vue'),
           },
           {
+            path: 'dashboard',
+            name: 'Dashboard',
+            component: () => import('@/views/viewer/dashboard/index.vue'),
+          },
+          {
             path: 'traffic_monitor',
             name: 'TrafficMonitor',
             component: () => import('@/views/viewer/TrafficMonitor.vue'),
+          },
+          {
+            path: 'payload_inspector',
+            name: 'PayloadInspector',
+            component: () => import('@/views/viewer/PayloadInspector.vue'),
           },
         ],
       },

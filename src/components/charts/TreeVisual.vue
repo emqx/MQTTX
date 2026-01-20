@@ -6,11 +6,12 @@
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import * as echarts from 'echarts/core'
-import { TooltipComponent, LegendComponent } from 'echarts/components'
+import { TooltipComponent, LegendComponent, DataZoomComponent } from 'echarts/components'
 import { TreeChart } from 'echarts/charts'
 import { CanvasRenderer } from 'echarts/renderers'
+import { stringifySubtree } from '@/utils/jsonUtils'
 
-echarts.use([TooltipComponent, LegendComponent, TreeChart, CanvasRenderer])
+echarts.use([TooltipComponent, LegendComponent, DataZoomComponent, TreeChart, CanvasRenderer])
 
 @Component
 export default class TreeVisual extends Vue {
@@ -22,6 +23,9 @@ export default class TreeVisual extends Vue {
   @Prop({ default: 'transparent' }) public backgroundColor!: string
   @Prop({ default: () => ({}) }) public tooltipFormatter!: (params: any) => string | Record<string, any>
   @Prop({ default: 4 }) public defaultExpandLevel!: number
+  // Add new props for JSON mode
+  @Prop({ default: false }) public isJsonMode!: boolean
+  @Prop({ default: false }) public enableZoom!: boolean
 
   @Getter('currentTheme') private theme!: string
 
@@ -37,12 +41,34 @@ export default class TreeVisual extends Vue {
     this.updateChart()
   }
 
+  @Watch('isJsonMode')
+  private onJsonModeChanged() {
+    this.updateChart()
+  }
+
+  @Watch('enableZoom')
+  private onZoomChanged() {
+    this.updateChart()
+  }
+
   private generateChartOption() {
     const isLightTheme = this.theme === 'light'
     const textColor = isLightTheme ? '#616161' : '#e6e8f1'
     const backgroundColor = isLightTheme ? '#fff' : this.theme === 'dark' ? '#262729' : '#292b33'
 
-    return {
+    // Common series configuration
+    const baseSeries = {
+      type: 'tree',
+      data: [this.data],
+      symbolSize: this.symbolSize,
+      initialTreeDepth: this.defaultExpandLevel,
+      expandAndCollapse: true,
+      animationDuration: 550,
+      animationDurationUpdate: 750,
+    }
+
+    // Base option for regular tree mode
+    const baseOption = {
       backgroundColor: this.backgroundColor,
       tooltip: {
         trigger: 'item',
@@ -52,10 +78,7 @@ export default class TreeVisual extends Vue {
       },
       series: [
         {
-          type: 'tree',
-          data: [this.data],
-          symbolSize: this.symbolSize,
-          initialTreeDepth: this.defaultExpandLevel,
+          ...baseSeries,
           itemStyle: {
             color: '#53daa2',
             borderColor: '#53daa2',
@@ -90,13 +113,105 @@ export default class TreeVisual extends Vue {
               color: '#53daa2',
             },
           },
-          expandAndCollapse: true,
-          animationDuration: 550,
-          animationDurationUpdate: 750,
           left: '130px',
           right: '130px',
           top: 0,
           bottom: 0,
+        },
+      ],
+    }
+
+    if (this.isJsonMode) {
+      return this.addJsonFeatures(baseOption, baseSeries)
+    }
+
+    return baseOption
+  }
+
+  private addJsonFeatures(baseOption: any, baseSeries: any) {
+    const isLightTheme = this.theme === 'light'
+
+    const rich = isLightTheme
+      ? {
+          key: { color: '#2563eb', fontWeight: 'bold' },
+          string: { color: '#7c3aed' },
+          number: { color: '#065f46' },
+          boolean: { color: '#0d9488' },
+          null: { color: '#6b7280' },
+          meta: { color: '#1f2937' },
+        }
+      : {
+          key: { color: '#93c5fd', fontWeight: 'bold' },
+          string: { color: '#c4b5fd' },
+          number: { color: '#86efac' },
+          boolean: { color: '#5eead4' },
+          null: { color: '#9ca3af' },
+          meta: { color: '#e5e7eb' },
+        }
+
+    const jsonLabelStyle = {
+      distance: 8,
+      fontFamily: 'monospace',
+      backgroundColor: isLightTheme ? '#ffffff' : '#111827',
+      borderColor: isLightTheme ? '#cbd5e1' : '#475569',
+      borderWidth: 1,
+      borderRadius: 8,
+      padding: [6, 8],
+      rich,
+      formatter: (params: any) => params.data.name,
+    }
+
+    return {
+      ...baseOption,
+      dataZoom: this.enableZoom
+        ? [
+            {
+              type: 'inside',
+              orient: 'horizontal',
+              start: 0,
+              end: 100,
+              zoomLock: false,
+            },
+            {
+              type: 'inside',
+              orient: 'vertical',
+              start: 0,
+              end: 100,
+              zoomLock: false,
+            },
+          ]
+        : undefined,
+      series: [
+        {
+          ...baseSeries,
+          orient: 'LR',
+          roam: true,
+          scaleLimit: { min: 0.1, max: 3 },
+          lineStyle: { width: 1.5, color: isLightTheme ? '#94a3b8' : '#64748b' },
+          edgeShape: 'curve',
+          edgeForkPosition: '60%',
+          label: {
+            ...jsonLabelStyle,
+            position: 'left',
+            verticalAlign: 'middle',
+            align: 'right',
+          },
+          leaves: {
+            label: {
+              ...jsonLabelStyle,
+              position: 'right',
+              verticalAlign: 'middle',
+              align: 'left',
+            },
+          },
+          emphasis: {
+            focus: 'descendant',
+            itemStyle: {
+              color: '#34c388',
+              borderColor: '#34c388',
+            },
+          },
+          right: '250px',
         },
       ],
     }
@@ -105,15 +220,47 @@ export default class TreeVisual extends Vue {
   private initChart() {
     const chartDom = document.getElementById(this.id)
     if (!chartDom) return
-
     this.chart = echarts.init(chartDom, this.theme !== 'light' ? 'dark' : 'light')
+
+    // Only register context menu for JSON mode
+    if (this.isJsonMode) {
+      this.chart.on('contextmenu', (params: any) => {
+        try {
+          params?.event?.event?.preventDefault?.()
+        } catch (_) {}
+        const nodeData = params && params.data ? params.data : null
+        if (!nodeData) return
+        const text = stringifySubtree(nodeData, 2)
+        navigator.clipboard
+          .writeText(text)
+          .then(() => {
+            this.$message({ message: this.$t('common.copySuccess').toString(), type: 'success', duration: 1200 })
+          })
+          .catch(() => {
+            this.$message({ message: this.$t('common.copyFailed').toString(), type: 'warning' })
+          })
+      })
+    }
     this.updateChart()
   }
 
   public updateChart() {
     if (this.chart) {
       const option = this.generateChartOption()
-      this.chart.setOption(option)
+      this.chart.setOption(option, true)
+
+      // Auto-fit for JSON mode
+      if (this.isJsonMode) {
+        setTimeout(() => {
+          if (this.chart) {
+            this.chart.dispatchAction({
+              type: 'dataZoom',
+              start: 0,
+              end: 100,
+            })
+          }
+        }, 100)
+      }
     }
   }
 
