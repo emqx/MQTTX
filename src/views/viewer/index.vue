@@ -7,7 +7,7 @@
     <div class="viewer-view-tabs">
       <el-tabs v-model="activeTab" @tab-click="handleTabClick">
         <el-tab-pane :label="$t('viewer.topicsTree')" name="TopicTree"></el-tab-pane>
-        <el-tab-pane :label="$t('viewer.dashboard')" name="Dashboard"></el-tab-pane>
+        <!-- <el-tab-pane :label="$t('viewer.dashboard')" name="Dashboard"></el-tab-pane> -->
         <el-tab-pane :label="$t('viewer.trafficMonitor')" name="TrafficMonitor"></el-tab-pane>
         <el-tab-pane :label="$t('viewer.payloadInspector')" name="PayloadInspector"></el-tab-pane>
       </el-tabs>
