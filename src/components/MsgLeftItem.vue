@@ -134,11 +134,11 @@ export default class MsgLeftItem extends Vue {
   get topicColorStyle() {
     const hasFunctionOrSchema = this.functionName || this.schemaName
     if (!hasFunctionOrSchema && !this.msgError) {
-      return { height: 'calc(100% - 44px)', top: '11px' }
+      return { height: 'calc(100% - 38px)', top: '11px' }
     } else if (hasFunctionOrSchema && this.msgError) {
-      return { height: 'calc(100% - 84px)', top: '55px' }
+      return { height: 'calc(100% - 78px)', top: '55px' }
     } else {
-      return { height: 'calc(100% - 62px)', top: '32px' }
+      return { height: 'calc(100% - 56px)', top: '32px' }
     }
   }
 
