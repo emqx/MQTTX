@@ -83,11 +83,14 @@ export default class Home extends Vue {
     position: fixed;
     right: 0;
     z-index: 2;
-    background: var(--color-bg-normal);
-    transition: all 0.4s;
+    background: var(--color-bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-bottom: 1px solid var(--color-border-default);
   }
   .rightbar {
-    margin-left: 81px;
+    margin-left: 77px;
     height: 100%;
     background-color: var(--color-bg-primary);
     border-left: 1px solid var(--color-border-rightbar);

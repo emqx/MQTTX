@@ -1,11 +1,11 @@
 export enum LeftValues {
-  Show = '341px',
-  Hide = '81px',
+  Show = '337px',
+  Hide = '77px',
 }
 
 export enum DetailLeftValues {
-  Show = '571px',
-  Hide = '311px',
+  Show = '567px',
+  Hide = '307px',
 }
 
 export enum BodyTopValues {
