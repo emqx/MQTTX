@@ -80,15 +80,18 @@ jobs:
   publish_npm:
     if: github.event_name == 'release' && !github.event.release.prerelease
     runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version-file: 'cli/.nvmrc'
           registry-url: 'https://registry.npmjs.org'
+      - name: upgrade npm
+        run: npm install -g npm@11.5.1
       - name: build
         run: |
           cd cli
-          yarn && yarn build && yarn publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          yarn && yarn build && npm publish --provenance --access public
