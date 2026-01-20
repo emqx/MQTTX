@@ -242,9 +242,10 @@ body.night {
     left: -4px;
   }
   .left-payload {
-    background: var(--color-main-grey);
+    background: var(--color-bg-messagebox);
     border-radius: 0px 10px 10px 10px;
     position: relative;
+    box-shadow: 0 1px 3px var(--color-shadow-message);
   }
   .left-payload,
   .left-time {

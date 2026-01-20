@@ -44,7 +44,7 @@
     <div class="connections-list">
       <template v-if="!isLoadingData">
         <el-tree
-          :indent="4"
+          :indent="8"
           draggable
           ref="tree"
           :data="treeData"
@@ -74,14 +74,6 @@
               @contextmenu.prevent="handleContextMenu(data, $event)"
             >
               <div class="item-left">
-                <div
-                  :class="[
-                    'connection-status',
-                    {
-                      online: activeConnection[data.id] ? activeConnection[data.id].client.connected : false,
-                    },
-                  ]"
-                ></div>
                 <div class="client-info">
                   <el-tooltip
                     :effect="theme !== 'light' ? 'light' : 'dark'"
@@ -836,7 +828,7 @@ export default class ConnectionsList extends Vue {
       height: 100%;
       background-color: var(--color-bg-normal);
       .is-current > .el-tree-node__content {
-        background-color: var(--color-bg-item);
+        background: var(--color-bg-item);
       }
       .el-tree-node__content {
         .el-tree-node__expand-icon {
@@ -855,6 +847,7 @@ export default class ConnectionsList extends Vue {
           justify-content: space-between;
           .connection-item {
             @include flex-space-between;
+            align-items: center;
             height: 48px;
             width: 100%;
             cursor: pointer;
@@ -862,14 +855,15 @@ export default class ConnectionsList extends Vue {
             transition: background 0.3s ease;
             user-select: none;
             .client-info {
-              display: inline-block;
-              margin-left: 8px;
+              display: flex;
+              align-items: center;
+              margin-left: 0;
               .client-name {
                 display: block;
                 font-size: $font-size--body;
                 font-weight: 500;
                 color: var(--color-text-title);
-                max-width: 150px;
+                max-width: 200px;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
@@ -909,18 +903,6 @@ export default class ConnectionsList extends Vue {
               position: relative;
               top: -2px;
             }
-            .connection-status {
-              display: inline-block;
-              width: 8px;
-              height: 8px;
-              border-radius: 4px;
-              background: var(--color-bg-item_status);
-              vertical-align: top;
-              margin-top: 8px;
-              &.online {
-                background: var(--color-main-green);
-              }
-            }
           }
           .custom-tree-node-collection {
             width: 100%;
@@ -932,7 +914,7 @@ export default class ConnectionsList extends Vue {
               font-size: $font-size--body;
               font-weight: 500;
               color: var(--color-text-title);
-              max-width: 150px;
+              max-width: 200px;
               svg {
                 width: 24px;
                 height: 24px;
