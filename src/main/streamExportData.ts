@@ -172,48 +172,104 @@ export class StreamDataExporter {
   }
 
   private async exportCSV(connections: ConnectionModel[], onProgress?: (progress: number) => void): Promise<void> {
-    const flattenedData: any[] = []
+    const { messageService } = useServices()
+    this.fileDescriptor = fs.openSync(this.filePath, 'w')
+
+    // Define CSV headers
+    const headers = [
+      'client_id',
+      'connection_name',
+      'topic',
+      'payload',
+      'qos',
+      'retain',
+      'direction',
+      'createAt',
+      'payload_format_indicator',
+      'message_expiry_interval',
+      'topic_alias',
+      'response_topic',
+      'correlation_data',
+      'subscription_identifier',
+      'content_type',
+      'user_properties',
+    ]
+    fs.writeSync(this.fileDescriptor, headers.join(',') + '\n')
 
     for (const connection of connections) {
-      const messages = await this.streamMessages(connection.id!)
+      const messageGenerator = messageService.streamMessagesForExport(connection.id!)
 
-      // Flatten connection data with messages
-      const flatConnection = {
-        ...connection,
-        messages: JSON.stringify(messages),
-        subscriptions: JSON.stringify(connection.subscriptions),
-        will: JSON.stringify(connection.will),
-        properties: JSON.stringify(connection.properties),
+      for await (const messageBatch of messageGenerator) {
+        const rows = messageBatch.map((msg) => {
+          const props = msg.properties || {}
+
+          return {
+            client_id: connection.clientId,
+            connection_name: connection.name,
+            topic: msg.topic,
+            payload: msg.payload, // payload is string in MessageModel
+            qos: msg.qos,
+            retain: msg.retain,
+            direction: msg.out ? 'publish' : 'received',
+            createAt: msg.createAt,
+            payload_format_indicator: props.payloadFormatIndicator,
+            message_expiry_interval: props.messageExpiryInterval,
+            topic_alias: props.topicAlias,
+            response_topic: props.responseTopic,
+            correlation_data: props.correlationData,
+            subscription_identifier: props.subscriptionIdentifier,
+            content_type: props.contentType,
+            user_properties: props.userProperties ? JSON.stringify(props.userProperties) : '',
+          }
+        })
+
+        // Convert batch to CSV string without header
+        if (rows.length > 0) {
+          const csvChunk = CSVConvert(rows, { header: false, fields: headers })
+          fs.writeSync(this.fileDescriptor, csvChunk + '\n')
+        }
       }
-
-      flattenedData.push(flatConnection)
 
       this.processedConnections++
       this.updateProgress(onProgress)
     }
-
-    const csvContent = CSVConvert(flattenedData).replace(/"(\d+\.(\d+)?0)"/g, '="$1"')
-    fs.writeFileSync(this.filePath, csvContent)
   }
 
   private async exportExcel(connections: ConnectionModel[], onProgress?: (progress: number) => void): Promise<void> {
     const workbook = ExcelConvert.utils.book_new()
+    const { messageService } = useServices()
 
     for (let i = 0; i < connections.length; i++) {
       const connection = connections[i]
+      const flattenedRows: any[] = []
 
-      const messages = await this.streamMessages(connection.id!)
-      const connectionWithMessages = { ...connection, messages }
-      const worksheet = ExcelConvert.utils.json_to_sheet([connectionWithMessages])
+      const messageGenerator = messageService.streamMessagesForExport(connection.id!)
 
-      // Format nested objects as strings
-      Object.keys(worksheet).forEach((cell) => {
-        if (worksheet[cell].t === undefined && cell !== '!ref') {
-          const stringValue = JSON.stringify(worksheet[cell])
-          worksheet[cell] = { t: 's', v: stringValue }
-        }
-      })
+      for await (const messageBatch of messageGenerator) {
+        const rows = messageBatch.map((msg) => {
+          const props = msg.properties || {}
+          return {
+            client_id: connection.clientId,
+            topic: msg.topic,
+            payload: msg.payload,
+            qos: msg.qos,
+            retain: msg.retain,
+            direction: msg.out ? 'publish' : 'received',
+            createAt: msg.createAt,
+            payload_format_indicator: props.payloadFormatIndicator,
+            message_expiry_interval: props.messageExpiryInterval,
+            topic_alias: props.topicAlias,
+            response_topic: props.responseTopic,
+            correlation_data: props.correlationData,
+            subscription_identifier: props.subscriptionIdentifier,
+            content_type: props.contentType,
+            user_properties: props.userProperties ? JSON.stringify(props.userProperties) : '',
+          }
+        })
+        flattenedRows.push(...rows)
+      }
 
+      const worksheet = ExcelConvert.utils.json_to_sheet(flattenedRows)
       const sheetName = `Connection_${i + 1}`
       ExcelConvert.utils.book_append_sheet(workbook, worksheet, sheetName)
 
