@@ -18,7 +18,7 @@ export default class LeftPanel extends Vue {}
 .left-panel {
   & > div {
     position: fixed;
-    left: 401px;
+    left: 397px;
     z-index: 1;
     width: 280px;
     background: var(--color-bg-normal);
@@ -27,7 +27,7 @@ export default class LeftPanel extends Vue {}
     bottom: 0;
     padding-bottom: 42px;
     @media (min-width: 1920px) {
-      left: 521px;
+      left: 517px;
       width: 400px;
     }
   }
@@ -44,7 +44,7 @@ export default class LeftPanel extends Vue {}
       left: 0;
     }
     to {
-      left: 401px;
+      left: 397px;
     }
   }
   @media (min-width: 1920px) {
@@ -53,7 +53,7 @@ export default class LeftPanel extends Vue {}
         left: 0;
       }
       to {
-        left: 521px;
+        left: 517px;
       }
     }
   }

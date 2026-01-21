@@ -9,29 +9,28 @@
         @click="handleSelectConnection(item)"
         @contextmenu.prevent="handleContextMenu(item, $event)"
       >
-        <div class="item-left">
-          <div
-            :class="[
-              'connection-status',
-              {
-                online: activeConnection[item.id] ? activeConnection[item.id].client.connected : false,
-              },
-            ]"
-          ></div>
-          <div class="client-info">
-            <el-tooltip
-              :effect="theme !== 'light' ? 'light' : 'dark'"
-              :disabled="`${item.name}@${item.host}:${item.port}`.length < 26"
-              :content="`${item.name}@${item.host}:${item.port}`"
-              :open-delay="500"
-              placement="top"
+        <div class="client-info">
+          <el-tooltip
+            :effect="theme !== 'light' ? 'light' : 'dark'"
+            :disabled="`${item.name}@${item.host}:${item.port}`.length < 26"
+            :content="`${item.name}@${item.host}:${item.port}`"
+            :open-delay="500"
+            placement="top"
+          >
+            <div
+              :class="[
+                'client-name',
+                {
+                  online: activeConnection[item.id] ? activeConnection[item.id].client.connected : false,
+                },
+              ]"
             >
-              <div class="client-name">{{ item.name }}@{{ item.host }}:{{ item.port }}</div>
-            </el-tooltip>
-          </div>
-          <div v-if="item.ssl" class="ssl-tag">
-            <span>SSL</span>
-          </div>
+              {{ item.name }}@{{ item.host }}:{{ item.port }}
+            </div>
+          </el-tooltip>
+        </div>
+        <div v-if="item.ssl" class="ssl-tag">
+          <span>SSL</span>
         </div>
         <div v-if="unreadMessageCount[item.id] > 0" class="new-msg-count">
           {{ unreadMessageCount[item.id] }}
@@ -169,9 +168,11 @@ export default class ConnectionsList extends Vue {
       background-color: var(--color-bg-item);
     }
     .client-info {
-      display: inline-block;
-      margin-left: 8px;
+      display: flex;
+      align-items: center;
+      margin-left: 0;
       .client-name {
+        display: block;
         font-size: $font-size--body;
         font-weight: 500;
         color: var(--color-text-title);
@@ -179,6 +180,9 @@ export default class ConnectionsList extends Vue {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
+        &.online {
+          color: var(--color-main-green);
+        }
         @media (min-width: 1920px) {
           max-width: 350px;
         }
@@ -201,32 +205,19 @@ export default class ConnectionsList extends Vue {
         color: var(--color-text-active);
       }
     }
-    .item-left {
-      height: 28px;
-      line-height: 28px;
-    }
     .new-msg-count {
+      position: absolute;
+      right: 8px;
       min-width: 18px;
       height: 18px;
       line-height: 18px;
-      background: var(--color-main-green);
+      background: var(--color-bg-unreadmsg);
       border-radius: 9px;
-      padding: 0 6px;
-      color: #fff;
+      padding: 0 5px;
+      color: var(--color-text-active);
       font-size: $font-size--tips;
       text-align: center;
-    }
-    .connection-status {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 8px;
-      background: var(--color-bg-item_status);
-      vertical-align: top;
-      margin-top: 10px;
-      &.online {
-        background: var(--color-main-green);
-      }
+      box-shadow: -8px 0 12px 4px var(--color-bg-item);
     }
     &:hover {
       background: var(--color-bg-item);

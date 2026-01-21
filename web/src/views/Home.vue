@@ -56,30 +56,30 @@ export default class Home extends Vue {
   }
   .right-topbar {
     position: fixed;
-    left: 401px;
+    left: 397px;
     right: 0;
     z-index: 3;
     background: var(--color-bg-normal);
   }
   .rightbar {
-    margin-left: 81px;
+    margin-left: 76px;
     height: 100%;
     background-color: var(--color-bg-primary);
   }
   .right-content {
-    margin-left: 401px;
+    margin-left: 397px;
     height: 100%;
     background-color: var(--color-bg-primary);
   }
   @media (min-width: 1920px) {
     .right-topbar {
-      left: 521px;
+      left: 517px;
     }
     .rightbar {
-      margin-left: 121px;
+      margin-left: 116px;
     }
     .right-content {
-      margin-left: 521px;
+      margin-left: 517px;
     }
   }
 }

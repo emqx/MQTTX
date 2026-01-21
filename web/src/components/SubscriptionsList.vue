@@ -702,7 +702,7 @@ export default class SubscriptionsList extends Vue {
     border-bottom: none;
     text-align: center;
     position: relative;
-    padding: 16px 16px 0 16px;
+    padding: 12px 16px;
     text-align: center;
     .hide-btn {
       font-size: 20px;
@@ -710,9 +710,24 @@ export default class SubscriptionsList extends Vue {
       top: 15px;
       right: 0px;
     }
+    .new-subs-btn {
+      width: 100%;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--color-main-green);
+      color: var(--color-main-green);
+      background: transparent;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      &:hover {
+        background: var(--color-light-green);
+      }
+      &:active {
+        transform: scale(0.98);
+      }
+    }
   }
   .el-card__body {
-    padding: 16px 16px 0 16px;
+    padding: 6px 16px;
     height: 100%;
     overflow: auto;
     .topics-item {
@@ -729,8 +744,13 @@ export default class SubscriptionsList extends Vue {
       -moz-user-select: none;
       -khtml-user-select: none;
       user-select: none;
-      transition: all 0.3s ease;
-      animation: subItem 0.2s ease-in-out;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: subItem 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+      &:hover {
+        transform: translateX(2px);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+      }
       &.active {
         background: var(--color-bg-dark) !important;
         box-shadow: none;
@@ -738,11 +758,19 @@ export default class SubscriptionsList extends Vue {
         .qos {
           color: var(--color-text-active) !important;
         }
+        .topics-color-line {
+          background: var(--color-text-active) !important;
+        }
       }
       &.disabled {
         background: transparent !important;
         border: 1px solid var(--color-border-default);
+        box-shadow: none;
         cursor: not-allowed;
+        &:hover {
+          transform: none;
+          box-shadow: none;
+        }
         .topic,
         .qos {
           color: var(--color-text-light) !important;
@@ -761,6 +789,14 @@ export default class SubscriptionsList extends Vue {
         position: relative;
         top: 50%;
         transform: translateY(-50%);
+        transition: height 0.2s ease;
+      }
+      &:hover .topics-color-line {
+        height: 32px;
+      }
+      &.active .topics-color-line,
+      &.active:hover .topics-color-line {
+        height: 24px;
       }
       .topic {
         max-width: 120px;
@@ -785,9 +821,14 @@ export default class SubscriptionsList extends Vue {
         height: 18px;
         text-align: center;
         line-height: 18px;
+        transition: transform 0.15s ease;
+        &:hover {
+          transform: scale(1.1);
+        }
         .el-icon-close,
         .el-icon-loading {
           color: var(--color-text-active);
+          font-size: 10px;
         }
       }
       &:hover {
@@ -799,10 +840,12 @@ export default class SubscriptionsList extends Vue {
   }
   @keyframes subItem {
     from {
-      top: 100px;
+      opacity: 0;
+      transform: translateY(8px);
     }
     to {
-      top: 0px;
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 }
