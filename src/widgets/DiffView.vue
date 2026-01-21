@@ -240,14 +240,22 @@ export default class DiffView extends Vue {
 
     .nav-right {
       display: flex;
-      align-items: center;
+      align-items: stretch;
+      background: var(--color-bg-normal);
       border-left: 1px solid var(--color-border-default);
 
       .nav-icon {
+        background: transparent;
+        height: auto;
         border-left: 1px solid var(--color-border-default);
 
         &:first-child {
           border-left: none;
+        }
+
+        &:hover {
+          background: var(--color-main-green);
+          color: #fff;
         }
       }
     }
