@@ -62,26 +62,11 @@
   .properties {
     margin-top: 12px;
     padding-top: 10px;
-    border-top-width: 1px;
-    border-top-style: solid;
-    &:last-child {
-      padding-bottom: 10px;
-      border-bottom-width: 1px;
-      border-bottom-style: solid;
-    }
     &.left {
       color: var(--color-text-default);
-      border-top-color: var(--color-border-msg);
-      &:last-child {
-        border-bottom-color: var(--color-border-msg);
-      }
     }
     &.right {
       color: var(--color-text-right_info);
-      border-top-color: var(--color-text-right_metainfo);
-      &:last-child {
-        border-bottom-color: var(--color-border-right_metainfo);
-      }
     }
   }
   .user-properties {
@@ -106,14 +91,10 @@
         }
         .el-input.is-disabled .el-input__inner {
           color: var(--color-text-default);
-          border: 1px solid var(--color-border-msg);
+          border: 1px solid var(--color-border-default);
           background-color: var(--color-bg-msg-input);
         }
       }
-      border-top: 1px solid var(--color-border-msg);
-      border-bottom: 1px solid var(--color-border-msg);
-      border-right: none;
-      border-left: none;
     }
     &.right {
       .key-value-editor.msg-item-props {
@@ -125,9 +106,6 @@
           border: 1px solid var(--color-border-right_metainfo);
         }
       }
-      border: 1px solid var(--color-border-right_metainfo);
-      border-right: none;
-      border-left: none;
     }
   }
 }
