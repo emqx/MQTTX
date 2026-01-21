@@ -748,6 +748,7 @@ export default class MsgPublish extends Vue {
     }
     .dropdown-btn {
       margin-right: 4px;
+      border-radius: 4px;
       &.el-button.is-disabled {
         background-color: transparent;
         border: 1px solid var(--color-border-default);
@@ -785,7 +786,7 @@ export default class MsgPublish extends Vue {
         height: 28px;
         padding: 0;
         border: none;
-        border-radius: 4px;
+        border-radius: 8px;
         margin: 0;
         background-color: transparent;
         min-width: unset;

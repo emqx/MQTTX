@@ -974,7 +974,7 @@ export default class DashboardCanvas extends Vue {
 
   .vue-grid-layout {
     background: var(--color-bg-primary);
-    border-radius: 4px;
+    border-radius: 8px;
     min-height: 400px;
     transition: background 0.2s;
   }
@@ -982,7 +982,7 @@ export default class DashboardCanvas extends Vue {
   .vue-grid-item:not(.vue-grid-placeholder) {
     background: var(--color-bg-card);
     border: 1px solid var(--color-border-default);
-    border-radius: 4px;
+    border-radius: 8px;
     box-shadow: 0 1px 4px 0 var(--color-shadow-leftlist);
     transition: background 0.2s, border 0.2s;
     display: flex;
@@ -1100,7 +1100,7 @@ export default class DashboardCanvas extends Vue {
   border: 1px solid var(--color-border-default);
   box-shadow: 0 4px 12px 0 var(--color-shadow-leftlist);
   padding: 0;
-  border-radius: 4px;
+  border-radius: 8px;
 
   .el-dropdown-menu {
     background: var(--color-bg-card);

@@ -540,7 +540,7 @@ export default class MCPSettings extends Vue {
     .editor-container {
       height: 250px;
       border: 1px solid var(--color-border-default);
-      border-radius: 4px;
+      border-radius: 8px;
 
       &.is-error {
         border-color: var(--color-minor-red);
@@ -622,7 +622,7 @@ export default class MCPSettings extends Vue {
     word-break: break-all;
     background-color: var(--color-bg-lighter);
     padding: 8px;
-    border-radius: 4px;
+    border-radius: 8px;
     position: relative;
     display: flex;
     justify-content: space-between;
@@ -650,7 +650,7 @@ export default class MCPSettings extends Vue {
       gap: 8px;
       margin-bottom: 12px;
       padding: 8px 12px;
-      border-radius: 4px;
+      border-radius: 8px;
       position: relative;
 
       &.success {

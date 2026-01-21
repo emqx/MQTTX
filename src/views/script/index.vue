@@ -674,7 +674,7 @@ message Person {
     background: var(--color-bg-normal);
     border: 1px solid var(--color-border-default);
     padding: 10px 1px 1px 1px;
-    border-radius: 4px;
+    border-radius: 8px;
   }
   .script-test-row {
     margin: 12px 0px;

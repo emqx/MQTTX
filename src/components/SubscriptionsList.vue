@@ -1045,7 +1045,7 @@ export default class SubscriptionsList extends Vue {
   background: var(--color-bg-popover);
   text-align: center;
   min-width: 120px;
-  border-radius: 4px;
+  border-radius: 8px;
   .popper__arrow::after {
     bottom: 0px !important;
     border-top-color: var(--color-bg-popover) !important;

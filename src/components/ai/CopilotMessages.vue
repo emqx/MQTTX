@@ -253,7 +253,7 @@ body.night {
       }
       pre {
         padding: 16px;
-        border-radius: 4px;
+        border-radius: 8px;
 
         code {
           padding: 0;

@@ -132,7 +132,7 @@ export default class FullMsgDialog extends Vue {
     background: var(--color-bg-normal);
     border: 1px solid var(--color-border-default);
     padding: 10px 1px 1px 1px;
-    border-radius: 4px;
+    border-radius: 8px;
   }
 }
 </style>

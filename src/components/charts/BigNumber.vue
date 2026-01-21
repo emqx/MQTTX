@@ -420,7 +420,7 @@ export default class BigNumberChart extends Vue {
 .big-stat-panel {
   position: relative;
   background: transparent;
-  border-radius: 4px;
+  border-radius: 8px;
   padding: 12px;
   box-sizing: border-box;
 }
