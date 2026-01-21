@@ -131,7 +131,7 @@ export default class Connections extends Vue {
   position: fixed;
   box-shadow: 1px 0px 8px 0px var(--color-shadow-leftlist);
   width: 320px;
-  left: 81px;
+  left: 76px;
   top: 0;
   bottom: 0;
   overflow-x: hidden;
@@ -139,7 +139,7 @@ export default class Connections extends Vue {
   border-right: 1px solid var(--color-border-default);
   background-color: var(--color-bg-normal);
   @media (min-width: 1920px) {
-    left: 121px;
+    left: 116px;
     width: 400px;
   }
   .no-data {

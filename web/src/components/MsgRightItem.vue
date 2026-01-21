@@ -69,6 +69,7 @@ export default class MsgrightItem extends Vue {
     background: var(--color-text-right_block);
     border-radius: 10px 0 10px 10px;
     text-align: left;
+    box-shadow: 0 1px 3px var(--color-shadow-sendbtn);
   }
   .right-payload,
   .right-time {

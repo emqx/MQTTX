@@ -490,7 +490,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   get marginLeft(): string {
-    const left = this.showSubs ? (this.largeDesktop ? '920px' : '680px') : this.largeDesktop ? '521px' : '401px'
+    const left = this.showSubs ? (this.largeDesktop ? '916px' : '676px') : this.largeDesktop ? '517px' : '397px'
     return left
   }
 
@@ -1228,7 +1228,7 @@ export default class ConnectionsDetail extends Vue {
         background: var(--color-bg-normal);
         border-bottom: 1px solid var(--color-border-default);
         position: fixed;
-        left: 401px;
+        left: 397px;
         right: 0;
         z-index: 1;
         transition: all 0.4s;
@@ -1265,7 +1265,7 @@ export default class ConnectionsDetail extends Vue {
           }
         }
         @media (min-width: 1920px) {
-          left: 521px;
+          left: 517px;
           .message-type {
             .received-type-select {
               margin-left: 420px;
