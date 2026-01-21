@@ -20,12 +20,18 @@ export default (lang: Language) => {
     EMQX: `${EMQSite}/products/emqx${utm}mqttx-to-emqx`,
     EMQXCloud: `${EMQSite}/cloud${utm}mqttx-to-cloud`,
   }
+  const signInENSite = `https://accounts.emqx.com/signin?continue=https://cloud-intl.emqx.com/console/&utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-signin`
+  const signInCNSite = `https://accounts-zh.emqx.com/signin?continue=https://cloud.emqx.com/console/&utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-signin`
+  const signInSite = lang === 'zh' ? signInCNSite : signInENSite
+
   const about = {
     releases: `${MQTTXSite}/changelogs/v${version}${utm}about-to-release`,
     faq: `${MQTTXSite}/docs/faq${utm}about-to-faq`,
     MQTTX: `${MQTTXSite}${utm}about-to-mqttx`,
     EMQ: `${EMQSite}${utm}mqttx-to-homepage`,
     EMQXCloud: `${EMQSite}/cloud${utm}mqttx-to-cloud`,
+    EMQXPlatform: `${EMQSite}/platform${utm}mqttx-to-platform`,
+    signIn: signInSite,
   }
 
   const help = {
