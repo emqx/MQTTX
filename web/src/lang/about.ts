@@ -49,4 +49,49 @@ export default {
     en: 'Try EMQX Cloud for free',
     ja: 'EMQX Cloudの無料体験',
   },
+  platformTitle: {
+    zh: '统一的物联网 MQTT 平台',
+    en: 'The Unified MQTT Platform for IoT',
+    ja: 'IoT向け統合MQTTプラットフォーム',
+  },
+  platformDesc: {
+    zh: '完整的生产级 MQTT 平台，无缝连接工业设备、边缘网关和云服务。从边缘协议桥接到超大规模云消息传递，统一在一个平台下管理您的整个物联网数据基础设施。',
+    en: 'Connect everything, scale infinitely. One platform for industrial devices, edge gateways, and cloud services — powering your entire IoT infrastructure.',
+    ja: '産業用デバイス、エッジゲートウェイ、クラウドサービスをシームレスに接続する、完全な本番環境対応MQTTプラットフォーム。',
+  },
+  statDownloads: {
+    zh: '产品下载量',
+    en: 'Product Downloads',
+    ja: '製品ダウンロード数',
+  },
+  statClusters: {
+    zh: '全球部署集群',
+    en: 'Global Clusters',
+    ja: 'グローバルクラスター',
+  },
+  statProtocols: {
+    zh: '工业协议支持',
+    en: 'Industrial Protocols',
+    ja: '産業用プロトコル',
+  },
+  statLatency: {
+    zh: '超低延迟',
+    en: 'Ultra-Low Latency',
+    ja: '超低遅延',
+  },
+  statConnections: {
+    zh: '单集群并发连接',
+    en: 'Connections/Cluster',
+    ja: '接続数/クラスター',
+  },
+  tryPlatform: {
+    zh: '立即免费试用',
+    en: 'Start Free Trial',
+    ja: '無料トライアルを開始',
+  },
+  signIn: {
+    zh: '登录',
+    en: 'Sign In',
+    ja: 'サインイン',
+  },
 }

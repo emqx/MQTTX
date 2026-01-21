@@ -13,6 +13,19 @@ export default (lang: Language) => {
 
   const utm = '?utm_source=mqttx-web&utm_medium=referral&utm_campaign='
 
+  const signInENSite = `https://accounts.emqx.com/signin?continue=https://cloud-intl.emqx.com/console/&utm_source=mqttx-web&utm_medium=referral&utm_campaign=mqttx-web-to-signin`
+  const signInCNSite = `https://accounts-zh.emqx.com/signin?continue=https://cloud.emqx.com/console/&utm_source=mqttx-web&utm_medium=referral&utm_campaign=mqttx-web-to-signin`
+  const signInSite = lang === 'zh' ? signInCNSite : signInENSite
+
+  const about = {
+    faq: `${MQTTXSite}/docs/faq${utm}mqttx-web-about-to-faq`,
+    MQTTX: `${MQTTXSite}${utm}mqttx-web-about-to-mqttx`,
+    EMQ: `${EMQSite}${utm}mqttx-web-to-homepage`,
+    EMQXCloud: `${EMQSite}/cloud${utm}mqttx-web-to-cloud`,
+    EMQXPlatform: `${EMQSite}/platform${utm}mqttx-web-to-platform`,
+    signIn: signInSite,
+  }
+
   const help = {
     docs: `${MQTTXSite}/docs${utm}mqttx-web-help-to-docs`,
     forum: `${forumSite}${utm}mqttx-web-help-to-forum`,
@@ -26,6 +39,7 @@ export default (lang: Language) => {
     MQTTXSite,
     EMQSite,
     forumSite,
+    about,
     help,
   }
 }
