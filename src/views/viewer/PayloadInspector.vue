@@ -200,7 +200,7 @@ export default class PayloadInspector extends Vue {
         padding: 8px 16px;
         border: none;
         background: transparent;
-        border-radius: 4px;
+        border-radius: 8px;
         font-weight: 500;
         color: var(--color-text-default);
         cursor: pointer;

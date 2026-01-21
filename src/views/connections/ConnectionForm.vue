@@ -20,19 +20,21 @@
         <h2>{{ oper === 'create' ? $t('common.new') : $t('common.edit') }}</h2>
       </div>
       <div class="tail">
-        <a href="javascript:;" @click="handleSave('connect')" class="connect-btn">
-          {{ $t('connections.connectBtn') }}
-        </a>
-        <el-dropdown trigger="click" @command="handleActionCommand">
-          <a href="javascript:;">
-            <i class="el-icon-arrow-down"></i>
+        <div class="connect-btn-group">
+          <a href="javascript:;" @click="handleSave('connect')" class="connect-btn">
+            {{ $t('connections.connectBtn') }}
           </a>
-          <el-dropdown-menu class="connection-oper-item" slot="dropdown">
-            <el-dropdown-item command="save">
-              <i class="iconfont icon-save"></i>{{ $t('common.saveOnly') }}
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
+          <el-dropdown trigger="click" @command="handleActionCommand">
+            <a href="javascript:;" class="dropdown-btn">
+              <i class="el-icon-arrow-down"></i>
+            </a>
+            <el-dropdown-menu class="connection-oper-item" slot="dropdown">
+              <el-dropdown-item command="save">
+                <i class="iconfont icon-save"></i>{{ $t('common.saveOnly') }}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
       </div>
     </div>
 
@@ -945,11 +947,45 @@ export default class ConnectionForm extends Vue {
       -webkit-app-region: no-drag;
     }
     .tail {
-      a {
-        padding: 0 12px;
-      }
-      .connect-btn {
-        border-right: 1px solid var(--color-border-default);
+      .connect-btn-group {
+        display: flex;
+        align-items: center;
+        background: var(--color-main-green);
+        border-radius: 8px;
+        overflow: hidden;
+
+        .connect-btn {
+          padding: 0 16px;
+          height: 32px;
+          line-height: 32px;
+          color: #fff;
+          font-size: 13px;
+          font-weight: 500;
+          transition: background 0.2s ease;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.1);
+          }
+        }
+
+        .dropdown-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0 10px;
+          height: 32px;
+          border-left: 1px solid rgba(255, 255, 255, 0.2);
+          color: #fff;
+          transition: background 0.2s ease;
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.1);
+          }
+
+          i {
+            font-size: 12px;
+          }
+        }
       }
     }
   }
