@@ -90,7 +90,7 @@ export default class Home extends Vue {
     border-bottom: 1px solid var(--color-border-default);
   }
   .rightbar {
-    margin-left: 77px;
+    margin-left: 76px;
     height: 100%;
     background-color: var(--color-bg-primary);
     border-left: 1px solid var(--color-border-rightbar);
