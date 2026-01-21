@@ -480,6 +480,8 @@ export default class ConnectionsList extends Vue {
   }
 
   private handleConnectionTreeClick(treeNode: ConnectionModelTree) {
+    const treeRef = this.$refs.tree as ElTree<ConnectionModelTree['id'], ConnectionModelTree>
+    treeRef?.setCurrentKey(treeNode.id)
     if (treeNode.isCollection) {
       this.selectedCollection = treeNode
       this.selectedConnection = null
@@ -782,7 +784,6 @@ export default class ConnectionsList extends Vue {
     @include flex-space-between;
     min-height: 10px;
     height: 59px;
-    border-bottom: 1px solid var(--color-border-default);
     -webkit-app-region: drag;
     a {
       -webkit-app-region: no-drag;
