@@ -180,7 +180,7 @@ export default class MessageList extends Vue {
       width: 8px;
     }
     &::-webkit-scrollbar-thumb {
-      border-radius: 4px;
+      border-radius: 8px;
       background: var(--color-bg-scrollbar);
       width: 8px;
     }
