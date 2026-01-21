@@ -1,74 +1,44 @@
 <template>
   <div class="diff-view">
-    <div class="diff-header">
-      <div class="header-content">
-        <h3>{{ $t('viewer.messageHistory') }}</h3>
-      </div>
-      <div class="message-info" v-if="currentMessage && previousMessage">
-        <div class="info-side previous">
-          <div class="side-row">
-            <div class="attr">
-              <span class="label">{{ $t('viewer.previous') }} </span>
-              <span class="value">{{ formatTime(previousMessage.createAt) }}</span>
-            </div>
-            <div class="attr">
-              <span class="label">QoS:</span>
-              <span class="value">{{ previousMessage.qos }}</span>
-            </div>
-            <div class="attr">
-              <span class="label">Retain:</span>
-              <span class="value">{{ previousMessage.retain ? $t('viewer.yes') : $t('viewer.no') }}</span>
-            </div>
-            <div class="attr">
-              <span class="label">Size:</span>
-              <span class="value">{{ getPayloadSize(previousMessage.payload) }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="info-side current">
-          <div class="side-row">
-            <div class="attr">
-              <span class="label">{{ $t('viewer.currentLabel') }} </span>
-              <span class="value">{{ formatTime(currentMessage.createAt) }}</span>
-            </div>
-            <div class="attr">
-              <span class="label">QoS:</span>
-              <span class="value">{{ currentMessage.qos }}</span>
-            </div>
-            <div class="attr">
-              <span class="label">Retain:</span>
-              <span class="value">{{ currentMessage.retain ? $t('viewer.yes') : $t('viewer.no') }}</span>
-            </div>
-            <div class="attr">
-              <span class="label">Size:</span>
-              <span class="value">{{ getPayloadSize(currentMessage.payload) }}</span>
-            </div>
-          </div>
+    <div class="diff-header" v-if="currentMessage && previousMessage">
+      <el-tooltip
+        :effect="theme !== 'light' ? 'light' : 'dark'"
+        placement="bottom"
+        :open-delay="300"
+        :content="$t('viewer.olderMessage')"
+      >
+        <i class="nav-icon nav-left" :class="{ 'is-disabled': !canGoToPrevious && !hasMore }" @click="goToPrevious">
+          <i class="el-icon-arrow-left"></i>
+        </i>
+      </el-tooltip>
+      <div class="header-side previous">
+        <span class="side-label">{{ $t('viewer.previous') }}</span>
+        <span class="side-time">{{ formatTime(previousMessage.createAt) }}</span>
+        <div class="side-badges">
+          <span class="badge">QoS {{ previousMessage.qos }}</span>
+          <span class="badge retain" v-if="previousMessage.retain">Retain</span>
+          <span class="badge">{{ getPayloadSize(previousMessage.payload) }}</span>
         </div>
       </div>
-    </div>
-
-    <div class="diff-content-wrapper" v-if="messages.length >= 2 && originalMessage && modifiedMessage">
-      <div class="navigation-controls">
-        <el-tooltip
-          :effect="theme !== 'light' ? 'light' : 'dark'"
-          placement="bottom"
-          :open-delay="300"
-          :content="$t('viewer.olderMessage')"
-        >
-          <i
-            class="el-icon-arrow-left nav-icon"
-            :class="{ 'is-disabled': !canGoToPrevious && !hasMore }"
-            @click="goToPrevious"
-          ></i>
-        </el-tooltip>
+      <div class="header-side current">
+        <span class="side-label">{{ $t('viewer.currentLabel') }}</span>
+        <span class="side-time">{{ formatTime(currentMessage.createAt) }}</span>
+        <div class="side-badges">
+          <span class="badge">QoS {{ currentMessage.qos }}</span>
+          <span class="badge retain" v-if="currentMessage.retain">Retain</span>
+          <span class="badge">{{ getPayloadSize(currentMessage.payload) }}</span>
+        </div>
+      </div>
+      <div class="nav-right">
         <el-tooltip
           :effect="theme !== 'light' ? 'light' : 'dark'"
           placement="bottom"
           :open-delay="300"
           :content="$t('viewer.newerMessage')"
         >
-          <i class="el-icon-arrow-right nav-icon" :class="{ 'is-disabled': !canGoToNext }" @click="goToNext"></i>
+          <i class="nav-icon" :class="{ 'is-disabled': !canGoToNext }" @click="goToNext">
+            <i class="el-icon-arrow-right"></i>
+          </i>
         </el-tooltip>
         <el-tooltip
           :effect="theme !== 'light' ? 'light' : 'dark'"
@@ -76,10 +46,14 @@
           :open-delay="300"
           :content="$t('viewer.goToLatestMessage')"
         >
-          <i class="el-icon-top nav-icon" :class="{ 'is-disabled': currentIndex === 0 }" @click="goToLatest"></i>
+          <i class="nav-icon" :class="{ 'is-disabled': currentIndex === 0 }" @click="goToLatest">
+            <i class="el-icon-d-arrow-right"></i>
+          </i>
         </el-tooltip>
       </div>
+    </div>
 
+    <div class="diff-content-wrapper" v-if="messages.length >= 2 && originalMessage && modifiedMessage">
       <div class="diff-content">
         <Editor
           id="message-diff"
@@ -227,76 +201,113 @@ export default class DiffView extends Vue {
   color: var(--color-text-default);
 
   .diff-header {
-    padding: 16px;
+    display: flex;
+    align-items: center;
     border-bottom: 1px solid var(--color-border-default);
     background: var(--color-bg-primary);
 
-    .header-content {
-      .el-select {
-        width: 100px;
-      }
-
-      margin-bottom: 12px;
+    .nav-icon {
+      width: 40px;
+      height: 100%;
+      min-height: 44px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-title);
+      background: var(--color-bg-normal);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
 
-      h3 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 500;
-        color: var(--color-text-title);
+      &:hover {
+        background: var(--color-main-green);
+        color: #fff;
+      }
+
+      &.is-disabled {
+        opacity: 0.25;
+        cursor: not-allowed;
+        pointer-events: none;
+        background: transparent;
+      }
+
+      &.nav-left {
+        border-right: 1px solid var(--color-border-default);
       }
     }
 
-    .message-info {
+    .nav-right {
       display: flex;
-      justify-content: space-between;
-      gap: 24px;
-      flex-wrap: nowrap;
+      align-items: center;
+      border-left: 1px solid var(--color-border-default);
 
-      .info-side {
-        flex: 1 1 50%;
-        min-width: 0;
+      .nav-icon {
+        border-left: 1px solid var(--color-border-default);
+
+        &:first-child {
+          border-left: none;
+        }
+      }
+    }
+
+    .header-side {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+
+      &.previous {
+        border-right: 1px solid var(--color-border-default);
+      }
+
+      &.current {
+        background: rgba(52, 195, 136, 0.03);
+
+        .side-label {
+          background: var(--color-main-green);
+          color: #fff;
+        }
+      }
+
+      .side-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        padding: 4px 10px;
+        border-radius: 4px;
+        background: var(--color-text-light);
+        color: #fff;
+        flex-shrink: 0;
+      }
+
+      .side-time {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--color-text-title);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .side-badges {
         display: flex;
-        flex-direction: column;
-        gap: 6px;
+        align-items: center;
+        gap: 8px;
 
-        .side-row {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          flex-wrap: wrap;
-          overflow: hidden;
-          white-space: wrap;
-        }
-
-        .side-title {
+        .badge {
           font-size: 12px;
-          color: var(--color-text-light);
-          font-weight: 600;
-          flex: 0 0 auto;
-        }
+          padding: 3px 10px;
+          border-radius: 4px;
+          background: var(--color-bg-normal);
+          color: var(--color-text-default);
+          border: 1px solid var(--color-border-default);
 
-        .attr {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          max-width: 100%;
-
-          .label {
-            font-size: 12px;
-            color: var(--color-text-light);
-            font-weight: 500;
-          }
-
-          .value {
-            font-size: 12px;
-            color: var(--color-text-default);
-            max-width: 240px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+          &.retain {
+            background: var(--color-main-yellow);
+            border-color: var(--color-main-yellow);
+            color: #fff;
           }
         }
       }
@@ -308,32 +319,6 @@ export default class DiffView extends Vue {
     display: flex;
     flex-direction: column;
     min-height: 0;
-
-    .navigation-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      justify-content: center;
-      padding: 0 16px;
-      background: var(--color-bg-primary);
-      border-bottom: 1px solid var(--color-border-default);
-      height: 57px; // Match .message-header height in JSONTreeView.vue
-      .nav-icon {
-        font-size: 18px;
-        font-weight: 400;
-        color: var(--color-text-primary);
-        cursor: pointer;
-        transition: color 0.15s ease;
-        &:hover {
-          color: var(--color-main-green);
-        }
-        &.is-disabled {
-          opacity: 0.4;
-          cursor: not-allowed;
-          pointer-events: none;
-        }
-      }
-    }
 
     .diff-content {
       flex: 1;

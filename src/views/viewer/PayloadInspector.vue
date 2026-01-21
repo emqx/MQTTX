@@ -1,40 +1,56 @@
 <template>
   <div class="payload-inspector-view">
-    <div class="inspector-controls">
-      <div class="view-mode-selector">
-        <button
-          class="view-mode-button"
-          :class="{ active: activeViewMode === 'diff' }"
-          @click="activeViewMode = 'diff'"
-        >
-          {{ $t('viewer.diffView') }}
-        </button>
-        <button
-          class="view-mode-button"
-          :class="{ active: activeViewMode === 'tree' }"
-          @click="activeViewMode = 'tree'"
-        >
-          {{ $t('viewer.jsonTree') }}
-        </button>
-      </div>
-      <div class="control-group">
-        <ConnectionSelect v-model="selectedConnectionId" size="small" @change="onConnectionChange" />
+    <!-- Toolbar -->
+    <div class="inspector-toolbar">
+      <div class="toolbar-left">
+        <!-- Segmented Control for View Mode -->
+        <div class="view-mode-control">
+          <button class="segment" :class="{ active: activeViewMode === 'diff' }" @click="activeViewMode = 'diff'">
+            <i class="el-icon-files"></i>
+            {{ $t('viewer.diffView') }}
+          </button>
+          <button class="segment" :class="{ active: activeViewMode === 'tree' }" @click="activeViewMode = 'tree'">
+            <i class="iconfont icon-tree-view"></i>
+            {{ $t('viewer.jsonTree') }}
+          </button>
+          <span class="segment-slider" :class="{ 'at-right': activeViewMode === 'tree' }"></span>
+        </div>
       </div>
 
-      <div class="control-group">
+      <div class="toolbar-right">
+        <ConnectionSelect v-model="selectedConnectionId" size="small" width="200px" @change="onConnectionChange" />
         <TopicSelect
           v-model="selectedTopic"
           :connection-id="selectedConnectionId"
           size="small"
+          width="200px"
           @change="onTopicChange"
         />
-      </div>
-
-      <div class="message-type-tabs">
-        <MsgTypeTabs v-model="currentMessageType" @change="onMessageTypeChange" />
+        <div class="type-filter">
+          <span
+            class="type-item"
+            :class="{ active: currentMessageType === 'all' }"
+            @click="onMessageTypeChange('all')"
+            >{{ $t('connections.all') }}</span
+          >
+          <span
+            class="type-item"
+            :class="{ active: currentMessageType === 'received' }"
+            @click="onMessageTypeChange('received')"
+            >{{ $t('connections.received') }}</span
+          >
+          <span
+            class="type-item"
+            :class="{ active: currentMessageType === 'publish' }"
+            @click="onMessageTypeChange('publish')"
+            >{{ $t('connections.published') }}</span
+          >
+        </div>
       </div>
     </div>
-    <div class="diff-view-container">
+
+    <!-- Content -->
+    <div class="inspector-content">
       <DiffView
         v-if="activeViewMode === 'diff'"
         :key="componentKey"
@@ -185,55 +201,124 @@ export default class PayloadInspector extends Vue {
   flex-direction: column;
   height: calc(100vh - 130px);
   box-sizing: border-box;
-  .inspector-controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    .view-mode-selector {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 5px;
-      min-width: 180px;
-      .view-mode-button {
-        position: relative;
-        z-index: 1;
-        padding: 8px 16px;
-        border: none;
-        background: transparent;
-        border-radius: 8px;
-        font-weight: 500;
-        color: var(--color-text-default);
-        cursor: pointer;
-        white-space: nowrap;
-        &.active {
-          background: #34c38810;
-          color: var(--color-main-green);
-        }
-      }
-    }
 
-    .message-type-tabs {
+  .inspector-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+
+    .toolbar-left {
       display: flex;
       align-items: center;
     }
 
-    .control-group {
-      label {
-        display: block;
-        margin-bottom: 5px;
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    // Segmented Control
+    .view-mode-control {
+      position: relative;
+      display: inline-flex;
+      background: var(--color-bg-primary);
+      border: 1px solid var(--color-border-default);
+      border-radius: 8px;
+      padding: 3px;
+
+      .segment {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border: none;
+        background: transparent;
+        border-radius: 6px;
+        font-size: 13px;
         font-weight: 500;
         color: var(--color-text-default);
+        cursor: pointer;
+        transition: color 0.2s ease;
+        white-space: nowrap;
+
+        i {
+          font-size: 14px;
+        }
+
+        &:hover {
+          color: var(--color-main-green);
+        }
+
+        &.active {
+          color: var(--color-main-green);
+        }
+      }
+
+      .segment-slider {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: calc(50% - 3px);
+        height: calc(100% - 6px);
+        background: var(--color-bg-normal);
+        border-radius: 6px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+
+        &.at-right {
+          transform: translateX(100%);
+        }
+      }
+    }
+
+    // Type Filter
+    .type-filter {
+      display: flex;
+      align-items: center;
+      border-left: 1px solid var(--color-border-default);
+      padding-left: 12px;
+      margin-left: 4px;
+
+      .type-item {
+        padding: 0 10px;
+        font-size: 12px;
+        color: var(--color-text-default);
+        cursor: pointer;
+        border-right: 1px solid var(--color-border-default);
+        transition: color 0.15s ease;
+
+        &:last-child {
+          border-right: none;
+          padding-right: 0;
+        }
+
+        &:hover {
+          color: var(--color-main-green);
+        }
+
+        &.active {
+          color: var(--color-main-green);
+          font-weight: 500;
+        }
       }
     }
   }
 
-  .diff-view-container {
+  .inspector-content {
     flex: 1;
     min-height: 0;
-    margin-top: 12px;
     border: 1px solid var(--color-border-default);
-    border-radius: 6px;
+    border-radius: 8px;
     overflow: hidden;
+    background: var(--color-bg-normal);
   }
 }
 </style>
