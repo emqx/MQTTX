@@ -220,7 +220,7 @@ export default class ConnectionsList extends Vue {
       display: inline-block;
       width: 8px;
       height: 8px;
-      border-radius: 4px;
+      border-radius: 8px;
       background: var(--color-bg-item_status);
       vertical-align: top;
       margin-top: 10px;
