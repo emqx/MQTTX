@@ -183,7 +183,7 @@ export default class Leftbar extends Vue {
     font-size: 22px;
   }
   .leftbar-bottom .iconfont {
-    font-size: 18px;
+    font-size: 22px;
   }
 
   @media (min-width: 1920px) {
