@@ -1,102 +1,82 @@
 <template>
   <div class="json-tree-view">
-    <div class="json-header">
+    <div class="json-header" v-if="currentMessage && currentMessage.createAt">
+      <el-tooltip
+        :effect="theme !== 'light' ? 'light' : 'dark'"
+        placement="bottom"
+        :open-delay="300"
+        :content="$t('viewer.olderMessage')"
+      >
+        <i class="nav-icon nav-left" :class="{ 'is-disabled': !canGoToPrevious && !hasMore }" @click="goToPrevious">
+          <i class="el-icon-arrow-left"></i>
+        </i>
+      </el-tooltip>
       <div class="header-content">
-        <h3>{{ $t('viewer.messageJsonViewer') }}</h3>
+        <span class="header-time">{{ formatTime(currentMessage.createAt) }}</span>
+        <div class="header-badges">
+          <span class="badge">QoS {{ currentMessage.qos }}</span>
+          <span class="badge retain" v-if="currentMessage.retain">Retain</span>
+          <span class="badge">{{ getPayloadSize(currentMessage.payload) }}</span>
+        </div>
+        <div class="header-tools">
+          <el-input
+            v-model="searchQuery"
+            :placeholder="$t('viewer.searchInJson')"
+            size="small"
+            prefix-icon="el-icon-search"
+            clearable
+            @input="onSearchInput"
+            class="search-input"
+          />
+          <el-tooltip
+            :effect="theme !== 'light' ? 'light' : 'dark'"
+            placement="bottom"
+            :open-delay="500"
+            :content="$t('viewer.visualizeJsonTree')"
+          >
+            <i class="tool-icon el-icon-pie-chart" @click="openVisualTreeModal"></i>
+          </el-tooltip>
+          <el-tooltip
+            placement="bottom"
+            :effect="theme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('common.copy')"
+          >
+            <i
+              class="tool-icon iconfont icon-copy"
+              :class="{ 'is-disabled': !currentMessage || !currentMessage.payload }"
+              @click="copyPayload(currentMessage && currentMessage.payload ? currentMessage.payload : '')"
+            ></i>
+          </el-tooltip>
+        </div>
       </div>
-      <div class="message-info" v-if="currentMessage">
-        <div class="info-item">
-          <span class="label">Time:</span>
-          <span class="value">{{ formatTime(currentMessage.createAt) }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">QoS:</span>
-          <span class="value">{{ currentMessage.qos }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">Retain:</span>
-          <span class="value">{{ currentMessage.retain ? 'Yes' : 'No' }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">Size:</span>
-          <span class="value">{{ getPayloadSize(currentMessage.payload) }}</span>
-        </div>
+      <div class="nav-right">
+        <el-tooltip
+          :effect="theme !== 'light' ? 'light' : 'dark'"
+          placement="bottom"
+          :open-delay="300"
+          :content="$t('viewer.newerMessage')"
+        >
+          <i class="nav-icon" :class="{ 'is-disabled': !canGoToNext }" @click="goToNext">
+            <i class="el-icon-arrow-right"></i>
+          </i>
+        </el-tooltip>
+        <el-tooltip
+          :effect="theme !== 'light' ? 'light' : 'dark'"
+          placement="bottom"
+          :open-delay="300"
+          :content="$t('viewer.goToLatestMessage')"
+        >
+          <i class="nav-icon" :class="{ 'is-disabled': currentIndex === 0 }" @click="goToLatest">
+            <i class="el-icon-d-arrow-right"></i>
+          </i>
+        </el-tooltip>
       </div>
     </div>
 
     <div class="json-content-wrapper" v-if="messages.length > 0">
-      <div class="json-content">
-        <div class="message-tree">
-          <div class="message-header">
-            <div class="header-left">
-              <el-input
-                v-model="searchQuery"
-                :placeholder="$t('viewer.searchInJson')"
-                size="small"
-                prefix-icon="el-icon-search"
-                clearable
-                @input="onSearchInput"
-                class="search-input"
-              />
-              <el-tooltip
-                :effect="theme !== 'light' ? 'light' : 'dark'"
-                placement="bottom"
-                :open-delay="500"
-                :content="$t('viewer.visualizeJsonTree')"
-              >
-                <i class="el-icon-pie-chart nav-icon" @click="openVisualTreeModal"></i>
-              </el-tooltip>
-            </div>
-            <div class="navigation-controls">
-              <el-tooltip
-                :effect="theme !== 'light' ? 'light' : 'dark'"
-                placement="bottom"
-                :open-delay="300"
-                :content="$t('viewer.olderMessage')"
-              >
-                <i
-                  class="el-icon-arrow-left nav-icon"
-                  :class="{ 'is-disabled': !canGoToPrevious && !hasMore }"
-                  @click="goToPrevious"
-                ></i>
-              </el-tooltip>
-              <el-tooltip
-                :effect="theme !== 'light' ? 'light' : 'dark'"
-                placement="bottom"
-                :open-delay="300"
-                :content="$t('viewer.newerMessage')"
-              >
-                <i class="el-icon-arrow-right nav-icon" :class="{ 'is-disabled': !canGoToNext }" @click="goToNext"></i>
-              </el-tooltip>
-              <el-tooltip
-                :effect="theme !== 'light' ? 'light' : 'dark'"
-                placement="bottom"
-                :open-delay="300"
-                :content="$t('viewer.goToLatestMessage')"
-              >
-                <i class="el-icon-top nav-icon" :class="{ 'is-disabled': currentIndex === 0 }" @click="goToLatest"></i>
-              </el-tooltip>
-            </div>
-            <div class="header-right">
-              <el-tooltip
-                placement="bottom"
-                :effect="theme !== 'light' ? 'light' : 'dark'"
-                :open-delay="500"
-                :content="$t('common.copy')"
-              >
-                <i
-                  class="iconfont icon-copy nav-icon"
-                  :class="{ 'is-disabled': !currentMessage || !currentMessage.payload }"
-                  @click="copyPayload(currentMessage && currentMessage.payload ? currentMessage.payload : '')"
-                ></i>
-              </el-tooltip>
-            </div>
-          </div>
-
-          <div class="json-container" ref="jsonContainer">
-            <tree-view :data="parseJson(currentMessage.payload)" :options="treeOptions" />
-          </div>
-        </div>
+      <div class="json-container" ref="jsonContainer">
+        <tree-view :data="parseJson(currentMessage.payload)" :options="treeOptions" />
       </div>
     </div>
 
@@ -399,115 +379,141 @@ export default class JsonViewer extends Vue {
   flex-direction: column;
   background: var(--color-bg-normal);
   color: var(--color-text-default);
+
   .json-header {
-    padding: 16px;
+    display: flex;
+    align-items: center;
     border-bottom: 1px solid var(--color-border-default);
     background: var(--color-bg-primary);
-    .header-content {
-      margin-bottom: 12px;
+
+    .nav-icon {
+      width: 40px;
+      height: 100%;
+      min-height: 44px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      h3 {
-        margin: 0;
-        font-size: 16px;
-        font-weight: 500;
-        color: var(--color-text-title);
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-text-title);
+      background: var(--color-bg-normal);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+
+      &:hover {
+        background: var(--color-main-green);
+        color: #fff;
+      }
+
+      &.is-disabled {
+        opacity: 0.25;
+        cursor: not-allowed;
+        pointer-events: none;
+        background: transparent;
+      }
+
+      &.nav-left {
+        border-right: 1px solid var(--color-border-default);
       }
     }
-    .message-info {
+
+    .nav-right {
       display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      .info-item {
+      align-items: center;
+      border-left: 1px solid var(--color-border-default);
+
+      .nav-icon {
+        border-left: 1px solid var(--color-border-default);
+
+        &:first-child {
+          border-left: none;
+        }
+      }
+    }
+
+    .header-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+
+      .header-time {
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--color-text-title);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .header-badges {
         display: flex;
         align-items: center;
-        gap: 4px;
-        .label {
+        gap: 8px;
+
+        .badge {
           font-size: 12px;
-          color: var(--color-text-light);
-          font-weight: 500;
-        }
-        .value {
-          font-size: 12px;
+          padding: 3px 10px;
+          border-radius: 4px;
+          background: var(--color-bg-normal);
           color: var(--color-text-default);
-          max-width: 200px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
+          border: 1px solid var(--color-border-default);
+
+          &.retain {
+            background: var(--color-main-yellow);
+            border-color: var(--color-main-yellow);
+            color: #fff;
+          }
+        }
+      }
+
+      .header-tools {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: auto;
+
+        .search-input {
+          width: 200px;
+        }
+
+        .tool-icon {
+          font-size: 16px;
+          color: var(--color-text-default);
+          cursor: pointer;
+          padding: 6px;
+          border-radius: 4px;
+          transition: all 0.15s ease;
+
+          &:hover {
+            color: var(--color-main-green);
+            background: var(--color-bg-normal);
+          }
+
+          &.is-disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+          }
         }
       }
     }
   }
+
   .json-content-wrapper {
     flex: 1;
     display: flex;
     flex-direction: column;
     min-height: 0;
   }
-  .json-content {
-    flex: 1;
-    min-height: 0;
-    background: var(--color-bg-normal);
-  }
-  .message-tree {
-    overflow: hidden;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-  .message-header {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    padding: 12px 16px;
-    background: var(--color-bg-primary);
-    border-bottom: 1px solid var(--color-border-default);
-    position: relative;
-    .header-left {
-      justify-self: start;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      .search-input {
-        width: 300px;
-        max-width: 100%;
-      }
-    }
-    .header-right {
-      justify-self: end;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .nav-icon {
-      font-size: 18px;
-      font-weight: 400;
-      color: var(--color-text-primary);
-      cursor: pointer;
-      transition: color 0.15s ease;
-      &:hover {
-        color: var(--color-main-green);
-      }
-      &.is-disabled {
-        opacity: 0.4;
-        cursor: not-allowed;
-        pointer-events: none;
-      }
-    }
-    .navigation-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      justify-self: center;
-    }
-  }
+
   .json-container {
     padding: 16px;
     background: var(--color-bg-normal);
     flex: 1;
     overflow: auto;
   }
+
   .no-messages {
     flex: 1;
     display: flex;
