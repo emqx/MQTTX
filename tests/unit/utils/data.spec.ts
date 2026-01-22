@@ -1,10 +1,10 @@
 import { expect } from 'chai'
-import { isLargeData, calculateTextSize, LARGE_DATA_THRESHOLD, SHOW_MAX_LENGTH } from '@/utils/data'
+import { isLargeData, calculateTextSize, DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE, SHOW_MAX_LENGTH } from '@/utils/data'
 
 describe('data utility functions', () => {
-  describe('LARGE_DATA_THRESHOLD', () => {
+  describe('DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE', () => {
     it('should be 524288', () => {
-      expect(LARGE_DATA_THRESHOLD).to.equal(524288)
+      expect(DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE).to.equal(524288)
     })
   })
 
@@ -16,18 +16,18 @@ describe('data utility functions', () => {
 
   describe('isLargeData', () => {
     it('should return false for small data', () => {
-      const smallData = 'a'.repeat(LARGE_DATA_THRESHOLD - 1)
+      const smallData = 'a'.repeat(DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE - 1)
       expect(isLargeData(smallData)).to.be.false
     })
 
     it('should return true for large data', () => {
-      const largeData = 'a'.repeat(LARGE_DATA_THRESHOLD + 1)
+      const largeData = 'a'.repeat(DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE + 1)
       expect(isLargeData(largeData)).to.be.true
     })
 
-    it('should return false for data exactly at threshold', () => {
-      const thresholdData = 'a'.repeat(LARGE_DATA_THRESHOLD)
-      expect(isLargeData(thresholdData)).to.be.false
+    it('should return true for data exactly at threshold', () => {
+      const thresholdData = 'a'.repeat(DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE)
+      expect(isLargeData(thresholdData)).to.be.true
     })
   })
 
