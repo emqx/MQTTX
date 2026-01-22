@@ -430,6 +430,7 @@ export default class ConnectionsDetail extends Vue {
   @Getter('currentScript') private scriptOption!: ScriptState | null
   @Getter('enableCopilot') private enableCopilot!: boolean
   @Getter('showConnectionList') private showConnectionList!: boolean
+  @Getter('maxPayloadDisplaySize') private maxPayloadDisplaySize!: number
 
   /**
    * Notice: when we jump order by `other page` -> `creation page` -> `connection page`,
@@ -1397,7 +1398,7 @@ export default class ConnectionsDetail extends Vue {
     if (['JSON', 'CBOR', 'MsgPack'].includes(this.receivedMsgType) && jsonMsgError) {
       this.updateMetaError(receivedMessage, jsonMsgError)
     }
-    if (isLargeData(receivedMessage.payload)) {
+    if (isLargeData(receivedMessage.payload, this.maxPayloadDisplaySize)) {
       this.updateMetaBigData(receivedMessage)
     }
 

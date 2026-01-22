@@ -25,6 +25,7 @@ const getters = {
   connectDatabaseFailMessage: (state: State) => state.app.connectDatabaseFailMessage,
   ignoreQoS0Message: (state: State) => state.app.ignoreQoS0Message,
   topicWhitespaceDetection: (state: State) => state.app.topicWhitespaceDetection,
+  maxPayloadDisplaySize: (state: State) => state.app.maxPayloadDisplaySize,
 }
 
 export default getters

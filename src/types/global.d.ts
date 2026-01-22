@@ -115,6 +115,7 @@ declare global {
     connectDatabaseFailMessage: string
     ignoreQoS0Message: boolean
     topicWhitespaceDetection: boolean
+    maxPayloadDisplaySize: number
   }
 
   interface State {
