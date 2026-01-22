@@ -107,6 +107,30 @@
       </el-row>
 
       <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="14">
+          <label>{{ $t('settings.maxPayloadDisplaySize') }}</label>
+          <el-tooltip placement="top" :effect="currentTheme !== 'light' ? 'light' : 'dark'" :open-delay="500">
+            <div slot="content" v-html="$t('settings.maxPayloadDisplaySizeDesc')"></div>
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="10" class="settings-slider-col">
+          <PayloadSizeControl
+            :value="payloadDisplaySizeValue"
+            :min="minPayloadDisplaySize"
+            :max="maxPayloadDisplaySizeLimit"
+            :step="payloadDisplaySizeStep"
+            :presets="payloadDisplaySizePresets"
+            @change="handleMaxPayloadDisplaySizeChange"
+          />
+        </el-col>
+      </el-row>
+
+      <el-divider></el-divider>
     </div>
 
     <div class="settings-appearance">
@@ -459,10 +483,17 @@ import { ENCRYPT_KEY } from '@/utils/idGenerator'
 import ClickOutside from 'vue-click-outside'
 import _ from 'lodash'
 import { AImodelsOptions, AIAPIHostOptions } from '@/utils/ai/copilot'
+import {
+  MAX_MAX_PAYLOAD_DISPLAY_SIZE,
+  MIN_MAX_PAYLOAD_DISPLAY_SIZE,
+  normalizeMaxPayloadDisplaySize,
+} from '@/utils/data'
+import { formatBytes } from '@/utils/formatter'
 import MCPSettings from '@/components/ai/MCPSettings.vue'
+import PayloadSizeControl from '@/components/PayloadSizeControl.vue'
 
 @Component({
-  components: { ImportData, ExportData, ClearUpHistoryData, MCPSettings },
+  components: { ImportData, ExportData, ClearUpHistoryData, MCPSettings, PayloadSizeControl },
   directives: {
     ClickOutside,
   },
@@ -487,6 +518,9 @@ export default class Settings extends Vue {
   @Action('TOGGLE_TOPIC_WHITESPACE_DETECTION') private actionToggleTopicWhitespaceDetection!: (payload: {
     topicWhitespaceDetection: boolean
   }) => void
+  @Action('SET_MAX_PAYLOAD_DISPLAY_SIZE') private actionSetMaxPayloadDisplaySize!: (payload: {
+    maxPayloadDisplaySize: number
+  }) => void
 
   @Getter('currentTheme') private currentTheme!: Theme
   @Getter('currentLang') private currentLang!: Language
@@ -503,6 +537,7 @@ export default class Settings extends Vue {
   @Getter('logLevel') private logLevel!: LogLevel
   @Getter('ignoreQoS0Message') private ignoreQoS0Message!: boolean
   @Getter('topicWhitespaceDetection') private topicWhitespaceDetection!: boolean
+  @Getter('maxPayloadDisplaySize') private maxPayloadDisplaySize!: number
 
   private showAIModelsSelect = false
 
@@ -523,6 +558,22 @@ export default class Settings extends Vue {
   private showImportData = false
   private showExportData = false
   private showHistoryData = false
+  private minPayloadDisplaySize = MIN_MAX_PAYLOAD_DISPLAY_SIZE
+  private maxPayloadDisplaySizeLimit = MAX_MAX_PAYLOAD_DISPLAY_SIZE
+  private payloadDisplaySizeStep = MIN_MAX_PAYLOAD_DISPLAY_SIZE
+  private payloadDisplaySizeValue = MIN_MAX_PAYLOAD_DISPLAY_SIZE
+  private payloadDisplaySizePresets = [
+    MIN_MAX_PAYLOAD_DISPLAY_SIZE,
+    24 * 1024,
+    32 * 1024,
+    64 * 1024,
+    128 * 1024,
+    256 * 1024,
+    512 * 1024,
+    1024 * 1024,
+    2 * 1024 * 1024,
+    MAX_MAX_PAYLOAD_DISPLAY_SIZE,
+  ]
 
   private aiConfig: {
     model: App['model']
@@ -532,6 +583,23 @@ export default class Settings extends Vue {
     model: 'gpt-4o',
     openAIAPIKey: '',
     openAIAPIHost: 'https://api.openai.com/v1',
+  }
+
+  get formattedMaxPayloadDisplaySize(): string {
+    return formatBytes(this.payloadDisplaySizeValue)
+  }
+
+  private handleMaxPayloadDisplaySizeChange(value: number) {
+    const normalizedValue = normalizeMaxPayloadDisplaySize(value)
+    if (normalizedValue !== value) {
+      const message = this.$t('settings.maxPayloadDisplaySizeRange', {
+        min: formatBytes(MIN_MAX_PAYLOAD_DISPLAY_SIZE),
+        max: formatBytes(MAX_MAX_PAYLOAD_DISPLAY_SIZE),
+      }) as string
+      this.$message.warning(message)
+    }
+    this.payloadDisplaySizeValue = normalizedValue
+    this.actionSetMaxPayloadDisplaySize({ maxPayloadDisplaySize: normalizedValue })
   }
 
   private handleSelectChange(type: 'lang' | 'theme', value: string | number | boolean): void {
@@ -648,6 +716,7 @@ export default class Settings extends Vue {
 
   private created() {
     this.getAIConfigs()
+    this.payloadDisplaySizeValue = this.maxPayloadDisplaySize
   }
 
   private progressVisible = false
@@ -721,6 +790,23 @@ export default class Settings extends Vue {
   .el-col-4,
   .el-col-6 {
     text-align: right;
+  }
+
+  .settings-slider-col {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .settings-slider {
+    width: 200px;
+  }
+
+  .settings-slider-value {
+    min-width: 72px;
+    text-align: right;
+    color: var(--color-text-default);
   }
 
   .settings-options {

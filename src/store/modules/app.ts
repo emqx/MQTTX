@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import useServices from '@/database/useServices'
 import { getGlobal } from '@electron/remote'
+import { DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE, normalizeMaxPayloadDisplaySize } from '@/utils/data'
 
 const Store = require('electron-store')
 const electronStore = new Store()
@@ -33,6 +34,7 @@ const TOGGLE_SHOW_CONNECTION_LIST = 'TOGGLE_SHOW_CONNECTION_LIST'
 const SET_DATABASE_FAIL_MESSAGE = 'SET_DATABASE_FAIL_MESSAGE'
 const TOGGLE_IGNORE_QOS0_MESSAGE = 'TOGGLE_IGNORE_QOS0_MESSAGE'
 const TOGGLE_TOPIC_WHITESPACE_DETECTION = 'TOGGLE_TOPIC_WHITESPACE_DETECTION'
+const SET_MAX_PAYLOAD_DISPLAY_SIZE = 'SET_MAX_PAYLOAD_DISPLAY_SIZE'
 
 const getShowConnectionList = (): boolean => {
   const _showConnectionList: string | null = localStorage.getItem('showConnectionList')
@@ -72,6 +74,9 @@ const app = {
     connectDatabaseFailMessage: settingData.connectDatabaseFailMessage || '',
     ignoreQoS0Message: settingData.ignoreQoS0Message || false,
     topicWhitespaceDetection: settingData.topicWhitespaceDetection || false,
+    maxPayloadDisplaySize: normalizeMaxPayloadDisplaySize(
+      electronStore.get('settings.maxPayloadDisplaySize', DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE),
+    ),
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -181,6 +186,9 @@ const app = {
     },
     [TOGGLE_TOPIC_WHITESPACE_DETECTION](state: App, topicWhitespaceDetection: boolean) {
       state.topicWhitespaceDetection = topicWhitespaceDetection
+    },
+    [SET_MAX_PAYLOAD_DISPLAY_SIZE](state: App, maxPayloadDisplaySize: number) {
+      state.maxPayloadDisplaySize = maxPayloadDisplaySize
     },
   },
   actions: {
@@ -311,6 +319,11 @@ const app = {
       commit(TOGGLE_TOPIC_WHITESPACE_DETECTION, payload.topicWhitespaceDetection)
       settingData.topicWhitespaceDetection = payload.topicWhitespaceDetection
       electronStore.set('settings.topicWhitespaceDetection', payload.topicWhitespaceDetection)
+    },
+    SET_MAX_PAYLOAD_DISPLAY_SIZE({ commit }: any, payload: App) {
+      const normalizedValue = normalizeMaxPayloadDisplaySize(payload.maxPayloadDisplaySize)
+      commit(SET_MAX_PAYLOAD_DISPLAY_SIZE, normalizedValue)
+      electronStore.set('settings.maxPayloadDisplaySize', normalizedValue)
     },
   },
 }

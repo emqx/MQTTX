@@ -1,9 +1,25 @@
-export const LARGE_DATA_THRESHOLD = 524288 // 512KB
+export const LARGE_DATA_THRESHOLD = 512 * 1024 // 512KB
+export const DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE = 512 * 1024 // 512KB
+export const MIN_MAX_PAYLOAD_DISPLAY_SIZE = 16 * 1024 // 16KB
+export const MAX_MAX_PAYLOAD_DISPLAY_SIZE = 2 * 1024 * 1024 // 2MB
 
 export const SHOW_MAX_LENGTH = 100
 
-export function isLargeData(message: string): boolean {
-  return message.length > LARGE_DATA_THRESHOLD
+export function normalizeMaxPayloadDisplaySize(value?: number): number {
+  if (value === undefined || Number.isNaN(value)) {
+    return DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE
+  }
+  if (value < MIN_MAX_PAYLOAD_DISPLAY_SIZE) {
+    return MIN_MAX_PAYLOAD_DISPLAY_SIZE
+  }
+  if (value > MAX_MAX_PAYLOAD_DISPLAY_SIZE) {
+    return MAX_MAX_PAYLOAD_DISPLAY_SIZE
+  }
+  return value
+}
+
+export function isLargeData(message: string, maxPayloadDisplaySize = DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE): boolean {
+  return message.length >= maxPayloadDisplaySize
 }
 
 export function calculateTextSize(text: string, decimals = 2) {
