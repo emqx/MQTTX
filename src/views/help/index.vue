@@ -739,16 +739,10 @@ export default class Help extends Vue {
 }
 
 @media (max-width: 600px) {
-  .help-header {
+  .help-view-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 20px;
-
-    .header-main {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 16px;
-    }
+    gap: 12px;
   }
 
   .section-header h2 {
