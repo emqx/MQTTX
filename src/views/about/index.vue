@@ -2,7 +2,7 @@
   <div class="about-view rightbar">
     <div class="about-topbar">
       <h1 class="titlebar">{{ $t('about.about') }}</h1>
-      <button class="sign-in-btn" @click="goToLink(signInLink)">
+      <button type="button" class="sign-in-btn" @click="goToLink(signInLink)">
         <i class="el-icon-user"></i>
         <span>{{ $t('about.signIn') }}</span>
       </button>
@@ -63,24 +63,24 @@
 
           <!-- Link Buttons -->
           <div class="link-buttons">
-            <button class="link-btn" @click="goToLink('https://github.com/emqx/MQTTX')">
+            <button type="button" class="link-btn" @click="goToLink('https://github.com/emqx/MQTTX')">
               <i class="iconfont icon-github"></i>
               <span>GitHub</span>
-              <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                 <path d="M7 17L17 7M17 7H7M17 7V17" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </button>
-            <button class="link-btn" @click="goToLink(mqttxWebsite)">
+            <button type="button" class="link-btn" @click="goToLink(mqttxWebsite)">
               <i class="iconfont icon-website"></i>
               <span>{{ $t('about.web') }}</span>
-              <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                 <path d="M7 17L17 7M17 7H7M17 7V17" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </button>
-            <button class="link-btn" @click="goToLink(faqLink)">
+            <button type="button" class="link-btn" @click="goToLink(faqLink)">
               <i class="iconfont icon-faq"></i>
               <span>FAQ</span>
-              <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <svg class="arrow-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                 <path d="M7 17L17 7M17 7H7M17 7V17" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </button>
@@ -113,9 +113,13 @@
               </div>
             </div>
             <div class="platform-promo__actions">
-              <button class="platform-promo__btn platform-promo__btn--primary" @click="goToLink(emqxPlatformWebsite)">
+              <button
+                type="button"
+                class="platform-promo__btn platform-promo__btn--primary"
+                @click="goToLink(emqxPlatformWebsite)"
+              >
                 <span>{{ $t('about.tryPlatform') }}</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                   <path
                     d="M5 12H19M19 12L12 5M19 12L12 19"
                     stroke-width="2"
