@@ -571,7 +571,6 @@ export default class Settings extends Vue {
     256 * 1024,
     512 * 1024,
     1024 * 1024,
-    2 * 1024 * 1024,
     MAX_MAX_PAYLOAD_DISPLAY_SIZE,
   ]
 
@@ -583,10 +582,6 @@ export default class Settings extends Vue {
     model: 'gpt-4o',
     openAIAPIKey: '',
     openAIAPIHost: 'https://api.openai.com/v1',
-  }
-
-  get formattedMaxPayloadDisplaySize(): string {
-    return formatBytes(this.payloadDisplaySizeValue)
   }
 
   private handleMaxPayloadDisplaySizeChange(value: number) {
@@ -797,16 +792,6 @@ export default class Settings extends Vue {
     align-items: center;
     justify-content: flex-end;
     gap: 8px;
-  }
-
-  .settings-slider {
-    width: 200px;
-  }
-
-  .settings-slider-value {
-    min-width: 72px;
-    text-align: right;
-    color: var(--color-text-default);
   }
 
   .settings-options {

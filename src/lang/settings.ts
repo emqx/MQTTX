@@ -45,7 +45,7 @@ export default {
     zh: '达到或超过该大小的消息在消息列表中会折叠显示（最小 16KB，默认 512KB，最大 2MB）。',
     en: 'Payloads at or above this value are collapsed in the message list (min 16KB, default 512KB, max 2MB).',
     tr: 'Bu değeri aşan payloadlar mesaj listesinde daraltılır (min 16KB, default 512KB, max 2MB).',
-    ja: 'この値を超えるペイロードはメッセージ一覧で折りたたまれます（最小 16KB、既定 512KB、最大 2MB）。',
+    ja: 'この値以上のペイロードはメッセージ一覧で折りたたまれます（最小 16KB、既定 512KB、最大 2MB）。',
     hu: 'Az ennél nagyobb payloadok a listában összecsukva jelennek meg (min 16KB, default 512KB, max 2MB).',
   },
   maxPayloadDisplaySizeRange: {
