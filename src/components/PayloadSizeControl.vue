@@ -74,7 +74,7 @@ export default class PayloadSizeControl extends Vue {
     const presets = this.presets.length ? this.presets : [this.min, this.min * 2, this.min * 4, this.min * 8]
     const unitValue = this.getUnitValue(this.unit)
     const options = presets
-      .filter((preset) => preset >= unitValue)
+      .filter((preset) => preset >= this.min && preset <= this.max)
       .map((preset) => Number((preset / unitValue).toFixed(this.unit === 'MB' ? 2 : 0)))
       .filter((option) => option > 0 && Number.isFinite(option))
     return Array.from(new Set(options))
