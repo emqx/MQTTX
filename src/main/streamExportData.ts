@@ -21,28 +21,34 @@ export class StreamDataExporter {
   private win: BrowserWindow
   private filePath: string = ''
   private fileDescriptor: number | null = null
-  private totalConnections = 0
-  private processedConnections = 0
+  private totalMessages = 0
+  private processedMessages = 0
 
   constructor(win: BrowserWindow) {
     this.win = win
   }
 
-  private async streamMessages(connectionId: string): Promise<MessageModel[]> {
+  private async streamMessages(
+    connectionId: string,
+    onProgress?: (progress: number) => void,
+  ): Promise<MessageModel[]> {
     const { messageService } = useServices()
     const messages: MessageModel[] = []
     const messageGenerator = messageService.streamMessagesForExport(connectionId)
 
     for await (const messageBatch of messageGenerator) {
       messages.push(...messageBatch)
+      this.updateProgress(messageBatch.length, onProgress)
     }
 
     return messages
   }
 
-  private updateProgress(onProgress?: (progress: number) => void): void {
-    const progress = (this.processedConnections / this.totalConnections) * 100
-    onProgress?.(progress / 100)
+  private updateProgress(batchSize: number, onProgress?: (progress: number) => void): void {
+    this.processedMessages += batchSize
+    if (this.totalMessages > 0) {
+      onProgress?.(this.processedMessages / this.totalMessages)
+    }
   }
 
   public async export(options: StreamExportOptions): Promise<void> {
@@ -82,8 +88,13 @@ export class StreamDataExporter {
         return
       }
 
-      this.totalConnections = connections.length
-      this.processedConnections = 0
+      const { messageService } = useServices()
+      let totalMessages = 0
+      for (const conn of connections) {
+        totalMessages += await messageService.countByConnectionId(conn.id!)
+      }
+      this.totalMessages = totalMessages
+      this.processedMessages = 0
       onProgress?.(0)
 
       // Handle different formats
@@ -124,10 +135,14 @@ export class StreamDataExporter {
         const messageGenerator = messageService.streamMessagesForExport(connection.id!)
         const { messages: _, ...connectionWithoutMessages } = connection
 
-        await writer.writeObjectWithStreamingArray(connectionWithoutMessages, 'messages', messageGenerator, 2)
-
-        this.processedConnections++
-        this.updateProgress(onProgress)
+        const self = this
+        async function* tracked() {
+          for await (const batch of messageGenerator) {
+            yield batch
+            self.updateProgress(batch.length, onProgress)
+          }
+        }
+        await writer.writeObjectWithStreamingArray(connectionWithoutMessages, 'messages', tracked(), 2)
       }
     } finally {
       writer.close()
@@ -138,11 +153,8 @@ export class StreamDataExporter {
     const connectionsWithMessages: ConnectionModel[] = []
 
     for (const connection of connections) {
-      const messages = await this.streamMessages(connection.id!)
+      const messages = await this.streamMessages(connection.id!, onProgress)
       connectionsWithMessages.push({ ...connection, messages })
-
-      this.processedConnections++
-      this.updateProgress(onProgress)
     }
 
     const yamlContent = YAML.dump(connectionsWithMessages)
@@ -154,7 +166,7 @@ export class StreamDataExporter {
     fs.writeSync(this.fileDescriptor, '<?xml version="1.0" encoding="utf-8"?>\n<root>\n')
 
     for (const connection of connections) {
-      const messages = await this.streamMessages(connection.id!)
+      const messages = await this.streamMessages(connection.id!, onProgress)
       const connectionWithMessages = { ...connection, messages }
       const jsonContent = replaceSpecialDataTypes(JSON.stringify(connectionWithMessages))
       let xmlContent = XMLConvert.json2xml(jsonContent, { compact: true, ignoreComment: true, spaces: 2 })
@@ -163,9 +175,6 @@ export class StreamDataExporter {
       fs.writeSync(this.fileDescriptor, '<oneConnection>\n')
       fs.writeSync(this.fileDescriptor, xmlContent)
       fs.writeSync(this.fileDescriptor, '\n</oneConnection>\n')
-
-      this.processedConnections++
-      this.updateProgress(onProgress)
     }
 
     fs.writeSync(this.fileDescriptor, '</root>')
@@ -228,10 +237,8 @@ export class StreamDataExporter {
           const csvChunk = CSVConvert(rows, { header: false, fields: headers })
           fs.writeSync(this.fileDescriptor, csvChunk + '\n')
         }
+        this.updateProgress(messageBatch.length, onProgress)
       }
-
-      this.processedConnections++
-      this.updateProgress(onProgress)
     }
   }
 
@@ -267,14 +274,12 @@ export class StreamDataExporter {
           }
         })
         flattenedRows.push(...rows)
+        this.updateProgress(messageBatch.length, onProgress)
       }
 
       const worksheet = ExcelConvert.utils.json_to_sheet(flattenedRows)
       const sheetName = `Connection_${i + 1}`
       ExcelConvert.utils.book_append_sheet(workbook, worksheet, sheetName)
-
-      this.processedConnections++
-      this.updateProgress(onProgress)
     }
 
     ExcelConvert.writeFile(workbook, this.filePath)
@@ -289,8 +294,8 @@ export class StreamDataExporter {
       }
       this.fileDescriptor = null
     }
-    this.processedConnections = 0
-    this.totalConnections = 0
+    this.processedMessages = 0
+    this.totalMessages = 0
   }
 }
 

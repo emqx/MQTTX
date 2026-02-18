@@ -328,6 +328,10 @@ export default class MessageService {
    * @param batchSize - Number of messages to retrieve per batch (default: 1000)
    * @returns AsyncGenerator that yields batches of messages
    */
+  public async countByConnectionId(connectionId: string): Promise<number> {
+    return this.messageRepository.count({ connectionId })
+  }
+
   public async *streamMessagesForExport(
     connectionId: string,
     batchSize: number = 1000,
