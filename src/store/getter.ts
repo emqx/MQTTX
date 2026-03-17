@@ -26,6 +26,7 @@ const getters = {
   ignoreQoS0Message: (state: State) => state.app.ignoreQoS0Message,
   topicWhitespaceDetection: (state: State) => state.app.topicWhitespaceDetection,
   maxPayloadDisplaySize: (state: State) => state.app.maxPayloadDisplaySize,
+  disableHardwareAcceleration: (state: State) => state.app.disableHardwareAcceleration,
 }
 
 export default getters

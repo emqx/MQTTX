@@ -40,11 +40,22 @@ declare const __static: string
 
 const Store = require('electron-store')
 const electronStore = new Store()
+const DISABLE_HARDWARE_ACCELERATION_SETTING_KEY = 'settings.disableHardwareAcceleration'
 let theme: Theme = 'light'
 let syncOsTheme = false
 let autoCheckUpdate: boolean = true
 const isDevelopment: boolean = process.env.NODE_ENV !== 'production'
 const isMac: boolean = process.platform === 'darwin'
+
+const disableHardwareAccelerationBySetting =
+  electronStore.get(DISABLE_HARDWARE_ACCELERATION_SETTING_KEY, false) === true
+
+// Hardware acceleration must be configured before the app is ready, so this
+// setting is read from electron-store instead of the database settings table.
+if (disableHardwareAccelerationBySetting) {
+  app.disableHardwareAcceleration()
+  console.log('[GPU] Hardware acceleration disabled')
+}
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -222,6 +233,7 @@ async function createWindow() {
         logLevel: setting.logLevel,
         ignoreQoS0Message: setting.ignoreQoS0Message,
         topicWhitespaceDetection: electronStore.get('settings.topicWhitespaceDetection', false),
+        disableHardwareAcceleration: disableHardwareAccelerationBySetting,
       }
     }
   } catch (error) {
@@ -234,6 +246,7 @@ async function createWindow() {
       currentLang: 'en',
       syncOsTheme: false,
       topicWhitespaceDetection: electronStore.get('settings.topicWhitespaceDetection', false),
+      disableHardwareAcceleration: disableHardwareAccelerationBySetting,
     }
   }
   // Create the browser window.

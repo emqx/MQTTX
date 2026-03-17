@@ -35,6 +35,8 @@ const SET_DATABASE_FAIL_MESSAGE = 'SET_DATABASE_FAIL_MESSAGE'
 const TOGGLE_IGNORE_QOS0_MESSAGE = 'TOGGLE_IGNORE_QOS0_MESSAGE'
 const TOGGLE_TOPIC_WHITESPACE_DETECTION = 'TOGGLE_TOPIC_WHITESPACE_DETECTION'
 const SET_MAX_PAYLOAD_DISPLAY_SIZE = 'SET_MAX_PAYLOAD_DISPLAY_SIZE'
+const TOGGLE_DISABLE_HARDWARE_ACCELERATION = 'TOGGLE_DISABLE_HARDWARE_ACCELERATION'
+const DISABLE_HARDWARE_ACCELERATION_SETTING_KEY = 'settings.disableHardwareAcceleration'
 
 const getShowConnectionList = (): boolean => {
   const _showConnectionList: string | null = localStorage.getItem('showConnectionList')
@@ -77,6 +79,9 @@ const app = {
     maxPayloadDisplaySize: normalizeMaxPayloadDisplaySize(
       electronStore.get('settings.maxPayloadDisplaySize', DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE),
     ),
+    disableHardwareAcceleration:
+      settingData.disableHardwareAcceleration ??
+      electronStore.get(DISABLE_HARDWARE_ACCELERATION_SETTING_KEY, false) === true,
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -189,6 +194,9 @@ const app = {
     },
     [SET_MAX_PAYLOAD_DISPLAY_SIZE](state: App, maxPayloadDisplaySize: number) {
       state.maxPayloadDisplaySize = maxPayloadDisplaySize
+    },
+    [TOGGLE_DISABLE_HARDWARE_ACCELERATION](state: App, disableHardwareAcceleration: boolean) {
+      state.disableHardwareAcceleration = disableHardwareAcceleration
     },
   },
   actions: {
@@ -324,6 +332,11 @@ const app = {
       const normalizedValue = normalizeMaxPayloadDisplaySize(payload.maxPayloadDisplaySize)
       commit(SET_MAX_PAYLOAD_DISPLAY_SIZE, normalizedValue)
       electronStore.set('settings.maxPayloadDisplaySize', normalizedValue)
+    },
+    TOGGLE_DISABLE_HARDWARE_ACCELERATION({ commit }: any, payload: App) {
+      commit(TOGGLE_DISABLE_HARDWARE_ACCELERATION, payload.disableHardwareAcceleration)
+      settingData.disableHardwareAcceleration = payload.disableHardwareAcceleration
+      electronStore.set(DISABLE_HARDWARE_ACCELERATION_SETTING_KEY, payload.disableHardwareAcceleration)
     },
   },
 }
