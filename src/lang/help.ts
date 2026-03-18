@@ -3,7 +3,7 @@ export default {
     zh: '关于 MQTT 的一切',
     en: 'Everything about MQTT',
     ja: 'MQTT について',
-    tr: 'MQTT hakk',
+    tr: 'MQTT hakkında',
     hu: 'Minden MQTT-ről',
   },
   docs: {
