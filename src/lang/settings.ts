@@ -161,11 +161,11 @@ export default {
     hu: 'GPU gyorsítás letiltása',
   },
   disableHardwareAccelerationDesc: {
-    zh: 'GPU 加速利用显卡硬件渲染界面，可使操作更流畅并降低 CPU 占用。如遇画面卡顿、花屏或兼容性问题，可尝试关闭此选项。',
-    en: 'GPU acceleration uses graphics hardware to render the UI, making operations smoother and reducing CPU usage. Disable this option if you experience screen lag, artifacts, or compatibility issues.',
-    tr: "GPU hızlandırma, işlemleri daha akıcı hale getirmek ve CPU kullanımını azaltmak için grafik donanımını kullanarak UI'yi render eder. Ekran gecikmesi, görsel bozukluklar veya uyumluluk sorunları yaşıyorsanız bu seçeneği devre dışı bırakın.",
-    ja: 'GPUアクセラレーションは、グラフィックハードウェアを使用してUIをレンダリングし、操作をスムーズにし、CPU使用率を低下させます。画面のラグ、アーティファクト、または互換性の問題が発生した場合は、このオプションを無効にしてください。',
-    hu: 'A GPU gyorsítás grafikus hardvert használ a UI rendereléséhez, így a műveletek gördülékenyebbek és a CPU-használat alacsonyabb. Ha képernyő akadozást, artefaktokat vagy kompatibilitási problémákat tapasztal, tiltsa le ezt a lehetőséget.',
+    zh: 'GPU 加速利用显卡硬件渲染界面，可使操作更流畅并降低 CPU 占用。如遇画面卡顿、花屏或兼容性问题，可尝试启用此选项。',
+    en: 'GPU acceleration uses graphics hardware to render the UI, making operations smoother and reducing CPU usage. Enable this option if you experience screen lag, artifacts, or compatibility issues.',
+    tr: "GPU hızlandırma, işlemleri daha akıcı hale getirmek ve CPU kullanımını azaltmak için grafik donanımını kullanarak UI'yi render eder. Ekran gecikmesi, görsel bozukluklar veya uyumluluk sorunları yaşıyorsanız bu seçeneği etkinleştirin.",
+    ja: 'GPUアクセラレーションは、グラフィックハードウェアを使用してUIをレンダリングし、操作をスムーズにし、CPU使用率を低下させます。画面のラグ、アーティファクト、または互換性の問題が発生した場合は、このオプションを有効にしてください。',
+    hu: 'A GPU gyorsítás grafikus hardvert használ a UI rendereléséhez, így a műveletek gördülékenyebbek és a CPU-használat alacsonyabb. Ha képernyő akadozást, artefaktokat vagy kompatibilitási problémákat tapasztal, engedélyezze ezt a lehetőséget.',
   },
   restartRequired: {
     zh: '需要重启',
