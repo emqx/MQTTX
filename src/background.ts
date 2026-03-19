@@ -41,7 +41,6 @@ declare const __static: string
 const Store = require('electron-store')
 const electronStore = new Store()
 const ENABLE_HARDWARE_ACCELERATION_SETTING_KEY = 'settings.enableHardwareAcceleration'
-const LEGACY_DISABLE_HARDWARE_ACCELERATION_KEY = 'settings.disableHardwareAcceleration'
 let theme: Theme = 'light'
 let syncOsTheme = false
 let autoCheckUpdate: boolean = true
@@ -74,37 +73,9 @@ const detectGPUAccelerationSupport = (): boolean => {
   return true
 }
 
-/**
- * Migrate legacy disableHardwareAcceleration setting to new enableHardwareAcceleration setting.
- * Inverts the boolean value during migration.
- */
-const migrateHardwareAccelerationSetting = (): boolean | undefined => {
-  try {
-    const legacyValue = electronStore.get(LEGACY_DISABLE_HARDWARE_ACCELERATION_KEY)
-    if (legacyValue !== undefined) {
-      // Migrate: disableHardwareAcceleration=false means GPU was enabled
-      // So enableHardwareAcceleration should be true in that case
-      const newValue = legacyValue === false
-      electronStore.set(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, newValue)
-      // Remove legacy key after migration
-      electronStore.delete(LEGACY_DISABLE_HARDWARE_ACCELERATION_KEY)
-      console.log('[GPU] Migrated legacy disableHardwareAcceleration setting:', legacyValue, '->', newValue)
-      return newValue
-    }
-  } catch (error) {
-    console.error('[GPU] Error migrating hardware acceleration setting:', error)
-  }
-  return undefined
-}
-
-// Get hardware acceleration setting with migration and GPU detection
+// Get hardware acceleration setting with GPU detection
 const getHardwareAccelerationSetting = (): boolean => {
-  // First, try to migrate legacy setting if it exists
-  const migrated = migrateHardwareAccelerationSetting()
-  if (migrated !== undefined) {
-    return migrated
-  }
-  // Check if there's an existing new setting
+  // Check if there's an existing setting
   const existingValue = electronStore.get(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY)
   if (existingValue !== undefined) {
     return existingValue === true
