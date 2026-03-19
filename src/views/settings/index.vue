@@ -372,12 +372,12 @@
 
       <el-row class="settings-item" type="flex" justify="space-between">
         <el-col :span="20">
-          <label>{{ $t('settings.disableHardwareAcceleration') }}</label>
+          <label>{{ $t('settings.enableHardwareAcceleration') }}</label>
           <el-tooltip
             placement="top"
             :effect="currentTheme !== 'light' ? 'light' : 'dark'"
             :open-delay="500"
-            :content="$t('settings.disableHardwareAccelerationDesc')"
+            :content="$t('settings.enableHardwareAccelerationDesc')"
           >
             <a href="javascript:;" class="icon-oper">
               <i class="el-icon-warning-outline"></i>
@@ -386,10 +386,10 @@
         </el-col>
         <el-col :span="4">
           <el-switch
-            :value="disableHardwareAcceleration"
+            :value="enableHardwareAcceleration"
             active-color="#13ce66"
             inactive-color="#A2A9B0"
-            @change="handleDisableHardwareAccelerationChange"
+            @change="handleEnableHardwareAccelerationChange"
           >
           </el-switch>
         </el-col>
@@ -547,8 +547,8 @@ export default class Settings extends Vue {
   @Action('SET_MAX_PAYLOAD_DISPLAY_SIZE') private actionSetMaxPayloadDisplaySize!: (payload: {
     maxPayloadDisplaySize: number
   }) => void
-  @Action('TOGGLE_DISABLE_HARDWARE_ACCELERATION') private actionToggleDisableHardwareAcceleration!: (payload: {
-    disableHardwareAcceleration: boolean
+  @Action('TOGGLE_ENABLE_HARDWARE_ACCELERATION') private actionToggleEnableHardwareAcceleration!: (payload: {
+    enableHardwareAcceleration: boolean
   }) => void
 
   @Getter('currentTheme') private currentTheme!: Theme
@@ -567,7 +567,7 @@ export default class Settings extends Vue {
   @Getter('ignoreQoS0Message') private ignoreQoS0Message!: boolean
   @Getter('topicWhitespaceDetection') private topicWhitespaceDetection!: boolean
   @Getter('maxPayloadDisplaySize') private maxPayloadDisplaySize!: number
-  @Getter('disableHardwareAcceleration') private disableHardwareAcceleration!: boolean
+  @Getter('enableHardwareAcceleration') private enableHardwareAcceleration!: boolean
 
   private showAIModelsSelect = false
 
@@ -660,8 +660,8 @@ export default class Settings extends Vue {
     this.actionToggleTopicWhitespaceDetection({ topicWhitespaceDetection: value })
   }
 
-  private handleDisableHardwareAccelerationChange(value: boolean) {
-    this.actionToggleDisableHardwareAcceleration({ disableHardwareAcceleration: value })
+  private handleEnableHardwareAccelerationChange(value: boolean) {
+    this.actionToggleEnableHardwareAcceleration({ enableHardwareAcceleration: value })
     this.promptAppRestart()
   }
 

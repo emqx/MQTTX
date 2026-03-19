@@ -40,21 +40,92 @@ declare const __static: string
 
 const Store = require('electron-store')
 const electronStore = new Store()
-const DISABLE_HARDWARE_ACCELERATION_SETTING_KEY = 'settings.disableHardwareAcceleration'
+const ENABLE_HARDWARE_ACCELERATION_SETTING_KEY = 'settings.enableHardwareAcceleration'
+const LEGACY_DISABLE_HARDWARE_ACCELERATION_KEY = 'settings.disableHardwareAcceleration'
 let theme: Theme = 'light'
 let syncOsTheme = false
 let autoCheckUpdate: boolean = true
 const isDevelopment: boolean = process.env.NODE_ENV !== 'production'
 const isMac: boolean = process.platform === 'darwin'
 
-const disableHardwareAccelerationBySetting =
-  electronStore.get(DISABLE_HARDWARE_ACCELERATION_SETTING_KEY, false) === true
+/**
+ * Detect if GPU acceleration is supported on Windows.
+ * Uses Electron's app.getGPUFeatureStatus() when available.
+ * @returns boolean indicating if GPU acceleration appears to be supported
+ */
+const detectGPUAccelerationSupport = (): boolean => {
+  try {
+    // On Windows, check if GPU is available
+    if (process.platform === 'win32') {
+      const gpuStatus = app.getGPUFeatureStatus()
+      // If canvas or 2d acceleration is unavailable, GPU may not be properly supported
+      if (gpuStatus) {
+        const canvasStatus = gpuStatus.canvas
+        // 'disabled' or 'unavailable' indicates no GPU support
+        if (canvasStatus === 'disabled' || canvasStatus === 'unavailable') {
+          return false
+        }
+      }
+    }
+  } catch (error) {
+    // If we can't detect, assume GPU is supported (default to true)
+    console.log('[GPU] Could not detect GPU support, defaulting to enabled')
+  }
+  return true
+}
+
+/**
+ * Migrate legacy disableHardwareAcceleration setting to new enableHardwareAcceleration setting.
+ * Inverts the boolean value during migration.
+ */
+const migrateHardwareAccelerationSetting = (): boolean | undefined => {
+  try {
+    const legacyValue = electronStore.get(LEGACY_DISABLE_HARDWARE_ACCELERATION_KEY)
+    if (legacyValue !== undefined) {
+      // Migrate: disableHardwareAcceleration=false means GPU was enabled
+      // So enableHardwareAcceleration should be true in that case
+      const newValue = legacyValue === false
+      electronStore.set(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, newValue)
+      // Remove legacy key after migration
+      electronStore.delete(LEGACY_DISABLE_HARDWARE_ACCELERATION_KEY)
+      console.log('[GPU] Migrated legacy disableHardwareAcceleration setting:', legacyValue, '->', newValue)
+      return newValue
+    }
+  } catch (error) {
+    console.error('[GPU] Error migrating hardware acceleration setting:', error)
+  }
+  return undefined
+}
+
+// Get hardware acceleration setting with migration and GPU detection
+const getHardwareAccelerationSetting = (): boolean => {
+  // First, try to migrate legacy setting if it exists
+  const migrated = migrateHardwareAccelerationSetting()
+  if (migrated !== undefined) {
+    return migrated
+  }
+  // Check if there's an existing new setting
+  const existingValue = electronStore.get(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY)
+  if (existingValue !== undefined) {
+    return existingValue === true
+  }
+  // No setting exists - detect GPU support and default accordingly
+  const gpuSupported = detectGPUAccelerationSupport()
+  // Default to true (enabled) if GPU is supported, false otherwise
+  electronStore.set(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, gpuSupported)
+  return gpuSupported
+}
+
+const enableHardwareAccelerationBySetting = getHardwareAccelerationSetting()
 
 // Hardware acceleration must be configured before the app is ready, so this
 // setting is read from electron-store instead of the database settings table.
-if (disableHardwareAccelerationBySetting) {
+// Call app.disableHardwareAcceleration() when enableHardwareAcceleration is false
+if (!enableHardwareAccelerationBySetting) {
   app.disableHardwareAcceleration()
   console.log('[GPU] Hardware acceleration disabled')
+} else {
+  console.log('[GPU] Hardware acceleration enabled')
 }
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -233,7 +304,7 @@ async function createWindow() {
         logLevel: setting.logLevel,
         ignoreQoS0Message: setting.ignoreQoS0Message,
         topicWhitespaceDetection: electronStore.get('settings.topicWhitespaceDetection', false),
-        disableHardwareAcceleration: disableHardwareAccelerationBySetting,
+        enableHardwareAcceleration: enableHardwareAccelerationBySetting,
       }
     }
   } catch (error) {
@@ -246,7 +317,7 @@ async function createWindow() {
       currentLang: 'en',
       syncOsTheme: false,
       topicWhitespaceDetection: electronStore.get('settings.topicWhitespaceDetection', false),
-      disableHardwareAcceleration: disableHardwareAccelerationBySetting,
+      enableHardwareAcceleration: enableHardwareAccelerationBySetting,
     }
   }
   // Create the browser window.
