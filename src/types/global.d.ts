@@ -116,6 +116,7 @@ declare global {
     ignoreQoS0Message: boolean
     topicWhitespaceDetection: boolean
     maxPayloadDisplaySize: number
+    enableHardwareAcceleration: boolean
   }
 
   interface State {

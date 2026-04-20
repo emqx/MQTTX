@@ -40,11 +40,64 @@ declare const __static: string
 
 const Store = require('electron-store')
 const electronStore = new Store()
+const ENABLE_HARDWARE_ACCELERATION_SETTING_KEY = 'settings.enableHardwareAcceleration'
 let theme: Theme = 'light'
 let syncOsTheme = false
 let autoCheckUpdate: boolean = true
 const isDevelopment: boolean = process.env.NODE_ENV !== 'production'
 const isMac: boolean = process.platform === 'darwin'
+
+/**
+ * Detect if GPU acceleration is supported on Windows.
+ * Uses Electron's app.getGPUFeatureStatus() when available.
+ * @returns boolean indicating if GPU acceleration appears to be supported
+ */
+const detectGPUAccelerationSupport = (): boolean => {
+  try {
+    // On Windows, check if GPU is available
+    if (process.platform === 'win32') {
+      const gpuStatus = app.getGPUFeatureStatus()
+      // If canvas or 2d acceleration is unavailable, GPU may not be properly supported
+      if (gpuStatus) {
+        const canvasStatus = gpuStatus.canvas
+        // 'disabled' or 'unavailable' indicates no GPU support
+        if (canvasStatus === 'disabled' || canvasStatus === 'unavailable') {
+          return false
+        }
+      }
+    }
+  } catch (error) {
+    // If we can't detect, assume GPU is supported (default to true)
+    console.log('[GPU] Could not detect GPU support, defaulting to enabled')
+  }
+  return true
+}
+
+// Get hardware acceleration setting with GPU detection
+const getHardwareAccelerationSetting = (): boolean => {
+  // Check if there's an existing setting
+  const existingValue = electronStore.get(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY)
+  if (existingValue !== undefined) {
+    return existingValue === true
+  }
+  // No setting exists - detect GPU support and default accordingly
+  const gpuSupported = detectGPUAccelerationSupport()
+  // Default to true (enabled) if GPU is supported, false otherwise
+  electronStore.set(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, gpuSupported)
+  return gpuSupported
+}
+
+const enableHardwareAccelerationBySetting = getHardwareAccelerationSetting()
+
+// Hardware acceleration must be configured before the app is ready, so this
+// setting is read from electron-store instead of the database settings table.
+// Call app.disableHardwareAcceleration() when enableHardwareAcceleration is false
+if (!enableHardwareAccelerationBySetting) {
+  app.disableHardwareAcceleration()
+  console.log('[GPU] Hardware acceleration disabled')
+} else {
+  console.log('[GPU] Hardware acceleration enabled')
+}
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -222,6 +275,7 @@ async function createWindow() {
         logLevel: setting.logLevel,
         ignoreQoS0Message: setting.ignoreQoS0Message,
         topicWhitespaceDetection: electronStore.get('settings.topicWhitespaceDetection', false),
+        enableHardwareAcceleration: enableHardwareAccelerationBySetting,
       }
     }
   } catch (error) {
@@ -234,6 +288,7 @@ async function createWindow() {
       currentLang: 'en',
       syncOsTheme: false,
       topicWhitespaceDetection: electronStore.get('settings.topicWhitespaceDetection', false),
+      enableHardwareAcceleration: enableHardwareAccelerationBySetting,
     }
   }
   // Create the browser window.

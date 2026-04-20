@@ -327,7 +327,7 @@ export default {
     en: 'Save to Local',
     tr: 'Yerel olarak kaydet',
     ja: 'ローカルに保存',
-    hu: 'Mentés helyi',
+    hu: 'Mentés helyileg',
   },
   msgType: {
     zh: '消息类型',

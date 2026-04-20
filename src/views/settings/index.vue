@@ -370,6 +370,32 @@
       </el-row>
       <el-divider></el-divider>
 
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
+          <label>{{ $t('settings.enableHardwareAcceleration') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('settings.enableHardwareAccelerationDesc')"
+          >
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            :value="enableHardwareAcceleration"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleEnableHardwareAccelerationChange"
+          >
+          </el-switch>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
       <ImportData :visible.sync="showImportData" />
       <ExportData :visible.sync="showExportData" />
       <ClearUpHistoryData :visible.sync="showHistoryData" />
@@ -474,7 +500,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
-import { nativeTheme } from '@electron/remote'
+import { app as remoteApp, nativeTheme } from '@electron/remote'
 import ImportData from '@/components/ImportData.vue'
 import ExportData from '@/components/ExportData.vue'
 import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
@@ -521,6 +547,9 @@ export default class Settings extends Vue {
   @Action('SET_MAX_PAYLOAD_DISPLAY_SIZE') private actionSetMaxPayloadDisplaySize!: (payload: {
     maxPayloadDisplaySize: number
   }) => void
+  @Action('TOGGLE_ENABLE_HARDWARE_ACCELERATION') private actionToggleEnableHardwareAcceleration!: (payload: {
+    enableHardwareAcceleration: boolean
+  }) => void
 
   @Getter('currentTheme') private currentTheme!: Theme
   @Getter('currentLang') private currentLang!: Language
@@ -538,6 +567,7 @@ export default class Settings extends Vue {
   @Getter('ignoreQoS0Message') private ignoreQoS0Message!: boolean
   @Getter('topicWhitespaceDetection') private topicWhitespaceDetection!: boolean
   @Getter('maxPayloadDisplaySize') private maxPayloadDisplaySize!: number
+  @Getter('enableHardwareAcceleration') private enableHardwareAcceleration!: boolean
 
   private showAIModelsSelect = false
 
@@ -630,6 +660,11 @@ export default class Settings extends Vue {
     this.actionToggleTopicWhitespaceDetection({ topicWhitespaceDetection: value })
   }
 
+  private handleEnableHardwareAccelerationChange(value: boolean) {
+    this.actionToggleEnableHardwareAcceleration({ enableHardwareAcceleration: value })
+    this.promptAppRestart()
+  }
+
   private handleInputChanged(value: number) {
     this.actionMaxReconnectTimes({ maxReconnectTimes: value })
   }
@@ -701,12 +736,28 @@ export default class Settings extends Vue {
     this.showAIModelsSelect = false
   }
 
-  private queryAIAPIHost(queryString: string, cb: (r: any[]) => {}) {
+  private queryAIAPIHost(queryString: string, cb: (r: any[]) => void) {
     cb(queryString ? this.AIAPIHostOptions.filter((item) => item.value.includes(queryString)) : this.AIAPIHostOptions)
   }
 
   private handleIgnoreQoS0MessageSwitchChange(value: boolean) {
     this.actionToggleIgnoreQoS0Message({ ignoreQoS0Message: value })
+  }
+
+  private promptAppRestart() {
+    this.$confirm(this.$t('settings.restartRequiredDesc') as string, {
+      title: this.$t('settings.restartRequired') as string,
+      showClose: false,
+      closeOnClickModal: false,
+      confirmButtonText: this.$t('settings.restartNow') as string,
+      cancelButtonText: this.$t('settings.restartLater') as string,
+      type: 'warning',
+    })
+      .then(() => {
+        remoteApp.relaunch()
+        remoteApp.exit()
+      })
+      .catch(() => undefined)
   }
 
   private created() {
