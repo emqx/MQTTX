@@ -210,7 +210,10 @@ export default class ConnectionService {
     // Update connection, update subscriptions, and update messages are each considered as a step
     const totalSteps = 3
     // Connection table & Will Message table
-    await connectionService.update(id, data)
+    const updated = await connectionService.update(id, data)
+    if (!updated) {
+      throw new Error(`Failed to update connection ${id}`)
+    }
     progress += 1 / totalSteps
     if (getImportOneConnProgress) {
       getImportOneConnProgress(progress)
@@ -241,17 +244,22 @@ export default class ConnectionService {
     }
   }
 
-  public async update(id: string, data: ConnectionModel) {
-    const { willService } = useServices()
-    const { messages, subscriptions, will, ...rest } = data
-    const savedWill = will && (await willService.save(will))
-    await this.connectionRepository.save({
-      ...ConnectionService.modelToEntity(rest),
-      will: savedWill ?? undefined,
-      updateAt: time.getNowDate(),
-      id,
-    })
-    return await this.get(id)
+  public async update(id: string, data: ConnectionModel): Promise<ConnectionModel | undefined> {
+    try {
+      const { willService } = useServices()
+      const { messages, subscriptions, will, ...rest } = data
+      const savedWill = will && (await willService.save(will))
+      await this.connectionRepository.save({
+        ...ConnectionService.modelToEntity(rest),
+        will: savedWill ?? undefined,
+        updateAt: time.getNowDate(),
+        id,
+      })
+      return await this.get(id)
+    } catch (error) {
+      console.error('Error updating connection:', error)
+      return undefined
+    }
   }
 
   /**
