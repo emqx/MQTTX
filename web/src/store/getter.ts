@@ -14,6 +14,7 @@ const getters = {
   allConnections: (state: State) => state.app.allConnections,
   multiTopics: (state: State) => state.app.multiTopics,
   topicWhitespaceDetection: (state: State) => state.app.topicWhitespaceDetection,
+  showConnectionList: (state: State) => state.app.showConnectionList,
 }
 
 export default getters

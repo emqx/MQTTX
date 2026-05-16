@@ -134,6 +134,7 @@ declare global {
     willMessageVisible: boolean
     advancedVisible: boolean
     allConnections: ConnectionModel[] | []
+    showConnectionList: boolean
   }
 
   interface State {

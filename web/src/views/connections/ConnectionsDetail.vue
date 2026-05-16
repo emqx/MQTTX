@@ -261,6 +261,7 @@ export default class ConnectionsDetail extends Vue {
   @Getter('showClientInfo') private clientInfoVisibles!: {
     [id: string]: boolean
   }
+  @Getter('showConnectionList') private showConnectionList!: boolean
 
   /**
    * Notice: when we jump order by `other page` -> `creation page` -> `connection page`,
@@ -490,8 +491,17 @@ export default class ConnectionsDetail extends Vue {
   }
 
   get marginLeft(): string {
-    const left = this.showSubs ? (this.largeDesktop ? '916px' : '676px') : this.largeDesktop ? '517px' : '397px'
-    return left
+    if (!this.showConnectionList) {
+      // ConnectionsList hidden: subtract its width (320px / 400px) from the offsets.
+      return this.showSubs
+        ? this.largeDesktop
+          ? '516px'
+          : '356px'
+        : this.largeDesktop
+        ? '116px'
+        : '76px'
+    }
+    return this.showSubs ? (this.largeDesktop ? '916px' : '676px') : this.largeDesktop ? '517px' : '397px'
   }
 
   get subListRef(): SubscriptionsList {

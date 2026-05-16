@@ -1,11 +1,32 @@
 <template>
   <div class="connections">
-    <div class="left-list">
-      <h1 class="titlebar">{{ $t('connections.connections') }}</h1>
-      <ConnectionsList :data="records" :connectionId="connectionId" @delete="onDelete" />
-    </div>
+    <transition name="slide">
+      <div v-show="showConnectionList" class="left-list">
+        <h1 class="titlebar">{{ $t('connections.connections') }}</h1>
+        <ConnectionsList :data="records" :connectionId="connectionId" @delete="onDelete" />
+      </div>
+    </transition>
 
-    <div class="connections-view">
+    <el-tooltip
+      placement="bottom"
+      :effect="theme !== 'light' ? 'light' : 'dark'"
+      :open-delay="500"
+      :content="showConnectionList ? $t('connections.hideConnections') : $t('connections.showConnections')"
+    >
+      <a
+        href="javascript:;"
+        :class="['toggle-list-btn', 'collapse-btn', showConnectionList ? 'top' : 'bottom']"
+        @click="
+          toggleShowConnectionList({
+            showConnectionList: !showConnectionList,
+          })
+        "
+      >
+        <i class="el-icon-d-arrow-left"></i>
+      </a>
+    </el-tooltip>
+
+    <div :class="['connections-view', { 'is-list-hidden': !showConnectionList }]">
       <EmptyPage
         v-if="isEmpty && !oper"
         name="connections"
@@ -28,7 +49,7 @@
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
-import { Action } from 'vuex-class'
+import { Action, Getter } from 'vuex-class'
 import { loadConnections, loadConnection } from '@/utils/api/connection'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
@@ -49,6 +70,12 @@ export default class Connections extends Vue {
   @Action('CHANGE_ALL_CONNECTIONS') private changeAllConnections!: (payload: {
     allConnections: ConnectionModel[] | []
   }) => void
+  @Action('TOGGLE_SHOW_CONNECTION_LIST') private toggleShowConnectionList!: (payload: {
+    showConnectionList: boolean
+  }) => void
+
+  @Getter('currentTheme') private theme!: Theme
+  @Getter('showConnectionList') private showConnectionList!: boolean
 
   private isEmpty: boolean = false
   private records: ConnectionModel[] | [] = []
@@ -122,9 +149,73 @@ export default class Connections extends Vue {
 </script>
 
 <style lang="scss">
+@import '~@/assets/scss/mixins.scss';
+
+$collapse-ease: cubic-bezier(0.4, 0, 0.2, 1);
+$collapse-duration: 0.3s;
+
 .connections {
   .titlebar {
     padding: 16px;
+  }
+  a.toggle-list-btn {
+    position: fixed;
+    top: 21px;
+    left: 369px;
+    z-index: 1001;
+    font-size: 18px;
+    line-height: 1;
+    transition: left $collapse-duration $collapse-ease, transform $collapse-duration $collapse-ease;
+    @media (min-width: 1920px) {
+      left: 489px;
+    }
+  }
+  @include collapse-btn-transform(0deg, 180deg);
+  .connections-view {
+    .right-topbar {
+      transition: left $collapse-duration $collapse-ease;
+    }
+    .connections-detail-main {
+      transition: margin-left $collapse-duration $collapse-ease, padding-top 0.3s;
+    }
+    .connections-detail-main .connections-body .filter-bar {
+      transition: left $collapse-duration $collapse-ease;
+    }
+    .connections-footer {
+      transition: margin-left $collapse-duration $collapse-ease;
+    }
+    .left-panel > div {
+      transition: left $collapse-duration $collapse-ease;
+    }
+  }
+  .connections-view.is-list-hidden {
+    .right-topbar,
+    .connections-detail-main .connections-body .filter-bar,
+    .left-panel > div {
+      left: 76px;
+    }
+    .right-content {
+      margin-left: 76px;
+    }
+    .right-topbar .topbar .connection-head {
+      padding-left: 32px;
+    }
+    @media (min-width: 1920px) {
+      .right-topbar,
+      .connections-detail-main .connections-body .filter-bar,
+      .left-panel > div {
+        left: 116px;
+      }
+      .right-content {
+        margin-left: 116px;
+      }
+    }
+  }
+}
+.connections a.toggle-list-btn.bottom {
+  left: 92px;
+  @media (min-width: 1920px) {
+    left: 132px;
   }
 }
 .left-list {
@@ -149,5 +240,14 @@ export default class Connections extends Vue {
     left: 40%;
     color: var(--color-text-light);
   }
+}
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform $collapse-duration $collapse-ease, opacity $collapse-duration $collapse-ease;
+}
+.slide-enter,
+.slide-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
 }
 </style>

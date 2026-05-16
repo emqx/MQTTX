@@ -18,6 +18,15 @@ const TOGGLE_ADVANCED_VISIBLE = 'TOGGLE_ADVANCED_VISIBLE'
 const CHANGE_ALL_CONNECTIONS = 'CHANGE_ALL_CONNECTIONS'
 const TOGGLE_MULTI_TOPICS = 'TOGGLE_MULTI_TOPICS'
 const TOGGLE_TOPIC_WHITESPACE_DETECTION = 'TOGGLE_TOPIC_WHITESPACE_DETECTION'
+const TOGGLE_SHOW_CONNECTION_LIST = 'TOGGLE_SHOW_CONNECTION_LIST'
+
+const getShowConnectionList = (): boolean => {
+  const _showConnectionList: string | null = localStorage.getItem('showConnectionList')
+  if (!_showConnectionList) {
+    return true
+  }
+  return JSON.parse(_showConnectionList)
+}
 
 const stateRecord: App = loadSettings()
 
@@ -38,6 +47,7 @@ const app = {
     advancedVisible: true,
     willMessageVisible: true,
     allConnections: [],
+    showConnectionList: getShowConnectionList(),
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -115,6 +125,10 @@ const app = {
     [CHANGE_ALL_CONNECTIONS](state: App, allConnections: ConnectionModel[] | []) {
       state.allConnections = allConnections
     },
+    [TOGGLE_SHOW_CONNECTION_LIST](state: App, showConnectionList: boolean) {
+      state.showConnectionList = showConnectionList
+      localStorage.setItem('showConnectionList', JSON.stringify(state.showConnectionList))
+    },
   },
   actions: {
     TOGGLE_THEME({ commit }: any, payload: App) {
@@ -176,6 +190,9 @@ const app = {
     },
     CHANGE_ALL_CONNECTIONS({ commit }: any, payload: App) {
       commit(CHANGE_ALL_CONNECTIONS, payload.allConnections)
+    },
+    TOGGLE_SHOW_CONNECTION_LIST({ commit }: any, payload: App) {
+      commit(TOGGLE_SHOW_CONNECTION_LIST, payload.showConnectionList)
     },
   },
 }

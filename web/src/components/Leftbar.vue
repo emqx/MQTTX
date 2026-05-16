@@ -7,7 +7,7 @@
         </a>
       </div>
       <div :class="[{ active: isConnection }, 'leftbar-item']">
-        <a href="javascript:;" @click="routeToPage('/recent_connections')">
+        <a href="javascript:;" @click="openConnections">
           <i class="iconfont icon-connections"></i>
         </a>
       </div>
@@ -40,11 +40,16 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Getter, Action } from 'vuex-class'
 
 @Component
 export default class Leftbar extends Vue {
   @Getter('currentLang') private getterLang!: Language
+  @Getter('showConnectionList') private showConnectionList!: boolean
+
+  @Action('TOGGLE_SHOW_CONNECTION_LIST') private toggleShowConnectionList!: (payload: {
+    showConnectionList: boolean
+  }) => void
 
   get siteLink(): string {
     return this.getterLang === 'zh' ? 'https://mqttx.app/zh' : 'https://mqttx.app/'
@@ -71,6 +76,14 @@ export default class Leftbar extends Vue {
         path,
       })
       .catch(() => {})
+  }
+
+  private openConnections() {
+    if (this.isConnection) {
+      this.toggleShowConnectionList({ showConnectionList: !this.showConnectionList })
+    } else {
+      this.routeToPage('/recent_connections')
+    }
   }
 }
 </script>

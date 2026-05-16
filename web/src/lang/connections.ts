@@ -9,6 +9,16 @@ export default {
     en: 'New Connection',
     ja: '新規接続',
   },
+  hideConnections: {
+    zh: '隐藏连接列表',
+    en: 'Hide Connections',
+    ja: '接続リストを非表示',
+  },
+  showConnections: {
+    zh: '显示连接列表',
+    en: 'Show Connections',
+    ja: '接続リストを表示',
+  },
   search: {
     zh: '搜索',
     en: 'Search',
