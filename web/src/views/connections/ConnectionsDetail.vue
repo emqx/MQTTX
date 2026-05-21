@@ -5,6 +5,21 @@
         <div class="topbar">
           <div class="connection-head">
             <el-tooltip
+              v-if="!showConnectionList"
+              placement="bottom"
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :open-delay="500"
+              :content="$t('connections.showConnections')"
+            >
+              <a
+                href="javascript:;"
+                class="show-connections-button"
+                @click="toggleShowConnectionList({ showConnectionList: true })"
+              >
+                <i class="iconfont icon-show-connections"></i>
+              </a>
+            </el-tooltip>
+            <el-tooltip
               :disabled="!showTitleTooltip"
               :effect="theme !== 'light' ? 'light' : 'dark'"
               :content="titleName"
@@ -251,6 +266,9 @@ export default class ConnectionsDetail extends Vue {
   @Action('REMOVE_ACTIVE_CONNECTION') private removeActiveConnection!: (payload: { readonly id: string }) => void
   @Action('SHOW_CLIENT_INFO') private changeShowClientInfo!: (payload: ClientInfo) => void
   @Action('UNREAD_MESSAGE_COUNT_INCREMENT') private unreadMessageIncrement!: (payload: UnreadMessage) => void
+  @Action('TOGGLE_SHOW_CONNECTION_LIST') private toggleShowConnectionList!: (payload: {
+    showConnectionList: boolean
+  }) => void
 
   @Getter('currentLang') private getterLang!: Language
   @Getter('activeConnection') private activeConnection: $TSFixed
@@ -1148,6 +1166,13 @@ export default class ConnectionsDetail extends Vue {
           &.offline {
             color: var(--color-text-light);
           }
+        }
+        .icon-show-connections {
+          font-size: 20px;
+        }
+        a.show-connections-button {
+          color: var(--color-text-title);
+          margin-right: 12px;
         }
         a.collapse-btn {
           font-size: 18px;

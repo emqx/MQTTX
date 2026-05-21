@@ -2,29 +2,28 @@
   <div class="connections">
     <transition name="slide">
       <div v-show="showConnectionList" class="left-list">
-        <h1 class="titlebar">{{ $t('connections.connections') }}</h1>
+        <div class="left-list-topbar">
+          <h1 class="titlebar">{{ $t('connections.connections') }}</h1>
+          <div class="left-list-tailbar">
+            <el-tooltip
+              placement="bottom"
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :open-delay="500"
+              :content="$t('connections.hideConnections')"
+            >
+              <a
+                href="javascript:;"
+                class="hide-connections-button"
+                @click="toggleShowConnectionList({ showConnectionList: false })"
+              >
+                <i class="iconfont icon-hide-connections"></i>
+              </a>
+            </el-tooltip>
+          </div>
+        </div>
         <ConnectionsList :data="records" :connectionId="connectionId" @delete="onDelete" />
       </div>
     </transition>
-
-    <el-tooltip
-      placement="bottom"
-      :effect="theme !== 'light' ? 'light' : 'dark'"
-      :open-delay="500"
-      :content="showConnectionList ? $t('connections.hideConnections') : $t('connections.showConnections')"
-    >
-      <a
-        href="javascript:;"
-        :class="['toggle-list-btn', 'collapse-btn', showConnectionList ? 'top' : 'bottom']"
-        @click="
-          toggleShowConnectionList({
-            showConnectionList: !showConnectionList,
-          })
-        "
-      >
-        <i class="el-icon-d-arrow-left"></i>
-      </a>
-    </el-tooltip>
 
     <div :class="['connections-view', { 'is-list-hidden': !showConnectionList }]">
       <EmptyPage
@@ -155,22 +154,29 @@ $collapse-ease: cubic-bezier(0.4, 0, 0.2, 1);
 $collapse-duration: 0.3s;
 
 .connections {
+  .left-list-topbar {
+    @include flex-space-between;
+    min-height: 10px;
+    height: 59px;
+  }
   .titlebar {
     padding: 16px;
   }
-  a.toggle-list-btn {
-    position: fixed;
-    top: 21px;
-    left: 369px;
-    z-index: 1001;
-    font-size: 18px;
-    line-height: 1;
-    transition: left $collapse-duration $collapse-ease, transform $collapse-duration $collapse-ease;
-    @media (min-width: 1920px) {
-      left: 489px;
+  .left-list-tailbar {
+    display: flex;
+    align-items: center;
+    margin-right: 16px;
+    .hide-connections-button {
+      color: var(--color-text-title);
+      .icon-hide-connections {
+        font-size: 20px;
+        color: var(--color-text-title);
+        &:hover {
+          color: var(--color-text-title);
+        }
+      }
     }
   }
-  @include collapse-btn-transform(0deg, 180deg);
   .connections-view {
     .right-topbar {
       transition: left $collapse-duration $collapse-ease;
@@ -197,9 +203,6 @@ $collapse-duration: 0.3s;
     .right-content {
       margin-left: 76px;
     }
-    .right-topbar .topbar .connection-head {
-      padding-left: 32px;
-    }
     @media (min-width: 1920px) {
       .right-topbar,
       .connections-detail-main .connections-body .filter-bar,
@@ -210,12 +213,6 @@ $collapse-duration: 0.3s;
         margin-left: 116px;
       }
     }
-  }
-}
-.connections a.toggle-list-btn.bottom {
-  left: 92px;
-  @media (min-width: 1920px) {
-    left: 132px;
   }
 }
 .left-list {
