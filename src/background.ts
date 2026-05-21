@@ -47,44 +47,8 @@ let autoCheckUpdate: boolean = true
 const isDevelopment: boolean = process.env.NODE_ENV !== 'production'
 const isMac: boolean = process.platform === 'darwin'
 
-/**
- * Detect if GPU acceleration is supported on Windows.
- * Uses Electron's app.getGPUFeatureStatus() when available.
- * @returns boolean indicating if GPU acceleration appears to be supported
- */
-const detectGPUAccelerationSupport = (): boolean => {
-  try {
-    // On Windows, check if GPU is available
-    if (process.platform === 'win32') {
-      const gpuStatus = app.getGPUFeatureStatus()
-      // If canvas or 2d acceleration is unavailable, GPU may not be properly supported
-      if (gpuStatus) {
-        const canvasStatus = gpuStatus.canvas
-        // 'disabled' or 'unavailable' indicates no GPU support
-        if (canvasStatus === 'disabled' || canvasStatus === 'unavailable') {
-          return false
-        }
-      }
-    }
-  } catch (error) {
-    // If we can't detect, assume GPU is supported (default to true)
-    console.log('[GPU] Could not detect GPU support, defaulting to enabled')
-  }
-  return true
-}
-
-// Get hardware acceleration setting with GPU detection
 const getHardwareAccelerationSetting = (): boolean => {
-  // Check if there's an existing setting
-  const existingValue = electronStore.get(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY)
-  if (existingValue !== undefined) {
-    return existingValue === true
-  }
-  // No setting exists - detect GPU support and default accordingly
-  const gpuSupported = detectGPUAccelerationSupport()
-  // Default to true (enabled) if GPU is supported, false otherwise
-  electronStore.set(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, gpuSupported)
-  return gpuSupported
+  return electronStore.get(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, true) !== false
 }
 
 const enableHardwareAccelerationBySetting = getHardwareAccelerationSetting()

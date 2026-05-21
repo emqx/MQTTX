@@ -37,7 +37,6 @@ const TOGGLE_TOPIC_WHITESPACE_DETECTION = 'TOGGLE_TOPIC_WHITESPACE_DETECTION'
 const SET_MAX_PAYLOAD_DISPLAY_SIZE = 'SET_MAX_PAYLOAD_DISPLAY_SIZE'
 const TOGGLE_ENABLE_HARDWARE_ACCELERATION = 'TOGGLE_ENABLE_HARDWARE_ACCELERATION'
 const ENABLE_HARDWARE_ACCELERATION_SETTING_KEY = 'settings.enableHardwareAcceleration'
-const LEGACY_DISABLE_HARDWARE_ACCELERATION_KEY = 'settings.disableHardwareAcceleration'
 
 const getShowConnectionList = (): boolean => {
   const _showConnectionList: string | null = localStorage.getItem('showConnectionList')
@@ -47,54 +46,8 @@ const getShowConnectionList = (): boolean => {
   return JSON.parse(_showConnectionList)
 }
 
-/**
- * Detect if GPU acceleration is supported on Windows.
- * Uses Electron's app.getGPUFeatureStatus() when available.
- * @returns boolean indicating if GPU acceleration appears to be supported
- */
-const detectGPUAccelerationSupport = (): boolean => {
-  try {
-    const { app } = require('@electron/remote')
-    // On Windows, check if GPU is available
-    if (process.platform === 'win32') {
-      const gpuStatus = app.getGPUFeatureStatus()
-      // If canvas or 2d acceleration is unavailable, GPU may not be properly supported
-      if (gpuStatus) {
-        const canvasStatus = gpuStatus.canvas
-        // 'disabled' or 'unavailable' indicates no GPU support
-        if (canvasStatus === 'disabled' || canvasStatus === 'unavailable') {
-          return false
-        }
-      }
-    }
-  } catch (error) {
-    // If we can't detect, assume GPU is supported (default to true)
-    console.log('[GPU] Could not detect GPU support, defaulting to enabled')
-  }
-  return true
-}
-
-/**
- * Migrate legacy disableHardwareAcceleration setting to new enableHardwareAcceleration setting.
- * Inverts the boolean value during migration.
- */
-const migrateHardwareAccelerationSetting = (): boolean | undefined => {
-  try {
-    const legacyValue = electronStore.get(LEGACY_DISABLE_HARDWARE_ACCELERATION_KEY)
-    if (legacyValue !== undefined) {
-      // Migrate: disableHardwareAcceleration=false means GPU was enabled
-      // So enableHardwareAcceleration should be true in that case
-      const newValue = legacyValue === false
-      electronStore.set(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, newValue)
-      // Remove legacy key after migration
-      electronStore.delete(LEGACY_DISABLE_HARDWARE_ACCELERATION_KEY)
-      console.log('[GPU] Migrated legacy disableHardwareAcceleration setting:', legacyValue, '->', newValue)
-      return newValue
-    }
-  } catch (error) {
-    console.error('[GPU] Error migrating hardware acceleration setting:', error)
-  }
-  return undefined
+const getEnableHardwareAcceleration = (): boolean => {
+  return electronStore.get(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, true) !== false
 }
 
 const settingData = getGlobal('sharedData')
@@ -130,23 +83,7 @@ const app = {
     maxPayloadDisplaySize: normalizeMaxPayloadDisplaySize(
       electronStore.get('settings.maxPayloadDisplaySize', DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE),
     ),
-    enableHardwareAcceleration: (() => {
-      // First, try to migrate legacy setting if it exists
-      const migrated = migrateHardwareAccelerationSetting()
-      if (migrated !== undefined) {
-        return migrated
-      }
-      // Check if there's an existing new setting
-      const existingValue = electronStore.get(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY)
-      if (existingValue !== undefined) {
-        return existingValue === true
-      }
-      // No setting exists - detect GPU support and default accordingly
-      const gpuSupported = detectGPUAccelerationSupport()
-      // Default to true (enabled) if GPU is supported, false otherwise
-      electronStore.set(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, gpuSupported)
-      return gpuSupported
-    })(),
+    enableHardwareAcceleration: getEnableHardwareAcceleration(),
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
