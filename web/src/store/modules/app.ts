@@ -25,7 +25,12 @@ const getShowConnectionList = (): boolean => {
   if (!_showConnectionList) {
     return true
   }
-  return JSON.parse(_showConnectionList)
+  try {
+    const parsedShowConnectionList: unknown = JSON.parse(_showConnectionList)
+    return typeof parsedShowConnectionList === 'boolean' ? parsedShowConnectionList : true
+  } catch (error) {
+    return true
+  }
 }
 
 const stateRecord: App = loadSettings()
