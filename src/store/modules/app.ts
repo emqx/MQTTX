@@ -41,12 +41,7 @@ const getShowConnectionList = (): boolean => {
   if (!_showConnectionList) {
     return true
   }
-  try {
-    const parsedShowConnectionList: unknown = JSON.parse(_showConnectionList)
-    return typeof parsedShowConnectionList === 'boolean' ? parsedShowConnectionList : true
-  } catch (error) {
-    return true
-  }
+  return JSON.parse(_showConnectionList)
 }
 
 const settingData = getGlobal('sharedData')
