@@ -11,6 +11,7 @@ interface Schema {
     autoCheck: boolean
     currentLang: string
     currentTheme: string
+    showConnectionList: boolean
   }
   connections: []
   suggestConnections: []
@@ -48,6 +49,9 @@ class DB {
     // Set auto scroll interval to 1 second by default
     if (!this.db.has('settings.autoScrollInterval').value()) {
       this.db.set('settings.autoScrollInterval', 0).write()
+    }
+    if (!this.db.has('settings.showConnectionList').value()) {
+      this.db.set('settings.showConnectionList', true).write()
     }
     // Set max reconnection times
     if (!this.db.get('settings.maxReconnectTimes').value()) {
