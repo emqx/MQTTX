@@ -19,14 +19,14 @@
           :key="index"
           :class="['topics-item', { active: index === topicActiveIndex, disabled: sub.disabled }]"
           :style="{
-            background: `${sub.color}10`,
+            background: `${readableColor(sub.color, theme)}1A`,
           }"
           @click="handleClickTopic(sub, index)"
           @contextmenu.prevent="handleContextMenu(sub, $event)"
         >
           <div
             :style="{
-              background: `${sub.color}`,
+              background: readableColor(sub.color, theme),
             }"
             class="topics-color-line"
           ></div>
@@ -43,7 +43,7 @@
               href="javascript:;"
               class="topic"
               :style="{
-                color: sub.color,
+                color: readableColor(sub.color, theme),
               }"
               @click.stop="stopClick"
             >
@@ -221,7 +221,7 @@ import { MqttClient } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
 import VueI18n from 'vue-i18n'
 import _ from 'lodash'
-import { defineColors, getRandomColor } from '@/utils/colors'
+import { defineColors, getRandomColor, readableColor } from '@/utils/colors'
 import LeftPanel from '@/components/LeftPanel.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import Contextmenu from '@/components/Contextmenu.vue'
@@ -250,6 +250,7 @@ export default class SubscriptionsList extends Vue {
   @Getter('activeConnection') private activeConnection!: ActiveConnection
   @Getter('topicWhitespaceDetection') private topicWhitespaceDetection!: boolean
 
+  private readableColor = readableColor
   private topicColor = ''
   private client: Partial<MqttClient> = {
     connected: false,
