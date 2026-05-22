@@ -89,6 +89,16 @@ describe('colors utility functions', () => {
         const out = readableColor('#003', 'dark' as Theme)
         expect(lightness(out)).to.be.at.least(0.6 - 1e-6)
       })
+
+      it('normalizes 3-char shorthand to 6-char even when no clamp is needed', () => {
+        // #003 expands to #000033 (L≈0.10) — already legible on the light
+        // theme so no lightness clamp applies. Output must still be 6-char
+        // because callers append an alpha suffix (`${color}1A`); a 3-char
+        // return would yield invalid CSS like `#0031A`.
+        const out = readableColor('#003', 'light' as Theme)
+        expect(out).to.match(/^#[0-9a-f]{6}$/)
+        expect(out).to.equal('#000033')
+      })
     })
   })
 })

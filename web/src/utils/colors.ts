@@ -83,7 +83,12 @@ export const readableColor = (hex: string, theme: Theme): string => {
   const minL = theme === 'light' ? 0 : 0.6
   const maxL = theme === 'light' ? 0.55 : 1
   const newL = Math.max(minL, Math.min(maxL, l))
-  if (newL === l) return hex
+  if (newL === l) {
+    // Already in the readable band. Normalize 3-char shorthand to 6-char so
+    // callers appending an alpha suffix (e.g. `${color}1A`) always produce
+    // valid CSS; pass 6-char input through unchanged to preserve casing.
+    return hex.replace('#', '').length === 3 ? rgbToHex(rgb[0], rgb[1], rgb[2]) : hex
+  }
   const [r, g, b] = hslToRgb([h, s, newL])
   return rgbToHex(r, g, b)
 }
