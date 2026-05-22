@@ -379,9 +379,9 @@
             :open-delay="500"
             :content="$t('settings.enableHardwareAccelerationDesc')"
           >
-            <a href="javascript:;" class="icon-oper">
+            <span class="icon-oper" role="button" tabindex="0">
               <i class="el-icon-warning-outline"></i>
-            </a>
+            </span>
           </el-tooltip>
         </el-col>
         <el-col :span="4">
@@ -887,6 +887,7 @@ export default class Settings extends Vue {
     top: 1px;
     left: 5px;
     color: var(--color-text-default);
+    cursor: help;
   }
   .ai-models-select {
     position: absolute;

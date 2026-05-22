@@ -2,6 +2,7 @@ import Vue from 'vue'
 import useServices from '@/database/useServices'
 import { getGlobal } from '@electron/remote'
 import { DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE, normalizeMaxPayloadDisplaySize } from '@/utils/data'
+import { ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, getEnableHardwareAccelerationSetting } from '@/utils/settings'
 
 const Store = require('electron-store')
 const electronStore = new Store()
@@ -36,7 +37,6 @@ const TOGGLE_IGNORE_QOS0_MESSAGE = 'TOGGLE_IGNORE_QOS0_MESSAGE'
 const TOGGLE_TOPIC_WHITESPACE_DETECTION = 'TOGGLE_TOPIC_WHITESPACE_DETECTION'
 const SET_MAX_PAYLOAD_DISPLAY_SIZE = 'SET_MAX_PAYLOAD_DISPLAY_SIZE'
 const TOGGLE_ENABLE_HARDWARE_ACCELERATION = 'TOGGLE_ENABLE_HARDWARE_ACCELERATION'
-const ENABLE_HARDWARE_ACCELERATION_SETTING_KEY = 'settings.enableHardwareAcceleration'
 
 const getShowConnectionList = (): boolean => {
   const _showConnectionList: string | null = localStorage.getItem('showConnectionList')
@@ -47,7 +47,7 @@ const getShowConnectionList = (): boolean => {
 }
 
 const getEnableHardwareAcceleration = (): boolean => {
-  return electronStore.get(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, true) !== false
+  return getEnableHardwareAccelerationSetting(electronStore)
 }
 
 const settingData = getGlobal('sharedData')

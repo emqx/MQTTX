@@ -19,6 +19,7 @@ import ORMConfig from './database/database.config'
 import version from '@/version'
 import { initialize } from '@electron/remote/main'
 import { initMCPHandlers, cleanupMCPConnections } from './main/ai/mcp/MCPManager'
+import { getEnableHardwareAccelerationSetting } from '@/utils/settings'
 
 /**
  * Fix the PATH environment variable in packaged Electron apps
@@ -40,7 +41,6 @@ declare const __static: string
 
 const Store = require('electron-store')
 const electronStore = new Store()
-const ENABLE_HARDWARE_ACCELERATION_SETTING_KEY = 'settings.enableHardwareAcceleration'
 let theme: Theme = 'light'
 let syncOsTheme = false
 let autoCheckUpdate: boolean = true
@@ -48,7 +48,7 @@ const isDevelopment: boolean = process.env.NODE_ENV !== 'production'
 const isMac: boolean = process.platform === 'darwin'
 
 const getHardwareAccelerationSetting = (): boolean => {
-  return electronStore.get(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, true) !== false
+  return getEnableHardwareAccelerationSetting(electronStore)
 }
 
 const enableHardwareAccelerationBySetting = getHardwareAccelerationSetting()
