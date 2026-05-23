@@ -252,6 +252,7 @@ import { deleteConnection, updateConnection, updateConnectionMessage } from '@/u
 import time from '@/utils/time'
 import matchSearch from '@/utils/matchSearch'
 import { matchTopicMethod } from '@/utils/topicMatch'
+import pako from 'pako'
 import { createClient } from '@/utils/mqttUtils'
 import { getMessageId } from '@/utils/idGenerator'
 
@@ -857,6 +858,17 @@ export default class ConnectionsDetail extends Vue {
   private onMessageArrived(id: string) {
     return (topic: string, payload: Buffer, packet: IPublishPacket) => {
       const { qos, retain, properties } = packet
+
+      // Decompress GZIP if the matching subscription has decompressGzip enabled
+      const matchedSub = this.record.subscriptions.find((sub) => matchTopicMethod(sub.topic, topic))
+      if (matchedSub?.decompressGzip) {
+        try {
+          payload = Buffer.from(pako.ungzip(payload))
+        } catch (e) {
+          console.error(`GZIP decompression failed for topic "${topic}": ${(e as Error).message}`)
+        }
+      }
+
       const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
       const receivedMessage: MessageModel = {
         id: getMessageId(),
