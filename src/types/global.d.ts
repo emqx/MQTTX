@@ -173,6 +173,7 @@ declare global {
     rap?: boolean
     rh?: RetainHandling
     subscriptionIdentifier?: number | null
+    decompressGzip?: boolean
   }
 
   interface MessageModel {

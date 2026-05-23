@@ -490,6 +490,11 @@ export default {
     en: 'Subscription Identifier',
     ja: 'サブスクリプション識別子',
   },
+  decompressGzip: {
+    zh: '使用 GZIP 解压',
+    en: 'Decompress with GZIP',
+    ja: 'GZIPで解凍',
+  },
   noLocal: {
     zh: '禁止本地转发',
     en: 'No Local',
