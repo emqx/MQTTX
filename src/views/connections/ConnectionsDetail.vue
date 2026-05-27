@@ -147,6 +147,16 @@
                   <i class="iconfont icon-edit"></i>
                 </a>
               </el-tooltip>
+              <el-tooltip
+                placement="bottom"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :open-delay="500"
+                :content="$t('connections.clearHistory')"
+              >
+                <a class="clear-history-btn" href="javascript:;" @click="handleMsgClear">
+                  <i class="iconfont icon-clear-history"></i>
+                </a>
+              </el-tooltip>
               <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
                 <a href="javascript:;">
                   <i class="iconfont icon-more"></i>
@@ -154,9 +164,6 @@
                 <el-dropdown-menu class="connection-oper-item" slot="dropdown">
                   <el-dropdown-item command="searchContent">
                     <i class="iconfont icon-search"></i>{{ $t('connections.searchContent') }}
-                  </el-dropdown-item>
-                  <el-dropdown-item command="clearHistory">
-                    <i class="iconfont icon-clear-history"></i>{{ $t('connections.clearHistory') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="useScript" :disabled="!client.connected">
                     <i class="iconfont icon-use-script"></i>{{ $t('script.useScript') }}
@@ -2294,7 +2301,8 @@ export default class ConnectionsDetail extends Vue {
         .edit-btn,
         .connect-btn,
         .copilot-btn,
-        .new-window-btn {
+        .new-window-btn,
+        .clear-history-btn {
           margin-right: 16px;
         }
         .edit-btn {
