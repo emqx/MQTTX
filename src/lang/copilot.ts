@@ -609,6 +609,14 @@ export default {
     ja: 'サーバー接続に失敗しました',
     hu: 'A(z) szerver csatlakoztatása sikertelen',
   },
+  mcpConnectionFailed: {
+    zh: '连接 MCP 服务器 {0} 失败',
+    en: 'Failed to connect to MCP server {0}',
+    tr: '{0} MCP sunucusuna bağlanılamadı',
+    ja: 'MCPサーバー {0} への接続に失敗しました',
+    hu: 'Nem sikerült csatlakozni a(z) {0} MCP szerverhez',
+    ko: 'MCP 서버 {0} 연결에 실패했습니다',
+  },
   mcpCalling: {
     zh: 'MCP 调用',
     en: 'MCP Calling',
