@@ -5,6 +5,7 @@ export default {
     tr: 'Bağlantılar',
     ja: '接続',
     hu: 'Kapcsolatok',
+    ko: '연결',
   },
   newConnections: {
     zh: '新建连接',
@@ -12,6 +13,7 @@ export default {
     tr: 'Yeni bağlantı',
     ja: '新しい接続',
     hu: 'Új kapcsolat',
+    ko: '새 연결',
   },
   search: {
     zh: '搜索',
@@ -19,6 +21,7 @@ export default {
     tr: 'Ara',
     ja: '検索',
     hu: 'Keresés',
+    ko: '검색',
   },
   topicCopied: {
     zh: '复制成功!',
@@ -26,6 +29,7 @@ export default {
     tr: 'Konu kopyalandı!',
     ja: 'コピーが成功しました',
     hu: 'Téma másolva!',
+    ko: '토픽이 복사되었습니다!',
   },
   clearHistory: {
     zh: '清除历史记录',
@@ -33,6 +37,7 @@ export default {
     tr: 'Geçmişi Temizle',
     ja: '履歴データの削除',
     hu: 'Előzmények törlése',
+    ko: '기록 삭제',
   },
   notConnect: {
     zh: '客户端未连接',
@@ -40,6 +45,7 @@ export default {
     tr: 'İstemci bağlı değil',
     ja: 'クライアントが接続されていません',
     hu: 'Kliens nincs csatlakozva',
+    ko: '클라이언트가 연결되어 있지 않습니다',
   },
   disconnect: {
     zh: '断开连接',
@@ -47,6 +53,7 @@ export default {
     tr: 'Bağlantıyı kes',
     ja: '切 断',
     hu: 'Kapcsolat bontása',
+    ko: '연결 해제',
   },
   disconnected: {
     zh: '已断开连接',
@@ -54,6 +61,7 @@ export default {
     tr: 'Bağlantı kesildi',
     ja: '接続を切断しました',
     hu: 'A kapcsolat bontva',
+    ko: '연결 해제됨',
   },
   deleteConnect: {
     zh: '删除连接',
@@ -61,6 +69,7 @@ export default {
     tr: 'Bağlantıyı Sil',
     ja: '削除',
     hu: 'Kapcsolat törlése',
+    ko: '연결 삭제',
   },
   all: {
     zh: '全部',
@@ -68,6 +77,7 @@ export default {
     tr: 'Hepsi',
     ja: '全て',
     hu: 'Mind',
+    ko: '전체',
   },
   received: {
     zh: '已接收',
@@ -75,6 +85,7 @@ export default {
     tr: 'Alınan',
     ja: '受信済み',
     hu: 'Fogadott',
+    ko: '수신됨',
   },
   published: {
     zh: '已发送',
@@ -82,6 +93,7 @@ export default {
     tr: 'Yayınlanan',
     ja: '送信済み',
     hu: 'Küldött',
+    ko: '발행됨',
   },
   writeMsg: {
     zh: '请输入消息',
@@ -89,6 +101,7 @@ export default {
     tr: 'Bir mesaj yaz',
     ja: 'メッセージを入力してください',
     hu: 'Írjon egy üzenetet',
+    ko: '메시지를 입력하세요',
   },
   subscriptions: {
     zh: '订阅列表',
@@ -96,6 +109,7 @@ export default {
     tr: 'Abonelikler',
     ja: 'サブスクリプションリスト',
     hu: 'Feliratkozások',
+    ko: '구독 목록',
   },
   subscription: {
     zh: '订阅',
@@ -103,6 +117,7 @@ export default {
     tr: 'abonelik',
     ja: 'サブスクリプション',
     hu: 'feliratkozás',
+    ko: '구독',
   },
   newSubscription: {
     zh: '添加订阅',
@@ -110,6 +125,7 @@ export default {
     tr: 'Yeni abonelik',
     ja: 'サブスクリプション追加',
     hu: 'Új feliratkozás',
+    ko: '새 구독',
   },
   editSubscription: {
     zh: '编辑订阅',
@@ -117,6 +133,7 @@ export default {
     tr: 'Aboneliği abonelik',
     ja: 'サブスクリプションの編集',
     hu: 'Előfizetés feliratkozás',
+    ko: '구독 편집',
   },
   subFailed: {
     zh: '无法订阅 {0}, Error: {1} (Code: {2})',
@@ -124,6 +141,7 @@ export default {
     tr: '{0} abone ollamadı, Hata: {1}(Kod: {2})',
     ja: 'サブスクリプション失敗：{0}, エラー：{1} (コード：{2})',
     hu: 'Előfizetés sikertelen: {0}, Hiba: {1} (Kód: {2})',
+    ko: '{0} 구독 실패, 오류: {1}(코드: {2})',
   },
   aclSubFailed: {
     zh: '请确保权限正确，并检查 MQTT Broker 的 ACL 配置',
@@ -131,6 +149,7 @@ export default {
     tr: 'İzinleri doğru olduğundan emin olun ve MQTT aracının ACL yapılandırmasını kontrol edin',
     ja: '権限が正しいことを確認し、MQTTブローカーのACL設定を確認してください',
     hu: 'Bizonyosodjon meg a jogosultságok helyességéről, és ellenőrizze az MQTT broker ACL konfigurációját',
+    ko: '권한이 올바른지 확인하고 MQTT 브로커의 ACL 설정을 확인하세요',
   },
   connected: {
     zh: '已连接',
@@ -138,6 +157,7 @@ export default {
     tr: 'Bağlı',
     ja: '接続に成功しました',
     hu: 'Csatlakozva',
+    ko: '연결됨',
   },
   noConnection: {
     zh: '未连接',
@@ -145,6 +165,7 @@ export default {
     tr: 'Bağlantı yok',
     ja: '未接続',
     hu: 'Nincs kapcsolat',
+    ko: '연결 해제됨',
   },
   connectFailed: {
     zh: '连接失败',
@@ -152,6 +173,7 @@ export default {
     tr: 'Bağlantı sağlanamadı',
     ja: '接続に失敗しました',
     hu: 'A Csatlakozás sikertelen',
+    ko: '연결 실패',
   },
   reconnect: {
     zh: '正在重连',
@@ -159,6 +181,7 @@ export default {
     tr: 'Yeniden bağlanılıyor',
     ja: '再接続中',
     hu: 'Újracsatlakozás',
+    ko: '재연결 중',
   },
   connectBtn: {
     zh: '连 接',
@@ -166,6 +189,7 @@ export default {
     tr: 'Bağlan',
     ja: '接 続',
     hu: 'Csatlakozás',
+    ko: '연결',
   },
   disconnectedBtn: {
     zh: '断开连接',
@@ -173,6 +197,7 @@ export default {
     tr: 'Bağlantıyı kes',
     ja: '切 断',
     hu: 'Kapcsolat bontása',
+    ko: '연결 해제',
   },
   connectionExists: {
     zh: '连接数据已存在',
@@ -180,6 +205,7 @@ export default {
     tr: 'Bağlantı zaten var',
     ja: '接続がすでに存在しました',
     hu: 'A kapcslat már létezik',
+    ko: '연결이 이미 존재합니다',
   },
   brokerIP: {
     zh: '服务器地址',
@@ -187,6 +213,7 @@ export default {
     tr: 'Sunucu',
     ja: 'ホスト',
     hu: 'Kiszolgáló',
+    ko: '호스트',
   },
   brokerPort: {
     zh: '端口',
@@ -194,6 +221,7 @@ export default {
     tr: 'Port',
     ja: 'ポート',
     hu: 'Port',
+    ko: '포트',
   },
   certType: {
     zh: '证书类型',
@@ -201,6 +229,7 @@ export default {
     tr: 'Sertifika',
     ja: '証明書種類',
     hu: 'Tanusítvány',
+    ko: '인증서',
   },
   name: {
     zh: '名称',
@@ -208,6 +237,7 @@ export default {
     tr: 'İsim',
     ja: '名前',
     hu: 'Név',
+    ko: '이름',
   },
   username: {
     zh: '用户名',
@@ -215,6 +245,7 @@ export default {
     tr: 'Kullanıcı Adı',
     ja: 'ユーザー名',
     hu: 'Felhasználónév',
+    ko: '사용자 이름',
   },
   password: {
     zh: '密码',
@@ -222,6 +253,7 @@ export default {
     tr: 'Parola',
     ja: 'パスワード',
     hu: 'Jelszó',
+    ko: '비밀번호',
   },
   ca: {
     zh: 'CA 文件',
@@ -229,6 +261,7 @@ export default {
     tr: 'CA Dosyası',
     ja: 'CA ファイル',
     hu: 'CA fájl',
+    ko: 'CA 파일',
   },
   cert: {
     zh: '客户端证书',
@@ -236,6 +269,7 @@ export default {
     tr: 'İstemci Sertifika Dosyası',
     ja: 'クライアント証明書',
     hu: 'Kliens tanusítvány fájl',
+    ko: '클라이언트 인증서 파일',
   },
   key: {
     zh: '客户端 key 文件',
@@ -243,6 +277,7 @@ export default {
     tr: 'İstemci anahtar dosyası',
     ja: 'クライアントキー',
     hu: 'Kliens kulcs fájl',
+    ko: '클라이언트 키 파일',
   },
   connectionTimeout: {
     zh: '连接超时时长',
@@ -250,6 +285,7 @@ export default {
     tr: 'Bağlantı zaman aşımı',
     ja: '接続タイムアウト',
     hu: 'Kapcsolat időtúlléps',
+    ko: '연결 타임아웃',
   },
   autoReconnect: {
     zh: '自动重连',
@@ -257,6 +293,7 @@ export default {
     tr: 'Otomatik Yeniden Bağlanma',
     ja: '自動再接続',
     hu: 'Automatikus újracsatlakozás',
+    ko: '자동 재연결',
   },
   reconnectPeriod: {
     zh: '重连周期',
@@ -264,6 +301,7 @@ export default {
     tr: 'Yeniden Bağlantı Süresi',
     ja: '再接続期間',
     hu: 'Újracsatlakozási időszak',
+    ko: '재연결 주기',
   },
   mqttVersion: {
     zh: 'MQTT 版本',
@@ -271,6 +309,7 @@ export default {
     tr: 'MQTT Sürümü',
     ja: 'MQTT バージョン',
     hu: 'MQTT verzió',
+    ko: 'MQTT 버전',
   },
   sessionExpiryInterval: {
     zh: '会话过期时间',
@@ -278,6 +317,7 @@ export default {
     tr: 'Oturum Bitiş Aralığı',
     ja: 'セッション有効期限',
     hu: 'Munkamenet lejárati intervallum',
+    ko: '세션 만료 간격',
   },
   receiveMaximum: {
     zh: '接收最大数值',
@@ -285,6 +325,7 @@ export default {
     tr: 'Maksimum Alma',
     ja: '最大受信数',
     hu: 'Maximális fogadás ',
+    ko: '수신 최대값',
   },
   topicAliasMaximum: {
     zh: '主题别名最大值',
@@ -292,6 +333,7 @@ export default {
     tr: 'Konu Takma Adı Maksimum',
     ja: 'Topic Aliasの最大値',
     hu: 'Macimális téma becenév',
+    ko: '토픽 별칭 최대값',
   },
   topicAlias: {
     zh: '主题别名',
@@ -299,6 +341,7 @@ export default {
     tr: 'Konu Takma Adı',
     ja: 'トピックエイリアス',
     hu: 'Téma Alias',
+    ko: '토픽 별칭',
   },
   maximumPacketSize: {
     zh: '最大数据包大小',
@@ -306,6 +349,7 @@ export default {
     tr: 'En Büyük Paket Boyutu',
     ja: '最大パケット サイズ',
     hu: 'Maximális csomagméret',
+    ko: '최대 패킷 크기',
   },
   requestResponseInformation: {
     zh: '请求响应信息',
@@ -313,6 +357,7 @@ export default {
     tr: 'Yanıt Bilgisi İste',
     ja: 'レスポンス情報をリクエストする',
     hu: 'Válasz információ kérése',
+    ko: '응답 정보 요청',
   },
   requestProblemInformation: {
     zh: '请求失败信息',
@@ -320,6 +365,7 @@ export default {
     tr: 'Sorun Bilgisi İste',
     ja: '失敗情報をリクエストする',
     hu: 'Probléma információ kérése',
+    ko: '문제 정보 요청',
   },
   userProperties: {
     zh: '用户属性',
@@ -327,6 +373,7 @@ export default {
     tr: 'Kullanıcı Özellikleri',
     ja: 'ユーザー プロパティ',
     hu: 'Felhasználói tulajdonságok',
+    ko: '사용자 속성',
   },
   topicRequired: {
     zh: '请输入主题，并注意下方提示',
@@ -334,6 +381,7 @@ export default {
     tr: 'Konu gerekli, lütfen aşağıdaki ipucunu kontrol edin',
     ja: 'トピックを入力してください。下のヒントを確認してください',
     hu: 'Téma szükséges, kérjük ellenőrizze az alábbi tippet',
+    ko: '토픽은 필수입니다. 아래 힌트를 확인해 주세요',
   },
   topicCannotContain: {
     zh: '不能向包含通配符 #、+ 的主题发布消息',
@@ -341,6 +389,7 @@ export default {
     tr: '#, + joker karakterler içeren konulara mesaj gönderilemez',
     ja: 'ワイルドカード文字 #、+ を含むトピックにメッセージを送信できません',
     hu: 'Nem lehet üzenetet küldeni az #, + karaktereket tartalmazó témákhoz',
+    ko: '와일드카드 문자(#, +)가 포함된 토픽에는 메시지를 발행할 수 없습니다',
   },
   topicWhitespaceHint: {
     zh: '空格检测提示',
@@ -348,6 +397,7 @@ export default {
     tr: 'Whitespace check',
     ja: '空白検出',
     hu: 'Whitespace check',
+    ko: '공백 확인',
   },
   topicTips: {
     zh: '可订阅一个或多个主题。订阅多个主题时，请用逗号（,）分隔每个主题。例如：test1,test2',
@@ -355,6 +405,7 @@ export default {
     tr: 'Bir veya birden fazla konuya abone olabilirsiniz. Birden fazla konuya abone olurken her konuyu virgülle (,) ayırın. Örneğin: test1,test2',
     ja: '1つまたは複数のトピックを購読できます。複数のトピックを購読する場合は、各トピックをカンマ（,）で区切ってください。例えば：test1,test2',
     hu: 'Iratkozz fel egy vagy több témára. Több téma elválasztásához használj vesszőt (,). Például: test1,test2',
+    ko: '하나 이상의 토픽을 구독할 수 있습니다. 여러 토픽을 구독할 때는 쉼표(,)로 각 토픽을 구분하세요. 예: test1,test2',
   },
   enabledAutoResub: {
     zh: '已开启自动重新订阅',
@@ -362,6 +413,7 @@ export default {
     tr: 'Otomatik yeniden abonelik etkin',
     ja: '自動再購読が有効',
     hu: 'Az automatikus újra feliratkozás engedélyezve',
+    ko: '자동 재구독이 활성화되었습니다',
   },
   disabledAutoResub: {
     zh: '已关闭自动重新订阅',
@@ -369,6 +421,7 @@ export default {
     tr: 'Otomatik yeniden abonelik devre dışı',
     ja: '自動再購読が無効',
     hu: 'Az automatikus újra feliratkozás le van tiltva',
+    ko: '자동 재구독이 비활성화되었습니다',
   },
   enabledAutoResubDesc: {
     zh: '开启后，MQTTX 连接后会自动重新订阅本地保存的主题，无论主题是否在 MQTT Broker 持久化。',
@@ -376,6 +429,7 @@ export default {
     tr: "Etkinleştirildiğinde, MQTTX bağlantı kurduğunda yerel olarak kaydedilen konulara otomatik olarak yeniden abone olur, konuların MQTT Broker'da kalıcı olup olmadığını dikkate almaz.",
     ja: '有効にすると、MQTTX は接続時にローカルに保存されたトピックを自動的に再購読します。トピックが MQTT Broker に永続化されているかどうかは関係ありません。',
     hu: 'Bekapcsoláskor az MQTTX automatikusan újra feliratkozik a helyben mentett témákra a csatlakozás után, függetlenül attól, hogy ezek a témák tartósak-e az MQTT Broker-ben.',
+    ko: '활성화하면 MQTTX는 연결 시 MQTT 브로커에서의 지속성 여부와 관계없이 로컬에 저장된 토픽에 자동으로 재구독합니다.',
   },
   disabledAutoResubDesc: {
     zh: '关闭后，本地保存的主题是否可用取决于 MQTT Broker 是否保存了 Session。如果 Clean Session 为 true，重新连接后需手动重新订阅。',
@@ -383,6 +437,7 @@ export default {
     tr: "Devre dışı bırakıldığında, yerel olarak kaydedilen konuların kullanılabilirliği, MQTT Broker'ın oturumu saklayıp saklamadığına bağlıdır. Clean Session doğru ise, yeniden bağlandıktan sonra elle yeniden abone olunması gerekir.",
     ja: '無効にすると、ローカルに保存されたトピックは、MQTT Broker のセッション保持に依存します。Clean Session が true の場合、再接続後に手動で再購読する必要があります。',
     hu: 'Kikapcsoláskor a helyben mentett témák elérhetősége az MQTT Broker munkamenetének megőrzésétől függ. Ha a Clean Session igaz, újracsatlakozás után kézzel kell újra feliratkozni.',
+    ko: '비활성화하면 로컬에 저장된 토픽의 사용 가능 여부는 MQTT 브로커의 세션 유지 여부에 따라 달라집니다. Clean Session이 true인 경우 재연결 후 수동으로 재구독해야 합니다.',
   },
   payloadReuired: {
     zh: '请输入 Payload',
@@ -390,6 +445,7 @@ export default {
     tr: 'Yük gerekli',
     ja: 'Payloadを入力してください',
     hu: 'Üzenet szükséges',
+    ko: '페이로드는 필수입니다',
   },
   color: {
     zh: '标记',
@@ -397,6 +453,7 @@ export default {
     tr: 'Renk',
     ja: 'マーク',
     hu: 'Szín',
+    ko: '색상',
   },
   willMessage: {
     zh: '遗嘱消息',
@@ -404,6 +461,7 @@ export default {
     tr: 'Son arzu ve vasiyetname',
     ja: '遺言',
     hu: 'Last-Will és Testament',
+    ko: '유언(Will) 메시지',
   },
   strictValidateCertificate: {
     zh: 'SSL 安全',
@@ -411,6 +469,7 @@ export default {
     tr: 'SSL Güvenli',
     ja: 'SSL証明書',
     hu: 'SSL Titkosítás',
+    ko: 'SSL 보안',
   },
   willTopic: {
     zh: '遗嘱消息主题',
@@ -418,6 +477,7 @@ export default {
     tr: 'Son Vasiyet Konusu',
     ja: '遺言トピック',
     hu: 'Last-Will téma',
+    ko: '유언(Will) 토픽',
   },
   willPayload: {
     zh: '遗嘱消息',
@@ -425,6 +485,7 @@ export default {
     tr: 'Son İrade Yükü',
     ja: '遺言 Payload',
     hu: 'Last-Will üzenet',
+    ko: '유언(Will) 페이로드',
   },
   willQos: {
     zh: '遗嘱消息 QoS',
@@ -432,6 +493,7 @@ export default {
     tr: 'Son İstek QoS',
     ja: '遺言 QoS',
     hu: 'Last-Will QoS',
+    ko: '유언(Will) QoS',
   },
   willRetain: {
     zh: '遗嘱消息保留标志',
@@ -439,6 +501,7 @@ export default {
     tr: 'Son Tutulacak',
     ja: '遺言 Retain',
     hu: 'Last-Will Megőriz',
+    ko: '유언(Will) 유지',
   },
   willDelayInterval: {
     zh: '遗嘱消息延迟时间',
@@ -446,6 +509,7 @@ export default {
     tr: 'Gecikme Aralığı',
     ja: '遺言ディレイ間隔',
     hu: 'Will késleltetési intervallum',
+    ko: '유언(Will) 지연 간격',
   },
   messageExpiryInterval: {
     zh: '消息过期时间',
@@ -453,6 +517,7 @@ export default {
     tr: 'Mesaj Bitiş Aralığı',
     ja: 'メッセージの有効期限間隔',
     hu: 'Üzenet lejárati időköz',
+    ko: '메시지 만료 간격',
   },
   contentType: {
     zh: '内容类型',
@@ -460,6 +525,7 @@ export default {
     tr: 'İçerik türü',
     ja: 'コンテンツタイプ',
     hu: 'Tartalom típus',
+    ko: '콘텐츠 유형',
   },
   payloadFormatIndicator: {
     zh: '有效载荷指示器',
@@ -467,6 +533,7 @@ export default {
     tr: 'Yük Biçimi Göstergesi',
     ja: 'ペイロードフォーマットインジケーター',
     hu: 'A hasznos teher formátumának jelzője',
+    ko: '페이로드 형식 지시자',
   },
   responseTopic: {
     zh: '响应主题',
@@ -474,6 +541,7 @@ export default {
     tr: 'Yanıt Konusu',
     ja: '応答トピック',
     hu: 'Válasz téma',
+    ko: '응답 토픽',
   },
   correlationData: {
     zh: '对比数据',
@@ -481,6 +549,7 @@ export default {
     tr: 'Korelasyon Verileri',
     ja: '相関データ',
     hu: 'Korrelációs adatok',
+    ko: '상관 데이터',
   },
   duplicateName: {
     zh: '该名称已存在，请重新命名！',
@@ -488,6 +557,7 @@ export default {
     tr: 'Yinelenen ad. Lütfen yeniden adlandırın!',
     ja: '名称が既に存在したので、リネームをお願いします！',
     hu: 'Duplikált név, kérlek nevezd át!',
+    ko: '중복된 이름입니다. 다시 이름을 지정해 주세요!',
   },
   nameTip: {
     zh: '可快速选择已创建过的连接配置',
@@ -495,6 +565,7 @@ export default {
     tr: 'Oluşturulan bağlantı konfigürasyonlarının hızlı seçimi',
     ja: '作成された接続構成を早めに選択することができます',
     hu: 'Kapcsolati beállítások gyors kiválasztása',
+    ko: '생성된 연결 설정을 빠르게 선택',
   },
   clientIdWithTimeTip: {
     zh: '在连接时附加时间戳到 ClientID，以防止重复的连接',
@@ -502,6 +573,7 @@ export default {
     tr: "Yinelenen bağlantıları önlemek için ClientID'ye bir zaman damgası ekleyin",
     ja: '重複接続を防ぐために、ClientIDにタイムスタンプを追加します',
     hu: 'Adjon hozzá egy időbélyeget a ClientID-hoz, hogy elkerülje a duplikációt.',
+    ko: '연결 시 클라이언트 ID에 타임스탬프를 추가하여 중복 연결을 방지합니다',
   },
   publishMsg: {
     zh: '发送消息',
@@ -509,6 +581,7 @@ export default {
     tr: 'Mesaj yayınla',
     ja: '送信エラー：',
     hu: 'Üzenet küldése',
+    ko: '메시지 발행',
   },
   receivedMsg: {
     zh: '接收消息',
@@ -516,6 +589,7 @@ export default {
     tr: 'Mesaj alındı',
     ja: '受信エラー：',
     hu: 'Fogadott üzenet',
+    ko: '메시지 수신',
   },
   receivedPayloadDecodedBy: {
     zh: '使用以下格式编码接收到的 Payload',
@@ -523,6 +597,7 @@ export default {
     tr: 'Alınan Payload’ı şununla biçimlendir: ',
     ja: '以下の方式で受信 Payload をフォーマット: ',
     hu: 'Fogadott Payload formázása e szerint: ',
+    ko: '수신 페이로드 형식 지정 기준: ',
   },
   publishPayloadEncodedBy: {
     zh: '使用以下格式编码要发布的 Payload',
@@ -530,6 +605,7 @@ export default {
     tr: 'Yayınlamak için Payload’ı şununla biçimlendir: ',
     ja: '以下の方式で公開用 Payload をフォーマット: ',
     hu: 'A közzétételre szánt Payload formázása e szerint: ',
+    ko: '발행할 페이로드 형식 지정 기준: ',
   },
   alias: {
     zh: '别名',
@@ -537,6 +613,7 @@ export default {
     tr: 'Takma Ad',
     ja: 'エイリアス',
     hu: 'Becenév',
+    ko: '별칭',
   },
   aliasTip: {
     zh: '为多主题设置别名时，也使用逗号分隔符（,）',
@@ -544,6 +621,7 @@ export default {
     tr: 'Birden çok konu için takma ad ayarlarken ayrıca virgül ayırıcılar (,) kullanın',
     ja: '複数のトピックにエイリアスを設定する場合は、カンマ区切り（,）も使用されます。',
     hu: 'Ha több téma álnevét állít be, használjon vesszőt (,) is',
+    ko: '여러 토픽에 별칭을 설정할 때도 쉼표(,) 구분자를 사용합니다',
   },
   exportData: {
     zh: '导出数据',
@@ -551,6 +629,7 @@ export default {
     tr: 'Verileri Dışa Aktar',
     ja: 'エクスポート',
     hu: 'Adat export',
+    ko: '데이터 내보내기',
   },
   exportFormat: {
     zh: '导出数据格式',
@@ -558,6 +637,7 @@ export default {
     tr: 'Dışa aktarma biçimi',
     ja: 'エクスポートフォーマット',
     hu: 'Export formátum',
+    ko: '내보내기 형식',
   },
   cleanHistoryData: {
     zh: '清除历史数据',
@@ -565,6 +645,7 @@ export default {
     tr: 'Geçmiş verileri temizle',
     ja: 'クリーンな履歴データ',
     hu: 'Előzmények törlése',
+    ko: '기록 데이터 삭제',
   },
   cleanHistorySuccess: {
     zh: '清除历史数据成功',
@@ -572,6 +653,7 @@ export default {
     tr: 'Geçmişi başarıyla temizle',
     ja: '履歴を正常にクリアする',
     hu: 'Előzmények törlése sikeres',
+    ko: '기록이 성공적으로 삭제되었습니다',
   },
   allConnections: {
     zh: '全部数据',
@@ -579,6 +661,7 @@ export default {
     tr: 'Tüm bağlantılar',
     ja: '全ての接続',
     hu: 'Minden kapcsolat',
+    ko: '모든 연결',
   },
   allConnectionsTips: {
     zh: '当打开此开关后，可以导出全部数据',
@@ -586,6 +669,7 @@ export default {
     tr: 'Bu anahtar açıldığında, tüm Bağlantı verileri dışa aktarılabilir',
     ja: 'このスイッチをオンにすると、全ての接続のデータをエクスポートすることができます',
     hu: 'Ha ez a kapcsoló aktív, minden kapcsolat adata exportálható',
+    ko: '이 스위치를 켜면 모든 연결 데이터를 내보낼 수 있습니다',
   },
   importData: {
     zh: '导入数据',
@@ -593,6 +677,7 @@ export default {
     tr: 'Verileri İçe Aktar',
     ja: 'インポート',
     hu: 'Adatok importálása',
+    ko: '데이터 가져오기',
   },
   importDataTip: {
     zh: '导入完成后会断开所有连接，请手动点击连接进行恢复。',
@@ -600,6 +685,7 @@ export default {
     tr: 'İçe aktarmadan sonra tüm bağlantılar kesilecektir, lütfen geri yüklemek için bağlantı düğmesine manuel olarak tıklayın.',
     ja: 'インポート後、すべての接続が切断されます。復元するには、接続ボタンを手動でクリックしてください。',
     hu: 'Az importálás után az összes kapcsolat megszakad, kérjük, a visszaállításhoz kattintson a kapcsolódás gombra manuálisan.',
+    ko: '가져오기가 완료되면 모든 연결이 해제됩니다. 복원하려면 연결 버튼을 수동으로 클릭해 주세요.',
   },
   importFormat: {
     zh: '导入数据格式',
@@ -607,6 +693,7 @@ export default {
     tr: 'İçe aktarma biçimi',
     ja: 'フォーマット',
     hu: 'Import formátum',
+    ko: '가져오기 형식',
   },
   importConnectionsTip: {
     zh: '导入文件内容请参考导出数据生成的文件内容。<br>若 id 重复原数据将会被覆盖。',
@@ -619,6 +706,9 @@ export default {
     ja: `インポートしたファイルの内容については、エクスポートされたデータで生成されたファイルの内容を参照してください。<br>
     idが重複している場合は、元のデータが上書きされます。`,
     hu: 'Az importált adatok tartalmáért, kérjük ellenőrizza <br>a az exportált adatokat tartalmazó filet<br>Duplikciók esetén az eredeti adatok felülírásra kerülnek.',
+    ko: `가져온 파일의 내용은 내보내기로 생성된 파일의 내용을<br>
+    참고하세요.<br>
+    id가 중복되면 원본 데이터가 덮어씌워집니다.`,
   },
   importFile: {
     zh: '导入文件',
@@ -626,6 +716,7 @@ export default {
     tr: 'Dosyayı İçe Aktar',
     ja: 'ファイル',
     hu: 'Fájl importálása',
+    ko: '파일 가져오기',
   },
   readFileErr: {
     zh: '文件读取失败：',
@@ -633,6 +724,7 @@ export default {
     tr: 'Dosya okunurken bir hata oluştu:',
     ja: '読み込み中にエラーが発生したファイル:',
     hu: 'Hiba a fájl olvasása során',
+    ko: '파일을 읽는 중 오류가 발생했습니다:',
   },
   fileContentRequired: {
     zh: '文件内容中必填项为空',
@@ -640,6 +732,7 @@ export default {
     tr: 'Dosya içeriğindeki gerekli alanlar boş',
     ja: '必須フィールドに値を入力してください',
     hu: 'A szükséges mezők hiányoznak a fájlban',
+    ko: '파일 내용의 필수 항목이 비어 있습니다',
   },
   searchContent: {
     zh: '内容搜索',
@@ -647,6 +740,7 @@ export default {
     tr: 'Ara',
     ja: '内容検索',
     hu: 'Keresés',
+    ko: '검색',
   },
   inputTopic: {
     zh: '请输入主题',
@@ -654,6 +748,7 @@ export default {
     tr: 'Lütfen Konu Girin',
     ja: 'トピックを入力してください',
     hu: 'Kérjük adjon meg egy témát',
+    ko: '토픽을 입력해 주세요',
   },
   selectTopic: {
     zh: '请选择主题',
@@ -661,6 +756,7 @@ export default {
     tr: 'Lütfen Konu Seçin',
     ja: 'トピックを選択してください',
     hu: 'Kérjük válasszon egy témát',
+    ko: '토픽을 선택해 주세요',
   },
   inputMsgContent: {
     zh: '请输入消息内容',
@@ -668,6 +764,7 @@ export default {
     tr: 'Lütfen Mesaj Giriniz',
     ja: 'メッセージ内容を入力してください',
     hu: 'Kérjük adjon meg egy üzenetet',
+    ko: '메시지를 입력해 주세요',
   },
   flieName: {
     zh: '文件名',
@@ -675,6 +772,7 @@ export default {
     tr: 'Dosya Adı',
     ja: 'ファイル名',
     hu: 'Fájl név',
+    ko: '파일 이름',
   },
   uploadFileTip: {
     zh: '文件内容格式错误或为空',
@@ -682,6 +780,7 @@ export default {
     tr: 'Dosya içeriği bozuk veya boş',
     ja: 'ファイルの内容が不正な形式または空です',
     hu: 'A fájl tartalma üres vagy rosszul formázott',
+    ko: '파일 내용의 형식이 잘못되었거나 비어 있습니다',
   },
   messageCount: {
     zh: '消息数',
@@ -689,6 +788,7 @@ export default {
     tr: 'Mesaj sayısı',
     ja: 'メッセージ数',
     hu: 'Üzenet szám',
+    ko: '메시지 수',
   },
   timedMessage: {
     zh: '定时消息',
@@ -696,6 +796,7 @@ export default {
     tr: 'Zamanlanmış mesaj',
     ja: '自動送信',
     hu: 'Időzített üzenet',
+    ko: '타이머 메시지',
   },
   msgFrequency: {
     zh: '消息频率（秒）',
@@ -703,6 +804,7 @@ export default {
     tr: 'Mesaj sıklık(lar)ı',
     ja: '送信間隔（秒）',
     hu: 'Üzenet gyakoriság',
+    ko: '메시지 전송 주기(초)',
   },
   clearIntervalBtn: {
     zh: '清理定时器',
@@ -710,6 +812,7 @@ export default {
     tr: 'Zamanlayıcıyı temizle',
     ja: '自動送信を解除する',
     hu: 'Időzítő törlése',
+    ko: '타이머 지우기',
   },
   setTimerSuccess: {
     zh: '成功设置定时器，发送一条消息将触发定时消息',
@@ -718,6 +821,7 @@ export default {
     ja: `自動送信を設定しました。
     これから一つのメッセージを送信すると、設定した時間間隔で自動的に該当メッセージを送信できます`,
     hu: 'Időzítő sikeresen beállítva, az üzenet küldés időzített üzeneteket fog indítani',
+    ko: '타이머가 성공적으로 설정되었습니다. 메시지를 전송하면 타이머 메시지가 시작됩니다',
   },
   startTimedMessage: {
     zh: '成功开启定时消息，消息频率（秒）：',
@@ -725,6 +829,7 @@ export default {
     tr: 'Zamanlanmış mesaj başarıyla açıldı, sıklık(lar):',
     ja: 'メッセージの自動送信が始まりました。送信間隔（秒）: ',
     hu: 'Időzített üzenenet sikeresen megnyitva, gyakoriság:',
+    ko: '타이머 메시지가 성공적으로 시작되었습니다, 주기(초): ',
   },
   stopTimedMessage: {
     zh: '已停止发送定时消息',
@@ -732,6 +837,7 @@ export default {
     tr: 'Zamanlanmış mesaj göndermeyi durdurdu',
     ja: '自動送信設定を解除しました',
     hu: 'Időzített üzenetek leállítva',
+    ko: '타이머 메시지 전송이 중지되었습니다',
   },
   systemTopic: {
     zh: '系统主题',
@@ -739,6 +845,7 @@ export default {
     tr: 'Sistem konusu',
     ja: 'システムトピック',
     hu: 'Rendszer téma',
+    ko: '시스템 토픽',
   },
   secureTip: {
     zh: '是否验证服务端证书链和地址名称',
@@ -746,6 +853,7 @@ export default {
     tr: 'İstemcinin sunucunun sertifika zincirini ve ana bilgisayar adını doğrulayıp doğrulamadığı',
     ja: "Whether a client verifies the server's certificate chain and host name",
     hu: 'Amennyiben a kliens visszaigazolja a szerver tanusítványt láncot és a kiszolgáló nevét',
+    ko: '클라이언트가 서버의 인증서 체인과 호스트 이름을 확인하는지 여부',
   },
   newCollection: {
     zh: '新建分组',
@@ -753,6 +861,7 @@ export default {
     tr: 'Yeni Grup',
     ja: '新しいグループ',
     hu: 'Új csoport',
+    ko: '새 그룹',
   },
   collectionPlaceholder: {
     zh: '分组名称',
@@ -760,6 +869,7 @@ export default {
     tr: 'Koleksiyon adı',
     ja: 'フォルダ名',
     hu: 'Gyüjtemény név',
+    ko: '그룹 이름',
   },
   deleteCollection: {
     zh: '删除分组',
@@ -767,6 +877,7 @@ export default {
     tr: 'Koleksiyonu Sil',
     ja: 'フォルダを削除する',
     hu: 'Gyüjtemény törlése',
+    ko: '그룹 삭제',
   },
   renameCollection: {
     zh: '重命名分组',
@@ -774,6 +885,7 @@ export default {
     tr: 'Koleksiyona Yeniden Ad Ver',
     ja: '名前を変更する',
     hu: 'Gyüjtemény átnevezése',
+    ko: '그룹 이름 변경',
   },
   metaTips: {
     zh: '仅在 MQTT 5.0 中启用',
@@ -781,6 +893,7 @@ export default {
     tr: 'Yalnızca MQTT 5.0 ile etkinleştirilir',
     ja: 'MQTT 5.0でのみ有効',
     hu: 'Csak MQTT 5.0 esetén engedélyezett',
+    ko: 'MQTT 5.0에서만 사용 가능',
   },
   subscriptionIdentifier: {
     zh: '订阅标识符',
@@ -788,6 +901,7 @@ export default {
     tr: 'Abonelik Tanımlayıcısı',
     ja: 'サブスクリプション識別子',
     hu: 'Előfizetési azonosító',
+    ko: '구독 식별자',
   },
   qos0: {
     zh: '最多一次',
@@ -795,6 +909,7 @@ export default {
     tr: 'en fazla bir kere',
     ja: 'せいぜい一度',
     hu: 'Legfeljebb egyszer',
+    ko: '최대 한 번',
   },
   qos1: {
     zh: '至少一次',
@@ -802,6 +917,7 @@ export default {
     tr: 'En azından bir kere',
     ja: '少なくとも一度は',
     hu: 'Legalább egyszer',
+    ko: '최소 한 번',
   },
   qos2: {
     zh: '仅一次',
@@ -809,6 +925,7 @@ export default {
     tr: 'tam olarak bir kez',
     ja: 'ちょうど一度',
     hu: 'Pontosan egyszer',
+    ko: '정확히 한 번',
   },
   duplicated: {
     zh: '{oldName} 已被复制为 {name}',
@@ -816,6 +933,7 @@ export default {
     tr: '{oldName}, {name} olarak kopyalandı',
     ja: '{oldName}は{name}として複製されました',
     hu: 'A(z) {oldName} a(z) {Name} néven másolva',
+    ko: '{oldName}이(가) {name}(으)로 복제되었습니다',
   },
   sslFileRequired: {
     zh: '请至少上传一种证书文件',
@@ -823,6 +941,7 @@ export default {
     tr: 'Lütfen en az bir sertifika dosyası yükleyin',
     ja: '少なくとも1つの証明書ファイルをアップロードしてください',
     hu: 'Legalább egy tanúsítványfájlt töltsön fel',
+    ko: '최소 하나의 인증서 파일을 업로드해 주세요',
   },
   usedScript: {
     zh: '已使用',
@@ -830,6 +949,7 @@ export default {
     tr: 'Kullanıldı',
     ja: '使用済み',
     hu: 'Használt',
+    ko: '사용됨',
   },
   usedScriptAnd: {
     zh: '和',
@@ -837,6 +957,7 @@ export default {
     tr: 'Ve',
     ja: 'そして',
     hu: 'És',
+    ko: '및',
   },
   clearRetainedMessage: {
     zh: '清除保留消息',
@@ -844,6 +965,7 @@ export default {
     tr: 'Saklı Mesajı Temizle',
     ja: '保持メッセージをクリア',
     hu: 'Megőrzött üzenet törlése',
+    ko: '유지된 메시지 지우기',
   },
   clearRetainedMessageConfirm: {
     zh: '确定清除该主题的保留消息吗？',
@@ -851,6 +973,7 @@ export default {
     tr: 'Bu konu için saklı mesajları temizlemek istiyor musunuz?',
     ja: 'このトピックの保持メッセージをクリアしますか？',
     hu: 'Törölni kívánja a témához kapcsolódó megőrzött üzeneteket?',
+    ko: '이 토픽의 유지된 메시지를 삭제하시겠습니까?',
   },
   noLocal: {
     zh: '禁止本地转发',
@@ -858,6 +981,7 @@ export default {
     tr: 'Yerel İletimi Engelle',
     ja: 'ローカル転送禁止',
     hu: 'Helyi továbbítás tiltása',
+    ko: '로컬 전달 금지 플래그',
   },
   retainAsPublished: {
     zh: '发布时状态保留',
@@ -865,6 +989,7 @@ export default {
     tr: 'Yayınlandığı Gibi Sakla',
     ja: '公開時の状態を維持',
     hu: 'Megőrzés közzétételként',
+    ko: '발행 시 상태 유지 플래그',
   },
   retainHandling: {
     zh: '保留消息处理',
@@ -872,6 +997,7 @@ export default {
     tr: 'Mesajı Saklama İşlemi',
     ja: '保持メッセージの取り扱い',
     hu: 'Üzenetmegőrzés kezelése',
+    ko: '유지 메시지 처리 방식',
   },
   onDisconnect: {
     zh: '服务器已主动断开连接, Reason: {reason} (Code: {reasonCode})',
@@ -879,6 +1005,7 @@ export default {
     tr: 'Sunucu aktif bir şekilde bağlantıyı kesmiştir, Reason: {reason} (Code: {reasonCode})',
     ja: 'サーバーから積極的に接続が切断されました, Reason: {reason} (Code: {reasonCode})',
     hu: 'A kiszolgáló aktívan bontotta a kapcsolatot, Reason: {reason} (Code: {reasonCode})',
+    ko: '브로커가 능동적으로 연결을 해제했습니다, Reason: {reason} (Code: {reasonCode})',
   },
   hideConnections: {
     zh: '隐藏连接列表',
@@ -886,6 +1013,7 @@ export default {
     tr: 'Bağlantıları Gizle',
     ja: '接続リストを非表示',
     hu: 'Kapcsolatok elrejtése',
+    ko: '연결 목록 숨기기',
   },
   showConnections: {
     zh: '显示连接列表',
@@ -893,6 +1021,7 @@ export default {
     tr: 'Bağlantıları Göster',
     ja: '接続リストを表示',
     hu: 'Kapcsolatok mutatása',
+    ko: '연결 목록 표시',
   },
   messageTooLargeToHide: {
     zh: '消息内容过大，已隐藏，点击查看完整内容',
@@ -900,6 +1029,7 @@ export default {
     tr: 'Mesaj içeriği çok büyük, gizlendi, tam içeriği görüntülemek için tıklayın',
     ja: 'メッセージ内容が大きすぎて非表示になりました。クリックして完全な内容を表示します',
     hu: 'Az üzenet tartalma túl nagy, elrejtve, kattintson a teljes tartalom megtekintéséhez',
+    ko: '메시지 내용이 너무 커서 숨겨졌습니다. 전체 내용을 보려면 클릭하세요',
   },
   payloadSize: {
     zh: '消息大小',
@@ -907,6 +1037,7 @@ export default {
     tr: 'Yük Boyutu',
     ja: 'ペイロードサイズ',
     hu: 'A hasznos teher mérete',
+    ko: '페이로드 크기',
   },
   subTopics: {
     zh: '子主题',
@@ -914,6 +1045,7 @@ export default {
     tr: 'Alt Konular',
     ja: 'サブトピック',
     hu: 'Al téma',
+    ko: '하위 토픽',
   },
   fullTopic: {
     zh: '完整主题',
@@ -921,6 +1053,7 @@ export default {
     tr: 'Tam Konu',
     ja: '完全なトピック',
     hu: 'Teljes téma',
+    ko: '전체 토픽',
   },
   receivedTime: {
     zh: '接收时间',
@@ -928,6 +1061,7 @@ export default {
     tr: 'Alındığı Zaman',
     ja: '受信時間',
     hu: 'Időbélyeg',
+    ko: '수신 시간',
   },
   syncToTopicTree: {
     zh: '同步到主题树',
@@ -935,6 +1069,7 @@ export default {
     tr: 'Konu Ağacına Senkronize Et',
     ja: 'トピックツリーに同期',
     hu: 'Témafa szinkronizálása',
+    ko: '토픽 트리 동기화',
   },
   previousPayload: {
     zh: '上一条消息',
@@ -942,6 +1077,7 @@ export default {
     tr: 'Önceki Yük',
     ja: '前のペイロード',
     hu: 'Előző terhelés',
+    ko: '이전 페이로드',
   },
   nextPayload: {
     zh: '下一条消息',
@@ -949,6 +1085,7 @@ export default {
     tr: 'Sonraki Yük',
     ja: '次のペイロード',
     hu: 'Következő terhelés',
+    ko: '다음 페이로드',
   },
   payloadHistory: {
     zh: '消息历史',
@@ -956,6 +1093,7 @@ export default {
     tr: 'Yük Geçmişi',
     ja: 'ペイロード履歴',
     hu: 'Terhelés előzmények',
+    ko: '페이로드 기록',
   },
   authenticationMethod: {
     zh: '认证方法',
@@ -963,5 +1101,6 @@ export default {
     tr: 'Kimlik Doğrulama Yöntemi',
     ja: '認証方法',
     hu: 'Hitelesítési módszer',
+    ko: '인증 방법',
   },
 }

@@ -5,6 +5,7 @@ export default {
     ja: 'MQTTXについて',
     tr: 'Hakkında',
     hu: 'Rólunk',
+    ko: '정보',
   },
   update: {
     zh: '检查更新',
@@ -12,6 +13,7 @@ export default {
     tr: 'Güncellemeleri kontrol et',
     ja: 'バージョンチェック',
     hu: 'Frissítések keresése',
+    ko: '업데이트 확인',
   },
   web: {
     zh: '官方网站',
@@ -19,6 +21,7 @@ export default {
     tr: 'Website',
     ja: '公式サイト',
     hu: 'Weboldal',
+    ko: '웹사이트',
   },
   support: {
     zh: '支持',
@@ -26,6 +29,7 @@ export default {
     tr: 'Destek',
     ja: 'サポート',
     hu: 'Támogatás',
+    ko: '지원',
   },
   releases: {
     zh: '更新日志',
@@ -33,6 +37,7 @@ export default {
     tr: 'Sürümler',
     ja: 'リリース履歴',
     hu: 'Kiadások',
+    ko: '릴리스',
   },
   mqttxDesc: {
     zh: 'MQTTX 是一款由 EMQ 开源的 MQTT 5.0 跨平台桌面客户端，旨在帮助开发者更快的开发、调试 MQTT 服务和应用。',
@@ -40,6 +45,7 @@ export default {
     tr: 'MQTTX, geliştiricilerin MQTT hizmetlerini ve uygulamalarını daha hızlı geliştirmelerine ve hata ayıklamalarına yardımcı olmak için tasarlanmış, EMQ tarafından sağlanan açık kaynaklı bir MQTT 5.0 platformlar arası masaüstü istemcisidir.',
     ja: 'MQTTXは、EMQによるオープンソースのMQTT 5.0クロスプラットフォーム・デスクスクライアントで、開発者がMQTTサービスおよびアプリケーションをより速く開発およびデバッグできるよう設計されています。',
     hu: 'Az MQTTX egy nyílt forráskódú MQTT 5.0 cross-platform asztali kliens az EMQ-tól, amelynek célja, hogy segítse a fejlesztőket az MQTT szolgáltatások és alkalmazások gyorsabb fejlesztésében és hibakeresésében.',
+    ko: 'MQTTX는 EMQ가 오픈소스로 제공하는 크로스 플랫폼 MQTT 5.0 클라이언트 도구로, 개발자가 MQTT 서비스와 애플리케이션을 더 빠르게 개발하고 디버깅할 수 있도록 돕기 위해 설계되었습니다.',
   },
   cloudTitle: {
     zh: '立即获取一个您专属的 MQTT 服务！',
@@ -47,6 +53,7 @@ export default {
     tr: 'Hemen özel bir MQTT sunucusuna sahip olun!',
     ja: '専用のMQTTサーバーを今すぐご利用いただけます！',
     hu: 'Saját, testreszabott MQTT szerverhez juthat most!',
+    ko: '지금 바로 전용 MQTT 서버를 만나보세요!',
   },
   cloudSummary: {
     zh: '发掘物联网的强大能量，尝试使用 EMQX Cloud - 一款全托管的 MQTT 云服务平台，支持连接海量设备，使用灵活按量计费的方式实时处理数据，将物联网连接和数据处理变得更高效便捷。',
@@ -54,6 +61,7 @@ export default {
     tr: `EMQX Cloud ile IoT'un gücünü keşfedin - tamamen yönetilen MQTT bulut hizmet platformu, milyonlarca cihazı bağlar ve gerçek zamanlı verileri esnek kullanım ücreti ödeme ile işler.`,
     ja: 'EMQX Cloudを使用してIoTの強力な機能を発見しましょう。EMQX Cloudは、大規模なデバイスを接続し、リアルタイムデータを柔軟な使用料金で処理することができる完全に管理されたMQTTクラウドサービスプラットフォームです。',
     hu: 'Fedezze fel az IoT erőteljes lehetőségeit az EMQX Cloud használatával - a teljesen kezelt MQTT felhőszolgáltatási platform, amely csatlakoztatja a tömeges mennyiségű eszközöket és folyamatos adatfeldolgozást végez a rugalmas használati díj fizetési móddal.',
+    ko: 'EMQX Cloud로 IoT의 강력한 힘을 활용해보세요 - 대량의 디바이스를 연결하고 유연한 종량제 요금으로 실시간 데이터를 처리하는 완전 관리형 MQTT 클라우드 서비스 플랫폼입니다.',
   },
   tryCloud: {
     zh: '免费试用 EMQX Cloud',
@@ -61,6 +69,7 @@ export default {
     tr: "EMQX Cloud'u ücretsiz deneyin",
     ja: 'EMQX Cloudの無料体験',
     hu: 'Az EMQX Cloud ingyenes próbaverziója',
+    ko: 'EMQX Cloud 무료로 체험하기',
   },
   platformTitle: {
     zh: '统一的物联网 MQTT 平台',
@@ -68,6 +77,7 @@ export default {
     tr: 'IoT için Birleşik MQTT Platformu',
     ja: 'IoT向け統合MQTTプラットフォーム',
     hu: 'Az egységes MQTT platform az IoT számára',
+    ko: 'IoT를 위한 통합 MQTT 플랫폼',
   },
   platformDesc: {
     zh: '完整的生产级 MQTT 平台，无缝连接工业设备、边缘网关和云服务。从边缘协议桥接到超大规模云消息传递，统一在一个平台下管理您的整个物联网数据基础设施。',
@@ -75,6 +85,7 @@ export default {
     tr: 'Endüstriyel cihazları, kenar ağ geçitlerini ve bulut hizmetlerini sorunsuz bir şekilde bağlayan eksiksiz, üretim düzeyinde bir MQTT platformu.',
     ja: '産業用デバイス、エッジゲートウェイ、クラウドサービスをシームレスに接続する、完全な本番環境対応MQTTプラットフォーム。',
     hu: 'Teljes körű, éles üzemre kész MQTT platform, amely zökkenőmentesen összeköti az ipari eszközöket, peremhálózati átjárókat és felhőszolgáltatásokat.',
+    ko: '모든 것을 연결하고, 무한히 확장하세요. 산업용 디바이스, 엣지 게이트웨이, 클라우드 서비스를 위한 하나의 플랫폼으로 전체 IoT 인프라를 구동합니다.',
   },
   statDownloads: {
     zh: '产品下载量',
@@ -82,6 +93,7 @@ export default {
     tr: 'Ürün İndirmeleri',
     ja: '製品ダウンロード数',
     hu: 'Termékletöltések',
+    ko: '제품 다운로드',
   },
   statClusters: {
     zh: '全球部署集群',
@@ -89,6 +101,7 @@ export default {
     tr: 'Küresel Kümeler',
     ja: 'グローバルクラスター',
     hu: 'Globális klaszterek',
+    ko: '글로벌 클러스터',
   },
   statProtocols: {
     zh: '工业协议支持',
@@ -96,6 +109,7 @@ export default {
     tr: 'Endüstriyel Protokoller',
     ja: '産業用プロトコル',
     hu: 'Ipari protokollok',
+    ko: '산업용 프로토콜',
   },
   statLatency: {
     zh: '超低延迟',
@@ -103,6 +117,7 @@ export default {
     tr: 'Çok Düşük Gecikme',
     ja: '超低遅延',
     hu: 'Ultrarövid késleltetés',
+    ko: '초저지연',
   },
   statConnections: {
     zh: '单集群并发连接',
@@ -110,6 +125,7 @@ export default {
     tr: 'Bağlantı/Küme',
     ja: '接続数/クラスター',
     hu: 'Kapcsolat/klaszter',
+    ko: '연결 수/클러스터',
   },
   tryPlatform: {
     zh: '立即免费试用',
@@ -117,6 +133,7 @@ export default {
     tr: 'Ücretsiz Denemeyi Başlat',
     ja: '無料トライアルを開始',
     hu: 'Ingyenes próba indítása',
+    ko: '무료 체험 시작',
   },
   signIn: {
     zh: '登录',
@@ -124,5 +141,6 @@ export default {
     tr: 'Giriş Yap',
     ja: 'サインイン',
     hu: 'Bejelentkezés',
+    ko: '로그인',
   },
 }

@@ -5,6 +5,7 @@ export default {
     tr: 'Özel Fonksiyonlar',
     ja: 'カスタム関数',
     hu: 'Egyedi függvények',
+    ko: '함수',
   },
   schemaTab: {
     zh: '编解码',
@@ -12,6 +13,7 @@ export default {
     tr: 'Şemalar',
     ja: 'スキーマ',
     hu: 'Sémák',
+    ko: '스키마',
   },
   script: {
     zh: '脚本',
@@ -19,6 +21,7 @@ export default {
     tr: 'Komut dosyası',
     ja: 'スクリプト',
     hu: 'Script',
+    ko: '스크립트',
   },
   functionName: {
     zh: '自定义函数',
@@ -26,6 +29,7 @@ export default {
     tr: 'Fonksiyon',
     ja: '関数',
     hu: 'Függvény',
+    ko: '함수',
   },
   schemaType: {
     zh: '编解码类型',
@@ -33,6 +37,7 @@ export default {
     tr: 'Şema Türü',
     ja: 'スキーマタイプ',
     hu: 'Séma Típus',
+    ko: '스키마 유형',
   },
   schemaName: {
     zh: '编解码',
@@ -40,6 +45,7 @@ export default {
     tr: 'Şema',
     ja: 'スキーマ',
     hu: 'Séma',
+    ko: '스키마',
   },
   test: {
     zh: '测 试',
@@ -47,6 +53,7 @@ export default {
     tr: 'Test',
     ja: 'テスト',
     hu: 'Teszt',
+    ko: '테스트',
   },
   input: {
     zh: '输入',
@@ -54,6 +61,7 @@ export default {
     tr: 'Girdi',
     ja: 'インプット',
     hu: 'Bemenet',
+    ko: '입력',
   },
   output: {
     zh: '输出',
@@ -61,6 +69,7 @@ export default {
     tr: 'Çıktı',
     ja: 'アウトプット',
     hu: 'Kimenet',
+    ko: '출력',
   },
   saveScript: {
     zh: '保存脚本',
@@ -68,6 +77,7 @@ export default {
     tr: 'Komut dosyası kaydet',
     ja: '保存',
     hu: 'Script mentés',
+    ko: '스크립트 저장',
   },
   useScript: {
     zh: '运行脚本',
@@ -75,6 +85,7 @@ export default {
     tr: 'Komut dosyası kullan',
     ja: 'スクリプトを使う',
     hu: 'Használja a Scriptet',
+    ko: '스크립트 실행',
   },
   removeScript: {
     zh: '停止脚本',
@@ -82,6 +93,7 @@ export default {
     tr: 'Komut dosyası durdur',
     ja: '停止',
     hu: 'Script leállítás',
+    ko: '스크립트 중지',
   },
   applyType: {
     zh: '应用于',
@@ -89,6 +101,7 @@ export default {
     tr: 'Uygulanan',
     ja: '適用対象',
     hu: 'Alkazva',
+    ko: '적용 대상',
   },
   startScript: {
     zh: '脚本功能已开启',
@@ -96,6 +109,7 @@ export default {
     tr: 'Komut dosyası aktif',
     ja: 'スクリプトが有効になっています',
     hu: 'Script engedélyezve',
+    ko: '스크립트가 시작되었습니다',
   },
   stopScirpt: {
     zh: '脚本功能已停止',
@@ -103,6 +117,7 @@ export default {
     tr: 'Komut dosyası durduruldu',
     ja: 'スクリプトが停止しました',
     hu: 'Script le lett állítva',
+    ko: '스크립트가 중지되었습니다',
   },
   inUseScript: {
     zh: '脚本正在使用中',
@@ -110,6 +125,7 @@ export default {
     tr: 'Komut dosyası kullanılıyor',
     ja: 'スクリプトが使用中です',
     hu: 'Script használatban van',
+    ko: '스크립트가 사용 중입니다',
   },
   uploadJs: {
     zh: '导入 .js 文件',
@@ -117,6 +133,7 @@ export default {
     tr: '.js dosyasını içe aktar',
     ja: '.jsファイルをインポート',
     hu: '.js fájl importálása',
+    ko: '.js 파일 가져오기',
   },
   uploadProto: {
     zh: '导入 .proto 文件',
@@ -124,6 +141,7 @@ export default {
     tr: '.proto dosyasını içe aktar',
     ja: '.protoファイルをインポート',
     hu: '.proto fájl importálása',
+    ko: '.proto 파일 가져오기',
   },
   uploadAvsc: {
     zh: '导入 .avsc 文件',
@@ -131,6 +149,7 @@ export default {
     tr: '.avsc dosyasını içe aktar',
     ja: '.avsc ファイルをインポート',
     hu: '.avsc fájl importálása',
+    ko: '.avsc 파일 가져오기',
   },
   importFunction: {
     zh: '导入自定义函数',
@@ -138,6 +157,7 @@ export default {
     tr: 'Fonksiyonu İçe Aktar',
     ja: '関数をインポート',
     hu: 'Függvény importálása',
+    ko: '함수 가져오기',
   },
   importSchema: {
     zh: '导入编解码',
@@ -145,6 +165,7 @@ export default {
     tr: 'Şemayı İçe Aktar',
     ja: 'スキーマをインポート',
     hu: 'Séma importálása',
+    ko: '스키마 가져오기',
   },
   selectMessageName: {
     zh: '指定类型名称',
@@ -152,6 +173,7 @@ export default {
     tr: 'Mesaj adını seç',
     ja: 'メッセージ名を選択',
     hu: 'Üzenet nevének kiválasztása',
+    ko: '메시지 이름 선택',
   },
   protoName: {
     zh: '类型名称',
@@ -159,6 +181,7 @@ export default {
     tr: 'Proto adı',
     ja: 'Proto名',
     hu: 'Proto név',
+    ko: 'Proto 이름',
   },
   mustSelect: {
     zh: '至少选择一个函数或者编解码',
@@ -166,6 +189,7 @@ export default {
     tr: 'Fonksiyon veya şema seçilmeli, veya her ikisi de seçilebilir.',
     ja: '関数またはスキーマを選択する必要があります。両方を選択することも可能です。',
     hu: 'Választani kell egy függvényt vagy sémát, de mindkettőt is választhatja.',
+    ko: '함수 또는 스키마 중 하나를 선택해야 하며, 둘 다 선택할 수도 있습니다.',
   },
   mustProtoName: {
     zh: '必须填写类型名称',
@@ -173,5 +197,6 @@ export default {
     tr: 'Proto adı gereklidir',
     ja: 'Proto名は必須です',
     hu: 'Szükséges a Proto név',
+    ko: 'Proto 이름은 필수입니다',
   },
 }
