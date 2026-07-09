@@ -5,6 +5,7 @@ export default {
     tr: 'Düşünüyorum...',
     ja: '考え中...',
     hu: 'Gondolkodom...',
+    ko: '생각 중...',
   },
   welcomeToCopilot: {
     zh: 'MQTTX Copilot 可以帮您生成连接代码、解答 MQTT 问题、创建消息转换脚本和测试数据，成为您的 MQTT 开发助手。',
@@ -12,6 +13,7 @@ export default {
     tr: 'MQTTX Copilot, bağlantı kodu oluşturmanıza, MQTT sorularını yanıtlamanıza, mesaj dönüştürme komut dosyaları ve test verileri oluşturmanıza yardımcı olabilir ve MQTT geliştirme asistanınız olarak hizmet verir.',
     ja: 'MQTTX Copilotは、接続コードの生成、MQTTの質問への回答、メッセージ変換スクリプトとテストデータの作成をサポートし、MQTTの開発アシスタントとして機能します。',
     hu: 'Az MQTTX Copilot segíthet a kapcsolódási kód generálásában, MQTT kérdések megválaszolásában, üzenet-átalakító szkriptek és tesztadatok létrehozásában, MQTT fejlesztési asszisztensként szolgálva.',
+    ko: 'MQTTX Copilot은 연결 코드 생성, MQTT 관련 질문 답변, 메시지 변환 스크립트 및 테스트 데이터 생성을 도와드리는 MQTT 개발 도우미입니다.',
   },
   didYouKnow: {
     zh: '您知道吗？',
@@ -19,6 +21,7 @@ export default {
     tr: 'Biliyor muydunuz?',
     ja: 'ご存知でしたか？',
     hu: 'Tudta?',
+    ko: '알고 계셨나요?',
   },
   tipContent1: {
     zh: '遇到连接问题？快速点击错误框中的 "Ask Copilot" 按钮，将帮助您诊断和解决问题。',
@@ -26,6 +29,7 @@ export default {
     tr: 'Bağlantı sorunları mı yaşıyorsunuz? Hata kutusundaki "Ask Copilot" düğmesine hızlıca tıklayın, bu size sorunu teşhis etmenize ve çözmenize yardımcı olacaktır.',
     ja: '接続に問題がありますか？エラーボックスの「Ask Copilot」ボタンをクリックすると、問題の診断と解決をサポートします。',
     hu: 'Kapcsolódási problémák? Kattintson gyorsan a hiba ablakban található "Ask Copilot" gombra, amely segít diagnosztizálni és megoldani a problémát.',
+    ko: '연결 문제가 있나요? 오류 창의 "Ask Copilot" 버튼을 클릭하면 문제를 진단하고 해결하는 데 도움을 드립니다.',
   },
   tipContent2: {
     zh: '使用 "生成连接代码" 功能可以快速获取多种编程语言的 MQTT 客户端代码，直接复制到您的项目中使用。',
@@ -33,6 +37,7 @@ export default {
     tr: 'Çeşitli programlama dillerinde MQTT istemci kodunu hızlıca almak için "Bağlantı Kodu Oluştur" özelliğini kullanın, projenize kopyalamaya hazır.',
     ja: '「接続コード生成」機能を使用すると、さまざまなプログラミング言語でMQTTクライアントコードをすぐに取得でき、プロジェクトにコピーできます。',
     hu: 'Használja a "Kapcsolódási kód generálása" funkciót, hogy gyorsan kapjon MQTT kliens kódot különböző programozási nyelveken, készen a projektbe való másolásra.',
+    ko: '"연결 코드 생성" 기능을 사용하면 다양한 프로그래밍 언어의 MQTT 클라이언트 코드를 빠르게 얻어 프로젝트에 바로 복사해 사용할 수 있습니다.',
   },
   tipContent3: {
     zh: '试试生成测试数据功能！Copilot 可为您创建各种 IoT 场景的模拟数据，如智能家居、工业物联网、车联网等。',
@@ -40,6 +45,7 @@ export default {
     tr: 'Test verisi oluşturma özelliğini deneyin! Copilot, akıllı evler, endüstriyel IoT, bağlantılı araçlar ve daha fazlası gibi çeşitli IoT senaryoları için simüle edilmiş veriler oluşturabilir.',
     ja: 'テストデータ生成機能を試してみてください！Copilotは、スマートホーム、産業用IoT、コネクテッドカーなどのさまざまなIoTシナリオの模擬データを作成できます。',
     hu: 'Próbálja ki a tesztadat-generálási funkciót! A Copilot szimulált adatokat hozhat létre különböző IoT forgatókönyvekhez, például okosotthonokhoz, ipari IoT-hez, csatlakoztatott járművekhez és egyebekhez.',
+    ko: '테스트 데이터 생성 기능을 사용해 보세요! Copilot은 스마트홈, 산업용 IoT, 커넥티드 카 등 다양한 IoT 시나리오에 대한 시뮬레이션 데이터를 생성할 수 있습니다.',
   },
   tipContent4: {
     zh: '了解 MQTT QoS？询问 Copilot "MQTT 的 QoS 级别有什么区别"，获取详细解释和实际使用场景。',
@@ -47,6 +53,7 @@ export default {
     tr: 'MQTT QoS hakkında merak mı ediyorsunuz? Ayrıntılı açıklamalar ve pratik kullanım örnekleri için Copilot\'a "MQTT QoS seviyeleri arasındaki farklar nelerdir" diye sorun.',
     ja: 'MQTT QoSについて知りたいですか？Copilotに「MQTTのQoSレベルの違いは何ですか」と質問すると、詳細な説明と実際の使用例が得られます。',
     hu: 'Kíváncsi az MQTT QoS-re? Kérdezze meg a Copilot-tól: "Mik a különbségek az MQTT QoS szintek között", hogy részletes magyarázatokat és gyakorlati felhasználási eseteket kapjon.',
+    ko: 'MQTT QoS가 궁금하신가요? Copilot에게 "MQTT QoS 레벨 간의 차이는 무엇인가요"라고 물어보시면 자세한 설명과 실제 사용 사례를 알려드립니다.',
   },
   tipContent5: {
     zh: '需要处理消息转换？Copilot 可以帮您编写脚本，处理 JSON 转换、数据过滤、格式转换等任务。',
@@ -54,6 +61,7 @@ export default {
     tr: 'Mesaj dönüşümlerini ele almanız mı gerekiyor? Copilot, JSON dönüşümleri, veri filtreleme, format dönüşümleri ve daha fazlası için komut dosyaları yazmanıza yardımcı olabilir.',
     ja: 'メッセージ変換を処理する必要がありますか？Copilotは、JSON変換、データフィルタリング、フォーマット変換などのスクリプトを書くのを手伝います。',
     hu: 'Üzenet-átalakításokat kell kezelnie? A Copilot segíthet olyan szkripteket írni, amelyek JSON-átalakításokat, adatszűrést, formátum-átalakításokat és egyebeket végeznek.',
+    ko: '메시지 변환 작업이 필요하신가요? Copilot은 JSON 변환, 데이터 필터링, 형식 변환 등을 위한 스크립트 작성을 도와드립니다.',
   },
   tipContent6: {
     zh: '想了解 MQTT 5.0 的新特性？询问 Copilot 获取详细解释，包括共享订阅、消息过期、主题别名等功能。',
@@ -61,6 +69,7 @@ export default {
     tr: "MQTT 5.0 özelliklerini öğrenmek mi istiyorsunuz? Paylaşılan abonelikler, mesaj süresi, konu takma adları ve daha fazlası hakkında ayrıntılı açıklamalar için Copilot'a sorun.",
     ja: 'MQTT 5.0の機能について学びたいですか？共有サブスクリプション、メッセージ有効期限、トピックエイリアスなどの詳細な説明については、Copilotに質問してください。',
     hu: 'Szeretne többet megtudni az MQTT 5.0 funkcióiról? Kérdezze meg a Copilot-tól a megosztott előfizetésekről, üzenet lejáratról, téma álnevekről és egyebekről szóló részletes magyarázatokat.',
+    ko: 'MQTT 5.0의 새로운 기능이 궁금하신가요? Copilot에게 공유 구독, 메시지 만료, 토픽 별칭 등에 대한 자세한 설명을 요청해 보세요.',
   },
   tipContent7: {
     zh: '试试启用 MCP（模型上下文协议）功能！MCP 允许 Copilot 使用各类外部工具和服务，大幅扩展其功能，帮助您进行更高效的测试、自动化和开发工作。',
@@ -68,6 +77,7 @@ export default {
     tr: "MCP (Model Context Protocol) özelliğini etkinleştirmeyi deneyin! MCP, Copilot'ın çeşitli dış araçları ve hizmetleri kullanmasına izin vererek, daha verimli test, otomasyon ve geliştirme görevlerinde size yardımcı olmak için yeteneklerini önemli ölçüde genişletir.",
     ja: 'MCP（モデルコンテキストプロトコル）機能を有効にしてみてください！MCPはCopilotにさまざまな外部ツールやサービスを使用することを可能にし、より効率的なテスト、自動化、開発タスクをサポートするためにその機能を大幅に拡張します。',
     hu: 'Próbálja ki az MCP (Model Context Protocol) funkció engedélyezését! Az MCP lehetővé teszi a Copilot számára különféle külső eszközök és szolgáltatások használatát, jelentősen bővítve képességeit, hogy segítsen a hatékonyabb tesztelésben, automatizálásban és fejlesztési feladatokban.',
+    ko: 'MCP(Model Context Protocol) 기능을 활성화해 보세요! MCP를 사용하면 Copilot이 다양한 외부 도구와 서비스를 활용할 수 있어 기능이 크게 확장되며, 더욱 효율적인 테스트, 자동화, 개발 작업을 도와드립니다.',
   },
   showThinking: {
     zh: '查看思考过程',
@@ -75,6 +85,7 @@ export default {
     tr: 'Düşünme Sürecini Görüntüle',
     ja: '思考プロセスを表示',
     hu: 'Gondolkodási folyamat megtekintése',
+    ko: '생각 과정 보기',
   },
   copilotPubMsgPlaceholder: {
     en: 'Enter message, use / for preset prompts, ↩︎ to send',
@@ -82,6 +93,7 @@ export default {
     ja: 'メッセージを入力し、/ でプリセットプロンプトを開き、↩︎ で送信します',
     tr: 'Mesajı girin, hazır istemler için / kullanın, göndermek için ↩︎ kullanın',
     hu: 'Üzenet beírása, használja a / jelet az előre beállított promptokhoz, ↩︎ a küldéshez',
+    ko: '메시지를 입력하세요. 사전 설정 프롬프트는 /, 전송은 ↩︎ 키를 사용하세요',
   },
   copilotUser: {
     zh: '用户',
@@ -89,6 +101,7 @@ export default {
     tr: 'Sen',
     ja: 'あなた',
     hu: 'Te',
+    ko: '나',
   },
   copilotAPIKeyRequired: {
     zh: '请先在设置中配置 Copilot 的 API Key',
@@ -96,6 +109,7 @@ export default {
     tr: 'Lütfen önce ayarlarda Copilot API Anahtarını yapılandırın',
     ja: '最初に設定でCopilot APIキーを構成してください',
     hu: 'Kérjük, először állítsa be a Copilot API-kulcsot a beállításokban',
+    ko: '먼저 설정에서 Copilot API Key를 등록해 주세요',
   },
   goToSetting: {
     zh: '去设置',
@@ -103,6 +117,7 @@ export default {
     tr: 'Ayarlar',
     ja: '設定',
     hu: 'Beállítások',
+    ko: '설정으로 이동',
   },
   promptError: {
     zh: '请帮助解析并解决以下错误：',
@@ -110,6 +125,7 @@ export default {
     tr: 'Lütfen aşağıdaki hata mesajını analiz etmeye ve çözmeye yardımcı olun: ',
     ja: '以下のエラーメッセージを分析し、解決してください：',
     hu: 'Kérjük, segítsen elemezni és megoldani az alábbi hibaüzenetet: ',
+    ko: '다음 오류를 분석하고 해결하는 데 도움을 주세요: ',
   },
   myConnectionInfo: {
     zh: '有需要的话可以查看这个当前的连接信息：@connection',
@@ -117,6 +133,7 @@ export default {
     tr: 'Gerekirse, mevcut bağlantı bilgisini kontrol edebilirsiniz: @connection',
     ja: '必要な場合は、現在の接続情報を確認できます：@connection',
     hu: 'Szükség esetén ellenőrizheti a jelenlegi kapcsolati információkat: @connection',
+    ko: '필요하다면 현재 연결 정보를 확인할 수 있습니다: @connection',
   },
   promptCodegen: {
     zh: '客户端代码生成',
@@ -124,6 +141,7 @@ export default {
     tr: 'Kod Oluşturucu',
     ja: 'コード生成',
     hu: 'Kódgenerálás',
+    ko: '클라이언트 코드 생성',
   },
   promptProgrammingLanguage: {
     zh: '使用当前连接创建 {0} MQTT Client 代码 {1}',
@@ -131,6 +149,7 @@ export default {
     tr: 'Mevcut bağlantı ile {0} MQTT Client kodu oluştur {1}',
     ja: '現在の接続で {0} MQTTクライアントコードを作成する {1}',
     hu: 'Hozzon létre {0} MQTT ügyfélkódot az aktuális kapcsolattal {1}',
+    ko: '현재 연결로 {0} MQTT 클라이언트 코드 생성 {1}',
   },
   genSimpleIoTPayload: {
     zh: '生成简单测试数据',
@@ -138,6 +157,7 @@ export default {
     tr: 'Basit IoT Verisi Oluştur',
     ja: 'シンプルなIoTデータを生成する',
     hu: 'Egyszerű IoT Adatok Generálása',
+    ko: '간단한 테스트 데이터 생성',
   },
   promptGenSimpleIoTPayload: {
     zh: '生成简单结构的 MQTT IoT 测试数据，适合基础测试场景。',
@@ -145,6 +165,7 @@ export default {
     tr: 'Temel test senaryoları için basit yapıda MQTT IoT test verileri oluşturun.',
     ja: '基本的なテストシナリオに適した、単純な構造のMQTT IoTテストデータを生成します。',
     hu: 'Generáljon egyszerű szerkezetű MQTT IoT tesztadatokat, amelyek alapvető tesztelési forgatókönyvekhez alkalmasak.',
+    ko: '간단한 구조의 MQTT IoT 테스트 데이터를 생성합니다. 기본적인 테스트 시나리오에 적합합니다.',
   },
   genComplexIoTPayload: {
     zh: '生成复杂测试数据',
@@ -152,6 +173,7 @@ export default {
     tr: 'Karmaşık IoT Verisi Oluştur',
     ja: '複雑なIoTデータを生成する',
     hu: 'Bonyolult IoT Adatok Generálása',
+    ko: '복잡한 테스트 데이터 생성',
   },
   promptGenComplexIoTPayload: {
     zh: '生成具有复杂结构的 MQTT IoT 测试数据，适用于高级测试场景，包括多设备交互和数据分析。',
@@ -159,6 +181,7 @@ export default {
     tr: 'Gelişmiş test senaryoları için uygun, çoklu cihaz etkileşimlerini ve veri analizini içeren karmaşık yapıda IoT test verileri oluşturun.',
     ja: '複数デバイスの相互作用とデータ分析を含む、高度なテストシナリオに適した複雑な構造のIoTテストデータを生成します。',
     hu: 'Generáljon bonyolult szerkezetű IoT tesztadatokat, amelyek alkalmasak fejlett tesztelési forgatókönyvekre, beleértve a több eszköz közötti interakciókat és az adatelemzést.',
+    ko: '복잡한 구조의 MQTT IoT 테스트 데이터를 생성합니다. 다중 기기 상호작용과 데이터 분석을 포함한 고급 테스트 시나리오에 적합합니다.',
   },
   genConnectedCarPayload: {
     zh: '车联网测试数据',
@@ -166,6 +189,7 @@ export default {
     tr: 'Bağlantılı Araba Test Verisi Oluştur',
     ja: '車載テレメトリーデータ',
     hu: 'Csatlakoztatott Autó Tesztadatok Generálása',
+    ko: '커넥티드 카 테스트 데이터',
   },
   promptGenConnectedCarPayload: {
     zh: '生成车联网测试数据，模拟车辆通信、远程监控和数据分析。',
@@ -173,6 +197,7 @@ export default {
     tr: 'Araç iletişimi, uzaktan izleme ve veri analizini simüle eden bağlantılı araba test verileri oluşturun.',
     ja: '車両通信、リモートモニタリング、データ分析をシミュレートするコネクテッドカーのテストデータを生成します。',
     hu: 'Generáljon csatlakoztatott autó tesztadatokat, amelyek az autókommunikációt, a távoli monitorozást és az adatelemzést szimulálják.',
+    ko: '차량 통신, 원격 모니터링, 데이터 분석을 시뮬레이션하는 커넥티드 카 테스트 데이터를 생성합니다.',
   },
   genSmartHomePayload: {
     zh: '智能家居测试数据',
@@ -180,6 +205,7 @@ export default {
     tr: 'Akıllı Ev Test Verisi Oluştur',
     ja: 'スマートホームのテストデータを生成する',
     hu: 'Okosotthoni Tesztadatok Generálása',
+    ko: '스마트홈 테스트 데이터',
   },
   promptGenSmartHomePayload: {
     zh: '生成智能家居测试数据，包括设备自动化和用户行为模式。',
@@ -187,6 +213,7 @@ export default {
     tr: 'Cihaz otomasyonunu ve kullanıcı davranış modellerini içeren akıllı ev test verileri oluşturun.',
     ja: 'デバイスの自動化とユーザー行動パターンを含むスマートホームテストデータを生成します。',
     hu: 'Generáljon okosotthoni tesztadatokat, amelyek az eszközautomatizálást és a felhasználói viselkedésmintákat tartalmazzák.',
+    ko: '기기 자동화와 사용자 행동 패턴을 포함한 스마트홈 테스트 데이터를 생성합니다.',
   },
   genIndustrialIoTPayload: {
     zh: '工业物联网测试数据',
@@ -194,6 +221,7 @@ export default {
     tr: 'Endüstriyel IoT Test Verisi Oluştur',
     ja: '産業用IoTテストデータを生成する',
     hu: 'Ipari IoT Tesztadatok Generálása',
+    ko: '산업용 IoT 테스트 데이터',
   },
   promptGenIndustrialIoTPayload: {
     zh: '生成适用于工业物联网场景的 MQTT IoT 测试数据，包括机器性能、传感器读数和生产线状态。',
@@ -201,6 +229,7 @@ export default {
     tr: 'Makine performansını, sensör okumalarını ve üretim hattı durumlarını içeren, endüstriyel IoT senaryoları için uygun MQTT IoT test verileri oluşturun.',
     ja: '機械のパフォーマンス、センサーの読み取り、生産ラインの状態を含む、産業用IoTシナリオに適したMQTT IoTテストデータを生成します。',
     hu: 'Generáljon MQTT IoT tesztadatokat ipari IoT forgatókönyvekhez, beleértve a gépek teljesítményét, a szenzorok olvasásait és a termelési sor állapotait.',
+    ko: '기계 성능, 센서 값, 생산 라인 상태를 포함해 산업용 IoT 시나리오에 적합한 MQTT IoT 테스트 데이터를 생성합니다.',
   },
   mqttProtocol: {
     zh: 'MQTT 协议是什么',
@@ -208,6 +237,7 @@ export default {
     tr: 'MQTT Protokolü Nedir',
     ja: 'MQTTプロトコルとは何ですか',
     hu: 'Mi az MQTT protokoll',
+    ko: 'MQTT 프로토콜이란',
   },
   whatIsMQTT5: {
     zh: 'MQTT 5.0 是什么',
@@ -215,6 +245,7 @@ export default {
     tr: 'MQTT 5.0 nedir',
     ja: 'MQTT 5.0 とは何ですか',
     hu: 'Mi az MQTT 5.0',
+    ko: 'MQTT 5.0이란',
   },
   whatIsMQTT5Desc: {
     zh: 'MQTT 5.0 是什么？请提供详细的介绍，包含 MQTT 5.0 的新特性和更新。',
@@ -222,6 +253,7 @@ export default {
     tr: "MQTT 5.0 nedir? Lütfen MQTT 5.0'ın yeni özelliklerini ve güncellemelerini içeren ayrıntılı bir tanıtım sağlayın.",
     ja: 'MQTT 5.0とは何ですか？MQTT 5.0の新機能と更新を含む詳細な紹介を提供してください。',
     hu: 'Mi az MQTT 5.0? Kérjük, adjon meg egy részletes bevezetést, amely tartalmazza az MQTT 5.0 új funkcióit és frissítéseit.',
+    ko: 'MQTT 5.0이란 무엇인가요? MQTT 5.0의 새로운 기능과 업데이트를 포함해 자세히 소개해 주세요.',
   },
   mqttQoS: {
     zh: 'MQTT QoS 是什么',
@@ -229,6 +261,7 @@ export default {
     tr: 'MQTT QoS Nedir',
     ja: 'MQTT QoSとは何ですか',
     hu: 'Mi az MQTT QoS',
+    ko: 'MQTT QoS란',
   },
   mqttQoSDesc: {
     zh: 'MQTT QoS 是什么？我该如何选择，请提供一些真实场景案例区分',
@@ -236,6 +269,7 @@ export default {
     tr: 'MQTT QoS Nedir? Nasıl seçilir? Lütfen ayırt etmek için bazı gerçek dünya senaryo durumları sağlayın',
     ja: 'MQTT QoSとは何ですか？どうやって選びますか？区別するためにいくつかの実世界のシナリオケースを提供してください',
     hu: 'Mi az MQTT QoS? Hogyan válasszam ki? Kérjük, adjon meg néhány valós világ szcenárió esetet a megkülönböztetéshez',
+    ko: 'MQTT QoS란 무엇인가요? 어떻게 선택해야 하나요? 구분할 수 있도록 실제 사례를 몇 가지 제시해 주세요',
   },
   mqttRetain: {
     zh: 'MQTT 保留消息是什么',
@@ -243,6 +277,7 @@ export default {
     tr: 'Retain Mesajı Nedir',
     ja: 'レテインメッセージとは何ですか',
     hu: 'Mi a Retain Üzenet',
+    ko: 'Retain 메시지란',
   },
   mqttRetainDesc: {
     zh: 'MQTT 保留消息是什么？我该如何使用，请提供一些真实场景案例，并且告知如何使用 MQTTX 来清除保留消息呢？',
@@ -250,6 +285,7 @@ export default {
     tr: "MQTT Retain Mesajı Nedir? Nasıl kullanılır? Lütfen bazı gerçek dünya senaryo durumları sağlayın ve MQTTX'i kullanarak kalıcı mesajları nasıl temizleyeceğimi söyleyin?",
     ja: 'MQTT レテインメッセージとは何ですか？どうやって使うのですか？実際のシナリオケースをいくつか提供し、MQTTXを使用して保持されたメッセージをクリアする方法を教えてください。',
     hu: 'Mi az MQTT Retain Üzenet? Hogyan használjam? Kérjük, adjon meg néhány valós világ szcenárió esetet, és mondja el, hogyan használhatom az MQTTX-et a megőrzött üzenetek törléséhez?',
+    ko: 'MQTT Retain 메시지란 무엇인가요? 어떻게 사용하나요? 실제 사례를 몇 가지 제시하고, MQTTX로 Retain 메시지를 삭제하는 방법도 알려주세요?',
   },
   installEMQX: {
     zh: '如何安装 EMQX',
@@ -257,6 +293,7 @@ export default {
     tr: 'EMQX Nasıl Kurulur',
     ja: 'EMQXのインストール方法',
     hu: 'Hogyan telepíthető az EMQX',
+    ko: 'EMQX 설치 방법',
   },
   emqxRule: {
     zh: 'EMQX 规则引擎 SQL 示例',
@@ -264,6 +301,7 @@ export default {
     tr: 'EMQX Kural Motoru SQL Örneği',
     ja: 'EMQXルールエンジンSQLの例',
     hu: 'EMQX szabálymotor SQL példa',
+    ko: 'EMQX 규칙 엔진 SQL 예제',
   },
   promptEmqxRule: {
     zh: '请帮我编辑一段 EMQX 规则引擎的 SQL 示例，包含解释和简单教程',
@@ -271,6 +309,7 @@ export default {
     tr: 'Lütfen bana bir EMQX Kural Motoru SQL örneği düzenleme konusunda yardımcı olun, açıklama ve basit bir öğretici içerir',
     ja: 'EMQXルールエンジンSQLの例を編集してください。説明と簡単なチュートリアルが含まれています',
     hu: 'Segítsen szerkeszteni egy EMQX szabálymotor SQL példát, beleértve a magyarázatot és az egyszerű útmutatót',
+    ko: 'EMQX 규칙 엔진 SQL 예제 작성을 도와주세요. 설명과 간단한 튜토리얼도 포함해 주세요',
   },
   currentConnectionInfo: {
     zh: '当前连接信息',
@@ -278,6 +317,7 @@ export default {
     tr: 'Mevcut Bağlantı Bilgisi',
     ja: '現在の接続情報',
     hu: 'Jelenlegi kapcsolat információ',
+    ko: '현재 연결 정보',
   },
   promptCurrentConnectionInfo: {
     zh: '请帮我解释当前连接的信息，包含连接的基本信息 {0}',
@@ -285,6 +325,7 @@ export default {
     tr: 'Lütfen bana mevcut bağlantının bilgisini açıklama konusunda yardımcı olun, bağlantının temel bilgilerini içerir {0}',
     ja: '現在の接続の情報を説明してください。接続の基本情報を含みます {0}',
     hu: 'Segítsen elmagyarázni a jelenlegi kapcsolat adatait, beleértve a kapcsolat alapadatait {0}',
+    ko: '현재 연결 정보를 설명해 주세요. 연결의 기본 정보 {0}를 포함해 주세요',
   },
   explainer: {
     zh: '解释器',
@@ -292,6 +333,7 @@ export default {
     tr: 'Açıklayıcı',
     ja: '解説者',
     hu: 'Magyarázó',
+    ko: '설명',
   },
   insertCodeToEditor: {
     zh: '插入编辑器',
@@ -299,6 +341,7 @@ export default {
     tr: 'Ekle',
     ja: '挿入',
     hu: 'Beszúrás',
+    ko: '삽입',
   },
   insertCodeSuccess: {
     zh: '代码已插入编辑器中',
@@ -306,6 +349,7 @@ export default {
     tr: 'Kod editöre eklendi',
     ja: 'コードがエディタに挿入されました',
     hu: 'A kód be lett szúrva a szerkesztőbe',
+    ko: '코드가 에디터에 삽입되었습니다',
   },
   genTestDoc: {
     zh: '生成测试文档',
@@ -313,6 +357,7 @@ export default {
     tr: 'Test Belgesi Oluştur',
     ja: 'テストドキュメントを生成する',
     hu: 'Teszt dokumentum generálása',
+    ko: '테스트 문서 생성',
   },
   promptGenTestDoc: {
     zh: '请帮我生成一份 MQTT的测试文档，包含测试的基本信息 {0}，并总结一份完整的测试报告',
@@ -320,6 +365,7 @@ export default {
     tr: 'Lütfen bana MQTT bağlantı testi belgesi oluşturma konusunda yardımcı olun, testin temel bilgilerini içerir {0} ve tam bir test raporu özetleyin',
     ja: 'MQTT接続テストドキュメントを生成してください。テストの基本情報を含みます {0} そして完全なテストレポートをまとめる',
     hu: 'Segítsen létrehozni egy MQTT kapcsolat teszt dokumentumot, beleértve a teszt alapvető információit {0} és összefoglal egy teljes teszt jelentést',
+    ko: 'MQTT 연결 테스트 문서를 생성해 주세요. 테스트의 기본 정보 {0}를 포함하고, 완전한 테스트 보고서로 정리해 주세요',
   },
   emqxLogAnalysis: {
     zh: 'EMQX 日志分析',
@@ -327,13 +373,15 @@ export default {
     tr: 'EMQX Günlük Analizi',
     ja: 'EMQXログ分析',
     hu: 'EMQX naplóelemzés',
+    ko: 'EMQX 로그 분석',
   },
   promptEmqxLogAnalysis: {
     zh: '请帮我分析一份 EMQX 日志，包含解释告警和错误信息等，并提供解决方案，日志内容：',
     en: 'Please help me analyze an EMQX log, including explanations of alerts and error messages, and provide solutions, log content:',
     tr: 'Lütfen bana bir EMQX günlüğü analiz etme konusunda yardımcı olun, uyarıların ve hata mesajlarının açıklamalarını içerir ve çözümler sağlar, günlük içeriği:',
     ja: 'EMQXログを分析してください。アラートとエラーメッセージの説明を含み、解決策を提供します。ログの内容',
-    hu: 'Segítsen elemzeni egy EMQX naplót, beleértve az riasztások és hibaüzenetek magyarázatát, és megoldásokat nyújt, naplótartalom:',
+    hu: 'Segítsen elemezeni egy EMQX naplót, beleértve az riasztások és hibaüzenetek magyarázatát, és megoldásokat nyújt, naplótartalom:',
+    ko: 'EMQX 로그 분석을 도와주세요. 경고 및 오류 메시지에 대한 설명과 해결 방안을 포함해 주세요. 로그 내용:',
   },
   programmingLang: {
     zh: '编程语言',
@@ -341,6 +389,7 @@ export default {
     tr: 'Diller',
     ja: 'プログラミング言語',
     hu: 'Programozási',
+    ko: '프로그래밍 언어',
   },
   hardware: {
     zh: '硬件',
@@ -348,6 +397,7 @@ export default {
     tr: 'Donanım',
     ja: 'ハードウェア',
     hu: 'Hardver',
+    ko: '하드웨어',
   },
   mobileApps: {
     zh: '移动应用',
@@ -355,6 +405,7 @@ export default {
     tr: 'Mobil Uygulamalar',
     ja: 'モバイルアプリ',
     hu: 'Mobil alkalmazások',
+    ko: '모바일 앱',
   },
   webApps: {
     zh: 'Web 应用',
@@ -362,6 +413,7 @@ export default {
     tr: 'Web Uygulamalar',
     ja: 'Webアプリ',
     hu: 'Web alkalmazások',
+    ko: '웹 앱',
   },
   customFunction: {
     zh: '自定义函数',
@@ -369,6 +421,7 @@ export default {
     tr: 'Özel Fonksiyon',
     ja: 'カスタム関数',
     hu: 'Egyedi függvény',
+    ko: '사용자 정의 함수',
   },
   customRequirementGenerate: {
     zh: '自定义需求生成',
@@ -376,6 +429,7 @@ export default {
     tr: 'Özel İhtiyaç Oluşturma',
     ja: 'カスタム要求生成',
     hu: 'Egyedi igény generálás',
+    ko: '사용자 정의 요구사항 생성',
   },
   simulateWeatherData: {
     zh: '模拟天气数据',
@@ -383,6 +437,7 @@ export default {
     tr: 'Hava Verisi Simüle Et',
     ja: '天気データをシミュレート',
     hu: 'Időjárás adatok szimulálása',
+    ko: '날씨 데이터 시뮬레이션',
   },
   dynamicCommandSwitch: {
     zh: '动态指令切换',
@@ -390,6 +445,7 @@ export default {
     tr: 'Dinamik Komut Anahtarı',
     ja: 'ダイナミックコマンドスイッチ',
     hu: 'Dinamik parancs kapcsoló',
+    ko: '동적 명령 전환',
   },
   timeFormatProcessing: {
     zh: '时间格式处理',
@@ -397,6 +453,7 @@ export default {
     tr: 'Zaman Formatı İşleme',
     ja: '時間フォーマット処理',
     hu: 'Időformátum feldolgozás',
+    ko: '시간 형식 처리',
   },
   promptCustomFunctionCustomRequirement: {
     zh: '请帮我生成一个自定义函数，包含测试用例和预期结果，描述需求：',
@@ -404,6 +461,7 @@ export default {
     tr: 'Lütfen bana bir özel fonksiyon oluşturma konusunda yardımcı olun, test durumlarını ve beklenen sonuçları içerir, gereksinimleri açıklayın:',
     ja: 'テストケースと期待される結果を含むカスタム関数を生成するのにお手伝いください。要件を説明してください：',
     hu: 'Segítsen egy egyedi függvény generálásában, beleértve a teszteseteket és az elvárt eredményeket, írja le az igényeket:',
+    ko: '사용자 정의 함수 생성을 도와주세요. 테스트 케이스와 예상 결과를 포함해 주세요. 요구사항을 설명해 주세요:',
   },
   schema: {
     zh: '编解码',
@@ -411,6 +469,7 @@ export default {
     tr: 'Şemalar',
     ja: 'スキーマ',
     hu: 'Sémák',
+    ko: '스키마',
   },
   reportSmartHomeStatus: {
     zh: '智能家居设备状态上报',
@@ -418,6 +477,7 @@ export default {
     tr: 'Akıllı Ev Cihaz Durum Gönderimi',
     ja: 'スマートホームデバイス状態報告',
     hu: 'Intelligens otthoni eszközállapot jelentés',
+    ko: '스마트홈 기기 상태 보고',
   },
   industrialDeviceAlarm: {
     zh: '工业设备告警消息',
@@ -425,6 +485,7 @@ export default {
     tr: 'Endüstriyel Cihaz Alarm Mesajları',
     ja: '産業用デバイスアラームメッセージ',
     hu: 'Ipari eszköz figyelmeztetés üzenetek',
+    ko: '산업용 기기 경보 메시지',
   },
   connectedCarTelemetry: {
     zh: '车联网车辆遥测数据',
@@ -432,6 +493,7 @@ export default {
     tr: 'Bağlantılı Araba Telemetri Verileri',
     ja: '車載テレメトリーデータ',
     hu: 'Csatlakoztatott autó telemetria adatok',
+    ko: '커넥티드 카 원격 측정 데이터',
   },
   smartMeterReadings: {
     zh: '智能电表实时读数',
@@ -439,6 +501,7 @@ export default {
     tr: 'Akıllı Sayaç Gerçek Zamanlı Okumalar',
     ja: 'スマートメーターリアルタイム読取値',
     hu: 'Okos mérőóra valós idejű értékek',
+    ko: '스마트 미터 실시간 값',
   },
   promptSchemaCustomRequirement: {
     zh: '请根据需求生成对应的数据 Schema 和示例数据，描述需求：',
@@ -446,6 +509,7 @@ export default {
     tr: 'lütfen gereksinimlere göre karşılık gelen veri şemasını ve örnek verileri oluşturun, gereksinimleri açıklayın:',
     ja: '要件に従って対応するデータスキーマと例示データを生成してください。要件を説明してください：',
     hu: 'kérem generálja a megfelelő adatsémát és példaadatokat az igényeknek megfelelően, írja le az igényeket:',
+    ko: '요구사항에 맞는 데이터 스키마와 예시 데이터를 생성해 주세요. 요구사항을 설명해 주세요:',
   },
   promptCustomPayload: {
     zh: '请根据需求生成对应的测试数据，描述需求：',
@@ -453,6 +517,7 @@ export default {
     tr: 'lütfen gereksinimlere göre karşılık gelen test verilerini oluşturun, gereksinimleri açıklayın:',
     ja: '要件に従って対応するテストデータを生成してください。要件を説明してください：',
     hu: 'kérem generálja a megfelelő tesztadatokat az igényeknek megfelelően, írja le az igényeket:',
+    ko: '요구사항에 맞는 테스트 데이터를 생성해 주세요. 요구사항을 설명해 주세요:',
   },
   askEMQX: {
     zh: '询问 EMQX 相关问题',
@@ -460,6 +525,7 @@ export default {
     tr: 'EMQX ilgili sorunları sor',
     ja: 'EMQX関連の質問を尋ねる',
     hu: 'EMQX kapcsolatos kérdéseket kérdezhet',
+    ko: 'EMQX 관련 질문하기',
   },
   promptAskEMQX: {
     zh: '请输入 EMQX 任意相关的问题，问题描述：',
@@ -467,6 +533,7 @@ export default {
     tr: 'EMQX ilgili herhangi bir soruyu girin, soruyu açıklayın:',
     ja: 'EMQX関連の質問を入力してください。質問を説明してください：',
     hu: 'Kérjük, bármilyen kapcsolódó kérdést EMQX-re írjon be, a kérdés leírását:',
+    ko: 'EMQX와 관련된 질문을 입력해 주세요. 질문을 설명해 주세요:',
   },
   askMQTTFaq: {
     zh: '询问 MQTT 相关问题',
@@ -474,6 +541,7 @@ export default {
     tr: 'MQTT ilgili sorunları sor',
     ja: 'MQTT関連の質問を尋ねる',
     hu: 'MQTT kapcsolatos kérdéseket kérdezhet',
+    ko: 'MQTT 관련 질문하기',
   },
   promptAskMQTTFaq: {
     zh: '请输入 MQTT 相关问题，问题描述：',
@@ -481,6 +549,7 @@ export default {
     tr: 'MQTT ilgili herhangi bir soruyu girin, soruyu açıklayın:',
     ja: 'MQTT関連の質問を入力してください。質問を説明してください：',
     hu: 'Kérjük, bármilyen kapcsolódó kérdést MQTT-re írjon be, a kérdés leírását:',
+    ko: 'MQTT와 관련된 질문을 입력해 주세요. 질문을 설명해 주세요:',
   },
   // MCP Settings UI
   mcpTitle: {
@@ -489,6 +558,7 @@ export default {
     tr: 'MCP (Model Context Protocol)',
     ja: 'MCP (モデルコンテキストプロトコル)',
     hu: 'MCP (Model Context Protocol)',
+    ko: 'MCP (Model Context Protocol)',
   },
   mcpEnableLabel: {
     zh: '启用 MCP',
@@ -496,6 +566,7 @@ export default {
     tr: 'MCP Etkinleştir',
     ja: 'MCPを有効にする',
     hu: 'MCP engedélyezése',
+    ko: 'MCP 활성화',
   },
   mcpEnableTooltip: {
     zh: '启用 MCP 让 AI 使用外部工具和服务',
@@ -503,6 +574,7 @@ export default {
     tr: "AI'nın dış araçları ve hizmetleri kullanmasına izin vermek için MCP'yi etkinleştirin",
     ja: 'AIが外部ツールやサービスを使用できるようにMCPを有効にする',
     hu: 'Engedélyezze az MCP-t, hogy az AI külső eszközöket és szolgáltatásokat használhasson',
+    ko: 'MCP를 활성화하면 AI가 외부 도구와 서비스를 사용할 수 있습니다',
   },
   mcpServerConfigLabel: {
     zh: 'MCP 服务器配置',
@@ -510,6 +582,7 @@ export default {
     tr: 'MCP Sunucu Yapılandırması',
     ja: 'MCPサーバー構成',
     hu: 'MCP szerver konfiguráció',
+    ko: 'MCP 서버 설정',
   },
   mcpServerConfigTooltip: {
     zh: '以 JSON 格式配置 MCP 服务器，支持多个服务器',
@@ -517,6 +590,7 @@ export default {
     tr: 'MCP sunucularını JSON formatında yapılandırın, birden çok sunucuyu destekler',
     ja: 'MCPサーバーをJSON形式で構成、複数のサーバーをサポート',
     hu: 'MCP szerverek konfigurálása JSON formátumban, több szerver támogatása',
+    ko: 'JSON 형식으로 MCP 서버를 설정합니다. 여러 서버를 지원합니다',
   },
   mcpConfiguredServersLabel: {
     zh: '已配置的 MCP 服务器',
@@ -524,6 +598,7 @@ export default {
     tr: 'Yapılandırılmış MCP Sunucuları',
     ja: '構成済みのMCPサーバー',
     hu: 'Konfigurált MCP szerverek',
+    ko: '설정된 MCP 서버',
   },
   mcpConfiguredServersTooltip: {
     zh: '显示当前已配置的 MCP 服务器列表',
@@ -531,6 +606,7 @@ export default {
     tr: 'Şu anda yapılandırılmış MCP sunucularının listesini görüntüler',
     ja: '現在構成されているMCPサーバーのリストを表示',
     hu: 'A jelenleg konfigurált MCP szerverek listájának megjelenítése',
+    ko: '현재 설정된 MCP 서버 목록을 표시합니다',
   },
   mcpNoServersConfigured: {
     zh: '尚未配置 MCP 服务器',
@@ -538,6 +614,7 @@ export default {
     tr: 'Henüz MCP sunucusu yapılandırılmadı',
     ja: 'MCPサーバーはまだ構成されていません',
     hu: 'Még nincs konfigurált MCP szerver',
+    ko: '아직 설정된 MCP 서버가 없습니다',
   },
   mcpAvailableTools: {
     zh: '可用工具：',
@@ -545,6 +622,7 @@ export default {
     tr: 'Kullanılabilir Araçlar:',
     ja: '利用可能なツール：',
     hu: 'Elérhető eszközök:',
+    ko: '사용 가능한 도구:',
   },
   mcpDeleteConfirm: {
     zh: '确定要删除服务器 "{0}" 吗？',
@@ -552,6 +630,7 @@ export default {
     tr: '"{0}" sunucusunu silmek istediğinizden emin misiniz?',
     ja: 'サーバー「{0}」を削除してもよろしいですか？',
     hu: 'Biztosan törölni szeretné a(z) "{0}" szervert?',
+    ko: '서버 "{0}"을(를) 삭제하시겠습니까?',
   },
   mcpCopySuccess: {
     zh: '已复制到剪贴板',
@@ -559,6 +638,7 @@ export default {
     tr: 'Panoya kopyalandı',
     ja: 'クリップボードにコピーされました',
     hu: 'Vágólapra másolva',
+    ko: '클립보드에 복사되었습니다',
   },
   mcpCopyFailed: {
     zh: '复制失败，请手动选择并复制',
@@ -566,6 +646,7 @@ export default {
     tr: 'Kopyalama başarısız oldu, lütfen manuel olarak seçin ve kopyalayın',
     ja: 'コピーに失敗しました。手動で選択してコピーしてください',
     hu: 'Másolás sikertelen, kérjük, válassza ki és másolja manuálisan',
+    ko: '복사에 실패했습니다. 수동으로 선택하여 복사해 주세요',
   },
   mcpConfigError: {
     zh: '配置必须包含 mcpServers 对象',
@@ -573,6 +654,7 @@ export default {
     tr: 'Yapılandırma mcpServers nesnesini içermelidir',
     ja: '構成にはmcpServersオブジェクトを含める必要があります',
     hu: 'A konfigurációnak tartalmaznia kell az mcpServers objektumot',
+    ko: '설정에는 mcpServers 객체가 포함되어야 합니다',
   },
   mcpServerConfigInvalid: {
     zh: '服务器 "{0}" 配置无效，必须包含 url 或 command+args 数组',
@@ -580,6 +662,7 @@ export default {
     tr: 'Sunucu "{0}" yapılandırması geçersiz, url veya komut ve args dizisini içermelidir',
     ja: 'サーバー「{0}」の構成が無効です。urlまたはコマンドとargs配列を含める必要があります',
     hu: 'A(z) "{0}" szerver konfigurációja érvénytelen, tartalmaznia kell az url-t vagy a parancsot és az args tömböt',
+    ko: '서버 "{0}"의 설정이 유효하지 않습니다. url 또는 command와 args 배열을 포함해야 합니다',
   },
   mcpInvalidJsonFormat: {
     zh: 'JSON 格式无效',
@@ -587,6 +670,7 @@ export default {
     tr: 'Geçersiz JSON biçimi',
     ja: '無効なJSON形式',
     hu: 'Érvénytelen JSON formátum',
+    ko: '유효하지 않은 JSON 형식입니다',
   },
   mcpFailedParseConfig: {
     zh: '无法解析存储的配置，重置为默认',
@@ -594,6 +678,7 @@ export default {
     tr: 'Depolanan yapılandırma ayrıştırılamadı, varsayılana sıfırlandı',
     ja: '保存された構成の解析に失敗しました。デフォルトにリセットします',
     hu: 'Nem sikerült elemezni a tárolt konfigurációt, visszaállítás alapértelmezettre',
+    ko: '저장된 설정을 파싱하지 못해 기본값으로 재설정했습니다',
   },
   mcpServerTestSuccess: {
     zh: '服务器连接成功',
@@ -601,6 +686,7 @@ export default {
     tr: 'Sunucu başarıyla bağlandı',
     ja: 'サーバー接続成功',
     hu: 'A(z) szerver sikeresen csatlakoztatva',
+    ko: '서버에 성공적으로 연결되었습니다',
   },
   mcpServerTestFailed: {
     zh: '服务器连接失败',
@@ -608,6 +694,7 @@ export default {
     tr: 'Sunucu bağlantısı başarısız',
     ja: 'サーバー接続に失敗しました',
     hu: 'A(z) szerver csatlakoztatása sikertelen',
+    ko: '서버 연결에 실패했습니다',
   },
   mcpCalling: {
     zh: 'MCP 调用',
@@ -615,6 +702,7 @@ export default {
     tr: 'MCP Çağrı',
     ja: 'MCP呼び出し',
     hu: 'MCP hívás',
+    ko: 'MCP 호출',
   },
   mcpResultAnalysisPrompts: {
     zh: '请继续分析结果，并以简洁清晰的方式呈现数据。完成后请说明"[DONE]"',
@@ -622,5 +710,6 @@ export default {
     tr: 'Lütfen sonucu analiz etmeye devam edin ve verileri özlü ve net bir şekilde sunun. "[DONE]" ile bitirin',
     ja: '結果の分析を続け、データを簡潔かつ明確な方法で提示してください。「[DONE]」で終了してください',
     hu: 'Kérjük, folytassa az eredmény elemzését, és mutassa be az adatokat tömör és világos módon. Fejezze be "[DONE]" jelzéssel',
+    ko: '결과 분석을 계속 진행하고, 데이터를 간결하고 명확하게 제시해 주세요. 마지막에 "[DONE]"이라고 표시해 주세요',
   },
 }

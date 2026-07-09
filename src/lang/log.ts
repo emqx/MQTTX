@@ -5,6 +5,7 @@ export default {
     ja: 'ログ',
     tr: 'Günlük',
     hu: 'Napló',
+    ko: '로그',
   },
   logLevel: {
     zh: '日志等级',
@@ -12,6 +13,7 @@ export default {
     ja: 'ログレベル',
     tr: 'Günlük Seviyesi',
     hu: 'Napló Szint',
+    ko: '로그 레벨',
   },
   logLevelDesc: {
     zh: '等级：DEBUG > INFO > WARN > ERROR',
@@ -19,5 +21,6 @@ export default {
     ja: 'レベル：DEBUG > INFO > WARN > ERROR',
     tr: 'Seviyeler: DEBUG > INFO > WARN > ERROR',
     hu: 'Szintek: DEBUG > INFO > WARN > ERROR',
+    ko: '레벨: DEBUG > INFO > WARN > ERROR',
   },
 }

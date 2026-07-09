@@ -5,6 +5,7 @@ export default {
     tr: 'Ayarlar',
     ja: '設定',
     hu: 'Beállítások',
+    ko: '설정',
   },
   general: {
     zh: '基础',
@@ -12,6 +13,7 @@ export default {
     tr: 'Genel',
     ja: '一般',
     hu: 'Általános',
+    ko: '일반',
   },
   language: {
     zh: '语言',
@@ -19,6 +21,7 @@ export default {
     tr: 'Dil',
     ja: '言語',
     hu: 'Nyelv',
+    ko: '언어',
   },
   automatically: {
     zh: '自动检查更新',
@@ -26,6 +29,7 @@ export default {
     tr: 'Otomatik güncelleme',
     ja: '自動更新チェック',
     hu: 'Frissítések automatikus ellenőrzése',
+    ko: '자동 업데이트 확인',
   },
   maxReconnectTimes: {
     zh: '最大重连次数',
@@ -33,6 +37,7 @@ export default {
     tr: 'Maks yeniden bağlantı süreleri',
     ja: '最大再接続回数',
     hu: 'Max újracsatlakozás száma',
+    ko: '최대 재연결 횟수',
   },
   maxPayloadDisplaySize: {
     zh: '最大 Payload 显示大小',
@@ -40,6 +45,7 @@ export default {
     tr: 'Maks payload görüntüleme boyutu',
     ja: '最大ペイロード表示サイズ',
     hu: 'Max payload megjelenítési méret',
+    ko: '최대 페이로드 표시 크기',
   },
   maxPayloadDisplaySizeDesc: {
     zh: '达到或超过该大小的消息在消息列表中会折叠显示（最小 16KB，默认 512KB，最大 2MB）。',
@@ -47,6 +53,7 @@ export default {
     tr: 'Bu değeri aşan payloadlar mesaj listesinde daraltılır (min 16KB, default 512KB, max 2MB).',
     ja: 'この値以上のペイロードはメッセージ一覧で折りたたまれます（最小 16KB、既定 512KB、最大 2MB）。',
     hu: 'Az ennél nagyobb payloadok a listában összecsukva jelennek meg (min 16KB, default 512KB, max 2MB).',
+    ko: '이 값 이상의 페이로드는 메시지 목록에서 접혀 표시됩니다 (최소 16KB, 기본값 512KB, 최대 2MB).',
   },
   maxPayloadDisplaySizeRange: {
     zh: '可设置范围为 {min} 到 {max}。',
@@ -54,6 +61,7 @@ export default {
     tr: 'İzin verilen aralık {min} ile {max}.',
     ja: '設定可能範囲は{min}〜{max}です。',
     hu: 'A megengedett tartomány: {min}–{max}.',
+    ko: '설정 가능한 범위는 {min}에서 {max}까지입니다.',
   },
   appearance: {
     zh: '外观',
@@ -61,6 +69,7 @@ export default {
     tr: 'Görünüm',
     ja: '外観',
     hu: 'Megjelenés',
+    ko: '모양',
   },
   theme: {
     zh: '主题',
@@ -68,6 +77,7 @@ export default {
     tr: 'Tema',
     ja: 'テーマ',
     hu: 'Téma',
+    ko: '테마',
   },
   light: {
     zh: '明亮',
@@ -75,6 +85,7 @@ export default {
     tr: 'Açık',
     ja: 'ライト',
     hu: 'Világos',
+    ko: '라이트',
   },
   dark: {
     zh: '暗黑',
@@ -82,6 +93,7 @@ export default {
     tr: 'Koyu',
     ja: 'ダーク',
     hu: 'Sötét',
+    ko: '다크',
   },
   night: {
     zh: '夜间',
@@ -89,6 +101,7 @@ export default {
     tr: 'Geceleyin',
     ja: '夜',
     hu: 'Éjszaka',
+    ko: '나이트',
   },
   advanced: {
     zh: '高级',
@@ -96,6 +109,7 @@ export default {
     tr: 'Gelişmiş',
     ja: '詳細',
     hu: 'Haladó',
+    ko: '고급',
   },
   dataBackup: {
     zh: '数据备份',
@@ -103,6 +117,7 @@ export default {
     tr: 'Yedekleme',
     ja: 'データバックアップ',
     hu: 'Adatmentés',
+    ko: '데이터 백업',
   },
   dataRecovery: {
     zh: '数据恢复',
@@ -110,6 +125,7 @@ export default {
     tr: 'Veri kurtarma',
     ja: 'データ復旧',
     hu: 'Adat visszaállítás',
+    ko: '데이터 복구',
   },
   historyCleanup: {
     zh: '清除历史数据',
@@ -117,6 +133,7 @@ export default {
     tr: 'Geçmiş verileri temizle',
     ja: '履歴データをクリアする',
     hu: 'Előzmények törlése',
+    ko: '기록 데이터 지우기',
   },
   dataManage: {
     zh: '数据管理',
@@ -124,6 +141,7 @@ export default {
     tr: 'Veri yönetimi',
     ja: 'データ管理',
     hu: 'Adatkezelés',
+    ko: '데이터 관리',
   },
   autoResub: {
     zh: '自动恢复订阅',
@@ -131,6 +149,7 @@ export default {
     tr: 'Otomatik yeniden abone ol',
     ja: '自動的に再購読',
     hu: 'Automata újra feliratkozás',
+    ko: '자동 재구독',
   },
   multiTopics: {
     zh: '多主题订阅',
@@ -138,6 +157,7 @@ export default {
     tr: 'Çoklu başlık abone ol',
     ja: '複数のトピックを購読',
     hu: 'Több téma feliratkozás',
+    ko: '다중 토픽 구독',
   },
   topicWhitespaceDetection: {
     zh: '主题空格检测',
@@ -145,6 +165,7 @@ export default {
     tr: 'Konu Boşluk Tespiti',
     ja: 'トピック空白検出',
     hu: 'Téma szóköz észlelés',
+    ko: '토픽 공백 감지',
   },
   topicWhitespaceDetectionDesc: {
     zh: '用于提示主题中的空格字符，帮助提前识别可能导致发布与订阅不匹配的情况。',
@@ -152,6 +173,7 @@ export default {
     tr: 'Konulardaki boşlukları vurgulayarak yayın/abone olma uyuşmazlıklarını önlemeye yardımcı olur.',
     ja: 'トピック内の空白を示し、送受信の不一致を防ぐための確認に役立ちます。',
     hu: 'Kiemeli a szóközöket a témákban, hogy segítsen megelőzni a közzététel/előfizetés eltéréseket.',
+    ko: '토픽 내 공백을 강조 표시하여 발행/구독 불일치를 방지하는 데 도움을 줍니다.',
   },
   enableHardwareAcceleration: {
     zh: '启用 GPU 加速',
@@ -159,6 +181,7 @@ export default {
     tr: 'GPU Hızlandırmayı Etkinleştir',
     ja: 'GPUアクセラレーションを有効にする',
     hu: 'GPU gyorsítás engedélyezése',
+    ko: 'GPU 가속 사용',
   },
   enableHardwareAccelerationDesc: {
     zh: 'GPU 加速利用显卡硬件渲染界面，可使操作更流畅并降低 CPU 占用。如果此选项关闭或遇到画面卡顿、花屏等问题，请检查您的显卡驱动是否为最新版本。',
@@ -166,6 +189,7 @@ export default {
     tr: "GPU hızlandırma, işlemleri daha akıcı hale getirmek ve CPU kullanımını azaltmak için grafik donanımını kullanarak UI'yi render eder. Bu seçenek devre dışıysa veya ekran gecikmesi, görsel bozukluklar veya diğer sorunlar yaşıyorsanız, lütfen grafik sürücünüzün güncel olduğundan emin olun.",
     ja: 'GPUアクセラレーションは、グラフィックハードウェアを使用してUIをレンダリングし、操作をスムーズにし、CPU使用率を低下させます。このオプションが無効になっている場合、または画面のラグ、アーティファクト、その他の問題が発生した場合は、グラフィックドライバーが最新であるかどうかを確認してください。',
     hu: 'A GPU gyorsítás grafikus hardvert használ a UI rendereléséhez, így a műveletek gördülékenyebbek és a CPU-használat alacsonyabb. Ha ez a lehetőség le van tiltva, vagy képernyő akadozást, artefaktokat vagy más problémákat tapasztal, kérjük, ellenőrizze, hogy a grafikus illesztőprogram naprakész-e.',
+    ko: 'GPU 가속은 그래픽 하드웨어를 사용하여 UI를 렌더링함으로써 더 부드러운 동작과 낮은 CPU 사용량을 제공합니다. 이 옵션이 비활성화되어 있거나 화면 지연, 화면 깨짐 또는 기타 문제가 발생하는 경우, 그래픽 드라이버가 최신 버전인지 확인해 주세요.',
   },
   restartRequired: {
     zh: '需要重启',
@@ -173,6 +197,7 @@ export default {
     tr: 'Yeniden Başlatma Gerekiyor',
     ja: '再起動が必要です',
     hu: 'Újraindítás szükséges',
+    ko: '재시작 필요',
   },
   restartRequiredDesc: {
     zh: 'GPU 加速设置已更新。需要重启应用才能生效，是否立即重启？',
@@ -180,6 +205,7 @@ export default {
     tr: 'GPU hızlandırma ayarı güncellendi. Değişikliği uygulamak için uygulamayı şimdi yeniden başlatın?',
     ja: 'GPUアクセラレーション設定が更新されました。変更を適用するために今すぐアプリを再起動しますか？',
     hu: 'A GPU gyorsítás beállítása frissítve lett. Alkalmazza a változást az alkalmazás újraindításával most?',
+    ko: 'GPU 가속 설정이 업데이트되었습니다. 지금 앱을 재시작하여 변경 사항을 적용하시겠습니까?',
   },
   restartNow: {
     zh: '立即重启',
@@ -187,6 +213,7 @@ export default {
     tr: 'Şimdi Yeniden Başlat',
     ja: '今すぐ再起動',
     hu: 'Újraindítás most',
+    ko: '지금 재시작',
   },
   restartLater: {
     zh: '稍后重启',
@@ -194,6 +221,7 @@ export default {
     tr: 'Sonra',
     ja: '後で',
     hu: 'Később',
+    ko: '나중에',
   },
   autoResubDesc: {
     zh: '开启后，MQTTX 连接后会自动重新订阅本地保存的所有订阅',
@@ -201,6 +229,7 @@ export default {
     tr: 'Etkinleştirildiğinde, MQTTX bağlandıktan sonra yerel olarak kaydedilen tüm aboneliklere otomatik olarak yeniden abone olur',
     ja: '有効にした後、MQTTXは接続した後にローカルに保存されたすべてのサブスクリプションに自動的に再購読します',
     hu: 'Ha engedélyezve van, az MQTTX csatlakozás után automatikusan újra feliratkozik a helyben mentett összes előfizetésre',
+    ko: '활성화하면 MQTTX는 연결 후 로컬에 저장된 모든 구독을 자동으로 재구독합니다',
   },
   cleanHistoryDialogMessage: {
     zh: '即将删除所有连接中的历史消息记录、发送端记录的发布消息、主题、保留标志、历史连接配置和主题树数据。确定吗？',
@@ -208,6 +237,7 @@ export default {
     tr: 'Bu işlem, tüm bağlantılardaki geçmiş mesaj kayıtlarını, gönderen tarafından yayınlanan mesajları, konuları, saklama bayraklarını, geçmiş bağlantı yapılandırmalarını ve konu ağacı verilerini silecektir. Emin misiniz?',
     ja: 'これにより、すべての接続の履歴メッセージ記録、送信者によって公開されたメッセージ、トピック、保持フラグ、過去の接続設定、およびトピックツリーデータが削除されます。よろしいですか？',
     hu: 'Ez törölni fogja az összes kapcsolat előzményüzeneteit, a küldő által közzétett üzeneteket, témákat, megtartási jelzőket, korábbi kapcsolati beállításokat és témastruktúra adatokat. Biztos benne?',
+    ko: '모든 연결의 기록 메시지, 발신자가 발행한 메시지, 토픽, 유지 플래그, 이전 연결 설정 및 토픽 트리 데이터가 삭제됩니다. 계속하시겠습니까?',
   },
   syncOsTheme: {
     zh: '同步操作系统主题',
@@ -215,6 +245,7 @@ export default {
     tr: 'İşletim Sistemi Teması ile Senkronizasyon',
     ja: 'OSテーマと同期する',
     hu: 'Szinkronizálás az OS témával',
+    ko: 'OS 테마와 동기화',
   },
   syncOsThemeDesc: {
     zh: '开启后，系统将跟随操作系统主题自动切换',
@@ -222,6 +253,7 @@ export default {
     tr: 'Sisteminiz yaptığında Işık ve Gece temaları arasında otomatik olarak geçiş yapın.',
     ja: 'システムが切り替えると、ライトテーマとナイトテーマを自動的に切り替えます。',
     hu: 'Automatikusan válthat a Világos és az Éjszakai témák között, amikor a rendszer ezt teszi.',
+    ko: '시스템 설정에 따라 라이트 테마와 나이트 테마 사이를 자동으로 전환합니다.',
   },
   multiTopicsDesc: {
     zh: '开启后，将支持一次订阅多个主题，使用逗号（,）分隔',
@@ -229,6 +261,7 @@ export default {
     tr: 'Açık kaldığında, birden fazla konu abone olmak için bir kez abone olunabilir.',
     ja: '複数のトピックを一度に購読することができます。コンマで区切ります。',
     hu: 'Egy időben több témára feliratkozhat.',
+    ko: '쉼표로 구분하여 한 번에 여러 토픽을 구독할 수 있도록 합니다',
   },
   jsonHighlight: {
     zh: 'JSON 数据高亮',
@@ -236,6 +269,7 @@ export default {
     tr: 'JSON Vurgulama',
     ja: 'JSONハイライト',
     hu: 'JSON Kiemelés',
+    ko: 'JSON 하이라이트',
   },
   jsonHighlightDesc: {
     zh: '启用此选项后，将对接收到的 JSON 格式的 Payload 数据进行实时高亮显示。<br/>注意：这可能影响应用的性能。如果你在使用时遇到性能问题，可以尝试关闭这个选项。',
@@ -243,6 +277,7 @@ export default {
     tr: 'Bu özelliği etkinleştirerek, JSON formatındaki alınan yük verilerini gerçek zamanlı olarak vurgulayabilirsiniz. <br/>Not: Bu, uygulamanın performansını etkileyebilir. Performans sorunları yaşıyorsanız, bu özelliği devre dışı bırakmayı düşünün.',
     ja: 'この機能を有効にすると、リアルタイムで受信したJSON形式のPayloadデータをハイライト表示します。<br/>注意：これによりアプリケーションのパフォーマンスが影響を受ける可能性があります。パフォーマンスに問題がある場合は、この機能を無効にすることを検討してください。',
     hu: 'Engedélyezze ezt a funkciót, hogy a JSON formátumú, fogadott terhelési adatokat valós időben kiemelje. <br/>Megjegyzés: Ez befolyásolhatja az alkalmazás teljesítményét. Ha teljesítményproblémákat tapasztal, fontolja meg ennek a funkcióknak a letiltását.',
+    ko: 'JSON 형식으로 수신된 페이로드 데이터를 실시간으로 하이라이트합니다. <br/>이 기능을 사용하면 애플리케이션 성능에 영향을 줄 수 있으므로, 성능 문제가 발생하면 비활성화하는 것을 고려해 주세요.',
   },
   model: {
     zh: '模型',
@@ -250,6 +285,7 @@ export default {
     tr: 'Model',
     ja: 'モデル',
     hu: 'Modell',
+    ko: '모델',
   },
   enableCopilot: {
     zh: '启用 Copilot',
@@ -257,6 +293,7 @@ export default {
     tr: "Copilot'u Etkinleştir",
     ja: 'Copilotを有効にする',
     hu: 'Copilot engedélyezése',
+    ko: 'Copilot 사용',
   },
   importProgress: {
     zh: '导入进度',
@@ -264,6 +301,7 @@ export default {
     tr: 'İlerleme İçe Aktar',
     ja: '進捗をインポート',
     hu: 'Importálás folyamatban',
+    ko: '가져오기 진행 상황',
   },
   exportProgress: {
     zh: '导出进度',
@@ -271,6 +309,7 @@ export default {
     tr: 'İlerleme Dışa Aktar',
     ja: '進捗をエクスポート',
     hu: 'Exportálás folyamatban',
+    ko: '내보내기 진행 상황',
   },
   extends: {
     zh: '扩展',
@@ -278,6 +317,7 @@ export default {
     tr: 'Uzantılar',
     ja: '拡張',
     hu: 'Kiterjesztések',
+    ko: '확장 기능',
   },
   downloadingCLI: {
     zh: '下载 MQTTX CLI 中...',
@@ -285,6 +325,7 @@ export default {
     tr: 'MQTTX CLI indiriliyor...',
     ja: 'MQTTX CLIをダウンロード中...',
     hu: 'MQTTX CLI letöltése...',
+    ko: 'MQTTX CLI 다운로드 중...',
   },
   installCLITips: {
     zh: '一键安装 MQTTX CLI，您将被提示需要管理员权限。安装后，可在终端运行 MQTTX。',
@@ -292,6 +333,7 @@ export default {
     tr: "MQTTX CLI'yi tek tıklama ile kurun. Kurulum sırasında yönetici erişimi için uyarılacaksınız. Kurulumdan sonra, MQTTX'i terminalde çalıştırabilirsiniz.",
     ja: 'MQTTX CLIをワンクリックでインストールします。インストール中に管理者アクセスのプロンプトが表示されます。インストール後、ターミナルでMQTTXを実行できます。',
     hu: 'Egy kattintással telepítheti az MQTTX CLI-t. Telepítés közben rendszergazdai hozzáférésre vonatkozó kérést fog kapni. Telepítés után a terminálban futtathatja az MQTTX-et.',
+    ko: 'MQTTX CLI를 원클릭으로 설치합니다. 설치 중 관리자 권한을 요청하는 메시지가 표시됩니다. 설치 후에는 터미널에서 MQTTX를 실행할 수 있습니다.',
   },
   ignoreQoS0Message: {
     zh: '忽略 QoS 0 消息',
@@ -299,6 +341,7 @@ export default {
     tr: 'QoS 0 Mesajını Yakalamayın',
     ja: 'QoS 0 メッセージを無視する',
     hu: 'QoS 0 üzeneteket figyelmen kívül hagyás',
+    ko: 'QoS 0 메시지 무시',
   },
   ignoreQoS0MessageDesc: {
     zh: '开启后，MQTTX 将忽略 QoS 0 的消息，不会将其存储到本地，已保存的消息不会被自动清除，从而提高性能',
@@ -306,5 +349,6 @@ export default {
     tr: 'Etkinleştirdiğinizde, MQTTX QoS 0 mesajlarını yok sayacak ve bunları yerel olarak depolamayacaktır. Zaten kaydedilmiş olan mesajlar otomatik olarak temizlenmeyecektir, performansı artıracaktır.',
     ja: 'この機能を有効にすると、MQTTX は QoS 0 メッセージを無視し、それらをローカルに保存しません。すでに保存されたメッセージは自動的にクリアされません。これにより、パフォーマンスが向上します。',
     hu: 'Ha engedélyezve van, az MQTTX figyelmen kívül hagyja a QoS 0 üzeneteket, és nem tárolja őket helyben. Már mentett üzeneteket nem fog automatikusan törölni, ami teljesítmény javítását eredményezi.',
+    ko: '활성화하면 MQTTX는 QoS 0 메시지를 무시하고 로컬에 저장하지 않습니다. 이미 저장된 메시지는 자동으로 삭제되지 않으며, 이를 통해 성능이 향상됩니다',
   },
 }

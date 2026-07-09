@@ -5,6 +5,7 @@ declare module 'element-ui/lib/locale/lang/zh-CN' {}
 declare module 'element-ui/lib/locale/lang/ja' {}
 declare module 'element-ui/lib/locale/lang/tr-TR' {}
 declare module 'element-ui/lib/locale/lang/hu' {}
+declare module 'element-ui/lib/locale/lang/ko' {}
 
 type i18nLocaleModel = [
   'connections',
@@ -18,7 +19,7 @@ type i18nLocaleModel = [
   'viewer',
   'copilot',
 ]
-type SupportLangModel = ['zh', 'en', 'ja', 'tr', 'hu']
+type SupportLangModel = ['zh', 'en', 'ja', 'tr', 'hu', 'ko']
 
 declare module '*.json' {
   const value: any

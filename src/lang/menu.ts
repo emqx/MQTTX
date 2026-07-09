@@ -5,6 +5,7 @@ export default {
     ja: 'MQTTX について',
     tr: 'MQTTX Hakkında',
     hu: 'A MQTTX-ről',
+    ko: 'MQTTX 정보',
   },
   preferences: {
     en: 'Preferences',
@@ -12,6 +13,7 @@ export default {
     ja: '設定',
     tr: 'Tercihler',
     hu: 'Beállítások',
+    ko: '환경설정',
   },
   checkForUpdate: {
     en: 'Check for update',
@@ -19,6 +21,7 @@ export default {
     ja: '更新を確認',
     tr: 'Güncellemeleri kontrol et',
     hu: 'Frissítések keresése',
+    ko: '업데이트 확인',
   },
   hideMQTTX: {
     en: 'Hide MQTTX',
@@ -26,6 +29,7 @@ export default {
     ja: 'MQTTX を隠す',
     tr: 'MQTTX Gizle',
     hu: 'MQTTX elrejtése',
+    ko: 'MQTTX 가리기',
   },
   hideOthers: {
     en: 'Hide Others',
@@ -33,6 +37,7 @@ export default {
     ja: '他を隠す',
     tr: 'Diğerlerini Gizle',
     hu: 'Mások elrejtése',
+    ko: '기타 가리기',
   },
   unhid: {
     en: 'Show All',
@@ -40,6 +45,7 @@ export default {
     ja: 'すべて表示',
     tr: 'Tümünü Göster',
     hu: 'Mindent mutat',
+    ko: '모두 보기',
   },
   quit: {
     en: 'Quit MQTTX',
@@ -47,6 +53,7 @@ export default {
     ja: 'MQTTX を終了',
     tr: "MQTTX'i Kapat",
     hu: 'MQTTX kilépése',
+    ko: 'MQTTX 종료',
   },
   file: {
     en: 'File',
@@ -54,6 +61,7 @@ export default {
     ja: 'ファイル',
     tr: 'Dosya',
     hu: 'Fájl',
+    ko: '파일',
   },
   newWindow: {
     en: 'New Window',
@@ -61,6 +69,7 @@ export default {
     ja: '新しいウィンドウ',
     tr: 'Yeni pencere',
     hu: 'Új ablak',
+    ko: '새 창',
   },
   closeWindow: {
     en: 'Close Window',
@@ -68,6 +77,7 @@ export default {
     ja: 'ウィンドウを閉じる',
     tr: 'Pencereyi Kapat',
     hu: 'Ablak bezárása',
+    ko: '창 닫기',
   },
   edit: {
     en: 'Edit',
@@ -75,6 +85,7 @@ export default {
     ja: '編集',
     tr: 'Düzenle',
     hu: 'Szerkesztés',
+    ko: '편집',
   },
   undo: {
     en: 'Undo',
@@ -82,6 +93,7 @@ export default {
     ja: '元に戻す',
     tr: 'Geri Al',
     hu: 'Visszavonás',
+    ko: '실행 취소',
   },
   redo: {
     en: 'Redo',
@@ -89,6 +101,7 @@ export default {
     ja: 'やり直す',
     tr: 'Yinele',
     hu: 'Újra',
+    ko: '다시 실행',
   },
   cut: {
     en: 'Cut',
@@ -96,6 +109,7 @@ export default {
     ja: '切り取り',
     tr: 'Kes',
     hu: 'Kivágás',
+    ko: '잘라내기',
   },
   copy: {
     en: 'Copy',
@@ -103,6 +117,7 @@ export default {
     ja: 'コピー',
     tr: 'Kopyala',
     hu: 'Másolás',
+    ko: '복사',
   },
   paste: {
     en: 'Paste',
@@ -110,6 +125,7 @@ export default {
     ja: '貼り付け',
     tr: 'Yapıştır',
     hu: 'Beillesztés',
+    ko: '붙여넣기',
   },
   pasteAndMatchStyle: {
     en: 'Paste and Match Style',
@@ -117,6 +133,7 @@ export default {
     ja: 'スタイルを貼り付けて一致させる',
     tr: 'Stili Yapıştır ve Eşleştir',
     hu: 'Stílus beillesztése és egyeztetése',
+    ko: '붙여넣고 스타일 일치',
   },
   delete: {
     en: 'Delete',
@@ -124,6 +141,7 @@ export default {
     ja: '削除',
     tr: 'Sil',
     hu: 'Törlés',
+    ko: '삭제',
   },
   selectAll: {
     en: 'Select All',
@@ -131,6 +149,7 @@ export default {
     ja: 'すべて選択',
     tr: 'Tümünü Seç',
     hu: 'Összes kijelölése',
+    ko: '모두 선택',
   },
   speech: {
     en: 'Speech',
@@ -138,6 +157,7 @@ export default {
     ja: '音声',
     tr: 'Konuşma',
     hu: 'Beszéd',
+    ko: '말하기',
   },
   startSpeaking: {
     en: 'Start Speaking',
@@ -145,6 +165,7 @@ export default {
     ja: '読み上げを開始',
     tr: 'Konuşmaya Başla',
     hu: 'Beszéd indítása',
+    ko: '말하기 시작',
   },
   stopSpeaking: {
     en: 'Stop Speaking',
@@ -152,6 +173,7 @@ export default {
     ja: '読み上げを停止',
     tr: 'Konuşmayı Durdur',
     hu: 'Beszéd leállítása',
+    ko: '말하기 중단',
   },
   newConnections: {
     en: 'New Connection',
@@ -159,6 +181,7 @@ export default {
     tr: 'Yeni bağlantı',
     ja: '新しい接続',
     hu: 'Új kapcsolat',
+    ko: '새 연결',
   },
   sendPayload: {
     en: 'Send Payload',
@@ -166,6 +189,7 @@ export default {
     ja: 'ペイロードを送信',
     tr: 'Yük Gönder',
     hu: 'Küldés',
+    ko: '페이로드 전송',
   },
   search: {
     en: 'Search',
@@ -173,6 +197,7 @@ export default {
     ja: '検索',
     tr: 'Ara',
     hu: 'Keresés',
+    ko: '검색',
   },
   view: {
     en: 'View',
@@ -180,6 +205,7 @@ export default {
     ja: '表示',
     tr: 'Görünüm',
     hu: 'Nézet',
+    ko: '보기',
   },
   reload: {
     en: 'Reload',
@@ -187,6 +213,7 @@ export default {
     ja: '再読み込み',
     tr: 'Yeniden Yükle',
     hu: 'Újratöltés',
+    ko: '새로 고침',
   },
   forceReload: {
     en: 'Force Reload',
@@ -194,6 +221,7 @@ export default {
     ja: '強制再読み込み',
     tr: 'Zorla Yeniden Yükle',
     hu: 'Újratöltés kényszerítése',
+    ko: '강제 새로 고침',
   },
   toggleDevTools: {
     en: 'Toggle Developer Tools',
@@ -201,6 +229,7 @@ export default {
     ja: '開発者ツールを切り替え',
     tr: 'Geliştirici Araçlarını Aç/Kapat',
     hu: 'Fejlesztői eszközök megjelenítése/elrejtése',
+    ko: '개발자 도구 전환',
   },
   actualSize: {
     en: 'Actual Size',
@@ -208,6 +237,7 @@ export default {
     ja: '実際のサイズ',
     tr: 'Gerçek Boyut',
     hu: 'Valódi méret',
+    ko: '실제 크기',
   },
   zoomIn: {
     en: 'Zoom In',
@@ -215,6 +245,7 @@ export default {
     ja: '拡大',
     tr: 'Yakınlaştır',
     hu: 'Nagyítás',
+    ko: '확대',
   },
   zoomOut: {
     en: 'Zoom Out',
@@ -222,6 +253,7 @@ export default {
     ja: '縮小',
     tr: 'Uzaklaştır',
     hu: 'Kicsinyítés',
+    ko: '축소',
   },
   toggleFullScreen: {
     en: 'Toggle Full Screen',
@@ -229,6 +261,7 @@ export default {
     ja: '全画面表示を切り替え',
     tr: 'Tam Ekranı Aç/Kapat',
     hu: 'Teljes képernyő megjelenítése/elrejtése',
+    ko: '전체 화면 전환',
   },
   window: {
     en: 'Window',
@@ -236,6 +269,7 @@ export default {
     ja: 'ウィンドウ',
     tr: 'Pencere',
     hu: 'Ablak',
+    ko: '창',
   },
   minimize: {
     en: 'Minimize',
@@ -243,6 +277,7 @@ export default {
     ja: '最小化',
     tr: 'Küçült',
     hu: 'Kis méret',
+    ko: '최소화',
   },
   zoom: {
     en: 'Zoom',
@@ -250,6 +285,7 @@ export default {
     ja: 'ズーム',
     tr: 'Yakınlaştır',
     hu: 'Nagyítás',
+    ko: '확대/축소',
   },
   bringAllToFront: {
     en: 'Bring All to Front',
@@ -257,6 +293,7 @@ export default {
     ja: 'すべてを前面に表示',
     tr: 'Tümünü Öne Getir',
     hu: 'Mindet előtérbe',
+    ko: '모두 앞으로 가져오기',
   },
   help: {
     en: 'Help',
@@ -264,6 +301,7 @@ export default {
     ja: 'ヘルプ',
     tr: 'Yardım',
     hu: 'Súgó',
+    ko: '도움말',
   },
   learnMoreMQTTX: {
     en: 'Learn More About MQTTX',
@@ -271,6 +309,7 @@ export default {
     ja: 'MQTTX についてもっと知る',
     tr: 'MQTTX Hakkında Daha Fazla Bilgi Edinin',
     hu: 'Tudjon meg többet az MQTTX-ről',
+    ko: 'MQTTX에 대해 자세히 알아보기',
   },
   learnMoreEMQX: {
     en: 'Learn More About EMQX',
@@ -278,6 +317,7 @@ export default {
     ja: 'EMQX についてもっと知る',
     tr: 'EMQX Hakkında Daha Fazla Bilgi Edinin',
     hu: 'Tudjon meg többet az EMQX-ről',
+    ko: 'EMQX에 대해 자세히 알아보기',
   },
   reportProblem: {
     en: 'Report Problem',
@@ -285,6 +325,7 @@ export default {
     ja: '問題を報告',
     tr: 'Sorunu Bildir',
     hu: 'Probléma jelentése',
+    ko: '문제 보고',
   },
   MQTTXWebsite: {
     en: 'MQTTX Website',
@@ -292,6 +333,7 @@ export default {
     ja: 'MQTTX ウェブサイト',
     tr: 'MQTTX Web Sitesi',
     hu: 'MQTTX weboldal',
+    ko: 'MQTTX 웹사이트',
   },
   EMQXWebsite: {
     en: 'EMQX Website',
@@ -299,6 +341,7 @@ export default {
     ja: 'EMQX ウェブサイト',
     tr: 'EMQX Web Sitesi',
     hu: 'EMQX weboldal',
+    ko: 'EMQX 웹사이트',
   },
   installCLI: {
     en: 'Install MQTTX CLI',
@@ -306,5 +349,6 @@ export default {
     ja: 'MQTTX CLI をインストール',
     tr: 'MQTTX CLI Yükleyin',
     hu: 'MQTTX CLI telepítése',
+    ko: 'MQTTX CLI 설치',
   },
 }

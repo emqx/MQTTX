@@ -5,6 +5,7 @@ export default {
     tr: 'İptal',
     ja: 'キャンセル',
     hu: 'Mégsem',
+    ko: '취소',
   },
   confirm: {
     zh: '确定',
@@ -12,6 +13,7 @@ export default {
     tr: 'Onayla',
     ja: '確認',
     hu: 'Megerősít',
+    ko: '확인',
   },
   inputRequired: {
     zh: '请输入',
@@ -19,6 +21,7 @@ export default {
     tr: 'Lütfen girin',
     ja: '入力してください',
     hu: 'Kérjük adja meg',
+    ko: '입력해 주세요',
   },
   selectRequired: {
     zh: '请选择',
@@ -26,6 +29,7 @@ export default {
     tr: 'Lütfen seçin',
     ja: '選択してください',
     hu: 'Kérjük válassza ki',
+    ko: '선택해 주세요',
   },
   back: {
     zh: '返回',
@@ -33,6 +37,7 @@ export default {
     tr: 'Geri',
     ja: '戻る',
     hu: 'Vissza',
+    ko: '뒤로',
   },
   save: {
     zh: '保 存',
@@ -40,6 +45,7 @@ export default {
     tr: 'Kaydet',
     ja: '保存',
     hu: 'Mentés',
+    ko: '저장',
   },
   saveOnly: {
     zh: '仅保存',
@@ -47,6 +53,7 @@ export default {
     tr: 'Sadece Kaydet',
     ja: '保存のみ',
     hu: 'Csak Mentés',
+    ko: '저장만',
   },
   reset: {
     zh: '重置',
@@ -54,6 +61,7 @@ export default {
     tr: 'sıfırlama',
     ja: 'リセット',
     hu: 'átszed',
+    ko: '초기화',
   },
   disable: {
     zh: '禁用',
@@ -61,6 +69,7 @@ export default {
     tr: 'Devre dışı bırakmak',
     ja: '無効にする',
     hu: 'Letiltás',
+    ko: '사용 안 함',
   },
   enable: {
     zh: '启用',
@@ -68,6 +77,7 @@ export default {
     tr: 'Etkinleştirme',
     ja: '有効',
     hu: 'Engedélyezze',
+    ko: '사용',
   },
   noData: {
     zh: '暂无数据',
@@ -75,6 +85,7 @@ export default {
     tr: 'Veri yok',
     ja: 'データなし',
     hu: 'Nincs adat',
+    ko: '데이터 없음',
   },
   createSuccess: {
     zh: '创建成功',
@@ -82,6 +93,7 @@ export default {
     tr: 'Kayıt Edildi',
     ja: '新規に成功しました',
     hu: 'Sikeresen létrehozva',
+    ko: '생성 성공',
   },
   createfailed: {
     zh: '创建失败',
@@ -89,6 +101,7 @@ export default {
     tr: 'Kayıt Edilemedi',
     ja: '新規に失敗しました',
     hu: 'Sikertelen létrehozás',
+    ko: '생성 실패',
   },
   editSuccess: {
     zh: '编辑成功',
@@ -96,6 +109,7 @@ export default {
     tr: 'Düzenlendi',
     ja: '更新に成功しました',
     hu: 'Sikeres szerkeztés',
+    ko: '편집 성공',
   },
   editfailed: {
     zh: '编辑失败',
@@ -103,6 +117,7 @@ export default {
     tr: 'Düzenlenemedi',
     ja: '更新に失敗しました',
     hu: 'Sikertelen szerkeztés',
+    ko: '편집 실패',
   },
   deleteSuccess: {
     zh: '删除成功',
@@ -110,6 +125,7 @@ export default {
     tr: 'Silindi',
     ja: '削除に成功しました',
     hu: 'Sikeres törlés',
+    ko: '삭제 성공',
   },
   deletefailed: {
     zh: '删除失败',
@@ -117,6 +133,7 @@ export default {
     tr: 'Silinemedi',
     ja: '削除に失敗しました',
     hu: 'Sikertelen törlés',
+    ko: '삭제 실패',
   },
   saveSuccess: {
     zh: '保存成功',
@@ -124,6 +141,7 @@ export default {
     tr: 'Kaydetme Başarılı',
     ja: '保存に成功しました',
     hu: 'Sikeres mentés',
+    ko: '저장 성공',
   },
   warning: {
     zh: '提示',
@@ -131,6 +149,7 @@ export default {
     tr: 'Uyarı',
     ja: 'ワーニング',
     hu: 'Figyelem',
+    ko: '경고',
   },
   confirmDelete: {
     zh: '此操作将删除 {name}，是否继续？',
@@ -138,6 +157,7 @@ export default {
     tr: '{name} silinecek, devam edilsin mi?',
     ja: '該当操作は{name}を削除してもよろしいですか？',
     hu: '{name} törlésre fog kerülni, folytatja?',
+    ko: '{name}을(를) 삭제합니다. 계속하시겠습니까?',
   },
   confirmReset: {
     zh: '此操作将重置发送时的属性配置，是否继续？',
@@ -145,6 +165,7 @@ export default {
     tr: 'Bu, özellikleri sıfırlayacak, devam edilsin mi?',
     ja: '該当操作はpropertiesを削除してもよろしいですか？',
     hu: 'Ez visszaállítja a tulajdonságokat, folytatja?',
+    ko: '속성을 초기화합니다. 계속하시겠습니까?',
   },
   new: {
     zh: '新 建',
@@ -152,6 +173,7 @@ export default {
     tr: 'Yeni',
     ja: '新 規',
     hu: 'Új',
+    ko: '신규',
   },
   delete: {
     zh: '删 除',
@@ -159,6 +181,7 @@ export default {
     tr: 'Sil',
     ja: '削 除',
     hu: 'Törlés',
+    ko: '삭제',
   },
   edit: {
     zh: '编 辑',
@@ -166,6 +189,7 @@ export default {
     tr: 'Düzenle',
     ja: '編 集',
     hu: 'Szerkesztés',
+    ko: '편집',
   },
   unitS: {
     zh: '秒',
@@ -173,6 +197,7 @@ export default {
     tr: 's',
     ja: '秒',
     hu: 's',
+    ko: '초',
   },
   unitMS: {
     zh: '毫秒',
@@ -180,6 +205,7 @@ export default {
     tr: 'ms',
     ja: 'ミリ秒',
     hu: 'ms',
+    ko: '밀리초',
   },
   config: {
     zh: '编辑连接',
@@ -187,6 +213,7 @@ export default {
     tr: 'Bağlantıyı Düzenle',
     ja: '接続の編集',
     hu: 'Kapcsolat szerkesztése',
+    ko: '연결 편집',
   },
   copy: {
     zh: '复 制',
@@ -194,6 +221,7 @@ export default {
     tr: 'Kopyala',
     ja: 'コピー',
     hu: 'Másolás',
+    ko: '복사',
   },
 
   copyTarget: {
@@ -202,6 +230,7 @@ export default {
     tr: '{target} Kopyala',
     ja: '{target} をコピー',
     hu: '{target} másolása',
+    ko: '{target} 복사',
   },
   copyTargetSuccess: {
     zh: '{target} 复制成功',
@@ -209,6 +238,7 @@ export default {
     tr: '{target} kopyalandı',
     ja: '{target} をコピーしました',
     hu: '{target} másolva',
+    ko: '{target} 복사됨',
   },
   copyTargetFailed: {
     zh: '{target} 复制失败',
@@ -216,6 +246,7 @@ export default {
     tr: '{target} kopyalanamadı',
     ja: '{target} のコピーに失敗しました',
     hu: '{target} másolása sikertelen',
+    ko: '{target} 복사 실패',
   },
   copySuccess: {
     zh: '复制成功',
@@ -223,6 +254,7 @@ export default {
     tr: 'Kopyalandı',
     ja: 'コピーが成功しました',
     hu: 'Sikeres másolás',
+    ko: '복사 성공',
   },
   copied: {
     zh: '已复制',
@@ -230,6 +262,7 @@ export default {
     tr: 'Kopyalandı',
     ja: 'コピー済み',
     hu: 'Másolva',
+    ko: '복사됨',
   },
   copyFailed: {
     zh: '复制失败',
@@ -237,6 +270,7 @@ export default {
     tr: 'Kopyalanamadı',
     ja: 'コピーが失敗しました',
     hu: 'Sikertelen másolás',
+    ko: '복사 실패',
   },
   exportSuccess: {
     zh: '导出成功',
@@ -244,6 +278,7 @@ export default {
     tr: 'başarıyla dışa aktarıldı',
     ja: 'のエクスポートが成功しました',
     hu: 'Sikeres exportálás',
+    ko: '내보내기 성공',
   },
   importSuccess: {
     zh: '导入成功',
@@ -251,6 +286,7 @@ export default {
     tr: 'Başarıyla içe aktarıldı',
     ja: 'インポートが成功しました',
     hu: 'Sikeres importálás',
+    ko: '가져오기 성공',
   },
   newWindow: {
     zh: '新建窗口',
@@ -258,6 +294,7 @@ export default {
     tr: 'Yeni pencere',
     ja: '新しいウィンドウ',
     hu: 'Új ablak',
+    ko: '새 창',
   },
   version: {
     zh: '版本：',
@@ -265,6 +302,7 @@ export default {
     tr: 'Versiyon: ',
     ja: 'システムバージョン：',
     hu: 'Verzió: ',
+    ko: '버전: ',
   },
   uptime: {
     zh: '运行时间：',
@@ -272,6 +310,7 @@ export default {
     tr: 'Çalışma süresi: ',
     ja: '稼働時間：',
     hu: 'Futásidő: ',
+    ko: '가동 시간: ',
   },
   emqx: {
     zh: '想要部署一个自托管的 MQTT 服务，试试 {emqx} 吧。',
@@ -279,6 +318,7 @@ export default {
     tr: "Kendi yönettiğiniz bir MQTT Broker'a sahip olmak için {emqx}'i deneyin.",
     ja: '自己管理型のMQTT Brokerをデプロイするには、{emqx}を試してください。',
     hu: 'Próbálja ki a saját maga kezelésében lévő MQTT Broker telepítését a {emqx} segítségével.',
+    ko: '자체 관리형 MQTT 브로커를 배포하려면 {emqx}를 사용해 보세요.',
   },
   cloud: {
     zh: '需要一个云原生的全托管 MQTT 服务？一键部署 {cloud}！',
@@ -286,6 +326,7 @@ export default {
     tr: "Tamamen yönetilen bir MQTT bulut hizmetine mi ihtiyacınız var? {cloud}'i şimdi deneyin!",
     ja: '完全に管理されたMQTTクラウドサービスが必要ですか？今すぐ{cloud}を試してください！',
     hu: 'Szüksége van egy teljesen kezelt MQTT felhőszolgáltatásra? Próbálja ki most a {cloud}!',
+    ko: '완전 관리형 MQTT 클라우드 서비스가 필요하신가요? 지금 {cloud}를 사용해 보세요!',
   },
   duplicate: {
     zh: '复制连接',
@@ -293,6 +334,7 @@ export default {
     tr: 'Kopyala',
     ja: '複製',
     hu: 'Másol',
+    ko: '복제',
   },
   neverExpire: {
     zh: '永不过期',
@@ -300,6 +342,7 @@ export default {
     tr: 'Süresiz',
     ja: '期限なし',
     hu: 'Soha ne járjon le',
+    ko: '만료 없음',
   },
   newMsg: {
     zh: '{count} 条新消息 | {count} 条新消息',
@@ -307,6 +350,7 @@ export default {
     tr: '{count} yeni mesaj | {count} yeni mesaj',
     ja: '{count}件の新しいメッセージ | {count}件の新しいメッセージ',
     hu: '{count} új üzenet | {count} új üzenet',
+    ko: '새 메시지 {count}개 | 새 메시지 {count}개',
   },
   seeMore: {
     zh: '查看更多',
@@ -314,6 +358,7 @@ export default {
     tr: 'Daha Fazla',
     ja: 'もっと見る',
     hu: 'Továbbiak',
+    ko: '더 보기',
   },
   viewData: {
     zh: '查看数据',
@@ -321,6 +366,7 @@ export default {
     tr: 'Veriyi Görüntüle',
     ja: 'データを表示',
     hu: 'Adatok meg',
+    ko: '데이터 보기',
   },
   saveToLocal: {
     zh: '保存到本地',
@@ -328,6 +374,7 @@ export default {
     tr: 'Yerel olarak kaydet',
     ja: 'ローカルに保存',
     hu: 'Mentés helyileg',
+    ko: '로컬에 저장',
   },
   msgType: {
     zh: '消息类型',
@@ -335,6 +382,7 @@ export default {
     tr: 'Mesaj Türü',
     ja: 'メッセージタイプ',
     hu: 'Üzenet típus',
+    ko: '메시지 유형',
   },
   last5Minutes: {
     zh: '最近 5 分钟',
@@ -342,6 +390,7 @@ export default {
     tr: 'Son 5 Dakika',
     ja: '最近 5分間',
     hu: 'Utoljára 5 perc',
+    ko: '최근 5분',
   },
   last30Minutes: {
     zh: '最近 30 分钟',
@@ -349,6 +398,7 @@ export default {
     tr: 'Son 30 Dakika',
     ja: '最近 30 分間',
     hu: 'Utoljára 30 perc',
+    ko: '최근 30분',
   },
   lastHour: {
     zh: '最近 1 小时',
@@ -356,6 +406,7 @@ export default {
     tr: 'Son 1 Saat',
     ja: '最近 1 時間',
     hu: 'Utoljára 1 óra',
+    ko: '최근 1시간',
   },
   lastDay: {
     zh: '最近 1 天',
@@ -363,6 +414,7 @@ export default {
     tr: 'Son 1 Gün',
     ja: '最近 1 日',
     hu: 'Utoljára 1 nap',
+    ko: '최근 1일',
   },
   lastWeek: {
     zh: '最近 1 周',
@@ -370,6 +422,7 @@ export default {
     tr: 'Son 1 Hafta',
     ja: '最近 1 週間',
     hu: 'Utoljára 1 hét',
+    ko: '최근 1주',
   },
   startTime: {
     zh: '开始时间',
@@ -377,6 +430,7 @@ export default {
     tr: 'Başlangıç Zamanı',
     ja: '開始時間',
     hu: 'Kezdés időpontja',
+    ko: '시작 시간',
   },
   endTime: {
     zh: '结束时间',
@@ -384,5 +438,6 @@ export default {
     tr: 'Bitiş Zamanı',
     ja: '終了時間',
     hu: 'Befejezés időpontja',
+    ko: '종료 시간',
   },
 }

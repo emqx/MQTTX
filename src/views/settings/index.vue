@@ -577,6 +577,7 @@ export default class Settings extends Vue {
     { label: '日本語', value: 'ja' },
     { label: 'Türkçe', value: 'tr' },
     { label: 'Magyar', value: 'hu' },
+    { label: '한국어', value: 'ko' },
   ]
   private themeOptions: Options[] = [
     { label: 'Light', value: 'light' },
