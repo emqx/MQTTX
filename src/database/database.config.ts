@@ -52,6 +52,7 @@ import { changeDefaultLLMModel1727111519962 } from './migration/1727111519962-ch
 import { topicNodeTables1729246737362 } from './migration/1729246737362-topicNodeTables'
 import { reasonModelSupport1742835643809 } from './migration/1742835643809-reasonModelSupport'
 import { dashboardAndWidgetModels1759069904761 } from './migration/1759069904761-dashboardAndWidgetModels'
+import { koLang1783562195464 } from './migration/1783562195464-koLang'
 
 // Get store path; fall back when running in CLI (no Electron app)
 let STORE_PATH: string
@@ -114,6 +115,7 @@ const ORMConfig = {
     topicNodeTables1729246737362,
     reasonModelSupport1742835643809,
     dashboardAndWidgetModels1759069904761,
+    koLang1783562195464,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [
