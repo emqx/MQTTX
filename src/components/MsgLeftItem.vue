@@ -68,7 +68,7 @@ import Prism from 'prismjs'
 import { Getter } from 'vuex-class'
 import { SHOW_MAX_LENGTH } from '@/utils/data'
 import MqttProperties from './MqttProperties.vue'
-import { highlightSearchTerm, highlightInPrismCode } from '@/utils/highlightSearch'
+import { highlightSearchTerm, highlightInPrismCode, escapeHtml } from '@/utils/highlightSearch'
 
 @Component({
   components: {
@@ -109,7 +109,7 @@ export default class MsgLeftItem extends Vue {
     if (this.searchParams.topic) {
       return highlightSearchTerm(this.topic, this.searchParams.topic, 'search-highlight')
     }
-    return this.topic
+    return escapeHtml(this.topic)
   }
 
   get highlightedPayload(): string {
@@ -124,7 +124,7 @@ export default class MsgLeftItem extends Vue {
     if (this.searchParams.payload) {
       return highlightSearchTerm(preview, this.searchParams.payload, 'search-highlight')
     }
-    return preview
+    return escapeHtml(preview)
   }
 
   public customMenu(event: MouseEvent) {
