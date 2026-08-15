@@ -380,7 +380,7 @@ export default {
     en: 'Please help me analyze an EMQX log, including explanations of alerts and error messages, and provide solutions, log content:',
     tr: 'Lütfen bana bir EMQX günlüğü analiz etme konusunda yardımcı olun, uyarıların ve hata mesajlarının açıklamalarını içerir ve çözümler sağlar, günlük içeriği:',
     ja: 'EMQXログを分析してください。アラートとエラーメッセージの説明を含み、解決策を提供します。ログの内容',
-    hu: 'Segítsen elemezeni egy EMQX naplót, beleértve az riasztások és hibaüzenetek magyarázatát, és megoldásokat nyújt, naplótartalom:',
+    hu: 'Segítsen elemzeni egy EMQX naplót, beleértve az riasztások és hibaüzenetek magyarázatát, és megoldásokat nyújt, naplótartalom:',
     ko: 'EMQX 로그 분석을 도와주세요. 경고 및 오류 메시지에 대한 설명과 해결 방안을 포함해 주세요. 로그 내용:',
   },
   programmingLang: {
