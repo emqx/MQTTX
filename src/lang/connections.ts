@@ -903,6 +903,13 @@ export default {
     hu: 'Előfizetési azonosító',
     ko: '구독 식별자',
   },
+  decompressGzip: {
+    zh: '使用 GZIP 解压',
+    en: 'Decompress with GZIP',
+    tr: 'GZIP ile Aç',
+    ja: 'GZIPで解凍',
+    hu: 'GZIP kitömörítés',
+  },
   qos0: {
     zh: '最多一次',
     en: 'At most once',

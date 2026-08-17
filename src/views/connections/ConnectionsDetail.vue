@@ -335,6 +335,7 @@ import _ from 'lodash'
 import { Subject, fromEvent } from 'rxjs'
 import { bufferTime, map, filter, takeUntil, shareReplay, distinctUntilChanged } from 'rxjs/operators'
 import cbor from 'cbor'
+import zlib from 'zlib'
 import { pack, unpack } from 'msgpackr'
 
 import time from '@/utils/time'
@@ -1343,6 +1344,16 @@ export default class ConnectionsDetail extends Vue {
     const { qos, retain, properties } = packet
     let receivedPayload
     let jsonMsgError = ''
+
+    // Decompress GZIP if the matching subscription has decompressGzip enabled
+    const matchedSub = this.record.subscriptions.find((sub) => matchTopicMethod(sub.topic, topic))
+    if (matchedSub?.decompressGzip) {
+      try {
+        payload = zlib.gunzipSync(payload)
+      } catch (e) {
+        this.$log.error(`GZIP decompression failed for topic "${topic}": ${(e as Error).message}`)
+      }
+    }
     /*
      * Payload processing pipeline for receiving a message:
      *      1. Raw Payload
