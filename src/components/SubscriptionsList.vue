@@ -268,7 +268,7 @@ export default class SubscriptionsList extends Vue {
   private client: Partial<MqttClient> = {
     connected: false,
   }
-  public showDialog: boolean = false
+  public showDialog = false
   private subRecord: SubscriptionModel = {
     id: getSubscriptionId(),
     topic: 'testtopic/#',
@@ -376,16 +376,6 @@ export default class SubscriptionsList extends Vue {
   }
 
   private openDialog() {
-    if (!this.client || !this.client.connected) {
-      this.$notify({
-        title: this.$tc('connections.notConnect'),
-        message: '',
-        type: 'error',
-        duration: 3000,
-        offset: 30,
-      })
-      return false
-    }
     this.resetSubs()
     this.setColor()
     this.setNewSubscribeId()
@@ -405,6 +395,22 @@ export default class SubscriptionsList extends Vue {
       this.subLoading = true
       this.subRecord.color = this.topicColor || this.getBorderColor()
       if (!this.isEdit) {
+        if (!this.client || !this.client.connected) {
+          const topicsArr = this.multiTopics
+            ? [...new Set(this.subRecord.topic.split(','))].filter(Boolean)
+            : this.subRecord.topic
+          const aliasArr = this.multiTopics ? this.subRecord.alias?.split(',') : this.subRecord.alias
+          if (!Array.isArray(topicsArr)) {
+            this.saveTopicToSubList(this.subRecord.topic, this.subRecord.qos, undefined, undefined, this.subRecord.id)
+          } else {
+            topicsArr.forEach((topic, index) => {
+              this.saveTopicToSubList(topic, this.subRecord.qos, index, aliasArr as string[], this.subRecord.id)
+            })
+          }
+          await this.syncSubscriptions(this.subsList, true)
+          this.subLoading = false
+          return
+        }
         await this.subscribe(this.subRecord)
       } else {
         this.updateSub()
@@ -573,6 +579,11 @@ export default class SubscriptionsList extends Vue {
     }
     const selectedTopic = this.selectedTopic
     const disabled = this.subRecord.disabled
+    if (!this.client || !this.client.connected) {
+      const updatedSubs = this.subsList.map((sub) => (sub.id === selectedTopic.id ? { ...this.subRecord } : sub))
+      await this.syncSubscriptions(updatedSubs, true)
+      return
+    }
     const res = await this.unsubscribe({ ...selectedTopic, disabled }, disabled)
     if (!res) {
       return
@@ -586,51 +597,31 @@ export default class SubscriptionsList extends Vue {
   }
 
   private unsubscribe(row: SubscriptionModel, disable?: boolean): Promise<boolean> {
-    return new Promise((resolve, reject) => {
-      if (!this.client || !this.client.connected) {
-        this.$notify({
-          title: this.$tc('connections.notConnect'),
-          message: '',
-          type: 'error',
-          duration: 3000,
-          offset: 30,
-        })
-        resolve(false)
-        return false
+    return new Promise((resolve) => {
+      const { topic, qos, disabled } = row
+      const finalize = async () => {
+        if (!this.record.id) return resolve(false)
+        const subscriptions = disable
+          ? this.setSubsDisable(topic, disabled)
+          : this.subsList.filter((sub) => sub.topic !== topic)
+        await this.syncSubscriptions(subscriptions)
+        this.$emit('deleteTopic', topic)
+        this.$log.info(`${disable ? 'Disabled' : 'Removed'} topic: ${topic}`)
+        resolve(true)
+      }
+
+      if (!this.client || !this.client.connected || !this.client.unsubscribe) {
+        return finalize()
       }
       this.unsubLoading = true
-      const { topic, qos, disabled } = row
-      if (this.client.unsubscribe) {
-        this.client.unsubscribe(topic, { qos }, async (error) => {
-          this.unsubLoading = false
-          if (error) {
-            this.$emit('onSubError', error.toString(), `Topic: ${topic}`)
-            resolve(false)
-            return false
-          }
-          if (this.record.id) {
-            let payload: {
-              id: string
-              subscriptions: SubscriptionModel[]
-            } = {
-              id: this.record.id,
-              subscriptions: [],
-            }
-            if (disable) {
-              payload.subscriptions = this.setSubsDisable(topic, disabled)
-              this.$log.info(`Disabled topic: ${topic}`)
-            } else {
-              payload.subscriptions = this.subsList.filter((sub: SubscriptionModel) => sub.topic !== topic)
-              this.$log.info(`Removed topic: ${topic}`)
-            }
-            await this.syncSubscriptions(payload.subscriptions)
-            this.$emit('deleteTopic', topic)
-            this.$log.info(`Unsubscribe topic: ${topic}`)
-            resolve(true)
-            return true
-          }
-        })
-      }
+      this.client.unsubscribe(topic, { qos }, (error) => {
+        this.unsubLoading = false
+        if (error) {
+          this.$emit('onSubError', error.toString(), `Topic: ${topic}`)
+          return resolve(false)
+        }
+        finalize()
+      })
     })
   }
 
@@ -703,16 +694,6 @@ export default class SubscriptionsList extends Vue {
 
   private handleTopicEdit() {
     this.showContextmenu = false
-    if (!this.client || !this.client.connected) {
-      this.$notify({
-        title: this.$tc('connections.notConnect'),
-        message: '',
-        type: 'error',
-        duration: 3000,
-        offset: 30,
-      })
-      return
-    }
     this.isEdit = true
     this.showDialog = true
     this.setColor()
@@ -743,20 +724,15 @@ export default class SubscriptionsList extends Vue {
 
   private async setTopicDisabled(disable: boolean) {
     this.showContextmenu = false
-    if (!this.client || !this.client.connected) {
-      this.$notify({
-        title: this.$tc('connections.notConnect'),
-        message: '',
-        type: 'error',
-        duration: 3000,
-        offset: 30,
-      })
-      return
-    }
     if (!this.selectedTopic) {
       return
     }
     this.selectedTopic.disabled = disable
+    if (!this.client || !this.client.connected) {
+      const updatedSubs = this.setSubsDisable(this.selectedTopic.topic, disable)
+      await this.syncSubscriptions(updatedSubs)
+      return
+    }
     if (disable) {
       await this.unsubscribe(this.selectedTopic, true)
     } else {
