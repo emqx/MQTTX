@@ -9,7 +9,7 @@ jest.mock('cbor')
 jest.mock('../../utils/logWrapper')
 
 // Mock process.exit
-const mockExit = jest.spyOn(process, 'exit').mockImplementation((code?: number) => {
+const mockExit = jest.spyOn(process, 'exit').mockImplementation((code?: string | number | null) => {
   throw new Error(`Process.exit called with code ${code}`)
 })
 
