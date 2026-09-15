@@ -174,6 +174,7 @@ declare global {
     rap?: boolean
     rh?: RetainHandling
     subscriptionIdentifier?: number | null
+    userProperties?: { [key: string]: string | string[] } | null
   }
 
   interface MessageModel {

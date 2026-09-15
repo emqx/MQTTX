@@ -22,7 +22,7 @@ export default class CollectionService {
 
   // travel current layer of tree, composition collection and connection to children
   private async travelEntity(data: CollectionEntity[], parentId?: string): Promise<ConnectionModelTree[]> {
-    let res: ConnectionModelTree[] = []
+    const res: ConnectionModelTree[] = []
     let connections: ConnectionModel[] = []
     if (parentId) {
       // find current collection's connections
@@ -58,8 +58,8 @@ export default class CollectionService {
     children: ConnectionModelTree[],
     parentId?: string | undefined,
   ): Promise<{ collection: CollectionEntity[]; connection: ConnectionEntity[] }> {
-    let collection: CollectionEntity[] = []
-    let connection: ConnectionEntity[] = []
+    const collection: CollectionEntity[] = []
+    const connection: ConnectionEntity[] = []
     let parent: CollectionEntity | undefined = undefined
     if (parentId) {
       parent = await this.collectionRepository.findOne(parentId)
@@ -135,7 +135,7 @@ export default class CollectionService {
     }
     const { collection, connection } = await this.travelModel(data)
     if (collection && connection) {
-      return [...collection, ...connection]
+      return [...collection, ...connection] as ConnectionModelTree[]
     }
     return
   }
