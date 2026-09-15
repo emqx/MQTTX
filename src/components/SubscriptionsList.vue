@@ -218,6 +218,9 @@
                   </el-select>
                 </el-form-item>
               </el-col>
+              <el-col :span="24">
+                <KeyValueEditor :title="$t('connections.userProperties')" v-model="subRecord.userProperties" />
+              </el-col>
             </div>
           </template>
         </el-form>
@@ -228,7 +231,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { MqttClient } from 'mqtt'
+import { MqttClient, IClientSubscribeOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
 import VueI18n from 'vue-i18n'
 import _ from 'lodash'
@@ -236,18 +239,21 @@ import { defineColors, getRandomColor } from '@/utils/colors'
 import LeftPanel from '@/components/LeftPanel.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import Contextmenu from '@/components/Contextmenu.vue'
+import KeyValueEditor from '@/components/KeyValueEditor.vue'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
 import { getSubscriptionId } from '@/utils/idGenerator'
 import getContextmenuPosition from '@/utils/getContextmenuPosition'
 import { LeftValues } from '@/utils/styles'
 import getErrorReason from '@/utils/mqttErrorReason'
+import { setSubscribeMQTT5Properties } from '@/utils/subscriptionUtils'
 
 @Component({
   components: {
     LeftPanel,
     MyDialog,
     Contextmenu,
+    KeyValueEditor,
   },
 })
 export default class SubscriptionsList extends Vue {
@@ -268,7 +274,7 @@ export default class SubscriptionsList extends Vue {
   private client: Partial<MqttClient> = {
     connected: false,
   }
-  public showDialog: boolean = false
+  public showDialog = false
   private subRecord: SubscriptionModel = {
     id: getSubscriptionId(),
     topic: 'testtopic/#',
@@ -280,6 +286,7 @@ export default class SubscriptionsList extends Vue {
     rap: false,
     rh: 0,
     subscriptionIdentifier: undefined,
+    userProperties: undefined,
   }
   private retainHandling: RetainHandlingList = [0, 1, 2]
   private qosOption: QoSList = [0, 1, 2]
@@ -464,7 +471,7 @@ export default class SubscriptionsList extends Vue {
   }
 
   public async subscribe(
-    { topic, alias, qos, nl, rap, rh, subscriptionIdentifier, disabled, id }: SubscriptionModel,
+    { topic, alias, qos, nl, rap, rh, subscriptionIdentifier, userProperties, disabled, id }: SubscriptionModel,
     isAuto?: boolean,
     enable?: boolean,
   ) {
@@ -476,6 +483,7 @@ export default class SubscriptionsList extends Vue {
         topic,
         qos,
         subscriptionIdentifier,
+        userProperties,
         disabled,
         color: getRandomColor(),
       })
@@ -485,12 +493,10 @@ export default class SubscriptionsList extends Vue {
     if (this.client.subscribe) {
       const topicsArr = this.multiTopics ? [...new Set(topic.split(','))].filter(Boolean) : topic
       const aliasArr = this.multiTopics ? alias?.split(',') : alias
-      let properties: { subscriptionIdentifier: number } | undefined = undefined
-      if (this.record.mqttVersion === '5.0' && subscriptionIdentifier) {
-        properties = {
-          subscriptionIdentifier,
-        }
-      } else if (this.record.mqttVersion !== '5.0') {
+      let properties: IClientSubscribeOptions['properties'] = undefined
+      if (this.record.mqttVersion === '5.0') {
+        properties = setSubscribeMQTT5Properties({ subscriptionIdentifier, userProperties })
+      } else {
         nl = undefined
         rap = undefined
         rh = undefined
@@ -645,6 +651,7 @@ export default class SubscriptionsList extends Vue {
     this.subRecord.rap = false
     this.subRecord.rh = 0
     this.subRecord.subscriptionIdentifier = undefined
+    this.subRecord.userProperties = undefined
     this.subRecord.disabled = false
     this.selectedTopic = null
   }

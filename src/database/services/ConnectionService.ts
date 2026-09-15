@@ -17,8 +17,6 @@ const electronStore = new Store()
 export const MoreThanDate = (date: string | Date) => MoreThan(DateUtils.mixedDateToUtcDatetimeString(date))
 export const LessThanDate = (date: string | Date) => LessThan(DateUtils.mixedDateToUtcDatetimeString(date))
 
-
-
 @Service()
 export default class ConnectionService {
   constructor(
@@ -31,7 +29,7 @@ export default class ConnectionService {
     // @ts-ignore
     @InjectRepository(WillEntity)
     private willRepository: Repository<WillEntity>,
-  ) { }
+  ) {}
 
   public static entityToModel(data: ConnectionEntity): ConnectionModel {
     const {
@@ -94,9 +92,12 @@ export default class ConnectionService {
           ?.sort((a, b) => (moment(new Date(a.createAt), sqliteDateFormat).isBefore(new Date(b.createAt)) ? -1 : 1))
           .map((entity) => ConnectionService.messageEntityToModel(entity)) ?? [],
       subscriptions:
-        data?.subscriptions?.sort((a, b) =>
-          moment(new Date(a.createAt), sqliteDateFormat).isBefore(new Date(b.createAt)) ? -1 : 1,
-        ) ?? [],
+        data?.subscriptions
+          ?.sort((a, b) => (moment(new Date(a.createAt), sqliteDateFormat).isBefore(new Date(b.createAt)) ? -1 : 1))
+          .map((sub) => ({
+            ...sub,
+            userProperties: sub.userProperties ? JSON.parse(sub.userProperties) : undefined,
+          })) ?? [],
       will: willModel,
       properties: {
         sessionExpiryInterval,
@@ -113,7 +114,9 @@ export default class ConnectionService {
   }
 
   public static modelToEntity(data: Partial<ConnectionModel>): Partial<ConnectionEntity> {
-    if (data.properties) {
+    // Subscriptions and messages are persisted by their own services, strip them here
+    const { subscriptions, messages, ...connectionData } = data
+    if (connectionData.properties) {
       const {
         sessionExpiryInterval,
         receiveMaximum,
@@ -123,12 +126,12 @@ export default class ConnectionService {
         requestProblemInformation,
         authenticationMethod,
         authenticationData,
-      } = data.properties
+      } = connectionData.properties
       let userProperties = null
-      if (data.properties.userProperties) {
-        userProperties = JSON.stringify(data.properties.userProperties)
+      if (connectionData.properties.userProperties) {
+        userProperties = JSON.stringify(connectionData.properties.userProperties)
       }
-      const { properties, ...rest } = data
+      const { properties, ...rest } = connectionData
       return {
         ...rest,
         sessionExpiryInterval,
@@ -143,7 +146,7 @@ export default class ConnectionService {
       }
     }
     return {
-      ...data,
+      ...connectionData,
     }
   }
 
@@ -187,8 +190,9 @@ export default class ConnectionService {
     }
     query.parentId = updatedCollectionId
     const updateAt = time.getNowDate()
+    const { subscriptions, messages, ...connectionData } = query
     return ConnectionService.entityToModel(
-      await this.connectionRepository.save(ConnectionService.modelToEntity({ ...query, updateAt })),
+      await this.connectionRepository.save(ConnectionService.modelToEntity({ ...connectionData, updateAt })),
     )
   }
 
