@@ -436,7 +436,9 @@ export default class SubscriptionsList extends Vue {
   private saveTopicToSubList(topic: string, qos: QoS, index?: number, aliasArr?: string[]): void {
     const existTopicIndex: number = this.subsList.findIndex((item: SubscriptionModel) => item.topic === topic)
     if (existTopicIndex !== -1) {
-      this.subsList[existTopicIndex].qos = qos
+      // Re-subscribing an existing topic: sync the record with the options just sent to the broker
+      const { nl, rap, rh, subscriptionIdentifier, userProperties } = this.subRecord
+      Object.assign(this.subsList[existTopicIndex], { qos, nl, rap, rh, subscriptionIdentifier, userProperties })
     } else {
       let { topic: unuseTopic, color, alias, id, ...others } = this.subRecord
       if (index !== undefined && aliasArr !== undefined) {
