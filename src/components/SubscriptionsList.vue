@@ -16,7 +16,14 @@
       <div
         v-for="(sub, index) in subsList"
         :key="index"
-        :class="['topics-item', { active: index === topicActiveIndex, disabled: sub.disabled }]"
+        :class="[
+          'topics-item',
+          {
+            active: index === topicActiveIndex,
+            disabled: sub.disabled,
+            'has-user-properties': sub.userProperties && Object.keys(sub.userProperties).length > 0,
+          },
+        ]"
         :style="{
           background: `${sub.color}10`,
         }"
@@ -49,6 +56,36 @@
           >
             {{ sub.alias || sub.topic }}
           </a>
+        </el-popover>
+        <el-popover
+          v-if="sub.userProperties && Object.keys(sub.userProperties).length > 0"
+          placement="top"
+          trigger="click"
+          popper-class="subscription-properties-popover"
+          :title="$t('connections.userProperties')"
+        >
+          <dl class="subscription-properties" @click.stop>
+            <template v-for="(value, key) in sub.userProperties">
+              <div
+                v-for="(item, valueIndex) in Array.isArray(value) ? value : [value]"
+                :key="`${key}-${valueIndex}`"
+                class="subscription-property"
+              >
+                <dt>{{ key === '' ? '""' : key }}</dt>
+                <dd>{{ item === '' ? '""' : item }}</dd>
+              </div>
+            </template>
+          </dl>
+          <button
+            slot="reference"
+            type="button"
+            class="subscription-properties-button"
+            :aria-label="$t('connections.userProperties') + ': ' + (sub.alias || sub.topic)"
+            :title="$t('connections.userProperties')"
+            @click.stop
+          >
+            <i class="el-icon-info" aria-hidden="true"></i>
+          </button>
         </el-popover>
         <span class="qos">QoS {{ sub.qos }}</span>
         <a href="javascript:;" class="close" @click.stop="unsubscribe(sub)">
@@ -906,6 +943,27 @@ export default class SubscriptionsList extends Vue {
         text-overflow: ellipsis;
         overflow: hidden;
       }
+      &.has-user-properties .topic {
+        max-width: 96px;
+      }
+      .subscription-properties-button {
+        vertical-align: top;
+        margin: 13px 0 0 2px;
+        padding: 0;
+        width: 20px;
+        height: 20px;
+        line-height: 20px;
+        border: 0;
+        border-radius: 4px;
+        background: transparent;
+        color: var(--color-text-light);
+        cursor: pointer;
+        &:hover,
+        &:focus-visible {
+          color: var(--color-main-green);
+          background: var(--color-bg-normal);
+        }
+      }
       .qos {
         float: right;
         color: var(--color-text-light);
@@ -1041,6 +1099,36 @@ export default class SubscriptionsList extends Vue {
           padding: 0 1px;
           font-weight: 600;
         }
+      }
+    }
+  }
+}
+.subscription-properties-popover {
+  width: 320px;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  .el-popover__title {
+    font-size: 14px;
+  }
+  .subscription-properties {
+    max-height: 240px;
+    overflow-y: auto;
+    margin: 0;
+    .subscription-property {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+      gap: 12px;
+      padding: 8px 0;
+      border-top: 1px solid var(--color-border-default);
+      line-height: 1.5;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      dt {
+        color: var(--color-text-light);
+      }
+      dd {
+        margin: 0;
+        color: var(--color-text-default);
       }
     }
   }
