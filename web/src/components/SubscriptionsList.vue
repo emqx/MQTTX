@@ -22,7 +22,6 @@
             {
               active: index === topicActiveIndex,
               disabled: sub.disabled,
-              'has-user-properties': sub.userProperties && Object.keys(sub.userProperties).length > 0,
             },
           ]"
           :style="{
@@ -37,12 +36,29 @@
             }"
             class="topics-color-line"
           ></div>
-          <el-popover
-            placement="top"
-            trigger="hover"
-            popper-class="topic-tooltip"
-            :content="getPopoverContent(copySuccess, sub)"
-          >
+          <el-popover placement="top" trigger="hover" popper-class="topic-tooltip">
+            <div class="topic-tooltip-content">
+              <div :class="{ invisible: copySuccess }">
+                <p>Topic: {{ sub.topic }}</p>
+                <p v-if="sub.subscriptionIdentifier">
+                  {{ $tc('connections.subscriptionIdentifier') }}: {{ sub.subscriptionIdentifier }}
+                </p>
+                <template v-if="Object.keys(sub.userProperties || {}).length">
+                  <p class="props-title">{{ $tc('connections.userProperties') }}:</p>
+                  <p
+                    v-for="(prop, propIndex) in userPropertiesList(sub.userProperties)"
+                    :key="propIndex"
+                    class="prop-row"
+                  >
+                    {{ prop.key }}:
+                    <span :class="{ 'empty-value': prop.value === '' }">{{
+                      prop.value === '' ? '(empty)' : prop.value
+                    }}</span>
+                  </p>
+                </template>
+              </div>
+              <p v-if="copySuccess" class="copied">{{ $tc('connections.topicCopied') }}</p>
+            </div>
             <a
               slot="reference"
               v-clipboard:copy="sub.topic"
@@ -56,36 +72,6 @@
             >
               {{ sub.alias || sub.topic }}
             </a>
-          </el-popover>
-          <el-popover
-            v-if="sub.userProperties && Object.keys(sub.userProperties).length > 0"
-            placement="top"
-            trigger="click"
-            popper-class="subscription-properties-popover"
-            :title="$t('connections.userProperties')"
-          >
-            <dl class="subscription-properties" @click.stop>
-              <template v-for="(value, key) in sub.userProperties">
-                <div
-                  v-for="(item, valueIndex) in Array.isArray(value) ? value : [value]"
-                  :key="`${key}-${valueIndex}`"
-                  class="subscription-property"
-                >
-                  <dt>{{ key === '' ? '""' : key }}</dt>
-                  <dd>{{ item === '' ? '""' : item }}</dd>
-                </div>
-              </template>
-            </dl>
-            <button
-              slot="reference"
-              type="button"
-              class="subscription-properties-button"
-              :aria-label="$t('connections.userProperties') + ': ' + (sub.alias || sub.topic)"
-              :title="$t('connections.userProperties')"
-              @click.stop
-            >
-              <i class="el-icon-info" aria-hidden="true"></i>
-            </button>
           </el-popover>
           <span class="qos">QoS {{ sub.qos }}</span>
           <a href="javascript:;" class="close" @click.stop="unsubscribe(sub)">
@@ -687,18 +673,12 @@ export default class SubscriptionsList extends Vue {
     }
   }
 
-  private getPopoverContent(copied: boolean, sub: SubscriptionModel): string {
-    if (copied) {
-      return this.$tc('connections.topicCopied')
-    }
-    let topicString = sub.topic
-    if (sub.subscriptionIdentifier) {
-      topicString = `
-        Topic: ${topicString},
-        ${this.$tc('connections.subscriptionIdentifier')}: ${sub.subscriptionIdentifier}
-      `
-    }
-    return topicString
+  private userPropertiesList(
+    userProperties: NonNullable<SubscriptionModel['userProperties']>,
+  ): { key: string; value: string }[] {
+    return Object.entries(userProperties).flatMap(([key, value]) =>
+      (Array.isArray(value) ? value : [value]).map((item) => ({ key, value: item })),
+    )
   }
 
   private getTopicDisabled() {
@@ -851,27 +831,6 @@ export default class SubscriptionsList extends Vue {
         text-overflow: ellipsis;
         overflow: hidden;
       }
-      &.has-user-properties .topic {
-        max-width: 96px;
-      }
-      .subscription-properties-button {
-        vertical-align: top;
-        margin: 13px 0 0 2px;
-        padding: 0;
-        width: 20px;
-        height: 20px;
-        line-height: 20px;
-        border: 0;
-        border-radius: 4px;
-        background: transparent;
-        color: var(--color-text-light);
-        cursor: pointer;
-        &:hover,
-        &:focus-visible {
-          color: var(--color-main-green);
-          background: var(--color-bg-normal);
-        }
-      }
       .qos {
         float: right;
         color: var(--color-text-light);
@@ -999,36 +958,6 @@ export default class SubscriptionsList extends Vue {
     }
   }
 }
-.subscription-properties-popover {
-  width: 320px;
-  max-width: calc(100vw - 32px);
-  box-sizing: border-box;
-  .el-popover__title {
-    font-size: 14px;
-  }
-  .subscription-properties {
-    max-height: 240px;
-    overflow-y: auto;
-    margin: 0;
-    .subscription-property {
-      display: grid;
-      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
-      gap: 12px;
-      padding: 8px 0;
-      border-top: 1px solid var(--color-border-default);
-      line-height: 1.5;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-      dt {
-        color: var(--color-text-light);
-      }
-      dd {
-        margin: 0;
-        color: var(--color-text-default);
-      }
-    }
-  }
-}
 .topic-tooltip {
   color: var(--color-bg-normal);
   padding: 8px;
@@ -1037,6 +966,37 @@ export default class SubscriptionsList extends Vue {
   text-align: center;
   min-width: 120px;
   border-radius: 8px;
+  .topic-tooltip-content {
+    position: relative;
+    max-width: 320px;
+    text-align: left;
+    p {
+      margin: 0;
+      overflow-wrap: anywhere;
+      &.props-title {
+        margin-top: 6px;
+        opacity: 0.75;
+      }
+      &.prop-row {
+        padding-left: 8px;
+      }
+    }
+    .copied {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      transform: translateY(-50%);
+      text-align: center;
+    }
+    .invisible {
+      visibility: hidden;
+    }
+    .empty-value {
+      font-style: italic;
+      opacity: 0.75;
+    }
+  }
   .popper__arrow::after {
     bottom: 0px !important;
     border-top-color: var(--color-bg-popover) !important;
