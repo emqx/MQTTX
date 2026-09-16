@@ -34,7 +34,6 @@
 
 <script lang="ts">
 import { Component, Model, Prop, Vue, Watch } from 'vue-property-decorator'
-import _ from 'lodash'
 
 interface KeyValueObj {
   key: string
@@ -56,27 +55,18 @@ export default class KeyValueEditor extends Vue {
     val: ClientPropertiesModel['userProperties'],
     oldVal: ClientPropertiesModel['userProperties'],
   ) {
-    if (oldVal === undefined && val) {
+    if (!val || !oldVal) {
       this.processObjToArry()
     }
   }
 
   private handleInputChange() {
     const checkedList = this.dataList.filter((pair) => pair.checked)
-    const objData: ClientPropertiesModel['userProperties'] = {}
+    const objData: NonNullable<ClientPropertiesModel['userProperties']> = Object.create(null)
     checkedList.forEach(({ key, value }) => {
       if (key === '') return
       const objValue = objData[key]
-      if (objValue) {
-        const _value = value as string
-        if (Array.isArray(objValue)) {
-          objData[key] = [...objValue, _value]
-        } else {
-          objData[key] = [objValue, _value]
-        }
-      } else {
-        objData[key] = value
-      }
+      objData[key] = objValue === undefined ? value : [...(Array.isArray(objValue) ? objValue : [objValue]), value]
     })
     this.$emit('change', objData)
   }

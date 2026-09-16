@@ -13,9 +13,7 @@ export const setSubscribeMQTT5Properties = (
     properties.subscriptionIdentifier = subscriptionIdentifier
   }
   if (userProperties && Object.keys(userProperties).length > 0) {
-    properties.userProperties = userProperties
+    properties.userProperties = { ...userProperties }
   }
   return Object.keys(properties).length > 0 ? properties : undefined
 }
-
-export default {}

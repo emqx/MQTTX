@@ -318,10 +318,6 @@ export default class SubscriptionsList extends Vue {
     })
   }
 
-  get subForm(): VueForm {
-    return this.$refs.form as VueForm
-  }
-
   get predefineColors(): string[] {
     return defineColors
   }
@@ -360,6 +356,7 @@ export default class SubscriptionsList extends Vue {
   }
 
   private openDialog() {
+    this.resetSubs()
     this.showDialog = true
     this.isEdit = false
     this.setColor()
@@ -374,7 +371,8 @@ export default class SubscriptionsList extends Vue {
       this.$message.warning(this.$tc('connections.notConnect'))
       return false
     }
-    this.subForm.validate(async (valid: boolean) => {
+    const form = this.$refs.form as VueForm
+    form.validate(async (valid: boolean) => {
       if (!valid) {
         return false
       }
@@ -571,8 +569,9 @@ export default class SubscriptionsList extends Vue {
   }
 
   private resetSubs() {
-    this.subForm.clearValidate()
-    this.subForm.resetFields()
+    const form = this.$refs.form as VueForm
+    form?.clearValidate()
+    form?.resetFields()
     this.subRecord.topic = 'testtopic/#'
     this.subRecord.qos = 0
     this.subRecord.alias = ''
