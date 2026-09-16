@@ -190,10 +190,7 @@ export default class ConnectionService {
     }
     query.parentId = updatedCollectionId
     const updateAt = time.getNowDate()
-    const { subscriptions, messages, ...connectionData } = query
-    return ConnectionService.entityToModel(
-      await this.connectionRepository.save(ConnectionService.modelToEntity({ ...connectionData, updateAt })),
-    )
+    return ConnectionService.entityToModel(await this.connectionRepository.save({ ...query, updateAt }))
   }
 
   /**
