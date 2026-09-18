@@ -65,7 +65,7 @@ MQTT 5 will properties: `--will-payload-format-indicator` marks UTF-8 data; `--w
 | --- | --- |
 | CONNECT flow/size limits | `--receive-maximum` (alias `--rcv-max`), `--maximum-packet-size`, `--topic-alias-maximum`; these advertise client receive constraints, not broker configuration. |
 | CONNECT information requests | `--req-response-info`, `--no-req-problem-info`; these request broker behavior, not a subscription or automatic responder. |
-| CONNECT user metadata | `conn --user-properties 'key: value'`; use `--conn-user-properties` on pub/sub/bench pub/bench sub/simulate. `bench conn` exposes `--user-properties` but currently fails to route it into CONNECT properties. |
+| CONNECT user metadata | Use `--user-properties 'key: value'` on `conn` and `bench conn`; use `--conn-user-properties` on `pub`, `sub`, `bench pub`, `bench sub`, and `simulate`. |
 | PUBLISH metadata | `--payload-format-indicator`, `--content-type`, `--message-expiry-interval`, `--user-properties`. Payload format indicator does not encode or validate JSON. |
 | PUBLISH request/response | `--response-topic`, `--correlation-data`; application participants must implement the reply and correlation. |
 | Topic aliases | `--topic-alias` is outbound connection-scoped state and must respect the server's advertised limit; it is not a persistent topic rename. |
