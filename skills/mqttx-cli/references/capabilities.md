@@ -101,7 +101,6 @@ Coverage baseline: repository `cli/src/index.ts` and handlers, version **1.13.0*
 ## Version-specific checks
 
 - `simulate --maximun-reconnect-times` is misspelled and differs from the property read by its runtime; use an external deadline.
-- `bench conn --user-properties` is registered but is not currently routed into CONNECT properties.
 - `sub --subscription-identifier` uses a scalar numeric parser despite variadic help; use a scalar per invocation or a typed options-file array.
 - A publishing `--subscription-identifier` flag is registered, but client-originated MQTT 5 PUBLISH packets must not contain that property.
 - Clean output bypasses the schema-decoded payload, and suppresses readiness/some error logs. Some connection failures return exit code 0.
