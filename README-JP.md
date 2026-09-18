@@ -46,6 +46,30 @@ brew install --cask mqttx
 
 [GitHubリリース](https://github.com/emqx/MQTTX/releases)から自分に合ったバージョンをダウンロードしてインストールしてください。
 
+## AI エージェント対応
+
+### MQTTX CLI のインストール・更新
+
+[INSTALL.md](./INSTALL.md) には、環境の検出、インストール方法の選択、バージョンの確認など、エージェント向けのインストール・更新手順が記載されています。次のプロンプトをエージェントに渡してください。
+
+> https://raw.githubusercontent.com/emqx/MQTTX/main/INSTALL.md を読み、その手順に従って現在の環境に MQTTX CLI をインストールまたは更新してください。実行ファイルのパスとバージョンも確認してください。
+
+### MQTTX CLI スキルの利用
+
+[mqttx-cli スキル](./skills/mqttx-cli/SKILL.md) は、エージェントが MQTTX CLI を使って接続確認、メッセージの送受信、MQTT 5 機能の検証、TLS・認証、ペイロードのエンコード・デコード、ベンチマーク、データシミュレーション、トラブルシューティングを行うためのガイドです。
+
+[Skills CLI](https://github.com/vercel-labs/skills) でインストールできます。
+
+```shell
+npx skills add emqx/MQTTX --skill mqttx-cli
+```
+
+ローカルのソースからインストールする場合は、リポジトリのルートで `npx skills add . --skill mqttx-cli` を実行してください。また、`skills/mqttx-cli` ディレクトリ全体（`references` を含む）をエージェントが対応するスキルディレクトリにコピーするか、その中の `SKILL.md` をエージェントに直接読ませることもできます。
+
+インストール後は、たとえば次のように依頼できます。
+
+> mqttx-cli スキルを使って、127.0.0.1:1883 で動作するローカルブローカーのメッセージ送受信を検証してください。mqttx-test/ 配下の一意なトピックを使用し、15 秒以内に検証を終了して結果を報告してください。
+
 ## 利用方法
 
 詳細な利用方法については、[ブログ](https://qiita.com/emqx_japan/items/1ff6097fdfe273c5e22f)または[ユーザーマニュアル](./docs/manual-jp.md)を確認してください。
