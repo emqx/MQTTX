@@ -176,6 +176,7 @@ const sub = (options: SubscribeOptions) => {
 
     options.verbose && msgData.push({ label: 'mqtt-packet', value: packet })
 
+    msgData.push({ label: 'received_at', value: new Date().toISOString() })
     msgData.push({ label: 'topic', value: topic })
     msgData.push({ label: 'qos', value: packet.qos })
     msgData.push({ label: 'size', value: `${formatBytes(payload.length)}` })

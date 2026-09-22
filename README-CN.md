@@ -48,6 +48,30 @@ brew install --cask mqttx
 
 国内用户也可以从 [这里](https://www.emqx.com/zh/downloads/MQTTX/) 下载。
 
+## AI Agent 支持
+
+### 安装或更新 MQTTX CLI
+
+[INSTALL.md](./INSTALL.md) 提供面向 agent 的安装与更新步骤，包括环境检测、安装渠道选择和版本验证。可以将下面的提示词交给 agent：
+
+> 读取 https://raw.githubusercontent.com/emqx/MQTTX/main/INSTALL.md，按照其中的步骤为当前环境安装或更新 MQTTX CLI，并验证命令路径和版本。
+
+### 使用 MQTTX CLI skill
+
+[mqttx-cli skill](./skills/mqttx-cli/SKILL.md) 帮助 agent 使用 MQTTX CLI 完成连接检查、消息收发、MQTT 5 功能验证、TLS/认证、编解码、压测、数据模拟和故障排查。
+
+通过 [Skills CLI](https://github.com/vercel-labs/skills) 安装：
+
+```shell
+npx skills add emqx/MQTTX --skill mqttx-cli
+```
+
+从本地源码安装时，在仓库根目录运行 `npx skills add . --skill mqttx-cli`。也可以将整个 `skills/mqttx-cli` 目录（包括 `references`）复制到 agent 支持的技能目录，或让 agent 直接读取其中的 `SKILL.md`。
+
+安装后，可以这样描述任务：
+
+> 使用 mqttx-cli skill，验证本地 127.0.0.1:1883 broker 的消息收发。使用 mqttx-test/ 下的唯一 topic，在 15 秒内结束检查，并报告结果。
+
 ## 使用
 
 详细使用，请查看我们的 [文档](https://mqttx.app/zh/docs) 或 [使用手册](./docs/manual.md)

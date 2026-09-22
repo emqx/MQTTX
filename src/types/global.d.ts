@@ -8,7 +8,7 @@ declare global {
 
   type Theme = 'light' | 'dark' | 'night'
 
-  type Language = 'zh' | 'en' | 'ja' | 'tr' | 'hu'
+  type Language = 'zh' | 'en' | 'ja' | 'tr' | 'hu' | 'ko'
 
   type Protocol = 'ws' | 'wss' | 'mqtt' | 'mqtts'
 
@@ -116,6 +116,7 @@ declare global {
     ignoreQoS0Message: boolean
     topicWhitespaceDetection: boolean
     maxPayloadDisplaySize: number
+    enableHardwareAcceleration: boolean
   }
 
   interface State {
@@ -172,6 +173,7 @@ declare global {
     rap?: boolean
     rh?: RetainHandling
     subscriptionIdentifier?: number | null
+    userProperties?: { [key: string]: string | string[] } | null
   }
 
   interface MessageModel {

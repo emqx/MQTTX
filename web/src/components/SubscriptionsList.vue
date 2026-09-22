@@ -17,7 +17,13 @@
         <div
           v-for="(sub, index) in subsList"
           :key="index"
-          :class="['topics-item', { active: index === topicActiveIndex, disabled: sub.disabled }]"
+          :class="[
+            'topics-item',
+            {
+              active: index === topicActiveIndex,
+              disabled: sub.disabled,
+            },
+          ]"
           :style="{
             background: `${readableColor(sub.color, theme)}1A`,
           }"
@@ -30,12 +36,29 @@
             }"
             class="topics-color-line"
           ></div>
-          <el-popover
-            placement="top"
-            trigger="hover"
-            popper-class="topic-tooltip"
-            :content="getPopoverContent(copySuccess, sub)"
-          >
+          <el-popover placement="top" trigger="hover" popper-class="topic-tooltip">
+            <div class="topic-tooltip-content">
+              <div :class="{ invisible: copySuccess }">
+                <p>Topic: {{ sub.topic }}</p>
+                <p v-if="sub.subscriptionIdentifier">
+                  {{ $tc('connections.subscriptionIdentifier') }}: {{ sub.subscriptionIdentifier }}
+                </p>
+                <template v-if="Object.keys(sub.userProperties || {}).length">
+                  <p class="props-title">{{ $tc('connections.userProperties') }}:</p>
+                  <p
+                    v-for="(prop, propIndex) in userPropertiesList(sub.userProperties)"
+                    :key="propIndex"
+                    class="prop-row"
+                  >
+                    {{ prop.key }}:
+                    <span :class="{ 'empty-value': prop.value === '' }">{{
+                      prop.value === '' ? '(empty)' : prop.value
+                    }}</span>
+                  </p>
+                </template>
+              </div>
+              <p v-if="copySuccess" class="copied">{{ $tc('connections.topicCopied') }}</p>
+            </div>
             <a
               slot="reference"
               v-clipboard:copy="sub.topic"
@@ -207,6 +230,9 @@
                   </el-select>
                 </el-form-item>
               </el-col>
+              <el-col :span="24">
+                <KeyValueEditor :title="$t('connections.userProperties')" v-model="subRecord.userProperties" />
+              </el-col>
             </div>
           </template>
         </el-form>
@@ -217,7 +243,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { MqttClient } from 'mqtt'
+import { MqttClient, IClientSubscribeOptions } from 'mqtt'
 import { Getter, Action } from 'vuex-class'
 import VueI18n from 'vue-i18n'
 import _ from 'lodash'
@@ -225,16 +251,19 @@ import { defineColors, getRandomColor, readableColor } from '@/utils/colors'
 import LeftPanel from '@/components/LeftPanel.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import Contextmenu from '@/components/Contextmenu.vue'
+import KeyValueEditor from '@/components/KeyValueEditor.vue'
 import { updateConnection } from '@/utils/api/connection'
 import time from '@/utils/time'
 import { getSubscriptionId } from '@/utils/idGenerator'
 import getErrorReason from '@/utils/mqttErrorReason'
+import { setSubscribeMQTT5Properties } from '@/utils/subscriptionUtils'
 
 @Component({
   components: {
     LeftPanel,
     MyDialog,
     Contextmenu,
+    KeyValueEditor,
   },
 })
 export default class SubscriptionsList extends Vue {
@@ -267,6 +296,7 @@ export default class SubscriptionsList extends Vue {
     rap: undefined,
     rh: undefined,
     subscriptionIdentifier: undefined,
+    userProperties: undefined,
   }
   private retainHandling: RetainHandlingList = [0, 1, 2]
   private qosOption: QoSList = [0, 1, 2]
@@ -312,10 +342,6 @@ export default class SubscriptionsList extends Vue {
     })
   }
 
-  get subForm(): VueForm {
-    return this.$refs.form as VueForm
-  }
-
   get predefineColors(): string[] {
     return defineColors
   }
@@ -354,6 +380,7 @@ export default class SubscriptionsList extends Vue {
   }
 
   private openDialog() {
+    this.resetSubs()
     this.showDialog = true
     this.isEdit = false
     this.setColor()
@@ -368,7 +395,8 @@ export default class SubscriptionsList extends Vue {
       this.$message.warning(this.$tc('connections.notConnect'))
       return false
     }
-    this.subForm.validate(async (valid: boolean) => {
+    const form = this.$refs.form as VueForm
+    form.validate(async (valid: boolean) => {
       if (!valid) {
         return false
       }
@@ -395,7 +423,9 @@ export default class SubscriptionsList extends Vue {
   private saveTopicToSubList(topic: string, qos: QoS, index?: number, aliasArr?: string[]): void {
     const existTopicIndex: number = this.subsList.findIndex((item: SubscriptionModel) => item.topic === topic)
     if (existTopicIndex !== -1) {
-      this.subsList[existTopicIndex].qos = qos
+      // Re-subscribing an existing topic: sync the record with the options just sent to the broker
+      const { nl, rap, rh, subscriptionIdentifier, userProperties } = this.subRecord
+      Object.assign(this.subsList[existTopicIndex], { qos, nl, rap, rh, subscriptionIdentifier, userProperties })
     } else {
       let { topic: unuseTopic, color, alias, id, ...others } = this.subRecord
       if (index !== undefined && aliasArr !== undefined) {
@@ -427,7 +457,7 @@ export default class SubscriptionsList extends Vue {
   }
 
   public async subscribe(
-    { topic, alias, qos, nl, rap, rh, subscriptionIdentifier, disabled }: SubscriptionModel,
+    { topic, alias, qos, nl, rap, rh, subscriptionIdentifier, userProperties, disabled }: SubscriptionModel,
     isAuto?: boolean,
     enable?: boolean,
   ) {
@@ -438,6 +468,7 @@ export default class SubscriptionsList extends Vue {
       this.subRecord.topic = topic
       this.subRecord.qos = qos
       this.subRecord.subscriptionIdentifier = subscriptionIdentifier
+      this.subRecord.userProperties = userProperties
       this.subRecord.disabled = disabled
       this.subRecord.color = getRandomColor()
     }
@@ -446,11 +477,9 @@ export default class SubscriptionsList extends Vue {
     if (this.client.subscribe) {
       const topicsArr = this.multiTopics ? [...new Set(topic.split(','))].filter(Boolean) : topic
       const aliasArr = this.multiTopics ? alias?.split(',') : alias
-      let properties: { subscriptionIdentifier: number } | undefined = undefined
-      if (this.record.mqttVersion === '5.0' && subscriptionIdentifier) {
-        properties = {
-          subscriptionIdentifier,
-        }
+      let properties: IClientSubscribeOptions['properties'] = undefined
+      if (this.record.mqttVersion === '5.0') {
+        properties = setSubscribeMQTT5Properties({ subscriptionIdentifier, userProperties })
       }
       this.client.subscribe(topicsArr, { qos, nl, rap, rh, properties }, async (error, granted) => {
         this.subLoading = false
@@ -566,8 +595,9 @@ export default class SubscriptionsList extends Vue {
   }
 
   private resetSubs() {
-    this.subForm.clearValidate()
-    this.subForm.resetFields()
+    const form = this.$refs.form as VueForm
+    form?.clearValidate()
+    form?.resetFields()
     this.subRecord.topic = 'testtopic/#'
     this.subRecord.qos = 0
     this.subRecord.alias = ''
@@ -575,6 +605,7 @@ export default class SubscriptionsList extends Vue {
     this.subRecord.rap = undefined
     this.subRecord.rh = undefined
     this.subRecord.subscriptionIdentifier = undefined
+    this.subRecord.userProperties = undefined
     this.subRecord.disabled = false
     this.selectedTopic = null
   }
@@ -643,18 +674,12 @@ export default class SubscriptionsList extends Vue {
     }
   }
 
-  private getPopoverContent(copied: boolean, sub: SubscriptionModel): string {
-    if (copied) {
-      return this.$tc('connections.topicCopied')
-    }
-    let topicString = sub.topic
-    if (sub.subscriptionIdentifier) {
-      topicString = `
-        Topic: ${topicString},
-        ${this.$tc('connections.subscriptionIdentifier')}: ${sub.subscriptionIdentifier}
-      `
-    }
-    return topicString
+  private userPropertiesList(
+    userProperties: NonNullable<SubscriptionModel['userProperties']>,
+  ): { key: string; value: string }[] {
+    return Object.entries(userProperties).flatMap(([key, value]) =>
+      (Array.isArray(value) ? value : [value]).map((item) => ({ key, value: item })),
+    )
   }
 
   private getTopicDisabled() {
@@ -942,6 +967,37 @@ export default class SubscriptionsList extends Vue {
   text-align: center;
   min-width: 120px;
   border-radius: 8px;
+  .topic-tooltip-content {
+    position: relative;
+    max-width: 320px;
+    text-align: left;
+    p {
+      margin: 0;
+      overflow-wrap: anywhere;
+      &.props-title {
+        margin-top: 6px;
+        opacity: 0.75;
+      }
+      &.prop-row {
+        padding-left: 8px;
+      }
+    }
+    .copied {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      transform: translateY(-50%);
+      text-align: center;
+    }
+    .invisible {
+      visibility: hidden;
+    }
+    .empty-value {
+      font-style: italic;
+      opacity: 0.75;
+    }
+  }
   .popper__arrow::after {
     bottom: 0px !important;
     border-top-color: var(--color-bg-popover) !important;

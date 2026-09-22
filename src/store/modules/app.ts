@@ -2,6 +2,7 @@ import Vue from 'vue'
 import useServices from '@/database/useServices'
 import { getGlobal } from '@electron/remote'
 import { DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE, normalizeMaxPayloadDisplaySize } from '@/utils/data'
+import { ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, getEnableHardwareAccelerationSetting } from '@/utils/settings'
 
 const Store = require('electron-store')
 const electronStore = new Store()
@@ -35,6 +36,7 @@ const SET_DATABASE_FAIL_MESSAGE = 'SET_DATABASE_FAIL_MESSAGE'
 const TOGGLE_IGNORE_QOS0_MESSAGE = 'TOGGLE_IGNORE_QOS0_MESSAGE'
 const TOGGLE_TOPIC_WHITESPACE_DETECTION = 'TOGGLE_TOPIC_WHITESPACE_DETECTION'
 const SET_MAX_PAYLOAD_DISPLAY_SIZE = 'SET_MAX_PAYLOAD_DISPLAY_SIZE'
+const TOGGLE_ENABLE_HARDWARE_ACCELERATION = 'TOGGLE_ENABLE_HARDWARE_ACCELERATION'
 
 const getShowConnectionList = (): boolean => {
   const _showConnectionList: string | null = localStorage.getItem('showConnectionList')
@@ -42,6 +44,10 @@ const getShowConnectionList = (): boolean => {
     return true
   }
   return JSON.parse(_showConnectionList)
+}
+
+const getEnableHardwareAcceleration = (): boolean => {
+  return getEnableHardwareAccelerationSetting(electronStore)
 }
 
 const settingData = getGlobal('sharedData')
@@ -77,6 +83,7 @@ const app = {
     maxPayloadDisplaySize: normalizeMaxPayloadDisplaySize(
       electronStore.get('settings.maxPayloadDisplaySize', DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE),
     ),
+    enableHardwareAcceleration: getEnableHardwareAcceleration(),
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -189,6 +196,9 @@ const app = {
     },
     [SET_MAX_PAYLOAD_DISPLAY_SIZE](state: App, maxPayloadDisplaySize: number) {
       state.maxPayloadDisplaySize = maxPayloadDisplaySize
+    },
+    [TOGGLE_ENABLE_HARDWARE_ACCELERATION](state: App, enableHardwareAcceleration: boolean) {
+      state.enableHardwareAcceleration = enableHardwareAcceleration
     },
   },
   actions: {
@@ -324,6 +334,11 @@ const app = {
       const normalizedValue = normalizeMaxPayloadDisplaySize(payload.maxPayloadDisplaySize)
       commit(SET_MAX_PAYLOAD_DISPLAY_SIZE, normalizedValue)
       electronStore.set('settings.maxPayloadDisplaySize', normalizedValue)
+    },
+    TOGGLE_ENABLE_HARDWARE_ACCELERATION({ commit }: any, payload: App) {
+      commit(TOGGLE_ENABLE_HARDWARE_ACCELERATION, payload.enableHardwareAcceleration)
+      settingData.enableHardwareAcceleration = payload.enableHardwareAcceleration
+      electronStore.set(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, payload.enableHardwareAcceleration)
     },
   },
 }

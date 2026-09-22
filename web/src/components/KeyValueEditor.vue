@@ -52,31 +52,28 @@ export default class KeyValueEditor extends Vue {
   private dataList: KeyValueObj[] = []
 
   @Watch('value')
-  private handleValueChanged(
-    val: ClientPropertiesModel['userProperties'],
-    oldVal: ClientPropertiesModel['userProperties'],
-  ) {
-    if (oldVal === undefined && val) {
-      this.processObjToArry()
-    }
+  private handleValueChanged(val: ClientPropertiesModel['userProperties'] | null) {
+    // Rebuild rows only when the value was changed externally (e.g. switching between
+    // subscription records); changes emitted by this editor itself already match the
+    // current rows, rebuilding then would drop unchecked or half-typed rows.
+    const current: NonNullable<ClientPropertiesModel['userProperties']> = {}
+    this.dataList.forEach(({ key, value, checked }) => {
+      if (!checked || key === '') return
+      const existing = current[key]
+      current[key] = existing === undefined ? value : [...(Array.isArray(existing) ? existing : [existing]), value]
+    })
+    const incoming = val && Object.keys(val).length > 0 ? val : null
+    if (_.isEqual(incoming, Object.keys(current).length > 0 ? current : null)) return
+    this.processObjToArry()
   }
 
   private handleInputChange() {
     const checkedList = this.dataList.filter((pair) => pair.checked)
-    const objData: ClientPropertiesModel['userProperties'] = {}
+    const objData: NonNullable<ClientPropertiesModel['userProperties']> = Object.create(null)
     checkedList.forEach(({ key, value }) => {
       if (key === '') return
       const objValue = objData[key]
-      if (objValue) {
-        const _value = value as string
-        if (Array.isArray(objValue)) {
-          objData[key] = [...objValue, _value]
-        } else {
-          objData[key] = [objValue, _value]
-        }
-      } else {
-        objData[key] = value
-      }
+      objData[key] = objValue === undefined ? value : [...(Array.isArray(objValue) ? objValue : [objValue]), value]
     })
     this.$emit('change', objData)
   }
@@ -99,7 +96,7 @@ export default class KeyValueEditor extends Vue {
   }
 
   private processObjToArry() {
-    if (this.value === undefined || this.value === null) {
+    if (!this.value || _.isEmpty(this.value)) {
       this.dataList = [{ key: '', value: '', checked: true }]
       return
     }

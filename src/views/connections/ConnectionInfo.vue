@@ -192,6 +192,10 @@ export default class ConnectionInfo extends Vue {
         const res = await connectionService.update(this.connection.id, this.connection)
         if (res) {
           this.$emit('handleConnect', this.connection)
+        } else {
+          const msgError = this.$tc('common.editfailed')
+          this.$message.error(msgError)
+          this.$log.error(msgError)
         }
       }
     })

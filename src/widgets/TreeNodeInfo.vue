@@ -70,6 +70,7 @@ import { findSubTopics, findFullTopicPath, isPayloadEmpty } from '@/utils/topicT
 import Prism from 'prismjs'
 import { jsonStringify, jsonParse } from '@/utils/jsonUtils'
 import { isXML, escapeXmlForHtml } from '@/utils/xmlUtils'
+import { escapeHtml } from '@/utils/highlightSearch'
 import MqttProperties from '@/components/MqttProperties.vue'
 
 @Component({
@@ -90,13 +91,13 @@ export default class TreeNodeInfo extends Vue {
   get latestMessage(): string {
     const payload = this.node.message?.payload || ''
     if (this.payloadFormat === 'json') {
-      return jsonStringify(jsonParse(payload.toString()), null, 2)
+      return escapeHtml(jsonStringify(jsonParse(payload.toString()), null, 2))
     }
     if (this.payloadFormat === 'xml') {
       // Escape HTML entities for XML content
       return escapeXmlForHtml(payload.toString())
     }
-    return payload.toString()
+    return escapeHtml(payload.toString())
   }
 
   get payloadFormat(): string {

@@ -63,7 +63,12 @@ export function highlightInPrismCode(
   })
 }
 
-function escapeHtml(text: string): string {
+/**
+ * Escapes HTML special characters so the value is safe to insert via v-html
+ * @param text - The raw text
+ * @returns HTML-escaped string
+ */
+export function escapeHtml(text: string): string {
   const div = document.createElement('div')
   div.textContent = text
   return div.innerHTML

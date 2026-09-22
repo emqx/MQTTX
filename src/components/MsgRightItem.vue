@@ -30,7 +30,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import MqttProperties from './MqttProperties.vue'
-import { highlightSearchTerm } from '@/utils/highlightSearch'
+import { highlightSearchTerm, escapeHtml } from '@/utils/highlightSearch'
 
 @Component({
   components: {
@@ -53,7 +53,7 @@ export default class MsgRightItem extends Vue {
     if (this.searchParams.topic) {
       return highlightSearchTerm(this.topic, this.searchParams.topic, 'search-highlight')
     }
-    return this.topic
+    return escapeHtml(this.topic)
   }
 
   get highlightedPayload(): string {

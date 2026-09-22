@@ -5,6 +5,7 @@ export default {
     ja: '利用可能な更新',
     tr: 'Güncelleme Mevcut',
     hu: 'Frissítés elérhető',
+    ko: '사용 가능한 업데이트',
   },
   ignoreVersion: {
     zh: '忽略',
@@ -12,6 +13,7 @@ export default {
     ja: '却下',
     tr: 'Reddet',
     hu: 'Elutasít',
+    ko: '무시',
   },
   nextRemind: {
     zh: '稍后提醒',
@@ -19,6 +21,7 @@ export default {
     ja: '後でリマインドしてください',
     tr: 'Bana daha sonra hatırlat',
     hu: 'Emlékeztessen később',
+    ko: '나중에 알림',
   },
   update: {
     zh: '更新',
@@ -26,6 +29,7 @@ export default {
     ja: '更新',
     tr: 'Güncelle',
     hu: 'Frissítés',
+    ko: '업데이트',
   },
   downloadProgress: {
     zh: '下载进度',
@@ -33,6 +37,7 @@ export default {
     ja: 'ダウンロード進行状況',
     tr: 'İndirme İlerlemesi',
     hu: 'Letöltési Előrehaladás',
+    ko: '다운로드 진행률',
   },
   downloading: {
     zh: '下载更新中...',
@@ -40,6 +45,7 @@ export default {
     ja: '更新をダウンロード中...',
     tr: 'Güncelleme indiriliyor...',
     hu: 'Frissítés letöltése...',
+    ko: '업데이트 다운로드 중...',
   },
   downloaded: {
     zh: '安装并重启',
@@ -47,6 +53,7 @@ export default {
     ja: '再起動してアップデートをインストール',
     tr: 'Yeniden Başlat ve Güncellemeyi Yükle',
     hu: 'Újraindítás és Frissítés Telepítése',
+    ko: '재시작하고 업데이트 설치',
   },
   cancel: {
     zh: '取消更新',
@@ -54,6 +61,7 @@ export default {
     ja: '更新をキャンセル',
     tr: 'Güncellemeyi iptal et',
     hu: 'Frissítés megszakítása',
+    ko: '업데이트 취소',
   },
   install: {
     zh: '安装并重启',
@@ -61,5 +69,6 @@ export default {
     ja: 'インストールして再起動',
     tr: 'Kur ve Tekrar Başlat',
     hu: 'Telepítés és újraindítás',
+    ko: '설치하고 다시 시작',
   },
 }

@@ -36,6 +36,7 @@ export const LANGUAGE_MAP = {
   tr: 'Lütfen Türkçe cevap verin（Turkish）',
   ja: '日本語で回答してください（Japanese）',
   hu: 'Kérjük, magyarul válaszoljon（Hungarian）',
+  ko: '한국어로 답변해 주세요（Korean）',
 }
 
 export const loadSystemPrompt = (lang: Language, command?: string, mcpData?: MCPPromptData) => {

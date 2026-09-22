@@ -5,6 +5,7 @@ export default {
     tr: 'Görüntüleyici',
     ja: 'ビューア',
     hu: 'Megjelenítő',
+    ko: '뷰어',
   },
   dashboard: {
     zh: '仪表盘',
@@ -12,6 +13,7 @@ export default {
     tr: 'Gösterge Paneli',
     ja: 'ダッシュボード',
     hu: 'Irányítópult',
+    ko: '대시보드',
   },
   dashboards: {
     zh: '仪表盘',
@@ -19,6 +21,7 @@ export default {
     tr: 'Gösterge Panelleri',
     ja: 'ダッシュボード',
     hu: 'Irányítópultok',
+    ko: '대시보드',
   },
   createDashboard: {
     zh: '新建仪表盘',
@@ -26,6 +29,7 @@ export default {
     tr: 'Gösterge Paneli Oluştur',
     ja: 'ダッシュボードを作成',
     hu: 'Irányítópult létrehozása',
+    ko: '대시보드 생성',
   },
   hideDashboards: {
     zh: '隐藏仪表盘',
@@ -33,6 +37,7 @@ export default {
     tr: 'Gösterge Panellerini Gizle',
     ja: 'ダッシュボードを非表示',
     hu: 'Irányítópultok elrejtése',
+    ko: '대시보드 숨기기',
   },
   noWidgetsTitle: {
     zh: '添加可视化组件，开始使用仪表盘',
@@ -40,6 +45,7 @@ export default {
     tr: 'Yeni gösterge panelinizi bir görselleştirme ekleyerek başlatın',
     ja: '新しいダッシュボードを可視化の追加から始めましょう',
     hu: 'Kezdje az új irányítópultot egy vizualizáció hozzáadásával',
+    ko: '시각화를 추가하여 새 대시보드를 시작하세요',
   },
   noWidgetsHint: {
     zh: '选择一个数据源，然后通过图表、统计和其他小部件查询并可视化你的数据',
@@ -47,6 +53,7 @@ export default {
     tr: "Bir veri kaynağı seçin, ardından verilerinizi grafikler, istatistikler ve diğer widget'larla sorgulayın ve görselleştirin",
     ja: 'データソースを選択し、チャートや統計、その他のウィジェットでデータをクエリして可視化しましょう',
     hu: 'Válasszon ki egy adatforrást, majd lekérdezze és vizualizálja adatait diagramokkal, statisztikákkal és egyéb widgetekkel',
+    ko: '데이터 소스를 선택한 다음 차트, 통계 및 기타 위젯으로 데이터를 조회하고 시각화하세요',
   },
   addVisualization: {
     zh: '添加可视化组件',
@@ -54,6 +61,7 @@ export default {
     tr: 'Görselleştirme Ekle',
     ja: '可視化を追加',
     hu: 'Vizualizáció hozzáadása',
+    ko: '시각화 추가',
   },
   topicsTree: {
     zh: '主题树',
@@ -61,6 +69,7 @@ export default {
     tr: 'Konular Ağacı',
     ja: 'トピックツリー',
     hu: 'Témafa',
+    ko: '토픽 트리',
   },
   payloadInspector: {
     zh: '消息体查看器',
@@ -68,6 +77,7 @@ export default {
     tr: 'Mesaj Gövdesi İzleme',
     ja: 'ペイロードインスペクター',
     hu: 'Üzenetgövde figyelő',
+    ko: '페이로드 인스펙터',
   },
   diffView: {
     zh: '差异视图',
@@ -75,6 +85,7 @@ export default {
     tr: 'Fark Görünümü',
     ja: '差分ビュー',
     hu: 'Különbség nézet',
+    ko: '차이 보기',
   },
   jsonTree: {
     zh: 'JSON 树',
@@ -82,6 +93,7 @@ export default {
     tr: 'JSON Ağacı',
     ja: 'JSON ツリー',
     hu: 'JSON fa',
+    ko: 'JSON 트리',
   },
   searchInJson: {
     zh: '在 JSON 中搜索',
@@ -89,6 +101,7 @@ export default {
     tr: 'JSON da arama',
     ja: 'JSON で検索',
     hu: 'JSON-ban keresés',
+    ko: 'JSON에서 검색',
   },
   invalidJsonFormat: {
     zh: '无效的 JSON 格式',
@@ -96,6 +109,7 @@ export default {
     tr: 'Geçersiz JSON formatı',
     ja: '無効な JSON 形式',
     hu: 'Érvénytelen JSON formátum',
+    ko: '유효하지 않은 JSON 형식',
   },
   filterDesc: {
     zh: '输入关键字进行过滤',
@@ -103,6 +117,7 @@ export default {
     tr: 'Filtrelemek için anahtar kelimeyi girin',
     ja: 'フィルタリングするためにキーワードを入力してください',
     hu: 'Adja meg a kulcsszót a szűréshez',
+    ko: '필터링할 키워드를 입력해 주세요',
   },
   expendAll: {
     zh: '全部展开',
@@ -110,6 +125,7 @@ export default {
     tr: 'Tümünü Genişlet',
     ja: 'すべて展開',
     hu: 'Összes kibontás',
+    ko: '모두 펼치기',
   },
   collapseAll: {
     zh: '全部折叠',
@@ -117,6 +133,7 @@ export default {
     tr: 'Tümünü Kapat',
     ja: 'すべて折りたたむ',
     hu: 'Összes összecsukás',
+    ko: '모두 접기',
   },
   selectedTopicInfo: {
     zh: '选择主题以查看详情',
@@ -129,6 +146,7 @@ export default {
     tr: 'Konu Ağacını Temizle',
     ja: 'トピックツリーをクリア',
     hu: 'Témafa törlése',
+    ko: '토픽 트리 지우기',
   },
   clearTopicTreeConfirm: {
     zh: '确定清除主题树吗？',
@@ -136,6 +154,7 @@ export default {
     tr: 'Konu ağacını temizlemek istediğinizden emin misiniz?',
     ja: 'トピックツリーをクリアしてもよろしいですか？',
     hu: 'Témafa törlése megerősítésre kerül?',
+    ko: '토픽 트리를 지우시겠습니까?',
   },
   clearTopicTreeSuccess: {
     zh: '成功清除主题树',
@@ -143,6 +162,7 @@ export default {
     tr: 'Konu ağacı başarıyla temizlendi',
     ja: 'トピックツリーが正常にクリアされました',
     hu: 'Témafa sikeresen törlésre került',
+    ko: '토픽 트리를 성공적으로 지웠습니다',
   },
   clearTopicTreeNotEffectConnList: {
     zh: '清除主题树不会影响连接列表的数据',
@@ -150,6 +170,7 @@ export default {
     tr: 'Konu ağacını temizlemek, bağlantı listesi verilerini etkilemez',
     ja: 'トピックツリーをクリアしても接続リストのデータには影響しません',
     hu: 'Témafa törlése nem befolyásolja a kapcsolatlista adatainak',
+    ko: '토픽 트리를 지워도 연결 목록 데이터에는 영향을 주지 않습니다',
   },
   noPayloadFromTopicNode: {
     zh: '该主题节点的最新消息不可用或已从数据库中删除',
@@ -157,6 +178,7 @@ export default {
     tr: 'Bu konu düğümü için en son mesaj mevcut değil veya veritabanından kaldırılmış',
     ja: 'このトピックノードの最新メッセージは利用できないか、データベースから削除されています',
     hu: 'A témacsomópont legfrissebb üzenete nem elérhető vagy eltávolításra került a adatbázisból',
+    ko: '이 토픽 노드의 최신 메시지를 사용할 수 없거나 데이터베이스에서 삭제되었습니다',
   },
   visualizeTree: {
     zh: '可视化主题树',
@@ -164,6 +186,7 @@ export default {
     tr: 'Konu Ağacını Görselleştir',
     ja: 'トピックツリーを視覚化',
     hu: 'Témafa vizualizálása',
+    ko: '토픽 트리 시각화',
   },
   visualizeJsonTree: {
     zh: '可视化 JSON 树',
@@ -171,6 +194,7 @@ export default {
     tr: 'JSON Ağacını Görselleştir',
     ja: 'JSON ツリーを視覚化',
     hu: 'JSON fa vizualizálása',
+    ko: 'JSON 트리 시각화',
   },
   visualize: {
     zh: '可视化',
@@ -178,6 +202,7 @@ export default {
     tr: 'Görselleştir',
     ja: '視覚化',
     hu: 'Vizualizálás',
+    ko: '시각화',
   },
   visualizeTreeTooltip: {
     zh: '选择根节点并设置展开层级来可视化主题树。点击节点可展开或折叠子主题。',
@@ -185,6 +210,7 @@ export default {
     tr: 'Konu ağacını görselleştirmek için bir kök düğüm seçin ve genişletme seviyesini ayarlayın. Alt konuları genişletmek veya daraltmak için düğümlere tıklayın.',
     ja: 'ルートノードを選択し、展開レベルを設定してトピックツリーを視覚化します。ノードをクリックしてサブトピックを展開または折りたたみます。',
     hu: 'Válasszon egy gyökércsomópontot és állítsa be a kibontási szintet a témafa vizualizálásához. Kattintson a csomópontokra az altémák kibontásához vagy összecsukásához.',
+    ko: '루트 노드를 선택하고 펼침 레벨을 설정하여 토픽 트리를 시각화하세요. 노드를 클릭하면 하위 토픽을 펼치거나 접을 수 있습니다.',
   },
   visualizeJsonTreeTooltip: {
     zh: '设置展开层级以可视化 JSON 树。点击节点可展开或折叠子树。右键点击可复制子树为 JSON。',
@@ -192,6 +218,7 @@ export default {
     tr: 'JSON ağacını görselleştirmek için genişletme seviyesini ayarlayın. Alt ağaçları genişletmek veya daraltmak için düğümlere tıklayın. Alt ağacı JSON olarak kopyalamak için sağ tıklayın.',
     ja: '展開レベルを設定して JSON ツリーを視覚化します。ノードをクリックしてサブツリーを展開または折りたたみます。右クリックでサブツリーをJSONとしてコピーします。',
     hu: 'Állítsa be a kibontási szintet a JSON fa vizualizálásához. Kattintson a csomópontokra az alfa kibontásához vagy összecsukásához. Jobb kattintással másolja az alfát JSON-ként.',
+    ko: '펼침 레벨을 설정하여 JSON 트리를 시각화하세요. 노드를 클릭하면 하위 트리를 펼치거나 접을 수 있습니다. 마우스 오른쪽 버튼을 클릭하면 하위 트리를 JSON으로 복사합니다.',
   },
   trafficMonitor: {
     zh: '流量监控',
@@ -199,6 +226,7 @@ export default {
     tr: 'Trafik İzleme',
     ja: 'トラフィックモニター',
     hu: 'Forgalom figyelés',
+    ko: '트래픽 모니터',
   },
   brokerTrafficMonitorTooltip: {
     zh: '监控所选连接的 Broker 流量数据（收发总量和速率）。数据基于系统主题采样，可能存在一定误差。可选择自定义时间范围查看，默认显示近 24 小时数据。',
@@ -206,6 +234,7 @@ export default {
     ja: '選択した接続の Broker トラフィックデータ（総量とレート）を監視します。システムトピックからサンプリングされたデータで、多少の誤差が生じる可能性があります。カスタム時間範囲を選択可能、デフォルトは過去24時間です。',
     tr: 'Seçilen bağlantının Broker trafik verilerini (toplam ve hız) izleyin. Sistem konularından örneklenen veriler bazı sapmalar gösterebilir. Özelleştirilebilir zaman aralığı, varsayılan son 24 saat.',
     hu: 'A kiválasztott kapcsolat Broker forgalmi adatainak (összes és sebesség) figyelése. Rendszertémákból mintavételezett adatok, némi eltérés lehetséges. Testreszabható időtartam, alapértelmezetten az utolsó 24 óra.',
+    ko: '선택한 연결의 브로커 트래픽 데이터(총량 및 속도)를 모니터링합니다. 데이터는 시스템 토픽에서 샘플링되며 다소 오차가 있을 수 있습니다. 사용자 지정 시간 범위를 선택할 수 있으며 기본값은 최근 24시간입니다.',
   },
   accumulatedReceivedTraffic: {
     zh: '累计接收流量',
@@ -213,6 +242,7 @@ export default {
     tr: 'Toplam Alınan',
     ja: '累計受信トラフィック',
     hu: 'Összesített Fogadott',
+    ko: '누적 수신량',
   },
   accumulatedSentTraffic: {
     zh: '累计发送流量',
@@ -220,6 +250,7 @@ export default {
     tr: 'Toplam Gönderilen',
     ja: '累計送信トラフィック',
     hu: 'Összesített Küldött',
+    ko: '누적 송신량',
   },
   receivedTrafficRate: {
     zh: '接收流量速率',
@@ -227,6 +258,7 @@ export default {
     tr: 'Alınan Hız',
     ja: '受信速度',
     hu: 'Fogadott sebesség',
+    ko: '수신 속도',
   },
   sentTrafficRate: {
     zh: '发送流量速率',
@@ -234,6 +266,7 @@ export default {
     tr: 'Gönderilen Hız',
     ja: '送信速度',
     hu: 'Küldött sebesség',
+    ko: '송신 속도',
   },
   current: {
     zh: '当前',
@@ -241,6 +274,7 @@ export default {
     tr: 'Şu an ',
     ja: '現在',
     hu: 'Jelenlegi ',
+    ko: '현재 ',
   },
   syncConnection: {
     zh: '同步连接数据',
@@ -248,6 +282,7 @@ export default {
     tr: 'Bağlantı Verilerini Senkronize Et',
     ja: '接続データを同期',
     hu: 'Kapcsolat adatainak szinkronizálása',
+    ko: '연결 데이터 동기화',
   },
   syncConnectionTitle: {
     zh: '同步连接主题树',
@@ -255,6 +290,7 @@ export default {
     tr: 'Bağlantı Konu Ağacını Senkronize Et',
     ja: '接続トピックツリーを同期',
     hu: 'Kapcsolat Témafa Szinkronizálása',
+    ko: '연결 토픽 트리 동기화',
   },
   syncConnectionToTopicTreeSuccess: {
     zh: '连接 {connectionName} 同步到主题树成功',
@@ -262,6 +298,7 @@ export default {
     tr: 'Bağlantı {connectionName} konu ağacına senkronize edildi',
     ja: '接続 {connectionName} をトピックツリーに同期成功',
     hu: 'Kapcsolat {connectionName} sikeresen szinkronizálva a téma fával',
+    ko: '연결 {connectionName}을(를) 토픽 트리에 동기화했습니다',
   },
   syncConnectionToTopicTreeFailed: {
     zh: '同步连接 {connectionId} 到主题树失败',
@@ -269,6 +306,7 @@ export default {
     tr: 'Bağlantı {connectionId} konu ağacına senkronize edilemedi',
     ja: '接続 {connectionId} をトピックツリーに同期できませんでした',
     hu: 'Nem sikerült szinkronizálni a {connectionId} kapcsolatot a téma fával',
+    ko: '연결 {connectionId}을(를) 토픽 트리에 동기화하지 못했습니다',
   },
   syncTakeLongTime: {
     zh: '数据同步中，请耐心等待...',
@@ -276,6 +314,7 @@ export default {
     tr: 'Veri senkronize ediliyor, lütfen bekleyin...',
     ja: 'データを同期中、お待ちください...',
     hu: 'Adatok szinkronizálása folyamatban, kérjük várjon...',
+    ko: '데이터 동기화 중입니다. 잠시만 기다려 주세요...',
   },
   syncConnectionToTopicTreeTips: {
     zh: '将当前连接的主题消息转换为主题树结构视图',
@@ -283,6 +322,7 @@ export default {
     tr: 'Geçerli bağlantı mesaj listesini konu ağacı yapısı görünümüne dönüştür',
     ja: '現在の接続メッセージリストをトピックツリー構造のビューに変換',
     hu: 'Az aktuális kapcsolat üzenetlistájának átalakítása témafa struktúra nézetté',
+    ko: '현재 연결의 토픽 메시지를 토픽 트리 구조 보기로 변환합니다',
   },
   messageHistory: {
     zh: '消息历史',
@@ -290,6 +330,7 @@ export default {
     tr: 'Mesaj Geçmişi',
     ja: 'メッセージ履歴',
     hu: 'Üzenet történet',
+    ko: '메시지 기록',
   },
   messageJsonViewer: {
     zh: '消息 JSON 查看器',
@@ -297,6 +338,7 @@ export default {
     tr: 'Mesaj JSON Görüntüleyici',
     ja: 'メッセージ JSON ビューア',
     hu: 'Üzenet JSON Megjelenítő',
+    ko: '메시지 JSON 뷰어',
   },
   previous: {
     zh: '上一个',
@@ -304,6 +346,7 @@ export default {
     tr: 'Önceki',
     ja: '前',
     hu: 'Előző',
+    ko: '이전',
   },
   currentLabel: {
     zh: '当前',
@@ -311,6 +354,7 @@ export default {
     tr: 'Mevcut',
     ja: '現在',
     hu: 'Jelenlegi',
+    ko: '현재',
   },
   yes: {
     zh: '是',
@@ -318,6 +362,7 @@ export default {
     tr: 'Evet',
     ja: 'はい',
     hu: 'Igen',
+    ko: '예',
   },
   no: {
     zh: '否',
@@ -325,6 +370,7 @@ export default {
     tr: 'Hayır',
     ja: 'いいえ',
     hu: 'Nem',
+    ko: '아니오',
   },
   olderMessage: {
     zh: '更早的消息',
@@ -332,6 +378,7 @@ export default {
     tr: 'Eski mesaj',
     ja: '古いメッセージ',
     hu: 'Régi üzenet',
+    ko: '더 오래된 메시지',
   },
   newerMessage: {
     zh: '更新的消息',
@@ -339,6 +386,7 @@ export default {
     tr: 'Yeni mesaj',
     ja: '新しいメッセージ',
     hu: 'Új üzenet',
+    ko: '더 새로운 메시지',
   },
   goToLatestMessage: {
     zh: '跳转到最新消息',
@@ -346,6 +394,7 @@ export default {
     tr: 'En son mesaja git',
     ja: '最新メッセージに移動',
     hu: 'Ugrás a legújabb üzenethez',
+    ko: '최신 메시지로 이동',
   },
   selectTopicWithMessages: {
     zh: '选择至少包含 2 条消息的主题以查看差异',
@@ -353,6 +402,7 @@ export default {
     tr: 'Farkları görüntülemek için en az 2 mesaj içeren bir konu seçin',
     ja: '差分を表示するには、少なくとも2つのメッセージを含むトピックを選択してください',
     hu: 'Válasszon ki egy témát legalább 2 üzenettel a különbségek megtekintéséhez',
+    ko: '차이를 보려면 메시지가 2개 이상인 토픽을 선택해 주세요',
   },
   failedToLoadMessages: {
     zh: '加载消息失败',
@@ -360,6 +410,7 @@ export default {
     tr: 'Mesajlar yüklenemedi',
     ja: 'メッセージの読み込みに失敗しました',
     hu: 'Nem sikerült betölteni az üzeneteket',
+    ko: '메시지를 불러오지 못했습니다',
   },
   general: {
     zh: '常规',
@@ -367,6 +418,7 @@ export default {
     tr: 'Genel',
     ja: '一般',
     hu: 'Általános',
+    ko: '일반',
   },
   preview: {
     zh: '预览',
@@ -374,6 +426,7 @@ export default {
     tr: 'Önizleme',
     ja: 'プレビュー',
     hu: 'Előnézet',
+    ko: '미리보기',
   },
   dataSource: {
     zh: '数据源',
@@ -381,6 +434,7 @@ export default {
     tr: 'Veri Kaynağı',
     ja: 'データソース',
     hu: 'Adatforrás',
+    ko: '데이터 소스',
   },
   connection: {
     zh: '连接',
@@ -388,6 +442,7 @@ export default {
     tr: 'Bağlantı',
     ja: '接続',
     hu: 'Kapcsolat',
+    ko: '연결',
   },
   topicPattern: {
     zh: '主题模式',
@@ -395,6 +450,7 @@ export default {
     tr: 'Konu Deseni',
     ja: 'トピックパターン',
     hu: 'Téma minta',
+    ko: '토픽 패턴',
   },
   valueField: {
     zh: '字段',
@@ -402,6 +458,7 @@ export default {
     tr: 'Değer Alanı',
     ja: '値フィールド',
     hu: 'Érték mező',
+    ko: '값 필드',
   },
   messageName: {
     zh: '消息名称',
@@ -409,6 +466,7 @@ export default {
     tr: 'Mesaj Adı',
     ja: 'メッセージ名',
     hu: 'Üzenet név',
+    ko: '메시지 이름',
   },
   fallbackValue: {
     zh: '回退值',
@@ -416,6 +474,7 @@ export default {
     tr: 'Yedek Değer',
     ja: 'フォールバック値',
     hu: 'Tartalék érték',
+    ko: '대체 값',
   },
   color: {
     zh: '颜色',
@@ -423,6 +482,7 @@ export default {
     tr: 'Renk',
     ja: '色',
     hu: 'Szín',
+    ko: '색상',
   },
   smoothLines: {
     zh: '平滑线条',
@@ -430,6 +490,7 @@ export default {
     tr: 'Düz Çizgiler',
     ja: 'スムーズライン',
     hu: 'Sima vonalak',
+    ko: '부드러운 선',
   },
   areaFill: {
     zh: '区域填充',
@@ -437,6 +498,7 @@ export default {
     tr: 'Alan Doldurma',
     ja: 'エリア塗りつぶし',
     hu: 'Terület kitöltés',
+    ko: '영역 채우기',
   },
   min: {
     zh: '最小值',
@@ -444,6 +506,7 @@ export default {
     tr: 'Min',
     ja: '最小',
     hu: 'Min',
+    ko: '최소',
   },
   max: {
     zh: '最大值',
@@ -451,6 +514,7 @@ export default {
     tr: 'Max',
     ja: '最大',
     hu: 'Max',
+    ko: '최대',
   },
   decimals: {
     zh: '小数位数',
@@ -458,6 +522,7 @@ export default {
     tr: 'Ondalık',
     ja: '小数点',
     hu: 'Tizedesjegyek',
+    ko: '소수점 자릿수',
   },
   unit: {
     zh: '单位',
@@ -465,6 +530,7 @@ export default {
     tr: 'Birim',
     ja: '単位',
     hu: 'Egység',
+    ko: '단위',
   },
   type: {
     zh: '类型',
@@ -472,6 +538,7 @@ export default {
     tr: 'Tür',
     ja: 'タイプ',
     hu: 'Típus',
+    ko: '유형',
   },
   title: {
     zh: '标题',
@@ -479,6 +546,7 @@ export default {
     tr: 'Başlık',
     ja: 'タイトル',
     hu: 'Cím',
+    ko: '제목',
   },
   options: {
     zh: '选项',
@@ -486,6 +554,7 @@ export default {
     tr: 'Seçenekler',
     ja: 'オプション',
     hu: 'Beállítások',
+    ko: '옵션',
   },
   description: {
     zh: '描述',
@@ -493,6 +562,7 @@ export default {
     tr: 'Açıklama',
     ja: '説明',
     hu: 'Leírás',
+    ko: '설명',
   },
   noDashboards: {
     zh: '无仪表盘',
@@ -500,6 +570,7 @@ export default {
     tr: 'Gösterge Paneli Yok',
     ja: 'ダッシュボードなし',
     hu: 'Nincs irányítópult',
+    ko: '대시보드 없음',
   },
   createDashboardToGetStarted: {
     zh: '创建新仪表盘开始使用',
@@ -507,6 +578,7 @@ export default {
     tr: 'Başlamak için yeni bir gösterge paneli oluşturun',
     ja: '新しいダッシュボードを作成して開始',
     hu: 'Hozzon létre egy új irányítópultot a kezdéshez',
+    ko: '시작하려면 새 대시보드를 생성하세요',
   },
   confirmLeaveEditing: {
     zh: '放弃当前编辑并切换仪表盘？',
@@ -514,6 +586,7 @@ export default {
     tr: 'Mevcut düzenlemeleri iptal et ve gösterge paneline geç?',
     ja: '現在の編集を破棄してダッシュボードを切り替えますか？',
     hu: 'Elveti a jelenlegi szerkesztéseket és vált az irányítópultra?',
+    ko: '현재 편집 내용을 취소하고 대시보드를 전환하시겠습니까?',
   },
   inputValidationFailed: {
     zh: '请检查必填字段',
@@ -521,6 +594,7 @@ export default {
     tr: 'Lütfen gerekli alanları kontrol edin',
     ja: '必須フィールドを確認してください',
     hu: 'Kérjük ellenőrizze a kötelező mezőket',
+    ko: '필수 항목을 확인해 주세요',
   },
   noDashboardSelected: {
     zh: '未选择仪表盘',
@@ -528,6 +602,7 @@ export default {
     tr: 'Gösterge paneli seçilmedi',
     ja: 'ダッシュボードが選択されていません',
     hu: 'Nincs irányítópult kiválasztva',
+    ko: '선택된 대시보드가 없습니다',
   },
   widgetTypeRequired: {
     zh: '需要小部件类型',
@@ -535,6 +610,7 @@ export default {
     tr: 'Widget türü gerekli',
     ja: 'ウィジェットタイプが必要です',
     hu: 'Widget típus szükséges',
+    ko: '위젯 유형은 필수입니다',
   },
   unknownWidgetType: {
     zh: '未知的小部件类型',
@@ -542,6 +618,7 @@ export default {
     tr: 'Bilinmeyen widget türü',
     ja: '不明なウィジェットタイプ',
     hu: 'Ismeretlen widget típus',
+    ko: '알 수 없는 위젯 유형',
   },
   fallbackValueTip: {
     zh: '当没有数据时，显示的值',
@@ -549,6 +626,7 @@ export default {
     tr: 'Veri yokken gösterilecek değer',
     ja: 'データがない場合に表示される値',
     hu: 'Az adatok esetén megjelenített érték',
+    ko: '데이터가 없을 때 표시되는 값',
   },
   connectionRequired: {
     zh: '需要连接',
@@ -556,6 +634,7 @@ export default {
     tr: 'Bağlantı gerekli',
     ja: '接続が必要です',
     hu: 'Kapcsolat szükséges',
+    ko: '연결은 필수입니다',
   },
   topicPatternRequired: {
     zh: '需要主题模式',
@@ -563,6 +642,7 @@ export default {
     tr: 'Konu deseni gerekli',
     ja: 'トピックパターンが必要です',
     hu: 'Téma minta szükséges',
+    ko: '토픽 패턴은 필수입니다',
   },
   failedToSaveTimeRangeSettings: {
     zh: '保存时间范围设置失败',
@@ -570,6 +650,7 @@ export default {
     tr: 'Zaman aralığı ayarları kaydedilemedi',
     ja: '時間範囲設定の保存に失敗しました',
     hu: 'Nem sikerült menteni az időtartam beállításokat',
+    ko: '시간 범위 설정을 저장하지 못했습니다',
   },
   failedToSaveDashboardOrder: {
     zh: '保存仪表盘顺序失败',
@@ -577,5 +658,6 @@ export default {
     tr: 'Gösterge paneli sırası kaydedilemedi',
     ja: 'ダッシュボードの順序の保存に失敗しました',
     hu: 'Nem sikerült menteni az irányítópult sorrendet',
+    ko: '대시보드 순서를 저장하지 못했습니다',
   },
 }

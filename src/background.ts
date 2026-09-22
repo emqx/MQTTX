@@ -19,6 +19,7 @@ import ORMConfig from './database/database.config'
 import version from '@/version'
 import { initialize } from '@electron/remote/main'
 import { initMCPHandlers, cleanupMCPConnections } from './main/ai/mcp/MCPManager'
+import { getEnableHardwareAccelerationSetting } from '@/utils/settings'
 
 /**
  * Fix the PATH environment variable in packaged Electron apps
@@ -45,6 +46,22 @@ let syncOsTheme = false
 let autoCheckUpdate: boolean = true
 const isDevelopment: boolean = process.env.NODE_ENV !== 'production'
 const isMac: boolean = process.platform === 'darwin'
+
+const getHardwareAccelerationSetting = (): boolean => {
+  return getEnableHardwareAccelerationSetting(electronStore)
+}
+
+const enableHardwareAccelerationBySetting = getHardwareAccelerationSetting()
+
+// Hardware acceleration must be configured before the app is ready, so this
+// setting is read from electron-store instead of the database settings table.
+// Call app.disableHardwareAcceleration() when enableHardwareAcceleration is false
+if (!enableHardwareAccelerationBySetting) {
+  app.disableHardwareAcceleration()
+  console.log('[GPU] Hardware acceleration disabled')
+} else {
+  console.log('[GPU] Hardware acceleration enabled')
+}
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -222,6 +239,7 @@ async function createWindow() {
         logLevel: setting.logLevel,
         ignoreQoS0Message: setting.ignoreQoS0Message,
         topicWhitespaceDetection: electronStore.get('settings.topicWhitespaceDetection', false),
+        enableHardwareAcceleration: enableHardwareAccelerationBySetting,
       }
     }
   } catch (error) {
@@ -234,6 +252,7 @@ async function createWindow() {
       currentLang: 'en',
       syncOsTheme: false,
       topicWhitespaceDetection: electronStore.get('settings.topicWhitespaceDetection', false),
+      enableHardwareAcceleration: enableHardwareAccelerationBySetting,
     }
   }
   // Create the browser window.
