@@ -6,7 +6,8 @@ module.exports = {
     es6: true,
   },
   parser: 'vue-eslint-parser',
-  extends: ['@vue/prettier', 'prettier/@typescript-eslint', 'plugin:@typescript-eslint/recommended'],
+  // prettier configs must come last so they win over stylistic rules from recommended sets
+  extends: ['plugin:@typescript-eslint/recommended', '@vue/prettier', 'prettier/@typescript-eslint'],
   plugins: ['@typescript-eslint'],
   parserOptions: {
     parser: '@typescript-eslint/parser',
@@ -22,39 +23,8 @@ module.exports = {
     'block-spacing': 2,
     'key-spacing': 2,
     'brace-style': 2,
-    'vue/camelcase': 2,
-    'vue/require-component-is': 0,
-    'vue/require-default-prop': 0,
     'comma-dangle': [2, 'always-multiline'],
-    'vue/eqeqeq': [
-      2,
-      'always',
-      {
-        null: 'ignore',
-      },
-    ],
     'object-curly-spacing': [2, 'always'],
-    'vue/singleline-html-element-content-newline': 0,
-    'vue/html-closing-bracket-newline': [
-      2,
-      {
-        singleline: 'never',
-        multiline: 'always',
-      },
-    ],
-    'vue/max-attributes-per-line': 0,
-    'vue/html-self-closing': [
-      2,
-      {
-        html: {
-          void: 'always',
-          normal: 'never',
-          component: 'always',
-        },
-        svg: 'always',
-        math: 'always',
-      },
-    ],
     // https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin/docs/rules
     '@typescript-eslint/camelcase': 0,
     '@typescript-eslint/no-non-null-assertion': 0,
@@ -83,5 +53,8 @@ module.exports = {
     '@typescript-eslint/no-var-requires': 0,
     '@typescript-eslint/no-use-before-define': 0,
     '@typescript-eslint/no-explicit-any': 0,
+    // @ts-ignore is the sanctioned escape hatch in this codebase (typeorm-typedi-extensions
+    // decorator signatures, global.sharedData init); require a written reason instead of banning it
+    '@typescript-eslint/ban-ts-comment': [2, { 'ts-ignore': 'allow-with-description' }],
   },
 }
