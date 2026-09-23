@@ -186,6 +186,8 @@ export interface SiliconFlowOptionsModel extends BaseProviderOptionsModel {
       | 'deepseek-ai/DeepSeek-R1'
       | 'Qwen/Qwen2-VL-72B-Instruct'
       | 'Qwen/Qwen2.5-72B-Instruct'
+      // (string & {}) keeps autocomplete for the literals above while still allowing any model id
+      // eslint-disable-next-line @typescript-eslint/ban-types
       | (string & {})
   }[]
   providerCreator: typeof createOpenAI

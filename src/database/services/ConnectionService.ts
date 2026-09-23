@@ -20,13 +20,13 @@ export const LessThanDate = (date: string | Date) => LessThan(DateUtils.mixedDat
 @Service()
 export default class ConnectionService {
   constructor(
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(ConnectionEntity)
     private connectionRepository: Repository<ConnectionEntity>,
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(HistoryConnectionEntity)
     private historyConnectionRepository: Repository<HistoryConnectionEntity>,
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(WillEntity)
     private willRepository: Repository<WillEntity>,
   ) {}

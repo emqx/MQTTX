@@ -43,7 +43,7 @@ const Store = require('electron-store')
 const electronStore = new Store()
 let theme: Theme = 'light'
 let syncOsTheme = false
-let autoCheckUpdate: boolean = true
+let autoCheckUpdate = true
 const isDevelopment: boolean = process.env.NODE_ENV !== 'production'
 const isMac: boolean = process.platform === 'darwin'
 
@@ -222,7 +222,7 @@ async function createWindow() {
       theme = setting.currentTheme
       autoCheckUpdate = setting.autoCheck
       syncOsTheme = setting.syncOsTheme
-      //@ts-ignore
+      //@ts-ignore - global.sharedData is attached at runtime during app init
       global.sharedData = {
         currentTheme: setting.currentTheme,
         currentLang: setting.currentLang,
@@ -245,7 +245,7 @@ async function createWindow() {
   } catch (error) {
     const err = error as unknown as Error
     console.error('ConnectionInit error:', err.toString())
-    //@ts-ignore
+    //@ts-ignore - global.sharedData is attached at runtime during app init
     global.sharedData = {
       connectDatabaseFailMessage: err.message,
       currentTheme: 'light',
@@ -279,13 +279,13 @@ async function createWindow() {
 
   // Theme change
   onSystemThemeChanged(async (theme) => {
-    // @ts-ignore
+    // @ts-ignore - global.sharedData is attached at runtime during app init
     if (global.sharedData.syncOsTheme) {
       win?.webContents.send('setting', 'theme', theme)
     }
   })
   // Menu Manger
-  // @ts-ignore
+  // @ts-ignore - global.sharedData is attached at runtime during app init
   const templateMenu = getMenuTemplate(win, global.sharedData.currentLang)
   menu = Menu.buildFromTemplate(templateMenu)
   Menu.setApplicationMenu(menu)

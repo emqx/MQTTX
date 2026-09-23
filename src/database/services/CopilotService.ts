@@ -9,7 +9,7 @@ import { Repository } from 'typeorm'
 @Service()
 export default class CopilotService {
   constructor(
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(CopilotEntity)
     private conversationRepository: Repository<CopilotEntity>,
   ) {}
@@ -29,7 +29,7 @@ export default class CopilotService {
    * @param page The page number to retrieve (default: 1)
    * @returns Object containing messages and hasMore flag
    */
-  public async get(page: number = 1) {
+  public async get(page = 1) {
     const count = 20
     const messages = await this.conversationRepository.find({
       skip: (page - 1) * count,

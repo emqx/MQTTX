@@ -35,12 +35,12 @@ export default class Window extends Vue {
     return this.$route.params.id
   }
 
-  private handleReload(loadLatest: boolean, firstLoad: boolean, callback?: () => {}) {
+  private handleReload(loadLatest: boolean, firstLoad: boolean, callback?: () => void) {
     this.loadDetail(this.connectionId, true, callback)
     this.refreshConnectionList()
   }
 
-  private async loadDetail(id: string, reload?: boolean, callback?: () => {}): Promise<void> {
+  private async loadDetail(id: string, reload?: boolean, callback?: () => void): Promise<void> {
     const { connectionService } = useServices()
     const res: ConnectionModel | undefined = await connectionService.get(id)
 

@@ -12,7 +12,7 @@ import time from '@/utils/time'
 @Service()
 export default class DashboardService {
   constructor(
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(DashboardEntity)
     private dashboardRepository: Repository<DashboardEntity>,
   ) {}

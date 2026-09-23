@@ -83,7 +83,7 @@ export default class WidgetEntity {
   schemaValidationError?: string
 
   @Column({ type: 'simple-json', nullable: true })
-  widgetOptions?: {}
+  widgetOptions?: GaugeWidgetOptions | BigNumberWidgetOptions | LineWidgetOptions
 
   @CreateDateColumn({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createAt!: string

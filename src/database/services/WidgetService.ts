@@ -7,7 +7,7 @@ import time from '@/utils/time'
 @Service()
 export default class WidgetService {
   constructor(
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(WidgetEntity)
     private widgetRepository: Repository<WidgetEntity>,
   ) {}

@@ -9,13 +9,13 @@ import time from '@/utils/time'
 @Service()
 export default class CollectionService {
   constructor(
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(CollectionEntity)
     private collectionRepository: Repository<CollectionEntity>,
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(ConnectionEntity)
     private connectionRepository: Repository<ConnectionEntity>,
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(WillEntity)
     private willRepository: Repository<WillEntity>,
   ) {}

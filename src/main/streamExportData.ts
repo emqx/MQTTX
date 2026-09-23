@@ -19,7 +19,7 @@ interface StreamExportOptions {
 
 export class StreamDataExporter {
   private win: BrowserWindow
-  private filePath: string = ''
+  private filePath = ''
   private fileDescriptor: number | null = null
   private totalMessages = 0
   private processedMessages = 0
@@ -28,10 +28,7 @@ export class StreamDataExporter {
     this.win = win
   }
 
-  private async streamMessages(
-    connectionId: string,
-    onProgress?: (progress: number) => void,
-  ): Promise<MessageModel[]> {
+  private async streamMessages(connectionId: string, onProgress?: (progress: number) => void): Promise<MessageModel[]> {
     const { messageService } = useServices()
     const messages: MessageModel[] = []
     const messageGenerator = messageService.streamMessagesForExport(connectionId)
@@ -135,11 +132,11 @@ export class StreamDataExporter {
         const messageGenerator = messageService.streamMessagesForExport(connection.id!)
         const { messages: _, ...connectionWithoutMessages } = connection
 
-        const self = this
+        const trackProgress = (batchSize: number) => this.updateProgress(batchSize, onProgress)
         async function* tracked() {
           for await (const batch of messageGenerator) {
             yield batch
-            self.updateProgress(batch.length, onProgress)
+            trackProgress(batch.length)
           }
         }
         await writer.writeObjectWithStreamingArray(connectionWithoutMessages, 'messages', tracked(), 2)
