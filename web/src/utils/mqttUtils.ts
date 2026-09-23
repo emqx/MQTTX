@@ -12,7 +12,7 @@ const setMQTT5Properties = (option: ClientPropertiesModel) => {
     return undefined
   }
   const properties: ClientPropertiesModel = _.cloneDeep(option)
-  return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined))
+  return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined && v !== ''))
 }
 
 const setWillMQTT5Properties = (option: WillPropertiesModel) => {
@@ -20,7 +20,7 @@ const setWillMQTT5Properties = (option: WillPropertiesModel) => {
     return undefined
   }
   const properties: WillPropertiesModel = _.cloneDeep(option)
-  return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined))
+  return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined && v !== ''))
 }
 
 const getClientOptions = (record: ConnectionModel): IClientOptions => {
