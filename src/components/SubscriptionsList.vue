@@ -601,20 +601,24 @@ export default class SubscriptionsList extends Vue {
 
   private async updateSub() {
     if (!this.selectedTopic) {
+      this.subLoading = false
       return
     }
     const selectedTopic = this.selectedTopic
     const disabled = this.subRecord.disabled
     const res = await this.unsubscribe({ ...selectedTopic, disabled }, disabled)
     if (!res) {
+      this.subLoading = false
       return
     }
     if (!disabled) {
+      // subLoading is reset in the subscribe callback
       this.subscribe(this.subRecord)
       return
     }
     const updatedSubs = this.subsList.map((sub) => (sub.id === selectedTopic.id ? { ...this.subRecord } : sub))
     await this.syncSubscriptions(updatedSubs, true)
+    this.subLoading = false
   }
 
   private unsubscribe(row: SubscriptionModel, disable?: boolean): Promise<boolean> {
@@ -661,6 +665,8 @@ export default class SubscriptionsList extends Vue {
             resolve(true)
             return true
           }
+          resolve(false)
+          return false
         })
       }
     })
@@ -670,6 +676,7 @@ export default class SubscriptionsList extends Vue {
     const form = this.getSubForm()
     form?.clearValidate()
     form?.resetFields()
+    this.subLoading = false
     this.subRecord.topic = 'testtopic/#'
     this.subRecord.qos = 0
     this.subRecord.alias = ''
