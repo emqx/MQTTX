@@ -293,7 +293,7 @@ export default class LineChart extends Vue {
     if (this.myChart) this.myChart.dispose()
   }
 
-  private debounce(func: Function, wait: number) {
+  private debounce(func: () => void, wait: number) {
     let timeout: number | null = null
     return () => {
       if (timeout) clearTimeout(timeout)

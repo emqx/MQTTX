@@ -5,18 +5,16 @@ import { Repository } from 'typeorm'
 import ConnectionEntity from '../models/ConnectionEntity'
 import ConnectionService from './ConnectionService'
 
-
-
 @Service()
 export default class MessageService {
   constructor(
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(MessageEntity)
     private messageRepository: Repository<MessageEntity>,
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(ConnectionEntity)
     private connectionRepository: Repository<ConnectionEntity>,
-  ) { }
+  ) {}
 
   public static modelToEntity(model: MessageModel, connectionId: string | undefined): MessageEntity {
     const { properties, ...rest } = model
@@ -111,7 +109,7 @@ export default class MessageService {
   ): Promise<MessagePaginationModel> {
     const defaultOpts = { page: 1, limit: 20, msgType: 'all' }
     const { page, limit, msgType, preserveOrder } = { ...defaultOpts, ...options }
-    let { topic } = { ...defaultOpts, ...options }
+    const { topic } = { ...defaultOpts, ...options }
 
     const total = await this.messageRepository.count({ connectionId })
     const publishedTotal = await this.messageRepository.count({ connectionId, out: true })
@@ -168,7 +166,7 @@ export default class MessageService {
   ) {
     const defaultOpts = { limit: 20, msgType: 'all' }
     const { limit, msgType } = { ...defaultOpts, ...options }
-    let { topic } = { ...defaultOpts, ...options }
+    const { topic } = { ...defaultOpts, ...options }
 
     let query = await this.messageRepository
       .createQueryBuilder('msg')
@@ -334,7 +332,7 @@ export default class MessageService {
 
   public async *streamMessagesForExport(
     connectionId: string,
-    batchSize: number = 1000,
+    batchSize = 1000,
   ): AsyncGenerator<MessageModel[], void, unknown> {
     let offset = 0
 

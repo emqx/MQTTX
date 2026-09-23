@@ -7,12 +7,12 @@ import HistoryMessagePayloadEntity from '../models/HistoryMessagePayloadEntity'
 @Service()
 export default class HistoryMessagePayloadService {
   constructor(
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(HistoryMessagePayloadEntity)
     private messageRepository: Repository<HistoryMessagePayloadEntity>,
   ) {}
 
-  public static MAX_REMAIN_COUNT: number = 10
+  public static MAX_REMAIN_COUNT = 10
 
   public async getAll(): Promise<HistoryMessagePayloadModel[] | undefined> {
     const query: HistoryMessagePayloadEntity[] | undefined = await this.messageRepository
