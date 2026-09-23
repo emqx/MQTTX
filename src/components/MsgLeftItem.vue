@@ -94,9 +94,9 @@ export default class MsgLeftItem extends Vue {
   @Getter('jsonHighlight') private jsonHighlight!: boolean
   @Getter('currentTheme') private theme!: Theme
 
-  public highlight: boolean = false
+  public highlight = false
 
-  private showFullMsg: boolean = false
+  private showFullMsg = false
 
   @Watch('searchParams', { deep: true })
   private onSearchParamsChanged() {

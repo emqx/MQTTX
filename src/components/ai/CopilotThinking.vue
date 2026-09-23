@@ -23,8 +23,8 @@ import MessageRender from './MessageRender.vue'
 export default class CopilotThinking extends Vue {
   @Prop({ default: '' }) readonly reasoning!: string
 
-  private isExpanded: boolean = false
-  private isUpdating: boolean = false
+  private isExpanded = false
+  private isUpdating = false
   private updateTimeout: number | null = null
   private copyText = String(this.$t('common.copy'))
   private copyFailedText = String(this.$t('common.copyFailed'))

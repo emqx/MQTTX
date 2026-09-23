@@ -119,7 +119,7 @@ export default class ImportData extends Vue {
 
   private importMsgsProgress = 0
   private showDialog: boolean = this.visible
-  private confirmLoading: boolean = false
+  private confirmLoading = false
   private progressVisible = false
   private record: ImportForm = {
     importFormat: 'JSON',

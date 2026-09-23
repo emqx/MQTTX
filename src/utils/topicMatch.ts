@@ -6,7 +6,7 @@
  */
 export const matchTopicMethod = (filter: string, topic: string): boolean => {
   let _filter = filter
-  let _topic = topic
+  const _topic = topic
   if (filter.includes('$share')) {
     // shared subscription format: $share/{ShareName}/{filter}
     _filter = filter.split('/').slice(2).join('/')

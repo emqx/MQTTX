@@ -68,14 +68,14 @@ interface StoreMessageModel extends MessageModel {
 export default class TrafficMonitor extends Vue {
   @Getter('currentTheme') private theme!: Theme
 
-  private receivedBytesLastTime: string = ''
-  private receivedBytes: number = 0
-  private sentBytes: number = 0
-  private receivedRateLastTime: string = ''
-  private receivedRate: number = 0
-  private sentRate: number = 0
+  private receivedBytesLastTime = ''
+  private receivedBytes = 0
+  private sentBytes = 0
+  private receivedRateLastTime = ''
+  private receivedRate = 0
+  private sentRate = 0
 
-  private selectedConnectionId: string = ''
+  private selectedConnectionId = ''
   private subscription: Subscription | null = null
   private messageQueue: MessageQueue<StoreMessageModel> | null = null
 

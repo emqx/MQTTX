@@ -59,7 +59,7 @@ export const getLegacyDataPath = (subDir?: string): string => {
  * @returns Whether migration is needed and the paths involved
  */
 export const checkMigrationNeeded = (
-  dbFileName: string = 'MQTTX.db',
+  dbFileName = 'MQTTX.db',
 ): {
   needed: boolean
   legacyPath?: string
@@ -105,7 +105,7 @@ export const checkMigrationNeeded = (
  * @returns Success status and error message if failed
  */
 export const migrateDataIfNeeded = async (
-  dbFileName: string = 'MQTTX.db',
+  dbFileName = 'MQTTX.db',
 ): Promise<{
   success: boolean
   migrated: boolean

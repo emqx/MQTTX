@@ -251,10 +251,10 @@ export default class WidgetConfig extends Vue {
   private thresholdsType: 'Absolute' | 'Percentage' = 'Absolute'
 
   // Preview refresh key to force re-rendering
-  private previewRefreshKey: number = 0
+  private previewRefreshKey = 0
 
   // Flag to track initialization to prevent clearing schema values during setup
-  private isInitializing: boolean = true
+  private isInitializing = true
 
   get availableTypes() {
     return widgetRegistry.getAvailableTypes()

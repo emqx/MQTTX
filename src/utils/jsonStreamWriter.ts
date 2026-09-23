@@ -18,7 +18,7 @@ export class JSONStreamWriter {
    * @param obj - The object to write
    * @param indent - Indentation level (number of spaces)
    */
-  public writeObject(obj: Record<string, any>, indent: number = 2): void {
+  public writeObject(obj: Record<string, any>, indent = 2): void {
     if (!this.isFirstItem) {
       fs.writeSync(this.fd, ',\n')
     }
@@ -40,7 +40,7 @@ export class JSONStreamWriter {
     obj: Record<string, any>,
     arrayKey: string,
     arrayGenerator: AsyncGenerator<T[], void, unknown>,
-    indent: number = 2,
+    indent = 2,
   ): Promise<void> {
     if (!this.isFirstItem) {
       fs.writeSync(this.fd, ',\n')

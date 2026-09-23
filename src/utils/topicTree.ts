@@ -26,9 +26,9 @@ export function updateTopicTreeNode(
   const currentTime = time.getNowDate()
   const currentProperties = properties ?? {}
 
-  let updatedTree = [...currentTree]
+  const updatedTree = [...currentTree]
   let hostNode = updatedTree.find((node) => node.id === connectionInfo.id)
-  let updatedNodes: TopicTreeNode[] = []
+  const updatedNodes: TopicTreeNode[] = []
   let isNewHost = false
 
   if (!hostNode) {
@@ -160,7 +160,7 @@ export function updateSubTopicCounts(node: TopicTreeNode): number {
  * @param isRoot - A boolean indicating whether the current node is the root node.
  * @returns An array of strings representing the subtopics.
  */
-export function findSubTopics(node: TopicTreeNode, isRoot: boolean = true): string[] {
+export function findSubTopics(node: TopicTreeNode, isRoot = true): string[] {
   let subTopics: string[] = []
   if (!isRoot && node.label) {
     subTopics.push(node.label)
