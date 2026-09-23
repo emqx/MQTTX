@@ -501,11 +501,11 @@ export default class ConnectionsDetail extends Vue {
   private reTryConnectTimes = 0
   private inputHeight = 180
   private msgBottom = 166
-  private messageListHeight: number = 284
-  private messageListMarginTop: number = 19
+  private messageListHeight = 284
+  private messageListMarginTop = 19
 
   private activeTopic = ''
-  private showContextmenu: boolean = false
+  private showContextmenu = false
   private selectedMessage: MessageModel | null = null
   private contextmenuConfig: ContextmenuModel = {
     top: 0,
@@ -2178,7 +2178,7 @@ export default class ConnectionsDetail extends Vue {
     return null
   }
 
-  private toggleShowCopilot(show: boolean = true) {
+  private toggleShowCopilot(show = true) {
     const copilotRef = this.getAncestorRef('copilot') as Copilot
     copilotRef.showCopilot = show
     return copilotRef

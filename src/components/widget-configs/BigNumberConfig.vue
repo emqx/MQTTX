@@ -45,13 +45,13 @@ import { defineColors } from '@/utils/colors'
 export default class BigNumberConfig extends Vue {
   @Prop({ type: Object, required: true }) readonly options!: BigNumberWidgetOptions
 
-  private localMin: string = ''
-  private localMax: string = ''
-  private localDecimals: string = '1'
-  private localUnit: string = ''
-  private localColor: string = '#00B572'
+  private localMin = ''
+  private localMax = ''
+  private localDecimals = '1'
+  private localUnit = ''
+  private localColor = '#00B572'
 
-  private isUpdatingFromProps: boolean = false
+  private isUpdatingFromProps = false
 
   mounted() {
     this.syncFromProps()

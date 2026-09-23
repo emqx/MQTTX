@@ -886,7 +886,7 @@ export default class ConnectionForm extends Vue {
     }
   }
 
-  private async loadSuggestConnections(reload: boolean = false): Promise<void> {
+  private async loadSuggestConnections(reload = false): Promise<void> {
     const { connectionService } = useServices()
     const res: ConnectionModel[] | undefined = await connectionService.getLeatests()
     if (res) {

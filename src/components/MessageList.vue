@@ -53,8 +53,8 @@ export default class MessageList extends Vue {
   }
 
   public showMessages: MessageModel[] = []
-  public showBeforeLoadingIcon: boolean = false
-  public showAfterLoadingIcon: boolean = false
+  public showBeforeLoadingIcon = false
+  public showAfterLoadingIcon = false
   public loadSwitch = true
   private scrollOffset: { offset: number; mode: 'before' | 'after' } = {
     offset: Number.MAX_SAFE_INTEGER,

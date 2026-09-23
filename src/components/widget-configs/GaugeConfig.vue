@@ -45,14 +45,14 @@ import { defineColors } from '@/utils/colors'
 export default class GaugeConfig extends Vue {
   @Prop({ type: Object, required: true }) readonly options!: GaugeWidgetOptions
 
-  private localMin: string = ''
-  private localMax: string = ''
-  private localDecimals: string = '1'
-  private localUnit: string = ''
-  private localColor: string = '#00B572'
+  private localMin = ''
+  private localMax = ''
+  private localDecimals = '1'
+  private localUnit = ''
+  private localColor = '#00B572'
 
   // Add this flag to prevent circular updates
-  private isUpdatingFromProps: boolean = false
+  private isUpdatingFromProps = false
 
   mounted() {
     this.syncFromProps()

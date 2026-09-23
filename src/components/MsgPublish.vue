@@ -267,7 +267,7 @@ export default class MsgPublish extends Vue {
 
   private MQTT5PropsSend: PushPropertiesModel = {}
 
-  private showMetaCard: boolean = false
+  private showMetaCard = false
 
   private saveMetaLoading = false
 
@@ -297,11 +297,11 @@ export default class MsgPublish extends Vue {
     return {}
   }
 
-  private hasMqtt5Prop: boolean = false
+  private hasMqtt5Prop = false
 
   private headersHistory: HistoryMessageHeaderModel[] | [] = []
   private payloadsHistory: HistoryMessagePayloadModel[] | [] = []
-  private historyIndex: number = -1
+  private historyIndex = -1
   private defaultMsgRecord: MessageModel = {
     createAt: time.getNowDate(),
     out: true,

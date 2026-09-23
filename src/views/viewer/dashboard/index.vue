@@ -75,8 +75,8 @@ import time from '@/utils/time'
   },
 })
 export default class Dashboards extends Vue {
-  private showDashboardsList: boolean = true
-  private isAddingWidget: boolean = false
+  private showDashboardsList = true
+  private isAddingWidget = false
   private editingWidget: WidgetModel | null = null
 
   // === CONSOLIDATED LOADING STATE ===
@@ -91,7 +91,7 @@ export default class Dashboards extends Vue {
   private selectedDashboardId: string | null = null
   private dashboardWidgets: WidgetModel[] = []
 
-  private isSelectingDashboard: boolean = false
+  private isSelectingDashboard = false
   private timeRange: [string, string] = [time.getDateBefore(24 * 60), time.getNowDate()]
   private timeRangeType: 'live' | 'static' = 'static'
   private duration: number = 24 * 60
@@ -133,7 +133,7 @@ export default class Dashboards extends Vue {
     }
   }
 
-  private handleError(error: Error, context: string, showUser: boolean = true): void {
+  private handleError(error: Error, context: string, showUser = true): void {
     console.error(`[DASHBOARDS-${context}] Error:`, error)
     this.$log?.error?.(error.toString())
     if (showUser) {
@@ -212,7 +212,7 @@ export default class Dashboards extends Vue {
     }
   }
 
-  private setSelectedDashboard(dashboard: DashboardModel, persist: boolean = true): void {
+  private setSelectedDashboard(dashboard: DashboardModel, persist = true): void {
     this.selectedDashboard = dashboard
     this.selectedDashboardId = dashboard.id || null
 
@@ -374,7 +374,7 @@ export default class Dashboards extends Vue {
     }
   }
 
-  private notifyDashboardsList(action: string, dashboard: DashboardModel, selectAfter: boolean = false): void {
+  private notifyDashboardsList(action: string, dashboard: DashboardModel, selectAfter = false): void {
     const listRef = this.$refs.dashboardsList as InstanceType<typeof DashboardsList>
     if (listRef?.upsertDashboard) {
       listRef.upsertDashboard(dashboard, selectAfter)
@@ -473,7 +473,7 @@ export default class Dashboards extends Vue {
     this.schedulePersistLayout()
   }
 
-  private schedulePersistLayout(delayMs: number = 500): void {
+  private schedulePersistLayout(delayMs = 500): void {
     if (this.layoutSaveTimer) {
       window.clearTimeout(this.layoutSaveTimer)
       this.layoutSaveTimer = null

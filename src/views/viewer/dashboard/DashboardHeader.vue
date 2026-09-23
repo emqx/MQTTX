@@ -161,8 +161,8 @@ export default class DashboardHeader extends Vue {
   @Prop({ required: true }) duration!: number
   @Prop({ required: true }) isAddingWidget!: boolean
 
-  private creatingInTopbar: boolean = false
-  private editingInTopbar: boolean = false
+  private creatingInTopbar = false
+  private editingInTopbar = false
   private newDashboard: Partial<DashboardModel> = { name: '', description: '' }
   private editDashboard: Partial<DashboardModel> = { name: '', description: '' }
 

@@ -147,7 +147,7 @@ export default class PayloadInspector extends Vue {
     }
   }
 
-  private async loadMessages(append: boolean = false, msgType?: MessageType): Promise<void> {
+  private async loadMessages(append = false, msgType?: MessageType): Promise<void> {
     if (!this.selectedConnectionId || !this.selectedTopic) {
       return
     }

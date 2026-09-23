@@ -73,12 +73,12 @@ import '@/assets/font/iconfont'
   components: { Contextmenu },
 })
 export default class DashboardsList extends Vue {
-  private isLoadingData: boolean = false
+  private isLoadingData = false
   @Prop({ type: Array, default: () => [] }) readonly dashboards!: DashboardModel[]
   @Prop({ type: String, default: null }) readonly selectedId!: string | null
 
   // context menu state
-  private showContextmenu: boolean = false
+  private showContextmenu = false
   private selectedDashboardForMenu: DashboardModel | null = null
   private contextmenuConfig: ContextmenuModel = { top: 0, left: 0 }
 
@@ -90,7 +90,7 @@ export default class DashboardsList extends Vue {
     this.$emit('create-dashboard')
   }
 
-  public upsertDashboard(dashboard: DashboardModel, selectAfter: boolean = false) {
+  public upsertDashboard(dashboard: DashboardModel, selectAfter = false) {
     if (!dashboard || !dashboard.id) return
     this.$emit('upsert', { dashboard, selectAfter })
   }

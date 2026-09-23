@@ -206,7 +206,7 @@ export default class Script extends Vue {
   private readonly functionTab: 'functionTab' = 'functionTab'
   private readonly schemaTab: 'schemaTab' = 'schemaTab'
   private activeTab: 'functionTab' | 'schemaTab' = this.functionTab
-  private activeTabIndex: number = 0
+  private activeTabIndex = 0
   // script type
   private schemaList: SchemaList[] = [
     { label: 'Protobuf', value: 'protobuf' },
@@ -235,23 +235,23 @@ export default class Script extends Vue {
     }
   }
   // dialog show
-  private showSaveDialog: boolean = false
-  private showImportScript: boolean = false
+  private showSaveDialog = false
+  private showImportScript = false
   // page temp cache
-  private functionEditorValue: string = ''
-  private schemaEditorValue: string = ''
-  private functionInputValue: string = ''
-  private schemaInputValue: string = ''
-  private outputValue: string = ''
-  private tempOutputValue: string = ''
-  private currentScriptId: string = ''
-  private tempScriptId: string = ''
+  private functionEditorValue = ''
+  private schemaEditorValue = ''
+  private functionInputValue = ''
+  private schemaInputValue = ''
+  private outputValue = ''
+  private tempOutputValue = ''
+  private currentScriptId = ''
+  private tempScriptId = ''
   private functionInputType: PayloadType = 'JSON'
   private schemaInputType: PayloadType = 'JSON'
   private functionInputLang = 'json'
   private schemaInputLang = 'json'
   // record content
-  private protoName: string = ''
+  private protoName = ''
   private record: ScriptModel = {
     name: '',
     script: '',
@@ -591,7 +591,7 @@ message Person {
     return null
   }
 
-  private toggleShowCopilot(show: boolean = true) {
+  private toggleShowCopilot(show = true) {
     const copilotRef = this.getAncestorRef('copilot') as Copilot
     copilotRef.showCopilot = show
     return copilotRef

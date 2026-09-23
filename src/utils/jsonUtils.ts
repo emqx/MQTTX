@@ -47,7 +47,7 @@ export interface EChartsJsonTreeNodeLike {
  * @param space - Number of spaces to use for indentation (default: 2).
  * @returns The JSON string representation of the subtree.
  */
-export function stringifySubtree(nodeLike: EChartsJsonTreeNodeLike, space: number = 2): string {
+export function stringifySubtree(nodeLike: EChartsJsonTreeNodeLike, space = 2): string {
   // Use the 'raw' property if it exists, otherwise use the node itself
   const raw = nodeLike && Object.prototype.hasOwnProperty.call(nodeLike, 'raw') ? nodeLike.raw : nodeLike
   try {

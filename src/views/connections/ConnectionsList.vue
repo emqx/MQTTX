@@ -192,10 +192,10 @@ export default class ConnectionsList extends Vue {
   @Getter('currentTheme') private theme!: Theme
   @Getter('connectionTreeState') private treeState!: ConnectionTreeStateMap
 
-  private isLoadingData: boolean = false
+  private isLoadingData = false
   private connectionId: string = this.$route.params.id
-  private showContextmenu: boolean = false
-  private showCollectionsContextmenu: boolean = false
+  private showContextmenu = false
+  private showCollectionsContextmenu = false
   private selectedConnection: ConnectionModel | null = null
   private selectedCollection: CollectionModel | null = null
   private contextmenuConfig: ContextmenuModel = {
@@ -381,7 +381,7 @@ export default class ConnectionsList extends Vue {
     await flushCurSequenceId(this.treeData)
   }
 
-  public async loadData(firstLoad: boolean = false) {
+  public async loadData(firstLoad = false) {
     firstLoad && (this.isLoadingData = true)
     const { collectionService } = useServices()
     const treeData: ConnectionModelTree[] = (await collectionService.getAll()) ?? []

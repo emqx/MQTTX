@@ -119,7 +119,7 @@ export default class DashboardCanvas extends Vue {
   private widgetDataStore: Record<string, WidgetDataEntry> = {}
   private messageQueue: MessageQueue<TimeSeriesDataPoint & { widgetId: string }> | null = null
   private subscription: Subscription | null = null
-  private isLoadingHistoricalData: boolean = false
+  private isLoadingHistoricalData = false
   private scriptService = useServices().scriptService
   private updateTimeouts: Map<string, NodeJS.Timeout> = new Map()
 

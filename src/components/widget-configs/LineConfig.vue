@@ -33,12 +33,12 @@ import { defineColors } from '@/utils/colors'
 export default class LineConfig extends Vue {
   @Prop({ type: Object, required: true }) readonly options!: LineWidgetOptions
 
-  private localColor: string = '#00B572'
-  private localSmooth: boolean = true
-  private localArea: boolean = true
+  private localColor = '#00B572'
+  private localSmooth = true
+  private localArea = true
 
   // Add this flag to prevent circular updates
-  private isUpdatingFromProps: boolean = false
+  private isUpdatingFromProps = false
 
   mounted() {
     this.syncFromProps()
