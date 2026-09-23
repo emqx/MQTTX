@@ -9,6 +9,24 @@ export const getRandomColor = (): string => {
   return color
 }
 
+// Alpha the subscription card's tint is painted at, as a CSS hex suffix.
+// The topic text sits on the blend of that tint over the panel background, so
+// topicTextColor() has to read the same value the template renders with -
+// otherwise tuning the tint would silently invalidate the contrast guarantee.
+export const TOPIC_TINT_ALPHA = '10'
+
+// What each theme paints behind the subscription list
+// (--color-bg-normal on .subscriptions-list-view).
+const THEME_BACKDROP: Record<Theme, string> = {
+  light: '#ffffff',
+  dark: '#262729',
+  night: '#292b33',
+}
+
+// --color-text-title in the light and the dark/night themes respectively.
+const DARK_TEXT = '#222b3b'
+const LIGHT_TEXT = '#ffffff'
+
 const hexToRgb = (hex: string): [number, number, number] | null => {
   const m = hex.replace('#', '').match(/^([0-9a-f]{6}|[0-9a-f]{3})$/i)
   if (!m) return null
@@ -21,76 +39,53 @@ const hexToRgb = (hex: string): [number, number, number] | null => {
   return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]
 }
 
-const rgbToHex = (r: number, g: number, b: number): string => {
-  const clamp = (n: number) => Math.max(0, Math.min(255, Math.round(n)))
-  return '#' + [r, g, b].map((n) => clamp(n).toString(16).padStart(2, '0')).join('')
+// WCAG 2.1 relative luminance.
+const relativeLuminance = ([r, g, b]: [number, number, number]): number => {
+  const channel = (c: number) => {
+    const s = c / 255
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
+  }
+  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
 }
 
-const rgbToHsl = ([r, g, b]: [number, number, number]): [number, number, number] => {
-  r /= 255
-  g /= 255
-  b /= 255
-  const max = Math.max(r, g, b)
-  const min = Math.min(r, g, b)
-  const l = (max + min) / 2
-  let h = 0
-  let s = 0
-  if (max !== min) {
-    const d = max - min
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
-    switch (max) {
-      case r:
-        h = (g - b) / d + (g < b ? 6 : 0)
-        break
-      case g:
-        h = (b - r) / d + 2
-        break
-      case b:
-        h = (r - g) / d + 4
-        break
-    }
-    h /= 6
-  }
-  return [h, s, l]
+// WCAG 2.1 contrast ratio, 1:1 (identical) to 21:1 (black on white).
+const contrastRatio = (a: [number, number, number], b: [number, number, number]): number => {
+  const [lighter, darker] = [relativeLuminance(a), relativeLuminance(b)].sort((x, y) => y - x)
+  return (lighter + 0.05) / (darker + 0.05)
 }
 
-const hslToRgb = ([h, s, l]: [number, number, number]): [number, number, number] => {
-  if (s === 0) {
-    const v = l * 255
-    return [v, v, v]
-  }
-  const hue2rgb = (p: number, q: number, t: number) => {
-    if (t < 0) t += 1
-    if (t > 1) t -= 1
-    if (t < 1 / 6) return p + (q - p) * 6 * t
-    if (t < 1 / 2) return q
-    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
-    return p
-  }
-  const q = l < 0.5 ? l * (1 + s) : l + s - l * s
-  const p = 2 * l - q
-  return [hue2rgb(p, q, h + 1 / 3) * 255, hue2rgb(p, q, h) * 255, hue2rgb(p, q, h - 1 / 3) * 255]
-}
+// Source-over composite of `tint` at `alpha` onto opaque `backdrop`.
+const blend = (
+  backdrop: [number, number, number],
+  tint: [number, number, number],
+  alpha: number,
+): [number, number, number] => [
+  backdrop[0] * (1 - alpha) + tint[0] * alpha,
+  backdrop[1] * (1 - alpha) + tint[1] * alpha,
+  backdrop[2] * (1 - alpha) + tint[2] * alpha,
+]
 
-// Clamp HSL lightness so a topic color stays legible against the current
-// theme's background. Hue and saturation are preserved, so a "blue" topic
-// stays blue — only the lightness shifts into a readable band.
-export const readableColor = (hex: string, theme: Theme): string => {
-  if (!hex) return hex
-  const rgb = hexToRgb(hex)
-  if (!rgb) return hex
-  const [h, s, l] = rgbToHsl(rgb)
-  const minL = theme === 'light' ? 0 : 0.6
-  const maxL = theme === 'light' ? 0.55 : 1
-  const newL = Math.max(minL, Math.min(maxL, l))
-  if (newL === l) {
-    // Already in the readable band. Normalize 3-char shorthand to 6-char so
-    // callers appending an alpha suffix (e.g. `${color}1A`) always produce
-    // valid CSS; pass 6-char input through unchanged to preserve casing.
-    return hex.replace('#', '').length === 3 ? rgbToHex(rgb[0], rgb[1], rgb[2]) : hex
-  }
-  const [r, g, b] = hslToRgb([h, s, newL])
-  return rgbToHex(r, g, b)
+/**
+ * Colour for the topic text on a subscription card.
+ *
+ * The card is painted as `${sub.color}${TOPIC_TINT_ALPHA}` over the panel
+ * background, so the surface the text actually sits on is that blend - not
+ * sub.color. Choosing from sub.color alone is wrong at the extremes: a pure
+ * black pick in the light theme looks dark, which would suggest white text,
+ * but the card renders ~94% white and white text on it is unreadable.
+ *
+ * sub.color is never modified. The colour-line swatch and the card tint render
+ * the user's choice verbatim; only the text colour is derived.
+ */
+export const topicTextColor = (hex: string, theme: Theme): string => {
+  const fallback = theme === 'light' ? DARK_TEXT : LIGHT_TEXT
+  const backdrop = hexToRgb(THEME_BACKDROP[theme] ?? THEME_BACKDROP.light)
+  const tint = hexToRgb(hex)
+  if (!backdrop || !tint) return fallback
+  const surface = blend(backdrop, tint, parseInt(TOPIC_TINT_ALPHA, 16) / 255)
+  const dark = hexToRgb(DARK_TEXT) as [number, number, number]
+  const light = hexToRgb(LIGHT_TEXT) as [number, number, number]
+  return contrastRatio(surface, dark) >= contrastRatio(surface, light) ? DARK_TEXT : LIGHT_TEXT
 }
 
 export default {}

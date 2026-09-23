@@ -1,29 +1,43 @@
 import { expect } from 'chai'
-import { defineColors, getRandomColor, readableColor } from '@/utils/colors'
+import { defineColors, getRandomColor, topicTextColor, TOPIC_TINT_ALPHA } from '@/utils/colors'
+
+const THEMES: Theme[] = ['light', 'dark', 'night']
+
+// Backdrops the subscription list paints (--color-bg-normal per theme), kept
+// here independently of the implementation so the tests assert the real
+// surface rather than re-running the source's own constants.
+const BACKDROP: Record<string, string> = {
+  light: '#ffffff',
+  dark: '#262729',
+  night: '#292b33',
+}
 
 const hexToRgb = (hex: string): [number, number, number] => {
   const h = hex.replace('#', '')
   return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]
 }
 
-const lightness = (hex: string): number => {
-  const [r, g, b] = hexToRgb(hex).map((v) => v / 255)
-  const max = Math.max(r, g, b)
-  const min = Math.min(r, g, b)
-  return (max + min) / 2
+const luminance = (hex: string): number => {
+  const channel = (c: number) => {
+    const s = c / 255
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
+  }
+  const [r, g, b] = hexToRgb(hex)
+  return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
 }
 
-const hue = (hex: string): number => {
-  const [r, g, b] = hexToRgb(hex).map((v) => v / 255)
-  const max = Math.max(r, g, b)
-  const min = Math.min(r, g, b)
-  if (max === min) return 0
-  const d = max - min
-  let h = 0
-  if (max === r) h = (g - b) / d + (g < b ? 6 : 0)
-  else if (max === g) h = (b - r) / d + 2
-  else h = (r - g) / d + 4
-  return h / 6
+// Colour the card actually renders: sub.color at TOPIC_TINT_ALPHA over the backdrop.
+const renderedSurface = (subColor: string, theme: Theme): string => {
+  const alpha = parseInt(TOPIC_TINT_ALPHA, 16) / 255
+  const bg = hexToRgb(BACKDROP[theme])
+  const tint = hexToRgb(subColor)
+  const mix = bg.map((c, i) => Math.round(c * (1 - alpha) + tint[i] * alpha))
+  return '#' + mix.map((c) => c.toString(16).padStart(2, '0')).join('')
+}
+
+const contrast = (a: string, b: string): number => {
+  const [lighter, darker] = [luminance(a), luminance(b)].sort((x, y) => y - x)
+  return (lighter + 0.05) / (darker + 0.05)
 }
 
 describe('colors utility functions', () => {
@@ -40,64 +54,59 @@ describe('colors utility functions', () => {
     expect(randomColor).to.match(/^#[0-9A-F]{6}$/)
   })
 
-  describe('readableColor', () => {
-    describe('on dark or night theme', () => {
-      it('lightens a very dark color to L >= 0.6', () => {
-        // The reported failing case: dark indigo on the Night theme
-        const out = readableColor('#0F003A', 'dark' as Theme)
-        expect(lightness(out)).to.be.at.least(0.6 - 1e-6)
-      })
+  describe('TOPIC_TINT_ALPHA', () => {
+    it('is a two-character hex suffix, so `${color}${TOPIC_TINT_ALPHA}` is valid CSS', () => {
+      expect(TOPIC_TINT_ALPHA).to.match(/^[0-9a-fA-F]{2}$/)
+    })
+  })
 
-      it('applies the same clamp on night as on dark', () => {
-        const out = readableColor('#0F003A', 'night' as Theme)
-        expect(lightness(out)).to.be.at.least(0.6 - 1e-6)
-      })
-
-      it('preserves hue when lightening', () => {
-        const out = readableColor('#0F003A', 'dark' as Theme)
-        expect(Math.abs(hue(out) - hue('#0F003A'))).to.be.lessThan(0.01)
-      })
-
-      it('returns colors already in the readable band unchanged', () => {
-        // Light cyan from the predefined palette — already legible on dark bg
-        expect(readableColor('#6ECBEE', 'dark' as Theme)).to.equal('#6ECBEE')
+  describe('topicTextColor', () => {
+    it('keeps the topic text readable on every theme for every predefined color', () => {
+      // WCAG AA for normal text is 4.5:1 against the surface behind it.
+      defineColors.forEach((color) => {
+        THEMES.forEach((theme) => {
+          const surface = renderedSurface(color, theme)
+          const text = topicTextColor(color, theme)
+          expect(contrast(surface, text), `${color} on ${theme}`).to.be.at.least(4.5)
+        })
       })
     })
 
-    describe('on light theme', () => {
-      it('darkens a near-white color to L <= 0.55', () => {
-        const out = readableColor('#F5F5F5', 'light' as Theme)
-        expect(lightness(out)).to.be.at.most(0.55 + 1e-6)
-      })
-
-      it('returns dark colors unchanged', () => {
-        expect(readableColor('#0F003A', 'light' as Theme)).to.equal('#0F003A')
+    it('keeps extreme user picks readable, which is the reported bug', () => {
+      // Dark indigo on the dark theme was unreadable because the text itself
+      // was rendered in sub.color.
+      ;['#000000', '#ffffff', '#0F003A', '#F5F5F5'].forEach((color) => {
+        THEMES.forEach((theme) => {
+          const surface = renderedSurface(color, theme)
+          const text = topicTextColor(color, theme)
+          expect(contrast(surface, text), `${color} on ${theme}`).to.be.at.least(4.5)
+        })
       })
     })
 
-    describe('input handling', () => {
-      it('returns empty input unchanged', () => {
-        expect(readableColor('', 'dark' as Theme)).to.equal('')
-      })
+    it('derives from the blended surface, not from sub.color', () => {
+      // A pure black pick on the light theme looks dark in isolation, which
+      // would suggest light text -- but the card renders ~94% white, so the
+      // text has to be dark. This is the case that makes the blend necessary.
+      const text = topicTextColor('#000000', 'light' as Theme)
+      expect(luminance(text)).to.be.lessThan(0.5)
+    })
 
-      it('returns non-hex input unchanged', () => {
-        expect(readableColor('not-a-color', 'dark' as Theme)).to.equal('not-a-color')
-      })
+    it('does the converse on dark themes', () => {
+      // Pure white pick, dark backdrop: the blend stays dark, so text stays light.
+      const text = topicTextColor('#ffffff', 'dark' as Theme)
+      expect(luminance(text)).to.be.greaterThan(0.5)
+    })
 
-      it('accepts 3-character shorthand hex', () => {
-        // #003 expands to #000033 — very dark, should be lightened on dark theme
-        const out = readableColor('#003', 'dark' as Theme)
-        expect(lightness(out)).to.be.at.least(0.6 - 1e-6)
-      })
+    it('accepts 3-character shorthand hex', () => {
+      const text = topicTextColor('#003', 'dark' as Theme)
+      expect(text).to.match(/^#[0-9a-f]{6}$/i)
+    })
 
-      it('normalizes 3-char shorthand to 6-char even when no clamp is needed', () => {
-        // #003 expands to #000033 (L≈0.10) — already legible on the light
-        // theme so no lightness clamp applies. Output must still be 6-char
-        // because callers append an alpha suffix (`${color}1A`); a 3-char
-        // return would yield invalid CSS like `#0031A`.
-        const out = readableColor('#003', 'light' as Theme)
-        expect(out).to.match(/^#[0-9a-f]{6}$/)
-        expect(out).to.equal('#000033')
+    it('falls back to the theme text color for empty or non-hex input', () => {
+      THEMES.forEach((theme) => {
+        expect(topicTextColor('', theme)).to.equal(topicTextColor('not-a-color', theme))
+        expect(topicTextColor('not-a-color', theme)).to.match(/^#[0-9a-f]{6}$/i)
       })
     })
   })
