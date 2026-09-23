@@ -48,11 +48,8 @@ const relativeLuminance = ([r, g, b]: [number, number, number]): number => {
   return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
 }
 
-// WCAG 2.1 contrast ratio, 1:1 (identical) to 21:1 (black on white).
-const contrastRatio = (a: [number, number, number], b: [number, number, number]): number => {
-  const [lighter, darker] = [relativeLuminance(a), relativeLuminance(b)].sort((x, y) => y - x)
-  return (lighter + 0.05) / (darker + 0.05)
-}
+// WCAG 2.1 contrast ratio between two luminances, 1:1 to 21:1.
+const contrast = (a: number, b: number): number => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
 
 // Source-over composite of `tint` at `alpha` onto opaque `backdrop`.
 const blend = (
@@ -64,6 +61,17 @@ const blend = (
   backdrop[1] * (1 - alpha) + tint[1] * alpha,
   backdrop[2] * (1 - alpha) + tint[2] * alpha,
 ]
+
+// Everything topicTextColor() needs beyond the user's hex never changes, so
+// pre-compute it: the function runs per subscription row on every render.
+const TOPIC_TINT_RATIO = parseInt(TOPIC_TINT_ALPHA, 16) / 255
+const THEME_BACKDROP_RGB: Record<Theme, [number, number, number]> = {
+  light: hexToRgb(THEME_BACKDROP.light) as [number, number, number],
+  dark: hexToRgb(THEME_BACKDROP.dark) as [number, number, number],
+  night: hexToRgb(THEME_BACKDROP.night) as [number, number, number],
+}
+const DARK_LUM = relativeLuminance(hexToRgb(DARK_TEXT) as [number, number, number])
+const LIGHT_LUM = relativeLuminance(hexToRgb(LIGHT_TEXT) as [number, number, number])
 
 /**
  * Colour for the topic text on a subscription card.
@@ -78,14 +86,10 @@ const blend = (
  * the user's choice verbatim; only the text colour is derived.
  */
 export const topicTextColor = (hex: string, theme: Theme): string => {
-  const fallback = theme === 'light' ? DARK_TEXT : LIGHT_TEXT
-  const backdrop = hexToRgb(THEME_BACKDROP[theme] ?? THEME_BACKDROP.light)
   const tint = hexToRgb(hex)
-  if (!backdrop || !tint) return fallback
-  const surface = blend(backdrop, tint, parseInt(TOPIC_TINT_ALPHA, 16) / 255)
-  const dark = hexToRgb(DARK_TEXT) as [number, number, number]
-  const light = hexToRgb(LIGHT_TEXT) as [number, number, number]
-  return contrastRatio(surface, dark) >= contrastRatio(surface, light) ? DARK_TEXT : LIGHT_TEXT
+  if (!tint) return theme === 'light' ? DARK_TEXT : LIGHT_TEXT
+  const surfaceLum = relativeLuminance(blend(THEME_BACKDROP_RGB[theme], tint, TOPIC_TINT_RATIO))
+  return contrast(surfaceLum, DARK_LUM) >= contrast(surfaceLum, LIGHT_LUM) ? DARK_TEXT : LIGHT_TEXT
 }
 
 export default {}
