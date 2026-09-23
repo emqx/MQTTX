@@ -246,7 +246,7 @@ import { jsonParse, jsonStringify } from '@/utils/jsonUtils'
 import getErrorReason from '@/utils/mqttErrorReason'
 
 type MessageType = 'all' | 'received' | 'publish'
-type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
+type CommandType = 'searchByTopic' | 'disconnect' | 'deleteConnect'
 type PayloadConvertType = 'base64' | 'hex'
 
 interface Top {
@@ -608,9 +608,6 @@ export default class ConnectionsDetail extends Vue {
         break
       case 'deleteConnect':
         this.removeConnection()
-        break
-      case 'clearHistory':
-        this.handleMsgClear()
         break
       case 'searchByTopic':
         this.handleSearchOpen()

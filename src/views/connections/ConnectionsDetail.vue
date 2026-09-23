@@ -388,7 +388,6 @@ import {
 
 type CommandType =
   | 'searchContent'
-  | 'clearHistory'
   | 'disconnect'
   | 'deleteConnect'
   | 'exportData'
@@ -856,9 +855,6 @@ export default class ConnectionsDetail extends Vue {
         break
       case 'deleteConnect':
         this.removeConnection()
-        break
-      case 'clearHistory':
-        await this.handleMsgClear()
         break
       case 'searchContent':
         this.handleSearchOpen()
