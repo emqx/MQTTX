@@ -860,9 +860,9 @@ export default class SubscriptionsList extends Vue {
     .topics-item {
       cursor: pointer;
       color: var(--color-text-title);
-      padding: 0px 8px;
-      height: 46px;
-      line-height: 46px;
+      padding: 14px 8px;
+      min-height: 46px;
+      line-height: 18px;
       margin-bottom: 8px;
       position: relative;
       top: 0px;
@@ -926,15 +926,20 @@ export default class SubscriptionsList extends Vue {
         height: 24px;
       }
       .topic {
-        max-width: 120px;
+        max-width: calc(100% - 50px);
+        max-height: 36px;
         margin-left: 5px;
-        display: inline-block;
-        white-space: nowrap;
-        text-overflow: ellipsis;
+        display: -webkit-inline-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+        white-space: normal;
+        word-break: break-all;
+        line-height: 18px;
         overflow: hidden;
       }
       .qos {
         float: right;
+        line-height: 18px;
         color: var(--color-text-light);
       }
       .close {
