@@ -17,7 +17,7 @@
     "lint": "yarn vue:cli lint"
   },
   "engines": {
-    "node": "18"
+    "node": ">=18"
   },
   "dependencies": {
     "@gtm-support/vue2-gtm": "^1.3.0",
