@@ -668,6 +668,8 @@ export default class SubscriptionsList extends Vue {
           resolve(false)
           return false
         })
+      } else {
+        resolve(false)
       }
     })
   }

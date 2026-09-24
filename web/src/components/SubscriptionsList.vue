@@ -538,12 +538,17 @@ export default class SubscriptionsList extends Vue {
   }
 
   private async updateSub() {
-    if (this.selectedTopic) {
-      const res = await this.unsubscribe(this.selectedTopic)
-      if (res) {
-        this.subscribe(this.subRecord)
-      }
+    if (!this.selectedTopic) {
+      this.subLoading = false
+      return
     }
+    const res = await this.unsubscribe(this.selectedTopic)
+    if (!res) {
+      this.subLoading = false
+      return
+    }
+    // subLoading is reset in the subscribe callback
+    this.subscribe(this.subRecord)
   }
 
   private unsubscribe(row: SubscriptionModel, disable?: boolean): Promise<boolean> {
@@ -590,7 +595,11 @@ export default class SubscriptionsList extends Vue {
             resolve(true)
             return true
           }
+          resolve(false)
+          return false
         })
+      } else {
+        resolve(false)
       }
     })
   }
@@ -599,6 +608,7 @@ export default class SubscriptionsList extends Vue {
     const form = this.$refs.form as VueForm
     form?.clearValidate()
     form?.resetFields()
+    this.subLoading = false
     this.subRecord.topic = 'testtopic/#'
     this.subRecord.qos = 0
     this.subRecord.alias = ''
