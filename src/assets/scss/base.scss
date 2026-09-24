@@ -36,6 +36,10 @@ body.select-none {
   scrollbar-width: thin;
   scrollbar-color: var(--color-bg-scrollbar) transparent;
 
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
   &::-webkit-scrollbar-track {
     background: transparent;
   }
