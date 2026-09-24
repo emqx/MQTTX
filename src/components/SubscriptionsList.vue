@@ -926,7 +926,7 @@ export default class SubscriptionsList extends Vue {
         height: 24px;
       }
       .topic {
-        max-width: 120px;
+        max-width: calc(100% - 55px);
         margin-left: 5px;
         display: inline-block;
         white-space: nowrap;
