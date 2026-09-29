@@ -194,10 +194,15 @@
             :label="item.label"
             :value="item"
           >
-            <span style="float: left; width: 160px; overflow: hidden; text-overflow: ellipsis" :title="item.topic">{{
+            <span style="float: left; width: 140px; overflow: hidden; text-overflow: ellipsis" :title="item.topic">{{
               item.topic
             }}</span>
             <span style="color: #8492a6; font-size: 12px; margin-left: 4px">QoS:{{ item.qos }}</span>
+            <i
+              class="el-icon-delete header-option-delete"
+              :title="$t('common.delete')"
+              @click.stop.prevent="handleDeleteHistoryHeader(item)"
+            ></i>
             <span style="float: right; color: #8492a6; font-size: 13px; margin-left: 4px">
               retain:{{ item.retain ? '1' : '0' }}
             </span>
@@ -395,6 +400,22 @@ export default class MsgPublish extends Vue {
       const { retain, topic, qos } = val
       Object.assign(this.msgRecord, { retain, topic, qos })
     }
+  }
+
+  private async handleDeleteHistoryHeader(item: HistoryMessageHeaderModel) {
+    if (!item.id) {
+      return
+    }
+    const { historyMessageHeaderService } = useServices()
+    await historyMessageHeaderService.delete(item.id)
+    if (this.headerValue && this.headerValue.id === item.id) {
+      this.headerValue = {
+        qos: this.msgRecord.qos,
+        retain: this.msgRecord.retain,
+        topic: this.msgRecord.topic,
+      }
+    }
+    await this.loadHistoryData()
   }
 
   /**
@@ -837,6 +858,14 @@ export default class MsgPublish extends Vue {
   max-width: 300px;
   .el-select-dropdown__empty {
     width: 80px;
+  }
+  .header-option-delete {
+    float: right;
+    margin-left: 8px;
+    color: #8492a6;
+    &:hover {
+      color: var(--color-minor-red);
+    }
   }
 }
 </style>
