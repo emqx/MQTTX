@@ -24,7 +24,7 @@ export const printObjectAsString = (obj: any, indent = 2) => {
   } catch (error) {
     throw new TypeError((error as Error).toString())
   }
-  str += `}`
+  str += `${' '.repeat(Math.max(0, indent - 2))}}`
   return str
 }
 
