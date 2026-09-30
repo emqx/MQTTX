@@ -515,15 +515,13 @@ export default class ConnectionsDetail extends Vue {
   }
 
   get bodyTopValue(): string {
-    return this.connectionTopbarHeight ? `${this.connectionTopbarHeight}px` : this.showClientInfo ? '249px' : '60px'
+    if (this.connectionTopbarHeight) return `${this.connectionTopbarHeight}px`
+    return this.showClientInfo ? '249px' : '60px'
   }
 
   get msgTopValue(): string {
-    return this.connectionTopbarHeight
-      ? `${this.connectionTopbarHeight + 27}px`
-      : this.showClientInfo
-      ? '277px'
-      : '86px'
+    if (this.connectionTopbarHeight) return `${this.connectionTopbarHeight + 27}px`
+    return this.showClientInfo ? '277px' : '86px'
   }
 
   get marginLeft(): string {

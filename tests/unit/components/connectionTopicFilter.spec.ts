@@ -119,6 +119,54 @@ describe('Desktop topic filter transitions', () => {
     }
   })
 
+  it('does not paginate old rows while a new first page is pending', async () => {
+    const originalGet = Container.get
+    let resolveFirstPage: (value: any) => void = () => {}
+    const pendingPages: Array<(value: any) => void> = []
+    ;(Container as any).get = (service: any) =>
+      service.name === 'MessageService'
+        ? {
+            get: () =>
+              new Promise((resolve) => {
+                resolveFirstPage = resolve
+              }),
+          }
+        : {}
+    const vm = {
+      ...methods,
+      curConnectionId: 'A',
+      activeTopic: 'a/#',
+      msgType: 'all',
+      searchParams: {},
+      messageQueryVersion: 0,
+      recordMsgs: { list: [{ id: 'old', topic: 'b/old' }] },
+      moreMsgBefore: true,
+      moreMsgAfter: true,
+      getMsgListRef: () => ({}),
+      fetchMoreMessages: () => new Promise((resolve) => pendingPages.push(resolve)),
+      scrollToMessage: () => {},
+    }
+    try {
+      const firstPage = vm.getMessages()
+      const before = vm.loadMoreMessages('before')
+      const after = vm.loadMoreMessages('after')
+      resolveFirstPage({ list: [{ id: 'new', topic: 'a/new' }], total: 1 })
+      await firstPage
+      pendingPages.forEach((resolve) =>
+        resolve({
+          curMsgId: 'old',
+          list: [{ id: 'more-old', topic: 'b/older' }],
+          moreMsg: false,
+        }),
+      )
+      await Promise.all([before, after])
+      expect(pendingPages).to.have.lengthOf(0)
+      expect(vm.recordMsgs.list).to.deep.equal([{ id: 'new', topic: 'a/new' }])
+    } finally {
+      Container.get = originalGet
+    }
+  })
+
   it('positions the filter below the measured search/connection panel height', () => {
     const computed = (ConnectionsDetail as any).options.computed
     const vm = { connectionTopbarHeight: 307, showClientInfo: true }

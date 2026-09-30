@@ -534,19 +534,13 @@ export default class ConnectionsDetail extends Vue {
   }
 
   get bodyTopValue(): string {
-    return this.connectionTopbarHeight
-      ? `${this.connectionTopbarHeight}px`
-      : this.showClientInfo
-      ? BodyTopValues.Open
-      : BodyTopValues.Close
+    if (this.connectionTopbarHeight) return `${this.connectionTopbarHeight}px`
+    return this.showClientInfo ? BodyTopValues.Open : BodyTopValues.Close
   }
 
   get msgTopValue(): string {
-    return this.connectionTopbarHeight
-      ? `${this.connectionTopbarHeight + 32}px`
-      : this.showClientInfo
-      ? MsgTopValues.Open
-      : MsgTopValues.Close
+    if (this.connectionTopbarHeight) return `${this.connectionTopbarHeight + 32}px`
+    return this.showClientInfo ? MsgTopValues.Open : MsgTopValues.Close
   }
 
   get leftValue(): string {
@@ -960,6 +954,8 @@ export default class ConnectionsDetail extends Vue {
     this.newMsgsCount = 0
     const { messageService } = useServices()
     const version = ++this.messageQueryVersion
+    this.moreMsgBefore = false
+    this.moreMsgAfter = false
     const messages = await messageService.get(this.curConnectionId, {
       limit,
       msgType: this.msgType,
