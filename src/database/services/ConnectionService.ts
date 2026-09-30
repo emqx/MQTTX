@@ -7,10 +7,16 @@ import ConnectionEntity from '@/database/models/ConnectionEntity'
 import CollectionEntity from '@/database/models/CollectionEntity'
 import WillEntity from '@/database/models/WillEntity'
 import HistoryConnectionEntity from '@/database/models/HistoryConnectionEntity'
-import { Repository, MoreThan, LessThan, FindOperator } from 'typeorm'
+import { Repository, MoreThan, LessThan, EntityManager, FindOperator } from 'typeorm'
 import { DateUtils } from 'typeorm/util/DateUtils'
 import time, { sqliteDateFormat } from '@/utils/time'
 import useServices from '@/database/useServices'
+import SubscriptionEntity from '@/database/models/SubscriptionEntity'
+import MessageService from './MessageService'
+import SubscriptionService from './SubscriptionService'
+import WillService from './WillService'
+import { ConnectionBackupRecord, readConnectionBackup } from '@/utils/connectionBackup'
+import { v4 as uuidv4 } from 'uuid'
 
 const Store = require('electron-store')
 const electronStore = new Store()
@@ -208,22 +214,48 @@ export default class ConnectionService {
     id: string,
     data: ConnectionModel,
     getImportOneConnProgress?: (progress: number) => void,
+    manager: EntityManager = this.connectionRepository.manager,
   ) {
-    const { connectionService, subscriptionService, messageService } = useServices()
+    const connectionRepository = manager.getRepository(ConnectionEntity)
+    const willRepository = manager.getRepository(WillEntity)
+    const subscriptionService = new SubscriptionService(manager.getRepository(SubscriptionEntity))
+    const messageService = new MessageService(manager.getRepository(MessageEntity), connectionRepository)
     let progress = 0
     // Update connection, update subscriptions, and update messages are each considered as a step
     const totalSteps = 3
     // Connection table & Will Message table
-    const updated = await connectionService.update(id, data)
-    if (!updated) {
-      throw new Error(`Failed to update connection ${id}`)
+    // Child IDs may update this connection's records, but must never move another connection's data.
+    for (const [entity, records] of [
+      [MessageEntity, data.messages ?? []],
+      [SubscriptionEntity, data.subscriptions ?? []],
+    ] as const) {
+      for (let offset = 0; offset < records.length; offset += 999) {
+        const ids = records.slice(offset, offset + 999).flatMap((record) => (record.id ? [record.id] : []))
+        if (!ids.length) continue
+        const existing = await manager.getRepository(entity).findByIds(ids)
+        const conflict = existing.find((record) => record.connectionId !== id)
+        if (conflict) throw new Error(`Conflicting child ID: ${conflict.id}`)
+      }
     }
+    const existing = await connectionRepository.findOne(id, { relations: ['will'] })
+    if (data.will?.id && (await willRepository.findOne(data.will.id)) && existing?.will?.id !== data.will.id) {
+      throw new Error(`Conflicting will ID: ${data.will.id}`)
+    }
+    const { messages, subscriptions, will, ...rest } = data
+    const savedWill = will ? await willRepository.save(WillService.modelToEntity(will)) : existing?.will
+    await connectionRepository.save({
+      ...ConnectionService.modelToEntity(rest),
+      parent: undefined,
+      will: savedWill,
+      updateAt: time.getNowDate(),
+      id,
+    })
     progress += 1 / totalSteps
     if (getImportOneConnProgress) {
       getImportOneConnProgress(progress)
     }
     // Subscriptions table
-    if (Array.isArray(data.subscriptions) && data.subscriptions.length) {
+    if (Array.isArray(data.subscriptions)) {
       await subscriptionService.updateSubscriptions(id, data.subscriptions)
     }
     progress += 1 / totalSteps
@@ -269,34 +301,51 @@ export default class ConnectionService {
   /**
    * Imports backup connection data into the database.
    *
-   * @param data - An array of ConnectionModel objects to import.
+   * @param data - Legacy connection records, optionally including JSON collection records.
    * @param getImportAllProgress - A callback function to track the import progress.
    * @returns A Promise that resolves to a string indicating the import status.
    */
-  public async import(data: ConnectionModel[], getImportAllProgress?: (progress: number) => void): Promise<string> {
+  public async import(
+    data: ConnectionBackupRecord[],
+    getImportAllProgress?: (progress: number) => void,
+  ): Promise<string> {
     try {
-      let overallProgress = 0
-      // Each connection is considered as a step
-      const totalSteps = data.length
-
-      for (let i = 0; i < data.length; i++) {
-        const { id } = data[i]
-        if (id) {
-          // FIXME: remove it after support collection importing
-          data[i].parentId = null
-          await this.importOneConnection(id, data[i], (progress) => {
-            if (getImportAllProgress) {
-              // Calculate the progress of a single connection
-              const connectionProgress = progress / totalSteps
-              getImportAllProgress(overallProgress + connectionProgress)
-            }
+      const { collections, connections } = readConnectionBackup(data)
+      await this.connectionRepository.manager.transaction(async (manager) => {
+        const collectionRepository = manager.getRepository(CollectionEntity)
+        const connectionRepository = manager.getRepository(ConnectionEntity)
+        let completed = 0
+        for (const collection of collections) {
+          if (await connectionRepository.findOne(collection.id))
+            throw new Error(`Conflicting collection ID: ${collection.id}`)
+          await collectionRepository.save({
+            id: collection.id,
+            name: collection.name,
+            orderId: collection.orderId,
+            isCollection: true,
+            parent: collection.parentId ? { id: collection.parentId } : null,
           })
-          // Increase progress after processing each connection
-          overallProgress += 1 / totalSteps
+          getImportAllProgress?.(++completed / data.length)
         }
-      }
+        for (const connection of connections) {
+          if (connection.id && (await collectionRepository.findOne(connection.id))) {
+            throw new Error(`Conflicting connection ID: ${connection.id}`)
+          }
+          // Legacy backups contain no collection entities, so dangling parent IDs recover at the root.
+          const model = { ...connection, parentId: collections.length ? connection.parentId ?? null : null }
+          const id = connection.id ?? uuidv4()
+          await this.importOneConnection(
+            id,
+            model,
+            (progress) => getImportAllProgress?.((completed + progress) / data.length),
+            manager,
+          )
+          completed++
+        }
+      })
+      getImportAllProgress?.(1)
     } catch (err) {
-      return err as string
+      return err instanceof Error ? err.message : String(err)
     }
     return 'ok'
   }
