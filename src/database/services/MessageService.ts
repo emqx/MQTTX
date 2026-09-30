@@ -84,13 +84,10 @@ export default class MessageService {
       return query
     }
 
-    // Reject unrelated prefixes before walking levels. LIKE is only a coarse prefilter;
-    // the case-sensitive level comparison below decides every match before pagination.
+    // Reject unrelated literal prefixes before walking individual levels.
     const prefix = levels.slice(0, levels.indexOf('+')).join('/')
     if (prefix) {
-      query.andWhere('msg.topic LIKE :topicPrefix ESCAPE "\\"', {
-        topicPrefix: prefix.replace(/[\\%_]/g, '\\$&') + '/%',
-      })
+      query.andWhere('instr(msg.topic, :topicPrefix) = 1', { topicPrefix: prefix + '/' })
     }
 
     // A trailing slash sentinel preserves empty levels. Each recursive step consumes
