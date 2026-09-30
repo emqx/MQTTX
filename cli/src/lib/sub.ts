@@ -104,8 +104,9 @@ const sub = (options: SubscribeOptions) => {
 
   !outputModeClean && basicLog.connecting(loadOptions, connOpts.hostname!, connOpts.port, options.topic.join(', '))
 
-  const subscribeToTopics = async () => {
+  const subscribeToTopics = async (packet: mqtt.IConnackPacket) => {
     if (!outputModeClean) basicLog.connected()
+    basicLog.responseInformation(connOpts, packet)
 
     retryTimes = 0
 
