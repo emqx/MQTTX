@@ -12,6 +12,7 @@ import { deserializeBufferToAvro } from '../utils/avro'
 import getBenchClientId from '../utils/getBenchClientId'
 import { formatBytes } from '../utils/formatter'
 import { createMqttClient } from '../utils/mqttConnect'
+import { logResponseInformation } from '../utils/responseInformation'
 
 /**
  *
@@ -104,8 +105,9 @@ const sub = (options: SubscribeOptions) => {
 
   !outputModeClean && basicLog.connecting(loadOptions, connOpts.hostname!, connOpts.port, options.topic.join(', '))
 
-  const subscribeToTopics = async () => {
+  const subscribeToTopics = async (packet: mqtt.IConnackPacket) => {
     if (!outputModeClean) basicLog.connected()
+    logResponseInformation(connOpts, packet)
 
     retryTimes = 0
 
