@@ -124,6 +124,21 @@ describe('MessageService MQTT topic query (SQLite)', () => {
     expect(result.list.map((message) => message.topic)).to.deep.equal([topic])
   })
 
+  it('matches a wildcard filter with a literal prefix beyond the SQLite LIKE limit', async () => {
+    const prefix = 'x'.repeat(50001)
+    const topic = prefix + '/value'
+    await repository.save({
+      id: 'long-prefix',
+      connectionId: 'long-prefix',
+      topic,
+      payload: '',
+      createAt: '2026',
+      out: false,
+    })
+    const result = await service.get('long-prefix', { topic: prefix + '/+' })
+    expect(result.list.map((message) => message.topic)).to.deep.equal([topic])
+  })
+
   it('supports many wildcard levels and a long literal topic', async () => {
     const topic = Array(1100).fill('level').join('/')
     await repository.save({ id: 'long', connectionId: 'long', topic, payload: '', createAt: '2026', out: false })
