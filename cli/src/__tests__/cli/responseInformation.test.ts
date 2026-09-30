@@ -1,6 +1,6 @@
 import { spawn, ChildProcess } from 'child_process'
 import { createServer, Socket } from 'net'
-import { generate, parser, IConnectPacket, IPublishPacket } from 'mqtt-packet'
+import { generate, parser, IConnectPacket, IConnackPacket, IPublishPacket } from 'mqtt-packet'
 
 const payload = '{"message":"payload-only"}'
 
@@ -31,18 +31,14 @@ const runCli = async (
       if (packet.cmd === 'connect') {
         connects.push(packet)
         const value = reconnectValues ? reconnectValues[connects.length - 1] : responseInformation
-        socket.write(
-          generate(
-            {
-              cmd: 'connack',
-              sessionPresent: false,
-              ...(mqttVersion === 5
-                ? { reasonCode: 0, properties: value === undefined ? {} : { responseInformation: value } }
-                : { returnCode: 0 }),
-            },
-            { protocolVersion: mqttVersion },
-          ),
-        )
+        const connack: IConnackPacket = { cmd: 'connack', sessionPresent: false }
+        if (mqttVersion === 5) {
+          connack.reasonCode = 0
+          connack.properties = value === undefined ? {} : { responseInformation: value }
+        } else {
+          connack.returnCode = 0
+        }
+        socket.write(generate(connack, { protocolVersion: mqttVersion }))
         if (connects.length < expectedConnections) {
           reconnectTimers.push(setTimeout(() => socket.destroy(), 50))
         }
@@ -94,7 +90,7 @@ const runCli = async (
       '-p',
       String(address.port),
       '-V',
-      mqttVersion === 5 ? '5.0' : mqttVersion === 4 ? '3.1.1' : '3.1',
+      { 3: '3.1', 4: '3.1.1', 5: '5.0' }[mqttVersion],
       '-rp',
       reconnectValues ? '50' : '0',
     ])

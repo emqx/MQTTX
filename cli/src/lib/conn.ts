@@ -7,7 +7,6 @@ import * as Debug from 'debug'
 import { triggerExitInfo } from '../utils/exitInfo'
 import getBenchClientId from '../utils/getBenchClientId'
 import { createMqttClient } from '../utils/mqttConnect'
-import { logResponseInformation } from '../utils/responseInformation'
 
 const conn = (options: ConnectOptions) => {
   const { debug, saveOptions, loadOptions } = options
@@ -30,7 +29,7 @@ const conn = (options: ConnectOptions) => {
 
   client.on('connect', (packet) => {
     basicLog.connected()
-    logResponseInformation(connOpts, packet)
+    basicLog.responseInformation(connOpts, packet)
     retryTimes = 0
     setTimeout(triggerExitInfo, 1000)
   })
