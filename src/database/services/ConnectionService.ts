@@ -4,6 +4,7 @@ import MessageEntity from '@/database/models/MessageEntity'
 import _ from 'lodash'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import ConnectionEntity from '@/database/models/ConnectionEntity'
+import CollectionEntity from '@/database/models/CollectionEntity'
 import WillEntity from '@/database/models/WillEntity'
 import HistoryConnectionEntity from '@/database/models/HistoryConnectionEntity'
 import { Repository, MoreThan, LessThan } from 'typeorm'
@@ -381,7 +382,10 @@ export default class ConnectionService {
   }
 
   public async create(data: ConnectionModel): Promise<ConnectionModel | undefined> {
-    const res: ConnectionModel | undefined = data
+    const parent = data.parentId
+      ? await this.connectionRepository.manager.findOne(CollectionEntity, data.parentId)
+      : undefined
+    const res: ConnectionModel = { ...data, parentId: parent?.id ?? null }
     let savedWill: WillEntity | undefined
     if (!res.will) {
       savedWill = await this.willRepository.save({
