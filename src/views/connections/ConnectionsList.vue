@@ -52,7 +52,9 @@
           highlight-current
           @node-drop="handleDrop"
           @node-drag-end="handleDragEnd"
-          @node-click="handleNodeExpand"
+          @node-click="handleNodeClick"
+          @node-expand="handleNodeExpand($event, true)"
+          @node-collapse="handleNodeExpand($event, false)"
           :allow-drop="allowDrop"
         >
           <span class="custom-tree-node" slot-scope="{ node, data }">
@@ -228,6 +230,7 @@ export default class ConnectionsList extends Vue {
         treeRef?.setCurrentKey(id)
         this.connectionId = id
         this.expandTreeNodeAncestor(id)
+        this.loadConnectionState()
         this.initUnreadMessageCount(id)
       }
     })
@@ -237,19 +240,22 @@ export default class ConnectionsList extends Vue {
     return this.$route.name === 'newWindow'
   }
 
-  private handleNodeExpand(data: ConnectionModelTree, node: TreeNode<ConnectionModelTree['id'], ConnectionModelTree>) {
+  private handleNodeClick() {
     this.showContextmenu = false
     this.showCollectionsContextmenu = false
-    if (data && node && data.isCollection) {
+  }
+
+  private handleNodeExpand(data: ConnectionModelTree, expanded: boolean) {
+    if (data && data.isCollection) {
       if (!data.id) return
       this.setConnectionsTree({
         id: data.id,
-        expanded: node.expanded,
+        expanded,
       } as ConnectionTreeState)
     }
   }
 
-  private expandTreeNodeAncestor(id: string) {
+  private expandTreeNodeAncestor(id: string, preserveCollapsed = false) {
     const tree = this.treeData
     const expandNodeIDs: string[] = []
     const travelTree = (root: ConnectionModelTree): boolean => {
@@ -275,6 +281,7 @@ export default class ConnectionsList extends Vue {
     }
 
     expandNodeIDs.map((id) => {
+      if (preserveCollapsed && this.treeState[id]?.expanded === false) return
       this.setConnectionsTree({
         id,
         expanded: true,
@@ -421,7 +428,7 @@ export default class ConnectionsList extends Vue {
 
     //load collection expanded state
     this.$nextTick(() => {
-      this.expandTreeNodeAncestor(id)
+      this.expandTreeNodeAncestor(id, true)
       this.loadConnectionState()
     })
 
