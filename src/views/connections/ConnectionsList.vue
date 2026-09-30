@@ -228,9 +228,11 @@ export default class ConnectionsList extends Vue {
       if (id) {
         const treeRef = this.$refs.tree as ElTree<ConnectionModelTree['id'], ConnectionModelTree>
         treeRef?.setCurrentKey(id)
-        this.connectionId = id
-        this.expandTreeNodeAncestor(id)
-        this.loadConnectionState()
+        if (treeRef?.getNode(id)) {
+          this.connectionId = id
+          this.expandTreeNodeAncestor(id)
+          this.loadConnectionState()
+        }
         this.initUnreadMessageCount(id)
       }
     })
@@ -418,6 +420,7 @@ export default class ConnectionsList extends Vue {
 
     // load selected connection active state
     const { id } = this.$route.params
+    const preserveCollapsed = id === this.connectionId
     this.$nextTick(() => {
       const treeRef = this.$refs.tree as ElTree<ConnectionModelTree['id'], ConnectionModelTree>
       if (id) {
@@ -428,7 +431,7 @@ export default class ConnectionsList extends Vue {
 
     //load collection expanded state
     this.$nextTick(() => {
-      this.expandTreeNodeAncestor(id, true)
+      this.expandTreeNodeAncestor(id, preserveCollapsed)
       this.loadConnectionState()
     })
 
