@@ -128,12 +128,28 @@ describe('Desktop group expansion state', () => {
   it('reveals both ancestors when explicitly switching to a hidden connection', async () => {
     store.state.treeState = { outer: { expanded: false }, inner: { expanded: false }, other: { expanded: false } }
     await open('another-connection')
-    methods.handleConnectionIdChanged.call(wrapper.vm, 'connection')
+    await wrapper.vm.$router.push('/recent_connections/connection')
     await tick()
     expect(nodes().outer.expanded).to.equal(true)
     expect(nodes().inner.expanded).to.equal(true)
     expect(nodes().other.expanded).to.equal(false)
     expect((wrapper.vm.$refs.tree as any).getCurrentKey()).to.equal('connection')
+  })
+
+  it('reveals a newly created connection when its node arrives after the route changes', async () => {
+    store.state.treeState = { outer: { expanded: false }, inner: { expanded: false } }
+    await open('connection')
+    await wrapper.vm.$router.push('/recent_connections/created-connection')
+    await tick()
+    const updatedTree = JSON.parse(JSON.stringify(tree))
+    updatedTree[0].children[0].children.push({ id: 'created-connection', name: 'Created', isCollection: false })
+    ;(Container as any).get = (type: any) =>
+      type.name === 'CollectionService' ? { getAll: async () => updatedTree } : {}
+    await (wrapper.vm as any).loadData(false)
+    await tick()
+    expect(nodes().outer.expanded).to.equal(true)
+    expect(nodes().inner.expanded).to.equal(true)
+    expect((wrapper.vm.$refs.tree as any).getCurrentKey()).to.equal('created-connection')
   })
 
   it('locates the selected connection when no expansion state exists after a fresh start', async () => {
