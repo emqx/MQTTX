@@ -1,4 +1,4 @@
-import mqtt, { MqttClient, IClientOptions } from 'mqtt'
+import mqtt, { IClientOptions } from 'mqtt'
 import Store from '@/store'
 import { getClientId } from '@/utils/idGenerator'
 import time from '@/utils/time'
@@ -121,7 +121,7 @@ export const getUrl = (record: ConnectionModel): string => {
 
 export const createClient = (
   record: ConnectionModel,
-): Promise<{ curConnectClient: MqttClient; connectUrl: string; scramAuth?: ScramAuth }> => {
+): Promise<{ curConnectClient: ConnectionClient; connectUrl: string; scramAuth?: ScramAuth }> => {
   return new Promise((resolve, reject) => {
     const options: IClientOptions = getClientOptions(record)
     const url = getUrl(record)
@@ -142,7 +142,15 @@ export const createClient = (
       scramAuth = setupScramAuth(record, tempOptions)
     }
 
-    const curConnectClient: MqttClient = mqtt.connect(url, tempOptions)
+    const curConnectClient: ConnectionClient = mqtt.connect(url, tempOptions)
+    // Keep broker information on its client session, alongside the existing runtime connection state.
+    curConnectClient.responseInformation = ''
+    curConnectClient.on('connect', (packet) => {
+      curConnectClient.responseInformation = protocolVersion === 5 ? packet.properties?.responseInformation || '' : ''
+    })
+    curConnectClient.on('close', () => {
+      curConnectClient.responseInformation = ''
+    })
 
     // MQTT 5.0 Enhanced Authentication handler setup
     if (scramAuth && record.properties?.authenticationMethod) {

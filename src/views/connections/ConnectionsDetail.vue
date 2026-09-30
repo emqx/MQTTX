@@ -478,7 +478,7 @@ export default class ConnectionsDetail extends Vue {
   private receivedMsgType: PayloadType = this.getReceivedMsgType()
   private msgType: MessageType = 'all'
 
-  private client: Partial<MqttClient> = {
+  private client: Partial<ConnectionClient> = {
     connected: false,
     options: {},
   }
