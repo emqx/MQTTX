@@ -102,14 +102,15 @@ describe('MessageService history pagination (SQLite)', () => {
       })
     }
 
-    for (const limit of [1, 2]) {
-      it(`excludes the cursor and the opposite side when loading ${mode} with limit ${limit}`, async () => {
+    for (const boundaryCase of [
+      { limit: 1, before: [20000], after: [40000], more: true },
+      { limit: 2, before: [10000, 20000], after: [40000, 50000], more: false },
+    ]) {
+      it(`excludes the cursor and the opposite side when loading ${mode} with limit ${boundaryCase.limit}`, async () => {
         await seed([10000, 20000, 30000, 40000, 50000])
-        const result = await service.loadMore('connection', timestamp(30000), mode, { limit })
-        const expected =
-          mode === 'before' ? (limit === 1 ? [20000] : [10000, 20000]) : limit === 1 ? [40000] : [40000, 50000]
-        expect(messageIds(result.list)).to.deep.equal(ids(expected))
-        expect(result.moreMsg).to.equal(limit === 1 ? mode : false)
+        const result = await service.loadMore('connection', timestamp(30000), mode, { limit: boundaryCase.limit })
+        expect(messageIds(result.list)).to.deep.equal(ids(boundaryCase[mode]))
+        expect(result.moreMsg).to.equal(boundaryCase.more ? mode : false)
       })
     }
 
