@@ -61,38 +61,59 @@ export default class MessageService {
   }
 
   public handleTopicQuery(query: $TSFixed, topic?: string) {
-    if (topic && topic !== '#') {
-      // Escape special characters for SQL LIKE
-      topic = topic.replace(/[\\%_]/g, '\\$&')
+    // An empty UI filter means all history, including system topics.
+    if (!topic) return query
+    if (topic.startsWith('$share/')) topic = topic.split('/').slice(2).join('/')
 
-      // Remove $share prefix if present
-      if (topic.startsWith('$share/')) {
-        topic = topic.split('/').slice(2).join('/')
-      }
+    const levels = topic.split('/')
+    if (levels[0] === '+' || levels[0] === '#') {
+      query.andWhere("substr(msg.topic, 1, 1) != '$'")
+    }
 
-      /*
-        Handle `+` wildcard
-        Known Issue: '+' wildcard handling in MQTT topics is incorrect.
-        '+' is replaced with '%' for SQL LIKE, causing multi-level match.
-          - Incorrect: 'testtopic/+/test' matches 'testtopic/1/2/test'
-          - Incorrect: 'testtopic/+/hello/+' can not matches 'testtopic/hello/hello/hello'
-        TODO: FIX this issue.
-      */
-      if (topic.includes('+')) {
-        topic = topic.replace('+', '%')
-      }
-
-      // Handle '#' wildcard
-      if (topic.endsWith('/#')) {
-        const baseTopic = topic.slice(0, -2) // Remove '/#'
-        query.andWhere('(msg.topic = :baseTopic OR msg.topic LIKE :topic ESCAPE "\\")', {
+    if (!levels.includes('+')) {
+      if (topic === '#') return query
+      if (levels[levels.length - 1] === '#') {
+        const baseTopic = topic.slice(0, -2)
+        query.andWhere('(msg.topic = :baseTopic OR instr(msg.topic, :topicPrefix) = 1)', {
           baseTopic,
-          topic: baseTopic + '/%',
+          topicPrefix: baseTopic + '/',
         })
       } else {
-        query.andWhere('msg.topic LIKE :topic ESCAPE "\\"', { topic })
+        query.andWhere('msg.topic = :topic', { topic })
       }
+      return query
     }
+
+    // Reject unrelated prefixes before walking levels. LIKE is only a coarse prefilter;
+    // the case-sensitive level comparison below decides every match before pagination.
+    const prefix = levels.slice(0, levels.indexOf('+')).join('/')
+    if (prefix) {
+      query.andWhere('msg.topic LIKE :topicPrefix ESCAPE "\\"', {
+        topicPrefix: prefix.replace(/[\\%_]/g, '\\$&') + '/%',
+      })
+    }
+
+    // A trailing slash sentinel preserves empty levels. Each recursive step consumes
+    // exactly one topic/filter level; a remaining # also accepts zero further levels.
+    // Uses built-in SQLite functions, without a driver-specific regexp extension.
+    query.andWhere(
+      `EXISTS (
+        WITH RECURSIVE topic_levels(topic_rest, filter_rest) AS (
+          SELECT msg.topic || '/', :topic || '/'
+          UNION ALL
+          SELECT substr(topic_rest, instr(topic_rest, '/') + 1),
+                 substr(filter_rest, instr(filter_rest, '/') + 1)
+          FROM topic_levels
+          WHERE topic_rest != '' AND filter_rest != '' AND filter_rest != '#/'
+            AND (substr(filter_rest, 1, instr(filter_rest, '/') - 1) = '+'
+              OR substr(filter_rest, 1, instr(filter_rest, '/') - 1)
+                = substr(topic_rest, 1, instr(topic_rest, '/') - 1))
+        )
+        SELECT 1 FROM topic_levels
+        WHERE filter_rest = '#/' OR (filter_rest = '' AND topic_rest = '')
+      )`,
+      { topic },
+    )
     return query
   }
 
