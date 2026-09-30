@@ -32,6 +32,14 @@ module.exports = {
     // Use Electron mock in test environment
     if (process.env.NODE_ENV === 'test') {
       config.resolve.alias.set('electron', path.resolve(__dirname, 'tests/unit/mocks/electron.js'))
+      config.resolve.alias.set('@electron/remote', path.resolve(__dirname, 'tests/unit/mocks/electron-remote.js'))
+      config.resolve.alias.set('electron-store', path.resolve(__dirname, 'tests/unit/mocks/electron-store.js'))
+      config.resolve.alias.set(
+        path.resolve(__dirname, 'src/database/useServices.ts'),
+        path.resolve(__dirname, 'tests/unit/mocks/useServices.ts'),
+      )
+      // Keep the native SQLite binding out of the webpack test bundle.
+      config.externals({ sqlite3: 'commonjs sqlite3' })
     }
   },
   configureWebpack: {

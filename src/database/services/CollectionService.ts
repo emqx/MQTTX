@@ -5,6 +5,7 @@ import CollectionEntity from '@/database/models/CollectionEntity'
 import ConnectionEntity from '@/database/models/ConnectionEntity'
 import WillEntity from '@/database/models/WillEntity'
 import time from '@/utils/time'
+import { CollectionBackup } from '@/utils/connectionBackup'
 
 @Service()
 export default class CollectionService {
@@ -166,6 +167,32 @@ export default class CollectionService {
       }),
     )
     return [...collectionTree, ...topConnections] as ConnectionModelTree[]
+  }
+
+  public async getCollectionsForExport(connectionId?: string): Promise<CollectionBackup[]> {
+    const entities = await this.collectionRepository.find({ relations: ['parent'] })
+    let selected = entities
+    if (connectionId) {
+      const connection = await this.connectionRepository.findOne(connectionId)
+      const byId = new Map(entities.map((entity) => [entity.id, entity]))
+      selected = []
+      let parentId = connection?.parentId
+      const visited = new Set<string>()
+      while (parentId) {
+        const parent = byId.get(parentId)
+        if (!parent || visited.has(parentId)) throw new Error('Invalid collection hierarchy')
+        visited.add(parentId)
+        selected.push(parent)
+        parentId = parent.parent?.id
+      }
+    }
+    return selected.map(({ id, name, orderId, parent }) => ({
+      id,
+      name,
+      orderId,
+      isCollection: true,
+      parentId: parent?.id ?? null,
+    }))
   }
 
   public async delete(collectionId: string) {
