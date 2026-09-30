@@ -19,6 +19,7 @@ import { triggerExitInfo } from '../utils/exitInfo'
 import getBenchClientId from '../utils/getBenchClientId'
 import { parsePayloadSize, generateRandomPayload } from '../utils/payloadGenerator'
 import { createMqttClient } from '../utils/mqttConnect'
+import { logResponseInformation } from '../utils/responseInformation'
 import { DEFAULT_MQTT_PUB_MESSAGE } from '../utils/constants'
 
 /**
@@ -83,9 +84,10 @@ const send = (
   const client = createMqttClient(connOpts)
   basicLog.connecting(config, connOpts.hostname!, connOpts.port, pubOpts.topic, pubOpts.message.toString())
 
-  client.on('connect', () => {
+  client.on('connect', (packet) => {
     retryTimes = 0
     basicLog.connected()
+    logResponseInformation(connOpts, packet)
     const { topic, message, schemaOptions, format } = pubOpts
     basicLog.publishing()
     const publishMessage = processPublishMessage(message, schemaOptions, format)
@@ -159,8 +161,9 @@ const multiSend = (
     client.publish(omitTopic ? '' : topic, publishMessage, opts, cb)
   }
 
-  client.on('connect', () => {
+  client.on('connect', (packet) => {
     basicLog.enterToPublish()
+    logResponseInformation(connOpts, packet)
     setTimeout(triggerExitInfo, 1000)
     retryTimes = 0
     isNewConnection &&
@@ -215,8 +218,9 @@ const handlePipedMultiline = (connOpts: IClientOptions, pubOpts: { topic: string
     }
   })
 
-  client.on('connect', () => {
+  client.on('connect', (packet) => {
     basicLog.connected()
+    logResponseInformation(connOpts, packet)
     if (messageQueue.length > 0) {
       logWrapper.await(`Publishing ${messageQueue.length} messages...`)
       messageQueue.forEach((message) => {
