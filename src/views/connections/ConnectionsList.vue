@@ -757,7 +757,10 @@ export default class ConnectionsList extends Vue {
   private handleCommand(command: 'newConnection' | 'newGroup') {
     switch (command) {
       case 'newConnection':
-        this.$router.push('/recent_connections/0?oper=create')
+        this.$router.push({
+          path: '/recent_connections/0',
+          query: { oper: 'create', parentId: this.selectedCollection?.id },
+        })
         break
       case 'newGroup':
         this.handleNewCollectionOnTop()
