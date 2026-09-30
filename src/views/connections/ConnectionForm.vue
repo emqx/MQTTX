@@ -727,8 +727,10 @@ export default class ConnectionForm extends Vue {
 
     if (this.oper === 'create') {
       // create a new connection
+      const { parentId } = this.$route.query
       res = await connectionService.create({
         ...data,
+        parentId: typeof parentId === 'string' ? parentId : null,
         createAt: time.getNowDate(),
         updateAt: time.getNowDate(),
       })
