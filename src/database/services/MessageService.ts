@@ -126,7 +126,7 @@ export default class MessageService {
     if (options.searchParams) {
       const { topic, payload } = options.searchParams
       if (topic) {
-        query.andWhere('msg.topic LIKE :topic', { topic: `%${topic}%` })
+        query.andWhere('msg.topic LIKE :searchTopic', { searchTopic: `%${topic}%` })
       }
       if (payload) {
         query.andWhere('msg.payload LIKE :payload', { payload: `%${payload}%` })
@@ -179,7 +179,7 @@ export default class MessageService {
     if (options.searchParams) {
       const { topic, payload } = options.searchParams
       if (topic) {
-        query.andWhere('msg.topic LIKE :topic', { topic: `%${topic}%` })
+        query.andWhere('msg.topic LIKE :searchTopic', { searchTopic: `%${topic}%` })
       }
       if (payload) {
         query.andWhere('msg.payload LIKE :payload', { payload: `%${payload}%` })
