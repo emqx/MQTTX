@@ -123,6 +123,14 @@ describe('JSONStreamWriter', () => {
     expect(parsed).to.deep.equal([{ id: 1, name: 'test', messages: [] }])
   })
 
+  it('omits undefined properties when streaming a legacy connection without a will', async () => {
+    async function* messages() {}
+    const writer = new JSONStreamWriter(tempFile)
+    await writer.writeObjectWithStreamingArray({ id: 'legacy', will: undefined }, 'messages', messages())
+    writer.close()
+    expect(JSON.parse(fs.readFileSync(tempFile, 'utf8'))).to.deep.equal([{ id: 'legacy', messages: [] }])
+  })
+
   it('should handle nested objects', () => {
     const writer = new JSONStreamWriter(tempFile)
     writer.writeObject({
