@@ -19,14 +19,14 @@
         :class="[
           'topics-item',
           {
-            active: index === topicActiveIndex,
+            active: sub.topic === activeTopic,
             disabled: sub.disabled,
           },
         ]"
         :style="{
           background: `${sub.color}${TOPIC_TINT_ALPHA}`,
         }"
-        @click="handleClickTopic(sub, index)"
+        @click="handleClickTopic(sub)"
         @contextmenu.prevent="handleContextMenu(sub, $event)"
       >
         <div
@@ -281,6 +281,7 @@ import { setSubscribeMQTT5Properties } from '@/utils/subscriptionUtils'
 export default class SubscriptionsList extends Vue {
   @Prop({ required: true }) public connectionId!: string
   @Prop({ required: true }) public record!: ConnectionModel
+  @Prop({ type: String, default: '' }) public activeTopic!: string
   @Prop({ type: String, default: '40px' }) public top!: string
 
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
@@ -316,7 +317,6 @@ export default class SubscriptionsList extends Vue {
   private qosOption: QoSList = [0, 1, 2]
   private subsList: SubscriptionModel[] = []
   private copySuccess = false
-  private topicActiveIndex: number | null = null
   private subLoading = false
   private unsubLoading = false
   private showContextmenu = false
@@ -362,12 +362,6 @@ export default class SubscriptionsList extends Vue {
 
   get leftValue(): string {
     return this.showConnectionList ? LeftValues.Show : LeftValues.Hide
-  }
-
-  @Watch('$route.params.id')
-  private handleIdChanged() {
-    this.$emit('onClickTopic', this.topicActiveIndex, true)
-    this.topicActiveIndex = null
   }
 
   @Watch('record')
@@ -718,17 +712,9 @@ export default class SubscriptionsList extends Vue {
     return true
   }
 
-  private handleClickTopic(item: SubscriptionModel, index: number) {
-    if (item.disabled) {
-      return
-    }
-    if (this.topicActiveIndex === null || this.topicActiveIndex !== index) {
-      this.topicActiveIndex = index
-      this.$emit('onClickTopic', item, false)
-    } else if (this.topicActiveIndex === index) {
-      this.topicActiveIndex = null
-      this.$emit('onClickTopic', item, true)
-    }
+  private handleClickTopic(item: SubscriptionModel) {
+    if (item.disabled) return
+    this.$emit('onClickTopic', item, this.activeTopic === item.topic)
   }
 
   private handleContextMenu(row: SubscriptionModel, event: MouseEvent) {

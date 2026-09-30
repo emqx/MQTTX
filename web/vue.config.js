@@ -5,6 +5,12 @@ process.env.VUE_APP_VERSION = require('./package.json').version
 module.exports = {
   publicPath: process.env.BASE_URL,
   outputDir: process.env.VUE_APP_OUTPUT_DIR,
+  chainWebpack: (config) => {
+    if (process.env.NODE_ENV === 'test') {
+      // Service imports initialize lowdb; keep tests independent of browser storage.
+      config.resolve.alias.set('lowdb/adapters/LocalStorage', require.resolve('lowdb/adapters/Memory'))
+    }
+  },
   configureWebpack: {
     plugins: [
       new MonacoWebpackPlugin({

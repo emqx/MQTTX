@@ -20,14 +20,14 @@
           :class="[
             'topics-item',
             {
-              active: index === topicActiveIndex,
+              active: sub.topic === activeTopic,
               disabled: sub.disabled,
             },
           ]"
           :style="{
             background: `${sub.color}${TOPIC_TINT_ALPHA}`,
           }"
-          @click="handleClickTopic(sub, index)"
+          @click="handleClickTopic(sub)"
           @contextmenu.prevent="handleContextMenu(sub, $event)"
         >
           <div
@@ -270,6 +270,7 @@ export default class SubscriptionsList extends Vue {
   @Prop({ required: true }) public subsVisible!: boolean
   @Prop({ required: true }) public connectionId!: string
   @Prop({ required: true }) public record!: ConnectionModel
+  @Prop({ type: String, default: '' }) public activeTopic!: string
   @Prop({ type: String, default: '60px' }) public top!: string
 
   @Action('CHANGE_SUBSCRIPTIONS') private changeSubs!: (payload: Subscriptions) => void
@@ -285,7 +286,7 @@ export default class SubscriptionsList extends Vue {
   private client: Partial<MqttClient> = {
     connected: false,
   }
-  private showDialog: boolean = false
+  private showDialog = false
   private subRecord: SubscriptionModel = {
     id: getSubscriptionId(),
     topic: 'testtopic/#',
@@ -303,7 +304,6 @@ export default class SubscriptionsList extends Vue {
   private qosOption: QoSList = [0, 1, 2]
   private subsList: SubscriptionModel[] = []
   private copySuccess = false
-  private topicActiveIndex: number | null = null
   private subLoading = false
   private unsubLoading = false
   private showContextmenu = false
@@ -349,7 +349,6 @@ export default class SubscriptionsList extends Vue {
 
   @Watch('record')
   private handleRecordChanged(val: ConnectionModel) {
-    this.topicActiveIndex = null
     if (val.id) {
       this.getCurrentConnection(val.id)
       this.subsList = val.subscriptions
@@ -590,7 +589,7 @@ export default class SubscriptionsList extends Vue {
             this.record.subscriptions = payload.subscriptions
             updateConnection(this.record.id, this.record)
             this.changeSubs(payload)
-            this.$emit('deleteTopic')
+            this.$emit('deleteTopic', topic)
             this.subsList = payload.subscriptions
             resolve(true)
             return true
@@ -648,17 +647,9 @@ export default class SubscriptionsList extends Vue {
     return true
   }
 
-  private handleClickTopic(item: SubscriptionModel, index: number) {
-    if (item.disabled) {
-      return
-    }
-    if (this.topicActiveIndex === null || this.topicActiveIndex !== index) {
-      this.topicActiveIndex = index
-      this.$emit('onClickTopic', item, false)
-    } else if (this.topicActiveIndex === index) {
-      this.topicActiveIndex = null
-      this.$emit('onClickTopic', item, true)
-    }
+  private handleClickTopic(item: SubscriptionModel) {
+    if (item.disabled) return
+    this.$emit('onClickTopic', item, this.activeTopic === item.topic)
   }
 
   private handleContextMenu(row: SubscriptionModel, event: MouseEvent) {
