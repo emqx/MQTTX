@@ -192,10 +192,10 @@ export default class MessageService {
       .take(limit + 1)
       .getMany()
 
-    mode === 'before' && res.reverse()
-
     const moreMsg = res.length > limit && mode
     moreMsg && res.pop()
+
+    mode === 'before' && res.reverse()
 
     const list = res.map((m) => MessageService.entityToModel(m))
 
