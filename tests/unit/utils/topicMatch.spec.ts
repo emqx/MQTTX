@@ -23,6 +23,23 @@ describe('topicMatch utility', () => {
       expect(matchTopicMethod('a/#', 'b/c/d')).to.be.false
     })
 
+    it('keeps root wildcards out of system topics', () => {
+      expect(matchTopicMethod('#', '$SYS/broker/uptime')).to.be.false
+      expect(matchTopicMethod('+/broker/+', '$SYS/broker/uptime')).to.be.false
+      expect(matchTopicMethod('$SYS/#', '$SYS/broker/uptime')).to.be.true
+      expect(matchTopicMethod('$share/group/#', '$SYS/broker/uptime')).to.be.false
+    })
+
+    it('requires a topic level for + even before #', () => {
+      expect(matchTopicMethod('a/+/#', 'a')).to.be.false
+      expect(matchTopicMethod('a/+/#', 'a/')).to.be.true
+      expect(matchTopicMethod('a/#', 'a')).to.be.true
+    })
+
+    it('only strips the actual shared-subscription prefix', () => {
+      expect(matchTopicMethod('$shareable/topic', '$shareable/topic')).to.be.true
+    })
+
     it('should handle shared subscriptions', () => {
       expect(matchTopicMethod('$share/group/a/+/c', 'a/b/c')).to.be.true
       expect(matchTopicMethod('$share/group/a/#', 'a/b/c/d')).to.be.true
