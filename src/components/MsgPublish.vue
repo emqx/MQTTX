@@ -83,18 +83,18 @@
     </div>
     <div class="publish-header">
       <div class="publish-metadata">
-        <el-select class="payload-select" size="mini" v-model="payloadType">
+        <el-select class="payload-select" size="mini" :value="draft.payloadType" @change="handleTypeChange">
           <el-option-group :label="$t('connections.publishPayloadEncodedBy')">
             <el-option v-for="(type, index) in payloadOptions" :key="index" :label="type" :value="type"> </el-option>
           </el-option-group>
         </el-select>
-        <el-select class="qos-select" size="mini" v-model="msgRecord.qos">
+        <el-select class="qos-select" size="mini" v-model="draft.qos">
           <el-option v-for="qos in [0, 1, 2]" :key="qos" :label="`QoS ${qos}`" :value="qos">
             <span style="float: left">{{ qos }}</span>
             <span style="float: right; color: #8492a6; margin-left: 12px">{{ $t(`connections.qos${qos}`) }}</span>
           </el-option>
         </el-select>
-        <el-checkbox class="retain-checkbox" v-model="msgRecord.retain" label="Retain" border size="mini"></el-checkbox>
+        <el-checkbox class="retain-checkbox" v-model="draft.retain" label="Retain" border size="mini"></el-checkbox>
         <el-tooltip
           placement="top"
           :disabled="mqtt5PropsEnable"
@@ -136,7 +136,7 @@
             :effect="currentTheme !== 'light' ? 'light' : 'dark'"
           >
             <el-button
-              :disabled="historyIndex === 0 || historyIndex === -1"
+              :disabled="historyIndex === 0 || payloadsHistory.length === 0"
               size="mini"
               icon="el-icon-arrow-left"
               class="history-btn history-btn-left"
@@ -150,8 +150,7 @@
             :effect="currentTheme !== 'light' ? 'light' : 'dark'"
           >
             <el-button size="mini" class="history-btn history-btn-center" @click="back">
-              <span v-if="historyIndex === -1 || payloadsHistory.length === 0">0/0</span>
-              <span v-else>{{ historyIndex + 1 }}/{{ payloadsHistory.length }}</span>
+              <span>{{ historyIndex + 1 }}/{{ payloadsHistory.length }}</span>
             </el-button>
           </el-tooltip>
           <el-tooltip
@@ -174,7 +173,7 @@
         <el-input
           class="publish-topic-input"
           placeholder="Topic"
-          v-model="msgRecord.topic"
+          v-model="draft.topic"
           @focus="handleInputFocus"
           @blur="handleInputBlur"
         >
@@ -219,7 +218,7 @@
           ref="payloadEditor"
           id="payload"
           :lang="payloadLang"
-          v-model="msgRecord.payload"
+          v-model="draft.payload"
           :useShadows="true"
           @enter-event="send"
           @format="formatJsonValue"
@@ -247,6 +246,7 @@ import validFormatJson from '@/utils/validFormatJson'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
 import { emptyToNull } from '@/utils/handleString'
+import { getDefaultPublishDraft, PublishDraft } from '@/utils/publishDraft'
 
 @Component({
   components: {
@@ -305,48 +305,64 @@ export default class MsgPublish extends Vue {
   private headersHistory: HistoryMessageHeaderModel[] | [] = []
   private payloadsHistory: HistoryMessagePayloadModel[] | [] = []
   private historyIndex = -1
-  private defaultMsgRecord: MessageModel = {
-    createAt: time.getNowDate(),
-    out: true,
-    qos: 0,
-    retain: false,
-    topic: '',
-    payload: JSON.stringify({ msg: 'hello' }, null, 2),
-  }
-  public msgRecord: MessageModel = _.cloneDeep(this.defaultMsgRecord)
+  private isDisposed = false
+  private draft: PublishDraft = getDefaultPublishDraft()
+  private draftConnectionId: string | undefined = undefined
+  private savedDraftSnapshot = ''
+  private payloadConversionId = 0
+  private propertiesRequestId = 0
   private headerValue: HistoryMessageHeaderModel = {
-    qos: this.msgRecord.qos,
-    retain: this.msgRecord.retain,
-    topic: this.msgRecord.topic,
+    qos: this.draft.qos,
+    retain: this.draft.retain,
+    topic: this.draft.topic,
   }
-  private payloadLang = 'json'
-  private payloadType: PayloadType = 'JSON'
+
+  get payloadLang() {
+    return ['CBOR', 'JSON', 'MsgPack'].includes(this.draft.payloadType) ? 'json' : 'plaintext'
+  }
+
+  private persistDraft = _.debounce(() => this.saveDraft(), 300, { maxWait: 1000 })
+
+  @Watch('draft', { deep: true })
+  private queueDraftSave() {
+    this.persistDraft()
+  }
+
+  private saveDraft() {
+    this.persistDraft.cancel()
+    const snapshot = JSON.stringify(this.draft)
+    // An unchanged window must not overwrite a newer draft saved by another window.
+    if (this.draftConnectionId && snapshot !== this.savedDraftSnapshot) {
+      const { connectionService } = useServices()
+      connectionService.updatePublishDraft(this.draftConnectionId, this.draft)
+      this.savedDraftSnapshot = snapshot
+    }
+  }
+
   private payloadOptions: PayloadType[] = ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR', 'MsgPack']
 
   @Watch('editorHeight')
   private handleHeightChanged() {
     this.handleLayout()
   }
-  @Watch('payloadType')
-  private handleTypeChange(val: PayloadType, oldVal: PayloadType) {
-    const { payload } = this.msgRecord
-    if (['CBOR', 'JSON', 'MsgPack'].includes(val)) {
-      this.payloadLang = 'json'
-    } else {
-      this.payloadLang = 'plaintext'
+  private async handleTypeChange(payloadType: PayloadType) {
+    const draft = this.draft
+    const { payload, payloadType: oldType } = draft
+    const conversionId = ++this.payloadConversionId
+    if (payloadType === oldType) return
+    const isCurrent = () =>
+      !this.isDisposed && conversionId === this.payloadConversionId && draft === this.draft && draft.payload === payload
+    try {
+      const converted = payload === '' ? '' : await convertPayload(payload, payloadType, oldType)
+      // A late conversion must not replace a different connection, history selection or newer edit.
+      if (isCurrent()) {
+        this.draft = { ...draft, payload: converted, payloadType }
+      }
+    } catch (error) {
+      if (isCurrent()) {
+        this.$message.error((error as Error).toString())
+      }
     }
-    if (payload === '') {
-      return
-    }
-    convertPayload(payload.toString(), val, oldVal)
-      .then((res) => {
-        this.msgRecord.payload = res
-      })
-      .catch((error: Error) => {
-        const errorMsg = error.toString()
-        this.$message.error(errorMsg)
-        this.payloadType = oldVal
-      })
   }
   @Watch('disabled', { immediate: true, deep: true })
   private handleDisabledChange(val: boolean) {
@@ -354,11 +370,11 @@ export default class MsgPublish extends Vue {
       ipcRenderer.removeAllListeners('sendPayload')
     }
   }
-  @Watch('historyIndex', { immediate: true, deep: true })
-  private handleHistoryIndexChange(val: number, lastval: number) {
-    if (lastval !== val && val >= 0 && val < this.payloadsHistory.length) {
-      this.msgRecord = Object.assign(this.msgRecord, this.payloadsHistory[val])
-      this.payloadType = this.payloadsHistory[val].payloadType as PayloadType
+  private selectHistory(index: number) {
+    const item = this.payloadsHistory[index]
+    if (item) {
+      this.historyIndex = index
+      this.draft = { ...this.draft, payload: item.payload, payloadType: item.payloadType as PayloadType }
     }
   }
 
@@ -374,12 +390,23 @@ export default class MsgPublish extends Vue {
    * - https://github.com/emqx/MQTTX/pull/446
    */
   @Watch('$route.params.id', { immediate: true, deep: true })
-  private async handleIdChanged(to: string, from: string) {
-    const editorRef = this.$refs.payloadEditor as Editor
-    if (to && from === '0' && to !== '0') {
+  private handleIdChanged(to: string, from: string) {
+    this.saveDraft()
+    this.draftConnectionId = to && to !== '0' ? to : undefined
+    const { connectionService } = useServices()
+    this.draft = this.draftConnectionId
+      ? connectionService.getPublishDraft(this.draftConnectionId)
+      : getDefaultPublishDraft()
+    this.savedDraftSnapshot = JSON.stringify(this.draft)
+    this.historyIndex = -1
+    this.headerValue = { qos: this.draft.qos, retain: this.draft.retain, topic: this.draft.topic }
+    this.topicRequired = false
+    this.showMetaCard = false
+    const editorRef = this.$refs.payloadEditor as Editor | undefined
+    if (editorRef && to && from === '0' && to !== '0') {
       // Initialize the editor when the route jumps from the creation page
       editorRef.initEditor()
-    } else if (from && from !== '0' && to === '0') {
+    } else if (editorRef && from && from !== '0' && to === '0') {
       // Destroy the editor when the route jumps to the creation page
       editorRef.destroyEditor()
     }
@@ -387,16 +414,14 @@ export default class MsgPublish extends Vue {
   }
 
   @Watch('mqtt5PropsEnable')
-  private async handleMqtt5Enable(val: boolean) {
-    if (val) {
-      this.loadProperties()
-    }
+  private handleMqtt5Enable() {
+    this.loadProperties()
   }
 
   private handleHeaderChange(val: HistoryMessageHeaderModel) {
     if (val) {
       const { retain, topic, qos } = val
-      Object.assign(this.msgRecord, { retain, topic, qos })
+      Object.assign(this.draft, { retain, topic, qos })
     }
   }
 
@@ -408,9 +433,9 @@ export default class MsgPublish extends Vue {
     await historyMessageHeaderService.delete(item.id)
     if (this.headerValue && this.headerValue.id === item.id) {
       this.headerValue = {
-        qos: this.msgRecord.qos,
-        retain: this.msgRecord.retain,
-        topic: this.msgRecord.topic,
+        qos: this.draft.qos,
+        retain: this.draft.retain,
+        topic: this.draft.topic,
       }
     }
     await this.loadHistoryData()
@@ -440,9 +465,16 @@ export default class MsgPublish extends Vue {
   }
 
   private async send() {
-    this.msgRecord.id = getMessageId()
-    this.msgRecord.createAt = time.getNowDate()
-    this.mqtt5PropsEnable && (this.msgRecord.properties = this.MQTT5PropsSend)
+    const message: MessageModel = {
+      id: getMessageId(),
+      createAt: time.getNowDate(),
+      out: true,
+      qos: this.draft.qos,
+      retain: this.draft.retain,
+      topic: this.draft.topic,
+      payload: this.draft.payload,
+      properties: this.mqtt5PropsEnable ? _.cloneDeep(this.MQTT5PropsSend) : undefined,
+    }
     if (!this.clientConnected) {
       this.$notify({
         title: this.$tc('connections.notConnect'),
@@ -453,7 +485,7 @@ export default class MsgPublish extends Vue {
       })
       return
     }
-    if (!this.msgRecord.topic && !this.msgRecord?.properties?.topicAlias) {
+    if (!message.topic && !message.properties?.topicAlias) {
       this.topicRequired = true
       this.$notify({
         title: this.$tc('connections.topicRequired'),
@@ -464,7 +496,7 @@ export default class MsgPublish extends Vue {
       })
       return
     }
-    if (this.msgRecord.topic.includes('+') || this.msgRecord.topic.includes('#')) {
+    if (this.draft.topic.includes('+') || this.draft.topic.includes('#')) {
       this.$notify({
         title: this.$tc('connections.topicCannotContain'),
         message: '',
@@ -474,7 +506,7 @@ export default class MsgPublish extends Vue {
       })
       return
     }
-    this.$emit('handleSend', this.msgRecord, this.payloadType, this.loadHistoryData)
+    this.$emit('handleSend', message, this.draft.payloadType, this.loadHistoryData)
   }
 
   private handleInputFocus() {
@@ -499,45 +531,34 @@ export default class MsgPublish extends Vue {
     editorRef.editorLayout()
   }
 
-  private async loadHistoryData(isNewPayload?: boolean, isLoadData?: boolean) {
+  private async loadHistoryData(isNewPayload?: boolean) {
     const { historyMessageHeaderService, historyMessagePayloadService } = useServices()
-    const headersHistory = (await historyMessageHeaderService.getAll()) ?? []
-    const payloadsHistory = (await historyMessagePayloadService.getAll()) ?? []
-    const historyMsg = payloadsHistory[payloadsHistory.length - 1]
-    if (historyMsg && isLoadData) {
-      this.payloadType = historyMsg.payloadType as PayloadType
-    }
-    this.headersHistory = headersHistory
-    this.payloadsHistory = payloadsHistory
+    const [headersHistory, payloadsHistory] = await Promise.all([
+      historyMessageHeaderService.getAll(),
+      historyMessagePayloadService.getAll(),
+    ])
+    if (this.isDisposed) return
+    this.headersHistory = headersHistory ?? []
+    this.payloadsHistory = payloadsHistory ?? []
     if (isNewPayload) {
-      this.historyIndex = this.payloadsHistory.length - 1
+      this.historyIndex = -1
+    } else {
+      this.historyIndex = Math.min(this.historyIndex, this.payloadsHistory.length - 1)
     }
-  }
-
-  private async loadData() {
-    await this.loadHistoryData(false, true)
-    this.historyIndex = this.payloadsHistory.length - 1
-    Object.assign(
-      this.msgRecord,
-      this.defaultMsgRecord,
-      this.headersHistory[this.headersHistory.length - 1],
-      this.payloadsHistory[this.payloadsHistory.length - 1],
-    )
-    const headersHistoryIndex = this.payloadsHistory[this.historyIndex]
-    if (headersHistoryIndex) {
-      this.payloadType = headersHistoryIndex.payloadType as PayloadType
-    }
-    this.loadProperties()
   }
 
   private async loadProperties() {
+    const connectionId = this.draftConnectionId
+    const requestId = ++this.propertiesRequestId
     this.MQTT5PropsForm = {}
-    if (this.mqtt5PropsEnable) {
+    this.MQTT5PropsSend = {}
+    this.hasMqtt5Prop = false
+    if (this.mqtt5PropsEnable && connectionId) {
       const { connectionService } = useServices()
-      const pushProps = await connectionService.getPushProp(this.$route.params.id)
-      if (pushProps) {
+      const pushProps = await connectionService.getPushProp(connectionId)
+      if (!this.isDisposed && requestId === this.propertiesRequestId && pushProps) {
         this.MQTT5PropsForm = pushProps
-        this.MQTT5PropsSend = _.cloneDeep(this.MQTT5PropsForm)
+        this.MQTT5PropsSend = _.cloneDeep(pushProps)
         this.hasMqtt5Prop = this.getHasMqtt5PropState()
       }
     }
@@ -545,9 +566,9 @@ export default class MsgPublish extends Vue {
 
   private formatJsonValue() {
     try {
-      let jsonValue: string | undefined = validFormatJson(this.msgRecord.payload.toString())
+      let jsonValue: string | undefined = validFormatJson(this.draft.payload.toString())
       if (jsonValue) {
-        this.msgRecord.payload = jsonValue
+        this.draft.payload = jsonValue
       }
     } catch (error) {
       this.$message.error((error as Error).toString())
@@ -555,16 +576,15 @@ export default class MsgPublish extends Vue {
   }
 
   private decrease() {
-    this.historyIndex = this.historyIndex - 1 >= 0 ? this.historyIndex - 1 : 0
+    this.selectHistory(this.historyIndex === -1 ? this.payloadsHistory.length - 1 : Math.max(this.historyIndex - 1, 0))
   }
 
   private back() {
-    this.historyIndex = this.payloadsHistory.length - 1
+    this.selectHistory(this.payloadsHistory.length - 1)
   }
 
   private increase() {
-    this.historyIndex =
-      this.historyIndex + 1 <= this.payloadsHistory.length - 1 ? this.historyIndex + 1 : this.payloadsHistory.length - 1
+    this.selectHistory(Math.min(this.historyIndex + 1, this.payloadsHistory.length - 1))
   }
 
   private handleClickOutSide() {
@@ -580,16 +600,18 @@ export default class MsgPublish extends Vue {
   }
 
   private onClearRetainedMsgPublish() {
+    const draft = this.draft
     this.$confirm(
-      `${this.$tc('connections.clearRetainedMessageConfirm')} "${this.msgRecord.topic}"`,
+      `${this.$tc('connections.clearRetainedMessageConfirm')} "${this.draft.topic}"`,
       this.$tc('common.warning'),
       {
         type: 'warning',
       },
     )
       .then(() => {
-        this.msgRecord.payload = ''
-        this.msgRecord.retain = true
+        if (this.isDisposed || draft !== this.draft) return
+        this.draft.payload = ''
+        this.draft.retain = true
         this.send()
       })
       .catch(() => {
@@ -598,19 +620,23 @@ export default class MsgPublish extends Vue {
   }
 
   private created() {
-    this.loadData()
+    this.loadHistoryData()
   }
 
   private mounted() {
+    window.addEventListener('beforeunload', this.saveDraft)
     ipcRenderer.on('insertCodeToEditor', (event: IpcRendererEvent, code: string) => {
       if (code) {
-        this.msgRecord.payload = code
+        this.draft.payload = code
         this.$emit('onInsertedCode')
       }
     })
   }
 
   private beforeDestroy() {
+    this.saveDraft()
+    this.isDisposed = true
+    window.removeEventListener('beforeunload', this.saveDraft)
     ipcRenderer.removeAllListeners('sendPayload')
     ipcRenderer.removeAllListeners('insertCodeToEditor')
   }

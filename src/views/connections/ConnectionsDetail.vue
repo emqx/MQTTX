@@ -311,7 +311,7 @@
           :editor-height="inputHeight - 75"
           :style="{ height: `${inputHeight}px` }"
           :disabled="sendTimeId !== null"
-          :clientConnected="client.connected"
+          :clientConnected="client.connected && record.id === curConnectionId"
           :sendTimeId="sendTimeId"
           @focus="loadMessages"
           @handleSend="throttleSendMessage"

@@ -1,10 +1,11 @@
 import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
-import { Repository } from 'typeorm'
+import { In, Repository } from 'typeorm'
 import CollectionEntity from '@/database/models/CollectionEntity'
 import ConnectionEntity from '@/database/models/ConnectionEntity'
 import WillEntity from '@/database/models/WillEntity'
 import time from '@/utils/time'
+import useServices from '@/database/useServices'
 
 @Service()
 export default class CollectionService {
@@ -175,6 +176,10 @@ export default class CollectionService {
       .getTreeRepository(CollectionEntity)
       .findDescendants(entity)
     if (!query) return
+    const connections = await this.connectionRepository.find({
+      where: { parentId: In(query.map((collection) => collection.id)) },
+      select: ['id'],
+    })
     for (let i = 0; i < query.length; i++) {
       const children = query[i].children
       if (!children) continue
@@ -185,6 +190,8 @@ export default class CollectionService {
       }
     }
     await this.collectionRepository.remove(query)
+    const { connectionService } = useServices()
+    connections.forEach(({ id }) => id && connectionService.deletePublishDraft(id))
   }
 
   public async add(data: CollectionModel, parentId?: string): Promise<CollectionModel | undefined> {
