@@ -31,7 +31,14 @@ module.exports = {
 
     // Use Electron mock in test environment
     if (process.env.NODE_ENV === 'test') {
+      const sourceRoot = config.resolve.alias.get('@')
+      config.resolve.alias.delete('@')
       config.resolve.alias.set('electron', path.resolve(__dirname, 'tests/unit/mocks/electron.js'))
+      config.resolve.alias.set('@/database/useServices', path.resolve(__dirname, 'tests/unit/mocks/useServices.ts'))
+      config.resolve.alias.set('@/components/Editor.vue', path.resolve(__dirname, 'tests/unit/mocks/Editor.vue'))
+      config.resolve.alias.set('@', sourceRoot)
+      // Service tests use synthetic repositories; do not bundle native database drivers.
+      config.externals({ typeorm: 'commonjs typeorm' })
     }
   },
   configureWebpack: {

@@ -10,6 +10,7 @@ import { Repository, MoreThan, LessThan } from 'typeorm'
 import { DateUtils } from 'typeorm/util/DateUtils'
 import time, { sqliteDateFormat } from '@/utils/time'
 import useServices from '@/database/useServices'
+import { getDefaultPublishDraft, PublishDraft } from '@/utils/publishDraft'
 
 const Store = require('electron-store')
 const electronStore = new Store()
@@ -452,10 +453,32 @@ export default class ConnectionService {
     await this.connectionRepository.delete({
       id: query.id,
     })
+    this.deletePublishDraft(id)
     if (electronStore.get('leatestId') === id) {
       electronStore.set('leatestId', '')
     }
     return ConnectionService.entityToModel(query) as ConnectionModel
+  }
+
+  public getPublishDraft(connectionId: string): PublishDraft {
+    const key = `publishDrafts.${connectionId}`
+    // Initialize when opening a connection; later updates only touch existing drafts.
+    if (!electronStore.has(key)) {
+      electronStore.set(key, getDefaultPublishDraft())
+    }
+    return electronStore.get(key) as PublishDraft
+  }
+
+  public updatePublishDraft(connectionId: string, draft: PublishDraft) {
+    const key = `publishDrafts.${connectionId}`
+    // Updating a deleted connection must not recreate its draft during navigation or teardown.
+    if (electronStore.has(key)) {
+      electronStore.set(key, draft)
+    }
+  }
+
+  public deletePublishDraft(connectionId: string) {
+    electronStore.delete(`publishDrafts.${connectionId}`)
   }
 
   public async getLeatests(take: number | undefined = 10): Promise<ConnectionModel[] | undefined> {
