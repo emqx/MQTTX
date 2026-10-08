@@ -34,8 +34,8 @@ module.exports = {
       config.resolve.alias.set('electron', path.resolve(__dirname, 'tests/unit/mocks/electron.js'))
       config.resolve.alias.set('@electron/remote', path.resolve(__dirname, 'tests/unit/mocks/electron.js'))
       config.resolve.alias.set('electron-store', path.resolve(__dirname, 'tests/unit/mocks/electron-store.js'))
-      // Keep native dependencies out of the webpack test bundle.
-      config.externals({ sqlite3: 'commonjs sqlite3', vm2: 'commonjs vm2' })
+      // Keep the native SQLite driver out of the webpack test bundle.
+      config.externals({ sqlite3: 'commonjs sqlite3' })
     }
   },
   configureWebpack: {
