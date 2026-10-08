@@ -161,29 +161,29 @@ describe('CLI Response Information output', () => {
     }
   })
 
-  it.each(['text', 'log'] as const)('keeps clean JSON stdout parseable with output=%s', async (output) => {
-    const result = await runCli(
-      ['sub', '-t', 'test/response-information', '--output-mode', 'clean', '-f', 'json', '--req-response-info'],
-      'responses/client-1',
-      { output },
-    )
+  it.each(['text', 'log'] as const)(
+    'suppresses connection information in clean mode with output=%s',
+    async (output) => {
+      const result = await runCli(
+        ['sub', '-t', 'test/response-information', '--output-mode', 'clean', '-f', 'json', '--req-response-info'],
+        'responses/client-1',
+        { output },
+      )
 
-    const message = JSON.parse(result.stdout)
-    expect(message.topic).toBe('test/response-information')
-    expect(JSON.parse(message.payload)).toEqual({ message: 'payload-only' })
-    expect(result.stdout).not.toContain('Response Information')
-    if (output === 'text') {
-      expect(result.stderr).toMatch(/^[ℹi] Response Information: "responses\/client-1"\n$/)
-    } else {
-      expect(result.stderr).toMatch(/^\[[^\n]+\] \[[^\n]+\] .+ [ℹi] {2}Response Information: "responses\/client-1"\n$/)
-    }
-  })
+      const message = JSON.parse(result.stdout)
+      expect(message.topic).toBe('test/response-information')
+      expect(JSON.parse(message.payload)).toEqual({ message: 'payload-only' })
+      expect(result.stdout).not.toContain('Response Information')
+      expect(result.stderr).toBe('')
+      expect(result.connects[0].properties?.requestResponseInformation).toBe(true)
+    },
+  )
 
-  it('does not send the diagnostic to Signale stdout with output=log', async () => {
+  it('uses the standard Signale format and stdout with output=log', async () => {
     const result = await runCli(['conn', '--req-response-info'], 'responses/client-1', { output: 'log' })
-    expect(result.stderr).toMatch(/^\[[^\n]+\] \[[^\n]+\] .+ [ℹi] {2}Response Information: "responses\/client-1"\n$/)
+    expect(result.stderr).toBe('')
     expect(result.stdout).toContain('Connected')
-    expect(result.stdout).not.toContain('responses/client-1')
+    expect(result.stdout).toMatch(/^\[[^\n]+\] \[[^\n]+\] .+ [ℹi] {2}Response Information: "responses\/client-1"\n$/m)
   })
 
   it.each([undefined, ''])('leaves stderr empty in clean mode without a value (%s)', async (value) => {
