@@ -143,14 +143,6 @@ export const createClient = (
     }
 
     const curConnectClient: MqttClient = mqtt.connect(url, tempOptions)
-    // Keep broker information on its client session, alongside the existing runtime connection state.
-    curConnectClient.responseInformation = ''
-    curConnectClient.on('connect', (packet) => {
-      curConnectClient.responseInformation = protocolVersion === 5 ? packet.properties?.responseInformation || '' : ''
-    })
-    curConnectClient.on('close', () => {
-      curConnectClient.responseInformation = ''
-    })
 
     // MQTT 5.0 Enhanced Authentication handler setup
     if (scramAuth && record.properties?.authenticationMethod) {
