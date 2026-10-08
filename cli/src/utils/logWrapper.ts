@@ -26,13 +26,15 @@ const signale = new Signale({
   },
 })
 const spinner = ora()
+const stderrSignale = new Signale({ config: singaleConfig, stream: process.stderr })
 
 const logWrapper = {
   await: (msg: string) => (isLogFormat ? signale.await(msg) : spinner.start(msg)),
   success: (msg: string) => (isLogFormat ? signale.success(msg) : spinner.succeed(msg)),
   fail: (msg: string) => (isLogFormat ? signale.error(msg) : spinner.fail(msg)),
   warn: (msg: string) => (isLogFormat ? signale.warn(msg) : spinner.warn(msg)),
-  info: (msg: string) => (isLogFormat ? signale.info(msg) : spinner.info(msg)),
+  // Informational diagnostics must stay separate from message payload stdout.
+  info: (msg: string) => (isLogFormat ? stderrSignale.info(msg) : spinner.info(msg)),
   log: (msg: string) => signale.log(msg),
   running: (msg: string) => signale.running(msg),
 }
@@ -73,8 +75,7 @@ const basicLog = {
       /[\u007f-\u009f\u2028\u2029]/g,
       (character) => `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`,
     )
-    // Signale can write to stdout in log mode; this diagnostic must always use stderr.
-    process.stderr.write(`Response Information: ${escaped}\n`)
+    logWrapper.info(`Response Information: ${escaped}`)
   },
   subscribing: (t: string) => logWrapper.await(`Subscribing to ${t}...`),
   subscribed: (t: string) => logWrapper.success(`Subscribed to ${t}`),
