@@ -76,10 +76,6 @@ declare global {
 
   type NameCallBack = (name: string) => string
 
-  interface ConnectionClient extends MqttClient {
-    responseInformation?: string
-  }
-
   // Vuex state
   interface ActiveConnection {
     [id: string]: {
