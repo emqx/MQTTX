@@ -73,26 +73,7 @@
             }}</el-checkbox>
           </el-form-item>
         </el-col>
-        <el-col :span="24" class="connection-actions">
-          <div v-if="responseInformation" class="response-information" :title="responseInformation">
-            <label for="response-information">Response Information</label>
-            <el-input
-              id="response-information"
-              size="mini"
-              label="Response Information"
-              :value="responseInformation"
-              readonly
-            />
-            <button
-              type="button"
-              class="copy-response-information"
-              :aria-label="$t('common.copyTarget', { target: 'Response Information' })"
-              v-clipboard:copy="responseInformation"
-              v-clipboard:success="handleCopySuccess"
-            >
-              <i class="iconfont icon-copy"></i>
-            </button>
-          </div>
+        <el-col :span="24">
           <el-button
             v-if="!isClientConnected"
             class="btn connect"
@@ -134,6 +115,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { getClientId } from '@/utils/idGenerator'
+import { MqttClient } from 'mqtt'
 import { Getter } from 'vuex-class'
 import useServices from '@/database/useServices'
 
@@ -141,7 +123,7 @@ import useServices from '@/database/useServices'
 export default class ConnectionInfo extends Vue {
   @Prop({ required: true }) public connection!: ConnectionModel
   @Prop({ required: true }) public btnLoading!: boolean
-  @Prop({ required: true }) public client!: Pick<ConnectionClient, 'connected' | 'responseInformation'>
+  @Prop({ required: true }) public client!: Pick<MqttClient, 'connected'>
   @Prop({ required: true }) public titleName!: string
 
   @Getter('currentTheme') private theme!: Theme
@@ -156,15 +138,6 @@ export default class ConnectionInfo extends Vue {
   // Return the status of client connection
   get isClientConnected() {
     return this.client.connected
-  }
-
-  get responseInformation(): string {
-    if (!this.isClientConnected || this.connection.mqttVersion !== '5.0') return ''
-    return this.client.responseInformation || ''
-  }
-
-  private handleCopySuccess() {
-    this.$message.success(this.$tc('common.copyTargetSuccess', 1, { target: 'Response Information' }))
   }
 
   get rules() {
@@ -301,34 +274,6 @@ export default class ConnectionInfo extends Vue {
       width: 100%;
       .el-checkbox__label {
         font-size: 12px;
-      }
-    }
-    .connection-actions {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 10px;
-    }
-    .response-information {
-      display: flex;
-      align-items: center;
-      flex: 1;
-      min-width: 0;
-      gap: 8px;
-      label {
-        flex-shrink: 0;
-        font-size: 12px;
-      }
-      .el-input {
-        flex: 1;
-        min-width: 0;
-      }
-      .copy-response-information {
-        flex-shrink: 0;
-        cursor: pointer;
-        border: 0;
-        background: transparent;
-        color: var(--color-text-default);
       }
     }
     .el-button.btn {

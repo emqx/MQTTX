@@ -1,4 +1,3 @@
-import '../mocks/browserStorage'
 import { expect } from 'chai'
 import { EventEmitter } from 'events'
 import mqtt from 'mqtt'

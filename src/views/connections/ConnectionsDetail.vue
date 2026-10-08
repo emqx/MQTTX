@@ -69,6 +69,7 @@
                 </el-badge>
               </el-popover>
             </transition>
+            <ResponseInformation :client="client" :mqtt-version="record.mqttVersion" />
           </div>
           <div class="connection-tail">
             <transition name="el-fade-in">
@@ -355,6 +356,7 @@ import MsgPublish from '@/components/MsgPublish.vue'
 import SubscriptionsList from '@/components/SubscriptionsList.vue'
 import ResizeHeight from '@/components/ResizeHeight.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
+import ResponseInformation from './ResponseInformation.vue'
 import Contextmenu from '@/components/Contextmenu.vue'
 import ExportData from '@/components/ExportData.vue'
 import ImportData from '@/components/ImportData.vue'
@@ -401,6 +403,7 @@ type CommandType =
 @Component({
   components: {
     ConnectionInfo,
+    ResponseInformation,
     MsgPublish,
     SubscriptionsList,
     ResizeHeight,
@@ -2249,6 +2252,7 @@ export default class ConnectionsDetail extends Vue {
       .connection-head {
         display: flex;
         align-items: center;
+        min-width: 0;
         h2.title-name {
           max-width: 200px;
           white-space: nowrap;
@@ -2280,6 +2284,8 @@ export default class ConnectionsDetail extends Vue {
         @include collapse-btn-transform(0deg, 180deg);
       }
       .connection-tail {
+        flex-shrink: 0;
+        margin-left: 12px;
         i {
           font-size: 20px;
           color: var(--color-text-title);
