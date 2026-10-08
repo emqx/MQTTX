@@ -36,10 +36,11 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { MqttClient } from 'mqtt'
 
 @Component
 export default class ResponseInformation extends Vue {
-  @Prop({ required: true }) public client!: Pick<ConnectionClient, 'connected' | 'responseInformation'>
+  @Prop({ required: true }) public client!: Pick<MqttClient, 'connected' | 'responseInformation'>
   @Prop({ required: true }) public mqttVersion!: string
 
   private visible = false

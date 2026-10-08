@@ -4,14 +4,14 @@ import ElementUI from 'element-ui'
 import Vue from 'vue'
 import { DirectiveBinding } from 'vue/types/options'
 import ResponseInformation from '@/views/connections/ResponseInformation.vue'
-import mqtt from 'mqtt'
+import mqtt, { MqttClient } from 'mqtt'
 import { EventEmitter } from 'events'
 import { createClient, getDefaultRecord } from '@/utils/mqttUtils'
 
 const originalResizeObserver = window.ResizeObserver
 
 function render(
-  client: Pick<ConnectionClient, 'connected' | 'responseInformation'>,
+  client: Pick<MqttClient, 'connected' | 'responseInformation'>,
   { mqttVersion = '5.0', previewClipped = true } = {},
 ) {
   window.ResizeObserver = class implements ResizeObserver {
