@@ -26,15 +26,13 @@ const signale = new Signale({
   },
 })
 const spinner = ora()
-const stderrSignale = new Signale({ config: singaleConfig, stream: process.stderr })
 
 const logWrapper = {
   await: (msg: string) => (isLogFormat ? signale.await(msg) : spinner.start(msg)),
   success: (msg: string) => (isLogFormat ? signale.success(msg) : spinner.succeed(msg)),
   fail: (msg: string) => (isLogFormat ? signale.error(msg) : spinner.fail(msg)),
   warn: (msg: string) => (isLogFormat ? signale.warn(msg) : spinner.warn(msg)),
-  // Informational diagnostics must stay separate from message payload stdout.
-  info: (msg: string) => (isLogFormat ? stderrSignale.info(msg) : spinner.info(msg)),
+  info: (msg: string) => (isLogFormat ? signale.info(msg) : spinner.info(msg)),
   log: (msg: string) => signale.log(msg),
   running: (msg: string) => signale.running(msg),
 }

@@ -106,7 +106,7 @@ export class Commander {
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
       .option('--maximum-packet-size <NUMBER>', 'the maximum packet size the client is willing to accept', parseNumber)
       .option('--topic-alias-maximum <NUMBER>', 'the topic alias maximum value', parseNumber)
-      .option('--req-response-info', 'request and display response information on stderr (MQTT 5.0)')
+      .option('--req-response-info', 'request and display response information (MQTT 5.0)')
       .option('--no-req-problem-info', 'the client requests problem information from the server')
       .option(
         '-up, --user-properties <USERPROPERTIES...>',
@@ -225,7 +225,7 @@ export class Commander {
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
       .option('--maximum-packet-size <NUMBER>', 'the maximum packet size the client is willing to accept', parseNumber)
       .option('--topic-alias-maximum <NUMBER>', 'the topic alias maximum value', parseNumber)
-      .option('--req-response-info', 'request and display response information on stderr (MQTT 5.0)')
+      .option('--req-response-info', 'request and display response information (MQTT 5.0)')
       .option('--no-req-problem-info', 'the client requests problem information from the server')
       .option(
         '-Cup, --conn-user-properties <USERPROPERTIES...>',
@@ -357,7 +357,7 @@ export class Commander {
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
       .option('--maximum-packet-size <NUMBER>', 'the maximum packet size the client is willing to accept', parseNumber)
       .option('--topic-alias-maximum <NUMBER>', 'the topic alias maximum value', parseNumber)
-      .option('--req-response-info', 'request and display response information on stderr (MQTT 5.0)')
+      .option('--req-response-info', 'request and display response information (MQTT 5.0)')
       .option('--no-req-problem-info', 'the client requests problem information from the server')
       .option(
         '-Cup, --conn-user-properties <USERPROPERTIES...>',
