@@ -40,7 +40,7 @@ import { MqttClient } from 'mqtt'
 
 @Component
 export default class ResponseInformation extends Vue {
-  @Prop({ required: true }) public client!: Pick<MqttClient, 'connected' | 'responseInformation'>
+  @Prop({ required: true }) public client!: Pick<MqttClient, 'connected' | 'connackPacket'>
   @Prop({ required: true }) public mqttVersion!: string
 
   private visible = false
@@ -57,7 +57,7 @@ export default class ResponseInformation extends Vue {
 
   get responseInformation(): string {
     if (!this.client.connected || this.mqttVersion !== '5.0') return ''
-    return this.client.responseInformation || ''
+    return this.client.connackPacket?.properties?.responseInformation || ''
   }
 
   @Watch('client')

@@ -4,14 +4,57 @@ import ElementUI from 'element-ui'
 import Vue from 'vue'
 import { DirectiveBinding } from 'vue/types/options'
 import ResponseInformation from '@/views/connections/ResponseInformation.vue'
-import mqtt, { MqttClient } from 'mqtt'
-import { EventEmitter } from 'events'
-import { createClient, getDefaultRecord } from '@/utils/mqttUtils'
+import { MqttClient, IConnackPacket } from 'mqtt'
+import { generate } from 'mqtt-packet'
+import { Duplex } from 'stream'
 
 const originalResizeObserver = window.ResizeObserver
 
+function connack(responseInformation?: string): IConnackPacket {
+  return {
+    cmd: 'connack',
+    sessionPresent: false,
+    reasonCode: 0,
+    properties: responseInformation === undefined ? undefined : { responseInformation },
+  }
+}
+
+function createMemoryClient() {
+  let stream: Duplex
+  const client = new MqttClient(
+    () => {
+      stream = new Duplex({
+        read() {},
+        write(_chunk, _encoding, callback) {
+          callback()
+        },
+      })
+      return stream
+    },
+    { clientId: 'response-info-unit-test', protocolVersion: 5, keepalive: 0, reconnectPeriod: 0 },
+  )
+  return {
+    client,
+    async connect(responseInformation?: string) {
+      const connected = new Promise<void>((resolve) => client.once('connect', () => resolve()))
+      stream.push(generate(connack(responseInformation), { protocolVersion: 5 }))
+      await connected
+      await Vue.nextTick()
+    },
+    async close() {
+      const closed = new Promise<void>((resolve) => client.once('close', () => resolve()))
+      stream.destroy()
+      await closed
+      await Vue.nextTick()
+    },
+    end() {
+      return new Promise<void>((resolve) => client.end(true, {}, () => resolve()))
+    },
+  }
+}
+
 function render(
-  client: Pick<MqttClient, 'connected' | 'responseInformation'>,
+  client: Pick<MqttClient, 'connected' | 'connackPacket'>,
   { mqttVersion = '5.0', previewClipped = true } = {},
 ) {
   window.ResizeObserver = class implements ResizeObserver {
@@ -50,7 +93,7 @@ describe('Desktop Response Information display', () => {
 
   it('preserves the full value with a single clipboard control and no repeated popover actions', () => {
     const value = 'responses/' + 'x'.repeat(5000)
-    const wrapper = render({ connected: true, responseInformation: value })
+    const wrapper = render({ connected: true, connackPacket: connack(value) })
     expect(wrapper.find('.response-information-preview').text()).to.equal(value)
     expect(wrapper.find('.response-information-value').text()).to.equal(value)
     expect(wrapper.findAll('.copy-response-information').length).to.equal(1)
@@ -61,7 +104,7 @@ describe('Desktop Response Information display', () => {
   })
 
   it('opens full details and dismisses them with Escape, the same trigger, or an outside click', async () => {
-    const wrapper = render({ connected: true, responseInformation: 'responses/client-1' })
+    const wrapper = render({ connected: true, connackPacket: connack('responses/client-1') })
     await wrapper.vm.$nextTick()
     const reference = wrapper.find('.response-information-reference')
     expect(reference.attributes('aria-expanded')).to.equal('false')
@@ -90,7 +133,7 @@ describe('Desktop Response Information display', () => {
   })
 
   it('shows a complete short value without an unnecessary duplicate popover', async () => {
-    const wrapper = render({ connected: true, responseInformation: 'responses/client-1' }, { previewClipped: false })
+    const wrapper = render({ connected: true, connackPacket: connack('responses/client-1') }, { previewClipped: false })
     await wrapper.vm.$nextTick()
     const reference = wrapper.find('.response-information-reference')
     ;(reference.element as HTMLButtonElement).click()
@@ -100,38 +143,43 @@ describe('Desktop Response Information display', () => {
     wrapper.destroy()
   })
 
-  it('reacts to CONNACK updates and cleanup on the same client', async () => {
-    const originalConnect = mqtt.connect
-    mqtt.connect = (() => Object.assign(new EventEmitter(), { connected: true })) as any
+  it('reads MQTT.js CONNACK state reactively through reconnects without adding client listeners', async () => {
+    const session = createMemoryClient()
+    const { client } = session
+    Vue.observable(client)
+    const closeListenerCount = client.listenerCount('close')
+    const connectListenerCount = client.listenerCount('connect')
+    const wrapper = render(client)
     try {
-      const { curConnectClient: client } = await createClient({ ...getDefaultRecord(), mqttVersion: '5.0' })
-      Vue.observable(client)
-      const wrapper = render(client)
+      expect(client.listenerCount('close')).to.equal(closeListenerCount)
+      expect(client.listenerCount('connect')).to.equal(connectListenerCount)
       expect(wrapper.find('.response-information').exists()).to.be.false
-      client.emit('connect', { properties: { responseInformation: 'responses/first' } })
-      await wrapper.vm.$nextTick()
+      await session.connect('responses/first')
       expect(wrapper.find('.response-information-preview').text()).to.equal('responses/first')
-      client.emit('connect', { properties: { responseInformation: 'responses/reconnected' } })
-      await wrapper.vm.$nextTick()
+      await session.close()
+      expect(wrapper.find('.response-information').exists()).to.be.false
+      client.reconnect()
+      await session.connect('responses/reconnected')
       expect(wrapper.find('.response-information-preview').text()).to.equal('responses/reconnected')
       expect(wrapper.find('.copy-response-information').attributes('data-clipboard-value')).to.equal(
         'responses/reconnected',
       )
-      client.emit('close')
-      await wrapper.vm.$nextTick()
+      await session.close()
+      client.reconnect()
+      await session.connect()
       expect(wrapper.find('.response-information').exists()).to.be.false
-      wrapper.destroy()
     } finally {
-      mqtt.connect = originalConnect
+      wrapper.destroy()
+      await session.end()
     }
   })
 
   it('closes an open popover when switching clients and copies the newly selected value', async () => {
-    const wrapper = render({ connected: true, responseInformation: 'responses/A' })
+    const wrapper = render({ connected: true, connackPacket: connack('responses/A') })
     await wrapper.vm.$nextTick()
     await wrapper.find('.response-information-reference').trigger('click')
     expect(wrapper.find('.response-information-reference').attributes('aria-expanded')).to.equal('true')
-    await wrapper.setProps({ client: { connected: true, responseInformation: 'responses/B' } })
+    await wrapper.setProps({ client: { connected: true, connackPacket: connack('responses/B') } })
     expect(wrapper.find('.response-information-reference').attributes('aria-expanded')).to.equal('false')
     expect(wrapper.find('.response-information-preview').text()).to.equal('responses/B')
     expect(wrapper.find('.copy-response-information').attributes('data-clipboard-value')).to.equal('responses/B')
@@ -139,13 +187,13 @@ describe('Desktop Response Information display', () => {
   })
 
   it('hides absent information, disconnected clients, and MQTT 3 clients', async () => {
-    const wrapper = render({ connected: true, responseInformation: 'responses/A' })
+    const wrapper = render({ connected: true, connackPacket: connack('responses/A') })
     expect(wrapper.find('.response-information').exists()).to.be.true
-    await wrapper.setProps({ client: { connected: true, responseInformation: '' } })
+    await wrapper.setProps({ client: { connected: true, connackPacket: connack() } })
     expect(wrapper.find('.response-information').exists()).to.be.false
-    await wrapper.setProps({ client: { connected: false, responseInformation: 'old' } })
+    await wrapper.setProps({ client: { connected: false, connackPacket: connack('old') } })
     expect(wrapper.find('.response-information').exists()).to.be.false
-    await wrapper.setProps({ client: { connected: true, responseInformation: 'unexpected' }, mqttVersion: '3.1.1' })
+    await wrapper.setProps({ client: { connected: true, connackPacket: connack('unexpected') }, mqttVersion: '3.1.1' })
     expect(wrapper.find('.response-information').exists()).to.be.false
     wrapper.destroy()
   })
