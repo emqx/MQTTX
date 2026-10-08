@@ -33,7 +33,7 @@ describe('Response Information', () => {
     basicLog.responseInformation(requested, connack('responses/client-1'))
 
     expect(stderr).toHaveBeenCalledTimes(1)
-    expect(stderr).toHaveBeenCalledWith('Response Information: "responses/client-1"\n')
+    expect(stderr).toHaveBeenCalledWith(expect.stringContaining('Response Information: "responses/client-1"\n'))
   })
 
   it.each([undefined, ''])('does not print an absent or empty value (%s)', (value) => {
@@ -65,7 +65,9 @@ describe('Response Information', () => {
     basicLog.responseInformation(requested, connack('a\r\n\t\b\f\x00\x1b"\\\x7f\x85\u2028\u2029 MQTT 回复'))
 
     expect(stderr).toHaveBeenCalledWith(
-      'Response Information: "a\\r\\n\\t\\b\\f\\u0000\\u001b\\"\\\\\\u007f\\u0085\\u2028\\u2029 MQTT 回复"\n',
+      expect.stringContaining(
+        'Response Information: "a\\r\\n\\t\\b\\f\\u0000\\u001b\\"\\\\\\u007f\\u0085\\u2028\\u2029 MQTT 回复"\n',
+      ),
     )
   })
 
@@ -75,9 +77,9 @@ describe('Response Information', () => {
     }
 
     expect(stderr.mock.calls).toEqual([
-      ['Response Information: "first"\n'],
-      ['Response Information: "second"\n'],
-      ['Response Information: "third"\n'],
+      [expect.stringContaining('Response Information: "first"\n')],
+      [expect.stringContaining('Response Information: "second"\n')],
+      [expect.stringContaining('Response Information: "third"\n')],
     ])
   })
 
@@ -91,9 +93,9 @@ describe('Response Information', () => {
     basicLog.responseInformation(secondClient, connack('second-client-new'))
 
     expect(stderr.mock.calls).toEqual([
-      ['Response Information: "first-client"\n'],
-      ['Response Information: "second-client"\n'],
-      ['Response Information: "second-client-new"\n'],
+      [expect.stringContaining('Response Information: "first-client"\n')],
+      [expect.stringContaining('Response Information: "second-client"\n')],
+      [expect.stringContaining('Response Information: "second-client-new"\n')],
     ])
   })
 })

@@ -172,12 +172,16 @@ describe('CLI Response Information output', () => {
     expect(message.topic).toBe('test/response-information')
     expect(JSON.parse(message.payload)).toEqual({ message: 'payload-only' })
     expect(result.stdout).not.toContain('Response Information')
-    expect(result.stderr).toBe('Response Information: "responses/client-1"\n')
+    if (output === 'text') {
+      expect(result.stderr).toMatch(/^[ℹi] Response Information: "responses\/client-1"\n$/)
+    } else {
+      expect(result.stderr).toMatch(/^\[[^\n]+\] \[[^\n]+\] .+ [ℹi] {2}Response Information: "responses\/client-1"\n$/)
+    }
   })
 
   it('does not send the diagnostic to Signale stdout with output=log', async () => {
     const result = await runCli(['conn', '--req-response-info'], 'responses/client-1', { output: 'log' })
-    expect(result.stderr).toBe('Response Information: "responses/client-1"\n')
+    expect(result.stderr).toMatch(/^\[[^\n]+\] \[[^\n]+\] .+ [ℹi] {2}Response Information: "responses\/client-1"\n$/)
     expect(result.stdout).toContain('Connected')
     expect(result.stdout).not.toContain('responses/client-1')
   })
