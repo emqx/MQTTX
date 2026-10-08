@@ -45,7 +45,7 @@
         </div>
         <el-card shadow="never" class="info-body item-card">
           <el-row :gutter="10">
-            <el-col :span="22">
+            <el-col :span="15">
               <el-form-item label-width="93px" :label="$t('connections.name')" prop="name">
                 <el-autocomplete
                   v-if="oper === 'create'"
@@ -57,6 +57,26 @@
                 >
                 </el-autocomplete>
                 <el-input v-else size="mini" v-model.trim="record.name"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="7">
+              <el-form-item label-width="0" prop="parentId">
+                <el-select
+                  size="mini"
+                  filterable
+                  clearable
+                  v-model="record.parentId"
+                  :placeholder="$t('connections.collection')"
+                  :aria-label="$t('connections.collection')"
+                  @visible-change="$event && loadCollectionOptions()"
+                >
+                  <el-option
+                    v-for="collection in collectionOptions"
+                    :key="collection.id"
+                    :label="collection.label"
+                    :value="collection.id"
+                  ></el-option>
+                </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="2">
@@ -624,6 +644,7 @@ import { getMQTTProtocol, getDefaultRecord } from '@/utils/mqttUtils'
 import Editor from '@/components/Editor.vue'
 import KeyValueEditor from '@/components/KeyValueEditor.vue'
 import { LeftValues } from '@/utils/styles'
+import { sortConnectionTree } from '@/utils/connections'
 
 @Component({
   components: {
@@ -649,6 +670,7 @@ export default class ConnectionForm extends Vue {
   private advancedVisible = true
   private payloadType = 'plaintext'
   private suggestConnections: ConnectionModel[] | [] = []
+  private collectionOptions: { id: string; label: string }[] = []
   private oldName = ''
 
   private defaultRecord: ConnectionModel = getDefaultRecord()
@@ -661,6 +683,13 @@ export default class ConnectionForm extends Vue {
       // reinit the form when page jump to creation page
       this.initRecord()
     }
+  }
+
+  @Watch('$route.query.parentId')
+  private handleDefaultCollectionChange() {
+    if (this.oper !== 'create') return
+    const { parentId } = this.$route.query
+    this.record.parentId = typeof parentId === 'string' ? parentId : null
   }
 
   get clientIdWithTime() {
@@ -721,16 +750,14 @@ export default class ConnectionForm extends Vue {
 
   private async saveData() {
     const { connectionService } = useServices()
-    const data = { ...this.record }
+    const data = { ...this.record, parentId: this.record.parentId || null }
     let res: ConnectionModel | undefined = undefined
     data.properties = emptyToNull(data.properties)
 
     if (this.oper === 'create') {
       // create a new connection
-      const { parentId } = this.$route.query
       res = await connectionService.create({
         ...data,
-        parentId: typeof parentId === 'string' ? parentId : null,
         createAt: time.getNowDate(),
         updateAt: time.getNowDate(),
       })
@@ -896,6 +923,26 @@ export default class ConnectionForm extends Vue {
     }
   }
 
+  private async loadCollectionOptions() {
+    const { collectionService } = useServices()
+    const tree = (await collectionService.getAll()) ?? []
+    const options: { id: string; label: string }[] = []
+    const visit = (nodes: ConnectionModelTree[], path: string[]) => {
+      sortConnectionTree(nodes)
+      for (const node of nodes) {
+        if (!node.isCollection) continue
+        const labels = [...path, node.name]
+        options.push({ id: node.id, label: labels.join(' / ') })
+        visit(node.children, labels)
+      }
+    }
+    visit(tree, [])
+    this.collectionOptions = options
+    if (this.record.parentId && !options.some(({ id }) => id === this.record.parentId)) {
+      this.record.parentId = null
+    }
+  }
+
   private createFilter(queryName: string) {
     return (connectionItem: ConnectionModel) => {
       return connectionItem.name.toLowerCase().indexOf(queryName.toLowerCase()) === 0
@@ -920,18 +967,20 @@ export default class ConnectionForm extends Vue {
     }
   }
 
-  private initRecord() {
+  private async initRecord() {
     const { id } = this.$route.params
     if (this.oper === 'create') {
       this.record = _.cloneDeep(this.defaultRecord)
+      this.handleDefaultCollectionChange()
     } else if (this.oper === 'edit' && id !== '0') {
-      this.loadDetail(id)
+      await this.loadDetail(id)
     }
   }
 
   private async created() {
+    await this.initRecord()
+    await this.loadCollectionOptions()
     await this.loadSuggestConnections()
-    this.initRecord()
     this.advancedVisible = this.getterAdvancedVisible
     this.willMessageVisible = this.getterWillMessageVisible
   }
