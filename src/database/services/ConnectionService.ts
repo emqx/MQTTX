@@ -7,7 +7,7 @@ import ConnectionEntity from '@/database/models/ConnectionEntity'
 import CollectionEntity from '@/database/models/CollectionEntity'
 import WillEntity from '@/database/models/WillEntity'
 import HistoryConnectionEntity from '@/database/models/HistoryConnectionEntity'
-import { Repository, MoreThan, LessThan } from 'typeorm'
+import { Repository, MoreThan, LessThan, FindOperator } from 'typeorm'
 import { DateUtils } from 'typeorm/util/DateUtils'
 import time, { sqliteDateFormat } from '@/utils/time'
 import useServices from '@/database/useServices'
@@ -15,8 +15,10 @@ import useServices from '@/database/useServices'
 const Store = require('electron-store')
 const electronStore = new Store()
 
-export const MoreThanDate = (date: string | Date) => MoreThan(DateUtils.mixedDateToUtcDatetimeString(date))
-export const LessThanDate = (date: string | Date) => LessThan(DateUtils.mixedDateToUtcDatetimeString(date))
+export const MoreThanDate = (date: string | Date): FindOperator<string> =>
+  MoreThan(DateUtils.mixedDateToUtcDatetimeString(date))
+export const LessThanDate = (date: string | Date): FindOperator<string> =>
+  LessThan(DateUtils.mixedDateToUtcDatetimeString(date))
 
 @Service()
 export default class ConnectionService {
