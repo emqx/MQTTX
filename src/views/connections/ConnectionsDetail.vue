@@ -645,12 +645,12 @@ export default class ConnectionsDetail extends Vue {
     this.connectLoading = true
     // new client
     try {
+      const { id, name, host, protocol, port, path, clientId, mqttVersion } = this.record
       const { curConnectClient, connectUrl } = await createClient(this.record)
       this.client = curConnectClient
-      const { id, name, host, protocol, port, path, clientId } = this.record
       if (id && this.client.on) {
         this.$log.info(`Assigned ID ${id} to MQTTX client`)
-        this.client.on('connect', this.onConnect)
+        this.client.on('connect', (conBack) => this.onConnect(conBack, { id, client: curConnectClient, mqttVersion }))
         this.client.on('error', this.onError)
         this.client.on('reconnect', this.onReConnect)
         this.client.on('disconnect', this.onDisconnect)
@@ -1145,13 +1145,16 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Connect callback
-  private onConnect(conBack: IConnackPacket) {
+  private onConnect(
+    conBack: IConnackPacket,
+    { id, client, mqttVersion }: { id: string; client: MqttClient; mqttVersion: string },
+  ) {
     this.connectLoading = false
 
     this.changeActiveConnection({
-      id: this.curConnectionId,
-      client: this.client,
-      responseInformation: this.record.mqttVersion === '5.0' ? conBack.properties?.responseInformation || '' : '',
+      id,
+      client,
+      responseInformation: mqttVersion === '5.0' ? conBack.properties?.responseInformation || '' : '',
     })
     this.$notify({
       title: this.$tc('connections.connected'),

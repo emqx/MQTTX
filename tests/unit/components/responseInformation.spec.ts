@@ -30,6 +30,7 @@ function render(responseInformation: string, { previewClipped = true } = {}) {
   localVue.directive('clipboard', { bind: captureClipboard, update: captureClipboard })
   return mount(ResponseInformation, {
     localVue,
+    sync: false,
     attachToDocument: true,
     propsData: { responseInformation },
     mocks: { $t: (key: string) => key, $tc: (key: string) => key },
@@ -91,6 +92,30 @@ describe('Desktop Response Information display', () => {
     expect(reference.attributes('aria-expanded')).to.equal('false')
     expect(wrapper.find('.copy-response-information').attributes('data-clipboard-value')).to.equal('responses/client-1')
     wrapper.destroy()
+  })
+
+  it('dismisses details with Escape from the copy button or popup container', async () => {
+    const wrapper = render('responses/client-1')
+    try {
+      await wrapper.vm.$nextTick()
+      const reference = wrapper.find('.response-information-reference')
+      await reference.trigger('click')
+      const copy = wrapper.find('.copy-response-information').element as HTMLButtonElement
+      copy.focus()
+      copy.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27, bubbles: true }))
+      await wrapper.vm.$nextTick()
+      expect(reference.attributes('aria-expanded')).to.equal('false')
+      expect(document.activeElement).to.equal(reference.element)
+      await reference.trigger('click')
+      const popover = document.body.querySelector('.response-information-popover') as HTMLElement
+      popover.focus()
+      popover.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27, bubbles: true }))
+      await wrapper.vm.$nextTick()
+      expect(reference.attributes('aria-expanded')).to.equal('false')
+      expect(document.activeElement).to.equal(reference.element)
+    } finally {
+      wrapper.destroy()
+    }
   })
 
   it('closes an open popover when the response changes and copies the new value', async () => {

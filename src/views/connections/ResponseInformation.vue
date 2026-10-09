@@ -7,7 +7,7 @@
       trigger="click"
       :disabled="!truncated"
     >
-      <pre class="response-information-value" @keydown.esc.stop="dismissDetails">{{ responseInformation }}</pre>
+      <pre class="response-information-value">{{ responseInformation }}</pre>
       <button
         slot="reference"
         ref="reference"
@@ -16,7 +16,6 @@
         :disabled="!truncated"
         aria-label="Response Information"
         :aria-expanded="visible ? 'true' : 'false'"
-        @keydown.esc.stop="dismissDetails"
       >
         <span class="response-information-label">Response Info</span>
         <span ref="preview" class="response-information-preview">{{ responseInformation }}</span>
@@ -47,10 +46,12 @@ export default class ResponseInformation extends Vue {
 
   mounted(): void {
     this.observePreview()
+    document.addEventListener('keydown', this.handleKeydown, true)
   }
 
   beforeDestroy(): void {
     this.previewObserver?.disconnect()
+    document.removeEventListener('keydown', this.handleKeydown, true)
   }
 
   @Watch('responseInformation')
@@ -79,6 +80,13 @@ export default class ResponseInformation extends Vue {
     this.visible = false
     const reference = this.$refs.reference as HTMLButtonElement
     reference.focus()
+  }
+
+  private handleKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.visible) {
+      event.stopPropagation()
+      this.dismissDetails()
+    }
   }
 
   private handleCopySuccess(): void {
