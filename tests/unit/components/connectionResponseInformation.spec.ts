@@ -1,7 +1,7 @@
 import '../mocks/browserStorage'
 import { expect } from 'chai'
 import Vue from 'vue'
-import { MqttClient, IConnackPacket } from 'mqtt'
+import mqtt, { MqttClient, IConnackPacket } from 'mqtt'
 import { generate } from 'mqtt-packet'
 import { Duplex } from 'stream'
 import ConnectionsDetail from '@/views/connections/ConnectionsDetail.vue'
@@ -72,6 +72,14 @@ function createContext(client: Partial<MqttClient> = { connected: true }) {
   })
 }
 
+function onConnect(context: ReturnType<typeof createContext>, packet: IConnackPacket) {
+  options.methods.onConnect.call(context, packet, {
+    id: context.curConnectionId,
+    client: context.client,
+    mqttVersion: context.record.mqttVersion,
+  })
+}
+
 describe('Desktop CONNACK response information', () => {
   let originalAsync: boolean
 
@@ -94,7 +102,7 @@ describe('Desktop CONNACK response information', () => {
     }) as Vue & { responseInformation: string }
     const displayedValues: string[] = []
     view.$watch('responseInformation', (value: string) => displayedValues.push(value))
-    session.client.on('connect', (packet) => options.methods.onConnect.call(context, packet))
+    session.client.on('connect', (packet) => onConnect(context, packet))
     const connectListenerCount = session.client.listenerCount('connect')
     const closeListenerCount = session.client.listenerCount('close')
     try {
@@ -123,25 +131,78 @@ describe('Desktop CONNACK response information', () => {
   it('ignores response information on MQTT 3 connections and disconnected clients', () => {
     const context = createContext()
     context.record.mqttVersion = '3.1.1'
-    options.methods.onConnect.call(context, connack('unexpected'))
+    onConnect(context, connack('unexpected'))
     expect(context.activeConnection.A.responseInformation).to.equal('')
     expect(options.computed.responseInformation.get.call(context)).to.equal('')
     context.record.mqttVersion = '5.0'
-    options.methods.onConnect.call(context, connack('responses/A'))
+    onConnect(context, connack('responses/A'))
     expect(options.computed.responseInformation.get.call(context)).to.equal('responses/A')
     context.client.connected = false
     expect(options.computed.responseInformation.get.call(context)).to.equal('')
   })
 
+  it('keeps background reconnect information on the originating connection', async () => {
+    const first = createMemoryClient()
+    const second = createMemoryClient()
+    const context = createContext({ connected: false })
+    context.connectLoading = false
+    context.record.id = 'A'
+    Object.assign(context, {
+      onConnect: options.methods.onConnect.bind(context),
+      onError: () => {},
+      onReConnect: options.methods.onReConnect.bind(context),
+      reTryConnectTimes: 0,
+      maxReconnectTimes: 10,
+      onDisconnect: () => {},
+      onOffline: () => {},
+      onMessageArrived: () => {},
+      onPacketSent: () => {},
+      onPacketReceived: () => {},
+    })
+    const originalConnect = mqtt.connect
+    let client = first.client
+    mqtt.connect = (() => client) as typeof mqtt.connect
+    try {
+      await options.methods.connect.call(context)
+      await first.connect('responses/A')
+      context.curConnectionId = 'B'
+      context.record = { ...context.record, id: 'B' }
+      context.client = { connected: false }
+      client = second.client
+      await options.methods.connect.call(context)
+      await second.connect('responses/B')
+      await first.close()
+      first.client.reconnect()
+      expect(context.connectLoading).to.equal(true)
+      await first.connect('responses/A-reconnected')
+      expect(context.connectLoading).to.equal(false)
+      expect(context.activeConnection.A.responseInformation).to.equal('responses/A-reconnected')
+      expect(context.activeConnection.B.responseInformation).to.equal('responses/B')
+      expect(context.activeConnection.A.client).to.equal(first.client)
+      expect(context.activeConnection.B.client).to.equal(second.client)
+      await first.close()
+      first.client.reconnect()
+      expect(context.connectLoading).to.equal(true)
+      await first.connect()
+      expect(context.connectLoading).to.equal(false)
+      expect(context.activeConnection.A.responseInformation).to.equal('')
+      expect(context.activeConnection.B.responseInformation).to.equal('responses/B')
+    } finally {
+      mqtt.connect = originalConnect
+      await first.end()
+      await second.end()
+    }
+  })
+
   it('keeps each connection response when switching pages or updating message listeners', () => {
     const context = createContext()
-    options.methods.onConnect.call(context, connack('responses/A'))
+    onConnect(context, connack('responses/A'))
     const connection = context.activeConnection.A
     const subscriptions: SubscriptionModel[] = []
     Vue.set(connection, 'subscriptions', subscriptions)
     context.curConnectionId = 'B'
     context.client = { connected: true }
-    options.methods.onConnect.call(context, connack('responses/B'))
+    onConnect(context, connack('responses/B'))
     expect(options.computed.responseInformation.get.call(context)).to.equal('responses/B')
     context.curConnectionId = 'A'
     context.client = context.activeConnection.A.client
@@ -149,7 +210,7 @@ describe('Desktop CONNACK response information', () => {
     expect(context.activeConnection.A).to.equal(connection)
     expect(context.activeConnection.A.subscriptions).to.equal(subscriptions)
     expect(options.computed.responseInformation.get.call(context)).to.equal('responses/A')
-    options.methods.onConnect.call(context, connack())
+    onConnect(context, connack())
     expect(options.computed.responseInformation.get.call(context)).to.equal('')
     expect(context.activeConnection.B.responseInformation).to.equal('responses/B')
   })
