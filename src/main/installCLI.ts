@@ -203,6 +203,13 @@ function getArchSuffix(arch: string, isWindows: boolean): string {
 }
 
 /**
+ * Selects the native ARM64 CLI when the Desktop app is running under Rosetta.
+ */
+export function getCLIArch(arch: string, isTranslated: boolean): string {
+  return isTranslated ? 'arm64' : arch
+}
+
+/**
  * Installs MQTTX CLI if it is not already installed.
  *
  * @param win - The BrowserWindow object.
@@ -212,7 +219,7 @@ export default async function installCLI(win: BrowserWindow): Promise<void> {
   const platform = os.platform()
   const isWindows = platform === 'win32'
   const isMacOS = platform === 'darwin'
-  const arch = isMacOS && app.runningUnderARM64Translation ? 'arm64' : os.arch()
+  const arch = getCLIArch(os.arch(), isMacOS && app.runningUnderARM64Translation)
 
   const isInstalled = await checkInstalledMqttxCLI(win, isWindows)
   if (isInstalled) {
