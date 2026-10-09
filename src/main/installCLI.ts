@@ -208,7 +208,7 @@ function getArchSuffix(arch: string, isWindows: boolean): string {
  * @param win - The BrowserWindow object.
  * @returns A Promise that resolves when the installation is complete.
  */
-export default async function installCLI(win: BrowserWindow) {
+export default async function installCLI(win: BrowserWindow): Promise<void> {
   const platform = os.platform()
   const isWindows = platform === 'win32'
   const isMacOS = platform === 'darwin'
