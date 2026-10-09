@@ -2,9 +2,9 @@ import * as os from 'os'
 import * as fs from 'fs'
 import * as path from 'path'
 import axios from 'axios'
-import { BrowserWindow, dialog } from 'electron'
+import { app, BrowserWindow, dialog } from 'electron'
 import { getUnifiedAppDataPath } from './appDataPath'
-import sudo from 'sudo-prompt'
+import sudo from '@vscode/sudo-prompt'
 import version from '@/version'
 import { exec } from 'child_process'
 import { compareVersions } from 'compare-versions'
@@ -209,12 +209,10 @@ function getArchSuffix(arch: string, isWindows: boolean): string {
  * @returns A Promise that resolves when the installation is complete.
  */
 export default async function installCLI(win: BrowserWindow) {
-  const { platform, arch } = {
-    platform: os.platform(),
-    arch: os.arch(),
-  }
+  const platform = os.platform()
   const isWindows = platform === 'win32'
   const isMacOS = platform === 'darwin'
+  const arch = isMacOS && app.runningUnderARM64Translation ? 'arm64' : os.arch()
 
   const isInstalled = await checkInstalledMqttxCLI(win, isWindows)
   if (isInstalled) {
