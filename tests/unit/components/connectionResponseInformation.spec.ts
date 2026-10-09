@@ -136,6 +136,9 @@ describe('Desktop CONNACK response information', () => {
   it('keeps each connection response when switching pages or updating message listeners', () => {
     const context = createContext()
     options.methods.onConnect.call(context, connack('responses/A'))
+    const connection = context.activeConnection.A
+    const subscriptions: SubscriptionModel[] = []
+    Vue.set(connection, 'subscriptions', subscriptions)
     context.curConnectionId = 'B'
     context.client = { connected: true }
     options.methods.onConnect.call(context, connack('responses/B'))
@@ -143,6 +146,8 @@ describe('Desktop CONNACK response information', () => {
     context.curConnectionId = 'A'
     context.client = context.activeConnection.A.client
     context.changeActiveConnection({ id: 'A', client: context.client })
+    expect(context.activeConnection.A).to.equal(connection)
+    expect(context.activeConnection.A.subscriptions).to.equal(subscriptions)
     expect(options.computed.responseInformation.get.call(context)).to.equal('responses/A')
     options.methods.onConnect.call(context, connack())
     expect(options.computed.responseInformation.get.call(context)).to.equal('')
