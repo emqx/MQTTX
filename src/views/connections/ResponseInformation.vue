@@ -36,12 +36,10 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { MqttClient } from 'mqtt'
 
 @Component
 export default class ResponseInformation extends Vue {
-  @Prop({ required: true }) public client!: Pick<MqttClient, 'connected' | 'connackPacket'>
-  @Prop({ required: true }) public mqttVersion!: string
+  @Prop({ default: '' }) public responseInformation!: string
 
   private visible = false
   private truncated = false
@@ -55,12 +53,6 @@ export default class ResponseInformation extends Vue {
     this.previewObserver?.disconnect()
   }
 
-  get responseInformation(): string {
-    if (!this.client.connected || this.mqttVersion !== '5.0') return ''
-    return this.client.connackPacket?.properties?.responseInformation || ''
-  }
-
-  @Watch('client')
   @Watch('responseInformation')
   private closeDetails(): void {
     this.visible = false

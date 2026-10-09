@@ -69,7 +69,7 @@
                 </el-badge>
               </el-popover>
             </transition>
-            <ResponseInformation :client="client" :mqtt-version="record.mqttVersion" />
+            <ResponseInformation :key="curConnectionId" :response-information="responseInformation" />
           </div>
           <div class="connection-tail">
             <transition name="el-fade-in">
@@ -517,6 +517,11 @@ export default class ConnectionsDetail extends Vue {
 
   get titleName() {
     return this.record.name
+  }
+
+  get responseInformation(): string {
+    if (!this.client.connected || this.record.mqttVersion !== '5.0') return ''
+    return this.activeConnection[this.curConnectionId]?.responseInformation || ''
   }
 
   get bodyTopValue(): string {
@@ -1146,6 +1151,7 @@ export default class ConnectionsDetail extends Vue {
     this.changeActiveConnection({
       id: this.curConnectionId,
       client: this.client,
+      responseInformation: this.record.mqttVersion === '5.0' ? conBack.properties?.responseInformation || '' : '',
     })
     this.$notify({
       title: this.$tc('connections.connected'),

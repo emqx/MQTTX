@@ -111,7 +111,7 @@ const app = {
       state.jsonHighlight = jsonHighlight
     },
     [CHANGE_ACTIVE_CONNECTION](state: App, payload: Client) {
-      const { id, client } = payload
+      const { id, client, responseInformation } = payload
       if (state.activeConnection[id]) {
         // already exists activeConnection
         Vue.set(state.activeConnection[id], 'client', client)
@@ -120,6 +120,9 @@ const app = {
         Vue.set(state.activeConnection, id, {
           client,
         })
+      }
+      if (responseInformation !== undefined) {
+        Vue.set(state.activeConnection[id], 'responseInformation', responseInformation)
       }
     },
     [REMOVE_ACTIVE_CONNECTION](state: App, id: string) {
