@@ -179,7 +179,13 @@ export default class ImportData extends Vue {
   }
 
   private getExcelContentByXlsx(filePath: string) {
-    const workbook = ExcelConvert.readFile(filePath, { cellDates: true, dateNF: 'dd/mm/yyyy' })
+    let workbook: ExcelConvert.WorkBook
+    try {
+      workbook = ExcelConvert.readFile(filePath, { cellDates: true, dateNF: 'dd/mm/yyyy' })
+    } catch (err) {
+      this.$message.error(`${this.$t('connections.readFileErr')}${(err as Error).message}`)
+      return
+    }
     const sheets = workbook.Sheets
     let caughtError = false
     let content: any[] = []
