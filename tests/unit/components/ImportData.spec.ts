@@ -31,14 +31,24 @@ describe('Desktop import form file loading', () => {
     await form.readFilePath(file, format.toLowerCase())
   }
 
-  it('accepts group JSON and clears the previous selection when the next file is malformed', async () => {
-    await load(JSON.stringify([group, { ...legacy, parentId: 'group' }]))
-    expect(form.record.fileContent).to.have.lengthOf(2)
-    await load('{')
-    expect(form.record.fileContent).to.deep.equal([])
-    expect(form.record.fileName).to.equal('')
-    expect(errors).to.have.lengthOf(1)
-  })
+  for (const [name, content] of [
+    ['malformed', '{'],
+    ['invalid', JSON.stringify([{ ...legacy, port: 70000 }])],
+    ['unreadable', undefined],
+  ]) {
+    it(`clears the previous selection when the next file is ${name}`, async () => {
+      await load(JSON.stringify([group, { ...legacy, parentId: 'group' }]))
+      expect(form.record.fileContent).to.have.lengthOf(2)
+      expect(form.record.filePath).to.equal(path.join(directory, 'backup.json'))
+      const file = path.join(directory, `${name}.json`)
+      if (content !== undefined) fs.writeFileSync(file, content)
+      await form.readFilePath(file, 'json')
+      expect(form.record.fileContent).to.deep.equal([])
+      expect(form.record.fileName).to.equal('')
+      expect(form.record.filePath).to.equal('')
+      expect(errors).to.have.lengthOf(1)
+    })
+  }
 
   it('accepts legacy single-connection JSON objects', async () => {
     await load(JSON.stringify(legacy))
