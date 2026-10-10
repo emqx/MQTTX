@@ -19,10 +19,10 @@ jobs:
         with:
           node-version-file: 'web/.nvmrc'
 
-      - name: build
+      - name: test and build
         run: |
           cd web
-          yarn && yarn build:online
+          yarn && yarn test:unit && yarn build:online
 
       - name: upload dist
         if: github.event_name == 'release' && !github.event.release.prerelease
