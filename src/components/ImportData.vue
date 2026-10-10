@@ -213,6 +213,7 @@ export default class ImportData extends Vue {
   private async readFilePath(filePath: string, extensionName: string) {
     this.record.fileContent = []
     this.record.fileName = ''
+    this.record.filePath = ''
     if (extensionName === 'xlsx') {
       this.getExcelContentByXlsx(filePath)
     } else {
