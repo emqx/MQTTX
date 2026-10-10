@@ -405,7 +405,7 @@ export default class DashboardCanvas extends Vue {
     return this.widgets.filter(
       (widget) =>
         widget.topicPattern &&
-        matchTopicMethod(packet.topic, widget.topicPattern) &&
+        matchTopicMethod(widget.topicPattern, packet.topic) &&
         widget.connectionId === connectionInfo.id,
     )
   }
