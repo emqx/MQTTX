@@ -20,7 +20,7 @@
   },
   "license": "Apache-2.0",
   "engines": {
-    "node": "18"
+    "node": "22"
   },
   "dependencies": {
     "@faker-js/faker": "^8.1.0",
@@ -55,7 +55,7 @@
     "@types/js-yaml": "^4.0.5",
     "@types/json-bigint": "^1.0.4",
     "@types/lodash": "^4.17.1",
-    "@types/node": "^17.0.43",
+    "@types/node": "^22.0.0",
     "@types/pbkdf2": "^3.1.2",
     "@types/pump": "^1.1.1",
     "@types/readable-stream": "^2.3.13",
@@ -68,14 +68,14 @@
   },
   "pkg": {
     "targets": [
-      "node18-linux-x64",
-      "node18-macos-x64",
-      "node18-win-x64",
-      "node18-alpine-x64",
-      "node18-linux-arm64",
-      "node18-macos-arm64",
-      "node18-win-arm64",
-      "node18-alpine-arm64"
+      "node22-linux-x64",
+      "node22-macos-x64",
+      "node22-win-x64",
+      "node22-alpine-x64",
+      "node22-linux-arm64",
+      "node22-macos-arm64",
+      "node22-win-arm64",
+      "node22-alpine-arm64"
     ],
     "outputPath": "release",
     "scripts": [
