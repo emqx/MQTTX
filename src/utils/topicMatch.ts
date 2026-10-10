@@ -21,22 +21,9 @@ export const matchTopicMethod = (filter: string, topic: string): boolean => {
     if (left === '#') {
       return topicArray.length >= length - 1
     }
-    if (right === undefined) return false
     if (left !== right && left !== '+') {
       return false
     }
   }
   return length === topicArray.length
 }
-
-const topicMatch = (data: MessageModel[], currentTopic: string): Promise<MessageModel[]> =>
-  new Promise((resolve, reject) => {
-    try {
-      const filterData = data.filter((item) => matchTopicMethod(currentTopic, item.topic))
-      return resolve(filterData)
-    } catch (error) {
-      return reject(error)
-    }
-  })
-
-export default topicMatch
