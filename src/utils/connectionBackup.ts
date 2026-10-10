@@ -6,6 +6,12 @@ export type ConnectionBackupRecord = CollectionBackup | ConnectionModel
 const isObject = (value: unknown): value is Record<string, any> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 const isId = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0
+/** Record an optional ID, rejecting malformed IDs and IDs already seen for the same record type. */
+const claimId = (seen: Set<string>, id: unknown, label: string) => {
+  if (id === undefined) return
+  if (!isId(id) || seen.has(id)) throw new Error(`Invalid or duplicate ${label}`)
+  seen.add(id)
+}
 
 /** Validate both legacy connection arrays and JSON arrays containing flat collection records. */
 export function readConnectionBackup(data: unknown): {
@@ -22,10 +28,7 @@ export function readConnectionBackup(data: unknown): {
     if (!isObject(record) || !isId(record.name)) throw new Error('Invalid backup record')
     if ('parent' in record || 'children' in record || 'connections' in record)
       throw new Error('Invalid backup relations')
-    if (record.id !== undefined) {
-      if (!isId(record.id) || ids.has(record.id)) throw new Error('Invalid or duplicate backup ID')
-      ids.add(record.id)
-    }
+    claimId(ids, record.id, 'backup ID')
     if (record.parentId != null && !isId(record.parentId)) throw new Error('Invalid parent ID')
     if (record.orderId != null && !Number.isInteger(record.orderId)) throw new Error('Invalid order ID')
     if (record.isCollection === true) {
@@ -52,19 +55,13 @@ export function readConnectionBackup(data: unknown): {
         if (!isObject(child) || typeof child.topic !== 'string') throw new Error(`Invalid ${key} record`)
         if ('connection' in child) throw new Error(`Invalid ${key} relation`)
         if (child.properties != null && !isObject(child.properties)) throw new Error('Invalid MQTT properties')
-        if (child.id !== undefined) {
-          if (!isId(child.id) || childIds[key].has(child.id)) throw new Error(`Invalid or duplicate ${key} ID`)
-          childIds[key].add(child.id)
-        }
+        claimId(childIds[key], child.id, `${key} ID`)
       }
     }
     if (record.will != null) {
       if (!isObject(record.will)) throw new Error('Invalid will')
       if ('connection' in record.will) throw new Error('Invalid will relation')
-      if (record.will.id !== undefined) {
-        if (!isId(record.will.id) || childIds.will.has(record.will.id)) throw new Error('Invalid or duplicate will ID')
-        childIds.will.add(record.will.id)
-      }
+      claimId(childIds.will, record.will.id, 'will ID')
     }
     for (const properties of [record.properties, record.will?.properties]) {
       if (properties != null && !isObject(properties)) throw new Error('Invalid MQTT properties')
@@ -83,10 +80,21 @@ export function readConnectionBackup(data: unknown): {
     siblings.push(collection)
     children.set(collection.parentId, siblings)
   }
-  for (let index = 0; index < ordered.length; index++) ordered.push(...(children.get(ordered[index].id) ?? []))
+  // Breadth-first: children appended here are visited later in the same loop.
+  for (let index = 0; index < ordered.length; index++) {
+    const descendants = children.get(ordered[index].id)
+    if (descendants) ordered.push(...descendants)
+  }
   if (ordered.length !== collections.length) throw new Error('Cyclic collection hierarchy')
   if (collections.length && connections.some((connection) => connection.parentId && !byId.has(connection.parentId))) {
     throw new Error('Missing connection parent')
   }
-  return { collections: ordered, connections }
+  // Legacy backups contain no collection entities, so their dangling parent IDs recover at the root.
+  return {
+    collections: ordered,
+    connections: connections.map((connection) => ({
+      ...connection,
+      parentId: collections.length ? connection.parentId ?? null : null,
+    })),
+  }
 }
