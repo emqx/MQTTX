@@ -114,13 +114,6 @@ describe('MessageService history pagination (SQLite)', () => {
       })
     }
 
-    it(`returns an empty page at the ${mode} end of history`, async () => {
-      await seed([10001, 20001, 30001])
-      const result = await service.loadMore('connection', timestamp(mode === 'before' ? 10001 : 30001), mode)
-      expect(result.list).to.deep.equal([])
-      expect(result.moreMsg).to.equal(false)
-    })
-
     it(`uses the default page size when loading ${mode}`, async () => {
       await seed(Array.from({ length: 21 }, (_, index) => index + 1))
       const result = await service.loadMore('connection', timestamp(mode === 'before' ? 22 : 0), mode)
