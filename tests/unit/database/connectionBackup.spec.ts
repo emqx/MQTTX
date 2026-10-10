@@ -14,10 +14,8 @@ import HistoryConnectionEntity from '@/database/models/HistoryConnectionEntity'
 import ConnectionService from '@/database/services/ConnectionService'
 import CollectionService from '@/database/services/CollectionService'
 import MessageService from '@/database/services/MessageService'
-import SubscriptionService from '@/database/services/SubscriptionService'
-import WillService from '@/database/services/WillService'
 import { StreamDataExporter } from '@/main/streamExportData'
-import { services } from '../mocks/useServices'
+import { Container } from 'typedi'
 import { CollectionBackup } from '@/utils/connectionBackup'
 import YAML from 'js-yaml'
 import Excel from 'xlsx'
@@ -78,6 +76,9 @@ describe('Desktop connection backup (native SQLite)', () => {
   let output: string
   let events: Array<[string, ...any[]]>
   const originalSaveDialog = dialog.showSaveDialog
+  const originalGet = Container.get
+  // Services backed by the current test database, resolved through useServices().
+  const services: any = {}
 
   const configureServices = (database: Connection) => {
     const connections = database.getRepository(ConnectionEntity)
@@ -87,8 +88,6 @@ describe('Desktop connection backup (native SQLite)', () => {
       connectionService: service,
       collectionService: new CollectionService(database.getRepository(CollectionEntity), connections, wills),
       messageService: new MessageService(database.getRepository(MessageEntity), connections),
-      subscriptionService: new SubscriptionService(database.getRepository(SubscriptionEntity)),
-      willService: new WillService(wills),
     })
     return service
   }
@@ -113,6 +112,12 @@ describe('Desktop connection backup (native SQLite)', () => {
     source = await open('backup-source')
     target = await open('backup-target')
     targetService = configureServices(target)
+    const byType = new Map<unknown, string>([
+      [ConnectionService, 'connectionService'],
+      [CollectionService, 'collectionService'],
+      [MessageService, 'messageService'],
+    ])
+    ;(Container as any).get = (type: unknown) => services[byType.get(type) ?? ''] ?? {}
     output = path.join(directory, 'backup.json')
     events = []
     dialog.showSaveDialog = (async () => ({ canceled: false, filePath: output })) as any
@@ -120,6 +125,7 @@ describe('Desktop connection backup (native SQLite)', () => {
 
   afterEach(async () => {
     dialog.showSaveDialog = originalSaveDialog
+    Container.get = originalGet
     if (source?.isConnected) await source.close()
     if (target?.isConnected) await target.close()
     fs.rmSync(directory, { recursive: true, force: true })
@@ -267,6 +273,25 @@ describe('Desktop connection backup (native SQLite)', () => {
     expect(tree[0].id).to.equal('nested')
     expect(tree[0].children.map((item) => item.id)).to.deep.equal(['root'])
     expect(await target.getTreeRepository(CollectionEntity).findAncestors(tree[0])).to.have.lengthOf(1)
+  })
+
+  it('restores an older snapshot whose will is no longer owned by a connection', async () => {
+    const original = connection('snapshot')
+    original.will = {
+      id: 'original-will',
+      lastWillTopic: 'will',
+      lastWillPayload: 'original',
+      lastWillQos: 1,
+      lastWillRetain: false,
+    }
+    const newer = { ...original, name: 'Newer snapshot', will: { ...original.will, id: 'newer-will' } }
+    expect(await targetService.import([original])).to.equal('ok')
+    expect(await targetService.import([newer])).to.equal('ok')
+    expect(await targetService.import([original])).to.equal('ok')
+    const restored = (await target.getRepository(ConnectionEntity).findOne(original.id, { relations: ['will'] }))!
+    expect(restored.name).to.equal(original.name)
+    expect(restored.will!.id).to.equal('original-will')
+    expect(restored.will!.lastWillPayload).to.equal('original')
   })
 
   for (const kind of ['connection', 'collection'] as const) {

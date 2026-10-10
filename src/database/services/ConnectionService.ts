@@ -10,7 +10,6 @@ import HistoryConnectionEntity from '@/database/models/HistoryConnectionEntity'
 import { Repository, MoreThan, LessThan, EntityManager, FindOperator } from 'typeorm'
 import { DateUtils } from 'typeorm/util/DateUtils'
 import time, { sqliteDateFormat } from '@/utils/time'
-import useServices from '@/database/useServices'
 import SubscriptionEntity from '@/database/models/SubscriptionEntity'
 import MessageService from './MessageService'
 import SubscriptionService from './SubscriptionService'
@@ -217,7 +216,6 @@ export default class ConnectionService {
     manager: EntityManager = this.connectionRepository.manager,
   ) {
     const connectionRepository = manager.getRepository(ConnectionEntity)
-    const willRepository = manager.getRepository(WillEntity)
     const subscriptionService = new SubscriptionService(manager.getRepository(SubscriptionEntity))
     const messageService = new MessageService(manager.getRepository(MessageEntity), connectionRepository)
     let progress = 0
@@ -237,19 +235,11 @@ export default class ConnectionService {
         if (conflict) throw new Error(`Conflicting child ID: ${conflict.id}`)
       }
     }
-    const existing = await connectionRepository.findOne(id, { relations: ['will'] })
-    if (data.will?.id && (await willRepository.findOne(data.will.id)) && existing?.will?.id !== data.will.id) {
-      throw new Error(`Conflicting will ID: ${data.will.id}`)
+    if (data.will?.id) {
+      const owner = await connectionRepository.findOne({ where: { will: { id: data.will.id } } })
+      if (owner && owner.id !== id) throw new Error(`Conflicting will ID: ${data.will.id}`)
     }
-    const { messages, subscriptions, will, ...rest } = data
-    const savedWill = will ? await willRepository.save(WillService.modelToEntity(will)) : existing?.will
-    await connectionRepository.save({
-      ...ConnectionService.modelToEntity(rest),
-      parent: undefined,
-      will: savedWill,
-      updateAt: time.getNowDate(),
-      id,
-    })
+    await this.saveConnection(id, data, manager)
     progress += 1 / totalSteps
     if (getImportOneConnProgress) {
       getImportOneConnProgress(progress)
@@ -280,17 +270,20 @@ export default class ConnectionService {
     }
   }
 
+  private async saveConnection(id: string, data: ConnectionModel, manager: EntityManager): Promise<void> {
+    const { will, ...rest } = data
+    const savedWill = will && (await manager.getRepository(WillEntity).save(WillService.modelToEntity(will)))
+    await manager.getRepository(ConnectionEntity).save({
+      ...ConnectionService.modelToEntity(rest),
+      will: savedWill ?? undefined,
+      updateAt: time.getNowDate(),
+      id,
+    })
+  }
+
   public async update(id: string, data: ConnectionModel): Promise<ConnectionModel | undefined> {
     try {
-      const { willService } = useServices()
-      const { messages, subscriptions, will, ...rest } = data
-      const savedWill = will && (await willService.save(will))
-      await this.connectionRepository.save({
-        ...ConnectionService.modelToEntity(rest),
-        will: savedWill ?? undefined,
-        updateAt: time.getNowDate(),
-        id,
-      })
+      await this.saveConnection(id, data, this.connectionRepository.manager)
       return await this.get(id)
     } catch (error) {
       console.error('Error updating connection:', error)
