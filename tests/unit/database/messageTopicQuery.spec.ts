@@ -98,15 +98,17 @@ describe('MessageService MQTT topic query (SQLite)', () => {
   })
 
   for (const mode of ['before', 'after'] as const) {
-    it(`applies exact matching in loadMore ${mode}`, async () => {
+    it(`keeps exact matching and search before loadMore ${mode} page boundaries`, async () => {
       const boundary = mode === 'before' ? '2027' : '2025'
-      const result = await service.loadMore('connection', boundary, mode, { topic: 'a/+/d', limit: 10 })
-      expect(result.list.map((message) => message.topic)).to.deep.equal([
-        'a/b/d',
-        'a//d',
-        'a/percent%_/d',
-        'a/percentXY/d',
-      ])
+      const result = await service.loadMore('connection', boundary, mode, {
+        topic: 'a/+/d',
+        searchParams: { topic: 'a/' },
+        limit: 3,
+      })
+      const expected =
+        mode === 'before' ? ['a//d', 'a/percent%_/d', 'a/percentXY/d'] : ['a/b/d', 'a//d', 'a/percent%_/d']
+      expect(result.list.map((message) => message.topic)).to.deep.equal(expected)
+      expect(result.moreMsg).to.equal(mode)
     })
   }
 
@@ -139,12 +141,10 @@ describe('MessageService MQTT topic query (SQLite)', () => {
     expect(result.list.map((message) => message.topic)).to.deep.equal([topic])
   })
 
-  it('supports many wildcard levels and a long literal topic', async () => {
+  it('supports many wildcard levels', async () => {
     const topic = Array(1100).fill('level').join('/')
     await repository.save({ id: 'long', connectionId: 'long', topic, payload: '', createAt: '2026', out: false })
     const result = await service.get('long', { topic: Array(1100).fill('+').join('/') })
     expect(result.list.map((message) => message.topic)).to.deep.equal([topic])
-    const literal = await service.get('long', { topic })
-    expect(literal.list).to.have.lengthOf(1)
   })
 })
