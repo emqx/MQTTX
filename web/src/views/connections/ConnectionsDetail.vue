@@ -660,11 +660,7 @@ export default class ConnectionsDetail extends Vue {
     }
     if (this.activeTopic !== '') {
       const res = await topicMatch(this.record.messages, this.activeTopic)
-      if (res) {
-        setChangedMessages(type, res)
-      } else {
-        this.messages = [].slice()
-      }
+      setChangedMessages(type, res)
     } else {
       setChangedMessages(type, this.record.messages)
     }
@@ -704,11 +700,7 @@ export default class ConnectionsDetail extends Vue {
     this.activeTopic = sub.topic
     const $messages = _.cloneDeep(this.messages)
     const res = await topicMatch($messages, sub.topic)
-    if (res) {
-      this.messages = res.slice()
-    } else {
-      this.messages = [].slice()
-    }
+    this.messages = res.slice()
   }
   private handleSearchOpen() {
     this.searchVisible = true

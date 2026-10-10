@@ -6,7 +6,6 @@
  */
 export const matchTopicMethod = (filter: string, topic: string): boolean => {
   let _filter = filter
-  const _topic = topic
   if (filter.startsWith('$share/')) {
     // shared subscription format: $share/{ShareName}/{filter}
     _filter = filter.split('/').slice(2).join('/')
@@ -14,7 +13,7 @@ export const matchTopicMethod = (filter: string, topic: string): boolean => {
   const filterArray: string[] = _filter.split('/')
   const length: number = filterArray.length
   if (topic.startsWith('$') && (filterArray[0] === '+' || filterArray[0] === '#')) return false
-  const topicArray: string[] = _topic.split('/')
+  const topicArray: string[] = topic.split('/')
   for (let i = 0; i < length; i += 1) {
     const left: string = filterArray[i]
     const right: string = topicArray[i]
