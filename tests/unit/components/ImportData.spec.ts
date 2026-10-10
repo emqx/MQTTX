@@ -50,6 +50,17 @@ describe('Desktop import form file loading', () => {
     })
   }
 
+  it('reports an unreadable Excel file and clears the previous selection', async () => {
+    await load(JSON.stringify([group, { ...legacy, parentId: 'group' }]))
+    expect(form.record.fileContent).to.have.lengthOf(2)
+    await form.readFilePath(path.join(directory, 'missing.xlsx'), 'xlsx')
+    expect(form.record.fileContent).to.deep.equal([])
+    expect(form.record.fileName).to.equal('')
+    expect(form.record.filePath).to.equal('')
+    expect(errors).to.have.lengthOf(1)
+    expect(errors[0]).to.match(/^connections\.readFileErr/)
+  })
+
   it('accepts legacy single-connection JSON objects', async () => {
     await load(JSON.stringify(legacy))
     expect(form.record.fileContent).to.deep.equal([legacy])
