@@ -152,7 +152,6 @@ describe('Desktop connection backup (native SQLite)', () => {
       await seed(source, connection(`${id}Connection1`, id))
     }
     const backup = JSON.parse(await exportBackup())
-    configureServices(target)
     expect(await targetService.import(backup)).to.equal('ok')
     expect(await target.getRepository(CollectionEntity).count()).to.equal(2)
     expect((await target.getRepository(ConnectionEntity).find()).map((item) => item.parentId)).to.have.members([
