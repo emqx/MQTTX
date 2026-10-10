@@ -170,22 +170,14 @@ export default class CollectionService {
   }
 
   public async getCollectionsForExport(connectionId?: string): Promise<CollectionBackup[]> {
-    const entities = await this.collectionRepository.find({ relations: ['parent'] })
-    let selected = entities
+    const repository = this.collectionRepository.manager.getTreeRepository(CollectionEntity)
+    let query = repository.createQueryBuilder('collection')
     if (connectionId) {
-      const connection = await this.connectionRepository.findOne(connectionId)
-      const byId = new Map(entities.map((entity) => [entity.id, entity]))
-      selected = []
-      let parentId = connection?.parentId
-      const visited = new Set<string>()
-      while (parentId) {
-        const parent = byId.get(parentId)
-        if (!parent || visited.has(parentId)) throw new Error('Invalid collection hierarchy')
-        visited.add(parentId)
-        selected.push(parent)
-        parentId = parent.parent?.id
-      }
+      const parentId = (await this.connectionRepository.findOne(connectionId))?.parentId
+      if (!parentId) return []
+      query = repository.createAncestorsQueryBuilder('collection', 'closure', repository.create({ id: parentId }))
     }
+    const selected = await query.leftJoinAndSelect('collection.parent', 'parent').getMany()
     return selected.map(({ id, name, orderId, parent }) => ({
       id,
       name,
