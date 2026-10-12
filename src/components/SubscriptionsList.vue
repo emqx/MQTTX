@@ -268,7 +268,7 @@ import { getSubscriptionId } from '@/utils/idGenerator'
 import getContextmenuPosition from '@/utils/getContextmenuPosition'
 import { LeftValues } from '@/utils/styles'
 import getErrorReason from '@/utils/mqttErrorReason'
-import { setSubscribeMQTT5Properties } from '@/utils/subscriptionUtils'
+import { hasPersistentSession, setSubscribeMQTT5Properties } from '@/utils/subscriptionUtils'
 
 @Component({
   components: {
@@ -624,14 +624,7 @@ export default class SubscriptionsList extends Vue {
   private unsubscribe(row: SubscriptionModel, disable?: boolean): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (!this.client || !this.client.connected) {
-        this.$notify({
-          title: this.$tc('connections.notConnect'),
-          message: '',
-          type: 'error',
-          duration: 3000,
-          offset: 30,
-        })
-        resolve(false)
+        resolve(this.unsubscribeOffline(row, disable))
         return false
       }
       this.unsubLoading = true
@@ -672,6 +665,31 @@ export default class SubscriptionsList extends Vue {
         resolve(false)
       }
     })
+  }
+
+  // Offline, a subscription only lives on the broker if the connection keeps a persistent session
+  private async unsubscribeOffline({ topic, disabled }: SubscriptionModel, disable?: boolean): Promise<boolean> {
+    if (hasPersistentSession(this.record)) {
+      this.$notify({
+        title: this.$tc('connections.persistentSessionUnsubscribe'),
+        message: '',
+        type: 'warning',
+        duration: 3000,
+        offset: 30,
+      })
+      return false
+    }
+    // A reconnecting client restores its own subscriptions on reconnect, so drop the topic from it as well
+    if (this.client.reconnecting && !this.client.disconnecting && this.client.unsubscribe) {
+      this.client.unsubscribe(topic)
+    }
+    const subscriptions = disable
+      ? this.setSubsDisable(topic, disabled)
+      : this.subsList.filter((sub: SubscriptionModel) => sub.topic !== topic)
+    await this.syncSubscriptions(subscriptions)
+    this.$emit('deleteTopic', topic)
+    this.$log.info(`${disable ? 'Disabled' : 'Removed'} topic while disconnected: ${topic}`)
+    return true
   }
 
   private resetSubs() {
@@ -779,6 +797,13 @@ export default class SubscriptionsList extends Vue {
 
   private async setTopicDisabled(disable: boolean) {
     this.showContextmenu = false
+    if (!this.selectedTopic) {
+      return
+    }
+    if (disable) {
+      await this.unsubscribe({ ...this.selectedTopic, disabled: true }, true)
+      return
+    }
     if (!this.client || !this.client.connected) {
       this.$notify({
         title: this.$tc('connections.notConnect'),
@@ -789,15 +814,8 @@ export default class SubscriptionsList extends Vue {
       })
       return
     }
-    if (!this.selectedTopic) {
-      return
-    }
     this.selectedTopic.disabled = disable
-    if (disable) {
-      await this.unsubscribe(this.selectedTopic, true)
-    } else {
-      await this.subscribe(this.selectedTopic, false, true)
-    }
+    await this.subscribe(this.selectedTopic, false, true)
   }
 
   private created() {
