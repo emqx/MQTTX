@@ -24,7 +24,7 @@ export const printObjectAsString = (obj: any, indent = 2) => {
   } catch (error) {
     throw new TypeError((error as Error).toString())
   }
-  str += `}`
+  str += `${' '.repeat(Math.max(0, indent - 2))}}`
   return str
 }
 
@@ -58,7 +58,7 @@ export const serializeProtobufToBuffer = (
   protobufMessageName: string,
   format?: PayloadType,
 ): Buffer => {
-  let rawData: string = ''
+  let rawData = ''
   try {
     rawData = convertObject(raw, format)
   } catch (error) {
@@ -102,7 +102,7 @@ export const deserializeBufferToProtobuf = (
     // return MessageData
     return protobufMessageName + ' ' + printObjectAsString(MessageData)
   } catch (error) {
-    let err = transformPBJSError(error as Error)
+    const err = transformPBJSError(error as Error)
     throw new SyntaxError(err.message.split('\n')[0])
   }
 }

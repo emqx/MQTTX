@@ -5,24 +5,25 @@ import CollectionEntity from '@/database/models/CollectionEntity'
 import ConnectionEntity from '@/database/models/ConnectionEntity'
 import WillEntity from '@/database/models/WillEntity'
 import time from '@/utils/time'
+import { CollectionBackup } from '@/utils/connectionBackup'
 
 @Service()
 export default class CollectionService {
   constructor(
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(CollectionEntity)
     private collectionRepository: Repository<CollectionEntity>,
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(ConnectionEntity)
     private connectionRepository: Repository<ConnectionEntity>,
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(WillEntity)
     private willRepository: Repository<WillEntity>,
   ) {}
 
   // travel current layer of tree, composition collection and connection to children
   private async travelEntity(data: CollectionEntity[], parentId?: string): Promise<ConnectionModelTree[]> {
-    let res: ConnectionModelTree[] = []
+    const res: ConnectionModelTree[] = []
     let connections: ConnectionModel[] = []
     if (parentId) {
       // find current collection's connections
@@ -58,8 +59,8 @@ export default class CollectionService {
     children: ConnectionModelTree[],
     parentId?: string | undefined,
   ): Promise<{ collection: CollectionEntity[]; connection: ConnectionEntity[] }> {
-    let collection: CollectionEntity[] = []
-    let connection: ConnectionEntity[] = []
+    const collection: CollectionEntity[] = []
+    const connection: ConnectionEntity[] = []
     let parent: CollectionEntity | undefined = undefined
     if (parentId) {
       parent = await this.collectionRepository.findOne(parentId)
@@ -135,7 +136,7 @@ export default class CollectionService {
     }
     const { collection, connection } = await this.travelModel(data)
     if (collection && connection) {
-      return [...collection, ...connection]
+      return [...collection, ...connection] as ConnectionModelTree[]
     }
     return
   }
@@ -166,6 +167,24 @@ export default class CollectionService {
       }),
     )
     return [...collectionTree, ...topConnections] as ConnectionModelTree[]
+  }
+
+  public async getCollectionsForExport(connectionId?: string): Promise<CollectionBackup[]> {
+    const repository = this.collectionRepository.manager.getTreeRepository(CollectionEntity)
+    let query = repository.createQueryBuilder('collection')
+    if (connectionId) {
+      const parentId = (await this.connectionRepository.findOne(connectionId))?.parentId
+      if (!parentId) return []
+      query = repository.createAncestorsQueryBuilder('collection', 'closure', repository.create({ id: parentId }))
+    }
+    const selected = await query.leftJoinAndSelect('collection.parent', 'parent').getMany()
+    return selected.map(({ id, name, orderId, parent }) => ({
+      id,
+      name,
+      orderId,
+      isCollection: true,
+      parentId: parent?.id ?? null,
+    }))
   }
 
   public async delete(collectionId: string) {

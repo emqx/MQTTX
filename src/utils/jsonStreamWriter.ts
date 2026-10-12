@@ -18,7 +18,7 @@ export class JSONStreamWriter {
    * @param obj - The object to write
    * @param indent - Indentation level (number of spaces)
    */
-  public writeObject(obj: Record<string, any>, indent: number = 2): void {
+  public writeObject(obj: Record<string, any>, indent = 2): void {
     if (!this.isFirstItem) {
       fs.writeSync(this.fd, ',\n')
     }
@@ -40,7 +40,7 @@ export class JSONStreamWriter {
     obj: Record<string, any>,
     arrayKey: string,
     arrayGenerator: AsyncGenerator<T[], void, unknown>,
-    indent: number = 2,
+    indent = 2,
   ): Promise<void> {
     if (!this.isFirstItem) {
       fs.writeSync(this.fd, ',\n')
@@ -53,7 +53,7 @@ export class JSONStreamWriter {
     fs.writeSync(this.fd, `${spaces}{\n`)
 
     // Write all properties except the streaming array
-    const entries = Object.entries(obj).filter(([key]) => key !== arrayKey)
+    const entries = Object.entries(obj).filter(([key, value]) => key !== arrayKey && value !== undefined)
     for (let i = 0; i < entries.length; i++) {
       const [key, value] = entries[i]
       this.writeProperty(key, value, indent + 2)

@@ -5,7 +5,7 @@
  * @param className - CSS class for highlighting
  * @returns HTML string with highlighted terms
  */
-export function highlightSearchTerm(text: string, searchTerm: string, className: string = 'search-highlight'): string {
+export function highlightSearchTerm(text: string, searchTerm: string, className = 'search-highlight'): string {
   if (!searchTerm || !text) {
     return text
   }
@@ -29,11 +29,7 @@ export function highlightSearchTerm(text: string, searchTerm: string, className:
  * @param searchTerm - The term to search for
  * @param className - CSS class for highlighting
  */
-export function highlightInPrismCode(
-  element: HTMLElement,
-  searchTerm: string,
-  className: string = 'search-highlight',
-): void {
+export function highlightInPrismCode(element: HTMLElement, searchTerm: string, className = 'search-highlight'): void {
   if (!searchTerm || !element) return
 
   const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT, {

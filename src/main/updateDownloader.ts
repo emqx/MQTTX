@@ -37,7 +37,7 @@ export const autoDownload = (event: IpcMainEvent, updateDetail: versionDetail, l
 
 export async function createUpdateWindow() {
   const language: string = await getCurrentLang()
-  const link: string = `https://mqttx.app/${language === 'zh' ? 'zh/' : ''}changelogs/v${version}`
+  const link = `https://mqttx.app/${language === 'zh' ? 'zh/' : ''}changelogs/v${version}`
   // check the network connectivity and then open the window to prevent blank windows
   try {
     const linkRes = await axios.request({

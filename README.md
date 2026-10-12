@@ -53,6 +53,30 @@ Download from [GitHub Releases](https://github.com/emqx/MQTTX/releases) and inst
 
 Alternative, you can download [here](https://www.emqx.com/downloads/MQTTX/).
 
+## AI Agent Support
+
+### Install or update MQTTX CLI
+
+[INSTALL.md](./INSTALL.md) provides installation and update instructions for agents, including environment detection, package selection, and version verification. Give your agent this prompt:
+
+> Read https://raw.githubusercontent.com/emqx/MQTTX/main/INSTALL.md and follow its instructions to install or update MQTTX CLI for this environment. Verify the executable path and version.
+
+### Use the MQTTX CLI skill
+
+The [mqttx-cli skill](./skills/mqttx-cli/SKILL.md) helps agents use MQTTX CLI for connection checks, messaging, MQTT 5 features, TLS/authentication, payload codecs, benchmarks, data simulation, and troubleshooting.
+
+Install it with the [Skills CLI](https://github.com/vercel-labs/skills):
+
+```shell
+npx skills add emqx/MQTTX --skill mqttx-cli
+```
+
+To install from a local checkout, run `npx skills add . --skill mqttx-cli` from the repository root. You can also copy the entire `skills/mqttx-cli` directory (including `references`) into your agent's supported skills directory, or ask the agent to read its `SKILL.md` directly.
+
+Once installed, try a task such as:
+
+> Use the mqttx-cli skill to verify a publish/subscribe round trip against my local broker at 127.0.0.1:1883. Use a unique topic under mqttx-test/, finish within 15 seconds, and report the result.
+
 ## Usage
 
 See our [documentation](https://mqttx.app/docs) or [manual](./docs/manual.md) for details.

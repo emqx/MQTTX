@@ -84,6 +84,25 @@ describe('Protobuf Utils', () => {
       expect(result).to.include('city: "New York"')
       expect(result).to.include('zip: "10001"')
     })
+
+    it('should indent closing braces of nested objects', () => {
+      const obj = { name: 'Frank', address: { city: 'New York', geo: { lat: 40.7, lng: -74 } } }
+      const result = printObjectAsString(obj)
+      expect(result).to.equal(
+        [
+          '{',
+          '    name: "Frank",',
+          '    address: {',
+          '      city: "New York",',
+          '      geo: {',
+          '        lat: 40.7,',
+          '        lng: -74',
+          '    }',
+          '  }',
+          '}',
+        ].join('\n'),
+      )
+    })
   })
 
   describe('Protobuf Editions 2023', () => {

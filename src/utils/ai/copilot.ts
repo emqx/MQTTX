@@ -44,7 +44,7 @@ export const loadSystemPrompt = (lang: Language, command?: string, mcpData?: MCP
 
   // Add MCP system prompt if MCP is enabled and available
   if (mcpData && mcpData.hasMCP) {
-    let mcpSystemPrompt = mcpPrompt
+    const mcpSystemPrompt = mcpPrompt
       .replace('{{SERVERS_SECTION}}', mcpData.serversSection)
       .replace('{{TOOLS_SECTION}}', mcpData.toolsSection)
     _basePrompt = `${_basePrompt}\n\n${mcpSystemPrompt}`

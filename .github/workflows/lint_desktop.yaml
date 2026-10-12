@@ -1,0 +1,23 @@
+name: lint desktop
+
+on:
+  pull_request:
+  release:
+    types:
+      - published
+
+jobs:
+  desktop_lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Install dependencies and run lint check
+        run: |
+          yarn install
+          yarn lint:check

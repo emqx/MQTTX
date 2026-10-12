@@ -10,7 +10,7 @@ interface WindowOptions {
 }
 
 const newWindow = (id: string, options: WindowOptions) => {
-  let winPos = BrowserWindow.getFocusedWindow()
+  const winPos = BrowserWindow.getFocusedWindow()
   let [x, y] = [0, 0]
   if (winPos) {
     const [currentWindowX, currentWindowY] = winPos.getPosition()

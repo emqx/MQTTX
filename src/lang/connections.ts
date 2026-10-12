@@ -855,6 +855,14 @@ export default {
     hu: 'Amennyiben a kliens visszaigazolja a szerver tanusítványt láncot és a kiszolgáló nevét',
     ko: '클라이언트가 서버의 인증서 체인과 호스트 이름을 확인하는지 여부',
   },
+  collection: {
+    zh: '分组',
+    en: 'Group',
+    tr: 'Grup',
+    ja: 'グループ',
+    hu: 'Csoport',
+    ko: '그룹',
+  },
   newCollection: {
     zh: '新建分组',
     en: 'New Group',

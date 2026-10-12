@@ -78,7 +78,7 @@ export default class ExportData extends Vue {
   @Prop({ default: false }) public visible!: boolean
 
   private showDialog: boolean = this.visible
-  private confirmLoading: boolean = false
+  private confirmLoading = false
   private progressVisible = false
   private exportProgress = 0
   private record: ExportForm = {

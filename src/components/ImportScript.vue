@@ -66,7 +66,7 @@ export default class ImportScript extends Vue {
   @Prop({ required: true }) public format!: FunctionType | SchemaType
 
   private showDialog: boolean = this.visible
-  private confirmLoading: boolean = false
+  private confirmLoading = false
   private record: ImportScriptForm = {
     filePath: '',
     fileName: '',

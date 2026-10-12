@@ -6,7 +6,7 @@ import { Repository } from 'typeorm'
 @Service()
 export default class SubscriptionService {
   constructor(
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(SubscriptionEntity)
     private subscriptionRepository: Repository<SubscriptionEntity>,
   ) {}
@@ -19,11 +19,13 @@ export default class SubscriptionService {
       .getMany()
   }
 
-  public async updateSubscriptions(connectionId: string, subs: SubscriptionEntity[]) {
-    subs.forEach((sub) => {
-      sub.connectionId = connectionId
-    })
+  public async updateSubscriptions(connectionId: string, subs: SubscriptionModel[]) {
+    const entities: Partial<SubscriptionEntity>[] = subs.map((sub) => ({
+      ...sub,
+      connectionId,
+      userProperties: sub.userProperties ? JSON.stringify(sub.userProperties) : null,
+    }))
     await this.subscriptionRepository.delete({ connectionId })
-    await this.subscriptionRepository.save(subs)
+    await this.subscriptionRepository.save(entities)
   }
 }

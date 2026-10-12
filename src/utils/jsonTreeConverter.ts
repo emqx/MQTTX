@@ -58,7 +58,7 @@ export class JsonTreeConverter {
     }
   }
 
-  static convertJsonToTreeData(value: any, key: string = 'root', path: string = ''): JsonTreeNode {
+  static convertJsonToTreeData(value: any, key = 'root', path = ''): JsonTreeNode {
     const id = path || key
     const t = JsonTreeConverter.valueType(value)
 

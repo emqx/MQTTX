@@ -5,18 +5,16 @@ import { Repository } from 'typeorm'
 import ConnectionEntity from '../models/ConnectionEntity'
 import ConnectionService from './ConnectionService'
 
-
-
 @Service()
 export default class MessageService {
   constructor(
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(MessageEntity)
     private messageRepository: Repository<MessageEntity>,
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(ConnectionEntity)
     private connectionRepository: Repository<ConnectionEntity>,
-  ) { }
+  ) {}
 
   public static modelToEntity(model: MessageModel, connectionId: string | undefined): MessageEntity {
     const { properties, ...rest } = model
@@ -63,38 +61,56 @@ export default class MessageService {
   }
 
   public handleTopicQuery(query: $TSFixed, topic?: string) {
-    if (topic && topic !== '#') {
-      // Escape special characters for SQL LIKE
-      topic = topic.replace(/[\\%_]/g, '\\$&')
+    // An empty UI filter means all history, including system topics.
+    if (!topic) return query
+    if (topic.startsWith('$share/')) topic = topic.split('/').slice(2).join('/')
 
-      // Remove $share prefix if present
-      if (topic.startsWith('$share/')) {
-        topic = topic.split('/').slice(2).join('/')
-      }
+    const levels = topic.split('/')
+    if (levels[0] === '+' || levels[0] === '#') {
+      query.andWhere("substr(msg.topic, 1, 1) != '$'")
+    }
 
-      /*
-        Handle `+` wildcard
-        Known Issue: '+' wildcard handling in MQTT topics is incorrect.
-        '+' is replaced with '%' for SQL LIKE, causing multi-level match.
-          - Incorrect: 'testtopic/+/test' matches 'testtopic/1/2/test'
-          - Incorrect: 'testtopic/+/hello/+' can not matches 'testtopic/hello/hello/hello'
-        TODO: FIX this issue.
-      */
-      if (topic.includes('+')) {
-        topic = topic.replace('+', '%')
-      }
-
-      // Handle '#' wildcard
-      if (topic.endsWith('/#')) {
-        const baseTopic = topic.slice(0, -2) // Remove '/#'
-        query.andWhere('(msg.topic = :baseTopic OR msg.topic LIKE :topic ESCAPE "\\")', {
+    if (!levels.includes('+')) {
+      if (topic === '#') return query
+      if (levels[levels.length - 1] === '#') {
+        const baseTopic = topic.slice(0, -2)
+        query.andWhere('(msg.topic = :baseTopic OR instr(msg.topic, :topicPrefix) = 1)', {
           baseTopic,
-          topic: baseTopic + '/%',
+          topicPrefix: baseTopic + '/',
         })
       } else {
-        query.andWhere('msg.topic LIKE :topic ESCAPE "\\"', { topic })
+        query.andWhere('msg.topic = :topic', { topic })
       }
+      return query
     }
+
+    // Reject unrelated literal prefixes before walking individual levels.
+    const prefix = levels.slice(0, levels.indexOf('+')).join('/')
+    if (prefix) {
+      query.andWhere('instr(msg.topic, :topicPrefix) = 1', { topicPrefix: prefix + '/' })
+    }
+
+    // A trailing slash sentinel preserves empty levels. Each recursive step consumes
+    // exactly one topic/filter level; a remaining # also accepts zero further levels.
+    // Uses built-in SQLite functions, without a driver-specific regexp extension.
+    query.andWhere(
+      `EXISTS (
+        WITH RECURSIVE topic_levels(topic_rest, filter_rest) AS (
+          SELECT msg.topic || '/', :topic || '/'
+          UNION ALL
+          SELECT substr(topic_rest, instr(topic_rest, '/') + 1),
+                 substr(filter_rest, instr(filter_rest, '/') + 1)
+          FROM topic_levels
+          WHERE topic_rest != '' AND filter_rest != '' AND filter_rest != '#/'
+            AND (substr(filter_rest, 1, instr(filter_rest, '/') - 1) = '+'
+              OR substr(filter_rest, 1, instr(filter_rest, '/') - 1)
+                = substr(topic_rest, 1, instr(topic_rest, '/') - 1))
+        )
+        SELECT 1 FROM topic_levels
+        WHERE filter_rest = '#/' OR (filter_rest = '' AND topic_rest = '')
+      )`,
+      { topic },
+    )
     return query
   }
 
@@ -111,7 +127,7 @@ export default class MessageService {
   ): Promise<MessagePaginationModel> {
     const defaultOpts = { page: 1, limit: 20, msgType: 'all' }
     const { page, limit, msgType, preserveOrder } = { ...defaultOpts, ...options }
-    let { topic } = { ...defaultOpts, ...options }
+    const { topic } = { ...defaultOpts, ...options }
 
     const total = await this.messageRepository.count({ connectionId })
     const publishedTotal = await this.messageRepository.count({ connectionId, out: true })
@@ -128,7 +144,7 @@ export default class MessageService {
     if (options.searchParams) {
       const { topic, payload } = options.searchParams
       if (topic) {
-        query.andWhere('msg.topic LIKE :topic', { topic: `%${topic}%` })
+        query.andWhere('msg.topic LIKE :searchTopic', { searchTopic: `%${topic}%` })
       }
       if (payload) {
         query.andWhere('msg.payload LIKE :payload', { payload: `%${payload}%` })
@@ -168,7 +184,7 @@ export default class MessageService {
   ) {
     const defaultOpts = { limit: 20, msgType: 'all' }
     const { limit, msgType } = { ...defaultOpts, ...options }
-    let { topic } = { ...defaultOpts, ...options }
+    const { topic } = { ...defaultOpts, ...options }
 
     let query = await this.messageRepository
       .createQueryBuilder('msg')
@@ -181,7 +197,7 @@ export default class MessageService {
     if (options.searchParams) {
       const { topic, payload } = options.searchParams
       if (topic) {
-        query.andWhere('msg.topic LIKE :topic', { topic: `%${topic}%` })
+        query.andWhere('msg.topic LIKE :searchTopic', { searchTopic: `%${topic}%` })
       }
       if (payload) {
         query.andWhere('msg.payload LIKE :payload', { payload: `%${payload}%` })
@@ -194,10 +210,10 @@ export default class MessageService {
       .take(limit + 1)
       .getMany()
 
-    mode === 'before' && res.reverse()
-
     const moreMsg = res.length > limit && mode
     moreMsg && res.pop()
+
+    mode === 'before' && res.reverse()
 
     const list = res.map((m) => MessageService.entityToModel(m))
 
@@ -334,7 +350,7 @@ export default class MessageService {
 
   public async *streamMessagesForExport(
     connectionId: string,
-    batchSize: number = 1000,
+    batchSize = 1000,
   ): AsyncGenerator<MessageModel[], void, unknown> {
     let offset = 0
 

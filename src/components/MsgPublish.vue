@@ -194,13 +194,16 @@
             :label="item.label"
             :value="item"
           >
-            <span style="float: left; width: 160px; overflow: hidden; text-overflow: ellipsis" :title="item.topic">{{
-              item.topic
-            }}</span>
-            <span style="color: #8492a6; font-size: 12px; margin-left: 4px">QoS:{{ item.qos }}</span>
-            <span style="float: right; color: #8492a6; font-size: 13px; margin-left: 4px">
-              retain:{{ item.retain ? '1' : '0' }}
-            </span>
+            <div class="header-option-content">
+              <span class="header-option-topic" :title="item.topic">{{ item.topic }}</span>
+              <span class="header-option-meta">QoS:{{ item.qos }}</span>
+              <span class="header-option-meta">retain:{{ item.retain ? '1' : '0' }}</span>
+              <i
+                class="el-icon-close header-option-delete"
+                :title="$t('common.delete')"
+                @click.stop.prevent="handleDeleteHistoryHeader(item)"
+              ></i>
+            </div>
           </el-option>
         </el-select>
       </div>
@@ -267,7 +270,7 @@ export default class MsgPublish extends Vue {
 
   private MQTT5PropsSend: PushPropertiesModel = {}
 
-  private showMetaCard: boolean = false
+  private showMetaCard = false
 
   private saveMetaLoading = false
 
@@ -297,11 +300,11 @@ export default class MsgPublish extends Vue {
     return {}
   }
 
-  private hasMqtt5Prop: boolean = false
+  private hasMqtt5Prop = false
 
   private headersHistory: HistoryMessageHeaderModel[] | [] = []
   private payloadsHistory: HistoryMessagePayloadModel[] | [] = []
-  private historyIndex: number = -1
+  private historyIndex = -1
   private defaultMsgRecord: MessageModel = {
     createAt: time.getNowDate(),
     out: true,
@@ -395,6 +398,22 @@ export default class MsgPublish extends Vue {
       const { retain, topic, qos } = val
       Object.assign(this.msgRecord, { retain, topic, qos })
     }
+  }
+
+  private async handleDeleteHistoryHeader(item: HistoryMessageHeaderModel) {
+    if (!item.id) {
+      return
+    }
+    const { historyMessageHeaderService } = useServices()
+    await historyMessageHeaderService.delete(item.id)
+    if (this.headerValue && this.headerValue.id === item.id) {
+      this.headerValue = {
+        qos: this.msgRecord.qos,
+        retain: this.msgRecord.retain,
+        topic: this.msgRecord.topic,
+      }
+    }
+    await this.loadHistoryData()
   }
 
   /**
@@ -834,9 +853,47 @@ export default class MsgPublish extends Vue {
   }
 }
 .el-select-dropdown.el-popper.header-select--popper {
-  max-width: 300px;
+  max-width: 360px;
   .el-select-dropdown__empty {
     width: 80px;
+  }
+  .header-option-content {
+    display: flex;
+    align-items: center;
+  }
+  .header-option-topic {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    direction: rtl;
+    unicode-bidi: plaintext;
+    text-align: left;
+  }
+  .header-option-meta {
+    flex-shrink: 0;
+    margin-left: 8px;
+    color: #8492a6;
+    font-size: 12px;
+  }
+  .header-option-delete {
+    flex-shrink: 0;
+    margin-left: 8px;
+    margin-right: -10px;
+    color: #8492a6;
+    font-size: 14px;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+    &:hover {
+      color: var(--color-minor-red);
+    }
+  }
+  .el-select-dropdown__item:hover .header-option-delete {
+    opacity: 1;
+    pointer-events: auto;
   }
 }
 </style>

@@ -59,14 +59,14 @@ export default class Update extends Vue {
   @Getter('currentLang') private getterLang!: Language
   @Getter('autoCheck') private autoCheck!: boolean
   @Ref('detail_display') private detail_display!: HTMLDivElement
-  private showDialog: boolean = false
-  private progressVisible: boolean = false
-  private version: string = ''
-  private detail: string = ''
-  private progress: number = 0
-  private downloaded: boolean = false
-  private dialogWidth: string = '960px'
-  private dialogHeight: string = '450px'
+  private showDialog = false
+  private progressVisible = false
+  private version = ''
+  private detail = ''
+  private progress = 0
+  private downloaded = false
+  private dialogWidth = '960px'
+  private dialogHeight = '450px'
 
   private goToLink(url: string) {
     const windowUrl = window.open(url)

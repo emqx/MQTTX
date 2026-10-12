@@ -69,20 +69,11 @@ export default class KeyValueEditor extends Vue {
       this.$emit('change', null)
       return
     }
-    const objData: ClientPropertiesModel['userProperties'] = {}
+    const objData: NonNullable<ClientPropertiesModel['userProperties']> = Object.create(null)
     this.dataList.forEach(({ key, value }) => {
       if (key === '') return
       const objValue = objData[key]
-      if (objValue) {
-        const _value = value as string
-        if (Array.isArray(objValue)) {
-          objData[key] = [...objValue, _value]
-        } else {
-          objData[key] = [objValue, _value]
-        }
-      } else {
-        objData[key] = value
-      }
+      objData[key] = objValue === undefined ? value : [...(Array.isArray(objValue) ? objValue : [objValue]), value]
     })
     this.$emit('change', objData)
   }

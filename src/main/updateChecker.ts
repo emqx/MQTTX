@@ -12,7 +12,7 @@ export interface versionDetail {
 }
 
 export const getCurrentLang = async (): Promise<string> => {
-  let language: string = 'en'
+  let language = 'en'
   const { settingService } = useServices()
   await settingService.set()
   const setting = await settingService.get()
@@ -53,7 +53,7 @@ const getUpdateDtail = async (current: string): Promise<versionDetail | null> =>
   return null
 }
 
-export const updateChecker = async (isAuto: boolean = true): Promise<void | versionDetail | boolean> => {
+export const updateChecker = async (isAuto = true): Promise<void | versionDetail | boolean> => {
   const currentVersion = `v${version}`
   const updateDetail: versionDetail | null = await getUpdateDtail(currentVersion)
   const language: string = await getCurrentLang()

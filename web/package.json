@@ -1,6 +1,6 @@
 {
   "name": "mqttx-web",
-  "version": "1.13.0",
+  "version": "1.13.1",
   "license": "Apache-2.0",
   "scripts": {
     "vue:cli": "cross-env NODE_OPTIONS=--openssl-legacy-provider vue-cli-service",
@@ -13,11 +13,12 @@
     "start": "yarn build && http-server dist -o /",
     "start:online": "yarn build:online && http-server dist -o /web-client",
     "start:docker": "yarn build:docker && http-server dist -o /",
+    "test:unit": "yarn vue:cli test:unit",
     "test:e2e": "yarn vue:cli test:e2e",
     "lint": "yarn vue:cli lint"
   },
   "engines": {
-    "node": "18"
+    "node": ">=18"
   },
   "dependencies": {
     "@gtm-support/vue2-gtm": "^1.3.0",

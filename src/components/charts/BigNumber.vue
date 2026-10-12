@@ -332,9 +332,9 @@ export default class BigNumberChart extends Vue {
     }, 150)
   }
 
-  private bigFontSize: string = '96px'
-  private unitFontSize: string = '14px'
-  private fieldFontSize: string = '12px'
+  private bigFontSize = '96px'
+  private unitFontSize = '14px'
+  private fieldFontSize = '12px'
 
   private formatValue(value: number | null): string {
     if (value === null) return '0'

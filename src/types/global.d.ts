@@ -81,6 +81,7 @@ declare global {
     [id: string]: {
       client: MqttClient
       subscriptions?: SubscriptionModel[]
+      responseInformation?: string
     }
   }
   interface App {
@@ -136,6 +137,7 @@ declare global {
   interface Client {
     readonly id: string
     client: Partial<MqttClient>
+    responseInformation?: string
   }
 
   interface Message {
@@ -173,6 +175,7 @@ declare global {
     rap?: boolean
     rh?: RetainHandling
     subscriptionIdentifier?: number | null
+    userProperties?: { [key: string]: string | string[] } | null
   }
 
   interface MessageModel {

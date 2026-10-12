@@ -79,6 +79,16 @@
                 <i class="iconfont icon-edit"></i>
               </a>
             </el-tooltip>
+            <el-tooltip
+              placement="bottom"
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :open-delay="1000"
+              :content="$t('connections.clearHistory')"
+            >
+              <a class="clear-history-btn" href="javascript:;" @click="handleMsgClear">
+                <i class="iconfont icon-clear-history"></i>
+              </a>
+            </el-tooltip>
             <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
               <a href="javascript:;">
                 <i class="iconfont icon-more"></i>
@@ -86,9 +96,6 @@
               <el-dropdown-menu class="connection-oper-item" slot="dropdown">
                 <el-dropdown-item command="searchByTopic">
                   <i class="iconfont icon-search"></i>{{ $t('connections.searchByTopic') }}
-                </el-dropdown-item>
-                <el-dropdown-item command="clearHistory">
-                  <i class="iconfont icon-clear-history"></i>{{ $t('connections.clearHistory') }}
                 </el-dropdown-item>
                 <el-dropdown-item command="disconnect" :disabled="!client.connected">
                   <i class="el-icon-switch-button"></i>{{ $t('connections.disconnect') }}
@@ -239,7 +246,7 @@ import { jsonParse, jsonStringify } from '@/utils/jsonUtils'
 import getErrorReason from '@/utils/mqttErrorReason'
 
 type MessageType = 'all' | 'received' | 'publish'
-type CommandType = 'searchByTopic' | 'clearHistory' | 'disconnect' | 'deleteConnect'
+type CommandType = 'searchByTopic' | 'disconnect' | 'deleteConnect'
 type PayloadConvertType = 'base64' | 'hex'
 
 interface Top {
@@ -511,13 +518,7 @@ export default class ConnectionsDetail extends Vue {
   get marginLeft(): string {
     if (!this.showConnectionList) {
       // ConnectionsList hidden: subtract its width (320px / 400px) from the offsets.
-      return this.showSubs
-        ? this.largeDesktop
-          ? '516px'
-          : '356px'
-        : this.largeDesktop
-        ? '116px'
-        : '76px'
+      return this.showSubs ? (this.largeDesktop ? '516px' : '356px') : this.largeDesktop ? '116px' : '76px'
     }
     return this.showSubs ? (this.largeDesktop ? '916px' : '676px') : this.largeDesktop ? '517px' : '397px'
   }
@@ -608,9 +609,6 @@ export default class ConnectionsDetail extends Vue {
       case 'deleteConnect':
         this.removeConnection()
         break
-      case 'clearHistory':
-        this.handleMsgClear()
-        break
       case 'searchByTopic':
         this.handleSearchOpen()
         break
@@ -662,11 +660,7 @@ export default class ConnectionsDetail extends Vue {
     }
     if (this.activeTopic !== '') {
       const res = await topicMatch(this.record.messages, this.activeTopic)
-      if (res) {
-        setChangedMessages(type, res)
-      } else {
-        this.messages = [].slice()
-      }
+      setChangedMessages(type, res)
     } else {
       setChangedMessages(type, this.record.messages)
     }
@@ -706,11 +700,7 @@ export default class ConnectionsDetail extends Vue {
     this.activeTopic = sub.topic
     const $messages = _.cloneDeep(this.messages)
     const res = await topicMatch($messages, sub.topic)
-    if (res) {
-      this.messages = res.slice()
-    } else {
-      this.messages = [].slice()
-    }
+    this.messages = res.slice()
   }
   private handleSearchOpen() {
     this.searchVisible = true
@@ -1197,7 +1187,8 @@ export default class ConnectionsDetail extends Vue {
         .connect-loading,
         .edit-btn,
         .connect-btn,
-        .new-window-btn {
+        .new-window-btn,
+        .clear-history-btn {
           margin-right: 12px;
         }
         .edit-btn {

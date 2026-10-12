@@ -35,7 +35,7 @@ export default class Home extends Vue {
   @Getter('enableCopilot') private enableCopilot!: boolean
   @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
-  private updateActive: boolean = false
+  private updateActive = false
 
   private setTheme(theme: Theme): void {
     const { shouldUseDarkColors } = nativeTheme

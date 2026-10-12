@@ -8,7 +8,7 @@ const schemaArray: SchemaType[] = ['protobuf', 'avro']
 @Service()
 export default class ScriptService {
   constructor(
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(ScriptEntity)
     private scriptRepository: Repository<ScriptEntity>,
   ) {}

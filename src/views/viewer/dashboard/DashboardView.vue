@@ -119,7 +119,7 @@ export default class DashboardCanvas extends Vue {
   private widgetDataStore: Record<string, WidgetDataEntry> = {}
   private messageQueue: MessageQueue<TimeSeriesDataPoint & { widgetId: string }> | null = null
   private subscription: Subscription | null = null
-  private isLoadingHistoricalData: boolean = false
+  private isLoadingHistoricalData = false
   private scriptService = useServices().scriptService
   private updateTimeouts: Map<string, NodeJS.Timeout> = new Map()
 
@@ -405,7 +405,7 @@ export default class DashboardCanvas extends Vue {
     return this.widgets.filter(
       (widget) =>
         widget.topicPattern &&
-        matchTopicMethod(packet.topic, widget.topicPattern) &&
+        matchTopicMethod(widget.topicPattern, packet.topic) &&
         widget.connectionId === connectionInfo.id,
     )
   }

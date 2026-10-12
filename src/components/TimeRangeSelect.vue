@@ -25,9 +25,9 @@ export default class TimeRangeSelect extends Vue {
 
   private modelValue = this.value
   private currentDuration: number | null = null
-  private isLiveMode: boolean = false
-  private isFromShortcut: boolean = false
-  private shortcutLiveMode: boolean = false
+  private isLiveMode = false
+  private isFromShortcut = false
+  private shortcutLiveMode = false
   private shortcutDuration: number | null = null
 
   // Initialize with props

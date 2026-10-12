@@ -153,7 +153,7 @@ export default class TreeView extends Vue {
   private filterText = ''
   private visualizeTreeDialogVisible = false
   private selectedTreeRoot: string | null = null
-  private defaultExpandLevel: number = 4
+  private defaultExpandLevel = 4
 
   get selectedTreeData(): EChartsTreeNode | null {
     if (!this.selectedTreeRoot) {

@@ -11,14 +11,14 @@ import { getMessageId } from '@/utils/idGenerator'
 @Service()
 export default class TopicNodeService {
   constructor(
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(TopicNodeEntity)
     private topicNodeRepository: TreeRepository<TopicNodeEntity>,
-    // @ts-ignore
+    // @ts-ignore - InjectRepository decorator typing from typeorm-typedi-extensions
     @InjectRepository(ConnectionEntity)
     private connectionRepository: Repository<ConnectionEntity>,
     private messageService: MessageService,
-  ) { }
+  ) {}
 
   /**
    * Retrieves the topic tree structure

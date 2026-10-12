@@ -69,6 +69,7 @@
                 </el-badge>
               </el-popover>
             </transition>
+            <ResponseInformation :key="curConnectionId" :response-information="responseInformation" />
           </div>
           <div class="connection-tail">
             <transition name="el-fade-in">
@@ -147,6 +148,16 @@
                   <i class="iconfont icon-edit"></i>
                 </a>
               </el-tooltip>
+              <el-tooltip
+                placement="bottom"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :open-delay="500"
+                :content="$t('connections.clearHistory')"
+              >
+                <a class="clear-history-btn" href="javascript:;" @click="handleMsgClear">
+                  <i class="iconfont icon-clear-history"></i>
+                </a>
+              </el-tooltip>
               <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
                 <a href="javascript:;">
                   <i class="iconfont icon-more"></i>
@@ -154,9 +165,6 @@
                 <el-dropdown-menu class="connection-oper-item" slot="dropdown">
                   <el-dropdown-item command="searchContent">
                     <i class="iconfont icon-search"></i>{{ $t('connections.searchContent') }}
-                  </el-dropdown-item>
-                  <el-dropdown-item command="clearHistory">
-                    <i class="iconfont icon-clear-history"></i>{{ $t('connections.clearHistory') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="useScript" :disabled="!client.connected">
                     <i class="iconfont icon-use-script"></i>{{ $t('script.useScript') }}
@@ -348,6 +356,7 @@ import MsgPublish from '@/components/MsgPublish.vue'
 import SubscriptionsList from '@/components/SubscriptionsList.vue'
 import ResizeHeight from '@/components/ResizeHeight.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
+import ResponseInformation from './ResponseInformation.vue'
 import Contextmenu from '@/components/Contextmenu.vue'
 import ExportData from '@/components/ExportData.vue'
 import ImportData from '@/components/ImportData.vue'
@@ -381,7 +390,6 @@ import {
 
 type CommandType =
   | 'searchContent'
-  | 'clearHistory'
   | 'disconnect'
   | 'deleteConnect'
   | 'exportData'
@@ -395,6 +403,7 @@ type CommandType =
 @Component({
   components: {
     ConnectionInfo,
+    ResponseInformation,
     MsgPublish,
     SubscriptionsList,
     ResizeHeight,
@@ -495,11 +504,11 @@ export default class ConnectionsDetail extends Vue {
   private reTryConnectTimes = 0
   private inputHeight = 180
   private msgBottom = 166
-  private messageListHeight: number = 284
-  private messageListMarginTop: number = 19
+  private messageListHeight = 284
+  private messageListMarginTop = 19
 
   private activeTopic = ''
-  private showContextmenu: boolean = false
+  private showContextmenu = false
   private selectedMessage: MessageModel | null = null
   private contextmenuConfig: ContextmenuModel = {
     top: 0,
@@ -508,6 +517,11 @@ export default class ConnectionsDetail extends Vue {
 
   get titleName() {
     return this.record.name
+  }
+
+  get responseInformation(): string {
+    if (!this.client.connected || this.record.mqttVersion !== '5.0') return ''
+    return this.activeConnection[this.curConnectionId]?.responseInformation || ''
   }
 
   get bodyTopValue(): string {
@@ -631,12 +645,12 @@ export default class ConnectionsDetail extends Vue {
     this.connectLoading = true
     // new client
     try {
+      const { id, name, host, protocol, port, path, clientId, mqttVersion } = this.record
       const { curConnectClient, connectUrl } = await createClient(this.record)
       this.client = curConnectClient
-      const { id, name, host, protocol, port, path, clientId } = this.record
       if (id && this.client.on) {
         this.$log.info(`Assigned ID ${id} to MQTTX client`)
-        this.client.on('connect', this.onConnect)
+        this.client.on('connect', (conBack) => this.onConnect(conBack, { id, client: curConnectClient, mqttVersion }))
         this.client.on('error', this.onError)
         this.client.on('reconnect', this.onReConnect)
         this.client.on('disconnect', this.onDisconnect)
@@ -849,9 +863,6 @@ export default class ConnectionsDetail extends Vue {
         break
       case 'deleteConnect':
         this.removeConnection()
-        break
-      case 'clearHistory':
-        await this.handleMsgClear()
         break
       case 'searchContent':
         this.handleSearchOpen()
@@ -1134,12 +1145,16 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Connect callback
-  private onConnect(conBack: IConnackPacket) {
+  private onConnect(
+    conBack: IConnackPacket,
+    { id, client, mqttVersion }: { id: string; client: MqttClient; mqttVersion: string },
+  ) {
     this.connectLoading = false
 
     this.changeActiveConnection({
-      id: this.curConnectionId,
-      client: this.client,
+      id,
+      client,
+      responseInformation: mqttVersion === '5.0' ? conBack.properties?.responseInformation || '' : '',
     })
     this.$notify({
       title: this.$tc('connections.connected'),
@@ -2175,7 +2190,7 @@ export default class ConnectionsDetail extends Vue {
     return null
   }
 
-  private toggleShowCopilot(show: boolean = true) {
+  private toggleShowCopilot(show = true) {
     const copilotRef = this.getAncestorRef('copilot') as Copilot
     copilotRef.showCopilot = show
     return copilotRef
@@ -2246,6 +2261,7 @@ export default class ConnectionsDetail extends Vue {
       .connection-head {
         display: flex;
         align-items: center;
+        min-width: 0;
         h2.title-name {
           max-width: 200px;
           white-space: nowrap;
@@ -2277,6 +2293,8 @@ export default class ConnectionsDetail extends Vue {
         @include collapse-btn-transform(0deg, 180deg);
       }
       .connection-tail {
+        flex-shrink: 0;
+        margin-left: 12px;
         i {
           font-size: 20px;
           color: var(--color-text-title);
@@ -2294,7 +2312,8 @@ export default class ConnectionsDetail extends Vue {
         .edit-btn,
         .connect-btn,
         .copilot-btn,
-        .new-window-btn {
+        .new-window-btn,
+        .clear-history-btn {
           margin-right: 16px;
         }
         .edit-btn {

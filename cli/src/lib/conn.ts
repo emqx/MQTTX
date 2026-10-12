@@ -27,8 +27,9 @@ const conn = (options: ConnectOptions) => {
 
   basicLog.connecting(loadOptions, connOpts.hostname!, connOpts.port)
 
-  client.on('connect', () => {
+  client.on('connect', (packet) => {
     basicLog.connected()
+    basicLog.responseInformation(connOpts, packet)
     retryTimes = 0
     setTimeout(triggerExitInfo, 1000)
   })

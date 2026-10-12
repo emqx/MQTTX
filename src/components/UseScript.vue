@@ -78,10 +78,10 @@ export default class UseScript extends Vue {
   ]
   private functions: ScriptModel[] = []
   private schemas: ScriptModel[] = []
-  private currentFunctionId: string = ''
+  private currentFunctionId = ''
   private currentSchemaType: SchemaType | null = null
-  private currentSchemaId: string = ''
-  private currentProtoName: string = ''
+  private currentSchemaId = ''
+  private currentProtoName = ''
   private scriptApply: MessageType = 'all'
   private applyOption = [
     {

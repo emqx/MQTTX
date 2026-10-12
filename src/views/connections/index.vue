@@ -66,8 +66,8 @@ export default class Connections extends Vue {
     connectDatabaseFailMessage: string
   }) => void
 
-  private isEmpty: boolean = false
-  private isLoadingData: boolean = false
+  private isEmpty = false
+  private isLoadingData = false
   public currentConnection: ConnectionModel = { ...getDefaultRecord() }
 
   @Watch('$route.params.id')
@@ -115,11 +115,7 @@ export default class Connections extends Vue {
     }
   }
 
-  private async loadData(
-    shouldLoadLatest: boolean = false,
-    firstLoad: boolean = false,
-    callback?: () => {},
-  ): Promise<void> {
+  private async loadData(shouldLoadLatest = false, firstLoad = false, callback?: () => void): Promise<void> {
     try {
       if (firstLoad) {
         this.isLoadingData = true

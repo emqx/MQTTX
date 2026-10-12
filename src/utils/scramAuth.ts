@@ -8,8 +8,8 @@ export class ScramAuth {
   private password: string
   private algorithm: ScramAlgorithm
   private clientNonce: string
-  private clientFirstMessage: string = ''
-  private serverFirstMessage: string = ''
+  private clientFirstMessage = ''
+  private serverFirstMessage = ''
 
   constructor(username: string, password: string, algorithm: ScramAlgorithm = 'SCRAM-SHA-256') {
     this.username = username

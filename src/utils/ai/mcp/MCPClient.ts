@@ -14,7 +14,7 @@ export class MCPClient extends EventEmitter {
   private client: any
   private transport: any
   private tools: any[] = []
-  private connected: boolean = false
+  private connected = false
   private serverProcess: any = null
 
   /**
