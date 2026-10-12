@@ -89,7 +89,10 @@ const app = {
       delete state.showClientInfo[id]
     },
     [CHANGE_SUBSCRIPTIONS](state: App, payload: Subscriptions) {
-      state.activeConnection[payload.id].subscriptions = payload.subscriptions
+      // A connection that has not connected yet has no activeConnection entry
+      if (state.activeConnection[payload.id]) {
+        state.activeConnection[payload.id].subscriptions = payload.subscriptions
+      }
     },
     [SHOW_CLIENT_INFO](state: App, payload: ClientInfo) {
       state.showClientInfo[payload.id] = payload.showClientInfo
