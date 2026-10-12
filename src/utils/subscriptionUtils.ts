@@ -1,4 +1,5 @@
 import type { IClientSubscribeOptions } from 'mqtt'
+import { setMQTT5Properties } from './mqtt5Properties'
 
 /**
  * Build MQTT 5.0 properties for the SUBSCRIBE packet.
@@ -23,19 +24,15 @@ export const setSubscribeMQTT5Properties = (
  * disconnects and the client resumes it instead of starting clean. Subscriptions removed
  * while offline would then still be active on the broker after reconnecting.
  */
-export const hasPersistentSession = ({
-  clean,
-  mqttVersion,
-  properties,
-}: Pick<ConnectionModel, 'clean' | 'mqttVersion' | 'properties'>): boolean => {
-  if (clean) {
+export const hasPersistentSession = (
+  connection: Pick<ConnectionModel, 'clean' | 'mqttVersion' | 'properties'>,
+): boolean => {
+  if (connection.clean) {
     return false
   }
-  if (mqttVersion !== '5.0') {
+  if (connection.mqttVersion !== '5.0') {
     return true
   }
-  // MQTT 5.0 ends the session on disconnect unless Session Expiry Interval is set
-  const sessionExpiryInterval = properties?.sessionExpiryInterval
-  // Same as setMQTT5Properties: an empty interval with Clean Start off is sent as 0xFFFFFFFF
-  return sessionExpiryInterval === null || Number(sessionExpiryInterval) > 0
+  // MQTT 5.0 ends the session on disconnect unless the Session Expiry Interval sent in CONNECT is set
+  return Number(setMQTT5Properties(connection)?.sessionExpiryInterval) > 0
 }

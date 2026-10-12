@@ -5,7 +5,7 @@ import _ from 'lodash'
  * dependency) so unit tests can import them without bundling the store
  * and its database layer.
  */
-export const setMQTT5Properties = ({ clean, properties: option }: ConnectionModel) => {
+export const setMQTT5Properties = ({ clean, properties: option }: Pick<ConnectionModel, 'clean' | 'properties'>) => {
   if (option === undefined) {
     return undefined
   }

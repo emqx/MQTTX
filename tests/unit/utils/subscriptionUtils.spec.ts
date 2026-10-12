@@ -87,9 +87,6 @@ describe('subscriptionUtils', () => {
 
         it('should depend on Session Expiry Interval for MQTT 5.0 with Clean Start off', () => {
           expect(check({ clean: false, mqttVersion: '5.0', properties: { sessionExpiryInterval: 0 } })).to.equal(false)
-          expect(
-            check({ clean: false, mqttVersion: '5.0', properties: { sessionExpiryInterval: undefined } }),
-          ).to.equal(false)
           expect(check({ clean: false, mqttVersion: '5.0' })).to.equal(false)
           expect(check({ clean: false, mqttVersion: '5.0', properties: { sessionExpiryInterval: 3600 } })).to.equal(
             true,

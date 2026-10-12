@@ -73,7 +73,7 @@
           </a>
         </el-popover>
         <span class="qos">QoS {{ sub.qos }}</span>
-        <a href="javascript:;" class="close" @click.stop="unsubscribe(sub)">
+        <a href="javascript:;" class="close" @click.stop="removeSubscription(sub)">
           <i :class="unsubLoading ? 'el-icon-loading' : 'el-icon-close'"></i>
         </a>
       </div>
@@ -624,11 +624,18 @@ export default class SubscriptionsList extends Vue {
   private unsubscribe(row: SubscriptionModel, disable?: boolean): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (!this.client || !this.client.connected) {
-        resolve(this.unsubscribeOffline(row, disable))
+        this.$notify({
+          title: this.$tc('connections.notConnect'),
+          message: '',
+          type: 'error',
+          duration: 3000,
+          offset: 30,
+        })
+        resolve(false)
         return false
       }
       this.unsubLoading = true
-      const { topic, qos, disabled } = row
+      const { topic, qos } = row
       if (this.client.unsubscribe) {
         this.client.unsubscribe(topic, { qos }, async (error) => {
           this.unsubLoading = false
@@ -638,22 +645,7 @@ export default class SubscriptionsList extends Vue {
             return false
           }
           if (this.record.id) {
-            let payload: {
-              id: string
-              subscriptions: SubscriptionModel[]
-            } = {
-              id: this.record.id,
-              subscriptions: [],
-            }
-            if (disable) {
-              payload.subscriptions = this.setSubsDisable(topic, disabled)
-              this.$log.info(`Disabled topic: ${topic}`)
-            } else {
-              payload.subscriptions = this.subsList.filter((sub: SubscriptionModel) => sub.topic !== topic)
-              this.$log.info(`Removed topic: ${topic}`)
-            }
-            await this.syncSubscriptions(payload.subscriptions)
-            this.$emit('deleteTopic', topic)
+            await this.removeLocalSubscription(row, disable)
             this.$log.info(`Unsubscribe topic: ${topic}`)
             resolve(true)
             return true
@@ -667,8 +659,11 @@ export default class SubscriptionsList extends Vue {
     })
   }
 
-  // Offline, a subscription only lives on the broker if the connection keeps a persistent session
-  private async unsubscribeOffline({ topic, disabled }: SubscriptionModel, disable?: boolean): Promise<boolean> {
+  // Remove or disable a subscription, also while disconnected unless the broker keeps it in a persistent session
+  private async removeSubscription(row: SubscriptionModel, disable?: boolean): Promise<boolean> {
+    if (this.client?.connected) {
+      return this.unsubscribe(row, disable)
+    }
     if (hasPersistentSession(this.record)) {
       this.$notify({
         title: this.$tc('connections.persistentSessionUnsubscribe'),
@@ -679,17 +674,23 @@ export default class SubscriptionsList extends Vue {
       })
       return false
     }
-    // A reconnecting client restores its own subscriptions on reconnect, so drop the topic from it as well
-    if (this.client.reconnecting && !this.client.disconnecting && this.client.unsubscribe) {
-      this.client.unsubscribe(topic)
+    // A reconnecting client resubscribes its cached topics; this drops the topic and queues an UNSUBSCRIBE ahead of that
+    if (this.client?.reconnecting && !this.client.disconnecting) {
+      this.client.unsubscribe?.(row.topic)
     }
-    const subscriptions = disable
-      ? this.setSubsDisable(topic, disabled)
-      : this.subsList.filter((sub: SubscriptionModel) => sub.topic !== topic)
-    await this.syncSubscriptions(subscriptions)
-    this.$emit('deleteTopic', topic)
-    this.$log.info(`${disable ? 'Disabled' : 'Removed'} topic while disconnected: ${topic}`)
+    await this.removeLocalSubscription(row, disable)
     return true
+  }
+
+  private async removeLocalSubscription({ topic, disabled }: SubscriptionModel, disable?: boolean) {
+    if (disable) {
+      await this.syncSubscriptions(this.setSubsDisable(topic, disabled))
+      this.$log.info(`Disabled topic: ${topic}`)
+    } else {
+      await this.syncSubscriptions(this.subsList.filter((sub: SubscriptionModel) => sub.topic !== topic))
+      this.$log.info(`Removed topic: ${topic}`)
+    }
+    this.$emit('deleteTopic', topic)
   }
 
   private resetSubs() {
@@ -801,7 +802,7 @@ export default class SubscriptionsList extends Vue {
       return
     }
     if (disable) {
-      await this.unsubscribe({ ...this.selectedTopic, disabled: true }, true)
+      await this.removeSubscription({ ...this.selectedTopic, disabled: true }, true)
       return
     }
     if (!this.client || !this.client.connected) {
