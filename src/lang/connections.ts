@@ -48,12 +48,12 @@ export default {
     ko: '클라이언트가 연결되어 있지 않습니다',
   },
   persistentSessionUnsubscribe: {
-    zh: '该连接使用持久会话，断开期间 Broker 仍保留此订阅，请连接后再取消订阅',
-    en: 'This connection uses a persistent session, so the broker keeps this subscription while disconnected. Connect to unsubscribe',
-    tr: 'Bu bağlantı kalıcı oturum kullanıyor, bu nedenle broker bağlantı kesikken bu aboneliği korur. Abonelikten çıkmak için bağlanın',
-    ja: 'この接続は永続セッションを使用しているため、切断中もブローカーはこのサブスクリプションを保持します。購読を解除するには接続してください',
-    hu: 'Ez a kapcsolat tartós munkamenetet használ, így a bróker megtartja ezt a feliratkozást a kapcsolat bontása alatt. A leiratkozáshoz csatlakozzon',
-    ko: '이 연결은 영구 세션을 사용하므로 연결이 끊긴 동안에도 브로커가 이 구독을 유지합니다. 구독을 해제하려면 연결하세요',
+    zh: '持久会话下 Broker 仍保留该订阅，请连接后再取消订阅',
+    en: 'The broker keeps this subscription in a persistent session. Connect to unsubscribe',
+    tr: 'Broker bu aboneliği kalıcı oturumda tutar. Abonelikten çıkmak için bağlanın',
+    ja: '永続セッションではブローカーがこのサブスクリプションを保持します。接続してから購読を解除してください',
+    hu: 'A bróker tartós munkamenetben megtartja ezt a feliratkozást. A leiratkozáshoz csatlakozzon',
+    ko: '영구 세션에서는 브로커가 이 구독을 유지합니다. 연결한 후 구독을 해제하세요',
   },
   disconnect: {
     zh: '断开连接',

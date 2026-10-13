@@ -45,9 +45,9 @@ export default {
     ja: 'クライアント未接続',
   },
   persistentSessionUnsubscribe: {
-    zh: '该连接使用持久会话，断开期间 Broker 仍保留此订阅，请连接后再取消订阅',
-    en: 'This connection uses a persistent session, so the broker keeps this subscription while disconnected. Connect to unsubscribe',
-    ja: 'この接続は永続セッションを使用しているため、切断中もブローカーはこのサブスクリプションを保持します。購読を解除するには接続してください',
+    zh: '持久会话下 Broker 仍保留该订阅，请连接后再取消订阅',
+    en: 'The broker keeps this subscription in a persistent session. Connect to unsubscribe',
+    ja: '永続セッションではブローカーがこのサブスクリプションを保持します。接続してから購読を解除してください',
   },
   disconnect: {
     zh: '断开连接',
