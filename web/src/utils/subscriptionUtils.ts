@@ -17,3 +17,23 @@ export const setSubscribeMQTT5Properties = (
   }
   return Object.keys(properties).length > 0 ? properties : undefined
 }
+
+/**
+ * Whether subscriptions survive a reconnect: the broker keeps the session after the client
+ * disconnects and the client resumes it instead of starting clean. Subscriptions removed
+ * while offline would then still be active on the broker after reconnecting.
+ */
+export const hasPersistentSession = ({
+  clean,
+  mqttVersion,
+  properties,
+}: Pick<ConnectionModel, 'clean' | 'mqttVersion' | 'properties'>): boolean => {
+  if (clean) {
+    return false
+  }
+  if (mqttVersion !== '5.0') {
+    return true
+  }
+  // MQTT 5.0 ends the session on disconnect unless Session Expiry Interval is set
+  return Number(properties?.sessionExpiryInterval) > 0
+}
