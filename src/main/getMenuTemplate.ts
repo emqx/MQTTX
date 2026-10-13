@@ -4,7 +4,7 @@ import installCLI from './installCLI'
 
 const isMac = process.platform === 'darwin'
 
-// On Windows and Linux, closing the main window quits the app, so Ctrl+W only closes secondary windows.
+// Closing the main window quits the app, so the shortcut only closes secondary windows.
 export const closeFocusedWindow = (
   mainWindow: BaseWindow,
   focusedWindow: BaseWindow | undefined,
@@ -19,14 +19,12 @@ const getMenuTemplate = (win: BrowserWindow, lang?: Language): $TSFixed => {
   Object.keys(translations).forEach((key: keyof typeof translations) => {
     labels[key] = translations[key][lang || 'en']
   })
-  const closeWindowItem = isMac
-    ? { role: 'close', label: labels.closeWindow }
-    : {
-        label: labels.closeWindow,
-        accelerator: 'Ctrl + W',
-        click: (_item: MenuItem, focusedWindow: BaseWindow | undefined, event: KeyboardEvent) =>
-          closeFocusedWindow(win, focusedWindow, event.triggeredByAccelerator),
-      }
+  const closeWindowItem = {
+    label: labels.closeWindow,
+    accelerator: 'CmdOrCtrl + W',
+    click: (_item: MenuItem, focusedWindow: BaseWindow | undefined, event: KeyboardEvent) =>
+      closeFocusedWindow(win, focusedWindow, event.triggeredByAccelerator),
+  }
 
   return [
     // App

@@ -7,13 +7,13 @@ describe('closeFocusedWindow', () => {
     return window
   }
 
-  it('keeps the main window open when Ctrl+W is pressed', () => {
+  it('keeps the main window open when the shortcut is pressed', () => {
     const mainWindow = createWindow()
     closeFocusedWindow(mainWindow, mainWindow, true)
     expect(mainWindow.closed).to.equal(false)
   })
 
-  it('closes a secondary window when Ctrl+W is pressed', () => {
+  it('closes a secondary window when the shortcut is pressed', () => {
     const secondaryWindow = createWindow()
     closeFocusedWindow(createWindow(), secondaryWindow, true)
     expect(secondaryWindow.closed).to.equal(true)
