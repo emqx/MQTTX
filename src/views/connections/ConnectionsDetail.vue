@@ -1630,7 +1630,7 @@ export default class ConnectionsDetail extends Vue {
   private async sendMessage(
     message: MessageModel,
     type: PayloadType,
-    afterpublishMessageCallback?: (isNewPayload: boolean) => void,
+    afterpublishMessageCallback?: () => void,
     afterCallback?: () => void,
   ): Promise<void> {
     await this.publishMessage({ ...message }, type, afterpublishMessageCallback)
@@ -1680,8 +1680,6 @@ export default class ConnectionsDetail extends Vue {
     headerIdToUpdate
       ? await historyMessageHeaderService.updateCreateAt(headerIdToUpdate)
       : await historyMessageHeaderService.create(header)
-
-    return { isNewPayload: !payloadIdToUpdate, isNewHeader: !headerIdToUpdate }
   }
 
   /**
@@ -1712,14 +1710,14 @@ export default class ConnectionsDetail extends Vue {
   private async publishMessage(
     message: MessageModel,
     type: PayloadType,
-    afterSendCallback?: (isNewPayload: boolean) => void,
+    afterSendCallback?: () => void,
   ): Promise<void> {
     const { topic, qos, payload, retain, properties } = message
 
     const props = properties ? this.processProperties(properties) : undefined
 
     const connectionId = this.record.id
-    const { isNewPayload } = await this.insertHistory(
+    await this.insertHistory(
       { payload, payloadType: type, connectionId } as HistoryMessagePayloadModel,
       { qos, topic, retain, connectionId } as HistoryMessageHeaderModel,
     )
@@ -1763,7 +1761,7 @@ export default class ConnectionsDetail extends Vue {
       },
     )
 
-    afterSendCallback?.(isNewPayload)
+    afterSendCallback?.()
   }
 
   /**
