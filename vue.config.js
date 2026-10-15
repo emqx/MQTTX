@@ -8,10 +8,48 @@ module.exports = {
     host: '0.0.0.0',
     disableHostCheck: true,
   },
-  // Instruct Vue CLI to transpile the 'zod-to-json-schema' dependency with Babel,
-  // ensuring compatibility with environments that do not support modern JavaScript features.
-  transpileDependencies: ['zod-to-json-schema'],
+  // Instruct Vue CLI to transpile dependencies that ship modern JavaScript
+  // (ESM, optional chaining, nullish coalescing) with Babel, since webpack 4
+  // cannot parse that syntax on its own.
+  transpileDependencies: [
+    'zod-to-json-schema',
+    'ai',
+    '@ai-sdk/provider',
+    '@ai-sdk/provider-utils',
+    '@ai-sdk/gateway',
+    '@ai-sdk/deepseek',
+    '@ai-sdk/openai',
+    '@ai-sdk/anthropic',
+    '@ai-sdk/google',
+    '@ai-sdk/xai',
+    '@ai-sdk/azure',
+    '@workflow/serde',
+    '@vercel/oidc',
+    'eventsource-parser',
+    'zod',
+  ],
   chainWebpack: (config) => {
+    // The AI SDK v5+ packages are ESM-only and rely on package `exports` subpaths
+    // that webpack 4 cannot resolve. Map the specific subpaths to their dist files.
+    const resolveNodeModule = (...segments) => path.resolve(__dirname, 'node_modules', ...segments)
+    const aliases = {
+      '@ai-sdk/provider-utils/experimental-decision$': resolveNodeModule(
+        '@ai-sdk/provider-utils/dist/experimental-decision/index.js',
+      ),
+      '@ai-sdk/deepseek/internal$': resolveNodeModule('@ai-sdk/deepseek/dist/internal/index.js'),
+      '@ai-sdk/openai/internal$': resolveNodeModule('@ai-sdk/openai/dist/internal/index.js'),
+      'eventsource-parser/stream$': resolveNodeModule('eventsource-parser/dist/stream.cjs'),
+      '@vercel/oidc$': resolveNodeModule('@vercel/oidc/dist/index-browser.js'),
+      // zod v4 ships separate ESM and CJS builds; the CJS build is webpack 4 compatible.
+      'zod/v4$': resolveNodeModule('zod/v4/index.cjs'),
+      'zod/v4/core$': resolveNodeModule('zod/v4/core/index.cjs'),
+    }
+    Object.entries(aliases).forEach(([key, value]) => config.resolve.alias.set(key, value))
+
+    // Some dependencies (e.g. zod v4's CJS build) use the .cjs extension, which
+    // Vue CLI's JavaScript rule does not match by default.
+    config.module.rule('js').test(/\.([cm]?js|jsx)$/)
+
     // Add a rule to handle .mjs files (JavaScript modules).
     // This ensures that .mjs files in node_modules are processed correctly.
     config.module
