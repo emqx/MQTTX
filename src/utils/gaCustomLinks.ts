@@ -21,6 +21,10 @@ export default (lang: Language) => {
     EMQXCloud: `${EMQSite}/cloud${utm}mqttx-to-cloud`,
   }
 
+  const deviceAgentDocsENSite = 'https://docs.emqx.com/en/device-agent/latest/'
+  const deviceAgentDocsCNSite = 'https://docs.emqx.com/zh/device-agent/latest/'
+  const deviceAgentDocsSite = lang === 'zh' ? deviceAgentDocsCNSite : deviceAgentDocsENSite
+
   const signInENSite = `https://accounts.emqx.com/signin?continue=https://cloud-intl.emqx.com/console/&utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-signin`
   const signInCNSite = `https://accounts-zh.emqx.com/signin?continue=https://cloud.emqx.com/console/&utm_source=mqttx&utm_medium=referral&utm_campaign=mqttx-to-signin`
   const signInSite = lang === 'zh' ? signInCNSite : signInENSite
@@ -31,6 +35,8 @@ export default (lang: Language) => {
     EMQ: `${EMQSite}${utm}mqttx-to-homepage`,
     EMQXCloud: `${EMQSite}/cloud${utm}mqttx-to-cloud`,
     EMQXPlatform: `${EMQSite}/platform${utm}mqttx-to-platform`,
+    deviceAgent: `${EMQSite}/device-agent${utm}mqttx-to-device-agent`,
+    deviceAgentDocs: deviceAgentDocsSite,
     signIn: signInSite,
   }
 
