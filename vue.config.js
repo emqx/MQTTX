@@ -11,38 +11,22 @@ module.exports = {
   // Instruct Vue CLI to transpile dependencies that ship modern JavaScript
   // (ESM, optional chaining, nullish coalescing) with Babel, since webpack 4
   // cannot parse that syntax on its own.
-  transpileDependencies: [
-    'zod-to-json-schema',
-    'ai',
-    '@ai-sdk/provider',
-    '@ai-sdk/provider-utils',
-    '@ai-sdk/gateway',
-    '@ai-sdk/deepseek',
-    '@ai-sdk/openai',
-    '@ai-sdk/anthropic',
-    '@ai-sdk/google',
-    '@ai-sdk/xai',
-    '@ai-sdk/azure',
-    '@workflow/serde',
-    '@vercel/oidc',
-    'eventsource-parser',
-    'zod',
-  ],
+  transpileDependencies: ['zod-to-json-schema', 'ai', /[\\/]node_modules[\\/]@ai-sdk[\\/]/, '@vercel/oidc', 'zod'],
   chainWebpack: (config) => {
-    // The AI SDK v5+ packages are ESM-only and rely on package `exports` subpaths
-    // that webpack 4 cannot resolve. Map the specific subpaths to their dist files.
-    const resolveNodeModule = (...segments) => path.resolve(__dirname, 'node_modules', ...segments)
+    // The AI SDK v5+ packages rely on package `exports` subpaths that webpack 4
+    // cannot resolve, so resolve them with Node, which honors `exports` and finds
+    // copies nested under the importing package. For zod v4 this picks the CJS
+    // build, which webpack 4 can parse.
     const aliases = {
-      '@ai-sdk/provider-utils/experimental-decision$': resolveNodeModule(
-        '@ai-sdk/provider-utils/dist/experimental-decision/index.js',
-      ),
-      '@ai-sdk/deepseek/internal$': resolveNodeModule('@ai-sdk/deepseek/dist/internal/index.js'),
-      '@ai-sdk/openai/internal$': resolveNodeModule('@ai-sdk/openai/dist/internal/index.js'),
-      'eventsource-parser/stream$': resolveNodeModule('eventsource-parser/dist/stream.cjs'),
-      '@vercel/oidc$': resolveNodeModule('@vercel/oidc/dist/index-browser.js'),
-      // zod v4 ships separate ESM and CJS builds; the CJS build is webpack 4 compatible.
-      'zod/v4$': resolveNodeModule('zod/v4/index.cjs'),
-      'zod/v4/core$': resolveNodeModule('zod/v4/core/index.cjs'),
+      '@ai-sdk/provider-utils/experimental-decision$': require.resolve('@ai-sdk/provider-utils/experimental-decision'),
+      '@ai-sdk/deepseek/internal$': require.resolve('@ai-sdk/deepseek/internal'),
+      '@ai-sdk/openai/internal$': require.resolve('@ai-sdk/openai/internal'),
+      'eventsource-parser/stream$': require.resolve('eventsource-parser/stream', {
+        paths: [path.dirname(require.resolve('@ai-sdk/provider-utils'))],
+      }),
+      '@vercel/oidc$': path.resolve(__dirname, 'node_modules/@vercel/oidc/dist/index-browser.js'),
+      'zod/v4$': require.resolve('zod/v4'),
+      'zod/v4/core$': require.resolve('zod/v4/core'),
     }
     Object.entries(aliases).forEach(([key, value]) => config.resolve.alias.set(key, value))
 
