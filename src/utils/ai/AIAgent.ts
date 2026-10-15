@@ -376,7 +376,7 @@ export class AIAgent {
         }
       }
 
-      if (isReasoningModel(this.model) && reasoningText) {
+      if (isReasoningModel(this.model)) {
         try {
           const finalReason = await reasoningText
           responseMessage.reasoning = finalReason
