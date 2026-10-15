@@ -33,6 +33,19 @@ export class Commander {
     this.program = new Command()
   }
 
+  getLearnMoreText(): string {
+    const utm = '?utm_source=mqttx-cli&utm_medium=referral&utm_campaign='
+    return [
+      '',
+      'Learn more:',
+      '  Docs           https://mqttx.app/docs/cli',
+      `  EMQX Platform  https://www.emqx.com/en/platform${utm}mqttx-cli-to-platform`,
+      `  EMQX Cloud     https://www.emqx.com/en/cloud${utm}mqttx-cli-to-cloud`,
+      `  Device Agent   https://www.emqx.com/en/device-agent${utm}mqttx-cli-to-device-agent`,
+      '                 Connect your devices to your AI brain over MQTT.',
+    ].join('\n')
+  }
+
   init(): void {
     this.program
       .name('mqttx')
@@ -40,6 +53,7 @@ export class Commander {
       .enablePositionalOptions()
       .allowUnknownOption(false)
       .version(`${version}\nhttps://mqttx.app/changelogs/v${version}`, '-v, --version')
+      .addHelpText('after', this.getLearnMoreText())
 
     this.program
       .command('check')
