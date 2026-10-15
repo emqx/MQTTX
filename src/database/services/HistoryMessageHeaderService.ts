@@ -14,9 +14,10 @@ export default class HistoryMessageHeaderService {
 
   public static MAX_REMAIN_COUNT = 10
 
-  public async getAll(): Promise<HistoryMessageHeaderModel[] | undefined> {
+  public async getAll(connectionId: string): Promise<HistoryMessageHeaderModel[] | undefined> {
     const query: HistoryMessageHeaderEntity[] | undefined = await this.messageRepository
       .createQueryBuilder('pld')
+      .where('pld.connectionId = :connectionId', { connectionId })
       .addOrderBy('createAt', 'ASC')
       .getMany()
     if (!query) {
@@ -43,6 +44,7 @@ export default class HistoryMessageHeaderService {
 
   public async create(data: HistoryMessageHeaderModel): Promise<HistoryMessageHeaderModel | undefined> {
     const query: [HistoryMessageHeaderEntity[], number] = await this.messageRepository.findAndCount({
+      where: { connectionId: data.connectionId },
       order: {
         createAt: 'ASC',
       },

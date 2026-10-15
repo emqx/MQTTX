@@ -167,4 +167,8 @@ export default class ConnectionEntity {
   @Column({ type: 'varchar', nullable: true, default: null })
   pushPropsContentType?: string | null
   // MQTT5 Properties end
+
+  // content of the publish area, loaded only by the publish area
+  @Column({ type: 'simple-json', nullable: true, default: null, select: false })
+  pushMessage?: PushMessageModel | null
 }
