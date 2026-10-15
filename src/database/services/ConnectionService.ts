@@ -577,6 +577,19 @@ export default class ConnectionService {
     })
   }
 
+  public async getPushMessage(connectionId: string): Promise<PushMessageModel | undefined> {
+    const query = await this.connectionRepository
+      .createQueryBuilder('cn')
+      .select(['cn.id', 'cn.pushMessage'])
+      .where('cn.id = :connectionId', { connectionId })
+      .getOne()
+    return query?.pushMessage ?? undefined
+  }
+
+  public async updatePushMessage(connectionId: string, pushMessage: PushMessageModel) {
+    await this.connectionRepository.update(connectionId, { pushMessage })
+  }
+
   public async getPushProp(connectionId: string): Promise<MessageModel['properties'] | undefined> {
     const query = await this.connectionRepository.findOne(connectionId)
     if (!query) {

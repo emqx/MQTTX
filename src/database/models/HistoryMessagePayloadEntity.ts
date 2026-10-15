@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm'
+import ConnectionEntity from './ConnectionEntity'
 
 @Entity('historyMessagePayloadEntity')
 export default class HistoryMessagePayloadEntity {
@@ -13,4 +14,11 @@ export default class HistoryMessagePayloadEntity {
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createAt?: string
+
+  @ManyToOne(() => ConnectionEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'connection_id', referencedColumnName: 'id' })
+  connection?: ConnectionEntity
+
+  @Column({ name: 'connection_id' })
+  connectionId!: string
 }

@@ -14,9 +14,10 @@ export default class HistoryMessagePayloadService {
 
   public static MAX_REMAIN_COUNT = 10
 
-  public async getAll(): Promise<HistoryMessagePayloadModel[] | undefined> {
+  public async getAll(connectionId: string): Promise<HistoryMessagePayloadModel[] | undefined> {
     const query: HistoryMessagePayloadEntity[] | undefined = await this.messageRepository
       .createQueryBuilder('pld')
+      .where('pld.connectionId = :connectionId', { connectionId })
       .addOrderBy('createAt', 'ASC')
       .getMany()
     if (!query) {
@@ -51,8 +52,9 @@ export default class HistoryMessagePayloadService {
 
   public async create(data: HistoryMessagePayloadModel): Promise<HistoryMessagePayloadModel | undefined> {
     const query: [HistoryMessagePayloadModel[], number] = await this.messageRepository.findAndCount({
+      where: { connectionId: data.connectionId },
       order: {
-        createAt: 'DESC',
+        createAt: 'ASC',
       },
     })
     if (query) {

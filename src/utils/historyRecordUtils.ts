@@ -2,7 +2,7 @@ import useServices from '@/database/useServices'
 
 export const hasMessagePayloadID = async (data: HistoryMessagePayloadModel): Promise<string | null> => {
   const { historyMessagePayloadService } = useServices()
-  const payloads = await historyMessagePayloadService.getAll()
+  const payloads = await historyMessagePayloadService.getAll(data.connectionId!)
   if (payloads) {
     const res = payloads.find((el: HistoryMessagePayloadModel) => {
       return data.payload === el.payload && data.payloadType === el.payloadType
@@ -14,7 +14,7 @@ export const hasMessagePayloadID = async (data: HistoryMessagePayloadModel): Pro
 
 export const hasMessageHeaderID = async (data: HistoryMessageHeaderModel): Promise<string | null> => {
   const { historyMessageHeaderService } = useServices()
-  const headers = await historyMessageHeaderService.getAll()
+  const headers = await historyMessageHeaderService.getAll(data.connectionId!)
   if (headers) {
     const res = headers.find((el: HistoryMessageHeaderModel) => {
       return data.qos === el.qos && data.topic === el.topic && data.retain === el.retain

@@ -1718,9 +1718,10 @@ export default class ConnectionsDetail extends Vue {
 
     const props = properties ? this.processProperties(properties) : undefined
 
+    const connectionId = this.record.id
     const { isNewPayload } = await this.insertHistory(
-      { payload, payloadType: type } as HistoryMessagePayloadModel,
-      { qos, topic, retain } as HistoryMessageHeaderModel,
+      { payload, payloadType: type, connectionId } as HistoryMessagePayloadModel,
+      { qos, topic, retain, connectionId } as HistoryMessageHeaderModel,
     )
 
     let convertedPayload = ''

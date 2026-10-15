@@ -217,6 +217,15 @@ declare global {
     createAt?: string
   }
 
+  // Content of a connection's publish area
+  interface PushMessageModel {
+    topic: string
+    qos: QoS
+    retain: boolean
+    payload: string
+    payloadType: PayloadType
+  }
+
   interface SSLPath {
     rejectUnauthorized?: boolean
     ALPNProtocols?: string | null

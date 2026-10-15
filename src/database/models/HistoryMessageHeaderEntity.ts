@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm'
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm'
+import ConnectionEntity from './ConnectionEntity'
 
 type QoS = 0 | 1 | 2
 
@@ -18,4 +19,11 @@ export default class HistoryMessageHeaderEntity {
 
   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
   createAt?: string
+
+  @ManyToOne(() => ConnectionEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'connection_id', referencedColumnName: 'id' })
+  connection?: ConnectionEntity
+
+  @Column({ name: 'connection_id' })
+  connectionId!: string
 }
