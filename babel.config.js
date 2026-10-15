@@ -41,6 +41,7 @@ const plugins = [
   // syntax into compatible JavaScript for environments that do not support these features.
   '@babel/plugin-proposal-optional-chaining',
   '@babel/plugin-proposal-nullish-coalescing-operator',
+  '@babel/plugin-proposal-logical-assignment-operators',
 ]
 if (process.env.NODE_ENV === 'development') {
   plugins.push('dynamic-import-node')
