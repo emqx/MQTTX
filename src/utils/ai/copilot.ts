@@ -28,7 +28,7 @@ import {
   AVRO_SCHEMA_COMMAND_VALUES,
 } from './preset'
 import { getCopilotMessageId } from '../idGenerator'
-import type { LanguageModelV1 } from '@ai-sdk/provider'
+import type { LanguageModelV4 } from '@ai-sdk/provider'
 
 export const LANGUAGE_MAP = {
   zh: '请使用中文回答（简体中文）',
@@ -120,7 +120,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
   },
   {
     value: 'DeepSeek' as const,
-    children: [{ value: 'deepseek-chat' }, { value: 'deepseek-reasoner' }],
+    children: [{ value: 'deepseek-flash' }, { value: 'deepseek-v4-pro' }],
     providerCreator: createDeepSeek,
   },
   {
@@ -221,7 +221,7 @@ export const AIAPIHostOptions = [
   { value: 'https://${resourceName}.openai.azure.com' },
 ]
 
-export const REASONING_MODEL_REGEX = /thinking|reasoner|r1/i
+export const REASONING_MODEL_REGEX = /thinking|reasoner|r1|deepseek-flash|deepseek-v4/i
 
 /**
  * Determines if the provided model is a reasoning-capable model.
@@ -259,7 +259,7 @@ const getAzureProviderOptions = (baseURL: string): Record<string, any> => {
 }
 
 /**
- * Gets the appropriate LanguageModelV1 instance for the specified provider.
+ * Gets the appropriate LanguageModelV4 instance for the specified provider.
  *
  * This function creates and configures the appropriate AI model provider based on the specified
  * provider type. It handles special configuration for Azure OpenAI, and falls back to OpenAI
@@ -270,14 +270,14 @@ const getAzureProviderOptions = (baseURL: string): Record<string, any> => {
  * @param opts.baseURL - The base URL for the API endpoint
  * @param opts.apiKey - The API key for authentication
  * @param opts.providerType - The AI provider type (OpenAI, Azure OpenAI, Anthropic, etc.)
- * @returns A configured LanguageModelV1 compatible provider instance
+ * @returns A configured LanguageModelV4 compatible provider instance
  */
 export const getModelProvider = (opts: {
   model: AIModel
   baseURL: string
   apiKey: string
   providerType: typeof AImodelsOptions[number]['value']
-}): LanguageModelV1 => {
+}): LanguageModelV4 => {
   const { model, baseURL, apiKey, providerType } = opts
 
   const providerConfig = AImodelsOptions.find((p) => p.value === providerType)
@@ -287,7 +287,7 @@ export const getModelProvider = (opts: {
       `Unsupported or misconfigured provider type: ${providerType}. Falling back to default OpenAI with host ${baseURL} and model ${model}.`,
     )
     const fallbackProvider = createOpenAI({ apiKey })
-    return fallbackProvider(model) as LanguageModelV1
+    return fallbackProvider.chat(model) as LanguageModelV4
   }
 
   let creatorOptions: Record<string, any> = {
@@ -302,9 +302,16 @@ export const getModelProvider = (opts: {
   }
 
   const providerCreator = providerConfig.providerCreator
-  const provider = providerCreator(creatorOptions)
+  const provider = providerCreator(creatorOptions) as {
+    chat?: (modelId: AIModel) => LanguageModelV4
+  } & ((modelId: AIModel) => LanguageModelV4)
 
-  return provider(model) as LanguageModelV1
+  // Since AI SDK v5 the OpenAI and Azure call signatures target the Responses API.
+  // MQTTX talks to Chat Completions-compatible endpoints, so use `chat` when the
+  // provider exposes it (every provider except xAI, which only ships Responses).
+  const createModel = provider.chat ? provider.chat.bind(provider) : provider
+
+  return createModel(model) as LanguageModelV4
 }
 
 export const buildMCPAnalysisMessages = (

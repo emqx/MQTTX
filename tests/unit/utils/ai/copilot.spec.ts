@@ -70,7 +70,7 @@ describe('copilot', () => {
 
       const deepSeek = AImodelsOptions.find((p) => p.value === 'DeepSeek')
       expect(deepSeek?.children).to.be.an('array').that.is.not.empty
-      expect(deepSeek?.children.map((c) => c.value)).to.include('deepseek-chat')
+      expect(deepSeek?.children.map((c) => c.value)).to.include('deepseek-flash')
 
       const anthropic = AImodelsOptions.find((p) => p.value === 'Anthropic')
       expect(anthropic?.children).to.be.an('array').that.is.not.empty
@@ -145,7 +145,7 @@ describe('copilot', () => {
     it('should return a provider instance for DeepSeek', () => {
       expect(() => {
         getModelProvider({
-          model: 'deepseek-chat',
+          model: 'deepseek-flash',
           baseURL: 'https://api.deepseek.com/v1',
           apiKey: 'test-key-deepseek',
           providerType: 'DeepSeek',

@@ -116,7 +116,7 @@ export type AIModel = Parameters<
     | typeof createAnthropic
     | typeof createXai
     | typeof createGoogleGenerativeAI
-  >['chat']
+  >['languageModel']
 >[0]
 
 /**
