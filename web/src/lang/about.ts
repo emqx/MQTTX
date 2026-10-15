@@ -49,45 +49,45 @@ export default {
     en: 'Try EMQX Cloud for free',
     ja: 'EMQX Cloudの無料体験',
   },
-  platformTitle: {
-    zh: '统一的物联网 MQTT 平台',
-    en: 'The Unified MQTT Platform for IoT',
-    ja: 'IoT向け統合MQTTプラットフォーム',
-  },
-  platformDesc: {
-    zh: '完整的生产级 MQTT 平台，无缝连接工业设备、边缘网关和云服务。从边缘协议桥接到超大规模云消息传递，统一在一个平台下管理您的整个物联网数据基础设施。',
-    en: 'Connect everything, scale infinitely. One platform for industrial devices, edge gateways, and cloud services — powering your entire IoT infrastructure.',
-    ja: '産業用デバイス、エッジゲートウェイ、クラウドサービスをシームレスに接続する、完全な本番環境対応MQTTプラットフォーム。',
-  },
-  statDownloads: {
-    zh: '产品下载量',
-    en: 'Product Downloads',
-    ja: '製品ダウンロード数',
-  },
-  statClusters: {
-    zh: '全球部署集群',
-    en: 'Global Clusters',
-    ja: 'グローバルクラスター',
-  },
-  statProtocols: {
-    zh: '工业协议支持',
-    en: 'Industrial Protocols',
-    ja: '産業用プロトコル',
-  },
-  statLatency: {
-    zh: '超低延迟',
-    en: 'Ultra-Low Latency',
-    ja: '超低遅延',
-  },
-  statConnections: {
-    zh: '单集群并发连接',
-    en: 'Connections/Cluster',
-    ja: '接続数/クラスター',
-  },
   tryPlatform: {
     zh: '立即免费试用',
     en: 'Start Free Trial',
     ja: '無料トライアルを開始',
+  },
+  deviceAgentBadge: {
+    zh: '新品',
+    en: 'New',
+    ja: '新機能',
+  },
+  deviceAgentTitle: {
+    zh: '让设备快速接入你的 AI 大脑',
+    en: 'Connect Your Devices to Your AI Brain',
+    ja: 'デバイスをAIの頭脳にすばやく接続',
+  },
+  deviceAgentDesc: {
+    zh: '用自然语言描述设备，几分钟生成模型、SDK 和模拟器；AI 通过 MQTT 读取状态、下发指令，支持对话、语音或 IM 控制。',
+    en: 'Describe a device in plain language. AI reads its state and sends commands over MQTT, via chat, voice, or IM.',
+    ja: 'デバイスを自然言語で記述すると、モデル・SDK・シミュレーターを数分で生成。AIはMQTT経由で状態を読み取り、コマンドを送信します。',
+  },
+  tryDeviceAgent: {
+    zh: '了解 Device Agent',
+    en: 'Explore Device Agent',
+    ja: 'Device Agentを見る',
+  },
+  deviceAgentDocs: {
+    zh: '查看文档',
+    en: 'View Docs',
+    ja: 'ドキュメント',
+  },
+  platformDescShort: {
+    zh: '从边缘协议桥接到超大规模云消息传递，统一管理整个物联网数据基础设施。',
+    en: 'From edge protocol bridging to hyperscale cloud messaging — one platform for your IoT data infrastructure.',
+    ja: 'エッジプロトコルブリッジから超大規模クラウドメッセージングまで、IoTデータ基盤を1つのプラットフォームで。',
+  },
+  cloudDescShort: {
+    zh: '全托管的 MQTT 云服务，按量计费，14 天免费试用。',
+    en: 'The fully managed MQTT cloud service — pay-as-you-go, 14-day free trial.',
+    ja: 'フルマネージドMQTTクラウドサービス。従量課金、14日間の無料トライアル。',
   },
   signIn: {
     zh: '登录',

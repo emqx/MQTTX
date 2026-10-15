@@ -86,44 +86,107 @@
             </button>
           </div>
 
-          <!-- EMQX Platform Promotion -->
-          <div class="platform-promo">
-            <h3 class="platform-promo__title">EMQX Platform - {{ $t('about.platformTitle') }}</h3>
-            <p class="platform-promo__desc">{{ $t('about.platformDesc') }}</p>
-            <div class="platform-promo__stats">
-              <div class="stat-item">
-                <span class="stat-value">50M+</span>
-                <span class="stat-label">{{ $t('about.statDownloads') }}</span>
+          <!-- Products Promotion -->
+          <div class="promo">
+            <div class="promo-hero">
+              <div class="promo-hero__content">
+                <div class="promo-hero__meta">
+                  <span class="promo-hero__badge">{{ $t('about.deviceAgentBadge') }}</span>
+                  <span class="promo-hero__brand">Device Agent</span>
+                </div>
+                <h3 class="promo-hero__title">{{ $t('about.deviceAgentTitle') }}</h3>
+                <p class="promo-hero__desc">{{ $t('about.deviceAgentDesc') }}</p>
+                <div class="promo-hero__actions">
+                  <button
+                    type="button"
+                    class="promo-hero__btn promo-hero__btn--primary"
+                    @click="goToLink(deviceAgentWebsite)"
+                  >
+                    <span>{{ $t('about.tryDeviceAgent') }}</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                      <path
+                        d="M5 12H19M19 12L12 5M19 12L12 19"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="promo-hero__btn promo-hero__btn--ghost"
+                    @click="goToLink(deviceAgentDocsLink)"
+                  >
+                    <span>{{ $t('about.deviceAgentDocs') }}</span>
+                  </button>
+                </div>
               </div>
-              <div class="stat-item">
-                <span class="stat-value">400K+</span>
-                <span class="stat-label">{{ $t('about.statClusters') }}</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">100+</span>
-                <span class="stat-label">{{ $t('about.statProtocols') }}</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">&lt;5ms</span>
-                <span class="stat-label">{{ $t('about.statLatency') }}</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">10M+</span>
-                <span class="stat-label">{{ $t('about.statConnections') }}</span>
-              </div>
-            </div>
-            <div class="platform-promo__actions">
-              <button class="platform-promo__btn platform-promo__btn--primary" @click="goToLink(emqxPlatformWebsite)">
-                <span>{{ $t('about.tryPlatform') }}</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <div class="promo-hero__visual" aria-hidden="true">
+                <svg viewBox="0 0 120 88" fill="none">
+                  <defs>
+                    <linearGradient
+                      id="promoCoreGradient"
+                      x1="78"
+                      y1="30"
+                      x2="106"
+                      y2="58"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stop-color="#a78bfa" />
+                      <stop offset="1" stop-color="#3b82f6" />
+                    </linearGradient>
+                  </defs>
+                  <rect class="promo-node" x="2" y="12" width="22" height="12" rx="3" />
+                  <rect class="promo-node" x="2" y="38" width="22" height="12" rx="3" />
+                  <rect class="promo-node" x="2" y="64" width="22" height="12" rx="3" />
+                  <path class="promo-flow promo-flow--1" d="M24 18H56C66 18 70 34 78 40" />
+                  <path class="promo-flow promo-flow--2" d="M24 44H78" />
+                  <path class="promo-flow promo-flow--3" d="M24 70H56C66 70 70 54 78 48" />
+                  <circle class="promo-core-ring" cx="92" cy="44" r="22" />
+                  <circle cx="92" cy="44" r="14" fill="url(#promoCoreGradient)" />
                   <path
-                    d="M5 12H19M19 12L12 5M19 12L12 19"
-                    stroke-width="2"
+                    class="promo-core-mark"
+                    d="M86 48.5L90 39.5L94 48.5M87.5 45.5H92.5"
+                    stroke-width="1.6"
                     stroke-linecap="round"
                     stroke-linejoin="round"
                   />
+                  <path class="promo-core-mark" d="M97 39.5V48.5" stroke-width="1.6" stroke-linecap="round" />
                 </svg>
-              </button>
+              </div>
+            </div>
+
+            <div class="promo-row">
+              <div class="promo-card">
+                <h4 class="promo-card__title">EMQX Platform</h4>
+                <p class="promo-card__desc">{{ $t('about.platformDescShort') }}</p>
+                <button type="button" class="promo-card__link" @click="goToLink(emqxPlatformWebsite)">
+                  <span>{{ $t('about.tryPlatform') }}</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <path
+                      d="M5 12H19M19 12L12 5M19 12L12 19"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+              <div class="promo-card">
+                <h4 class="promo-card__title">EMQX Cloud</h4>
+                <p class="promo-card__desc">{{ $t('about.cloudDescShort') }}</p>
+                <button type="button" class="promo-card__link" @click="goToLink(emqxCloudWebsite)">
+                  <span>{{ $t('about.tryCloud') }}</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <path
+                      d="M5 12H19M19 12L12 5M19 12L12 19"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -225,6 +288,18 @@ export default class About extends Vue {
     return gaCustomLinks(this.getterLang).about.EMQXPlatform
   }
 
+  get emqxCloudWebsite(): string {
+    return gaCustomLinks(this.getterLang).about.EMQXCloud
+  }
+
+  get deviceAgentWebsite(): string {
+    return gaCustomLinks(this.getterLang).about.deviceAgent
+  }
+
+  get deviceAgentDocsLink(): string {
+    return gaCustomLinks(this.getterLang).about.deviceAgentDocs
+  }
+
   get signInLink(): string {
     return gaCustomLinks(this.getterLang).about.signIn
   }
@@ -306,6 +381,7 @@ export default class About extends Vue {
   align-items: center;
   justify-content: center;
   padding: 24px;
+  overflow-y: auto;
 }
 
 /* Background Effects */
@@ -402,36 +478,51 @@ export default class About extends Vue {
     }
   }
 
-  .platform-promo {
+  .promo-hero {
     background: #fff;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-
-    &::before {
-      background: linear-gradient(90deg, #7c3aed, #3b82f6, #7c3aed);
-    }
-
-    &::after {
-      background: radial-gradient(circle, rgba(124, 58, 237, 0.06) 0%, transparent 70%);
-    }
   }
 
-  .platform-promo__title {
-    color: #1e1b4b;
-  }
-
-  .platform-promo__desc {
+  .promo-hero__brand {
     color: #4b5563;
   }
 
-  .stat-value {
-    background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .promo-hero__title {
+    color: #1e1b4b;
   }
 
-  .stat-label {
+  .promo-hero__desc {
     color: #6b7280;
+  }
+
+  .promo-hero__btn--ghost {
+    background: rgba(124, 58, 237, 0.08);
+    color: #5b21b6;
+
+    &:hover {
+      background: rgba(124, 58, 237, 0.16);
+      color: #5b21b6;
+    }
+  }
+
+  .promo-hero__visual {
+    .promo-node {
+      fill: rgba(17, 24, 39, 0.04);
+      stroke: rgba(17, 24, 39, 0.2);
+    }
+
+    .promo-flow {
+      stroke: rgba(124, 58, 237, 0.35);
+    }
+
+    .promo-core-ring {
+      stroke: rgba(124, 58, 237, 0.3);
+    }
+  }
+
+  .promo-card {
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
 }
 
@@ -460,6 +551,7 @@ export default class About extends Vue {
   gap: 80px;
   max-width: 900px;
   width: 100%;
+  margin: auto;
 }
 
 /* Left Column - Logo */
@@ -646,14 +738,19 @@ export default class About extends Vue {
   }
 }
 
-/* Platform Promotion */
-.platform-promo {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
-  border-radius: 14px;
-  padding: 24px;
-  margin-top: 8px;
-  margin-bottom: 24px;
+/* Products Promotion */
+.promo {
+  margin-bottom: 12px;
+}
+
+.promo-hero {
   position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
   overflow: hidden;
 
   &::before {
@@ -665,82 +762,78 @@ export default class About extends Vue {
     height: 2px;
     background: linear-gradient(90deg, #7c3aed, #3b82f6, #7c3aed);
   }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
-    pointer-events: none;
-  }
 }
 
-.platform-promo__title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #fff;
-  margin: 0 0 16px 0;
+.promo-hero__content {
+  flex: 1;
+  min-width: 0;
 }
 
-.platform-promo__desc {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.75);
-  line-height: 1.6;
-  margin: 0 0 20px 0;
-}
-
-.platform-promo__stats {
+.promo-hero__meta {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px 20px;
-  margin-bottom: 20px;
-}
-
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.stat-value {
-  font-size: 16px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', monospace;
-}
-
-.stat-label {
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.5);
-  line-height: 1.3;
-}
-
-.platform-promo__actions {
-  display: flex;
-  gap: 12px;
-}
-
-.platform-promo__btn {
-  display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
+  margin-bottom: 8px;
+}
+
+.promo-hero__badge {
+  padding: 2px 7px;
+  border-radius: 100px;
+  background: linear-gradient(135deg, #34c388 0%, #10b981 100%);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.promo-hero__brand {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.promo-hero__title {
+  margin: 0 0 6px 0;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.promo-hero__desc {
+  margin: 0 0 14px 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12.5px;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.promo-hero__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.promo-hero__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
   border: none;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.25s ease;
 
   svg {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     transition: transform 0.25s ease;
   }
 
@@ -758,11 +851,128 @@ export default class About extends Vue {
     }
   }
 
+  &--ghost {
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.85);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+  }
+
   &:active {
     transform: translateY(0);
   }
 }
 
+.promo-hero__visual {
+  flex-shrink: 0;
+  width: 110px;
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .promo-node {
+    fill: rgba(255, 255, 255, 0.08);
+    stroke: rgba(255, 255, 255, 0.32);
+    stroke-width: 1;
+  }
+
+  .promo-flow {
+    stroke: rgba(255, 255, 255, 0.3);
+    stroke-width: 1.2;
+    stroke-dasharray: 3 4;
+    animation: promo-flow 1.6s linear infinite;
+  }
+
+  .promo-flow--2 {
+    animation-delay: 0.25s;
+  }
+
+  .promo-flow--3 {
+    animation-delay: 0.5s;
+  }
+
+  .promo-core-ring {
+    stroke: rgba(124, 58, 237, 0.45);
+    stroke-width: 1;
+    stroke-dasharray: 3 5;
+  }
+
+  .promo-core-mark {
+    stroke: #fff;
+  }
+}
+
+@keyframes promo-flow {
+  to {
+    stroke-dashoffset: -14;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo-hero__visual .promo-flow {
+    animation: none;
+  }
+}
+
+.promo-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.promo-card {
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--color-bg-card-gradient);
+}
+
+.promo-card__title {
+  margin: 0 0 6px 0;
+  color: var(--color-text-default);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.promo-card__desc {
+  flex: 1;
+  margin: 0 0 10px 0;
+  color: var(--color-text-light);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.promo-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-main-green);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+
+  svg {
+    width: 13px;
+    height: 13px;
+    transition: transform 0.25s ease;
+  }
+
+  &:hover svg {
+    transform: translateX(3px);
+  }
+}
 /* Footer */
 .about-footer {
   display: flex;
