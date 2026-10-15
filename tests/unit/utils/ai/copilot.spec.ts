@@ -229,5 +229,61 @@ describe('copilot', () => {
         })
       }).not.to.throw()
     })
+
+    describe('request URL', () => {
+      const originalFetch = globalThis.fetch
+
+      afterEach(() => {
+        globalThis.fetch = originalFetch
+      })
+
+      const getRequestURL = async (opts: Parameters<typeof getModelProvider>[0]) => {
+        let requestURL = ''
+        globalThis.fetch = (async (input: RequestInfo | URL) => {
+          requestURL = input.toString()
+          throw new Error('stop')
+        }) as typeof fetch
+        try {
+          await getModelProvider(opts).doGenerate({
+            prompt: [{ role: 'user', content: [{ type: 'text', text: 'hi' }] }],
+          })
+        } catch {}
+        return requestURL
+      }
+
+      it('should use Chat Completions for OpenAI-compatible hosts', async () => {
+        const url = await getRequestURL({
+          model: 'deepseek-ai/DeepSeek-V3',
+          baseURL: 'https://api.siliconflow.cn/v1',
+          apiKey: 'test-key-siliconflow',
+          providerType: 'SiliconFlow',
+        })
+        expect(url).to.equal('https://api.siliconflow.cn/v1/chat/completions')
+      })
+
+      it('should use deployment-based Azure URLs for an endpoint baseURL', async () => {
+        const url = await getRequestURL({
+          model: 'deployment-gpt-4o',
+          baseURL: 'https://my-azure-resource.openai.azure.com/?api-version=2025-01-01-preview',
+          apiKey: 'test-key-azure',
+          providerType: 'Azure OpenAI',
+        })
+        expect(url).to.equal(
+          'https://my-azure-resource.openai.azure.com/openai/deployments/deployment-gpt-4o/chat/completions?api-version=2025-01-01-preview',
+        )
+      })
+
+      it('should use deployment-based Azure URLs for a resource name', async () => {
+        const url = await getRequestURL({
+          model: 'deployment-gpt-4o',
+          baseURL: 'my-azure-resource?api-version=2025-01-01-preview',
+          apiKey: 'test-key-azure',
+          providerType: 'Azure OpenAI',
+        })
+        expect(url).to.equal(
+          'https://my-azure-resource.openai.azure.com/openai/deployments/deployment-gpt-4o/chat/completions?api-version=2025-01-01-preview',
+        )
+      })
+    })
   })
 })

@@ -240,7 +240,9 @@ export const isReasoningModel = (model: AIModel) => {
  * @returns An object containing the processed `apiVersion` and either `baseURL` or `resourceName`.
  */
 const getAzureProviderOptions = (baseURL: string): Record<string, any> => {
-  const options: Record<string, any> = {}
+  // Keep the `/openai/deployments/{deployment}` URLs MQTTX has always used; since v5
+  // the SDK defaults to the `/openai/v1` API instead.
+  const options: Record<string, any> = { useDeploymentBasedUrls: true }
 
   const apiVersionMatch = baseURL.match(/api-version=([^&]+)/)
   options.apiVersion = apiVersionMatch ? apiVersionMatch[1] : '2025-01-01-preview'
@@ -248,9 +250,8 @@ const getAzureProviderOptions = (baseURL: string): Record<string, any> => {
   const normalizedBaseURL = baseURL.split('?')[0].trim()
 
   if (normalizedBaseURL && normalizedBaseURL.toLowerCase().startsWith('http')) {
-    options.baseURL = normalizedBaseURL.includes('/openai/deployments')
-      ? normalizedBaseURL
-      : `${normalizedBaseURL}/openai/deployments`
+    // The SDK appends `/deployments/{deployment}` itself.
+    options.baseURL = `${normalizedBaseURL.replace(/(\/openai\/deployments)?\/*$/, '')}/openai`
   } else if (normalizedBaseURL) {
     options.resourceName = normalizedBaseURL
   }
@@ -287,7 +288,7 @@ export const getModelProvider = (opts: {
       `Unsupported or misconfigured provider type: ${providerType}. Falling back to default OpenAI with host ${baseURL} and model ${model}.`,
     )
     const fallbackProvider = createOpenAI({ apiKey })
-    return fallbackProvider.chat(model) as LanguageModelV4
+    return fallbackProvider.chat(model)
   }
 
   let creatorOptions: Record<string, any> = {
@@ -302,16 +303,12 @@ export const getModelProvider = (opts: {
   }
 
   const providerCreator = providerConfig.providerCreator
-  const provider = providerCreator(creatorOptions) as {
-    chat?: (modelId: AIModel) => LanguageModelV4
-  } & ((modelId: AIModel) => LanguageModelV4)
+  const provider = providerCreator(creatorOptions)
 
   // Since AI SDK v5 the OpenAI and Azure call signatures target the Responses API.
   // MQTTX talks to Chat Completions-compatible endpoints, so use `chat` when the
-  // provider exposes it (every provider except xAI, which only ships Responses).
-  const createModel = provider.chat ? provider.chat.bind(provider) : provider
-
-  return createModel(model) as LanguageModelV4
+  // provider exposes it.
+  return 'chat' in provider ? provider.chat(model) : provider(model)
 }
 
 export const buildMCPAnalysisMessages = (
