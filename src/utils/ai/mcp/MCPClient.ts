@@ -2,9 +2,11 @@
 import { MCPServer, ToolCallResult } from '@/types/mcp'
 import { EventEmitter } from 'events'
 
-const { Client } = require('@modelcontextprotocol/sdk/dist/esm/client/index.js')
-const { SSEClientTransport } = require('@modelcontextprotocol/sdk/dist/esm/client/sse.js')
-const { StdioClientTransport } = require('@modelcontextprotocol/sdk/dist/esm/client/stdio.js')
+// The SDK resolves through package `exports`, so these stay external and are loaded by Node at runtime
+const { Client } = require('@modelcontextprotocol/sdk/client/index.js')
+const { SSEClientTransport } = require('@modelcontextprotocol/sdk/client/sse.js')
+const { StreamableHTTPClientTransport } = require('@modelcontextprotocol/sdk/client/streamableHttp.js')
+const { StdioClientTransport } = require('@modelcontextprotocol/sdk/client/stdio.js')
 const { spawn } = require('child_process')
 
 /**
@@ -18,55 +20,40 @@ export class MCPClient extends EventEmitter {
   private serverProcess: any = null
 
   /**
-   * Create MCP client instance
-   */
-  constructor() {
-    super()
-    this.client = new Client({
-      name: 'mqttx-mcp-client',
-      version: '1.0.0',
-    })
-  }
-
-  /**
    * Connect to MCP server
    * @param config Server configuration
    * @returns Whether connection was successful
    */
   async connectToServer(config: MCPServer): Promise<boolean> {
     try {
-      // Check if this is an SSE or command-based configuration
-      if (config.url) {
-        console.log(`[MCP] Connecting to MCP SSE server: ${config.url}`)
-
-        // Create SSE transport layer
-        this.transport = new SSEClientTransport(new URL(config.url))
-
-        this.transport.onerror = (error: Error) => {
-          console.error('[MCP] SSE transport error:', error)
-          this.emit('error', error)
-        }
-      } else if (config.command && config.args) {
-        console.log(`[MCP] Connecting to MCP command server: ${config.command} ${config.args.join(' ')}`)
-
-        // Create stdio transport layer
-        this.transport = new StdioClientTransport({
-          command: config.command,
-          args: config.args,
-          env: config.env,
-        })
-
-        this.transport.onerror = (error: Error) => {
-          console.error('[MCP] Command transport error:', error)
-          this.emit('error', error)
-        }
-      } else {
+      if (!config.url && !(config.command && config.args)) {
         throw new Error('[MCP] Invalid MCP server configuration: must provide either url or command+args')
       }
 
       try {
-        // Connect to server
-        await this.client.connect(this.transport)
+        // Check if this is a URL or command-based configuration
+        if (config.url) {
+          const url = new URL(config.url)
+          try {
+            console.log(`[MCP] Connecting to MCP Streamable HTTP server: ${config.url}`)
+            await this.connectTransport(new StreamableHTTPClientTransport(url))
+          } catch (httpError) {
+            // Older servers only speak the deprecated HTTP+SSE transport
+            console.log(`[MCP] Streamable HTTP failed, falling back to SSE: ${config.url}`, httpError)
+            await this.transport.close().catch(() => undefined)
+            await this.connectTransport(new SSEClientTransport(url))
+          }
+        } else if (config.command && config.args) {
+          console.log(`[MCP] Connecting to MCP command server: ${config.command} ${config.args.join(' ')}`)
+          await this.connectTransport(
+            new StdioClientTransport({
+              command: config.command,
+              args: config.args,
+              env: config.env,
+            }),
+          )
+        }
+
         // Get available tools list
         const toolsResult = await this.client.listTools()
         this.tools = toolsResult.tools.map((tool: any) => {
@@ -104,6 +91,22 @@ export class MCPClient extends EventEmitter {
       this.emit('error', error)
       return false
     }
+  }
+
+  /**
+   * Connect a fresh SDK client over the given transport
+   * A client can only be connected once, so each transport attempt gets its own
+   */
+  private async connectTransport(transport: any): Promise<void> {
+    transport.onerror = (error: Error) => {
+      console.error('[MCP] Transport error:', error)
+    }
+    this.transport = transport
+    this.client = new Client({
+      name: 'mqttx-mcp-client',
+      version: '1.0.0',
+    })
+    await this.client.connect(transport)
   }
 
   /**
@@ -158,6 +161,7 @@ export class MCPClient extends EventEmitter {
         name: toolName,
         arguments: toolArgs,
         content: result.content,
+        isError: result.isError,
       }
     } catch (error) {
       console.error(`[MCP] Tool call failed (${toolName}):`, error)

@@ -2,6 +2,7 @@ import Vue from 'vue'
 import useServices from '@/database/useServices'
 import { getGlobal } from '@electron/remote'
 import { DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE, normalizeMaxPayloadDisplaySize } from '@/utils/data'
+import { DEFAULT_AGENT_MAX_STEPS, normalizeAgentMaxSteps } from '@/utils/data'
 import { ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, getEnableHardwareAccelerationSetting } from '@/utils/settings'
 
 const Store = require('electron-store')
@@ -29,7 +30,7 @@ const SET_OPEN_AI_HOST = 'SET_OPEN_AI_HOST'
 const SET_OPEN_AI_API_KEY = 'SET_OPEN_AI_API_KEY'
 const SET_MODEL = 'SET_MODEL'
 const SET_INSERT_BUTTON_ADDED = 'SET_INSERT_BUTTON_ADDED'
-const TOGGLE_ENABLE_COPILOT = 'TOGGLE_ENABLE_COPILOT'
+const TOGGLE_ENABLE_AGENT = 'TOGGLE_ENABLE_AGENT'
 const SET_LOG_LEVEL = 'SET_LOG_LEVEL'
 const TOGGLE_SHOW_CONNECTION_LIST = 'TOGGLE_SHOW_CONNECTION_LIST'
 const SET_DATABASE_FAIL_MESSAGE = 'SET_DATABASE_FAIL_MESSAGE'
@@ -37,6 +38,8 @@ const TOGGLE_IGNORE_QOS0_MESSAGE = 'TOGGLE_IGNORE_QOS0_MESSAGE'
 const TOGGLE_TOPIC_WHITESPACE_DETECTION = 'TOGGLE_TOPIC_WHITESPACE_DETECTION'
 const SET_MAX_PAYLOAD_DISPLAY_SIZE = 'SET_MAX_PAYLOAD_DISPLAY_SIZE'
 const TOGGLE_ENABLE_HARDWARE_ACCELERATION = 'TOGGLE_ENABLE_HARDWARE_ACCELERATION'
+const SET_AGENT_PERMISSION_MODE = 'SET_AGENT_PERMISSION_MODE'
+const SET_AGENT_MAX_STEPS = 'SET_AGENT_MAX_STEPS'
 
 const getShowConnectionList = (): boolean => {
   const _showConnectionList: string | null = localStorage.getItem('showConnectionList')
@@ -70,7 +73,7 @@ const app = {
     willMessageVisible: true,
     currentScript: null,
     currentConnectionId: null,
-    enableCopilot: settingData.enableCopilot,
+    enableAgent: settingData.enableAgent,
     openAIAPIHost: settingData.openAIAPIHost || 'https://api.openai.com/v1',
     openAIAPIKey: settingData.openAIAPIKey || '',
     model: settingData.model || 'gpt-4o',
@@ -84,6 +87,8 @@ const app = {
       electronStore.get('settings.maxPayloadDisplaySize', DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE),
     ),
     enableHardwareAcceleration: getEnableHardwareAcceleration(),
+    agentPermissionMode: electronStore.get('settings.agentPermissionMode', 'ask'),
+    agentMaxSteps: normalizeAgentMaxSteps(electronStore.get('settings.agentMaxSteps', DEFAULT_AGENT_MAX_STEPS)),
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -178,8 +183,8 @@ const app = {
     [SET_INSERT_BUTTON_ADDED](state: App, isPrismButtonAdded: boolean) {
       state.isPrismButtonAdded = isPrismButtonAdded
     },
-    [TOGGLE_ENABLE_COPILOT](state: App, enableCopilot: boolean) {
-      state.enableCopilot = enableCopilot
+    [TOGGLE_ENABLE_AGENT](state: App, enableAgent: boolean) {
+      state.enableAgent = enableAgent
     },
     [SET_LOG_LEVEL](state: App, logLevel: LogLevel) {
       state.logLevel = logLevel
@@ -202,6 +207,12 @@ const app = {
     },
     [TOGGLE_ENABLE_HARDWARE_ACCELERATION](state: App, enableHardwareAcceleration: boolean) {
       state.enableHardwareAcceleration = enableHardwareAcceleration
+    },
+    [SET_AGENT_PERMISSION_MODE](state: App, agentPermissionMode: 'ask' | 'auto') {
+      state.agentPermissionMode = agentPermissionMode
+    },
+    [SET_AGENT_MAX_STEPS](state: App, agentMaxSteps: number) {
+      state.agentMaxSteps = agentMaxSteps
     },
   },
   actions: {
@@ -283,10 +294,10 @@ const app = {
     async SET_CURRENT_CONNECTION_ID({ commit }: any, currentConnectionId: string) {
       commit(SET_CURRENT_CONNECTION_ID, currentConnectionId)
     },
-    async TOGGLE_ENABLE_COPILOT({ commit }: any, payload: App) {
+    async TOGGLE_ENABLE_AGENT({ commit }: any, payload: App) {
       const { settingService } = useServices()
-      commit(TOGGLE_ENABLE_COPILOT, payload.enableCopilot)
-      settingData.enableCopilot = payload.enableCopilot
+      commit(TOGGLE_ENABLE_AGENT, payload.enableAgent)
+      settingData.enableAgent = payload.enableAgent
       await settingService.update(payload)
     },
     async SET_OPEN_AI_HOST({ commit }: any, payload: App) {
@@ -342,6 +353,15 @@ const app = {
       commit(TOGGLE_ENABLE_HARDWARE_ACCELERATION, payload.enableHardwareAcceleration)
       settingData.enableHardwareAcceleration = payload.enableHardwareAcceleration
       electronStore.set(ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, payload.enableHardwareAcceleration)
+    },
+    SET_AGENT_PERMISSION_MODE({ commit }: any, payload: App) {
+      commit(SET_AGENT_PERMISSION_MODE, payload.agentPermissionMode)
+      electronStore.set('settings.agentPermissionMode', payload.agentPermissionMode)
+    },
+    SET_AGENT_MAX_STEPS({ commit }: any, payload: App) {
+      const normalizedValue = normalizeAgentMaxSteps(payload.agentMaxSteps)
+      commit(SET_AGENT_MAX_STEPS, normalizedValue)
+      electronStore.set('settings.agentMaxSteps', normalizedValue)
     },
   },
 }

@@ -13,6 +13,15 @@
       </div>
     </section>
     <section v-if="!isNewWindow" class="leftbar-bottom">
+      <div class="leftbar-item agent-item" :class="{ active: agentOpen }">
+        <a href="javascript:;" :title="`${$t('agent.title')} (${agentShortcut})`" @click="toggleAgent">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 3l1.8 4.6L18 9.4l-4.2 1.8L12 16l-1.8-4.8L6 9.4l4.2-1.8z" />
+            <path d="M18.5 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" />
+          </svg>
+          <i v-if="agentStatus !== 'idle'" class="agent-dot" :class="agentStatus"></i>
+        </a>
+      </div>
       <div v-for="item in bottomItems" :key="item.path" :class="['leftbar-item', { active: isActive(item) }]">
         <a href="javascript:;" @click="routeToPage(item.path)">
           <i :class="['iconfont', item.icon]"></i>
@@ -26,6 +35,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import gaCustomLinks from '@/utils/gaCustomLinks'
+import { globalEventBus } from '@/utils/globalEventBus'
 
 interface MenuItem {
   path: string
@@ -52,8 +62,39 @@ export default class Leftbar extends Vue {
     { path: '/about', icon: 'icon-about' },
   ]
 
+  private agentOpen = false
+  private agentFull = false
+  private agentStatus: 'idle' | 'running' | 'waiting' = 'idle'
+
+  private toggleAgent() {
+    globalEventBus.emit('agent:toggle')
+  }
+
+  private onAgentOpen({ open, full }: { open: boolean; full?: boolean }) {
+    this.agentOpen = open
+    this.agentFull = Boolean(full)
+  }
+
+  private onAgentStatus({ running, awaiting }: { running: boolean; awaiting: boolean }) {
+    this.agentStatus = awaiting ? 'waiting' : running ? 'running' : 'idle'
+  }
+
+  created() {
+    globalEventBus.on('agent:open', this.onAgentOpen)
+    globalEventBus.on('agent:status', this.onAgentStatus)
+  }
+
+  beforeDestroy() {
+    globalEventBus.off('agent:open', this.onAgentOpen)
+    globalEventBus.off('agent:status', this.onAgentStatus)
+  }
+
   get siteLink(): string {
     return gaCustomLinks(this.getterLang).leftBarLogo
+  }
+
+  get agentShortcut(): string {
+    return process.platform === 'darwin' ? '⌘J' : 'Ctrl+J'
   }
 
   get isNewWindow(): boolean {
@@ -61,6 +102,8 @@ export default class Leftbar extends Vue {
   }
 
   private isActive(item: MenuItem): boolean {
+    // The fullscreen Agent covers the page, so only the Agent item is active
+    if (this.agentOpen && this.agentFull) return false
     if (item.name === 'Connections' || item.name === 'ConnectionDetails') {
       return (
         ['Connections', 'ConnectionDetails'].includes(this.$route.name || '') &&
@@ -162,6 +205,24 @@ export default class Leftbar extends Vue {
     }
     &:last-child {
       margin-bottom: 0px;
+    }
+    &.agent-item a {
+      position: relative;
+    }
+    .agent-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 2px solid var(--color-bg-leftbar_bottom);
+      &.running {
+        background: var(--color-main-green);
+      }
+      &.waiting {
+        background: #e6a23c;
+      }
     }
   }
   .app-logo {

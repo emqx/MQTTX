@@ -10,7 +10,8 @@ import HistoryMessageHeaderEntity from './models/HistoryMessageHeaderEntity'
 import HistoryMessagePayloadEntity from './models/HistoryMessagePayloadEntity'
 import HistoryConnectionEntity from './models/HistoryConnectionEntity'
 import WillEntity from './models/WillEntity'
-import CopilotEntity from './models/CopilotEntity'
+import AgentMessageEntity from './models/AgentMessageEntity'
+import AgentConversationEntity from './models/AgentConversationEntity'
 import TopicNodeEntity from './models/TopicNodeEntity'
 import DashboardEntity from './models/DashboardEntity'
 import WidgetEntity from './models/WidgetEntity'
@@ -53,6 +54,9 @@ import { topicNodeTables1729246737362 } from './migration/1729246737362-topicNod
 import { reasonModelSupport1742835643809 } from './migration/1742835643809-reasonModelSupport'
 import { dashboardAndWidgetModels1759069904761 } from './migration/1759069904761-dashboardAndWidgetModels'
 import { koLang1783562195464 } from './migration/1783562195464-koLang'
+import { copilotMessageParts1792077218407 } from './migration/1792077218407-copilotMessageParts'
+import { mqttxAgent1792081585810 } from './migration/1792081585810-mqttxAgent'
+import { agentConversations1792085966435 } from './migration/1792085966435-agentConversations'
 
 // Get store path; fall back when running in CLI (no Electron app)
 let STORE_PATH: string
@@ -116,6 +120,9 @@ const ORMConfig = {
     reasonModelSupport1742835643809,
     dashboardAndWidgetModels1759069904761,
     koLang1783562195464,
+    copilotMessageParts1792077218407,
+    mqttxAgent1792081585810,
+    agentConversations1792085966435,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [
@@ -129,7 +136,8 @@ const ORMConfig = {
     HistoryMessagePayloadEntity,
     WillEntity,
     HistoryConnectionEntity,
-    CopilotEntity,
+    AgentMessageEntity,
+    AgentConversationEntity,
     TopicNodeEntity,
     DashboardEntity,
     WidgetEntity,

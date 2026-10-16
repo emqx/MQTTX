@@ -30,9 +30,9 @@
         </a>
       </div>
       <div>
-        <el-button class="copilot-btn" plain size="mini" @click="toggleShowCopilot">
+        <el-button class="agent-btn" plain size="mini" @click="toggleAgent">
           <i class="iconfont icon-chat"></i>
-          MQTTX Copilot
+          MQTTX Agent
         </el-button>
         <el-button class="upload-btn" size="mini" @click="showImportScript = true">{{ uploadButtonLabel }}</el-button>
         <el-button class="save-btn" type="primary" size="mini" @click="handleSave">{{ $t('common.save') }}</el-button>
@@ -187,7 +187,7 @@ import Editor from '@/components/Editor.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import useServers from '@/database/useServices'
 import ImportScript from '@/components/ImportScript.vue'
-import Copilot from '@/components/ai/Copilot.vue'
+import AgentPanel from '@/components/agent/AgentPanel.vue'
 import { scriptTest } from '@/utils/scriptTest'
 
 @Component({
@@ -195,13 +195,13 @@ import { scriptTest } from '@/utils/scriptTest'
     Editor,
     MyDialog,
     ImportScript,
-    Copilot,
+    AgentPanel,
   },
 })
 export default class Script extends Vue {
   @Getter('currentScript') private scriptOption!: ScriptState | null
   @Getter('currentTheme') private theme!: Theme
-  @Getter('enableCopilot') private enableCopilot!: boolean
+  @Getter('enableAgent') private enableAgent!: boolean
   // tab change
   private readonly functionTab: 'functionTab' = 'functionTab'
   private readonly schemaTab: 'schemaTab' = 'schemaTab'
@@ -591,10 +591,10 @@ message Person {
     return null
   }
 
-  private toggleShowCopilot(show = true) {
-    const copilotRef = this.getAncestorRef('copilot') as Copilot
-    copilotRef.showCopilot = show
-    return copilotRef
+  private toggleAgent(show = true) {
+    const agentRef = this.getAncestorRef('agent') as AgentPanel
+    agentRef.showAgent = show
+    return agentRef
   }
 }
 </script>
@@ -636,7 +636,7 @@ message Person {
       top: 3px;
       font-weight: bold;
     }
-    .copilot-btn {
+    .agent-btn {
       background: var(--color-bg-normal);
       border: 1px solid var(--color-border-default);
       color: var(--color-text-default);

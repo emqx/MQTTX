@@ -47,7 +47,7 @@
     "@ai-sdk/provider": "^4.0.0",
     "@ai-sdk/xai": "^5.0.0",
     "@electron/remote": "^2.1.2",
-    "@modelcontextprotocol/sdk": "^1.7.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "@vscode/sudo-prompt": "^9.3.2",
     "ai": "^7.0.0",
     "appdata-path": "^1.0.0",

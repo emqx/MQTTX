@@ -12,7 +12,8 @@ export interface MCPServer {
 export interface ToolCallResult {
   name: string
   arguments: any
-  content: string
+  content: any
+  isError?: boolean
   error?: string
 }
 
@@ -26,15 +27,6 @@ export interface EnabledMCPServer {
     description: string
     input_schema: any
   }[]
-}
-
-/**
- * Interface for MCP prompt data
- */
-export interface MCPPromptData {
-  serversSection: string
-  toolsSection: string
-  hasMCP: boolean
 }
 
 /**
