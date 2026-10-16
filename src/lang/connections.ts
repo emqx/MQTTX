@@ -1,4 +1,20 @@
 export default {
+  topicFilter: {
+    zh: '主题筛选',
+    en: 'Topic filter',
+    tr: 'Konu filtresi',
+    ja: 'トピックフィルター',
+    hu: 'Témaszűrő',
+    ko: '토픽 필터',
+  },
+  clearTopicFilter: {
+    zh: '清除主题筛选',
+    en: 'Clear topic filter',
+    tr: 'Konu filtresini temizle',
+    ja: 'トピックフィルターを解除',
+    hu: 'Témaszűrő törlése',
+    ko: '토픽 필터 지우기',
+  },
   connections: {
     zh: '连接',
     en: 'Connections',

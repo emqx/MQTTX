@@ -265,6 +265,30 @@
                 </el-option>
               </el-option-group>
             </el-select>
+            <div v-if="activeTopic" class="topic-filter">
+              <el-tooltip
+                placement="bottom"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :open-delay="500"
+                :content="`${$t('connections.topicFilter')}: ${activeTopic}`"
+              >
+                <span class="topic-filter-chip">
+                  <svg class="topic-filter-icon" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M2 3h12l-4.5 5.5V13l-3 1.5v-6z" />
+                  </svg>
+                  <span class="topic-filter-dot" :style="{ background: topicFilterColor }"></span>
+                  <span class="topic-filter-value ellipsis">{{ activeTopic }}</span>
+                  <button
+                    type="button"
+                    class="clear-topic-filter"
+                    :aria-label="$t('connections.clearTopicFilter')"
+                    @click="clearTopicFilter"
+                  >
+                    <i class="el-icon-close"></i>
+                  </button>
+                </span>
+              </el-tooltip>
+            </div>
             <MsgTypeTabs v-model="msgType" @change="handleMsgTypeChanged" />
           </div>
         </div>
@@ -273,9 +297,9 @@
           ref="subList"
           :connectionId="$route.params.id"
           :record="record"
+          :activeTopic="activeTopic"
           :top="bodyTopValue"
           @onClickTopic="handleTopicClick"
-          @deleteTopic="handleTopicDelete"
           @onSubError="handleSubTopicError"
         />
         <MessageList
@@ -508,6 +532,9 @@ export default class ConnectionsDetail extends Vue {
   private messageListMarginTop = 19
 
   private activeTopic = ''
+  private messageQueryVersion = 0
+  private connectionTopbarHeight = 0
+  private topbarResizeObserver: ResizeObserver | null = null
   private showContextmenu = false
   private selectedMessage: MessageModel | null = null
   private contextmenuConfig: ContextmenuModel = {
@@ -525,11 +552,18 @@ export default class ConnectionsDetail extends Vue {
   }
 
   get bodyTopValue(): string {
+    if (this.connectionTopbarHeight) return `${this.connectionTopbarHeight}px`
     return this.showClientInfo ? BodyTopValues.Open : BodyTopValues.Close
   }
 
   get msgTopValue(): string {
+    if (this.connectionTopbarHeight) return `${this.connectionTopbarHeight + 32}px`
     return this.showClientInfo ? MsgTopValues.Open : MsgTopValues.Close
+  }
+
+  // Only the dot carries the subscription color: a fully tinted chip in red/orange reads as an error.
+  get topicFilterColor(): string {
+    return this.record.subscriptions.find((sub) => sub.topic === this.activeTopic)?.color ?? ''
   }
 
   get leftValue(): string {
@@ -567,6 +601,19 @@ export default class ConnectionsDetail extends Vue {
     return this.$route.params.id
   }
 
+  @Watch('$route.params.id')
+  private resetTopicFilter() {
+    this.activeTopic = ''
+    this.messageQueryVersion += 1
+  }
+
+  @Watch('record.subscriptions')
+  private handleSubscriptionsChanged() {
+    if (this.activeTopic && !this.record.subscriptions.some((sub) => sub.topic === this.activeTopic && !sub.disabled)) {
+      this.clearTopicFilter()
+    }
+  }
+
   @Watch('record')
   private async handleRecordChanged() {
     this.getConnectionValue(this.curConnectionId)
@@ -579,14 +626,6 @@ export default class ConnectionsDetail extends Vue {
     const oldMsgBottom = 160
     const offset = val - oldInputHeight
     this.msgBottom = oldMsgBottom + offset
-    const timer = setTimeout(() => {
-      this.setMessageListHeight()
-      clearTimeout(timer)
-    }, 500)
-  }
-
-  @Watch('showClientInfo')
-  private handleShowClientInfoChange() {
     const timer = setTimeout(() => {
       this.setMessageListHeight()
       clearTimeout(timer)
@@ -736,6 +775,7 @@ export default class ConnectionsDetail extends Vue {
     const connectionFooter: HTMLElement = this.$refs.connectionFooter as HTMLElement
     const connectionTopbar: HTMLElement = this.$refs.connectionTopbar as HTMLElement
     const filterBar: HTMLElement = this.$refs.filterBar as HTMLElement
+    this.connectionTopbarHeight = connectionTopbar.offsetHeight
     const filterBarOffsetHeight = filterBar.offsetHeight
 
     this.messageListMarginTop = filterBarOffsetHeight > 56 ? filterBarOffsetHeight - 37 : 19
@@ -922,12 +962,17 @@ export default class ConnectionsDetail extends Vue {
   private async getMessages(limit = 20) {
     this.newMsgsCount = 0
     const { messageService } = useServices()
-    this.recordMsgs = await messageService.get(this.curConnectionId, {
+    const version = ++this.messageQueryVersion
+    this.moreMsgBefore = false
+    this.moreMsgAfter = false
+    const messages = await messageService.get(this.curConnectionId, {
       limit,
       msgType: this.msgType,
       topic: this.activeTopic,
-      searchParams: this.searchParams,
+      searchParams: { ...this.searchParams },
     })
+    if (version !== this.messageQueryVersion) return
+    this.recordMsgs = messages
     this.moreMsgAfter = true
     this.moreMsgBefore = this.recordMsgs.total > limit
   }
@@ -942,8 +987,10 @@ export default class ConnectionsDetail extends Vue {
     const msgListRef = this.getMsgListRef()
     try {
       this.setLoadingState(mode, msgListRef, true)
+      const version = this.messageQueryVersion
       let _messages = _.cloneDeep(this.recordMsgs.list)
       const { curMsgId, list, moreMsg } = await this.fetchMoreMessages(mode, _messages)
+      if (version !== this.messageQueryVersion) return
       this.updatePaginationFlags(mode, moreMsg)
       if (list.length > 0) {
         this.updateRecordMsgList(list, mode, _messages)
@@ -1070,15 +1117,14 @@ export default class ConnectionsDetail extends Vue {
     this.searchLoading = false
   }
 
-  // Delete topic item
-  private handleTopicDelete(topic: string) {
-    if (this.activeTopic === topic) this.activeTopic = ''
+  private clearTopicFilter() {
+    this.activeTopic = ''
     this.loadMessages()
   }
 
   // Click topic item
-  private handleTopicClick(sub: SubscriptionModel, reset: boolean) {
-    reset ? (this.activeTopic = '') : (this.activeTopic = sub.topic)
+  private handleTopicClick(sub: SubscriptionModel) {
+    this.activeTopic = this.activeTopic === sub.topic ? '' : sub.topic
     this.loadMessages()
   }
 
@@ -2213,6 +2259,8 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private mounted() {
+    this.topbarResizeObserver = new ResizeObserver(() => this.setMessageListHeight())
+    this.topbarResizeObserver.observe(this.$refs.connectionTopbar as HTMLElement)
     this.setMessageListHeight()
     window.addEventListener('resize', () => {
       this.setMessageListHeight()
@@ -2220,6 +2268,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private beforeDestroy() {
+    this.topbarResizeObserver?.disconnect()
     ipcRenderer.removeAllListeners('searchContent')
     this.removeClinetsMessageListener()
     this.stopTimedSend()
@@ -2393,6 +2442,60 @@ export default class ConnectionsDetail extends Vue {
           left: 3px;
           display: inline-block;
           transform: rotate(180deg);
+        }
+        .topic-filter {
+          display: flex;
+          flex: 1;
+          min-width: 0;
+          margin: 0 12px;
+          .topic-filter-chip {
+            display: inline-flex;
+            align-items: center;
+            max-width: 100%;
+            height: 24px;
+            padding: 0 2px 0 8px;
+            border: 1px solid var(--color-border-default);
+            border-radius: 12px;
+            background: var(--color-bg-primary);
+            color: var(--color-text-title);
+            font-size: 12px;
+          }
+          .topic-filter-icon {
+            flex-shrink: 0;
+            width: 12px;
+            height: 12px;
+            margin-right: 6px;
+            fill: none;
+            stroke: var(--color-text-default);
+            stroke-width: 1.5;
+            stroke-linejoin: round;
+          }
+          .topic-filter-dot {
+            flex-shrink: 0;
+            width: 8px;
+            height: 8px;
+            margin-right: 6px;
+            border-radius: 50%;
+          }
+          .clear-topic-filter {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            margin-left: 4px;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            color: inherit;
+            cursor: pointer;
+            &:hover,
+            &:focus-visible {
+              background: var(--color-border-default);
+            }
+          }
         }
         .message-type {
           @include flex-space-between;

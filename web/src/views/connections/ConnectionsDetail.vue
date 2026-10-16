@@ -147,13 +147,13 @@
     <div
       class="connections-detail-main right-content"
       :style="{
-        paddingTop: showClientInfo ? msgTop.open : msgTop.close,
+        paddingTop: msgTopValue,
         paddingBottom: `${msgBottom}px`,
         marginLeft: marginLeft,
       }"
     >
       <div class="connections-body">
-        <div ref="filterBar" class="filter-bar" :style="{ top: showClientInfo ? bodyTop.open : bodyTop.close }">
+        <div ref="filterBar" class="filter-bar" :style="{ top: bodyTopValue }">
           <div class="message-type">
             <el-select class="received-type-select" size="mini" v-model="receivedMsgType">
               <el-option-group :label="$t('connections.receivedPayloadDecodedBy')">
@@ -161,6 +161,30 @@
                 </el-option>
               </el-option-group>
             </el-select>
+            <div v-if="activeTopic" class="topic-filter">
+              <el-tooltip
+                placement="bottom"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :open-delay="500"
+                :content="`${$t('connections.topicFilter')}: ${activeTopic}`"
+              >
+                <span class="topic-filter-chip">
+                  <svg class="topic-filter-icon" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M2 3h12l-4.5 5.5V13l-3 1.5v-6z" />
+                  </svg>
+                  <span class="topic-filter-dot" :style="{ background: topicFilterColor }"></span>
+                  <span class="topic-filter-value">{{ activeTopic }}</span>
+                  <button
+                    type="button"
+                    class="clear-topic-filter"
+                    :aria-label="$t('connections.clearTopicFilter')"
+                    @click="clearTopicFilter"
+                  >
+                    <i class="el-icon-close"></i>
+                  </button>
+                </span>
+              </el-tooltip>
+            </div>
             <MsgTypeTabs v-model="msgType" @change="handleMsgTypeChanged" />
           </div>
         </div>
@@ -170,7 +194,8 @@
           :subsVisible.sync="showSubs"
           :connectionId="$route.params.id"
           :record="record"
-          :top="showClientInfo ? bodyTop.open : bodyTop.close"
+          :activeTopic="activeTopic"
+          :top="bodyTopValue"
           @onClickTopic="handleTopicClick"
           @deleteTopic="handleTopicDelete"
         />
@@ -226,7 +251,7 @@ import { throttleTime } from 'rxjs/operators'
 import { deleteConnection, updateConnection, updateConnectionMessage } from '@/utils/api/connection'
 import time from '@/utils/time'
 import matchSearch from '@/utils/matchSearch'
-import topicMatch, { matchTopicMethod } from '@/utils/topicMatch'
+import { matchTopicMethod } from '@/utils/topicMatch'
 import { createClient } from '@/utils/mqttUtils'
 import { getMessageId } from '@/utils/idGenerator'
 
@@ -248,11 +273,6 @@ import getErrorReason from '@/utils/mqttErrorReason'
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'searchByTopic' | 'disconnect' | 'deleteConnect'
 type PayloadConvertType = 'base64' | 'hex'
-
-interface Top {
-  open: string
-  close: string
-}
 
 @Component({
   components: {
@@ -335,6 +355,9 @@ export default class ConnectionsDetail extends Vue {
   private messageListMarginTop: number = 19
   private messagesAddedNewItem: boolean = false
   private activeTopic = ''
+  private messageQueryVersion = 0
+  private connectionTopbarHeight = 0
+  private topbarResizeObserver: ResizeObserver | null = null
   private selectedMessage: MessageModel | null = null
   private contextmenuConfig: ContextmenuModel = {
     top: 0,
@@ -436,6 +459,7 @@ export default class ConnectionsDetail extends Vue {
     const connectionFooter: HTMLElement = this.$refs.connectionFooter as HTMLElement
     const connectionTopbar: HTMLElement = this.$refs.connectionTopbar as HTMLElement
     const filterBar: HTMLElement = this.$refs.filterBar as HTMLElement
+    this.connectionTopbarHeight = connectionTopbar.offsetHeight
     const filterBarOffsetHeight = filterBar.offsetHeight
 
     this.messageListMarginTop = filterBarOffsetHeight > 56 ? filterBarOffsetHeight - 37 : 19
@@ -501,18 +525,19 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
-  get bodyTop(): Top {
-    return {
-      open: '249px',
-      close: '60px',
-    }
+  get bodyTopValue(): string {
+    if (this.connectionTopbarHeight) return `${this.connectionTopbarHeight}px`
+    return this.showClientInfo ? '249px' : '60px'
   }
 
-  get msgTop(): Top {
-    return {
-      open: '277px',
-      close: '86px',
-    }
+  get msgTopValue(): string {
+    if (this.connectionTopbarHeight) return `${this.connectionTopbarHeight + 27}px`
+    return this.showClientInfo ? '277px' : '86px'
+  }
+
+  // Only the dot carries the subscription color: a fully tinted chip in red/orange reads as an error.
+  get topicFilterColor(): string {
+    return this.record.subscriptions.find((sub) => sub.topic === this.activeTopic)?.color ?? ''
   }
 
   get marginLeft(): string {
@@ -531,6 +556,19 @@ export default class ConnectionsDetail extends Vue {
     return this.$route.params.id
   }
 
+  @Watch('$route.params.id')
+  private resetTopicFilter() {
+    this.activeTopic = ''
+    this.messageQueryVersion += 1
+  }
+
+  @Watch('record.subscriptions')
+  private handleSubscriptionsChanged() {
+    if (this.activeTopic && !this.record.subscriptions.some((sub) => sub.topic === this.activeTopic && !sub.disabled)) {
+      this.clearTopicFilter()
+    }
+  }
+
   @Watch('record')
   private handleRecordChanged() {
     const id: string = this.$route.params.id
@@ -545,14 +583,6 @@ export default class ConnectionsDetail extends Vue {
     const oldMsgBottom = 160
     const offset = val - oldInputHeight
     this.msgBottom = oldMsgBottom + offset
-    const timer = setTimeout(() => {
-      this.setMessageListHeight()
-      clearTimeout(timer)
-    }, 500)
-  }
-
-  @Watch('showClientInfo')
-  private handleShowClientInfoChange() {
     const timer = setTimeout(() => {
       this.setMessageListHeight()
       clearTimeout(timer)
@@ -627,11 +657,18 @@ export default class ConnectionsDetail extends Vue {
     })
   }
 
-  // Return messages
-  private getMessages() {
+  // Reapply all active filters together after every state transition.
+  private async getMessages() {
+    const version = ++this.messageQueryVersion
     this.messagesAddedNewItem = false
-    this.msgType = 'all'
-    this.messages = _.cloneDeep(this.record.messages)
+    let messages = this.record.messages.filter((message) => {
+      const typeMatches = this.msgType === 'all' || message.out === (this.msgType === 'publish')
+      return typeMatches && (!this.activeTopic || matchTopicMethod(this.activeTopic, message.topic))
+    })
+    if (this.searchVisible && this.searchTopic) {
+      messages = (await matchSearch(messages, 'topic', this.searchTopic)) || []
+    }
+    if (version === this.messageQueryVersion) this.messages = _.cloneDeep(messages)
   }
 
   // Clear messages
@@ -647,41 +684,24 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Message type changed
-  private async handleMsgTypeChanged(type: MessageType) {
-    this.messagesAddedNewItem = false
-    const setChangedMessages = (changedType: MessageType, msgData: MessageModel[]) => {
-      if (type === 'received') {
-        this.messages = msgData.filter(($: MessageModel) => !$.out)
-      } else if (type === 'publish') {
-        this.messages = msgData.filter(($: MessageModel) => $.out)
-      } else {
-        this.messages = msgData.slice()
-      }
-    }
-    if (this.activeTopic !== '') {
-      const res = await topicMatch(this.record.messages, this.activeTopic)
-      setChangedMessages(type, res)
-    } else {
-      setChangedMessages(type, this.record.messages)
-    }
+  private handleMsgTypeChanged(type: MessageType) {
+    this.msgType = type
+    return this.getMessages()
   }
 
   // Search messages
   private async searchByTopic() {
     this.searchLoading = true
-    setTimeout(() => {
+    try {
+      await this.getMessages()
+    } finally {
       this.searchLoading = false
-    }, 500)
-    this.getMessages()
-    if (this.searchTopic !== '') {
-      const $messages = _.cloneDeep(this.messages)
-      const res = await matchSearch($messages, 'topic', this.searchTopic)
-      if (res) {
-        this.messages = res.slice()
-      } else {
-        this.messages = [].slice()
-      }
     }
+  }
+
+  private clearTopicFilter() {
+    this.activeTopic = ''
+    return this.getMessages()
   }
 
   // Delete topic item
@@ -691,16 +711,9 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Click topic item
-  private async handleTopicClick(sub: SubscriptionModel, reset: boolean) {
-    this.getMessages()
-    if (reset) {
-      this.activeTopic = ''
-      return false
-    }
-    this.activeTopic = sub.topic
-    const $messages = _.cloneDeep(this.messages)
-    const res = await topicMatch($messages, sub.topic)
-    this.messages = res.slice()
+  private handleTopicClick(sub: SubscriptionModel) {
+    this.activeTopic = this.activeTopic === sub.topic ? '' : sub.topic
+    return this.getMessages()
   }
   private handleSearchOpen() {
     this.searchVisible = true
@@ -713,6 +726,7 @@ export default class ConnectionsDetail extends Vue {
   }
   private handleSearchClose() {
     this.searchVisible = false
+    this.searchTopic = ''
     this.getMessages()
   }
   private cancel() {
@@ -1075,6 +1089,9 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private mounted() {
+    this.topbarResizeObserver = new ResizeObserver(() => this.setMessageListHeight())
+    this.topbarResizeObserver.observe(this.$refs.connectionTopbar as HTMLElement)
+
     this.setMessageListHeight()
     this.largeDesktop = document.body.clientWidth >= 1920 ? true : false
     window.onresize = () => {
@@ -1124,6 +1141,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private beforeDestroy() {
+    this.topbarResizeObserver?.disconnect()
     // ipcRenderer.removeAllListeners('searchByTopic')
     this.removeClinetsMessageListener()
     this.scrollSubject.unsubscribe()
@@ -1272,6 +1290,65 @@ export default class ConnectionsDetail extends Vue {
           .icon-zhedie {
             display: inline-block;
             transform: rotate(180deg);
+          }
+        }
+        .topic-filter {
+          display: flex;
+          flex: 1;
+          min-width: 0;
+          margin: 0 12px;
+          .topic-filter-chip {
+            display: inline-flex;
+            align-items: center;
+            max-width: 100%;
+            height: 24px;
+            padding: 0 2px 0 8px;
+            border: 1px solid var(--color-border-default);
+            border-radius: 12px;
+            background: var(--color-bg-primary);
+            color: var(--color-text-title);
+            font-size: 12px;
+          }
+          .topic-filter-icon {
+            flex-shrink: 0;
+            width: 12px;
+            height: 12px;
+            margin-right: 6px;
+            fill: none;
+            stroke: var(--color-text-default);
+            stroke-width: 1.5;
+            stroke-linejoin: round;
+          }
+          .topic-filter-dot {
+            flex-shrink: 0;
+            width: 8px;
+            height: 8px;
+            margin-right: 6px;
+            border-radius: 50%;
+          }
+          .topic-filter-value {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+          }
+          .clear-topic-filter {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            margin-left: 4px;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: transparent;
+            color: inherit;
+            cursor: pointer;
+            &:hover,
+            &:focus-visible {
+              background: var(--color-border-default);
+            }
           }
         }
         .message-type {
