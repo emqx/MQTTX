@@ -578,11 +578,7 @@ export default class ConnectionService {
   }
 
   public async getPushMessage(connectionId: string): Promise<PushMessageModel | undefined> {
-    const query = await this.connectionRepository
-      .createQueryBuilder('cn')
-      .select(['cn.id', 'cn.pushMessage'])
-      .where('cn.id = :connectionId', { connectionId })
-      .getOne()
+    const query = await this.connectionRepository.findOne(connectionId, { select: ['id', 'pushMessage'] })
     return query?.pushMessage ?? undefined
   }
 
