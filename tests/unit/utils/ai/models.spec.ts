@@ -1,0 +1,289 @@
+import { expect } from 'chai'
+import { createAzure } from '@ai-sdk/azure'
+import { AImodelsOptions, AIAPIHostOptions, loadSystemPrompt, getModelProvider } from '@/utils/ai/models'
+import { createOpenAI } from '@ai-sdk/openai'
+import { createDeepSeek } from '@ai-sdk/deepseek'
+import { createAnthropic } from '@ai-sdk/anthropic'
+import { createXai } from '@ai-sdk/xai'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
+
+describe('agent', () => {
+  describe('loadSystemPrompt', () => {
+    it('should load base prompt with language', () => {
+      const result = loadSystemPrompt('en')
+
+      // Check if it includes the base prompt
+      expect(result).to.include('You are MQTTX Agent')
+
+      // Check if it includes language setting
+      expect(result).to.include('Please answer in English')
+    })
+
+    it('should include different content based on language', () => {
+      const zhResult = loadSystemPrompt('zh')
+      const enResult = loadSystemPrompt('en')
+      const jaResult = loadSystemPrompt('ja')
+
+      expect(zhResult).to.include('请使用中文回答')
+      expect(enResult).to.include('Please answer in English')
+      expect(jaResult).to.include('日本語で回答してください')
+    })
+
+    it('should handle undefined command parameter', () => {
+      const result = loadSystemPrompt('en', undefined)
+
+      // Result should include base prompt but not command-specific prompts
+      expect(result).to.include('You are MQTTX Agent')
+      expect(result).to.include('Please answer in English')
+    })
+
+    it('should handle different command inputs', () => {
+      // Here we only test that the function handles different commands without throwing errors
+      expect(() => loadSystemPrompt('en', 'some-code-command')).to.not.throw()
+      expect(() => loadSystemPrompt('en', 'some-payload-command')).to.not.throw()
+      expect(() => loadSystemPrompt('en', 'some-emqx-command')).to.not.throw()
+      expect(() => loadSystemPrompt('en', 'some-mqtt-faq-command')).to.not.throw()
+      expect(() => loadSystemPrompt('en', 'some-function-command')).to.not.throw()
+      expect(() => loadSystemPrompt('en', 'some-schema-command')).to.not.throw()
+    })
+  })
+
+  describe('AImodelsOptions', () => {
+    it('should contain all supported providers', () => {
+      const providerNames = AImodelsOptions.map((provider) => provider.value)
+      expect(providerNames).to.have.members([
+        'OpenAI',
+        'DeepSeek',
+        'Anthropic',
+        'xAI',
+        'Google',
+        'Azure OpenAI',
+        'SiliconFlow',
+      ])
+    })
+
+    it('should have valid model options for each provider', () => {
+      const openAI = AImodelsOptions.find((p) => p.value === 'OpenAI')
+      expect(openAI?.children).to.be.an('array').that.is.not.empty
+      expect(openAI?.children.map((c) => c.value)).to.include('gpt-5')
+      expect(openAI?.children.map((c) => c.value)).to.include('gpt-4o')
+
+      const deepSeek = AImodelsOptions.find((p) => p.value === 'DeepSeek')
+      expect(deepSeek?.children).to.be.an('array').that.is.not.empty
+      expect(deepSeek?.children.map((c) => c.value)).to.include('deepseek-flash')
+
+      const anthropic = AImodelsOptions.find((p) => p.value === 'Anthropic')
+      expect(anthropic?.children).to.be.an('array').that.is.not.empty
+      expect(anthropic?.children.map((c) => c.value)).to.include('claude-opus-4-1-20250805')
+      expect(anthropic?.children.map((c) => c.value)).to.include('claude-opus-4-20250514')
+      expect(anthropic?.children.map((c) => c.value)).to.include('claude-sonnet-4-20250514')
+
+      const xai = AImodelsOptions.find((p) => p.value === 'xAI')
+      expect(xai?.children).to.be.an('array').that.is.not.empty
+      expect(xai?.children.map((c) => c.value)).to.include('grok-4-0709')
+      expect(xai?.children.map((c) => c.value)).to.include('grok-4-fast')
+
+      const google = AImodelsOptions.find((p) => p.value === 'Google')
+      expect(google?.children).to.be.an('array').that.is.not.empty
+      expect(google?.children.map((c) => c.value)).to.include('gemini-2.5-pro')
+      expect(google?.children.map((c) => c.value)).to.include('gemini-2.5-pro-thinking')
+      expect(google?.children.map((c) => c.value)).to.include('gemini-1.5-pro')
+
+      const azure = AImodelsOptions.find((p) => p.value === 'Azure OpenAI')
+      expect(azure?.children).to.be.an('array').that.is.not.empty
+      expect(azure?.children.map((c) => c.value)).to.include('deployment-gpt-4o')
+
+      const siliconFlow = AImodelsOptions.find((p) => p.value === 'SiliconFlow')
+      expect(siliconFlow?.children).to.be.an('array').that.is.not.empty
+      expect(siliconFlow?.children.map((c) => c.value)).to.include('deepseek-ai/DeepSeek-V3')
+    })
+
+    it('should have the correct provider creator function for each provider', () => {
+      const expectedCreators: Record<string, (...args: any[]) => unknown> = {
+        OpenAI: createOpenAI,
+        DeepSeek: createDeepSeek,
+        Anthropic: createAnthropic,
+        xAI: createXai,
+        Google: createGoogleGenerativeAI,
+        'Azure OpenAI': createAzure,
+        SiliconFlow: createOpenAI,
+      }
+
+      AImodelsOptions.forEach((provider) => {
+        expect(provider.providerCreator, `Creator for ${provider.value}`).to.be.a('function')
+        expect(provider.providerCreator, `Creator mismatch for ${provider.value}`).to.equal(
+          expectedCreators[provider.value],
+        )
+      })
+    })
+  })
+
+  describe('AIAPIHostOptions', () => {
+    it('should include the default Google API host', () => {
+      const googleHost = AIAPIHostOptions.find((opt) => opt.value.includes('google'))?.value
+      expect(googleHost).to.equal('https://generativelanguage.googleapis.com/v1beta')
+    })
+
+    it('should include the Azure API host placeholder/example', () => {
+      const azureHostExample = AIAPIHostOptions.find((opt) => opt.value.includes('azure'))?.value
+      expect(azureHostExample).to.equal('https://${resourceName}.openai.azure.com')
+    })
+  })
+
+  describe('getModelProvider', () => {
+    it('should return a provider instance for OpenAI', () => {
+      expect(() => {
+        getModelProvider({
+          model: 'gpt-4o',
+          baseURL: 'https://api.openai.com/v1',
+          apiKey: 'test-key-openai',
+          providerType: 'OpenAI',
+        })
+      }).not.to.throw()
+    })
+
+    it('should return a provider instance for DeepSeek', () => {
+      expect(() => {
+        getModelProvider({
+          model: 'deepseek-flash',
+          baseURL: 'https://api.deepseek.com/v1',
+          apiKey: 'test-key-deepseek',
+          providerType: 'DeepSeek',
+        })
+      }).not.to.throw()
+    })
+
+    it('should return a provider instance for Anthropic', () => {
+      expect(() => {
+        getModelProvider({
+          model: 'claude-opus-4-1-20250805',
+          baseURL: 'https://api.anthropic.com/v1',
+          apiKey: 'test-key-anthropic',
+          providerType: 'Anthropic',
+        })
+      }).not.to.throw()
+    })
+
+    it('should return a provider instance for xAI', () => {
+      expect(() => {
+        getModelProvider({
+          model: 'grok-4-0709',
+          baseURL: 'https://api.x.ai/v1',
+          apiKey: 'test-key-xai',
+          providerType: 'xAI',
+        })
+      }).not.to.throw()
+    })
+
+    it('should return a provider instance for Google', () => {
+      expect(() => {
+        getModelProvider({
+          model: 'gemini-2.5-pro',
+          baseURL: 'https://generativelanguage.googleapis.com/v1beta',
+          apiKey: 'test-key-google',
+          providerType: 'Google',
+        })
+      }).not.to.throw()
+    })
+
+    it('should return a provider instance for Azure OpenAI using baseURL with api-version', () => {
+      expect(() => {
+        getModelProvider({
+          model: 'deployment-gpt-4o',
+          baseURL: 'https://my-azure-resource.openai.azure.com/?api-version=2025-01-01-preview',
+          apiKey: 'test-key-azure',
+          providerType: 'Azure OpenAI',
+        })
+      }).not.to.throw()
+    })
+
+    it('should return a provider instance for Azure OpenAI using resource name with api-version', () => {
+      expect(() => {
+        getModelProvider({
+          model: 'deployment-gpt-4o',
+          baseURL: 'my-azure-resource?api-version=2025-01-01-preview',
+          apiKey: 'test-key-azure',
+          providerType: 'Azure OpenAI',
+        })
+      }).not.to.throw()
+    })
+
+    it('should return a provider instance for SiliconFlow', () => {
+      expect(() => {
+        getModelProvider({
+          model: 'deepseek-ai/DeepSeek-V3',
+          baseURL: 'https://api.siliconflow.cn/v1',
+          apiKey: 'test-key-siliconflow',
+          providerType: 'SiliconFlow',
+        })
+      }).not.to.throw()
+    })
+
+    it('should fallback to OpenAI if provider is misconfigured', () => {
+      expect(() => {
+        getModelProvider({
+          model: 'deployment-gpt-4o',
+          baseURL: '',
+          apiKey: 'test-key-azure',
+          providerType: 'Azure OpenAI',
+        })
+      }).not.to.throw()
+    })
+
+    describe('request URL', () => {
+      const originalFetch = globalThis.fetch
+
+      afterEach(() => {
+        globalThis.fetch = originalFetch
+      })
+
+      const getRequestURL = async (opts: Parameters<typeof getModelProvider>[0]) => {
+        let requestURL = ''
+        globalThis.fetch = (async (input: RequestInfo | URL) => {
+          requestURL = input.toString()
+          throw new Error('stop')
+        }) as typeof fetch
+        try {
+          await getModelProvider(opts).doGenerate({
+            prompt: [{ role: 'user', content: [{ type: 'text', text: 'hi' }] }],
+          })
+        } catch {}
+        return requestURL
+      }
+
+      it('should use Chat Completions for OpenAI-compatible hosts', async () => {
+        const url = await getRequestURL({
+          model: 'deepseek-ai/DeepSeek-V3',
+          baseURL: 'https://api.siliconflow.cn/v1',
+          apiKey: 'test-key-siliconflow',
+          providerType: 'SiliconFlow',
+        })
+        expect(url).to.equal('https://api.siliconflow.cn/v1/chat/completions')
+      })
+
+      it('should use deployment-based Azure URLs for an endpoint baseURL', async () => {
+        const url = await getRequestURL({
+          model: 'deployment-gpt-4o',
+          baseURL: 'https://my-azure-resource.openai.azure.com/?api-version=2025-01-01-preview',
+          apiKey: 'test-key-azure',
+          providerType: 'Azure OpenAI',
+        })
+        expect(url).to.equal(
+          'https://my-azure-resource.openai.azure.com/openai/deployments/deployment-gpt-4o/chat/completions?api-version=2025-01-01-preview',
+        )
+      })
+
+      it('should use deployment-based Azure URLs for a resource name', async () => {
+        const url = await getRequestURL({
+          model: 'deployment-gpt-4o',
+          baseURL: 'my-azure-resource?api-version=2025-01-01-preview',
+          apiKey: 'test-key-azure',
+          providerType: 'Azure OpenAI',
+        })
+        expect(url).to.equal(
+          'https://my-azure-resource.openai.azure.com/openai/deployments/deployment-gpt-4o/chat/completions?api-version=2025-01-01-preview',
+        )
+      })
+    })
+  })
+})

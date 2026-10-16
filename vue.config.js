@@ -120,6 +120,15 @@ module.exports = {
       // Prevent bundling of certain imported packages and instead retrieve these external dependencies at runtime.
       // In order to connect to websocket.
       externals: ['mqtt', 'vm2', 'log4js', 'typeorm'],
+      chainWebpackMainProcess: (config) => {
+        // The MCP SDK is only reachable through package `exports` subpaths and ships syntax
+        // webpack 4 cannot parse, so let Node require its subpaths at runtime.
+        config.externals([
+          config.get('externals'),
+          (context, request, callback) =>
+            /^@modelcontextprotocol\/sdk\//.test(request) ? callback(null, `commonjs ${request}`) : callback(),
+        ])
+      },
       builderOptions: {
         productName: 'MQTTX',
         publish: [

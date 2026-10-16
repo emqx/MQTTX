@@ -1,79 +1,6 @@
-import { MCPConfig, MCPPromptData, EnabledMCPServer } from '@/types/mcp'
+import { EnabledMCPServer, ToolCallResult } from '@/types/mcp'
 import { ipcRenderer } from 'electron'
-
-// MCP tool call format regex
-export const MCP_CALL_REGEX = /<mcp-call>([\s\S]*?)<\/mcp-call>/g
-
-/**
- * Load enabled MCP servers from Electron Store
- * @returns An object containing MCP server information for prompt templates
- */
-export async function loadEnabledMCPServers(): Promise<MCPPromptData> {
-  const defaultResult: MCPPromptData = {
-    serversSection: '',
-    toolsSection: '',
-    hasMCP: false,
-  }
-
-  try {
-    const mcpEnabled = await ipcRenderer.invoke('mcp:get-enabled')
-    if (!mcpEnabled) {
-      return defaultResult
-    }
-
-    // Retrieve MCP configuration
-    const mcpConfig: MCPConfig = await ipcRenderer.invoke('mcp:get-config')
-    if (!mcpConfig.mcpServers || Object.keys(mcpConfig.mcpServers).length === 0) {
-      return defaultResult
-    }
-
-    // Get list of enabled servers
-    const enabledServersData = (await ipcRenderer.invoke('mcp:get-enabled-servers')) as Record<
-      string,
-      {
-        enabled: boolean
-        testResults: {
-          success: boolean
-          tools?: Array<{
-            name: string
-            description: string
-            input_schema: any
-          }>
-        } | null
-      }
-    >
-    const enabledServers: EnabledMCPServer[] = []
-
-    for (const [serverName, serverData] of Object.entries(enabledServersData)) {
-      if (
-        !serverData.enabled ||
-        !serverData.testResults ||
-        !serverData.testResults.success ||
-        !serverData.testResults.tools ||
-        serverData.testResults.tools.length === 0
-      ) {
-        continue
-      }
-      enabledServers.push({
-        name: serverName,
-        tools: serverData.testResults.tools,
-      })
-    }
-
-    if (enabledServers.length === 0) {
-      return defaultResult
-    }
-
-    return {
-      serversSection: JSON.stringify(enabledServers.map((server) => server.name)),
-      toolsSection: JSON.stringify(enabledServers),
-      hasMCP: true,
-    }
-  } catch (error) {
-    console.error('[MCP] Error loading enabled MCP servers:', error)
-    return defaultResult
-  }
-}
+import { dynamicTool, jsonSchema, ToolSet } from 'ai'
 
 /**
  * Call MCP tool via IPC to main process
@@ -93,98 +20,53 @@ export async function callMCPTool(serverName: string, toolName: string, toolArgs
 }
 
 /**
- * Creates a formatted MCP result string
- * @param success Whether the operation was successful
- * @param server Server name
- * @param tool Tool name
- * @param args Tool arguments
- * @param content Result content or error message
- * @returns Formatted MCP result string
+ * Builds a tool name accepted by every provider (letters, digits, `_` and `-`, at most 64 characters)
  */
-function createMCPResultString(success: boolean, server: string, tool: string, args: any, content: string): string {
-  const contentTag = success ? 'result' : 'error'
-
-  return `
-<mcp-result success="${success}">
-<server>${server}</server>
-<tool>${tool}</tool>
-<args>${JSON.stringify(args, null, 2)}</args>
-<${contentTag}>
-${content}
-</${contentTag}>
-</mcp-result>
-`
-}
+export const getMCPToolName = (serverName: string, toolName: string): string =>
+  `${serverName}__${toolName}`.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 64)
 
 /**
- * Process MCP tool calls in a message
- * @param content Message content to process
- * @returns Processed content with tool call results
+ * Flattens MCP content blocks into text for the model and the tool card
  */
-export async function processMCPCalls(content: string): Promise<string> {
-  // If no MCP calls, return content as is
-  if (!content.includes('<mcp-call>')) {
-    return content
-  }
+const getMCPContentText = (content: ToolCallResult['content']): string =>
+  Array.isArray(content)
+    ? content.map((block) => (block.type === 'text' ? block.text : JSON.stringify(block))).join('\n')
+    : String(content ?? '')
 
-  let processedContent = content
-  const mcpCalls = content.match(MCP_CALL_REGEX)
-
-  if (!mcpCalls) {
-    return content
-  }
-
-  for (const mcpCall of mcpCalls) {
-    let resultContent: string
-
-    try {
-      // Extract the JSON part from the MCP call
-      const jsonContent = mcpCall.replace('<mcp-call>', '').replace('</mcp-call>', '').trim()
-      const callData = JSON.parse(jsonContent)
-
-      // Call the MCP tool
-      const result = await callMCPTool(callData.server, callData.tool, callData.args)
-
-      if (result.success) {
-        resultContent = createMCPResultString(true, callData.server, callData.tool, callData.args, getMCPResult(result))
-      } else {
-        resultContent = createMCPResultString(
-          false,
-          callData.server,
-          callData.tool,
-          callData.args,
-          result.message || 'Unknown error',
-        )
+/**
+ * Loads the tools of the enabled MCP servers as agent tools
+ * @returns Tools keyed by a provider-safe name; empty when MCP is disabled or unavailable
+ */
+export async function loadMCPTools(): Promise<ToolSet> {
+  const tools: ToolSet = {}
+  try {
+    const servers: EnabledMCPServer[] = await ipcRenderer.invoke('mcp:list-tools')
+    for (const server of servers) {
+      for (const mcpTool of server.tools) {
+        tools[getMCPToolName(server.name, mcpTool.name)] = dynamicTool({
+          title: `${server.name} - ${mcpTool.name}`,
+          description: mcpTool.description,
+          inputSchema: jsonSchema(mcpTool.input_schema),
+          execute: async (input) => {
+            const response = await callMCPTool(server.name, mcpTool.name, input)
+            if (!response.success) {
+              throw new Error(response.message || 'Unknown error')
+            }
+            const result: ToolCallResult = response.result
+            if (result.error) {
+              throw new Error(result.error)
+            }
+            const text = getMCPContentText(result.content)
+            if (result.isError) {
+              throw new Error(text)
+            }
+            return text
+          },
+        })
       }
-    } catch (error) {
-      console.error('[MCP] Error processing MCP call:', error)
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      resultContent = createMCPResultString(false, '', '', {}, `Failed to process MCP call: ${errorMessage}`)
     }
-
-    // Replace the MCP call with the result
-    processedContent = processedContent.replace(mcpCall, resultContent)
+  } catch (error) {
+    console.error('[MCP] Error loading MCP tools:', error)
   }
-
-  return processedContent
-}
-
-/**
- * Extracts the result content from an MCP tool call response.
- *
- * @param result - The result object from an MCP tool call
- * @param result.success - Whether the MCP tool call was successful
- * @param result.result - The result data from the MCP tool call
- * @param result.result.content - Array of content objects if successful
- * @param result.result.error - Error message if there was an error
- * @returns A string representation of the result content or error message
- */
-const getMCPResult = (result: {
-  success: boolean
-  result: { content: { text: string }[]; error?: string }
-}): string => {
-  if (result.result.error) {
-    return result.result.error
-  }
-  return JSON.stringify(result.result.content[0].text)
+  return tools
 }

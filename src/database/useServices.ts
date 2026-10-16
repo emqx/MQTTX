@@ -8,7 +8,8 @@ import HistoryMessageHeaderService from './services/HistoryMessageHeaderService'
 import HistoryMessagePayloadService from './services/HistoryMessagePayloaderService'
 import MessageService from './services/MessageService'
 import ScriptService from './services/ScriptService'
-import CopilotService from './services/CopilotService'
+import AgentMessageService from './services/AgentMessageService'
+import AgentConversationService from './services/AgentConversationService'
 import TopicNodeService from './services/TopicNodeService'
 import DashboardService from './services/DashboardService'
 import WidgetService from './services/WidgetService'
@@ -23,7 +24,8 @@ export default function useServices() {
   const historyMessagePayloadService = Container.get(HistoryMessagePayloadService)
   const messageService = Container.get(MessageService)
   const scriptService = Container.get(ScriptService)
-  const copilotService = Container.get(CopilotService)
+  const agentMessageService = Container.get(AgentMessageService)
+  const agentConversationService = Container.get(AgentConversationService)
   const topicNodeService = Container.get(TopicNodeService)
   const dashboardService = Container.get(DashboardService)
   const widgetService = Container.get(WidgetService)
@@ -38,7 +40,8 @@ export default function useServices() {
     historyMessagePayloadService,
     messageService,
     scriptService,
-    copilotService,
+    agentMessageService,
+    agentConversationService,
     topicNodeService,
     dashboardService,
     widgetService,

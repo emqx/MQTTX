@@ -1,6 +1,7 @@
 @import './variable.scss';
 @import './mixins.scss';
 @import './atom.scss';
+@import './agent.scss';
 
 html,
 body,
@@ -138,7 +139,7 @@ textarea {
   -webkit-app-region: drag;
 }
 
-#notify-copilot-button {
+#notify-agent-button {
   margin: 12px 0 4px 0;
   height: 32px;
   line-height: 32px;

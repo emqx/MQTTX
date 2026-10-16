@@ -49,4 +49,7 @@ if (process.env.NODE_ENV === 'development') {
 module.exports = {
   presets: ['@vue/app'],
   plugins,
+  // Transpiled CommonJS dependencies (zod v4's .cjs build, @vercel/oidc) must stay scripts, otherwise
+  // the injected core-js polyfill imports turn them into ES modules and their `exports` break at runtime.
+  sourceType: 'unambiguous',
 }

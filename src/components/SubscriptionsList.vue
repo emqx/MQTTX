@@ -654,7 +654,7 @@ export default class SubscriptionsList extends Vue {
   }
 
   // Remove or disable a subscription, also while disconnected unless the broker keeps it in a persistent session
-  private async removeSubscription(row: SubscriptionModel, disable?: boolean): Promise<boolean> {
+  public async removeSubscription(row: SubscriptionModel, disable?: boolean): Promise<boolean> {
     if (this.client?.connected) {
       return this.unsubscribe(row, disable)
     }
