@@ -123,14 +123,17 @@
               </a>
             </el-tooltip>
             <el-tooltip
-              v-if="enableCopilot"
+              v-if="enableAgent"
               placement="bottom"
               :effect="theme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
-              content="MQTTX Copilot"
+              content="MQTTX Agent"
             >
-              <a href="javascript:;" class="copilot-btn" @click="toggleShowCopilot">
-                <i class="iconfont icon-chat"></i>
+              <a href="javascript:;" class="agent-btn" @click="toggleAgent">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 3l1.8 4.6L18 9.4l-4.2 1.8L12 16l-1.8-4.8L6 9.4l4.2-1.8z" />
+                </svg>
+                <span>MQTTX Agent</span>
               </a>
             </el-tooltip>
             <template v-if="!isNewWindow">
@@ -378,6 +381,7 @@ import validFormatJson from '@/utils/validFormatJson'
 import MessageList from '@/components/MessageList.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
 import SubscriptionsList from '@/components/SubscriptionsList.vue'
+import { connectionBridge, ConnectionView } from '@/utils/ai/agent/connectionBridge'
 import ResizeHeight from '@/components/ResizeHeight.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
 import ResponseInformation from './ResponseInformation.vue'
@@ -388,7 +392,7 @@ import TimedMessage from '@/components/TimedMessage.vue'
 import UseScript from '@/components/UseScript.vue'
 import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 import MsgTip from '@/components/MsgTip.vue'
-import Copilot from '@/components/ai/Copilot.vue'
+import AgentPanel from '@/components/agent/AgentPanel.vue'
 
 import sandbox from '@/utils/sandbox'
 import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/historyRecordUtils'
@@ -439,7 +443,7 @@ type CommandType =
     UseScript,
     MsgTypeTabs,
     MsgTip,
-    Copilot,
+    AgentPanel,
     SyncTopicTreeDialog,
     ConnectionSelect,
   },
@@ -461,7 +465,7 @@ export default class ConnectionsDetail extends Vue {
   @Getter('currentTheme') private theme!: Theme
   @Getter('showClientInfo') private clientInfoVisibles!: { [id: string]: boolean }
   @Getter('currentScript') private scriptOption!: ScriptState | null
-  @Getter('enableCopilot') private enableCopilot!: boolean
+  @Getter('enableAgent') private enableAgent!: boolean
   @Getter('showConnectionList') private showConnectionList!: boolean
   @Getter('maxPayloadDisplaySize') private maxPayloadDisplaySize!: number
 
@@ -495,6 +499,7 @@ export default class ConnectionsDetail extends Vue {
   private showSyncTopicTreeDialog = false
 
   private connectLoading = false
+  private connectionView: ConnectionView | null = null
   private disconnectLoding = false
   private searchVisible = false
   private searchLoading = false
@@ -714,44 +719,42 @@ export default class ConnectionsDetail extends Vue {
     } catch (error) {
       const err = error as Error
       this.connectLoading = false
-      this.notifyMsgWithCopilot(err.toString())
+      this.notifyMsgWithAgent(err.toString())
     }
   }
 
   // Delete connection
   public removeConnection(currentConnection?: ConnectionModel) {
-    let { id, name } = this.record
-    if (currentConnection) {
-      id = currentConnection.id
-      name = currentConnection.name
-    }
-    const confirmDelete: string = this.$t('common.confirmDelete', { name }) as string
+    const target = currentConnection ?? this.record
+    const confirmDelete: string = this.$t('common.confirmDelete', { name: target.name }) as string
     this.$confirm(confirmDelete, this.$tc('common.warning'), {
       type: 'warning',
     })
       .then(async () => {
-        if (id) {
-          const { connectionService, topicNodeService } = useServices()
-          const res = await Promise.all([
-            topicNodeService.deleteTopicNodesForConnection(id),
-            connectionService.delete(id),
-          ])
-          const [_, connection] = res
-          if (connection) {
-            this.$emit('delete')
-            this.$message.success(this.$tc('common.deleteSuccess'))
-            if (connection.id) {
-              this.removeActiveConnection({ id: connection.id })
-              this.$log.info(
-                `Successfully removed MQTTX connection ${connection.name}@${connection.host} with clientID ${connection.clientId}`,
-              )
-            }
-          }
-        }
+        await this.deleteConnection(target)
       })
       .catch((error) => {
         this.$log.error(error.toString())
       })
+  }
+
+  // Delete a connection without asking for confirmation, used by the agent
+  public async deleteConnection(connection: ConnectionModel): Promise<void> {
+    const { id } = connection
+    if (!id) return
+    const { connectionService, topicNodeService } = useServices()
+    const res = await Promise.all([topicNodeService.deleteTopicNodesForConnection(id), connectionService.delete(id)])
+    const [, deleted] = res
+    if (deleted) {
+      this.$emit('delete')
+      this.$message.success(this.$tc('common.deleteSuccess'))
+      if (deleted.id) {
+        this.removeActiveConnection({ id: deleted.id })
+        this.$log.info(
+          `Successfully removed MQTTX connection ${deleted.name}@${deleted.host} with clientID ${deleted.clientId}`,
+        )
+      }
+    }
   }
 
   // Clean interval
@@ -1138,7 +1141,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private handleSubTopicError(errMsg: string, info?: string) {
-    this.notifyMsgWithCopilot(errMsg, info, () => {
+    this.notifyMsgWithAgent(errMsg, info, () => {
       this.subListRef.showDialog = false
     })
   }
@@ -1170,7 +1173,7 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Disconnect
-  private disconnect(): boolean | void {
+  public disconnect(): boolean | void {
     if (!this.client.connected || this.disconnectLoding) {
       return false
     }
@@ -1230,7 +1233,7 @@ export default class ConnectionsDetail extends Vue {
       msgTitle = error.toString()
     }
     this.forceCloseTheConnection()
-    this.notifyMsgWithCopilot(msgTitle)
+    this.notifyMsgWithAgent(msgTitle)
     this.$log.error(
       `Connection for ${this.record.name}@${this.record.host} failed, MQTT.js onError trigger, Error: ${error.stack}`,
     )
@@ -1280,7 +1283,7 @@ export default class ConnectionsDetail extends Vue {
   private onDisconnect(packet: IDisconnectPacket) {
     const reasonCode = packet.reasonCode!
     const reason = reasonCode === 0 ? 'Normal disconnection' : getErrorReason('5.0', reasonCode)
-    this.notifyMsgWithCopilot(
+    this.notifyMsgWithAgent(
       this.$t('connections.onDisconnect', { reason, reasonCode }) as string,
       JSON.stringify(packet),
       () => {},
@@ -1766,6 +1769,7 @@ export default class ConnectionsDetail extends Vue {
     message: MessageModel,
     type: PayloadType,
     afterSendCallback?: () => void,
+    onResult?: (error?: Error) => void,
   ): Promise<void> {
     const { topic, qos, payload, retain, properties } = message
 
@@ -1795,7 +1799,10 @@ export default class ConnectionsDetail extends Vue {
     if (payload) {
       convertedPayload = this.convertPayloadByFunction(payload as string, 'publish', type)
       finalPayload = this.handlePayloadBySchemaOrType(convertedPayload, type)
-      if (finalPayload === undefined) return
+      if (finalPayload === undefined) {
+        onResult?.(new Error(`The payload could not be converted to ${type}`))
+        return
+      }
     }
 
     this.client.publish!(
@@ -1805,6 +1812,7 @@ export default class ConnectionsDetail extends Vue {
       async (error: Error) => {
         if (error) {
           this.handleErrorOnPublish(error)
+          onResult?.(error)
           return
         }
         /*
@@ -1813,6 +1821,7 @@ export default class ConnectionsDetail extends Vue {
          * 2. To retain a human-readable payload that reflects the original or the user-script processed data.
          */
         await this.handleSuccessfulPublish(message, convertedPayload)
+        onResult?.()
       },
     )
 
@@ -1836,7 +1845,7 @@ export default class ConnectionsDetail extends Vue {
    */
   private handleErrorOnPublish(error: Error) {
     const errorMsg = error.toString()
-    this.notifyMsgWithCopilot(errorMsg)
+    this.notifyMsgWithAgent(errorMsg)
     this.stopTimedSend()
     this.$log.error(
       `Failed to publish message for ${this.record.name}@${this.record.host}. Error: ${errorMsg}. Stack trace: ${error.stack}`,
@@ -2183,23 +2192,23 @@ export default class ConnectionsDetail extends Vue {
   }
 
   /**
-   * Notifies the user with a message and provides an option to ask Copilot for assistance.
+   * Notifies the user with a message and provides an option to ask Agent for assistance.
    *
    * @param {string} msgTitle - The title of the message.
    * @param {string} promptInfo - Additional information to prompt the user.
-   * @param {function} callback - The callback function to be executed after asking Copilot.
+   * @param {function} callback - The callback function to be executed after asking Agent.
    * @param {string} type - The type of the message ('error' or 'warning') defualt error.
    */
-  private notifyMsgWithCopilot(
+  private notifyMsgWithAgent(
     msgTitle: string,
     promptInfo?: string,
     callback?: () => void,
     type: 'error' | 'warning' = 'error',
   ) {
-    const askCopilotButton = `
-      <button id="notify-copilot-button">Ask Copilot</button>
+    const askAgentButton = `
+      <button id="notify-agent-button">Ask Agent</button>
     `
-    const message = this.enableCopilot ? askCopilotButton : ''
+    const message = this.enableAgent ? askAgentButton : ''
     const notify = this.$notify({
       title: msgTitle,
       dangerouslyUseHTMLString: true,
@@ -2210,12 +2219,12 @@ export default class ConnectionsDetail extends Vue {
     })
 
     this.$nextTick(() => {
-      const button = document.getElementById('notify-copilot-button')
+      const button = document.getElementById('notify-agent-button')
       if (button) {
         button.addEventListener('click', () => {
           const sendMsg = promptInfo ? `${promptInfo}\n${msgTitle}` : msgTitle
-          this.askCopilot(
-            `${this.$tc('copilot.promptError')}\n\`\`\`${sendMsg}\`\`\`\n${this.$tc('copilot.myConnectionInfo')}`,
+          this.askAgent(
+            `${this.$tc('agent.promptError')}\n\`\`\`${sendMsg}\`\`\`\n${this.$tc('agent.myConnectionInfo')}`,
           )
           notify.close()
           callback?.()
@@ -2225,12 +2234,12 @@ export default class ConnectionsDetail extends Vue {
   }
 
   /**
-   * Asks Copilot a question and shows the Copilot component.
-   * @param askMsg The question to ask Copilot.
+   * Asks Agent a question and shows the Agent panel.
+   * @param askMsg The question to ask Agent.
    */
-  private askCopilot(askMsg: string) {
-    const copilotRef = this.toggleShowCopilot()
-    copilotRef.sendMessage(askMsg)
+  private askAgent(askMsg: string) {
+    const agentRef = this.toggleAgent()
+    agentRef.sendMessage(askMsg)
   }
 
   private getAncestorRef(refName: string) {
@@ -2244,15 +2253,15 @@ export default class ConnectionsDetail extends Vue {
     return null
   }
 
-  private toggleShowCopilot(show = true) {
-    const copilotRef = this.getAncestorRef('copilot') as Copilot
-    copilotRef.showCopilot = show
-    return copilotRef
+  private toggleAgent(show = true) {
+    const agentRef = this.getAncestorRef('agent') as AgentPanel
+    agentRef.showAgent = show
+    return agentRef
   }
 
   private handleInsertedCode() {
-    this.$message.success(this.$tc('copilot.insertCodeSuccess'))
-    this.toggleShowCopilot(false)
+    this.$message.success(this.$tc('agent.insertCodeSuccess'))
+    this.toggleAgent(false)
   }
 
   private handleConnectionSelect(connectionId: string) {
@@ -2261,9 +2270,53 @@ export default class ConnectionsDetail extends Vue {
 
   private created() {
     this.getConnectionValue(this.curConnectionId)
+    this.connectionView = this.createConnectionView()
+    connectionBridge.register(this.connectionView)
     ipcRenderer.on('searchContent', () => {
       this.handleSearchOpen()
     })
+  }
+
+  /**
+   * Exposes this component to the agent. State is read through getters so it always reflects the live values.
+   */
+  private createConnectionView(): ConnectionView {
+    const getConnectionId = (): string => this.curConnectionId
+    const getRecord = (): ConnectionModel => this.record
+    return {
+      get connectionId() {
+        return getConnectionId()
+      },
+      get record() {
+        return getRecord()
+      },
+      getClient: () => this.client as Partial<MqttClient>,
+      isConnecting: () => this.connectLoading,
+      connect: () => this.connect(),
+      cancelConnect: () => this.cancel(),
+      disconnect: () => this.disconnect(),
+      subscribe: async (sub) => {
+        await this.subListRef.subscribe(
+          { disabled: false, createAt: time.getNowDate(), ...sub } as SubscriptionModel,
+          true,
+        )
+      },
+      unsubscribe: async (topic) => {
+        const subList = this.subListRef as unknown as {
+          subsList: SubscriptionModel[]
+          removeSubscription: (row: SubscriptionModel) => Promise<boolean>
+        }
+        const row = (subList.subsList ?? []).find((item) => item.topic === topic)
+        if (!row) return false
+        return subList.removeSubscription(row)
+      },
+      publish: (message, type) =>
+        new Promise<void>((resolve, reject) => {
+          this.publishMessage(message, type, undefined, (error) => (error ? reject(error) : resolve()))
+        }),
+      deleteConnection: () => this.deleteConnection(this.record),
+      reload: () => new Promise<void>((resolve) => this.$emit('reload', false, false, resolve)),
+    }
   }
 
   private mounted() {
@@ -2277,6 +2330,10 @@ export default class ConnectionsDetail extends Vue {
 
   private beforeDestroy() {
     this.topbarResizeObserver?.disconnect()
+    if (this.connectionView) {
+      connectionBridge.unregister(this.connectionView)
+      this.connectionView = null
+    }
     ipcRenderer.removeAllListeners('searchContent')
     this.removeClinetsMessageListener()
     this.stopTimedSend()
@@ -2368,10 +2425,29 @@ export default class ConnectionsDetail extends Vue {
         .connect-loading,
         .edit-btn,
         .connect-btn,
-        .copilot-btn,
+        .agent-btn,
         .new-window-btn,
         .clear-history-btn {
           margin-right: 16px;
+        }
+        .agent-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          height: 30px;
+          padding: 0 12px;
+          border-radius: 999px;
+          border: 1px solid var(--color-border-default);
+          background: var(--color-bg-normal);
+          color: var(--color-text-title);
+          font-size: 13px;
+          svg {
+            color: var(--color-main-green);
+          }
+          &:hover {
+            border-color: var(--color-main-green);
+            color: var(--color-main-green);
+          }
         }
         .edit-btn {
           &.disabled {

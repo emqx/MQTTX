@@ -401,20 +401,20 @@
       <ClearUpHistoryData :visible.sync="showHistoryData" />
     </div>
 
-    <div class="settings-copilot">
-      <div class="settings-title">MQTTX Copilot</div>
+    <div class="settings-agent">
+      <div class="settings-title">MQTTX Agent</div>
       <el-divider></el-divider>
 
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
-          <label>{{ $t('settings.enableCopilot') }}</label>
+          <label>{{ $t('settings.enableAgent') }}</label>
         </el-col>
         <el-col :span="4">
           <el-switch
-            :value="enableCopilot"
+            :value="enableAgent"
             active-color="#13ce66"
             inactive-color="#A2A9B0"
-            @change="handleEnableCopilotSwitchChange"
+            @change="handleEnableAgentSwitchChange"
           >
           </el-switch>
         </el-col>
@@ -432,7 +432,7 @@
             clearable
             v-model.trim="aiConfig.openAIAPIHost"
             :fetch-suggestions="queryAIAPIHost"
-            :disabled="!enableCopilot"
+            :disabled="!enableAgent"
             placeholder="https://api.openai.com/v1"
             @select="handleAIConfigHostSelected"
             @change="handleAIConfigChanged('host')"
@@ -452,7 +452,7 @@
             placeholder="sk-*******"
             type="password"
             clearable
-            :disabled="!enableCopilot"
+            :disabled="!enableAgent"
             @clear="handleAIConfigChanged('apiKey')"
             @blur="handleAIConfigChanged('apiKey')"
           ></el-input>
@@ -481,7 +481,7 @@
             placeholder="gpt-4o"
             type="text"
             clearable
-            :disabled="!enableCopilot"
+            :disabled="!enableAgent"
             @clear="handleAIConfigChanged('model')"
             @blur="handleAIConfigChanged('model')"
             @focus="showAIModelsSelect = true"
@@ -490,9 +490,45 @@
         </el-col>
       </el-row>
       <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="18">
+          <label>{{ $t('settings.agentPermissionMode') }}</label>
+        </el-col>
+        <el-col :span="6">
+          <el-select
+            size="mini"
+            :value="agentPermissionMode"
+            :disabled="!enableAgent"
+            @change="handlePermissionModeChange"
+          >
+            <el-option :value="'ask'" :label="$t('settings.agentPermissionModeAsk')"></el-option>
+            <el-option :value="'auto'" :label="$t('settings.agentPermissionModeAuto')"></el-option>
+          </el-select>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="18">
+          <label>{{ $t('settings.agentMaxSteps') }}</label>
+        </el-col>
+        <el-col :span="6">
+          <el-input-number
+            size="mini"
+            :value="agentMaxSteps"
+            :min="10"
+            :max="200"
+            :disabled="!enableAgent"
+            controls-position="right"
+            @change="handleMaxStepsChange"
+          ></el-input-number>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
     </div>
 
-    <MCP-settings v-if="enableCopilot" />
+    <MCP-settings v-if="enableAgent" />
   </div>
 </template>
 
@@ -508,14 +544,15 @@ import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY } from '@/utils/idGenerator'
 import ClickOutside from 'vue-click-outside'
 import _ from 'lodash'
-import { AImodelsOptions, AIAPIHostOptions } from '@/utils/ai/copilot'
+import { AImodelsOptions, AIAPIHostOptions } from '@/utils/ai/models'
+import type { PermissionMode } from '@/utils/ai/agent/approval'
 import {
   MAX_MAX_PAYLOAD_DISPLAY_SIZE,
   MIN_MAX_PAYLOAD_DISPLAY_SIZE,
   normalizeMaxPayloadDisplaySize,
 } from '@/utils/data'
 import { formatBytes } from '@/utils/formatter'
-import MCPSettings from '@/components/ai/MCPSettings.vue'
+import MCPSettings from '@/components/agent/MCPSettings.vue'
 import PayloadSizeControl from '@/components/PayloadSizeControl.vue'
 
 @Component({
@@ -533,7 +570,7 @@ export default class Settings extends Vue {
   @Action('SET_MAX_RECONNECT_TIMES') private actionMaxReconnectTimes!: (payload: { maxReconnectTimes: number }) => void
   @Action('TOGGLE_MULTI_TOPICS') private actionToggleMultiTopics!: (payload: { multiTopics: boolean }) => void
   @Action('TOGGLE_JSON_HIGHLIGHT') private actionToggleJsonHighlight!: (payload: { jsonHighlight: boolean }) => void
-  @Action('TOGGLE_ENABLE_COPILOT') private actionToggleEnableCopilot!: (payload: { enableCopilot: boolean }) => void
+  @Action('TOGGLE_ENABLE_AGENT') private actionToggleEnableAgent!: (payload: { enableAgent: boolean }) => void
   @Action('SET_OPEN_AI_HOST') private actionSetOpenAIAPIHost!: (payload: { openAIAPIHost: string }) => void
   @Action('SET_OPEN_AI_API_KEY') private actionSetOpenAIAPIKey!: (payload: { openAIAPIKey: string }) => void
   @Action('SET_MODEL') private actionSetModel!: (payload: { model: App['model'] }) => void
@@ -551,6 +588,11 @@ export default class Settings extends Vue {
     enableHardwareAcceleration: boolean
   }) => void
 
+  @Action('SET_AGENT_PERMISSION_MODE') private actionSetAgentPermissionMode!: (payload: {
+    agentPermissionMode: PermissionMode
+  }) => void
+  @Action('SET_AGENT_MAX_STEPS') private actionSetAgentMaxSteps!: (payload: { agentMaxSteps: number }) => void
+
   @Getter('currentTheme') private currentTheme!: Theme
   @Getter('currentLang') private currentLang!: Language
   @Getter('autoCheck') private autoCheck!: boolean
@@ -559,7 +601,9 @@ export default class Settings extends Vue {
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
   @Getter('multiTopics') private multiTopics!: boolean
   @Getter('jsonHighlight') private jsonHighlight!: boolean
-  @Getter('enableCopilot') private enableCopilot!: boolean
+  @Getter('enableAgent') private enableAgent!: boolean
+  @Getter('agentPermissionMode') private agentPermissionMode!: PermissionMode
+  @Getter('agentMaxSteps') private agentMaxSteps!: number
   @Getter('openAIAPIHost') private openAIAPIHost!: string
   @Getter('openAIAPIKey') private openAIAPIKey!: string
   @Getter('model') private model!: App['model']
@@ -686,8 +730,16 @@ export default class Settings extends Vue {
     this.showHistoryData = true
   }
 
-  private handleEnableCopilotSwitchChange(value: boolean) {
-    this.actionToggleEnableCopilot({ enableCopilot: value })
+  private handleEnableAgentSwitchChange(value: boolean) {
+    this.actionToggleEnableAgent({ enableAgent: value })
+  }
+
+  private handlePermissionModeChange(value: PermissionMode) {
+    this.actionSetAgentPermissionMode({ agentPermissionMode: value })
+  }
+
+  private handleMaxStepsChange(value: number) {
+    this.actionSetAgentMaxSteps({ agentMaxSteps: value })
   }
 
   private handleAIConfigChanged(action: 'apiKey' | 'model' | 'host') {
@@ -815,7 +867,7 @@ export default class Settings extends Vue {
   [class$='general'],
   [class$='appearance'],
   [class$='advanced'],
-  [class$='copilot'] {
+  [class$='agent'] {
     margin-bottom: 56px;
   }
 
