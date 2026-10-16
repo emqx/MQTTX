@@ -36,7 +36,7 @@ export default class SettingEntity {
   jsonHighlight!: boolean
 
   @Column({ type: 'boolean', default: true })
-  enableCopilot!: boolean
+  enableAgent!: boolean
 
   @Column({ type: 'varchar', default: 'https://api.openai.com/v1' })
   openAIAPIHost!: string

@@ -232,7 +232,7 @@ async function createWindow() {
         syncOsTheme: setting.syncOsTheme,
         multiTopics: setting.multiTopics,
         jsonHighlight: setting.jsonHighlight,
-        enableCopilot: setting.enableCopilot,
+        enableAgent: setting.enableAgent,
         openAIAPIHost: setting.openAIAPIHost,
         openAIAPIKey: setting.openAIAPIKey,
         model: setting.model,

@@ -275,12 +275,12 @@ div.code-toolbar {
   }
 }
 /*
-  Selective display within #copilot: Within this specific context, the toolbar buttons are explicitly 
+  Selective display within #agent: Within this specific context, the toolbar buttons are explicitly 
   shown. This creates a controlled environment where the toolbar's enhanced features (like copy and insert 
-  buttons) are available only in the #copilot area. This CSS-based 'namespace' isolation is a practical 
+  buttons) are available only in the #agent area. This CSS-based 'namespace' isolation is a practical 
   solution to selectively enable toolbar functionality in desired areas, avoiding its impact elsewhere.
 */
-#copilot {
+#agent {
   div.code-toolbar {
     position: relative;
     border-radius: 8px;

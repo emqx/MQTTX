@@ -6,8 +6,8 @@
  */
 
 import { ipcMain } from 'electron'
-import { MCPClient } from '@/utils/ai/mcp'
-import { MCPServer } from '@/types/mcp'
+import { MCPClient } from '@/utils/ai/mcp/MCPClient'
+import { EnabledMCPServer, MCPServer } from '@/types/mcp'
 import { mcpStore } from './MCPStore'
 
 // Store active MCP client instances
@@ -199,6 +199,22 @@ export function initMCPHandlers(): void {
       }
     }
     return result
+  })
+
+  // List the live tools of every enabled server, connecting on demand
+  ipcMain.handle('mcp:list-tools', async () => {
+    if (!mcpStore.isMCPReady()) {
+      return []
+    }
+
+    const servers: EnabledMCPServer[] = []
+    for (const [serverName, serverConfig] of mcpStore.getEnabledServers()) {
+      const client = (await autoConnectToServer(serverName, serverConfig)) && activeClients.get(serverName)
+      if (client && client.getTools().length > 0) {
+        servers.push({ name: serverName, tools: client.getTools() })
+      }
+    }
+    return servers
   })
 
   // Auto-connect to enabled MCP servers

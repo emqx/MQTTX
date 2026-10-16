@@ -3,7 +3,7 @@
  * This file contains all preset prompt options for AI assistant functionality
  */
 
-import { PromptOptionDefinition } from '@/types/copilot'
+import { PromptOptionDefinition } from '@/types/agent'
 
 /**
  * Programming language options

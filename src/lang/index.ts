@@ -20,7 +20,7 @@ const i18nModules: i18nLocaleModel = [
   'help',
   'update',
   'viewer',
-  'copilot',
+  'agent',
 ]
 
 const { en, zh, ja, tr, hu, ko }: VueI18n.LocaleMessages = formati18n(i18nModules, supportLang)
