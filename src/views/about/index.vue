@@ -86,108 +86,47 @@
             </button>
           </div>
 
-          <!-- Products Promotion -->
-          <div class="promo">
-            <div class="promo-hero">
-              <div class="promo-hero__content">
-                <div class="promo-hero__meta">
-                  <span class="promo-hero__badge">{{ $t('about.deviceAgentBadge') }}</span>
-                  <span class="promo-hero__brand">Device Agent</span>
-                </div>
-                <h3 class="promo-hero__title">{{ $t('about.deviceAgentTitle') }}</h3>
-                <p class="promo-hero__desc">{{ $t('about.deviceAgentDesc') }}</p>
-                <div class="promo-hero__actions">
-                  <button
-                    type="button"
-                    class="promo-hero__btn promo-hero__btn--primary"
-                    @click="goToLink(deviceAgentWebsite)"
-                  >
-                    <span>{{ $t('about.tryDeviceAgent') }}</span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-                      <path
-                        d="M5 12H19M19 12L12 5M19 12L12 19"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  </button>
-                  <button
-                    type="button"
-                    class="promo-hero__btn promo-hero__btn--ghost"
-                    @click="goToLink(deviceAgentDocsLink)"
-                  >
-                    <span>{{ $t('about.deviceAgentDocs') }}</span>
-                  </button>
-                </div>
+          <!-- EMQ Messages -->
+          <div class="emq-messages">
+            <p class="emq-messages-head">
+              <span class="live-dot"></span>
+              {{ $t('about.messagesFromEMQ') }}
+              <code>emqx/#</code>
+            </p>
+            <template v-for="item in emqMessages">
+              <div v-if="item.type === 'agent'" :key="`${item.type}-ask`" class="emq-msg is-sent">
+                <span class="emq-msg-meta">Topic: {{ item.topic }}<span>QoS: 1</span></span>
+                <span class="emq-msg-body">{{ $t('about.deviceAgentAsk') }}</span>
               </div>
-              <div class="promo-hero__visual" aria-hidden="true">
-                <svg viewBox="0 0 120 88" fill="none">
-                  <defs>
-                    <linearGradient
-                      id="promoCoreGradient"
-                      x1="78"
-                      y1="30"
-                      x2="106"
-                      y2="58"
-                      gradientUnits="userSpaceOnUse"
-                    >
-                      <stop stop-color="#a78bfa" />
-                      <stop offset="1" stop-color="#3b82f6" />
-                    </linearGradient>
-                  </defs>
-                  <rect class="promo-node" x="2" y="12" width="22" height="12" rx="3" />
-                  <rect class="promo-node" x="2" y="38" width="22" height="12" rx="3" />
-                  <rect class="promo-node" x="2" y="64" width="22" height="12" rx="3" />
-                  <path class="promo-flow promo-flow--1" d="M24 18H56C66 18 70 34 78 40" />
-                  <path class="promo-flow promo-flow--2" d="M24 44H78" />
-                  <path class="promo-flow promo-flow--3" d="M24 70H56C66 70 70 54 78 48" />
-                  <circle class="promo-core-ring" cx="92" cy="44" r="22" />
-                  <circle cx="92" cy="44" r="14" fill="url(#promoCoreGradient)" />
-                  <path
-                    class="promo-core-mark"
-                    d="M86 48.5L90 39.5L94 48.5M87.5 45.5H92.5"
-                    stroke-width="1.6"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path class="promo-core-mark" d="M97 39.5V48.5" stroke-width="1.6" stroke-linecap="round" />
-                </svg>
-              </div>
-            </div>
-
-            <div class="promo-row">
-              <div class="promo-card">
-                <h4 class="promo-card__title">EMQX Platform</h4>
-                <p class="promo-card__desc">{{ $t('about.platformDescShort') }}</p>
-                <button type="button" class="promo-card__link" @click="goToLink(emqxPlatformWebsite)">
-                  <span>{{ $t('about.tryPlatform') }}</span>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-                    <path
-                      d="M5 12H19M19 12L12 5M19 12L12 19"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
+              <div :key="item.type" class="emq-msg-row">
+                <span v-if="item.type === 'agent'" class="emq-msg-typing" aria-hidden="true"
+                  ><i></i><i></i><i></i
+                ></span>
+                <button
+                  type="button"
+                  :class="['emq-msg', 'is-received', `is-${item.type}`]"
+                  @click="goToLink(item.link)"
+                >
+                  <span class="emq-msg-meta">Topic: {{ item.topic }}<span>QoS: 1</span></span>
+                  <span class="emq-msg-body">
+                    <b>{{ item.name }}</b>
+                    <span v-if="item.type === 'agent'" class="emq-msg-badge">{{ $t('about.deviceAgentBadge') }}</span>
+                    <span class="emq-msg-text" :title="item.text">{{ item.text }}</span>
+                    <span class="emq-msg-cta">
+                      {{ item.cta }}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                        <path
+                          d="M5 12H19M19 12L12 5M19 12L12 19"
+                          stroke-width="2.4"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </span>
+                  </span>
                 </button>
               </div>
-              <div class="promo-card">
-                <h4 class="promo-card__title">EMQX Cloud</h4>
-                <p class="promo-card__desc">{{ $t('about.cloudDescShort') }}</p>
-                <button type="button" class="promo-card__link" @click="goToLink(emqxCloudWebsite)">
-                  <span>{{ $t('about.tryCloud') }}</span>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-                    <path
-                      d="M5 12H19M19 12L12 5M19 12L12 19"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
+            </template>
           </div>
 
           <!-- Footer -->
@@ -290,12 +229,37 @@ export default class About extends Vue {
     return gaCustomLinks(this.getterLang).about.deviceAgent
   }
 
-  get deviceAgentDocsLink(): string {
-    return gaCustomLinks(this.getterLang).about.deviceAgentDocs
-  }
-
   get emqxPlatformWebsite(): string {
     return gaCustomLinks(this.getterLang).about.EMQXPlatform
+  }
+
+  get emqMessages() {
+    return [
+      {
+        type: 'platform',
+        topic: 'emqx/platform',
+        name: 'EMQX Platform',
+        text: this.$t('about.platformTitle'),
+        cta: this.$t('about.learnMore'),
+        link: this.emqxPlatformWebsite,
+      },
+      {
+        type: 'cloud',
+        topic: 'emqx/cloud',
+        name: 'EMQX Cloud',
+        text: this.$t('about.cloudDesc'),
+        cta: this.$t('about.freeTrial'),
+        link: this.emqxCloudWebsite,
+      },
+      {
+        type: 'agent',
+        topic: 'emqx/device-agent',
+        name: 'Device Agent',
+        text: this.$t('about.deviceAgentReply'),
+        cta: this.$t('about.learnMore'),
+        link: this.deviceAgentWebsite,
+      },
+    ]
   }
 
   get signInLink(): string {
@@ -383,7 +347,6 @@ export default class About extends Vue {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  overflow-y: auto;
 }
 
 /* Background Effects */
@@ -479,53 +442,6 @@ export default class About extends Vue {
       background: #f5f7fa;
     }
   }
-
-  .promo-hero {
-    background: #fff;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  }
-
-  .promo-hero__brand {
-    color: #4b5563;
-  }
-
-  .promo-hero__title {
-    color: #1e1b4b;
-  }
-
-  .promo-hero__desc {
-    color: #6b7280;
-  }
-
-  .promo-hero__btn--ghost {
-    background: rgba(124, 58, 237, 0.08);
-    color: #5b21b6;
-
-    &:hover {
-      background: rgba(124, 58, 237, 0.16);
-      color: #5b21b6;
-    }
-  }
-
-  .promo-hero__visual {
-    .promo-node {
-      fill: rgba(17, 24, 39, 0.04);
-      stroke: rgba(17, 24, 39, 0.2);
-    }
-
-    .promo-flow {
-      stroke: rgba(124, 58, 237, 0.35);
-    }
-
-    .promo-core-ring {
-      stroke: rgba(124, 58, 237, 0.3);
-    }
-  }
-
-  .promo-card {
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  }
 }
 
 @keyframes float {
@@ -553,7 +469,6 @@ export default class About extends Vue {
   gap: 80px;
   max-width: 900px;
   width: 100%;
-  margin: auto;
 }
 
 /* Left Column - Logo */
@@ -755,239 +670,250 @@ export default class About extends Vue {
   }
 }
 
-/* Products Promotion */
-.promo {
-  margin-bottom: 12px;
-}
-
-.promo-hero {
-  position: relative;
+/* EMQ Messages: promotions rendered like MQTTX received/sent messages */
+.emq-messages {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 18px 20px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #7c3aed, #3b82f6, #7c3aed);
-  }
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
 }
 
-.promo-hero__content {
-  flex: 1;
-  min-width: 0;
-}
-
-.promo-hero__meta {
+.emq-messages-head {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
-}
-
-.promo-hero__badge {
-  padding: 2px 7px;
-  border-radius: 100px;
-  background: linear-gradient(135deg, #34c388 0%, #10b981 100%);
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.promo-hero__brand {
-  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  color: var(--color-text-light);
   font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+
+  code {
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--color-bg-messagebox);
+    color: var(--color-text-default);
+    font-size: 11px;
+  }
 }
 
-.promo-hero__title {
-  margin: 0 0 6px 0;
-  color: #fff;
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.35;
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-main-green);
+  box-shadow: 0 0 0 3px rgba(52, 195, 136, 0.2);
 }
 
-.promo-hero__desc {
-  margin: 0 0 14px 0;
-  color: rgba(255, 255, 255, 0.72);
-  font-size: 12.5px;
-  line-height: 1.6;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.emq-msg-row {
+  position: relative;
+  display: flex;
 }
 
-.promo-hero__actions {
+.emq-msg {
+  position: relative;
+  display: block;
+  max-width: 86%;
+  padding: 9px 14px 10px;
+  border: none;
+  font: inherit;
+  text-align: left;
+  animation: emq-msg-in 0.35s ease both;
+
+  &.is-received {
+    background: var(--color-bg-messagebox);
+    border-radius: 0 10px 10px 10px;
+    box-shadow: 0 1px 3px var(--color-shadow-message);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+
+    // Topic colour bar, as in the message list
+    &::before {
+      content: '';
+      position: absolute;
+      top: 9px;
+      bottom: 9px;
+      left: -4px;
+      width: 4px;
+      border-radius: 8px;
+      background: var(--topic-color);
+    }
+
+    &:hover {
+      transform: translateX(3px);
+
+      .emq-msg-cta {
+        background: var(--color-main-green);
+        color: #fff;
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-main-green);
+      outline-offset: 2px;
+    }
+  }
+
+  &.is-platform {
+    --topic-color: #34c388;
+    animation-delay: 0.3s;
+  }
+
+  &.is-cloud {
+    --topic-color: #5b8cff;
+    animation-delay: 0.8s;
+  }
+
+  &.is-sent {
+    align-self: flex-end;
+    background: var(--color-main-green);
+    border-radius: 10px 0 10px 10px;
+    color: #fff;
+    animation-delay: 1.5s;
+
+    .emq-msg-meta {
+      color: rgba(255, 255, 255, 0.78);
+    }
+  }
+
+  &.is-agent {
+    --topic-color: #a970ff;
+    animation-delay: 3s;
+  }
+}
+
+.emq-msg-meta {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 4px;
+  color: var(--color-text-light);
+  font-family: Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.emq-msg-body {
   display: flex;
   align-items: center;
   gap: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-default);
+
+  b {
+    color: var(--color-text-title);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .is-sent & {
+    color: #fff;
+  }
 }
 
-.promo-hero__btn {
+.emq-msg-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emq-msg-badge {
+  margin-left: -4px;
+  padding: 1px 6px;
+  border-radius: 100px;
+  background: linear-gradient(90deg, #34c388, #7b6cff);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.emq-msg-cta {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border: none;
-  border-radius: 8px;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
-
-  svg {
-    width: 14px;
-    height: 14px;
-    transition: transform 0.25s ease;
-  }
-
-  &--primary {
-    background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
-    color: #fff;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
-
-      svg {
-        transform: translateX(4px);
-      }
-    }
-  }
-
-  &--ghost {
-    background: rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.85);
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.16);
-      color: #fff;
-    }
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-}
-
-.promo-hero__visual {
+  gap: 4px;
   flex-shrink: 0;
-  width: 110px;
+  padding: 3px 10px;
+  border-radius: 100px;
+  background: rgba(52, 195, 136, 0.12);
+  color: var(--color-main-green);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s ease;
 
   svg {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  .promo-node {
-    fill: rgba(255, 255, 255, 0.08);
-    stroke: rgba(255, 255, 255, 0.32);
-    stroke-width: 1;
-  }
-
-  .promo-flow {
-    stroke: rgba(255, 255, 255, 0.3);
-    stroke-width: 1.2;
-    stroke-dasharray: 3 4;
-    animation: promo-flow 1.6s linear infinite;
-  }
-
-  .promo-flow--2 {
-    animation-delay: 0.25s;
-  }
-
-  .promo-flow--3 {
-    animation-delay: 0.5s;
-  }
-
-  .promo-core-ring {
-    stroke: rgba(124, 58, 237, 0.45);
-    stroke-width: 1;
-    stroke-dasharray: 3 5;
-  }
-
-  .promo-core-mark {
-    stroke: #fff;
+    width: 12px;
+    height: 12px;
   }
 }
 
-@keyframes promo-flow {
+// "Typing…" shown between the question and the Device Agent reply
+.emq-msg-typing {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 0 10px 10px 10px;
+  background: var(--color-bg-messagebox);
+  box-shadow: 0 1px 3px var(--color-shadow-message);
+  animation: emq-typing 1s ease 2s both;
+
+  i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-text-light);
+    animation: emq-blink 1s infinite;
+
+    &:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.3s;
+    }
+  }
+}
+
+@keyframes emq-msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
   to {
-    stroke-dashoffset: -14;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes emq-typing {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  15%,
+  85% {
+    opacity: 1;
+  }
+}
+
+@keyframes emq-blink {
+  50% {
+    opacity: 0.2;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .promo-hero__visual .promo-flow {
+  .emq-msg {
     animation: none;
   }
-}
 
-.promo-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.promo-card {
-  display: flex;
-  flex-direction: column;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: var(--color-bg-card-gradient);
-}
-
-.promo-card__title {
-  margin: 0 0 6px 0;
-  color: var(--color-text-default);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.promo-card__desc {
-  flex: 1;
-  margin: 0 0 10px 0;
-  color: var(--color-text-light);
-  font-size: 12px;
-  line-height: 1.55;
-}
-
-.promo-card__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  align-self: flex-start;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--color-main-green);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-
-  svg {
-    width: 13px;
-    height: 13px;
-    transition: transform 0.25s ease;
-  }
-
-  &:hover svg {
-    transform: translateX(3px);
+  .emq-msg-typing {
+    display: none;
   }
 }
 /* Footer */
