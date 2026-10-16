@@ -85,13 +85,13 @@ export default {
     ja: '無料トライアル',
   },
   deviceAgentAsk: {
-    zh: '设备能直接接入 AI 吗？',
-    en: 'Can my devices talk to AI?',
-    ja: 'デバイスをAIにつなげる？',
+    zh: '如果设备会思考呢？',
+    en: 'What if your devices could think?',
+    ja: 'もしデバイスが考えられたら？',
   },
   deviceAgentReply: {
-    zh: '能。让设备快速接入你的 AI 大脑。',
-    en: 'Yes. Connect your devices to your AI brain.',
-    ja: 'はい。デバイスをAIの頭脳にすばやく接続。',
+    zh: '让每台设备拥有 AI 大脑。',
+    en: 'Give every device an AI brain.',
+    ja: 'すべてのデバイスにAIの頭脳を。',
   },
 }
