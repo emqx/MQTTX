@@ -9,7 +9,6 @@ import { Container } from 'typedi'
 import ConnectionsList from '@/views/connections/ConnectionsList.vue'
 
 Vue.use(VueRouter)
-const methods = (ConnectionsList as any).options.methods
 const tree = [
   {
     id: 'outer',
@@ -45,9 +44,6 @@ describe('Desktop group expansion state', () => {
       routes: [{ path: '/recent_connections/:id?', component: { render: (h) => h('div') } }],
     })
     await router.push(`/recent_connections/${id}`)
-    const options = (ConnectionsList as any).options
-    const originalMounted = options.mounted
-    options.mounted = []
     wrapper = mount(ConnectionsList, {
       localVue,
       store,
@@ -57,8 +53,8 @@ describe('Desktop group expansion state', () => {
         $t: (key: string) => key,
       },
     })
-    options.mounted = originalMounted
-    await (wrapper.vm as any).loadData(true)
+    // mounted() runs loadData(true); let its async getAll and nextTick passes settle.
+    await new Promise((resolve) => setTimeout(resolve, 0))
     await tick()
   }
 
@@ -93,7 +89,7 @@ describe('Desktop group expansion state', () => {
     await open()
     for (const id of ['inner', 'outer']) {
       nodes()[id].expanded = false
-      methods.handleNodeExpand.call(wrapper.vm, nodes()[id].data, false)
+      ;(wrapper.vm as any).handleNodeExpand(nodes()[id].data, false)
     }
     await tick()
     wrapper.destroy()
