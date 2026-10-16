@@ -248,13 +248,11 @@ export default class ConnectionsList extends Vue {
   }
 
   private handleNodeExpand(data: ConnectionModelTree, expanded: boolean) {
-    if (data && data.isCollection) {
-      if (!data.id) return
-      this.setConnectionsTree({
-        id: data.id,
-        expanded,
-      } as ConnectionTreeState)
-    }
+    if (!data?.isCollection || !data.id) return
+    this.setConnectionsTree({
+      id: data.id,
+      expanded,
+    } as ConnectionTreeState)
   }
 
   private expandTreeNodeAncestor(id: string, preserveCollapsed = false) {
