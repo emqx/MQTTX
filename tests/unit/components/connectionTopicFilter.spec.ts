@@ -2,6 +2,7 @@ import '../mocks/browserStorage'
 import { expect } from 'chai'
 import { shallowMount, createLocalVue } from '@vue/test-utils'
 import Vuex from 'vuex'
+import VueRouter from 'vue-router'
 import { Container } from 'typedi'
 import ElementUI from 'element-ui'
 import ConnectionsDetail from '@/views/connections/ConnectionsDetail.vue'
@@ -14,6 +15,12 @@ describe('Desktop topic filter transitions', () => {
     const localVue = createLocalVue()
     localVue.use(Vuex)
     localVue.use(ElementUI)
+    localVue.use(VueRouter)
+    // A real router, because another spec installs VueRouter globally and $route cannot be mocked.
+    const router = new VueRouter({
+      routes: [{ path: '/recent_connections/:id', name: 'ConnectionsDetail', component: { render: (h) => h('div') } }],
+    })
+    await router.push('/recent_connections/A')
     let reloads = 0
     const options = {
       ...(ConnectionsDetail as any).options,
@@ -31,8 +38,8 @@ describe('Desktop topic filter transitions', () => {
     const wrapper = shallowMount(options, {
       localVue,
       propsData: { record },
+      router,
       mocks: {
-        $route: { params: { id: 'A' }, name: 'ConnectionsDetail' },
         $t: (key: string) => key,
         $tc: (key: string) => key,
       },

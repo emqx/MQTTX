@@ -15,11 +15,10 @@ const a = sub('a/#'),
   b = sub('b/#')
 const popover = { template: '<div><slot/><slot name="reference"/></div>' }
 
-// Skip broker lifecycle hooks; render and events use the production component options.
-const options = { ...(SubscriptionsList as any).options, mounted: [], created: [], beforeDestroy: [], watch: {} }
 const mount = (activeTopic = '') =>
-  shallowMount(options, {
+  shallowMount(SubscriptionsList, {
     localVue,
+    sync: false,
     propsData: { connectionId: 'test', record: { subscriptions: [a, b], mqttVersion: '5.0' }, activeTopic },
     store: new Vuex.Store({
       getters: {
@@ -33,6 +32,8 @@ const mount = (activeTopic = '') =>
     }),
     mocks: { $t: (key: string) => key, $tc: (key: string) => key },
     stubs: { 'el-popover': popover },
+    // Skip loading the connection from the database.
+    methods: { getCurrentConnection: () => {} },
   })
 
 describe('Subscription filter state', () => {
