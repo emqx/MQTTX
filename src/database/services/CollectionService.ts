@@ -5,6 +5,7 @@ import CollectionEntity from '@/database/models/CollectionEntity'
 import ConnectionEntity from '@/database/models/ConnectionEntity'
 import WillEntity from '@/database/models/WillEntity'
 import time from '@/utils/time'
+import { CollectionBackup } from '@/utils/connectionBackup'
 
 @Service()
 export default class CollectionService {
@@ -166,6 +167,24 @@ export default class CollectionService {
       }),
     )
     return [...collectionTree, ...topConnections] as ConnectionModelTree[]
+  }
+
+  public async getCollectionsForExport(connectionId?: string): Promise<CollectionBackup[]> {
+    const repository = this.collectionRepository.manager.getTreeRepository(CollectionEntity)
+    let query = repository.createQueryBuilder('collection')
+    if (connectionId) {
+      const parentId = (await this.connectionRepository.findOne(connectionId))?.parentId
+      if (!parentId) return []
+      query = repository.createAncestorsQueryBuilder('collection', 'closure', repository.create({ id: parentId }))
+    }
+    const selected = await query.leftJoinAndSelect('collection.parent', 'parent').getMany()
+    return selected.map(({ id, name, orderId, parent }) => ({
+      id,
+      name,
+      orderId,
+      isCollection: true,
+      parentId: parent?.id ?? null,
+    }))
   }
 
   public async delete(collectionId: string) {

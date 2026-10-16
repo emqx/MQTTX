@@ -111,15 +111,15 @@ const app = {
       state.jsonHighlight = jsonHighlight
     },
     [CHANGE_ACTIVE_CONNECTION](state: App, payload: Client) {
-      const { id, client } = payload
+      const { id, ...connection } = payload
       if (state.activeConnection[id]) {
         // already exists activeConnection
-        Vue.set(state.activeConnection[id], 'client', client)
+        Object.entries(connection).forEach(([key, value]) => {
+          Vue.set(state.activeConnection[id], key, value)
+        })
       } else {
         // new activeConnection
-        Vue.set(state.activeConnection, id, {
-          client,
-        })
+        Vue.set(state.activeConnection, id, connection)
       }
     },
     [REMOVE_ACTIVE_CONNECTION](state: App, id: string) {
@@ -128,7 +128,10 @@ const app = {
       delete state.showClientInfo[id]
     },
     [CHANGE_SUBSCRIPTIONS](state: App, payload: Subscriptions) {
-      state.activeConnection[payload.id].subscriptions = payload.subscriptions
+      // A connection that has not connected yet has no activeConnection entry
+      if (state.activeConnection[payload.id]) {
+        state.activeConnection[payload.id].subscriptions = payload.subscriptions
+      }
     },
     [SHOW_CLIENT_INFO](state: App, payload: ClientInfo) {
       state.showClientInfo[payload.id] = payload.showClientInfo

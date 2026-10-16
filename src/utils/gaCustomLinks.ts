@@ -31,6 +31,7 @@ export default (lang: Language) => {
     EMQ: `${EMQSite}${utm}mqttx-to-homepage`,
     EMQXCloud: `${EMQSite}/cloud${utm}mqttx-to-cloud`,
     EMQXPlatform: `${EMQSite}/platform${utm}mqttx-to-platform`,
+    deviceAgent: `${EMQSite}/device-agent${utm}mqttx-to-device-agent`,
     signIn: signInSite,
   }
 

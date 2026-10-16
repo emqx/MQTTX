@@ -60,6 +60,11 @@ export default {
     en: 'Client not connected',
     ja: 'クライアント未接続',
   },
+  persistentSessionUnsubscribe: {
+    zh: '持久会话下 Broker 仍保留该订阅，请连接后再取消订阅',
+    en: 'The broker keeps this subscription in a persistent session. Connect to unsubscribe',
+    ja: '永続セッションではブローカーがこのサブスクリプションを保持します。接続してから購読を解除してください',
+  },
   disconnect: {
     zh: '断开连接',
     en: 'Disconnect',

@@ -69,6 +69,7 @@
                 </el-badge>
               </el-popover>
             </transition>
+            <ResponseInformation :key="curConnectionId" :response-information="responseInformation" />
           </div>
           <div class="connection-tail">
             <transition name="el-fade-in">
@@ -369,6 +370,7 @@ import MsgPublish from '@/components/MsgPublish.vue'
 import SubscriptionsList from '@/components/SubscriptionsList.vue'
 import ResizeHeight from '@/components/ResizeHeight.vue'
 import ConnectionInfo from './ConnectionInfo.vue'
+import ResponseInformation from './ResponseInformation.vue'
 import Contextmenu from '@/components/Contextmenu.vue'
 import ExportData from '@/components/ExportData.vue'
 import ImportData from '@/components/ImportData.vue'
@@ -415,6 +417,7 @@ type CommandType =
 @Component({
   components: {
     ConnectionInfo,
+    ResponseInformation,
     MsgPublish,
     SubscriptionsList,
     ResizeHeight,
@@ -531,6 +534,11 @@ export default class ConnectionsDetail extends Vue {
 
   get titleName() {
     return this.record.name
+  }
+
+  get responseInformation(): string {
+    if (!this.client.connected || this.record.mqttVersion !== '5.0') return ''
+    return this.activeConnection[this.curConnectionId]?.responseInformation || ''
   }
 
   get bodyTopValue(): string {
@@ -675,12 +683,12 @@ export default class ConnectionsDetail extends Vue {
     this.connectLoading = true
     // new client
     try {
+      const { id, name, host, protocol, port, path, clientId, mqttVersion } = this.record
       const { curConnectClient, connectUrl } = await createClient(this.record)
       this.client = curConnectClient
-      const { id, name, host, protocol, port, path, clientId } = this.record
       if (id && this.client.on) {
         this.$log.info(`Assigned ID ${id} to MQTTX client`)
-        this.client.on('connect', this.onConnect)
+        this.client.on('connect', (conBack) => this.onConnect(conBack, { id, client: curConnectClient, mqttVersion }))
         this.client.on('error', this.onError)
         this.client.on('reconnect', this.onReConnect)
         this.client.on('disconnect', this.onDisconnect)
@@ -1187,12 +1195,16 @@ export default class ConnectionsDetail extends Vue {
   }
 
   // Connect callback
-  private onConnect(conBack: IConnackPacket) {
+  private onConnect(
+    conBack: IConnackPacket,
+    { id, client, mqttVersion }: { id: string; client: MqttClient; mqttVersion: string },
+  ) {
     this.connectLoading = false
 
     this.changeActiveConnection({
-      id: this.curConnectionId,
-      client: this.client,
+      id,
+      client,
+      responseInformation: mqttVersion === '5.0' ? conBack.properties?.responseInformation || '' : '',
     })
     this.$notify({
       title: this.$tc('connections.connected'),
@@ -2304,6 +2316,7 @@ export default class ConnectionsDetail extends Vue {
       .connection-head {
         display: flex;
         align-items: center;
+        min-width: 0;
         h2.title-name {
           max-width: 200px;
           white-space: nowrap;
@@ -2335,6 +2348,8 @@ export default class ConnectionsDetail extends Vue {
         @include collapse-btn-transform(0deg, 180deg);
       }
       .connection-tail {
+        flex-shrink: 0;
+        margin-left: 12px;
         i {
           font-size: 20px;
           color: var(--color-text-title);

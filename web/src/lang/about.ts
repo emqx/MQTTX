@@ -54,44 +54,44 @@ export default {
     en: 'The Unified MQTT Platform for IoT',
     ja: 'IoT向け統合MQTTプラットフォーム',
   },
-  platformDesc: {
-    zh: '完整的生产级 MQTT 平台，无缝连接工业设备、边缘网关和云服务。从边缘协议桥接到超大规模云消息传递，统一在一个平台下管理您的整个物联网数据基础设施。',
-    en: 'Connect everything, scale infinitely. One platform for industrial devices, edge gateways, and cloud services — powering your entire IoT infrastructure.',
-    ja: '産業用デバイス、エッジゲートウェイ、クラウドサービスをシームレスに接続する、完全な本番環境対応MQTTプラットフォーム。',
+  cloudDesc: {
+    zh: '全托管 MQTT 云服务，14 天免费试用',
+    en: 'Fully managed MQTT cloud, 14-day free trial',
+    ja: 'フルマネージドMQTT、14日間無料',
   },
-  statDownloads: {
-    zh: '产品下载量',
-    en: 'Product Downloads',
-    ja: '製品ダウンロード数',
-  },
-  statClusters: {
-    zh: '全球部署集群',
-    en: 'Global Clusters',
-    ja: 'グローバルクラスター',
-  },
-  statProtocols: {
-    zh: '工业协议支持',
-    en: 'Industrial Protocols',
-    ja: '産業用プロトコル',
-  },
-  statLatency: {
-    zh: '超低延迟',
-    en: 'Ultra-Low Latency',
-    ja: '超低遅延',
-  },
-  statConnections: {
-    zh: '单集群并发连接',
-    en: 'Connections/Cluster',
-    ja: '接続数/クラスター',
-  },
-  tryPlatform: {
-    zh: '立即免费试用',
-    en: 'Start Free Trial',
-    ja: '無料トライアルを開始',
+  deviceAgentBadge: {
+    zh: '新品',
+    en: 'New',
+    ja: '新機能',
   },
   signIn: {
     zh: '登录',
     en: 'Sign In',
     ja: 'サインイン',
+  },
+  messagesFromEMQ: {
+    zh: '来自 EMQ 的消息',
+    en: 'Messages from EMQ',
+    ja: 'EMQ からのメッセージ',
+  },
+  learnMore: {
+    zh: '了解',
+    en: 'Learn',
+    ja: '詳細',
+  },
+  freeTrial: {
+    zh: '免费试用',
+    en: 'Free Trial',
+    ja: '無料トライアル',
+  },
+  deviceAgentAsk: {
+    zh: '如果设备会思考呢？',
+    en: 'What if your devices could think?',
+    ja: 'もしデバイスが考えられたら？',
+  },
+  deviceAgentReply: {
+    zh: '让每台设备拥有 AI 大脑。',
+    en: 'Give every device an AI brain.',
+    ja: 'すべてのデバイスにAIの頭脳を。',
   },
 }

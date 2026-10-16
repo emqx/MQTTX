@@ -1,5 +1,6 @@
 // Simple Electron mock for testing environment
 module.exports = {
+  getGlobal: () => ({}),
   ipcRenderer: {
     on: () => {},
     once: () => {},

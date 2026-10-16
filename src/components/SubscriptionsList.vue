@@ -73,7 +73,7 @@
           </a>
         </el-popover>
         <span class="qos">QoS {{ sub.qos }}</span>
-        <a href="javascript:;" class="close" @click.stop="unsubscribe(sub)">
+        <a href="javascript:;" class="close" @click.stop="removeSubscription(sub)">
           <i :class="unsubLoading ? 'el-icon-loading' : 'el-icon-close'"></i>
         </a>
       </div>
@@ -268,7 +268,7 @@ import { getSubscriptionId } from '@/utils/idGenerator'
 import getContextmenuPosition from '@/utils/getContextmenuPosition'
 import { LeftValues } from '@/utils/styles'
 import getErrorReason from '@/utils/mqttErrorReason'
-import { setSubscribeMQTT5Properties } from '@/utils/subscriptionUtils'
+import { hasPersistentSession, setSubscribeMQTT5Properties } from '@/utils/subscriptionUtils'
 
 @Component({
   components: {
@@ -629,7 +629,7 @@ export default class SubscriptionsList extends Vue {
         return false
       }
       this.unsubLoading = true
-      const { topic, qos, disabled } = row
+      const { topic, qos } = row
       if (this.client.unsubscribe) {
         this.client.unsubscribe(topic, { qos }, async (error) => {
           this.unsubLoading = false
@@ -639,22 +639,7 @@ export default class SubscriptionsList extends Vue {
             return false
           }
           if (this.record.id) {
-            let payload: {
-              id: string
-              subscriptions: SubscriptionModel[]
-            } = {
-              id: this.record.id,
-              subscriptions: [],
-            }
-            if (disable) {
-              payload.subscriptions = this.setSubsDisable(topic, disabled)
-              this.$log.info(`Disabled topic: ${topic}`)
-            } else {
-              payload.subscriptions = this.subsList.filter((sub: SubscriptionModel) => sub.topic !== topic)
-              this.$log.info(`Removed topic: ${topic}`)
-            }
-            await this.syncSubscriptions(payload.subscriptions)
-            this.$emit('deleteTopic', topic)
+            await this.removeLocalSubscription(row, disable)
             this.$log.info(`Unsubscribe topic: ${topic}`)
             resolve(true)
             return true
@@ -666,6 +651,40 @@ export default class SubscriptionsList extends Vue {
         resolve(false)
       }
     })
+  }
+
+  // Remove or disable a subscription, also while disconnected unless the broker keeps it in a persistent session
+  private async removeSubscription(row: SubscriptionModel, disable?: boolean): Promise<boolean> {
+    if (this.client?.connected) {
+      return this.unsubscribe(row, disable)
+    }
+    if (hasPersistentSession(this.record)) {
+      this.$notify({
+        title: this.$tc('connections.persistentSessionUnsubscribe'),
+        message: '',
+        type: 'warning',
+        duration: 3000,
+        offset: 30,
+      })
+      return false
+    }
+    // A reconnecting client resubscribes its cached topics; this drops the topic and queues an UNSUBSCRIBE ahead of that
+    if (this.client?.reconnecting && !this.client.disconnecting) {
+      this.client.unsubscribe?.(row.topic)
+    }
+    await this.removeLocalSubscription(row, disable)
+    return true
+  }
+
+  private async removeLocalSubscription({ topic, disabled }: SubscriptionModel, disable?: boolean) {
+    if (disable) {
+      await this.syncSubscriptions(this.setSubsDisable(topic, disabled))
+      this.$log.info(`Disabled topic: ${topic}`)
+    } else {
+      await this.syncSubscriptions(this.subsList.filter((sub: SubscriptionModel) => sub.topic !== topic))
+      this.$log.info(`Removed topic: ${topic}`)
+    }
+    this.$emit('deleteTopic', topic)
   }
 
   private resetSubs() {
@@ -765,6 +784,13 @@ export default class SubscriptionsList extends Vue {
 
   private async setTopicDisabled(disable: boolean) {
     this.showContextmenu = false
+    if (!this.selectedTopic) {
+      return
+    }
+    if (disable) {
+      await this.removeSubscription({ ...this.selectedTopic, disabled: true }, true)
+      return
+    }
     if (!this.client || !this.client.connected) {
       this.$notify({
         title: this.$tc('connections.notConnect'),
@@ -775,15 +801,8 @@ export default class SubscriptionsList extends Vue {
       })
       return
     }
-    if (!this.selectedTopic) {
-      return
-    }
     this.selectedTopic.disabled = disable
-    if (disable) {
-      await this.unsubscribe(this.selectedTopic, true)
-    } else {
-      await this.subscribe(this.selectedTopic, false, true)
-    }
+    await this.subscribe(this.selectedTopic, false, true)
   }
 
   private created() {

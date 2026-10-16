@@ -86,45 +86,45 @@
             </button>
           </div>
 
-          <!-- EMQX Platform Promotion -->
-          <div class="platform-promo">
-            <h3 class="platform-promo__title">EMQX Platform - {{ $t('about.platformTitle') }}</h3>
-            <p class="platform-promo__desc">{{ $t('about.platformDesc') }}</p>
-            <div class="platform-promo__stats">
-              <div class="stat-item">
-                <span class="stat-value">50M+</span>
-                <span class="stat-label">{{ $t('about.statDownloads') }}</span>
+          <!-- EMQ Messages -->
+          <div class="emq-messages">
+            <p class="emq-messages-head">
+              <span class="live-dot"></span>
+              {{ $t('about.messagesFromEMQ') }}
+              <code>emqx/#</code>
+            </p>
+            <template v-for="item in emqMessages">
+              <div v-if="item.ask" :key="`${item.type}-ask`" class="emq-msg is-sent">
+                <span class="emq-msg-meta">Topic: {{ item.ask.topic }}<span>QoS: 1</span></span>
+                <span class="emq-msg-body">{{ item.ask.text }}</span>
               </div>
-              <div class="stat-item">
-                <span class="stat-value">400K+</span>
-                <span class="stat-label">{{ $t('about.statClusters') }}</span>
+              <div :key="item.type" class="emq-msg-row">
+                <span v-if="item.ask" class="emq-msg-typing" aria-hidden="true"><i></i><i></i><i></i></span>
+                <button
+                  type="button"
+                  :class="['emq-msg', 'is-received', `is-${item.type}`]"
+                  @click="goToLink(item.link)"
+                >
+                  <span class="emq-msg-meta">Topic: {{ item.topic }}<span>QoS: 1</span></span>
+                  <span class="emq-msg-body">
+                    <b>{{ item.name }}</b>
+                    <span v-if="item.badge" class="emq-msg-badge">{{ item.badge }}</span>
+                    <span class="emq-msg-text" :title="item.text">{{ item.text }}</span>
+                    <span class="emq-msg-cta">
+                      {{ item.cta }}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                        <path
+                          d="M5 12H19M19 12L12 5M19 12L12 19"
+                          stroke-width="2.4"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    </span>
+                  </span>
+                </button>
               </div>
-              <div class="stat-item">
-                <span class="stat-value">100+</span>
-                <span class="stat-label">{{ $t('about.statProtocols') }}</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">&lt;5ms</span>
-                <span class="stat-label">{{ $t('about.statLatency') }}</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-value">10M+</span>
-                <span class="stat-label">{{ $t('about.statConnections') }}</span>
-              </div>
-            </div>
-            <div class="platform-promo__actions">
-              <button class="platform-promo__btn platform-promo__btn--primary" @click="goToLink(emqxPlatformWebsite)">
-                <span>{{ $t('about.tryPlatform') }}</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path
-                    d="M5 12H19M19 12L12 5M19 12L12 19"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </button>
-            </div>
+            </template>
           </div>
 
           <!-- Footer -->
@@ -221,8 +221,36 @@ export default class About extends Vue {
     return gaCustomLinks(this.getterLang).about.EMQ
   }
 
-  get emqxPlatformWebsite(): string {
-    return gaCustomLinks(this.getterLang).about.EMQXPlatform
+  get emqMessages() {
+    const links = gaCustomLinks(this.getterLang).about
+    return [
+      {
+        type: 'platform',
+        topic: 'emqx/platform',
+        name: 'EMQX Platform',
+        text: this.$t('about.platformTitle'),
+        cta: this.$t('about.learnMore'),
+        link: links.EMQXPlatform,
+      },
+      {
+        type: 'cloud',
+        topic: 'emqx/cloud',
+        name: 'EMQX Cloud',
+        text: this.$t('about.cloudDesc'),
+        cta: this.$t('about.freeTrial'),
+        link: links.EMQXCloud,
+      },
+      {
+        type: 'agent',
+        topic: 'emqx/device-agent',
+        name: 'Device Agent',
+        text: this.$t('about.deviceAgentReply'),
+        cta: this.$t('about.learnMore'),
+        link: links.deviceAgent,
+        badge: this.$t('about.deviceAgentBadge'),
+        ask: { topic: 'devices/+/status', text: this.$t('about.deviceAgentAsk') },
+      },
+    ]
   }
 
   get signInLink(): string {
@@ -331,7 +359,7 @@ export default class About extends Vue {
   position: absolute;
   border-radius: 50%;
   filter: blur(100px);
-  opacity: 0.35;
+  opacity: 0.12;
   animation: float 8s ease-in-out infinite;
 }
 
@@ -386,6 +414,10 @@ export default class About extends Vue {
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   }
 
+  .emq-msg.is-received:hover {
+    box-shadow: 0 8px 24px rgba(52, 195, 136, 0.15);
+  }
+
   .link-btn {
     background: #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -400,38 +432,6 @@ export default class About extends Vue {
     &:hover {
       background: #f5f7fa;
     }
-  }
-
-  .platform-promo {
-    background: #fff;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-
-    &::before {
-      background: linear-gradient(90deg, #7c3aed, #3b82f6, #7c3aed);
-    }
-
-    &::after {
-      background: radial-gradient(circle, rgba(124, 58, 237, 0.06) 0%, transparent 70%);
-    }
-  }
-
-  .platform-promo__title {
-    color: #1e1b4b;
-  }
-
-  .platform-promo__desc {
-    color: #4b5563;
-  }
-
-  .stat-value {
-    background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .stat-label {
-    color: #6b7280;
   }
 }
 
@@ -457,8 +457,8 @@ export default class About extends Vue {
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: 80px;
-  max-width: 900px;
+  gap: 96px;
+  max-width: 960px;
   width: 100%;
 }
 
@@ -469,8 +469,8 @@ export default class About extends Vue {
 
 .logo-section {
   position: relative;
-  width: 200px;
-  height: 200px;
+  width: 160px;
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -483,7 +483,7 @@ export default class About extends Vue {
   background: radial-gradient(circle, var(--color-main-green) 0%, transparent 70%);
   border-radius: 50%;
   filter: blur(30px);
-  opacity: 0.6;
+  opacity: 0.3;
   animation: breathe 4s ease-in-out infinite;
 }
 
@@ -491,11 +491,11 @@ export default class About extends Vue {
   0%,
   100% {
     transform: scale(1);
-    opacity: 0.6;
+    opacity: 0.3;
   }
   50% {
     transform: scale(1.15);
-    opacity: 0.4;
+    opacity: 0.2;
   }
 }
 
@@ -646,123 +646,255 @@ export default class About extends Vue {
   }
 }
 
-/* Platform Promotion */
-.platform-promo {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
-  border-radius: 14px;
-  padding: 24px;
-  margin-top: 8px;
-  margin-bottom: 24px;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #7c3aed, #3b82f6, #7c3aed);
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
-    pointer-events: none;
-  }
-}
-
-.platform-promo__title {
-  font-size: 15px;
-  font-weight: 600;
-  color: #fff;
-  margin: 0 0 16px 0;
-}
-
-.platform-promo__desc {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.75);
-  line-height: 1.6;
-  margin: 0 0 20px 0;
-}
-
-.platform-promo__stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 20px;
-  margin-bottom: 20px;
-}
-
-.stat-item {
+/* EMQ Messages: promotions rendered like MQTTX received/sent messages */
+.emq-messages {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 10px;
+  margin-bottom: 24px;
 }
 
-.stat-value {
-  font-size: 16px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', monospace;
-}
-
-.stat-label {
-  font-size: 10px;
-  color: rgba(255, 255, 255, 0.5);
-  line-height: 1.3;
-}
-
-.platform-promo__actions {
+.emq-messages-head {
   display: flex;
-  gap: 12px;
-}
-
-.platform-promo__btn {
-  display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
+  margin: 0;
+  color: var(--color-text-light);
+  font-size: 12px;
 
-  svg {
-    width: 16px;
-    height: 16px;
-    transition: transform 0.25s ease;
+  code {
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--color-bg-messagebox);
+    color: var(--color-text-default);
+    font-size: 11px;
   }
+}
 
-  &--primary {
-    background: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
-    color: #fff;
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-main-green);
+  box-shadow: 0 0 0 3px rgba(52, 195, 136, 0.2);
+}
+
+.emq-msg-row {
+  position: relative;
+  padding-left: 4px;
+}
+
+.emq-msg {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 9px 16px 10px;
+  border: none;
+  font: inherit;
+  text-align: left;
+  animation: emq-msg-in 0.35s ease both;
+
+  &.is-received {
+    background: var(--color-bg-messagebox);
+    border-radius: 0 10px 10px 10px;
+    box-shadow: 0 1px 3px var(--color-shadow-message);
+    cursor: pointer;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+
+    // Topic colour bar, same geometry as MsgLeftItem's .topic-color
+    &::before {
+      content: '';
+      position: absolute;
+      top: 1px;
+      bottom: 5px;
+      left: -4px;
+      width: 4px;
+      border-radius: 8px;
+      background: var(--topic-color);
+    }
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
+      box-shadow: 0 8px 24px var(--color-shadow-card);
 
-      svg {
-        transform: translateX(4px);
+      .emq-msg-cta {
+        background: var(--color-main-green);
+        color: #fff;
       }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-main-green);
+      outline-offset: 2px;
     }
   }
 
-  &:active {
-    transform: translateY(0);
+  &.is-platform {
+    --topic-color: #34c388;
+    animation-delay: 0.3s;
+  }
+
+  &.is-cloud {
+    --topic-color: #5b8cff;
+    animation-delay: 0.8s;
+  }
+
+  &.is-sent {
+    align-self: flex-end;
+    width: auto;
+    background: var(--color-text-right_block);
+    border-radius: 10px 0 10px 10px;
+    box-shadow: 0 1px 3px var(--color-shadow-sendbtn);
+    animation-delay: 1.5s;
+
+    .emq-msg-meta {
+      color: var(--color-text-right_info);
+    }
+  }
+
+  &.is-agent {
+    --topic-color: #a970ff;
+    animation-delay: 3s;
   }
 }
 
+.emq-msg-meta {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 4px;
+  color: var(--color-text-light);
+  font-family: Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.emq-msg-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-default);
+
+  b {
+    color: var(--color-text-title);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .is-sent & {
+    color: var(--color-text-active);
+  }
+}
+
+.emq-msg-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.emq-msg-badge {
+  margin-left: -4px;
+  padding: 1px 6px;
+  border-radius: 100px;
+  background: linear-gradient(90deg, #34c388, #7b6cff);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.emq-msg-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 100px;
+  background: rgba(52, 195, 136, 0.12);
+  color: var(--color-main-green);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease;
+
+  svg {
+    width: 12px;
+    height: 12px;
+  }
+}
+
+// "Typing…" shown between the question and the Device Agent reply
+.emq-msg-typing {
+  position: absolute;
+  top: 0;
+  left: 4px;
+  display: flex;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 0 10px 10px 10px;
+  background: var(--color-bg-messagebox);
+  box-shadow: 0 1px 3px var(--color-shadow-message);
+  animation: emq-typing 1s ease 2s both;
+
+  i {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-text-light);
+    // Blink only while the typing bubble is visible
+    animation: emq-blink 1s 2s;
+
+    &:nth-child(2) {
+      animation-delay: 2.15s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 2.3s;
+    }
+  }
+}
+
+@keyframes emq-msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes emq-typing {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  15%,
+  85% {
+    opacity: 1;
+  }
+}
+
+@keyframes emq-blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .emq-msg {
+    animation: none;
+  }
+
+  .emq-msg-typing {
+    display: none;
+  }
+}
 /* Footer */
 .about-footer {
   display: flex;

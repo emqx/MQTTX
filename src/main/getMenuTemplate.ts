@@ -1,14 +1,30 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, shell, BaseWindow, BrowserWindow, KeyboardEvent, MenuItem } from 'electron'
 import translations from '../lang/menu'
 import installCLI from './installCLI'
 
 const isMac = process.platform === 'darwin'
+
+// Closing the main window quits the app, so the shortcut only closes secondary windows.
+export const closeFocusedWindow = (
+  mainWindow: BaseWindow,
+  focusedWindow: BaseWindow | undefined,
+  triggeredByAccelerator?: boolean,
+): void => {
+  if (!focusedWindow || (triggeredByAccelerator && focusedWindow === mainWindow)) return
+  focusedWindow.close()
+}
 
 const getMenuTemplate = (win: BrowserWindow, lang?: Language): $TSFixed => {
   const labels = {} as Record<keyof typeof translations, string>
   Object.keys(translations).forEach((key: keyof typeof translations) => {
     labels[key] = translations[key][lang || 'en']
   })
+  const closeWindowItem = {
+    label: labels.closeWindow,
+    accelerator: 'CmdOrCtrl + W',
+    click: (_item: MenuItem, focusedWindow: BaseWindow | undefined, event: KeyboardEvent) =>
+      closeFocusedWindow(win, focusedWindow, event.triggeredByAccelerator),
+  }
 
   return [
     // App
@@ -65,7 +81,7 @@ const getMenuTemplate = (win: BrowserWindow, lang?: Language): $TSFixed => {
             win.webContents.send('newWindow')
           },
         },
-        { role: 'close', label: labels.closeWindow },
+        closeWindowItem,
       ],
     },
     // EditMenu
@@ -141,9 +157,7 @@ const getMenuTemplate = (win: BrowserWindow, lang?: Language): $TSFixed => {
       submenu: [
         { role: 'minimize', label: labels.minimize },
         { role: 'zoom', label: labels.zoom },
-        ...(isMac
-          ? [{ type: 'separator' }, { role: 'front', label: labels.bringAllToFront }]
-          : [{ role: 'close', label: labels.closeWindow }]),
+        ...(isMac ? [{ type: 'separator' }, { role: 'front', label: labels.bringAllToFront }] : [closeWindowItem]),
       ],
     },
     {

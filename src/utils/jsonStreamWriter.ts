@@ -53,7 +53,7 @@ export class JSONStreamWriter {
     fs.writeSync(this.fd, `${spaces}{\n`)
 
     // Write all properties except the streaming array
-    const entries = Object.entries(obj).filter(([key]) => key !== arrayKey)
+    const entries = Object.entries(obj).filter(([key, value]) => key !== arrayKey && value !== undefined)
     for (let i = 0; i < entries.length; i++) {
       const [key, value] = entries[i]
       this.writeProperty(key, value, indent + 2)

@@ -7,6 +7,7 @@ import ExcelConvert from 'xlsx'
 import { replaceSpecialDataTypes } from '@/utils/importExportTypes'
 import { JSONStreamWriter } from '@/utils/jsonStreamWriter'
 import useServices from '@/database/useServices'
+import { CollectionBackup } from '@/utils/connectionBackup'
 
 type ExportFormat = 'JSON' | 'YAML' | 'XML' | 'CSV' | 'Excel'
 
@@ -77,10 +78,11 @@ export class StreamDataExporter {
       this.filePath = result.filePath
 
       // Get connections for export (without messages)
-      const { connectionService } = useServices()
+      const { connectionService, collectionService } = useServices()
       const connections = await connectionService.getConnectionsForExport(connectionId)
+      const collections = format === 'JSON' ? await collectionService.getCollectionsForExport(connectionId) : []
 
-      if (connections.length === 0) {
+      if (connections.length === 0 && collections.length === 0) {
         this.win.webContents.send('exportError', 'No data to export')
         return
       }
@@ -97,7 +99,7 @@ export class StreamDataExporter {
       // Handle different formats
       switch (format) {
         case 'JSON':
-          await this.exportJSON(connections, onProgress)
+          await this.exportJSON(connections, collections, onProgress)
           break
         case 'YAML':
           await this.exportYAML(connections, onProgress)
@@ -123,11 +125,16 @@ export class StreamDataExporter {
     }
   }
 
-  private async exportJSON(connections: ConnectionModel[], onProgress?: (progress: number) => void): Promise<void> {
+  private async exportJSON(
+    connections: ConnectionModel[],
+    collections: CollectionBackup[],
+    onProgress?: (progress: number) => void,
+  ): Promise<void> {
     const writer = new JSONStreamWriter(this.filePath)
     const { messageService } = useServices()
 
     try {
+      for (const collection of collections) writer.writeObject(collection)
       for (const connection of connections) {
         const messageGenerator = messageService.streamMessagesForExport(connection.id!)
         const { messages: _, ...connectionWithoutMessages } = connection

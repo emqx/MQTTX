@@ -26,6 +26,17 @@ import { version } from '../package.json'
 import state from './state'
 import { DEFAULT_MQTT_PUB_MESSAGE } from './utils/constants'
 
+const utm = '?utm_source=mqttx-cli&utm_medium=referral&utm_campaign='
+const learnMoreText = [
+  '',
+  'Learn more:',
+  '  Docs           https://mqttx.app/docs/cli',
+  `  EMQX Platform  https://www.emqx.com/en/platform${utm}mqttx-cli-to-platform`,
+  `  EMQX Cloud     https://www.emqx.com/en/cloud${utm}mqttx-cli-to-cloud`,
+  `  Device Agent   https://www.emqx.com/en/device-agent${utm}mqttx-cli-to-device-agent`,
+  '                 Connect your devices to your AI brain over MQTT.',
+].join('\n')
+
 export class Commander {
   program: Command
 
@@ -40,6 +51,7 @@ export class Commander {
       .enablePositionalOptions()
       .allowUnknownOption(false)
       .version(`${version}\nhttps://mqttx.app/changelogs/v${version}`, '-v, --version')
+      .addHelpText('after', learnMoreText)
 
     this.program
       .command('check')
@@ -106,7 +118,7 @@ export class Commander {
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
       .option('--maximum-packet-size <NUMBER>', 'the maximum packet size the client is willing to accept', parseNumber)
       .option('--topic-alias-maximum <NUMBER>', 'the topic alias maximum value', parseNumber)
-      .option('--req-response-info', 'the client requests response information from the server')
+      .option('--req-response-info', 'request and display response information (MQTT 5.0)')
       .option('--no-req-problem-info', 'the client requests problem information from the server')
       .option(
         '-up, --user-properties <USERPROPERTIES...>',
@@ -225,7 +237,7 @@ export class Commander {
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
       .option('--maximum-packet-size <NUMBER>', 'the maximum packet size the client is willing to accept', parseNumber)
       .option('--topic-alias-maximum <NUMBER>', 'the topic alias maximum value', parseNumber)
-      .option('--req-response-info', 'the client requests response information from the server')
+      .option('--req-response-info', 'request and display response information (MQTT 5.0)')
       .option('--no-req-problem-info', 'the client requests problem information from the server')
       .option(
         '-Cup, --conn-user-properties <USERPROPERTIES...>',
@@ -357,7 +369,7 @@ export class Commander {
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
       .option('--maximum-packet-size <NUMBER>', 'the maximum packet size the client is willing to accept', parseNumber)
       .option('--topic-alias-maximum <NUMBER>', 'the topic alias maximum value', parseNumber)
-      .option('--req-response-info', 'the client requests response information from the server')
+      .option('--req-response-info', 'request and display response information (MQTT 5.0)')
       .option('--no-req-problem-info', 'the client requests problem information from the server')
       .option(
         '-Cup, --conn-user-properties <USERPROPERTIES...>',

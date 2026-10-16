@@ -1,6 +1,9 @@
 import { expect } from 'chai'
-import { setSubscribeMQTT5Properties } from '@/utils/subscriptionUtils'
-import { setSubscribeMQTT5Properties as setWebSubscribeMQTT5Properties } from '../../../web/src/utils/subscriptionUtils'
+import { hasPersistentSession, setSubscribeMQTT5Properties } from '@/utils/subscriptionUtils'
+import {
+  hasPersistentSession as webHasPersistentSession,
+  setSubscribeMQTT5Properties as setWebSubscribeMQTT5Properties,
+} from '../../../web/src/utils/subscriptionUtils'
 import Vue from 'vue'
 import { generate } from 'mqtt-packet'
 
@@ -64,5 +67,38 @@ describe('subscriptionUtils', () => {
         expect(actual.equals(expected)).to.equal(true)
       })
     }
+  })
+
+  describe('hasPersistentSession', () => {
+    const implementations = { desktop: hasPersistentSession, web: webHasPersistentSession }
+    Object.entries(implementations).forEach(([name, check]) => {
+      describe(name, () => {
+        it('should be false when Clean Session / Clean Start is on', () => {
+          expect(check({ clean: true, mqttVersion: '3.1.1' })).to.equal(false)
+          expect(check({ clean: true, mqttVersion: '5.0', properties: { sessionExpiryInterval: 3600 } })).to.equal(
+            false,
+          )
+        })
+
+        it('should be true for MQTT 3.x with Clean Session off', () => {
+          expect(check({ clean: false, mqttVersion: '3.1.1' })).to.equal(true)
+          expect(check({ clean: false, mqttVersion: '3.1' })).to.equal(true)
+        })
+
+        it('should depend on Session Expiry Interval for MQTT 5.0 with Clean Start off', () => {
+          expect(check({ clean: false, mqttVersion: '5.0', properties: { sessionExpiryInterval: 0 } })).to.equal(false)
+          expect(check({ clean: false, mqttVersion: '5.0' })).to.equal(false)
+          expect(check({ clean: false, mqttVersion: '5.0', properties: { sessionExpiryInterval: 3600 } })).to.equal(
+            true,
+          )
+        })
+      })
+    })
+
+    it('should treat an empty desktop interval as never expiring, matching setMQTT5Properties', () => {
+      expect(
+        hasPersistentSession({ clean: false, mqttVersion: '5.0', properties: { sessionExpiryInterval: null } }),
+      ).to.equal(true)
+    })
   })
 })

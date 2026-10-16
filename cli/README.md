@@ -90,6 +90,8 @@ MQTTX is designed to connect to test MQTT Brokers such as EMQX, The one-click co
 
 [Download EMQX locally right now](https://www.emqx.com/en/try?product=enterprise)
 
+[Connect your devices to your AI brain with Device Agent](https://www.emqx.com/en/device-agent)
+
 ## Get Involved
 
 - Follow [@EMQTech on Twitter](https://twitter.com/EMQTech).

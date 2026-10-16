@@ -93,6 +93,7 @@ import {
   recoverSpecialDataTypesFromString,
 } from '@/utils/importExportTypes'
 import { ElLoadingComponent } from 'element-ui/types/loading'
+import { ConnectionBackupRecord, readConnectionBackup } from '@/utils/connectionBackup'
 
 type ImportFormat = 'JSON' | 'YAML' | 'XML' | 'CSV' | 'Excel'
 
@@ -100,7 +101,7 @@ interface ImportForm {
   importFormat: ImportFormat
   filePath: string
   fileName: string
-  fileContent: ConnectionModel[]
+  fileContent: ConnectionBackupRecord[]
 }
 
 interface XMLParentElement {
@@ -131,6 +132,13 @@ export default class ImportData extends Vue {
   @Watch('visible')
   private onVisibleChanged(val: boolean) {
     this.showDialog = val
+  }
+
+  @Watch('record.importFormat')
+  private onFormatChanged() {
+    this.record.fileContent = []
+    this.record.fileName = ''
+    this.record.filePath = ''
   }
 
   private handleFilePathChange(val: string) {
@@ -171,7 +179,13 @@ export default class ImportData extends Vue {
   }
 
   private getExcelContentByXlsx(filePath: string) {
-    const workbook = ExcelConvert.readFile(filePath, { cellDates: true, dateNF: 'dd/mm/yyyy' })
+    let workbook: ExcelConvert.WorkBook
+    try {
+      workbook = ExcelConvert.readFile(filePath, { cellDates: true, dateNF: 'dd/mm/yyyy' })
+    } catch (err) {
+      this.$message.error(`${this.$t('connections.readFileErr')}${(err as Error).message}`)
+      return
+    }
     const sheets = workbook.Sheets
     let caughtError = false
     let content: any[] = []
@@ -202,31 +216,34 @@ export default class ImportData extends Vue {
     }
   }
 
-  private readFilePath(filePath: string, extensionName: string) {
+  private async readFilePath(filePath: string, extensionName: string) {
+    this.record.fileContent = []
+    this.record.fileName = ''
+    this.record.filePath = ''
     if (extensionName === 'xlsx') {
       this.getExcelContentByXlsx(filePath)
     } else {
-      this.getFileContentByFs(filePath)
+      await this.getFileContentByFs(filePath)
     }
   }
 
-  private getFileContentByFs(filePath: string) {
-    fs.readFile(filePath, 'utf-8', (err, content) => {
-      if (err) {
-        this.$message.error(`${this.$t('connections.readFileErr')}${err.message}`)
-        return
-      }
-      try {
-        const fileContent = this.getDiffFormatData(content)
-        this.assignValueToRecord(filePath, fileContent)
-      } catch (err) {
-        const error = err as unknown as Error
-        this.$message.error(error.toString())
-      }
-    })
+  private async getFileContentByFs(filePath: string) {
+    let content: string
+    try {
+      content = await fs.promises.readFile(filePath, 'utf-8')
+    } catch (err) {
+      this.$message.error(`${this.$t('connections.readFileErr')}${(err as Error).message}`)
+      return
+    }
+    try {
+      const fileContent = await this.getDiffFormatData(content)
+      this.assignValueToRecord(filePath, fileContent)
+    } catch (err) {
+      this.$message.error((err as Error).toString())
+    }
   }
 
-  private assignValueToRecord(filePath: string, fileContent: ConnectionModel[] | undefined) {
+  private assignValueToRecord(filePath: string, fileContent: ConnectionBackupRecord[] | undefined) {
     if (fileContent) {
       const res = this.verifyFileContent(fileContent)
       if (!res) {
@@ -240,15 +257,16 @@ export default class ImportData extends Vue {
     }
   }
 
-  private verifyFileContent(data: ConnectionModel[]) {
-    const hasRequiredItem = (oneConnection: ConnectionModel): boolean => {
-      const { clientId, name, host, port, ssl, certType, ca } = oneConnection
-      return !(!clientId || !name || !host || !port || (ssl && !certType) || (certType === 'self' && !ca))
+  private verifyFileContent(data: ConnectionBackupRecord[]) {
+    try {
+      const { collections } = readConnectionBackup(data)
+      return !collections.length || this.record.importFormat === 'JSON'
+    } catch (error) {
+      return false
     }
-    return data.every(hasRequiredItem)
   }
 
-  private getDiffFormatData(content: string): ConnectionModel[] | undefined {
+  private async getDiffFormatData(content: string): Promise<ConnectionBackupRecord[] | undefined> {
     switch (this.record.importFormat) {
       case 'JSON':
         return this.getJSONData(content)
@@ -267,9 +285,9 @@ export default class ImportData extends Vue {
     }
   }
 
-  private getJSONData(data: string): ConnectionModel[] {
+  private getJSONData(data: string): ConnectionBackupRecord[] {
     const _data = JSON.parse(data)
-    const fileContent: ConnectionModel[] = Array.isArray(_data) ? _data : [_data]
+    const fileContent: ConnectionBackupRecord[] = Array.isArray(_data) ? _data : [_data]
     return fileContent
   }
 
@@ -347,9 +365,9 @@ export default class ImportData extends Vue {
     return convertRightStringAndArray(formatedData)
   }
 
-  private getCSVData(data: string): ConnectionModel[] {
+  private async getCSVData(data: string): Promise<ConnectionModel[]> {
     const fileContent: ConnectionModel[] = []
-    CSVConvert()
+    await CSVConvert()
       .fromString(data)
       .subscribe((jsonObj) => {
         const formatObj = (obj: any) => {

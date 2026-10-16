@@ -63,6 +63,14 @@ export default {
     hu: 'Kliens nincs csatlakozva',
     ko: '클라이언트가 연결되어 있지 않습니다',
   },
+  persistentSessionUnsubscribe: {
+    zh: '持久会话下 Broker 仍保留该订阅，请连接后再取消订阅',
+    en: 'The broker keeps this subscription in a persistent session. Connect to unsubscribe',
+    tr: 'Broker bu aboneliği kalıcı oturumda tutar. Abonelikten çıkmak için bağlanın',
+    ja: '永続セッションではブローカーがこのサブスクリプションを保持します。接続してから購読を解除してください',
+    hu: 'A bróker tartós munkamenetben megtartja ezt a feliratkozást. A leiratkozáshoz csatlakozzon',
+    ko: '영구 세션에서는 브로커가 이 구독을 유지합니다. 연결한 후 구독을 해제하세요',
+  },
   disconnect: {
     zh: '断开连接',
     en: 'Disconnect',
@@ -870,6 +878,14 @@ export default {
     ja: "Whether a client verifies the server's certificate chain and host name",
     hu: 'Amennyiben a kliens visszaigazolja a szerver tanusítványt láncot és a kiszolgáló nevét',
     ko: '클라이언트가 서버의 인증서 체인과 호스트 이름을 확인하는지 여부',
+  },
+  collection: {
+    zh: '分组',
+    en: 'Group',
+    tr: 'Grup',
+    ja: 'グループ',
+    hu: 'Csoport',
+    ko: '그룹',
   },
   newCollection: {
     zh: '新建分组',

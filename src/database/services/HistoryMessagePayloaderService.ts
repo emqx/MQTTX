@@ -33,14 +33,6 @@ export default class HistoryMessagePayloadService {
     return await this.messageRepository.save({ ...query, createAt: time.getNowDate() })
   }
 
-  public async update(id: string, data: HistoryMessagePayloadModel): Promise<HistoryMessagePayloadModel | undefined> {
-    const query: HistoryMessagePayloadEntity | undefined = await this.messageRepository.findOne(id)
-    if (!query) {
-      return
-    }
-    return await this.messageRepository.save({ ...query, data })
-  }
-
   public async delete(id: string): Promise<HistoryMessagePayloadModel | undefined> {
     const query = await this.messageRepository.findOne(id)
     if (!query) {

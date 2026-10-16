@@ -494,6 +494,8 @@ MQTTX 为连接测试 EMQX 等 MQTT 消息服务器而生，一键式的连接�
 
 [现在就本地下载并安装 EMQX](https://www.emqx.com/zh/try?product=enterprise)
 
+[使用 Device Agent 让设备快速接入你的 AI 大脑](https://www.emqx.com/zh/device-agent)
+
 ## 社区
 
 - 访问 [EMQ 问答社区](https://askemq.com/) 以获取帮助，也可以分享您的想法或项目。
