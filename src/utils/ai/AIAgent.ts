@@ -324,14 +324,14 @@ export class AIAgent {
       abortSignal: this.abortController.signal,
       onError: this.handleStreamError,
       temperature: options?.temperature ?? 0.5,
-      maxTokens: options?.maxTokens,
+      maxOutputTokens: options?.maxTokens,
       topP: options?.topP,
       frequencyPenalty: options?.frequencyPenalty,
       presencePenalty: options?.presencePenalty,
       onChunk: supportsReasoning
         ? ({ chunk }) => {
-            if (chunk.type === 'reasoning') {
-              reasoningBuffer = this.handleReasoningChunk(chunk.textDelta, reasoningBuffer)
+            if (chunk.type === 'reasoning-delta') {
+              reasoningBuffer = this.handleReasoningChunk(chunk.text, reasoningBuffer)
             }
           }
         : undefined,
@@ -359,7 +359,7 @@ export class AIAgent {
     }
 
     try {
-      const { textStream, reasoning } = this.chatWithStream(messageHistory, options)
+      const { textStream, reasoningText } = this.chatWithStream(messageHistory, options)
 
       for await (const textPart of textStream) {
         responseText += textPart
@@ -376,9 +376,9 @@ export class AIAgent {
         }
       }
 
-      if (isReasoningModel(this.model) && reasoning) {
+      if (isReasoningModel(this.model)) {
         try {
-          const finalReason = await reasoning
+          const finalReason = await reasoningText
           responseMessage.reasoning = finalReason
         } catch (error) {
           console.error('Error getting reasoning:', error)

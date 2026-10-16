@@ -8,10 +8,32 @@ module.exports = {
     host: '0.0.0.0',
     disableHostCheck: true,
   },
-  // Instruct Vue CLI to transpile the 'zod-to-json-schema' dependency with Babel,
-  // ensuring compatibility with environments that do not support modern JavaScript features.
-  transpileDependencies: ['zod-to-json-schema'],
+  // Instruct Vue CLI to transpile dependencies that ship modern JavaScript
+  // (ESM, optional chaining, nullish coalescing) with Babel, since webpack 4
+  // cannot parse that syntax on its own.
+  transpileDependencies: ['zod-to-json-schema', 'ai', /[\\/]node_modules[\\/]@ai-sdk[\\/]/, '@vercel/oidc', 'zod'],
   chainWebpack: (config) => {
+    // The AI SDK v5+ packages rely on package `exports` subpaths that webpack 4
+    // cannot resolve, so resolve them with Node, which honors `exports` and finds
+    // copies nested under the importing package. For zod v4 this picks the CJS
+    // build, which webpack 4 can parse.
+    const aliases = {
+      '@ai-sdk/provider-utils/experimental-decision$': require.resolve('@ai-sdk/provider-utils/experimental-decision'),
+      '@ai-sdk/deepseek/internal$': require.resolve('@ai-sdk/deepseek/internal'),
+      '@ai-sdk/openai/internal$': require.resolve('@ai-sdk/openai/internal'),
+      'eventsource-parser/stream$': require.resolve('eventsource-parser/stream', {
+        paths: [path.dirname(require.resolve('@ai-sdk/provider-utils'))],
+      }),
+      '@vercel/oidc$': path.resolve(__dirname, 'node_modules/@vercel/oidc/dist/index-browser.js'),
+      'zod/v4$': require.resolve('zod/v4'),
+      'zod/v4/core$': require.resolve('zod/v4/core'),
+    }
+    Object.entries(aliases).forEach(([key, value]) => config.resolve.alias.set(key, value))
+
+    // Some dependencies (e.g. zod v4's CJS build) use the .cjs extension, which
+    // Vue CLI's JavaScript rule does not match by default.
+    config.module.rule('js').test(/\.([cm]?js|jsx)$/)
+
     // Add a rule to handle .mjs files (JavaScript modules).
     // This ensures that .mjs files in node_modules are processed correctly.
     config.module
