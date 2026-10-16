@@ -2,6 +2,7 @@ import '../mocks/browserStorage'
 import { expect } from 'chai'
 import Vue from 'vue'
 import Vuex from 'vuex'
+import VueRouter from 'vue-router'
 import ElementUI from 'element-ui'
 import { createLocalVue, shallowMount, Wrapper } from '@vue/test-utils'
 import { Container } from 'typedi'
@@ -13,11 +14,12 @@ import HistoryMessageHeaderService from '@/database/services/HistoryMessageHeade
 const localVue = createLocalVue()
 localVue.use(Vuex)
 localVue.use(ElementUI)
+localVue.use(VueRouter)
 const settle = () => new Promise((resolve) => setTimeout(resolve))
 
 describe('MsgPublish per-connection input', () => {
   const originalGet = Container.get
-  let route: { params: { id?: string } }
+  let router: VueRouter
   let savedMessages: Record<string, PushMessageModel>
   let payloads: HistoryMessagePayloadModel[]
   let headers: HistoryMessageHeaderModel[]
@@ -30,8 +32,8 @@ describe('MsgPublish per-connection input', () => {
       localVue,
       store: new Vuex.Store({ getters: { currentTheme: () => 'light' } }),
       propsData: { editorHeight: 180, clientConnected: true },
+      router,
       mocks: {
-        $route: route,
         $t: (key: string) => key,
         $tc: (key: string) => key,
         $message: { error: (message: string) => errors.push(message) },
@@ -42,7 +44,7 @@ describe('MsgPublish per-connection input', () => {
   }
 
   const switchTo = async (id: string) => {
-    route.params.id = id
+    await router.push(`/recent_connections/${id}`)
     await settle()
   }
 
@@ -67,7 +69,9 @@ describe('MsgPublish per-connection input', () => {
       if (type === HistoryMessageHeaderService) return { getAll: byConnection(headers) }
       return {}
     }
-    route = Vue.observable({ params: { id: 'a' } })
+    // A real router, because another spec installs VueRouter globally and $route cannot be mocked.
+    router = new VueRouter({ routes: [{ path: '/recent_connections/:id', component: { render: (h) => h('div') } }] })
+    await router.push('/recent_connections/a')
     await mount()
   })
 
@@ -91,7 +95,7 @@ describe('MsgPublish per-connection input', () => {
     await switchTo('a')
     expect(vm.msgRecord).to.deep.equal(inputA)
     wrapper.destroy()
-    route.params.id = 'b'
+    await router.push('/recent_connections/b')
     await mount()
     expect(vm.msgRecord.payload).to.equal('typed in B')
   })
