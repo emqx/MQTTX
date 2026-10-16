@@ -49,49 +49,49 @@ export default {
     en: 'Try EMQX Cloud for free',
     ja: 'EMQX Cloudの無料体験',
   },
-  tryPlatform: {
-    zh: '立即免费试用',
-    en: 'Start Free Trial',
-    ja: '無料トライアルを開始',
+  platformTitle: {
+    zh: '统一的物联网 MQTT 平台',
+    en: 'The Unified MQTT Platform for IoT',
+    ja: 'IoT向け統合MQTTプラットフォーム',
+  },
+  cloudDesc: {
+    zh: '全托管 MQTT 云服务，14 天免费试用',
+    en: 'Fully managed MQTT cloud, 14-day free trial',
+    ja: 'フルマネージドMQTT、14日間無料',
   },
   deviceAgentBadge: {
     zh: '新品',
     en: 'New',
     ja: '新機能',
   },
-  deviceAgentTitle: {
-    zh: '让设备快速接入你的 AI 大脑',
-    en: 'Connect Your Devices to Your AI Brain',
-    ja: 'デバイスをAIの頭脳にすばやく接続',
-  },
-  deviceAgentDesc: {
-    zh: '用自然语言描述设备，几分钟生成模型、SDK 和模拟器；AI 通过 MQTT 读取状态、下发指令，支持对话、语音或 IM 控制。',
-    en: 'Describe a device in plain language. AI reads its state and sends commands over MQTT, via chat, voice, or IM.',
-    ja: 'デバイスを自然言語で記述すると、モデル・SDK・シミュレーターを数分で生成。AIはMQTT経由で状態を読み取り、コマンドを送信します。',
-  },
-  tryDeviceAgent: {
-    zh: '了解 Device Agent',
-    en: 'Explore Device Agent',
-    ja: 'Device Agentを見る',
-  },
-  deviceAgentDocs: {
-    zh: '查看文档',
-    en: 'View Docs',
-    ja: 'ドキュメント',
-  },
-  platformDescShort: {
-    zh: '从边缘协议桥接到超大规模云消息传递，统一管理整个物联网数据基础设施。',
-    en: 'From edge protocol bridging to hyperscale cloud messaging — one platform for your IoT data infrastructure.',
-    ja: 'エッジプロトコルブリッジから超大規模クラウドメッセージングまで、IoTデータ基盤を1つのプラットフォームで。',
-  },
-  cloudDescShort: {
-    zh: '全托管的 MQTT 云服务，按量计费，14 天免费试用。',
-    en: 'The fully managed MQTT cloud service — pay-as-you-go, 14-day free trial.',
-    ja: 'フルマネージドMQTTクラウドサービス。従量課金、14日間の無料トライアル。',
-  },
   signIn: {
     zh: '登录',
     en: 'Sign In',
     ja: 'サインイン',
+  },
+  messagesFromEMQ: {
+    zh: '来自 EMQ 的消息',
+    en: 'Messages from EMQ',
+    ja: 'EMQ からのメッセージ',
+  },
+  learnMore: {
+    zh: '了解',
+    en: 'Learn',
+    ja: '詳細',
+  },
+  freeTrial: {
+    zh: '免费试用',
+    en: 'Free Trial',
+    ja: '無料トライアル',
+  },
+  deviceAgentAsk: {
+    zh: '设备能直接接入 AI 吗？',
+    en: 'Can my devices talk to AI?',
+    ja: 'デバイスをAIにつなげる？',
+  },
+  deviceAgentReply: {
+    zh: '能。让设备快速接入你的 AI 大脑。',
+    en: 'Yes. Connect your devices to your AI brain.',
+    ja: 'はい。デバイスをAIの頭脳にすばやく接続。',
   },
 }
