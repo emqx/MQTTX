@@ -54,14 +54,11 @@ describe('Subscription filter state', () => {
     wrapper.destroy()
   })
 
-  it('clicking a row selects or toggles the current filter', async () => {
+  it('clicking a row emits its subscription', async () => {
     const wrapper = mount()
     await wrapper.setData({ subsList: [a, b] })
     await wrapper.find('.topics-item').trigger('click')
-    expect(wrapper.emitted('onClickTopic')![0]).to.deep.equal([a, false])
-    await wrapper.setProps({ activeTopic: a.topic })
-    await wrapper.find('.topics-item').trigger('click')
-    expect(wrapper.emitted('onClickTopic')![1]).to.deep.equal([a, true])
+    expect(wrapper.emitted('onClickTopic')![0]).to.deep.equal([a])
     wrapper.destroy()
   })
 

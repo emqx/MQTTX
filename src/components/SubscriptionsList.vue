@@ -684,7 +684,6 @@ export default class SubscriptionsList extends Vue {
       await this.syncSubscriptions(this.subsList.filter((sub: SubscriptionModel) => sub.topic !== topic))
       this.$log.info(`Removed topic: ${topic}`)
     }
-    this.$emit('deleteTopic', topic)
   }
 
   private resetSubs() {
@@ -733,7 +732,7 @@ export default class SubscriptionsList extends Vue {
 
   private handleClickTopic(item: SubscriptionModel) {
     if (item.disabled) return
-    this.$emit('onClickTopic', item, this.activeTopic === item.topic)
+    this.$emit('onClickTopic', item)
   }
 
   private handleContextMenu(row: SubscriptionModel, event: MouseEvent) {

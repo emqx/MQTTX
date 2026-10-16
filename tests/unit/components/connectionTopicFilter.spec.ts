@@ -69,18 +69,12 @@ describe('Desktop topic filter transitions', () => {
     expect(context).to.deep.equal({ activeTopic: '', messageQueryVersion: 2 })
   })
 
-  it('clears only when the deleted topic was selected', () => {
-    let clears = 0
-    const context = {
-      activeTopic: 'a/#',
-      clearTopicFilter: () => {
-        clears++
-      },
-    }
-    methods.handleTopicDelete.call(context, 'b/#')
-    expect(clears).to.equal(0)
-    methods.handleTopicDelete.call(context, 'a/#')
-    expect(clears).to.equal(1)
+  it('clicking a subscription selects it, and clicking it again clears the filter', () => {
+    const context = { activeTopic: '', loadMessages: () => {} }
+    methods.handleTopicClick.call(context, { topic: 'a/#' })
+    expect(context.activeTopic).to.equal('a/#')
+    methods.handleTopicClick.call(context, { topic: 'a/#' })
+    expect(context.activeTopic).to.equal('')
   })
 
   it('clears a filter when its subscription is removed or disabled', () => {

@@ -286,7 +286,7 @@ export default class SubscriptionsList extends Vue {
   private client: Partial<MqttClient> = {
     connected: false,
   }
-  private showDialog = false
+  private showDialog: boolean = false
   private subRecord: SubscriptionModel = {
     id: getSubscriptionId(),
     topic: 'testtopic/#',
@@ -619,7 +619,7 @@ export default class SubscriptionsList extends Vue {
       updateConnection(this.record.id, this.record)
       this.changeSubs({ id: this.record.id, subscriptions })
     }
-    this.$emit('deleteTopic', topic)
+    this.$emit('deleteTopic')
     this.subsList = subscriptions
   }
 
@@ -669,7 +669,7 @@ export default class SubscriptionsList extends Vue {
 
   private handleClickTopic(item: SubscriptionModel) {
     if (item.disabled) return
-    this.$emit('onClickTopic', item, this.activeTopic === item.topic)
+    this.$emit('onClickTopic', item)
   }
 
   private handleContextMenu(row: SubscriptionModel, event: MouseEvent) {

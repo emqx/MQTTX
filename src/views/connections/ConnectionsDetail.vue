@@ -266,17 +266,28 @@
               </el-option-group>
             </el-select>
             <div v-if="activeTopic" class="topic-filter">
-              <span class="topic-filter-label">{{ $t('connections.topicFilter') }}:</span>
-              <span class="topic-filter-value" :title="activeTopic">{{ activeTopic }}</span>
-              <button
-                type="button"
-                class="clear-topic-filter"
-                :aria-label="$t('connections.clearTopicFilter')"
-                :title="$t('connections.clearTopicFilter')"
-                @click="clearTopicFilter"
+              <el-tooltip
+                placement="bottom"
+                :effect="theme !== 'light' ? 'light' : 'dark'"
+                :open-delay="500"
+                :content="`${$t('connections.topicFilter')}: ${activeTopic}`"
               >
-                <i class="el-icon-close"></i>
-              </button>
+                <span class="topic-filter-chip">
+                  <svg class="topic-filter-icon" viewBox="0 0 16 16" aria-hidden="true">
+                    <path d="M2 3h12l-4.5 5.5V13l-3 1.5v-6z" />
+                  </svg>
+                  <span class="topic-filter-dot" :style="{ background: topicFilterColor }"></span>
+                  <span class="topic-filter-value ellipsis">{{ activeTopic }}</span>
+                  <button
+                    type="button"
+                    class="clear-topic-filter"
+                    :aria-label="$t('connections.clearTopicFilter')"
+                    @click="clearTopicFilter"
+                  >
+                    <i class="el-icon-close"></i>
+                  </button>
+                </span>
+              </el-tooltip>
             </div>
             <MsgTypeTabs v-model="msgType" @change="handleMsgTypeChanged" />
           </div>
@@ -289,7 +300,6 @@
           :activeTopic="activeTopic"
           :top="bodyTopValue"
           @onClickTopic="handleTopicClick"
-          @deleteTopic="handleTopicDelete"
           @onSubError="handleSubTopicError"
         />
         <MessageList
@@ -551,6 +561,11 @@ export default class ConnectionsDetail extends Vue {
     return this.showClientInfo ? MsgTopValues.Open : MsgTopValues.Close
   }
 
+  // Only the dot carries the subscription color: a fully tinted chip in red/orange reads as an error.
+  get topicFilterColor(): string {
+    return this.record.subscriptions.find((sub) => sub.topic === this.activeTopic)?.color ?? ''
+  }
+
   get leftValue(): string {
     return this.showConnectionList ? LeftValues.Show : LeftValues.Hide
   }
@@ -599,12 +614,6 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
-  @Watch('activeTopic')
-  private async handleFilterLayoutChanged() {
-    await this.$nextTick()
-    this.setMessageListHeight()
-  }
-
   @Watch('record')
   private async handleRecordChanged() {
     this.getConnectionValue(this.curConnectionId)
@@ -617,14 +626,6 @@ export default class ConnectionsDetail extends Vue {
     const oldMsgBottom = 160
     const offset = val - oldInputHeight
     this.msgBottom = oldMsgBottom + offset
-    const timer = setTimeout(() => {
-      this.setMessageListHeight()
-      clearTimeout(timer)
-    }, 500)
-  }
-
-  @Watch('showClientInfo')
-  private handleShowClientInfoChange() {
     const timer = setTimeout(() => {
       this.setMessageListHeight()
       clearTimeout(timer)
@@ -1121,14 +1122,9 @@ export default class ConnectionsDetail extends Vue {
     this.loadMessages()
   }
 
-  // Delete topic item
-  private handleTopicDelete(topic: string) {
-    if (this.activeTopic === topic) this.clearTopicFilter()
-  }
-
   // Click topic item
-  private handleTopicClick(sub: SubscriptionModel, reset: boolean) {
-    this.activeTopic = reset ? '' : sub.topic
+  private handleTopicClick(sub: SubscriptionModel) {
+    this.activeTopic = this.activeTopic === sub.topic ? '' : sub.topic
     this.loadMessages()
   }
 
@@ -2263,10 +2259,8 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private mounted() {
-    if (typeof ResizeObserver !== 'undefined') {
-      this.topbarResizeObserver = new ResizeObserver(() => this.setMessageListHeight())
-      this.topbarResizeObserver.observe(this.$refs.connectionTopbar as HTMLElement)
-    }
+    this.topbarResizeObserver = new ResizeObserver(() => this.setMessageListHeight())
+    this.topbarResizeObserver.observe(this.$refs.connectionTopbar as HTMLElement)
     this.setMessageListHeight()
     window.addEventListener('resize', () => {
       this.setMessageListHeight()
@@ -2451,28 +2445,56 @@ export default class ConnectionsDetail extends Vue {
         }
         .topic-filter {
           display: flex;
-          align-items: center;
           flex: 1;
           min-width: 0;
           margin: 0 12px;
-          color: var(--color-text-default);
-          .topic-filter-label {
-            flex-shrink: 0;
-            margin-right: 6px;
+          .topic-filter-chip {
+            display: inline-flex;
+            align-items: center;
+            max-width: 100%;
+            height: 24px;
+            padding: 0 2px 0 8px;
+            border: 1px solid var(--color-border-default);
+            border-radius: 12px;
+            background: var(--color-bg-primary);
+            color: var(--color-text-title);
+            font-size: 12px;
           }
-          .topic-filter-value {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+          .topic-filter-icon {
+            flex-shrink: 0;
+            width: 12px;
+            height: 12px;
+            margin-right: 6px;
+            fill: none;
+            stroke: var(--color-text-default);
+            stroke-width: 1.5;
+            stroke-linejoin: round;
+          }
+          .topic-filter-dot {
+            flex-shrink: 0;
+            width: 8px;
+            height: 8px;
+            margin-right: 6px;
+            border-radius: 50%;
           }
           .clear-topic-filter {
             flex-shrink: 0;
-            margin-left: 6px;
-            padding: 2px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            margin-left: 4px;
+            padding: 0;
             border: 0;
+            border-radius: 50%;
             background: transparent;
             color: inherit;
             cursor: pointer;
+            &:hover,
+            &:focus-visible {
+              background: var(--color-border-default);
+            }
           }
         }
         .message-type {

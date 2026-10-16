@@ -16,7 +16,7 @@ const context = () => ({
   searchVisible: true,
   searchTopic: 'temp',
   messageQueryVersion: 0,
-  record: { messages },
+  record: { messages, subscriptions: [{ topic: 'a/#' }, { topic: 'b/#' }] },
   messages: [],
 })
 
@@ -48,13 +48,23 @@ describe('Web topic filter transitions', () => {
     expect(vm.activeTopic).to.equal('')
     expect(vm.messageQueryVersion).to.equal(1)
   })
+  it('clicking a subscription selects it, and clicking it again clears the filter', async () => {
+    const vm = { ...context(), activeTopic: '' }
+    await vm.handleTopicClick({ topic: 'a/#' })
+    expect(vm.activeTopic).to.equal('a/#')
+    await vm.handleTopicClick({ topic: 'a/#' })
+    expect(vm.activeTopic).to.equal('')
+  })
   it('deleting a different subscription preserves the filter', async () => {
     const vm = { ...context(), scrollToBottom: () => {} }
-    vm.handleTopicDelete('b/#')
+    vm.record = { messages, subscriptions: [{ topic: 'a/#' }] }
+    vm.handleSubscriptionsChanged()
+    vm.handleTopicDelete()
     await Promise.resolve()
     expect(vm.activeTopic).to.equal('a/#')
     expect(vm.messages).to.deep.equal([messages[0]])
-    vm.handleTopicDelete('a/#')
+    vm.record = { messages, subscriptions: [] }
+    vm.handleSubscriptionsChanged()
     await Promise.resolve()
     expect(vm.activeTopic).to.equal('')
     expect(vm.messages).to.deep.equal([messages[0], messages[1]])
