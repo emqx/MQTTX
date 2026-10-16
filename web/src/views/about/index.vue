@@ -94,14 +94,12 @@
               <code>emqx/#</code>
             </p>
             <template v-for="item in emqMessages">
-              <div v-if="item.type === 'agent'" :key="`${item.type}-ask`" class="emq-msg is-sent">
-                <span class="emq-msg-meta">Topic: {{ item.topic }}<span>QoS: 1</span></span>
-                <span class="emq-msg-body">{{ $t('about.deviceAgentAsk') }}</span>
+              <div v-if="item.ask" :key="`${item.type}-ask`" class="emq-msg is-sent">
+                <span class="emq-msg-meta">Topic: {{ item.ask.topic }}<span>QoS: 1</span></span>
+                <span class="emq-msg-body">{{ item.ask.text }}</span>
               </div>
               <div :key="item.type" class="emq-msg-row">
-                <span v-if="item.type === 'agent'" class="emq-msg-typing" aria-hidden="true"
-                  ><i></i><i></i><i></i
-                ></span>
+                <span v-if="item.ask" class="emq-msg-typing" aria-hidden="true"><i></i><i></i><i></i></span>
                 <button
                   type="button"
                   :class="['emq-msg', 'is-received', `is-${item.type}`]"
@@ -110,7 +108,7 @@
                   <span class="emq-msg-meta">Topic: {{ item.topic }}<span>QoS: 1</span></span>
                   <span class="emq-msg-body">
                     <b>{{ item.name }}</b>
-                    <span v-if="item.type === 'agent'" class="emq-msg-badge">{{ $t('about.deviceAgentBadge') }}</span>
+                    <span v-if="item.badge" class="emq-msg-badge">{{ item.badge }}</span>
                     <span class="emq-msg-text" :title="item.text">{{ item.text }}</span>
                     <span class="emq-msg-cta">
                       {{ item.cta }}
@@ -223,19 +221,8 @@ export default class About extends Vue {
     return gaCustomLinks(this.getterLang).about.EMQ
   }
 
-  get emqxPlatformWebsite(): string {
-    return gaCustomLinks(this.getterLang).about.EMQXPlatform
-  }
-
-  get emqxCloudWebsite(): string {
-    return gaCustomLinks(this.getterLang).about.EMQXCloud
-  }
-
-  get deviceAgentWebsite(): string {
-    return gaCustomLinks(this.getterLang).about.deviceAgent
-  }
-
   get emqMessages() {
+    const links = gaCustomLinks(this.getterLang).about
     return [
       {
         type: 'platform',
@@ -243,7 +230,7 @@ export default class About extends Vue {
         name: 'EMQX Platform',
         text: this.$t('about.platformTitle'),
         cta: this.$t('about.learnMore'),
-        link: this.emqxPlatformWebsite,
+        link: links.EMQXPlatform,
       },
       {
         type: 'cloud',
@@ -251,7 +238,7 @@ export default class About extends Vue {
         name: 'EMQX Cloud',
         text: this.$t('about.cloudDesc'),
         cta: this.$t('about.freeTrial'),
-        link: this.emqxCloudWebsite,
+        link: links.EMQXCloud,
       },
       {
         type: 'agent',
@@ -259,7 +246,9 @@ export default class About extends Vue {
         name: 'Device Agent',
         text: this.$t('about.deviceAgentReply'),
         cta: this.$t('about.learnMore'),
-        link: this.deviceAgentWebsite,
+        link: links.deviceAgent,
+        badge: this.$t('about.deviceAgentBadge'),
+        ask: { topic: 'devices/+/status', text: this.$t('about.deviceAgentAsk') },
       },
     ]
   }
@@ -370,7 +359,7 @@ export default class About extends Vue {
   position: absolute;
   border-radius: 50%;
   filter: blur(100px);
-  opacity: 0.35;
+  opacity: 0.12;
   animation: float 8s ease-in-out infinite;
 }
 
@@ -425,6 +414,10 @@ export default class About extends Vue {
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   }
 
+  .emq-msg.is-received:hover {
+    box-shadow: 0 8px 24px rgba(52, 195, 136, 0.15);
+  }
+
   .link-btn {
     background: #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -464,8 +457,8 @@ export default class About extends Vue {
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: 80px;
-  max-width: 900px;
+  gap: 96px;
+  max-width: 960px;
   width: 100%;
 }
 
@@ -476,8 +469,8 @@ export default class About extends Vue {
 
 .logo-section {
   position: relative;
-  width: 200px;
-  height: 200px;
+  width: 160px;
+  height: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -490,7 +483,7 @@ export default class About extends Vue {
   background: radial-gradient(circle, var(--color-main-green) 0%, transparent 70%);
   border-radius: 50%;
   filter: blur(30px);
-  opacity: 0.6;
+  opacity: 0.3;
   animation: breathe 4s ease-in-out infinite;
 }
 
@@ -498,11 +491,11 @@ export default class About extends Vue {
   0%,
   100% {
     transform: scale(1);
-    opacity: 0.6;
+    opacity: 0.3;
   }
   50% {
     transform: scale(1.15);
-    opacity: 0.4;
+    opacity: 0.2;
   }
 }
 
@@ -688,14 +681,14 @@ export default class About extends Vue {
 
 .emq-msg-row {
   position: relative;
-  display: flex;
+  padding-left: 4px;
 }
 
 .emq-msg {
   position: relative;
   display: block;
-  max-width: 86%;
-  padding: 9px 14px 10px;
+  width: 100%;
+  padding: 9px 16px 10px;
   border: none;
   font: inherit;
   text-align: left;
@@ -706,14 +699,14 @@ export default class About extends Vue {
     border-radius: 0 10px 10px 10px;
     box-shadow: 0 1px 3px var(--color-shadow-message);
     cursor: pointer;
-    transition: transform 0.2s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 
-    // Topic colour bar, as in the message list
+    // Topic colour bar, same geometry as MsgLeftItem's .topic-color
     &::before {
       content: '';
       position: absolute;
-      top: 9px;
-      bottom: 9px;
+      top: 1px;
+      bottom: 5px;
       left: -4px;
       width: 4px;
       border-radius: 8px;
@@ -721,7 +714,8 @@ export default class About extends Vue {
     }
 
     &:hover {
-      transform: translateX(3px);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px var(--color-shadow-card);
 
       .emq-msg-cta {
         background: var(--color-main-green);
@@ -747,13 +741,14 @@ export default class About extends Vue {
 
   &.is-sent {
     align-self: flex-end;
-    background: var(--color-main-green);
+    width: auto;
+    background: var(--color-text-right_block);
     border-radius: 10px 0 10px 10px;
-    color: #fff;
+    box-shadow: 0 1px 3px var(--color-shadow-sendbtn);
     animation-delay: 1.5s;
 
     .emq-msg-meta {
-      color: rgba(255, 255, 255, 0.78);
+      color: var(--color-text-right_info);
     }
   }
 
@@ -788,7 +783,7 @@ export default class About extends Vue {
   }
 
   .is-sent & {
-    color: #fff;
+    color: var(--color-text-active);
   }
 }
 
@@ -824,7 +819,7 @@ export default class About extends Vue {
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 
   svg {
     width: 12px;
@@ -836,7 +831,7 @@ export default class About extends Vue {
 .emq-msg-typing {
   position: absolute;
   top: 0;
-  left: 0;
+  left: 4px;
   display: flex;
   gap: 4px;
   padding: 12px 14px;
@@ -850,14 +845,15 @@ export default class About extends Vue {
     height: 5px;
     border-radius: 50%;
     background: var(--color-text-light);
-    animation: emq-blink 1s infinite;
+    // Blink only while the typing bubble is visible
+    animation: emq-blink 1s 2s;
 
     &:nth-child(2) {
-      animation-delay: 0.15s;
+      animation-delay: 2.15s;
     }
 
     &:nth-child(3) {
-      animation-delay: 0.3s;
+      animation-delay: 2.3s;
     }
   }
 }
