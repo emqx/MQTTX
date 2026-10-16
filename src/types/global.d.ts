@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
 import { IPublishPacket, MqttClient } from 'mqtt'
-import type { AIModel } from '@/utils/ai/copilot'
+import type { AIModel } from '@/utils/ai/models'
 
 declare global {
   type $TSFixed = any
@@ -106,7 +106,9 @@ declare global {
     currentConnectionId: string | null
     connectionTreeState: ConnectionTreeStateMap
     jsonHighlight: boolean
-    enableCopilot: boolean
+    enableAgent: boolean
+    agentPermissionMode: 'ask' | 'auto'
+    agentMaxSteps: number
     openAIAPIHost: string
     openAIAPIKey: string
     model: AIModel
@@ -415,14 +417,6 @@ declare global {
     filePath: string
     fileName: string
     fileContent: string
-  }
-
-  type CopilotRole = 'user' | 'system' | 'assistant'
-  interface CopilotMessage {
-    id: string
-    role: CopilotRole
-    content: string
-    createAt?: string
   }
 
   interface AreaLineSeriesData {

@@ -5,7 +5,7 @@
     <RouterView />
     <Ipc @setTheme="setTheme" @setLang="setLang" />
     <Update v-if="updateActive" />
-    <Copilot ref="copilot" v-if="enableCopilot" :key="getterLang" />
+    <AgentPanel ref="agent" v-if="enableAgent" :key="getterLang" />
   </div>
 </template>
 
@@ -16,7 +16,7 @@ import { nativeTheme } from '@electron/remote'
 import Ipc from '@/components/Ipc.vue'
 import Leftbar from '@/components/Leftbar.vue'
 import DatabaseError from '@/components/DatabaseError.vue'
-import Copilot from '@/components/ai/Copilot.vue'
+import AgentPanel from '@/components/agent/AgentPanel.vue'
 
 @Component({
   components: {
@@ -24,7 +24,7 @@ import Copilot from '@/components/ai/Copilot.vue'
     Leftbar,
     Update: () => import('@/views/update/index.vue'),
     DatabaseError,
-    Copilot,
+    AgentPanel,
   },
 })
 export default class Home extends Vue {
@@ -32,7 +32,7 @@ export default class Home extends Vue {
   @Getter('currentLang') private getterLang!: Language
   @Getter('syncOsTheme') private syncOsTheme!: boolean
   @Getter('connectDatabaseFailMessage') private connectDatabaseFailMessage!: string
-  @Getter('enableCopilot') private enableCopilot!: boolean
+  @Getter('enableAgent') private enableAgent!: boolean
   @Action('TOGGLE_THEME') private actionTheme!: (payload: { currentTheme: string }) => void
   @Action('TOGGLE_LANG') private actionLang!: (payload: { currentLang: string }) => void
   private updateActive = false

@@ -4,7 +4,7 @@ import {
   getCollectionId,
   getSubscriptionId,
   getMessageId,
-  getCopilotMessageId,
+  getAgentMessageId,
   ENCRYPT_KEY,
 } from '@/utils/idGenerator'
 
@@ -73,17 +73,17 @@ describe('idGenerator', () => {
     })
   })
 
-  describe('getCopilotMessageId', () => {
-    it('should return a string starting with "copilot_"', () => {
-      const copilotMessageId = getCopilotMessageId()
-      expect(copilotMessageId).to.be.a('string')
-      expect(copilotMessageId).to.match(/^copilot_[a-f0-9-]{36}$/)
+  describe('getAgentMessageId', () => {
+    it('should return a string starting with "agent_"', () => {
+      const agentMessageId = getAgentMessageId()
+      expect(agentMessageId).to.be.a('string')
+      expect(agentMessageId).to.match(/^agent_[a-f0-9-]{36}$/)
     })
 
     it('should generate unique IDs', () => {
       const ids = new Set()
       for (let i = 0; i < 1000; i++) {
-        ids.add(getCopilotMessageId())
+        ids.add(getAgentMessageId())
       }
       expect(ids.size).to.equal(1000)
     })

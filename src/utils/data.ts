@@ -17,6 +17,23 @@ export function normalizeMaxPayloadDisplaySize(value?: number): number {
   return value
 }
 
+export const DEFAULT_AGENT_MAX_STEPS = 50
+export const MIN_AGENT_MAX_STEPS = 10
+export const MAX_AGENT_MAX_STEPS = 200
+
+export function normalizeAgentMaxSteps(value?: number): number {
+  if (value === undefined || Number.isNaN(value)) {
+    return DEFAULT_AGENT_MAX_STEPS
+  }
+  if (value < MIN_AGENT_MAX_STEPS) {
+    return MIN_AGENT_MAX_STEPS
+  }
+  if (value > MAX_AGENT_MAX_STEPS) {
+    return MAX_AGENT_MAX_STEPS
+  }
+  return Math.round(value)
+}
+
 export function isLargeData(message: string, maxPayloadDisplaySize = DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE): boolean {
   return message.length >= maxPayloadDisplaySize
 }
