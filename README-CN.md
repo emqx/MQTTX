@@ -7,15 +7,26 @@
 [![Slack](https://img.shields.io/badge/Slack-EMQX-39AE85?logo=slack)](https://slack-invite.emqx.io/) [![Discord](https://img.shields.io/discord/931086341838622751?label=Discord&logo=discord)](https://discord.gg/xYGf3fQnES)
 [![社区](https://img.shields.io/badge/Community-MQTTX-yellow?logo=github)](https://github.com/emqx/MQTTX/discussions)
 [![YouTube](https://img.shields.io/badge/Subscribe-EMQ%20中文-FF0000?logo=youtube)](https://www.youtube.com/channel/UCir_r04HIsLjf2qqyZ4A8Cg)
-[![Twitter](https://img.shields.io/badge/Follow-EMQ-1DA1F2?logo=twitter)](https://twitter.com/EMQTech)
+[![Twitter](https://img.shields.io/badge/Follow-EMQ-1DA1F2?logo=twitter)](https://x.com/EMQTech)
 
 ---
 
-[MQTTX](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的一款跨平台 [MQTT 5.0](https://www.emqx.com/zh/blog/introduction-to-mqtt-5) 客户端工具，它支持 macOS, Linux, Windows，并且支持 MQTT 消息格式转换。
+[MQTTX](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的 [MQTT 5.0](https://www.emqx.com/zh/blog/introduction-to-mqtt-5) 客户端，提供适用于 macOS、Linux 和 Windows 的[桌面版](https://mqttx.app/zh/docs)、适用于脚本和压测的[命令行工具](https://mqttx.app/zh/docs/cli)，以及在浏览器中直接使用的 [Web 版](https://mqttx.app/web-client)。它采用类似聊天软件的界面，可以同时管理多个连接，通过 TCP、TLS 和 WebSocket 快速测试发布、订阅等 MQTT 功能。
 
-[MQTTX](https://mqttx.app/zh) 的用户界面借助聊天软件的形式简化了页面的操作逻辑，用户可以快速创建连接保存并同时建立多个连接客户端，方便用户快速测试 MQTT/TCP、MQTT/TLS、MQTT/WebSocket 的 **连接/发布/订阅** 功能及其他特性。
+> [MQTT](https://www.emqx.com/zh/blog/the-easiest-guide-to-getting-started-with-mqtt)（Message Queuing Telemetry Transport，消息队列遥测传输）是一种基于发布/订阅模式的轻量级消息协议，专为受限设备以及低带宽、高延迟或不可靠的网络而设计。
 
-> [MQTT](https://www.emqx.com/zh/blog/the-easiest-guide-to-getting-started-with-mqtt) 全称为 Message Queuing Telemetry Transport（消息队列遥测传输）是一种基于 发布/订阅 范式的“轻量级”消息协议，旨在用于受限设备和低带宽，高延迟或不可靠的网络，由 IBM 发布。
+## 功能特性
+
+桌面版的主要功能：
+
+- **协议**：支持 MQTT 3.1、3.1.1 和 5.0，可通过 TCP、TLS、WebSocket 和安全 WebSocket 连接。
+- **MQTT 5.0**：连接、发布和订阅的用户属性；SCRAM 增强认证。
+- **Payload**：支持 Plaintext、JSON、Base64、Hex、CBOR 和 MsgPack，并支持 Protobuf 和 Avro Schema。
+- **自动化**：使用脚本在发布或接收时转换 Payload，支持定时发送消息。
+- **视图器**：主题树、流量监控，以及支持 JSON 树和差异视图的消息体查看器。
+- **工作流**：消息搜索、发布主题历史，以及连接分组。
+- **数据**：以 JSON、CSV、Excel、XML 或 YAML 格式导入和导出连接。
+- **个性化**：浅色、深色和夜间主题；支持 English、简体中文、日本語、Türkçe、Magyar 和 한국어。
 
 ## 功能预览
 
@@ -23,7 +34,7 @@
 
 ## 安装
 
-当前可从以下应用商店进行快速下载安装
+桌面版可以通过以下方式安装。
 
 ### macOS App Store
 
@@ -31,7 +42,7 @@
 
 ### Homebrew
 
-macOS 的用户还可以选择使用 [brew cask](https://formulae.brew.sh/cask/mqttx) 来安装 MQTTX
+macOS 用户也可以使用 [Homebrew](https://formulae.brew.sh/cask/mqttx) 安装：
 
 ```shell
 brew install --cask mqttx
@@ -44,9 +55,28 @@ brew install --cask mqttx
 
 ### 发行包
 
-请从 [GitHub Releases](https://github.com/emqx/MQTTX/releases) 下载符合您的版本并安装使用。
+从 [GitHub Releases](https://github.com/emqx/MQTTX/releases) 下载对应平台的安装包。国内用户也可以从 [EMQ 下载站](https://www.emqx.com/zh/downloads/MQTTX/) 下载。
 
-国内用户也可以从 [这里](https://www.emqx.com/zh/downloads/MQTTX/) 下载。
+### MQTTX CLI
+
+macOS 用户可以使用 Homebrew 安装，其它平台可以使用 npm 安装：
+
+```shell
+brew install emqx/mqttx/mqttx-cli
+npm install --global mqttx-cli
+```
+
+也提供独立的二进制文件和 Docker 镜像，详见 [MQTTX CLI README](./cli/README-CN.md) 或 [MQTTX 下载页面](https://mqttx.app/zh/downloads)。
+
+### MQTTX Web
+
+在浏览器中打开 <https://mqttx.app/web-client> 即可使用，也可以使用 Docker 自行部署：
+
+```shell
+docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
+```
+
+详见 [MQTTX Web README](./web/README-CN.md)。
 
 ## AI Agent 支持
 
@@ -74,49 +104,48 @@ npx skills add emqx/MQTTX --skill mqttx-cli
 
 ## 使用
 
-详细使用，请查看我们的 [文档](https://mqttx.app/zh/docs) 或 [使用手册](./docs/manual.md)
+完整说明请查看 [文档](https://mqttx.app/zh/docs) 或 [使用手册](./docs/manual-cn.md)。
 
-1. MQTT Broker 准备。
+1. 准备 MQTT Broker。
 
-   - 如果您不需要在本地部署 MQTT Broker，那么可以使用由 [EMQX Cloud](https://www.emqx.com/zh/cloud) 提供的[公共 MQTT 5.0 服务器](https://www.emqx.com/zh/mqtt/public-mqtt5-broker)来进行测试：
+   - 如果不想在本地部署，可以使用 [EMQX Cloud](https://www.emqx.com/zh/cloud) 提供的免费[公共 MQTT 5.0 服务器](https://www.emqx.com/zh/mqtt/public-mqtt5-broker)：
 
-      ```shell
-      Broker 地址: broker.emqx.io
-      Broker TCP 端口: 1883
-      Broker SSL 端口: 8883
+      ```text
+      地址: broker.emqx.io
+      TCP 端口: 1883
+      SSL/TLS 端口: 8883
       ```
 
-   - 如果您打算部署一个本地运行的 MQTT Broker，那么我们推荐您 [下载 EMQX](https://www.emqx.com/zh/products/emqx) 进行安装和使用。EMQX 是一款开源云原生分布式物联网 MQTT 消息服务器。
+   - 如果要在本地运行 Broker，推荐使用 [EMQX](https://www.emqx.com/zh/products/emqx)，一款开源、云原生、分布式的物联网 MQTT 消息服务器。
 
-2. 连接配置。点击左侧菜单栏里的 `+` 号按钮，并填写表单中相应的必填项。
+2. 点击左侧边栏的 `+` 按钮，填写表单中的必填项。
 
-3. 连接信息配置完成后，点击右上角的 `Connect` 按钮就可以创建一个连接并连接至 MQTT Broker。
+3. 点击右上角的 `Connect` 按钮连接到 Broker。
 
-4. MQTT 连接成功后，就可以进行 MQTT 的发布与订阅测试。
+4. 连接成功后，即可订阅主题并发布消息进行测试。
 
 ![mqttx-gif](./assets/mqttx-gif.gif)
 
-## 与 EMQX 更好的合作
+## 与 EMQX 搭配使用
 
-MQTTX 为连接测试 EMQX 等 MQTT 消息服务器而生，一键式的连接方式和简洁的图形界面可以帮助您快速连接到 EMQX 或 EMQX Cloud 调试并探索其功能特性。
+MQTTX 可以连接任何 MQTT Broker，与 EMQX 搭配使用效果更佳。只需几步即可连接到 EMQX 或 EMQX Cloud，调试您的应用并探索 Broker 的各项功能。
 
-[注册 EMQX Cloud 可以享受 14 天免费试用](https://www.emqx.com/zh/try?product=cloud)
-
-[现在就本地下载并安装 EMQX](https://www.emqx.com/zh/try?product=enterprise)
+- [免费试用 EMQX Cloud 14 天](https://www.emqx.com/zh/try?product=cloud)
+- [下载 EMQX 并在本地运行](https://www.emqx.com/zh/try?product=enterprise)
 
 ## 社区
 
 - 访问 [EMQ 问答社区](https://askemq.com/) 以获取帮助，也可以分享您的想法或项目。
 - 添加小助手微信号 `emqmkt`，加入 EMQ 微信技术交流群。
-- 加入我们的 [Discord](https://discord.gg/xYGf3fQnES)，参于实时讨论。
+- 加入我们的 [Discord](https://discord.gg/xYGf3fQnES)，参与实时讨论。
 - 关注我们的 [bilibili](https://space.bilibili.com/522222081)，获取最新物联网技术分享。
-- 关注我们的 [微博](https://weibo.com/emqtt) 或 [Twitter](https://twitter.com/EMQTech)，获取 EMQ 最新资讯。
+- 关注我们的 [微博](https://weibo.com/emqtt) 或 [Twitter](https://x.com/EMQTech)，获取 EMQ 最新资讯。
 
 ## 开发
 
-Node 环境的推荐版本:
+以下步骤适用于桌面版。其它版本请参考 [CLI README](./cli/README-CN.md#开发) 和 [Web README](./web/README-CN.md#开发)。
 
-- v18.\*.\*
+请使用 [`.nvmrc`](./.nvmrc) 中指定的 Node.js 版本（当前为 v22）。如果使用 [nvm](https://github.com/nvm-sh/nvm)，在仓库根目录运行 `nvm use` 即可。
 
 ``` shell
 # 克隆项目
@@ -126,16 +155,14 @@ git clone git@github.com:emqx/MQTTX.git
 cd MQTTX
 yarn install
 
-# 编译和热重载以进行开发
+# 以开发模式运行，支持热重载
 yarn run electron:serve
 
-# 编译和压缩以构建生产版本
+# 构建 Windows、Linux 和 macOS 安装包
 yarn run electron:build
 ```
 
-构建成功后，会在 `dist_electron` 目录里出现构建成功的相应的安装文件。
-
-如果需要打包为独立操作系统的安装包，请参考以下命令：
+安装包会输出到 `dist_electron` 目录。如果只需构建单个平台，请运行以下命令之一：
 
 ```shell
 # For Windows
@@ -150,7 +177,7 @@ yarn run electron:build-mac
 
 ## 贡献
 
-请确保在发出 PR 请求前， 已经仔细阅读过了[贡献指南](https://github.com/emqx/MQTTX/blob/main/.github/CONTRIBUTING_CN.md)
+提交 Pull Request 前，请先阅读 [贡献指南](https://github.com/emqx/MQTTX/blob/main/.github/CONTRIBUTING_CN.md)。
 
 ## 技术栈
 
@@ -158,7 +185,7 @@ yarn run electron:build-mac
 - [Vue](https://vuejs.org/) + [Element](https://element.eleme.io)
 - [TypeScript](https://www.typescriptlang.org/)
 - [TypeORM](https://github.com/typeorm/typeorm)
-- [sqlite3](https://github.com/mapbox/node-sqlite3)
+- [sqlite3](https://github.com/TryGhost/node-sqlite3)
 - [MQTT.js](https://github.com/mqttjs/MQTT.js)
 
 ## 相关资源
