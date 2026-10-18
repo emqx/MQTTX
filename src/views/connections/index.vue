@@ -92,6 +92,12 @@ export default class Connections extends Vue {
           connectionsDetailRef.setMessageListHeight()
         }
       }, 500)
+    } else if (val === 'edit') {
+      // Stop reconnecting with the old config while the connection is being edited
+      const connectionsDetailRef: ConnectionsDetail | undefined = this.$refs.connectionsDetail as ConnectionsDetail
+      if (connectionsDetailRef !== undefined) {
+        connectionsDetailRef.forceStopToReconnect()
+      }
     }
   }
 

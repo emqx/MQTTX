@@ -643,18 +643,6 @@ export default class ConnectionsDetail extends Vue {
       return false
     }
     this.connectLoading = true
-
-    // Force cleanup old client instance before creating new connection
-    // This ensures updated connection config is used instead of cached old client
-    if (this.client.end) {
-      try {
-        this.client.end(true)
-        this.$log.info(`Cleaned up old client instance for ${this.record.name} before reconnecting`)
-      } catch (error) {
-        this.$log.warn(`Failed to cleanup old client: ${error}`)
-      }
-    }
-
     // new client
     try {
       const { id, name, host, protocol, port, path, clientId, mqttVersion } = this.record
@@ -844,17 +832,8 @@ export default class ConnectionsDetail extends Vue {
       this.showClientInfo = $clientInfoVisible
     }
     if (currentActiveConnection) {
-      // Only use cached client if it's connected
-      // If disconnected, reset to allow new connection with updated config
-      if (currentActiveConnection.client && currentActiveConnection.client.connected) {
-        this.client = currentActiveConnection.client
-        this.setClientsMessageListener()
-      } else {
-        // Client is disconnected, reset to allow reconnection with new config
-        this.client = {
-          connected: false,
-        }
-      }
+      this.client = currentActiveConnection.client
+      this.setClientsMessageListener()
     } else {
       this.client = {
         connected: false,
@@ -1320,7 +1299,7 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
-  private forceStopToReconnect() {
+  public forceStopToReconnect() {
     if (this.client.reconnecting && this.client.connected === false) {
       this.client.reconnecting = false
       this.forceCloseTheConnection()
