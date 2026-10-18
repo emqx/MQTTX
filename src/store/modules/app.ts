@@ -4,6 +4,8 @@ import useServices from '@/database/useServices'
 import { getGlobal } from '@electron/remote'
 import { DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE, normalizeMaxPayloadDisplaySize } from '@/utils/data'
 import { DEFAULT_AGENT_MAX_STEPS, normalizeAgentMaxSteps } from '@/utils/data'
+import { DEFAULT_AGENT_REASONING, migrateLegacyThinkingModel, normalizeAgentReasoning } from '@/utils/ai/reasoning'
+import type { AgentReasoning } from '@/utils/ai/reasoning'
 import { ENABLE_HARDWARE_ACCELERATION_SETTING_KEY, getEnableHardwareAccelerationSetting } from '@/utils/settings'
 
 const Store = require('electron-store')
@@ -41,6 +43,7 @@ const SET_MAX_PAYLOAD_DISPLAY_SIZE = 'SET_MAX_PAYLOAD_DISPLAY_SIZE'
 const TOGGLE_ENABLE_HARDWARE_ACCELERATION = 'TOGGLE_ENABLE_HARDWARE_ACCELERATION'
 const SET_AGENT_PERMISSION_MODE = 'SET_AGENT_PERMISSION_MODE'
 const SET_AGENT_MAX_STEPS = 'SET_AGENT_MAX_STEPS'
+const SET_AGENT_REASONING = 'SET_AGENT_REASONING'
 
 const getShowConnectionList = (): boolean => {
   const _showConnectionList: string | null = localStorage.getItem('showConnectionList')
@@ -90,6 +93,7 @@ const app = {
     enableHardwareAcceleration: getEnableHardwareAcceleration(),
     agentPermissionMode: electronStore.get('settings.agentPermissionMode', 'ask'),
     agentMaxSteps: normalizeAgentMaxSteps(electronStore.get('settings.agentMaxSteps', DEFAULT_AGENT_MAX_STEPS)),
+    agentReasoning: normalizeAgentReasoning(electronStore.get('settings.agentReasoning', DEFAULT_AGENT_REASONING)),
   },
   mutations: {
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
@@ -214,6 +218,9 @@ const app = {
     },
     [SET_AGENT_MAX_STEPS](state: App, agentMaxSteps: number) {
       state.agentMaxSteps = agentMaxSteps
+    },
+    [SET_AGENT_REASONING](state: App, agentReasoning: AgentReasoning) {
+      state.agentReasoning = agentReasoning
     },
   },
   actions: {
@@ -365,6 +372,23 @@ const app = {
       const normalizedValue = normalizeAgentMaxSteps(payload.agentMaxSteps)
       commit(SET_AGENT_MAX_STEPS, normalizedValue)
       electronStore.set('settings.agentMaxSteps', normalizedValue)
+    },
+    SET_AGENT_REASONING({ commit }: any, payload: App) {
+      const normalizedValue = normalizeAgentReasoning(payload.agentReasoning)
+      commit(SET_AGENT_REASONING, normalizedValue)
+      electronStore.set('settings.agentReasoning', normalizedValue)
+    },
+    /**
+     * One-off startup fix-up: model ids saved before reasoning became a setting carried a `-thinking`
+     * suffix. The suffix is dropped, and thinking stays on (High) unless the user picked a level.
+     * Dispatched once from `main.ts`, before the UI mounts.
+     */
+    async MIGRATE_LEGACY_AGENT_REASONING({ state, dispatch }: any) {
+      const migration = migrateLegacyThinkingModel(state.model, electronStore.get('settings.agentReasoning'))
+      if (!migration.migrated) return
+
+      await dispatch('SET_MODEL', { model: migration.model })
+      if (migration.agentReasoning) await dispatch('SET_AGENT_REASONING', { agentReasoning: migration.agentReasoning })
     },
   },
 }

@@ -128,6 +128,7 @@ const makeDeps = (spies: Spies, overrides: Record<string, any> = {}): any => {
         topicWhitespaceDetection: false,
         agentPermissionMode: 'ask',
         agentMaxSteps: 50,
+        agentReasoning: 'medium',
         enableHardwareAcceleration: true,
         openAIAPIKey: 'secret',
         openAIAPIHost: 'https://api.openai.com/v1',
@@ -429,6 +430,7 @@ describe('agent tools — settings', () => {
       logLevel: 'info',
       agentPermissionMode: 'ask',
       agentMaxSteps: 50,
+      agentReasoning: 'medium',
       model: 'gpt-4o',
       enableHardwareAcceleration: true,
     })
@@ -470,6 +472,31 @@ describe('agent tools — settings', () => {
       { type: 'SET_MAX_PAYLOAD_DISPLAY_SIZE', payload: { maxPayloadDisplaySize: 32768 } },
     ])
     expect(result.updated).to.deep.equal({ maxReconnectTimes: 20, maxPayloadDisplaySize: 32768 })
+  })
+
+  it('should change the reasoning strength', async () => {
+    const spies = makeSpies()
+    const tools = createSettingsTools(makeDeps(spies))
+    const result: any = await tools.update_settings.execute!({ agentReasoning: 'max' } as any, {} as any)
+
+    expect(spies.dispatched).to.deep.equal([{ type: 'SET_AGENT_REASONING', payload: { agentReasoning: 'max' } }])
+    expect(result.updated).to.deep.equal({ agentReasoning: 'max' })
+    expect(sent).to.deep.equal([])
+  })
+
+  it('should reject a reasoning strength outside the offered levels', async () => {
+    const spies = makeSpies()
+    const tools = createSettingsTools(makeDeps(spies))
+    let error: unknown
+    try {
+      await tools.update_settings.execute!({ agentReasoning: 'minimal' } as any, {} as any)
+    } catch (caught) {
+      error = caught
+    }
+
+    expect(error).to.be.instanceOf(Error)
+    expect(spies.dispatched).to.deep.equal([])
+    expect(sent).to.deep.equal([])
   })
 
   it('should change the language and send the language IPC', async () => {

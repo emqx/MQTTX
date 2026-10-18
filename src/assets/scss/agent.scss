@@ -1478,6 +1478,54 @@
     font-weight: 400;
     color: var(--color-text-default);
   }
+  /* Reasoning strength: a segmented control below the model list */
+  .model-menu .reasoning {
+    margin-top: var(--agent-space-1);
+    border-top: 1px solid var(--color-border-default);
+  }
+  .model-menu .reasoning .menu-title {
+    padding-top: var(--agent-space-2);
+  }
+  .model-menu .levels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--agent-space-1);
+    padding: 0 var(--agent-space-2) var(--agent-space-2);
+  }
+  .model-menu .level {
+    flex: 1 1 28%;
+    min-width: 0;
+    height: 26px;
+    padding: 0 var(--agent-space-1);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--agent-radius-sm);
+    background: transparent;
+    /* Buttons default to black text, which disappears in the dark themes */
+    color: var(--color-text-default);
+    font-size: 12px;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+  .model-menu .level:hover {
+    background: var(--color-bg-primary);
+  }
+  .model-menu .level.sel {
+    border-color: var(--color-main-green);
+    color: var(--color-main-green);
+  }
+  .model-menu .level:focus-visible {
+    outline: 2px solid var(--color-main-green);
+    outline-offset: 1px;
+  }
+  /* Current strength next to the model name, in the muted text colour; the name truncates first */
+  .model .model-level {
+    flex: none;
+    color: var(--color-text-light);
+    white-space: nowrap;
+  }
   .skill-menu .opt {
     align-items: flex-start;
   }

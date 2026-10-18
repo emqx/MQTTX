@@ -1,7 +1,15 @@
 import { ToolLoopAgent, stepCountIs, ToolSet } from 'ai'
 import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY, getAgentMessageId } from '@/utils/idGenerator'
-import { getModelProvider, AImodelsOptions, AIAPIHostOptions, loadSystemPrompt } from '@/utils/ai/models'
+import {
+  getModelProvider,
+  AImodelsOptions,
+  AIAPIHostOptions,
+  loadSystemPrompt,
+  supportsReasoning,
+} from '@/utils/ai/models'
+import { buildReasoningCallOptions } from '@/utils/ai/reasoning'
+import type { AgentReasoning } from '@/utils/ai/reasoning'
 import { loadMCPTools } from '@/utils/ai/mcp/MCPUtils'
 import {
   applyStreamPart,
@@ -62,6 +70,7 @@ export class MQTTXAgent {
   private gate: ApprovalGate
   private allowedTools: Set<string>
   private maxSteps: number
+  private reasoning: AgentReasoning
   private abortController: AbortController | null = null
 
   // Callback handlers
@@ -85,6 +94,7 @@ export class MQTTXAgent {
     gate: ApprovalGate
     allowedTools: Set<string>
     maxSteps: number
+    reasoning: AgentReasoning
     onStreamStart?: () => void
     onUpdate?: (responseMessage: AgentMessage) => void
     onError?: (error: unknown, partialMessage: AgentMessage) => void
@@ -99,6 +109,7 @@ export class MQTTXAgent {
     this.gate = options.gate
     this.allowedTools = options.allowedTools
     this.maxSteps = options.maxSteps
+    this.reasoning = options.reasoning
     this.onStreamStart = options.onStreamStart || null
     this.onUpdate = options.onUpdate || null
     this.onError = options.onError || null
@@ -154,21 +165,9 @@ export class MQTTXAgent {
    */
   private processModel(model: AIModel): {
     actualModel: AIModel
-    isClaudeThinking: boolean
-    isGoogleThinking: boolean
     isAzure: boolean
   } {
-    // Check if this is a Claude thinking model
-    const isClaudeThinking = model.includes('claude') && model.endsWith('-thinking')
-
-    // Check if this is a Google thinking model
-    const isGoogleThinking = model.includes('gemini') && model.endsWith('-thinking')
-
-    // Remove the thinking suffix for Claude and Google models
     let actualModel = model
-    if (isClaudeThinking || isGoogleThinking) {
-      actualModel = model.replace(/-thinking$/, '') as AIModel
-    }
 
     // Check if this is an Azure deployment
     const isAzure = actualModel.includes('deployment-')
@@ -180,8 +179,6 @@ export class MQTTXAgent {
 
     return {
       actualModel,
-      isClaudeThinking,
-      isGoogleThinking,
       isAzure,
     }
   }
@@ -240,9 +237,16 @@ export class MQTTXAgent {
    * @param tools Tools the model can call
    */
   private createAgent(instructions: string, tools: ToolSet) {
-    const { actualModel, isClaudeThinking, isGoogleThinking, isAzure } = this.processModel(this.model)
+    const { actualModel, isAzure } = this.processModel(this.model)
 
     const providerType = this.determineProviderType(actualModel, this.openAIAPIHost, isAzure)
+
+    // The strength is one unified AI SDK option; each provider package maps it to its own field
+    const reasoningOptions = buildReasoningCallOptions({
+      reasoning: this.reasoning,
+      provider: providerType,
+      modelSupportsReasoning: supportsReasoning(actualModel),
+    })
 
     return new ToolLoopAgent({
       model: getModelProvider({
@@ -256,24 +260,7 @@ export class MQTTXAgent {
       // Older conversations may still hold a system message; keep accepting them
       allowSystemInMessages: true,
       stopWhen: stepCountIs(this.maxSteps),
-      providerOptions: {
-        anthropic: {
-          thinking: {
-            type: isClaudeThinking ? 'enabled' : 'disabled',
-            budgetTokens: 12000,
-          },
-        },
-        ...(isGoogleThinking
-          ? {
-              google: {
-                thinkingConfig: {
-                  thinkingBudget: 12000,
-                  includeThoughts: true,
-                },
-              },
-            }
-          : {}),
-      },
+      ...reasoningOptions,
       temperature: 0.5,
     })
   }
