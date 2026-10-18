@@ -1,33 +1,37 @@
-# MQTTX  manual
+# MQTTX Manual
+
+> This manual covers MQTTX Desktop v1.13.1. For the latest documentation, see [mqttx.app/docs](https://mqttx.app/docs).
 
 ## Table of Contents
 
-- [Introduction](#Introduction)
-- [Installation](#Downloading-and-Installation)
-- [Usage](#Usage)
-- [Development Guide](#Development-Guide)
+- [Introduction](#introduction)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Development Guide](#development-guide)
+- [FAQ](#faq)
 
 ## Introduction
 
-[MQTTX](https://mqttx.app) is an open-source, cross-platform MQTT 5.0 desktop client initially developed by [EMQ](https://www.emqx.com/), which can run on macOS, Linux, and Windows.
+[MQTTX](https://mqttx.app) is an open-source, cross-platform MQTT 5.0 desktop client from [EMQ](https://www.emqx.com/) for macOS, Linux, and Windows. Its chat-style interface lets you work with multiple connections at once and quickly test connecting, publishing, subscribing, and other MQTT features over TCP, TLS, and WebSocket.
 
-The `UI` of [MQTTX](https://mqttx.app) adopts the chat interface, simplifying the page operation logic. It allows users to create multiple MQTT connections, which facilitates users to quickly test the `MQTT/MQTTS` connection and the subscription and publication of `MQTT` messages.
-
-Before downloading and installing, please visit our [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX) to understand and obtain the latest version information. The newest version helps improve the user experience. If you are familiar with this project, you can also directly clone the repository source code of [MQTTX](https://mqttx.app)  and build and use it yourself. During the use process, if you have any questions, you can go to  [GitHub issues](https://github.com/emqx/MQTTX/issues) to express queries and opinions or fork our project and submit the modified PR to us. We will review and reply carefully.
+Check the [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX) for the latest release before installing. You can also clone the source code and build MQTTX yourself. If you run into a problem or have an idea, open a [GitHub issue](https://github.com/emqx/MQTTX/issues), or fork the project and submit a pull request.
 
 ### Preview
 
 ![mqttx-gif](../assets/mqttx-gif.gif)
 
-- Cross-platform, support Windows, macOS, Linux
-- Supports MQTT v3.1.1 and MQTT v5.0
-- Support CA, self-signed certificate, and single and two-way SSL authentication
-- Theme switching between Light, Dark, and Night(purple)
-- Support Simplified Chinese and English
-- Support MQTT over WebSockets
-- Support for color customization for subscriptions
-- Support for automatic subscribing to $SYS and hierarchical expansion
-- Support multiple payload formats of Hex, Base64, JSON, Plaintext
+- Runs on Windows, macOS, and Linux
+- Fully compliant with MQTT 5.0, 3.1.1, and 3.1
+- MQTT 5.0 user properties on connect, publish, and subscribe, plus SCRAM enhanced authentication
+- CA-signed and self-signed certificates, with one-way and two-way SSL/TLS authentication
+- MQTT over WebSockets
+- Payload formats: Plaintext, JSON, Base64, Hex, CBOR, and MsgPack, with Protobuf and Avro schemas
+- Custom scripts and timed messages for MQTT pub/sub simulation
+- Viewer tools: Topic Tree, Traffic Monitor, and Payload Inspector
+- Customizable colors for subscriptions
+- Data backup and recovery in JSON, CSV, Excel, XML, and YAML
+- Light, Dark, and Night themes
+- Available in English, Simplified Chinese, Japanese, Turkish, Hungarian, and Korean
 
 ## Installation
 
@@ -55,11 +59,11 @@ brew install --cask mqttx
 
 - Windows
 
-For Windows users, please download the latest version of the `exe` file. After downloading, you can install it according to the instructions of Setup.
+For Windows users, please download the latest version of the `exe` file for your architecture (64-bit `x64` or 32-bit `ia32`). After downloading, you can install it according to the instructions of Setup.
 
 - Linux
 
-For Linux users, please download the latest version of the `AppImage` file or use the snap file for quick installation.
+For Linux users, please download the latest `AppImage`, `deb`, or `rpm` file for your architecture (`x64` or `arm64`), or install MQTTX from Flathub or the Snap Store.
 
 For installation using `snap` file, you can also execute this command to install or visit Snap Store or Flathub quickly:
 
@@ -67,6 +71,10 @@ For installation using `snap` file, you can also execute this command to install
 <a href='https://flathub.org/apps/details/com.emqx.MQTTX'><img height='56' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>
 
 ```shell
+# Flathub
+flatpak install flathub com.emqx.MQTTX
+
+# Snap Store (x64 only)
 sudo snap install mqttx
 ```
 
@@ -76,15 +84,15 @@ sudo snap install mqttx
 
 ### MQTT Broker preparation
 
-- If you don't need to deploy MQTT Broker locally, you can use the online public version of [EMQX](https://github.com/emqx/emqx) for quick testing;
+- If you don't need to deploy an MQTT broker locally, you can use the free [public MQTT 5.0 broker](https://www.emqx.com/en/mqtt/public-mqtt5-broker) for quick testing:
 
-  ```shell
-  Broker address: broker.emqx.io
-  Broker TCP port: 1883
-  Broker SSL port: 8883
+  ```text
+  Host: broker.emqx.io
+  TCP port: 1883
+  SSL/TLS port: 8883
   ```
 
-- If you plan to deploy an MQTT Broker running locally, we recommend you to [download EMQX](https://github.com/emqx/emqx/releases) for installation and use. EMQX broker is a fully open source, highly scalable, highly available distributed MQTT messaging broker for IoT, M2M, and Mobile applications that can handle tens of millions of concurrent clients.
+- If you plan to run an MQTT broker locally, we recommend [EMQX](https://www.emqx.com/en/products/emqx), an open-source, cloud-native, distributed MQTT broker for IoT.
 
   Install EMQX by using Docker:
 
@@ -174,7 +182,9 @@ After the configuration is complete, click the `Connect` button in the upper rig
 
    After the `Topic` is successfully subscribed, you can test the sending and receiving of messages. Fill in the `Topic` information you just subscribed to in the lower right corner of the page. You can select the values of `QoS`, `Retain`, input `payload`, and click the send button on the far right to send a message to the `Topic` you just subscribed. After sending successfully, you can immediately receive the message just sent. Note that in the message box, the right column is the sent message, and the left column is the received message. macOS users can use the `command + enter` shortcut to quickly send messages, and other users can use the `control + enter` shortcut to do that.
 
-   Through the `payload` option in the message bar, the messages can quickly be converted into multiple formats, such as `Base64`, `Hex`,`JSON` and `Plaintext`.
+   Through the `payload` option in the message bar, the messages can quickly be converted between `Base64`, `Hex`, `JSON`, `Plaintext`, `CBOR`, and `MsgPack`. For `Protobuf` and `Avro`, use the `Schema` tab on the `Script` page.
+
+   Use the arrow buttons in the publish area to step through previously published payloads. To copy a message's payload or topic, right-click the message in the list.
 
 ![mqttx-message](../assets/mqttx-message.png)
 
@@ -192,6 +202,8 @@ So far, the test of an `MQTT` message is completed.
 
 ![mqttx-user-properties-publish](../assets/mqttx-user-properties-publish.png)
 
+    For MQTT 5.0 connections, you can also add user properties in the new or edit subscription dialog. They are sent with the SUBSCRIBE packet, for example the `stream-offset` property used by EMQX MQTT Streams. Click the icon next to a subscription in the list to view its user properties.
+
 2. Request Response
 
     Click the Meta button, enter a Response Topic: /ack/1 in the input box, enter a comparison data: light, and subscribe to a /ack/1 in the currently connected client.
@@ -204,7 +216,11 @@ So far, the test of an `MQTT` message is completed.
 
 ![mqttx-content-type](../assets/mqttx-content-type.png)
 
-4. Subscription identifier and subscription options
+4. SCRAM enhanced authentication
+
+    If your broker has SCRAM authentication enabled, select `SCRAM-SHA-1`, `SCRAM-SHA-256`, or `SCRAM-SHA-512` from the `Authentication Method` dropdown in the connection settings, then connect with your username and password.
+
+5. Subscription identifier and subscription options
 
 We open the pop-up box for the Subscription topic. Below, you can set the Subscription Identifier and the subscription options containing No Local, Retain as Published, and Retain Handling. The user can specify a numeric subscription identifier in the subscription message and return this identifier when the message is distributed. Clients can establish a mapping of subscription identifiers to message handlers to direct messages to the corresponding message handler via the subscription identifier when a PUBLISH message is received and can configure these subscription options to change the server's behavior.
 
@@ -212,7 +228,12 @@ We open the pop-up box for the Subscription topic. Below, you can set the Subscr
 
 ### Setting
 
-Click the settings button at the bottom of the left menu bar, or use the shortcut. macOS users can use the `command +,` shortcut, and other users can use the `control +,` shortcut to jump to the settings page. Currently, language selection is supported, whether to automatically check for updates, Set to sync OS theme, or manually select a theme is enabled, and also data backup and recovery functions in advanced settings.
+Click the settings button at the bottom of the left menu bar, or use the shortcut. macOS users can use the `command +,` shortcut, and other users can use the `control +,` shortcut to jump to the settings page. The settings page has the following sections:
+
+- **General**: language, auto check update, auto resubscribe, multi topics subscribe, max reconnect times, and max payload display size.
+- **Appearance**: sync with OS theme, theme (Light, Dark, or Night), and JSON highlighting.
+- **Extensions**: one-click installation of MQTTX CLI.
+- **Advanced**: log level, data recovery and backup, clear history data, ignore QoS 0 messages, topic whitespace detection, and GPU acceleration.
 
 ![mqttx-theme](../assets/mqttx-theme.png)
 
@@ -220,32 +241,31 @@ Click the settings button at the bottom of the left menu bar, or use the shortcu
 
 The advanced settings include data backup and recovery functions. Users can choose two import and export ways: the upper right menu on the connection page or the advanced bar on the settings page.
 
-On the settings page, you can click the data backup and recovery buttons in the advanced functions at the bottom. When selecting data backup, all connection data will be exported, including all received and sent messages. When selecting data recovery, after choosing the path of the imported file, the data can be recovered after confirmation. The file format supports `JSON`, `XML`, `CSV` and `Excel`.
+On the settings page, you can click the data backup and recovery buttons in the advanced functions at the bottom. When selecting data backup, all connection data will be exported, including all received and sent messages. When selecting data recovery, after choosing the path of the imported file, the data can be recovered after confirmation. The file format supports `JSON`, `XML`, `CSV`, `Excel`, and `YAML`.
 
 ![mqttx-advance](../assets/mqttx-advance.png)
 
 ### Script
 
-Since the v1.4.2 version, MQTTX added a script editing function. In this function, users can write custom scripts (JavaScript) to perform custom conversions on sent and received `Payload`. With the timing sending function, realize the automated test function for the simulation data report.
-
-> Note: This feature is a test feature in the beta stage
+MQTTX provides a script editing function. Users can write custom functions (JavaScript) to transform sent and received `Payload`, and custom Schemas (`Protobuf` or `Avro`) to encode and decode them. Combined with timed messages, this enables automated testing with simulated data.
 
 Click the `script` button in the menu bar on the left to enter the script editing page. In this page, users can write JavaScript code in the code editor at the top. There is only one `execute` API globally. The user needs write a script function that receives a `value` parameter, which is `Payload`, and the function can be customized to modify the `value`, and finally, the function can be executed by passing it as a parameter to the `execute` custom-written functions.
 
 There is also an `input` and `output` box below. You can enter the expected input value. Click the `test` button on the right to view the execution result in the `output` box. The format of the input value includes `JSON` With `Plaintext`, it is convenient for users to debug custom-written script functions in advance. After completing the test, you can click the `Save` button in the upper right corner and enter the name of the script to save the script. After saving, you can go to the connection page for use. The saved script can also be edited and deleted.
 
-In the connection page, click the drop-down menu in the upper right corner, select `Use script`. In the pop-up window, select the pre-saved script you need to use, and then select the script to be applied, including Published, Received, and All. After the selection is completed, select the data format to be sent or received according to the data type, and use the message sending and receiving normally. At this time, if the expected effect is seen, a script function is completed. If the user needs to cancel the script, you can click the red `Stop script` button in the top status bar to stop using the script.
+In the connection page, click the drop-down menu in the upper right corner, select `Run Script`. In the pop-up window, select the pre-saved script you need to use, and then select the script to be applied, including Published, Received, and All. After the selection is completed, select the data format to be sent or received according to the data type, and use the message sending and receiving normally. At this time, if the expected effect is seen, a script function is completed. If the user needs to cancel the script, you can click the red `Stop script` button in the top status bar to stop using the script.
 
 This function is scalable and flexible and requires users to cooperate with actual needs to use it.
 
 ![mqttx-script](../assets/mqttx-script.png)
 
-The script usage examples can be viewed in the [/docs/script-example](https://github.com/emqx/MQTTX/tree/main/docs/script-example) folder. Currently, two built-in scripts are provided, timestamp conversion and temperature and humidity data simulation. If you have a better and more practical script in your use, you can submit your code here, so that more people can use it.
+Script examples are in the [scripts-example](https://github.com/emqx/MQTTX/tree/main/scripts-example) folder, including custom functions, Schemas, and IoT data scenarios. If you have a better and more practical script, you can submit your code there, so that more people can use it.
 
 ### Log
 
-After v1.5.0, MQTTX has introduced a logging function to facilitate users to debug connections and report errors. In a production environment, the log system displays 3 levels of information:
+MQTTX includes a logging function to help users debug connections and report errors. The log system has 4 levels, and you can choose the level in the Advanced section of the settings page:
 
+- DEBUG provides detailed debugging information, including MQTT.js packet details
 - INFO is used to prompt user operation information
 - WARN generates a warning of unsafe/potential risks
 - ERROR produces a failed error
@@ -256,15 +276,26 @@ By default, logs will be written to the log file:
 - macOS: `~/Library/Application Support/MQTTX/logs/log`
 - Windows: `%USERPROFILE%\AppData\Roaming\MQTTX\logs\log`
 
-Every time MQTTX is closed, the current log file will be renamed to timestamp `[YY]-[MM]-[DD]T[hh]-[mm]-[ss].log` format.
+Every time MQTTX is closed, the current log file is renamed with a UTC timestamp in the `YYYY-MM-DDThh-mm-ss.log` format.
 
 ![mqttx-log](../assets/mqttx-log.png)
+
+### Viewer
+
+The Viewer in the left menu bar provides MQTT data visualization:
+
+- **Topic Tree** (Beta): shows received topics and messages as a hierarchy, with search, a graphical view, and syncing of historical messages from a connection.
+- **Traffic Monitor**: charts the broker's sent and received traffic from the `$SYS` system topics. Opening it from the connection page subscribes to `$SYS/#` automatically.
+
+    > By default, EMQX only allows clients on localhost to subscribe to `$SYS` topics. To access them remotely, adjust the broker's ACL rules.
+
+- **Payload Inspector**: examines the messages of one topic. Diff View compares each message with the previous one, and JSON Tree shows JSON payloads as a searchable tree that can also be visualized as a graph.
 
 ### Others
 
 1. Connection operation
 
-   By clicking the action bar button at the top, you can quickly disconnect, delete the current connection, import and export of current data, timed message and bytes statistics etc.
+   By clicking the action bar button at the top, you can quickly disconnect, delete the current connection, import and export current data, set timed messages, and more. Right-click a connection in the connection list to duplicate it, open it in a new window, or copy its Host or Broker address.
 
 ![mqttx-connection](../assets/mqttx-connection.png)
 
@@ -286,7 +317,7 @@ Click on the action bar button at the top and select the `Clear History` item. Y
 
 4. Max reconnection times
 
-    Below the automatic check update is a setting for the maximum number of reconnections, which can be set as an integer. When the 'broker' is disconnected or the connection is unavailable, the connection will be completely disconnected if the number of reconnections exceeds this setting value.
+    The General section of the settings page includes a setting for the maximum number of reconnections, which can be set as an integer. When the broker is disconnected or the connection is unavailable, the connection will be completely disconnected if the number of reconnections exceeds this setting value.
 
 5. Multi-window
 
@@ -296,29 +327,15 @@ Click on the action bar button at the top and select the `Clear History` item. Y
 
 ![mqttx-muti-window](../assets/mqttx-muti-window.png)
 
-6. Bytes statistics
-
-    You can click on the `Bytes statistics` item in the drop-down menu in the upper right corner. MQTTX will automatically subscribe to the system topic and can display the simple `Bytes statistics` chart, version, and uptime of the MQTT Broker on the page.
-
-    > only MQTT clients on localhost can subscribe to the $ SYS topic by default. Please refer to the build-in ACL to modify the ACL rules for publishing and subscription.
-
-![mqttx-bytes](../assets/mqttx-bytes.png)
-
-7. Timed message
+6. Timed message
 
     In the drop-down menu in the upper right corner, you can click the `Timed message` item to set the sending frequency in seconds. After the setting is completed, manually send a message, and the message will be automatically sent according to the set sending frequency.
 
 ![mqttx-timed-message](../assets/mqttx-timed-message.png)
 
-8. Auto scroll
-
-   The settings have added new control for automatic scrolling of the message list when receiving and publishing messages. You can turn on the Auto Scroll feature on the settings page. Turning off the auto-scroll feature can improve performance when sending and receiving messages in part.
-
-![mqttx-autoscroll](../assets/mqttx-autoscroll.png)
-
 ## Development Guide
 
-When developing, you need to have `Node`, `Git` environment in the local machine, and know about `npm`,`Vue.js`, `Electron`,`TypeScript` and other related knowledge.
+When developing, you need to have `Node.js` and `Git` installed locally, and be familiar with `Vue.js`, `Electron`, `TypeScript`, and related technologies. Use the Node.js version in [`.nvmrc`](../.nvmrc) (currently v22).
 
 ```shell
 # Fork & Clone project
@@ -328,22 +345,20 @@ git clone git@github.com:${name}/MQTTX.git
 cd MQTTX
 yarn install
 
-# Compile and hot reload for development
+# Run the app in development mode with hot reload
 yarn run electron:serve
 
-# Compile and compress to build a production version
+# Build installers for Windows, Linux, and macOS
 yarn run electron:build
 ```
 
-After the building is successful, the corresponding installation file for the successful building will appear in the `dist_electron` directory.
+Installers are written to the `dist_electron` directory. To build for a single platform, run one of the following:
 
-If you only need to build the installation package of the specified system, please modify the command line statement corresponding to `electron: build` in `package.json`:
-
-macOS: `vue-cli-service electron:build --mac`
-
-Windows: `vue-cli-service electron:build --win`
-
-Linux: `vue-cli-service electron:build --linux`
+```shell
+yarn run electron:build-win
+yarn run electron:build-linux
+yarn run electron:build-mac
+```
 
 ## FAQ
 
@@ -375,8 +390,8 @@ Yes. Fully open source. See the [LICENSE](https://github.com/emqx/MQTTX/blob/mai
 
 You can reach the EMQ community and developers via the following channels:
 
+- [GitHub Discussions](https://github.com/emqx/MQTTX/discussions)
+- [Discord](https://discord.gg/xYGf3fQnES)
 - [EMQX Slack](https://slack-invite.emqx.io/)
-- [Twitter](https://twitter.com/EMQTech)
-- [Forum](https://groups.google.com/d/forum/emqtt)
-- [Blog](https://emqx.medium.com/)
-- [Reddit](https://www.reddit.com/r/emqx/)
+- [X](https://x.com/EMQTech)
+- [Blog](https://www.emqx.com/en/blog)

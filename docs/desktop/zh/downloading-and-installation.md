@@ -1,34 +1,34 @@
-# Installation
+# 安装
 
-You can download and install MQTTX from several sources:
+您可以在以下途径下载并安装 MQTTX：
 
-1. [MQTTX Official Website Download Page](https://mqttx.app/downloads) provides direct access to download and installation.
+1. [MQTTX 官方下载页面](https://mqttx.app/zh/downloads) 提供了直接下载和安装的入口。
 
-2. [EMQ Official Website Download Page](https://www.emqx.com/en/try?product=MQTTX) also hosts MQTTX for download and installation.
+2. [EMQ 官方下载页面](https://www.emqx.com/zh/try?product=MQTTX) 也提供了 MQTTX 的下载和安装服务。
 
-3. Alternatively, you can select your preferred version from the [GitHub Releases](https://github.com/emqx/MQTTX/releases) page.
+3. 另外，您可以在 [GitHub Releases](https://github.com/emqx/MQTTX/releases) 页面选择并下载您所需的版本。
 
-> If you're experiencing slow network speed or latency issues when downloading from GitHub, we recommend using the MQTTX official homepage or the EMQ official download page instead.
+> 如果由于网络原因，从 GitHub 下载时遇到网速慢或卡顿的问题，我们建议您在 MQTTX 官网首页或 EMQ 官方下载页面进行下载和安装。
 
-For additional released versions, you can visit our [More Downloads](https://www.emqx.com/en/downloads/MQTTX) page. Select and install the version that best suits your needs.
+如需查看更多已发布的版本，您可以访问我们的[更多下载](https://www.emqx.com/zh/downloads/MQTTX) 页面，选择并下载满足您需求的版本后进行安装。
 
-**Note**: We strongly recommend downloading the latest version whenever possible to ensure the best user experience.
+**注意**：我们强烈建议您下载并安装最新版本，以确保最佳的使用体验。
 
 ## macOS
 
-> We offer two distinct versions of the MQTTX installer for macOS users, one for Intel Chip and another for Apple Silicon. Please select the version that is compatible with your current hardware configuration.
+> 我们为 macOS 用户提供了适用于 Intel Chip 和 Apple Silicon 的安装包，你可以根据自己的使用环境选择合适的版本。
 
-Alternatively, you can download MQTTX from Apple's Mac App Store.
+您也可以选择通过 Apple 的 Mac App Store 进行下载。
 
-**NOTE**: Currently, due to the App Store review process, the version on the App Store is limited to version 1.6.0. We are working to resolve this issue and will continue to update the version accordingly.
+**注意**：由于 App Store 的审核问题，当前 App Store 上的版本仅更新到 1.6.0 版本。我们会尽快解决此问题，并持续更新版本。
 
-[![Download on the Mac App Store](/images/app-store-download.svg)](https://apps.apple.com/us/app/mqttx/id1514074565?mt=12)
+[![Download on the Mac App Store](/images/app-store-download.svg)](https://apps.apple.com/cn/app/mqttx/id1514074565?mt=12)
 
-When it comes to installing MQTTX, we recommend downloading the `dmg` format installation package. Alternatively, you can download the `mac.zip` compressed file which can be decompressed and used quickly.
+当需要下载文件安装时，我们建议您优先选择下载 `dmg` 格式的安装包。同时，您也可以选择下载 `mac.zip` 的压缩包，解压后即可使用。
 
-**Note**: Please be aware that for certain `macOS` system versions, specifically `10.15.2`, there may be issues opening the `zip` compressed file after decompression. As a result, we advise users to prioritize downloading the `dmg` file.
+**注意**：不过请注意，由于 macOS 系统版本的不同，使用 `zip` 压缩包在 `10.15.2` 系统版本中可能会出现解压后无法打开的情况，因此，我们建议优先选择 `dmg` 文件进行下载和安装。
 
-For macOS users who prefer using the command line, MQTTX can also be installed via [brew cask](https://formulae.brew.sh/cask/mqttx):
+对于习惯使用命令行的 macOS 用户，您可以选择使用 [brew cask](https://formulae.brew.sh/cask/mqttx) 来安装 MQTTX：
 
 ```shell
 brew install --cask mqttx
@@ -36,54 +36,54 @@ brew install --cask mqttx
 
 ## Windows
 
-> For Windows users, we provide installation packages for 32-bit, 64-bit, and ARM64 architectures. Please choose the version compatible with your current hardware.
+> 对于 Windows 用户，我们提供了 64 位（x64）和 32 位（ia32）版本的安装包，请选择符合您当前使用环境的版本。
 
-We recommend Windows users to download the latest `exe` file. Once downloaded, you can follow the Setup instructions for installation.
+Windows 用户请下载最新版本的 `exe` 文件，下载后按照 Setup 的指示进行安装。
 
 ## Linux
 
-> For Linux users, we provide installation packages for x86 64-bit and ARM64 architectures. Please select the version that matches your current hardware.
+> 对于 Linux 用户，我们提供了 x86 64 位和 ARM64 两种版本的安装包，请选择符合您当前使用环境的版本。
 
-Linux users can directly visit Flathub to download and install MQTTX:
+Linux 用户也可以直接访问 Flathub 进行下载和安装：
 
 <a href='https://flathub.org/apps/details/com.emqx.MQTTX'><img style="height: 56px;width: 170px;" alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>
 
-Alternatively, use the `flatpak` command to quickly install and start MQTTX:
+或者执行 `flatpak` 命令来快速安装并启动 MQTTX。
 
-Install:
+安装：
 
 ```shell
 flatpak install flathub com.emqx.MQTTX
 ```
 
-Run:
+运行：
 
 ```shell
 flatpak run com.emqx.MQTTX
 ```
 
-For those who prefer manual installation, download the latest `AppImage`, `deb`, or `rpm` files according to your specific Linux operating system.
+对于需要手动下载安装包的用户，根据当前的 Linux 操作系统版本环境等，选择下载最新版本的 `AppImage`、`deb` 或 `rpm` 文件。
 
 ## Ubuntu
 
-> For Ubuntu Snap Store users, currently, only the x86 64-bit installer is available.
+> 对于 Ubuntu Snap Store 用户，目前只提供了 x86 64 位的安装包。
 
-Ubuntu users typically use snap files for installation. The snap format installers can be downloaded from the Snap Store:
+Ubuntu 用户更倾向于使用 snap 文件进行安装，可以从 Snap 商店下载和安装 snap 格式的安装器：
 
 <a href="https://snapcraft.io/mqttx">
   <img alt="Get it from the Snap Store" src="https://snapcraft.io/static/images/badges/en/snap-store-black.svg" />
 </a>
 
-Alternatively, execute the following command to install MQTTX using the `snap` file:
+或执行以下命令使用 `snap` 文件进行快速安装：
 
 ```shell
 sudo snap install mqttx
 ```
 
-For manual installation, download the latest version of the `snap` file. Here's an example:
+对于需要手动下载安装包的用户，可以直接选择下载最新版本的 `snap` 文件。例如下载后执行：
 
 ```shell
-sudo snap install Downloads/MQTTX_1.9.3_amd64.snap --dangerous
+sudo snap install Downloads/MQTTX_1.13.1_amd64.snap --dangerous
 ```
 
-**Note**: When installing with `snap` files, you may encounter insufficient permission issues. For more details, refer to this `issue`: [https://github.com/emqx/MQTTX/issues/109](https://github.com/emqx/MQTTX/issues/109)
+**注意**：在使用 `snap` 文件安装时，可能会出现权限不足的问题，具体详情请参考这个 `issue`：[https://github.com/emqx/MQTTX/issues/109](https://github.com/emqx/MQTTX/issues/109)
