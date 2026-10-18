@@ -5,6 +5,21 @@
       marginLeft: leftValue,
     }"
   >
+    <el-tooltip
+      placement="bottom"
+      :effect="theme !== 'light' ? 'light' : 'dark'"
+      :open-delay="500"
+      :content="$t('connections.showConnections')"
+    >
+      <a
+        v-if="!showConnectionList"
+        href="javascript:;"
+        class="show-connections-button"
+        @click="toggleShowConnectionList({ showConnectionList: true })"
+      >
+        <i class="iconfont icon-show-connections"></i>
+      </a>
+    </el-tooltip>
     <div class="empty-page__block">
       <div>
         <img :src="imageSrc" alt="new connection" />
@@ -28,7 +43,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Action, Getter } from 'vuex-class'
 import gaCustomLinks from '@/utils/gaCustomLinks'
 import { LeftValues } from '@/utils/styles'
 
@@ -40,6 +55,10 @@ export default class EmptyPage extends Vue {
 
   @Getter('currentLang') private getterLang!: Language
   @Getter('showConnectionList') private showConnectionList!: boolean
+  @Getter('currentTheme') private theme!: Theme
+  @Action('TOGGLE_SHOW_CONNECTION_LIST') private toggleShowConnectionList!: (payload: {
+    showConnectionList: boolean
+  }) => void
 
   get imageSrc(): string {
     return require(`../assets/images/${this.name}`)
@@ -88,6 +107,17 @@ export default class EmptyPage extends Vue {
   height: 100vh;
   position: relative;
   overflow: hidden;
+
+  .show-connections-button {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 2;
+    color: var(--color-text-title);
+    .icon-show-connections {
+      font-size: 20px;
+    }
+  }
 
   &::before {
     content: '';
