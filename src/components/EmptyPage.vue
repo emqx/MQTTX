@@ -107,6 +107,8 @@ export default class EmptyPage extends Vue {
   height: 100vh;
   position: relative;
   overflow: hidden;
+  // Follow the connection list's slide transition
+  transition: margin-left 0.3s ease;
 
   .show-connections-button {
     position: absolute;
