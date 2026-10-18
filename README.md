@@ -12,15 +12,26 @@
 [![Slack](https://img.shields.io/badge/Slack-EMQX-39AE85?logo=slack)](https://slack-invite.emqx.io/)
 [![Discord](https://img.shields.io/discord/931086341838622751?label=Discord&logo=discord)](https://discord.gg/xYGf3fQnES)
 [![YouTube](https://img.shields.io/badge/Subscribe-EMQ-FF0000?logo=youtube)](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q)
-[![Twitter Follows](https://img.shields.io/twitter/follow/EMQTech?label=Twitter%20Follows)](https://twitter.com/EMQTech)
+[![Twitter Follows](https://img.shields.io/twitter/follow/EMQTech?label=Twitter%20Follows)](https://x.com/EMQTech)
 
 ---
 
-[MQTTX](https://mqttx.app) is a cross-platform [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) client tool open sourced by [EMQ](https://www.emqx.com/en), which can run on macOS, Linux and Windows, and supports formatting MQTT payload.
+[MQTTX](https://mqttx.app) is an open-source [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) client from [EMQ](https://www.emqx.com/en), available as a [desktop app](https://mqttx.app/docs) for macOS, Linux, and Windows, a [command-line tool](https://mqttx.app/docs/cli) for scripting and benchmarks, and a [web client](https://mqttx.app/web-client) that runs in the browser. Its chat-style interface lets you work with multiple connections at once and quickly test publishing, subscribing, and other MQTT features over TCP, TLS, and WebSocket.
 
-[MQTTX](https://mqttx.app) simplifies test operation with the help of a familiar, chat-like interface. It’s easy and quick to create multiple, simultaneous online MQTT client connections, and can test the connection, publishing, and subscription functions of MQTT/TCP, MQTT/TLS, MQTT/WebSocket as well as other MQTT protocol features.
+> [MQTT](https://www.emqx.com/en/blog/the-easiest-guide-to-getting-started-with-mqtt) (MQ Telemetry Transport) is a lightweight publish/subscribe messaging protocol designed for constrained devices and for low-bandwidth, high-latency, or unreliable networks.
 
-> [MQTT](https://www.emqx.com/en/blog/the-easiest-guide-to-getting-started-with-mqtt) stands for MQ Telemetry Transport. It is a publish/subscribe, extremely simple and lightweight messaging protocol, designed for constrained devices and low-bandwidth, high-latency or unreliable networks.
+## Features
+
+Highlights of the desktop app:
+
+- **Protocols**: MQTT 3.1, 3.1.1, and 5.0 over TCP, TLS, WebSocket, and secure WebSocket.
+- **MQTT 5.0**: user properties on connect, publish, and subscribe; SCRAM enhanced authentication.
+- **Payloads**: Plaintext, JSON, Base64, Hex, CBOR, and MsgPack, with Protobuf and Avro schema support.
+- **Automation**: scripts that transform payloads on publish or receive, and timed messages.
+- **Viewer**: Topic Tree, Traffic Monitor, and a Payload Inspector with a JSON tree and message diff.
+- **Workflow**: message search, publish topic history, and connection groups.
+- **Data**: import and export connections as JSON, CSV, Excel, XML, or YAML.
+- **Personalization**: light, dark, and night themes; English, 简体中文, 日本語, Türkçe, Magyar, and 한국어.
 
 ## Preview
 
@@ -28,7 +39,7 @@
 
 ## Installation
 
-Currently available for download from these app stores
+The desktop app is available from the following sources.
 
 ### macOS App Store
 
@@ -36,7 +47,7 @@ Currently available for download from these app stores
 
 ### Homebrew
 
-The macOS users can install MQTTX using [brew cask](https://formulae.brew.sh/cask/mqttx)
+On macOS, you can also install MQTTX with [Homebrew](https://formulae.brew.sh/cask/mqttx):
 
 ```shell
 brew install --cask mqttx
@@ -49,9 +60,28 @@ brew install --cask mqttx
 
 ### Released Packages
 
-Download from [GitHub Releases](https://github.com/emqx/MQTTX/releases) and install it.
+Download the package for your platform from [GitHub Releases](https://github.com/emqx/MQTTX/releases) or the [EMQ download site](https://www.emqx.com/downloads/MQTTX/).
 
-Alternative, you can download [here](https://www.emqx.com/downloads/MQTTX/).
+### MQTTX CLI
+
+Install with Homebrew on macOS, or with npm on any platform:
+
+```shell
+brew install emqx/mqttx/mqttx-cli
+npm install --global mqttx-cli
+```
+
+Standalone binaries and a Docker image are also available. See the [MQTTX CLI README](./cli/README.md) or the [MQTTX downloads page](https://mqttx.app/downloads).
+
+### MQTTX Web
+
+Open <https://mqttx.app/web-client> in your browser, or host your own copy with Docker:
+
+```shell
+docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
+```
+
+See the [MQTTX Web README](./web/README.md) for details.
 
 ## AI Agent Support
 
@@ -79,67 +109,64 @@ Once installed, try a task such as:
 
 ## Usage
 
-See our [documentation](https://mqttx.app/docs) or [manual](./docs/manual.md) for details.
+For the full guide, see the [documentation](https://mqttx.app/docs) or the [manual](./docs/manual.md).
 
-1. Get MQTT Broker Ready.
+1. Prepare an MQTT broker.
 
-    - If you do not need to deploy the MQTT Broker locally, you can use the [public MQTT 5.0 Broker](https://www.emqx.com/en/mqtt/public-mqtt5-broker) provided by [EMQX Cloud](https://www.emqx.com/en/cloud) for testing:
+    - To get started without a local deployment, use the free [public MQTT 5.0 broker](https://www.emqx.com/en/mqtt/public-mqtt5-broker) provided by [EMQX Cloud](https://www.emqx.com/en/cloud):
 
-        ```shell
-        Broker IP: broker.emqx.io
-        Broker TCP Port: 1883
-        Broker SSL Port: 8883
+        ```text
+        Host: broker.emqx.io
+        TCP port: 1883
+        SSL/TLS port: 8883
         ```
 
-    - To run MQTT Broker locally, [EMQX](https://www.emqx.com/en/products/emqx) is recommended: An Open-Source, Cloud-Native, Distributed MQTT Broker for IoT.
+    - To run a broker locally, we recommend [EMQX](https://www.emqx.com/en/products/emqx), an open-source, cloud-native, distributed MQTT broker for IoT.
 
-2. Connection configuration. Click the `+` button in the left menu bar and fill in the corresponding required fields in the form.
+2. Click the `+` button in the left sidebar and fill in the required fields.
 
-3. After the connection information is configured, click the `Connect` button in the upper right corner to create a connection and connect to MQTT Broker.
+3. Click `Connect` in the upper-right corner to connect to the broker.
 
-4. After the MQTT is connected successfully, you can perform MQTT publish and subscription tests.
+4. Once connected, subscribe to topics and publish messages to test your setup.
 
 ![mqttx-gif](./assets/mqttx-gif.gif)
 
 ## Better Together with EMQX
 
-MQTTX is designed to connect to test MQTT Brokers such as EMQX, The one-click connection and simple graphical interface make it easy to connect to EMQX or EMQX Cloud to debug and explore functional features.
+MQTTX works with any MQTT broker and pairs especially well with EMQX. Connect to EMQX or EMQX Cloud in a few clicks to debug your applications and explore broker features.
 
-[Sign up EMQX Cloud for 14 days free trial](https://www.emqx.com/en/try?product=cloud)
-
-[Download EMQX locally right now](https://www.emqx.com/en/try?product=enterprise)
+- [Start a 14-day free trial of EMQX Cloud](https://www.emqx.com/en/try?product=cloud)
+- [Download EMQX and run it locally](https://www.emqx.com/en/try?product=enterprise)
 
 ## Get Involved
 
-- Follow [@EMQTech on Twitter](https://twitter.com/EMQTech).
-- If you have a specific question, check out our [discussion forums](https://github.com/emqx/emqx/discussions).
-- For general discussions, join us on the [official Discord](https://discord.gg/xYGf3fQnES) team.
-- Keep updated on [EMQX YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q) by subscribing.
+- Ask questions and share ideas in [GitHub Discussions](https://github.com/emqx/MQTTX/discussions).
+- Chat with the community on [Discord](https://discord.gg/xYGf3fQnES).
+- Follow [@EMQTech on X](https://x.com/EMQTech).
+- Subscribe to [EMQX on YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q).
 
 ## Develop
 
-Recommended version for Node environment:
+These steps are for the desktop app. For the other editions, see the [CLI README](./cli/README.md#develop) and the [Web README](./web/README.md#develop).
 
-- v18.\*.\*
+Use the Node.js version in [`.nvmrc`](./.nvmrc) (currently v22). If you use [nvm](https://github.com/nvm-sh/nvm), run `nvm use` in the repository root.
 
 ``` shell
-# Clone
+# Clone the repository
 git clone git@github.com:emqx/MQTTX.git
 
 # Install dependencies
 cd MQTTX
 yarn install
 
-# Compiles and hot-reloads for development
+# Run the app in development mode with hot reload
 yarn run electron:serve
 
-# Compiles and minifies for production
+# Build installers for Windows, Linux, and macOS
 yarn run electron:build
 ```
 
-After the building is successful, the corresponding installation file for the successful build ing will appear in the `dist_electron` directory.
-
-If you need to package it as an installation package for an independent operating system, please refer to the following command:
+Installers are written to the `dist_electron` directory. To build for a single platform, run one of the following:
 
 ```shell
 # For Windows
@@ -154,7 +181,7 @@ yarn run electron:build-mac
 
 ## Contributing
 
-Please make sure to read the [Contributing Guide](https://github.com/emqx/MQTTX/blob/main/.github/CONTRIBUTING.md) before making a pull request.
+Please read the [Contributing Guide](https://github.com/emqx/MQTTX/blob/main/.github/CONTRIBUTING.md) before opening a pull request.
 
 ## Technology Stack
 
@@ -162,18 +189,18 @@ Please make sure to read the [Contributing Guide](https://github.com/emqx/MQTTX/
 - [Vue](https://vuejs.org/) + [Element](https://element.eleme.io)
 - [TypeScript](https://www.typescriptlang.org/)
 - [TypeORM](https://github.com/typeorm/typeorm)
-- [SQLite](https://github.com/mapbox/node-sqlite3)
+- [SQLite](https://github.com/TryGhost/node-sqlite3)
 - [MQTT.js](https://github.com/mqttjs/MQTT.js)
 
 ## Resources
 
 - [MQTT Programming](https://www.emqx.com/en/blog/category/mqtt-programming)
 
-  A series of blogs to help developers get started quickly with MQTT in PHP, Node.js, Python, Golang, and other programming languages.
+  A blog series on getting started with MQTT in PHP, Node.js, Python, Go, and other languages.
 
 - [MQTT SDKs](https://www.emqx.com/en/mqtt-client-sdk)
 
-  We have selected popular MQTT client SDKs in various programming languages and provided code examples to help you quickly understand the use of MQTT clients.
+  A curated list of popular MQTT client SDKs for many languages, with code examples.
 
 ## License
 
