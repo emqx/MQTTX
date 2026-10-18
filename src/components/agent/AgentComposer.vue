@@ -33,6 +33,22 @@
         <span class="t">{{ option.label }}</span>
         <span class="check">✓</span>
       </button>
+      <div v-if="showReasoning" class="reasoning" @click.stop>
+        <div class="menu-title">{{ $t('agent.reasoningTitle') }}</div>
+        <div class="levels" role="group" :aria-label="$t('agent.reasoningTitle')" data-test="reasoning-levels">
+          <button
+            v-for="level in reasoningLevels"
+            :key="level"
+            class="level"
+            :class="{ sel: agentReasoning === level }"
+            :data-level="level"
+            :aria-pressed="agentReasoning === level"
+            @click="chooseReasoning(level)"
+          >
+            {{ $t(levelLabel(level)) }}
+          </button>
+        </div>
+      </div>
       <button class="opt settings" @click="$emit('open-settings')">
         <span class="t">{{ $t('agent.modelSettings') }}</span>
       </button>
@@ -131,6 +147,7 @@
         <button class="model" :title="$t('agent.changeModel')" @click.stop="toggleModelMenu">
           <ai-provider-icon :provider="modelProvider ? modelProvider.value : ''" :model="model" />
           <span class="model-label">{{ modelLabel }}</span>
+          <span v-if="showModelLevel" class="model-level">· {{ $t(levelLabel(agentReasoning)) }}</span>
           <i class="caret el-icon-arrow-down"></i>
         </button>
         <button
@@ -162,7 +179,13 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch, Emit } from 'vue-property-decorator'
 import type { PermissionMode } from '@/utils/ai/agent/approval'
-import { AImodelsOptions, getModelLabel, supportsImages } from '@/utils/ai/models'
+import { AImodelsOptions, getModelLabel, supportsImages, supportsReasoning } from '@/utils/ai/models'
+import {
+  AGENT_REASONING_LEVELS,
+  DEFAULT_AGENT_REASONING,
+  reasoningLabelKey,
+  type AgentReasoning,
+} from '@/utils/ai/reasoning'
 import { formatBytes } from '@/utils/formatter'
 import {
   ATTACHMENT_HEAD_BYTES,
@@ -226,6 +249,7 @@ export default class AgentComposer extends Vue {
   @Prop({ default: '' }) readonly connectionName!: string
   @Prop({ default: false }) readonly connected!: boolean
   @Prop({ default: '' }) readonly model!: string
+  @Prop({ default: DEFAULT_AGENT_REASONING }) readonly agentReasoning!: AgentReasoning
 
   private message = ''
   private composing = false
@@ -244,6 +268,28 @@ export default class AgentComposer extends Vue {
 
   get modelLabel(): string {
     return getModelLabel(this.model)
+  }
+
+  get reasoningLevels(): AgentReasoning[] {
+    return [...AGENT_REASONING_LEVELS]
+  }
+
+  /** The strength section is only offered for models that can be asked for one */
+  get showReasoning(): boolean {
+    return supportsReasoning(this.model)
+  }
+
+  /** The level is shown next to the model name, except for "let the provider decide" */
+  get showModelLevel(): boolean {
+    return supportsReasoning(this.model) && this.agentReasoning !== DEFAULT_AGENT_REASONING
+  }
+
+  private levelLabel(level: AgentReasoning): string {
+    return reasoningLabelKey(level)
+  }
+
+  private chooseReasoning(level: AgentReasoning) {
+    this.$emit('update:agentReasoning', level)
   }
 
   get filteredSkills(): AgentSkill[] {

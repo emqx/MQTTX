@@ -327,6 +327,14 @@ export default {
     hu: 'Maximális lépések válaszonként (10-200)',
     ko: '응답당 최대 단계 수 (10-200)',
   },
+  agentReasoning: {
+    zh: '推理强度',
+    en: 'Reasoning strength',
+    tr: 'Akıl yürütme gücü',
+    ja: '推論の強さ',
+    hu: 'Érvelési szint',
+    ko: '추론 강도',
+  },
   importProgress: {
     zh: '导入进度',
     en: 'Import Progress',

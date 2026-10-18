@@ -2,6 +2,7 @@ import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
 import { IPublishPacket, MqttClient } from 'mqtt'
 import type { AIModel } from '@/utils/ai/models'
+import type { AgentReasoning } from '@/utils/ai/reasoning'
 
 declare global {
   type $TSFixed = any
@@ -109,6 +110,7 @@ declare global {
     enableAgent: boolean
     agentPermissionMode: 'ask' | 'auto'
     agentMaxSteps: number
+    agentReasoning: AgentReasoning
     openAIAPIHost: string
     openAIAPIKey: string
     model: AIModel

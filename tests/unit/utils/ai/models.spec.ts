@@ -1,5 +1,12 @@
 import { expect } from 'chai'
-import { AImodelsOptions, loadSystemPrompt, getModelProvider, getModelLabel, supportsImages } from '@/utils/ai/models'
+import {
+  AImodelsOptions,
+  loadSystemPrompt,
+  getModelProvider,
+  getModelLabel,
+  supportsImages,
+  supportsReasoning,
+} from '@/utils/ai/models'
 
 describe('agent', () => {
   describe('loadSystemPrompt', () => {
@@ -53,6 +60,14 @@ describe('agent', () => {
         })
       })
     })
+
+    it('should not list the retired -thinking model ids any more', () => {
+      AImodelsOptions.forEach((provider) => {
+        provider.children.forEach((child) => {
+          expect(child.value.endsWith('-thinking'), `${provider.value} / ${child.value}`).to.equal(false)
+        })
+      })
+    })
   })
 
   describe('getModelLabel', () => {
@@ -94,6 +109,58 @@ describe('agent', () => {
 
     it('should accept a model id the user typed', () => {
       expect(supportsImages('my-custom-vision-model')).to.equal(true)
+    })
+  })
+
+  describe('supportsReasoning', () => {
+    it('should reject the models that cannot control their reasoning', () => {
+      const fixed = [
+        'gpt-4o',
+        'gpt-4.1-mini',
+        'deployment-gpt-4o',
+        'grok-4.20-reasoning',
+        'grok-4.20-non-reasoning',
+        'mistral-large-latest',
+        'codestral-latest',
+        'llama-3.3-70b-versatile',
+        'meta-llama/llama-4-maverick-17b-128e-instruct',
+        'command-a-03-2025',
+        'command-r-plus',
+        'meta-llama/Llama-3.3-70B-Instruct',
+        'moonshot-v1-128k',
+        'deepseek-ai/DeepSeek-V3',
+      ]
+      for (const model of fixed) {
+        expect(supportsReasoning(model), model).to.equal(false)
+      }
+    })
+
+    it('should accept the models that can be asked for a strength', () => {
+      const adjustable = [
+        'gpt-5.2',
+        'deepseek-flash',
+        'claude-sonnet-4-6',
+        'grok-4.7',
+        'gemini-3.8-flash',
+        'mistral-medium-latest',
+        'openai/gpt-oss-120b',
+        'command-a-reasoning-08-2025',
+        'deepseek-ai/DeepSeek-V4-Flash-0731',
+        'accounts/fireworks/models/minimax-m2',
+        'qwen-3.8-27b',
+        'kimi-k3',
+        'minimax-m3',
+        'glm-5.3',
+        'perplexity/sonar',
+        'openai/gpt-5.2',
+      ]
+      for (const model of adjustable) {
+        expect(supportsReasoning(model), model).to.equal(true)
+      }
+    })
+
+    it('should accept a model id the user typed', () => {
+      expect(supportsReasoning('my-custom-reasoning-model')).to.equal(true)
     })
   })
 
