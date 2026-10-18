@@ -5,7 +5,7 @@
     <RouterView />
     <Ipc @setTheme="setTheme" @setLang="setLang" />
     <Update v-if="updateActive" />
-    <AgentPanel ref="agent" v-if="enableAgent" :key="getterLang" />
+    <AgentPanel ref="agent" v-if="enableAgent" />
   </div>
 </template>
 

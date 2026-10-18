@@ -13,12 +13,9 @@
       </div>
     </section>
     <section v-if="!isNewWindow" class="leftbar-bottom">
-      <div class="leftbar-item agent-item" :class="{ active: agentOpen }">
-        <a href="javascript:;" :title="`${$t('agent.title')} (${agentShortcut})`" @click="toggleAgent">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <path d="M12 3l1.8 4.6L18 9.4l-4.2 1.8L12 16l-1.8-4.8L6 9.4l4.2-1.8z" />
-            <path d="M18.5 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" />
-          </svg>
+      <div class="leftbar-item agent-item" :class="{ active: isAgentActive, disabled: !enableAgent }">
+        <a href="javascript:;" :title="agentTitle" @click="openAgent">
+          <agent-icon :size="22" :colored="enableAgent && isAgentActive" />
           <i v-if="agentStatus !== 'idle'" class="agent-dot" :class="agentStatus"></i>
         </a>
       </div>
@@ -36,6 +33,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import gaCustomLinks from '@/utils/gaCustomLinks'
 import { globalEventBus } from '@/utils/globalEventBus'
+import AgentIcon from '@/components/agent/AgentIcon.vue'
 
 interface MenuItem {
   path: string
@@ -44,9 +42,10 @@ interface MenuItem {
   query?: { [key: string]: string }
 }
 
-@Component
+@Component({ components: { AgentIcon } })
 export default class Leftbar extends Vue {
   @Getter('currentLang') private getterLang!: Language
+  @Getter('enableAgent') private enableAgent!: boolean
 
   private menuItems: MenuItem[] = [
     { path: '/recent_connections', icon: 'icon-connections', name: 'Connections' },
@@ -62,17 +61,24 @@ export default class Leftbar extends Vue {
     { path: '/about', icon: 'icon-about' },
   ]
 
-  private agentOpen = false
-  private agentFull = false
   private agentStatus: 'idle' | 'running' | 'waiting' = 'idle'
 
-  private toggleAgent() {
-    globalEventBus.emit('agent:toggle')
+  get isAgentActive(): boolean {
+    return this.$route.name === 'Agent'
   }
 
-  private onAgentOpen({ open, full }: { open: boolean; full?: boolean }) {
-    this.agentOpen = open
-    this.agentFull = Boolean(full)
+  private openAgent() {
+    // The panel is not mounted while the Agent is disabled, so send the user to the switch in Settings
+    if (!this.enableAgent) {
+      if (this.$route.name !== 'Settings') this.$router.push({ name: 'Settings' })
+      return
+    }
+    if (this.$route.name !== 'Agent') this.$router.push({ name: 'Agent' }).catch(() => {})
+  }
+
+  get agentTitle(): string {
+    if (!this.enableAgent) return this.$t('agent.disabledTip') as string
+    return `${this.$t('agent.title')} (${this.agentShortcut})`
   }
 
   private onAgentStatus({ running, awaiting }: { running: boolean; awaiting: boolean }) {
@@ -80,12 +86,10 @@ export default class Leftbar extends Vue {
   }
 
   created() {
-    globalEventBus.on('agent:open', this.onAgentOpen)
     globalEventBus.on('agent:status', this.onAgentStatus)
   }
 
   beforeDestroy() {
-    globalEventBus.off('agent:open', this.onAgentOpen)
     globalEventBus.off('agent:status', this.onAgentStatus)
   }
 
@@ -102,8 +106,6 @@ export default class Leftbar extends Vue {
   }
 
   private isActive(item: MenuItem): boolean {
-    // The fullscreen Agent covers the page, so only the Agent item is active
-    if (this.agentOpen && this.agentFull) return false
     if (item.name === 'Connections' || item.name === 'ConnectionDetails') {
       return (
         ['Connections', 'ConnectionDetails'].includes(this.$route.name || '') &&
@@ -208,6 +210,13 @@ export default class Leftbar extends Vue {
     }
     &.agent-item a {
       position: relative;
+    }
+    &.agent-item.disabled a {
+      color: var(--color-text-light);
+      opacity: 0.5;
+      &:hover {
+        transform: none;
+      }
     }
     .agent-dot {
       position: absolute;

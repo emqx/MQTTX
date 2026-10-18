@@ -36,10 +36,6 @@ export class ApprovalGate {
     }
     this.pending.clear()
   }
-
-  public hasPending(): boolean {
-    return this.pending.size > 0
-  }
 }
 
 export interface ApprovalContext {
@@ -56,22 +52,23 @@ export interface ApprovalContext {
  * Wraps a tool so it waits for approval in `ask` mode.
  *
  * A denied tool resolves with `{ denied: true }` instead of throwing, so the model sees the
- * refusal and can adapt.
+ * refusal and can adapt. `alwaysAsk` makes the tool wait even in `auto` mode and ignores
+ * "always allow", for tools that must never run unattended.
  */
-export const withApproval = (name: string, toolDef: any, ctx: ApprovalContext): any => {
+export const withApproval = (name: string, toolDef: any, ctx: ApprovalContext, alwaysAsk = false): any => {
   const execute = toolDef.execute
   if (!execute) return toolDef
 
   return {
     ...toolDef,
     execute: async (input: any, options: any) => {
-      if (ctx.getMode() !== 'auto' && !ctx.allowedTools.has(name)) {
+      if (alwaysAsk || (ctx.getMode() !== 'auto' && !ctx.allowedTools.has(name))) {
         ctx.onAwaiting(options.toolCallId)
         const decision = await ctx.gate.request(options.toolCallId)
         if (decision === 'deny') {
           return { denied: true, message: 'The user denied this action.' }
         }
-        if (decision === 'always') {
+        if (decision === 'always' && !alwaysAsk) {
           ctx.allowedTools.add(name)
         }
         ctx.onApproved?.(options.toolCallId)

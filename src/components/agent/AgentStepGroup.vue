@@ -2,37 +2,13 @@
   <div class="steps" :class="{ collapsed }">
     <button class="steps-head" type="button" :aria-expanded="String(!collapsed)" @click="toggle">
       <span class="st" :class="headState">
-        <svg
-          v-if="headState === 'error'"
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.4"
-        >
-          <path d="M18 6L6 18M6 6l12 12" />
-        </svg>
-        <svg
-          v-else-if="headState === 'done'"
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.4"
-        >
-          <path d="M20 6L9 17l-5-5" />
-        </svg>
-        <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
-          <path d="M21 12a9 9 0 1 1-6.2-8.6" />
-        </svg>
+        <i v-if="headState === 'error'" class="el-icon-close"></i>
+        <i v-else-if="headState === 'done'" class="el-icon-check"></i>
+        <i v-else class="el-icon-loading"></i>
       </span>
       <span class="count">{{ headText }}</span>
       <span class="meta">{{ metaText }}</span>
-      <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M6 9l6 6 6-6" />
-      </svg>
+      <i class="chev el-icon-arrow-down"></i>
     </button>
     <div v-show="!collapsed" class="step-list">
       <agent-step

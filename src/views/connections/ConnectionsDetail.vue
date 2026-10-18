@@ -130,9 +130,7 @@
               content="MQTTX Agent"
             >
               <a href="javascript:;" class="agent-btn" @click="toggleAgent">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 3l1.8 4.6L18 9.4l-4.2 1.8L12 16l-1.8-4.8L6 9.4l4.2-1.8z" />
-                </svg>
+                <agent-icon />
                 <span>MQTTX Agent</span>
               </a>
             </el-tooltip>
@@ -367,7 +365,7 @@ import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
 import { MqttClient, IConnackPacket, IPublishPacket, IClientPublishOptions, IDisconnectPacket, Packet } from 'mqtt'
 import _ from 'lodash'
-import { Subject, fromEvent } from 'rxjs'
+import { Subject, Subscription, fromEvent } from 'rxjs'
 import { bufferTime, map, filter, takeUntil, shareReplay, distinctUntilChanged } from 'rxjs/operators'
 import cbor from 'cbor'
 import { pack, unpack } from 'msgpackr'
@@ -376,6 +374,7 @@ import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import { matchTopicMethod } from '@/utils/topicMatch'
 import { createClient, ignoreQoS0Message } from '@/utils/mqttUtils'
+import { bindMessagePipeline, tearDownMessagePipeline } from '@/utils/connectionMessagePipeline'
 import validFormatJson from '@/utils/validFormatJson'
 
 import MessageList from '@/components/MessageList.vue'
@@ -393,6 +392,7 @@ import UseScript from '@/components/UseScript.vue'
 import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 import MsgTip from '@/components/MsgTip.vue'
 import AgentPanel from '@/components/agent/AgentPanel.vue'
+import AgentIcon from '@/components/agent/AgentIcon.vue'
 
 import sandbox from '@/utils/sandbox'
 import { hasMessagePayloadID, hasMessageHeaderID } from '@/utils/historyRecordUtils'
@@ -406,6 +406,7 @@ import getErrorReason from '@/utils/mqttErrorReason'
 import { isLargeData } from '@/utils/data'
 import { serializeAvroToBuffer, deserializeBufferToAvro } from '@/utils/avro'
 import { globalEventBus } from '@/utils/globalEventBus'
+import { AGENT_DATA_CHANGED, AgentDataChangedPayload } from '@/utils/ai/agent/agentEvents'
 import SyncTopicTreeDialog from '@/widgets/SyncTopicTreeDialog.vue'
 import ConnectionSelect from '@/components/ConnectionSelect.vue'
 import {
@@ -430,6 +431,7 @@ type CommandType =
 
 @Component({
   components: {
+    AgentIcon,
     ConnectionInfo,
     ResponseInformation,
     MsgPublish,
@@ -742,10 +744,13 @@ export default class ConnectionsDetail extends Vue {
   public async deleteConnection(connection: ConnectionModel): Promise<void> {
     const { id } = connection
     if (!id) return
+    const client = this.activeConnection[id]?.client
     const { connectionService, topicNodeService } = useServices()
     const res = await Promise.all([topicNodeService.deleteTopicNodesForConnection(id), connectionService.delete(id)])
     const [, deleted] = res
     if (deleted) {
+      // The client is gone from the app, so its message pipeline must not keep saving messages
+      if (client) tearDownMessagePipeline(client)
       this.$emit('delete')
       this.$message.success(this.$tc('common.deleteSuccess'))
       if (deleted.id) {
@@ -1095,15 +1100,7 @@ export default class ConnectionsDetail extends Vue {
     } catch (error) {
       return
     }
-    this.recordMsgs.list = []
-    this.recordMsgs.total = 0
-    this.recordMsgs.publishedTotal = 0
-    this.recordMsgs.receivedTotal = 0
-    this.recordMsgs.page = 1
-    this.changeActiveConnection({
-      id: this.curConnectionId,
-      client: this.client,
-    })
+    this.resetMessages()
     if (this.record.id) {
       const { messageService, topicNodeService } = useServices()
       await Promise.all([
@@ -1180,6 +1177,7 @@ export default class ConnectionsDetail extends Vue {
     this.stopTimedSend()
     this.disconnectLoding = true
     this.client.end!(false, () => {
+      tearDownMessagePipeline(this.client)
       this.disconnectLoding = false
       this.reTryConnectTimes = 0
 
@@ -1605,16 +1603,17 @@ export default class ConnectionsDetail extends Vue {
   private onMessageArrived(client: MqttClient, id: string) {
     const unsubscribe$ = new Subject<void>()
     const messageBuffer$ = new Subject<MessageModel>()
+    const subscriptions = new Subscription()
     let isBufferEnabled = false
 
-    // Add close event handler
-    if (client.listenerCount('close') <= 1) {
+    // Add close event handler; it is part of `subscriptions`, so a rebind removes only our own listener
+    subscriptions.add(
       fromEvent(client, 'close').subscribe(() => {
         unsubscribe$.next()
         unsubscribe$.complete()
         this.onClose()
-      })
-    }
+      }),
+    )
 
     // Process message stream
     const messageSubject$ = fromEvent(client, 'message').pipe(
@@ -1626,16 +1625,18 @@ export default class ConnectionsDetail extends Vue {
     )
 
     // Save messages with QoS filtering
-    messageSubject$
-      .pipe(
-        filter((message: MessageModel) => !ignoreQoS0Message(message.qos)),
-        bufferTime(1000),
-      )
-      .subscribe((messages: MessageModel[]) => {
-        if (messages.length) {
-          this.saveMessage(id, messages)
-        }
-      })
+    subscriptions.add(
+      messageSubject$
+        .pipe(
+          filter((message: MessageModel) => !ignoreQoS0Message(message.qos)),
+          bufferTime(1000),
+        )
+        .subscribe((messages: MessageModel[]) => {
+          if (messages.length) {
+            this.saveMessage(id, messages)
+          }
+        }),
+    )
 
     // Rate monitoring stream
     const rateCheck$ = messageSubject$.pipe(
@@ -1646,35 +1647,48 @@ export default class ConnectionsDetail extends Vue {
     )
 
     // Toggle buffer mode based on message rate
-    rateCheck$.subscribe((shouldEnableBuffer) => {
-      isBufferEnabled = shouldEnableBuffer
-      if (isBufferEnabled) {
-        this.$log.info(`Message buffer mode enabled (> ${MESSAGE_RATE_THRESHOLD}/s)`)
-      }
-    })
+    subscriptions.add(
+      rateCheck$.subscribe((shouldEnableBuffer) => {
+        isBufferEnabled = shouldEnableBuffer
+        if (isBufferEnabled) {
+          this.$log.info(`Message buffer mode enabled (> ${MESSAGE_RATE_THRESHOLD}/s)`)
+        }
+      }),
+    )
 
     // Handle message rendering with dynamic buffering
-    messageSubject$.subscribe((message) => {
-      if (!message) return
-      this.printMessageLog(id, message)
-      if (isBufferEnabled) {
-        messageBuffer$.next(message)
-      } else {
-        this.renderMessage(id, message)
-      }
-    })
+    subscriptions.add(
+      messageSubject$.subscribe((message) => {
+        if (!message) return
+        this.printMessageLog(id, message)
+        if (isBufferEnabled) {
+          messageBuffer$.next(message)
+        } else {
+          this.renderMessage(id, message)
+        }
+      }),
+    )
 
     // Buffer rendering stream
-    messageBuffer$
-      .pipe(
-        bufferTime(MESSAGES_BUFFER_TIME),
-        filter((messages) => messages.length > 0),
-      )
-      .subscribe((messages) => {
-        if (messages.length) {
-          this.renderMessage(id, messages)
-        }
-      })
+    subscriptions.add(
+      messageBuffer$
+        .pipe(
+          bufferTime(MESSAGES_BUFFER_TIME),
+          filter((messages) => messages.length > 0),
+        )
+        .subscribe((messages) => {
+          if (messages.length) {
+            this.renderMessage(id, messages)
+          }
+        }),
+    )
+
+    // Rebinding on another page tears this down first, so the client always keeps a single pipeline
+    bindMessagePipeline(client, () => {
+      unsubscribe$.next()
+      unsubscribe$.complete()
+      subscriptions.unsubscribe()
+    })
   }
 
   // Set timed message success
@@ -2166,28 +2180,18 @@ export default class ConnectionsDetail extends Vue {
     Object.keys(this.activeConnection).forEach((connectionID: string) => {
       const $connection = this.activeConnection[connectionID]
       const { client } = $connection
-      let msgEventCount = 0
-      if (client.listenerCount) {
-        msgEventCount = client.listenerCount('message')
-      }
-      if (client.connected && msgEventCount === 0) {
+      if (client.connected) {
+        // The client outlives the page, so it may still hold the previous page's pipeline; onMessageArrived
+        // replaces it, which keeps exactly one message listener bound to the page that is currently mounted
         this.onMessageArrived(client, connectionID)
+      } else {
+        // A stopped client has no messages to process; drop any pipeline a previous page left behind
+        tearDownMessagePipeline(client)
       }
       this.changeActiveConnection({
         id: connectionID,
         client,
       })
-    })
-  }
-
-  // Remove connected clients message event listeners
-  private removeClinetsMessageListener() {
-    Object.keys(this.activeConnection).forEach((connectionID: string) => {
-      const currentActiveConnection = this.activeConnection[connectionID]
-      const { client } = currentActiveConnection
-      if (client.removeAllListeners) {
-        client.removeAllListeners('message')
-      }
     })
   }
 
@@ -2255,7 +2259,8 @@ export default class ConnectionsDetail extends Vue {
 
   private toggleAgent(show = true) {
     const agentRef = this.getAncestorRef('agent') as AgentPanel
-    agentRef.showAgent = show
+    if (show) agentRef.open('float')
+    else agentRef.closePanel()
     return agentRef
   }
 
@@ -2272,8 +2277,26 @@ export default class ConnectionsDetail extends Vue {
     this.getConnectionValue(this.curConnectionId)
     this.connectionView = this.createConnectionView()
     connectionBridge.register(this.connectionView)
+    globalEventBus.on(AGENT_DATA_CHANGED, this.onAgentDataChanged)
     ipcRenderer.on('searchContent', () => {
       this.handleSearchOpen()
+    })
+  }
+
+  /** The agent cleared this connection's messages: empty the list without touching the database again */
+  private onAgentDataChanged({ domain, connectionId }: AgentDataChangedPayload) {
+    if (domain === 'messages' && connectionId === this.curConnectionId) this.resetMessages()
+  }
+
+  private resetMessages() {
+    this.recordMsgs.list = []
+    this.recordMsgs.total = 0
+    this.recordMsgs.publishedTotal = 0
+    this.recordMsgs.receivedTotal = 0
+    this.recordMsgs.page = 1
+    this.changeActiveConnection({
+      id: this.curConnectionId,
+      client: this.client,
     })
   }
 
@@ -2314,6 +2337,12 @@ export default class ConnectionsDetail extends Vue {
         new Promise<void>((resolve, reject) => {
           this.publishMessage(message, type, undefined, (error) => (error ? reject(error) : resolve()))
         }),
+      startTimedPublish: async (message, type, seconds) => {
+        this.sendFrequency = seconds
+        await this.sendMessage({ ...message }, type)
+      },
+      stopTimedPublish: () => this.stopTimedSend(),
+      isTimedPublishing: () => this.sendTimeId !== null,
       deleteConnection: () => this.deleteConnection(this.record),
       reload: () => new Promise<void>((resolve) => this.$emit('reload', false, false, resolve)),
     }
@@ -2335,7 +2364,9 @@ export default class ConnectionsDetail extends Vue {
       this.connectionView = null
     }
     ipcRenderer.removeAllListeners('searchContent')
-    this.removeClinetsMessageListener()
+    globalEventBus.off(AGENT_DATA_CHANGED, this.onAgentDataChanged)
+    // The message listeners stay on the clients: leaving the page must not stop receiving and saving
+    // messages. The next page instance rebinds them (see onMessageArrived).
     this.stopTimedSend()
     this.forceStopToReconnect()
     window.removeEventListener('resize', () => {

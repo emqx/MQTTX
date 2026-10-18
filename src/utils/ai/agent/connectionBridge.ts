@@ -17,6 +17,10 @@ export interface ConnectionView {
   subscribe(sub: Partial<SubscriptionModel> & { topic: string; qos: QoS }): Promise<void>
   unsubscribe(topic: string): Promise<boolean>
   publish(message: MessageModel, type: PayloadType): Promise<void>
+  /** Publish once and then keep publishing every `seconds` seconds until stopTimedPublish() */
+  startTimedPublish(message: MessageModel, type: PayloadType, seconds: number): Promise<void>
+  stopTimedPublish(): void
+  isTimedPublishing(): boolean
   deleteConnection(): Promise<void>
   /** Reload the record and the connection list from the database */
   reload(): Promise<void>

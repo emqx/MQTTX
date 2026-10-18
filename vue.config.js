@@ -19,6 +19,7 @@ module.exports = {
     // build, which webpack 4 can parse.
     const aliases = {
       '@ai-sdk/provider-utils/experimental-decision$': require.resolve('@ai-sdk/provider-utils/experimental-decision'),
+      '@ai-sdk/anthropic/internal$': require.resolve('@ai-sdk/anthropic/internal'),
       '@ai-sdk/deepseek/internal$': require.resolve('@ai-sdk/deepseek/internal'),
       '@ai-sdk/openai/internal$': require.resolve('@ai-sdk/openai/internal'),
       'eventsource-parser/stream$': require.resolve('eventsource-parser/stream', {
@@ -47,6 +48,16 @@ module.exports = {
     config.module
       .rule('txt')
       .test(/\.txt$/)
+      .use('raw-loader')
+      .loader('raw-loader')
+      .end()
+
+    // The repository's published MQTTX CLI skill is Markdown; only handle skills/**/*.md as raw text
+    config.module
+      .rule('skill-markdown')
+      .test(/\.md$/)
+      .include.add(path.resolve(__dirname, 'skills'))
+      .end()
       .use('raw-loader')
       .loader('raw-loader')
       .end()

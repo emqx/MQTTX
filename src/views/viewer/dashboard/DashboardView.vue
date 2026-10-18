@@ -113,7 +113,7 @@ export default class DashboardCanvas extends Vue {
   @Prop({ type: String, required: false, default: null }) readonly dashboardId!: string | null
   @Prop({ type: Array, default: () => [] }) readonly widgets!: WidgetModel[]
   @Prop({ type: Array, default: () => ['', ''] }) readonly timeRange!: [string, string]
-  @Prop({ type: String, default: 'static' }) readonly timeRangeType!: 'live' | 'static'
+  @Prop({ type: String, default: 'live' }) readonly timeRangeType!: 'live' | 'static'
   @Prop({ type: Number, default: 24 * 60 }) readonly duration!: number
 
   private widgetDataStore: Record<string, WidgetDataEntry> = {}

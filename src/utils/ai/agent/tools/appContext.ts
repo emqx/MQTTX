@@ -12,6 +12,13 @@ export interface AppContext {
     mqttVersion?: string
     url?: string
   } | null
+  appliedScript: {
+    apply: string
+    function: string | null
+    schema: string | null
+    schemaType: string | null
+    protoName: string | null
+  } | null
   permissionMode: PermissionMode
 }
 
@@ -20,6 +27,7 @@ export const buildAppContext = (deps: AgentToolDeps): AppContext => {
   const route = deps.router.currentRoute
   const view = deps.bridge.current()
   const record = view?.record
+  const applied = (deps.store.getters.currentScript as ScriptState | null) ?? null
   return {
     page: route.path,
     currentConnection:
@@ -32,6 +40,15 @@ export const buildAppContext = (deps: AgentToolDeps): AppContext => {
             url: `${record.protocol}://${record.host}:${record.port}`,
           }
         : null,
+    appliedScript: applied
+      ? {
+          apply: applied.apply,
+          function: applied.function?.name ?? null,
+          schema: applied.schema?.name ?? null,
+          schemaType: applied.schema?.type ?? null,
+          protoName: applied.config?.name ?? null,
+        }
+      : null,
     permissionMode: deps.getPermissionMode(),
   }
 }
@@ -47,6 +64,16 @@ export const renderAppContext = (context: AppContext): string => {
     )
   } else {
     lines.push('- Current connection: none')
+  }
+  if (context.appliedScript) {
+    const { function: fn, schema, schemaType, protoName, apply } = context.appliedScript
+    const parts = [
+      fn,
+      schema ? `${schema}${schemaType ? ` (${schemaType}${protoName ? `, message ${protoName}` : ''})` : ''}` : null,
+    ].filter(Boolean)
+    lines.push(`- Applied script: ${parts.join(' + ')} (apply: ${apply})`)
+  } else {
+    lines.push('- Applied script: none')
   }
   lines.push(`- Permission mode: ${context.permissionMode}`)
   return lines.join('\n')

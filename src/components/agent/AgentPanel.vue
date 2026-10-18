@@ -1,92 +1,118 @@
 <template>
-  <div
-    v-show="showAgent"
-    id="agent"
-    class="agent-panel"
-    :class="{ 'is-full': mode === 'full', 'is-empty': isEmpty, 'is-narrow': isNarrow }"
-    :style="panelStyle"
-    @keydown.esc="onEsc"
-  >
-    <div v-if="mode === 'side'" class="resize-handle" :title="$t('agent.resize')" @mousedown="startResize"></div>
-    <div class="agent-body">
-      <agent-sidebar
-        v-if="mode === 'full'"
-        :conversations="conversations"
-        :active-id="conversationId"
-        :running-id="runningConversationId"
-        @new-chat="newConversation"
-        @select="selectConversation"
-        @rename="renameConversation"
-        @delete="deleteConversation"
-      />
-      <div class="chat" @click="showHistory = false">
-        <agent-header
-          :mode="mode"
-          :conversation-title="currentTitle"
-          @history="toggleHistory"
+  <transition name="agent-pop">
+    <div
+      v-show="showAgent"
+      id="agent"
+      class="agent-panel"
+      :class="{ 'is-full': mode === 'full', 'is-empty': isEmpty, 'is-narrow': isNarrow, 'is-dragging': dragging }"
+      :style="panelStyle"
+      @keydown.esc="onEsc"
+      @dragenter.prevent="onDragEnter"
+      @dragover.prevent
+      @dragleave="onDragLeave"
+      @drop.prevent="onDrop"
+    >
+      <div v-if="fileDropActive" class="drop-overlay">
+        <div class="drop-overlay-text">{{ $t('agent.attachments.dropHere') }}</div>
+      </div>
+      <template v-if="mode === 'float'">
+        <div
+          v-for="edge in edges"
+          :key="edge"
+          class="float-handle"
+          :class="`edge-${edge}`"
+          @mousedown.prevent="startFloatResize(edge, $event)"
+        ></div>
+      </template>
+      <div class="agent-body">
+        <agent-sidebar
+          v-if="mode === 'full'"
+          :class="{ 'is-collapsed': historyCollapsed, 'is-resizing': historyResizing }"
+          :style="{ width: `${historyCollapsed ? 0 : historyWidth}px`, '--agent-history-inner': `${historyWidth}px` }"
+          :conversations="conversations"
+          :active-id="conversationId"
+          :running-id="runningConversationId"
           @new-chat="newConversation"
-          @toggle-full="toggleFull"
-          @close="closePanel"
-          @rename="renameActiveConversation"
+          @select="selectConversation"
+          @rename="renameConversation"
+          @delete="deleteConversation"
         />
+        <div
+          v-if="mode === 'full' && !historyCollapsed"
+          class="history-resize"
+          :title="$t('agent.resize')"
+          @mousedown.prevent="startHistoryResize"
+        ></div>
+        <div class="chat" @click="showHistory = false">
+          <agent-header
+            :mode="mode"
+            :conversation-title="currentTitle"
+            :sidebar-collapsed="historyCollapsed"
+            @mousedown.native="startFloatDrag"
+            @history="toggleHistory"
+            @new-chat="newConversation"
+            @toggle-full="toggleFull"
+            @toggle-sidebar="toggleSidebar"
+            @close="closePanel"
+            @rename="renameActiveConversation"
+          />
 
-        <!-- History dropdown (side mode) -->
-        <div v-if="showHistory && mode === 'side'" class="history-dropdown" @click.stop>
-          <button class="new-chat" @click="newConversation">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-            {{ $t('agent.newChat') }}
-          </button>
-          <div
-            v-for="conversation in conversations"
-            :key="conversation.id"
-            class="conv"
-            :class="{ active: conversation.id === conversationId }"
-            @click="selectConversation(conversation.id)"
-          >
-            <span :title="conversation.title || $t('agent.untitled')">{{
-              conversation.title || $t('agent.untitled')
-            }}</span>
-            <i v-if="conversation.id === runningConversationId" class="live"></i>
+          <!-- History dropdown (float mode) -->
+          <div v-if="showHistory && mode === 'float'" class="history-dropdown" @click.stop>
+            <button class="new-chat" @click="newConversation">
+              <i class="el-icon-plus"></i>
+              {{ $t('agent.newChat') }}
+            </button>
+            <div
+              v-for="conversation in conversations"
+              :key="conversation.id"
+              class="conv"
+              :class="{ active: conversation.id === conversationId }"
+              @click="selectConversation(conversation.id)"
+            >
+              <span :title="conversation.title || $t('agent.untitled')">{{
+                conversation.title || $t('agent.untitled')
+              }}</span>
+              <i v-if="conversation.id === runningConversationId" class="live"></i>
+            </div>
           </div>
+
+          <agent-messages
+            ref="messages"
+            :messages="messages"
+            :streaming-message="streamingMessage"
+            :is-sending="isSending"
+            :connection-names="connectionNames"
+            :error-message="errorMessage"
+            @load-more="loadMoreMessages"
+            @approve="handleApproval"
+            @continue="handleContinue"
+            @regenerate="regenerate"
+            @retry="regenerate"
+            @copy="copyText"
+            @view="viewConnection"
+            @suggest="sendMessage"
+          />
+
+          <agent-composer
+            ref="composer"
+            v-model="currentPublishMsg"
+            :disabled="isSending || isResponseStream"
+            :is-response-streaming="isResponseStream"
+            :permission-mode="permissionMode"
+            :connection-name="currentConnectionName"
+            :connected="currentConnected"
+            :model="model"
+            @send="sendMessage"
+            @abort-response="abortAIResponse"
+            @update:permissionMode="setPermissionMode"
+            @update:model="setModel"
+            @open-settings="goToSettings"
+          />
         </div>
-
-        <agent-messages
-          ref="messages"
-          :messages="messages"
-          :streaming-message="streamingMessage"
-          :is-sending="isSending"
-          :connection-names="connectionNames"
-          :error-message="errorMessage"
-          @load-more="loadMoreMessages"
-          @approve="handleApproval"
-          @continue="handleContinue"
-          @regenerate="regenerate"
-          @copy="copyText"
-          @retry="retry"
-          @view="viewConnection"
-          @suggest="sendMessage"
-        />
-
-        <agent-composer
-          ref="composer"
-          v-model="currentPublishMsg"
-          :disabled="isSending || isResponseStream"
-          :is-response-streaming="isResponseStream"
-          :permission-mode="permissionMode"
-          :connection-name="currentConnectionName"
-          :connected="currentConnected"
-          :model="model"
-          @send="sendMessage"
-          @abort-response="abortAIResponse"
-          @preset-change="handleInputPresetChange"
-          @update:permission-mode="setPermissionMode"
-          @open-settings="goToSettings"
-        />
       </div>
     </div>
-  </div>
+  </transition>
 </template>
 
 <script lang="ts">
@@ -99,16 +125,41 @@ import AgentSidebar from './AgentSidebar.vue'
 import AgentMessages from './AgentMessages.vue'
 import AgentComposer from './AgentComposer.vue'
 import ConnectionsIndex from '@/views/connections/index.vue'
-import { AgentMessage, AgentPresetPrompt } from '@/types/agent'
-import { needsUserInput } from '@/utils/ai/preset'
-import { SessionManager } from '@/utils/ai/agent/SessionManager'
+import { AgentAttachmentPart, AgentMessage, AgentMessagePart } from '@/types/agent'
 import { MQTTXAgent } from '@/utils/ai/agent/MQTTXAgent'
 import { setToolState } from '@/utils/ai/agent/messageParts'
+import { describeAgentError } from '@/utils/ai/agent/errors'
+import { deleteConversationFiles } from '@/utils/ai/agent/files'
+import { materializeAttachments, OutgoingMessage } from '@/utils/ai/agent/attachments'
 import { ApprovalGate } from '@/utils/ai/agent/approval'
 import type { ApprovalDecision, PermissionMode } from '@/utils/ai/agent/approval'
 import { connectionBridge } from '@/utils/ai/agent/connectionBridge'
 import { AgentToolDeps } from '@/utils/ai/agent/tools/types'
 import { globalEventBus } from '@/utils/globalEventBus'
+import {
+  AGENT_ROUTE_NAME,
+  agentRouteLocation,
+  isAgentRoute,
+  leaveFullScreenTarget,
+  panelModeForRoute,
+  previousLocationForRoute,
+} from '@/utils/ai/agent/agentRoute'
+import {
+  isAutoConfirmedInSession,
+  readSessionPermissionMode,
+  rememberAutoConfirmed,
+  resolveInitialPermissionMode,
+  writeSessionPermissionMode,
+} from '@/utils/ai/agent/permissionMode'
+import type { Route } from 'vue-router'
+import {
+  clampFloatRect,
+  defaultFloatRect,
+  moveFloatRect,
+  resizeFloatRect,
+  FloatRect,
+  ResizeEdge,
+} from '@/utils/ai/agent/floatRect'
 
 type Conversation = { id: string; title: string; updateAt: string }
 
@@ -123,10 +174,19 @@ export default class AgentPanel extends Vue {
   @Getter('agentPermissionMode') private defaultPermissionMode!: PermissionMode
   @Getter('agentMaxSteps') private agentMaxSteps!: number
 
-  public showAgent = false
-  private mode: 'side' | 'full' = 'side'
-  private panelWidth = 480
-  // window.innerWidth is not reactive, so the 70vw cap follows this copy
+  // Full screen is the Agent route; the float window is a local flag. The panel is a singleton in
+  // Home.vue so a running reply, approval or stream keeps working when the mode changes.
+  private floatOpen = false
+  private exitingFull: 'float' | 'close' | null = null
+  private previousLocation: string | null = null
+  private floatRect: FloatRect = defaultFloatRect({ width: window.innerWidth, height: window.innerHeight })
+  private dragging = false
+  private edges: ResizeEdge[] = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw']
+  private historyWidth = 220
+  private historyCollapsed = false
+  // Dragging the edge resizes immediately; only the toggle animates the width
+  private historyResizing = false
+  // window.innerWidth is not reactive, so the full page width follows this copy
   private windowWidth = window.innerWidth
   private conversations: Conversation[] = []
   private conversationId: string | null = null
@@ -143,15 +203,14 @@ export default class AgentPanel extends Vue {
   private permissionMode: PermissionMode = 'ask'
   private autoConfirmed = false
   private showHistory = false
-  private currPresetPrompt = ''
+  private dragDepth = 0
+  private lastStatus: { open: boolean; running: boolean; awaiting: boolean } | null = null
 
-  private sessionManager = new SessionManager()
   private aiAgent: MQTTXAgent | null = null
   private gate = new ApprovalGate()
   private allowedTools = new Set<string>()
   private pendingStreamMessage: AgentMessage | null = null
   private updateFrame: number | null = null
-  private resizing = false
   private runConversationId: string | null = null
   // The open "needs approval" notification, closed once nothing waits anymore
   private awaitingNotice: { close: () => void } | null = null
@@ -161,14 +220,27 @@ export default class AgentPanel extends Vue {
     return this.messages.length === 0 && !this.isSending && !this.streamingMessage
   }
 
+  /** The route is the only source of full screen; the float window is a local flag */
+  get isFullRoute(): boolean {
+    return isAgentRoute(this.$route.name)
+  }
+
+  get mode(): 'float' | 'full' {
+    return panelModeForRoute(this.$route.name)
+  }
+
+  get showAgent(): boolean {
+    return this.isFullRoute || this.floatOpen
+  }
+
   get panelStyle(): Record<string, string> {
     if (this.mode === 'full') return {}
-    const max = Math.max(360, Math.round(this.windowWidth * 0.7))
-    return { width: `${Math.min(this.panelWidth, max)}px` }
+    const { x, y, width, height } = this.floatRect
+    return { left: `${x}px`, top: `${y}px`, width: `${width}px`, height: `${height}px` }
   }
 
   get isNarrow(): boolean {
-    const width = this.mode === 'full' ? this.windowWidth : parseInt(this.panelStyle.width, 10)
+    const width = this.mode === 'full' ? this.windowWidth : this.floatRect.width
     return width < 420
   }
 
@@ -203,63 +275,201 @@ export default class AgentPanel extends Vue {
       store: this.$store as any,
       router: this.$router as any,
       getPermissionMode: () => this.permissionMode,
+      getConversationId: () => this.conversationId ?? '',
     }
   }
 
   // ---------- panel shell ----------
 
-  public togglePanel(): void {
-    this.showAgent = !this.showAgent
-    if (this.showAgent) {
-      this.restoreMode()
-      this.loadConversations()
+  /**
+   * The entry decides the mode: the Leftbar, Cmd/Ctrl+J and the full screen button open the Agent
+   * page; the Agent buttons on the connection and script pages open the float window
+   */
+  public open(mode: 'float' | 'full'): void {
+    const wasOpen = this.showAgent
+    if (mode === 'full') {
+      this.floatOpen = false
+      if (!this.isFullRoute) {
+        this.$router.push(agentRouteLocation(this.conversationId)).catch(() => undefined)
+      }
+    } else {
+      this.floatOpen = true
     }
+    if (!wasOpen) this.loadConversations()
+    this.emitStatus()
+    // Focus the composer when the window opens, but not when it only changed mode
+    if (!wasOpen) {
+      this.$nextTick(() => (this.$refs.composer as AgentComposer | undefined)?.focus())
+    }
+  }
+
+  public closePanel(): void {
+    if (this.isFullRoute) {
+      this.exitFullScreen('close')
+      return
+    }
+    this.floatOpen = false
     this.emitStatus()
   }
 
-  private closePanel() {
-    this.showAgent = false
-    this.emitStatus()
+  /**
+   * Leaves the Agent page for the page the user came from. `float` keeps the panel open as the float
+   * window; `close` hides it.
+   */
+  private exitFullScreen(intent: 'float' | 'close'): void {
+    this.exitingFull = intent
+    if (intent === 'close') this.floatOpen = false
+    const target = leaveFullScreenTarget(this.previousLocation)
+    this.previousLocation = null
+    this.$router.push(target).catch(() => undefined)
+  }
+
+  /** Closes the panel and goes to another page, used when the Agent needs a key or a settings change */
+  private closeAndGo(location: { name: string }): void {
+    this.floatOpen = false
+    if (this.isFullRoute) {
+      this.exitingFull = 'close'
+      this.previousLocation = null
+    }
+    this.$router.push(location).catch(() => undefined)
   }
 
   private toggleFull() {
-    this.mode = this.mode === 'full' ? 'side' : 'full'
-    localStorage.setItem('agentPanelMode', this.mode)
-    this.emitStatus()
+    if (this.isFullRoute) {
+      this.exitFullScreen('float')
+    } else {
+      this.open('full')
+    }
   }
 
-  private restoreMode() {
-    const stored = localStorage.getItem('agentPanelMode')
-    if (stored === 'full' || stored === 'side') this.mode = stored
-    const width = Number(localStorage.getItem('agentPanelWidth'))
-    if (width >= 360) this.panelWidth = width
+  private restoreWidth() {
+    const historyWidth = Number(localStorage.getItem('agentHistoryWidth'))
+    if (historyWidth >= 180) this.historyWidth = historyWidth
+    this.historyCollapsed = localStorage.getItem('agentHistoryCollapsed') === 'true'
+  }
+
+  private loadFloatRect(): FloatRect {
+    const viewport = this.getViewport()
+    try {
+      const stored = localStorage.getItem('agentFloatRect')
+      if (stored) {
+        const rect = JSON.parse(stored) as Partial<FloatRect>
+        if (['x', 'y', 'width', 'height'].every((key) => typeof rect[key as keyof FloatRect] === 'number')) {
+          return clampFloatRect(rect as FloatRect, viewport)
+        }
+      }
+    } catch {
+      // fall back to the default position
+    }
+    return clampFloatRect(defaultFloatRect(viewport), viewport)
+  }
+
+  private toggleSidebar() {
+    this.historyCollapsed = !this.historyCollapsed
+    localStorage.setItem('agentHistoryCollapsed', String(this.historyCollapsed))
+  }
+
+  /** Runs `onMove` for every mouse move until the button is released, then calls `onEnd` */
+  private trackMouse(onMove: (event: MouseEvent) => void, onEnd: () => void) {
+    const up = () => {
+      onEnd()
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', up)
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', up)
+  }
+
+  /** Dragging the history edge resizes it; dragging it nearly shut hides it, dragging back reopens it */
+  private startHistoryResize(event: MouseEvent) {
+    const startX = event.clientX
+    const startWidth = this.historyWidth
+    this.historyResizing = true
+    this.trackMouse(
+      (move) => {
+        const width = startWidth + move.clientX - startX
+        this.historyCollapsed = width < 120
+        if (!this.historyCollapsed) this.historyWidth = Math.min(360, Math.max(180, width))
+      },
+      () => {
+        this.historyResizing = false
+        localStorage.setItem('agentHistoryWidth', String(this.historyWidth))
+        localStorage.setItem('agentHistoryCollapsed', String(this.historyCollapsed))
+      },
+    )
+  }
+
+  // ---------- file drop ----------
+
+  get fileDropActive(): boolean {
+    return this.dragDepth > 0
+  }
+
+  private hasDraggedFiles(event: DragEvent): boolean {
+    return Array.from(event.dataTransfer?.types ?? []).includes('Files')
+  }
+
+  private onDragEnter(event: DragEvent) {
+    if (this.hasDraggedFiles(event)) this.dragDepth += 1
+  }
+
+  private onDragLeave() {
+    this.dragDepth = Math.max(0, this.dragDepth - 1)
+  }
+
+  private onDrop(event: DragEvent) {
+    this.dragDepth = 0
+    const files = Array.from(event.dataTransfer?.files ?? [])
+    if (files.length) (this.$refs.composer as AgentComposer | undefined)?.addFiles(files)
   }
 
   private onEsc() {
     if ((document.activeElement as HTMLElement)?.closest('.approval')) return
-    if (this.mode === 'full') {
-      this.mode = 'side'
-      localStorage.setItem('agentPanelMode', this.mode)
-      this.emitStatus()
+    if (this.isFullRoute) {
+      this.exitFullScreen('float')
+    } else {
+      this.closePanel()
     }
   }
 
-  private startResize(event: MouseEvent) {
-    this.resizing = true
+  private getViewport() {
+    return { width: window.innerWidth, height: window.innerHeight }
+  }
+
+  /** Drags the float window by its title bar; buttons and inputs keep their own behavior */
+  private startFloatDrag(event: MouseEvent) {
+    if (this.mode !== 'float') return
+    if ((event.target as HTMLElement).closest('button, input, textarea, a, .el-dropdown')) return
+    event.preventDefault()
     const startX = event.clientX
-    const startWidth = this.panelStyle.width ? parseInt(this.panelStyle.width, 10) : this.panelWidth
-    const onMove = (move: MouseEvent) => {
-      const max = Math.max(360, Math.round(window.innerWidth * 0.7))
-      this.panelWidth = Math.min(max, Math.max(360, startWidth + (startX - move.clientX)))
-    }
-    const onUp = () => {
-      this.resizing = false
-      localStorage.setItem('agentPanelWidth', String(this.panelWidth))
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseup', onUp)
-    }
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup', onUp)
+    const startY = event.clientY
+    const start = { ...this.floatRect }
+    this.dragging = true
+    this.trackMouse(
+      (move) => {
+        this.floatRect = moveFloatRect(start, move.clientX - startX, move.clientY - startY, this.getViewport())
+      },
+      () => {
+        this.dragging = false
+        localStorage.setItem('agentFloatRect', JSON.stringify(this.floatRect))
+      },
+    )
+  }
+
+  private startFloatResize(edge: ResizeEdge, event: MouseEvent) {
+    const startX = event.clientX
+    const startY = event.clientY
+    const start = { ...this.floatRect }
+    this.dragging = true
+    this.trackMouse(
+      (move) => {
+        this.floatRect = resizeFloatRect(start, edge, move.clientX - startX, move.clientY - startY, this.getViewport())
+      },
+      () => {
+        this.dragging = false
+        localStorage.setItem('agentFloatRect', JSON.stringify(this.floatRect))
+      },
+    )
   }
 
   private toggleHistory() {
@@ -268,19 +478,30 @@ export default class AgentPanel extends Vue {
 
   private emitStatus() {
     const awaiting = this.hasAwaitingApproval
-    globalEventBus.emit('agent:open', { open: this.showAgent, full: this.mode === 'full' })
-    globalEventBus.emit('agent:status', { running: this.isResponseStream, awaiting })
-    if (awaiting && !this.showAgent && !this.awaitingNotice) {
+    const open = this.showAgent
+    const running = this.isResponseStream
+    // The status dot and the notice only depend on these values, so an unchanged status is not broadcast again
+    if (
+      this.lastStatus &&
+      this.lastStatus.open === open &&
+      this.lastStatus.running === running &&
+      this.lastStatus.awaiting === awaiting
+    ) {
+      return
+    }
+    this.lastStatus = { open, running, awaiting }
+    globalEventBus.emit('agent:status', { running, awaiting })
+    if (awaiting && !open && !this.awaitingNotice) {
       this.awaitingNotice = this.$notify({
         title: this.$t('agent.needsApproval') as string,
         message: '',
         type: 'warning',
         duration: 6000,
         offset: 30,
-        onClick: () => this.togglePanel(),
+        onClick: () => this.open(this.mode),
       })
     }
-    if ((!awaiting || this.showAgent) && this.awaitingNotice) {
+    if ((!awaiting || open) && this.awaitingNotice) {
       this.awaitingNotice.close()
       this.awaitingNotice = null
     }
@@ -299,10 +520,46 @@ export default class AgentPanel extends Vue {
       const created = await agentConversationService.create('')
       this.conversations = [created as Conversation]
     }
-    if (!this.conversationId || !this.conversations.some((c) => c.id === this.conversationId)) {
+    // A reload or a deep link on /agent/<id> asks for one specific conversation
+    const requested = this.isFullRoute ? (this.$route.params.conversationId as string | undefined) : undefined
+    if (requested && this.conversations.some((c) => c.id === requested)) {
+      this.conversationId = requested
+    } else if (!this.conversationId || !this.conversations.some((c) => c.id === this.conversationId)) {
       this.conversationId = this.conversations[0].id
     }
+    this.updateRouteConversation()
     await this.loadMessages({ reset: true })
+  }
+
+  /** Mirrors the active conversation into the URL while the Agent page is open */
+  private updateRouteConversation(): void {
+    if (!this.isFullRoute || !this.conversationId) return
+    const requested = this.$route.params.conversationId as string | undefined
+    if (requested === this.conversationId) return
+    this.$router.replace(agentRouteLocation(this.conversationId)).catch(() => undefined)
+  }
+
+  @Watch('$route')
+  private async onRouteChange(to: Route, from: Route) {
+    const wasFull = from.name === AGENT_ROUTE_NAME
+    const isFull = isAgentRoute(to.name)
+    if (isFull && !wasFull) {
+      // Remember where the full page was opened from, to return there on exit
+      this.previousLocation = previousLocationForRoute(from)
+    }
+    if (wasFull && !isFull) {
+      // Another page replaced the full Agent: shrink to the float window unless the exit meant to close
+      this.floatOpen = this.exitingFull !== 'close'
+      this.exitingFull = null
+    }
+    this.emitStatus()
+    if (isFull) {
+      const requested = to.params.conversationId as string | undefined
+      if (requested && requested !== this.conversationId && this.conversations.some((c) => c.id === requested)) {
+        await this.selectConversation(requested)
+      }
+      this.updateRouteConversation()
+    }
   }
 
   private async newConversation() {
@@ -316,6 +573,7 @@ export default class AgentPanel extends Vue {
     this.hasMore = true
     this.errorMessage = null
     this.showHistory = false
+    this.updateRouteConversation()
   }
 
   private async selectConversation(id: string) {
@@ -325,6 +583,7 @@ export default class AgentPanel extends Vue {
     this.errorMessage = null
     this.showHistory = false
     await this.loadMessages({ reset: true })
+    this.updateRouteConversation()
   }
 
   private async deleteConversation(id: string) {
@@ -337,12 +596,14 @@ export default class AgentPanel extends Vue {
     }
     const { agentConversationService } = useServices()
     await agentConversationService.delete(id)
+    await deleteConversationFiles(id)
     this.conversations = this.conversations.filter((conversation) => conversation.id !== id)
     if (!this.conversations.length) {
       await this.newConversation()
     } else if (this.conversationId === id) {
       this.conversationId = this.conversations[0].id
       await this.loadMessages({ reset: true })
+      this.updateRouteConversation()
     }
   }
 
@@ -381,25 +642,43 @@ export default class AgentPanel extends Vue {
 
   private setPermissionMode(mode: PermissionMode) {
     if (mode === 'auto' && !this.autoConfirmed) {
-      this.autoConfirmed = true
       this.$confirm(this.$t('agent.autoConfirm') as string, this.$t('common.warning') as string, {
         type: 'warning',
-      }).catch(() => {
-        this.permissionMode = 'ask'
       })
+        .then(() => {
+          this.autoConfirmed = true
+          rememberAutoConfirmed()
+          this.applyPermissionMode('auto')
+        })
+        .catch(() => undefined)
+      return
     }
-    this.permissionMode = mode
+    this.applyPermissionMode(mode)
   }
 
+  /** Applies the mode and remembers it for this session, so a reload keeps it */
+  private applyPermissionMode(mode: PermissionMode) {
+    this.permissionMode = mode
+    writeSessionPermissionMode(mode)
+  }
+
+  /** The settings default applies only while this session has not picked a mode itself */
+  @Watch('defaultPermissionMode')
+  private onDefaultPermissionModeChange(mode: PermissionMode) {
+    if (readSessionPermissionMode() === null) this.permissionMode = mode
+  }
+
+  private setModel(model: App['model']) {
+    this.$store.dispatch('SET_MODEL', { model })
+  }
+
+  /** The float window would cover the settings form, so the panel closes in both modes */
   private goToSettings() {
-    this.$router.push({ name: 'Settings' })
+    this.closeAndGo({ name: 'Settings' })
   }
 
   private viewConnection(connectionId: string) {
-    if (this.mode === 'full') {
-      this.mode = 'side'
-      localStorage.setItem('agentPanelMode', this.mode)
-    }
+    // Leaving the Agent route turns the full page into the float window
     this.$router.push(`/recent_connections/${connectionId}`).catch(() => undefined)
   }
 
@@ -410,20 +689,24 @@ export default class AgentPanel extends Vue {
 
   // ---------- messages ----------
 
-  public async sendMessage(msg?: string) {
-    if (!(await this.checkAPIKey())) return
+  public async sendMessage(payload?: string | OutgoingMessage) {
+    const content = typeof payload === 'string' ? payload : payload?.content ?? ''
+    const pending = typeof payload === 'string' ? [] : payload?.attachments ?? []
+    const skill = typeof payload === 'string' ? undefined : payload?.skill
+    if (!content && !pending.length && !skill) return
 
-    const content = msg || this.currentPublishMsg
-    if (!content) return
+    if (!(await this.checkAPIKey())) return
 
     if (!this.conversationId) {
       await this.loadConversations()
     }
+    if (!this.conversationId) return
 
     this.errorMessage = null
-    this.sessionManager.startSession()
 
-    await this.saveUserMessage(content)
+    const parts: AgentMessagePart[] = await materializeAttachments(pending, this.conversationId)
+    if (skill) parts.push({ type: 'skill', skill: skill.skill })
+    await this.saveUserMessage(content, parts)
     await this.generateAIResponse()
   }
 
@@ -434,19 +717,20 @@ export default class AgentPanel extends Vue {
         type: 'warning',
         confirmButtonText: this.$tc('agent.goToSetting'),
       })
-      this.$router.push({ name: 'Settings' })
+      this.closeAndGo({ name: 'Settings' })
     } catch {
       // ignore cancel
     }
     return false
   }
 
-  private async saveUserMessage(content: string): Promise<void> {
+  private async saveUserMessage(content: string, parts: AgentMessagePart[] = []): Promise<void> {
     const { agentMessageService, agentConversationService } = useServices()
     const requestMessage: AgentMessage = {
       id: getAgentMessageId(),
       role: 'user',
       content,
+      parts: parts.length ? parts : undefined,
       conversationId: this.conversationId ?? undefined,
     }
 
@@ -457,7 +741,8 @@ export default class AgentPanel extends Vue {
     // The first user message names the conversation
     const conversation = this.conversations.find((item) => item.id === this.conversationId)
     if (conversation && !conversation.title) {
-      const title = content.slice(0, 40)
+      const firstAttachment = parts.find((part): part is AgentAttachmentPart => part.type === 'attachment')
+      const title = (content || firstAttachment?.name || '').slice(0, 40)
       await agentConversationService.rename(conversation.id, title)
       conversation.title = title
     }
@@ -465,7 +750,10 @@ export default class AgentPanel extends Vue {
   }
 
   private async generateAIResponse(): Promise<void> {
-    await this.refreshConnectionNames()
+    // The names are only needed while rendering tool steps, so this does not block the request
+    this.refreshConnectionNames().catch((error) =>
+      this.$log.warn(`[Agent] Failed to refresh connection names: ${error}`),
+    )
     this.initializeAgent()
     if (!this.aiAgent) throw new Error('AI Agent not initialized')
 
@@ -483,7 +771,6 @@ export default class AgentPanel extends Vue {
       openAIAPIKey: this.openAIAPIKey,
       model: this.model,
       currentLang: this.currentLang,
-      sessionManager: this.sessionManager,
       deps: this.buildDeps(),
       gate: this.gate,
       allowedTools: this.allowedTools,
@@ -493,7 +780,7 @@ export default class AgentPanel extends Vue {
       },
       onUpdate: (responseMessage) => this.scheduleStreamUpdate(responseMessage),
       onError: async (error, partialMessage) => {
-        this.errorMessage = error?.toString() ?? String(error)
+        this.errorMessage = describeAgentError(error)
         this.$message.error(`[Agent] API Error: ${this.errorMessage}`)
         this.$log.error(`[Agent] API Error: ${this.errorMessage}`)
         await this.finishWithMessage(partialMessage)
@@ -516,7 +803,6 @@ export default class AgentPanel extends Vue {
       if (this.pendingStreamMessage) {
         this.streamingMessage = this.pendingStreamMessage
         this.syncConnectionNames(this.pendingStreamMessage)
-        if ((this.$refs.messages as AgentMessages | undefined)?.isNearBottom()) this.scrollToBottom()
       }
       this.emitStatus()
     })
@@ -552,7 +838,6 @@ export default class AgentPanel extends Vue {
   private resetResponseState(): void {
     this.isSending = false
     this.isResponseStream = false
-    this.currPresetPrompt = ''
     this.emitStatus()
   }
 
@@ -583,10 +868,6 @@ export default class AgentPanel extends Vue {
     }
     this.errorMessage = null
     await this.generateAIResponse()
-  }
-
-  private async retry(): Promise<void> {
-    await this.regenerate()
   }
 
   /**
@@ -653,27 +934,6 @@ export default class AgentPanel extends Vue {
     ;(this.$refs.messages as AgentMessages | undefined)?.scrollToBottom(behavior)
   }
 
-  private async handleInputPresetChange(data: AgentPresetPrompt) {
-    this.stopRun()
-    await this.newConversation()
-    this.currPresetPrompt = data.prompt
-    this.sessionManager.updatePreset(data.prompt)
-
-    const promptValue = data.promptMap[this.currPresetPrompt]
-    if (typeof promptValue === 'object' && typeof promptValue.system === 'string') {
-      this.messages.push({ id: getAgentMessageId(), role: 'system', content: promptValue.system })
-    }
-    const userPrompt = typeof promptValue === 'object' && 'user' in promptValue ? promptValue.user : promptValue
-    if (typeof userPrompt === 'string') {
-      this.currentPublishMsg = userPrompt
-      if (needsUserInput.includes(this.currPresetPrompt)) {
-        this.$nextTick(() => (this.$refs.composer as AgentComposer | undefined)?.focus())
-        return
-      }
-      this.sendMessage(this.currentPublishMsg)
-    }
-  }
-
   private abortAIResponse(): void {
     this.aiAgent?.abort()
     this.gate.denyAll()
@@ -682,8 +942,35 @@ export default class AgentPanel extends Vue {
   private onGlobalKeydown(event: KeyboardEvent) {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'j') {
       event.preventDefault()
-      this.togglePanel()
+      if (this.showAgent) this.closePanel()
+      else this.open('full')
     }
+  }
+
+  /**
+   * Switching modes while the panel stays open: full screen grows out of the float window (a clip, so the
+   * content never stretches), and the float window pops in like it does when opened.
+   * Runs before the re-render, so the panel still has its old size here.
+   */
+  @Watch('mode')
+  private animateModeChange(mode: 'float' | 'full') {
+    const panel = this.$el as HTMLElement
+    if (!this.showAgent || !panel.offsetWidth || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const from = panel.getBoundingClientRect()
+    this.$nextTick(() => {
+      const to = panel.getBoundingClientRect()
+      const inset = [from.top - to.top, to.right - from.right, to.bottom - from.bottom, from.left - to.left]
+        .map((side) => `${side}px`)
+        .join(' ')
+      const keyframes =
+        mode === 'full'
+          ? [{ clipPath: `inset(${inset} round 12px)` }, { clipPath: 'inset(0 round 0)' }]
+          : [
+              { opacity: 0, transform: 'translateY(8px) scale(0.96)', transformOrigin: 'bottom right' },
+              { opacity: 1, transform: 'none', transformOrigin: 'bottom right' },
+            ]
+      panel.animate(keyframes, { duration: mode === 'full' ? 320 : 200, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' })
+    })
   }
 
   @Watch('showAgent')
@@ -695,15 +982,17 @@ export default class AgentPanel extends Vue {
   }
 
   private created() {
-    this.permissionMode = this.defaultPermissionMode || 'ask'
-    this.restoreMode()
+    // A mode picked in this session wins over the settings default, so a reload keeps Auto
+    this.permissionMode = resolveInitialPermissionMode(readSessionPermissionMode(), this.defaultPermissionMode)
+    // Auto already confirmed in this session does not need the dialog again
+    this.autoConfirmed = isAutoConfirmedInSession()
+    this.restoreWidth()
+    this.floatRect = this.loadFloatRect()
     const services = useServices()
     connectionBridge.configure({
       router: this.$router as any,
       connectionExists: async (id: string) => Boolean(await services.connectionService.get(id)),
     })
-    globalEventBus.on('agent:toggle', this.togglePanel)
-    globalEventBus.on('agent:new', this.newConversation)
     document.addEventListener('keydown', this.onGlobalKeydown)
     window.addEventListener('resize', this.onWindowResize)
     this.loadConversations()
@@ -711,11 +1000,10 @@ export default class AgentPanel extends Vue {
 
   private onWindowResize() {
     this.windowWidth = window.innerWidth
+    this.floatRect = clampFloatRect(this.floatRect, this.getViewport())
   }
 
   beforeDestroy() {
-    globalEventBus.off('agent:toggle', this.togglePanel)
-    globalEventBus.off('agent:new', this.newConversation)
     document.removeEventListener('keydown', this.onGlobalKeydown)
     window.removeEventListener('resize', this.onWindowResize)
   }
@@ -725,7 +1013,7 @@ export default class AgentPanel extends Vue {
 <style lang="scss">
 .history-dropdown {
   position: absolute;
-  top: 64px;
+  top: 48px;
   left: 8px;
   right: 8px;
   z-index: 25;

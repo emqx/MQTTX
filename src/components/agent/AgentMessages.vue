@@ -8,12 +8,47 @@
     <div class="column conversation">
       <template v-for="message in messages">
         <div v-if="message.role === 'user'" :key="message.id" class="turn-user">
-          <div class="bubble">{{ message.content }}</div>
+          <div class="user-message">
+            <div v-if="skillsOf(message).length" class="user-skills">
+              <span
+                v-for="(skill, skillIndex) in skillsOf(message)"
+                :key="skillIndex"
+                class="user-skill"
+                data-test="skill-chip"
+                >{{ skillChipLabel(skill) }}</span
+              >
+            </div>
+            <div v-if="attachmentsOf(message).length" class="user-attachments">
+              <template v-for="(attachment, attachmentIndex) in attachmentsOf(message)">
+                <img
+                  v-if="attachment.kind === 'image' && imageUrl(attachment)"
+                  :key="attachmentIndex"
+                  class="user-image"
+                  :src="imageUrl(attachment)"
+                  :alt="attachment.name"
+                  @click="openImage(attachment)"
+                />
+                <span v-else-if="attachment.kind === 'image'" :key="attachmentIndex" class="user-image-missing">{{
+                  $t('agent.fileCard.missing')
+                }}</span>
+                <span
+                  v-else
+                  :key="attachmentIndex"
+                  class="user-file"
+                  :class="`kind-${attachment.kind}`"
+                  :title="attachment.path || attachment.name"
+                >
+                  <span class="user-file-name">{{ attachment.name }}</span>
+                  <span class="user-file-size">{{ formatSize(attachment.size) }}</span>
+                </span>
+              </template>
+            </div>
+            <div v-if="message.content" class="bubble">{{ message.content }}</div>
+          </div>
         </div>
         <div v-else-if="message.role === 'assistant'" :key="message.id" class="turn-agent">
-          <div class="avatar"><agent-avatar /></div>
+          <div class="avatar"><agent-icon :size="16" colored /></div>
           <div class="agent-content">
-            <agent-thinking v-if="message.reasoning" :reasoning="message.reasoning" :is-streaming="false" />
             <block-render
               v-for="(block, index) in blocksOf(message)"
               :key="index"
@@ -30,10 +65,7 @@
                 :aria-label="$t('agent.copy')"
                 @click="copy(message)"
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <rect x="9" y="9" width="12" height="12" rx="2" />
-                  <path d="M5 15V5a2 2 0 0 1 2-2h10" />
-                </svg>
+                <i class="iconfont icon-copy"></i>
               </button>
               <button
                 v-if="message === lastAssistant"
@@ -42,10 +74,7 @@
                 :aria-label="$t('agent.regenerate')"
                 @click="$emit('regenerate')"
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                  <path d="M21 12a9 9 0 1 1-3-6.7L21 8" />
-                  <path d="M21 3v5h-5" />
-                </svg>
+                <i class="iconfont icon-refresh"></i>
               </button>
             </div>
           </div>
@@ -53,15 +82,15 @@
       </template>
 
       <div v-if="streamingMessage" class="turn-agent">
-        <div class="avatar"><agent-avatar /></div>
+        <div class="avatar"><agent-icon :size="16" colored /></div>
         <div class="agent-content">
           <agent-thinking
-            v-if="streamingMessage.reasoning || isSending"
-            :reasoning="streamingMessage.reasoning"
+            v-if="isSending && !hasReasoningPart(streamingMessage)"
+            :reasoning="''"
             :is-streaming="true"
           />
           <block-render
-            v-for="(block, index) in blocksOf(streamingMessage)"
+            v-for="(block, index) in blocksOf(streamingMessage, true)"
             :key="index"
             :block="block"
             :connection-names="connectionNames"
@@ -74,10 +103,7 @@
 
       <div v-if="errorMessage" class="error-block">
         <span class="ico">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M12 8v5M12 16h.01" />
-          </svg>
+          <i class="el-icon-warning-outline"></i>
         </span>
         <div class="msg-text">
           <b>{{ $t('agent.requestFailed') }}</b
@@ -88,9 +114,7 @@
     </div>
 
     <button v-if="showJump" class="jump" :aria-label="$t('agent.jumpToLatest')" @click="jumpToBottom">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 5v14M19 12l-7 7-7-7" />
-      </svg>
+      <i class="el-icon-arrow-down"></i>
     </button>
   </div>
 </template>
@@ -102,13 +126,18 @@ import Prism from 'prismjs'
 import 'prismjs/plugins/toolbar/prism-toolbar.min'
 import 'prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min'
 import { ipcRenderer } from 'electron'
-import { AgentMessage } from '@/types/agent'
+import fs from 'fs'
+import { shell } from '@electron/remote'
+import { AgentAttachmentPart, AgentMessage, AgentSkillPart } from '@/types/agent'
+import { formatBytes } from '@/utils/formatter'
+import { resolveArchiveSync } from '@/utils/ai/agent/files'
+import { renderSkillChip } from '@/utils/ai/agent/skills'
 import AgentWelcome from './AgentWelcome.vue'
 import AgentThinking from './AgentThinking.vue'
-import AgentAvatar from './AgentAvatar.vue'
+import AgentIcon from './AgentIcon.vue'
 import BlockRender from './BlockRender.vue'
 
-@Component({ components: { AgentWelcome, AgentThinking, AgentAvatar, BlockRender } })
+@Component({ components: { AgentWelcome, AgentThinking, AgentIcon, BlockRender } })
 export default class AgentMessages extends Vue {
   @Action('SET_INSERT_BUTTON_ADDED') private setPrismButtonAdded!: (payload: { isPrismButtonAdded: boolean }) => void
   @Getter('isPrismButtonAdded') private isPrismButtonAdded!: boolean
@@ -120,6 +149,7 @@ export default class AgentMessages extends Vue {
   @Prop({ default: null }) readonly errorMessage!: string | null
 
   private showJump = false
+  private imageUrls: Record<string, string> = {}
 
   get scrollEl(): HTMLElement {
     return this.$refs.scroll as HTMLElement
@@ -129,18 +159,40 @@ export default class AgentMessages extends Vue {
     return [...this.messages].reverse().find((message) => message.role === 'assistant') ?? null
   }
 
-  private blocksOf(message: AgentMessage) {
-    return AgentMessages.buildBlocks(message)
+  private blocksOf(message: AgentMessage, streaming = false) {
+    if (streaming) return AgentMessages.buildBlocks(message, true)
+    // Historical messages never change, so their blocks are built once
+    const cached = AgentMessages.blockCache.get(message)
+    if (cached) return cached
+    const blocks = AgentMessages.buildBlocks(message, false)
+    AgentMessages.blockCache.set(message, blocks)
+    return blocks
   }
 
-  /** Groups consecutive tool parts so the message renders as text / steps / approval blocks */
-  static buildBlocks(message: AgentMessage): any[] {
+  private hasReasoningPart(message: AgentMessage | null): boolean {
+    return (message?.parts ?? []).some((part) => part.type === 'reasoning')
+  }
+
+  static blockCache = new WeakMap<AgentMessage, any[]>()
+
+  /**
+   * Groups consecutive tool parts so the message renders as thinking / text / steps / approval blocks.
+   * A legacy message that stored the whole reply's thinking in one string gets a leading thinking block.
+   */
+  static buildBlocks(message: AgentMessage, streaming = false): any[] {
     const blocks: any[] = []
+    const parts = message.parts ?? []
+    if (message.reasoning && !parts.some((part) => part.type === 'reasoning')) {
+      blocks.push({ kind: 'reasoning', part: { text: message.reasoning }, streaming: false })
+    }
     let steps: any[] = []
     let approval: any = null
     const flush = () => {
       if (steps.length) {
+        // A finished save_files shows a file card right after its step group
+        const saved = steps.filter((part: any) => part.toolName === 'save_files' && part.state === 'done')
         blocks.push({ kind: 'steps', steps })
+        for (const part of saved) blocks.push({ kind: 'file', part })
         steps = []
       }
       if (approval) {
@@ -148,14 +200,18 @@ export default class AgentMessages extends Vue {
         approval = null
       }
     }
-    for (const part of message.parts ?? []) {
+    for (const part of parts) {
       if (part.type === 'text') {
         flush()
         if (part.text) blocks.push({ kind: 'text', content: part.text })
+      } else if (part.type === 'reasoning') {
+        flush()
+        const isLast = part === parts[parts.length - 1]
+        blocks.push({ kind: 'reasoning', part, streaming: streaming && isLast && part.finishedAt === undefined })
       } else if (part.type === 'step-limit') {
         flush()
         blocks.push({ kind: 'stepLimit', steps: part.steps })
-      } else {
+      } else if (part.type === 'tool') {
         steps.push(part)
         if (part.state === 'awaiting-approval' && !approval) approval = part
       }
@@ -196,9 +252,62 @@ export default class AgentMessages extends Vue {
     )
   }
 
-  @Watch('messages')
-  @Watch('streamingMessage')
-  onContentChange() {
+  private attachmentsOf(message: AgentMessage): AgentAttachmentPart[] {
+    return (message.parts ?? []).filter((part): part is AgentAttachmentPart => part.type === 'attachment')
+  }
+
+  private skillsOf(message: AgentMessage): AgentSkillPart[] {
+    return (message.parts ?? []).filter((part): part is AgentSkillPart => part.type === 'skill')
+  }
+
+  private skillChipLabel(skill: AgentSkillPart): string {
+    return renderSkillChip(skill.skill, (key) => this.$t(key) as string)
+  }
+
+  private formatSize(size: number): string {
+    return formatBytes(size)
+  }
+
+  private imageUrl(part: AgentAttachmentPart): string {
+    return part.relativePath ? this.imageUrls[part.relativePath] ?? '' : ''
+  }
+
+  private openImage(part: AgentAttachmentPart) {
+    if (!part.relativePath) return
+    const filePath = resolveArchiveSync(part.relativePath)
+    if (filePath) shell.openPath(filePath)
+  }
+
+  /** Loads attached images from disk into blob URLs, once per file, and releases the ones no longer shown */
+  private syncImageUrls() {
+    const live = new Set<string>()
+    for (const message of this.messages) {
+      for (const part of this.attachmentsOf(message)) {
+        if (part.kind !== 'image' || !part.relativePath) continue
+        live.add(part.relativePath)
+        if (this.imageUrls[part.relativePath] !== undefined) continue
+        const filePath = resolveArchiveSync(part.relativePath)
+        let url = ''
+        if (filePath) {
+          try {
+            const data = new Uint8Array(fs.readFileSync(filePath))
+            url = URL.createObjectURL(new Blob([data], { type: part.mediaType || 'image/png' }))
+          } catch {
+            url = ''
+          }
+        }
+        this.$set(this.imageUrls, part.relativePath, url)
+      }
+    }
+    for (const path of Object.keys(this.imageUrls)) {
+      if (live.has(path)) continue
+      const url = this.imageUrls[path]
+      if (url) URL.revokeObjectURL(url)
+      this.$delete(this.imageUrls, path)
+    }
+  }
+
+  private followNewContent() {
     // Only auto-follow while the user is already at the bottom
     const follow = this.isNearBottom()
     this.$nextTick(() => {
@@ -207,8 +316,25 @@ export default class AgentMessages extends Vue {
     })
   }
 
+  @Watch('messages')
+  onMessagesChange() {
+    this.syncImageUrls()
+    this.followNewContent()
+  }
+
+  @Watch('streamingMessage')
+  onStreamingChange() {
+    this.followNewContent()
+  }
+
   private highlightCode() {
-    if (this.scrollEl) Prism.highlightAllUnder(this.scrollEl)
+    const el = this.scrollEl
+    if (!el) return
+    // Only new blocks need highlighting; Vue keeps the DOM of unchanged v-html
+    el.querySelectorAll<HTMLElement>('code[class*="language-"]:not([data-highlighted])').forEach((code) => {
+      Prism.highlightElement(code)
+      code.dataset.highlighted = 'true'
+    })
   }
 
   /** Registers the toolbar button that inserts a code block into the script editor, once per app */
@@ -227,6 +353,13 @@ export default class AgentMessages extends Vue {
   mounted() {
     this.addInsertButton()
     this.highlightCode()
+    this.syncImageUrls()
+  }
+
+  beforeDestroy() {
+    for (const url of Object.values(this.imageUrls)) {
+      if (url) URL.revokeObjectURL(url)
+    }
   }
 }
 </script>
