@@ -8,7 +8,7 @@ Upon successful connection, you'll access the main interface of the connection. 
 
 ## Add Subscription
 
-Click the `New Subscription` button in the lower left corner to swiftly add a Topic. Each Topic can be marked with a color, which can be randomly generated or chosen via the color selector. The rightmost button at the top of the subscription list can hide the subscription list to make more room on the page. After completion, click on the subscribed Topic items in the subscription list for message filtering. The message view will only display the message content subscribed to the current topic. Click again to cancel the filter; You can also directly click other subscribed Topic items to view the corresponding message content. By clicking on the topic name, you can quickly copy the current topic information. When you need to send a message to this topic, you can quickly paste it into the topic input box of the message bar to modify it, and you can quickly complete the operation.
+Click the `New Subscription` button in the lower left corner to swiftly add a [Topic](https://www.emqx.com/en/blog/advanced-features-of-mqtt-topics). Each Topic can be marked with a color, which can be randomly generated or chosen via the color selector. The rightmost button at the top of the subscription list can hide the subscription list to make more room on the page. After completion, click on the subscribed Topic items in the subscription list for message filtering. The message view will only display the message content subscribed to the current topic. Click again to cancel the filter; You can also directly click other subscribed Topic items to view the corresponding message content. By clicking on the topic name, you can quickly copy the current topic information. When you need to send a message to this topic, you can quickly paste it into the topic input box of the message bar to modify it, and you can quickly complete the operation.
 
 ![mqttx-topic](/images/mqttx-topic.png)
 
@@ -26,10 +26,16 @@ Subscribed Topics support **Edit/Disable/Enable** functions, right click on the 
 
 ## Publish and Receiving Messages
 
-After the `Topic` is successfully subscribed, you can test the sending and receiving of messages. Fill in the `Topic` information you just subscribed to in the lower right corner of the page. You can select the values of `QoS`, `Retain`, input `payload`, and click the send button on the far right to send a message to the `Topic` you just subscribed. After sending successfully, you can immediately receive the message just sent. Note that in the message box, the right column is the sent message, and the left column is the received message. macOS users can use the `command + enter` shortcut to quickly send messages, and other users can use the `control + enter` shortcut to do that.
-
-Through the `payload` option in the message bar, the messages can quickly be converted into multiple formats, such as `Base64`, `Hex`,`JSON` and `Plaintext`.
+After the `Topic` is successfully subscribed, you can test the sending and receiving of messages. Fill in the `Topic` information you just subscribed to in the lower right corner of the page. You can select the values of [QoS](https://www.emqx.com/en/blog/introduction-to-mqtt-qos), `Retain`, input `payload`, and click the send button on the far right to send a message to the `Topic` you just subscribed. After sending successfully, you can immediately receive the message just sent. Note that in the message box, the right column is the sent message, and the left column is the received message. macOS users can use the `command + enter` shortcut to quickly send messages, and other users can use the `control + enter` shortcut to do that.
 
 ![mqttx-message](/images/mqttx-message.png)
+
+Messages can be quickly converted between `Base64`, `Hex`, `JSON`, `Plaintext`, `CBOR`, and `MsgPack` formats in the `payload` option. The same format can be used for decoding messages in the list above.
+
+> **Note:** CBOR and MsgPack are efficient binary formats, offering better compression than JSON for large data. These use JSON for input/output.
+
+For advanced encoding/decoding, including `Protobuf` and `Avro`, use the `Schema` tab on the `Script` page.
+
+Use the arrow buttons in the publish area to step through previously published payloads. To copy a message's payload or topic, right-click the message in the list.
 
 So far, the testing of an `MQTT` message is completed.

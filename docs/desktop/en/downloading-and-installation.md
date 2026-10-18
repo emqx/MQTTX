@@ -36,7 +36,7 @@ brew install --cask mqttx
 
 ## Windows
 
-> For Windows users, we provide installation packages for 32-bit, 64-bit, and ARM64 architectures. Please choose the version compatible with your current hardware.
+> For Windows users, we provide installation packages for 64-bit (x64) and 32-bit (ia32) architectures. Please choose the version compatible with your current hardware.
 
 We recommend Windows users to download the latest `exe` file. Once downloaded, you can follow the Setup instructions for installation.
 
@@ -83,7 +83,7 @@ sudo snap install mqttx
 For manual installation, download the latest version of the `snap` file. Here's an example:
 
 ```shell
-sudo snap install Downloads/MQTTX_1.9.3_amd64.snap --dangerous
+sudo snap install Downloads/MQTTX_1.13.1_amd64.snap --dangerous
 ```
 
 **Note**: When installing with `snap` files, you may encounter insufficient permission issues. For more details, refer to this `issue`: [https://github.com/emqx/MQTTX/issues/109](https://github.com/emqx/MQTTX/issues/109)
