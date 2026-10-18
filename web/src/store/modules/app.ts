@@ -18,6 +18,7 @@ const TOGGLE_ADVANCED_VISIBLE = 'TOGGLE_ADVANCED_VISIBLE'
 const CHANGE_ALL_CONNECTIONS = 'CHANGE_ALL_CONNECTIONS'
 const TOGGLE_MULTI_TOPICS = 'TOGGLE_MULTI_TOPICS'
 const TOGGLE_TOPIC_WHITESPACE_DETECTION = 'TOGGLE_TOPIC_WHITESPACE_DETECTION'
+const TOGGLE_DECOMPRESS_GZIP = 'TOGGLE_DECOMPRESS_GZIP'
 const TOGGLE_SHOW_CONNECTION_LIST = 'TOGGLE_SHOW_CONNECTION_LIST'
 
 const stateRecord: App = loadSettings()
@@ -32,6 +33,7 @@ const app = {
     autoScrollInterval: stateRecord.autoScrollInterval,
     multiTopics: stateRecord.multiTopics,
     topicWhitespaceDetection: stateRecord.topicWhitespaceDetection || false,
+    decompressGzip: stateRecord.decompressGzip || false,
     maxReconnectTimes: stateRecord.maxReconnectTimes || 10,
     showClientInfo: {},
     unreadMessageCount: {},
@@ -65,6 +67,9 @@ const app = {
     },
     [TOGGLE_TOPIC_WHITESPACE_DETECTION](state: App, topicWhitespaceDetection: boolean) {
       state.topicWhitespaceDetection = topicWhitespaceDetection
+    },
+    [TOGGLE_DECOMPRESS_GZIP](state: App, decompressGzip: boolean) {
+      state.decompressGzip = decompressGzip
     },
     [SET_MAX_RECONNECT_TIMES](state: App, maxReconnectTimes: number) {
       state.maxReconnectTimes = maxReconnectTimes
@@ -156,6 +161,10 @@ const app = {
     TOGGLE_TOPIC_WHITESPACE_DETECTION({ commit }: any, payload: App) {
       setSettings('settings.topicWhitespaceDetection', payload.topicWhitespaceDetection)
       commit(TOGGLE_TOPIC_WHITESPACE_DETECTION, payload.topicWhitespaceDetection)
+    },
+    TOGGLE_DECOMPRESS_GZIP({ commit }: any, payload: App) {
+      setSettings('settings.decompressGzip', payload.decompressGzip)
+      commit(TOGGLE_DECOMPRESS_GZIP, payload.decompressGzip)
     },
     SET_MAX_RECONNECT_TIMES({ commit }: any, payload: App) {
       setSettings('settings.maxReconnectTimes', payload.maxReconnectTimes)

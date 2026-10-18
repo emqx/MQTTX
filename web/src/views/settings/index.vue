@@ -239,6 +239,32 @@
       </el-row>
       <el-divider></el-divider>
 
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
+          <label>{{ $t('settings.decompressGzip') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('settings.decompressGzipDesc')"
+          >
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            :value="decompressGzip"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleDecompressGzipChange"
+          >
+          </el-switch>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
       <ImportData :visible.sync="showImportData" />
       <ExportData :visible.sync="showExportData" />
       <ClearUpHistoryData :visible.sync="showHistoryData" />
@@ -273,6 +299,7 @@ export default class Settings extends Vue {
   @Action('TOGGLE_TOPIC_WHITESPACE_DETECTION') private actionToggleTopicWhitespaceDetection!: (payload: {
     topicWhitespaceDetection: boolean
   }) => void
+  @Action('TOGGLE_DECOMPRESS_GZIP') private actionToggleDecompressGzip!: (payload: { decompressGzip: boolean }) => void
   @Getter('currentTheme') private currentTheme!: 'light' | 'dark' | 'night'
   @Getter('currentLang') private currentLang!: Language
   @Getter('maxReconnectTimes') private maxReconnectTimes!: number
@@ -281,6 +308,7 @@ export default class Settings extends Vue {
   @Getter('autoScrollInterval') private autoScrollInterval!: number
   @Getter('multiTopics') private multiTopics!: boolean
   @Getter('topicWhitespaceDetection') private topicWhitespaceDetection!: boolean
+  @Getter('decompressGzip') private decompressGzip!: boolean
 
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
@@ -322,6 +350,10 @@ export default class Settings extends Vue {
 
   private handleTopicWhitespaceDetectionChange(value: boolean) {
     this.actionToggleTopicWhitespaceDetection({ topicWhitespaceDetection: value })
+  }
+
+  private handleDecompressGzipChange(value: boolean) {
+    this.actionToggleDecompressGzip({ decompressGzip: value })
   }
 
   private handleInputChage(value: number) {

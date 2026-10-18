@@ -269,6 +269,7 @@ import historyMessageHeaderService from '@/utils/api/historyMessageHeaderService
 import historyMessagePayloadService from '@/utils/api/historyMessagePayloadService'
 import { jsonParse, jsonStringify } from '@/utils/jsonUtils'
 import getErrorReason from '@/utils/mqttErrorReason'
+import { gunzipIfCompressed } from '@/utils/gzip'
 
 type MessageType = 'all' | 'received' | 'publish'
 type CommandType = 'searchByTopic' | 'disconnect' | 'deleteConnect'
@@ -307,6 +308,7 @@ export default class ConnectionsDetail extends Vue {
     [id: string]: boolean
   }
   @Getter('showConnectionList') private showConnectionList!: boolean
+  @Getter('decompressGzip') private decompressGzip!: boolean
 
   /**
    * Notice: when we jump order by `other page` -> `creation page` -> `connection page`,
@@ -857,6 +859,13 @@ export default class ConnectionsDetail extends Vue {
   private onMessageArrived(id: string) {
     return (topic: string, payload: Buffer, packet: IPublishPacket) => {
       const { qos, retain, properties } = packet
+      if (this.decompressGzip) {
+        try {
+          payload = gunzipIfCompressed(payload)
+        } catch (error) {
+          this.$message.warning(`${this.$t('connections.receivedMsg')} ${error.toString()}`)
+        }
+      }
       const convertPayload = this.convertPayloadByType(payload, this.receivedMsgType, 'receive') as string
       const receivedMessage: MessageModel = {
         id: getMessageId(),
