@@ -506,6 +506,9 @@ export default class SubscriptionsList extends Vue {
         userProperties,
         disabled,
         color: getRandomColor(),
+        // Automatic subscribes share `subRecord`, so a fresh id is needed for each new topic; otherwise
+        // every topic would be persisted under the same primary key and overwrite the previous one
+        id: id ?? getSubscriptionId(),
       })
     }
     let isFinished = false

@@ -5,6 +5,7 @@ import { getMessageId } from '@/utils/idGenerator'
 import type { ConnectionView } from '../connectionBridge'
 import { AgentToolDeps } from './types'
 import { now, truncatePayload, withTimeout } from './helpers'
+import { emitAgentDataChanged } from '../agentEvents'
 
 const QoS = z.union([z.literal(0), z.literal(1), z.literal(2)])
 const SUBSCRIBE_TIMEOUT = 15000
@@ -82,7 +83,8 @@ export const createMessagingTools = (deps: AgentToolDeps): ToolSet => ({
   publish: tool({
     title: 'Publish',
     description:
-      'Publish a message to a topic on a connected connection. payloadType selects how the payload string is encoded.',
+      'Publish a message to a topic on a connected connection. payloadType selects how the payload string is encoded. ' +
+      'With intervalSeconds the message is published every intervalSeconds seconds until stop_timed_publish is called.',
     inputSchema: z.object({
       connectionId: z.string(),
       topic: z.string(),
@@ -90,24 +92,67 @@ export const createMessagingTools = (deps: AgentToolDeps): ToolSet => ({
       qos: QoS.optional().describe('Default 0'),
       retain: z.boolean().optional().describe('Default false'),
       payloadType: z.enum(PAYLOAD_TYPES).optional().describe('Default Plaintext'),
+      intervalSeconds: z
+        .number()
+        .int()
+        .min(1)
+        .optional()
+        .describe('Publish repeatedly every N seconds; omit to publish once'),
     }),
-    execute: async ({ connectionId, topic, payload, qos, retain, payloadType }) => {
+    execute: async ({ connectionId, topic, payload, qos, retain, payloadType, intervalSeconds }) => {
       const view = await deps.bridge.open(connectionId)
       assertConnected(view)
-      await view.publish(
-        {
-          id: getMessageId(),
-          createAt: now(),
-          out: true,
+      const message = {
+        id: getMessageId(),
+        createAt: now(),
+        out: true,
+        topic,
+        payload,
+        qos: qos ?? 0,
+        retain: retain ?? false,
+        properties: {},
+      } as MessageModel
+      if (intervalSeconds) {
+        await view.startTimedPublish(message, payloadType ?? 'Plaintext', intervalSeconds)
+        return {
+          published: true,
           topic,
-          payload,
           qos: qos ?? 0,
-          retain: retain ?? false,
-          properties: {},
-        } as MessageModel,
-        payloadType ?? 'Plaintext',
-      )
+          timedPublishing: true,
+          intervalSeconds,
+          hint: 'Call stop_timed_publish with the connectionId to stop it.',
+        }
+      }
+      await view.publish(message, payloadType ?? 'Plaintext')
       return { published: true, topic, qos: qos ?? 0 }
+    },
+  }),
+
+  stop_timed_publish: tool({
+    title: 'Stop timed publish',
+    description: 'Stop the timed publishing that was started with publish intervalSeconds.',
+    inputSchema: z.object({ connectionId: z.string() }),
+    execute: async ({ connectionId }) => {
+      const view = await deps.bridge.open(connectionId)
+      view.stopTimedPublish()
+      return { stopped: true }
+    },
+  }),
+
+  clear_messages: tool({
+    title: 'Clear messages',
+    description:
+      'Delete every stored message of a connection and its topic tree nodes, like the "clear messages" action on the connection page.',
+    inputSchema: z.object({ connectionId: z.string() }),
+    execute: async ({ connectionId }) => {
+      const record = await deps.services.connectionService.get(connectionId)
+      if (!record) throw new Error(`Connection ${connectionId} not found`)
+      await Promise.all([
+        deps.services.topicNodeService.deleteTopicNodesForConnection(connectionId),
+        deps.services.messageService.cleanInConnection(connectionId),
+      ])
+      emitAgentDataChanged('messages', connectionId)
+      return { cleared: true, name: record.name }
     },
   }),
 

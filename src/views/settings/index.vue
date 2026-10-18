@@ -470,22 +470,28 @@
               v-if="showAIModelsSelect"
               class="ai-models-select"
               :options="AImodelsOptions"
-              :props="{ emitPath: false, label: 'value' }"
+              :props="{ emitPath: false, label: 'label' }"
               :value="aiConfig.model"
               @change="handleAIConfigModelSelected"
-            ></el-cascader-panel>
+            >
+              <template slot-scope="{ data }">
+                <ai-provider-icon :provider="optionIconProvider(data)" :model="optionIconModel(data)" />
+                <span>{{ data.label }}</span>
+              </template>
+            </el-cascader-panel>
           </transition>
           <el-input
             size="mini"
-            v-model.trim="aiConfig.model"
+            :value="modelInputFocused ? aiConfig.model : modelLabel"
             placeholder="gpt-4o"
             type="text"
             clearable
+            spellcheck="false"
             :disabled="!enableAgent"
             @clear="handleAIConfigChanged('model')"
-            @blur="handleAIConfigChanged('model')"
-            @focus="showAIModelsSelect = true"
-            @input="showAIModelsSelect = false"
+            @blur="handleModelBlur"
+            @focus="handleModelFocus"
+            @input="handleModelInput"
           ></el-input>
         </el-col>
       </el-row>
@@ -510,17 +516,16 @@
       <el-divider></el-divider>
 
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
-        <el-col :span="18">
+        <el-col :span="20">
           <label>{{ $t('settings.agentMaxSteps') }}</label>
         </el-col>
-        <el-col :span="6">
+        <el-col :span="4">
           <el-input-number
             size="mini"
             :value="agentMaxSteps"
             :min="10"
             :max="200"
             :disabled="!enableAgent"
-            controls-position="right"
             @change="handleMaxStepsChange"
           ></el-input-number>
         </el-col>
@@ -536,7 +541,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
-import { app as remoteApp, nativeTheme } from '@electron/remote'
+import { app as remoteApp } from '@electron/remote'
 import ImportData from '@/components/ImportData.vue'
 import ExportData from '@/components/ExportData.vue'
 import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
@@ -544,7 +549,7 @@ import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY } from '@/utils/idGenerator'
 import ClickOutside from 'vue-click-outside'
 import _ from 'lodash'
-import { AImodelsOptions, AIAPIHostOptions } from '@/utils/ai/models'
+import { AImodelsOptions, AIAPIHostOptions, getModelLabel } from '@/utils/ai/models'
 import type { PermissionMode } from '@/utils/ai/agent/approval'
 import {
   MAX_MAX_PAYLOAD_DISPLAY_SIZE,
@@ -552,11 +557,13 @@ import {
   normalizeMaxPayloadDisplaySize,
 } from '@/utils/data'
 import { formatBytes } from '@/utils/formatter'
+import { applyLangChange, applyThemeChange, themeFromOs } from '@/utils/settingsEffects'
 import MCPSettings from '@/components/agent/MCPSettings.vue'
 import PayloadSizeControl from '@/components/PayloadSizeControl.vue'
+import AiProviderIcon from '@/components/AiProviderIcon.vue'
 
 @Component({
-  components: { ImportData, ExportData, ClearUpHistoryData, MCPSettings, PayloadSizeControl },
+  components: { ImportData, ExportData, ClearUpHistoryData, MCPSettings, PayloadSizeControl, AiProviderIcon },
   directives: {
     ClickOutside,
   },
@@ -614,6 +621,11 @@ export default class Settings extends Vue {
   @Getter('enableHardwareAcceleration') private enableHardwareAcceleration!: boolean
 
   private showAIModelsSelect = false
+  private modelInputFocused = false
+
+  get modelLabel(): string {
+    return getModelLabel(this.aiConfig.model)
+  }
 
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
@@ -628,7 +640,15 @@ export default class Settings extends Vue {
     { label: 'Dark', value: 'dark' },
     { label: 'Night', value: 'night' },
   ]
-  private AImodelsOptions = AImodelsOptions
+  // The cascader reads `label` on every level, and providers are named by their value
+  private AImodelsOptions = AImodelsOptions.map((provider) => ({ ...provider, label: provider.value }))
+  // A model node only carries its own id, so remember which provider it came from for the model icon
+  private modelProviders: Record<string, string> = AImodelsOptions.reduce((providers, provider) => {
+    provider.children.forEach((child) => {
+      providers[child.value] = provider.value
+    })
+    return providers
+  }, {} as Record<string, string>)
   private AIAPIHostOptions = AIAPIHostOptions
   private showImportData = false
   private showExportData = false
@@ -675,10 +695,11 @@ export default class Settings extends Vue {
   private handleSelectChange(type: 'lang' | 'theme', value: string | number | boolean): void {
     if (type === 'theme') {
       this.actionTheme({ currentTheme: value as string })
+      applyThemeChange(value as string)
     } else if (type === 'lang') {
       this.actionLang({ currentLang: value as string })
+      applyLangChange(value as string)
     }
-    ipcRenderer.send('setting', type, value)
   }
 
   private handleAutoCheckSwitchChange(value: boolean) {
@@ -691,8 +712,7 @@ export default class Settings extends Vue {
 
   private handleSyncOsThemeSwitchChange(value: boolean) {
     if (value) {
-      const theme = nativeTheme.shouldUseDarkColors ? 'night' : 'light'
-      this.handleSelectChange('theme', theme)
+      this.handleSelectChange('theme', themeFromOs())
     }
     this.actionSyncOsTheme({ syncOsTheme: value })
   }
@@ -760,9 +780,33 @@ export default class Settings extends Vue {
     }
   }
 
+  /** A cascader node with children is a provider, a leaf is a model */
+  private optionIconProvider(data: { value: string; children?: unknown[] }): string {
+    return data.children ? data.value : this.modelProviders[data.value] || ''
+  }
+
+  private optionIconModel(data: { value: string; children?: unknown[] }): string {
+    return data.children ? '' : data.value
+  }
+
   private handleAIConfigModelSelected(value: App['model']) {
     this.aiConfig.model = value
     this.actionSetModel({ model: value })
+    this.showAIModelsSelect = false
+  }
+
+  private handleModelFocus() {
+    this.modelInputFocused = true
+    this.showAIModelsSelect = true
+  }
+
+  private handleModelBlur() {
+    this.modelInputFocused = false
+    this.handleAIConfigChanged('model')
+  }
+
+  private handleModelInput(value: string) {
+    this.aiConfig.model = value.trim()
     this.showAIModelsSelect = false
   }
 
@@ -778,8 +822,6 @@ export default class Settings extends Vue {
   }
 
   private handleLevelChange(val: LogLevel) {
-    const logger = this.$logRegsity()
-    logger.level = val
     this.actionSetLogLevel({
       logLevel: val,
     })
@@ -949,6 +991,11 @@ export default class Settings extends Vue {
     box-shadow: #00000014 0px 4px 12px;
     background: var(--color-bg-normal);
     border: 1px solid var(--color-border-default);
+    // The settings column is right aligned; the icon rows read better from the left
+    text-align: left;
+    .ai-provider-icon {
+      margin-right: 6px;
+    }
     .el-cascader-menu:last-child {
       width: 100%;
     }

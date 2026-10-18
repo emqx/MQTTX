@@ -10,62 +10,111 @@
   --agent-space-4: 16px;
   --agent-space-6: 24px;
   --agent-content-max: 760px;
-  --agent-history-width: 260px;
+  --agent-history-width: 220px;
   --agent-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --agent-amber: #e6a23c;
   --agent-mono: Menlo, Monaco, 'Courier New', monospace;
 
   position: fixed;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  width: 480px;
-  min-width: 360px;
-  max-width: 70vw;
   background: var(--color-bg-normal);
   display: flex;
   flex-direction: column;
-  box-shadow: -2px 0 8px 0 var(--color-shadow-leftlist);
-  transition: width 0.24s var(--agent-ease), left 0.24s var(--agent-ease);
-  z-index: 1000;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--agent-radius-md);
+  box-shadow: 0 12px 32px var(--color-shadow-card), 0 2px 8px var(--color-shadow-card);
+  // Above page content (the left bar and Element's slider thumb use 1001), below Element popups and dialogs (2000+)
+  z-index: 1999;
+  // Window drag regions of the page underneath (e.g. .connection-topbar) ignore stacking and would swallow clicks
+  -webkit-app-region: no-drag;
 
   code,
   pre {
     font-family: var(--agent-mono);
   }
 
-  .resize-handle {
+  /* Resize handles of the float window: 8px edges and 14x14 corners that sit mostly outside the border,
+     like native window edges, so they never cover the scrollbars inside */
+  .float-handle {
     position: absolute;
-    left: -3px;
-    top: 0;
-    bottom: 0;
-    width: 6px;
-    cursor: col-resize;
+    z-index: 10;
   }
-  .resize-handle:hover {
-    background: linear-gradient(
-      90deg,
-      transparent 2px,
-      var(--color-main-green) 2px,
-      var(--color-main-green) 4px,
-      transparent 4px
-    );
+  .float-handle.edge-n,
+  .float-handle.edge-s {
+    left: 8px;
+    right: 8px;
+    height: 8px;
+    cursor: ns-resize;
   }
-  &.is-full {
-    left: 76px;
-    width: auto;
-    max-width: none;
-    box-shadow: none;
+  .float-handle.edge-n {
+    top: -6px;
   }
-  &.is-full .resize-handle {
-    display: none;
+  .float-handle.edge-s {
+    bottom: -6px;
+  }
+  .float-handle.edge-e,
+  .float-handle.edge-w {
+    top: 8px;
+    bottom: 8px;
+    width: 8px;
+    cursor: ew-resize;
+  }
+  .float-handle.edge-e {
+    right: -6px;
+  }
+  .float-handle.edge-w {
+    left: -6px;
+  }
+  .float-handle.edge-ne,
+  .float-handle.edge-sw {
+    width: 14px;
+    height: 14px;
+    cursor: nesw-resize;
+  }
+  .float-handle.edge-nw,
+  .float-handle.edge-se {
+    width: 14px;
+    height: 14px;
+    cursor: nwse-resize;
+  }
+  .float-handle.edge-nw {
+    top: -6px;
+    left: -6px;
+  }
+  .float-handle.edge-ne {
+    top: -6px;
+    right: -6px;
+  }
+  .float-handle.edge-sw {
+    bottom: -6px;
+    left: -6px;
+  }
+  .float-handle.edge-se {
+    bottom: -6px;
+    right: -6px;
   }
 
+  &.is-dragging {
+    user-select: none;
+    transition: none;
+  }
+
+  &.is-full {
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 76px;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  /* Clips the content to the rounded border; the root stays unclipped so the resize handles can sit outside */
   .agent-body {
     flex: 1;
     display: flex;
     min-height: 0;
     overflow: hidden;
+    border-radius: inherit;
   }
 
   /* History sidebar (full mode only) */
@@ -75,68 +124,171 @@
     display: none;
     flex-direction: column;
     border-right: 1px solid var(--color-border-default);
-    background: var(--color-bg-primary);
-    padding: 40px 12px 12px;
-    overflow-y: auto;
+    background: var(--color-bg-normal);
+    overflow: hidden;
+    transition: width 0.24s var(--agent-ease);
   }
   &.is-full .history {
     display: flex;
   }
-  .new-chat {
+  /* The contents keep their open width while the sidebar animates, so they slide out instead of reflowing */
+  .history > * {
+    min-width: var(--agent-history-inner);
+  }
+  /* Once the width animation ends, the closed sidebar drops its border and leaves the tab order */
+  .history.is-collapsed {
+    visibility: hidden;
+    border-right-color: transparent;
+    transition: width 0.24s var(--agent-ease), visibility 0s 0.24s, border-color 0s 0.24s;
+  }
+  .history.is-resizing {
+    transition: none;
+  }
+  /* Straddles the history border; the negative margins keep it from taking layout space */
+  .history-resize {
+    flex: none;
+    width: 6px;
+    margin: 0 -3px;
+    position: relative;
+    z-index: 5;
+    cursor: col-resize;
+  }
+  .history-resize:hover {
+    background: linear-gradient(
+      90deg,
+      transparent 2px,
+      var(--color-main-green) 2px,
+      var(--color-main-green) 4px,
+      transparent 4px
+    );
+  }
+  /* Same height and padding as the full screen .agent-header, so the two bottom borders form one line */
+  .history-topbar {
+    flex: none;
+    height: 59px; /* same as .connection-topbar */
+    padding: 0 var(--agent-space-4);
     display: flex;
     align-items: center;
-    gap: 8px;
-    height: 36px;
-    padding: 0 12px;
-    margin-bottom: 16px;
-    border-radius: var(--agent-radius-sm);
-    border: 1px solid var(--color-border-default);
-    background: var(--color-bg-normal);
-    color: var(--color-text-title);
-    font-size: 13px;
+    justify-content: space-between;
+    gap: var(--agent-space-2);
+    border-bottom: 1px solid var(--color-border-default);
   }
-  .new-chat:hover {
-    border-color: var(--color-main-green);
-    color: var(--color-main-green);
+  /* Renders like .connection-titlebar: the global h1 size and --color-text-title */
+  .history-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .history-new {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    border-radius: var(--agent-radius-sm);
+    background: transparent;
+    color: var(--color-text-title);
+    cursor: pointer;
+  }
+  .history-new .iconfont {
+    font-size: 20px;
+    line-height: 1;
+  }
+  .history-new:hover {
+    background: var(--color-bg-item);
+  }
+  /* The list only shows its scrollbar while hovered, like the connection list */
+  .history-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: hidden;
+    padding: var(--agent-space-2) 0 var(--agent-space-3);
+  }
+  .history-list:hover {
+    overflow-y: overlay;
   }
   .group-title {
     font-size: 12px;
     color: var(--color-text-light);
-    margin: 12px 8px 6px;
+    margin: 12px var(--agent-space-2) 4px;
+    /* Starts where the conversation title starts: 8 margin + 8 row padding */
+    padding-left: var(--agent-space-2);
   }
   .conv {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 6px;
-    height: 34px;
-    padding: 0 10px;
+    gap: var(--agent-space-2);
+    flex: none;
+    height: 40px;
+    margin: 0 var(--agent-space-2);
+    padding: 0 var(--agent-space-2);
     border-radius: var(--agent-radius-sm);
     color: var(--color-text-default);
     font-size: 13px;
     cursor: pointer;
   }
-  .conv span {
+  .conv:hover,
+  .conv.active {
+    background: var(--color-bg-item);
+  }
+  .conv-name {
+    flex: 1;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }
-  .conv:hover {
-    background: var(--color-bg-item);
-  }
-  .conv.active {
-    background: var(--color-bg-item);
-    color: var(--color-text-title);
     font-weight: 500;
+    color: var(--color-text-title);
+  }
+  /* Holds the time; the menu button overlays it without changing the row width */
+  .conv-tail {
+    flex: none;
+    min-width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+  }
+  .conv-time {
+    font-size: 12px;
+    color: var(--color-text-light);
+  }
+  .conv-actions {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  /* The time is replaced by the menu button while hovering the row; both stay in place so the row
+     never shifts and an open dropdown keeps its anchor */
+  .conv:hover .conv-actions {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .conv:hover .conv-time {
+    opacity: 0;
   }
   .conv .more {
-    opacity: 0;
-    color: var(--color-text-light);
-    background: transparent;
+    width: var(--agent-space-6);
+    height: var(--agent-space-6);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: none;
     border: 0;
+    border-radius: var(--agent-radius-sm);
+    background: transparent;
+    color: var(--color-text-light);
+    cursor: pointer;
   }
-  .conv:hover .more {
-    opacity: 1;
+  .conv .more:hover {
+    color: var(--color-text-title);
   }
   .conv .live {
     width: 6px;
@@ -156,13 +308,28 @@
 
   /* Header */
   .agent-header {
-    height: 64px;
+    height: 48px;
     flex: none;
-    padding: 12px 16px 0;
+    padding: 0 var(--agent-space-2) 0 var(--agent-space-4);
     display: flex;
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid var(--color-border-default);
+    -webkit-app-region: no-drag;
+  }
+  /* Full screen keeps the taller header so it lines up with the history sidebar */
+  &.is-full .agent-header {
+    height: 59px;
+    padding: 0 var(--agent-space-4);
+  }
+  /* Full screen moves the window by the empty parts of both top bars, like .connection-topbar */
+  &.is-full .agent-header,
+  &.is-full .history-topbar {
+    -webkit-app-region: drag;
+  }
+  &.is-full .agent-header button,
+  &.is-full .agent-header .conv-title,
+  &.is-full .history-topbar button {
     -webkit-app-region: no-drag;
   }
   .agent-header .title {
@@ -170,6 +337,14 @@
     align-items: center;
     gap: 8px;
     min-width: 0;
+  }
+  /* The sidebar toggle sits at the left edge, so its tooltip opens rightward */
+  .agent-header .title .icon-btn {
+    flex: none;
+  }
+  .agent-header .title .icon-btn[data-tip]:hover::after {
+    left: 0;
+    right: auto;
   }
   .agent-header .title strong {
     color: var(--color-text-title);
@@ -236,57 +411,129 @@
   .suggestion:focus-visible,
   .btn:focus-visible,
   .conv:focus-visible,
-  .new-chat:focus-visible {
+  .conv .more:focus-visible,
+  .history-new:focus-visible {
     outline: 2px solid var(--color-main-green);
     outline-offset: 1px;
   }
-  &.is-full .only-side {
-    display: none;
-  }
-
   /* Messages */
+  /* The list ends at the composer's top edge, so its scrollbar never runs behind the composer.
+     Like the connection list, the scrollbar only shows while hovered. */
   .messages {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
-    padding: var(--agent-space-4) var(--agent-space-4) 140px;
+    padding: var(--agent-space-3) var(--agent-space-4) var(--agent-space-4);
     scroll-behavior: smooth;
+    scrollbar-color: transparent transparent;
+  }
+  .messages:hover {
+    scrollbar-color: var(--color-bg-scrollbar) transparent;
   }
   &.is-full .messages {
-    padding: var(--agent-space-6) var(--agent-space-6) 160px;
+    padding: var(--agent-space-6) var(--agent-space-6) var(--agent-space-6);
   }
   .column {
     max-width: var(--agent-content-max);
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--agent-space-4);
   }
 
   .turn-user {
     display: flex;
     justify-content: flex-end;
   }
+  .user-message {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--agent-space-2);
+    min-width: 0;
+    max-width: 80%;
+  }
+  .user-attachments {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--agent-space-2);
+  }
+  .user-skills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--agent-space-2);
+  }
+  .user-skill {
+    padding: var(--agent-space-1) var(--agent-space-2);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--agent-radius-sm);
+    background: var(--color-bg-normal);
+    color: var(--color-text-default);
+    font-size: 12px;
+  }
+  .user-image {
+    max-width: 160px;
+    max-height: 160px;
+    border-radius: var(--agent-radius-sm);
+    border: 1px solid var(--color-border-default);
+    cursor: pointer;
+  }
+  .user-image-missing {
+    padding: var(--agent-space-1) var(--agent-space-2);
+    border: 1px dashed var(--color-border-default);
+    border-radius: var(--agent-radius-sm);
+    color: var(--color-text-light);
+    font-size: 12px;
+  }
+  .user-file {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--agent-space-1);
+    max-width: 240px;
+    padding: var(--agent-space-1) var(--agent-space-2);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--agent-radius-sm);
+    background: var(--color-bg-normal);
+    font-size: 12px;
+    color: var(--color-text-default);
+  }
+  .user-file-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .user-file-size {
+    flex: none;
+    color: var(--color-text-light);
+  }
   .bubble {
     max-width: 80%;
     background: var(--color-bg-item);
     color: var(--color-text-title);
-    padding: 10px 14px;
+    padding: var(--agent-space-2) var(--agent-space-3);
     border-radius: var(--agent-radius-lg) var(--agent-radius-lg) 4px var(--agent-radius-lg);
     line-height: 1.6;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
   }
+  .turn-user .bubble {
+    max-width: 100%;
+  }
   .turn-agent {
     display: flex;
-    gap: 12px;
+    gap: var(--agent-space-2);
     align-items: flex-start;
   }
+  /* The icon on a tile of the theme background: white in light, dark in dark and night */
   .avatar {
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background: var(--color-main-green);
-    color: #fff;
+    width: var(--agent-space-6);
+    height: var(--agent-space-6);
+    border-radius: var(--agent-radius-sm);
+    border: 1px solid var(--color-border-default);
+    background: var(--color-bg-normal);
+    box-shadow: 0 1px 4px var(--color-shadow-card);
     display: grid;
     place-items: center;
     flex: none;
@@ -297,8 +544,8 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    line-height: 1.65;
+    gap: var(--agent-space-2);
+    line-height: 1.6;
     color: var(--color-text-default);
     // Long topics, ids and URLs wrap instead of widening the panel
     overflow-wrap: anywhere;
@@ -319,6 +566,7 @@
     > :last-child {
       margin-bottom: 0;
     }
+    // Headings stay close to the body size: a chat reply is not a document
     h1,
     h2,
     h3,
@@ -326,32 +574,38 @@
     h5,
     h6 {
       color: var(--color-text-title);
-      line-height: 1.4;
-      margin: 18px 0 8px;
+      font-weight: 600;
+      line-height: 1.45;
+      margin: var(--agent-space-4) 0 6px;
     }
     h1 {
-      font-size: 1.5em;
+      font-size: 16px;
     }
     h2 {
-      font-size: 1.3em;
+      font-size: 15px;
     }
-    h3 {
-      font-size: 1.15em;
-    }
+    h3,
     h4,
     h5,
     h6 {
-      font-size: 1em;
+      font-size: 14px;
     }
     p {
-      margin: 0 0 10px;
+      margin: 0 0 var(--agent-space-2);
+    }
+    a {
+      color: var(--color-main-green);
+      text-decoration: none;
+      &:hover {
+        text-decoration: underline;
+      }
     }
     code {
       font-family: Menlo, Monaco, 'Courier New', monospace;
     }
     pre {
       margin: 0;
-      padding: 12px 14px;
+      padding: var(--agent-space-2) var(--agent-space-3);
       border-radius: var(--agent-radius-sm);
       font-size: 12.5px;
       code {
@@ -360,26 +614,44 @@
       }
     }
     .code-toolbar {
-      margin: 10px 0;
+      margin: var(--agent-space-2) 0;
     }
     ul,
     ol {
-      padding-left: 1.6em;
-      margin: 0 0 10px;
+      padding-left: 1.4em;
+      margin: 0 0 var(--agent-space-2);
     }
     li {
-      margin: 4px 0;
+      margin: 2px 0;
+      &::marker {
+        color: var(--color-text-light);
+      }
+      > p {
+        margin: 0;
+      }
+      > ul,
+      > ol {
+        margin: 2px 0 0;
+      }
     }
     blockquote {
-      margin: 10px 0;
-      padding: 0 14px;
+      margin: var(--agent-space-2) 0;
+      padding: 2px var(--agent-space-3);
       color: var(--color-text-light);
       border-left: 3px solid var(--color-border-default);
+      p {
+        margin: 0;
+      }
     }
+    // Wide tables scroll inside the reply instead of squeezing their columns
     table {
-      margin: 10px 0;
+      display: block;
+      width: max-content;
+      max-width: 100%;
+      overflow-x: auto;
+      margin: var(--agent-space-2) 0;
       border-collapse: collapse;
-      width: 100%;
+      font-size: 13px;
       th,
       td {
         border: 1px solid var(--color-border-default);
@@ -388,11 +660,12 @@
       }
       th {
         background: var(--color-bg-primary);
+        color: var(--color-text-title);
         font-weight: 600;
       }
     }
     hr {
-      margin: 14px 0;
+      margin: var(--agent-space-4) 0;
       border: 0;
       border-top: 1px solid var(--color-border-default);
     }
@@ -465,17 +738,24 @@
   .reasoning summary::-webkit-details-marker {
     display: none;
   }
-  .reasoning summary svg {
+  .reasoning summary i {
+    font-size: 14px; /* arrow-right: 5.3x10.1; the arrow sits 0.4px high */
+    line-height: 1;
+    transform: translateY(0.4px);
     transition: transform 0.16s var(--agent-ease);
   }
-  .reasoning[open] summary svg {
-    transform: rotate(90deg);
+  .reasoning[open] summary i {
+    transform: translateY(0.4px) rotate(90deg);
   }
   .reasoning .reasoning-body {
-    margin-top: 8px;
-    padding-left: 12px;
+    max-height: 160px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    margin-top: var(--agent-space-2);
+    padding-left: var(--agent-space-3);
     border-left: 2px solid var(--color-border-default);
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 1.5;
     color: var(--color-text-light);
   }
 
@@ -490,7 +770,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 9px 12px;
+    padding: var(--agent-space-2) var(--agent-space-3);
     font-size: 13px;
     color: var(--color-text-default);
     cursor: pointer;
@@ -511,6 +791,8 @@
     color: var(--color-text-light);
     transition: transform 0.16s var(--agent-ease);
     flex: none;
+    font-size: 14px;
+    line-height: 1;
   }
   .steps.collapsed .steps-head .chev {
     transform: rotate(-90deg);
@@ -524,8 +806,8 @@
   .step-row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
+    gap: var(--agent-space-2);
+    padding: var(--agent-space-2) var(--agent-space-3);
     font-size: 13px;
     cursor: pointer;
     border: 0;
@@ -576,6 +858,10 @@
     place-items: center;
     flex: none;
   }
+  .st i {
+    font-size: 15px;
+    line-height: 1;
+  }
   .st.done {
     color: var(--color-main-green);
   }
@@ -585,14 +871,8 @@
   .st.denied {
     color: var(--color-text-light);
   }
-  .st.running svg {
-    animation: agent-spin 0.9s linear infinite;
+  .st.running i {
     color: var(--color-main-green);
-  }
-  @keyframes agent-spin {
-    to {
-      transform: rotate(360deg);
-    }
   }
   .step.denied .label {
     text-decoration: line-through;
@@ -630,13 +910,19 @@
 
   /* Approval card */
   .approval {
-    border: 1px solid var(--agent-amber);
+    display: flex;
+    flex-direction: column;
+    gap: var(--agent-space-2);
+    padding: var(--agent-space-3);
+    border: 1px solid var(--color-border-default);
     border-radius: var(--agent-radius-md);
     background: var(--color-bg-normal);
-    box-shadow: 0 0 0 3px #e6a23c1f;
-    overflow: hidden;
+    box-shadow: 0 2px 8px var(--color-shadow-card);
     animation: agent-rise 0.24s var(--agent-ease);
     outline: none;
+  }
+  .approval:focus-visible {
+    border-color: var(--agent-amber);
   }
   @keyframes agent-rise {
     from {
@@ -650,42 +936,43 @@
   }
   .approval-head {
     display: flex;
-    gap: 10px;
-    align-items: flex-start;
-    padding: 12px 14px 8px;
+    gap: var(--agent-space-2);
+    align-items: baseline;
   }
-  .approval-head .ico {
-    color: var(--agent-amber);
-    margin-top: 1px;
+  /* The only accent: a small amber dot marks the card as waiting for the user */
+  .approval-head .dot {
+    flex: none;
+    width: var(--agent-space-2);
+    height: var(--agent-space-2);
+    border-radius: 50%;
+    background: var(--agent-amber);
+    transform: translateY(-1px);
   }
   .approval-head .text {
+    min-width: 0;
     color: var(--color-text-title);
-    line-height: 1.55;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
   }
-  .approval-head .text .verb {
-    font-weight: 600;
-  }
-  .approval-body {
-    padding: 0 14px 12px 40px;
-  }
-  .approval-body .meta {
+  .approval-meta {
     display: flex;
-    gap: 16px;
+    flex-wrap: wrap;
+    gap: var(--agent-space-1) var(--agent-space-3);
     font-size: 12px;
     color: var(--color-text-light);
-    margin-bottom: 8px;
   }
-  .approval-body .meta b {
-    color: var(--color-text-default);
-    font-weight: 500;
+  .approval .code {
+    max-height: 160px;
   }
   .approval-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    padding: 10px 14px;
-    border-top: 1px solid var(--color-border-default);
-    background: var(--color-bg-primary);
+    justify-content: flex-end;
+    gap: var(--agent-space-2);
+  }
+  .approval-actions .btn {
+    height: 28px;
+    padding: 0 var(--agent-space-3);
   }
   .btn {
     height: 30px;
@@ -714,20 +1001,104 @@
     background: var(--color-minor-green);
     color: #fff;
   }
-  .btn.ghost-danger {
-    margin-left: auto;
+  .btn.text {
+    border-color: transparent;
+    background: transparent;
+    color: var(--color-text-light);
   }
-  .btn.ghost-danger:hover {
-    border-color: var(--color-minor-red);
+  .btn.text:hover {
     color: var(--color-minor-red);
   }
   .kbd {
     font-size: 11px;
     opacity: 0.75;
-    border: 1px solid currentColor;
-    border-radius: 4px;
-    padding: 0 4px;
-    line-height: 15px;
+  }
+
+  /* Saved project files */
+  .file-card {
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--agent-radius-md);
+    background: var(--color-bg-normal);
+    overflow: hidden;
+  }
+  .file-head {
+    display: flex;
+    align-items: center;
+    gap: var(--agent-space-2);
+    padding: var(--agent-space-2) var(--agent-space-3);
+  }
+  .file-toggle {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--agent-space-2);
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .file-ico {
+    flex: none;
+    display: grid;
+    place-items: center;
+    color: var(--color-text-light);
+  }
+  .file-info {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .file-name {
+    color: var(--color-text-title);
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .file-meta {
+    color: var(--color-text-light);
+    font-size: 12px;
+  }
+  .file-actions {
+    flex: none;
+    display: flex;
+    gap: var(--agent-space-2);
+  }
+  .file-missing {
+    padding: 0 var(--agent-space-3) var(--agent-space-2);
+    color: var(--color-minor-red);
+    font-size: 12px;
+  }
+  .file-list {
+    margin: 0;
+    padding: var(--agent-space-2) var(--agent-space-3);
+    list-style: none;
+    border-top: 1px solid var(--color-border-default);
+    background: var(--color-bg-primary);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .file-list li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--agent-space-2);
+    padding: 2px 0;
+    font-size: 12px;
+    color: var(--color-text-default);
+  }
+  .file-list .file-path {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .file-list .file-size {
+    flex: none;
+    color: var(--color-text-light);
+    font-variant-numeric: tabular-nums;
   }
 
   /* Notices */
@@ -770,11 +1141,11 @@
   }
 
   /* Jump to latest */
+  /* Sticks to the bottom of the message list, just above the composer whatever its height */
   .jump {
-    position: absolute;
-    left: 50%;
-    bottom: 150px;
-    transform: translateX(-50%);
+    position: sticky;
+    bottom: var(--agent-space-3);
+    margin: 0 auto;
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -790,29 +1161,153 @@
 
   /* Composer */
   .composer-wrap {
+    position: relative;
+    flex: none;
+    padding: 0 var(--agent-space-3) var(--agent-space-2);
+    background: var(--color-bg-normal);
+  }
+  /* Fades the messages out just above the composer */
+  .composer-wrap::before {
+    content: '';
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
-    padding: 0 var(--agent-space-4) var(--agent-space-4);
-    background: linear-gradient(180deg, transparent, var(--color-bg-normal) 28px);
+    bottom: 100%;
+    height: var(--agent-space-4);
+    background: linear-gradient(180deg, transparent, var(--color-bg-normal));
+    pointer-events: none;
   }
   &.is-full .composer-wrap {
-    padding: 0 var(--agent-space-6) var(--agent-space-6);
+    padding: 0 var(--agent-space-6) var(--agent-space-3);
+  }
+  .composer-tray {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--agent-space-2);
+    margin-bottom: var(--agent-space-2);
+  }
+  .skill-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--agent-space-1);
+    padding: var(--agent-space-1) var(--agent-space-2);
+    border: 1px solid var(--color-main-green);
+    border-radius: var(--agent-radius-sm);
+    background: var(--color-bg-normal);
+    color: var(--color-text-title);
+    font-size: 12px;
+  }
+  .skill-chip-remove {
+    border: 0;
+    background: transparent;
+    color: var(--color-text-light);
+    font-size: 10px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+  }
+  .attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--agent-space-2);
+  }
+  .attachment {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--agent-space-1);
+    max-width: 220px;
+    padding: var(--agent-space-1);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--agent-radius-sm);
+    background: var(--color-bg-primary);
+  }
+  .attachment-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--agent-radius-sm);
+    object-fit: cover;
+    display: block;
+  }
+  .attachment-ico {
+    flex: none;
+    width: var(--agent-space-6);
+    height: var(--agent-space-6);
+    display: grid;
+    place-items: center;
+    color: var(--color-text-light);
+  }
+  .attachment-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding-right: var(--agent-space-1);
+  }
+  .attachment-name {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+    color: var(--color-text-title);
+  }
+  .attachment-meta {
+    font-size: 11px;
+    color: var(--color-text-light);
+  }
+  .attachment-remove {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 16px;
+    height: 16px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--color-border-default);
+    border-radius: 50%;
+    background: var(--color-bg-normal);
+    color: var(--color-text-default);
+    font-size: 10px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .attachment-remove:hover {
+    color: var(--color-minor-red);
+    border-color: var(--color-minor-red);
+  }
+  .attachment-input {
+    display: none;
+  }
+
+  /* Drag and drop overlay */
+  .drop-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    border: 2px dashed var(--color-border-default);
+    border-radius: var(--agent-radius-md);
+    background: var(--color-bg-normal);
+  }
+  .drop-overlay-text {
+    color: var(--color-text-title);
+    font-size: 14px;
   }
   .composer {
     max-width: var(--agent-content-max);
     margin: 0 auto;
     border: 1px solid var(--color-border-default);
-    border-radius: var(--agent-radius-lg);
+    border-radius: var(--agent-radius-md);
     background: var(--color-bg-normal);
-    box-shadow: 0 2px 12px var(--color-shadow-card);
-    padding: 10px 10px 8px 14px;
-    transition: border-color 0.12s, box-shadow 0.12s;
+    box-shadow: 0 2px 8px var(--color-shadow-card);
+    padding: var(--agent-space-2) var(--agent-space-2) var(--agent-space-2) var(--agent-space-3);
+    transition: border-color 0.12s;
   }
+  /* Focus only recolors the border, like the app's other inputs */
   .composer:focus-within {
     border-color: var(--color-main-green);
-    box-shadow: 0 0 0 3px #34c38822, 0 2px 12px var(--color-shadow-card);
   }
   .composer textarea {
     width: 100%;
@@ -833,8 +1328,8 @@
   .composer-bar {
     display: flex;
     align-items: center;
-    gap: 6px;
-    margin-top: 6px;
+    gap: var(--agent-space-2);
+    margin-top: var(--agent-space-2);
   }
   .pill {
     display: inline-flex;
@@ -842,7 +1337,7 @@
     gap: 6px;
     height: 28px;
     padding: 0 10px;
-    border-radius: 999px;
+    border-radius: var(--agent-radius-sm);
     border: 1px solid var(--color-border-default);
     background: var(--color-bg-normal);
     color: var(--color-text-default);
@@ -880,17 +1375,24 @@
   }
   .model {
     margin-left: auto;
-    flex: none;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--agent-space-1);
+    height: 28px;
+    padding: 0 var(--agent-space-2);
+    border: 1px solid transparent;
+    border-radius: var(--agent-radius-sm);
+    font-size: 12px;
+    color: var(--color-text-tips);
+    background: transparent;
+    cursor: pointer;
+  }
+  .model-label {
     max-width: 140px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 12px;
-    color: var(--color-text-tips);
-    padding: 0 6px;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
   }
   .model:hover {
     color: var(--color-text-default);
@@ -898,13 +1400,13 @@
   .send {
     width: 32px;
     height: 32px;
-    border-radius: 50%;
+    border-radius: var(--agent-radius-sm);
     border: 0;
     display: grid;
     place-items: center;
     background: var(--color-main-green);
     color: #fff;
-    box-shadow: 0 2px 6px #2dc17769;
+    box-shadow: 0 2px 6px var(--color-shadow-sendbtn);
     cursor: pointer;
     flex: none;
   }
@@ -929,7 +1431,7 @@
     text-align: center;
     font-size: 11px;
     color: var(--color-text-tips);
-    margin-top: 8px;
+    margin-top: var(--agent-space-1);
   }
 
   /* Permission mode menu */
@@ -942,26 +1444,114 @@
     background: var(--color-bg-normal);
     border: 1px solid var(--color-border-default);
     box-shadow: 0 8px 28px var(--color-shadow-card);
-    padding: 6px;
+    padding: var(--agent-space-1);
     display: none;
     z-index: 30;
   }
   .menu.show {
     display: block;
   }
+  /* Sits completely above the composer so it never covers the text being typed, at any input height */
+  .skill-menu {
+    bottom: calc(100% + var(--agent-space-2));
+    width: min(360px, calc(100% - 2 * var(--agent-space-4)));
+    max-height: none;
+    overflow: visible;
+  }
+  /* Opens above the model button at the right of the composer bar */
+  .model-menu {
+    left: auto;
+    right: var(--agent-space-4);
+    width: 240px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .model-menu .opt {
+    align-items: center;
+  }
+  .model-menu .opt.settings {
+    margin-top: var(--agent-space-1);
+    border-top: 1px solid var(--color-border-default);
+    border-radius: 0 0 var(--agent-radius-sm) var(--agent-radius-sm);
+  }
+  .model-menu .opt.settings .t {
+    font-weight: 400;
+    color: var(--color-text-default);
+  }
+  .skill-menu .opt {
+    align-items: flex-start;
+  }
+  /* One line per skill so all seven fit without scrolling */
+  .skill-menu .opt > div {
+    flex: 1;
+    min-width: 0;
+  }
+  .skill-menu .opt .t,
+  .skill-menu .opt .d {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  // Icon-font glyphs centered on the first text line
+  .skill-ico,
+  .suggestion .s-ico {
+    flex: none;
+    width: 20px;
+    line-height: 20px;
+    text-align: center;
+    color: var(--color-main-green);
+  }
+  /* Per-glyph sizes so the seven Element skill icons share one ink size (about 15px) */
+  .skill-ico.el-icon-edit-outline {
+    font-size: 19px;
+  }
+  .skill-ico.el-icon-s-data,
+  .skill-ico.el-icon-s-operation {
+    font-size: 20px;
+  }
+  .skill-ico.el-icon-document,
+  .skill-ico.el-icon-reading,
+  .skill-ico.el-icon-first-aid-kit,
+  .skill-ico.el-icon-monitor {
+    font-size: 17px;
+  }
+  // The thin line glyphs need more weight next to the card titles
+  .suggestion .s-ico {
+    width: 20px;
+    font-size: 18px;
+    -webkit-text-stroke: 0.3px currentColor;
+  }
+  .menu-title {
+    display: flex;
+    align-items: center;
+    gap: var(--agent-space-1);
+    padding: var(--agent-space-1) var(--agent-space-2);
+    color: var(--color-text-light);
+    font-size: 12px;
+  }
   .menu .opt {
     display: flex;
-    gap: 10px;
-    padding: 10px;
+    gap: var(--agent-space-2);
+    padding: var(--agent-space-2) var(--agent-space-3);
     border-radius: var(--agent-radius-sm);
     cursor: pointer;
     border: 0;
     background: transparent;
+    // Buttons default to black text, which hides currentColor icons in dark themes
+    color: var(--color-text-default);
     width: 100%;
     text-align: left;
   }
   .menu .opt:hover {
     background: var(--color-bg-primary);
+  }
+  /* A long description must not squeeze the icon */
+  .menu .opt .perm-ico {
+    flex: none;
+    width: 18px;
+    font-size: 18px;
+    line-height: 20px;
+    text-align: center;
   }
   .menu .opt .t {
     color: var(--color-text-title);
@@ -989,7 +1579,7 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding-top: 72px;
+    padding-top: 40px;
   }
   &.is-empty .welcome {
     display: flex;
@@ -1000,13 +1590,13 @@
   .welcome .mark {
     width: 52px;
     height: 52px;
-    border-radius: 16px;
-    background: var(--color-main-green);
-    color: #fff;
+    border-radius: var(--agent-radius-lg);
+    border: 1px solid var(--color-border-default);
+    background: var(--color-bg-normal);
     display: grid;
     place-items: center;
     margin-bottom: 16px;
-    box-shadow: 0 6px 18px #34c38855;
+    box-shadow: 0 6px 18px var(--color-shadow-card);
   }
   .welcome h2 {
     margin: 0 0 6px;
@@ -1015,7 +1605,7 @@
     font-weight: 600;
   }
   .welcome p {
-    margin: 0 0 28px;
+    margin: 0 0 var(--agent-space-6);
     color: var(--color-text-light);
     max-width: 420px;
     line-height: 1.6;
@@ -1023,7 +1613,7 @@
   .suggestions {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: var(--agent-space-2);
     width: 100%;
     max-width: 560px;
   }
@@ -1037,7 +1627,7 @@
   }
   .suggestion {
     text-align: left;
-    padding: 12px 14px;
+    padding: var(--agent-space-2) var(--agent-space-3);
     border-radius: var(--agent-radius-md);
     border: 1px solid var(--color-border-default);
     background: var(--color-bg-normal);
@@ -1045,16 +1635,12 @@
     font-size: 13px;
     line-height: 1.5;
     display: flex;
-    gap: 10px;
+    gap: var(--agent-space-2);
     cursor: pointer;
   }
   .suggestion:hover {
     border-color: var(--color-main-green);
     background: var(--color-bg-primary);
-  }
-  .suggestion .s-ico {
-    color: var(--color-main-green);
-    margin-top: 1px;
   }
   .suggestion small {
     display: block;
@@ -1067,6 +1653,115 @@
     padding: 0 4px;
     border-radius: 3px;
     font-size: 12px;
+  }
+
+  /* Icon fonts: the font-size per glyph compensates the different ink sizes so a row looks even.
+     Ink sizes were measured with canvas actualBoundingBox (see reports/final-icon-polish.md). */
+  .icon-btn i {
+    line-height: 1;
+  }
+  /* Title bar: ~14px ink. Element only, except the sidebar toggle, which is the iconfont pair the
+     left navigation also uses for showing/hiding the connection list. */
+  .agent-header .icon-btn .iconfont {
+    font-size: 16px; /* icon-show/hide-connections: 14.1x12.1 */
+  }
+  /* Sized by eye rather than equal ink boxes: close sizes keep the stroke weights alike, a circle
+     needs a little more room than a square, and corner marks look larger than their ink */
+  .agent-header .icon-btn .el-icon-time {
+    font-size: 18px; /* 15.8x15.8 */
+  }
+  .agent-header .icon-btn .el-icon-chat-dot-square {
+    font-size: 17px; /* 13.8x13.3, ink sits 0.3px low */
+    transform: translateY(-0.3px);
+  }
+  .agent-header .icon-btn .el-icon-full-screen {
+    font-size: 16px; /* 13.0x13.0 */
+  }
+  .agent-header .icon-btn .el-icon-close {
+    font-size: 20px; /* 12.1x12.1; larger makes the X heavier than its neighbours */
+  }
+  /* Message actions: ~13px ink, both from the iconfont */
+  .msg-actions .icon-copy {
+    font-size: 15px; /* 13.2x13.1 */
+  }
+  .msg-actions .icon-refresh {
+    font-size: 16px; /* 13.0x13.1 */
+  }
+  /* Composer row: pills and the model selector share height/radius; icons are centered */
+  .pill.attach i {
+    font-size: 16px; /* el-icon-paperclip: 12.7x13.2; the clip sits 0.6px high */
+    line-height: 1;
+    transform: translateY(0.6px);
+  }
+  .mode-ico {
+    font-size: 14px; /* lock 10.5x12.3, bolt 12.3x12.3; both sit 0.4px high */
+    line-height: 1;
+    transform: translateY(0.4px);
+  }
+  .caret {
+    flex: none;
+    font-size: 14px; /* el-icon-arrow-down: 10.1x5.3; the chevron sits 0.5px low */
+    line-height: 1;
+    transform: translateY(-0.5px);
+  }
+  .send i {
+    font-size: 16px; /* el-icon-position: 13.2x13.2 */
+    line-height: 1;
+  }
+  /* Step states: ~12px ink */
+  .st .el-icon-check {
+    font-size: 16px; /* 12.3x8.9 */
+  }
+  .st .el-icon-close {
+    font-size: 20px; /* 12.1x12.1 */
+  }
+  .st .el-icon-circle-close,
+  .st .el-icon-loading {
+    font-size: 14px; /* 12.3x12.3 */
+  }
+  .attachment-ico i {
+    font-size: 16px;
+    line-height: 1;
+  }
+  .notice i,
+  .error-block .ico i,
+  .jump i {
+    font-size: 16px;
+    line-height: 1;
+  }
+  .new-chat i {
+    font-size: 15px; /* el-icon-plus: 12.2x12.2 */
+    line-height: 1;
+  }
+  .file-ico i {
+    font-size: 18px; /* 15.6x13.5 */
+    line-height: 1;
+  }
+
+  /* Pop in and out: the float window fades and scales, the full page only fades */
+  &.agent-pop-enter-active {
+    transition: opacity 0.16s var(--agent-ease), transform 0.16s var(--agent-ease);
+  }
+  &.agent-pop-leave-active {
+    transition: opacity 0.12s var(--agent-ease), transform 0.12s var(--agent-ease);
+  }
+  &.agent-pop-enter,
+  &.agent-pop-leave-to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+    transform-origin: bottom right;
+  }
+  /* The full page zooms in from slightly smaller, centered on the page */
+  &.is-full.agent-pop-enter-active {
+    transition: opacity 0.22s var(--agent-ease), transform 0.22s var(--agent-ease);
+  }
+  &.is-full.agent-pop-leave-active {
+    transition: opacity 0.14s var(--agent-ease), transform 0.14s var(--agent-ease);
+  }
+  &.is-full.agent-pop-enter,
+  &.is-full.agent-pop-leave-to {
+    transform: scale(0.97);
+    transform-origin: center;
   }
 
   @media (prefers-reduced-motion: reduce) {

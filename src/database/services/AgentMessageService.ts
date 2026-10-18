@@ -54,14 +54,6 @@ export default class AgentMessageService {
   }
 
   /**
-   * Deletes all Agent messages from the database
-   * @returns The result of the clear operation
-   */
-  public async deleteAll() {
-    return await this.conversationRepository.clear()
-  }
-
-  /**
    * Updates an existing Agent message
    * @param message The message to update
    * @returns The result of the update operation

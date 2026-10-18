@@ -1,4 +1,5 @@
 import { expect } from 'chai'
+import path from 'path'
 import { EventEmitter } from 'events'
 import { createConnectionTools } from '@/utils/ai/agent/tools/connections'
 import { createMessagingTools } from '@/utils/ai/agent/tools/messaging'
@@ -41,6 +42,7 @@ describe('MQTT tools', () => {
   let deleteCalls: number
   let pushCalls: string[]
   let reloadCalls: number
+  let updateCollectionCalls: { id: string; groupId: string | null }[]
 
   const setup = () => {
     client = new EventEmitter() as FakeClient
@@ -51,6 +53,7 @@ describe('MQTT tools', () => {
     pushCalls = []
     createCalls = []
     reloadCalls = 0
+    updateCollectionCalls = []
 
     view = {
       connectionId: 'c1',
@@ -68,6 +71,9 @@ describe('MQTT tools', () => {
       publish: async (message: MessageModel, type: PayloadType) => {
         publishCalls.push({ topic: message.topic, type, properties: message.properties })
       },
+      startTimedPublish: async () => undefined,
+      stopTimedPublish: () => undefined,
+      isTimedPublishing: () => false,
       deleteConnection: async () => {
         deleteCalls += 1
       },
@@ -95,6 +101,9 @@ describe('MQTT tools', () => {
             return created
           },
           update: async (id: string, data: ConnectionModel) => ({ ...data, id }),
+          updateCollectionId: async (id: string, groupId: string | null) => {
+            updateCollectionCalls.push({ id, groupId })
+          },
         },
         messageService: {
           get: async () => ({
@@ -130,6 +139,7 @@ describe('MQTT tools', () => {
         },
       },
       getPermissionMode: () => 'ask',
+      getConversationId: () => 'conversation-1',
     }
   }
 
@@ -150,9 +160,9 @@ describe('MQTT tools', () => {
     const result: any = await tools.get_connection.execute!({ connectionId: 'c1' }, {} as any)
 
     expect(result.password).to.equal('***')
-    expect(result.ca).to.equal('***')
-    expect(result.cert).to.equal('***')
-    expect(result.key).to.equal('***')
+    expect(result.ca).to.equal('CA')
+    expect(result.cert).to.equal('CERT')
+    expect(result.key).to.equal('KEY')
     expect(result.will).to.include({ hasPayload: true })
     expect(JSON.stringify(result)).to.not.contain('secret payload')
     expect(result.subscriptions).to.deep.equal([{ topic: 'a/#', qos: 0, disabled: false }])
@@ -194,6 +204,41 @@ describe('MQTT tools', () => {
     const tools = createConnectionTools(deps)
     await tools.update_connection.execute!({ connectionId: 'c1', changes: { name: 'Renamed' } } as any, {} as any)
     expect(reloadCalls).to.equal(1)
+  })
+
+  it('creates a connection inside the requested group', async () => {
+    const tools = createConnectionTools(deps)
+    await tools.create_connection.execute!({ name: 'Grouped', host: 'broker.emqx.io', groupId: 'g1' } as any, {} as any)
+
+    expect(createCalls[0].parentId).to.equal('g1')
+    expect(createCalls[0]).to.not.have.property('groupId')
+  })
+
+  it('rejects a group that does not exist when creating', async () => {
+    const tools = createConnectionTools(deps)
+    let error: Error | undefined
+    try {
+      await tools.create_connection.execute!(
+        { name: 'Grouped', host: 'broker.emqx.io', groupId: 'missing' } as any,
+        {} as any,
+      )
+    } catch (caught) {
+      error = caught as Error
+    }
+    expect(error?.message).to.contain('not found')
+    expect(createCalls).to.have.length(0)
+  })
+
+  it('moves a connection into a group when updating', async () => {
+    const tools = createConnectionTools(deps)
+    await tools.update_connection.execute!({ connectionId: 'c1', changes: { groupId: 'g1' } } as any, {} as any)
+    expect(updateCollectionCalls).to.deep.equal([{ id: 'c1', groupId: 'g1' }])
+  })
+
+  it('moves a connection back to the top level when updating', async () => {
+    const tools = createConnectionTools(deps)
+    await tools.update_connection.execute!({ connectionId: 'c1', changes: { groupId: null } } as any, {} as any)
+    expect(updateCollectionCalls).to.deep.equal([{ id: 'c1', groupId: null }])
   })
 
   it('refuses to publish or subscribe on a disconnected connection', async () => {
@@ -306,6 +351,87 @@ describe('MQTT tools', () => {
     expect(deleteCalls).to.equal(1)
     expect(result).to.deep.equal({ deleted: true, name: 'Local EMQX' })
     expect(pushCalls).to.deep.equal(['/recent_connections'])
+  })
+
+  describe('TLS settings', () => {
+    const fixtures = path.resolve(process.cwd(), 'tests/unit/fixtures')
+    const certPath = path.join(fixtures, 'test-cert.pem')
+    const keyPath = path.join(fixtures, 'test-key.pem')
+
+    const createExpectingError = async (input: Record<string, unknown>): Promise<Error | undefined> => {
+      const tools = createConnectionTools(deps)
+      let error: Error | undefined
+      try {
+        await tools.create_connection.execute!({ name: 'TLS', host: 'broker.example.com', ...input } as any, {} as any)
+      } catch (caught) {
+        error = caught as Error
+      }
+      return error
+    }
+
+    it('should store the certificate paths and default to a self-signed setup', async () => {
+      const tools = createConnectionTools(deps)
+      await tools.create_connection.execute!(
+        {
+          name: 'TLS',
+          host: 'broker.example.com',
+          protocol: 'mqtts',
+          ca: certPath,
+          cert: certPath,
+          key: keyPath,
+        } as any,
+        {} as any,
+      )
+
+      expect(createCalls[0]).to.include({ certType: 'self', ca: certPath, cert: certPath, key: keyPath, ssl: true })
+    })
+
+    it('should join the ALPN protocols into a comma separated string', async () => {
+      const tools = createConnectionTools(deps)
+      await tools.create_connection.execute!(
+        { name: 'TLS', host: 'broker.example.com', protocol: 'wss', ALPNProtocols: ['mqtt', 'x'] } as any,
+        {} as any,
+      )
+
+      expect(createCalls[0].ALPNProtocols).to.equal('mqtt,x')
+      expect(createCalls[0].ssl).to.equal(true)
+    })
+
+    it('should reject TLS settings on a non-TLS protocol', async () => {
+      const error = await createExpectingError({ ca: certPath })
+      expect(error?.message).to.contain('need the protocol')
+    })
+
+    it('should reject a relative certificate path', async () => {
+      const error = await createExpectingError({ protocol: 'mqtts', ca: 'ca.crt' })
+      expect(error?.message).to.contain('absolute path')
+    })
+
+    it('should reject a certificate file that does not exist', async () => {
+      const error = await createExpectingError({ protocol: 'mqtts', ca: path.join(fixtures, 'nope.pem') })
+      expect(error?.message).to.contain('not found')
+    })
+
+    it('should require the certificate and the key together', async () => {
+      const error = await createExpectingError({ protocol: 'mqtts', cert: certPath })
+      expect(error?.message).to.contain('both "cert" and "key"')
+    })
+
+    it('should check the merged values when updating', async () => {
+      deps.services.connectionService.get = async () =>
+        ({ ...connection, ca: '', cert: certPath, key: '', certType: 'self' } as any)
+      const tools = createConnectionTools(deps)
+      let error: Error | undefined
+      try {
+        await tools.update_connection.execute!(
+          { connectionId: 'c1', changes: { protocol: 'mqtts', ALPNProtocols: ['mqtt'] } } as any,
+          {} as any,
+        )
+      } catch (caught) {
+        error = caught as Error
+      }
+      expect(error?.message).to.contain('both "cert" and "key"')
+    })
   })
 })
 

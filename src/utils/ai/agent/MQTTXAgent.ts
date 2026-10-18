@@ -1,7 +1,7 @@
 import { ToolLoopAgent, stepCountIs, ToolSet } from 'ai'
 import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY, getAgentMessageId } from '@/utils/idGenerator'
-import { getModelProvider, AImodelsOptions, AIAPIHostOptions } from '@/utils/ai/models'
+import { getModelProvider, AImodelsOptions, AIAPIHostOptions, loadSystemPrompt } from '@/utils/ai/models'
 import { loadMCPTools } from '@/utils/ai/mcp/MCPUtils'
 import {
   applyStreamPart,
@@ -13,11 +13,39 @@ import {
   toModelMessages,
 } from '@/utils/ai/agent/messageParts'
 import { AgentMessage, AIModel } from '@/types/agent'
-import { SessionManager } from '@/utils/ai/agent/SessionManager'
 import { ApprovalGate, PermissionMode, withApproval } from '@/utils/ai/agent/approval'
 import { AgentToolDeps } from '@/utils/ai/agent/tools/types'
-import { AGENT_WRITE_TOOLS, createMQTTTools } from '@/utils/ai/agent/tools'
+import { AGENT_ALWAYS_ASK_TOOLS, AGENT_WRITE_TOOLS, createMQTTTools } from '@/utils/ai/agent/tools'
 import { buildAppContext, renderAppContext } from '@/utils/ai/agent/tools/appContext'
+
+const normalizeHost = (url?: string): string => (url ? url.toLowerCase().replace(/\/+$/, '') : '')
+
+/** Known non-Azure hosts, matched by a fragment of the option value, normalized once */
+const PROVIDER_HOSTS: Array<[string, typeof AImodelsOptions[number]['value']]> = (
+  [
+    ['google', 'Google'],
+    ['anthropic', 'Anthropic'],
+    ['deepseek', 'DeepSeek'],
+    ['x.ai', 'xAI'],
+    ['siliconflow', 'SiliconFlow'],
+    ['dashscope', 'Alibaba'],
+    ['mistral.ai', 'Mistral'],
+    ['groq.com', 'Groq'],
+    ['cohere.com', 'Cohere'],
+    ['together.xyz', 'Together AI'],
+    ['fireworks.ai', 'Fireworks'],
+    ['deepinfra.com', 'DeepInfra'],
+    ['cerebras.ai', 'Cerebras'],
+    ['moonshot.ai', 'Moonshot AI'],
+    ['minimax.io', 'MiniMax'],
+    ['z.ai', 'Z.AI'],
+    ['perplexity.ai', 'Perplexity'],
+    ['ai-gateway.vercel.sh', 'Vercel AI Gateway'],
+  ] as const
+).map(([fragment, provider]) => [
+  normalizeHost(AIAPIHostOptions.find((option) => option.value.includes(fragment))?.value),
+  provider,
+])
 
 /**
  * MQTTXAgent - Handles interactions with LLMs
@@ -30,7 +58,6 @@ export class MQTTXAgent {
   private openAIAPIKey: string
   private model: App['model']
   private currentLang: Language
-  private sessionManager: SessionManager
   private deps: AgentToolDeps
   private gate: ApprovalGate
   private allowedTools: Set<string>
@@ -54,7 +81,6 @@ export class MQTTXAgent {
     openAIAPIKey: string
     model: App['model']
     currentLang: Language
-    sessionManager: SessionManager
     deps: AgentToolDeps
     gate: ApprovalGate
     allowedTools: Set<string>
@@ -69,7 +95,6 @@ export class MQTTXAgent {
     this.openAIAPIKey = options.openAIAPIKey
     this.model = options.model
     this.currentLang = options.currentLang
-    this.sessionManager = options.sessionManager
     this.deps = options.deps
     this.gate = options.gate
     this.allowedTools = options.allowedTools
@@ -122,12 +147,6 @@ export class MQTTXAgent {
   }
 
   /**
-   * Process the AI model to determine if it is a Claude thinking model
-   *
-   * @param model The AI model to process
-   * @returns An object containing the actual model and a boolean indicating if it is a Claude thinking model
-   */
-  /**
    * Process the AI model to extract model information
    *
    * @param model The AI model identifier
@@ -168,19 +187,6 @@ export class MQTTXAgent {
   }
 
   /**
-   * Determines the AI provider type based on the model name (deployment name for Azure) and API host.
-   *
-   * Strategy:
-   * 1. Check if the host matches the Azure OpenAI pattern.
-   * 2. If not Azure, try to identify the provider by matching the model name against known models.
-   * 3. If no model match, try to identify the provider by matching the host against known API endpoints.
-   * 4. Default to OpenAI if no other match is found.
-   *
-   * @param model - The AI model identifier (could be a base model name or an Azure deployment name).
-   * @param host - The API host URL.
-   * @returns The provider type ('Azure OpenAI', 'OpenAI', 'Google', 'Anthropic', etc.).
-   */
-  /**
    * Determines the AI provider type based on the model name and API host.
    *
    * Strategy:
@@ -213,39 +219,18 @@ export class MQTTXAgent {
     }
 
     // **Priority 3: Infer provider based on known non-Azure host URLs**
-    const normalizedHost = this.normalizeUrl(host)
-
-    const googleHost = this.normalizeUrl(AIAPIHostOptions.find((h) => h.value.includes('google'))?.value)
-    if (normalizedHost && normalizedHost === googleHost) return 'Google'
-
-    const anthropicHost = this.normalizeUrl(AIAPIHostOptions.find((h) => h.value.includes('anthropic'))?.value)
-    if (normalizedHost && normalizedHost === anthropicHost) return 'Anthropic'
-
-    const deepseekHost = this.normalizeUrl(AIAPIHostOptions.find((h) => h.value.includes('deepseek'))?.value)
-    if (normalizedHost && normalizedHost === deepseekHost) return 'DeepSeek'
-
-    const xaiHost = this.normalizeUrl(AIAPIHostOptions.find((h) => h.value.includes('x.ai'))?.value)
-    if (normalizedHost && normalizedHost === xaiHost) return 'xAI'
-
-    const siliconFlowHost = this.normalizeUrl(AIAPIHostOptions.find((h) => h.value.includes('siliconflow'))?.value)
-    if (normalizedHost && normalizedHost === siliconFlowHost) return 'SiliconFlow'
+    const normalizedHost = normalizeHost(host)
+    if (normalizedHost) {
+      for (const [knownHost, provider] of PROVIDER_HOSTS) {
+        if (normalizedHost === knownHost) return provider
+      }
+    }
 
     // Fallback: Default to OpenAI
     console.warn(
       `Could not definitively determine provider type for model '${model}' and host '${host}'. Defaulting to OpenAI.`,
     )
     return 'OpenAI'
-  }
-
-  /**
-   * Normalizes a URL by converting it to lowercase and removing trailing slashes.
-   *
-   * @param url - The URL to normalize
-   * @returns The normalized URL, or an empty string if the input is falsy.
-   */
-  private normalizeUrl(url: string | undefined): string {
-    if (!url) return ''
-    return url.toLowerCase().replace(/\/+$/, '')
   }
 
   /**
@@ -268,7 +253,7 @@ export class MQTTXAgent {
       }),
       instructions,
       tools,
-      // Preset prompts add their own system message to the conversation
+      // Older conversations may still hold a system message; keep accepting them
       allowSystemInMessages: true,
       stopWhen: stepCountIs(this.maxSteps),
       providerOptions: {
@@ -313,7 +298,7 @@ export class MQTTXAgent {
 
     try {
       const [instructions, tools] = await Promise.all([
-        this.sessionManager.getSystemPrompt(this.currentLang),
+        loadSystemPrompt(this.currentLang),
         this.buildTools(responseMessage),
       ])
       const appContext = renderAppContext(buildAppContext(this.deps))
@@ -334,11 +319,8 @@ export class MQTTXAgent {
         if (part.type === 'finish-step') {
           lastFinishReason = part.finishReason
         }
-        if (part.type === 'reasoning-delta') {
-          responseMessage.reasoning = (responseMessage.reasoning || '') + part.text
-        }
         const parts = applyStreamPart(responseMessage.parts || [], part)
-        if (parts === responseMessage.parts && part.type !== 'reasoning-delta') {
+        if (parts === responseMessage.parts) {
           continue
         }
         responseMessage.parts = parts
@@ -415,7 +397,9 @@ export class MQTTXAgent {
     const tools: ToolSet = {}
     const mqttTools = createMQTTTools(this.deps)
     for (const [name, definition] of Object.entries(mqttTools)) {
-      tools[name] = AGENT_WRITE_TOOLS.has(name) ? withApproval(name, definition, context) : definition
+      const alwaysAsk = AGENT_ALWAYS_ASK_TOOLS.has(name)
+      tools[name] =
+        AGENT_WRITE_TOOLS.has(name) || alwaysAsk ? withApproval(name, definition, context, alwaysAsk) : definition
     }
     const mcpTools = await loadMCPTools()
     for (const [name, definition] of Object.entries(mcpTools)) {

@@ -27,3 +27,4 @@ declare module '*.json' {
 }
 
 declare module '*.txt'
+declare module '*.md'

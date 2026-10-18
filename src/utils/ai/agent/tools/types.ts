@@ -11,7 +11,13 @@ export interface AgentToolDeps {
   bridge: ConnectionBridge
   services: Pick<
     ReturnType<typeof useServices>,
-    'connectionService' | 'messageService' | 'topicNodeService' | 'collectionService'
+    | 'connectionService'
+    | 'messageService'
+    | 'topicNodeService'
+    | 'collectionService'
+    | 'scriptService'
+    | 'dashboardService'
+    | 'widgetService'
   >
   store: { getters: any; dispatch: (type: string, payload?: any) => Promise<any> }
   router: {
@@ -19,4 +25,5 @@ export interface AgentToolDeps {
     currentRoute: { path: string; query: any; params: any }
   }
   getPermissionMode: () => PermissionMode
+  getConversationId: () => string
 }

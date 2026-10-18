@@ -1,8 +1,7 @@
 <template>
   <div class="message-render">
-    <div v-for="(part, index) in renderParts" :key="index">
-      <agent-step v-if="part.type === 'tool'" :part="part.part" @approve="$emit('approve', $event)" />
-      <MCP-call-card v-else-if="part.type === 'mcp'" :content="part.content" />
+    <div v-for="(part, index) in parsedContent" :key="index">
+      <MCP-call-card v-if="part.type === 'mcp'" :content="part.content" />
       <vue-markdown
         v-else
         class="chat-content"
@@ -23,43 +22,23 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import VueMarkdown from 'vue-markdown'
 import MCPCallCard from './MCPCallCard.vue'
-import AgentStep from './AgentStep.vue'
-import { AgentMessagePart } from '@/types/agent'
 
-type ContentPart =
-  | { type: 'text' | 'mcp'; content: string }
-  | { type: 'tool'; part: Extract<AgentMessagePart, { type: 'tool' }> }
+type ContentPart = { type: 'text' | 'mcp'; content: string }
 
 @Component({
   components: {
     VueMarkdown,
     MCPCallCard,
-    AgentStep,
   },
 })
 export default class MessageRender extends Vue {
   @Prop({ required: true }) readonly content!: string
-  @Prop({ default: null }) readonly parts!: AgentMessagePart[] | null
   @Prop({ default: 'Copy' }) readonly copyText!: string
   @Prop({ default: 'Copy failed' }) readonly copyFailedText!: string
   @Prop({ default: 'Copied' }) readonly copiedText!: string
 
   parsedContent: ContentPart[] = []
   private lastContent = ''
-
-  // Agent replies carry structured parts; older replies embed MCP calls in their text
-  get renderParts(): ContentPart[] {
-    if (!this.parts || this.parts.length === 0) {
-      return this.parsedContent
-    }
-    return this.parts.map((part) =>
-      part.type === 'tool'
-        ? { type: 'tool', part }
-        : part.type === 'text'
-        ? { type: 'text', content: part.text }
-        : { type: 'text', content: '' },
-    )
-  }
 
   @Watch('content', { immediate: true })
   onContentChange(newContent: string) {

@@ -5,8 +5,6 @@ import { createXai } from '@ai-sdk/xai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createAzure } from '@ai-sdk/azure'
 
-import VueI18n from 'vue-i18n'
-
 /**
  * Defines the role of a message in the Agent conversation
  */
@@ -18,10 +16,43 @@ export type AgentRole = 'system' | 'user' | 'assistant'
 export type AgentToolState = 'awaiting-approval' | 'running' | 'done' | 'error' | 'denied'
 
 /**
- * A step of an assistant reply: generated text or a tool call made by the agent
+ * Kind of a file the user attached to a message
+ */
+export type AgentAttachmentKind = 'image' | 'certificate' | 'private-key' | 'bundle' | 'text'
+
+/**
+ * A file the user attached to their message. Credentials only keep their path; images keep a
+ * relative path inside agent-files; text files keep their (possibly truncated) content.
+ */
+export interface AgentAttachmentPart {
+  type: 'attachment'
+  kind: AgentAttachmentKind
+  name: string
+  size: number
+  mediaType?: string
+  relativePath?: string
+  path?: string
+  text?: string
+  truncated?: boolean
+}
+
+/**
+ * A part of a user message: a file the user attached, or a Skill the user picked from the `/` menu
+ */
+export interface AgentSkillPart {
+  type: 'skill'
+  skill: string
+}
+
+/**
+ * A step of an assistant reply: generated text, a thinking block or a tool call made by the agent,
+ * or a file / Skill the user attached to a user message
  */
 export type AgentMessagePart =
   | { type: 'text'; text: string }
+  | { type: 'reasoning'; text: string; startedAt: number; finishedAt?: number }
+  | AgentAttachmentPart
+  | AgentSkillPart
   | {
       type: 'tool'
       toolCallId: string
@@ -43,86 +74,11 @@ export interface AgentMessage {
   id: string
   role: AgentRole
   content: string
+  // Legacy: older messages stored all thinking of a reply in this string instead of reasoning parts
   reasoning?: string
   parts?: AgentMessagePart[]
   createAt?: string
   conversationId?: string
-}
-
-/**
- * Defines a preset prompt with translation support
- */
-export interface AgentPresetPrompt {
-  prompt: string
-  promptMap: PresetPromptMap
-}
-
-/**
- * Maps preset prompts to their translated versions
- */
-export type PresetPromptMap = Record<
-  string,
-  VueI18n.TranslateResult | Record<'system' | 'user', VueI18n.TranslateResult>
->
-
-/**
- * Response structure for message retrieval operations
- */
-export interface MessagesResponse {
-  messages: AgentMessage[]
-  hasMore: boolean
-}
-
-/**
- * Props for the Agent input component
- */
-export interface AgentComposerProps {
-  value: string
-  disabled: boolean
-}
-
-/**
- * Events emitted by the Agent input component
- */
-export interface AgentComposerEvents {
-  send: (message?: string) => void
-  'preset-change': (data: AgentPresetPrompt) => void
-  focus: () => void
-}
-
-/**
- * Props for the Agent messages component
- */
-export interface AgentMessagesProps {
-  messages: AgentMessage[]
-  isSending: boolean
-  streamingMessage: AgentMessage | null
-}
-
-/**
- * Events emitted by the Agent messages component
- */
-export interface AgentMessagesEvents {
-  'load-more-messages': () => void
-  scrollToBottom: (behavior: ScrollBehavior) => void
-}
-
-/**
- * Events emitted by the Agent header component
- */
-export interface AgentHeaderEvents {
-  'clear-all-messages': () => void
-  'toggle-window': () => void
-}
-
-/**
- * Option structure for preset prompts in dropdown menus
- */
-export interface PresetPromptOption {
-  value: string
-  label: string | VueI18n.TranslateResult
-  children?: PresetPromptOption[]
-  allowedRoutes?: string[]
 }
 
 /**
@@ -143,7 +99,7 @@ export type AIModel = Parameters<
  */
 interface BaseProviderOptionsModel {
   value: string
-  children: { value: string }[]
+  children: { value: string; label: string; vision?: boolean }[]
   providerCreator?: (...args: any[]) => any
 }
 
@@ -152,7 +108,7 @@ interface BaseProviderOptionsModel {
  */
 export interface OpenAIOptionsModel extends BaseProviderOptionsModel {
   value: 'OpenAI'
-  children: { value: Parameters<ReturnType<typeof createOpenAI>>[0] }[]
+  children: { value: Parameters<ReturnType<typeof createOpenAI>>[0]; label: string; vision?: boolean }[]
   providerCreator: typeof createOpenAI
 }
 
@@ -161,7 +117,7 @@ export interface OpenAIOptionsModel extends BaseProviderOptionsModel {
  */
 export interface DeepSeekOptionsModel extends BaseProviderOptionsModel {
   value: 'DeepSeek'
-  children: { value: Parameters<ReturnType<typeof createDeepSeek>>[0] }[]
+  children: { value: Parameters<ReturnType<typeof createDeepSeek>>[0]; label: string; vision?: boolean }[]
   providerCreator: typeof createDeepSeek
 }
 
@@ -170,7 +126,7 @@ export interface DeepSeekOptionsModel extends BaseProviderOptionsModel {
  */
 export interface AnthropicOptionsModel extends BaseProviderOptionsModel {
   value: 'Anthropic'
-  children: { value: Parameters<ReturnType<typeof createAnthropic>>[0] }[]
+  children: { value: Parameters<ReturnType<typeof createAnthropic>>[0]; label: string; vision?: boolean }[]
   providerCreator: typeof createAnthropic
 }
 
@@ -179,7 +135,7 @@ export interface AnthropicOptionsModel extends BaseProviderOptionsModel {
  */
 export interface XaiOptionsModel extends BaseProviderOptionsModel {
   value: 'xAI'
-  children: { value: Parameters<ReturnType<typeof createXai>>[0] }[]
+  children: { value: Parameters<ReturnType<typeof createXai>>[0]; label: string; vision?: boolean }[]
   providerCreator: typeof createXai
 }
 
@@ -190,6 +146,8 @@ export interface GoogleOptionsModel extends BaseProviderOptionsModel {
   value: 'Google'
   children: {
     value: Parameters<ReturnType<typeof createGoogleGenerativeAI>>[0]
+    label: string
+    vision?: boolean
   }[]
   providerCreator: typeof createGoogleGenerativeAI
 }
@@ -208,6 +166,8 @@ export interface SiliconFlowOptionsModel extends BaseProviderOptionsModel {
       // (string & {}) keeps autocomplete for the literals above while still allowing any model id
       // eslint-disable-next-line @typescript-eslint/ban-types
       | (string & {})
+    label: string
+    vision?: boolean
   }[]
   providerCreator: typeof createOpenAI
 }
@@ -217,8 +177,30 @@ export interface SiliconFlowOptionsModel extends BaseProviderOptionsModel {
  */
 export interface AzureOptionsModel extends BaseProviderOptionsModel {
   value: 'Azure OpenAI'
-  children: { value: Parameters<ReturnType<typeof createAzure>>[0] }[]
+  children: { value: Parameters<ReturnType<typeof createAzure>>[0]; label: string; vision?: boolean }[]
   providerCreator: typeof createAzure
+}
+
+/**
+ * Configuration for the providers added after the first release. Their model ids come straight from
+ * each provider package, so the values stay plain strings.
+ */
+export interface ProviderOptionsModel extends BaseProviderOptionsModel {
+  value:
+    | 'Alibaba'
+    | 'Mistral'
+    | 'Groq'
+    | 'Cohere'
+    | 'Together AI'
+    | 'Fireworks'
+    | 'DeepInfra'
+    | 'Cerebras'
+    | 'Moonshot AI'
+    | 'MiniMax'
+    | 'Z.AI'
+    | 'Perplexity'
+    | 'Vercel AI Gateway'
+  providerCreator: (...args: any[]) => any
 }
 
 /**
@@ -232,24 +214,5 @@ export type AImodelsOptionsModel = (
   | GoogleOptionsModel
   | SiliconFlowOptionsModel
   | AzureOptionsModel
+  | ProviderOptionsModel
 )[]
-
-/**
- * Type definition for prompt options
- */
-export interface PromptOptionDefinition {
-  value: string
-  labelKey: string
-  prompt: string | { system: string; user: string }
-  params?: string[]
-}
-
-/**
- * Session state interface
- */
-export interface SessionState {
-  systemPrompt: string // Current system prompt for the session
-  presetPrompt: string // Current preset prompt being used
-  isNewSession: boolean // Whether this is a new session
-  lastPresetChangeTime: number // Timestamp of the last preset change
-}

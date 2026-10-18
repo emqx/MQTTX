@@ -1,40 +1,65 @@
 <template>
   <aside class="history">
-    <button class="new-chat" @click="$emit('new-chat')">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M12 5v14M5 12h14" />
-      </svg>
-      {{ $t('agent.newChat') }}
-    </button>
-    <template v-for="group in groups">
-      <template v-if="group.items.length">
-        <div class="group-title" :key="group.key">{{ $t(group.labelKey) }}</div>
-        <div
-          v-for="conversation in group.items"
-          :key="conversation.id"
-          class="conv"
-          :class="{ active: conversation.id === activeId }"
-          @click="$emit('select', conversation.id)"
-        >
-          <span :title="conversation.title || $t('agent.untitled')">{{
-            conversation.title || $t('agent.untitled')
-          }}</span>
-          <i v-if="conversation.id === runningId" class="live"></i>
-          <el-dropdown v-else trigger="click" @command="onCommand(conversation.id, $event)" @click.native.stop>
-            <button class="more" :aria-label="$t('agent.conversationMenu')" @click.stop>···</button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="rename">{{ $t('agent.rename') }}</el-dropdown-item>
-              <el-dropdown-item command="delete">{{ $t('agent.delete') }}</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
-        </div>
+    <div class="history-topbar">
+      <h1 class="history-title">{{ $t('agent.chats') }}</h1>
+      <button
+        class="history-new"
+        type="button"
+        :title="$t('agent.newChat')"
+        :aria-label="$t('agent.newChat')"
+        @click="$emit('new-chat')"
+      >
+        <i class="iconfont icon-create-new"></i>
+      </button>
+    </div>
+    <div class="history-list">
+      <template v-for="group in groups">
+        <template v-if="group.items.length">
+          <div class="group-title" :key="group.key">{{ $t(group.labelKey) }}</div>
+          <div
+            v-for="conversation in group.items"
+            :key="conversation.id"
+            class="conv"
+            :class="{ active: conversation.id === activeId }"
+            @click="$emit('select', conversation.id)"
+          >
+            <span class="conv-name" :title="conversation.title || $t('agent.untitled')">{{
+              conversation.title || $t('agent.untitled')
+            }}</span>
+            <span class="conv-tail">
+              <i v-if="conversation.id === runningId" class="live"></i>
+              <template v-else>
+                <span class="conv-time">{{ formatTime(conversation.updateAt) }}</span>
+                <el-dropdown
+                  class="conv-actions"
+                  trigger="click"
+                  @command="onCommand(conversation.id, $event)"
+                  @click.native.stop
+                >
+                  <button class="more" type="button" :aria-label="$t('agent.conversationMenu')" @click.stop>
+                    <i class="iconfont icon-more"></i>
+                  </button>
+                  <el-dropdown-menu class="agent-conv-menu" slot="dropdown">
+                    <el-dropdown-item command="rename">
+                      <i class="iconfont icon-edit"></i>{{ $t('agent.rename') }}
+                    </el-dropdown-item>
+                    <el-dropdown-item class="delete-item" command="delete">
+                      <i class="iconfont icon-delete"></i>{{ $t('agent.delete') }}
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </template>
+            </span>
+          </div>
+        </template>
       </template>
-    </template>
+    </div>
   </aside>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
+import { formatConversationTime } from '@/utils/ai/agent/conversationTime'
 
 type ConversationLike = { id: string; title: string; updateAt: string | number | Date }
 
@@ -47,6 +72,10 @@ export default class AgentSidebar extends Vue {
   private onCommand(id: string, command: string) {
     if (command === 'rename') this.$emit('rename', id)
     if (command === 'delete') this.$emit('delete', id)
+  }
+
+  private formatTime(value: string | number | Date): string {
+    return formatConversationTime(this.toTime(value, Date.now()))
   }
 
   get groups() {
@@ -78,3 +107,10 @@ export default class AgentSidebar extends Vue {
   }
 }
 </script>
+
+<style lang="scss">
+@import '@/assets/scss/mixins.scss';
+
+/* Same dropdown look as the connection menus (icon spacing, red delete item) */
+@include el-dropdown-menu-common;
+</style>

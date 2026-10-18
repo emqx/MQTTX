@@ -5,25 +5,22 @@ import { createAnthropic } from '@ai-sdk/anthropic'
 import { createXai } from '@ai-sdk/xai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createAzure } from '@ai-sdk/azure'
+import { createAlibaba } from '@ai-sdk/alibaba'
+import { createMistral } from '@ai-sdk/mistral'
+import { createGroq } from '@ai-sdk/groq'
+import { createCohere } from '@ai-sdk/cohere'
+import { createTogetherAI } from '@ai-sdk/togetherai'
+import { createFireworks } from '@ai-sdk/fireworks'
+import { createDeepInfra } from '@ai-sdk/deepinfra'
+import { createCerebras } from '@ai-sdk/cerebras'
+import { createMoonshotAI } from '@ai-sdk/moonshotai'
+import { createMiniMax } from '@ai-sdk/minimax'
+import { createZai } from '@ai-sdk/zai'
+import { createPerplexity } from '@ai-sdk/perplexity'
+import { createGateway } from '@ai-sdk/gateway'
 
 import basePrompt from './prompts/base.txt'
-import clientCodeGen from './prompts/clientCodeGen.txt'
-import payloadGen from './prompts/payloadGen.txt'
-import emqxGuide from './prompts/emqxGuide.txt'
-import mqttFaq from './prompts/mqttFaq.txt'
-import funcGen from './prompts/funcGen.txt'
-import protobufSchemaGen from './prompts/protobufSchemaGen.txt'
-import avroSchemaGen from './prompts/avroSchemaGen.txt'
-import {
-  ALL_CODE_GENERATION_COMMAND_VALUES,
-  PAYLOAD_GENERATION_COMMAND_VALUES,
-  EMQX_COMMAND_VALUES,
-  MQTT_FAQ_COMMAND_VALUES,
-  CUSTOM_FUNCTION_COMMAND_VALUES,
-  ALL_SCHEMA_COMMAND_VALUES,
-  PROTOBUF_SCHEMA_COMMAND_VALUES,
-  AVRO_SCHEMA_COMMAND_VALUES,
-} from './preset'
+import { renderSkillList } from './agent/skills'
 import type { LanguageModelV4 } from '@ai-sdk/provider'
 
 export const LANGUAGE_MAP = {
@@ -35,46 +32,8 @@ export const LANGUAGE_MAP = {
   ko: '한국어로 답변해 주세요（Korean）',
 }
 
-export const loadSystemPrompt = (lang: Language, command?: string) => {
-  let _basePrompt = basePrompt
-
-  // Check if the command is related to code generation
-  if (command && ALL_CODE_GENERATION_COMMAND_VALUES.includes(command)) {
-    _basePrompt = `${_basePrompt}\n\n${clientCodeGen}`
-  }
-
-  // Check if the command is related to payload generation
-  if (command && PAYLOAD_GENERATION_COMMAND_VALUES.includes(command)) {
-    _basePrompt = `${_basePrompt}\n\n${payloadGen}`
-  }
-
-  // Check if the command is related to EMQX
-  if (command && EMQX_COMMAND_VALUES.includes(command)) {
-    _basePrompt = `${_basePrompt}\n\n${emqxGuide}`
-  }
-
-  // Check if the command is related to MQTT FAQ
-  if (command && MQTT_FAQ_COMMAND_VALUES.includes(command)) {
-    _basePrompt = `${_basePrompt}\n\n${mqttFaq}`
-  }
-
-  // Check if the command is related to custom function
-  if (command && CUSTOM_FUNCTION_COMMAND_VALUES.includes(command)) {
-    _basePrompt = `${_basePrompt}\n\n${funcGen}`
-  }
-
-  // Check if the command is related to schema generation
-  if (command && ALL_SCHEMA_COMMAND_VALUES.includes(command)) {
-    // Use the specific schema prompt based on the command (Protobuf or Avro)
-    if (command && PROTOBUF_SCHEMA_COMMAND_VALUES.includes(command)) {
-      _basePrompt = `${_basePrompt}\n\n${protobufSchemaGen}`
-    } else if (command && AVRO_SCHEMA_COMMAND_VALUES.includes(command)) {
-      _basePrompt = `${_basePrompt}\n\n${avroSchemaGen}`
-    }
-  }
-
-  return `${_basePrompt}\n\n${LANGUAGE_MAP[lang]}`
-}
+export const loadSystemPrompt = (lang: Language): string =>
+  `${basePrompt}\n\n${renderSkillList()}\n\n${LANGUAGE_MAP[lang]}`
 
 /**
  * Configuration for available AI models across different providers.
@@ -91,99 +50,266 @@ export const AImodelsOptions: AImodelsOptionsModel = [
   {
     value: 'OpenAI' as const,
     children: [
-      { value: 'gpt-5' },
-      { value: 'gpt-5-mini' },
-      { value: 'gpt-5-nano' },
-      { value: 'gpt-4o' },
-      { value: 'gpt-4o-mini' },
-      { value: 'gpt-4.1' },
-      { value: 'gpt-4.1-mini' },
-      { value: 'gpt-4.1-nano' },
-      { value: 'o1' },
-      { value: 'o1-mini' },
-      { value: 'o1-preview' },
-      { value: 'o3-mini' },
+      { value: 'gpt-6-luna', label: 'GPT-6 Luna' },
+      { value: 'gpt-5.4', label: 'GPT-5.4' },
+      { value: 'gpt-5.2', label: 'GPT-5.2' },
+      { value: 'gpt-5.1', label: 'GPT-5.1' },
+      { value: 'gpt-5', label: 'GPT-5' },
+      { value: 'gpt-5-mini', label: 'GPT-5 mini' },
+      { value: 'gpt-5-nano', label: 'GPT-5 nano' },
+      { value: 'gpt-4o', label: 'GPT-4o' },
+      { value: 'gpt-4o-mini', label: 'GPT-4o mini' },
+      { value: 'gpt-4.1', label: 'GPT-4.1' },
+      { value: 'gpt-4.1-mini', label: 'GPT-4.1 mini' },
     ],
     providerCreator: createOpenAI,
   },
   {
     value: 'DeepSeek' as const,
-    children: [{ value: 'deepseek-flash' }, { value: 'deepseek-v4-pro' }],
+    children: [
+      { value: 'deepseek-flash', label: 'DeepSeek V4.1 Flash' },
+      { value: 'deepseek-v4-pro', label: 'DeepSeek V4 Pro', vision: false },
+    ],
     providerCreator: createDeepSeek,
   },
   {
     value: 'Anthropic',
     children: [
-      { value: 'claude-sonnet-4-5-20250929' },
-      { value: 'claude-opus-4-1-20250805' },
-      { value: 'claude-opus-4-1-20250805-thinking' },
-      { value: 'claude-opus-4-20250514' },
-      { value: 'claude-opus-4-20250514-thinking' },
-      { value: 'claude-sonnet-4-20250514' },
-      { value: 'claude-sonnet-4-20250514-thinking' },
-      { value: 'claude-3-7-sonnet-20250219' },
-      { value: 'claude-3-7-sonnet-20250219-thinking' },
-      { value: 'claude-3-5-haiku-20241022' },
-      { value: 'claude-3-5-sonnet-20240620' },
+      { value: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6' },
+      { value: 'claude-sonnet-4-6-thinking', label: 'Claude Sonnet 4.6 Thinking' },
+      { value: 'claude-opus-4-7', label: 'Claude Opus 4.7' },
+      { value: 'claude-opus-4-6', label: 'Claude Opus 4.6' },
+      { value: 'claude-opus-4-6-thinking', label: 'Claude Opus 4.6 Thinking' },
+      { value: 'claude-opus-4-5-20251101', label: 'Claude Opus 4.5' },
+      { value: 'claude-opus-4-5-20251101-thinking', label: 'Claude Opus 4.5 Thinking' },
+      { value: 'claude-sonnet-4-5-20250929', label: 'Claude Sonnet 4.5' },
+      { value: 'claude-sonnet-4-5-20250929-thinking', label: 'Claude Sonnet 4.5 Thinking' },
+      { value: 'claude-haiku-4-5-20251001', label: 'Claude Haiku 4.5' },
     ],
     providerCreator: createAnthropic,
   },
   {
     value: 'xAI' as const,
     children: [
-      { value: 'grok-4-0709' },
-      { value: 'grok-4-fast' },
-      { value: 'grok-code-fast-1' },
-      { value: 'grok-2-1212' },
-      { value: 'grok-2-vision-1212' },
+      { value: 'grok-4.20-reasoning', label: 'Grok 4.20 Reasoning' },
+      { value: 'grok-4.20-non-reasoning', label: 'Grok 4.20' },
+      { value: 'grok-4.7', label: 'Grok 4.7' },
+      { value: 'grok-4.6', label: 'Grok 4.6' },
+      { value: 'grok-4.5', label: 'Grok 4.5' },
+      { value: 'grok-4.3', label: 'Grok 4.3' },
     ],
     providerCreator: createXai,
   },
   {
     value: 'Google' as const,
     children: [
-      { value: 'gemini-2.5-pro' },
-      { value: 'gemini-2.5-pro-thinking' },
-      { value: 'gemini-2.5-flash' },
-      { value: 'gemini-2.5-flash-thinking' },
-      { value: 'gemini-2.5-flash-lite' },
-      { value: 'gemini-2.0-flash' },
-      { value: 'gemini-2.0-flash-thinking' },
-      { value: 'gemini-1.5-pro' },
-      { value: 'gemini-1.5-flash' },
-      { value: 'gemini-1.5-flash-8b' },
+      { value: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash' },
+      { value: 'gemini-3.8-flash-thinking', label: 'Gemini 3.8 Flash Thinking' },
+      { value: 'gemini-3.5-flash', label: 'Gemini 3.5 Flash' },
+      { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+      { value: 'gemini-2.5-pro-thinking', label: 'Gemini 2.5 Pro Thinking' },
+      { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+      { value: 'gemini-2.5-flash-thinking', label: 'Gemini 2.5 Flash Thinking' },
+      { value: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash-Lite' },
     ],
     providerCreator: createGoogleGenerativeAI,
   },
   {
     value: 'Azure OpenAI' as const,
     children: [
-      { value: 'deployment-gpt-5' },
-      { value: 'deployment-gpt-5-mini' },
-      { value: 'deployment-gpt-5-nano' },
-      { value: 'deployment-gpt-4o' },
-      { value: 'deployment-gpt-4o-mini' },
-      { value: 'deployment-gpt-4.1' },
-      { value: 'deployment-gpt-4.1-mini' },
-      { value: 'deployment-gpt-4.1-nano' },
-      { value: 'deployment-o1' },
-      { value: 'deployment-o1-mini' },
-      { value: 'deployment-o1-preview' },
-      { value: 'deployment-o3-mini' },
+      { value: 'deployment-gpt-6-luna', label: 'GPT-6 Luna' },
+      { value: 'deployment-gpt-5.4', label: 'GPT-5.4' },
+      { value: 'deployment-gpt-5.2', label: 'GPT-5.2' },
+      { value: 'deployment-gpt-5.1', label: 'GPT-5.1' },
+      { value: 'deployment-gpt-5', label: 'GPT-5' },
+      { value: 'deployment-gpt-5-mini', label: 'GPT-5 mini' },
+      { value: 'deployment-gpt-5-nano', label: 'GPT-5 nano' },
+      { value: 'deployment-gpt-4o', label: 'GPT-4o' },
+      { value: 'deployment-gpt-4o-mini', label: 'GPT-4o mini' },
+      { value: 'deployment-gpt-4.1', label: 'GPT-4.1' },
+      { value: 'deployment-gpt-4.1-mini', label: 'GPT-4.1 mini' },
     ],
     providerCreator: createAzure,
   },
   {
     value: 'SiliconFlow' as const,
     children: [
-      { value: 'deepseek-ai/DeepSeek-V3' },
-      { value: 'deepseek-ai/DeepSeek-R1' },
-      { value: 'Qwen/Qwen2-VL-72B-Instruct' },
-      { value: 'Qwen/Qwen2.5-72B-Instruct' },
+      { value: 'deepseek-ai/DeepSeek-V3', label: 'DeepSeek V3', vision: false },
+      { value: 'deepseek-ai/DeepSeek-R1', label: 'DeepSeek R1', vision: false },
+      { value: 'Qwen/Qwen2-VL-72B-Instruct', label: 'Qwen2 VL 72B Instruct' },
+      { value: 'Qwen/Qwen2.5-72B-Instruct', label: 'Qwen2.5 72B Instruct', vision: false },
     ],
     providerCreator: createOpenAI,
   },
+  {
+    value: 'Alibaba',
+    children: [
+      { value: 'qwen3.7-max', label: 'Qwen3.7 Max', vision: false },
+      { value: 'qwen3-max', label: 'Qwen3 Max', vision: false },
+      { value: 'qwen-plus', label: 'Qwen Plus', vision: false },
+      { value: 'qwen-flash', label: 'Qwen Flash', vision: false },
+      { value: 'qwen3-coder-plus', label: 'Qwen3 Coder Plus', vision: false },
+      { value: 'qwen3-235b-a22b', label: 'Qwen3 235B A22B', vision: false },
+    ],
+    providerCreator: createAlibaba,
+  },
+  {
+    value: 'Mistral',
+    children: [
+      { value: 'mistral-large-latest', label: 'Mistral Large', vision: false },
+      { value: 'mistral-medium-latest', label: 'Mistral Medium', vision: false },
+      { value: 'magistral-medium-latest', label: 'Magistral Medium', vision: false },
+      { value: 'codestral-latest', label: 'Codestral', vision: false },
+      { value: 'ministral-8b-latest', label: 'Ministral 8B', vision: false },
+    ],
+    providerCreator: createMistral,
+  },
+  {
+    value: 'Groq',
+    children: [
+      { value: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B Versatile', vision: false },
+      { value: 'llama-3.1-8b-instant', label: 'Llama 3.1 8B Instant', vision: false },
+      { value: 'openai/gpt-oss-120b', label: 'GPT-OSS 120B', vision: false },
+      { value: 'openai/gpt-oss-20b', label: 'GPT-OSS 20B', vision: false },
+      { value: 'moonshotai/kimi-k2-instruct-0905', label: 'Kimi K2 Instruct', vision: false },
+      { value: 'meta-llama/llama-4-maverick-17b-128e-instruct', label: 'Llama 4 Maverick' },
+    ],
+    providerCreator: createGroq,
+  },
+  {
+    value: 'Cohere',
+    children: [
+      { value: 'command-a-03-2025', label: 'Command A', vision: false },
+      { value: 'command-a-reasoning-08-2025', label: 'Command A Reasoning', vision: false },
+      { value: 'command-a-vision-07-2025', label: 'Command A Vision' },
+      { value: 'command-r7b-12-2024', label: 'Command R7B', vision: false },
+      { value: 'command-r-plus', label: 'Command R+', vision: false },
+    ],
+    providerCreator: createCohere,
+  },
+  {
+    value: 'Together AI',
+    children: [
+      { value: 'meta-llama/Llama-3.3-70B-Instruct-Turbo', label: 'Llama 3.3 70B Instruct Turbo', vision: false },
+      { value: 'deepseek-ai/DeepSeek-V4-Flash-0731', label: 'DeepSeek V4 Flash', vision: false },
+      { value: 'Qwen/Qwen2.5-72B-Instruct-Turbo', label: 'Qwen2.5 72B Instruct Turbo', vision: false },
+      { value: 'mistralai/Mixtral-8x22B-Instruct-v0.1', label: 'Mixtral 8x22B Instruct', vision: false },
+      { value: 'google/gemma-2-27b-it', label: 'Gemma 2 27B', vision: false },
+    ],
+    providerCreator: createTogetherAI,
+  },
+  {
+    value: 'Fireworks',
+    children: [
+      { value: 'accounts/fireworks/models/deepseek-v3', label: 'DeepSeek V3', vision: false },
+      { value: 'accounts/fireworks/models/kimi-k2-instruct', label: 'Kimi K2 Instruct', vision: false },
+      { value: 'accounts/fireworks/models/llama-v3p3-70b-instruct', label: 'Llama 3.3 70B Instruct', vision: false },
+      { value: 'accounts/fireworks/models/qwen2-vl-72b-instruct', label: 'Qwen2 VL 72B Instruct' },
+      { value: 'accounts/fireworks/models/llama-v3p2-11b-vision-instruct', label: 'Llama 3.2 11B Vision' },
+      { value: 'accounts/fireworks/models/minimax-m2', label: 'MiniMax M2', vision: false },
+    ],
+    providerCreator: createFireworks,
+  },
+  {
+    value: 'DeepInfra',
+    children: [
+      { value: 'meta-llama/Llama-3.3-70B-Instruct', label: 'Llama 3.3 70B Instruct', vision: false },
+      { value: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8', label: 'Llama 4 Maverick' },
+      { value: 'meta-llama/Llama-3.2-90B-Vision-Instruct', label: 'Llama 3.2 90B Vision' },
+      { value: 'Qwen/Qwen2.5-Coder-32B-Instruct', label: 'Qwen2.5 Coder 32B Instruct', vision: false },
+      { value: 'mistralai/Mistral-Nemo-Instruct-2407', label: 'Mistral Nemo Instruct', vision: false },
+    ],
+    providerCreator: createDeepInfra,
+  },
+  {
+    value: 'Cerebras',
+    children: [
+      { value: 'gpt-oss-120b', label: 'GPT-OSS 120B', vision: false },
+      { value: 'qwen-3.8-27b', label: 'Qwen 3.8 27B' },
+    ],
+    providerCreator: createCerebras,
+  },
+  {
+    value: 'Moonshot AI',
+    children: [
+      { value: 'kimi-k3', label: 'Kimi K3', vision: false },
+      { value: 'kimi-k2.6', label: 'Kimi K2.6', vision: false },
+      { value: 'kimi-k2.7-code', label: 'Kimi K2.7 Code', vision: false },
+      { value: 'moonshot-v1-128k', label: 'Moonshot v1 128K', vision: false },
+      { value: 'moonshot-v1-8k-vision-preview', label: 'Moonshot v1 8K Vision' },
+    ],
+    providerCreator: createMoonshotAI,
+  },
+  {
+    value: 'MiniMax',
+    children: [
+      { value: 'minimax-m3', label: 'MiniMax M3', vision: false },
+      { value: 'minimax-m2.7', label: 'MiniMax M2.7', vision: false },
+      { value: 'minimax-m2.5', label: 'MiniMax M2.5', vision: false },
+      { value: 'minimax-m2.1', label: 'MiniMax M2.1', vision: false },
+      { value: 'minimax-m2', label: 'MiniMax M2', vision: false },
+    ],
+    providerCreator: createMiniMax,
+  },
+  {
+    value: 'Z.AI',
+    children: [
+      { value: 'glm-5.3', label: 'GLM-5.3', vision: false },
+      { value: 'glm-5', label: 'GLM-5', vision: false },
+      { value: 'glm-4.7', label: 'GLM-4.7', vision: false },
+      { value: 'glm-4.6', label: 'GLM-4.6', vision: false },
+      { value: 'glm-4.6v', label: 'GLM-4.6V' },
+    ],
+    providerCreator: createZai,
+  },
+  {
+    value: 'Perplexity',
+    children: [
+      { value: 'perplexity/sonar', label: 'Perplexity Sonar', vision: false },
+      { value: 'fast', label: 'Perplexity Agent (fast)', vision: false },
+      { value: 'low', label: 'Perplexity Agent (low)', vision: false },
+      { value: 'medium', label: 'Perplexity Agent (medium)', vision: false },
+      { value: 'high', label: 'Perplexity Agent (high)', vision: false },
+      { value: 'xhigh', label: 'Perplexity Agent (xhigh)', vision: false },
+    ],
+    providerCreator: createPerplexity,
+  },
+  {
+    value: 'Vercel AI Gateway',
+    children: [
+      { value: 'openai/gpt-5.2', label: 'GPT-5.2' },
+      { value: 'anthropic/claude-sonnet-4.5', label: 'Claude Sonnet 4.5' },
+      { value: 'google/gemini-3.5-flash', label: 'Gemini 3.5 Flash' },
+      { value: 'spacexai/grok-4.3', label: 'Grok 4.3' },
+      { value: 'deepseek/deepseek-v4.1-flash', label: 'DeepSeek V4.1 Flash' },
+      { value: 'meta/llama-4-maverick', label: 'Llama 4 Maverick' },
+    ],
+    providerCreator: createGateway,
+  },
 ]
+
+/**
+ * Returns the display name of a model, falling back to the raw id for custom models.
+ */
+export const getModelLabel = (model: string): string => {
+  for (const provider of AImodelsOptions) {
+    const option = provider.children.find((child) => child.value === model)
+    if (option) return option.label
+  }
+  return model
+}
+
+/**
+ * Whether a model accepts images. Only models explicitly marked `vision: false` are rejected;
+ * models the user typed themselves are assumed to support images.
+ */
+export const supportsImages = (model: string): boolean => {
+  for (const provider of AImodelsOptions) {
+    const option = provider.children.find((child) => child.value === model)
+    if (option) return option.vision !== false
+  }
+  return true
+}
 
 /**
  * Default API host options for different AI providers.
@@ -207,6 +333,19 @@ export const AIAPIHostOptions = [
   { value: 'https://generativelanguage.googleapis.com/v1beta' },
   { value: 'https://api.siliconflow.cn/v1' },
   { value: 'https://${resourceName}.openai.azure.com' },
+  { value: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1' },
+  { value: 'https://api.mistral.ai/v1' },
+  { value: 'https://api.groq.com/openai/v1' },
+  { value: 'https://api.cohere.com/v2' },
+  { value: 'https://api.together.xyz/v1' },
+  { value: 'https://api.fireworks.ai/inference/v1' },
+  { value: 'https://api.deepinfra.com/v1' },
+  { value: 'https://api.cerebras.ai/v1' },
+  { value: 'https://api.moonshot.ai/v1' },
+  { value: 'https://api.minimax.io/anthropic/v1' },
+  { value: 'https://api.z.ai/api/paas/v4' },
+  { value: 'https://api.perplexity.ai' },
+  { value: 'https://ai-gateway.vercel.sh/v4/ai' },
 ]
 
 /**

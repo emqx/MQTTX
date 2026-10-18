@@ -189,6 +189,8 @@ import useServers from '@/database/useServices'
 import ImportScript from '@/components/ImportScript.vue'
 import AgentPanel from '@/components/agent/AgentPanel.vue'
 import { scriptTest } from '@/utils/scriptTest'
+import { globalEventBus } from '@/utils/globalEventBus'
+import { AGENT_DATA_CHANGED, AgentDataChangedPayload } from '@/utils/ai/agent/agentEvents'
 
 @Component({
   components: {
@@ -345,6 +347,16 @@ message Person {
     this.functionInputValue = this.defaultFunction[this.currentFunction].input
     this.schemaInputValue = this.defaultSchema[this.currentSchema].input
     this.loadData()
+    globalEventBus.on(AGENT_DATA_CHANGED, this.onAgentDataChanged)
+  }
+
+  /** The agent created, changed or deleted a script: reload the list */
+  private onAgentDataChanged({ domain }: AgentDataChangedPayload) {
+    if (domain === 'scripts') this.loadData()
+  }
+
+  private beforeDestroy() {
+    globalEventBus.off(AGENT_DATA_CHANGED, this.onAgentDataChanged)
   }
 
   private handleTabClick(e: any) {
@@ -593,7 +605,8 @@ message Person {
 
   private toggleAgent(show = true) {
     const agentRef = this.getAncestorRef('agent') as AgentPanel
-    agentRef.showAgent = show
+    if (show) agentRef.open('float')
+    else agentRef.closePanel()
     return agentRef
   }
 }

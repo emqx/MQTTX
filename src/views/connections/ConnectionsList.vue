@@ -176,6 +176,8 @@ import '@/assets/font/iconfont'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
 import getContextmenuPosition from '@/utils/getContextmenuPosition'
+import { globalEventBus } from '@/utils/globalEventBus'
+import { AGENT_DATA_CHANGED, AgentDataChangedPayload } from '@/utils/ai/agent/agentEvents'
 
 @Component({
   components: {
@@ -781,6 +783,16 @@ export default class ConnectionsList extends Vue {
   private mounted() {
     this.loadData(true)
     this.initUnreadMessageCount(this.connectionId)
+    globalEventBus.on(AGENT_DATA_CHANGED, this.onAgentDataChanged)
+  }
+
+  /** The agent changed connections, groups or messages: reload the tree */
+  private onAgentDataChanged({ domain }: AgentDataChangedPayload) {
+    if (domain === 'connections' || domain === 'messages') this.loadData(false)
+  }
+
+  private beforeDestroy() {
+    globalEventBus.off(AGENT_DATA_CHANGED, this.onAgentDataChanged)
   }
 }
 </script>

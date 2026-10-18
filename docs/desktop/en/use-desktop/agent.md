@@ -19,21 +19,28 @@ MQTTX Agent is an assistant built into the MQTTX desktop client. You ask for som
 | SiliconFlow | `https://api.siliconflow.cn/v1` |
 | Azure OpenAI | `https://<resourceName>.openai.azure.com` |
 
-3. Open the panel with the star button in the left bar, the **MQTTX Agent** button at the top right of a connection page, or `Cmd/Ctrl + J`.
+3. Open the Agent full screen with the star button in the left bar, or as a floating window with `Cmd/Ctrl + J` or the **MQTTX Agent** button at the top right of a connection or script page.
 
-The panel has two modes: a **side panel** on the right, and **full screen**, which covers the main area and keeps the app running underneath. Use the expand button in the panel header to switch, and drag the panel's left edge to resize it.
+The Agent has two modes: **full screen**, which covers the main area and keeps the app running underneath, and a **floating window** that works on any page. Drag its title bar to move it, drag an edge or corner to resize it, and its position and size are remembered. Use the expand button in its title bar to switch to full screen. `Esc` closes the floating window, and in full screen it returns to the floating window. Choosing another page in the left bar leaves full screen.
 
 ## What it can do
 
-- List and read connection configurations
+- List and read connection configurations, including TLS certificates and groups
 - Create, update and delete connections
-- Connect and disconnect
-- Subscribe and unsubscribe topics
-- Publish messages as Plaintext, JSON, Base64 or Hex
-- Read stored messages and wait for new ones
+- Connect and disconnect, subscribe and unsubscribe, publish messages as Plaintext, JSON, Base64 or Hex, and start or stop a timed publish
+- Read stored messages and wait for new ones, and clear a connection's messages
+- Inspect certificates and private keys locally (their contents are never shared)
+- Write, test and apply transformation functions and schemas
+- Build and read the Topic Tree
+- Create dashboards and widgets
+- Read the logs and change the app settings
 - Call tools provided by your MCP servers
 
-You can ask things like "connect to broker.emqx.io and subscribe to `testtopic/#`", "publish a JSON test message to `mqttx/test`", or "show my connections and their status".
+You can ask things like "connect to broker.emqx.io and subscribe to `testtopic/#`", "publish a JSON test message to `mqttx/test`", or "show my connections and their status". Type `/` in the composer to pick a Skill — client code, test data, schema, custom function, MQTT/EMQX knowledge, connection diagnostics or the MQTTX CLI — and the Agent will use it for your request. Generated code is saved as a downloadable zip: the chat shows a file card to download it or show it in its folder. The archives are stored under `agent-files` in the app data directory and are removed together with the conversation.
+
+## Attachments
+
+You can paste a screenshot, drop files onto the panel, or use the 📎 button. Images are sent to the model, text files are sent as text (the first 64 KB of larger files), and certificate or key files are referenced only by their path — their contents are never sent. The Agent can configure TLS with these files, for example: "connect to broker.example.com on port 8883 with `ca.crt` as the CA, `client.crt` as the client certificate and `client.key` as the key".
 
 ## Permission modes
 
@@ -71,4 +78,4 @@ Every MCP tool call asks for approval in Ask mode.
 
 ## Privacy
 
-Your conversation and the results of tool calls are sent to the model provider you configure, so that it can reply. Passwords, certificates and private keys are never sent: connection tools mask them, and only a flag saying whether a value is set is returned.
+Your conversation and the results of tool calls are sent to the model provider you configure, so that it can reply. Saved passwords, certificates and private keys are masked when tools read a connection, but anything you type in the chat is sent as is, so avoid entering secrets there.

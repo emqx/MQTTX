@@ -26,6 +26,11 @@ Router.prototype.push = function push(location: string) {
 }
 
 router.beforeEach(async (to, from, next) => {
+  // The Agent panel is not mounted while the Agent is disabled, so send the user to the switch in Settings
+  if (to.name === 'Agent' && !store.getters.enableAgent) {
+    next({ name: 'Settings' })
+    return
+  }
   if (to.name === 'Connections') {
     const { currentConnectionId } = store.state.app || {}
     const { connectionService } = useServices()

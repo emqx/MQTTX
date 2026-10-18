@@ -116,4 +116,51 @@ describe('approval', () => {
     const bare = {}
     expect(withApproval('publish', bare, createContext())).to.equal(bare)
   })
+
+  it('should still wait in auto mode for an always-ask tool', async () => {
+    const gate = new ApprovalGate()
+    const awaiting: string[] = []
+    let executed = 0
+    const tool = withApproval(
+      'test_script',
+      {
+        execute: async () => {
+          executed += 1
+          return 'ok'
+        },
+      },
+      createContext({ gate, getMode: () => 'auto', onAwaiting: (id) => awaiting.push(id) }),
+      true,
+    )
+
+    const pending = tool.execute({}, { toolCallId: 'c1' })
+    expect(awaiting).to.deep.equal(['c1'])
+    expect(executed).to.equal(0)
+
+    gate.decide('c1', 'once')
+    expect(await pending).to.equal('ok')
+    expect(executed).to.equal(1)
+  })
+
+  it('should not remember an always decision for an always-ask tool', async () => {
+    const gate = new ApprovalGate()
+    const allowedTools = new Set<string>()
+    const awaiting: string[] = []
+    const tool = withApproval(
+      'test_script',
+      { execute: async () => 'ok' },
+      createContext({ gate, getMode: () => 'auto', allowedTools, onAwaiting: (id) => awaiting.push(id) }),
+      true,
+    )
+
+    const first = tool.execute({}, { toolCallId: 'c1' })
+    gate.decide('c1', 'always')
+    await first
+    expect(allowedTools.has('test_script')).to.equal(false)
+
+    const second = tool.execute({}, { toolCallId: 'c2' })
+    expect(awaiting).to.deep.equal(['c1', 'c2'])
+    gate.decide('c2', 'once')
+    await second
+  })
 })
