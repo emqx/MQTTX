@@ -25,6 +25,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { globalEventBus } from '@/utils/globalEventBus'
+import { AGENT_DATA_CHANGED, AgentDataChangedPayload } from '@/utils/ai/agent/agentEvents'
 import TreeView from '@/widgets/TreeView.vue'
 import { updateTopicTreeNode } from '@/utils/topicTree'
 import { Packet } from 'mqtt-packet/types'
@@ -147,13 +148,20 @@ export default class TopicTree extends Vue {
     await this.loadTopicTree()
     this.messageQueue = new MessageQueue<TopicTreeNode[]>()
     globalEventBus.on('packetReceive', this.handlePacketReceive)
+    globalEventBus.on(AGENT_DATA_CHANGED, this.onAgentDataChanged)
     if (!this.subscription) {
       this.subscribeMessageQueue()
     }
   }
 
+  /** The agent synced or cleared the tree: reload it */
+  private onAgentDataChanged({ domain }: AgentDataChangedPayload) {
+    if (domain === 'topic-tree') this.loadTopicTree()
+  }
+
   private beforeDestroy() {
     globalEventBus.off('packetReceive', this.handlePacketReceive)
+    globalEventBus.off(AGENT_DATA_CHANGED, this.onAgentDataChanged)
     if (this.subscription) {
       this.subscription.unsubscribe()
       this.subscription = null

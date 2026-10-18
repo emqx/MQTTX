@@ -1,7 +1,81 @@
+import fs from 'fs'
 import type { ModelMessage, TextStreamPart, ToolSet, AssistantContent, ToolContent } from 'ai'
 import { AgentMessage, AgentMessagePart, AgentToolState } from '@/types/agent'
+import { resolveArchiveSync } from './files'
+import { renderSkillPrompt } from './skills'
 
 type ToolPart = Extract<AgentMessagePart, { type: 'tool' }>
+type AttachmentPart = Extract<AgentMessagePart, { type: 'attachment' }>
+type SkillPart = Extract<AgentMessagePart, { type: 'skill' }>
+
+/** Reads an attached image from agent-files; replaced with a fake in tests */
+const defaultReadImage = (relativePath: string): Buffer | null => {
+  const filePath = resolveArchiveSync(relativePath)
+  if (!filePath) return null
+  try {
+    return fs.readFileSync(filePath)
+  } catch {
+    return null
+  }
+}
+
+type UserContent = Array<{ type: 'text'; text: string } | { type: 'image'; image: Buffer; mediaType: string }>
+
+/** Builds the multimodal user content for a message that has attachments or a selected Skill */
+const buildUserContent = (message: AgentMessage, readImage: (relativePath: string) => Buffer | null): UserContent => {
+  const attachments = (message.parts ?? []).filter((part): part is AttachmentPart => part.type === 'attachment')
+  const skills = (message.parts ?? []).filter((part): part is SkillPart => part.type === 'skill')
+  const content: UserContent = []
+  const lead = skills.map((part) => renderSkillPrompt(part.skill)).join('\n')
+  const text = [lead, message.content].filter(Boolean).join('\n')
+  if (text) content.push({ type: 'text', text })
+
+  for (const part of attachments) {
+    if (part.kind !== 'text') continue
+    const note = part.truncated ? `\n[truncated: showing the first 64 KB of ${Math.round(part.size / 1024)} KB]` : ''
+    // Leading blank line: some providers join text parts without a separator, which would glue "File:" to the text before it
+    content.push({ type: 'text', text: `\n\nFile: ${part.name}\n\`\`\`\n${part.text ?? ''}\n\`\`\`${note}` })
+  }
+
+  const credentials = attachments.filter((part) => part.kind !== 'image' && part.kind !== 'text')
+  if (credentials.length) {
+    const lines = credentials.map((part) => `- ${part.name} (${part.kind}): ${part.path}`)
+    content.push({
+      type: 'text',
+      text:
+        '\n\nAttached credential files (contents are never shared; use the paths in create_connection/update_connection or inspect_certificate):\n' +
+        lines.join('\n'),
+    })
+  }
+
+  for (const part of attachments) {
+    if (part.kind !== 'image') continue
+    const image = part.relativePath ? readImage(part.relativePath) : null
+    if (image) {
+      content.push({ type: 'image', image, mediaType: part.mediaType ?? 'image/png' })
+    } else {
+      content.push({ type: 'text', text: `\n\n[image ${part.name} is no longer available]` })
+    }
+  }
+
+  return content
+}
+
+/**
+ * `save_files` carries whole file contents. Keeping them in the stored tool part would resend them to
+ * the model on every turn and show them in the step details, so only the metadata is kept.
+ */
+export const slimToolInput = (toolName: string, input: unknown): unknown => {
+  if (toolName !== 'save_files') return input
+  const value = (input ?? {}) as { name?: string; files?: { path?: string; content?: string }[] }
+  return {
+    name: value.name,
+    files: (value.files ?? []).map((file) => ({
+      path: file.path,
+      size: file.content ? Buffer.byteLength(file.content, 'utf8') : 0,
+    })),
+  }
+}
 
 /**
  * Returns the parts of a reply after applying one event of the agent stream
@@ -26,7 +100,7 @@ export const applyStreamPart = (parts: AgentMessagePart[], part: TextStreamPart<
           toolCallId: part.toolCallId,
           toolName: part.toolName,
           title: part.title,
-          input: part.input,
+          input: slimToolInput(part.toolName, part.input),
           state: 'running',
           startedAt: Date.now(),
         },
@@ -45,6 +119,20 @@ export const applyStreamPart = (parts: AgentMessagePart[], part: TextStreamPart<
         error: part.error instanceof Error ? part.error.message : String(part.error),
         finishedAt: Date.now(),
       })
+    case 'reasoning-start':
+      return [...parts, { type: 'reasoning', text: '', startedAt: Date.now() }]
+    case 'reasoning-delta': {
+      const last = parts[parts.length - 1]
+      if (last && last.type === 'reasoning') {
+        return [...parts.slice(0, -1), { ...last, text: last.text + part.text }]
+      }
+      return [...parts, { type: 'reasoning', text: part.text, startedAt: Date.now() }]
+    }
+    case 'reasoning-end': {
+      const last = parts[parts.length - 1]
+      if (!last || last.type !== 'reasoning' || last.finishedAt !== undefined) return parts
+      return [...parts.slice(0, -1), { ...last, finishedAt: Date.now() }]
+    }
     default:
       return parts
   }
@@ -79,14 +167,19 @@ export const appendStepLimit = (parts: AgentMessagePart[], steps: number): Agent
 ]
 
 /**
- * Marks every tool call that never finished as stopped, used when the user aborts the reply
+ * Marks every tool call that never finished as stopped, used when the user aborts the reply.
+ * An unfinished thinking block is closed too so it persists with an end time.
  */
 export const stopParts = (parts: AgentMessagePart[], reason = 'Stopped by user'): AgentMessagePart[] =>
-  parts.map((part) =>
-    part.type === 'tool' && (part.state === 'running' || part.state === 'awaiting-approval')
-      ? { ...part, state: 'error' as const, error: reason }
-      : part,
-  )
+  parts.map((part) => {
+    if (part.type === 'tool' && (part.state === 'running' || part.state === 'awaiting-approval')) {
+      return { ...part, state: 'error' as const, error: reason }
+    }
+    if (part.type === 'reasoning' && part.finishedAt === undefined) {
+      return { ...part, finishedAt: Date.now() }
+    }
+    return part
+  })
 
 /**
  * Joins the text parts of a reply
@@ -106,8 +199,17 @@ const toPlain = (value: unknown): unknown => (value === undefined ? undefined : 
 /**
  * Converts the stored conversation into model messages, replaying the tool calls of each reply
  */
-export const toModelMessages = (messages: AgentMessage[]): ModelMessage[] =>
+export const toModelMessages = (
+  messages: AgentMessage[],
+  readImage: (relativePath: string) => Buffer | null = defaultReadImage,
+): ModelMessage[] =>
   messages.flatMap((message): ModelMessage[] => {
+    if (
+      message.role === 'user' &&
+      (message.parts ?? []).some((part) => part.type === 'attachment' || part.type === 'skill')
+    ) {
+      return [{ role: 'user', content: buildUserContent(message, readImage) } as ModelMessage]
+    }
     if (message.role !== 'assistant' || !message.parts || message.parts.length === 0) {
       return [{ role: message.role, content: message.content }]
     }
@@ -125,7 +227,13 @@ export const toModelMessages = (messages: AgentMessage[]): ModelMessage[] =>
     }
 
     for (const part of message.parts) {
-      if (part.type === 'step-limit') continue
+      if (
+        part.type === 'step-limit' ||
+        part.type === 'reasoning' ||
+        part.type === 'attachment' ||
+        part.type === 'skill'
+      )
+        continue
       if (part.type === 'text') {
         if (toolContent.length > 0) flush()
         assistantContent.push({ type: 'text', text: part.text })

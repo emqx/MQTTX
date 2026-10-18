@@ -2,7 +2,9 @@ import { z } from 'zod/v4'
 import { tool, ToolSet } from 'ai'
 import { getDefaultRecord } from '@/utils/mqttUtils'
 import { AgentToolDeps } from './types'
-import { now, sanitizeConnection } from './helpers'
+import { assertReadableFile, now, sanitizeConnection } from './helpers'
+import { findGroup } from './groups'
+import { emitAgentDataChanged } from '../agentEvents'
 
 const PROTOCOLS = ['mqtt', 'mqtts', 'ws', 'wss'] as const
 const DEFAULT_PORTS: Record<typeof PROTOCOLS[number], number> = { mqtt: 1883, mqtts: 8883, ws: 8083, wss: 8084 }
@@ -20,7 +22,84 @@ const connectionFields = {
   clean: z.boolean().optional().describe('Clean session / clean start'),
   keepalive: z.number().int().min(0).optional().describe('Keep alive in seconds'),
   rejectUnauthorized: z.boolean().optional().describe('Verify the server certificate for mqtts/wss'),
+  groupId: z
+    .string()
+    .nullable()
+    .optional()
+    .describe('Move the connection into this group; null moves it to the top level'),
+  certType: z
+    .enum(['server', 'self'])
+    .optional()
+    .describe("'server' trusts the system CA; 'self' uses the ca/cert/key files"),
+  ca: z.string().optional().describe('Absolute path of the CA certificate file (certType self)'),
+  cert: z.string().optional().describe('Absolute path of the client certificate file (certType self)'),
+  key: z.string().optional().describe('Absolute path of the client private key file (certType self)'),
+  ALPNProtocols: z.array(z.string()).optional().describe("ALPN protocol names, for example ['mqtt']"),
 }
+
+const TLS_FIELDS = ['certType', 'ca', 'cert', 'key', 'ALPNProtocols'] as const
+const TLS_PROTOCOLS: string[] = ['mqtts', 'wss']
+
+interface TlsFields {
+  protocol?: string
+  certType?: string
+  ca?: string
+  cert?: string
+  key?: string
+  ALPNProtocols?: string | string[] | null
+}
+
+interface NormalizedTls {
+  certType?: CertType
+  ca?: string
+  cert?: string
+  key?: string
+  ALPNProtocols?: string
+}
+
+const hasTlsValue = (value: unknown): boolean =>
+  value !== undefined && value !== '' && !(Array.isArray(value) && value.length === 0)
+
+const providedTlsFields = (fields: TlsFields): string[] => TLS_FIELDS.filter((key) => hasTlsValue(fields[key]))
+
+type TlsFieldKey = typeof TLS_FIELDS[number]
+
+/** Everything except the TLS fields, so the normalized values are the only ones written */
+const omitTlsFields = <T extends Record<string, unknown>>(fields: T): Omit<T, TlsFieldKey> => {
+  const result: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(fields)) {
+    if (!(TLS_FIELDS as readonly string[]).includes(key)) result[key] = value
+  }
+  return result as Omit<T, TlsFieldKey>
+}
+
+/** Validates the TLS settings of a connection; returns the fields to store, or {} when none were given */
+const normalizeTls = (fields: TlsFields, provided: string[]): NormalizedTls => {
+  if (!provided.length) return {}
+  if (!TLS_PROTOCOLS.includes(fields.protocol ?? '')) {
+    throw new Error(
+      `TLS settings (${provided.join(', ')}) need the protocol "mqtts" or "wss", but the protocol is "${
+        fields.protocol
+      }". Set the protocol first.`,
+    )
+  }
+  const ca = typeof fields.ca === 'string' ? fields.ca.trim() : ''
+  const cert = typeof fields.cert === 'string' ? fields.cert.trim() : ''
+  const key = typeof fields.key === 'string' ? fields.key.trim() : ''
+  if (Boolean(cert) !== Boolean(key)) {
+    throw new Error('Provide both "cert" and "key", or neither of them.')
+  }
+  if (ca) assertReadableFile('TLS ca', ca)
+  if (cert) assertReadableFile('TLS cert', cert)
+  if (key) assertReadableFile('TLS key', key)
+  let certType: CertType | undefined =
+    fields.certType === 'server' || fields.certType === 'self' ? fields.certType : undefined
+  if (!certType && (ca || cert || key)) certType = 'self'
+  const alpn = Array.isArray(fields.ALPNProtocols) ? fields.ALPNProtocols.join(',') : fields.ALPNProtocols
+  return { certType, ca, cert, key, ALPNProtocols: typeof alpn === 'string' ? alpn : '' }
+}
+
+const isTlsProtocol = (protocol: string | undefined): boolean => TLS_PROTOCOLS.includes(protocol ?? '')
 
 /** The user is in the connection form; the agent must not touch connections then */
 const assertNotEditing = (deps: AgentToolDeps): void => {
@@ -47,8 +126,10 @@ export const createConnectionTools = (deps: AgentToolDeps): ToolSet => ({
       'Call this first when the user refers to a connection by name, to resolve its id.',
     inputSchema: z.object({}),
     execute: async () => {
-      const connections = (await deps.services.connectionService.getAll()) ?? []
-      const collections = (await deps.services.collectionService.getAll()) ?? []
+      const [connections = [], collections = []] = await Promise.all([
+        deps.services.connectionService.getAll(),
+        deps.services.collectionService.getAll(),
+      ])
       const groupNames = new Map<string, string>()
       const walk = (nodes: ConnectionModelTree[]) => {
         for (const node of nodes) {
@@ -71,6 +152,7 @@ export const createConnectionTools = (deps: AgentToolDeps): ToolSet => ({
           connected: isConnected(deps, connection.id),
           subscriptionCount: connection.subscriptions?.length ?? 0,
           group: connection.parentId ? groupNames.get(connection.parentId) ?? null : null,
+          groupId: connection.parentId ?? null,
         })),
       }
     },
@@ -85,7 +167,9 @@ export const createConnectionTools = (deps: AgentToolDeps): ToolSet => ({
     execute: async ({ connectionId }) => {
       const record = await deps.services.connectionService.get(connectionId)
       if (!record) throw new Error(`Connection ${connectionId} not found`)
-      return sanitizeConnection(record, isConnected(deps, record.id))
+      const view = deps.bridge.current()
+      const timedPublishing = Boolean(view && view.connectionId === connectionId && view.isTimedPublishing())
+      return { ...sanitizeConnection(record, isConnected(deps, record.id)), timedPublishing }
     },
   }),
 
@@ -109,20 +193,30 @@ export const createConnectionTools = (deps: AgentToolDeps): ToolSet => ({
     execute: async (input) => {
       assertNotEditing(deps)
       const protocol = input.protocol ?? 'mqtt'
+      const { certType, ca, cert, key, ALPNProtocols, groupId, ...rest } = input
+      if (groupId) {
+        const groups = (await deps.services.collectionService.getAll()) ?? []
+        if (!findGroup(groups, groupId)) throw new Error(`Group ${groupId} not found`)
+      }
+      const tls = normalizeTls({ protocol, certType, ca, cert, key, ALPNProtocols }, providedTlsFields(input))
       const existing = (await deps.services.connectionService.getAll()) ?? []
       const record: ConnectionModel = {
         ...getDefaultRecord(),
-        ...input,
+        ...rest,
+        ...tls,
         protocol,
         port: input.port ?? DEFAULT_PORTS[protocol],
-        ssl: protocol === 'mqtts' || protocol === 'wss',
+        ssl: isTlsProtocol(protocol),
         name: uniqueName(input.name, new Set(existing.map((connection) => connection.name))),
+        // ConnectionService stores the group as parentId; the model keeps no groupId field
+        parentId: groupId ?? null,
         createAt: now(),
         updateAt: now(),
       }
       const created = await deps.services.connectionService.create(record)
       if (!created?.id) throw new Error('The connection could not be created')
       await deps.bridge.open(created.id)
+      emitAgentDataChanged('connections')
       return { connectionId: created.id, name: created.name }
     },
   }),
@@ -140,16 +234,34 @@ export const createConnectionTools = (deps: AgentToolDeps): ToolSet => ({
       assertNotEditing(deps)
       const current = await deps.services.connectionService.get(connectionId)
       if (!current) throw new Error(`Connection ${connectionId} not found`)
-      const protocol = changes.protocol ?? current.protocol
+      const merged = { ...current, ...changes }
+      const protocol = merged.protocol ?? current.protocol
+      const { groupId, ...recordChanges } = omitTlsFields(changes)
+      const tls = normalizeTls(
+        {
+          protocol,
+          certType: merged.certType,
+          ca: merged.ca,
+          cert: merged.cert,
+          key: merged.key,
+          ALPNProtocols: merged.ALPNProtocols,
+        },
+        providedTlsFields(changes),
+      )
       const updated = await deps.services.connectionService.update(connectionId, {
         ...current,
-        ...changes,
+        ...recordChanges,
+        ...tls,
         protocol,
         port: changes.port ?? (changes.protocol ? DEFAULT_PORTS[protocol as keyof typeof DEFAULT_PORTS] : current.port),
-        ssl: protocol === 'mqtts' || protocol === 'wss',
+        ssl: isTlsProtocol(protocol),
         updateAt: now(),
       })
       if (!updated) throw new Error(`Connection ${connectionId} could not be updated`)
+      if (groupId !== undefined) {
+        await deps.services.connectionService.updateCollectionId(connectionId, groupId ?? null)
+        emitAgentDataChanged('connections')
+      }
       // The open page and the list still show the old record until they reload
       await deps.bridge.current()?.reload()
       return { connectionId, reconnectRequired: isConnected(deps, connectionId) }

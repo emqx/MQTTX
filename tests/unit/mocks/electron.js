@@ -1,6 +1,11 @@
 // Simple Electron mock for testing environment
 module.exports = {
   getGlobal: () => ({}),
+  nativeTheme: {
+    shouldUseDarkColors: false,
+    on: () => {},
+    removeListener: () => {},
+  },
   ipcRenderer: {
     on: () => {},
     once: () => {},

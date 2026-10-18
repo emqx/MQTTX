@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import log4js from 'log4js'
 import useServices from '@/database/useServices'
 import { getGlobal } from '@electron/remote'
 import { DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE, normalizeMaxPayloadDisplaySize } from '@/utils/data'
@@ -325,6 +326,8 @@ const app = {
       const { settingService } = useServices()
       commit(SET_LOG_LEVEL, payload.logLevel)
       settingData.logLevel = payload.logLevel
+      // Apply the level to the running logger too, so the change takes effect immediately
+      log4js.getLogger().level = payload.logLevel
       await settingService.update(payload)
     },
     TOGGLE_SHOW_CONNECTION_LIST({ commit }: any, payload: App) {

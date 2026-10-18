@@ -94,6 +94,8 @@ import DashboardContent from './DashboardContent.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
+import { globalEventBus } from '@/utils/globalEventBus'
+import { AGENT_DATA_CHANGED, AgentDataChangedPayload } from '@/utils/ai/agent/agentEvents'
 
 // The list card sits this far from the edge of the dashboard area, which is
 // also the gap between the card and the widgets.
@@ -143,7 +145,7 @@ export default class Dashboards extends Vue {
 
   private isSelectingDashboard = false
   private timeRange: [string, string] = [time.getDateBefore(24 * 60), time.getNowDate()]
-  private timeRangeType: 'live' | 'static' = 'static'
+  private timeRangeType: 'live' | 'static' = 'live'
   private duration: number = 24 * 60
 
   get listOffset(): number {
@@ -196,6 +198,12 @@ export default class Dashboards extends Vue {
 
   async mounted() {
     await this.initializeComponent()
+    globalEventBus.on(AGENT_DATA_CHANGED, this.onAgentDataChanged)
+  }
+
+  /** The agent changed a dashboard or widget: reload the list and the current dashboard */
+  private onAgentDataChanged({ domain }: AgentDataChangedPayload) {
+    if (domain === 'dashboards') this.refreshData('all')
   }
 
   private async initializeComponent(): Promise<void> {
@@ -554,6 +562,7 @@ export default class Dashboards extends Vue {
   }
 
   beforeDestroy() {
+    globalEventBus.off(AGENT_DATA_CHANGED, this.onAgentDataChanged)
     if (this.layoutSaveTimer) {
       window.clearTimeout(this.layoutSaveTimer)
       this.layoutSaveTimer = null
@@ -609,9 +618,10 @@ export default class Dashboards extends Vue {
         this.timeRange = settings.timeRange || [time.getDateBefore(24 * 60), time.getNowDate()]
       }
     } else {
-      // Only set defaults if no settings exist
+      // Only set defaults if no settings exist. The range is the last 24 hours, which is a live window
+      // (the time range shortcuts all set live mode), so new messages keep updating the widgets.
       this.timeRange = [time.getDateBefore(24 * 60), time.getNowDate()]
-      this.timeRangeType = 'static'
+      this.timeRangeType = 'live'
       this.duration = 24 * 60
     }
   }

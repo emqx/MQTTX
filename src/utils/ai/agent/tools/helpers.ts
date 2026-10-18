@@ -1,7 +1,30 @@
+import fs from 'fs'
+import path from 'path'
 import time from '@/utils/time'
 
 export const MASKED = '***'
 export const PAYLOAD_LIMIT = 2000
+
+/** Throws a clear error unless the path is an absolute, existing, readable regular file */
+export const assertReadableFile = (label: string, filePath: string): void => {
+  if (!path.isAbsolute(filePath)) {
+    throw new Error(`${label} must be an absolute path, got "${filePath}".`)
+  }
+  let stat: fs.Stats
+  try {
+    stat = fs.statSync(filePath)
+  } catch {
+    throw new Error(`${label} file not found: "${filePath}".`)
+  }
+  if (!stat.isFile()) {
+    throw new Error(`${label} is not a regular file: "${filePath}".`)
+  }
+  try {
+    fs.accessSync(filePath, fs.constants.R_OK)
+  } catch {
+    throw new Error(`${label} is not readable: "${filePath}".`)
+  }
+}
 
 export const maskSecret = (value: string | null | undefined): string => (value ? MASKED : '')
 
@@ -24,10 +47,13 @@ export const sanitizeConnection = (record: ConnectionModel, connected: boolean) 
   clean: record.clean,
   keepalive: record.keepalive,
   ssl: record.ssl,
+  certType: record.certType ?? '',
   rejectUnauthorized: record.rejectUnauthorized,
-  ca: maskSecret(record.ca),
-  cert: maskSecret(record.cert),
-  key: maskSecret(record.key),
+  // Certificate paths are returned as-is: the model needs them to update the connection
+  ca: record.ca || '',
+  cert: record.cert || '',
+  key: record.key || '',
+  ALPNProtocols: record.ALPNProtocols || '',
   connected,
   subscriptions: (record.subscriptions ?? []).map((sub) => ({
     topic: sub.topic,

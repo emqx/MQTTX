@@ -1,44 +1,11 @@
 <template>
   <div class="step" :class="[part.state, { open: expanded }]">
     <button class="step-row" type="button" :aria-expanded="String(expanded)" @click="expanded = !expanded">
-      <span class="st" :class="stateClass">
-        <svg
-          v-if="part.state === 'done'"
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.4"
-        >
-          <path d="M20 6L9 17l-5-5" />
-        </svg>
-        <svg
-          v-else-if="part.state === 'error'"
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2.4"
-        >
-          <path d="M18 6L6 18M6 6l12 12" />
-        </svg>
-        <svg
-          v-else-if="part.state === 'denied'"
-          width="15"
-          height="15"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <circle cx="12" cy="12" r="9" />
-          <path d="M5.6 5.6l12.8 12.8" />
-        </svg>
-        <svg v-else width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
-          <path d="M21 12a9 9 0 1 1-6.2-8.6" />
-        </svg>
+      <span class="st" :class="part.state">
+        <i v-if="part.state === 'done'" class="el-icon-check"></i>
+        <i v-else-if="part.state === 'error'" class="el-icon-close"></i>
+        <i v-else-if="part.state === 'denied'" class="el-icon-circle-close"></i>
+        <i v-else class="el-icon-loading"></i>
       </span>
       <span class="label" v-html="label"></span>
       <a v-if="viewConnectionId" class="view" href="javascript:;" @click.stop="$emit('view', viewConnectionId)">{{
@@ -64,8 +31,16 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { AgentMessagePart } from '@/types/agent'
+import { escapeHtml } from '@/utils/highlightSearch'
 
-const CONNECTION_TOOLS = new Set(['get_connection', 'update_connection', 'connect', 'disconnect', 'open_connection'])
+const CONNECTION_TOOLS = new Set([
+  'get_connection',
+  'update_connection',
+  'connect',
+  'disconnect',
+  'open_connection',
+  'subscribe',
+])
 
 @Component
 export default class AgentStep extends Vue {
@@ -77,10 +52,6 @@ export default class AgentStep extends Vue {
   created() {
     // A failed step is expanded so the reason is visible without a click
     this.expanded = this.part.state === 'error'
-  }
-
-  get stateClass(): string {
-    return this.part.state
   }
 
   get duration(): string {
@@ -97,7 +68,7 @@ export default class AgentStep extends Vue {
   get viewConnectionId(): string {
     const id = (this.part.input as { connectionId?: string } | undefined)?.connectionId
     if (!id) return ''
-    return CONNECTION_TOOLS.has(this.part.toolName) || this.part.toolName === 'subscribe' ? id : ''
+    return CONNECTION_TOOLS.has(this.part.toolName) ? id : ''
   }
 
   get label(): string {
@@ -119,27 +90,33 @@ export default class AgentStep extends Vue {
         connection: this.connectionName,
         topic: input.topic ?? '',
         name: input.name ?? '',
+        skill: input.skill ?? '',
+        file: input.path ? this.baseName(input.path) : '',
+        title: input.title ?? '',
       }) as string
     }
 
     // Escape the raw values, then render the ones the label shows as code/light text
-    const escaped = this.escape(text)
+    const escaped = escapeHtml(text)
     const withTopic = input.topic
-      ? escaped.replace(this.escape(input.topic), `<code>${this.escape(input.topic)}</code>`)
+      ? escaped.replace(escapeHtml(input.topic), `<code>${escapeHtml(input.topic)}</code>`)
       : escaped
     const withName = input.name
-      ? withTopic.replace(this.escape(input.name), `<strong>${this.escape(input.name)}</strong>`)
+      ? withTopic.replace(escapeHtml(input.name), `<strong>${escapeHtml(input.name)}</strong>`)
       : withTopic
+    const withTitle = input.title
+      ? withName.replace(escapeHtml(input.title), `<strong>${escapeHtml(input.title)}</strong>`)
+      : withName
     const showsConnectionSuffix = ['subscribe', 'unsubscribe', 'publish'].includes(this.part.toolName)
     const withConnection =
       showsConnectionSuffix && this.connectionName
-        ? `${withName} <span class="conn">· ${this.escape(this.connectionName)}</span>`
-        : withName
+        ? `${withTitle} <span class="conn">· ${escapeHtml(this.connectionName)}</span>`
+        : withTitle
     return withConnection + suffix
   }
 
-  private escape(value: string): string {
-    return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  private baseName(value: string): string {
+    return value.split(/[\\/]/).pop() ?? value
   }
 
   private format(value: unknown): string {
