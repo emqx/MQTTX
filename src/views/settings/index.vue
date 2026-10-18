@@ -996,6 +996,10 @@ export default class Settings extends Vue {
     .ai-provider-icon {
       margin-right: 6px;
     }
+    // Providers never show the check mark, so their rows skip the space reserved for it
+    .el-cascader-menu:first-child .el-cascader-node {
+      padding-left: 6px;
+    }
     .el-cascader-menu:last-child {
       width: 100%;
     }
