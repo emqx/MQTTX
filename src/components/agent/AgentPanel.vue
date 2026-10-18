@@ -948,28 +948,31 @@ export default class AgentPanel extends Vue {
   }
 
   /**
-   * Switching modes while the panel stays open: full screen grows out of the float window (a clip, so the
-   * content never stretches), and the float window pops in like it does when opened.
+   * Switching modes while the panel stays open: the panel box moves and scales from its old rect to
+   * the new one, and the content fades in once the box is nearly there, so stretched text never shows.
+   * Only transform and opacity animate, so the compositor keeps it smooth while the new page renders.
    * Runs before the re-render, so the panel still has its old size here.
    */
   @Watch('mode')
-  private animateModeChange(mode: 'float' | 'full') {
+  private animateModeChange() {
     const panel = this.$el as HTMLElement
     if (!this.showAgent || !panel.offsetWidth || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const from = panel.getBoundingClientRect()
     this.$nextTick(() => {
       const to = panel.getBoundingClientRect()
-      const inset = [from.top - to.top, to.right - from.right, to.bottom - from.bottom, from.left - to.left]
-        .map((side) => `${side}px`)
-        .join(' ')
-      const keyframes =
-        mode === 'full'
-          ? [{ clipPath: `inset(${inset} round 12px)` }, { clipPath: 'inset(0 round 0)' }]
-          : [
-              { opacity: 0, transform: 'translateY(8px) scale(0.96)', transformOrigin: 'bottom right' },
-              { opacity: 1, transform: 'none', transformOrigin: 'bottom right' },
-            ]
-      panel.animate(keyframes, { duration: mode === 'full' ? 320 : 200, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' })
+      const [x, y] = [from.left - to.left, from.top - to.top]
+      const start = `translate(${x}px, ${y}px) scale(${from.width / to.width}, ${from.height / to.height})`
+      const timing = { duration: 300, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' }
+      panel.animate(
+        [
+          { transformOrigin: '0 0', transform: start },
+          { transformOrigin: '0 0', transform: 'none' },
+        ],
+        timing,
+      )
+      panel
+        .querySelector('.agent-body')
+        ?.animate([{ opacity: 0 }, { opacity: 0, offset: 0.45 }, { opacity: 1 }], timing)
     })
   }
 
