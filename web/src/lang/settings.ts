@@ -114,4 +114,14 @@ export default {
     en: 'Highlights whitespace in topics to help prevent publish/subscribe mismatches.',
     ja: 'トピック内の空白を示し、送受信の不一致を防ぐための確認に役立ちます。',
   },
+  decompressGzip: {
+    zh: '自动解压 GZIP 消息',
+    en: 'Decompress GZIP messages',
+    ja: 'GZIP メッセージを解凍',
+  },
+  decompressGzipDesc: {
+    zh: '开启后，自动解压接收到的 GZIP 压缩消息，未压缩的消息保持不变。',
+    en: 'Once enabled, received GZIP-compressed messages are decompressed automatically. Uncompressed messages are left unchanged.',
+    ja: '有効にすると、受信した GZIP 圧縮メッセージを自動的に解凍します。圧縮されていないメッセージはそのままです。',
+  },
 }
