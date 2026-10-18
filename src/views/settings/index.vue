@@ -499,6 +499,23 @@
 
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="18">
+          <label>{{ $t('settings.agentReasoning') }}</label>
+        </el-col>
+        <el-col :span="6">
+          <el-select size="mini" :value="agentReasoning" :disabled="!enableAgent" @change="handleReasoningChange">
+            <el-option
+              v-for="level in reasoningLevels"
+              :key="level"
+              :value="level"
+              :label="$t(levelLabel(level))"
+            ></el-option>
+          </el-select>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="18">
           <label>{{ $t('settings.agentPermissionMode') }}</label>
         </el-col>
         <el-col :span="6">
@@ -550,6 +567,7 @@ import { ENCRYPT_KEY } from '@/utils/idGenerator'
 import ClickOutside from 'vue-click-outside'
 import _ from 'lodash'
 import { AImodelsOptions, AIAPIHostOptions, getModelLabel } from '@/utils/ai/models'
+import { AGENT_REASONING_LEVELS, reasoningLabelKey, type AgentReasoning } from '@/utils/ai/reasoning'
 import type { PermissionMode } from '@/utils/ai/agent/approval'
 import {
   MAX_MAX_PAYLOAD_DISPLAY_SIZE,
@@ -599,6 +617,7 @@ export default class Settings extends Vue {
     agentPermissionMode: PermissionMode
   }) => void
   @Action('SET_AGENT_MAX_STEPS') private actionSetAgentMaxSteps!: (payload: { agentMaxSteps: number }) => void
+  @Action('SET_AGENT_REASONING') private actionSetAgentReasoning!: (payload: { agentReasoning: AgentReasoning }) => void
 
   @Getter('currentTheme') private currentTheme!: Theme
   @Getter('currentLang') private currentLang!: Language
@@ -611,6 +630,7 @@ export default class Settings extends Vue {
   @Getter('enableAgent') private enableAgent!: boolean
   @Getter('agentPermissionMode') private agentPermissionMode!: PermissionMode
   @Getter('agentMaxSteps') private agentMaxSteps!: number
+  @Getter('agentReasoning') private agentReasoning!: AgentReasoning
   @Getter('openAIAPIHost') private openAIAPIHost!: string
   @Getter('openAIAPIKey') private openAIAPIKey!: string
   @Getter('model') private model!: App['model']
@@ -650,6 +670,7 @@ export default class Settings extends Vue {
     return providers
   }, {} as Record<string, string>)
   private AIAPIHostOptions = AIAPIHostOptions
+  private reasoningLevels = [...AGENT_REASONING_LEVELS]
   private showImportData = false
   private showExportData = false
   private showHistoryData = false
@@ -760,6 +781,14 @@ export default class Settings extends Vue {
 
   private handleMaxStepsChange(value: number) {
     this.actionSetAgentMaxSteps({ agentMaxSteps: value })
+  }
+
+  private levelLabel(level: AgentReasoning): string {
+    return reasoningLabelKey(level)
+  }
+
+  private handleReasoningChange(value: AgentReasoning) {
+    this.actionSetAgentReasoning({ agentReasoning: value })
   }
 
   private handleAIConfigChanged(action: 'apiKey' | 'model' | 'host') {

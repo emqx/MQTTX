@@ -22,7 +22,15 @@ import VueMarkdown from 'vue-markdown'
 
 const { ConnectionInit } = useConnection()
 // Init typeORM connection before Vue APP start, after this DI services are available.
-ConnectionInit({ doMigrations: false, undoMigrations: false } as initOptionModel).then(() => {
+ConnectionInit({ doMigrations: false, undoMigrations: false } as initOptionModel).then(async () => {
+  // One-off: model ids that used the retired `-thinking` suffix become a reasoning level, and both
+  // values are written back before the UI reads them (see src/utils/ai/reasoning.ts)
+  try {
+    await store.dispatch('MIGRATE_LEGACY_AGENT_REASONING')
+  } catch (error) {
+    console.warn('[Agent] Legacy reasoning migration failed:', error)
+  }
+
   const LOG_DIR = getOrCreateLogDir()
   const LOG_PATH = path.join(LOG_DIR, 'log')
   logConfig.appenders.fileOutput.filename = LOG_PATH

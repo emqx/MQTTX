@@ -103,10 +103,12 @@
             :connection-name="currentConnectionName"
             :connected="currentConnected"
             :model="model"
+            :agent-reasoning="agentReasoning"
             @send="sendMessage"
             @abort-response="abortAIResponse"
             @update:permissionMode="setPermissionMode"
             @update:model="setModel"
+            @update:agentReasoning="setReasoning"
             @open-settings="goToSettings"
           />
         </div>
@@ -133,6 +135,7 @@ import { deleteConversationFiles } from '@/utils/ai/agent/files'
 import { materializeAttachments, OutgoingMessage } from '@/utils/ai/agent/attachments'
 import { ApprovalGate } from '@/utils/ai/agent/approval'
 import type { ApprovalDecision, PermissionMode } from '@/utils/ai/agent/approval'
+import type { AgentReasoning } from '@/utils/ai/reasoning'
 import { connectionBridge } from '@/utils/ai/agent/connectionBridge'
 import { AgentToolDeps } from '@/utils/ai/agent/tools/types'
 import { globalEventBus } from '@/utils/globalEventBus'
@@ -173,6 +176,7 @@ export default class AgentPanel extends Vue {
   @Getter('currentLang') private currentLang!: Language
   @Getter('agentPermissionMode') private defaultPermissionMode!: PermissionMode
   @Getter('agentMaxSteps') private agentMaxSteps!: number
+  @Getter('agentReasoning') private agentReasoning!: AgentReasoning
 
   // Full screen is the Agent route; the float window is a local flag. The panel is a singleton in
   // Home.vue so a running reply, approval or stream keeps working when the mode changes.
@@ -672,6 +676,10 @@ export default class AgentPanel extends Vue {
     this.$store.dispatch('SET_MODEL', { model })
   }
 
+  private setReasoning(agentReasoning: AgentReasoning) {
+    this.$store.dispatch('SET_AGENT_REASONING', { agentReasoning })
+  }
+
   /** The float window would cover the settings form, so the panel closes in both modes */
   private goToSettings() {
     this.closeAndGo({ name: 'Settings' })
@@ -775,6 +783,7 @@ export default class AgentPanel extends Vue {
       gate: this.gate,
       allowedTools: this.allowedTools,
       maxSteps: this.agentMaxSteps || 50,
+      reasoning: this.agentReasoning,
       onStreamStart: () => {
         this.isSending = false
       },

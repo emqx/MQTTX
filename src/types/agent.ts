@@ -99,7 +99,7 @@ export type AIModel = Parameters<
  */
 interface BaseProviderOptionsModel {
   value: string
-  children: { value: string; label: string; vision?: boolean }[]
+  children: { value: string; label: string; vision?: boolean; reasoning?: boolean }[]
   providerCreator?: (...args: any[]) => any
 }
 
@@ -108,7 +108,12 @@ interface BaseProviderOptionsModel {
  */
 export interface OpenAIOptionsModel extends BaseProviderOptionsModel {
   value: 'OpenAI'
-  children: { value: Parameters<ReturnType<typeof createOpenAI>>[0]; label: string; vision?: boolean }[]
+  children: {
+    value: Parameters<ReturnType<typeof createOpenAI>>[0]
+    label: string
+    vision?: boolean
+    reasoning?: boolean
+  }[]
   providerCreator: typeof createOpenAI
 }
 
@@ -117,7 +122,12 @@ export interface OpenAIOptionsModel extends BaseProviderOptionsModel {
  */
 export interface DeepSeekOptionsModel extends BaseProviderOptionsModel {
   value: 'DeepSeek'
-  children: { value: Parameters<ReturnType<typeof createDeepSeek>>[0]; label: string; vision?: boolean }[]
+  children: {
+    value: Parameters<ReturnType<typeof createDeepSeek>>[0]
+    label: string
+    vision?: boolean
+    reasoning?: boolean
+  }[]
   providerCreator: typeof createDeepSeek
 }
 
@@ -126,7 +136,12 @@ export interface DeepSeekOptionsModel extends BaseProviderOptionsModel {
  */
 export interface AnthropicOptionsModel extends BaseProviderOptionsModel {
   value: 'Anthropic'
-  children: { value: Parameters<ReturnType<typeof createAnthropic>>[0]; label: string; vision?: boolean }[]
+  children: {
+    value: Parameters<ReturnType<typeof createAnthropic>>[0]
+    label: string
+    vision?: boolean
+    reasoning?: boolean
+  }[]
   providerCreator: typeof createAnthropic
 }
 
@@ -135,7 +150,12 @@ export interface AnthropicOptionsModel extends BaseProviderOptionsModel {
  */
 export interface XaiOptionsModel extends BaseProviderOptionsModel {
   value: 'xAI'
-  children: { value: Parameters<ReturnType<typeof createXai>>[0]; label: string; vision?: boolean }[]
+  children: {
+    value: Parameters<ReturnType<typeof createXai>>[0]
+    label: string
+    vision?: boolean
+    reasoning?: boolean
+  }[]
   providerCreator: typeof createXai
 }
 
@@ -148,6 +168,7 @@ export interface GoogleOptionsModel extends BaseProviderOptionsModel {
     value: Parameters<ReturnType<typeof createGoogleGenerativeAI>>[0]
     label: string
     vision?: boolean
+    reasoning?: boolean
   }[]
   providerCreator: typeof createGoogleGenerativeAI
 }
@@ -168,6 +189,7 @@ export interface SiliconFlowOptionsModel extends BaseProviderOptionsModel {
       | (string & {})
     label: string
     vision?: boolean
+    reasoning?: boolean
   }[]
   providerCreator: typeof createOpenAI
 }
@@ -177,7 +199,12 @@ export interface SiliconFlowOptionsModel extends BaseProviderOptionsModel {
  */
 export interface AzureOptionsModel extends BaseProviderOptionsModel {
   value: 'Azure OpenAI'
-  children: { value: Parameters<ReturnType<typeof createAzure>>[0]; label: string; vision?: boolean }[]
+  children: {
+    value: Parameters<ReturnType<typeof createAzure>>[0]
+    label: string
+    vision?: boolean
+    reasoning?: boolean
+  }[]
   providerCreator: typeof createAzure
 }
 

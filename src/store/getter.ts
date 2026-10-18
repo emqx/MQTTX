@@ -18,6 +18,7 @@ const getters = {
   enableAgent: (state: State) => state.app.enableAgent,
   agentPermissionMode: (state: State) => state.app.agentPermissionMode,
   agentMaxSteps: (state: State) => state.app.agentMaxSteps,
+  agentReasoning: (state: State) => state.app.agentReasoning,
   openAIAPIHost: (state: State) => state.app.openAIAPIHost,
   openAIAPIKey: (state: State) => state.app.openAIAPIKey,
   model: (state: State) => state.app.model,
