@@ -1345,7 +1345,7 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 
-  private forceStopToReconnect() {
+  public forceStopToReconnect() {
     if (this.client.reconnecting && this.client.connected === false) {
       this.client.reconnecting = false
       this.forceCloseTheConnection()
