@@ -199,11 +199,6 @@
               </el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="24">
-            <el-form-item>
-              <el-checkbox v-model="subRecord.decompressGzip">{{ $t('connections.decompressGzip') }}</el-checkbox>
-            </el-form-item>
-          </el-col>
           <!-- MQTT 5.0 -->
           <template v-if="record.mqttVersion === '5.0'">
             <div class="topic-mqtt5">
@@ -317,7 +312,6 @@ export default class SubscriptionsList extends Vue {
     rh: 0,
     subscriptionIdentifier: undefined,
     userProperties: undefined,
-    decompressGzip: false,
   }
   private retainHandling: RetainHandlingList = [0, 1, 2]
   private qosOption: QoSList = [0, 1, 2]
@@ -706,7 +700,6 @@ export default class SubscriptionsList extends Vue {
     this.subRecord.subscriptionIdentifier = undefined
     this.subRecord.userProperties = undefined
     this.subRecord.disabled = false
-    this.subRecord.decompressGzip = false
     this.selectedTopic = null
   }
 

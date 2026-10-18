@@ -367,7 +367,6 @@ import _ from 'lodash'
 import { Subject, fromEvent } from 'rxjs'
 import { bufferTime, map, filter, takeUntil, shareReplay, distinctUntilChanged } from 'rxjs/operators'
 import cbor from 'cbor'
-import zlib from 'zlib'
 import { pack, unpack } from 'msgpackr'
 
 import time from '@/utils/time'
@@ -401,6 +400,7 @@ import { jsonStringify } from '@/utils/jsonUtils'
 import { LeftValues, BodyTopValues, MsgTopValues, DetailLeftValues } from '@/utils/styles'
 import getErrorReason from '@/utils/mqttErrorReason'
 import { isLargeData } from '@/utils/data'
+import { gunzipIfCompressed } from '@/utils/gzip'
 import { serializeAvroToBuffer, deserializeBufferToAvro } from '@/utils/avro'
 import { globalEventBus } from '@/utils/globalEventBus'
 import SyncTopicTreeDialog from '@/widgets/SyncTopicTreeDialog.vue'
@@ -465,6 +465,7 @@ export default class ConnectionsDetail extends Vue {
   @Getter('enableCopilot') private enableCopilot!: boolean
   @Getter('showConnectionList') private showConnectionList!: boolean
   @Getter('maxPayloadDisplaySize') private maxPayloadDisplaySize!: number
+  @Getter('decompressGzip') private decompressGzip!: boolean
 
   /**
    * Notice: when we jump order by `other page` -> `creation page` -> `connection page`,
@@ -1405,28 +1406,28 @@ export default class ConnectionsDetail extends Vue {
     const { qos, retain, properties } = packet
     let receivedPayload
     let jsonMsgError = ''
-
-    // Decompress GZIP if the matching subscription has decompressGzip enabled
-    const matchedSub = this.record.subscriptions.find((sub) => matchTopicMethod(sub.topic, topic))
-    if (matchedSub?.decompressGzip) {
-      try {
-        payload = zlib.gunzipSync(payload)
-      } catch (e) {
-        this.$log.error(`GZIP decompression failed for topic "${topic}": ${(e as Error).message}`)
-      }
-    }
+    let gzipError = ''
     /*
      * Payload processing pipeline for receiving a message:
      *      1. Raw Payload
      *           ⬇️
-     *      2. [Schema | Type]: Decoding via custom schema (if defined) or default payload type conversion
+     *      2. [GZIP]: Decompress gzip payloads (if enabled in settings)
      *           ⬇️
-     *      3. [Function]: User-defined script processing to possibly further modify the payload
+     *      3. [Schema | Type]: Decoding via custom schema (if defined) or default payload type conversion
      *           ⬇️
-     *      4. Final Payload: Ready for use in the application
+     *      4. [Function]: User-defined script processing to possibly further modify the payload
+     *           ⬇️
+     *      5. Final Payload: Ready for use in the application
      * Note:
      * - Function processing happens after schema/type decoding to allow the function to work with a more structured data.
      */
+    if (this.decompressGzip) {
+      try {
+        payload = gunzipIfCompressed(payload)
+      } catch (e) {
+        gzipError = (e as Error).toString()
+      }
+    }
     if (
       (this.scriptOption?.function && ['all', 'received'].includes(this.scriptOption.apply)) ||
       this.receivedMsgType !== 'Plaintext'
@@ -1467,7 +1468,9 @@ export default class ConnectionsDetail extends Vue {
     this.updateMeta(receivedMessage, 'function', 'received')
     this.updateMeta(receivedMessage, 'schema', 'received')
     this.updateMetaMsgType(receivedMessage, this.receivedMsgType)
-    if (['JSON', 'CBOR', 'MsgPack'].includes(this.receivedMsgType) && jsonMsgError) {
+    if (gzipError) {
+      this.updateMetaError(receivedMessage, gzipError)
+    } else if (['JSON', 'CBOR', 'MsgPack'].includes(this.receivedMsgType) && jsonMsgError) {
       this.updateMetaError(receivedMessage, jsonMsgError)
     }
     if (isLargeData(receivedMessage.payload, this.maxPayloadDisplaySize)) {

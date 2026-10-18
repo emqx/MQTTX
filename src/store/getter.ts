@@ -25,6 +25,7 @@ const getters = {
   connectDatabaseFailMessage: (state: State) => state.app.connectDatabaseFailMessage,
   ignoreQoS0Message: (state: State) => state.app.ignoreQoS0Message,
   topicWhitespaceDetection: (state: State) => state.app.topicWhitespaceDetection,
+  decompressGzip: (state: State) => state.app.decompressGzip,
   maxPayloadDisplaySize: (state: State) => state.app.maxPayloadDisplaySize,
   enableHardwareAcceleration: (state: State) => state.app.enableHardwareAcceleration,
 }

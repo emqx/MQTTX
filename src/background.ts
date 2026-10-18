@@ -239,6 +239,7 @@ async function createWindow() {
         logLevel: setting.logLevel,
         ignoreQoS0Message: setting.ignoreQoS0Message,
         topicWhitespaceDetection: electronStore.get('settings.topicWhitespaceDetection', false),
+        decompressGzip: electronStore.get('settings.decompressGzip', false),
         enableHardwareAcceleration: enableHardwareAccelerationBySetting,
       }
     }
@@ -252,6 +253,7 @@ async function createWindow() {
       currentLang: 'en',
       syncOsTheme: false,
       topicWhitespaceDetection: electronStore.get('settings.topicWhitespaceDetection', false),
+      decompressGzip: electronStore.get('settings.decompressGzip', false),
       enableHardwareAcceleration: enableHardwareAccelerationBySetting,
     }
   }

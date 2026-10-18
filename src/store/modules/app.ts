@@ -35,6 +35,7 @@ const TOGGLE_SHOW_CONNECTION_LIST = 'TOGGLE_SHOW_CONNECTION_LIST'
 const SET_DATABASE_FAIL_MESSAGE = 'SET_DATABASE_FAIL_MESSAGE'
 const TOGGLE_IGNORE_QOS0_MESSAGE = 'TOGGLE_IGNORE_QOS0_MESSAGE'
 const TOGGLE_TOPIC_WHITESPACE_DETECTION = 'TOGGLE_TOPIC_WHITESPACE_DETECTION'
+const TOGGLE_DECOMPRESS_GZIP = 'TOGGLE_DECOMPRESS_GZIP'
 const SET_MAX_PAYLOAD_DISPLAY_SIZE = 'SET_MAX_PAYLOAD_DISPLAY_SIZE'
 const TOGGLE_ENABLE_HARDWARE_ACCELERATION = 'TOGGLE_ENABLE_HARDWARE_ACCELERATION'
 
@@ -80,6 +81,7 @@ const app = {
     connectDatabaseFailMessage: settingData.connectDatabaseFailMessage || '',
     ignoreQoS0Message: settingData.ignoreQoS0Message || false,
     topicWhitespaceDetection: settingData.topicWhitespaceDetection || false,
+    decompressGzip: settingData.decompressGzip || false,
     maxPayloadDisplaySize: normalizeMaxPayloadDisplaySize(
       electronStore.get('settings.maxPayloadDisplaySize', DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE),
     ),
@@ -196,6 +198,9 @@ const app = {
     },
     [TOGGLE_TOPIC_WHITESPACE_DETECTION](state: App, topicWhitespaceDetection: boolean) {
       state.topicWhitespaceDetection = topicWhitespaceDetection
+    },
+    [TOGGLE_DECOMPRESS_GZIP](state: App, decompressGzip: boolean) {
+      state.decompressGzip = decompressGzip
     },
     [SET_MAX_PAYLOAD_DISPLAY_SIZE](state: App, maxPayloadDisplaySize: number) {
       state.maxPayloadDisplaySize = maxPayloadDisplaySize
@@ -332,6 +337,11 @@ const app = {
       commit(TOGGLE_TOPIC_WHITESPACE_DETECTION, payload.topicWhitespaceDetection)
       settingData.topicWhitespaceDetection = payload.topicWhitespaceDetection
       electronStore.set('settings.topicWhitespaceDetection', payload.topicWhitespaceDetection)
+    },
+    TOGGLE_DECOMPRESS_GZIP({ commit }: any, payload: App) {
+      commit(TOGGLE_DECOMPRESS_GZIP, payload.decompressGzip)
+      settingData.decompressGzip = payload.decompressGzip
+      electronStore.set('settings.decompressGzip', payload.decompressGzip)
     },
     SET_MAX_PAYLOAD_DISPLAY_SIZE({ commit }: any, payload: App) {
       const normalizedValue = normalizeMaxPayloadDisplaySize(payload.maxPayloadDisplaySize)

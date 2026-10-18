@@ -372,6 +372,32 @@
 
       <el-row class="settings-item" type="flex" justify="space-between">
         <el-col :span="20">
+          <label>{{ $t('settings.decompressGzip') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('settings.decompressGzipDesc')"
+          >
+            <a href="javascript:;" class="icon-oper">
+              <i class="el-icon-warning-outline"></i>
+            </a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            :value="decompressGzip"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleDecompressGzipChange"
+          >
+          </el-switch>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between">
+        <el-col :span="20">
           <label>{{ $t('settings.enableHardwareAcceleration') }}</label>
           <el-tooltip
             placement="top"
@@ -544,6 +570,7 @@ export default class Settings extends Vue {
   @Action('TOGGLE_TOPIC_WHITESPACE_DETECTION') private actionToggleTopicWhitespaceDetection!: (payload: {
     topicWhitespaceDetection: boolean
   }) => void
+  @Action('TOGGLE_DECOMPRESS_GZIP') private actionToggleDecompressGzip!: (payload: { decompressGzip: boolean }) => void
   @Action('SET_MAX_PAYLOAD_DISPLAY_SIZE') private actionSetMaxPayloadDisplaySize!: (payload: {
     maxPayloadDisplaySize: number
   }) => void
@@ -566,6 +593,7 @@ export default class Settings extends Vue {
   @Getter('logLevel') private logLevel!: LogLevel
   @Getter('ignoreQoS0Message') private ignoreQoS0Message!: boolean
   @Getter('topicWhitespaceDetection') private topicWhitespaceDetection!: boolean
+  @Getter('decompressGzip') private decompressGzip!: boolean
   @Getter('maxPayloadDisplaySize') private maxPayloadDisplaySize!: number
   @Getter('enableHardwareAcceleration') private enableHardwareAcceleration!: boolean
 
@@ -659,6 +687,10 @@ export default class Settings extends Vue {
 
   private handleTopicWhitespaceDetectionChange(value: boolean) {
     this.actionToggleTopicWhitespaceDetection({ topicWhitespaceDetection: value })
+  }
+
+  private handleDecompressGzipChange(value: boolean) {
+    this.actionToggleDecompressGzip({ decompressGzip: value })
   }
 
   private handleEnableHardwareAccelerationChange(value: boolean) {
