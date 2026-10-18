@@ -175,6 +175,22 @@ export default {
     hu: 'Kiemeli a szóközöket a témákban, hogy segítsen megelőzni a közzététel/előfizetés eltéréseket.',
     ko: '토픽 내 공백을 강조 표시하여 발행/구독 불일치를 방지하는 데 도움을 줍니다.',
   },
+  decompressGzip: {
+    zh: '自动解压 GZIP 消息',
+    en: 'Decompress GZIP messages',
+    tr: 'GZIP mesajlarını aç',
+    ja: 'GZIP メッセージを解凍',
+    hu: 'GZIP üzenetek kitömörítése',
+    ko: 'GZIP 메시지 압축 해제',
+  },
+  decompressGzipDesc: {
+    zh: '开启后，自动解压接收到的 GZIP 压缩消息，未压缩的消息保持不变。',
+    en: 'Once enabled, received GZIP-compressed messages are decompressed automatically. Uncompressed messages are left unchanged.',
+    tr: 'Etkinleştirildiğinde, alınan GZIP ile sıkıştırılmış mesajlar otomatik olarak açılır. Sıkıştırılmamış mesajlar değiştirilmez.',
+    ja: '有効にすると、受信した GZIP 圧縮メッセージを自動的に解凍します。圧縮されていないメッセージはそのままです。',
+    hu: 'Ha engedélyezve van, a fogadott GZIP-tömörített üzenetek automatikusan kitömörítésre kerülnek. A tömörítetlen üzenetek változatlanok maradnak.',
+    ko: '활성화하면 수신한 GZIP 압축 메시지를 자동으로 압축 해제합니다. 압축되지 않은 메시지는 그대로 유지됩니다.',
+  },
   enableHardwareAcceleration: {
     zh: '启用 GPU 加速',
     en: 'Enable GPU Acceleration',

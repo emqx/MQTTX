@@ -175,7 +175,6 @@ declare global {
     rh?: RetainHandling
     subscriptionIdentifier?: number | null
     userProperties?: { [key: string]: string | string[] } | null
-    decompressGzip?: boolean
   }
 
   interface MessageModel {

@@ -120,6 +120,7 @@ declare global {
     connectDatabaseFailMessage: string
     ignoreQoS0Message: boolean
     topicWhitespaceDetection: boolean
+    decompressGzip: boolean
     maxPayloadDisplaySize: number
     enableHardwareAcceleration: boolean
   }
@@ -180,7 +181,6 @@ declare global {
     rh?: RetainHandling
     subscriptionIdentifier?: number | null
     userProperties?: { [key: string]: string | string[] } | null
-    decompressGzip?: boolean
   }
 
   interface MessageModel {
