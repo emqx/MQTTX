@@ -52,14 +52,14 @@ export default class AgentWelcome extends Vue {
     },
     {
       key: 'diagnose',
-      icon: 'el-icon-first-aid-kit',
+      icon: 'iconfont icon-log',
       titleKey: 'agent.suggestions.diagnose',
       prompt: 'Find out why my connection fails to connect',
       skill: 'mqttx_diagnostics',
     },
     {
       key: 'clientCode',
-      icon: 'el-icon-edit-outline',
+      icon: 'iconfont icon-script',
       titleKey: 'agent.suggestions.clientCode',
       prompt: 'Write Python client code for my current connection',
       skill: 'client_code',
