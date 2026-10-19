@@ -55,6 +55,14 @@ export default {
     hu: 'Előzmények törlése',
     ko: '기록 삭제',
   },
+  confirmClearHistory: {
+    zh: '此操作将清除 {name} 的所有历史消息和主题树数据，是否继续？',
+    en: 'This will clear all history messages and topic tree data of {name}, continue?',
+    tr: 'Bu işlem {name} bağlantısının tüm geçmiş mesajlarını ve konu ağacı verilerini temizleyecek, devam edilsin mi?',
+    ja: 'この操作により{name}のすべての履歴メッセージとトピックツリーデータが削除されます。続行しますか？',
+    hu: 'Ez törli a(z) {name} összes előzményüzenetét és témastruktúra adatát, folytatja?',
+    ko: '{name}의 모든 기록 메시지와 토픽 트리 데이터가 삭제됩니다. 계속하시겠습니까?',
+  },
   notConnect: {
     zh: '客户端未连接',
     en: 'Client not connected',
