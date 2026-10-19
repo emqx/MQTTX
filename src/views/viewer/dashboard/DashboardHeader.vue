@@ -151,6 +151,7 @@ import TimeRangeSelect from '@/components/TimeRangeSelect.vue'
 })
 export default class DashboardHeader extends Vue {
   @Prop({ required: true }) showDashboardsList!: boolean
+  @Prop({ required: true }) listOffset!: number
   @Prop({ required: true }) selectedDashboardId!: string | null
   @Prop({ required: true }) dashboards!: DashboardModel[]
   @Prop({ required: true }) selectedDashboard!: DashboardModel | null
@@ -181,7 +182,7 @@ export default class DashboardHeader extends Vue {
   }
 
   get leftValue(): string {
-    return this.showDashboardsList ? '220px' : '0px'
+    return this.showDashboardsList ? `${this.listOffset}px` : '0px'
   }
 
   private toCreateDashboard() {
@@ -241,8 +242,6 @@ export default class DashboardHeader extends Vue {
   height: 48px;
   top: 0;
   right: 0;
-  background: var(--color-bg-normal);
-  border-bottom: 1px solid var(--color-border-default);
   z-index: 999;
   transition: all 0.3s ease-in-out;
 
@@ -250,7 +249,8 @@ export default class DashboardHeader extends Vue {
     display: flex;
     align-items: center;
     height: 100%;
-    padding: 0 16px;
+    // Lines up with the 12px inset of the widgets below
+    padding: 0 12px;
 
     .sidebar-toggle-button {
       margin-right: 16px;

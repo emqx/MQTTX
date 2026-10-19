@@ -333,7 +333,7 @@ export default class BigNumberChart extends Vue {
   // digits is roughly charWidthRatio x font wide; the unit renders at 0.45x.
   private readonly minValueFontPx = 24
   private readonly maxValueFontPx = 44
-  private readonly minReadableFontPx = 20
+  private readonly minReadableFontPx = 16
   private readonly unitFontRatio = 0.45
   private readonly charWidthRatio = 0.56
   private readonly valueSidePadding = 16
