@@ -1,6 +1,7 @@
 /* MQTTX Agent design tokens and styles, from design/agent-ui.html.
    Scoped under .agent-panel so it never leaks into the rest of the app. */
 .agent-panel {
+  --agent-radius-xs: 6px;
   --agent-radius-sm: 8px;
   --agent-radius-md: 12px;
   --agent-radius-lg: 16px;
@@ -14,6 +15,14 @@
   --agent-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --agent-amber: #e6a23c;
   --agent-mono: Menlo, Monaco, 'Courier New', monospace;
+  /* The two chip surfaces and the accent they use, shared by the composer and the sent messages */
+  --agent-chip-skill-bg: color-mix(in srgb, var(--color-main-green) 12%, transparent);
+  --agent-chip-bg: color-mix(in srgb, var(--color-text-title) 8%, transparent);
+  --agent-chip-bg-hover: color-mix(in srgb, var(--color-text-title) 14%, transparent);
+  --agent-chip-action-bg: color-mix(in srgb, var(--color-text-title) 12%, transparent);
+  --agent-accent-text: color-mix(in srgb, var(--color-main-green) 50%, var(--color-text-title));
+  --agent-badge-bg: color-mix(in srgb, var(--color-main-green) 14%, transparent);
+  --agent-badge-text: color-mix(in srgb, var(--color-main-green) 55%, var(--color-text-title));
 
   /* One shell for the Skill and connection chips, in the composer tray and in the sent messages */
   @mixin chip-shell {
@@ -22,10 +31,28 @@
     gap: 6px;
     height: 24px;
     padding: 0 4px 0 8px;
-    border-radius: 6px;
+    border-radius: var(--agent-radius-xs);
     font-size: 12px;
     font-weight: 500;
     line-height: 1;
+  }
+
+  /* One dot for every "connected" marker: the composer button, the chips and the mention rows */
+  .pill .on-dot,
+  .chip-dot,
+  .mention-dot {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-main-green);
+  }
+  .chip-dot.off,
+  .mention-dot.off {
+    background: var(--color-text-light);
+  }
+  .pill .on-dot.off {
+    background: var(--color-text-tips);
   }
 
   position: fixed;
@@ -481,12 +508,12 @@
   /* The same two chips as the composer tray, without the remove button */
   .user-skill {
     @include chip-shell;
-    background: color-mix(in srgb, var(--color-main-green) 12%, transparent);
-    color: color-mix(in srgb, var(--color-main-green) 50%, var(--color-text-title));
+    background: var(--agent-chip-skill-bg);
+    color: var(--agent-accent-text);
   }
   .user-mention {
     @include chip-shell;
-    background: color-mix(in srgb, var(--color-text-title) 8%, transparent);
+    background: var(--agent-chip-bg);
     color: var(--color-text-title);
   }
   /* A mentioned connection opens that connection; a deleted one stays as a plain record */
@@ -495,7 +522,7 @@
     transition: background-color 0.12s var(--agent-ease);
   }
   .user-mention.openable:hover {
-    background: color-mix(in srgb, var(--color-text-title) 14%, transparent);
+    background: var(--agent-chip-bg-hover);
   }
   .user-mention.gone {
     opacity: 0.6;
@@ -1232,14 +1259,14 @@
   /* Skill chip: the brand green at 12% as the fill, the same green one step deeper for the text */
   .skill-chip {
     @include chip-shell;
-    background: color-mix(in srgb, var(--color-main-green) 12%, transparent);
-    color: color-mix(in srgb, var(--color-main-green) 50%, var(--color-text-title));
+    background: var(--agent-chip-skill-bg);
+    color: var(--agent-accent-text);
     animation: agent-chip-in 0.12s var(--agent-ease);
   }
   /* Connection chip: a neutral surface, a state dot, then @ and the name */
   .mention-chip {
     @include chip-shell;
-    background: color-mix(in srgb, var(--color-text-title) 8%, transparent);
+    background: var(--agent-chip-bg);
     color: var(--color-text-title);
     animation: agent-chip-in 0.12s var(--agent-ease);
   }
@@ -1249,16 +1276,6 @@
     font-size: 12px;
     line-height: 12px;
     text-align: center;
-  }
-  .chip-dot {
-    flex: none;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--color-main-green);
-  }
-  .chip-dot.off {
-    background: var(--color-text-light);
   }
   /* The "@" glue is quieter than the connection name */
   .chip-at {
@@ -1289,7 +1306,7 @@
     transition: background-color 0.12s var(--agent-ease), color 0.12s var(--agent-ease);
   }
   .chip-remove:hover {
-    background: color-mix(in srgb, var(--color-text-title) 12%, transparent);
+    background: var(--agent-chip-action-bg);
     color: var(--color-text-title);
   }
   .chip-remove:focus-visible {
@@ -1465,16 +1482,6 @@
     white-space: nowrap;
     color: var(--color-text-title);
   }
-  .pill .on-dot {
-    flex: none;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--color-main-green);
-  }
-  .pill .on-dot.off {
-    background: var(--color-text-tips);
-  }
   .model {
     margin-left: auto;
     min-width: 0;
@@ -1603,7 +1610,7 @@
     height: 26px;
     padding: 0 24px 0 var(--agent-space-2);
     border: 1px solid var(--color-border-default);
-    border-radius: 6px;
+    border-radius: var(--agent-radius-xs);
     background: var(--color-bg-normal);
     color: var(--color-text-title);
     font: inherit;
@@ -1725,7 +1732,7 @@
     gap: var(--agent-space-2);
     min-height: 32px;
     padding: 6px 10px;
-    border-radius: 6px;
+    border-radius: var(--agent-radius-xs);
     transition: background-color 80ms var(--agent-ease);
   }
   /* One highlight only, the same one for keyboard and mouse */
@@ -1769,16 +1776,6 @@
     padding: 0 10px;
     gap: 6px;
   }
-  .mention-dot {
-    flex: none;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--color-main-green);
-  }
-  .mention-dot.off {
-    background: var(--color-text-light);
-  }
   /* The name keeps its width; the endpoint gives way first and takes the leftover space */
   .mention-name {
     flex: 0 0 auto;
@@ -1807,15 +1804,15 @@
     height: 16px;
     padding: 0 6px;
     border-radius: 999px;
-    background: color-mix(in srgb, var(--color-main-green) 14%, transparent);
-    color: color-mix(in srgb, var(--color-main-green) 55%, var(--color-text-title));
+    background: var(--agent-badge-bg);
+    color: var(--agent-badge-text);
     font-size: 11px;
     line-height: 16px;
   }
   /* The part of a row that matches what the user typed: brand green one step deeper, so it stays
      readable on light backgrounds (the raw green is only 2.3:1 on white) */
   .mention-menu .hit {
-    color: color-mix(in srgb, var(--color-main-green) 50%, var(--color-text-title));
+    color: var(--agent-accent-text);
     font-weight: 600;
   }
   /* Nothing matched: one quiet line, the same height as a row */

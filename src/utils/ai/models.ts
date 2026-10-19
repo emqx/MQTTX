@@ -362,52 +362,43 @@ export const AImodelsOptions: AImodelsOptionsModel = [
 ]
 
 /**
- * Returns the display name of a model, falling back to the raw id for custom models.
+ * The provider entry and the model entry an id belongs to, or undefined for a model the user typed
+ * themselves. Every lookup below goes through this one scan.
  */
-export const getModelLabel = (model: string): string => {
+export const findModelEntry = (
+  model: string,
+): { provider: AImodelsOptionsModel[number]; option: AImodelsOptionsModel[number]['children'][number] } | undefined => {
   for (const provider of AImodelsOptions) {
     const option = provider.children.find((child) => child.value === model)
-    if (option) return option.label
+    if (option) return { provider, option }
   }
-  return model
+  return undefined
 }
+
+/**
+ * Returns the display name of a model, falling back to the raw id for custom models.
+ */
+export const getModelLabel = (model: string): string => findModelEntry(model)?.option.label ?? model
 
 /**
  * Whether a model accepts images. Only models explicitly marked `vision: false` are rejected;
  * models the user typed themselves are assumed to support images.
  */
-export const supportsImages = (model: string): boolean => {
-  for (const provider of AImodelsOptions) {
-    const option = provider.children.find((child) => child.value === model)
-    if (option) return option.vision !== false
-  }
-  return true
-}
+export const supportsImages = (model: string): boolean => findModelEntry(model)?.option.vision !== false
 
 /**
  * Whether a reasoning strength can be asked of a model. Only models explicitly marked
  * `reasoning: false` are rejected; models the user typed themselves are assumed to support it.
  * The level itself is sent through the AI SDK's unified `reasoning` call option.
  */
-export const supportsReasoning = (model: string): boolean => {
-  for (const provider of AImodelsOptions) {
-    const option = provider.children.find((child) => child.value === model)
-    if (option) return option.reasoning !== false
-  }
-  return true
-}
+export const supportsReasoning = (model: string): boolean => findModelEntry(model)?.option.reasoning !== false
 
 /**
  * The reasoning values a model honours (`reasoningEfforts`); undefined when it takes every level or is
  * not one of the listed models.
  */
-export const getReasoningEfforts = (model: string): readonly ReasoningEffort[] | undefined => {
-  for (const provider of AImodelsOptions) {
-    const option = provider.children.find((child) => child.value === model)
-    if (option) return option.reasoningEfforts
-  }
-  return undefined
-}
+export const getReasoningEfforts = (model: string): readonly ReasoningEffort[] | undefined =>
+  findModelEntry(model)?.option.reasoningEfforts
 
 /**
  * Default API host options for different AI providers.

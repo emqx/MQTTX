@@ -137,6 +137,7 @@ import { materializeAttachments, OutgoingMessage } from '@/utils/ai/agent/attach
 import { ApprovalGate } from '@/utils/ai/agent/approval'
 import type { ApprovalDecision, PermissionMode } from '@/utils/ai/agent/approval'
 import type { AgentReasoning } from '@/utils/ai/reasoning'
+import { isConnectionConnected } from '@/utils/ai/agent/mentions'
 import type { ConnectionMention } from '@/utils/ai/agent/mentions'
 import { connectionBridge } from '@/utils/ai/agent/connectionBridge'
 import { AgentToolDeps } from '@/utils/ai/agent/tools/types'
@@ -208,8 +209,7 @@ export default class AgentPanel extends Vue {
   private isResponseStream = false
   private streamingMessage: AgentMessage | null = null
   private errorMessage: string | null = null
-  private connectionNames: Record<string, string> = {}
-  /** Full records of the connections, for the `@` mention menu */
+  /** Full records of the connections, for the `@` mention menu and the labels of tool steps */
   private connections: ConnectionModel[] = []
   private permissionMode: PermissionMode = 'ask'
   private autoConfirmed = false
@@ -276,6 +276,14 @@ export default class AgentPanel extends Vue {
     return connectionBridge.current()?.connectionId ?? ''
   }
 
+  /** Id -> name, for the tool steps and the chips of sent messages */
+  get connectionNames(): Record<string, string> {
+    return this.connections.reduce<Record<string, string>>((names, connection) => {
+      if (connection.id) names[connection.id] = connection.name
+      return names
+    }, {})
+  }
+
   /** The connections the `@` menu offers, with the live state shown by its dot */
   get connectionMentions(): ConnectionMention[] {
     return this.connections
@@ -285,7 +293,7 @@ export default class AgentPanel extends Vue {
         name: connection.name,
         host: connection.host,
         port: connection.port,
-        connected: this.activeConnection[connection.id as string]?.client?.connected === true,
+        connected: isConnectionConnected(this.activeConnection, connection.id as string),
       }))
   }
 
@@ -786,9 +794,7 @@ export default class AgentPanel extends Vue {
 
   private async generateAIResponse(): Promise<void> {
     // The names are only needed while rendering tool steps, so this does not block the request
-    this.refreshConnectionNames().catch((error) =>
-      this.$log.warn(`[Agent] Failed to refresh connection names: ${error}`),
-    )
+    this.refreshConnections().catch((error) => this.$log.warn(`[Agent] Failed to refresh connection names: ${error}`))
     this.initializeAgent()
     if (!this.aiAgent) throw new Error('AI Agent not initialized')
 
@@ -867,7 +873,7 @@ export default class AgentPanel extends Vue {
       this.pendingStreamMessage = null
       this.streamingMessage = null
     }
-    await this.refreshConnectionNames()
+    await this.refreshConnections()
     this.resetResponseState()
   }
 
@@ -920,17 +926,12 @@ export default class AgentPanel extends Vue {
       this.namesSyncedFor.add(key)
       stale = true
     }
-    if (stale) this.refreshConnectionNames()
+    if (stale) this.refreshConnections()
   }
 
-  private async refreshConnectionNames(): Promise<void> {
+  private async refreshConnections(): Promise<void> {
     const { connectionService } = useServices()
-    const connections = (await connectionService.getAll()) ?? []
-    this.connections = connections
-    this.connectionNames = connections.reduce<Record<string, string>>((acc, connection) => {
-      if (connection.id) acc[connection.id] = connection.name
-      return acc
-    }, {})
+    this.connections = (await connectionService.getAll()) ?? []
   }
 
   private async loadMessages({ reset }: { reset?: boolean } = {}) {
@@ -1017,7 +1018,7 @@ export default class AgentPanel extends Vue {
   private onShowChange() {
     this.emitStatus()
     // Connections may have been renamed or created outside the Agent; history shows the current names
-    if (this.showAgent) this.refreshConnectionNames()
+    if (this.showAgent) this.refreshConnections()
     this.$nextTick(() => setTimeout(() => this.scrollToBottom(), 100))
   }
 
