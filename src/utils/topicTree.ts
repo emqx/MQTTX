@@ -5,9 +5,16 @@ import time from '@/utils/time'
 /**
  * Updates the topic tree structure with new message data.
  *
+ * The tree is mutated in place: a new host node is pushed into `currentTree`
+ * itself and the returned `updatedTree` is the very same array instance. This
+ * keeps `el-tree`'s `data` watcher on the incremental path (`updateChildren`)
+ * instead of rebuilding every node.
+ *
  * @param currentTree - The current state of the topic tree.
  * @param rawData - An object containing the MQTT packet and connection information.
- * @returns An object containing the updated tree and a list of updated nodes.
+ * @returns An object containing the updated tree, a list of updated nodes and,
+ *   when a new node was created below an existing node, the id of that parent
+ *   node (`newNodeParentId`) so the caller can sync `el-tree`.
  */
 export function updateTopicTreeNode(
   currentTree: TopicTreeNode[],
@@ -18,6 +25,7 @@ export function updateTopicTreeNode(
 ): {
   updatedTree: TopicTreeNode[]
   updatedNodes: TopicTreeNode[]
+  newNodeParentId?: string
 } {
   const { packet, connectionInfo } = rawData
   const { topic, payload, qos, retain, properties } = packet
@@ -26,8 +34,7 @@ export function updateTopicTreeNode(
   const currentTime = time.getNowDate()
   const currentProperties = properties ?? {}
 
-  const updatedTree = [...currentTree]
-  let hostNode = updatedTree.find((node) => node.id === connectionInfo.id)
+  let hostNode = currentTree.find((node) => node.id === connectionInfo.id)
   const updatedNodes: TopicTreeNode[] = []
   let isNewHost = false
 
@@ -41,13 +48,19 @@ export function updateTopicTreeNode(
       connectionInfo,
       children: [],
     }
-    updatedTree.push(hostNode)
+    currentTree.push(hostNode)
     isNewHost = true
   }
 
   const originalHostMessageCount = hostNode.messageCount
+  const originalHostSubTopicCount = hostNode.subTopicCount
 
   hostNode.messageCount++
+
+  // Nodes on the topic path, host first, leaf last.
+  const pathNodes: TopicTreeNode[] = [hostNode]
+  let newNodeCount = 0
+  let newNodeParentId: string | undefined
 
   let currentNode = hostNode
   let currentId = connectionInfo.id
@@ -75,6 +88,12 @@ export function updateTopicTreeNode(
         currentNode.children = [childNode]
       }
       isNewNode = true
+      newNodeCount++
+      // The parent of the first newly created node is the deepest pre-existing
+      // ancestor; it is the only node el-tree has to sync children for.
+      if (newNodeParentId === undefined && !isNewHost) {
+        newNodeParentId = currentNode.id
+      }
     } else {
       childNode = currentNode.children![childIndex]
       currentId = childNode.id
@@ -105,16 +124,30 @@ export function updateTopicTreeNode(
       updatedNodes.push(childNode)
     }
 
+    pathNodes.push(childNode)
     currentNode = childNode
   }
 
-  const originalSubTopicCount = hostNode.subTopicCount
-  updateSubTopicCounts(hostNode)
+  // Incrementally maintain subTopicCount along the topic path instead of
+  // walking the whole host subtree on every message. A newly created node is a
+  // descendant of every node above it on the path, so each of those gets
+  // `newNodeCount` added, while a newly created node itself only counts the
+  // new nodes created below it. On a consistent tree this equals what
+  // `updateSubTopicCounts` would produce.
+  if (newNodeCount > 0) {
+    const firstNewNodeIndex = pathNodes.length - newNodeCount
+    for (let i = 0; i < pathNodes.length; i++) {
+      const newNodesBelow = i < firstNewNodeIndex ? newNodeCount : pathNodes.length - 1 - i
+      if (newNodesBelow > 0) {
+        pathNodes[i].subTopicCount += newNodesBelow
+      }
+    }
+  }
 
   if (
     isNewHost ||
     hostNode.messageCount !== originalHostMessageCount ||
-    hostNode.subTopicCount !== originalSubTopicCount
+    hostNode.subTopicCount !== originalHostSubTopicCount
   ) {
     updatedNodes.push(hostNode)
   }
@@ -130,7 +163,7 @@ export function updateTopicTreeNode(
     connectionInfo: node.connectionInfo,
   }))
 
-  return { updatedTree, updatedNodes: simplifiedUpdatedNodes }
+  return { updatedTree: currentTree, updatedNodes: simplifiedUpdatedNodes, newNodeParentId }
 }
 
 /**
@@ -161,16 +194,31 @@ export function updateSubTopicCounts(node: TopicTreeNode): number {
  * @returns An array of strings representing the subtopics.
  */
 export function findSubTopics(node: TopicTreeNode, isRoot = true): string[] {
-  let subTopics: string[] = []
+  const subTopics: string[] = []
   if (!isRoot && node.label) {
     subTopics.push(node.label)
   }
   if (node.children && node.children.length > 0) {
     for (const child of node.children) {
-      subTopics = subTopics.concat(findSubTopics(child, false))
+      collectSubTopics(child, subTopics)
     }
   }
   return subTopics
+}
+
+/**
+ * Appends the labels of a node and its descendants to `subTopics` in
+ * depth-first pre-order. Shared by `findSubTopics` to avoid copying arrays.
+ */
+function collectSubTopics(node: TopicTreeNode, subTopics: string[]): void {
+  if (node.label) {
+    subTopics.push(node.label)
+  }
+  if (node.children && node.children.length > 0) {
+    for (const child of node.children) {
+      collectSubTopics(child, subTopics)
+    }
+  }
 }
 
 /**
@@ -181,25 +229,27 @@ export function findSubTopics(node: TopicTreeNode, isRoot = true): string[] {
  * @returns The full topic path as a string, or null if the node is not found.
  */
 export function findFullTopicPath(treeData: TopicTreeNode[], targetId: string): string | null {
-  function findPath(node: TopicTreeNode, currentPath: string[]): string[] | null {
+  const currentPath: string[] = []
+
+  function findPath(node: TopicTreeNode): boolean {
     if (node.id === targetId) {
-      return currentPath
+      return true
     }
     if (node.children) {
       for (const child of node.children) {
-        const result = findPath(child, [...currentPath, child.label])
-        if (result) {
-          return result
+        currentPath.push(child.label)
+        if (findPath(child)) {
+          return true
         }
+        currentPath.pop()
       }
     }
-    return null
+    return false
   }
   for (const rootNode of treeData) {
     if (rootNode.connectionInfo) {
-      const result = findPath(rootNode, [])
-      if (result) {
-        return result.join('/')
+      if (findPath(rootNode)) {
+        return currentPath.join('/')
       }
     }
   }

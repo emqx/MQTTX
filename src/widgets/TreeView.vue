@@ -55,6 +55,7 @@
         <span class="custom-tree-node">
           <span class="tree-node-info">
             <el-tooltip
+              v-if="isTextOverflow(data, node)"
               :content="
                 data.connectionInfo && data.connectionInfo.name
                   ? `${data.connectionInfo.name}@${node.label}`
@@ -62,7 +63,6 @@
               "
               placement="top"
               :effect="currentTheme !== 'light' ? 'light' : 'dark'"
-              :disabled="!isTextOverflow(data, node)"
               :open-delay="500"
             >
               <span class="tree-node-label" :ref="`treeLabel_${data.id}`">
@@ -70,6 +70,10 @@
                 >{{ node.label }}
               </span>
             </el-tooltip>
+            <span v-else class="tree-node-label" :ref="`treeLabel_${data.id}`">
+              <span v-if="data.connectionInfo && data.connectionInfo.name">{{ data.connectionInfo.name }}@</span
+              >{{ node.label }}
+            </span>
             <el-tag v-if="data.message && !checkPayloadEmpty(data.message.payload)" size="mini" class="value-tag ml-2">
               {{ data.message.payload }}
             </el-tag>
@@ -214,7 +218,7 @@ export default class TreeView extends Vue {
     })
   }
 
-  @Watch('data', { deep: true })
+  @Watch('data')
   private onDataChange() {
     this.$nextTick(() => {
       // Keep the filter text when data changes
@@ -222,6 +226,20 @@ export default class TreeView extends Vue {
         this.treeRef.filter(this.filterText)
       }
     })
+  }
+
+  /**
+   * Syncs `el-tree` with children that were appended directly to a data node.
+   * Nodes whose parent was never rendered have no `children` watcher, so the
+   * first node that received a new child must be told to update incrementally.
+   */
+  public syncChildren(parentId: string) {
+    // Element UI typings omit `Node.updateChildren`, which exists at runtime.
+    const node = this.treeRef.getNode(parentId) as { updateChildren?: () => void } | null
+    node?.updateChildren?.()
+    if (this.filterText) {
+      this.treeRef.filter(this.filterText)
+    }
   }
 
   private defaultProps = {
