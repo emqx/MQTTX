@@ -33,8 +33,6 @@ import TreeNodeInfo from '@/widgets/TreeNodeInfo.vue'
 import { MessageQueue } from '@/utils/messageQueue'
 import useServices from '@/database/useServices'
 import { Subscription } from 'rxjs'
-import ConnectionSelect from '@/components/ConnectionSelect.vue'
-import MyDialog from '@/components/MyDialog.vue'
 import SyncTopicTreeDialog from '@/widgets/SyncTopicTreeDialog.vue'
 import { ignoreQoS0Message } from '@/utils/mqttUtils'
 
@@ -42,8 +40,6 @@ import { ignoreQoS0Message } from '@/utils/mqttUtils'
   components: {
     TreeView,
     TreeNodeInfo,
-    ConnectionSelect,
-    MyDialog,
     SyncTopicTreeDialog,
   },
 })
@@ -71,13 +67,11 @@ export default class TopicTree extends Vue {
       const treeView = this.$refs.treeView as TreeView | undefined
       treeView?.syncChildren(newNodeParentId)
     }
-    if (this.data.length === 0) return
     this.$log.debug(
       `Topic Tree: Updated tree data for connection ${connectionInfo.name}@${connectionInfo.host}. Topic: ${
         packet.topic
       }, QoS: ${packet.qos}${packet.payload ? `, Payload: ${packet.payload.toString()}` : ''}`,
     )
-    // Handle Tree Data Update
     if (ignoreQoS0Message(packet.qos)) return
     this.messageQueue?.queueMessage(updatedNodes)
   }
@@ -192,17 +186,6 @@ export default class TopicTree extends Vue {
     .empty-text {
       color: var(--color-text-light);
     }
-  }
-  .delete-btn:not(.is-disabled) {
-    color: var(--color-minor-red);
-    border-color: var(--color-minor-red);
-    background-color: transparent;
-  }
-}
-.sync-connection-dialog {
-  .sync-connection-tip {
-    margin-top: 12px;
-    word-break: break-word;
   }
 }
 </style>

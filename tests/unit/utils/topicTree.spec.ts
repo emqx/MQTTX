@@ -59,17 +59,16 @@ describe('Topic Tree Functions', () => {
 
     const result = updateTopicTreeNode(currentTree, { packet, connectionInfo })
 
-    expect(result.updatedTree).to.have.lengthOf(1)
+    expect(currentTree).to.have.lengthOf(1)
     expect(result.updatedNodes).to.have.lengthOf(4) // Host + sensors + temperature + living-room
 
-    const updatedTree = result.updatedTree
     const updatedNodes = result.updatedNodes
 
     // Check tree structure
-    expect(updatedTree[0].id).to.equal('test-connection-id')
-    expect(updatedTree[0].children?.[0].id).to.equal('test-connection-id_0')
-    expect(updatedTree[0].children?.[0].children?.[0].id).to.equal('test-connection-id_0_0')
-    expect(updatedTree[0].children?.[0].children?.[0].children?.[0].id).to.equal('test-connection-id_0_0_0')
+    expect(currentTree[0].id).to.equal('test-connection-id')
+    expect(currentTree[0].children?.[0].id).to.equal('test-connection-id_0')
+    expect(currentTree[0].children?.[0].children?.[0].id).to.equal('test-connection-id_0_0')
+    expect(currentTree[0].children?.[0].children?.[0].children?.[0].id).to.equal('test-connection-id_0_0_0')
 
     // Check updated nodes without assuming order
     const expectedNodes = [
@@ -164,11 +163,10 @@ describe('Topic Tree Functions', () => {
       },
     ]
 
-    let currentTree = initialTree
+    const currentTree = initialTree
 
     testCases.forEach((testCase) => {
       const result = updateTopicTreeNode(currentTree, { packet: testCase.packet, connectionInfo })
-      currentTree = result.updatedTree
 
       expect(result.updatedNodes.length, `${testCase.description}: Incorrect number of updated nodes`).to.equal(
         testCase.expectedUpdatedNodesCount,
@@ -530,16 +528,18 @@ function generateLargeTopicSet(count: number): string[] {
 }
 
 describe('Topic Tree In-Place Updates', () => {
-  it('mutates the input array in place and returns the same instance', () => {
+  it('mutates the input array in place', () => {
     const tree: TopicTreeNode[] = []
 
-    const newHost = updateTopicTreeNode(tree, { packet: makePublishPacket('a/b'), connectionInfo })
-    expect(newHost.updatedTree).to.equal(tree)
+    updateTopicTreeNode(tree, { packet: makePublishPacket('a/b'), connectionInfo })
     expect(tree).to.have.lengthOf(1)
+    expect(tree[0].id).to.equal('test-connection-id')
+    expect(tree[0].children![0].label).to.equal('a')
+    expect(tree[0].children![0].children![0].label).to.equal('b')
 
-    const existingHost = updateTopicTreeNode(tree, { packet: makePublishPacket('a/c'), connectionInfo })
-    expect(existingHost.updatedTree).to.equal(tree)
+    updateTopicTreeNode(tree, { packet: makePublishPacket('a/c'), connectionInfo })
     expect(tree).to.have.lengthOf(1)
+    expect(tree[0].children![0].children![1].label).to.equal('c')
   })
 
   it('keeps updatedNodes order, ids, payload and parentId unchanged', () => {
@@ -631,8 +631,6 @@ describe('Topic Tree In-Place Updates', () => {
     }
 
     expect(findSubTopics(node)).to.deep.equal(['a', 'a1', 'a2', 'a2x', 'b'])
-    // isRoot = false keeps the node's own label at the front.
-    expect(findSubTopics(node, false)).to.deep.equal(['root', 'a', 'a1', 'a2', 'a2x', 'b'])
   })
 
   it('finds full topic paths with the same output as before', () => {
@@ -659,6 +657,7 @@ describe('Topic Tree In-Place Updates', () => {
                   { id: 'conn1_0_0_0', label: 'living-room', messageCount: 0, subTopicCount: 0, children: [] },
                 ],
               },
+              { id: 'conn1_0_1', label: 'humidity', messageCount: 0, subTopicCount: 0, children: [] },
             ],
           },
         ],
@@ -667,6 +666,7 @@ describe('Topic Tree In-Place Updates', () => {
 
     expect(findFullTopicPath(treeData, 'conn1_0_0_0')).to.equal('sensors/temperature/living-room')
     expect(findFullTopicPath(treeData, 'conn1_0_0')).to.equal('sensors/temperature')
+    expect(findFullTopicPath(treeData, 'conn1_0_1')).to.equal('sensors/humidity')
     expect(findFullTopicPath(treeData, 'conn1_0')).to.equal('sensors')
     // The root node contributes no label.
     expect(findFullTopicPath(treeData, 'conn1')).to.equal('')
