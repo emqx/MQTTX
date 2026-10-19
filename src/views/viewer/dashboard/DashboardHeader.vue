@@ -14,42 +14,50 @@
           <div v-if="creatingInTopbar" class="dashboard-create-form" key="create">
             <el-input
               ref="newNameInput"
-              size="mini"
+              size="small"
+              class="name-input"
               v-model="newDashboard.name"
               :placeholder="$t('connections.name')"
-              style="width: 180px; margin-right: 8px"
+              @keyup.enter.native="handleCreateDashboardTopbar"
+              @keyup.esc.native="cancelCreateTopbar"
             />
             <el-input
-              size="mini"
+              size="small"
+              class="description-input"
               v-model="newDashboard.description"
               :placeholder="$t('viewer.description')"
-              style="width: 220px; margin-right: 8px"
+              @keyup.enter.native="handleCreateDashboardTopbar"
+              @keyup.esc.native="cancelCreateTopbar"
             />
-            <el-button size="mini" type="primary" @click="handleCreateDashboardTopbar">
+            <el-button size="small" type="primary" @click="handleCreateDashboardTopbar">
               {{ $t('common.save') }}
             </el-button>
-            <el-button size="mini" @click="cancelCreateTopbar">
+            <el-button size="small" class="cancel-button" @click="cancelCreateTopbar">
               {{ $t('common.cancel') }}
             </el-button>
           </div>
           <div v-else-if="editingInTopbar" class="dashboard-edit-form" key="edit">
             <el-input
               ref="editNameInput"
-              size="mini"
+              size="small"
+              class="name-input"
               v-model="editDashboard.name"
               :placeholder="$t('connections.name')"
-              style="width: 180px; margin-right: 8px"
+              @keyup.enter.native="handleSaveDashboardEdit"
+              @keyup.esc.native="cancelEditTopbar"
             />
             <el-input
-              size="mini"
+              size="small"
+              class="description-input"
               v-model="editDashboard.description"
               :placeholder="$t('viewer.description')"
-              style="width: 220px; margin-right: 8px"
+              @keyup.enter.native="handleSaveDashboardEdit"
+              @keyup.esc.native="cancelEditTopbar"
             />
-            <el-button size="mini" type="primary" @click="handleSaveDashboardEdit">
+            <el-button size="small" type="primary" @click="handleSaveDashboardEdit">
               {{ $t('common.save') }}
             </el-button>
-            <el-button size="mini" @click="cancelEditTopbar">
+            <el-button size="small" class="cancel-button" @click="cancelEditTopbar">
               {{ $t('common.cancel') }}
             </el-button>
           </div>
@@ -247,10 +255,28 @@ export default class DashboardHeader extends Vue {
         display: flex;
         align-items: center;
         width: 100%;
-        gap: 12px;
-      }
-      .dashboard-view-section {
         gap: 8px;
+      }
+
+      // Same 32px height as the toolbar controls; the gap does the spacing.
+      .dashboard-create-form,
+      .dashboard-edit-form {
+        .name-input {
+          width: 200px;
+        }
+        .description-input {
+          flex: 0 1 280px;
+          min-width: 120px;
+        }
+        .el-button {
+          height: 32px;
+          padding: 0 12px;
+          border-radius: 6px;
+          font-size: 13px;
+        }
+        .el-button + .el-button {
+          margin-left: 0;
+        }
       }
 
       // Renaming is a secondary action: the pencil is only revealed while the
@@ -279,7 +305,8 @@ export default class DashboardHeader extends Vue {
       }
 
       // Element's small button (1px border, 32px) with the theme's colours.
-      .add-widget-button.el-button {
+      .add-widget-button.el-button,
+      .cancel-button.el-button {
         flex-shrink: 0;
         height: 32px;
         padding: 0 12px;
