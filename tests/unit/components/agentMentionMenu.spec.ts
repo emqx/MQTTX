@@ -188,22 +188,6 @@ describe('Agent mention menu', () => {
     expect(ctx.selectedConnections).to.deep.equal([{ id: 'c9', name: 'Local broker' }])
   })
 
-  it('should close the mention menu with the other menus on a click outside', () => {
-    const ctx = {
-      showModeMenu: true,
-      showModelMenu: true,
-      skillMenuOpen: true,
-      mentionMenuOpen: true,
-      mentionQuery: { start: 0, end: 1, query: 'a' },
-      closeMentionMenu: methods.closeMentionMenu,
-    }
-
-    methods.closeMenus.call(ctx)
-
-    expect(ctx.mentionMenuOpen).to.equal(false)
-    expect(ctx.mentionQuery).to.equal(null)
-  })
-
   it('should render the menu from the shared Skill menu shell', () => {
     const source = fs.readFileSync(path.resolve(process.cwd(), 'src/components/agent/AgentComposer.vue'), 'utf8')
     const { ast } = compile(parseComponent(source).template!.content)

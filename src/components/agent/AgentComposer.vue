@@ -249,7 +249,7 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch, Emit } from 'vue-property-decorator'
 import type { PermissionMode } from '@/utils/ai/agent/approval'
-import { AImodelsOptions, getModelLabel, getReasoningEfforts, supportsImages, supportsReasoning } from '@/utils/ai/models'
+import { findModelEntry, getModelLabel, getReasoningEfforts, supportsImages, supportsReasoning } from '@/utils/ai/models'
 import {
   DEFAULT_AGENT_REASONING,
   effectiveReasoning,
@@ -803,7 +803,7 @@ export default class AgentComposer extends Vue {
 
   /** All models share one API host and key, so the menu only offers the current provider's models */
   get modelProvider() {
-    return AImodelsOptions.find((provider) => provider.children.some((child) => child.value === this.model))
+    return findModelEntry(this.model)?.provider
   }
 
   get modelOptions(): { value: string; label: string }[] {

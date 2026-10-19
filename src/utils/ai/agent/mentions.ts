@@ -29,6 +29,15 @@ export interface MentionQuery {
 export const connectionEndpoint = (connection: Pick<ConnectionMention, 'host' | 'port'>): string =>
   `${connection.host}:${connection.port}`
 
+/**
+ * Whether a connection has a live client. Both the mention menu and the chips of sent messages read
+ * this from the store's `activeConnection` map, so the check lives in one place.
+ */
+export const isConnectionConnected = (
+  activeConnections: Record<string, { client?: { connected?: boolean } } | undefined>,
+  connectionId: string,
+): boolean => activeConnections[connectionId]?.client?.connected === true
+
 const isSpace = (character: string): boolean => /\s/.test(character)
 
 /**

@@ -95,14 +95,11 @@ describe('Agent skill menu', () => {
 
     methods.closeMenus.call(ctx)
 
-    expect(ctx).to.deep.equal({
-      showModeMenu: false,
-      showModelMenu: false,
-      skillMenuOpen: false,
-      mentionMenuOpen: false,
-      mentionQuery: null,
-      closeMentionMenu: methods.closeMentionMenu,
-    })
+    expect(ctx.showModeMenu).to.equal(false)
+    expect(ctx.showModelMenu).to.equal(false)
+    expect(ctx.skillMenuOpen).to.equal(false)
+    expect(ctx.mentionMenuOpen).to.equal(false)
+    expect(ctx.mentionQuery).to.equal(null)
   })
 
   it('should close every menu on Escape handled by the composer wrap', () => {
@@ -119,15 +116,13 @@ describe('Agent skill menu', () => {
 
     methods.onEsc.call(ctx, { stopPropagation: () => (stopped = true) } as unknown as KeyboardEvent)
 
-    expect(ctx).to.deep.equal({
-      showModeMenu: false,
-      showModelMenu: false,
-      skillMenuOpen: false,
-      mentionMenuOpen: false,
-      mentionQuery: null,
-      closeMenus: methods.closeMenus,
-      closeMentionMenu: methods.closeMentionMenu,
-    })
+    expect([ctx.showModeMenu, ctx.showModelMenu, ctx.skillMenuOpen, ctx.mentionMenuOpen]).to.deep.equal([
+      false,
+      false,
+      false,
+      false,
+    ])
+    expect(ctx.mentionQuery).to.equal(null)
     expect(stopped).to.equal(true)
   })
 

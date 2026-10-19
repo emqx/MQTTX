@@ -8,6 +8,7 @@ import {
   loadSystemPrompt,
   supportsReasoning,
   getReasoningEfforts,
+  findModelEntry,
 } from '@/utils/ai/models'
 import { buildReasoningCallOptions } from '@/utils/ai/reasoning'
 import type { AgentReasoning } from '@/utils/ai/reasoning'
@@ -198,11 +199,8 @@ export class MQTTXAgent {
     }
 
     // **Priority 2: Check if the model name matches a known model for a specific provider**
-    for (const provider of AImodelsOptions) {
-      if (provider.children.some((child) => child.value === model)) {
-        return provider.value
-      }
-    }
+    const entry = findModelEntry(model)
+    if (entry) return entry.provider.value
 
     // **Priority 3: Infer provider based on known non-Azure host URLs**
     const normalizedHost = normalizeHost(host)
