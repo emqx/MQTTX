@@ -25,6 +25,41 @@ export default {
     en: 'New Connection',
     ja: '新規接続',
   },
+  emptyTitle: {
+    zh: '开始使用 MQTTX',
+    en: 'Get started with MQTTX',
+    ja: 'MQTTX を始めましょう',
+  },
+  emptyDesc: {
+    zh: '选择一种方式创建连接。',
+    en: 'Choose how to create your first connection.',
+    ja: '最初の接続の作成方法を選択してください。',
+  },
+  emptyNewDesc: {
+    zh: '自定义 Broker 配置',
+    en: 'Configure your own broker',
+    ja: 'ブローカーを自分で設定',
+  },
+  emptyPublicTitle: {
+    zh: '连接公共 Broker',
+    en: 'Try public broker',
+    ja: 'パブリックブローカーを試す',
+  },
+  emptyImportDesc: {
+    zh: 'JSON、YAML、CSV 等',
+    en: 'JSON, YAML, CSV, and more',
+    ja: 'JSON、YAML、CSV など',
+  },
+  emptyBroker: {
+    zh: '需要生产级 MQTT 平台？试试 {emqx} 或 {cloud}',
+    en: 'Need a production-grade MQTT platform? Try {emqx} or {cloud}',
+    ja: '本番環境向けの MQTT プラットフォームが必要ですか？{emqx} または {cloud} をお試しください',
+  },
+  emqxEnterprise: {
+    zh: 'EMQX 企业版',
+    en: 'EMQX Enterprise',
+    ja: 'EMQX Enterprise',
+  },
   hideConnections: {
     zh: '隐藏连接列表',
     en: 'Hide Connections',

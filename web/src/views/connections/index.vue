@@ -28,9 +28,9 @@
     <div :class="['connections-view', { 'is-list-hidden': !showConnectionList }]">
       <EmptyPage
         v-if="isEmpty && !oper"
-        name="connections"
         :btn-title="$t('connections.newConnections')"
         :click-method="toCreateConnection"
+        @quick-connect="quickConnect"
       />
       <template v-else>
         <ConnectionForm v-if="oper" ref="connectionForm" :oper="oper" @connect="onConnect" @refresh="loadData" />
@@ -49,7 +49,7 @@
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
 import { Action, Getter } from 'vuex-class'
-import { loadConnections, loadConnection } from '@/utils/api/connection'
+import { loadConnections, loadConnection, createConnection } from '@/utils/api/connection'
 import EmptyPage from '@/components/EmptyPage.vue'
 import ConnectionsList from './ConnectionsList.vue'
 import ConnectionsDetail from './ConnectionsDetail.vue'
@@ -126,6 +126,18 @@ export default class Connections extends Vue {
 
   private toCreateConnection() {
     this.$router.push({ path: '/recent_connections/0?oper=create' })
+  }
+
+  private quickConnect() {
+    const record = getDefaultRecord()
+    const res = createConnection({ ...record, name: record.host })
+    if (!res?.id) {
+      this.$message.error(this.$tc('common.createfailed'))
+      return
+    }
+    this.changeActiveConnection({ id: res.id, client: {}, messages: [] } as Client)
+    this.$router.push(`/recent_connections/${res.id}`)
+    this.onConnect()
   }
 
   private onConnect() {

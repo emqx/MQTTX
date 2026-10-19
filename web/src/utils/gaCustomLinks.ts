@@ -13,6 +13,11 @@ export default (lang: Language) => {
 
   const utm = '?utm_source=mqttx-web&utm_medium=referral&utm_campaign='
 
+  const empty = {
+    EMQX: `${EMQSite}/products/emqx${utm}mqttx-web-to-emqx`,
+    EMQXCloud: `${EMQSite}/cloud${utm}mqttx-web-to-cloud`,
+  }
+
   const signInENSite = `https://accounts.emqx.com/signin?continue=https://cloud-intl.emqx.com/console/&utm_source=mqttx-web&utm_medium=referral&utm_campaign=mqttx-web-to-signin`
   const signInCNSite = `https://accounts-zh.emqx.com/signin?continue=https://cloud.emqx.com/console/&utm_source=mqttx-web&utm_medium=referral&utm_campaign=mqttx-web-to-signin`
   const signInSite = lang === 'zh' ? signInCNSite : signInENSite
@@ -40,6 +45,7 @@ export default (lang: Language) => {
     MQTTXSite,
     EMQSite,
     forumSite,
+    empty,
     about,
     help,
   }
