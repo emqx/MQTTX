@@ -281,7 +281,8 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-weight: 500;
+  }
+  .conv.active .conv-name {
     color: var(--color-text-title);
   }
   /* Holds the time; the menu button overlays it without changing the row width */
