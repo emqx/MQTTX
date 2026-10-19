@@ -80,21 +80,26 @@
                 <i class="el-icon-edit"></i>
               </a>
             </template>
+            <TimeRangeSelect
+              v-if="selectedDashboard"
+              v-model="localTimeRangeModel"
+              size="mini"
+              compact
+              @range-relative="$emit('time-range-select', $event)"
+              :show-live-mode="true"
+              :time-range-type="timeRangeType"
+              :duration="duration"
+            />
             <div class="flex-spacer"></div>
-            <template v-if="selectedDashboard">
-              <TimeRangeSelect
-                v-model="localTimeRangeModel"
-                size="mini"
-                compact
-                @range-relative="$emit('time-range-select', $event)"
-                :show-live-mode="true"
-                :time-range-type="timeRangeType"
-                :duration="duration"
-              />
-              <el-button size="small" class="add-widget-button" icon="el-icon-plus" @click="$emit('add-visualization')">
-                {{ $t('viewer.addWidget') }}
-              </el-button>
-            </template>
+            <el-button
+              v-if="selectedDashboard"
+              size="small"
+              class="add-widget-button"
+              icon="el-icon-plus"
+              @click="$emit('add-visualization')"
+            >
+              {{ $t('viewer.addWidget') }}
+            </el-button>
           </div>
         </transition>
       </div>
