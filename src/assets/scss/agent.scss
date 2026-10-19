@@ -1506,9 +1506,10 @@
   .model:hover {
     color: var(--color-text-default);
   }
+  /* The same 28px as the pills and the model button, so the bar reads as one row */
   .send {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: var(--agent-radius-sm);
     border: 0;
     display: grid;
