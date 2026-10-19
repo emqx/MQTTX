@@ -5,16 +5,11 @@ import time from '@/utils/time'
 /**
  * Updates the topic tree structure with new message data.
  *
- * The tree is mutated in place: a new host node is pushed into `currentTree`
- * itself and the returned `updatedTree` is the very same array instance. This
- * keeps `el-tree`'s `data` watcher on the incremental path (`updateChildren`)
- * instead of rebuilding every node.
+ * Mutates `currentTree` in place and returns it as `updatedTree`.
  *
  * @param currentTree - The current state of the topic tree.
  * @param rawData - An object containing the MQTT packet and connection information.
- * @returns An object containing the updated tree, a list of updated nodes and,
- *   when a new node was created below an existing node, the id of that parent
- *   node (`newNodeParentId`) so the caller can sync `el-tree`.
+ * @returns The updated tree, the updated nodes and `newNodeParentId`.
  */
 export function updateTopicTreeNode(
   currentTree: TopicTreeNode[],
@@ -89,8 +84,7 @@ export function updateTopicTreeNode(
       }
       isNewNode = true
       newNodeCount++
-      // The parent of the first newly created node is the deepest pre-existing
-      // ancestor; it is the only node el-tree has to sync children for.
+      // First new node's parent is the only node el-tree must sync.
       if (newNodeParentId === undefined && !isNewHost) {
         newNodeParentId = currentNode.id
       }
@@ -128,19 +122,12 @@ export function updateTopicTreeNode(
     currentNode = childNode
   }
 
-  // Incrementally maintain subTopicCount along the topic path instead of
-  // walking the whole host subtree on every message. A newly created node is a
-  // descendant of every node above it on the path, so each of those gets
-  // `newNodeCount` added, while a newly created node itself only counts the
-  // new nodes created below it. On a consistent tree this equals what
-  // `updateSubTopicCounts` would produce.
+  // Each path node gains the nodes newly created below it.
   if (newNodeCount > 0) {
     const firstNewNodeIndex = pathNodes.length - newNodeCount
     for (let i = 0; i < pathNodes.length; i++) {
       const newNodesBelow = i < firstNewNodeIndex ? newNodeCount : pathNodes.length - 1 - i
-      if (newNodesBelow > 0) {
-        pathNodes[i].subTopicCount += newNodesBelow
-      }
+      pathNodes[i].subTopicCount += newNodesBelow
     }
   }
 
@@ -195,30 +182,13 @@ export function updateSubTopicCounts(node: TopicTreeNode): number {
  */
 export function findSubTopics(node: TopicTreeNode, isRoot = true): string[] {
   const subTopics: string[] = []
-  if (!isRoot && node.label) {
-    subTopics.push(node.label)
+  const collect = (subNode: TopicTreeNode) => {
+    if (subNode.label) subTopics.push(subNode.label)
+    subNode.children?.forEach(collect)
   }
-  if (node.children && node.children.length > 0) {
-    for (const child of node.children) {
-      collectSubTopics(child, subTopics)
-    }
-  }
+  if (isRoot) node.children?.forEach(collect)
+  else collect(node)
   return subTopics
-}
-
-/**
- * Appends the labels of a node and its descendants to `subTopics` in
- * depth-first pre-order. Shared by `findSubTopics` to avoid copying arrays.
- */
-function collectSubTopics(node: TopicTreeNode, subTopics: string[]): void {
-  if (node.label) {
-    subTopics.push(node.label)
-  }
-  if (node.children && node.children.length > 0) {
-    for (const child of node.children) {
-      collectSubTopics(child, subTopics)
-    }
-  }
 }
 
 /**

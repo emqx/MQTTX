@@ -66,8 +66,7 @@ export default class TopicTree extends Vue {
       packet,
       connectionInfo,
     })
-    // The tree is mutated in place, so el-tree only has to sync the node that
-    // received a new child; the root array watcher handles new/cleared hosts.
+    // Only the node that gained a child needs an el-tree sync.
     if (newNodeParentId) {
       const treeView = this.$refs.treeView as TreeView | undefined
       treeView?.syncChildren(newNodeParentId)
@@ -87,8 +86,7 @@ export default class TopicTree extends Vue {
     const { topicNodeService } = useServices()
     try {
       const res = await topicNodeService.getTree()
-      // Persisted counts may be stale; recompute once so the incremental
-      // updates start from a consistent state.
+      // Persisted counts may be stale; recompute before incremental updates.
       res.forEach((root) => updateSubTopicCounts(root))
       this.data = res
     } catch (error) {
@@ -143,8 +141,7 @@ export default class TopicTree extends Vue {
   }
 
   private handleSyncConnectionSuccess(syncedTopicTree: TopicTreeNode) {
-    // Replace the array so el-tree rebuilds: its incremental update keeps the old
-    // node data when a host with the same id is swapped in place.
+    // Replace the array so el-tree rebuilds instead of keeping the old host data.
     const data = [...this.data]
     const findIndex = data.findIndex((topicTreeNode) => topicTreeNode.id === syncedTopicTree.id)
     if (findIndex !== -1) {

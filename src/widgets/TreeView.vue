@@ -228,15 +228,10 @@ export default class TreeView extends Vue {
     })
   }
 
-  /**
-   * Syncs `el-tree` with children that were appended directly to a data node.
-   * Nodes whose parent was never rendered have no `children` watcher, so the
-   * first node that received a new child must be told to update incrementally.
-   */
+  // el-tree does not watch children of unrendered nodes; its typings omit updateChildren.
   public syncChildren(parentId: string) {
-    // Element UI typings omit `Node.updateChildren`, which exists at runtime.
-    const node = this.treeRef.getNode(parentId) as { updateChildren?: () => void } | null
-    node?.updateChildren?.()
+    const node = this.treeRef.getNode(parentId) as unknown as { updateChildren(): void } | null
+    node?.updateChildren()
     if (this.filterText) {
       this.treeRef.filter(this.filterText)
     }
