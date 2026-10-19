@@ -128,7 +128,9 @@ describe('agent', () => {
         'command-r-plus',
         'meta-llama/Llama-3.3-70B-Instruct',
         'moonshot-v1-128k',
+        'kimi-k2.7-code',
         'deepseek-ai/DeepSeek-V3',
+        'meta/llama-4-maverick',
       ]
       for (const model of fixed) {
         expect(supportsReasoning(model), model).to.equal(false)

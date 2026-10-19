@@ -36,6 +36,15 @@ describe('Agent reasoning menu', () => {
     expect(levels[0]).to.equal(DEFAULT_AGENT_REASONING)
   })
 
+  it('should only offer the levels the current model honours', () => {
+    expect(computed('reasoningLevels', { model: 'gpt-5' })).to.deep.equal(['provider-default', 'low', 'medium', 'high'])
+  })
+
+  it('should highlight the level that applies to the current model', () => {
+    expect(computed('currentReasoning', { model: 'gpt-5', agentReasoning: 'max' })).to.equal('high')
+    expect(computed('currentReasoning', { model: 'gpt-5.2', agentReasoning: 'max' })).to.equal('max')
+  })
+
   it('should hide the strength control for a model that cannot control it', () => {
     expect(computed('showReasoning', { model: 'gpt-5.2' })).to.equal(true)
     expect(computed('showReasoning', { model: 'gpt-4o' })).to.equal(false)
@@ -43,9 +52,9 @@ describe('Agent reasoning menu', () => {
   })
 
   it('should show the level next to the model name only when one is chosen', () => {
-    expect(computed('showModelLevel', { model: 'gpt-5.2', agentReasoning: 'high' })).to.equal(true)
-    expect(computed('showModelLevel', { model: 'gpt-4o', agentReasoning: 'high' })).to.equal(false)
-    expect(computed('showModelLevel', { model: 'gpt-5.2', agentReasoning: DEFAULT_AGENT_REASONING })).to.equal(false)
+    expect(computed('showModelLevel', { model: 'gpt-5.2', currentReasoning: 'high' })).to.equal(true)
+    expect(computed('showModelLevel', { model: 'gpt-4o', currentReasoning: 'high' })).to.equal(false)
+    expect(computed('showModelLevel', { model: 'gpt-5.2', currentReasoning: DEFAULT_AGENT_REASONING })).to.equal(false)
   })
 
   it('should render the strength buttons inside the model menu and wire them to chooseReasoning', () => {

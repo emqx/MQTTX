@@ -2,11 +2,14 @@ import { expect } from 'chai'
 import {
   AGENT_REASONING_LEVELS,
   buildReasoningCallOptions,
+  effectiveReasoning,
   isAgentReasoning,
   migrateLegacyThinkingModel,
   normalizeAgentReasoning,
   reasoningLabelKey,
+  reasoningLevelsFor,
 } from '@/utils/ai/reasoning'
+import { AImodelsOptions, getReasoningEfforts } from '@/utils/ai/models'
 
 describe('agent', () => {
   describe('agent reasoning', () => {
@@ -36,6 +39,42 @@ describe('agent', () => {
         expect(reasoningLabelKey('none')).to.equal('agent.reasoning.off')
         expect(reasoningLabelKey('medium')).to.equal('agent.reasoning.medium')
         expect(reasoningLabelKey('max')).to.equal('agent.reasoning.max')
+      })
+
+      it('should call High "On" for a model that can only turn thinking on or off', () => {
+        expect(reasoningLabelKey('high', getReasoningEfforts('kimi-k2.6'))).to.equal('agent.reasoning.on')
+        expect(reasoningLabelKey('high', getReasoningEfforts('gpt-5.2'))).to.equal('agent.reasoning.high')
+      })
+    })
+
+    describe('reasoningLevelsFor', () => {
+      it('should offer every level for a model whose provider maps them all', () => {
+        expect(reasoningLevelsFor(getReasoningEfforts('claude-sonnet-4-6'))).to.deep.equal([...AGENT_REASONING_LEVELS])
+      })
+
+      it('should only offer the levels a model honours', () => {
+        expect(reasoningLevelsFor(getReasoningEfforts('gpt-5'))).to.deep.equal([
+          'provider-default',
+          'low',
+          'medium',
+          'high',
+        ])
+        expect(reasoningLevelsFor(getReasoningEfforts('gpt-5.2'))).to.deep.equal([...AGENT_REASONING_LEVELS])
+        expect(reasoningLevelsFor(getReasoningEfforts('glm-4.6'))).to.deep.equal(['provider-default', 'none', 'high'])
+      })
+    })
+
+    describe('effectiveReasoning', () => {
+      it('should keep a level the model offers', () => {
+        expect(effectiveReasoning('none', getReasoningEfforts('gpt-5.1'))).to.equal('none')
+        expect(effectiveReasoning('provider-default', getReasoningEfforts('gpt-5'))).to.equal('provider-default')
+      })
+
+      it('should fall back to the closest offered level, never turning reasoning off', () => {
+        expect(effectiveReasoning('none', getReasoningEfforts('gpt-5'))).to.equal('low')
+        expect(effectiveReasoning('max', getReasoningEfforts('gpt-5.1'))).to.equal('high')
+        expect(effectiveReasoning('medium', getReasoningEfforts('kimi-k3'))).to.equal('high')
+        expect(effectiveReasoning('low', getReasoningEfforts('glm-4.6'))).to.equal('high')
       })
     })
 
@@ -101,6 +140,49 @@ describe('agent', () => {
         expect(
           buildReasoningCallOptions({ reasoning: 'high', provider: 'Google', modelSupportsReasoning: false }),
         ).to.deep.equal({})
+      })
+
+      it('should only send values a listed model accepts', () => {
+        for (const provider of AImodelsOptions) {
+          for (const model of provider.children) {
+            if (!model.reasoningEfforts) continue
+            for (const reasoning of AGENT_REASONING_LEVELS) {
+              const options = buildReasoningCallOptions({
+                reasoning,
+                provider: provider.value,
+                modelSupportsReasoning: true,
+                efforts: model.reasoningEfforts,
+              })
+              if (options.reasoning)
+                expect(model.reasoningEfforts, `${model.value} ${reasoning}`).to.include(options.reasoning)
+            }
+          }
+        }
+      })
+
+      it('should send the strongest value a model has for Max', () => {
+        const efforts = getReasoningEfforts('gpt-5.2')
+        expect(
+          buildReasoningCallOptions({ reasoning: 'max', provider: 'OpenAI', modelSupportsReasoning: true, efforts }),
+        ).to.deep.equal({ reasoning: 'xhigh' })
+      })
+
+      it('should turn Z.AI thinking on or off with its own field', () => {
+        const options = (reasoning: 'none' | 'high', model: string) =>
+          buildReasoningCallOptions({
+            reasoning,
+            provider: 'Z.AI',
+            modelSupportsReasoning: true,
+            efforts: getReasoningEfforts(model),
+          })
+
+        expect(options('none', 'glm-4.6')).to.deep.equal({
+          providerOptions: { zai: { thinking: { type: 'disabled' } } },
+        })
+        expect(options('high', 'glm-5.3')).to.deep.equal({
+          reasoning: 'high',
+          providerOptions: { zai: { thinking: { type: 'enabled' } } },
+        })
       })
 
       it('should ignore a level that is not offered', () => {
