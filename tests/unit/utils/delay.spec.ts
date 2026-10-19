@@ -11,8 +11,8 @@ describe('delay', () => {
     const endTime = Date.now()
     const elapsedTime = endTime - startTime
 
-    // Allow for some small variance in timing
-    expect(elapsedTime).to.be.at.least(delayTime)
+    // Allow for some small variance in timing; timers can fire ~1ms early against Date.now()
+    expect(elapsedTime).to.be.at.least(delayTime - 2)
     expect(elapsedTime).to.be.below(delayTime + 50)
   })
 
