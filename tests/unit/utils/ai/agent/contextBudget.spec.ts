@@ -183,21 +183,20 @@ describe('agent context budget', () => {
   })
 
   describe('getContextWindow', () => {
-    it('should know the models in the table', () => {
+    it('should use the window of the model in the model list', () => {
       expect(getContextWindow('gpt-5.2')).to.equal(400000)
-      expect(getContextWindow('gpt-4.1-mini')).to.equal(1047576)
       expect(getContextWindow('gpt-4o-mini')).to.equal(128000)
-      expect(getContextWindow('o3-mini')).to.equal(200000)
-      expect(getContextWindow('o4-mini')).to.equal(200000)
-      expect(getContextWindow('claude-sonnet-4-6')).to.equal(200000)
+      expect(getContextWindow('deepseek-flash')).to.equal(1000000)
+      expect(getContextWindow('claude-sonnet-4-6')).to.equal(1000000)
       expect(getContextWindow('gemini-2.5-pro')).to.equal(1048576)
-      expect(getContextWindow('gemini-3.8-flash')).to.equal(1048576)
+      // Azure deployments, with and without the prefix the agent strips
+      expect(getContextWindow('deployment-gpt-5')).to.equal(400000)
+      expect(getContextWindow('gpt-5')).to.equal(400000)
     })
 
-    it('should default to 128000 for anything else', () => {
-      expect(getContextWindow('deepseek-flash')).to.equal(128000)
+    it('should default to 128000 for custom models and listed models without a known window', () => {
       expect(getContextWindow('my-custom-model')).to.equal(128000)
-      expect(getContextWindow('deployment-gpt-5')).to.equal(128000)
+      expect(getContextWindow('moonshot-v1-128k')).to.equal(128000)
     })
   })
 

@@ -139,6 +139,8 @@ interface BaseProviderOptionsModel {
     vision?: boolean
     reasoning?: boolean
     reasoningEfforts?: readonly ReasoningEffort[]
+    /** Context window in tokens, as the provider lists it; unset falls back to a conservative default */
+    contextWindow?: number
   }[]
   providerCreator?: (...args: any[]) => any
 }
@@ -154,6 +156,8 @@ export interface OpenAIOptionsModel extends BaseProviderOptionsModel {
     vision?: boolean
     reasoning?: boolean
     reasoningEfforts?: readonly ReasoningEffort[]
+    /** Context window in tokens, as the provider lists it; unset falls back to a conservative default */
+    contextWindow?: number
   }[]
   providerCreator: typeof createOpenAI
 }
@@ -169,6 +173,8 @@ export interface DeepSeekOptionsModel extends BaseProviderOptionsModel {
     vision?: boolean
     reasoning?: boolean
     reasoningEfforts?: readonly ReasoningEffort[]
+    /** Context window in tokens, as the provider lists it; unset falls back to a conservative default */
+    contextWindow?: number
   }[]
   providerCreator: typeof createDeepSeek
 }
@@ -184,6 +190,8 @@ export interface AnthropicOptionsModel extends BaseProviderOptionsModel {
     vision?: boolean
     reasoning?: boolean
     reasoningEfforts?: readonly ReasoningEffort[]
+    /** Context window in tokens, as the provider lists it; unset falls back to a conservative default */
+    contextWindow?: number
   }[]
   providerCreator: typeof createAnthropic
 }
@@ -199,6 +207,8 @@ export interface XaiOptionsModel extends BaseProviderOptionsModel {
     vision?: boolean
     reasoning?: boolean
     reasoningEfforts?: readonly ReasoningEffort[]
+    /** Context window in tokens, as the provider lists it; unset falls back to a conservative default */
+    contextWindow?: number
   }[]
   providerCreator: typeof createXai
 }
@@ -214,6 +224,8 @@ export interface GoogleOptionsModel extends BaseProviderOptionsModel {
     vision?: boolean
     reasoning?: boolean
     reasoningEfforts?: readonly ReasoningEffort[]
+    /** Context window in tokens, as the provider lists it; unset falls back to a conservative default */
+    contextWindow?: number
   }[]
   providerCreator: typeof createGoogleGenerativeAI
 }
@@ -236,6 +248,8 @@ export interface SiliconFlowOptionsModel extends BaseProviderOptionsModel {
     vision?: boolean
     reasoning?: boolean
     reasoningEfforts?: readonly ReasoningEffort[]
+    /** Context window in tokens, as the provider lists it; unset falls back to a conservative default */
+    contextWindow?: number
   }[]
   providerCreator: typeof createOpenAI
 }
@@ -251,6 +265,8 @@ export interface AzureOptionsModel extends BaseProviderOptionsModel {
     vision?: boolean
     reasoning?: boolean
     reasoningEfforts?: readonly ReasoningEffort[]
+    /** Context window in tokens, as the provider lists it; unset falls back to a conservative default */
+    contextWindow?: number
   }[]
   providerCreator: typeof createAzure
 }
