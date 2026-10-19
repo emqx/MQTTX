@@ -1,20 +1,32 @@
 <template>
   <div class="widget-config-section">
     <el-card shadow="never" class="item-card">
-      <el-form-item :label="$t('viewer.min')">
-        <el-input type="number" size="mini" v-model="localMin" step="1" :placeholder="$t('viewer.auto')" />
-      </el-form-item>
-      <el-form-item :label="$t('viewer.max')">
-        <el-input type="number" size="mini" v-model="localMax" step="1" :placeholder="$t('viewer.auto')" />
-      </el-form-item>
-      <el-form-item :label="$t('viewer.decimals')">
-        <el-input type="number" size="mini" v-model="localDecimals" :min="0" :max="6" />
-      </el-form-item>
-      <el-form-item :label="$t('viewer.unit')">
-        <el-input size="mini" v-model="localUnit" />
-      </el-form-item>
+      <el-row :gutter="12">
+        <el-col :span="12">
+          <el-form-item :label="$t('viewer.min')">
+            <el-input type="number" size="small" v-model="localMin" step="1" :placeholder="$t('viewer.auto')" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item :label="$t('viewer.max')">
+            <el-input type="number" size="small" v-model="localMax" step="1" :placeholder="$t('viewer.auto')" />
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row :gutter="12">
+        <el-col :span="12">
+          <el-form-item :label="$t('viewer.decimals')">
+            <el-input type="number" size="small" v-model="localDecimals" :min="0" :max="6" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item :label="$t('viewer.unit')">
+            <el-input size="small" v-model="localUnit" />
+          </el-form-item>
+        </el-col>
+      </el-row>
       <el-form-item :label="$t('viewer.color')" class="color-picker-item">
-        <el-color-picker v-model="localColor" size="mini" color-format="hex" :predefine="predefineColors" />
+        <el-color-picker v-model="localColor" size="small" color-format="hex" :predefine="predefineColors" />
       </el-form-item>
     </el-card>
   </div>

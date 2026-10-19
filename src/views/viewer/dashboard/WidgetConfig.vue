@@ -1,5 +1,5 @@
 <template>
-  <div class="widget-config card-form">
+  <div class="widget-config card-form" :class="{ 'is-wide': isWide }">
     <div class="topbar">
       <div class="topbar-left">
         <a href="javascript:;" @click="$emit('cancel')"> <i class="el-icon-arrow-left"></i>{{ $t('common.back') }} </a>
@@ -12,163 +12,162 @@
       </div>
     </div>
 
-    <div class="widget-config-body">
-      <el-form
-        ref="form"
-        class="widget-form"
-        label-position="right"
-        label-width="140px"
-        :model="formModel"
-        :rules="rules"
-      >
-        <!-- General Settings -->
-        <section class="config-section">
-          <div class="config-section-head">
-            <h3 class="config-section-title">{{ $t('viewer.general') }}</h3>
-          </div>
-          <el-card shadow="never" class="item-card">
-            <el-form-item :label="$t('viewer.type')" prop="type">
-              <el-select size="mini" v-model="formModel.type">
-                <el-option
-                  v-for="type in availableTypes"
-                  :key="type"
-                  :label="type.charAt(0).toUpperCase() + type.slice(1)"
-                  :value="type"
-                />
-              </el-select>
-            </el-form-item>
-            <el-form-item :label="$t('viewer.title')" prop="title">
-              <el-input size="mini" v-model="formModel.title" />
-            </el-form-item>
-          </el-card>
-        </section>
-
-        <!-- Preview -->
-        <section class="config-section">
-          <div class="config-section-head">
-            <h3 class="config-section-title">{{ $t('viewer.preview') }}</h3>
-            <el-tooltip :content="$t('viewer.refreshPreview')" placement="top">
-              <a href="javascript:;" class="icon-oper" @click="refreshPreview">
-                <i class="el-icon-refresh-right"></i>
-              </a>
-            </el-tooltip>
-          </div>
-          <el-card shadow="never" class="item-card">
-            <div class="preview-body">
-              <div v-if="!formModel.type" class="preview-placeholder">{{ $t('common.noData') }}</div>
-              <div v-else class="preview-widget">
-                <WidgetRenderer
-                  :key="`preview-${previewRefreshKey}`"
-                  :widget="previewWidget"
-                  :data="previewData"
-                  style="width: 100%; height: 100%"
-                />
+    <div ref="body" class="widget-config-body">
+      <div class="widget-config-content">
+        <!-- Preview: left column when wide, first block when narrow -->
+        <div class="preview-column">
+          <section class="config-section">
+            <div class="config-section-head">
+              <h3 class="config-section-title">{{ $t('viewer.preview') }}</h3>
+              <el-tooltip :content="$t('viewer.refreshPreview')" placement="top">
+                <a href="javascript:;" class="icon-oper" @click="refreshPreview">
+                  <i class="el-icon-refresh-right"></i>
+                </a>
+              </el-tooltip>
+            </div>
+            <div class="preview-card">
+              <div class="preview-card-header">
+                <span class="preview-card-title">{{ previewTitle }}</span>
+              </div>
+              <div class="preview-body">
+                <div v-if="!formModel.type" class="preview-placeholder">{{ $t('common.noData') }}</div>
+                <div v-else class="preview-widget">
+                  <WidgetRenderer
+                    :key="`preview-${previewRefreshKey}`"
+                    :widget="previewWidget"
+                    :data="previewData"
+                    style="width: 100%; height: 100%"
+                  />
+                </div>
               </div>
             </div>
-          </el-card>
-        </section>
+          </section>
+        </div>
 
-        <!-- Type-Specific Options -->
-        <section v-if="formModel.type" class="config-section">
-          <div class="config-section-head">
-            <h3 class="config-section-title">{{ formModel.type }} {{ $t('viewer.options') }}</h3>
-          </div>
-          <component :is="optionsComponent" :options.sync="formModel.widgetOptions" />
-        </section>
-
-        <!-- Threshold Configuration -->
-        <section class="config-section">
-          <el-card shadow="never" class="item-card">
-            <ThresholdEditor
-              v-model="thresholds"
-              :thresholds-type.sync="thresholdsType"
-              :title="$t('viewer.thresholds')"
-            />
-          </el-card>
-        </section>
-
-        <!-- Data Source -->
-        <section class="config-section">
-          <div class="config-section-head">
-            <h3 class="config-section-title">{{ $t('viewer.dataSource') }}</h3>
-          </div>
-          <el-card shadow="never" class="item-card">
-            <el-form-item :label="$t('viewer.connection')" prop="connectionId">
-              <ConnectionSelect v-model="formModel.connectionId" width="100%" size="mini" />
-            </el-form-item>
-            <el-form-item :label="$t('viewer.topicPattern')" prop="topicPattern">
-              <TopicSelect
-                v-model="formModel.topicPattern"
-                :connection-id="formModel.connectionId || ''"
-                width="100%"
-                size="mini"
-              />
-            </el-form-item>
-            <el-form-item :label="$t('viewer.valueField')" title="JSON path or field name for data extraction">
-              <el-input size="mini" v-model="formModel.valueField" placeholder="$.temp or temp" />
-            </el-form-item>
-          </el-card>
-        </section>
-
-        <!-- Schema -->
-        <section class="config-section">
-          <div class="config-section-head">
-            <h3 class="config-section-title">{{ $t('script.schemaTab') }}</h3>
-          </div>
-          <el-card shadow="never" class="item-card">
-            <!-- Schema Validation Warning -->
-            <div v-if="formModel.schemaValidationState === 'invalid'" class="schema-warning">
-              <el-alert
-                :title="formModel.schemaValidationError || 'Schema validation is failing'"
-                type="warning"
-                :closable="false"
-                show-icon
-              />
+        <el-form ref="form" class="widget-form" label-position="top" :model="formModel" :rules="rules">
+          <!-- General Settings -->
+          <section class="config-section">
+            <div class="config-section-head">
+              <h3 class="config-section-title">{{ $t('viewer.general') }}</h3>
             </div>
+            <el-card shadow="never" class="item-card">
+              <el-form-item :label="$t('viewer.type')" prop="type">
+                <el-select size="small" v-model="formModel.type">
+                  <el-option
+                    v-for="type in availableTypes"
+                    :key="type"
+                    :label="type.charAt(0).toUpperCase() + type.slice(1)"
+                    :value="type"
+                  />
+                </el-select>
+              </el-form-item>
+              <el-form-item :label="$t('viewer.title')" prop="title">
+                <el-input size="small" v-model="formModel.title" />
+              </el-form-item>
+            </el-card>
+          </section>
 
-            <el-form-item :label="$t('script.schemaType')">
-              <el-select size="mini" v-model="formModel.schemaType">
-                <el-option label="None" :value="undefined" />
-                <el-option label="Protobuf" value="protobuf" />
-                <el-option label="Avro" value="avro" />
-              </el-select>
-            </el-form-item>
-            <el-form-item :label="$t('script.schemaName')" title="Select stored schema">
-              <el-select
-                size="mini"
-                v-model="formModel.schemaId"
-                @change="handleSchemaChange"
-                :disabled="!formModel.schemaType"
-              >
-                <el-option
-                  v-for="schema in availableSchemas"
-                  :key="schema.id"
-                  :value="schema.id"
-                  :label="schema.name"
+          <!-- Type-Specific Options -->
+          <section v-if="formModel.type" class="config-section">
+            <div class="config-section-head">
+              <h3 class="config-section-title">{{ formModel.type }} {{ $t('viewer.options') }}</h3>
+            </div>
+            <component :is="optionsComponent" :options.sync="formModel.widgetOptions" />
+          </section>
+
+          <!-- Threshold Configuration -->
+          <section class="config-section">
+            <div class="config-section-head">
+              <h3 class="config-section-title">{{ $t('viewer.thresholds') }}</h3>
+            </div>
+            <el-card shadow="never" class="item-card">
+              <ThresholdEditor v-model="thresholds" :thresholds-type.sync="thresholdsType" />
+            </el-card>
+          </section>
+
+          <!-- Data Source -->
+          <section class="config-section">
+            <div class="config-section-head">
+              <h3 class="config-section-title">{{ $t('viewer.dataSource') }}</h3>
+            </div>
+            <el-card shadow="never" class="item-card">
+              <el-form-item :label="$t('viewer.connection')" prop="connectionId">
+                <ConnectionSelect v-model="formModel.connectionId" width="100%" size="small" />
+              </el-form-item>
+              <el-form-item :label="$t('viewer.topicPattern')" prop="topicPattern">
+                <TopicSelect
+                  v-model="formModel.topicPattern"
+                  :connection-id="formModel.connectionId || ''"
+                  width="100%"
+                  size="small"
                 />
-              </el-select>
-            </el-form-item>
-            <el-form-item
-              v-if="formModel.schemaType === 'protobuf'"
-              :label="$t('viewer.messageName')"
-              title="Protobuf message name"
-            >
-              <el-input size="mini" v-model="formModel.schemaMessageName" placeholder="MyMessage" />
-            </el-form-item>
-            <el-form-item>
-              <template #label>
-                <span class="label-with-hint">
-                  {{ $t('viewer.fallbackValue') }}
-                  <el-tooltip :content="$t('viewer.fallbackValueTip')" placement="top">
-                    <i class="el-icon-warning-outline icon-oper"></i>
-                  </el-tooltip>
-                </span>
-              </template>
-              <el-input type="number" size="mini" v-model.number="formModel.fallbackValue" placeholder="0" />
-            </el-form-item>
-          </el-card>
-        </section>
-      </el-form>
+              </el-form-item>
+              <el-form-item :label="$t('viewer.valueField')" title="JSON path or field name for data extraction">
+                <el-input size="small" v-model="formModel.valueField" placeholder="$.temp or temp" />
+              </el-form-item>
+            </el-card>
+          </section>
+
+          <!-- Schema -->
+          <section class="config-section">
+            <div class="config-section-head">
+              <h3 class="config-section-title">{{ $t('script.schemaTab') }}</h3>
+            </div>
+            <el-card shadow="never" class="item-card">
+              <!-- Schema Validation Warning -->
+              <div v-if="formModel.schemaValidationState === 'invalid'" class="schema-warning">
+                <el-alert
+                  :title="formModel.schemaValidationError || 'Schema validation is failing'"
+                  type="warning"
+                  :closable="false"
+                  show-icon
+                />
+              </div>
+
+              <el-form-item :label="$t('script.schemaType')">
+                <el-select size="small" v-model="formModel.schemaType">
+                  <el-option label="None" :value="undefined" />
+                  <el-option label="Protobuf" value="protobuf" />
+                  <el-option label="Avro" value="avro" />
+                </el-select>
+              </el-form-item>
+              <el-form-item :label="$t('script.schemaName')" title="Select stored schema">
+                <el-select
+                  size="small"
+                  v-model="formModel.schemaId"
+                  @change="handleSchemaChange"
+                  :disabled="!formModel.schemaType"
+                >
+                  <el-option
+                    v-for="schema in availableSchemas"
+                    :key="schema.id"
+                    :value="schema.id"
+                    :label="schema.name"
+                  />
+                </el-select>
+              </el-form-item>
+              <el-form-item
+                v-if="formModel.schemaType === 'protobuf'"
+                :label="$t('viewer.messageName')"
+                title="Protobuf message name"
+              >
+                <el-input size="small" v-model="formModel.schemaMessageName" placeholder="MyMessage" />
+              </el-form-item>
+              <el-form-item>
+                <template #label>
+                  <span class="label-with-hint">
+                    {{ $t('viewer.fallbackValue') }}
+                    <el-tooltip :content="$t('viewer.fallbackValueTip')" placement="top">
+                      <i class="el-icon-warning-outline icon-oper"></i>
+                    </el-tooltip>
+                  </span>
+                </template>
+                <el-input type="number" size="small" v-model.number="formModel.fallbackValue" placeholder="0" />
+              </el-form-item>
+            </el-card>
+          </section>
+        </el-form>
+      </div>
     </div>
   </div>
 </template>
@@ -345,7 +344,6 @@ export default class WidgetConfig extends Vue {
 
   get previewWidget(): WidgetModel | null {
     if (!this.formModel.type) return null
-
     const defaults = widgetRegistry.getDefaultOptions(this.formModel.type || 'Big Number')
 
     const previewOptions = {
@@ -375,8 +373,44 @@ export default class WidgetConfig extends Vue {
     } as WidgetModel
   }
 
+  /**
+   * Title shown in the preview card header: the widget title when set, else the
+   * type name, matching how the dashboard card header reads.
+   */
+  get previewTitle(): string {
+    return this.formModel.title || this.formModel.type || ''
+  }
+
   async created() {
     await this.initializeComponent()
+  }
+
+  mounted() {
+    this.setupWidthObserver()
+  }
+
+  beforeDestroy() {
+    this.widthObserver?.disconnect()
+    this.widthObserver = null
+  }
+
+  // === LAYOUT WIDTH ===
+  private isWide = false
+  private widthObserver: ResizeObserver | null = null
+
+  /**
+   * Two columns from 880px of body width (see `.is-wide`). The project's sass is
+   * 1.32, so container queries are not available and a ResizeObserver is used.
+   */
+  private setupWidthObserver(): void {
+    const body = this.$refs.body as HTMLElement | undefined
+    if (!body) return
+
+    // Two columns once the body can fit the preview next to the form
+    const update = (width: number) => (this.isWide = width >= 880)
+    this.widthObserver = new ResizeObserver(([entry]) => update(entry.contentRect.width))
+    this.widthObserver.observe(body)
+    update(body.clientWidth)
   }
 
   private async initializeComponent() {
@@ -643,18 +677,34 @@ export default class WidgetConfig extends Vue {
   flex-direction: column;
   height: 100%;
   padding: 0 16px;
+
   .topbar {
     -webkit-app-region: drag;
     position: sticky;
     top: 0;
     z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    height: 48px;
+    // Home.vue's (non-scoped) `.home-view .topbar` sets min-height: 60px.
+    min-height: 48px;
     background-color: var(--color-bg-primary);
-    // Align the header actions with the form body below (the form already
-    // carries the horizontal padding).
-    padding: 0;
+    border-bottom: 1px solid var(--color-border-default);
+    // Full-bleed divider, content aligned with the 16px content insets.
+    margin: 0 -16px;
+    padding: 0 16px;
 
     a {
       -webkit-app-region: no-drag;
+    }
+
+    .topbar-center h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-text-title);
     }
 
     .connect-btn {
@@ -662,12 +712,43 @@ export default class WidgetConfig extends Vue {
       font-weight: 500;
     }
   }
+
   .widget-config-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
     padding: 16px 0 40px;
   }
 
+  .widget-config-content {
+    max-width: 1200px;
+  }
+
+  // Narrow (default): one column, preview first, not sticky.
+  .preview-column {
+    margin-bottom: 20px;
+
+    .config-section {
+      margin-bottom: 0;
+    }
+  }
+
+  // Wide: preview on the left and sticky, all form groups on the right.
+  &.is-wide .widget-config-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 440px);
+    column-gap: 16px;
+    align-items: start;
+  }
+
+  &.is-wide .preview-column {
+    position: sticky;
+    top: 0;
+    margin-bottom: 0;
+  }
+
   .config-section {
-    margin-bottom: 16px;
+    margin-bottom: 20px;
 
     &:last-child {
       margin-bottom: 0;
@@ -678,7 +759,7 @@ export default class WidgetConfig extends Vue {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: 26px;
+    min-height: 20px;
     margin-bottom: 8px;
 
     .config-section-title {
@@ -687,6 +768,25 @@ export default class WidgetConfig extends Vue {
       font-weight: 600;
       color: var(--color-text-title);
     }
+  }
+
+  // Card styling shared by every group. `> .el-card__body` adds a step so this
+  // beats `.card-form .item-card .el-card__body` (padding 10px 20px) in base.scss.
+  .item-card {
+    margin: 0;
+    border: 1px solid var(--color-border-default);
+    border-radius: 8px;
+    background: var(--color-bg-normal);
+    box-shadow: none;
+
+    ::v-deep > .el-card__body {
+      padding: 16px;
+    }
+  }
+
+  // The colour swatch row should be as tall as the other controls.
+  ::v-deep .color-picker-item .el-form-item__content {
+    height: 32px !important;
   }
 
   .icon-oper {
@@ -702,44 +802,108 @@ export default class WidgetConfig extends Vue {
     }
   }
 
-  .preview-body {
-    width: 100%;
-    height: 220px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  // Preview card mirrors a dashboard widget card.
+  .preview-card {
+    border: 1px solid var(--color-border-default);
+    border-radius: 8px;
+    background: var(--color-bg-normal);
+    overflow: hidden;
 
-    .preview-placeholder {
-      color: var(--color-text-light);
-      font-size: 13px;
+    .preview-card-header {
+      display: flex;
+      align-items: center;
+      height: 40px;
+      padding: 0 16px;
     }
 
-    .preview-widget {
+    .preview-card-title {
+      min-width: 0;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-title);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .preview-body {
       width: 100%;
-      height: 100%;
+      height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      // No padding so the Big Number sparkline can reach the card edges.
+      padding: 0;
+
+      .preview-placeholder {
+        color: var(--color-text-light);
+        font-size: 13px;
+      }
+
+      .preview-widget {
+        width: 100%;
+        height: 100%;
+      }
     }
   }
 
-  ::v-deep .widget-form {
-    max-width: 560px;
+  // Labels above the controls, full-width controls.
+  // Prefixed with `.widget-config-content` so these outrank the `.card-form
+  // .el-form .el-form-item*` rules in base.scss (label height/line-height 43px,
+  // item margin 0) instead of relying on style injection order.
+  ::v-deep .widget-config-content .widget-form {
+    min-width: 0;
 
     .el-form-item {
-      margin-bottom: 12px;
+      margin-bottom: 16px;
 
       &:last-child {
         margin-bottom: 0;
       }
     }
 
-    .el-form-item__content {
-      max-width: 320px;
-      line-height: 28px;
+    // Paired fields sit in their own columns, where each item is a last child
+    .el-row:not(:last-child) .el-form-item {
+      margin-bottom: 16px;
     }
 
-    .el-form-item__label {
+    .el-form-item .el-form-item__label {
+      display: block;
+      float: none;
+      width: auto;
+      height: auto;
+      padding: 0 0 6px;
+      margin: 0;
+      line-height: 1.4;
+      font-size: 13px;
+      font-weight: 500;
       color: var(--color-text-default);
-      line-height: 28px;
-      height: 28px;
+    }
+
+    .el-form-item .el-form-item__content {
+      width: 100%;
+      margin-left: 0;
+      line-height: normal;
+    }
+
+    .el-input,
+    .el-select,
+    .el-input-number,
+    .el-autocomplete {
+      width: 100%;
+    }
+  }
+
+  // Form items rendered by the type-specific config components.
+  ::v-deep .widget-config-section .item-card {
+    margin: 0;
+    border: 1px solid var(--color-border-default);
+    border-radius: 8px;
+    background: var(--color-bg-normal);
+    box-shadow: none;
+
+    > .el-card__body {
+      padding: 16px;
     }
   }
 
@@ -791,10 +955,6 @@ export default class WidgetConfig extends Vue {
     color: var(--color-text-default);
   }
 
-  .el-form-item__label {
-    color: var(--color-text-default) !important;
-  }
-
   // Hint icon next to a form label (same pattern as the settings page).
   .label-with-hint {
     display: inline-flex;
@@ -803,45 +963,6 @@ export default class WidgetConfig extends Vue {
 
     .icon-oper {
       font-size: 13px;
-    }
-  }
-
-  ::v-deep .el-button.color-button.el-button--mini {
-    height: 28px;
-    line-height: 26px;
-    padding: 0 8px;
-  }
-
-  .threshold-header {
-    font-weight: 600;
-    margin-top: 10px;
-    color: var(--color-text-title);
-  }
-
-  // ThresholdEditor (root `.key-value-editor`) styles its own title, so ::v-deep is needed to reach it.
-  // Match the other form labels instead of the editor's heavier 600 weight.
-  ::v-deep .key-value-editor .editor-header .editor-title {
-    color: var(--color-text-default);
-    font-weight: 400;
-  }
-
-  .threshold-editor {
-    .editor-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      .editor-title {
-        color: var(--color-text-default);
-      }
-    }
-    .editor-row {
-      .editor-row {
-        display: flex;
-        align-items: center;
-        &:not(:last-child) {
-          margin-bottom: 10px;
-        }
-      }
     }
   }
 
