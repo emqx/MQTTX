@@ -54,84 +54,46 @@
             </el-button>
           </div>
           <div v-else class="dashboard-view-section" key="default">
-            <el-select
-              v-if="!showDashboardsList"
-              v-model="localSelectedDashboardId"
-              size="mini"
-              :placeholder="$t('viewer.dashboard')"
-              @change="$emit('dashboard-selected', $event)"
-              style="width: 180px"
-            >
-              <el-option
-                v-for="dashboard in dashboards"
-                :key="dashboard.id"
-                :label="dashboard.name"
-                :value="dashboard.id"
+            <!-- With the list open, its selected row already names the dashboard -->
+            <template v-if="!showDashboardsList">
+              <el-select
+                v-model="localSelectedDashboardId"
+                size="mini"
+                :placeholder="$t('viewer.dashboard')"
+                @change="$emit('dashboard-selected', $event)"
+                style="width: 180px"
+              >
+                <el-option
+                  v-for="dashboard in dashboards"
+                  :key="dashboard.id"
+                  :label="dashboard.name"
+                  :value="dashboard.id"
+                />
+              </el-select>
+              <a
+                v-if="selectedDashboard"
+                href="javascript:;"
+                class="dashboard-edit-icon"
+                :title="$t('common.edit')"
+                @click="toEditDashboard"
+              >
+                <i class="el-icon-edit"></i>
+              </a>
+            </template>
+            <div class="flex-spacer"></div>
+            <template v-if="selectedDashboard">
+              <TimeRangeSelect
+                v-model="localTimeRangeModel"
+                size="mini"
+                compact
+                @range-relative="$emit('time-range-select', $event)"
+                :show-live-mode="true"
+                :time-range-type="timeRangeType"
+                :duration="duration"
               />
-            </el-select>
-            <a
-              v-if="!showDashboardsList && selectedDashboard"
-              href="javascript:;"
-              class="dashboard-edit-icon"
-              :title="$t('common.edit')"
-              @click="toEditDashboard"
-            >
-              <i class="el-icon-edit"></i>
-            </a>
-            <div v-if="!showDashboardsList" class="flex-spacer"></div>
-            <TimeRangeSelect
-              v-if="!showDashboardsList && selectedDashboard"
-              v-model="localTimeRangeModel"
-              :time-range-type="timeRangeType"
-              :duration="duration"
-              size="mini"
-              compact
-              @range-relative="$emit('time-range-select', $event)"
-            />
-            <el-button
-              v-if="!showDashboardsList && selectedDashboard"
-              size="small"
-              class="add-widget-button"
-              icon="el-icon-plus"
-              @click="$emit('add-visualization')"
-            >
-              {{ $t('viewer.addWidget') }}
-            </el-button>
-            <template v-else>
-              <div v-if="selectedDashboard" class="topbar-dashboard-view">
-                <div class="dashboard-info-section">
-                  <h2 class="dashboard-title">
-                    {{ selectedDashboard.name }}
-                  </h2>
-                  <a
-                    href="javascript:;"
-                    class="dashboard-edit-icon"
-                    :title="$t('common.edit')"
-                    @click="toEditDashboard"
-                  >
-                    <i class="el-icon-edit"></i>
-                  </a>
-                </div>
-                <div class="dashboard-actions-section">
-                  <TimeRangeSelect
-                    v-model="localTimeRangeModel"
-                    size="mini"
-                    compact
-                    @range-relative="$emit('time-range-select', $event)"
-                    :show-live-mode="true"
-                    :time-range-type="timeRangeType"
-                    :duration="duration"
-                  />
-                  <el-button
-                    size="small"
-                    class="add-widget-button"
-                    icon="el-icon-plus"
-                    @click="$emit('add-visualization')"
-                  >
-                    {{ $t('viewer.addWidget') }}
-                  </el-button>
-                </div>
-              </div>
+              <el-button size="small" class="add-widget-button" icon="el-icon-plus" @click="$emit('add-visualization')">
+                {{ $t('viewer.addWidget') }}
+              </el-button>
             </template>
           </div>
         </transition>
@@ -274,36 +236,6 @@ export default class DashboardHeader extends Vue {
         flex: 1;
       }
 
-      .dashboard-title {
-        font-size: 15px;
-        font-weight: 600;
-        color: var(--color-text-title);
-        margin: 0;
-        max-width: 320px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .topbar-dashboard-view {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        min-width: 0;
-        .dashboard-info-section {
-          display: flex;
-          align-items: center;
-          min-width: 0;
-        }
-
-        .dashboard-actions-section {
-          display: flex;
-          align-items: center;
-          flex-shrink: 0;
-          gap: 8px;
-        }
-      }
       .dashboard-create-form,
       .dashboard-view-section,
       .dashboard-edit-form {
@@ -312,9 +244,12 @@ export default class DashboardHeader extends Vue {
         width: 100%;
         gap: 12px;
       }
+      .dashboard-view-section {
+        gap: 8px;
+      }
 
       // Renaming is a secondary action: the pencil is only revealed while the
-      // title area is hovered or focused.
+      // dashboard switcher is hovered or the pencil is focused.
       .dashboard-edit-icon {
         display: inline-flex;
         align-items: center;
@@ -333,10 +268,7 @@ export default class DashboardHeader extends Vue {
           font-size: 15px;
         }
       }
-      // Hovering the title area reveals it; in the list-hidden variant the
-      // title is an el-select, so hovering that has the same effect.
-      .dashboard-info-section:hover .dashboard-edit-icon,
-      .dashboard-info-section:focus-within .dashboard-edit-icon,
+      // Hovering the dashboard switcher reveals it.
       .dashboard-view-section > .el-select:hover + .dashboard-edit-icon {
         opacity: 1;
       }
