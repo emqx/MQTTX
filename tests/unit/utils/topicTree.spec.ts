@@ -504,10 +504,7 @@ function assertSubTopicCountsMatch(actual: TopicTreeNode, expected: TopicTreeNod
   })
 }
 
-/**
- * Deterministically builds a large topic set with mixed depths, shared
- * prefixes and repeated topics. No randomness so failures are reproducible.
- */
+// Deterministic topic set with mixed depths, shared prefixes and repeats.
 function generateLargeTopicSet(count: number): string[] {
   const groups = ['plant', 'floor', 'cell', 'unit', 'line']
   const leaves = ['temp', 'pressure', 'flow', 'vibration', 'status']
@@ -538,7 +535,7 @@ describe('Topic Tree In-Place Updates', () => {
 
     const newHost = updateTopicTreeNode(tree, { packet: makePublishPacket('a/b'), connectionInfo })
     expect(newHost.updatedTree).to.equal(tree)
-    expect(tree).to.have.lengthOf(1) // the new host is pushed into the input array
+    expect(tree).to.have.lengthOf(1)
 
     const existingHost = updateTopicTreeNode(tree, { packet: makePublishPacket('a/c'), connectionInfo })
     expect(existingHost.updatedTree).to.equal(tree)
@@ -571,21 +568,17 @@ describe('Topic Tree In-Place Updates', () => {
   it('reports newNodeParentId only when new nodes attach below an existing node', () => {
     const tree: TopicTreeNode[] = []
 
-    // Brand-new host: pushed into the root array, no parent to sync.
     const first = updateTopicTreeNode(tree, { packet: makePublishPacket('a/b/c'), connectionInfo })
     expect(first.newNodeParentId).to.be.undefined
 
-    // Repeated topic: nothing new was created.
     const repeated = updateTopicTreeNode(tree, { packet: makePublishPacket('a/b/c'), connectionInfo })
     expect(repeated.newNodeParentId).to.be.undefined
 
-    // New leaf under the existing 'b' node.
     const newLeaf = updateTopicTreeNode(tree, { packet: makePublishPacket('a/b/d'), connectionInfo })
     const bNode = tree[0].children?.find((node) => node.label === 'a')?.children?.find((node) => node.label === 'b')
     expect(bNode).to.exist
     expect(newLeaf.newNodeParentId).to.equal(bNode!.id)
 
-    // New branch under the existing host node.
     const newBranch = updateTopicTreeNode(tree, { packet: makePublishPacket('x/y'), connectionInfo })
     expect(newBranch.newNodeParentId).to.equal(tree[0].id)
   })
@@ -675,7 +668,7 @@ describe('Topic Tree In-Place Updates', () => {
     expect(findFullTopicPath(treeData, 'conn1_0_0_0')).to.equal('sensors/temperature/living-room')
     expect(findFullTopicPath(treeData, 'conn1_0_0')).to.equal('sensors/temperature')
     expect(findFullTopicPath(treeData, 'conn1_0')).to.equal('sensors')
-    // The root node contributes no label, matching the previous behaviour.
+    // The root node contributes no label.
     expect(findFullTopicPath(treeData, 'conn1')).to.equal('')
     expect(findFullTopicPath(treeData, 'missing')).to.equal(null)
   })
