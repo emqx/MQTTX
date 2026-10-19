@@ -312,22 +312,6 @@ export default {
     hu: 'Futásidő: ',
     ko: '가동 시간: ',
   },
-  emqx: {
-    zh: '想要部署一个自托管的 MQTT 服务，试试 {emqx} 吧。',
-    en: 'To deploy a self-managed MQTT Broker, try {emqx}.',
-    tr: "Kendi yönettiğiniz bir MQTT Broker'a sahip olmak için {emqx}'i deneyin.",
-    ja: '自己管理型のMQTT Brokerをデプロイするには、{emqx}を試してください。',
-    hu: 'Próbálja ki a saját maga kezelésében lévő MQTT Broker telepítését a {emqx} segítségével.',
-    ko: '자체 관리형 MQTT 브로커를 배포하려면 {emqx}를 사용해 보세요.',
-  },
-  cloud: {
-    zh: '需要一个云原生的全托管 MQTT 服务？一键部署 {cloud}！',
-    en: 'Need a fully managed MQTT cloud service? Try {cloud} Now!',
-    tr: "Tamamen yönetilen bir MQTT bulut hizmetine mi ihtiyacınız var? {cloud}'i şimdi deneyin!",
-    ja: '完全に管理されたMQTTクラウドサービスが必要ですか？今すぐ{cloud}を試してください！',
-    hu: 'Szüksége van egy teljesen kezelt MQTT felhőszolgáltatásra? Próbálja ki most a {cloud}!',
-    ko: '완전 관리형 MQTT 클라우드 서비스가 필요하신가요? 지금 {cloud}를 사용해 보세요!',
-  },
   duplicate: {
     zh: '复制连接',
     en: 'Duplicate',

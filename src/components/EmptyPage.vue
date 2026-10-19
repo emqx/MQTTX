@@ -21,23 +21,35 @@
       </a>
     </el-tooltip>
     <div class="empty-page__block">
-      <div>
-        <img :src="imageSrc" alt="new connection" />
+      <h2 class="empty-page__title">{{ $t('connections.emptyTitle') }}</h2>
+      <p class="empty-page__desc">{{ $t('connections.emptyDesc') }}</p>
+      <div class="empty-page__cards">
+        <button type="button" class="empty-page__card" data-test="new-connection" @click="clickMethod(false)">
+          <i class="el-icon-plus"></i>
+          <span class="empty-page__card-title">{{ btnTitle }}</span>
+          <span class="empty-page__card-desc">{{ $t('connections.emptyNewDesc') }}</span>
+        </button>
+        <button type="button" class="empty-page__card" data-test="public-broker" @click="$emit('quick-connect')">
+          <i class="el-icon-lightning"></i>
+          <span class="empty-page__card-title">{{ $t('connections.emptyPublicTitle') }}</span>
+          <span class="empty-page__card-desc">broker.emqx.io</span>
+        </button>
+        <button type="button" class="empty-page__card" data-test="import-data" @click="showImportData = true">
+          <i class="el-icon-upload2"></i>
+          <span class="empty-page__card-title">{{ $t('connections.importData') }}</span>
+          <span class="empty-page__card-desc">{{ $t('connections.emptyImportDesc') }}</span>
+        </button>
       </div>
-      <el-button class="primary-btn" icon="el-icon-plus" @click="clickMethod(false)">
-        {{ btnTitle }}
-      </el-button>
-      <i18n path="common.emqx" tag="p">
-        <template #emqx>
-          <a :href="emqxWebsite" target="_blank" rel="noopener noreferrer">EMQX</a>
-        </template>
-      </i18n>
-      <i18n path="common.cloud" tag="p">
-        <template #cloud>
-          <a :href="emqxCloudWebsite" target="_blank" rel="noopener noreferrer">EMQX Cloud</a>
-        </template>
-      </i18n>
     </div>
+    <i18n path="connections.emptyBroker" tag="p" class="empty-page__broker-note">
+      <template #emqx>
+        <a :href="emqxWebsite" target="_blank" rel="noopener noreferrer">{{ $t('connections.emqxEnterprise') }}</a>
+      </template>
+      <template #cloud>
+        <a :href="emqxCloudWebsite" target="_blank" rel="noopener noreferrer">EMQX Cloud</a>
+      </template>
+    </i18n>
+    <ImportData :visible.sync="showImportData" />
   </div>
 </template>
 
@@ -46,11 +58,15 @@ import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Action, Getter } from 'vuex-class'
 import gaCustomLinks from '@/utils/gaCustomLinks'
 import { LeftValues } from '@/utils/styles'
+import ImportData from './ImportData.vue'
 
-@Component
+@Component({
+  components: {
+    ImportData,
+  },
+})
 export default class EmptyPage extends Vue {
   @Prop({ required: true }) public btnTitle!: 'connections'
-  @Prop({ required: true }) public name!: string
   @Prop() public clickMethod!: <T>() => T | void
 
   @Getter('currentLang') private getterLang!: Language
@@ -60,9 +76,7 @@ export default class EmptyPage extends Vue {
     showConnectionList: boolean
   }) => void
 
-  get imageSrc(): string {
-    return require(`../assets/images/${this.name}`)
-  }
+  private showImportData = false
 
   get emqxCloudWebsite(): string {
     return gaCustomLinks(this.getterLang).empty.EMQXCloud
@@ -79,20 +93,10 @@ export default class EmptyPage extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-12px);
-  }
-}
-
-@keyframes fade-in-up {
+@keyframes empty-page-enter {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -121,86 +125,100 @@ export default class EmptyPage extends Vue {
     }
   }
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
-    pointer-events: none;
+  .empty-page__block {
+    padding-bottom: 6vh;
+    text-align: center;
+    animation: empty-page-enter 0.4s ease both;
   }
 
-  .empty-page__block {
-    text-align: center;
-    animation: fade-in-up 0.6s ease forwards;
-    position: relative;
-    z-index: 1;
+  .empty-page__title {
+    margin: 0;
+    color: var(--color-text-title);
+    font-size: 20px;
+    font-weight: 600;
+  }
 
-    img {
-      margin-bottom: 32px;
-      animation: float 4s ease-in-out infinite;
-      filter: drop-shadow(0 20px 40px rgba(16, 185, 129, 0.15));
+  .empty-page__desc {
+    margin: 8px 0 32px;
+    color: var(--color-text-default);
+    font-size: 14px;
+  }
+
+  .empty-page__cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .empty-page__card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 184px;
+    box-sizing: border-box;
+    padding: 18px;
+    border: 1px solid var(--color-border-default);
+    border-radius: 12px;
+    background: var(--color-bg-normal);
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+
+    i {
+      color: var(--color-main-green);
+      font-size: 20px;
     }
 
-    .primary-btn {
-      background: var(--color-bg-btn-gradient);
-      color: var(--color-text-active);
-      border: none;
-      padding: 12px 28px;
-      font-size: 14px;
-      font-weight: 500;
-      border-radius: 10px;
-      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      letter-spacing: 0.02em;
+    &:hover,
+    &:focus-visible {
+      border-color: var(--color-main-green);
+    }
+  }
+
+  .empty-page__card-title {
+    display: block;
+    margin: 14px 0 4px;
+    color: var(--color-text-title);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .empty-page__card-desc {
+    display: block;
+    color: var(--color-text-light);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .empty-page__broker-note {
+    position: absolute;
+    bottom: 28px;
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0 24px;
+    text-align: center;
+    color: var(--color-text-light);
+    font-size: 12px;
+
+    a {
+      color: var(--color-main-green);
+      text-decoration: none;
 
       &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
-      }
-
-      &:active {
-        transform: translateY(0);
-      }
-
-      i {
-        margin-right: 6px;
+        text-decoration: underline;
       }
     }
+  }
+}
 
-    p {
-      margin: 20px auto;
-      max-width: 500px;
-      color: var(--color-text-light);
-      font-size: 14px;
-      line-height: 1.6;
-
-      a {
-        color: var(--color-main-green);
-        text-decoration: none;
-        font-weight: 500;
-        transition: color 0.2s ease;
-        position: relative;
-
-        &::after {
-          content: '';
-          position: absolute;
-          left: 0;
-          bottom: -2px;
-          width: 100%;
-          height: 1px;
-          background: var(--color-main-green);
-          transform: scaleX(0);
-          transition: transform 0.2s ease;
-        }
-
-        &:hover::after {
-          transform: scaleX(1);
-        }
-      }
+@media (prefers-reduced-motion: reduce) {
+  .empty-page {
+    .empty-page__block {
+      animation: none;
     }
   }
 }
