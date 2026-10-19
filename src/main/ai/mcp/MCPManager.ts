@@ -187,20 +187,6 @@ export function initMCPHandlers(): void {
     return { success: true }
   })
 
-  // Get all enabled servers with their test results
-  ipcMain.handle('mcp:get-enabled-servers', () => {
-    const servers = mcpStore.getMCPConfig().mcpServers || {}
-    const result: Record<string, any> = {}
-
-    for (const serverName of Object.keys(servers)) {
-      result[serverName] = {
-        enabled: mcpStore.getServerEnabled(serverName),
-        testResults: mcpStore.getServerTestResults(serverName),
-      }
-    }
-    return result
-  })
-
   // List the live tools of every enabled server, connecting on demand
   ipcMain.handle('mcp:list-tools', async () => {
     if (!mcpStore.isMCPReady()) {

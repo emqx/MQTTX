@@ -150,6 +150,7 @@ import { AgentAttachmentPart, AgentConnectionPart, AgentMessage, AgentSkillPart 
 import { formatBytes } from '@/utils/formatter'
 import { resolveArchiveSync } from '@/utils/ai/agent/files'
 import { AgentSkillName, SKILL_ICONS, renderSkillChip } from '@/utils/ai/agent/skills'
+import { isConnectionConnected } from '@/utils/ai/agent/mentions'
 import AgentWelcome from './AgentWelcome.vue'
 import AgentThinking from './AgentThinking.vue'
 import AgentIcon from './AgentIcon.vue'
@@ -291,7 +292,7 @@ export default class AgentMessages extends Vue {
 
   /** Live state of the mentioned connection, shown by the chip dot */
   private connectionConnected(part: AgentConnectionPart): boolean {
-    return this.activeConnection[part.connectionId]?.client?.connected === true
+    return isConnectionConnected(this.activeConnection, part.connectionId)
   }
 
   /** The icon the `/` menu shows for this skill, so both chips look the same */

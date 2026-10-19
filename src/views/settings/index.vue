@@ -540,8 +540,8 @@
           <el-input-number
             size="mini"
             :value="agentMaxSteps"
-            :min="10"
-            :max="200"
+            :min="minAgentMaxSteps"
+            :max="maxAgentMaxSteps"
             :disabled="!enableAgent"
             @change="handleMaxStepsChange"
           ></el-input-number>
@@ -570,7 +570,9 @@ import { AImodelsOptions, AIAPIHostOptions, getModelLabel, getReasoningEfforts }
 import { effectiveReasoning, reasoningLabelKey, reasoningLevelsFor, type AgentReasoning } from '@/utils/ai/reasoning'
 import type { PermissionMode } from '@/utils/ai/agent/approval'
 import {
+  MAX_AGENT_MAX_STEPS,
   MAX_MAX_PAYLOAD_DISPLAY_SIZE,
+  MIN_AGENT_MAX_STEPS,
   MIN_MAX_PAYLOAD_DISPLAY_SIZE,
   normalizeMaxPayloadDisplaySize,
 } from '@/utils/data'
@@ -683,6 +685,8 @@ export default class Settings extends Vue {
   private showImportData = false
   private showExportData = false
   private showHistoryData = false
+  private minAgentMaxSteps = MIN_AGENT_MAX_STEPS
+  private maxAgentMaxSteps = MAX_AGENT_MAX_STEPS
   private minPayloadDisplaySize = MIN_MAX_PAYLOAD_DISPLAY_SIZE
   private maxPayloadDisplaySizeLimit = MAX_MAX_PAYLOAD_DISPLAY_SIZE
   private payloadDisplaySizeStep = MIN_MAX_PAYLOAD_DISPLAY_SIZE
