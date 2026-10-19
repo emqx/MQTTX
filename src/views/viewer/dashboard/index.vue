@@ -365,6 +365,8 @@ export default class Dashboards extends Vue {
 
   private onEditDashboardFromList(dashboard: DashboardModel): void {
     this.setSelectedDashboard(dashboard)
+    // The header holds the rename form; wait for it to receive the selection
+    this.$nextTick(() => (this.$refs.header as any).toEditDashboard())
   }
 
   private async onDeleteDashboardFromList(dashboard: DashboardModel): Promise<void> {
