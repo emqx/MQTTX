@@ -123,7 +123,7 @@ export default class TreeNodeInfo extends Vue {
   }
 
   get fullTopicPath(): string {
-    return this.getFullTopicPath(this.node)
+    return findFullTopicPath(this.treeData, this.node.id) || this.node.label
   }
 
   get subTopics(): string[] {
@@ -155,12 +155,6 @@ export default class TreeNodeInfo extends Vue {
       fullHost += `${path}`
     }
     return fullHost
-  }
-
-  private getFullTopicPath(node: TopicTreeNode): string {
-    const fullPath = findFullTopicPath(this.treeData, node.id)
-    if (!fullPath) return node.label
-    return fullPath
   }
 
   private checkPayloadEmpty(payload: string | Buffer | null | undefined): boolean {

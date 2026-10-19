@@ -65,12 +65,12 @@
               :effect="currentTheme !== 'light' ? 'light' : 'dark'"
               :open-delay="500"
             >
-              <span class="tree-node-label" :ref="`treeLabel_${data.id}`">
+              <span class="tree-node-label">
                 <span v-if="data.connectionInfo && data.connectionInfo.name">{{ data.connectionInfo.name }}@</span
                 >{{ node.label }}
               </span>
             </el-tooltip>
-            <span v-else class="tree-node-label" :ref="`treeLabel_${data.id}`">
+            <span v-else class="tree-node-label">
               <span v-if="data.connectionInfo && data.connectionInfo.name">{{ data.connectionInfo.name }}@</span
               >{{ node.label }}
             </span>
@@ -369,15 +369,6 @@ export default class TreeView extends Vue {
 
   private handleExpandLevelChange(val: number) {
     localStorage.setItem('tree-view-expand-level', val.toString())
-  }
-
-  private mounted() {
-    // Keep the filter text when data changes
-    this.$nextTick(() => {
-      if (this.filterText) {
-        this.treeRef.filter(this.filterText)
-      }
-    })
   }
 }
 </script>

@@ -22,11 +22,11 @@ function getChildIndex(node: TopicTreeNode): Map<string, TopicTreeNode> {
 /**
  * Updates the topic tree structure with new message data.
  *
- * Mutates `currentTree` in place and returns it as `updatedTree`.
+ * Mutates `currentTree` in place.
  *
  * @param currentTree - The current state of the topic tree.
  * @param rawData - An object containing the MQTT packet and connection information.
- * @returns The updated tree, the updated nodes and `newNodeParentId`.
+ * @returns The updated nodes and `newNodeParentId`.
  */
 export function updateTopicTreeNode(
   currentTree: TopicTreeNode[],
@@ -35,7 +35,6 @@ export function updateTopicTreeNode(
     connectionInfo: ConnectionModel
   },
 ): {
-  updatedTree: TopicTreeNode[]
   updatedNodes: TopicTreeNode[]
   newNodeParentId?: string
 } {
@@ -64,9 +63,6 @@ export function updateTopicTreeNode(
     isNewHost = true
   }
 
-  const originalHostMessageCount = hostNode.messageCount
-  const originalHostSubTopicCount = hostNode.subTopicCount
-
   hostNode.messageCount++
 
   // Nodes on the topic path, host first, leaf last.
@@ -81,7 +77,6 @@ export function updateTopicTreeNode(
     const level = topicLevels[i]
     const siblings = getChildIndex(currentNode)
     let childNode = siblings.get(level)
-    let isNewNode = false
 
     if (!childNode) {
       currentId = `${currentId}_${currentNode.children?.length ?? 0}`
@@ -100,7 +95,6 @@ export function updateTopicTreeNode(
         currentNode.children = [childNode]
       }
       siblings.set(level, childNode)
-      isNewNode = true
       newNodeCount++
       // First new node's parent is the only node el-tree must sync.
       if (newNodeParentId === undefined && !isNewHost) {
@@ -109,9 +103,6 @@ export function updateTopicTreeNode(
     } else {
       currentId = childNode.id
     }
-
-    const originalChildMessageCount = childNode.messageCount
-    const originalChildSubTopicCount = childNode.subTopicCount
 
     childNode.messageCount++
 
@@ -127,13 +118,7 @@ export function updateTopicTreeNode(
       }
     }
 
-    if (
-      isNewNode ||
-      childNode.messageCount !== originalChildMessageCount ||
-      childNode.subTopicCount !== originalChildSubTopicCount
-    ) {
-      updatedNodes.push(childNode)
-    }
+    updatedNodes.push(childNode)
 
     pathNodes.push(childNode)
     currentNode = childNode
@@ -148,13 +133,7 @@ export function updateTopicTreeNode(
     }
   }
 
-  if (
-    isNewHost ||
-    hostNode.messageCount !== originalHostMessageCount ||
-    hostNode.subTopicCount !== originalHostSubTopicCount
-  ) {
-    updatedNodes.push(hostNode)
-  }
+  updatedNodes.push(hostNode)
 
   // Updated nodes are now flattened data; including children here would be redundant
   const simplifiedUpdatedNodes = updatedNodes.map((node) => ({
@@ -167,7 +146,7 @@ export function updateTopicTreeNode(
     connectionInfo: node.connectionInfo,
   }))
 
-  return { updatedTree: currentTree, updatedNodes: simplifiedUpdatedNodes, newNodeParentId }
+  return { updatedNodes: simplifiedUpdatedNodes, newNodeParentId }
 }
 
 /**
@@ -194,17 +173,15 @@ export function updateSubTopicCounts(node: TopicTreeNode): number {
  * Recursively finds all subtopics for a given node in the topic tree.
  *
  * @param node - The current node in the topic tree to find subtopics for.
- * @param isRoot - A boolean indicating whether the current node is the root node.
  * @returns An array of strings representing the subtopics.
  */
-export function findSubTopics(node: TopicTreeNode, isRoot = true): string[] {
+export function findSubTopics(node: TopicTreeNode): string[] {
   const subTopics: string[] = []
   const collect = (subNode: TopicTreeNode) => {
     if (subNode.label) subTopics.push(subNode.label)
     subNode.children?.forEach(collect)
   }
-  if (isRoot) node.children?.forEach(collect)
-  else collect(node)
+  node.children?.forEach(collect)
   return subTopics
 }
 
@@ -250,13 +227,12 @@ export function findFullTopicPath(treeData: TopicTreeNode[], targetId: string): 
  * @returns An array of strings containing all IDs from the nodes and their children.
  */
 export function getAllIDs(nodes: TopicTreeNode[]): string[] {
-  let ids: string[] = []
-  for (const node of nodes) {
+  const ids: string[] = []
+  const collect = (node: TopicTreeNode) => {
     ids.push(node.id)
-    if (node.children && node.children.length > 0) {
-      ids = ids.concat(getAllIDs(node.children))
-    }
+    node.children?.forEach(collect)
   }
+  nodes.forEach(collect)
   return ids
 }
 
