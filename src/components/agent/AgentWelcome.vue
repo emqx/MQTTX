@@ -6,10 +6,10 @@
     <h2>{{ $t('agent.welcomeTitle') }}</h2>
     <p>{{ $t('agent.welcomeIntro') }}</p>
     <div class="suggestions">
-      <button v-for="s in suggestions" :key="s.key" class="suggestion" @click="$emit('suggest', s.prompt)">
+      <button v-for="s in suggestions" :key="s.key" class="suggestion" @click="$emit('suggest', message(s))">
         <i class="s-ico" :class="s.icon"></i>
         <span
-          >{{ $t(s.titleKey) }}<small>{{ $t(s.hintKey) }}</small></span
+          >{{ $t(s.titleKey) }}<small>{{ hint(s) }}</small></span
         >
       </button>
     </div>
@@ -19,17 +19,23 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import AgentIcon from './AgentIcon.vue'
+import type { OutgoingMessage } from '@/utils/ai/agent/attachments'
+import type { AgentSkillName } from '@/utils/ai/agent/skills'
+
+interface Suggestion {
+  key: string
+  icon: string
+  titleKey: string
+  prompt: string
+  /** What the suggestion does; a Skill suggestion shows the Skill instead */
+  hintKey?: string
+  /** Sent with the Skill attached, as if picked from the `/` menu */
+  skill?: AgentSkillName
+}
 
 @Component({ components: { AgentIcon } })
 export default class AgentWelcome extends Vue {
-  private suggestions = [
-    {
-      key: 'connections',
-      icon: 'iconfont icon-connections',
-      titleKey: 'agent.suggestions.connections',
-      hintKey: 'agent.suggestions.readOnly',
-      prompt: 'Show my connections and their status',
-    },
+  private suggestions: Suggestion[] = [
     {
       key: 'connect',
       icon: 'el-icon-link',
@@ -45,12 +51,28 @@ export default class AgentWelcome extends Vue {
       prompt: 'Publish a JSON test message to mqttx/test',
     },
     {
-      key: 'explain',
-      icon: 'iconfont icon-help',
-      titleKey: 'agent.suggestions.explain',
-      hintKey: 'agent.suggestions.answerOnly',
-      prompt: 'Explain MQTT 5.0 shared subscriptions',
+      key: 'diagnose',
+      icon: 'el-icon-first-aid-kit',
+      titleKey: 'agent.suggestions.diagnose',
+      prompt: 'Find out why my connection fails to connect',
+      skill: 'mqttx_diagnostics',
+    },
+    {
+      key: 'clientCode',
+      icon: 'el-icon-edit-outline',
+      titleKey: 'agent.suggestions.clientCode',
+      prompt: 'Write Python client code for my current connection',
+      skill: 'client_code',
     },
   ]
+
+  private hint(s: Suggestion): string {
+    if (s.skill) return `${this.$t('agent.suggestions.skill')} · ${this.$t(`agent.skills.${s.skill}.name`)}`
+    return this.$t(s.hintKey!) as string
+  }
+
+  private message(s: Suggestion): string | OutgoingMessage {
+    return s.skill ? { content: s.prompt, attachments: [], skill: { skill: s.skill } } : s.prompt
+  }
 }
 </script>
