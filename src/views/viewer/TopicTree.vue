@@ -216,6 +216,8 @@ export default class TopicTree extends Vue {
     height: calc(100vh - 130px);
     overflow-y: auto;
     margin-bottom: 12px;
+    // el-card's 0.3s transition makes resizing lag behind the cursor.
+    transition: none;
   }
   .topic-tree-card {
     flex: 1;
