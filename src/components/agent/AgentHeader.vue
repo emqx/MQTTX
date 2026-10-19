@@ -44,7 +44,19 @@
         :aria-label="mode === 'full' ? $t('agent.exitFullScreen') : $t('agent.fullScreen')"
         @click="$emit('toggle-full')"
       >
-        <i class="el-icon-full-screen"></i>
+        <!-- Element has no exit icon, so both are drawn: corners pointing out to enter, in to exit -->
+        <svg class="full-screen-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+          <path
+            :d="
+              mode === 'full'
+                ? 'M5.5 1.5v4h-4M10.5 1.5v4h4M10.5 14.5v-4h4M5.5 14.5v-4h-4'
+                : 'M1.5 5.5v-4h4M14.5 5.5v-4h-4M14.5 10.5v4h-4M1.5 10.5v4h4'
+            "
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+          />
+        </svg>
       </button>
       <button class="icon-btn" :data-tip="$t('agent.close')" :aria-label="$t('agent.close')" @click="$emit('close')">
         <i class="el-icon-close"></i>
