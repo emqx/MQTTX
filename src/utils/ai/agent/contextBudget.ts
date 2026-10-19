@@ -6,6 +6,7 @@
 import type { ModelMessage } from 'ai'
 import type { AgentMessage } from '@/types/agent'
 import { getAgentMessageId } from '@/utils/idGenerator'
+import { findModelEntry } from '@/utils/ai/models'
 import { compactionPartOf, findLastCompaction, messagesAfter, toModelMessages } from './messageParts'
 
 /** Past this share of the context window the older turns are compacted into a summary */
@@ -78,23 +79,9 @@ export const estimateTokens = (value: string | ModelMessage[]): number => {
   return total
 }
 
-/** Context windows of the models MQTTX lists; anything else uses the conservative default */
-const CONTEXT_WINDOWS: Array<{ pattern: RegExp; window: number }> = [
-  { pattern: /^gpt-5/, window: 400000 },
-  { pattern: /^gpt-4\.1/, window: 1047576 },
-  { pattern: /^gpt-4o/, window: 128000 },
-  { pattern: /^o3/, window: 200000 },
-  { pattern: /^o4-mini/, window: 200000 },
-  { pattern: /^claude-/, window: 200000 },
-  { pattern: /^gemini-2\.5-/, window: 1048576 },
-  { pattern: /^gemini-3/, window: 1048576 },
-]
-
-/** Context window of a model id, in tokens */
-export const getContextWindow = (model: string): number => {
-  const id = model.toLowerCase()
-  return CONTEXT_WINDOWS.find((entry) => entry.pattern.test(id))?.window ?? DEFAULT_CONTEXT_WINDOW
-}
+/** Context window of a model id, in tokens: what its entry in the model list says, else the default */
+export const getContextWindow = (model: string): number =>
+  findModelEntry(model)?.option.contextWindow ?? DEFAULT_CONTEXT_WINDOW
 
 /** Compact token count for the composer meter: 950, 9.9k, 12k, 128k, 1.0M */
 export const formatTokens = (tokens: number): string => {
