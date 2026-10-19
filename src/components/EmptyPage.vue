@@ -166,13 +166,20 @@ export default class EmptyPage extends Vue {
     height: 100%;
   }
 
+  // --color-border-default is too close to the background in all three themes,
+  // so the rings are tinted from the main green instead
   .empty-page__ring {
     fill: none;
-    stroke: var(--color-border-default);
+    stroke: color-mix(in srgb, var(--color-main-green) 28%, transparent);
+    stroke-width: 1;
   }
 
   .empty-page__ring--dashed {
-    stroke-dasharray: 2 5;
+    stroke: color-mix(in srgb, var(--color-main-green) 45%, transparent);
+    stroke-width: 1.5;
+    // dotted look: tiny dashes with rounded caps
+    stroke-dasharray: 1 6;
+    stroke-linecap: round;
   }
 
   .empty-page__orbit {
