@@ -204,10 +204,10 @@ export default class EmptyPage extends Vue {
 
   .empty-page__logo {
     position: absolute;
-    top: 42px;
-    left: 42px;
+    inset: 0;
     width: 56px;
     height: 56px;
+    margin: auto;
   }
 
   .empty-page__title {

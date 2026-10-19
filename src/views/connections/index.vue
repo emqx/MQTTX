@@ -168,25 +168,23 @@ export default class Connections extends Vue {
     this.isQuickConnecting = true
     try {
       const { connectionService } = useServices()
+      const now = time.getNowDate()
       const res = await connectionService.create({
         ...getDefaultRecord(),
         name: 'broker.emqx.io',
         parentId: null,
-        createAt: time.getNowDate(),
-        updateAt: time.getNowDate(),
+        createAt: now,
+        updateAt: now,
       })
-      if (!(res && res.id)) {
-        this.$message.error(this.$tc('common.createfailed'))
-        this.$log.error('Failed to create a connection for the public broker: no connection id returned')
-        return
+      if (!res?.id) {
+        throw new Error('no connection id returned')
       }
       this.changeActiveConnection({ id: res.id, client: { connected: false } })
       this.$router.push(`/recent_connections/${res.id}`)
       this.onConnect()
     } catch (error) {
-      const err = error as Error
       this.$message.error(this.$tc('common.createfailed'))
-      this.$log.error(`Failed to create a connection for the public broker: ${err.toString()}`)
+      this.$log.error(`Failed to create a connection for the public broker: ${error}`)
     } finally {
       this.isQuickConnecting = false
     }
