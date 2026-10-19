@@ -21,21 +21,22 @@
       </a>
     </el-tooltip>
     <div class="empty-page__block">
+      <img class="empty-page__logo" src="@/assets/images/app-logo.png" alt="" />
       <h2 class="empty-page__title">{{ $t('connections.emptyTitle') }}</h2>
       <p class="empty-page__desc">{{ $t('connections.emptyDesc') }}</p>
       <div class="empty-page__cards">
         <button type="button" class="empty-page__card" data-test="new-connection" @click="clickMethod(false)">
-          <i class="el-icon-plus"></i>
+          <span class="empty-page__card-icon"><i class="el-icon-plus"></i></span>
           <span class="empty-page__card-title">{{ btnTitle }}</span>
           <span class="empty-page__card-desc">{{ $t('connections.emptyNewDesc') }}</span>
         </button>
         <button type="button" class="empty-page__card" data-test="public-broker" @click="$emit('quick-connect')">
-          <i class="el-icon-lightning"></i>
+          <span class="empty-page__card-icon"><i class="el-icon-lightning"></i></span>
           <span class="empty-page__card-title">{{ $t('connections.emptyPublicTitle') }}</span>
           <span class="empty-page__card-desc">broker.emqx.io</span>
         </button>
         <button type="button" class="empty-page__card" data-test="import-data" @click="showImportData = true">
-          <i class="el-icon-upload2"></i>
+          <span class="empty-page__card-icon"><i class="el-icon-upload2"></i></span>
           <span class="empty-page__card-title">{{ $t('connections.importData') }}</span>
           <span class="empty-page__card-desc">{{ $t('connections.emptyImportDesc') }}</span>
         </button>
@@ -131,15 +132,22 @@ export default class EmptyPage extends Vue {
     animation: empty-page-enter 0.4s ease both;
   }
 
+  .empty-page__logo {
+    display: block;
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 20px;
+  }
+
   .empty-page__title {
     margin: 0;
     color: var(--color-text-title);
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 600;
   }
 
   .empty-page__desc {
-    margin: 8px 0 32px;
+    margin: 8px 0 36px;
     color: var(--color-text-default);
     font-size: 14px;
   }
@@ -155,11 +163,11 @@ export default class EmptyPage extends Vue {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: 184px;
+    width: 196px;
     box-sizing: border-box;
-    padding: 18px;
+    padding: 20px;
     border: 1px solid var(--color-border-default);
-    border-radius: 12px;
+    border-radius: 14px;
     background: var(--color-bg-normal);
     color: inherit;
     font: inherit;
@@ -167,20 +175,28 @@ export default class EmptyPage extends Vue {
     cursor: pointer;
     transition: border-color 0.2s ease;
 
-    i {
-      color: var(--color-main-green);
-      font-size: 20px;
-    }
-
     &:hover,
     &:focus-visible {
       border-color: var(--color-main-green);
     }
   }
 
+  .empty-page__card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    // --color-light-green stays pale in dark themes, so tint from the main green instead
+    background: color-mix(in srgb, var(--color-main-green) 14%, transparent);
+    color: var(--color-main-green);
+    font-size: 19px;
+  }
+
   .empty-page__card-title {
     display: block;
-    margin: 14px 0 4px;
+    margin: 16px 0 4px;
     color: var(--color-text-title);
     font-size: 14px;
     font-weight: 500;
