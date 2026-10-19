@@ -1,4 +1,5 @@
 import { expect } from 'chai'
+import Vue from 'vue'
 import { EventEmitter } from 'events'
 import { ConnectionView, ConnectionBridge, ConnectionBridgeRouter } from '@/utils/ai/agent/connectionBridge'
 
@@ -151,6 +152,21 @@ describe('ConnectionBridge', () => {
       }
       expect(error?.message).to.contain('timed out')
       expect(cancelled).to.equal(true)
+    })
+  })
+  describe('current', () => {
+    it('should update a computed property that read it before the view registered', () => {
+      // The Agent panel reads the current connection in computed properties, often before the page registers
+      const vm = new Vue({ computed: { currentId: () => bridge.current()?.connectionId ?? '' } })
+      expect((vm as any).currentId).to.equal('')
+
+      const view = createView('c1', createClient())
+      bridge.register(view)
+      expect((vm as any).currentId).to.equal('c1')
+
+      bridge.unregister(view)
+      expect((vm as any).currentId).to.equal('')
+      vm.$destroy()
     })
   })
 })
