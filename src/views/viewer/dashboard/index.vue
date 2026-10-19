@@ -37,7 +37,6 @@
       @dashboard-selected="onDashboardSelected"
       @add-visualization="toAddVisualization"
       @time-range-select="onTimeRangeSelect"
-      @create-dashboard="saveDashboard"
       @save-dashboard="saveDashboard"
       @cancel-add="cancelAdd"
     />
@@ -64,6 +63,27 @@
       @create-widget="createWidget"
       @cancel-add="cancelAdd"
     />
+
+    <my-dialog
+      :title="$t('viewer.createDashboard')"
+      :visible.sync="showCreateDialog"
+      width="420px"
+      class="create-dashboard-dialog"
+      :btn-disabled="!newDashboard.name.trim()"
+      @open="focusNewDashboardName"
+      @confirm="createDashboard"
+      @keyupEnter="createDashboard"
+      @close="newDashboard = { name: '', description: '' }"
+    >
+      <el-form label-position="top" size="small" :model="newDashboard" @submit.native.prevent>
+        <el-form-item :label="$t('connections.name')" required>
+          <el-input ref="newDashboardName" v-model="newDashboard.name" />
+        </el-form-item>
+        <el-form-item :label="$t('viewer.description')">
+          <el-input v-model="newDashboard.description" type="textarea" :rows="3" resize="none" />
+        </el-form-item>
+      </el-form>
+    </my-dialog>
   </div>
 </template>
 
@@ -72,6 +92,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import DashboardsList from './DashboardsList.vue'
 import DashboardHeader from './DashboardHeader.vue'
 import DashboardContent from './DashboardContent.vue'
+import MyDialog from '@/components/MyDialog.vue'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
 
@@ -98,12 +119,15 @@ const readListWidth = (): number => {
     DashboardsList,
     DashboardHeader,
     DashboardContent,
+    MyDialog,
   },
 })
 export default class Dashboards extends Vue {
   private showDashboardsList = true
   private listWidth = readListWidth()
   private resizing = false
+  private showCreateDialog = false
+  private newDashboard = { name: '', description: '' }
   private isAddingWidget = false
   private editingWidget: WidgetModel | null = null
 
@@ -668,7 +692,18 @@ export default class Dashboards extends Vue {
   }
 
   private toCreateDashboard() {
-    ;(this.$refs.header as any).toCreateDashboard()
+    this.showCreateDialog = true
+  }
+
+  private focusNewDashboardName() {
+    // The dialog renders its body on open
+    this.$nextTick(() => (this.$refs.newDashboardName as any)?.focus())
+  }
+
+  private async createDashboard() {
+    if (!this.newDashboard.name.trim()) return
+    await this.saveDashboard(this.newDashboard)
+    this.showCreateDialog = false
   }
 
   private cancelAdd() {
