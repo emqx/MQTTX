@@ -330,12 +330,12 @@
   .conv .more:hover {
     color: var(--color-text-title);
   }
+  /* The conversation that is still replying: a small spinner where the time would be */
   .conv .live {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--color-main-green);
     flex: none;
+    font-size: 12px;
+    line-height: 1;
+    color: var(--color-main-green);
   }
 
   .chat {

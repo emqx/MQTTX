@@ -27,7 +27,7 @@
               conversation.title || $t('agent.untitled')
             }}</span>
             <span class="conv-tail">
-              <i v-if="conversation.id === runningId" class="live"></i>
+              <i v-if="conversation.id === runningId" class="live el-icon-loading"></i>
               <template v-else>
                 <span class="conv-time">{{ formatTime(conversation.updateAt) }}</span>
                 <el-dropdown
