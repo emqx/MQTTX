@@ -2,12 +2,14 @@ import { expect } from 'chai'
 import {
   applyStreamPart,
   approveToolPart,
+  findLastCompaction,
   getPartsText,
   setToolState,
   stopParts,
+  toHistoryMessages,
   toModelMessages,
 } from '@/utils/ai/agent/messageParts'
-import { AgentMessagePart } from '@/types/agent'
+import { AgentMessage, AgentMessagePart } from '@/types/agent'
 
 describe('messageParts', () => {
   describe('applyStreamPart', () => {
@@ -572,6 +574,81 @@ describe('messageParts', () => {
       ])
 
       expect(messages).to.deep.equal([{ role: 'user', content: 'have a look at @connection' }])
+    })
+  })
+
+  describe('toHistoryMessages', () => {
+    const marker = (id: string, summary: string, untilMessageId: string): AgentMessage => ({
+      id,
+      role: 'system',
+      content: summary,
+      parts: [{ type: 'compaction', summary, untilMessageId, messageCount: 2, createdAt: 1 }],
+    })
+
+    it('should send the whole conversation when nothing was compacted', () => {
+      const messages: AgentMessage[] = [
+        { id: '1', role: 'user', content: 'Hello' },
+        { id: '2', role: 'assistant', content: 'Hi' },
+      ]
+
+      expect(toHistoryMessages(messages)).to.deep.equal([
+        { role: 'user', content: 'Hello' },
+        { role: 'assistant', content: 'Hi' },
+      ])
+    })
+
+    it('should send the summary in front of the messages it does not cover', () => {
+      const messages: AgentMessage[] = [
+        { id: '1', role: 'user', content: 'old question' },
+        { id: '2', role: 'assistant', content: 'old answer' },
+        marker('3', 'they talked about sensors', '2'),
+        { id: '4', role: 'user', content: 'new question' },
+      ]
+
+      expect(toHistoryMessages(messages)).to.deep.equal([
+        { role: 'user', content: '[Summary of the earlier conversation]\nthey talked about sensors' },
+        { role: 'user', content: 'new question' },
+      ])
+    })
+
+    it('should use only the newest marker', () => {
+      const messages: AgentMessage[] = [
+        marker('1', 'first summary', '0'),
+        { id: '2', role: 'user', content: 'question' },
+        marker('3', 'second summary', '2'),
+        { id: '4', role: 'assistant', content: 'answer' },
+      ]
+
+      const result = toHistoryMessages(messages)
+      expect(result).to.have.length(2)
+      expect((result[0] as { content: string }).content).to.contain('second summary')
+      expect((result[0] as { content: string }).content).to.not.contain('first summary')
+      expect(result[1]).to.deep.equal({ role: 'assistant', content: 'answer' })
+    })
+
+    it('should never send a compaction marker as a system message', () => {
+      const messages: AgentMessage[] = [marker('1', 'summary', '0')]
+
+      expect(toModelMessages(messages)).to.deep.equal([])
+      expect(toHistoryMessages(messages)).to.deep.equal([
+        { role: 'user', content: '[Summary of the earlier conversation]\nsummary' },
+      ])
+    })
+
+    it('should keep the summary when the covered message is no longer in the list', () => {
+      const messages: AgentMessage[] = [marker('1', 'summary', 'gone'), { id: '2', role: 'user', content: 'question' }]
+
+      expect(toHistoryMessages(messages)).to.deep.equal([
+        { role: 'user', content: '[Summary of the earlier conversation]\nsummary' },
+        { role: 'user', content: 'question' },
+      ])
+    })
+
+    it('should find the newest marker of a conversation', () => {
+      const messages: AgentMessage[] = [{ id: '1', role: 'user', content: 'Hello' }, marker('2', 'summary', '1')]
+
+      expect(findLastCompaction(messages)?.part.summary).to.equal('summary')
+      expect(findLastCompaction([{ id: '1', role: 'user', content: 'Hello' }])).to.equal(null)
     })
   })
 })

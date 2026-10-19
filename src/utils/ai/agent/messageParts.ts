@@ -9,6 +9,25 @@ type ToolPart = Extract<AgentMessagePart, { type: 'tool' }>
 type AttachmentPart = Extract<AgentMessagePart, { type: 'attachment' }>
 type SkillPart = Extract<AgentMessagePart, { type: 'skill' }>
 type ConnectionPart = Extract<AgentMessagePart, { type: 'connection' }>
+type CompactionPart = Extract<AgentMessagePart, { type: 'compaction' }>
+
+/** The compaction marker of a message, when it has one */
+export const compactionPartOf = (message: AgentMessage): CompactionPart | undefined =>
+  (message.parts ?? []).find((part): part is CompactionPart => part.type === 'compaction')
+
+/**
+ * The newest compaction marker of the conversation. It replaces every message up to its
+ * `untilMessageId`, so it is also the point the history starts from.
+ */
+export const findLastCompaction = (
+  messages: AgentMessage[],
+): { index: number; message: AgentMessage; part: CompactionPart } | null => {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const part = compactionPartOf(messages[index])
+    if (part) return { index, message: messages[index], part }
+  }
+  return null
+}
 
 /** Reads an attached image from agent-files; replaced with a fake in tests */
 const defaultReadImage = (relativePath: string): Buffer | null => {
@@ -202,13 +221,15 @@ export const getPartsText = (parts: AgentMessagePart[]): string =>
 const toPlain = (value: unknown): unknown => (value === undefined ? undefined : JSON.parse(JSON.stringify(value)))
 
 /**
- * Converts the stored conversation into model messages, replaying the tool calls of each reply
+ * Converts the stored conversation into model messages, replaying the tool calls of each reply.
+ * Compaction markers are skipped: `toHistoryMessages` turns them into the summary prefix instead.
  */
 export const toModelMessages = (
   messages: AgentMessage[],
   readImage: (relativePath: string) => Buffer | null = defaultReadImage,
 ): ModelMessage[] =>
   messages.flatMap((message): ModelMessage[] => {
+    if (compactionPartOf(message)) return []
     if (
       message.role === 'user' &&
       (message.parts ?? []).some(
@@ -239,7 +260,8 @@ export const toModelMessages = (
         part.type === 'reasoning' ||
         part.type === 'attachment' ||
         part.type === 'skill' ||
-        part.type === 'connection'
+        part.type === 'connection' ||
+        part.type === 'compaction'
       )
         continue
       if (part.type === 'text') {
@@ -273,3 +295,22 @@ export const toModelMessages = (
     flush()
     return result
   })
+
+/**
+ * The messages to send to the model: the newest summary (a user message, never a system message) plus
+ * every message after the one it covers. Without a summary the whole history goes through.
+ */
+export const toHistoryMessages = (
+  messages: AgentMessage[],
+  readImage: (relativePath: string) => Buffer | null = defaultReadImage,
+): ModelMessage[] => {
+  const marker = findLastCompaction(messages)
+  if (!marker) return toModelMessages(messages, readImage)
+
+  const boundary = messages.findIndex((message) => message.id === marker.part.untilMessageId)
+  const kept = boundary === -1 ? messages.slice(marker.index + 1) : messages.slice(boundary + 1)
+  return [
+    { role: 'user', content: `[Summary of the earlier conversation]\n${marker.part.summary}` },
+    ...toModelMessages(kept, readImage),
+  ]
+}

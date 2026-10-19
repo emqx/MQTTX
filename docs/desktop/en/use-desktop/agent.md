@@ -59,6 +59,8 @@ One reply can use up to **Max steps per reply** tool steps (default 50, range 10
 
 The panel keeps a history of conversations. In full screen mode the list is on the left; in side panel mode open it from the history button in the header. You can rename a conversation (double-click its title in full screen, or use the `···` menu) and delete it together with its messages.
 
+When a conversation grows long, the Agent compacts the earlier part of it automatically: it summarizes what happened so far and sends that summary instead of every old message, so the conversation keeps working. A divider marked **Earlier conversation compacted** appears at that point in the chat — click it to read the summary. While the summary is being written the panel shows **Compacting the conversation…**. The bar under the input shows how full the context window is: a ring with the percentage in use, and hovering it shows the token counts and the point where the older turns are compacted. A count taken from the last reply is exact, one marked with `~` is an estimate.
+
 ## MCP
 
 Configure MCP servers in **Settings → MQTTX Agent**, under **MCP Server Configuration**. Both **Streamable HTTP** and **SSE** URLs are supported:
