@@ -502,7 +502,7 @@
           <label>{{ $t('settings.agentReasoning') }}</label>
         </el-col>
         <el-col :span="6">
-          <el-select size="mini" :value="agentReasoning" :disabled="!enableAgent" @change="handleReasoningChange">
+          <el-select size="mini" :value="currentReasoning" :disabled="!enableAgent" @change="handleReasoningChange">
             <el-option
               v-for="level in reasoningLevels"
               :key="level"
@@ -566,8 +566,8 @@ import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY } from '@/utils/idGenerator'
 import ClickOutside from 'vue-click-outside'
 import _ from 'lodash'
-import { AImodelsOptions, AIAPIHostOptions, getModelLabel } from '@/utils/ai/models'
-import { AGENT_REASONING_LEVELS, reasoningLabelKey, type AgentReasoning } from '@/utils/ai/reasoning'
+import { AImodelsOptions, AIAPIHostOptions, getModelLabel, getReasoningEfforts } from '@/utils/ai/models'
+import { effectiveReasoning, reasoningLabelKey, reasoningLevelsFor, type AgentReasoning } from '@/utils/ai/reasoning'
 import type { PermissionMode } from '@/utils/ai/agent/approval'
 import {
   MAX_MAX_PAYLOAD_DISPLAY_SIZE,
@@ -647,6 +647,16 @@ export default class Settings extends Vue {
     return getModelLabel(this.aiConfig.model)
   }
 
+  /** The levels the selected model offers */
+  get reasoningLevels(): AgentReasoning[] {
+    return reasoningLevelsFor(getReasoningEfforts(this.aiConfig.model))
+  }
+
+  /** The stored level as it applies to the selected model */
+  get currentReasoning(): AgentReasoning {
+    return effectiveReasoning(this.agentReasoning, getReasoningEfforts(this.aiConfig.model))
+  }
+
   private langOptions: Options[] = [
     { label: '简体中文', value: 'zh' },
     { label: 'English', value: 'en' },
@@ -670,7 +680,6 @@ export default class Settings extends Vue {
     return providers
   }, {} as Record<string, string>)
   private AIAPIHostOptions = AIAPIHostOptions
-  private reasoningLevels = [...AGENT_REASONING_LEVELS]
   private showImportData = false
   private showExportData = false
   private showHistoryData = false
@@ -784,7 +793,7 @@ export default class Settings extends Vue {
   }
 
   private levelLabel(level: AgentReasoning): string {
-    return reasoningLabelKey(level)
+    return reasoningLabelKey(level, getReasoningEfforts(this.aiConfig.model))
   }
 
   private handleReasoningChange(value: AgentReasoning) {

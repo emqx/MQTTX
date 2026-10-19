@@ -21,7 +21,7 @@ MQTTX Agent is an assistant built into the MQTTX desktop client. You ask for som
 
 3. Open the Agent full screen with the star button in the left bar, or as a floating window with `Cmd/Ctrl + J` or the **MQTTX Agent** button at the top right of a connection or script page.
 
-**Reasoning strength** decides how much the model thinks before it answers. Pick it in **Settings → MQTTX Agent → Reasoning strength**, or in the composer's model menu under the model list: **Auto** leaves the choice to the provider, **Off** disables reasoning and **Low** to **Max** ask for progressively more. The current level is shown next to the model name and models that cannot control their reasoning hide the setting.
+**Reasoning strength** decides how much the model thinks before it answers. Pick it in **Settings → MQTTX Agent → Reasoning strength**, or in the composer's model menu under the model list: **Auto** leaves the choice to the provider, **Off** disables reasoning and **Low** to **Max** ask for progressively more. The current level is shown next to the model name and models that cannot control their reasoning hide the setting. Only the levels the selected model supports are listed; if it lacks the level you picked, the closest one it has is used.
 
 The Agent has two modes: **full screen**, which covers the main area and keeps the app running underneath, and a **floating window** that works on any page. Drag its title bar to move it, drag an edge or corner to resize it, and its position and size are remembered. Use the expand button in its title bar to switch to full screen. `Esc` closes the floating window, and in full screen it returns to the floating window. Choosing another page in the left bar leaves full screen.
 

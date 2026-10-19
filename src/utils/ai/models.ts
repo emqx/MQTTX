@@ -1,4 +1,4 @@
-import { AIModel, AImodelsOptionsModel } from '@/types/agent'
+import { AIModel, AImodelsOptionsModel, ReasoningEffort } from '@/types/agent'
 import { createOpenAI } from '@ai-sdk/openai'
 import { createDeepSeek } from '@ai-sdk/deepseek'
 import { createAnthropic } from '@ai-sdk/anthropic'
@@ -35,6 +35,25 @@ export const LANGUAGE_MAP = {
 export const loadSystemPrompt = (lang: Language): string =>
   `${basePrompt}\n\n${renderSkillList()}\n\n${LANGUAGE_MAP[lang]}`
 
+// Reasoning values a model honours, for `reasoningEfforts`. A model without the list takes every level,
+// because its provider package maps each one itself.
+/** GPT-5, GPT-5 mini and GPT-5 nano: they cannot turn reasoning off */
+const GPT_5_EFFORTS: ReasoningEffort[] = ['minimal', 'low', 'medium', 'high']
+/** GPT-5.1 added `none` */
+const GPT_5_1_EFFORTS: ReasoningEffort[] = ['none', 'low', 'medium', 'high']
+/** GPT-5.2 and later added `xhigh` */
+const GPT_5_2_EFFORTS: ReasoningEffort[] = ['none', 'low', 'medium', 'high', 'xhigh']
+/** The `reasoning_effort` values OpenAI-compatible servers accept for their reasoning models */
+const COMPATIBLE_EFFORTS: ReasoningEffort[] = ['low', 'medium', 'high']
+/** Models that can only turn thinking on or off */
+const ON_OFF_EFFORTS: ReasoningEffort[] = ['none', 'high']
+/** DeepSeek V4 maps Medium to High */
+const DEEPSEEK_EFFORTS: ReasoningEffort[] = ['none', 'low', 'high', 'max']
+/** Gemini 3 cannot turn thinking off; `none` only lowers it to the minimum level */
+const GEMINI_3_EFFORTS: ReasoningEffort[] = ['minimal', 'low', 'medium', 'high']
+/** Perplexity cannot turn reasoning off */
+const PERPLEXITY_EFFORTS: ReasoningEffort[] = ['low', 'medium', 'high', 'xhigh']
+
 /**
  * Configuration for available AI models across different providers.
  *
@@ -51,12 +70,12 @@ export const AImodelsOptions: AImodelsOptionsModel = [
     value: 'OpenAI' as const,
     children: [
       { value: 'gpt-6-luna', label: 'GPT-6 Luna' },
-      { value: 'gpt-5.4', label: 'GPT-5.4' },
-      { value: 'gpt-5.2', label: 'GPT-5.2' },
-      { value: 'gpt-5.1', label: 'GPT-5.1' },
-      { value: 'gpt-5', label: 'GPT-5' },
-      { value: 'gpt-5-mini', label: 'GPT-5 mini' },
-      { value: 'gpt-5-nano', label: 'GPT-5 nano' },
+      { value: 'gpt-5.4', label: 'GPT-5.4', reasoningEfforts: GPT_5_2_EFFORTS },
+      { value: 'gpt-5.2', label: 'GPT-5.2', reasoningEfforts: GPT_5_2_EFFORTS },
+      { value: 'gpt-5.1', label: 'GPT-5.1', reasoningEfforts: GPT_5_1_EFFORTS },
+      { value: 'gpt-5', label: 'GPT-5', reasoningEfforts: GPT_5_EFFORTS },
+      { value: 'gpt-5-mini', label: 'GPT-5 mini', reasoningEfforts: GPT_5_EFFORTS },
+      { value: 'gpt-5-nano', label: 'GPT-5 nano', reasoningEfforts: GPT_5_EFFORTS },
       { value: 'gpt-4o', label: 'GPT-4o', reasoning: false },
       { value: 'gpt-4o-mini', label: 'GPT-4o mini', reasoning: false },
       { value: 'gpt-4.1', label: 'GPT-4.1', reasoning: false },
@@ -67,8 +86,8 @@ export const AImodelsOptions: AImodelsOptionsModel = [
   {
     value: 'DeepSeek' as const,
     children: [
-      { value: 'deepseek-flash', label: 'DeepSeek V4.1 Flash' },
-      { value: 'deepseek-v4-pro', label: 'DeepSeek V4 Pro', vision: false },
+      { value: 'deepseek-flash', label: 'DeepSeek V4.1 Flash', reasoningEfforts: DEEPSEEK_EFFORTS },
+      { value: 'deepseek-v4-pro', label: 'DeepSeek V4 Pro', vision: false, reasoningEfforts: DEEPSEEK_EFFORTS },
     ],
     providerCreator: createDeepSeek,
   },
@@ -99,9 +118,10 @@ export const AImodelsOptions: AImodelsOptionsModel = [
   {
     value: 'Google' as const,
     children: [
-      { value: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash' },
-      { value: 'gemini-3.5-flash', label: 'Gemini 3.5 Flash' },
-      { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+      { value: 'gemini-3.8-flash', label: 'Gemini 3.8 Flash', reasoningEfforts: GEMINI_3_EFFORTS },
+      { value: 'gemini-3.5-flash', label: 'Gemini 3.5 Flash', reasoningEfforts: GEMINI_3_EFFORTS },
+      // Gemini 2.5 Pro only works in thinking mode, so it has no Off
+      { value: 'gemini-2.5-pro', label: 'Gemini 2.5 Pro', reasoningEfforts: ['low', 'medium', 'high', 'max'] },
       { value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
       { value: 'gemini-2.5-flash-lite', label: 'Gemini 2.5 Flash-Lite' },
     ],
@@ -111,12 +131,12 @@ export const AImodelsOptions: AImodelsOptionsModel = [
     value: 'Azure OpenAI' as const,
     children: [
       { value: 'deployment-gpt-6-luna', label: 'GPT-6 Luna' },
-      { value: 'deployment-gpt-5.4', label: 'GPT-5.4' },
-      { value: 'deployment-gpt-5.2', label: 'GPT-5.2' },
-      { value: 'deployment-gpt-5.1', label: 'GPT-5.1' },
-      { value: 'deployment-gpt-5', label: 'GPT-5' },
-      { value: 'deployment-gpt-5-mini', label: 'GPT-5 mini' },
-      { value: 'deployment-gpt-5-nano', label: 'GPT-5 nano' },
+      { value: 'deployment-gpt-5.4', label: 'GPT-5.4', reasoningEfforts: GPT_5_2_EFFORTS },
+      { value: 'deployment-gpt-5.2', label: 'GPT-5.2', reasoningEfforts: GPT_5_2_EFFORTS },
+      { value: 'deployment-gpt-5.1', label: 'GPT-5.1', reasoningEfforts: GPT_5_1_EFFORTS },
+      { value: 'deployment-gpt-5', label: 'GPT-5', reasoningEfforts: GPT_5_EFFORTS },
+      { value: 'deployment-gpt-5-mini', label: 'GPT-5 mini', reasoningEfforts: GPT_5_EFFORTS },
+      { value: 'deployment-gpt-5-nano', label: 'GPT-5 nano', reasoningEfforts: GPT_5_EFFORTS },
       { value: 'deployment-gpt-4o', label: 'GPT-4o', reasoning: false },
       { value: 'deployment-gpt-4o-mini', label: 'GPT-4o mini', reasoning: false },
       { value: 'deployment-gpt-4.1', label: 'GPT-4.1', reasoning: false },
@@ -150,8 +170,8 @@ export const AImodelsOptions: AImodelsOptionsModel = [
     value: 'Mistral',
     children: [
       { value: 'mistral-large-latest', label: 'Mistral Large', vision: false, reasoning: false },
-      { value: 'mistral-medium-latest', label: 'Mistral Medium', vision: false },
-      { value: 'magistral-medium-latest', label: 'Magistral Medium', vision: false },
+      { value: 'mistral-medium-latest', label: 'Mistral Medium', vision: false, reasoningEfforts: ON_OFF_EFFORTS },
+      { value: 'magistral-medium-latest', label: 'Magistral Medium', vision: false, reasoningEfforts: ON_OFF_EFFORTS },
       { value: 'codestral-latest', label: 'Codestral', vision: false, reasoning: false },
       { value: 'ministral-8b-latest', label: 'Ministral 8B', vision: false, reasoning: false },
     ],
@@ -162,8 +182,8 @@ export const AImodelsOptions: AImodelsOptionsModel = [
     children: [
       { value: 'llama-3.3-70b-versatile', label: 'Llama 3.3 70B Versatile', vision: false, reasoning: false },
       { value: 'llama-3.1-8b-instant', label: 'Llama 3.1 8B Instant', vision: false, reasoning: false },
-      { value: 'openai/gpt-oss-120b', label: 'GPT-OSS 120B', vision: false },
-      { value: 'openai/gpt-oss-20b', label: 'GPT-OSS 20B', vision: false },
+      { value: 'openai/gpt-oss-120b', label: 'GPT-OSS 120B', vision: false, reasoningEfforts: COMPATIBLE_EFFORTS },
+      { value: 'openai/gpt-oss-20b', label: 'GPT-OSS 20B', vision: false, reasoningEfforts: COMPATIBLE_EFFORTS },
       {
         value: 'moonshotai/kimi-k2-instruct-0905',
         label: 'Kimi K2 Instruct',
@@ -198,7 +218,12 @@ export const AImodelsOptions: AImodelsOptionsModel = [
         vision: false,
         reasoning: false,
       },
-      { value: 'deepseek-ai/DeepSeek-V4-Flash-0731', label: 'DeepSeek V4 Flash', vision: false },
+      {
+        value: 'deepseek-ai/DeepSeek-V4-Flash-0731',
+        label: 'DeepSeek V4 Flash',
+        vision: false,
+        reasoningEfforts: COMPATIBLE_EFFORTS,
+      },
       {
         value: 'Qwen/Qwen2.5-72B-Instruct-Turbo',
         label: 'Qwen2.5 72B Instruct Turbo',
@@ -237,7 +262,12 @@ export const AImodelsOptions: AImodelsOptionsModel = [
         label: 'Llama 3.2 11B Vision',
         reasoning: false,
       },
-      { value: 'accounts/fireworks/models/minimax-m2', label: 'MiniMax M2', vision: false },
+      {
+        value: 'accounts/fireworks/models/minimax-m2',
+        label: 'MiniMax M2',
+        vision: false,
+        reasoningEfforts: COMPATIBLE_EFFORTS,
+      },
     ],
     providerCreator: createFireworks,
   },
@@ -265,17 +295,18 @@ export const AImodelsOptions: AImodelsOptionsModel = [
   {
     value: 'Cerebras',
     children: [
-      { value: 'gpt-oss-120b', label: 'GPT-OSS 120B', vision: false },
-      { value: 'qwen-3.8-27b', label: 'Qwen 3.8 27B' },
+      { value: 'gpt-oss-120b', label: 'GPT-OSS 120B', vision: false, reasoningEfforts: COMPATIBLE_EFFORTS },
+      { value: 'qwen-3.8-27b', label: 'Qwen 3.8 27B', reasoningEfforts: COMPATIBLE_EFFORTS },
     ],
     providerCreator: createCerebras,
   },
   {
     value: 'Moonshot AI',
     children: [
-      { value: 'kimi-k3', label: 'Kimi K3', vision: false },
-      { value: 'kimi-k2.6', label: 'Kimi K2.6', vision: false },
-      { value: 'kimi-k2.7-code', label: 'Kimi K2.7 Code', vision: false },
+      { value: 'kimi-k3', label: 'Kimi K3', vision: false, reasoningEfforts: ['low', 'high', 'max'] },
+      { value: 'kimi-k2.6', label: 'Kimi K2.6', vision: false, reasoningEfforts: ON_OFF_EFFORTS },
+      // Always thinks and takes no effort
+      { value: 'kimi-k2.7-code', label: 'Kimi K2.7 Code', vision: false, reasoning: false },
       { value: 'moonshot-v1-128k', label: 'Moonshot v1 128K', vision: false, reasoning: false },
       { value: 'moonshot-v1-8k-vision-preview', label: 'Moonshot v1 8K Vision', reasoning: false },
     ],
@@ -296,22 +327,23 @@ export const AImodelsOptions: AImodelsOptionsModel = [
     value: 'Z.AI',
     children: [
       { value: 'glm-5.3', label: 'GLM-5.3', vision: false },
-      { value: 'glm-5', label: 'GLM-5', vision: false },
-      { value: 'glm-4.7', label: 'GLM-4.7', vision: false },
-      { value: 'glm-4.6', label: 'GLM-4.6', vision: false },
-      { value: 'glm-4.6v', label: 'GLM-4.6V' },
+      // Before GLM-5.2, Z.AI only turns thinking on or off
+      { value: 'glm-5', label: 'GLM-5', vision: false, reasoningEfforts: ON_OFF_EFFORTS },
+      { value: 'glm-4.7', label: 'GLM-4.7', vision: false, reasoningEfforts: ON_OFF_EFFORTS },
+      { value: 'glm-4.6', label: 'GLM-4.6', vision: false, reasoningEfforts: ON_OFF_EFFORTS },
+      { value: 'glm-4.6v', label: 'GLM-4.6V', reasoningEfforts: ON_OFF_EFFORTS },
     ],
     providerCreator: createZai,
   },
   {
     value: 'Perplexity',
     children: [
-      { value: 'perplexity/sonar', label: 'Perplexity Sonar', vision: false },
-      { value: 'fast', label: 'Perplexity Agent (fast)', vision: false },
-      { value: 'low', label: 'Perplexity Agent (low)', vision: false },
-      { value: 'medium', label: 'Perplexity Agent (medium)', vision: false },
-      { value: 'high', label: 'Perplexity Agent (high)', vision: false },
-      { value: 'xhigh', label: 'Perplexity Agent (xhigh)', vision: false },
+      { value: 'perplexity/sonar', label: 'Perplexity Sonar', vision: false, reasoningEfforts: PERPLEXITY_EFFORTS },
+      { value: 'fast', label: 'Perplexity Agent (fast)', vision: false, reasoningEfforts: PERPLEXITY_EFFORTS },
+      { value: 'low', label: 'Perplexity Agent (low)', vision: false, reasoningEfforts: PERPLEXITY_EFFORTS },
+      { value: 'medium', label: 'Perplexity Agent (medium)', vision: false, reasoningEfforts: PERPLEXITY_EFFORTS },
+      { value: 'high', label: 'Perplexity Agent (high)', vision: false, reasoningEfforts: PERPLEXITY_EFFORTS },
+      { value: 'xhigh', label: 'Perplexity Agent (xhigh)', vision: false, reasoningEfforts: PERPLEXITY_EFFORTS },
     ],
     providerCreator: createPerplexity,
   },
@@ -323,7 +355,7 @@ export const AImodelsOptions: AImodelsOptionsModel = [
       { value: 'google/gemini-3.5-flash', label: 'Gemini 3.5 Flash' },
       { value: 'spacexai/grok-4.3', label: 'Grok 4.3' },
       { value: 'deepseek/deepseek-v4.1-flash', label: 'DeepSeek V4.1 Flash' },
-      { value: 'meta/llama-4-maverick', label: 'Llama 4 Maverick' },
+      { value: 'meta/llama-4-maverick', label: 'Llama 4 Maverick', reasoning: false },
     ],
     providerCreator: createGateway,
   },
@@ -363,6 +395,18 @@ export const supportsReasoning = (model: string): boolean => {
     if (option) return option.reasoning !== false
   }
   return true
+}
+
+/**
+ * The reasoning values a model honours (`reasoningEfforts`); undefined when it takes every level or is
+ * not one of the listed models.
+ */
+export const getReasoningEfforts = (model: string): readonly ReasoningEffort[] | undefined => {
+  for (const provider of AImodelsOptions) {
+    const option = provider.children.find((child) => child.value === model)
+    if (option) return option.reasoningEfforts
+  }
+  return undefined
 }
 
 /**

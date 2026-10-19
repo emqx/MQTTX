@@ -856,6 +856,14 @@ export default {
       hu: 'Ki',
       ko: '끔',
     },
+    on: {
+      zh: '开启',
+      en: 'On',
+      tr: 'Açık',
+      ja: 'オン',
+      hu: 'Be',
+      ko: '켬',
+    },
     low: {
       zh: '低',
       en: 'Low',

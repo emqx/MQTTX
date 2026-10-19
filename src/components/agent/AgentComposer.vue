@@ -40,9 +40,9 @@
             v-for="level in reasoningLevels"
             :key="level"
             class="level"
-            :class="{ sel: agentReasoning === level }"
+            :class="{ sel: currentReasoning === level }"
             :data-level="level"
-            :aria-pressed="agentReasoning === level"
+            :aria-pressed="currentReasoning === level"
             @click="chooseReasoning(level)"
           >
             {{ $t(levelLabel(level)) }}
@@ -147,7 +147,7 @@
         <button class="model" :title="$t('agent.changeModel')" @click.stop="toggleModelMenu">
           <ai-provider-icon :provider="modelProvider ? modelProvider.value : ''" :model="model" />
           <span class="model-label">{{ modelLabel }}</span>
-          <span v-if="showModelLevel" class="model-level">· {{ $t(levelLabel(agentReasoning)) }}</span>
+          <span v-if="showModelLevel" class="model-level">· {{ $t(levelLabel(currentReasoning)) }}</span>
           <i class="caret el-icon-arrow-down"></i>
         </button>
         <button
@@ -179,11 +179,12 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch, Emit } from 'vue-property-decorator'
 import type { PermissionMode } from '@/utils/ai/agent/approval'
-import { AImodelsOptions, getModelLabel, supportsImages, supportsReasoning } from '@/utils/ai/models'
+import { AImodelsOptions, getModelLabel, getReasoningEfforts, supportsImages, supportsReasoning } from '@/utils/ai/models'
 import {
-  AGENT_REASONING_LEVELS,
   DEFAULT_AGENT_REASONING,
+  effectiveReasoning,
   reasoningLabelKey,
+  reasoningLevelsFor,
   type AgentReasoning,
 } from '@/utils/ai/reasoning'
 import { formatBytes } from '@/utils/formatter'
@@ -270,8 +271,14 @@ export default class AgentComposer extends Vue {
     return getModelLabel(this.model)
   }
 
+  /** The levels the current model offers */
   get reasoningLevels(): AgentReasoning[] {
-    return [...AGENT_REASONING_LEVELS]
+    return reasoningLevelsFor(getReasoningEfforts(this.model))
+  }
+
+  /** The stored level as it applies to the current model, which may only offer some levels */
+  get currentReasoning(): AgentReasoning {
+    return effectiveReasoning(this.agentReasoning, getReasoningEfforts(this.model))
   }
 
   /** The strength section is only offered for models that can be asked for one */
@@ -281,11 +288,11 @@ export default class AgentComposer extends Vue {
 
   /** The level is shown next to the model name, except for "let the provider decide" */
   get showModelLevel(): boolean {
-    return supportsReasoning(this.model) && this.agentReasoning !== DEFAULT_AGENT_REASONING
+    return supportsReasoning(this.model) && this.currentReasoning !== DEFAULT_AGENT_REASONING
   }
 
   private levelLabel(level: AgentReasoning): string {
-    return reasoningLabelKey(level)
+    return reasoningLabelKey(level, getReasoningEfforts(this.model))
   }
 
   private chooseReasoning(level: AgentReasoning) {
