@@ -1,4 +1,4 @@
-import { ToolLoopAgent, stepCountIs, ToolSet } from 'ai'
+import { ToolLoopAgent, generateText, stepCountIs, ToolSet } from 'ai'
 import CryptoJS from 'crypto-js'
 import { ENCRYPT_KEY, getAgentMessageId } from '@/utils/idGenerator'
 import {
@@ -12,6 +12,8 @@ import {
 } from '@/utils/ai/models'
 import { buildReasoningCallOptions } from '@/utils/ai/reasoning'
 import type { AgentReasoning } from '@/utils/ai/reasoning'
+import { COMPACT_THRESHOLD, estimateTokens, getContextWindow, trimToolResults } from '@/utils/ai/agent/contextBudget'
+import compactPrompt from '@/utils/ai/prompts/compact.txt'
 import { loadMCPTools } from '@/utils/ai/mcp/MCPUtils'
 import {
   applyStreamPart,
@@ -20,6 +22,7 @@ import {
   setToolState,
   stopParts,
   approveToolPart,
+  toHistoryMessages,
   toModelMessages,
 } from '@/utils/ai/agent/messageParts'
 import { AgentMessage, AIModel } from '@/types/agent'
@@ -78,6 +81,8 @@ export class MQTTXAgent {
   // Callback handlers
   public onStreamStart: (() => void) | null = null
   public onUpdate: ((responseMessage: AgentMessage) => void) | null = null
+  /** Tokens of the last finished step (input + output), for the context meter */
+  public onUsage: ((tokens: number) => void) | null = null
   public onError: ((error: unknown, partialMessage: AgentMessage) => void) | null = null
   public onComplete: ((responseMessage: AgentMessage) => void) | null = null
   public onAbort: ((responseMessage: AgentMessage) => void) | null = null
@@ -99,6 +104,7 @@ export class MQTTXAgent {
     reasoning: AgentReasoning
     onStreamStart?: () => void
     onUpdate?: (responseMessage: AgentMessage) => void
+    onUsage?: (tokens: number) => void
     onError?: (error: unknown, partialMessage: AgentMessage) => void
     onComplete?: (responseMessage: AgentMessage) => void
     onAbort?: (responseMessage: AgentMessage) => void
@@ -114,6 +120,7 @@ export class MQTTXAgent {
     this.reasoning = options.reasoning
     this.onStreamStart = options.onStreamStart || null
     this.onUpdate = options.onUpdate || null
+    this.onUsage = options.onUsage || null
     this.onError = options.onError || null
     this.onComplete = options.onComplete || null
     this.onAbort = options.onAbort || null
@@ -140,11 +147,39 @@ export class MQTTXAgent {
   /**
    * Build the model messages for the agent from the conversation
    *
-   * @param messages Array of message objects
+   * @param messages Array of message objects, oldest first
    */
   private buildMessageHistory(messages: AgentMessage[]) {
-    // Mentions of a connection are the message's own `connection` parts; the text is sent as typed
-    return toModelMessages(messages.slice(-20))
+    // Mentions of a connection are the message's own `connection` parts; the text is sent as typed.
+    // A compaction marker becomes the summary in front of the messages it does not cover.
+    return toHistoryMessages(messages)
+  }
+
+  /**
+   * Writes the summary a compaction stores, with the same model and provider as the replies and no tools
+   *
+   * @param messages The older turns to summarize
+   * @param previousSummary The summary of an earlier compaction, folded into the new one
+   */
+  public async summarize(messages: AgentMessage[], previousSummary?: string): Promise<string> {
+    const { actualModel, isAzure } = this.processModel(this.model)
+    const providerType = this.determineProviderType(actualModel, this.openAIAPIHost, isAzure)
+
+    const { text } = await generateText({
+      model: getModelProvider({
+        model: actualModel,
+        baseURL: this.openAIAPIHost,
+        apiKey: this.decryptAPIKey(),
+        providerType,
+      }),
+      system: previousSummary
+        ? `${compactPrompt}\n\n[Summary of the conversation so far, fold it into the new summary]\n${previousSummary}`
+        : compactPrompt,
+      messages: toModelMessages(messages),
+      // Older conversations may still hold a system message
+      allowSystemInMessages: true,
+    })
+    return text.trim()
   }
 
   /**
@@ -236,6 +271,8 @@ export class MQTTXAgent {
       efforts: getReasoningEfforts(actualModel),
     })
 
+    const window = getContextWindow(actualModel)
+
     return new ToolLoopAgent({
       model: getModelProvider({
         model: actualModel,
@@ -248,6 +285,9 @@ export class MQTTXAgent {
       // Older conversations may still hold a system message; keep accepting them
       allowSystemInMessages: true,
       stopWhen: stepCountIs(this.maxSteps),
+      // One reply can call tools many times: once it is over the budget, earlier results give way
+      prepareStep: ({ messages }) =>
+        estimateTokens(messages) > window * COMPACT_THRESHOLD ? { messages: trimToolResults(messages) } : undefined,
       ...reasoningOptions,
       temperature: 0.5,
     })
@@ -292,6 +332,12 @@ export class MQTTXAgent {
         }
         if (part.type === 'finish-step') {
           lastFinishReason = part.finishReason
+          const inputTokens = part.usage?.inputTokens
+          const outputTokens = part.usage?.outputTokens
+          // Providers that report nothing leave the meter to its estimate
+          if (typeof inputTokens === 'number' && typeof outputTokens === 'number' && this.onUsage) {
+            this.onUsage(inputTokens + outputTokens)
+          }
         }
         const parts = applyStreamPart(responseMessage.parts || [], part)
         if (parts === responseMessage.parts) {

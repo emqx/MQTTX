@@ -97,7 +97,32 @@
             </div>
           </div>
         </div>
+        <div v-else-if="compactionOf(message)" :key="message.id" class="compaction" data-test="compaction">
+          <button
+            class="compaction-head"
+            :aria-expanded="expandedCompaction === message.id"
+            @click="toggleCompaction(message.id)"
+          >
+            <span class="rule"></span>
+            <span class="label">
+              {{ $t('agent.compacted') }}
+              <i :class="expandedCompaction === message.id ? 'el-icon-arrow-up' : 'el-icon-arrow-down'"></i>
+            </span>
+            <span class="rule"></span>
+          </button>
+          <p v-if="expandedCompaction === message.id" class="compaction-summary">{{ compactionOf(message).summary }}</p>
+        </div>
       </template>
+
+      <div v-if="compacting" class="turn-agent" data-test="compacting">
+        <div class="avatar"><agent-icon :size="16" colored /></div>
+        <div class="agent-content">
+          <div class="thinking">
+            <i class="el-icon-loading"></i>
+            <span>{{ $t('agent.compacting') }}</span>
+          </div>
+        </div>
+      </div>
 
       <div v-if="streamingMessage" class="turn-agent">
         <div class="avatar"><agent-icon :size="16" colored /></div>
@@ -146,11 +171,18 @@ import 'prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min'
 import { ipcRenderer } from 'electron'
 import fs from 'fs'
 import { shell } from '@electron/remote'
-import { AgentAttachmentPart, AgentConnectionPart, AgentMessage, AgentSkillPart } from '@/types/agent'
+import {
+  AgentAttachmentPart,
+  AgentCompactionPart,
+  AgentConnectionPart,
+  AgentMessage,
+  AgentSkillPart,
+} from '@/types/agent'
 import { formatBytes } from '@/utils/formatter'
 import { resolveArchiveSync } from '@/utils/ai/agent/files'
 import { AgentSkillName, SKILL_ICONS, renderSkillChip } from '@/utils/ai/agent/skills'
 import { isConnectionConnected } from '@/utils/ai/agent/mentions'
+import { compactionPartOf } from '@/utils/ai/agent/messageParts'
 import AgentWelcome from './AgentWelcome.vue'
 import AgentThinking from './AgentThinking.vue'
 import AgentIcon from './AgentIcon.vue'
@@ -168,9 +200,21 @@ export default class AgentMessages extends Vue {
   @Prop({ default: false }) readonly isSending!: boolean
   @Prop({ default: () => ({}) }) readonly connectionNames!: Record<string, string>
   @Prop({ default: null }) readonly errorMessage!: string | null
+  /** A summary of the older turns is being written before the reply starts */
+  @Prop({ default: false }) readonly compacting!: boolean
 
   private showJump = false
   private imageUrls: Record<string, string> = {}
+  /** Id of the compaction summary the user expanded */
+  private expandedCompaction: string | null = null
+
+  private compactionOf(message: AgentMessage): AgentCompactionPart | undefined {
+    return compactionPartOf(message)
+  }
+
+  private toggleCompaction(id: string): void {
+    this.expandedCompaction = this.expandedCompaction === id ? null : id
+  }
 
   get scrollEl(): HTMLElement {
     return this.$refs.scroll as HTMLElement

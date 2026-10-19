@@ -1,0 +1,13 @@
+[Compaction] The conversation above is being compacted so it fits the model context window.
+Write a summary that keeps everything needed to continue the work:
+
+- What the user is trying to do: their goals and every requirement they stated
+- Connection names and ids, broker hosts, topics, dashboards and widgets, and any other identifier mentioned
+- Decisions that were made and why
+- Key facts and ids that came out of tool results (connection ids, message ids, file paths, schema names, group ids)
+- What is still unfinished and the next step that was planned
+
+Never include passwords, API keys, certificates, private keys or any other secret content.
+Write the summary in the same language as the conversation.
+Keep it under about 800 words, in plain prose with short paragraphs.
+Answer with the summary only: no preamble, no headings, no commentary.

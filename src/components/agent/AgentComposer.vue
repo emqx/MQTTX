@@ -212,6 +212,32 @@
           <i class="on-dot" :class="{ off: !connected }"></i>
           <span class="ctx-name" :title="connectionName"><span class="ctx-at">@</span>{{ connectionName }}</span>
         </button>
+        <el-tooltip
+          v-if="contextTokens > 0"
+          placement="top"
+          :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+          :open-delay="200"
+          popper-class="agent-context-tip"
+        >
+          <div slot="content">
+            <div>{{ contextUsageText }}</div>
+            <div class="context-tip-hint">{{ contextAutoCompactText }}</div>
+          </div>
+          <span class="context-meter" data-test="context-meter">
+            <svg class="context-ring" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+              <circle class="ring-track" cx="7" cy="7" r="5.5"></circle>
+              <circle
+                class="ring-value"
+                :class="{ 'ring-warn': contextPercent >= compactPercent }"
+                cx="7"
+                cy="7"
+                r="5.5"
+                :stroke-dasharray="`${ringDash} ${ringLength}`"
+              ></circle>
+            </svg>
+            <span class="context-percent">{{ contextPercent }}%</span>
+          </span>
+        </el-tooltip>
         <button class="model" :title="$t('agent.changeModel')" @click.stop="toggleModelMenu">
           <ai-provider-icon :provider="modelProvider ? modelProvider.value : ''" :model="model" />
           <span class="model-label">{{ modelLabel }}</span>
@@ -248,6 +274,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch, Emit } from 'vue-property-decorator'
+import { Getter } from 'vuex-class'
 import type { PermissionMode } from '@/utils/ai/agent/approval'
 import { findModelEntry, getModelLabel, getReasoningEfforts, supportsImages, supportsReasoning } from '@/utils/ai/models'
 import {
@@ -258,6 +285,7 @@ import {
   type AgentReasoning,
 } from '@/utils/ai/reasoning'
 import { formatBytes } from '@/utils/formatter'
+import { COMPACT_THRESHOLD, contextPercent as contextPercentOf, formatTokens } from '@/utils/ai/agent/contextBudget'
 import {
   ATTACHMENT_HEAD_BYTES,
   AttachmentLimitError,
@@ -329,6 +357,15 @@ export default class AgentComposer extends Vue {
   @Prop({ default: () => [] }) readonly connections!: ConnectionMention[]
   /** Id of the connection the user is looking at; its mention is listed first */
   @Prop({ default: '' }) readonly currentConnectionId!: string
+  /** Tokens in the context of the conversation on screen; 0 hides the meter */
+  @Prop({ default: 0 }) readonly contextTokens!: number
+  /** Context window of the model in use, in tokens */
+  @Prop({ default: 0 }) readonly contextWindow!: number
+  /** The token count is an estimate, not what a provider reported */
+  @Prop({ default: true }) readonly contextEstimated!: boolean
+
+  /** The theme decides which tooltip reads better on it */
+  @Getter('currentTheme') private currentTheme!: string
 
   private message = ''
   private composing = false
@@ -352,6 +389,40 @@ export default class AgentComposer extends Vue {
 
   get modelLabel(): string {
     return getModelLabel(this.model)
+  }
+
+  /** Share of the context window in use: drives both the ring and the number */
+  get contextPercent(): number {
+    return contextPercentOf(this.contextTokens, this.contextWindow)
+  }
+
+  /** The share the meter turns yellow at */
+  get compactPercent(): number {
+    return Math.round(COMPACT_THRESHOLD * 100)
+  }
+
+  /** The ring is 11px across, so this is the length of one full stroke */
+  get ringLength(): number {
+    return 2 * Math.PI * 5.5
+  }
+
+  get ringDash(): number {
+    return (this.contextPercent / 100) * this.ringLength
+  }
+
+  /** Tooltip line one: used / window tokens, marked as an estimate when it is one */
+  get contextUsageText(): string {
+    const approx = this.contextEstimated ? (this.$t('agent.contextApprox') as string) : ''
+    return this.$t('agent.contextUsage', {
+      used: `${approx}${formatTokens(this.contextTokens)}`,
+      total: formatTokens(this.contextWindow),
+      percent: this.contextPercent,
+    }) as string
+  }
+
+  /** Tooltip line two: when the Agent compacts the older turns on its own */
+  get contextAutoCompactText(): string {
+    return this.$t('agent.contextAutoCompact', { percent: this.compactPercent }) as string
   }
 
   /** The levels the current model offers */
