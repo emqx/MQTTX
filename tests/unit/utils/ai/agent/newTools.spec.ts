@@ -3,7 +3,7 @@ import { ipcRenderer } from 'electron'
 import { createConnectionTools } from '@/utils/ai/agent/tools/connections'
 import { createScriptTools } from '@/utils/ai/agent/tools/scripts'
 import { createTopicTreeTools } from '@/utils/ai/agent/tools/topicTree'
-import { createDashboardTools } from '@/utils/ai/agent/tools/dashboards'
+import { createDashboardTools, nextWidgetPosition, assertWidgetLayout } from '@/utils/ai/agent/tools/dashboards'
 import { createGroupTools } from '@/utils/ai/agent/tools/groups'
 import { createSettingsTools } from '@/utils/ai/agent/tools/settings'
 import { redactLogLine } from '@/utils/ai/agent/tools/logs'
@@ -284,6 +284,202 @@ describe('agent tools — dashboards', () => {
     expect(payload.widgetOptions).to.include({ decimals: 1, color: '#00B572' })
   })
 
+  it('should create a widget at the layout it was given and return it', async () => {
+    const spies = makeSpies()
+    const tools = createDashboardTools(makeDeps(spies))
+    const result: any = await tools.save_widget.execute!(
+      { dashboardId: 'd1', type: 'Line', connectionId: 'c1', topicPattern: 'a', x: 6, y: 3, w: 6, h: 8 } as any,
+      {} as any,
+    )
+
+    expect(spies.created[0]).to.include({ x: 6, y: 3, w: 6, h: 8 })
+    expect(result).to.include({ x: 6, y: 3, w: 6, h: 8 })
+  })
+
+  it('should place a new widget on the last row and below it when the row is full', async () => {
+    const existing = [
+      { id: 'w1', x: 0, y: 0, w: 4, h: 6 },
+      { id: 'w2', x: 4, y: 0, w: 4, h: 6 },
+    ]
+    // Room left on the last row: continues at x=8
+    const spies = makeSpies()
+    const deps = makeDeps(spies)
+    deps.services.widgetService.getAll = async () => existing
+    const tools = createDashboardTools(deps)
+    await tools.save_widget.execute!(
+      { dashboardId: 'd1', type: 'Gauge', connectionId: 'c1', topicPattern: 'a' } as any,
+      {} as any,
+    )
+    expect(spies.created[0]).to.include({ x: 8, y: 0, w: 4, h: 6 })
+
+    // Row full: a fresh row below every widget
+    const full = makeSpies()
+    const fullDeps = makeDeps(full)
+    fullDeps.services.widgetService.getAll = async () => [...existing, { id: 'w3', x: 8, y: 0, w: 4, h: 6 }]
+    const fullTools = createDashboardTools(fullDeps)
+    await fullTools.save_widget.execute!(
+      { dashboardId: 'd1', type: 'Gauge', connectionId: 'c1', topicPattern: 'a' } as any,
+      {} as any,
+    )
+    expect(full.created[0]).to.include({ x: 0, y: 6, w: 4, h: 6 })
+  })
+
+  it('should honour a given x or y and place the other one', async () => {
+    const spies = makeSpies()
+    const deps = makeDeps(spies)
+    deps.services.widgetService.getAll = async () => [{ id: 'w1', x: 0, y: 0, w: 4, h: 6 }]
+    const tools = createDashboardTools(deps)
+    await tools.save_widget.execute!(
+      { dashboardId: 'd1', type: 'Gauge', connectionId: 'c1', topicPattern: 'a', x: 8 } as any,
+      {} as any,
+    )
+
+    expect(spies.created[0]).to.include({ x: 8, y: 0, w: 4, h: 6 })
+  })
+
+  it('should change only the layout fields that were passed when updating', async () => {
+    const spies = makeSpies()
+    const deps = makeDeps(spies)
+    const existing = {
+      id: 'w1',
+      x: 2,
+      y: 5,
+      w: 4,
+      h: 6,
+      type: 'Gauge',
+      title: 'Temp',
+      connectionId: 'c1',
+      topicPattern: 'a',
+    }
+    deps.services.widgetService.get = async () => existing
+    const tools = createDashboardTools(deps)
+    const result: any = await tools.save_widget.execute!(
+      { id: 'w1', dashboardId: 'd1', type: 'Gauge', connectionId: 'c1', topicPattern: 'a', w: 6 } as any,
+      {} as any,
+    )
+
+    // Only w changed: x, y and h keep the values the widget already had
+    expect(spies.updated[0].data).to.include({ x: 2, y: 5, w: 6, h: 6, title: 'Temp', type: 'Gauge' })
+    expect(result).to.include({ id: 'w1', x: 2, y: 5, w: 6, h: 6 })
+  })
+
+  it('should keep the rest of the widget when only its layout is passed', async () => {
+    const spies = makeSpies()
+    const deps = makeDeps(spies)
+    const existing = {
+      id: 'w1',
+      x: 0,
+      y: 0,
+      w: 4,
+      h: 6,
+      type: 'Big Number',
+      title: 'Temp',
+      connectionId: 'c1',
+      topicPattern: 'sensors/#',
+      valueField: 'readings.temperature',
+      fallbackValue: 0,
+      widgetOptions: { unit: '°C', decimals: 2, thresholds: [{ value: 30, color: '#f00' }] },
+    }
+    deps.services.widgetService.get = async () => existing
+    const tools = createDashboardTools(deps)
+    await tools.save_widget.execute!({ id: 'w1', dashboardId: 'd1', x: 4, w: 3, h: 4 } as any, {} as any)
+
+    expect(spies.updated[0].data).to.deep.include({
+      x: 4,
+      y: 0,
+      w: 3,
+      h: 4,
+      type: 'Big Number',
+      connectionId: 'c1',
+      topicPattern: 'sensors/#',
+      valueField: 'readings.temperature',
+      widgetOptions: existing.widgetOptions,
+    })
+  })
+
+  it('should require the type, connection and topic to create a widget', async () => {
+    const tools = createDashboardTools(makeDeps(makeSpies()))
+    let error: Error | undefined
+    try {
+      await tools.save_widget.execute!({ dashboardId: 'd1', type: 'Line' } as any, {} as any)
+    } catch (caught) {
+      error = caught as Error
+    }
+    expect(error?.message).to.contain('required to create a widget')
+  })
+
+  it('should reject a layout outside the grid', async () => {
+    const cases: Array<{ input: Record<string, number>; message: string }> = [
+      { input: { x: 8, w: 6 }, message: 'x + w must be at most 12' },
+      { input: { w: 0 }, message: 'w must be 1 to 12' },
+      { input: { w: 13 }, message: 'w must be 1 to 12' },
+      { input: { h: 1 }, message: 'h must be at least 2' },
+      { input: { x: 12 }, message: 'x must be a column between 0 and 11' },
+      { input: { x: -1 }, message: 'x must be a column between 0 and 11' },
+      { input: { y: -1 }, message: 'y must be 0 or more rows' },
+      { input: { w: 4.5 }, message: 'whole grid cells' },
+      { input: { h: 6.2 }, message: 'whole grid cells' },
+    ]
+
+    for (const { input, message } of cases) {
+      const spies = makeSpies()
+      const tools = createDashboardTools(makeDeps(spies))
+      let error: Error | undefined
+      try {
+        await tools.save_widget.execute!(
+          { dashboardId: 'd1', type: 'Gauge', connectionId: 'c1', topicPattern: 'a', ...input } as any,
+          {} as any,
+        )
+      } catch (caught) {
+        error = caught as Error
+      }
+      expect(error?.message, JSON.stringify(input)).to.contain(message)
+      expect(spies.created, JSON.stringify(input)).to.have.length(0)
+    }
+  })
+
+  it('should reject an update that overflows the grid', async () => {
+    const spies = makeSpies()
+    const deps = makeDeps(spies)
+    deps.services.widgetService.get = async () => ({ id: 'w1', x: 6, y: 0, w: 4, h: 6 })
+    const tools = createDashboardTools(deps)
+    let error: Error | undefined
+    try {
+      await tools.save_widget.execute!({ id: 'w1', dashboardId: 'd1', w: 8 } as any, {} as any)
+    } catch (caught) {
+      error = caught as Error
+    }
+
+    expect(error?.message).to.contain('x + w must be at most 12')
+    expect(spies.updated).to.have.length(0)
+  })
+
+  it('should list the layout of every widget', async () => {
+    const deps = makeDeps(makeSpies())
+    deps.services.dashboardService.cascadeGetAll = async () => [
+      {
+        id: 'd1',
+        name: 'Dash',
+        widgets: [{ id: 'w1', type: 'Gauge', title: 'Temp', x: 3, y: 4, w: 6, h: 8 }],
+      },
+    ]
+    const tools = createDashboardTools(deps)
+    const result: any = await tools.list_dashboards.execute!({} as any, {} as any)
+
+    expect(result.dashboards[0].widgets[0]).to.deep.equal({
+      id: 'w1',
+      type: 'Gauge',
+      title: 'Temp',
+      connectionId: '',
+      topicPattern: '',
+      valueField: '',
+      x: 3,
+      y: 4,
+      w: 6,
+      h: 8,
+    })
+  })
+
   it('should reject a widget for an unknown dashboard', async () => {
     const tools = createDashboardTools(makeDeps(makeSpies()))
     let error: Error | undefined
@@ -296,6 +492,49 @@ describe('agent tools — dashboards', () => {
       error = caught as Error
     }
     expect(error?.message).to.contain('not found')
+  })
+})
+
+describe('nextWidgetPosition', () => {
+  it('should start at the top left of an empty dashboard', () => {
+    expect(nextWidgetPosition([], 4, 6)).to.deep.equal({ x: 0, y: 0 })
+  })
+
+  it('should continue the last row when there is room left', () => {
+    const widgets = [
+      { x: 0, y: 0, w: 4, h: 6 },
+      { x: 4, y: 0, w: 3, h: 6 },
+    ]
+    expect(nextWidgetPosition(widgets, 4, 6)).to.deep.equal({ x: 7, y: 0 })
+  })
+
+  it('should start a new row below everything when the last row is full', () => {
+    const widgets = [
+      { x: 0, y: 0, w: 6, h: 6 },
+      { x: 6, y: 0, w: 6, h: 6 },
+      { x: 0, y: 6, w: 12, h: 4 },
+    ]
+    expect(nextWidgetPosition(widgets, 4, 6)).to.deep.equal({ x: 0, y: 10 })
+  })
+
+  it('should put a full-width widget on its own new row', () => {
+    expect(nextWidgetPosition([{ x: 0, y: 0, w: 6, h: 6 }], 12, 8)).to.deep.equal({ x: 0, y: 6 })
+  })
+
+  it('should not overlap a taller widget on an earlier row', () => {
+    // A tall widget on the left and two short ones: the first free spot is under the middle one
+    const widgets = [
+      { x: 0, y: 0, w: 4, h: 10 },
+      { x: 4, y: 0, w: 4, h: 6 },
+      { x: 8, y: 0, w: 4, h: 6 },
+    ]
+    expect(nextWidgetPosition(widgets, 4, 6)).to.deep.equal({ x: 4, y: 6 })
+  })
+
+  it('should throw when the layout is outside the grid', () => {
+    expect(() => assertWidgetLayout({ x: 0, y: 0, w: 13, h: 6 })).to.throw('w must be 1 to 12')
+    expect(() => assertWidgetLayout({ x: 11, y: 0, w: 4, h: 6 })).to.throw('x + w must be at most 12')
+    expect(assertWidgetLayout({ x: 0, y: 0, w: 12, h: 2 })).to.deep.equal({ x: 0, y: 0, w: 12, h: 2 })
   })
 })
 
