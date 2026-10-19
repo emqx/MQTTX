@@ -218,23 +218,35 @@ export default class DashboardCanvas extends Vue {
       const { messageService } = useServices()
       const timeRange = this.calculateHistoricalTimeRange()
 
-      for (const widget of this.widgets) {
-        if (!widget.topicPattern || !widget.connectionId) {
-          continue
+      const widgets = this.widgets.filter((widget) => widget.topicPattern && widget.connectionId)
+      // Widgets reading the same topic share one query
+      const queries = new Map<string, Promise<MessageModel[]>>()
+      const results = await Promise.all(
+        widgets.map((widget) => {
+          const key = `${widget.connectionId}\n${widget.topicPattern}`
+          if (!queries.has(key)) {
+            queries.set(
+              key,
+              messageService.getMessagesByTopicPattern<MessageModel>(widget.connectionId!, widget.topicPattern!, {
+                startTime: timeRange.start,
+                endTime: timeRange.end,
+                limit: 1000,
+              }),
+            )
+          }
+          return queries.get(key)!
+        }),
+      )
+
+      // Build the entries outside the reactive store and publish them at once;
+      // updating the store per message re-rendered the dashboard for every point.
+      const store: Record<string, WidgetDataEntry> = {}
+      for (const [index, widget] of widgets.entries()) {
+        if (results[index].length) {
+          store[String(widget.id)] = await this.processHistoricalMessages(widget, results[index])
         }
-
-        const messages = await messageService.getMessagesByTopicPattern<MessageModel>(
-          widget.connectionId,
-          widget.topicPattern,
-          {
-            startTime: timeRange.start,
-            endTime: timeRange.end,
-            limit: 1000,
-          },
-        )
-
-        await this.processHistoricalMessages(widget, messages)
       }
+      this.widgetDataStore = store
 
       await this.finalizeHistoricalDataLoad()
     } catch (error) {
@@ -265,41 +277,35 @@ export default class DashboardCanvas extends Vue {
     }
   }
 
-  private async processHistoricalMessages(widget: WidgetModel, messages: MessageModel[]): Promise<void> {
-    const widgetId = String(widget.id)
+  private async processHistoricalMessages(widget: WidgetModel, messages: MessageModel[]): Promise<WidgetDataEntry> {
+    const entry: WidgetDataEntry = {
+      data: this.createInitialWidgetData(widget.type),
+      validationState: 'valid',
+      lastUpdate: Date.now(),
+    }
 
-    let processedCount = 0
     for (const message of messages) {
       try {
         const payload = Buffer.from(message.payload)
         const extractedValues = await this.extractValuesFromPayload(payload, widget)
 
-        const dataPoint: TimeSeriesDataPoint & { widgetId: string } = {
+        const dataPoint: TimeSeriesDataPoint = {
           timestamp: message.createAt,
           values: extractedValues,
           topic: message.topic,
           connectionId: widget.connectionId!,
           metadata: { qos: message.qos, retain: message.retain },
-          widgetId: widgetId,
         }
 
-        this.updateWidgetDataHistorical(widgetId, dataPoint)
-        processedCount++
+        this.updateWidgetByTypeHistorical(widget, entry.data, dataPoint)
       } catch (error) {
-        this.handleSchemaError(widgetId, error as Error)
+        entry.validationState = 'invalid'
+        entry.schemaError = (error as Error).message
+        this.handleError(error as Error, `Schema processing for widget ${widget.id}`)
       }
     }
-  }
 
-  private updateWidgetDataHistorical(widgetId: string, dataPoint: TimeSeriesDataPoint): void {
-    const entry = this.getOrCreateWidgetEntry(widgetId)
-    const widget = this.widgets.find((w) => String(w.id) === widgetId)
-    if (!widget) return
-
-    this.updateWidgetByTypeHistorical(widget, entry.data, dataPoint)
-    entry.lastUpdate = Date.now()
-
-    this.$set(this.widgetDataStore, widgetId, { ...entry })
+    return entry
   }
 
   private updateWidgetByTypeHistorical(
