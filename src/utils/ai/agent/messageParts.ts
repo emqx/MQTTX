@@ -297,6 +297,18 @@ export const toModelMessages = (
   })
 
 /**
+ * The messages after the one the marker covers: where the summary stops applying. Without that message
+ * in the list it falls back to the messages behind the marker itself.
+ */
+export const messagesAfter = (
+  messages: AgentMessage[],
+  marker: { index: number; part: { untilMessageId: string } },
+): AgentMessage[] => {
+  const boundary = messages.findIndex((message) => message.id === marker.part.untilMessageId)
+  return boundary === -1 ? messages.slice(marker.index + 1) : messages.slice(boundary + 1)
+}
+
+/**
  * The messages to send to the model: the newest summary (a user message, never a system message) plus
  * every message after the one it covers. Without a summary the whole history goes through.
  */
@@ -307,10 +319,8 @@ export const toHistoryMessages = (
   const marker = findLastCompaction(messages)
   if (!marker) return toModelMessages(messages, readImage)
 
-  const boundary = messages.findIndex((message) => message.id === marker.part.untilMessageId)
-  const kept = boundary === -1 ? messages.slice(marker.index + 1) : messages.slice(boundary + 1)
   return [
     { role: 'user', content: `[Summary of the earlier conversation]\n${marker.part.summary}` },
-    ...toModelMessages(kept, readImage),
+    ...toModelMessages(messagesAfter(messages, marker), readImage),
   ]
 }

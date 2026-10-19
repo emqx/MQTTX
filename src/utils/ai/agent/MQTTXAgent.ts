@@ -162,16 +162,8 @@ export class MQTTXAgent {
    * @param previousSummary The summary of an earlier compaction, folded into the new one
    */
   public async summarize(messages: AgentMessage[], previousSummary?: string): Promise<string> {
-    const { actualModel, isAzure } = this.processModel(this.model)
-    const providerType = this.determineProviderType(actualModel, this.openAIAPIHost, isAzure)
-
     const { text } = await generateText({
-      model: getModelProvider({
-        model: actualModel,
-        baseURL: this.openAIAPIHost,
-        apiKey: this.decryptAPIKey(),
-        providerType,
-      }),
+      model: this.createModel().model,
       system: previousSummary
         ? `${compactPrompt}\n\n[Summary of the conversation so far, fold it into the new summary]\n${previousSummary}`
         : compactPrompt,
@@ -180,6 +172,24 @@ export class MQTTXAgent {
       allowSystemInMessages: true,
     })
     return text.trim()
+  }
+
+  /**
+   * The provider client of the current settings, for both the replies and the summary call
+   */
+  private createModel() {
+    const { actualModel, isAzure } = this.processModel(this.model)
+    const providerType = this.determineProviderType(actualModel, this.openAIAPIHost, isAzure)
+    return {
+      actualModel,
+      providerType,
+      model: getModelProvider({
+        model: actualModel,
+        baseURL: this.openAIAPIHost,
+        apiKey: this.decryptAPIKey(),
+        providerType,
+      }),
+    }
   }
 
   /**
@@ -259,9 +269,7 @@ export class MQTTXAgent {
    * @param tools Tools the model can call
    */
   private createAgent(instructions: string, tools: ToolSet) {
-    const { actualModel, isAzure } = this.processModel(this.model)
-
-    const providerType = this.determineProviderType(actualModel, this.openAIAPIHost, isAzure)
+    const { model, actualModel, providerType } = this.createModel()
 
     // The strength is one unified AI SDK option; each provider package maps it to its own field
     const reasoningOptions = buildReasoningCallOptions({
@@ -274,20 +282,24 @@ export class MQTTXAgent {
     const window = getContextWindow(actualModel)
 
     return new ToolLoopAgent({
-      model: getModelProvider({
-        model: actualModel,
-        baseURL: this.openAIAPIHost,
-        apiKey: this.decryptAPIKey(),
-        providerType,
-      }),
+      model,
       instructions,
       tools,
       // Older conversations may still hold a system message; keep accepting them
       allowSystemInMessages: true,
       stopWhen: stepCountIs(this.maxSteps),
       // One reply can call tools many times: once it is over the budget, earlier results give way
-      prepareStep: ({ messages }) =>
-        estimateTokens(messages) > window * COMPACT_THRESHOLD ? { messages: trimToolResults(messages) } : undefined,
+      prepareStep: ({ messages, steps }) => {
+        const usage = steps[steps.length - 1]?.usage
+        const inputTokens = usage?.inputTokens
+        const outputTokens = usage?.outputTokens
+        // What the provider counted for the step before is the size of what goes in next
+        const tokens =
+          typeof inputTokens === 'number' && typeof outputTokens === 'number'
+            ? inputTokens + outputTokens
+            : estimateTokens(messages)
+        return tokens > window * COMPACT_THRESHOLD ? { messages: trimToolResults(messages) } : undefined
+      },
       ...reasoningOptions,
       temperature: 0.5,
     })
