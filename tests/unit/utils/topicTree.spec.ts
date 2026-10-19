@@ -672,4 +672,55 @@ describe('Topic Tree In-Place Updates', () => {
     expect(findFullTopicPath(treeData, 'conn1')).to.equal('')
     expect(findFullTopicPath(treeData, 'missing')).to.equal(null)
   })
+
+  it('pins child ids to the zero-based sibling index', () => {
+    const tree: TopicTreeNode[] = []
+
+    updateTopicTreeNode(tree, { packet: makePublishPacket('sensors/temperature'), connectionInfo })
+    const host = tree[0]
+    expect(host.children![0].id).to.equal('test-connection-id_0')
+    expect(host.children![0].children![0].id).to.equal('test-connection-id_0_0')
+
+    updateTopicTreeNode(tree, { packet: makePublishPacket('actuators'), connectionInfo })
+    expect(host.children![1].id).to.equal('test-connection-id_1')
+    expect(host.children![1].label).to.equal('actuators')
+  })
+
+  it('attaches new topics under existing nodes of a tree without a child index', () => {
+    const tree: TopicTreeNode[] = [
+      {
+        id: 'test-connection-id',
+        label: 'broker.emqx.io',
+        messageCount: 1,
+        subTopicCount: 1,
+        children: [
+          {
+            id: 'test-connection-id_0',
+            label: 'sensors',
+            messageCount: 1,
+            subTopicCount: 0,
+            children: [
+              { id: 'test-connection-id_0_0', label: 'temperature', messageCount: 1, subTopicCount: 0, children: [] },
+            ],
+          },
+        ],
+        connectionInfo,
+      },
+    ]
+
+    updateTopicTreeNode(tree, { packet: makePublishPacket('sensors/temperature/room'), connectionInfo })
+    const sensors = tree[0].children![0]
+    expect(sensors.id).to.equal('test-connection-id_0')
+    expect(sensors.children).to.have.lengthOf(1)
+    const temperature = sensors.children![0]
+    expect(temperature.id).to.equal('test-connection-id_0_0')
+    expect(temperature.messageCount).to.equal(2)
+    expect(temperature.children![0].id).to.equal('test-connection-id_0_0_0')
+    expect(temperature.children![0].label).to.equal('room')
+
+    updateTopicTreeNode(tree, { packet: makePublishPacket('sensors/humidity'), connectionInfo })
+    expect(sensors.children).to.have.lengthOf(2)
+    expect(sensors.children![1].id).to.equal('test-connection-id_0_1')
+    expect(sensors.children![1].label).to.equal('humidity')
+  })
 })
