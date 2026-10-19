@@ -284,14 +284,21 @@ export default class TimeRangeSelect extends Vue {
       width: auto;
       padding: 0 10px;
 
+      // Sized to "MM-dd HH:mm" so the padding, not slack inside the inputs,
+      // sets the spacing.
       .el-range-input {
         flex: 0 0 auto;
-        width: 112px;
+        width: 10ch;
         text-align: center;
       }
 
       .el-range-separator {
         padding: 0 6px;
+      }
+
+      // The shortcuts reset the range; clearing it leaves the dashboard empty.
+      .el-range__close-icon {
+        display: none;
       }
     }
 
