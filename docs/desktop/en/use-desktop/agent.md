@@ -34,7 +34,7 @@ The Agent has two modes: **full screen**, which covers the main area and keeps t
 - Inspect certificates and private keys locally (their contents are never shared)
 - Write, test and apply transformation functions and schemas
 - Build and read the Topic Tree
-- Create dashboards and widgets
+- Create dashboards and widgets, and arrange them on the dashboard grid (position and size)
 - Read the logs and change the app settings
 - Call tools provided by your MCP servers
 
