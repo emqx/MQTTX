@@ -15,8 +15,26 @@
                 :key="skillIndex"
                 class="user-skill"
                 data-test="skill-chip"
-                >{{ skillChipLabel(skill) }}</span
               >
+                <i class="chip-ico" :class="skillIcon(skill)"></i>
+                <span class="chip-name" :title="skillChipLabel(skill)">{{ skillChipLabel(skill) }}</span>
+              </span>
+            </div>
+            <div v-if="connectionsOf(message).length" class="user-skills">
+              <span
+                v-for="(connection, connectionIndex) in connectionsOf(message)"
+                :key="connectionIndex"
+                class="user-mention"
+                :class="{ openable: connectionExists(connection), gone: !connectionExists(connection) }"
+                :title="connectionExists(connection) ? '' : $t('agent.mentions.gone')"
+                data-test="connection-chip"
+                @click="openConnection(connection)"
+              >
+                <span class="chip-dot" :class="{ off: !connectionConnected(connection) }"></span>
+                <span class="chip-name" :title="connectionChipLabel(connection)"
+                  ><span class="chip-at">@</span>{{ connectionChipLabel(connection) }}</span
+                >
+              </span>
             </div>
             <div v-if="attachmentsOf(message).length" class="user-attachments">
               <template v-for="(attachment, attachmentIndex) in attachmentsOf(message)">
@@ -128,10 +146,10 @@ import 'prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min'
 import { ipcRenderer } from 'electron'
 import fs from 'fs'
 import { shell } from '@electron/remote'
-import { AgentAttachmentPart, AgentMessage, AgentSkillPart } from '@/types/agent'
+import { AgentAttachmentPart, AgentConnectionPart, AgentMessage, AgentSkillPart } from '@/types/agent'
 import { formatBytes } from '@/utils/formatter'
 import { resolveArchiveSync } from '@/utils/ai/agent/files'
-import { renderSkillChip } from '@/utils/ai/agent/skills'
+import { AgentSkillName, SKILL_ICONS, renderSkillChip } from '@/utils/ai/agent/skills'
 import AgentWelcome from './AgentWelcome.vue'
 import AgentThinking from './AgentThinking.vue'
 import AgentIcon from './AgentIcon.vue'
@@ -141,6 +159,8 @@ import BlockRender from './BlockRender.vue'
 export default class AgentMessages extends Vue {
   @Action('SET_INSERT_BUTTON_ADDED') private setPrismButtonAdded!: (payload: { isPrismButtonAdded: boolean }) => void
   @Getter('isPrismButtonAdded') private isPrismButtonAdded!: boolean
+  /** Live client per connection id, for the state dot of a mentioned connection */
+  @Getter('activeConnection') private activeConnection!: ActiveConnection
 
   @Prop({ default: () => [] }) readonly messages!: AgentMessage[]
   @Prop({ default: null }) readonly streamingMessage!: AgentMessage | null
@@ -258,6 +278,34 @@ export default class AgentMessages extends Vue {
 
   private skillsOf(message: AgentMessage): AgentSkillPart[] {
     return (message.parts ?? []).filter((part): part is AgentSkillPart => part.type === 'skill')
+  }
+
+  private connectionsOf(message: AgentMessage): AgentConnectionPart[] {
+    return (message.parts ?? []).filter((part): part is AgentConnectionPart => part.type === 'connection')
+  }
+
+  /** The connection still exists, so the chip can open it */
+  private connectionExists(part: AgentConnectionPart): boolean {
+    return Boolean(this.connectionNames[part.connectionId])
+  }
+
+  /** Live state of the mentioned connection, shown by the chip dot */
+  private connectionConnected(part: AgentConnectionPart): boolean {
+    return this.activeConnection[part.connectionId]?.client?.connected === true
+  }
+
+  /** The icon the `/` menu shows for this skill, so both chips look the same */
+  private skillIcon(skill: AgentSkillPart): string {
+    return SKILL_ICONS[skill.skill as AgentSkillName] ?? ''
+  }
+
+  /** The current name of the connection, falling back to the name stored with the message */
+  private connectionChipLabel(part: AgentConnectionPart): string {
+    return this.connectionNames[part.connectionId] || part.name
+  }
+
+  private openConnection(part: AgentConnectionPart) {
+    if (this.connectionExists(part)) this.$emit('view', part.connectionId)
   }
 
   private skillChipLabel(skill: AgentSkillPart): string {

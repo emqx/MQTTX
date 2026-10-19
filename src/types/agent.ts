@@ -38,11 +38,22 @@ export interface AgentAttachmentPart {
 }
 
 /**
- * A part of a user message: a file the user attached, or a Skill the user picked from the `/` menu
+ * A part of a user message: a file the user attached, a Skill the user picked from the `/` menu, or a
+ * connection the user mentioned with `@`. Only the id and the name are kept, so nothing else from the
+ * connection record is ever stored in the conversation or sent to the model.
  */
 export interface AgentSkillPart {
   type: 'skill'
   skill: string
+}
+
+/**
+ * A connection the user mentioned with `@`
+ */
+export interface AgentConnectionPart {
+  type: 'connection'
+  connectionId: string
+  name: string
 }
 
 /**
@@ -54,6 +65,7 @@ export type AgentMessagePart =
   | { type: 'reasoning'; text: string; startedAt: number; finishedAt?: number }
   | AgentAttachmentPart
   | AgentSkillPart
+  | AgentConnectionPart
   | {
       type: 'tool'
       toolCallId: string

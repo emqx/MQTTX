@@ -3,10 +3,12 @@ import type { ModelMessage, TextStreamPart, ToolSet, AssistantContent, ToolConte
 import { AgentMessage, AgentMessagePart, AgentToolState } from '@/types/agent'
 import { resolveArchiveSync } from './files'
 import { renderSkillPrompt } from './skills'
+import { renderConnectionPrompt } from './mentions'
 
 type ToolPart = Extract<AgentMessagePart, { type: 'tool' }>
 type AttachmentPart = Extract<AgentMessagePart, { type: 'attachment' }>
 type SkillPart = Extract<AgentMessagePart, { type: 'skill' }>
+type ConnectionPart = Extract<AgentMessagePart, { type: 'connection' }>
 
 /** Reads an attached image from agent-files; replaced with a fake in tests */
 const defaultReadImage = (relativePath: string): Buffer | null => {
@@ -21,13 +23,16 @@ const defaultReadImage = (relativePath: string): Buffer | null => {
 
 type UserContent = Array<{ type: 'text'; text: string } | { type: 'image'; image: Buffer; mediaType: string }>
 
-/** Builds the multimodal user content for a message that has attachments or a selected Skill */
+/** Builds the multimodal user content for a message that has attachments, a Skill or a mention */
 const buildUserContent = (message: AgentMessage, readImage: (relativePath: string) => Buffer | null): UserContent => {
   const attachments = (message.parts ?? []).filter((part): part is AttachmentPart => part.type === 'attachment')
   const skills = (message.parts ?? []).filter((part): part is SkillPart => part.type === 'skill')
+  const connections = (message.parts ?? []).filter((part): part is ConnectionPart => part.type === 'connection')
   const content: UserContent = []
+  // Skills come first, then the mentioned connections, then what the user typed
   const lead = skills.map((part) => renderSkillPrompt(part.skill)).join('\n')
-  const text = [lead, message.content].filter(Boolean).join('\n')
+  const mentions = connections.length ? renderConnectionPrompt(connections) : ''
+  const text = [lead, mentions, message.content].filter(Boolean).join('\n')
   if (text) content.push({ type: 'text', text })
 
   for (const part of attachments) {
@@ -206,7 +211,9 @@ export const toModelMessages = (
   messages.flatMap((message): ModelMessage[] => {
     if (
       message.role === 'user' &&
-      (message.parts ?? []).some((part) => part.type === 'attachment' || part.type === 'skill')
+      (message.parts ?? []).some(
+        (part) => part.type === 'attachment' || part.type === 'skill' || part.type === 'connection',
+      )
     ) {
       return [{ role: 'user', content: buildUserContent(message, readImage) } as ModelMessage]
     }
@@ -231,7 +238,8 @@ export const toModelMessages = (
         part.type === 'step-limit' ||
         part.type === 'reasoning' ||
         part.type === 'attachment' ||
-        part.type === 'skill'
+        part.type === 'skill' ||
+        part.type === 'connection'
       )
         continue
       if (part.type === 'text') {

@@ -57,27 +57,27 @@ describe('Agent reasoning menu', () => {
     expect(computed('showModelLevel', { model: 'gpt-5.2', currentReasoning: DEFAULT_AGENT_REASONING })).to.equal(false)
   })
 
-  it('should render the strength buttons inside the model menu and wire them to chooseReasoning', () => {
+  it('should render the strength as a select of the offered levels wired to chooseReasoning', () => {
     const source = fs.readFileSync(path.resolve(process.cwd(), 'src/components/agent/AgentComposer.vue'), 'utf8')
     const { ast } = compile(parseComponent(source).template!.content)
     const attr = (node: any, name: string) =>
       (node?.attrs ?? []).find((entry: any) => entry.name === name)?.value as string | undefined
-    const findGroup = (node: any): any => {
-      if (attr(node, 'data-test') === '"reasoning-levels"') return node
+    const findSelect = (node: any): any => {
+      if (attr(node, 'data-test') === '"reasoning-select"') return node
       for (const child of node?.children ?? []) {
-        const found = findGroup(child)
+        const found = findSelect(child)
         if (found) return found
       }
       return undefined
     }
 
-    const group = findGroup(ast)
-    expect(group, 'reasoning level group').to.not.equal(undefined)
-
-    // One button per level, rendered from the v-for over the offered levels
-    const button = group.children.find((child: any) => child.tag === 'button')
-    expect(attr(button, 'data-level')).to.equal('level')
-    expect(attr(button, ':data-level') ?? attr(button, 'data-level')).to.equal('level')
-    expect(button.events?.click?.value).to.include('chooseReasoning')
+    const select = findSelect(ast)
+    expect(select?.tag, 'reasoning select').to.equal('select')
+    // A bound select value compiles to a DOM prop, not an attribute
+    expect((select.props ?? []).find((entry: any) => entry.name === 'value')?.value).to.equal('currentReasoning')
+    expect(select.events?.change?.value).to.include('chooseReasoning')
+    // One option per offered level
+    const option = select.children.find((child: any) => child.tag === 'option')
+    expect(option.for).to.equal('reasoningLevels')
   })
 })

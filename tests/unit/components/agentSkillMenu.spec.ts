@@ -84,15 +84,37 @@ describe('Agent skill menu', () => {
   })
 
   it('should close every menu on a click outside', () => {
-    const ctx = { showModeMenu: true, showModelMenu: true, skillMenuOpen: true }
+    const ctx = {
+      showModeMenu: true,
+      showModelMenu: true,
+      skillMenuOpen: true,
+      mentionMenuOpen: true,
+      mentionQuery: { start: 0, end: 1, query: 'a' },
+      closeMentionMenu: methods.closeMentionMenu,
+    }
 
     methods.closeMenus.call(ctx)
 
-    expect(ctx).to.deep.equal({ showModeMenu: false, showModelMenu: false, skillMenuOpen: false })
+    expect(ctx).to.deep.equal({
+      showModeMenu: false,
+      showModelMenu: false,
+      skillMenuOpen: false,
+      mentionMenuOpen: false,
+      mentionQuery: null,
+      closeMentionMenu: methods.closeMentionMenu,
+    })
   })
 
   it('should close every menu on Escape handled by the composer wrap', () => {
-    const ctx = { showModeMenu: true, showModelMenu: false, skillMenuOpen: true, closeMenus: methods.closeMenus }
+    const ctx = {
+      showModeMenu: true,
+      showModelMenu: false,
+      skillMenuOpen: true,
+      mentionMenuOpen: false,
+      mentionQuery: null,
+      closeMenus: methods.closeMenus,
+      closeMentionMenu: methods.closeMentionMenu,
+    }
     let stopped = false
 
     methods.onEsc.call(ctx, { stopPropagation: () => (stopped = true) } as unknown as KeyboardEvent)
@@ -101,8 +123,28 @@ describe('Agent skill menu', () => {
       showModeMenu: false,
       showModelMenu: false,
       skillMenuOpen: false,
+      mentionMenuOpen: false,
+      mentionQuery: null,
       closeMenus: methods.closeMenus,
+      closeMentionMenu: methods.closeMentionMenu,
     })
+    expect(stopped).to.equal(true)
+  })
+
+  it('should close only the mention menu on Escape when it is the only one open', () => {
+    const ctx = {
+      showModeMenu: false,
+      showModelMenu: false,
+      skillMenuOpen: false,
+      mentionMenuOpen: true,
+      closeMenus: methods.closeMenus,
+      closeMentionMenu: methods.closeMentionMenu,
+    }
+    let stopped = false
+
+    methods.onEsc.call(ctx, { stopPropagation: () => (stopped = true) } as unknown as KeyboardEvent)
+
+    expect(ctx.mentionMenuOpen).to.equal(false)
     expect(stopped).to.equal(true)
   })
 })
