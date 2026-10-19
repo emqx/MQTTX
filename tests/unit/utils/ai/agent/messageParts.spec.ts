@@ -499,5 +499,79 @@ describe('messageParts', () => {
         },
       ])
     })
+
+    it('should tell the model which connections were mentioned, name and id only', () => {
+      const messages = toModelMessages([
+        {
+          id: '1',
+          role: 'user',
+          content: 'connect to it',
+          parts: [
+            { type: 'connection', connectionId: 'c1', name: 'Local broker' },
+            { type: 'connection', connectionId: 'c2', name: 'Prod' },
+          ],
+        },
+      ])
+
+      const text = (messages[0] as { content: any[] }).content[0].text
+      expect(text).to.equal(
+        '[Connections mentioned by the user: "Local broker" (id: c1), "Prod" (id: c2)] ' +
+          'Read them with get_connection before using them.\n' +
+          'connect to it',
+      )
+      expect(text).to.not.contain('password')
+    })
+
+    it('should put the Skill line before the mentioned connections', () => {
+      const messages = toModelMessages([
+        {
+          id: '1',
+          role: 'user',
+          content: 'check it',
+          parts: [
+            { type: 'connection', connectionId: 'c1', name: 'Local broker' },
+            { type: 'skill', skill: 'mqttx_diagnostics' },
+          ],
+        },
+      ])
+
+      const text = (messages[0] as { content: any[] }).content[0].text
+      expect(text.indexOf('[Skill selected by the user')).to.equal(0)
+      expect(text.indexOf('[Connections mentioned by the user')).to.be.greaterThan(0)
+      expect(text.indexOf('[Connections mentioned by the user')).to.be.lessThan(text.indexOf('check it'))
+    })
+
+    it('should send a user message that only mentions a connection', () => {
+      const messages = toModelMessages([
+        {
+          id: '1',
+          role: 'user',
+          content: '',
+          parts: [{ type: 'connection', connectionId: 'c1', name: 'Local broker' }],
+        },
+      ])
+
+      expect((messages[0] as { content: any[] }).content).to.deep.equal([
+        {
+          type: 'text',
+          text:
+            '[Connections mentioned by the user: "Local broker" (id: c1)] ' +
+            'Read them with get_connection before using them.',
+        },
+      ])
+    })
+
+    it('should keep a literal @connection in old messages as text', () => {
+      const messages = toModelMessages([
+        {
+          id: '1',
+          role: 'user',
+          content: 'have a look at @connection',
+          parts: [],
+        },
+      ])
+
+      expect(messages).to.deep.equal([{ role: 'user', content: 'have a look at @connection' }])
+    })
   })
 })

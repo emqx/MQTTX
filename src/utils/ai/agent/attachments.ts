@@ -36,6 +36,8 @@ export interface OutgoingMessage {
   attachments: PendingAttachment[]
   /** Skill the user picked from the `/` menu */
   skill?: { skill: string }
+  /** Connections the user mentioned with `@` */
+  connections?: Array<{ id: string; name: string }>
 }
 
 export type AttachmentLimitError = 'too-many-attachments' | 'too-many-images' | 'too-large'

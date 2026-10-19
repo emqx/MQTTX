@@ -38,7 +38,7 @@ The Agent has two modes: **full screen**, which covers the main area and keeps t
 - Read the logs and change the app settings
 - Call tools provided by your MCP servers
 
-You can ask things like "connect to broker.emqx.io and subscribe to `testtopic/#`", "publish a JSON test message to `mqttx/test`", or "show my connections and their status". Type `/` in the composer to pick a Skill — client code, test data, schema, custom function, MQTT/EMQX knowledge, connection diagnostics or the MQTTX CLI — and the Agent will use it for your request. Generated code is saved as a downloadable zip: the chat shows a file card to download it or show it in its folder. The archives are stored under `agent-files` in the app data directory and are removed together with the conversation.
+You can ask things like "connect to broker.emqx.io and subscribe to `testtopic/#`", "publish a JSON test message to `mqttx/test`", or "show my connections and their status". Type `/` in the composer to pick a Skill — client code, test data, schema, custom function, MQTT/EMQX knowledge, connection diagnostics or the MQTTX CLI — and the Agent will use it for your request. Type `@` to mention a connection: a menu of your connections appears (the one you are looking at first, with a green dot when it is connected), `↑`/`↓` and `Enter` pick one, and the mentioned connection travels with your message so the Agent reads it with `get_connection` before acting on it. Generated code is saved as a downloadable zip: the chat shows a file card to download it or show it in its folder. The archives are stored under `agent-files` in the app data directory and are removed together with the conversation.
 
 ## Attachments
 
