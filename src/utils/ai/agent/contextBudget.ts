@@ -6,14 +6,14 @@
 import type { ModelMessage } from 'ai'
 import type { AgentMessage } from '@/types/agent'
 import { getAgentMessageId } from '@/utils/idGenerator'
-import { findLastCompaction, toModelMessages } from './messageParts'
+import { compactionPartOf, findLastCompaction, messagesAfter, toModelMessages } from './messageParts'
 
 /** Past this share of the context window the older turns are compacted into a summary */
 export const COMPACT_THRESHOLD = 0.6
 /** How many turns (a user message and its replies) are always sent as they are */
 export const KEEP_RECENT_TURNS = 4
 /** How many tool results inside one reply keep their full output */
-export const KEEP_LAST_TOOL_RESULTS = 3
+const KEEP_LAST_TOOL_RESULTS = 3
 
 const DEFAULT_CONTEXT_WINDOW = 128000
 const TOKENS_PER_IMAGE = 1000
@@ -22,11 +22,21 @@ const LATIN_CHARS_PER_TOKEN = 4
 const FULL_WIDTH_CHARACTER =
   /[\u1100-\u115F\u2E80-\u303F\u3041-\u33FF\u3400-\u4DBF\u4E00-\u9FFF\uA000-\uA4CF\uAC00-\uD7A3\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFF60\uFFE0-\uFFE6]/
 
+/**
+ * Counting the tokens of a message only needs to know that an image is there, not its bytes: this reader
+ * keeps every estimate off the disk, and the image still counts as one block
+ */
+export const readImageForEstimate = (): Buffer | null => Buffer.alloc(0)
+
 /** Rough token count of a text: one per full-width character, one per four other characters */
-export const estimateTextTokens = (text: string): number => {
-  const characters = [...text]
-  const fullWidth = characters.filter((character) => FULL_WIDTH_CHARACTER.test(character)).length
-  return fullWidth + Math.ceil((characters.length - fullWidth) / LATIN_CHARS_PER_TOKEN)
+const estimateTextTokens = (text: string): number => {
+  let length = 0
+  let fullWidth = 0
+  for (const character of text) {
+    length += 1
+    if (FULL_WIDTH_CHARACTER.test(character)) fullWidth += 1
+  }
+  return fullWidth + Math.ceil((length - fullWidth) / LATIN_CHARS_PER_TOKEN)
 }
 
 /**
@@ -108,32 +118,26 @@ export const contextPercent = (tokens: number, window: number): number => {
 export const shouldCompact = (options: { estimate: number; window: number; olderMessageCount: number }): boolean =>
   options.estimate > options.window * COMPACT_THRESHOLD && options.olderMessageCount >= 2
 
-/** Index of the first message of the last `keepTurns` turns; a turn starts at a user message */
-const keepFrom = (messages: AgentMessage[], keepTurns: number): number => {
+/** Index of the first message of the last KEEP_RECENT_TURNS turns; a turn starts at a user message */
+const keepFrom = (messages: AgentMessage[]): number => {
   let turns = 0
   for (let index = messages.length - 1; index >= 0; index -= 1) {
     if (messages[index].role !== 'user') continue
     turns += 1
-    if (turns >= keepTurns) return index
+    if (turns >= KEEP_RECENT_TURNS) return index
   }
   return 0
 }
 
-/** The messages before the last `keepTurns` turns: the ones a summary replaces */
-export const olderMessages = (messages: AgentMessage[], keepTurns = KEEP_RECENT_TURNS): AgentMessage[] =>
-  messages.slice(0, keepFrom(messages, keepTurns))
+/** The messages before the last KEEP_RECENT_TURNS turns: the ones a summary replaces */
+export const olderMessages = (messages: AgentMessage[]): AgentMessage[] => messages.slice(0, keepFrom(messages))
 
 /** The newest messages that fit the budget, used when the summary could not be written */
-export const fitToBudget = (
-  messages: AgentMessage[],
-  budget: number,
-  usedTokens: number,
-  readImage?: (relativePath: string) => Buffer | null,
-): AgentMessage[] => {
+export const fitToBudget = (messages: AgentMessage[], budget: number, usedTokens: number): AgentMessage[] => {
   const kept: AgentMessage[] = []
   let used = usedTokens
   for (let index = messages.length - 1; index >= 0; index -= 1) {
-    const cost = estimateTokens(toModelMessages([messages[index]], readImage))
+    const cost = estimateTokens(toModelMessages([messages[index]], readImageForEstimate))
     if (kept.length > 0 && used + cost > budget) break
     used += cost
     kept.unshift(messages[index])
@@ -150,11 +154,11 @@ const omittedNote = (output: unknown): string => {
 }
 
 /**
- * Replaces the output of every tool result older than the last `keepLast` ones with a short note, and
- * drops the reasoning of every message but the last. Tool calls stay in place, so every result keeps
- * the call it belongs to and the provider accepts the messages.
+ * Replaces the output of every tool result older than the last KEEP_LAST_TOOL_RESULTS ones with a short
+ * note, and drops the reasoning of every message but the last. Tool calls stay in place, so every result
+ * keeps the call it belongs to and the provider accepts the messages.
  */
-export const trimToolResults = (messages: ModelMessage[], keepLast = KEEP_LAST_TOOL_RESULTS): ModelMessage[] => {
+export const trimToolResults = (messages: ModelMessage[]): ModelMessage[] => {
   const resultKeys: string[] = []
   messages.forEach((message, messageIndex) => {
     if (typeof message.content === 'string') return
@@ -162,7 +166,7 @@ export const trimToolResults = (messages: ModelMessage[], keepLast = KEEP_LAST_T
       if (part.type === 'tool-result') resultKeys.push(`${messageIndex}:${partIndex}`)
     })
   })
-  const kept = new Set(keepLast > 0 ? resultKeys.slice(-keepLast) : [])
+  const kept = new Set(resultKeys.slice(-KEEP_LAST_TOOL_RESULTS))
   const lastIndex = messages.length - 1
 
   return messages.map((message, messageIndex) => {
@@ -216,18 +220,6 @@ export interface CompactionHistory {
   fitted: boolean
 }
 
-/** Whether a message is a compaction marker */
-const isMarker = (message: AgentMessage): boolean => (message.parts ?? []).some((part) => part.type === 'compaction')
-
-/** The messages after the part the newest marker covers */
-const messagesSince = (
-  messages: AgentMessage[],
-  marker: { index: number; part: { untilMessageId: string } },
-): AgentMessage[] => {
-  const boundary = messages.findIndex((message) => message.id === marker.part.untilMessageId)
-  return boundary === -1 ? messages.slice(marker.index + 1) : messages.slice(boundary + 1)
-}
-
 /**
  * Compacts the older turns of a conversation into one summary message, or lets the history through when
  * it still fits. The summary is written by the injected `summarize`, so a failure can be handled here:
@@ -248,9 +240,9 @@ export const compactHistory = async (options: {
   const { messages, conversationId, window, systemTokens, summarize, force = false } = options
   const marker = findLastCompaction(messages)
   // Markers are not turns: they are replaced by the summary they hold
-  const since = (marker ? messagesSince(messages, marker) : messages).filter((message) => !isMarker(message))
+  const since = (marker ? messagesAfter(messages, marker) : messages).filter((message) => !compactionPartOf(message))
   const older = olderMessages(since)
-  const estimate = systemTokens + estimateTokens(toModelMessages(since))
+  const estimate = systemTokens + estimateTokens(toModelMessages(since, readImageForEstimate))
 
   if (!older.length || (!force && !shouldCompact({ estimate, window, olderMessageCount: older.length }))) {
     return { messages, fitted: false }

@@ -139,6 +139,7 @@ import {
   estimateTokens,
   getContextWindow,
   isContextOverflowError,
+  readImageForEstimate,
 } from '@/utils/ai/agent/contextBudget'
 import { loadSystemPrompt } from '@/utils/ai/models'
 import { compactionPartOf, setToolState, toHistoryMessages } from '@/utils/ai/agent/messageParts'
@@ -226,10 +227,8 @@ export default class AgentPanel extends Vue {
   private overflowRetried = false
   /** Set when the user stops the reply while its history is still being prepared, before the request starts */
   private startCancelled = false
-  /** Token count of the conversation on screen, as reported by the last reply or estimated */
-  private contextTokens = 0
-  /** The count is an estimate, not what a provider reported */
-  private contextEstimated = true
+  /** Estimated tokens of the conversation on screen, until one of its replies reports its own count */
+  private estimatedTokens = 0
   /** What the last reply reported, per conversation; only in memory, never stored */
   private usageByConversation: Record<string, number> = {}
   /** Full records of the connections, for the `@` mention menu and the labels of tool steps */
@@ -257,6 +256,26 @@ export default class AgentPanel extends Vue {
   /** Context window of the model in use, for the meter in the composer */
   get contextWindow(): number {
     return getContextWindow(this.model)
+  }
+
+  /** Tokens the system prompt takes in every request */
+  get systemTokens(): number {
+    return estimateTokens(loadSystemPrompt(this.currentLang))
+  }
+
+  /** Tokens in the context of the conversation on screen, for the meter in the composer */
+  get contextTokens(): number {
+    return this.reportedUsage ?? this.estimatedTokens
+  }
+
+  /** Whether the count is an estimate instead of what a provider reported */
+  get contextEstimated(): boolean {
+    return this.reportedUsage === undefined
+  }
+
+  /** What the last reply of the conversation on screen reported, when it reported anything */
+  private get reportedUsage(): number | undefined {
+    return this.conversationId ? this.usageByConversation[this.conversationId] : undefined
   }
 
   /** The route is the only source of full screen; the float window is a local flag */
@@ -856,7 +875,8 @@ export default class AgentPanel extends Vue {
    * compacted into a summary. `forceCompact` is used when the provider already refused the request.
    */
   private async historyForModel(forceCompact: boolean): Promise<AgentMessage[]> {
-    if (!this.conversationId || !this.aiAgent) return this.messages
+    const agent = this.aiAgent
+    if (!this.conversationId || !agent) return this.messages
     const { agentMessageService } = useServices()
     const messages = ((await agentMessageService.getAll(this.conversationId)) ?? []) as AgentMessage[]
     if (!messages.length) return this.messages
@@ -864,14 +884,13 @@ export default class AgentPanel extends Vue {
     const result = await compactHistory({
       messages,
       conversationId: this.conversationId,
-      window: getContextWindow(this.model),
-      systemTokens: estimateTokens(loadSystemPrompt(this.currentLang)),
+      window: this.contextWindow,
+      systemTokens: this.systemTokens,
       force: forceCompact,
       summarize: async (older, previousSummary) => {
         this.compacting = true
         try {
-          const summary = await this.summarize(older, previousSummary)
-          return summary || null
+          return (await agent.summarize(older, previousSummary)) || null
         } catch (error) {
           this.$log.warn(`[Agent] Failed to summarize the conversation: ${error}`)
           return null
@@ -884,18 +903,16 @@ export default class AgentPanel extends Vue {
     if (result.marker) {
       await agentMessageService.create(result.marker)
       this.showMarker(result.marker)
-      // The history just got shorter, so the last reported size no longer describes it
-      if (result.marker.conversationId) delete this.usageByConversation[result.marker.conversationId]
-      void this.refreshContextUsage()
+      // The history just got shorter, so the last reported size no longer describes it: the fresh
+      // estimate comes from the messages at hand instead of another read
+      if (result.marker.conversationId) this.$delete(this.usageByConversation, result.marker.conversationId)
+      this.estimatedTokens =
+        this.systemTokens + estimateTokens(toHistoryMessages(result.messages, readImageForEstimate))
     }
     if (result.fitted) {
       this.$log.warn('[Agent] Could not summarize the conversation, sending only the newest messages that fit')
     }
     return result.messages
-  }
-
-  private async summarize(messages: AgentMessage[], previousSummary?: string): Promise<string> {
-    return this.aiAgent ? this.aiAgent.summarize(messages, previousSummary) : ''
   }
 
   /** Shows a new compaction marker right after the message it covers, like the database order does */
@@ -908,13 +925,7 @@ export default class AgentPanel extends Vue {
   /** Records what the provider reported for the reply that is running */
   private setUsage(tokens: number): void {
     // The reply keeps its own conversation even when the user looks at another one
-    const conversationId = this.runConversationId
-    if (!conversationId) return
-    this.usageByConversation[conversationId] = tokens
-    if (conversationId === this.conversationId) {
-      this.contextTokens = tokens
-      this.contextEstimated = false
-    }
+    if (this.runConversationId) this.$set(this.usageByConversation, this.runConversationId, tokens)
   }
 
   /**
@@ -924,15 +935,11 @@ export default class AgentPanel extends Vue {
   private async refreshContextUsage(): Promise<void> {
     const conversationId = this.conversationId
     if (!conversationId) {
-      this.contextTokens = 0
+      this.estimatedTokens = 0
       return
     }
-    const reported = this.usageByConversation[conversationId]
-    if (typeof reported === 'number') {
-      this.contextTokens = reported
-      this.contextEstimated = false
-      return
-    }
+    // What a reply reported describes the conversation better than an estimate
+    if (this.reportedUsage !== undefined) return
 
     const { agentMessageService } = useServices()
     let history: AgentMessage[] = []
@@ -944,12 +951,9 @@ export default class AgentPanel extends Vue {
     }
     // A switch while the query ran leaves the meter to the conversation now on screen
     if (conversationId !== this.conversationId) return
-    if (!history.length) {
-      this.contextTokens = 0
-      return
-    }
-    this.contextTokens = estimateTokens(loadSystemPrompt(this.currentLang)) + estimateTokens(toHistoryMessages(history))
-    this.contextEstimated = true
+    this.estimatedTokens = history.length
+      ? this.systemTokens + estimateTokens(toHistoryMessages(history, readImageForEstimate))
+      : 0
   }
 
   private initializeAgent(): void {
