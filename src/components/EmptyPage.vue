@@ -21,7 +21,21 @@
       </a>
     </el-tooltip>
     <div class="empty-page__block">
-      <img class="empty-page__logo" src="@/assets/images/app-logo.png" alt="" />
+      <div class="empty-page__hero">
+        <!-- Packets orbiting the logo give a hint of data in motion -->
+        <svg class="empty-page__orbits" viewBox="0 0 140 140" aria-hidden="true" focusable="false">
+          <circle class="empty-page__ring" cx="70" cy="70" r="44" />
+          <circle class="empty-page__ring empty-page__ring--dashed" cx="70" cy="70" r="62" />
+          <g class="empty-page__orbit"><circle class="empty-page__packet" cx="70" cy="26" r="3" /></g>
+          <g class="empty-page__orbit empty-page__orbit--trail">
+            <circle class="empty-page__packet" cx="70" cy="26" r="2.2" />
+          </g>
+          <g class="empty-page__orbit empty-page__orbit--outer">
+            <circle class="empty-page__packet" cx="70" cy="8" r="2.5" />
+          </g>
+        </svg>
+        <img class="empty-page__logo" src="@/assets/images/app-logo.png" alt="" />
+      </div>
       <h2 class="empty-page__title">{{ $t('connections.emptyTitle') }}</h2>
       <p class="empty-page__desc">{{ $t('connections.emptyDesc') }}</p>
       <div class="empty-page__cards">
@@ -94,6 +108,12 @@ export default class EmptyPage extends Vue {
 </script>
 
 <style lang="scss" scoped>
+@keyframes empty-page-orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes empty-page-enter {
   from {
     opacity: 0;
@@ -132,11 +152,55 @@ export default class EmptyPage extends Vue {
     animation: empty-page-enter 0.4s ease both;
   }
 
+  .empty-page__hero {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 8px;
+  }
+
+  .empty-page__orbits {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .empty-page__ring {
+    fill: none;
+    stroke: var(--color-border-default);
+  }
+
+  .empty-page__ring--dashed {
+    stroke-dasharray: 2 5;
+  }
+
+  .empty-page__orbit {
+    transform-origin: 70px 70px;
+    animation: empty-page-orbit 6s linear infinite;
+  }
+
+  .empty-page__orbit--trail {
+    animation-delay: -3s;
+    opacity: 0.5;
+  }
+
+  .empty-page__orbit--outer {
+    animation-duration: 10s;
+    animation-direction: reverse;
+    opacity: 0.7;
+  }
+
+  .empty-page__packet {
+    fill: var(--color-main-green);
+  }
+
   .empty-page__logo {
-    display: block;
+    position: absolute;
+    top: 42px;
+    left: 42px;
     width: 56px;
     height: 56px;
-    margin: 0 auto 20px;
   }
 
   .empty-page__title {
@@ -233,7 +297,8 @@ export default class EmptyPage extends Vue {
 
 @media (prefers-reduced-motion: reduce) {
   .empty-page {
-    .empty-page__block {
+    .empty-page__block,
+    .empty-page__orbit {
       animation: none;
     }
   }
