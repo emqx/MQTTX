@@ -1,45 +1,40 @@
 <template>
   <div class="key-value-editor">
     <div class="editor-header">
-      <div class="header-left">
-        <span class="editor-title"> {{ title }} </span>
+      <span v-if="title" class="editor-title">{{ title }}</span>
+      <span class="editor-label">{{ $t('viewer.thresholdsType') }}</span>
+      <div class="editor-type-row">
         <el-select
           v-model="localThresholdsType"
-          size="mini"
-          placeholder="Select type"
-          style="margin-left: 10px"
+          size="small"
+          class="thresholds-type"
           @change="emitThresholdsTypeChange"
         >
-          <el-option label="Absolute" value="Absolute" />
-          <el-option label="Percentage" value="Percentage" />
+          <el-option :label="$t('viewer.absolute')" value="Absolute" />
+          <el-option :label="$t('viewer.percentage')" value="Percentage" />
         </el-select>
-        <el-button
-          icon="el-icon-plus"
-          class="btn-props-plus"
-          type="text"
-          @click="addThreshold"
-          style="margin-left: 10px"
-        ></el-button>
+        <el-button icon="el-icon-plus" class="btn-props-plus" type="text" @click="addThreshold"></el-button>
       </div>
     </div>
-    <div class="editor-row">
-      <el-row v-for="(threshold, index) in localThresholds" :key="index" :gutter="10" class="editor-row">
-        <el-col :span="10">
-          <el-input
-            type="number"
-            v-model.number="threshold.value"
-            size="mini"
-            placeholder="Value"
-            @input="onThresholdChange"
-          />
-        </el-col>
-        <el-col :span="4">
-          <el-color-picker v-model="threshold.color" size="mini" color-format="hex" @change="onThresholdChange" />
-        </el-col>
-        <el-col :span="4">
-          <el-button icon="el-icon-delete" class="btn-delete" type="text" @click="removeThreshold(index)" />
-        </el-col>
-      </el-row>
+    <div class="editor-rows">
+      <div v-for="(threshold, index) in localThresholds" :key="index" class="editor-row">
+        <el-input
+          type="number"
+          v-model.number="threshold.value"
+          size="small"
+          class="threshold-value"
+          :placeholder="$t('viewer.thresholdValue')"
+          @input="onThresholdChange"
+        />
+        <el-color-picker
+          v-model="threshold.color"
+          size="small"
+          color-format="hex"
+          class="threshold-color"
+          @change="onThresholdChange"
+        />
+        <el-button icon="el-icon-delete" class="btn-delete" type="text" @click="removeThreshold(index)" />
+      </div>
     </div>
   </div>
 </template>
@@ -49,7 +44,9 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 
 @Component
 export default class ThresholdEditor extends Vue {
-  @Prop({ type: String, default: 'Thresholds' }) readonly title!: string
+  // Empty by default: the group title lives in the parent now, so the editor
+  // only renders its own title when a caller still passes one.
+  @Prop({ type: String, default: '' }) readonly title!: string
   @Prop({ type: Array, default: () => [] }) readonly value!: Array<{ value: number; color: string }>
   @Prop({ type: String, default: 'Absolute' }) readonly thresholdsType!: 'Absolute' | 'Percentage'
 
@@ -103,29 +100,66 @@ export default class ThresholdEditor extends Vue {
 
 <style lang="scss" scoped>
 .key-value-editor {
+  // Label above the controls, like the other fields of the form
   .editor-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    .header-left {
+    .editor-type-row {
       display: flex;
       align-items: center;
+      gap: 8px;
     }
+
     .editor-title {
-      font-weight: 600;
+      font-size: 13px;
+      font-weight: 500;
       color: var(--color-text-default);
     }
-  }
-  .editor-row {
-    margin-top: 10px;
-    .el-col {
-      display: flex;
-      align-items: center;
+
+    .editor-label {
+      display: block;
+      padding-bottom: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.4;
+      color: var(--color-text-default);
+    }
+
+    .thresholds-type {
+      flex: 1;
+      min-width: 0;
     }
   }
+
+  .editor-rows {
+    margin-top: 12px;
+  }
+
+  .editor-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &:not(:last-child) {
+      margin-bottom: 8px;
+    }
+
+    .threshold-value {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .threshold-color {
+      flex-shrink: 0;
+    }
+
+    .btn-delete {
+      flex-shrink: 0;
+    }
+  }
+
   .btn-props-plus {
     font-size: 12px;
   }
+
   .btn-delete {
     color: var(--color-text-light);
   }

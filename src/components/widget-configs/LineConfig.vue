@@ -1,14 +1,20 @@
 <template>
   <div class="widget-config-section">
     <el-card shadow="never" class="item-card">
+      <el-row :gutter="12">
+        <el-col :span="12">
+          <el-form-item :label="$t('viewer.smoothLines')">
+            <el-switch v-model="localSmooth" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item :label="$t('viewer.areaFill')">
+            <el-switch v-model="localArea" />
+          </el-form-item>
+        </el-col>
+      </el-row>
       <el-form-item :label="$t('viewer.color')" class="color-picker-item">
-        <el-color-picker v-model="localColor" size="mini" color-format="hex" :predefine="predefineColors" />
-      </el-form-item>
-      <el-form-item :label="$t('viewer.smoothLines')">
-        <el-switch v-model="localSmooth" />
-      </el-form-item>
-      <el-form-item :label="$t('viewer.areaFill')">
-        <el-switch v-model="localArea" />
+        <el-color-picker v-model="localColor" size="small" color-format="hex" :predefine="predefineColors" />
       </el-form-item>
     </el-card>
   </div>
