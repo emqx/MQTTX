@@ -19,9 +19,9 @@
       <template v-else>
         <EmptyPage
           v-if="isEmpty && !oper"
-          name="connections.svg"
           :btn-title="$t('connections.newConnections')"
           :click-method="toCreateConnection"
+          @quick-connect="quickConnect"
         />
         <template v-else>
           <ConnectionForm v-if="oper" ref="connectionForm" :oper="oper" @connect="onConnect" @refresh="loadData" />
@@ -47,6 +47,7 @@ import ConnectionsDetail from './ConnectionsDetail.vue'
 import ConnectionForm from './ConnectionForm.vue'
 import useServices from '@/database/useServices'
 import { getDefaultRecord } from '@/utils/mqttUtils'
+import time from '@/utils/time'
 
 @Component({
   components: {
@@ -60,6 +61,7 @@ export default class Connections extends Vue {
   @Getter('showConnectionList') private showConnectionList!: boolean
 
   @Action('SET_CURRENT_CONNECTION_ID') private setCurrentConnectionId!: (id: string) => void
+  @Action('CHANGE_ACTIVE_CONNECTION') private changeActiveConnection!: (payload: Client) => void
   @Action('SET_DATABASE_FAIL_MESSAGE') private setDatabaseFailMessage!: ({
     connectDatabaseFailMessage,
   }: {
@@ -68,6 +70,7 @@ export default class Connections extends Vue {
 
   private isEmpty = false
   private isLoadingData = false
+  private isQuickConnecting = false
   public currentConnection: ConnectionModel = { ...getDefaultRecord() }
 
   @Watch('$route.params.id')
@@ -156,6 +159,37 @@ export default class Connections extends Vue {
 
   private toCreateConnection() {
     this.$router.push({ path: '/recent_connections/0?oper=create' })
+  }
+
+  private async quickConnect() {
+    if (this.isQuickConnecting) {
+      return
+    }
+    this.isQuickConnecting = true
+    try {
+      const { connectionService } = useServices()
+      const res = await connectionService.create({
+        ...getDefaultRecord(),
+        name: 'broker.emqx.io',
+        parentId: null,
+        createAt: time.getNowDate(),
+        updateAt: time.getNowDate(),
+      })
+      if (!(res && res.id)) {
+        this.$message.error(this.$tc('common.createfailed'))
+        this.$log.error('Failed to create a connection for the public broker: no connection id returned')
+        return
+      }
+      this.changeActiveConnection({ id: res.id, client: { connected: false } })
+      this.$router.push(`/recent_connections/${res.id}`)
+      this.onConnect()
+    } catch (error) {
+      const err = error as Error
+      this.$message.error(this.$tc('common.createfailed'))
+      this.$log.error(`Failed to create a connection for the public broker: ${err.toString()}`)
+    } finally {
+      this.isQuickConnecting = false
+    }
   }
 
   private async onConnect() {
