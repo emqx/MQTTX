@@ -72,9 +72,11 @@ describe('EmptyPage.vue', () => {
     wrapper.destroy()
   })
 
-  it('renders no illustration', () => {
+  it('renders the logo with decorative orbits only', () => {
     const { wrapper } = mount(true)
-    expect(wrapper.find('svg').exists()).to.be.false
+    expect(wrapper.find('.empty-page__hero .empty-page__logo').exists()).to.be.true
+    expect(wrapper.findAll('svg').length).to.equal(1)
+    expect(wrapper.find('svg.empty-page__orbits').attributes('aria-hidden')).to.equal('true')
     wrapper.destroy()
   })
 })
