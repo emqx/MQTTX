@@ -27,43 +27,52 @@
         @node-drop="handleDrop"
         @node-click="handleNodeClick"
         :allow-drop="allowDrop"
+        :allow-drag="allowDrag"
       >
         <template #default="{ node, data }">
           <span class="custom-tree-node">
-            <div class="dashboard-item" :title="rowTitle(data)" @contextmenu.prevent="openContextMenu(data, $event)">
+            <div class="dashboard-item" :title="rowTitle(data)">
               <span class="dashboard-name">{{ data.name }}</span>
+              <el-dropdown
+                class="dashboard-oper"
+                trigger="click"
+                @command="onRowCommand($event, data)"
+                @click.native.stop
+              >
+                <span class="dashboard-oper-trigger" @click.stop @mousedown.stop="onOperPointerDown">
+                  <i class="iconfont icon-more"></i>
+                </span>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item command="edit">
+                    <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
+                  </el-dropdown-item>
+                  <el-dropdown-item class="delete-item" command="delete">
+                    <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
             </div>
           </span>
         </template>
       </el-tree>
-      <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
-        <a href="javascript:;" class="context-menu__item" @click="handleEdit">
-          <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
-        </a>
-        <a href="javascript:;" class="context-menu__item danger" @click="handleDelete">
-          <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
-        </a>
-      </contextmenu>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import Contextmenu from '@/components/Contextmenu.vue'
 import '@/assets/font/iconfont'
 
-@Component({
-  components: { Contextmenu },
-})
+@Component
 export default class DashboardsList extends Vue {
   @Prop({ type: Array, default: () => [] }) readonly dashboards!: DashboardModel[]
   @Prop({ type: String, default: null }) readonly selectedId!: string | null
 
-  // context menu state
-  private showContextmenu = false
-  private selectedDashboardForMenu: DashboardModel | null = null
-  private contextmenuConfig: ContextmenuModel = { top: 0, left: 0 }
+  /**
+   * True while a press that started on the ⋯ button is still held, so the tree
+   * does not turn that press into a row drag (see `allowDrag`).
+   */
+  private operPointerActive = false
 
   private selectDashboard(dashboard: DashboardModel) {
     this.$emit('dashboard-selected', dashboard)
@@ -71,6 +80,31 @@ export default class DashboardsList extends Vue {
 
   private createDashboard() {
     this.$emit('create-dashboard')
+  }
+
+  /** Row menu: the two commands keep the old context-menu event contract. */
+  private onRowCommand(command: string, dashboard: DashboardModel): void {
+    if (command === 'edit') {
+      this.$emit('edit-dashboard', dashboard)
+    } else if (command === 'delete') {
+      this.$emit('delete-dashboard', dashboard)
+    }
+  }
+
+  private onOperPointerDown(): void {
+    this.operPointerActive = true
+  }
+
+  private onDocumentMouseUp(): void {
+    this.operPointerActive = false
+  }
+
+  private mounted() {
+    document.addEventListener('mouseup', this.onDocumentMouseUp)
+  }
+
+  private beforeDestroy() {
+    document.removeEventListener('mouseup', this.onDocumentMouseUp)
   }
 
   /**
@@ -89,6 +123,14 @@ export default class DashboardsList extends Vue {
 
   private allowDrop(draggingNode: any, dropNode: any, type: 'prev' | 'inner' | 'next') {
     return type !== 'inner'
+  }
+
+  /**
+   * Element starts a row drag from the node content. A press that began on the
+   * ⋯ button must only open the menu, so it is excluded here.
+   */
+  private allowDrag() {
+    return !this.operPointerActive
   }
 
   private handleDrop(draggingNode: any, dropNode: any, position: 'before' | 'after' | 'inner') {
@@ -131,33 +173,6 @@ export default class DashboardsList extends Vue {
         tree.setCurrentKey(this.selectedId)
       }
     })
-  }
-
-  private openContextMenu(row: DashboardModel, event: MouseEvent) {
-    if (this.selectedId !== row.id) {
-      this.handleNodeClick(row)
-    }
-    if (!this.showContextmenu) {
-      const { clientX, clientY } = event
-      this.contextmenuConfig.top = clientY
-      this.contextmenuConfig.left = clientX
-      this.showContextmenu = true
-      this.selectedDashboardForMenu = row
-    } else {
-      this.showContextmenu = false
-    }
-  }
-
-  private handleEdit() {
-    if (!this.selectedDashboardForMenu) return
-    this.$emit('edit-dashboard', this.selectedDashboardForMenu)
-    this.showContextmenu = false
-  }
-
-  private handleDelete() {
-    if (!this.selectedDashboardForMenu) return
-    this.$emit('delete-dashboard', this.selectedDashboardForMenu)
-    this.showContextmenu = false
   }
 }
 </script>
@@ -238,8 +253,8 @@ export default class DashboardsList extends Vue {
       background-color: var(--color-bg-normal);
       .el-tree-node__content {
         margin: 0 8px;
-        height: 36px;
-        border-radius: 6px;
+        height: 40px;
+        border-radius: 8px;
       }
       // Dashboards are not nested, so the slot Element keeps for the expand arrow would only indent the rows
       .el-tree-node__expand-icon.is-leaf {
@@ -255,9 +270,13 @@ export default class DashboardsList extends Vue {
         background-color: var(--color-bg-item);
 
         .dashboard-name {
-          font-weight: 500;
           color: var(--color-text-title);
         }
+      }
+
+      // Element draws the drag feedback with this element (blue by default).
+      .el-tree__drop-indicator {
+        background-color: var(--color-main-green);
       }
     }
 
@@ -276,41 +295,63 @@ export default class DashboardsList extends Vue {
       position: relative;
       transition: background 0.3s ease;
       user-select: none;
-      border-radius: 6px;
-      padding: 0 12px;
+      border-radius: 8px;
+      // 8px row margin + 8px padding = the 16px text inset used by the Agent list.
+      padding: 0 8px;
       display: flex;
       align-items: center;
       min-width: 0;
 
-      &.drag-before::before,
-      &.drag-after::after {
-        content: '';
-        position: absolute;
-        left: 8px;
-        right: 8px;
-        height: 0;
-        border-top: 2px dashed var(--color-border-default);
-      }
-
-      &.drag-before::before {
-        top: -1px;
-      }
-
-      &.drag-after::after {
-        bottom: -1px;
-      }
-
       .dashboard-name {
         flex: 1;
         min-width: 0;
+        // The ⋯ button's slot is always reserved, so the ellipsis never moves
+        // when the button appears on hover.
+        padding-right: 28px;
         font-size: 13px;
         font-weight: 400;
-        color: var(--color-text-title);
+        color: var(--color-text-default);
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
       }
+
+      // Row action, revealed on hover like the Agent conversation list.
+      .dashboard-oper {
+        position: absolute;
+        top: 50%;
+        right: 4px;
+        transform: translateY(-50%);
+        display: inline-flex;
+      }
+
+      .dashboard-oper-trigger {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--color-text-light);
+        cursor: pointer;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.15s ease, color 0.15s ease;
+
+        &:hover {
+          color: var(--color-text-title);
+        }
+      }
+
+      &:hover .dashboard-oper-trigger,
+      &:focus-within .dashboard-oper-trigger {
+        opacity: 1;
+        pointer-events: auto;
+      }
     }
   }
 }
+
+@include el-dropdown-menu-common;
 </style>
