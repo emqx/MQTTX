@@ -246,6 +246,10 @@ export default class DashboardsList extends Vue {
 
     .el-tree {
       height: 100%;
+      // Same 8px around the rows as their side margin, so the selected row
+      // does not touch the header divider.
+      padding: 8px 0;
+      box-sizing: border-box;
       background-color: var(--color-bg-normal);
       .el-tree-node__content {
         margin: 0 8px;
