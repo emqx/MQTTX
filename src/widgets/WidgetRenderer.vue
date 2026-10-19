@@ -30,68 +30,61 @@ export default class WidgetRenderer extends Vue {
     }
 
     const options = this.widget.widgetOptions || {}
+    // Options shared by every widget type; each branch adds its own data +
+    // extras (and the timing props only the charts that actually read them).
+    const sharedOptions = {
+      thresholds: options.thresholds ?? [],
+      thresholdsType: options.thresholdsType ?? 'Absolute',
+      color: options.color ?? '#00B572',
+    }
 
     if (this.widget.type === 'Big Number') {
       const bigOptions = options as BigNumberWidgetOptions
       const bigNumberData = this.data as BigNumberData | undefined
-      const props = {
+      return {
         ...baseProps,
         data: bigNumberData || { value: null, chartData: { xData: [], seriesData: [{ name: 'value', data: [] }] } },
         // Without a configured range the sparkline follows the data
         min: bigOptions.min,
         max: bigOptions.max,
-        thresholds: bigOptions.thresholds ?? [],
         decimals: bigOptions.decimals ?? 1,
         unit: bigOptions.unit ?? '',
-        color: bigOptions.color ?? '#00B572',
-        thresholdsType: bigOptions.thresholdsType ?? 'Absolute',
-        extractedFieldName: bigNumberData?.fieldName ?? '',
-        duration: this.duration,
         timeRangeType: this.timeRangeType,
+        ...sharedOptions,
       }
-      return props
     } else if (this.widget.type === 'Gauge') {
       const gaugeOptions = options as GaugeWidgetOptions
       const gaugeData = this.data as GaugeData | undefined
-      const props = {
+      return {
         ...baseProps,
         data: gaugeData || { value: null },
         min: gaugeOptions.min ?? 0,
         max: gaugeOptions.max ?? 100,
-        thresholds: gaugeOptions.thresholds ?? [],
         decimals: gaugeOptions.decimals ?? 1,
         unit: gaugeOptions.unit ?? '',
-        color: gaugeOptions.color ?? '#00B572',
-        thresholdsType: gaugeOptions.thresholdsType ?? 'Absolute',
-        valueField: gaugeData?.fieldName ?? this.widget.valueField ?? '',
-        duration: this.duration,
-        timeRangeType: this.timeRangeType,
+        ...sharedOptions,
       }
-      return props
     } else if (this.widget.type === 'Line') {
       const lineOptions = options as LineWidgetOptions
       const lineData = this.data as LineData | undefined
-      const props = {
+      return {
         ...baseProps,
         data: lineData || { chartData: { xData: [], seriesData: [{ name: 'value', data: [] }] } },
         // Name the series for the tooltip instead of ECharts' default "series0".
         seriesName: this.widget.title || this.widget.valueField || '',
         smooth: lineOptions.smooth ?? true,
         area: lineOptions.area ?? true,
-        color: lineOptions.color ?? '#00B572',
-        thresholds: lineOptions.thresholds ?? [],
-        thresholdsType: lineOptions.thresholdsType ?? 'Absolute',
         duration: this.duration,
         timeRangeType: this.timeRangeType,
+        ...sharedOptions,
       }
-      return props
     }
 
     return baseProps
   }
 
   private onError(error: Error) {
-    console.error(`Widget ${this.widget.id} error:`, error)
+    this.$log?.error?.(`Widget ${this.widget.id} error: ${error.toString()}`)
     this.$emit('error', error)
   }
 }

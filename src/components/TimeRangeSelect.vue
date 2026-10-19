@@ -28,7 +28,6 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 export default class TimeRangeSelect extends Vue {
   @Prop({ required: true }) public value!: [string, string]
   @Prop({ default: 'small' }) public size!: string
-  @Prop({ default: false }) public showLiveMode!: boolean
   @Prop({ default: 'static' }) public timeRangeType!: 'live' | 'static'
   @Prop({ default: 24 * 60 }) public duration!: number
   // Dashboard header variant: short displayed dates and a content-sized box
@@ -38,8 +37,9 @@ export default class TimeRangeSelect extends Vue {
   private modelValue = this.value
   private currentDuration: number | null = null
   private isLiveMode = false
+  // Set by a shortcut click so the resulting model change emits `range-relative`
+  // (a normal pick or an external change must not).
   private isFromShortcut = false
-  private shortcutLiveMode = false
   private shortcutDuration: number | null = null
 
   // Shortcut durations in minutes mapped to the label shown while live.
@@ -100,19 +100,13 @@ export default class TimeRangeSelect extends Vue {
 
     // Only emit range-relative for shortcuts, not for external changes (like dashboard switches)
     if (this.isFromShortcut) {
-      // Use shortcut-specific values
-      const finalIsLive = this.shortcutLiveMode
-      const finalDuration = this.shortcutDuration
-
       this.$emit('range-relative', {
         timeRange: newVal,
-        duration: finalDuration || 24 * 60 * 60 * 1000, // Default to 24 hours in milliseconds
-        isLive: finalIsLive,
+        duration: this.shortcutDuration || 24 * 60 * 60 * 1000, // Default to 24 hours in milliseconds
+        isLive: true,
       })
 
-      // Reset shortcut flags after emitting
       this.isFromShortcut = false
-      this.shortcutLiveMode = false
       this.shortcutDuration = null
     }
   }
@@ -122,63 +116,29 @@ export default class TimeRangeSelect extends Vue {
       return time.getTime() > Date.now()
     },
     shortcuts: [
-      {
-        text: this.$t('common.last5Minutes'),
-        onClick: (picker: any) => {
-          this.setShortcutValues(true, 5 * 60 * 1000)
-          const end = new Date()
-          const start = new Date()
-          start.setTime(start.getTime() - 5 * 60 * 1000)
-          picker.$emit('pick', [start, end])
-        },
-      },
-      {
-        text: this.$t('common.last30Minutes'),
-        onClick: (picker: any) => {
-          this.setShortcutValues(true, 30 * 60 * 1000)
-          const end = new Date()
-          const start = new Date()
-          start.setTime(start.getTime() - 30 * 60 * 1000)
-          picker.$emit('pick', [start, end])
-        },
-      },
-      {
-        text: this.$t('common.lastHour'),
-        onClick: (picker: any) => {
-          this.setShortcutValues(true, 60 * 60 * 1000)
-          const end = new Date()
-          const start = new Date()
-          start.setTime(start.getTime() - 60 * 60 * 1000)
-          picker.$emit('pick', [start, end])
-        },
-      },
-      {
-        text: this.$t('common.lastDay'),
-        onClick: (picker: any) => {
-          this.setShortcutValues(true, 24 * 60 * 60 * 1000)
-          const end = new Date()
-          const start = new Date()
-          start.setTime(start.getTime() - 24 * 60 * 60 * 1000)
-          picker.$emit('pick', [start, end])
-        },
-      },
-      {
-        text: this.$t('common.lastWeek'),
-        onClick: (picker: any) => {
-          this.setShortcutValues(true, 7 * 24 * 60 * 60 * 1000)
-          const end = new Date()
-          const start = new Date()
-          start.setTime(start.getTime() - 7 * 24 * 60 * 60 * 1000)
-          picker.$emit('pick', [start, end])
-        },
-      },
-    ],
+      { text: this.$t('common.last5Minutes'), minutes: 5 },
+      { text: this.$t('common.last30Minutes'), minutes: 30 },
+      { text: this.$t('common.lastHour'), minutes: 60 },
+      { text: this.$t('common.lastDay'), minutes: 24 * 60 },
+      { text: this.$t('common.lastWeek'), minutes: 7 * 24 * 60 },
+    ].map(({ text, minutes }) => ({
+      text,
+      onClick: (picker: any) => this.applyShortcut(picker, minutes),
+    })),
   }
 
-  private setShortcutValues(isLive: boolean, duration: number) {
+  // Must be a method, not inline in the field initializer above: while
+  // vue-class-component collects data it constructs the class on a temporary
+  // object, and only existing vm keys (props, methods, computed) are proxied
+  // to the real instance. `this.isFromShortcut = true` inside the initializer
+  // would write to that temporary object and the component would never see it.
+  private applyShortcut(picker: any, minutes: number): void {
     this.isFromShortcut = true
-    this.shortcutLiveMode = isLive
-    this.shortcutDuration = duration
+    this.shortcutDuration = minutes * 60 * 1000
+
+    const end = new Date()
+    const start = new Date(end.getTime() - minutes * 60 * 1000)
+    picker.$emit('pick', [start, end])
   }
 }
 </script>

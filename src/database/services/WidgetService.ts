@@ -91,16 +91,6 @@ export default class WidgetService {
   }
 
   /**
-   * Retrieves all widgets for a dashboard, or all widgets if no dashboardId is provided.
-   * This is an alias for getAll.
-   * @param dashboardId - (Optional) The dashboard ID to filter widgets.
-   * @returns An array of WidgetModels.
-   */
-  public async cascadeGetAll(dashboardId?: string): Promise<WidgetModel[]> {
-    return this.getAll(dashboardId)
-  }
-
-  /**
    * Batch updates the position and size of multiple widgets.
    * @param updates - Array of objects containing id, x, y, w, h for each widget.
    * @returns True if successful, false if an error occurred.

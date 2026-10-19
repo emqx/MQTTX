@@ -209,27 +209,7 @@ export default class WidgetConfig extends Vue {
     },
   }
 
-  private formModel: Partial<WidgetModel> = {
-    type: 'Big Number' as WidgetType,
-    title: '',
-
-    x: 0,
-    y: 0,
-    w: 4,
-    h: 6,
-    static: false,
-
-    connectionId: '',
-    topicPattern: '',
-    valueField: '',
-    fallbackValue: 0,
-
-    schemaType: undefined,
-    schemaId: '',
-    schemaMessageName: '',
-
-    widgetOptions: {},
-  }
+  private formModel: Partial<WidgetModel> = this.getBaseFormModel()
 
   // Threshold configuration (shared across all types)
   private thresholds: any[] = []
@@ -310,14 +290,6 @@ export default class WidgetConfig extends Vue {
   }
 
   // === THRESHOLD MANAGEMENT ===
-  private get effectiveThresholds() {
-    return this.formModel.widgetOptions?.thresholds || []
-  }
-
-  private get effectiveThresholdsType() {
-    return this.formModel.widgetOptions?.thresholdsType || 'Absolute'
-  }
-
   private updateThresholds(thresholds: any[], type: 'Absolute' | 'Percentage') {
     if (!this.formModel.widgetOptions) {
       this.formModel.widgetOptions = {}
@@ -417,14 +389,11 @@ export default class WidgetConfig extends Vue {
     this.isInitializing = true
 
     try {
-      // 1. Initialize form model
+      // 1. Initialize form model (also seeds the derived threshold state)
       this.initializeFormModel(this.initialWidget || undefined)
 
       // 2. Load external data
       await this.loadSchemas()
-
-      // 3. Setup derived state
-      this.initializeDerivedState()
     } finally {
       this.isInitializing = false
     }
@@ -514,10 +483,6 @@ export default class WidgetConfig extends Vue {
 
   get defaultTitle(): string {
     return this.formModel.title || 'New Widget'
-  }
-
-  get isDataSourceConfigured(): boolean {
-    return !!this.formModel.connectionId && !!this.formModel.topicPattern
   }
 
   get previewValue() {
@@ -637,12 +602,12 @@ export default class WidgetConfig extends Vue {
 
         const payload: Partial<WidgetModel> = {
           ...this.formModel,
-          title: this.formModel.title || '' || this.defaultTitle,
+          title: this.formModel.title || this.defaultTitle,
         }
 
         this.$emit('save', payload)
       } catch (error) {
-        console.error('[WIDGET_CONFIG] Save error:', error)
+        this.$log?.error?.(`[WIDGET_CONFIG] Save error: ${(error as Error).toString()}`)
         this.$message.error(`Configuration error: ${(error as Error).message}`)
       }
     })
@@ -888,7 +853,6 @@ export default class WidgetConfig extends Vue {
 
     .el-input,
     .el-select,
-    .el-input-number,
     .el-autocomplete {
       width: 100%;
     }
@@ -904,45 +868,6 @@ export default class WidgetConfig extends Vue {
 
     > .el-card__body {
       padding: 16px;
-    }
-  }
-
-  .el-button--mini {
-    background-color: var(--color-bg-normal);
-    border-color: var(--color-border-default);
-    color: var(--color-text-default);
-
-    &:hover,
-    &:focus {
-      background-color: var(--color-bg-item);
-      border-color: var(--color-main-green);
-      color: var(--color-main-green);
-    }
-
-    &:active {
-      background-color: var(--color-bg-item);
-      border-color: var(--color-main-green);
-      color: var(--color-main-green);
-    }
-  }
-
-  .el-input-number {
-    .el-input-number__decrease,
-    .el-input-number__increase {
-      background-color: var(--color-bg-normal) !important;
-      border-color: var(--color-border-default) !important;
-      color: var(--color-text-default) !important;
-
-      &:hover {
-        background-color: var(--color-bg-item) !important;
-        color: var(--color-main-green) !important;
-      }
-    }
-
-    .el-input__inner {
-      background-color: var(--color-bg-normal);
-      border-color: var(--color-border-default);
-      color: var(--color-text-default);
     }
   }
 

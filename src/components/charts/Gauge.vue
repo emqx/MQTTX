@@ -21,13 +21,11 @@ echarts.use([TitleComponent, TooltipComponent, GridComponent, EChartsGaugeChart,
 export default class GaugeChart extends Vue {
   @Prop({ required: true }) public id!: string
   @Prop({ default: () => ({ value: null }) }) public data!: GaugeData
-  @Prop({ default: 'Temperature' }) public title!: string
   @Prop({ default: '°C' }) public unit!: string
   @Prop({ default: '#00B572' }) public color!: string
   @Prop({ default: undefined }) public min!: number | undefined
   @Prop({ default: undefined }) public max!: number | undefined
   @Prop({ default: 1 }) public decimals!: number
-  @Prop({ default: '' }) public valueField!: string
 
   // Add thresholds
   @Prop({ default: 'Absolute' }) public thresholdsType!: 'Absolute' | 'Percentage'
@@ -364,14 +362,6 @@ export default class GaugeChart extends Vue {
     if (this.myChart) {
       this.myChart.dispose()
       this.myChart = null
-    }
-  }
-
-  public updateValue(value: number): void {
-    if (this.myChart && value >= this.effectiveMin && value <= this.effectiveMax && this.data.value !== null) {
-      this.myChart.setOption({
-        series: [{ data: [{ value }] }],
-      })
     }
   }
 }

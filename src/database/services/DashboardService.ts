@@ -131,27 +131,6 @@ export default class DashboardService {
   }
 
   /**
-   * Retrieves all dashboards (or a specific one if id is provided), including their widgets.
-   * Results are ordered by orderId (or fallback), then by creation time.
-   * @param id - (Optional) The dashboard ID to filter by.
-   * @returns An array of DashboardModels.
-   */
-  public async cascadeGetAll(id?: string): Promise<DashboardModel[]> {
-    const qb = this.dashboardRepository
-      .createQueryBuilder('db')
-      .leftJoinAndSelect('db.widgets', 'wg')
-      .orderBy('COALESCE(db.orderId, 999999)', 'ASC')
-      .addOrderBy('db.createAt', 'ASC')
-
-    if (id) {
-      qb.where('db.id = :id', { id })
-    }
-
-    const entities = await qb.getMany()
-    return entities.map((e) => DashboardService.entityToModel(e))
-  }
-
-  /**
    * Batch updates the orderId of multiple dashboards for reordering.
    * @param dashboardOrderUpdates - Array of objects containing id and new orderId for each dashboard.
    * @returns True if successful, false if an error occurred.

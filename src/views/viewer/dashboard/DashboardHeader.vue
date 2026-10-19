@@ -69,7 +69,6 @@
               size="mini"
               compact
               @range-relative="$emit('time-range-select', $event)"
-              :show-live-mode="true"
               :time-range-type="timeRangeType"
               :duration="duration"
             />

@@ -35,13 +35,23 @@ const FALLBACK: ChartThemeColors = {
   border: '#e6e8f1',
 }
 
+// Charts re-read these on every data point, so the result is memoized per
+// theme. The theme is applied by setting `body.className` (see Home.vue's
+// setTheme), which makes the class a safe cache key.
+let cachedThemeClass: string | null = null
+let cachedColors: ChartThemeColors | null = null
+
 export const getChartThemeColors = (): ChartThemeColors => {
   if (typeof window === 'undefined' || !document.body) {
     return { ...FALLBACK }
   }
+
+  const themeClass = document.body.className
+  if (cachedColors && cachedThemeClass === themeClass) return cachedColors
+
   const styles = getComputedStyle(document.body)
   const read = (name: string, fallback: string) => styles.getPropertyValue(name).trim() || fallback
-  return {
+  cachedColors = {
     text: read('--color-text-default', FALLBACK.text),
     subText: read('--color-text-light', FALLBACK.subText),
     title: read('--color-text-title', FALLBACK.title),
@@ -50,4 +60,6 @@ export const getChartThemeColors = (): ChartThemeColors => {
     surface: read('--color-bg-messagebox', FALLBACK.surface),
     border: read('--color-border-default', FALLBACK.border),
   }
+  cachedThemeClass = themeClass
+  return cachedColors
 }

@@ -22,7 +22,6 @@
           </template>
           <template v-else-if="selectedDashboardHasWidgets">
             <DashboardView
-              :dashboard-id="selectedDashboardId"
               :widgets="dashboardWidgets"
               :time-range="timeRange"
               :time-range-type="timeRangeType"
@@ -91,8 +90,6 @@ export default class DashboardContent extends Vue {
     }
     this.$emit('cancel-add')
   }
-
-  // Note: onEditWidget, onRemoveWidget are emitted to parent
 }
 </script>
 
