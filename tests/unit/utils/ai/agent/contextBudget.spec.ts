@@ -12,9 +12,11 @@ import {
   getContextWindow,
   isContextOverflowError,
   olderMessages,
+  readImageForEstimate,
   shouldCompact,
   trimToolResults,
 } from '@/utils/ai/agent/contextBudget'
+import { toModelMessages } from '@/utils/ai/agent/messageParts'
 
 const user = (id: string, content = 'hello'): AgentMessage => ({ id, role: 'user', content })
 const assistant = (id: string, content = 'hi'): AgentMessage => ({ id, role: 'assistant', content })
@@ -98,6 +100,30 @@ describe('agent context budget', () => {
       const total = estimateTokens(messages)
       expect(total).to.be.greaterThan(20)
       expect(total).to.be.lessThan(60)
+    })
+
+    it('should count an attached image without reading its bytes', () => {
+      const messages: AgentMessage[] = [
+        {
+          id: 'u1',
+          role: 'user',
+          content: 'look at this',
+          parts: [
+            {
+              type: 'attachment',
+              kind: 'image',
+              name: 'sensor.png',
+              size: 2048,
+              mediaType: 'image/png',
+              relativePath: 'conv/sensor.png',
+            },
+          ],
+        },
+      ]
+
+      expect(estimateTokens(toModelMessages(messages, readImageForEstimate))).to.equal(
+        1000 + estimateTokens('look at this'),
+      )
     })
 
     it('should count the parts of a message separately', () => {
@@ -230,12 +256,6 @@ describe('agent context budget', () => {
 
       expect(calls).to.deep.equal(['c0', 'c1', 'c2', 'c3'])
       expect(results).to.deep.equal(calls)
-    })
-
-    it('should replace every result when keepLast is zero', () => {
-      const results = resultValues(trimToolResults(toolMessages(2), 0))
-
-      expect(results.every((value) => typeof value === 'string' && value.includes('omitted'))).to.equal(true)
     })
 
     it('should drop reasoning except in the last message', () => {

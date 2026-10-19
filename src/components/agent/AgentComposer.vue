@@ -221,7 +221,7 @@
         >
           <div slot="content">
             <div>{{ contextUsageText }}</div>
-            <div class="context-tip-hint">{{ contextAutoCompactText }}</div>
+            <div class="context-tip-hint">{{ $t('agent.contextAutoCompact', { percent: compactPercent }) }}</div>
           </div>
           <span class="context-meter" data-test="context-meter">
             <svg class="context-ring" width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
@@ -232,7 +232,7 @@
                 cx="7"
                 cy="7"
                 r="5.5"
-                :stroke-dasharray="`${ringDash} ${ringLength}`"
+                :stroke-dasharray="ringDash"
               ></circle>
             </svg>
             <span class="context-percent">{{ contextPercent }}%</span>
@@ -333,6 +333,11 @@ const LIMIT_KEYS: Record<AttachmentLimitError, string> = {
   'too-large': 'agent.attachments.tooLarge',
 }
 
+/** The share of the context window the Agent compacts at, shown by the meter tooltip */
+const COMPACT_PERCENT = Math.round(COMPACT_THRESHOLD * 100)
+/** The ring is 11px across, so this is the length of one full stroke of it */
+const RING_LENGTH = 2 * Math.PI * 5.5
+
 /** Electron 39 File objects have no .path; this is the supported way to get it */
 const getFilePath = (file: File): string => {
   try {
@@ -366,6 +371,8 @@ export default class AgentComposer extends Vue {
 
   /** The theme decides which tooltip reads better on it */
   @Getter('currentTheme') private currentTheme!: string
+  /** Fixed for the session; templates only reach instance properties, so the tooltip gets it here */
+  private readonly compactPercent = COMPACT_PERCENT
 
   private message = ''
   private composing = false
@@ -396,18 +403,9 @@ export default class AgentComposer extends Vue {
     return contextPercentOf(this.contextTokens, this.contextWindow)
   }
 
-  /** The share the meter turns yellow at */
-  get compactPercent(): number {
-    return Math.round(COMPACT_THRESHOLD * 100)
-  }
-
-  /** The ring is 11px across, so this is the length of one full stroke */
-  get ringLength(): number {
-    return 2 * Math.PI * 5.5
-  }
-
-  get ringDash(): number {
-    return (this.contextPercent / 100) * this.ringLength
+  /** The dash of the ring: the share in use, then the rest of the stroke */
+  get ringDash(): string {
+    return `${(this.contextPercent / 100) * RING_LENGTH} ${RING_LENGTH}`
   }
 
   /** Tooltip line one: used / window tokens, marked as an estimate when it is one */
@@ -418,11 +416,6 @@ export default class AgentComposer extends Vue {
       total: formatTokens(this.contextWindow),
       percent: this.contextPercent,
     }) as string
-  }
-
-  /** Tooltip line two: when the Agent compacts the older turns on its own */
-  get contextAutoCompactText(): string {
-    return this.$t('agent.contextAutoCompact', { percent: this.compactPercent }) as string
   }
 
   /** The levels the current model offers */
