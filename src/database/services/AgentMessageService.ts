@@ -47,6 +47,20 @@ export default class AgentMessageService {
   }
 
   /**
+   * Retrieves every message of one conversation, oldest first
+   * createAt only has second precision, so rowid breaks ties in insertion order
+   * @param conversationId The conversation to read
+   */
+  public async getAll(conversationId: string) {
+    return await this.conversationRepository
+      .createQueryBuilder('message')
+      .where('message.conversationId = :conversationId', { conversationId })
+      .orderBy('message.createAt', 'ASC')
+      .addOrderBy('message.rowid', 'ASC')
+      .getMany()
+  }
+
+  /**
    * Deletes a single message
    */
   public async delete(id: string) {

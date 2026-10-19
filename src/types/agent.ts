@@ -57,6 +57,21 @@ export interface AgentConnectionPart {
 }
 
 /**
+ * Compaction marker: the message it belongs to (a `system` message) replaces every message up to
+ * `untilMessageId` with `summary`
+ */
+export interface AgentCompactionPart {
+  type: 'compaction'
+  summary: string
+  /** Id of the last message the summary covers */
+  untilMessageId: string
+  /** How many messages the summary replaces */
+  messageCount: number
+  /** When the summary was written */
+  createdAt: number
+}
+
+/**
  * A step of an assistant reply: generated text, a thinking block or a tool call made by the agent,
  * or a file / Skill the user attached to a user message
  */
@@ -66,6 +81,7 @@ export type AgentMessagePart =
   | AgentAttachmentPart
   | AgentSkillPart
   | AgentConnectionPart
+  | AgentCompactionPart
   | {
       type: 'tool'
       toolCallId: string

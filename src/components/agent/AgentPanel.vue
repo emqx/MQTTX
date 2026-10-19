@@ -84,6 +84,7 @@
             :is-sending="isSending"
             :connection-names="connectionNames"
             :error-message="errorMessage"
+            :compacting="compacting"
             @load-more="loadMoreMessages"
             @approve="handleApproval"
             @continue="handleContinue"
@@ -106,6 +107,9 @@
             :agent-reasoning="agentReasoning"
             :connections="connectionMentions"
             :current-connection-id="currentConnectionId"
+            :context-tokens="contextTokens"
+            :context-window="contextWindow"
+            :context-estimated="contextEstimated"
             @send="sendMessage"
             @abort-response="abortAIResponse"
             @update:permissionMode="setPermissionMode"
@@ -130,7 +134,14 @@ import AgentMessages from './AgentMessages.vue'
 import AgentComposer from './AgentComposer.vue'
 import { AgentAttachmentPart, AgentMessage, AgentMessagePart } from '@/types/agent'
 import { MQTTXAgent } from '@/utils/ai/agent/MQTTXAgent'
-import { setToolState } from '@/utils/ai/agent/messageParts'
+import {
+  compactHistory,
+  estimateTokens,
+  getContextWindow,
+  isContextOverflowError,
+} from '@/utils/ai/agent/contextBudget'
+import { loadSystemPrompt } from '@/utils/ai/models'
+import { compactionPartOf, setToolState, toHistoryMessages } from '@/utils/ai/agent/messageParts'
 import { describeAgentError } from '@/utils/ai/agent/errors'
 import { deleteConversationFiles } from '@/utils/ai/agent/files'
 import { materializeAttachments, OutgoingMessage } from '@/utils/ai/agent/attachments'
@@ -209,6 +220,18 @@ export default class AgentPanel extends Vue {
   private isResponseStream = false
   private streamingMessage: AgentMessage | null = null
   private errorMessage: string | null = null
+  /** A summary of the older turns is being written before this reply starts */
+  private compacting = false
+  /** One reply may be retried once after a context overflow, with a forced compaction */
+  private overflowRetried = false
+  /** Set when the user stops the reply while its history is still being prepared, before the request starts */
+  private startCancelled = false
+  /** Token count of the conversation on screen, as reported by the last reply or estimated */
+  private contextTokens = 0
+  /** The count is an estimate, not what a provider reported */
+  private contextEstimated = true
+  /** What the last reply reported, per conversation; only in memory, never stored */
+  private usageByConversation: Record<string, number> = {}
   /** Full records of the connections, for the `@` mention menu and the labels of tool steps */
   private connections: ConnectionModel[] = []
   private permissionMode: PermissionMode = 'ask'
@@ -229,6 +252,11 @@ export default class AgentPanel extends Vue {
 
   get isEmpty(): boolean {
     return this.messages.length === 0 && !this.isSending && !this.streamingMessage
+  }
+
+  /** Context window of the model in use, for the meter in the composer */
+  get contextWindow(): number {
+    return getContextWindow(this.model)
   }
 
   /** The route is the only source of full screen; the float window is a local flag */
@@ -608,6 +636,7 @@ export default class AgentPanel extends Vue {
     this.hasMore = true
     this.errorMessage = null
     this.showHistory = false
+    void this.refreshContextUsage()
     this.updateRouteConversation()
   }
 
@@ -666,6 +695,7 @@ export default class AgentPanel extends Vue {
   }
 
   private stopRun() {
+    this.startCancelled = true
     this.aiAgent?.abort()
     this.gate.denyAll()
     this.allowedTools.clear()
@@ -743,6 +773,7 @@ export default class AgentPanel extends Vue {
     if (!this.conversationId) return
 
     this.errorMessage = null
+    this.overflowRetried = false
 
     const parts: AgentMessagePart[] = await materializeAttachments(pending, this.conversationId)
     if (skill) parts.push({ type: 'skill', skill: skill.skill })
@@ -792,7 +823,7 @@ export default class AgentPanel extends Vue {
     this.scrollToBottom()
   }
 
-  private async generateAIResponse(): Promise<void> {
+  private async generateAIResponse(forceCompact = false): Promise<void> {
     // The names are only needed while rendering tool steps, so this does not block the request
     this.refreshConnections().catch((error) => this.$log.warn(`[Agent] Failed to refresh connection names: ${error}`))
     this.initializeAgent()
@@ -803,7 +834,122 @@ export default class AgentPanel extends Vue {
     this.streamingMessage = null
     this.runConversationId = this.conversationId
     this.emitStatus()
-    this.aiAgent.generateResponse(this.messages)
+    this.startCancelled = false
+    // The history comes from the database, so replies do not depend on what the page has loaded,
+    // and the older turns are compacted first when the conversation no longer fits the context window
+    let history: AgentMessage[]
+    try {
+      history = await this.historyForModel(forceCompact)
+    } catch (error) {
+      this.$log.warn(`[Agent] Failed to read the conversation history, sending the loaded messages: ${error}`)
+      history = this.messages
+    }
+    if (this.startCancelled) {
+      this.resetResponseState()
+      return
+    }
+    this.aiAgent.generateResponse(history)
+  }
+
+  /**
+   * The messages to send: the whole conversation, or its newest part after the older turns were
+   * compacted into a summary. `forceCompact` is used when the provider already refused the request.
+   */
+  private async historyForModel(forceCompact: boolean): Promise<AgentMessage[]> {
+    if (!this.conversationId || !this.aiAgent) return this.messages
+    const { agentMessageService } = useServices()
+    const messages = ((await agentMessageService.getAll(this.conversationId)) ?? []) as AgentMessage[]
+    if (!messages.length) return this.messages
+
+    const result = await compactHistory({
+      messages,
+      conversationId: this.conversationId,
+      window: getContextWindow(this.model),
+      systemTokens: estimateTokens(loadSystemPrompt(this.currentLang)),
+      force: forceCompact,
+      summarize: async (older, previousSummary) => {
+        this.compacting = true
+        try {
+          const summary = await this.summarize(older, previousSummary)
+          return summary || null
+        } catch (error) {
+          this.$log.warn(`[Agent] Failed to summarize the conversation: ${error}`)
+          return null
+        } finally {
+          this.compacting = false
+        }
+      },
+    })
+
+    if (result.marker) {
+      await agentMessageService.create(result.marker)
+      this.showMarker(result.marker)
+      // The history just got shorter, so the last reported size no longer describes it
+      if (result.marker.conversationId) delete this.usageByConversation[result.marker.conversationId]
+      void this.refreshContextUsage()
+    }
+    if (result.fitted) {
+      this.$log.warn('[Agent] Could not summarize the conversation, sending only the newest messages that fit')
+    }
+    return result.messages
+  }
+
+  private async summarize(messages: AgentMessage[], previousSummary?: string): Promise<string> {
+    return this.aiAgent ? this.aiAgent.summarize(messages, previousSummary) : ''
+  }
+
+  /** Shows a new compaction marker right after the message it covers, like the database order does */
+  private showMarker(marker: AgentMessage): void {
+    const boundary = this.messages.findIndex((message) => message.id === compactionPartOf(marker)?.untilMessageId)
+    if (boundary === -1) this.messages.push(marker)
+    else this.messages.splice(boundary + 1, 0, marker)
+  }
+
+  /** Records what the provider reported for the reply that is running */
+  private setUsage(tokens: number): void {
+    // The reply keeps its own conversation even when the user looks at another one
+    const conversationId = this.runConversationId
+    if (!conversationId) return
+    this.usageByConversation[conversationId] = tokens
+    if (conversationId === this.conversationId) {
+      this.contextTokens = tokens
+      this.contextEstimated = false
+    }
+  }
+
+  /**
+   * The context size of the conversation on screen: what its last reply reported, or the system prompt
+   * plus the history that would be sent now. Runs on its own, so sending never waits for it.
+   */
+  private async refreshContextUsage(): Promise<void> {
+    const conversationId = this.conversationId
+    if (!conversationId) {
+      this.contextTokens = 0
+      return
+    }
+    const reported = this.usageByConversation[conversationId]
+    if (typeof reported === 'number') {
+      this.contextTokens = reported
+      this.contextEstimated = false
+      return
+    }
+
+    const { agentMessageService } = useServices()
+    let history: AgentMessage[] = []
+    try {
+      history = ((await agentMessageService.getAll(conversationId)) ?? []) as AgentMessage[]
+    } catch (error) {
+      this.$log.warn(`[Agent] Failed to read the conversation for the context meter: ${error}`)
+      return
+    }
+    // A switch while the query ran leaves the meter to the conversation now on screen
+    if (conversationId !== this.conversationId) return
+    if (!history.length) {
+      this.contextTokens = 0
+      return
+    }
+    this.contextTokens = estimateTokens(loadSystemPrompt(this.currentLang)) + estimateTokens(toHistoryMessages(history))
+    this.contextEstimated = true
   }
 
   private initializeAgent(): void {
@@ -821,7 +967,20 @@ export default class AgentPanel extends Vue {
         this.isSending = false
       },
       onUpdate: (responseMessage) => this.scheduleStreamUpdate(responseMessage),
+      onUsage: (tokens) => this.setUsage(tokens),
       onError: async (error, partialMessage) => {
+        // The provider refused the request as too long: compact now and try once more
+        if (!this.overflowRetried && isContextOverflowError(error)) {
+          this.overflowRetried = true
+          this.$log.warn(
+            `[Agent] The conversation is over the context window, compacting and retrying once: ${describeAgentError(
+              error,
+            )}`,
+          )
+          await this.finishWithMessage(partialMessage)
+          await this.generateAIResponse(true)
+          return
+        }
         this.errorMessage = describeAgentError(error)
         this.$message.error(`[Agent] API Error: ${this.errorMessage}`)
         this.$log.error(`[Agent] API Error: ${this.errorMessage}`)
@@ -875,6 +1034,7 @@ export default class AgentPanel extends Vue {
     }
     await this.refreshConnections()
     this.resetResponseState()
+    void this.refreshContextUsage()
   }
 
   private resetResponseState(): void {
@@ -947,6 +1107,7 @@ export default class AgentPanel extends Vue {
       this.hasMore = hasMore
       this.messages = this.removeDuplicates([...(newMessages as AgentMessage[]), ...this.messages])
       if (this.messages.length) this.$nextTick(() => this.scrollToBottom('auto'))
+      if (reset === true) void this.refreshContextUsage()
     } finally {
       this.isLoading = false
     }
@@ -973,6 +1134,7 @@ export default class AgentPanel extends Vue {
   }
 
   private abortAIResponse(): void {
+    this.startCancelled = true
     this.aiAgent?.abort()
     this.gate.denyAll()
   }

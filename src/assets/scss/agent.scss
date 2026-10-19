@@ -763,6 +763,57 @@
     font-size: 13px;
     color: var(--color-text-light);
   }
+  .thinking .el-icon-loading {
+    font-size: 13px;
+  }
+  /* Compaction marker: a centred rule with the label of the summary it holds */
+  .compaction {
+    display: flex;
+    flex-direction: column;
+    gap: var(--agent-space-2);
+  }
+  .compaction-head {
+    display: flex;
+    align-items: center;
+    gap: var(--agent-space-2);
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-text-light);
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .compaction-head .rule {
+    flex: 1;
+    height: 1px;
+    background: var(--color-border-default);
+  }
+  .compaction-head .label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--agent-space-1);
+    white-space: nowrap;
+  }
+  .compaction-head:hover {
+    color: var(--color-text-default);
+  }
+  .compaction-head:focus-visible {
+    outline: 2px solid var(--color-main-green);
+    outline-offset: 2px;
+    border-radius: var(--agent-radius-xs);
+  }
+  .compaction-summary {
+    margin: 0;
+    padding: var(--agent-space-3);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--agent-radius-sm);
+    background: var(--color-bg-primary);
+    color: var(--color-text-default);
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+  }
   .shimmer {
     background: linear-gradient(
       90deg,
@@ -1482,6 +1533,46 @@
     white-space: nowrap;
     color: var(--color-text-title);
   }
+  /* Context meter: reads the size of the conversation, it is not a control */
+  .context-meter {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--agent-space-1);
+    height: 28px;
+    flex: none;
+    margin-left: auto;
+    cursor: default;
+    color: var(--color-text-light);
+  }
+  /* The meter takes the free space, so the model menu sits right after it */
+  .context-meter + .model {
+    margin-left: var(--agent-space-2);
+  }
+  .context-meter .context-ring {
+    display: block;
+    flex: none;
+  }
+  .context-meter .ring-track,
+  .context-meter .ring-value {
+    fill: none;
+    stroke-width: 2;
+  }
+  .context-meter .ring-track {
+    stroke: var(--color-border-default);
+  }
+  .context-meter .ring-value {
+    stroke: var(--color-main-green);
+    stroke-linecap: round;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+  }
+  /* From the compaction threshold the ring says the older turns are about to be summarized */
+  .context-meter .ring-value.ring-warn {
+    stroke: var(--color-main-yellow);
+  }
+  .context-meter .context-percent {
+    font-size: 12px;
+  }
   .model {
     margin-left: auto;
     min-width: 0;
@@ -1878,6 +1969,12 @@
   &.is-narrow .pill.mode .mode-label {
     display: none;
   }
+  // In the side panel the ring alone reads the share (the tooltip has the numbers); the percentage would
+  // squeeze the model name
+  &.is-narrow .context-meter .context-percent,
+  &:not(.is-full) .context-meter .context-percent {
+    display: none;
+  }
   .suggestion {
     text-align: left;
     padding: var(--agent-space-2) var(--agent-space-3);
@@ -2029,4 +2126,11 @@
 body.dark .agent-panel .reasoning-select select,
 body.night .agent-panel .reasoning-select select {
   color-scheme: dark;
+}
+
+/* Context meter tooltip: Element attaches the popper to the body, so this is not inside .agent-panel */
+.agent-context-tip {
+  .context-tip-hint {
+    opacity: 0.7;
+  }
 }
