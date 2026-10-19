@@ -237,7 +237,7 @@ export default class LineChart extends Vue {
       const option = {
         animation: false,
         backgroundColor: 'transparent',
-        grid: { left: 4, right: 8, bottom: 4, top: 12, containLabel: true },
+        grid: { left: 16, right: 16, bottom: 4, top: 16, containLabel: true },
         xAxis: { type: 'time', show: false },
         yAxis: { type: 'value', show: false },
         series: [{ type: 'line', data: [] }],
@@ -266,9 +266,10 @@ export default class LineChart extends Vue {
         },
       },
       grid: {
-        left: 4,
-        right: 8,
-        top: 12,
+        // The axis labels line up with the 16px padding of the card title
+        left: 16,
+        right: 16,
+        top: 16,
         bottom: 4,
         containLabel: true,
       },
@@ -280,7 +281,7 @@ export default class LineChart extends Vue {
         splitLine: { show: false },
         axisLabel: {
           color: colors.subText,
-          fontSize: 10,
+          fontSize: 11,
           margin: 8,
           hideOverlap: true,
           showMinLabel: false,
@@ -299,7 +300,7 @@ export default class LineChart extends Vue {
         axisTick: { show: false },
         axisLabel: {
           color: colors.subText,
-          fontSize: 10,
+          fontSize: 11,
           margin: 6,
           formatter: (value: number) => this.formatAxisValue(value, axisInterval),
         },
@@ -313,14 +314,19 @@ export default class LineChart extends Vue {
           // Keep the curve inside the data range on near-identical x values,
           // otherwise smoothing overshoots into vertical spikes.
           smoothMonotone: 'x',
+          // Display-layer downsampling only; the underlying data is untouched.
+          sampling: 'lttb',
           symbol: 'none',
           data: timeSeriesData, // Use the filtered and sorted data
           animation: false, // Disable series animation
-          lineStyle: { color: this.displayColor, width: 2 },
+          lineStyle: { color: this.displayColor, width: 1.5 },
           areaStyle: this.area
             ? {
+                // ECharts multiplies the area by an opacity default of 0.7;
+                // pin it to 1 so the 16% -> 0% gradient is what renders.
+                opacity: 1,
                 color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-                  { offset: 0, color: `${this.displayColor}80` },
+                  { offset: 0, color: `${this.displayColor}28` },
                   { offset: 1, color: `${this.displayColor}00` },
                 ]),
               }

@@ -72,7 +72,7 @@ export default class DashboardContent extends Vue {
   @Prop({ default: null }) editingWidget!: WidgetModel | null
 
   get detailLeftValue(): string {
-    return this.showDashboardsList ? '230px' : '0px'
+    return this.showDashboardsList ? '220px' : '0px'
   }
 
   private cancelAddWidget(): void {
@@ -100,8 +100,8 @@ export default class DashboardContent extends Vue {
 @import '~@/assets/scss/mixins.scss';
 
 .dashboards-view {
-  height: calc(100% - 59px);
-  margin-top: 59px;
+  height: calc(100% - 48px);
+  margin-top: 48px;
   overflow: auto;
   transition: all 0.3s ease-in-out;
 }

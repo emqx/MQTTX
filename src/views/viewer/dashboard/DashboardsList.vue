@@ -31,16 +31,11 @@
         >
           <template #default="{ node, data }">
             <span class="custom-tree-node">
-              <div class="dashboard-item" @contextmenu.prevent="openContextMenu(data, $event)">
+              <div class="dashboard-item" :title="rowTitle(data)" @contextmenu.prevent="openContextMenu(data, $event)">
                 <div class="dashboard-icon">
                   <i class="el-icon-s-grid"></i>
                 </div>
-                <div class="client-info">
-                  <el-tooltip :content="`${data.name}`" :open-delay="500" placement="top">
-                    <div class="client-name">{{ data.name }}</div>
-                  </el-tooltip>
-                  <div v-if="metaFor(data)" class="client-meta">{{ metaFor(data) }}</div>
-                </div>
+                <span class="dashboard-name">{{ data.name }}</span>
               </div>
             </span>
           </template>
@@ -88,14 +83,12 @@ export default class DashboardsList extends Vue {
   }
 
   /**
-   * Secondary line of a row. The widget count is used when the already loaded
-   * list data carries it (`getAll()` does not join widgets, so today it falls
-   * back to the description); no extra query was added for the count.
+   * Native tooltip for a row: the description is only shown on hover, so the
+   * row itself stays a single line.
    */
-  private metaFor(dashboard: DashboardModel): string {
-    const count = dashboard.widgets?.length
-    if (count) return String(this.$t('viewer.widgetCount', { count }))
-    return (dashboard.description || '').trim()
+  private rowTitle(dashboard: DashboardModel): string {
+    const description = (dashboard.description || '').trim()
+    return description ? `${dashboard.name}\n${description}` : dashboard.name
   }
 
   public upsertDashboard(dashboard: DashboardModel, selectAfter = false) {
@@ -195,9 +188,9 @@ export default class DashboardsList extends Vue {
 
   .dashboard-topbar {
     @include flex-space-between;
-    min-height: 10px;
-    height: 59px;
+    height: 48px;
     flex-shrink: 0;
+    padding-left: 16px;
     // Same line as the right header's bottom border.
     border-bottom: 1px solid var(--color-border-default);
     -webkit-app-region: drag;
@@ -206,28 +199,40 @@ export default class DashboardsList extends Vue {
       -webkit-app-region: no-drag;
     }
 
-    .new-button {
-      margin-right: 16px;
-
-      .icon-create-new,
-      .icon-hide-connections {
-        font-size: 20px;
-        color: var(--color-text-title);
-        &:hover {
-          color: var(--color-main-green);
-        }
-      }
-    }
-
-    // Matches .connection-titlebar: the h1 base style does the typography.
+    // Second-level navigation inside the Viewer tabs, not a page title.
     .dashboard-titlebar {
-      padding: 16px;
       margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-title);
     }
 
     .dashboard-tailbar {
       display: flex;
       align-items: center;
+      gap: 4px;
+      margin-right: 12px;
+    }
+
+    .new-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      color: var(--color-text-light);
+      transition: color 0.15s ease, background-color 0.15s ease;
+
+      .icon-create-new,
+      .icon-hide-connections {
+        font-size: 16px;
+        color: inherit;
+      }
+
+      &:hover {
+        color: var(--color-main-green);
+      }
     }
   }
 
@@ -245,20 +250,32 @@ export default class DashboardsList extends Vue {
 
     .el-tree {
       height: 100%;
-      background-color: var(--color-bg-primary);
+      background-color: var(--color-bg-normal);
+      .el-tree-node__content {
+        margin: 0 8px;
+        height: 36px;
+        border-radius: 6px;
+      }
+      // Dashboards are not nested, so the slot Element keeps for the expand arrow would only indent the rows
+      .el-tree-node__expand-icon.is-leaf {
+        display: none;
+      }
+
+      // Hover only on the rows that are not already selected.
+      .el-tree-node:not(.is-current) > .el-tree-node__content:hover {
+        background-color: var(--color-bg-item);
+      }
+
       .is-current > .el-tree-node__content {
         background-color: var(--color-bg-item);
 
         .dashboard-icon i {
           color: var(--color-main-green);
         }
-      }
-      .el-tree-node__content {
-        margin: 0 8px;
-        height: 100%;
-        border-radius: 8px;
-        &:hover {
-          background-color: var(--color-bg-item);
+
+        .dashboard-name {
+          font-weight: 500;
+          color: var(--color-text-title);
         }
       }
     }
@@ -272,14 +289,14 @@ export default class DashboardsList extends Vue {
     }
 
     .dashboard-item {
-      height: 48px;
+      height: 100%;
       width: 100%;
       cursor: pointer;
       position: relative;
       transition: background 0.3s ease;
       user-select: none;
-      border-radius: 8px;
-      padding: 0;
+      border-radius: 6px;
+      padding: 0 12px;
       display: flex;
       align-items: center;
       min-width: 0;
@@ -288,8 +305,8 @@ export default class DashboardsList extends Vue {
       &.drag-after::after {
         content: '';
         position: absolute;
-        left: 12px;
-        right: 12px;
+        left: 8px;
+        right: 8px;
         height: 0;
         border-top: 2px dashed var(--color-border-default);
       }
@@ -302,39 +319,20 @@ export default class DashboardsList extends Vue {
         bottom: -1px;
       }
 
-      .client-info {
+      .dashboard-name {
         flex: 1;
         min-width: 0;
-
-        .client-name {
-          display: block;
-          font-size: $font-size--body;
-          font-weight: 500;
-          color: var(--color-text-title);
-          max-width: 100%;
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          overflow: hidden;
-
-          &.online {
-            color: var(--color-main-green);
-          }
-        }
-
-        .client-meta {
-          display: block;
-          margin-top: 2px;
-          font-size: $font-size--tips;
-          color: var(--color-text-light);
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          overflow: hidden;
-        }
+        font-size: 13px;
+        font-weight: 400;
+        color: var(--color-text-title);
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
       }
 
       .dashboard-icon {
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -342,7 +340,7 @@ export default class DashboardsList extends Vue {
         margin-right: 8px;
 
         i {
-          font-size: 16px;
+          font-size: 14px;
           color: var(--color-text-light);
         }
       }

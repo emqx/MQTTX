@@ -41,6 +41,14 @@ export default class GaugeChart extends Vue {
   private dynamicMin: number | null = null
   private dynamicMax: number | null = null
 
+  // Value sizing rule, the same one Big Number uses so the two widgets read at
+  // the same size: box driven, then shrunk to fit the ring.
+  private readonly minValueFontPx = 24
+  private readonly maxValueFontPx = 44
+  private readonly minReadableFontPx = 20
+  private readonly unitFontRatio = 0.45
+  private readonly charWidthRatio = 0.56
+
   @Getter('currentTheme') private theme!: Theme
 
   private get hasData(): boolean {
@@ -179,11 +187,18 @@ export default class GaugeChart extends Vue {
     const height = container?.clientHeight || 200
     const size = Math.min(width, height)
 
-    // Compute responsive font sizes
-    const titleFontSize = Math.max(10, Math.min(16, size / 20))
-    const detailFontSize = Math.max(14, Math.min(32, size / 8))
+    // Same value-font rule as the Big Number card (box driven, then shrunk to
+    // fit), so the two widgets read at the same size. The unit renders at 0.45x.
+    const valueText = this.data.value === null ? '0' : this.data.value.toFixed(this.decimals)
+    const unitChars = this.unit ? this.unit.length * this.unitFontRatio : 0
+    const weight = Math.max(valueText.length + unitChars, 1)
+    const boxFontPx = Math.min(this.maxValueFontPx, Math.max(this.minValueFontPx, Math.min(height * 0.2, width * 0.16)))
+    const ringWidth = size * 0.52
+    const detailFontSize = Math.round(
+      Math.max(this.minReadableFontPx, Math.min(boxFontPx, (ringWidth - 4) / weight / this.charWidthRatio)),
+    )
+    const unitFontSize = Math.round(detailFontSize * this.unitFontRatio)
     const detailOffset = size > 200 ? '10%' : '15%'
-    const titleOffset = size > 200 ? '-30%' : '-25%'
 
     // Make the axis and progress bar thicker
     const axisWidth = Math.max(16, size / 12) // was 24, scales with size
@@ -251,12 +266,10 @@ export default class GaugeChart extends Vue {
           splitLine: { show: false },
           axisLabel: { show: false },
           anchor: { show: false },
+          // The card header already shows the widget title, so the ring no
+          // longer repeats it (same as the Big Number card).
           title: {
-            show: true,
-            offsetCenter: [0, titleOffset],
-            fontSize: titleFontSize,
-            fontWeight: '500',
-            color: colors.subText,
+            show: false,
           },
           detail: {
             valueAnimation: true,
@@ -266,10 +279,19 @@ export default class GaugeChart extends Vue {
             offsetCenter: [0, detailOffset],
             fontSize: detailFontSize,
             fontWeight: '600',
-            formatter: (value: number) => `${value.toFixed(this.decimals)}${this.unit}`,
+            formatter: (value: number) =>
+              this.unit ? `${value.toFixed(this.decimals)}{unit|${this.unit}}` : value.toFixed(this.decimals),
             color: colors.title,
             backgroundColor: 'transparent',
             padding: [4, 8],
+            rich: {
+              unit: {
+                fontSize: unitFontSize,
+                fontWeight: '400',
+                color: colors.subText,
+                padding: [0, 0, 0, 4],
+              },
+            },
           },
           data: [
             {
