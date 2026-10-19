@@ -1,5 +1,20 @@
 <template>
   <div class="empty-page right-content">
+    <el-tooltip
+      placement="bottom"
+      :effect="theme !== 'light' ? 'light' : 'dark'"
+      :open-delay="500"
+      :content="$t('connections.showConnections')"
+    >
+      <a
+        v-if="!showConnectionList"
+        href="javascript:;"
+        class="show-connections-button"
+        @click="toggleShowConnectionList({ showConnectionList: true })"
+      >
+        <i class="iconfont icon-show-connections"></i>
+      </a>
+    </el-tooltip>
     <div class="empty-page__block">
       <div class="empty-page__hero">
         <!-- Packets orbiting the logo give a hint of data in motion -->
@@ -50,7 +65,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
+import { Action, Getter } from 'vuex-class'
 import gaCustomLinks from '@/utils/gaCustomLinks'
 import ImportData from './ImportData.vue'
 
@@ -64,6 +79,11 @@ export default class EmptyPage extends Vue {
   @Prop() public clickMethod!: <T>() => T | void
 
   @Getter('currentLang') private getterLang!: Language
+  @Getter('showConnectionList') private showConnectionList!: boolean
+  @Getter('currentTheme') private theme!: Theme
+  @Action('TOGGLE_SHOW_CONNECTION_LIST') private toggleShowConnectionList!: (payload: {
+    showConnectionList: boolean
+  }) => void
 
   private showImportData = false
 
@@ -102,6 +122,19 @@ export default class EmptyPage extends Vue {
   min-height: 100vh;
   position: relative;
   overflow: hidden;
+  // Follow the connection list's slide transition
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  .show-connections-button {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 2;
+    color: var(--color-text-title);
+    .icon-show-connections {
+      font-size: 20px;
+    }
+  }
 
   .empty-page__block {
     padding-bottom: 6vh;
