@@ -46,7 +46,8 @@ export default class LineChart extends Vue {
   private myChart: echarts.ECharts | null = null
   private resizeObserver: ResizeObserver | null = null
   private resizeTimeout: number | null = null
-  private debouncedUpdate!: () => void
+  // Created up front: the data watchers can fire before `mounted`.
+  private debouncedUpdate = this.debounce(this.updateChart, 100)
 
   @Getter('currentTheme') private theme!: Theme
 
@@ -149,7 +150,6 @@ export default class LineChart extends Vue {
   }
 
   mounted(): void {
-    this.debouncedUpdate = this.debounce(this.updateChart, 100)
     this.$nextTick(() => {
       this.initChart()
       this.setupResizeObserver()

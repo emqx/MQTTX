@@ -1,7 +1,6 @@
 <template>
   <div class="key-value-editor">
     <div class="editor-header">
-      <span v-if="title" class="editor-title">{{ title }}</span>
       <span class="editor-label">{{ $t('viewer.thresholdsType') }}</span>
       <div class="editor-type-row">
         <el-select
@@ -44,18 +43,11 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 
 @Component
 export default class ThresholdEditor extends Vue {
-  // Empty by default: the group title lives in the parent now, so the editor
-  // only renders its own title when a caller still passes one.
-  @Prop({ type: String, default: '' }) readonly title!: string
   @Prop({ type: Array, default: () => [] }) readonly value!: Array<{ value: number; color: string }>
   @Prop({ type: String, default: 'Absolute' }) readonly thresholdsType!: 'Absolute' | 'Percentage'
 
   private localThresholds: Array<{ value: number; color: string }> = []
   private localThresholdsType: 'Absolute' | 'Percentage' = 'Absolute'
-
-  mounted() {
-    this.initializeLocalData()
-  }
 
   @Watch('value', { deep: true, immediate: true })
   onValueChange(newValue: Array<{ value: number; color: string }>) {
@@ -67,11 +59,6 @@ export default class ThresholdEditor extends Vue {
   @Watch('thresholdsType', { immediate: true })
   onThresholdsTypeChange(newType: 'Absolute' | 'Percentage') {
     this.localThresholdsType = newType
-  }
-
-  private initializeLocalData() {
-    this.localThresholds = [...(this.value || [])]
-    this.localThresholdsType = this.thresholdsType
   }
 
   private addThreshold() {
@@ -106,12 +93,6 @@ export default class ThresholdEditor extends Vue {
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-
-    .editor-title {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--color-text-default);
     }
 
     .editor-label {

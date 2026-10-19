@@ -3,7 +3,6 @@
     <transition name="slide">
       <div v-show="showDashboardsList" class="dashboards-left-panel" :style="{ width: `${listWidth}px` }">
         <dashboards-list
-          ref="dashboardsList"
           :dashboards="dashboards"
           :selected-id="selectedDashboardId"
           @toggle-list="showDashboardsList = $event"
@@ -133,7 +132,6 @@ export default class Dashboards extends Vue {
 
   // === CONSOLIDATED LOADING STATE ===
   private loadingState = {
-    dashboards: false,
     widgets: false,
     initializing: false,
   }
@@ -211,24 +209,18 @@ export default class Dashboards extends Vue {
     }
   }
 
-  private handleError(error: Error, context: string, showUser = true): void {
-    console.error(`[DASHBOARDS-${context}] Error:`, error)
-    this.$log?.error?.(error.toString())
-    if (showUser) {
-      this.$message.error(`${context} failed: ${error.message}`)
-    }
+  private handleError(error: Error, context: string): void {
+    this.$log?.error?.(`[DASHBOARDS-${context}] ${error.toString()}`)
+    this.$message.error(`${context} failed: ${error.message}`)
   }
 
   private async loadDashboards(): Promise<void> {
-    this.loadingState.dashboards = true
     try {
       const { dashboardService } = useServices()
       this.dashboards = await dashboardService.getAll()
     } catch (error) {
       this.handleError(error as Error, 'Loading dashboards')
       this.dashboards = []
-    } finally {
-      this.loadingState.dashboards = false
     }
   }
 
@@ -264,28 +256,16 @@ export default class Dashboards extends Vue {
     }
   }
 
-  private async refreshData(scope: 'dashboards' | 'widgets' | 'all' = 'all'): Promise<void> {
-    const promises: Promise<void>[] = []
+  /** Reloads the dashboard list and keeps the current selection in sync. */
+  private async refreshDashboards(): Promise<void> {
+    await this.loadDashboards()
 
-    if (scope === 'dashboards' || scope === 'all') {
-      promises.push(this.loadDashboards())
-    }
-
-    if (scope === 'widgets' || scope === 'all') {
-      promises.push(this.loadCurrentDashboardWidgets())
-    }
-
-    await Promise.all(promises)
-
-    // Update selected dashboard reference if dashboards were refreshed
-    if (scope === 'dashboards' || scope === 'all') {
-      if (this.selectedDashboardId) {
-        const found = this.dashboards.find((d) => d.id === this.selectedDashboardId)
-        if (found) {
-          this.selectedDashboard = found
-        } else {
-          this.clearDashboardSelection()
-        }
+    if (this.selectedDashboardId) {
+      const found = this.dashboards.find((d) => d.id === this.selectedDashboardId)
+      if (found) {
+        this.selectedDashboard = found
+      } else {
+        this.clearDashboardSelection()
       }
     }
   }
@@ -309,32 +289,16 @@ export default class Dashboards extends Vue {
     this.clearPersistedDashboardId()
   }
 
-  private async selectDashboard(
-    dashboard: DashboardModel | string,
-    options: { persist?: boolean; skipConfirmation?: boolean } = {},
-  ): Promise<void> {
+  private async selectDashboard(dashboard: DashboardModel, options: { persist?: boolean } = {}): Promise<void> {
     if (this.isSelectingDashboard) return
     this.isSelectingDashboard = true
 
     try {
-      // Handle string ID by finding the dashboard
-      const targetDashboard =
-        typeof dashboard === 'string' ? this.dashboards.find((d) => d.id === dashboard) : dashboard
-
-      if (!targetDashboard) {
-        this.handleError(new Error('Dashboard not found'), 'Dashboard selection', false)
-        return
-      }
-
-      this.setSelectedDashboard(targetDashboard, options.persist)
+      this.setSelectedDashboard(dashboard, options.persist)
       await this.loadCurrentDashboardWidgets()
     } finally {
       this.isSelectingDashboard = false
     }
-  }
-
-  private async selectDashboardById(id: string): Promise<void> {
-    await this.selectDashboard(id)
   }
 
   private getPersistedDashboardId(): string | null {
@@ -378,12 +342,12 @@ export default class Dashboards extends Vue {
       const success = await dashboardService.updateOrders(orderUpdates)
       if (!success) {
         this.$message.error(String(this.$t('viewer.failedToSaveDashboardOrder')))
-        await this.refreshData('dashboards')
+        await this.refreshDashboards()
       }
     } catch (error) {
-      console.error('Error updating dashboard order:', error)
+      this.$log?.error?.(`[DASHBOARDS-order] ${(error as Error).toString()}`)
       this.$message.error(String(this.$t('viewer.failedToSaveDashboardOrder')))
-      await this.refreshData('dashboards')
+      await this.refreshDashboards()
     }
   }
 
@@ -428,9 +392,8 @@ export default class Dashboards extends Vue {
 
     if (result?.id) {
       this.$message.success(String(this.$t('common.saveSuccess') || 'Saved'))
-      await this.refreshData('dashboards')
+      await this.refreshDashboards()
       await this.selectDashboard(result)
-      this.notifyDashboardsList('upsert', result, true)
     } else {
       this.$message.error(String(this.$t('common.savefailed') || 'Save failed'))
     }
@@ -442,7 +405,7 @@ export default class Dashboards extends Vue {
 
     if (deleted) {
       this.$message.success(String(this.$t('common.deleteSuccess') || 'Deleted'))
-      await this.refreshData('dashboards')
+      await this.refreshDashboards()
 
       if (this.isEmpty) {
         this.clearDashboardSelection()
@@ -451,13 +414,6 @@ export default class Dashboards extends Vue {
       }
     } else {
       this.$message.error(String(this.$t('common.deletefailed') || 'Delete failed'))
-    }
-  }
-
-  private notifyDashboardsList(action: string, dashboard: DashboardModel, selectAfter = false): void {
-    const listRef = this.$refs.dashboardsList as InstanceType<typeof DashboardsList>
-    if (listRef?.upsertDashboard) {
-      listRef.upsertDashboard(dashboard, selectAfter)
     }
   }
 
@@ -681,7 +637,7 @@ export default class Dashboards extends Vue {
 
       this.selectedDashboard.globalSettings = globalSettings
     } catch (error) {
-      console.error('Failed to save time range settings:', error)
+      this.$log?.error?.(`[DASHBOARDS-time-range] ${(error as Error).toString()}`)
       this.$message.error(String(this.$t('viewer.failedToSaveTimeRangeSettings')))
     }
   }

@@ -22,9 +22,8 @@
           :h="widget.h"
           :i="String(widget.id)"
           :static="widget.static"
-          class="grid-item-tem"
           @resized="onItemResized"
-          @resize="onItemResizing"
+          @resize="onItemResized"
         >
           <div class="widget-card">
             <div class="widget-header">
@@ -65,7 +64,6 @@
                 :data="getWidgetData(widget)"
                 :duration="duration"
                 :time-range-type="timeRangeType"
-                @error="onWidgetError"
               />
             </div>
           </div>
@@ -83,7 +81,6 @@ import WidgetRenderer from '@/widgets/WidgetRenderer.vue'
 import { globalEventBus } from '@/utils/globalEventBus'
 import { matchTopicMethod } from '@/utils/topicMatch'
 import time from '@/utils/time'
-import moment from 'moment'
 import { Packet, IPublishPacket } from 'mqtt'
 import { MessageQueue } from '@/utils/messageQueue'
 import { deserializeBufferToProtobuf } from '@/utils/protobuf'
@@ -93,8 +90,6 @@ import { Subscription } from 'rxjs'
 
 interface WidgetDataEntry {
   data: BigNumberData | GaugeData | LineData
-  validationState: 'valid' | 'invalid'
-  schemaError?: string
   lastUpdate: number
 }
 
@@ -111,7 +106,6 @@ interface TimeRangeConfig {
   },
 })
 export default class DashboardCanvas extends Vue {
-  @Prop({ type: String, required: false, default: null }) readonly dashboardId!: string | null
   @Prop({ type: Array, default: () => [] }) readonly widgets!: WidgetModel[]
   @Prop({ type: Array, default: () => ['', ''] }) readonly timeRange!: [string, string]
   @Prop({ type: String, default: 'static' }) readonly timeRangeType!: 'live' | 'static'
@@ -122,7 +116,6 @@ export default class DashboardCanvas extends Vue {
   private subscription: Subscription | null = null
   private isLoadingHistoricalData = false
   private scriptService = useServices().scriptService
-  private updateTimeouts: Map<string, NodeJS.Timeout> = new Map()
 
   // Unified 12px gutter between cards, matching the card radius/spacing scale.
   private gridMargin: [number, number] = [12, 12]
@@ -458,7 +451,6 @@ export default class DashboardCanvas extends Vue {
 
       this.$set(this.widgetDataStore, widgetId, {
         data: this.createInitialWidgetData(widget.type),
-        validationState: 'valid',
         lastUpdate: Date.now(),
       })
     }
@@ -553,28 +545,17 @@ export default class DashboardCanvas extends Vue {
     }
 
     const error = widget.schemaValidationError
-    const schemaType = widget.schemaType || 'Unknown'
-    const schemaId = widget.schemaId || 'Unknown'
-    const topicPattern = widget.topicPattern || 'Unknown'
-
     const formattedError = error.length > 100 ? error.substring(0, 100) + '...' : error
 
     return `Schema error: ${formattedError}`
   }
 
   private handleError(error: Error, context: string): void {
-    console.error(`DashboardCanvas ${context}:`, error)
     this.$log?.error(`DashboardCanvas ${context}: ${error.message}`)
     this.$emit('error', { context, error: error.message })
   }
 
   private handleSchemaError(widgetId: string, error: Error): void {
-    const entry = this.widgetDataStore[widgetId]
-    if (entry) {
-      entry.validationState = 'invalid'
-      entry.schemaError = error.message
-      this.$set(this.widgetDataStore, widgetId, { ...entry })
-    }
     this.handleError(error, `Schema processing for widget ${widgetId}`)
   }
 
@@ -590,9 +571,6 @@ export default class DashboardCanvas extends Vue {
       this.messageQueue = null
     }
 
-    this.updateTimeouts.forEach((timeout) => clearTimeout(timeout))
-    this.updateTimeouts.clear()
-
     Object.keys(this.widgetDataStore).forEach((key) => {
       this.$delete(this.widgetDataStore, key)
     })
@@ -607,18 +585,7 @@ export default class DashboardCanvas extends Vue {
     data.value = value
     data.fieldName = fieldName
 
-    const timestamp = dataPoint.timestamp
-    data.chartData.xData.push(timestamp)
-    data.chartData.seriesData[0].data.push(value)
-
-    if (this.timeRangeType === 'live' && this.duration) {
-      this.applyDurationFilter(data, this.duration)
-    } else {
-      if (data.chartData.xData.length > 30) {
-        data.chartData.xData.shift()
-        data.chartData.seriesData[0].data.shift()
-      }
-    }
+    this.appendChartPoint(data, dataPoint.timestamp, value, 30)
   }
 
   private updateGaugeData(data: GaugeData, value: number, dataPoint: TimeSeriesDataPoint, fieldName: string): void {
@@ -627,25 +594,26 @@ export default class DashboardCanvas extends Vue {
   }
 
   private updateLineData(data: LineData, value: number, dataPoint: TimeSeriesDataPoint): void {
-    const timestamp = dataPoint.timestamp
+    this.appendChartPoint(data, dataPoint.timestamp, value, 50)
+  }
+
+  /**
+   * Appends a point, then trims: in live mode to the time window, otherwise to
+   * the given number of points.
+   */
+  private appendChartPoint(data: BigNumberData | LineData, timestamp: string, value: number, maxPoints: number): void {
     data.chartData.xData.push(timestamp)
     data.chartData.seriesData[0].data.push(value)
 
     if (this.timeRangeType === 'live' && this.duration) {
       this.applyDurationFilter(data, this.duration)
-    } else {
-      if (data.chartData.xData.length > 50) {
-        data.chartData.xData.shift()
-        data.chartData.seriesData[0].data.shift()
-      }
+    } else if (data.chartData.xData.length > maxPoints) {
+      data.chartData.xData.shift()
+      data.chartData.seriesData[0].data.shift()
     }
   }
 
   private onLayoutUpdated(layout: any[]): void {
-    this.emitLayoutChanged(layout)
-  }
-
-  private emitLayoutChanged(layout: any[]): void {
     this.$emit('layout-changed', layout)
   }
 
@@ -668,29 +636,12 @@ export default class DashboardCanvas extends Vue {
     this.$emit('layout-changed', nextLayout)
   }
 
-  private onItemResizing(...args: any[]): void {
-    this.onItemResized(...args)
-  }
-
   private onWidgetMenuCommand(cmd: string, widget: WidgetModel): void {
-    this.handleWidgetCommand(cmd, widget)
-  }
-
-  private handleWidgetCommand(cmd: string, widget: WidgetModel): void {
     if (cmd === 'edit') {
       this.$emit('edit-widget', widget)
     } else if (cmd === 'delete') {
       if (widget.id) this.$emit('remove-widget', String(widget.id))
     }
-  }
-
-  private onWidgetError(error: Error, widget: WidgetModel): void {
-    this.$emit('widget-error', { error, widget })
-  }
-
-  removeItem(itemId: string): void {
-    this.$delete(this.widgetDataStore, itemId)
-    this.$emit('remove-widget', itemId)
   }
 
   private async extractValuesFromPayload(payload: Buffer, widget: WidgetModel): Promise<{ [fieldName: string]: any }> {
@@ -755,7 +706,7 @@ export default class DashboardCanvas extends Vue {
         }
       }
 
-      const result = this.extractAllFields(deserializedData, widget.valueField)
+      const result = this.extractAllFields(deserializedData)
       await this.updateWidgetSchemaValidationState(widget, 'valid', null)
       return result
     } catch (error) {
@@ -765,7 +716,7 @@ export default class DashboardCanvas extends Vue {
     }
   }
 
-  private extractAllFields(data: any, specificField?: string): { [fieldName: string]: any } {
+  private extractAllFields(data: any): { [fieldName: string]: any } {
     const result: { [fieldName: string]: any } = {}
     this.flattenObject(data, '', result)
     return result

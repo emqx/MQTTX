@@ -35,8 +35,6 @@ export default class BigNumberChart extends Vue {
   @Prop({ default: () => ({ value: null, chartData: { xData: [], seriesData: [] } }) }) public data!: BigNumberData
   @Prop({ default: 'Absolute' }) public thresholdsType!: 'Absolute' | 'Percentage'
   @Prop({ default: () => [] }) public thresholds!: Threshold[]
-  @Prop({ default: '' }) public extractedFieldName!: string
-  @Prop({ default: 24 * 60 }) public duration!: number // Duration in minutes
   @Prop({ default: 'static' }) public timeRangeType!: 'live' | 'static'
 
   private myChart: echarts.ECharts | null = null
@@ -129,10 +127,6 @@ export default class BigNumberChart extends Vue {
         this.updateSizes()
       })
     }
-  }
-
-  private get internalChartData() {
-    return this.data.chartData
   }
 
   private get internalValue(): number | null {
@@ -418,36 +412,6 @@ export default class BigNumberChart extends Vue {
     this.containerHeight = container.clientHeight
   }
 
-  // TODO: Remove these dummy data generation methods - for testing purposes only
-  private generateDummyChartData(): BigNumberData {
-    const data: BigNumberData = {
-      value: 0,
-      chartData: {
-        xData: [],
-        seriesData: [
-          {
-            name: 'value',
-            data: [],
-          },
-        ],
-      },
-    }
-    const now = new Date()
-
-    for (let i = 29; i >= 0; i--) {
-      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
-      const value = Math.random() * 100 // Random value between 50-150
-      data.chartData.xData.push(date.toISOString().split('T')[0])
-      data.chartData.seriesData[0].data.push(Math.round(value * 100) / 100)
-    }
-
-    return data
-  }
-
-  private generateDummyValue(): number {
-    return Math.round((Math.random() * 100 + 50) * 100) / 100 // Random value between 50-150
-  }
-
   private cleanup(): void {
     if (this.resizeTimeout) {
       clearTimeout(this.resizeTimeout)
@@ -466,10 +430,6 @@ export default class BigNumberChart extends Vue {
       this.myChart.dispose()
       this.myChart = null
     }
-  }
-
-  public updateValue(value: number): void {
-    // Empty or comment out, as no sample refresh needed
   }
 }
 </script>

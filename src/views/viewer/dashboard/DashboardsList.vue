@@ -16,31 +16,26 @@
       </div>
     </div>
     <div class="dashboards-list">
-      <template v-if="!isLoadingData">
-        <el-tree
-          :indent="4"
-          draggable
-          ref="tree"
-          :data="dashboards"
-          :current-node-key="selectedId"
-          node-key="id"
-          highlight-current
-          @node-drop="handleDrop"
-          @node-click="handleNodeClick"
-          :allow-drop="allowDrop"
-        >
-          <template #default="{ node, data }">
-            <span class="custom-tree-node">
-              <div class="dashboard-item" :title="rowTitle(data)" @contextmenu.prevent="openContextMenu(data, $event)">
-                <span class="dashboard-name">{{ data.name }}</span>
-              </div>
-            </span>
-          </template>
-        </el-tree>
-      </template>
-      <template v-else>
-        <el-skeleton class="dashboards-list-skeleton" :row="8" animated />
-      </template>
+      <el-tree
+        :indent="4"
+        draggable
+        ref="tree"
+        :data="dashboards"
+        :current-node-key="selectedId"
+        node-key="id"
+        highlight-current
+        @node-drop="handleDrop"
+        @node-click="handleNodeClick"
+        :allow-drop="allowDrop"
+      >
+        <template #default="{ node, data }">
+          <span class="custom-tree-node">
+            <div class="dashboard-item" :title="rowTitle(data)" @contextmenu.prevent="openContextMenu(data, $event)">
+              <span class="dashboard-name">{{ data.name }}</span>
+            </div>
+          </span>
+        </template>
+      </el-tree>
       <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
         <a href="javascript:;" class="context-menu__item" @click="handleEdit">
           <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
@@ -62,7 +57,6 @@ import '@/assets/font/iconfont'
   components: { Contextmenu },
 })
 export default class DashboardsList extends Vue {
-  private isLoadingData = false
   @Prop({ type: Array, default: () => [] }) readonly dashboards!: DashboardModel[]
   @Prop({ type: String, default: null }) readonly selectedId!: string | null
 
@@ -86,11 +80,6 @@ export default class DashboardsList extends Vue {
   private rowTitle(dashboard: DashboardModel): string {
     const description = (dashboard.description || '').trim()
     return description ? `${dashboard.name}\n${description}` : dashboard.name
-  }
-
-  public upsertDashboard(dashboard: DashboardModel, selectAfter = false) {
-    if (!dashboard || !dashboard.id) return
-    this.$emit('upsert', { dashboard, selectAfter })
   }
 
   private handleNodeClick(data: DashboardModel) {
@@ -238,10 +227,6 @@ export default class DashboardsList extends Vue {
 
     &:hover {
       overflow-y: overlay;
-    }
-
-    .dashboards-list-skeleton {
-      margin: 0 16px;
     }
 
     .el-tree {
