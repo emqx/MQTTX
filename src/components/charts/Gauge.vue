@@ -13,6 +13,7 @@ import { TitleComponent, TooltipComponent, GridComponent } from 'echarts/compone
 import { GaugeChart as EChartsGaugeChart } from 'echarts/charts'
 import { UniversalTransition } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
+import { getChartThemeColors } from '@/utils/chartTheme'
 
 echarts.use([TitleComponent, TooltipComponent, GridComponent, EChartsGaugeChart, CanvasRenderer, UniversalTransition])
 
@@ -142,7 +143,7 @@ export default class GaugeChart extends Vue {
   // Add computed for outerColors
   private get outerColors(): Array<[number, string]> {
     if (this.thresholds.length === 0) {
-      return [[1, this.theme === 'light' ? '#ddd' : '#555']]
+      return [[1, getChartThemeColors().splitLine]]
     }
     const range = this.effectiveMax - this.effectiveMin
     const sortedThresholds = [...this.thresholds]
@@ -170,8 +171,7 @@ export default class GaugeChart extends Vue {
   }
 
   private getChartOption(): echarts.EChartsCoreOption {
-    const isLightTheme = this.theme === 'light'
-    const textColor = isLightTheme ? '#424242' : '#e8eaed'
+    const colors = getChartThemeColors()
 
     // Get container size
     const container = document.getElementById(this.id) as HTMLElement
@@ -229,25 +229,21 @@ export default class GaugeChart extends Vue {
           itemStyle: {
             // Use displayColor
             color: this.displayColor,
-            shadowColor: `${this.displayColor}40`,
-            shadowBlur: 8,
           },
           progress: {
             show: true,
             width: progressWidth,
-            roundCap: false,
+            roundCap: true,
             itemStyle: {
               // Use displayColor
               color: this.displayColor,
-              shadowColor: `${this.displayColor}40`,
-              shadowBlur: 4,
             },
           },
           pointer: { show: false },
           axisLine: {
             lineStyle: {
               width: axisWidth,
-              color: [[1, isLightTheme ? '#e8e8e8' : '#3a3a3a']],
+              color: [[1, colors.splitLine]],
               cap: 'round',
             },
           },
@@ -260,8 +256,7 @@ export default class GaugeChart extends Vue {
             offsetCenter: [0, titleOffset],
             fontSize: titleFontSize,
             fontWeight: '500',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            color: isLightTheme ? '#666666' : '#a0a0a0',
+            color: colors.subText,
           },
           detail: {
             valueAnimation: true,
@@ -271,25 +266,10 @@ export default class GaugeChart extends Vue {
             offsetCenter: [0, detailOffset],
             fontSize: detailFontSize,
             fontWeight: '600',
-            fontFamily: 'system-ui, -apple-system, sans-serif',
-            formatter: (value: number) => {
-              const mainValue = `${value.toFixed(this.decimals)}${this.unit}`
-              if (this.valueField && this.valueField.trim() !== '') {
-                return `${mainValue}\n{valueField|${this.valueField}}`
-              }
-              return mainValue
-            },
-            color: textColor,
+            formatter: (value: number) => `${value.toFixed(this.decimals)}${this.unit}`,
+            color: colors.title,
             backgroundColor: 'transparent',
             padding: [4, 8],
-            rich: {
-              valueField: {
-                fontSize: Math.max(10, Math.min(16, size / 18)),
-                fontWeight: '400',
-                color: isLightTheme ? '#888' : '#aaa',
-                lineHeight: 18,
-              },
-            },
           },
           data: [
             {
@@ -317,7 +297,7 @@ export default class GaugeChart extends Vue {
   private initChart(): void {
     const chartDom = document.getElementById(this.id) as HTMLElement
     if (chartDom) {
-      this.myChart = echarts.init(chartDom, this.theme !== 'light' ? 'dark' : null)
+      this.myChart = echarts.init(chartDom)
       this.setupResizeObserver() // Moved here
       this.updateChart()
     }
@@ -393,8 +373,8 @@ export default class GaugeChart extends Vue {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #999;
-  font-size: 16px;
+  color: var(--color-text-light);
+  font-size: 13px;
 }
 
 /* Responsive behavior - let CSS handle the sizing */

@@ -31,13 +31,9 @@
         >
           <template #default="{ node, data }">
             <span class="custom-tree-node">
-              <div
-                class="dashboard-item"
-                :class="{ selected: selectedId === data.id }"
-                @contextmenu.prevent="openContextMenu(data, $event)"
-              >
+              <div class="dashboard-item" @contextmenu.prevent="openContextMenu(data, $event)">
                 <div class="dashboard-icon">
-                  <i class="iconfont icon-bytes-statistics"></i>
+                  <i class="el-icon-s-grid"></i>
                 </div>
                 <div class="client-info">
                   <el-tooltip :content="`${data.name}`" :open-delay="500" placement="top">
@@ -54,10 +50,10 @@
       </template>
       <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
         <a href="javascript:;" class="context-menu__item" @click="handleEdit">
-          <i class="iconfont icon-edit"></i>Edit
+          <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
         </a>
         <a href="javascript:;" class="context-menu__item danger" @click="handleDelete">
-          <i class="iconfont icon-delete"></i>Delete
+          <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
         </a>
       </contextmenu>
     </div>
@@ -201,16 +197,20 @@ export default class DashboardsList extends Vue {
 
       .icon-create-new,
       .icon-hide-connections {
-        font-size: 20px;
-        color: var(--color-text-title);
+        font-size: 18px;
+        color: var(--color-text-default);
         &:hover {
-          color: var(--color-text-title);
+          color: var(--color-main-green);
         }
       }
     }
 
     .dashboard-titlebar {
       padding: 16px;
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-title);
     }
 
     .dashboard-tailbar {
@@ -236,15 +236,16 @@ export default class DashboardsList extends Vue {
       background-color: var(--color-bg-primary);
       .is-current > .el-tree-node__content {
         background-color: var(--color-bg-item);
+
+        .dashboard-icon i {
+          color: var(--color-main-green);
+        }
       }
       .el-tree-node__content {
         margin: 0 8px;
-        height: 100%;
+        height: 40px;
         border-radius: 8px;
         &:hover {
-          background-color: var(--color-bg-item);
-        }
-        &.selected {
           background-color: var(--color-bg-item);
         }
       }
@@ -255,20 +256,21 @@ export default class DashboardsList extends Vue {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      min-width: 0;
     }
 
     .dashboard-item {
-      height: 48px;
+      height: 40px;
       width: 100%;
       cursor: pointer;
       position: relative;
       transition: background 0.3s ease;
       user-select: none;
-      margin: 4px 0;
       border-radius: 8px;
-      padding: 0 0px;
+      padding: 0;
       display: flex;
       align-items: center;
+      min-width: 0;
 
       &.drag-before::before,
       &.drag-after::after {
@@ -290,13 +292,14 @@ export default class DashboardsList extends Vue {
 
       .client-info {
         flex: 1;
+        min-width: 0;
 
         .client-name {
           display: block;
-          font-size: $font-size--body;
+          font-size: 13px;
           font-weight: 500;
           color: var(--color-text-title);
-          max-width: 200px;
+          max-width: 100%;
           white-space: nowrap;
           text-overflow: ellipsis;
           overflow: hidden;
@@ -316,9 +319,9 @@ export default class DashboardsList extends Vue {
         flex-shrink: 0;
         margin-right: 8px;
 
-        .iconfont {
-          font-size: 16px;
-          color: var(--color-text-title);
+        i {
+          font-size: 15px;
+          color: var(--color-text-light);
         }
       }
     }

@@ -1,15 +1,23 @@
 <template>
-  <el-date-picker
-    v-model="modelValue"
-    type="datetimerange"
-    :start-placeholder="$t('common.startTime')"
-    :end-placeholder="$t('common.endTime')"
-    :picker-options="pickerOptions"
-    value-format="yyyy-MM-dd HH:mm:ss:SSS"
-    :size="size"
-    popper-class="time-range-picker-popper"
-  >
-  </el-date-picker>
+  <div class="time-range-select" :class="{ 'is-live': showLiveLabel }">
+    <span v-if="showLiveLabel" class="time-range-live-label">
+      <i class="el-icon-time"></i>
+      <span>{{ liveLabel }}</span>
+    </span>
+    <el-date-picker
+      v-model="modelValue"
+      type="datetimerange"
+      :start-placeholder="$t('common.startTime')"
+      :end-placeholder="$t('common.endTime')"
+      :picker-options="pickerOptions"
+      range-separator="→"
+      value-format="yyyy-MM-dd HH:mm:ss:SSS"
+      :size="size"
+      popper-class="time-range-picker-popper"
+      class="time-range-picker"
+    >
+    </el-date-picker>
+  </div>
 </template>
 
 <script lang="ts">
@@ -29,6 +37,31 @@ export default class TimeRangeSelect extends Vue {
   private isFromShortcut = false
   private shortcutLiveMode = false
   private shortcutDuration: number | null = null
+
+  // Shortcut durations in minutes mapped to the label shown while live.
+  private readonly liveLabels: Record<number, string> = {
+    5: 'common.last5Minutes',
+    30: 'common.last30Minutes',
+    60: 'common.lastHour',
+    1440: 'common.lastDay',
+    10080: 'common.lastWeek',
+  }
+
+  /**
+   * In live mode the picker would only show a rolling window's start and end
+   * dates, which says nothing useful. Show the window name instead while still
+   * allowing the picker to open on click (it stays underneath, transparent).
+   */
+  get liveLabel(): string {
+    if (!this.isLiveMode || !this.currentDuration) return ''
+    const minutes = Math.round(this.currentDuration / (60 * 1000))
+    const key = this.liveLabels[minutes]
+    return key ? String(this.$t(key)) : ''
+  }
+
+  get showLiveLabel(): boolean {
+    return this.isLiveMode && !!this.liveLabel
+  }
 
   // Initialize with props
   private mounted() {
@@ -142,6 +175,70 @@ export default class TimeRangeSelect extends Vue {
 </script>
 
 <style lang="scss">
+.time-range-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+
+  // Keep Element's own datetimerange width (400px) - the same width the
+  // traffic monitor page uses - so the full start/end time always fits, and
+  // give the separator symmetric padding on both sides of the arrow.
+  .time-range-picker .el-range-separator {
+    width: auto;
+    min-width: 14px;
+    padding: 0 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &.is-live {
+    .time-range-live-label {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 10px;
+      border: 1px solid var(--color-border-default);
+      border-radius: 4px;
+      background: var(--color-bg-normal);
+      color: var(--color-text-default);
+      font-size: 12px;
+      white-space: nowrap;
+      pointer-events: none;
+
+      i {
+        flex-shrink: 0;
+        color: var(--color-text-light);
+      }
+
+      span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    // Keep the picker clickable underneath the read-only label.
+    .time-range-picker {
+      opacity: 0;
+    }
+
+    &:hover .time-range-live-label {
+      border-color: var(--color-main-green);
+      color: var(--color-main-green);
+
+      i {
+        color: var(--color-main-green);
+      }
+    }
+  }
+}
+
 .time-range-picker-popper {
   transform: translateX(-25px) !important;
   .el-button {
