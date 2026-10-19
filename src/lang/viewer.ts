@@ -71,14 +71,6 @@ export default {
     hu: 'Widget hozzáadása',
     ko: '위젯 추가',
   },
-  widgetCount: {
-    zh: '{count} 个组件',
-    en: '{count} widgets',
-    tr: '{count} bileşen',
-    ja: '{count} ウィジェット',
-    hu: '{count} widget',
-    ko: '{count}개 위젯',
-  },
   topicsTree: {
     zh: '主题树',
     en: 'Topics Tree',

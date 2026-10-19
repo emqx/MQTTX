@@ -2,10 +2,10 @@
   <div ref="container" class="big-stat-panel">
     <template v-if="hasData">
       <div class="value-overlay">
-        <div class="big-value" :style="{ fontSize: bigFontSize, color: displayColor }">
-          {{ displayValue }}
+        <div class="big-value" :style="{ fontSize: valueFontSize, color: displayColor }">
+          <span>{{ displayValue }}</span
+          ><span v-if="unit" class="value-unit" :style="{ fontSize: unitFontSize }">{{ unit }}</span>
         </div>
-        <div class="value-unit" v-if="unit" :style="{ fontSize: unitFontSize }">{{ unit }}</div>
       </div>
       <div :id="id" class="chart-container"></div>
     </template>
@@ -233,10 +233,12 @@ export default class BigNumberChart extends Vue {
           symbol: 'none',
           lineStyle: {
             color: this.displayColor,
-            width: 1,
-            opacity: 0.6,
+            width: 1.5,
           },
           areaStyle: {
+            // ECharts multiplies the area by an opacity default of 0.7; pin it
+            // to 1 so the 18% -> 0% gradient is what renders.
+            opacity: 1,
             color: {
               type: 'linear',
               x: 0,
@@ -244,8 +246,8 @@ export default class BigNumberChart extends Vue {
               x2: 0,
               y2: 1,
               colorStops: [
-                { offset: 0, color: `${this.displayColor}60` },
-                { offset: 1, color: `${this.displayColor}05` },
+                { offset: 0, color: `${this.displayColor}2E` },
+                { offset: 1, color: `${this.displayColor}00` },
               ],
             },
           },
@@ -314,10 +316,11 @@ export default class BigNumberChart extends Vue {
       clearTimeout(this.resizeTimeout)
     }
     this.resizeTimeout = window.setTimeout(() => {
+      // The value font depends on the size even before the sparkline exists
+      this.updateSizes()
       if (this.myChart) {
         this.myChart.resize()
         this.updateChart()
-        this.updateSizes()
       }
     }, 150)
   }
@@ -325,47 +328,70 @@ export default class BigNumberChart extends Vue {
   private containerWidth = 0
   private containerHeight = 0
 
-  // Value text sizing: one line of digits is roughly CHAR_WIDTH_RATIO × font size
-  // wide. The font shrinks to fit before the number is ever abbreviated.
-  private readonly maxValueFontPx = 56
-  private readonly minValueFontPx = 20
+  // Value text sizing (Grafana Stat style): the font is driven by the card box
+  // only, so cards of the same size always show the same font size. One line of
+  // digits is roughly charWidthRatio x font wide; the unit renders at 0.45x.
+  private readonly minValueFontPx = 24
+  private readonly maxValueFontPx = 44
+  private readonly minReadableFontPx = 20
+  private readonly unitFontRatio = 0.45
   private readonly charWidthRatio = 0.56
+  private readonly valueSidePadding = 16
 
   /**
-   * Full value with thousands separators and the configured decimals. Shown
-   * whenever the measured font size still clears the minimum; an abbreviated
-   * form (1.2k / 3.4M) is only used when shrinking further would be unreadable,
-   * so precision is never lost while there is room for the digits.
+   * Full value with thousands separators and the configured decimals. The full
+   * number is kept unless it cannot fit at the minimum readable size, in which
+   * case it is abbreviated (1.2k / 3.4M).
    */
   private get displayValue(): string {
     if (this.internalValue === null) return '0'
     const full = this.formatFull(this.internalValue)
     // Not measured yet: never guess, show the precise value.
-    if (this.containerWidth <= 0) return full
-    return this.fittedValueFontPx(full) >= this.minValueFontPx ? full : this.formatAbbreviated(this.internalValue)
+    if (this.containerWidth <= 0 || this.containerHeight <= 0) return full
+    return this.fitValueFontPx(full) >= this.minReadableFontPx ? full : this.formatAbbreviated(this.internalValue)
   }
 
-  /** Font size needed to fit `text` on one line, capped by the card height. */
-  private fittedValueFontPx(text: string): number {
-    const availableWidth = Math.max(this.containerWidth - 16, 0)
-    const byWidth = availableWidth / Math.max(text.length, 1) / this.charWidthRatio
-    // The value block sits above the sparkline, so it only has ~56% of the card.
-    const byHeight = Math.max(this.minValueFontPx, this.containerHeight * 0.56)
-    return Math.min(this.maxValueFontPx, byHeight, byWidth)
+  /** Font size from the card box alone: clamp(24, min(height x 0.2, width x 0.16), 44). */
+  private get boxValueFontPx(): number {
+    const byHeight = this.containerHeight * 0.2
+    const byWidth = this.containerWidth * 0.16
+    return Math.min(this.maxValueFontPx, Math.max(this.minValueFontPx, Math.min(byHeight, byWidth)))
   }
 
-  private get bigValueFontPx(): number {
-    const text = this.displayValue
-    const raw = this.containerWidth <= 0 ? this.maxValueFontPx : this.fittedValueFontPx(text)
-    return Math.round(Math.max(this.minValueFontPx, Math.min(this.maxValueFontPx, raw)))
+  /** Estimated width of `value` + unit at the given value font size. */
+  private textWidthPx(value: string, fontPx: number): number {
+    const unitChars = this.unit ? this.unit.length * this.unitFontRatio : 0
+    const gap = this.unit ? 4 : 0
+    return fontPx * this.charWidthRatio * (value.length + unitChars) + gap
   }
 
-  private get bigFontSize(): string {
-    return `${this.bigValueFontPx}px`
+  /** Largest font up to the box size that keeps value + unit inside the card. */
+  private fitValueFontPx(value: string): number {
+    const available = this.containerWidth - this.valueSidePadding * 2
+    if (available <= 0) return this.boxValueFontPx
+    let fontPx = this.boxValueFontPx
+    // Text width grows linearly with the font size, so one step is exact.
+    if (this.textWidthPx(value, fontPx) > available) {
+      const unitChars = this.unit ? this.unit.length * this.unitFontRatio : 0
+      const gap = this.unit ? 4 : 0
+      const weight = Math.max(value.length + unitChars, 1)
+      fontPx = Math.max(0, (available - gap) / weight / this.charWidthRatio)
+    }
+    return fontPx
+  }
+
+  private get valueFontPx(): number {
+    if (this.containerWidth <= 0 || this.containerHeight <= 0) return this.maxValueFontPx
+    const fitted = this.fitValueFontPx(this.displayValue)
+    return Math.round(Math.max(this.minReadableFontPx, Math.min(this.maxValueFontPx, fitted)))
+  }
+
+  private get valueFontSize(): string {
+    return `${this.valueFontPx}px`
   }
 
   private get unitFontSize(): string {
-    return `${Math.max(10, Math.min(13, this.containerWidth / 26 || 13))}px`
+    return `${Math.round(this.valueFontPx * this.unitFontRatio)}px`
   }
 
   private formatFull(value: number): string {
@@ -465,11 +491,9 @@ export default class BigNumberChart extends Vue {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 0 8px;
+  padding: 0 16px;
   box-sizing: border-box;
   overflow: hidden;
   user-select: none;
@@ -484,19 +508,19 @@ export default class BigNumberChart extends Vue {
   white-space: nowrap;
 }
 
+/* Inline with the value so the two share a baseline. */
 .value-unit {
+  margin-left: 4px;
   font-weight: 400;
   color: var(--color-text-light);
-  line-height: 1.2;
-  text-align: center;
-  white-space: nowrap;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
+/*
+ * Full-bleed sparkline: flush with the card's left, right and bottom edges and
+ * clipped by the card's rounded corners.
+ */
 .chart-container {
-  flex: 0 0 34%;
+  flex: 0 0 32%;
   min-height: 22px;
   width: 100%;
 }
@@ -507,6 +531,6 @@ export default class BigNumberChart extends Vue {
   align-items: center;
   justify-content: center;
   color: var(--color-text-light);
-  font-size: 13px;
+  font-size: 12px;
 }
 </style>

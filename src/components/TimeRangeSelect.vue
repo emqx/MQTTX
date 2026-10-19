@@ -1,5 +1,5 @@
 <template>
-  <div class="time-range-select" :class="{ 'is-live': showLiveLabel }">
+  <div class="time-range-select" :class="{ 'is-live': showLiveLabel, 'is-compact': compact }">
     <span v-if="showLiveLabel" class="time-range-live-label">
       <i class="el-icon-time"></i>
       <span>{{ liveLabel }}</span>
@@ -11,6 +11,7 @@
       :end-placeholder="$t('common.endTime')"
       :picker-options="pickerOptions"
       range-separator="→"
+      :format="displayFormat"
       value-format="yyyy-MM-dd HH:mm:ss:SSS"
       :size="size"
       popper-class="time-range-picker-popper"
@@ -30,6 +31,9 @@ export default class TimeRangeSelect extends Vue {
   @Prop({ default: false }) public showLiveMode!: boolean
   @Prop({ default: 'static' }) public timeRangeType!: 'live' | 'static'
   @Prop({ default: 24 * 60 }) public duration!: number
+  // Dashboard header variant: short displayed dates and a content-sized box
+  // instead of Element's fixed 400px range editor.
+  @Prop({ default: false }) public compact!: boolean
 
   private modelValue = this.value
   private currentDuration: number | null = null
@@ -61,6 +65,11 @@ export default class TimeRangeSelect extends Vue {
 
   get showLiveLabel(): boolean {
     return this.isLiveMode && !!this.liveLabel
+  }
+
+  /** Display-only format; value-format is untouched. */
+  get displayFormat(): string | undefined {
+    return this.compact ? 'MM-dd HH:mm' : undefined
   }
 
   // Initialize with props
@@ -264,6 +273,51 @@ export default class TimeRangeSelect extends Vue {
 
       i {
         color: var(--color-main-green);
+      }
+    }
+  }
+
+  // Dashboard header: a short displayed date and a box that follows its own
+  // content (~264px) instead of Element's fixed 400px range editor.
+  &.is-compact {
+    .time-range-picker.el-range-editor {
+      width: auto;
+      padding: 0 10px;
+
+      .el-range-input {
+        flex: 0 0 auto;
+        width: 112px;
+        text-align: center;
+      }
+
+      .el-range-separator {
+        padding: 0 6px;
+      }
+    }
+
+    // In live mode the label is the in-flow child that defines the width, and
+    // the (transparent, clickable) picker fills the wrapper underneath it.
+    &.is-live {
+      .time-range-picker.el-range-editor {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        width: auto;
+        // Clip the wider inputs so the invisible picker cannot swallow clicks
+        // on the controls next to it.
+        overflow: hidden;
+      }
+
+      .time-range-live-label {
+        position: relative;
+        left: auto;
+        right: auto;
+        top: auto;
+        bottom: auto;
+        height: 32px;
+        padding: 0 10px;
       }
     }
   }

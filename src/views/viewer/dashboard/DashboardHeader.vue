@@ -85,17 +85,18 @@
               :time-range-type="timeRangeType"
               :duration="duration"
               size="mini"
+              compact
               @range-relative="$emit('time-range-select', $event)"
             />
-            <a
+            <el-button
               v-if="!showDashboardsList && selectedDashboard"
-              href="javascript:;"
+              size="small"
               class="add-widget-button"
+              icon="el-icon-plus"
               @click="$emit('add-visualization')"
             >
-              <i class="el-icon-plus"></i>
-              <span>{{ $t('viewer.addWidget') }}</span>
-            </a>
+              {{ $t('viewer.addWidget') }}
+            </el-button>
             <template v-else>
               <div v-if="selectedDashboard" class="topbar-dashboard-view">
                 <div class="dashboard-info-section">
@@ -115,15 +116,20 @@
                   <TimeRangeSelect
                     v-model="localTimeRangeModel"
                     size="mini"
+                    compact
                     @range-relative="$emit('time-range-select', $event)"
                     :show-live-mode="true"
                     :time-range-type="timeRangeType"
                     :duration="duration"
                   />
-                  <a href="javascript:;" class="add-widget-button" @click="$emit('add-visualization')">
-                    <i class="el-icon-plus"></i>
-                    <span>{{ $t('viewer.addWidget') }}</span>
-                  </a>
+                  <el-button
+                    size="small"
+                    class="add-widget-button"
+                    icon="el-icon-plus"
+                    @click="$emit('add-visualization')"
+                  >
+                    {{ $t('viewer.addWidget') }}
+                  </el-button>
                 </div>
               </div>
             </template>
@@ -175,7 +181,7 @@ export default class DashboardHeader extends Vue {
   }
 
   get leftValue(): string {
-    return this.showDashboardsList ? '230px' : '0px'
+    return this.showDashboardsList ? '220px' : '0px'
   }
 
   private toCreateDashboard() {
@@ -232,10 +238,10 @@ export default class DashboardHeader extends Vue {
 
 .dashboard-header {
   position: absolute;
-  height: 59px;
+  height: 48px;
   top: 0;
   right: 0;
-  background: var(--color-bg-primary);
+  background: var(--color-bg-normal);
   border-bottom: 1px solid var(--color-border-default);
   z-index: 999;
   transition: all 0.3s ease-in-out;
@@ -269,7 +275,7 @@ export default class DashboardHeader extends Vue {
       }
 
       .dashboard-title {
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 600;
         color: var(--color-text-title);
         margin: 0;
@@ -295,7 +301,7 @@ export default class DashboardHeader extends Vue {
           display: flex;
           align-items: center;
           flex-shrink: 0;
-          gap: 12px;
+          gap: 8px;
         }
       }
       .dashboard-create-form,
@@ -335,27 +341,28 @@ export default class DashboardHeader extends Vue {
         opacity: 1;
       }
 
-      // Same secondary action language as the other page headers: an icon plus
-      // a label in the title colour, 32px tall so the whole row lines up.
-      .add-widget-button {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
+      // Element's small button (1px border, 32px) with the theme's colours.
+      .add-widget-button.el-button {
         flex-shrink: 0;
         height: 32px;
-        padding: 0 4px;
+        padding: 0 12px;
+        line-height: 30px;
+        border: 1px solid var(--color-border-default);
+        border-radius: 6px;
+        background: var(--color-bg-normal);
         color: var(--color-text-title);
         font-size: 13px;
         font-weight: 500;
-        line-height: 1;
-        white-space: nowrap;
-        transition: color 0.15s ease;
+        transition: color 0.15s ease, border-color 0.15s ease;
 
         i {
-          font-size: 18px;
+          font-size: 14px;
         }
 
-        &:hover {
+        &:hover,
+        &:focus {
+          border-color: var(--color-main-green);
+          background: var(--color-bg-normal);
           color: var(--color-main-green);
         }
       }

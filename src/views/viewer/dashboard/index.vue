@@ -633,7 +633,7 @@ export default class Dashboards extends Vue {
   margin: -14px 0 0 -14px;
   .dashboards-left-panel {
     position: absolute;
-    width: 230px;
+    width: 220px;
     height: 100%;
     left: 0;
     top: 0;
@@ -641,7 +641,7 @@ export default class Dashboards extends Vue {
     overflow-x: hidden;
     z-index: 1000;
     border-right: 1px solid var(--color-border-default);
-    background-color: var(--color-bg-primary);
+    background-color: var(--color-bg-normal);
     transition: all 0.3s ease-in-out;
   }
 

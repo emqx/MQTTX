@@ -974,6 +974,9 @@ export default class DashboardCanvas extends Vue {
   width: 100%;
   height: 100%;
   min-height: 400px;
+  // vue-grid-layout uses one margin for both the gutter and the outer inset:
+  // 12px gutter (margin below) + 4px here = the 16px canvas padding.
+  padding: 4px;
 
   .vue-grid-layout {
     background: transparent;
@@ -1053,10 +1056,11 @@ export default class DashboardCanvas extends Vue {
 
 .widget-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 8px 12px 4px;
+  height: 40px;
+  padding: 0 16px;
   flex-shrink: 0;
 }
 
@@ -1121,7 +1125,8 @@ export default class DashboardCanvas extends Vue {
 .widget-body {
   flex: 1;
   min-height: 0;
-  padding: 0 12px 12px;
+  // Each chart owns its own insets now (the sparkline is full-bleed).
+  padding: 0;
 }
 </style>
 
