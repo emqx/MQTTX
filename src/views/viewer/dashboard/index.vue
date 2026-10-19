@@ -1,7 +1,7 @@
 <template>
-  <div class="dashboards">
+  <div class="dashboards" :class="{ 'is-resizing': resizing }">
     <transition name="slide">
-      <div v-show="showDashboardsList" class="dashboards-left-panel">
+      <div v-show="showDashboardsList" class="dashboards-left-panel" :style="{ width: `${listWidth}px` }">
         <dashboards-list
           ref="dashboardsList"
           :dashboards="dashboards"
@@ -15,10 +15,17 @@
         />
       </div>
     </transition>
+    <div
+      v-show="showDashboardsList"
+      class="dashboards-list-resizer"
+      :style="{ left: `${listOffset}px` }"
+      @mousedown.prevent="startResize"
+    ></div>
 
     <DashboardHeader
       ref="header"
       :show-dashboards-list="showDashboardsList"
+      :list-offset="listOffset"
       :selected-dashboard-id="selectedDashboardId"
       :dashboards="dashboards"
       :selected-dashboard="selectedDashboard"
@@ -38,6 +45,7 @@
     <DashboardContent
       :loading-state="loadingState"
       :show-dashboards-list="showDashboardsList"
+      :list-offset="listOffset"
       :selected-dashboard-id="selectedDashboardId"
       :dashboard-widgets="dashboardWidgets"
       :time-range="timeRange"
@@ -67,6 +75,24 @@ import DashboardContent from './DashboardContent.vue'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
 
+// The list card sits this far from the edge of the dashboard area, which is
+// also the gap between the card and the widgets.
+const LIST_INSET = 12
+const LIST_MIN_WIDTH = 160
+const LIST_MAX_WIDTH = 400
+const LIST_WIDTH_KEY = 'mqttx_dashboard_list_width'
+
+const clampListWidth = (width: number) => Math.min(LIST_MAX_WIDTH, Math.max(LIST_MIN_WIDTH, width))
+
+const readListWidth = (): number => {
+  try {
+    const width = Number(window.localStorage.getItem(LIST_WIDTH_KEY))
+    return width ? clampListWidth(width) : 220
+  } catch (e) {
+    return 220
+  }
+}
+
 @Component({
   components: {
     DashboardsList,
@@ -76,6 +102,8 @@ import time from '@/utils/time'
 })
 export default class Dashboards extends Vue {
   private showDashboardsList = true
+  private listWidth = readListWidth()
+  private resizing = false
   private isAddingWidget = false
   private editingWidget: WidgetModel | null = null
 
@@ -95,6 +123,32 @@ export default class Dashboards extends Vue {
   private timeRange: [string, string] = [time.getDateBefore(24 * 60), time.getNowDate()]
   private timeRangeType: 'live' | 'static' = 'static'
   private duration: number = 24 * 60
+
+  get listOffset(): number {
+    return LIST_INSET + this.listWidth
+  }
+
+  private startResize(event: MouseEvent): void {
+    const startX = event.clientX
+    const startWidth = this.listWidth
+    this.resizing = true
+
+    const onMove = (moveEvent: MouseEvent) => {
+      this.listWidth = clampListWidth(startWidth + moveEvent.clientX - startX)
+    }
+    const onUp = () => {
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+      this.resizing = false
+      try {
+        window.localStorage.setItem(LIST_WIDTH_KEY, String(this.listWidth))
+      } catch (e) {
+        this.$log?.error?.((e as Error).toString())
+      }
+    }
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+  }
 
   get isEmpty(): boolean {
     return this.dashboards.length === 0
@@ -628,21 +682,60 @@ export default class Dashboards extends Vue {
 
 .dashboards {
   position: relative;
-  height: calc(100vh - 100px);
+  // Same height as the Topics Tree cards
+  height: calc(100vh - 130px);
   overflow: hidden;
-  margin: -14px 0 0 -14px;
+  // Widgets keep a 12px inset (the grid margin); pulling the area out by the
+  // same amount lines them up with the tabs and the other Viewer pages.
+  margin: 0 -12px;
   .dashboards-left-panel {
     position: absolute;
-    width: 220px;
-    height: 100%;
-    left: 0;
+    left: 12px;
     top: 0;
-    bottom: 0;
-    overflow-x: hidden;
+    bottom: 12px;
+    overflow: hidden;
     z-index: 1000;
-    border-right: 1px solid var(--color-border-default);
+    border: 1px solid var(--color-border-default);
+    border-radius: 4px;
     background-color: var(--color-bg-normal);
     transition: all 0.3s ease-in-out;
+  }
+
+  .dashboards-list-resizer {
+    position: absolute;
+    top: 0;
+    bottom: 12px;
+    width: 12px;
+    z-index: 1001;
+    cursor: col-resize;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 5px;
+      width: 2px;
+      border-radius: 1px;
+      background: transparent;
+      transition: background-color 0.15s ease;
+    }
+  }
+
+  .dashboards-list-resizer:hover::after,
+  &.is-resizing .dashboards-list-resizer::after {
+    background: var(--color-main-green);
+  }
+
+  &.is-resizing {
+    cursor: col-resize;
+    user-select: none;
+
+    .dashboards-left-panel,
+    .dashboard-header,
+    .dashboards-view {
+      transition: none;
+    }
   }
 
   .slide-enter-active,

@@ -974,9 +974,9 @@ export default class DashboardCanvas extends Vue {
   width: 100%;
   height: 100%;
   min-height: 400px;
-  // vue-grid-layout uses one margin for both the gutter and the outer inset:
-  // 12px gutter (margin below) + 4px here = the 16px canvas padding.
-  padding: 4px;
+  // vue-grid-layout uses one margin for both the gutter and the outer inset,
+  // so the widgets sit 12px from the list card and the header.
+  padding: 0;
 
   .vue-grid-layout {
     background: transparent;

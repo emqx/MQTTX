@@ -32,9 +32,6 @@
           <template #default="{ node, data }">
             <span class="custom-tree-node">
               <div class="dashboard-item" :title="rowTitle(data)" @contextmenu.prevent="openContextMenu(data, $event)">
-                <div class="dashboard-icon">
-                  <i class="el-icon-s-grid"></i>
-                </div>
                 <span class="dashboard-name">{{ data.name }}</span>
               </div>
             </span>
@@ -191,7 +188,6 @@ export default class DashboardsList extends Vue {
     height: 48px;
     flex-shrink: 0;
     padding-left: 16px;
-    // Same line as the right header's bottom border.
     border-bottom: 1px solid var(--color-border-default);
     -webkit-app-region: drag;
 
@@ -269,10 +265,6 @@ export default class DashboardsList extends Vue {
       .is-current > .el-tree-node__content {
         background-color: var(--color-bg-item);
 
-        .dashboard-icon i {
-          color: var(--color-main-green);
-        }
-
         .dashboard-name {
           font-weight: 500;
           color: var(--color-text-title);
@@ -328,21 +320,6 @@ export default class DashboardsList extends Vue {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-      }
-
-      .dashboard-icon {
-        width: 14px;
-        height: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        margin-right: 8px;
-
-        i {
-          font-size: 14px;
-          color: var(--color-text-light);
-        }
       }
     }
   }

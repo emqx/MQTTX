@@ -61,6 +61,7 @@ import useServices from '@/database/useServices'
 export default class DashboardContent extends Vue {
   @Prop({ required: true }) loadingState!: { initializing: boolean; widgets: boolean }
   @Prop({ required: true }) showDashboardsList!: boolean
+  @Prop({ required: true }) listOffset!: number
   @Prop({ required: true }) selectedDashboardId!: string | null
   @Prop({ required: true }) dashboardWidgets!: WidgetModel[]
   @Prop({ required: true }) timeRange!: [string, string]
@@ -72,7 +73,7 @@ export default class DashboardContent extends Vue {
   @Prop({ default: null }) editingWidget!: WidgetModel | null
 
   get detailLeftValue(): string {
-    return this.showDashboardsList ? '220px' : '0px'
+    return this.showDashboardsList ? `${this.listOffset}px` : '0px'
   }
 
   private cancelAddWidget(): void {
