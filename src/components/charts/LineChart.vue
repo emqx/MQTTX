@@ -1,7 +1,10 @@
 <template>
   <div class="line-chart-container">
     <div :id="id" class="chart-container"></div>
-    <div v-if="!hasData" class="no-data-overlay">{{ $t('common.noData') }}</div>
+    <div v-if="!hasData" class="no-data-overlay">
+      <i class="el-icon-data-line"></i>
+      <span>{{ $t('common.noData') }}</span>
+    </div>
   </div>
 </template>
 
@@ -13,6 +16,7 @@ import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from
 import { LineChart as EChartsLineChart } from 'echarts/charts'
 import { UniversalTransition } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
+import { getChartThemeColors } from '@/utils/chartTheme'
 
 echarts.use([
   TitleComponent,
@@ -157,33 +161,81 @@ export default class LineChart extends Vue {
   private initChart(): void {
     const chartDom = document.getElementById(this.id) as HTMLElement
     if (chartDom) {
-      this.myChart = echarts.init(chartDom, this.theme !== 'light' ? 'dark' : null)
+      this.myChart = echarts.init(chartDom)
       this.debouncedUpdate()
     }
+  }
+
+  private readonly axisSplitNumber = 3
+
+  private formatAxisTime(value: number): string {
+    const date = new Date(value)
+    const pad = (n: number) => `${n}`.padStart(2, '0')
+    if (this.duration > 24 * 60) {
+      return `${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+    }
+    return `${pad(date.getHours())}:${pad(date.getMinutes())}`
+  }
+
+  private formatTooltipTime(value: number): string {
+    const date = new Date(value)
+    const pad = (n: number) => `${n}`.padStart(2, '0')
+    return `${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
+      date.getSeconds(),
+    )}`
+  }
+
+  /** Decimals needed so two ticks one `interval` apart never render the same. */
+  private decimalsForInterval(interval: number): number {
+    if (!(interval > 0)) return 2
+    return Math.min(6, Math.max(0, Math.ceil(-Math.log10(interval))))
+  }
+
+  /** Y axis: thousands separators below 10 000, k/M/B above. */
+  private formatAxisValue(value: number, interval: number): string {
+    const abs = Math.abs(value)
+    if (abs >= 1e9) return `${(value / 1e9).toFixed(this.decimalsForInterval(interval / 1e9))}B`
+    if (abs >= 1e6) return `${(value / 1e6).toFixed(this.decimalsForInterval(interval / 1e6))}M`
+    if (abs >= 1e4) return `${(value / 1e3).toFixed(this.decimalsForInterval(interval / 1e3))}k`
+    const digits = this.decimalsForInterval(interval)
+    return value.toLocaleString('en-US', {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    })
+  }
+
+  /** Tooltip values: keep more precision than the axis ticks. */
+  private formatReadableValue(value: number): string {
+    const abs = Math.abs(value)
+    if (abs >= 1e9) return `${(value / 1e9).toFixed(2)}B`
+    if (abs >= 1e6) return `${(value / 1e6).toFixed(2)}M`
+    if (abs >= 1e4) return `${(value / 1e3).toFixed(2)}k`
+    return value.toLocaleString('en-US', { maximumFractionDigits: 3 })
+  }
+
+  /**
+   * Approximates the tick interval ECharts will pick so the axis labels can
+   * carry just enough decimals. Estimating low only adds decimals, which never
+   * makes two ticks collide.
+   */
+  private estimateAxisInterval(values: number[]): number {
+    if (values.length === 0) return 1
+    const range = Math.max(...values) - Math.min(...values)
+    if (range > 0) return range / this.axisSplitNumber
+    return Math.max(Math.abs(values[0]) || 0, 1) * 0.1
   }
 
   private updateChart(): void {
     if (!this.myChart) return
 
-    const container = document.getElementById(this.id)
-    const containerWidth = container?.clientWidth || 400
-    const containerHeight = container?.clientHeight || 300
-
-    const leftMargin = Math.max(containerWidth * 0.07, 20)
-    const rightMargin = Math.max(containerWidth * 0.05, 20)
-    const bottomMargin = Math.max(containerHeight * 0.15, 20)
-
-    const isLightTheme = this.theme === 'light'
-    const textColor = isLightTheme ? '#424242' : '#e8eaed'
-    const gridColor = isLightTheme ? '#e8e8e8' : '#3a3a3a'
-
+    const colors = getChartThemeColors()
     const timeSeriesData = this.getTimeSeriesData()
 
     if (timeSeriesData.length === 0) {
       const option = {
         animation: false,
         backgroundColor: 'transparent',
-        grid: { left: leftMargin, right: rightMargin, bottom: bottomMargin, top: 20 },
+        grid: { left: 4, right: 8, bottom: 4, top: 12, containLabel: true },
         xAxis: { type: 'time', show: false },
         yAxis: { type: 'value', show: false },
         series: [{ type: 'line', data: [] }],
@@ -192,64 +244,72 @@ export default class LineChart extends Vue {
       return
     }
 
+    const axisInterval = this.estimateAxisInterval(timeSeriesData.map(([, value]) => value))
+
     const option = {
       animation: false, // Disable all animations to prevent visual corruption
       backgroundColor: 'transparent',
       tooltip: {
         trigger: 'axis',
-        backgroundColor: isLightTheme ? 'rgba(255,255,255,0.95)' : 'rgba(32,33,36,0.95)',
-        borderColor: isLightTheme ? '#e0e0e0' : '#424242',
-        textStyle: { color: textColor },
+        backgroundColor: colors.surface,
+        borderColor: colors.border,
+        borderWidth: 1,
+        textStyle: { color: colors.text, fontSize: 12 },
         formatter: (params: any) => {
           if (!params || params.length === 0) return ''
           const data = params[0]
-          const time = new Date(data.data[0]).toLocaleString()
-          const value = data.data[1]
-          return `${time}<br/>Value: ${value}`
+          const time = this.formatTooltipTime(data.data[0])
+          const value = this.formatReadableValue(data.data[1])
+          return `${time}<br/>${data.seriesName}: ${value}`
         },
       },
       grid: {
-        left: leftMargin,
-        right: rightMargin,
-        bottom: bottomMargin,
-        top: 20,
+        left: 4,
+        right: 8,
+        top: 12,
+        bottom: 4,
         containLabel: true,
       },
       xAxis: {
         type: 'time',
         boundaryGap: false,
-        axisLine: { lineStyle: { color: gridColor } },
-        axisLabel: {
-          color: textColor,
-          fontSize: 10,
-          formatter: (value: number) => {
-            const date = new Date(value)
-            if (this.duration <= 60) {
-              // Less than 1 hour - show minutes:seconds
-              return date.toLocaleTimeString('en-US', { minute: '2-digit', second: '2-digit' })
-            } else if (this.duration <= 24 * 60) {
-              // Less than 1 day - show hours:minutes
-              return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
-            } else {
-              // More than 1 day - show date
-              return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-            }
-          },
-        },
+        axisLine: { lineStyle: { color: colors.axis } },
         axisTick: { show: false },
+        splitLine: { show: false },
+        axisLabel: {
+          color: colors.subText,
+          fontSize: 10,
+          margin: 8,
+          hideOverlap: true,
+          showMinLabel: false,
+          showMaxLabel: false,
+          formatter: (value: number) => this.formatAxisTime(value),
+        },
         min: this.getTimeAxisMin(),
         max: this.getTimeAxisMax(),
       },
       yAxis: {
         type: 'value',
+        // Auto-scale to the data range unless a fixed range is configured.
+        scale: true,
+        splitNumber: this.axisSplitNumber,
         axisLine: { show: false },
-        axisLabel: { color: textColor, fontSize: 10 },
-        splitLine: { lineStyle: { color: gridColor, type: 'dashed' } },
+        axisTick: { show: false },
+        axisLabel: {
+          color: colors.subText,
+          fontSize: 10,
+          margin: 6,
+          formatter: (value: number) => this.formatAxisValue(value, axisInterval),
+        },
+        splitLine: { lineStyle: { color: colors.splitLine, type: 'dashed' } },
       },
       series: [
         {
           type: 'line',
           smooth: this.smooth,
+          // Keep the curve inside the data range on near-identical x values,
+          // otherwise smoothing overshoots into vertical spikes.
+          smoothMonotone: 'x',
           symbol: 'none',
           data: timeSeriesData, // Use the filtered and sorted data
           animation: false, // Disable series animation
@@ -326,12 +386,20 @@ export default class LineChart extends Vue {
 
 .no-data-overlay {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #999;
-  font-size: 16px;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--color-text-light);
+  font-size: 12px;
   pointer-events: none;
   z-index: 10;
+
+  i {
+    font-size: 20px;
+    opacity: 0.7;
+  }
 }
 </style>

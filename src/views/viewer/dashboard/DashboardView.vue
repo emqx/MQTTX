@@ -5,6 +5,7 @@
         :layout="layout"
         :col-num="12"
         :row-height="30"
+        :margin="gridMargin"
         :is-draggable="true"
         :is-resizable="true"
         :is-responsive="false"
@@ -122,6 +123,9 @@ export default class DashboardCanvas extends Vue {
   private isLoadingHistoricalData = false
   private scriptService = useServices().scriptService
   private updateTimeouts: Map<string, NodeJS.Timeout> = new Map()
+
+  // Unified 12px gutter between cards, matching the card radius/spacing scale.
+  private gridMargin: [number, number] = [12, 12]
 
   get layout() {
     return this.widgets.map((widget) => ({
@@ -968,59 +972,59 @@ export default class DashboardCanvas extends Vue {
 
 .dashboard-canvas-grid {
   width: 100%;
-  margin-top: 10px;
   height: 100%;
   min-height: 400px;
 
   .vue-grid-layout {
-    background: var(--color-bg-primary);
-    border-radius: 8px;
+    background: transparent;
     min-height: 400px;
-    transition: background 0.2s;
   }
 
   .vue-grid-item:not(.vue-grid-placeholder) {
-    background: var(--color-bg-card);
+    background: var(--color-bg-normal);
     border: 1px solid var(--color-border-default);
     border-radius: 8px;
-    box-shadow: 0 1px 4px 0 var(--color-shadow-leftlist);
-    transition: background 0.2s, border 0.2s;
+    transition: border-color 0.2s, background-color 0.2s;
     display: flex;
-    align-items: center;
-    justify-content: center;
     touch-action: none;
     overflow: hidden;
     padding: 0;
 
     &:hover {
       border-color: var(--color-main-green);
-      background: var(--color-bg-hover);
     }
-
-    .vue-resizable-handle {
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-
-    &:hover .vue-resizable-handle {
-      opacity: 1;
-    }
-  }
-
-  .dashboard-canvas-grid-text {
-    font-size: 24px;
-    color: var(--color-text-title);
-    text-align: center;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    user-select: none;
   }
 
   ::v-deep .vue-grid-item.vue-grid-placeholder {
     background: var(--color-main-green) !important;
+    opacity: 0.16;
+    border-radius: 8px;
+  }
+
+  // Resize corner: hidden until hover and drawn with theme colours so it is
+  // legible on light, dark and night.
+  ::v-deep .vue-grid-item .vue-resizable-handle {
+    width: 14px;
+    height: 14px;
+    padding: 0;
+    background-image: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+
+    &::after {
+      content: '';
+      position: absolute;
+      right: 3px;
+      bottom: 3px;
+      width: 6px;
+      height: 6px;
+      border-right: 1.5px solid var(--color-text-light);
+      border-bottom: 1.5px solid var(--color-text-light);
+    }
+  }
+
+  ::v-deep .vue-grid-item:hover .vue-resizable-handle {
+    opacity: 1;
   }
 }
 
@@ -1033,9 +1037,17 @@ export default class DashboardCanvas extends Vue {
 
 .widget-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 6px 8px;
+  gap: 8px;
+  padding: 8px 12px 4px;
+  flex-shrink: 0;
+}
+
+// Keep the card clean: the menu only appears when the card is hovered.
+.widget-card:hover .widget-menu-trigger,
+.widget-menu-trigger:focus {
+  opacity: 1;
 }
 
 .widget-title-container {
@@ -1046,8 +1058,8 @@ export default class DashboardCanvas extends Vue {
 }
 
 .widget-title {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   color: var(--color-text-title);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1058,18 +1070,13 @@ export default class DashboardCanvas extends Vue {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--color-minor-red);
   margin-top: 2px;
   cursor: help;
 
   .el-icon-warning {
     font-size: 12px;
-  }
-
-  .el-icon-warning-outline {
-    font-size: 12px;
-    color: var(--color-text-light);
   }
 
   .warning-text {
@@ -1081,44 +1088,53 @@ export default class DashboardCanvas extends Vue {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
-  color: var(--color-text-tips);
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  color: var(--color-text-light);
   cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s, background-color 0.2s;
+
+  &:hover {
+    color: var(--color-text-title);
+    background: var(--color-bg-item);
+  }
 }
 
 .widget-body {
   flex: 1;
   min-height: 0;
-  padding: 8px;
+  padding: 0 12px 12px;
 }
 </style>
 
 <style lang="scss">
 .dashboard-widget-dropdown {
-  background: var(--color-bg-card);
+  background: var(--color-bg-messagebox);
   border: 1px solid var(--color-border-default);
-  box-shadow: 0 4px 12px 0 var(--color-shadow-leftlist);
+  box-shadow: 0 4px 12px 0 var(--color-shadow-card);
   padding: 0;
   border-radius: 8px;
 
   .el-dropdown-menu {
-    background: var(--color-bg-card);
+    background: var(--color-bg-messagebox);
     border: none;
-    padding: 8px 0;
+    padding: 4px 0;
   }
 
   .el-dropdown-menu__item {
-    color: var(--color-text-title);
-    line-height: 32px;
-    height: 32px;
-    padding: 4px 12px;
+    color: var(--color-text-default);
+    line-height: 30px;
+    height: 30px;
+    padding: 0 12px;
     display: flex;
     align-items: center;
+    font-size: 13px;
 
     .iconfont {
-      font-size: 18px;
-      margin-right: 5px;
+      font-size: 16px;
+      margin-right: 6px;
     }
 
     &.is-disabled {
@@ -1136,47 +1152,15 @@ export default class DashboardCanvas extends Vue {
     &:hover,
     &:focus {
       color: var(--color-main-green);
-      background: var(--color-light-green);
+      // --color-bg-primary contrasts with the menu surface in light, dark and
+      // night (--color-bg-item matches the night surface, hiding the hover).
+      background: var(--color-bg-primary);
     }
 
     &.is-danger:hover,
     &.is-danger:focus {
       color: var(--color-minor-red);
-      background: var(--color-light-red);
-    }
-
-    &.is-warning {
-      color: var(--color-warning);
-    }
-
-    &.is-warning:hover,
-    &.is-warning:focus {
-      color: var(--color-warning);
-      background: var(--color-light-warning);
-    }
-
-    &.is-success {
-      color: var(--color-main-green);
-    }
-
-    &.is-success:hover,
-    &.is-success:focus {
-      color: var(--color-main-green);
-      background: var(--color-light-green);
-    }
-  }
-
-  .el-dropdown-menu__item--divided {
-    position: relative;
-    &::before {
-      content: '';
-      display: block;
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: -4px;
-      height: 1px;
-      background: var(--color-border-default);
+      background: var(--color-bg-primary);
     }
   }
 }

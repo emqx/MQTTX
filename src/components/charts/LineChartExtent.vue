@@ -10,6 +10,7 @@ import { TitleComponent, ToolboxComponent, TooltipComponent, GridComponent, Lege
 import { LineChart } from 'echarts/charts'
 import { UniversalTransition } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
+import { getChartThemeColors } from '@/utils/chartTheme'
 
 echarts.use([
   TitleComponent,
@@ -49,13 +50,13 @@ export default class LineChartExtent extends Vue {
   private areaLineChart: echarts.ECharts | null = null
 
   private generateChartOption() {
-    const isLightTheme = this.theme === 'light'
-    const textColor = isLightTheme ? '#616161' : '#e6e8f1'
+    const colors = getChartThemeColors()
     return {
       backgroundColor: this.backgroundColor,
       color: this.chartData.seriesData.map((item) => item.areaStyle.colorFrom),
       title: {
         text: this.chartTitle,
+        textStyle: { color: colors.text, fontSize: 14, fontWeight: 500 },
       },
       tooltip: {
         trigger: 'axis',
@@ -83,18 +84,21 @@ export default class LineChartExtent extends Vue {
       legend: {
         data: this.chartData.seriesData.map((item) => item.name),
         textStyle: {
-          color: textColor,
+          color: colors.text,
         },
       },
       toolbox: {
         feature: {
           saveAsImage: {},
         },
+        iconStyle: {
+          borderColor: colors.text,
+        },
       },
       grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '3%',
+        left: 8,
+        right: 12,
+        bottom: 4,
         containLabel: true,
       },
       xAxis: [
@@ -102,16 +106,24 @@ export default class LineChartExtent extends Vue {
           type: 'category',
           boundaryGap: false,
           data: this.chartData.xData,
+          axisLine: { lineStyle: { color: colors.axis } },
+          axisTick: { show: false },
+          axisLabel: { color: colors.subText, fontSize: 10 },
         },
       ],
       yAxis: [
         {
           type: 'value',
+          axisLine: { show: false },
+          axisTick: { show: false },
           axisLabel: {
+            color: colors.subText,
+            fontSize: 10,
             formatter: (value: number) => {
               return this.formatter ? this.formatter(value) : value
             },
           },
+          splitLine: { lineStyle: { color: colors.splitLine, type: 'dashed' } },
         },
       ],
       series: this.chartData.seriesData.map((item) => ({
@@ -119,6 +131,8 @@ export default class LineChartExtent extends Vue {
         type: 'line',
         stack: 'Total',
         smooth: this.type === 'area',
+        // Keep smoothing inside the data range on near-identical x values.
+        smoothMonotone: 'x',
         showSymbol: false,
         lineStyle: {
           width: this.type === 'line' ? 2 : 0,

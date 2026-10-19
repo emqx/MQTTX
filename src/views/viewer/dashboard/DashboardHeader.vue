@@ -96,7 +96,7 @@
               :time-range-type="timeRangeType"
               :duration="duration"
               size="mini"
-              style="margin-left: 8px; width: 200px"
+              style="margin-left: 8px"
               @range-relative="$emit('time-range-select', $event)"
             />
             <template v-else>
@@ -129,8 +129,10 @@
                     v-model="localTimeRangeModel"
                     size="mini"
                     @range-relative="$emit('time-range-select', $event)"
-                    style="margin-left: 8px; width: 200px"
+                    style="margin-left: 8px"
                     :show-live-mode="true"
+                    :time-range-type="timeRangeType"
+                    :duration="duration"
                   />
                 </div>
               </div>
@@ -243,7 +245,6 @@ export default class DashboardHeader extends Vue {
   height: 59px;
   top: 0;
   right: 0;
-  padding: 16px;
   background: var(--color-bg-primary);
   border-bottom: 1px solid var(--color-border-default);
   z-index: 999;
@@ -259,11 +260,11 @@ export default class DashboardHeader extends Vue {
       margin-right: 16px;
 
       .icon-show-connections {
-        font-size: 20px;
+        font-size: 18px;
         cursor: pointer;
-        color: var(--color-text-title);
+        color: var(--color-text-default);
         &:hover {
-          color: var(--color-text-title);
+          color: var(--color-main-green);
         }
       }
     }
@@ -278,7 +279,7 @@ export default class DashboardHeader extends Vue {
       }
 
       .dashboard-title {
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 600;
         color: var(--color-text-title);
         margin: 0;
@@ -318,12 +319,20 @@ export default class DashboardHeader extends Vue {
         height: 20px;
         line-height: 1;
         &:hover {
-          color: var(--color-text-title);
+          color: var(--color-main-green);
         }
         .el-icon-edit {
-          font-size: 18px;
+          font-size: 15px;
           font-weight: 500;
         }
+      }
+      .add-widget-button {
+        height: 28px;
+        padding: 0 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: normal;
       }
     }
   }

@@ -21,20 +21,22 @@ export default class NumberCard extends Vue {
 
 <style lang="scss" scoped>
 .number-card {
-  padding: 16px 0px;
+  padding: 12px 0;
   text-align: center;
-  border: 0px;
+  border: 0;
+  background: transparent;
 
   .value {
-    font-size: 24px;
-    font-weight: bold;
-    color: #fff;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-text-title);
+    line-height: 1.2;
   }
 
   .label {
-    margin-top: 8px;
-    font-size: 14px;
-    color: #fff;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--color-text-light);
   }
 }
 </style>

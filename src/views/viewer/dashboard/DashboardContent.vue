@@ -8,18 +8,11 @@
         <WidgetConfig :initial-widget="editingWidget" @cancel="cancelAddWidget" @save="handleSaveWidgetConfig" />
       </template>
       <template v-else>
-        <div v-if="isEmpty" class="no-dashboards-placeholder">
+        <div v-if="isEmpty" class="dashboard-empty">
+          <i class="el-icon-s-grid"></i>
           <h2>{{ $t('viewer.noDashboards') }}</h2>
-          <p>
-            {{ $t('viewer.createDashboardToGetStarted') }}
-          </p>
-          <el-button
-            type="primary"
-            class="primary-btn"
-            icon="el-icon-plus"
-            style="font-size: 16px; padding: 10px 32px; border-radius: 6px; margin-top: 16px"
-            @click="$emit('create-dashboard')"
-          >
+          <p>{{ $t('viewer.createDashboardToGetStarted') }}</p>
+          <el-button type="primary" icon="el-icon-plus" @click="$emit('create-dashboard')">
             {{ $t('viewer.createDashboard') }}
           </el-button>
         </div>
@@ -39,18 +32,11 @@
               @remove-widget="$emit('remove-widget', $event)"
             />
           </template>
-          <div v-else class="dashboard-placeholder">
+          <div v-else class="dashboard-empty">
+            <i class="el-icon-s-data"></i>
             <h2>{{ $t('viewer.noWidgetsTitle') }}</h2>
-            <p>
-              {{ $t('viewer.noWidgetsHint') }}
-            </p>
-            <el-button
-              type="primary"
-              class="primary-btn"
-              icon="el-icon-plus"
-              style="font-size: 16px; padding: 10px 32px; border-radius: 6px; margin-top: 16px"
-              @click="$emit('add-visualization')"
-            >
+            <p>{{ $t('viewer.noWidgetsHint') }}</p>
+            <el-button type="primary" icon="el-icon-plus" @click="$emit('add-visualization')">
               {{ $t('viewer.addVisualization') }}
             </el-button>
           </div>
@@ -125,56 +111,61 @@ export default class DashboardContent extends Vue {
 }
 
 .dashboard-skeleton-page {
-  margin: 30px;
+  margin: 16px;
   overflow-x: hidden;
 }
 
 .widget-skeleton-page {
-  margin: 30px;
+  margin: 16px;
   overflow-x: hidden;
 }
 
-.dashboard-placeholder {
+.dashboard-empty {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
   padding: 24px;
-  color: var(--color-text-title);
+  text-align: center;
+  color: var(--color-text-default);
+
+  > i {
+    font-size: 32px;
+    color: var(--color-text-light);
+    margin-bottom: 12px;
+  }
 
   h2 {
-    margin: 0 0 8px 0;
-    font-size: 16px;
+    margin: 0 0 8px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--color-text-title);
   }
 
   p {
-    margin: 0;
+    margin: 0 0 16px;
+    max-width: 420px;
+    font-size: 13px;
     color: var(--color-text-light);
   }
-}
 
-.no-dashboards-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 24px;
-  color: var(--color-text-title);
+  .el-button--primary {
+    height: 32px;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    background: var(--color-main-green);
+    border-color: var(--color-main-green);
+    color: var(--color-text-active);
 
-  h2 {
-    margin: 0 0 8px 0;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--color-text-title);
-  }
-
-  p {
-    margin: 0;
-    color: var(--color-text-light);
+    &:hover,
+    &:focus {
+      background: var(--color-minor-green);
+      border-color: var(--color-minor-green);
+      color: var(--color-text-active);
+    }
   }
 }
 </style>

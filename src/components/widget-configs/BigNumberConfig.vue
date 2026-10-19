@@ -1,38 +1,21 @@
 <template>
   <div class="widget-config-section">
-    <el-card shadow="never" class="widget-section-body item-card">
-      <el-row :gutter="10">
-        <el-col :span="22">
-          <el-form-item label-width="93px" label="Min">
-            <el-input type="number" size="mini" v-model="localMin" step="1" placeholder="auto" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="2"></el-col>
-        <el-col :span="22">
-          <el-form-item label-width="93px" label="Max">
-            <el-input type="number" size="mini" v-model="localMax" step="1" placeholder="auto" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="2"></el-col>
-        <el-col :span="22">
-          <el-form-item label-width="93px" label="Decimals">
-            <el-input type="number" size="mini" v-model="localDecimals" :min="0" :max="6" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="2"></el-col>
-        <el-col :span="22">
-          <el-form-item label-width="93px" label="Unit">
-            <el-input size="mini" v-model="localUnit" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="2"></el-col>
-        <el-col :span="22">
-          <el-form-item label-width="93px" label="Color" class="color-picker-item">
-            <el-color-picker v-model="localColor" size="mini" color-format="hex" :predefine="predefineColors" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="2"></el-col>
-      </el-row>
+    <el-card shadow="never" class="item-card">
+      <el-form-item :label="$t('viewer.min')">
+        <el-input type="number" size="mini" v-model="localMin" step="1" :placeholder="$t('viewer.auto')" />
+      </el-form-item>
+      <el-form-item :label="$t('viewer.max')">
+        <el-input type="number" size="mini" v-model="localMax" step="1" :placeholder="$t('viewer.auto')" />
+      </el-form-item>
+      <el-form-item :label="$t('viewer.decimals')">
+        <el-input type="number" size="mini" v-model="localDecimals" :min="0" :max="6" />
+      </el-form-item>
+      <el-form-item :label="$t('viewer.unit')">
+        <el-input size="mini" v-model="localUnit" />
+      </el-form-item>
+      <el-form-item :label="$t('viewer.color')" class="color-picker-item">
+        <el-color-picker v-model="localColor" size="mini" color-format="hex" :predefine="predefineColors" />
+      </el-form-item>
     </el-card>
   </div>
 </template>

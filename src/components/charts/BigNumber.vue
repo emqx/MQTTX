@@ -1,22 +1,15 @@
 <template>
-  <div
-    ref="container"
-    :style="{ width: '100%', height: '100%', minWidth: '120px', minHeight: '80px', position: 'relative' }"
-    class="big-stat-panel"
-  >
-    <div v-if="hasData" :id="id" class="chart-container"></div>
+  <div ref="container" class="big-stat-panel">
+    <template v-if="hasData">
+      <div class="value-overlay">
+        <div class="big-value" :style="{ fontSize: bigFontSize, color: displayColor }">
+          {{ displayValue }}
+        </div>
+        <div class="value-unit" v-if="unit" :style="{ fontSize: unitFontSize }">{{ unit }}</div>
+      </div>
+      <div :id="id" class="chart-container"></div>
+    </template>
     <div v-else class="no-data-background">{{ $t('common.noData') }}</div>
-
-    <!-- Value Overlay -->
-    <div v-if="hasData" class="value-overlay">
-      <div class="big-value" :style="{ fontSize: bigFontSize, color: displayColor }">
-        {{ formatValue(internalValue) }}
-      </div>
-      <div class="value-unit" v-if="unit" :style="{ fontSize: unitFontSize }">{{ unit }}</div>
-      <div class="extracted-field" v-if="extractedFieldName" :style="{ fontSize: fieldFontSize }">
-        {{ extractedFieldName }}
-      </div>
-    </div>
   </div>
 </template>
 
@@ -189,9 +182,6 @@ export default class BigNumberChart extends Vue {
     const container = document.getElementById(this.id) as HTMLElement
     if (!container) return {}
 
-    const isLightTheme = this.theme === 'light'
-    const textColor = isLightTheme ? '#424242' : '#e8eaed'
-
     const timeSeriesData = this.getTimeSeriesData()
 
     // If there's no valid data, show empty chart
@@ -285,7 +275,7 @@ export default class BigNumberChart extends Vue {
   private initChart(): void {
     const chartDom = document.getElementById(this.id) as HTMLElement
     if (chartDom) {
-      this.myChart = echarts.init(chartDom, this.theme !== 'light' ? 'dark' : null)
+      this.myChart = echarts.init(chartDom)
       this.updateChart()
       // Ensure chart is properly sized on initialization
       this.$nextTick(() => {
@@ -332,32 +322,74 @@ export default class BigNumberChart extends Vue {
     }, 150)
   }
 
-  private bigFontSize = '96px'
-  private unitFontSize = '14px'
-  private fieldFontSize = '12px'
+  private containerWidth = 0
+  private containerHeight = 0
 
-  private formatValue(value: number | null): string {
-    if (value === null) return '0'
-    const rounded = Number(value.toFixed(this.decimals))
-    if (rounded >= 1000000) {
-      return (rounded / 1000000).toFixed(1) + 'M'
-    } else if (rounded >= 1000) {
-      return (rounded / 1000).toFixed(1) + 'k'
-    }
-    return rounded.toString()
+  // Value text sizing: one line of digits is roughly CHAR_WIDTH_RATIO × font size
+  // wide. The font shrinks to fit before the number is ever abbreviated.
+  private readonly maxValueFontPx = 56
+  private readonly minValueFontPx = 20
+  private readonly charWidthRatio = 0.56
+
+  /**
+   * Full value with thousands separators and the configured decimals. Shown
+   * whenever the measured font size still clears the minimum; an abbreviated
+   * form (1.2k / 3.4M) is only used when shrinking further would be unreadable,
+   * so precision is never lost while there is room for the digits.
+   */
+  private get displayValue(): string {
+    if (this.internalValue === null) return '0'
+    const full = this.formatFull(this.internalValue)
+    // Not measured yet: never guess, show the precise value.
+    if (this.containerWidth <= 0) return full
+    return this.fittedValueFontPx(full) >= this.minValueFontPx ? full : this.formatAbbreviated(this.internalValue)
+  }
+
+  /** Font size needed to fit `text` on one line, capped by the card height. */
+  private fittedValueFontPx(text: string): number {
+    const availableWidth = Math.max(this.containerWidth - 16, 0)
+    const byWidth = availableWidth / Math.max(text.length, 1) / this.charWidthRatio
+    // The value block sits above the sparkline, so it only has ~56% of the card.
+    const byHeight = Math.max(this.minValueFontPx, this.containerHeight * 0.56)
+    return Math.min(this.maxValueFontPx, byHeight, byWidth)
+  }
+
+  private get bigValueFontPx(): number {
+    const text = this.displayValue
+    const raw = this.containerWidth <= 0 ? this.maxValueFontPx : this.fittedValueFontPx(text)
+    return Math.round(Math.max(this.minValueFontPx, Math.min(this.maxValueFontPx, raw)))
+  }
+
+  private get bigFontSize(): string {
+    return `${this.bigValueFontPx}px`
+  }
+
+  private get unitFontSize(): string {
+    return `${Math.max(10, Math.min(13, this.containerWidth / 26 || 13))}px`
+  }
+
+  private formatFull(value: number): string {
+    const digits = Math.max(0, Math.min(6, this.decimals))
+    return value.toLocaleString('en-US', {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    })
+  }
+
+  private formatAbbreviated(value: number): string {
+    const abs = Math.abs(value)
+    if (abs >= 1e9) return `${(value / 1e9).toFixed(1)}B`
+    if (abs >= 1e6) return `${(value / 1e6).toFixed(1)}M`
+    if (abs >= 1e3) return `${(value / 1e3).toFixed(1)}k`
+    return this.formatFull(value)
   }
 
   private updateSizes() {
     const container = this.$refs.container as HTMLElement
     if (!container) return
 
-    const width = container.clientWidth
-    const height = container.clientHeight
-    const size = Math.min(width, height)
-
-    this.bigFontSize = `${Math.max(48, Math.min(120, size / 2.5))}px`
-    this.unitFontSize = `${Math.max(10, Math.min(16, size / 18))}px`
-    this.fieldFontSize = `${Math.max(8, Math.min(14, size / 25))}px`
+    this.containerWidth = container.clientWidth
+    this.containerHeight = container.clientHeight
   }
 
   // TODO: Remove these dummy data generation methods - for testing purposes only
@@ -419,135 +451,62 @@ export default class BigNumberChart extends Vue {
 <style scoped>
 .big-stat-panel {
   position: relative;
-  background: transparent;
-  border-radius: 8px;
-  padding: 12px;
-  box-sizing: border-box;
-}
-
-.chart-container {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
+  min-width: 120px;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  box-sizing: border-box;
 }
 
 .value-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  z-index: 2;
-  pointer-events: none;
-  padding: 12px;
+  justify-content: center;
+  gap: 2px;
+  padding: 0 8px;
   box-sizing: border-box;
+  overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-}
-
-.panel-title {
-  font-size: 12px;
-  font-weight: 500;
-  color: #6c757d;
-  margin-bottom: 8px;
-  font-family: 'system-ui', -apple-system, sans-serif;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
 }
 
 .big-value {
-  font-size: 72px;
   font-weight: 600;
-  color: #262626;
-  font-family: 'system-ui', -apple-system, sans-serif;
-  line-height: 1;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
   text-align: center;
-  margin-bottom: 4px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 3;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+  white-space: nowrap;
 }
 
 .value-unit {
-  font-size: 14px;
   font-weight: 400;
-  color: #8c8c8c;
-  font-family: 'system-ui', -apple-system, sans-serif;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 3;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+  color: var(--color-text-light);
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.extracted-field {
-  font-size: 12px;
-  font-weight: 400;
-  color: #999;
-  font-family: 'system-ui', -apple-system, sans-serif;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 3;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  opacity: 0.8;
+.chart-container {
+  flex: 0 0 34%;
+  min-height: 22px;
+  width: 100%;
 }
 
 .no-data-background {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #999;
-  font-size: 14px;
-  z-index: 1;
-}
-
-.no-data {
-  font-size: 24px;
-  font-weight: 600;
-  color: #999;
-}
-
-/* Dark theme styles */
-:global(.dark) .panel-title {
-  color: #b3b3b3;
-}
-
-:global(.dark) .big-value {
-  color: #f0f0f0;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-:global(.dark) .value-unit {
-  color: #b3b3b3;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-}
-
-:global(.dark) .extracted-field {
-  color: #888;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  color: var(--color-text-light);
+  font-size: 13px;
 }
 </style>
