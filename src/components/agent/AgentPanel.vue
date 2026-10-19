@@ -73,7 +73,7 @@
               <span :title="conversation.title || $t('agent.untitled')">{{
                 conversation.title || $t('agent.untitled')
               }}</span>
-              <i v-if="conversation.id === runningConversationId" class="live"></i>
+              <i v-if="conversation.id === runningConversationId" class="live el-icon-loading"></i>
             </div>
           </div>
 
