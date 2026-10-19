@@ -7,6 +7,7 @@ import {
   AIAPIHostOptions,
   loadSystemPrompt,
   supportsReasoning,
+  getReasoningEfforts,
 } from '@/utils/ai/models'
 import { buildReasoningCallOptions } from '@/utils/ai/reasoning'
 import type { AgentReasoning } from '@/utils/ai/reasoning'
@@ -246,6 +247,7 @@ export class MQTTXAgent {
       reasoning: this.reasoning,
       provider: providerType,
       modelSupportsReasoning: supportsReasoning(actualModel),
+      efforts: getReasoningEfforts(actualModel),
     })
 
     return new ToolLoopAgent({

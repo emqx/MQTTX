@@ -4,6 +4,7 @@ import { createAnthropic } from '@ai-sdk/anthropic'
 import { createXai } from '@ai-sdk/xai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createAzure } from '@ai-sdk/azure'
+import type { LanguageModelV4CallOptions } from '@ai-sdk/provider'
 
 /**
  * Defines the role of a message in the Agent conversation
@@ -95,11 +96,22 @@ export type AIModel = Parameters<
 >[0]
 
 /**
+ * A value of the AI SDK's unified `reasoning` call option, other than the provider default
+ */
+export type ReasoningEffort = Exclude<NonNullable<LanguageModelV4CallOptions['reasoning']>, 'provider-default'>
+
+/**
  * Base interface for common properties
  */
 interface BaseProviderOptionsModel {
   value: string
-  children: { value: string; label: string; vision?: boolean; reasoning?: boolean }[]
+  children: {
+    value: string
+    label: string
+    vision?: boolean
+    reasoning?: boolean
+    reasoningEfforts?: readonly ReasoningEffort[]
+  }[]
   providerCreator?: (...args: any[]) => any
 }
 
@@ -113,6 +125,7 @@ export interface OpenAIOptionsModel extends BaseProviderOptionsModel {
     label: string
     vision?: boolean
     reasoning?: boolean
+    reasoningEfforts?: readonly ReasoningEffort[]
   }[]
   providerCreator: typeof createOpenAI
 }
@@ -127,6 +140,7 @@ export interface DeepSeekOptionsModel extends BaseProviderOptionsModel {
     label: string
     vision?: boolean
     reasoning?: boolean
+    reasoningEfforts?: readonly ReasoningEffort[]
   }[]
   providerCreator: typeof createDeepSeek
 }
@@ -141,6 +155,7 @@ export interface AnthropicOptionsModel extends BaseProviderOptionsModel {
     label: string
     vision?: boolean
     reasoning?: boolean
+    reasoningEfforts?: readonly ReasoningEffort[]
   }[]
   providerCreator: typeof createAnthropic
 }
@@ -155,6 +170,7 @@ export interface XaiOptionsModel extends BaseProviderOptionsModel {
     label: string
     vision?: boolean
     reasoning?: boolean
+    reasoningEfforts?: readonly ReasoningEffort[]
   }[]
   providerCreator: typeof createXai
 }
@@ -169,6 +185,7 @@ export interface GoogleOptionsModel extends BaseProviderOptionsModel {
     label: string
     vision?: boolean
     reasoning?: boolean
+    reasoningEfforts?: readonly ReasoningEffort[]
   }[]
   providerCreator: typeof createGoogleGenerativeAI
 }
@@ -190,6 +207,7 @@ export interface SiliconFlowOptionsModel extends BaseProviderOptionsModel {
     label: string
     vision?: boolean
     reasoning?: boolean
+    reasoningEfforts?: readonly ReasoningEffort[]
   }[]
   providerCreator: typeof createOpenAI
 }
@@ -204,6 +222,7 @@ export interface AzureOptionsModel extends BaseProviderOptionsModel {
     label: string
     vision?: boolean
     reasoning?: boolean
+    reasoningEfforts?: readonly ReasoningEffort[]
   }[]
   providerCreator: typeof createAzure
 }
