@@ -11,32 +11,7 @@
       </div>
       <div class="header-main-content">
         <transition name="el-zoom-in-top" mode="out-in">
-          <div v-if="creatingInTopbar" class="dashboard-create-form" key="create">
-            <el-input
-              ref="newNameInput"
-              size="small"
-              class="name-input"
-              v-model="newDashboard.name"
-              :placeholder="$t('connections.name')"
-              @keyup.enter.native="handleCreateDashboardTopbar"
-              @keyup.esc.native="cancelCreateTopbar"
-            />
-            <el-input
-              size="small"
-              class="description-input"
-              v-model="newDashboard.description"
-              :placeholder="$t('viewer.description')"
-              @keyup.enter.native="handleCreateDashboardTopbar"
-              @keyup.esc.native="cancelCreateTopbar"
-            />
-            <el-button size="small" type="primary" @click="handleCreateDashboardTopbar">
-              {{ $t('common.save') }}
-            </el-button>
-            <el-button size="small" class="cancel-button" @click="cancelCreateTopbar">
-              {{ $t('common.cancel') }}
-            </el-button>
-          </div>
-          <div v-else-if="editingInTopbar" class="dashboard-edit-form" key="edit">
+          <div v-if="editingInTopbar" class="dashboard-edit-form" key="edit">
             <el-input
               ref="editNameInput"
               size="small"
@@ -135,9 +110,7 @@ export default class DashboardHeader extends Vue {
   @Prop({ required: true }) duration!: number
   @Prop({ required: true }) isAddingWidget!: boolean
 
-  private creatingInTopbar = false
   private editingInTopbar = false
-  private newDashboard: Partial<DashboardModel> = { name: '', description: '' }
   private editDashboard: Partial<DashboardModel> = { name: '', description: '' }
 
   get localSelectedDashboardId(): string | null {
@@ -158,24 +131,6 @@ export default class DashboardHeader extends Vue {
 
   get leftValue(): string {
     return this.showDashboardsList ? `${this.listOffset}px` : '0px'
-  }
-
-  private toCreateDashboard() {
-    this.creatingInTopbar = true
-    this.$nextTick(() => {
-      const input = this.$refs.newNameInput as unknown as { focus(): void }
-      input && input.focus && input.focus()
-    })
-  }
-
-  private async handleCreateDashboardTopbar(): Promise<void> {
-    this.$emit('create-dashboard', this.newDashboard)
-    this.cancelCreateTopbar()
-  }
-
-  private cancelCreateTopbar(): void {
-    this.creatingInTopbar = false
-    this.newDashboard = { name: '', description: '' }
   }
 
   private toEditDashboard(): void {
@@ -249,7 +204,6 @@ export default class DashboardHeader extends Vue {
         flex: 1;
       }
 
-      .dashboard-create-form,
       .dashboard-view-section,
       .dashboard-edit-form {
         display: flex;
@@ -259,7 +213,6 @@ export default class DashboardHeader extends Vue {
       }
 
       // Same 32px height as the toolbar controls; the gap does the spacing.
-      .dashboard-create-form,
       .dashboard-edit-form {
         .name-input {
           width: 200px;
