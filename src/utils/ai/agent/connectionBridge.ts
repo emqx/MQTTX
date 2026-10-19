@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import type { MqttClient } from 'mqtt'
 
 /**
@@ -40,17 +41,25 @@ export interface ConnectionBridgeOptions {
 export class ConnectionBridge {
   private views = new Set<ConnectionView>()
   private options: ConnectionBridgeOptions | null = null
+  /**
+   * Bumped whenever the views or options change. Neither is reactive, so current() reads this to let
+   * a computed property that ran before the page registered (the Agent panel's) evaluate again.
+   */
+  private state = Vue.observable({ version: 0 })
 
   public configure(options: ConnectionBridgeOptions): void {
     this.options = options
+    this.state.version++
   }
 
   public register(view: ConnectionView): void {
     this.views.add(view)
+    this.state.version++
   }
 
   public unregister(view: ConnectionView): void {
     this.views.delete(view)
+    this.state.version++
   }
 
   /**
@@ -60,6 +69,7 @@ export class ConnectionBridge {
    * changes, so a view registered earlier still serves the new connection.
    */
   public current(): ConnectionView | null {
+    void this.state.version
     const id = this.options?.router.currentRoute.params.id
     if (!id) return null
     return [...this.views].find((view) => view.connectionId === id && view.record.id === id) ?? null
