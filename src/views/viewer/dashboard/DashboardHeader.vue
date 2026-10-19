@@ -73,32 +73,29 @@
               v-if="!showDashboardsList && selectedDashboard"
               href="javascript:;"
               class="dashboard-edit-icon"
-              style="margin-left: 8px"
-              :title="$t('common.edit') || 'Edit'"
+              :title="$t('common.edit')"
               @click="toEditDashboard"
             >
               <i class="el-icon-edit"></i>
             </a>
             <div v-if="!showDashboardsList" class="flex-spacer"></div>
-            <el-button
-              v-if="!showDashboardsList && selectedDashboard"
-              size="mini"
-              type="primary"
-              icon="el-icon-plus"
-              class="add-widget-button"
-              @click="$emit('add-visualization')"
-            >
-              {{ $t('common.new') }}
-            </el-button>
             <TimeRangeSelect
               v-if="!showDashboardsList && selectedDashboard"
               v-model="localTimeRangeModel"
               :time-range-type="timeRangeType"
               :duration="duration"
               size="mini"
-              style="margin-left: 8px"
               @range-relative="$emit('time-range-select', $event)"
             />
+            <a
+              v-if="!showDashboardsList && selectedDashboard"
+              href="javascript:;"
+              class="add-widget-button"
+              @click="$emit('add-visualization')"
+            >
+              <i class="el-icon-plus"></i>
+              <span>{{ $t('viewer.addWidget') }}</span>
+            </a>
             <template v-else>
               <div v-if="selectedDashboard" class="topbar-dashboard-view">
                 <div class="dashboard-info-section">
@@ -108,32 +105,25 @@
                   <a
                     href="javascript:;"
                     class="dashboard-edit-icon"
-                    style="margin-left: 8px"
-                    :title="$t('common.edit') || 'Edit'"
+                    :title="$t('common.edit')"
                     @click="toEditDashboard"
                   >
                     <i class="el-icon-edit"></i>
                   </a>
                 </div>
                 <div class="dashboard-actions-section">
-                  <el-button
-                    size="mini"
-                    type="primary"
-                    icon="el-icon-plus"
-                    class="add-widget-button"
-                    @click="$emit('add-visualization')"
-                  >
-                    {{ $t('common.new') }}
-                  </el-button>
                   <TimeRangeSelect
                     v-model="localTimeRangeModel"
                     size="mini"
                     @range-relative="$emit('time-range-select', $event)"
-                    style="margin-left: 8px"
                     :show-live-mode="true"
                     :time-range-type="timeRangeType"
                     :duration="duration"
                   />
+                  <a href="javascript:;" class="add-widget-button" @click="$emit('add-visualization')">
+                    <i class="el-icon-plus"></i>
+                    <span>{{ $t('viewer.addWidget') }}</span>
+                  </a>
                 </div>
               </div>
             </template>
@@ -283,6 +273,10 @@ export default class DashboardHeader extends Vue {
         font-weight: 600;
         color: var(--color-text-title);
         margin: 0;
+        max-width: 320px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .topbar-dashboard-view {
@@ -290,18 +284,18 @@ export default class DashboardHeader extends Vue {
         justify-content: space-between;
         align-items: center;
         width: 100%;
+        min-width: 0;
         .dashboard-info-section {
           display: flex;
           align-items: center;
+          min-width: 0;
         }
 
         .dashboard-actions-section {
           display: flex;
           align-items: center;
-        }
-
-        .add-widget-button {
           flex-shrink: 0;
+          gap: 12px;
         }
       }
       .dashboard-create-form,
@@ -310,29 +304,60 @@ export default class DashboardHeader extends Vue {
         display: flex;
         align-items: center;
         width: 100%;
+        gap: 12px;
       }
+
+      // Renaming is a secondary action: the pencil is only revealed while the
+      // title area is hovered or focused.
       .dashboard-edit-icon {
-        color: var(--color-text-tips);
-        transition: 0.2s color ease;
         display: inline-flex;
         align-items: center;
-        height: 20px;
+        margin-left: 4px;
+        color: var(--color-text-light);
+        opacity: 0;
+        transition: opacity 0.15s ease, color 0.15s ease;
+
+        &:hover,
+        &:focus {
+          color: var(--color-main-green);
+          opacity: 1;
+        }
+
+        .el-icon-edit {
+          font-size: 15px;
+        }
+      }
+      // Hovering the title area reveals it; in the list-hidden variant the
+      // title is an el-select, so hovering that has the same effect.
+      .dashboard-info-section:hover .dashboard-edit-icon,
+      .dashboard-info-section:focus-within .dashboard-edit-icon,
+      .dashboard-view-section > .el-select:hover + .dashboard-edit-icon {
+        opacity: 1;
+      }
+
+      // Same secondary action language as the other page headers: an icon plus
+      // a label in the title colour, 32px tall so the whole row lines up.
+      .add-widget-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+        height: 32px;
+        padding: 0 4px;
+        color: var(--color-text-title);
+        font-size: 13px;
+        font-weight: 500;
         line-height: 1;
+        white-space: nowrap;
+        transition: color 0.15s ease;
+
+        i {
+          font-size: 18px;
+        }
+
         &:hover {
           color: var(--color-main-green);
         }
-        .el-icon-edit {
-          font-size: 15px;
-          font-weight: 500;
-        }
-      }
-      .add-widget-button {
-        height: 28px;
-        padding: 0 12px;
-        border-radius: 6px;
-        font-size: 12px;
-        font-weight: 500;
-        letter-spacing: normal;
       }
     }
   }

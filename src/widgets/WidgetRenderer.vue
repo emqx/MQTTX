@@ -37,8 +37,9 @@ export default class WidgetRenderer extends Vue {
       const props = {
         ...baseProps,
         data: bigNumberData || { value: null, chartData: { xData: [], seriesData: [{ name: 'value', data: [] }] } },
-        min: bigOptions.min ?? 0,
-        max: bigOptions.max ?? 100,
+        // Without a configured range the sparkline follows the data
+        min: bigOptions.min,
+        max: bigOptions.max,
         thresholds: bigOptions.thresholds ?? [],
         decimals: bigOptions.decimals ?? 1,
         unit: bigOptions.unit ?? '',
@@ -73,6 +74,8 @@ export default class WidgetRenderer extends Vue {
       const props = {
         ...baseProps,
         data: lineData || { chartData: { xData: [], seriesData: [{ name: 'value', data: [] }] } },
+        // Name the series for the tooltip instead of ECharts' default "series0".
+        seriesName: this.widget.title || this.widget.valueField || '',
         smooth: lineOptions.smooth ?? true,
         area: lineOptions.area ?? true,
         color: lineOptions.color ?? '#00B572',

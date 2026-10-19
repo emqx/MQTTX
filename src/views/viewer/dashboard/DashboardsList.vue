@@ -4,7 +4,7 @@
       <h1 class="dashboard-titlebar">{{ $t('viewer.dashboards') }}</h1>
       <div class="dashboard-tailbar">
         <el-tooltip placement="bottom" :open-delay="500" :content="$t('viewer.createDashboard')">
-          <a href="javascript:;" class="new-button" @click="createDashboard" style="margin-left: 8px">
+          <a href="javascript:;" class="new-button" @click="createDashboard">
             <i class="iconfont icon-create-new"></i>
           </a>
         </el-tooltip>
@@ -39,6 +39,7 @@
                   <el-tooltip :content="`${data.name}`" :open-delay="500" placement="top">
                     <div class="client-name">{{ data.name }}</div>
                   </el-tooltip>
+                  <div v-if="metaFor(data)" class="client-meta">{{ metaFor(data) }}</div>
                 </div>
               </div>
             </span>
@@ -84,6 +85,17 @@ export default class DashboardsList extends Vue {
 
   private createDashboard() {
     this.$emit('create-dashboard')
+  }
+
+  /**
+   * Secondary line of a row. The widget count is used when the already loaded
+   * list data carries it (`getAll()` does not join widgets, so today it falls
+   * back to the description); no extra query was added for the count.
+   */
+  private metaFor(dashboard: DashboardModel): string {
+    const count = dashboard.widgets?.length
+    if (count) return String(this.$t('viewer.widgetCount', { count }))
+    return (dashboard.description || '').trim()
   }
 
   public upsertDashboard(dashboard: DashboardModel, selectAfter = false) {
@@ -186,6 +198,8 @@ export default class DashboardsList extends Vue {
     min-height: 10px;
     height: 59px;
     flex-shrink: 0;
+    // Same line as the right header's bottom border.
+    border-bottom: 1px solid var(--color-border-default);
     -webkit-app-region: drag;
 
     a {
@@ -197,20 +211,18 @@ export default class DashboardsList extends Vue {
 
       .icon-create-new,
       .icon-hide-connections {
-        font-size: 18px;
-        color: var(--color-text-default);
+        font-size: 20px;
+        color: var(--color-text-title);
         &:hover {
           color: var(--color-main-green);
         }
       }
     }
 
+    // Matches .connection-titlebar: the h1 base style does the typography.
     .dashboard-titlebar {
       padding: 16px;
       margin: 0;
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--color-text-title);
     }
 
     .dashboard-tailbar {
@@ -243,7 +255,7 @@ export default class DashboardsList extends Vue {
       }
       .el-tree-node__content {
         margin: 0 8px;
-        height: 40px;
+        height: 100%;
         border-radius: 8px;
         &:hover {
           background-color: var(--color-bg-item);
@@ -260,7 +272,7 @@ export default class DashboardsList extends Vue {
     }
 
     .dashboard-item {
-      height: 40px;
+      height: 48px;
       width: 100%;
       cursor: pointer;
       position: relative;
@@ -296,7 +308,7 @@ export default class DashboardsList extends Vue {
 
         .client-name {
           display: block;
-          font-size: 13px;
+          font-size: $font-size--body;
           font-weight: 500;
           color: var(--color-text-title);
           max-width: 100%;
@@ -307,6 +319,16 @@ export default class DashboardsList extends Vue {
           &.online {
             color: var(--color-main-green);
           }
+        }
+
+        .client-meta {
+          display: block;
+          margin-top: 2px;
+          font-size: $font-size--tips;
+          color: var(--color-text-light);
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
         }
       }
 
@@ -320,7 +342,7 @@ export default class DashboardsList extends Vue {
         margin-right: 8px;
 
         i {
-          font-size: 15px;
+          font-size: 16px;
           color: var(--color-text-light);
         }
       }

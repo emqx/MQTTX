@@ -63,6 +63,22 @@ export default {
     hu: 'Vizualizáció hozzáadása',
     ko: '시각화 추가',
   },
+  addWidget: {
+    zh: '添加组件',
+    en: 'Add Widget',
+    tr: 'Bileşen Ekle',
+    ja: 'ウィジェットを追加',
+    hu: 'Widget hozzáadása',
+    ko: '위젯 추가',
+  },
+  widgetCount: {
+    zh: '{count} 个组件',
+    en: '{count} widgets',
+    tr: '{count} bileşen',
+    ja: '{count} ウィジェット',
+    hu: '{count} widget',
+    ko: '{count}개 위젯',
+  },
   topicsTree: {
     zh: '主题树',
     en: 'Topics Tree',
