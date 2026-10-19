@@ -209,7 +209,6 @@ export default class TopicTree extends Vue {
 .topic-tree-view {
   .topic-tree-panes {
     display: flex;
-    align-items: stretch;
   }
   .topic-info-card,
   .topic-tree-card {
@@ -237,20 +236,16 @@ export default class TopicTree extends Vue {
     }
   }
   .pane-resizer {
-    position: relative;
     flex-shrink: 0;
     width: 12px;
     margin-bottom: 12px;
     cursor: col-resize;
     &::after {
       content: '';
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 50%;
+      display: block;
       width: 2px;
-      transform: translateX(-50%);
-      background-color: transparent;
+      height: 100%;
+      margin: 0 auto;
       transition: background-color 0.1s;
     }
     &:hover::after,
