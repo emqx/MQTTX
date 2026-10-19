@@ -1083,6 +1083,15 @@ export default class ConnectionsDetail extends Vue {
 
   // Clear messages
   private async handleMsgClear() {
+    try {
+      await this.$confirm(
+        this.$t('connections.confirmClearHistory', { name: this.record.name }) as string,
+        this.$tc('common.warning'),
+        { type: 'warning' },
+      )
+    } catch (error) {
+      return
+    }
     this.recordMsgs.list = []
     this.recordMsgs.total = 0
     this.recordMsgs.publishedTotal = 0
