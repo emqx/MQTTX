@@ -180,16 +180,46 @@ export default class TimeRangeSelect extends Vue {
   display: inline-flex;
   align-items: center;
 
-  // Keep Element's own datetimerange width (400px) - the same width the
-  // traffic monitor page uses - so the full start/end time always fits, and
-  // give the separator symmetric padding on both sides of the arrow.
-  .time-range-picker .el-range-separator {
-    width: auto;
-    min-width: 14px;
-    padding: 0 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+  // Symmetric range editor: each time is centred in its own half, the arrow
+  // sits in the middle and the two paddings match. The clock icon used to
+  // reserve a slot on the left while the (conditionally rendered) clear icon
+  // did not on the right, which is what pushed the end time to the border.
+  .time-range-picker.el-range-editor {
+    position: relative;
+    height: 32px;
+    padding: 0 12px;
+
+    .el-range-input {
+      flex: 1 1 0;
+      width: auto;
+      text-align: center;
+    }
+
+    .el-range-separator {
+      flex: 0 0 auto;
+      width: auto;
+      min-width: 12px;
+      padding: 0 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    // Out of flow: showing the clear icon never shifts the times.
+    .el-range__close-icon {
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      margin: 0;
+      float: none;
+      width: auto;
+      line-height: 1;
+    }
+
+    .el-range__icon {
+      display: none;
+    }
   }
 
   &.is-live {
@@ -203,7 +233,7 @@ export default class TimeRangeSelect extends Vue {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 0 10px;
+      padding: 0 12px;
       border: 1px solid var(--color-border-default);
       border-radius: 4px;
       background: var(--color-bg-normal);

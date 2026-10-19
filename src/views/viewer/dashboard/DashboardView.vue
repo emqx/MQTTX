@@ -984,14 +984,30 @@ export default class DashboardCanvas extends Vue {
     background: var(--color-bg-normal);
     border: 1px solid var(--color-border-default);
     border-radius: 8px;
-    transition: border-color 0.2s, background-color 0.2s;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
     display: flex;
     touch-action: none;
     overflow: hidden;
     padding: 0;
 
-    &:hover {
+    // While a card is being dragged or resized the green border marks it as the
+    // active one (vue-grid-layout adds these classes).
+    &.vue-draggable-dragging,
+    &.resizing {
       border-color: var(--color-main-green);
+    }
+  }
+
+  // Hover deepens the shadow instead of changing the border colour. The shadow
+  // is a black alpha, so it only reads on the light page - dark and night keep
+  // the card edge from the 1px border alone.
+  body.light & {
+    .vue-grid-item:not(.vue-grid-placeholder) {
+      box-shadow: 0 1px 2px var(--color-shadow-card);
+
+      &:hover {
+        box-shadow: 0 2px 6px var(--color-shadow-card);
+      }
     }
   }
 

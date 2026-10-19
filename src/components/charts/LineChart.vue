@@ -31,6 +31,8 @@ echarts.use([
 @Component
 export default class LineChart extends Vue {
   @Prop({ required: true }) public id!: string
+  // Label for the tooltip / series name (widget title or its value field).
+  @Prop({ default: '' }) public seriesName!: string
   @Prop({ default: '#00B572' }) public color!: string
   @Prop({ default: () => ({ chartData: { xData: [], seriesData: [{ name: 'value', data: [] }] } }) })
   public data!: LineData
@@ -306,6 +308,7 @@ export default class LineChart extends Vue {
       series: [
         {
           type: 'line',
+          name: this.seriesName || 'value',
           smooth: this.smooth,
           // Keep the curve inside the data range on near-identical x values,
           // otherwise smoothing overshoots into vertical spikes.
