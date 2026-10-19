@@ -72,7 +72,7 @@ export default class TopicTree extends Vue {
       treeView?.syncChildren(newNodeParentId)
     }
     if (this.data.length === 0) return
-    this.$log.info(
+    this.$log.debug(
       `Topic Tree: Updated tree data for connection ${connectionInfo.name}@${connectionInfo.host}. Topic: ${
         packet.topic
       }, QoS: ${packet.qos}${packet.payload ? `, Payload: ${packet.payload.toString()}` : ''}`,
@@ -100,7 +100,7 @@ export default class TopicTree extends Vue {
     const { topicNodeService } = useServices()
     for (const topicNodes of updatedNodes) {
       try {
-        if (topicNodes.length === 0) return
+        if (topicNodes.length === 0) continue
         const { savedEntitiesCount, savedMessagesCount } = await topicNodeService.saveTopicNodesWithMessages(topicNodes)
         this.$log.info(
           `Topic Tree: Successfully saved ${savedEntitiesCount} topic nodes and ${savedMessagesCount} messages`,

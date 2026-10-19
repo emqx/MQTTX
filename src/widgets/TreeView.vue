@@ -142,6 +142,8 @@ import { getAllIDs, isPayloadEmpty } from '@/utils/topicTree'
 import MyDialog from '@/components/MyDialog.vue'
 import TreeVisual from '@/components/charts/TreeVisual.vue'
 
+const MAX_EXPAND_ALL_NODES = 1000
+
 @Component({
   components: {
     MyDialog,
@@ -272,7 +274,24 @@ export default class TreeView extends Vue {
   }
 
   private expandAll() {
-    this.expandedKeys = getAllIDs(this.data)
+    const ids = getAllIDs(this.data)
+    if (ids.length <= MAX_EXPAND_ALL_NODES) {
+      this.expandedKeys = ids
+      return
+    }
+    this.$confirm(
+      this.$tc('viewer.expandAllLargeTreeConfirm', ids.length, { count: ids.length }),
+      this.$tc('common.warning'),
+      {
+        confirmButtonText: this.$tc('common.confirm'),
+        cancelButtonText: this.$tc('common.cancel'),
+        type: 'warning',
+      },
+    )
+      .then(() => {
+        this.expandedKeys = ids
+      })
+      .catch(() => undefined)
   }
 
   private collapseAll() {

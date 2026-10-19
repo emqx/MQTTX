@@ -2,6 +2,23 @@ import { Buffer } from 'buffer'
 import { IPublishPacket } from 'mqtt-packet/types'
 import time from '@/utils/time'
 
+// Label-to-child cache kept off the node so Vue does not observe it.
+const childIndex = new WeakMap<TopicTreeNode, Map<string, TopicTreeNode>>()
+
+function getChildIndex(node: TopicTreeNode): Map<string, TopicTreeNode> {
+  const cached = childIndex.get(node)
+  if (cached && cached.size === (node.children?.length ?? 0)) {
+    return cached
+  }
+  const map = new Map<string, TopicTreeNode>()
+  // First match wins for duplicate labels.
+  node.children?.forEach((child) => {
+    if (!map.has(child.label)) map.set(child.label, child)
+  })
+  childIndex.set(node, map)
+  return map
+}
+
 /**
  * Updates the topic tree structure with new message data.
  *
@@ -62,12 +79,12 @@ export function updateTopicTreeNode(
 
   for (let i = 0; i < topicLevels.length; i++) {
     const level = topicLevels[i]
-    const childIndex = currentNode.children?.findIndex((n) => n.label === level) ?? -1
-    let childNode: TopicTreeNode
+    const siblings = getChildIndex(currentNode)
+    let childNode = siblings.get(level)
     let isNewNode = false
 
-    if (childIndex === -1) {
-      currentId = `${currentId}_${currentNode.children?.length ?? 0 + 1}`
+    if (!childNode) {
+      currentId = `${currentId}_${currentNode.children?.length ?? 0}`
       childNode = {
         id: currentId,
         label: level,
@@ -82,6 +99,7 @@ export function updateTopicTreeNode(
       } else {
         currentNode.children = [childNode]
       }
+      siblings.set(level, childNode)
       isNewNode = true
       newNodeCount++
       // First new node's parent is the only node el-tree must sync.
@@ -89,7 +107,6 @@ export function updateTopicTreeNode(
         newNodeParentId = currentNode.id
       }
     } else {
-      childNode = currentNode.children![childIndex]
       currentId = childNode.id
     }
 

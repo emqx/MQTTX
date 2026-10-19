@@ -127,6 +127,14 @@ export default {
     hu: 'Összes kibontás',
     ko: '모두 펼치기',
   },
+  expandAllLargeTreeConfirm: {
+    zh: '该主题树有 {count} 个节点，全部展开可能导致 MQTTX 变慢或未响应，是否继续？',
+    en: 'This tree has {count} topic nodes. Expanding all of them may make MQTTX slow or unresponsive. Continue?',
+    tr: "Bu ağaçta {count} konu düğümü var. Tümünü genişletmek MQTTX'i yavaşlatabilir veya yanıt vermez hale getirebilir. Devam edilsin mi?",
+    ja: 'このツリーには {count} 個のトピックノードがあります。すべて展開すると MQTTX が遅くなったり応答しなくなったりする可能性があります。続行しますか？',
+    hu: 'Ez a fa {count} témacsomópontot tartalmaz. Az összes kibontása lelassíthatja vagy lefagyaszthatja a MQTTX-et. Folytatja?',
+    ko: '이 트리에는 {count}개의 토픽 노드가 있습니다. 모두 펼치면 MQTTX가 느려지거나 응답하지 않을 수 있습니다. 계속하시겠습니까?',
+  },
   collapseAll: {
     zh: '全部折叠',
     en: 'Collapse All',
@@ -179,6 +187,14 @@ export default {
     ja: 'このトピックノードの最新メッセージは利用できないか、データベースから削除されています',
     hu: 'A témacsomópont legfrissebb üzenete nem elérhető vagy eltávolításra került a adatbázisból',
     ko: '이 토픽 노드의 최신 메시지를 사용할 수 없거나 데이터베이스에서 삭제되었습니다',
+  },
+  moreSubTopics: {
+    zh: '... 还有 {count} 个',
+    en: '... and {count} more',
+    tr: '... ve {count} tane daha',
+    ja: '... 他に {count} 件',
+    hu: '... és {count} további',
+    ko: '... 외 {count}개',
   },
   visualizeTree: {
     zh: '可视化主题树',

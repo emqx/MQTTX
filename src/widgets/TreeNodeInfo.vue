@@ -33,7 +33,7 @@
       <div>{{ $t('connections.subTopics') }}</div>
       <div class="mt-2">
         <el-tag
-          v-for="(topic, index) in subTopics"
+          v-for="(topic, index) in visibleSubTopics"
           type="info"
           :key="`${topic}-${index}`"
           size="small"
@@ -41,6 +41,9 @@
         >
           {{ topic }}
         </el-tag>
+        <div v-if="hiddenSubTopicsCount > 0" class="more-sub-topics">
+          {{ $tc('viewer.moreSubTopics', hiddenSubTopicsCount, { count: hiddenSubTopicsCount }) }}
+        </div>
       </div>
     </div>
     <!-- Topic node with payload -->
@@ -72,6 +75,8 @@ import { jsonStringify, jsonParse } from '@/utils/jsonUtils'
 import { isXML, escapeXmlForHtml } from '@/utils/xmlUtils'
 import { escapeHtml } from '@/utils/highlightSearch'
 import MqttProperties from '@/components/MqttProperties.vue'
+
+const MAX_SUB_TOPICS = 100
 
 @Component({
   components: {
@@ -123,6 +128,14 @@ export default class TreeNodeInfo extends Vue {
 
   get subTopics(): string[] {
     return findSubTopics(this.node)
+  }
+
+  get visibleSubTopics(): string[] {
+    return this.subTopics.slice(0, MAX_SUB_TOPICS)
+  }
+
+  get hiddenSubTopicsCount(): number {
+    return Math.max(this.subTopics.length - MAX_SUB_TOPICS, 0)
   }
 
   get connectionInfoItems() {
@@ -194,6 +207,9 @@ body.night {
     overflow: hidden;
     text-overflow: ellipsis;
     word-break: normal;
+  }
+  .more-sub-topics {
+    color: var(--color-text-light);
   }
   .no-payload-alert {
     padding: 6px 12px;
