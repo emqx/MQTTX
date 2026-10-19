@@ -13,7 +13,7 @@
           <div class="t">{{ $t(`agent.permission.${option.mode}`) }}</div>
           <div class="d">{{ $t(`agent.permission.${option.mode}Description`) }}</div>
         </div>
-        <span class="check">✓</span>
+        <i class="check el-icon-check"></i>
       </button>
     </div>
 
@@ -31,24 +31,22 @@
       >
         <ai-provider-icon :provider="modelProvider ? modelProvider.value : ''" :model="option.value" />
         <span class="t">{{ option.label }}</span>
-        <span class="check">✓</span>
+        <i class="check el-icon-check"></i>
       </button>
-      <div v-if="showReasoning" class="reasoning" @click.stop>
-        <div class="menu-title">{{ $t('agent.reasoningTitle') }}</div>
-        <div class="levels" role="group" :aria-label="$t('agent.reasoningTitle')" data-test="reasoning-levels">
-          <button
-            v-for="level in reasoningLevels"
-            :key="level"
-            class="level"
-            :class="{ sel: currentReasoning === level }"
-            :data-level="level"
-            :aria-pressed="currentReasoning === level"
-            @click="chooseReasoning(level)"
+      <label v-if="showReasoning" class="reasoning" @click.stop>
+        <span class="t">{{ $t('agent.reasoningTitle') }}</span>
+        <span class="reasoning-select">
+          <select
+            :value="currentReasoning"
+            :aria-label="$t('agent.reasoningTitle')"
+            data-test="reasoning-select"
+            @change="chooseReasoning($event.target.value)"
           >
-            {{ $t(levelLabel(level)) }}
-          </button>
-        </div>
-      </div>
+            <option v-for="level in reasoningLevels" :key="level" :value="level">{{ $t(levelLabel(level)) }}</option>
+          </select>
+          <i class="el-icon-arrow-down"></i>
+        </span>
+      </label>
       <button class="opt settings" @click="$emit('open-settings')">
         <span class="t">{{ $t('agent.modelSettings') }}</span>
       </button>
@@ -73,12 +71,75 @@
       </button>
     </div>
 
+    <!-- Reuses the Skill menu styles: same shell, same rows, one row per connection -->
+    <div
+      ref="mentionMenu"
+      class="menu skill-menu mention-menu"
+      :class="{ show: mentionMenuOpen }"
+      data-test="mention-menu"
+      @click.stop
+    >
+      <div class="menu-title">{{ $t('agent.mentions.title') }}</div>
+      <button
+        v-for="(connection, index) in filteredConnections"
+        :key="connection.id"
+        class="opt"
+        :class="{ sel: index === mentionMenuIndex }"
+        :data-connection="connection.id"
+        @mousedown.prevent
+        @mousemove="mentionMenuIndex = index"
+        @click="applyConnection(connection)"
+      >
+        <i class="mention-dot" :class="{ off: !connection.connected }"></i>
+        <span class="mention-name" :title="connection.name">
+          <span
+            v-for="(piece, pieceIndex) in highlightPieces(connection.name)"
+            :key="pieceIndex"
+            :class="{ hit: piece.hit }"
+            >{{ piece.text }}</span
+          >
+        </span>
+        <span v-if="connection.id === currentConnectionId" class="mention-current">{{
+          $t('agent.mentions.currentBadge')
+        }}</span>
+        <span class="mention-endpoint" :title="connectionEndpointOf(connection)">
+          <span
+            v-for="(piece, pieceIndex) in highlightPieces(connectionEndpointOf(connection))"
+            :key="pieceIndex"
+            :class="{ hit: piece.hit }"
+            >{{ piece.text }}</span
+          >
+        </span>
+      </button>
+      <div v-if="mentionMenuOpen && !filteredConnections.length" class="empty" data-test="mention-empty">
+        {{ $t('agent.mentions.empty') }}
+      </div>
+    </div>
+
     <div class="composer">
-      <div v-if="selectedSkill || attachments.length" class="composer-tray">
+      <div v-if="selectedSkill || selectedConnections.length || attachments.length" class="composer-tray">
         <div v-if="selectedSkill" class="skill-chip" data-test="skill-chip">
-          <span class="skill-chip-name">{{ skillChipLabel }}</span>
-          <button class="skill-chip-remove" type="button" :aria-label="$t('agent.skills.remove')" @click="clearSkill">
-            ✕
+          <i class="chip-ico" :class="skillIcon(selectedSkill.skill)"></i>
+          <span class="chip-name" :title="skillChipLabel">{{ skillChipLabel }}</span>
+          <button class="chip-remove" type="button" :aria-label="$t('agent.skills.remove')" @click="clearSkill">
+            <i class="el-icon-close"></i>
+          </button>
+        </div>
+        <div
+          v-for="connection in selectedConnections"
+          :key="connection.id"
+          class="mention-chip"
+          data-test="connection-chip"
+        >
+          <span class="chip-dot" :class="{ off: !connectionState(connection.id) }"></span>
+          <span class="chip-name" :title="connection.name"><span class="chip-at">@</span>{{ connection.name }}</span>
+          <button
+            class="chip-remove"
+            type="button"
+            :aria-label="$t('agent.mentions.remove')"
+            @click="removeConnection(connection.id)"
+          >
+            <i class="el-icon-close"></i>
           </button>
         </div>
         <div v-if="attachments.length" class="attachments">
@@ -104,7 +165,7 @@
               :aria-label="$t('agent.attachments.remove')"
               @click="removeAttachment(attachment.id)"
             >
-              ✕
+              <i class="el-icon-close"></i>
             </button>
           </div>
         </div>
@@ -117,9 +178,11 @@
         :placeholder="$t('agent.composerPlaceholder')"
         @input="resize"
         @keydown="onKeydown"
+        @keyup="onKeyup"
+        @click="onCaretMoved"
         @paste="onPaste"
         @compositionstart="composing = true"
-        @compositionend="composing = false"
+        @compositionend="onCompositionEnd"
       ></textarea>
       <div class="composer-bar">
         <button
@@ -140,9 +203,14 @@
           <span class="mode-label">{{ modeLabel }}</span>
           <i class="caret el-icon-arrow-down"></i>
         </button>
-        <button v-if="connectionName" class="pill ctx" :title="$t('agent.insertConnection')" @click="insertConnection">
+        <button
+          v-if="connectionName"
+          class="pill ctx"
+          :title="$t('agent.mentions.current')"
+          @click="mentionCurrentConnection"
+        >
           <i class="on-dot" :class="{ off: !connected }"></i>
-          <span>@ {{ connectionName }}</span>
+          <span class="ctx-name" :title="connectionName"><span class="ctx-at">@</span>{{ connectionName }}</span>
         </button>
         <button class="model" :title="$t('agent.changeModel')" @click.stop="toggleModelMenu">
           <ai-provider-icon :provider="modelProvider ? modelProvider.value : ''" :model="model" />
@@ -162,7 +230,9 @@
         <button
           v-else
           class="send"
-          :disabled="(!message.trim() && attachments.length === 0 && !selectedSkill) || disabled"
+          :disabled="
+            (!message.trim() && attachments.length === 0 && !selectedSkill && !selectedConnections.length) || disabled
+          "
           :aria-label="$t('agent.send')"
           :title="$t('agent.send')"
           @click="send"
@@ -199,18 +269,22 @@ import {
 } from '@/utils/ai/agent/attachments'
 import { AgentAttachmentKind } from '@/types/agent'
 import AiProviderIcon from '@/components/AiProviderIcon.vue'
-import { AGENT_SKILLS, AgentSkill, AgentSkillName, filterSkills, renderSkillChip } from '@/utils/ai/agent/skills'
-
-/** One Element icon set for every skill; agent.scss sizes each glyph so they look the same */
-const SKILL_ICONS: Record<AgentSkillName, string> = {
-  client_code: 'el-icon-edit-outline',
-  payload: 'el-icon-s-data',
-  schema: 'el-icon-document',
-  custom_function: 'el-icon-s-operation',
-  mqtt_knowledge: 'el-icon-reading',
-  mqttx_diagnostics: 'el-icon-first-aid-kit',
-  mqttx_cli: 'el-icon-monitor',
-}
+import {
+  AGENT_SKILLS,
+  AgentSkill,
+  AgentSkillName,
+  SKILL_ICONS,
+  filterSkills,
+  renderSkillChip,
+} from '@/utils/ai/agent/skills'
+import {
+  ConnectionMention,
+  MentionQuery,
+  connectionEndpoint,
+  filterConnections,
+  findMentionQuery,
+  highlightMention,
+} from '@/utils/ai/agent/mentions'
 
 interface ComposerAttachment extends PendingAttachment {
   id: string
@@ -251,6 +325,10 @@ export default class AgentComposer extends Vue {
   @Prop({ default: false }) readonly connected!: boolean
   @Prop({ default: '' }) readonly model!: string
   @Prop({ default: DEFAULT_AGENT_REASONING }) readonly agentReasoning!: AgentReasoning
+  /** Connections offered by the `@` menu */
+  @Prop({ default: () => [] }) readonly connections!: ConnectionMention[]
+  /** Id of the connection the user is looking at; its mention is listed first */
+  @Prop({ default: '' }) readonly currentConnectionId!: string
 
   private message = ''
   private composing = false
@@ -266,6 +344,11 @@ export default class AgentComposer extends Vue {
   private skillMenuOpen = false
   private skillMenuIndex = 0
   private skillMenuQuery = ''
+  private mentionMenuOpen = false
+  private mentionMenuIndex = 0
+  private mentionQuery: MentionQuery | null = null
+  private mentionDismissed = false
+  private selectedConnections: Array<{ id: string; name: string }> = []
 
   get modelLabel(): string {
     return getModelLabel(this.model)
@@ -322,6 +405,9 @@ export default class AgentComposer extends Vue {
   @Watch('message')
   onMessageChanged() {
     this.updateSkillMenu()
+    // `message` is only updated after the model wrote it, so this is the reliable trigger while typing
+    this.mentionDismissed = false
+    this.syncMentionMenu()
   }
 
   private skillIcon(skill: AgentSkillName): string {
@@ -375,6 +461,124 @@ export default class AgentComposer extends Vue {
     if (skill) this.applySkill(skill.name)
   }
 
+  // ---------- @ connection mentions ----------
+
+  get filteredConnections(): ConnectionMention[] {
+    return filterConnections(this.mentionQuery?.query ?? '', this.connections, this.currentConnectionId)
+  }
+
+  private connectionEndpointOf(connection: ConnectionMention): string {
+    return connectionEndpoint(connection)
+  }
+
+  /** Whether the mentioned connection currently has a live client, for the chip dot */
+  private connectionState(id: string): boolean {
+    return this.connections.some((connection) => connection.id === id && connection.connected)
+  }
+
+  /** Splits a row's text so the part matching the typed query can be highlighted */
+  private highlightPieces(text: string): Array<{ text: string; hit: boolean }> {
+    return highlightMention(text, this.mentionQuery?.query ?? '')
+  }
+
+  /** Opens, filters or closes the mention menu from where the caret is */
+  private syncMentionMenu() {
+    // The `/` Skill menu owns the whole input, so the two menus are never open together
+    if (this.skillMenuOpen || this.composing || this.mentionDismissed) {
+      this.closeMentionMenu()
+      return
+    }
+    const textarea = this.$refs.textarea as HTMLTextAreaElement | undefined
+    const caret = textarea ? textarea.selectionStart : this.message.length
+    const found = findMentionQuery(this.message, caret)
+    if (!found) {
+      this.closeMentionMenu()
+      return
+    }
+    const queryChanged =
+      !this.mentionQuery || this.mentionQuery.query !== found.query || this.mentionQuery.start !== found.start
+    this.mentionQuery = found
+    this.mentionMenuOpen = true
+    if (queryChanged) this.mentionMenuIndex = 0
+    if (this.mentionMenuIndex >= this.filteredConnections.length) this.mentionMenuIndex = 0
+  }
+
+  private closeMentionMenu() {
+    this.mentionMenuOpen = false
+    this.mentionQuery = null
+  }
+
+  private moveMentionSelection(delta: number) {
+    const length = this.filteredConnections.length
+    if (!length) return
+    this.mentionMenuIndex = (this.mentionMenuIndex + delta + length) % length
+    this.$nextTick(() => {
+      const menu = this.$refs.mentionMenu as HTMLElement | undefined
+      const selected = menu?.querySelector('.opt.sel') as HTMLElement | null
+      selected?.scrollIntoView({ block: 'nearest' })
+    })
+  }
+
+  private confirmMentionSelection() {
+    const connection = this.filteredConnections[this.mentionMenuIndex]
+    // With nothing to pick, Enter only closes the menu: it must not send the message
+    if (connection) this.applyConnection(connection)
+    else this.closeMentionMenu()
+  }
+
+  /** Replaces the typed `@word` with a chip; only the id and the name leave the composer */
+  private applyConnection(connection: ConnectionMention) {
+    const mention = this.mentionQuery
+    if (mention) {
+      this.message = `${this.message.slice(0, mention.start)}${this.message.slice(mention.end)}`
+    }
+    this.selectConnection({ id: connection.id, name: connection.name })
+    this.closeMentionMenu()
+    this.handleInput(this.message)
+    this.focus(mention ? mention.start : undefined)
+  }
+
+  /** Adds a connection once, so mentioning the same connection twice keeps one chip */
+  private selectConnection(connection: { id: string; name: string }) {
+    if (!connection.id) return
+    if (this.selectedConnections.some((selected) => selected.id === connection.id)) return
+    this.selectedConnections.push({ ...connection })
+  }
+
+  private removeConnection(id: string) {
+    this.selectedConnections = this.selectedConnections.filter((connection) => connection.id !== id)
+  }
+
+  /** The "@ current connection" button mentions the connection the user is looking at */
+  private mentionCurrentConnection() {
+    if (!this.currentConnectionId || !this.connectionName) return
+    this.selectConnection({ id: this.currentConnectionId, name: this.connectionName })
+    this.closeMenus()
+  }
+
+  /** The `@word` is only complete once the IME composition ended */
+  private onCompositionEnd() {
+    this.composing = false
+    this.$nextTick(() => this.syncMentionMenu())
+  }
+
+  /** A click moves the caret, and the document click closes menus first: re-sync after it */
+  private onCaretMoved() {
+    this.$nextTick(() => this.syncMentionMenu())
+  }
+
+  /**
+   * The keyup that follows an Escape must not reopen the menu the user just dismissed; any other
+   * caret move (arrows, Home/End) re-syncs it.
+   */
+  private onKeyup() {
+    if (this.mentionDismissed) {
+      this.mentionDismissed = false
+      return
+    }
+    this.syncMentionMenu()
+  }
+
   private onKeydown(event: KeyboardEvent) {
     if (this.skillMenuOpen && this.filteredSkills.length) {
       if (event.key === 'ArrowDown') {
@@ -399,6 +603,31 @@ export default class AgentComposer extends Vue {
         return
       }
     }
+    if (this.mentionMenuOpen) {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        this.moveMentionSelection(1)
+        return
+      }
+      if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        this.moveMentionSelection(-1)
+        return
+      }
+      // Enter never sends while the menu is up: it picks the row, or closes an empty menu
+      if (event.key === 'Tab' || (event.key === 'Enter' && !event.shiftKey && !this.composing && !event.isComposing)) {
+        event.preventDefault()
+        this.confirmMentionSelection()
+        return
+      }
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        event.stopPropagation()
+        this.mentionDismissed = true
+        this.closeMentionMenu()
+        return
+      }
+    }
     if (event.key === 'Enter') this.handleEnterKey(event)
   }
 
@@ -419,7 +648,7 @@ export default class AgentComposer extends Vue {
   send(): OutgoingMessage | '' {
     const content = this.message.replace(/\s+/g, ' ').trim()
     if (this.disabled) return ''
-    if (!content && !this.attachments.length && !this.selectedSkill) return ''
+    if (!content && !this.attachments.length && !this.selectedSkill && !this.selectedConnections.length) return ''
     if (this.attachments.some((attachment) => attachment.kind === 'image') && !supportsImages(this.model)) {
       this.warn('agent.attachments.noVision')
       return ''
@@ -435,10 +664,13 @@ export default class AgentComposer extends Vue {
         path,
       })),
       skill: this.selectedSkill ?? undefined,
+      connections: this.selectedConnections.map((connection) => ({ ...connection })),
     }
     this.clearAttachments()
     this.selectedSkill = null
+    this.selectedConnections = []
     this.closeSkillMenu()
+    this.closeMentionMenu()
     this.message = ''
     this.$nextTick(() => this.resize())
     return outgoing
@@ -587,11 +819,12 @@ export default class AgentComposer extends Vue {
     this.showModeMenu = false
     this.showModelMenu = false
     this.skillMenuOpen = false
+    this.closeMentionMenu()
   }
 
   /** Closes an open menu without letting Esc reach the panel that closes the window */
   private onEsc(event: KeyboardEvent) {
-    if (!this.showModeMenu && !this.showModelMenu && !this.skillMenuOpen) return
+    if (!this.showModeMenu && !this.showModelMenu && !this.skillMenuOpen && !this.mentionMenuOpen) return
     this.closeMenus()
     event.stopPropagation()
   }
@@ -609,19 +842,13 @@ export default class AgentComposer extends Vue {
     this.$emit('update:permissionMode', mode)
   }
 
-  private insertConnection() {
-    if (!this.message.includes('@connection')) {
-      this.message = `${this.message}${this.message ? ' ' : ''}@connection`
-    }
-    this.handleInput(this.message)
-  }
-
-  public focus() {
+  public focus(caret?: number) {
     const textarea = this.$refs.textarea as HTMLTextAreaElement
     if (textarea) {
       this.$nextTick(() => {
         textarea.focus()
-        textarea.selectionStart = textarea.selectionEnd = textarea.value.length
+        const position = caret === undefined ? textarea.value.length : caret
+        textarea.selectionStart = textarea.selectionEnd = position
       })
     }
   }

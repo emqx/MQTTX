@@ -15,6 +15,19 @@
   --agent-amber: #e6a23c;
   --agent-mono: Menlo, Monaco, 'Courier New', monospace;
 
+  /* One shell for the Skill and connection chips, in the composer tray and in the sent messages */
+  @mixin chip-shell {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 24px;
+    padding: 0 4px 0 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+  }
+
   position: fixed;
   background: var(--color-bg-normal);
   display: flex;
@@ -449,7 +462,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: var(--agent-space-2);
+    gap: 6px;
     min-width: 0;
     max-width: 80%;
   }
@@ -463,15 +476,29 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
-    gap: var(--agent-space-2);
+    gap: 6px;
   }
+  /* The same two chips as the composer tray, without the remove button */
   .user-skill {
-    padding: var(--agent-space-1) var(--agent-space-2);
-    border: 1px solid var(--color-border-default);
-    border-radius: var(--agent-radius-sm);
-    background: var(--color-bg-normal);
-    color: var(--color-text-default);
-    font-size: 12px;
+    @include chip-shell;
+    background: color-mix(in srgb, var(--color-main-green) 12%, transparent);
+    color: color-mix(in srgb, var(--color-main-green) 50%, var(--color-text-title));
+  }
+  .user-mention {
+    @include chip-shell;
+    background: color-mix(in srgb, var(--color-text-title) 8%, transparent);
+    color: var(--color-text-title);
+  }
+  /* A mentioned connection opens that connection; a deleted one stays as a plain record */
+  .user-mention.openable {
+    cursor: pointer;
+    transition: background-color 0.12s var(--agent-ease);
+  }
+  .user-mention.openable:hover {
+    background: color-mix(in srgb, var(--color-text-title) 14%, transparent);
+  }
+  .user-mention.gone {
+    opacity: 0.6;
   }
   .user-image {
     max-width: 160px;
@@ -525,6 +552,10 @@
     display: flex;
     gap: var(--agent-space-2);
     align-items: flex-start;
+  }
+  /* A narrow panel has no room for an avatar column that stays empty below the first line */
+  &.is-narrow .turn-agent .avatar {
+    display: none;
   }
   /* The icon on a tile of the theme background: white in light, dark in dark and night */
   .avatar {
@@ -1184,28 +1215,86 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--agent-space-2);
-    margin-bottom: var(--agent-space-2);
+    gap: 6px;
+    margin-bottom: 6px;
   }
+  /* One shell for both chips: 24px pill, no border, 8px left / 4px right padding, 6px inner gap */
+  @keyframes agent-chip-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  /* Skill chip: the brand green at 12% as the fill, the same green one step deeper for the text */
   .skill-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--agent-space-1);
-    padding: var(--agent-space-1) var(--agent-space-2);
-    border: 1px solid var(--color-main-green);
-    border-radius: var(--agent-radius-sm);
-    background: var(--color-bg-normal);
-    color: var(--color-text-title);
-    font-size: 12px;
+    @include chip-shell;
+    background: color-mix(in srgb, var(--color-main-green) 12%, transparent);
+    color: color-mix(in srgb, var(--color-main-green) 50%, var(--color-text-title));
+    animation: agent-chip-in 0.12s var(--agent-ease);
   }
-  .skill-chip-remove {
+  /* Connection chip: a neutral surface, a state dot, then @ and the name */
+  .mention-chip {
+    @include chip-shell;
+    background: color-mix(in srgb, var(--color-text-title) 8%, transparent);
+    color: var(--color-text-title);
+    animation: agent-chip-in 0.12s var(--agent-ease);
+  }
+  .chip-ico {
+    flex: none;
+    width: 12px;
+    font-size: 12px;
+    line-height: 12px;
+    text-align: center;
+  }
+  .chip-dot {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-main-green);
+  }
+  .chip-dot.off {
+    background: var(--color-text-light);
+  }
+  /* The "@" glue is quieter than the connection name */
+  .chip-at {
+    flex: none;
+    color: var(--color-text-default);
+  }
+  .chip-name {
+    min-width: 0;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .chip-remove {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 16px;
+    height: 16px;
+    padding: 0;
     border: 0;
+    border-radius: 50%;
     background: transparent;
-    color: var(--color-text-light);
-    font-size: 10px;
+    color: var(--color-text-default);
+    font-size: 11px;
     line-height: 1;
     cursor: pointer;
-    padding: 0;
+    transition: background-color 0.12s var(--agent-ease), color 0.12s var(--agent-ease);
+  }
+  .chip-remove:hover {
+    background: color-mix(in srgb, var(--color-text-title) 12%, transparent);
+    color: var(--color-text-title);
+  }
+  .chip-remove:focus-visible {
+    outline: 2px solid var(--color-main-green);
+    outline-offset: 1px;
   }
   .attachments {
     display: flex;
@@ -1268,9 +1357,14 @@
     border-radius: 50%;
     background: var(--color-bg-normal);
     color: var(--color-text-default);
-    font-size: 10px;
+    font-size: 11px;
     line-height: 1;
     cursor: pointer;
+    transition: color 0.12s var(--agent-ease), border-color 0.12s var(--agent-ease);
+  }
+  .attachment-remove:focus-visible {
+    outline: 2px solid var(--color-main-green);
+    outline-offset: 1px;
   }
   .attachment-remove:hover {
     color: var(--color-minor-red);
@@ -1354,17 +1448,25 @@
     color: var(--agent-amber);
     background: #e6a23c10;
   }
+  /* The "@ current connection" button speaks the same language as the connection chip */
   .pill.ctx {
     max-width: 180px;
     min-width: 0;
     flex: 0 1 auto;
   }
-  .pill.ctx span {
+  .pill.ctx .ctx-at {
+    flex: none;
+    color: var(--color-text-default);
+  }
+  .pill.ctx .ctx-name {
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    color: var(--color-text-title);
   }
   .pill .on-dot {
+    flex: none;
     width: 6px;
     height: 6px;
     border-radius: 50%;
@@ -1457,6 +1559,7 @@
     width: min(360px, calc(100% - 2 * var(--agent-space-4)));
     max-height: none;
     overflow: visible;
+    animation: agent-rise 0.12s var(--agent-ease);
   }
   /* Opens above the model button at the right of the composer bar */
   .model-menu {
@@ -1478,66 +1581,55 @@
     font-weight: 400;
     color: var(--color-text-default);
   }
-  /* Reasoning strength: a segmented control below the model list */
+  /* Reasoning strength: one row below the model list, the label and a compact select.
+     Metrics follow the menu rows: 10px of side padding, 13px label. */
   .model-menu .reasoning {
-    margin-top: var(--agent-space-1);
-    border-top: 1px solid var(--color-border-default);
-  }
-  .model-menu .reasoning .menu-title {
-    padding-top: var(--agent-space-2);
-  }
-  .model-menu .levels {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--agent-space-1);
-    padding: 0 var(--agent-space-2) var(--agent-space-2);
-  }
-  .model-menu .level {
-    flex: 1 1 28%;
-    min-width: 0;
-    height: 26px;
-    padding: 0 var(--agent-space-1);
-    border: 1px solid var(--color-border-default);
-    border-radius: var(--agent-radius-sm);
-    background: transparent;
-    /* Buttons default to black text, which disappears in the dark themes */
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--agent-space-2);
+    margin-top: var(--agent-space-1);
+    padding: 6px 10px;
+    border-top: 1px solid var(--color-border-default);
     color: var(--color-text-default);
+    font-size: 13px;
+  }
+  .model-menu .reasoning-select {
+    position: relative;
+    flex: none;
+  }
+  .model-menu .reasoning-select select {
+    appearance: none;
+    height: 26px;
+    padding: 0 24px 0 var(--agent-space-2);
+    border: 1px solid var(--color-border-default);
+    border-radius: 6px;
+    background: var(--color-bg-normal);
+    color: var(--color-text-title);
+    font: inherit;
     font-size: 12px;
-    line-height: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     cursor: pointer;
+    outline: none;
   }
-  .model-menu .level:hover {
-    background: var(--color-bg-primary);
+  .model-menu .reasoning-select select:hover {
+    border-color: var(--color-text-light);
   }
-  .model-menu .level.sel {
+  .model-menu .reasoning-select select:focus-visible {
     border-color: var(--color-main-green);
-    color: var(--color-main-green);
   }
-  .model-menu .level:focus-visible {
-    outline: 2px solid var(--color-main-green);
-    outline-offset: 1px;
+  .model-menu .reasoning-select i {
+    position: absolute;
+    right: var(--agent-space-2);
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: var(--color-text-light);
+    pointer-events: none;
   }
   /* Current strength next to the model name, in the muted text colour; the name truncates first */
   .model .model-level {
     flex: none;
     color: var(--color-text-light);
-    white-space: nowrap;
-  }
-  .skill-menu .opt {
-    align-items: flex-start;
-  }
-  /* One line per skill so all seven fit without scrolling */
-  .skill-menu .opt > div {
-    flex: 1;
-    min-width: 0;
-  }
-  .skill-menu .opt .t,
-  .skill-menu .opt .d {
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
   }
   // Icon-font glyphs centered on the first text line
@@ -1612,13 +1704,128 @@
     line-height: 1.5;
     margin-top: 2px;
   }
+  /* The check of the selected row: Element's tick, sized so its ink matches the 13px row text
+     (the iconfont keeps one weight, so font-weight would not change it) */
   .menu .opt .check {
+    flex: none;
     margin-left: auto;
     color: var(--color-main-green);
+    font-size: 16px;
+    line-height: 1;
     visibility: hidden;
   }
   .menu .opt.sel .check {
     visibility: visible;
+  }
+
+  /* The Skill and connection menus share one shell and one row metric.
+     Rows sit 4px inside the menu (the 4px menu padding), 32px tall at least, 10px of side padding. */
+  .skill-menu .opt {
+    align-items: flex-start;
+    gap: var(--agent-space-2);
+    min-height: 32px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: background-color 80ms var(--agent-ease);
+  }
+  /* One highlight only, the same one for keyboard and mouse */
+  .skill-menu .opt.sel,
+  .skill-menu .opt:hover {
+    background: var(--color-bg-primary);
+  }
+  /* One line per skill so all seven fit without scrolling */
+  .skill-menu .opt > div {
+    flex: 1;
+    min-width: 0;
+  }
+  .skill-menu .opt .t {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .skill-menu .opt .d {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.4;
+  }
+  .mention-menu .menu-title {
+    padding: 6px 10px 4px;
+    color: var(--color-text-default);
+    font-size: 11px;
+  }
+  /* About eight rows fit, then the list scrolls and the highlighted row stays in view */
+  .mention-menu {
+    max-height: 290px;
+    overflow-y: auto;
+    scrollbar-color: transparent transparent;
+  }
+  .mention-menu:hover {
+    scrollbar-color: var(--color-bg-scrollbar) transparent;
+  }
+  .mention-menu .opt {
+    align-items: center;
+    height: 32px;
+    padding: 0 10px;
+    gap: 6px;
+  }
+  .mention-dot {
+    flex: none;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-main-green);
+  }
+  .mention-dot.off {
+    background: var(--color-text-light);
+  }
+  /* The name keeps its width; the endpoint gives way first and takes the leftover space */
+  .mention-name {
+    flex: 0 0 auto;
+    max-width: 55%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text-title);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .mention-endpoint {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin-left: auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: right;
+    color: var(--color-text-default);
+    font-size: 12px;
+  }
+  /* The connection the user is looking at */
+  .mention-current {
+    flex: none;
+    height: 16px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-main-green) 14%, transparent);
+    color: color-mix(in srgb, var(--color-main-green) 55%, var(--color-text-title));
+    font-size: 11px;
+    line-height: 16px;
+  }
+  /* The part of a row that matches what the user typed: brand green one step deeper, so it stays
+     readable on light backgrounds (the raw green is only 2.3:1 on white) */
+  .mention-menu .hit {
+    color: color-mix(in srgb, var(--color-main-green) 50%, var(--color-text-title));
+    font-weight: 600;
+  }
+  /* Nothing matched: one quiet line, the same height as a row */
+  .mention-menu .empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    color: var(--color-text-default);
+    font-size: 12px;
   }
 
   /* Welcome */
@@ -1722,9 +1929,6 @@
     font-size: 17px; /* 13.8x13.3, ink sits 0.3px low */
     transform: translateY(-0.3px);
   }
-  .agent-header .icon-btn .el-icon-full-screen {
-    font-size: 16px; /* 13.0x13.0 */
-  }
   .agent-header .icon-btn .el-icon-close {
     font-size: 20px; /* 12.1x12.1; larger makes the X heavier than its neighbours */
   }
@@ -1821,4 +2025,10 @@
       transition-duration: 0.001ms !important;
     }
   }
+}
+
+/* The native option list follows the app theme, not the system appearance */
+body.dark .agent-panel .reasoning-select select,
+body.night .agent-panel .reasoning-select select {
+  color-scheme: dark;
 }

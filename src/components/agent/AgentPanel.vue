@@ -1,5 +1,5 @@
 <template>
-  <transition name="agent-pop">
+  <transition name="agent-pop" @after-leave="closingFull = false">
     <div
       v-show="showAgent"
       id="agent"
@@ -104,6 +104,8 @@
             :connected="currentConnected"
             :model="model"
             :agent-reasoning="agentReasoning"
+            :connections="connectionMentions"
+            :current-connection-id="currentConnectionId"
             @send="sendMessage"
             @abort-response="abortAIResponse"
             @update:permissionMode="setPermissionMode"
@@ -126,7 +128,6 @@ import AgentHeader from './AgentHeader.vue'
 import AgentSidebar from './AgentSidebar.vue'
 import AgentMessages from './AgentMessages.vue'
 import AgentComposer from './AgentComposer.vue'
-import ConnectionsIndex from '@/views/connections/index.vue'
 import { AgentAttachmentPart, AgentMessage, AgentMessagePart } from '@/types/agent'
 import { MQTTXAgent } from '@/utils/ai/agent/MQTTXAgent'
 import { setToolState } from '@/utils/ai/agent/messageParts'
@@ -136,6 +137,7 @@ import { materializeAttachments, OutgoingMessage } from '@/utils/ai/agent/attach
 import { ApprovalGate } from '@/utils/ai/agent/approval'
 import type { ApprovalDecision, PermissionMode } from '@/utils/ai/agent/approval'
 import type { AgentReasoning } from '@/utils/ai/reasoning'
+import type { ConnectionMention } from '@/utils/ai/agent/mentions'
 import { connectionBridge } from '@/utils/ai/agent/connectionBridge'
 import { AgentToolDeps } from '@/utils/ai/agent/tools/types'
 import { globalEventBus } from '@/utils/globalEventBus'
@@ -177,11 +179,14 @@ export default class AgentPanel extends Vue {
   @Getter('agentPermissionMode') private defaultPermissionMode!: PermissionMode
   @Getter('agentMaxSteps') private agentMaxSteps!: number
   @Getter('agentReasoning') private agentReasoning!: AgentReasoning
+  @Getter('activeConnection') private activeConnection!: ActiveConnection
 
   // Full screen is the Agent route; the float window is a local flag. The panel is a singleton in
   // Home.vue so a running reply, approval or stream keeps working when the mode changes.
   private floatOpen = false
   private exitingFull: 'float' | 'close' | null = null
+  /** Keeps the full screen layout while the closing animation plays, so the page does not shrink first */
+  private closingFull = false
   private previousLocation: string | null = null
   private floatRect: FloatRect = defaultFloatRect({ width: window.innerWidth, height: window.innerHeight })
   private dragging = false
@@ -204,6 +209,8 @@ export default class AgentPanel extends Vue {
   private streamingMessage: AgentMessage | null = null
   private errorMessage: string | null = null
   private connectionNames: Record<string, string> = {}
+  /** Full records of the connections, for the `@` mention menu */
+  private connections: ConnectionModel[] = []
   private permissionMode: PermissionMode = 'ask'
   private autoConfirmed = false
   private showHistory = false
@@ -230,7 +237,7 @@ export default class AgentPanel extends Vue {
   }
 
   get mode(): 'float' | 'full' {
-    return panelModeForRoute(this.$route.name)
+    return this.closingFull ? 'full' : panelModeForRoute(this.$route.name)
   }
 
   get showAgent(): boolean {
@@ -264,12 +271,22 @@ export default class AgentPanel extends Vue {
     return connectionBridge.current()?.getClient().connected === true
   }
 
-  private getCurrentConnectionRecord(): ConnectionModel | undefined {
-    if (this.$route.name !== 'ConnectionDetails' || this.$route.params.id === '0') {
-      return undefined
-    }
-    return (this.$parent.$children.find((child: any) => child.currentConnection) as ConnectionsIndex | undefined)
-      ?.currentConnection
+  /** Id of the connection the user is looking at, so its mention is listed first */
+  get currentConnectionId(): string {
+    return connectionBridge.current()?.connectionId ?? ''
+  }
+
+  /** The connections the `@` menu offers, with the live state shown by its dot */
+  get connectionMentions(): ConnectionMention[] {
+    return this.connections
+      .filter((connection) => Boolean(connection.id))
+      .map((connection) => ({
+        id: connection.id as string,
+        name: connection.name,
+        host: connection.host,
+        port: connection.port,
+        connected: this.activeConnection[connection.id as string]?.client?.connected === true,
+      }))
   }
 
   private buildDeps(): AgentToolDeps {
@@ -290,6 +307,8 @@ export default class AgentPanel extends Vue {
    * page; the Agent buttons on the connection and script pages open the float window
    */
   public open(mode: 'float' | 'full'): void {
+    // Reopening during the closing animation must not keep the full screen layout
+    this.closingFull = false
     const wasOpen = this.showAgent
     if (mode === 'full') {
       this.floatOpen = false
@@ -322,7 +341,10 @@ export default class AgentPanel extends Vue {
    */
   private exitFullScreen(intent: 'float' | 'close'): void {
     this.exitingFull = intent
-    if (intent === 'close') this.floatOpen = false
+    if (intent === 'close') {
+      this.floatOpen = false
+      this.closingFull = true
+    }
     const target = leaveFullScreenTarget(this.previousLocation)
     this.previousLocation = null
     this.$router.push(target).catch(() => undefined)
@@ -333,6 +355,7 @@ export default class AgentPanel extends Vue {
     this.floatOpen = false
     if (this.isFullRoute) {
       this.exitingFull = 'close'
+      this.closingFull = true
       this.previousLocation = null
     }
     this.$router.push(location).catch(() => undefined)
@@ -701,7 +724,8 @@ export default class AgentPanel extends Vue {
     const content = typeof payload === 'string' ? payload : payload?.content ?? ''
     const pending = typeof payload === 'string' ? [] : payload?.attachments ?? []
     const skill = typeof payload === 'string' ? undefined : payload?.skill
-    if (!content && !pending.length && !skill) return
+    const connections = typeof payload === 'string' ? [] : payload?.connections ?? []
+    if (!content && !pending.length && !skill && !connections.length) return
 
     if (!(await this.checkAPIKey())) return
 
@@ -714,6 +738,9 @@ export default class AgentPanel extends Vue {
 
     const parts: AgentMessagePart[] = await materializeAttachments(pending, this.conversationId)
     if (skill) parts.push({ type: 'skill', skill: skill.skill })
+    for (const connection of connections) {
+      parts.push({ type: 'connection', connectionId: connection.id, name: connection.name })
+    }
     await this.saveUserMessage(content, parts)
     await this.generateAIResponse()
   }
@@ -770,7 +797,7 @@ export default class AgentPanel extends Vue {
     this.streamingMessage = null
     this.runConversationId = this.conversationId
     this.emitStatus()
-    this.aiAgent.generateResponse(this.messages, () => this.getCurrentConnectionRecord())
+    this.aiAgent.generateResponse(this.messages)
   }
 
   private initializeAgent(): void {
@@ -899,6 +926,7 @@ export default class AgentPanel extends Vue {
   private async refreshConnectionNames(): Promise<void> {
     const { connectionService } = useServices()
     const connections = (await connectionService.getAll()) ?? []
+    this.connections = connections
     this.connectionNames = connections.reduce<Record<string, string>>((acc, connection) => {
       if (connection.id) acc[connection.id] = connection.name
       return acc

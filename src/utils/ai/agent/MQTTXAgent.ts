@@ -140,22 +140,10 @@ export class MQTTXAgent {
    * Build the model messages for the agent from the conversation
    *
    * @param messages Array of message objects
-   * @param getConnectionRecord Function to get current connection record
    */
-  private buildMessageHistory(messages: AgentMessage[], getConnectionRecord?: () => any | undefined) {
-    return toModelMessages(
-      messages.slice(-20).map((message) => {
-        if (message.content.includes('@connection') && getConnectionRecord) {
-          const currentRecord = getConnectionRecord()
-          const content = message.content.replace(
-            '@connection',
-            currentRecord ? JSON.stringify(currentRecord) : 'No connection available',
-          )
-          return { ...message, content }
-        }
-        return message
-      }),
-    )
+  private buildMessageHistory(messages: AgentMessage[]) {
+    // Mentions of a connection are the message's own `connection` parts; the text is sent as typed
+    return toModelMessages(messages.slice(-20))
   }
 
   /**
@@ -271,9 +259,8 @@ export class MQTTXAgent {
    * Generate the reply to the conversation, streaming text, reasoning and tool calls as they happen
    *
    * @param messages Conversation so far, ending with the user message
-   * @param getConnectionRecord Function to get current connection record
    */
-  public async generateResponse(messages: AgentMessage[], getConnectionRecord?: () => any | undefined) {
+  public async generateResponse(messages: AgentMessage[]) {
     const responseMessage: AgentMessage = {
       id: getAgentMessageId(),
       role: 'assistant',
@@ -293,7 +280,7 @@ export class MQTTXAgent {
       const appContext = renderAppContext(buildAppContext(this.deps))
       const agent = this.createAgent(`${instructions}\n\n${appContext}`, tools)
       const { fullStream } = await agent.stream({
-        messages: this.buildMessageHistory(messages, getConnectionRecord),
+        messages: this.buildMessageHistory(messages),
         abortSignal: this.abortController.signal,
       })
 

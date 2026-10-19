@@ -72,6 +72,18 @@
             <ResponseInformation :key="curConnectionId" :response-information="responseInformation" />
           </div>
           <div class="connection-tail">
+            <el-tooltip
+              v-if="enableAgent"
+              placement="bottom"
+              :effect="theme !== 'light' ? 'light' : 'dark'"
+              :open-delay="500"
+              content="MQTTX Agent"
+            >
+              <a href="javascript:;" class="agent-btn" @click="toggleAgent">
+                <agent-icon />
+                <span>MQTTX Agent</span>
+              </a>
+            </el-tooltip>
             <transition name="el-fade-in">
               <template v-if="!showClientInfo && client.connected">
                 <el-tooltip
@@ -120,18 +132,6 @@
             >
               <a class="remove-script-btn" href="javascript:;" @click="removeScript">
                 <i class="iconfont icon-stop-script"></i>
-              </a>
-            </el-tooltip>
-            <el-tooltip
-              v-if="enableAgent"
-              placement="bottom"
-              :effect="theme !== 'light' ? 'light' : 'dark'"
-              :open-delay="500"
-              content="MQTTX Agent"
-            >
-              <a href="javascript:;" class="agent-btn" @click="toggleAgent">
-                <agent-icon />
-                <span>MQTTX Agent</span>
               </a>
             </el-tooltip>
             <template v-if="!isNewWindow">
@@ -2227,9 +2227,7 @@ export default class ConnectionsDetail extends Vue {
       if (button) {
         button.addEventListener('click', () => {
           const sendMsg = promptInfo ? `${promptInfo}\n${msgTitle}` : msgTitle
-          this.askAgent(
-            `${this.$tc('agent.promptError')}\n\`\`\`${sendMsg}\`\`\`\n${this.$tc('agent.myConnectionInfo')}`,
-          )
+          this.askAgent(`${this.$tc('agent.promptError')}\n\`\`\`${sendMsg}\`\`\``)
           notify.close()
           callback?.()
         })
@@ -2238,12 +2236,17 @@ export default class ConnectionsDetail extends Vue {
   }
 
   /**
-   * Asks Agent a question and shows the Agent panel.
+   * Asks Agent a question about this connection and shows the Agent panel. The connection is
+   * mentioned, so the Agent reads it with get_connection.
    * @param askMsg The question to ask Agent.
    */
   private askAgent(askMsg: string) {
     const agentRef = this.toggleAgent()
-    agentRef.sendMessage(askMsg)
+    agentRef.sendMessage({
+      content: askMsg,
+      attachments: [],
+      connections: this.record.id ? [{ id: this.record.id, name: this.record.name }] : [],
+    })
   }
 
   private getAncestorRef(refName: string) {
@@ -2440,6 +2443,9 @@ export default class ConnectionsDetail extends Vue {
       .connection-tail {
         flex-shrink: 0;
         margin-left: 12px;
+        // Center the Agent pill and the icon buttons on the same line as the connection select
+        display: flex;
+        align-items: center;
         i {
           font-size: 20px;
           color: var(--color-text-title);
@@ -2465,7 +2471,8 @@ export default class ConnectionsDetail extends Vue {
           display: inline-flex;
           align-items: center;
           gap: 5px;
-          height: 30px;
+          // Same height as the connection select on the left
+          height: 28px;
           padding: 0 12px;
           border-radius: 999px;
           border: 1px solid var(--color-border-default);
