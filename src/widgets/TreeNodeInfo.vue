@@ -33,7 +33,7 @@
       <div>{{ $t('connections.subTopics') }}</div>
       <div class="mt-2">
         <el-tag
-          v-for="(topic, index) in getSubTopics(node)"
+          v-for="(topic, index) in subTopics"
           type="info"
           :key="`${topic}-${index}`"
           size="small"
@@ -121,6 +121,10 @@ export default class TreeNodeInfo extends Vue {
     return this.getFullTopicPath(this.node)
   }
 
+  get subTopics(): string[] {
+    return findSubTopics(this.node)
+  }
+
   get connectionInfoItems() {
     if (!this.node.connectionInfo) return []
     const { name, clientId } = this.node.connectionInfo
@@ -138,10 +142,6 @@ export default class TreeNodeInfo extends Vue {
       fullHost += `${path}`
     }
     return fullHost
-  }
-
-  private getSubTopics(node: TopicTreeNode): string[] {
-    return findSubTopics(node)
   }
 
   private getFullTopicPath(node: TopicTreeNode): string {

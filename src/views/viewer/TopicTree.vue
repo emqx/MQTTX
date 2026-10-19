@@ -4,6 +4,7 @@
       <el-col :span="16">
         <el-card shadow="never" class="topic-tree-card">
           <TreeView
+            ref="treeView"
             :data="data"
             @node-click="handleNodeClick"
             @clear-tree="handleClearTree"
@@ -27,7 +28,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import { globalEventBus } from '@/utils/globalEventBus'
 import { AGENT_DATA_CHANGED, AgentDataChangedPayload } from '@/utils/ai/agent/agentEvents'
 import TreeView from '@/widgets/TreeView.vue'
-import { updateTopicTreeNode } from '@/utils/topicTree'
+import { updateSubTopicCounts, updateTopicTreeNode } from '@/utils/topicTree'
 import { Packet } from 'mqtt-packet/types'
 import TreeNodeInfo from '@/widgets/TreeNodeInfo.vue'
 import { MessageQueue } from '@/utils/messageQueue'
@@ -62,12 +63,16 @@ export default class TopicTree extends Vue {
 
   private handlePacketReceive(packet: Packet, connectionInfo: ConnectionModel) {
     if (packet.cmd !== 'publish') return
-    const { updatedNodes, updatedTree } = updateTopicTreeNode(this.data, {
+    const { updatedNodes, newNodeParentId } = updateTopicTreeNode(this.data, {
       packet,
       connectionInfo,
     })
-    // Handle Tree View Update
-    this.data = updatedTree
+    // The tree is mutated in place, so el-tree only has to sync the node that
+    // received a new child; the root array watcher handles new/cleared hosts.
+    if (newNodeParentId) {
+      const treeView = this.$refs.treeView as TreeView | undefined
+      treeView?.syncChildren(newNodeParentId)
+    }
     if (this.data.length === 0) return
     this.$log.info(
       `Topic Tree: Updated tree data for connection ${connectionInfo.name}@${connectionInfo.host}. Topic: ${
@@ -83,6 +88,9 @@ export default class TopicTree extends Vue {
     const { topicNodeService } = useServices()
     try {
       const res = await topicNodeService.getTree()
+      // Persisted counts may be stale; recompute once so the incremental
+      // updates start from a consistent state.
+      res.forEach((root) => updateSubTopicCounts(root))
       this.data = res
     } catch (error) {
       this.$message.error(`Failed to get topic tree: ${(error as Error).toString()}`)
@@ -136,12 +144,16 @@ export default class TopicTree extends Vue {
   }
 
   private handleSyncConnectionSuccess(syncedTopicTree: TopicTreeNode) {
-    const findIndex = this.data.findIndex((topicTreeNode) => topicTreeNode.id === syncedTopicTree.id)
+    // Replace the array so el-tree rebuilds: its incremental update keeps the old
+    // node data when a host with the same id is swapped in place.
+    const data = [...this.data]
+    const findIndex = data.findIndex((topicTreeNode) => topicTreeNode.id === syncedTopicTree.id)
     if (findIndex !== -1) {
-      this.$set(this.data, findIndex, syncedTopicTree)
+      data[findIndex] = syncedTopicTree
     } else {
-      this.data.push(syncedTopicTree)
+      data.push(syncedTopicTree)
     }
+    this.data = data
   }
 
   private async created() {

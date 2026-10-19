@@ -478,3 +478,205 @@ describe('Topic Tree Functions', () => {
     expect(grandchild?.children).to.be.empty
   })
 })
+
+function makePublishPacket(topic: string): IPublishPacket {
+  return {
+    cmd: 'publish',
+    topic,
+    payload: Buffer.from('payload'),
+    qos: 1,
+    dup: false,
+    retain: false,
+  }
+}
+
+function cloneTopicTree<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T
+}
+
+function assertSubTopicCountsMatch(actual: TopicTreeNode, expected: TopicTreeNode, path: string): void {
+  expect(actual.subTopicCount, `subTopicCount mismatch at ${path}`).to.equal(expected.subTopicCount)
+  const actualChildren = actual.children ?? []
+  const expectedChildren = expected.children ?? []
+  expect(actualChildren.length, `children length mismatch at ${path}`).to.equal(expectedChildren.length)
+  actualChildren.forEach((child, index) => {
+    assertSubTopicCountsMatch(child, expectedChildren[index], `${path}/${child.label}`)
+  })
+}
+
+/**
+ * Deterministically builds a large topic set with mixed depths, shared
+ * prefixes and repeated topics. No randomness so failures are reproducible.
+ */
+function generateLargeTopicSet(count: number): string[] {
+  const groups = ['plant', 'floor', 'cell', 'unit', 'line']
+  const leaves = ['temp', 'pressure', 'flow', 'vibration', 'status']
+  const topics: string[] = []
+  for (let i = 0; i < count; i++) {
+    const depth = (i % 4) + 1
+    const levels: string[] = []
+    for (let level = 0; level < depth; level++) {
+      if (level === depth - 1) {
+        levels.push(`${leaves[(i + level) % leaves.length]}_${i % 9}`)
+      } else {
+        levels.push(`${groups[(i + level) % groups.length]}_${level}`)
+      }
+    }
+    const topic = levels.join('/')
+    topics.push(topic)
+    // Repeated topics exercise the existing-node path.
+    if (i % 6 === 0) topics.push(topic)
+    // Shorter prefixes exercise branch creation right after their child.
+    if (i % 10 === 0 && levels.length > 1) topics.push(levels.slice(0, -1).join('/'))
+  }
+  return topics
+}
+
+describe('Topic Tree In-Place Updates', () => {
+  it('mutates the input array in place and returns the same instance', () => {
+    const tree: TopicTreeNode[] = []
+
+    const newHost = updateTopicTreeNode(tree, { packet: makePublishPacket('a/b'), connectionInfo })
+    expect(newHost.updatedTree).to.equal(tree)
+    expect(tree).to.have.lengthOf(1) // the new host is pushed into the input array
+
+    const existingHost = updateTopicTreeNode(tree, { packet: makePublishPacket('a/c'), connectionInfo })
+    expect(existingHost.updatedTree).to.equal(tree)
+    expect(tree).to.have.lengthOf(1)
+  })
+
+  it('keeps updatedNodes order, ids, payload and parentId unchanged', () => {
+    const tree: TopicTreeNode[] = []
+    const result = updateTopicTreeNode(tree, {
+      packet: makePublishPacket('sensors/temperature/living-room'),
+      connectionInfo,
+    })
+
+    expect(result.updatedNodes.map((node) => node.id)).to.deep.equal([
+      'test-connection-id_0',
+      'test-connection-id_0_0',
+      'test-connection-id_0_0_0',
+      'test-connection-id',
+    ])
+    expect(result.updatedNodes.map((node) => node.parentId)).to.deep.equal([
+      'test-connection-id',
+      'test-connection-id_0',
+      'test-connection-id_0_0',
+      undefined,
+    ])
+    expect(result.updatedNodes[2].message?.payload).to.equal('payload')
+    expect(result.updatedNodes[3].messageCount).to.equal(1)
+  })
+
+  it('reports newNodeParentId only when new nodes attach below an existing node', () => {
+    const tree: TopicTreeNode[] = []
+
+    // Brand-new host: pushed into the root array, no parent to sync.
+    const first = updateTopicTreeNode(tree, { packet: makePublishPacket('a/b/c'), connectionInfo })
+    expect(first.newNodeParentId).to.be.undefined
+
+    // Repeated topic: nothing new was created.
+    const repeated = updateTopicTreeNode(tree, { packet: makePublishPacket('a/b/c'), connectionInfo })
+    expect(repeated.newNodeParentId).to.be.undefined
+
+    // New leaf under the existing 'b' node.
+    const newLeaf = updateTopicTreeNode(tree, { packet: makePublishPacket('a/b/d'), connectionInfo })
+    const bNode = tree[0].children?.find((node) => node.label === 'a')?.children?.find((node) => node.label === 'b')
+    expect(bNode).to.exist
+    expect(newLeaf.newNodeParentId).to.equal(bNode!.id)
+
+    // New branch under the existing host node.
+    const newBranch = updateTopicTreeNode(tree, { packet: makePublishPacket('x/y'), connectionInfo })
+    expect(newBranch.newNodeParentId).to.equal(tree[0].id)
+  })
+
+  it('keeps incremental subTopicCount equal to a full recompute for a large mixed topic set', () => {
+    const tree: TopicTreeNode[] = []
+    const topics = generateLargeTopicSet(300)
+    expect(topics.length).to.be.greaterThan(300)
+
+    topics.forEach((topic) => {
+      updateTopicTreeNode(tree, { packet: makePublishPacket(topic), connectionInfo })
+
+      const expectedTree = cloneTopicTree(tree)
+      const expectedHost = expectedTree.find((node) => node.id === connectionInfo.id)
+      expect(expectedHost, `host node missing for ${topic}`).to.exist
+      updateSubTopicCounts(expectedHost!)
+
+      const actualHost = tree.find((node) => node.id === connectionInfo.id)
+      expect(actualHost, `host node missing for ${topic}`).to.exist
+      assertSubTopicCountsMatch(actualHost!, expectedHost!, 'host')
+    })
+  })
+
+  it('finds subtopics with the same output and order as before', () => {
+    const node: TopicTreeNode = {
+      id: 'root',
+      label: 'root',
+      messageCount: 0,
+      subTopicCount: 0,
+      children: [
+        {
+          id: 'a',
+          label: 'a',
+          messageCount: 0,
+          subTopicCount: 0,
+          children: [
+            { id: 'a1', label: 'a1', messageCount: 0, subTopicCount: 0, children: [] },
+            {
+              id: 'a2',
+              label: 'a2',
+              messageCount: 0,
+              subTopicCount: 0,
+              children: [{ id: 'a2x', label: 'a2x', messageCount: 0, subTopicCount: 0, children: [] }],
+            },
+          ],
+        },
+        { id: 'b', label: 'b', messageCount: 0, subTopicCount: 0, children: [] },
+        { id: 'empty', label: '', messageCount: 0, subTopicCount: 0, children: [] },
+      ],
+    }
+
+    expect(findSubTopics(node)).to.deep.equal(['a', 'a1', 'a2', 'a2x', 'b'])
+    // isRoot = false keeps the node's own label at the front.
+    expect(findSubTopics(node, false)).to.deep.equal(['root', 'a', 'a1', 'a2', 'a2x', 'b'])
+  })
+
+  it('finds full topic paths with the same output as before', () => {
+    const treeData: TopicTreeNode[] = [
+      {
+        id: 'conn1',
+        label: 'conn1',
+        messageCount: 0,
+        subTopicCount: 0,
+        connectionInfo: {} as ConnectionModel,
+        children: [
+          {
+            id: 'conn1_0',
+            label: 'sensors',
+            messageCount: 0,
+            subTopicCount: 0,
+            children: [
+              {
+                id: 'conn1_0_0',
+                label: 'temperature',
+                messageCount: 0,
+                subTopicCount: 0,
+                children: [
+                  { id: 'conn1_0_0_0', label: 'living-room', messageCount: 0, subTopicCount: 0, children: [] },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ]
+
+    expect(findFullTopicPath(treeData, 'conn1_0_0_0')).to.equal('sensors/temperature/living-room')
+    expect(findFullTopicPath(treeData, 'conn1_0_0')).to.equal('sensors/temperature')
+    expect(findFullTopicPath(treeData, 'conn1_0')).to.equal('sensors')
+    // The root node contributes no label, matching the previous behaviour.
+    expect(findFullTopicPath(treeData, 'conn1')).to.equal('')
+    expect(findFullTopicPath(treeData, 'missing')).to.equal(null)
+  })
+})
