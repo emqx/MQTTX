@@ -1,24 +1,21 @@
 <template>
   <div class="topic-tree-view">
-    <el-row :gutter="12">
-      <el-col :span="16">
-        <el-card shadow="never" class="topic-tree-card">
-          <TreeView
-            ref="treeView"
-            :data="data"
-            @node-click="handleNodeClick"
-            @clear-tree="handleClearTree"
-            @sync-connection="syncConnectionDialogVisible = true"
-          />
-        </el-card>
-      </el-col>
-      <el-col :span="8">
-        <el-card shadow="never" class="topic-info-card">
-          <TreeNodeInfo v-if="selectedNode" :node="selectedNode" :tree-data="data" />
-          <div v-else class="empty-text">{{ $t('viewer.selectedTopicInfo') }}</div>
-        </el-card>
-      </el-col>
-    </el-row>
+    <div ref="panes" class="topic-tree-panes">
+      <el-card shadow="never" class="topic-tree-card">
+        <TreeView
+          ref="treeView"
+          :data="data"
+          @node-click="handleNodeClick"
+          @clear-tree="handleClearTree"
+          @sync-connection="syncConnectionDialogVisible = true"
+        />
+      </el-card>
+      <div class="pane-resizer" :class="{ 'is-resizing': isResizing }" @mousedown="handleResizeStart"></div>
+      <el-card shadow="never" class="topic-info-card" :style="{ width: `${infoPaneRatio * 100}%` }">
+        <TreeNodeInfo v-if="selectedNode" :node="selectedNode" :tree-data="data" />
+        <div v-else class="empty-text">{{ $t('viewer.selectedTopicInfo') }}</div>
+      </el-card>
+    </div>
     <sync-topic-tree-dialog :visible.sync="syncConnectionDialogVisible" @success="handleSyncConnectionSuccess" />
   </div>
 </template>
@@ -36,6 +33,14 @@ import { Subscription } from 'rxjs'
 import SyncTopicTreeDialog from '@/widgets/SyncTopicTreeDialog.vue'
 import { ignoreQoS0Message } from '@/utils/mqttUtils'
 
+const MIN_INFO_PANE_RATIO = 0.2
+const MAX_INFO_PANE_RATIO = 0.6
+const INFO_PANE_RATIO_STORAGE_KEY = 'topic-tree-info-pane-ratio'
+
+function clampRatio(ratio: number): number {
+  return Math.min(Math.max(ratio, MIN_INFO_PANE_RATIO), MAX_INFO_PANE_RATIO)
+}
+
 @Component({
   components: {
     TreeView,
@@ -52,8 +57,38 @@ export default class TopicTree extends Vue {
 
   private syncConnectionDialogVisible = false
 
+  private infoPaneRatio = 1 / 3
+  private isResizing = false
+
   private handleNodeClick(data: TopicTreeNode) {
     this.selectedNode = data
+  }
+
+  private handleResizeStart(event: MouseEvent) {
+    event.preventDefault()
+    this.isResizing = true
+    document.body.classList.add('select-none')
+    window.addEventListener('mousemove', this.handleResizeMove)
+    window.addEventListener('mouseup', this.handleResizeEnd)
+  }
+
+  private handleResizeMove(event: MouseEvent) {
+    const panes = this.$refs.panes as HTMLElement | undefined
+    if (!panes) return
+    const rect = panes.getBoundingClientRect()
+    this.infoPaneRatio = clampRatio((rect.right - event.clientX) / rect.width)
+  }
+
+  private handleResizeEnd() {
+    this.stopResize()
+    localStorage.setItem(INFO_PANE_RATIO_STORAGE_KEY, this.infoPaneRatio.toString())
+  }
+
+  private stopResize() {
+    this.isResizing = false
+    document.body.classList.remove('select-none')
+    window.removeEventListener('mousemove', this.handleResizeMove)
+    window.removeEventListener('mouseup', this.handleResizeEnd)
   }
 
   private handlePacketReceive(packet: Packet, connectionInfo: ConnectionModel) {
@@ -147,6 +182,10 @@ export default class TopicTree extends Vue {
   }
 
   private async created() {
+    const storedRatio = parseFloat(localStorage.getItem(INFO_PANE_RATIO_STORAGE_KEY) ?? '')
+    if (Number.isFinite(storedRatio)) {
+      this.infoPaneRatio = clampRatio(storedRatio)
+    }
     await this.loadTopicTree()
     this.messageQueue = new MessageQueue<TopicTreeNode[]>()
     globalEventBus.on('packetReceive', this.handlePacketReceive)
@@ -161,12 +200,17 @@ export default class TopicTree extends Vue {
       this.subscription.unsubscribe()
       this.subscription = null
     }
+    this.stopResize()
   }
 }
 </script>
 
 <style lang="scss">
 .topic-tree-view {
+  .topic-tree-panes {
+    display: flex;
+    align-items: stretch;
+  }
   .topic-info-card,
   .topic-tree-card {
     height: calc(100vh - 130px);
@@ -174,6 +218,8 @@ export default class TopicTree extends Vue {
     margin-bottom: 12px;
   }
   .topic-tree-card {
+    flex: 1;
+    min-width: 0;
     color: var(--color-text-default);
     .el-tree {
       background: transparent;
@@ -182,9 +228,32 @@ export default class TopicTree extends Vue {
     }
   }
   .topic-info-card {
+    flex-shrink: 0;
     color: var(--color-text-default);
     .empty-text {
       color: var(--color-text-light);
+    }
+  }
+  .pane-resizer {
+    position: relative;
+    flex-shrink: 0;
+    width: 12px;
+    margin-bottom: 12px;
+    cursor: col-resize;
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 2px;
+      transform: translateX(-50%);
+      background-color: transparent;
+      transition: background-color 0.1s;
+    }
+    &:hover::after,
+    &.is-resizing::after {
+      background-color: var(--color-main-green);
     }
   }
 }
