@@ -31,48 +31,73 @@
       >
         <template #default="{ node, data }">
           <span class="custom-tree-node">
-            <div class="dashboard-item" :title="rowTitle(data)">
+            <div
+              class="dashboard-item"
+              :class="{ 'menu-open': menuVisible && menuTargetId === data.id }"
+              :title="rowTitle(data)"
+              @contextmenu.prevent="openMenuAt(data, $event)"
+            >
               <span class="dashboard-name">{{ data.name }}</span>
-              <el-dropdown
-                class="dashboard-oper"
-                trigger="click"
-                @command="onRowCommand($event, data)"
-                @click.native.stop
+              <span
+                class="dashboard-oper-trigger"
+                @click.stop="openMenuFromButton(data, $event)"
+                @mousedown.stop="onOperPointerDown"
               >
-                <span class="dashboard-oper-trigger" @click.stop @mousedown.stop="onOperPointerDown">
-                  <i class="iconfont icon-more"></i>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item command="edit">
-                    <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
-                  </el-dropdown-item>
-                  <el-dropdown-item class="delete-item" command="delete">
-                    <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
+                <i class="iconfont icon-more"></i>
+              </span>
             </div>
           </span>
         </template>
       </el-tree>
+      <contextmenu :visible.sync="menuVisible" v-bind="menuConfig">
+        <a href="javascript:;" class="context-menu__item" @click="handleEdit">
+          <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
+        </a>
+        <a href="javascript:;" class="context-menu__item danger" @click="handleDelete">
+          <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
+        </a>
+      </contextmenu>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import Contextmenu from '@/components/Contextmenu.vue'
+import getContextmenuPosition from '@/utils/getContextmenuPosition'
 import '@/assets/font/iconfont'
 
-@Component
+// Estimated menu size: used for the right-click entry (`getContextmenuPosition`)
+// and as the first-frame estimate for the ⋯ entry, which then re-aligns to the
+// menu's measured width. Two items are about 90px tall.
+const MENU_WIDTH = 140
+const MENU_HEIGHT = 90
+
+@Component({
+  components: { Contextmenu },
+})
 export default class DashboardsList extends Vue {
   @Prop({ type: Array, default: () => [] }) readonly dashboards!: DashboardModel[]
   @Prop({ type: String, default: null }) readonly selectedId!: string | null
+
+  // === ROW MENU ===
+  private menuVisible = false
+  private menuConfig: ContextmenuModel = { top: 0, left: 0 }
+  // The row the open menu acts on; cleared when the menu closes.
+  private menuTargetId: string | null = null
 
   /**
    * True while a press that started on the ⋯ button is still held, so the tree
    * does not turn that press into a row drag (see `allowDrag`).
    */
   private operPointerActive = false
+
+  @Watch('menuVisible')
+  private onMenuVisibleChanged(visible: boolean) {
+    if (!visible) {
+      this.menuTargetId = null
+    }
+  }
 
   private selectDashboard(dashboard: DashboardModel) {
     this.$emit('dashboard-selected', dashboard)
@@ -82,13 +107,77 @@ export default class DashboardsList extends Vue {
     this.$emit('create-dashboard')
   }
 
-  /** Row menu: the two commands keep the old context-menu event contract. */
-  private onRowCommand(command: string, dashboard: DashboardModel): void {
-    if (command === 'edit') {
-      this.$emit('edit-dashboard', dashboard)
-    } else if (command === 'delete') {
-      this.$emit('delete-dashboard', dashboard)
+  /** Right-click on a row: open at the pointer, or close if already open. */
+  private openMenuAt(row: DashboardModel, event: MouseEvent): void {
+    if (this.menuVisible) {
+      this.menuVisible = false
+      return
     }
+
+    const { x, y } = getContextmenuPosition(event, MENU_WIDTH, MENU_HEIGHT)
+    this.menuConfig.left = x
+    this.menuConfig.top = y
+    this.menuTargetId = row.id || null
+    this.menuVisible = true
+  }
+
+  /** ⋯ button: right-aligned with the button, 4px under it (then clamped to the viewport). */
+  private openMenuFromButton(row: DashboardModel, event: MouseEvent): void {
+    if (this.menuVisible) {
+      this.menuVisible = false
+      return
+    }
+
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+    const top = rect.bottom + 4
+    const targetId = row.id || null
+
+    // First frame uses the estimate; the menu is content-sized, so its real
+    // width is measured as soon as it renders (see below).
+    const { x, y } = getContextmenuPosition(
+      { clientX: rect.right - MENU_WIDTH, clientY: top } as MouseEvent,
+      MENU_WIDTH,
+      MENU_HEIGHT,
+    )
+    this.menuConfig.left = x
+    this.menuConfig.top = y
+    this.menuTargetId = targetId
+    this.menuVisible = true
+
+    // The card is content-sized (its width also changes with the language), so
+    // align its measured right edge with the button's right edge.
+    this.$nextTick(() => {
+      if (!this.menuVisible || this.menuTargetId !== targetId) return
+
+      const menu = this.$el.querySelector('.contextmenu') as HTMLElement | null
+      if (!menu) return
+
+      const width = menu.offsetWidth || MENU_WIDTH
+      const clamped = getContextmenuPosition(
+        { clientX: rect.right - width, clientY: top } as MouseEvent,
+        width,
+        menu.offsetHeight || MENU_HEIGHT,
+      )
+      this.menuConfig.left = clamped.x
+      this.menuConfig.top = clamped.y
+    })
+  }
+
+  private get menuTarget(): DashboardModel | null {
+    return this.dashboards.find((dashboard) => dashboard.id === this.menuTargetId) || null
+  }
+
+  /** Closes the menu first, then emits the row event with the same payload as before. */
+  private handleEdit(): void {
+    const target = this.menuTarget
+    this.menuVisible = false
+    if (target) this.$emit('edit-dashboard', target)
+  }
+
+  private handleDelete(): void {
+    const target = this.menuTarget
+    this.menuVisible = false
+    if (target) this.$emit('delete-dashboard', target)
   }
 
   private onOperPointerDown(): void {
@@ -317,15 +406,11 @@ export default class DashboardsList extends Vue {
       }
 
       // Row action, revealed on hover like the Agent conversation list.
-      .dashboard-oper {
+      .dashboard-oper-trigger {
         position: absolute;
         top: 50%;
         right: 4px;
         transform: translateY(-50%);
-        display: inline-flex;
-      }
-
-      .dashboard-oper-trigger {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -344,14 +429,19 @@ export default class DashboardsList extends Vue {
         }
       }
 
+      // Same reveal for hover and for the row whose menu is open.
       &:hover .dashboard-oper-trigger,
-      &:focus-within .dashboard-oper-trigger {
+      &:focus-within .dashboard-oper-trigger,
+      &.menu-open .dashboard-oper-trigger {
         opacity: 1;
         pointer-events: auto;
+      }
+
+      // Keep the row the menu acts on highlighted while the menu is open.
+      &.menu-open {
+        background-color: var(--color-bg-item);
       }
     }
   }
 }
-
-@include el-dropdown-menu-common;
 </style>
