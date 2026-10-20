@@ -66,4 +66,64 @@ describe('Dashboard live widget topic patterns', () => {
       Container.get = originalGet
     }
   })
+
+  it('keeps a static range history when one live point arrives', async () => {
+    const now = Date.now()
+    const timeRange: [string, string] = [
+      new Date(now - 60 * 60 * 1000).toISOString(),
+      new Date(now + 60 * 60 * 1000).toISOString(),
+    ]
+    const history = Array.from({ length: 60 }, (_, i) => ({
+      createAt: new Date(now - (60 - i) * 1000).toISOString(),
+      topic: 'plant/temp',
+      payload: String(20 + i),
+      qos: 0,
+      retain: false,
+    }))
+    const widgets: WidgetModel[] = [
+      {
+        id: 'line',
+        topicPattern: 'plant/temp',
+        connectionId: 'connection',
+        dashboardId: 'dashboard',
+        type: 'Line',
+        fallbackValue: 0,
+        x: 0,
+        y: 0,
+        w: 3,
+        h: 3,
+      },
+    ]
+
+    const originalGet = Container.get
+    Container.get = ((type: unknown) =>
+      type === MessageService ? { getMessagesByTopicPattern: async () => history } : {}) as typeof Container.get
+    let wrapper: Wrapper<Vue> | undefined
+    try {
+      wrapper = shallowMount(DashboardView, {
+        propsData: { widgets, timeRangeType: 'static', timeRange },
+        stubs: ['el-tooltip', 'el-dropdown', 'el-dropdown-menu', 'el-dropdown-item'],
+      })
+      await new Promise((resolve) => setTimeout(resolve, 50))
+
+      const pointCount = () =>
+        wrapper!.findAll({ name: 'WidgetRenderer' }).wrappers[0].props('data')?.chartData?.xData.length
+
+      expect(pointCount()).to.equal(60)
+
+      globalEventBus.emit(
+        'packetReceive',
+        { cmd: 'publish', topic: 'plant/temp', payload: Buffer.from('99'), qos: 0, retain: false },
+        { id: 'connection' },
+      )
+      await new Promise((resolve) => setTimeout(resolve, 1100))
+      await wrapper.vm.$nextTick()
+
+      // A static range loaded its full history; one more point must not trim it.
+      expect(pointCount()).to.equal(61)
+    } finally {
+      wrapper?.destroy()
+      Container.get = originalGet
+    }
+  })
 })

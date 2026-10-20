@@ -98,6 +98,10 @@ interface TimeRangeConfig {
   end: string
 }
 
+// History is loaded newest-first up to this many messages; the static chart
+// keeps the same cap so a live point cannot truncate a loaded history.
+const MAX_POINTS = 1000
+
 @Component({
   components: {
     GridLayout,
@@ -230,7 +234,7 @@ export default class DashboardCanvas extends Vue {
               messageService.getMessagesByTopicPattern<MessageModel>(widget.connectionId!, widget.topicPattern!, {
                 startTime: timeRange.start,
                 endTime: timeRange.end,
-                limit: 1000,
+                limit: MAX_POINTS,
               }),
             )
           }
@@ -250,7 +254,6 @@ export default class DashboardCanvas extends Vue {
 
       await this.finalizeHistoricalDataLoad()
     } catch (error) {
-      console.error('❌ DashboardView: Error in loadHistoricalData:', error)
       this.handleError(error as Error, 'Historical data loading')
     }
   }
@@ -280,7 +283,6 @@ export default class DashboardCanvas extends Vue {
   private async processHistoricalMessages(widget: WidgetModel, messages: MessageModel[]): Promise<WidgetDataEntry> {
     const entry: WidgetDataEntry = {
       data: this.createInitialWidgetData(widget.type),
-      validationState: 'valid',
       lastUpdate: Date.now(),
     }
 
@@ -299,8 +301,6 @@ export default class DashboardCanvas extends Vue {
 
         this.updateWidgetByTypeHistorical(widget, entry.data, dataPoint)
       } catch (error) {
-        entry.validationState = 'invalid'
-        entry.schemaError = (error as Error).message
         this.handleError(error as Error, `Schema processing for widget ${widget.id}`)
       }
     }
@@ -591,7 +591,7 @@ export default class DashboardCanvas extends Vue {
     data.value = value
     data.fieldName = fieldName
 
-    this.appendChartPoint(data, dataPoint.timestamp, value, 30)
+    this.appendChartPoint(data, dataPoint.timestamp, value)
   }
 
   private updateGaugeData(data: GaugeData, value: number, dataPoint: TimeSeriesDataPoint, fieldName: string): void {
@@ -600,20 +600,21 @@ export default class DashboardCanvas extends Vue {
   }
 
   private updateLineData(data: LineData, value: number, dataPoint: TimeSeriesDataPoint): void {
-    this.appendChartPoint(data, dataPoint.timestamp, value, 50)
+    this.appendChartPoint(data, dataPoint.timestamp, value)
   }
 
   /**
    * Appends a point, then trims: in live mode to the time window, otherwise to
-   * the given number of points.
+   * the same cap the history query uses (so a static range that loaded a full
+   * history is not cut down by the next live point).
    */
-  private appendChartPoint(data: BigNumberData | LineData, timestamp: string, value: number, maxPoints: number): void {
+  private appendChartPoint(data: BigNumberData | LineData, timestamp: string, value: number): void {
     data.chartData.xData.push(timestamp)
     data.chartData.seriesData[0].data.push(value)
 
     if (this.timeRangeType === 'live' && this.duration) {
       this.applyDurationFilter(data, this.duration)
-    } else if (data.chartData.xData.length > maxPoints) {
+    } else if (data.chartData.xData.length > MAX_POINTS) {
       data.chartData.xData.shift()
       data.chartData.seriesData[0].data.shift()
     }
