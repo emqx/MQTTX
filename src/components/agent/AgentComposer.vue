@@ -647,51 +647,30 @@ export default class AgentComposer extends Vue {
   }
 
   private onKeydown(event: KeyboardEvent) {
-    if (this.skillMenuOpen && this.filteredSkills.length) {
-      if (event.key === 'ArrowDown') {
+    const skillMenuActive = this.skillMenuOpen && this.filteredSkills.length > 0
+    if (skillMenuActive || this.mentionMenuOpen) {
+      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault()
-        this.moveSkillSelection(1)
-        return
-      }
-      if (event.key === 'ArrowUp') {
-        event.preventDefault()
-        this.moveSkillSelection(-1)
+        const delta = event.key === 'ArrowDown' ? 1 : -1
+        if (skillMenuActive) this.moveSkillSelection(delta)
+        else this.moveMentionSelection(delta)
         return
       }
       if (event.key === 'Tab' || (event.key === 'Enter' && !event.shiftKey && !this.composing && !event.isComposing)) {
         event.preventDefault()
-        this.confirmSkillSelection()
+        // An empty mention menu still owns Enter, so it closes instead of sending
+        if (skillMenuActive) this.confirmSkillSelection()
+        else this.confirmMentionSelection()
         return
       }
       if (event.key === 'Escape') {
         event.preventDefault()
         event.stopPropagation()
-        this.closeSkillMenu()
-        return
-      }
-    }
-    if (this.mentionMenuOpen) {
-      if (event.key === 'ArrowDown') {
-        event.preventDefault()
-        this.moveMentionSelection(1)
-        return
-      }
-      if (event.key === 'ArrowUp') {
-        event.preventDefault()
-        this.moveMentionSelection(-1)
-        return
-      }
-      // Enter never sends while the menu is up: it picks the row, or closes an empty menu
-      if (event.key === 'Tab' || (event.key === 'Enter' && !event.shiftKey && !this.composing && !event.isComposing)) {
-        event.preventDefault()
-        this.confirmMentionSelection()
-        return
-      }
-      if (event.key === 'Escape') {
-        event.preventDefault()
-        event.stopPropagation()
-        this.mentionDismissed = true
-        this.closeMentionMenu()
+        if (skillMenuActive) this.closeSkillMenu()
+        else {
+          this.mentionDismissed = true
+          this.closeMentionMenu()
+        }
         return
       }
     }

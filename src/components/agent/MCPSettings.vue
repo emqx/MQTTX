@@ -210,8 +210,6 @@ export default class MCPSettings extends Vue {
    */
   created() {
     this.loadMCPConfig()
-    this.loadServerResults()
-    this.loadServerEnabledStatus()
   }
 
   /**
@@ -395,21 +393,18 @@ export default class MCPSettings extends Vue {
       // Save test results in component state
       this.$set(this.serverResults, serverName, result)
 
-      if (result.success) {
-        // If test is successful, enable the server by default
-        this.$set(this.serverEnabledStatus, serverName, true)
-        await ipcRenderer.invoke('mcp:set-server-enabled', serverName, true)
+      // A successful test enables the server; a failed test disables it
+      const enabled = Boolean(result.success)
+      this.$set(this.serverEnabledStatus, serverName, enabled)
+      await ipcRenderer.invoke('mcp:set-server-enabled', serverName, enabled)
 
+      if (enabled) {
         this.$log.info(`[MCP] Successfully connected to server ${serverName}`)
         this.$message({
           message: `${this.$t('agent.mcpServerTestSuccess').toString()}: ${serverName}`,
           type: 'success',
         })
       } else {
-        // If test fails, disable the server
-        this.$set(this.serverEnabledStatus, serverName, false)
-        await ipcRenderer.invoke('mcp:set-server-enabled', serverName, false)
-
         this.$log.error(`[MCP] Failed to connect to server ${serverName}: ${result.message}`)
         this.$message({
           message: `${this.$t('agent.mcpServerTestFailed').toString()}: ${serverName}: ${result.message}`,

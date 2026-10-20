@@ -7,7 +7,6 @@ const { Client } = require('@modelcontextprotocol/sdk/client/index.js')
 const { SSEClientTransport } = require('@modelcontextprotocol/sdk/client/sse.js')
 const { StreamableHTTPClientTransport } = require('@modelcontextprotocol/sdk/client/streamableHttp.js')
 const { StdioClientTransport } = require('@modelcontextprotocol/sdk/client/stdio.js')
-const { spawn } = require('child_process')
 
 /**
  * MCPClient class implements communication with MCP server
@@ -17,7 +16,6 @@ export class MCPClient extends EventEmitter {
   private transport: any
   private tools: any[] = []
   private connected = false
-  private serverProcess: any = null
 
   /**
    * Connect to MCP server
@@ -173,63 +171,6 @@ export class MCPClient extends EventEmitter {
         content: '',
         error: error instanceof Error ? error.message : String(error),
       }
-    }
-  }
-
-  /**
-   * Start MCP server process
-   * @param serverPath Server script path
-   * @returns Started process
-   */
-  startServerProcess(serverPath: string): any {
-    try {
-      const isJs = serverPath.endsWith('.js')
-      const isPy = serverPath.endsWith('.py')
-
-      if (!isJs && !isPy) {
-        throw new Error('[MCP] Server script must be a .js or .py file')
-      }
-
-      const command = isPy ? (process.platform === 'win32' ? 'python' : 'python3') : process.execPath
-
-      const args = [serverPath]
-
-      console.log(`[MCP] Starting MCP server process: ${command} ${args.join(' ')}`)
-
-      this.serverProcess = spawn(command, args, {
-        stdio: 'pipe',
-      })
-
-      this.serverProcess.stdout.on('data', (data: any) => {
-        console.log(`[MCP] MCP server output: ${data}`)
-      })
-
-      this.serverProcess.stderr.on('data', (data: any) => {
-        console.error(`[MCP] MCP server error: ${data}`)
-      })
-
-      this.serverProcess.on('close', (code: number) => {
-        console.log(`[MCP] MCP server process exited with code: ${code}`)
-        this.serverProcess = null
-        this.emit('serverClosed', code)
-      })
-
-      return this.serverProcess
-    } catch (error) {
-      console.error('[MCP] Failed to start MCP server process:', error)
-      this.emit('error', error)
-      return null
-    }
-  }
-
-  /**
-   * Stop MCP server process
-   */
-  stopServerProcess(): void {
-    if (this.serverProcess) {
-      console.log('[MCP] Stopping MCP server process')
-      this.serverProcess.kill()
-      this.serverProcess = null
     }
   }
 

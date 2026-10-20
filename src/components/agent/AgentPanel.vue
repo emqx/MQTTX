@@ -720,9 +720,7 @@ export default class AgentPanel extends Vue {
   }
 
   private stopRun() {
-    this.startCancelled = true
-    this.aiAgent?.abort()
-    this.gate.denyAll()
+    this.abortAIResponse()
     this.allowedTools.clear()
     this.isSending = false
     this.isResponseStream = false
