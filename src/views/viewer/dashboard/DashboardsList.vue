@@ -266,7 +266,7 @@ export default class DashboardsList extends Vue {
 }
 </script>
 
-<style lang="scss" scope>
+<style lang="scss" scoped>
 @import '~@/assets/scss/variable.scss';
 @import '~@/assets/scss/mixins.scss';
 
@@ -333,7 +333,10 @@ export default class DashboardsList extends Vue {
       overflow-y: overlay;
     }
 
-    .el-tree {
+    // Element renders the tree (and its rows / drop indicator) itself, so the
+    // scope attribute stays on .dashboards-list above and everything below the
+    // tree root goes through ::v-deep.
+    ::v-deep .el-tree {
       height: 100%;
       // Same 8px around the rows as their side margin, so the selected row
       // does not touch the header divider.
@@ -371,6 +374,10 @@ export default class DashboardsList extends Vue {
 
     .custom-tree-node {
       flex: 1;
+      // Element's row content is `display:flex; align-items:center`, so without
+      // this the slot is only as tall as its text and .dashboard-item (height
+      // 100%) cannot fill the 40px row (it showed a 19.5px highlight).
+      align-self: stretch;
       display: flex;
       align-items: center;
       justify-content: space-between;
