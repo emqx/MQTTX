@@ -22,6 +22,7 @@
           :h="widget.h"
           :i="String(widget.id)"
           :static="widget.static"
+          :drag-ignore-from="dragIgnoreFrom"
           @resized="onItemResized"
           @resize="onItemResized"
         >
@@ -42,21 +43,14 @@
                   </div>
                 </el-tooltip>
               </div>
-              <el-dropdown @command="onWidgetMenuCommand($event, widget)" popper-class="dashboard-widget-dropdown">
-                <span class="widget-menu-trigger" title="Options">
-                  <i class="el-icon-more"></i>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item command="edit">
-                    <i class="iconfont icon-edit"></i>
-                    Edit
-                  </el-dropdown-item>
-                  <el-dropdown-item command="delete" class="is-danger">
-                    <i class="iconfont icon-delete"></i>
-                    Delete
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
+              <span
+                class="widget-menu-trigger"
+                :class="{ 'menu-open': isMenuOpenFor(widget) }"
+                title="Options"
+                @click.stop="openMenuFromButton(widget, $event)"
+              >
+                <i class="iconfont icon-more"></i>
+              </span>
             </div>
             <div class="widget-body">
               <WidgetRenderer
@@ -70,6 +64,14 @@
         </grid-item>
       </grid-layout>
     </div>
+    <contextmenu :visible.sync="menuVisible" v-bind="menuConfig">
+      <a href="javascript:;" class="context-menu__item" @click="handleWidgetEdit">
+        <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
+      </a>
+      <a href="javascript:;" class="context-menu__item danger" @click="handleWidgetDelete">
+        <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
+      </a>
+    </contextmenu>
   </div>
 </template>
 
@@ -78,6 +80,8 @@ import { Vue, Component, Prop, Watch } from 'vue-property-decorator'
 import '@/assets/font/iconfont'
 import { GridLayout, GridItem } from 'vue-grid-layout'
 import WidgetRenderer from '@/widgets/WidgetRenderer.vue'
+import Contextmenu from '@/components/Contextmenu.vue'
+import getContextmenuPosition from '@/utils/getContextmenuPosition'
 import { globalEventBus } from '@/utils/globalEventBus'
 import { matchTopicMethod } from '@/utils/topicMatch'
 import time from '@/utils/time'
@@ -101,11 +105,17 @@ interface TimeRangeConfig {
 // keeps the same cap so a live point cannot truncate a loaded history.
 const MAX_POINTS = 1000
 
+// Estimated menu size: used for the first frame of the ⋯ entry, which then
+// re-aligns to the menu's measured size. Two items are about 90px tall.
+const MENU_WIDTH = 140
+const MENU_HEIGHT = 90
+
 @Component({
   components: {
     GridLayout,
     GridItem,
     WidgetRenderer,
+    Contextmenu,
   },
 })
 export default class DashboardCanvas extends Vue {
@@ -122,6 +132,24 @@ export default class DashboardCanvas extends Vue {
 
   // Unified 12px gutter between cards, matching the card radius/spacing scale.
   private gridMargin: [number, number] = [12, 12]
+
+  // === WIDGET MENU ===
+  private menuVisible = false
+  private menuConfig: ContextmenuModel = { top: 0, left: 0 }
+  // The widget the open menu acts on; cleared when the menu closes.
+  private menuTargetId: string | null = null
+
+  // vue-grid-layout drags a card from any point of it; its default is
+  // `a, button`, and the ⋯ trigger is added so pressing the menu button never
+  // moves the card (and the menu anchored to it).
+  private dragIgnoreFrom = 'a, button, .widget-menu-trigger'
+
+  @Watch('menuVisible')
+  private onMenuVisibleChanged(visible: boolean) {
+    if (!visible) {
+      this.menuTargetId = null
+    }
+  }
 
   get layout() {
     return this.widgets.map((widget) => ({
@@ -142,6 +170,10 @@ export default class DashboardCanvas extends Vue {
   onWidgetsChanged(newWidgets: WidgetModel[], oldWidgets: WidgetModel[]) {
     this.cleanupRemovedWidgets(newWidgets, oldWidgets)
     this.syncWidgetSchemaStates()
+    // The target can disappear on refresh or deletion; drop its open menu.
+    if (this.menuVisible && !this.menuTarget) {
+      this.menuVisible = false
+    }
   }
 
   @Watch('timeRange')
@@ -572,12 +604,78 @@ export default class DashboardCanvas extends Vue {
     this.$emit('layout-changed', nextLayout)
   }
 
-  private onWidgetMenuCommand(cmd: string, widget: WidgetModel): void {
-    if (cmd === 'edit') {
-      this.$emit('edit-widget', widget)
-    } else if (cmd === 'delete') {
-      if (widget.id) this.$emit('remove-widget', String(widget.id))
-    }
+  /** ⋯ button: right-aligned with the button, 4px under it (then clamped to the viewport). */
+  private openMenuFromButton(widget: WidgetModel, event: MouseEvent): void {
+    if (this.closeMenuIfOpen()) return
+
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+    const top = rect.bottom + 4
+    const targetId = widget.id || null
+
+    // First frame uses the estimate; the menu is content-sized, so its real
+    // width is measured as soon as it renders (see below).
+    const { x, y } = getContextmenuPosition(
+      { clientX: rect.right - MENU_WIDTH, clientY: top } as MouseEvent,
+      MENU_WIDTH,
+      MENU_HEIGHT,
+    )
+    this.placeMenu(widget, x, y)
+
+    // The menu is only as wide as its longest item (its width also changes with
+    // the language), so align its measured right edge with the button's.
+    this.$nextTick(() => {
+      if (!this.menuVisible || this.menuTargetId !== targetId) return
+
+      const menu = this.$el.querySelector('.contextmenu') as HTMLElement | null
+      if (!menu) return
+
+      const width = menu.offsetWidth || MENU_WIDTH
+      const clamped = getContextmenuPosition(
+        { clientX: rect.right - width, clientY: top } as MouseEvent,
+        width,
+        menu.offsetHeight || MENU_HEIGHT,
+      )
+      this.menuConfig.left = clamped.x
+      this.menuConfig.top = clamped.y
+    })
+  }
+
+  /** A second ⋯ click closes the open menu. */
+  private closeMenuIfOpen(): boolean {
+    if (!this.menuVisible) return false
+    this.menuVisible = false
+    return true
+  }
+
+  private placeMenu(widget: WidgetModel, left: number, top: number): void {
+    this.menuConfig.left = left
+    this.menuConfig.top = top
+    this.menuTargetId = widget.id || null
+    this.menuVisible = true
+  }
+
+  /** Keeps the ⋯ button visible while its menu is open (the pointer leaves the card). */
+  private isMenuOpenFor(widget: WidgetModel): boolean {
+    return this.menuVisible && !!widget.id && this.menuTargetId === widget.id
+  }
+
+  /** Resolved per action, so a widget that went away meanwhile is not acted on. */
+  private get menuTarget(): WidgetModel | null {
+    if (!this.menuTargetId) return null
+    return this.widgets.find((widget) => widget.id === this.menuTargetId) || null
+  }
+
+  /** Closes the menu first, then emits the same event the dropdown used to. */
+  private handleWidgetEdit(): void {
+    const target = this.menuTarget
+    this.menuVisible = false
+    if (target) this.$emit('edit-widget', target)
+  }
+
+  private handleWidgetDelete(): void {
+    const target = this.menuTarget
+    this.menuVisible = false
+    if (target?.id) this.$emit('remove-widget', String(target.id))
   }
 
   private async extractValuesFromPayload(payload: Buffer, widget: WidgetModel): Promise<{ [fieldName: string]: any }> {
@@ -952,8 +1050,7 @@ export default class DashboardCanvas extends Vue {
 }
 
 // Keep the card clean: the menu only appears when the card is hovered.
-.widget-card:hover .widget-menu-trigger,
-.widget-menu-trigger:focus {
+.widget-card:hover .widget-menu-trigger {
   opacity: 1;
 }
 
@@ -991,21 +1088,29 @@ export default class DashboardCanvas extends Vue {
   }
 }
 
+// Same row action as the list triggers (DashboardsList, AgentSidebar): 24px hit
+// area, 8px radius, no background, light glyph that darkens on hover.
 .widget-menu-trigger {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: transparent;
   color: var(--color-text-light);
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.2s, color 0.2s, background-color 0.2s;
+  transition: opacity 0.15s ease, color 0.15s ease;
 
   &:hover {
     color: var(--color-text-title);
-    background: var(--color-bg-item);
+  }
+
+  // Same title colour as hover, kept while the menu it opened is still shown.
+  &.menu-open {
+    opacity: 1;
+    color: var(--color-text-title);
   }
 }
 
@@ -1018,61 +1123,6 @@ export default class DashboardCanvas extends Vue {
 </style>
 
 <style lang="scss">
-.dashboard-widget-dropdown {
-  background: var(--color-bg-messagebox);
-  border: 1px solid var(--color-border-default);
-  box-shadow: 0 4px 12px 0 var(--color-shadow-card);
-  padding: 0;
-  border-radius: 8px;
-
-  .el-dropdown-menu {
-    background: var(--color-bg-messagebox);
-    border: none;
-    padding: 4px 0;
-  }
-
-  .el-dropdown-menu__item {
-    color: var(--color-text-default);
-    line-height: 30px;
-    height: 30px;
-    padding: 0 12px;
-    display: flex;
-    align-items: center;
-    font-size: 13px;
-
-    .iconfont {
-      font-size: 16px;
-      margin-right: 6px;
-    }
-
-    &.is-disabled {
-      cursor: not-allowed;
-      color: var(--color-text-light);
-      &:hover {
-        color: var(--color-text-light);
-      }
-    }
-
-    &.is-danger {
-      color: var(--color-minor-red);
-    }
-
-    &:hover,
-    &:focus {
-      color: var(--color-main-green);
-      // --color-bg-primary contrasts with the menu surface in light, dark and
-      // night (--color-bg-item matches the night surface, hiding the hover).
-      background: var(--color-bg-primary);
-    }
-
-    &.is-danger:hover,
-    &.is-danger:focus {
-      color: var(--color-minor-red);
-      background: var(--color-bg-primary);
-    }
-  }
-}
-
 :global(.el-tooltip__popper) {
   max-width: 300px;
   white-space: pre-line;
