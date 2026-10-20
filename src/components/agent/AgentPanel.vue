@@ -110,6 +110,7 @@
             :context-tokens="contextTokens"
             :context-window="contextWindow"
             :context-estimated="contextEstimated"
+            @mention-open="refreshConnectionsQuietly"
             @send="sendMessage"
             @abort-response="abortAIResponse"
             @update:permissionMode="setPermissionMode"
@@ -1098,6 +1099,14 @@ export default class AgentPanel extends Vue {
     this.connections = (await connectionService.getAll()) ?? []
   }
 
+  /**
+   * Refreshes the connection list for the `@` menu and for the names shown in history.
+   * Called when the menu opens and when the panel is created already open; failures only warn.
+   */
+  private refreshConnectionsQuietly(): void {
+    this.refreshConnections().catch((error) => this.$log.warn(`[Agent] Failed to refresh connections: ${error}`))
+  }
+
   private async loadMessages({ reset }: { reset?: boolean } = {}) {
     if (!this.conversationId) return
     if (reset === true) {
@@ -1203,6 +1212,8 @@ export default class AgentPanel extends Vue {
     document.addEventListener('keydown', this.onGlobalKeydown)
     window.addEventListener('resize', this.onWindowResize)
     this.loadConversations()
+    // A full-page /agent route mounts the panel already open, so the watcher never fires
+    if (this.showAgent) this.refreshConnectionsQuietly()
   }
 
   private onWindowResize() {

@@ -147,6 +147,26 @@ describe('Agent mention menu', () => {
     expect(ctx.mentionMenuOpen).to.equal(false)
   })
 
+  it('should emit mention-open only when the menu goes from closed to open', () => {
+    const emitted: string[] = []
+    const ctx = context({
+      mentionMenuOpen: false,
+      mentionQuery: null,
+      $emit: (event: string) => emitted.push(event),
+    })
+
+    methods.syncMentionMenu.call(ctx)
+    expect(ctx.mentionMenuOpen).to.equal(true)
+    expect(emitted).to.deep.equal(['mention-open'])
+
+    // Typing narrows the query while the menu stays open, which must not emit again
+    ctx.message = 'connect to @al'
+    ctx.$refs.textarea.selectionStart = 14
+    methods.syncMentionMenu.call(ctx)
+    expect(ctx.mentionQuery).to.deep.equal({ start: 11, end: 14, query: 'al' })
+    expect(emitted).to.deep.equal(['mention-open'])
+  })
+
   it('should not open while an IME composition is running', () => {
     const ctx = context({ mentionMenuOpen: false, mentionQuery: null, composing: true })
 
