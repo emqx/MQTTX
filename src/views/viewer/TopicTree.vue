@@ -54,6 +54,8 @@ export default class TopicTree extends Vue {
   private selectedNode: TopicTreeNode | null = null
   private subscription: Subscription | null = null
   private messageQueue: MessageQueue<TopicTreeNode[]> | null = null
+  private pendingTopicNodes: TopicTreeNode[] = []
+  private isSavingTopicNodes = false
 
   private syncConnectionDialogVisible = false
 
@@ -124,25 +126,34 @@ export default class TopicTree extends Vue {
     }
   }
 
-  private async updateTopicNodes(updatedNodes: TopicTreeNode[][]) {
-    if (updatedNodes.length === 0) return
+  private async flushTopicNodes() {
+    if (this.isSavingTopicNodes) return
+    this.isSavingTopicNodes = true
     const { topicNodeService } = useServices()
-    for (const topicNodes of updatedNodes) {
-      try {
-        if (topicNodes.length === 0) continue
-        const { savedEntitiesCount, savedMessagesCount } = await topicNodeService.saveTopicNodesWithMessages(topicNodes)
-        this.$log.info(
-          `Topic Tree: Successfully saved ${savedEntitiesCount} topic nodes and ${savedMessagesCount} messages`,
-        )
-      } catch (error) {
-        this.$log.error(`Topic Tree: Failed to save topic nodes or messages: ${(error as Error).toString()}`)
+    try {
+      while (this.pendingTopicNodes.length > 0) {
+        const topicNodes = this.pendingTopicNodes
+        this.pendingTopicNodes = []
+        try {
+          const { savedEntitiesCount, savedMessagesCount } = await topicNodeService.saveTopicNodesWithMessages(
+            topicNodes,
+          )
+          this.$log.info(
+            `Topic Tree: Successfully saved ${savedEntitiesCount} topic nodes and ${savedMessagesCount} messages`,
+          )
+        } catch (error) {
+          this.$log.error(`Topic Tree: Failed to save topic nodes or messages: ${(error as Error).toString()}`)
+        }
       }
+    } finally {
+      this.isSavingTopicNodes = false
     }
   }
 
   private async subscribeMessageQueue() {
-    this.subscription = this.messageQueue?.getMessageObservable().subscribe(async (updatedNodes) => {
-      await this.updateTopicNodes(updatedNodes)
+    this.subscription = this.messageQueue?.getMessageObservable().subscribe((updatedNodes) => {
+      this.pendingTopicNodes.push(...updatedNodes.flat())
+      this.flushTopicNodes()
     }) as Subscription | null
   }
 
