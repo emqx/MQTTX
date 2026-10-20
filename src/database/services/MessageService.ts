@@ -327,18 +327,6 @@ export default class MessageService {
   }
 
   /**
-   * Retrieves messages by topic pattern for a specific connection.
-   * @param connectionId - The ID of the connection.
-   * @param topicPattern - The pattern to match topics against.
-   * @param options - Optional parameters for the query.
-   * @param options.startTime - The start time for the date range filter.
-   * @param options.endTime - The end time for the date range filter.
-   * @param options.limit - The maximum number of messages to retrieve (default: 1000).
-   * @param options.transform - A function to transform the retrieved messages.
-   * @returns A promise that resolves to an array of transformed messages or MessageModel[].
-   */
-
-  /**
    * Stream messages for export to avoid memory issues with large datasets
    * @param connectionId - The ID of the connection
    * @param batchSize - Number of messages to retrieve per batch (default: 1000)
@@ -379,6 +367,23 @@ export default class MessageService {
     }
   }
 
+  /**
+   * Retrieves messages by topic pattern for a specific connection.
+   *
+   * Returns the **newest** `limit` messages inside the range, in ascending
+   * time order (callers walk the series forwards). Reading the oldest rows
+   * instead would drop the latest readings whenever a range holds more than
+   * `limit` messages.
+   *
+   * @param connectionId - The ID of the connection.
+   * @param topicPattern - The pattern to match topics against.
+   * @param options - Optional parameters for the query.
+   * @param options.startTime - The start time for the date range filter.
+   * @param options.endTime - The end time for the date range filter.
+   * @param options.limit - The maximum number of messages to retrieve (default: 1000).
+   * @param options.transform - A function to transform the retrieved messages.
+   * @returns A promise that resolves to an array of transformed messages or MessageModel[].
+   */
   public async getMessagesByTopicPattern<T>(
     connectionId: string,
     topicPattern: string,
@@ -403,9 +408,11 @@ export default class MessageService {
       query.andWhere('msg.createAt BETWEEN :startTime AND :endTime', { startTime, endTime })
     }
 
-    const messageEntities = await query.orderBy('msg.createAt', 'ASC').take(limit).getMany()
+    // Newest first so the limit keeps the latest readings, then reversed back
+    // to ascending time order for the callers.
+    const messageEntities = await query.orderBy('msg.createAt', 'DESC').take(limit).getMany()
 
-    const messages = messageEntities.map((entity) => MessageService.entityToModel(entity))
+    const messages = messageEntities.map((entity) => MessageService.entityToModel(entity)).reverse()
 
     return transform ? transform(messages) : (messages as unknown as T[])
   }
