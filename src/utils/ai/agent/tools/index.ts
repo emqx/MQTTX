@@ -17,6 +17,7 @@ import { createPageTools } from './pages'
 /** Tools that change user data or external state and therefore need approval in `ask` mode */
 export const AGENT_WRITE_TOOLS = new Set([
   'create_connection',
+  'create_zero_emqx_connection',
   'update_connection',
   'delete_connection',
   'connect',

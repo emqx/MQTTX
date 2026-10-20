@@ -182,7 +182,12 @@ import {
 
 type Conversation = { id: string; title: string; updateAt: string }
 
-const CONNECTION_CHANGE_TOOLS = new Set(['create_connection', 'update_connection', 'delete_connection'])
+const CONNECTION_CHANGE_TOOLS = new Set([
+  'create_connection',
+  'create_zero_emqx_connection',
+  'update_connection',
+  'delete_connection',
+])
 
 @Component({ components: { AgentHeader, AgentSidebar, AgentMessages, AgentComposer } })
 export default class AgentPanel extends Vue {

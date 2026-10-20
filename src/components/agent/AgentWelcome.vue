@@ -27,28 +27,26 @@ interface Suggestion {
   icon: string
   titleKey: string
   prompt: string
-  /** What the suggestion does; a Skill suggestion shows the Skill instead */
-  hintKey?: string
   /** Sent with the Skill attached, as if picked from the `/` menu */
-  skill?: AgentSkillName
+  skill: AgentSkillName
 }
 
 @Component({ components: { AgentIcon } })
 export default class AgentWelcome extends Vue {
   private suggestions: Suggestion[] = [
     {
-      key: 'connect',
-      icon: 'el-icon-link',
-      titleKey: 'agent.suggestions.connect',
-      hintKey: 'agent.suggestions.createsConnection',
-      prompt: 'Connect to broker.emqx.io and subscribe to testtopic/#',
+      key: 'zeroEmqx',
+      icon: 'iconfont icon-cloud-logo',
+      titleKey: 'agent.suggestions.zeroEmqx',
+      prompt: 'Create a free Zero EMQX Cloud broker, connect to it and subscribe to demo/#',
+      skill: 'zero_emqx',
     },
     {
-      key: 'publish',
-      icon: 'el-icon-position',
-      titleKey: 'agent.suggestions.publish',
-      hintKey: 'agent.suggestions.usesCurrent',
-      prompt: 'Publish a JSON test message to mqttx/test',
+      key: 'cli',
+      icon: 'iconfont icon-run-script',
+      titleKey: 'agent.suggestions.cli',
+      prompt: 'Give me the MQTTX CLI command to subscribe with my current connection',
+      skill: 'mqttx_cli',
     },
     {
       key: 'diagnose',
@@ -67,12 +65,11 @@ export default class AgentWelcome extends Vue {
   ]
 
   private hint(s: Suggestion): string {
-    if (s.skill) return `${this.$t('agent.suggestions.skill')} · ${this.$t(`agent.skills.${s.skill}.name`)}`
-    return this.$t(s.hintKey!) as string
+    return `${this.$t('agent.suggestions.skill')} · ${this.$t(`agent.skills.${s.skill}.name`)}`
   }
 
-  private message(s: Suggestion): string | OutgoingMessage {
-    return s.skill ? { content: s.prompt, attachments: [], skill: { skill: s.skill } } : s.prompt
+  private message(s: Suggestion): OutgoingMessage {
+    return { content: s.prompt, attachments: [], skill: { skill: s.skill } }
   }
 }
 </script>
