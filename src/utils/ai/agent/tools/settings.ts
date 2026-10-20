@@ -105,9 +105,8 @@ export const createSettingsTools = (deps: AgentToolDeps): ToolSet => ({
     title: 'Update settings',
     description:
       `Change MQTTX settings. Writable: ${WRITABLE_NAMES}. ` +
-      'Cannot be changed: every MQTTX Agent setting (model, agentReasoning, agentPermissionMode, agentMaxSteps) ' +
-      'stays with the user because changing it would affect the running reply or the agent itself, ' +
-      'and enableHardwareAcceleration needs an app restart; ' +
+      'Cannot be changed: model, agentReasoning, agentPermissionMode and agentMaxSteps (they affect the running ' +
+      'reply or the agent itself) and enableHardwareAcceleration (needs an app restart); ' +
       'the API key, the API host and enableAgent are never touched. Unknown keys are rejected. ' +
       'When the user asks for one of these, ask them to change it on the Settings page.',
     inputSchema: updateSchema,
