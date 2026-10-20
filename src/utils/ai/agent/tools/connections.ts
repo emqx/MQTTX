@@ -5,6 +5,7 @@ import { AgentToolDeps } from './types'
 import { assertReadableFile, now, sanitizeConnection } from './helpers'
 import { findGroup } from './groups'
 import { emitAgentDataChanged } from '../agentEvents'
+import { provisionZeroEmqx } from '../zeroEmqx'
 
 const PROTOCOLS = ['mqtt', 'mqtts', 'ws', 'wss'] as const
 const DEFAULT_PORTS: Record<typeof PROTOCOLS[number], number> = { mqtt: 1883, mqtts: 8883, ws: 8083, wss: 8084 }
@@ -118,6 +119,19 @@ const uniqueName = (base: string, taken: Set<string>): string => {
 const isConnected = (deps: AgentToolDeps, id: string | undefined): boolean =>
   Boolean(id && deps.store.getters.activeConnection?.[id]?.client?.connected === true)
 
+/** Saves a new connection with a unique name, shows it in the window and refreshes the connection list */
+const saveConnection = async (deps: AgentToolDeps, record: ConnectionModel): Promise<ConnectionModel> => {
+  const existing = (await deps.services.connectionService.getAll()) ?? []
+  const created = await deps.services.connectionService.create({
+    ...record,
+    name: uniqueName(record.name, new Set(existing.map((connection) => connection.name))),
+  })
+  if (!created?.id) throw new Error('The connection could not be created')
+  await deps.bridge.open(created.id)
+  emitAgentDataChanged('connections')
+  return created
+}
+
 export const createConnectionTools = (deps: AgentToolDeps): ToolSet => ({
   list_connections: tool({
     title: 'List connections',
@@ -199,7 +213,6 @@ export const createConnectionTools = (deps: AgentToolDeps): ToolSet => ({
         if (!findGroup(groups, groupId)) throw new Error(`Group ${groupId} not found`)
       }
       const tls = normalizeTls({ protocol, certType, ca, cert, key, ALPNProtocols }, providedTlsFields(input))
-      const existing = (await deps.services.connectionService.getAll()) ?? []
       const record: ConnectionModel = {
         ...getDefaultRecord(),
         ...rest,
@@ -207,17 +220,54 @@ export const createConnectionTools = (deps: AgentToolDeps): ToolSet => ({
         protocol,
         port: input.port ?? DEFAULT_PORTS[protocol],
         ssl: isTlsProtocol(protocol),
-        name: uniqueName(input.name, new Set(existing.map((connection) => connection.name))),
+        name: input.name,
         // ConnectionService stores the group as parentId; the model keeps no groupId field
         parentId: groupId ?? null,
         createAt: now(),
         updateAt: now(),
       }
-      const created = await deps.services.connectionService.create(record)
-      if (!created?.id) throw new Error('The connection could not be created')
-      await deps.bridge.open(created.id)
-      emitAgentDataChanged('connections')
+      const created = await saveConnection(deps, record)
       return { connectionId: created.id, name: created.name }
+    },
+  }),
+
+  create_zero_emqx_connection: tool({
+    title: 'Create Zero EMQX broker',
+    description:
+      'Create a free, temporary, isolated Zero EMQX MQTT broker and save it as a MQTTX connection. ' +
+      'The connection is not connected; call connect afterwards. Only for testing: the broker expires and is not for production.',
+    inputSchema: z.object({}),
+    execute: async () => {
+      assertNotEditing(deps)
+      const instance = await provisionZeroEmqx()
+      const record: ConnectionModel = {
+        ...getDefaultRecord(),
+        name: 'Zero EMQX',
+        protocol: 'mqtts',
+        host: instance.host,
+        port: instance.port,
+        ssl: true,
+        certType: 'server',
+        rejectUnauthorized: true,
+        mqttVersion: '5.0',
+        username: instance.username,
+        password: instance.password,
+        createAt: now(),
+        updateAt: now(),
+      }
+      const created = await saveConnection(deps, record)
+      // The password is stored in the connection only and never returned to the model
+      return {
+        connectionId: created.id,
+        name: created.name,
+        host: instance.host,
+        port: instance.port,
+        protocol: 'mqtts' as const,
+        username: instance.username,
+        lifecycle: instance.lifecycle,
+        expiresAt: instance.expiresAt,
+        idleTtlSeconds: instance.idleTtlSeconds,
+      }
     },
   }),
 

@@ -20,13 +20,14 @@ import funcGen from '@/utils/ai/prompts/funcGen.txt'
 import mqttFaq from '@/utils/ai/prompts/mqttFaq.txt'
 import emqxGuide from '@/utils/ai/prompts/emqxGuide.txt'
 import mqttxDiagnostics from '@/utils/ai/prompts/mqttxDiagnostics.txt'
+import zeroEmqxPrompt from '@/utils/ai/prompts/zeroEmqx.txt'
 
 const firstLine = (text: string) => text.split('\n')[0].trim()
 
 describe('agent skills', () => {
   describe('loadSkill', () => {
     it('should load every skill without parameters', () => {
-      expect(AGENT_SKILL_NAMES).to.have.length(7)
+      expect(AGENT_SKILL_NAMES).to.have.length(8)
       for (const name of AGENT_SKILL_NAMES) {
         expect(loadSkill(name), name).to.be.a('string').that.is.not.empty
       }
@@ -66,6 +67,15 @@ describe('agent skills', () => {
 
     it('should load the diagnostics flow', () => {
       expect(loadSkill('mqttx_diagnostics')).to.include(firstLine(mqttxDiagnostics))
+    })
+
+    it('should load the Zero EMQX flow that creates the broker through the tool', () => {
+      const result = loadSkill('zero_emqx')
+
+      expect(result).to.include(firstLine(zeroEmqxPrompt))
+      expect(result).to.include('create_zero_emqx_connection')
+      expect(result).to.include('expiresAt')
+      expect(result).to.include('<PASSWORD>')
     })
 
     it('should reject an unknown skill with the valid skills', () => {
@@ -136,7 +146,7 @@ describe('agent skills', () => {
   })
 
   describe('renderSkillList', () => {
-    it('should list all seven skills and how to load a CLI reference', () => {
+    it('should list all eight skills and how to load a CLI reference', () => {
       const result = renderSkillList()
 
       expect(result).to.include('## Skills')

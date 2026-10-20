@@ -433,6 +433,101 @@ describe('MQTT tools', () => {
       expect(error?.message).to.contain('both "cert" and "key"')
     })
   })
+
+  describe('create_zero_emqx_connection', () => {
+    const originalFetch = global.fetch
+    const instanceBody = {
+      instance_id: 'emqx-3a7f9c2b1d4e5678',
+      mqtts: { host: 'mqtt.example.com', port: 8883, uri: 'mqtts://mqtt.example.com:8883' },
+      wss: { host: 'mqtt.example.com', port: 8084, uri: 'wss://mqtt.example.com:8084/mqtt' },
+      credentials: { username: 'emqx-3a7f9c2b1d4e5678', password: 'opaque-secret' },
+      lifecycle: 'fixed_ttl',
+      expires_at: '2026-05-02T03:24:11Z',
+      idle_ttl_seconds: null,
+    }
+
+    const stubFetch = (status: number, body: unknown = instanceBody, statusText = '') => {
+      global.fetch = (async () => ({ status, statusText, json: async () => body })) as any
+    }
+
+    afterEach(() => {
+      global.fetch = originalFetch
+    })
+
+    it('should save a password protected MQTT 5 connection and not return the password', async () => {
+      stubFetch(201)
+      const tools = createConnectionTools(deps)
+
+      const result: any = await tools.create_zero_emqx_connection.execute!({}, {} as any)
+
+      expect(createCalls[0]).to.include({
+        name: 'Zero EMQX',
+        host: 'mqtt.example.com',
+        port: 8883,
+        protocol: 'mqtts',
+        ssl: true,
+        certType: 'server',
+        rejectUnauthorized: true,
+        mqttVersion: '5.0',
+        username: 'emqx-3a7f9c2b1d4e5678',
+        password: 'opaque-secret',
+      })
+      expect(result).to.deep.equal({
+        connectionId: 'new-id',
+        name: 'Zero EMQX',
+        host: 'mqtt.example.com',
+        port: 8883,
+        protocol: 'mqtts',
+        username: 'emqx-3a7f9c2b1d4e5678',
+        lifecycle: 'fixed_ttl',
+        expiresAt: '2026-05-02T03:24:11Z',
+        idleTtlSeconds: null,
+      })
+      expect(JSON.stringify(result)).to.not.contain('opaque-secret')
+    })
+
+    it('should number the name when a Zero EMQX connection already exists', async () => {
+      stubFetch(201)
+      deps.services.connectionService.getAll = async () => [{ id: 'c2', name: 'Zero EMQX' }] as any
+      const tools = createConnectionTools(deps)
+
+      const result: any = await tools.create_zero_emqx_connection.execute!({}, {} as any)
+
+      expect(result.name).to.equal('Zero EMQX (2)')
+      expect(createCalls[0].name).to.equal('Zero EMQX (2)')
+    })
+
+    it('should refuse while the user is editing a connection', async () => {
+      stubFetch(201)
+      deps.router.currentRoute = { path: '/', query: { oper: 'edit' }, params: {} }
+      const tools = createConnectionTools(deps)
+
+      let error: Error | undefined
+      try {
+        await tools.create_zero_emqx_connection.execute!({}, {} as any)
+      } catch (caught) {
+        error = caught as Error
+      }
+
+      expect(error?.message).to.contain('editing a connection')
+      expect(createCalls).to.have.length(0)
+    })
+
+    it('should not save a connection when provisioning fails', async () => {
+      stubFetch(500, { error: 'server_error', message: 'try later' }, 'Internal Server Error')
+      const tools = createConnectionTools(deps)
+
+      let error: Error | undefined
+      try {
+        await tools.create_zero_emqx_connection.execute!({}, {} as any)
+      } catch (caught) {
+        error = caught as Error
+      }
+
+      expect(error?.message).to.contain('500')
+      expect(createCalls).to.have.length(0)
+    })
+  })
 })
 
 describe('withTimeout', () => {

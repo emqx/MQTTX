@@ -6,6 +6,7 @@ import funcGen from '../prompts/funcGen.txt'
 import mqttFaq from '../prompts/mqttFaq.txt'
 import emqxGuide from '../prompts/emqxGuide.txt'
 import mqttxDiagnostics from '../prompts/mqttxDiagnostics.txt'
+import zeroEmqx from '../prompts/zeroEmqx.txt'
 // The MQTTX CLI skill is the repository's published skill, imported as raw text so there is one copy
 import cliSkill from '../../../../skills/mqttx-cli/SKILL.md'
 import cliWorkflows from '../../../../skills/mqttx-cli/references/workflows.md'
@@ -25,6 +26,7 @@ export const AGENT_SKILL_NAMES = [
   'mqtt_knowledge',
   'mqttx_diagnostics',
   'mqttx_cli',
+  'zero_emqx',
 ] as const
 export type AgentSkillName = typeof AGENT_SKILL_NAMES[number]
 
@@ -37,6 +39,7 @@ export const SKILL_ICONS: Record<AgentSkillName, string> = {
   mqtt_knowledge: 'el-icon-reading',
   mqttx_diagnostics: 'el-icon-first-aid-kit',
   mqttx_cli: 'el-icon-monitor',
+  zero_emqx: 'el-icon-cloudy',
 }
 
 /** The on-demand references of the mqttx_cli skill, without the `.md` extension */
@@ -121,6 +124,10 @@ export const AGENT_SKILLS: AgentSkill[] = [
     description: 'Diagnose a connection, subscription or missing-message problem from MQTTX data and logs.',
   },
   { name: 'mqttx_cli', description: 'Give runnable MQTTX CLI commands, or load one CLI reference on demand.' },
+  {
+    name: 'zero_emqx',
+    description: 'Create a free temporary Zero EMQX broker, connect to it and use it for testing.',
+  },
 ]
 
 /** Removes the YAML front matter of a Markdown skill so only the body is sent to the model */
@@ -159,6 +166,8 @@ export const loadSkill = (name: string, reference?: string): string => {
       return `${mqttFaq}\n\n${emqxGuide}`
     case 'mqttx_diagnostics':
       return mqttxDiagnostics
+    case 'zero_emqx':
+      return zeroEmqx
     case 'mqttx_cli': {
       if (reference === undefined) {
         return `${CLI_PREAMBLE}\n\n${rewriteReferenceLinks(stripFrontMatter(cliSkill))}`
@@ -179,7 +188,7 @@ export const loadSkill = (name: string, reference?: string): string => {
 export const renderSkillList = (): string =>
   [
     '## Skills',
-    'Before writing client code, test payloads, schemas or custom functions, answering in-depth MQTT or EMQX questions, diagnosing a connection problem, or giving MQTTX CLI commands, call use_skill with the matching skill first and follow it.',
+    'Before writing client code, creating a free test broker, test payloads, schemas or custom functions, answering in-depth MQTT or EMQX questions, diagnosing a connection problem, or giving MQTTX CLI commands, call use_skill with the matching skill first and follow it.',
     '- client_code (Client Code): writing MQTT client or SDK code in a language, on a platform or with a framework.',
     '- payload (Test Data): generating test payloads for an IoT scenario.',
     '- schema (Schema): creating a Protobuf or Avro schema with sample data.',
@@ -189,6 +198,7 @@ export const renderSkillList = (): string =>
     `- mqttx_cli (MQTTX CLI): giving the user runnable mqttx commands. Pass reference with one of ${CLI_REFERENCE_NAMES.join(
       ', ',
     )} to load that CLI reference after reading the skill.`,
+    '- zero_emqx (Zero EMQX): creating a free temporary MQTT broker for testing; it covers reusing an existing broker, connecting, then subscribing and publishing.',
   ].join('\n')
 
 /**
