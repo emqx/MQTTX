@@ -1355,6 +1355,10 @@
     line-height: 12px;
     text-align: center;
   }
+  /* A 24px chip with 12px labels keeps its glyph at that scale; only the thin iconfont needs the same extra weight */
+  .chip-ico.iconfont {
+    -webkit-text-stroke: 0.3px currentColor;
+  }
   /* The "@" glue is quieter than the connection name */
   .chip-at {
     flex: none;
@@ -1767,25 +1771,16 @@
     text-align: center;
     color: var(--color-main-green);
   }
-  /* Per-glyph sizes so the seven Element skill icons share one ink size (about 15px) */
-  .skill-ico.el-icon-edit-outline {
-    font-size: 19px;
-  }
-  .skill-ico.el-icon-s-data,
-  .skill-ico.el-icon-s-operation {
-    font-size: 20px;
-  }
-  .skill-ico.el-icon-document,
-  .skill-ico.el-icon-reading,
-  .skill-ico.el-icon-first-aid-kit,
-  .skill-ico.el-icon-monitor {
-    font-size: 17px;
-  }
-  // The thin line glyphs need more weight next to the card titles
+  /* One ink weight for every Skill glyph: the thin iconfont line icons at 18px with a slight stroke,
+     the two Element line icons a little smaller, so all of them read as the same stroke */
+  .skill-ico.iconfont,
   .suggestion .s-ico {
-    width: 20px;
     font-size: 18px;
     -webkit-text-stroke: 0.3px currentColor;
+  }
+  .skill-ico.el-icon-document,
+  .skill-ico.el-icon-reading {
+    font-size: 17px;
   }
   .menu-title {
     display: flex;
