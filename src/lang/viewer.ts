@@ -196,6 +196,14 @@ export default {
     hu: '... és {count} további',
     ko: '... 외 {count}개',
   },
+  levelCount: {
+    zh: '{count} 层',
+    en: '{count} level | {count} levels',
+    tr: '{count} seviye',
+    ja: '{count} 階層',
+    hu: '{count} szint',
+    ko: '{count}단계',
+  },
   visualizeTree: {
     zh: '可视化主题树',
     en: 'Visualize Topic Tree',
