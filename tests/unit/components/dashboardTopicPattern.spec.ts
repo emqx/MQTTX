@@ -34,7 +34,8 @@ describe('Dashboard live widget topic patterns', () => {
     try {
       wrapper = shallowMount(DashboardView, {
         propsData: { widgets, timeRangeType: 'live' },
-        stubs: ['el-tooltip', 'el-dropdown', 'el-dropdown-menu', 'el-dropdown-item'],
+        stubs: ['el-tooltip'],
+        mocks: { $t: (key: string) => key },
       })
       await new Promise((resolve) => setTimeout(resolve, 0))
       for (const [topic, payload, connectionId] of [
@@ -102,7 +103,8 @@ describe('Dashboard live widget topic patterns', () => {
     try {
       wrapper = shallowMount(DashboardView, {
         propsData: { widgets, timeRangeType: 'static', timeRange },
-        stubs: ['el-tooltip', 'el-dropdown', 'el-dropdown-menu', 'el-dropdown-item'],
+        stubs: ['el-tooltip'],
+        mocks: { $t: (key: string) => key },
       })
       await new Promise((resolve) => setTimeout(resolve, 50))
 

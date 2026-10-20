@@ -639,9 +639,12 @@ export default class WidgetConfig extends Vue {
     align-items: center;
     justify-content: space-between;
     flex-shrink: 0;
-    height: 48px;
+    // 48px bar + 1px for the list panel's top border: the editor starts at the
+    // panel's outer edge, so the extra pixel puts its divider on the same row as
+    // the sidebar's `.dashboard-topbar` divider.
+    height: 49px;
     // Home.vue's (non-scoped) `.home-view .topbar` sets min-height: 60px.
-    min-height: 48px;
+    min-height: 49px;
     background-color: var(--color-bg-primary);
     border-bottom: 1px solid var(--color-border-default);
     // Full-bleed divider, content aligned with the 16px content insets.
@@ -711,7 +714,9 @@ export default class WidgetConfig extends Vue {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    min-height: 20px;
+    // Fixed height: the refresh icon's line box would otherwise make the
+    // preview head 1px taller than the others and drop its card 1px.
+    height: 20px;
     margin-bottom: 8px;
 
     .config-section-title {

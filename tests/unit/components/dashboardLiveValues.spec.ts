@@ -52,7 +52,8 @@ describe('Dashboard live values with the default settings', () => {
     try {
       wrapper = shallowMount(DashboardView, {
         propsData: { widgets },
-        stubs: ['el-tooltip', 'el-dropdown', 'el-dropdown-menu', 'el-dropdown-item'],
+        stubs: ['el-tooltip'],
+        mocks: { $t: (key: string) => key },
       })
       await new Promise((resolve) => setTimeout(resolve, 0))
 
