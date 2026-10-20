@@ -30,16 +30,18 @@
     </div>
     <!-- Sub topics section -->
     <div v-if="node.subTopicCount > 0">
-      <div>{{ $t('connections.subTopics') }}</div>
+      <div>{{ $t('connections.subTopics') }} ({{ node.subTopicCount }})</div>
       <div class="mt-2">
         <el-tag
-          v-for="(topic, index) in visibleSubTopics"
+          v-for="child in visibleSubTopics"
           type="info"
-          :key="`${topic}-${index}`"
+          :key="child.id"
           size="small"
           class="mr-2 mb-2"
+          disable-transitions
         >
-          {{ topic }}
+          {{ child.label }}
+          <span v-if="child.subTopicCount > 0" class="sub-topic-count">{{ child.subTopicCount }}</span>
         </el-tag>
         <div v-if="hiddenSubTopicsCount > 0" class="more-sub-topics">
           {{ $tc('viewer.moreSubTopics', hiddenSubTopicsCount, { count: hiddenSubTopicsCount }) }}
@@ -69,7 +71,7 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
-import { findSubTopics, findFullTopicPath, isPayloadEmpty } from '@/utils/topicTree'
+import { findFullTopicPath, isPayloadEmpty } from '@/utils/topicTree'
 import Prism from 'prismjs'
 import { jsonStringify, jsonParse } from '@/utils/jsonUtils'
 import { isXML, escapeXmlForHtml } from '@/utils/xmlUtils'
@@ -126,11 +128,11 @@ export default class TreeNodeInfo extends Vue {
     return findFullTopicPath(this.treeData, this.node.id) || this.node.label
   }
 
-  get subTopics(): string[] {
-    return findSubTopics(this.node)
+  get subTopics(): TopicTreeNode[] {
+    return this.node.children ?? []
   }
 
-  get visibleSubTopics(): string[] {
+  get visibleSubTopics(): TopicTreeNode[] {
     return this.subTopics.slice(0, MAX_SUB_TOPICS)
   }
 
@@ -203,6 +205,10 @@ body.night {
     word-break: normal;
   }
   .more-sub-topics {
+    color: var(--color-text-light);
+  }
+  .sub-topic-count {
+    margin-left: 6px;
     color: var(--color-text-light);
   }
   .no-payload-alert {

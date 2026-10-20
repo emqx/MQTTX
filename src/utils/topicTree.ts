@@ -170,22 +170,6 @@ export function updateSubTopicCounts(node: TopicTreeNode): number {
 }
 
 /**
- * Recursively finds all subtopics for a given node in the topic tree.
- *
- * @param node - The current node in the topic tree to find subtopics for.
- * @returns An array of strings representing the subtopics.
- */
-export function findSubTopics(node: TopicTreeNode): string[] {
-  const subTopics: string[] = []
-  const collect = (subNode: TopicTreeNode) => {
-    if (subNode.label) subTopics.push(subNode.label)
-    subNode.children?.forEach(collect)
-  }
-  node.children?.forEach(collect)
-  return subTopics
-}
-
-/**
  * Finds the full topic path for a given node ID in the topic tree.
  *
  * @param treeData - The entire topic tree data structure.
