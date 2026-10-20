@@ -23,22 +23,19 @@ type SettingKey =
   | 'maxPayloadDisplaySize'
 
 /** Settings the agent may change; each maps to the same store action the Settings page uses */
-const WRITABLE: Record<SettingKey, { action: string; payloadKey: string }> = {
-  currentTheme: { action: 'TOGGLE_THEME', payloadKey: 'currentTheme' },
-  currentLang: { action: 'TOGGLE_LANG', payloadKey: 'currentLang' },
-  syncOsTheme: { action: 'TOGGLE_SYNC_OS_THEME', payloadKey: 'syncOsTheme' },
-  autoCheck: { action: 'TOGGLE_AUTO_CHECK', payloadKey: 'autoCheck' },
-  autoResub: { action: 'TOGGLE_AUTO_RESUB', payloadKey: 'autoResub' },
-  multiTopics: { action: 'TOGGLE_MULTI_TOPICS', payloadKey: 'multiTopics' },
-  jsonHighlight: { action: 'TOGGLE_JSON_HIGHLIGHT', payloadKey: 'jsonHighlight' },
-  maxReconnectTimes: { action: 'SET_MAX_RECONNECT_TIMES', payloadKey: 'maxReconnectTimes' },
-  logLevel: { action: 'SET_LOG_LEVEL', payloadKey: 'logLevel' },
-  ignoreQoS0Message: { action: 'TOGGLE_IGNORE_QOS0_MESSAGE', payloadKey: 'ignoreQoS0Message' },
-  topicWhitespaceDetection: {
-    action: 'TOGGLE_TOPIC_WHITESPACE_DETECTION',
-    payloadKey: 'topicWhitespaceDetection',
-  },
-  maxPayloadDisplaySize: { action: 'SET_MAX_PAYLOAD_DISPLAY_SIZE', payloadKey: 'maxPayloadDisplaySize' },
+const WRITABLE: Record<SettingKey, string> = {
+  currentTheme: 'TOGGLE_THEME',
+  currentLang: 'TOGGLE_LANG',
+  syncOsTheme: 'TOGGLE_SYNC_OS_THEME',
+  autoCheck: 'TOGGLE_AUTO_CHECK',
+  autoResub: 'TOGGLE_AUTO_RESUB',
+  multiTopics: 'TOGGLE_MULTI_TOPICS',
+  jsonHighlight: 'TOGGLE_JSON_HIGHLIGHT',
+  maxReconnectTimes: 'SET_MAX_RECONNECT_TIMES',
+  logLevel: 'SET_LOG_LEVEL',
+  ignoreQoS0Message: 'TOGGLE_IGNORE_QOS0_MESSAGE',
+  topicWhitespaceDetection: 'TOGGLE_TOPIC_WHITESPACE_DETECTION',
+  maxPayloadDisplaySize: 'SET_MAX_PAYLOAD_DISPLAY_SIZE',
 }
 
 /**
@@ -116,9 +113,8 @@ export const createSettingsTools = (deps: AgentToolDeps): ToolSet => ({
       const data = updateSchema.parse(input)
       const updated: Record<string, unknown> = {}
       const apply = async (key: SettingKey, value: unknown): Promise<void> => {
-        const config = WRITABLE[key]
         const finalValue = key === 'maxPayloadDisplaySize' ? normalizeMaxPayloadDisplaySize(value as number) : value
-        await deps.store.dispatch(config.action, { [config.payloadKey]: finalValue })
+        await deps.store.dispatch(WRITABLE[key], { [key]: finalValue })
         updated[key] = finalValue
       }
 

@@ -1,5 +1,5 @@
 import fs from 'fs'
-import type { ModelMessage, TextStreamPart, ToolSet, AssistantContent, ToolContent } from 'ai'
+import type { ModelMessage, TextStreamPart, ToolSet, AssistantContent, ToolContent, ToolResultPart } from 'ai'
 import { AgentMessage, AgentMessagePart, AgentToolState } from '@/types/agent'
 import { resolveArchiveSync } from './files'
 import { renderSkillPrompt } from './skills'
@@ -255,41 +255,38 @@ export const toModelMessages = (
     }
 
     for (const part of message.parts) {
-      if (
-        part.type === 'step-limit' ||
-        part.type === 'reasoning' ||
-        part.type === 'attachment' ||
-        part.type === 'skill' ||
-        part.type === 'connection' ||
-        part.type === 'compaction'
-      )
-        continue
       if (part.type === 'text') {
         if (toolContent.length > 0) flush()
         assistantContent.push({ type: 'text', text: part.text })
         continue
       }
+      if (part.type !== 'tool') continue
+
       assistantContent.push({
         type: 'tool-call',
         toolCallId: part.toolCallId,
         toolName: part.toolName,
         input: toPlain(part.input) as any,
       })
+
+      let output: ToolResultPart['output']
+      if (part.state === 'denied') {
+        output = {
+          type: 'json',
+          value: toPlain(part.output ?? { denied: true, message: 'The user denied this action.' }) as any,
+        }
+      } else if (part.state !== 'done') {
+        output = { type: 'error-text', value: part.error ?? 'The tool call was interrupted' }
+      } else if (typeof part.output === 'string') {
+        output = { type: 'text', value: part.output }
+      } else {
+        output = { type: 'json', value: toPlain(part.output ?? null) as any }
+      }
       toolContent.push({
         type: 'tool-result',
         toolCallId: part.toolCallId,
         toolName: part.toolName,
-        output:
-          part.state === 'denied'
-            ? {
-                type: 'json',
-                value: toPlain(part.output ?? { denied: true, message: 'The user denied this action.' }) as any,
-              }
-            : part.state !== 'done'
-            ? { type: 'error-text', value: part.error ?? 'The tool call was interrupted' }
-            : typeof part.output === 'string'
-            ? { type: 'text', value: part.output }
-            : { type: 'json', value: toPlain(part.output ?? null) as any },
+        output,
       })
     }
     flush()

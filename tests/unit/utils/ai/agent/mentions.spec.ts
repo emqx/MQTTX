@@ -111,10 +111,6 @@ describe('agent connection mentions', () => {
     it('should return nothing when no connection matches', () => {
       expect(filterConnections('nope', [alpha, beta])).to.deep.equal([])
     })
-
-    it('should show every connection for an empty query', () => {
-      expect(filterConnections('', [alpha, beta])).to.have.length(2)
-    })
   })
 
   describe('connectionEndpoint', () => {

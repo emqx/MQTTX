@@ -187,7 +187,7 @@ import Editor from '@/components/Editor.vue'
 import MyDialog from '@/components/MyDialog.vue'
 import useServers from '@/database/useServices'
 import ImportScript from '@/components/ImportScript.vue'
-import AgentPanel from '@/components/agent/AgentPanel.vue'
+import type AgentPanel from '@/components/agent/AgentPanel.vue'
 import { scriptTest } from '@/utils/scriptTest'
 import { globalEventBus } from '@/utils/globalEventBus'
 import { AGENT_DATA_CHANGED, AgentDataChangedPayload } from '@/utils/ai/agent/agentEvents'
@@ -197,7 +197,6 @@ import { AGENT_DATA_CHANGED, AgentDataChangedPayload } from '@/utils/ai/agent/ag
     Editor,
     MyDialog,
     ImportScript,
-    AgentPanel,
   },
 })
 export default class Script extends Vue {

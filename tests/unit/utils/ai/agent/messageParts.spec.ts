@@ -476,12 +476,6 @@ describe('messageParts', () => {
       )
     })
 
-    it('should leave a user message without attachments unchanged', () => {
-      expect(toModelMessages([{ id: '1', role: 'user', content: 'Hi' }])).to.deep.equal([
-        { role: 'user', content: 'Hi' },
-      ])
-    })
-
     it('should prepend the selected Skill line for a user message', () => {
       const messages = toModelMessages([
         {

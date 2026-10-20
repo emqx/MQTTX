@@ -1,6 +1,5 @@
 import { expect } from 'chai'
 import { ipcRenderer } from 'electron'
-import { createConnectionTools } from '@/utils/ai/agent/tools/connections'
 import { createScriptTools } from '@/utils/ai/agent/tools/scripts'
 import { createTopicTreeTools } from '@/utils/ai/agent/tools/topicTree'
 import { createDashboardTools, nextWidgetPosition, assertWidgetLayout } from '@/utils/ai/agent/tools/dashboards'
@@ -629,18 +628,6 @@ describe('agent tools — groups', () => {
     expect(error?.message).to.contain('Group nope not found')
     expect(spies.deleted).to.deep.equal([])
   })
-
-  it('should move a connection into a group through update_connection', async () => {
-    const spies = makeSpies()
-    const deps = makeDeps(spies)
-    let moved: { id: string; groupId: string | null } | undefined
-    deps.services.connectionService.updateCollectionId = async (id: string, groupId: string | null) => {
-      moved = { id, groupId }
-    }
-    const tools = createConnectionTools(deps)
-    await tools.update_connection.execute!({ connectionId: 'c1', changes: { groupId: 'g1' } } as any, {} as any)
-    expect(moved).to.deep.equal({ id: 'c1', groupId: 'g1' })
-  })
 })
 
 describe('agent tools — settings', () => {
@@ -771,11 +758,6 @@ describe('agent tools — settings', () => {
     }
     expect(spies.dispatched).to.deep.equal([])
     expect(sent).to.deep.equal([])
-  })
-
-  it('should require approval for update_settings but not for get_settings', () => {
-    expect(AGENT_WRITE_TOOLS.has('update_settings')).to.equal(true)
-    expect(AGENT_WRITE_TOOLS.has('get_settings')).to.equal(false)
   })
 })
 

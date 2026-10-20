@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import VueMarkdown from 'vue-markdown'
 import MCPCallCard from './MCPCallCard.vue'
 
@@ -37,21 +37,9 @@ export default class MessageRender extends Vue {
   @Prop({ default: 'Copy failed' }) readonly copyFailedText!: string
   @Prop({ default: 'Copied' }) readonly copiedText!: string
 
-  parsedContent: ContentPart[] = []
-  private lastContent = ''
-
-  @Watch('content', { immediate: true })
-  onContentChange(newContent: string) {
-    // Only re-parse if content has actually changed
-    if (this.lastContent !== newContent) {
-      this.lastContent = newContent
-      this.parseContent()
-    }
-  }
-
-  parseContent() {
+  get parsedContent(): ContentPart[] {
     const parts: ContentPart[] = []
-    let text = this.content
+    const text = this.content
 
     // If there are no MCP calls, process the entire text
     if (!text.includes('<mcp-call>')) {
@@ -63,7 +51,7 @@ export default class MessageRender extends Vue {
       this.parseTextWithMCPCalls(text, parts)
     }
 
-    this.parsedContent = parts
+    return parts
   }
 
   parseTextWithMCPCalls(text: string, parts: ContentPart[]) {

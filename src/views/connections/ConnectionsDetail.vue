@@ -391,7 +391,7 @@ import TimedMessage from '@/components/TimedMessage.vue'
 import UseScript from '@/components/UseScript.vue'
 import MsgTypeTabs from '@/components/MsgTypeTabs.vue'
 import MsgTip from '@/components/MsgTip.vue'
-import AgentPanel from '@/components/agent/AgentPanel.vue'
+import type AgentPanel from '@/components/agent/AgentPanel.vue'
 import AgentIcon from '@/components/agent/AgentIcon.vue'
 
 import sandbox from '@/utils/sandbox'
@@ -446,7 +446,6 @@ type CommandType =
     UseScript,
     MsgTypeTabs,
     MsgTip,
-    AgentPanel,
     SyncTopicTreeDialog,
     ConnectionSelect,
   },

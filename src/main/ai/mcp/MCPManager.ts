@@ -75,23 +75,15 @@ export function initMCPHandlers(): void {
     console.log(`[MCP] Calling tool ${toolName} on server ${serverName}`)
 
     try {
-      const client = activeClients.get(serverName)
+      let client = activeClients.get(serverName)
       if (!client) {
         // If server is not connected, try to auto-connect
         await autoConnectToServer(serverName)
-        const reconnectedClient = activeClients.get(serverName)
-        if (!reconnectedClient) {
+        client = activeClients.get(serverName)
+        if (!client) {
           throw new Error(`[MCP] No active connection to server: ${serverName} and auto-reconnect failed`)
         }
-
-        const result = await reconnectedClient.callTool(toolName, toolArgs)
-        return {
-          success: true,
-          result,
-        }
-      }
-
-      if (!client.isConnected()) {
+      } else if (!client.isConnected()) {
         throw new Error(`[MCP] Connection to server ${serverName} has been lost`)
       }
 
@@ -102,33 +94,6 @@ export function initMCPHandlers(): void {
       }
     } catch (error) {
       console.error(`[MCP] Error calling tool ${toolName} on server ${serverName}:`, error)
-      return {
-        success: false,
-        message: error instanceof Error ? error.message : String(error),
-      }
-    }
-  })
-
-  // Disconnect from a server
-  ipcMain.handle('mcp:disconnect', async (_, serverName: string) => {
-    console.log(`[MCP] Disconnecting from MCP server: ${serverName}`)
-
-    try {
-      const client = activeClients.get(serverName)
-      if (client) {
-        await client.disconnect()
-        activeClients.delete(serverName)
-        return {
-          success: true,
-          message: `Disconnected from server: ${serverName}`,
-        }
-      }
-      return {
-        success: true,
-        message: `No active connection to server: ${serverName}`,
-      }
-    } catch (error) {
-      console.error(`[MCP] Error disconnecting from MCP server: ${serverName}`, error)
       return {
         success: false,
         message: error instanceof Error ? error.message : String(error),
