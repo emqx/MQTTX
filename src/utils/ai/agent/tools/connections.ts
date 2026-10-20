@@ -252,8 +252,6 @@ export const createConnectionTools = (deps: AgentToolDeps): ToolSet => ({
         mqttVersion: '5.0',
         username: instance.username,
         password: instance.password,
-        createAt: now(),
-        updateAt: now(),
       }
       const created = await saveConnection(deps, record)
       // The password is stored in the connection only and never returned to the model

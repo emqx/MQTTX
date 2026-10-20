@@ -3,21 +3,31 @@ import Vue from 'vue'
 import AgentStep from '@/components/agent/AgentStep.vue'
 import AgentStepGroup from '@/components/agent/AgentStepGroup.vue'
 
-/** Mounts the step on a detached element; `$t` only needs to return the key for this test */
-const mountStep = (toolName: string, state = 'done'): Vue => {
-  const Step = Vue.extend(AgentStep as any)
-  const vm = new Step({ propsData: { part: { type: 'tool', toolCallId: 'c1', toolName, input: {}, state } } }) as any
-  vm.$t = (key: string) => key
-  return vm.$mount()
-}
-
-/** The group renders its AgentStep children too, so both translation helpers are stubbed while it mounts */
-const mountGroup = (toolNames: string[]): Vue => {
+/** Stubs the translations while a component mounts; inline `mocks` would need `@vue/test-utils`, which installs a global error handler */
+const withTranslations = <T>(mount: () => T): T => {
   const proto = Vue.prototype as any
   const previous = { $t: proto.$t, $tc: proto.$tc }
   proto.$t = (key: string) => key
   proto.$tc = (key: string) => key
   try {
+    return mount()
+  } finally {
+    proto.$t = previous.$t
+    proto.$tc = previous.$tc
+  }
+}
+
+/** Mounts the step on a detached element */
+const mountStep = (toolName: string, state = 'done'): Vue =>
+  withTranslations(() => {
+    const Step = Vue.extend(AgentStep as any)
+    const part = { type: 'tool', toolCallId: 'c1', toolName, input: {}, state }
+    return new Step({ propsData: { part } }).$mount()
+  })
+
+/** The group renders its AgentStep children too, so the translations stay stubbed for the whole mount */
+const mountGroup = (toolNames: string[]): Vue =>
+  withTranslations(() => {
     const Group = Vue.extend(AgentStepGroup as any)
     const steps = toolNames.map((toolName, index) => ({
       type: 'tool',
@@ -27,11 +37,7 @@ const mountGroup = (toolNames: string[]): Vue => {
       state: 'done',
     }))
     return new Group({ propsData: { steps } }).$mount()
-  } finally {
-    proto.$t = previous.$t
-    proto.$tc = previous.$tc
-  }
-}
+  })
 
 describe('AgentStep tool name', () => {
   it('should show the tool name in every state of a MQTT tool step', () => {

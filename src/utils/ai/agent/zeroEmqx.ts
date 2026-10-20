@@ -39,7 +39,7 @@ const readPort = (mqtts: Record<string, unknown>): number => {
   return port
 }
 
-const failure = async (response: Response): Promise<string> => {
+const failureMessage = async (response: Response): Promise<string> => {
   let detail = response.statusText
   try {
     const payload = (await response.json()) as { error?: unknown; message?: unknown }
@@ -48,11 +48,11 @@ const failure = async (response: Response): Promise<string> => {
   } catch {
     // The error body is optional; the status alone is enough to explain the failure
   }
-  const limited =
+  const rateLimited =
     response.status === 429 ? ' Zero EMQX is rate limiting this network; wait a minute and try again, do not loop.' : ''
   return `Zero EMQX could not create a test broker (HTTP ${response.status}): ${
     detail || 'no details returned'
-  }.${limited}`
+  }.${rateLimited}`
 }
 
 const parse = (payload: unknown): ZeroEmqxInstance => {
@@ -79,16 +79,14 @@ const parse = (payload: unknown): ZeroEmqxInstance => {
  * Creates one free, temporary Zero EMQX instance over its public API. The credentials are only
  * returned once, so the caller must store them; a 201 is the only accepted answer and nothing is retried.
  */
-export const provisionZeroEmqx = async (
-  fetchImpl: ZeroEmqxFetch = (input, init) => fetch(input, init),
-): Promise<ZeroEmqxInstance> => {
+export const provisionZeroEmqx = async (fetchImpl: ZeroEmqxFetch = fetch): Promise<ZeroEmqxInstance> => {
   const response = await fetchImpl(ZERO_EMQX_ENDPOINT, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ tag: 'mqttx' }),
     signal: AbortSignal.timeout(TIMEOUT_MS),
   })
-  if (response.status !== 201) throw new Error(await failure(response))
+  if (response.status !== 201) throw new Error(await failureMessage(response))
   let payload: unknown
   try {
     payload = await response.json()
