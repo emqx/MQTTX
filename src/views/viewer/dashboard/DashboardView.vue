@@ -299,53 +299,13 @@ export default class DashboardCanvas extends Vue {
           metadata: { qos: message.qos, retain: message.retain },
         }
 
-        this.updateWidgetByTypeHistorical(widget, entry.data, dataPoint)
+        this.applyDataPoint(widget, entry.data, dataPoint, false)
       } catch (error) {
         this.handleError(error as Error, `Schema processing for widget ${widget.id}`)
       }
     }
 
     return entry
-  }
-
-  private updateWidgetByTypeHistorical(
-    widget: WidgetModel,
-    data: BigNumberData | GaugeData | LineData,
-    dataPoint: TimeSeriesDataPoint,
-  ): void {
-    const { value: primaryValue, fieldName } = this.extractPrimaryValue(dataPoint, widget)
-
-    switch (widget.type) {
-      case 'Big Number':
-        this.updateBigNumberDataHistorical(data as BigNumberData, primaryValue, dataPoint, fieldName)
-        break
-      case 'Gauge':
-        this.updateGaugeData(data as GaugeData, primaryValue, dataPoint, fieldName)
-        break
-      case 'Line':
-        this.updateLineDataHistorical(data as LineData, primaryValue, dataPoint)
-        break
-    }
-  }
-
-  private updateBigNumberDataHistorical(
-    data: BigNumberData,
-    value: number,
-    dataPoint: TimeSeriesDataPoint,
-    fieldName: string,
-  ): void {
-    data.value = value
-    data.fieldName = fieldName
-
-    const timestamp = dataPoint.timestamp
-    data.chartData.xData.push(timestamp)
-    data.chartData.seriesData[0].data.push(value)
-  }
-
-  private updateLineDataHistorical(data: LineData, value: number, dataPoint: TimeSeriesDataPoint): void {
-    const timestamp = dataPoint.timestamp
-    data.chartData.xData.push(timestamp)
-    data.chartData.seriesData[0].data.push(value)
   }
 
   private async finalizeHistoricalDataLoad(): Promise<void> {
@@ -437,24 +397,32 @@ export default class DashboardCanvas extends Vue {
   }
 
   private async processBatchedDataPoints(dataPoints: (TimeSeriesDataPoint & { widgetId: string })[]): Promise<void> {
-    const widgetGroups = new Map<string, TimeSeriesDataPoint[]>()
+    // Resolve the widgets once for the whole batch instead of per point.
+    const widgetsById = new Map(this.widgets.map((widget) => [String(widget.id), widget]))
+    const pointsByWidget = new Map<string, TimeSeriesDataPoint[]>()
 
     dataPoints.forEach((point) => {
-      const existing = widgetGroups.get(point.widgetId) || []
+      const existing = pointsByWidget.get(point.widgetId) || []
       existing.push(point)
-      widgetGroups.set(point.widgetId, existing)
+      pointsByWidget.set(point.widgetId, existing)
     })
 
-    for (const [widgetId, points] of widgetGroups) {
-      points.forEach((point) => this.updateWidgetData(widgetId, point))
+    for (const [widgetId, points] of pointsByWidget) {
+      const widget = widgetsById.get(widgetId)
+      if (!widget) continue
+
+      const entry = this.getOrCreateWidgetEntry(widget)
+      points.forEach((point) => this.applyDataPoint(widget, entry.data, point, true))
+      entry.lastUpdate = Date.now()
+
+      // One store update per widget per batch instead of one per point.
+      this.$set(this.widgetDataStore, widgetId, { ...entry })
     }
   }
 
-  private getOrCreateWidgetEntry(widgetId: string): WidgetDataEntry {
+  private getOrCreateWidgetEntry(widget: WidgetModel): WidgetDataEntry {
+    const widgetId = String(widget.id)
     if (!this.widgetDataStore[widgetId]) {
-      const widget = this.widgets.find((w) => String(w.id) === widgetId)
-      if (!widget) throw new Error(`Widget not found: ${widgetId}`)
-
       this.$set(this.widgetDataStore, widgetId, {
         data: this.createInitialWidgetData(widget.type),
         lastUpdate: Date.now(),
@@ -463,39 +431,35 @@ export default class DashboardCanvas extends Vue {
     return this.widgetDataStore[widgetId]
   }
 
-  private updateWidgetData(widgetId: string, dataPoint: TimeSeriesDataPoint): void {
-    const entry = this.getOrCreateWidgetEntry(widgetId)
-    const widget = this.widgets.find((w) => String(w.id) === widgetId)
-    if (!widget) return
-
-    if (this.timeRangeType === 'live' && this.duration) {
-      this.applyDurationFilter(entry.data, this.duration)
-    }
-
-    this.updateWidgetByType(widget, entry.data, dataPoint)
-    entry.lastUpdate = Date.now()
-
-    this.$set(this.widgetDataStore, widgetId, { ...entry })
-  }
-
-  private updateWidgetByType(
+  /**
+   * Applies one data point to a widget's series.
+   *
+   * `trim: false` is the history path: points are appended as-is and the single
+   * window filter runs once in `finalizeHistoricalDataLoad`. `trim: true` is the
+   * live path, which keeps the series inside the live window (or MAX_POINTS).
+   */
+  private applyDataPoint(
     widget: WidgetModel,
     data: BigNumberData | GaugeData | LineData,
     dataPoint: TimeSeriesDataPoint,
+    trim: boolean,
   ): void {
-    const { value: primaryValue, fieldName } = this.extractPrimaryValue(dataPoint, widget)
+    const { value, fieldName } = this.extractPrimaryValue(dataPoint, widget)
 
-    switch (widget.type) {
-      case 'Big Number':
-        this.updateBigNumberData(data as BigNumberData, primaryValue, dataPoint, fieldName)
-        break
-      case 'Gauge':
-        this.updateGaugeData(data as GaugeData, primaryValue, dataPoint, fieldName)
-        break
-      case 'Line':
-        this.updateLineData(data as LineData, primaryValue, dataPoint)
-        break
+    if (widget.type === 'Gauge') {
+      const gauge = data as GaugeData
+      gauge.value = value
+      gauge.fieldName = fieldName
+      return
     }
+
+    if (widget.type === 'Big Number') {
+      const bigNumber = data as BigNumberData
+      bigNumber.value = value
+      bigNumber.fieldName = fieldName
+    }
+
+    this.appendChartPoint(data as BigNumberData | LineData, dataPoint.timestamp, value, trim)
   }
 
   private applyDurationFilter(data: BigNumberData | GaugeData | LineData, durationMinutes: number): void {
@@ -582,35 +546,16 @@ export default class DashboardCanvas extends Vue {
     })
   }
 
-  private updateBigNumberData(
-    data: BigNumberData,
-    value: number,
-    dataPoint: TimeSeriesDataPoint,
-    fieldName: string,
-  ): void {
-    data.value = value
-    data.fieldName = fieldName
-
-    this.appendChartPoint(data, dataPoint.timestamp, value)
-  }
-
-  private updateGaugeData(data: GaugeData, value: number, dataPoint: TimeSeriesDataPoint, fieldName: string): void {
-    data.value = value
-    data.fieldName = fieldName
-  }
-
-  private updateLineData(data: LineData, value: number, dataPoint: TimeSeriesDataPoint): void {
-    this.appendChartPoint(data, dataPoint.timestamp, value)
-  }
-
   /**
-   * Appends a point, then trims: in live mode to the time window, otherwise to
-   * the same cap the history query uses (so a static range that loaded a full
-   * history is not cut down by the next live point).
+   * Appends a point and, when `trim` is set, keeps the series inside the live
+   * window (or the same cap the history query uses, so a static range that
+   * loaded a full history is not cut down by the next live point).
    */
-  private appendChartPoint(data: BigNumberData | LineData, timestamp: string, value: number): void {
+  private appendChartPoint(data: BigNumberData | LineData, timestamp: string, value: number, trim: boolean): void {
     data.chartData.xData.push(timestamp)
     data.chartData.seriesData[0].data.push(value)
+
+    if (!trim) return
 
     if (this.timeRangeType === 'live' && this.duration) {
       this.applyDurationFilter(data, this.duration)
