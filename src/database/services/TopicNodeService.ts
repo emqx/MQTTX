@@ -166,8 +166,10 @@ export default class TopicNodeService {
     savedMessagesCount: number
   }> {
     const groupedMessages = this.groupedMessagesByConnectionID(topicNodes)
-    const groupedEntities = this.groupedEntitiesByConnectionID(topicNodes)
-    this.establishNodeEntityRelationships(topicNodes, Array.from(groupedEntities.values()).flat())
+    // Keep the last snapshot of each node; Map preserves first-seen (parent-first) order.
+    const dedupedNodes = Array.from(new Map(topicNodes.map((node) => [node.id, node])).values())
+    const groupedEntities = this.groupedEntitiesByConnectionID(dedupedNodes)
+    this.establishNodeEntityRelationships(dedupedNodes, Array.from(groupedEntities.values()).flat())
 
     const savedEntities: TopicNodeEntity[] = []
     const savedMessages: MessageModel[] = []
