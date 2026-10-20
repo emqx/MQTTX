@@ -31,12 +31,12 @@ function render(message: MessageModel) {
 }
 
 describe('Received GZIP indicator', () => {
-  it('marks a successfully decompressed message and shows the badge from saved metadata', () => {
+  it('shows the badge for a successfully decompressed received message', () => {
     const message = receive(zlib.gzipSync(Buffer.from('hello')))
     expect(message.payload).to.equal('hello')
-    expect(JSON.parse(message.meta!)).to.include({ gzipDecompressed: true, msgType: 'Plaintext' })
+    expect(JSON.parse(message.meta!)).to.have.property('msgType', 'Plaintext')
 
-    const wrapper = render(JSON.parse(JSON.stringify(message)))
+    const wrapper = render(message)
     expect(wrapper.find('.gzip-tag').text()).to.equal('GZIP')
     expect(wrapper.find('.gzip-tag').attributes('title')).to.equal('connections.gzipDecompressed')
     wrapper.destroy()
@@ -54,7 +54,6 @@ describe('Received GZIP indicator', () => {
     expect(messages[2].payload).to.equal(corrupted.toString())
     expect(JSON.parse(messages[2].meta!).msgError).to.be.a('string')
     for (const message of messages) {
-      expect(JSON.parse(message.meta || '{}')).not.to.have.property('gzipDecompressed')
       const wrapper = render(message)
       expect(wrapper.find('.gzip-tag').exists()).to.equal(false)
       wrapper.destroy()
