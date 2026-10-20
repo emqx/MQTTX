@@ -713,21 +713,6 @@ describe('agent tools — settings', () => {
     expect(result.updated).to.deep.equal({ maxReconnectTimes: 20, maxPayloadDisplaySize: 32768 })
   })
 
-  it('should reject a reasoning strength change because it would affect the running reply', async () => {
-    const spies = makeSpies()
-    const tools = createSettingsTools(makeDeps(spies))
-    let error: unknown
-    try {
-      await tools.update_settings.execute!({ agentReasoning: 'max' } as any, {} as any)
-    } catch (caught) {
-      error = caught
-    }
-
-    expect(error).to.be.instanceOf(Error)
-    expect(spies.dispatched).to.deep.equal([])
-    expect(sent).to.deep.equal([])
-  })
-
   it('should change the language and send the language IPC', async () => {
     const spies = makeSpies()
     const tools = createSettingsTools(makeDeps(spies))
@@ -769,7 +754,13 @@ describe('agent tools — settings', () => {
   it('should reject unknown and disallowed fields without changing anything', async () => {
     const spies = makeSpies()
     const tools = createSettingsTools(makeDeps(spies))
-    for (const input of [{ openAIAPIKey: 'x' }, { agentPermissionMode: 'auto' }, { enableAgent: false }, { nope: 1 }]) {
+    for (const input of [
+      { openAIAPIKey: 'x' },
+      { agentReasoning: 'max' },
+      { agentPermissionMode: 'auto' },
+      { enableAgent: false },
+      { nope: 1 },
+    ]) {
       let error: unknown
       try {
         await tools.update_settings.execute!(input as any, {} as any)
