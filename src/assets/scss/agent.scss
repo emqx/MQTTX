@@ -896,6 +896,7 @@
   .steps-head .count {
     color: var(--color-text-title);
     font-weight: 500;
+    flex: none;
   }
   .steps-head .meta {
     color: var(--color-text-light);
@@ -959,6 +960,27 @@
   .step-row:hover .view,
   .step-row:focus-visible .view {
     opacity: 1;
+  }
+  .step-row .tool-name,
+  .steps-head .tool-names {
+    font-family: var(--agent-mono);
+    font-size: 11px;
+    color: var(--color-text-tips);
+    background: var(--color-bg-code);
+    padding: 1px 5px;
+    border-radius: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .step-row .tool-name {
+    flex: none;
+    max-width: 40%;
+  }
+  /* The tool names give way first, so the count, the failure/denied meta and the arrow stay visible */
+  .steps-head .tool-names {
+    flex: 0 1 auto;
+    min-width: 0;
   }
   .step-row .dur {
     font-size: 12px;

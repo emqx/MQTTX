@@ -7,6 +7,7 @@
         <i v-else class="el-icon-loading"></i>
       </span>
       <span class="count">{{ headText }}</span>
+      <code class="tool-names">{{ toolNames }}</code>
       <span class="meta">{{ metaText }}</span>
       <i class="chev el-icon-arrow-down"></i>
     </button>
@@ -57,6 +58,14 @@ export default class AgentStepGroup extends Vue {
   get headText(): string {
     if (this.running) return this.$tc('agent.groupRunning', this.steps.length, { n: this.steps.length }) as string
     return this.$tc('agent.groupUsed', this.steps.length, { n: this.steps.length }) as string
+  }
+
+  /** The tool names in the order they first ran; an MCP tool shows only the tool part of `server__tool` */
+  get toolNames(): string {
+    const names = this.steps.map((step) =>
+      step.toolName.includes('__') ? step.toolName.split('__')[1] : step.toolName,
+    )
+    return [...new Set(names)].join(', ')
   }
 
   get metaText(): string {

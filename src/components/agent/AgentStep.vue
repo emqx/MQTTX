@@ -8,6 +8,7 @@
         <i v-else class="el-icon-loading"></i>
       </span>
       <span class="label" v-html="label"></span>
+      <code v-if="showsToolName" class="tool-name">{{ part.toolName }}</code>
       <a v-if="viewConnectionId" class="view" href="javascript:;" @click.stop="$emit('view', viewConnectionId)">{{
         $t('agent.view')
       }}</a>
@@ -69,6 +70,11 @@ export default class AgentStep extends Vue {
     const id = (this.part.input as { connectionId?: string } | undefined)?.connectionId
     if (!id) return ''
     return CONNECTION_TOOLS.has(this.part.toolName) ? id : ''
+  }
+
+  /** MCP tools are named `server__tool` and the label already shows both, so the tag would repeat it */
+  get showsToolName(): boolean {
+    return !this.part.toolName.includes('__')
   }
 
   get label(): string {
