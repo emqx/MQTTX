@@ -54,6 +54,21 @@ const GEMINI_3_EFFORTS: ReasoningEffort[] = ['minimal', 'low', 'medium', 'high']
 /** Perplexity cannot turn reasoning off */
 const PERPLEXITY_EFFORTS: ReasoningEffort[] = ['low', 'medium', 'high', 'xhigh']
 
+/** The OpenAI models; Azure OpenAI serves the same ones under a `deployment-` id (see below) */
+const OPENAI_MODELS = [
+  { value: 'gpt-6-luna', label: 'GPT-6 Luna', contextWindow: 1050000 },
+  { value: 'gpt-5.4', label: 'GPT-5.4', reasoningEfforts: GPT_5_2_EFFORTS, contextWindow: 1050000 },
+  { value: 'gpt-5.2', label: 'GPT-5.2', reasoningEfforts: GPT_5_2_EFFORTS, contextWindow: 400000 },
+  { value: 'gpt-5.1', label: 'GPT-5.1', reasoningEfforts: GPT_5_1_EFFORTS, contextWindow: 400000 },
+  { value: 'gpt-5', label: 'GPT-5', reasoningEfforts: GPT_5_EFFORTS, contextWindow: 400000 },
+  { value: 'gpt-5-mini', label: 'GPT-5 mini', reasoningEfforts: GPT_5_EFFORTS, contextWindow: 400000 },
+  { value: 'gpt-5-nano', label: 'GPT-5 nano', reasoningEfforts: GPT_5_EFFORTS, contextWindow: 400000 },
+  { value: 'gpt-4o', label: 'GPT-4o', reasoning: false, contextWindow: 128000 },
+  { value: 'gpt-4o-mini', label: 'GPT-4o mini', reasoning: false, contextWindow: 128000 },
+  { value: 'gpt-4.1', label: 'GPT-4.1', reasoning: false, contextWindow: 1047576 },
+  { value: 'gpt-4.1-mini', label: 'GPT-4.1 mini', reasoning: false, contextWindow: 1047576 },
+]
+
 /**
  * Configuration for available AI models across different providers.
  *
@@ -68,19 +83,7 @@ const PERPLEXITY_EFFORTS: ReasoningEffort[] = ['low', 'medium', 'high', 'xhigh']
 export const AImodelsOptions: AImodelsOptionsModel = [
   {
     value: 'OpenAI' as const,
-    children: [
-      { value: 'gpt-6-luna', label: 'GPT-6 Luna', contextWindow: 1050000 },
-      { value: 'gpt-5.4', label: 'GPT-5.4', reasoningEfforts: GPT_5_2_EFFORTS, contextWindow: 1050000 },
-      { value: 'gpt-5.2', label: 'GPT-5.2', reasoningEfforts: GPT_5_2_EFFORTS, contextWindow: 400000 },
-      { value: 'gpt-5.1', label: 'GPT-5.1', reasoningEfforts: GPT_5_1_EFFORTS, contextWindow: 400000 },
-      { value: 'gpt-5', label: 'GPT-5', reasoningEfforts: GPT_5_EFFORTS, contextWindow: 400000 },
-      { value: 'gpt-5-mini', label: 'GPT-5 mini', reasoningEfforts: GPT_5_EFFORTS, contextWindow: 400000 },
-      { value: 'gpt-5-nano', label: 'GPT-5 nano', reasoningEfforts: GPT_5_EFFORTS, contextWindow: 400000 },
-      { value: 'gpt-4o', label: 'GPT-4o', reasoning: false, contextWindow: 128000 },
-      { value: 'gpt-4o-mini', label: 'GPT-4o mini', reasoning: false, contextWindow: 128000 },
-      { value: 'gpt-4.1', label: 'GPT-4.1', reasoning: false, contextWindow: 1047576 },
-      { value: 'gpt-4.1-mini', label: 'GPT-4.1 mini', reasoning: false, contextWindow: 1047576 },
-    ],
+    children: OPENAI_MODELS,
     providerCreator: createOpenAI,
   },
   {
@@ -155,19 +158,8 @@ export const AImodelsOptions: AImodelsOptionsModel = [
   },
   {
     value: 'Azure OpenAI' as const,
-    children: [
-      { value: 'deployment-gpt-6-luna', label: 'GPT-6 Luna', contextWindow: 1050000 },
-      { value: 'deployment-gpt-5.4', label: 'GPT-5.4', reasoningEfforts: GPT_5_2_EFFORTS, contextWindow: 1050000 },
-      { value: 'deployment-gpt-5.2', label: 'GPT-5.2', reasoningEfforts: GPT_5_2_EFFORTS, contextWindow: 400000 },
-      { value: 'deployment-gpt-5.1', label: 'GPT-5.1', reasoningEfforts: GPT_5_1_EFFORTS, contextWindow: 400000 },
-      { value: 'deployment-gpt-5', label: 'GPT-5', reasoningEfforts: GPT_5_EFFORTS, contextWindow: 400000 },
-      { value: 'deployment-gpt-5-mini', label: 'GPT-5 mini', reasoningEfforts: GPT_5_EFFORTS, contextWindow: 400000 },
-      { value: 'deployment-gpt-5-nano', label: 'GPT-5 nano', reasoningEfforts: GPT_5_EFFORTS, contextWindow: 400000 },
-      { value: 'deployment-gpt-4o', label: 'GPT-4o', reasoning: false, contextWindow: 128000 },
-      { value: 'deployment-gpt-4o-mini', label: 'GPT-4o mini', reasoning: false, contextWindow: 128000 },
-      { value: 'deployment-gpt-4.1', label: 'GPT-4.1', reasoning: false, contextWindow: 1047576 },
-      { value: 'deployment-gpt-4.1-mini', label: 'GPT-4.1 mini', reasoning: false, contextWindow: 1047576 },
-    ],
+    // The same models as OpenAI; Azure addresses them by their deployment name
+    children: OPENAI_MODELS.map((model) => ({ ...model, value: `deployment-${model.value}` })),
     providerCreator: createAzure,
   },
   {
