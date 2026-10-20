@@ -6,7 +6,6 @@ import {
   normalizeMaxPayloadDisplaySize,
 } from '@/utils/data'
 import { applyLangChange, applyThemeChange, themeFromOs } from '@/utils/settingsEffects'
-import { AGENT_REASONING_LEVELS } from '@/utils/ai/reasoning'
 import { AgentToolDeps } from './types'
 
 type SettingKey =
@@ -22,7 +21,6 @@ type SettingKey =
   | 'ignoreQoS0Message'
   | 'topicWhitespaceDetection'
   | 'maxPayloadDisplaySize'
-  | 'agentReasoning'
 
 /** Settings the agent may change; each maps to the same store action the Settings page uses */
 const WRITABLE: Record<SettingKey, { action: string; payloadKey: string }> = {
@@ -41,11 +39,19 @@ const WRITABLE: Record<SettingKey, { action: string; payloadKey: string }> = {
     payloadKey: 'topicWhitespaceDetection',
   },
   maxPayloadDisplaySize: { action: 'SET_MAX_PAYLOAD_DISPLAY_SIZE', payloadKey: 'maxPayloadDisplaySize' },
-  agentReasoning: { action: 'SET_AGENT_REASONING', payloadKey: 'agentReasoning' },
 }
 
-/** Readable but deliberately not writable: the agent must not change its own limits or the running model */
-const READ_ONLY = ['agentPermissionMode', 'agentMaxSteps', 'model', 'enableHardwareAcceleration'] as const
+/**
+ * Readable but deliberately not writable: the agent must not change its own reasoning, limits or the
+ * running model, and enableHardwareAcceleration needs an app restart
+ */
+const READ_ONLY = [
+  'agentReasoning',
+  'agentPermissionMode',
+  'agentMaxSteps',
+  'model',
+  'enableHardwareAcceleration',
+] as const
 
 /** The language, theme and syncOsTheme keys are applied by their own side effects below */
 const SPECIAL_KEYS: SettingKey[] = ['currentLang', 'currentTheme', 'syncOsTheme']
@@ -66,12 +72,6 @@ const updateSchema = z
     logLevel: z.enum(['debug', 'info', 'warn', 'error']).optional().describe('Application log level'),
     ignoreQoS0Message: z.boolean().optional().describe('Do not store QoS 0 messages'),
     topicWhitespaceDetection: z.boolean().optional().describe('Detect whitespace in topics'),
-    agentReasoning: z
-      .enum(AGENT_REASONING_LEVELS)
-      .optional()
-      .describe(
-        'Reasoning strength for the model: provider-default (let the provider decide), none, low, medium, high or max',
-      ),
     maxPayloadDisplaySize: z
       .number()
       .int()
@@ -105,8 +105,9 @@ export const createSettingsTools = (deps: AgentToolDeps): ToolSet => ({
     title: 'Update settings',
     description:
       `Change MQTTX settings. Writable: ${WRITABLE_NAMES}. ` +
-      'Cannot be changed: agentPermissionMode and agentMaxSteps (the agent must not raise its own limits), ' +
-      'model (it would affect the running reply) and enableHardwareAcceleration (needs an app restart); ' +
+      'Cannot be changed: every MQTTX Agent setting (model, agentReasoning, agentPermissionMode, agentMaxSteps) ' +
+      'stays with the user because changing it would affect the running reply or the agent itself, ' +
+      'and enableHardwareAcceleration needs an app restart; ' +
       'the API key, the API host and enableAgent are never touched. Unknown keys are rejected. ' +
       'When the user asks for one of these, ask them to change it on the Settings page.',
     inputSchema: updateSchema,
