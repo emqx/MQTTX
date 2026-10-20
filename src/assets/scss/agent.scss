@@ -171,8 +171,9 @@
   &.is-full .history {
     display: flex;
   }
-  /* The contents keep their open width while the sidebar animates, so they slide out instead of reflowing */
-  .history > * {
+  /* The contents keep their open width while the sidebar animates, so they slide out instead of reflowing.
+     The row menu is left out: it is fixed-positioned and sizes itself to its items. */
+  .history > :not(.contextmenu) {
     min-width: var(--agent-history-inner);
   }
   /* Once the width animation ends, the closed sidebar drops its border and leaves the tab order */
@@ -272,7 +273,8 @@
     cursor: pointer;
   }
   .conv:hover,
-  .conv.active {
+  .conv.active,
+  .conv.menu-open {
     background: var(--color-bg-item);
   }
   .conv-name {
@@ -306,13 +308,15 @@
     opacity: 0;
     pointer-events: none;
   }
-  /* The time is replaced by the menu button while hovering the row; both stay in place so the row
-     never shifts and an open dropdown keeps its anchor */
-  .conv:hover .conv-actions {
+  /* The time is replaced by the menu button while hovering the row and while its menu is open; both
+     stay in place so the row never shifts */
+  .conv:hover .conv-actions,
+  .conv.menu-open .conv-actions {
     opacity: 1;
     pointer-events: auto;
   }
-  .conv:hover .conv-time {
+  .conv:hover .conv-time,
+  .conv.menu-open .conv-time {
     opacity: 0;
   }
   .conv .more {
