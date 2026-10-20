@@ -7,7 +7,7 @@
     <p>{{ $t('agent.welcomeIntro') }}</p>
     <div class="suggestions">
       <button v-for="s in suggestions" :key="s.key" class="suggestion" @click="$emit('suggest', message(s))">
-        <i class="s-ico" :class="s.icon"></i>
+        <i class="s-ico" :class="skillIcons[s.skill]"></i>
         <span
           >{{ $t(s.titleKey) }}<small>{{ hint(s) }}</small></span
         >
@@ -20,11 +20,10 @@
 import { Component, Vue } from 'vue-property-decorator'
 import AgentIcon from './AgentIcon.vue'
 import type { OutgoingMessage } from '@/utils/ai/agent/attachments'
-import type { AgentSkillName } from '@/utils/ai/agent/skills'
+import { AgentSkillName, SKILL_ICONS } from '@/utils/ai/agent/skills'
 
 interface Suggestion {
   key: string
-  icon: string
   titleKey: string
   prompt: string
   /** Sent with the Skill attached, as if picked from the `/` menu */
@@ -33,31 +32,30 @@ interface Suggestion {
 
 @Component({ components: { AgentIcon } })
 export default class AgentWelcome extends Vue {
+  /** The icon of the Skill, so a card and the `/` menu show the same glyph */
+  private readonly skillIcons = SKILL_ICONS
+
   private suggestions: Suggestion[] = [
     {
       key: 'zeroEmqx',
-      icon: 'iconfont icon-cloud-logo',
       titleKey: 'agent.suggestions.zeroEmqx',
       prompt: 'Create a free Zero EMQX Cloud broker, connect to it and subscribe to demo/#',
       skill: 'zero_emqx',
     },
     {
       key: 'cli',
-      icon: 'iconfont icon-run-script',
       titleKey: 'agent.suggestions.cli',
       prompt: 'Give me the MQTTX CLI command to subscribe with my current connection',
       skill: 'mqttx_cli',
     },
     {
       key: 'diagnose',
-      icon: 'iconfont icon-log',
       titleKey: 'agent.suggestions.diagnose',
       prompt: 'Find out why my connection fails to connect',
       skill: 'mqttx_diagnostics',
     },
     {
       key: 'clientCode',
-      icon: 'iconfont icon-script',
       titleKey: 'agent.suggestions.clientCode',
       prompt: 'Write Python client code for my current connection',
       skill: 'client_code',

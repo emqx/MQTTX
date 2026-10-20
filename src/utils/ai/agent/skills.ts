@@ -30,16 +30,20 @@ export const AGENT_SKILL_NAMES = [
 ] as const
 export type AgentSkillName = typeof AGENT_SKILL_NAMES[number]
 
-/** One Element icon set for every skill; agent.scss sizes each glyph so they look the same */
+/**
+ * The Skill glyphs shared by the `/` menu, the welcome cards and the message chips, so one Skill always
+ * looks the same. The thin iconfont line icons are drawn at 18px with a slight stroke in agent.scss and the
+ * Element line icons are sized per glyph, which gives every icon the same ink weight.
+ */
 export const SKILL_ICONS: Record<AgentSkillName, string> = {
-  client_code: 'el-icon-edit-outline',
-  payload: 'el-icon-s-data',
+  client_code: 'iconfont icon-script',
+  payload: 'iconfont icon-bytes-statistics',
   schema: 'el-icon-document',
-  custom_function: 'el-icon-s-operation',
+  custom_function: 'iconfont icon-use-script',
   mqtt_knowledge: 'el-icon-reading',
-  mqttx_diagnostics: 'el-icon-first-aid-kit',
-  mqttx_cli: 'el-icon-monitor',
-  zero_emqx: 'el-icon-cloudy',
+  mqttx_diagnostics: 'iconfont icon-log',
+  mqttx_cli: 'iconfont icon-run-script',
+  zero_emqx: 'iconfont icon-cloud-logo',
 }
 
 /** The on-demand references of the mqttx_cli skill, without the `.md` extension */
