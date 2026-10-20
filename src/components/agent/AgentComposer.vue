@@ -561,8 +561,11 @@ export default class AgentComposer extends Vue {
     }
     const queryChanged =
       !this.mentionQuery || this.mentionQuery.query !== found.query || this.mentionQuery.start !== found.start
+    const wasOpen = this.mentionMenuOpen
     this.mentionQuery = found
     this.mentionMenuOpen = true
+    // The parent refreshes the connection list once per opening, not on every keystroke
+    if (!wasOpen) this.$emit('mention-open')
     if (queryChanged) this.mentionMenuIndex = 0
     if (this.mentionMenuIndex >= this.filteredConnections.length) this.mentionMenuIndex = 0
   }
