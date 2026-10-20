@@ -1,6 +1,6 @@
 # MQTTX 使用手册
 
-> 本手册适用于 MQTTX 桌面版 v1.13.1。最新文档请访问 [mqttx.app/zh/docs](https://mqttx.app/zh/docs)。
+> 本手册适用于 MQTTX 桌面版 v1.13.2。最新文档请访问 [mqttx.app/zh/docs](https://mqttx.app/zh/docs)。
 
 ## 目录
 
@@ -23,13 +23,17 @@
 - 支持在 Windows、macOS 和 Linux 上运行
 - 100% 兼容 MQTT v5.0、v3.1.1 和 v3.1 协议
 - 支持 MQTT 5.0 连接、发布和订阅时的用户属性，以及 SCRAM 增强认证
+- 连接页显示 CONNACK 响应信息
 - 支持 CA 签名和自签名证书，以及单向、双向 SSL/TLS 认证
 - 支持通过 WebSocket 连接 MQTT 服务器
+- 内置 MQTTX Agent，可用自然语言操作 MQTTX，支持技能（Skills）、MCP、操作审批和多家模型提供商
 - 支持 Plaintext、JSON、Base64、Hex、CBOR 和 MsgPack 等 Payload 格式，并支持 Protobuf 和 Avro 编解码
+- 自动解压接收到的 GZIP 消息
 - 支持自定义脚本和定时消息，模拟 MQTT 发布/订阅测试
-- 视图器工具：主题树、流量监控和消息体查看器
+- 视图器工具：主题树、仪表盘、流量监控和消息体查看器
+- 每个连接独立保存发布区和发布历史
 - 订阅的主题支持自定义颜色标记
-- 支持以 JSON、CSV、Excel、XML 和 YAML 格式备份和恢复数据
+- 支持以 JSON、CSV、Excel、XML 和 YAML 格式备份和恢复数据，JSON 备份会保留连接分组
 - 支持 Light、Dark、Night 三种主题模式
 - 多语言支持：简体中文、英语、日语、土耳其语、匈牙利语及韩语
 
@@ -104,6 +108,8 @@ sudo snap install mqttx
 
 在准备好 MQTT Broker 后，进入到主程序页面，可点击左侧菜单栏中的 `+` 号，如果页面没有数据，还可以直接点击右侧的 `新建连接` 按钮，快速配置一个新的客户端连接。
 
+如果还没有任何连接，页面上还会提供三张快速开始卡片：`新建连接` 会打开连接表单（也可以按 `Cmd/Ctrl + N`），`连接公共 Broker` 会创建一个名为 `broker.emqx.io` 的连接，指向 `broker.emqx.io:1883` 并立即连接，`导入数据` 会打开导入弹窗，支持 JSON、YAML、CSV、XML 和 Excel 文件，导入成功后应用会重新加载。
+
 ![mqttx-create](../assets/mqttx-create.png)
 
 ### 客户端相关信息
@@ -176,6 +182,8 @@ sudo snap install mqttx
 
     订阅过的主题支持**编辑/禁用/启用**，右键点击已经订阅过的 Topic 列表项，在右键菜单中我们可以快速选择编辑、禁用或启用等操作。当订阅的 Topic 过多时，有时候不是所有的 Topic 消息都想要接收到，为了避免再次订阅相同 Topic，提供了禁用功能，如需重新接收该 Topic 的消息，只需再次启用即可。
 
+    断开连接时也可以删除或禁用订阅，如果开启了 Clean Session（MQTT 3.x）或 Clean Start（MQTT 5.0），操作会立即生效。如果使用的是持久会话（MQTT 3.x 关闭 Clean Session，或 MQTT 5.0 关闭 Clean Start 且 Session Expiry Interval 大于 0），MQTTX 会提示 Broker 仍然保留着该订阅，并阻止这次操作。新增和编辑订阅仍然需要先连接。
+
 ![mqttx-edit-topic](../assets/mqttx-edit-topic.png)
 
 3. 消息发送和接收
@@ -185,6 +193,8 @@ sudo snap install mqttx
     消息栏的 `payload` 选项，可以快速将消息转化为多种格式，支持 `Base64`、`Hex`、`JSON`、`Plaintext`、`CBOR` 和 `MsgPack`。如需使用 `Protobuf` 或 `Avro`，请在 `脚本` 页面的 `编解码` 标签中配置。
 
     在发布区域，可以使用箭头按钮切换之前发布过的 Payload。如需复制某条消息的 Payload 或主题，在消息列表中右键点击该消息即可。
+
+    每个连接都单独保存自己的发布区（`Topic`、`QoS`、`Retain`、`Payload` 和 Payload 格式）和发布历史，切换连接时不再互相串用。从未保存过发布区的连接，打开时会显示该连接最近发送的一条消息。旧版本中所有连接共享的发布历史，在升级时会复制给每个连接。在 Topic 历史下拉列表中，每条记录右侧都有删除图标，可以单独删除这条记录。
 
 ![mqttx-message](../assets/mqttx-message.png)
 
@@ -207,6 +217,8 @@ sudo snap install mqttx
 2. 请求响应
 
     点击 Meta 按钮，输入框内输入一个响应主题：/ack/1，输入一个对比数据：light，并在当前连接客户端订阅一个 /ack/1。
+
+    MQTTX 也可以显示 Broker 返回的响应信息。在 MQTT 5.0 连接的高级设置中开启 `请求响应信息`，当 Broker 在 CONNACK 中返回 Response Information 时，连接页顶部的连接信息区会显示 `Response Info`（即 Response Information 的值）和复制按钮，连接设置折叠时也依然显示。内容过长时，点击即可查看完整内容。MQTT 3.x 连接或连接断开时不显示。
 
 ![mqttx-response-topic](../assets/mqttx-response-topic.png)
 
@@ -233,9 +245,14 @@ sudo snap install mqttx
 - **基础**：语言、自动检查更新、自动恢复订阅、多主题订阅、最大重连次数和最大 Payload 显示大小。
 - **外观**：同步操作系统主题、主题（Light、Dark 或 Night）以及 JSON 数据高亮。
 - **扩展**：一键安装 MQTTX CLI。
-- **高级**：日志等级、数据恢复和备份、清除历史数据、忽略 QoS 0 消息、主题空格检测以及 GPU 加速。
+- **高级**：日志等级、数据恢复和备份、清除历史数据、忽略 QoS 0 消息、自动解压 GZIP 消息、主题空格检测以及 GPU 加速。
+- **MQTTX Agent**：启用 Agent，配置模型服务商、推理强度、默认权限模式、每次回复的最大步数和 MCP 服务器，详见 [MQTTX Agent](./desktop/zh/use-desktop/agent.md)。
 
 ![mqttx-theme](../assets/mqttx-theme.png)
+
+**GZIP 解压**
+
+高级设置中的 `自动解压 GZIP 消息` 开关用于解压接收到的 GZIP 消息，默认关闭。以 gzip 魔数 `1f 8b` 开头的接收消息会先解压，再按所选的 Payload 格式或 Schema 解码；不是 gzip 的消息保持不变。解压失败的消息会被标记为错误，并保留原始内容。解压成功的消息会在 QoS 旁显示 `GZIP` 标记（悬停即可看到 `已自动解压 GZIP`），该标记会随消息一起保存，关闭开关或重启 MQTTX 后，历史消息中仍会显示。
 
 #### 数据管理
 
@@ -243,7 +260,19 @@ sudo snap install mqttx
 
 在设置页面里可以在最下方的高级功能中，选择点击数据备份和数据恢复两个按钮。选择数据备份时，将导出所有的连接数据，包含所有收发到的消息等。选择数据恢复时，选择完导入文件的路径，确认后即可恢复数据。文件格式支持 `JSON`、`XML`、`CSV`、`Excel` 和 `YAML`。
 
+使用 `JSON` 格式备份时还会保留连接分组：嵌套分组和空分组、分组顺序，以及每个连接所属的分组，导出单个连接为 JSON 时也会包含它的上级分组。其他格式保持原有结构，不包含分组。仅包含连接的旧备份仍然可以导入，其中的连接会放在根级；导入已存在的 ID 会更新对应数据；如果文件中存在 ID 冲突、缺失的分组引用或循环的分组层级，整份导入都会回滚。
+
 ![mqttx-advance](../assets/mqttx-advance.png)
+
+### MQTTX Agent
+
+MQTTX Agent 是内置于桌面版的 AI 助手。你用自然语言描述需求，它就会通过工具操作 MQTTX：创建并连接连接、订阅与发布、读取消息、构建主题树和仪表盘、编写脚本和编解码、调用你配置的 MCP 服务器，以及修改应用设置。
+
+要启用它，请打开 **设置 → MQTTX Agent**，开启 **启用 MQTTX Agent**，并填写服务商的 **API Host**、**API Key** 和 **模型**。可以通过左侧栏的星形按钮以全屏打开 Agent，也可以使用 `Cmd/Ctrl + J` 或连接页、脚本页右上角的 **MQTTX Agent** 按钮以浮窗打开。
+
+默认的 **操作前询问** 模式会让读取自动执行，而创建、连接、订阅、发布、删除以及调用 MCP 工具前都会请求批准；**自动** 则不再询问。可在 **设置 → MQTTX Agent → 默认权限模式** 中修改默认值。
+
+你的对话和工具调用结果会发送给你配置的模型服务商，请避免在对话中输入密钥等敏感信息。完整的安装配置、附件、技能、MCP、会话历史和已知限制请参阅 [MQTTX Agent](./desktop/zh/use-desktop/agent.md)。
 
 ### 脚本
 
@@ -284,7 +313,8 @@ MQTTX 提供日志记录功能，方便用户调试连接、报告错误。日�
 
 左侧菜单栏中的视图器提供 MQTT 数据可视化功能：
 
-- **主题树**（Beta）：以层级结构展示接收到的主题和消息，支持搜索、图形化查看，以及从连接同步历史消息。
+- **主题树**（Beta）：以层级结构展示接收到的主题和消息，支持搜索、图形化查看，以及从连接同步历史消息。树和右侧信息面板之间的分隔线可以拖动，信息面板会占 20%–60% 的宽度，并记住这个宽度。子主题区域只列出所选节点的直接子节点，标题会显示子主题数量和下方的层级数，例如 `子主题 (55 · 2 层)`；最多显示 100 个子主题，之后显示 `... 还有 N 个`；节点超过 1000 个时点击 `全部展开` 会先弹出确认；主题数量很大时也不会再卡顿。
+- **仪表盘**：用实时消息构建关心的数据视图。左侧是仪表盘列表，可以在 160 到 400 像素之间调整宽度，`添加组件` 可以放置 Big Number、Line 或 Gauge 组件，组件会读取连接、主题模式和 Payload 中的字段。组件可以在 12 列网格上拖动和缩放，打开仪表盘时会加载所选时间范围内最新的 1000 个数据点，之后实时更新。
 - **流量监控**：根据 `$SYS` 系统主题绘制 Broker 的收发流量图表。从连接页面进入时会自动订阅 `$SYS/#`。
 
     > EMQX 默认只允许本机的客户端订阅 `$SYS` 主题。如需远程访问，请修改 Broker 的 ACL 规则。
@@ -306,7 +336,7 @@ MQTTX 提供日志记录功能，方便用户调试连接、报告错误。日�
 
     点击顶部的操作栏按钮，选择 `Search` 项，或使用快捷键，macOS 用户可以使用 `command + f` 快捷键，其它用户可以使用 `control + f` 快捷键，来打开按 `Topic` 搜索的的功能，支持主题和消息内容的模糊查询。
 
-    点击顶部的操作栏按钮，选择 `Clear History` 项，可以快速清空当前连接所发送和接收的消息。
+    点击连接页顶部工具栏中的 `清除历史记录` 按钮，可以清除当前连接的发送和接收消息。点击后会先弹出确认框，其中会写明连接名称，确认后才会清除。
 
 ![mqttx-search](../assets/mqttx-search.png)
 

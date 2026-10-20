@@ -16,9 +16,11 @@ Check the [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX
 - MQTT 5.0 user properties on connect, publish, and subscribe, plus SCRAM enhanced authentication
 - One-way and two-way SSL/TLS authentication
 - [MQTT over WebSockets](https://www.emqx.com/en/blog/connect-to-mqtt-broker-with-websocket)
+- [MQTTX Agent](/docs/agent) for operating MQTTX in natural language: it creates connections, subscribes and publishes, and calls your MCP tools
 - Payload formats: Plaintext, JSON, Base64, Hex, CBOR, and MsgPack, with Protobuf and Avro schemas
+- Automatic GZIP decompression of received messages, before payload decoding
 - Custom scripts and timed messages for MQTT pub/sub simulation
-- Viewer tools: Topic Tree, Traffic Monitor, and Payload Inspector
+- Viewer tools: Topic Tree, Dashboard, Traffic Monitor, and Payload Inspector
 - Customizable colors for subscriptions
 - Data backup and recovery in JSON, CSV, Excel, XML, and YAML
 - Comprehensive logging

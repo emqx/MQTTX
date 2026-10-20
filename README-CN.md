@@ -11,7 +11,7 @@
 
 ---
 
-[MQTTX](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的 [MQTT 5.0](https://www.emqx.com/zh/blog/introduction-to-mqtt-5) 客户端，提供适用于 macOS、Linux 和 Windows 的[桌面版](https://mqttx.app/zh/docs)、适用于脚本和压测的[命令行工具](https://mqttx.app/zh/docs/cli)，以及在浏览器中直接使用的 [Web 版](https://mqttx.app/web-client)。它采用类似聊天软件的界面，可以同时管理多个连接，通过 TCP、TLS 和 WebSocket 快速测试发布、订阅等 MQTT 功能。
+[MQTTX](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的 [MQTT 5.0](https://www.emqx.com/zh/blog/introduction-to-mqtt-5) 客户端，提供适用于 macOS、Linux 和 Windows 的[桌面版](https://mqttx.app/zh/docs)、适用于脚本和压测的[命令行工具](https://mqttx.app/zh/docs/cli)，以及在浏览器中直接使用的 [Web 版](https://mqttx.app/web-client)。它采用类似聊天软件的界面，可以同时管理多个连接，通过 TCP、TLS 和 WebSocket 快速测试发布、订阅等 MQTT 功能，桌面版还内置了 MQTTX Agent，一个可以用自然语言操作 MQTTX 的 AI Agent。
 
 > [MQTT](https://www.emqx.com/zh/blog/the-easiest-guide-to-getting-started-with-mqtt)（Message Queuing Telemetry Transport，消息队列遥测传输）是一种基于发布/订阅模式的轻量级消息协议，专为受限设备以及低带宽、高延迟或不可靠的网络而设计。
 
@@ -19,14 +19,25 @@
 
 桌面版的主要功能：
 
+- **MQTTX Agent**：用自然语言操作 MQTTX，可以创建连接、订阅、发布、读取消息、诊断问题和生成客户端代码，支持技能（Skills）、MCP、操作审批和多家模型提供商。
 - **协议**：支持 MQTT 3.1、3.1.1 和 5.0，可通过 TCP、TLS、WebSocket 和安全 WebSocket 连接。
-- **MQTT 5.0**：连接、发布和订阅的用户属性；SCRAM 增强认证。
-- **Payload**：支持 Plaintext、JSON、Base64、Hex、CBOR 和 MsgPack，并支持 Protobuf 和 Avro Schema。
+- **MQTT 5.0**：连接、发布和订阅的用户属性；SCRAM 增强认证；连接页显示 CONNACK 响应信息。
+- **Payload**：支持 Plaintext、JSON、Base64、Hex、CBOR 和 MsgPack，并支持 Protobuf 和 Avro Schema，接收消息时还可自动解压 GZIP。
 - **自动化**：使用脚本在发布或接收时转换 Payload，支持定时发送消息。
-- **视图器**：主题树、流量监控，以及支持 JSON 树和差异视图的消息体查看器。
-- **工作流**：消息搜索、发布主题历史，以及连接分组。
-- **数据**：以 JSON、CSV、Excel、XML 或 YAML 格式导入和导出连接。
+- **视图器**：主题树、仪表盘、流量监控，以及支持 JSON 树和差异视图的消息体查看器。
+- **工作流**：消息搜索、每个连接独立的发布区和发布历史，以及连接分组。
+- **数据**：以 JSON、CSV、Excel、XML 或 YAML 格式导入和导出连接；JSON 备份会保留连接分组。
 - **个性化**：浅色、深色和夜间主题；支持 English、简体中文、日本語、Türkçe、Magyar 和 한국어。
+
+## MQTTX Agent
+
+MQTTX Agent 是内置于桌面版的 AI 助手。在**设置 → MQTTX Agent** 中启用并填写服务商的 API Host、API Key 和模型后，即可从左侧栏以全屏打开，或用 `Cmd/Ctrl + J` 以浮窗打开。
+
+- 它通过工具操作 MQTTX：创建并连接连接、订阅与发布、读取消息、构建主题树和仪表盘、调用你配置的 MCP 服务器，以及编写客户端代码、测试数据和编解码。
+- **操作前询问**（默认）会在改动前请求批准，**自动**则不再询问。
+- 对话和工具调用结果会发送给你配置的模型服务商，请避免在对话中输入密钥等敏感信息。
+
+完整的配置、技能、MCP、权限和限制说明请参阅 [MQTTX Agent](./docs/desktop/zh/use-desktop/agent.md)。
 
 ## 功能预览
 
@@ -78,7 +89,7 @@ docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 
 详见 [MQTTX Web README](./web/README-CN.md)。
 
-## AI Agent 支持
+## 在 AI Agent 中使用 MQTTX CLI
 
 ### 安装或更新 MQTTX CLI
 

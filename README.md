@@ -16,7 +16,7 @@
 
 ---
 
-[MQTTX](https://mqttx.app) is an open-source [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) client from [EMQ](https://www.emqx.com/en), available as a [desktop app](https://mqttx.app/docs) for macOS, Linux, and Windows, a [command-line tool](https://mqttx.app/docs/cli) for scripting and benchmarks, and a [web client](https://mqttx.app/web-client) that runs in the browser. Its chat-style interface lets you work with multiple connections at once and quickly test publishing, subscribing, and other MQTT features over TCP, TLS, and WebSocket.
+[MQTTX](https://mqttx.app) is an open-source [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) client from [EMQ](https://www.emqx.com/en), available as a [desktop app](https://mqttx.app/docs) for macOS, Linux, and Windows, a [command-line tool](https://mqttx.app/docs/cli) for scripting and benchmarks, and a [web client](https://mqttx.app/web-client) that runs in the browser. Its chat-style interface lets you work with multiple connections at once and quickly test publishing, subscribing, and other MQTT features over TCP, TLS, and WebSocket, and the desktop app includes MQTTX Agent, an AI agent that operates MQTTX in natural language.
 
 > [MQTT](https://www.emqx.com/en/blog/the-easiest-guide-to-getting-started-with-mqtt) (MQ Telemetry Transport) is a lightweight publish/subscribe messaging protocol designed for constrained devices and for low-bandwidth, high-latency, or unreliable networks.
 
@@ -24,14 +24,25 @@
 
 Highlights of the desktop app:
 
+- **MQTTX Agent**: operate MQTTX in natural language to create connections, subscribe, publish, read messages, diagnose problems, and generate client code, with Skills, MCP, action approval, and multiple model providers.
 - **Protocols**: MQTT 3.1, 3.1.1, and 5.0 over TCP, TLS, WebSocket, and secure WebSocket.
-- **MQTT 5.0**: user properties on connect, publish, and subscribe; SCRAM enhanced authentication.
-- **Payloads**: Plaintext, JSON, Base64, Hex, CBOR, and MsgPack, with Protobuf and Avro schema support.
+- **MQTT 5.0**: user properties on connect, publish, and subscribe; SCRAM enhanced authentication; CONNACK Response Information on the connection page.
+- **Payloads**: Plaintext, JSON, Base64, Hex, CBOR, and MsgPack, with Protobuf and Avro schema support, plus automatic GZIP decompression of received messages.
 - **Automation**: scripts that transform payloads on publish or receive, and timed messages.
-- **Viewer**: Topic Tree, Traffic Monitor, and a Payload Inspector with a JSON tree and message diff.
-- **Workflow**: message search, publish topic history, and connection groups.
-- **Data**: import and export connections as JSON, CSV, Excel, XML, or YAML.
+- **Viewer**: Topic Tree, Dashboard, Traffic Monitor, and a Payload Inspector with a JSON tree and message diff.
+- **Workflow**: message search, a publish area and publish history per connection, and connection groups.
+- **Data**: import and export connections as JSON, CSV, Excel, XML, or YAML; JSON backups keep connection groups.
 - **Personalization**: light, dark, and night themes; English, 简体中文, 日本語, Türkçe, Magyar, and 한국어.
+
+## MQTTX Agent
+
+MQTTX Agent is an AI assistant built into the desktop app. Turn it on in **Settings → MQTTX Agent**, fill in the API host, key, and model of your provider, then open it full screen from the left bar or as a floating window with `Cmd/Ctrl + J`.
+
+- It operates MQTTX through tools: create and connect connections, subscribe and publish, read messages, build the Topic Tree and dashboards, call your MCP servers, and write client code, test data, and schemas.
+- **Ask before actions** (default) asks for approval before anything changes, and **Auto** runs every action without asking.
+- Your conversations and tool results are sent to the model provider you configure, so avoid entering secrets in the chat.
+
+See [MQTTX Agent](./docs/desktop/en/use-desktop/agent.md) for setup, Skills, MCP, permissions, and limitations.
 
 ## Preview
 
@@ -83,7 +94,7 @@ docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 
 See the [MQTTX Web README](./web/README.md) for details.
 
-## AI Agent Support
+## MQTTX CLI for AI Agents
 
 ### Install or update MQTTX CLI
 

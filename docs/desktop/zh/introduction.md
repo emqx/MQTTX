@@ -16,9 +16,11 @@
 - 支持 MQTT 5.0 连接、发布和订阅时的用户属性，以及 SCRAM 增强认证
 - 支持单向和双向 SSL/TLS 认证
 - 支持[通过 WebSocket 连接 MQTT 服务器](https://www.emqx.com/zh/blog/connect-to-mqtt-broker-with-websocket)
+- [MQTTX Agent](/zh/docs/agent)：用自然语言操作 MQTTX，自动创建连接、订阅和发布消息，并调用 MCP 工具
 - 支持 Plaintext、JSON、Base64、Hex、CBOR 和 MsgPack 等 Payload 格式，并支持 Protobuf 和 Avro 编解码
+- 自动解压接收到的 GZIP 消息，然后再进行 Payload 解码
 - 支持自定义脚本和定时消息，模拟 MQTT 发布/订阅测试
-- 视图器工具：主题树、流量监控和消息体查看器
+- 视图器工具：主题树、仪表盘、流量监控和消息体查看器
 - 订阅的 MQTT 主题支持自定义颜色标签
 - 支持以 JSON、CSV、Excel、XML 和 YAML 格式备份和恢复数据
 - 提供完整的日志记录功能

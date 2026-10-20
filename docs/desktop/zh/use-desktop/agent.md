@@ -2,8 +2,6 @@
 
 MQTTX Agent 是内置于 MQTTX 桌面客户端的助手。你用自然语言提出需求，它会通过工具来操作 MQTTX：创建并连接连接、订阅与发布、读取消息，以及调用你的 MCP 工具。每个操作都走 MQTTX 现有的代码路径，和手动操作一致，因此连接列表、订阅列表和消息列表会实时更新。
 
-![MQTTX Agent 面板](/images/mqttx-agent.png)
-
 ## 开启与配置
 
 1. 打开 **设置 → MQTTX Agent**，打开 **启用 MQTTX Agent**。
