@@ -1417,6 +1417,7 @@ export default class ConnectionsDetail extends Vue {
     let receivedPayload
     let jsonMsgError = ''
     let gzipError = ''
+    let gzipDecompressed = false
     /*
      * Payload processing pipeline for receiving a message:
      *      1. Raw Payload
@@ -1433,7 +1434,9 @@ export default class ConnectionsDetail extends Vue {
      */
     if (this.decompressGzip) {
       try {
-        payload = gunzipIfCompressed(payload)
+        const decompressedPayload = gunzipIfCompressed(payload)
+        gzipDecompressed = decompressedPayload !== payload
+        payload = decompressedPayload
       } catch (e) {
         gzipError = (e as Error).toString()
       }
@@ -1474,6 +1477,9 @@ export default class ConnectionsDetail extends Vue {
       qos,
       retain,
       properties,
+    }
+    if (gzipDecompressed) {
+      receivedMessage.meta = JSON.stringify({ gzipDecompressed: true })
     }
     this.updateMeta(receivedMessage, 'function', 'received')
     this.updateMeta(receivedMessage, 'schema', 'received')

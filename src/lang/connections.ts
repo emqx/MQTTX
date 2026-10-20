@@ -1199,4 +1199,12 @@ export default {
     hu: 'Hitelesítési módszer',
     ko: '인증 방법',
   },
+  gzipDecompressed: {
+    zh: '已自动解压 GZIP',
+    en: 'Automatically decompressed from GZIP',
+    tr: 'GZIP otomatik olarak açıldı',
+    ja: 'GZIP を自動解凍しました',
+    hu: 'A GZIP automatikusan kitömörítve',
+    ko: 'GZIP 자동 압축 해제됨',
+  },
 }

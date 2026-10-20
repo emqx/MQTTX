@@ -32,6 +32,14 @@
       <p class="left-info">
         <span class="topic">Topic: <span v-html="highlightedTopic"></span></span>
         <span class="qos">QoS: {{ qos }}</span>
+        <el-tag
+          v-if="gzipDecompressed"
+          class="gzip-tag"
+          type="info"
+          size="mini"
+          :title="$t('connections.gzipDecompressed')"
+          >GZIP</el-tag
+        >
         <span v-if="retain" class="retain">Retained</span>
       </p>
       <MqttProperties class="meta" :properties="properties" direction="left" />
@@ -158,6 +166,10 @@ export default class MsgLeftItem extends Vue {
     return this.meta ? JSON.parse(this.meta).msgError : null
   }
 
+  get gzipDecompressed() {
+    return this.meta ? JSON.parse(this.meta).gzipDecompressed : false
+  }
+
   get isLargeMsg() {
     return this.meta ? JSON.parse(this.meta).isLargeData : false
   }
@@ -231,6 +243,11 @@ body.night {
   position: relative;
   .msg-tag:nth-child(2) {
     margin-top: 2px;
+  }
+  .el-tag.gzip-tag {
+    margin-left: 12px;
+    color: var(--color-text-default);
+    vertical-align: middle;
   }
   .topic-color {
     height: calc(100% - 62px);
