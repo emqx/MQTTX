@@ -182,7 +182,7 @@ import { formatBytes } from '@/utils/formatter'
 import { resolveArchiveSync } from '@/utils/ai/agent/files'
 import { AgentSkillName, SKILL_ICONS, renderSkillChip } from '@/utils/ai/agent/skills'
 import { isConnectionConnected } from '@/utils/ai/agent/mentions'
-import { compactionPartOf } from '@/utils/ai/agent/messageParts'
+import { compactionPartOf, getPartsText } from '@/utils/ai/agent/messageParts'
 import AgentWelcome from './AgentWelcome.vue'
 import AgentThinking from './AgentThinking.vue'
 import AgentIcon from './AgentIcon.vue'
@@ -308,13 +308,7 @@ export default class AgentMessages extends Vue {
   }
 
   private copy(message: AgentMessage) {
-    this.$emit(
-      'copy',
-      (message.parts ?? [])
-        .filter((p) => p.type === 'text')
-        .map((p: any) => p.text)
-        .join('\n\n'),
-    )
+    this.$emit('copy', getPartsText(message.parts ?? []))
   }
 
   private attachmentsOf(message: AgentMessage): AgentAttachmentPart[] {

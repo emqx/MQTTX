@@ -47,19 +47,11 @@ const WRITABLE: Record<SettingKey, { action: string; payloadKey: string }> = {
 /** Readable but deliberately not writable: the agent must not change its own limits or the running model */
 const READ_ONLY = ['agentPermissionMode', 'agentMaxSteps', 'model', 'enableHardwareAcceleration'] as const
 
-/** Boolean/number settings applied with a plain dispatch, in this order */
-const PLAIN_KEYS: SettingKey[] = [
-  'autoCheck',
-  'autoResub',
-  'multiTopics',
-  'jsonHighlight',
-  'maxReconnectTimes',
-  'logLevel',
-  'ignoreQoS0Message',
-  'topicWhitespaceDetection',
-  'maxPayloadDisplaySize',
-  'agentReasoning',
-]
+/** The language, theme and syncOsTheme keys are applied by their own side effects below */
+const SPECIAL_KEYS: SettingKey[] = ['currentLang', 'currentTheme', 'syncOsTheme']
+
+/** Boolean/number settings applied with a plain dispatch, in the order of `WRITABLE` */
+const PLAIN_KEYS: SettingKey[] = (Object.keys(WRITABLE) as SettingKey[]).filter((key) => !SPECIAL_KEYS.includes(key))
 
 const updateSchema = z
   .object({

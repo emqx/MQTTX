@@ -14,10 +14,6 @@ import { createSettingsTools } from './settings'
 import { createLogTools } from './logs'
 import { createPageTools } from './pages'
 
-export type { AgentToolDeps } from './types'
-export { buildAppContext, renderAppContext } from './appContext'
-export type { AppContext } from './appContext'
-
 /** Tools that change user data or external state and therefore need approval in `ask` mode */
 export const AGENT_WRITE_TOOLS = new Set([
   'create_connection',

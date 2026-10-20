@@ -72,7 +72,10 @@ export class ConnectionBridge {
     void this.state.version
     const id = this.options?.router.currentRoute.params.id
     if (!id) return null
-    return [...this.views].find((view) => view.connectionId === id && view.record.id === id) ?? null
+    for (const view of this.views) {
+      if (view.connectionId === id && view.record.id === id) return view
+    }
+    return null
   }
 
   /** Navigate to the connection (like the user clicking it) and wait until its view is ready */

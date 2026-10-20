@@ -145,17 +145,6 @@ export class MQTTXAgent {
   }
 
   /**
-   * Build the model messages for the agent from the conversation
-   *
-   * @param messages Array of message objects, oldest first
-   */
-  private buildMessageHistory(messages: AgentMessage[]) {
-    // Mentions of a connection are the message's own `connection` parts; the text is sent as typed.
-    // A compaction marker becomes the summary in front of the messages it does not cover.
-    return toHistoryMessages(messages)
-  }
-
-  /**
    * Writes the summary a compaction stores, with the same model and provider as the replies and no tools
    *
    * @param messages The older turns to summarize
@@ -178,7 +167,9 @@ export class MQTTXAgent {
    * The provider client of the current settings, for both the replies and the summary call
    */
   private createModel() {
-    const { actualModel, isAzure } = this.processModel(this.model)
+    // An Azure deployment id carries a `deployment-` prefix that the provider does not take
+    const isAzure = this.model.includes('deployment-')
+    const actualModel = (isAzure ? this.model.replace('deployment-', '') : this.model) as AIModel
     const providerType = this.determineProviderType(actualModel, this.openAIAPIHost, isAzure)
     return {
       actualModel,
@@ -189,32 +180,6 @@ export class MQTTXAgent {
         apiKey: this.decryptAPIKey(),
         providerType,
       }),
-    }
-  }
-
-  /**
-   * Process the AI model to extract model information
-   *
-   * @param model The AI model identifier
-   * @returns Object containing the actual model name and provider-specific flags
-   */
-  private processModel(model: AIModel): {
-    actualModel: AIModel
-    isAzure: boolean
-  } {
-    let actualModel = model
-
-    // Check if this is an Azure deployment
-    const isAzure = actualModel.includes('deployment-')
-
-    // Remove the deployment prefix for Azure models
-    if (isAzure) {
-      actualModel = actualModel.replace('deployment-', '') as AIModel
-    }
-
-    return {
-      actualModel,
-      isAzure,
     }
   }
 
@@ -330,7 +295,9 @@ export class MQTTXAgent {
       const appContext = renderAppContext(buildAppContext(this.deps))
       const agent = this.createAgent(`${instructions}\n\n${appContext}`, tools)
       const { fullStream } = await agent.stream({
-        messages: this.buildMessageHistory(messages),
+        // Mentions of a connection are the message's own `connection` parts; the text is sent as typed.
+        // A compaction marker becomes the summary in front of the messages it does not cover.
+        messages: toHistoryMessages(messages),
         abortSignal: this.abortController.signal,
       })
 
