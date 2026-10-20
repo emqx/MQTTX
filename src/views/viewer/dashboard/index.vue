@@ -289,12 +289,12 @@ export default class Dashboards extends Vue {
     this.clearPersistedDashboardId()
   }
 
-  private async selectDashboard(dashboard: DashboardModel, options: { persist?: boolean } = {}): Promise<void> {
+  private async selectDashboard(dashboard: DashboardModel): Promise<void> {
     if (this.isSelectingDashboard) return
     this.isSelectingDashboard = true
 
     try {
-      this.setSelectedDashboard(dashboard, options.persist)
+      this.setSelectedDashboard(dashboard)
       await this.loadCurrentDashboardWidgets()
     } finally {
       this.isSelectingDashboard = false

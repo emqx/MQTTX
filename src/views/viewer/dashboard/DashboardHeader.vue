@@ -40,7 +40,7 @@
             <!-- With the list open, its selected row already names the dashboard -->
             <template v-if="!showDashboardsList">
               <el-select
-                v-model="localSelectedDashboardId"
+                :value="selectedDashboardId"
                 size="mini"
                 :placeholder="$t('viewer.dashboard')"
                 @change="$emit('dashboard-selected', $event)"
@@ -65,7 +65,7 @@
             </template>
             <TimeRangeSelect
               v-if="selectedDashboard"
-              v-model="localTimeRangeModel"
+              :value="timeRangeModel"
               size="mini"
               compact
               @range-relative="$emit('time-range-select', $event)"
@@ -111,22 +111,6 @@ export default class DashboardHeader extends Vue {
 
   private editingInTopbar = false
   private editDashboard: Partial<DashboardModel> = { name: '', description: '' }
-
-  get localSelectedDashboardId(): string | null {
-    return this.selectedDashboardId
-  }
-
-  set localSelectedDashboardId(value: string | null) {
-    this.$emit('update:selectedDashboardId', value)
-  }
-
-  get localTimeRangeModel(): [string, string] {
-    return this.timeRangeModel
-  }
-
-  set localTimeRangeModel(value: [string, string]) {
-    this.$emit('update:timeRangeModel', value)
-  }
 
   get leftValue(): string {
     return this.showDashboardsList ? `${this.listOffset}px` : '0px'

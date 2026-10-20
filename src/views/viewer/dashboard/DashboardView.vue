@@ -90,7 +90,6 @@ import { Subscription } from 'rxjs'
 
 interface WidgetDataEntry {
   data: BigNumberData | GaugeData | LineData
-  lastUpdate: number
 }
 
 interface TimeRangeConfig {
@@ -146,29 +145,23 @@ export default class DashboardCanvas extends Vue {
   }
 
   @Watch('timeRange')
-  async onTimeRangeChanged(newRange: [string, string]) {
-    if (newRange[0] && newRange[1]) {
-      this.isLoadingHistoricalData = true
-      await this.loadHistoricalData()
-      this.isLoadingHistoricalData = false
+  async onTimeRangeChanged() {
+    if (this.timeRange[0] && this.timeRange[1]) {
+      await this.reloadHistory()
     }
   }
 
   @Watch('timeRangeType')
-  async onTimeRangeTypeChanged(newType: 'live' | 'static') {
+  async onTimeRangeTypeChanged() {
     if (this.timeRange[0] && this.timeRange[1]) {
-      this.isLoadingHistoricalData = true
-      await this.loadHistoricalData()
-      this.isLoadingHistoricalData = false
+      await this.reloadHistory()
     }
   }
 
   @Watch('duration')
-  async onDurationChanged(newDuration: number) {
+  async onDurationChanged() {
     if (this.timeRangeType === 'live' && this.timeRange[0] && this.timeRange[1]) {
-      this.isLoadingHistoricalData = true
-      await this.loadHistoricalData()
-      this.isLoadingHistoricalData = false
+      await this.reloadHistory()
     }
   }
 
@@ -181,34 +174,33 @@ export default class DashboardCanvas extends Vue {
   }
 
   private async initializeComponent(): Promise<void> {
-    this.isLoadingHistoricalData = true
-
     this.initializeMessageQueue()
     this.subscribeToGlobalEvents()
-    await this.loadHistoricalData()
+    await this.reloadHistory()
+  }
 
-    this.isLoadingHistoricalData = false
+  /**
+   * Reloads the series for the current range while live packets are ignored
+   * (`handlePacketReceive` checks the flag).
+   */
+  private async reloadHistory(): Promise<void> {
+    this.isLoadingHistoricalData = true
+    try {
+      await this.loadHistoricalData()
+    } finally {
+      this.isLoadingHistoricalData = false
+    }
   }
 
   private initializeMessageQueue(): void {
     this.messageQueue = new MessageQueue<TimeSeriesDataPoint & { widgetId: string }>(1000)
-    this.subscribeToMessageQueue()
+    this.subscription = this.messageQueue.getMessageObservable().subscribe(async (dataPoints) => {
+      await this.processBatchedDataPoints(dataPoints)
+    }) as Subscription
   }
 
   private subscribeToGlobalEvents(): void {
     globalEventBus.on('packetReceive', this.handlePacketReceive)
-  }
-
-  private subscribeToMessageQueue(): void {
-    this.subscription = this.messageQueue
-      ?.getMessageObservable()
-      .subscribe(async (dataPoints: (TimeSeriesDataPoint & { widgetId: string })[]) => {
-        await this.processBatchedDataPoints(dataPoints)
-      }) as Subscription | null
-  }
-
-  private clearAllWidgetData(): void {
-    this.widgetDataStore = {}
   }
 
   private async loadHistoricalData(): Promise<void> {
@@ -216,7 +208,7 @@ export default class DashboardCanvas extends Vue {
       return
     }
 
-    this.clearAllWidgetData()
+    this.widgetDataStore = {}
 
     try {
       const { messageService } = useServices()
@@ -283,7 +275,6 @@ export default class DashboardCanvas extends Vue {
   private async processHistoricalMessages(widget: WidgetModel, messages: MessageModel[]): Promise<WidgetDataEntry> {
     const entry: WidgetDataEntry = {
       data: this.createInitialWidgetData(widget.type),
-      lastUpdate: Date.now(),
     }
 
     for (const message of messages) {
@@ -391,7 +382,7 @@ export default class DashboardCanvas extends Vue {
         widgetId: String(widget.id),
       }
     } catch (error) {
-      this.handleSchemaError(String(widget.id), error as Error)
+      this.handleError(error as Error, `Schema processing for widget ${widget.id}`)
       return null
     }
   }
@@ -413,7 +404,6 @@ export default class DashboardCanvas extends Vue {
 
       const entry = this.getOrCreateWidgetEntry(widget)
       points.forEach((point) => this.applyDataPoint(widget, entry.data, point, true))
-      entry.lastUpdate = Date.now()
 
       // One store update per widget per batch instead of one per point.
       this.$set(this.widgetDataStore, widgetId, { ...entry })
@@ -425,7 +415,6 @@ export default class DashboardCanvas extends Vue {
     if (!this.widgetDataStore[widgetId]) {
       this.$set(this.widgetDataStore, widgetId, {
         data: this.createInitialWidgetData(widget.type),
-        lastUpdate: Date.now(),
       })
     }
     return this.widgetDataStore[widgetId]
@@ -522,11 +511,6 @@ export default class DashboardCanvas extends Vue {
 
   private handleError(error: Error, context: string): void {
     this.$log?.error(`DashboardCanvas ${context}: ${error.message}`)
-    this.$emit('error', { context, error: error.message })
-  }
-
-  private handleSchemaError(widgetId: string, error: Error): void {
-    this.handleError(error, `Schema processing for widget ${widgetId}`)
   }
 
   private cleanup(): void {

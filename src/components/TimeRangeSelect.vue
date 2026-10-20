@@ -24,6 +24,15 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 
+// Live window duration (in minutes, as passed by the dashboard) → label key.
+const LIVE_RANGE_LABELS: Record<number, string> = {
+  5: 'common.last5Minutes',
+  30: 'common.last30Minutes',
+  60: 'common.lastHour',
+  1440: 'common.lastDay',
+  10080: 'common.lastWeek',
+}
+
 @Component
 export default class TimeRangeSelect extends Vue {
   @Prop({ required: true }) public value!: [string, string]
@@ -35,21 +44,10 @@ export default class TimeRangeSelect extends Vue {
   @Prop({ default: false }) public compact!: boolean
 
   private modelValue = this.value
-  private currentDuration: number | null = null
-  private isLiveMode = false
   // Set by a shortcut click so the resulting model change emits `range-relative`
   // (a normal pick or an external change must not).
   private isFromShortcut = false
   private shortcutDuration: number | null = null
-
-  // Shortcut durations in minutes mapped to the label shown while live.
-  private readonly liveLabels: Record<number, string> = {
-    5: 'common.last5Minutes',
-    30: 'common.last30Minutes',
-    60: 'common.lastHour',
-    1440: 'common.lastDay',
-    10080: 'common.lastWeek',
-  }
 
   /**
    * In live mode the picker would only show a rolling window's start and end
@@ -57,14 +55,14 @@ export default class TimeRangeSelect extends Vue {
    * allowing the picker to open on click (it stays underneath, transparent).
    */
   get liveLabel(): string {
-    if (!this.isLiveMode || !this.currentDuration) return ''
-    const minutes = Math.round(this.currentDuration / (60 * 1000))
-    const key = this.liveLabels[minutes]
+    if (this.timeRangeType !== 'live') return ''
+
+    const key = LIVE_RANGE_LABELS[this.duration]
     return key ? String(this.$t(key)) : ''
   }
 
   get showLiveLabel(): boolean {
-    return this.isLiveMode && !!this.liveLabel
+    return !!this.liveLabel
   }
 
   /** Display-only format; value-format is untouched. */
@@ -72,25 +70,9 @@ export default class TimeRangeSelect extends Vue {
     return this.compact ? 'MM-dd HH:mm' : undefined
   }
 
-  // Initialize with props
-  private mounted() {
-    this.isLiveMode = this.timeRangeType === 'live'
-    this.currentDuration = this.duration * 60 * 1000 // Convert minutes to milliseconds
-  }
-
   @Watch('value')
   private onValueChange(newVal: [string, string]) {
     this.modelValue = newVal
-  }
-
-  @Watch('timeRangeType')
-  private onTimeRangeTypeChange() {
-    this.isLiveMode = this.timeRangeType === 'live'
-  }
-
-  @Watch('duration')
-  private onDurationChange() {
-    this.currentDuration = this.duration * 60 * 1000 // Convert minutes to milliseconds
   }
 
   @Watch('modelValue')

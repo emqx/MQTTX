@@ -99,34 +99,21 @@ export default class DashboardsList extends Vue {
     }
   }
 
-  private selectDashboard(dashboard: DashboardModel) {
-    this.$emit('dashboard-selected', dashboard)
-  }
-
   private createDashboard() {
     this.$emit('create-dashboard')
   }
 
   /** Right-click on a row: open at the pointer, or close if already open. */
   private openMenuAt(row: DashboardModel, event: MouseEvent): void {
-    if (this.menuVisible) {
-      this.menuVisible = false
-      return
-    }
+    if (this.closeMenuIfOpen()) return
 
     const { x, y } = getContextmenuPosition(event, MENU_WIDTH, MENU_HEIGHT)
-    this.menuConfig.left = x
-    this.menuConfig.top = y
-    this.menuTargetId = row.id || null
-    this.menuVisible = true
+    this.placeMenu(row, x, y)
   }
 
   /** ⋯ button: right-aligned with the button, 4px under it (then clamped to the viewport). */
   private openMenuFromButton(row: DashboardModel, event: MouseEvent): void {
-    if (this.menuVisible) {
-      this.menuVisible = false
-      return
-    }
+    if (this.closeMenuIfOpen()) return
 
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
     const top = rect.bottom + 4
@@ -139,10 +126,7 @@ export default class DashboardsList extends Vue {
       MENU_WIDTH,
       MENU_HEIGHT,
     )
-    this.menuConfig.left = x
-    this.menuConfig.top = y
-    this.menuTargetId = targetId
-    this.menuVisible = true
+    this.placeMenu(row, x, y)
 
     // The card is content-sized (its width also changes with the language), so
     // align its measured right edge with the button's right edge.
@@ -161,6 +145,20 @@ export default class DashboardsList extends Vue {
       this.menuConfig.left = clamped.x
       this.menuConfig.top = clamped.y
     })
+  }
+
+  /** A second right-click / ⋯ click closes the open menu. */
+  private closeMenuIfOpen(): boolean {
+    if (!this.menuVisible) return false
+    this.menuVisible = false
+    return true
+  }
+
+  private placeMenu(row: DashboardModel, left: number, top: number): void {
+    this.menuConfig.left = left
+    this.menuConfig.top = top
+    this.menuTargetId = row.id || null
+    this.menuVisible = true
   }
 
   private get menuTarget(): DashboardModel | null {
@@ -207,7 +205,7 @@ export default class DashboardsList extends Vue {
 
   private handleNodeClick(data: DashboardModel) {
     if (this.selectedId === data.id) return
-    this.selectDashboard(data)
+    this.$emit('dashboard-selected', data)
   }
 
   private allowDrop(draggingNode: any, dropNode: any, type: 'prev' | 'inner' | 'next') {
@@ -245,17 +243,8 @@ export default class DashboardsList extends Vue {
   }
 
   @Watch('selectedId', { immediate: true })
-  private onSelectedIdChanged(val: string | null) {
-    this.$nextTick(() => {
-      const tree: any = this.$refs.tree
-      if (tree && val) {
-        tree.setCurrentKey(val)
-      }
-    })
-  }
-
   @Watch('dashboards')
-  private onDashboardsChanged() {
+  private syncCurrentKey() {
     this.$nextTick(() => {
       const tree: any = this.$refs.tree
       if (tree && this.selectedId) {

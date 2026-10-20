@@ -1,7 +1,7 @@
 <template>
   <div class="widget-renderer">
     <!-- @ts-ignore -->
-    <component :is="widgetComponent" v-bind="widgetProps" @error="onError" />
+    <component :is="widgetComponent" v-bind="widgetProps" />
     <div v-if="!widgetComponent" class="widget-error">
       <div class="error-message">{{ $t('viewer.unknownWidgetType') }}: {{ widget.type }}</div>
     </div>
@@ -81,11 +81,6 @@ export default class WidgetRenderer extends Vue {
     }
 
     return baseProps
-  }
-
-  private onError(error: Error) {
-    this.$log?.error?.(`Widget ${this.widget.id} error: ${error.toString()}`)
-    this.$emit('error', error)
   }
 }
 </script>

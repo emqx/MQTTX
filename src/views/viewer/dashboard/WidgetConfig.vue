@@ -184,6 +184,9 @@ import { widgetRegistry } from '@/widgets/widgetRegistry'
 import WidgetRenderer from '@/widgets/WidgetRenderer.vue'
 import useServices from '@/database/useServices'
 
+// Schema file extension per schema type (used to filter the schema picker).
+const SCHEMA_EXTENSIONS: Record<string, string> = { protobuf: 'proto', avro: 'avsc' }
+
 @Component({
   components: {
     ConnectionSelect,
@@ -200,14 +203,6 @@ export default class WidgetConfig extends Vue {
 
   // Schema management (following UseScript pattern)
   private availableSchemas: ScriptModel[] = []
-  private defaultSchemaTypes = {
-    protobuf: {
-      extension: 'proto',
-    },
-    avro: {
-      extension: 'avsc',
-    },
-  }
 
   private formModel: Partial<WidgetModel> = this.getBaseFormModel()
 
@@ -316,7 +311,7 @@ export default class WidgetConfig extends Vue {
 
   get previewWidget(): WidgetModel | null {
     if (!this.formModel.type) return null
-    const defaults = widgetRegistry.getDefaultOptions(this.formModel.type || 'Big Number')
+    const defaults = widgetRegistry.getDefaultOptions(this.formModel.type)
 
     const previewOptions = {
       ...defaults,
@@ -327,7 +322,7 @@ export default class WidgetConfig extends Vue {
     return {
       id: 'preview-widget',
       dashboardId: 'preview',
-      type: this.formModel.type || '',
+      type: this.formModel.type,
       title: this.formModel.title || 'Sample Widget',
       schemaType: this.formModel.schemaType,
       schemaId: this.formModel.schemaId || '',
@@ -430,12 +425,12 @@ export default class WidgetConfig extends Vue {
     const { scriptService } = useServices()
     const schemas: ScriptModel[] = (await scriptService.getAllSchema()) ?? []
 
-    if (!this.formModel.schemaType || !this.defaultSchemaTypes[this.formModel.schemaType]) {
+    const extension = this.formModel.schemaType ? SCHEMA_EXTENSIONS[this.formModel.schemaType] : undefined
+    if (!extension) {
       this.availableSchemas = []
       return
     }
 
-    const extension = this.defaultSchemaTypes[this.formModel.schemaType].extension
     this.availableSchemas = schemas.filter((s) => s.name.endsWith(extension))
   }
 
@@ -602,7 +597,7 @@ export default class WidgetConfig extends Vue {
 
         const payload: Partial<WidgetModel> = {
           ...this.formModel,
-          title: this.formModel.title || this.defaultTitle,
+          title: this.defaultTitle,
         }
 
         this.$emit('save', payload)
@@ -614,24 +609,16 @@ export default class WidgetConfig extends Vue {
   }
 
   private get optionsComponent() {
-    if (!this.formModel.type) {
-      return null
-    }
-    let component = null
     switch (this.formModel.type) {
       case 'Big Number':
-        component = BigNumberConfig
-        break
+        return BigNumberConfig
       case 'Gauge':
-        component = GaugeConfig
-        break
+        return GaugeConfig
       case 'Line':
-        component = LineConfig
-        break
+        return LineConfig
       default:
-        component = null
+        return null
     }
-    return component
   }
 }
 </script>
