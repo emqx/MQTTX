@@ -1,6 +1,6 @@
 # Back up and restore connection groups
 
-In **Settings > Data**, choose **Data Backup**, select **JSON**, and save the file. JSON backups preserve connection groups, nested and empty groups, ordering, and each connection's group. **Data Recovery** imports the file. Connections remain disconnected after recovery.
+In **Settings > Advanced**, choose **Data Backup**, select **JSON**, and save the file. JSON backups preserve connection groups, nested and empty groups, ordering, and each connection's group. **Data Recovery** imports the file. Connections remain disconnected after recovery.
 
 A single-connection JSON export includes that connection and its ancestor groups. YAML, XML, CSV, and Excel keep their existing connection or message export formats; use JSON to preserve groups.
 

@@ -26,6 +26,8 @@
 
 ![mqttx-edit-topic](/images/mqttx-edit-topic.png)
 
+断开连接时也可以删除或禁用订阅，如果开启了 Clean Session（MQTT 3.x）或 Clean Start（MQTT 5.0），操作会立即生效。如果使用的是持久会话（MQTT 3.x 关闭 Clean Session，或 MQTT 5.0 关闭 Clean Start 且 Session Expiry Interval 大于 0），MQTTX 会提示 Broker 仍然保留着该订阅，并阻止这次操作。新增和编辑订阅仍然需要先连接。
+
 ## 消息发送与接收
 
 `Topic` 订阅成功后，就可以来测试消息的收发了。在页面右下角填入刚才所订阅的 `Topic` 信息，可选择 [QoS](https://www.emqx.com/zh/blog/introduction-to-mqtt-qos) 和 `Retain` 的值，输入 `payload` 后，点击最右侧的发送按钮，就向刚才订阅的 `Topic` 发送了一条消息。发送成功后，您也可以立即接收到刚才所发送的消息。注意，消息框内，右侧是发送的消息，左侧是接收到的消息。对于 macOS 用户，您可以使用 `command + enter` 快捷键，其它用户可以使用 `control + enter` 快捷键来快速发送消息。
@@ -39,5 +41,7 @@
 如需使用更高级的编解码功能，可以跳转到 `脚本` 页面，选择 `编解码` 标签，支持 `Protobuf` 和 `Avro` 两种编解码协议。
 
 在发布区域，可以使用箭头按钮切换之前发布过的 Payload。如需复制某条消息的 Payload 或主题，在消息列表中右键点击该消息即可。
+
+每个连接都单独保存自己的发布区（`Topic`、`QoS`、`Retain`、`Payload` 和 Payload 格式）和发布历史，切换连接时不再互相串用。从未保存过发布区的连接，打开时会显示该连接最近发送的一条消息。旧版本中所有连接共享的发布历史，在升级时会复制给每个连接。在 Topic 历史下拉列表中，每条记录右侧都有删除图标，可以单独删除这条记录。
 
 至此，您就完成了一条 `MQTT` 消息的测试。

@@ -24,6 +24,8 @@ Subscribed Topics support **Edit/Disable/Enable** functions, right click on the 
 
 ![mqttx-edit-topic](/images/mqttx-edit-topic.png)
 
+Subscriptions can also be deleted or disabled while the connection is disconnected, and the change takes effect immediately when Clean Session (MQTT 3.x) or Clean Start (MQTT 5.0) is enabled. If the connection uses a persistent session — Clean Session turned off in MQTT 3.x, or Clean Start turned off with a Session Expiry Interval greater than 0 in MQTT 5.0 — MQTTX explains that the broker still keeps the subscription and blocks the change. Adding or editing a subscription still requires a connection.
+
 ## Publish and Receiving Messages
 
 After the `Topic` is successfully subscribed, you can test the sending and receiving of messages. Fill in the `Topic` information you just subscribed to in the lower right corner of the page. You can select the values of [QoS](https://www.emqx.com/en/blog/introduction-to-mqtt-qos), `Retain`, input `payload`, and click the send button on the far right to send a message to the `Topic` you just subscribed. After sending successfully, you can immediately receive the message just sent. Note that in the message box, the right column is the sent message, and the left column is the received message. macOS users can use the `command + enter` shortcut to quickly send messages, and other users can use the `control + enter` shortcut to do that.
@@ -37,5 +39,7 @@ Messages can be quickly converted between `Base64`, `Hex`, `JSON`, `Plaintext`, 
 For advanced encoding/decoding, including `Protobuf` and `Avro`, use the `Schema` tab on the `Script` page.
 
 Use the arrow buttons in the publish area to step through previously published payloads. To copy a message's payload or topic, right-click the message in the list.
+
+Each connection keeps its own publish area and publish history, so switching connections no longer carries the `Topic`, `QoS`, `Retain`, `Payload` or payload format over to another one. A connection that has never saved a publish area opens with its most recent sent message. Publish histories that older versions shared between all connections are copied to every connection during the upgrade. In the topic history drop-down, the delete icon at the right of an entry removes that entry only.
 
 So far, the testing of an `MQTT` message is completed.

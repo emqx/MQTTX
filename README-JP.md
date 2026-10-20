@@ -11,7 +11,7 @@
 
 ---
 
-[MQTTX](https://mqttx.app/) は、[EMQ](https://www.emqx.com/en) が提供するオープンソースの [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) クライアントです。macOS、Linux、Windows 向けの[デスクトップ版](https://mqttx.app/docs)、スクリプトやベンチマーク向けの[コマンドラインツール](https://mqttx.app/docs/cli)、ブラウザで使える [Web クライアント](https://mqttx.app/web-client)を提供しています。チャットアプリのようなインターフェイスで複数の接続を同時に扱え、TCP、TLS、WebSocket 上でのパブリッシュ、サブスクライブなどの MQTT 機能をすばやくテストできます。
+[MQTTX](https://mqttx.app/) は、[EMQ](https://www.emqx.com/en) が提供するオープンソースの [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) クライアントです。macOS、Linux、Windows 向けの[デスクトップ版](https://mqttx.app/docs)、スクリプトやベンチマーク向けの[コマンドラインツール](https://mqttx.app/docs/cli)、ブラウザで使える [Web クライアント](https://mqttx.app/web-client)を提供しています。チャットアプリのようなインターフェイスで複数の接続を同時に扱え、TCP、TLS、WebSocket 上でのパブリッシュ、サブスクライブなどの MQTT 機能をすばやくテストできます。デスクトップ版には、自然言語で MQTTX を操作する AI エージェント「MQTTX Agent」も組み込まれています。
 
 > [MQTT](https://www.emqx.com/ja/blog/the-easiest-guide-to-getting-started-with-mqtt)（Message Queuing Telemetry Transport）は、パブリッシュ/サブスクライブ型の軽量なメッセージングプロトコルです。制約のあるデバイスや、低帯域幅、高遅延、または不安定なネットワークでの利用を想定して設計されています。
 
@@ -19,14 +19,25 @@
 
 デスクトップ版の主な機能：
 
+- **MQTTX Agent**：自然言語で MQTTX を操作し、接続の作成、サブスクライブ、パブリッシュ、メッセージの読み取り、問題の診断、クライアントコードの生成ができます。スキル（Skills）、MCP、操作の承認、複数のモデルプロバイダーに対応しています。
 - **プロトコル**：MQTT 3.1、3.1.1、5.0 に対応し、TCP、TLS、WebSocket、セキュア WebSocket で接続できます。
-- **MQTT 5.0**：接続・パブリッシュ・サブスクライブのユーザープロパティ、SCRAM 拡張認証。
-- **ペイロード**：Plaintext、JSON、Base64、Hex、CBOR、MsgPack に対応し、Protobuf と Avro のスキーマも利用できます。
+- **MQTT 5.0**：接続・パブリッシュ・サブスクライブのユーザープロパティ、SCRAM 拡張認証、接続ページでの CONNACK レスポンス情報の表示。
+- **ペイロード**：Plaintext、JSON、Base64、Hex、CBOR、MsgPack に対応し、Protobuf と Avro のスキーマも利用できます。受信メッセージの GZIP 自動解凍にも対応しています。
 - **自動化**：スクリプトによる送信時・受信時のペイロード変換と、定期的なメッセージ送信。
-- **ビューア**：トピックツリー、トラフィックモニター、JSON ツリーとメッセージ差分を備えたペイロードインスペクター。
-- **ワークフロー**：メッセージ検索、パブリッシュトピック履歴、接続グループ。
-- **データ**：接続を JSON、CSV、Excel、XML、YAML 形式でインポート・エクスポート。
+- **ビューア**：トピックツリー、ダッシュボード、トラフィックモニター、JSON ツリーとメッセージ差分を備えたペイロードインスペクター。
+- **ワークフロー**：メッセージ検索、接続ごとに独立したパブリッシュエリアと履歴、接続グループ。
+- **データ**：接続を JSON、CSV、Excel、XML、YAML 形式でインポート・エクスポートできます。JSON バックアップは接続グループを保持します。
 - **カスタマイズ**：ライト・ダーク・ナイトのテーマ。English、简体中文、日本語、Türkçe、Magyar、한국어 に対応。
+
+## MQTTX Agent
+
+MQTTX Agent はデスクトップ版に組み込まれた AI アシスタントです。**設定 → MQTTX Agent** で有効にし、プロバイダーの API ホスト、API キー、モデルを入力したうえで、左側のバーから全画面で開くか、`Cmd/Ctrl + J` でフローティングウィンドウとして開きます。
+
+- ツールを通じて MQTTX を操作します。接続の作成と接続、サブスクライブとパブリッシュ、メッセージの読み取り、トピックツリーやダッシュボードの構築、設定した MCP サーバーの呼び出し、クライアントコードやテストデータ、スキーマの生成ができます。
+- **操作の前に確認**（デフォルト）は変更の前に承認を求め、**自動**は確認なしで実行します。
+- 会話とツールの実行結果は設定したモデルプロバイダーに送信されるため、チャットに秘密情報を入力しないでください。
+
+セットアップ、スキル、MCP、権限、制限の詳細は [MQTTX Agent](./docs/desktop/en/use-desktop/agent.md) を参照してください。
 
 ## 機能プレビュー
 
@@ -78,7 +89,7 @@ docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 
 詳しくは [MQTTX Web README](./web/README.md) を参照してください。
 
-## AI エージェント対応
+## AI エージェントで MQTTX CLI を使う
 
 ### MQTTX CLI のインストール・更新
 

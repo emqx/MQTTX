@@ -1,6 +1,6 @@
 # MQTTX Manual
 
-> This manual covers MQTTX Desktop v1.13.1. For the latest documentation, see [mqttx.app/docs](https://mqttx.app/docs).
+> This manual covers MQTTX Desktop v1.13.2. For the latest documentation, see [mqttx.app/docs](https://mqttx.app/docs).
 
 ## Table of Contents
 
@@ -23,13 +23,17 @@ Check the [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX
 - Runs on Windows, macOS, and Linux
 - Fully compliant with MQTT 5.0, 3.1.1, and 3.1
 - MQTT 5.0 user properties on connect, publish, and subscribe, plus SCRAM enhanced authentication
+- CONNACK Response Information on the connection page
 - CA-signed and self-signed certificates, with one-way and two-way SSL/TLS authentication
 - MQTT over WebSockets
+- MQTTX Agent that operates MQTTX in natural language, with Skills, MCP, action approval, and multiple model providers
 - Payload formats: Plaintext, JSON, Base64, Hex, CBOR, and MsgPack, with Protobuf and Avro schemas
+- Automatic GZIP decompression of received messages
 - Custom scripts and timed messages for MQTT pub/sub simulation
-- Viewer tools: Topic Tree, Traffic Monitor, and Payload Inspector
+- Viewer tools: Topic Tree, Dashboard, Traffic Monitor, and Payload Inspector
+- A publish area and publish history per connection
 - Customizable colors for subscriptions
-- Data backup and recovery in JSON, CSV, Excel, XML, and YAML
+- Data backup and recovery in JSON, CSV, Excel, XML, and YAML, with JSON keeping connection groups
 - Light, Dark, and Night themes
 - Available in English, Simplified Chinese, Japanese, Turkish, Hungarian, and Korean
 
@@ -104,6 +108,8 @@ sudo snap install mqttx
 
 When MQTT Broker is ready, click `+` in the left menu bar to enter the main program page. If there is no data on the page, you can also directly click the `new connection` button on the right to configure a new client connection quickly.
 
+While the connection list is empty, the page also offers three quick-start cards: `New Connection` opens the connection form (or press `Cmd/Ctrl + N`), `Try public broker` creates a connection named `broker.emqx.io` to `broker.emqx.io:1883` and connects it immediately, and `Import Data` opens the import dialog for JSON, YAML, CSV, XML, or Excel files and reloads the app once the import succeeds.
+
 ![mqttx-create](../assets/mqttx-create.png)
 
 ### Client related information
@@ -176,6 +182,8 @@ After the configuration is complete, click the `Connect` button in the upper rig
 
    Subscribed Topics support **Edit/Disable/Enable**, right click on the subscribed Topic list item, in the context menu we can quickly choose to edit, disable or enable the operation. When subscribing to too many Topics, sometimes not all the Topic messages you want to receive, in order to avoid subscribing to the same Topic again, the disable function is provided, if you want to receive messages from the Topic again, just enable it again.
 
+   Subscriptions can also be deleted or disabled while the connection is disconnected, and the change takes effect immediately when Clean Session (MQTT 3.x) or Clean Start (MQTT 5.0) is enabled. If the connection uses a persistent session — Clean Session turned off in MQTT 3.x, or Clean Start turned off with a Session Expiry Interval greater than 0 in MQTT 5.0 — MQTTX explains that the broker still keeps the subscription and blocks the change. Adding or editing a subscription still requires a connection.
+
 ![mqttx-edit-topic](../assets/mqttx-edit-topic.png)
 
 3. Sending and receiving of messages
@@ -185,6 +193,8 @@ After the configuration is complete, click the `Connect` button in the upper rig
    Through the `payload` option in the message bar, the messages can quickly be converted between `Base64`, `Hex`, `JSON`, `Plaintext`, `CBOR`, and `MsgPack`. For `Protobuf` and `Avro`, use the `Schema` tab on the `Script` page.
 
    Use the arrow buttons in the publish area to step through previously published payloads. To copy a message's payload or topic, right-click the message in the list.
+
+   Each connection keeps its own publish area (`Topic`, `QoS`, `Retain`, `Payload`, and payload format) and its own publish history, so switching connections no longer mixes them. A connection that has never saved a publish area opens with its most recent sent message. Publish histories that older versions shared between all connections are copied to every connection during the upgrade. In the topic history drop-down, the delete icon at the right of an entry removes that entry only.
 
 ![mqttx-message](../assets/mqttx-message.png)
 
@@ -207,6 +217,8 @@ So far, the test of an `MQTT` message is completed.
 2. Request Response
 
     Click the Meta button, enter a Response Topic: /ack/1 in the input box, enter a comparison data: light, and subscribe to a /ack/1 in the currently connected client.
+
+    MQTTX can also show the response information that the broker returns. In the advanced settings of an MQTT 5.0 connection, turn on `Request Response Info`. When the broker returns Response Information in CONNACK, the connection information area at the top of the connection page shows `Response Info` (the Response Information value) with a copy button, and it stays visible while the connection settings are collapsed. If the value is too long, click it to view the full content. Nothing is shown for MQTT 3.x connections or after the connection is disconnected.
 
 ![mqttx-response-topic](../assets/mqttx-response-topic.png)
 
@@ -233,9 +245,14 @@ Click the settings button at the bottom of the left menu bar, or use the shortcu
 - **General**: language, auto check update, auto resubscribe, multi topics subscribe, max reconnect times, and max payload display size.
 - **Appearance**: sync with OS theme, theme (Light, Dark, or Night), and JSON highlighting.
 - **Extensions**: one-click installation of MQTTX CLI.
-- **Advanced**: log level, data recovery and backup, clear history data, ignore QoS 0 messages, topic whitespace detection, and GPU acceleration.
+- **Advanced**: log level, data recovery and backup, clear history data, ignore QoS 0 messages, GZIP message decompression, topic whitespace detection, and GPU acceleration.
+- **MQTTX Agent**: enable the agent, configure the model provider, reasoning strength, default permission mode, maximum steps per reply, and MCP servers. See [MQTTX Agent](./desktop/en/use-desktop/agent.md).
 
 ![mqttx-theme](../assets/mqttx-theme.png)
+
+**GZIP message decompression**
+
+The `Decompress GZIP messages` switch in the Advanced section decompresses received GZIP messages and is off by default. A received message that starts with the gzip magic number `1f 8b` is decompressed first, then decoded with the selected payload format or Schema; messages that are not gzipped are left unchanged. A message that cannot be decompressed is marked with an error and keeps its original content. Decompressed messages show a `GZIP` badge next to their QoS value (hover it to see `Automatically decompressed from GZIP`), and the badge is stored with the message, so history messages keep it after you turn the switch off or restart MQTTX.
 
 #### Data management
 
@@ -243,7 +260,19 @@ The advanced settings include data backup and recovery functions. Users can choo
 
 On the settings page, you can click the data backup and recovery buttons in the advanced functions at the bottom. When selecting data backup, all connection data will be exported, including all received and sent messages. When selecting data recovery, after choosing the path of the imported file, the data can be recovered after confirmation. The file format supports `JSON`, `XML`, `CSV`, `Excel`, and `YAML`.
 
+Backing up to `JSON` also keeps connection groups: nested and empty groups, their order, and the group each connection belongs to, and a single-connection JSON export includes its parent groups. The other formats keep their existing connection or message layout without groups. Older connection-only backups can still be imported and are placed at the root level, importing an existing ID updates that entity, and a file with conflicting IDs, missing group references, or a cyclic group hierarchy is rolled back as a whole.
+
 ![mqttx-advance](../assets/mqttx-advance.png)
+
+### MQTTX Agent
+
+MQTTX Agent is an AI assistant built into the desktop app. You describe what you need in plain language and it operates MQTTX through tools: it creates and connects connections, subscribes and publishes, reads messages, builds the Topic Tree and dashboards, writes scripts and schemas, calls your MCP servers, and changes app settings.
+
+To turn it on, open **Settings → MQTTX Agent**, enable **Enable MQTTX Agent**, and fill in the **API Host**, **API Key**, and **Model** of your provider. Open the agent full screen with the star button in the left bar, or as a floating window with `Cmd/Ctrl + J` or the **MQTTX Agent** button at the top right of a connection or script page.
+
+The default **Ask before actions** mode lets reads run automatically and asks for approval before creating, connecting, subscribing, publishing, deleting, or calling MCP tools. **Auto** runs every action without asking; change the default in **Settings → MQTTX Agent → Default permission mode**.
+
+Your conversations and tool results are sent to the model provider you configure, so avoid entering secrets in the chat. See [MQTTX Agent](./desktop/en/use-desktop/agent.md) for setup, attachments, Skills, MCP, conversation history, and limitations.
 
 ### Script
 
@@ -284,7 +313,8 @@ Every time MQTTX is closed, the current log file is renamed with a UTC timestamp
 
 The Viewer in the left menu bar provides MQTT data visualization:
 
-- **Topic Tree** (Beta): shows received topics and messages as a hierarchy, with search, a graphical view, and syncing of historical messages from a connection.
+- **Topic Tree** (Beta): shows received topics and messages as a hierarchy, with search, a graphical view, and syncing of historical messages from a connection. The divider between the tree and the details panel can be dragged to resize the panel between 20% and 60% of the width, and the width is remembered. The Sub-Topics area lists only the direct children of the selected node, and its title shows the number of sub-topics and the number of levels below them, for example `Sub-Topics (55 · 2 levels)`. Up to 100 sub-topics are listed, followed by `... and N more`, Expand All asks for confirmation when the tree has more than 1,000 nodes, and large topic trees no longer slow the page down.
+- **Dashboard**: builds a view of the values you care about from live messages. The dashboard list sits on the left and can be resized between 160 and 400 pixels, and `Add Widget` places Big Number, Line, or Gauge widgets that read a connection, a topic pattern, and a value field from the payload. Widgets can be dragged and resized on a 12-column grid, and opening a dashboard loads the latest 1,000 data points in the selected time range before updating live.
 - **Traffic Monitor**: charts the broker's sent and received traffic from the `$SYS` system topics. Opening it from the connection page subscribes to `$SYS/#` automatically.
 
     > By default, EMQX only allows clients on localhost to subscribe to `$SYS` topics. To access them remotely, adjust the broker's ACL rules.
@@ -305,7 +335,7 @@ You can filter out all messages, received messages, and published messages throu
 
 Click the action bar button at the top, select the `Search`  item, or use the shortcut key. macOS users can use the command + f shortcut, and Other users can use the control + f shortcut to open the `Topic` search function. The fuzzy query of topics and payload is supported.
 
-Click on the action bar button at the top and select the `Clear History` item. You can quickly clear the messages sent and received by the current connection.
+Click the `Clear History` button in the toolbar at the top of the connection page. A confirmation dialog names the connection, and the messages are cleared only after you confirm.
 
 ![mqttx-search](../assets/mqttx-search.png)
 

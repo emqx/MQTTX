@@ -2,8 +2,6 @@
 
 MQTTX Agent is an assistant built into the MQTTX desktop client. You ask for something in plain language and it operates MQTTX for you through tools: it creates and connects connections, subscribes and publishes, reads messages, and calls your MCP tools. Every action runs through the same MQTTX code paths as a manual action, so the connection list, subscription list and message list update in real time.
 
-![MQTTX Agent panel](/images/mqttx-agent.png)
-
 ## Enable and configure
 
 1. Open **Settings → MQTTX Agent** and turn on **Enable MQTTX Agent**.
