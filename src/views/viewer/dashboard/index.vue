@@ -202,8 +202,10 @@ export default class Dashboards extends Vue {
   }
 
   /** The agent changed a dashboard or widget: reload the list and the current dashboard */
-  private onAgentDataChanged({ domain }: AgentDataChangedPayload) {
-    if (domain === 'dashboards') this.refreshData('all')
+  private async onAgentDataChanged({ domain }: AgentDataChangedPayload) {
+    if (domain !== 'dashboards') return
+    await this.refreshDashboards()
+    await this.loadCurrentDashboardWidgets()
   }
 
   private async initializeComponent(): Promise<void> {

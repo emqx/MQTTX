@@ -131,6 +131,20 @@ export default class DashboardService {
   }
 
   /**
+   * Gets every dashboard with its widgets in one query, ordered like the dashboard list
+   * (by orderId, unordered last, then by creation time). Used by the Agent's list_dashboards tool.
+   */
+  public async cascadeGetAll(): Promise<DashboardModel[]> {
+    const entities = await this.dashboardRepository
+      .createQueryBuilder('db')
+      .leftJoinAndSelect('db.widgets', 'wg')
+      .orderBy('COALESCE(db.orderId, 999999)', 'ASC')
+      .addOrderBy('db.createAt', 'ASC')
+      .getMany()
+    return entities.map((e) => DashboardService.entityToModel(e))
+  }
+
+  /**
    * Batch updates the orderId of multiple dashboards for reordering.
    * @param dashboardOrderUpdates - Array of objects containing id and new orderId for each dashboard.
    * @returns True if successful, false if an error occurred.
