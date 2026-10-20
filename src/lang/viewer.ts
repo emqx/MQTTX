@@ -139,6 +139,9 @@ export default {
     zh: '选择主题以查看详情',
     en: 'Select a topic to view details',
     tr: 'Detayları görüntülemek için bir konu seçin',
+    ja: '詳細を表示するには、トピックを選択してください',
+    hu: 'Válasszon ki egy témát a részletek megtekintéséhez',
+    ko: '상세 정보를 보려면 토픽을 선택해 주세요',
   },
   clearTopicTree: {
     zh: '清除主题树',
