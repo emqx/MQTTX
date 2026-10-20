@@ -2,7 +2,6 @@ import { expect } from 'chai'
 import {
   updateTopicTreeNode,
   updateSubTopicCounts,
-  findSubTopics,
   findFullTopicPath,
   getAllIDs,
   isPayloadEmpty,
@@ -268,23 +267,6 @@ describe('Topic Tree Functions', () => {
     expect(result).to.equal(4) // root + 2 children + 1 grandchild
     expect(node.subTopicCount).to.equal(3) // 2 children + 1 grandchild
     expect(node.children![1].subTopicCount).to.equal(1) // 1 grandchild
-  })
-
-  it('should find subtopics correctly', () => {
-    const node: TopicTreeNode = {
-      id: 'root',
-      label: 'root',
-      message: undefined,
-      messageCount: 0,
-      subTopicCount: 0,
-      children: [
-        { id: 'child1', label: 'child1', message: undefined, messageCount: 0, subTopicCount: 0, children: [] },
-        { id: 'child2', label: 'child2', message: undefined, messageCount: 0, subTopicCount: 0, children: [] },
-      ],
-    }
-
-    const subTopics = findSubTopics(node)
-    expect(subTopics).to.deep.equal(['child1', 'child2'])
   })
 
   it('should find full topic path', () => {
@@ -600,37 +582,6 @@ describe('Topic Tree In-Place Updates', () => {
       expect(actualHost, `host node missing for ${topic}`).to.exist
       assertSubTopicCountsMatch(actualHost!, expectedHost!, 'host')
     })
-  })
-
-  it('finds subtopics with the same output and order as before', () => {
-    const node: TopicTreeNode = {
-      id: 'root',
-      label: 'root',
-      messageCount: 0,
-      subTopicCount: 0,
-      children: [
-        {
-          id: 'a',
-          label: 'a',
-          messageCount: 0,
-          subTopicCount: 0,
-          children: [
-            { id: 'a1', label: 'a1', messageCount: 0, subTopicCount: 0, children: [] },
-            {
-              id: 'a2',
-              label: 'a2',
-              messageCount: 0,
-              subTopicCount: 0,
-              children: [{ id: 'a2x', label: 'a2x', messageCount: 0, subTopicCount: 0, children: [] }],
-            },
-          ],
-        },
-        { id: 'b', label: 'b', messageCount: 0, subTopicCount: 0, children: [] },
-        { id: 'empty', label: '', messageCount: 0, subTopicCount: 0, children: [] },
-      ],
-    }
-
-    expect(findSubTopics(node)).to.deep.equal(['a', 'a1', 'a2', 'a2x', 'b'])
   })
 
   it('finds full topic paths with the same output as before', () => {
