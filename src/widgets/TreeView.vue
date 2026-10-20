@@ -138,16 +138,32 @@
 import { Component, Vue, Watch, Prop } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import { Tree } from 'element-ui'
+import { ComponentOptions, CreateElement, VNode, VueConstructor } from 'vue'
 import { getAllIDs, isPayloadEmpty } from '@/utils/topicTree'
 import MyDialog from '@/components/MyDialog.vue'
 import TreeVisual from '@/components/charts/TreeVisual.vue'
 
 const MAX_EXPAND_ALL_NODES = 1000
 
+// el-tree's per-node collapse animation forces a layout per node; bulk toggles took tens of seconds.
+const ElTreeNode = (Tree as unknown as ComponentOptions<Vue>).components!.ElTreeNode as unknown as VueConstructor
+const ElTreeNodeWithoutAnimation = Vue.extend({
+  extends: ElTreeNode,
+  name: 'ElTreeNode',
+  components: {
+    ElCollapseTransition: {
+      functional: true,
+      render: (h: CreateElement, { children }: { children: VNode[] }) => children,
+    },
+  },
+})
+const ElTree = Vue.extend({ extends: Tree, components: { ElTreeNode: ElTreeNodeWithoutAnimation } })
+
 @Component({
   components: {
     MyDialog,
     TreeVisual,
+    ElTree,
   },
 })
 export default class TreeView extends Vue {
@@ -260,17 +276,8 @@ export default class TreeView extends Vue {
   }
 
   private handleNodeCollapse(data: TopicTreeNode) {
-    this.removeExpandedKeysRecursively(data)
-  }
-
-  private removeExpandedKeysRecursively(node: TopicTreeNode) {
-    const index = this.expandedKeys.indexOf(node.id)
-    if (index > -1) {
-      this.expandedKeys.splice(index, 1)
-    }
-    if (node.children && node.children.length > 0) {
-      node.children.forEach((child) => this.removeExpandedKeysRecursively(child))
-    }
+    const collapsed = new Set(getAllIDs([data]))
+    this.expandedKeys = this.expandedKeys.filter((id) => !collapsed.has(id))
   }
 
   private expandAll() {
