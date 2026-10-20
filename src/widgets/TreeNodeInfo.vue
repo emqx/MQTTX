@@ -30,7 +30,10 @@
     </div>
     <!-- Sub topics section -->
     <div v-if="node.subTopicCount > 0">
-      <div>{{ $t('connections.subTopics') }} ({{ node.subTopicCount }})</div>
+      <div>
+        {{ $t('connections.subTopics') }} ({{ node.subTopicCount }} ·
+        {{ $tc('viewer.levelCount', subTopicLevels, { count: subTopicLevels }) }})
+      </div>
       <div class="mt-2">
         <el-tag
           v-for="child in visibleSubTopics"
@@ -41,7 +44,6 @@
           disable-transitions
         >
           {{ child.label }}
-          <span v-if="child.subTopicCount > 0" class="sub-topic-count">{{ child.subTopicCount }}</span>
         </el-tag>
         <div v-if="hiddenSubTopicsCount > 0" class="more-sub-topics">
           {{ $tc('viewer.moreSubTopics', hiddenSubTopicsCount, { count: hiddenSubTopicsCount }) }}
@@ -140,6 +142,20 @@ export default class TreeNodeInfo extends Vue {
     return Math.max(this.subTopics.length - MAX_SUB_TOPICS, 0)
   }
 
+  get subTopicLevels(): number {
+    let levels = 0
+    const walk = (nodes: TopicTreeNode[], depth: number) => {
+      for (const child of nodes) {
+        if (depth > levels) levels = depth
+        if (child.children && child.children.length > 0) {
+          walk(child.children, depth + 1)
+        }
+      }
+    }
+    walk(this.subTopics, 1)
+    return levels
+  }
+
   get connectionInfoItems() {
     if (!this.node.connectionInfo) return []
     const { name, clientId } = this.node.connectionInfo
@@ -205,10 +221,6 @@ body.night {
     word-break: normal;
   }
   .more-sub-topics {
-    color: var(--color-text-light);
-  }
-  .sub-topic-count {
-    margin-left: 6px;
     color: var(--color-text-light);
   }
   .no-payload-alert {
