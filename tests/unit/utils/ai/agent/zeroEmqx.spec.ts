@@ -42,6 +42,15 @@ const captureFetch = (
   }
 }
 
+const provisionError = async (fetchImpl: ZeroEmqxFetch): Promise<Error> => {
+  try {
+    await provisionZeroEmqx(fetchImpl)
+  } catch (caught) {
+    return caught as Error
+  }
+  throw new Error('provisionZeroEmqx should have thrown')
+}
+
 describe('provisionZeroEmqx', () => {
   it('should request one tagged instance and parse a fixed_ttl broker', async () => {
     const { fetchImpl, calls } = captureFetch(fakeResponse({ status: 201, body: instanceBody() }))
@@ -79,74 +88,49 @@ describe('provisionZeroEmqx', () => {
     const body = { error: 'bad_request', message: 'tag must be DNS friendly' }
     const { fetchImpl } = captureFetch(fakeResponse({ status: 400, body, statusText: 'Bad Request' }))
 
-    let error: Error | undefined
-    try {
-      await provisionZeroEmqx(fetchImpl)
-    } catch (caught) {
-      error = caught as Error
-    }
+    const error = await provisionError(fetchImpl)
 
-    expect(error?.message).to.contain('400')
-    expect(error?.message).to.contain('bad_request')
-    expect(error?.message).to.contain('tag must be DNS friendly')
-    expect(error?.message).to.not.contain('rate limiting')
+    expect(error.message).to.contain('400')
+    expect(error.message).to.contain('bad_request')
+    expect(error.message).to.contain('tag must be DNS friendly')
+    expect(error.message).to.not.contain('rate limiting')
   })
 
   it('should tell the model to wait when the network is rate limited', async () => {
     const body = { error: 'too_many_requests', message: 'slow down' }
     const { fetchImpl } = captureFetch(fakeResponse({ status: 429, body, statusText: 'Too Many Requests' }))
 
-    let error: Error | undefined
-    try {
-      await provisionZeroEmqx(fetchImpl)
-    } catch (caught) {
-      error = caught as Error
-    }
+    const error = await provisionError(fetchImpl)
 
-    expect(error?.message).to.contain('429')
-    expect(error?.message).to.contain('slow down')
-    expect(error?.message).to.contain('rate limiting this network')
-    expect(error?.message).to.contain('wait a minute')
+    expect(error.message).to.contain('429')
+    expect(error.message).to.contain('slow down')
+    expect(error.message).to.contain('rate limiting this network')
+    expect(error.message).to.contain('wait a minute')
   })
 
   it('should reject a response that misses the credentials', async () => {
     const body = instanceBody({ credentials: { username: 'u' } })
     const { fetchImpl } = captureFetch(fakeResponse({ status: 201, body }))
 
-    let error: Error | undefined
-    try {
-      await provisionZeroEmqx(fetchImpl)
-    } catch (caught) {
-      error = caught as Error
-    }
+    const error = await provisionError(fetchImpl)
 
-    expect(error?.message).to.contain('"password"')
+    expect(error.message).to.contain('"password"')
   })
 
   it('should reject a response with an unusable mqtts port', async () => {
     const body = instanceBody({ mqtts: { host: 'mqtt.example.com', port: '8883' } })
     const { fetchImpl } = captureFetch(fakeResponse({ status: 201, body }))
 
-    let error: Error | undefined
-    try {
-      await provisionZeroEmqx(fetchImpl)
-    } catch (caught) {
-      error = caught as Error
-    }
+    const error = await provisionError(fetchImpl)
 
-    expect(error?.message).to.contain('mqtts.port')
+    expect(error.message).to.contain('mqtts.port')
   })
 
   it('should reject a body that is not JSON', async () => {
     const { fetchImpl } = captureFetch(fakeResponse({ status: 201, invalidJson: true }))
 
-    let error: Error | undefined
-    try {
-      await provisionZeroEmqx(fetchImpl)
-    } catch (caught) {
-      error = caught as Error
-    }
+    const error = await provisionError(fetchImpl)
 
-    expect(error?.message).to.contain('not valid JSON')
+    expect(error.message).to.contain('not valid JSON')
   })
 })

@@ -6,7 +6,7 @@
     <h2>{{ $t('agent.welcomeTitle') }}</h2>
     <p>{{ $t('agent.welcomeIntro') }}</p>
     <div class="suggestions">
-      <button v-for="s in suggestions" :key="s.key" class="suggestion" @click="$emit('suggest', message(s))">
+      <button v-for="s in suggestions" :key="s.skill" class="suggestion" @click="$emit('suggest', message(s))">
         <i class="s-ico" :class="skillIcons[s.skill]"></i>
         <span
           >{{ $t(s.titleKey) }}<small>{{ hint(s) }}</small></span
@@ -23,7 +23,6 @@ import type { OutgoingMessage } from '@/utils/ai/agent/attachments'
 import { AgentSkillName, SKILL_ICONS } from '@/utils/ai/agent/skills'
 
 interface Suggestion {
-  key: string
   titleKey: string
   prompt: string
   /** Sent with the Skill attached, as if picked from the `/` menu */
@@ -37,25 +36,21 @@ export default class AgentWelcome extends Vue {
 
   private suggestions: Suggestion[] = [
     {
-      key: 'zeroEmqx',
       titleKey: 'agent.suggestions.zeroEmqx',
       prompt: 'Create a free Zero EMQX Cloud broker, connect to it and subscribe to demo/#',
       skill: 'zero_emqx',
     },
     {
-      key: 'cli',
       titleKey: 'agent.suggestions.cli',
       prompt: 'Give me the MQTTX CLI command to subscribe with my current connection',
       skill: 'mqttx_cli',
     },
     {
-      key: 'diagnose',
       titleKey: 'agent.suggestions.diagnose',
       prompt: 'Find out why my connection fails to connect',
       skill: 'mqttx_diagnostics',
     },
     {
-      key: 'clientCode',
       titleKey: 'agent.suggestions.clientCode',
       prompt: 'Write Python client code for my current connection',
       skill: 'client_code',
