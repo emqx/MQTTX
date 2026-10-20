@@ -1099,10 +1099,7 @@ export default class AgentPanel extends Vue {
     this.connections = (await connectionService.getAll()) ?? []
   }
 
-  /**
-   * Refreshes the connection list for the `@` menu and for the names shown in history.
-   * Called when the menu opens and when the panel is created already open; failures only warn.
-   */
+  /** Refreshes the `@` menu and history names; failures only warn, never throw */
   private refreshConnectionsQuietly(): void {
     this.refreshConnections().catch((error) => this.$log.warn(`[Agent] Failed to refresh connections: ${error}`))
   }
