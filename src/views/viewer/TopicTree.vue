@@ -33,6 +33,7 @@ import useServices from '@/database/useServices'
 import { Subscription } from 'rxjs'
 import SyncTopicTreeDialog from '@/widgets/SyncTopicTreeDialog.vue'
 import { ignoreQoS0Message } from '@/utils/mqttUtils'
+import { trackDrag } from '@/utils/trackDrag'
 
 const MIN_INFO_PANE_RATIO = 0.2
 const MAX_INFO_PANE_RATIO = 0.6
@@ -62,6 +63,7 @@ export default class TopicTree extends Vue {
 
   private infoPaneRatio = 1 / 3
   private isResizing = false
+  private stopResizing: (() => void) | null = null
 
   private handleNodeClick(data: TopicTreeNode) {
     this.selectedNode = data
@@ -69,29 +71,25 @@ export default class TopicTree extends Vue {
 
   private handleResizeStart(event: MouseEvent) {
     event.preventDefault()
-    this.isResizing = true
-    document.body.classList.add('select-none')
-    window.addEventListener('mousemove', this.handleResizeMove)
-    window.addEventListener('mouseup', this.handleResizeEnd)
-  }
-
-  private handleResizeMove(event: MouseEvent) {
     const panes = this.$refs.panes as HTMLElement | undefined
     if (!panes) return
-    const rect = panes.getBoundingClientRect()
-    this.infoPaneRatio = clampRatio((rect.right - event.clientX) / rect.width)
-  }
-
-  private handleResizeEnd() {
-    this.stopResize()
-    localStorage.setItem(INFO_PANE_RATIO_STORAGE_KEY, this.infoPaneRatio.toString())
+    const { right, width } = panes.getBoundingClientRect()
+    const startX = event.clientX
+    this.isResizing = true
+    this.stopResizing = trackDrag(
+      event,
+      (dx) => (this.infoPaneRatio = clampRatio((right - startX - dx) / width)),
+      () => {
+        this.isResizing = false
+        localStorage.setItem(INFO_PANE_RATIO_STORAGE_KEY, this.infoPaneRatio.toString())
+      },
+    )
   }
 
   private stopResize() {
     this.isResizing = false
-    document.body.classList.remove('select-none')
-    window.removeEventListener('mousemove', this.handleResizeMove)
-    window.removeEventListener('mouseup', this.handleResizeEnd)
+    this.stopResizing?.()
+    this.stopResizing = null
   }
 
   private handlePacketReceive(packet: Packet, connectionInfo: ConnectionModel) {
@@ -231,7 +229,7 @@ export default class TopicTree extends Vue {
   }
   .topic-info-card,
   .topic-tree-card {
-    height: calc(100vh - 130px);
+    height: var(--view-content-height);
     overflow-y: auto;
     margin-bottom: 12px;
     // el-card's 0.3s transition makes resizing lag behind the cursor.

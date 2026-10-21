@@ -58,12 +58,7 @@
         </el-tooltip>
       </div>
     </div>
-    <div
-      class="editor-container script-editor"
-      :style="{
-        height: '320px',
-      }"
-    >
+    <div class="editor-container script-editor">
       <Editor
         v-if="activeTab === functionTab"
         ref="functionEditor"
@@ -107,12 +102,7 @@
         <el-button class="test-btn" type="outline" size="mini" @click="handleTest">{{ $t('script.test') }}</el-button>
       </el-col>
     </el-row>
-    <div
-      class="editor-container script-editor script-test-input"
-      :style="{
-        height: '160px',
-      }"
-    >
+    <div class="editor-container script-editor script-test-input">
       <Editor
         v-if="activeTab === functionTab"
         :key="3"
@@ -617,6 +607,8 @@ message Person {
 .script-view {
   position: relative;
   padding: 0 16px;
+  display: flex;
+  flex-direction: column;
   .titlebar {
     .el-badge__content {
       height: 20px;
@@ -683,6 +675,8 @@ message Person {
     }
   }
   .script-editor {
+    flex: 2 1 0;
+    min-height: 320px;
     background: var(--color-bg-normal);
     border: 1px solid var(--color-border-default);
     padding: 10px 1px 1px 1px;
@@ -703,7 +697,9 @@ message Person {
       border: 1px solid var(--color-border-default);
     }
   }
-  .script-test-input {
+  .script-editor.script-test-input {
+    flex: 1 1 0;
+    min-height: 160px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
   }

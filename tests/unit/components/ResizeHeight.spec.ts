@@ -16,62 +16,51 @@ describe('ResizeHeight.vue', () => {
 
   afterEach(() => {
     wrapper.destroy()
+    document.body.classList.remove('select-none')
   })
+
+  const startDrag = (clientY = 100) => {
+    const vm = wrapper.vm as any
+    vm.handleMousedown({ clientX: 0, clientY } as MouseEvent)
+  }
+
+  const moveTo = (clientY: number) => {
+    document.dispatchEvent(new MouseEvent('mousemove', { clientY }))
+  }
 
   it('renders correctly', () => {
     expect(wrapper.find('.resize-height').exists()).to.be.true
   })
 
-  it('emits change event on mousedown and mousemove', async () => {
-    const vm = wrapper.vm as any
-
-    // Call handleMousedown directly
-    vm.handleMousedown({ y: 100 } as MouseEvent)
-
-    // Simulate mousemove
-    const mousemoveEvent = { y: 150 } as MouseEvent
-    document.onmousemove!(mousemoveEvent)
+  it('emits change on mousemove, measured from the drag start', async () => {
+    startDrag(100)
+    moveTo(150)
 
     await Vue.nextTick()
 
-    expect(wrapper.emitted('change')).to.exist
-    const emittedValue = wrapper.emitted('change')![0][0]
-    expect(typeof emittedValue).to.equal('number')
-    expect(emittedValue).to.equal(50)
+    const emitted = wrapper.emitted('change')
+    expect(emitted).to.exist
+    expect(emitted![0][0]).to.equal(50)
   })
 
-  it('adds select-none class to body on mousemove', async () => {
-    const vm = wrapper.vm as any
-    vm.handleMousedown({ y: 100 } as MouseEvent)
-
-    const mousemoveEvent = { y: 150 } as MouseEvent
-    document.onmousemove!(mousemoveEvent)
-
-    await Vue.nextTick()
-
+  it('adds select-none on mousedown and removes it on mouseup', async () => {
+    startDrag(100)
     expect(document.body.classList.contains('select-none')).to.be.true
-  })
 
-  it('removes select-none class from body on mouseup', async () => {
-    document.body.classList.add('select-none')
-
-    const mouseupEvent = new MouseEvent('mouseup')
-    document.dispatchEvent(mouseupEvent)
+    document.dispatchEvent(new MouseEvent('mouseup'))
 
     await Vue.nextTick()
 
     expect(document.body.classList.contains('select-none')).to.be.false
   })
 
-  it('removes mousemove event listener on mouseup', async () => {
-    const vm = wrapper.vm as any
-    vm.handleMousedown({ y: 100 } as MouseEvent)
-
-    const mouseupEvent = new MouseEvent('mouseup')
-    document.dispatchEvent(mouseupEvent)
+  it('stops following the mouse after mouseup', async () => {
+    startDrag(100)
+    document.dispatchEvent(new MouseEvent('mouseup'))
+    moveTo(150)
 
     await Vue.nextTick()
 
-    expect(document.onmousemove).to.be.null
+    expect(wrapper.emitted('change')).to.be.undefined
   })
 })

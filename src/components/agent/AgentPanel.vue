@@ -179,6 +179,7 @@ import {
   FloatRect,
   ResizeEdge,
 } from '@/utils/ai/agent/floatRect'
+import { trackDrag } from '@/utils/trackDrag'
 
 type Conversation = { id: string; title: string; updateAt: string }
 
@@ -214,6 +215,7 @@ export default class AgentPanel extends Vue {
   private historyCollapsed = false
   // Dragging the edge resizes immediately; only the toggle animates the width
   private historyResizing = false
+  private stopDragging: (() => void) | null = null
   // window.innerWidth is not reactive, so the full page width follows this copy
   private windowWidth = window.innerWidth
   private conversations: Conversation[] = []
@@ -457,25 +459,14 @@ export default class AgentPanel extends Vue {
     localStorage.setItem('agentHistoryCollapsed', String(this.historyCollapsed))
   }
 
-  /** Runs `onMove` for every mouse move until the button is released, then calls `onEnd` */
-  private trackMouse(onMove: (event: MouseEvent) => void, onEnd: () => void) {
-    const up = () => {
-      onEnd()
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseup', up)
-    }
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup', up)
-  }
-
   /** Dragging the history edge resizes it; dragging it nearly shut hides it, dragging back reopens it */
   private startHistoryResize(event: MouseEvent) {
-    const startX = event.clientX
     const startWidth = this.historyWidth
     this.historyResizing = true
-    this.trackMouse(
-      (move) => {
-        const width = startWidth + move.clientX - startX
+    this.stopDragging = trackDrag(
+      event,
+      (dx) => {
+        const width = startWidth + dx
         this.historyCollapsed = width < 120
         if (!this.historyCollapsed) this.historyWidth = Math.min(360, Math.max(180, width))
       },
@@ -529,13 +520,12 @@ export default class AgentPanel extends Vue {
     if (this.mode !== 'float') return
     if ((event.target as HTMLElement).closest('button, input, textarea, a, .el-dropdown')) return
     event.preventDefault()
-    const startX = event.clientX
-    const startY = event.clientY
     const start = { ...this.floatRect }
     this.dragging = true
-    this.trackMouse(
-      (move) => {
-        this.floatRect = moveFloatRect(start, move.clientX - startX, move.clientY - startY, this.getViewport())
+    this.stopDragging = trackDrag(
+      event,
+      (dx, dy) => {
+        this.floatRect = moveFloatRect(start, dx, dy, this.getViewport())
       },
       () => {
         this.dragging = false
@@ -545,13 +535,12 @@ export default class AgentPanel extends Vue {
   }
 
   private startFloatResize(edge: ResizeEdge, event: MouseEvent) {
-    const startX = event.clientX
-    const startY = event.clientY
     const start = { ...this.floatRect }
     this.dragging = true
-    this.trackMouse(
-      (move) => {
-        this.floatRect = resizeFloatRect(start, edge, move.clientX - startX, move.clientY - startY, this.getViewport())
+    this.stopDragging = trackDrag(
+      event,
+      (dx, dy) => {
+        this.floatRect = resizeFloatRect(start, edge, dx, dy, this.getViewport())
       },
       () => {
         this.dragging = false
@@ -1224,6 +1213,7 @@ export default class AgentPanel extends Vue {
   beforeDestroy() {
     document.removeEventListener('keydown', this.onGlobalKeydown)
     window.removeEventListener('resize', this.onWindowResize)
+    this.stopDragging?.()
   }
 }
 </script>

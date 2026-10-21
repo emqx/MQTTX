@@ -139,6 +139,16 @@ textarea {
   -webkit-app-region: drag;
 }
 
+/* 59 titlebar + 57 tabs + 12 bottom gap + 2 card borders */
+:root {
+  --view-content-height: calc(100vh - 130px);
+}
+
+/* Same toolbar height in every Viewer tab, so content starts at the same y */
+.viewer-toolbar {
+  min-height: 48px;
+}
+
 body.light {
   @import './theme/custom/prism-one-light.scss';
 }

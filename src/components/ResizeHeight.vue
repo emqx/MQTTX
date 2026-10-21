@@ -4,34 +4,21 @@
 
 <script lang="ts">
 import { Component, Vue, Model } from 'vue-property-decorator'
+import { trackDrag } from '@/utils/trackDrag'
 
 @Component
 export default class ResizeHeight extends Vue {
   @Model('change', { type: Number }) private readonly value!: number
 
+  private stopResizing: (() => void) | null = null
+
   private handleMousedown(event: MouseEvent) {
-    let yValue: number = event.y
-    document.onmousemove = (moveEvent: MouseEvent) => {
-      const yMove: number = moveEvent.y
-      const offset: number = yMove - yValue
-      yValue = moveEvent.y
-      this.$emit('change', this.value - offset)
-      const bodyTag: HTMLBodyElement | null = document.querySelector('body')
-      if (!bodyTag) {
-        return
-      }
-      bodyTag.classList.add('select-none')
-    }
+    const startValue = this.value
+    this.stopResizing = trackDrag(event, (dx, dy) => this.$emit('change', startValue - dy))
   }
-  private created() {
-    document.onmouseup = () => {
-      document.onmousemove = null
-      const bodyTag: HTMLBodyElement | null = document.querySelector('body')
-      if (!bodyTag) {
-        return
-      }
-      bodyTag.classList.remove('select-none')
-    }
+
+  private beforeDestroy() {
+    this.stopResizing?.()
   }
 }
 </script>

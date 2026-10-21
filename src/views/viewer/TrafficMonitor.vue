@@ -1,6 +1,6 @@
 <template>
   <div class="traffic-monitor-view">
-    <div class="traffic-monitor-header mb-3">
+    <div class="traffic-monitor-header viewer-toolbar">
       <div>
         <connection-select v-model="selectedConnectionId" size="small" @change="handleConnectionChange" />
         <span class="traffic-monitor-about ml-3">
