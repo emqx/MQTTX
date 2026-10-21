@@ -2,20 +2,22 @@
 
 MQTTX Agent 是内置于 MQTTX 桌面客户端的助手。你用自然语言提出需求，它会通过工具来操作 MQTTX：创建并连接连接、订阅与发布、读取消息，以及调用你的 MCP 工具。每个操作都走 MQTTX 现有的代码路径，和手动操作一致，因此连接列表、订阅列表和消息列表会实时更新。
 
+![MQTTX Agent 面板](/images/mqttx-agent.png)
+
 ## 开启与配置
 
 1. 打开 **设置 → MQTTX Agent**，打开 **启用 MQTTX Agent**。
 2. 填写你的服务商的 **API Host**、**API Key** 和 **模型**。常用地址：
 
-| 服务商 | API Host |
-| --- | --- |
-| OpenAI | `https://api.openai.com/v1` |
-| DeepSeek | `https://api.deepseek.com/v1` |
-| Anthropic | `https://api.anthropic.com/v1` |
-| xAI | `https://api.x.ai/v1` |
-| Google | `https://generativelanguage.googleapis.com/v1beta` |
-| SiliconFlow | `https://api.siliconflow.cn/v1` |
-| Azure OpenAI | `https://<resourceName>.openai.azure.com` |
+| 服务商       | API Host                                           |
+| ------------ | -------------------------------------------------- |
+| OpenAI       | `https://api.openai.com/v1`                        |
+| DeepSeek     | `https://api.deepseek.com/v1`                      |
+| Anthropic    | `https://api.anthropic.com/v1`                     |
+| xAI          | `https://api.x.ai/v1`                              |
+| Google       | `https://generativelanguage.googleapis.com/v1beta` |
+| SiliconFlow  | `https://api.siliconflow.cn/v1`                    |
+| Azure OpenAI | `https://<resourceName>.openai.azure.com`          |
 
 3. 通过左侧导航栏的星形按钮以全屏打开 Agent，或通过 `Cmd/Ctrl + J`、连接页或脚本页的 **MQTTX Agent** 按钮打开浮窗。
 

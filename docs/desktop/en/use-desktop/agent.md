@@ -2,20 +2,22 @@
 
 MQTTX Agent is an assistant built into the MQTTX desktop client. You ask for something in plain language and it operates MQTTX for you through tools: it creates and connects connections, subscribes and publishes, reads messages, and calls your MCP tools. Every action runs through the same MQTTX code paths as a manual action, so the connection list, subscription list and message list update in real time.
 
+![MQTTX Agent panel](/images/mqttx-agent.png)
+
 ## Enable and configure
 
 1. Open **Settings → MQTTX Agent** and turn on **Enable MQTTX Agent**.
 2. Fill in the **API Host**, **API Key** and **Model** of your provider. Common hosts:
 
-| Provider | API Host |
-| --- | --- |
-| OpenAI | `https://api.openai.com/v1` |
-| DeepSeek | `https://api.deepseek.com/v1` |
-| Anthropic | `https://api.anthropic.com/v1` |
-| xAI | `https://api.x.ai/v1` |
-| Google | `https://generativelanguage.googleapis.com/v1beta` |
-| SiliconFlow | `https://api.siliconflow.cn/v1` |
-| Azure OpenAI | `https://<resourceName>.openai.azure.com` |
+| Provider     | API Host                                           |
+| ------------ | -------------------------------------------------- |
+| OpenAI       | `https://api.openai.com/v1`                        |
+| DeepSeek     | `https://api.deepseek.com/v1`                      |
+| Anthropic    | `https://api.anthropic.com/v1`                     |
+| xAI          | `https://api.x.ai/v1`                              |
+| Google       | `https://generativelanguage.googleapis.com/v1beta` |
+| SiliconFlow  | `https://api.siliconflow.cn/v1`                    |
+| Azure OpenAI | `https://<resourceName>.openai.azure.com`          |
 
 3. Open the Agent full screen with the star button in the left bar, or as a floating window with `Cmd/Ctrl + J` or the **MQTTX Agent** button at the top right of a connection or script page.
 
