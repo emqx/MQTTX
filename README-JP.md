@@ -11,7 +11,11 @@
 
 ---
 
-[MQTTX](https://mqttx.app/) は、[EMQ](https://www.emqx.com/en) が提供するオープンソースの [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) クライアントツールセットです。[MQTTX Desktop](https://mqttx.app/docs) は GUI でのデバッグ、[MQTTX CLI](https://mqttx.app/docs/cli) はスクリプトとベンチマーク、[MQTTX Web](https://mqttx.app/web-client) はブラウザーでのテストに利用できます。
+[MQTTX](https://mqttx.app/) は、[EMQ](https://www.emqx.com/en) が提供する、IoT アプリケーションの開発、テスト、トラブルシューティング向けのオープンソースのクロスプラットフォーム [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) クライアントツールセットです。デスクトップ、コマンドライン、Web の 3 種類のクライアントを通じて MQTT ブローカーへの接続とメッセージの送受信を確認でき、対話的なデバッグ、自動テスト、性能テストに利用できます。
+
+[MQTTX Desktop](https://mqttx.app/docs) は macOS、Windows、Linux に対応し、チャット形式のインターフェースで複数の接続とサブスクリプションを管理しながら、送受信したメッセージを確認できます。メッセージのエンコード・デコード、スクリプト、データの可視化に加え、自然言語で接続の作成、メッセージの送受信、問題の調査を行う MQTTX Agent を内蔵しています。
+
+[MQTTX CLI](https://mqttx.app/docs/cli) はターミナルで MQTT を操作するためのツールで、シェルスクリプトや CI ワークフローでの自動テスト、ベンチマーク、IoT データのシミュレーションに利用できます。[MQTTX Web](https://mqttx.app/web-client) はブラウザーで使えるチャット形式のデバッグインターフェースで、デスクトップアプリをインストールせずに WebSocket 経由で MQTT メッセージの送受信をテストできます。Docker を使って独自の環境にデプロイすることもできます。
 
 > [MQTT](https://www.emqx.com/ja/blog/the-easiest-guide-to-getting-started-with-mqtt)（Message Queuing Telemetry Transport）は、パブリッシュ/サブスクライブ型の軽量なメッセージングプロトコルです。制約のあるデバイスや、低帯域幅、高遅延、または不安定なネットワークでの利用を想定して設計されています。
 

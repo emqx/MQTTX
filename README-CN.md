@@ -11,7 +11,11 @@
 
 ---
 
-[MQTTX](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的 [MQTT 5.0](https://www.emqx.com/zh/blog/introduction-to-mqtt-5) 客户端工具集，包含用于图形化调试的 [MQTTX Desktop](https://mqttx.app/zh/docs)、用于脚本和压测的 [MQTTX CLI](https://mqttx.app/zh/docs/cli)，以及在浏览器中使用的 [MQTTX Web](https://mqttx.app/web-client)。
+[MQTTX](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的跨平台 [MQTT 5.0](https://www.emqx.com/zh/blog/introduction-to-mqtt-5) 客户端工具集，面向物联网应用的开发、测试和故障排查。它提供桌面、命令行和 Web 三种客户端，帮助开发者连接 MQTT Broker、验证消息收发，并在日常调试、自动化测试和性能测试中使用 MQTT。
+
+[MQTTX Desktop](https://mqttx.app/zh/docs) 支持 macOS、Windows 和 Linux，采用聊天式界面，让你同时管理多个连接和订阅，直观查看发送与接收的消息。桌面版还提供消息编解码、脚本和数据可视化工具，并内置 MQTTX Agent，可以通过自然语言创建连接、收发消息和分析问题。
+
+[MQTTX CLI](https://mqttx.app/zh/docs/cli) 将 MQTT 操作带到终端，可配合 Shell 脚本和 CI 流程完成自动化测试、压测和物联网数据模拟。[MQTTX Web](https://mqttx.app/web-client) 则提供浏览器中的聊天式调试界面，无需安装桌面应用，即可通过 WebSocket 测试 MQTT 消息收发，也可以使用 Docker 部署到自己的环境中。
 
 > [MQTT](https://www.emqx.com/zh/blog/the-easiest-guide-to-getting-started-with-mqtt)（Message Queuing Telemetry Transport，消息队列遥测传输）是一种基于发布/订阅模式的轻量级消息协议，专为受限设备以及低带宽、高延迟或不可靠的网络而设计。
 
