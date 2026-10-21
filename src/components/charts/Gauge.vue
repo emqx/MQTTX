@@ -193,15 +193,14 @@ export default class GaugeChart extends Vue {
     const weight = Math.max(valueText.length + unitChars, 1)
     const boxFontPx = Math.min(this.maxValueFontPx, Math.max(this.minValueFontPx, Math.min(height * 0.2, width * 0.16)))
 
-    // Band width (also used for the axis line and the progress bar below). The
-    // ring is `radius: '75%'` of the short side, and the band is drawn inward
-    // from it as a sector (`r0 = r - width`), so the free opening's diameter is
+    // Band width, shared by the axis line and the progress bar below. The ring
+    // is `radius: '75%'` of the short side, and the band is drawn inward from it
+    // as a sector (`r0 = r - width`), so the free opening's diameter is
     // 2 * (0.375 * size - band). The value keeps 22% of that as clearance, which
     // leaves the text off the band and off the round caps that close the
     // 200deg...-20deg arc at the lower left and right.
-    const axisWidth = Math.max(16, size / 12) // was 24, scales with size
-    const progressWidth = Math.max(16, size / 12) // was 24
-    const innerDiameter = 2 * (0.375 * size - progressWidth)
+    const bandWidth = Math.max(16, size / 12) // was 24, scales with size
+    const innerDiameter = 2 * (0.375 * size - bandWidth)
 
     const detailFontSize = Math.round(
       Math.max(this.minReadableFontPx, Math.min(boxFontPx, (innerDiameter * 0.78) / weight / this.charWidthRatio)),
@@ -252,7 +251,7 @@ export default class GaugeChart extends Vue {
           },
           progress: {
             show: true,
-            width: progressWidth,
+            width: bandWidth,
             roundCap: true,
             itemStyle: {
               // Use displayColor
@@ -262,7 +261,7 @@ export default class GaugeChart extends Vue {
           pointer: { show: false },
           axisLine: {
             lineStyle: {
-              width: axisWidth,
+              width: bandWidth,
               color: [[1, colors.splitLine]],
               cap: 'round',
             },

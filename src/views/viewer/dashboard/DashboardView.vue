@@ -45,7 +45,7 @@
               </div>
               <span
                 class="widget-menu-trigger"
-                :class="{ 'menu-open': isMenuOpenFor(widget) }"
+                :class="{ 'menu-open': menuVisible && menuTargetId === widget.id }"
                 title="Options"
                 @click.stop="openMenuFromButton(widget, $event)"
               >
@@ -602,23 +602,14 @@ export default class DashboardCanvas extends Vue {
 
   /** ⋯ button: the shared Contextmenu right-aligns itself on the button, 4px under it. */
   private openMenuFromButton(widget: WidgetModel, event: MouseEvent): void {
-    if (this.closeMenuIfOpen()) return
+    if (this.menuVisible) {
+      this.menuVisible = false
+      return
+    }
 
     this.menuAnchor = (event.currentTarget as HTMLElement).getBoundingClientRect()
     this.menuTargetId = widget.id || null
     this.menuVisible = true
-  }
-
-  /** A second ⋯ click closes the open menu. */
-  private closeMenuIfOpen(): boolean {
-    if (!this.menuVisible) return false
-    this.menuVisible = false
-    return true
-  }
-
-  /** Keeps the ⋯ button visible while its menu is open (the pointer leaves the card). */
-  private isMenuOpenFor(widget: WidgetModel): boolean {
-    return this.menuVisible && !!widget.id && this.menuTargetId === widget.id
   }
 
   /** Resolved per action, so a widget that went away meanwhile is not acted on. */
