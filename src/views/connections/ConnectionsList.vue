@@ -73,7 +73,7 @@
             <div
               v-else-if="!data.isCollection"
               class="connection-item"
-              :class="{ 'menu-open': isConnectionMenuOpen(data), 'is-new-window': isNewWindow }"
+              :class="{ 'menu-open': isConnectionMenuOpen(data) }"
               @click="handleSelectConnection(data)"
               @contextmenu.prevent="handleContextMenu(data, $event)"
             >
@@ -581,7 +581,7 @@ export default class ConnectionsList extends Vue {
   }
 
   private openConnectionMenuFromButton(row: ConnectionModel, event: MouseEvent) {
-    if (this.showContextmenu && this.selectedConnection?.id === row.id) {
+    if (this.isConnectionMenuOpen(row)) {
       this.showContextmenu = false
       return
     }
@@ -592,7 +592,7 @@ export default class ConnectionsList extends Vue {
   }
 
   private openCollectionMenuFromButton(row: CollectionModel, event: MouseEvent) {
-    if (this.showCollectionsContextmenu && this.selectedCollection?.id === row.id) {
+    if (this.isCollectionMenuOpen(row)) {
       this.showCollectionsContextmenu = false
       return
     }
@@ -1034,8 +1034,8 @@ export default class ConnectionsList extends Vue {
               text-align: center;
               box-shadow: -8px 0 12px 4px var(--color-bg-item);
             }
-            // Markers give way to the ⋯, except in the single-connection window (no row menu).
-            &:not(.is-new-window) {
+            // Markers give way to the ⋯; the single-connection window renders no trigger.
+            &:has(.row-action-trigger) {
               &:hover,
               &:focus-within,
               &.menu-open {
