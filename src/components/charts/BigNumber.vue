@@ -21,6 +21,7 @@ import { TitleComponent, TooltipComponent, GridComponent } from 'echarts/compone
 import { LineChart as EChartsLineChart } from 'echarts/charts'
 import { UniversalTransition } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
+import { attachChartResize } from '@/utils/chartTheme'
 
 echarts.use([TitleComponent, TooltipComponent, GridComponent, EChartsLineChart, CanvasRenderer, UniversalTransition])
 
@@ -38,8 +39,7 @@ export default class BigNumberChart extends Vue {
   @Prop({ default: 'static' }) public timeRangeType!: 'live' | 'static'
 
   private myChart: echarts.ECharts | null = null
-  private resizeObserver: ResizeObserver | null = null
-  private resizeTimeout: number | null = null
+  private detachResize: (() => void) | null = null
 
   @Getter('currentTheme') private theme!: Theme
 
@@ -260,7 +260,7 @@ export default class BigNumberChart extends Vue {
         this.initChart()
       }
       this.updateSizes()
-      this.setupResizeObserver()
+      this.detachResize = attachChartResize(this.$refs.container as HTMLElement, this.handleResize)
     })
   }
 
@@ -289,34 +289,13 @@ export default class BigNumberChart extends Vue {
     }
   }
 
-  private setupResizeObserver(): void {
-    const container = this.$refs.container as HTMLElement
-    if (!container) return
-
-    // Use ResizeObserver if available
-    if (window.ResizeObserver) {
-      this.resizeObserver = new ResizeObserver(() => {
-        this.handleResize()
-      })
-      this.resizeObserver.observe(container)
-    } else {
-      // Fallback to window resize listener
-      window.addEventListener('resize', this.handleResize)
-    }
-  }
-
   private handleResize(): void {
-    if (this.resizeTimeout !== null) {
-      clearTimeout(this.resizeTimeout)
+    // The value font comes from the card box, so re-measure even without a sparkline.
+    this.updateSizes()
+    if (this.myChart) {
+      this.myChart.resize()
+      this.updateChart()
     }
-    this.resizeTimeout = window.setTimeout(() => {
-      // The value font depends on the size even before the sparkline exists
-      this.updateSizes()
-      if (this.myChart) {
-        this.myChart.resize()
-        this.updateChart()
-      }
-    }, 150)
   }
 
   private containerWidth = 0
@@ -413,17 +392,9 @@ export default class BigNumberChart extends Vue {
   }
 
   private cleanup(): void {
-    if (this.resizeTimeout) {
-      clearTimeout(this.resizeTimeout)
-      this.resizeTimeout = null
-    }
-
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect()
-      this.resizeObserver = null
-    } else {
-      // Remove window resize listener if it was added as fallback
-      window.removeEventListener('resize', this.handleResize)
+    if (this.detachResize) {
+      this.detachResize()
+      this.detachResize = null
     }
 
     if (this.myChart) {
