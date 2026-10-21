@@ -35,9 +35,11 @@
               <template v-else>
                 <span class="conv-time">{{ formatTime(conversation.updateAt) }}</span>
                 <button
-                  class="conv-actions more"
+                  class="conv-actions row-action-trigger"
                   type="button"
+                  :class="{ 'menu-open': menuVisible && menuTargetId === conversation.id }"
                   :aria-label="$t('agent.conversationMenu')"
+                  :title="$t('agent.conversationMenu')"
                   @click.stop="openMenuFromButton(conversation.id, $event)"
                 >
                   <i class="iconfont icon-more"></i>

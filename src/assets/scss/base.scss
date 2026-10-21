@@ -151,3 +151,32 @@ textarea {
   padding: 0 24px;
   cursor: pointer;
 }
+
+/* Row action trigger (⋯)
+   The one box for every row/card action menu: 24×24, radius 8, no background, a
+   light glyph that turns into the title colour on hover and while its menu is open.
+   A site keeps only its reveal rule (hover / menu-open) next to it. */
+.row-action-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  flex: none;
+  color: var(--color-text-light);
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1;
+  cursor: pointer;
+  transition: opacity 0.15s ease, color 0.15s ease;
+
+  &:hover,
+  &.menu-open {
+    color: var(--color-text-title);
+  }
+}

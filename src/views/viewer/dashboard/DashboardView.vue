@@ -43,14 +43,16 @@
                   </div>
                 </el-tooltip>
               </div>
-              <span
-                class="widget-menu-trigger"
+              <button
+                type="button"
+                class="widget-menu-trigger row-action-trigger"
                 :class="{ 'menu-open': menuVisible && menuTargetId === widget.id }"
-                title="Options"
+                :aria-label="$t('viewer.options')"
+                :title="$t('viewer.options')"
                 @click.stop="openMenuFromButton(widget, $event)"
               >
                 <i class="iconfont icon-more"></i>
-              </span>
+              </button>
             </div>
             <div class="widget-body">
               <WidgetRenderer
@@ -1002,8 +1004,18 @@ export default class DashboardCanvas extends Vue {
   flex-shrink: 0;
 }
 
-// Keep the card clean: the menu only appears when the card is hovered.
-.widget-card:hover .widget-menu-trigger {
+// The card action takes the shared trigger box; only its reveal is local: hidden
+// until the card is hovered, kept visible while its menu is open.
+.widget-menu-trigger {
+  opacity: 0;
+
+  &.menu-open {
+    opacity: 1;
+  }
+}
+
+.widget-card:hover .widget-menu-trigger,
+.widget-card:focus-within .widget-menu-trigger {
   opacity: 1;
 }
 
@@ -1041,32 +1053,8 @@ export default class DashboardCanvas extends Vue {
   }
 }
 
-// Same row action as the list triggers (DashboardsList, AgentSidebar): 24px hit
-// area, 8px radius, no background, light glyph that darkens on hover.
-.widget-menu-trigger {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--color-text-light);
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.15s ease, color 0.15s ease;
-
-  &:hover {
-    color: var(--color-text-title);
-  }
-
-  // Same title colour as hover, kept while the menu it opened is still shown.
-  &.menu-open {
-    opacity: 1;
-    color: var(--color-text-title);
-  }
-}
-
+// The box, radius, glyph colour and open state come from `.row-action-trigger`,
+// shared with the list triggers (DashboardsList, AgentSidebar) and the toolbars.
 .widget-body {
   flex: 1;
   min-height: 0;

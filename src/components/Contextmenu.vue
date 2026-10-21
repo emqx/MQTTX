@@ -82,9 +82,15 @@ export default class Contextmenu extends Vue {
 </script>
 
 <style lang="scss">
-.contextmenu {
+// `.el-card` (element-reset.scss) sets `background-color: var(--color-bg-normal)` at the
+// same specificity and is injected after this component's styles, so a bare `.contextmenu`
+// rule loses that tie. Compounding the card class wins regardless of order, which gives the
+// menu the same surface as the el-dropdown menus (`.el-popper`) in dark/night; border,
+// shadow and the 4px radius still come from `.el-card`.
+.el-card.contextmenu {
   position: fixed;
   z-index: 10000;
+  background: var(--color-bg-messagebox);
   .el-card__body {
     padding: 8px 0px;
     .context-menu__item {
