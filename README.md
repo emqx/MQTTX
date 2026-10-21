@@ -18,6 +18,8 @@
 
 [MQTTX](https://mqttx.app) is an open-source, cross-platform [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) client toolbox from [EMQ](https://www.emqx.com/en) for developing, testing, and troubleshooting IoT applications. [MQTTX Desktop](https://mqttx.app/docs) runs on macOS, Windows, and Linux, with a chat-style interface for managing multiple connections and subscriptions and a built-in MQTTX Agent that lets you create connections, exchange messages, and troubleshoot using natural language. [MQTTX CLI](https://mqttx.app/docs/cli) provides messaging, benchmarks, and data simulation for terminal use and automated workflows, while [MQTTX Web](https://mqttx.app/web-client) lets you debug MQTT services over WebSocket in the browser without installing a desktop application.
 
+> [MQTT](https://www.emqx.com/en/blog/the-easiest-guide-to-getting-started-with-mqtt) (MQ Telemetry Transport) is a lightweight publish/subscribe messaging protocol designed for constrained devices and for low-bandwidth, high-latency, or unreliable networks.
+
 ![mqttx-preview](./assets/mqttx-preview.png)
 
 ## Features
@@ -99,11 +101,18 @@ Once installed, try a task such as:
 
 See [INSTALL.md](./INSTALL.md) to install or update CLI, and the [CLI README](./cli/README.md#ai-agent-support) for other skill installation methods.
 
+## Better Together with EMQX
+
+MQTTX works with any MQTT broker and pairs especially well with EMQX. Connect to EMQX or EMQX Cloud in a few clicks to debug your applications and explore broker features.
+
+- [Start a 14-day free trial of EMQX Cloud](https://www.emqx.com/en/try?product=cloud)
+- [Download EMQX and run it locally](https://www.emqx.com/en/try?product=enterprise)
+
 ## Documentation and Community
 
 - Guides: [Desktop](https://mqttx.app/docs), [CLI](https://mqttx.app/docs/cli), [Web](https://mqttx.app/docs/web), and the [desktop manual](./docs/manual.md).
 - Learning resources: [MQTT programming](https://www.emqx.com/en/blog/category/mqtt-programming) and [MQTT SDKs and code examples](https://www.emqx.com/en/mqtt-client-sdk).
-- Brokers: [public MQTT test server](https://www.emqx.com/en/mqtt/public-mqtt5-broker), [run EMQX locally](https://www.emqx.com/en/try?product=enterprise), or [try EMQX Cloud](https://www.emqx.com/en/try?product=cloud).
+- [Public MQTT test server](https://www.emqx.com/en/mqtt/public-mqtt5-broker).
 - Ask questions and share ideas in [GitHub Discussions](https://github.com/emqx/MQTTX/discussions) or [Discord](https://discord.gg/xYGf3fQnES).
 - Follow [EMQTech on X](https://x.com/EMQTech) and [EMQX on YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q).
 
