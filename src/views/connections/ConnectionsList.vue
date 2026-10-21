@@ -956,5 +956,4 @@ export default class ConnectionsList extends Vue {
     }
   }
 }
-@include el-dropdown-menu-common;
 </style>

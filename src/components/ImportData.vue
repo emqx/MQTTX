@@ -458,15 +458,12 @@ export default class ImportData extends Vue {
 </script>
 
 <style lang="scss">
+@import '~@/assets/scss/mixins.scss';
+
 .import-data {
   .el-dialog__body {
     padding-bottom: 0px;
-    .el-tooltip.icon-tip {
-      position: absolute;
-      right: 195px;
-      font-size: 16px;
-      color: var(--color-text-tips);
-    }
+    @include dialog-icon-tip;
   }
   .icon-upload {
     display: inline-block;

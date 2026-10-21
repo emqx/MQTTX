@@ -53,7 +53,7 @@
     >
       <template #default="{ node, data }">
         <span class="custom-tree-node">
-          <span class="tree-node-info">
+          <span class="tree-node-row">
             <el-tooltip
               v-if="isTextOverflow(data, node)"
               :content="
@@ -381,10 +381,6 @@ export default class TreeView extends Vue {
 </script>
 
 <style lang="scss">
-@import '@/assets/scss/mixins.scss';
-
-@include el-dropdown-menu-common;
-
 .tree-view {
   .tree-view-header {
     display: flex;
@@ -450,7 +446,7 @@ export default class TreeView extends Vue {
       flex-shrink: 0;
       margin-left: 8px;
     }
-    .tree-node-info {
+    .tree-node-row {
       display: flex;
       align-items: center;
       min-width: 0;
@@ -480,20 +476,6 @@ export default class TreeView extends Vue {
   }
   .el-tree__empty-text {
     color: var(--color-text-light);
-  }
-}
-
-.visualize-tree-dialog {
-  .el-dialog__body {
-    padding: 0px;
-  }
-  .tooltip-topic-value {
-    color: var(--color-text-light);
-  }
-  .visualize-tree-about {
-    color: var(--color-text-default);
-    margin-left: 12px;
-    cursor: pointer;
   }
 }
 </style>

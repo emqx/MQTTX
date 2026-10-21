@@ -156,15 +156,12 @@ export default class ExportData extends Vue {
 </script>
 
 <style lang="scss">
+@import '~@/assets/scss/mixins.scss';
+
 .export-data {
   .el-dialog__body {
     padding-bottom: 0px;
-    .el-tooltip.icon-tip {
-      position: absolute;
-      right: 195px;
-      font-size: 16px;
-      color: var(--color-text-tips);
-    }
+    @include dialog-icon-tip;
     .swtich-item {
       .el-form-item__content {
         text-align: right;

@@ -113,13 +113,9 @@ export default class DashboardContent extends Vue {
   margin-top: 0;
 }
 
-.dashboard-skeleton-page {
-  margin: 16px;
-  overflow-x: hidden;
-}
-
+.dashboard-skeleton-page,
 .widget-skeleton-page {
-  margin: 16px;
+  margin: 12px; // same inset as the widget grid margin (see .dashboards)
   overflow-x: hidden;
 }
 

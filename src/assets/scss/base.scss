@@ -139,6 +139,30 @@ textarea {
   -webkit-app-region: drag;
 }
 
+/* Code highlighting (Prism) */
+body.light {
+  @import './theme/custom/prism-one-light.scss';
+}
+body.dark,
+body.night {
+  @import './theme/custom/prism-one-dark.scss';
+}
+
+/* Visualize tree dialog */
+.visualize-tree-dialog {
+  .el-dialog__body {
+    padding: 0px;
+  }
+  .tooltip-topic-value {
+    color: var(--color-text-light);
+  }
+  .visualize-tree-about {
+    color: var(--color-text-default);
+    margin-left: 12px;
+    cursor: pointer;
+  }
+}
+
 #notify-agent-button {
   margin: 12px 0 4px 0;
   height: 32px;

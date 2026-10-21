@@ -2569,7 +2569,6 @@ export default class ConnectionsDetail extends Vue {
         border-bottom: 1px solid var(--color-border-default);
         box-shadow: #00000010 0px 2px 4px;
         position: fixed;
-        left: 341px;
         right: 0;
         z-index: 1;
         transition: all 0.4s;
@@ -2666,8 +2665,6 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 }
-
-@include el-dropdown-menu-common;
 
 .message-popover {
   .popover-item {
