@@ -1,8 +1,8 @@
 # Introduction
 
-[MQTTX Desktop](https://mqttx.app) is an open-source, cross-platform MQTT 5.0 desktop client from [EMQ](https://www.emqx.com/) for macOS, Linux, and Windows. Its chat-style interface lets you work with multiple connections at once and quickly test connecting, publishing, subscribing, and other MQTT features over TCP, TLS, and WebSocket.
+[MQTTX Desktop](https://mqttx.app) is an open-source MQTT 5.0 client from [EMQ](https://www.emqx.com/) for macOS, Windows, and Linux. Its chat-style interface supports multiple connections and subscriptions over TCP, TLS, and WebSocket, with MQTTX Agent for connection setup, messaging, and troubleshooting in natural language.
 
-Check the [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX) for the latest release before installing. You can also clone the [source code](https://github.com/emqx/MQTTX) and build MQTTX yourself. If you run into a problem or have an idea, open a [GitHub issue](https://github.com/emqx/MQTTX/issues), or fork the project and submit a pull request.
+Download the latest release from the [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX), or build it from [source](https://github.com/emqx/MQTTX). Report problems and suggestions in [GitHub issues](https://github.com/emqx/MQTTX/issues); fork the project and submit a pull request to contribute.
 
 ## Choose a client
 
