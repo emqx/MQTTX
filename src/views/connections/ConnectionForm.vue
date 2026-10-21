@@ -997,6 +997,9 @@ export default class ConnectionForm extends Vue {
 .connection-form {
   padding: 0 16px;
   .topbar {
+    @include flex-space-between;
+    min-height: 60px;
+    padding: 0 16px;
     -webkit-app-region: drag;
     a {
       -webkit-app-region: no-drag;

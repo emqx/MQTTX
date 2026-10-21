@@ -2409,7 +2409,7 @@ export default class ConnectionsDetail extends Vue {
 }
 </script>
 
-<style lang="scss" scope>
+<style lang="scss" scoped>
 @import '~@/assets/scss/variable.scss';
 @import '~@/assets/scss/mixins.scss';
 
@@ -2419,6 +2419,9 @@ export default class ConnectionsDetail extends Vue {
     .connections-info {
       background-color: var(--color-bg-normal);
       .topbar {
+        @include flex-space-between;
+        min-height: 60px;
+        padding: 0 16px;
         border-bottom: 0px;
         -webkit-app-region: drag;
         a {
@@ -2518,6 +2521,7 @@ export default class ConnectionsDetail extends Vue {
       }
     }
     .connections-search {
+      @include flex-space-between;
       padding: 13px 16px 12px 16px;
       height: auto;
       background-color: var(--color-bg-normal);
@@ -2525,10 +2529,8 @@ export default class ConnectionsDetail extends Vue {
         border-bottom: 0px;
         min-height: 0px;
       }
-      .el-input {
-        .el-input__inner {
-          background: var(--color-bg-primary);
-        }
+      ::v-deep .el-input .el-input__inner {
+        background: var(--color-bg-primary);
       }
       .content-search {
         margin: 0 19px 0 20px;
@@ -2632,7 +2634,7 @@ export default class ConnectionsDetail extends Vue {
           @include flex-space-between;
           .received-type-select {
             width: 88px;
-            .el-input__inner {
+            ::v-deep .el-input__inner {
               padding: 4px 10px;
             }
           }
@@ -2656,7 +2658,10 @@ export default class ConnectionsDetail extends Vue {
     }
   }
 }
+</style>
 
+<style lang="scss">
+// Rendered in poppers appended to body, outside this component's root.
 .message-popover {
   .popover-item {
     margin-top: 10px;

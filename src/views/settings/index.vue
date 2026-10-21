@@ -966,7 +966,7 @@ export default class Settings extends Vue {
 }
 </script>
 
-<style lang="scss" scope>
+<style lang="scss" scoped>
 @import '@/assets/scss/variable.scss';
 
 .settings-view {
@@ -987,7 +987,8 @@ export default class Settings extends Vue {
     margin-bottom: 56px;
   }
 
-  .el-divider--horizontal {
+  // The MCP section renders its own rows inside this view, so they need ::v-deep.
+  ::v-deep .el-divider--horizontal {
     margin: 15px 0;
   }
 
@@ -1002,8 +1003,8 @@ export default class Settings extends Vue {
     }
   }
 
-  .el-col-4,
-  .el-col-6 {
+  ::v-deep .el-col-4,
+  ::v-deep .el-col-6 {
     text-align: right;
   }
 
@@ -1015,7 +1016,7 @@ export default class Settings extends Vue {
   }
 
   .settings-options {
-    .el-input__inner {
+    ::v-deep .el-input__inner {
       border: none;
       background: transparent;
       font-size: $font-size--body;
@@ -1026,32 +1027,33 @@ export default class Settings extends Vue {
       width: 108px;
     }
 
-    &.el-select .el-input .el-select__caret {
+    &.el-select ::v-deep .el-input .el-select__caret {
       color: var(--color-text-default);
     }
   }
 
-  .el-input-number__increase,
-  .el-input-number__decrease {
+  ::v-deep .el-input-number__increase,
+  ::v-deep .el-input-number__decrease {
     background: transparent;
   }
-  .el-input-number__decrease {
+  ::v-deep .el-input-number__decrease {
     border-right: 1px solid var(--color-border-default);
   }
-  .el-input-number__increase {
+  ::v-deep .el-input-number__increase {
     border-left: 1px solid var(--color-border-default);
   }
-  .el-input-number--mini .el-input__inner {
+  .el-input-number--mini ::v-deep .el-input__inner {
     text-align: center;
   }
 
-  i {
+  // Element's carets and stepper arrows are <i> too.
+  ::v-deep i {
     font-size: 16px;
   }
   .settings-btn {
     width: 90px;
   }
-  .icon-oper {
+  ::v-deep .icon-oper {
     position: relative;
     top: 1px;
     left: 5px;
@@ -1071,29 +1073,29 @@ export default class Settings extends Vue {
       margin-right: 6px;
     }
     // Providers never show the check mark, so their rows skip the space reserved for it
-    .el-cascader-menu:first-child .el-cascader-node {
+    ::v-deep .el-cascader-menu:first-child .el-cascader-node {
       padding-left: 6px;
     }
-    .el-cascader-menu:last-child {
+    ::v-deep .el-cascader-menu:last-child {
       width: 100%;
     }
-    .el-cascader-menu,
-    i {
+    ::v-deep .el-cascader-menu,
+    ::v-deep i {
       color: var(--color-text-default);
     }
-    .el-cascader-menu {
+    ::v-deep .el-cascader-menu {
       border-right: 1px solid var(--color-border-default);
       &:last-child {
         border-right: none;
       }
     }
-    .el-cascader-node.is-active {
+    ::v-deep .el-cascader-node.is-active {
       .el-icon-check.el-cascader-node__prefix {
         color: var(--color-main-green);
       }
     }
-    .el-cascader-node:not(.is-disabled):hover,
-    .el-cascader-node:not(.is-disabled):focus {
+    ::v-deep .el-cascader-node:not(.is-disabled):hover,
+    ::v-deep .el-cascader-node:not(.is-disabled):focus {
       background-color: transparent;
       color: var(--color-main-green);
     }
