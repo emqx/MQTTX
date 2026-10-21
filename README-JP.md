@@ -11,23 +11,43 @@
 
 ---
 
-[MQTTX](https://mqttx.app/) は、[EMQ](https://www.emqx.com/en) が提供するオープンソースの [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) クライアントです。macOS、Linux、Windows 向けの[デスクトップ版](https://mqttx.app/docs)、スクリプトやベンチマーク向けの[コマンドラインツール](https://mqttx.app/docs/cli)、ブラウザで使える [Web クライアント](https://mqttx.app/web-client)を提供しています。チャットアプリのようなインターフェイスで複数の接続を同時に扱え、TCP、TLS、WebSocket 上でのパブリッシュ、サブスクライブなどの MQTT 機能をすばやくテストできます。デスクトップ版には、自然言語で MQTTX を操作する AI エージェント「MQTTX Agent」も組み込まれています。
+[MQTTX](https://mqttx.app/) は、[EMQ](https://www.emqx.com/en) が提供するオープンソースの [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) クライアントツールセットです。[MQTTX Desktop](https://mqttx.app/docs) は GUI でのデバッグ、[MQTTX CLI](https://mqttx.app/docs/cli) はスクリプトとベンチマーク、[MQTTX Web](https://mqttx.app/web-client) はブラウザーでのテストに利用できます。
 
 > [MQTT](https://www.emqx.com/ja/blog/the-easiest-guide-to-getting-started-with-mqtt)（Message Queuing Telemetry Transport）は、パブリッシュ/サブスクライブ型の軽量なメッセージングプロトコルです。制約のあるデバイスや、低帯域幅、高遅延、または不安定なネットワークでの利用を想定して設計されています。
 
 ## 機能
 
-デスクトップ版の主な機能：
+### MQTTX Desktop
 
-- **MQTTX Agent**：自然言語で MQTTX を操作し、接続の作成、サブスクライブ、パブリッシュ、メッセージの読み取り、問題の診断、クライアントコードの生成ができます。スキル（Skills）、MCP、操作の承認、複数のモデルプロバイダーに対応しています。
-- **プロトコル**：MQTT 3.1、3.1.1、5.0 に対応し、TCP、TLS、WebSocket、セキュア WebSocket で接続できます。
-- **MQTT 5.0**：接続・パブリッシュ・サブスクライブのユーザープロパティ、SCRAM 拡張認証、接続ページでの CONNACK レスポンス情報の表示。
-- **ペイロード**：Plaintext、JSON、Base64、Hex、CBOR、MsgPack に対応し、Protobuf と Avro のスキーマも利用できます。受信メッセージの GZIP 自動解凍にも対応しています。
-- **自動化**：スクリプトによる送信時・受信時のペイロード変換と、定期的なメッセージ送信。
-- **ビューア**：トピックツリー、ダッシュボード、トラフィックモニター、JSON ツリーとメッセージ差分を備えたペイロードインスペクター。
-- **ワークフロー**：メッセージ検索、接続ごとに独立したパブリッシュエリアと履歴、接続グループ。
-- **データ**：接続を JSON、CSV、Excel、XML、YAML 形式でインポート・エクスポートできます。JSON バックアップは接続グループを保持します。
-- **カスタマイズ**：ライト・ダーク・ナイトのテーマ。English、简体中文、日本語、Türkçe、Magyar、한국어 に対応。
+macOS、Windows、Linux 向けの GUI クライアントです。対話的なデバッグやメッセージの分析に利用できます。
+
+- TCP、TLS、WebSocket、セキュア WebSocket で接続し、MQTT 3.1、3.1.1、5.0 に対応します。
+- MQTT 5.0 の接続・パブリッシュ・サブスクライブにユーザープロパティを設定し、SCRAM 拡張認証で接続できます。ブローカーが返す CONNACK レスポンス情報も確認できます。
+- 内蔵の MQTTX Agent で自然言語による操作ができます。スキル（Skills）、MCP ツール、操作の承認、複数のモデルプロバイダーに対応します。
+- Plaintext、JSON、Base64、Hex、CBOR、MsgPack のエンコード・デコード、Protobuf と Avro のスキーマ、受信 GZIP メッセージの自動解凍に対応します。
+- スクリプトで送受信メッセージを変換し、定期的にメッセージを送信できます。
+- トピックツリー、ダッシュボード、トラフィックモニター、ペイロードインスペクターでメッセージを分析できます。JSON ツリーとメッセージ差分も確認できます。
+- 接続のグループ化、メッセージ検索、接続ごとのパブリッシュエリアと履歴を利用できます。
+- JSON、CSV、Excel、XML、YAML で接続をインポート・エクスポートできます。JSON バックアップは接続グループを保持します。
+- ライト・ダーク・ナイトのテーマを選択でき、英語、簡体字中国語、日本語、トルコ語、ハンガリー語、韓国語に対応します。
+
+### MQTTX CLI
+
+ターミナルでのデバッグ、シェルスクリプト、CI 自動化、性能テストに使えるコマンドラインクライアントです。
+
+- `mqttx conn`、`mqttx pub`、`mqttx sub` で接続・パブリッシュ・サブスクライブを実行できます。MQTT 3.1、3.1.1、5.0 と TCP、TLS、WebSocket に対応します。
+- `mqttx bench` で接続・パブリッシュ・サブスクライブの負荷テストを行い、`mqttx simulate` で IoT テストデータを生成できます。
+- 標準入力からメッセージを読み込み、受信メッセージを他のツールへパイプで渡せます。接続パラメーターは JSON または YAML で保存・読み込みできます。
+- JSON、Base64、Hex、CBOR、MsgPack のエンコード・デコードと、Protobuf、Avro のスキーマに対応します。
+- [MQTTX CLI skill](./skills/mqttx-cli/SKILL.md) を使うと、外部の AI エージェントから MQTT のテストや診断を実行できます。
+
+### MQTTX Web
+
+デスクトップアプリをインストールせずに、ブラウザーで[オンラインクライアント](https://mqttx.app/web-client)を開いてテストできます。
+
+- WebSocket（`ws://` または `wss://`）で MQTT 3.1.1 と 5.0 のメッセージを送受信できます。HTTPS ページでは `wss://` を使用します。
+- チャット形式の画面で複数の接続とサブスクリプションを管理し、送受信メッセージを確認できます。
+- [Docker でセルフホスト](./web/README.md#deploy-from-docker-image)して、自分の環境で Web クライアントを実行できます。
 
 ## MQTTX Agent
 

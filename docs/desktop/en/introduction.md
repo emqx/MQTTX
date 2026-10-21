@@ -1,14 +1,20 @@
 # Introduction
 
-[MQTTX](https://mqttx.app) is an open-source, cross-platform MQTT 5.0 desktop client from [EMQ](https://www.emqx.com/) for macOS, Linux, and Windows. Its chat-style interface lets you work with multiple connections at once and quickly test connecting, publishing, subscribing, and other MQTT features over TCP, TLS, and WebSocket.
+[MQTTX Desktop](https://mqttx.app) is an open-source, cross-platform MQTT 5.0 desktop client from [EMQ](https://www.emqx.com/) for macOS, Linux, and Windows. Its chat-style interface lets you work with multiple connections at once and quickly test connecting, publishing, subscribing, and other MQTT features over TCP, TLS, and WebSocket.
 
 Check the [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX) for the latest release before installing. You can also clone the [source code](https://github.com/emqx/MQTTX) and build MQTTX yourself. If you run into a problem or have an idea, open a [GitHub issue](https://github.com/emqx/MQTTX/issues), or fork the project and submit a pull request.
+
+## Choose a client
+
+- [MQTTX Desktop](https://mqttx.app/docs): a graphical client for interactive debugging, message analysis, and the built-in MQTTX Agent. This guide covers the desktop app.
+- [MQTTX CLI](https://mqttx.app/docs/cli): a command-line client for publishing and subscribing, shell pipelines, automated tests, benchmarks, and IoT data simulation.
+- [MQTTX Web](https://mqttx.app/docs/web): a browser client that connects over WebSocket. Use the [online client](https://mqttx.app/web-client) or host it yourself with Docker.
 
 ## Preview
 
 ![mqttx-gif](/images/mqttx-gif.gif)
 
-## Main Features
+## Desktop Features
 
 - Chat-style interface for sending and receiving MQTT messages
 - Runs on Windows, macOS, and Linux
