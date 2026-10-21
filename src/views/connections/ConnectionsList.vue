@@ -56,6 +56,7 @@
           @node-expand="handleNodeExpand($event, true)"
           @node-collapse="handleNodeExpand($event, false)"
           :allow-drop="allowDrop"
+          :allow-drag="allowDrag"
         >
           <span class="custom-tree-node" slot-scope="{ node, data }">
             <el-input
@@ -72,6 +73,7 @@
             <div
               v-else-if="!data.isCollection"
               class="connection-item"
+              :class="{ 'menu-open': isConnectionMenuOpen(data), 'is-new-window': isNewWindow }"
               @click="handleSelectConnection(data)"
               @contextmenu.prevent="handleContextMenu(data, $event)"
             >
@@ -100,11 +102,23 @@
               <div v-if="unreadMessageCount[data.id] > 0" class="new-msg-count">
                 {{ unreadMessageCount[data.id] }}
               </div>
+              <button
+                v-if="!isNewWindow"
+                type="button"
+                class="row-action-trigger"
+                :aria-label="$t('connections.connectionMenu')"
+                :title="$t('connections.connectionMenu')"
+                @click.stop="openConnectionMenuFromButton(data, $event)"
+                @mousedown.stop="onOperPointerDown"
+              >
+                <i class="iconfont icon-more"></i>
+              </button>
             </div>
             <!-- collection -->
             <div
               v-else
               class="custom-tree-node-collection"
+              :class="{ 'menu-open': isCollectionMenuOpen(data) }"
               @click="handleSelectCollection(data)"
               @contextmenu.prevent="handleCollectionContextMenu($event, data)"
             >
@@ -121,6 +135,16 @@
                   <span>{{ data.name }}</span>
                 </div>
               </el-tooltip>
+              <button
+                type="button"
+                class="row-action-trigger"
+                :aria-label="$t('connections.collectionMenu')"
+                :title="$t('connections.collectionMenu')"
+                @click.stop="openCollectionMenuFromButton(data, $event)"
+                @mousedown.stop="onOperPointerDown"
+              >
+                <i class="iconfont icon-more"></i>
+              </button>
             </div>
           </span>
         </el-tree>
@@ -128,7 +152,7 @@
       <template v-else>
         <el-skeleton class="connections-list-skeleton" :row="8" animated />
       </template>
-      <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
+      <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig" :anchor="connectionMenuAnchor">
         <a href="javascript:;" class="context-menu__item" @click="handleNewWindow">
           <i class="iconfont icon-new-window"></i>{{ $t('common.newWindow') }}
         </a>
@@ -148,7 +172,11 @@
           <i class="iconfont icon-delete"></i>{{ $t('common.delete') }}
         </a>
       </contextmenu>
-      <contextmenu :visible.sync="showCollectionsContextmenu" v-bind="collectionsContextmenuConfig">
+      <contextmenu
+        :visible.sync="showCollectionsContextmenu"
+        v-bind="collectionsContextmenuConfig"
+        :anchor="collectionsMenuAnchor"
+      >
         <a href="javascript:;" class="context-menu__item" @click="handleNewCollection">
           <i class="iconfont icon-new"></i>{{ $t('connections.newCollection') }}
         </a>
@@ -210,18 +238,26 @@ export default class ConnectionsList extends Vue {
     top: 0,
     left: 0,
   }
+  // Set by the ⋯ entry, so the menu hangs off the button instead of the pointer.
+  private connectionMenuAnchor: DOMRect | null = null
+  private collectionsMenuAnchor: DOMRect | null = null
   private treeData: ConnectionModelTree[] = []
+
+  // Set while a press on ⋯ is held, so el-tree won't start a row drag (see allowDrag).
+  private operPointerActive = false
 
   @Watch('showContextmenu')
   private handleShowContextmenuChange(val: boolean) {
     if (!val) {
       this.selectedConnection = null
+      this.connectionMenuAnchor = null
     }
   }
   @Watch('showCollectionsContextmenu')
   private handleShowCollectionContextMenuChange(val: boolean) {
     if (!val) {
       this.selectedCollection = null
+      this.collectionsMenuAnchor = null
     }
   }
   @Watch('$route.params.id')
@@ -338,6 +374,18 @@ export default class ConnectionsList extends Vue {
         break
     }
     return isAllow
+  }
+
+  private allowDrag() {
+    return !this.operPointerActive
+  }
+
+  private onOperPointerDown() {
+    this.operPointerActive = true
+  }
+
+  private onDocumentMouseUp() {
+    this.operPointerActive = false
   }
 
   private handleDragEnd(
@@ -509,6 +557,7 @@ export default class ConnectionsList extends Vue {
       const { x, y } = getContextmenuPosition(event as MouseEvent, 180, 220)
       this.contextmenuConfig.left = x
       this.contextmenuConfig.top = y
+      this.connectionMenuAnchor = null
       this.showContextmenu = true
       this.showCollectionsContextmenu = false
       this.selectedConnection = row
@@ -522,12 +571,43 @@ export default class ConnectionsList extends Vue {
       const { x, y } = getContextmenuPosition(event as MouseEvent, 150, 130)
       this.collectionsContextmenuConfig.left = x
       this.collectionsContextmenuConfig.top = y
+      this.collectionsMenuAnchor = null
       this.showCollectionsContextmenu = true
       this.showContextmenu = false
       this.selectedCollection = row
     } else {
       this.showCollectionsContextmenu = false
     }
+  }
+
+  private openConnectionMenuFromButton(row: ConnectionModel, event: MouseEvent) {
+    if (this.showContextmenu && this.selectedConnection?.id === row.id) {
+      this.showContextmenu = false
+      return
+    }
+    this.connectionMenuAnchor = (event.currentTarget as HTMLElement).getBoundingClientRect()
+    this.showCollectionsContextmenu = false
+    this.selectedConnection = row
+    this.showContextmenu = true
+  }
+
+  private openCollectionMenuFromButton(row: CollectionModel, event: MouseEvent) {
+    if (this.showCollectionsContextmenu && this.selectedCollection?.id === row.id) {
+      this.showCollectionsContextmenu = false
+      return
+    }
+    this.collectionsMenuAnchor = (event.currentTarget as HTMLElement).getBoundingClientRect()
+    this.showContextmenu = false
+    this.selectedCollection = row
+    this.showCollectionsContextmenu = true
+  }
+
+  private isConnectionMenuOpen(row: ConnectionModelTree): boolean {
+    return this.showContextmenu && this.selectedConnection?.id === row.id
+  }
+
+  private isCollectionMenuOpen(row: ConnectionModelTree): boolean {
+    return this.showCollectionsContextmenu && this.selectedCollection?.id === row.id
   }
 
   private initUnreadMessageCount(id: string) {
@@ -784,6 +864,7 @@ export default class ConnectionsList extends Vue {
     this.loadData(true)
     this.initUnreadMessageCount(this.connectionId)
     globalEventBus.on(AGENT_DATA_CHANGED, this.onAgentDataChanged)
+    document.addEventListener('mouseup', this.onDocumentMouseUp)
   }
 
   /** The agent changed connections, groups or messages: reload the tree */
@@ -793,6 +874,7 @@ export default class ConnectionsList extends Vue {
 
   private beforeDestroy() {
     globalEventBus.off(AGENT_DATA_CHANGED, this.onAgentDataChanged)
+    document.removeEventListener('mouseup', this.onDocumentMouseUp)
   }
 }
 </script>
@@ -858,7 +940,9 @@ export default class ConnectionsList extends Vue {
         height: 100%;
         margin: 0 8px;
         border-radius: 8px;
-        &:hover {
+        // Same box as hover, so the open row's highlight is not inset by the arrow.
+        &:hover,
+        &:has(.menu-open) {
           background-color: var(--color-bg-item);
         }
         .custom-tree-node {
@@ -866,6 +950,32 @@ export default class ConnectionsList extends Vue {
           display: flex;
           align-items: center;
           justify-content: space-between;
+          // Absolute, so revealing it never moves the row's content.
+          .row-action-trigger {
+            position: absolute;
+            top: 50%;
+            right: 4px;
+            transform: translateY(-50%);
+            opacity: 0;
+            pointer-events: none;
+          }
+          .connection-item,
+          .custom-tree-node-collection {
+            &:hover,
+            &:focus-within,
+            &.menu-open {
+              .row-action-trigger {
+                opacity: 1;
+                pointer-events: auto;
+                // Same fade as the unread badge, so the ⋯ covers the name's tail.
+                background-color: var(--color-bg-item);
+                box-shadow: -8px 0 12px 4px var(--color-bg-item);
+              }
+            }
+            &.menu-open .row-action-trigger {
+              color: var(--color-text-title);
+            }
+          }
           .connection-item {
             @include flex-space-between;
             align-items: center;
@@ -924,10 +1034,22 @@ export default class ConnectionsList extends Vue {
               text-align: center;
               box-shadow: -8px 0 12px 4px var(--color-bg-item);
             }
+            // Markers give way to the ⋯, except in the single-connection window (no row menu).
+            &:not(.is-new-window) {
+              &:hover,
+              &:focus-within,
+              &.menu-open {
+                .ssl-tag,
+                .new-msg-count {
+                  opacity: 0;
+                }
+              }
+            }
           }
           .custom-tree-node-collection {
             width: 100%;
             height: 48px;
+            position: relative;
             @include flex-space-between;
             .collection-name {
               display: flex;

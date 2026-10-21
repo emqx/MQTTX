@@ -23,6 +23,14 @@ export default {
     hu: 'Kapcsolatok',
     ko: '연결',
   },
+  connectionMenu: {
+    zh: '连接操作',
+    en: 'Connection actions',
+    tr: 'Bağlantı işlemleri',
+    ja: '接続の操作',
+    hu: 'Kapcsolat műveletei',
+    ko: '연결 작업',
+  },
   newConnections: {
     zh: '新建连接',
     en: 'New Connection',
@@ -982,6 +990,14 @@ export default {
     ja: 'グループ',
     hu: 'Csoport',
     ko: '그룹',
+  },
+  collectionMenu: {
+    zh: '分组操作',
+    en: 'Group actions',
+    tr: 'Grup işlemleri',
+    ja: 'グループの操作',
+    hu: 'Csoport műveletei',
+    ko: '그룹 작업',
   },
   newCollection: {
     zh: '新建分组',
