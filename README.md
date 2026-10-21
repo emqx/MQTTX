@@ -16,7 +16,11 @@
 
 ---
 
-[MQTTX](https://mqttx.app) is an open-source [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) client toolbox from [EMQ](https://www.emqx.com/en). It provides [MQTTX Desktop](https://mqttx.app/docs) for interactive debugging, [MQTTX CLI](https://mqttx.app/docs/cli) for scripting and benchmarks, and [MQTTX Web](https://mqttx.app/web-client) for testing in the browser.
+[MQTTX](https://mqttx.app) is an open-source, cross-platform [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) client toolbox from [EMQ](https://www.emqx.com/en) for developing, testing, and troubleshooting IoT applications. Its desktop, command-line, and web clients help developers connect to MQTT brokers and verify message exchange during interactive debugging, automated testing, and performance testing.
+
+[MQTTX Desktop](https://mqttx.app/docs) runs on macOS, Windows, and Linux. Its chat-style interface lets you manage multiple connections and subscriptions while viewing sent and received messages. It also provides payload codecs, scripting, and data visualization, along with the built-in MQTTX Agent for creating connections, exchanging messages, and investigating issues through natural language.
+
+[MQTTX CLI](https://mqttx.app/docs/cli) brings MQTT operations to the terminal for automated tests, benchmarks, and IoT data simulation in shell scripts and CI workflows. [MQTTX Web](https://mqttx.app/web-client) provides a chat-style debugging interface in the browser, letting you test MQTT messaging over WebSocket without installing a desktop application. You can also host it in your own environment with Docker.
 
 > [MQTT](https://www.emqx.com/en/blog/the-easiest-guide-to-getting-started-with-mqtt) (MQ Telemetry Transport) is a lightweight publish/subscribe messaging protocol designed for constrained devices and for low-bandwidth, high-latency, or unreliable networks.
 
