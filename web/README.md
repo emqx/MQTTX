@@ -44,7 +44,7 @@ docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 
 ## Manual compilation and deployment
 
-If you need to make some personalized settings, such as changing the default connection path, deployment path, etc., you can achieve these modifications by editing the .env configuration file and compiling manually. For information on how to compile the project and package docker images, you can refer to the [development section](#Develop).
+If you need to make some personalized settings, such as changing the default connection path, deployment path, etc., you can achieve these modifications by editing the .env configuration file and compiling manually. For information on how to compile the project and package docker images, you can refer to the [development section](#develop).
 
 ## Better Together with EMQX
 

@@ -133,7 +133,7 @@ See the [Web README](./web/README.md) for deployment and usage instructions.
 MQTTX Agent is an AI assistant built into the desktop app. Turn it on in **Settings → MQTTX Agent**, fill in the API host, key, and model of your provider, then open it full screen from the left bar or as a floating window with `Cmd/Ctrl + J`.
 
 - It operates MQTTX through tools: create and connect connections, subscribe and publish, read messages, build the Topic Tree and dashboards, call your MCP servers, and write client code, test data, and schemas.
-- **Ask before actions** (default) asks for approval before anything changes, and **Auto** runs every action without asking.
+- **Ask before actions** (default) asks before changes; **Auto** skips these prompts. Script tests always require approval.
 - Your conversations and tool results are sent to the model provider you configure, so avoid entering secrets in the chat.
 
 See [MQTTX Agent](./docs/desktop/en/use-desktop/agent.md) for setup, Skills, MCP, permissions, and limitations.

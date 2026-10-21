@@ -38,9 +38,10 @@ macOS 用户也可以使用 Homebrew：
 brew install emqx/mqttx/mqttx-cli
 ```
 
-使用 npm 安装时需要 Node.js 18 或更高版本：
+使用 npm 安装前，请检查已发布版本要求的 Node.js 范围，确认本机环境兼容；独立二进制文件自带运行环境：
 
 ```shell
+npm view mqttx-cli@latest version engines --json
 npm install mqttx-cli -g
 ```
 
@@ -162,42 +163,42 @@ mqttx conn --help
 
 | 参数                                             | 描述                                                                                       |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| -V, --mqtt-version <5.0/3.1.1/3.1>                 | MQTT 版本，默认为 5                                                                        |
-| -h, --hostname <HOST>                            | MQTT Broker 的 Host 地址，默认为 localhost                                                 |
-| -p, --port <PORT>                                | MQTT Broker 的端口号                                                                       |
-| -i, --client-id <ID>                             | 客户端 ID                                                                                  |
-| --no-clean                                       | 取消 clean session 标志位，默认为 true                                                     |
-| -k, --keepalive <SEC>                            | MQTT 的 Keep Alive，默认为 30                                                              |
-| -u, --username <USER>                            | 连接到 MQTT Broker 的用户名                                                                |
-| -P, --password <PASS>                            | 连接到 MQTT Broker 的密码                                                                  |
-| -l, --protocol <PROTO>                           | 连接时的协议，支持 mqtt、mqtts、ws、wss，默认为 mqtt                                       |
-| --path <PATH>                                    | websocket 的路径，默认为 /mqtt                                                             |
-| --key <PATH>                                     | key 文件的路径                                                                             |
-| --cert <PATH>                                    | cert 文件的路径                                                                            |
-| --ca                                             | ca 证书的文件路径                                                                          |
+| -V, --mqtt-version \<5.0/3.1.1/3.1\>                 | MQTT 版本，默认为 5                                                                        |
+| -h, --hostname \<HOST\>                            | MQTT Broker 的 Host 地址，默认为 localhost                                                 |
+| -p, --port \<PORT\>                                | MQTT Broker 的端口号                                                                       |
+| -i, --client-id \<ID\>                             | 客户端 ID                                                                                  |
+| --no-clean                                       | 关闭 Clean Session / Clean Start（默认开启）                                                     |
+| -k, --keepalive \<SEC\>                            | MQTT 的 Keep Alive，默认为 30                                                              |
+| -u, --username \<USER\>                            | 连接到 MQTT Broker 的用户名                                                                |
+| -P, --password \<PASS\>                            | 连接到 MQTT Broker 的密码                                                                  |
+| -l, --protocol \<PROTO\>                           | 连接时的协议，支持 mqtt、mqtts、ws、wss，默认为 mqtt                                       |
+| --path \<PATH\>                                    | websocket 的路径，默认为 /mqtt                                                             |
+| --key \<PATH\>                                     | key 文件的路径                                                                             |
+| --cert \<PATH\>                                    | cert 文件的路径                                                                            |
+| --ca \<PATH\>                                             | ca 证书的文件路径                                                                          |
 | --insecure                                       | 取消服务器的证书校验                                                                       |
-| -rp, --reconnect-period <MILLISECONDS>           | 自动重连的间隔时间，通过设置为 0 来禁用自动重连，默认为 1000ms                             |
-| --maximum-reconnect-times <NUMBER>               | 最大重连次数，默认为 10                                                                    |
-| -up, --user-properties <USERPROPERTIES...>       | MQTT 5.0 用户属性，例如：-up "name: mqttx cli"                                             |
-| -Wt, --will-topic <TOPIC>                        | 遗嘱消息的 Topic                                                                           |
-| -Wm, --will-message <BODY>                       | 遗嘱消息的 Payload                                                                         |
-| -Wq, --will-qos <0/1/2>                          | 遗嘱消息的 QoS                                                                             |
+| -rp, --reconnect-period \<MILLISECONDS\>           | 自动重连的间隔时间，通过设置为 0 来禁用自动重连，默认为 1000ms                             |
+| --maximum-reconnect-times \<NUMBER\>               | 最大重连次数，默认为 10                                                                    |
+| -up, --user-properties \<USERPROPERTIES...\>       | MQTT 5.0 用户属性，例如：-up "name: mqttx cli"                                             |
+| -Wt, --will-topic \<TOPIC\>                        | 遗嘱消息的 Topic                                                                           |
+| -Wm, --will-message \<BODY\>                       | 遗嘱消息的 Payload                                                                         |
+| -Wq, --will-qos \<0/1/2\>                          | 遗嘱消息的 QoS                                                                             |
 | -Wr, --will-retain                               | 发送的遗嘱消息为保留消息，默认为 false                                                     |
-| -Wd, --will-delay-interval <SECONDS>             | 遗嘱消息延迟间隔，单位为秒                                                                 |
+| -Wd, --will-delay-interval \<SECONDS\>             | 遗嘱消息延迟间隔，单位为秒                                                                 |
 | -Wpf, --will-payload-format-indicator            | 遗嘱消息是否为UTF-8编码的字符数据                                                          |
-| -We, --will-message-expiry-interval <SECONDS>    | 遗嘱信息的有效期，单位为秒                                                                 |
-| -Wct, --will-content-type <CONTENTTYPE>          | 遗嘱消息内容的描述                                                                         |
-| -Wrt, --will-response-topic <TOPIC>              | 响应信息的主题名称                                                                         |
-| -Wcd, --will-correlation-data <DATA>             | 响应信息的关联数据                                                                         |
-| -Wup, --will-user-properties <USERPROPERTIES...> | 遗嘱消息的自定义用户属性                                                                   |
-| -se, --session-expiry-interval <SECONDS>         | 会话过期间隔，单位为秒                                                                     |
-| --rcv-max, --receive-maximum <NUMBER>            | 接收消息的最大值                                                                           |
-| --maximum-packet-size <NUMBER>                   | 客户端愿意接受的最大数据包大小                                                             |
-| --topic-alias-maximum <NUMBER>                   | 主题别名的最大值                                                                           |
+| -We, --will-message-expiry-interval \<SECONDS\>    | 遗嘱信息的有效期，单位为秒                                                                 |
+| -Wct, --will-content-type \<CONTENTTYPE\>          | 遗嘱消息内容的描述                                                                         |
+| -Wrt, --will-response-topic \<TOPIC\>              | 响应信息的主题名称                                                                         |
+| -Wcd, --will-correlation-data \<DATA\>             | 响应信息的关联数据                                                                         |
+| -Wup, --will-user-properties \<USERPROPERTIES...\> | 遗嘱消息的自定义用户属性                                                                   |
+| -se, --session-expiry-interval \<SECONDS\>         | 会话过期间隔，单位为秒                                                                     |
+| --rcv-max, --receive-maximum \<NUMBER\>            | 接收消息的最大值                                                                           |
+| --maximum-packet-size \<NUMBER\>                   | 客户端愿意接受的最大数据包大小                                                             |
+| --topic-alias-maximum \<NUMBER\>                   | 主题别名的最大值                                                                           |
 | --req-response-info                              | 客户端要求服务器提供的响应信息                                                             |
-| --no-req-problem-info                            | 客户端向服务器请求问题信息                                                                 |
-| --save \[PATH\]                                  | 将参数保存到本地配置文件中，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json |
-| --config \[PATH\]                                | 从本地配置文件加载参数，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json     |
+| --no-req-problem-info                            | 不请求服务器返回问题信息                                                                 |
+| -so, --save-options \[PATH\]                                  | 将参数保存到本地配置文件中，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-options.json |
+| -lo, --load-options \[PATH\]                                | 从本地配置文件加载参数，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-options.json     |
 | --help                                           | 展示 conn 命令的帮助信息                                                                   |
 
 ### 订阅
@@ -208,55 +209,55 @@ mqttx sub --help
 
 | 参数                                             | 描述                                                                                       |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| -V, --mqtt-version <5.0/3.1.1/3.1>                 | MQTT 版本，默认为 5                                                                        |
-| -h, --hostname <HOST>                            | MQTT Broker 的 Host 地址，默认为 localhost                                                 |
-| -p, --port <PORT>                                | MQTT Broker 的端口号                                                                       |
-| -i, --client-id <ID>                             | 客户端 ID                                                                                  |
-| -q, --qos <0/1/2>                                | 消息的 QoS，默认为 0                                                                       |
-| --no-clean                                       | 取消 clean session 标志位，默认为 true                                                     |
-| -t, --topic <TOPIC>                              | 需要订阅的 Topic                                                                           |
-| -k, --keepalive <SEC>                            | MQTT 的 Keep Alive，默认为 30                                                              |
-| -u, --username <USER>                            | 连接到 MQTT Broker 的用户名                                                                |
-| -P, --password <PASS>                            | 连接到 MQTT Broker 的密码                                                                  |
-| -l, --protocol <PROTO>                           | 连接时的协议，支持 mqtt、mqtts、ws、wss，默认为 mqtt                                       |
-| --path <PATH>                                    | websocket 的路径，默认为 /mqtt                                                             |
-| -nl, --no_local                                  | MQTT 5.0 订阅选项中的 no local 标识                                                        |
-| -rap, --retain-as-published                      | MQTT 5.0 订阅选项中的 retain as published 标识                                             |
-| -rh, --retain-handling <0/1/2>                   | MQTT 5.0 订阅选项中的 retain handling 标识                                                 |
-| --key <PATH>                                     | key 文件的路径                                                                             |
-| --cert <PATH>                                    | cert 文件的路径                                                                            |
-| --ca                                             | ca 证书的文件路径                                                                          |
+| -V, --mqtt-version \<5.0/3.1.1/3.1\>                 | MQTT 版本，默认为 5                                                                        |
+| -h, --hostname \<HOST\>                            | MQTT Broker 的 Host 地址，默认为 localhost                                                 |
+| -p, --port \<PORT\>                                | MQTT Broker 的端口号                                                                       |
+| -i, --client-id \<ID\>                             | 客户端 ID                                                                                  |
+| -q, --qos \<0/1/2...\>                                | 消息的 QoS，默认为 0                                                                       |
+| --no-clean                                       | 关闭 Clean Session / Clean Start（默认开启）                                                     |
+| -t, --topic \<TOPIC...\>                              | 需要订阅的 Topic                                                                           |
+| -k, --keepalive \<SEC\>                            | MQTT 的 Keep Alive，默认为 30                                                              |
+| -u, --username \<USER\>                            | 连接到 MQTT Broker 的用户名                                                                |
+| -P, --password \<PASS\>                            | 连接到 MQTT Broker 的密码                                                                  |
+| -l, --protocol \<PROTO\>                           | 连接时的协议，支持 mqtt、mqtts、ws、wss，默认为 mqtt                                       |
+| --path \<PATH\>                                    | websocket 的路径，默认为 /mqtt                                                             |
+| -nl, --no_local \[FLAG...\]                                  | MQTT 5.0 订阅选项中的 no local 标识                                                        |
+| -rap, --retain-as-published \[FLAG...\]                      | MQTT 5.0 订阅选项中的 retain as published 标识                                             |
+| -rh, --retain-handling \<0/1/2...\>                   | MQTT 5.0 订阅选项中的 retain handling 标识                                                 |
+| --key \<PATH\>                                     | key 文件的路径                                                                             |
+| --cert \<PATH\>                                    | cert 文件的路径                                                                            |
+| --ca \<PATH\>                                             | ca 证书的文件路径                                                                          |
 | --insecure                                       | 取消服务器的证书校验                                                                       |
-| -rp, --reconnect-period <MILLISECONDS>           | 自动重连的间隔时间，通过设置为 0 来禁用自动重连，默认为 1000ms                             |
-| --maximum-reconnect-times <NUMBER>               | 最大重连次数，默认为 10                                                                    |
-| -up, --user-properties <USERPROPERTIES...>       | MQTT 5.0 用户属性，例如：-up "name: mqttx cli"                                             |
-| -f, --format <TYPE>                              | 消息格式化类型，支持 base64、json、hex                                                     |
+| -rp, --reconnect-period \<MILLISECONDS\>           | 自动重连的间隔时间，通过设置为 0 来禁用自动重连，默认为 1000ms                             |
+| --maximum-reconnect-times \<NUMBER\>               | 最大重连次数，默认为 10                                                                    |
+| -up, --user-properties \<USERPROPERTIES...\>       | MQTT 5.0 用户属性，例如：-up "name: mqttx cli"                                             |
+| -f, --format \<TYPE\>                              | 消息格式化类型，支持 base64、json、hex、binary、cbor 和 msgpack                                                     |
 | -v, --verbose                                    | 在接收到的 Payload 前显示当前 Topic                                                        |
-| --output-mode <default/clean>                    | 选择默认或简洁模式，简洁模式会输出完整的数据包，允许用户使用 jq 这类工具自由管理输出       |
-| -Wt, --will-topic <TOPIC>                        | 遗嘱消息的 Topic                                                                           |
-| -Wm, --will-message <BODY>                       | 遗嘱消息的 Payload                                                                         |
-| -Wq, --will-qos <0/1/2>                          | 遗嘱消息的 QoS                                                                             |
+| --output-mode \<default/clean\>                    | 选择默认或简洁模式，简洁模式会输出完整的数据包，允许用户使用 jq 这类工具自由管理输出       |
+| -Wt, --will-topic \<TOPIC\>                        | 遗嘱消息的 Topic                                                                           |
+| -Wm, --will-message \<BODY\>                       | 遗嘱消息的 Payload                                                                         |
+| -Wq, --will-qos \<0/1/2\>                          | 遗嘱消息的 QoS                                                                             |
 | -Wr, --will-retain                               | 发送的遗嘱消息为保留消息，默认为 false                                                     |
-| -Wd, --will-delay-interval <SECONDS>             | 遗嘱消息延迟间隔，单位为秒                                                                 |
+| -Wd, --will-delay-interval \<SECONDS\>             | 遗嘱消息延迟间隔，单位为秒                                                                 |
 | -Wpf, --will-payload-format-indicator            | 遗嘱消息是否为UTF-8编码的字符数据                                                          |
-| -We, --will-message-expiry-interval <SECONDS>    | 遗嘱信息的有效期，单位为秒                                                                 |
-| -Wct, --will-content-type <CONTENTTYPE>          | 遗嘱消息内容的描述                                                                         |
-| -Wrt, --will-response-topic <TOPIC>              | 响应信息的主题名称                                                                         |
-| -Wcd, --will-correlation-data <DATA>             | 响应信息的关联数据                                                                         |
-| -Wup, --will-user-properties <USERPROPERTIES...> | 遗嘱消息的自定义用户属性                                                                   |
-| -se, --session-expiry-interval <SECONDS>         | 会话过期间隔，单位为秒                                                                     |
-| -si, --subscription-identifier <NUMBER>          | 订阅标识符                                                                                 |
-| --rcv-max, --receive-maximum <NUMBER>            | 接收消息的最大值                                                                           |
-| --maximum-packet-size <NUMBER>                   | 客户端愿意接受的最大数据包大小                                                             |
-| --topic-alias-maximum <NUMBER>                   | 主题别名的最大值                                                                           |
+| -We, --will-message-expiry-interval \<SECONDS\>    | 遗嘱信息的有效期，单位为秒                                                                 |
+| -Wct, --will-content-type \<CONTENTTYPE\>          | 遗嘱消息内容的描述                                                                         |
+| -Wrt, --will-response-topic \<TOPIC\>              | 响应信息的主题名称                                                                         |
+| -Wcd, --will-correlation-data \<DATA\>             | 响应信息的关联数据                                                                         |
+| -Wup, --will-user-properties \<USERPROPERTIES...\> | 遗嘱消息的自定义用户属性                                                                   |
+| -se, --session-expiry-interval \<SECONDS\>         | 会话过期间隔，单位为秒                                                                     |
+| -si, --subscription-identifier \<NUMBER...\>          | 订阅标识符                                                                                 |
+| --rcv-max, --receive-maximum \<NUMBER\>            | 接收消息的最大值                                                                           |
+| --maximum-packet-size \<NUMBER\>                   | 客户端愿意接受的最大数据包大小                                                             |
+| --topic-alias-maximum \<NUMBER\>                   | 主题别名的最大值                                                                           |
 | --req-response-info                              | 客户端要求服务器提供的响应信息                                                             |
-| --no-req-problem-info                            | 客户端向服务器请求问题信息                                                                 |
-| -Cup, --conn-user-properties <USERPROPERTIES...> | MQTT 5.0 的连接用户属性（例如，-Cup "name: mqttx cli"）                                    |
-| --save \[PATH\]                                  | 将参数保存到本地配置文件中，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json |
-| --config \[PATH\]                                | 从本地配置文件加载参数，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json     |
+| --no-req-problem-info                            | 不请求服务器返回问题信息                                                                 |
+| -Cup, --conn-user-properties \<USERPROPERTIES...\> | MQTT 5.0 的连接用户属性（例如，-Cup "name: mqttx cli"）                                    |
+| -so, --save-options \[PATH\]                                  | 将参数保存到本地配置文件中，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-options.json |
+| -lo, --load-options \[PATH\]                                | 从本地配置文件加载参数，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-options.json     |
 | --help                                           | 展示 sub 命令的帮助信息                                                                    |
-| -Pp, --protobuf-path <PATH>                      | 定义 Protocol Buffers（protobuf）消息格式的 .proto 文件路径                                |
-| -Pmn, --protobuf-message-name <NAME>             | Protobuf 消息类型的名称（必须存在于 .proto 文件中）                                        |
+| -Pp, --protobuf-path \<PATH\>                      | 定义 Protocol Buffers（protobuf）消息格式的 .proto 文件路径                                |
+| -Pmn, --protobuf-message-name \<NAME\>             | Protobuf 消息类型的名称（必须存在于 .proto 文件中）                                        |
 
 ### 发布
 
@@ -266,59 +267,59 @@ mqttx pub --help
 
 | 参数                                             | 描述                                                                                       |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| -V, --mqtt-version <5.0/3.1.1/3.1>                 | MQTT 版本，默认为 5                                                                        |
-| -h, --hostname <HOST>                            | MQTT Broker 的 Host 地址，默认为 localhost                                                 |
-| -p, --port <PORT>                                | MQTT Broker 的端口号                                                                       |
-| -i, --client-id <ID>                             | 客户端 ID                                                                                  |
-| -q, --qos <0/1/2>                                | 消息的 QoS，默认为 0                                                                       |
-| --no-clean                                       | 取消 clean session 标志位，默认为 true                                                     |
-| -t, --topic <TOPIC>                              | 需要发布的 Topic                                                                           |
-| -m, --message<MSG>                               | 需要发布的 Payload 消息                                                                    |
-| -r, --retain                                     | 设置发送消息为 Retain 消息，默认为 fasle                                                   |
+| -V, --mqtt-version \<5.0/3.1.1/3.1\>                 | MQTT 版本，默认为 5                                                                        |
+| -h, --hostname \<HOST\>                            | MQTT Broker 的 Host 地址，默认为 localhost                                                 |
+| -p, --port \<PORT\>                                | MQTT Broker 的端口号                                                                       |
+| -i, --client-id \<ID\>                             | 客户端 ID                                                                                  |
+| -q, --qos \<0/1/2\>                                | 消息的 QoS，默认为 0                                                                       |
+| --no-clean                                       | 关闭 Clean Session / Clean Start（默认开启）                                                     |
+| -t, --topic \<TOPIC\>                              | 需要发布的 Topic                                                                           |
+| -m, --message \<BODY\>                               | 需要发布的 Payload 消息                                                                    |
+| -r, --retain                                     | 设置发送消息为 Retain 消息，默认为 false                                                   |
 | -s, --stdin                                      | 从 stdin 中读取信息体                                                                      |
 | -M, --multiline                                  | 可以通过多行发布多条消息                                                                   |
-| -u, --username <USER>                            | 连接到 MQTT Broker 的用户名                                                                |
-| -P, --password <PASS>                            | 连接到 MQTT Broker 的密码                                                                  |
-| -f, --format <TYPE>                              | 输入消息的格式类型，支持 base64、json 和 hex                                               |
-| -l, --protocol <PROTO>                           | 连接时的协议，支持 mqtt、mqtts、ws、wss，默认为 mqtt                                       |
-| --path <PATH>                                    | websocket 的路径，默认为 /mqtt                                                             |
-| --key <PATH>                                     | key 文件的路径                                                                             |
-| --cert <PATH>                                    | cert 文件的路径                                                                            |
-| --ca                                             | ca 证书的文件路径                                                                          |
+| -u, --username \<USER\>                            | 连接到 MQTT Broker 的用户名                                                                |
+| -P, --password \<PASS\>                            | 连接到 MQTT Broker 的密码                                                                  |
+| -f, --format \<TYPE\>                              | 输入消息的格式类型，支持 base64、json、hex、binary、cbor 和 msgpack                                               |
+| -l, --protocol \<PROTO\>                           | 连接时的协议，支持 mqtt、mqtts、ws、wss，默认为 mqtt                                       |
+| --path \<PATH\>                                    | websocket 的路径，默认为 /mqtt                                                             |
+| --key \<PATH\>                                     | key 文件的路径                                                                             |
+| --cert \<PATH\>                                    | cert 文件的路径                                                                            |
+| --ca \<PATH\>                                             | ca 证书的文件路径                                                                          |
 | --insecure                                       | 取消服务器的证书校验                                                                       |
-| -rp, --reconnect-period <MILLISECONDS>           | 自动重连的间隔时间，通过设置为 0 来禁用自动重连，默认为 1000ms                             |
-| --maximum-reconnect-times <NUMBER>               | 最大重连次数，默认为 10                                                                    |
-| -up, --user-properties <USERPROPERTIES...>       | MQTT 5.0 用户属性，例如：-up "name: mqttx cli"                                             |
+| -rp, --reconnect-period \<MILLISECONDS\>           | 自动重连的间隔时间，通过设置为 0 来禁用自动重连，默认为 1000ms                             |
+| --maximum-reconnect-times \<NUMBER\>               | 最大重连次数，默认为 10                                                                    |
+| -up, --user-properties \<USERPROPERTIES...\>       | MQTT 5.0 用户属性，例如：-up "name: mqttx cli"                                             |
 | -pf, --payload-format-indicator                  | 发布信息的有效载荷格式指标                                                                 |
-| -e, --message-expiry-interval <NUMBER>           | 发布信息的有效期，单位为秒                                                                 |
-| -ta, --topic-alias <NUMBER>                      | 主题别名，识别主题的值，而不是使用主题名称                                                 |
-| -rt, --response-topic <TOPIC>                    | 作为响应信息的主题名称                                                                     |
-| -cd, --correlation-data <DATA>                   | 请求信息的发送者在收到响应信息时用来识别是哪个请求的对比数据                               |
-| -si, --subscription-identifier <NUMBER>          | 订阅标识符                                                                                 |
-| -ct, --content-type <TYPE>                       | 对发布信息内容的描述                                                                       |
-| -Wt, --will-topic <TOPIC>                        | 遗嘱消息的 Topic                                                                           |
-| -Wm, --will-message <BODY>                       | 遗嘱消息的 Payload                                                                         |
-| -Wq, --will-qos <0/1/2>                          | 遗嘱消息的 QoS                                                                             |
+| -e, --message-expiry-interval \<NUMBER\>           | 发布信息的有效期，单位为秒                                                                 |
+| -ta, --topic-alias \<NUMBER\>                      | 主题别名，识别主题的值，而不是使用主题名称                                                 |
+| -rt, --response-topic \<TOPIC\>                    | 作为响应信息的主题名称                                                                     |
+| -cd, --correlation-data \<DATA\>                   | 请求信息的发送者在收到响应信息时用来识别是哪个请求的对比数据                               |
+| -si, --subscription-identifier \<NUMBER\>          | 订阅标识符                                                                                 |
+| -ct, --content-type \<TYPE\>                       | 对发布信息内容的描述                                                                       |
+| -Wt, --will-topic \<TOPIC\>                        | 遗嘱消息的 Topic                                                                           |
+| -Wm, --will-message \<BODY\>                       | 遗嘱消息的 Payload                                                                         |
+| -Wq, --will-qos \<0/1/2\>                          | 遗嘱消息的 QoS                                                                             |
 | -Wr, --will-retain                               | 发送的遗嘱消息为保留消息，默认为 false                                                     |
-| -Wd, --will-delay-interval <SECONDS>             | 遗嘱消息延迟间隔，单位为秒                                                                 |
+| -Wd, --will-delay-interval \<SECONDS\>             | 遗嘱消息延迟间隔，单位为秒                                                                 |
 | -Wpf, --will-payload-format-indicator            | 遗嘱消息是否为UTF-8编码的字符数据                                                          |
-| -We, --will-message-expiry-interval <SECONDS>    | 遗嘱信息的有效期，单位为秒                                                                 |
-| -Wct, --will-content-type <CONTENTTYPE>          | 遗嘱消息内容的描述                                                                         |
-| -Wrt, --will-response-topic <TOPIC>              | 响应信息的主题名称                                                                         |
-| -Wcd, --will-correlation-data <DATA>             | 响应信息的关联数据                                                                         |
-| -Wup, --will-user-properties <USERPROPERTIES...> | 遗嘱消息的自定义用户属性                                                                   |
-| -se, --session-expiry-interval <SECONDS>         | 会话过期间隔，单位为秒                                                                     |
-| --rcv-max, --receive-maximum <NUMBER>            | 接收消息的最大值                                                                           |
-| --maximum-packet-size <NUMBER>                   | 客户端愿意接受的最大数据包大小                                                             |
-| --topic-alias-maximum <NUMBER>                   | 主题别名的最大值                                                                           |
+| -We, --will-message-expiry-interval \<SECONDS\>    | 遗嘱信息的有效期，单位为秒                                                                 |
+| -Wct, --will-content-type \<CONTENTTYPE\>          | 遗嘱消息内容的描述                                                                         |
+| -Wrt, --will-response-topic \<TOPIC\>              | 响应信息的主题名称                                                                         |
+| -Wcd, --will-correlation-data \<DATA\>             | 响应信息的关联数据                                                                         |
+| -Wup, --will-user-properties \<USERPROPERTIES...\> | 遗嘱消息的自定义用户属性                                                                   |
+| -se, --session-expiry-interval \<SECONDS\>         | 会话过期间隔，单位为秒                                                                     |
+| --rcv-max, --receive-maximum \<NUMBER\>            | 接收消息的最大值                                                                           |
+| --maximum-packet-size \<NUMBER\>                   | 客户端愿意接受的最大数据包大小                                                             |
+| --topic-alias-maximum \<NUMBER\>                   | 主题别名的最大值                                                                           |
 | --req-response-info                              | 客户端要求服务器提供的响应信息                                                             |
-| --no-req-problem-info                            | 客户端向服务器请求问题信息                                                                 |
-| -Cup, --conn-user-properties <USERPROPERTIES...> | MQTT 5.0 的连接用户属性（例如，-Cup "name: mqttx cli"）                                    |
-| --save \[PATH\]                                  | 将参数保存到本地配置文件中，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json |
-| --config \[PATH\]                                | 从本地配置文件加载参数，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-config.json     |
+| --no-req-problem-info                            | 不请求服务器返回问题信息                                                                 |
+| -Cup, --conn-user-properties \<USERPROPERTIES...\> | MQTT 5.0 的连接用户属性（例如，-Cup "name: mqttx cli"）                                    |
+| -so, --save-options \[PATH\]                                  | 将参数保存到本地配置文件中，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-options.json |
+| -lo, --load-options \[PATH\]                                | 从本地配置文件加载参数，文件支持 json 和 yaml 格式，默认路径为 ./mqttx-cli-options.json     |
 | --help                                           | 展示 pub 命令的帮助信息                                                                    |
-| -Pp, --protobuf-path <PATH>                      | 定义 Protocol Buffers（protobuf）消息格式的 .proto 文件路径                                |
-| -Pmn, --protobuf-message-name <NAME>             | Protobuf 消息类型的名称（必须存在于 .proto 文件中）                                        |
+| -Pp, --protobuf-path \<PATH\>                      | 定义 Protocol Buffers（protobuf）消息格式的 .proto 文件路径                                |
+| -Pmn, --protobuf-message-name \<NAME\>             | Protobuf 消息类型的名称（必须存在于 .proto 文件中）                                        |
 
 ### 性能测试
 
@@ -332,9 +333,9 @@ mqttx bench conn --help
 
 | 参数                          | 描述                             |
 | ----------------------------- | -------------------------------- |
-| -c, --count <NUMBER>          | 连接数量，默认为 1000            |
-| -i, --interval <MILLISECONDS> | 创建连接的间隔时间，默认为 10ms  |
-| -I, --client-id <ID>          | 客户端 ID，支持 %i (索引) 占位符 |
+| -c, --count \<NUMBER\>          | 连接数量，默认为 1000            |
+| -i, --interval \<MILLISECONDS\> | 创建连接的间隔时间，默认为 10ms  |
+| -I, --client-id \<ID\>          | 客户端 ID，支持 %i (索引) 占位符 |
 
 #### 订阅性能测试
 
@@ -344,10 +345,10 @@ mqttx bench sub --help
 
 | 参数                          | 描述                                                                 |
 | ----------------------------- | -------------------------------------------------------------------- |
-| -c, --count <NUMBER>          | 连接数量，默认为 1000                                                |
-| -i, --interval <MILLISECONDS> | 创建连接的间隔时间，单位为毫秒，默认为 10ms                          |
-| -I, --client-id <ID>          | 客户端 ID，支持 %i (索引) 占位符                                     |
-| -t, --topic <TOPIC...>        | 需要订阅的 Topic, 支持 %u (用户名), %c (客户端 ID), %i (索引) 占位符 |
+| -c, --count \<NUMBER\>          | 连接数量，默认为 1000                                                |
+| -i, --interval \<MILLISECONDS\> | 创建连接的间隔时间，单位为毫秒，默认为 10ms                          |
+| -I, --client-id \<ID\>          | 客户端 ID，支持 %i (索引) 占位符                                     |
+| -t, --topic \<TOPIC...\>        | 需要订阅的 Topic, 支持 %u (用户名), %c (客户端 ID), %i (索引) 占位符 |
 | -v, --verbose                 | 打印接收到的历史消息数量与消息速率                                   |
 
 #### 发布性能测试
@@ -358,11 +359,11 @@ mqttx bench pub --help
 
 | 参数                                   | 描述                                                                 |
 | -------------------------------------- | -------------------------------------------------------------------- |
-| -c, --count <NUMBER>                   | 连接数量，默认为 1000                                                |
-| -i, --interval <MILLISECONDS>          | 创建连接的间隔时间，单位为毫秒，默认为 10ms                          |
-| -im, --message-interval <MILLISECONDS> | 发布消息的间隔时间，单位为毫秒，默认为 1000ms                        |
-| -I, --client-id <ID>                   | 客户端 ID，支持 %i (索引) 占位符                                     |
-| -t, --topic <TOPIC...>                 | 需要订阅的 Topic, 支持 %u (用户名), %c (客户端 ID), %i (索引) 占位符 |
+| -c, --count \<NUMBER\>                   | 连接数量，默认为 1000                                                |
+| -i, --interval \<MILLISECONDS\>          | 创建连接的间隔时间，单位为毫秒，默认为 10ms                          |
+| -im, --message-interval \<MILLISECONDS\> | 发布消息的间隔时间，单位为毫秒，默认为 1000ms                        |
+| -I, --client-id \<ID\>                   | 客户端 ID，支持 %i (索引) 占位符                                     |
+| -t, --topic \<TOPIC\>                 | 需要发布的 Topic, 支持 %u (用户名), %c (客户端 ID), %i (索引) 占位符 |
 | -v, --verbose                          | 打印发送出的历史消息数量与消息速率                                   |
 | ~~-s, --stdin~~                        | ~~从 stdin 中读取信息体~~                                            |
 | ~~-M, --multiline~~                    | ~~可以通过多行发布多条消息~~                                         |
@@ -379,9 +380,9 @@ mqttx simulate --help
 
 | 参数                            | 描述                                                                                                                             |
 | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| -sc, --scenario <SCENARIO>      | 模拟内置场景的名称                                                                                                               |
-| -f, --file <SCENARIO FILE PATH> | 本地自定义场景脚本的文件路径                                                                                                     |
-| -t, --topic <TOPIC...>          | 需要发布的消息主题, 可选, 支持 %u (用户名), %c (客户端 ID), %i (索引) 占位符,  %sc (场景) 占位符, 默认为 `mqttx/simulate/%sc/%c` |
+| -sc, --scenario \<SCENARIO\>      | 模拟内置场景的名称                                                                                                               |
+| -f, --file \<SCENARIO FILE PATH\> | 本地自定义场景脚本的文件路径                                                                                                     |
+| -t, --topic \<TOPIC\>          | 需要发布的消息主题, 可选, 支持 %u (用户名), %c (客户端 ID), %i (索引) 占位符,  %sc (场景) 占位符, 默认为 `mqttx/simulate/%sc/%c` |
 
 `--scenario` 与 `--file` 参数必须指定一个，如果同时指定，优先使用 `--file` 参数。
 

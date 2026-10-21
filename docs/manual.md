@@ -12,9 +12,9 @@
 
 ## Introduction
 
-[MQTTX](https://mqttx.app) is an open-source, cross-platform MQTT 5.0 desktop client from [EMQ](https://www.emqx.com/) for macOS, Linux, and Windows. Its chat-style interface lets you work with multiple connections at once and quickly test connecting, publishing, subscribing, and other MQTT features over TCP, TLS, and WebSocket.
+[MQTTX Desktop](https://mqttx.app) is an open-source MQTT 5.0 client from [EMQ](https://www.emqx.com/) for macOS, Windows, and Linux. Its chat-style interface supports multiple connections and subscriptions over TCP, TLS, and WebSocket, with MQTTX Agent for connection setup, messaging, and troubleshooting in natural language.
 
-Check the [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX) for the latest release before installing. You can also clone the source code and build MQTTX yourself. If you run into a problem or have an idea, open a [GitHub issue](https://github.com/emqx/MQTTX/issues), or fork the project and submit a pull request.
+Download the latest release from the [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX), or build it from [source](https://github.com/emqx/MQTTX). Report problems and suggestions in [GitHub issues](https://github.com/emqx/MQTTX/issues); fork the project and submit a pull request to contribute.
 
 ### Preview
 
@@ -106,99 +106,123 @@ sudo snap install mqttx
 
 ### Quickly establish a connection
 
-When MQTT Broker is ready, click `+` in the left menu bar to enter the main program page. If there is no data on the page, you can also directly click the `new connection` button on the right to configure a new client connection quickly.
+Once your broker is ready, click `+` in the left sidebar or **New Connection** to open the connection form.
 
-While the connection list is empty, the page also offers three quick-start cards: `New Connection` opens the connection form (or press `Cmd/Ctrl + N`), `Try public broker` creates a connection named `broker.emqx.io` to `broker.emqx.io:1883` and connects it immediately, and `Import Data` opens the import dialog for JSON, YAML, CSV, XML, or Excel files and reloads the app once the import succeeds.
+When no connections are saved, the welcome page offers three shortcuts:
+
+- **New Connection**: Open the connection form, or press `Cmd/Ctrl + N`.
+- **Try public broker**: Create a connection named `broker.emqx.io` to `broker.emqx.io:1883` and connect immediately.
+- **Import Data**: Import JSON, YAML, CSV, XML, or Excel files. The app reloads after a successful import.
 
 ![mqttx-create](../assets/mqttx-create.png)
 
 ### Client related information
 
-After entering the creation page, it is required to configure or fill in the relevant information for connecting to the client.
+Configure the following fields on the connection form.
 
-1. Broker information
+1. Broker Information
 
-   When configuring the `Broker` information,`Client ID`, `Host`, and `Port` are already filled in by default. You can also modify it based on the actual `Broker` information. Click the refresh button to the right of `Client ID` to quickly generate a new `Client ID`.
+   **Client ID**, **Host**, and **Port** have default values. Set them to match your broker.
 
-   The drop-down box in front of `Host` is used to select the connection protocol, which supports `mqtt: //`, `ws: //`. If an `SSL / TLS` authentication connection is used, it needs to be modified to `mqtts: //`. , `Wss: //`.
+   - **Name**: Enter a connection name, such as `emqx_test`.
+   - **Client ID**: A unique identifier for the connection. Click the refresh button to generate one.
+   - **Host**: Choose `mqtt://` or `ws://`, or `mqtts://` or `wss://` for TLS. The default hostname is the public broker `broker.emqx.io`; replace it with your broker's hostname or IP address when needed.
+     - **Path**: For WebSocket connections, enter the server's endpoint path; the default is `/mqtt`.
+   - **Port**: Use the port configured for the selected protocol. EMQX defaults are listed below; your broker may use different ports.
 
-    **Note**: When the protocol is modified, the connection port needs to be modified.
+     | Protocol | Default EMQX port |
+     | -------- | ----------------- |
+     | mqtt://  | 1883              |
+     | mqtts:// | 8883              |
+     | ws://    | 8083              |
+     | wss://   | 8084              |
 
-![mqttx-brokerinfo](../assets/mqttx-brokerinfo.png)
+   ![mqttx-brokerinfo](../assets/mqttx-brokerinfo.png)
 
-2. User authentication information
+2. User Authentication Information
 
-   If your broker has enabled user authentication, you can fill in the information of `Username` and `Password` in the configuration item.
+   If the broker requires user authentication, enter **Username** and **Password**.
 
-![mqttx-user](../assets/mqttx-user.png)
+   ![mqttx-user](../assets/mqttx-user.png)
 
 3. SSL/TLS
 
-   When you need to enable `SSL/TLS` authentication, you only need to set the `SSL/TLS` configuration item in the configuration as `true`. The two methods,`CA signed self` and `CA or Self-signed certificates` are provided.
+   Enable **SSL/TLS** to encrypt the connection between MQTTX and the broker.
 
-   If `CA or Self-signed certificates` is selected, certificate configuration can be performed. Click the folder button on the far right to select the certificates you have generated. If it is a one-way connection, you only need to select your `CA File`. If it is a two-way authentication, you also need to select to configure `Client Certificate File` and `Client key file`. Keep `SSL Secure` enabled to verify the server certificate chain and hostname.
+   - **SSL/TLS**: Enable or disable TLS; off by default.
+   - **SSL Secure**: Verify the server certificate chain and hostname. Turning it off skips both checks. You can temporarily disable it when testing untrusted certificates in development or a trusted internal network; keep it enabled in production and for external connections.
+   - **CA signed server certificate**: Verify the server using a trusted CA.
+   - **CA or Self-signed certificates**: Supply your own certificates. One-way authentication requires **CA File**; two-way authentication also requires **Client Certificate File** and **Client key file**. Use the folder icon beside each field to select the file.
 
-![mqttx-certs](../assets/mqttx-certs.png)
+   ![mqttx-certs](../assets/mqttx-certs.png)
 
-4. Advanced configuration
+4. Advanced Configuration
 
-   In the advanced configuration, you can configure `Connection Timeout Duration`, `KeepAlive`, `Clean Session`, `Auto Reconnect`, `MQTT Version`, etc.
+   In **Advanced**, set the connection timeout, [Keep Alive](https://www.emqx.com/en/blog/mqtt-keep-alive), Clean Session or Clean Start, automatic reconnection, and MQTT version.
 
 5. MQTT 5.0
 
-   In the advanced configuration, you can select the protocol version of MQTT, including MQTT v3.1.1 and MQTT v5.0; the default is v5.0. If you choose v5.0, you can configure `Session Expiry Interval`, `Receive Maximum`, and `Topic Alias Maximum` (optional).
+   **MQTT Version** defaults to `5.0`; `3.1` and `3.1.1` are also available. With MQTT 5.0, you can set optional properties such as `Session Expiry Interval`, `Receive Maximum`, and `Topic Alias Maximum`.
 
-![mqttx-v5](../assets/mqttx-v5.png)
+   ![mqttx-v5](../assets/mqttx-v5.png)
 
 6. Will Message
 
-    Below the advanced configuration, you can configure the Will Message. The values of `Last-Will-QoS` and `Last-Will-Retain` are filled with 0 and `False` by default. When you enter the values of `Last-Will-Topic` and `Last-Will-Payload`, you can complete the configuration of Will Message.
+   In **Last Will and Testament**, configure the message that the broker publishes if the client disconnects unexpectedly.
 
-![mqttx-willmessage](../assets/mqttx-willmessage.png)
+   `Last-Will-QoS` defaults to `0` and `Last-Will-Retain` to `False`. Enter `Last-Will-Topic` and `Last-Will-Payload` to complete the configuration.
 
-After the configuration is complete, click the `Connect` button in the upper right corner to quickly create a connection and connect to MQTT Broker.
+   ![mqttx-willmessage](../assets/mqttx-willmessage.png)
+
+Click **Connect** in the upper right corner to create the connection and connect to the broker.
 
 ### Subscribe and publish MQTT messages
 
 1. Main interface
 
-   After the connection is successful, you can enter the main interface of the connection. Click the fold button next to the connection name at the top to expand and display some basic information of the configuration. It is convenient to quickly modify several commonly used configurations of the connection. You need to disconnect when modifying, and click connect again to take effect. After each successful connection, the panel will automatically fold up. In the disconnected state, you can also click the configuration button on the right to modify more connection configurations.
+   After connecting, expand the panel next to the connection name to view or edit basic settings. Disconnect before changing settings, then reconnect to apply them. The panel collapses after each successful connection. While disconnected, use the configuration button on the right for all connection settings.
 
-![mqttx-main](../assets/mqttx-main.png)
+   ![mqttx-main](../assets/mqttx-main.png)
 
 2. Add subscription
 
-   Click the `New Subscription` button in the lower left corner to quickly add a Topic. Each Topic can be marked with a color, which can be randomly generated or opened by the color selector. The rightmost button at the top of the subscription list can hide the subscription list to show more space on the page. After the addition is complete, click on the subscribed Topic items in the subscription list to achieve message filtering. The message view will only display the message content subscribed to the current topic. Click again to cancel the filter; You can also directly click other subscribed Topic items to view the corresponding message content. By clicking on the topic name, you can quickly copy the current topic information. When you need to send a message to this topic, you can quickly paste it into the topic input box of the message bar to modify it, and you can quickly complete the operation.
+   Click `New Subscription` in the lower left corner and enter a [Topic](https://www.emqx.com/en/blog/advanced-features-of-mqtt-topics). Choose a color or use a randomly generated one. The button at the top right of the subscription list hides the list.
 
-![mqttx-topic](../assets/mqttx-topic.png)
+   Click a subscription to filter messages; click it again to clear the filter, or select another subscription to change the filter. Click the topic name to copy it, then paste it into the publish area's topic field when needed.
 
-   When adding `Topic`, you can set an alias for each Topic. This option is an optional. When the subscription is set and added, the `Topic` in the subscription list will be displayed as an alias, and the mouse over the `Topic` item, the prompt box will also display the original value of the `Topic`. This is very helpful when multiple `Topics` that need to be monitored are too long to distinguish the specific meaning of `Topic`.
+   ![mqttx-topic](../assets/mqttx-topic.png)
 
-![mqttx-topic-alias](../assets/mqttx-topic-alias.png)
+   Optionally, set a topic alias when adding a subscription. The list displays the alias, while hovering shows the original topic. Aliases help distinguish long topic names.
 
-   We open the dialog of the subscription topic, in the Topic input box, enter multiple Topics and use comma (,) to split, click to confirm the success of the subscription, we can see that the subscription list contains multiple Topics. for the use of the client layer alias function can also support the simultaneous setting of multiple Topics, the same use of comma separation (,).
+   ![mqttx-topic-alias](../assets/mqttx-topic-alias.png)
 
-![mqttx-muti-topics](../assets/mqttx-muti-topics.png)
+   To add multiple topics at once, separate them with commas in the subscription dialog. Use commas to separate their aliases too.
 
-   Subscribed Topics support **Edit/Disable/Enable**, right click on the subscribed Topic list item, in the context menu we can quickly choose to edit, disable or enable the operation. When subscribing to too many Topics, sometimes not all the Topic messages you want to receive, in order to avoid subscribing to the same Topic again, the disable function is provided, if you want to receive messages from the Topic again, just enable it again.
+   ![mqttx-multi-topics](../assets/mqttx-muti-topics.png)
 
-   Subscriptions can also be deleted or disabled while the connection is disconnected, and the change takes effect immediately when Clean Session (MQTT 3.x) or Clean Start (MQTT 5.0) is enabled. If the connection uses a persistent session — Clean Session turned off in MQTT 3.x, or Clean Start turned off with a Session Expiry Interval greater than 0 in MQTT 5.0 — MQTTX explains that the broker still keeps the subscription and blocks the change. Adding or editing a subscription still requires a connection.
+   Right-click a subscription to **Edit**, **Disable**, or **Enable** it. Disable a subscription to stop receiving its messages temporarily; enable it to resume without entering the topic again.
 
-![mqttx-edit-topic](../assets/mqttx-edit-topic.png)
+   ![mqttx-edit-topic](../assets/mqttx-edit-topic.png)
+
+   While disconnected, you can delete or disable subscriptions if Clean Session (MQTT 3.x) or Clean Start (MQTT 5.0) is enabled. MQTTX blocks these changes for persistent sessions: Clean Session disabled, or Clean Start disabled with a Session Expiry Interval greater than 0. The broker retains those subscriptions. Adding or editing a subscription still requires a connection.
 
 3. Sending and receiving of messages
 
-   After the `Topic` is successfully subscribed, you can test the sending and receiving of messages. Fill in the `Topic` information you just subscribed to in the lower right corner of the page. You can select the values of `QoS`, `Retain`, input `payload`, and click the send button on the far right to send a message to the `Topic` you just subscribed. After sending successfully, you can immediately receive the message just sent. Note that in the message box, the right column is the sent message, and the left column is the received message. macOS users can use the `command + enter` shortcut to quickly send messages, and other users can use the `control + enter` shortcut to do that.
+   In the publish area, enter a subscribed topic, choose [QoS](https://www.emqx.com/en/blog/introduction-to-mqtt-qos) and `Retain`, enter the payload, and click Send. Sent messages appear on the right and received messages on the left. A message published to a subscribed topic appears in both. Press `Cmd + Enter` on macOS or `Ctrl + Enter` on other systems to publish.
 
-   Through the `payload` option in the message bar, the messages can quickly be converted between `Base64`, `Hex`, `JSON`, `Plaintext`, `CBOR`, and `MsgPack`. For `Protobuf` and `Avro`, use the `Schema` tab on the `Script` page.
+   ![mqttx-message](../assets/mqttx-message.png)
 
-   Use the arrow buttons in the publish area to step through previously published payloads. To copy a message's payload or topic, right-click the message in the list.
+   Choose `Base64`, `Hex`, `JSON`, `Plaintext`, `CBOR`, or `MsgPack` in the publish area's `payload` selector. Use the format selector above the message list to decode received messages.
 
-   Each connection keeps its own publish area (`Topic`, `QoS`, `Retain`, `Payload`, and payload format) and its own publish history, so switching connections no longer mixes them. A connection that has never saved a publish area opens with its most recent sent message. Publish histories that older versions shared between all connections are copied to every connection during the upgrade. In the topic history drop-down, the delete icon at the right of an entry removes that entry only.
+   > **Note:** CBOR and MsgPack are efficient binary formats that can reduce payload size compared with JSON. Both use JSON for input and output.
 
-![mqttx-message](../assets/mqttx-message.png)
+   For `Protobuf` and `Avro` encoding and decoding, open **Script > Schema**.
 
-So far, the test of an `MQTT` message is completed.
+   Use the arrows in the publish area to browse previously published payloads. Right-click a message to copy its payload or topic.
+
+   Each connection saves its own publish area (`Topic`, `QoS`, `Retain`, `Payload`, and format) and publish history. A connection with no saved publish area opens with its most recent sent message. Upgrading copies the previously shared history to each connection. In the topic history drop-down, use an entry's delete icon to remove only that entry.
+
+   So far, the testing of an `MQTT` message is completed.
 
 ### MQTT 5
 
@@ -262,6 +286,8 @@ On the settings page, you can click the data backup and recovery buttons in the 
 
 Backing up to `JSON` also keeps connection groups: nested and empty groups, their order, and the group each connection belongs to, and a single-connection JSON export includes its parent groups. The other formats keep their existing connection or message layout without groups. Older connection-only backups can still be imported and are placed at the root level, importing an existing ID updates that entity, and a file with conflicting IDs, missing group references, or a cyclic group hierarchy is rolled back as a whole.
 
+Connections remain disconnected after recovery. See [Advanced settings](https://mqttx.app/docs/advanced#backup-and-restore) for JSON compatibility and import conflict rules.
+
 ![mqttx-advance](../assets/mqttx-advance.png)
 
 ### MQTTX Agent
@@ -272,7 +298,7 @@ Type `/` and choose **Zero EMQX** to create a free temporary test broker and sav
 
 To turn it on, open **Settings → MQTTX Agent**, enable **Enable MQTTX Agent**, and fill in the **API Host**, **API Key**, and **Model** of your provider. Open the agent full screen with the star button in the left bar, or as a floating window with `Cmd/Ctrl + J` or the **MQTTX Agent** button at the top right of a connection or script page.
 
-The default **Ask before actions** mode lets reads run automatically and asks for approval before creating, connecting, subscribing, publishing, deleting, or calling MCP tools. **Auto** runs every action without asking; change the default in **Settings → MQTTX Agent → Default permission mode**.
+The default **Ask before actions** mode lets reads run automatically and asks for approval before creating, connecting, subscribing, publishing, deleting, or calling MCP tools. **Auto** skips these prompts, but script tests always require approval; change the default in **Settings → MQTTX Agent → Default permission mode**.
 
 Your conversations and tool results are sent to the model provider you configure, so avoid entering secrets in the chat. See [MQTTX Agent](./desktop/en/use-desktop/agent.md) for setup, attachments, Skills, MCP, conversation history, and limitations.
 
@@ -367,14 +393,15 @@ Click the `Clear History` button in the toolbar at the top of the connection pag
 
 ## Development Guide
 
-When developing, you need to have `Node.js` and `Git` installed locally, and be familiar with `Vue.js`, `Electron`, `TypeScript`, and related technologies. Use the Node.js version in [`.nvmrc`](../.nvmrc) (currently v22).
+Use Git, Yarn, and Node.js 22, matching [`.nvmrc`](../.nvmrc). Familiarity with Vue.js, Electron, and TypeScript is recommended. The commands below use [nvm](https://github.com/nvm-sh/nvm); use your version manager to select the same Node.js version if needed. For contributions, fork the repository first and clone your fork.
 
 ```shell
-# Fork & Clone project
-git clone git@github.com:${name}/MQTTX.git
+# Clone the repository
+git clone https://github.com/emqx/MQTTX.git
 
 # Install dependencies
 cd MQTTX
+nvm use
 yarn install
 
 # Run the app in development mode with hot reload
