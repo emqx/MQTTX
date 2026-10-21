@@ -71,9 +71,7 @@ import Contextmenu from '@/components/Contextmenu.vue'
 import getContextmenuPosition from '@/utils/getContextmenuPosition'
 import '@/assets/font/iconfont'
 
-// Estimated menu size for the right-click entry, which places the menu at the
-// pointer before it is rendered. The ⋯ entry is placed by Contextmenu itself
-// from the button's rect and the menu's measured size.
+// Estimate for the right-click path, which places before the menu renders.
 const MENU_WIDTH = 140
 const MENU_HEIGHT = 90
 
@@ -89,7 +87,6 @@ export default class DashboardsList extends Vue {
   private menuConfig: ContextmenuModel = { top: 0, left: 0 }
   // The row the open menu acts on; cleared when the menu closes.
   private menuTargetId: string | null = null
-  // The ⋯ button the open menu is anchored to (Contextmenu places itself from it).
   private menuAnchor: DOMRect | null = null
 
   /**
@@ -122,7 +119,6 @@ export default class DashboardsList extends Vue {
     this.menuVisible = true
   }
 
-  /** ⋯ button: the shared Contextmenu right-aligns itself on the button, 4px under it. */
   private openMenuFromButton(row: DashboardModel, event: MouseEvent): void {
     if (this.closeMenuIfOpen()) return
 
@@ -378,7 +374,6 @@ export default class DashboardsList extends Vue {
         overflow: hidden;
       }
 
-      // Row action placement; box, radius and colours come from `.row-action-trigger`.
       .dashboard-oper-trigger {
         position: absolute;
         top: 50%;

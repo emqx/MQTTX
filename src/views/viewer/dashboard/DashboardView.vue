@@ -131,14 +131,10 @@ export default class DashboardCanvas extends Vue {
 
   // === WIDGET MENU ===
   private menuVisible = false
-  // The widget the open menu acts on; cleared when the menu closes.
   private menuTargetId: string | null = null
-  // The ⋯ button the open menu is anchored to (Contextmenu places itself from it).
   private menuAnchor: DOMRect | null = null
 
-  // vue-grid-layout drags a card from any point of it; its default is
-  // `a, button`, and the ⋯ trigger is added so pressing the menu button never
-  // moves the card (and the menu anchored to it).
+  // vue-grid-layout drags a card from anywhere; the ⋯ must not start one.
   private dragIgnoreFrom = 'a, button, .widget-menu-trigger'
 
   @Watch('menuVisible')
@@ -168,7 +164,7 @@ export default class DashboardCanvas extends Vue {
   onWidgetsChanged(newWidgets: WidgetModel[], oldWidgets: WidgetModel[]) {
     this.cleanupRemovedWidgets(newWidgets, oldWidgets)
     this.syncWidgetSchemaStates()
-    // The target can disappear on refresh or deletion; drop its open menu.
+    // The target can vanish on refresh or delete; drop its menu.
     if (this.menuVisible && !this.menuTarget) {
       this.menuVisible = false
     }
@@ -602,7 +598,6 @@ export default class DashboardCanvas extends Vue {
     this.$emit('layout-changed', nextLayout)
   }
 
-  /** ⋯ button: the shared Contextmenu right-aligns itself on the button, 4px under it. */
   private openMenuFromButton(widget: WidgetModel, event: MouseEvent): void {
     if (this.menuVisible) {
       this.menuVisible = false
@@ -614,13 +609,12 @@ export default class DashboardCanvas extends Vue {
     this.menuVisible = true
   }
 
-  /** Resolved per action, so a widget that went away meanwhile is not acted on. */
+  /** Resolved on use, so a removed widget is not acted on. */
   private get menuTarget(): WidgetModel | null {
     if (!this.menuTargetId) return null
     return this.widgets.find((widget) => widget.id === this.menuTargetId) || null
   }
 
-  /** Closes the menu first, then emits the same event the dropdown used to. */
   private handleWidgetEdit(): void {
     const target = this.menuTarget
     this.menuVisible = false
@@ -1004,8 +998,6 @@ export default class DashboardCanvas extends Vue {
   flex-shrink: 0;
 }
 
-// The card action takes the shared trigger box; only its reveal is local: hidden
-// until the card is hovered, kept visible while its menu is open.
 .widget-menu-trigger {
   opacity: 0;
 
@@ -1053,8 +1045,6 @@ export default class DashboardCanvas extends Vue {
   }
 }
 
-// The box, radius, glyph colour and open state come from `.row-action-trigger`,
-// shared with the list triggers (DashboardsList, AgentSidebar) and the toolbars.
 .widget-body {
   flex: 1;
   min-height: 0;
