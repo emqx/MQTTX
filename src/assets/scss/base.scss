@@ -139,7 +139,6 @@ textarea {
   -webkit-app-region: drag;
 }
 
-/* Code highlighting (Prism) */
 body.light {
   @import './theme/custom/prism-one-light.scss';
 }
@@ -148,7 +147,6 @@ body.night {
   @import './theme/custom/prism-one-dark.scss';
 }
 
-/* Visualize tree dialog */
 .visualize-tree-dialog {
   .el-dialog__body {
     padding: 0px;
