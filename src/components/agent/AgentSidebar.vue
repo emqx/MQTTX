@@ -70,8 +70,7 @@ import { formatConversationTime } from '@/utils/ai/agent/conversationTime'
 type ConversationLike = { id: string; title: string; updateAt: string | number | Date }
 
 /**
- * Room the right-click entry assumes the menu needs; the `⋯` entry is placed by Contextmenu itself from the
- * button's rect and the menu's measured size.
+ * Estimated room for the right-click entry; the `⋯` entry is measured.
  */
 const MENU_WIDTH = 140
 const MENU_HEIGHT = 90
@@ -86,7 +85,6 @@ export default class AgentSidebar extends Vue {
   private menuConfig: ContextmenuModel = { top: 0, left: 0 }
   /** The conversation the open menu belongs to, so its row keeps the hover look */
   private menuTargetId: string | null = null
-  /** The `⋯` button the open menu is anchored to (Contextmenu places itself from it) */
   private menuAnchor: DOMRect | null = null
 
   @Watch('menuVisible')
@@ -110,7 +108,6 @@ export default class AgentSidebar extends Vue {
     this.menuVisible = true
   }
 
-  /** The `⋯` button opens the same menu; Contextmenu right-aligns it on the button, 4px under it */
   private openMenuFromButton(id: string, event: MouseEvent) {
     if (this.menuVisible) {
       this.menuVisible = false

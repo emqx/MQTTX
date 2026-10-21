@@ -39,9 +39,7 @@ export default class GaugeChart extends Vue {
   private dynamicMin: number | null = null
   private dynamicMax: number | null = null
 
-  // Value sizing rule: box driven like Big Number, then shrunk to the ring's
-  // inner opening, so a gauge value can read a little smaller than the Big
-  // Number one in a neighbouring card.
+  // Shrunk to the ring's inner opening so the value stays off the band.
   private readonly minValueFontPx = 24
   private readonly maxValueFontPx = 44
   private readonly minReadableFontPx = 20
@@ -186,20 +184,14 @@ export default class GaugeChart extends Vue {
     const height = container?.clientHeight || 200
     const size = Math.min(width, height)
 
-    // Same box-driven rule as the Big Number card (shrunk further to fit the
-    // ring below). The unit renders at 0.45x.
+    // Same rule as the value, shrunk further to fit the ring; unit at 0.45x.
     const valueText = this.data.value === null ? '0' : this.data.value.toFixed(this.decimals)
     const unitChars = this.unit ? this.unit.length * this.unitFontRatio : 0
     const weight = Math.max(valueText.length + unitChars, 1)
     const boxFontPx = Math.min(this.maxValueFontPx, Math.max(this.minValueFontPx, Math.min(height * 0.2, width * 0.16)))
 
-    // Band width, shared by the axis line and the progress bar below. The ring
-    // is `radius: '75%'` of the short side, and the band is drawn inward from it
-    // as a sector (`r0 = r - width`), so the free opening's diameter is
-    // 2 * (0.375 * size - band). The value keeps 22% of that as clearance, which
-    // leaves the text off the band and off the round caps that close the
-    // 200deg...-20deg arc at the lower left and right.
-    const bandWidth = Math.max(16, size / 12) // was 24, scales with size
+    // Band inward from the ring, so the free opening shrinks by twice the band.
+    const bandWidth = Math.max(16, size / 12)
     const innerDiameter = 2 * (0.375 * size - bandWidth)
 
     const detailFontSize = Math.round(

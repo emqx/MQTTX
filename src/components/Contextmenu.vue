@@ -20,14 +20,9 @@ export default class Contextmenu extends Vue {
   @Prop({ default: 0 }) public top!: number
   @Prop({ default: 0 }) public left!: number
   @Prop({ required: true }) public visible!: boolean
-  /**
-   * The button the menu hangs off. When set, the menu places itself: right edge
-   * on the button's right edge, 4px under it, clamped to the viewport with its
-   * own measured size. Without it, `top`/`left` are used as before.
-   */
+  /** The button the menu hangs off; without it, `top`/`left` place the menu. */
   @Prop({ default: null }) public anchor!: DOMRect | null
 
-  // Placement measured for the anchor path; `null` means "use the props".
   private anchorPlacement: { top: number; left: number } | null = null
 
   private get menuStyle(): { top: string; left: string } {
@@ -39,7 +34,6 @@ export default class Contextmenu extends Vue {
   @Watch('anchor')
   private onAnchorOrVisibilityChanged() {
     if (!this.visible || !this.anchor) {
-      // Hidden or right-click path: back to the `top`/`left` props.
       this.anchorPlacement = null
       return
     }
@@ -50,12 +44,7 @@ export default class Contextmenu extends Vue {
     this.placeAtAnchor()
   }
 
-  /**
-   * The menu is content-sized (its width changes with the language), so the
-   * placement waits for the rendered element and uses its real size. The
-   * callback runs before the browser paints, so the menu never shows at the
-   * props' position first.
-   */
+  /** Content-sized menu: measure it after render, before paint. */
   private placeAtAnchor(): void {
     if (!this.visible || !this.anchor) return
 
@@ -82,11 +71,7 @@ export default class Contextmenu extends Vue {
 </script>
 
 <style lang="scss">
-// `.el-card` (element-reset.scss) sets `background-color: var(--color-bg-normal)` at the
-// same specificity and is injected after this component's styles, so a bare `.contextmenu`
-// rule loses that tie. Compounding the card class wins regardless of order, which gives the
-// menu the same surface as the el-dropdown menus (`.el-popper`) in dark/night; border,
-// shadow and the 4px radius still come from `.el-card`.
+// Beat element-reset's .el-card background.
 .el-card.contextmenu {
   position: fixed;
   z-index: 10000;

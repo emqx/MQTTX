@@ -52,11 +52,7 @@ describe('Contextmenu.vue', () => {
   })
 })
 
-/**
- * The anchor path: the menu right-aligns itself on the button and measures its
- * own rendered size. jsdom has no layout, so the menu size and the viewport are
- * stubbed and restored per test.
- */
+/** Anchor path; jsdom has no layout, so menu size and viewport are stubbed. */
 describe('Contextmenu.vue anchor placement', () => {
   const MENU_WIDTH = 120
   const MENU_HEIGHT = 80
@@ -101,8 +97,8 @@ describe('Contextmenu.vue anchor placement', () => {
     await Vue.nextTick()
     await Vue.nextTick()
 
-    expect(style()).to.include('left: 104px') // anchor.right 224 - menu width 120
-    expect(style()).to.include('top: 128px') // anchor.bottom 124 + 4
+    expect(style()).to.include('left: 104px')
+    expect(style()).to.include('top: 128px')
   })
 
   it('clamps the menu inside the viewport edges', async () => {
@@ -110,8 +106,8 @@ describe('Contextmenu.vue anchor placement', () => {
     await Vue.nextTick()
     await Vue.nextTick()
 
-    expect(style()).to.include('left: 880px') // 1040 - 120 would overflow, 1000 - 120
-    expect(style()).to.include('top: 720px') // 794 + 80 would overflow, 800 - 80
+    expect(style()).to.include('left: 880px')
+    expect(style()).to.include('top: 720px')
   })
 
   it('keeps the top/left props without an anchor and returns to them when it is cleared', async () => {

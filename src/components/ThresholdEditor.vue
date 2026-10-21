@@ -86,8 +86,7 @@ export default class ThresholdEditor extends Vue {
 </script>
 
 <style lang="scss" scoped>
-// Own root class: KeyValueEditor's global (unscoped) rules used to apply here
-// and flatten the label-above layout below. Keep the two roots apart.
+// Own root class: the shared editor's global rules would flatten this layout.
 .threshold-editor {
   // Label above the controls, like the other fields of the form
   .editor-header {

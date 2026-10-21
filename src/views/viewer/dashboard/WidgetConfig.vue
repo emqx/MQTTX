@@ -373,9 +373,7 @@ export default class WidgetConfig extends Vue {
     const body = this.$refs.body as HTMLElement | undefined
     if (!body) return
 
-    // Two columns once the body can fit the preview next to the form. The body
-    // is 8px wider than with the old 16px insets, so the threshold is moved by
-    // the same amount to keep the switch at the same window width.
+    // 8px wider body than the 880px rule, so the switch needs 888.
     const update = (width: number) => (this.isWide = width >= 888)
     this.widthObserver = new ResizeObserver(([entry]) => update(entry.contentRect.width))
     this.widthObserver.observe(body)
@@ -630,8 +628,7 @@ export default class WidgetConfig extends Vue {
   display: flex;
   flex-direction: column;
   height: 100%;
-  // Same 12px inset as the dashboard canvas cards (the sidebar panel and the
-  // grid margins both sit 12px in from the tab content).
+  // Same 12px inset as the canvas cards.
   padding: 0 12px;
 
   .topbar {
@@ -643,17 +640,13 @@ export default class WidgetConfig extends Vue {
     align-items: center;
     justify-content: space-between;
     flex-shrink: 0;
-    // 48px bar + 1px for the list panel's top border: the editor starts at the
-    // panel's outer edge, so the extra pixel puts its divider on the same row as
-    // the sidebar's `.dashboard-topbar` divider.
+    // 48px bar + 1px: the divider continues the list panel's top border.
     height: 49px;
     // Home.vue's (non-scoped) `.home-view .topbar` sets min-height: 60px.
     min-height: 49px;
     background-color: var(--color-bg-primary);
     border-bottom: 1px solid var(--color-border-default);
-    // The divider ends with the content (the tabs underline end). With the
-    // dashboard list open it also starts at the sidebar panel edge, one inset
-    // to the left: see `.with-list` below.
+    // With the list open the divider starts one inset left; see `.with-list`.
     margin: 0;
     padding: 0;
 
@@ -674,9 +667,6 @@ export default class WidgetConfig extends Vue {
     }
   }
 
-  // DashboardContent marks the editor root while the dashboard list is open:
-  // the panel edge is one inset left of the content, so the divider joins the
-  // sidebar header divider and the padding puts Back back on the content edge.
   &.with-list .topbar {
     margin-left: -12px;
     padding-left: 12px;
@@ -728,8 +718,7 @@ export default class WidgetConfig extends Vue {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    // Fixed height: the refresh icon's line box would otherwise make the
-    // preview head 1px taller than the others and drop its card 1px.
+    // Fixed height: the refresh icon's line box would add 1px.
     height: 20px;
     margin-bottom: 8px;
 
