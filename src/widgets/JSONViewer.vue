@@ -1,23 +1,17 @@
 <template>
   <div class="json-tree-view">
-    <div class="json-header" v-if="currentMessage && currentMessage.createAt">
-      <el-tooltip
-        :effect="theme !== 'light' ? 'light' : 'dark'"
-        placement="bottom"
-        :open-delay="300"
-        :content="$t('viewer.olderMessage')"
-      >
-        <i class="nav-icon nav-left" :class="{ 'is-disabled': !canGoToPrevious && !hasMore }" @click="goToPrevious">
-          <i class="el-icon-arrow-left"></i>
-        </i>
-      </el-tooltip>
+    <MessageViewerHeader
+      v-if="currentMessage && currentMessage.createAt"
+      class="json-header"
+      :previous-disabled="!canGoToPrevious"
+      :next-disabled="!canGoToNext"
+      :latest-disabled="currentIndex === 0"
+      @previous="goToPrevious"
+      @next="goToNext"
+      @latest="goToLatest"
+    >
       <div class="header-content">
-        <span class="header-time">{{ formatTime(currentMessage.createAt) }}</span>
-        <div class="header-badges">
-          <span class="badge">QoS {{ currentMessage.qos }}</span>
-          <span class="badge retain" v-if="currentMessage.retain">Retain</span>
-          <span class="badge">{{ getPayloadSize(currentMessage.payload) }}</span>
-        </div>
+        <MessageHeaderMeta :message="currentMessage" />
         <div class="header-tools">
           <el-input
             v-model="searchQuery"
@@ -50,29 +44,7 @@
           </el-tooltip>
         </div>
       </div>
-      <div class="nav-right">
-        <el-tooltip
-          :effect="theme !== 'light' ? 'light' : 'dark'"
-          placement="bottom"
-          :open-delay="300"
-          :content="$t('viewer.newerMessage')"
-        >
-          <i class="nav-icon" :class="{ 'is-disabled': !canGoToNext }" @click="goToNext">
-            <i class="el-icon-arrow-right"></i>
-          </i>
-        </el-tooltip>
-        <el-tooltip
-          :effect="theme !== 'light' ? 'light' : 'dark'"
-          placement="bottom"
-          :open-delay="300"
-          :content="$t('viewer.goToLatestMessage')"
-        >
-          <i class="nav-icon" :class="{ 'is-disabled': currentIndex === 0 }" @click="goToLatest">
-            <i class="el-icon-d-arrow-right"></i>
-          </i>
-        </el-tooltip>
-      </div>
-    </div>
+    </MessageViewerHeader>
 
     <div class="json-content-wrapper" v-if="messages.length > 0">
       <div class="json-container" ref="jsonContainer">
@@ -134,8 +106,9 @@ import TreeView from 'vue-json-tree-view/src/TreeView.vue'
 import type { TreeViewOptions } from 'vue-json-tree-view/src/TreeView.vue'
 import TreeVisual from '@/components/charts/TreeVisual.vue'
 import MyDialog from '@/components/MyDialog.vue'
+import MessageHeaderMeta from '@/widgets/MessageHeaderMeta.vue'
+import MessageViewerHeader from '@/widgets/MessageViewerHeader.vue'
 import { JsonTreeConverter } from '@/utils/jsonTreeConverter'
-import { calculateTextSize } from '@/utils/data'
 import { highlightInPrismCode } from '@/utils/highlightSearch'
 import { jsonParse, toPlainObject } from '@/utils/jsonUtils'
 
@@ -144,6 +117,8 @@ import { jsonParse, toPlainObject } from '@/utils/jsonUtils'
     TreeView,
     TreeVisual,
     MyDialog,
+    MessageHeaderMeta,
+    MessageViewerHeader,
   },
 })
 export default class JsonViewer extends Vue {
@@ -250,14 +225,6 @@ export default class JsonViewer extends Vue {
     this.currentIndex = 0
   }
 
-  private formatTime(timeString: string): string {
-    try {
-      return new Date(timeString).toLocaleString()
-    } catch {
-      return timeString
-    }
-  }
-
   private parseJson(payload: string): any {
     try {
       const parsed = jsonParse(payload)
@@ -265,10 +232,6 @@ export default class JsonViewer extends Vue {
     } catch {
       return payload
     }
-  }
-
-  private getPayloadSize(payload: string): string {
-    return calculateTextSize(payload)
   }
 
   private getContainerEl(): HTMLElement | null {
@@ -381,122 +344,43 @@ export default class JsonViewer extends Vue {
   color: var(--color-text-default);
 
   .json-header {
-    display: flex;
     align-items: stretch;
-    border-bottom: 1px solid var(--color-border-default);
-    background: var(--color-bg-primary);
+  }
 
-    .nav-icon {
-      width: 40px;
-      height: 100%;
-      min-height: 44px;
+  .header-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+
+    .header-tools {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--color-text-title);
-      background: var(--color-bg-normal);
-      cursor: pointer;
-      transition: all 0.15s ease;
-      flex-shrink: 0;
+      gap: 10px;
+      margin-left: auto;
 
-      &:hover {
-        background: var(--color-main-green);
-        color: #fff;
+      .search-input {
+        width: 200px;
       }
 
-      &.is-disabled {
-        opacity: 0.25;
-        cursor: not-allowed;
-        pointer-events: none;
-        background: transparent;
-      }
+      .tool-icon {
+        font-size: 16px;
+        color: var(--color-text-default);
+        cursor: pointer;
+        padding: 6px;
+        border-radius: 4px;
+        transition: all 0.15s ease;
 
-      &.nav-left {
-        border-right: 1px solid var(--color-border-default);
-      }
-    }
-
-    .nav-right {
-      display: flex;
-      align-items: stretch;
-      border-left: 1px solid var(--color-border-default);
-
-      .nav-icon {
-        background: var(--color-bg-normal);
-        height: auto;
-        border-left: 1px solid var(--color-border-default);
-
-        &:first-child {
-          border-left: none;
-        }
-      }
-    }
-
-    .header-content {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 16px;
-
-      .header-time {
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--color-text-title);
-        font-variant-numeric: tabular-nums;
-      }
-
-      .header-badges {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-
-        .badge {
-          font-size: 12px;
-          padding: 3px 10px;
-          border-radius: 4px;
+        &:hover {
+          color: var(--color-main-green);
           background: var(--color-bg-normal);
-          color: var(--color-text-default);
-          border: 1px solid var(--color-border-default);
-
-          &.retain {
-            background: var(--color-main-yellow);
-            border-color: var(--color-main-yellow);
-            color: #fff;
-          }
-        }
-      }
-
-      .header-tools {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-left: auto;
-
-        .search-input {
-          width: 200px;
         }
 
-        .tool-icon {
-          font-size: 16px;
-          color: var(--color-text-default);
-          cursor: pointer;
-          padding: 6px;
-          border-radius: 4px;
-          transition: all 0.15s ease;
-
-          &:hover {
-            color: var(--color-main-green);
-            background: var(--color-bg-normal);
-          }
-
-          &.is-disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            pointer-events: none;
-          }
+        &.is-disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+          pointer-events: none;
         }
       }
     }

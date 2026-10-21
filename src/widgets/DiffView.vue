@@ -1,57 +1,24 @@
 <template>
   <div class="diff-view">
-    <div class="diff-header" v-if="currentMessage && previousMessage">
-      <el-tooltip
-        :effect="theme !== 'light' ? 'light' : 'dark'"
-        placement="bottom"
-        :open-delay="300"
-        :content="$t('viewer.olderMessage')"
-      >
-        <i class="nav-icon nav-left" :class="{ 'is-disabled': !canGoToPrevious && !hasMore }" @click="goToPrevious">
-          <i class="el-icon-arrow-left"></i>
-        </i>
-      </el-tooltip>
+    <MessageViewerHeader
+      v-if="currentMessage && previousMessage"
+      class="diff-header"
+      :previous-disabled="!canGoToPrevious && !hasMore"
+      :next-disabled="!canGoToNext"
+      :latest-disabled="currentIndex === 0"
+      @previous="goToPrevious"
+      @next="goToNext"
+      @latest="goToLatest"
+    >
       <div class="header-side previous">
         <span class="side-label">{{ $t('viewer.previous') }}</span>
-        <span class="side-time">{{ formatTime(previousMessage.createAt) }}</span>
-        <div class="side-badges">
-          <span class="badge">QoS {{ previousMessage.qos }}</span>
-          <span class="badge retain" v-if="previousMessage.retain">Retain</span>
-          <span class="badge">{{ getPayloadSize(previousMessage.payload) }}</span>
-        </div>
+        <MessageHeaderMeta :message="previousMessage" />
       </div>
       <div class="header-side current">
         <span class="side-label">{{ $t('viewer.currentLabel') }}</span>
-        <span class="side-time">{{ formatTime(currentMessage.createAt) }}</span>
-        <div class="side-badges">
-          <span class="badge">QoS {{ currentMessage.qos }}</span>
-          <span class="badge retain" v-if="currentMessage.retain">Retain</span>
-          <span class="badge">{{ getPayloadSize(currentMessage.payload) }}</span>
-        </div>
+        <MessageHeaderMeta :message="currentMessage" />
       </div>
-      <div class="nav-right">
-        <el-tooltip
-          :effect="theme !== 'light' ? 'light' : 'dark'"
-          placement="bottom"
-          :open-delay="300"
-          :content="$t('viewer.newerMessage')"
-        >
-          <i class="nav-icon" :class="{ 'is-disabled': !canGoToNext }" @click="goToNext">
-            <i class="el-icon-arrow-right"></i>
-          </i>
-        </el-tooltip>
-        <el-tooltip
-          :effect="theme !== 'light' ? 'light' : 'dark'"
-          placement="bottom"
-          :open-delay="300"
-          :content="$t('viewer.goToLatestMessage')"
-        >
-          <i class="nav-icon" :class="{ 'is-disabled': currentIndex === 0 }" @click="goToLatest">
-            <i class="el-icon-d-arrow-right"></i>
-          </i>
-        </el-tooltip>
-      </div>
-    </div>
+    </MessageViewerHeader>
 
     <div class="diff-content-wrapper" v-if="messages.length >= 2 && originalMessage && modifiedMessage">
       <div class="diff-content">
@@ -77,20 +44,21 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
-import { Getter } from 'vuex-class'
 import Editor from '@/components/Editor.vue'
-import { calculateTextSize } from '@/utils/data'
+import MessageHeaderMeta from '@/widgets/MessageHeaderMeta.vue'
+import MessageViewerHeader from '@/widgets/MessageViewerHeader.vue'
 import { jsonParse, jsonStringify } from '@/utils/jsonUtils'
 
 @Component({
   components: {
     Editor,
+    MessageHeaderMeta,
+    MessageViewerHeader,
   },
 })
 export default class DiffView extends Vue {
   @Prop({ type: Array, default: () => [] }) private messages!: MessageModel[]
   @Prop({ type: Boolean, default: false }) private hasMore!: boolean
-  @Getter('currentTheme') private theme!: Theme
 
   private currentIndex = 0
 
@@ -156,18 +124,6 @@ export default class DiffView extends Vue {
     }
   }
 
-  private formatTime(timeString: string): string {
-    try {
-      return new Date(timeString).toLocaleString()
-    } catch (error) {
-      return timeString
-    }
-  }
-
-  private getPayloadSize(payload: string): string {
-    return calculateTextSize(payload)
-  }
-
   private handleKeydown = (e: KeyboardEvent) => {
     const active = document.activeElement as HTMLElement | null
     const isEditable =
@@ -201,117 +157,39 @@ export default class DiffView extends Vue {
   color: var(--color-text-default);
 
   .diff-header {
+    align-items: center;
+  }
+
+  .header-side {
+    flex: 1;
     display: flex;
     align-items: center;
-    border-bottom: 1px solid var(--color-border-default);
-    background: var(--color-bg-primary);
+    gap: 12px;
+    padding: 10px 16px;
 
-    .nav-icon {
-      width: 40px;
-      height: 100%;
-      min-height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--color-text-title);
-      background: var(--color-bg-normal);
-      cursor: pointer;
-      transition: all 0.15s ease;
-      flex-shrink: 0;
+    &.previous {
+      border-right: 1px solid var(--color-border-default);
+    }
 
-      &:hover {
+    &.current {
+      background: rgba(52, 195, 136, 0.03);
+
+      .side-label {
         background: var(--color-main-green);
         color: #fff;
       }
-
-      &.is-disabled {
-        opacity: 0.25;
-        cursor: not-allowed;
-        pointer-events: none;
-        background: transparent;
-      }
-
-      &.nav-left {
-        border-right: 1px solid var(--color-border-default);
-      }
     }
 
-    .nav-right {
-      display: flex;
-      align-items: stretch;
-      border-left: 1px solid var(--color-border-default);
-
-      .nav-icon {
-        height: auto;
-        border-left: 1px solid var(--color-border-default);
-
-        &:first-child {
-          border-left: none;
-        }
-      }
-    }
-
-    .header-side {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 16px;
-
-      &.previous {
-        border-right: 1px solid var(--color-border-default);
-      }
-
-      &.current {
-        background: rgba(52, 195, 136, 0.03);
-
-        .side-label {
-          background: var(--color-main-green);
-          color: #fff;
-        }
-      }
-
-      .side-label {
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.02em;
-        padding: 4px 10px;
-        border-radius: 4px;
-        background: var(--color-text-light);
-        color: #fff;
-        flex-shrink: 0;
-      }
-
-      .side-time {
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--color-text-title);
-        font-variant-numeric: tabular-nums;
-      }
-
-      .side-badges {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-
-        .badge {
-          font-size: 12px;
-          padding: 3px 10px;
-          border-radius: 4px;
-          background: var(--color-bg-normal);
-          color: var(--color-text-default);
-          border: 1px solid var(--color-border-default);
-
-          &.retain {
-            background: var(--color-main-yellow);
-            border-color: var(--color-main-yellow);
-            color: #fff;
-          }
-        }
-      }
+    .side-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      padding: 4px 10px;
+      border-radius: 4px;
+      background: var(--color-text-light);
+      color: #fff;
+      flex-shrink: 0;
     }
   }
 
