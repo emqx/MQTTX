@@ -16,7 +16,7 @@ import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from
 import { LineChart as EChartsLineChart } from 'echarts/charts'
 import { UniversalTransition } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
-import { getChartThemeColors } from '@/utils/chartTheme'
+import { attachChartResize, getChartThemeColors } from '@/utils/chartTheme'
 
 echarts.use([
   TitleComponent,
@@ -44,8 +44,7 @@ export default class LineChart extends Vue {
   @Prop({ default: 'static' }) public timeRangeType!: 'live' | 'static'
 
   private myChart: echarts.ECharts | null = null
-  private resizeObserver: ResizeObserver | null = null
-  private resizeTimeout: number | null = null
+  private detachResize: (() => void) | null = null
   // Created up front: the data watchers can fire before `mounted`.
   private debouncedUpdate = this.debounce(this.updateChart, 100)
 
@@ -152,7 +151,6 @@ export default class LineChart extends Vue {
   mounted(): void {
     this.$nextTick(() => {
       this.initChart()
-      this.setupResizeObserver()
     })
   }
 
@@ -164,6 +162,7 @@ export default class LineChart extends Vue {
     const chartDom = document.getElementById(this.id) as HTMLElement
     if (chartDom) {
       this.myChart = echarts.init(chartDom)
+      this.detachResize = attachChartResize(chartDom, this.handleResize)
       this.debouncedUpdate()
     }
   }
@@ -339,26 +338,18 @@ export default class LineChart extends Vue {
     this.myChart.setOption(option, true, true) // notMerge: true, lazyUpdate: true
   }
 
-  private setupResizeObserver(): void {
-    const container = document.getElementById(this.id) as HTMLElement
-    if (!container || !window.ResizeObserver) return
-
-    this.resizeObserver = new ResizeObserver(() => {
-      if (this.resizeTimeout) clearTimeout(this.resizeTimeout)
-      this.resizeTimeout = window.setTimeout(() => {
-        if (this.myChart) {
-          this.myChart.resize()
-          this.updateChart()
-        }
-      }, 100)
-    })
-
-    this.resizeObserver.observe(container)
+  private handleResize(): void {
+    if (this.myChart) {
+      this.myChart.resize()
+      this.updateChart()
+    }
   }
 
   private cleanup(): void {
-    if (this.resizeTimeout) clearTimeout(this.resizeTimeout)
-    if (this.resizeObserver) this.resizeObserver.disconnect()
+    if (this.detachResize) {
+      this.detachResize()
+      this.detachResize = null
+    }
     if (this.myChart) this.myChart.dispose()
   }
 

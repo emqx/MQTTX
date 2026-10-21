@@ -63,3 +63,29 @@ export const getChartThemeColors = (): ChartThemeColors => {
   cachedThemeClass = themeClass
   return cachedColors
 }
+
+/** One redraw per pause: a dragged card resizes on every frame. */
+export const CHART_RESIZE_DEBOUNCE_MS = 100
+
+/** Redraws on container size changes (card drags, window resizes, tab switches). Call the result to detach. */
+export const attachChartResize = (container: HTMLElement | null, onResize: () => void): (() => void) => {
+  if (!container || !window.ResizeObserver) return () => {}
+
+  let timeout: number | null = null
+  const observer = new window.ResizeObserver(() => {
+    if (timeout !== null) window.clearTimeout(timeout)
+    timeout = window.setTimeout(() => {
+      timeout = null
+      onResize()
+    }, CHART_RESIZE_DEBOUNCE_MS)
+  })
+  observer.observe(container)
+
+  return () => {
+    observer.disconnect()
+    if (timeout !== null) {
+      window.clearTimeout(timeout)
+      timeout = null
+    }
+  }
+}

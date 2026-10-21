@@ -13,7 +13,7 @@ import { TitleComponent, TooltipComponent, GridComponent } from 'echarts/compone
 import { GaugeChart as EChartsGaugeChart } from 'echarts/charts'
 import { UniversalTransition } from 'echarts/features'
 import { CanvasRenderer } from 'echarts/renderers'
-import { getChartThemeColors } from '@/utils/chartTheme'
+import { attachChartResize, getChartThemeColors } from '@/utils/chartTheme'
 
 echarts.use([TitleComponent, TooltipComponent, GridComponent, EChartsGaugeChart, CanvasRenderer, UniversalTransition])
 
@@ -32,8 +32,7 @@ export default class GaugeChart extends Vue {
   @Prop({ default: () => [] }) public thresholds!: Threshold[]
 
   private myChart: echarts.ECharts | null = null
-  private resizeObserver: ResizeObserver | null = null
-  private resizeTimeout: number | null = null
+  private detachResize: (() => void) | null = null
 
   // Dynamic min/max tracking
   private dynamicMin: number | null = null
@@ -71,12 +70,10 @@ export default class GaugeChart extends Vue {
       this.$nextTick(() => this.initChart())
     } else if (!newVal && this.myChart) {
       this.resetDynamicMinMax()
+      this.detachResize?.()
+      this.detachResize = null
       this.myChart.dispose()
       this.myChart = null
-      if (this.resizeObserver) {
-        this.resizeObserver.disconnect()
-        this.resizeObserver = null
-      }
     }
   }
 
@@ -316,7 +313,9 @@ export default class GaugeChart extends Vue {
     const chartDom = document.getElementById(this.id) as HTMLElement
     if (chartDom) {
       this.myChart = echarts.init(chartDom)
-      this.setupResizeObserver() // Moved here
+      // A theme change re-inits the chart, so replace the old observer.
+      this.detachResize?.()
+      this.detachResize = attachChartResize(chartDom, this.handleResize)
       this.updateChart()
     }
   }
@@ -327,34 +326,18 @@ export default class GaugeChart extends Vue {
     }
   }
 
-  private setupResizeObserver(): void {
-    const container = document.getElementById(this.id) as HTMLElement
-    if (!container || !window.ResizeObserver) return
-
-    this.resizeObserver = new ResizeObserver(() => {
-      if (this.resizeTimeout) {
-        clearTimeout(this.resizeTimeout)
-      }
-      this.resizeTimeout = window.setTimeout(() => {
-        if (this.myChart) {
-          this.myChart.resize()
-          this.updateChart()
-        }
-      }, 100)
-    })
-
-    this.resizeObserver.observe(container)
+  // The value font is derived from the container box, so redraw, not just resize.
+  private handleResize(): void {
+    if (this.myChart) {
+      this.myChart.resize()
+      this.updateChart()
+    }
   }
 
   private cleanup(): void {
-    if (this.resizeTimeout) {
-      clearTimeout(this.resizeTimeout)
-      this.resizeTimeout = null
-    }
-
-    if (this.resizeObserver) {
-      this.resizeObserver.disconnect()
-      this.resizeObserver = null
+    if (this.detachResize) {
+      this.detachResize()
+      this.detachResize = null
     }
 
     if (this.myChart) {
