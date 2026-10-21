@@ -797,7 +797,7 @@ export default class ConnectionsList extends Vue {
 }
 </script>
 
-<style lang="scss" scope>
+<style lang="scss" scoped>
 @import '~@/assets/scss/variable.scss';
 @import '~@/assets/scss/mixins.scss';
 .connection-container {
@@ -847,7 +847,8 @@ export default class ConnectionsList extends Vue {
     .el-icon-document-copy {
       font-size: 16px;
     }
-    .el-tree {
+    // Element renders the tree rows itself, so the scope attribute stops above the tree root.
+    ::v-deep .el-tree {
       height: 100%;
       background-color: var(--color-bg-normal);
       .is-current > .el-tree-node__content {

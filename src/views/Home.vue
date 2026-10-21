@@ -67,19 +67,12 @@ export default class Home extends Vue {
 }
 </script>
 
-<style lang="scss" scope>
-@import '~@/assets/scss/mixins.scss';
-
+<style lang="scss" scoped>
 .home-view {
   height: 100%;
   background-color: var(--color-bg-primary);
-  .topbar {
-    @include flex-space-between;
-    min-height: 60px;
-    padding: 0 16px;
-    border-bottom: 1px solid var(--color-border-default);
-  }
-  .right-topbar {
+  // Shell classes sit on the routed views, which are outside this template.
+  ::v-deep .right-topbar {
     position: fixed;
     right: 0;
     z-index: 2;
@@ -89,13 +82,13 @@ export default class Home extends Vue {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border-bottom: 1px solid var(--color-border-default);
   }
-  .rightbar {
+  ::v-deep .rightbar {
     margin-left: 76px;
     height: 100%;
     background-color: var(--color-bg-primary);
     border-left: 1px solid var(--color-border-rightbar);
   }
-  .right-content {
+  ::v-deep .right-content {
     height: 100%;
     background-color: var(--color-bg-primary);
   }

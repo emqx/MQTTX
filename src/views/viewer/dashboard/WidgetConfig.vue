@@ -642,7 +642,6 @@ export default class WidgetConfig extends Vue {
     flex-shrink: 0;
     // 48px bar + 1px: the divider continues the list panel's top border.
     height: 49px;
-    // Home.vue's (non-scoped) `.home-view .topbar` sets min-height: 60px.
     min-height: 49px;
     background-color: var(--color-bg-primary);
     border-bottom: 1px solid var(--color-border-default);
