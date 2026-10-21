@@ -39,7 +39,7 @@
                 >
                   <div class="widget-warning">
                     <i class="el-icon-warning"></i>
-                    <span class="warning-text">Schema Error</span>
+                    <span class="warning-text">{{ $t('viewer.schemaError') }}</span>
                   </div>
                 </el-tooltip>
               </div>
@@ -785,7 +785,7 @@ export default class DashboardCanvas extends Vue {
     switch (schemaType) {
       case 'protobuf':
         if (!protobufMessageName) {
-          this.$message.error('Deserialization: No protobuf message name found when deserializing message.')
+          this.$message.error(this.$t('viewer.noProtobufMessageName') as string)
           return payload
         }
         return deserializeBufferToProtobuf(payload, rawSchema, protobufMessageName, 'JSON')

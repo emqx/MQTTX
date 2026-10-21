@@ -449,7 +449,7 @@
 
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="18">
-          <label>API Host</label>
+          <label>{{ $t('settings.agentApiHost') }}</label>
         </el-col>
         <el-col :span="6">
           <el-autocomplete
@@ -469,7 +469,7 @@
 
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="18">
-          <label>API Key</label>
+          <label>{{ $t('settings.agentApiKey') }}</label>
         </el-col>
         <el-col :span="6">
           <el-input

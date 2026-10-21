@@ -311,6 +311,22 @@ export default {
     hu: 'MQTTX Agent engedélyezése',
     ko: 'MQTTX Agent 사용',
   },
+  agentApiHost: {
+    zh: 'API 服务器地址',
+    en: 'API Host',
+    tr: 'API Sunucusu',
+    ja: 'API ホスト',
+    hu: 'API kiszolgáló',
+    ko: 'API 호스트',
+  },
+  agentApiKey: {
+    zh: 'API 密钥',
+    en: 'API Key',
+    tr: 'API Anahtarı',
+    ja: 'APIキー',
+    hu: 'API-kulcs',
+    ko: 'API 키',
+  },
   agentPermissionMode: {
     zh: '默认权限模式',
     en: 'Default permission mode',

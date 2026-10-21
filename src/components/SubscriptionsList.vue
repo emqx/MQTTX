@@ -172,7 +172,7 @@
               <el-color-picker v-model="topicColor" size="mini" color-format="hex" :predefine="predefineColors">
               </el-color-picker>
               <el-input v-model="topicColor" size="small" placeholder="#34c388">
-                <i slot="suffix" title="Refresh" class="el-icon-refresh" @click="setColor"> </i>
+                <i slot="suffix" :title="$t('common.refresh')" class="el-icon-refresh" @click="setColor"> </i>
               </el-input>
             </el-form-item>
           </el-col>

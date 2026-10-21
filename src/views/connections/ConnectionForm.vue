@@ -214,8 +214,8 @@
               <el-col :span="22">
                 <el-form-item label-width="93px" :label="$t('connections.certType')" prop="certType">
                   <el-radio-group v-model="record.certType">
-                    <el-radio label="server">CA signed server certificate</el-radio>
-                    <el-radio label="self">CA or Self signed certificates</el-radio>
+                    <el-radio label="server">{{ $t('connections.certServerSigned') }}</el-radio>
+                    <el-radio label="self">{{ $t('connections.certSelfSigned') }}</el-radio>
                   </el-radio-group>
                 </el-form-item>
               </el-col>
@@ -228,7 +228,7 @@
         <transition-group name="el-zoom-in-top">
           <template v-if="record.certType === 'self'">
             <div key="title" class="info-header">
-              <h3>Certificates</h3>
+              <h3>{{ $t('connections.certificates') }}</h3>
             </div>
             <el-card key="content" shadow="never" class="info-body item-card">
               <el-row :gutter="10">

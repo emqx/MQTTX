@@ -29,7 +29,7 @@
             <el-input size="mini" v-model="connection.clientId" :disabled="isClientConnected">
               <i
                 slot="suffix"
-                title="Refresh"
+                :title="$t('common.refresh')"
                 class="el-icon-refresh"
                 :class="{ 'icon-oper-disable': isClientConnected }"
                 @click="refreshClientId"
