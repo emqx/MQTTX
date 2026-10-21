@@ -96,6 +96,7 @@ import useServices from '@/database/useServices'
 import time from '@/utils/time'
 import { globalEventBus } from '@/utils/globalEventBus'
 import { AGENT_DATA_CHANGED, AgentDataChangedPayload } from '@/utils/ai/agent/agentEvents'
+import { trackDrag } from '@/utils/trackDrag'
 
 // The list card sits this far from the edge of the dashboard area, which is
 // also the gap between the card and the widgets.
@@ -127,6 +128,7 @@ export default class Dashboards extends Vue {
   private showDashboardsList = true
   private listWidth = readListWidth()
   private resizing = false
+  private stopResizing: (() => void) | null = null
   private showCreateDialog = false
   private newDashboard = { name: '', description: '' }
   private isAddingWidget = false
@@ -153,25 +155,20 @@ export default class Dashboards extends Vue {
   }
 
   private startResize(event: MouseEvent): void {
-    const startX = event.clientX
     const startWidth = this.listWidth
     this.resizing = true
-
-    const onMove = (moveEvent: MouseEvent) => {
-      this.listWidth = clampListWidth(startWidth + moveEvent.clientX - startX)
-    }
-    const onUp = () => {
-      document.removeEventListener('mousemove', onMove)
-      document.removeEventListener('mouseup', onUp)
-      this.resizing = false
-      try {
-        window.localStorage.setItem(LIST_WIDTH_KEY, String(this.listWidth))
-      } catch (e) {
-        this.$log?.error?.((e as Error).toString())
-      }
-    }
-    document.addEventListener('mousemove', onMove)
-    document.addEventListener('mouseup', onUp)
+    this.stopResizing = trackDrag(
+      event,
+      (dx) => (this.listWidth = clampListWidth(startWidth + dx)),
+      () => {
+        this.resizing = false
+        try {
+          window.localStorage.setItem(LIST_WIDTH_KEY, String(this.listWidth))
+        } catch (e) {
+          this.$log?.error?.((e as Error).toString())
+        }
+      },
+    )
   }
 
   get isEmpty(): boolean {
@@ -565,6 +562,7 @@ export default class Dashboards extends Vue {
 
   beforeDestroy() {
     globalEventBus.off(AGENT_DATA_CHANGED, this.onAgentDataChanged)
+    this.stopResizing?.()
     if (this.layoutSaveTimer) {
       window.clearTimeout(this.layoutSaveTimer)
       this.layoutSaveTimer = null
@@ -688,7 +686,7 @@ export default class Dashboards extends Vue {
 .dashboards {
   position: relative;
   // Same height as the Topics Tree cards
-  height: calc(100vh - 130px);
+  height: var(--view-content-height);
   overflow: hidden;
   // Widgets keep a 12px inset (the grid margin); pulling the area out by the
   // same amount lines them up with the tabs and the other Viewer pages.

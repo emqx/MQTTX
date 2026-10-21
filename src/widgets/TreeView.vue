@@ -1,6 +1,6 @@
 <template>
   <div class="tree-view">
-    <div class="tree-view-header mb-3">
+    <div class="tree-view-header viewer-toolbar">
       <el-input :placeholder="$t('viewer.filterDesc')" size="small" v-model="filterText" clearable class="mr-3" />
       <div class="tree-view-header-actions">
         <el-tooltip

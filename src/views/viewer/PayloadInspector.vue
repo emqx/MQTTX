@@ -1,7 +1,7 @@
 <template>
   <div class="payload-inspector-view">
     <!-- Toolbar -->
-    <div class="inspector-toolbar">
+    <div class="inspector-toolbar viewer-toolbar">
       <div class="toolbar-left">
         <!-- Segmented Control for View Mode -->
         <div class="view-mode-control">
@@ -199,7 +199,7 @@ export default class PayloadInspector extends Vue {
 .payload-inspector-view {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 130px);
+  height: var(--view-content-height);
   box-sizing: border-box;
 
   .inspector-toolbar {
@@ -207,7 +207,6 @@ export default class PayloadInspector extends Vue {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    margin-bottom: 12px;
     flex-wrap: wrap;
 
     .toolbar-left {
