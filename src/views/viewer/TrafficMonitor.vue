@@ -336,9 +336,6 @@ export default class TrafficMonitor extends Vue {
 <style lang="scss">
 .traffic-monitor-view {
   .traffic-monitor-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     .iconfont {
       color: var(--color-text-default);
       cursor: pointer;

@@ -383,9 +383,6 @@ export default class TreeView extends Vue {
 <style lang="scss">
 .tree-view {
   .tree-view-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     .tree-view-header-actions {
       display: flex;
       align-items: center;
