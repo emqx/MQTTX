@@ -26,7 +26,7 @@ Alternatively, you can download MQTTX from Apple's Mac App Store.
 
 When it comes to installing MQTTX, we recommend downloading the `dmg` format installation package. Alternatively, you can download the `mac.zip` compressed file which can be decompressed and used quickly.
 
-**Note**: Please be aware that for certain `macOS` system versions, specifically `10.15.2`, there may be issues opening the `zip` compressed file after decompression. As a result, we advise users to prioritize downloading the `dmg` file.
+**System requirement for MQTTX 1.13.2**: macOS 12 or later. Choose the Intel or Apple Silicon package for your Mac.
 
 For macOS users who prefer using the command line, MQTTX can also be installed via [brew cask](https://formulae.brew.sh/cask/mqttx):
 
@@ -80,10 +80,10 @@ Alternatively, execute the following command to install MQTTX using the `snap` f
 sudo snap install mqttx
 ```
 
-For manual installation, download the latest version of the `snap` file. Here's an example:
+For manual installation, download a released `snap` file and replace `<version>` with the version in its filename:
 
 ```shell
-sudo snap install Downloads/MQTTX_1.13.1_amd64.snap --dangerous
+sudo snap install "Downloads/MQTTX_<version>_amd64.snap" --dangerous
 ```
 
 **Note**: When installing with `snap` files, you may encounter insufficient permission issues. For more details, refer to this `issue`: [https://github.com/emqx/MQTTX/issues/109](https://github.com/emqx/MQTTX/issues/109)

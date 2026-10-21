@@ -30,73 +30,31 @@
 
 ## 安装
 
-### macOS
+从 [MQTTX 下载页面](https://mqttx.app/zh/downloads)选择已发布的 MQTTX CLI 版本，并按操作系统和 CPU 架构下载安装。完整安装步骤请参阅 [CLI 安装文档](https://mqttx.app/zh/docs/cli/downloading-and-installation)。
 
-下载二进制文件并快速安装最新的 MQTTX CLI 稳定版到 macOS 系统上。
-
-> **注意**：请注意区分当前系统环境的 CPU 架构
-
-#### Intel Chip
-
-```shell
-curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.9.3/mqttx-cli-macos-x64
-sudo install ./mqttx-cli-macos-x64 /usr/local/bin/mqttx
-```
-
-#### Apple Silicon
-
-```shell
-curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.9.3/mqttx-cli-macos-arm64
-sudo install ./mqttx-cli-macos-arm64 /usr/local/bin/mqttx
-```
-
-#### Homebrew
+macOS 用户也可以使用 Homebrew：
 
 ```shell
 brew install emqx/mqttx/mqttx-cli
 ```
 
-### Linux
-
-下载二进制文件并快速安装最新的 MQTTX CLI 稳定版到 Linux 系统上。
-
-> **注意**：请注意区分当前系统环境的 CPU 架构
-
-#### x86-64
-
-```shell
-curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.9.3/mqttx-cli-linux-x64
-sudo install ./mqttx-cli-linux-x64 /usr/local/bin/mqttx
-```
-
-#### ARM64
-
-```shell
-curl -LO https://www.emqx.com/zh/downloads/MQTTX/v1.9.3/mqttx-cli-linux-arm64
-sudo install ./mqttx-cli-linux-arm64 /usr/local/bin/mqttx
-```
-
-### Windows
-
-Windows 用户请到 MQTTX 的[发布页面](https://github.com/emqx/MQTTX/releases)内，找到对应的系统架构的 `exe` 包，手动下载后使用
-
-### NPM
+使用 npm 安装时需要 Node.js 18 或更高版本：
 
 ```shell
 npm install mqttx-cli -g
 ```
 
-### Docker
+也可以使用 Docker：
 
 ```shell
-docker pull emqx/mqttx-cli
-
 docker run -it --rm emqx/mqttx-cli
 ```
 
-### 其它平台
+安装后检查版本：
 
-从 MQTTX 的[发布页面](https://github.com/emqx/MQTTX/releases)内，下载对应的二进制文件。
+```shell
+mqttx --version
+```
 
 ## AI Agent 支持
 

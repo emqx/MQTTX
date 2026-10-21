@@ -29,6 +29,7 @@ The Agent has two modes: **full screen**, which covers the main area and keeps t
 
 - List and read connection configurations, including TLS certificates and groups
 - Create, update and delete connections
+- Create a free temporary Zero EMQX broker and save its connection in MQTTX
 - Connect and disconnect, subscribe and unsubscribe, publish messages as Plaintext, JSON, Base64 or Hex, and start or stop a timed publish
 - Read stored messages and wait for new ones, and clear a connection's messages
 - Inspect certificates and private keys locally (their contents are never shared)
@@ -38,7 +39,13 @@ The Agent has two modes: **full screen**, which covers the main area and keeps t
 - Read the logs and change the app settings
 - Call tools provided by your MCP servers
 
-You can ask things like "connect to broker.emqx.io and subscribe to `testtopic/#`", "publish a JSON test message to `mqttx/test`", or "show my connections and their status". Type `/` in the composer to pick a Skill — client code, test data, schema, custom function, MQTT/EMQX knowledge, connection diagnostics or the MQTTX CLI — and the Agent will use it for your request. Type `@` to mention a connection: a menu of your connections appears (the one you are looking at first, with a green dot when it is connected), `↑`/`↓` and `Enter` pick one, and the mentioned connection travels with your message so the Agent reads it with `get_connection` before acting on it. Generated code is saved as a downloadable zip: the chat shows a file card to download it or show it in its folder. The archives are stored under `agent-files` in the app data directory and are removed together with the conversation.
+You can ask things like "connect to broker.emqx.io and subscribe to `testtopic/#`", "publish a JSON test message to `mqttx/test`", or "show my connections and their status". Type `/` in the composer to pick a Skill — client code, test data, schema, custom function, MQTT/EMQX knowledge, connection diagnostics, the MQTTX CLI or Zero EMQX — and the Agent will use it for your request. Type `@` to mention a connection: a menu of your connections appears (the one you are looking at first, with a green dot when it is connected), `↑`/`↓` and `Enter` pick one, and the mentioned connection travels with your message so the Agent reads it with `get_connection` before acting on it. Generated code is saved as a downloadable zip: the chat shows a file card to download it or show it in its folder. The archives are stored under `agent-files` in the app data directory and are removed together with the conversation.
+
+### Temporary test broker with Zero EMQX
+
+Choose **Zero EMQX** from the `/` Skill menu, or ask: "Create a temporary Zero EMQX broker, connect to it, subscribe to `mqttx/test`, and publish a JSON message." The Agent creates a free isolated broker and saves a TLS connection in MQTTX. Creating the connection does not connect it; the Agent connects it in a separate step when requested.
+
+The broker expires according to the lifetime returned by Zero EMQX and is only for testing. Its password is stored in the connection and is never returned to the model. Creating the broker and connecting both require approval in **Ask before actions** mode.
 
 ## Attachments
 
