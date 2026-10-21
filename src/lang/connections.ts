@@ -1127,6 +1127,14 @@ export default {
     hu: 'Üzenetmegőrzés kezelése',
     ko: '유지 메시지 처리 방식',
   },
+  retained: {
+    zh: '保留',
+    en: 'Retained',
+    tr: 'Saklı',
+    ja: '保持',
+    hu: 'Megőrzött',
+    ko: '유지됨',
+  },
   onDisconnect: {
     zh: '服务器已主动断开连接, Reason: {reason} (Code: {reasonCode})',
     en: 'The Broker has actively disconnected, Reason: {reason} (Code: {reasonCode})',

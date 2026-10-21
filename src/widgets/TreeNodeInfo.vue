@@ -55,7 +55,10 @@
       <div>{{ $t('connections.receivedTime') }}</div>
       <div class="node-info-item">{{ node.message.createAt }}</div>
       <div class="flex justify-between">
-        <span>Payload <el-tag v-if="node.message.retain" type="info" size="mini">Retained</el-tag></span>
+        <span
+          >Payload
+          <el-tag v-if="node.message.retain" type="info" size="mini">{{ $t('connections.retained') }}</el-tag></span
+        >
         <span>QoS: {{ node.message.qos }}</span>
       </div>
       <pre

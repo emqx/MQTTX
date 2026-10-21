@@ -40,7 +40,7 @@
           :title="$t('connections.gzipDecompressed')"
           >GZIP</el-tag
         >
-        <span v-if="retain" class="retain">Retained</span>
+        <span v-if="retain" class="retain">{{ $t('connections.retained') }}</span>
       </p>
       <MqttProperties class="meta" :properties="properties" direction="left" />
       <template v-if="isLargeMsg">
