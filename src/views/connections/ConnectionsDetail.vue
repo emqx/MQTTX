@@ -211,7 +211,7 @@
         </el-collapse-transition>
       </div>
       <transition name="el-zoom-in-top">
-        <div v-show="searchVisible" class="connections-search topbar">
+        <div v-show="searchVisible" class="connections-search">
           <el-input
             id="searchTopic"
             v-model="searchParams.topic"
@@ -2410,7 +2410,6 @@ export default class ConnectionsDetail extends Vue {
 </script>
 
 <style lang="scss" scoped>
-@import '~@/assets/scss/variable.scss';
 @import '~@/assets/scss/mixins.scss';
 
 .connections-detail {
@@ -2481,7 +2480,6 @@ export default class ConnectionsDetail extends Vue {
             color: var(--color-minor-red);
           }
         }
-        .connect-loading,
         .edit-btn,
         .connect-btn,
         .agent-btn,
@@ -2525,10 +2523,6 @@ export default class ConnectionsDetail extends Vue {
       padding: 13px 16px 12px 16px;
       height: auto;
       background-color: var(--color-bg-normal);
-      &.topbar {
-        border-bottom: 0px;
-        min-height: 0px;
-      }
       ::v-deep .el-input .el-input__inner {
         background: var(--color-bg-primary);
       }
@@ -2565,17 +2559,6 @@ export default class ConnectionsDetail extends Vue {
         right: 0;
         z-index: 1;
         transition: all 0.4s;
-        .subs-title {
-          color: var(--color-text-title);
-          position: absolute;
-        }
-        .subs-btn {
-          position: relative;
-          top: 2px;
-          left: 3px;
-          display: inline-block;
-          transform: rotate(180deg);
-        }
         .topic-filter {
           display: flex;
           flex: 1;
@@ -2637,12 +2620,6 @@ export default class ConnectionsDetail extends Vue {
             ::v-deep .el-input__inner {
               padding: 4px 10px;
             }
-          }
-          .icon-tip {
-            position: absolute;
-            left: 245px;
-            font-size: 16px;
-            color: var(--color-text-tips);
           }
         }
       }

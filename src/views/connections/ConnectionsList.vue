@@ -844,9 +844,6 @@ export default class ConnectionsList extends Vue {
     .connections-list-skeleton {
       margin: 0 16px;
     }
-    .el-icon-document-copy {
-      font-size: 16px;
-    }
     // Element renders the tree rows itself, so the scope attribute stops above the tree root.
     ::v-deep .el-tree {
       height: 100%;
