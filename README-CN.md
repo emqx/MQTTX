@@ -11,23 +11,43 @@
 
 ---
 
-[MQTTX](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的 [MQTT 5.0](https://www.emqx.com/zh/blog/introduction-to-mqtt-5) 客户端，提供适用于 macOS、Linux 和 Windows 的[桌面版](https://mqttx.app/zh/docs)、适用于脚本和压测的[命令行工具](https://mqttx.app/zh/docs/cli)，以及在浏览器中直接使用的 [Web 版](https://mqttx.app/web-client)。它采用类似聊天软件的界面，可以同时管理多个连接，通过 TCP、TLS 和 WebSocket 快速测试发布、订阅等 MQTT 功能，桌面版还内置了 MQTTX Agent，一个可以用自然语言操作 MQTTX 的 AI Agent。
+[MQTTX](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的 [MQTT 5.0](https://www.emqx.com/zh/blog/introduction-to-mqtt-5) 客户端工具集，包含用于图形化调试的 [MQTTX Desktop](https://mqttx.app/zh/docs)、用于脚本和压测的 [MQTTX CLI](https://mqttx.app/zh/docs/cli)，以及在浏览器中使用的 [MQTTX Web](https://mqttx.app/web-client)。
 
 > [MQTT](https://www.emqx.com/zh/blog/the-easiest-guide-to-getting-started-with-mqtt)（Message Queuing Telemetry Transport，消息队列遥测传输）是一种基于发布/订阅模式的轻量级消息协议，专为受限设备以及低带宽、高延迟或不可靠的网络而设计。
 
 ## 功能特性
 
-桌面版的主要功能：
+### MQTTX Desktop
 
-- **MQTTX Agent**：用自然语言操作 MQTTX，可以创建连接、订阅、发布、读取消息、诊断问题和生成客户端代码，支持技能（Skills）、MCP、操作审批和多家模型提供商。
-- **协议**：支持 MQTT 3.1、3.1.1 和 5.0，可通过 TCP、TLS、WebSocket 和安全 WebSocket 连接。
-- **MQTT 5.0**：连接、发布和订阅的用户属性；SCRAM 增强认证；连接页显示 CONNACK 响应信息。
-- **Payload**：支持 Plaintext、JSON、Base64、Hex、CBOR 和 MsgPack，并支持 Protobuf 和 Avro Schema，接收消息时还可自动解压 GZIP。
-- **自动化**：使用脚本在发布或接收时转换 Payload，支持定时发送消息。
-- **视图器**：主题树、仪表盘、流量监控，以及支持 JSON 树和差异视图的消息体查看器。
-- **工作流**：消息搜索、每个连接独立的发布区和发布历史，以及连接分组。
-- **数据**：以 JSON、CSV、Excel、XML 或 YAML 格式导入和导出连接；JSON 备份会保留连接分组。
-- **个性化**：浅色、深色和夜间主题；支持 English、简体中文、日本語、Türkçe、Magyar 和 한국어。
+适用于 macOS、Windows 和 Linux 的图形化客户端，用于交互调试和消息分析。
+
+- 通过 TCP、TLS、WebSocket 或安全 WebSocket 连接，支持 MQTT 3.1、3.1.1 和 5.0。
+- 配置 MQTT 5.0 连接、发布和订阅的用户属性，使用 SCRAM 增强认证，并查看 Broker 返回的 CONNACK 响应信息。
+- 通过内置的 MQTTX Agent 用自然语言操作客户端，支持技能（Skills）、MCP 工具、操作审批和多家模型提供商。
+- 编解码 Plaintext、JSON、Base64、Hex、CBOR 和 MsgPack 消息，使用 Protobuf 或 Avro Schema，并自动解压接收到的 GZIP 消息。
+- 使用脚本转换收发消息，或定时发布消息。
+- 使用主题树、仪表盘、流量监控和消息体查看器分析消息，支持 JSON 树和消息差异对比。
+- 管理连接分组、搜索消息，并为每个连接保留独立的发布区和发布历史。
+- 通过 JSON、CSV、Excel、XML 或 YAML 导入和导出连接；JSON 备份保留连接分组。
+- 切换浅色、深色或夜间主题，支持英语、简体中文、日语、土耳其语、匈牙利语和韩语。
+
+### MQTTX CLI
+
+适用于终端调试、Shell 脚本、CI 自动化和性能测试的命令行客户端。
+
+- 使用 `mqttx conn`、`mqttx pub` 和 `mqttx sub` 连接、发布和订阅，支持 MQTT 3.1、3.1.1 和 5.0，以及 TCP、TLS 和 WebSocket 连接。
+- 使用 `mqttx bench` 进行连接、发布和订阅压测，使用 `mqttx simulate` 生成物联网测试数据。
+- 从标准输入读取消息，通过管道将接收的消息交给其他工具，并以 JSON 或 YAML 保存和加载连接参数。
+- 编解码 JSON、Base64、Hex、CBOR 和 MsgPack 消息，支持 Protobuf 和 Avro Schema。
+- 通过 [MQTTX CLI skill](./skills/mqttx-cli/SKILL.md)，让外部 AI Agent 执行 MQTT 测试和故障排查。
+
+### MQTTX Web
+
+无需安装桌面应用，在浏览器中打开[在线客户端](https://mqttx.app/web-client)即可开始测试。
+
+- 通过 WebSocket（`ws://` 或 `wss://`）收发 MQTT 3.1.1 和 5.0 消息；HTTPS 页面使用 `wss://`。
+- 在聊天式界面中管理多个连接和订阅，查看发送和接收的消息。
+- 使用 [Docker 自行部署](./web/README-CN.md#docker-部署)，在自己的环境中运行 Web 客户端。
 
 ## MQTTX Agent
 

@@ -16,23 +16,43 @@
 
 ---
 
-[MQTTX](https://mqttx.app) is an open-source [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) client from [EMQ](https://www.emqx.com/en), available as a [desktop app](https://mqttx.app/docs) for macOS, Linux, and Windows, a [command-line tool](https://mqttx.app/docs/cli) for scripting and benchmarks, and a [web client](https://mqttx.app/web-client) that runs in the browser. Its chat-style interface lets you work with multiple connections at once and quickly test publishing, subscribing, and other MQTT features over TCP, TLS, and WebSocket, and the desktop app includes MQTTX Agent, an AI agent that operates MQTTX in natural language.
+[MQTTX](https://mqttx.app) is an open-source [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) client toolbox from [EMQ](https://www.emqx.com/en). It provides [MQTTX Desktop](https://mqttx.app/docs) for interactive debugging, [MQTTX CLI](https://mqttx.app/docs/cli) for scripting and benchmarks, and [MQTTX Web](https://mqttx.app/web-client) for testing in the browser.
 
 > [MQTT](https://www.emqx.com/en/blog/the-easiest-guide-to-getting-started-with-mqtt) (MQ Telemetry Transport) is a lightweight publish/subscribe messaging protocol designed for constrained devices and for low-bandwidth, high-latency, or unreliable networks.
 
 ## Features
 
-Highlights of the desktop app:
+### MQTTX Desktop
 
-- **MQTTX Agent**: operate MQTTX in natural language to create connections, subscribe, publish, read messages, diagnose problems, and generate client code, with Skills, MCP, action approval, and multiple model providers.
-- **Protocols**: MQTT 3.1, 3.1.1, and 5.0 over TCP, TLS, WebSocket, and secure WebSocket.
-- **MQTT 5.0**: user properties on connect, publish, and subscribe; SCRAM enhanced authentication; CONNACK Response Information on the connection page.
-- **Payloads**: Plaintext, JSON, Base64, Hex, CBOR, and MsgPack, with Protobuf and Avro schema support, plus automatic GZIP decompression of received messages.
-- **Automation**: scripts that transform payloads on publish or receive, and timed messages.
-- **Viewer**: Topic Tree, Dashboard, Traffic Monitor, and a Payload Inspector with a JSON tree and message diff.
-- **Workflow**: message search, a publish area and publish history per connection, and connection groups.
-- **Data**: import and export connections as JSON, CSV, Excel, XML, or YAML; JSON backups keep connection groups.
-- **Personalization**: light, dark, and night themes; English, 简体中文, 日本語, Türkçe, Magyar, and 한국어.
+A graphical client for interactive debugging and message analysis on macOS, Windows, and Linux.
+
+- Connect over TCP, TLS, WebSocket, or secure WebSocket using MQTT 3.1, 3.1.1, or 5.0.
+- Set MQTT 5.0 user properties on connect, publish, and subscribe, authenticate with SCRAM, and view the broker's CONNACK Response Information.
+- Operate MQTTX in natural language with the built-in MQTTX Agent, including Skills, MCP tools, action approval, and multiple model providers.
+- Encode and decode Plaintext, JSON, Base64, Hex, CBOR, and MsgPack payloads, use Protobuf and Avro schemas, and decompress incoming GZIP messages.
+- Transform messages with scripts and publish messages on a timer.
+- Inspect messages with the Topic Tree, Dashboard, Traffic Monitor, and Payload Inspector with JSON tree and diff views.
+- Group connections, search messages, and keep a separate publish area and history for each connection.
+- Import and export connections as JSON, CSV, Excel, XML, or YAML; JSON backups preserve connection groups.
+- Choose Light, Dark, or Night themes and use English, Simplified Chinese, Japanese, Turkish, Hungarian, or Korean.
+
+### MQTTX CLI
+
+A command-line client for terminal debugging, shell scripts, CI automation, and performance testing.
+
+- Connect, publish, and subscribe with `mqttx conn`, `mqttx pub`, and `mqttx sub`, with MQTT 3.1, 3.1.1, and 5.0 over TCP, TLS, and WebSocket.
+- Run connection, publishing, and subscription benchmarks with `mqttx bench`, and generate IoT test data with `mqttx simulate`.
+- Read messages from stdin, pipe received messages to other tools, and save or load connection options as JSON or YAML.
+- Encode and decode JSON, Base64, Hex, CBOR, and MsgPack payloads, with Protobuf and Avro schema support.
+- Use the [MQTTX CLI skill](./skills/mqttx-cli/SKILL.md) to let external AI agents run MQTT tests and diagnostics.
+
+### MQTTX Web
+
+A browser client for quick tests without installing a desktop app. Open the [online client](https://mqttx.app/web-client) to get started.
+
+- Use MQTT 3.1.1 and 5.0 over WebSocket (`ws://` or `wss://`). HTTPS pages require `wss://`.
+- Manage multiple connections and subscriptions, and view sent and received messages in a chat-style interface.
+- [Deploy with Docker](./web/README.md#deploy-from-docker-image) to host the client yourself.
 
 ## MQTTX Agent
 
