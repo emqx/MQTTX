@@ -49,7 +49,7 @@
           </span>
         </template>
       </el-tree>
-      <contextmenu :visible.sync="menuVisible" v-bind="menuConfig">
+      <contextmenu :visible.sync="menuVisible" v-bind="menuConfig" :anchor="menuAnchor">
         <a href="javascript:;" class="context-menu__item" @click="handleEdit">
           <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
         </a>
@@ -67,9 +67,9 @@ import Contextmenu from '@/components/Contextmenu.vue'
 import getContextmenuPosition from '@/utils/getContextmenuPosition'
 import '@/assets/font/iconfont'
 
-// Estimated menu size: used for the right-click entry (`getContextmenuPosition`)
-// and as the first-frame estimate for the ⋯ entry, which then re-aligns to the
-// menu's measured width. Two items are about 90px tall.
+// Estimated menu size for the right-click entry, which places the menu at the
+// pointer before it is rendered. The ⋯ entry is placed by Contextmenu itself
+// from the button's rect and the menu's measured size.
 const MENU_WIDTH = 140
 const MENU_HEIGHT = 90
 
@@ -85,6 +85,8 @@ export default class DashboardsList extends Vue {
   private menuConfig: ContextmenuModel = { top: 0, left: 0 }
   // The row the open menu acts on; cleared when the menu closes.
   private menuTargetId: string | null = null
+  // The ⋯ button the open menu is anchored to (Contextmenu places itself from it).
+  private menuAnchor: DOMRect | null = null
 
   /**
    * True while a press that started on the ⋯ button is still held, so the tree
@@ -96,6 +98,7 @@ export default class DashboardsList extends Vue {
   private onMenuVisibleChanged(visible: boolean) {
     if (!visible) {
       this.menuTargetId = null
+      this.menuAnchor = null
     }
   }
 
@@ -108,43 +111,20 @@ export default class DashboardsList extends Vue {
     if (this.closeMenuIfOpen()) return
 
     const { x, y } = getContextmenuPosition(event, MENU_WIDTH, MENU_HEIGHT)
-    this.placeMenu(row, x, y)
+    this.menuConfig.left = x
+    this.menuConfig.top = y
+    this.menuAnchor = null
+    this.menuTargetId = row.id || null
+    this.menuVisible = true
   }
 
-  /** ⋯ button: right-aligned with the button, 4px under it (then clamped to the viewport). */
+  /** ⋯ button: the shared Contextmenu right-aligns itself on the button, 4px under it. */
   private openMenuFromButton(row: DashboardModel, event: MouseEvent): void {
     if (this.closeMenuIfOpen()) return
 
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
-    const top = rect.bottom + 4
-    const targetId = row.id || null
-
-    // First frame uses the estimate; the menu is content-sized, so its real
-    // width is measured as soon as it renders (see below).
-    const { x, y } = getContextmenuPosition(
-      { clientX: rect.right - MENU_WIDTH, clientY: top } as MouseEvent,
-      MENU_WIDTH,
-      MENU_HEIGHT,
-    )
-    this.placeMenu(row, x, y)
-
-    // The card is content-sized (its width also changes with the language), so
-    // align its measured right edge with the button's right edge.
-    this.$nextTick(() => {
-      if (!this.menuVisible || this.menuTargetId !== targetId) return
-
-      const menu = this.$el.querySelector('.contextmenu') as HTMLElement | null
-      if (!menu) return
-
-      const width = menu.offsetWidth || MENU_WIDTH
-      const clamped = getContextmenuPosition(
-        { clientX: rect.right - width, clientY: top } as MouseEvent,
-        width,
-        menu.offsetHeight || MENU_HEIGHT,
-      )
-      this.menuConfig.left = clamped.x
-      this.menuConfig.top = clamped.y
-    })
+    this.menuAnchor = (event.currentTarget as HTMLElement).getBoundingClientRect()
+    this.menuTargetId = row.id || null
+    this.menuVisible = true
   }
 
   /** A second right-click / ⋯ click closes the open menu. */
@@ -152,13 +132,6 @@ export default class DashboardsList extends Vue {
     if (!this.menuVisible) return false
     this.menuVisible = false
     return true
-  }
-
-  private placeMenu(row: DashboardModel, left: number, top: number): void {
-    this.menuConfig.left = left
-    this.menuConfig.top = top
-    this.menuTargetId = row.id || null
-    this.menuVisible = true
   }
 
   private get menuTarget(): DashboardModel | null {

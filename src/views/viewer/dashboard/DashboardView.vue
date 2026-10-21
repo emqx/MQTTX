@@ -64,7 +64,7 @@
         </grid-item>
       </grid-layout>
     </div>
-    <contextmenu :visible.sync="menuVisible" v-bind="menuConfig">
+    <contextmenu :visible.sync="menuVisible" :anchor="menuAnchor">
       <a href="javascript:;" class="context-menu__item" @click="handleWidgetEdit">
         <i class="iconfont icon-edit"></i>{{ $t('common.edit') }}
       </a>
@@ -81,7 +81,6 @@ import '@/assets/font/iconfont'
 import { GridLayout, GridItem } from 'vue-grid-layout'
 import WidgetRenderer from '@/widgets/WidgetRenderer.vue'
 import Contextmenu from '@/components/Contextmenu.vue'
-import getContextmenuPosition from '@/utils/getContextmenuPosition'
 import { globalEventBus } from '@/utils/globalEventBus'
 import { matchTopicMethod } from '@/utils/topicMatch'
 import time from '@/utils/time'
@@ -104,11 +103,6 @@ interface TimeRangeConfig {
 // History is loaded newest-first up to this many messages; the static chart
 // keeps the same cap so a live point cannot truncate a loaded history.
 const MAX_POINTS = 1000
-
-// Estimated menu size: used for the first frame of the ⋯ entry, which then
-// re-aligns to the menu's measured size. Two items are about 90px tall.
-const MENU_WIDTH = 140
-const MENU_HEIGHT = 90
 
 @Component({
   components: {
@@ -135,9 +129,10 @@ export default class DashboardCanvas extends Vue {
 
   // === WIDGET MENU ===
   private menuVisible = false
-  private menuConfig: ContextmenuModel = { top: 0, left: 0 }
   // The widget the open menu acts on; cleared when the menu closes.
   private menuTargetId: string | null = null
+  // The ⋯ button the open menu is anchored to (Contextmenu places itself from it).
+  private menuAnchor: DOMRect | null = null
 
   // vue-grid-layout drags a card from any point of it; its default is
   // `a, button`, and the ⋯ trigger is added so pressing the menu button never
@@ -148,6 +143,7 @@ export default class DashboardCanvas extends Vue {
   private onMenuVisibleChanged(visible: boolean) {
     if (!visible) {
       this.menuTargetId = null
+      this.menuAnchor = null
     }
   }
 
@@ -604,40 +600,13 @@ export default class DashboardCanvas extends Vue {
     this.$emit('layout-changed', nextLayout)
   }
 
-  /** ⋯ button: right-aligned with the button, 4px under it (then clamped to the viewport). */
+  /** ⋯ button: the shared Contextmenu right-aligns itself on the button, 4px under it. */
   private openMenuFromButton(widget: WidgetModel, event: MouseEvent): void {
     if (this.closeMenuIfOpen()) return
 
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
-    const top = rect.bottom + 4
-    const targetId = widget.id || null
-
-    // First frame uses the estimate; the menu is content-sized, so its real
-    // width is measured as soon as it renders (see below).
-    const { x, y } = getContextmenuPosition(
-      { clientX: rect.right - MENU_WIDTH, clientY: top } as MouseEvent,
-      MENU_WIDTH,
-      MENU_HEIGHT,
-    )
-    this.placeMenu(widget, x, y)
-
-    // The menu is only as wide as its longest item (its width also changes with
-    // the language), so align its measured right edge with the button's.
-    this.$nextTick(() => {
-      if (!this.menuVisible || this.menuTargetId !== targetId) return
-
-      const menu = this.$el.querySelector('.contextmenu') as HTMLElement | null
-      if (!menu) return
-
-      const width = menu.offsetWidth || MENU_WIDTH
-      const clamped = getContextmenuPosition(
-        { clientX: rect.right - width, clientY: top } as MouseEvent,
-        width,
-        menu.offsetHeight || MENU_HEIGHT,
-      )
-      this.menuConfig.left = clamped.x
-      this.menuConfig.top = clamped.y
-    })
+    this.menuAnchor = (event.currentTarget as HTMLElement).getBoundingClientRect()
+    this.menuTargetId = widget.id || null
+    this.menuVisible = true
   }
 
   /** A second ⋯ click closes the open menu. */
@@ -645,13 +614,6 @@ export default class DashboardCanvas extends Vue {
     if (!this.menuVisible) return false
     this.menuVisible = false
     return true
-  }
-
-  private placeMenu(widget: WidgetModel, left: number, top: number): void {
-    this.menuConfig.left = left
-    this.menuConfig.top = top
-    this.menuTargetId = widget.id || null
-    this.menuVisible = true
   }
 
   /** Keeps the ⋯ button visible while its menu is open (the pointer leaves the card). */

@@ -373,8 +373,10 @@ export default class WidgetConfig extends Vue {
     const body = this.$refs.body as HTMLElement | undefined
     if (!body) return
 
-    // Two columns once the body can fit the preview next to the form
-    const update = (width: number) => (this.isWide = width >= 880)
+    // Two columns once the body can fit the preview next to the form. The body
+    // is 8px wider than with the old 16px insets, so the threshold is moved by
+    // the same amount to keep the switch at the same window width.
+    const update = (width: number) => (this.isWide = width >= 888)
     this.widthObserver = new ResizeObserver(([entry]) => update(entry.contentRect.width))
     this.widthObserver.observe(body)
     update(body.clientWidth)
@@ -628,7 +630,9 @@ export default class WidgetConfig extends Vue {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 0 16px;
+  // Same 12px inset as the dashboard canvas cards (the sidebar panel and the
+  // grid margins both sit 12px in from the tab content).
+  padding: 0 12px;
 
   .topbar {
     -webkit-app-region: drag;
@@ -647,9 +651,11 @@ export default class WidgetConfig extends Vue {
     min-height: 49px;
     background-color: var(--color-bg-primary);
     border-bottom: 1px solid var(--color-border-default);
-    // Full-bleed divider, content aligned with the 16px content insets.
-    margin: 0 -16px;
-    padding: 0 16px;
+    // The divider ends with the content (the tabs underline end). With the
+    // dashboard list open it also starts at the sidebar panel edge, one inset
+    // to the left: see `.with-list` below.
+    margin: 0;
+    padding: 0;
 
     a {
       -webkit-app-region: no-drag;
@@ -666,6 +672,14 @@ export default class WidgetConfig extends Vue {
       font-size: 13px;
       font-weight: 500;
     }
+  }
+
+  // DashboardContent marks the editor root while the dashboard list is open:
+  // the panel edge is one inset left of the content, so the divider joins the
+  // sidebar header divider and the padding puts Back back on the content edge.
+  &.with-list .topbar {
+    margin-left: -12px;
+    padding-left: 12px;
   }
 
   .widget-config-body {

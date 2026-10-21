@@ -48,7 +48,7 @@
         </template>
       </template>
     </div>
-    <contextmenu :visible.sync="menuVisible" v-bind="menuConfig">
+    <contextmenu :visible.sync="menuVisible" v-bind="menuConfig" :anchor="menuAnchor">
       <a href="javascript:;" class="context-menu__item" @click="choose('rename')">
         <i class="iconfont icon-edit"></i>{{ $t('agent.rename') }}
       </a>
@@ -68,8 +68,8 @@ import { formatConversationTime } from '@/utils/ai/agent/conversationTime'
 type ConversationLike = { id: string; title: string; updateAt: string | number | Date }
 
 /**
- * Room the menu is assumed to need. Right-click uses them to place the menu, and the `⋯` entry needs them
- * for its first frame; the real width depends on the longest item and is measured right after opening.
+ * Room the right-click entry assumes the menu needs; the `⋯` entry is placed by Contextmenu itself from the
+ * button's rect and the menu's measured size.
  */
 const MENU_WIDTH = 140
 const MENU_HEIGHT = 90
@@ -84,10 +84,15 @@ export default class AgentSidebar extends Vue {
   private menuConfig: ContextmenuModel = { top: 0, left: 0 }
   /** The conversation the open menu belongs to, so its row keeps the hover look */
   private menuTargetId: string | null = null
+  /** The `⋯` button the open menu is anchored to (Contextmenu places itself from it) */
+  private menuAnchor: DOMRect | null = null
 
   @Watch('menuVisible')
   private onMenuVisibleChange(visible: boolean) {
-    if (!visible) this.menuTargetId = null
+    if (!visible) {
+      this.menuTargetId = null
+      this.menuAnchor = null
+    }
   }
 
   /** Right click on a row opens the menu where the pointer is */
@@ -98,40 +103,20 @@ export default class AgentSidebar extends Vue {
     }
     const { x, y } = getContextmenuPosition(event, MENU_WIDTH, MENU_HEIGHT)
     this.menuConfig = { top: y, left: x }
+    this.menuAnchor = null
     this.menuTargetId = id
     this.menuVisible = true
   }
 
-  /** The `⋯` button opens the same menu, hanging off its right edge */
+  /** The `⋯` button opens the same menu; Contextmenu right-aligns it on the button, 4px under it */
   private openMenuFromButton(id: string, event: MouseEvent) {
     if (this.menuVisible) {
       this.menuVisible = false
       return
     }
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
-    const top = rect.bottom + 4
-    const first = getContextmenuPosition(
-      { clientX: rect.right - MENU_WIDTH, clientY: top } as MouseEvent,
-      MENU_WIDTH,
-      MENU_HEIGHT,
-    )
-    this.menuConfig = { top: first.y, left: first.x }
+    this.menuAnchor = (event.currentTarget as HTMLElement).getBoundingClientRect()
     this.menuTargetId = id
     this.menuVisible = true
-
-    // The menu is only as wide as its longest item, which changes with the language: measure it and put
-    // its right edge on the button's right edge
-    this.$nextTick(() => {
-      const menu = this.$el.querySelector('.contextmenu') as HTMLElement | null
-      if (!this.menuVisible || !menu) return
-      const width = menu.offsetWidth
-      const { x, y } = getContextmenuPosition(
-        { clientX: rect.right - width, clientY: top } as MouseEvent,
-        width,
-        menu.offsetHeight,
-      )
-      this.menuConfig = { top: y, left: x }
-    })
   }
 
   private choose(command: 'rename' | 'delete') {
