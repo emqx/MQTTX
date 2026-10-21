@@ -1,11 +1,6 @@
 <template>
   <transition name="el-zoom-in-top">
-    <el-card
-      v-if="visible"
-      class="contextmenu"
-      :style="{ top: `${menuTop}px`, left: `${menuLeft}px` }"
-      v-click-outside="handleClickoutside"
-    >
+    <el-card v-if="visible" class="contextmenu" :style="menuStyle" v-click-outside="handleClickoutside">
       <slot></slot>
     </el-card>
   </transition>
@@ -32,32 +27,20 @@ export default class Contextmenu extends Vue {
    */
   @Prop({ default: null }) public anchor!: DOMRect | null
 
-  // Resolved placement for the anchor path; `null` means "use the props".
-  private anchorTop: number | null = null
-  private anchorLeft: number | null = null
+  // Placement measured for the anchor path; `null` means "use the props".
+  private anchorPlacement: { top: number; left: number } | null = null
 
-  private get menuTop(): number {
-    return this.anchorTop === null ? this.top : this.anchorTop
-  }
-
-  private get menuLeft(): number {
-    return this.anchorLeft === null ? this.left : this.anchorLeft
+  private get menuStyle(): { top: string; left: string } {
+    const { top, left } = this.anchorPlacement || { top: this.top, left: this.left }
+    return { top: `${top}px`, left: `${left}px` }
   }
 
   @Watch('visible')
-  private onVisibleChanged(visible: boolean) {
-    if (!visible) {
-      this.resetAnchorPlacement()
-      return
-    }
-    this.placeAtAnchor()
-  }
-
   @Watch('anchor')
-  private onAnchorChanged(anchor: DOMRect | null) {
-    if (!anchor) {
-      // Back to the `top`/`left` props (right-click path).
-      this.resetAnchorPlacement()
+  private onAnchorOrVisibilityChanged() {
+    if (!this.visible || !this.anchor) {
+      // Hidden or right-click path: back to the `top`/`left` props.
+      this.anchorPlacement = null
       return
     }
     this.placeAtAnchor()
@@ -86,14 +69,8 @@ export default class Contextmenu extends Vue {
         el.offsetWidth,
         el.offsetHeight,
       )
-      this.anchorLeft = x
-      this.anchorTop = y
+      this.anchorPlacement = { top: y, left: x }
     })
-  }
-
-  private resetAnchorPlacement(): void {
-    this.anchorTop = null
-    this.anchorLeft = null
   }
 
   private handleClickoutside() {
