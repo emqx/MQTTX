@@ -639,6 +639,22 @@ export default {
     hu: 'Nincs irányítópult kiválasztva',
     ko: '선택된 대시보드가 없습니다',
   },
+  schemaError: {
+    zh: '编解码错误',
+    en: 'Schema Error',
+    tr: 'Şema Hatası',
+    ja: 'スキーマエラー',
+    hu: 'Séma hiba',
+    ko: '스키마 오류',
+  },
+  noProtobufMessageName: {
+    zh: '反序列化：未找到用于反序列化消息的 Protobuf 消息名称。',
+    en: 'Deserialization: No protobuf message name found when deserializing message.',
+    tr: 'Ters serileştirme: Mesajı ters serileştirirken protobuf mesaj adı bulunamadı.',
+    ja: 'デシリアライズ: メッセージをデシリアライズする際に Protobuf メッセージ名が見つかりません。',
+    hu: 'Deszerializálás: Nem található protobuf üzenetnév az üzenet deszerializálásakor.',
+    ko: '역직렬화: 메시지를 역직렬화할 때 Protobuf 메시지 이름을 찾을 수 없습니다.',
+  },
   widgetTypeRequired: {
     zh: '需要小部件类型',
     en: 'Widget type is required',

@@ -2088,7 +2088,7 @@ export default class ConnectionsDetail extends Vue {
     switch (schemaType) {
       case 'protobuf':
         if (!protobufMessageName) {
-          this.$message.error('Deserialization: No protobuf message name found when deserializing message.')
+          this.$message.error(this.$t('viewer.noProtobufMessageName') as string)
           return payload
         }
 

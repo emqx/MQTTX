@@ -14,17 +14,17 @@
         type="button"
         class="response-information-reference"
         :disabled="!truncated"
-        aria-label="Response Information"
+        :aria-label="$t('connections.responseInformation')"
         :aria-expanded="visible ? 'true' : 'false'"
       >
-        <span class="response-information-label">Response Info</span>
+        <span class="response-information-label">{{ $t('connections.responseInformation') }}</span>
         <span ref="preview" class="response-information-preview">{{ responseInformation }}</span>
       </button>
     </el-popover>
     <button
       type="button"
       class="copy-response-information"
-      :aria-label="$t('common.copyTarget', { target: 'Response Information' })"
+      :aria-label="$t('common.copyTarget', { target: $t('connections.responseInformation') })"
       v-clipboard:copy="responseInformation"
       v-clipboard:success="handleCopySuccess"
     >
@@ -90,7 +90,9 @@ export default class ResponseInformation extends Vue {
   }
 
   private handleCopySuccess(): void {
-    this.$message.success(this.$tc('common.copyTargetSuccess', 1, { target: 'Response Information' }))
+    this.$message.success(
+      this.$tc('common.copyTargetSuccess', 1, { target: this.$t('connections.responseInformation') }),
+    )
   }
 }
 </script>

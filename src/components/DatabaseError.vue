@@ -2,12 +2,13 @@
   <div class="connect-database-error-page">
     <div class="page-content">
       <p class="info">
-        A corruption has been detected in the database file, preventing the software from launching properly. To fix
-        this, please click 'Rebuild Database'.
+        {{ $t('common.database.corruptInfo') }}
       </p>
-      <p class="error">Error - {{ connectDatabaseFailMessage }}</p>
+      <p class="error">{{ $t('common.database.errorLabel') }} - {{ connectDatabaseFailMessage }}</p>
     </div>
-    <el-button class="rebuild-database-btn" type="primary" @click="confirmRebuild"> Rebuild Database </el-button>
+    <el-button class="rebuild-database-btn" type="primary" @click="confirmRebuild">
+      {{ $t('common.database.rebuildDatabase') }}
+    </el-button>
   </div>
 </template>
 
@@ -25,17 +26,17 @@ export default class DatabaseError extends Vue {
   }
 
   private confirmRebuild() {
-    this.$confirm('Proceed with database rebuild now? All data will be lost and cannot be undone', {
-      title: 'Database Rebuild Confirmation',
+    this.$confirm(this.$t('common.database.rebuildConfirmMessage') as string, {
+      title: this.$t('common.database.rebuildConfirmTitle') as string,
       showClose: false,
       closeOnClickModal: false,
-      confirmButtonText: 'Confirm',
-      cancelButtonText: 'Cancel',
+      confirmButtonText: this.$t('common.confirm') as string,
+      cancelButtonText: this.$t('common.cancel') as string,
       type: 'warning',
       beforeClose: (action, instance, done) => {
         if (action === 'confirm') {
           instance.confirmButtonLoading = true
-          instance.confirmButtonText = 'Loading...'
+          instance.confirmButtonText = this.$t('common.database.loading') as string
         }
         done()
       },
