@@ -70,10 +70,7 @@ export default class GaugeChart extends Vue {
       this.$nextTick(() => this.initChart())
     } else if (!newVal && this.myChart) {
       this.resetDynamicMinMax()
-      this.detachResize?.()
-      this.detachResize = null
-      this.myChart.dispose()
-      this.myChart = null
+      this.cleanup()
     }
   }
 
