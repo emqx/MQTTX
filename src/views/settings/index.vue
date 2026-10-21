@@ -1046,7 +1046,7 @@ export default class Settings extends Vue {
     text-align: center;
   }
 
-  // Element's carets and stepper arrows are <i> too.
+  // Element's control icons are <i> too.
   ::v-deep i {
     font-size: 16px;
   }
