@@ -5,7 +5,12 @@
     </template>
     <template v-else>
       <template v-if="isAddingWidget">
-        <WidgetConfig :initial-widget="editingWidget" @cancel="cancelAddWidget" @save="handleSaveWidgetConfig" />
+        <WidgetConfig
+          :initial-widget="editingWidget"
+          :class="{ 'with-list': showDashboardsList }"
+          @cancel="cancelAddWidget"
+          @save="handleSaveWidgetConfig"
+        />
       </template>
       <template v-else>
         <div v-if="isEmpty" class="dashboard-empty">

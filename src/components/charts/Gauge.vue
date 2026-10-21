@@ -39,8 +39,9 @@ export default class GaugeChart extends Vue {
   private dynamicMin: number | null = null
   private dynamicMax: number | null = null
 
-  // Value sizing rule, the same one Big Number uses so the two widgets read at
-  // the same size: box driven, then shrunk to fit the ring.
+  // Value sizing rule: box driven like Big Number, then shrunk to the ring's
+  // inner opening, so a gauge value can read a little smaller than the Big
+  // Number one in a neighbouring card.
   private readonly minValueFontPx = 24
   private readonly maxValueFontPx = 44
   private readonly minReadableFontPx = 20
@@ -185,22 +186,28 @@ export default class GaugeChart extends Vue {
     const height = container?.clientHeight || 200
     const size = Math.min(width, height)
 
-    // Same value-font rule as the Big Number card (box driven, then shrunk to
-    // fit), so the two widgets read at the same size. The unit renders at 0.45x.
+    // Same box-driven rule as the Big Number card (shrunk further to fit the
+    // ring below). The unit renders at 0.45x.
     const valueText = this.data.value === null ? '0' : this.data.value.toFixed(this.decimals)
     const unitChars = this.unit ? this.unit.length * this.unitFontRatio : 0
     const weight = Math.max(valueText.length + unitChars, 1)
     const boxFontPx = Math.min(this.maxValueFontPx, Math.max(this.minValueFontPx, Math.min(height * 0.2, width * 0.16)))
-    const ringWidth = size * 0.52
+
+    // Band width (also used for the axis line and the progress bar below). The
+    // ring is `radius: '75%'` of the short side, and the band is drawn inward
+    // from it as a sector (`r0 = r - width`), so the free opening's diameter is
+    // 2 * (0.375 * size - band). The value keeps 22% of that as clearance, which
+    // leaves the text off the band and off the round caps that close the
+    // 200deg...-20deg arc at the lower left and right.
+    const axisWidth = Math.max(16, size / 12) // was 24, scales with size
+    const progressWidth = Math.max(16, size / 12) // was 24
+    const innerDiameter = 2 * (0.375 * size - progressWidth)
+
     const detailFontSize = Math.round(
-      Math.max(this.minReadableFontPx, Math.min(boxFontPx, (ringWidth - 4) / weight / this.charWidthRatio)),
+      Math.max(this.minReadableFontPx, Math.min(boxFontPx, (innerDiameter * 0.78) / weight / this.charWidthRatio)),
     )
     const unitFontSize = Math.round(detailFontSize * this.unitFontRatio)
     const detailOffset = size > 200 ? '10%' : '15%'
-
-    // Make the axis and progress bar thicker
-    const axisWidth = Math.max(16, size / 12) // was 24, scales with size
-    const progressWidth = Math.max(16, size / 12) // was 24
 
     return {
       backgroundColor: 'transparent',

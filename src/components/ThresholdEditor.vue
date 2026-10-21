@@ -1,5 +1,5 @@
 <template>
-  <div class="key-value-editor">
+  <div class="threshold-editor">
     <div class="editor-header">
       <span class="editor-label">{{ $t('viewer.thresholdsType') }}</span>
       <div class="editor-type-row">
@@ -86,7 +86,9 @@ export default class ThresholdEditor extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.key-value-editor {
+// Own root class: KeyValueEditor's global (unscoped) rules used to apply here
+// and flatten the label-above layout below. Keep the two roots apart.
+.threshold-editor {
   // Label above the controls, like the other fields of the form
   .editor-header {
     .editor-type-row {
