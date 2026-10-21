@@ -26,25 +26,68 @@
 - CLI で負荷テストや IoT データのシミュレーションを行い、標準入力とパイプでシェルスクリプトや CI ワークフローと連携できます。
 - Web 版は WebSocket 経由で MQTT 3.1.1 と 5.0 に対応し、Docker によるセルフホストも可能です。
 
+<details>
+<summary>クライアント別の全機能</summary>
+
+### MQTTX Desktop
+
+macOS、Windows、Linux 向けの GUI クライアントです。対話的なデバッグやメッセージの分析に利用できます。
+
+- TCP、TLS、WebSocket、セキュア WebSocket で接続し、MQTT 3.1、3.1.1、5.0 に対応します。
+- MQTT 5.0 の接続・パブリッシュ・サブスクライブにユーザープロパティを設定し、SCRAM 拡張認証で接続できます。ブローカーが返す CONNACK レスポンス情報も確認できます。
+- 内蔵の MQTTX Agent で自然言語による操作ができます。スキル（Skills）、MCP ツール、操作の承認、複数のモデルプロバイダーに対応します。
+- Plaintext、JSON、Base64、Hex、CBOR、MsgPack のエンコード・デコード、Protobuf と Avro のスキーマ、受信 GZIP メッセージの自動解凍に対応します。
+- スクリプトで送受信メッセージを変換し、定期的にメッセージを送信できます。
+- トピックツリー、ダッシュボード、トラフィックモニター、ペイロードインスペクターでメッセージを分析できます。JSON ツリーとメッセージ差分も確認できます。
+- 接続のグループ化、メッセージ検索、接続ごとのパブリッシュエリアと履歴を利用できます。
+- JSON、CSV、Excel、XML、YAML で接続をインポート・エクスポートできます。JSON バックアップは接続グループを保持します。
+- ライト・ダーク・ナイトのテーマを選択でき、英語、簡体字中国語、日本語、トルコ語、ハンガリー語、韓国語に対応します。
+
+### MQTTX CLI
+
+ターミナルでのデバッグ、シェルスクリプト、CI 自動化、性能テストに使えるコマンドラインクライアントです。
+
+- `mqttx conn`、`mqttx pub`、`mqttx sub` で接続・パブリッシュ・サブスクライブを実行できます。MQTT 3.1、3.1.1、5.0 と TCP、TLS、WebSocket に対応します。
+- `mqttx bench` で接続・パブリッシュ・サブスクライブの負荷テストを行い、`mqttx simulate` で IoT テストデータを生成できます。
+- 標準入力からメッセージを読み込み、受信メッセージを他のツールへパイプで渡せます。接続パラメーターは JSON または YAML で保存・読み込みできます。
+- JSON、Base64、Hex、CBOR、MsgPack のエンコード・デコードと、Protobuf、Avro のスキーマに対応します。
+- [MQTTX CLI skill](./skills/mqttx-cli/SKILL.md) を使うと、外部の AI エージェントから MQTT のテストや診断を実行できます。
+
+### MQTTX Web
+
+デスクトップアプリをインストールせずに、ブラウザーで[オンラインクライアント](https://mqttx.app/web-client)を開いてテストできます。
+
+- WebSocket（`ws://` または `wss://`）で MQTT 3.1.1 と 5.0 のメッセージを送受信できます。HTTPS ページでは `wss://` を使用します。
+- チャット形式の画面で複数の接続とサブスクリプションを管理し、送受信メッセージを確認できます。
+- [Docker でセルフホスト](./web/README.md#deploy-from-docker-image)して、自分の環境で Web クライアントを実行できます。
+
+</details>
+
 ## クイックスタート
 
 ### MQTTX Desktop
 
-[GitHub Releases](https://github.com/emqx/MQTTX/releases) または [EMQ のダウンロードサイト](https://www.emqx.com/downloads/MQTTX/) から、プラットフォームに合ったインストーラーをダウンロードしてください。[Mac App Store](https://apps.apple.com/jp/app/mqttx/id1514074565?mt=12)、[Snap](https://snapcraft.io/mqttx)、[Flathub](https://flathub.org/apps/details/com.emqx.MQTTX) からもインストールできます。macOS では Homebrew も利用できます。
+[GitHub Releases](https://github.com/emqx/MQTTX/releases) または [EMQ のダウンロードサイト](https://www.emqx.com/downloads/MQTTX/) から、お使いのプラットフォーム向けのパッケージをダウンロードしてください。
+
+[![Download on the Mac App Store](./assets/app-store-download.svg)](https://apps.apple.com/jp/app/mqttx/id1514074565?mt=12)
+[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/jp/snap-store-black.svg)](https://snapcraft.io/mqttx)
+<a href='https://flathub.org/apps/details/com.emqx.MQTTX'><img height='56' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>
+
+macOS では [Homebrew](https://formulae.brew.sh/cask/mqttx) でもインストールできます。
 
 ```shell
 brew install --cask mqttx
 ```
 
-1. MQTTX を開き、左側のサイドバーの `+` をクリックして接続を作成します。
-2. ブローカーのアドレスを入力し、`Connect` をクリックします。独自のブローカー、またはパブリックテストサーバー `broker.emqx.io`（TCP ポート `1883`、TLS ポート `8883`）を使用できます。
+1. MQTTX を開き、左側のサイドバーの `+` をクリックし、フォームの必須項目を入力します。
+2. ブローカーのアドレスを入力し、`Connect` をクリックします。独自のブローカー、または [EMQX Cloud](https://www.emqx.com/en/cloud) が提供する無料の[パブリック MQTT 5.0 ブローカー](https://www.emqx.com/en/mqtt/public-mqtt5-broker) `broker.emqx.io`（TCP ポート `1883`、TLS ポート `8883`）を使用できます。
 3. トピックをサブスクライブし、同じトピックに JSON メッセージをパブリッシュします。受信した内容がメッセージ一覧に表示されます。
 
 ![mqttx-gif](./assets/mqttx-gif.gif)
 
 ### MQTTX CLI
 
-インストール方法を 1 つ選んでください。npm を使う前に、[インストールガイド](./INSTALL.md#npm)で Node.js の要件を確認してください。[ダウンロードページ](https://mqttx.app/downloads)ではスタンドアロンのバイナリも提供しています。
+インストール方法を 1 つ選んでください。npm を使う前に、[インストールガイド](./INSTALL.md#npm)で Node.js の要件を確認してください。
 
 ```shell
 # macOS (Homebrew)
@@ -53,6 +96,8 @@ brew install emqx/mqttx/mqttx-cli
 # または npm を使用
 npm install --global mqttx-cli
 ```
+
+スタンドアロンのバイナリと Docker イメージも提供しています。詳しくは [MQTTX CLI README](./cli/README.md) または [MQTTX ダウンロードページ](https://mqttx.app/downloads) を参照してください。
 
 インストール後、2 つのターミナルでそれぞれサブスクライブとパブリッシュを実行すると、サブスクライブ側で JSON メッセージを受信できます。
 
@@ -80,25 +125,42 @@ docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 
 ### デスクトップ版の MQTTX Agent
 
-**設定 → MQTTX Agent** で有効にしてモデルを設定し、左側のサイドバーから開くか、`Cmd/Ctrl + J` でフローティングウィンドウを表示します。スキル、MCP、操作の承認、モデル設定については [MQTTX Agent ガイド](./docs/desktop/en/use-desktop/agent.md)を参照してください。
+MQTTX Agent はデスクトップ版に組み込まれた AI アシスタントです。**設定 → MQTTX Agent** で有効にし、プロバイダーの API ホスト、API キー、モデルを入力したうえで、左側のバーから全画面で開くか、`Cmd/Ctrl + J` でフローティングウィンドウとして開きます。
+
+- ツールを通じて MQTTX を操作します。接続の作成と接続、サブスクライブとパブリッシュ、メッセージの読み取り、トピックツリーやダッシュボードの構築、設定した MCP サーバーの呼び出し、クライアントコードやテストデータ、スキーマの生成ができます。
+- **操作の前に確認**（デフォルト）は変更の前に承認を求め、**自動**は確認なしで実行します。
+- 会話とツールの実行結果は設定したモデルプロバイダーに送信されるため、チャットに秘密情報を入力しないでください。
+
+セットアップ、スキル、MCP、権限、制限の詳細は [MQTTX Agent](./docs/desktop/en/use-desktop/agent.md) を参照してください。
 
 ### 外部 AI エージェントと CLI スキル
 
-AI エージェントに [mqttx-cli スキル](./skills/mqttx-cli/SKILL.md)をインストールすると、MQTTX CLI を使って MQTT のテストやトラブルシューティングを実行できます。
+<details>
+<summary>エージェントに MQTTX CLI のインストール・更新を依頼する</summary>
+
+[INSTALL.md](./INSTALL.md) には、環境の検出、インストール方法の選択、バージョンの確認など、エージェント向けのインストール・更新手順が記載されています。次のプロンプトをエージェントに渡してください。
+
+> https://raw.githubusercontent.com/emqx/MQTTX/main/INSTALL.md を読み、その手順に従って現在の環境に MQTTX CLI をインストールまたは更新してください。実行ファイルのパスとバージョンも確認してください。
+
+</details>
+
+[mqttx-cli スキル](./skills/mqttx-cli/SKILL.md) は、エージェントが MQTTX CLI を使って接続確認、メッセージの送受信、MQTT 5 機能の検証、TLS・認証、ペイロードのエンコード・デコード、ベンチマーク、データシミュレーション、トラブルシューティングを行うためのガイドです。
+
+[Skills CLI](https://github.com/vercel-labs/skills) でインストールできます。
 
 ```shell
 npx skills add emqx/MQTTX --skill mqttx-cli
 ```
 
+ローカルのソースからインストールする場合は、リポジトリのルートで `npx skills add . --skill mqttx-cli` を実行してください。また、`skills/mqttx-cli` ディレクトリ全体（`references` を含む）をエージェントが対応するスキルディレクトリにコピーするか、その中の `SKILL.md` をエージェントに直接読ませることもできます。
+
 インストール後は、たとえば次のように依頼できます。
 
 > mqttx-cli スキルを使って、127.0.0.1:1883 で動作するローカルブローカーのメッセージ送受信を検証してください。mqttx-test/ 配下の一意なトピックを使用し、15 秒以内に検証を終了して結果を報告してください。
 
-CLI のインストールと更新については [INSTALL.md](./INSTALL.md)を、その他のスキルのインストール方法については [CLI README](./cli/README.md#ai-agent-support)を参照してください。
-
 ## EMQX と組み合わせて使う
 
-MQTTX はあらゆる MQTT ブローカーに接続でき、EMQX との組み合わせにも適しています。EMQX または EMQX Cloud に接続して、アプリケーションのデバッグやブローカー機能の確認を行えます。
+MQTTX はあらゆる MQTT ブローカーに接続でき、[EMQX](https://www.emqx.com/en/products/emqx) との組み合わせにも適しています。EMQX または EMQX Cloud に接続して、アプリケーションのデバッグやブローカー機能の確認を行えます。
 
 - [EMQX Cloud の 14 日間無料トライアル](https://www.emqx.com/en/try?product=cloud)
 - [EMQX をダウンロードしてローカルで実行](https://www.emqx.com/en/try?product=enterprise)
@@ -113,7 +175,9 @@ MQTTX はあらゆる MQTT ブローカーに接続でき、EMQX との組み合
 
 ## 開発とコントリビューション
 
-以下の手順はデスクトップ版向けです。[`.nvmrc`](./.nvmrc)に指定された Node.js を使用し、リポジトリのルートで `nvm use` を実行してから開発を始めてください。
+以下の手順はデスクトップ版向けです。
+
+[`.nvmrc`](./.nvmrc) に記載された Node.js のバージョン（現在は v22）を使用してください。[nvm](https://github.com/nvm-sh/nvm) を使う場合は、リポジトリのルートで `nvm use` を実行します。
 
 ```shell
 git clone git@github.com:emqx/MQTTX.git
@@ -123,7 +187,29 @@ yarn install
 yarn run electron:serve
 ```
 
-`yarn run electron:build` で全プラットフォームのインストーラーをビルドできます。単一のプラットフォーム向けには、`electron:build-win`、`electron:build-linux`、`electron:build-mac` の各 Yarn スクリプトを実行してください。出力先は `dist_electron` です。
+Windows、Linux、macOS 向けのインストーラーをビルドします。
+
+```shell
+yarn run electron:build
+```
+
+インストーラーの出力先は `dist_electron` です。
+
+<details>
+<summary>単一のプラットフォーム向けにビルド</summary>
+
+```shell
+# For Windows
+yarn run electron:build-win
+
+# For Linux
+yarn run electron:build-linux
+
+# For macOS
+yarn run electron:build-mac
+```
+
+</details>
 
 CLI と Web の開発手順は [CLI README](./cli/README.md#develop)と [Web README](./web/README.md#develop)を参照してください。プルリクエストを作成する前に[コントリビューションガイド](./.github/CONTRIBUTING.md)をお読みください。
 
