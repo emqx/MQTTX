@@ -42,9 +42,13 @@ EMQX 提供全托管的云原生 MQTT 消息服务，能够通过可靠、实时
 
 ## 连接到 MQTT 服务器
 
-本节演示了如何使用 MQTTX 桌面版通过最简单的设置连接到公共的 MQTT 服务器。想要了解其他高级设置，参阅[使用通用设置建立客户端连接]()，[使用高级设置建立客户端连接]() 和 [MQTT 5.0 功能设置]()。<!-- 完善链接-->
+以下步骤演示连接公共 MQTT Broker。完整选项请参阅[常规连接设置](../use-desktop/connect.md)、[高级连接设置](../advanced/advanced-setting.md)和 [MQTT 5.0 功能](https://mqttx.app/zh/docs/advanced#mqtt-5)。
 
-如果还没有任何连接，主面板会显示欢迎页而不是连接。页面上提供三张快速开始卡片：**新建连接**会打开连接表单（也可以按 `Cmd/Ctrl + N`），**连接公共 Broker** 会创建一个名为 `broker.emqx.io` 的连接，指向 `broker.emqx.io:1883` 并立即连接，**导入数据** 会打开导入弹窗，支持 JSON、YAML、CSV、XML 和 Excel 文件，导入成功后应用会重新加载。
+没有保存的连接时，欢迎页提供三个入口：
+
+- **新建连接**：打开连接表单，也可以按 `Cmd/Ctrl + N`。
+- **连接公共 Broker**：创建名为 `broker.emqx.io` 的连接，并立即连接到 `broker.emqx.io:1883`。
+- **导入数据**：导入 JSON、YAML、CSV、XML 或 Excel 文件，成功后应用会重新加载。
 
 1. 启动您的 MQTT 服务器和 MQTTX 桌面端。您可以通过以下3种方式之一在 MQTTX 中创建新的客户端连接：
 
@@ -86,7 +90,7 @@ EMQX 提供全托管的云原生 MQTT 消息服务，能够通过可靠、实时
 
    <img src="./assets/new-subscribe.png" alt="new-subscribe" style="zoom:40%;" />
 
-2. 按照[连接到 MQTT 代理服务器](#connect-to-mqtt-broker)中的步骤，创建一个新的 MQTT 客户端连接，名称为 `Publisher`。
+2. 按照[连接到 MQTT 服务器](#连接到-mqtt-服务器)中的步骤，创建一个新的 MQTT 客户端连接，名称为 `Publisher`。
 
 3. 在**连接**面板中，确保选择了客户端连接 `Publisher`。在右下角的发布区域中，输入 `test` 作为主题，并保留消息 payload 和其他选项为默认设置。
 

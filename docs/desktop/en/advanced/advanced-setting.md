@@ -4,20 +4,22 @@ When you create a new connection, you can configure the advanced settings and se
 
 ## Configure Advanced Settings
 
-In the Advanced section, you can configure the MQTT protocol-related features.
+In **Advanced**, set the connection timeout, [Keep Alive](https://www.emqx.com/en/blog/mqtt-keep-alive), Clean Session or Clean Start, automatic reconnection, and MQTT version.
 
-The default value of the **MQTT Version** is `5.0` and you can configure the MQTT 5.0 specific features such as `Session Expiry Interval`, `Receive Maximum`, and `Topic Alias Maximum` (optional). You can also select other MQTT protocol versions from the drop-down list. Other optional values are `3.1` and `3.1.1`.
+**MQTT Version** defaults to `5.0`; `3.1` and `3.1.1` are also available. With MQTT 5.0, you can set optional properties such as `Session Expiry Interval`, `Receive Maximum`, and `Topic Alias Maximum`.
 
-Enable **Request Response Info** to ask the broker for Response Information in CONNACK. When returned, the connection page shows **Response Information** and a copy button. This value is provided by the broker; MQTTX does not generate it. See [Request Response](https://mqttx.app/docs/advanced#request-response) for the publishing workflow.
+Enable **Request Response Info** in an MQTT 5.0 connection's advanced settings to request Response Information in CONNACK. If returned, the connection header shows **Response Information** and a copy button, even when its settings are collapsed. Click a long value to view it in full. The value comes from the broker; MQTTX does not generate it. It is hidden for MQTT 3.x connections and after disconnecting.
+
+See [Request Response](https://mqttx.app/docs/advanced#request-response) for the publishing workflow.
 
 ![MQTT 5.0 connection settings](../use-desktop/assets/connection-advanced.png)
 
 ## Configure Last Will and Testament
 
-In the **Last Will and Testament** section, you can configure options for will messages.
+In **Last Will and Testament**, configure the message that the broker publishes if the client disconnects unexpectedly.
 
-The `Last-Will-QoS` and `Last-Will-Retain` fields are preset with 0 and `False`, respectively. Input the `Last-Will-Topic` and `Last-Will-Payload` values to complete the Will Message configuration.
+`Last-Will-QoS` defaults to `0` and `Last-Will-Retain` to `False`. Enter `Last-Will-Topic` and `Last-Will-Payload` to complete the configuration.
 
 ![mqttx-willmessage](/images/mqttx-willmessage.png)
 
-After completing the configuration, click the `Connect` button in the upper right corner to swiftly create a connection and connect to the MQTT Broker.
+Click **Connect** in the upper right corner to create the connection and connect to the broker.

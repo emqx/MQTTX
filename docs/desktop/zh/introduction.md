@@ -1,8 +1,8 @@
 # 简介
 
-[MQTTX Desktop](https://mqttx.app/zh) 是由 [EMQ](https://www.emqx.com/zh) 开源的跨平台 MQTT 5.0 桌面客户端，支持 macOS、Linux 和 Windows。它采用类似聊天软件的界面，可以同时管理多个连接，通过 TCP、TLS 和 WebSocket 快速测试连接、发布、订阅等 MQTT 功能。
+[MQTTX Desktop](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的 MQTT 5.0 桌面客户端，支持 macOS、Windows 和 Linux。它采用聊天式界面，通过 TCP、TLS 和 WebSocket 管理多个连接与订阅，并内置 MQTTX Agent，可用自然语言创建连接、收发消息和排查问题。
 
-安装前，请访问 [官网](https://mqttx.app/zh) 或 [GitHub](https://github.com/emqx/MQTTX) 了解最新版本。你也可以克隆 [源码](https://github.com/emqx/MQTTX) 自行构建。如果遇到问题或有建议，欢迎提交 [GitHub issue](https://github.com/emqx/MQTTX/issues)，或者 Fork 本项目并提交 Pull Request。
+从[官网](https://mqttx.app/zh)或 [GitHub](https://github.com/emqx/MQTTX) 下载最新版本，也可以从[源码](https://github.com/emqx/MQTTX)构建。问题和建议请提交 [GitHub issue](https://github.com/emqx/MQTTX/issues)；欢迎 Fork 项目并提交 Pull Request。
 
 ## 选择客户端
 
