@@ -194,14 +194,6 @@ export default class TreeNodeInfo extends Vue {
 </script>
 
 <style lang="scss">
-body.light {
-  @import '@/assets/scss/theme/custom/prism-one-light.scss';
-}
-body.dark,
-body.night {
-  @import '@/assets/scss/theme/custom/prism-one-dark.scss';
-}
-
 .tree-node-info {
   .el-tag.el-tag--info {
     color: var(--color-text-default);

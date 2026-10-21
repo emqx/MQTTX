@@ -123,6 +123,24 @@
   }
 }
 
+@mixin collapse-btn-icon {
+  a.collapse-btn {
+    color: var(--color-text-light);
+    font-size: 1rem;
+    position: relative;
+    top: 1px;
+  }
+}
+
+@mixin dialog-icon-tip {
+  .el-tooltip.icon-tip {
+    position: absolute;
+    right: 195px;
+    font-size: 16px;
+    color: var(--color-text-tips);
+  }
+}
+
 @mixin editor-lang-type {
   .lang-type {
     width: 100%;

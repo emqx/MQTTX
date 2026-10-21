@@ -535,20 +535,6 @@ export default class JsonViewer extends Vue {
   }
 }
 
-.visualize-tree-dialog {
-  .el-dialog__body {
-    padding: 0px;
-  }
-  .tooltip-topic-value {
-    color: var(--color-text-light);
-  }
-  .visualize-tree-about {
-    color: var(--color-text-default);
-    margin-left: 12px;
-    cursor: pointer;
-  }
-}
-
 ::v-deep {
   @include search-highlight;
 }

@@ -463,7 +463,11 @@
         <el-card v-if="record.mqttVersion === '5.0' && advancedVisible" shadow="never" class="info-body item-card">
           <el-row :gutter="20">
             <el-col :span="22">
-              <KeyValueEditor :title="$t('connections.userProperties')" v-model="record.properties.userProperties" />
+              <KeyValueEditor
+                class="user-properties-editor"
+                :title="$t('connections.userProperties')"
+                v-model="record.properties.userProperties"
+              />
             </el-col>
           </el-row>
         </el-card>
@@ -1088,18 +1092,13 @@ export default class ConnectionForm extends Vue {
     .content-type-item {
       margin-top: 8px;
     }
-    .key-value-editor {
+    .user-properties-editor {
       padding-left: 12px;
     }
     @include editor-lang-type;
   }
   .info-header {
-    a.collapse-btn {
-      color: var(--color-text-light);
-      font-size: 1rem;
-      position: relative;
-      top: 1px;
-    }
+    @include collapse-btn-icon;
     @include collapse-btn-transform(0deg, 180deg);
   }
   .item-secure {

@@ -1,4 +1,5 @@
 @import '~@/assets/scss/variable.scss';
+@import '~@/assets/scss/mixins.scss';
 
 /* Divider */
 .el-divider {
@@ -262,6 +263,9 @@
     border-top-color: var(--color-bg-messagebox);
   }
 }
+
+/* Dropdown Menu */
+@include el-dropdown-menu-common;
 
 /* Select Dropdown Item */
 .el-select-dropdown__item.hover,

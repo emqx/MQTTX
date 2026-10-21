@@ -1026,12 +1026,7 @@ export default class SubscriptionsList extends Vue {
         }
       }
     }
-    a.collapse-btn {
-      color: var(--color-text-light);
-      font-size: 1rem;
-      position: relative;
-      top: 1px;
-    }
+    @include collapse-btn-icon;
     @include collapse-btn-transform(0deg, 180deg);
     .icon-oper {
       color: var(--color-text-default);
