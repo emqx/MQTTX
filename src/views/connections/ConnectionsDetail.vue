@@ -160,7 +160,7 @@
                 </a>
               </el-tooltip>
               <el-dropdown class="connection-oper" trigger="click" @command="handleCommand">
-                <a href="javascript:;">
+                <a href="javascript:;" class="row-action-trigger">
                   <i class="iconfont icon-more"></i>
                 </a>
                 <el-dropdown-menu class="connection-oper-item" slot="dropdown">
@@ -2510,15 +2510,6 @@ export default class ConnectionsDetail extends Vue {
           &.disabled {
             cursor: not-allowed;
             color: var(--color-text-light);
-          }
-        }
-        .el-dropdown.connection-oper {
-          a {
-            width: 24px;
-            display: inline-block;
-            text-align: center;
-            position: relative;
-            top: -1px;
           }
         }
       }

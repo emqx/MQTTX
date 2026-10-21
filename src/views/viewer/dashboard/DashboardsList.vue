@@ -38,13 +38,17 @@
               @contextmenu.prevent="openMenuAt(data, $event)"
             >
               <span class="dashboard-name">{{ data.name }}</span>
-              <span
-                class="dashboard-oper-trigger"
+              <button
+                type="button"
+                class="dashboard-oper-trigger row-action-trigger"
+                :class="{ 'menu-open': menuVisible && menuTargetId === data.id }"
+                :aria-label="$t('viewer.dashboardMenu')"
+                :title="$t('viewer.dashboardMenu')"
                 @click.stop="openMenuFromButton(data, $event)"
                 @mousedown.stop="onOperPointerDown"
               >
                 <i class="iconfont icon-more"></i>
-              </span>
+              </button>
             </div>
           </span>
         </template>
@@ -374,28 +378,14 @@ export default class DashboardsList extends Vue {
         overflow: hidden;
       }
 
-      // Row action, revealed on hover like the Agent conversation list.
+      // Row action placement; box, radius and colours come from `.row-action-trigger`.
       .dashboard-oper-trigger {
         position: absolute;
         top: 50%;
         right: 4px;
         transform: translateY(-50%);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 24px;
-        height: 24px;
-        border-radius: 8px;
-        background: transparent;
-        color: var(--color-text-light);
-        cursor: pointer;
         opacity: 0;
         pointer-events: none;
-        transition: opacity 0.15s ease, color 0.15s ease;
-
-        &:hover {
-          color: var(--color-text-title);
-        }
       }
 
       // Same reveal for hover and for the row whose menu is open.

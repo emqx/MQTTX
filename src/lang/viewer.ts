@@ -39,6 +39,14 @@ export default {
     hu: 'Irányítópultok elrejtése',
     ko: '대시보드 숨기기',
   },
+  dashboardMenu: {
+    zh: '仪表盘操作',
+    en: 'Dashboard actions',
+    tr: 'Gösterge paneli işlemleri',
+    ja: 'ダッシュボードの操作',
+    hu: 'Irányítópult műveletei',
+    ko: '대시보드 작업',
+  },
   noWidgetsTitle: {
     zh: '添加可视化组件，开始使用仪表盘',
     en: 'Start your new dashboard by adding a visualization',

@@ -319,22 +319,6 @@
   .conv.menu-open .conv-time {
     opacity: 0;
   }
-  .conv .more {
-    width: var(--agent-space-6);
-    height: var(--agent-space-6);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: none;
-    border: 0;
-    border-radius: var(--agent-radius-sm);
-    background: transparent;
-    color: var(--color-text-light);
-    cursor: pointer;
-  }
-  .conv .more:hover {
-    color: var(--color-text-title);
-  }
   /* The conversation that is still replying: a small spinner where the time would be */
   .conv .live {
     flex: none;
@@ -456,7 +440,7 @@
   .suggestion:focus-visible,
   .btn:focus-visible,
   .conv:focus-visible,
-  .conv .more:focus-visible,
+  .conv .conv-actions:focus-visible,
   .history-new:focus-visible {
     outline: 2px solid var(--color-main-green);
     outline-offset: 1px;
