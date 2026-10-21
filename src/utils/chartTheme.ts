@@ -1,3 +1,5 @@
+import _ from 'lodash'
+
 /**
  * Unified way for the dashboard charts to read the active theme.
  *
@@ -71,21 +73,12 @@ export const CHART_RESIZE_DEBOUNCE_MS = 100
 export const attachChartResize = (container: HTMLElement | null, onResize: () => void): (() => void) => {
   if (!container || !window.ResizeObserver) return () => {}
 
-  let timeout: number | null = null
-  const observer = new window.ResizeObserver(() => {
-    if (timeout !== null) window.clearTimeout(timeout)
-    timeout = window.setTimeout(() => {
-      timeout = null
-      onResize()
-    }, CHART_RESIZE_DEBOUNCE_MS)
-  })
+  const resize = _.debounce(onResize, CHART_RESIZE_DEBOUNCE_MS)
+  const observer = new window.ResizeObserver(resize)
   observer.observe(container)
 
   return () => {
     observer.disconnect()
-    if (timeout !== null) {
-      window.clearTimeout(timeout)
-      timeout = null
-    }
+    resize.cancel()
   }
 }
