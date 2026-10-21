@@ -26,7 +26,7 @@
 
 当需要下载文件安装时，我们建议您优先选择下载 `dmg` 格式的安装包。同时，您也可以选择下载 `mac.zip` 的压缩包，解压后即可使用。
 
-**注意**：不过请注意，由于 macOS 系统版本的不同，使用 `zip` 压缩包在 `10.15.2` 系统版本中可能会出现解压后无法打开的情况，因此，我们建议优先选择 `dmg` 文件进行下载和安装。
+**MQTTX 1.13.2 系统要求**：macOS 12 或更高版本。请根据 Mac 的处理器选择 Intel 或 Apple Silicon 安装包。
 
 对于习惯使用命令行的 macOS 用户，您可以选择使用 [brew cask](https://formulae.brew.sh/cask/mqttx) 来安装 MQTTX：
 
@@ -80,10 +80,10 @@ Ubuntu 用户更倾向于使用 snap 文件进行安装，可以从 Snap 商店�
 sudo snap install mqttx
 ```
 
-对于需要手动下载安装包的用户，可以直接选择下载最新版本的 `snap` 文件。例如下载后执行：
+手动安装时，请下载已发布的 `snap` 文件，并将 `<version>` 替换为下载文件名中的版本号：
 
 ```shell
-sudo snap install Downloads/MQTTX_1.13.1_amd64.snap --dangerous
+sudo snap install "Downloads/MQTTX_<version>_amd64.snap" --dangerous
 ```
 
 **注意**：在使用 `snap` 文件安装时，可能会出现权限不足的问题，具体详情请参考这个 `issue`：[https://github.com/emqx/MQTTX/issues/109](https://github.com/emqx/MQTTX/issues/109)

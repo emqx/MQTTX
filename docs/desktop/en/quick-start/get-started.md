@@ -46,7 +46,7 @@ You can also install EMQX with a [download package](https://www.emqx.com/en/try?
 
 ## Connect to MQTT Broker
 
-This section demonstrates how to use the MQTTX Desktop to connect to the public MQTT broker with the most simple settings requested. For advanced and other settings, see [Configure General Settings], [Configure Advanced Settings] and [MQTT 5.0]. <!-- Add links later-->
+This section demonstrates how to use the MQTTX Desktop to connect to the public MQTT broker with the most simple settings requested. See [General Settings](../use-desktop/connect.md) and [Advanced and MQTT 5.0 Settings](../advanced/advanced-setting.md) for the other options.
 
 If you have no connections yet, the main pane shows a welcome page instead of a connection. It offers three quick-start cards: **New Connection** opens the connection form (or press `Cmd/Ctrl + N`), **Try public broker** creates a connection named `broker.emqx.io` to `broker.emqx.io:1883` and connects it right away, and **Import Data** opens the import dialog for JSON, YAML, CSV, XML, or Excel files and reloads the app once the import succeeds.
 
@@ -58,7 +58,7 @@ If you have no connections yet, the main pane shows a welcome page instead of a 
 
    - Click **+** -> **New Connection** in the **Connections** pane.  
 
-<img src="/Users/emqx/Documents/MQTTX/docs/desktop/en/quick-start/assets/new-connection.png" alt="new-connection" style="zoom:40%;" />
+![MQTTX empty connection page](/images/mqttx-empty-page.png)
 
 2. Enter the connection information of the MQTT broker in the **General** pane. To try a quick connection, you can just enter the name of the new connection, for example, `emqx_test,` and leave other options as default.
 

@@ -47,13 +47,13 @@
 
 - macOS
 
-对于 macOS 用户，首选建议从 Mac App Store 下载。
+如需当前桌面版，请从 [MQTTX 下载页面](https://mqttx.app/zh/downloads)下载安装包。Mac App Store 也提供 MQTTX，但版本可能不同。
 
 [![Download on the Mac App Store](../assets/app-store-download.svg)](https://apps.apple.com/cn/app/mqttx/id1514074565?mt=12)
 
 当需要下载文件安装时，请优先选择下载 `dmg`  格式的安装包文件。也可以选择下载 `mac.zip` 的压缩包文件，解压后可快速使用。
 
-**注意**：但是对于 `macOS` 系统版本不同，使用 `zip` 压缩包在 `10.15.2` 系统版本中可能会出现解压后无法打开的情况，因此请优先选择 `dmg` 文件。
+**MQTTX 1.13.2 系统要求**：macOS 12 或更高版本。请根据 Mac 的处理器选择 Intel 或 Apple Silicon 安装包。
 
 macOS 的用户还可以选择使用 [brew cask](https://formulae.brew.sh/cask/mqttx) 来安装 MQTTX
 
@@ -134,9 +134,9 @@ sudo snap install mqttx
 
 3. SSL/TLS
 
-    当需要开启 `SSL/TLS` 认证时，只需要将配置中的 `SSL/TLS` 配置项设置为 `true`，并提供了 `CA signed self` 和 `Self signed` 两种方式。
+    当需要开启 `SSL/TLS` 认证时，只需要将配置中的 `SSL/TLS` 配置项设置为 `true`，并提供了 `CA signed self` 和 `CA or Self-signed certificates` 两种方式。
 
-    如果选择了 `Self signed`，可进行证书配置，点击最右侧的文件夹按钮，选择您已经生成好的各项证书，如果是单向连接，只需要选择您的 `CA File` 即可，如果是双向认证，还需要选择配置 `Client Certificate File` 和 `Client key file`。当开启 `Strict validate Certificate` 的选项后，会启用更完整的证书验证连接，一般推荐在需要测试正式环境时启用。
+    如果选择了 `CA or Self-signed certificates`，可进行证书配置，点击最右侧的文件夹按钮，选择您已经生成好的各项证书，如果是单向连接，只需要选择您的 `CA File` 即可，如果是双向认证，还需要选择配置 `Client Certificate File` 和 `Client key file`。建议开启 `SSL Secure`，校验服务端证书链和主机名。
 
 ![mqttx-certs](../assets/mqttx-certs.png)
 
@@ -146,7 +146,7 @@ sudo snap install mqttx
 
 5. MQTT 5.0
 
-    在高级配置中，可以选择 MQTT 的协议版本，支持 MQTT v3.1.1 和 MQTT v5.0 版本，默认为 v3.1.1, 如果选择了 v5.0 版本后，还可配置 `Session Expiry Interval`、`Receive Maximum` 和 `Topic Alias Maximu`（可选）。
+    在高级配置中，可以选择 MQTT 的协议版本，支持 MQTT v3.1.1 和 MQTT v5.0 版本，默认为 v5.0, 如果选择了 v5.0 版本后，还可配置 `Session Expiry Interval`、`Receive Maximum` 和 `Topic Alias Maximum`（可选）。
 
 ![mqttx-v5](../assets/mqttx-v5.png)
 
@@ -218,7 +218,7 @@ sudo snap install mqttx
 
     点击 Meta 按钮，输入框内输入一个响应主题：/ack/1，输入一个对比数据：light，并在当前连接客户端订阅一个 /ack/1。
 
-    MQTTX 也可以显示 Broker 返回的响应信息。在 MQTT 5.0 连接的高级设置中开启 `请求响应信息`，当 Broker 在 CONNACK 中返回 Response Information 时，连接页顶部的连接信息区会显示 `Response Info`（即 Response Information 的值）和复制按钮，连接设置折叠时也依然显示。内容过长时，点击即可查看完整内容。MQTT 3.x 连接或连接断开时不显示。
+    MQTTX 也可以显示 Broker 返回的响应信息。在 MQTT 5.0 连接的高级设置中开启 `请求响应信息`，当 Broker 在 CONNACK 中返回 Response Information 时，连接页顶部的连接信息区会显示 `响应信息`（即 Response Information 的值）和复制按钮，连接设置折叠时也依然显示。内容过长时，点击即可查看完整内容。MQTT 3.x 连接或连接断开时不显示。
 
 ![mqttx-response-topic](../assets/mqttx-response-topic.png)
 
@@ -267,6 +267,8 @@ sudo snap install mqttx
 ### MQTTX Agent
 
 MQTTX Agent 是内置于桌面版的 AI 助手。你用自然语言描述需求，它就会通过工具操作 MQTTX：创建并连接连接、订阅与发布、读取消息、构建主题树和仪表盘、编写脚本和编解码、调用你配置的 MCP 服务器，以及修改应用设置。
+
+在输入框输入 `/` 并选择 **Zero EMQX**，可以创建免费的临时测试 Broker 并保存 TLS 连接。连接需要 Agent 另行执行。Broker 会按返回的生命周期到期，不适合生产环境。
 
 要启用它，请打开 **设置 → MQTTX Agent**，开启 **启用 MQTTX Agent**，并填写服务商的 **API Host**、**API Key** 和 **模型**。可以通过左侧栏的星形按钮以全屏打开 Agent，也可以使用 `Cmd/Ctrl + J` 或连接页、脚本页右上角的 **MQTTX Agent** 按钮以浮窗打开。
 

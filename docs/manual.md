@@ -47,13 +47,13 @@ If network reasons cause slow network speeds or jam when downloading from GitHub
 
 - macOS
 
-For macOS users, it is recommended to download from the Mac App Store.
+For the current desktop release, download a package from the [MQTTX download page](https://mqttx.app/downloads). MQTTX is also available on the Mac App Store; its version may differ.
 
 [![Download on the Mac App Store](../assets/app-store-download.svg)](https://apps.apple.com/us/app/mqttx/id1514074565?mt=12)
 
 When you need to download files to install, it is recommended to download the installation package file in `dmg` format first. You can also download the compressed file of `mac.zip`, which can be used quickly after decompression.
 
-**Note**: However, for different `macOS` system versions, `zip` compression package may not be opened after decompression in the `10.15.2` version system. Please refer to the `dmg` file.
+**System requirement for MQTTX 1.13.2**: macOS 12 or later. Choose the Intel or Apple Silicon package for your Mac.
 
 The macOS users can also install MQTTX using [brew cask](https://formulae.brew.sh/cask/mqttx)
 
@@ -134,9 +134,9 @@ After entering the creation page, it is required to configure or fill in the rel
 
 3. SSL/TLS
 
-   When you need to enable `SSL/TLS` authentication, you only need to set the `SSL/TLS` configuration item in the configuration as `true`. The two methods,`CA signed self` and `Self signed` are provided.
+   When you need to enable `SSL/TLS` authentication, you only need to set the `SSL/TLS` configuration item in the configuration as `true`. The two methods,`CA signed self` and `CA or Self-signed certificates` are provided.
 
-   If `Self signed` is selected, certificate configuration can be performed. Click the folder button on the far right to select the certificates you have generated. If it is a one-way connection, you only need to select your `CA File`. If it is a two-way authentication, you also need to select to configure `Client Certificate File` and `Client key file`. When the option of `Strict validate Certificate` is enabled, a more complete certificate verification connection will be enabled. It is generally recommended to enable it when you need to test the production environment.
+   If `CA or Self-signed certificates` is selected, certificate configuration can be performed. Click the folder button on the far right to select the certificates you have generated. If it is a one-way connection, you only need to select your `CA File`. If it is a two-way authentication, you also need to select to configure `Client Certificate File` and `Client key file`. Keep `SSL Secure` enabled to verify the server certificate chain and hostname.
 
 ![mqttx-certs](../assets/mqttx-certs.png)
 
@@ -146,7 +146,7 @@ After entering the creation page, it is required to configure or fill in the rel
 
 5. MQTT 5.0
 
-   In the advanced configuration, you can select the protocol version of MQTT, including MQTT v3.1.1 and MQTT v5.0; the default is v3.1.1. If you choose v5.0, you can configure `Session Expiry Interval`, `Receive Maximum`, and `Topic Alias Maximu` (optional).
+   In the advanced configuration, you can select the protocol version of MQTT, including MQTT v3.1.1 and MQTT v5.0; the default is v5.0. If you choose v5.0, you can configure `Session Expiry Interval`, `Receive Maximum`, and `Topic Alias Maximum` (optional).
 
 ![mqttx-v5](../assets/mqttx-v5.png)
 
@@ -218,7 +218,7 @@ So far, the test of an `MQTT` message is completed.
 
     Click the Meta button, enter a Response Topic: /ack/1 in the input box, enter a comparison data: light, and subscribe to a /ack/1 in the currently connected client.
 
-    MQTTX can also show the response information that the broker returns. In the advanced settings of an MQTT 5.0 connection, turn on `Request Response Info`. When the broker returns Response Information in CONNACK, the connection information area at the top of the connection page shows `Response Info` (the Response Information value) with a copy button, and it stays visible while the connection settings are collapsed. If the value is too long, click it to view the full content. Nothing is shown for MQTT 3.x connections or after the connection is disconnected.
+    MQTTX can also show the response information that the broker returns. In the advanced settings of an MQTT 5.0 connection, turn on `Request Response Info`. When the broker returns Response Information in CONNACK, the connection information area at the top of the connection page shows `Response Information` (the Response Information value) with a copy button, and it stays visible while the connection settings are collapsed. If the value is too long, click it to view the full content. Nothing is shown for MQTT 3.x connections or after the connection is disconnected.
 
 ![mqttx-response-topic](../assets/mqttx-response-topic.png)
 
@@ -267,6 +267,8 @@ Backing up to `JSON` also keeps connection groups: nested and empty groups, thei
 ### MQTTX Agent
 
 MQTTX Agent is an AI assistant built into the desktop app. You describe what you need in plain language and it operates MQTTX through tools: it creates and connects connections, subscribes and publishes, reads messages, builds the Topic Tree and dashboards, writes scripts and schemas, calls your MCP servers, and changes app settings.
+
+Type `/` and choose **Zero EMQX** to create a free temporary test broker and save its TLS connection. Ask the Agent to connect in a separate step. The broker expires according to its returned lifetime and is not for production.
 
 To turn it on, open **Settings → MQTTX Agent**, enable **Enable MQTTX Agent**, and fill in the **API Host**, **API Key**, and **Model** of your provider. Open the agent full screen with the star button in the left bar, or as a floating window with `Cmd/Ctrl + J` or the **MQTTX Agent** button at the top right of a connection or script page.
 
