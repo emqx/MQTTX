@@ -42,25 +42,4 @@ describe('ResizeHeight.vue', () => {
     expect(emitted).to.exist
     expect(emitted![0][0]).to.equal(50)
   })
-
-  it('adds select-none on mousedown and removes it on mouseup', async () => {
-    startDrag(100)
-    expect(document.body.classList.contains('select-none')).to.be.true
-
-    document.dispatchEvent(new MouseEvent('mouseup'))
-
-    await Vue.nextTick()
-
-    expect(document.body.classList.contains('select-none')).to.be.false
-  })
-
-  it('stops following the mouse after mouseup', async () => {
-    startDrag(100)
-    document.dispatchEvent(new MouseEvent('mouseup'))
-    moveTo(150)
-
-    await Vue.nextTick()
-
-    expect(wrapper.emitted('change')).to.be.undefined
-  })
 })

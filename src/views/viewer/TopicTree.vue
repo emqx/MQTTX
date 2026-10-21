@@ -86,12 +86,6 @@ export default class TopicTree extends Vue {
     )
   }
 
-  private stopResize() {
-    this.isResizing = false
-    this.stopResizing?.()
-    this.stopResizing = null
-  }
-
   private handlePacketReceive(packet: Packet, connectionInfo: ConnectionModel) {
     if (packet.cmd !== 'publish') return
     const { updatedNodes, newNodeParentId } = updateTopicTreeNode(this.data, {
@@ -217,7 +211,7 @@ export default class TopicTree extends Vue {
       this.subscription.unsubscribe()
       this.subscription = null
     }
-    this.stopResize()
+    this.stopResizing?.()
   }
 }
 </script>

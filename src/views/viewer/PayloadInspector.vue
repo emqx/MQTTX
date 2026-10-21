@@ -203,9 +203,6 @@ export default class PayloadInspector extends Vue {
   box-sizing: border-box;
 
   .inspector-toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     gap: 16px;
     flex-wrap: wrap;
 
