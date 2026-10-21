@@ -27,7 +27,7 @@
 - Web 版は WebSocket 経由で MQTT 3.1.1 と 5.0 に対応し、Docker によるセルフホストも可能です。
 
 <details>
-<summary>クライアント別の全機能</summary>
+<summary>全機能</summary>
 
 ### MQTTX Desktop
 
@@ -121,9 +121,9 @@ docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 
 デプロイと使用方法は [Web README](./web/README.md)を参照してください。
 
-## AI による支援
+## AI ツール
 
-### デスクトップ版の MQTTX Agent
+### MQTTX Agent
 
 MQTTX Agent はデスクトップ版に組み込まれた AI アシスタントです。**設定 → MQTTX Agent** で有効にし、プロバイダーの API ホスト、API キー、モデルを入力したうえで、左側のバーから全画面で開くか、`Cmd/Ctrl + J` でフローティングウィンドウとして開きます。
 
@@ -133,10 +133,10 @@ MQTTX Agent はデスクトップ版に組み込まれた AI アシスタント�
 
 セットアップ、スキル、MCP、権限、制限の詳細は [MQTTX Agent](./docs/desktop/en/use-desktop/agent.md) を参照してください。
 
-### 外部 AI エージェントと CLI スキル
+### MQTTX CLI Skill
 
 <details>
-<summary>エージェントに MQTTX CLI のインストール・更新を依頼する</summary>
+<summary>MQTTX CLI のインストール・更新</summary>
 
 [INSTALL.md](./INSTALL.md) には、環境の検出、インストール方法の選択、バージョンの確認など、エージェント向けのインストール・更新手順が記載されています。次のプロンプトをエージェントに渡してください。
 
@@ -158,14 +158,14 @@ npx skills add emqx/MQTTX --skill mqttx-cli
 
 > mqttx-cli スキルを使って、127.0.0.1:1883 で動作するローカルブローカーのメッセージ送受信を検証してください。mqttx-test/ 配下の一意なトピックを使用し、15 秒以内に検証を終了して結果を報告してください。
 
-## EMQX と組み合わせて使う
+## EMQX
 
 MQTTX はあらゆる MQTT ブローカーに接続でき、[EMQX](https://www.emqx.com/en/products/emqx) との組み合わせにも適しています。EMQX または EMQX Cloud に接続して、アプリケーションのデバッグやブローカー機能の確認を行えます。
 
 - [EMQX Cloud の 14 日間無料トライアル](https://www.emqx.com/en/try?product=cloud)
 - [EMQX をダウンロードしてローカルで実行](https://www.emqx.com/en/try?product=enterprise)
 
-## ドキュメントとコミュニティ
+## ドキュメント・コミュニティ
 
 - ガイド：[Desktop](https://mqttx.app/docs)、[CLI](https://mqttx.app/docs/cli)、[Web](https://mqttx.app/docs/web)、[デスクトップ版マニュアル](./docs/manual-jp.md)。
 - 学習リソース：[日本語の入門記事](https://qiita.com/emqx_japan/items/1ff6097fdfe273c5e22f)、[MQTT SDK とコード例](https://www.emqx.com/en/mqtt-client-sdk)。
@@ -173,7 +173,7 @@ MQTTX はあらゆる MQTT ブローカーに接続でき、[EMQX](https://www.e
 - 質問や情報交換には [GitHub Discussions](https://github.com/emqx/MQTTX/discussions)や [Discord](https://discord.gg/xYGf3fQnES)を利用できます。
 - 最新情報は [X](https://x.com/EMQTech)と [YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q)で発信しています。
 
-## 開発とコントリビューション
+## 開発
 
 以下の手順はデスクトップ版向けです。
 
@@ -196,7 +196,7 @@ yarn run electron:build
 インストーラーの出力先は `dist_electron` です。
 
 <details>
-<summary>単一のプラットフォーム向けにビルド</summary>
+<summary>プラットフォーム別ビルド</summary>
 
 ```shell
 # For Windows

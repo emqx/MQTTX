@@ -32,7 +32,7 @@
 - Use MQTT 3.1.1 and 5.0 over WebSocket in the Web client, with optional Docker self-hosting.
 
 <details>
-<summary>Full features by client</summary>
+<summary>All features</summary>
 
 ### MQTTX Desktop
 
@@ -126,9 +126,9 @@ docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 
 See the [Web README](./web/README.md) for deployment and usage instructions.
 
-## AI Assistance
+## AI Tools
 
-### MQTTX Agent in Desktop
+### MQTTX Agent
 
 MQTTX Agent is an AI assistant built into the desktop app. Turn it on in **Settings → MQTTX Agent**, fill in the API host, key, and model of your provider, then open it full screen from the left bar or as a floating window with `Cmd/Ctrl + J`.
 
@@ -138,10 +138,10 @@ MQTTX Agent is an AI assistant built into the desktop app. Turn it on in **Setti
 
 See [MQTTX Agent](./docs/desktop/en/use-desktop/agent.md) for setup, Skills, MCP, permissions, and limitations.
 
-### External AI agents with the CLI skill
+### MQTTX CLI Skill
 
 <details>
-<summary>Let an agent install or update MQTTX CLI</summary>
+<summary>Install or update MQTTX CLI</summary>
 
 [INSTALL.md](./INSTALL.md) provides installation and update instructions for agents, including environment detection, package selection, and version verification. Give your agent this prompt:
 
@@ -163,14 +163,14 @@ Once installed, try a task such as:
 
 > Use the mqttx-cli skill to verify a publish/subscribe round trip against my local broker at 127.0.0.1:1883. Use a unique topic under mqttx-test/, finish within 15 seconds, and report the result.
 
-## Better Together with EMQX
+## EMQX
 
 MQTTX works with any MQTT broker and pairs especially well with [EMQX](https://www.emqx.com/en/products/emqx). Connect to EMQX or EMQX Cloud in a few clicks to debug your applications and explore broker features.
 
 - [Start a 14-day free trial of EMQX Cloud](https://www.emqx.com/en/try?product=cloud)
 - [Download EMQX and run it locally](https://www.emqx.com/en/try?product=enterprise)
 
-## Documentation and Community
+## Docs & Community
 
 - Guides: [Desktop](https://mqttx.app/docs), [CLI](https://mqttx.app/docs/cli), [Web](https://mqttx.app/docs/web), and the [desktop manual](./docs/manual.md).
 - [MQTT Programming](https://www.emqx.com/en/blog/category/mqtt-programming)
@@ -185,7 +185,7 @@ MQTTX works with any MQTT broker and pairs especially well with [EMQX](https://w
 - Ask questions and share ideas in [GitHub Discussions](https://github.com/emqx/MQTTX/discussions) or [Discord](https://discord.gg/xYGf3fQnES).
 - Follow [EMQTech on X](https://x.com/EMQTech) and [EMQX on YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q).
 
-## Development and Contributing
+## Development
 
 These steps are for the desktop app.
 
@@ -208,7 +208,7 @@ yarn run electron:build
 Installers are written to `dist_electron`.
 
 <details>
-<summary>Build for a single platform</summary>
+<summary>Platform builds</summary>
 
 ```shell
 # For Windows

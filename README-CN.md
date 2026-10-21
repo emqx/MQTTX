@@ -27,7 +27,7 @@
 - Web 版支持通过 WebSocket 收发 MQTT 3.1.1 和 5.0 消息，也可使用 Docker 自行部署。
 
 <details>
-<summary>查看各客户端的完整功能</summary>
+<summary>完整功能</summary>
 
 ### MQTTX Desktop
 
@@ -121,9 +121,9 @@ docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 
 部署与使用方法见 [Web README](./web/README-CN.md)。
 
-## AI 辅助
+## AI 工具
 
-### 桌面版 MQTTX Agent
+### MQTTX Agent
 
 MQTTX Agent 是内置于桌面版的 AI 助手。在**设置 → MQTTX Agent** 中启用并填写服务商的 API Host、API Key 和模型后，即可从左侧栏以全屏打开，或用 `Cmd/Ctrl + J` 以浮窗打开。
 
@@ -133,10 +133,10 @@ MQTTX Agent 是内置于桌面版的 AI 助手。在**设置 → MQTTX Agent** �
 
 完整的配置、技能、MCP、权限和限制说明请参阅 [MQTTX Agent](./docs/desktop/zh/use-desktop/agent.md)。
 
-### 外部 AI Agent 与 CLI skill
+### MQTTX CLI Skill
 
 <details>
-<summary>让 Agent 安装或更新 MQTTX CLI</summary>
+<summary>安装或更新 MQTTX CLI</summary>
 
 [INSTALL.md](./INSTALL.md) 提供面向 agent 的安装与更新步骤，包括环境检测、安装渠道选择和版本验证。可以将下面的提示词交给 agent：
 
@@ -158,7 +158,7 @@ npx skills add emqx/MQTTX --skill mqttx-cli
 
 > 使用 mqttx-cli skill，验证本地 127.0.0.1:1883 broker 的消息收发。使用 mqttx-test/ 下的唯一 topic，在 15 秒内结束检查，并报告结果。
 
-## 与 EMQX 搭配使用
+## EMQX
 
 MQTTX 可以连接任何 MQTT Broker，与 [EMQX](https://www.emqx.com/zh/products/emqx) 搭配使用效果更佳。只需几步即可连接到 EMQX 或 EMQX Cloud，调试您的应用并探索 Broker 的各项功能。
 
@@ -180,7 +180,7 @@ MQTTX 可以连接任何 MQTT Broker，与 [EMQX](https://www.emqx.com/zh/produc
 - 提问与交流：[GitHub Discussions](https://github.com/emqx/MQTTX/discussions)、[EMQ 问答社区](https://askemq.com/)、[Discord](https://discord.gg/xYGf3fQnES)。也可添加小助手微信号 `emqmkt` 加入技术交流群。
 - 关注动态：[bilibili](https://space.bilibili.com/522222081)、[微博](https://weibo.com/emqtt)、[X](https://x.com/EMQTech)。
 
-## 开发与贡献
+## 开发
 
 以下步骤适用于桌面版。
 
@@ -203,7 +203,7 @@ yarn run electron:build
 安装包输出到 `dist_electron`。
 
 <details>
-<summary>构建单个平台的安装包</summary>
+<summary>分平台构建</summary>
 
 ```shell
 # For Windows
