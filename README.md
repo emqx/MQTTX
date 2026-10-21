@@ -10,7 +10,7 @@
 
 [![Community](https://img.shields.io/badge/Community-MQTTX-yellow?logo=github)](https://github.com/emqx/MQTTX/discussions)
 [![Slack](https://img.shields.io/badge/Slack-EMQX-39AE85?logo=slack)](https://slack-invite.emqx.io/)
-[![Discord](https://img.shields.io/discord/931086341838622751?label=Discord&logo=discord)](https://discord.gg/xYGf3fQnES)
+[![Discord](https://img.shields.io/badge/Discord-MQTTX-5865F2?logo=discord)](https://discord.gg/xYGf3fQnES)
 [![YouTube](https://img.shields.io/badge/Subscribe-EMQ-FF0000?logo=youtube)](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q)
 [![Twitter Follows](https://img.shields.io/twitter/follow/EMQTech?label=Twitter%20Follows)](https://x.com/EMQTech)
 
@@ -18,221 +18,113 @@
 
 [MQTTX](https://mqttx.app) is an open-source, cross-platform [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) client toolbox from [EMQ](https://www.emqx.com/en) for developing, testing, and troubleshooting IoT applications. [MQTTX Desktop](https://mqttx.app/docs) runs on macOS, Windows, and Linux, with a chat-style interface for managing multiple connections and subscriptions and a built-in MQTTX Agent that lets you create connections, exchange messages, and troubleshoot using natural language. [MQTTX CLI](https://mqttx.app/docs/cli) provides messaging, benchmarks, and data simulation for terminal use and automated workflows, while [MQTTX Web](https://mqttx.app/web-client) lets you debug MQTT services over WebSocket in the browser without installing a desktop application.
 
-> [MQTT](https://www.emqx.com/en/blog/the-easiest-guide-to-getting-started-with-mqtt) (MQ Telemetry Transport) is a lightweight publish/subscribe messaging protocol designed for constrained devices and for low-bandwidth, high-latency, or unreliable networks.
+![mqttx-preview](./assets/mqttx-preview.png)
 
 ## Features
 
+- Desktop and CLI support MQTT 3.1, 3.1.1, and 5.0 over TCP, TLS, and WebSocket.
+- Organize desktop connections into groups, search messages, and import or export connection settings.
+- Encode and decode desktop payloads with JSON, Base64, Hex, Protobuf/Avro schemas, and other codecs, and decompress GZIP messages.
+- Test application logic with desktop scripts and timed messages, and analyze data with the Topic Tree, Dashboard, and Payload Inspector.
+- Run benchmarks, simulate IoT data, and use stdin and pipes in shell scripts or CI workflows with CLI.
+- Use MQTT 3.1.1 and 5.0 over WebSocket in the Web client, with optional Docker self-hosting.
+
+## Quick Start
+
 ### MQTTX Desktop
 
-A graphical client for interactive debugging and message analysis on macOS, Windows, and Linux.
-
-- Connect over TCP, TLS, WebSocket, or secure WebSocket using MQTT 3.1, 3.1.1, or 5.0.
-- Set MQTT 5.0 user properties on connect, publish, and subscribe, authenticate with SCRAM, and view the broker's CONNACK Response Information.
-- Operate MQTTX in natural language with the built-in MQTTX Agent, including Skills, MCP tools, action approval, and multiple model providers.
-- Encode and decode Plaintext, JSON, Base64, Hex, CBOR, and MsgPack payloads, use Protobuf and Avro schemas, and decompress incoming GZIP messages.
-- Transform messages with scripts and publish messages on a timer.
-- Inspect messages with the Topic Tree, Dashboard, Traffic Monitor, and Payload Inspector with JSON tree and diff views.
-- Group connections, search messages, and keep a separate publish area and history for each connection.
-- Import and export connections as JSON, CSV, Excel, XML, or YAML; JSON backups preserve connection groups.
-- Choose Light, Dark, or Night themes and use English, Simplified Chinese, Japanese, Turkish, Hungarian, or Korean.
-
-### MQTTX CLI
-
-A command-line client for terminal debugging, shell scripts, CI automation, and performance testing.
-
-- Connect, publish, and subscribe with `mqttx conn`, `mqttx pub`, and `mqttx sub`, with MQTT 3.1, 3.1.1, and 5.0 over TCP, TLS, and WebSocket.
-- Run connection, publishing, and subscription benchmarks with `mqttx bench`, and generate IoT test data with `mqttx simulate`.
-- Read messages from stdin, pipe received messages to other tools, and save or load connection options as JSON or YAML.
-- Encode and decode JSON, Base64, Hex, CBOR, and MsgPack payloads, with Protobuf and Avro schema support.
-- Use the [MQTTX CLI skill](./skills/mqttx-cli/SKILL.md) to let external AI agents run MQTT tests and diagnostics.
-
-### MQTTX Web
-
-A browser client for quick tests without installing a desktop app. Open the [online client](https://mqttx.app/web-client) to get started.
-
-- Use MQTT 3.1.1 and 5.0 over WebSocket (`ws://` or `wss://`). HTTPS pages require `wss://`.
-- Manage multiple connections and subscriptions, and view sent and received messages in a chat-style interface.
-- [Deploy with Docker](./web/README.md#deploy-from-docker-image) to host the client yourself.
-
-## MQTTX Agent
-
-MQTTX Agent is an AI assistant built into the desktop app. Turn it on in **Settings → MQTTX Agent**, fill in the API host, key, and model of your provider, then open it full screen from the left bar or as a floating window with `Cmd/Ctrl + J`.
-
-- It operates MQTTX through tools: create and connect connections, subscribe and publish, read messages, build the Topic Tree and dashboards, call your MCP servers, and write client code, test data, and schemas.
-- **Ask before actions** (default) asks for approval before anything changes, and **Auto** runs every action without asking.
-- Your conversations and tool results are sent to the model provider you configure, so avoid entering secrets in the chat.
-
-See [MQTTX Agent](./docs/desktop/en/use-desktop/agent.md) for setup, Skills, MCP, permissions, and limitations.
-
-## Preview
-
-![mqttx-preview](./assets/mqttx-preview.png)
-
-## Installation
-
-The desktop app is available from the following sources.
-
-### macOS App Store
-
-[![Download on the Mac App Store](./assets/app-store-download.svg)](https://apps.apple.com/us/app/mqttx/id1514074565?mt=12)
-
-### Homebrew
-
-On macOS, you can also install MQTTX with [Homebrew](https://formulae.brew.sh/cask/mqttx):
+Download an installer for your platform from [GitHub Releases](https://github.com/emqx/MQTTX/releases) or the [EMQ download site](https://www.emqx.com/downloads/MQTTX/). You can also install from the [Mac App Store](https://apps.apple.com/us/app/mqttx/id1514074565?mt=12), [Snap](https://snapcraft.io/mqttx), or [Flathub](https://flathub.org/apps/details/com.emqx.MQTTX). On macOS, Homebrew is another option:
 
 ```shell
 brew install --cask mqttx
 ```
 
-### Linux
+1. Open MQTTX and click `+` in the left sidebar to create a connection.
+2. Enter your broker address and click `Connect`. Use your own broker or the public test server `broker.emqx.io` (TCP port `1883`, TLS port `8883`).
+3. Subscribe to a topic, then publish a JSON message to the same topic. The received message appears in the message list.
 
-[![Get it from the Snap Store](https://snapcraft.io/static/images/badges/en/snap-store-black.svg)](https://snapcraft.io/mqttx)
-<a href='https://flathub.org/apps/details/com.emqx.MQTTX'><img height='56' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>
-
-### Released Packages
-
-Download the package for your platform from [GitHub Releases](https://github.com/emqx/MQTTX/releases) or the [EMQ download site](https://www.emqx.com/downloads/MQTTX/).
+![mqttx-gif](./assets/mqttx-gif.gif)
 
 ### MQTTX CLI
 
-Install with Homebrew on macOS, or with npm on any platform:
+Choose one installation method. Before using npm, check its Node.js requirement in the [installation guide](./INSTALL.md#npm). Standalone binaries are also available on the [downloads page](https://mqttx.app/downloads).
 
 ```shell
+# macOS (Homebrew)
 brew install emqx/mqttx/mqttx-cli
+
+# Or use npm
 npm install --global mqttx-cli
 ```
 
-Standalone binaries and a Docker image are also available. See the [MQTTX CLI README](./cli/README.md) or the [MQTTX downloads page](https://mqttx.app/downloads).
+After installation, subscribe in one terminal and publish in another. The subscriber receives the JSON message:
+
+```shell
+# Terminal 1: subscribe
+mqttx sub -h broker.emqx.io -t 'mqttx/quickstart'
+
+# Terminal 2: publish
+mqttx pub -h broker.emqx.io -t 'mqttx/quickstart' -m '{"temperature":23.5}'
+```
+
+See the [CLI documentation](https://mqttx.app/docs/cli) for more commands, benchmarks, and data simulation.
 
 ### MQTTX Web
 
-Open <https://mqttx.app/web-client> in your browser, or host your own copy with Docker:
+Open the [online client](https://mqttx.app/web-client) in your browser and connect to a broker over `ws://` or `wss://`. HTTPS pages require `wss://`. To host the client yourself, use Docker:
 
 ```shell
 docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 ```
 
-See the [MQTTX Web README](./web/README.md) for details.
+See the [Web README](./web/README.md) for deployment and usage instructions.
 
-## MQTTX CLI for AI Agents
+## AI Assistance
 
-### Install or update MQTTX CLI
+### MQTTX Agent in Desktop
 
-[INSTALL.md](./INSTALL.md) provides installation and update instructions for agents, including environment detection, package selection, and version verification. Give your agent this prompt:
+Enable and configure a model in **Settings → MQTTX Agent**, then open it from the left sidebar or use `Cmd/Ctrl + J` for a floating window. See the [MQTTX Agent guide](./docs/desktop/en/use-desktop/agent.md) for Skills, MCP, action approval, and model configuration.
 
-> Read https://raw.githubusercontent.com/emqx/MQTTX/main/INSTALL.md and follow its instructions to install or update MQTTX CLI for this environment. Verify the executable path and version.
+### External AI agents with the CLI skill
 
-### Use the MQTTX CLI skill
-
-The [mqttx-cli skill](./skills/mqttx-cli/SKILL.md) helps agents use MQTTX CLI for connection checks, messaging, MQTT 5 features, TLS/authentication, payload codecs, benchmarks, data simulation, and troubleshooting.
-
-Install it with the [Skills CLI](https://github.com/vercel-labs/skills):
+Install the [mqttx-cli skill](./skills/mqttx-cli/SKILL.md) for your AI agent so it can use MQTTX CLI for MQTT tests and troubleshooting:
 
 ```shell
 npx skills add emqx/MQTTX --skill mqttx-cli
 ```
 
-To install from a local checkout, run `npx skills add . --skill mqttx-cli` from the repository root. You can also copy the entire `skills/mqttx-cli` directory (including `references`) into your agent's supported skills directory, or ask the agent to read its `SKILL.md` directly.
-
 Once installed, try a task such as:
 
 > Use the mqttx-cli skill to verify a publish/subscribe round trip against my local broker at 127.0.0.1:1883. Use a unique topic under mqttx-test/, finish within 15 seconds, and report the result.
 
-## Usage
+See [INSTALL.md](./INSTALL.md) to install or update CLI, and the [CLI README](./cli/README.md#ai-agent-support) for other skill installation methods.
 
-For the full guide, see the [documentation](https://mqttx.app/docs) or the [manual](./docs/manual.md).
+## Documentation and Community
 
-1. Prepare an MQTT broker.
+- Guides: [Desktop](https://mqttx.app/docs), [CLI](https://mqttx.app/docs/cli), [Web](https://mqttx.app/docs/web), and the [desktop manual](./docs/manual.md).
+- Learning resources: [MQTT programming](https://www.emqx.com/en/blog/category/mqtt-programming) and [MQTT SDKs and code examples](https://www.emqx.com/en/mqtt-client-sdk).
+- Brokers: [public MQTT test server](https://www.emqx.com/en/mqtt/public-mqtt5-broker), [run EMQX locally](https://www.emqx.com/en/try?product=enterprise), or [try EMQX Cloud](https://www.emqx.com/en/try?product=cloud).
+- Ask questions and share ideas in [GitHub Discussions](https://github.com/emqx/MQTTX/discussions) or [Discord](https://discord.gg/xYGf3fQnES).
+- Follow [EMQTech on X](https://x.com/EMQTech) and [EMQX on YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q).
 
-    - To get started without a local deployment, use the free [public MQTT 5.0 broker](https://www.emqx.com/en/mqtt/public-mqtt5-broker) provided by [EMQX Cloud](https://www.emqx.com/en/cloud):
+## Development and Contributing
 
-        ```text
-        Host: broker.emqx.io
-        TCP port: 1883
-        SSL/TLS port: 8883
-        ```
-
-    - To run a broker locally, we recommend [EMQX](https://www.emqx.com/en/products/emqx), an open-source, cloud-native, distributed MQTT broker for IoT.
-
-2. Click the `+` button in the left sidebar and fill in the required fields.
-
-3. Click `Connect` in the upper-right corner to connect to the broker.
-
-4. Once connected, subscribe to topics and publish messages to test your setup.
-
-![mqttx-gif](./assets/mqttx-gif.gif)
-
-## Better Together with EMQX
-
-MQTTX works with any MQTT broker and pairs especially well with EMQX. Connect to EMQX or EMQX Cloud in a few clicks to debug your applications and explore broker features.
-
-- [Start a 14-day free trial of EMQX Cloud](https://www.emqx.com/en/try?product=cloud)
-- [Download EMQX and run it locally](https://www.emqx.com/en/try?product=enterprise)
-
-## Get Involved
-
-- Ask questions and share ideas in [GitHub Discussions](https://github.com/emqx/MQTTX/discussions).
-- Chat with the community on [Discord](https://discord.gg/xYGf3fQnES).
-- Follow [@EMQTech on X](https://x.com/EMQTech).
-- Subscribe to [EMQX on YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q).
-
-## Develop
-
-These steps are for the desktop app. For the other editions, see the [CLI README](./cli/README.md#develop) and the [Web README](./web/README.md#develop).
-
-Use the Node.js version in [`.nvmrc`](./.nvmrc) (currently v22). If you use [nvm](https://github.com/nvm-sh/nvm), run `nvm use` in the repository root.
-
-``` shell
-# Clone the repository
-git clone git@github.com:emqx/MQTTX.git
-
-# Install dependencies
-cd MQTTX
-yarn install
-
-# Run the app in development mode with hot reload
-yarn run electron:serve
-
-# Build installers for Windows, Linux, and macOS
-yarn run electron:build
-```
-
-Installers are written to the `dist_electron` directory. To build for a single platform, run one of the following:
+These steps are for the desktop app. Use the Node.js version in [`.nvmrc`](./.nvmrc) and run `nvm use` from the repository root before development:
 
 ```shell
-# For Windows
-yarn run electron:build-win
-
-# For Linux
-yarn run electron:build-linux
-
-# For macOS
-yarn run electron:build-mac
+git clone git@github.com:emqx/MQTTX.git
+cd MQTTX
+nvm use
+yarn install
+yarn run electron:serve
 ```
 
-## Contributing
+Build installers for all platforms with `yarn run electron:build`, or use the `electron:build-win`, `electron:build-linux`, or `electron:build-mac` Yarn script for one platform. Output is written to `dist_electron`.
 
-Please read the [Contributing Guide](https://github.com/emqx/MQTTX/blob/main/.github/CONTRIBUTING.md) before opening a pull request.
+For CLI and Web development, see the [CLI README](./cli/README.md#develop) and [Web README](./web/README.md#develop). Read the [Contributing Guide](./.github/CONTRIBUTING.md) before opening a pull request.
 
-## Technology Stack
-
-- [Electron](https://electronjs.org/)
-- [Vue](https://vuejs.org/) + [Element](https://element.eleme.io)
-- [TypeScript](https://www.typescriptlang.org/)
-- [TypeORM](https://github.com/typeorm/typeorm)
-- [SQLite](https://github.com/TryGhost/node-sqlite3)
-- [MQTT.js](https://github.com/mqttjs/MQTT.js)
-
-## Resources
-
-- [MQTT Programming](https://www.emqx.com/en/blog/category/mqtt-programming)
-
-  A blog series on getting started with MQTT in PHP, Node.js, Python, Go, and other languages.
-
-- [MQTT SDKs](https://www.emqx.com/en/mqtt-client-sdk)
-
-  A curated list of popular MQTT client SDKs for many languages, with code examples.
+The desktop app is built with [Electron](https://electronjs.org/), [Vue](https://vuejs.org/) + [Element](https://element.eleme.io), [TypeScript](https://www.typescriptlang.org/), [TypeORM](https://github.com/typeorm/typeorm), [SQLite](https://github.com/TryGhost/node-sqlite3), and [MQTT.js](https://github.com/mqttjs/MQTT.js).
 
 ## License
 
-Apache License 2.0, see [LICENSE](https://github.com/emqx/MQTTX/blob/main/LICENSE).
+Apache License 2.0, see [LICENSE](./LICENSE).
