@@ -54,7 +54,9 @@ You can paste a screenshot, drop files onto the panel, or use the 📎 button. I
 ## Permission modes
 
 - **Ask before actions** (default): reading is automatic; creating, connecting, subscribing, publishing, deleting and all MCP tools wait for your approval. Each request shows a card where you can **Allow once**, **Always allow this tool in this chat**, or **Deny**.
-- **Auto**: every action runs without asking.
+- **Auto**: other actions run without asking.
+
+Script tests always require approval, including in Auto mode. **Always allow this tool in this chat** does not apply to script tests.
 
 Switch the mode from the pill in the composer (only for the current chat), or set the default in **Settings → MQTTX Agent → Default permission mode**. The first time you switch to Auto, MQTTX asks you to confirm the risk.
 

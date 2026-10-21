@@ -12,9 +12,9 @@
 
 ## 简介
 
-[MQTTX](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的跨平台 MQTT 5.0 桌面客户端，支持 macOS、Linux 和 Windows。它采用类似聊天软件的界面，可以同时管理多个连接，通过 TCP、TLS 和 WebSocket 快速测试连接、发布、订阅等 MQTT 功能。
+[MQTTX Desktop](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的 MQTT 5.0 桌面客户端，支持 macOS、Windows 和 Linux。它采用聊天式界面，通过 TCP、TLS 和 WebSocket 管理多个连接与订阅，并内置 MQTTX Agent，可用自然语言创建连接、收发消息和排查问题。
 
-安装前，请访问 [官网](https://mqttx.app/zh) 或 [GitHub](https://github.com/emqx/MQTTX) 了解最新版本。你也可以克隆源码自行构建。如果遇到问题或有建议，欢迎提交 [GitHub issue](https://github.com/emqx/MQTTX/issues)，或者 Fork 本项目并提交 Pull Request。
+从[官网](https://mqttx.app/zh)或 [GitHub](https://github.com/emqx/MQTTX) 下载最新版本，也可以从[源码](https://github.com/emqx/MQTTX)构建。问题和建议请提交 [GitHub issue](https://github.com/emqx/MQTTX/issues)；欢迎 Fork 项目并提交 Pull Request。
 
 ### 快速预览
 
@@ -106,99 +106,123 @@ sudo snap install mqttx
 
 ### 快速建立连接
 
-在准备好 MQTT Broker 后，进入到主程序页面，可点击左侧菜单栏中的 `+` 号，如果页面没有数据，还可以直接点击右侧的 `新建连接` 按钮，快速配置一个新的客户端连接。
+准备好 Broker 后，点击左侧栏的 `+` 或**新建连接**，打开连接表单。
 
-如果还没有任何连接，页面上还会提供三张快速开始卡片：`新建连接` 会打开连接表单（也可以按 `Cmd/Ctrl + N`），`连接公共 Broker` 会创建一个名为 `broker.emqx.io` 的连接，指向 `broker.emqx.io:1883` 并立即连接，`导入数据` 会打开导入弹窗，支持 JSON、YAML、CSV、XML 和 Excel 文件，导入成功后应用会重新加载。
+没有保存的连接时，欢迎页提供三个入口：
+
+- **新建连接**：打开连接表单，也可以按 `Cmd/Ctrl + N`。
+- **连接公共 Broker**：创建名为 `broker.emqx.io` 的连接，并立即连接到 `broker.emqx.io:1883`。
+- **导入数据**：导入 JSON、YAML、CSV、XML 或 Excel 文件，成功后应用会重新加载。
 
 ![mqttx-create](../assets/mqttx-create.png)
 
 ### 客户端相关信息
 
-进入到创建页面后，需配置或填写连接客户端的相关信息。
+在连接表单中配置以下信息。
 
 1. Broker 信息
 
-    配置 `Broker` 信息时，`Client ID`、`Host` 和 `Port` 已经默认填写，您也可根据实际的 `Broker` 信息自行修改。点击 `Client ID` 右侧的刷新按钮，可快速生成新的 `Client ID`。
+   **Client ID**、**Host** 和**端口**已有默认值，请按 Broker 的实际配置修改。
 
-    `Host` 前的选择框，用来选择该连接的协议，支持 `mqtt://`，`ws://`，如果是 `SSL/TLS` 认证连接的话，需要修改为 `mqtts://`，`wss://`。
+   - **名称**：填写连接名称，例如 `emqx_test`。
+   - **Client ID**：连接的唯一标识。点击输入框旁的刷新按钮可生成新的值。
+   - **Host**：选择 `mqtt://` 或 `ws://`；使用 TLS 时选择 `mqtts://` 或 `wss://`。默认主机名为公共 Broker `broker.emqx.io`，可替换为自己的 Broker 主机名或 IP。
+     - **Path**：使用 WebSocket 时填写服务端的端点路径，默认为 `/mqtt`。
+   - **端口**：填写所选协议的监听端口。下表为 EMQX 默认值；如果 Broker 修改过端口，请使用实际配置。
 
-    **注意**：当协议修改时，需要修改连接的端口。
+     | 协议     | EMQX 默认端口 |
+     | -------- | ------------- |
+     | mqtt://  | 1883          |
+     | mqtts:// | 8883          |
+     | ws://    | 8083          |
+     | wss://   | 8084          |
 
-![mqttx-brokerinfo](../assets/mqttx-brokerinfo.png)
+   ![mqttx-brokerinfo](../assets/mqttx-brokerinfo.png)
 
 2. 用户认证信息
 
-    如果您的 Broker 开启了用户认证，配置项中可填写 `Username` 和 `Password` 信息。
+   如果 Broker 开启了用户认证，请填写**用户名**和**密码**。
 
-![mqttx-user](../assets/mqttx-user.png)
+   ![mqttx-user](../assets/mqttx-user.png)
 
 3. SSL/TLS
 
-    当需要开启 `SSL/TLS` 认证时，只需要将配置中的 `SSL/TLS` 配置项设置为 `true`，并提供了 `CA signed self` 和 `CA or Self-signed certificates` 两种方式。
+   开启 **SSL/TLS**，可在 MQTTX 与 Broker 之间建立加密连接。
 
-    如果选择了 `CA or Self-signed certificates`，可进行证书配置，点击最右侧的文件夹按钮，选择您已经生成好的各项证书，如果是单向连接，只需要选择您的 `CA File` 即可，如果是双向认证，还需要选择配置 `Client Certificate File` 和 `Client key file`。建议开启 `SSL Secure`，校验服务端证书链和主机名。
+   - **SSL/TLS**：启用或禁用 TLS，默认关闭。
+   - **SSL Secure**：校验服务端证书链和主机名，关闭后跳过这两项校验。开发环境或可信内网中测试未受信任的证书时可临时关闭；生产环境和外部连接应保持开启。
+   - **CA signed server certificate**：使用受信任的 CA 校验服务端证书。
+   - **CA or Self-signed certificates**：提供自定义证书。单向认证只需 **CA File**；双向认证还需 **Client Certificate File** 和 **Client key file**。点击各字段旁的文件夹图标选择文件。
 
-![mqttx-certs](../assets/mqttx-certs.png)
+   ![mqttx-certs](../assets/mqttx-certs.png)
 
 4. 高级配置
 
-    高级配置中，可以配置`连接超时时长`、`KeepAlive`、`Clean Session`、`自动重连`、`MQTT Version` 等。
+   在**高级**区域设置连接超时、[Keep Alive](https://www.emqx.com/zh/blog/mqtt-keep-alive)、Clean Session 或 Clean Start、自动重连和 MQTT 版本。
 
 5. MQTT 5.0
 
-    在高级配置中，可以选择 MQTT 的协议版本，支持 MQTT v3.1.1 和 MQTT v5.0 版本，默认为 v5.0, 如果选择了 v5.0 版本后，还可配置 `Session Expiry Interval`、`Receive Maximum` 和 `Topic Alias Maximum`（可选）。
+   **MQTT 版本**默认为 `5.0`，也可以选择 `3.1` 或 `3.1.1`。使用 MQTT 5.0 时，可配置会话过期间隔（`Session Expiry Interval`）、接收最大数量（`Receive Maximum`）和主题别名最大值（`Topic Alias Maximum`）等可选属性。
 
-![mqttx-v5](../assets/mqttx-v5.png)
+   ![mqttx-v5](../assets/mqttx-v5.png)
 
 6. 遗嘱消息
 
-    在高级配置下方的配置卡片中，可以配置遗嘱消息，`Last-Will-QoS` 和 `Last-Will-Retain` 的值默认填充为 0 和 `False`，当您输入 `Last-Will-Topic` 和 `Last-Will-Payload` 的值后，就可以完成对遗嘱消息的配置。
+   在**遗嘱消息**区域配置客户端意外断开时由 Broker 发布的消息。
 
-![mqttx-willmessage](../assets/mqttx-willmessage.png)
+   `Last-Will-QoS` 默认为 `0`，`Last-Will-Retain` 默认为 `False`。填写 `Last-Will-Topic` 和 `Last-Will-Payload` 即可完成配置。
 
-配置完成后，点击右上角的 `Connect` 按钮就可以快速创建一个连接并连接至 MQTT Broker。
+   ![mqttx-willmessage](../assets/mqttx-willmessage.png)
+
+完成配置后，点击右上角的**连接**按钮，创建连接并连接到 Broker。
 
 ### 消息的发布订阅
 
 1. 主界面
 
-    连接成功后，即可进入到连接的主界面，点击顶部连接名称旁的折叠按钮，可以展开并显示该配置的几个基础信息，方便快速修改该连接的几个常用配置，修改时需断开连接，重新点击连接后即可生效，每次连接成功后，面板都会自动往上折叠。在断开连接的状态下，也可点击右边配置按钮，进行更多的连接配置修改。
+   连接成功后，点击顶部连接名称旁的折叠按钮，可查看或修改基本配置。修改前先断开连接，再重新连接使其生效；每次连接成功后，面板会自动折叠。断开连接时，也可以通过右侧的配置按钮修改全部连接设置。
 
-![mqttx-main](../assets/mqttx-main.png)
+   ![mqttx-main](../assets/mqttx-main.png)
 
 2. 添加订阅
 
-    点击左下角的 `New Subscription` 按钮，可以快速添加一个 `Topic`，每个 `Topic` 都可以用一种颜色标记，可以随机生成或打开颜色选择器选择。订阅列表顶部的最右侧的按钮，可以隐藏订阅列表，来显示页面更多的空间。添加完成后，点击订阅列表中已经订阅的 Topic 项，可以实现消息过滤，消息视图内将只显示订阅了当前主题的消息内容，再次点击即可取消过滤；也可直接点击其它已订阅的 Topic 项，查看其对应的消息内容。而点击 Topic 名称，即可快速复制当前的 Topic 信息。当需要向该 Topic 发送消息时，只需快速粘贴到消息栏的 Topic 输入框内进行修改，便可快速完成该操作。
+   点击左下角的 `New Subscription`，输入 [Topic](https://www.emqx.com/zh/blog/advanced-features-of-mqtt-topics)，并选择主题颜色，也可以使用随机颜色。订阅列表右上角的按钮可隐藏列表。
 
-![mqttx-topic](../assets/mqttx-topic.png)
+   点击订阅可按主题筛选消息，再次点击可取消筛选，也可以直接切换到其他订阅。点击主题名称可复制主题，需要发布时可粘贴到发布区的主题输入框。
 
-    在添加 `Topic` 时，可以给每个 Topic 设置一个别名，该选项为一个可选项，当设置并添加完成订阅后，订阅列表中的 `Topic` 数据将以别名展示，鼠标悬浮到 `Topic` 项时，提示框也会同时展示出该 `Topic` 的原值。这对于需要监控查看的多个 `Topic` 过长，无法分辩 `Topic` 的具体含义时，具有较强的帮助性。
+   ![mqttx-topic](../assets/mqttx-topic.png)
 
-![mqttx-topic-alias](../assets/mqttx-topic-alias.png)
+   添加订阅时可以设置主题别名。订阅列表会显示别名，悬停时显示原始主题，便于区分较长的主题名称。
 
-    我们打开订阅主题的弹出框后，在 Topic 输入框内，输入多个 Topic 并使用逗号（,）进行分割，点击确认订阅成功后，我们可以看到订阅列表中包含了多个 Topic。对于使用客户端层的别名功能也可以支持同时对多个 Topic 进行设置，同理使用逗号分隔（,）。
+   ![mqttx-topic-alias](../assets/mqttx-topic-alias.png)
 
-![mqttx-muti-topics](../assets/mqttx-muti-topics.png)
+   在订阅弹窗中用逗号分隔多个 Topic，即可一次添加多个主题；主题别名也可以用逗号分隔。
 
-    订阅过的主题支持**编辑/禁用/启用**，右键点击已经订阅过的 Topic 列表项，在右键菜单中我们可以快速选择编辑、禁用或启用等操作。当订阅的 Topic 过多时，有时候不是所有的 Topic 消息都想要接收到，为了避免再次订阅相同 Topic，提供了禁用功能，如需重新接收该 Topic 的消息，只需再次启用即可。
+   ![mqttx-multi-topics](../assets/mqttx-muti-topics.png)
 
-    断开连接时也可以删除或禁用订阅，如果开启了 Clean Session（MQTT 3.x）或 Clean Start（MQTT 5.0），操作会立即生效。如果使用的是持久会话（MQTT 3.x 关闭 Clean Session，或 MQTT 5.0 关闭 Clean Start 且 Session Expiry Interval 大于 0），MQTTX 会提示 Broker 仍然保留着该订阅，并阻止这次操作。新增和编辑订阅仍然需要先连接。
+   右键点击订阅可选择**编辑**、**禁用**或**启用**。禁用可临时停止接收该主题的消息，启用后即可恢复，无需重新输入主题。
 
-![mqttx-edit-topic](../assets/mqttx-edit-topic.png)
+   ![mqttx-edit-topic](../assets/mqttx-edit-topic.png)
 
-3. 消息发送和接收
+   断开连接时，如果开启了 Clean Session（MQTT 3.x）或 Clean Start（MQTT 5.0），可以删除或禁用订阅。持久会话会阻止这些操作：MQTT 3.x 关闭 Clean Session，或 MQTT 5.0 关闭 Clean Start 且 Session Expiry Interval 大于 0 时，Broker 仍保留订阅。新增或编辑订阅仍需先连接。
 
-    `Topic` 订阅成功后，就可以来测试消息的收发了。在页面右下角填入刚才所订阅的 `Topic` 信息，可选择 `QoS`，`Retain` 的值，输入 `payload` 后，点击最右侧的发送按钮，就向刚才订阅的 `Topic` 发送了一条消息。发送成功后，也可以即时接收到刚才所发送的消息。注意，在消息框内，右边栏为发送的消息。左边栏为接收到的消息。macOS 用户可以使用 `command + enter` 快捷键，其它用户可以使用 `control + enter` 快捷键来快速发送消息。
+3. 消息发送与接收
 
-    消息栏的 `payload` 选项，可以快速将消息转化为多种格式，支持 `Base64`、`Hex`、`JSON`、`Plaintext`、`CBOR` 和 `MsgPack`。如需使用 `Protobuf` 或 `Avro`，请在 `脚本` 页面的 `编解码` 标签中配置。
+   在发布区输入已订阅的主题，选择 [QoS](https://www.emqx.com/zh/blog/introduction-to-mqtt-qos) 和 `Retain`，填写 Payload 后点击发送。右侧显示发送的消息，左侧显示接收的消息；向已订阅主题发布时，两侧都会出现对应消息。macOS 用户可按 `Cmd + Enter` 发送，其他系统使用 `Ctrl + Enter`。
 
-    在发布区域，可以使用箭头按钮切换之前发布过的 Payload。如需复制某条消息的 Payload 或主题，在消息列表中右键点击该消息即可。
+   ![mqttx-message](../assets/mqttx-message.png)
 
-    每个连接都单独保存自己的发布区（`Topic`、`QoS`、`Retain`、`Payload` 和 Payload 格式）和发布历史，切换连接时不再互相串用。从未保存过发布区的连接，打开时会显示该连接最近发送的一条消息。旧版本中所有连接共享的发布历史，在升级时会复制给每个连接。在 Topic 历史下拉列表中，每条记录右侧都有删除图标，可以单独删除这条记录。
+   在发布区的 `payload` 选项中选择 `Base64`、`Hex`、`JSON`、`Plaintext`、`CBOR` 或 `MsgPack`。消息列表上方的格式选项用于解码接收的消息。
 
-![mqttx-message](../assets/mqttx-message.png)
+   > **注意：** CBOR 和 MsgPack 是高效的二进制格式，相比 JSON 可减小 Payload 体积；两者均使用 JSON 作为输入和输出。
 
-至此就完成了一条 `MQTT` 消息的测试。
+   如需使用 `Protobuf` 或 `Avro` 编解码，打开**脚本 > 编解码**。
+
+   使用发布区的箭头浏览之前发布过的 Payload。右键点击消息，可复制其 Payload 或主题。
+
+   每个连接单独保存发布区（`Topic`、`QoS`、`Retain`、`Payload` 和格式）及发布历史。尚未保存发布区时，会显示该连接最近发送的消息。升级时，旧版共享的发布历史会复制到每个连接。Topic 历史下拉列表中，每条记录的删除图标只删除该条记录。
+
+   至此，您就完成了一条 `MQTT` 消息的测试。
 
 ### MQTT 5
 
@@ -262,6 +286,8 @@ sudo snap install mqttx
 
 使用 `JSON` 格式备份时还会保留连接分组：嵌套分组和空分组、分组顺序，以及每个连接所属的分组，导出单个连接为 JSON 时也会包含它的上级分组。其他格式保持原有结构，不包含分组。仅包含连接的旧备份仍然可以导入，其中的连接会放在根级；导入已存在的 ID 会更新对应数据；如果文件中存在 ID 冲突、缺失的分组引用或循环的分组层级，整份导入都会回滚。
 
+恢复后连接保持断开状态。JSON 兼容和导入冲突规则请参阅[高级设置](https://mqttx.app/zh/docs/advanced#备份与恢复)。
+
 ![mqttx-advance](../assets/mqttx-advance.png)
 
 ### MQTTX Agent
@@ -272,7 +298,7 @@ MQTTX Agent 是内置于桌面版的 AI 助手。你用自然语言描述需求�
 
 要启用它，请打开 **设置 → MQTTX Agent**，开启 **启用 MQTTX Agent**，并填写服务商的 **API Host**、**API Key** 和 **模型**。可以通过左侧栏的星形按钮以全屏打开 Agent，也可以使用 `Cmd/Ctrl + J` 或连接页、脚本页右上角的 **MQTTX Agent** 按钮以浮窗打开。
 
-默认的 **操作前询问** 模式会让读取自动执行，而创建、连接、订阅、发布、删除以及调用 MCP 工具前都会请求批准；**自动** 则不再询问。可在 **设置 → MQTTX Agent → 默认权限模式** 中修改默认值。
+默认的 **操作前询问** 模式会让读取自动执行，而创建、连接、订阅、发布、删除以及调用 MCP 工具前都会请求批准；**自动** 跳过这些确认，但运行脚本测试始终需要批准。可在 **设置 → MQTTX Agent → 默认权限模式** 中修改默认值。
 
 你的对话和工具调用结果会发送给你配置的模型服务商，请避免在对话中输入密钥等敏感信息。完整的安装配置、附件、技能、MCP、会话历史和已知限制请参阅 [MQTTX Agent](./desktop/zh/use-desktop/agent.md)。
 
@@ -368,14 +394,15 @@ MQTTX 提供日志记录功能，方便用户调试连接、报告错误。日�
 
 ## 开发指南
 
-开发时，本机需要具有 `Node.js` 和 `Git` 环境，并需要了解 `Vue.js`、`Electron`、`TypeScript` 等相关知识。请使用 [`.nvmrc`](../.nvmrc) 中指定的 Node.js 版本（当前为 v22）。
+开发使用 Git、Yarn 和 [`.nvmrc`](../.nvmrc) 指定的 Node.js 22，建议了解 Vue.js、Electron 和 TypeScript。下方命令使用 [nvm](https://github.com/nvm-sh/nvm)；使用其他版本管理器时，请选择相同的 Node.js 版本。如需贡献代码，请先 Fork 仓库并克隆自己的 Fork。
 
 ``` shell
-# Fork & Clone 项目
-git clone git@github.com:${name}/MQTTX.git
+# 克隆项目
+git clone https://github.com/emqx/MQTTX.git
 
 # 安装依赖
 cd MQTTX
+nvm use
 yarn install
 
 # 以开发模式运行，支持热重载
