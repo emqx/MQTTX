@@ -13,6 +13,8 @@
 
 [MQTTX](https://mqttx.app/) は、[EMQ](https://www.emqx.com/en) が提供する、IoT アプリケーションの開発、テスト、トラブルシューティング向けのオープンソースのクロスプラットフォーム [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) クライアントツールセットです。[MQTTX Desktop](https://mqttx.app/docs) は macOS、Windows、Linux に対応し、チャット形式のインターフェースで複数の接続とサブスクリプションを管理でき、自然言語で接続の作成、メッセージの送受信、問題の調査ができる MQTTX Agent を内蔵しています。[MQTTX CLI](https://mqttx.app/docs/cli) はターミナルや自動化ワークフロー向けにメッセージの送受信、ベンチマーク、データのシミュレーションを提供し、[MQTTX Web](https://mqttx.app/web-client) はデスクトップアプリをインストールせずに、ブラウザーから WebSocket 経由で MQTT サービスをデバッグできます。
 
+> [MQTT](https://www.emqx.com/ja/blog/the-easiest-guide-to-getting-started-with-mqtt)（Message Queuing Telemetry Transport）は、パブリッシュ/サブスクライブ型の軽量なメッセージングプロトコルです。制約のあるデバイスや、低帯域幅、高遅延、または不安定なネットワークでの利用を想定して設計されています。
+
 ![mqttx-preview](./assets/mqttx-preview.png)
 
 ## 機能
@@ -94,11 +96,18 @@ npx skills add emqx/MQTTX --skill mqttx-cli
 
 CLI のインストールと更新については [INSTALL.md](./INSTALL.md)を、その他のスキルのインストール方法については [CLI README](./cli/README.md#ai-agent-support)を参照してください。
 
+## EMQX と組み合わせて使う
+
+MQTTX はあらゆる MQTT ブローカーに接続でき、EMQX との組み合わせにも適しています。EMQX または EMQX Cloud に接続して、アプリケーションのデバッグやブローカー機能の確認を行えます。
+
+- [EMQX Cloud の 14 日間無料トライアル](https://www.emqx.com/en/try?product=cloud)
+- [EMQX をダウンロードしてローカルで実行](https://www.emqx.com/en/try?product=enterprise)
+
 ## ドキュメントとコミュニティ
 
 - ガイド：[Desktop](https://mqttx.app/docs)、[CLI](https://mqttx.app/docs/cli)、[Web](https://mqttx.app/docs/web)、[デスクトップ版マニュアル](./docs/manual-jp.md)。
 - 学習リソース：[日本語の入門記事](https://qiita.com/emqx_japan/items/1ff6097fdfe273c5e22f)、[MQTT SDK とコード例](https://www.emqx.com/en/mqtt-client-sdk)。
-- ブローカー：[パブリック MQTT テストサーバー](https://www.emqx.com/en/mqtt/public-mqtt5-broker)、[EMQX のローカル実行](https://www.emqx.com/en/try?product=enterprise)、[EMQX Cloud の試用](https://www.emqx.com/en/try?product=cloud)。
+- [パブリック MQTT テストサーバー](https://www.emqx.com/en/mqtt/public-mqtt5-broker)。
 - 質問や情報交換には [GitHub Discussions](https://github.com/emqx/MQTTX/discussions)や [Discord](https://discord.gg/xYGf3fQnES)を利用できます。
 - 最新情報は [X](https://x.com/EMQTech)と [YouTube](https://www.youtube.com/channel/UC5FjR77ErAxvZENEWzQaO5Q)で発信しています。
 

@@ -13,6 +13,8 @@
 
 [MQTTX](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的跨平台 [MQTT 5.0](https://www.emqx.com/zh/blog/introduction-to-mqtt-5) 客户端工具集，用于物联网应用的开发、测试和故障排查。[MQTTX Desktop](https://mqttx.app/zh/docs) 支持 macOS、Windows 和 Linux，采用聊天式界面管理多个连接与订阅，并内置 MQTTX Agent，可用自然语言创建连接、收发消息和排查问题；[MQTTX CLI](https://mqttx.app/zh/docs/cli) 面向终端和自动化流程，提供消息收发、压测与数据模拟；[MQTTX Web](https://mqttx.app/web-client) 则无需安装桌面应用，可在浏览器中通过 WebSocket 调试 MQTT 服务。
 
+> [MQTT](https://www.emqx.com/zh/blog/the-easiest-guide-to-getting-started-with-mqtt)（Message Queuing Telemetry Transport，消息队列遥测传输）是一种基于发布/订阅模式的轻量级消息协议，专为受限设备以及低带宽、高延迟或不可靠的网络而设计。
+
 ![mqttx-preview](./assets/mqttx-preview.png)
 
 ## 功能特性
@@ -94,11 +96,18 @@ npx skills add emqx/MQTTX --skill mqttx-cli
 
 CLI 的安装与更新见 [INSTALL.md](./INSTALL.md)，其他 skill 安装方式见 [CLI README](./cli/README-CN.md#ai-agent-支持)。
 
+## 与 EMQX 搭配使用
+
+MQTTX 可以连接任何 MQTT Broker，与 EMQX 搭配使用效果更佳。只需几步即可连接到 EMQX 或 EMQX Cloud，调试您的应用并探索 Broker 的各项功能。
+
+- [免费试用 EMQX Cloud 14 天](https://www.emqx.com/zh/try?product=cloud)
+- [下载 EMQX 并在本地运行](https://www.emqx.com/zh/try?product=enterprise)
+
 ## 文档与社区
 
 - 使用指南：[Desktop](https://mqttx.app/zh/docs)、[CLI](https://mqttx.app/zh/docs/cli)、[Web](https://mqttx.app/zh/docs/web)，以及[桌面版使用手册](./docs/manual-cn.md)。
 - 学习资源：[MQTT 入门及进阶](https://www.emqx.com/zh/mqtt)、[MQTT SDK 与代码示例](https://www.emqx.com/zh/mqtt-client-sdk)。
-- Broker：[公共 MQTT 测试服务器](https://www.emqx.com/zh/mqtt/public-mqtt5-broker)、[本地运行 EMQX](https://www.emqx.com/zh/try?product=enterprise)、[EMQX Cloud 试用](https://www.emqx.com/zh/try?product=cloud)。
+- [公共 MQTT 测试服务器](https://www.emqx.com/zh/mqtt/public-mqtt5-broker)。
 - 提问与交流：[GitHub Discussions](https://github.com/emqx/MQTTX/discussions)、[EMQ 问答社区](https://askemq.com/)、[Discord](https://discord.gg/xYGf3fQnES)。也可添加小助手微信号 `emqmkt` 加入技术交流群。
 - 关注动态：[bilibili](https://space.bilibili.com/522222081)、[微博](https://weibo.com/emqtt)、[X](https://x.com/EMQTech)。
 
