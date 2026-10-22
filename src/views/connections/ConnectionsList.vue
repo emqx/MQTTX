@@ -44,7 +44,7 @@
     <div class="connections-list">
       <template v-if="!isLoadingData">
         <el-tree
-          :indent="8"
+          :indent="16"
           draggable
           ref="tree"
           :data="treeData"
@@ -97,7 +97,7 @@
                 </el-tooltip>
               </div>
               <div v-if="data.ssl" class="ssl-tag">
-                <div>SSL</div>
+                <span>SSL</span>
               </div>
               <div v-if="unreadMessageCount[data.id] > 0" class="new-msg-count">
                 {{ unreadMessageCount[data.id] }}
@@ -932,10 +932,21 @@ export default class ConnectionsList extends Vue {
       background-color: var(--color-bg-normal);
       .is-current > .el-tree-node__content {
         background: var(--color-bg-item);
+        // One class deeper than the base name rules below, which would win a tie.
+        .custom-tree-node .connection-item .client-name:not(.online),
+        .custom-tree-node .custom-tree-node-collection .collection-name {
+          color: var(--color-text-title);
+        }
       }
       .el-tree-node__content {
         .el-tree-node__expand-icon {
+          // 8px margin + 4px padding puts the caret glyph on the same 12px inset.
           padding: 4px;
+          margin-left: 8px;
+        }
+        // An empty collection is a leaf too and keeps the slot, so only hide it under connections.
+        &:has(.connection-item) > .el-tree-node__expand-icon {
+          display: none;
         }
         height: 100%;
         margin: 0 8px;
@@ -950,6 +961,8 @@ export default class ConnectionsList extends Vue {
           display: flex;
           align-items: center;
           justify-content: space-between;
+          // Flex items default to min-width: auto, which lets long names outgrow the row.
+          min-width: 0;
           // Absolute, so revealing it never moves the row's content.
           .row-action-trigger {
             position: absolute;
@@ -962,14 +975,11 @@ export default class ConnectionsList extends Vue {
           .connection-item,
           .custom-tree-node-collection {
             &:hover,
-            &:focus-within,
+            &:has(.row-action-trigger:focus-visible),
             &.menu-open {
               .row-action-trigger {
                 opacity: 1;
                 pointer-events: auto;
-                // Same fade as the unread badge, so the ⋯ covers the name's tail.
-                background-color: var(--color-bg-item);
-                box-shadow: -8px 0 12px 4px var(--color-bg-item);
               }
             }
             &.menu-open .row-action-trigger {
@@ -979,8 +989,13 @@ export default class ConnectionsList extends Vue {
           .connection-item {
             @include flex-space-between;
             align-items: center;
-            height: 48px;
+            height: 40px;
             width: 100%;
+            min-width: 0;
+            // Paired with :indent="16", so a nested row starts at its parent's folder icon.
+            padding-left: 12px;
+            // 4px offset + 24px trigger + 4px gap: text stops just left of the ⋯.
+            padding-right: 32px;
             cursor: pointer;
             position: relative;
             transition: background 0.3s ease;
@@ -988,13 +1003,15 @@ export default class ConnectionsList extends Vue {
             .client-info {
               display: flex;
               align-items: center;
+              flex: 1 1 auto;
+              min-width: 0;
               margin-left: 0;
               .client-name {
                 display: block;
-                font-size: $font-size--body;
+                font-size: 13px;
                 font-weight: 500;
-                color: var(--color-text-title);
-                max-width: 200px;
+                color: var(--color-text-default);
+                min-width: 0;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
@@ -1005,24 +1022,36 @@ export default class ConnectionsList extends Vue {
             }
             .ssl-tag {
               position: absolute;
-              right: 0;
               top: 0;
-              width: 0;
-              height: 0;
-              border-top: 36px solid var(--color-main-green);
-              border-left: 36px solid transparent;
-              div {
+              right: 0;
+              width: 30px;
+              height: 30px;
+              pointer-events: none;
+              // Hard stop at 50% paints the top-right half as the corner triangle.
+              background: linear-gradient(to bottom left, var(--color-main-green) 50%, transparent 50%);
+              border-top-right-radius: 8px;
+              span {
+                // Triangle centroid; also keeps the rotated glyph off the hypotenuse.
                 position: absolute;
-                top: -32px;
-                right: -1px;
-                font-size: 12px;
-                transform: rotate(45deg);
+                top: 5px;
+                right: 1px;
+                font-size: 10px;
+                line-height: 10px;
+                font-weight: 600;
                 color: var(--color-text-active);
+                transform: rotate(45deg);
+              }
+            }
+            // SSL rows: the 30px triangle reaches the dots, so move the ⋯ left and the badge further in.
+            &:has(.ssl-tag) {
+              padding-right: 38px;
+              .row-action-trigger {
+                right: 10px;
               }
             }
             .new-msg-count {
-              position: absolute;
-              right: 8px;
+              flex: none;
+              margin-left: 8px;
               min-width: 18px;
               height: 18px;
               line-height: 18px;
@@ -1032,31 +1061,23 @@ export default class ConnectionsList extends Vue {
               color: var(--color-text-active);
               font-size: $font-size--tips;
               text-align: center;
-              box-shadow: -8px 0 12px 4px var(--color-bg-item);
-            }
-            // Markers give way to the ⋯; the single-connection window renders no trigger.
-            &:has(.row-action-trigger) {
-              &:hover,
-              &:focus-within,
-              &.menu-open {
-                .ssl-tag,
-                .new-msg-count {
-                  opacity: 0;
-                }
-              }
             }
           }
           .custom-tree-node-collection {
             width: 100%;
-            height: 48px;
+            height: 40px;
+            min-width: 0;
             position: relative;
             @include flex-space-between;
+            // Same ⋯ gutter as the connection row above.
+            padding-right: 32px;
             .collection-name {
               display: flex;
               align-items: center;
-              font-size: $font-size--body;
+              min-width: 0;
+              font-size: 13px;
               font-weight: 500;
-              color: var(--color-text-title);
+              color: var(--color-text-default);
               max-width: 200px;
               svg {
                 width: 24px;
