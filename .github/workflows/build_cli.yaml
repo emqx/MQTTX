@@ -4,12 +4,15 @@ on:
   pull_request:
     paths:
       - 'cli/**'
+      - '.github/workflows/build_cli.yaml'
   release:
     types:
       - published
+  workflow_dispatch:
 
 jobs:
   build_packages:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -78,7 +81,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
 
   publish_npm:
-    if: github.event_name == 'release' && !github.event.release.prerelease
+    if: (github.event_name == 'release' && !github.event.release.prerelease) || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-22.04
     permissions:
       contents: read
@@ -88,10 +91,26 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: 'cli/.nvmrc'
-          registry-url: 'https://registry.npmjs.org'
-      - name: upgrade npm
-        run: npm install -g npm@11.5.1
       - name: build
         run: |
           cd cli
-          yarn && yarn build && npm publish --provenance --access public
+          yarn && yarn build
+      - name: set up npm publishing
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+      - name: upgrade npm
+        run: npm install -g npm@11.5.1
+      - name: verify trusted publishing
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          cd cli
+          npm version prerelease --preid=preflight --no-git-tag-version
+          npm publish --dry-run --provenance --access public --tag preflight --loglevel=verbose 2>&1 | tee "$RUNNER_TEMP/npm-preflight.log"
+          grep -q 'npm verbose oidc Successfully retrieved and set token' "$RUNNER_TEMP/npm-preflight.log"
+      - name: publish
+        if: github.event_name == 'release'
+        run: |
+          cd cli
+          npm publish --provenance --access public
