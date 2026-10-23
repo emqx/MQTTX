@@ -23,15 +23,64 @@ If present, run `mqttx --version` and `mqttx --help`. Record the executable path
 
 Identify the installation owner: check `npm list --global mqttx-cli --depth=0` and `npm prefix --global` when npm is available, or `brew list --versions mqttx-cli` when Homebrew is available. A missing package is an expected result. An executable path alone does not prove which tool installed it; inspect symlinks and package records when necessary.
 
+An install-script installation has `~/.local/bin/mqttx` as a symlink into `~/.local/share/mqttx-cli/`; on Windows the executable is `%LOCALAPPDATA%\Programs\mqttx-cli\bin\mqttx.exe`. These locations differ if `MQTTX_INSTALL_DIR` or `MQTTX_BIN_DIR` was set when the script ran.
+
 ## 2. Choose a channel and version
 
 - For an existing installation, keep its original channel and location. If the owner is unclear, resolve it before overwriting the executable.
+- For a new installation on macOS, Linux (glibc or Alpine) or Windows, the install script is the simplest channel; it needs no package manager or Node.js and installs per user without `sudo`.
 - For a new macOS installation with Homebrew, use the CLI formula below.
 - With a compatible Node.js installation, npm is an option on Windows, macOS and Linux.
 - Without a compatible Node.js runtime, use a standalone binary for the OS and architecture.
 - Use Docker when a container invocation is desired; this does not create a host `mqttx` command.
 
 Honor an explicitly requested version. Otherwise, resolve the stable version available from the chosen channel. GitHub releases, npm and Homebrew can publish at different times; the repository's `package.json` is not proof that a version is available in every channel. Keep a working installation for ordinary usage unless an update is requested or a required capability is missing.
+
+### Install script
+
+The install script resolves the latest stable version, picks the asset for the OS, CPU and libc, downloads it to a temporary file, verifies it with `--version`, and moves it into place. It installs for the current user, never uses `sudo`, and replaces its own previous installation when re-run.
+
+On macOS or Linux:
+
+```sh
+curl -fsSL https://emqx.sh/mqttx | sh
+```
+
+On Windows (PowerShell):
+
+```powershell
+irm https://emqx.sh/mqttx.ps1 | iex
+```
+
+Pin a version with `MQTTX_VERSION`, which accepts `1.13.1`, `v1.13.1` or `latest`:
+
+```sh
+curl -fsSL https://emqx.sh/mqttx | MQTTX_VERSION=1.13.0 sh
+```
+
+```powershell
+$env:MQTTX_VERSION = "1.13.0"; irm https://emqx.sh/mqttx.ps1 | iex
+```
+
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `MQTTX_VERSION` | Version to install | `latest` |
+| `MQTTX_INSTALL_DIR` | Directory for the installed binary | macOS/Linux: `${XDG_DATA_HOME:-~/.local/share}/mqttx-cli`; Windows: `%LOCALAPPDATA%\Programs\mqttx-cli` |
+| `MQTTX_BIN_DIR` | Directory for the `mqttx` symlink or executable | macOS/Linux: `~/.local/bin`; Windows: `<InstallDir>\bin` |
+
+On macOS and Linux the binary lives in `${XDG_DATA_HOME:-~/.local/share}/mqttx-cli`, and `~/.local/bin/mqttx` is a symlink to it. If the bin directory is not on PATH, the script prints the exact `export PATH=...` line to add; it does not edit shell profiles. It warns when another `mqttx` comes first on PATH.
+
+On Windows the binary is `%LOCALAPPDATA%\Programs\mqttx-cli\bin\mqttx.exe`, and that directory is added to the user PATH; open a new terminal if `mqttx` is not found. On Windows, `MQTTX_INSTALL_DIR` only sets the default bin directory, `<InstallDir>\bin`.
+
+Re-run the script to update an install-script installation. Do not run it over an npm- or Homebrew-managed `mqttx`: it creates a separate copy, and whichever executable comes first on PATH wins.
+
+Where piping to `sh` is not allowed, download the script, review it, then run it locally:
+
+```sh
+curl -fsSL https://emqx.sh/mqttx -o mqttx-install.sh
+# review mqttx-install.sh
+sh mqttx-install.sh
+```
 
 ### npm
 
@@ -130,7 +179,7 @@ Add `$MqttxBin` to the user's PATH for future sessions if needed, preserving exi
 
 For a **binary update**, retain a backup and replace the existing manually installed executable at its resolved location after staged verification. Do not replace an npm/Homebrew-managed file this way or create a second installation earlier on PATH. Restore the backup if verification fails. If the destination requires permissions the agent does not have, report that exact destination and the required action.
 
-If GitHub is unavailable, use the [official MQTTX downloads](https://mqttx.app/downloads) or [installation documentation](https://mqttx.app/docs/cli/downloading-and-installation) to find the same version and architecture. Do not silently substitute a different version or an unverified mirror.
+If GitHub is unavailable, use the [official MQTTX downloads](https://mqttx.app/downloads) or [installation documentation](https://mqttx.app/docs/cli/downloading-and-installation) to find the same version and architecture. The same assets are served by the official download service at `https://www.emqx.com/en/downloads/MQTTX/<tag>/<asset>`. Do not silently substitute a different version or an unverified mirror.
 
 ### Docker
 

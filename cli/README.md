@@ -32,7 +32,19 @@ Explore the full range of features and learn how to get the most out of MQTTX CL
 
 ## Installation
 
-Get started by downloading MQTTX CLI from the [MQTTX Downloads Page](https://mqttx.app/downloads). Installation instructions are provided for different platforms to ensure a smooth setup.
+Install MQTTX CLI with the install script:
+
+```shell
+# macOS / Linux
+curl -fsSL https://emqx.sh/mqttx | sh
+
+# Windows (PowerShell)
+irm https://emqx.sh/mqttx.ps1 | iex
+```
+
+The script resolves the latest release, downloads the build for your OS and CPU, and installs it for the current user without `sudo`.
+
+Homebrew, npm, Docker and standalone binaries are covered in the [installation documentation](https://mqttx.app/docs/cli/downloading-and-installation); builds are also listed on the [MQTTX Downloads Page](https://mqttx.app/downloads).
 
 ## AI Agent Support
 
