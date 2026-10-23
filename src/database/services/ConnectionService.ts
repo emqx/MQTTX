@@ -397,9 +397,11 @@ export default class ConnectionService {
   }
 
   // getAll
-  public async getAll() {
-    const query: ConnectionEntity[] | undefined = await this.connectionRepository.createQueryBuilder('cn').getMany()
-    return query.map((entity) => ConnectionService.entityToModel(entity)) as ConnectionModel[]
+  public async getAll(withSubscriptions = false) {
+    const query = this.connectionRepository.createQueryBuilder('cn')
+    if (withSubscriptions) query.leftJoinAndSelect('cn.subscriptions', 'sub')
+    const connections = await query.getMany()
+    return connections.map((entity) => ConnectionService.entityToModel(entity)) as ConnectionModel[]
   }
 
   /**
