@@ -7,7 +7,7 @@
         <i v-else class="el-icon-loading"></i>
       </span>
       <span class="count">{{ headText }}</span>
-      <code class="tool-names">{{ toolNames }}</code>
+      <code v-if="collapsed" class="tool-names">{{ toolNames }}</code>
       <span class="meta">{{ metaText }}</span>
       <i class="chev el-icon-arrow-down"></i>
     </button>
