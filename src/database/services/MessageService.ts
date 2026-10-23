@@ -376,7 +376,7 @@ export default class MessageService {
    * `limit` messages.
    *
    * @param connectionId - The ID of the connection.
-   * @param topicPattern - The pattern to match topics against.
+   * @param topicPattern - The MQTT topic filter to match topics against.
    * @param options - Optional parameters for the query.
    * @param options.startTime - The start time for the date range filter.
    * @param options.endTime - The end time for the date range filter.
@@ -402,7 +402,8 @@ export default class MessageService {
     const query = this.messageRepository
       .createQueryBuilder('msg')
       .where('msg.connectionId = :connectionId', { connectionId })
-      .andWhere('msg.topic LIKE :topic', { topic: topicPattern })
+
+    this.handleTopicQuery(query, topicPattern)
 
     if (startTime && endTime) {
       query.andWhere('msg.createAt BETWEEN :startTime AND :endTime', { startTime, endTime })
