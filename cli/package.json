@@ -2,6 +2,11 @@
   "name": "mqttx-cli",
   "version": "1.13.2",
   "description": "MQTTX Command Line Tools",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emqx/MQTTX.git",
+    "directory": "cli"
+  },
   "keywords": [
     "mqtt",
     "publish/subscribe",
