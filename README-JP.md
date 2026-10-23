@@ -87,17 +87,17 @@ brew install --cask mqttx
 
 ### MQTTX CLI
 
-インストール方法を 1 つ選んでください。npm を使う前に、[インストールガイド](./INSTALL.md#npm)で Node.js の要件を確認してください。
+インストールスクリプトで MQTTX CLI をインストールできます：
 
 ```shell
-# macOS (Homebrew)
-brew install emqx/mqttx/mqttx-cli
+# macOS / Linux
+curl -fsSL https://emqx.sh/mqttx | sh
 
-# または npm を使用
-npm install --global mqttx-cli
+# Windows (PowerShell)
+irm https://emqx.sh/mqttx.ps1 | iex
 ```
 
-スタンドアロンのバイナリと Docker イメージも提供しています。詳しくは [MQTTX CLI README](./cli/README.md) または [MQTTX ダウンロードページ](https://mqttx.app/downloads) を参照してください。
+Homebrew（`brew install emqx/mqttx/mqttx-cli`）や npm（`npm install --global mqttx-cli`。[インストールガイド](./INSTALL.md#npm)で Node.js の要件を確認してください）も使用できます。スタンドアロンのバイナリと Docker イメージは [MQTTX CLI README](./cli/README.md) および [MQTTX ダウンロードページ](https://mqttx.app/downloads) を参照してください。
 
 インストール後、2 つのターミナルでそれぞれサブスクライブとパブリッシュを実行すると、サブスクライブ側で JSON メッセージを受信できます。
 

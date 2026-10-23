@@ -92,17 +92,17 @@ brew install --cask mqttx
 
 ### MQTTX CLI
 
-Choose one installation method. Before using npm, check its Node.js requirement in the [installation guide](./INSTALL.md#npm).
+Install MQTTX CLI with the install script:
 
 ```shell
-# macOS (Homebrew)
-brew install emqx/mqttx/mqttx-cli
+# macOS / Linux
+curl -fsSL https://emqx.sh/mqttx | sh
 
-# Or use npm
-npm install --global mqttx-cli
+# Windows (PowerShell)
+irm https://emqx.sh/mqttx.ps1 | iex
 ```
 
-Standalone binaries and a Docker image are also available. See the [MQTTX CLI README](./cli/README.md) or the [MQTTX downloads page](https://mqttx.app/downloads).
+You can also use Homebrew (`brew install emqx/mqttx/mqttx-cli`) or npm (`npm install --global mqttx-cli`, after checking its Node.js requirement in the [installation guide](./INSTALL.md#npm)); standalone binaries and a Docker image are also available via the [MQTTX CLI README](./cli/README.md) and the [MQTTX downloads page](https://mqttx.app/downloads).
 
 After installation, subscribe in one terminal and publish in another. The subscriber receives the JSON message:
 
