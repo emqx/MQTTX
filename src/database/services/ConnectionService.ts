@@ -397,7 +397,7 @@ export default class ConnectionService {
   }
 
   // getAll
-  public async getAll(withSubscriptions = false) {
+  public async getAll({ withSubscriptions = false } = {}) {
     const query = this.connectionRepository.createQueryBuilder('cn')
     if (withSubscriptions) query.leftJoinAndSelect('cn.subscriptions', 'sub')
     const connections = await query.getMany()
