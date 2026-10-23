@@ -30,6 +30,16 @@
 
 ## 安装
 
+使用安装脚本安装 MQTTX CLI，脚本会解析最新版本、按操作系统和 CPU 架构选择构建，并为当前用户安装，无需 sudo：
+
+```shell
+# macOS / Linux
+curl -fsSL https://emqx.sh/mqttx | sh
+
+# Windows (PowerShell)
+irm https://emqx.sh/mqttx.ps1 | iex
+```
+
 从 [MQTTX 下载页面](https://mqttx.app/zh/downloads)选择已发布的 MQTTX CLI 版本，并按操作系统和 CPU 架构下载安装。完整安装步骤请参阅 [CLI 安装文档](https://mqttx.app/zh/docs/cli/downloading-and-installation)。
 
 macOS 用户也可以使用 Homebrew：
