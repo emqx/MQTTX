@@ -141,7 +141,7 @@ export const createConnectionTools = (deps: AgentToolDeps): ToolSet => ({
     inputSchema: z.object({}),
     execute: async () => {
       const [connections = [], collections = []] = await Promise.all([
-        deps.services.connectionService.getAll(),
+        deps.services.connectionService.getAll(true),
         deps.services.collectionService.getAll(),
       ])
       const groupNames = new Map<string, string>()
