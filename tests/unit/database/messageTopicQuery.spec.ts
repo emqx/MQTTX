@@ -89,12 +89,22 @@ describe('MessageService MQTT topic query (SQLite)', () => {
     it(`matches ${JSON.stringify(filter)} exactly, including empty levels and literal SQL characters`, async () => {
       const result = await service.get('connection', { topic: filter, limit: 100 })
       expect(result.list.map((message) => message.topic)).to.deep.equal(expected)
+
+      const dashboardHistory = await service.getMessagesByTopicPattern<MessageModel>('connection', filter, {
+        limit: 100,
+      })
+      expect(dashboardHistory.map((message) => message.topic)).to.deep.equal(expected)
     })
   }
 
   it('filters sparse hits before page boundaries', async () => {
     const result = await service.get('connection', { topic: 'a/+/d', limit: 2, page: 2, preserveOrder: true })
     expect(result.list.map((message) => message.topic)).to.deep.equal(['a//d', 'a/b/d'])
+  })
+
+  it('filters dashboard history before limiting the newest readings', async () => {
+    const result = await service.getMessagesByTopicPattern<MessageModel>('connection', 'a/+/d', { limit: 2 })
+    expect(result.map((message) => message.topic)).to.deep.equal(['a/percent%_/d', 'a/percentXY/d'])
   })
 
   for (const mode of ['before', 'after'] as const) {

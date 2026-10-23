@@ -195,7 +195,7 @@ export default class TrafficMonitor extends Vue {
       const [startTime, endTime] = this.timeRange
       const trafficMessages = await messageService.getMessagesByTopicPattern<MetricsModel>(
         connectionId,
-        '$SYS/brokers/%/metrics/bytes/%',
+        '$SYS/brokers/+/metrics/bytes/+',
         {
           startTime,
           endTime,
