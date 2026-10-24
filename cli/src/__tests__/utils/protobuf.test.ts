@@ -9,7 +9,7 @@ jest.mock('../../utils/logWrapper', () => ({
   fail: jest.fn(),
 }))
 
-const mockExit = jest.spyOn(process, 'exit').mockImplementation((code?: number) => {
+const mockExit = jest.spyOn(process, 'exit').mockImplementation((code?: string | number | null) => {
   throw new Error(`Process exited with code ${code}`)
 })
 
