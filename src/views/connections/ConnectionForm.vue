@@ -175,7 +175,12 @@
             <el-col :span="2"></el-col>
             <el-col :span="22">
               <el-form-item label-width="93px" label="SSL/TLS" prop="ssl">
-                <el-switch v-model="record.ssl" active-color="#13ce66" inactive-color="#A2A9B0" @change="handleSSL">
+                <el-switch
+                  v-model="record.ssl"
+                  active-color="var(--color-action-green)"
+                  inactive-color="#A2A9B0"
+                  @change="handleSSL"
+                >
                 </el-switch>
               </el-form-item>
             </el-col>
@@ -188,7 +193,11 @@
                   label-width="93px"
                   prop="rejectUnauthorized"
                 >
-                  <el-switch v-model="record.rejectUnauthorized" active-color="#13ce66" inactive-color="#A2A9B0">
+                  <el-switch
+                    v-model="record.rejectUnauthorized"
+                    active-color="var(--color-action-green)"
+                    inactive-color="#A2A9B0"
+                  >
                   </el-switch>
                   <el-tooltip
                     class="tooltip-secure"
@@ -324,7 +333,12 @@
               >
               <el-col :span="22">
                 <el-form-item :label="$t('connections.autoReconnect')" prop="reconnect">
-                  <el-switch v-model="record.reconnect" active-color="#13ce66" inactive-color="#A2A9B0"> </el-switch>
+                  <el-switch
+                    v-model="record.reconnect"
+                    active-color="var(--color-action-green)"
+                    inactive-color="#A2A9B0"
+                  >
+                  </el-switch>
                 </el-form-item>
               </el-col>
               <el-col :span="2"></el-col>
@@ -349,7 +363,7 @@
                 <el-form-item :label="record.mqttVersion === '5.0' ? 'Clean Start' : 'Clean Session'" prop="clean">
                   <el-switch
                     v-model="record.clean"
-                    active-color="#13ce66"
+                    active-color="var(--color-action-green)"
                     inactive-color="#A2A9B0"
                     @change="handleClean"
                   >
@@ -421,7 +435,7 @@
                   <el-form-item :label="$t('connections.requestResponseInformation')" prop="requestResponseInformation">
                     <el-switch
                       v-model="record.properties.requestResponseInformation"
-                      active-color="#13ce66"
+                      active-color="var(--color-action-green)"
                       inactive-color="#A2A9B0"
                     >
                     </el-switch>
@@ -432,7 +446,7 @@
                   <el-form-item :label="$t('connections.requestProblemInformation')" prop="requestProblemInformation">
                     <el-switch
                       v-model="record.properties.requestProblemInformation"
-                      active-color="#13ce66"
+                      active-color="var(--color-action-green)"
                       inactive-color="#A2A9B0"
                     >
                     </el-switch>
@@ -506,7 +520,11 @@
               <el-col :span="2"></el-col>
               <el-col :span="22">
                 <el-form-item label-width="160px" :label="$t('connections.willRetain')" prop="will.lastWillRetain">
-                  <el-switch v-model="record.will.lastWillRetain" active-color="#13ce66" inactive-color="#A2A9B0">
+                  <el-switch
+                    v-model="record.will.lastWillRetain"
+                    active-color="var(--color-action-green)"
+                    inactive-color="#A2A9B0"
+                  >
                   </el-switch>
                 </el-form-item>
               </el-col>
@@ -548,7 +566,7 @@
                   >
                     <el-switch
                       v-model="record.will.properties.payloadFormatIndicator"
-                      active-color="#13ce66"
+                      active-color="var(--color-action-green)"
                       inactive-color="#A2A9B0"
                     >
                     </el-switch>
@@ -1008,7 +1026,7 @@ export default class ConnectionForm extends Vue {
       .connect-btn-group {
         display: flex;
         align-items: center;
-        background: var(--color-main-green);
+        background: var(--color-action-green);
         border-radius: 8px;
         overflow: hidden;
 
@@ -1016,7 +1034,7 @@ export default class ConnectionForm extends Vue {
           padding: 0 16px;
           height: 32px;
           line-height: 32px;
-          color: #fff;
+          color: var(--color-action-foreground);
           font-size: 13px;
           font-weight: 500;
           transition: background 0.2s ease;
@@ -1033,7 +1051,7 @@ export default class ConnectionForm extends Vue {
           padding: 0 10px;
           height: 32px;
           border-left: 1px solid rgba(255, 255, 255, 0.2);
-          color: #fff;
+          color: var(--color-action-foreground);
           transition: background 0.2s ease;
 
           &:hover {

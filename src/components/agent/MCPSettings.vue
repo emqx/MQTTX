@@ -21,7 +21,7 @@
       <el-col :span="4">
         <el-switch
           v-model="mcpEnabled"
-          active-color="#13ce66"
+          active-color="var(--color-action-green)"
           inactive-color="#A2A9B0"
           @change="handleMCPEnabledChange"
         >
@@ -105,7 +105,7 @@
                 <span class="enable-label">{{ $t('common.enable') }}</span>
                 <el-switch
                   v-model="serverEnabledStatus[name]"
-                  active-color="#13ce66"
+                  active-color="var(--color-action-green)"
                   inactive-color="#A2A9B0"
                   @change="(val) => handleServerEnabledChange(name, val)"
                 >

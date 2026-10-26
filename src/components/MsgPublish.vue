@@ -23,7 +23,7 @@
                     <el-switch
                       size="mini"
                       v-model="MQTT5PropsForm.payloadFormatIndicator"
-                      active-color="#13ce66"
+                      active-color="var(--color-action-green)"
                       inactive-color="#A2A9B0"
                     ></el-switch>
                   </el-form-item>
@@ -754,7 +754,7 @@ export default class MsgPublish extends Vue {
       line-height: 29px;
       .icon-send {
         font-size: 16px;
-        color: var(--color-text-active);
+        color: var(--color-action-foreground);
       }
       &:active {
         box-shadow: none;
