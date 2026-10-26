@@ -65,7 +65,6 @@ $env:MQTTX_VERSION = "1.13.0"; irm https://emqx.sh/mqttx.ps1 | iex
 | Variable | Purpose |
 | --- | --- |
 | `MQTTX_VERSION` | `1.13.1`, `v1.13.1` or `latest` (default) |
-| `MQTTX_REGION` | `cn` downloads from the China mirror; default `global` |
 | `MQTTX_INSTALL_DIR` | Binary directory. Default `${XDG_DATA_HOME:-~/.local/share}/mqttx-cli`; Windows `%LOCALAPPDATA%\Programs\mqttx-cli` (only sets the default bin directory) |
 | `MQTTX_BIN_DIR` | Where `mqttx` is linked. Default `~/.local/bin`; Windows `<InstallDir>\bin` |
 
