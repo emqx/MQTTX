@@ -42,9 +42,7 @@ curl -fsSL https://emqx.sh/mqttx | sh
 irm https://emqx.sh/mqttx.ps1 | iex
 ```
 
-The script resolves the latest release, downloads the build for your OS and CPU, and installs it for the current user without `sudo`.
-
-Homebrew, npm, Docker and standalone binaries are covered in the [installation documentation](https://mqttx.app/docs/cli/downloading-and-installation); builds are also listed on the [MQTTX Downloads Page](https://mqttx.app/downloads).
+Homebrew, npm, Docker and standalone binaries: see the [installation docs](https://mqttx.app/docs/cli/downloading-and-installation).
 
 ## AI Agent Support
 

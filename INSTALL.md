@@ -38,7 +38,7 @@ Honor an explicitly requested version. Otherwise, resolve the stable version ava
 
 ### Install script
 
-The install script resolves the latest stable version, picks the asset for the OS, CPU and libc, downloads it to a temporary file, verifies it with `--version`, and moves it into place. It installs for the current user, never uses `sudo`, and replaces its own previous installation when re-run.
+The install script picks the build for the OS, CPU and libc, verifies it with `--version`, and installs it for the current user without `sudo`. Re-running it updates the installation.
 
 On macOS or Linux:
 
@@ -62,17 +62,16 @@ curl -fsSL https://emqx.sh/mqttx | MQTTX_VERSION=1.13.0 sh
 $env:MQTTX_VERSION = "1.13.0"; irm https://emqx.sh/mqttx.ps1 | iex
 ```
 
-| Variable | Purpose | Default |
-| --- | --- | --- |
-| `MQTTX_VERSION` | Version to install | `latest` |
-| `MQTTX_INSTALL_DIR` | Directory for the installed binary | macOS/Linux: `${XDG_DATA_HOME:-~/.local/share}/mqttx-cli`; Windows: `%LOCALAPPDATA%\Programs\mqttx-cli` |
-| `MQTTX_BIN_DIR` | Directory for the `mqttx` symlink or executable | macOS/Linux: `~/.local/bin`; Windows: `<InstallDir>\bin` |
+| Variable | Purpose |
+| --- | --- |
+| `MQTTX_VERSION` | `1.13.1`, `v1.13.1` or `latest` (default) |
+| `MQTTX_REGION` | `cn` downloads from the China mirror; default `global` |
+| `MQTTX_INSTALL_DIR` | Binary directory. Default `${XDG_DATA_HOME:-~/.local/share}/mqttx-cli`; Windows `%LOCALAPPDATA%\Programs\mqttx-cli` (only sets the default bin directory) |
+| `MQTTX_BIN_DIR` | Where `mqttx` is linked. Default `~/.local/bin`; Windows `<InstallDir>\bin` |
 
-On macOS and Linux the binary lives in `${XDG_DATA_HOME:-~/.local/share}/mqttx-cli`, and `~/.local/bin/mqttx` is a symlink to it. If the bin directory is not on PATH, the script prints the exact `export PATH=...` line to add; it does not edit shell profiles. It warns when another `mqttx` comes first on PATH.
+If the bin directory is not on PATH, the script prints the `export PATH=...` line to add and does not edit shell profiles; it also warns when another `mqttx` comes first on PATH. On Windows the bin directory is added to the user PATH; open a new terminal if `mqttx` is not found.
 
-On Windows the binary is `%LOCALAPPDATA%\Programs\mqttx-cli\bin\mqttx.exe`, and that directory is added to the user PATH; open a new terminal if `mqttx` is not found. On Windows, `MQTTX_INSTALL_DIR` only sets the default bin directory, `<InstallDir>\bin`.
-
-Re-run the script to update an install-script installation. Do not run it over an npm- or Homebrew-managed `mqttx`: it creates a separate copy, and whichever executable comes first on PATH wins.
+Do not run it over an npm- or Homebrew-managed `mqttx`: it creates a separate copy, and whichever executable comes first on PATH wins.
 
 Where piping to `sh` is not allowed, download the script, review it, then run it locally:
 

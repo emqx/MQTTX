@@ -30,7 +30,7 @@
 
 ## 安装
 
-使用安装脚本安装 MQTTX CLI，脚本会解析最新版本、按操作系统和 CPU 架构选择构建，并为当前用户安装，无需 sudo：
+使用安装脚本安装 MQTTX CLI：
 
 ```shell
 # macOS / Linux

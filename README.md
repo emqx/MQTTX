@@ -102,7 +102,7 @@ curl -fsSL https://emqx.sh/mqttx | sh
 irm https://emqx.sh/mqttx.ps1 | iex
 ```
 
-You can also use Homebrew (`brew install emqx/mqttx/mqttx-cli`) or npm (`npm install --global mqttx-cli`, after checking its Node.js requirement in the [installation guide](./INSTALL.md#npm)); standalone binaries and a Docker image are also available via the [MQTTX CLI README](./cli/README.md) and the [MQTTX downloads page](https://mqttx.app/downloads).
+Homebrew, npm, Docker and standalone binaries: see the [installation docs](https://mqttx.app/docs/cli/downloading-and-installation).
 
 After installation, subscribe in one terminal and publish in another. The subscriber receives the JSON message:
 

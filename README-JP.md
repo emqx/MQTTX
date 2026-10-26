@@ -97,7 +97,7 @@ curl -fsSL https://emqx.sh/mqttx | sh
 irm https://emqx.sh/mqttx.ps1 | iex
 ```
 
-Homebrew（`brew install emqx/mqttx/mqttx-cli`）や npm（`npm install --global mqttx-cli`。[インストールガイド](./INSTALL.md#npm)で Node.js の要件を確認してください）も使用できます。スタンドアロンのバイナリと Docker イメージは [MQTTX CLI README](./cli/README.md) および [MQTTX ダウンロードページ](https://mqttx.app/downloads) を参照してください。
+Homebrew、npm、Docker、スタンドアロンバイナリについては[インストールドキュメント](https://mqttx.app/docs/cli/downloading-and-installation)を参照してください。
 
 インストール後、2 つのターミナルでそれぞれサブスクライブとパブリッシュを実行すると、サブスクライブ側で JSON メッセージを受信できます。
 
