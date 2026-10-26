@@ -97,7 +97,7 @@ curl -fsSL https://emqx.sh/mqttx | sh
 irm https://emqx.sh/mqttx.ps1 | iex
 ```
 
-也可以使用 Homebrew（`brew install emqx/mqttx/mqttx-cli`）或 npm（`npm install --global mqttx-cli`，使用前请按[安装指南](./INSTALL.md#npm)确认 Node.js 版本要求）；独立二进制文件和 Docker 镜像见 [MQTTX CLI README](./cli/README-CN.md) 和 [MQTTX 下载页面](https://mqttx.app/zh/downloads)。
+Homebrew、npm、Docker 和独立二进制文件的安装方式见[安装文档](https://mqttx.app/zh/docs/cli/downloading-and-installation)。
 
 安装后，在两个终端中分别订阅和发布，订阅端即可收到 JSON 消息：
 
