@@ -32,11 +32,15 @@
 
 使用安装脚本安装 MQTTX CLI：
 
-```shell
-# macOS / Linux
-curl -fsSL https://emqx.sh/mqttx | sh
+macOS / Linux：
 
-# Windows (PowerShell)
+```shell
+curl -fsSL https://emqx.sh/mqttx | sh
+```
+
+Windows（PowerShell）：
+
+```powershell
 irm https://emqx.sh/mqttx.ps1 | iex
 ```
 
