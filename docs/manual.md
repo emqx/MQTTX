@@ -7,8 +7,6 @@
 - [Introduction](#introduction)
 - [Installation](#installation)
 - [Usage](#usage)
-  - [MQTTX Agent](#mqttx-agent)
-  - [Dashboard](#dashboard)
 - [Development Guide](#development-guide)
 - [FAQ](#faq)
 
@@ -294,23 +292,15 @@ Connections remain disconnected after recovery. See [Advanced settings](https://
 
 ### MQTTX Agent
 
-MQTTX Agent is an AI Agent built into the desktop client for natural-language MQTTX operation. It manages connections and messaging, analyzes logs, prepares scripts and schemas, and creates data views. Connection details and tool results remain available within the conversation for subsequent analysis. For devices with supplied MQTT protocols, the Agent can read status, publish requested control commands, and inspect new device reports. The connection must be active and subscribed to the relevant reports; without a new report, the device result remains unconfirmed.
+MQTTX Agent is an AI assistant built into the desktop app. You describe what you need in plain language and it operates MQTTX through tools: it creates and connects connections, subscribes and publishes, reads messages, builds the Topic Tree and dashboards, writes scripts and schemas, calls your MCP servers, and changes app settings.
 
-Enable it in **Settings → MQTTX Agent**, configure the provider's **API Host**, **API Key**, and **Model**, then open it from the left sidebar or with `Cmd/Ctrl + J`. Use full screen for a longer conversation or the floating window alongside MQTTX's other views.
+Type `/` and choose **Zero EMQX** to create a free temporary test broker and save its TLS connection. Ask the Agent to connect in a separate step. The broker expires according to its returned lifetime and is not for production.
 
-The default **Ask before actions** mode runs reads automatically and asks you to approve changes and MCP tool calls. **Auto** skips those prompts, while script tests always require approval. Skills provide guidance for tasks such as code generation and connection diagnostics; `@` mentions give a request its connection context.
+To turn it on, open **Settings → MQTTX Agent**, enable **Enable MQTTX Agent**, and fill in the **API Host**, **API Key**, and **Model** of your provider. Open the agent full screen with the star button in the left bar, or as a floating window with `Cmd/Ctrl + J` or the **MQTTX Agent** button at the top right of a connection or script page.
 
-The Zero EMQX Skill creates a free temporary test broker and saves its TLS connection. Connecting to the broker is a separate action and must also be included in the request. The instance expires according to the lifecycle returned by Zero EMQX and is intended for testing.
+The default **Ask before actions** mode lets reads run automatically and asks for approval before creating, connecting, subscribing, publishing, deleting, or calling MCP tools. **Auto** skips these prompts, but script tests always require approval; change the default in **Settings → MQTTX Agent → Default permission mode**.
 
-Your conversation and tool results are sent to the configured model provider. See [MQTTX Agent](./desktop/en/use-desktop/agent.md) for the complete controls, attachments, privacy details, and limitations.
-
-### Dashboard
-
-Dashboard displays current device readings and changes over time during MQTT testing and traffic inspection. Big Number, Gauge, and Line widgets visualize numeric payload fields as current values, ranges, and trends.
-
-Connect and subscribe to the data source first. In **Viewer → Dashboard**, create a Dashboard, add widgets, and bind each one to a connection, topic filter, and payload field. Choosing a widget filter does not create a broker subscription. The history selector reads messages already stored locally by MQTTX.
-
-See [Dashboard](./desktop/en/use-desktop/dashboard.md) for the complete manual workflow.
+Your conversations and tool results are sent to the model provider you configure, so avoid entering secrets in the chat. See [MQTTX Agent](./desktop/en/use-desktop/agent.md) for setup, attachments, Skills, MCP, conversation history, and limitations.
 
 ### Script
 
@@ -352,7 +342,7 @@ Every time MQTTX is closed, the current log file is renamed with a UTC timestamp
 The Viewer in the left menu bar provides MQTT data visualization:
 
 - **Topic Tree** (Beta): shows received topics and messages as a hierarchy, with search, a graphical view, and syncing of historical messages from a connection. Drag the divider to resize the details panel; its width is remembered. The Sub-Topics area shows direct children with their count and depth. See [Topic Tree](https://mqttx.app/docs/advanced#topic-tree-beta) for display limits.
-- **Dashboard**: displays values from live messages with Big Number, Line, or Gauge widgets. Choose a connection, topic pattern, and payload field for each widget, then drag and resize it to arrange the dashboard. Select a time range to view historical data. See [Dashboard](./desktop/en/use-desktop/dashboard.md) for configuration and history limits.
+- **Dashboard**: displays values from live messages with Big Number, Line, or Gauge widgets. Choose a connection, topic pattern, and payload field for each widget, then drag and resize it to arrange the dashboard. Select a time range to view historical data. See [Dashboard](https://mqttx.app/docs/advanced#dashboard) for configuration and history limits.
 - **Traffic Monitor**: charts the broker's sent and received traffic from the `$SYS` system topics. Opening it from the connection page subscribes to `$SYS/#` automatically.
 
     > By default, EMQX only allows clients on localhost to subscribe to `$SYS` topics. To access them remotely, adjust the broker's ACL rules.
