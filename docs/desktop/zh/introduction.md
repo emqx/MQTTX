@@ -1,6 +1,6 @@
 # 简介
 
-[MQTTX Desktop](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的 MQTT 5.0 桌面客户端，支持 macOS、Windows 和 Linux。它采用聊天式界面，通过 TCP、TLS 和 WebSocket 管理多个连接与订阅，并内置 MQTTX Agent，可用自然语言创建连接、收发消息和排查问题。
+[MQTTX Desktop](https://mqttx.app/zh) 是支持 macOS、Windows 和 Linux 的开源 MQTT 客户端，用于连接 Broker、收发消息和排查设备通信问题。内置的 MQTTX Agent 是支持自然语言操作 MQTTX 的 AI Agent，涵盖连接管理、消息收发、数据处理与问题排查，也支持按提供的 MQTT 协议进行设备查询与指令交互。Dashboard 独立提供数据可视化，将已收到消息中的字段展示为实时读数和趋势。
 
 从[官网](https://mqttx.app/zh)或 [GitHub](https://github.com/emqx/MQTTX) 下载最新版本，也可以从[源码](https://github.com/emqx/MQTTX)构建。问题和建议请提交 [GitHub issue](https://github.com/emqx/MQTTX/issues)；欢迎 Fork 项目并提交 Pull Request。
 
@@ -22,11 +22,12 @@
 - 支持 MQTT 5.0 连接、发布和订阅时的用户属性，以及 SCRAM 增强认证
 - 支持单向和双向 SSL/TLS 认证
 - 支持[通过 WebSocket 连接 MQTT 服务器](https://www.emqx.com/zh/blog/connect-to-mqtt-broker-with-websocket)
-- [MQTTX Agent](/zh/docs/agent)：用自然语言操作 MQTTX，自动创建连接、订阅和发布消息，并调用 MCP 工具
+- [**MQTTX Agent**](./use-desktop/agent.md)：自然语言操作与分析，包括基于协议的设备查询与指令交互；内置 Skill 提供任务指引，已配置的 MCP 工具支持外部系统操作。
 - 支持 Plaintext、JSON、Base64、Hex、CBOR 和 MsgPack 等 Payload 格式，并支持 Protobuf 和 Avro 编解码
 - 自动解压接收到的 GZIP 消息，然后再进行 Payload 解码
 - 支持自定义脚本和定时消息，模拟 MQTT 发布/订阅测试
-- 视图器工具：主题树、仪表盘、流量监控和消息体查看器
+- [**Dashboard**](./use-desktop/dashboard.md)：当前读数、趋势图、可调整的数据布局与本地消息历史查询。
+- **视图器工具**：主题树、流量监控和 Payload Inspector 提供主题、流量与 Payload 检查。
 - 订阅的 MQTT 主题支持自定义颜色标签
 - 支持以 JSON、CSV、Excel、XML 和 YAML 格式备份和恢复数据
 - 提供完整的日志记录功能
