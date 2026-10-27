@@ -11,7 +11,7 @@
 
 ---
 
-[MQTTX](https://mqttx.app/zh) 是 EMQ 开源的跨平台 MQTT 客户端工具集，用于物联网应用开发与故障排查。MQTTX Desktop 支持 macOS、Windows 和 Linux，用于管理连接、收发消息与检查设备通信。内置的 MQTTX Agent 是支持自然语言操作 MQTTX 的 AI Agent，涵盖连接管理、消息收发、数据处理与问题排查，也支持按提供的设备 MQTT 协议查询状态、发送指令并检查回报。Dashboard 独立提供设备消息的数据可视化，展示实时读数与趋势图。MQTTX CLI 提供终端工作流、压测和数据模拟，MQTTX Web 支持直接从浏览器通过 WebSocket 连接。
+[MQTTX](https://mqttx.app/zh) 是 [EMQ](https://www.emqx.com/zh) 开源的跨平台 [MQTT 5.0](https://www.emqx.com/zh/blog/introduction-to-mqtt-5) 客户端工具集，用于物联网应用的开发、测试和故障排查。[MQTTX Desktop](https://mqttx.app/zh/docs) 支持 macOS、Windows 和 Linux，以聊天式界面管理多个连接与订阅，并内置 MQTTX Agent，可用自然语言创建连接、收发消息和排查问题；[MQTTX CLI](https://mqttx.app/zh/docs/cli) 为终端和自动化提供消息收发、压测与数据模拟；[MQTTX Web](https://mqttx.app/web-client) 无需安装，即可在浏览器中通过 WebSocket 调试 MQTT。
 
 > [MQTT](https://www.emqx.com/zh/blog/the-easiest-guide-to-getting-started-with-mqtt)（Message Queuing Telemetry Transport，消息队列遥测传输）是一种基于发布/订阅模式的轻量级消息协议，专为受限设备以及低带宽、高延迟或不可靠的网络而设计。
 
@@ -22,9 +22,7 @@
 - 桌面版与 CLI 支持 MQTT 3.1、3.1.1 和 5.0，可通过 TCP、TLS 和 WebSocket 连接。
 - 在桌面版中管理连接分组、搜索消息，并导入导出连接配置。
 - 桌面版支持 JSON、Base64、Hex 等消息编解码、Protobuf/Avro Schema 和 GZIP 解压。
-- 使用桌面版的脚本和定时消息测试业务逻辑。
-- MQTTX Agent 支持通过自然语言完成连接管理、消息收发、数据处理与问题排查，并按提供的 MQTT 协议进行设备查询与指令交互。
-- Dashboard 提供设备读数和趋势可视化；主题树、流量监控和 Payload Inspector 提供主题、流量和 Payload 分析。
+- 使用桌面版的脚本和定时消息测试业务逻辑，通过主题树、仪表盘和消息体查看器分析数据。
 - 使用 CLI 进行压测、模拟物联网数据，并通过标准输入和管道接入 Shell 脚本或 CI 流程。
 - Web 版支持通过 WebSocket 收发 MQTT 3.1.1 和 5.0 消息，也可使用 Docker 自行部署。
 
@@ -37,10 +35,10 @@
 
 - 通过 TCP、TLS、WebSocket 或安全 WebSocket 连接，支持 MQTT 3.1、3.1.1 和 5.0。
 - 配置 MQTT 5.0 连接、发布和订阅的用户属性，使用 SCRAM 增强认证，并查看 Broker 返回的 CONNACK 响应信息。
-- MQTTX Agent 支持通过自然语言完成连接管理、消息收发、数据处理与问题排查，并按提供的 MQTT 协议进行设备查询与指令交互。
+- 通过内置的 MQTTX Agent 用自然语言操作客户端，支持技能（Skills）、MCP 工具、操作审批和多家模型提供商。
 - 编解码 Plaintext、JSON、Base64、Hex、CBOR 和 MsgPack 消息，使用 Protobuf 或 Avro Schema，并自动解压接收到的 GZIP 消息。
 - 使用脚本转换收发消息，或定时发布消息。
-- Dashboard 提供设备读数和趋势可视化；主题树、流量监控和 Payload Inspector 提供主题、流量和 Payload 分析。消息体查看器支持 JSON 树和消息差异对比。
+- 使用主题树、仪表盘、流量监控和消息体查看器分析消息，支持 JSON 树和消息差异对比。
 - 管理连接分组、搜索消息，并为每个连接保留独立的发布区和发布历史。
 - 通过 JSON、CSV、Excel、XML 或 YAML 导入和导出连接；JSON 备份保留连接分组。
 - 切换浅色、深色或夜间主题，支持英语、简体中文、日语、土耳其语、匈牙利语和韩语。
@@ -127,27 +125,17 @@ docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 
 部署与使用方法见 [Web README](./web/README-CN.md)。
 
-## Dashboard
-
-Dashboard 将 MQTT 消息中的字段展示为数值、仪表盘和趋势图。实时读数与范围用于检查设备数据，时间范围查询用于回看 MQTTX 本机已保存消息中的变化。
-
-Dashboard 在 **视图器 → 仪表盘** 中直接配置，可独立于 MQTTX Agent 使用。组件绑定连接、主题过滤器与 Payload 字段，在订阅消息到达时更新，并支持拖动和缩放，将不同指标安排在同一视图中。
-
-手动配置和数据源选项见 [Dashboard](./docs/desktop/zh/use-desktop/dashboard.md)。
-
-## AI Agent 工具
+## AI 工具
 
 ### MQTTX Agent
 
-MQTTX Agent 是内置于桌面客户端的 AI Agent，支持通过自然语言完成连接管理、消息收发、数据处理与问题排查。开发者可以将多步 MQTT 操作交由 Agent 执行，结合实际连接、消息和日志继续分析，减少日常联调中的重复配置与手动检查。Agent 还支持生成客户端代码、测试数据和 Payload 处理逻辑，为设备接入提供支持。基于提供的设备 MQTT 协议，Agent 可读取状态、按用户意图发送控制指令，并检查后续回报，减少查找 topic、构造 Payload 和手动比对消息的工作。
+MQTTX Agent 是内置于桌面版的 AI 助手。在**设置 → MQTTX Agent** 中启用并填写服务商的 API Host、API Key 和模型后，即可从左侧栏以全屏打开，或用 `Cmd/Ctrl + J` 以浮窗打开。
 
-例如：
+- 它通过工具操作 MQTTX：创建并连接连接、订阅与发布、读取消息、构建主题树和仪表盘、调用你配置的 MCP 服务器，以及编写客户端代码、测试数据和编解码。
+- **操作前询问**（默认）会在改动前请求批准；**自动**跳过这些确认。运行脚本测试始终需要批准。
+- 对话和工具调用结果会发送给你配置的模型服务商，请避免在对话中输入密钥等敏感信息。
 
-> 在 Factory Demo 上订阅 `factory/+/telemetry`，查看最近收到的消息，并说明 Payload 中有哪些字段。
-
-**设置 → MQTTX Agent** 提供服务商 API Host、API Key 和模型配置。左侧栏用于打开 Agent，`Cmd/Ctrl + J` 用于打开浮窗。**操作前询问**模式要求在变更和 MCP 工具调用前批准操作。**自动**模式跳过这些提示，脚本测试始终需要批准。
-
-内置 Skill 为具体任务提供指引，已配置的 MCP 服务器将外部工具接入同一段对话。对话和工具结果会发送给已配置的模型服务商。配置、使用示例、权限及隐私说明见 [MQTTX Agent](./docs/desktop/zh/use-desktop/agent.md)。
+完整的配置、技能、MCP、权限和限制说明请参阅 [MQTTX Agent](./docs/desktop/zh/use-desktop/agent.md)。
 
 ### MQTTX CLI Skill
 
