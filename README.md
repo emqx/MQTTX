@@ -16,7 +16,7 @@
 
 ---
 
-[MQTTX](https://mqttx.app) is an open-source, cross-platform MQTT client toolbox from EMQ for developing and troubleshooting IoT applications. MQTTX Desktop provides connection management and messaging on macOS, Windows, and Linux. Its built-in MQTTX Agent is an AI Agent for natural-language MQTTX operation, covering connections, messages, data processing, and troubleshooting. With a supplied device protocol, it also supports status queries, control commands, and inspection of device reports. Dashboard provides independent data visualization with live readings and trend charts. MQTTX CLI supports terminal workflows, benchmarks, and data simulation; MQTTX Web connects over WebSocket from your browser.
+[MQTTX](https://mqttx.app) is an open-source, cross-platform [MQTT 5.0](https://www.emqx.com/en/blog/introduction-to-mqtt-5) client toolbox from [EMQ](https://www.emqx.com/en) for developing, testing, and troubleshooting IoT applications. [MQTTX Desktop](https://mqttx.app/docs) runs on macOS, Windows, and Linux, with a chat-style interface for multiple connections and subscriptions and a built-in MQTTX Agent to set up connections, exchange messages, and troubleshoot in natural language. [MQTTX CLI](https://mqttx.app/docs/cli) provides messaging, benchmarks, and data simulation for terminals and automation, while [MQTTX Web](https://mqttx.app/web-client) lets you debug MQTT over WebSocket in the browser without installation.
 
 > [MQTT](https://www.emqx.com/en/blog/the-easiest-guide-to-getting-started-with-mqtt) (MQ Telemetry Transport) is a lightweight publish/subscribe messaging protocol designed for constrained devices and for low-bandwidth, high-latency, or unreliable networks.
 
@@ -27,9 +27,7 @@
 - Desktop and CLI support MQTT 3.1, 3.1.1, and 5.0 over TCP, TLS, and WebSocket.
 - Organize desktop connections into groups, search messages, and import or export connection settings.
 - Encode and decode desktop payloads with JSON, Base64, Hex, Protobuf/Avro schemas, and other codecs, and decompress GZIP messages.
-- Test application logic with desktop scripts and timed messages.
-- MQTTX Agent supports connection management, messaging, data processing, and troubleshooting through natural language, including device-status queries and command interactions based on supplied MQTT protocols.
-- Dashboard visualizes device readings and trends; the Topic Tree, Traffic Monitor, and Payload Inspector provide topic, traffic, and payload analysis.
+- Test application logic with desktop scripts and timed messages, and analyze data with the Topic Tree, Dashboard, and Payload Inspector.
 - Run benchmarks, simulate IoT data, and use stdin and pipes in shell scripts or CI workflows with CLI.
 - Use MQTT 3.1.1 and 5.0 over WebSocket in the Web client, with optional Docker self-hosting.
 
@@ -42,10 +40,10 @@ A graphical client for interactive debugging and message analysis on macOS, Wind
 
 - Connect over TCP, TLS, WebSocket, or secure WebSocket using MQTT 3.1, 3.1.1, or 5.0.
 - Set MQTT 5.0 user properties on connect, publish, and subscribe, authenticate with SCRAM, and view the broker's CONNACK Response Information.
-- MQTTX Agent supports connection management, messaging, data processing, and troubleshooting through natural language, including device-status queries and command interactions based on supplied MQTT protocols.
+- Operate MQTTX in natural language with the built-in MQTTX Agent, including Skills, MCP tools, action approval, and multiple model providers.
 - Encode and decode Plaintext, JSON, Base64, Hex, CBOR, and MsgPack payloads, use Protobuf and Avro schemas, and decompress incoming GZIP messages.
 - Transform messages with scripts and publish messages on a timer.
-- Dashboard visualizes device readings and trends; the Topic Tree, Traffic Monitor, and Payload Inspector provide topic, traffic, and payload analysis. The Payload Inspector includes JSON tree and diff views.
+- Inspect messages with the Topic Tree, Dashboard, Traffic Monitor, and Payload Inspector with JSON tree and diff views.
 - Group connections, search messages, and keep a separate publish area and history for each connection.
 - Import and export connections as JSON, CSV, Excel, XML, or YAML; JSON backups preserve connection groups.
 - Choose Light, Dark, or Night themes and use English, Simplified Chinese, Japanese, Turkish, Hungarian, or Korean.
@@ -132,27 +130,17 @@ docker run -d --name mqttx-web -p 80:80 emqx/mqttx-web:latest
 
 See the [Web README](./web/README.md) for deployment and usage instructions.
 
-## Dashboard
-
-Dashboard visualizes MQTT message fields as numeric readings, gauges, and trend charts. Current values and ranges support device checks, while time-range queries reveal changes in messages stored locally by MQTTX.
-
-Dashboards are configured directly in **Viewer → Dashboard**, independently of MQTTX Agent. Widgets bind to a connection, topic filter, and payload field and update as subscribed messages arrive. Drag-and-resize controls arrange measurements in one view.
-
-The [Dashboard guide](./docs/desktop/en/use-desktop/dashboard.md) covers manual setup and data-source options.
-
-## AI Agent Tools
+## AI Tools
 
 ### MQTTX Agent
 
-MQTTX Agent is an AI Agent built into the desktop client for managing connections, exchanging messages, processing data, and troubleshooting through natural language. It carries out multi-step MQTT operations and analyzes connection details, messages, and logs, reducing repetitive configuration and manual checks. The Agent also generates client code, test data, and payload-processing logic for device integration. With the device's MQTT protocol supplied, it reads status, publishes commands that match user intent, and checks subsequent reports, reducing topic lookups, payload assembly, and manual message comparison.
+MQTTX Agent is an AI assistant built into the desktop app. Turn it on in **Settings → MQTTX Agent**, fill in the API host, key, and model of your provider, then open it full screen from the left bar or as a floating window with `Cmd/Ctrl + J`.
 
-For example:
+- It operates MQTTX through tools: create and connect connections, subscribe and publish, read messages, build the Topic Tree and dashboards, call your MCP servers, and write client code, test data, and schemas.
+- **Ask before actions** (default) asks before changes; **Auto** skips these prompts. Script tests always require approval.
+- Your conversations and tool results are sent to the model provider you configure, so avoid entering secrets in the chat.
 
-> On Factory Demo, subscribe to `factory/+/telemetry`. Inspect the recent messages and explain which payload fields are present.
-
-Configuration in **Settings → MQTTX Agent** includes the provider's API host, key, and model. The left sidebar opens the Agent, and `Cmd/Ctrl + J` opens its floating window. **Ask before actions** requires approval for changes and MCP tool calls. **Auto** skips these prompts; script tests always require approval.
-
-Built-in Skills provide task guidance, and configured MCP servers extend the conversation with external tools. Conversations and tool results go to the configured model provider. The [MQTTX Agent guide](./docs/desktop/en/use-desktop/agent.md) covers setup, examples, permissions, and privacy.
+See [MQTTX Agent](./docs/desktop/en/use-desktop/agent.md) for setup, Skills, MCP, permissions, and limitations.
 
 ### MQTTX CLI Skill
 
