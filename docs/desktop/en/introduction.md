@@ -1,6 +1,6 @@
 # Introduction
 
-[MQTTX Desktop](https://mqttx.app) is an open-source MQTT client for macOS, Windows, and Linux, supporting broker connections, messaging, and device communication diagnostics. Its built-in MQTTX Agent is an AI Agent for natural-language MQTTX operation, covering connections, messages, data processing, and troubleshooting, as well as device-status queries and commands based on supplied MQTT protocols. Dashboard provides independent visualization of received message fields as live readings and trends.
+[MQTTX Desktop](https://mqttx.app) is an open-source MQTT 5.0 client from [EMQ](https://www.emqx.com/) for macOS, Windows, and Linux. Its chat-style interface supports multiple connections and subscriptions over TCP, TLS, and WebSocket, with MQTTX Agent for connection setup, messaging, and troubleshooting in natural language.
 
 Download the latest release from the [website](https://mqttx.app) or [GitHub](https://github.com/emqx/MQTTX), or build it from [source](https://github.com/emqx/MQTTX). Report problems and suggestions in [GitHub issues](https://github.com/emqx/MQTTX/issues); fork the project and submit a pull request to contribute.
 
@@ -22,12 +22,11 @@ Download the latest release from the [website](https://mqttx.app) or [GitHub](ht
 - MQTT 5.0 user properties on connect, publish, and subscribe, plus SCRAM enhanced authentication
 - One-way and two-way SSL/TLS authentication
 - [MQTT over WebSockets](https://www.emqx.com/en/blog/connect-to-mqtt-broker-with-websocket)
-- [**MQTTX Agent**](./use-desktop/agent.md): natural-language MQTTX operation and analysis, including protocol-based device queries and command interactions, with Skills for task guidance and configured MCP tools for external systems.
+- [MQTTX Agent](/docs/agent) for operating MQTTX in natural language: it creates connections, subscribes and publishes, and calls your MCP tools
 - Payload formats: Plaintext, JSON, Base64, Hex, CBOR, and MsgPack, with Protobuf and Avro schemas
 - Automatic GZIP decompression of received messages, before payload decoding
 - Custom scripts and timed messages for MQTT pub/sub simulation
-- [**Dashboard**](./use-desktop/dashboard.md): current readings, trend charts, configurable layouts, and local message-history review.
-- **Viewer tools**: topic, traffic, and payload inspection through the Topic Tree, Traffic Monitor, and Payload Inspector.
+- Viewer tools: Topic Tree, Dashboard, Traffic Monitor, and Payload Inspector
 - Customizable colors for subscriptions
 - Data backup and recovery in JSON, CSV, Excel, XML, and YAML
 - Comprehensive logging
