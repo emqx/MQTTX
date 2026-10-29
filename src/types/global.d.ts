@@ -43,6 +43,7 @@ declare global {
   // Vue
   type VueForm = Vue & {
     validate: (validate: (valid: boolean) => void) => void
+    validateField?: (prop: string | string[], callback?: (errorMessage: string) => void) => void
     clearValidate: () => void
     resetFields: () => void
   }
@@ -254,6 +255,7 @@ declare global {
     id?: string
     lastWillTopic: string
     lastWillPayload: string
+    lastWillPayloadType?: PayloadType
     lastWillQos: QoS
     lastWillRetain: boolean
     properties?: WillPropertiesModel
