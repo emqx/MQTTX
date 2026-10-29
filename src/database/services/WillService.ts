@@ -18,12 +18,14 @@ export default class WillService {
         contentType: '',
       },
       lastWillPayload = '',
+      lastWillPayloadType = 'Plaintext',
       lastWillTopic = '',
       lastWillQos = 0,
       lastWillRetain = false,
     } = model
     const data = {
       lastWillPayload,
+      lastWillPayloadType,
       lastWillTopic,
       lastWillQos,
       lastWillRetain,
@@ -45,6 +47,7 @@ export default class WillService {
       id,
       lastWillTopic,
       lastWillPayload,
+      lastWillPayloadType,
       lastWillQos,
       lastWillRetain,
       willDelayInterval,
@@ -59,6 +62,7 @@ export default class WillService {
       id: id,
       lastWillTopic: lastWillTopic,
       lastWillPayload: lastWillPayload,
+      lastWillPayloadType: lastWillPayloadType ?? 'Plaintext',
       lastWillQos: lastWillQos,
       lastWillRetain: lastWillRetain,
       properties: {

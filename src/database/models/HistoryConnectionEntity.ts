@@ -87,6 +87,9 @@ export default class HistoryConnectionEntity {
   @Column({ type: 'varchar', default: '' })
   lastWillPayload!: string
 
+  @Column({ type: 'varchar', default: 'Plaintext' })
+  lastWillPayloadType?: PayloadType
+
   @Column({ type: 'simple-enum', enum: [0, 1, 2], default: 0 })
   lastWillQos!: QoS
 

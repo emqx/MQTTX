@@ -522,17 +522,23 @@
                     <Editor
                       ref="lastWillPayload"
                       id="lastWillPayload"
-                      :lang="payloadType"
+                      :lang="willPayloadLang"
                       :fontSize="12"
                       v-model="record.will.lastWillPayload"
                       scrollbar-status="auto"
                     />
                   </div>
-                  <div class="lang-type">
-                    <el-radio-group v-model="payloadType">
-                      <el-radio label="json">JSON</el-radio>
-                      <el-radio label="plaintext">Plaintext</el-radio>
-                    </el-radio-group>
+                  <div class="lang-type will-payload-type">
+                    <el-select
+                      size="mini"
+                      v-model="record.will.lastWillPayloadType"
+                      class="will-payload-type-select"
+                      @change="handleWillPayloadTypeChange"
+                    >
+                      <el-option-group :label="$t('connections.willPayloadType')">
+                        <el-option v-for="type in payloadTypeOptions" :key="type" :value="type"> </el-option>
+                      </el-option-group>
+                    </el-select>
                   </div>
                 </el-form-item>
               </el-col>
@@ -645,6 +651,7 @@ import useServices from '@/database/useServices'
 import { emptyToNull } from '@/utils/handleString'
 import { getClientId } from '@/utils/idGenerator'
 import { getMQTTProtocol, getDefaultRecord } from '@/utils/mqttUtils'
+import { payloadTypeToEditorLang, validatePayloadByType } from '@/utils/payloadEncoder'
 import Editor from '@/components/Editor.vue'
 import KeyValueEditor from '@/components/KeyValueEditor.vue'
 import { LeftValues } from '@/utils/styles'
@@ -672,7 +679,7 @@ export default class ConnectionForm extends Vue {
 
   private willMessageVisible = true
   private advancedVisible = true
-  private payloadType = 'plaintext'
+  private payloadTypeOptions: PayloadType[] = ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR', 'MsgPack']
   private suggestConnections: ConnectionModel[] | [] = []
   private collectionOptions: { id: string; label: string }[] = []
   private oldName = ''
@@ -700,6 +707,10 @@ export default class ConnectionForm extends Vue {
     return this.record.clientIdWithTime
   }
 
+  get willPayloadLang(): string {
+    return payloadTypeToEditorLang(this.record.will?.lastWillPayloadType ?? 'Plaintext')
+  }
+
   get rules() {
     return {
       name: [
@@ -709,7 +720,23 @@ export default class ConnectionForm extends Vue {
       path: [{ required: true, message: this.$t('common.inputRequired') }],
       host: [{ required: true, message: this.$t('common.inputRequired') }],
       port: [{ required: true, message: this.$t('common.inputRequired') }],
+      // No trigger: Monaco does not fire blur/change events.
+      // Runs on save and when the payload format changes.
+      'will.lastWillPayload': [{ validator: this.validateWillPayload }],
     }
+  }
+
+  private validateWillPayload(rule: FormRule, value: string, callback: (error?: Error) => void) {
+    const reason = validatePayloadByType(value, this.record.will?.lastWillPayloadType ?? 'Plaintext')
+    if (reason) {
+      callback(new Error(`${this.$t('connections.willPayloadTypeError')} ${reason}`))
+      return
+    }
+    callback()
+  }
+
+  private handleWillPayloadTypeChange() {
+    this.vueForm.validateField?.('will.lastWillPayload')
   }
 
   get vueForm(): VueForm {
@@ -1091,6 +1118,31 @@ export default class ConnectionForm extends Vue {
       padding: 10px 1px 1px 1px;
       border-top-left-radius: 4px;
       border-top-right-radius: 4px;
+    }
+    .will-payload-box .el-form-item__error {
+      // Flow below the format bar instead of overlapping the editor
+      position: static;
+      padding-top: 4px;
+    }
+    .lang-type.will-payload-type {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0px 6px 0px 12px;
+      .will-payload-type-select {
+        width: 118px;
+        .el-input__inner {
+          height: 26px;
+          line-height: 26px;
+          border: none;
+          background: transparent;
+          text-align: right;
+          padding-right: 26px;
+        }
+        .el-input__icon {
+          line-height: 26px;
+        }
+      }
     }
     .content-type-item {
       margin-top: 8px;
