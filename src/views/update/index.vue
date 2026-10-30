@@ -48,6 +48,7 @@
 import { Component, Ref, Vue } from 'vue-property-decorator'
 import { Getter } from 'vuex-class'
 import { updateChecker } from '@/main/updateChecker'
+import { sanitizeHtml } from '@/utils/sanitizeHtml'
 import { ipcRenderer } from 'electron'
 
 const Store = require('electron-store')
@@ -139,7 +140,7 @@ export default class Update extends Vue {
   private async updateCheck(auto: boolean) {
     let res = await updateChecker(auto)
     if (res && typeof res !== 'boolean') {
-      this.detail = res.detail
+      this.detail = sanitizeHtml(res.detail)
       this.version = res.version
       this.showDialog = true
       this.handleATags()
