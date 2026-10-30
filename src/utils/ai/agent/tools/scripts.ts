@@ -70,7 +70,7 @@ export const createScriptTools = (deps: AgentToolDeps): ToolSet => ({
   save_script: tool({
     title: 'Save script',
     description:
-      'Create a transformation function or schema, or update one by id. The name gets the extension for the type (.js, .proto or .avsc). The name must be unique. Saving script code always requires approval, including in Auto mode.',
+      'Create a transformation function or schema, or update one by id. The name gets the extension for the type (.js, .proto or .avsc). The name must be unique.',
     inputSchema: z.object({
       id: z.string().optional().describe('Update this script; omit to create a new one'),
       name: z.string().describe('Script name, for example payload.js'),

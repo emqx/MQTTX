@@ -844,7 +844,7 @@ describe('agent tools — write-tool sets', () => {
     ]) {
       expect(AGENT_WRITE_TOOLS.has(name), name).to.equal(false)
     }
-    expect(AGENT_ALWAYS_ASK_TOOLS.has('test_script')).to.equal(true)
+    expect([...AGENT_ALWAYS_ASK_TOOLS]).to.have.members(['save_script', 'test_script', 'apply_script'])
   })
 
   it('should give every tool running and done labels in all six languages', () => {
