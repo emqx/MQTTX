@@ -25,6 +25,16 @@ describe('Agent message security', () => {
     wrapper.destroy()
   })
 
+  it('should not create elements from unparsable LaTeX source', () => {
+    const content = '$<img src=x onerror=alert(1)>{$\n\n$$<svg onload=alert(1)>{$$'
+    const wrapper = render(content)
+
+    expect(wrapper.find('img').exists()).to.equal(false)
+    expect(wrapper.find('svg').exists()).to.equal(false)
+    expect(wrapper.text()).to.contain('<img')
+    wrapper.destroy()
+  })
+
   it('should preserve Markdown formatting and literal code samples', () => {
     const content = '# Result\n\n**Connected**\n\n```html\n<img onerror="example()">\n```'
     const wrapper = render(content)
