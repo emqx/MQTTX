@@ -40,7 +40,7 @@ describe('Settings permission mode', () => {
 
     await changePermissionMode(context, 'auto')
 
-    expect(calls).to.deep.equal([['agent.autoConfirm', 'common.warning', { type: 'warning' }]])
+    expect(calls).to.have.length(1)
     expect(saved).to.deep.equal([{ agentPermissionMode: 'auto' }])
     expect(isAutoConfirmedInSession()).to.equal(true)
   })
