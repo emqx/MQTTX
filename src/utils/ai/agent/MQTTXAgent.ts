@@ -1,6 +1,7 @@
 import { ToolLoopAgent, generateText, stepCountIs, ToolSet } from 'ai'
-import CryptoJS from 'crypto-js'
-import { ENCRYPT_KEY, getAgentMessageId } from '@/utils/idGenerator'
+import type { SafeStorage } from 'electron'
+import { getAgentMessageId } from '@/utils/idGenerator'
+import { decryptAPIKey as decryptStoredAPIKey } from '@/utils/apiKey'
 import {
   getModelProvider,
   AImodelsOptions,
@@ -30,6 +31,9 @@ import { ApprovalGate, PermissionMode, withApproval } from '@/utils/ai/agent/app
 import { AgentToolDeps } from '@/utils/ai/agent/tools/types'
 import { AGENT_ALWAYS_ASK_TOOLS, AGENT_WRITE_TOOLS, createMQTTTools } from '@/utils/ai/agent/tools'
 import { buildAppContext, renderAppContext } from '@/utils/ai/agent/tools/appContext'
+
+// @electron/remote exposes safeStorage at runtime but its type declarations omit it
+const safeStorage = (require('@electron/remote') as { safeStorage: SafeStorage }).safeStorage
 
 const normalizeHost = (url?: string): string => (url ? url.toLowerCase().replace(/\/+$/, '') : '')
 
@@ -140,8 +144,7 @@ export class MQTTXAgent {
    * Decrypt API key
    */
   private decryptAPIKey(): string {
-    const bytes = CryptoJS.AES.decrypt(this.openAIAPIKey, ENCRYPT_KEY)
-    return bytes.toString(CryptoJS.enc.Utf8)
+    return decryptStoredAPIKey(this.openAIAPIKey, safeStorage)
   }
 
   /**
