@@ -105,7 +105,7 @@ export default class AgentApprovalCard extends Vue {
       return typeof payload === 'string' ? payload.slice(0, 200) : ''
     }
     // The user must see the whole script before it runs, so it is never truncated
-    if (this.part.toolName === 'test_script') {
+    if (this.part.toolName === 'test_script' || this.part.toolName === 'save_script') {
       return typeof this.input.script === 'string' ? this.input.script : ''
     }
     // Other tools show the input the headline leaves out, with secrets masked

@@ -43,9 +43,9 @@ export const AGENT_WRITE_TOOLS = new Set([
 
 /**
  * Tools that must be approved even in `auto` mode and can never be remembered.
- * `test_script` runs model-written JavaScript in a sandbox (vm2), which must never run unattended.
+ * Script changes persist beyond a reply, and testing or applying a script executes local code.
  */
-export const AGENT_ALWAYS_ASK_TOOLS = new Set(['test_script'])
+export const AGENT_ALWAYS_ASK_TOOLS = new Set(['save_script', 'test_script', 'apply_script'])
 
 /** Every MQTT tool, used to tell MQTT tools apart from MCP tools */
 export const createMQTTTools = (deps: AgentToolDeps): ToolSet => ({
