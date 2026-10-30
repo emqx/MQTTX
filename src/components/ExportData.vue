@@ -48,7 +48,7 @@
       :visible.sync="progressVisible"
       append-to-body
     >
-      <el-progress :percentage="getProgressNumber(this.exportProgress)" color="#34c388"></el-progress>
+      <el-progress :percentage="getProgressNumber(this.exportProgress)" color="var(--color-main-green)"></el-progress>
     </el-dialog>
   </my-dialog>
 </template>

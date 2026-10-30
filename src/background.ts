@@ -268,7 +268,7 @@ async function createWindow() {
     },
     titleBarStyle: isMac ? 'hidden' : 'default',
     backgroundColor: theme === 'dark' ? '#232323' : theme === 'night' ? '#212328' : '#ffffff',
-    icon: `${__static}/app.ico`,
+    icon: `${__static}/icons/app.ico`,
   })
 
   initialize()

@@ -183,19 +183,23 @@ export default class Leftbar extends Vue {
         transform: translateY(-50%) scaleY(0);
         width: 3px;
         height: 20px;
-        background: var(--color-main-green);
+        background: var(--color-leftbar-active);
         border-radius: 0 2px 2px 0;
         transition: transform 0.2s ease;
       }
     }
     &.active a {
-      background: linear-gradient(135deg, var(--color-bg-leftbar_item) 0%, rgba(16, 185, 129, 0.15) 100%);
+      background: linear-gradient(
+        135deg,
+        var(--color-bg-leftbar_item) 0%,
+        color-mix(in srgb, var(--color-leftbar-active) 15%, transparent) 100%
+      );
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
       &::before {
         transform: translateY(-50%) scaleY(1);
       }
       .iconfont {
-        color: var(--color-main-green);
+        color: var(--color-leftbar-active);
       }
     }
     a:hover {
