@@ -25,6 +25,13 @@ export async function callMCPTool(serverName: string, toolName: string, toolArgs
 export const getMCPToolName = (serverName: string, toolName: string): string =>
   `${serverName}__${toolName}`.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 64)
 
+/** Splits a `${server}__${tool}` name at the first `__`; returns null when it is not an MCP tool */
+export const parseMCPToolName = (name: string): { server: string; tool: string } | null => {
+  const index = name.indexOf('__')
+  if (index === -1) return null
+  return { server: name.slice(0, index), tool: name.slice(index + 2) }
+}
+
 /**
  * Flattens MCP content blocks into text for the model and the tool card
  */

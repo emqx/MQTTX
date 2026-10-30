@@ -39,6 +39,7 @@ import { ApprovalDecision } from '@/utils/ai/agent/approval'
 import { MASKED } from '@/utils/ai/agent/tools/helpers'
 import { escapeHtml } from '@/utils/highlightSearch'
 import { AGENT_ALWAYS_ASK_TOOLS } from '@/utils/ai/agent/tools'
+import { parseMCPToolName } from '@/utils/ai/mcp/MCPUtils'
 
 const HEADLINE_FIELDS = new Set(['connectionId', 'topic', 'name'])
 const SECRET_FIELD = /password|secret|token|apikey|^key$|^cert$|^ca$/i
@@ -85,14 +86,15 @@ export default class AgentApprovalCard extends Vue {
   }
 
   get headline(): string {
+    const mcpName = parseMCPToolName(this.part.toolName)
     const params = {
       topic: escapeHtml(this.input.topic ?? ''),
       connection: escapeHtml(this.connectionName),
       name: escapeHtml(this.input.name ?? ''),
-      server: escapeHtml(this.mcpName.server),
-      tool: escapeHtml(this.mcpName.tool),
+      server: escapeHtml(mcpName?.server ?? ''),
+      tool: escapeHtml(mcpName?.tool ?? this.part.toolName),
     }
-    if (this.part.toolName.includes('__')) {
+    if (mcpName) {
       return this.$t('agent.approval.mcp', params) as string
     }
     const key = `agent.approval.${this.part.toolName}`
@@ -100,13 +102,6 @@ export default class AgentApprovalCard extends Vue {
     return translated === key
       ? (this.$t('agent.approval.generic', { tool: escapeHtml(this.part.toolName) }) as string)
       : translated
-  }
-
-  /** MCP tools are named `${server}__${tool}`, and the tool part may itself contain `__` */
-  private get mcpName(): { server: string; tool: string } {
-    const index = this.part.toolName.indexOf('__')
-    if (index === -1) return { server: '', tool: this.part.toolName }
-    return { server: this.part.toolName.slice(0, index), tool: this.part.toolName.slice(index + 2) }
   }
 
   get meta(): { label: string; value: string }[] {
@@ -137,11 +132,11 @@ export default class AgentApprovalCard extends Vue {
       return this.input.script
     }
     // Other tools show the input the headline leaves out, with secrets masked
-    const detail = Object.entries(this.input).reduce<Record<string, unknown>>((acc, [key, value]) => {
-      if (HEADLINE_FIELDS.has(key) || value === undefined) return acc
-      acc[key] = SECRET_FIELD.test(key) && value ? MASKED : maskSecrets(value)
+    const visible = Object.entries(this.input).reduce<Record<string, unknown>>((acc, [key, value]) => {
+      if (!HEADLINE_FIELDS.has(key) && value !== undefined) acc[key] = value
       return acc
     }, {})
+    const detail = maskSecrets(visible) as Record<string, unknown>
     if (!Object.keys(detail).length) return ''
     const text = JSON.stringify(detail, null, 2)
     return text.length > PREVIEW_LIMIT ? `${text.slice(0, PREVIEW_LIMIT)}…` : text

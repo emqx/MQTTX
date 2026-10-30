@@ -33,6 +33,7 @@
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { AgentMessagePart } from '@/types/agent'
 import { escapeHtml } from '@/utils/highlightSearch'
+import { parseMCPToolName } from '@/utils/ai/mcp/MCPUtils'
 
 const CONNECTION_TOOLS = new Set([
   'get_connection',
@@ -83,13 +84,12 @@ export default class AgentStep extends Vue {
     // Only a finished step reads in the past tense; running, waiting, denied and failed steps did not complete
     const tense = this.part.state === 'done' ? 'done' : 'running'
     let text: string
+    const mcpName = parseMCPToolName(this.part.toolName)
 
-    if (this.part.toolName.includes('__')) {
-      // Only the first `__` separates server from tool; the tool name may contain more
-      const index = this.part.toolName.indexOf('__')
+    if (mcpName) {
       text = this.$t(`agent.tools.mcp.${tense}`, {
-        server: this.part.toolName.slice(0, index),
-        tool: this.part.toolName.slice(index + 2),
+        server: mcpName.server,
+        tool: mcpName.tool,
       }) as string
     } else {
       const key = `agent.tools.${this.part.toolName}.${tense}`

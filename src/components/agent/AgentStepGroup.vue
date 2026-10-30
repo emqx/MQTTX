@@ -27,6 +27,7 @@
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { AgentMessagePart } from '@/types/agent'
 import AgentStep from './AgentStep.vue'
+import { parseMCPToolName } from '@/utils/ai/mcp/MCPUtils'
 
 type ToolPart = Extract<AgentMessagePart, { type: 'tool' }>
 
@@ -62,9 +63,7 @@ export default class AgentStepGroup extends Vue {
 
   /** The tool names in the order they first ran; an MCP tool shows only the tool part of `server__tool` */
   get toolNames(): string {
-    const names = this.steps.map((step) =>
-      step.toolName.includes('__') ? step.toolName.split('__')[1] : step.toolName,
-    )
+    const names = this.steps.map((step) => parseMCPToolName(step.toolName)?.tool ?? step.toolName)
     return [...new Set(names)].join(', ')
   }
 
