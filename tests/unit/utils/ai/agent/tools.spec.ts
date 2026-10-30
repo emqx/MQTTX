@@ -318,6 +318,19 @@ describe('MQTT tools', () => {
     expect(client.listenerCount('message')).to.equal(0)
   })
 
+  it('truncates a long waited payload like get_messages', async () => {
+    const tools = createMessagingTools(deps)
+    const pending = tools.wait_for_messages.execute!(
+      { connectionId: 'c1', count: 1, timeoutSeconds: 5 } as any,
+      {} as any,
+    )
+    client.emit('message', 'a/b', Buffer.from('x'.repeat(5000)))
+
+    const result: any = await pending
+    expect(result.messages[0].payload).to.have.length(2000)
+    expect(result.messages[0].truncated).to.equal(true)
+  })
+
   it('returns base64 for a payload that is not valid UTF-8', async () => {
     const tools = createMessagingTools(deps)
     const pending = tools.wait_for_messages.execute!({ connectionId: 'c1' } as any, {} as any)

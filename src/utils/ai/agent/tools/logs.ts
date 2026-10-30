@@ -8,8 +8,13 @@ const LEVELS = { debug: 0, info: 1, warn: 2, error: 3 } as const
 type LogLevelName = keyof typeof LEVELS
 const MAX_LINES = 500
 
-/** The value after a secret key: "password": "x", token=x */
-const SECRET_VALUE = /((?:password|passwd|token|secret|api[_-]?key)["']?\s*[:=]\s*)(["']?)([^"'\s,;}]*)/gi
+/**
+ * The value after a secret key: "password": "x y", token=x, password: hunter two.
+ * A quoted value runs to its closing quote; an unquoted value runs to the end of the line unless
+ * the next token starts another key.
+ */
+const SECRET_VALUE =
+  /((?:password|passwd|token|secret|api[_-]?key)["']?\s*[:=]\s*)(?:"([^"\r\n]*)"|'([^'\r\n]*)'|([^\s,;}\]]+(?:\s+(?![^\s=:]+["']?\s*[:=])[^\s,;}\]]+)*))/gi
 
 /** Authorization carries a scheme and a token, so everything after it is redacted */
 const AUTH_VALUE = /(authorization["']?\s*[:=]\s*)([^\r\n]*)/gi
@@ -18,7 +23,11 @@ const AUTH_VALUE = /(authorization["']?\s*[:=]\s*)([^\r\n]*)/gi
 export const redactLogLine = (line: string): string =>
   line
     .replace(AUTH_VALUE, (_match, prefix: string) => `${prefix}***`)
-    .replace(SECRET_VALUE, (_match, prefix: string, quote: string) => `${prefix}${quote}***`)
+    .replace(SECRET_VALUE, (_match, prefix: string, doubleQuoted?: string, singleQuoted?: string) => {
+      if (doubleQuoted !== undefined) return `${prefix}"***"`
+      if (singleQuoted !== undefined) return `${prefix}'***'`
+      return `${prefix}***`
+    })
 
 const lineLevel = (line: string): LogLevelName | null => {
   const match = line.match(/\[(DEBUG|INFO|WARN|ERROR)\]/i)
@@ -43,10 +52,12 @@ export const createLogTools = (): ToolSet => ({
     execute: async ({ lines, level, contains }) => {
       const logPath = path.join(getOrCreateLogDir(), 'log')
       if (!fs.existsSync(logPath)) return { lines: [], total: 0, truncated: false }
+      // Redact first, so a filter can never match text that only exists before redaction
       let all = fs
         .readFileSync(logPath, 'utf8')
         .split('\n')
         .filter((line) => line !== '')
+        .map(redactLogLine)
       if (level) {
         const minimum = LEVELS[level]
         all = all.filter((line) => {
@@ -55,7 +66,7 @@ export const createLogTools = (): ToolSet => ({
         })
       }
       if (contains) all = all.filter((line) => line.includes(contains))
-      const selected = all.slice(-(lines ?? 100)).map(redactLogLine)
+      const selected = all.slice(-(lines ?? 100))
       return { lines: selected, total: all.length, truncated: all.length > selected.length }
     },
   }),

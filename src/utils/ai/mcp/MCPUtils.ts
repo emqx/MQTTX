@@ -25,13 +25,20 @@ export async function callMCPTool(serverName: string, toolName: string, toolArgs
 export const getMCPToolName = (serverName: string, toolName: string): string =>
   `${serverName}__${toolName}`.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 64)
 
+/** Cap on the text returned to the model, so a large MCP result cannot flood the context */
+export const MCP_TEXT_LIMIT = 65536
+
 /**
  * Flattens MCP content blocks into text for the model and the tool card
  */
-const getMCPContentText = (content: ToolCallResult['content']): string =>
-  Array.isArray(content)
+export const getMCPContentText = (content: ToolCallResult['content']): string => {
+  const text = Array.isArray(content)
     ? content.map((block) => (block.type === 'text' ? block.text : JSON.stringify(block))).join('\n')
     : String(content ?? '')
+  return text.length > MCP_TEXT_LIMIT
+    ? `${text.slice(0, MCP_TEXT_LIMIT)}\n[truncated ${text.length - MCP_TEXT_LIMIT} characters]`
+    : text
+}
 
 /**
  * Loads the tools of the enabled MCP servers as agent tools

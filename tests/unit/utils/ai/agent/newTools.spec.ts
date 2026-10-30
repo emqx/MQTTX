@@ -1,11 +1,14 @@
 import { expect } from 'chai'
-import { ipcRenderer } from 'electron'
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
+import { app, ipcRenderer } from 'electron'
 import { createScriptTools } from '@/utils/ai/agent/tools/scripts'
 import { createTopicTreeTools } from '@/utils/ai/agent/tools/topicTree'
 import { createDashboardTools, nextWidgetPosition, assertWidgetLayout } from '@/utils/ai/agent/tools/dashboards'
 import { createGroupTools } from '@/utils/ai/agent/tools/groups'
 import { createSettingsTools } from '@/utils/ai/agent/tools/settings'
-import { redactLogLine } from '@/utils/ai/agent/tools/logs'
+import { createLogTools, redactLogLine } from '@/utils/ai/agent/tools/logs'
 import { createPageTools } from '@/utils/ai/agent/tools/pages'
 import { AGENT_ALWAYS_ASK_TOOLS, AGENT_WRITE_TOOLS, createMQTTTools } from '@/utils/ai/agent/tools'
 import agentMessages from '@/lang/agent'
@@ -738,6 +741,23 @@ describe('agent tools — settings', () => {
     expect(sent).to.deep.equal([])
   })
 
+  it('should reject logLevel and keep it readable only', async () => {
+    const spies = makeSpies()
+    const tools = createSettingsTools(makeDeps(spies))
+    let error: unknown
+    try {
+      await tools.update_settings.execute!({ logLevel: 'debug' } as any, {} as any)
+    } catch (caught) {
+      error = caught
+    }
+    expect(error).to.be.instanceOf(Error)
+    expect(spies.dispatched).to.deep.equal([])
+    expect(sent).to.deep.equal([])
+
+    const settings: any = await tools.get_settings.execute!({} as any, {} as any)
+    expect(settings.logLevel).to.equal('info')
+  })
+
   it('should reject unknown and disallowed fields without changing anything', async () => {
     const spies = makeSpies()
     const tools = createSettingsTools(makeDeps(spies))
@@ -766,6 +786,45 @@ describe('agent tools — logs', () => {
     expect(redactLogLine('password=secret123 user=bob')).to.equal('password=*** user=bob')
     expect(redactLogLine('{"password":"secret","topic":"a"}')).to.equal('{"password":"***","topic":"a"}')
     expect(redactLogLine('Authorization: Bearer abc.def')).to.equal('Authorization: ***')
+  })
+
+  it('should mask a quoted value and a whole unquoted value', () => {
+    expect(redactLogLine('password: hunter two')).to.equal('password: ***')
+    expect(redactLogLine('{"password":"a b","topic":"a"}')).to.equal('{"password":"***","topic":"a"}')
+  })
+
+  it('should filter after redaction and count only the redacted lines', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mqttx-agent-logs-'))
+    const originalGetPath = (app as any).getPath
+    ;(app as any).getPath = () => dir
+    try {
+      const logDir = path.join(dir, 'logs')
+      fs.mkdirSync(logDir)
+      fs.writeFileSync(
+        path.join(logDir, 'log'),
+        ['[INFO] password: hunter two', '[INFO] {"password":"a b"}', '[INFO] harmless line', '[INFO] token=abc'].join(
+          '\n',
+        ),
+      )
+      const tools = createLogTools()
+
+      const hidden: any = await tools.read_logs.execute!({ contains: 'hunter' } as any, {} as any)
+      expect(hidden).to.deep.equal({ lines: [], total: 0, truncated: false })
+
+      const all: any = await tools.read_logs.execute!({} as any, {} as any)
+      expect(all.lines).to.deep.equal([
+        '[INFO] password: ***',
+        '[INFO] {"password":"***"}',
+        '[INFO] harmless line',
+        '[INFO] token=***',
+      ])
+      expect(all.total).to.equal(4)
+      expect(JSON.stringify(all.lines)).to.not.contain('hunter')
+      expect(JSON.stringify(all.lines)).to.not.contain('a b')
+    } finally {
+      ;(app as any).getPath = originalGetPath
+      fs.rmSync(dir, { recursive: true, force: true })
+    }
   })
 })
 
