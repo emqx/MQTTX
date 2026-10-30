@@ -14,6 +14,7 @@
         :html="false"
         :source="part.content"
         :anchor-attributes="{ target: '_blank' }"
+        :postrender="postrender"
       />
     </div>
   </div>
@@ -37,6 +38,30 @@ export default class MessageRender extends Vue {
   @Prop({ default: 'Copy' }) readonly copyText!: string
   @Prop({ default: 'Copy failed' }) readonly copyFailedText!: string
   @Prop({ default: 'Copied' }) readonly copiedText!: string
+
+  /**
+   * Replaces remote Markdown images with text, because an `<img>` in a model reply
+   * would make the app window request arbitrary URLs as soon as it renders.
+   */
+  postrender(html: string): string {
+    // The parser only creates <img> from `<img` or `<image`, so a reply without either skips it
+    if (!/<im/i.test(html)) return html
+
+    const doc = new window.DOMParser().parseFromString(html, 'text/html')
+
+    doc.querySelectorAll('img').forEach((img) => {
+      const src = img.getAttribute('src') || ''
+      // Inline images are already local and cannot leak the reply to a third party.
+      if (/^(blob|data):/i.test(src)) {
+        return
+      }
+      const placeholder = doc.createElement('span')
+      placeholder.textContent = `[image: ${img.getAttribute('alt') || 'no alt'}] ${src}`
+      img.replaceWith(placeholder)
+    })
+
+    return doc.body.innerHTML
+  }
 
   get parsedContent(): ContentPart[] {
     const parts: ContentPart[] = []

