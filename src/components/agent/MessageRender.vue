@@ -11,6 +11,7 @@
         :data-prismjs-line-numbers="true"
         data-download-link
         data-download-link-label="Download this file"
+        :html="false"
         :source="part.content"
         :anchor-attributes="{ target: '_blank' }"
       />
