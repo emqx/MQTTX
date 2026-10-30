@@ -58,6 +58,7 @@ import { connectionPublishHistory1792046428069 } from './migration/1792046428069
 import { copilotMessageParts1792077218407 } from './migration/1792077218407-copilotMessageParts'
 import { mqttxAgent1792081585810 } from './migration/1792081585810-mqttxAgent'
 import { agentConversations1792085966435 } from './migration/1792085966435-agentConversations'
+import { willPayloadType1793247861166 } from './migration/1793247861166-willPayloadType'
 
 // Get store path; fall back when running in CLI (no Electron app)
 let STORE_PATH: string
@@ -125,6 +126,7 @@ const ORMConfig = {
     copilotMessageParts1792077218407,
     mqttxAgent1792081585810,
     agentConversations1792085966435,
+    willPayloadType1793247861166,
   ],
   migrationsTableName: 'temp_migration_table',
   entities: [

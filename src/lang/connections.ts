@@ -615,6 +615,22 @@ export default {
     hu: 'Last-Will üzenet',
     ko: '유언(Will) 페이로드',
   },
+  willPayloadType: {
+    zh: '遗嘱消息 Payload 格式',
+    en: 'Last-Will Payload Format',
+    tr: 'Son Vasiyet Yük Biçimi',
+    ja: '遺言 Payload フォーマット',
+    hu: 'Last-Will üzenet formátuma',
+    ko: '유언(Will) 페이로드 형식',
+  },
+  willPayloadTypeError: {
+    zh: '遗嘱消息格式错误:',
+    en: 'Invalid Last-Will payload:',
+    tr: 'Geçersiz Son Vasiyet yükü:',
+    ja: '遺言 Payload が不正です:',
+    hu: 'Érvénytelen Last-Will üzenet:',
+    ko: '유언(Will) 페이로드가 올바르지 않습니다:',
+  },
   willQos: {
     zh: '遗嘱消息 QoS',
     en: 'Last-Will QoS',
