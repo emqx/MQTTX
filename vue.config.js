@@ -20,6 +20,9 @@ module.exports = {
     // copies nested under the importing package. For zod v4 this picks the CJS
     // build, which webpack 4 can parse.
     const aliases = {
+      // KaTeX echoes unparsable LaTeX as raw HTML, which would let Agent reply text
+      // inject markup; replies need no math, so resolve it to a no-op plugin.
+      'markdown-it-katex$': path.resolve(__dirname, 'src/utils/markdownItNoop.js'),
       '@ai-sdk/provider-utils/experimental-decision$': require.resolve('@ai-sdk/provider-utils/experimental-decision'),
       '@ai-sdk/anthropic/internal$': require.resolve('@ai-sdk/anthropic/internal'),
       '@ai-sdk/deepseek/internal$': require.resolve('@ai-sdk/deepseek/internal'),
