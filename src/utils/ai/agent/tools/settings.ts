@@ -17,7 +17,6 @@ type SettingKey =
   | 'multiTopics'
   | 'jsonHighlight'
   | 'maxReconnectTimes'
-  | 'logLevel'
   | 'ignoreQoS0Message'
   | 'topicWhitespaceDetection'
   | 'maxPayloadDisplaySize'
@@ -32,7 +31,6 @@ const WRITABLE: Record<SettingKey, string> = {
   multiTopics: 'TOGGLE_MULTI_TOPICS',
   jsonHighlight: 'TOGGLE_JSON_HIGHLIGHT',
   maxReconnectTimes: 'SET_MAX_RECONNECT_TIMES',
-  logLevel: 'SET_LOG_LEVEL',
   ignoreQoS0Message: 'TOGGLE_IGNORE_QOS0_MESSAGE',
   topicWhitespaceDetection: 'TOGGLE_TOPIC_WHITESPACE_DETECTION',
   maxPayloadDisplaySize: 'SET_MAX_PAYLOAD_DISPLAY_SIZE',
@@ -40,7 +38,7 @@ const WRITABLE: Record<SettingKey, string> = {
 
 /**
  * Readable but deliberately not writable: the agent must not change its own reasoning, limits or the
- * running model, and enableHardwareAcceleration needs an app restart
+ * running model, enableHardwareAcceleration needs an app restart, and debug logging exposes packets
  */
 const READ_ONLY = [
   'agentReasoning',
@@ -48,6 +46,7 @@ const READ_ONLY = [
   'agentMaxSteps',
   'model',
   'enableHardwareAcceleration',
+  'logLevel',
 ] as const
 
 /** The language, theme and syncOsTheme keys are applied by their own side effects below */
@@ -66,7 +65,6 @@ const updateSchema = z
     multiTopics: z.boolean().optional().describe('Allow several comma separated topics'),
     jsonHighlight: z.boolean().optional().describe('Highlight JSON payloads'),
     maxReconnectTimes: z.number().int().min(1).optional().describe('Maximum reconnection attempts, at least 1'),
-    logLevel: z.enum(['debug', 'info', 'warn', 'error']).optional().describe('Application log level'),
     ignoreQoS0Message: z.boolean().optional().describe('Do not store QoS 0 messages'),
     topicWhitespaceDetection: z.boolean().optional().describe('Detect whitespace in topics'),
     maxPayloadDisplaySize: z
