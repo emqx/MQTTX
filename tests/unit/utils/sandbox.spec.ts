@@ -14,6 +14,11 @@ describe('payload script sandbox', () => {
     })
   })
 
+  it('should keep the completion value of a script that declares a function after calling execute', () => {
+    const script = "execute(f)\nfunction f(v) { return v + '!' }"
+    expect(sandbox.executeScript(script, 'Plaintext', 'a', 'publish')).to.equal('a!')
+  })
+
   it('should keep Node APIs unavailable to transformation code', () => {
     const script = 'execute(() => [typeof process, typeof require].join(","))'
     expect(sandbox.executeScript(script, 'Plaintext', '', 'publish')).to.equal('undefined,undefined')
