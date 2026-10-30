@@ -85,10 +85,11 @@ export default class AgentStep extends Vue {
     let text: string
 
     if (this.part.toolName.includes('__')) {
-      const [server, tool] = this.part.toolName.split('__')
+      // Only the first `__` separates server from tool; the tool name may contain more
+      const index = this.part.toolName.indexOf('__')
       text = this.$t(`agent.tools.mcp.${tense}`, {
-        server,
-        tool,
+        server: this.part.toolName.slice(0, index),
+        tool: this.part.toolName.slice(index + 2),
       }) as string
     } else {
       const key = `agent.tools.${this.part.toolName}.${tense}`
