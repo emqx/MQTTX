@@ -595,6 +595,7 @@ import _ from 'lodash'
 import { AImodelsOptions, AIAPIHostOptions, getModelLabel, getReasoningEfforts } from '@/utils/ai/models'
 import { effectiveReasoning, reasoningLabelKey, reasoningLevelsFor, type AgentReasoning } from '@/utils/ai/reasoning'
 import type { PermissionMode } from '@/utils/ai/agent/approval'
+import { isAutoConfirmedInSession, rememberAutoConfirmed } from '@/utils/ai/agent/permissionMode'
 import {
   MAX_AGENT_MAX_STEPS,
   MAX_MAX_PAYLOAD_DISPLAY_SIZE,
@@ -820,7 +821,19 @@ export default class Settings extends Vue {
     this.actionToggleEnableAgent({ enableAgent: value })
   }
 
-  private handlePermissionModeChange(value: PermissionMode) {
+  private async handlePermissionModeChange(value: PermissionMode) {
+    // Choosing Auto is a risk the user must accept once per session, the same as in the Agent panel
+    if (value === 'auto' && !isAutoConfirmedInSession()) {
+      try {
+        await this.$confirm(this.$t('agent.autoConfirm') as string, this.$t('common.warning') as string, {
+          type: 'warning',
+        })
+      } catch {
+        // Cancelling keeps the stored mode
+        return
+      }
+      rememberAutoConfirmed()
+    }
     this.actionSetAgentPermissionMode({ agentPermissionMode: value })
   }
 

@@ -25,11 +25,13 @@ export const AGENT_WRITE_TOOLS = new Set([
   'subscribe',
   'unsubscribe',
   'publish',
+  'stop_timed_publish',
   'save_script',
   'delete_script',
   'test_script',
   'apply_script',
   'clear_applied_script',
+  'sync_topic_tree',
   'clear_topic_tree',
   'save_dashboard',
   'save_widget',
@@ -43,9 +45,20 @@ export const AGENT_WRITE_TOOLS = new Set([
 
 /**
  * Tools that must be approved even in `auto` mode and can never be remembered.
- * Script changes persist beyond a reply, and testing or applying a script executes local code.
+ * Irreversible deletes and script changes always ask.
  */
-export const AGENT_ALWAYS_ASK_TOOLS = new Set(['save_script', 'test_script', 'apply_script'])
+export const AGENT_ALWAYS_ASK_TOOLS = new Set([
+  'save_script',
+  'test_script',
+  'apply_script',
+  'delete_connection',
+  'delete_script',
+  'delete_dashboard',
+  'delete_widget',
+  'delete_group',
+  'clear_messages',
+  'clear_topic_tree',
+])
 
 /** Every MQTT tool, used to tell MQTT tools apart from MCP tools */
 export const createMQTTTools = (deps: AgentToolDeps): ToolSet => ({
