@@ -49,5 +49,3 @@ export const sanitizeHtml = (html: string): string => {
   copyChildren(doc.body, output)
   return output.innerHTML
 }
-
-export default sanitizeHtml
