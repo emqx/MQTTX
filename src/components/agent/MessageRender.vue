@@ -44,6 +44,9 @@ export default class MessageRender extends Vue {
    * would make the app window request arbitrary URLs as soon as it renders.
    */
   postrender(html: string): string {
+    // The parser only creates <img> from `<img` or `<image`, so a reply without either skips it
+    if (!/<im/i.test(html)) return html
+
     const doc = new window.DOMParser().parseFromString(html, 'text/html')
 
     doc.querySelectorAll('img').forEach((img) => {

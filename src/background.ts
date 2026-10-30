@@ -381,9 +381,7 @@ app.on('web-contents-created', (event, contents) => {
   // The renderer runs with Node access, so navigating the app window to another document
   // would execute remote code; only same-document hash navigation is allowed here.
   contents.on('will-navigate', (event, url) => {
-    const withoutHash = (target: string) => target.split('#')[0]
-
-    if (withoutHash(url) === withoutHash(contents.getURL())) {
+    if (url.split('#')[0] === contents.getURL().split('#')[0]) {
       return
     }
 
