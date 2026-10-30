@@ -1,4 +1,4 @@
-import { VM, VMScript } from 'vm2'
+import { VM } from 'vm2'
 
 const executeScript = (
   script: string,
@@ -7,8 +7,6 @@ const executeScript = (
   msgType: MessageType,
   index?: number,
 ): string => {
-  // Validate the original program before embedding it in the error boundary below.
-  new VMScript(script).compile()
   const vm = new VM({
     timeout: 10000,
     allowAsync: false,
@@ -16,25 +14,29 @@ const executeScript = (
     wasm: false,
   })
 
-  // The helper, the inputs and the error boundary all run inside the VM; no host callbacks or objects are exposed.
+  // The helper and the inputs run inside the VM; no host callbacks or objects are exposed.
+  vm.run(`
+    const __mqttxString = String;
+    globalThis.execute = (callback) => {
+      const input = ${JSON.stringify(input)};
+      const value = ${payloadType === 'JSON' ? 'JSON.parse(input)' : 'input'};
+      return __mqttxString(callback(value, ${JSON.stringify(msgType)}, ${JSON.stringify(index)}));
+    };
+  `)
+
   let output: unknown
   try {
-    output = vm.run(`
-      const __mqttxString = String;
-      globalThis.execute = (callback) => {
-        const input = ${JSON.stringify(input)};
-        const value = ${payloadType === 'JSON' ? 'JSON.parse(input)' : 'input'};
-        return __mqttxString(callback(value, ${JSON.stringify(msgType)}, ${JSON.stringify(index)}));
-      };
-      try {
-        ${script}
-      } catch (__mqttxError) {
-        throw __mqttxString(__mqttxError);
-      }
-    `)
+    output = vm.run(script)
   } catch (error) {
-    // A timeout or a VM error is a host object; do not inspect arbitrary VM-thrown objects here.
-    throw new Error(typeof error === 'string' ? error : 'Script execution failed or exceeded the time limit.')
+    // Convert the thrown value inside the VM so its toString stays under the timeout.
+    let message = 'Script execution failed or exceeded the time limit.'
+    vm.setGlobal('__mqttxError', error)
+    try {
+      message = vm.run('__mqttxString(__mqttxError)')
+    } catch (conversionError) {
+      // Keep the generic message when the VM cannot convert the thrown value.
+    }
+    throw new Error(message)
   }
   if ((typeof output === 'object' && output !== null) || typeof output === 'function') {
     throw new Error('Scripts must return a primitive value. Use execute(callback) to transform a payload.')
