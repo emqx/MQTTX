@@ -1,6 +1,7 @@
 import * as os from 'os'
 import * as fs from 'fs'
 import * as path from 'path'
+import * as crypto from 'crypto'
 import axios from 'axios'
 import { app, BrowserWindow, dialog } from 'electron'
 import { getUnifiedAppDataPath } from './appDataPath'
@@ -60,21 +61,68 @@ async function checkInstalledMqttxCLI(win: BrowserWindow, isWindows: boolean): P
 }
 
 /**
+ * Finds the SHA-256 checksum published for an exact asset name in a SHA256SUMS file.
+ *
+ * @param sums - The SHA256SUMS file contents.
+ * @param fileName - The exact asset name to look up.
+ * @returns The lowercased checksum, or null when the asset is absent.
+ */
+export function findChecksum(sums: string, fileName: string): string | null {
+  for (const line of sums.split(/\r?\n/)) {
+    const match = line.trim().match(/^([0-9a-fA-F]{64})\s+\*?(.+)$/)
+    if (match && match[2].trim() === fileName) {
+      return match[1].toLowerCase()
+    }
+  }
+  return null
+}
+
+/**
+ * Fetches the checksum published on GitHub for the given CLI asset.
+ *
+ * @param fileName - The exact asset name to look up.
+ * @returns The expected SHA-256 checksum.
+ * @throws An error if the checksum cannot be fetched or the asset is not listed.
+ */
+async function getExpectedChecksum(fileName: string): Promise<string> {
+  const checksumUrl = `https://github.com/emqx/MQTTX/releases/download/${MQTTX_VERSION}/SHA256SUMS`
+
+  try {
+    const response = await axios({
+      method: 'get',
+      url: checksumUrl,
+      responseType: 'text',
+    })
+    const checksum = findChecksum(String(response.data), fileName)
+    if (checksum) {
+      return checksum
+    }
+  } catch (error) {
+    // A failed request is handled by the shared "cannot verify" error below.
+  }
+
+  throw new Error(`Cannot verify the MQTTX CLI download: no checksum for ${fileName}`)
+}
+
+/**
  * Downloads the Mqttx CLI from the specified URL and saves it to the specified output path.
  *
  * @param downloadUrl - The URL from which to download the Mqttx CLI.
  * @param defaultOutputPath - The default output path where the downloaded CLI will be saved.
+ * @param expectedChecksum - The SHA-256 checksum the downloaded file must match.
  * @param win - The BrowserWindow instance.
  * @param isWindows - A boolean indicating whether the current platform is Windows.
  * @returns A Promise that resolves to the output path of the downloaded CLI.
- * @throws An error if no download folder is selected on Windows.
+ * @throws An error if no download folder is selected on Windows or the checksum does not match.
  */
 async function downloadMqttxCLI(
   downloadUrl: string,
   defaultOutputPath: string,
+  expectedChecksum: string,
   win: BrowserWindow,
   isWindows: boolean,
 ): Promise<string> {
+  const fileName = path.basename(downloadUrl)
   let outputPath = defaultOutputPath
 
   if (isWindows) {
@@ -84,7 +132,6 @@ async function downloadMqttxCLI(
     })
 
     if (result && result.length > 0) {
-      const fileName = path.basename(downloadUrl)
       outputPath = path.join(result[0], fileName)
     } else {
       throw new Error('No download folder selected.')
@@ -97,6 +144,7 @@ async function downloadMqttxCLI(
     responseType: 'stream',
   })
 
+  const hash = crypto.createHash('sha256')
   const writer = fs.createWriteStream(outputPath)
   response.data.pipe(writer)
 
@@ -105,6 +153,7 @@ async function downloadMqttxCLI(
     let downloadedLength = 0
 
     response.data.on('data', (chunk: Buffer) => {
+      hash.update(chunk)
       downloadedLength += chunk.length
       const percent = parseFloat((downloadedLength / totalLength).toFixed(2))
       win.webContents.send('downloadCLI', percent, true)
@@ -112,6 +161,13 @@ async function downloadMqttxCLI(
     })
 
     writer.on('finish', () => {
+      if (hash.digest('hex') !== expectedChecksum.toLowerCase()) {
+        win.setProgressBar(-1)
+        win.webContents.send('downloadCLI', 0, false)
+        fs.unlink(outputPath, () => {})
+        reject(new Error(`Checksum mismatch for ${fileName}`))
+        return
+      }
       win.webContents.send('downloadCLI', 1, false)
       win.setProgressBar(-1)
       resolve(outputPath)
@@ -128,6 +184,16 @@ async function downloadMqttxCLI(
 }
 
 /**
+ * Quotes a path so a POSIX shell treats it as a single literal argument.
+ *
+ * @param filePath - The path to quote.
+ * @returns The single-quoted path, with embedded single quotes escaped.
+ */
+export function quoteShellPath(filePath: string): string {
+  return `'${filePath.replace(/'/g, `'\\''`)}'`
+}
+
+/**
  * Installs MQTTX CLI by executing a sudo command.
  *
  * @param installPath - The path of the installation file.
@@ -135,7 +201,7 @@ async function downloadMqttxCLI(
  * @returns A Promise that resolves when the installation is completed.
  */
 async function sudoInstall(installPath: string, win: BrowserWindow): Promise<void> {
-  const installCommand = `install "${installPath}" /usr/local/bin/mqttx`
+  const installCommand = `install ${quoteShellPath(installPath)} /usr/local/bin/mqttx`
   const options = { name: 'MQTTX' }
 
   sudo.exec(installCommand, options, (error, stdout, stderr) => {
@@ -236,7 +302,8 @@ export default async function installCLI(win: BrowserWindow): Promise<void> {
   const defaultOutputPath = path.join(STORE_PATH, fileName)
 
   try {
-    const installPath = await downloadMqttxCLI(downloadUrl, defaultOutputPath, win, isWindows)
+    const expectedChecksum = await getExpectedChecksum(fileName)
+    const installPath = await downloadMqttxCLI(downloadUrl, defaultOutputPath, expectedChecksum, win, isWindows)
     if (!isWindows) {
       await sudoInstall(installPath, win)
     } else {
