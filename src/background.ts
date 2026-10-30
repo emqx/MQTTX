@@ -1,6 +1,6 @@
 import 'reflect-metadata' // Required by TypoORM.
 ;('use strict')
-import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain, shell, Menu, safeStorage } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import { quitAndRenameLogger } from './utils/logger'
 import { defaultWindowSize, restoreWindowState, saveWindowState } from './utils/windowStateManager'
@@ -20,6 +20,7 @@ import version from '@/version'
 import { initialize } from '@electron/remote/main'
 import { initMCPHandlers, cleanupMCPConnections } from './main/ai/mcp/MCPManager'
 import { getEnableHardwareAccelerationSetting } from '@/utils/settings'
+import { migrateAPIKey } from '@/utils/apiKey'
 
 /**
  * Fix the PATH environment variable in packaged Electron apps
@@ -218,6 +219,17 @@ async function createWindow() {
     const { settingService } = useServices()
     await settingService.set()
     const setting = await settingService.get()
+    let storedAPIKey = setting?.openAIAPIKey
+    try {
+      const migrated = storedAPIKey ? migrateAPIKey(storedAPIKey, safeStorage) : null
+      if (migrated) {
+        await settingService.update({ openAIAPIKey: migrated } as unknown as SettingModel)
+        storedAPIKey = migrated
+      }
+    } catch (migrationError) {
+      // A keychain failure must not block startup; the legacy value stays readable
+      console.warn('[Settings] Failed to migrate the AI API key to safeStorage:', migrationError)
+    }
     if (setting) {
       theme = setting.currentTheme
       autoCheckUpdate = setting.autoCheck
@@ -234,7 +246,7 @@ async function createWindow() {
         jsonHighlight: setting.jsonHighlight,
         enableAgent: setting.enableAgent,
         openAIAPIHost: setting.openAIAPIHost,
-        openAIAPIKey: setting.openAIAPIKey,
+        openAIAPIKey: storedAPIKey,
         model: setting.model,
         logLevel: setting.logLevel,
         ignoreQoS0Message: setting.ignoreQoS0Message,

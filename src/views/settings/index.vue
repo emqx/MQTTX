@@ -584,12 +584,12 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
+import type { SafeStorage } from 'electron'
 import { app as remoteApp } from '@electron/remote'
 import ImportData from '@/components/ImportData.vue'
 import ExportData from '@/components/ExportData.vue'
 import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
-import CryptoJS from 'crypto-js'
-import { ENCRYPT_KEY } from '@/utils/idGenerator'
+import { decryptAPIKey, encryptAPIKey } from '@/utils/apiKey'
 import ClickOutside from 'vue-click-outside'
 import _ from 'lodash'
 import { AImodelsOptions, AIAPIHostOptions, getModelLabel, getReasoningEfforts } from '@/utils/ai/models'
@@ -607,6 +607,9 @@ import { applyLangChange, applyThemeChange, themeFromOs } from '@/utils/settings
 import MCPSettings from '@/components/agent/MCPSettings.vue'
 import PayloadSizeControl from '@/components/PayloadSizeControl.vue'
 import AiProviderIcon from '@/components/AiProviderIcon.vue'
+
+// @electron/remote exposes safeStorage at runtime but its type declarations omit it
+const safeStorage = (require('@electron/remote') as { safeStorage: SafeStorage }).safeStorage
 
 @Component({
   components: { ImportData, ExportData, ClearUpHistoryData, MCPSettings, PayloadSizeControl, AiProviderIcon },
@@ -838,13 +841,14 @@ export default class Settings extends Vue {
 
   private handleAIConfigChanged(action: 'apiKey' | 'model' | 'host') {
     switch (action) {
-      case 'apiKey':
-        const encryptedKey =
-          this.aiConfig.openAIAPIKey.trim() !== ''
-            ? CryptoJS.AES.encrypt(this.aiConfig.openAIAPIKey.trim(), ENCRYPT_KEY).toString()
-            : ''
-        this.actionSetOpenAIAPIKey({ openAIAPIKey: encryptedKey })
+      case 'apiKey': {
+        const plainKey = this.aiConfig.openAIAPIKey.trim()
+        // The input holds plaintext, so an unchanged blur (which re-shows the key) must not save
+        if (plainKey !== decryptAPIKey(this.openAIAPIKey, safeStorage)) {
+          this.actionSetOpenAIAPIKey({ openAIAPIKey: encryptAPIKey(plainKey, safeStorage) })
+        }
         break
+      }
       case 'model':
         this.actionSetModel({ model: this.aiConfig.model || 'gpt-4o' })
         break
@@ -891,7 +895,7 @@ export default class Settings extends Vue {
 
   private getAIConfigs() {
     this.aiConfig.model = this.model
-    this.aiConfig.openAIAPIKey = this.openAIAPIKey
+    this.aiConfig.openAIAPIKey = decryptAPIKey(this.openAIAPIKey, safeStorage)
     this.aiConfig.openAIAPIHost = this.openAIAPIHost
   }
 
