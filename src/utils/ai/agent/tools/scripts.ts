@@ -25,7 +25,7 @@ const appliedScript = (deps: AgentToolDeps): ScriptState | null =>
 
 /**
  * Tools mirroring the Script page. Scripts are shared by every connection: applying one is a global
- * setting, and the model-written JavaScript of `test_script` always needs approval.
+ * setting. Saving, testing and applying scripts always need approval, including in Auto mode.
  */
 export const createScriptTools = (deps: AgentToolDeps): ToolSet => ({
   list_scripts: tool({
@@ -70,7 +70,7 @@ export const createScriptTools = (deps: AgentToolDeps): ToolSet => ({
   save_script: tool({
     title: 'Save script',
     description:
-      'Create a transformation function or schema, or update one by id. The name gets the extension for the type (.js, .proto or .avsc). The name must be unique.',
+      'Create a transformation function or schema, or update one by id. The name gets the extension for the type (.js, .proto or .avsc). The name must be unique. Saving script code always requires approval, including in Auto mode.',
     inputSchema: z.object({
       id: z.string().optional().describe('Update this script; omit to create a new one'),
       name: z.string().describe('Script name, for example payload.js'),
