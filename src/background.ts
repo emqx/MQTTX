@@ -11,6 +11,7 @@ import { getCurrentLang } from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
 import newWindow from './main/newWindow'
 import installCLI from './main/installCLI'
+import { isAllowedExternalUrl } from './main/externalUrl'
 import { onSystemThemeChanged } from './main/systemTheme'
 import useConnection, { initOptionModel } from '@/database/useConnection'
 import useServices from '@/database/useServices'
@@ -368,24 +369,30 @@ app.on('activate', () => {
 // Disabled create new window
 app.on('web-contents-created', (event, contents) => {
   contents.setWindowOpenHandler(({ url }) => {
-    // Add URL validation to allow only specific domains
-    const validDomains = ['mqttx.app', 'github.com', 'emqx.io', 'emqx.com']
-    try {
-      const urlObj = new URL(url)
-      const hostname = urlObj.hostname
-      // Check if the domain is allowed
-      const isValidDomain = validDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`))
-
-      if (isValidDomain) {
-        shell.openExternal(url)
-      } else {
-        console.log(`Blocked opening of unsafe URL: ${url}`)
-      }
-    } catch (error) {
-      console.error('Invalid URL:', url)
+    if (isAllowedExternalUrl(url)) {
+      shell.openExternal(url)
+    } else {
+      console.log(`Blocked opening of unsafe URL: ${url}`)
     }
 
     return { action: 'deny' }
+  })
+
+  // The renderer runs with Node access, so navigating the app window to another document
+  // would execute remote code; only same-document hash navigation is allowed here.
+  contents.on('will-navigate', (event, url) => {
+    const withoutHash = (target: string) => target.split('#')[0]
+
+    if (withoutHash(url) === withoutHash(contents.getURL())) {
+      return
+    }
+
+    event.preventDefault()
+    if (isAllowedExternalUrl(url)) {
+      shell.openExternal(url)
+    } else {
+      console.log(`Blocked navigation to unsafe URL: ${url}`)
+    }
   })
 })
 
