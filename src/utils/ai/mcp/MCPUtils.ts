@@ -43,7 +43,14 @@ export async function loadMCPTools(): Promise<ToolSet> {
     const servers: EnabledMCPServer[] = await ipcRenderer.invoke('mcp:list-tools')
     for (const server of servers) {
       for (const mcpTool of server.tools) {
-        tools[getMCPToolName(server.name, mcpTool.name)] = dynamicTool({
+        const toolName = getMCPToolName(server.name, mcpTool.name)
+        if (tools[toolName]) {
+          console.warn(
+            `[MCP] Skipping tool "${mcpTool.name}" from server "${server.name}": duplicate name "${toolName}"`,
+          )
+          continue
+        }
+        tools[toolName] = dynamicTool({
           title: `${server.name} - ${mcpTool.name}`,
           description: mcpTool.description,
           inputSchema: jsonSchema(mcpTool.input_schema),
