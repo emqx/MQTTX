@@ -44,6 +44,16 @@ const HEADLINE_FIELDS = new Set(['connectionId', 'topic', 'name'])
 const SECRET_FIELD = /password|secret|token|apikey|^key$|^cert$|^ca$/i
 const PREVIEW_LIMIT = 600
 
+/** Masks secret keys at any depth, so a nested `changes.password` is hidden as well as a top-level one */
+const maskSecrets = (value: unknown): unknown => {
+  if (!value || typeof value !== 'object') return value
+  if (Array.isArray(value)) return value.map(maskSecrets)
+  return Object.entries(value as Record<string, unknown>).reduce<Record<string, unknown>>((acc, [key, nested]) => {
+    acc[key] = SECRET_FIELD.test(key) && nested ? MASKED : maskSecrets(nested)
+    return acc
+  }, {})
+}
+
 @Component
 export default class AgentApprovalCard extends Vue {
   @Prop({ required: true }) readonly part!: Extract<AgentMessagePart, { type: 'tool' }>
@@ -79,24 +89,38 @@ export default class AgentApprovalCard extends Vue {
       topic: escapeHtml(this.input.topic ?? ''),
       connection: escapeHtml(this.connectionName),
       name: escapeHtml(this.input.name ?? ''),
-      server: escapeHtml(this.part.toolName.split('__')[0] ?? ''),
-      tool: escapeHtml(this.part.toolName.split('__')[1] ?? this.part.toolName),
+      server: escapeHtml(this.mcpName.server),
+      tool: escapeHtml(this.mcpName.tool),
     }
     if (this.part.toolName.includes('__')) {
       return this.$t('agent.approval.mcp', params) as string
     }
     const key = `agent.approval.${this.part.toolName}`
     const translated = this.$t(key, params) as string
-    return translated === key ? (this.$t('agent.approval.generic', { tool: this.part.toolName }) as string) : translated
+    return translated === key
+      ? (this.$t('agent.approval.generic', { tool: escapeHtml(this.part.toolName) }) as string)
+      : translated
+  }
+
+  /** MCP tools are named `${server}__${tool}`, and the tool part may itself contain `__` */
+  private get mcpName(): { server: string; tool: string } {
+    const index = this.part.toolName.indexOf('__')
+    if (index === -1) return { server: '', tool: this.part.toolName }
+    return { server: this.part.toolName.slice(0, index), tool: this.part.toolName.slice(index + 2) }
   }
 
   get meta(): { label: string; value: string }[] {
     if (this.part.toolName !== 'publish') return []
-    return [
+    const items = [
       { label: this.$t('agent.approvalQos') as string, value: String(this.input.qos ?? 0) },
       { label: this.$t('agent.approvalRetain') as string, value: String(this.input.retain ?? false) },
       { label: this.$t('agent.approvalFormat') as string, value: String(this.input.payloadType ?? 'Plaintext') },
     ]
+    // A publish with an interval repeats until it is stopped, which the user must see before allowing it
+    if (this.input.intervalSeconds !== undefined) {
+      items.push({ label: this.$t('agent.approvalInterval') as string, value: `${this.input.intervalSeconds}s` })
+    }
+    return items
   }
 
   get payloadPreview(): string {
@@ -104,14 +128,18 @@ export default class AgentApprovalCard extends Vue {
       const payload = this.input.payload
       return typeof payload === 'string' ? payload.slice(0, 200) : ''
     }
-    // The user must see the whole script before it runs, so it is never truncated
-    if (this.part.toolName === 'test_script' || this.part.toolName === 'save_script') {
-      return typeof this.input.script === 'string' ? this.input.script : ''
+    // The user must see the whole script before it runs, so it is never truncated.
+    // A script tool called by id has no script to show and falls through to the generic preview.
+    if (
+      (this.part.toolName === 'test_script' || this.part.toolName === 'save_script') &&
+      typeof this.input.script === 'string'
+    ) {
+      return this.input.script
     }
     // Other tools show the input the headline leaves out, with secrets masked
     const detail = Object.entries(this.input).reduce<Record<string, unknown>>((acc, [key, value]) => {
       if (HEADLINE_FIELDS.has(key) || value === undefined) return acc
-      acc[key] = SECRET_FIELD.test(key) && value ? MASKED : value
+      acc[key] = SECRET_FIELD.test(key) && value ? MASKED : maskSecrets(value)
       return acc
     }, {})
     if (!Object.keys(detail).length) return ''
