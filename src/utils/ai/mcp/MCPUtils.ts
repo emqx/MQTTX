@@ -1,6 +1,7 @@
 import { EnabledMCPServer, ToolCallResult } from '@/types/mcp'
 import { ipcRenderer } from 'electron'
 import { dynamicTool, jsonSchema, ToolSet } from 'ai'
+import { truncateText } from '@/utils/ai/agent/attachments'
 
 /**
  * Call MCP tool via IPC to main process
@@ -25,13 +26,14 @@ export async function callMCPTool(serverName: string, toolName: string, toolArgs
 export const getMCPToolName = (serverName: string, toolName: string): string =>
   `${serverName}__${toolName}`.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 64)
 
-/**
- * Flattens MCP content blocks into text for the model and the tool card
- */
-const getMCPContentText = (content: ToolCallResult['content']): string =>
-  Array.isArray(content)
+/** Flattens MCP content blocks into text for the model and the tool card, capped at the 64 KB model text limit */
+export const getMCPContentText = (content: ToolCallResult['content']): string => {
+  const text = Array.isArray(content)
     ? content.map((block) => (block.type === 'text' ? block.text : JSON.stringify(block))).join('\n')
     : String(content ?? '')
+  const capped = truncateText(text)
+  return capped.truncated ? `${capped.text}\n[truncated]` : capped.text
+}
 
 /**
  * Loads the tools of the enabled MCP servers as agent tools

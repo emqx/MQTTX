@@ -223,9 +223,11 @@ export const createMessagingTools = (deps: AgentToolDeps): ToolSet => ({
         }
         const handler = (topic: string, payload: Buffer, packet?: { qos?: number; retain?: boolean }) => {
           if (input.topic && !matchTopicMethod(input.topic, topic)) return
+          const decoded = decodePayload(payload)
           messages.push({
             topic,
-            ...decodePayload(payload),
+            ...decoded,
+            ...truncatePayload(decoded.payload),
             qos: (packet?.qos ?? 0) as QoS,
             retain: packet?.retain ?? false,
             direction: 'received',

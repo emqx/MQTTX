@@ -58,7 +58,7 @@ export const renderAppContext = (context: AppContext): string => {
   if (context.currentConnection) {
     const { name, id, connected, mqttVersion, url } = context.currentConnection
     lines.push(
-      `- Current connection: "${name}" (id: ${id}, connected: ${connected}${
+      `- Current connection: ${JSON.stringify(name)} (id: ${id}, connected: ${connected}${
         mqttVersion ? `, MQTT ${mqttVersion}` : ''
       }${url ? `, ${url}` : ''})`,
     )
