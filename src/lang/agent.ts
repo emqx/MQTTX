@@ -321,6 +321,14 @@ export default {
       hu: 'Az MQTTX Agent törölni akarja a témafát',
       ko: 'MQTTX Agent가 토픽 트리를 <b>비우려</b> 합니다',
     },
+    sync_topic_tree: {
+      zh: 'MQTTX Agent 想要<b>同步</b> {connection} 的主题树',
+      en: 'MQTTX Agent wants to <b>sync</b> the topic tree of {connection}',
+      tr: 'MQTTX Agent {connection} konu ağacını <b>eşitlemek</b> istiyor',
+      ja: 'MQTTX Agent は {connection} のトピックツリーを<b>同期</b>しようとしています',
+      hu: 'Az MQTTX Agent szinkronizálni akarja a(z) {connection} témafáját',
+      ko: 'MQTTX Agent가 {connection}의 토픽 트리를 <b>동기화</b>하려 합니다',
+    },
     save_dashboard: {
       zh: 'MQTTX Agent 想要<b>保存</b>仪表盘 {name}',
       en: 'MQTTX Agent wants to <b>save</b> the dashboard {name}',
@@ -449,6 +457,14 @@ export default {
       hu: 'Az MQTTX Agent közzé akar <b>tenni</b> a(z) {topic} témára a(z) {connection} kapcsolaton',
       ko: 'MQTTX Agent가 {connection}에서 {topic}(으)로 <b>발행</b>하려 합니다',
     },
+    stop_timed_publish: {
+      zh: 'MQTTX Agent 想要<b>停止</b> {connection} 的定时发布',
+      en: 'MQTTX Agent wants to <b>stop</b> the timed publish on {connection}',
+      tr: 'MQTTX Agent {connection} üzerindeki zamanlı yayını <b>durdurmak</b> istiyor',
+      ja: 'MQTTX Agent は {connection} の定期発行を<b>停止</b>しようとしています',
+      hu: 'Az MQTTX Agent le akarja <b>állítani</b> a(z) {connection} időzített közzétételét',
+      ko: 'MQTTX Agent가 {connection}의 예약 발행을 <b>중지</b>하려 합니다',
+    },
   },
   approvalAction: {
     create_connection: {
@@ -494,6 +510,14 @@ export default {
       ko: '구독 취소',
     },
     publish: { zh: '发布', en: 'publish', tr: 'yayınlama', ja: '発行', hu: 'közzététel', ko: '발행' },
+    stop_timed_publish: {
+      zh: '停止定时发布',
+      en: 'stop the timed publish',
+      tr: 'zamanlı yayını durdurma',
+      ja: '定期発行の停止',
+      hu: 'időzített közzététel leállítása',
+      ko: '예약 발행 중지',
+    },
     generic: { zh: '此操作', en: 'this action', tr: 'bu işlem', ja: 'この操作', hu: 'ez a művelet', ko: '이 작업' },
     save_script: {
       zh: '保存脚本',
@@ -542,6 +566,14 @@ export default {
       ja: 'トピックツリーの消去',
       hu: 'témafa törlése',
       ko: '토픽 트리 비우기',
+    },
+    sync_topic_tree: {
+      zh: '同步主题树',
+      en: 'sync the topic tree',
+      tr: 'konu ağacını eşitleme',
+      ja: 'トピックツリーの同期',
+      hu: 'témafa szinkronizálása',
+      ko: '토픽 트리 동기화',
     },
     save_dashboard: {
       zh: '保存仪表盘',
@@ -898,12 +930,12 @@ export default {
     ko: 'MQTTX Agent는 실수할 수 있습니다. 개인정보와 보안에 유의하세요.',
   },
   autoConfirm: {
-    zh: '自动模式会直接执行 MQTT 和 MCP 操作。保存、测试和应用脚本仍需逐次批准。请仅连接可信的 broker 和 MCP 服务器。',
-    en: 'Auto mode runs MQTT and MCP actions without asking. Saving, testing and applying scripts still require approval. Use only trusted brokers and MCP servers.',
-    tr: 'Otomatik mod MQTT ve MCP işlemlerini sormadan çalıştırır. Betik kaydetme, test etme ve uygulama yine onay gerektirir. Yalnızca güvenilir broker ve MCP sunucularını kullanın.',
-    ja: '自動モードでは MQTT と MCP の操作を確認なしで実行します。スクリプトの保存・テスト・適用には毎回承認が必要です。信頼できる broker と MCP サーバーのみ使用してください。',
-    hu: 'Az automatikus mód kérdezés nélkül futtatja az MQTT- és MCP-műveleteket. A szkriptek mentéséhez, teszteléséhez és alkalmazásához továbbra is jóváhagyás kell. Csak megbízható brokereket és MCP-kiszolgálókat használjon.',
-    ko: '자동 모드는 MQTT와 MCP 작업을 묻지 않고 실행합니다. 스크립트 저장, 테스트 및 적용에는 매번 승인이 필요합니다. 신뢰하는 broker와 MCP 서버만 사용하세요.',
+    zh: '自动模式会直接执行 MQTT 和 MCP 操作。删除、清空以及保存、测试和应用脚本仍需逐次批准。请仅连接可信的 broker 和 MCP 服务器。',
+    en: 'Auto mode runs MQTT and MCP actions without asking. Deleting, clearing, and saving, testing or applying scripts still require approval. Use only trusted brokers and MCP servers.',
+    tr: 'Otomatik mod MQTT ve MCP işlemlerini sormadan çalıştırır. Silme, temizleme ve betik kaydetme, test etme veya uygulama yine onay gerektirir. Yalnızca güvenilir broker ve MCP sunucularını kullanın.',
+    ja: '自動モードでは MQTT と MCP の操作を確認なしで実行します。削除・消去、およびスクリプトの保存・テスト・適用には毎回承認が必要です。信頼できる broker と MCP サーバーのみ使用してください。',
+    hu: 'Az automatikus mód kérdezés nélkül futtatja az MQTT- és MCP-műveleteket. A törlés, a kiürítés, valamint a szkriptek mentése, tesztelése és alkalmazása továbbra is jóváhagyást igényel. Csak megbízható brokereket és MCP-kiszolgálókat használjon.',
+    ko: '자동 모드는 MQTT와 MCP 작업을 묻지 않고 실행합니다. 삭제, 비우기, 스크립트 저장·테스트·적용에는 여전히 승인이 필요합니다. 신뢰하는 broker와 MCP 서버만 사용하세요.',
   },
   reasoningTitle: {
     zh: '推理强度',
@@ -990,12 +1022,12 @@ export default {
     },
     auto: { zh: '自动', en: 'Auto', tr: 'Otomatik', ja: '自動', hu: 'Automatikus', ko: '자동' },
     autoDescription: {
-      zh: '自动执行操作；保存、测试和应用脚本仍需逐次批准。',
-      en: 'Runs actions automatically; saving, testing and applying scripts still require approval.',
-      tr: 'İşlemleri otomatik çalıştırır; betik kaydetme, test etme ve uygulama yine onay gerektirir.',
-      ja: '操作を自動実行します。スクリプトの保存・テスト・適用には毎回承認が必要です。',
-      hu: 'Automatikusan futtatja a műveleteket; a szkriptek mentéséhez, teszteléséhez és alkalmazásához továbbra is jóváhagyás kell.',
-      ko: '작업을 자동으로 실행하지만 스크립트 저장, 테스트 및 적용에는 매번 승인이 필요합니다.',
+      zh: '自动执行操作；删除、清空以及保存、测试和应用脚本仍需逐次批准。',
+      en: 'Runs actions automatically; deleting, clearing, and saving, testing or applying scripts still require approval.',
+      tr: 'İşlemleri otomatik çalıştırır; silme, temizleme ve betik kaydetme, test etme veya uygulama yine onay gerektirir.',
+      ja: '操作を自動実行します。削除・消去、およびスクリプトの保存・テスト・適用には毎回承認が必要です。',
+      hu: 'Automatikusan futtatja a műveleteket; a törlés, a kiürítés, valamint a szkriptek mentése, tesztelése és alkalmazása továbbra is jóváhagyást igényel.',
+      ko: '작업을 자동으로 실행하지만 삭제, 비우기, 스크립트 저장·테스트·적용에는 여전히 승인이 필요합니다.',
     },
   },
   welcomeTitle: {

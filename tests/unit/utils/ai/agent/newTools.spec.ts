@@ -787,7 +787,6 @@ describe('agent tools — write-tool sets', () => {
     'open_connection',
     'get_messages',
     'wait_for_messages',
-    'stop_timed_publish',
     'list_groups',
     'get_app_context',
     'use_skill',
@@ -795,7 +794,6 @@ describe('agent tools — write-tool sets', () => {
     'inspect_certificate',
     'list_scripts',
     'get_script',
-    'sync_topic_tree',
     'get_topic_tree',
     'list_dashboards',
     'get_settings',
@@ -830,21 +828,26 @@ describe('agent tools — write-tool sets', () => {
       'update_settings',
       'save_group',
       'delete_group',
+      'sync_topic_tree',
+      'stop_timed_publish',
     ]) {
       expect(AGENT_WRITE_TOOLS.has(name), name).to.equal(true)
     }
-    for (const name of [
-      'sync_topic_tree',
-      'stop_timed_publish',
-      'open_page',
-      'read_logs',
-      'get_settings',
-      'list_groups',
-      'get_topic_tree',
-    ]) {
+    for (const name of ['open_page', 'read_logs', 'get_settings', 'list_groups', 'get_topic_tree']) {
       expect(AGENT_WRITE_TOOLS.has(name), name).to.equal(false)
     }
-    expect([...AGENT_ALWAYS_ASK_TOOLS]).to.have.members(['save_script', 'test_script', 'apply_script'])
+    expect([...AGENT_ALWAYS_ASK_TOOLS]).to.have.members([
+      'save_script',
+      'test_script',
+      'apply_script',
+      'delete_connection',
+      'delete_script',
+      'delete_dashboard',
+      'delete_widget',
+      'delete_group',
+      'clear_messages',
+      'clear_topic_tree',
+    ])
   })
 
   it('should give every tool running and done labels in all six languages', () => {

@@ -69,10 +69,10 @@ Images are sent to the model. Text files are sent as text, with only the first 6
 
 Choose the permission mode before running a task. During execution, inspect each tool step and its result. Use the approval card to allow or deny a requested action:
 
-- **Ask before actions** is the default. Reads run automatically. Creating, connecting, subscribing, publishing, deleting, and every MCP tool call wait for your approval. Choose **Allow once**, **Always allow this tool in this chat**, or **Deny** on the request card.
+- **Ask before actions** is the default. Reads run automatically. Creating, connecting, subscribing, publishing, deleting, syncing the topic tree, stopping a timed publish, and every MCP tool call wait for your approval. Choose **Allow once**, **Always allow this tool in this chat**, or **Deny** on the request card.
 - **Auto** runs these operations without the approval prompt.
 
-Saving, testing and applying scripts always require approval, including in Auto mode. **Always allow this tool in this chat** does not apply to these script operations.
+Deleting, clearing, and saving, testing or applying scripts always require approval, including in Auto mode. **Always allow this tool in this chat** does not apply to these operations.
 
 Switch the current conversation's mode from the pill in the composer. Set the default for new conversations in **Settings → MQTTX Agent → Default permission mode**. MQTTX asks you to confirm the risk the first time you select Auto.
 
