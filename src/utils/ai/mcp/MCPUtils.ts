@@ -1,6 +1,7 @@
 import { EnabledMCPServer, ToolCallResult } from '@/types/mcp'
 import { ipcRenderer } from 'electron'
 import { dynamicTool, jsonSchema, ToolSet } from 'ai'
+import { truncateText } from '@/utils/ai/agent/attachments'
 
 /**
  * Call MCP tool via IPC to main process
@@ -32,19 +33,13 @@ export const parseMCPToolName = (name: string): { server: string; tool: string }
   return { server: name.slice(0, index), tool: name.slice(index + 2) }
 }
 
-/** Cap on the text returned to the model, so a large MCP result cannot flood the context */
-export const MCP_TEXT_LIMIT = 65536
-
-/**
- * Flattens MCP content blocks into text for the model and the tool card
- */
+/** Flattens MCP content blocks into text for the model and the tool card, capped at the 64 KB model text limit */
 export const getMCPContentText = (content: ToolCallResult['content']): string => {
   const text = Array.isArray(content)
     ? content.map((block) => (block.type === 'text' ? block.text : JSON.stringify(block))).join('\n')
     : String(content ?? '')
-  return text.length > MCP_TEXT_LIMIT
-    ? `${text.slice(0, MCP_TEXT_LIMIT)}\n[truncated ${text.length - MCP_TEXT_LIMIT} characters]`
-    : text
+  const capped = truncateText(text)
+  return capped.truncated ? `${capped.text}\n[truncated]` : capped.text
 }
 
 /**
