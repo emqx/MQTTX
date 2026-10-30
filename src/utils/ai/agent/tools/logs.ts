@@ -9,12 +9,11 @@ type LogLevelName = keyof typeof LEVELS
 const MAX_LINES = 500
 
 /**
- * The value after a secret key: "password": "x y", token=x, password: hunter two.
- * A quoted value runs to its closing quote; an unquoted value runs to the end of the line unless
- * the next token starts another key.
+ * The value after a secret key: "password": "x y", token=x.
+ * A quoted value runs to its closing quote; an unquoted one to the next `,;}]` or the end of the line.
  */
 const SECRET_VALUE =
-  /((?:password|passwd|token|secret|api[_-]?key)["']?\s*[:=]\s*)(?:"([^"\r\n]*)"|'([^'\r\n]*)'|([^\s,;}\]]+(?:\s+(?![^\s=:]+["']?\s*[:=])[^\s,;}\]]+)*))/gi
+  /((?:password|passwd|token|secret|api[_-]?key)["']?\s*[:=]\s*)(?:(["'])[^\r\n]*?\2|[^,;}\]\r\n]+)/gi
 
 /** Authorization carries a scheme and a token, so everything after it is redacted */
 const AUTH_VALUE = /(authorization["']?\s*[:=]\s*)([^\r\n]*)/gi
@@ -23,11 +22,9 @@ const AUTH_VALUE = /(authorization["']?\s*[:=]\s*)([^\r\n]*)/gi
 export const redactLogLine = (line: string): string =>
   line
     .replace(AUTH_VALUE, (_match, prefix: string) => `${prefix}***`)
-    .replace(SECRET_VALUE, (_match, prefix: string, doubleQuoted?: string, singleQuoted?: string) => {
-      if (doubleQuoted !== undefined) return `${prefix}"***"`
-      if (singleQuoted !== undefined) return `${prefix}'***'`
-      return `${prefix}***`
-    })
+    .replace(SECRET_VALUE, (_m, prefix: string, quote?: string) =>
+      quote ? `${prefix}${quote}***${quote}` : `${prefix}***`,
+    )
 
 const lineLevel = (line: string): LogLevelName | null => {
   const match = line.match(/\[(DEBUG|INFO|WARN|ERROR)\]/i)
