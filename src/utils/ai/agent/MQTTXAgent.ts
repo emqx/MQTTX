@@ -1,5 +1,5 @@
 import { ToolLoopAgent, generateText, stepCountIs, ToolSet } from 'ai'
-import type { SafeStorage } from 'electron'
+import { safeStorage } from '@electron/remote'
 import { getAgentMessageId } from '@/utils/idGenerator'
 import { decryptAPIKey as decryptStoredAPIKey } from '@/utils/apiKey'
 import {
@@ -31,9 +31,6 @@ import { ApprovalGate, PermissionMode, withApproval } from '@/utils/ai/agent/app
 import { AgentToolDeps } from '@/utils/ai/agent/tools/types'
 import { AGENT_ALWAYS_ASK_TOOLS, AGENT_WRITE_TOOLS, createMQTTTools } from '@/utils/ai/agent/tools'
 import { buildAppContext, renderAppContext } from '@/utils/ai/agent/tools/appContext'
-
-// @electron/remote exposes safeStorage at runtime but its type declarations omit it
-const safeStorage = (require('@electron/remote') as { safeStorage: SafeStorage }).safeStorage
 
 const normalizeHost = (url?: string): string => (url ? url.toLowerCase().replace(/\/+$/, '') : '')
 
