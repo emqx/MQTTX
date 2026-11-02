@@ -584,8 +584,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
-import type { SafeStorage } from 'electron'
-import { app as remoteApp } from '@electron/remote'
+import { app as remoteApp, safeStorage } from '@electron/remote'
 import ImportData from '@/components/ImportData.vue'
 import ExportData from '@/components/ExportData.vue'
 import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
@@ -607,9 +606,6 @@ import { applyLangChange, applyThemeChange, themeFromOs } from '@/utils/settings
 import MCPSettings from '@/components/agent/MCPSettings.vue'
 import PayloadSizeControl from '@/components/PayloadSizeControl.vue'
 import AiProviderIcon from '@/components/AiProviderIcon.vue'
-
-// @electron/remote exposes safeStorage at runtime but its type declarations omit it
-const safeStorage = (require('@electron/remote') as { safeStorage: SafeStorage }).safeStorage
 
 @Component({
   components: { ImportData, ExportData, ClearUpHistoryData, MCPSettings, PayloadSizeControl, AiProviderIcon },

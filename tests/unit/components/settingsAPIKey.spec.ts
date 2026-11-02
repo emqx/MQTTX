@@ -1,8 +1,8 @@
 import { expect } from 'chai'
 import CryptoJS from 'crypto-js'
+import { safeStorage } from '@electron/remote'
 import { ENCRYPT_KEY } from '@/utils/idGenerator'
 import { decryptAPIKey } from '@/utils/apiKey'
-import type { SafeStorageLike } from '@/utils/apiKey'
 
 // jsdom lacks an API Monaco calls while registering its clipboard contribution
 ;(document as any).queryCommandSupported = () => false
@@ -10,13 +10,6 @@ import type { SafeStorageLike } from '@/utils/apiKey'
 const Settings = require('@/views/settings/index.vue').default
 
 const methods = (Settings as any).options.methods
-// The component reaches the mock through @electron/remote, whose fake is a UTF-8 buffer round trip
-const storage: SafeStorageLike = {
-  isEncryptionAvailable: () => true,
-  getSelectedStorageBackend: () => 'gnome_libsecret',
-  encryptString: (plain: string) => Buffer.from(plain, 'utf8'),
-  decryptString: (encrypted: Buffer) => encrypted.toString('utf8'),
-}
 
 const legacyStoredKey = (plain: string) => CryptoJS.AES.encrypt(plain, ENCRYPT_KEY).toString()
 
@@ -59,7 +52,7 @@ describe('Settings AI API key', () => {
     methods.handleAIConfigChanged.call(ctx, 'apiKey')
     expect(saved).to.have.lengthOf(1)
     expect(saved[0].openAIAPIKey).to.match(/^safe:/)
-    expect(decryptAPIKey(saved[0].openAIAPIKey, storage)).to.equal('sk-new')
+    expect(decryptAPIKey(saved[0].openAIAPIKey, safeStorage)).to.equal('sk-new')
   })
 
   it('clears the stored key when the input is emptied', () => {
