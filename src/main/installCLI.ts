@@ -70,7 +70,7 @@ async function checkInstalledMqttxCLI(win: BrowserWindow, isWindows: boolean): P
 export function findChecksum(sums: string, fileName: string): string | null {
   for (const line of sums.split(/\r?\n/)) {
     const match = line.trim().match(/^([0-9a-fA-F]{64})\s+\*?(.+)$/)
-    if (match && match[2].trim() === fileName) {
+    if (match && match[2] === fileName) {
       return match[1].toLowerCase()
     }
   }
@@ -87,21 +87,14 @@ export function findChecksum(sums: string, fileName: string): string | null {
 async function getExpectedChecksum(fileName: string): Promise<string> {
   const checksumUrl = `https://github.com/emqx/MQTTX/releases/download/${MQTTX_VERSION}/SHA256SUMS`
 
-  try {
-    const response = await axios({
-      method: 'get',
-      url: checksumUrl,
-      responseType: 'text',
-    })
-    const checksum = findChecksum(String(response.data), fileName)
-    if (checksum) {
-      return checksum
-    }
-  } catch (error) {
-    // A failed request is handled by the shared "cannot verify" error below.
+  const sums = await axios({ method: 'get', url: checksumUrl, responseType: 'text' })
+    .then((response) => String(response.data))
+    .catch(() => '')
+  const checksum = findChecksum(sums, fileName)
+  if (!checksum) {
+    throw new Error(`Cannot verify the MQTTX CLI download: no checksum for ${fileName}`)
   }
-
-  throw new Error(`Cannot verify the MQTTX CLI download: no checksum for ${fileName}`)
+  return checksum
 }
 
 /**
@@ -161,7 +154,7 @@ async function downloadMqttxCLI(
     })
 
     writer.on('finish', () => {
-      if (hash.digest('hex') !== expectedChecksum.toLowerCase()) {
+      if (hash.digest('hex') !== expectedChecksum) {
         win.setProgressBar(-1)
         win.webContents.send('downloadCLI', 0, false)
         fs.unlink(outputPath, () => {})
