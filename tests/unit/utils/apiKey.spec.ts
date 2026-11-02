@@ -6,6 +6,7 @@ import type { SafeStorageLike } from '@/utils/apiKey'
 
 const reversibleStorage: SafeStorageLike = {
   isEncryptionAvailable: () => true,
+  getSelectedStorageBackend: () => 'gnome_libsecret',
   encryptString: (plain: string) => Buffer.from(plain, 'utf8'),
   decryptString: (encrypted: Buffer) => encrypted.toString('utf8'),
 }
@@ -15,9 +16,20 @@ const unavailableStorage: SafeStorageLike = {
   isEncryptionAvailable: () => false,
 }
 
+const storageWithBackend = (backend: ReturnType<SafeStorageLike['getSelectedStorageBackend']>): SafeStorageLike => ({
+  ...reversibleStorage,
+  getSelectedStorageBackend: () => backend,
+})
+
 const legacyValue = (plain: string) => CryptoJS.AES.encrypt(plain, ENCRYPT_KEY).toString()
 
+const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform')
+
 describe('apiKey', () => {
+  afterEach(() => {
+    if (originalPlatform) Object.defineProperty(process, 'platform', originalPlatform)
+  })
+
   describe('encryptAPIKey / decryptAPIKey', () => {
     it('round-trips a key through safeStorage', () => {
       const stored = encryptAPIKey('sk-test', reversibleStorage)
@@ -72,6 +84,27 @@ describe('apiKey', () => {
 
     it('returns null when the legacy value cannot be read', () => {
       expect(migrateAPIKey('not-a-ciphertext', reversibleStorage)).to.equal(null)
+    })
+  })
+
+  describe('Linux storage backend', () => {
+    beforeEach(() => {
+      Object.defineProperty(process, 'platform', { value: 'linux' })
+    })
+
+    it('writes the legacy format when safeStorage falls back to basic_text', () => {
+      const basicText = storageWithBackend('basic_text')
+      const stored = encryptAPIKey('sk-test', basicText)
+      expect(stored).to.not.match(/^safe:/)
+      expect(decryptAPIKey(stored, basicText)).to.equal('sk-test')
+    })
+
+    it('still writes a safe value when a real keyring is selected', () => {
+      expect(encryptAPIKey('sk-test', storageWithBackend('gnome_libsecret'))).to.match(/^safe:/)
+    })
+
+    it('does not migrate when safeStorage falls back to basic_text', () => {
+      expect(migrateAPIKey(legacyValue('sk-test'), storageWithBackend('basic_text'))).to.equal(null)
     })
   })
 })
