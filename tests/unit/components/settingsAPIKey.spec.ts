@@ -13,6 +13,7 @@ const methods = (Settings as any).options.methods
 // The component reaches the mock through @electron/remote, whose fake is a UTF-8 buffer round trip
 const storage: SafeStorageLike = {
   isEncryptionAvailable: () => true,
+  getSelectedStorageBackend: () => 'gnome_libsecret',
   encryptString: (plain: string) => Buffer.from(plain, 'utf8'),
   decryptString: (encrypted: Buffer) => encrypted.toString('utf8'),
 }
