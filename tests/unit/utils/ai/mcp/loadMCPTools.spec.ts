@@ -1,33 +1,18 @@
 import { expect } from 'chai'
 import { ipcRenderer } from 'electron'
 import { loadMCPTools } from '@/utils/ai/mcp/MCPUtils'
-
-interface ServerTool {
-  name: string
-  description: string
-  input_schema: Record<string, unknown>
-}
-
-interface ServerWithTools {
-  name: string
-  tools: ServerTool[]
-}
+import type { EnabledMCPServer } from '@/types/mcp'
 
 const originalInvoke = ipcRenderer.invoke
 const originalWarn = console.warn
 
-const stubListTools = (servers: ServerWithTools[]) => {
-  ipcRenderer.invoke = (async (channel: string) => {
-    if (channel === 'mcp:list-tools') {
-      return servers
-    }
-    return {}
-  }) as typeof ipcRenderer.invoke
+const stubListTools = (servers: EnabledMCPServer[]) => {
+  ipcRenderer.invoke = (async () => servers) as typeof ipcRenderer.invoke
 }
 
-const tool = (name: string, description: string): ServerTool => ({
+const tool = (name: string): EnabledMCPServer['tools'][number] => ({
   name,
-  description,
+  description: '',
   input_schema: { type: 'object', properties: {} },
 })
 
@@ -48,8 +33,8 @@ describe('loadMCPTools', () => {
 
   it('keeps the first tool when provider-safe names collide', async () => {
     stubListTools([
-      { name: 'a', tools: [tool('b__c', 'first')] },
-      { name: 'a__b', tools: [tool('c', 'second')] },
+      { name: 'a', tools: [tool('b__c')] },
+      { name: 'a__b', tools: [tool('c')] },
     ])
 
     const tools = await loadMCPTools()
@@ -62,8 +47,8 @@ describe('loadMCPTools', () => {
 
   it('loads non-colliding tools from every server', async () => {
     stubListTools([
-      { name: 'alpha', tools: [tool('one', 'first')] },
-      { name: 'beta', tools: [tool('two', 'second')] },
+      { name: 'alpha', tools: [tool('one')] },
+      { name: 'beta', tools: [tool('two')] },
     ])
 
     const tools = await loadMCPTools()
