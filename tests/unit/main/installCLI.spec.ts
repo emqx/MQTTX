@@ -47,10 +47,8 @@ describe('findChecksum', () => {
 
 describe('quoteShellPath', () => {
   it('single-quotes the path and escapes embedded single quotes', () => {
-    expect(quoteShellPath(`/tmp/App Data/mqttx-cli's$(whoami)`)).to.equal("'/tmp/App Data/mqttx-cli'\\''s$(whoami)'")
-  })
-
-  it('keeps shell metacharacters literal', () => {
-    expect(quoteShellPath('/tmp/mqttx-cli-$(rm -rf /)`id`')).to.equal("'/tmp/mqttx-cli-$(rm -rf /)`id`'")
+    expect(quoteShellPath(`/tmp/App Data/mqttx-cli's$(whoami)\`id\``)).to.equal(
+      "'/tmp/App Data/mqttx-cli'\\''s$(whoami)`id`'",
+    )
   })
 })
