@@ -20,7 +20,7 @@ import version from '@/version'
 import { initialize } from '@electron/remote/main'
 import { initMCPHandlers, cleanupMCPConnections } from './main/ai/mcp/MCPManager'
 import { getEnableHardwareAccelerationSetting } from '@/utils/settings'
-import { migrateAPIKey } from '@/utils/apiKey'
+import { decryptAPIKey, encryptAPIKey, migrateAPIKey } from '@/utils/apiKey'
 
 /**
  * Fix the PATH environment variable in packaged Electron apps
@@ -178,6 +178,8 @@ function handleIpcMessages() {
       installCLI(win)
     }
   })
+  ipcMain.handle('apiKey:encrypt', (_, plain: string) => encryptAPIKey(plain, safeStorage))
+  ipcMain.handle('apiKey:decrypt', (_, stored: string) => decryptAPIKey(stored, safeStorage))
   // Initialize MCP handlers
   initMCPHandlers()
 }
@@ -223,7 +225,7 @@ async function createWindow() {
     try {
       const migrated = storedAPIKey ? migrateAPIKey(storedAPIKey, safeStorage) : null
       if (migrated) {
-        await settingService.update({ openAIAPIKey: migrated } as unknown as SettingModel)
+        await settingService.update({ openAIAPIKey: migrated })
         storedAPIKey = migrated
       }
     } catch (migrationError) {

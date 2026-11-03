@@ -30,11 +30,4 @@ module.exports = {
   app: {
     getPath: () => '/mock/path',
   },
-  // Reversible stand-in so renderer code that encrypts through safeStorage works in tests
-  safeStorage: {
-    isEncryptionAvailable: () => true,
-    getSelectedStorageBackend: () => 'gnome_libsecret',
-    encryptString: (plain) => Buffer.from(plain, 'utf8'),
-    decryptString: (encrypted) => encrypted.toString('utf8'),
-  },
 }
