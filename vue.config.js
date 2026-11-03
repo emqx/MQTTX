@@ -14,7 +14,8 @@ module.exports = {
   transpileDependencies: ['zod-to-json-schema', 'ai', /[\\/]node_modules[\\/]@ai-sdk[\\/]/, '@vercel/oidc', 'zod'],
   chainWebpack: (config) => {
     // The desktop renderer loads the sandbox through Node, including renderer-only builds.
-    config.externals({ vm2: 'commonjs vm2' })
+    // Merge with the electron-builder externals (typeorm, mqtt, ...) instead of replacing them.
+    config.externals([config.get('externals'), { vm2: 'commonjs vm2' }].filter(Boolean))
     // The AI SDK v5+ packages rely on package `exports` subpaths that webpack 4
     // cannot resolve, so resolve them with Node, which honors `exports` and finds
     // copies nested under the importing package. For zod v4 this picks the CJS
