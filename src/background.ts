@@ -1,6 +1,6 @@
 import 'reflect-metadata' // Required by TypoORM.
 ;('use strict')
-import { app, protocol, BrowserWindow, ipcMain, shell, Menu, safeStorage } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain, shell, Menu } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import { quitAndRenameLogger } from './utils/logger'
 import { defaultWindowSize, restoreWindowState, saveWindowState } from './utils/windowStateManager'
@@ -178,8 +178,8 @@ function handleIpcMessages() {
       installCLI(win)
     }
   })
-  ipcMain.handle('apiKey:encrypt', (_, plain: string) => encryptAPIKey(plain, safeStorage))
-  ipcMain.handle('apiKey:decrypt', (_, stored: string) => decryptAPIKey(stored, safeStorage))
+  ipcMain.handle('apiKey:encrypt', (_, plain: string) => encryptAPIKey(plain))
+  ipcMain.handle('apiKey:decrypt', (_, stored: string) => decryptAPIKey(stored))
   // Initialize MCP handlers
   initMCPHandlers()
 }
@@ -223,7 +223,7 @@ async function createWindow() {
     const setting = await settingService.get()
     let storedAPIKey = setting?.openAIAPIKey
     try {
-      const migrated = storedAPIKey ? migrateAPIKey(storedAPIKey, safeStorage) : null
+      const migrated = storedAPIKey ? migrateAPIKey(storedAPIKey) : null
       if (migrated) {
         await settingService.update({ openAIAPIKey: migrated })
         storedAPIKey = migrated

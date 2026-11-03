@@ -739,6 +739,9 @@ export default class Settings extends Vue {
     openAIAPIHost: 'https://api.openai.com/v1',
   }
 
+  // The plaintext key last loaded or saved, so an unchanged blur of the key input saves nothing
+  private decryptedAPIKey = ''
+
   private handleMaxPayloadDisplaySizeChange(value: number) {
     const normalizedValue = normalizeMaxPayloadDisplaySize(value)
     if (normalizedValue !== value) {
@@ -838,9 +841,9 @@ export default class Settings extends Vue {
     switch (action) {
       case 'apiKey': {
         const plainKey = this.aiConfig.openAIAPIKey.trim()
-        // The input holds plaintext, so an unchanged blur (which re-shows the key) must not save
-        if (plainKey !== (await ipcRenderer.invoke('apiKey:decrypt', this.openAIAPIKey))) {
+        if (plainKey !== this.decryptedAPIKey) {
           this.actionSetOpenAIAPIKey({ openAIAPIKey: await ipcRenderer.invoke('apiKey:encrypt', plainKey) })
+          this.decryptedAPIKey = plainKey
         }
         break
       }
@@ -891,7 +894,8 @@ export default class Settings extends Vue {
   private async getAIConfigs() {
     this.aiConfig.model = this.model
     this.aiConfig.openAIAPIHost = this.openAIAPIHost
-    this.aiConfig.openAIAPIKey = await ipcRenderer.invoke('apiKey:decrypt', this.openAIAPIKey)
+    this.decryptedAPIKey = await ipcRenderer.invoke('apiKey:decrypt', this.openAIAPIKey)
+    this.aiConfig.openAIAPIKey = this.decryptedAPIKey
   }
 
   private handleLevelChange(val: LogLevel) {
