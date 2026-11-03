@@ -26,7 +26,7 @@ export default class SettingService {
     }
     return data[0]
   }
-  public async update(payload: SettingModel) {
+  public async update(payload: Partial<SettingEntity>) {
     const setting = await this.get()
     if (!setting) {
       return

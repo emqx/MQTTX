@@ -584,11 +584,10 @@
 import { Component, Vue } from 'vue-property-decorator'
 import { Getter, Action } from 'vuex-class'
 import { ipcRenderer } from 'electron'
-import { app as remoteApp, safeStorage } from '@electron/remote'
+import { app as remoteApp } from '@electron/remote'
 import ImportData from '@/components/ImportData.vue'
 import ExportData from '@/components/ExportData.vue'
 import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
-import { decryptAPIKey, encryptAPIKey } from '@/utils/apiKey'
 import ClickOutside from 'vue-click-outside'
 import _ from 'lodash'
 import { AImodelsOptions, AIAPIHostOptions, getModelLabel, getReasoningEfforts } from '@/utils/ai/models'
@@ -835,13 +834,13 @@ export default class Settings extends Vue {
     this.actionSetAgentReasoning({ agentReasoning: value })
   }
 
-  private handleAIConfigChanged(action: 'apiKey' | 'model' | 'host') {
+  private async handleAIConfigChanged(action: 'apiKey' | 'model' | 'host') {
     switch (action) {
       case 'apiKey': {
         const plainKey = this.aiConfig.openAIAPIKey.trim()
         // The input holds plaintext, so an unchanged blur (which re-shows the key) must not save
-        if (plainKey !== decryptAPIKey(this.openAIAPIKey, safeStorage)) {
-          this.actionSetOpenAIAPIKey({ openAIAPIKey: encryptAPIKey(plainKey, safeStorage) })
+        if (plainKey !== (await ipcRenderer.invoke('apiKey:decrypt', this.openAIAPIKey))) {
+          this.actionSetOpenAIAPIKey({ openAIAPIKey: await ipcRenderer.invoke('apiKey:encrypt', plainKey) })
         }
         break
       }
@@ -889,10 +888,10 @@ export default class Settings extends Vue {
     this.actionSetOpenAIAPIHost({ openAIAPIHost: value })
   }
 
-  private getAIConfigs() {
+  private async getAIConfigs() {
     this.aiConfig.model = this.model
-    this.aiConfig.openAIAPIKey = decryptAPIKey(this.openAIAPIKey, safeStorage)
     this.aiConfig.openAIAPIHost = this.openAIAPIHost
+    this.aiConfig.openAIAPIKey = await ipcRenderer.invoke('apiKey:decrypt', this.openAIAPIKey)
   }
 
   private handleLevelChange(val: LogLevel) {
