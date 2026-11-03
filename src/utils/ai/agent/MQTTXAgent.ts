@@ -137,13 +137,6 @@ export class MQTTXAgent {
   }
 
   /**
-   * Decrypt API key
-   */
-  private decryptAPIKey(): Promise<string> {
-    return ipcRenderer.invoke('apiKey:decrypt', this.openAIAPIKey)
-  }
-
-  /**
    * Writes the summary a compaction stores, with the same model and provider as the replies and no tools
    *
    * @param messages The older turns to summarize
@@ -176,7 +169,7 @@ export class MQTTXAgent {
       model: getModelProvider({
         model: actualModel,
         baseURL: this.openAIAPIHost,
-        apiKey: await this.decryptAPIKey(),
+        apiKey: await ipcRenderer.invoke('apiKey:decrypt', this.openAIAPIKey),
         providerType,
       }),
     }
