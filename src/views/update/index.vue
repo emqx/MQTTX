@@ -140,7 +140,7 @@ export default class Update extends Vue {
   private async updateCheck(auto: boolean) {
     let res = await updateChecker(auto)
     if (res && typeof res !== 'boolean') {
-      this.detail = sanitizeHtml(res.detail)
+      this.detail = sanitizeHtml(res.detail || '')
       this.version = res.version
       this.showDialog = true
       this.handleATags()
@@ -220,6 +220,10 @@ export default class Update extends Vue {
   .text-content {
     color: var(--color-text-default);
     padding-bottom: 0.3rem;
+    img {
+      max-width: 100%;
+      height: auto;
+    }
     .icon.icon-link {
       display: none;
     }

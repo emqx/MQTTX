@@ -45,4 +45,41 @@ describe('sanitizeHtml utility function', () => {
     expect(result).to.not.include('javascript:')
     expect(result).to.not.include('data:text/html')
   })
+
+  it('should keep details and summary collapsed without attributes', () => {
+    const result = sanitizeHtml('<details open ontoggle="alert(1)"><summary>简体中文</summary>text</details>')
+
+    expect(result).to.equal('<details><summary>简体中文</summary>text</details>')
+  })
+
+  it('should keep GitHub attachment images with only src and alt attributes', () => {
+    const result = sanitizeHtml(
+      '<img width="1499" height="982" alt="image" src="https://github.com/user-attachments/assets/abc" onerror="alert(1)">',
+    )
+
+    expect(result).to.include('<img')
+    expect(result).to.include('src="https://github.com/user-attachments/assets/abc"')
+    expect(result).to.include('alt="image"')
+    expect(result).to.not.include('width')
+    expect(result).to.not.include('height')
+    expect(result).to.not.include('onerror')
+  })
+
+  const rejectedImageSources = [
+    'http://github.com/user-attachments/assets/a',
+    'https://github.com.evil.test/user-attachments/a',
+    'https://evil.test/user-attachments/a',
+    'https://github.com/emqx/MQTTX/raw/main/a.png',
+    'data:image/png;base64,AAAA',
+    '/user-attachments/a',
+    null,
+  ]
+
+  rejectedImageSources.forEach((src) => {
+    it(`should drop images with ${src === null ? 'no src' : src}`, () => {
+      const html = src === null ? '<img alt="image">' : `<img alt="image" src="${src}">`
+
+      expect(sanitizeHtml(html)).to.equal('')
+    })
+  })
 })
