@@ -86,6 +86,7 @@ const send = (
 ) => {
   let retryTimes = 0
   let isNewConnection = true
+  let publishComplete = false
 
   const client = createMqttClient(connOpts)
   basicLog.connecting(config, connOpts.hostname!, connOpts.port, pubOpts.topic, pubOpts.message.toString())
@@ -102,6 +103,7 @@ const send = (
         basicLog.error(err)
         process.exit(1)
       } else {
+        publishComplete = true
         basicLog.published()
       }
       // FIXME: When using the ws and wss protocols to connect, and QoS is 0, the message may not have been successfully sent when the publish callback is triggered. Therefore, delay closing the connection for 2 seconds.
@@ -117,6 +119,12 @@ const send = (
 
   client.on('error', (err) => {
     exitWithPublishError(client, err)
+  })
+
+  client.on('close', () => {
+    if (!publishComplete && !connOpts.reconnectPeriod) {
+      process.exit(1)
+    }
   })
 
   client.on('reconnect', () => {
@@ -247,6 +255,13 @@ const handlePipedMultiline = (connOpts: IClientOptions, pubOpts: { topic: string
 
   client.on('error', (err) => {
     exitWithPublishError(client, err)
+  })
+
+  client.on('close', () => {
+    const publishComplete = publishedCount > 0 && publishedCount === messageQueue.length
+    if (!publishComplete && !connOpts.reconnectPeriod) {
+      process.exit(1)
+    }
   })
 }
 
