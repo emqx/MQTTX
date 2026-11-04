@@ -16,6 +16,7 @@ import { serializeAvroToBuffer } from '../utils/avro'
 import { loadSimulator } from '../utils/simulate'
 import { triggerExitInfo } from '../utils/exitInfo'
 import getBenchClientId from '../utils/getBenchClientId'
+import createRateSampler from '../utils/createRateSampler'
 import { parsePayloadSize, generateRandomPayload } from '../utils/payloadGenerator'
 import { createMqttClient } from '../utils/mqttConnect'
 import { DEFAULT_MQTT_PUB_MESSAGE } from '../utils/constants'
@@ -522,16 +523,11 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
           const connEnd = Date.now()
           signale.success(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
 
-          let oldTotal = 0
-          let lastSampleTime = process.hrtime.bigint()
+          const sampleRate = createRateSampler()
           setInterval(() => {
-            const sampleTime = process.hrtime.bigint()
-            const elapsedSeconds = Number(sampleTime - lastSampleTime) / 1e9
-            const rate = Math.round((total - oldTotal) / elapsedSeconds)
+            const rate = sampleRate(total)
             const logMethod = verbose ? logWrapper.log : interactivePub.log
             logMethod(`Published total: ${total}, message rate: ${rate}/s`)
-            oldTotal = total
-            lastSampleTime = sampleTime
           }, 1000)
         }
       })
