@@ -474,7 +474,7 @@ export default class ConnectionService {
     const result = await this.historyConnectionRepository.save({
       ...res,
       id: undefined,
-      lastWillTopic: res.will.lastWillPayload,
+      lastWillTopic: res.will.lastWillTopic,
       lastWillPayload: res.will.lastWillPayload,
       lastWillPayloadType: res.will.lastWillPayloadType ?? 'Plaintext',
       lastWillQos: res.will.lastWillQos,

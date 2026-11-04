@@ -66,6 +66,26 @@ describe('Per-connection publish area and history', () => {
     return id!
   }
 
+  it('stores the Last Will topic, payload, and payload type in connection history', async () => {
+    const record = getDefaultRecord()
+    await connectionService.create({
+      ...record,
+      name: 'Last Will history',
+      will: {
+        ...record.will!,
+        lastWillTopic: 'devices/status',
+        lastWillPayload: '6f66666c696e65',
+        lastWillPayloadType: 'Hex',
+      },
+    })
+    const history = await database.getRepository(HistoryConnectionEntity).findOneOrFail({ clientId: record.clientId })
+    expect(history).to.include({
+      lastWillTopic: 'devices/status',
+      lastWillPayload: '6f66666c696e65',
+      lastWillPayloadType: 'Hex',
+    })
+  })
+
   it('keeps the latest ten history entries of each connection', async () => {
     const a = await createConnectionWithHistory('a')
     const b = await createConnectionWithHistory('b')
