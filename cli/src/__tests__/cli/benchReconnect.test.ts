@@ -183,6 +183,28 @@ describe('benchmark reconnection after connection errors', () => {
     expect(output).toContain('Exceed the maximum reconnect times limit')
   })
 
+  it.each(['conn', 'pub', 'sub'])(
+    '%s fails on an interrupted handshake when reconnection is disabled',
+    async (command) => {
+      interruptHandshakes = true
+      await start(command, [], 0)
+      await waitFor(() => child!.exitCode !== null)
+      expect(child!.exitCode).toBe(1)
+      expect(output).not.toContain('Reconnecting')
+    },
+  )
+
+  it('fails an interrupted split replay when reconnection is disabled', async () => {
+    const file = join(directory, 'messages.txt')
+    writeFileSync(file, 'one\ntwo')
+    await start('pub', ['--file-read', file, '--split', '-im', '250'], 0)
+    await waitFor(() => publications.length === 1)
+    await stopBroker()
+    await waitFor(() => child!.exitCode !== null)
+    expect(child!.exitCode).toBe(1)
+    expect(output).not.toContain('Reconnecting')
+  })
+
   it.each(['conn', 'pub', 'sub'])('%s fails without retrying an untrusted TLS certificate', async (command) => {
     await stopBroker()
     const fixtures = join(__dirname, '../../../../tests/unit/fixtures')

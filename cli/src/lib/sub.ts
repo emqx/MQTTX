@@ -404,6 +404,9 @@ const benchSub = async (options: BenchSubscribeOptions) => {
           isConnected = false
         }
         benchLog.close(connectedCount, count, opts.clientId!)
+        if (!client.disconnecting && opts.reconnectPeriod === 0) {
+          process.exit(1)
+        }
       })
 
       client.on('disconnect', (packet: IDisconnectPacket) => {
