@@ -1,6 +1,5 @@
 import concat from 'concat-stream'
 import * as Debug from 'debug'
-import _ from 'lodash'
 import * as mqtt from 'mqtt'
 import { IClientOptions, IClientPublishOptions } from 'mqtt'
 import pump from 'pump'
@@ -375,11 +374,11 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
   // File Handler
   let fileData: Buffer | string
-  let splitedMessageArr: string[] = []
+  let splitMessages: string[] = []
   if (fileRead) {
     fileData = handleFileRead(processPath(fileRead))
     if (split) {
-      splitedMessageArr = fileDataSplitter(fileData, split)
+      splitMessages = fileDataSplitter(fileData, split)
     }
   }
 
@@ -403,9 +402,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
   let inFlightMessageCount = 0
 
-  const splitLimit = splitedMessageArr.length * count
-
-  const isNewConnArray = Array(count).fill(true)
+  const splitLimit = splitMessages.length * count
 
   const retryTimesArray = Array(count).fill(0)
 
@@ -429,29 +426,31 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
   const connStart = Date.now()
 
   let total = 0
-  let rate = 0
 
   for (let i = 1; i <= count; i++) {
-    // Duplicate splited messages array for each connection
-    const dupSplitedMessageArr = splitedMessageArr.length !== 0 ? _.cloneDeep(splitedMessageArr) : []
+    const pendingMessages = [...splitMessages]
 
     ;((i: number, connOpts: mqtt.IClientOptions) => {
       const opts = { ...connOpts }
 
       opts.clientId = getBenchClientId(clientId, i, count)
 
-      let topicName = topic.replaceAll('%i', i.toString()).replaceAll('%c', clientId)
+      let topicName = topic.replaceAll('%i', i.toString()).replaceAll('%c', opts.clientId)
       username && (topicName = topicName.replaceAll('%u', username))
       simulator && (topicName = topicName.replaceAll('%sc', simulator.name))
 
       const client = createMqttClient(opts)
+      let hasConnected = false
+      let isConnected = false
 
       interactivePub.await('[%d/%d] - Connecting...', connectedCount, count)
 
       client.on('connect', () => {
         connectedCount += 1
+        isConnected = true
         retryTimesArray[i - 1] = 0
-        if (isNewConnArray[i - 1]) {
+        if (!hasConnected) {
+          hasConnected = true
           interactivePub.success('[%d/%d] - Connected', connectedCount, count)
 
           setInterval(async () => {
@@ -478,7 +477,6 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
             ) {
               return
             }
-            inFlightMessageCount += 1
             let publishTopic = topicName
             let publishMessage = message
 
@@ -499,44 +497,42 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
               if (!split) {
                 publishMessage = fileData
               } else {
-                if (dupSplitedMessageArr.length === 0) {
+                if (pendingMessages.length === 0) {
                   return
                 }
-                publishMessage = Buffer.from(dupSplitedMessageArr.shift()!)
+                publishMessage = Buffer.from(pendingMessages.shift()!)
               }
             }
+            inFlightMessageCount += 1
             client.publish(publishTopic, publishMessage, pubOpts.opts, (err) => {
               inFlightMessageCount -= 1
               if (err) {
                 basicLog.error(err)
               } else {
                 total += 1
-                rate += 1
               }
             })
           }, messageInterval)
-
-          if (connectedCount === count) {
-            initialized = true
-
-            const connEnd = Date.now()
-
-            signale.success(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
-
-            if (!verbose) {
-              setInterval(() => {
-                interactivePub.log(`Published total: ${total}, message rate: ${rate}/s`)
-                rate = 0
-              }, 1000)
-            } else {
-              setInterval(() => {
-                logWrapper.log(`Published total: ${total}, message rate: ${rate}/s`)
-                rate = 0
-              }, 1000)
-            }
-          }
         } else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)
+        }
+
+        if (connectedCount === count && !initialized) {
+          initialized = true
+          const connEnd = Date.now()
+          signale.success(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
+
+          let oldTotal = 0
+          let lastSampleTime = process.hrtime.bigint()
+          setInterval(() => {
+            const sampleTime = process.hrtime.bigint()
+            const elapsedSeconds = Number(sampleTime - lastSampleTime) / 1e9
+            const rate = Math.round((total - oldTotal) / elapsedSeconds)
+            const logMethod = verbose ? logWrapper.log : interactivePub.log
+            logMethod(`Published total: ${total}, message rate: ${rate}/s`)
+            oldTotal = total
+            lastSampleTime = sampleTime
+          }, 1000)
         }
       })
 
@@ -556,12 +552,14 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
           })
         } else {
           benchLog.reconnecting(connectedCount, count, opts.clientId!)
-          isNewConnArray[i - 1] = false
         }
       })
 
       client.on('close', () => {
-        connectedCount > 0 && (connectedCount -= 1)
+        if (isConnected) {
+          connectedCount -= 1
+          isConnected = false
+        }
         benchLog.close(connectedCount, count, opts.clientId!)
       })
 

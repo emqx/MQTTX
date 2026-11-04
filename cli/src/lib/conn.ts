@@ -72,7 +72,7 @@ const benchConn = async (options: BenchConnectOptions) => {
 
   let connectedCount = 0
 
-  const isNewConnArray = Array(count).fill(true)
+  let isLogged = false
 
   const retryTimesArray = Array(count).fill(0)
 
@@ -89,22 +89,27 @@ const benchConn = async (options: BenchConnectOptions) => {
       opts.clientId = getBenchClientId(clientId, i, count)
 
       const client = createMqttClient(opts)
+      let hasConnected = false
+      let isConnected = false
 
       interactiveConn.await('[%d/%d] - Connecting...', connectedCount, count)
 
       client.on('connect', () => {
         connectedCount += 1
+        isConnected = true
         retryTimesArray[i - 1] = 0
-        if (isNewConnArray[i - 1]) {
+        if (!hasConnected) {
+          hasConnected = true
           interactiveConn.success('[%d/%d] - Connected', connectedCount, count)
-
-          if (connectedCount === count) {
-            const end = Date.now()
-            signale.success(`Created ${count} connections in ${(end - start) / 1000}s`)
-            setTimeout(triggerExitInfo, 1000)
-          }
         } else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)
+        }
+
+        if (connectedCount === count && !isLogged) {
+          isLogged = true
+          const end = Date.now()
+          signale.success(`Created ${count} connections in ${(end - start) / 1000}s`)
+          setTimeout(triggerExitInfo, 1000)
         }
       })
 
@@ -121,12 +126,14 @@ const benchConn = async (options: BenchConnectOptions) => {
           })
         } else {
           benchLog.reconnecting(connectedCount, count, opts.clientId!)
-          isNewConnArray[i - 1] = false
         }
       })
 
       client.on('close', () => {
-        connectedCount > 0 && (connectedCount -= 1)
+        if (isConnected) {
+          connectedCount -= 1
+          isConnected = false
+        }
         benchLog.close(connectedCount, count, opts.clientId!)
       })
 

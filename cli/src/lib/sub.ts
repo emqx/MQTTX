@@ -252,8 +252,6 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
   const subOptsArray = parseSubscribeOptions(options)
 
-  const isNewConnArray = Array(count).fill(true)
-
   const retryTimesArray = Array(count).fill(0)
 
   const interactiveSub = new Signale({ interactive: true, config: singaleConfig })
@@ -277,13 +275,17 @@ const benchSub = async (options: BenchSubscribeOptions) => {
       opts.clientId = getBenchClientId(clientId, i, count)
 
       const client = createMqttClient(opts)
+      let hasConnected = false
+      let isConnected = false
 
       interactiveSub.await('[%d/%d] - Connecting...', connectedCount, count)
 
       client.on('connect', async () => {
         connectedCount += 1
+        isConnected = true
         retryTimesArray[i - 1] = 0
-        if (isNewConnArray[i - 1]) {
+        if (!hasConnected) {
+          hasConnected = true
           interactiveSub.success('[%d/%d] - Connected', connectedCount, count)
 
           if (count === connectedCount) {
@@ -320,39 +322,43 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
           try {
             await Promise.all(subscribePromises)
-
-            if (connectedCount === count && subscribedCount === count * topic.length && !isLogged) {
-              if (allSuccessfulSubs.length > 0) {
-                logWrapper.success(`All connections subscribed`)
-              }
-
-              if (failedSubs.length > 0) {
-                failedSubs.forEach((sub) => {
-                  basicLog.subscriptionNegated(sub.subItem, sub.clientId)
-                })
-              }
-
-              if (allSuccessfulSubs.length === 0) {
-                process.exit(1)
-              }
-
-              total = 0
-              isLogged = true
-
-              const logRate = () => {
-                const rate = total - oldTotal
-                const logMethod = verbose ? logWrapper.log : interactiveSub.log
-                logMethod(`Received total: ${total}, rate: ${rate}/s`)
-                oldTotal = total
-              }
-
-              setInterval(logRate, 1000)
-            }
           } catch (error) {
             process.exit(1)
           }
         } else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)
+        }
+
+        if (connectedCount === count && subscribedCount === count * topic.length && !isLogged) {
+          if (allSuccessfulSubs.length > 0) {
+            logWrapper.success(`All connections subscribed`)
+          }
+
+          if (failedSubs.length > 0) {
+            failedSubs.forEach((sub) => {
+              basicLog.subscriptionNegated(sub.subItem, sub.clientId)
+            })
+          }
+
+          if (allSuccessfulSubs.length === 0) {
+            process.exit(1)
+          }
+
+          total = 0
+          isLogged = true
+          let lastSampleTime = process.hrtime.bigint()
+
+          const logRate = () => {
+            const sampleTime = process.hrtime.bigint()
+            const elapsedSeconds = Number(sampleTime - lastSampleTime) / 1e9
+            const rate = Math.round((total - oldTotal) / elapsedSeconds)
+            const logMethod = verbose ? logWrapper.log : interactiveSub.log
+            logMethod(`Received total: ${total}, rate: ${rate}/s`)
+            oldTotal = total
+            lastSampleTime = sampleTime
+          }
+
+          setInterval(logRate, 1000)
         }
       })
 
@@ -376,12 +382,14 @@ const benchSub = async (options: BenchSubscribeOptions) => {
           })
         } else {
           benchLog.reconnecting(connectedCount, count, opts.clientId!)
-          isNewConnArray[i - 1] = false
         }
       })
 
       client.on('close', () => {
-        connectedCount > 0 && (connectedCount -= 1)
+        if (isConnected) {
+          connectedCount -= 1
+          isConnected = false
+        }
         benchLog.close(connectedCount, count, opts.clientId!)
       })
 
