@@ -73,14 +73,22 @@ const parseKeyValues = (value: string, previous?: Record<string, string | string
   }
 }
 
-const parseQoS = (value: string, previous: number[] | undefined) => {
+const parseQoSValue = (value: string | number): 0 | 1 | 2 => {
   const parsedValue = Number(value)
-  if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > 2) {
+  if (
+    !['string', 'number'].includes(typeof value) ||
+    (typeof value === 'string' && value.trim() === '') ||
+    ![0, 1, 2].includes(parsedValue)
+  ) {
     logWrapper.fail(`${value} is not a valid QoS.`)
     process.exit(1)
-  } else {
-    return previous ? [...previous, parsedValue] : [parsedValue]
   }
+  return parsedValue as 0 | 1 | 2
+}
+
+const parseQoS = (value: string, previous: number[] | undefined) => {
+  const parsedValue = parseQoSValue(value)
+  return previous ? [...previous, parsedValue] : [parsedValue]
 }
 
 const parseVariadicOfBooleanType = (value: string, previous: boolean[] | undefined) => {
@@ -271,6 +279,8 @@ const parseConnectOptions = (
     willUserProperties,
   } = options
 
+  const parsedWillQos = willQos === undefined ? undefined : parseQoSValue(willQos)
+
   const connectOptions: IClientOptions = {
     protocolVersion: mqttVersion,
     hostname,
@@ -313,7 +323,7 @@ const parseConnectOptions = (
     const will = {
       topic: willTopic,
       payload: willMessage,
-      qos: willQos,
+      qos: parsedWillQos,
       retain: willRetain,
     }
 
@@ -397,7 +407,7 @@ const parsePublishOptions = (options: PublishOptions) => {
   } = options
 
   const publishOptions: IClientPublishOptions = {
-    qos,
+    qos: qos === undefined ? undefined : parseQoSValue(qos),
     retain,
     dup,
   }
@@ -436,11 +446,12 @@ const parseSubscribeOptions = (options: SubscribeOptions) => {
     userProperties,
   } = options
 
+  const parsedQos = Array.isArray(qos) ? qos.map(parseQoSValue) : qos === undefined ? undefined : parseQoSValue(qos)
   const subOptionsArray: IClientSubscribeOptions[] = []
 
   topic.forEach((t: string, index: number) => {
     const subOptions: IClientSubscribeOptions = {
-      qos: getSpecialTypesOption(qos, index, 0) as IClientSubscribeOptions['qos'],
+      qos: getSpecialTypesOption(parsedQos, index, 0) as IClientSubscribeOptions['qos'],
       nl: getSpecialTypesOption(no_local, index),
       rap: getSpecialTypesOption(retainAsPublished, index),
       rh: getSpecialTypesOption(retainHandling, index),
@@ -470,6 +481,7 @@ export {
   parseMQTTVersion,
   parseKeyValues,
   parseQoS,
+  parseQoSValue,
   parseVariadicOfBooleanType,
   checkTopicExists,
   checkScenarioExists,

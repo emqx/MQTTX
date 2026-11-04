@@ -5,6 +5,10 @@ import {
   parseMQTTVersion,
   parseKeyValues,
   parseQoS,
+  parseQoSValue,
+  parseConnectOptions,
+  parsePublishOptions,
+  parseSubscribeOptions,
   parseFormat,
   parseSchemaOptions,
 } from '../../utils/parse'
@@ -118,6 +122,40 @@ describe('parse utilities', () => {
       expect(logWrapper.fail).toHaveBeenCalledWith(
         'Invalid key-value pair: "invalid". Expected format is "key: value".',
       )
+      expect(mockExit).toHaveBeenCalledWith(1)
+    })
+  })
+
+  describe('parseQoSValue', () => {
+    it.each([0, 1, 2])('preserves the valid scalar QoS %s', (value) => {
+      expect(parseQoSValue(String(value))).toBe(value)
+      expect(parseQoSValue(value)).toBe(value)
+    })
+
+    it('preserves omitted QoS defaults and per-topic subscription values', () => {
+      expect(parsePublishOptions({} as PublishOptions).opts.qos).toBeUndefined()
+      expect(parseConnectOptions({ willTopic: 'will' } as ConnectOptions).will).not.toHaveProperty('qos')
+      const subscribe = (qos?: number | number[]) =>
+        parseSubscribeOptions({ topic: ['first', 'second'], qos } as SubscribeOptions).map((options) => options.qos)
+      expect(subscribe()).toEqual([0, 0])
+      expect(subscribe([0, 2])).toEqual([0, 2])
+      expect(subscribe(1)).toEqual([1, 1])
+    })
+
+    it.each(['3', '-1', '0.5', '1.5', 'Infinity', 'NaN', 'invalid', '', '   '])(
+      'rejects invalid scalar and variadic QoS %p',
+      (value) => {
+        expect(() => parseQoSValue(value)).toThrow()
+        expect(() => parseQoS(value, undefined)).toThrow()
+        expect(logWrapper.fail).toHaveBeenCalledWith(`${value} is not a valid QoS.`)
+        expect(mockExit).toHaveBeenCalledWith(1)
+      },
+    )
+
+    it.each([3, -1, 0.5, null, false, [], {}])('rejects invalid QoS loaded from configuration: %p', (value) => {
+      expect(() => parseConnectOptions({ willQos: value } as unknown as ConnectOptions)).toThrow()
+      expect(() => parsePublishOptions({ qos: value } as unknown as PublishOptions)).toThrow()
+      expect(() => parseSubscribeOptions({ topic: ['test'], qos: [0, value] } as unknown as SubscribeOptions)).toThrow()
       expect(mockExit).toHaveBeenCalledWith(1)
     })
   })
