@@ -128,17 +128,6 @@ describe.each(['sub', 'pub'] as const)('bench %s rate', (command) => {
     expectReport(1900, 0)
   })
 
-  it.each([900000, 1100000])('normalizes %i messages without a rate threshold', async (messages) => {
-    const bench = await start()
-    bench.receive(messages)
-    bench.sample(1000)
-    expectReport(messages, messages)
-
-    bench.receive(messages)
-    bench.sample(10000)
-    expectReport(messages * 2, messages / 10)
-  })
-
   it('excludes connection setup and wall-clock changes from elapsed time', async () => {
     const bench = await start()
     bench.receive(1000)

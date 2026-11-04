@@ -104,9 +104,10 @@ describe('benchmark connection lifecycle', () => {
       if (index === 1) client.socket.end()
       else acknowledge(client)
     })
-    await bench.waitFor(() => (command === 'pub' ? bench.publications.length > 0 : bench.subscriptions.length > 0))
+    await bench.waitFor(() =>
+      command === 'pub' ? bench.publications.length > 0 : bench.output().includes('All connections subscribed'),
+    )
     expect(bench.connections).toHaveLength(2)
-    if (command === 'sub') expect(bench.output()).toContain('All connections subscribed')
   })
 
   it.each(['conn', 'pub', 'sub'])('%s counts only connections that actually closed', async (command) => {
@@ -138,6 +139,7 @@ describe('benchmark connection lifecycle', () => {
       if (command === 'pub') return bench.publications.length > 0
       return bench.output().includes('Created 2 connections')
     })
+    await bench.waitFor(() => bench.output().includes('Created 2 connections'))
   })
 
   it('expands %c to each actual publisher ClientId', async () => {

@@ -10,6 +10,7 @@ import isSupportedBinaryFormatForMQTT from '../utils/binaryFormats'
 import * as Debug from 'debug'
 import { deserializeBufferToAvro } from '../utils/avro'
 import getBenchClientId from '../utils/getBenchClientId'
+import createRateSampler from '../utils/createRateSampler'
 import { formatBytes } from '../utils/formatter'
 import { createMqttClient } from '../utils/mqttConnect'
 
@@ -261,12 +262,20 @@ const benchSub = async (options: BenchSubscribeOptions) => {
   const connStart = Date.now()
 
   let total = 0
-  let oldTotal = 0
   let isLogged = false
+  let isConnectionsLogged = false
   let connectedCount = 0
   let subscribedCount = 0
   const allSuccessfulSubs: mqtt.ISubscriptionGrant[] = []
   const failedSubs: { clientId: string; subItem: mqtt.ISubscriptionGrant }[] = []
+
+  const logConnections = () => {
+    if (connectedCount === count && !isConnectionsLogged) {
+      const connEnd = Date.now()
+      signale.success(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
+      isConnectionsLogged = true
+    }
+  }
 
   for (let i = 1; i <= count; i++) {
     ;((i: number, connOpts: mqtt.IClientOptions) => {
@@ -287,11 +296,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
         if (!hasConnected) {
           hasConnected = true
           interactiveSub.success('[%d/%d] - Connected', connectedCount, count)
-
-          if (count === connectedCount) {
-            const connEnd = Date.now()
-            signale.success(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
-          }
+          logConnections()
 
           const subscribePromises = topic.map((t: string, index: number) => {
             return new Promise<void>((resolve, reject) => {
@@ -327,6 +332,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
           }
         } else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)
+          logConnections()
         }
 
         if (connectedCount === count && subscribedCount === count * topic.length && !isLogged) {
@@ -346,16 +352,12 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
           total = 0
           isLogged = true
-          let lastSampleTime = process.hrtime.bigint()
+          const sampleRate = createRateSampler()
 
           const logRate = () => {
-            const sampleTime = process.hrtime.bigint()
-            const elapsedSeconds = Number(sampleTime - lastSampleTime) / 1e9
-            const rate = Math.round((total - oldTotal) / elapsedSeconds)
+            const rate = sampleRate(total)
             const logMethod = verbose ? logWrapper.log : interactiveSub.log
             logMethod(`Received total: ${total}, rate: ${rate}/s`)
-            oldTotal = total
-            lastSampleTime = sampleTime
           }
 
           setInterval(logRate, 1000)
