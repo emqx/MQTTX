@@ -71,6 +71,8 @@ docker run -it --rm emqx/mqttx-cli
 mqttx --version
 ```
 
+从 v1.13.3 起，可运行 `mqttx update`，就地更新现有的独立二进制、npm 或 Homebrew 安装。
+
 ## AI Agent 支持
 
 ### 安装或更新 MQTTX CLI

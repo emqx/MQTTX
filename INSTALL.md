@@ -27,7 +27,7 @@ An install-script installation has `~/.local/bin/mqttx` as a symlink into `~/.lo
 
 ## 2. Choose a channel and version
 
-- For an existing installation, keep its original channel and location. If the owner is unclear, resolve it before overwriting the executable.
+- For an existing installation, keep its original channel and location. From v1.13.3, `mqttx update` follows the existing binary, npm or Homebrew channel; it does not cover Docker or unmanaged copies. If the owner is unclear, resolve it before overwriting the executable.
 - For a new installation on macOS, Linux (glibc or Alpine) or Windows, the install script is the simplest channel; it needs no package manager or Node.js and installs per user without `sudo`.
 - For a new macOS installation with Homebrew, use the CLI formula below.
 - With a compatible Node.js installation, npm is an option on Windows, macOS and Linux.
@@ -197,4 +197,4 @@ Run `mqttx --version`, `mqttx --help`, `mqttx pub --help` and `mqttx sub --help`
 
 If a different version still runs, inspect `type -a mqttx` in Bash/Zsh or `Get-Command mqttx -All` in PowerShell. Refresh the shell's command cache or reopen the shell after a path change. Resolve duplicate installations explicitly instead of repeatedly reinstalling.
 
-Report the installed version, channel, executable path or image tag, verification result, and any remaining PATH/permission step. `mqttx check` checks for updates; it does not install them.
+Report the installed version, channel, executable path or image tag, verification result, and any remaining PATH/permission step. `mqttx check` checks for updates; from v1.13.3, `mqttx update` installs them through the existing channel, except for Docker and unmanaged copies.

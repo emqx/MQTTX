@@ -25,7 +25,7 @@ This skill covers every command registered in the repository's CLI 1.13.0, inclu
 | MQTT 3/5, QoS, retained messages, sessions, wills, request/response, subscription properties | [MQTT features](references/mqtt-features.md) |
 | Text/binary input, interactive line mode, files, codecs, Protobuf/Avro, random payloads | [Payloads and files](references/payloads.md) |
 | `bench conn`, `bench pub`, `bench sub`, `simulate`, `ls --scenarios`, custom generators | [Benchmarks and simulation](references/benchmarks-and-simulation.md) |
-| `init`, `check`, help/version, INI defaults, JSON/YAML options | [Configuration and utilities](references/configuration.md) |
+| `init`, `check`, `update` (from v1.13.3), help/version, INI defaults, JSON/YAML options | [Configuration and utilities](references/configuration.md) |
 | Exact flag availability by command and version-specific caveats | [Capability map](references/capabilities.md) |
 | Failures and diagnosis | [Troubleshooting](references/troubleshooting.md) |
 
