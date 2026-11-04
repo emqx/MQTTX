@@ -65,6 +65,13 @@ const processPublishMessage = (
   return pipeline.reduce((msg: string | Buffer, transformer) => transformer(msg), message) as Buffer
 }
 
+const exitWithPublishError = (client: mqtt.MqttClient, err: Error) => {
+  basicLog.error(err)
+  process.exitCode = 1
+  // Do not wait for queued QoS messages or open stdin after a terminal failure.
+  client.end(true, {}, () => process.exit(1))
+}
+
 const send = (
   config: boolean | string | undefined,
   connOpts: IClientOptions,
@@ -109,8 +116,7 @@ const send = (
   })
 
   client.on('error', (err) => {
-    basicLog.error(err)
-    client.end()
+    exitWithPublishError(client, err)
   })
 
   client.on('reconnect', () => {
@@ -176,8 +182,7 @@ const multiSend = (
   })
 
   client.on('error', (err) => {
-    basicLog.error(err)
-    client.end()
+    exitWithPublishError(client, err)
   })
 
   client.on('reconnect', () => {
@@ -225,7 +230,7 @@ const handlePipedMultiline = (connOpts: IClientOptions, pubOpts: { topic: string
       messageQueue.forEach((message) => {
         client.publish(pubOpts.topic, Buffer.from(message), pubOpts.opts, (err) => {
           if (err) {
-            basicLog.error(err)
+            exitWithPublishError(client, err)
           } else {
             publishedCount++
             if (publishedCount === messageQueue.length) {
@@ -241,8 +246,7 @@ const handlePipedMultiline = (connOpts: IClientOptions, pubOpts: { topic: string
   })
 
   client.on('error', (err) => {
-    basicLog.error(err)
-    client.end()
+    exitWithPublishError(client, err)
   })
 }
 
