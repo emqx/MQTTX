@@ -77,6 +77,8 @@ module.exports = {
       config.resolve.alias.set('electron', path.resolve(__dirname, 'tests/unit/mocks/electron.js'))
       config.resolve.alias.set('@electron/remote', path.resolve(__dirname, 'tests/unit/mocks/electron.js'))
       config.resolve.alias.set('electron-store', path.resolve(__dirname, 'tests/unit/mocks/electron-store.js'))
+      // Use CommonJS so json-bigint receives the BigNumber constructor in tests.
+      config.resolve.alias.set('bignumber.js$', path.resolve(__dirname, 'node_modules/bignumber.js/bignumber.js'))
       // Keep the native SQLite driver out of the webpack test bundle.
       config.externals({ sqlite3: 'commonjs sqlite3', vm2: 'commonjs vm2' })
     }
