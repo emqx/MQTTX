@@ -30,7 +30,7 @@ export const findChecksum = (sums: string, fileName: string): string | null => {
   return null
 }
 
-export const detectChannel = (root = packageRoot) => {
+export const detectChannel = () => {
   if ('pkg' in process) {
     return fs.realpathSync(process.execPath).includes('/Cellar/') ? 'homebrew' : 'binary'
   }
@@ -41,7 +41,7 @@ export const detectChannel = (root = packageRoot) => {
       stdio: ['ignore', 'pipe', 'ignore'],
       cwd: trustedCwd(),
     }).trim()
-    if (root === path.join(fs.realpathSync(npmRoot), 'mqttx-cli')) {
+    if (packageRoot === path.join(fs.realpathSync(npmRoot), 'mqttx-cli')) {
       return 'npm'
     }
   } catch (_) {
@@ -135,27 +135,20 @@ export const update = async (): Promise<void> => {
       return
     }
     const channel = detectChannel()
-    const prefix = channel === 'homebrew' ? fs.realpathSync(process.execPath).split('/Cellar/')[0] : ''
     if (channel === 'binary') {
       spinner.text = `Downloading and verifying MQTTX CLI ${latest}...`
       await installBinary(process.execPath, latest)
-    } else if (channel === 'homebrew') {
+    } else if (channel === 'homebrew' || channel === 'npm') {
       spinner.stop()
-      runCommand('brew', ['update'])
-      runCommand('brew', ['upgrade', 'emqx/mqttx/mqttx-cli'])
-    } else if (channel === 'npm') {
-      spinner.stop()
-      runCommand('npm', ['install', '--global', `mqttx-cli@${latest}`])
-    } else {
-      throw new Error(
-        `This copy of MQTTX CLI cannot update itself. Running from ${packageRoot}.\nhttps://mqttx.app/docs/cli/downloading-and-installation`,
-      )
-    }
-    if (channel === 'homebrew' || channel === 'npm') {
       let installed: string
       if (channel === 'npm') {
+        runCommand('npm', ['install', '--global', `mqttx-cli@${latest}`])
         installed = JSON.parse(fs.readFileSync(path.join(packageRoot, 'package.json'), 'utf8')).version
       } else {
+        // Read the prefix before the upgrade removes the old keg.
+        const prefix = fs.realpathSync(process.execPath).split('/Cellar/')[0]
+        runCommand('brew', ['update'])
+        runCommand('brew', ['upgrade', 'emqx/mqttx/mqttx-cli'])
         const executable = path.join(prefix, 'opt/mqttx-cli/bin/mqttx').replace(/'/g, "'\\''")
         // pkg forces PKG_EXECPATH onto children, and a child that is this same binary (the channel lagged) would run --version as a script.
         const { stdout } = await promisify(exec)(`PKG_EXECPATH= '${executable}' --version`, { timeout: 30000 })
@@ -167,6 +160,10 @@ export const update = async (): Promise<void> => {
             'The release may not be published there yet; try again later.',
         )
       }
+    } else {
+      throw new Error(
+        `This copy of MQTTX CLI cannot update itself. Running from ${packageRoot}.\nhttps://mqttx.app/docs/cli/downloading-and-installation`,
+      )
     }
     spinner.succeed(`Updated MQTTX CLI ${version} → ${latest}\nhttps://mqttx.app/changelogs/v${latest}`)
   } catch (error) {
