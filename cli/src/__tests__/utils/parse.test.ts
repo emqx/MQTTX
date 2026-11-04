@@ -59,14 +59,19 @@ describe('parse utilities', () => {
       expect(parseMQTTVersion('5.0')).toBe(5)
     })
 
-    it('should throw an error for invalid MQTT versions', () => {
-      expect(() => parseMQTTVersion('4.0')).toThrow()
+    it.each(['4.0', '3.1 .1', '3.1.1-extra', '\u00a0'])('should reject invalid MQTT version %p', (value) => {
+      expect(() => parseMQTTVersion(value)).toThrow()
       expect(logWrapper.fail).toHaveBeenCalledWith('Not a valid MQTT version.')
       expect(mockExit).toHaveBeenCalledWith(1)
     })
 
-    it('should parse "5.0" as version 5', () => {
-      expect(parseMQTTVersion('5.0')).toBe(5)
+    it.each<[string, number]>([
+      ['3.1\u00a0', 3],
+      ['\u00a03.1.1\u00a0', 4],
+      [' \t5\n', 5],
+      ['\u00a05.0\u00a0', 5],
+    ])('should accept surrounding whitespace in MQTT version %p', (value, expected) => {
+      expect(parseMQTTVersion(value)).toBe(expected)
     })
   })
 
