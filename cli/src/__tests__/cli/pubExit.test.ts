@@ -181,6 +181,69 @@ describe('publish exit status', () => {
     },
   )
 
+  it.each(['message', 'multiline', 'interactive'])(
+    'fails when the broker silently closes the %s connection before CONNACK',
+    async (mode) => {
+      let connected = false
+      const port = await listen((socket) =>
+        socket.once('data', () => {
+          connected = true
+          socket.end()
+        }),
+      )
+      const result = await run(port, mode)
+      expect(connected).toBe(true)
+      expect(result.code).toBe(1)
+      expect(result.signal).toBeNull()
+      expect(result.output).not.toContain('Message published')
+    },
+  )
+
+  it.each(['message', 'multiline', 'interactive'])(
+    'fails when the broker silently closes the %s connection before PUBACK',
+    async (mode) => {
+      let published = false
+      const port = await listen((socket) => {
+        const packets = parser({ protocolVersion: 5 })
+        socket.on('data', (data) => packets.parse(data))
+        packets.on('packet', (packet) => {
+          if (packet.cmd === 'connect') {
+            socket.write(generate({ cmd: 'connack', reasonCode: 0, sessionPresent: false }, { protocolVersion: 5 }))
+          } else if (packet.cmd === 'publish') {
+            published = true
+            // Multiline schedules end() after 1s; an incomplete publish must still fail after that.
+            setTimeout(() => socket.end(), mode === 'multiline' ? 1200 : 0)
+          }
+        })
+      })
+      const result = await run(port, mode, ['-q', '1'])
+      expect(published).toBe(true)
+      expect(result.code).toBe(1)
+      expect(result.signal).toBeNull()
+    },
+  )
+
+  it.each(['message', 'multiline'])(
+    'still succeeds when the broker closes the %s connection after PUBACK',
+    async (mode) => {
+      const port = await listen((socket) => {
+        const packets = parser({ protocolVersion: 5 })
+        socket.on('data', (data) => packets.parse(data))
+        packets.on('packet', (packet) => {
+          if (packet.cmd === 'connect') {
+            socket.write(generate({ cmd: 'connack', reasonCode: 0, sessionPresent: false }, { protocolVersion: 5 }))
+          } else if (packet.cmd === 'publish') {
+            socket.end(generate({ cmd: 'puback', messageId: packet.messageId }, { protocolVersion: 5 }))
+          }
+        })
+      })
+      const result = await run(port, mode, ['-q', '1'])
+      expect(result.code).toBe(0)
+      expect(result.signal).toBeNull()
+      expect(result.output).toContain(mode === 'message' ? 'Message published' : 'Successfully published 1 messages')
+    },
+  )
+
   it.each(['message', 'file', 'stdin', 'multiline'])(
     'still exits successfully after publishing in %s mode',
     async (mode) => {
