@@ -30,8 +30,9 @@ const parseMQTTVersion = (value: string) => {
     '3.1.1': 4,
     '5': 5,
   }
+  const trimmedValue = value.trim()
   // Normalize '5.0' to '5'
-  const normalizedValue = value === '5.0' ? '5' : value
+  const normalizedValue = trimmedValue === '5.0' ? '5' : trimmedValue
   if (!dict[normalizedValue]) {
     logWrapper.fail('Not a valid MQTT version.')
     process.exit(1)
