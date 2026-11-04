@@ -26,7 +26,7 @@ export const encodePayloadByType = (value: string, type: PayloadType = 'Plaintex
     case 'Base64':
       return Buffer.from(value, 'base64')
     case 'Hex':
-      return Buffer.from(value.replaceAll(' ', ''), 'hex')
+      return Buffer.from(value.replace(/\s/g, ''), 'hex')
     case 'JSON':
       validFormatJson(value)
       return value

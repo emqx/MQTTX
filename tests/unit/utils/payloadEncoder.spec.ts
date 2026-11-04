@@ -40,6 +40,16 @@ describe('payloadEncoder', () => {
       expect((result as Buffer).toString()).to.equal('offline')
     })
 
+    it('decodes newline-separated Hex without truncating the bytes', () => {
+      const result = encodePayloadByType('6f66\n666c696e65', 'Hex')
+      expect((result as Buffer).toString('hex')).to.equal('6f66666c696e65')
+    })
+
+    it('decodes tab-separated Hex without truncating the bytes', () => {
+      const result = encodePayloadByType('6f66\t666c696e65', 'Hex')
+      expect((result as Buffer).toString('hex')).to.equal('6f66666c696e65')
+    })
+
     it('encodes CBOR so the broker receives real CBOR bytes', () => {
       const result = encodePayloadByType('{"status":"offline"}', 'CBOR')
       expect(Buffer.isBuffer(result)).to.be.true
