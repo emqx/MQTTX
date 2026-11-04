@@ -188,8 +188,6 @@ MQTTX can keep receiving and saving messages while the connection and its subscr
 
 Your conversation and tool results are sent to the model provider you configure. When tools read a connection, saved passwords are masked and certificate or private-key files are returned as paths, without their file contents. Text entered directly in the conversation is sent as written, so keep credentials out of your requests.
 
-Remote images in Agent replies appear as text with their URL and are not loaded automatically.
-
 ## Example: connect MQTT operations to a data view
 
 1. Configure the model provider and open the Agent. Type `/` and select the Zero EMQX Skill.
