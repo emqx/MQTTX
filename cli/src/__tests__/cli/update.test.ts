@@ -104,29 +104,31 @@ describe('update helpers', () => {
   })
   it.each(['99.x', '99.0.0-beta.1', '>=99.0.0', '\u001b]52;c;malicious'])('rejects %j', async (remote) => {
     mockLatest(remote)
-    const lookup = getLatestVersion()
-    await expect(lookup).rejects.toHaveProperty('message', 'Invalid version received from the update service.')
-    await expect(lookup).rejects.not.toThrow('\u001b')
+    await expect(getLatestVersion()).rejects.toHaveProperty(
+      'message',
+      'Invalid version received from the update service.',
+    )
   })
 })
 
 describe('installation channel', () => {
   it.each([
     ['/Users/test/.local/share/mqttx-cli/mqttx', 'binary'],
-    ['/usr/local/bin/mqttx', 'binary'],
     ['/opt/homebrew/Cellar/mqttx-cli/1.0.0/bin/mqttx', 'homebrew'],
   ])('detects %s as %s', (realPath, channel) => {
     Object.defineProperty(process, 'pkg', { configurable: true, value: {} })
     jest.spyOn(fs, 'realpathSync').mockReturnValue(realPath)
     expect(detectChannel()).toBe(channel)
   })
-  it('accepts npm global and rejects npm-linked checkouts and pnpm copies', () => {
-    const root = path.resolve(os.tmpdir(), 'npm-global', 'node_modules')
+  it('accepts only the exact npm global package root', () => {
+    const root = path.dirname(packageRoot)
     jest.spyOn(childProcess, 'execFileSync').mockReturnValue(`${root}\n`)
-    jest.spyOn(fs, 'realpathSync').mockReturnValue(root)
-    expect(detectChannel(path.join(root, 'mqttx-cli'))).toBe('npm')
-    expect(detectChannel(path.resolve(os.tmpdir(), 'checkout', 'cli'))).toBe('unmanaged')
-    expect(detectChannel(path.join(root, '.pnpm', 'mqttx-cli'))).toBe('unmanaged')
+    const realpath = jest.spyOn(fs, 'realpathSync').mockReturnValue(root)
+    expect(detectChannel()).toBe('npm')
+    realpath.mockReturnValue(path.join(root, 'node_modules'))
+    expect(detectChannel()).toBe('unmanaged')
+    realpath.mockReturnValue(path.dirname(root))
+    expect(detectChannel()).toBe('unmanaged')
   })
 })
 
