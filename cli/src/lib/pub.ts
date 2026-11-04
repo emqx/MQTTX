@@ -26,6 +26,7 @@ import createRateSampler from '../utils/createRateSampler'
 import { parsePayloadSize, generateRandomPayload } from '../utils/payloadGenerator'
 import { createMqttClient } from '../utils/mqttConnect'
 import { DEFAULT_MQTT_PUB_MESSAGE } from '../utils/constants'
+import shouldRetryConnectionError from '../utils/shouldRetryConnectionError'
 
 /**
  * Processes the outgoing message through two potential stages:
@@ -568,13 +569,15 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
 
       client.on('error', (err) => {
         benchLog.error(connectedCount, count, opts.clientId!, err)
-        client.end()
+        if (!shouldRetryConnectionError(err, opts.reconnectPeriod)) {
+          client.end(true, {}, () => process.exit(1))
+        }
       })
 
       client.on('reconnect', () => {
         retryTimesArray[i - 1] += 1
         if (retryTimesArray[i - 1] > maximumReconnectTimes) {
-          client.end(false, {}, () => {
+          client.end(true, {}, () => {
             benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
             if (retryTimesArray.findIndex((times) => times <= maximumReconnectTimes) === -1) {
               process.exit(1)

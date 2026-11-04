@@ -19,6 +19,7 @@ import getBenchClientId from '../utils/getBenchClientId'
 import createRateSampler from '../utils/createRateSampler'
 import { formatBytes } from '../utils/formatter'
 import { createMqttClient } from '../utils/mqttConnect'
+import shouldRetryConnectionError from '../utils/shouldRetryConnectionError'
 
 /**
  *
@@ -378,13 +379,15 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
       client.on('error', (err) => {
         benchLog.error(connectedCount, count, opts.clientId!, err)
-        client.end()
+        if (!shouldRetryConnectionError(err, opts.reconnectPeriod)) {
+          client.end(true, {}, () => process.exit(1))
+        }
       })
 
       client.on('reconnect', () => {
         retryTimesArray[i - 1] += 1
         if (retryTimesArray[i - 1] > maximumReconnectTimes) {
-          client.end(false, {}, () => {
+          client.end(true, {}, () => {
             benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
             if (retryTimesArray.findIndex((times) => times <= maximumReconnectTimes) === -1) {
               process.exit(1)
