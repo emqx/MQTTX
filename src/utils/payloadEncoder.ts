@@ -2,6 +2,8 @@ import cbor from 'cbor'
 import { pack } from 'msgpackr'
 import validFormatJson from './validFormatJson'
 
+export const payloadTypeOptions: PayloadType[] = ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR', 'MsgPack']
+
 /**
  * Editor language for a payload type. Binary formats are written as JSON.
  */
@@ -73,5 +75,3 @@ export const validatePayloadByType = (value: string, type: PayloadType = 'Plaint
       }
   }
 }
-
-export default encodePayloadByType

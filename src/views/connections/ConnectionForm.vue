@@ -651,7 +651,7 @@ import useServices from '@/database/useServices'
 import { emptyToNull } from '@/utils/handleString'
 import { getClientId } from '@/utils/idGenerator'
 import { getMQTTProtocol, getDefaultRecord } from '@/utils/mqttUtils'
-import { payloadTypeToEditorLang, validatePayloadByType } from '@/utils/payloadEncoder'
+import { payloadTypeOptions, payloadTypeToEditorLang, validatePayloadByType } from '@/utils/payloadEncoder'
 import Editor from '@/components/Editor.vue'
 import KeyValueEditor from '@/components/KeyValueEditor.vue'
 import { LeftValues } from '@/utils/styles'
@@ -679,7 +679,7 @@ export default class ConnectionForm extends Vue {
 
   private willMessageVisible = true
   private advancedVisible = true
-  private payloadTypeOptions: PayloadType[] = ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR', 'MsgPack']
+  private payloadTypeOptions: PayloadType[] = payloadTypeOptions
   private suggestConnections: ConnectionModel[] | [] = []
   private collectionOptions: { id: string; label: string }[] = []
   private oldName = ''
