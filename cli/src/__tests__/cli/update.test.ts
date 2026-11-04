@@ -9,11 +9,26 @@ import { detectChannel, findChecksum, getAssetName, installBinary, update } from
 import { getLatestVersion, checkUpdate } from '../../utils/checkUpdate'
 import { version } from '../../../package.json'
 
+jest.mock('path', () => {
+  const path = jest.requireActual('path')
+  const fs = jest.requireActual('fs')
+  const directory = fs.mkdtempSync(path.join(jest.requireActual('os').tmpdir(), 'mqttx-update-package-'))
+  fs.mkdirSync(path.join(directory, 'mqttx-cli'))
+  return {
+    ...path,
+    resolve: (...parts: string[]) =>
+      parts[0] === path.resolve(__dirname, '../../lib') && parts[1] === '../../..'
+        ? path.join(directory, 'mqttx-cli')
+        : path.resolve(...parts),
+  }
+})
 jest.mock('ora', () => {
   const spinner = { start: jest.fn().mockReturnThis(), stop: jest.fn(), succeed: jest.fn(), fail: jest.fn(), text: '' }
   return () => spinner
 })
 const spinner = ora()
+const packageRoot = path.resolve(path.resolve(__dirname, '../../lib'), '../../..')
+const packageFile = path.join(packageRoot, 'package.json')
 const latest = '99.0.0'
 const asset = getAssetName(process.platform, process.arch)
 const binary = Buffer.from(`#!/bin/sh\nprintf '${latest}\\nhttps://mqttx.app/changelogs/v${latest}\\n'\n`)
@@ -29,11 +44,11 @@ beforeEach(() => {
 })
 afterEach(() => {
   jest.restoreAllMocks()
-  Object.defineProperty(process, 'platform', runtime.platform)
-  Object.defineProperty(process, 'arch', runtime.arch)
+  Object.defineProperties(process, { platform: runtime.platform, arch: runtime.arch })
   Reflect.deleteProperty(process, 'pkg')
   process.exitCode = previousExitCode
 })
+afterAll(() => fs.rmSync(path.dirname(packageRoot), { recursive: true, force: true }))
 
 const mockLatest = (remote = latest) =>
   fetchMock.mockImplementation(async () => new Response(JSON.stringify({ data: [`v${remote}`] })))
@@ -41,27 +56,20 @@ const mockDownload = (name = asset, sum = checksum) =>
   fetchMock.mockResolvedValueOnce(new Response(`${sum}  ${name}\n`)).mockResolvedValueOnce(new Response(binary))
 const mockVersion = (method: 'exec' | 'execFile', installed = latest) => {
   const run = jest.fn().mockResolvedValue({ stdout: `${installed}\r\n`, stderr: '' })
-  Object.defineProperty(jest.spyOn(childProcess, method), promisify.custom, {
-    value: run,
-  })
+  Object.defineProperty(jest.spyOn(childProcess, method), promisify.custom, { value: run })
   return run
 }
 const spawnResult = (status = 0) => ({ pid: 1, output: [], stdout: '', stderr: '', signal: null, status })
-const mockHomebrew = () => {
+const mockHomebrew = (installed = latest, prefix = '/opt/homebrew') => {
   Object.defineProperty(process, 'pkg', { configurable: true, value: {} })
-  jest.spyOn(fs, 'realpathSync').mockReturnValue('/opt/homebrew/Cellar/mqttx-cli/1.0.0/bin/mqttx')
+  jest.spyOn(fs, 'realpathSync').mockReturnValue(`${prefix}/Cellar/mqttx-cli/1.0.0/bin/mqttx`)
+  return mockVersion('exec', installed)
 }
-const mockNpm = () => {
-  const root = path.dirname(path.resolve(__dirname, '../../../..'))
-  jest.spyOn(childProcess, 'execFileSync').mockReturnValue(root)
-  jest.spyOn(fs, 'realpathSync').mockReturnValue(root)
-  // Source tests resolve above cli, so map the global package path to that source root.
-  const join = path.join
-  jest
-    .spyOn(path, 'join')
-    .mockImplementation((...parts) =>
-      parts[0] === root && parts[1] === 'mqttx-cli' ? path.resolve(__dirname, '../../../..') : join(...parts),
-    )
+const mockNpm = (installed = version) => {
+  fs.writeFileSync(packageFile, JSON.stringify({ version: installed }))
+  require(packageFile) // Prime the cache before the simulated update.
+  jest.spyOn(childProcess, 'execFileSync').mockReturnValue(path.dirname(packageRoot))
+  jest.spyOn(fs, 'realpathSync').mockReturnValue(path.dirname(packageRoot))
 }
 
 describe('update helpers', () => {
@@ -94,15 +102,12 @@ describe('update helpers', () => {
     fetchMock.mockResolvedValueOnce(new Response('', { status: 503 }))
     await expect(getLatestVersion()).rejects.toThrow('503')
   })
-  it.each(['99.x', '99.0.0-beta.1', '>=99.0.0', '\u001b]52;c;malicious'])(
-    'rejects unsafe version %j with a fixed message',
-    async (remote) => {
-      mockLatest(remote)
-      const lookup = getLatestVersion()
-      await expect(lookup).rejects.toHaveProperty('message', 'Invalid version received from the update service.')
-      await expect(lookup).rejects.not.toThrow('\u001b')
-    },
-  )
+  it.each(['99.x', '99.0.0-beta.1', '>=99.0.0', '\u001b]52;c;malicious'])('rejects %j', async (remote) => {
+    mockLatest(remote)
+    const lookup = getLatestVersion()
+    await expect(lookup).rejects.toHaveProperty('message', 'Invalid version received from the update service.')
+    await expect(lookup).rejects.not.toThrow('\u001b')
+  })
 })
 
 describe('installation channel', () => {
@@ -123,12 +128,6 @@ describe('installation channel', () => {
     expect(detectChannel(path.resolve(os.tmpdir(), 'checkout', 'cli'))).toBe('unmanaged')
     expect(detectChannel(path.join(root, '.pnpm', 'mqttx-cli'))).toBe('unmanaged')
   })
-  it('leaves the copy unmanaged when npm root -g fails', () => {
-    jest.spyOn(childProcess, 'execFileSync').mockImplementation(() => {
-      throw new Error('npm unavailable')
-    })
-    expect(detectChannel()).toBe('unmanaged')
-  })
 })
 
 describe('binary installation', () => {
@@ -146,7 +145,7 @@ describe('binary installation', () => {
   })
   const expectOriginal = () => {
     expect(fs.readFileSync(target)).toEqual(original)
-    expect(fs.readdirSync(directory).filter((name) => name.startsWith('.mqttx-update-'))).toEqual([])
+    expect(fs.readdirSync(directory)).toEqual(['mqttx'])
   }
   it('replaces the real file while preserving the symlink', async () => {
     mockDownload()
@@ -156,7 +155,6 @@ describe('binary installation', () => {
     expect(fs.lstatSync(link).isSymbolicLink()).toBe(true)
     expect(fs.readlinkSync(link)).toBe(target)
     expect(fs.readFileSync(target)).toEqual(binary)
-    expect(fs.statSync(target).mode & 0o777).toBe(0o755)
     expect(fs.readdirSync(directory).sort()).toEqual(['link', 'mqttx'])
   })
   it('preserves the executable mode under a strict umask', async () => {
@@ -227,7 +225,6 @@ describe('binary installation', () => {
         })
       await expect(installBinary(target, latest)).rejects.toThrow('elevated terminal')
       expectOriginal()
-      expect(fs.existsSync(`${target}.old`)).toBe(false)
     })
   })
 })
@@ -245,23 +242,27 @@ describe('update command', () => {
     jest.spyOn(childProcess, 'execFileSync').mockImplementation(() => {
       throw new Error('npm unavailable')
     })
+    expect(detectChannel()).toBe('unmanaged')
     await update()
     expect(process.exitCode).toBe(1)
     expect(spinner.fail).toHaveBeenCalledWith(
       expect.stringMatching(
-        /cannot update itself\. Running from .+\nhttps:\/\/github.com\/emqx\/MQTTX\/blob\/main\/INSTALL.md/,
+        /cannot update itself\. Running from .+\nhttps:\/\/mqttx.app\/docs\/cli\/downloading-and-installation/,
       ),
     )
   })
-  it('runs Homebrew update and upgrade, then reports the verified version', async () => {
-    mockHomebrew()
+  it.each([
+    ['/opt/homebrew', "PKG_EXECPATH= '/opt/homebrew/opt/mqttx-cli/bin/mqttx' --version"],
+    ["/tmp/Brew's prefix", "PKG_EXECPATH= '/tmp/Brew'\\''s prefix/opt/mqttx-cli/bin/mqttx' --version"],
+  ])('verifies the Homebrew installation under %s', async (prefix, command) => {
+    const versionCheck = mockHomebrew(latest, prefix)
     const spawn = jest.spyOn(childProcess, 'spawnSync').mockReturnValue(spawnResult())
-    mockVersion('exec')
     await update()
     expect(spawn.mock.calls).toEqual([
       ['brew', ['update'], { stdio: 'inherit', shell: false, cwd: undefined }],
       ['brew', ['upgrade', 'emqx/mqttx/mqttx-cli'], { stdio: 'inherit', shell: false, cwd: undefined }],
     ])
+    expect(versionCheck).toHaveBeenCalledWith(command, { timeout: 30000 })
     expect(spinner.succeed).toHaveBeenCalledWith(
       `Updated MQTTX CLI ${version} → ${latest}\nhttps://mqttx.app/changelogs/v${latest}`,
     )
@@ -277,30 +278,27 @@ describe('update command', () => {
   it.each(['win32', 'linux'])('uses a trusted child cwd for the npm flow on %s', async (platform) => {
     Object.defineProperty(process, 'platform', { value: platform })
     mockNpm()
-    const spawn = jest.spyOn(childProcess, 'spawnSync').mockReturnValue(spawnResult())
-    const versionCheck = mockVersion('exec')
+    const spawn = jest.spyOn(childProcess, 'spawnSync').mockImplementation(() => {
+      fs.writeFileSync(packageFile, JSON.stringify({ version: latest }))
+      return spawnResult()
+    })
     const cwd = platform === 'win32' ? path.dirname(process.execPath) : undefined
+    const options = { stdio: 'inherit', shell: platform === 'win32', cwd }
     await update()
     expect(childProcess.execFileSync).toHaveBeenCalledWith('npm', ['root', '-g'], expect.objectContaining({ cwd }))
-    expect(spawn).toHaveBeenCalledWith('npm', ['install', '--global', 'mqttx-cli@latest'], {
-      stdio: 'inherit',
-      shell: platform === 'win32',
-      cwd,
-    })
-    expect(versionCheck).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ cwd }))
+    expect(spawn).toHaveBeenCalledWith('npm', ['install', '--global', `mqttx-cli@${latest}`], options)
     expect(spinner.succeed).toHaveBeenCalled()
   })
   it.each<[string, () => void]>([
-    ['homebrew', mockHomebrew],
+    ['homebrew', () => mockHomebrew(version)],
     ['npm', mockNpm],
-  ])('fails when %s finishes but mqttx still reports the old version', async (channel, selectChannel) => {
+  ])('fails when the %s installation still has the old version', async (channel, selectChannel) => {
     selectChannel()
     jest.spyOn(childProcess, 'spawnSync').mockReturnValue(spawnResult())
-    mockVersion('exec', version)
     await update()
     expect(spinner.fail).toHaveBeenCalledWith(
-      `The ${channel} channel finished, but mqttx reports ${version} rather than ${latest}. ` +
-        'The channel may not have published the release yet, or another mqttx comes first on PATH.',
+      `The ${channel} update finished, but the installed MQTTX CLI is ${version}, not ${latest}. ` +
+        'The release may not be published there yet; try again later.',
     )
     expect(process.exitCode).toBe(1)
     expect(spinner.succeed).not.toHaveBeenCalled()

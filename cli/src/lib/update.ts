@@ -135,6 +135,7 @@ export const update = async (): Promise<void> => {
       return
     }
     const channel = detectChannel()
+    const prefix = channel === 'homebrew' ? fs.realpathSync(process.execPath).split('/Cellar/')[0] : ''
     if (channel === 'binary') {
       spinner.text = `Downloading and verifying MQTTX CLI ${latest}...`
       await installBinary(process.execPath, latest)
@@ -144,21 +145,26 @@ export const update = async (): Promise<void> => {
       runCommand('brew', ['upgrade', 'emqx/mqttx/mqttx-cli'])
     } else if (channel === 'npm') {
       spinner.stop()
-      runCommand('npm', ['install', '--global', 'mqttx-cli@latest'])
+      runCommand('npm', ['install', '--global', `mqttx-cli@${latest}`])
     } else {
       throw new Error(
-        `This copy of MQTTX CLI cannot update itself. Running from ${packageRoot}.\nhttps://github.com/emqx/MQTTX/blob/main/INSTALL.md`,
+        `This copy of MQTTX CLI cannot update itself. Running from ${packageRoot}.\nhttps://mqttx.app/docs/cli/downloading-and-installation`,
       )
     }
     if (channel === 'homebrew' || channel === 'npm') {
-      // pkg forces PKG_EXECPATH onto children, and a child that is this same binary (the channel lagged) would run --version as a script.
-      const command = process.platform === 'win32' ? 'mqttx --version' : 'PKG_EXECPATH= mqttx --version'
-      const { stdout } = await promisify(exec)(command, { timeout: 30000, cwd: trustedCwd() })
-      const installed = stdout.split(/\r?\n/)[0]
+      let installed: string
+      if (channel === 'npm') {
+        installed = JSON.parse(fs.readFileSync(path.join(packageRoot, 'package.json'), 'utf8')).version
+      } else {
+        const executable = path.join(prefix, 'opt/mqttx-cli/bin/mqttx').replace(/'/g, "'\\''")
+        // pkg forces PKG_EXECPATH onto children, and a child that is this same binary (the channel lagged) would run --version as a script.
+        const { stdout } = await promisify(exec)(`PKG_EXECPATH= '${executable}' --version`, { timeout: 30000 })
+        installed = stdout.split(/\r?\n/)[0]
+      }
       if (installed !== latest) {
         throw new Error(
-          `The ${channel} channel finished, but mqttx reports ${installed} rather than ${latest}. ` +
-            'The channel may not have published the release yet, or another mqttx comes first on PATH.',
+          `The ${channel} update finished, but the installed MQTTX CLI is ${installed}, not ${latest}. ` +
+            'The release may not be published there yet; try again later.',
         )
       }
     }
