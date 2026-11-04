@@ -4,6 +4,8 @@ Use these commands when load generation or data simulation is requested. Establi
 
 Examples below assume an existing authorized broker on `127.0.0.1:1883`. Wrap every command in an external deadline. `bench conn` and `bench sub` remain active; publisher limits do not cover stalled connections or failures.
 
+For suspicious rates, delivery-count differences or disconnects under load, read [benchmark diagnostics](benchmark-diagnostics.md) before attributing the result to the CLI or broker.
+
 ## Connection and subscription benchmarks
 
 ```sh
@@ -32,14 +34,14 @@ mqttx bench pub -h 127.0.0.1 -p 1883 -l mqtt -V 5.0 \
 
 `--message-interval` (`-im`) is the publication interval **per client** in milliseconds. Rough offered rate after all clients connect is `count * 1000 / messageInterval` messages/second, subject to acknowledgments and scheduling. `--limit` (`-L`) is an aggregate count across clients, not a per-client quota. Measure actual counts; do not equate configured rate with achieved throughput. The implementation waits for all configured clients to connect before publishing, so a failed client can stall the run.
 
-`--payload-size 1KB` can replace `-m` for random bytes. `--file-read ./messages.txt --split` splits a file on newline and replays its parts for each client. An explicit `--split 'PATTERN'` is interpreted as a JavaScript regular expression; trailing delimiters can create empty messages. Keep an external deadline and inspect totals: uneven client progress can prevent split-mode completion. Without `--split`, the whole file is the repeated payload. `bench pub` does not accept ordinary `--stdin`, `--format`, Protobuf or Avro flags; prepare encoded bytes in a file if those are required.
+`--payload-size 1KB` can replace `-m` for random bytes. `--file-read ./messages.txt --split` splits a file on newline and replays its parts for each client. An explicit `--split 'PATTERN'` is interpreted as a JavaScript regular expression; trailing delimiters can create empty messages. The split replay target is the number of parts multiplied by the client count; verify completion after reconnection and keep an external deadline. Earlier implementations could stall remaining clients by reserving in-flight work for an already-empty queue; the current source reserves only actual publications. Without `--split`, the whole file is the repeated payload. `bench pub` does not accept ordinary `--stdin`, `--format`, Protobuf or Avro flags; prepare encoded bytes in a file if those are required.
 
 ## Topic and client templates
 
 - Use `--client-id` (short `-I`) for benchmarks/simulation. Short `-i` is the connection interval, unlike ordinary `conn`/`pub`/`sub`.
 - `%i` is the 1-based client index; an ID lacking `%i` gets `_index` appended when count is greater than one.
 - Benchmark topic templates support `%i`, `%u` (provided username), and `%c`. Simulation also supports `%sc` (scenario name). Quote templates in the shell.
-- In 1.13.0, `bench pub`/`simulate` substitute `%c` with the base client-ID template, while `bench sub` uses the final per-client ID. Use explicit `%i` topic templates to align publishers/subscribers; do not assume `%c` means the same expanded value in both paths. `%u` remains unresolved if no username is provided.
+- Current handlers expand `%c` to the final per-client ID in publishing, subscription and simulation. Older builds used the base ID template for publishing/simulation. When targeting an older binary, verify the resulting topic with a bounded round trip or use explicit `%i` templates. `%u` remains unresolved if no username is provided.
 
 ## Built-in simulation and listing
 
@@ -89,4 +91,4 @@ mqttx simulate --file ./probe.js -h 127.0.0.1 -p 1883 -l mqtt -V 5.0 \
 
 In 1.13.0, simulation advertises the misspelled `--maximun-reconnect-times`, but runtime code reads `maximumReconnectTimes`. Do not rely on that flag for a finite run; use `--reconnect-period 0` for one-shot tests and enforce a wall-clock deadline. Keep reconnection only when the requested scenario needs it.
 
-Report requested and achieved client/message counts, QoS, payload size, timing, observed rates/errors, and cleanup. Subscriber delivery totals can exceed published totals when multiple subscriptions receive each publication; this is not automatically duplication by the publisher.
+Report requested and achieved client/message counts, QoS, payload size, timing, observed rates/errors, and cleanup. Interpret aggregate deliveries, sampling intervals and broker counters using [benchmark diagnostics](benchmark-diagnostics.md).
