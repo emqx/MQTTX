@@ -7,16 +7,16 @@ description: Use MQTTX CLI for MQTT connections, publishing and subscriptions, M
 
 ## Prepare
 
-1. Locate `mqttx`, read `mqttx --version`, then inspect `mqttx <command> --help` for the task. Treat installed help as authoritative; release channels can differ. Help can echo configured credentials among its defaults; redact them before sharing captured output. If missing or a required feature is unavailable, follow the repository's root `INSTALL.md`, or its [standalone installation guide](https://github.com/emqx/MQTTX/blob/main/INSTALL.md) when this skill has been copied elsewhere. Do not update a working CLI on every invocation.
+1. Locate `mqttx`, read `mqttx --version`, then inspect `mqttx <command> --help` for the task. Treat installed help as authoritative; release channels can differ. If missing or a required feature is unavailable, follow the repository's root `INSTALL.md`, or its [standalone installation guide](https://github.com/emqx/MQTTX/blob/main/INSTALL.md) when this skill has been copied elsewhere. Do not update a working CLI on every invocation.
 2. Establish the broker hostname, port, transport (`mqtt`, `mqtts`, `ws`, `wss`), MQTT version, credentials, topic and intended operation from the user's context. Ask only for missing information that affects execution. Use the requested broker; do not substitute a public broker after a failure.
 3. Account for `~/.mqttx-cli/config`, which can supply default host, port, protocol and credentials. Do not print its secrets or overwrite it for a one-off task. Explicit CLI arguments override defaults; `--load-options` loads command-specific JSON/YAML options, with explicitly supplied CLI arguments taking precedence. See [configuration and utility commands](references/configuration.md) for initialization, saving and loading.
 4. Set a finite observation deadline for connection/subscription tasks and retain a handle to each process started. Use the agent's process controller or an available OS timeout tool; a tool returning a session handle is not necessarily a deadline. Terminate and wait for owned processes at completion or timeout.
 
-The CLI command registration reviewed here does not offer general `--timeout`, `--max-messages`, `--json` or `--output jsonl` flags. Do not invent them. Recheck installed help. `--reconnect-period 0` disables reconnection; it is not an overall deadline. `conn` stays connected after success and `sub` keeps listening until stopped.
+The CLI command registration in this repository (1.13.0) does not offer general `--timeout`, `--max-messages`, `--json` or `--output jsonl` flags. Do not invent them. Recheck help for other versions. `--reconnect-period 0` disables reconnection; it is not an overall deadline. `conn` stays connected after success and `sub` keeps listening until stopped.
 
 ## Choose a workflow
 
-This skill covers the registered command families and their command-specific limitations. Read only the references relevant to the task. Coverage describes how to operate available features; it does not make unsupported combinations work or guarantee every broker implements them.
+This skill covers every command registered in the repository's CLI 1.13.0, including command-specific limitations. Read only the references relevant to the task. Coverage describes how to operate available features; it does not make unsupported combinations work or guarantee every broker implements them.
 
 | Task | Read |
 | --- | --- |
@@ -25,7 +25,6 @@ This skill covers the registered command families and their command-specific lim
 | MQTT 3/5, QoS, retained messages, sessions, wills, request/response, subscription properties | [MQTT features](references/mqtt-features.md) |
 | Text/binary input, interactive line mode, files, codecs, Protobuf/Avro, random payloads | [Payloads and files](references/payloads.md) |
 | `bench conn`, `bench pub`, `bench sub`, `simulate`, `ls --scenarios`, custom generators | [Benchmarks and simulation](references/benchmarks-and-simulation.md) |
-| Suspicious benchmark rates, count mismatches or high-load disconnects | [Benchmark diagnostics](references/benchmark-diagnostics.md) |
 | `init`, `check`, help/version, INI defaults, JSON/YAML options | [Configuration and utilities](references/configuration.md) |
 | Exact flag availability by command and version-specific caveats | [Capability map](references/capabilities.md) |
 | Failures and diagnosis | [Troubleshooting](references/troubleshooting.md) |

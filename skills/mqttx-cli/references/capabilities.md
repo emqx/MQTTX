@@ -1,6 +1,6 @@
 # CLI capability map
 
-Command/flag coverage baseline: repository `cli/src/index.ts`, version **1.13.0**. Benchmark behavior notes also reflect the current handlers. All registered executable commands are routed below. Consult installed `--help` for argument arity, aliases and changes. This table records availability, not a promise that every combination is valid or bug-free.
+Coverage baseline: repository `cli/src/index.ts` and handlers, version **1.13.0**. All registered executable commands are routed below. The flag table was checked against command registration; consult installed `--help` for argument arity, aliases and changes. This table records availability, not a promise that every combination is valid or bug-free.
 
 ## Commands
 
@@ -8,7 +8,6 @@ Command/flag coverage baseline: repository `cli/src/index.ts`, version **1.13.0*
 | --- | --- |
 | `conn`, `pub`, `sub` | [Workflows](workflows.md), [connections](connections.md), [MQTT features](mqtt-features.md), [payloads](payloads.md) |
 | `bench conn`, `bench pub`, `bench sub` | [Benchmarks](benchmarks-and-simulation.md) |
-| Benchmark rates, count mismatches and overload | [Benchmark diagnostics](benchmark-diagnostics.md) |
 | `simulate`, `ls --scenarios` | [Simulation and discovery](benchmarks-and-simulation.md) |
 | `init`, `check` | [Configuration and utilities](configuration.md) |
 | Root `--help`, `--version`, `help [command]`, `bench --help` | [Help and version](configuration.md#help-version-update-check-and-discovery) |
@@ -106,8 +105,7 @@ Command/flag coverage baseline: repository `cli/src/index.ts`, version **1.13.0*
 - A publishing `--subscription-identifier` flag is registered, but client-originated MQTT 5 PUBLISH packets must not contain that property.
 - Clean output bypasses the schema-decoded payload, and suppresses readiness/some error logs. Some connection failures return exit code 0.
 - Piped multiline input bypasses format/schema transformations and has timing limitations; file append converts bytes to text.
-- Older publisher/simulator builds expand `%c` differently from benchmark subscriptions; current handlers use the final per-client ID. See [topic templates](benchmarks-and-simulation.md#topic-and-client-templates).
-- Benchmark subscription readiness can coexist with partial rejections. Earlier benchmark implementations also had rate-normalization and connection-recovery defects; verify actual message flow and timing using [benchmark diagnostics](benchmark-diagnostics.md).
+- Benchmark subscription readiness can coexist with partial rejections.
 
 The specialized guides explain alternatives. Do not work around these limitations by changing CLI code during a usage task. If a requested behavior cannot be expressed reliably, state the limitation and the closest supported workflow.
 
@@ -117,6 +115,4 @@ When updating this skill for a new release, compare command registration and ins
 
 Validation baseline for this revision: the official Linux x64 CLI 1.13.0 and isolated Mosquitto 2.0.22 listeners. Live checks exercised MQTT 3.1/3.1.1/5.0, TLS and mTLS, WebSocket headers, password authentication through an options file, all six format choices, Protobuf/Avro, random payloads, stdin and file input, piped/TTY line modes, numbered file saving and append delimiters, MQTT 5 publication/subscription properties, retained-message clearing, persistent-session delivery, delayed wills, all three benchmark commands, file splitting, all four bundled scenarios, a custom generator, YAML save/load, and `check`. The first-phase checks also verified deadlines, clean-stream parsing and cleanup.
 
-Additional benchmark validation compared CLI 1.13.1 with source `9380e6fc` on Linux ARM64/Node 18, including sustained interactive load, independent monotonic timing and broker-side close reasons. A macOS ARM64 prerelease from that source was also exercised against local MQTT wire fixtures and a broker. These checks cover benchmark rates, connection recovery, client-ID topic expansion and QoS 0/1 split replay; they do not establish a general throughput ceiling or full platform interoperability.
-
-SCRAM against an enhanced-auth broker, service-specific ALPN, WSS, interactive `init` completion, and Windows execution remain outside these live checks. macOS coverage is limited to the benchmark paths above. Their other workflows and flag availability were checked against source/help. Confirm these in the target environment and do not report interoperability success from syntax checks alone. Session/will validation used a separate anonymous single-listener broker after the combined authentication-listener fixture did not deliver those messages; broker configuration is part of the evidence, not a CLI defect diagnosis.
+SCRAM against an enhanced-auth broker, service-specific ALPN, WSS, interactive `init` completion, and macOS/Windows execution were not live-validated here. Their workflows and flag availability were checked against source/help. Confirm these in the target environment and do not report interoperability success from syntax checks alone. Session/will validation used a separate anonymous single-listener broker after the combined authentication-listener fixture did not deliver those messages; broker configuration is part of the evidence, not a CLI defect diagnosis.
