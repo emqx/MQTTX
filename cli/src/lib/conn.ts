@@ -7,6 +7,7 @@ import * as Debug from 'debug'
 import { triggerExitInfo } from '../utils/exitInfo'
 import getBenchClientId from '../utils/getBenchClientId'
 import { createMqttClient } from '../utils/mqttConnect'
+import shouldRetryConnectionError from '../utils/shouldRetryConnectionError'
 
 const conn = (options: ConnectOptions) => {
   const { debug, saveOptions, loadOptions } = options
@@ -74,6 +75,8 @@ const benchConn = async (options: BenchConnectOptions) => {
 
   let connectedCount = 0
 
+  let exhaustedCount = 0
+
   let isLogged = false
 
   const interactiveConn = new Signale({ interactive: true, config: singaleConfig })
@@ -116,14 +119,20 @@ const benchConn = async (options: BenchConnectOptions) => {
 
       client.on('error', (err) => {
         benchLog.error(connectedCount, count, opts.clientId!, err)
-        client.end()
+        if (!shouldRetryConnectionError(err, opts.reconnectPeriod)) {
+          client.end(true, {}, () => process.exit(1))
+        }
       })
 
       client.on('reconnect', () => {
         retryTimes += 1
         if (retryTimes > maximumReconnectTimes) {
-          client.end(false, {}, () => {
+          client.end(true, {}, () => {
             benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
+            exhaustedCount += 1
+            if (exhaustedCount === count) {
+              process.exit(1)
+            }
           })
         } else {
           benchLog.reconnecting(connectedCount, count, opts.clientId!)
