@@ -13,6 +13,7 @@ import getBenchClientId from '../utils/getBenchClientId'
 import createRateSampler from '../utils/createRateSampler'
 import { formatBytes } from '../utils/formatter'
 import { createMqttClient } from '../utils/mqttConnect'
+import validateClientCount from '../utils/validateClientCount'
 
 /**
  *
@@ -242,6 +243,8 @@ const benchSub = async (options: BenchSubscribeOptions) => {
   const { saveOptions, loadOptions } = options
 
   loadOptions && (options = handleLoadOptions('benchSub', loadOptions, options))
+
+  validateClientCount(options.count)
 
   saveOptions && handleSaveOptions('benchSub', options)
 

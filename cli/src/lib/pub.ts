@@ -20,6 +20,7 @@ import createRateSampler from '../utils/createRateSampler'
 import { parsePayloadSize, generateRandomPayload } from '../utils/payloadGenerator'
 import { createMqttClient } from '../utils/mqttConnect'
 import { DEFAULT_MQTT_PUB_MESSAGE } from '../utils/constants'
+import validateClientCount from '../utils/validateClientCount'
 
 /**
  * Processes the outgoing message through two potential stages:
@@ -347,6 +348,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
   let simulator: Simulator = {} as Simulator
   if (commandType === 'simulate') {
     options = loadOptions ? handleLoadOptions('simulate', loadOptions, options as SimulatePubOptions) : options
+    validateClientCount(options.count)
     saveOptions && handleSaveOptions('simulate', options)
 
     const simulateOptions = options as SimulatePubOptions
@@ -354,6 +356,7 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
     simulator = loadSimulator(simulateOptions.scenario, simulateOptions.file)
   } else {
     options = loadOptions ? handleLoadOptions('benchPub', loadOptions, options as BenchPublishOptions) : options
+    validateClientCount(options.count)
     saveOptions && handleSaveOptions('benchPub', options)
   }
 

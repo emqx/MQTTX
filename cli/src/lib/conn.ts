@@ -7,6 +7,7 @@ import * as Debug from 'debug'
 import { triggerExitInfo } from '../utils/exitInfo'
 import getBenchClientId from '../utils/getBenchClientId'
 import { createMqttClient } from '../utils/mqttConnect'
+import validateClientCount from '../utils/validateClientCount'
 
 const conn = (options: ConnectOptions) => {
   const { debug, saveOptions, loadOptions } = options
@@ -63,6 +64,8 @@ const benchConn = async (options: BenchConnectOptions) => {
   const { saveOptions, loadOptions } = options
 
   loadOptions && (options = handleLoadOptions('benchConn', loadOptions, options))
+
+  validateClientCount(options.count)
 
   saveOptions && handleSaveOptions('benchConn', options)
 
