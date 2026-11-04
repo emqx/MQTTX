@@ -1,9 +1,18 @@
 import { expect } from 'chai'
 import cbor from 'cbor'
 import { unpack } from 'msgpackr'
-import { encodePayloadByType, payloadTypeToEditorLang, validatePayloadByType } from '@/utils/payloadEncoder'
+import {
+  encodePayloadByType,
+  payloadTypeOptions,
+  payloadTypeToEditorLang,
+  validatePayloadByType,
+} from '@/utils/payloadEncoder'
 
 describe('payloadEncoder', () => {
+  it('lists the payload types in order', () => {
+    expect(payloadTypeOptions).to.deep.equal(['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR', 'MsgPack'])
+  })
+
   describe('payloadTypeToEditorLang', () => {
     it('uses the JSON highlighter for the JSON-authored formats', () => {
       expect(payloadTypeToEditorLang('JSON')).to.equal('json')
