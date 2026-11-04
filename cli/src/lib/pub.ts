@@ -594,6 +594,9 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
           isConnected = false
         }
         benchLog.close(connectedCount, count, opts.clientId!)
+        if (!client.disconnecting && opts.reconnectPeriod === 0) {
+          process.exit(1)
+        }
       })
 
       client.on('disconnect', (packet: IDisconnectPacket) => {
