@@ -69,10 +69,10 @@ Images are sent to the model. Text files are sent as text, with only the first 6
 
 Choose the permission mode before running a task. During execution, inspect each tool step and its result. Use the approval card to allow or deny a requested action:
 
-- **Ask before actions** is the default. Reads run automatically. Creating, connecting, subscribing, publishing, deleting, and every MCP tool call wait for your approval. Choose **Allow once**, **Always allow this tool in this chat**, or **Deny** on the request card.
-- **Auto** runs these operations without the approval prompt.
+- **Ask before actions** is the default. Reads run automatically. Creating, connecting, subscribing, publishing, deleting, syncing the Topic Tree, stopping timed publishing, and every MCP tool call wait for your approval. Choose **Allow once**, **Always allow this tool in this chat**, or **Deny** on the request card.
+- **Auto** runs most actions without the approval prompt.
 
-Saving, testing and applying scripts always require approval, including in Auto mode. **Always allow this tool in this chat** does not apply to these script operations.
+Deleting, clearing, and saving, testing or applying scripts always require approval, including in Auto mode. **Always allow this tool in this chat** does not apply to these operations.
 
 Switch the current conversation's mode from the pill in the composer. Set the default for new conversations in **Settings → MQTTX Agent → Default permission mode**. MQTTX asks you to confirm the risk the first time you select Auto.
 
@@ -187,6 +187,8 @@ The Agent can:
 MQTTX can keep receiving and saving messages while the connection and its subscriptions remain active, including after you leave the connection page. Available history depends on the messages MQTTX actually received and saved.
 
 Your conversation and tool results are sent to the model provider you configure. When tools read a connection, saved passwords are masked and certificate or private-key files are returned as paths, without their file contents. Text entered directly in the conversation is sent as written, so keep credentials out of your requests.
+
+Remote images in Agent replies appear as text with their URL and are not loaded automatically.
 
 ## Example: connect MQTT operations to a data view
 
