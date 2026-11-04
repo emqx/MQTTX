@@ -9,7 +9,7 @@ Coverage baseline: repository `cli/src/index.ts` and handlers, version **1.13.0*
 | `conn`, `pub`, `sub` | [Workflows](workflows.md), [connections](connections.md), [MQTT features](mqtt-features.md), [payloads](payloads.md) |
 | `bench conn`, `bench pub`, `bench sub` | [Benchmarks](benchmarks-and-simulation.md) |
 | `simulate`, `ls --scenarios` | [Simulation and discovery](benchmarks-and-simulation.md) |
-| `init`, `check` | [Configuration and utilities](configuration.md) |
+| `init`, `check`, `update` (from v1.13.3) | [Configuration and utilities](configuration.md) |
 | Root `--help`, `--version`, `help [command]`, `bench --help` | [Help and version](configuration.md#help-version-update-check-and-discovery) |
 
 ## Registered flags

@@ -48,6 +48,8 @@ irm https://emqx.sh/mqttx.ps1 | iex
 
 Homebrew, npm, Docker and standalone binaries: see the [installation docs](https://mqttx.app/docs/cli/downloading-and-installation).
 
+From v1.13.3, run `mqttx update` to update an existing binary, npm or Homebrew installation in place.
+
 ## AI Agent Support
 
 ### Install or update MQTTX CLI

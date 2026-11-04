@@ -2,6 +2,7 @@ import 'core-js'
 import { Command, Option } from 'commander'
 import { getClientId } from './utils/generator'
 import { checkUpdate } from './utils/checkUpdate'
+import { update } from './lib/update'
 import {
   parseNumber,
   parseProtocol,
@@ -63,6 +64,15 @@ export class Commander {
       .action(async () => {
         await checkUpdate()
       })
+
+    this.program
+      .command('update')
+      .description('Update MQTTX CLI to the latest version.')
+      .allowUnknownOption(false)
+      .hook('preAction', (thisCommand) => {
+        globalThis.command = thisCommand
+      })
+      .action(update)
 
     this.program
       .command('init')
