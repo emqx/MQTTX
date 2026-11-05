@@ -145,13 +145,41 @@ describe('benchmark publish in-flight limit', () => {
     await bench.waitFor(() => bench.connections.every((c) => c.publications.length >= cap * 2))
     await new Promise((resolve) => setTimeout(resolve, 100))
     for (const connection of bench.connections) expect(connection.publications).toHaveLength(cap * 2)
+    expect(
+      bench
+        .output()
+        .split(
+          `Waiting for acknowledgements: in-flight limit ${cap} per connection reached. Use --max-inflight to raise it (max 65535).`,
+        ),
+    ).toHaveLength(2)
+  })
+
+  it('keeps the one-time hint visible while the interactive rate line updates', async () => {
+    const preload = join(directory, 'interactive.js')
+    writeFileSync(
+      preload,
+      `process.stdout.isTTY = true
+process.argv = process.argv.filter((arg) => arg !== '-v')
+`,
+    )
+    const bench = await run(['bench', 'pub', '-c', '2', '-q', '1', '--max-inflight', '5'], ['--require', preload])
+    await bench.waitFor(() => (bench.output().match(/Published total:/g) ?? []).length >= 2)
+    const parts = bench
+      .output()
+      .split(
+        'Waiting for acknowledgements: in-flight limit 5 per connection reached. Use --max-inflight to raise it (max 65535).',
+      )
+    expect(parts).toHaveLength(2)
+    expect(parts[1].split('Published total:')[0]).not.toContain('\u001b[1A')
+    expect(parts[1]).toContain('\u001b[1A')
+    expect(bench.connections.map(({ publications }) => publications.length)).toEqual([5, 5])
   })
 
   describe.each([
     { command: ['bench', 'pub'], key: 'benchPub' },
     { command: ['simulate', '-sc', 'weather'], key: 'simulate' },
   ])('$key options', ({ command, key }) => {
-    it.each(['0', 'not-a-number'])('rejects --max-inflight %s before connecting', async (value) => {
+    it.each(['0', '65536', 'not-a-number'])('rejects --max-inflight %s before connecting', async (value) => {
       const saved = join(directory, 'saved.json')
       const bench = await run([...command, '-c', '1', '--max-inflight', value, '--save-options', saved])
       await bench.waitFor(() => child!.exitCode !== null)
@@ -159,7 +187,9 @@ describe('benchmark publish in-flight limit', () => {
       expect(bench.connections).toHaveLength(0)
       expect(existsSync(saved)).toBe(false)
       expect(bench.output()).toContain(
-        value === '0' ? 'Invalid max inflight: 0. Expected a positive integer.' : 'not-a-number is not a number.',
+        value === 'not-a-number'
+          ? 'not-a-number is not a number.'
+          : `Invalid max inflight: ${value}. Expected an integer between 1 and 65535.`,
       )
     })
 
