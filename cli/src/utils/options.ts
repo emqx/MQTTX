@@ -9,6 +9,7 @@ import {
   isYaml,
 } from './fileUtils'
 import logWrapper from './logWrapper'
+import { parseQoSValue } from './parse'
 
 const defaultPath = `${process.cwd()}/mqttx-cli-options.json`
 
@@ -124,7 +125,16 @@ function handleLoadOptions(commandType: CommandType, savePath: boolean | string,
       const data = readFile(filePath).toString()
       const config = parseYamlOrJson(data, isYaml(filePath))
       validateOptions(commandType, filePath, config)
-      return { ...config[commandType], ...filterOptions('cli', opts) }
+      const options = { ...config[commandType], ...filterOptions('cli', opts) }
+      if ('willQos' in options && options.willQos !== undefined) {
+        options.willQos = parseQoSValue(options.willQos)
+      }
+      if (commandType !== 'conn' && commandType !== 'benchConn' && 'qos' in options && options.qos !== undefined) {
+        const isSubscription = commandType === 'sub' || commandType === 'benchSub'
+        options.qos =
+          isSubscription && Array.isArray(options.qos) ? options.qos.map(parseQoSValue) : parseQoSValue(options.qos)
+      }
+      return options
     } else {
       logWrapper.fail(`Configuration file ${filePath} not found`)
       process.exit(1)

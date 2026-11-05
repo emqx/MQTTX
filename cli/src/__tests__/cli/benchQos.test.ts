@@ -1,5 +1,5 @@
 import { ChildProcess, spawn } from 'child_process'
-import { mkdtempSync, rmSync, writeFileSync } from 'fs'
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'fs'
 import { createServer, Server, Socket } from 'net'
 import { tmpdir } from 'os'
 import { join } from 'path'
@@ -108,16 +108,22 @@ describe('benchmark QoS validation', () => {
       expect(connections).toBe(0)
     })
 
-    it.each([3, 0.5])('rejects invalid loaded QoS %s before opening a connection', async (value) => {
-      const config = join(directory, 'options.json')
-      const commandType = `bench${command[0].toUpperCase()}${command.slice(1)}`
-      const qos = command === 'sub' && key === 'qos' ? [0, value] : value
-      writeFileSync(config, JSON.stringify({ [commandType]: { [key]: qos } }))
-      const result = await run(command, ['--load-options', config])
-      expect(result).toMatchObject({ code: 1, signal: null })
-      expect(result.output).toContain('is not a valid QoS.')
-      expect(connections).toBe(0)
-    })
+    it.each([3, 0.5, { toString: null }])(
+      'rejects invalid loaded QoS %p before saving or connecting',
+      async (value) => {
+        const config = join(directory, 'options.json')
+        const saved = join(directory, 'saved.json')
+        const commandType = `bench${command[0].toUpperCase()}${command.slice(1)}`
+        const qos = command === 'sub' && key === 'qos' ? [0, value] : value
+        writeFileSync(config, JSON.stringify({ [commandType]: { [key]: qos } }))
+        const result = await run(command, ['--load-options', config, '--save-options', saved])
+        expect(result).toMatchObject({ code: 1, signal: null })
+        expect(result.output).toContain('is not a valid QoS.')
+        expect(result.output).not.toContain('TypeError')
+        expect(connections).toBe(0)
+        expect(existsSync(saved)).toBe(false)
+      },
+    )
 
     it.each([0, 1, 2])('preserves valid QoS %s on the wire', async (qos) => {
       const args = [option, String(qos)]
