@@ -3,9 +3,11 @@ import { createServer, Server, Socket } from 'net'
 import { mkdtempSync, rmSync, writeFileSync } from 'fs'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import { generate, parser } from 'mqtt-packet'
+import { generate, IPublishPacket, parser } from 'mqtt-packet'
 
 jest.setTimeout(20000)
+
+const mqtt5 = { protocolVersion: 5 }
 
 describe('publish exit status', () => {
   const sockets = new Set<Socket>()
@@ -48,7 +50,28 @@ describe('publish exit status', () => {
     return address.port
   }
 
-  const run = (port: number, mode: string, extra: string[] = [], keepInputOpen = false) => {
+  const listenMqtt = (onPublish?: (socket: Socket, packet: IPublishPacket) => void, reasonCode = 0) =>
+    listen((socket) => {
+      const packets = parser(mqtt5)
+      socket.on('data', (data) => packets.parse(data))
+      packets.on('packet', (packet) => {
+        if (packet.cmd === 'connect') {
+          socket.write(generate({ cmd: 'connack', reasonCode, sessionPresent: false }, mqtt5))
+        } else if (packet.cmd === 'publish') {
+          onPublish?.(socket, packet)
+        }
+      })
+    })
+
+  const puback = (packet: IPublishPacket, reasonCode = 0) =>
+    generate({ cmd: 'puback', messageId: packet.messageId, reasonCode }, mqtt5)
+
+  const run = (
+    port: number,
+    mode: string,
+    extra: string[] = [],
+    { keepInputOpen = false, reconnectPeriod = 0 } = {},
+  ) => {
     const inputArgs: Record<string, string[]> = {
       message: ['-m', 'test payload'],
       file: ['--file-read', file],
@@ -61,22 +84,26 @@ describe('publish exit status', () => {
       mode === 'interactive'
         ? ['-e', "process.stdin.isTTY = true; process.argv.splice(1, 0, 'mqttx'); require('./bin/index.js')"]
         : ['bin/index.js']
-    child = spawn(process.execPath, [
-      ...entry,
-      'pub',
-      '-h',
-      '127.0.0.1',
-      '-p',
-      String(port),
-      '-V',
-      '5.0',
-      '-rp',
-      '0',
-      '-t',
-      'test/pub-exit',
-      ...inputArgs[mode],
-      ...extra,
-    ])
+    child = spawn(
+      process.execPath,
+      [
+        ...entry,
+        'pub',
+        '-h',
+        '127.0.0.1',
+        '-p',
+        String(port),
+        '-V',
+        '5.0',
+        '-rp',
+        String(reconnectPeriod),
+        '-t',
+        'test/pub-exit',
+        ...inputArgs[mode],
+        ...extra,
+      ],
+      { env: { ...process.env, HOME: directory, USERPROFILE: directory } },
+    )
     const running = child
     return new Promise<{ code: number | null; signal: NodeJS.Signals | null; output: string }>((resolve, reject) => {
       let output = ''
@@ -114,15 +141,7 @@ describe('publish exit status', () => {
   it.each(['message', 'multiline', 'interactive'])(
     'exits with failure when the broker rejects %s authentication',
     async (mode) => {
-      const port = await listen((socket) => {
-        const packets = parser({ protocolVersion: 5 })
-        socket.on('data', (data) => packets.parse(data))
-        packets.on('packet', (packet) => {
-          if (packet.cmd === 'connect') {
-            socket.write(generate({ cmd: 'connack', reasonCode: 135, sessionPresent: false }, { protocolVersion: 5 }))
-          }
-        })
-      })
+      const port = await listenMqtt(undefined, 135)
       const result = await run(port, mode)
       expect(result.output).toContain('Not authorized')
       expect(result.code).toBe(1)
@@ -133,46 +152,34 @@ describe('publish exit status', () => {
   it.each(['multiline', 'interactive'])('does not wait for open %s stdin after connection failure', async (mode) => {
     const port = await listen()
     await new Promise<void>((resolve) => server!.close(() => resolve()))
-    const result = await run(port, mode, [], true)
+    const result = await run(port, mode, [], { keepInputOpen: true })
     expect(result.output).toContain('ECONNREFUSED')
     expect(result.code).toBe(1)
     expect(result.signal).toBeNull()
   })
 
-  it.each(['message', 'multiline'])('exits with failure when a %s publish is rejected', async (mode) => {
-    const port = await listen((socket) => {
-      const packets = parser({ protocolVersion: 5 })
-      socket.on('data', (data) => packets.parse(data))
-      packets.on('packet', (packet) => {
-        if (packet.cmd === 'connect') {
-          socket.write(generate({ cmd: 'connack', reasonCode: 0, sessionPresent: false }, { protocolVersion: 5 }))
-        } else if (packet.cmd === 'publish') {
-          socket.write(
-            generate({ cmd: 'puback', messageId: packet.messageId, reasonCode: 135 }, { protocolVersion: 5 }),
-          )
-        }
-      })
-    })
-    const result = await run(port, mode, ['-q', '1'])
-    expect(result.output).toContain('Publish error')
-    expect(result.code).toBe(1)
-    expect(result.signal).toBeNull()
-  })
+  it.each([
+    { mode: 'message', reconnectPeriod: 0 },
+    { mode: 'multiline', reconnectPeriod: 0 },
+    { mode: 'multiline', reconnectPeriod: 1000 },
+  ])(
+    'fails without reporting success when a $mode publish is rejected (-rp $reconnectPeriod)',
+    async ({ mode, reconnectPeriod }) => {
+      const port = await listenMqtt((socket, packet) => socket.write(puback(packet, 135)))
+      const result = await run(port, mode, ['-q', '1'], { reconnectPeriod })
+      expect(result.output).toContain('Publish error')
+      expect(result.output).not.toMatch(/Message published|Successfully published/)
+      expect(result.code).toBe(1)
+      expect(result.signal).toBeNull()
+    },
+  )
 
   it.each(['message', 'multiline'])(
     'does not wait for pending QoS 1 messages after a %s protocol error',
     async (mode) => {
-      const port = await listen((socket) => {
-        const packets = parser({ protocolVersion: 5 })
-        socket.on('data', (data) => packets.parse(data))
-        packets.on('packet', (packet) => {
-          if (packet.cmd === 'connect') {
-            socket.write(generate({ cmd: 'connack', reasonCode: 0, sessionPresent: false }, { protocolVersion: 5 }))
-          } else if (packet.cmd === 'publish') {
-            // Invalid packet type, withhold PUBACK to leave an outgoing QoS message pending.
-            socket.write(Buffer.from([0, 0]))
-          }
-        })
+      const port = await listenMqtt((socket) => {
+        // Invalid packet type, withhold PUBACK to leave an outgoing QoS message pending.
+        socket.write(Buffer.from([0, 0]))
       })
       const result = await run(port, mode, ['-q', '1'])
       expect(result.output).toContain('Not supported')
@@ -199,24 +206,23 @@ describe('publish exit status', () => {
     },
   )
 
-  it.each(['message', 'multiline', 'interactive'])(
-    'fails when the broker silently closes the %s connection before PUBACK',
-    async (mode) => {
+  it.each([
+    { mode: 'message', reconnectPeriod: 0, closeDelay: 0 },
+    { mode: 'multiline', reconnectPeriod: 0, closeDelay: 1200 },
+    { mode: 'multiline', reconnectPeriod: 1000, closeDelay: 0 },
+    { mode: 'multiline', reconnectPeriod: 1000, closeDelay: 1200 },
+    { mode: 'interactive', reconnectPeriod: 0, closeDelay: 0 },
+  ])(
+    'fails when the broker silently closes the $mode connection before PUBACK (-rp $reconnectPeriod, delay $closeDelay)',
+    async ({ mode, reconnectPeriod, closeDelay }) => {
       let published = false
-      const port = await listen((socket) => {
-        const packets = parser({ protocolVersion: 5 })
-        socket.on('data', (data) => packets.parse(data))
-        packets.on('packet', (packet) => {
-          if (packet.cmd === 'connect') {
-            socket.write(generate({ cmd: 'connack', reasonCode: 0, sessionPresent: false }, { protocolVersion: 5 }))
-          } else if (packet.cmd === 'publish') {
-            published = true
-            // Multiline schedules end() after 1s; an incomplete publish must still fail after that.
-            setTimeout(() => socket.end(), mode === 'multiline' ? 1200 : 0)
-          }
-        })
+      const port = await listenMqtt((socket) => {
+        published = true
+        // Multiline schedules end() after 1s; an incomplete publish must still fail after that.
+        if (closeDelay) setTimeout(() => socket.end(), closeDelay)
+        else socket.end()
       })
-      const result = await run(port, mode, ['-q', '1'])
+      const result = await run(port, mode, ['-q', '1'], { reconnectPeriod })
       expect(published).toBe(true)
       expect(result.code).toBe(1)
       expect(result.signal).toBeNull()
@@ -226,17 +232,7 @@ describe('publish exit status', () => {
   it.each(['message', 'multiline'])(
     'still succeeds when the broker closes the %s connection after PUBACK',
     async (mode) => {
-      const port = await listen((socket) => {
-        const packets = parser({ protocolVersion: 5 })
-        socket.on('data', (data) => packets.parse(data))
-        packets.on('packet', (packet) => {
-          if (packet.cmd === 'connect') {
-            socket.write(generate({ cmd: 'connack', reasonCode: 0, sessionPresent: false }, { protocolVersion: 5 }))
-          } else if (packet.cmd === 'publish') {
-            socket.end(generate({ cmd: 'puback', messageId: packet.messageId }, { protocolVersion: 5 }))
-          }
-        })
-      })
+      const port = await listenMqtt((socket, packet) => socket.end(puback(packet)))
       const result = await run(port, mode, ['-q', '1'])
       expect(result.code).toBe(0)
       expect(result.signal).toBeNull()
@@ -248,17 +244,9 @@ describe('publish exit status', () => {
     'still exits successfully after publishing in %s mode',
     async (mode) => {
       const publications: string[] = []
-      const port = await listen((socket) => {
-        const packets = parser({ protocolVersion: 5 })
-        socket.on('data', (data) => packets.parse(data))
-        packets.on('packet', (packet) => {
-          if (packet.cmd === 'connect') {
-            socket.write(generate({ cmd: 'connack', reasonCode: 0, sessionPresent: false }, { protocolVersion: 5 }))
-          } else if (packet.cmd === 'publish') {
-            publications.push(packet.payload.toString().trim())
-            socket.write(generate({ cmd: 'puback', messageId: packet.messageId }, { protocolVersion: 5 }))
-          }
-        })
+      const port = await listenMqtt((socket, packet) => {
+        publications.push(packet.payload.toString().trim())
+        socket.write(puback(packet))
       })
       const result = await run(port, mode, ['-q', '1'])
       expect(result.code).toBe(0)
