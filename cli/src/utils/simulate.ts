@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import * as fs from 'fs'
 import * as path from 'path'
 
@@ -46,6 +45,8 @@ const loadSimulator = function (name?: string, file?: string): Simulator {
     if (typeof simulatorModule.generator !== 'function') {
       throw new Error('Not a valid simulator module')
     }
+
+    const { faker } = require('@faker-js/faker')
 
     // Rewrite generator to auto inject faker
     const generator = (options: SimulatePubOptions) => {
