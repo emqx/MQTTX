@@ -220,8 +220,16 @@ const multiSend = (
 
 const handlePipedMultiline = (connOpts: IClientOptions, pubOpts: { topic: string; opts: IClientPublishOptions }) => {
   const client = createMqttClient(connOpts)
-  let messageQueue: string[] = []
+  const messageQueue: string[] = []
   let publishedCount = 0
+  let failed = false
+  const publishComplete = () => publishedCount > 0 && publishedCount === messageQueue.length
+  const fail = (err: Error) => {
+    if (failed) return
+    failed = true
+    exitWithPublishError(client, err)
+  }
+  const failIncompletePublish = () => fail(new Error('Connection closed before publishing completed'))
 
   process.stdin.pipe(split2()).on('data', (chunk) => {
     const message = chunk.toString()
@@ -237,30 +245,28 @@ const handlePipedMultiline = (connOpts: IClientOptions, pubOpts: { topic: string
       logWrapper.await(`Publishing ${messageQueue.length} messages...`)
       messageQueue.forEach((message) => {
         client.publish(pubOpts.topic, Buffer.from(message), pubOpts.opts, (err) => {
-          if (err) {
-            exitWithPublishError(client, err)
-          } else {
-            publishedCount++
-            if (publishedCount === messageQueue.length) {
-              logWrapper.success(`Successfully published ${publishedCount} messages`)
-            }
+          // MQTT.js can invoke a publish callback again while removing a rejected packet.
+          if (failed) return
+          if (err) return fail(err)
+          publishedCount++
+          if (publishComplete()) {
+            logWrapper.success(`Successfully published ${publishedCount} messages`)
           }
         })
       })
       setTimeout(() => {
+        // Ending a disconnected client cancels any scheduled reconnect.
+        if (!client.connected && !publishComplete()) return failIncompletePublish()
         client.end()
       }, 1000)
     }
   })
 
-  client.on('error', (err) => {
-    exitWithPublishError(client, err)
-  })
+  client.on('error', fail)
 
   client.on('close', () => {
-    const publishComplete = publishedCount > 0 && publishedCount === messageQueue.length
-    if (!publishComplete && !connOpts.reconnectPeriod) {
-      process.exit(1)
+    if (!publishComplete() && (!connOpts.reconnectPeriod || client.disconnecting)) {
+      failIncompletePublish()
     }
   })
 }
