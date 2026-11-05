@@ -462,8 +462,9 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
   const connStart = Date.now()
 
   let total = 0
-  const reachedLimit = () => limit > 0 && total >= limit
-  const finishedSplit = () => splitLimit > 0 && total >= splitLimit
+  let failed = 0
+  const reachedLimit = () => limit > 0 && total + failed >= limit
+  const finishedSplit = () => splitLimit > 0 && total + failed >= splitLimit
 
   for (let i = 1; i <= count; i++) {
     const pendingMessages = [...splitMessages]
@@ -493,26 +494,35 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
           interactivePub.success('[%d/%d] - Connected', connectedCount, count)
 
           setInterval(async () => {
+            const sent = total + failed
             // If the number of messages sent exceeds the limit, exit the process.
             if (reachedLimit()) {
               // Wait for the total number of sent messages to be printed, then exit the process.
               await delay(1000)
-              logWrapper.success(`All ${total} messages have been sent, reaching the limit of ${limit}.`)
-              process.exit(0)
+              if (failed > 0) {
+                logWrapper.fail(`${failed} of ${sent} messages failed to publish.`)
+              } else {
+                logWrapper.success(`All ${total} messages have been sent, reaching the limit of ${limit}.`)
+              }
+              process.exit(failed > 0 ? 1 : 0)
             }
             // If the segmented message has been completely sent, exit the process.
             if (finishedSplit()) {
               // Wait for the total number of sent messages to be printed, then exit the process.
               await delay(1000)
-              logWrapper.success(`All ${total} messages from the ${fileRead} have been successfully sent.`)
-              process.exit(0)
+              if (failed > 0) {
+                logWrapper.fail(`${failed} of ${sent} messages failed to publish.`)
+              } else {
+                logWrapper.success(`All ${total} messages from the ${fileRead} have been successfully sent.`)
+              }
+              process.exit(failed > 0 ? 1 : 0)
             }
             // If not initialized or client is not connected or message count exceeds the limit, do not send messages.
             if (
               !initialized ||
               !client.connected ||
-              (limit > 0 && total + inFlightMessageCount >= limit) ||
-              (splitLimit > 0 && total + inFlightMessageCount >= splitLimit)
+              (limit > 0 && sent + inFlightMessageCount >= limit) ||
+              (splitLimit > 0 && sent + inFlightMessageCount >= splitLimit)
             ) {
               return
             }
@@ -543,9 +553,15 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
               }
             }
             inFlightMessageCount += 1
+            let completed = false
             client.publish(publishTopic, publishMessage, pubOpts.opts, (err) => {
+              if (completed) {
+                return
+              }
+              completed = true
               inFlightMessageCount -= 1
               if (err) {
+                failed += 1
                 basicLog.error(err)
               } else {
                 total += 1
