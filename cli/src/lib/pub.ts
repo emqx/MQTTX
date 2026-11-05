@@ -442,6 +442,7 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
   let exhaustedCount = 0
 
   let inFlightMessageCount = 0
+  let hasReportedInflightLimit = false
 
   const splitLimit = splitMessages.length * count
 
@@ -518,10 +519,18 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
             if (
               !initialized ||
               !client.connected ||
-              clientInFlightMessageCount >= maxInflight ||
               (limit > 0 && sent + inFlightMessageCount >= limit) ||
               (splitLimit > 0 && sent + inFlightMessageCount >= splitLimit)
             ) {
+              return
+            }
+            if (clientInFlightMessageCount >= maxInflight) {
+              if (!hasReportedInflightLimit) {
+                hasReportedInflightLimit = true
+                logWrapper.log(
+                  `Waiting for acknowledgements: in-flight limit ${maxInflight} per connection reached. Use --max-inflight to raise it (max 65535).`,
+                )
+              }
               return
             }
             let publishTopic = topicName

@@ -139,6 +139,7 @@ describe('benchmark publish acknowledgements', () => {
     expect(result.code).toBe(0)
     expect(result.output).toContain(`All ${limit} messages have been sent, reaching the limit of ${limit}.`)
     expect(result.output).not.toContain('messages failed to publish.')
+    expect(result.output).not.toContain('Waiting for acknowledgements: in-flight limit')
   })
 
   it.each([0x80, 0])('finishes QoS 2 split replay with PUBREC reason code %i', async (reasonCode) => {

@@ -62,16 +62,21 @@ describe('parse utilities', () => {
   })
 
   describe('validateMaxInflight', () => {
-    it.each([1, 5, 100])('accepts the valid cap %p', (cap) => {
+    it.each([1, 5, 100, 65535])('accepts the valid cap %p', (cap) => {
       expect(() => validateMaxInflight(cap)).not.toThrow()
       expect(mockExit).not.toHaveBeenCalled()
     })
 
-    it.each([0, -1, 1.5, NaN, Infinity, -Infinity, '5', null, undefined, true])('rejects the invalid cap %p', (cap) => {
-      expect(() => validateMaxInflight(cap)).toThrow('Process exited with code 1')
-      expect(logWrapper.fail).toHaveBeenCalledWith(`Invalid max inflight: ${cap}. Expected a positive integer.`)
-      expect(mockExit).toHaveBeenCalledWith(1)
-    })
+    it.each([0, -1, 1.5, 65536, NaN, Infinity, -Infinity, '5', null, undefined, true])(
+      'rejects the invalid cap %p',
+      (cap) => {
+        expect(() => validateMaxInflight(cap)).toThrow('Process exited with code 1')
+        expect(logWrapper.fail).toHaveBeenCalledWith(
+          `Invalid max inflight: ${cap}. Expected an integer between 1 and 65535.`,
+        )
+        expect(mockExit).toHaveBeenCalledWith(1)
+      },
+    )
   })
 
   describe('parseProtocol', () => {
