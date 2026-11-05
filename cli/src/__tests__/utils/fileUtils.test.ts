@@ -3,6 +3,7 @@
 import fs from 'fs'
 import os from 'os'
 import path from 'path'
+import { Commander } from '../../index'
 import { appendFile } from '../../utils/fileUtils'
 
 describe('appendFile', () => {
@@ -65,5 +66,16 @@ describe('appendFile', () => {
     appendFile(filePath, Buffer.alloc(0))
 
     expect(fs.readFileSync(filePath)).toEqual(Buffer.from('\n'))
+  })
+
+  it('preserves the text of a delimiter flag without a value', () => {
+    const commander = new Commander()
+    commander.init()
+    const subscribe = commander.program.commands.find((command) => command.name() === 'sub')!
+    subscribe.parseOptions(['--delimiter'])
+
+    appendFile(filePath, Buffer.from([0xff, 0x80]), subscribe.opts().delimiter)
+
+    expect(fs.readFileSync(filePath)).toEqual(Buffer.from([0xff, 0x80, 0x74, 0x72, 0x75, 0x65]))
   })
 })
