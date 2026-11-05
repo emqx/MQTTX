@@ -163,6 +163,7 @@ process.argv = process.argv.filter((arg) => arg !== '-v')
 `,
     )
     const bench = await run(['bench', 'pub', '-c', '2', '-q', '1', '--max-inflight', '5'], ['--require', preload])
+    await bench.waitFor(() => bench.connections.length === 2)
     await bench.waitFor(() => (bench.output().match(/Published total:/g) ?? []).length >= 2)
     const parts = bench
       .output()
