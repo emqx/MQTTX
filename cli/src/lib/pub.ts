@@ -495,23 +495,15 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
 
           setInterval(async () => {
             const sent = total + failed
-            // If the number of messages sent exceeds the limit, exit the process.
-            if (reachedLimit()) {
+            const limitReached = reachedLimit()
+            // If the message or segmented file limit is reached, exit the process.
+            if (limitReached || finishedSplit()) {
               // Wait for the total number of sent messages to be printed, then exit the process.
               await delay(1000)
               if (failed > 0) {
                 logWrapper.fail(`${failed} of ${sent} messages failed to publish.`)
-              } else {
+              } else if (limitReached) {
                 logWrapper.success(`All ${total} messages have been sent, reaching the limit of ${limit}.`)
-              }
-              process.exit(failed > 0 ? 1 : 0)
-            }
-            // If the segmented message has been completely sent, exit the process.
-            if (finishedSplit()) {
-              // Wait for the total number of sent messages to be printed, then exit the process.
-              await delay(1000)
-              if (failed > 0) {
-                logWrapper.fail(`${failed} of ${sent} messages failed to publish.`)
               } else {
                 logWrapper.success(`All ${total} messages from the ${fileRead} have been successfully sent.`)
               }
