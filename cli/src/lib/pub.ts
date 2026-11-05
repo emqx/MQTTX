@@ -436,6 +436,7 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
   const { username } = connOpts
 
   let initialized = false
+  let exiting = false
 
   let connectedCount = 0
 
@@ -500,10 +501,14 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
           interactivePub.success('[%d/%d] - Connected', connectedCount, count)
 
           setInterval(async () => {
+            if (exiting) {
+              return
+            }
             const sent = total + failed
             const limitReached = reachedLimit()
             // If the message or segmented file limit is reached, exit the process.
             if (limitReached || finishedSplit()) {
+              exiting = true
               // Wait for the total number of sent messages to be printed, then exit the process.
               await delay(1000)
               if (failed > 0) {
