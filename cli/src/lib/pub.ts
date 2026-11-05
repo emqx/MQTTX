@@ -490,7 +490,7 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
 
       let topicName = topic.replaceAll('%i', i.toString()).replaceAll('%c', opts.clientId)
       username && (topicName = topicName.replaceAll('%u', username))
-      simulator && (topicName = topicName.replaceAll('%sc', simulator.name))
+      commandType === 'simulate' && (topicName = topicName.replaceAll('%sc', simulator.name))
 
       const client = createMqttClient(opts)
       let hasConnected = false
