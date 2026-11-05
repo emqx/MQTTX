@@ -15,8 +15,10 @@ describe('benchmark reconnection after connection errors', () => {
   let child: ChildProcess | undefined
   let directory: string
   let output: string
+  let connections: { clientId: string; socket: Socket }[]
   let publications: string[]
   let acknowledgePublications: boolean
+  let closeAfterPuback: boolean
   let rejectConnections: boolean
   let interruptHandshakes: boolean
   let interruptClientId: string | undefined
@@ -40,8 +42,10 @@ describe('benchmark reconnection after connection errors', () => {
     directory = mkdtempSync(join(tmpdir(), 'mqttx-bench-reconnect-'))
     child = undefined
     output = ''
+    connections = []
     publications = []
     acknowledgePublications = true
+    closeAfterPuback = false
     rejectConnections = false
     interruptHandshakes = false
     interruptClientId = undefined
@@ -53,6 +57,7 @@ describe('benchmark reconnection after connection errors', () => {
       socket.on('data', (data) => packets.parse(data))
       packets.on('packet', (packet) => {
         if (packet.cmd === 'connect') {
+          connections.push({ clientId: packet.clientId, socket })
           if (interruptHandshakes) {
             socket.end()
             return
@@ -67,7 +72,9 @@ describe('benchmark reconnection after connection errors', () => {
         } else if (packet.cmd === 'publish') {
           publications.push(packet.payload.toString())
           if (packet.qos === 1 && acknowledgePublications) {
-            socket.write(generate({ cmd: 'puback', messageId: packet.messageId }))
+            const ack = generate({ cmd: 'puback', messageId: packet.messageId })
+            if (closeAfterPuback) socket.end(ack)
+            else socket.write(ack)
           }
         }
       })
@@ -92,21 +99,25 @@ describe('benchmark reconnection after connection errors', () => {
   const start = async (command: string, extra: string[] = [], reconnectPeriod = 100, maximumReconnectTimes = 20) => {
     const args = ['bench', command, '-c', '1', '-i', '0']
     if (command !== 'conn') args.push('-t', 'test/reconnect', '-v')
-    child = spawn(process.execPath, [
-      'bin/index.js',
-      ...args,
-      '-h',
-      '127.0.0.1',
-      '-p',
-      String(port),
-      '-V',
-      '3.1.1',
-      '-rp',
-      String(reconnectPeriod),
-      '--maximum-reconnect-times',
-      String(maximumReconnectTimes),
-      ...extra,
-    ])
+    child = spawn(
+      process.execPath,
+      [
+        'bin/index.js',
+        ...args,
+        '-h',
+        '127.0.0.1',
+        '-p',
+        String(port),
+        '-V',
+        '3.1.1',
+        '-rp',
+        String(reconnectPeriod),
+        '--maximum-reconnect-times',
+        String(maximumReconnectTimes),
+        ...extra,
+      ],
+      { env: { ...process.env, HOME: directory, USERPROFILE: directory } },
+    )
     child.stdout!.on('data', (data) => (output += data.toString()))
     child.stderr!.on('data', (data) => (output += data.toString()))
     await waitFor(() => output.includes('Starting'), 15000)
@@ -181,6 +192,23 @@ describe('benchmark reconnection after connection errors', () => {
     if (command === 'pub') expect(publications).toHaveLength(0)
   })
 
+  it('stops an exhausted client at the retry limit while the other client stays connected', async () => {
+    await start('conn', ['-c', '2', '-I', 'reconnect-test'], 50, 2)
+    await waitFor(() => output.includes('Created 2 connections'))
+    const [first, second] = connections
+    interruptHandshakes = true
+    first.socket.end()
+    await waitFor(() => output.includes('Exceed the maximum reconnect times limit'))
+    expect(child!.exitCode).toBeNull()
+
+    second.socket.end()
+    await waitFor(() => child!.exitCode !== null)
+    expect(child!.exitCode).toBe(1)
+    for (const { clientId } of [first, second]) {
+      expect(connections.filter((connection) => connection.clientId === clientId)).toHaveLength(3)
+    }
+  })
+
   it.each(['conn', 'pub', 'sub'])('%s still terminates on an MQTT authentication rejection', async (command) => {
     rejectConnections = true
     await start(command)
@@ -209,6 +237,26 @@ describe('benchmark reconnection after connection errors', () => {
       expect(output).not.toContain('Reconnecting')
     },
   )
+
+  it('fails a silent handshake close when a negative reconnect period disables retries', async () => {
+    interruptHandshakes = true
+    await start('conn', [], -1)
+    await waitFor(() => child!.exitCode !== null)
+    expect(child!.exitCode).toBe(1)
+    expect(connections).toHaveLength(1)
+  })
+
+  it.each(['limit', 'split'])('succeeds if the broker closes after acknowledging the completed %s', async (mode) => {
+    closeAfterPuback = true
+    const file = join(directory, 'messages.txt')
+    writeFileSync(file, 'done')
+    const args = mode === 'limit' ? ['-L', '1', '-m', 'done'] : ['--file-read', file, '--split']
+    await start('pub', ['-q', '1', '-im', '20', ...args], 0)
+    await waitFor(() => child!.exitCode !== null)
+    expect(child!.exitCode).toBe(0)
+    expect(output).toContain(mode === 'limit' ? 'All 1 messages have been sent' : 'All 1 messages from')
+    expect(publications).toEqual(['done'])
+  })
 
   it('fails an interrupted split replay when reconnection is disabled', async () => {
     const file = join(directory, 'messages.txt')

@@ -126,17 +126,7 @@ const benchConn = async (options: BenchConnectOptions) => {
 
       client.on('reconnect', () => {
         retryTimes += 1
-        if (retryTimes > maximumReconnectTimes) {
-          client.end(true, {}, () => {
-            benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
-            exhaustedCount += 1
-            if (!isLogged || exhaustedCount === count) {
-              process.exit(1)
-            }
-          })
-        } else {
-          benchLog.reconnecting(connectedCount, count, opts.clientId!)
-        }
+        benchLog.reconnecting(connectedCount, count, opts.clientId!)
       })
 
       client.on('close', () => {
@@ -145,8 +135,15 @@ const benchConn = async (options: BenchConnectOptions) => {
           isConnected = false
         }
         benchLog.close(connectedCount, count, opts.clientId!)
-        if (!client.disconnecting && opts.reconnectPeriod === 0) {
-          process.exit(1)
+        if (client.disconnecting) return
+        if ((client.options.reconnectPeriod ?? 0) <= 0) process.exit(1)
+        // Stop here because MQTT.js opens a new socket after emitting 'reconnect'.
+        if (retryTimes + 1 > maximumReconnectTimes) {
+          client.end(true, {}, () => {
+            benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
+            exhaustedCount += 1
+            if (!isLogged || exhaustedCount === count) process.exit(1)
+          })
         }
       })
 
