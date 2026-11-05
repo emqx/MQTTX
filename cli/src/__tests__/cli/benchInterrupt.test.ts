@@ -4,6 +4,7 @@ import { createServer, Server, Socket } from 'net'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { generate, parser } from 'mqtt-packet'
+import delay from '../../utils/delay'
 
 jest.setTimeout(15000)
 
@@ -105,7 +106,7 @@ describe('benchmark interrupt statistics', () => {
         if (Date.now() > deadline || child!.exitCode !== null || child!.signalCode !== null) {
           throw new Error(`Benchmark did not reach expected state: ${output}`)
         }
-        await new Promise((resolve) => setTimeout(resolve, 10))
+        await delay(10)
       }
     }
     return {
@@ -182,14 +183,14 @@ describe('benchmark interrupt statistics', () => {
       test.reject,
     )
     await bench.waitFor(() => bench.connections.length === 2)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await delay(1000)
     bench.connections.forEach(bench.connect)
     await bench.waitFor(() => bench.ready() && bench.output().includes('message rate:'))
     await bench.waitFor(() => bench.publications() === limit)
     if (test.reject) {
       await bench.waitFor(() => (bench.output().match(/Publish error/g) ?? []).length === limit)
     }
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await delay(100)
     const elapsed = await bench.interrupt()
     const summary = test.reject
       ? `Published total: 0, failed: ${bench.publications()}, elapsed:`
@@ -204,7 +205,7 @@ describe('benchmark interrupt statistics', () => {
     async (verbose) => {
       const bench = await run(['bench', 'sub', '-t', 'test/bench', '-q', '1', ...(verbose ? ['-v'] : [])])
       await bench.waitFor(() => bench.connections.length === 2)
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await delay(1000)
       bench.connections.forEach(bench.connect)
       await bench.waitFor(bench.ready)
       bench.deliver(3)
