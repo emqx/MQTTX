@@ -130,7 +130,7 @@ const benchConn = async (options: BenchConnectOptions) => {
           client.end(true, {}, () => {
             benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
             exhaustedCount += 1
-            if (exhaustedCount === count) {
+            if (!isLogged || exhaustedCount === count) {
               process.exit(1)
             }
           })

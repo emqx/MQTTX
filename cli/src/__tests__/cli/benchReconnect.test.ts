@@ -19,6 +19,7 @@ describe('benchmark reconnection after connection errors', () => {
   let acknowledgePublications: boolean
   let rejectConnections: boolean
   let interruptHandshakes: boolean
+  let interruptClientId: string | undefined
 
   const listen = () =>
     new Promise<void>((resolve, reject) => {
@@ -43,6 +44,7 @@ describe('benchmark reconnection after connection errors', () => {
     acknowledgePublications = true
     rejectConnections = false
     interruptHandshakes = false
+    interruptClientId = undefined
     server = createServer((socket) => {
       sockets.add(socket)
       socket.on('error', () => {})
@@ -53,6 +55,10 @@ describe('benchmark reconnection after connection errors', () => {
         if (packet.cmd === 'connect') {
           if (interruptHandshakes) {
             socket.end()
+            return
+          }
+          if (packet.clientId === interruptClientId) {
+            socket.destroy()
             return
           }
           socket.write(generate({ cmd: 'connack', returnCode: rejectConnections ? 5 : 0, sessionPresent: false }))
@@ -163,6 +169,16 @@ describe('benchmark reconnection after connection errors', () => {
     expect(child!.exitCode).toBe(1)
     expect(output.match(/Reconnecting/g)).toHaveLength(2)
     expect(output).toContain('Exceed the maximum reconnect times limit')
+  })
+
+  it.each(['conn', 'pub', 'sub'])('%s fails when one client exhausts retries before ready', async (command) => {
+    interruptClientId = 'reconnect-test_2'
+    await start(command, ['-c', '2', '-I', 'reconnect-test', ...(command === 'pub' ? ['-im', '20'] : [])], 50, 2)
+    await waitFor(() => output.includes('[1/2] - Connected'))
+    await waitFor(() => child!.exitCode !== null)
+    expect(child!.exitCode).toBe(1)
+    expect(output).toContain('Exceed the maximum reconnect times limit')
+    if (command === 'pub') expect(publications).toHaveLength(0)
   })
 
   it.each(['conn', 'pub', 'sub'])('%s still terminates on an MQTT authentication rejection', async (command) => {

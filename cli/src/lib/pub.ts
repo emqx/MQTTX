@@ -579,7 +579,7 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
         if (retryTimesArray[i - 1] > maximumReconnectTimes) {
           client.end(true, {}, () => {
             benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
-            if (retryTimesArray.findIndex((times) => times <= maximumReconnectTimes) === -1) {
+            if (!initialized || retryTimesArray.findIndex((times) => times <= maximumReconnectTimes) === -1) {
               process.exit(1)
             }
           })

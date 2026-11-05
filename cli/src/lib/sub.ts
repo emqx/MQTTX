@@ -389,7 +389,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
         if (retryTimesArray[i - 1] > maximumReconnectTimes) {
           client.end(true, {}, () => {
             benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
-            if (retryTimesArray.findIndex((times) => times <= maximumReconnectTimes) === -1) {
+            if (!isLogged || retryTimesArray.findIndex((times) => times <= maximumReconnectTimes) === -1) {
               process.exit(1)
             }
           })
