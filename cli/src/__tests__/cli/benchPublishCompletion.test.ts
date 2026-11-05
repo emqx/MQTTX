@@ -33,7 +33,7 @@ describe.each([
   })
 
   it.each(completions)('schedules one exit after %s completion across 50 clients', async (completion) => {
-    const publications: string[] = []
+    let publicationCount = 0
     server = createServer((socket) => {
       sockets.add(socket)
       socket.on('error', () => {})
@@ -44,7 +44,7 @@ describe.each([
         if (packet.cmd === 'connect') {
           socket.write(generate({ cmd: 'connack', reasonCode: 0, sessionPresent: false }, { protocolVersion: 5 }))
         } else if (packet.cmd === 'publish') {
-          publications.push(packet.payload.toString())
+          publicationCount++
           socket.write(generate({ cmd: 'puback', messageId: packet.messageId!, reasonCode: 0 }, { protocolVersion: 5 }))
         }
       })
@@ -102,7 +102,7 @@ process.on('exit', () => console.log('One-second timeouts: ' + timeoutCount))
       ])
       const timer = setTimeout(() => {
         child!.kill()
-        reject(new Error(`Benchmark timed out after ${publications.length} publishes: ${output}`))
+        reject(new Error(`Benchmark timed out after ${publicationCount} publishes: ${output}`))
       }, 5000)
       child.stdout!.on('data', (data) => (output += data.toString()))
       child.stderr!.on('data', (data) => (output += data.toString()))
@@ -116,7 +116,7 @@ process.on('exit', () => console.log('One-second timeouts: ' + timeoutCount))
       })
     })
 
-    expect(publications).toHaveLength(expectedCount)
+    expect(publicationCount).toBe(expectedCount)
     expect(result.code).toBe(0)
     const summary =
       completion === 'limit'
