@@ -1,5 +1,6 @@
-import { ChildProcess, spawn } from 'child_process'
+import { ChildProcess, execFile } from 'child_process'
 import { createServer, Server, Socket } from 'net'
+import { promisify } from 'util'
 import { generate, parser } from 'mqtt-packet'
 
 jest.setTimeout(10000)
@@ -45,9 +46,9 @@ describe('scenario topic placeholder', () => {
     })
     const address = server.address()
     if (!address || typeof address === 'string') throw new Error('No test broker port')
-    const code = await new Promise<number | null>((resolve, reject) => {
-      let output = ''
-      child = spawn(process.execPath, [
+    const execution = promisify(execFile)(
+      process.execPath,
+      [
         'bin/index.js',
         ...args,
         '-h',
@@ -64,23 +65,11 @@ describe('scenario topic placeholder', () => {
         '20',
         '-L',
         '1',
-      ])
-      const timer = setTimeout(() => {
-        child!.kill()
-        reject(new Error(`CLI timed out: ${output}`))
-      }, 5000)
-      child.stdout!.on('data', (data) => (output += data.toString()))
-      child.stderr!.on('data', (data) => (output += data.toString()))
-      child.once('error', (error) => {
-        clearTimeout(timer)
-        reject(error)
-      })
-      child.once('close', (code) => {
-        clearTimeout(timer)
-        resolve(code)
-      })
-    })
-    expect(code).toBe(0)
+      ],
+      { timeout: 5000 },
+    )
+    child = execution.child
+    await execution
     expect(publications).toEqual([topic])
   })
 })
