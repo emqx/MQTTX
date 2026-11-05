@@ -411,11 +411,11 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
 
   let connectedCount = 0
 
+  let exhaustedCount = 0
+
   let inFlightMessageCount = 0
 
   const splitLimit = splitMessages.length * count
-
-  const retryTimesArray = Array(count).fill(0)
 
   const interactivePub = new Signale({ interactive: true, config: singaleConfig })
 
@@ -437,6 +437,8 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
   const connStart = Date.now()
 
   let total = 0
+  const reachedLimit = () => limit > 0 && total >= limit
+  const finishedSplit = () => splitLimit > 0 && total >= splitLimit
 
   for (let i = 1; i <= count; i++) {
     const pendingMessages = [...splitMessages]
@@ -453,27 +455,28 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
       const client = createMqttClient(opts)
       let hasConnected = false
       let isConnected = false
+      let retryTimes = 0
 
       interactivePub.await('[%d/%d] - Connecting...', connectedCount, count)
 
       client.on('connect', () => {
         connectedCount += 1
         isConnected = true
-        retryTimesArray[i - 1] = 0
+        retryTimes = 0
         if (!hasConnected) {
           hasConnected = true
           interactivePub.success('[%d/%d] - Connected', connectedCount, count)
 
           setInterval(async () => {
             // If the number of messages sent exceeds the limit, exit the process.
-            if (limit > 0 && total >= limit) {
+            if (reachedLimit()) {
               // Wait for the total number of sent messages to be printed, then exit the process.
               await delay(1000)
               logWrapper.success(`All ${total} messages have been sent, reaching the limit of ${limit}.`)
               process.exit(0)
             }
             // If the segmented message has been completely sent, exit the process.
-            if (splitLimit > 0 && total >= splitLimit) {
+            if (finishedSplit()) {
               // Wait for the total number of sent messages to be printed, then exit the process.
               await delay(1000)
               logWrapper.success(`All ${total} messages from the ${fileRead} have been successfully sent.`)
@@ -545,22 +548,15 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
       client.on('error', (err) => {
         benchLog.error(connectedCount, count, opts.clientId!, err)
         if (!shouldRetryConnectionError(err, opts.reconnectPeriod)) {
-          client.end(true, {}, () => process.exit(1))
+          client.end(true, {}, () => {
+            if (!reachedLimit() && !finishedSplit()) process.exit(1)
+          })
         }
       })
 
       client.on('reconnect', () => {
-        retryTimesArray[i - 1] += 1
-        if (retryTimesArray[i - 1] > maximumReconnectTimes) {
-          client.end(true, {}, () => {
-            benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
-            if (!initialized || retryTimesArray.findIndex((times) => times <= maximumReconnectTimes) === -1) {
-              process.exit(1)
-            }
-          })
-        } else {
-          benchLog.reconnecting(connectedCount, count, opts.clientId!)
-        }
+        retryTimes += 1
+        benchLog.reconnecting(connectedCount, count, opts.clientId!)
       })
 
       client.on('close', () => {
@@ -569,8 +565,18 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
           isConnected = false
         }
         benchLog.close(connectedCount, count, opts.clientId!)
-        if (!client.disconnecting && opts.reconnectPeriod === 0) {
-          process.exit(1)
+        if (client.disconnecting) return
+        if (reachedLimit() || finishedSplit()) {
+          client.end(true)
+          return
+        }
+        if ((client.options.reconnectPeriod ?? 0) <= 0) process.exit(1)
+        if (retryTimes + 1 > maximumReconnectTimes) {
+          client.end(true, {}, () => {
+            benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
+            exhaustedCount += 1
+            if (!initialized || exhaustedCount === count) process.exit(1)
+          })
         }
       })
 

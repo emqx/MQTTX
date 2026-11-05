@@ -262,8 +262,6 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
   const subOptsArray = parseSubscribeOptions(options)
 
-  const retryTimesArray = Array(count).fill(0)
-
   const interactiveSub = new Signale({ interactive: true, config: singaleConfig })
 
   benchLog.start.sub(loadOptions, count, interval, hostname, port, topic.join(', '))
@@ -274,6 +272,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
   let isLogged = false
   let isConnectionsLogged = false
   let connectedCount = 0
+  let exhaustedCount = 0
   let subscribedCount = 0
   const allSuccessfulSubs: mqtt.ISubscriptionGrant[] = []
   const failedSubs: { clientId: string; subItem: mqtt.ISubscriptionGrant }[] = []
@@ -295,13 +294,14 @@ const benchSub = async (options: BenchSubscribeOptions) => {
       const client = createMqttClient(opts)
       let hasConnected = false
       let isConnected = false
+      let retryTimes = 0
 
       interactiveSub.await('[%d/%d] - Connecting...', connectedCount, count)
 
       client.on('connect', async () => {
         connectedCount += 1
         isConnected = true
-        retryTimesArray[i - 1] = 0
+        retryTimes = 0
         if (!hasConnected) {
           hasConnected = true
           interactiveSub.success('[%d/%d] - Connected', connectedCount, count)
@@ -385,17 +385,8 @@ const benchSub = async (options: BenchSubscribeOptions) => {
       })
 
       client.on('reconnect', () => {
-        retryTimesArray[i - 1] += 1
-        if (retryTimesArray[i - 1] > maximumReconnectTimes) {
-          client.end(true, {}, () => {
-            benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
-            if (!isLogged || retryTimesArray.findIndex((times) => times <= maximumReconnectTimes) === -1) {
-              process.exit(1)
-            }
-          })
-        } else {
-          benchLog.reconnecting(connectedCount, count, opts.clientId!)
-        }
+        retryTimes += 1
+        benchLog.reconnecting(connectedCount, count, opts.clientId!)
       })
 
       client.on('close', () => {
@@ -404,8 +395,14 @@ const benchSub = async (options: BenchSubscribeOptions) => {
           isConnected = false
         }
         benchLog.close(connectedCount, count, opts.clientId!)
-        if (!client.disconnecting && opts.reconnectPeriod === 0) {
-          process.exit(1)
+        if (client.disconnecting) return
+        if ((client.options.reconnectPeriod ?? 0) <= 0) process.exit(1)
+        if (retryTimes + 1 > maximumReconnectTimes) {
+          client.end(true, {}, () => {
+            benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
+            exhaustedCount += 1
+            if (!isLogged || exhaustedCount === count) process.exit(1)
+          })
         }
       })
 
