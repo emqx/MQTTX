@@ -541,7 +541,7 @@ export class Commander {
       .option('-im, --message-interval <MILLISECONDS>', 'interval of publishing messages', parseNumber, 1000)
       .option(
         '--max-inflight <NUMBER>',
-        'the maximum number of unacknowledged messages per connection',
+        'the maximum number of unacknowledged messages per connection (1-65535)',
         parseNumber,
         100,
       )
@@ -789,7 +789,7 @@ export class Commander {
       .option('-im, --message-interval <MILLISECONDS>', 'interval of publishing messages', parseNumber, 1000)
       .option(
         '--max-inflight <NUMBER>',
-        'the maximum number of unacknowledged messages per connection',
+        'the maximum number of unacknowledged messages per connection (1-65535)',
         parseNumber,
         100,
       )

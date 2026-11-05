@@ -27,8 +27,8 @@ const validateClientCount = (count: unknown): void => {
 }
 
 const validateMaxInflight = (maxInflight: unknown): void => {
-  if (typeof maxInflight !== 'number' || !Number.isInteger(maxInflight) || maxInflight < 1) {
-    logWrapper.fail(`Invalid max inflight: ${maxInflight}. Expected a positive integer.`)
+  if (typeof maxInflight !== 'number' || !Number.isInteger(maxInflight) || maxInflight < 1 || maxInflight > 65535) {
+    logWrapper.fail(`Invalid max inflight: ${maxInflight}. Expected an integer between 1 and 65535.`)
     process.exit(1)
   }
 }
