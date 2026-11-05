@@ -147,6 +147,7 @@ declare global {
     count: number
     interval: number
     messageInterval: number
+    maxInflight?: number
     limit: number
     verbose: boolean
     split?: boolean | string
