@@ -543,7 +543,7 @@ export class Commander {
         '--max-inflight <NUMBER>',
         'the maximum number of unacknowledged messages per connection (1-65535)',
         parseNumber,
-        100,
+        1000,
       )
       .option(
         '-L, --limit <NUMBER>',
@@ -791,7 +791,7 @@ export class Commander {
         '--max-inflight <NUMBER>',
         'the maximum number of unacknowledged messages per connection (1-65535)',
         parseNumber,
-        100,
+        1000,
       )
       .option(
         '-L, --limit <NUMBER>',
