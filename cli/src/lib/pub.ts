@@ -384,7 +384,7 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
         : handleLoadOptions('benchPub', loadOptions, options)
   }
   validateClientCount(options.count)
-  const { maxInflight = 100 } = options
+  const { maxInflight = 1000 } = options
   validateMaxInflight(maxInflight)
   saveOptions && handleSaveOptions(commandType, options)
 
