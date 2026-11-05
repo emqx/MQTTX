@@ -1,13 +1,12 @@
 import * as mqtt from 'mqtt'
 import { Signale, basicLog, benchLog, signale, singaleConfig } from '../utils/logWrapper'
-import { parseConnectOptions } from '../utils/parse'
+import { parseConnectOptions, validateClientCount } from '../utils/parse'
 import delay from '../utils/delay'
 import { handleSaveOptions, handleLoadOptions } from '../utils/options'
 import * as Debug from 'debug'
 import { triggerExitInfo } from '../utils/exitInfo'
 import getBenchClientId from '../utils/getBenchClientId'
 import { createMqttClient } from '../utils/mqttConnect'
-import validateClientCount from '../utils/validateClientCount'
 
 const conn = (options: ConnectOptions) => {
   const { debug, saveOptions, loadOptions } = options
@@ -77,8 +76,6 @@ const benchConn = async (options: BenchConnectOptions) => {
 
   let isLogged = false
 
-  const retryTimesArray = Array(count).fill(0)
-
   const interactiveConn = new Signale({ interactive: true, config: singaleConfig })
 
   benchLog.start.conn(loadOptions, count, interval, hostname, port)
@@ -94,13 +91,14 @@ const benchConn = async (options: BenchConnectOptions) => {
       const client = createMqttClient(opts)
       let hasConnected = false
       let isConnected = false
+      let retryTimes = 0
 
       interactiveConn.await('[%d/%d] - Connecting...', connectedCount, count)
 
       client.on('connect', () => {
         connectedCount += 1
         isConnected = true
-        retryTimesArray[i - 1] = 0
+        retryTimes = 0
         if (!hasConnected) {
           hasConnected = true
           interactiveConn.success('[%d/%d] - Connected', connectedCount, count)
@@ -122,8 +120,8 @@ const benchConn = async (options: BenchConnectOptions) => {
       })
 
       client.on('reconnect', () => {
-        retryTimesArray[i - 1] += 1
-        if (retryTimesArray[i - 1] > maximumReconnectTimes) {
+        retryTimes += 1
+        if (retryTimes > maximumReconnectTimes) {
           client.end(false, {}, () => {
             benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
           })

@@ -1,6 +1,12 @@
 import * as mqtt from 'mqtt'
 import logWrapper, { Signale, msgLog, basicLog, benchLog, singaleConfig, signale } from '../utils/logWrapper'
-import { parseConnectOptions, parseSubscribeOptions, parseSchemaOptions, checkTopicExists } from '../utils/parse'
+import {
+  parseConnectOptions,
+  parseSubscribeOptions,
+  parseSchemaOptions,
+  checkTopicExists,
+  validateClientCount,
+} from '../utils/parse'
 import delay from '../utils/delay'
 import convertPayload from '../utils/convertPayload'
 import { handleSaveOptions, handleLoadOptions } from '../utils/options'
@@ -13,7 +19,6 @@ import getBenchClientId from '../utils/getBenchClientId'
 import createRateSampler from '../utils/createRateSampler'
 import { formatBytes } from '../utils/formatter'
 import { createMqttClient } from '../utils/mqttConnect'
-import validateClientCount from '../utils/validateClientCount'
 
 /**
  *
