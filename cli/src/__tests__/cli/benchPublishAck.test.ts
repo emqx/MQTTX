@@ -32,9 +32,12 @@ describe('benchmark publish acknowledgements', () => {
   const run = async (
     args: string[],
     acks: { puback?: (index: number) => number; pubrec?: number; pubcomp?: number } = {},
-  ): Promise<{ code: number | null; output: string; publications: string[] }> => {
+    nodeArgs: string[] = [],
+  ) => {
     const publications: string[] = []
+    const publicationsByClient = new Map<string, string[]>()
     server = createServer((socket) => {
+      const messages: string[] = []
       sockets.add(socket)
       socket.on('error', () => {})
       socket.on('close', () => sockets.delete(socket))
@@ -42,9 +45,11 @@ describe('benchmark publish acknowledgements', () => {
       socket.on('data', (data) => packets.parse(data))
       packets.on('packet', (packet) => {
         if (packet.cmd === 'connect') {
+          publicationsByClient.set(packet.clientId, messages)
           socket.write(generate({ cmd: 'connack', reasonCode: 0, sessionPresent: false }, { protocolVersion: 5 }))
         } else if (packet.cmd === 'publish') {
           publications.push(packet.payload.toString())
+          messages.push(packet.payload.toString())
           socket.write(
             generate(
               {
@@ -71,9 +76,15 @@ describe('benchmark publish acknowledgements', () => {
     })
     const address = server.address()
     if (!address || typeof address === 'string') throw new Error('No test broker port')
-    return new Promise((resolve, reject) => {
+    return new Promise<{
+      code: number | null
+      output: string
+      publications: string[]
+      publicationsByClient: Map<string, string[]>
+    }>((resolve, reject) => {
       let output = ''
       child = spawn(process.execPath, [
+        ...nodeArgs,
         'bin/index.js',
         'bench',
         'pub',
@@ -106,7 +117,7 @@ describe('benchmark publish acknowledgements', () => {
       })
       child.once('close', (code) => {
         clearTimeout(timer)
-        resolve({ code, output, publications })
+        resolve({ code, output, publications, publicationsByClient })
       })
     })
   }
@@ -141,6 +152,52 @@ describe('benchmark publish acknowledgements', () => {
     expect(result.output).not.toContain('messages failed to publish.')
     expect(result.output).not.toContain('Waiting for acknowledgements: in-flight limit')
   })
+
+  it.each(['\n', '::'])(
+    'replays 200 split messages once in order for each of 3 QoS 1 clients with %j',
+    async (delimiter) => {
+      const messages = Array.from({ length: 200 }, (_, index) => `line ${index}`)
+      const file = join(directory, 'messages.txt')
+      writeFileSync(file, messages.join(delimiter))
+      const preload = join(directory, 'split-reads.js')
+      // Guard the shared array against mutation and eager per-client copies.
+      writeFileSync(
+        preload,
+        `const fileUtils = require(${JSON.stringify(join(process.cwd(), 'dist/src/utils/fileUtils'))})
+const mqttConnect = require(${JSON.stringify(join(process.cwd(), 'dist/src/utils/mqttConnect'))})
+const split = fileUtils.fileDataSplitter
+const connect = mqttConnect.createMqttClient
+let reads = 0
+fileUtils.fileDataSplitter = (...args) => new Proxy(Object.freeze(split(...args)), {
+  get(target, key, receiver) {
+    if (typeof key === 'string' && /^\\d+$/.test(key)) reads++
+    return Reflect.get(target, key, receiver)
+  },
+})
+mqttConnect.createMqttClient = (...args) => {
+  if (reads > 0) throw new Error('Split lines read before all clients were created')
+  return connect(...args)
+}
+process.on('exit', () => console.log('Split line reads: ' + reads))
+`,
+      )
+      const result = await run(
+        ['-c', '3', '-q', '1', '--file-read', file, '--split', ...(delimiter === '\n' ? [] : [delimiter])],
+        {},
+        ['--require', preload],
+      )
+      expect(result.output).not.toContain('Split lines read before all clients were created')
+      expect(result.code).toBe(0)
+      expect(result.publications).toHaveLength(messages.length * 3)
+      expect(result.publicationsByClient.size).toBe(3)
+      result.publicationsByClient.forEach((received) => expect(received).toEqual(messages))
+      expect(result.output).toContain(
+        `All ${messages.length * 3} messages from the ${file} have been successfully sent.`,
+      )
+      expect(result.output).toContain(`Split line reads: ${messages.length * 3}`)
+      expect(result.output).not.toContain('messages failed to publish.')
+    },
+  )
 
   it.each([0x80, 0])('finishes QoS 2 split replay with PUBREC reason code %i', async (reasonCode) => {
     const messages = ['one', 'two', 'three', 'four']
