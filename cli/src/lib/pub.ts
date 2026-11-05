@@ -413,7 +413,7 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
 
   // File Handler
   let fileData: Buffer | string
-  let splitMessages: string[] = []
+  let splitMessages: readonly string[] = []
   if (fileRead) {
     fileData = handleFileRead(processPath(fileRead))
     if (split) {
@@ -472,7 +472,7 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
   const finishedSplit = () => splitLimit > 0 && total + failed >= splitLimit
 
   for (let i = 1; i <= count; i++) {
-    const pendingMessages = [...splitMessages]
+    let splitMessageIndex = 0
 
     ;((i: number, connOpts: mqtt.IClientOptions) => {
       const opts = { ...connOpts }
@@ -558,10 +558,10 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
               if (!split) {
                 publishMessage = fileData
               } else {
-                if (pendingMessages.length === 0) {
+                if (splitMessageIndex >= splitMessages.length) {
                   return
                 }
-                publishMessage = Buffer.from(pendingMessages.shift()!)
+                publishMessage = Buffer.from(splitMessages[splitMessageIndex++])
               }
             }
             inFlightMessageCount += 1
