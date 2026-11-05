@@ -10,7 +10,13 @@ import delay from '../utils/delay'
 import { fileDataSplitter, processPath, readFile } from '../utils/fileUtils'
 import logWrapper, { basicLog, benchLog, Signale, signale, simulateLog, singaleConfig } from '../utils/logWrapper'
 import { handleLoadOptions, handleSaveOptions } from '../utils/options'
-import { checkScenarioExists, checkTopicExists, parseConnectOptions, parsePublishOptions } from '../utils/parse'
+import {
+  checkScenarioExists,
+  checkTopicExists,
+  parseConnectOptions,
+  parsePublishOptions,
+  validateClientCount,
+} from '../utils/parse'
 import { serializeProtobufToBuffer } from '../utils/protobuf'
 import { serializeAvroToBuffer } from '../utils/avro'
 import { loadSimulator } from '../utils/simulate'
@@ -20,7 +26,6 @@ import createRateSampler from '../utils/createRateSampler'
 import { parsePayloadSize, generateRandomPayload } from '../utils/payloadGenerator'
 import { createMqttClient } from '../utils/mqttConnect'
 import { DEFAULT_MQTT_PUB_MESSAGE } from '../utils/constants'
-import validateClientCount from '../utils/validateClientCount'
 
 /**
  * Processes the outgoing message through two potential stages:
@@ -342,22 +347,23 @@ const pub = (options: PublishOptions) => {
   }
 }
 
-const multiPub = async (commandType: CommandType, options: BenchPublishOptions | SimulatePubOptions) => {
+const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPublishOptions | SimulatePubOptions) => {
   const { saveOptions, loadOptions } = options
+
+  if (loadOptions) {
+    options =
+      commandType === 'simulate'
+        ? handleLoadOptions('simulate', loadOptions, options as SimulatePubOptions)
+        : handleLoadOptions('benchPub', loadOptions, options)
+  }
+  validateClientCount(options.count)
+  saveOptions && handleSaveOptions(commandType, options)
 
   let simulator: Simulator = {} as Simulator
   if (commandType === 'simulate') {
-    options = loadOptions ? handleLoadOptions('simulate', loadOptions, options as SimulatePubOptions) : options
-    validateClientCount(options.count)
-    saveOptions && handleSaveOptions('simulate', options)
-
     const simulateOptions = options as SimulatePubOptions
     checkScenarioExists(simulateOptions.scenario, simulateOptions.file)
     simulator = loadSimulator(simulateOptions.scenario, simulateOptions.file)
-  } else {
-    options = loadOptions ? handleLoadOptions('benchPub', loadOptions, options as BenchPublishOptions) : options
-    validateClientCount(options.count)
-    saveOptions && handleSaveOptions('benchPub', options)
   }
 
   const {

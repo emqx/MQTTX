@@ -1,5 +1,6 @@
 import {
   parseNumber,
+  validateClientCount,
   parseProtocol,
   parseMQTTVersion,
   parseKeyValues,
@@ -34,6 +35,25 @@ describe('parse utilities', () => {
       expect(logWrapper.fail).toHaveBeenCalledWith('not a number is not a number.')
       expect(mockExit).toHaveBeenCalledWith(1)
     })
+  })
+
+  describe('validateClientCount', () => {
+    it.each([1, 2, 1000, 0xffffffff])('accepts the valid client count %p', (count) => {
+      expect(() => validateClientCount(count)).not.toThrow()
+      expect(logWrapper.fail).not.toHaveBeenCalled()
+      expect(mockExit).not.toHaveBeenCalled()
+    })
+
+    it.each([-1, 0, 1.5, NaN, Infinity, -Infinity, 0x100000000, Number.MAX_SAFE_INTEGER, '1', null, undefined, true])(
+      'rejects the invalid client count %p',
+      (count) => {
+        expect(() => validateClientCount(count)).toThrow('Process exited with code 1')
+        expect(logWrapper.fail).toHaveBeenCalledWith(
+          `Invalid client count: ${count}. Expected an integer between 1 and 4294967295.`,
+        )
+        expect(mockExit).toHaveBeenCalledWith(1)
+      },
+    )
   })
 
   describe('parseProtocol', () => {

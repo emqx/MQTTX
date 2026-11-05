@@ -16,6 +16,16 @@ const parseNumber = (value: string) => {
   return parsedValue
 }
 
+// Benchmark retry counters are stored in arrays, whose maximum length is 2^32 - 1.
+const MAX_CLIENT_COUNT = 0xffffffff
+
+const validateClientCount = (count: unknown): void => {
+  if (typeof count !== 'number' || !Number.isInteger(count) || count < 1 || count > MAX_CLIENT_COUNT) {
+    logWrapper.fail(`Invalid client count: ${count}. Expected an integer between 1 and ${MAX_CLIENT_COUNT}.`)
+    process.exit(1)
+  }
+}
+
 const parseProtocol = (value: string) => {
   if (!['mqtt', 'mqtts', 'ws', 'wss'].includes(value)) {
     logWrapper.fail('Only mqtt, mqtts, ws and wss are supported.')
@@ -455,6 +465,7 @@ const parseSubscribeOptions = (options: SubscribeOptions) => {
 
 export {
   parseNumber,
+  validateClientCount,
   parseProtocol,
   parseMQTTVersion,
   parseKeyValues,
