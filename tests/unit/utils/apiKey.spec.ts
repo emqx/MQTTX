@@ -82,6 +82,22 @@ describe('apiKey', () => {
     it('returns null when the legacy value cannot be read', () => {
       expect(migrateAPIKey('not-a-ciphertext')).to.equal(null)
     })
+
+    it('returns null when a CryptoJS value does not decrypt to UTF-8', () => {
+      const stored = CryptoJS.AES.encrypt(CryptoJS.enc.Hex.parse('ff'), ENCRYPT_KEY).toString()
+      expect(migrateAPIKey(stored)).to.equal(null)
+    })
+
+    it('does not decrypt a value that is not CryptoJS output', () => {
+      const originalDecrypt = CryptoJS.AES.decrypt
+      try {
+        CryptoJS.AES.decrypt = () => ({ toString: () => 'garbage' })
+        expect(migrateAPIKey('not-a-ciphertext')).to.equal(null)
+        expect(decryptAPIKey('not-a-ciphertext')).to.equal('')
+      } finally {
+        CryptoJS.AES.decrypt = originalDecrypt
+      }
+    })
   })
 
   describe('Linux storage backend', () => {
