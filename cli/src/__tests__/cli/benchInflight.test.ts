@@ -4,6 +4,7 @@ import { createServer, Server, Socket } from 'net'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { generate, parser } from 'mqtt-packet'
+import delay from '../../utils/delay'
 
 jest.setTimeout(10000)
 
@@ -98,7 +99,7 @@ describe('benchmark publish in-flight limit', () => {
         if (Date.now() > deadline || child!.exitCode !== null || child!.signalCode !== null) {
           throw new Error(`Benchmark did not reach expected state: ${output}`)
         }
-        await new Promise((resolve) => setTimeout(resolve, 10))
+        await delay(10)
       }
     }
     return {
@@ -136,14 +137,14 @@ describe('benchmark publish in-flight limit', () => {
     await bench.waitFor(
       () => bench.connections.length === count && bench.connections.every((c) => c.publications.length >= cap),
     )
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await delay(1000)
     for (const connection of bench.connections) {
       expect(connection.publications).toHaveLength(cap)
       expect(new Set(connection.publications.map(({ messageId }) => messageId)).size).toBe(cap)
     }
     bench.acknowledge()
     await bench.waitFor(() => bench.connections.every((c) => c.publications.length >= cap * 2))
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await delay(100)
     for (const connection of bench.connections) expect(connection.publications).toHaveLength(cap * 2)
     expect(
       bench
@@ -202,12 +203,12 @@ process.argv = process.argv.filter((arg) => arg !== '-v')
       await stop()
       bench = await run([...command, '--load-options', file])
       await bench.waitFor(() => bench.connections[0]?.publications.length >= 5)
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await delay(100)
       expect(bench.connections[0].publications).toHaveLength(5)
       await stop()
       bench = await run([...command, '--load-options', file, '--max-inflight', '2'])
       await bench.waitFor(() => bench.connections[0]?.publications.length >= 2)
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await delay(100)
       expect(bench.connections[0].publications).toHaveLength(2)
     })
   })
