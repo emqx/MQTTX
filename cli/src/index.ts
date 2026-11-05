@@ -540,6 +540,12 @@ export class Commander {
       .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
       .option('-im, --message-interval <MILLISECONDS>', 'interval of publishing messages', parseNumber, 1000)
       .option(
+        '--max-inflight <NUMBER>',
+        'the maximum number of unacknowledged messages per connection',
+        parseNumber,
+        100,
+      )
+      .option(
         '-L, --limit <NUMBER>',
         'the maximum number of messages to publish. a value of 0 means no limit on the number of messages',
         parseNumber,
@@ -781,6 +787,12 @@ export class Commander {
       .option('-c, --count <NUMBER>', 'the number of connections', parseNumber, 1000)
       .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
       .option('-im, --message-interval <MILLISECONDS>', 'interval of publishing messages', parseNumber, 1000)
+      .option(
+        '--max-inflight <NUMBER>',
+        'the maximum number of unacknowledged messages per connection',
+        parseNumber,
+        100,
+      )
       .option(
         '-L, --limit <NUMBER>',
         'the maximum number of messages to publish. a value of 0 means no limit on the number of messages',
