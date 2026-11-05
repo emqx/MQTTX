@@ -6,12 +6,18 @@ import { ENCRYPT_KEY } from '@/utils/idGenerator'
 // migrated on startup, and are still written when no usable keychain exists.
 const SAFE_PREFIX = 'safe:'
 
+// CryptoJS output always starts with base64 `Salted__`; without it, a random salt makes the result random.
+const LEGACY_PREFIX = 'U2FsdGVkX1'
+
 // Linux safeStorage falls back to `basic_text` (a hardcoded password) when no real keyring is available
 const canUseSafeStorage = (): boolean =>
   safeStorage.isEncryptionAvailable() &&
   (process.platform !== 'linux' || !['basic_text', 'unknown'].includes(safeStorage.getSelectedStorageBackend()))
 
-const decryptLegacy = (stored: string): string => CryptoJS.AES.decrypt(stored, ENCRYPT_KEY).toString(CryptoJS.enc.Utf8)
+const decryptLegacy = (stored: string): string => {
+  if (!stored.startsWith(LEGACY_PREFIX)) return ''
+  return CryptoJS.AES.decrypt(stored, ENCRYPT_KEY).toString(CryptoJS.enc.Utf8)
+}
 
 export const encryptAPIKey = (plain: string): string => {
   if (!plain) return ''
@@ -36,7 +42,7 @@ export const decryptAPIKey = (stored: string): string => {
 
 export const migrateAPIKey = (stored: string): string | null => {
   if (!stored || stored.startsWith(SAFE_PREFIX) || !canUseSafeStorage()) return null
-  const plain = decryptLegacy(stored)
+  const plain = decryptAPIKey(stored)
   if (!plain) return null
   return encryptAPIKey(plain)
 }
