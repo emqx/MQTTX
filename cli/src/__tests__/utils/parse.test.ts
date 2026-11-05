@@ -152,12 +152,13 @@ describe('parse utilities', () => {
       },
     )
 
-    it.each([3, -1, 0.5, null, false, [], {}])('rejects invalid QoS loaded from configuration: %p', (value) => {
-      expect(() => parseConnectOptions({ willQos: value } as unknown as ConnectOptions)).toThrow()
-      expect(() => parsePublishOptions({ qos: value } as unknown as PublishOptions)).toThrow()
-      expect(() => parseSubscribeOptions({ topic: ['test'], qos: [0, value] } as unknown as SubscribeOptions)).toThrow()
-      expect(mockExit).toHaveBeenCalledWith(1)
-    })
+    it.each([[3], [-1], [0.5], [null], [false], [[]], [{}], [{ toString: null }]])(
+      'rejects invalid QoS %p',
+      (value) => {
+        expect(() => parseQoSValue(value)).toThrow('Process exited with code 1')
+        expect(mockExit).toHaveBeenCalledWith(1)
+      },
+    )
   })
 
   describe('parseQoS', () => {
