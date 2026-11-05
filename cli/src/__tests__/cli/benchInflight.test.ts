@@ -120,7 +120,7 @@ describe('benchmark publish in-flight limit', () => {
 
   it.each([
     { name: 'QoS 1', command: ['bench', 'pub'], qos: 1, cap: 5, count: 1, options: ['--max-inflight', '5'] },
-    { name: 'default QoS 1', command: ['bench', 'pub'], qos: 1, cap: 100, count: 1, options: [] },
+    { name: 'default QoS 1', command: ['bench', 'pub'], qos: 1, cap: 1000, count: 1, options: [] },
     { name: 'QoS 2', command: ['bench', 'pub'], qos: 2, cap: 5, count: 1, options: ['--max-inflight', '5'] },
     { name: 'multiple clients', command: ['bench', 'pub'], qos: 1, cap: 5, count: 2, options: ['--max-inflight', '5'] },
     {
