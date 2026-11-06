@@ -26,6 +26,13 @@ const validateClientCount = (count: unknown): void => {
   }
 }
 
+const validateMaxInflight = (maxInflight: unknown): void => {
+  if (typeof maxInflight !== 'number' || !Number.isInteger(maxInflight) || maxInflight < 1 || maxInflight > 65535) {
+    logWrapper.fail(`Invalid max inflight: ${maxInflight}. Expected an integer between 1 and 65535.`)
+    process.exit(1)
+  }
+}
+
 const parseProtocol = (value: string) => {
   if (!['mqtt', 'mqtts', 'ws', 'wss'].includes(value)) {
     logWrapper.fail('Only mqtt, mqtts, ws and wss are supported.')
@@ -470,6 +477,7 @@ const parseSubscribeOptions = (options: SubscribeOptions) => {
 export {
   parseNumber,
   validateClientCount,
+  validateMaxInflight,
   parseProtocol,
   parseMQTTVersion,
   parseKeyValues,

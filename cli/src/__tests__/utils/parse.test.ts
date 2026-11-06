@@ -1,6 +1,7 @@
 import {
   parseNumber,
   validateClientCount,
+  validateMaxInflight,
   parseProtocol,
   parseMQTTVersion,
   parseKeyValues,
@@ -54,6 +55,24 @@ describe('parse utilities', () => {
         expect(() => validateClientCount(count)).toThrow('Process exited with code 1')
         expect(logWrapper.fail).toHaveBeenCalledWith(
           `Invalid client count: ${count}. Expected an integer between 1 and 4294967295.`,
+        )
+        expect(mockExit).toHaveBeenCalledWith(1)
+      },
+    )
+  })
+
+  describe('validateMaxInflight', () => {
+    it.each([1, 5, 100, 65535])('accepts the valid cap %p', (cap) => {
+      expect(() => validateMaxInflight(cap)).not.toThrow()
+      expect(mockExit).not.toHaveBeenCalled()
+    })
+
+    it.each([0, -1, 1.5, 65536, NaN, Infinity, -Infinity, '5', null, undefined, true])(
+      'rejects the invalid cap %p',
+      (cap) => {
+        expect(() => validateMaxInflight(cap)).toThrow('Process exited with code 1')
+        expect(logWrapper.fail).toHaveBeenCalledWith(
+          `Invalid max inflight: ${cap}. Expected an integer between 1 and 65535.`,
         )
         expect(mockExit).toHaveBeenCalledWith(1)
       },

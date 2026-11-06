@@ -16,6 +16,7 @@ import {
   parseConnectOptions,
   parsePublishOptions,
   validateClientCount,
+  validateMaxInflight,
 } from '../utils/parse'
 import { serializeProtobufToBuffer } from '../utils/protobuf'
 import { serializeAvroToBuffer } from '../utils/avro'
@@ -383,6 +384,8 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
         : handleLoadOptions('benchPub', loadOptions, options)
   }
   validateClientCount(options.count)
+  const { maxInflight = 1000 } = options
+  validateMaxInflight(maxInflight)
   saveOptions && handleSaveOptions(commandType, options)
 
   let simulator: Simulator = {} as Simulator
@@ -439,6 +442,7 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
   let exhaustedCount = 0
 
   let inFlightMessageCount = 0
+  let hasReportedInflightLimit = false
 
   const splitLimit = splitMessages.length * count
 
@@ -482,6 +486,8 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
       let hasConnected = false
       let isConnected = false
       let retryTimes = 0
+      let clientInFlightMessageCount = 0
+      const pendingQos0 = new Set<(err?: Error) => void>()
 
       interactivePub.await('[%d/%d] - Connecting...', connectedCount, count)
 
@@ -518,6 +524,15 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
             ) {
               return
             }
+            if (clientInFlightMessageCount >= maxInflight) {
+              if (!hasReportedInflightLimit) {
+                hasReportedInflightLimit = true
+                logWrapper.log(
+                  `Waiting for acknowledgements: in-flight limit ${maxInflight} per connection reached. Use --max-inflight to raise it (max 65535).`,
+                )
+              }
+              return
+            }
             let publishTopic = topicName
             let publishMessage = message
 
@@ -545,20 +560,27 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
               }
             }
             inFlightMessageCount += 1
+            clientInFlightMessageCount += 1
             let completed = false
-            client.publish(publishTopic, publishMessage, pubOpts.opts, (err) => {
+            const onPublish = (err?: Error) => {
               if (completed) {
                 return
               }
               completed = true
+              pendingQos0.delete(onPublish)
               inFlightMessageCount -= 1
+              clientInFlightMessageCount -= 1
               if (err) {
                 failed += 1
                 basicLog.error(err)
               } else {
                 total += 1
               }
-            })
+            }
+            if (pubOpts.opts.qos === 0) {
+              pendingQos0.add(onPublish)
+            }
+            client.publish(publishTopic, publishMessage, pubOpts.opts, onPublish)
           }, messageInterval)
         } else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)
@@ -593,6 +615,8 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
       })
 
       client.on('close', () => {
+        // MQTT.js does not flush QoS 0 callbacks waiting for the old stream to drain.
+        pendingQos0.forEach((callback) => callback(new Error('Connection closed')))
         if (isConnected) {
           connectedCount -= 1
           isConnected = false
