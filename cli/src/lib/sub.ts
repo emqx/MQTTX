@@ -345,8 +345,10 @@ const benchSub = async (options: BenchSubscribeOptions) => {
         }
 
         if (connectedCount === count && subscribedCount === count * topic.length && !isLogged) {
-          if (allSuccessfulSubs.length > 0) {
+          if (failedSubs.length === 0) {
             logWrapper.success(`All connections subscribed`)
+          } else if (allSuccessfulSubs.length > 0) {
+            logWrapper.warn(`Subscribed ${allSuccessfulSubs.length} of ${subscribedCount} topics`)
           }
 
           if (failedSubs.length > 0) {
