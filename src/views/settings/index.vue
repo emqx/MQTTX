@@ -32,7 +32,7 @@
         <el-col :span="4">
           <el-switch
             :value="autoCheck"
-            active-color="#13ce66"
+            active-color="var(--color-action-green)"
             inactive-color="#A2A9B0"
             @change="handleAutoCheckSwitchChange"
           >
@@ -59,7 +59,7 @@
         <el-col :span="4">
           <el-switch
             :value="autoResub"
-            active-color="#13ce66"
+            active-color="var(--color-action-green)"
             inactive-color="#A2A9B0"
             @change="handleAutoResubSwitchChange"
           >
@@ -86,7 +86,7 @@
         <el-col :span="4">
           <el-switch
             :value="multiTopics"
-            active-color="#13ce66"
+            active-color="var(--color-action-green)"
             inactive-color="#A2A9B0"
             @change="handleMultiTopicsSwitchChange"
           >
@@ -155,7 +155,7 @@
         <el-col :span="4">
           <el-switch
             :value="syncOsTheme"
-            active-color="#13ce66"
+            active-color="var(--color-action-green)"
             inactive-color="#A2A9B0"
             @change="handleSyncOsThemeSwitchChange"
           >
@@ -203,7 +203,7 @@
         <el-col :span="4">
           <el-switch
             :value="jsonHighlight"
-            active-color="#13ce66"
+            active-color="var(--color-action-green)"
             inactive-color="#A2A9B0"
             @change="handleJsonHighlightSwitchChange"
           >
@@ -248,7 +248,7 @@
         :show-close="false"
         append-to-body
       >
-        <el-progress :percentage="progressValue" color="#34c388"></el-progress>
+        <el-progress :percentage="progressValue" color="var(--color-main-green)"></el-progress>
       </el-dialog>
     </div>
 
@@ -335,7 +335,7 @@
         <el-col :span="4">
           <el-switch
             :value="ignoreQoS0Message"
-            active-color="#13ce66"
+            active-color="var(--color-action-green)"
             inactive-color="#A2A9B0"
             @change="handleIgnoreQoS0MessageSwitchChange"
           >
@@ -361,7 +361,7 @@
         <el-col :span="4">
           <el-switch
             :value="topicWhitespaceDetection"
-            active-color="#13ce66"
+            active-color="var(--color-action-green)"
             inactive-color="#A2A9B0"
             @change="handleTopicWhitespaceDetectionChange"
           >
@@ -387,7 +387,7 @@
         <el-col :span="4">
           <el-switch
             :value="decompressGzip"
-            active-color="#13ce66"
+            active-color="var(--color-action-green)"
             inactive-color="#A2A9B0"
             @change="handleDecompressGzipChange"
           >
@@ -413,7 +413,7 @@
         <el-col :span="4">
           <el-switch
             :value="enableHardwareAcceleration"
-            active-color="#13ce66"
+            active-color="var(--color-action-green)"
             inactive-color="#A2A9B0"
             @change="handleEnableHardwareAccelerationChange"
           >
@@ -438,7 +438,7 @@
         <el-col :span="4">
           <el-switch
             :value="enableAgent"
-            active-color="#13ce66"
+            active-color="var(--color-action-green)"
             inactive-color="#A2A9B0"
             @change="handleEnableAgentSwitchChange"
           >

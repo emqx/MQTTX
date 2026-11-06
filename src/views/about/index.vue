@@ -417,7 +417,7 @@ export default class About extends Vue {
   }
 
   .emq-msg.is-received:hover {
-    box-shadow: 0 8px 24px rgba(52, 195, 136, 0.15);
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--color-main-green) 15%, transparent);
   }
 
   .link-btn {
@@ -426,7 +426,7 @@ export default class About extends Vue {
 
     &:hover {
       background: linear-gradient(135deg, #f0fdf6 0%, #f5f7ff 100%);
-      box-shadow: 0 8px 24px rgba(52, 195, 136, 0.15);
+      box-shadow: 0 8px 24px color-mix(in srgb, var(--color-main-green) 15%, transparent);
     }
   }
 
@@ -693,7 +693,7 @@ export default class About extends Vue {
   height: 6px;
   border-radius: 50%;
   background: var(--color-main-green);
-  box-shadow: 0 0 0 3px rgba(52, 195, 136, 0.2);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-main-green) 20%, transparent);
 }
 
 .emq-msg-row {
@@ -747,7 +747,7 @@ export default class About extends Vue {
   }
 
   &.is-platform {
-    --topic-color: #34c388;
+    --topic-color: var(--color-main-green);
     animation-delay: 0.3s;
   }
 
@@ -816,7 +816,7 @@ export default class About extends Vue {
   margin-left: -4px;
   padding: 1px 6px;
   border-radius: 100px;
-  background: linear-gradient(90deg, #34c388, #7b6cff);
+  background: linear-gradient(90deg, var(--color-main-green), #7b6cff);
   color: #fff;
   font-size: 10px;
   font-weight: 600;
@@ -831,7 +831,7 @@ export default class About extends Vue {
   flex-shrink: 0;
   padding: 3px 10px;
   border-radius: 100px;
-  background: rgba(52, 195, 136, 0.12);
+  background: color-mix(in srgb, var(--color-main-green) 12%, transparent);
   color: var(--color-main-green);
   font-size: 12px;
   font-weight: 600;

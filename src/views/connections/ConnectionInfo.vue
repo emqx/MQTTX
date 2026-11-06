@@ -286,6 +286,7 @@ export default class ConnectionInfo extends Vue {
       box-shadow: #00000011 0px 1px 3px, #0000002e 0px 1px 2px;
       &.connect {
         background: var(--color-bg-btn-gradient);
+        color: var(--color-action-foreground);
       }
     }
     .el-button.cancel {

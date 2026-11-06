@@ -13,14 +13,14 @@ body.night {
   --color-bg-select_lang: #262529b3;
   --color-bg-popover: #fff;
   --color-bg-dark: #0052cc6b;
-  --color-bg-unreadmsg: #34c388;
+  --color-bg-unreadmsg: #18866a;
   --color-bg-historybtn: #4d535b;
   --color-bg-scrollbar: #ffffff33;
   --color-bg-skeleton: #292b33;
   --color-bg-skeleton_transition: #212328;
   --color-bg-card-normal: #323e4f;
   --color-bg-card-gradient: linear-gradient(33deg, #263e4b 0%, #2b344d 100%);
-  --color-bg-btn-gradient: linear-gradient(90deg, #35c98d 0%, #37dc85 100%);
+  --color-bg-btn-gradient: linear-gradient(90deg, #00875f 0%, #087f5b 100%);
   --color-bg-tags: #262729;
 
   /* Font color */
@@ -39,9 +39,13 @@ body.night {
   --color-text-tags: #d3d3d3;
 
   /* Accent color */
-  --color-main-green: #34c388;
-  --color-minor-green: #53daa2;
-  --color-light-green: #ebf8f2;
+  --color-main-green: #60d2b3;
+  --color-minor-green: #87e2c7;
+  --color-light-green: #1b443a;
+  --color-action-green: #00875f;
+  --color-action-green-hover: #087f5b;
+  --color-action-foreground: #fff;
+  --color-leftbar-active: var(--color-main-green);
   --color-minor-red: #f56c6c;
   --color-light-red: #fcdee4;
   --color-main-grey: #292a33;

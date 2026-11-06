@@ -81,6 +81,48 @@
 }
 
 /* Button */
+.el-button--primary:not(.is-plain) {
+  color: var(--color-action-foreground);
+  background-color: var(--color-action-green);
+  border-color: var(--color-action-green);
+  &:hover,
+  &:focus,
+  &:active {
+    background-color: var(--color-action-green-hover);
+    border-color: var(--color-action-green-hover);
+  }
+  &.is-disabled,
+  &.is-disabled:hover,
+  &.is-disabled:focus {
+    background-color: var(--color-action-green);
+    border-color: var(--color-action-green);
+    opacity: 0.5;
+  }
+}
+.el-form .el-form-item .el-form-item__content .el-button--primary:not(.is-plain) > span {
+  color: var(--color-action-foreground);
+}
+.el-switch.is-checked .el-switch__core::after {
+  box-shadow: 0 0 0 1px var(--color-main-green);
+}
+.el-button--text,
+.el-select-dropdown__item.selected,
+.el-checkbox__input.is-checked + .el-checkbox__label,
+.el-radio__input.is-checked + .el-radio__label {
+  color: var(--color-main-green);
+}
+.el-button--text:hover,
+.el-button--text:focus {
+  color: var(--color-minor-green);
+}
+.el-input__inner:focus,
+.el-textarea__inner:focus,
+.el-select .el-input.is-focus .el-input__inner {
+  border-color: var(--color-main-green);
+}
+.el-tabs__active-bar {
+  background-color: var(--color-main-green);
+}
 .el-button--mini {
   border-radius: 8px;
 }
