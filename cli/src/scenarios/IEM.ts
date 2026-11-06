@@ -1,4 +1,4 @@
-import { Faker } from '@faker-js/faker'
+import type { Faker } from '@faker-js/faker'
 
 const calculateEnergyConsumption = (faker: Faker, maxPower: number) => {
   const ratedPower = maxPower * 1000
