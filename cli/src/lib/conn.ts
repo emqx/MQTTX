@@ -81,6 +81,11 @@ const benchConn = async (options: BenchConnectOptions) => {
 
   const interactiveConn = new Signale({ interactive: true, config: singaleConfig })
 
+  process.once('SIGINT', () => {
+    signale.log(`Connected total: ${connectedCount}/${count}`)
+    process.exit(130)
+  })
+
   benchLog.start.conn(loadOptions, count, interval, hostname, port)
 
   const start = Date.now()

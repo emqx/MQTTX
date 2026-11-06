@@ -470,6 +470,15 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
   let failed = 0
   const reachedLimit = () => limit > 0 && total + failed >= limit
   const finishedSplit = () => splitLimit > 0 && total + failed >= splitLimit
+  let readyAt: bigint | undefined
+
+  process.once('SIGINT', () => {
+    const elapsed = readyAt === undefined ? 0 : Number(process.hrtime.bigint() - readyAt) / 1e9
+    logWrapper.log(
+      `Published total: ${total}${failed > 0 ? `, failed: ${failed}` : ''}, elapsed: ${elapsed.toFixed(2)}s`,
+    )
+    process.exit(130)
+  })
 
   for (let i = 1; i <= count; i++) {
     let splitMessageIndex = 0
@@ -593,6 +602,7 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
 
         if (connectedCount === count && !initialized) {
           initialized = true
+          readyAt = process.hrtime.bigint()
           const connEnd = Date.now()
           signale.success(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
 

@@ -269,6 +269,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
   const connStart = Date.now()
 
   let total = 0
+  let readyAt: bigint | undefined
   let isLogged = false
   let isConnectionsLogged = false
   let connectedCount = 0
@@ -276,6 +277,12 @@ const benchSub = async (options: BenchSubscribeOptions) => {
   let subscribedCount = 0
   const allSuccessfulSubs: mqtt.ISubscriptionGrant[] = []
   const failedSubs: { clientId: string; subItem: mqtt.ISubscriptionGrant }[] = []
+
+  process.once('SIGINT', () => {
+    const elapsed = readyAt === undefined ? 0 : Number(process.hrtime.bigint() - readyAt) / 1e9
+    logWrapper.log(`Received total: ${total}, elapsed: ${elapsed.toFixed(2)}s`)
+    process.exit(130)
+  })
 
   const logConnections = () => {
     if (connectedCount === count && !isConnectionsLogged) {
@@ -361,6 +368,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
           total = 0
           isLogged = true
+          readyAt = process.hrtime.bigint()
           const sampleRate = createRateSampler()
 
           const logRate = () => {
