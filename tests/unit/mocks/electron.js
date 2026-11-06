@@ -6,6 +6,9 @@ module.exports = {
     on: () => {},
     removeListener: () => {},
   },
+  ipcMain: {
+    handle: () => {},
+  },
   ipcRenderer: {
     on: () => {},
     once: () => {},

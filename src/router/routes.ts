@@ -42,6 +42,7 @@ const routes: Routes[] = [
         ],
       },
       { path: '/settings', name: 'Settings', component: () => import('@/views/settings/index.vue') },
+      { path: '/cloud', name: 'Cloud', component: () => import('@/views/cloud/index.vue') },
       { path: '/about', name: 'About', component: () => import('@/views/about/index.vue') },
       { path: '/script', name: 'Script', component: () => import('@/views/script/index.vue') },
       { path: '/agent/:conversationId?', name: 'Agent', component: () => import('@/views/agent/index.vue') },
