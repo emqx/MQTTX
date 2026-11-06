@@ -18,6 +18,7 @@ type i18nLocaleModel = [
   'update',
   'viewer',
   'agent',
+  'cloud',
 ]
 type SupportLangModel = ['zh', 'en', 'ja', 'tr', 'hu', 'ko']
 

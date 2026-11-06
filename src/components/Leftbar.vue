@@ -53,6 +53,7 @@ export default class Leftbar extends Vue {
     { path: '/viewer', icon: 'icon-tree-view' },
     { path: '/script', icon: 'icon-script' },
     { path: '/log', icon: 'icon-log' },
+    { path: '/cloud', icon: 'icon-cloud-logo' },
   ]
 
   private bottomItems: MenuItem[] = [
