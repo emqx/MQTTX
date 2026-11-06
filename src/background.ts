@@ -22,6 +22,7 @@ import { initialize } from '@electron/remote/main'
 import { initMCPHandlers, cleanupMCPConnections } from './main/ai/mcp/MCPManager'
 import { getEnableHardwareAccelerationSetting } from '@/utils/settings'
 import { decryptAPIKey, encryptAPIKey, migrateAPIKey } from '@/utils/apiKey'
+import { initializeCloud } from './main/cloud'
 
 /**
  * Fix the PATH environment variable in packaged Electron apps
@@ -350,6 +351,7 @@ async function createWindow() {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
+  initializeCloud()
   // Install Vue Devtools on development mode
   if (isDevelopment && !process.env.IS_TEST) {
     try {

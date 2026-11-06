@@ -40,6 +40,7 @@ export const formati18n = (transItems: i18nLocaleModel, langs: SupportLangModel)
       update: {},
       viewer: {},
       agent: {},
+      cloud: {},
     }
   })
   transItems.forEach((item) => {
