@@ -25,6 +25,7 @@ interface CatalogRelease {
   signature?: string
 }
 interface ExtensionOptions {
+  developmentURL?: string
   root: string
   catalogURL: string
   publicKey?: string | KeyObject
@@ -67,6 +68,7 @@ export async function boundedFetch(url: string, max: number, signal: AbortSignal
   return Buffer.concat(chunks)
 }
 export class CloudExtension extends EventEmitter {
+  private readonly developmentURL?: string
   private readonly installWorkerPath?: string
   readonly root: string
   readonly catalogURL: string
@@ -94,6 +96,7 @@ export class CloudExtension extends EventEmitter {
   private mountStarted = false
   private readonly rejected: Set<string>
   constructor({
+    developmentURL,
     root,
     catalogURL,
     publicKey = '',
@@ -104,6 +107,7 @@ export class CloudExtension extends EventEmitter {
     installWorkerPath,
   }: ExtensionOptions) {
     super()
+    this.developmentURL = developmentURL
     this.installWorkerPath = installWorkerPath
     this.cloudURL = cloudURL
     this.root = root
@@ -116,7 +120,8 @@ export class CloudExtension extends EventEmitter {
     this.releases = path.join(root, 'releases')
     this.saved = { removed: false, active: null }
     try {
-      if (fs.existsSync(this.statePath)) this.saved = JSON.parse(fs.readFileSync(this.statePath, 'utf8'))
+      if (!developmentURL && fs.existsSync(this.statePath))
+        this.saved = JSON.parse(fs.readFileSync(this.statePath, 'utf8'))
     } catch {
       this.saved = { removed: true, active: null }
     }
@@ -136,7 +141,7 @@ export class CloudExtension extends EventEmitter {
     this.rejected = new Set<string>()
   }
   private persist(): void {
-    atomicJSON(this.statePath, this.saved)
+    if (!this.developmentURL) atomicJSON(this.statePath, this.saved)
   }
   get removed(): boolean {
     return this.saved.removed
@@ -154,7 +159,13 @@ export class CloudExtension extends EventEmitter {
   }
   snapshot(): ExtensionSnapshot {
     const info = (item: CloudRelease | null): CloudReleaseInfo | null =>
-      item ? { id: item.id, version: item.version, url: `${this.origin}/${this.secret}/${item.id}/index.html` } : null
+      item
+        ? {
+            id: item.id,
+            version: item.version,
+            url: this.developmentURL || `${this.origin}/${this.secret}/${item.id}/index.html`,
+          }
+        : null
     return {
       removed: this.saved.removed,
       busy: this.busy,
@@ -229,6 +240,14 @@ export class CloudExtension extends EventEmitter {
       this.saved.removed = false
       this.persist()
     }
+    if (this.developmentURL) {
+      if (!this.active && !this.candidate) {
+        this.candidate = { id: `r-${randomUUID()}`, version: 'development' }
+        this.arm()
+      }
+      this.emit('change')
+      return this.snapshot()
+    }
     await this.serve()
     if (!this.active && this.saved.active) {
       try {
@@ -247,7 +266,7 @@ export class CloudExtension extends EventEmitter {
     return this.snapshot()
   }
   check(): void {
-    if (this.busy || this.saved.removed || this.candidate) return
+    if (this.developmentURL || this.busy || this.saved.removed || this.candidate) return
     this.busy = true
     this.emit('change')
     this.error = null
@@ -354,7 +373,7 @@ export class CloudExtension extends EventEmitter {
     clearTimeout(this.timer)
     const candidate = this.candidate
     const next = { removed: false, active: { ...candidate } }
-    atomicJSON(this.statePath, next)
+    if (!this.developmentURL) atomicJSON(this.statePath, next)
     this.saved = next
     this.active = candidate
     this.candidate = null
@@ -375,9 +394,10 @@ export class CloudExtension extends EventEmitter {
       this.saved.active = null
       this.persist()
     }
-    void fs.promises
-      .rm(dir, { recursive: true, force: true })
-      .catch((error) => logCloudFailure('discard release', error))
+    if (!this.developmentURL)
+      void fs.promises
+        .rm(dir, { recursive: true, force: true })
+        .catch((error) => logCloudFailure('discard release', error))
     if (this.active) this.updateError = message
     else this.error = message
     this.emit('change')
@@ -395,7 +415,7 @@ export class CloudExtension extends EventEmitter {
     this.error = null
     this.updateError = null
     if (this.job) await this.job.catch(() => {})
-    await fs.promises.rm(this.releases, { recursive: true, force: true })
+    if (!this.developmentURL) await fs.promises.rm(this.releases, { recursive: true, force: true })
     this.emit('change')
     return this.snapshot()
   }

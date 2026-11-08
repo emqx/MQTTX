@@ -56,10 +56,20 @@ export function initializeCloud(
 function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
   const authURL = origin(environment.MQTTX_CLOUD_AUTH_URL || 'http://127.0.0.1:43110')
   const cloudURL = origin(environment.MQTTX_CLOUD_API_URL || 'http://127.0.0.1:43111')
+  const developmentOrigin =
+    !app.isPackaged && environment.WEBPACK_DEV_SERVER_URL && environment.MQTTX_CLOUD_DEV_URL
+      ? origin(environment.MQTTX_CLOUD_DEV_URL)
+      : undefined
+  if (
+    developmentOrigin &&
+    (!developmentOrigin.startsWith('http:') || new URL(developmentOrigin).hostname !== '127.0.0.1')
+  )
+    throw new CloudError('INVALID_SERVICE_URL')
   const root = path.join(app.getPath('userData'), 'cloud')
   const vault = new CredentialStore(root, safeStorage, JSON.stringify({ authURL, cloudURL, client: 'mqttx' }))
   const auth = new CloudAuth({ authURL, vault, openExternal: (url) => shell.openExternal(url) })
   const extension = new CloudExtension({
+    developmentURL: developmentOrigin ? `${developmentOrigin}/dev.html` : undefined,
     cloudURL,
     root,
     catalogURL: environment.MQTTX_CLOUD_CATALOG_URL || 'http://127.0.0.1:43112/catalog.json',
@@ -91,7 +101,8 @@ function createCloudRuntime(environment: NodeJS.ProcessEnv): CloudInvoke {
     })
   }
   const schedule = (): void => {
-    if (viewers.size && !timer) timer = setInterval(() => extension.check(), extension.checkInterval)
+    if (viewers.size && !timer && !developmentOrigin)
+      timer = setInterval(() => extension.check(), extension.checkInterval)
     if (!viewers.size && timer) {
       clearInterval(timer)
       timer = undefined

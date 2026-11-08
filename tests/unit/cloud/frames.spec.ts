@@ -123,6 +123,29 @@ describe('Cloud frame lifecycle and bridge', () => {
     assert.lengthOf(port.messages, count)
   })
 
+  it('reconnects a development frame after a full reload and discards replies from the old connection', async () => {
+    state = { ...state, active: { ...first, version: 'development' }, candidate: null }
+    ipcRenderer.invoke = async () => ({ ok: true, data: state })
+    await manager.sync(state)
+    const element = container.querySelector('iframe')!
+    hello(element)
+    const firstPort = channels[0].port1
+    await firstPort.request({ seq: 1, method: 'ready' })
+    let finish!: (value: unknown) => void
+    ipcRenderer.invoke = () =>
+      new Promise((resolve) => {
+        finish = resolve
+      })
+    const pending = firstPort.request({ seq: 2, method: 'credential' })
+    element.dispatchEvent(new Event('load'))
+    assert.isTrue(firstPort.closed)
+    hello(element)
+    assert.lengthOf(channels, 2)
+    await channels[1].port1.request({ seq: 2, method: 'theme' })
+    finish({ ok: true, data: { value: 'old-connection' } })
+    await pending
+    assert.deepEqual(channels[1].port1.messages, [{ seq: 2, ok: true, data: theme }])
+  })
   it('does not recreate frames when cleared during an unfinished mounting request', async () => {
     let finish!: (value: unknown) => void
     ipcRenderer.invoke = () => new Promise((resolve) => (finish = resolve))
