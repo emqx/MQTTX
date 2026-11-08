@@ -1,5 +1,8 @@
 import { assert } from 'chai'
 import { app, ipcMain } from 'electron'
+import fs from 'fs'
+import os from 'os'
+import path from 'path'
 import { initializeCloud } from '../../../src/main/cloud'
 
 describe('Cloud initialization isolation', () => {
@@ -36,6 +39,62 @@ describe('Cloud initialization isolation', () => {
       console.error = originalLog
       if (packaged) Object.defineProperty(app, 'isPackaged', packaged)
       else Reflect.deleteProperty(app, 'isPackaged')
+    }
+  })
+  it('accepts only loopback extension development URLs and ignores them outside host development mode', async () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mqttx-cloud-dev-'))
+    const handle = ipcMain.handle,
+      getPath = app.getPath,
+      once = app.once,
+      log = console.error
+    const packaged = Object.getOwnPropertyDescriptor(app, 'isPackaged')
+    const cleanup: Array<() => void> = []
+    let handler!: Parameters<typeof ipcMain.handle>[1]
+    try {
+      app.getPath = () => root
+      app.once = ((_event: string, listener: () => void) => {
+        cleanup.push(listener)
+        return app
+      }) as typeof app.once
+      ipcMain.handle = (_channel, listener) => {
+        handler = listener
+      }
+      console.error = () => {}
+      const frame = { url: 'app://./index.html' }
+      const event = {
+        senderFrame: frame,
+        sender: { mainFrame: frame, once: () => {}, isDestroyed: () => false, send: () => {} },
+      } as unknown as Electron.IpcMainInvokeEvent
+      const environment = {
+        MQTTX_CLOUD_AUTH_URL: 'https://auth.example.com',
+        MQTTX_CLOUD_API_URL: 'https://cloud.example.com',
+        MQTTX_CLOUD_DEV_URL: 'https://untrusted.example.com',
+      }
+      Object.defineProperty(app, 'isPackaged', { configurable: true, value: false })
+      initializeCloud({ ...environment, WEBPACK_DEV_SERVER_URL: 'http://localhost:8080' })
+      assert.strictEqual((await handler(event, 'status', {})).error.code, 'INVALID_SERVICE_URL')
+      initializeCloud(environment)
+      assert.isTrue((await handler(event, 'status', {})).ok)
+      Object.defineProperty(app, 'isPackaged', { configurable: true, value: true })
+      initializeCloud({ ...environment, WEBPACK_DEV_SERVER_URL: 'http://localhost:8080' })
+      assert.isTrue((await handler(event, 'status', {})).ok)
+      Object.defineProperty(app, 'isPackaged', { configurable: true, value: false })
+      initializeCloud({
+        ...environment,
+        WEBPACK_DEV_SERVER_URL: 'http://localhost:8080',
+        MQTTX_CLOUD_DEV_URL: 'http://127.0.0.1:5173',
+      })
+      const result = await handler(event, 'enter', {})
+      assert.strictEqual(result.data.candidate.url, 'http://127.0.0.1:5173/dev.html')
+    } finally {
+      for (const dispose of cleanup) dispose()
+      ipcMain.handle = handle
+      app.getPath = getPath
+      app.once = once
+      console.error = log
+      if (packaged) Object.defineProperty(app, 'isPackaged', packaged)
+      else Reflect.deleteProperty(app, 'isPackaged')
+      fs.rmSync(root, { recursive: true, force: true })
     }
   })
   it('keeps application startup running and reports invalid configuration through Cloud IPC', async () => {
