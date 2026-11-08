@@ -7,9 +7,15 @@
           <span>{{ $t('cloud.remaining') }} {{ $t('cloud.minutes', { count: minutes }) }}</span>
           <el-button type="text" @click="authenticate('logout')">{{ $t('cloud.logout') }}</el-button>
         </template>
-        <el-button v-if="!state.removed" type="text" :disabled="removing" @click="remove">{{
-          $t('cloud.remove')
-        }}</el-button>
+        <el-button
+          v-if="!state.removed"
+          class="cloud-remove"
+          type="text"
+          icon="el-icon-delete"
+          :disabled="removing"
+          @click="remove"
+          >{{ $t('cloud.remove') }}</el-button
+        >
       </div>
     </header>
     <el-alert v-if="failure || state.error" :title="issueText(failure || state.error)" type="error" :closable="false" />
@@ -19,25 +25,50 @@
       type="info"
       :closable="false"
     />
-    <el-alert
-      v-if="!state.removed && state.session.message"
-      :title="issueText(state.session.message)"
-      :type="waiting ? 'info' : 'warning'"
-      :closable="false"
-    />
     <div v-if="state.removed" class="cloud-placeholder">
       <h2>{{ $t('cloud.removed') }}</h2>
       <p>{{ $t('cloud.addHint') }}</p>
       <el-button type="primary" :disabled="removing" @click="prepare('add')">{{ $t('cloud.add') }}</el-button>
     </div>
     <div v-else-if="!signedIn" class="cloud-placeholder cloud-login">
-      <h2>{{ $t(waiting ? 'cloud.authorize' : 'cloud.connect') }}</h2>
-      <p>{{ $t('cloud.loginHint') }}</p>
-      <p>{{ $t('cloud.passwordHint') }}</p>
-      <el-button v-if="waiting" @click="authenticate('cancel')">{{ $t('common.cancel') }}</el-button>
-      <el-button v-else type="primary" :disabled="removing" @click="authenticate('login')">{{
-        $t('cloud.login')
-      }}</el-button>
+      <section class="cloud-login-card" aria-labelledby="cloud-login-title">
+        <div class="cloud-login-mark" aria-hidden="true">
+          <i v-if="waiting" class="el-icon-loading"></i>
+          <svg v-else viewBox="0 0 48 48" fill="none">
+            <path
+              d="M14 35h23a8 8 0 0 0 1-16 14 14 0 0 0-27-2 9 9 0 0 0 3 18Z"
+              stroke="currentColor"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+        <h2 id="cloud-login-title">{{ $t(waiting ? 'cloud.authorize' : 'cloud.connect') }}</h2>
+        <p class="cloud-login-description">{{ $t('cloud.loginHint') }}</p>
+        <el-alert
+          v-if="state.session.message"
+          class="cloud-session-alert"
+          :title="issueText(state.session.message)"
+          :type="waiting ? 'info' : 'warning'"
+          :closable="false"
+          show-icon
+        />
+        <div class="cloud-login-actions">
+          <el-button v-if="waiting" @click="authenticate('cancel')">{{ $t('common.cancel') }}</el-button>
+          <el-button
+            v-else
+            type="primary"
+            icon="el-icon-top-right"
+            :disabled="removing"
+            @click="authenticate('login')"
+            >{{ $t('cloud.login') }}</el-button
+          >
+        </div>
+        <p class="cloud-login-security">
+          <i class="el-icon-lock" aria-hidden="true"></i>{{ $t('cloud.passwordHint') }}
+        </p>
+      </section>
     </div>
     <div v-else-if="!state.active" class="cloud-placeholder">
       <h2>{{ $t(state.error || failure ? 'cloud.notReady' : 'cloud.preparing') }}</h2>
@@ -228,8 +259,122 @@ header .el-button {
   border-radius: 10px;
   margin-top: 24px;
 }
+header .cloud-remove {
+  color: var(--color-text-light);
+  &:hover,
+  &:focus {
+    color: var(--color-minor-red);
+  }
+}
+.cloud-login {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow-y: auto;
+  padding: 32px 16px 64px;
+  margin-top: 0;
+  border: 0;
+  border-radius: 0;
+}
+.cloud-login-card {
+  width: 100%;
+  max-width: 500px;
+  flex-shrink: 0;
+  margin: auto;
+  padding: 36px 40px 28px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 12px;
+  background: var(--color-bg-normal);
+  box-shadow: 0 8px 28px -16px var(--color-shadow-card);
+  h2 {
+    margin: 24px 0 12px;
+    color: var(--color-text-title);
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .cloud-login-description {
+    margin: 0;
+    color: var(--color-text-default);
+    font-size: 14px;
+    line-height: 1.8;
+  }
+}
+.cloud-login-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--color-main-green) 10%, var(--color-bg-normal));
+  color: var(--color-main-green);
+  font-size: 30px;
+  svg {
+    width: 40px;
+    height: 40px;
+  }
+}
+.cloud-session-alert {
+  margin-top: 24px;
+  text-align: left;
+  &.el-alert--warning {
+    background: color-mix(in srgb, var(--color-main-yellow) 10%, var(--color-bg-normal));
+  }
+  &.el-alert--info {
+    background: var(--color-bg-primary);
+  }
+  ::v-deep .el-alert__title {
+    font-size: 12px;
+    line-height: 1.6;
+  }
+}
+.cloud-login-actions {
+  margin-top: 28px;
+  .el-button {
+    min-height: 40px;
+    max-width: 100%;
+    padding: 12px 24px;
+    white-space: normal;
+    line-height: 1.4;
+  }
+}
+.cloud-login-card .cloud-login-security {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 7px;
+  margin: 28px 0 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border-default);
+  font-size: 12px;
+  line-height: 1.7;
+  i {
+    margin-top: 3px;
+  }
+}
 .cloud-updating {
   margin: 10px 0;
+}
+@media (max-width: 640px) {
+  header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cloud-actions {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .cloud-login {
+    padding: 16px 0 32px;
+  }
+  .cloud-login-card {
+    padding: 28px 24px 24px;
+    h2 {
+      font-size: 20px;
+    }
+  }
 }
 .cloud-frames {
   flex: 1;
