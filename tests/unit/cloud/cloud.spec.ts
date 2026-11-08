@@ -143,6 +143,42 @@ describe('Cloud cloud', () => {
     expectError(() => v.save(token), { code: 'STORAGE_UNAVAILABLE' })
     fs.rmSync(root, { recursive: true })
   })
+  it('loads a development page without downloading or changing installed extension state', async () => {
+    const root = temp()
+    const saved = JSON.stringify({ removed: true, active: null })
+    fs.writeFileSync(path.join(root, 'extension.json'), saved)
+    fs.mkdirSync(path.join(root, 'releases'))
+    fs.writeFileSync(path.join(root, 'releases', 'existing'), 'keep')
+    const extension = new CloudExtension({
+      root,
+      catalogURL: 'invalid-catalog-must-not-be-read',
+      cloudURL: 'https://cloud.example.com',
+      developmentURL: 'http://127.0.0.1:5173/dev.html',
+    })
+    try {
+      await extension.enter()
+      const candidate = extension.snapshot().candidate!
+      assert.strictEqual(candidate.url, 'http://127.0.0.1:5173/dev.html')
+      assert.strictEqual(candidate.version, 'development')
+      extension.mounting(candidate.id)
+      extension.ready(candidate.id)
+      assert.isTrue(extension.isActive(candidate.id))
+      extension.check()
+      assert.isFalse(extension.snapshot().busy)
+      await extension.remove()
+      assert.isTrue(extension.removed)
+      assert.strictEqual(fs.readFileSync(path.join(root, 'extension.json'), 'utf8'), saved)
+      assert.strictEqual(fs.readFileSync(path.join(root, 'releases', 'existing'), 'utf8'), 'keep')
+      await extension.enter(true)
+      const next = extension.snapshot().candidate!
+      extension.failed(next.id, { code: 'PAGE_START_TIMEOUT', params: {} })
+      await extension.retry()
+      assert.isOk(extension.snapshot().candidate)
+    } finally {
+      extension.dispose()
+      fs.rmSync(root, { recursive: true, force: true })
+    }
+  })
   it('startup stays offline; first enter downloads; page-ready commits; restart reuses installed version', async () => {
     const d = await delivery()
     try {
