@@ -29,6 +29,7 @@ describe('Cloud host appearance and interaction', () => {
   let store: Store<{ theme: Theme }>
   let i18n: VueI18n
   let colors: Record<string, string>
+  let originalAsync: boolean
   const styleReader = global.getComputedStyle
   let listener: (event: unknown, state: CloudState) => void
   let calls = 0
@@ -36,6 +37,7 @@ describe('Cloud host appearance and interaction', () => {
   const invoke = ipcRenderer.invoke
 
   beforeEach(async () => {
+    originalAsync = Vue.config.async
     colors = {
       '--color-text-default': '#123456',
       '--color-text-light': '#abcdef',
@@ -66,12 +68,13 @@ describe('Cloud host appearance and interaction', () => {
       },
     })
     i18n = new VueI18n({ locale: 'en', messages: Lang })
-    wrapper = shallowMount(Cloud, { localVue, store, i18n, stubs: ['el-button', 'el-alert'] })
+    wrapper = shallowMount(Cloud, { localVue, store, i18n, sync: false, stubs: ['el-button', 'el-alert'] })
     vm = wrapper.vm
     await settle()
   })
   afterEach(() => {
     wrapper?.destroy()
+    Vue.config.async = originalAsync
     ipcRenderer.invoke = invoke
     ipcRenderer.on = on
     global.getComputedStyle = styleReader

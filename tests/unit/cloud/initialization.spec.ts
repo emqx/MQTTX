@@ -5,7 +5,9 @@ import os from 'os'
 import path from 'path'
 import { initializeCloud } from '../../../src/main/cloud'
 
-describe('Cloud initialization isolation', () => {
+describe('Cloud initialization isolation', function () {
+  // Expected failures format stack traces against the full webpack bundle's source map.
+  this.timeout(10000)
   it('accepts the development main frame while rejecting other origins, subframes and packaged HTTP pages', async () => {
     const originalHandle = ipcMain.handle
     const originalLog = console.error
