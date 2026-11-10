@@ -320,6 +320,7 @@
           @showContextMenu="handleContextMenu"
           @loadMoreMsg="loadMoreMessages"
           @hideNewMsgsTip="hideNewMsgsTip"
+          @scroll.native.passive="handleMessageScroll"
         />
         <MsgTip :count="newMsgsCount" @loadNewMsg="loadNewMsg" />
         <contextmenu :visible.sync="showContextmenu" v-bind="contextmenuConfig">
@@ -386,6 +387,7 @@ import { createClient, ignoreQoS0Message } from '@/utils/mqttUtils'
 import { bindMessagePipeline, tearDownMessagePipeline } from '@/utils/connectionMessagePipeline'
 import validFormatJson from '@/utils/validFormatJson'
 import { encodePayloadByType } from '@/utils/payloadEncoder'
+import { createMessageScroll } from '@/utils/messageScroll'
 import { decodeBatch, validateBatchSelection, BatchMetadata } from '@/utils/batchPublishing'
 import {
   batchHexPreview,
@@ -1424,19 +1426,15 @@ export default class ConnectionsDetail extends Vue {
     return res && res.length ? true : false
   }
 
+  private messageScroll?: ReturnType<typeof createMessageScroll>
+  private followingBottom = true
+
+  private handleMessageScroll() {
+    if (!document.hidden && !this.messageScroll?.pending) this.isScrollBottom()
+  }
+
   private scrollToBottom() {
-    this.$nextTick(async () => {
-      const msgListRef = this.getMsgListRef()
-      const msgListDOM = msgListRef?.$el
-      if (msgListDOM) {
-        msgListRef.loadSwitch = false
-        msgListDOM.scrollTo({
-          top: msgListDOM.scrollHeight + SCROLL_HEIGHT_COMPENSATION,
-          left: 0,
-        })
-        msgListRef.loadSwitch = true
-      }
-    })
+    this.$nextTick(() => this.messageScroll?.request())
   }
 
   // Set script
@@ -1624,11 +1622,14 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private isScrollBottom() {
+    // Appended content may move the bottom before the scheduled scroll has caught up.
+    if (document.hidden || this.messageScroll?.pending) return this.followingBottom
     const msgListRef = this.getMsgListRef()
     const msgListDOM = msgListRef?.$el
     if (msgListDOM) {
       const { scrollTop, scrollHeight, clientHeight } = msgListDOM
       const isScrollBottom = scrollTop + clientHeight >= scrollHeight - SCROLL_BOTTOM_THRESHOLD
+      this.followingBottom = isScrollBottom
       return isScrollBottom
     }
   }
@@ -2472,6 +2473,22 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private mounted() {
+    this.messageScroll = createMessageScroll(
+      () => {
+        const msgListRef = this.getMsgListRef()
+        const msgListDOM = msgListRef?.$el
+        if (msgListDOM) {
+          msgListRef.loadSwitch = false
+          try {
+            msgListDOM.scrollTo({ top: msgListDOM.scrollHeight + SCROLL_HEIGHT_COMPENSATION, left: 0 })
+            this.followingBottom = true
+          } finally {
+            msgListRef.loadSwitch = true
+          }
+        }
+      },
+      () => this.followingBottom,
+    )
     this.topbarResizeObserver = new ResizeObserver(() => this.setMessageListHeight())
     this.topbarResizeObserver.observe(this.$refs.connectionTopbar as HTMLElement)
     this.setMessageListHeight()
@@ -2481,6 +2498,8 @@ export default class ConnectionsDetail extends Vue {
   }
 
   private beforeDestroy() {
+    this.messageScroll?.dispose()
+    this.messageScroll = undefined
     this.topbarResizeObserver?.disconnect()
     if (this.connectionView) {
       connectionBridge.unregister(this.connectionView)

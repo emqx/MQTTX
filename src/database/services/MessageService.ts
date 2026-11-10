@@ -1,7 +1,7 @@
 import { Service } from 'typedi'
 import { InjectRepository } from 'typeorm-typedi-extensions'
 import MessageEntity from '../models/MessageEntity'
-import { Repository } from 'typeorm'
+import { EntityManager, Repository } from 'typeorm'
 import ConnectionEntity from '../models/ConnectionEntity'
 import ConnectionService from './ConnectionService'
 
@@ -225,7 +225,26 @@ export default class MessageService {
     connectionId: string,
   ): Promise<MessageModel | MessageModel[] | undefined> {
     const entities = messages.map((m) => MessageService.modelToEntity(m, connectionId))
-    return await this.messageRepository.save(entities)
+    if (!entities.length) return entities
+    const { metadata, manager, target } = this.messageRepository
+    // Use the portable SQLite limit, counting every column even when a value is inlined.
+    const chunkSize = Math.max(1, Math.floor(999 / metadata.columns.length))
+    for (const entity of entities) {
+      for (const column of metadata.columns) {
+        if (column.isNullable && column.getEntityValue(entity) === undefined) column.setEntityValue(entity, null)
+      }
+    }
+    const insert = async (transactionManager: EntityManager) => {
+      const repository = transactionManager.getRepository<MessageEntity>(target)
+      for (let offset = 0; offset < entities.length; offset += chunkSize) {
+        await repository.insert(entities.slice(offset, offset + chunkSize))
+      }
+      return entities
+    }
+    // SQLite shares its query runner. Join an existing transaction just as repository.save did.
+    const queryRunner = manager.queryRunner || manager.connection.createQueryRunner()
+    if (queryRunner.isTransactionActive) return insert(queryRunner.manager)
+    return manager.transaction(insert)
   }
 
   public async pushMsgsToConnection(

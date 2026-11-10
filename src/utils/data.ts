@@ -37,7 +37,7 @@ export function normalizeAgentMaxSteps(value?: number): number {
 export type BatchStorageMode = 'full' | 'summary'
 
 export const DEFAULT_BATCH_STORAGE_MODE: BatchStorageMode = 'full'
-export const DEFAULT_BATCH_MAX_ITEMS = 100
+export const DEFAULT_BATCH_MAX_ITEMS = 256
 export const MIN_BATCH_MAX_ITEMS = 1
 export const MAX_BATCH_MAX_ITEMS = 65535
 export const DEFAULT_BATCH_MAX_BYTES = 65536

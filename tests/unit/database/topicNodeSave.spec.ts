@@ -52,6 +52,7 @@ const makeSnapshot = (count: number, payload: string): TopicTreeNode[] => [
 
 describe('TopicNodeService batch save (SQLite)', () => {
   let database: Connection
+  let messageService: MessageService
   let service: TopicNodeService
   let topicNodeRepository: TreeRepository<TopicNodeEntity>
   let messageRepository: Repository<MessageEntity>
@@ -67,7 +68,7 @@ describe('TopicNodeService batch save (SQLite)', () => {
     topicNodeRepository = database.getTreeRepository(TopicNodeEntity)
     messageRepository = database.getRepository(MessageEntity)
     const connectionRepository = database.getRepository(ConnectionEntity)
-    const messageService = new MessageService(messageRepository, connectionRepository)
+    messageService = new MessageService(messageRepository, connectionRepository)
     service = new TopicNodeService(topicNodeRepository, connectionRepository, messageService)
 
     await connectionRepository.save({
@@ -123,5 +124,106 @@ describe('TopicNodeService batch save (SQLite)', () => {
 
     const payloads = (await messageRepository.find()).map((message) => message.payload).sort()
     expect(payloads).to.deep.equal(['first', 'second', 'third'])
+  })
+
+  describe('MessageService inserts', () => {
+    const message = (id?: string): MessageModel => ({
+      id,
+      createAt: '2026-01-01 00:00:00',
+      out: false,
+      payload: 'reading',
+      qos: 1,
+      retain: false,
+      topic: 'sensor/readings',
+      meta: JSON.stringify({ batch: { carrier: 'property', logicalTopic: 'sensor/readings', count: 1 } }),
+      properties: {
+        payloadFormatIndicator: false,
+        messageExpiryInterval: 10,
+        topicAlias: 1,
+        responseTopic: 'reply',
+        correlationData: 'correlation',
+        userProperties: { key: ['one', 'two'] },
+        subscriptionIdentifier: 1,
+        contentType: 'text/plain',
+      },
+    })
+
+    it('returns an entity array with a generated id for a new message', async () => {
+      const result = (await messageService.pushMsgsToConnection(message(), CONNECTION_ID)) as MessageEntity[]
+      expect(result).to.have.length(1)
+      expect(result[0].id).to.be.a('string').and.not.equal('')
+      expect(await messageRepository.findOne(result[0].id)).to.include({
+        payload: 'reading',
+        connectionId: CONNECTION_ID,
+      })
+    })
+
+    it('preserves MQTT properties and batch metadata', async () => {
+      const input = message('properties')
+      const result = (await messageService.pushMsgsToConnection(input, CONNECTION_ID)) as MessageEntity[]
+      const stored = await messageRepository.findOneOrFail('properties')
+      expect(stored).to.include({
+        meta: input.meta,
+        correlationData: 'correlation',
+        userProperties: '{"key":["one","two"]}',
+        contentType: 'text/plain',
+      })
+      expect(result[0]).to.include({ meta: stored.meta, userProperties: stored.userProperties })
+    })
+
+    it('inserts a large batch in input order within the portable SQLite parameter limit', async () => {
+      const messages = Array.from({ length: 130 }, (_, index) => message(`chunk-${index}`))
+      const runner = database.createQueryRunner()
+      const query = runner.query
+      let maxParameters = 0
+      let inserts = 0
+      runner.query = function (sql: string, parameters?: any[]) {
+        maxParameters = Math.max(maxParameters, parameters?.length || 0)
+        if (sql.startsWith('INSERT')) inserts++
+        return query.call(this, sql, parameters)
+      }
+      try {
+        const result = (await messageService.pushMsgsToConnection(messages, CONNECTION_ID)) as MessageEntity[]
+        expect(result.map(({ id }) => id)).to.deep.equal(messages.map(({ id }) => id))
+        expect(
+          (await database.query('SELECT id FROM MessageEntity ORDER BY rowid')).map((row: MessageEntity) => row.id),
+        ).to.deep.equal(messages.map(({ id }) => id))
+        expect(maxParameters).to.be.at.most(999)
+        expect(inserts).to.be.lessThan(messages.length)
+      } finally {
+        runner.query = query
+      }
+    })
+
+    it('rolls back earlier chunks when a later insert fails', async () => {
+      const messages = Array.from({ length: 130 }, (_, index) => message(`rollback-${index}`))
+      messages[129].payload = undefined as any
+      let failed = false
+      try {
+        await messageService.pushMsgsToConnection(messages, CONNECTION_ID)
+      } catch {
+        failed = true
+      }
+      expect(failed).to.equal(true)
+      expect(await messageRepository.count()).to.equal(0)
+    })
+
+    it('joins the caller transaction without starting another SQLite transaction', async () => {
+      await database.transaction(async (manager) => {
+        const service = new MessageService(
+          manager.getRepository(MessageEntity),
+          manager.getRepository(ConnectionEntity),
+        )
+        await service.pushMsgsToConnection(message('outer-transaction'), CONNECTION_ID)
+      })
+      expect(await messageRepository.count()).to.equal(1)
+    })
+
+    it('keeps import upserts for existing message ids', async () => {
+      await messageService.pushMsgsToConnection(message('imported'), CONNECTION_ID)
+      await messageService.importMsgsToConnection({ ...message('imported'), payload: 'updated' }, CONNECTION_ID)
+      expect(await messageRepository.count()).to.equal(1)
+      expect((await messageRepository.findOneOrFail('imported')).payload).to.equal('updated')
+    })
   })
 })

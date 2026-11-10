@@ -141,7 +141,7 @@ describe('Desktop batch storage bounds', () => {
     expect(batchHexPreview(Buffer.alloc(4), 0)).to.equal('')
   })
   it('normalizes defaults and clamps integer batch settings to the specified ranges', () => {
-    expect(normalizeBatchMaxItems()).to.equal(100)
+    expect(normalizeBatchMaxItems()).to.equal(256)
     expect(normalizeBatchMaxBytes()).to.equal(65536)
     expect(normalizeBatchMaxItems(0)).to.equal(1)
     expect(normalizeBatchMaxBytes(1048577)).to.equal(1048576)
@@ -166,7 +166,7 @@ describe('Localized batch publish diagnostics', () => {
     }
   it('identifies count, framed payload bytes and the per-item byte ceiling', () => {
     const cases = [
-      [{ ...message, payload: '\n'.repeat(120) }, DEFAULT_BATCH_LIMITS, '超出上限：120 条 > 100'],
+      [{ ...message, payload: '\n'.repeat(120) }, { maxItems: 100, maxBytes: 65536 }, '超出上限：120 条 > 100'],
       [{ ...message, payload: 'x'.repeat(69998) }, DEFAULT_BATCH_LIMITS, '超出上限：70000 B > 65536 B'],
       [
         { ...message, payload: 'x'.repeat(65536) },
@@ -189,11 +189,11 @@ describe('Localized batch publish diagnostics', () => {
         'UNSUPPORTED_BATCH_QOS',
         'BATCH_LIMIT_EXCEEDED',
       ]) {
-        const input = { error, count: 120, bytes: 240 }
+        const input = { error, count: 300, bytes: 600 }
         const reason = formatBatchPublishError(input, DEFAULT_BATCH_LIMITS, undefined, translate(lang))
         expect(reason).to.be.a('string').and.not.equal('')
         expect(reason).not.to.include(error).and.not.to.include('connections.').and.not.to.include('{')
-        if (error === 'BATCH_LIMIT_EXCEEDED') expect(reason).to.include('120').and.include('100')
+        if (error === 'BATCH_LIMIT_EXCEEDED') expect(reason).to.include('300').and.include('256')
         expect(input.error).to.equal(error)
       }
     })

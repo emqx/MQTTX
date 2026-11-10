@@ -2,7 +2,8 @@ import '../mocks/browserStorage'
 import { expect } from 'chai'
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { createLocalVue, shallowMount } from '@vue/test-utils'
+import { createLocalVue, mount, shallowMount } from '@vue/test-utils'
+import { Pagination } from 'element-ui'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import FullMsgDialog from '@/components/FullMsgDialog.vue'
@@ -81,6 +82,20 @@ describe('Batch message display', () => {
     expect(wrapper.text()).to.include('Batch ×250').and.include('first\nsecond')
     wrapper.destroy()
   })
+  it('changes the displayed items through pagination controls', async () => {
+    const vue = createLocalVue()
+    vue.use(Pagination)
+    const wrapper = mount(FullMsgDialog, {
+      localVue: vue,
+      sync: false,
+      propsData: { visible: true, msgId: 'batch', msgType: 'Plaintext', batchPayload: props().payload },
+      stubs: { 'my-dialog': true },
+      mocks: { $t: (key: string) => key },
+    })
+    await wrapper.find('.el-pagination .btn-next').trigger('click')
+    expect((wrapper.vm as any).batchPageItems[0]).to.equal('item 101')
+    wrapper.destroy()
+  })
   it('paginates saved arrays at 100 items and exports the complete saved payload', async () => {
     const payload = props().payload
     const wrapper = shallowMount(FullMsgDialog, {
@@ -104,7 +119,7 @@ describe('Batch message display', () => {
 
 describe('Batch settings persistence', () => {
   it('uses defaults for old configurations and rejects invalid actions without committing', () => {
-    expect(app.state).to.include({ batchStorageMode: 'full', batchMaxItems: 100, batchMaxBytes: 65536 })
+    expect(app.state).to.include({ batchStorageMode: 'full', batchMaxItems: 256, batchMaxBytes: 65536 })
     const commits: any[] = []
     const context = { commit: (...args: any[]) => commits.push(args) }
     for (const value of [0, 65536, 1.5, NaN, Infinity])
