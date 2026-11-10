@@ -19,6 +19,7 @@ import getBenchClientId from '../utils/getBenchClientId'
 import createRateSampler from '../utils/createRateSampler'
 import { formatBytes } from '../utils/formatter'
 import { createMqttClient } from '../utils/mqttConnect'
+import { SIGINT_EXIT_CODE } from '../utils/constants'
 import shouldRetryConnectionError from '../utils/shouldRetryConnectionError'
 
 /**
@@ -281,7 +282,7 @@ const benchSub = async (options: BenchSubscribeOptions) => {
   process.once('SIGINT', () => {
     const elapsed = readyAt === undefined ? 0 : Number(process.hrtime.bigint() - readyAt) / 1e9
     logWrapper.log(`Received total: ${total}, elapsed: ${elapsed.toFixed(2)}s`)
-    process.exit(130)
+    process.exit(SIGINT_EXIT_CODE)
   })
 
   const logConnections = () => {
