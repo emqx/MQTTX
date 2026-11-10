@@ -1,5 +1,6 @@
 import {
   parseNumber,
+  parseFileRead,
   validateClientCount,
   validateMaxInflight,
   parseProtocol,
@@ -13,6 +14,10 @@ import {
   parseFormat,
   parseSchemaOptions,
 } from '../../utils/parse'
+import fs from 'fs'
+import path from 'path'
+import { tmpdir } from 'os'
+import { MQTT_SINGLE_MESSAGE_BYTE_LIMIT } from '../../utils/constants'
 import logWrapper from '../../utils/logWrapper'
 import { expect, jest } from '@jest/globals'
 
@@ -27,6 +32,45 @@ const mockExit = jest.spyOn(process, 'exit').mockImplementation((code?: number) 
 describe('parse utilities', () => {
   afterEach(() => {
     jest.clearAllMocks()
+  })
+
+  describe('parseFileRead', () => {
+    let directory: string
+    beforeEach(() => {
+      directory = fs.mkdtempSync(path.join(tmpdir(), 'mqttx-cli-parse-file-'))
+    })
+    afterEach(() => {
+      fs.rmSync(directory, { recursive: true, force: true })
+    })
+    it.each([MQTT_SINGLE_MESSAGE_BYTE_LIMIT - 1, MQTT_SINGLE_MESSAGE_BYTE_LIMIT])(
+      'checks the file size boundary at %i bytes without reading its contents',
+      (size) => {
+        const file = path.join(directory, 'payload')
+        fs.writeFileSync(file, '')
+        fs.truncateSync(file, size)
+        const originalRead = fs.readFileSync
+        const read = jest.spyOn(fs, 'readFileSync').mockImplementation((...args) => {
+          if (args[0] === file) throw new Error('File contents must not be read during argument parsing')
+          return originalRead(...args)
+        })
+        try {
+          if (size < MQTT_SINGLE_MESSAGE_BYTE_LIMIT) {
+            expect(parseFileRead(file)).toBe(file)
+          } else {
+            expect(() => parseFileRead(file)).toThrow('Process exited with code 1')
+            expect(logWrapper.fail).toHaveBeenCalledWith('File size over 256MB not supported by MQTT.')
+          }
+          expect(read.mock.calls.some(([target]) => target === file)).toBe(false)
+        } finally {
+          read.mockRestore()
+        }
+      },
+    )
+    it('reports a missing file and exits with failure', () => {
+      expect(() => parseFileRead(path.join(directory, 'missing'))).toThrow('Process exited with code 1')
+      expect(logWrapper.fail).toHaveBeenCalledWith(expect.stringContaining('ENOENT'))
+      expect(mockExit).toHaveBeenCalledWith(1)
+    })
   })
 
   describe('parseNumber', () => {
