@@ -392,6 +392,8 @@ import {
   storeBatchItems,
   prepareBatchPublish,
   formatBatchPublishError,
+  getBatchProtocolVersion,
+  getBatchLimits,
   BatchStorageMode,
 } from '@/utils/batchPayload'
 
@@ -1451,8 +1453,8 @@ export default class ConnectionsDetail extends Vue {
     const { qos, retain, properties } = packet
     const batch = decodeBatch(
       { topic, payload, qos, retain, properties } as BatchPacket,
-      mqttVersion ?? (this.record?.mqttVersion === '5.0' ? 5 : this.record?.mqttVersion === '3.1' ? 3 : 4),
-      { maxItems: this.batchMaxItems || 100, maxBytes: this.batchMaxBytes || 65536 },
+      mqttVersion ?? getBatchProtocolVersion(this.record?.mqttVersion),
+      getBatchLimits(this.batchMaxItems, this.batchMaxBytes),
     )
     if (batch) {
       const { items, ...metadata } = batch
@@ -1888,21 +1890,19 @@ export default class ConnectionsDetail extends Vue {
     let convertedPayload = ''
     let finalPayload: string | Buffer | undefined = payload
     if (message.batch) {
+      const limits = getBatchLimits(this.batchMaxItems, this.batchMaxBytes)
       const prepared = prepareBatchPublish(
         message,
         type,
-        this.record.mqttVersion === '5.0' ? 5 : this.record.mqttVersion === '3.1' ? 3 : 4,
+        getBatchProtocolVersion(this.record.mqttVersion),
         props,
-        { maxItems: this.batchMaxItems || 100, maxBytes: this.batchMaxBytes || 65536 },
+        limits,
         this.brokerMaximumPacketSize,
       )
       if (!prepared.packet) {
         const error = new Error(
-          formatBatchPublishError(
-            prepared,
-            { maxItems: this.batchMaxItems || 100, maxBytes: this.batchMaxBytes || 65536 },
-            this.brokerMaximumPacketSize,
-            (key, values) => String(this.$t(key, values)),
+          formatBatchPublishError(prepared, limits, this.brokerMaximumPacketSize, (key, values) =>
+            String(this.$t(key, values)),
           ),
         )
         this.handleErrorOnPublish(error)

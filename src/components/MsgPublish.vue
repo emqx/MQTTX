@@ -275,7 +275,7 @@
         $t('connections.batchStatus', {
           count: batchState.count,
           bytes: batchState.bytes,
-          max: batchMaxBytes || 65536,
+          max: batchLimits.maxBytes,
         })
       }}<span v-if="batchState.error"> · {{ batchError }}</span>
     </div>
@@ -298,7 +298,13 @@ import validFormatJson from '@/utils/validFormatJson'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
 import { emptyToNull } from '@/utils/handleString'
-import { prepareBatchPublish, formatBatchPublishError } from '@/utils/batchPayload'
+import {
+  prepareBatchPublish,
+  formatBatchPublishError,
+  inspectBatchLines,
+  getBatchProtocolVersion,
+  getBatchLimits,
+} from '@/utils/batchPayload'
 import { PublishProperties } from '@/utils/batchPublishing'
 
 const getDefaultMsgRecord = (): PushMessageModel => ({
@@ -346,6 +352,14 @@ export default class MsgPublish extends Vue {
       : this.payloadOptions
   }
 
+  get batchLimits() {
+    return getBatchLimits(this.batchMaxItems, this.batchMaxBytes)
+  }
+
+  get batchInput() {
+    return inspectBatchLines(this.msgRecord.payload, this.msgRecord.payloadType)
+  }
+
   get batchState() {
     const properties = Object.fromEntries(
       Object.entries(this.MQTT5PropsSend).filter(([_, value]) => value != null),
@@ -353,19 +367,17 @@ export default class MsgPublish extends Vue {
     return prepareBatchPublish(
       this.msgRecord,
       this.msgRecord.payloadType,
-      this.mqttVersion === '5.0' ? 5 : this.mqttVersion === '3.1' ? 3 : 4,
+      getBatchProtocolVersion(this.mqttVersion),
       this.mqtt5PropsEnable ? properties : undefined,
-      { maxItems: this.batchMaxItems || 100, maxBytes: this.batchMaxBytes || 65536 },
+      this.batchLimits,
       this.maximumPacketSize,
+      this.batchInput,
     )
   }
 
   get batchError() {
-    return formatBatchPublishError(
-      this.batchState,
-      { maxItems: this.batchMaxItems || 100, maxBytes: this.batchMaxBytes || 65536 },
-      this.maximumPacketSize,
-      (key, values) => String(this.$t(key, values)),
+    return formatBatchPublishError(this.batchState, this.batchLimits, this.maximumPacketSize, (key, values) =>
+      String(this.$t(key, values)),
     )
   }
 

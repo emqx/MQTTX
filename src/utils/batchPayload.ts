@@ -1,6 +1,7 @@
 import {
   BatchLimits,
   BatchPacket,
+  DEFAULT_BATCH_LIMITS,
   calculatePublishSize,
   buildTopicCarrier,
   encodeBatchPayload,
@@ -9,7 +10,15 @@ import {
 import { encodePayloadByType, validatePayloadByType } from './payloadEncoder'
 
 export type BatchStorageMode = 'full' | 'summary'
-export type StoredBatchItem = string | { b64: string }
+type StoredBatchItem = string | { b64: string }
+export const getBatchProtocolVersion = (version?: string): 3 | 4 | 5 =>
+  version === '5.0' ? 5 : version === '3.1' ? 3 : 4
+
+export const getBatchLimits = (maxItems?: number, maxBytes?: number): typeof DEFAULT_BATCH_LIMITS => ({
+  maxItems: maxItems || DEFAULT_BATCH_LIMITS.maxItems,
+  maxBytes: maxBytes || DEFAULT_BATCH_LIMITS.maxBytes,
+})
+
 export const validBatchMaxItems = (value: unknown): value is number =>
   typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 65535
 export const validBatchMaxBytes = (value: unknown): value is number =>
@@ -37,8 +46,10 @@ export const inspectBatchLines = (text: string, type: PayloadType): BatchInput =
   let bytes = lines.length * 2
   for (let index = 0; index < lines.length; index++) {
     try {
-      const error = validatePayloadByType(lines[index], type)
-      if (error) throw new Error(error)
+      if (type === 'Hex' || type === 'Base64') {
+        const error = validatePayloadByType(lines[index], type)
+        if (error) throw new Error(error)
+      }
       const encoded = lines[index] === '' ? Buffer.alloc(0) : encodePayloadByType(lines[index], type)
       const item = Buffer.isBuffer(encoded) ? encoded : Buffer.from(encoded)
       items.push(item)
@@ -58,8 +69,8 @@ export const prepareBatchPublish = (
   properties: BatchPacket['properties'],
   limits: BatchLimits,
   maximumPacketSize?: number,
+  input: BatchInput = inspectBatchLines(message.payload, type),
 ): BatchInput & { packet?: BatchPacket } => {
-  const input = inspectBatchLines(message.payload, type)
   const fail = (error: string) => ({ ...input, error, packet: undefined })
   if (version === 3) return fail('BATCH_MQTT_VERSION')
   if (message.qos === 2) return fail('UNSUPPORTED_BATCH_QOS')
@@ -136,7 +147,7 @@ export const formatBatchPublishError = (
     : input.error || ''
 }
 
-export const isValidUtf8 = (item: Buffer): boolean => Buffer.from(item.toString('utf8')).equals(item)
+const isValidUtf8 = (item: Buffer): boolean => Buffer.from(item.toString('utf8')).equals(item)
 
 /** Slice before encoding so even failed, oversized packets have a bounded stored preview. */
 export const batchHexPreview = (payload: Buffer, maxDisplaySize: number): string =>
@@ -149,9 +160,10 @@ export const storeBatchItems = (
   convert: (item: Buffer) => string,
 ): StoredBatchItem[] =>
   (mode === 'summary' ? items.slice(0, 20) : items).map((item) => {
-    const binary = type === 'Plaintext' && !isValidUtf8(item)
+    const utf8 = type !== 'Hex' && type !== 'Base64' && isValidUtf8(item)
+    const binary = type === 'Plaintext' && !utf8
     let prefix = mode === 'summary' ? item.subarray(0, 32) : item
-    if (!binary && type !== 'Hex' && type !== 'Base64' && isValidUtf8(item)) {
+    if (utf8 && prefix.length < item.length) {
       // A partial final UTF-8 code point is omitted, never replaced with U+FFFD.
       while (prefix.length && !isValidUtf8(prefix)) prefix = prefix.subarray(0, prefix.length - 1)
     }

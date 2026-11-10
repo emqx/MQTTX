@@ -12,8 +12,6 @@ import {
   decodeBatch,
   calculatePublishSize,
   validateBatchSelection,
-  DEFAULT_BATCH_LIMITS,
-  PROTOCOL_BATCH_LIMITS,
 } from '@/utils/batchPublishing'
 
 // Register the shared CLI vectors as individual Mocha cases.
@@ -30,7 +28,7 @@ const property = (count: string | string[], hex: string | Buffer, format: string
   payload: Buffer.isBuffer(hex) ? hex : Buffer.from(hex.replace(/\s/g, ''), 'hex'),
   properties: { userProperties: { 'batch-format': format, 'batch-size': count } },
 })
-const large = PROTOCOL_BATCH_LIMITS
+const large = { maxItems: 65535, maxBytes: 268435455 }
 const vectors: {
   name: string
   count: string | string[]

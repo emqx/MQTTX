@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import { Commit } from 'vuex'
 import { validBatchMaxItems, validBatchMaxBytes } from '@/utils/batchPayload'
+import { DEFAULT_BATCH_LIMITS } from '@/utils/batchPublishing'
 import log4js from 'log4js'
 import useServices from '@/database/useServices'
 import { getGlobal } from '@electron/remote'
@@ -94,10 +95,10 @@ const app = {
     batchStorageMode: electronStore.get('settings.batchStorageMode') === 'summary' ? 'summary' : 'full',
     batchMaxItems: validBatchMaxItems(electronStore.get('settings.batchMaxItems'))
       ? electronStore.get('settings.batchMaxItems')
-      : 100,
+      : DEFAULT_BATCH_LIMITS.maxItems,
     batchMaxBytes: validBatchMaxBytes(electronStore.get('settings.batchMaxBytes'))
       ? electronStore.get('settings.batchMaxBytes')
-      : 65536,
+      : DEFAULT_BATCH_LIMITS.maxBytes,
     maxPayloadDisplaySize: normalizeMaxPayloadDisplaySize(
       electronStore.get('settings.maxPayloadDisplaySize', DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE),
     ),
