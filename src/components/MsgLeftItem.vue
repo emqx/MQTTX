@@ -32,6 +32,9 @@
       <p class="left-info">
         <span class="topic">Topic: <span v-html="highlightedTopic"></span></span>
         <span class="qos">QoS: {{ qos }}</span>
+        <el-tag v-if="batch" class="batch-tag" :type="batch.error ? 'danger' : 'success'" size="mini"
+          >Batch ×{{ batch.count || 0 }}</el-tag
+        >
         <el-tag
           v-if="gzipDecompressed"
           class="gzip-tag"
@@ -43,7 +46,41 @@
         <span v-if="retain" class="retain">{{ $t('connections.retained') }}</span>
       </p>
       <MqttProperties class="meta" :properties="properties" direction="left" />
-      <template v-if="isLargeMsg">
+      <div v-if="batch" class="batch-message">
+        <p v-if="batch.carrier === 'topic'">{{ $t('connections.batchLogicalTopicLabel') }}: {{ batch.logicalTopic }}</p>
+        <p class="batch-details">
+          payload {{ payloadBytes }} B<span v-if="!batch.error && !batch.summary">
+            · {{ $t('connections.batchSaved', { saved: Math.min(5, batchItems.length), total: batch.count }) }}</span
+          >
+        </p>
+        <template v-if="batch.error">
+          <el-tag type="danger" size="mini">{{ batch.error }}</el-tag>
+          <p class="batch-error">
+            {{ batch.error === 'BATCH_LIMIT_EXCEEDED' ? $t('connections.batchLimitUnparsed') : batch.error }}
+          </p>
+          <pre class="batch-hex">{{ payload }}</pre>
+          <p class="batch-details">
+            {{ $t('connections.batchHexPreview', { saved: payload.length / 2, total: payloadBytes }) }}
+          </p>
+        </template>
+        <template v-else>
+          <p v-if="batch.summary">
+            {{ $t('connections.batchSummary', { saved: batchItems.length, total: batch.count }) }}
+          </p>
+          <ol class="batch-items">
+            <li v-for="(item, index) in visibleBatchItems" :key="index">
+              <pre>{{ displayBatchItem(item) }}</pre>
+            </li>
+          </ol>
+          <el-button type="text" size="mini" @click="batchExpanded = !batchExpanded">{{
+            $t(batchExpanded ? 'connections.batchCollapse' : 'connections.batchExpand')
+          }}</el-button>
+          <el-button v-if="!batch.summary" type="text" size="mini" @click="handleShowFullMsg()">{{
+            $t('connections.batchViewAll')
+          }}</el-button>
+        </template>
+      </div>
+      <template v-else-if="isLargeMsg">
         <div class="large-message">
           <pre v-html="highlightedPayloadPreview"></pre>
           <el-tooltip
@@ -65,7 +102,14 @@
       </template>
     </div>
     <p class="left-time time">{{ createAt }}</p>
-    <FullMsgDialog v-if="showFullMsg" :visible.sync="showFullMsg" :msgId="msgId" :msgType="msgType" />
+    <FullMsgDialog
+      v-if="showFullMsg"
+      :visible.sync="showFullMsg"
+      :msgId="msgId"
+      :msgType="msgType"
+      :batch-payload="batch && !batch.error && !batch.summary ? payload : undefined"
+      :payload-bytes="batch ? payloadBytes : undefined"
+    />
   </div>
 </template>
 
@@ -105,6 +149,28 @@ export default class MsgLeftItem extends Vue {
   public highlight = false
 
   private showFullMsg = false
+  private batchExpanded = false
+
+  get batch() {
+    return this.meta ? JSON.parse(this.meta).batch : undefined
+  }
+
+  get payloadBytes() {
+    return this.meta ? JSON.parse(this.meta).payloadBytes : 0
+  }
+
+  get batchItems(): (string | { b64: string })[] {
+    return this.batch && !this.batch.error ? JSON.parse(this.payload) : []
+  }
+
+  get visibleBatchItems() {
+    return this.batchItems.slice(0, this.batchExpanded && this.batch.summary ? 20 : 5)
+  }
+
+  private displayBatchItem(item: string | { b64: string }) {
+    const text = typeof item === 'string' ? item : JSON.stringify(item)
+    return this.batchExpanded || text.length <= 160 ? text : text.slice(0, 160) + '…'
+  }
 
   @Watch('searchParams', { deep: true })
   private onSearchParamsChanged() {
@@ -200,7 +266,7 @@ export default class MsgLeftItem extends Vue {
   }
 
   private highlightJSON() {
-    if (this.jsonHighlight === false) {
+    if (this.batch || this.jsonHighlight === false) {
       return
     }
     try {
@@ -234,6 +300,34 @@ export default class MsgLeftItem extends Vue {
   @include search-highlight;
   text-align: left;
   position: relative;
+  .batch-tag {
+    margin-left: 12px;
+  }
+  .batch-message {
+    .batch-details {
+      color: var(--color-text-tips);
+      font-size: 12px;
+    }
+    .batch-error {
+      color: var(--color-minor-red);
+    }
+    .batch-items {
+      padding-left: 28px;
+    }
+    .batch-items li {
+      padding-left: 4px;
+    }
+    .batch-items pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .batch-hex {
+      max-height: 80px;
+      overflow: auto;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
+  }
   .msg-tag:nth-child(2) {
     margin-top: 2px;
   }

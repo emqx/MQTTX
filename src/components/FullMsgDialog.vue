@@ -12,13 +12,27 @@
     <template v-else>
       <div class="full-msg-size">
         <span>
-          {{ $t('connections.payloadSize') }}: <strong>{{ calculateAndFormatTextSize(fullMsg) }}</strong>
+          {{ $t('connections.payloadSize') }}:
+          <strong>{{ payloadBytes === undefined ? calculateAndFormatTextSize(fullMsg) : `${payloadBytes} B` }}</strong>
         </span>
         <span>
           {{ $t('common.msgType') }}: <strong>{{ msgType }}</strong>
         </span>
       </div>
-      <div class="editor-container full-msg-editor">
+      <template v-if="batchPayload !== undefined">
+        <ol class="batch-page" :start="(batchPage - 1) * 100 + 1">
+          <li v-for="(item, index) in batchPageItems" :key="index">
+            <pre>{{ typeof item === 'string' ? item : JSON.stringify(item) }}</pre>
+          </li>
+        </ol>
+        <el-pagination
+          :current-page.sync="batchPage"
+          :page-size="100"
+          :total="batchItems.length"
+          layout="prev, pager, next, total"
+        />
+      </template>
+      <div v-else class="editor-container full-msg-editor">
         <Editor
           :key="msgId"
           ref="fullMsgEditorRef"
@@ -52,6 +66,16 @@ export default class FullMsgDialog extends Vue {
   @Prop({ default: false }) public visible!: boolean
   @Prop({ required: true }) public msgId!: string
   @Prop({ default: '' }) public msgType!: string
+  @Prop() public batchPayload?: string
+  @Prop() public payloadBytes?: number
+
+  private batchPage = 1
+  get batchItems(): (string | { b64: string })[] {
+    return this.batchPayload === undefined ? [] : JSON.parse(this.batchPayload)
+  }
+  get batchPageItems() {
+    return this.batchItems.slice((this.batchPage - 1) * 100, this.batchPage * 100)
+  }
 
   private showDialog: boolean = this.visible
 
@@ -61,7 +85,7 @@ export default class FullMsgDialog extends Vue {
   }
 
   private getFormatOrLang(type: string) {
-    if (['JSON', 'CBOR'].includes(this.msgType)) {
+    if (this.batchPayload !== undefined || ['JSON', 'CBOR'].includes(this.msgType)) {
       return type === 'lang' ? 'json' : 'json'
     }
     return type === 'lang' ? 'plaintext' : 'txt'
@@ -81,6 +105,11 @@ export default class FullMsgDialog extends Vue {
 
   private async loadMsg() {
     this.loadingMsg = true
+    if (this.batchPayload !== undefined) {
+      this.fullMsg = this.batchPayload
+      this.loadingMsg = false
+      return
+    }
     const { messageService } = useServices()
     const message = await messageService.getOne(this.msgId)
     this.fullMsg = message?.payload || ''
@@ -114,6 +143,16 @@ export default class FullMsgDialog extends Vue {
 
 <style lang="scss">
 .full-msg-dialog {
+  .batch-page {
+    height: 400px;
+    overflow: auto;
+    color: var(--color-text-default);
+    padding-left: 42px;
+  }
+  .batch-page pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
   .el-dialog__body {
     padding-top: 24px;
     padding-bottom: 0px;

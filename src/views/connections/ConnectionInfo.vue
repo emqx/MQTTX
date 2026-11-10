@@ -73,6 +73,18 @@
             }}</el-checkbox>
           </el-form-item>
         </el-col>
+        <el-col v-if="isClientConnected" :span="24" class="batch-negotiation">
+          Batch:
+          {{
+            $t(
+              `connections.${
+                batchNegotiation || (connection.mqttVersion === '5.0' ? 'batchNotRequested' : 'batchNotApplicable')
+              }`,
+            )
+          }}
+          · Broker Maximum Packet Size:
+          {{ maximumPacketSize === undefined ? $t('connections.batchNotDeclared') : `${maximumPacketSize} B` }}
+        </el-col>
         <el-col :span="24">
           <el-button
             v-if="!isClientConnected"
@@ -125,6 +137,9 @@ export default class ConnectionInfo extends Vue {
   @Prop({ required: true }) public btnLoading!: boolean
   @Prop({ required: true }) public client!: Pick<MqttClient, 'connected'>
   @Prop({ required: true }) public titleName!: string
+
+  @Prop() public batchNegotiation?: string
+  @Prop() public maximumPacketSize?: number
 
   @Getter('currentTheme') private theme!: Theme
 
@@ -226,6 +241,10 @@ export default class ConnectionInfo extends Vue {
 
 <style lang="scss">
 .connection-info {
+  .batch-negotiation {
+    color: var(--color-text-tips);
+    font-size: 12px;
+  }
   user-select: none;
   padding-bottom: 5px;
   .el-form {

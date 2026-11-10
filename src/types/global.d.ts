@@ -83,6 +83,8 @@ declare global {
     [id: string]: {
       client: MqttClient
       subscriptions?: SubscriptionModel[]
+      batchNegotiation?: string
+      maximumPacketSize?: number
       responseInformation?: string
     }
   }
@@ -122,6 +124,9 @@ declare global {
     ignoreQoS0Message: boolean
     topicWhitespaceDetection: boolean
     decompressGzip: boolean
+    batchStorageMode: 'full' | 'summary'
+    batchMaxItems: number
+    batchMaxBytes: number
     maxPayloadDisplaySize: number
     enableHardwareAcceleration: boolean
   }
@@ -143,6 +148,8 @@ declare global {
   interface Client {
     readonly id: string
     client: Partial<MqttClient>
+    batchNegotiation?: string
+    maximumPacketSize?: number
     responseInformation?: string
   }
 
@@ -185,6 +192,7 @@ declare global {
   }
 
   interface MessageModel {
+    batch?: boolean
     id?: string
     createAt: string
     out: boolean
@@ -207,6 +215,7 @@ declare global {
   }
 
   interface HistoryMessageHeaderModel {
+    batch?: boolean
     connectionId?: string
     id?: string
     retain: boolean
@@ -225,6 +234,7 @@ declare global {
 
   // Content of a connection's publish area
   interface PushMessageModel {
+    batch?: boolean
     topic: string
     qos: QoS
     retain: boolean

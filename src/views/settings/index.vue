@@ -344,6 +344,37 @@
       </el-row>
       <el-divider></el-divider>
 
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="18">
+          <label>{{ $t('settings.batchStorageMode') }}</label>
+          <p class="batch-setting-desc">{{ $t('settings.batchStorageDesc') }}</p>
+        </el-col>
+        <el-col :span="6">
+          <el-select class="settings-options" size="mini" :value="batchStorageMode" @change="actionBatchStorageMode">
+            <el-option value="full" :label="$t('settings.batchFull')" />
+            <el-option value="summary" :label="$t('settings.batchSummary')" />
+          </el-select>
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="18">
+          <label>{{ $t('settings.batchMaxItems') }}</label>
+          <p class="batch-setting-desc">{{ $t('settings.batchItemsRange') }}</p>
+        </el-col>
+        <el-col :span="6"><el-input-number size="mini" :value="batchMaxItems" @change="handleBatchMaxItems" /></el-col>
+      </el-row>
+      <el-divider></el-divider>
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="18">
+          <label>{{ $t('settings.batchMaxBytes') }}</label>
+          <p class="batch-setting-desc">{{ $t('settings.batchBytesRange') }}</p>
+        </el-col>
+        <el-col :span="6"><el-input-number size="mini" :value="batchMaxBytes" @change="handleBatchMaxBytes" /></el-col>
+      </el-row>
+      <p class="batch-setting-desc">{{ $t('settings.batchSummaryWarning') }}</p>
+      <el-divider></el-divider>
+
       <el-row class="settings-item" type="flex" justify="space-between">
         <el-col :span="20">
           <label>{{ $t('settings.topicWhitespaceDetection') }}</label>
@@ -602,6 +633,7 @@ import {
   normalizeMaxPayloadDisplaySize,
 } from '@/utils/data'
 import { formatBytes } from '@/utils/formatter'
+import { validBatchMaxItems, validBatchMaxBytes } from '@/utils/batchPayload'
 import { applyLangChange, applyThemeChange, themeFromOs } from '@/utils/settingsEffects'
 import MCPSettings from '@/components/agent/MCPSettings.vue'
 import PayloadSizeControl from '@/components/PayloadSizeControl.vue'
@@ -646,6 +678,22 @@ export default class Settings extends Vue {
   }) => void
   @Action('SET_AGENT_MAX_STEPS') private actionSetAgentMaxSteps!: (payload: { agentMaxSteps: number }) => void
   @Action('SET_AGENT_REASONING') private actionSetAgentReasoning!: (payload: { agentReasoning: AgentReasoning }) => void
+
+  @Action('SET_BATCH_STORAGE_MODE') private actionBatchStorageMode!: (value: App['batchStorageMode']) => void
+  @Action('SET_BATCH_MAX_ITEMS') private actionBatchMaxItems!: (value: number) => void
+  @Action('SET_BATCH_MAX_BYTES') private actionBatchMaxBytes!: (value: number) => void
+  @Getter('batchStorageMode') private batchStorageMode!: App['batchStorageMode']
+  @Getter('batchMaxItems') private batchMaxItems!: number
+  @Getter('batchMaxBytes') private batchMaxBytes!: number
+
+  private handleBatchMaxItems(value: number) {
+    if (validBatchMaxItems(value)) this.actionBatchMaxItems(value)
+    else this.$message.warning(this.$t('settings.batchItemsRange') as string)
+  }
+  private handleBatchMaxBytes(value: number) {
+    if (validBatchMaxBytes(value)) this.actionBatchMaxBytes(value)
+    else this.$message.warning(this.$t('settings.batchBytesRange') as string)
+  }
 
   @Getter('currentTheme') private currentTheme!: Theme
   @Getter('currentLang') private currentLang!: Language
@@ -991,6 +1039,13 @@ export default class Settings extends Vue {
   -moz-user-select: none;
   -khtml-user-select: none;
   user-select: none;
+
+  .batch-setting-desc {
+    color: var(--color-text-tips);
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 8px 0 0;
+  }
 
   .settings-general {
     margin-top: 30px;

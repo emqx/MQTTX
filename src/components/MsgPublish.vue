@@ -23,6 +23,8 @@
                     <el-switch
                       size="mini"
                       v-model="MQTT5PropsForm.payloadFormatIndicator"
+                      :disabled="msgRecord.batch"
+                      :title="msgRecord.batch ? $t('connections.batchProcessingDisabled') : ''"
                       active-color="#13ce66"
                       inactive-color="#A2A9B0"
                     ></el-switch>
@@ -85,16 +87,32 @@
       <div class="publish-metadata">
         <el-select class="payload-select" size="mini" :value="msgRecord.payloadType" @change="handleTypeChange">
           <el-option-group :label="$t('connections.publishPayloadEncodedBy')">
-            <el-option v-for="(type, index) in payloadOptions" :key="index" :label="type" :value="type"> </el-option>
+            <el-option v-for="(type, index) in availablePayloadOptions" :key="index" :label="type" :value="type">
+            </el-option>
           </el-option-group>
         </el-select>
         <el-select class="qos-select" size="mini" v-model="msgRecord.qos">
-          <el-option v-for="qos in [0, 1, 2]" :key="qos" :label="`QoS ${qos}`" :value="qos">
+          <el-option v-for="qos in msgRecord.batch ? [0, 1] : [0, 1, 2]" :key="qos" :label="`QoS ${qos}`" :value="qos">
             <span style="float: left">{{ qos }}</span>
             <span style="float: right; color: #8492a6; margin-left: 12px">{{ $t(`connections.qos${qos}`) }}</span>
           </el-option>
         </el-select>
-        <el-checkbox class="retain-checkbox" v-model="msgRecord.retain" label="Retain" border size="mini"></el-checkbox>
+        <el-checkbox
+          class="retain-checkbox"
+          v-model="msgRecord.retain"
+          :disabled="msgRecord.batch && mqttVersion === '3.1.1'"
+          label="Retain"
+          border
+          size="mini"
+        ></el-checkbox>
+        <el-checkbox
+          class="retain-checkbox"
+          v-model="msgRecord.batch"
+          :disabled="mqttVersion === '3.1'"
+          label="Batch"
+          border
+          size="mini"
+        ></el-checkbox>
         <el-tooltip
           placement="top"
           :disabled="mqtt5PropsEnable"
@@ -120,7 +138,10 @@
           <el-button class="dropdown-btn actions-btn" type="outline" plain size="mini" icon="el-icon-caret-top">
           </el-button>
           <el-dropdown-menu class="connection-oper-item" slot="dropdown">
-            <el-dropdown-item command="clearRetainedMessage" :disabled="!clientConnected">
+            <el-dropdown-item
+              command="clearRetainedMessage"
+              :disabled="!clientConnected || (msgRecord.batch && mqttVersion !== '5.0')"
+            >
               <i class="iconfont icon-delete"></i>{{ $t('connections.clearRetainedMessage') }}
             </el-dropdown-item>
             <el-dropdown-item command="timedMessage" :disabled="!clientConnected || sendTimeId !== null">
@@ -169,7 +190,17 @@
           </el-tooltip>
         </div>
       </div>
-      <div :class="['topic-input-container', topicRequired ? 'required' : '']">
+      <div
+        :class="[
+          'topic-input-container',
+          topicRequired ||
+          (msgRecord.batch &&
+            batchState.error &&
+            ['BATCH_LOGICAL_TOPIC', 'INVALID_BATCH_TOPIC'].includes(batchState.error))
+            ? 'required'
+            : '',
+        ]"
+      >
         <el-input
           class="publish-topic-input"
           placeholder="Topic"
@@ -197,6 +228,7 @@
               <span class="header-option-topic" :title="item.topic">{{ item.topic }}</span>
               <span class="header-option-meta">QoS:{{ item.qos }}</span>
               <span class="header-option-meta">retain:{{ item.retain ? '1' : '0' }}</span>
+              <span v-if="item.batch" class="header-option-meta">Batch</span>
               <i
                 class="el-icon-close header-option-delete"
                 :title="$t('common.delete')"
@@ -211,7 +243,7 @@
       <div
         class="publish-footer"
         :style="{
-          height: `${editorHeight}px`,
+          height: `${editorHeight - (msgRecord.batch ? 24 : 0)}px`,
         }"
       >
         <Editor
@@ -220,13 +252,32 @@
           :lang="payloadLang"
           v-model="msgRecord.payload"
           :useShadows="true"
-          @enter-event="send"
+          @enter-event="send()"
           @format="formatJsonValue"
         />
       </div>
-      <a href="javascript:;" class="send-btn" @click="send">
+      <a
+        href="javascript:;"
+        :class="['send-btn', { 'is-disabled': msgRecord.batch && batchState.error }]"
+        :aria-disabled="Boolean(msgRecord.batch && batchState.error)"
+        @click="send()"
+      >
         <i class="iconfont icon-send"></i>
       </a>
+    </div>
+    <div
+      v-if="msgRecord.batch"
+      class="batch-status"
+      :class="{ invalid: batchState.error }"
+      :title="batchState.error ? batchError : $t('connections.batchProcessingDisabled')"
+    >
+      {{
+        $t('connections.batchStatus', {
+          count: batchState.count,
+          bytes: batchState.bytes,
+          max: batchMaxBytes || 65536,
+        })
+      }}<span v-if="batchState.error"> · {{ batchError }}</span>
     </div>
     <div v-if="disabled" class="disabled-mask" @click.stop></div>
   </div>
@@ -247,16 +298,21 @@ import validFormatJson from '@/utils/validFormatJson'
 import useServices from '@/database/useServices'
 import time from '@/utils/time'
 import { emptyToNull } from '@/utils/handleString'
+import { prepareBatchPublish, formatBatchPublishError } from '@/utils/batchPayload'
+import { PublishProperties } from '@/utils/batchPublishing'
 
 const getDefaultMsgRecord = (): PushMessageModel => ({
   topic: '',
   qos: 0,
   retain: false,
+  batch: false,
   payload: JSON.stringify({ msg: 'hello' }, null, 2),
   payloadType: 'JSON',
 })
-const getMsgHeader = (item: HistoryMessageHeaderModel): HistoryMessageHeaderModel =>
-  _.pick(item, ['qos', 'retain', 'topic'])
+const getMsgHeader = (item: HistoryMessageHeaderModel): HistoryMessageHeaderModel => ({
+  ..._.pick(item, ['qos', 'retain', 'topic']),
+  batch: Boolean(item.batch),
+})
 const getMsgPayload = ({ payload, payloadType }: HistoryMessagePayloadModel) => ({
   payload,
   payloadType: payloadType as PayloadType,
@@ -275,10 +331,69 @@ export default class MsgPublish extends Vue {
   @Prop({ required: true }) public editorHeight!: number
   @Prop({ default: false }) public disabled!: boolean
   @Prop({ default: false }) public mqtt5PropsEnable!: boolean
+  @Prop({ default: '5.0' }) public mqttVersion!: string
+  @Prop() public maximumPacketSize?: number
   @Prop({ default: false }) public clientConnected!: boolean
   @Prop({ default: null }) public sendTimeId!: number | null
 
   @Getter('currentTheme') private currentTheme!: Theme
+  @Getter('batchMaxItems') private batchMaxItems!: number
+  @Getter('batchMaxBytes') private batchMaxBytes!: number
+
+  get availablePayloadOptions() {
+    return this.msgRecord.batch
+      ? this.payloadOptions.filter((type) => ['Plaintext', 'Hex', 'Base64', 'JSON'].includes(type))
+      : this.payloadOptions
+  }
+
+  get batchState() {
+    const properties = Object.fromEntries(
+      Object.entries(this.MQTT5PropsSend).filter(([_, value]) => value != null),
+    ) as PublishProperties
+    return prepareBatchPublish(
+      this.msgRecord,
+      this.msgRecord.payloadType,
+      this.mqttVersion === '5.0' ? 5 : this.mqttVersion === '3.1' ? 3 : 4,
+      this.mqtt5PropsEnable ? properties : undefined,
+      { maxItems: this.batchMaxItems || 100, maxBytes: this.batchMaxBytes || 65536 },
+      this.maximumPacketSize,
+    )
+  }
+
+  get batchError() {
+    return formatBatchPublishError(
+      this.batchState,
+      { maxItems: this.batchMaxItems || 100, maxBytes: this.batchMaxBytes || 65536 },
+      this.maximumPacketSize,
+      (key, values) => String(this.$t(key, values)),
+    )
+  }
+
+  @Watch('msgRecord.batch')
+  private handleBatchLayout() {
+    this.$nextTick(() => {
+      const editor = this.$refs.payloadEditor as Editor
+      editor?.editorLayout?.()
+    })
+  }
+
+  @Watch('msgRecord.batch')
+  @Watch('mqttVersion')
+  @Watch('msgRecord.qos')
+  @Watch('msgRecord.retain')
+  private handleBatchChange() {
+    if (this.mqttVersion === '3.1') this.$set(this.msgRecord, 'batch', false)
+    if (this.msgRecord.batch) {
+      if (this.msgRecord.qos === 2) {
+        this.msgRecord.qos = 1
+        this.$message.warning(this.$t('connections.batchQosChanged') as string)
+      }
+      if (this.mqttVersion === '3.1.1') this.msgRecord.retain = false
+      this.$set(this.MQTT5PropsForm, 'payloadFormatIndicator', false)
+      this.$set(this.MQTT5PropsSend, 'payloadFormatIndicator', false)
+    }
+    this.$emit('batchChange', Boolean(this.msgRecord.batch))
+  }
 
   private MQTT5PropsForm: PushPropertiesModel = {}
 
@@ -344,6 +459,10 @@ export default class MsgPublish extends Vue {
   // Restored messages and history entries keep their text; only a user format change converts it.
   private async handleTypeChange(type: PayloadType) {
     const { payload, payloadType } = this.msgRecord
+    if (this.msgRecord.batch) {
+      this.msgRecord.payloadType = type
+      return
+    }
     try {
       this.msgRecord.payload = payload && (await convertPayload(payload, type, payloadType))
       this.msgRecord.payloadType = type
@@ -412,6 +531,7 @@ export default class MsgPublish extends Vue {
   private handleHeaderChange(val: HistoryMessageHeaderModel) {
     if (val) {
       Object.assign(this.msgRecord, getMsgHeader(val))
+      this.handleBatchChange()
     }
   }
 
@@ -450,14 +570,24 @@ export default class MsgPublish extends Vue {
     return await connectionService.addPushProp(props, this.$route.params.id)
   }
 
-  private async send() {
+  private async send(clearRetained = false) {
+    if (!clearRetained && this.msgRecord.batch && this.batchState.error) return
     const { payloadType, ...record } = this.msgRecord
     const message: MessageModel = {
       ...record,
       id: getMessageId(),
       createAt: time.getNowDate(),
       out: true,
-      properties: this.mqtt5PropsEnable ? this.MQTT5PropsSend : undefined,
+      batch: clearRetained ? false : Boolean(record.batch),
+      properties: this.mqtt5PropsEnable ? _.cloneDeep(this.MQTT5PropsSend) : undefined,
+    }
+    if (clearRetained) {
+      message.payload = ''
+      message.retain = true
+      if (message.properties?.userProperties) {
+        delete message.properties.userProperties['batch-format']
+        delete message.properties.userProperties['batch-size']
+      }
     }
     if (!this.clientConnected) {
       this.$notify({
@@ -529,11 +659,13 @@ export default class MsgPublish extends Vue {
     if (connectionId !== this.connectionId) return
     const header = _.last(this.headersHistory)
     const payload = _.last(this.payloadsHistory)
-    this.msgRecord = saved ?? {
-      ...getDefaultMsgRecord(),
-      ...(header && getMsgHeader(header)),
-      ...(payload && getMsgPayload(payload)),
-    }
+    this.msgRecord = saved
+      ? { ...saved, batch: Boolean(saved.batch) }
+      : {
+          ...getDefaultMsgRecord(),
+          ...(header && getMsgHeader(header)),
+          ...(payload && getMsgPayload(payload)),
+        }
     this.savedMsgRecord = { ...this.msgRecord }
     this.historyIndex = saved || !payload ? -1 : this.payloadsHistory.length - 1
     this.headerValue = getMsgHeader(this.msgRecord)
@@ -570,11 +702,13 @@ export default class MsgPublish extends Vue {
         this.MQTT5PropsForm = pushProps
         this.MQTT5PropsSend = _.cloneDeep(this.MQTT5PropsForm)
         this.hasMqtt5Prop = this.getHasMqtt5PropState()
+        this.handleBatchChange()
       }
     }
   }
 
   private formatJsonValue() {
+    if (this.msgRecord.batch) return
     try {
       let jsonValue: string | undefined = validFormatJson(this.msgRecord.payload)
       if (jsonValue) {
@@ -610,6 +744,7 @@ export default class MsgPublish extends Vue {
   }
 
   private onClearRetainedMsgPublish() {
+    if (this.msgRecord.batch && this.mqttVersion !== '5.0') return
     this.$confirm(
       `${this.$tc('connections.clearRetainedMessageConfirm')} "${this.msgRecord.topic}"`,
       this.$tc('common.warning'),
@@ -620,7 +755,7 @@ export default class MsgPublish extends Vue {
       .then(() => {
         this.msgRecord.payload = ''
         this.msgRecord.retain = true
-        this.send()
+        this.send(true)
       })
       .catch(() => {
         // The user canceled the action
@@ -657,6 +792,23 @@ export default class MsgPublish extends Vue {
   border-top: 1px solid var(--color-border-default);
   box-shadow: #00000010 0px -1px 4px;
   z-index: 10;
+  .batch-status {
+    height: 24px;
+    line-height: 24px;
+    padding: 0 48px 0 16px;
+    color: var(--color-text-tips);
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    &.invalid {
+      color: var(--color-minor-red);
+    }
+  }
+  .send-btn.is-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
   .publish-top {
     position: absolute;
     transform: translate(0, -100%);

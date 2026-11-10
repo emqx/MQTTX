@@ -18,6 +18,7 @@
       <p class="right-info">
         <span class="topic">Topic: <span v-html="highlightedTopic"></span></span>
         <span class="qos">QoS: {{ qos }}</span>
+        <el-tag v-if="batch" class="batch-tag" size="mini">Batch ×{{ batch.count }}</el-tag>
       </p>
       <MqttProperties class="meta" :properties="properties" direction="right" />
       <pre v-if="!searchParams.payload">{{ highlightedPayload }}</pre>
@@ -67,6 +68,10 @@ export default class MsgRightItem extends Vue {
     this.$emit('showmenu', this.payload, event)
   }
 
+  get batch() {
+    return this.meta ? JSON.parse(this.meta).batch : undefined
+  }
+
   get functionName() {
     return this.meta ? JSON.parse(this.meta).functionName : null
   }
@@ -81,6 +86,12 @@ export default class MsgRightItem extends Vue {
 @import '~@/assets/scss/mixins.scss';
 
 .msg-right-item {
+  .batch-tag {
+    margin-left: 12px;
+    background: transparent;
+    color: inherit;
+    border-color: currentColor;
+  }
   text-align: right;
   @include msg-item;
   .right-payload {

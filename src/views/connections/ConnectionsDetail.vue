@@ -167,7 +167,11 @@
                   <el-dropdown-item command="searchContent">
                     <i class="iconfont icon-search"></i>{{ $t('connections.searchContent') }}
                   </el-dropdown-item>
-                  <el-dropdown-item command="useScript" :disabled="!client.connected">
+                  <el-dropdown-item
+                    command="useScript"
+                    :disabled="!client.connected || batchPublishing"
+                    :title="batchPublishing ? $t('connections.batchProcessingDisabled') : ''"
+                  >
                     <i class="iconfont icon-use-script"></i>{{ $t('script.useScript') }}
                   </el-dropdown-item>
                   <el-dropdown-item command="newWindow">
@@ -203,6 +207,8 @@
             :connection="record"
             :titleName="titleName"
             :client="client"
+            :batch-negotiation="activeConnection[curConnectionId] && activeConnection[curConnectionId].batchNegotiation"
+            :maximum-packet-size="brokerMaximumPacketSize"
             :btn-loading="connectLoading"
             @handleConnect="connect"
             @handleDisconnect="disconnect"
@@ -333,6 +339,9 @@
         <ResizeHeight v-model="inputHeight" />
         <MsgPublish
           :mqtt5PropsEnable="record.mqttVersion === '5.0'"
+          :mqtt-version="record.mqttVersion"
+          :maximum-packet-size="brokerMaximumPacketSize"
+          @batchChange="batchPublishing = $event"
           ref="msgPublish"
           :editor-height="inputHeight - 75"
           :style="{ height: `${inputHeight}px` }"
@@ -377,6 +386,14 @@ import { createClient, ignoreQoS0Message } from '@/utils/mqttUtils'
 import { bindMessagePipeline, tearDownMessagePipeline } from '@/utils/connectionMessagePipeline'
 import validFormatJson from '@/utils/validFormatJson'
 import { encodePayloadByType } from '@/utils/payloadEncoder'
+import { decodeBatch, validateBatchSelection, BatchPacket } from '@/utils/batchPublishing'
+import {
+  batchHexPreview,
+  storeBatchItems,
+  prepareBatchPublish,
+  formatBatchPublishError,
+  BatchStorageMode,
+} from '@/utils/batchPayload'
 
 import MessageList from '@/components/MessageList.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
@@ -472,6 +489,15 @@ export default class ConnectionsDetail extends Vue {
   @Getter('showConnectionList') private showConnectionList!: boolean
   @Getter('maxPayloadDisplaySize') private maxPayloadDisplaySize!: number
   @Getter('decompressGzip') private decompressGzip!: boolean
+  @Getter('batchMaxItems') private batchMaxItems!: number
+  @Getter('batchMaxBytes') private batchMaxBytes!: number
+  @Getter('batchStorageMode') private batchStorageMode!: BatchStorageMode
+
+  private batchPublishing = false
+
+  get brokerMaximumPacketSize() {
+    return this.client.connected ? this.activeConnection[this.curConnectionId]?.maximumPacketSize : undefined
+  }
 
   /**
    * Notice: when we jump order by `other page` -> `creation page` -> `connection page`,
@@ -1213,6 +1239,15 @@ export default class ConnectionsDetail extends Vue {
       id,
       client,
       responseInformation: mqttVersion === '5.0' ? conBack.properties?.responseInformation || '' : '',
+      maximumPacketSize: mqttVersion === '5.0' ? conBack.properties?.maximumPacketSize : undefined,
+      batchNegotiation:
+        mqttVersion !== '5.0'
+          ? 'batchNotApplicable'
+          : validateBatchSelection(client.options?.properties?.userProperties, conBack.properties?.userProperties)
+          ? 'batchSelected'
+          : client.options?.properties?.userProperties?.['batch-publish'] !== undefined
+          ? 'batchNotSelected'
+          : 'batchNotRequested',
     })
     this.$notify({
       title: this.$tc('connections.connected'),
@@ -1412,8 +1447,37 @@ export default class ConnectionsDetail extends Vue {
    * Handles the processing of received MQTT messages
    * according to the specified schema, type, and user-defined function
    */
-  private processReceivedMessage(topic: string, payload: Buffer, packet: IPublishPacket) {
+  private processReceivedMessage(topic: string, payload: Buffer, packet: IPublishPacket, mqttVersion?: number) {
     const { qos, retain, properties } = packet
+    const batch = decodeBatch(
+      { topic, payload, qos, retain, properties } as BatchPacket,
+      mqttVersion ?? (this.record?.mqttVersion === '5.0' ? 5 : this.record?.mqttVersion === '3.1' ? 3 : 4),
+      { maxItems: this.batchMaxItems || 100, maxBytes: this.batchMaxBytes || 65536 },
+    )
+    if (batch) {
+      const { items, ...metadata } = batch
+      const summary = this.batchStorageMode === 'summary' && !batch.error
+      const stored = items
+        ? storeBatchItems(items, summary ? 'summary' : 'full', this.receivedMsgType, (item) =>
+            String(this.convertPayloadByType(item, this.receivedMsgType, 'received') ?? ''),
+          )
+        : undefined
+      return {
+        id: getMessageId(),
+        out: false,
+        createAt: time.getNowDate(),
+        topic,
+        qos,
+        retain,
+        properties,
+        payload: stored ? JSON.stringify(stored) : batchHexPreview(payload, this.maxPayloadDisplaySize),
+        meta: JSON.stringify({
+          batch: { ...metadata, count: metadata.count ?? 0, ...(summary ? { summary: true } : {}) },
+          payloadBytes: payload.length,
+          msgType: this.receivedMsgType,
+        }),
+      } as MessageModel
+    }
     let receivedPayload
     let jsonMsgError = ''
     let gzipError = ''
@@ -1512,6 +1576,13 @@ export default class ConnectionsDetail extends Vue {
   private printMessageLog(id: string, message: MessageModel) {
     try {
       const { topic, retain } = message
+      const meta = message.meta && JSON.parse(message.meta)
+      if (meta?.batch) {
+        this.$log.info(
+          `Batch received: count=${meta.batch.count ?? 0}, bytes=${meta.payloadBytes}, error=${meta.batch.error || ''}`,
+        )
+        return
+      }
       if (id === this.curConnectionId) {
         const isActiveTopicMessages = matchTopicMethod(this.activeTopic, topic)
         const isFromActiveTopic = this.msgType !== 'publish' && this.activeTopic && isActiveTopicMessages
@@ -1639,7 +1710,7 @@ export default class ConnectionsDetail extends Vue {
     const messageSubject$ = fromEvent(client, 'message').pipe(
       takeUntil(unsubscribe$),
       map(([topic, payload, packet]: [string, Buffer, IPublishPacket]) => {
-        return this.processReceivedMessage(topic, payload, packet)
+        return this.processReceivedMessage(topic, payload, packet, client.options?.protocolVersion)
       }),
       shareReplay(1),
     )
@@ -1725,7 +1796,8 @@ export default class ConnectionsDetail extends Vue {
     afterpublishMessageCallback?: () => void,
     afterCallback?: () => void,
   ): Promise<void> {
-    await this.publishMessage({ ...message }, type, afterpublishMessageCallback)
+    const published = await this.publishMessage({ ...message }, type, afterpublishMessageCallback)
+    if (!published) return
     if (this.sendFrequency) {
       this.notifyTimedMessageSuccess()
       this.timedSendMessage(this.sendFrequency, message, type)
@@ -1753,7 +1825,7 @@ export default class ConnectionsDetail extends Vue {
     this.sendTimedMessageCount += 1
     this.sendTimeId = window.setInterval(() => {
       message.id = getMessageId()
-      this.publishMessage(message, type)
+      this.publishMessage({ ...message }, type)
     }, time * 1000)
   }
 
@@ -1804,43 +1876,74 @@ export default class ConnectionsDetail extends Vue {
     type: PayloadType,
     afterSendCallback?: () => void,
     onResult?: (error?: Error) => void,
-  ): Promise<void> {
+  ): Promise<boolean> {
     const { topic, qos, payload, retain, properties } = message
-
-    const props = properties ? this.processProperties(properties) : undefined
-
+    let props = properties ? this.processProperties(properties) : undefined
     const connectionId = this.record.id
     await this.insertHistory(
-      { payload, payloadType: type, connectionId } as HistoryMessagePayloadModel,
-      { qos, topic, retain, connectionId } as HistoryMessageHeaderModel,
+      { payload, payloadType: type, connectionId },
+      { qos, topic, retain, batch: Boolean(message.batch), connectionId },
     )
-
+    let wireTopic = topic
     let convertedPayload = ''
     let finalPayload: string | Buffer | undefined = payload
-
-    /*
-     * Payload processing pipeline for publishing:
-     *      1. Raw Payload
-     *           ⬇️
-     *      2. [Function]: user-defined script processing
-     *           ⬇️
-     *      3. [Schema | Type]: decoding via custom schema (if defined) or default payload type conversion
-     *           ⬇️
-     *      4. Final Payload: ready for publishing
-     * Note:
-     * - Empty payloads are allowed to facilitate the clearing of retained messages.
-     */
-    if (payload) {
-      convertedPayload = this.convertPayloadByFunction(payload as string, 'publish', type)
+    if (message.batch) {
+      const prepared = prepareBatchPublish(
+        message,
+        type,
+        this.record.mqttVersion === '5.0' ? 5 : this.record.mqttVersion === '3.1' ? 3 : 4,
+        props,
+        { maxItems: this.batchMaxItems || 100, maxBytes: this.batchMaxBytes || 65536 },
+        this.brokerMaximumPacketSize,
+      )
+      if (!prepared.packet) {
+        const error = new Error(
+          formatBatchPublishError(
+            prepared,
+            { maxItems: this.batchMaxItems || 100, maxBytes: this.batchMaxBytes || 65536 },
+            this.brokerMaximumPacketSize,
+            (key, values) => String(this.$t(key, values)),
+          ),
+        )
+        this.handleErrorOnPublish(error)
+        onResult?.(error)
+        return false
+      }
+      wireTopic = prepared.packet.topic
+      finalPayload = prepared.packet.payload
+      props = prepared.packet.properties
+      convertedPayload = payload
+      message.meta = JSON.stringify({
+        batch: {
+          carrier: this.record.mqttVersion === '5.0' ? 'property' : 'topic',
+          logicalTopic: topic,
+          count: prepared.count,
+        },
+        payloadBytes: finalPayload.length,
+      })
+    } else if (payload) {
+      /*
+       * Payload processing pipeline for publishing:
+       *      1. Raw Payload
+       *           ⬇️
+       *      2. [Function]: user-defined script processing
+       *           ⬇️
+       *      3. [Schema | Type]: decoding via custom schema (if defined) or default payload type conversion
+       *           ⬇️
+       *      4. Final Payload: ready for publishing
+       * Note:
+       * - Empty payloads are allowed to facilitate the clearing of retained messages.
+       */
+      convertedPayload = this.convertPayloadByFunction(payload, 'publish', type)
       finalPayload = this.handlePayloadBySchemaOrType(convertedPayload, type)
       if (finalPayload === undefined) {
         onResult?.(new Error(`The payload could not be converted to ${type}`))
-        return
+        return false
       }
     }
 
     this.client.publish!(
-      topic,
+      wireTopic,
       finalPayload,
       { qos, retain, properties: props as IClientPublishOptions['properties'] },
       async (error: Error) => {
@@ -1854,12 +1957,12 @@ export default class ConnectionsDetail extends Vue {
          * 1. The finalPayload might be a Buffer, which isn't suitable for storage.
          * 2. To retain a human-readable payload that reflects the original or the user-script processed data.
          */
-        await this.handleSuccessfulPublish(message, convertedPayload)
+        await this.handleSuccessfulPublish({ ...message, properties: props }, convertedPayload)
         onResult?.()
       },
     )
-
     afterSendCallback?.()
+    return true
   }
 
   /**
@@ -1895,7 +1998,7 @@ export default class ConnectionsDetail extends Vue {
     }
     const { id, topic, qos, retain } = message
 
-    const properties = this.record.mqttVersion === '5.0' ? this.processProperties(message.properties) : undefined
+    const properties = this.record.mqttVersion === '5.0' ? this.processProperties(message.properties || {}) : undefined
     const publishMessage: MessageModel = {
       id,
       out: true,
@@ -1905,10 +2008,11 @@ export default class ConnectionsDetail extends Vue {
       qos,
       retain,
       properties,
+      meta: message.meta,
     }
 
-    this.updateMeta(publishMessage, 'function', 'publish')
-    this.updateMeta(publishMessage, 'schema', 'publish')
+    if (!message.batch) this.updateMeta(publishMessage, 'function', 'publish')
+    if (!message.batch) this.updateMeta(publishMessage, 'schema', 'publish')
 
     if (this.record.id) {
       if (!ignoreQoS0Message(qos)) {
@@ -1923,6 +2027,11 @@ export default class ConnectionsDetail extends Vue {
    * Logs details of a successfully published message.
    */
   private logSuccessfulPublish(publishMessage: MessageModel) {
+    const meta = publishMessage.meta && JSON.parse(publishMessage.meta)
+    if (meta?.batch) {
+      this.$log.info(`Batch published: count=${meta.batch.count}, bytes=${meta.payloadBytes}`)
+      return
+    }
     const logPayload = jsonStringify(publishMessage.payload)
     let pubLog = `Message with payload ${logPayload} was successfully published to topic "${publishMessage.topic}" by ${this.record.name}`
     this.$log.info(pubLog)

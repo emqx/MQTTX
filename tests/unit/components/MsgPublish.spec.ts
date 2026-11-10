@@ -30,13 +30,19 @@ describe('MsgPublish per-connection input', () => {
   const mount = async () => {
     wrapper = shallowMount(MsgPublish, {
       localVue,
-      store: new Vuex.Store({ getters: { currentTheme: () => 'light' } }),
+      store: new Vuex.Store({
+        getters: { currentTheme: () => 'light', batchMaxItems: () => 100, batchMaxBytes: () => 65536 },
+      }),
       propsData: { editorHeight: 180, clientConnected: true },
       router,
       mocks: {
         $t: (key: string) => key,
         $tc: (key: string) => key,
-        $message: { error: (message: string) => errors.push(message) },
+        $confirm: () => Promise.resolve(),
+        $message: {
+          error: (message: string) => errors.push(message),
+          warning: (message: string) => errors.push(message),
+        },
       },
     })
     vm = wrapper.vm
@@ -109,6 +115,7 @@ describe('MsgPublish per-connection input', () => {
     await switchTo('b')
     expect(vm.msgRecord).to.deep.equal({
       topic: 'b/topic',
+      batch: false,
       qos: 1,
       retain: true,
       payload: 'SGVsbG8=',
@@ -155,5 +162,64 @@ describe('MsgPublish per-connection input', () => {
     payloads.push({ connectionId: 'a', payload: 'typed', payloadType: 'Plaintext' })
     await afterSend()
     expect(vm.historyIndex).to.equal(0)
+  })
+  it('restores the batch flag from header history, including ordinary history', () => {
+    vm.handleHeaderChange({ topic: 'batch', qos: 1, retain: false, batch: true })
+    expect(vm.msgRecord.batch).to.equal(true)
+    vm.handleHeaderChange({ topic: 'ordinary', qos: 1, retain: false })
+    expect(vm.msgRecord.batch).to.equal(false)
+  })
+
+  it('restricts QoS, Retain and PFI when enabling batch and warns once', async () => {
+    Object.assign(vm.msgRecord, { qos: 2, retain: true, batch: true })
+    vm.MQTT5PropsForm = { payloadFormatIndicator: true }
+    vm.MQTT5PropsSend = { payloadFormatIndicator: true }
+    await wrapper.setProps({ mqttVersion: '3.1.1' })
+    await Vue.nextTick()
+    expect(vm.msgRecord).to.include({ qos: 1, retain: false, batch: true })
+    expect(vm.MQTT5PropsSend.payloadFormatIndicator).to.equal(false)
+    expect(errors).to.deep.equal(['connections.batchQosChanged'])
+    await wrapper.setProps({ mqttVersion: '3.1' })
+    expect(vm.msgRecord.batch).to.equal(false)
+  })
+
+  it('keeps line input unchanged when choosing a batch payload type and blocks invalid sends', async () => {
+    Object.assign(vm.msgRecord, { batch: true, topic: 'demo', payload: '41\ninvalid', payloadType: 'Plaintext' })
+    await vm.handleTypeChange('Hex')
+    expect(vm.msgRecord.payload).to.equal('41\ninvalid')
+    expect(vm.batchState.error).to.equal('BATCH_LINE_ERROR')
+    await vm.send()
+    expect(wrapper.emitted('handleSend')).to.equal(undefined)
+    vm.msgRecord.payload = '41\n42'
+    await vm.send()
+    expect(wrapper.emitted('handleSend')![0][0]).to.include({ batch: true, payload: '41\n42' })
+  })
+
+  it('clears a retained property-carrier batch with an ordinary unmarked empty publication', async () => {
+    await wrapper.setProps({ mqttVersion: '5.0', mqtt5PropsEnable: true })
+    Object.assign(vm.msgRecord, { batch: true, topic: 'demo', payload: 'one\ntwo', payloadType: 'Plaintext' })
+    vm.MQTT5PropsSend = { userProperties: { 'batch-format': 'v1', 'batch-size': '2', other: 'kept' } }
+    vm.onClearRetainedMsgPublish()
+    await settle()
+    const sent = wrapper.emitted('handleSend')![0][0]
+    expect(sent).to.include({ batch: false, retain: true, payload: '', topic: 'demo' })
+    expect(sent.properties.userProperties).to.deep.equal({ other: 'kept' })
+    expect(vm.msgRecord).to.include({ payload: '', retain: true })
+  })
+  it('uses localized publish reasons for the status line, including the actual limit', async () => {
+    vm.$t = (key: string, values: Record<string, number> = {}) => `${key} ${JSON.stringify(values)}`
+    Object.assign(vm.msgRecord, { batch: true, topic: 'demo', payload: '\n'.repeat(120), payloadType: 'Plaintext' })
+    expect(vm.batchError).to.equal('connections.batchItemsLimit {"count":120,"max":100}')
+    vm.msgRecord.payload = 'x'.repeat(69998)
+    expect(vm.batchError).to.equal('connections.batchBytesLimit {"bytes":70000,"max":65536}')
+    vm.msgRecord.payload = 'valid'
+    vm.msgRecord.topic = 'a+b'
+    expect(vm.batchError).to.include('connections.batchInvalidTopic')
+    vm.msgRecord.topic = 'demo'
+    await wrapper.setProps({ mqtt5PropsEnable: true })
+    vm.MQTT5PropsSend = { userProperties: { 'batch-size': '1' } }
+    expect(vm.batchError).to.include('connections.batchMarkerConflict')
+    vm.MQTT5PropsSend = { payloadFormatIndicator: true }
+    expect(vm.batchError).to.include('connections.batchInvalidMetadata')
   })
 })

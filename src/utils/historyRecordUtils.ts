@@ -17,7 +17,12 @@ export const hasMessageHeaderID = async (data: HistoryMessageHeaderModel): Promi
   const headers = await historyMessageHeaderService.getAll(data.connectionId!)
   if (headers) {
     const res = headers.find((el: HistoryMessageHeaderModel) => {
-      return data.qos === el.qos && data.topic === el.topic && data.retain === el.retain
+      return (
+        data.qos === el.qos &&
+        data.topic === el.topic &&
+        data.retain === el.retain &&
+        Boolean(data.batch) === Boolean(el.batch)
+      )
     })
     return res?.id ?? null
   }

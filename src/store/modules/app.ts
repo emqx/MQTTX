@@ -1,4 +1,6 @@
 import Vue from 'vue'
+import { Commit } from 'vuex'
+import { validBatchMaxItems, validBatchMaxBytes } from '@/utils/batchPayload'
 import log4js from 'log4js'
 import useServices from '@/database/useServices'
 import { getGlobal } from '@electron/remote'
@@ -89,6 +91,13 @@ const app = {
     ignoreQoS0Message: settingData.ignoreQoS0Message || false,
     topicWhitespaceDetection: settingData.topicWhitespaceDetection || false,
     decompressGzip: settingData.decompressGzip || false,
+    batchStorageMode: electronStore.get('settings.batchStorageMode') === 'summary' ? 'summary' : 'full',
+    batchMaxItems: validBatchMaxItems(electronStore.get('settings.batchMaxItems'))
+      ? electronStore.get('settings.batchMaxItems')
+      : 100,
+    batchMaxBytes: validBatchMaxBytes(electronStore.get('settings.batchMaxBytes'))
+      ? electronStore.get('settings.batchMaxBytes')
+      : 65536,
     maxPayloadDisplaySize: normalizeMaxPayloadDisplaySize(
       electronStore.get('settings.maxPayloadDisplaySize', DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE),
     ),
@@ -98,6 +107,15 @@ const app = {
     agentReasoning: normalizeAgentReasoning(electronStore.get('settings.agentReasoning', DEFAULT_AGENT_REASONING)),
   },
   mutations: {
+    SET_BATCH_STORAGE_MODE(state: App, mode: App['batchStorageMode']): void {
+      state.batchStorageMode = mode
+    },
+    SET_BATCH_MAX_ITEMS(state: App, value: number): void {
+      state.batchMaxItems = value
+    },
+    SET_BATCH_MAX_BYTES(state: App, value: number): void {
+      state.batchMaxBytes = value
+    },
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
       state.currentTheme = currentTheme
     },
@@ -229,6 +247,21 @@ const app = {
     },
   },
   actions: {
+    SET_BATCH_STORAGE_MODE({ commit }: { commit: Commit }, value: App['batchStorageMode']): void {
+      if (value !== 'full' && value !== 'summary') return
+      commit('SET_BATCH_STORAGE_MODE', value)
+      electronStore.set('settings.batchStorageMode', value)
+    },
+    SET_BATCH_MAX_ITEMS({ commit }: { commit: Commit }, value: number): void {
+      if (!validBatchMaxItems(value)) return
+      commit('SET_BATCH_MAX_ITEMS', value)
+      electronStore.set('settings.batchMaxItems', value)
+    },
+    SET_BATCH_MAX_BYTES({ commit }: { commit: Commit }, value: number): void {
+      if (!validBatchMaxBytes(value)) return
+      commit('SET_BATCH_MAX_BYTES', value)
+      electronStore.set('settings.batchMaxBytes', value)
+    },
     async TOGGLE_THEME({ commit }: any, payload: App) {
       const { settingService } = useServices()
       commit(TOGGLE_THEME, payload.currentTheme)
