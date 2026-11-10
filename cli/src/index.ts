@@ -26,6 +26,7 @@ import ls from './lib/ls'
 import { initConfig } from './lib/init'
 import { version } from '../package.json'
 import state from './state'
+import { DEFAULT_BATCH_LIMITS } from './utils/batchPublishing'
 import { DEFAULT_MAX_INFLIGHT, DEFAULT_MQTT_PUB_MESSAGE, MAX_INFLIGHT_LIMIT } from './utils/constants'
 
 const utm = '?utm_source=mqttx-cli&utm_medium=referral&utm_campaign='
@@ -181,12 +182,12 @@ export class Commander {
         DEFAULT_MQTT_PUB_MESSAGE,
       )
       .option('-b, --batch', 'publish MQTT Batch Publishing v1 items (MQTT 5.0 or 3.1.1)')
-      .option('--batch-max-items <N>', 'maximum items per batch (1-65535)', parseNumber, 100)
+      .option('--batch-max-items <N>', 'maximum items per batch (1-65535)', parseNumber, DEFAULT_BATCH_LIMITS.maxItems)
       .option(
         '--batch-max-bytes <BYTES>',
         'maximum batch payload bytes, including length prefixes (1024-1048576)',
         parseNumber,
-        65536,
+        DEFAULT_BATCH_LIMITS.maxBytes,
       )
       .option('--batch-negotiate', 'require batch-publish=v1 selection from the broker (MQTT 5.0)')
       .option('-q, --qos <0/1/2>', 'the QoS of the message', parseQoSValue, 0)
@@ -338,12 +339,12 @@ export class Commander {
       .command('sub')
       .description('Subscribes to one or more topics.')
       .option('-b, --batch', 'recognize and decode MQTT Batch Publishing v1; subscription filters are unchanged')
-      .option('--batch-max-items <N>', 'maximum items per batch (1-65535)', parseNumber, 100)
+      .option('--batch-max-items <N>', 'maximum items per batch (1-65535)', parseNumber, DEFAULT_BATCH_LIMITS.maxItems)
       .option(
         '--batch-max-bytes <BYTES>',
         'maximum batch payload bytes, including length prefixes (1024-1048576)',
         parseNumber,
-        65536,
+        DEFAULT_BATCH_LIMITS.maxBytes,
       )
       .option('-t, --topic <TOPIC...>', 'the message topic')
       .option('-q, --qos <0/1/2...>', 'the QoS of the message', parseQoS)

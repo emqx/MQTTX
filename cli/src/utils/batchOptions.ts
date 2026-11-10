@@ -1,6 +1,7 @@
 import logWrapper from './logWrapper'
 import {
   buildTopicCarrier,
+  hasMarker,
   parseTopicCarrier,
   parseBatchCount,
   validLogicalTopic,
@@ -62,9 +63,7 @@ export const validateBatchOptions = (
   if (options.mqttVersion === 4) buildTopicCarrier(command === 'benchPub' ? options.batchItems ?? 100 : 1, pub.topic)
   if (pub.mqttVersion === 4 && pub.retain) conflict('MQTT 3.1.1 batch publishing requires RETAIN=0.')
   if (pub.payloadFormatIndicator) conflict('batch envelopes require Payload Format Indicator 0 or absent.')
-  if (
-    ['batch-format', 'batch-size'].some((key) => Object.prototype.hasOwnProperty.call(pub.userProperties ?? {}, key))
-  ) {
+  if (hasMarker(pub.userProperties ?? {})) {
     conflict('-up batch-format / batch-size are generated automatically.')
   }
   if (pub.protobufPath || pub.protobufMessageName || pub.avscPath)
