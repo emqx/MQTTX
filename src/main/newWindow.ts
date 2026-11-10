@@ -42,7 +42,7 @@ const newWindow = (id: string, options: WindowOptions) => {
   } else {
     createProtocol('app')
     // Load the index.html when not in development
-    createWindow.loadURL(`app://./index.html/#${options.path}/${id}`)
+    createWindow.loadURL(`app://./index.html#${options.path}/${id}`)
   }
   // 添加 @electron/remote 初始化
   enable(createWindow.webContents)
