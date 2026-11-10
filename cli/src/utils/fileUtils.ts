@@ -64,6 +64,17 @@ const appendFile = (filePath: string, data: string | Buffer, delimiter = '\n'): 
   }
 }
 
+/** Append delimited items in one write, preserving each item's encoding. */
+const appendFileItems = (filePath: string, items: (string | Buffer)[], delimiter = '\n'): void => {
+  if (items.length === 0) return
+  if (items.length === 1) return appendFile(filePath, items[0], delimiter)
+  const separator = Buffer.from(`${delimiter}`)
+  const messages = items.map((item) =>
+    Buffer.isBuffer(item) ? Buffer.concat([item, separator]) : Buffer.from(`${item}${delimiter}`),
+  )
+  appendFile(filePath, Buffer.concat(messages), '')
+}
+
 const createNextNumberedFileName = (filePath: string): string => {
   const escapeRegExp = (string: string) => {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -107,11 +118,17 @@ const fileDataSplitter = (data: string | Buffer, split: true | string): string[]
 
 /** Split batch file items, preserving empty lines and ignoring one trailing separator. */
 const splitBatchFile = (data: string | Buffer, split: true | string = true): string[] => {
-  let separator = split
-  if (separator === true || separator === '\n' || separator === '\\n') {
-    separator = '\\r?\\n'
+  let items: string[]
+  if (split === true || split === '\n' || split === '\\n') {
+    items = data.toString('utf-8').split('\n')
+    for (let index = 0; index < items.length - 1; index++) {
+      if (items[index].endsWith('\r')) {
+        items[index] = items[index].slice(0, -1)
+      }
+    }
+  } else {
+    items = fileDataSplitter(data, split)
   }
-  const items = fileDataSplitter(data, separator)
   if (items[items.length - 1] === '') {
     items.pop()
   }
@@ -128,6 +145,7 @@ export {
   readFile,
   writeFile,
   appendFile,
+  appendFileItems,
   createNextNumberedFileName,
   fileDataSplitter,
   splitBatchFile,

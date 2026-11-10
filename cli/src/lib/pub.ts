@@ -188,12 +188,7 @@ const send = (
   connOpts: IClientOptions,
   messages: PublishMessage[],
   maximumReconnectTimes: number,
-  batchOptions?: PublishOptions,
 ) => {
-  if (messages.length === 0) {
-    logWrapper.success('No batch items to publish.')
-    return
-  }
   let retryTimes = 0
   let isNewConnection = true
   let publishComplete = false
@@ -202,35 +197,30 @@ const send = (
   let index = 0
 
   const client = createMqttClient(connOpts)
-  if (batchOptions) {
-    watchBatchConnection(client, batchOptions, messages as BatchMessage[])
-  }
   basicLog.connecting(config, connOpts.hostname!, connOpts.port, messages[0].topic, messages[0].message.toString())
 
   client.on('connect', (packet) => {
-    if (batchOptions && client.disconnecting) return
+    if (client.disconnecting) return
     retryTimes = 0
     basicLog.connected()
     basicLog.responseInformation(connOpts, packet)
-    if (batchOptions && started) return
+    if (started) return
     started = true
+    basicLog.publishing()
     const next = () => {
-      if (batchOptions && client.disconnecting) return
+      if (client.disconnecting) return
       const pubOpts = messages[index]
       const { topic, message, schemaOptions, format } = pubOpts
-      basicLog.publishing()
       const publishMessage = processPublishMessage(message, schemaOptions, format)
       let settled = false
       pending = true
       client.publish(topic, publishMessage, pubOpts.opts, (err) => {
         // MQTT.js 4 calls back again when deleting a rejected outgoing packet.
-        if (batchOptions && settled) return
+        if (settled) return
         settled = true
         pending = false
         if (err) {
-          if (batchOptions) return exitWithPublishError(client, err)
-          basicLog.error(err)
-          process.exit(1)
+          return exitWithPublishError(client, err)
         } else {
           if (index + 1 < messages.length) {
             index += 1
@@ -260,8 +250,8 @@ const send = (
 
   client.on('close', () => {
     // MQTT.js cannot replay a QoS 0 callback waiting for the old stream to drain.
-    if (batchOptions && !publishComplete && pending && messages[index].opts.qos === 0 && !client.disconnecting) {
-      return exitWithPublishError(client, new Error('Connection closed before batch publishing completed'))
+    if (!publishComplete && pending && messages[index].opts.qos === 0 && !client.disconnecting) {
+      return exitWithPublishError(client, new Error('Connection closed before publishing completed'))
     }
     if (!publishComplete && !connOpts.reconnectPeriod) {
       process.exit(1)
@@ -284,6 +274,7 @@ const send = (
   client.on('disconnect', (packet: IDisconnectPacket) => {
     basicLog.disconnect(packet)
   })
+  return client
 }
 
 const multiSend = (
@@ -473,7 +464,15 @@ const pub = (options: PublishOptions) => {
         ? splitBatchFile(handleFileRead(processPath(options.fileRead)), options.split || true)
         : messages
       const batches = buildBatchMessages(options, source)
-      send(loadOptions, parseConnectOptions(options, 'pub'), batches, options.maximumReconnectTimes, options)
+      if (batches.length === 0) {
+        logWrapper.success('No batch items to publish.')
+        return
+      }
+      watchBatchConnection(
+        send(loadOptions, parseConnectOptions(options, 'pub'), batches, options.maximumReconnectTimes),
+        options,
+        batches,
+      )
     } catch (error) {
       basicLog.error(error as Error)
       process.exit(1)
@@ -589,6 +588,7 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
   }
 
   const batchItems = options.batch ? options.batchItems ?? DEFAULT_BATCH_ITEMS : undefined
+  const publishLog = benchLog.publish(batchItems)
   let batchPayload: Buffer | undefined
   if (batchItems !== undefined) {
     try {
@@ -634,21 +634,14 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
 
   const connStart = Date.now()
 
-  let total = 0
-  let failed = 0
-  const reachedLimit = () => limit > 0 && total + failed >= limit
-  const finishedSplit = () => splitLimit > 0 && total + failed >= splitLimit
+  const stats = { total: 0, failed: 0, sent: 0, limitReached: false, limit, fileRead }
+  const reachedLimit = () => limit > 0 && stats.total + stats.failed >= limit
+  const finishedSplit = () => splitLimit > 0 && stats.total + stats.failed >= splitLimit
   let readyAt: bigint | undefined
 
   process.once('SIGINT', () => {
     const elapsed = readyAt === undefined ? 0 : Number(process.hrtime.bigint() - readyAt) / 1e9
-    if (batchItems !== undefined) {
-      logWrapper.log(`${benchLog.batchPublished(total, batchItems, failed)}, elapsed: ${elapsed.toFixed(2)}s`)
-    } else {
-      logWrapper.log(
-        `Published total: ${total}${failed > 0 ? `, failed: ${failed}` : ''}, elapsed: ${elapsed.toFixed(2)}s`,
-      )
-    }
+    logWrapper.log(`${publishLog.summary(stats)}, elapsed: ${elapsed.toFixed(2)}s`)
     process.exit(SIGINT_EXIT_CODE)
   })
 
@@ -697,28 +690,18 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
             if (exiting) {
               return
             }
-            const sent = total + failed
+            const sent = stats.total + stats.failed
             const limitReached = reachedLimit()
             // If the message or segmented file limit is reached, exit the process.
             if (limitReached || finishedSplit()) {
+              stats.sent = sent
+              stats.limitReached = limitReached
               exiting = true
               // Wait for the total number of sent messages to be printed, then exit the process.
               await delay(1000)
-              if (batchItems !== undefined) {
-                const stats = benchLog.batchPublished(total, batchItems, failed)
-                if (failed > 0) {
-                  logWrapper.fail(stats)
-                } else {
-                  logWrapper.success(stats)
-                }
-              } else if (failed > 0) {
-                logWrapper.fail(`${failed} of ${sent} messages failed to publish.`)
-              } else if (limitReached) {
-                logWrapper.success(`All ${total} messages have been sent, reaching the limit of ${limit}.`)
-              } else {
-                logWrapper.success(`All ${total} messages from the ${fileRead} have been successfully sent.`)
-              }
-              process.exit(failed > 0 ? 1 : 0)
+              const logMethod = stats.failed > 0 ? logWrapper.fail : logWrapper.success
+              logMethod(publishLog.finish(stats))
+              process.exit(stats.failed > 0 ? 1 : 0)
             }
             // If not initialized or client is not connected or message count exceeds the limit, do not send messages.
             if (
@@ -776,21 +759,17 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
               inFlightMessageCount -= 1
               clientInFlightMessageCount -= 1
               if (err) {
-                failed += 1
+                stats.failed += 1
                 basicLog.error(err)
               } else {
-                total += 1
+                stats.total += 1
               }
             }
             if (pubOpts.opts.qos === 0) {
               pendingQos0.add(onPublish)
             }
-            client.publish(
-              batchPacket?.topic ?? publishTopic,
-              batchPacket?.message ?? publishMessage,
-              batchPacket?.opts ?? pubOpts.opts,
-              onPublish,
-            )
+            const packet = batchPacket ?? { topic: publishTopic, message: publishMessage, opts: pubOpts.opts }
+            client.publish(packet.topic, packet.message, packet.opts, onPublish)
           }, messageInterval)
         } else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)
@@ -804,17 +783,9 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
 
           const sampleRate = createRateSampler()
           setInterval(() => {
-            const rate = sampleRate(total)
+            const rate = sampleRate(stats.total)
             const logMethod = verbose ? logWrapper.log : interactivePub.log
-            if (batchItems !== undefined) {
-              logMethod(
-                `${benchLog.batchPublished(total, batchItems, failed)}, rate: ${
-                  rate * batchItems
-                } items/s (${rate} packets/s)`,
-              )
-            } else {
-              logMethod(`Published total: ${total}, message rate: ${rate}/s`)
-            }
+            logMethod(publishLog.rate(stats, rate))
           }, 1000)
         }
       })

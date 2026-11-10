@@ -1,35 +1,20 @@
 /// <reference path="../../src/types/global.d.ts" />
-import { ChildProcess, spawn } from 'child_process'
 import { createServer, Server, Socket } from 'net'
-import { mkdtempSync, rmSync } from 'fs'
-import { join } from 'path'
-import { tmpdir } from 'os'
 import { generate, parser, Packet, IPublishPacket, IConnackPacket } from 'mqtt-packet'
-import { decodeBatch } from '../../src/utils/batchPublishing'
+import { createCli } from './cli'
+import { decodeBatch, encodeBatchPayload } from '../../src/utils/batchPublishing'
 import { PROTOCOL_BATCH_LIMITS } from '../../src/utils/constants'
 
 /** Set up an isolated CLI process and local MQTT broker for each test. */
 export const createBatchBroker = () => {
   const sockets = new Set<Socket>()
   const servers: Server[] = []
-  const children: ChildProcess[] = []
-  let directory: string
-  beforeEach(() => {
-    directory = mkdtempSync(join(tmpdir(), 'mqttx-cli-batch-e2e-'))
-  })
+  const cli = createCli()
 
   afterEach(async () => {
-    for (const child of children.splice(0)) {
-      if (child.exitCode === null && child.signalCode === null) {
-        const closed = new Promise((resolve) => child.once('close', resolve))
-        child.kill()
-        await closed
-      }
-    }
     sockets.forEach((socket) => socket.destroy())
     sockets.clear()
     await Promise.all(servers.splice(0).map((server) => new Promise<void>((resolve) => server.close(() => resolve()))))
-    rmSync(directory, { recursive: true, force: true })
   })
 
   const listen = async (version: number, onPacket: (packet: Packet, socket: Socket) => void) => {
@@ -51,47 +36,41 @@ export const createBatchBroker = () => {
     socket.write(generate(packet, { protocolVersion: version }))
   const connack = (socket: Socket, version = 5, properties?: IConnackPacket['properties'], sessionPresent = false) =>
     write(socket, { cmd: 'connack', reasonCode: 0, returnCode: 0, sessionPresent, properties }, version)
-  // A shell pipe gives /dev/stdin a FIFO on Linux instead of a socketpair.
-  const launch = (port: number, args: string[], input?: string) => {
-    const cliArgs = ['bin/index.js', ...args, '-h', '127.0.0.1', '-p', String(port)]
-    const child = spawn(
-      input === undefined ? process.execPath : '/bin/sh',
-      input === undefined ? cliArgs : ['-c', 'cat | exec "$0" "$@"', process.execPath, ...cliArgs],
-      { env: { ...process.env, HOME: directory, USERPROFILE: directory } },
-    )
-    children.push(child)
-    let output = ''
-    let stdout = ''
-    child.stdout!.on('data', (data) => {
-      output += data
-      stdout += data
-    })
-    child.stderr!.on('data', (data) => {
-      output += data
-    })
-    const closed = new Promise<{ code: number | null; output: string; stdout: string }>((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        child.kill()
-        reject(new Error(`CLI timed out: ${output}`))
-      }, 15000)
-      child.once('error', reject)
-      child.once('close', (code) => {
-        clearTimeout(timeout)
-        resolve({ code, output, stdout })
-      })
-    })
-    child.stdin!.end(input)
-    const until = async (text: string) => {
-      const start = Date.now()
-      while (!output.includes(text)) {
-        if (Date.now() - start > 10000 || child.exitCode !== null || child.signalCode !== null) {
-          throw new Error(`Missing ${text}: ${output}`)
-        }
-        await new Promise((resolve) => setTimeout(resolve, 10))
+  const launch = (port: number, args: string[], input?: string) =>
+    cli.launch([...args, '-h', '127.0.0.1', '-p', String(port)], { input })
+
+  const publication = (
+    topic: string,
+    message: string | Buffer | Buffer[],
+    options: Partial<Pick<IPublishPacket, 'qos' | 'messageId' | 'properties'>> & { count?: number } = {},
+  ): IPublishPacket => {
+    let payload: string | Buffer = ''
+    let count = options.count
+    if (Array.isArray(message)) {
+      payload = encodeBatchPayload(message, PROTOCOL_BATCH_LIMITS)
+      count = message.length
+    } else {
+      payload = message
+    }
+    let properties = options.properties
+    if (count !== undefined && !topic.startsWith('$batch/')) {
+      properties = {
+        ...properties,
+        userProperties: { ...properties?.userProperties, 'batch-format': 'v1', 'batch-size': String(count) },
       }
     }
-    return { child, closed, until }
+    return {
+      cmd: 'publish',
+      topic,
+      payload,
+      qos: options.qos ?? 0,
+      messageId: options.messageId,
+      retain: false,
+      dup: false,
+      properties,
+    }
   }
+
   const publish = async (
     args: string[],
     settings: { version?: number; properties?: IConnackPacket['properties']; input?: string } = {},
@@ -129,8 +108,10 @@ export const createBatchBroker = () => {
     launch,
     publish,
     items,
+    publication,
+    stop: cli.stop,
     get directory() {
-      return directory
+      return cli.directory
     },
   }
 }
