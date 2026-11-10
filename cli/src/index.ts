@@ -26,7 +26,7 @@ import ls from './lib/ls'
 import { initConfig } from './lib/init'
 import { version } from '../package.json'
 import state from './state'
-import { DEFAULT_MQTT_PUB_MESSAGE } from './utils/constants'
+import { DEFAULT_MAX_INFLIGHT, DEFAULT_MQTT_PUB_MESSAGE, MAX_INFLIGHT_LIMIT } from './utils/constants'
 
 const utm = '?utm_source=mqttx-cli&utm_medium=referral&utm_campaign='
 const learnMoreText = [
@@ -541,9 +541,9 @@ export class Commander {
       .option('-im, --message-interval <MILLISECONDS>', 'interval of publishing messages', parseNumber, 1000)
       .option(
         '--max-inflight <NUMBER>',
-        'the maximum number of unacknowledged messages per connection (1-65535)',
+        `the maximum number of unacknowledged messages per connection (1-${MAX_INFLIGHT_LIMIT})`,
         parseNumber,
-        1000,
+        DEFAULT_MAX_INFLIGHT,
       )
       .option(
         '-L, --limit <NUMBER>',
@@ -789,9 +789,9 @@ export class Commander {
       .option('-im, --message-interval <MILLISECONDS>', 'interval of publishing messages', parseNumber, 1000)
       .option(
         '--max-inflight <NUMBER>',
-        'the maximum number of unacknowledged messages per connection (1-65535)',
+        `the maximum number of unacknowledged messages per connection (1-${MAX_INFLIGHT_LIMIT})`,
         parseNumber,
-        1000,
+        DEFAULT_MAX_INFLIGHT,
       )
       .option(
         '-L, --limit <NUMBER>',
