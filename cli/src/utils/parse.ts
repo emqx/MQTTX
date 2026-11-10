@@ -1,7 +1,7 @@
 import * as fs from 'fs'
 import logWrapper from './logWrapper'
 import { getSpecialTypesOption } from '../utils/generator'
-import { readFile, processPath } from '../utils/fileUtils'
+import { processPath } from '../utils/fileUtils'
 
 import { IClientOptions, IClientPublishOptions, IClientSubscribeOptions } from 'mqtt'
 import { getLocalScenarioList, getScenarioFilePath } from './simulate'
@@ -135,8 +135,14 @@ const parseFileRead = (value: string) => {
     process.exit(1)
   }
 
-  const fileContent = readFile(filePath)
-  if (fileContent.length >= MQTT_SINGLE_MESSAGE_BYTE_LIMIT) {
+  let fileSize: number
+  try {
+    fileSize = fs.statSync(filePath).size
+  } catch (error) {
+    logWrapper.fail((error as Error).toString())
+    process.exit(1)
+  }
+  if (fileSize >= MQTT_SINGLE_MESSAGE_BYTE_LIMIT) {
     logWrapper.fail('File size over 256MB not supported by MQTT.')
     process.exit(1)
   }
