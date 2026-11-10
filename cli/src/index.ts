@@ -861,7 +861,7 @@ export class Commander {
         parseNumber,
         1000,
       )
-      .option('--maximun-reconnect-times <NUMBER>', 'the maximum reconnect times', parseNumber, 10)
+      .option('--maximum-reconnect-times <NUMBER>', 'the maximum reconnect times', parseNumber, 10)
       // connect properties options of MQTT 5.0
       .option('-se, --session-expiry-interval <SECONDS>', 'the session expiry interval in seconds', parseNumber)
       .option('--rcv-max, --receive-maximum <NUMBER>', 'the receive maximum value', parseNumber)
