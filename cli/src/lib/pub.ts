@@ -26,7 +26,7 @@ import getBenchClientId from '../utils/getBenchClientId'
 import createRateSampler from '../utils/createRateSampler'
 import { parsePayloadSize, generateRandomPayload } from '../utils/payloadGenerator'
 import { createMqttClient } from '../utils/mqttConnect'
-import { DEFAULT_MQTT_PUB_MESSAGE } from '../utils/constants'
+import { DEFAULT_MAX_INFLIGHT, DEFAULT_MQTT_PUB_MESSAGE, MAX_INFLIGHT_LIMIT } from '../utils/constants'
 import shouldRetryConnectionError from '../utils/shouldRetryConnectionError'
 
 /**
@@ -384,7 +384,7 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
         : handleLoadOptions('benchPub', loadOptions, options)
   }
   validateClientCount(options.count)
-  const { maxInflight = 1000 } = options
+  const { maxInflight = DEFAULT_MAX_INFLIGHT } = options
   validateMaxInflight(maxInflight)
   saveOptions && handleSaveOptions(commandType, options)
 
@@ -528,7 +528,7 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
               if (!hasReportedInflightLimit) {
                 hasReportedInflightLimit = true
                 logWrapper.log(
-                  `Waiting for acknowledgements: in-flight limit ${maxInflight} per connection reached. Use --max-inflight to raise it (max 65535).`,
+                  `Waiting for acknowledgements: in-flight limit ${maxInflight} per connection reached. Use --max-inflight to raise it (max ${MAX_INFLIGHT_LIMIT}).`,
                 )
               }
               return

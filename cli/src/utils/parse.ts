@@ -5,7 +5,7 @@ import { readFile, processPath } from '../utils/fileUtils'
 
 import { IClientOptions, IClientPublishOptions, IClientSubscribeOptions } from 'mqtt'
 import { getLocalScenarioList, getScenarioFilePath } from './simulate'
-import { MQTT_SINGLE_MESSAGE_BYTE_LIMIT } from './constants'
+import { MAX_INFLIGHT_LIMIT, MQTT_SINGLE_MESSAGE_BYTE_LIMIT } from './constants'
 
 const parseNumber = (value: string) => {
   const parsedValue = Number(value)
@@ -27,8 +27,13 @@ const validateClientCount = (count: unknown): void => {
 }
 
 const validateMaxInflight = (maxInflight: unknown): void => {
-  if (typeof maxInflight !== 'number' || !Number.isInteger(maxInflight) || maxInflight < 1 || maxInflight > 65535) {
-    logWrapper.fail(`Invalid max inflight: ${maxInflight}. Expected an integer between 1 and 65535.`)
+  if (
+    typeof maxInflight !== 'number' ||
+    !Number.isInteger(maxInflight) ||
+    maxInflight < 1 ||
+    maxInflight > MAX_INFLIGHT_LIMIT
+  ) {
+    logWrapper.fail(`Invalid max inflight: ${maxInflight}. Expected an integer between 1 and ${MAX_INFLIGHT_LIMIT}.`)
     process.exit(1)
   }
 }
