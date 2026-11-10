@@ -1,3 +1,4 @@
+import { normalizeBatchMaxItems, normalizeBatchMaxBytes, normalizeBatchStorageMode } from '@/utils/data'
 import { expect } from 'chai'
 import {
   batchHexPreview,
@@ -6,8 +7,6 @@ import {
   prepareBatchPublish,
   splitBatchLines,
   storeBatchItems,
-  validBatchMaxBytes,
-  validBatchMaxItems,
 } from '@/utils/batchPayload'
 import { DEFAULT_BATCH_LIMITS, decodeBatch, calculatePublishSize } from '@/utils/batchPublishing'
 import connections from '@/lang/connections'
@@ -141,12 +140,20 @@ describe('Desktop batch storage bounds', () => {
     expect(batchHexPreview(Buffer.from([1]), 10)).to.equal('01')
     expect(batchHexPreview(Buffer.alloc(4), 0)).to.equal('')
   })
-  it('accepts only finite integer settings in the specified ranges', () => {
-    for (const value of [1, 100, 65535]) expect(validBatchMaxItems(value)).to.equal(true)
+  it('normalizes defaults and clamps integer batch settings to the specified ranges', () => {
+    expect(normalizeBatchMaxItems()).to.equal(100)
+    expect(normalizeBatchMaxBytes()).to.equal(65536)
+    expect(normalizeBatchMaxItems(0)).to.equal(1)
+    expect(normalizeBatchMaxBytes(1048577)).to.equal(1048576)
+    expect(normalizeBatchStorageMode()).to.equal('full')
+    expect(normalizeBatchStorageMode('invalid')).to.equal('full')
+    expect(normalizeBatchStorageMode('summary')).to.equal('summary')
+    for (const value of [1, 100, 65535]) expect(normalizeBatchMaxItems(value)).to.equal(value)
     for (const value of [0, 65536, 1.5, NaN, Infinity, '100', undefined])
-      expect(validBatchMaxItems(value)).to.equal(false)
-    for (const value of [1024, 65536, 1048576]) expect(validBatchMaxBytes(value)).to.equal(true)
-    for (const value of [1023, 1048577, 1024.5, NaN, Infinity, null]) expect(validBatchMaxBytes(value)).to.equal(false)
+      expect(normalizeBatchMaxItems(value as number)).not.to.equal(value)
+    for (const value of [1024, 65536, 1048576]) expect(normalizeBatchMaxBytes(value)).to.equal(value)
+    for (const value of [1023, 1048577, 1024.5, NaN, Infinity, null])
+      expect(normalizeBatchMaxBytes(value as number)).not.to.equal(value)
   })
 })
 

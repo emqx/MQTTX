@@ -207,7 +207,7 @@
             :connection="record"
             :titleName="titleName"
             :client="client"
-            :batch-negotiation="activeConnection[curConnectionId] && activeConnection[curConnectionId].batchNegotiation"
+            :batch-negotiation="batchNegotiation"
             :maximum-packet-size="brokerMaximumPacketSize"
             :btn-loading="connectLoading"
             @handleConnect="connect"
@@ -386,7 +386,7 @@ import { createClient, ignoreQoS0Message } from '@/utils/mqttUtils'
 import { bindMessagePipeline, tearDownMessagePipeline } from '@/utils/connectionMessagePipeline'
 import validFormatJson from '@/utils/validFormatJson'
 import { encodePayloadByType } from '@/utils/payloadEncoder'
-import { decodeBatch, validateBatchSelection, BatchPacket } from '@/utils/batchPublishing'
+import { decodeBatch, validateBatchSelection, BatchMetadata } from '@/utils/batchPublishing'
 import {
   batchHexPreview,
   storeBatchItems,
@@ -394,8 +394,9 @@ import {
   formatBatchPublishError,
   getBatchProtocolVersion,
   getBatchLimits,
-  BatchStorageMode,
+  getBatchNegotiationStatus,
 } from '@/utils/batchPayload'
+import type { BatchStorageMode } from '@/utils/data'
 
 import MessageList from '@/components/MessageList.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
@@ -497,10 +498,6 @@ export default class ConnectionsDetail extends Vue {
 
   private batchPublishing = false
 
-  get brokerMaximumPacketSize() {
-    return this.client.connected ? this.activeConnection[this.curConnectionId]?.maximumPacketSize : undefined
-  }
-
   /**
    * Notice: when we jump order by `other page` -> `creation page` -> `connection page`,
    * MsgPublish/editor twice which is not we expected, it should be init only once.
@@ -586,6 +583,15 @@ export default class ConnectionsDetail extends Vue {
   get responseInformation(): string {
     if (!this.client.connected || this.record.mqttVersion !== '5.0') return ''
     return this.activeConnection[this.curConnectionId]?.responseInformation || ''
+  }
+
+  get brokerMaximumPacketSize() {
+    return this.client.connected ? this.activeConnection[this.curConnectionId]?.maximumPacketSize : undefined
+  }
+
+  get batchNegotiation(): string {
+    const connection = this.activeConnection[this.curConnectionId]
+    return getBatchNegotiationStatus(this.record.mqttVersion, connection?.batchRequested, connection?.batchSelected)
   }
 
   get bodyTopValue(): string {
@@ -704,6 +710,17 @@ export default class ConnectionsDetail extends Vue {
   private updateMetaError(message: MessageModel, error: string) {
     const metaObj = JSON.parse(message.meta || '{}')
     metaObj['msgError'] = error
+    message.meta = JSON.stringify(metaObj)
+  }
+
+  private updateMetaBatch(
+    message: MessageModel,
+    batch: Omit<BatchMetadata, 'count'> & { count?: number; error?: string; summary?: boolean },
+    payloadBytes: number,
+  ) {
+    const metaObj = JSON.parse(message.meta || '{}')
+    metaObj['batch'] = { ...batch, count: batch.count ?? 0 }
+    metaObj['payloadBytes'] = payloadBytes
     message.meta = JSON.stringify(metaObj)
   }
 
@@ -1242,14 +1259,11 @@ export default class ConnectionsDetail extends Vue {
       client,
       responseInformation: mqttVersion === '5.0' ? conBack.properties?.responseInformation || '' : '',
       maximumPacketSize: mqttVersion === '5.0' ? conBack.properties?.maximumPacketSize : undefined,
-      batchNegotiation:
-        mqttVersion !== '5.0'
-          ? 'batchNotApplicable'
-          : validateBatchSelection(client.options?.properties?.userProperties, conBack.properties?.userProperties)
-          ? 'batchSelected'
-          : client.options?.properties?.userProperties?.['batch-publish'] !== undefined
-          ? 'batchNotSelected'
-          : 'batchNotRequested',
+      batchRequested: client.options?.properties?.userProperties?.['batch-publish'] !== undefined,
+      batchSelected: validateBatchSelection(
+        client.options?.properties?.userProperties,
+        conBack.properties?.userProperties,
+      ),
     })
     this.$notify({
       title: this.$tc('connections.connected'),
@@ -1452,7 +1466,7 @@ export default class ConnectionsDetail extends Vue {
   private processReceivedMessage(topic: string, payload: Buffer, packet: IPublishPacket, mqttVersion?: number) {
     const { qos, retain, properties } = packet
     const batch = decodeBatch(
-      { topic, payload, qos, retain, properties } as BatchPacket,
+      { topic, payload, qos, retain, properties },
       mqttVersion ?? getBatchProtocolVersion(this.record?.mqttVersion),
       getBatchLimits(this.batchMaxItems, this.batchMaxBytes),
     )
@@ -1464,7 +1478,7 @@ export default class ConnectionsDetail extends Vue {
             String(this.convertPayloadByType(item, this.receivedMsgType, 'received') ?? ''),
           )
         : undefined
-      return {
+      const receivedMessage: MessageModel = {
         id: getMessageId(),
         out: false,
         createAt: time.getNowDate(),
@@ -1473,12 +1487,11 @@ export default class ConnectionsDetail extends Vue {
         retain,
         properties,
         payload: stored ? JSON.stringify(stored) : batchHexPreview(payload, this.maxPayloadDisplaySize),
-        meta: JSON.stringify({
-          batch: { ...metadata, count: metadata.count ?? 0, ...(summary ? { summary: true } : {}) },
-          payloadBytes: payload.length,
-          msgType: this.receivedMsgType,
-        }),
-      } as MessageModel
+      }
+      this.updateMetaBatch(receivedMessage, { ...metadata, ...(summary ? { summary: true } : {}) }, payload.length)
+      this.updateMetaMsgType(receivedMessage, this.receivedMsgType)
+      if (batch.error) this.updateMetaError(receivedMessage, batch.error)
+      return receivedMessage
     }
     let receivedPayload
     let jsonMsgError = ''
@@ -1880,15 +1893,19 @@ export default class ConnectionsDetail extends Vue {
     onResult?: (error?: Error) => void,
   ): Promise<boolean> {
     const { topic, qos, payload, retain, properties } = message
+
     let props = properties ? this.processProperties(properties) : undefined
+
     const connectionId = this.record.id
     await this.insertHistory(
-      { payload, payloadType: type, connectionId },
-      { qos, topic, retain, batch: Boolean(message.batch), connectionId },
+      { payload, payloadType: type, connectionId } as HistoryMessagePayloadModel,
+      { qos, topic, retain, batch: Boolean(message.batch), connectionId } as HistoryMessageHeaderModel,
     )
+
     let wireTopic = topic
     let convertedPayload = ''
     let finalPayload: string | Buffer | undefined = payload
+
     if (message.batch) {
       const limits = getBatchLimits(this.batchMaxItems, this.batchMaxBytes)
       const prepared = prepareBatchPublish(
@@ -1913,14 +1930,11 @@ export default class ConnectionsDetail extends Vue {
       finalPayload = prepared.packet.payload
       props = prepared.packet.properties
       convertedPayload = payload
-      message.meta = JSON.stringify({
-        batch: {
-          carrier: this.record.mqttVersion === '5.0' ? 'property' : 'topic',
-          logicalTopic: topic,
-          count: prepared.count,
-        },
-        payloadBytes: finalPayload.length,
-      })
+      this.updateMetaBatch(
+        message,
+        { carrier: prepared.carrier!, logicalTopic: topic, count: prepared.count },
+        finalPayload.length,
+      )
     } else if (payload) {
       /*
        * Payload processing pipeline for publishing:
@@ -1934,7 +1948,7 @@ export default class ConnectionsDetail extends Vue {
        * Note:
        * - Empty payloads are allowed to facilitate the clearing of retained messages.
        */
-      convertedPayload = this.convertPayloadByFunction(payload, 'publish', type)
+      convertedPayload = this.convertPayloadByFunction(payload as string, 'publish', type)
       finalPayload = this.handlePayloadBySchemaOrType(convertedPayload, type)
       if (finalPayload === undefined) {
         onResult?.(new Error(`The payload could not be converted to ${type}`))
@@ -1957,10 +1971,14 @@ export default class ConnectionsDetail extends Vue {
          * 1. The finalPayload might be a Buffer, which isn't suitable for storage.
          * 2. To retain a human-readable payload that reflects the original or the user-script processed data.
          */
-        await this.handleSuccessfulPublish({ ...message, properties: props }, convertedPayload)
+        await this.handleSuccessfulPublish(
+          message.batch ? { ...message, properties: props } : message,
+          convertedPayload,
+        )
         onResult?.()
       },
     )
+
     afterSendCallback?.()
     return true
   }
@@ -1998,7 +2016,7 @@ export default class ConnectionsDetail extends Vue {
     }
     const { id, topic, qos, retain } = message
 
-    const properties = this.record.mqttVersion === '5.0' ? this.processProperties(message.properties || {}) : undefined
+    const properties = this.record.mqttVersion === '5.0' ? this.processProperties(message.properties) : undefined
     const publishMessage: MessageModel = {
       id,
       out: true,
@@ -2011,8 +2029,10 @@ export default class ConnectionsDetail extends Vue {
       meta: message.meta,
     }
 
-    if (!message.batch) this.updateMeta(publishMessage, 'function', 'publish')
-    if (!message.batch) this.updateMeta(publishMessage, 'schema', 'publish')
+    if (!message.batch) {
+      this.updateMeta(publishMessage, 'function', 'publish')
+      this.updateMeta(publishMessage, 'schema', 'publish')
+    }
 
     if (this.record.id) {
       if (!ignoreQoS0Message(qos)) {

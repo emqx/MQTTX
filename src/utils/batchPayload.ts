@@ -1,28 +1,46 @@
 import {
   BatchLimits,
   BatchPacket,
+  BatchCarrier,
   DEFAULT_BATCH_LIMITS,
   calculatePublishSize,
   buildTopicCarrier,
   encodeBatchPayload,
   validLogicalTopic,
 } from './batchPublishing'
-import { encodePayloadByType, validatePayloadByType } from './payloadEncoder'
+import { BatchStorageMode } from './data'
+import { batchPayloadTypeOptions, encodePayloadByType, validatePayloadByType } from './payloadEncoder'
 
-export type BatchStorageMode = 'full' | 'summary'
+export const BATCH_PREVIEW_ITEMS = 5
+
+export const BATCH_SUMMARY_ITEMS = 20
+
+export const BATCH_SUMMARY_BYTES = 32
+
+export const BATCH_PAGE_SIZE = 100
+
 type StoredBatchItem = string | { b64: string }
-export const getBatchProtocolVersion = (version?: string): 3 | 4 | 5 =>
-  version === '5.0' ? 5 : version === '3.1' ? 3 : 4
 
+/** Map the connection's displayed MQTT version to its protocol number. */
+export const getBatchProtocolVersion = (version?: string): 3 | 4 | 5 => {
+  if (version === '5.0') return 5
+  if (version === '3.1') return 3
+  return 4
+}
+
+/** Return effective limits for connections and older settings. */
 export const getBatchLimits = (maxItems?: number, maxBytes?: number): typeof DEFAULT_BATCH_LIMITS => ({
   maxItems: maxItems || DEFAULT_BATCH_LIMITS.maxItems,
   maxBytes: maxBytes || DEFAULT_BATCH_LIMITS.maxBytes,
 })
 
-export const validBatchMaxItems = (value: unknown): value is number =>
-  typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= 65535
-export const validBatchMaxBytes = (value: unknown): value is number =>
-  typeof value === 'number' && Number.isInteger(value) && value >= 1024 && value <= 1048576
+/** Derive presentation status from connection facts, without persisting translations. */
+export const getBatchNegotiationStatus = (version: string, requested?: boolean, selected?: boolean): string => {
+  if (version !== '5.0') return 'batchNotApplicable'
+  if (selected) return 'batchSelected'
+  if (requested) return 'batchNotSelected'
+  return 'batchNotRequested'
+}
 
 /** Same newline rules as CLI --file-read: preserve empty lines, drop one final separator. */
 export const splitBatchLines = (text: string): string[] => {
@@ -40,6 +58,7 @@ interface BatchInput {
   error?: string
 }
 
+/** Encode each editor line once and retain the first failing line. */
 export const inspectBatchLines = (text: string, type: PayloadType): BatchInput => {
   const lines = splitBatchLines(text)
   const items: Buffer[] = []
@@ -70,7 +89,7 @@ export const prepareBatchPublish = (
   limits: BatchLimits,
   maximumPacketSize?: number,
   input: BatchInput = inspectBatchLines(message.payload, type),
-): BatchInput & { packet?: BatchPacket } => {
+): BatchInput & { packet?: BatchPacket; carrier?: BatchCarrier } => {
   const fail = (error: string) => ({ ...input, error, packet: undefined })
   if (version === 3) return fail('BATCH_MQTT_VERSION')
   if (message.qos === 2) return fail('UNSUPPORTED_BATCH_QOS')
@@ -82,7 +101,7 @@ export const prepareBatchPublish = (
   )
     return fail('INVALID_BATCH_MARKERS')
   if (properties?.payloadFormatIndicator || (version === 4 && message.retain)) return fail('INVALID_BATCH_METADATA')
-  if (!['Plaintext', 'Hex', 'Base64', 'JSON'].includes(type)) return fail('BATCH_PAYLOAD_TYPE')
+  if (!batchPayloadTypeOptions.includes(type)) return fail('BATCH_PAYLOAD_TYPE')
   if (input.error) return fail('BATCH_LINE_ERROR')
   try {
     const payload = encodeBatchPayload(input.items!, limits)
@@ -107,7 +126,7 @@ export const prepareBatchPublish = (
     if (maximumPacketSize !== undefined && packetBytes > maximumPacketSize) {
       return fail('BATCH_PACKET_TOO_LARGE')
     }
-    return { ...input, packet }
+    return { ...input, packet, carrier: version === 5 ? 'property' : 'topic' }
   } catch (error) {
     return fail((error as Error).message)
   }
@@ -153,16 +172,17 @@ const isValidUtf8 = (item: Buffer): boolean => Buffer.from(item.toString('utf8')
 export const batchHexPreview = (payload: Buffer, maxDisplaySize: number): string =>
   payload.subarray(0, Math.max(0, Math.floor(maxDisplaySize / 2))).toString('hex')
 
+/** Convert validated slices, bounding summaries before decoding text. */
 export const storeBatchItems = (
   items: Buffer[],
   mode: BatchStorageMode,
   type: PayloadType,
   convert: (item: Buffer) => string,
 ): StoredBatchItem[] =>
-  (mode === 'summary' ? items.slice(0, 20) : items).map((item) => {
+  (mode === 'summary' ? items.slice(0, BATCH_SUMMARY_ITEMS) : items).map((item) => {
     const utf8 = type !== 'Hex' && type !== 'Base64' && isValidUtf8(item)
     const binary = type === 'Plaintext' && !utf8
-    let prefix = mode === 'summary' ? item.subarray(0, 32) : item
+    let prefix = mode === 'summary' ? item.subarray(0, BATCH_SUMMARY_BYTES) : item
     if (utf8 && prefix.length < item.length) {
       // A partial final UTF-8 code point is omitted, never replaced with U+FFFD.
       while (prefix.length && !isValidUtf8(prefix)) prefix = prefix.subarray(0, prefix.length - 1)

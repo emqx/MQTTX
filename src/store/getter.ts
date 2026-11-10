@@ -1,7 +1,4 @@
 const getters = {
-  batchStorageMode: (state: State): App['batchStorageMode'] => state.app.batchStorageMode,
-  batchMaxItems: (state: State): number => state.app.batchMaxItems,
-  batchMaxBytes: (state: State): number => state.app.batchMaxBytes,
   currentTheme: (state: State) => state.app.currentTheme,
   currentLang: (state: State) => state.app.currentLang,
   autoCheck: (state: State) => state.app.autoCheck,
@@ -34,6 +31,9 @@ const getters = {
   decompressGzip: (state: State) => state.app.decompressGzip,
   maxPayloadDisplaySize: (state: State) => state.app.maxPayloadDisplaySize,
   enableHardwareAcceleration: (state: State) => state.app.enableHardwareAcceleration,
+  batchStorageMode: (state: State): App['batchStorageMode'] => state.app.batchStorageMode,
+  batchMaxItems: (state: State): number => state.app.batchMaxItems,
+  batchMaxBytes: (state: State): number => state.app.batchMaxBytes,
 }
 
 export default getters

@@ -2,6 +2,7 @@ import Vue from 'vue'
 import { TranslateResult } from 'vue-i18n'
 import { IPublishPacket, MqttClient } from 'mqtt'
 import type { AIModel } from '@/utils/ai/models'
+import type { BatchStorageMode } from '@/utils/data'
 import type { AgentReasoning } from '@/utils/ai/reasoning'
 
 declare global {
@@ -83,7 +84,8 @@ declare global {
     [id: string]: {
       client: MqttClient
       subscriptions?: SubscriptionModel[]
-      batchNegotiation?: string
+      batchRequested?: boolean
+      batchSelected?: boolean
       maximumPacketSize?: number
       responseInformation?: string
     }
@@ -124,7 +126,7 @@ declare global {
     ignoreQoS0Message: boolean
     topicWhitespaceDetection: boolean
     decompressGzip: boolean
-    batchStorageMode: 'full' | 'summary'
+    batchStorageMode: BatchStorageMode
     batchMaxItems: number
     batchMaxBytes: number
     maxPayloadDisplaySize: number
@@ -148,7 +150,8 @@ declare global {
   interface Client {
     readonly id: string
     client: Partial<MqttClient>
-    batchNegotiation?: string
+    batchRequested?: boolean
+    batchSelected?: boolean
     maximumPacketSize?: number
     responseInformation?: string
   }
@@ -192,7 +195,6 @@ declare global {
   }
 
   interface MessageModel {
-    batch?: boolean
     id?: string
     createAt: string
     out: boolean
@@ -203,6 +205,7 @@ declare global {
     color?: string
     properties?: PushPropertiesModel
     meta?: string
+    batch?: boolean
   }
 
   interface MessagePaginationModel {
@@ -215,13 +218,13 @@ declare global {
   }
 
   interface HistoryMessageHeaderModel {
-    batch?: boolean
     connectionId?: string
     id?: string
     retain: boolean
     topic: string
     qos: QoS
     createAt?: string
+    batch?: boolean
   }
 
   interface HistoryMessagePayloadModel {
@@ -234,12 +237,12 @@ declare global {
 
   // Content of a connection's publish area
   interface PushMessageModel {
-    batch?: boolean
     topic: string
     qos: QoS
     retain: boolean
     payload: string
     payloadType: PayloadType
+    batch?: boolean
   }
 
   interface SSLPath {

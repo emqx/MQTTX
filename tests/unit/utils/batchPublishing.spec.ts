@@ -3,7 +3,6 @@ import { generate, parser, IPublishPacket } from 'mqtt-packet'
 import {
   BatchPacket,
   BatchLimits,
-  PublishProperties,
   parseBatchCount,
   buildTopicCarrier,
   parseTopicCarrier,
@@ -262,7 +261,7 @@ describe('spec §§9.1, 9.3 and 9.8 exact packets', () => {
 })
 
 describe('complete PUBLISH length compared with mqtt-packet.generate', () => {
-  const properties: PublishProperties[] = [
+  const properties: BatchPacket['properties'][] = [
     {},
     { payloadFormatIndicator: false },
     { messageExpiryInterval: 123 },

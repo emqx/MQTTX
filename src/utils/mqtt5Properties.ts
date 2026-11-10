@@ -30,3 +30,7 @@ export const setWillMQTT5Properties = (option: WillPropertiesModel) => {
   const properties: WillPropertiesModel = _.cloneDeep(option)
   return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v !== null && v !== undefined && v !== ''))
 }
+
+/** Drop unset publish properties before validation or serialization. */
+export const setPublishMQTT5Properties = (option: PushPropertiesModel): PushPropertiesModel =>
+  Object.fromEntries(Object.entries(option).filter(([_, value]) => value !== null && value !== undefined))

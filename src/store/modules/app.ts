@@ -1,7 +1,12 @@
 import Vue from 'vue'
-import { Commit } from 'vuex'
-import { validBatchMaxItems, validBatchMaxBytes } from '@/utils/batchPayload'
-import { DEFAULT_BATCH_LIMITS } from '@/utils/batchPublishing'
+import {
+  DEFAULT_BATCH_STORAGE_MODE,
+  DEFAULT_BATCH_MAX_ITEMS,
+  DEFAULT_BATCH_MAX_BYTES,
+  normalizeBatchStorageMode,
+  normalizeBatchMaxItems,
+  normalizeBatchMaxBytes,
+} from '@/utils/data'
 import log4js from 'log4js'
 import useServices from '@/database/useServices'
 import { getGlobal } from '@electron/remote'
@@ -48,6 +53,9 @@ const TOGGLE_ENABLE_HARDWARE_ACCELERATION = 'TOGGLE_ENABLE_HARDWARE_ACCELERATION
 const SET_AGENT_PERMISSION_MODE = 'SET_AGENT_PERMISSION_MODE'
 const SET_AGENT_MAX_STEPS = 'SET_AGENT_MAX_STEPS'
 const SET_AGENT_REASONING = 'SET_AGENT_REASONING'
+const SET_BATCH_STORAGE_MODE = 'SET_BATCH_STORAGE_MODE'
+const SET_BATCH_MAX_ITEMS = 'SET_BATCH_MAX_ITEMS'
+const SET_BATCH_MAX_BYTES = 'SET_BATCH_MAX_BYTES'
 
 const getShowConnectionList = (): boolean => {
   const _showConnectionList: string | null = localStorage.getItem('showConnectionList')
@@ -92,13 +100,6 @@ const app = {
     ignoreQoS0Message: settingData.ignoreQoS0Message || false,
     topicWhitespaceDetection: settingData.topicWhitespaceDetection || false,
     decompressGzip: settingData.decompressGzip || false,
-    batchStorageMode: electronStore.get('settings.batchStorageMode') === 'summary' ? 'summary' : 'full',
-    batchMaxItems: validBatchMaxItems(electronStore.get('settings.batchMaxItems'))
-      ? electronStore.get('settings.batchMaxItems')
-      : DEFAULT_BATCH_LIMITS.maxItems,
-    batchMaxBytes: validBatchMaxBytes(electronStore.get('settings.batchMaxBytes'))
-      ? electronStore.get('settings.batchMaxBytes')
-      : DEFAULT_BATCH_LIMITS.maxBytes,
     maxPayloadDisplaySize: normalizeMaxPayloadDisplaySize(
       electronStore.get('settings.maxPayloadDisplaySize', DEFAULT_MAX_PAYLOAD_DISPLAY_SIZE),
     ),
@@ -106,17 +107,13 @@ const app = {
     agentPermissionMode: electronStore.get('settings.agentPermissionMode', 'ask'),
     agentMaxSteps: normalizeAgentMaxSteps(electronStore.get('settings.agentMaxSteps', DEFAULT_AGENT_MAX_STEPS)),
     agentReasoning: normalizeAgentReasoning(electronStore.get('settings.agentReasoning', DEFAULT_AGENT_REASONING)),
+    batchStorageMode: normalizeBatchStorageMode(
+      electronStore.get('settings.batchStorageMode', DEFAULT_BATCH_STORAGE_MODE),
+    ),
+    batchMaxItems: normalizeBatchMaxItems(electronStore.get('settings.batchMaxItems', DEFAULT_BATCH_MAX_ITEMS)),
+    batchMaxBytes: normalizeBatchMaxBytes(electronStore.get('settings.batchMaxBytes', DEFAULT_BATCH_MAX_BYTES)),
   },
   mutations: {
-    SET_BATCH_STORAGE_MODE(state: App, mode: App['batchStorageMode']): void {
-      state.batchStorageMode = mode
-    },
-    SET_BATCH_MAX_ITEMS(state: App, value: number): void {
-      state.batchMaxItems = value
-    },
-    SET_BATCH_MAX_BYTES(state: App, value: number): void {
-      state.batchMaxBytes = value
-    },
     [TOGGLE_THEME](state: App, currentTheme: Theme) {
       state.currentTheme = currentTheme
     },
@@ -246,23 +243,17 @@ const app = {
     [SET_AGENT_REASONING](state: App, agentReasoning: AgentReasoning) {
       state.agentReasoning = agentReasoning
     },
+    [SET_BATCH_STORAGE_MODE](state: App, mode: App['batchStorageMode']): void {
+      state.batchStorageMode = mode
+    },
+    [SET_BATCH_MAX_ITEMS](state: App, value: number): void {
+      state.batchMaxItems = value
+    },
+    [SET_BATCH_MAX_BYTES](state: App, value: number): void {
+      state.batchMaxBytes = value
+    },
   },
   actions: {
-    SET_BATCH_STORAGE_MODE({ commit }: { commit: Commit }, value: App['batchStorageMode']): void {
-      if (value !== 'full' && value !== 'summary') return
-      commit('SET_BATCH_STORAGE_MODE', value)
-      electronStore.set('settings.batchStorageMode', value)
-    },
-    SET_BATCH_MAX_ITEMS({ commit }: { commit: Commit }, value: number): void {
-      if (!validBatchMaxItems(value)) return
-      commit('SET_BATCH_MAX_ITEMS', value)
-      electronStore.set('settings.batchMaxItems', value)
-    },
-    SET_BATCH_MAX_BYTES({ commit }: { commit: Commit }, value: number): void {
-      if (!validBatchMaxBytes(value)) return
-      commit('SET_BATCH_MAX_BYTES', value)
-      electronStore.set('settings.batchMaxBytes', value)
-    },
     async TOGGLE_THEME({ commit }: any, payload: App) {
       const { settingService } = useServices()
       commit(TOGGLE_THEME, payload.currentTheme)
@@ -433,6 +424,27 @@ const app = {
 
       await dispatch('SET_MODEL', { model: migration.model })
       if (migration.agentReasoning) await dispatch('SET_AGENT_REASONING', { agentReasoning: migration.agentReasoning })
+    },
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    [SET_BATCH_STORAGE_MODE]({ commit }: any, payload: App): void {
+      const normalizedValue = normalizeBatchStorageMode(payload.batchStorageMode)
+      if (normalizedValue !== payload.batchStorageMode) return
+      commit(SET_BATCH_STORAGE_MODE, normalizedValue)
+      electronStore.set('settings.batchStorageMode', normalizedValue)
+    },
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    [SET_BATCH_MAX_ITEMS]({ commit }: any, payload: App): void {
+      const normalizedValue = normalizeBatchMaxItems(payload.batchMaxItems)
+      if (normalizedValue !== payload.batchMaxItems) return
+      commit(SET_BATCH_MAX_ITEMS, normalizedValue)
+      electronStore.set('settings.batchMaxItems', normalizedValue)
+    },
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    [SET_BATCH_MAX_BYTES]({ commit }: any, payload: App): void {
+      const normalizedValue = normalizeBatchMaxBytes(payload.batchMaxBytes)
+      if (normalizedValue !== payload.batchMaxBytes) return
+      commit(SET_BATCH_MAX_BYTES, normalizedValue)
+      electronStore.set('settings.batchMaxBytes', normalizedValue)
     },
   },
 }

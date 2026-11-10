@@ -1,6 +1,7 @@
 import { expect } from 'chai'
 import { EventEmitter } from 'events'
 import { encodeBatchPayload, decodeBatch } from '@/utils/batchPublishing'
+import { getBatchNegotiationStatus } from '@/utils/batchPayload'
 import { tearDownMessagePipeline } from '@/utils/connectionMessagePipeline'
 import store from '@/store'
 
@@ -16,6 +17,7 @@ const packet = (items = [Buffer.from('first'), Buffer.from('second')]) => ({
 })
 const receiveContext = () => {
   const context: any = {
+    ...methods,
     record: { mqttVersion: '5.0' },
     receivedMsgType: 'Plaintext',
     batchMaxItems: 100,
@@ -133,6 +135,7 @@ describe('Desktop batch message pipeline', () => {
     const history: any[] = []
     let releaseHistory!: () => void
     const context = {
+      ...methods,
       record: { id: 'c1' },
       insertHistory: (...args: any[]) => {
         events.push('history')
@@ -177,6 +180,7 @@ describe('Desktop batch message pipeline', () => {
     const errors: string[] = []
     const events: string[] = []
     const context: any = {
+      ...methods,
       record: { id: 'c1', mqttVersion: '5.0' },
       batchMaxItems: 100,
       batchMaxBytes: 65536,
@@ -223,6 +227,7 @@ describe('Desktop batch message pipeline', () => {
     const sent: any[] = []
     const bubbles: any[] = []
     const context: any = {
+      ...methods,
       record: { id: 'c1', mqttVersion: '3.1.1' },
       batchMaxItems: 100,
       batchMaxBytes: 65536,
@@ -266,6 +271,7 @@ describe('Desktop batch message pipeline', () => {
     let sends = 0
     const errors: string[] = []
     const context: any = {
+      ...methods,
       record: { id: 'c1', mqttVersion: '5.0' },
       batchMaxItems: 100,
       batchMaxBytes: 65536,
@@ -329,10 +335,16 @@ describe('Desktop batch message pipeline', () => {
         { properties: { userProperties: response, maximumPacketSize: 123 } },
         { id: 'c1', mqttVersion: '5.0', client: { options: { properties: { userProperties: offer } } } },
       )
-      expect(saved).to.include({ batchNegotiation: state, maximumPacketSize: 123 })
+      expect(saved).to.include({
+        batchRequested: offer !== undefined,
+        batchSelected: state === 'batchSelected',
+        maximumPacketSize: 123,
+      })
+      expect(getBatchNegotiationStatus('5.0', saved.batchRequested, saved.batchSelected)).to.equal(state)
     }
     methods.onConnect.call(context, {}, { id: 'c1', mqttVersion: '3.1.1', client: { options: {} } })
-    expect(saved).to.include({ batchNegotiation: 'batchNotApplicable', maximumPacketSize: undefined })
+    expect(saved).to.include({ batchRequested: false, batchSelected: false, maximumPacketSize: undefined })
+    expect(getBatchNegotiationStatus('3.1.1', saved.batchRequested, saved.batchSelected)).to.equal('batchNotApplicable')
   })
 
   it('logs count, bytes and error without batch item content', () => {

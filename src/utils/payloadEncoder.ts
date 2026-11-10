@@ -4,6 +4,9 @@ import validFormatJson from './validFormatJson'
 
 export const payloadTypeOptions: PayloadType[] = ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR', 'MsgPack']
 
+/** Payload formats that can encode each batch line independently. */
+export const batchPayloadTypeOptions: PayloadType[] = ['Plaintext', 'Hex', 'Base64', 'JSON']
+
 /**
  * Editor language for a payload type. Binary formats are written as JSON.
  */

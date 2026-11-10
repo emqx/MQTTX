@@ -17,6 +17,7 @@
     <div v-if="msgError" class="msg-tag">
       <el-tag type="danger" size="mini">
         <span>{{ msgError }}</span>
+        <span v-if="batch && msgError === 'BATCH_LIMIT_EXCEEDED'"> · {{ $t('connections.batchLimitUnparsed') }}</span>
       </el-tag>
     </div>
     <span
@@ -32,9 +33,7 @@
       <p class="left-info">
         <span class="topic">Topic: <span v-html="highlightedTopic"></span></span>
         <span class="qos">QoS: {{ qos }}</span>
-        <el-tag v-if="batch" class="batch-tag" :type="batch.error ? 'danger' : 'success'" size="mini"
-          >Batch ×{{ batch.count || 0 }}</el-tag
-        >
+        <el-tag v-if="batch" class="batch-tag" type="info" size="mini">Batch ×{{ batch.count || 0 }}</el-tag>
         <el-tag
           v-if="gzipDecompressed"
           class="gzip-tag"
@@ -49,15 +48,18 @@
       <div v-if="batch" class="batch-message">
         <p v-if="batch.carrier === 'topic'">{{ $t('connections.batchLogicalTopicLabel') }}: {{ batch.logicalTopic }}</p>
         <p class="batch-details">
-          payload {{ payloadBytes }} B<span v-if="!batch.error && !batch.summary">
-            · {{ $t('connections.batchSaved', { saved: Math.min(5, batchItems.length), total: batch.count }) }}</span
+          {{ $t('connections.payloadSize') }}: {{ formattedPayloadBytes
+          }}<span v-if="!batch.error && !batch.summary">
+            ·
+            {{
+              $t('connections.batchSaved', {
+                saved: Math.min(batchPreviewItems, batchItems.length),
+                total: batch.count,
+              })
+            }}</span
           >
         </p>
         <template v-if="batch.error">
-          <el-tag type="danger" size="mini">{{ batch.error }}</el-tag>
-          <p class="batch-error">
-            {{ batch.error === 'BATCH_LIMIT_EXCEEDED' ? $t('connections.batchLimitUnparsed') : batch.error }}
-          </p>
           <pre class="batch-hex">{{ payload }}</pre>
           <p class="batch-details">
             {{ $t('connections.batchHexPreview', { saved: payload.length / 2, total: payloadBytes }) }}
@@ -65,7 +67,9 @@
         </template>
         <template v-else>
           <p v-if="batch.summary">
-            {{ $t('connections.batchSummary', { saved: batchItems.length, total: batch.count }) }}
+            {{
+              $t('connections.batchSummary', { saved: batchItems.length, total: batch.count, bytes: batchSummaryBytes })
+            }}
           </p>
           <ol class="batch-items">
             <li v-for="(item, index) in visibleBatchItems" :key="index">
@@ -114,6 +118,8 @@
 </template>
 
 <script lang="ts">
+import { formatBytes } from '@/utils/formatter'
+import { BATCH_PREVIEW_ITEMS, BATCH_SUMMARY_ITEMS, BATCH_SUMMARY_BYTES } from '@/utils/batchPayload'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import FullMsgDialog from './FullMsgDialog.vue'
 import Prism from 'prismjs'
@@ -149,6 +155,8 @@ export default class MsgLeftItem extends Vue {
   public highlight = false
 
   private showFullMsg = false
+  private batchPreviewItems = BATCH_PREVIEW_ITEMS
+  private batchSummaryBytes = BATCH_SUMMARY_BYTES
   private batchExpanded = false
 
   get batch() {
@@ -159,12 +167,19 @@ export default class MsgLeftItem extends Vue {
     return this.meta ? JSON.parse(this.meta).payloadBytes : 0
   }
 
+  get formattedPayloadBytes(): string {
+    return formatBytes(this.payloadBytes)
+  }
+
   get batchItems(): (string | { b64: string })[] {
     return this.batch && !this.batch.error ? JSON.parse(this.payload) : []
   }
 
   get visibleBatchItems() {
-    return this.batchItems.slice(0, this.batchExpanded && this.batch.summary ? 20 : 5)
+    return this.batchItems.slice(
+      0,
+      this.batchExpanded && this.batch.summary ? BATCH_SUMMARY_ITEMS : BATCH_PREVIEW_ITEMS,
+    )
   }
 
   private displayBatchItem(item: string | { b64: string }) {
@@ -300,34 +315,6 @@ export default class MsgLeftItem extends Vue {
   @include search-highlight;
   text-align: left;
   position: relative;
-  .batch-tag {
-    margin-left: 12px;
-  }
-  .batch-message {
-    .batch-details {
-      color: var(--color-text-tips);
-      font-size: 12px;
-    }
-    .batch-error {
-      color: var(--color-minor-red);
-    }
-    .batch-items {
-      padding-left: 28px;
-    }
-    .batch-items li {
-      padding-left: 4px;
-    }
-    .batch-items pre {
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
-    .batch-hex {
-      max-height: 80px;
-      overflow: auto;
-      word-break: break-all;
-      white-space: pre-wrap;
-    }
-  }
   .msg-tag:nth-child(2) {
     margin-top: 2px;
   }
@@ -373,6 +360,32 @@ export default class MsgLeftItem extends Vue {
         background: transparent;
         color: var(--color-text-default);
       }
+    }
+  }
+  .el-tag.batch-tag {
+    margin-left: 12px;
+    vertical-align: middle;
+  }
+  .batch-message {
+    .batch-details {
+      color: var(--color-text-tips);
+      font-size: 12px;
+    }
+    .batch-items {
+      padding-left: 28px;
+    }
+    .batch-items li {
+      padding-left: 4px;
+    }
+    .batch-items pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .batch-hex {
+      max-height: 80px;
+      overflow: auto;
+      word-break: break-all;
+      white-space: pre-wrap;
     }
   }
 }

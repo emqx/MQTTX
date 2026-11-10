@@ -6,6 +6,7 @@ import { createLocalVue, shallowMount } from '@vue/test-utils'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import FullMsgDialog from '@/components/FullMsgDialog.vue'
+import { formatBytes } from '@/utils/formatter'
 import app from '@/store/modules/app'
 
 const localVue = createLocalVue()
@@ -27,6 +28,7 @@ const props = (summary = false, error?: string) => ({
       ...(error ? { error } : {}),
     },
     payloadBytes: 12345,
+    ...(error ? { msgError: error } : {}),
   }),
 })
 const mountMessage = (propsData: any, component: any = MsgLeftItem) =>
@@ -46,14 +48,14 @@ describe('Batch message display', () => {
   afterEach(() => {
     Vue.config.async = originalAsync
   })
-  it('renders five items, wire and logical topics, raw byte count, and a full-data entry', () => {
+  it('renders five items, wire and logical topics, formatted payload size, and a full-data entry', () => {
     const wrapper = mountMessage(props())
     expect(wrapper.findAll('.batch-items li')).to.have.length(5)
     expect(wrapper.text())
       .to.include('Batch ×250')
       .and.include('$batch/250/demo')
       .and.include('demo')
-      .and.include('12345 B')
+      .and.include(formatBytes(12345))
     expect(wrapper.text()).to.include('connections.batchViewAll')
     wrapper.destroy()
   })
@@ -105,13 +107,15 @@ describe('Batch settings persistence', () => {
     expect(app.state).to.include({ batchStorageMode: 'full', batchMaxItems: 100, batchMaxBytes: 65536 })
     const commits: any[] = []
     const context = { commit: (...args: any[]) => commits.push(args) }
-    for (const value of [0, 65536, 1.5, NaN, Infinity]) app.actions.SET_BATCH_MAX_ITEMS(context, value)
-    for (const value of [0, 1023, 1048577, 1024.5, NaN, Infinity]) app.actions.SET_BATCH_MAX_BYTES(context, value)
-    app.actions.SET_BATCH_STORAGE_MODE(context, 'invalid' as any)
+    for (const value of [0, 65536, 1.5, NaN, Infinity])
+      app.actions.SET_BATCH_MAX_ITEMS(context, { batchMaxItems: value } as App)
+    for (const value of [0, 1023, 1048577, 1024.5, NaN, Infinity])
+      app.actions.SET_BATCH_MAX_BYTES(context, { batchMaxBytes: value } as App)
+    app.actions.SET_BATCH_STORAGE_MODE(context, { batchStorageMode: 'invalid' as any } as App)
     expect(commits).to.have.length(0)
-    app.actions.SET_BATCH_MAX_ITEMS(context, 65535)
-    app.actions.SET_BATCH_MAX_BYTES(context, 1048576)
-    app.actions.SET_BATCH_STORAGE_MODE(context, 'summary')
+    app.actions.SET_BATCH_MAX_ITEMS(context, { batchMaxItems: 65535 } as App)
+    app.actions.SET_BATCH_MAX_BYTES(context, { batchMaxBytes: 1048576 } as App)
+    app.actions.SET_BATCH_STORAGE_MODE(context, { batchStorageMode: 'summary' } as App)
     expect(commits).to.deep.equal([
       ['SET_BATCH_MAX_ITEMS', 65535],
       ['SET_BATCH_MAX_BYTES', 1048576],

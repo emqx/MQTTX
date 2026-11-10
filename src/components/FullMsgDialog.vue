@@ -13,21 +13,21 @@
       <div class="full-msg-size">
         <span>
           {{ $t('connections.payloadSize') }}:
-          <strong>{{ payloadBytes === undefined ? calculateAndFormatTextSize(fullMsg) : `${payloadBytes} B` }}</strong>
+          <strong>{{ formattedPayloadSize }}</strong>
         </span>
         <span>
           {{ $t('common.msgType') }}: <strong>{{ msgType }}</strong>
         </span>
       </div>
       <template v-if="batchPayload !== undefined">
-        <ol class="batch-page" :start="(batchPage - 1) * 100 + 1">
+        <ol class="batch-page" :start="(batchPage - 1) * batchPageSize + 1">
           <li v-for="(item, index) in batchPageItems" :key="index">
             <pre>{{ typeof item === 'string' ? item : JSON.stringify(item) }}</pre>
           </li>
         </ol>
         <el-pagination
           :current-page.sync="batchPage"
-          :page-size="100"
+          :page-size="batchPageSize"
           :total="batchItems.length"
           layout="prev, pager, next, total"
         />
@@ -54,6 +54,8 @@ import useServices from '@/database/useServices'
 import MyDialog from './MyDialog.vue'
 import Editor from './Editor.vue'
 import { ipcRenderer } from 'electron'
+import { formatBytes } from '@/utils/formatter'
+import { BATCH_PAGE_SIZE } from '@/utils/batchPayload'
 import { calculateTextSize } from '@/utils/data'
 
 @Component({
@@ -69,12 +71,19 @@ export default class FullMsgDialog extends Vue {
   @Prop() public batchPayload?: string
   @Prop() public payloadBytes?: number
 
+  private batchPageSize = BATCH_PAGE_SIZE
   private batchPage = 1
+
+  get formattedPayloadSize(): string {
+    if (this.payloadBytes === undefined) return this.calculateAndFormatTextSize(this.fullMsg)
+    return formatBytes(this.payloadBytes)
+  }
+
   get batchItems(): (string | { b64: string })[] {
     return this.batchPayload === undefined ? [] : JSON.parse(this.batchPayload)
   }
   get batchPageItems() {
-    return this.batchItems.slice((this.batchPage - 1) * 100, this.batchPage * 100)
+    return this.batchItems.slice((this.batchPage - 1) * BATCH_PAGE_SIZE, this.batchPage * BATCH_PAGE_SIZE)
   }
 
   private showDialog: boolean = this.visible
@@ -143,16 +152,6 @@ export default class FullMsgDialog extends Vue {
 
 <style lang="scss">
 .full-msg-dialog {
-  .batch-page {
-    height: 400px;
-    overflow: auto;
-    color: var(--color-text-default);
-    padding-left: 42px;
-  }
-  .batch-page pre {
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-  }
   .el-dialog__body {
     padding-top: 24px;
     padding-bottom: 0px;
@@ -172,6 +171,16 @@ export default class FullMsgDialog extends Vue {
     border: 1px solid var(--color-border-default);
     padding: 10px 1px 1px 1px;
     border-radius: 8px;
+  }
+  .batch-page {
+    height: 400px;
+    overflow: auto;
+    color: var(--color-text-default);
+    padding-left: 42px;
+  }
+  .batch-page pre {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 }
 </style>

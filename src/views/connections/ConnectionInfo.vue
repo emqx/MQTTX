@@ -74,16 +74,8 @@
           </el-form-item>
         </el-col>
         <el-col v-if="isClientConnected" :span="24" class="batch-negotiation">
-          Batch:
-          {{
-            $t(
-              `connections.${
-                batchNegotiation || (connection.mqttVersion === '5.0' ? 'batchNotRequested' : 'batchNotApplicable')
-              }`,
-            )
-          }}
-          · Broker Maximum Packet Size:
-          {{ maximumPacketSize === undefined ? $t('connections.batchNotDeclared') : `${maximumPacketSize} B` }}
+          {{ $t('connections.batchNegotiationLabel') }}: {{ $t(`connections.${batchNegotiation}`) }} ·
+          {{ $t('connections.brokerMaximumPacketSize') }}: {{ maximumPacketSizeLabel }}
         </el-col>
         <el-col :span="24">
           <el-button
@@ -129,6 +121,7 @@ import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import { getClientId } from '@/utils/idGenerator'
 import { MqttClient } from 'mqtt'
 import { Getter } from 'vuex-class'
+import { formatBytes } from '@/utils/formatter'
 import useServices from '@/database/useServices'
 
 @Component
@@ -153,6 +146,11 @@ export default class ConnectionInfo extends Vue {
   // Return the status of client connection
   get isClientConnected() {
     return this.client.connected
+  }
+
+  get maximumPacketSizeLabel(): string {
+    if (this.maximumPacketSize === undefined) return String(this.$t('connections.batchNotDeclared'))
+    return formatBytes(this.maximumPacketSize)
   }
 
   get rules() {
@@ -241,10 +239,6 @@ export default class ConnectionInfo extends Vue {
 
 <style lang="scss">
 .connection-info {
-  .batch-negotiation {
-    color: var(--color-text-tips);
-    font-size: 12px;
-  }
   user-select: none;
   padding-bottom: 5px;
   .el-form {
@@ -316,6 +310,10 @@ export default class ConnectionInfo extends Vue {
     .el-form-item.is-success .el-textarea__inner:focus {
       border: 1px solid var(--color-border-default);
     }
+  }
+  .batch-negotiation {
+    color: var(--color-text-tips);
+    font-size: 12px;
   }
 }
 </style>

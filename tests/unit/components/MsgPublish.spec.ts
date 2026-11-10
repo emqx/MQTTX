@@ -30,6 +30,7 @@ describe('MsgPublish per-connection input', () => {
   const mount = async () => {
     wrapper = shallowMount(MsgPublish, {
       localVue,
+      stubs: { Editor: { template: '<div />', methods: { editorLayout: () => undefined } } },
       store: new Vuex.Store({
         getters: { currentTheme: () => 'light', batchMaxItems: () => 100, batchMaxBytes: () => 65536 },
       }),

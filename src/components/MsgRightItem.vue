@@ -18,7 +18,7 @@
       <p class="right-info">
         <span class="topic">Topic: <span v-html="highlightedTopic"></span></span>
         <span class="qos">QoS: {{ qos }}</span>
-        <el-tag v-if="batch" class="batch-tag" size="mini">Batch ×{{ batch.count }}</el-tag>
+        <el-tag v-if="batch" class="batch-tag" type="info" size="mini">Batch ×{{ batch.count }}</el-tag>
       </p>
       <MqttProperties class="meta" :properties="properties" direction="right" />
       <pre v-if="!searchParams.payload">{{ highlightedPayload }}</pre>
@@ -86,12 +86,6 @@ export default class MsgRightItem extends Vue {
 @import '~@/assets/scss/mixins.scss';
 
 .msg-right-item {
-  .batch-tag {
-    margin-left: 12px;
-    background: transparent;
-    color: inherit;
-    border-color: currentColor;
-  }
   text-align: right;
   @include msg-item;
   .right-payload {
@@ -119,6 +113,10 @@ export default class MsgRightItem extends Vue {
     padding: 1px 2px;
     border-radius: 2px;
     font-weight: bold;
+  }
+  .el-tag.batch-tag {
+    margin-left: 12px;
+    vertical-align: middle;
   }
 }
 </style>
