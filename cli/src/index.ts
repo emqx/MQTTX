@@ -173,7 +173,22 @@ export class Commander {
       .command('pub')
       .description('Publish a message to a topic.')
       .option('-t, --topic <TOPIC>', 'the message topic', parsePubTopic)
-      .option('-m, --message <BODY>', 'the message body', DEFAULT_MQTT_PUB_MESSAGE)
+      .option(
+        '-m, --message <BODY>',
+        'the message body; repeat with -b for one item per -m',
+        (value: string, previous: string | string[]): string | string[] =>
+          Array.isArray(previous) ? [...previous, value] : [value],
+        DEFAULT_MQTT_PUB_MESSAGE,
+      )
+      .option('-b, --batch', 'publish MQTT Batch Publishing v1 items (MQTT 5.0 or 3.1.1)')
+      .option('--batch-max-items <N>', 'maximum items per batch (1-65535)', parseNumber, 100)
+      .option(
+        '--batch-max-bytes <BYTES>',
+        'maximum batch payload bytes, including length prefixes (1024-1048576)',
+        parseNumber,
+        65536,
+      )
+      .option('--batch-negotiate', 'require batch-publish=v1 selection from the broker (MQTT 5.0)')
       .option('-q, --qos <0/1/2>', 'the QoS of the message', parseQoSValue, 0)
       .option('-r, --retain', 'send a retained message')
       .option('-d, --dup', 'mark as duplicate flag')
@@ -276,7 +291,15 @@ export class Commander {
         '-lo, --load-options [PATH]',
         'load the parameters from the local configuration file, which supports json and yaml format, default path is ./mqttx-cli-options.json',
       )
-      .option('--file-read <PATH>', 'read the message body from the file', parseFileRead)
+      .option(
+        '--file-read <PATH>',
+        'read the message body from the file; with -b, one item per line (pipe: --file-read /dev/stdin)',
+        parseFileRead,
+      )
+      .option(
+        '--split [CHARACTER]',
+        'split the input message in a single file by a specified character, default is "\\n"',
+      )
       .option(
         '-Pp, --protobuf-path <PATH>',
         'the path to the .proto file that defines the message format for Protocol Buffers (protobuf)',
@@ -303,12 +326,25 @@ export class Commander {
       .allowUnknownOption(false)
       .hook('preAction', (thisCommand) => {
         globalThis.command = thisCommand
+        const message = thisCommand.opts().message
+        if (Array.isArray(message)) {
+          thisCommand.setOptionValueWithSource('batchMessages', message, 'cli')
+          thisCommand.setOptionValueWithSource('message', message[message.length - 1], 'cli')
+        }
       })
       .action(pub)
 
     this.program
       .command('sub')
       .description('Subscribes to one or more topics.')
+      .option('-b, --batch', 'recognize and decode MQTT Batch Publishing v1; subscription filters are unchanged')
+      .option('--batch-max-items <N>', 'maximum items per batch (1-65535)', parseNumber, 100)
+      .option(
+        '--batch-max-bytes <BYTES>',
+        'maximum batch payload bytes, including length prefixes (1024-1048576)',
+        parseNumber,
+        65536,
+      )
       .option('-t, --topic <TOPIC...>', 'the message topic')
       .option('-q, --qos <0/1/2...>', 'the QoS of the message', parseQoS)
       // properties options of MQTT 5.0
@@ -536,6 +572,13 @@ export class Commander {
     benchCmd
       .command('pub')
       .description('Publish a custom number of messages at a custom rate.')
+      .option('-b, --batch', 'publish MQTT Batch Publishing v1 with 100 items per packet by default')
+      .option(
+        '-bi, --batch-items <N>',
+        'set items per batch packet (1-65535); requires -b; -L counts packets; logs count items',
+        parseNumber,
+      )
+      .option('--batch-negotiate', 'require batch-publish=v1 selection from the broker (MQTT 5.0)')
       .option('-c, --count <NUMBER>', 'the number of connections', parseNumber, 1000)
       .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
       .option('-im, --message-interval <MILLISECONDS>', 'interval of publishing messages', parseNumber, 1000)
@@ -675,6 +718,7 @@ export class Commander {
     benchCmd
       .command('sub')
       .description('Create a custom number of connections then subscribe to one or multiple topics.')
+      .option('-b, --batch', 'count validated batch items and report failed batch packets separately')
       .option('-c, --count <NUMBER>', 'the number of connections', parseNumber, 1000)
       .option('-i, --interval <MILLISECONDS>', 'interval of connecting to the broker', parseNumber, 10)
       .option(
