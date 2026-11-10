@@ -155,6 +155,15 @@ describe('benchmark connection lifecycle', () => {
     ])
   })
 
+  it.each([
+    { command: 'bench pub', args: ['bench', 'pub', '-t', 'test/%sc/%i'], topic: 'test/%sc/1' },
+    { command: 'simulate', args: ['simulate', '-sc', 'tesla', '-t', 'test/%sc'], topic: 'test/tesla' },
+  ])('publishes $command with %%sc to $topic', async ({ args, topic }) => {
+    const bench = await run([...args, '-c', '1', '-im', '20', '-L', '1'])
+    await bench.waitFor(() => bench.publications.length === 1)
+    expect(bench.publications[0].topic).toBe(topic)
+  })
+
   it.each([0, 1])('finishes QoS %i split file replay after one publisher disconnects', async (qos) => {
     const file = join(directory, 'messages.txt')
     writeFileSync(file, 'one')
