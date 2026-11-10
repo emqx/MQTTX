@@ -49,10 +49,13 @@ describe('batch publishing with a local broker', () => {
     socket.write(generate(packet, { protocolVersion: version }))
   const connack = (socket: Socket, version = 5, properties?: IConnackPacket['properties'], sessionPresent = false) =>
     write(socket, { cmd: 'connack', reasonCode: 0, returnCode: 0, sessionPresent, properties }, version)
-  const launch = (port: number, args: string[], input = '') => {
-    const child = spawn(process.execPath, ['bin/index.js', ...args, '-h', '127.0.0.1', '-p', String(port)], {
-      env: { ...process.env, HOME: directory, USERPROFILE: directory },
-    })
+  const launch = (port: number, args: string[], input?: string) => {
+    const cliArgs = ['bin/index.js', ...args, '-h', '127.0.0.1', '-p', String(port)]
+    const child = spawn(
+      input === undefined ? process.execPath : '/bin/sh',
+      input === undefined ? cliArgs : ['-c', 'cat | exec "$0" "$@"', process.execPath, ...cliArgs],
+      { env: { ...process.env, HOME: directory, USERPROFILE: directory } },
+    )
     children.push(child)
     let output = ''
     let stdout = ''
