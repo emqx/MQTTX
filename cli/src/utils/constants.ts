@@ -8,3 +8,6 @@ export const DEFAULT_MAX_INFLIGHT = 1000
 
 // MQTT packet identifiers are 16-bit, so at most 65535 can be in flight
 export const MAX_INFLIGHT_LIMIT = 65535
+
+// Exit code after Ctrl+C: 128 + SIGINT (2), as shells report it
+export const SIGINT_EXIT_CODE = 130

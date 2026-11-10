@@ -7,6 +7,7 @@ import * as Debug from 'debug'
 import { triggerExitInfo } from '../utils/exitInfo'
 import getBenchClientId from '../utils/getBenchClientId'
 import { createMqttClient } from '../utils/mqttConnect'
+import { SIGINT_EXIT_CODE } from '../utils/constants'
 import shouldRetryConnectionError from '../utils/shouldRetryConnectionError'
 
 const conn = (options: ConnectOptions) => {
@@ -83,7 +84,7 @@ const benchConn = async (options: BenchConnectOptions) => {
 
   process.once('SIGINT', () => {
     signale.log(`Connected total: ${connectedCount}/${count}`)
-    process.exit(130)
+    process.exit(SIGINT_EXIT_CODE)
   })
 
   benchLog.start.conn(loadOptions, count, interval, hostname, port)

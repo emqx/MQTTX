@@ -26,7 +26,12 @@ import getBenchClientId from '../utils/getBenchClientId'
 import createRateSampler from '../utils/createRateSampler'
 import { parsePayloadSize, generateRandomPayload } from '../utils/payloadGenerator'
 import { createMqttClient } from '../utils/mqttConnect'
-import { DEFAULT_MAX_INFLIGHT, DEFAULT_MQTT_PUB_MESSAGE, MAX_INFLIGHT_LIMIT } from '../utils/constants'
+import {
+  DEFAULT_MAX_INFLIGHT,
+  DEFAULT_MQTT_PUB_MESSAGE,
+  MAX_INFLIGHT_LIMIT,
+  SIGINT_EXIT_CODE,
+} from '../utils/constants'
 import shouldRetryConnectionError from '../utils/shouldRetryConnectionError'
 
 /**
@@ -477,7 +482,7 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
     logWrapper.log(
       `Published total: ${total}${failed > 0 ? `, failed: ${failed}` : ''}, elapsed: ${elapsed.toFixed(2)}s`,
     )
-    process.exit(130)
+    process.exit(SIGINT_EXIT_CODE)
   })
 
   for (let i = 1; i <= count; i++) {
