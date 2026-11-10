@@ -280,6 +280,8 @@ async function createWindow() {
       webSecurity: false,
       nodeIntegration: true,
       contextIsolation: false,
+      // Keep MQTT keepalive timers running while the window is hidden
+      backgroundThrottling: false,
     },
     titleBarStyle: isMac ? 'hidden' : 'default',
     backgroundColor: theme === 'dark' ? '#232323' : theme === 'night' ? '#212328' : '#ffffff',
