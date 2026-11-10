@@ -84,22 +84,17 @@ declare global {
 
   type SchemaOptions = ProtobufSchemaOptions | AvroSchemaOptions
 
-  interface BatchOptions {
+  interface PublishOptions extends ConnectOptions {
     batch?: boolean
     batchMaxItems?: number
     batchMaxBytes?: number
     batchNegotiate?: boolean
-    batchItems?: number
-  }
-
-  interface PublishOptions extends ConnectOptions, BatchOptions {
     topic: string
-    message: string | Buffer
+    message: string | Buffer | string[]
     qos: QoS
     retain?: boolean
     dup?: boolean
     fileRead?: string
-    batchMessages?: string[]
     split?: boolean | string
     stdin?: boolean
     multiline?: boolean
@@ -120,7 +115,10 @@ declare global {
     payloadSize?: string
   }
 
-  interface SubscribeOptions extends ConnectOptions, BatchOptions {
+  interface SubscribeOptions extends ConnectOptions {
+    batch?: boolean
+    batchMaxItems?: number
+    batchMaxBytes?: number
     topic: string[]
     qos?: QoS[]
     // Start properties of MQTT 5.0
@@ -150,10 +148,24 @@ declare global {
 
   type OmitPublishOptions = Omit<
     PublishOptions,
-    'stdin' | 'multiline' | 'protobufPath' | 'protobufMessageName' | 'format' | 'debug'
+    | 'stdin'
+    | 'multiline'
+    | 'protobufPath'
+    | 'protobufMessageName'
+    | 'format'
+    | 'debug'
+    | 'message'
+    | 'batch'
+    | 'batchMaxItems'
+    | 'batchMaxBytes'
+    | 'batchNegotiate'
   >
 
   interface BenchPublishOptions extends OmitPublishOptions {
+    batch?: boolean
+    batchItems?: number
+    batchNegotiate?: boolean
+    message: string | Buffer
     count: number
     interval: number
     messageInterval: number
@@ -165,10 +177,21 @@ declare global {
 
   type OmitSubscribeOptions = Omit<
     SubscribeOptions,
-    'format' | 'outputMode' | 'protobufPath' | 'protobufMessageName' | 'debug' | 'fileWrite' | 'fileSave' | 'delimiter'
+    | 'format'
+    | 'outputMode'
+    | 'protobufPath'
+    | 'protobufMessageName'
+    | 'debug'
+    | 'fileWrite'
+    | 'fileSave'
+    | 'delimiter'
+    | 'batch'
+    | 'batchMaxItems'
+    | 'batchMaxBytes'
   >
 
   interface BenchSubscribeOptions extends OmitSubscribeOptions {
+    batch?: boolean
     count: number
     interval: number
   }

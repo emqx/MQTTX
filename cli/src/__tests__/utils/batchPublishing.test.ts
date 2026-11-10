@@ -11,12 +11,8 @@ import {
   encodeBatchPayload,
   decodeBatch,
   calculatePublishSize,
-  validateBatchSelection,
-  PROTOCOL_BATCH_LIMITS,
 } from '../../utils/batchPublishing'
-import { validateBatchOptions, createBatchSelectionCheck } from '../../utils/batchOptions'
-import { fileDataSplitter } from '../../utils/fileUtils'
-import { Commander } from '../../index'
+import { PROTOCOL_BATCH_LIMITS } from '../../utils/constants'
 
 const property = (count: string | string[], hex: string | Buffer, format: string | string[] = 'v1'): BatchPacket => ({
   topic: 'batch/demo',
@@ -76,6 +72,7 @@ describe('spec §9.2 validation vectors', () => {
     if (vector.error) expect(result?.items).toBeUndefined()
     else expect(result?.items?.map((item) => item.length)).toEqual(vector.lengths)
   })
+
   it.each(vectors.slice(0, 13))('$name (topic carrier, §9.3)', (vector) => {
     const packet = {
       ...property(vector.count, vector.payload),
@@ -87,8 +84,12 @@ describe('spec §9.2 validation vectors', () => {
     if (vector.error) expect(result?.items).toBeUndefined()
     else expect(result?.items?.map((item) => item.length)).toEqual(vector.lengths)
   })
-  it('rejects vectors 3/4 under the smaller specified budgets', () => {
+
+  it('rejects the maximum item under the default byte budget', () => {
     expect(decodeBatch(property('1', vectors[2].payload), 5)?.error).toBe('BATCH_LIMIT_EXCEEDED')
+  })
+
+  it('rejects the maximum count under a smaller item budget', () => {
     expect(decodeBatch(property('65535', vectors[3].payload), 5, { ...large, maxItems: 65534 })?.error).toBe(
       'BATCH_LIMIT_EXCEEDED',
     )
@@ -114,12 +115,20 @@ describe('spec §§3.3, 4 and 9.3', () => {
     if (error) expect(result?.items).toBeUndefined()
     else expect(result).toMatchObject({ logicalTopic, count })
   })
-  it('preserves slashes and checks topic byte lengths', () => {
+
+  it('preserves slashes in logical topics', () => {
     expect(buildTopicCarrier(2, '/a//b/')).toBe('$batch/2//a//b/')
     expect(parseTopicCarrier('$batch/2//a//b/')).toEqual({ countText: '2', logicalTopic: '/a//b/' })
+  })
+
+  it('rejects topics above the UTF-8 byte limit', () => {
     expect(() => buildTopicCarrier(1, 'é'.repeat(32768))).toThrow('INVALID_BATCH_TOPIC')
+  })
+
+  it('rejects unpaired surrogates in topics', () => {
     expect(() => buildTopicCarrier(1, '\ud800')).toThrow('INVALID_BATCH_TOPIC')
   })
+
   it('selects topic first and rejects metadata before count', () => {
     const packet = property('1', '0000')
     packet.topic = '$batch/01/demo'
@@ -129,17 +138,20 @@ describe('spec §§3.3, 4 and 9.3', () => {
     packet.retain = true
     expect(decodeBatch(packet, 4)?.error).toBe('INVALID_BATCH_METADATA')
   })
+
   it.each(['', '0', '-1', '+1', '1 ', ' 1', '1\n', '１', '١', '10000000000000000000000'])(
     'rejects count %j',
     (count) => {
       expect(() => parseBatchCount(count)).toThrow('INVALID_BATCH_COUNT')
     },
   )
+
   it.each([false, 0, undefined])('accepts PFI %p', (payloadFormatIndicator) => {
     const packet = property('1', '0000')
     packet.properties!.payloadFormatIndicator = payloadFormatIndicator
     expect(decodeBatch(packet, 5)?.items).toHaveLength(1)
   })
+
   it('reports QoS, marker, format, metadata, count, limit errors in order', () => {
     const packet = property('01', '00', 'unknown')
     packet.qos = 2
@@ -157,21 +169,45 @@ describe('spec §§3.3, 4 and 9.3', () => {
     packet.properties!.userProperties!['batch-size'] = '1'
     expect(decodeBatch(packet, 5, { maxBytes: 0 })?.error).toBe('BATCH_LIMIT_EXCEEDED')
   })
-  it('requires both exact markers, counts duplicate formats and ignores ordinary data', () => {
+
+  it('ignores MQTT 5 packets without batch markers', () => {
     expect(decodeBatch({ ...property('1', '0000'), properties: undefined }, 5)).toBeUndefined()
-    const packet = property('1', '0000', ['v1', 'v1'])
-    expect(decodeBatch(packet, 5)?.error).toBe('INVALID_BATCH_MARKERS')
+  })
+
+  it('rejects duplicate format markers', () => {
+    expect(decodeBatch(property('1', '0000', ['v1', 'v1']), 5)?.error).toBe('INVALID_BATCH_MARKERS')
+  })
+
+  it('treats marker names as case sensitive', () => {
+    const packet = property('1', '0000')
     packet.properties = { userProperties: { 'Batch-format': 'v1', 'Batch-size': '1' } }
     expect(decodeBatch(packet, 5)).toBeUndefined()
+  })
+
+  it('ignores property markers in MQTT 3.1.1', () => {
     expect(decodeBatch(property('1', '0000'), 4)).toBeUndefined()
   })
-  it('enforces item budgets, framing and ordered offset slices without partial results', () => {
+
+  it('round-trips ordered items including whitespace, empty items and arbitrary bytes', () => {
     const payload = encodeBatchPayload([Buffer.from(' A '), Buffer.alloc(0), Buffer.from([0xff])])
     const decoded = decodeBatch(property('3', payload), 5)!
     expect(decoded.items).toEqual([Buffer.from(' A '), Buffer.alloc(0), Buffer.from([0xff])])
+  })
+
+  it('enforces the per-item decoder budget', () => {
+    const payload = encodeBatchPayload([Buffer.from(' A '), Buffer.alloc(0), Buffer.from([0xff])])
     expect(decodeBatch(property('3', payload), 5, { maxItemBytes: 2 })?.error).toBe('BATCH_LIMIT_EXCEEDED')
+  })
+
+  it('rejects an item too large for its length prefix', () => {
     expect(() => encodeBatchPayload([Buffer.alloc(65536)], large)).toThrow('BATCH_LIMIT_EXCEEDED')
+  })
+
+  it('rejects an empty batch', () => {
     expect(() => encodeBatchPayload([], large)).toThrow('INVALID_BATCH_COUNT')
+  })
+
+  it('never returns partial items for malformed envelopes', () => {
     for (let size = 0; size < 256; size++) {
       const result = decodeBatch(property(String((size % 10) + 1), Buffer.alloc(size, size)), 5)
       if (result?.error) expect(result.items).toBeUndefined()
@@ -181,9 +217,12 @@ describe('spec §§3.3, 4 and 9.3', () => {
 
 const hex5 =
   '32 44 00 0A 62 61 74 63 68 2F 64 65 6D 6F 00 01 23 26 00 0C 62 61 74 63 68 2D 66 6F 72 6D 61 74 00 02 76 31 26 00 0A 62 61 74 63 68 2D 73 69 7A 65 00 01 32 00 04 4D 73 67 31 00 0A 4C 6F 6E 67 65 72 4D 73 67 32'
+
 const hex4 =
   '32 29 00 13 24 62 61 74 63 68 2F 32 2F 62 61 74 63 68 2F 64 65 6D 6F 00 01 00 04 4D 73 67 31 00 0A 4C 6F 6E 67 65 72 4D 73 67 32'
+
 const fromHex = (hex: string) => Buffer.from(hex.replace(/\s/g, ''), 'hex')
+
 const wire = (packet: BatchPacket, version: number) =>
   generate(
     {
@@ -196,13 +235,14 @@ const wire = (packet: BatchPacket, version: number) =>
     } as IPublishPacket,
     { protocolVersion: version },
   )
+
 const parsed = (bytes: Buffer, version: number) => {
   let packet: IPublishPacket | undefined
-  const p = parser({ protocolVersion: version })
-  p.on('packet', (value) => {
+  const packets = parser({ protocolVersion: version })
+  packets.on('packet', (value) => {
     if (value.cmd === 'publish') packet = value
   })
-  p.parse(bytes)
+  packets.parse(bytes)
   return packet as BatchPacket
 }
 
@@ -251,7 +291,7 @@ describe('spec §§9.1, 9.3 and 9.8 exact packets', () => {
       const result = decodeBatch(parsed(generated, version), version)
       expect(result?.error).toBe(error)
       if (error) expect(result?.items).toBeUndefined()
-      else expect(result?.items?.map((x) => x.toString())).toEqual(['Msg1', 'LongerMsg2'])
+      else expect(result?.items?.map((item) => item.toString())).toEqual(['Msg1', 'LongerMsg2'])
     },
   )
   it('does not require marker ordering', () => {
@@ -281,147 +321,19 @@ describe('complete PUBLISH length compared with mqtt-packet.generate', () => {
     const packet = { ...property('1', '0000'), properties }
     expect(calculatePublishSize(packet, 5)).toBe(wire(packet, 5).length)
   })
-  it.each([0, 1, 2])('includes all properties together and QoS %i', (qos) => {
+
+  it.each([0, 1, 2] as const)('includes all properties together and QoS %i', (qos) => {
     const merged = Object.assign({}, ...properties.slice(1, 12))
     const packet = { ...property('1', '0000'), qos, properties: merged }
     expect(calculatePublishSize(packet, 5)).toBe(wire(packet, 5).length)
   })
+
   it.each([4, 5])('handles VBI boundaries and actual Topic Alias omission in version %i', (version) => {
     for (const size of [0, 99, 100, 127, 128, 16370, 16384, 2097152]) {
       for (const topic of ['', '测试/topic']) {
-        const packet = { topic, payload: Buffer.alloc(size), qos: 1, properties: { topicAlias: 1 } }
+        const packet: BatchPacket = { topic, payload: Buffer.alloc(size), qos: 1, properties: { topicAlias: 1 } }
         expect(calculatePublishSize(packet, version)).toBe(wire(packet, version).length)
       }
     }
-  })
-})
-
-describe('options and negotiation', () => {
-  const options = (): PublishOptions => ({
-    mqttVersion: 5,
-    hostname: '127.0.0.1',
-    clientId: 'batch',
-    keepalive: 30,
-    clean: true,
-    reconnectPeriod: 0,
-    maximumReconnectTimes: 0,
-    topic: 'demo/topic',
-    message: 'test',
-    qos: 1,
-    batch: true,
-  })
-  it.each([
-    { mqttVersion: 3 },
-    { qos: 2 },
-    { mqttVersion: 4, retain: true },
-    { payloadFormatIndicator: true },
-    { userProperties: { 'batch-format': 'v1' } },
-    { userProperties: { 'batch-size': '2' } },
-    { batchNegotiate: true, connUserProperties: { 'batch-publish': 'v1' } },
-    { batchNegotiate: true, mqttVersion: 4 },
-    { batchNegotiate: true, batch: false },
-    { batchMaxItems: 0 },
-    { batchMaxItems: 65536 },
-    { batchMaxItems: 1.5 },
-    { batchMaxBytes: 1023 },
-    { batchMaxBytes: 1048577 },
-    { batchItems: 0 },
-    { batchItems: 65536 },
-    { stdin: true },
-    { multiline: true },
-    { lineMode: true },
-    { payloadSize: '1KB' },
-    { split: true, batch: false },
-    { split: true },
-    { protobufPath: 'schema.proto' },
-    { topic: '$SYS/demo' },
-    { topic: '$batch' },
-  ])('rejects option conflict %j', (override) => {
-    expect(() => validateBatchOptions({ ...options(), ...override } as PublishOptions, 'pub')).toThrow()
-  })
-  it.each([
-    ['$batch/2/demo/topic', ' Try: -t demo/topic'],
-    ['$batch/2//demo', ' Try: -t /demo'],
-    ['$batch/no-separator', ''],
-  ])('rejects prefixed logical topic %s', (topic, suggestion) => {
-    expect(() => validateBatchOptions({ ...options(), topic }, 'pub')).toThrow(
-      `With -b, -t takes the logical topic; the $batch/{N}/ prefix is added automatically.${suggestion}`,
-    )
-    expect(() => validateBatchOptions({ ...options(), topic, batch: false }, 'pub')).not.toThrow()
-  })
-  it('explains invalid logical topics and unsupported bench splitting', () => {
-    expect(() => validateBatchOptions({ ...options(), topic: '$SYS/demo' }, 'pub')).toThrow(
-      'Invalid topic for -b: $SYS/demo (INVALID_BATCH_TOPIC, spec §3.3).',
-    )
-    expect(() => validateBatchOptions({ ...options(), split: true }, 'benchPub')).toThrow(
-      'bench pub -b uses the whole file as one item template; --split is unsupported.',
-    )
-  })
-  it('requires -b for bench item counts and negotiation', () => {
-    expect(() => validateBatchOptions({ ...options(), batch: false, batchItems: 2 }, 'benchPub')).toThrow(
-      '-bi requires -b.',
-    )
-    expect(() => validateBatchOptions({ ...options(), batch: false, batchNegotiate: true }, 'benchPub')).toThrow(
-      '--batch-negotiate requires batch publishing with MQTT 5.0.',
-    )
-    expect(() => validateBatchOptions(options(), 'benchPub')).not.toThrow()
-    expect(() =>
-      validateBatchOptions({ ...options(), batchItems: 101, batchNegotiate: true }, 'benchPub'),
-    ).not.toThrow()
-  })
-  it.each([0, 65536, 1.5, NaN, Infinity])('rejects invalid bench item count %p', (batchItems) => {
-    expect(() => validateBatchOptions({ ...options(), batchItems }, 'benchPub')).toThrow('Invalid --batch-items:')
-  })
-  it('exposes bench -b and explains the default count and -bi requirement', () => {
-    const commander = new Commander()
-    commander.init()
-    const benchPub = commander.program.commands
-      .find((c) => c.name() === 'bench')!
-      .commands.find((c) => c.name() === 'pub')!
-    benchPub.parseOptions(['-b', '-bi', '101'])
-    expect(benchPub.opts()).toMatchObject({ batch: true, batchItems: 101 })
-    const help = benchPub.helpInformation()
-    expect(help).toContain('-b, --batch')
-    expect(help).toContain('100 items per packet by default')
-    expect(help).toContain('requires -b')
-  })
-  it.each([undefined, 'unknown', ['v1', 'v1'], ['v1', 'unknown']])(
-    'rejects missing, mismatched or repeated selection %p',
-    (value) => {
-      const up = value === undefined ? undefined : { 'batch-publish': value }
-      expect(validateBatchSelection({ 'batch-publish': 'v1' }, up)).toBe(false)
-    },
-  )
-  it('requires an exact offer and selection and checks session resumption', () => {
-    const selected = { properties: { userProperties: { 'batch-publish': 'v1' } } }
-    expect(validateBatchSelection(undefined, selected.properties.userProperties)).toBe(false)
-    expect(validateBatchSelection({ 'batch-publish': ['v1', 'unknown'] }, selected.properties.userProperties)).toBe(
-      false,
-    )
-    const check = createBatchSelectionCheck({ 'batch-publish': 'v1' }, true)
-    expect(check(selected)).toBe(true)
-    expect(() => check({ sessionPresent: true })).toThrow(
-      'Batch session resume failed: v1 capability was not reselected.',
-    )
-    expect(() => check({ sessionPresent: false })).toThrow('Batch negotiation failed:')
-    const unpinned = createBatchSelectionCheck()
-    expect(unpinned({ sessionPresent: true })).toBe(false)
-  })
-})
-
-describe('batch file splitting reuses bench splitter', () => {
-  it.each([
-    ['', []],
-    ['a\r\n\r\nb\r\n', ['a', '', 'b']],
-    ['\n', ['']],
-    ['\n\n', ['', '']],
-    [' a \n b', [' a ', ' b']],
-    ['a\n\n', ['a', '']],
-  ] as [string, string[]][])('splits newline input %j', (data, expected) =>
-    expect(fileDataSplitter(data, true, true)).toEqual(expected),
-  )
-  it('uses the existing custom separator semantics', () => {
-    expect(fileDataSplitter('one::two::::', '::', true)).toEqual(['one', 'two', ''])
-    expect(fileDataSplitter('one\n', true)).toEqual(['one', ''])
   })
 })

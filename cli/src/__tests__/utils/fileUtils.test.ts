@@ -4,7 +4,7 @@ import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { Commander } from '../../index'
-import { appendFile } from '../../utils/fileUtils'
+import { appendFile, fileDataSplitter, splitBatchFile } from '../../utils/fileUtils'
 
 describe('appendFile', () => {
   let directory: string
@@ -77,5 +77,22 @@ describe('appendFile', () => {
     appendFile(filePath, Buffer.from([0xff, 0x80]), subscribe.opts().delimiter)
 
     expect(fs.readFileSync(filePath)).toEqual(Buffer.from([0xff, 0x80, 0x74, 0x72, 0x75, 0x65]))
+  })
+})
+
+describe('batch file splitting', () => {
+  it.each([
+    ['', []],
+    ['a\r\n\r\nb\r\n', ['a', '', 'b']],
+    ['\n', ['']],
+    ['\n\n', ['', '']],
+    [' a \n b', [' a ', ' b']],
+    ['a\n\n', ['a', '']],
+  ] as [string, string[]][])('splits newline input %j', (data, expected) =>
+    expect(splitBatchFile(data, true)).toEqual(expected),
+  )
+  it('uses the existing custom separator semantics', () => {
+    expect(splitBatchFile('one::two::::', '::')).toEqual(['one', 'two', ''])
+    expect(fileDataSplitter('one\n', true)).toEqual(['one', ''])
   })
 })

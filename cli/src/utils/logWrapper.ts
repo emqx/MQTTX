@@ -49,6 +49,34 @@ const msgLog = (msg: MsgItem[]) => {
   signale.log(isLogFormat ? outputString : `${outputString}\n`)
 }
 
+// Keep control characters visible without changing quotes or literal backslashes.
+const escapeControlCharacter = (character: string): string => {
+  if (character === '\n') return '\\n'
+  if (character === '\r') return '\\r'
+  return `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`
+}
+
+const batchLog = {
+  payload: (
+    count: number,
+    logicalTopic: string,
+    bytes: number,
+    items: (string | { b64: string })[],
+    wireTopic?: string,
+  ) => {
+    const lines = [`Batch ×${count} · ${logicalTopic} · ${bytes} B`]
+    if (wireTopic) lines.push(`Wire topic: ${wireTopic}`)
+    items.forEach((item, index) => {
+      const text =
+        typeof item === 'string' ? item.replace(/[\u0000-\u001f]/g, escapeControlCharacter) : JSON.stringify(item)
+      lines.push(`[${index + 1}] ${text}`)
+    })
+    return lines.join('\n')
+  },
+  rejected: (error: string, topic: string, bytes: number) =>
+    logWrapper.fail(`Batch rejected: ${error}; topic=${topic}; payloadBytes=${bytes}; items=0.`),
+}
+
 const basicLog = {
   connecting: (config: boolean | string | undefined, host: string, port = 1883, topic?: string, message?: string) => {
     if (!config) {
@@ -69,10 +97,7 @@ const basicLog = {
     }
 
     // JSON escapes C0 controls; also escape C1 controls and Unicode line separators.
-    const escaped = JSON.stringify(responseInformation).replace(
-      /[\u007f-\u009f\u2028\u2029]/g,
-      (character) => `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`,
-    )
+    const escaped = JSON.stringify(responseInformation).replace(/[\u007f-\u009f\u2028\u2029]/g, escapeControlCharacter)
     logWrapper.info(`Response Information: ${escaped}`)
   },
   subscribing: (t: string) => logWrapper.await(`Subscribing to ${t}...`),
@@ -155,6 +180,10 @@ const benchLog = {
       }
     },
   },
+  batchPublished: (packets: number, itemsPerPacket: number, failed: number) =>
+    `Published total: ${packets * itemsPerPacket} items (${packets} packets), failed: ${failed} packets`,
+  batchReceived: (items: number, packets: number, failed: number, ordinary: number) =>
+    `Received total: ${items} items (${packets} batch packets), failed: ${failed} packets, ordinary: ${ordinary} packets`,
   error: (count: number, total: number, id: string, err: Error) =>
     logWrapper.fail(`[${count}/${total}] - Client ID: ${id}, ${err}`),
   close: (count: number, total: number, id: string) =>
@@ -188,6 +217,6 @@ const simulateLog = {
   },
 }
 
-export { Signale, signale, singaleConfig, spinner, msgLog, basicLog, benchLog, simulateLog }
+export { Signale, signale, singaleConfig, spinner, msgLog, batchLog, basicLog, benchLog, simulateLog }
 
 export default logWrapper

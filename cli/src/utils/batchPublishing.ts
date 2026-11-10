@@ -1,35 +1,44 @@
-/** MQTT Batch Publishing v1, spec §§2.1, 3 and 4. No MQTT runtime dependency. */
-type UserProperties = Record<string, string | string[]>
-export interface PublishProperties {
+import type { IClientPublishOptions } from 'mqtt'
+import {
+  DEFAULT_BATCH_LIMITS,
+  PROTOCOL_BATCH_LIMITS,
+  MAX_BATCH_ITEMS,
+  MAX_BATCH_ITEM_BYTES,
+  MAX_MQTT_TOPIC_BYTES,
+} from './constants'
+
+// Incoming packets may carry numeric indicators and repeated subscription identifiers.
+export type PublishProperties = Omit<
+  NonNullable<IClientPublishOptions['properties']>,
+  'payloadFormatIndicator' | 'correlationData' | 'subscriptionIdentifier'
+> & {
   payloadFormatIndicator?: boolean | number
-  messageExpiryInterval?: number
-  topicAlias?: number
-  responseTopic?: string
   correlationData?: string | Buffer
-  userProperties?: UserProperties
   subscriptionIdentifier?: number | number[]
-  contentType?: string
 }
-export interface BatchPacket {
+
+type UserProperties = NonNullable<PublishProperties['userProperties']>
+
+export interface BatchPacket extends Pick<IClientPublishOptions, 'qos' | 'retain' | 'dup'> {
   topic: string
   payload: Buffer
-  qos?: number
-  retain?: boolean
   properties?: PublishProperties
 }
+
 export interface BatchLimits {
   maxItems?: number
   maxBytes?: number
   maxItemBytes?: number
 }
-export const DEFAULT_BATCH_LIMITS = { maxItems: 100, maxBytes: 65536 }
-export const PROTOCOL_BATCH_LIMITS = { maxItems: 65535, maxBytes: 268435455 }
+
 type BatchCarrier = 'property' | 'topic'
+
 interface BatchMetadata {
   carrier: BatchCarrier
   logicalTopic: string
   count: number
 }
+
 type BatchResult =
   | (BatchMetadata & { items: Buffer[]; error?: undefined })
   | { carrier: BatchCarrier; logicalTopic: string; count?: number; error: string; items?: undefined }
@@ -38,21 +47,23 @@ const reject = (code: string): never => {
   throw new Error(code)
 }
 
+/** Parse a canonical decimal batch count. */
 export const parseBatchCount = (text: string): number => {
-  if (!/^[1-9][0-9]{0,4}$/.test(text) || String(Number(text)) !== text || Number(text) > 65535) {
+  if (!/^[1-9][0-9]{0,4}$/.test(text) || String(Number(text)) !== text || Number(text) > MAX_BATCH_ITEMS) {
     return reject('INVALID_BATCH_COUNT')
   }
   return Number(text)
 }
 
+/** Check that a logical publish topic is valid for a batch carrier. */
 export const validLogicalTopic = (topic: string) =>
   topic.length > 0 &&
   !topic.startsWith('$') &&
   !/[\u0000#+]/.test(topic) &&
-  Buffer.byteLength(topic) <= 65535 &&
+  Buffer.byteLength(topic) <= MAX_MQTT_TOPIC_BYTES &&
   Buffer.from(topic).toString() === topic
 
-// Count validation follows metadata validation in §4.1, so parsing keeps the raw count.
+/** Parse a topic carrier while deferring count validation until metadata is checked. */
 export const parseTopicCarrier = (topic: string) => {
   const separator = topic.indexOf('/', 7)
   const logicalTopic = topic.slice(separator + 1)
@@ -60,13 +71,14 @@ export const parseTopicCarrier = (topic: string) => {
     !topic.startsWith('$batch/') ||
     separator < 0 ||
     !validLogicalTopic(logicalTopic) ||
-    Buffer.byteLength(topic) > 65535
+    Buffer.byteLength(topic) > MAX_MQTT_TOPIC_BYTES
   ) {
     return reject('INVALID_BATCH_TOPIC')
   }
   return { countText: topic.slice(7, separator), logicalTopic }
 }
 
+/** Build and validate a topic carrier. */
 export const buildTopicCarrier = (count: number, topic: string): string => {
   parseBatchCount(String(count))
   const wireTopic = `$batch/${count}/${topic}`
@@ -76,13 +88,17 @@ export const buildTopicCarrier = (count: number, topic: string): string => {
 
 const values = (properties: UserProperties | undefined, key: string): string[] => {
   const value = properties?.[key]
-  return value === undefined ? [] : typeof value === 'string' ? [value] : value
+  if (value === undefined) return []
+  return typeof value === 'string' ? [value] : value
 }
+
+/** Identify either exact batch marker in user properties. */
 export const hasMarker = (properties?: UserProperties) =>
   properties !== undefined &&
   (Object.prototype.hasOwnProperty.call(properties, 'batch-format') ||
     Object.prototype.hasOwnProperty.call(properties, 'batch-size'))
 
+/** Identify the carrier, giving topic markers priority. */
 export const classifyBatch = (packet: BatchPacket, mqttVersion: number): BatchCarrier | undefined => {
   if (packet.topic === '$batch' || packet.topic.startsWith('$batch/')) return 'topic'
   if (mqttVersion === 5 && hasMarker(packet.properties?.userProperties)) return 'property'
@@ -113,18 +129,20 @@ const validateBatchMetadata = (packet: BatchPacket, carrier: BatchCarrier): Batc
       properties.payloadFormatIndicator !== false &&
       properties.payloadFormatIndicator !== 0) ||
     (carrier === 'topic' && (packet.retain || hasMarker(userProperties)))
-  )
+  ) {
     return reject('INVALID_BATCH_METADATA')
+  }
   return { carrier, logicalTopic, count: parseBatchCount(countText) }
 }
 
+/** Encode items into a single length-prefixed envelope. */
 export const encodeBatchPayload = (items: readonly Buffer[], limits: BatchLimits = DEFAULT_BATCH_LIMITS): Buffer => {
   parseBatchCount(String(items.length))
   const bytes = items.reduce((total, item) => total + 2 + item.length, 0)
   if (
     items.length > (limits.maxItems ?? PROTOCOL_BATCH_LIMITS.maxItems) ||
     bytes > (limits.maxBytes ?? PROTOCOL_BATCH_LIMITS.maxBytes) ||
-    items.some((item) => item.length > Math.min(limits.maxItemBytes ?? 65535, 65535))
+    items.some((item) => item.length > Math.min(limits.maxItemBytes ?? MAX_BATCH_ITEM_BYTES, MAX_BATCH_ITEM_BYTES))
   ) {
     return reject('BATCH_LIMIT_EXCEEDED')
   }
@@ -155,7 +173,7 @@ const decodeBatchPayload = (payload: Buffer, count: number, limits: BatchLimits 
     const length = payload.readUInt16BE(offset)
     offset += 2
     if (length > payload.length - offset) return reject('TRUNCATED_ITEM')
-    if (length > (limits.maxItemBytes ?? 65535)) return reject('BATCH_LIMIT_EXCEEDED')
+    if (length > (limits.maxItemBytes ?? MAX_BATCH_ITEM_BYTES)) return reject('BATCH_LIMIT_EXCEEDED')
     items.push(payload.subarray(offset, offset + length))
     offset += length
   }
@@ -163,6 +181,7 @@ const decodeBatchPayload = (payload: Buffer, count: number, limits: BatchLimits 
   return items
 }
 
+/** Validate the entire envelope before returning offset slices. */
 export const decodeBatch = (
   packet: BatchPacket,
   mqttVersion: number,
@@ -186,29 +205,38 @@ export const decodeBatch = (
 
 /** Complete PUBLISH size: fixed header, VBI widths, variable header, properties and payload. */
 const vbiBytes = (value: number): number => {
-  if (!Number.isInteger(value) || value < 0 || value > 268435455)
+  if (!Number.isInteger(value) || value < 0 || value > PROTOCOL_BATCH_LIMITS.maxBytes) {
     return reject('PUBLISH exceeds MQTT packet size limit.')
-  return value < 128 ? 1 : value < 16384 ? 2 : value < 2097152 ? 3 : 4
+  }
+  if (value < 128) return 1
+  if (value < 16384) return 2
+  if (value < 2097152) return 3
+  return 4
 }
+
 const stringBytes = (value: string | Buffer) => 2 + Buffer.byteLength(value)
+
+/** Calculate the complete PUBLISH size, including properties and VBI widths. */
 export const calculatePublishSize = (packet: BatchPacket, mqttVersion: number): number => {
   let remaining = stringBytes(packet.topic) + (packet.qos ? 2 : 0) + packet.payload.length
   if (mqttVersion === 5) {
-    const p = packet.properties ?? {}
+    const properties = packet.properties ?? {}
     let bytes = 0
-    if (p.payloadFormatIndicator !== undefined) bytes += 2
-    if (p.messageExpiryInterval !== undefined) bytes += 5
-    if (p.topicAlias !== undefined) bytes += 3
-    if (p.responseTopic !== undefined) bytes += 1 + stringBytes(p.responseTopic)
-    if (p.correlationData !== undefined) bytes += 1 + stringBytes(p.correlationData)
-    if (p.contentType !== undefined) bytes += 1 + stringBytes(p.contentType)
-    if (p.subscriptionIdentifier !== undefined) {
-      const ids = Array.isArray(p.subscriptionIdentifier) ? p.subscriptionIdentifier : [p.subscriptionIdentifier]
+    if (properties.payloadFormatIndicator !== undefined) bytes += 2
+    if (properties.messageExpiryInterval !== undefined) bytes += 5
+    if (properties.topicAlias !== undefined) bytes += 3
+    if (properties.responseTopic !== undefined) bytes += 1 + stringBytes(properties.responseTopic)
+    if (properties.correlationData !== undefined) bytes += 1 + stringBytes(properties.correlationData)
+    if (properties.contentType !== undefined) bytes += 1 + stringBytes(properties.contentType)
+    if (properties.subscriptionIdentifier !== undefined) {
+      const ids = Array.isArray(properties.subscriptionIdentifier)
+        ? properties.subscriptionIdentifier
+        : [properties.subscriptionIdentifier]
       ids.forEach((id) => {
         bytes += 1 + vbiBytes(id)
       })
     }
-    Object.entries(p.userProperties ?? {}).forEach(([key, value]) => {
+    Object.entries(properties.userProperties ?? {}).forEach(([key, value]) => {
       const entries = typeof value === 'string' ? [value] : value
       entries.forEach((entry) => {
         bytes += 1 + stringBytes(key) + stringBytes(entry)
@@ -219,6 +247,7 @@ export const calculatePublishSize = (packet: BatchPacket, mqttVersion: number): 
   return 1 + vbiBytes(remaining) + remaining
 }
 
+/** Require exactly one v1 offer and one v1 selection. */
 export const validateBatchSelection = (
   offer: UserProperties | undefined,
   connack: UserProperties | undefined,
