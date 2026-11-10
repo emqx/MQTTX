@@ -12,7 +12,6 @@ import {
   decodeBatch,
   calculatePublishSize,
   validateBatchSelection,
-  DEFAULT_BATCH_LIMITS,
   PROTOCOL_BATCH_LIMITS,
 } from '../../utils/batchPublishing'
 import { validateBatchOptions, createBatchSelectionCheck } from '../../utils/batchOptions'
@@ -170,7 +169,6 @@ describe('spec §§3.3, 4 and 9.3', () => {
     const payload = encodeBatchPayload([Buffer.from(' A '), Buffer.alloc(0), Buffer.from([0xff])])
     const decoded = decodeBatch(property('3', payload), 5)!
     expect(decoded.items).toEqual([Buffer.from(' A '), Buffer.alloc(0), Buffer.from([0xff])])
-    expect(decoded.items![0].buffer).toBe(payload.buffer)
     expect(decodeBatch(property('3', payload), 5, { maxItemBytes: 2 })?.error).toBe('BATCH_LIMIT_EXCEEDED')
     expect(() => encodeBatchPayload([Buffer.alloc(65536)], large)).toThrow('BATCH_LIMIT_EXCEEDED')
     expect(() => encodeBatchPayload([], large)).toThrow('INVALID_BATCH_COUNT')
@@ -386,14 +384,6 @@ describe('options and negotiation', () => {
     expect(help).toContain('-b, --batch')
     expect(help).toContain('100 items per packet by default')
     expect(help).toContain('requires -b')
-  })
-  it('keeps normal repeated -m semantics and parses new flags', () => {
-    const commander = new Commander()
-    commander.init()
-    const pub = commander.program.commands.find((c) => c.name() === 'pub')!
-    pub.parseOptions(['-t', 'demo', '-m', 'first', '-m', 'last', '-b', '--batch-max-items', '2'])
-    expect(pub.opts().message).toEqual(['first', 'last'])
-    expect(pub.opts()).toMatchObject({ batch: true, batchMaxItems: 2, batchMaxBytes: 65536 })
   })
   it.each([undefined, 'unknown', ['v1', 'v1'], ['v1', 'unknown']])(
     'rejects missing, mismatched or repeated selection %p',

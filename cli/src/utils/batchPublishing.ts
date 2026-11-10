@@ -1,5 +1,5 @@
 /** MQTT Batch Publishing v1, spec §§2.1, 3 and 4. No MQTT runtime dependency. */
-export type UserProperties = Record<string, string | string[]>
+type UserProperties = Record<string, string | string[]>
 export interface PublishProperties {
   payloadFormatIndicator?: boolean | number
   messageExpiryInterval?: number
@@ -24,13 +24,13 @@ export interface BatchLimits {
 }
 export const DEFAULT_BATCH_LIMITS = { maxItems: 100, maxBytes: 65536 }
 export const PROTOCOL_BATCH_LIMITS = { maxItems: 65535, maxBytes: 268435455 }
-export type BatchCarrier = 'property' | 'topic'
-export interface BatchMetadata {
+type BatchCarrier = 'property' | 'topic'
+interface BatchMetadata {
   carrier: BatchCarrier
   logicalTopic: string
   count: number
 }
-export type BatchResult =
+type BatchResult =
   | (BatchMetadata & { items: Buffer[]; error?: undefined })
   | { carrier: BatchCarrier; logicalTopic: string; count?: number; error: string; items?: undefined }
 
@@ -78,7 +78,7 @@ const values = (properties: UserProperties | undefined, key: string): string[] =
   const value = properties?.[key]
   return value === undefined ? [] : typeof value === 'string' ? [value] : value
 }
-const hasMarker = (properties?: UserProperties) =>
+export const hasMarker = (properties?: UserProperties) =>
   properties !== undefined &&
   (Object.prototype.hasOwnProperty.call(properties, 'batch-format') ||
     Object.prototype.hasOwnProperty.call(properties, 'batch-size'))
@@ -89,7 +89,7 @@ export const classifyBatch = (packet: BatchPacket, mqttVersion: number): BatchCa
   return undefined
 }
 
-export const validateBatchMetadata = (packet: BatchPacket, carrier: BatchCarrier): BatchMetadata => {
+const validateBatchMetadata = (packet: BatchPacket, carrier: BatchCarrier): BatchMetadata => {
   if (packet.qos === 2) return reject('UNSUPPORTED_BATCH_QOS')
   const properties = packet.properties
   const userProperties = properties?.userProperties
@@ -122,8 +122,8 @@ export const encodeBatchPayload = (items: readonly Buffer[], limits: BatchLimits
   parseBatchCount(String(items.length))
   const bytes = items.reduce((total, item) => total + 2 + item.length, 0)
   if (
-    items.length > (limits.maxItems ?? 65535) ||
-    bytes > (limits.maxBytes ?? 268435455) ||
+    items.length > (limits.maxItems ?? PROTOCOL_BATCH_LIMITS.maxItems) ||
+    bytes > (limits.maxBytes ?? PROTOCOL_BATCH_LIMITS.maxBytes) ||
     items.some((item) => item.length > Math.min(limits.maxItemBytes ?? 65535, 65535))
   ) {
     return reject('BATCH_LIMIT_EXCEEDED')
@@ -138,12 +138,11 @@ export const encodeBatchPayload = (items: readonly Buffer[], limits: BatchLimits
   return payload
 }
 
-export const decodeBatchPayload = (
-  payload: Buffer,
-  count: number,
-  limits: BatchLimits = DEFAULT_BATCH_LIMITS,
-): Buffer[] => {
-  if (count > (limits.maxItems ?? 65535) || payload.length > (limits.maxBytes ?? 268435455)) {
+const decodeBatchPayload = (payload: Buffer, count: number, limits: BatchLimits = DEFAULT_BATCH_LIMITS): Buffer[] => {
+  if (
+    count > (limits.maxItems ?? PROTOCOL_BATCH_LIMITS.maxItems) ||
+    payload.length > (limits.maxBytes ?? PROTOCOL_BATCH_LIMITS.maxBytes)
+  ) {
     return reject('BATCH_LIMIT_EXCEEDED')
   }
   if (count > Math.floor(payload.length / 2)) return reject('BATCH_COUNT_MISMATCH')
