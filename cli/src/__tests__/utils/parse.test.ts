@@ -1,5 +1,7 @@
 import {
   parseNumber,
+  parseMessage,
+  validateBatchOptions,
   parseFileRead,
   validateClientCount,
   validateMaxInflight,
@@ -273,6 +275,122 @@ describe('parse utilities', () => {
 
     it('should return undefined when no schema options are provided', () => {
       expect(parseSchemaOptions()).toBeUndefined()
+    })
+  })
+
+  describe('validateBatchOptions', () => {
+    const options = (): PublishOptions => ({
+      mqttVersion: 5,
+      hostname: '127.0.0.1',
+      clientId: 'batch',
+      keepalive: 30,
+      clean: true,
+      reconnectPeriod: 0,
+      maximumReconnectTimes: 0,
+      topic: 'demo/topic',
+      message: 'test',
+      qos: 1,
+      batch: true,
+    })
+
+    it.each([
+      { mqttVersion: 3 },
+      { qos: 2 },
+      { mqttVersion: 4, retain: true },
+      { payloadFormatIndicator: true },
+      { userProperties: { 'batch-format': 'v1' } },
+      { userProperties: { 'batch-size': '2' } },
+      { batchNegotiate: true, connUserProperties: { 'batch-publish': 'v1' } },
+      { batchNegotiate: true, mqttVersion: 4 },
+      { batchNegotiate: true, batch: false },
+      { batchMaxItems: 0 },
+      { batchMaxItems: 65536 },
+      { batchMaxItems: 1.5 },
+      { batchMaxBytes: 1023 },
+      { batchMaxBytes: 1048577 },
+      { batchItems: 0 },
+      { batchItems: 65536 },
+      { stdin: true },
+      { multiline: true },
+      { lineMode: true },
+      { payloadSize: '1KB' },
+      { split: true, batch: false },
+      { split: true },
+      { protobufPath: 'schema.proto' },
+      { topic: '$SYS/demo' },
+      { topic: '$batch' },
+    ])('rejects option conflict %j', (override) => {
+      expect(() => validateBatchOptions({ ...options(), ...override } as PublishOptions, 'pub')).toThrow(
+        'Process exited with code 1',
+      )
+      expect(logWrapper.fail).toHaveBeenCalled()
+      expect(mockExit).toHaveBeenCalledWith(1)
+    })
+
+    it.each([
+      ['$batch/2/demo/topic', ' Try: -t demo/topic'],
+      ['$batch/2//demo', ' Try: -t /demo'],
+      ['$batch/no-separator', ''],
+    ])('rejects prefixed logical topic %s', (topic, suggestion) => {
+      expect(() => validateBatchOptions({ ...options(), topic }, 'pub')).toThrow('Process exited with code 1')
+      expect(logWrapper.fail).toHaveBeenCalledWith(
+        `With -b, -t takes the logical topic; the $batch/{N}/ prefix is added automatically.${suggestion}`,
+      )
+      expect(() => validateBatchOptions({ ...options(), topic, batch: false }, 'pub')).not.toThrow()
+    })
+
+    it('explains invalid logical topics', () => {
+      expect(() => validateBatchOptions({ ...options(), topic: '$SYS/demo' }, 'pub')).toThrow(
+        'Process exited with code 1',
+      )
+      expect(logWrapper.fail).toHaveBeenCalledWith('Invalid topic for -b: $SYS/demo (INVALID_BATCH_TOPIC).')
+    })
+
+    it('explains unsupported bench splitting', () => {
+      expect(() => validateBatchOptions({ ...options(), split: true }, 'benchPub')).toThrow(
+        'Process exited with code 1',
+      )
+      expect(logWrapper.fail).toHaveBeenCalledWith(
+        'bench pub -b uses the whole file as one item template. --split is unsupported.',
+      )
+    })
+
+    it('requires -b for bench item counts', () => {
+      expect(() => validateBatchOptions({ ...options(), batch: false, batchItems: 2 }, 'benchPub')).toThrow(
+        'Process exited with code 1',
+      )
+      expect(logWrapper.fail).toHaveBeenCalledWith('-bi requires -b.')
+    })
+
+    it('requires -b for bench negotiation', () => {
+      expect(() => validateBatchOptions({ ...options(), batch: false, batchNegotiate: true }, 'benchPub')).toThrow(
+        'Process exited with code 1',
+      )
+      expect(logWrapper.fail).toHaveBeenCalledWith('--batch-negotiate requires batch publishing with MQTT 5.0.')
+    })
+
+    it('accepts the default and explicit bench item counts with negotiation', () => {
+      expect(() => validateBatchOptions(options(), 'benchPub')).not.toThrow()
+      expect(() =>
+        validateBatchOptions({ ...options(), batchItems: 101, batchNegotiate: true }, 'benchPub'),
+      ).not.toThrow()
+    })
+
+    it.each([0, 65536, 1.5, NaN, Infinity])('rejects invalid bench item count %p', (batchItems) => {
+      expect(() => validateBatchOptions({ ...options(), batchItems }, 'benchPub')).toThrow('Process exited with code 1')
+      expect(logWrapper.fail).toHaveBeenCalledWith(
+        `Invalid batch items: ${batchItems}. Expected an integer between 1 and 65535.`,
+      )
+    })
+  })
+
+  describe('parseMessage', () => {
+    it('replaces the default with the first explicit message', () => {
+      expect(parseMessage('first', 'default')).toEqual(['first'])
+    })
+
+    it('keeps repeated messages in input order, including empty items', () => {
+      expect(parseMessage('', parseMessage('first', 'default'))).toEqual(['first', ''])
     })
   })
 })
