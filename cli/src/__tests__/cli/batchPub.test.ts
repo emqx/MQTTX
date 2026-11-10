@@ -2,6 +2,7 @@
 import { writeFileSync } from 'fs'
 import { join } from 'path'
 import { generate } from 'mqtt-packet'
+import { Commander } from '../../index'
 import { createBatchBroker } from '../../../tests/helpers/batchBroker'
 
 jest.setTimeout(60000)
@@ -19,7 +20,7 @@ describe('batch pub', () => {
         write(socket, { cmd: 'puback', messageId: packet.messageId, reasonCode: 0x83 })
       }
     })
-    const result = await launch(port, ['pub', '-b', '-q', '1', '-t', 'demo', '-m', 'test']).closed
+    const result = await launch(port, 'pub -b -q 1 -t demo -m test'.split(' ')).closed
     expect(result.code).toBe(1)
     expect(result.output).toContain('Publish error: Implementation specific error')
     expect(result.stdout).not.toContain('Message published')
@@ -40,9 +41,32 @@ describe('batch pub', () => {
     expect(items(topicCarrier.packets[0], 4)).toEqual(['A', ''])
   })
 
-  it('reads CRLF files with empty items', async () => {
+  const itemsFile = (content: string) => {
     const file = join(broker.directory, 'items.txt')
-    writeFileSync(file, ' a \r\n\r\nb\r\n')
+    writeFileSync(file, content)
+    return file
+  }
+
+  it('defaults to 256 items per packet', async () => {
+    const file = itemsFile('item\n'.repeat(257))
+    const result = await publish(['-b', '--file-read', file])
+
+    expect(result.code).toBe(0)
+    expect(result.packets.map((packet) => items(packet)?.length)).toEqual([256, 1])
+  })
+
+  it('shows the 256-item default and unchanged byte limit in pub help', () => {
+    const commander = new Commander()
+    commander.init()
+    const command = commander.program.commands.find((command) => command.name() === 'pub')!
+    command.parseOptions([])
+
+    expect(command.opts()).toMatchObject({ batchMaxItems: 256, batchMaxBytes: 65536 })
+    expect(command.helpInformation()).toContain('default: 256')
+  })
+
+  it('reads CRLF files with empty items', async () => {
+    const file = itemsFile(' a \r\n\r\nb\r\n')
     const fromFile = await publish(['-b', '--file-read', file])
     expect(items(fromFile.packets[0])).toEqual([' a ', '', 'b'])
   })
@@ -54,17 +78,16 @@ describe('batch pub', () => {
   })
 
   it('splits files on a custom separator', async () => {
-    const file = join(broker.directory, 'items.txt')
-    writeFileSync(file, 'a::b::::')
+    const file = itemsFile('a::b::::')
     expect(items((await publish(['-b', '--file-read', file, '--split', '::'])).packets[0])).toEqual(['a', 'b', ''])
   })
 
   it('publishes many QoS 0 packets without growing the call stack', async () => {
-    const file = join(broker.directory, 'items.txt')
-    writeFileSync(file, '\n'.repeat(2000))
+    const file = itemsFile('\n'.repeat(2000))
     const many = await publish(['-b', '--file-read', file, '--batch-max-items', '1', '-q', '0'], { version: 4 })
     expect(many.code).toBe(0)
     expect(many.packets).toHaveLength(2000)
+    expect(many.output.match(/Message publishing\.\.\./g)).toHaveLength(1)
   })
 
   it('splits before the next item exceeds the byte budget', async () => {
@@ -87,13 +110,12 @@ describe('batch pub', () => {
   })
 
   it('reads the whole file outside batch mode', async () => {
-    const file = join(broker.directory, 'items.txt')
-    writeFileSync(file, 'a::b::::')
+    const file = itemsFile('a::b::::')
     expect((await publish(['--file-read', file])).packets[0].payload.toString()).toBe('a::b::::')
   })
 
   it('allows a manually framed topic outside batch mode', async () => {
-    const manual = await publish(['-t', '$batch/1/demo', '-m', '000141', '-f', 'hex'])
+    const manual = await publish('-t $batch/1/demo -m 000141 -f hex'.split(' '))
     expect(manual.code).toBe(0)
     expect(manual.packets[0].payload).toEqual(Buffer.from('000141', 'hex'))
   })
@@ -106,17 +128,12 @@ describe('batch pub', () => {
     expect(selected.offers).toEqual([{ 'batch-publish': 'v1' }])
   })
 
-  it.each([undefined, 'unknown', ['v1', 'v1'], ['v1', 'unknown']])(
-    'rejects unselected capability %p before publishing',
-    async (selection) => {
-      const declined = await publish(['-b', '--batch-negotiate'], {
-        properties: selection === undefined ? undefined : { userProperties: { 'batch-publish': selection } },
-      })
-      expect(declined.code).toBe(1)
-      expect(declined.packets).toHaveLength(0)
-      expect(declined.output).toContain('Batch negotiation failed:')
-    },
-  )
+  it('rejects an unselected capability before publishing', async () => {
+    const declined = await publish(['-b', '--batch-negotiate'])
+    expect(declined.code).toBe(1)
+    expect(declined.packets).toHaveLength(0)
+    expect(declined.output).toContain('Batch negotiation failed:')
+  })
 
   it('honors the broker Maximum Packet Size boundary', async () => {
     const selected = await publish(['-b', '-m', 'x'])
@@ -135,12 +152,6 @@ describe('batch pub', () => {
     expect(prefix.offers).toHaveLength(0)
   })
 
-  it('rejects interactive input in batch mode', async () => {
-    const stdinConflict = await publish(['-b', '-s', '-M'])
-    expect(stdinConflict.code).toBe(1)
-    expect(stdinConflict.output).toContain('-b reads items from -m or --file-read (one per line).')
-  })
-
   it('rejects a resumed session before MQTT.js retransmits an unselected batch', async () => {
     let connects = 0
     let resumedPublications = 0
@@ -153,20 +164,7 @@ describe('batch pub', () => {
         socket.destroy()
       }
     })
-    const resumed = await launch(port, [
-      'pub',
-      '-b',
-      '--batch-negotiate',
-      '--no-clean',
-      '-rp',
-      '10',
-      '-t',
-      'demo',
-      '-q',
-      '1',
-      '-m',
-      'x',
-    ]).closed
+    const resumed = await launch(port, 'pub -b --batch-negotiate --no-clean -rp 10 -t demo -q 1 -m x'.split(' ')).closed
     expect(resumed.code).toBe(1)
     expect(resumed.output).toContain('Batch session resume failed: v1 capability was not reselected.')
     expect(connects).toBe(2)

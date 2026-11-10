@@ -65,7 +65,7 @@ const vectors: {
   { name: '15 unknown format', count: '1', payload: '0000', format: 'unknown', error: 'UNSUPPORTED_BATCH_FORMAT' },
 ]
 
-describe('spec §9.2 validation vectors', () => {
+describe('batch validation vectors', () => {
   it.each(vectors)('$name (property carrier)', (vector) => {
     const result = decodeBatch(property(vector.count, vector.payload, vector.format), 5, vector.limits)
     expect(result?.error).toBe(vector.error)
@@ -96,7 +96,7 @@ describe('spec §9.2 validation vectors', () => {
   })
 })
 
-describe('spec §§3.3, 4 and 9.3', () => {
+describe('batch carriers and validation order', () => {
   it.each([
     ['$batch/2/batch/demo', '00000000', undefined, 'batch/demo', 2],
     ['$batch/1//demo', '0000', undefined, '/demo', 1],
@@ -246,7 +246,7 @@ const parsed = (bytes: Buffer, version: number) => {
   return packet as BatchPacket
 }
 
-describe('spec §§9.1, 9.3 and 9.8 exact packets', () => {
+describe('exact batch packets', () => {
   const base5 = property('2', encodeBatchPayload([Buffer.from('Msg1'), Buffer.from('LongerMsg2')]))
   const base4 = { ...base5, topic: '$batch/2/batch/demo', properties: undefined }
   it.each([

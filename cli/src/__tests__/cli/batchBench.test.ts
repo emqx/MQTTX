@@ -1,6 +1,5 @@
 /// <reference path="../../types/global.d.ts" />
 import { IPublishPacket } from 'mqtt-packet'
-import { encodeBatchPayload } from '../../utils/batchPublishing'
 import { Commander } from '../../index'
 import { createBatchBroker } from '../../../tests/helpers/batchBroker'
 
@@ -8,7 +7,7 @@ jest.setTimeout(60000)
 
 describe('batch benchmarks', () => {
   const broker = createBatchBroker()
-  const { listen, write, connack, launch, items } = broker
+  const { listen, write, connack, launch, items, publication } = broker
 
   const benchmarkBroker = async () => {
     const publications: IPublishPacket[] = []
@@ -20,32 +19,9 @@ describe('batch benchmarks', () => {
       }
       if (packet.cmd === 'subscribe') {
         write(socket, { cmd: 'suback', messageId: packet.messageId, granted: [1] })
-        write(socket, {
-          cmd: 'publish',
-          topic: 'demo',
-          qos: 0,
-          retain: false,
-          dup: false,
-          payload: publications[0].payload,
-          properties: publications[0].properties,
-        })
-        write(socket, {
-          cmd: 'publish',
-          topic: 'demo',
-          qos: 0,
-          retain: false,
-          dup: false,
-          payload: Buffer.from('0002ff', 'hex'),
-          properties: { userProperties: { 'batch-format': 'v1', 'batch-size': '1' } },
-        })
-        write(socket, {
-          cmd: 'publish',
-          topic: 'demo',
-          qos: 0,
-          retain: false,
-          dup: false,
-          payload: Buffer.from('ordinary'),
-        })
+        write(socket, publication('demo', publications[0].payload, { properties: publications[0].properties }))
+        write(socket, publication('demo', Buffer.from('0002ff', 'hex'), { count: 1 }))
+        write(socket, publication('demo', 'ordinary'))
       }
     })
 
@@ -54,26 +30,8 @@ describe('batch benchmarks', () => {
 
   it('counts -L packets and successful items separately from failed acknowledgements', async () => {
     const { port, publications } = await benchmarkBroker()
-    const published = await launch(port, [
-      'bench',
-      'pub',
-      '-b',
-      '-bi',
-      '101',
-      '-S',
-      '1KB',
-      '-c',
-      '1',
-      '-im',
-      '1',
-      '-L',
-      '3',
-      '-q',
-      '1',
-      '-t',
-      'demo',
-      '-v',
-    ]).closed
+    const published = await launch(port, 'bench pub -b -bi 101 -S 1KB -c 1 -im 1 -L 3 -q 1 -t demo -v'.split(' '))
+      .closed
     expect(published.code).toBe(1)
     expect(publications).toHaveLength(3)
     expect(publications[0].payload.length).toBeGreaterThan(65536)
@@ -82,51 +40,19 @@ describe('batch benchmarks', () => {
     expect(published.output).toContain('Published total: 202 items (2 packets), failed: 1 packets')
   })
 
-  it('requires -b before accepting a batch item count', async () => {
+  it('defaults to 256 items per packet', async () => {
     const { port, publications } = await benchmarkBroker()
-    const standaloneItems = await launch(port, ['bench', 'pub', '-bi', '2', '-c', '1', '-L', '1', '-t', 'demo']).closed
-    expect(standaloneItems.code).toBe(1)
-    expect(standaloneItems.output).toContain('-bi requires -b.')
-    expect(publications).toHaveLength(0)
-  })
-
-  it('defaults to 100 items per packet', async () => {
-    const { port, publications } = await benchmarkBroker()
-    const defaults = await launch(port, [
-      'bench',
-      'pub',
-      '-b',
-      '-c',
-      '1',
-      '-im',
-      '1',
-      '-L',
-      '1',
-      '-q',
-      '1',
-      '-t',
-      'demo',
-      '-m',
-      'template',
-    ]).closed
+    const defaults = await launch(port, 'bench pub -b -c 1 -im 1 -L 1 -q 1 -t demo -m template'.split(' ')).closed
     expect(defaults.code).toBe(0)
     expect(publications).toHaveLength(1)
-    expect(items(publications[0])).toEqual(Array(100).fill('template'))
-    expect(defaults.output).toContain('Published total: 100 items (1 packets), failed: 0 packets')
+    expect(items(publications[0])).toEqual(Array(256).fill('template'))
+    expect(defaults.output).toContain('Published total: 256 items (1 packets), failed: 0 packets')
   })
 
   it('counts received items, failed batches, and ordinary packets separately', async () => {
     const { port, publications } = await benchmarkBroker()
-    publications.push({
-      cmd: 'publish',
-      topic: 'demo',
-      qos: 0,
-      retain: false,
-      dup: false,
-      payload: encodeBatchPayload(Array(101).fill(Buffer.alloc(1024)), { maxItems: 101, maxBytes: 1048576 }),
-      properties: { userProperties: { 'batch-format': 'v1', 'batch-size': '101' } },
-    })
-    const subscribed = launch(port, ['bench', 'sub', '-b', '-c', '1', '-t', 'demo', '-v'])
+    publications.push(publication('demo', Array(101).fill(Buffer.alloc(1024))))
+    const subscribed = launch(port, 'bench sub -b -c 1 -t demo -v'.split(' '))
     await subscribed.until('Received total: 101 items (1 batch packets), failed: 1 packets, ordinary: 1 packets')
     subscribed.child.kill('SIGINT')
     const result = await subscribed.closed
@@ -144,7 +70,7 @@ describe('batch benchmarks', () => {
     expect(benchPub.opts()).toMatchObject({ batch: true, batchItems: 101 })
     const help = benchPub.helpInformation()
     expect(help).toContain('-b, --batch')
-    expect(help).toContain('100 items per packet by default')
+    expect(help).toContain('256 items per packet by default')
     expect(help).toContain('requires -b')
   })
 })

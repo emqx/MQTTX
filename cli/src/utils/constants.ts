@@ -13,7 +13,7 @@ export const MAX_INFLIGHT_LIMIT = 65535
 export const SIGINT_EXIT_CODE = 130
 
 // Default items per application batch and benchmark packet
-export const DEFAULT_BATCH_ITEMS = 100
+export const DEFAULT_BATCH_ITEMS = 256
 
 // Maximum number of items in a batch envelope
 export const MAX_BATCH_ITEMS = 65535

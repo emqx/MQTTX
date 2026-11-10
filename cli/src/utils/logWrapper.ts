@@ -130,6 +130,22 @@ const basicLog = {
   fileReadSuccess: () => logWrapper.success('Read file successfully'),
 }
 
+interface PublishStats {
+  total: number
+  failed: number
+  sent: number
+  limitReached: boolean
+  limit: number
+  fileRead?: string
+}
+
+export interface ReceiveCounts {
+  total: number
+  packets: number
+  failed: number
+  ordinary: number
+}
+
 const benchLog = {
   start: {
     conn: (config: boolean | string | undefined, count: number, interval: number, host: string, port = 1883) => {
@@ -180,10 +196,43 @@ const benchLog = {
       }
     },
   },
-  batchPublished: (packets: number, itemsPerPacket: number, failed: number) =>
-    `Published total: ${packets * itemsPerPacket} items (${packets} packets), failed: ${failed} packets`,
-  batchReceived: (items: number, packets: number, failed: number, ordinary: number) =>
-    `Received total: ${items} items (${packets} batch packets), failed: ${failed} packets, ordinary: ${ordinary} packets`,
+  publish: (itemsPerPacket?: number) => {
+    if (itemsPerPacket === undefined) {
+      return {
+        summary: ({ total, failed }: PublishStats) =>
+          `Published total: ${total}${failed > 0 ? `, failed: ${failed}` : ''}`,
+        rate: ({ total }: PublishStats, rate: number) => `Published total: ${total}, message rate: ${rate}/s`,
+        finish: ({ total, failed, sent, limitReached, limit, fileRead }: PublishStats) => {
+          if (failed > 0) return `${failed} of ${sent} messages failed to publish.`
+          if (limitReached) return `All ${total} messages have been sent, reaching the limit of ${limit}.`
+          return `All ${total} messages from the ${fileRead} have been successfully sent.`
+        },
+      }
+    }
+    const summary = ({ total, failed }: PublishStats) =>
+      `Published total: ${total * itemsPerPacket} items (${total} packets), failed: ${failed} packets`
+    return {
+      summary,
+      rate: (stats: PublishStats, rate: number) =>
+        `${summary(stats)}, rate: ${rate * itemsPerPacket} items/s (${rate} packets/s)`,
+      finish: summary,
+    }
+  },
+  receive: (batch: boolean) => {
+    if (batch) {
+      const summary = ({ total, packets, failed, ordinary }: ReceiveCounts) =>
+        `Received total: ${total} items (${packets} batch packets), failed: ${failed} packets, ordinary: ${ordinary} packets`
+      return {
+        summary,
+        rate: (counts: ReceiveCounts, rate: number) => `${summary(counts)}, rate: ${rate} items/s`,
+      }
+    }
+    const summary = ({ total }: ReceiveCounts) => `Received total: ${total}`
+    return {
+      summary,
+      rate: (counts: ReceiveCounts, rate: number) => `${summary(counts)}, rate: ${rate}/s`,
+    }
+  },
   error: (count: number, total: number, id: string, err: Error) =>
     logWrapper.fail(`[${count}/${total}] - Client ID: ${id}, ${err}`),
   close: (count: number, total: number, id: string) =>

@@ -294,36 +294,52 @@ describe('parse utilities', () => {
     })
 
     it.each([
-      { mqttVersion: 3 },
-      { qos: 2 },
-      { mqttVersion: 4, retain: true },
-      { payloadFormatIndicator: true },
-      { userProperties: { 'batch-format': 'v1' } },
-      { userProperties: { 'batch-size': '2' } },
-      { batchNegotiate: true, connUserProperties: { 'batch-publish': 'v1' } },
-      { batchNegotiate: true, mqttVersion: 4 },
-      { batchNegotiate: true, batch: false },
-      { batchMaxItems: 0 },
-      { batchMaxItems: 65536 },
-      { batchMaxItems: 1.5 },
-      { batchMaxBytes: 1023 },
-      { batchMaxBytes: 1048577 },
-      { batchItems: 0 },
-      { batchItems: 65536 },
-      { stdin: true },
-      { multiline: true },
-      { lineMode: true },
-      { payloadSize: '1KB' },
-      { split: true, batch: false },
-      { split: true },
-      { protobufPath: 'schema.proto' },
-      { topic: '$SYS/demo' },
-      { topic: '$batch' },
-    ])('rejects option conflict %j', (override) => {
+      [{ mqttVersion: 3 }, 'Batch publishing requires MQTT 5.0 or 3.1.1. MQTT 3.1 is unsupported.'],
+      [{ qos: 2 }, 'Batch publishing requires QoS 0 or 1.'],
+      [{ mqttVersion: 4, retain: true }, 'MQTT 3.1.1 batch publishing requires RETAIN=0.'],
+      [{ payloadFormatIndicator: true }, 'Batch envelopes require Payload Format Indicator 0 or absent.'],
+      [
+        { userProperties: { 'batch-format': 'v1' } },
+        '-up batch-format and batch-size are generated automatically with -b.',
+      ],
+      [
+        { userProperties: { 'batch-size': '2' } },
+        '-up batch-format and batch-size are generated automatically with -b.',
+      ],
+      [
+        { batchNegotiate: true, connUserProperties: { 'batch-publish': 'v1' } },
+        '--batch-negotiate cannot be combined with -Cup batch-publish.',
+      ],
+      [{ batchNegotiate: true, mqttVersion: 4 }, '--batch-negotiate requires batch publishing with MQTT 5.0.'],
+      [{ batchNegotiate: true, batch: false }, '--batch-negotiate requires batch publishing with MQTT 5.0.'],
+      [{ batchMaxItems: 0 }, 'Invalid batch max items: 0. Expected an integer between 1 and 65535.'],
+      [{ batchMaxItems: 65536 }, 'Invalid batch max items: 65536. Expected an integer between 1 and 65535.'],
+      [{ batchMaxItems: 1.5 }, 'Invalid batch max items: 1.5. Expected an integer between 1 and 65535.'],
+      [{ batchMaxBytes: 1023 }, 'Invalid batch max bytes: 1023. Expected an integer between 1024 and 1048576.'],
+      [{ batchMaxBytes: 1048577 }, 'Invalid batch max bytes: 1048577. Expected an integer between 1024 and 1048576.'],
+      [
+        { stdin: true },
+        '-b reads items from -m or --file-read (one per line). For piped input use --file-read /dev/stdin.',
+      ],
+      [
+        { multiline: true },
+        '-b reads items from -m or --file-read (one per line). For piped input use --file-read /dev/stdin.',
+      ],
+      [
+        { lineMode: true },
+        '-b reads items from -m or --file-read (one per line). For piped input use --file-read /dev/stdin.',
+      ],
+      [{ payloadSize: '1KB' }, '-b reads items from -m or --file-read. -S is unsupported.'],
+      [{ split: true, batch: false }, '--split requires -b.'],
+      [{ split: true }, '--split requires --file-read.'],
+      [{ protobufPath: 'schema.proto' }, 'Batch publishing does not support per-item schema encoding.'],
+      [{ topic: '$SYS/demo' }, 'Invalid topic for -b: $SYS/demo (INVALID_BATCH_TOPIC).'],
+      [{ topic: '$batch' }, 'Invalid topic for -b: $batch (INVALID_BATCH_TOPIC).'],
+    ])('rejects option conflict %j', (override, message) => {
       expect(() => validateBatchOptions({ ...options(), ...override } as PublishOptions, 'pub')).toThrow(
         'Process exited with code 1',
       )
-      expect(logWrapper.fail).toHaveBeenCalled()
+      expect(logWrapper.fail).toHaveBeenCalledWith(message)
       expect(mockExit).toHaveBeenCalledWith(1)
     })
 
@@ -337,13 +353,6 @@ describe('parse utilities', () => {
         `With -b, -t takes the logical topic; the $batch/{N}/ prefix is added automatically.${suggestion}`,
       )
       expect(() => validateBatchOptions({ ...options(), topic, batch: false }, 'pub')).not.toThrow()
-    })
-
-    it('explains invalid logical topics', () => {
-      expect(() => validateBatchOptions({ ...options(), topic: '$SYS/demo' }, 'pub')).toThrow(
-        'Process exited with code 1',
-      )
-      expect(logWrapper.fail).toHaveBeenCalledWith('Invalid topic for -b: $SYS/demo (INVALID_BATCH_TOPIC).')
     })
 
     it('explains unsupported bench splitting', () => {
@@ -360,13 +369,6 @@ describe('parse utilities', () => {
         'Process exited with code 1',
       )
       expect(logWrapper.fail).toHaveBeenCalledWith('-bi requires -b.')
-    })
-
-    it('requires -b for bench negotiation', () => {
-      expect(() => validateBatchOptions({ ...options(), batch: false, batchNegotiate: true }, 'benchPub')).toThrow(
-        'Process exited with code 1',
-      )
-      expect(logWrapper.fail).toHaveBeenCalledWith('--batch-negotiate requires batch publishing with MQTT 5.0.')
     })
 
     it('accepts the default and explicit bench item counts with negotiation', () => {
