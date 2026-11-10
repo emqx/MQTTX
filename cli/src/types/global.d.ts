@@ -84,13 +84,23 @@ declare global {
 
   type SchemaOptions = ProtobufSchemaOptions | AvroSchemaOptions
 
-  interface PublishOptions extends ConnectOptions {
+  interface BatchOptions {
+    batch?: boolean
+    batchMaxItems?: number
+    batchMaxBytes?: number
+    batchNegotiate?: boolean
+    batchItems?: number
+  }
+
+  interface PublishOptions extends ConnectOptions, BatchOptions {
     topic: string
     message: string | Buffer
     qos: QoS
     retain?: boolean
     dup?: boolean
     fileRead?: string
+    batchMessages?: string[]
+    split?: boolean | string
     stdin?: boolean
     multiline?: boolean
     lineMode?: boolean
@@ -110,7 +120,7 @@ declare global {
     payloadSize?: string
   }
 
-  interface SubscribeOptions extends ConnectOptions {
+  interface SubscribeOptions extends ConnectOptions, BatchOptions {
     topic: string[]
     qos?: QoS[]
     // Start properties of MQTT 5.0

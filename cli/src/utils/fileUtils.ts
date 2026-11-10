@@ -95,14 +95,16 @@ const createNextNumberedFileName = (filePath: string): string => {
   }
 }
 
-const fileDataSplitter = (data: string | Buffer, split: true | string): string[] => {
+const fileDataSplitter = (data: string | Buffer, split: true | string, batch = false): string[] => {
   let defaultSplit = '\n'
   if (split === true) {
     split = defaultSplit
   }
   const stringData = data.toString('utf-8')
-  const splitRegex = new RegExp(split, 'g')
-  return stringData.split(splitRegex)
+  const splitRegex = new RegExp(batch && (split === '\n' || split === '\\n') ? '\\r?\\n' : split, 'g')
+  const items = stringData.split(splitRegex)
+  if (batch && items[items.length - 1] === '') items.pop()
+  return items
 }
 
 export {
