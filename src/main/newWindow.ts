@@ -30,7 +30,7 @@ const newWindow = (id: string, options: WindowOptions) => {
     },
     titleBarStyle: options.isMac ? 'hidden' : 'default',
     backgroundColor: options.theme === 'dark' ? '#232323' : '#ffffff',
-    icon: `${options.static}/icons/app.ico`,
+    icon: `${options.static}/icons/${process.platform === 'win32' ? 'app.ico' : '512x512.png'}`,
   })
   // Load page
   if (process.env.WEBPACK_DEV_SERVER_URL) {

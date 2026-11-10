@@ -735,8 +735,8 @@ export default class About extends Vue {
       box-shadow: 0 8px 24px var(--color-shadow-card);
 
       .emq-msg-cta {
-        background: var(--color-main-green);
-        color: #fff;
+        background: var(--color-action-green);
+        color: var(--color-action-foreground);
       }
     }
 
@@ -816,8 +816,8 @@ export default class About extends Vue {
   margin-left: -4px;
   padding: 1px 6px;
   border-radius: 100px;
-  background: linear-gradient(90deg, var(--color-main-green), #7b6cff);
-  color: #fff;
+  background: linear-gradient(90deg, var(--color-action-green), #6953d5);
+  color: var(--color-action-foreground);
   font-size: 10px;
   font-weight: 600;
   line-height: 16px;
@@ -832,7 +832,7 @@ export default class About extends Vue {
   padding: 3px 10px;
   border-radius: 100px;
   background: color-mix(in srgb, var(--color-main-green) 12%, transparent);
-  color: var(--color-main-green);
+  color: var(--color-minor-green);
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;

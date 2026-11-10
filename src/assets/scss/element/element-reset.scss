@@ -91,6 +91,10 @@
     background-color: var(--color-action-green-hover);
     border-color: var(--color-action-green-hover);
   }
+  &:focus-visible {
+    outline: 2px solid var(--color-main-green);
+    outline-offset: 2px;
+  }
   &.is-disabled,
   &.is-disabled:hover,
   &.is-disabled:focus {

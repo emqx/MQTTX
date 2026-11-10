@@ -283,7 +283,7 @@ async function createWindow() {
     },
     titleBarStyle: isMac ? 'hidden' : 'default',
     backgroundColor: theme === 'dark' ? '#232323' : theme === 'night' ? '#212328' : '#ffffff',
-    icon: `${__static}/icons/app.ico`,
+    icon: `${__static}/icons/${process.platform === 'win32' ? 'app.ico' : '512x512.png'}`,
   })
 
   initialize()
