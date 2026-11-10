@@ -27,6 +27,8 @@ const newWindow = (id: string, options: WindowOptions) => {
       webSecurity: false,
       nodeIntegration: true,
       contextIsolation: false,
+      // Keep MQTT keepalive timers running while the window is hidden
+      backgroundThrottling: false,
     },
     titleBarStyle: options.isMac ? 'hidden' : 'default',
     backgroundColor: options.theme === 'dark' ? '#232323' : '#ffffff',
