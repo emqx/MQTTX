@@ -55,7 +55,8 @@ const writeFile = (filePath: string, data: string | Buffer): void => {
 
 const appendFile = (filePath: string, data: string | Buffer, delimiter = '\n'): void => {
   try {
-    fs.appendFileSync(filePath, `${data}${delimiter}`)
+    const content = Buffer.isBuffer(data) ? Buffer.concat([data, Buffer.from(`${delimiter}`)]) : `${data}${delimiter}`
+    fs.appendFileSync(filePath, content)
   } catch (error) {
     const err = error as Error
     logWrapper.fail(err.toString())

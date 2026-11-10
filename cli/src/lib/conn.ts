@@ -1,12 +1,13 @@
 import * as mqtt from 'mqtt'
 import { Signale, basicLog, benchLog, signale, singaleConfig } from '../utils/logWrapper'
-import { parseConnectOptions } from '../utils/parse'
+import { parseConnectOptions, validateClientCount } from '../utils/parse'
 import delay from '../utils/delay'
 import { handleSaveOptions, handleLoadOptions } from '../utils/options'
 import * as Debug from 'debug'
 import { triggerExitInfo } from '../utils/exitInfo'
 import getBenchClientId from '../utils/getBenchClientId'
 import { createMqttClient } from '../utils/mqttConnect'
+import shouldRetryConnectionError from '../utils/shouldRetryConnectionError'
 
 const conn = (options: ConnectOptions) => {
   const { debug, saveOptions, loadOptions } = options
@@ -64,6 +65,8 @@ const benchConn = async (options: BenchConnectOptions) => {
 
   loadOptions && (options = handleLoadOptions('benchConn', loadOptions, options))
 
+  validateClientCount(options.count)
+
   saveOptions && handleSaveOptions('benchConn', options)
 
   const { count, interval, hostname, port, clientId, maximumReconnectTimes } = options
@@ -72,9 +75,9 @@ const benchConn = async (options: BenchConnectOptions) => {
 
   let connectedCount = 0
 
-  const isNewConnArray = Array(count).fill(true)
+  let exhaustedCount = 0
 
-  const retryTimesArray = Array(count).fill(0)
+  let isLogged = false
 
   const interactiveConn = new Signale({ interactive: true, config: singaleConfig })
 
@@ -89,45 +92,59 @@ const benchConn = async (options: BenchConnectOptions) => {
       opts.clientId = getBenchClientId(clientId, i, count)
 
       const client = createMqttClient(opts)
+      let hasConnected = false
+      let isConnected = false
+      let retryTimes = 0
 
       interactiveConn.await('[%d/%d] - Connecting...', connectedCount, count)
 
       client.on('connect', () => {
         connectedCount += 1
-        retryTimesArray[i - 1] = 0
-        if (isNewConnArray[i - 1]) {
+        isConnected = true
+        retryTimes = 0
+        if (!hasConnected) {
+          hasConnected = true
           interactiveConn.success('[%d/%d] - Connected', connectedCount, count)
-
-          if (connectedCount === count) {
-            const end = Date.now()
-            signale.success(`Created ${count} connections in ${(end - start) / 1000}s`)
-            setTimeout(triggerExitInfo, 1000)
-          }
         } else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)
+        }
+
+        if (connectedCount === count && !isLogged) {
+          isLogged = true
+          const end = Date.now()
+          signale.success(`Created ${count} connections in ${(end - start) / 1000}s`)
+          setTimeout(triggerExitInfo, 1000)
         }
       })
 
       client.on('error', (err) => {
         benchLog.error(connectedCount, count, opts.clientId!, err)
-        client.end()
-      })
-
-      client.on('reconnect', () => {
-        retryTimesArray[i - 1] += 1
-        if (retryTimesArray[i - 1] > maximumReconnectTimes) {
-          client.end(false, {}, () => {
-            benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
-          })
-        } else {
-          benchLog.reconnecting(connectedCount, count, opts.clientId!)
-          isNewConnArray[i - 1] = false
+        if (!shouldRetryConnectionError(err, opts.reconnectPeriod)) {
+          client.end(true, {}, () => process.exit(1))
         }
       })
 
+      client.on('reconnect', () => {
+        retryTimes += 1
+        benchLog.reconnecting(connectedCount, count, opts.clientId!)
+      })
+
       client.on('close', () => {
-        connectedCount > 0 && (connectedCount -= 1)
+        if (isConnected) {
+          connectedCount -= 1
+          isConnected = false
+        }
         benchLog.close(connectedCount, count, opts.clientId!)
+        if (client.disconnecting) return
+        if ((client.options.reconnectPeriod ?? 0) <= 0) process.exit(1)
+        // Stop here because MQTT.js opens a new socket after emitting 'reconnect'.
+        if (retryTimes + 1 > maximumReconnectTimes) {
+          client.end(true, {}, () => {
+            benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
+            exhaustedCount += 1
+            if (!isLogged || exhaustedCount === count) process.exit(1)
+          })
+        }
       })
 
       client.on('disconnect', (packet: IDisconnectPacket) => {

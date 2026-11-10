@@ -77,6 +77,46 @@ jobs:
           tag="${{ github.ref_name }}"
           aws s3 cp --recursive . s3://${{ secrets.AWS_S3_BUCKET }}/MQTTX/$tag/
 
+  publish-checksums:
+    name: Publish SHA256SUMS
+    if: github.event_name == 'release'
+    needs: [build-linux, build-win]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      TAG: ${{ github.ref_name }}
+    steps:
+      - name: Generate SHA256SUMS from release asset digests
+        env:
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          gh api "repos/$GH_REPO/releases/tags/$TAG" --jq '.assets | map(select(.name != "SHA256SUMS")) | sort_by(.name) | .[] | if .digest then "\(.digest | ltrimstr("sha256:"))  \(.name)" else error("no digest for \(.name)") end' > SHA256SUMS
+          # Stable releases require the manually uploaded CLI binaries; mqttx update and Desktop refuse unlisted binaries.
+          # If this check fails, upload them and re-run this job.
+          if [ "$PRERELEASE" != true ]; then
+            for asset in mqttx-cli-{linux,macos,alpine}-{x64,arm64} mqttx-cli-win-{x64,arm64}.exe; do
+              grep -q "  $asset\$" SHA256SUMS || { echo "::error::$asset is missing from the release"; exit 1; }
+            done
+          fi
+          cat SHA256SUMS
+      - name: Upload SHA256SUMS to GitHub Release
+        run: gh release upload "$TAG" SHA256SUMS --clobber
+      - name: Configure AWS Credentials
+        if: ${{ !github.event.release.prerelease }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+      - name: Upload SHA256SUMS to S3
+        if: ${{ !github.event.release.prerelease }}
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+        run: aws s3 cp SHA256SUMS "s3://$AWS_S3_BUCKET/MQTTX/$TAG/SHA256SUMS"
+
   build-mac:
     name: Build macOS Package (Test Only)
     runs-on: macos-latest

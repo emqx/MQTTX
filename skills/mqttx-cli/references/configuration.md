@@ -14,7 +14,7 @@ mqttx ls --scenarios
 
 Root `-v` means version; `sub`/benchmark publishing/subscription/simulation `-v` means verbose. Root `-h` means help; networking subcommands use `-h` for hostname, so use `--help` there. Check the exact subcommand before composing a command.
 
-`mqttx check` queries the remote MQTTX version service and reports an available update; it does not install it. Run with a deadline when an update check is requested. A network error is not proof that the installation is current, and the product's reported latest release may not yet exist in every package channel. Follow `INSTALL.md` for installation/update actions.
+`mqttx check` queries the remote MQTTX version service and reports an available update; it does not install it. Run with a deadline when an update check is requested. A network error is not proof that the installation is current, and the product's reported latest release may not yet exist in every package channel. From v1.13.3, `mqttx update` updates an existing binary, npm or Homebrew installation through its original channel; Docker and unmanaged copies are not supported, and it fails when the channel has not published the release yet. Follow `INSTALL.md` for installation/update actions.
 
 `mqttx ls --scenarios` lists built-in simulation scenarios. It is not broker administration or topic discovery.
 

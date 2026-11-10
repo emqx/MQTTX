@@ -368,7 +368,7 @@ import _ from 'lodash'
 import { Subject, Subscription, fromEvent } from 'rxjs'
 import { bufferTime, map, filter, takeUntil, shareReplay, distinctUntilChanged } from 'rxjs/operators'
 import cbor from 'cbor'
-import { pack, unpack } from 'msgpackr'
+import { unpack } from 'msgpackr'
 
 import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
@@ -376,6 +376,7 @@ import { matchTopicMethod } from '@/utils/topicMatch'
 import { createClient, ignoreQoS0Message } from '@/utils/mqttUtils'
 import { bindMessagePipeline, tearDownMessagePipeline } from '@/utils/connectionMessagePipeline'
 import validFormatJson from '@/utils/validFormatJson'
+import { encodePayloadByType } from '@/utils/payloadEncoder'
 
 import MessageList from '@/components/MessageList.vue'
 import MsgPublish from '@/components/MsgPublish.vue'
@@ -1948,43 +1949,14 @@ export default class ConnectionsDetail extends Vue {
     way: 'publish' | 'received',
   ): Buffer | string | undefined {
     const genPublishPayload = (publishType: PayloadType, publishValue: string) => {
-      if (publishType === 'Base64') {
-        return Buffer.from(publishValue, 'base64')
+      try {
+        return encodePayloadByType(publishValue, publishType)
+      } catch (error) {
+        const err = error as Error
+        let errorMessage = `${this.$t('connections.publishMsg')} ${err.toString()}`
+        this.$message.error(errorMessage)
+        return undefined
       }
-      if (publishType === 'Hex') {
-        return Buffer.from(publishValue.replaceAll(' ', ''), 'hex')
-      }
-      if (publishType === 'JSON') {
-        try {
-          validFormatJson(publishValue.toString())
-        } catch (error) {
-          const err = error as Error
-          let errorMessage = `${this.$t('connections.publishMsg')} ${err.toString()}`
-          this.$message.error(errorMessage)
-          return undefined
-        }
-      }
-      if (publishType === 'CBOR') {
-        try {
-          return cbor.encodeOne(JSON.parse(publishValue))
-        } catch (error) {
-          const err = error as Error
-          let errorMessage = `${this.$t('connections.publishMsg')} ${err.toString()}`
-          this.$message.error(errorMessage)
-          return undefined
-        }
-      }
-      if (publishType === 'MsgPack') {
-        try {
-          return pack(JSON.parse(publishValue))
-        } catch (error) {
-          const err = error as Error
-          let errorMessage = `${this.$t('connections.publishMsg')} ${err.toString()}`
-          this.$message.error(errorMessage)
-          return undefined
-        }
-      }
-      return publishValue
     }
     const genReceivePayload = (receiveType: PayloadType, receiveValue: Buffer) => {
       if (receiveType === 'Base64') {

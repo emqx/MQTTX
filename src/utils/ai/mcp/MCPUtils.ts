@@ -1,6 +1,7 @@
 import { EnabledMCPServer, ToolCallResult } from '@/types/mcp'
 import { ipcRenderer } from 'electron'
 import { dynamicTool, jsonSchema, ToolSet } from 'ai'
+import { truncateText } from '@/utils/ai/agent/attachments'
 
 /**
  * Call MCP tool via IPC to main process
@@ -25,13 +26,21 @@ export async function callMCPTool(serverName: string, toolName: string, toolArgs
 export const getMCPToolName = (serverName: string, toolName: string): string =>
   `${serverName}__${toolName}`.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 64)
 
-/**
- * Flattens MCP content blocks into text for the model and the tool card
- */
-const getMCPContentText = (content: ToolCallResult['content']): string =>
-  Array.isArray(content)
+/** Splits a `${server}__${tool}` name at the first `__`; returns null when it is not an MCP tool */
+export const parseMCPToolName = (name: string): { server: string; tool: string } | null => {
+  const index = name.indexOf('__')
+  if (index === -1) return null
+  return { server: name.slice(0, index), tool: name.slice(index + 2) }
+}
+
+/** Flattens MCP content blocks into text for the model and the tool card, capped at the 64 KB model text limit */
+export const getMCPContentText = (content: ToolCallResult['content']): string => {
+  const text = Array.isArray(content)
     ? content.map((block) => (block.type === 'text' ? block.text : JSON.stringify(block))).join('\n')
     : String(content ?? '')
+  const capped = truncateText(text)
+  return capped.truncated ? `${capped.text}\n[truncated]` : capped.text
+}
 
 /**
  * Loads the tools of the enabled MCP servers as agent tools
@@ -43,7 +52,14 @@ export async function loadMCPTools(): Promise<ToolSet> {
     const servers: EnabledMCPServer[] = await ipcRenderer.invoke('mcp:list-tools')
     for (const server of servers) {
       for (const mcpTool of server.tools) {
-        tools[getMCPToolName(server.name, mcpTool.name)] = dynamicTool({
+        const toolName = getMCPToolName(server.name, mcpTool.name)
+        if (tools[toolName]) {
+          console.warn(
+            `[MCP] Skipping tool "${mcpTool.name}" from server "${server.name}": duplicate name "${toolName}"`,
+          )
+          continue
+        }
+        tools[toolName] = dynamicTool({
           title: `${server.name} - ${mcpTool.name}`,
           description: mcpTool.description,
           inputSchema: jsonSchema(mcpTool.input_schema),

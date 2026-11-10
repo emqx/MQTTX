@@ -6,6 +6,7 @@ import { getSSLFile } from '@/utils/getFiles'
 import { ScramAuth } from '@/utils/scramAuth'
 import { setupScramAuth, setupAuthHandler } from '@/utils/scramUtils'
 import { setMQTT5Properties, setWillMQTT5Properties } from '@/utils/mqtt5Properties'
+import { encodePayloadByType } from '@/utils/payloadEncoder'
 
 export { setMQTT5Properties, setWillMQTT5Properties }
 
@@ -89,9 +90,23 @@ export const getClientOptions = (record: ConnectionModel): IClientOptions => {
   }
   // Will Message
   if (will) {
-    const { lastWillTopic: topic, lastWillPayload: payload, lastWillQos: qos, lastWillRetain: retain } = will
+    const {
+      lastWillTopic: topic,
+      lastWillPayload: payload,
+      lastWillPayloadType: payloadType = 'Plaintext',
+      lastWillQos: qos,
+      lastWillRetain: retain,
+    } = will
     if (topic) {
-      options.will = { topic, payload, qos: qos as QoS, retain }
+      // Encode the payload the same way the publish box does.
+      // The form already validates it; if encoding still fails, send the raw text.
+      let willPayload: Buffer | string = payload
+      try {
+        willPayload = encodePayloadByType(payload, payloadType)
+      } catch (error) {
+        willPayload = payload
+      }
+      options.will = { topic, payload: willPayload, qos: qos as QoS, retain }
       if (protocolVersion === 5) {
         const { properties } = will
         if (properties) {
@@ -193,6 +208,7 @@ export const getDefaultRecord = (): ConnectionModel => {
     will: {
       lastWillTopic: '',
       lastWillPayload: '',
+      lastWillPayloadType: 'Plaintext',
       lastWillQos: 0,
       lastWillRetain: false,
       properties: {

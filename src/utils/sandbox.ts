@@ -1,4 +1,4 @@
-import { VM, VMScript } from 'vm2'
+import { VM } from 'vm2'
 
 const executeScript = (
   script: string,
@@ -7,36 +7,41 @@ const executeScript = (
   msgType: MessageType,
   index?: number,
 ): string => {
-  let output = ''
+  const vm = new VM({
+    timeout: 10000,
+    allowAsync: false,
+    eval: false,
+    wasm: false,
+  })
+
+  // The helper and the inputs run inside the VM; no host callbacks or objects are exposed.
+  vm.run(`
+    const __mqttxString = String;
+    globalThis.execute = (callback) => {
+      const input = ${JSON.stringify(input)};
+      const value = ${payloadType === 'JSON' ? 'JSON.parse(input)' : 'input'};
+      return __mqttxString(callback(value, ${JSON.stringify(msgType)}, ${JSON.stringify(index)}));
+    };
+  `)
+
+  let output: unknown
   try {
-    const vm = new VM({
-      timeout: 10000,
-      sandbox: {
-        execute(callback: (value: any, msgType: MessageType, index?: number) => any) {
-          let _inputValue = input
-          if (payloadType === 'JSON' && typeof input === 'string') {
-            _inputValue = JSON.parse(input)
-          }
-          let _output = callback(_inputValue, msgType, index)
-          if (_output === undefined) {
-            _output = 'undefined'
-          } else if (_output === null) {
-            _output = 'null'
-          } else {
-            _output = _output.toString()
-          }
-          return _output
-        },
-      },
-      eval: false,
-      wasm: false,
-    })
-    const _script = new VMScript(script)
-    output = vm.run(_script)
-    return output
+    output = vm.run(script)
   } catch (error) {
-    throw error
+    // Convert the thrown value inside the VM so its toString stays under the timeout.
+    let message = 'Script execution failed or exceeded the time limit.'
+    vm.setGlobal('__mqttxError', error)
+    try {
+      message = vm.run('__mqttxString(__mqttxError)')
+    } catch (conversionError) {
+      // Keep the generic message when the VM cannot convert the thrown value.
+    }
+    throw new Error(message)
   }
+  if ((typeof output === 'object' && output !== null) || typeof output === 'function') {
+    throw new Error('Scripts must return a primitive value. Use execute(callback) to transform a payload.')
+  }
+  return String(output)
 }
 
 export default { executeScript }

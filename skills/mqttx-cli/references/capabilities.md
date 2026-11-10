@@ -9,7 +9,7 @@ Coverage baseline: repository `cli/src/index.ts` and handlers, version **1.13.0*
 | `conn`, `pub`, `sub` | [Workflows](workflows.md), [connections](connections.md), [MQTT features](mqtt-features.md), [payloads](payloads.md) |
 | `bench conn`, `bench pub`, `bench sub` | [Benchmarks](benchmarks-and-simulation.md) |
 | `simulate`, `ls --scenarios` | [Simulation and discovery](benchmarks-and-simulation.md) |
-| `init`, `check` | [Configuration and utilities](configuration.md) |
+| `init`, `check`, `update` (from v1.13.3) | [Configuration and utilities](configuration.md) |
 | Root `--help`, `--version`, `help [command]`, `bench --help` | [Help and version](configuration.md#help-version-update-check-and-discovery) |
 
 ## Registered flags
@@ -105,7 +105,7 @@ Coverage baseline: repository `cli/src/index.ts` and handlers, version **1.13.0*
 - A publishing `--subscription-identifier` flag is registered, but client-originated MQTT 5 PUBLISH packets must not contain that property.
 - Clean output bypasses the schema-decoded payload, and suppresses readiness/some error logs. Some connection failures return exit code 0.
 - Piped multiline input bypasses format/schema transformations and has timing limitations; file append converts bytes to text.
-- Publisher/simulator `%c` topic expansion differs from benchmark subscription expansion. Benchmark subscription readiness can coexist with partial rejections.
+- Benchmark subscription readiness can coexist with partial rejections.
 
 The specialized guides explain alternatives. Do not work around these limitations by changing CLI code during a usage task. If a requested behavior cannot be expressed reliably, state the limitation and the closest supported workflow.
 

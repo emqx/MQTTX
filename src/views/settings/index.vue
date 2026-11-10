@@ -588,13 +588,12 @@ import { app as remoteApp } from '@electron/remote'
 import ImportData from '@/components/ImportData.vue'
 import ExportData from '@/components/ExportData.vue'
 import ClearUpHistoryData from '@/components/ClearUpHistoryData.vue'
-import CryptoJS from 'crypto-js'
-import { ENCRYPT_KEY } from '@/utils/idGenerator'
 import ClickOutside from 'vue-click-outside'
 import _ from 'lodash'
 import { AImodelsOptions, AIAPIHostOptions, getModelLabel, getReasoningEfforts } from '@/utils/ai/models'
 import { effectiveReasoning, reasoningLabelKey, reasoningLevelsFor, type AgentReasoning } from '@/utils/ai/reasoning'
 import type { PermissionMode } from '@/utils/ai/agent/approval'
+import { isAutoConfirmedInSession, rememberAutoConfirmed } from '@/utils/ai/agent/permissionMode'
 import {
   MAX_AGENT_MAX_STEPS,
   MAX_MAX_PAYLOAD_DISPLAY_SIZE,
@@ -741,6 +740,9 @@ export default class Settings extends Vue {
     openAIAPIHost: 'https://api.openai.com/v1',
   }
 
+  // The plaintext key last loaded or saved, so an unchanged blur of the key input saves nothing
+  private decryptedAPIKey = ''
+
   private handleMaxPayloadDisplaySizeChange(value: number) {
     const normalizedValue = normalizeMaxPayloadDisplaySize(value)
     if (normalizedValue !== value) {
@@ -820,7 +822,19 @@ export default class Settings extends Vue {
     this.actionToggleEnableAgent({ enableAgent: value })
   }
 
-  private handlePermissionModeChange(value: PermissionMode) {
+  private async handlePermissionModeChange(value: PermissionMode) {
+    // Choosing Auto is a risk the user must accept once per session, the same as in the Agent panel
+    if (value === 'auto' && !isAutoConfirmedInSession()) {
+      try {
+        await this.$confirm(this.$t('agent.autoConfirm') as string, this.$t('common.warning') as string, {
+          type: 'warning',
+        })
+      } catch {
+        // Cancelling keeps the stored mode
+        return
+      }
+      rememberAutoConfirmed()
+    }
     this.actionSetAgentPermissionMode({ agentPermissionMode: value })
   }
 
@@ -836,15 +850,16 @@ export default class Settings extends Vue {
     this.actionSetAgentReasoning({ agentReasoning: value })
   }
 
-  private handleAIConfigChanged(action: 'apiKey' | 'model' | 'host') {
+  private async handleAIConfigChanged(action: 'apiKey' | 'model' | 'host') {
     switch (action) {
-      case 'apiKey':
-        const encryptedKey =
-          this.aiConfig.openAIAPIKey.trim() !== ''
-            ? CryptoJS.AES.encrypt(this.aiConfig.openAIAPIKey.trim(), ENCRYPT_KEY).toString()
-            : ''
-        this.actionSetOpenAIAPIKey({ openAIAPIKey: encryptedKey })
+      case 'apiKey': {
+        const plainKey = this.aiConfig.openAIAPIKey.trim()
+        if (plainKey !== this.decryptedAPIKey) {
+          this.actionSetOpenAIAPIKey({ openAIAPIKey: await ipcRenderer.invoke('apiKey:encrypt', plainKey) })
+          this.decryptedAPIKey = plainKey
+        }
         break
+      }
       case 'model':
         this.actionSetModel({ model: this.aiConfig.model || 'gpt-4o' })
         break
@@ -889,10 +904,11 @@ export default class Settings extends Vue {
     this.actionSetOpenAIAPIHost({ openAIAPIHost: value })
   }
 
-  private getAIConfigs() {
+  private async getAIConfigs() {
     this.aiConfig.model = this.model
-    this.aiConfig.openAIAPIKey = this.openAIAPIKey
     this.aiConfig.openAIAPIHost = this.openAIAPIHost
+    this.decryptedAPIKey = await ipcRenderer.invoke('apiKey:decrypt', this.openAIAPIKey)
+    this.aiConfig.openAIAPIKey = this.decryptedAPIKey
   }
 
   private handleLevelChange(val: LogLevel) {

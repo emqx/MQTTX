@@ -1,6 +1,12 @@
 import * as mqtt from 'mqtt'
 import logWrapper, { Signale, msgLog, basicLog, benchLog, singaleConfig, signale } from '../utils/logWrapper'
-import { parseConnectOptions, parseSubscribeOptions, parseSchemaOptions, checkTopicExists } from '../utils/parse'
+import {
+  parseConnectOptions,
+  parseSubscribeOptions,
+  parseSchemaOptions,
+  checkTopicExists,
+  validateClientCount,
+} from '../utils/parse'
 import delay from '../utils/delay'
 import convertPayload from '../utils/convertPayload'
 import { handleSaveOptions, handleLoadOptions } from '../utils/options'
@@ -10,8 +16,10 @@ import isSupportedBinaryFormatForMQTT from '../utils/binaryFormats'
 import * as Debug from 'debug'
 import { deserializeBufferToAvro } from '../utils/avro'
 import getBenchClientId from '../utils/getBenchClientId'
+import createRateSampler from '../utils/createRateSampler'
 import { formatBytes } from '../utils/formatter'
 import { createMqttClient } from '../utils/mqttConnect'
+import shouldRetryConnectionError from '../utils/shouldRetryConnectionError'
 
 /**
  *
@@ -242,6 +250,8 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
   loadOptions && (options = handleLoadOptions('benchSub', loadOptions, options))
 
+  validateClientCount(options.count)
+
   saveOptions && handleSaveOptions('benchSub', options)
 
   const { count, interval, topic, hostname, port, clientId, verbose, maximumReconnectTimes } = options
@@ -252,10 +262,6 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
   const subOptsArray = parseSubscribeOptions(options)
 
-  const isNewConnArray = Array(count).fill(true)
-
-  const retryTimesArray = Array(count).fill(0)
-
   const interactiveSub = new Signale({ interactive: true, config: singaleConfig })
 
   benchLog.start.sub(loadOptions, count, interval, hostname, port, topic.join(', '))
@@ -263,12 +269,21 @@ const benchSub = async (options: BenchSubscribeOptions) => {
   const connStart = Date.now()
 
   let total = 0
-  let oldTotal = 0
   let isLogged = false
+  let isConnectionsLogged = false
   let connectedCount = 0
+  let exhaustedCount = 0
   let subscribedCount = 0
   const allSuccessfulSubs: mqtt.ISubscriptionGrant[] = []
   const failedSubs: { clientId: string; subItem: mqtt.ISubscriptionGrant }[] = []
+
+  const logConnections = () => {
+    if (connectedCount === count && !isConnectionsLogged) {
+      const connEnd = Date.now()
+      signale.success(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
+      isConnectionsLogged = true
+    }
+  }
 
   for (let i = 1; i <= count; i++) {
     ;((i: number, connOpts: mqtt.IClientOptions) => {
@@ -277,19 +292,20 @@ const benchSub = async (options: BenchSubscribeOptions) => {
       opts.clientId = getBenchClientId(clientId, i, count)
 
       const client = createMqttClient(opts)
+      let hasConnected = false
+      let isConnected = false
+      let retryTimes = 0
 
       interactiveSub.await('[%d/%d] - Connecting...', connectedCount, count)
 
       client.on('connect', async () => {
         connectedCount += 1
-        retryTimesArray[i - 1] = 0
-        if (isNewConnArray[i - 1]) {
+        isConnected = true
+        retryTimes = 0
+        if (!hasConnected) {
+          hasConnected = true
           interactiveSub.success('[%d/%d] - Connected', connectedCount, count)
-
-          if (count === connectedCount) {
-            const connEnd = Date.now()
-            signale.success(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
-          }
+          logConnections()
 
           const subscribePromises = topic.map((t: string, index: number) => {
             return new Promise<void>((resolve, reject) => {
@@ -320,39 +336,40 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
           try {
             await Promise.all(subscribePromises)
-
-            if (connectedCount === count && subscribedCount === count * topic.length && !isLogged) {
-              if (allSuccessfulSubs.length > 0) {
-                logWrapper.success(`All connections subscribed`)
-              }
-
-              if (failedSubs.length > 0) {
-                failedSubs.forEach((sub) => {
-                  basicLog.subscriptionNegated(sub.subItem, sub.clientId)
-                })
-              }
-
-              if (allSuccessfulSubs.length === 0) {
-                process.exit(1)
-              }
-
-              total = 0
-              isLogged = true
-
-              const logRate = () => {
-                const rate = total - oldTotal
-                const logMethod = verbose ? logWrapper.log : interactiveSub.log
-                logMethod(`Received total: ${total}, rate: ${rate}/s`)
-                oldTotal = total
-              }
-
-              setInterval(logRate, 1000)
-            }
           } catch (error) {
             process.exit(1)
           }
         } else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)
+          logConnections()
+        }
+
+        if (connectedCount === count && subscribedCount === count * topic.length && !isLogged) {
+          if (allSuccessfulSubs.length > 0) {
+            logWrapper.success(`All connections subscribed`)
+          }
+
+          if (failedSubs.length > 0) {
+            failedSubs.forEach((sub) => {
+              basicLog.subscriptionNegated(sub.subItem, sub.clientId)
+            })
+          }
+
+          if (allSuccessfulSubs.length === 0) {
+            process.exit(1)
+          }
+
+          total = 0
+          isLogged = true
+          const sampleRate = createRateSampler()
+
+          const logRate = () => {
+            const rate = sampleRate(total)
+            const logMethod = verbose ? logWrapper.log : interactiveSub.log
+            logMethod(`Received total: ${total}, rate: ${rate}/s`)
+          }
+
+          setInterval(logRate, 1000)
         }
       })
 
@@ -362,27 +379,31 @@ const benchSub = async (options: BenchSubscribeOptions) => {
 
       client.on('error', (err) => {
         benchLog.error(connectedCount, count, opts.clientId!, err)
-        client.end()
-      })
-
-      client.on('reconnect', () => {
-        retryTimesArray[i - 1] += 1
-        if (retryTimesArray[i - 1] > maximumReconnectTimes) {
-          client.end(false, {}, () => {
-            benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
-            if (retryTimesArray.findIndex((times) => times <= maximumReconnectTimes) === -1) {
-              process.exit(1)
-            }
-          })
-        } else {
-          benchLog.reconnecting(connectedCount, count, opts.clientId!)
-          isNewConnArray[i - 1] = false
+        if (!shouldRetryConnectionError(err, opts.reconnectPeriod)) {
+          client.end(true, {}, () => process.exit(1))
         }
       })
 
+      client.on('reconnect', () => {
+        retryTimes += 1
+        benchLog.reconnecting(connectedCount, count, opts.clientId!)
+      })
+
       client.on('close', () => {
-        connectedCount > 0 && (connectedCount -= 1)
+        if (isConnected) {
+          connectedCount -= 1
+          isConnected = false
+        }
         benchLog.close(connectedCount, count, opts.clientId!)
+        if (client.disconnecting) return
+        if ((client.options.reconnectPeriod ?? 0) <= 0) process.exit(1)
+        if (retryTimes + 1 > maximumReconnectTimes) {
+          client.end(true, {}, () => {
+            benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
+            exhaustedCount += 1
+            if (!isLogged || exhaustedCount === count) process.exit(1)
+          })
+        }
       })
 
       client.on('disconnect', (packet: IDisconnectPacket) => {

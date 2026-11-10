@@ -1,6 +1,6 @@
 import { ToolLoopAgent, generateText, stepCountIs, ToolSet } from 'ai'
-import CryptoJS from 'crypto-js'
-import { ENCRYPT_KEY, getAgentMessageId } from '@/utils/idGenerator'
+import { ipcRenderer } from 'electron'
+import { getAgentMessageId } from '@/utils/idGenerator'
 import {
   getModelProvider,
   AImodelsOptions,
@@ -137,14 +137,6 @@ export class MQTTXAgent {
   }
 
   /**
-   * Decrypt API key
-   */
-  private decryptAPIKey(): string {
-    const bytes = CryptoJS.AES.decrypt(this.openAIAPIKey, ENCRYPT_KEY)
-    return bytes.toString(CryptoJS.enc.Utf8)
-  }
-
-  /**
    * Writes the summary a compaction stores, with the same model and provider as the replies and no tools
    *
    * @param messages The older turns to summarize
@@ -152,7 +144,7 @@ export class MQTTXAgent {
    */
   public async summarize(messages: AgentMessage[], previousSummary?: string): Promise<string> {
     const { text } = await generateText({
-      model: this.createModel().model,
+      model: (await this.createModel()).model,
       system: previousSummary
         ? `${compactPrompt}\n\n[Summary of the conversation so far, fold it into the new summary]\n${previousSummary}`
         : compactPrompt,
@@ -166,7 +158,7 @@ export class MQTTXAgent {
   /**
    * The provider client of the current settings, for both the replies and the summary call
    */
-  private createModel() {
+  private async createModel() {
     // An Azure deployment id carries a `deployment-` prefix that the provider does not take
     const isAzure = this.model.includes('deployment-')
     const actualModel = (isAzure ? this.model.replace('deployment-', '') : this.model) as AIModel
@@ -177,7 +169,7 @@ export class MQTTXAgent {
       model: getModelProvider({
         model: actualModel,
         baseURL: this.openAIAPIHost,
-        apiKey: this.decryptAPIKey(),
+        apiKey: await ipcRenderer.invoke('apiKey:decrypt', this.openAIAPIKey),
         providerType,
       }),
     }
@@ -233,8 +225,8 @@ export class MQTTXAgent {
    * @param instructions System prompt of the session
    * @param tools Tools the model can call
    */
-  private createAgent(instructions: string, tools: ToolSet) {
-    const { model, actualModel, providerType } = this.createModel()
+  private async createAgent(instructions: string, tools: ToolSet) {
+    const { model, actualModel, providerType } = await this.createModel()
 
     // The strength is one unified AI SDK option; each provider package maps it to its own field
     const reasoningOptions = buildReasoningCallOptions({
@@ -293,7 +285,7 @@ export class MQTTXAgent {
         this.buildTools(responseMessage),
       ])
       const appContext = renderAppContext(buildAppContext(this.deps))
-      const agent = this.createAgent(`${instructions}\n\n${appContext}`, tools)
+      const agent = await this.createAgent(`${instructions}\n\n${appContext}`, tools)
       const { fullStream } = await agent.stream({
         // Mentions of a connection are the message's own `connection` parts; the text is sent as typed.
         // A compaction marker becomes the summary in front of the messages it does not cover.

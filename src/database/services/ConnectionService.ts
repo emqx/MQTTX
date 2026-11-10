@@ -438,6 +438,7 @@ export default class ConnectionService {
       savedWill = await this.willRepository.save({
         // TODO: add all will field
         lastWillPayload: '',
+        lastWillPayloadType: 'Plaintext',
         lastWillQos: 0,
         lastWillRetain: false,
         contentType: '',
@@ -448,12 +449,14 @@ export default class ConnectionService {
           contentType: '',
         },
         lastWillPayload = '',
+        lastWillPayloadType = 'Plaintext',
         lastWillTopic = '',
         lastWillQos = 0,
         lastWillRetain = false,
       } = res.will
       const willData: WillEntity = {
         lastWillPayload,
+        lastWillPayloadType,
         lastWillTopic,
         lastWillQos,
         lastWillRetain,
@@ -471,8 +474,9 @@ export default class ConnectionService {
     const result = await this.historyConnectionRepository.save({
       ...res,
       id: undefined,
-      lastWillTopic: res.will.lastWillPayload,
+      lastWillTopic: res.will.lastWillTopic,
       lastWillPayload: res.will.lastWillPayload,
+      lastWillPayloadType: res.will.lastWillPayloadType ?? 'Plaintext',
       lastWillQos: res.will.lastWillQos,
       lastWillRetain: res.will.lastWillRetain,
     } as HistoryConnectionEntity)

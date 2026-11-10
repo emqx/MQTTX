@@ -16,6 +16,16 @@ const parseNumber = (value: string) => {
   return parsedValue
 }
 
+// Benchmark retry counters are stored in arrays, whose maximum length is 2^32 - 1.
+const MAX_CLIENT_COUNT = 0xffffffff
+
+const validateClientCount = (count: unknown): void => {
+  if (typeof count !== 'number' || !Number.isInteger(count) || count < 1 || count > MAX_CLIENT_COUNT) {
+    logWrapper.fail(`Invalid client count: ${count}. Expected an integer between 1 and ${MAX_CLIENT_COUNT}.`)
+    process.exit(1)
+  }
+}
+
 const parseProtocol = (value: string) => {
   if (!['mqtt', 'mqtts', 'ws', 'wss'].includes(value)) {
     logWrapper.fail('Only mqtt, mqtts, ws and wss are supported.')
@@ -30,8 +40,9 @@ const parseMQTTVersion = (value: string) => {
     '3.1.1': 4,
     '5': 5,
   }
+  const trimmedValue = value.trim()
   // Normalize '5.0' to '5'
-  const normalizedValue = value === '5.0' ? '5' : value
+  const normalizedValue = trimmedValue === '5.0' ? '5' : trimmedValue
   if (!dict[normalizedValue]) {
     logWrapper.fail('Not a valid MQTT version.')
     process.exit(1)
@@ -62,14 +73,18 @@ const parseKeyValues = (value: string, previous?: Record<string, string | string
   }
 }
 
+const parseQoSValue = (value: unknown): QoS => {
+  const parsedValue = typeof value === 'string' && value.trim() !== '' ? Number(value) : value
+  if (parsedValue === 0 || parsedValue === 1 || parsedValue === 2) return parsedValue
+
+  const label = typeof value === 'string' || typeof value === 'number' ? value : 'The configured value'
+  logWrapper.fail(`${label} is not a valid QoS.`)
+  process.exit(1)
+}
+
 const parseQoS = (value: string, previous: number[] | undefined) => {
-  const parsedValue = Number(value)
-  if (isNaN(parsedValue) || parsedValue < 0 || parsedValue > 2) {
-    logWrapper.fail(`${value} is not a valid QoS.`)
-    process.exit(1)
-  } else {
-    return previous ? [...previous, parsedValue] : [parsedValue]
-  }
+  const parsedValue = parseQoSValue(value)
+  return previous ? [...previous, parsedValue] : [parsedValue]
 }
 
 const parseVariadicOfBooleanType = (value: string, previous: boolean[] | undefined) => {
@@ -454,10 +469,12 @@ const parseSubscribeOptions = (options: SubscribeOptions) => {
 
 export {
   parseNumber,
+  validateClientCount,
   parseProtocol,
   parseMQTTVersion,
   parseKeyValues,
   parseQoS,
+  parseQoSValue,
   parseVariadicOfBooleanType,
   checkTopicExists,
   checkScenarioExists,

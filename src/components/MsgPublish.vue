@@ -240,6 +240,7 @@ import ClickOutside from 'vue-click-outside'
 import Editor from '@/components/Editor.vue'
 import KeyValueEditor from '@/components/KeyValueEditor.vue'
 import convertPayload from '@/utils/convertPayload'
+import { payloadTypeOptions, payloadTypeToEditorLang } from '@/utils/payloadEncoder'
 import { getMessageId } from '@/utils/idGenerator'
 import _ from 'lodash'
 import validFormatJson from '@/utils/validFormatJson'
@@ -325,7 +326,7 @@ export default class MsgPublish extends Vue {
   private savedMsgRecord: PushMessageModel = { ...this.msgRecord }
   private saveMsgRecordLater = _.debounce(this.saveMsgRecord, 500)
   private headerValue: HistoryMessageHeaderModel = getMsgHeader(this.msgRecord)
-  private payloadOptions: PayloadType[] = ['Plaintext', 'JSON', 'Base64', 'Hex', 'CBOR', 'MsgPack']
+  private payloadOptions: PayloadType[] = payloadTypeOptions
 
   @Watch('editorHeight')
   private handleHeightChanged() {
@@ -337,7 +338,7 @@ export default class MsgPublish extends Vue {
   }
 
   get payloadLang() {
-    return ['CBOR', 'JSON', 'MsgPack'].includes(this.msgRecord.payloadType) ? 'json' : 'plaintext'
+    return payloadTypeToEditorLang(this.msgRecord.payloadType)
   }
 
   // Restored messages and history entries keep their text; only a user format change converts it.

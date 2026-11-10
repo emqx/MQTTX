@@ -1,9 +1,14 @@
 import {
   parseNumber,
+  validateClientCount,
   parseProtocol,
   parseMQTTVersion,
   parseKeyValues,
   parseQoS,
+  parseQoSValue,
+  parseConnectOptions,
+  parsePublishOptions,
+  parseSubscribeOptions,
   parseFormat,
   parseSchemaOptions,
 } from '../../utils/parse'
@@ -36,6 +41,25 @@ describe('parse utilities', () => {
     })
   })
 
+  describe('validateClientCount', () => {
+    it.each([1, 2, 1000, 0xffffffff])('accepts the valid client count %p', (count) => {
+      expect(() => validateClientCount(count)).not.toThrow()
+      expect(logWrapper.fail).not.toHaveBeenCalled()
+      expect(mockExit).not.toHaveBeenCalled()
+    })
+
+    it.each([-1, 0, 1.5, NaN, Infinity, -Infinity, 0x100000000, Number.MAX_SAFE_INTEGER, '1', null, undefined, true])(
+      'rejects the invalid client count %p',
+      (count) => {
+        expect(() => validateClientCount(count)).toThrow('Process exited with code 1')
+        expect(logWrapper.fail).toHaveBeenCalledWith(
+          `Invalid client count: ${count}. Expected an integer between 1 and 4294967295.`,
+        )
+        expect(mockExit).toHaveBeenCalledWith(1)
+      },
+    )
+  })
+
   describe('parseProtocol', () => {
     it('should accept valid protocols', () => {
       expect(parseProtocol('mqtt')).toBe('mqtt')
@@ -59,14 +83,19 @@ describe('parse utilities', () => {
       expect(parseMQTTVersion('5.0')).toBe(5)
     })
 
-    it('should throw an error for invalid MQTT versions', () => {
-      expect(() => parseMQTTVersion('4.0')).toThrow()
+    it.each(['4.0', '3.1 .1', '3.1.1-extra', '\u00a0'])('should reject invalid MQTT version %p', (value) => {
+      expect(() => parseMQTTVersion(value)).toThrow()
       expect(logWrapper.fail).toHaveBeenCalledWith('Not a valid MQTT version.')
       expect(mockExit).toHaveBeenCalledWith(1)
     })
 
-    it('should parse "5.0" as version 5', () => {
-      expect(parseMQTTVersion('5.0')).toBe(5)
+    it.each<[string, number]>([
+      ['3.1\u00a0', 3],
+      ['\u00a03.1.1\u00a0', 4],
+      [' \t5\n', 5],
+      ['\u00a05.0\u00a0', 5],
+    ])('should accept surrounding whitespace in MQTT version %p', (value, expected) => {
+      expect(parseMQTTVersion(value)).toBe(expected)
     })
   })
 
@@ -95,6 +124,41 @@ describe('parse utilities', () => {
       )
       expect(mockExit).toHaveBeenCalledWith(1)
     })
+  })
+
+  describe('parseQoSValue', () => {
+    it.each([0, 1, 2])('preserves the valid scalar QoS %s', (value) => {
+      expect(parseQoSValue(String(value))).toBe(value)
+      expect(parseQoSValue(value)).toBe(value)
+    })
+
+    it('preserves omitted QoS defaults and per-topic subscription values', () => {
+      expect(parsePublishOptions({} as PublishOptions).opts.qos).toBeUndefined()
+      expect(parseConnectOptions({ willTopic: 'will' } as ConnectOptions).will).not.toHaveProperty('qos')
+      const subscribe = (qos?: number | number[]) =>
+        parseSubscribeOptions({ topic: ['first', 'second'], qos } as SubscribeOptions).map((options) => options.qos)
+      expect(subscribe()).toEqual([0, 0])
+      expect(subscribe([0, 2])).toEqual([0, 2])
+      expect(subscribe(1)).toEqual([1, 1])
+    })
+
+    it.each(['3', '-1', '0.5', '1.5', 'Infinity', 'NaN', 'invalid', '', '   '])(
+      'rejects invalid scalar and variadic QoS %p',
+      (value) => {
+        expect(() => parseQoSValue(value)).toThrow()
+        expect(() => parseQoS(value, undefined)).toThrow()
+        expect(logWrapper.fail).toHaveBeenCalledWith(`${value} is not a valid QoS.`)
+        expect(mockExit).toHaveBeenCalledWith(1)
+      },
+    )
+
+    it.each([[3], [-1], [0.5], [null], [false], [[]], [{}], [{ toString: null }]])(
+      'rejects invalid QoS %p',
+      (value) => {
+        expect(() => parseQoSValue(value)).toThrow('Process exited with code 1')
+        expect(mockExit).toHaveBeenCalledWith(1)
+      },
+    )
   })
 
   describe('parseQoS', () => {

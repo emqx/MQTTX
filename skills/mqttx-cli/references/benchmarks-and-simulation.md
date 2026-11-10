@@ -32,14 +32,14 @@ mqttx bench pub -h 127.0.0.1 -p 1883 -l mqtt -V 5.0 \
 
 `--message-interval` (`-im`) is the publication interval **per client** in milliseconds. Rough offered rate after all clients connect is `count * 1000 / messageInterval` messages/second, subject to acknowledgments and scheduling. `--limit` (`-L`) is an aggregate count across clients, not a per-client quota. Measure actual counts; do not equate configured rate with achieved throughput. The implementation waits for all configured clients to connect before publishing, so a failed client can stall the run.
 
-`--payload-size 1KB` can replace `-m` for random bytes. `--file-read ./messages.txt --split` splits a file on newline and replays its parts for each client. An explicit `--split 'PATTERN'` is interpreted as a JavaScript regular expression; trailing delimiters can create empty messages. Keep an external deadline and inspect totals: uneven client progress can prevent split-mode completion. Without `--split`, the whole file is the repeated payload. `bench pub` does not accept ordinary `--stdin`, `--format`, Protobuf or Avro flags; prepare encoded bytes in a file if those are required.
+`--payload-size 1KB` can replace `-m` for random bytes. `--file-read ./messages.txt --split` splits a file on newline and replays its parts for each client. An explicit `--split 'PATTERN'` is interpreted as a JavaScript regular expression; trailing delimiters can create empty messages. Keep an external deadline and inspect totals. Without `--split`, the whole file is the repeated payload. `bench pub` does not accept ordinary `--stdin`, `--format`, Protobuf or Avro flags; prepare encoded bytes in a file if those are required.
 
 ## Topic and client templates
 
 - Use `--client-id` (short `-I`) for benchmarks/simulation. Short `-i` is the connection interval, unlike ordinary `conn`/`pub`/`sub`.
 - `%i` is the 1-based client index; an ID lacking `%i` gets `_index` appended when count is greater than one.
 - Benchmark topic templates support `%i`, `%u` (provided username), and `%c`. Simulation also supports `%sc` (scenario name). Quote templates in the shell.
-- In 1.13.0, `bench pub`/`simulate` substitute `%c` with the base client-ID template, while `bench sub` uses the final per-client ID. Use explicit `%i` topic templates to align publishers/subscribers; do not assume `%c` means the same expanded value in both paths. `%u` remains unresolved if no username is provided.
+- `%c` is the final per-client ID for benchmarks and simulation. `%u` remains unresolved if no username is provided.
 
 ## Built-in simulation and listing
 

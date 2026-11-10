@@ -25,7 +25,7 @@ const appliedScript = (deps: AgentToolDeps): ScriptState | null =>
 
 /**
  * Tools mirroring the Script page. Scripts are shared by every connection: applying one is a global
- * setting, and the model-written JavaScript of `test_script` always needs approval.
+ * setting. Saving, testing and applying scripts always need approval, including in Auto mode.
  */
 export const createScriptTools = (deps: AgentToolDeps): ToolSet => ({
   list_scripts: tool({

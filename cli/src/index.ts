@@ -2,12 +2,14 @@ import 'core-js'
 import { Command, Option } from 'commander'
 import { getClientId } from './utils/generator'
 import { checkUpdate } from './utils/checkUpdate'
+import { update } from './lib/update'
 import {
   parseNumber,
   parseProtocol,
   parseMQTTVersion,
   parseKeyValues,
   parseQoS,
+  parseQoSValue,
   parseVariadicOfBooleanType,
   parsePubTopic,
   parseFileRead,
@@ -63,6 +65,15 @@ export class Commander {
       .action(async () => {
         await checkUpdate()
       })
+
+    this.program
+      .command('update')
+      .description('Update MQTTX CLI to the latest version.')
+      .allowUnknownOption(false)
+      .hook('preAction', (thisCommand) => {
+        globalThis.command = thisCommand
+      })
+      .action(update)
 
     this.program
       .command('init')
@@ -128,7 +139,7 @@ export class Commander {
       // will message options
       .option('-Wt, --will-topic <TOPIC>', 'the will topic')
       .option('-Wm, --will-message <BODY>', 'the will message')
-      .option('-Wq, --will-qos <0/1/2>', 'the will qos', parseNumber)
+      .option('-Wq, --will-qos <0/1/2>', 'the will qos', parseQoSValue)
       .option('-Wr, --will-retain', 'send a will retained message')
       // will message properties options of MQTT 5.0
       .option('-Wd, --will-delay-interval <SECONDS>', 'the will delay interval in seconds', parseNumber)
@@ -163,7 +174,7 @@ export class Commander {
       .description('Publish a message to a topic.')
       .option('-t, --topic <TOPIC>', 'the message topic', parsePubTopic)
       .option('-m, --message <BODY>', 'the message body', DEFAULT_MQTT_PUB_MESSAGE)
-      .option('-q, --qos <0/1/2>', 'the QoS of the message', parseNumber, 0)
+      .option('-q, --qos <0/1/2>', 'the QoS of the message', parseQoSValue, 0)
       .option('-r, --retain', 'send a retained message')
       .option('-d, --dup', 'mark as duplicate flag')
       .option('-s, --stdin', 'read the message body from stdin')
@@ -247,7 +258,7 @@ export class Commander {
       // will message options
       .option('-Wt, --will-topic <TOPIC>', 'the will topic')
       .option('-Wm, --will-message <BODY>', 'the will message')
-      .option('-Wq, --will-qos <0/1/2>', 'the will qos', parseNumber)
+      .option('-Wq, --will-qos <0/1/2>', 'the will qos', parseQoSValue)
       .option('-Wr, --will-retain', 'send a will retained message')
       // will message properties options of MQTT 5.0
       .option('-Wd, --will-delay-interval <SECONDS>', 'the will delay interval in seconds', parseNumber)
@@ -379,7 +390,7 @@ export class Commander {
       // will message options
       .option('-Wt, --will-topic <TOPIC>', 'the will topic')
       .option('-Wm, --will-message <BODY>', 'the will message')
-      .option('-Wq, --will-qos <0/1/2>', 'the will qos', parseNumber)
+      .option('-Wq, --will-qos <0/1/2>', 'the will qos', parseQoSValue)
       .option('-Wr, --will-retain', 'send a will retained message')
       // will message properties options of MQTT 5.0
       .option('-Wd, --will-delay-interval <SECONDS>', 'the will delay interval in seconds', parseNumber)
@@ -493,7 +504,7 @@ export class Commander {
       // will message options
       .option('-Wt, --will-topic <TOPIC>', 'the will topic')
       .option('-Wm, --will-message <BODY>', 'the will message')
-      .option('-Wq, --will-qos <0/1/2>', 'the will qos', parseNumber)
+      .option('-Wq, --will-qos <0/1/2>', 'the will qos', parseQoSValue)
       .option('-Wr, --will-retain', 'send a will retained message')
       // will message properties options of MQTT 5.0
       .option('-Wd, --will-delay-interval <SECONDS>', 'the will delay interval in seconds', parseNumber)
@@ -540,7 +551,7 @@ export class Commander {
         parsePubTopic,
       )
       .option('-m, --message <BODY>', 'the message body', DEFAULT_MQTT_PUB_MESSAGE)
-      .option('-q, --qos <0/1/2>', 'the QoS of the message', parseNumber, 0)
+      .option('-q, --qos <0/1/2>', 'the QoS of the message', parseQoSValue, 0)
       .option('-r, --retain', 'send a retained message')
       .option('-d, --dup', 'mark as duplicate flag')
       // properties options of MQTT 5.0
@@ -617,7 +628,7 @@ export class Commander {
       // will message options
       .option('-Wt, --will-topic <TOPIC>', 'the will topic')
       .option('-Wm, --will-message <BODY>', 'the will message')
-      .option('-Wq, --will-qos <0/1/2>', 'the will qos', parseNumber)
+      .option('-Wq, --will-qos <0/1/2>', 'the will qos', parseQoSValue)
       .option('-Wr, --will-retain', 'send a will retained message')
       // will message properties options of MQTT 5.0
       .option('-Wd, --will-delay-interval <SECONDS>', 'the will delay interval in seconds', parseNumber)
@@ -733,7 +744,7 @@ export class Commander {
       // will message options
       .option('-Wt, --will-topic <TOPIC>', 'the will topic')
       .option('-Wm, --will-message <BODY>', 'the will message')
-      .option('-Wq, --will-qos <0/1/2>', 'the will qos', parseNumber)
+      .option('-Wq, --will-qos <0/1/2>', 'the will qos', parseQoSValue)
       .option('-Wr, --will-retain', 'send a will retained message')
       // will message properties options of MQTT 5.0
       .option('-Wd, --will-delay-interval <SECONDS>', 'the will delay interval in seconds', parseNumber)
@@ -782,7 +793,7 @@ export class Commander {
         parsePubTopic,
         'mqttx/simulate/%sc/%c',
       )
-      .option('-q, --qos <0/1/2>', 'the QoS of the message', parseNumber, 0)
+      .option('-q, --qos <0/1/2>', 'the QoS of the message', parseQoSValue, 0)
       .option('-r, --retain', 'send a retained message')
       .option('-d, --dup', 'mark as duplicate flag')
       // properties options of MQTT 5.0
@@ -854,7 +865,7 @@ export class Commander {
       // will message options
       .option('-Wt, --will-topic <TOPIC>', 'the will topic')
       .option('-Wm, --will-message <BODY>', 'the will message')
-      .option('-Wq, --will-qos <0/1/2>', 'the will qos', parseNumber)
+      .option('-Wq, --will-qos <0/1/2>', 'the will qos', parseQoSValue)
       .option('-Wr, --will-retain', 'send a will retained message')
       // will message properties options of MQTT 5.0
       .option('-Wd, --will-delay-interval <SECONDS>', 'the will delay interval in seconds', parseNumber)

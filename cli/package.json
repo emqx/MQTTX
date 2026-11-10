@@ -1,6 +1,6 @@
 {
   "name": "mqttx-cli",
-  "version": "1.13.2",
+  "version": "1.13.3",
   "description": "MQTTX Command Line Tools",
   "repository": {
     "type": "git",
@@ -41,7 +41,6 @@
     "ini": "^4.1.2",
     "js-yaml": "^4.1.0",
     "json-bigint": "^1.0.0",
-    "lodash": "^4.17.21",
     "mqtt": "^4.3.7",
     "msgpackr": "^1.11.0",
     "ora": "^5.4.1",
@@ -59,7 +58,6 @@
     "@types/jest": "^29.5.12",
     "@types/js-yaml": "^4.0.5",
     "@types/json-bigint": "^1.0.4",
-    "@types/lodash": "^4.17.1",
     "@types/node": "^17.0.43",
     "@types/pbkdf2": "^3.1.2",
     "@types/pump": "^1.1.1",

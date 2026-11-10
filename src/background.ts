@@ -11,6 +11,7 @@ import { getCurrentLang } from './main/updateChecker'
 import getMenuTemplate from './main/getMenuTemplate'
 import newWindow from './main/newWindow'
 import installCLI from './main/installCLI'
+import { isAllowedExternalUrl } from './main/externalUrl'
 import { onSystemThemeChanged } from './main/systemTheme'
 import useConnection, { initOptionModel } from '@/database/useConnection'
 import useServices from '@/database/useServices'
@@ -20,6 +21,7 @@ import version from '@/version'
 import { initialize } from '@electron/remote/main'
 import { initMCPHandlers, cleanupMCPConnections } from './main/ai/mcp/MCPManager'
 import { getEnableHardwareAccelerationSetting } from '@/utils/settings'
+import { decryptAPIKey, encryptAPIKey, migrateAPIKey } from '@/utils/apiKey'
 
 /**
  * Fix the PATH environment variable in packaged Electron apps
@@ -177,6 +179,8 @@ function handleIpcMessages() {
       installCLI(win)
     }
   })
+  ipcMain.handle('apiKey:encrypt', (_, plain: string) => encryptAPIKey(plain))
+  ipcMain.handle('apiKey:decrypt', (_, stored: string) => decryptAPIKey(stored))
   // Initialize MCP handlers
   initMCPHandlers()
 }
@@ -218,6 +222,17 @@ async function createWindow() {
     const { settingService } = useServices()
     await settingService.set()
     const setting = await settingService.get()
+    let storedAPIKey = setting?.openAIAPIKey
+    try {
+      const migrated = storedAPIKey ? migrateAPIKey(storedAPIKey) : null
+      if (migrated) {
+        await settingService.update({ openAIAPIKey: migrated })
+        storedAPIKey = migrated
+      }
+    } catch (migrationError) {
+      // A keychain failure must not block startup; the legacy value stays readable
+      console.warn('[Settings] Failed to migrate the AI API key to safeStorage:', migrationError)
+    }
     if (setting) {
       theme = setting.currentTheme
       autoCheckUpdate = setting.autoCheck
@@ -234,7 +249,7 @@ async function createWindow() {
         jsonHighlight: setting.jsonHighlight,
         enableAgent: setting.enableAgent,
         openAIAPIHost: setting.openAIAPIHost,
-        openAIAPIKey: setting.openAIAPIKey,
+        openAIAPIKey: storedAPIKey,
         model: setting.model,
         logLevel: setting.logLevel,
         ignoreQoS0Message: setting.ignoreQoS0Message,
@@ -368,24 +383,27 @@ app.on('activate', () => {
 // Disabled create new window
 app.on('web-contents-created', (event, contents) => {
   contents.setWindowOpenHandler(({ url }) => {
-    // Add URL validation to allow only specific domains
-    const validDomains = ['mqttx.app', 'github.com', 'emqx.io', 'emqx.com']
-    try {
-      const urlObj = new URL(url)
-      const hostname = urlObj.hostname
-      // Check if the domain is allowed
-      const isValidDomain = validDomains.some((domain) => hostname === domain || hostname.endsWith(`.${domain}`))
-
-      if (isValidDomain) {
-        shell.openExternal(url)
-      } else {
-        console.log(`Blocked opening of unsafe URL: ${url}`)
-      }
-    } catch (error) {
-      console.error('Invalid URL:', url)
+    if (isAllowedExternalUrl(url)) {
+      shell.openExternal(url)
+    } else {
+      console.log(`Blocked opening of unsafe URL: ${url}`)
     }
 
     return { action: 'deny' }
+  })
+
+  // Only same-document (hash) navigation stays in the app window
+  contents.on('will-navigate', (event, url) => {
+    if (url.split('#')[0] === contents.getURL().split('#')[0]) {
+      return
+    }
+
+    event.preventDefault()
+    if (isAllowedExternalUrl(url)) {
+      shell.openExternal(url)
+    } else {
+      console.log(`Blocked navigation to unsafe URL: ${url}`)
+    }
   })
 })
 

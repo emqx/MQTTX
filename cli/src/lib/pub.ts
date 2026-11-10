@@ -1,6 +1,5 @@
 import concat from 'concat-stream'
 import * as Debug from 'debug'
-import _ from 'lodash'
 import * as mqtt from 'mqtt'
 import { IClientOptions, IClientPublishOptions } from 'mqtt'
 import pump from 'pump'
@@ -11,15 +10,23 @@ import delay from '../utils/delay'
 import { fileDataSplitter, processPath, readFile } from '../utils/fileUtils'
 import logWrapper, { basicLog, benchLog, Signale, signale, simulateLog, singaleConfig } from '../utils/logWrapper'
 import { handleLoadOptions, handleSaveOptions } from '../utils/options'
-import { checkScenarioExists, checkTopicExists, parseConnectOptions, parsePublishOptions } from '../utils/parse'
+import {
+  checkScenarioExists,
+  checkTopicExists,
+  parseConnectOptions,
+  parsePublishOptions,
+  validateClientCount,
+} from '../utils/parse'
 import { serializeProtobufToBuffer } from '../utils/protobuf'
 import { serializeAvroToBuffer } from '../utils/avro'
 import { loadSimulator } from '../utils/simulate'
 import { triggerExitInfo } from '../utils/exitInfo'
 import getBenchClientId from '../utils/getBenchClientId'
+import createRateSampler from '../utils/createRateSampler'
 import { parsePayloadSize, generateRandomPayload } from '../utils/payloadGenerator'
 import { createMqttClient } from '../utils/mqttConnect'
 import { DEFAULT_MQTT_PUB_MESSAGE } from '../utils/constants'
+import shouldRetryConnectionError from '../utils/shouldRetryConnectionError'
 
 /**
  * Processes the outgoing message through two potential stages:
@@ -65,6 +72,13 @@ const processPublishMessage = (
   return pipeline.reduce((msg: string | Buffer, transformer) => transformer(msg), message) as Buffer
 }
 
+const exitWithPublishError = (client: mqtt.MqttClient, err: Error) => {
+  basicLog.error(err)
+  process.exitCode = 1
+  // Do not wait for queued QoS messages or open stdin after a terminal failure.
+  client.end(true, {}, () => process.exit(1))
+}
+
 const send = (
   config: boolean | string | undefined,
   connOpts: IClientOptions,
@@ -79,6 +93,7 @@ const send = (
 ) => {
   let retryTimes = 0
   let isNewConnection = true
+  let publishComplete = false
 
   const client = createMqttClient(connOpts)
   basicLog.connecting(config, connOpts.hostname!, connOpts.port, pubOpts.topic, pubOpts.message.toString())
@@ -95,6 +110,7 @@ const send = (
         basicLog.error(err)
         process.exit(1)
       } else {
+        publishComplete = true
         basicLog.published()
       }
       // FIXME: When using the ws and wss protocols to connect, and QoS is 0, the message may not have been successfully sent when the publish callback is triggered. Therefore, delay closing the connection for 2 seconds.
@@ -109,8 +125,13 @@ const send = (
   })
 
   client.on('error', (err) => {
-    basicLog.error(err)
-    client.end()
+    exitWithPublishError(client, err)
+  })
+
+  client.on('close', () => {
+    if (!publishComplete && !connOpts.reconnectPeriod) {
+      process.exit(1)
+    }
   })
 
   client.on('reconnect', () => {
@@ -176,8 +197,7 @@ const multiSend = (
   })
 
   client.on('error', (err) => {
-    basicLog.error(err)
-    client.end()
+    exitWithPublishError(client, err)
   })
 
   client.on('reconnect', () => {
@@ -207,8 +227,16 @@ const multiSend = (
 
 const handlePipedMultiline = (connOpts: IClientOptions, pubOpts: { topic: string; opts: IClientPublishOptions }) => {
   const client = createMqttClient(connOpts)
-  let messageQueue: string[] = []
+  const messageQueue: string[] = []
   let publishedCount = 0
+  let failed = false
+  const publishComplete = () => publishedCount > 0 && publishedCount === messageQueue.length
+  const fail = (err: Error) => {
+    if (failed) return
+    failed = true
+    exitWithPublishError(client, err)
+  }
+  const failIncompletePublish = () => fail(new Error('Connection closed before publishing completed'))
 
   process.stdin.pipe(split2()).on('data', (chunk) => {
     const message = chunk.toString()
@@ -224,25 +252,29 @@ const handlePipedMultiline = (connOpts: IClientOptions, pubOpts: { topic: string
       logWrapper.await(`Publishing ${messageQueue.length} messages...`)
       messageQueue.forEach((message) => {
         client.publish(pubOpts.topic, Buffer.from(message), pubOpts.opts, (err) => {
-          if (err) {
-            basicLog.error(err)
-          } else {
-            publishedCount++
-            if (publishedCount === messageQueue.length) {
-              logWrapper.success(`Successfully published ${publishedCount} messages`)
-            }
+          // MQTT.js can invoke a publish callback again while removing a rejected packet.
+          if (failed) return
+          if (err) return fail(err)
+          publishedCount++
+          if (publishComplete()) {
+            logWrapper.success(`Successfully published ${publishedCount} messages`)
           }
         })
       })
       setTimeout(() => {
+        // Ending a disconnected client cancels any scheduled reconnect.
+        if (!client.connected && !publishComplete()) return failIncompletePublish()
         client.end()
       }, 1000)
     }
   })
 
-  client.on('error', (err) => {
-    basicLog.error(err)
-    client.end()
+  client.on('error', fail)
+
+  client.on('close', () => {
+    if (!publishComplete() && (!connOpts.reconnectPeriod || client.disconnecting)) {
+      failIncompletePublish()
+    }
   })
 }
 
@@ -341,20 +373,23 @@ const pub = (options: PublishOptions) => {
   }
 }
 
-const multiPub = async (commandType: CommandType, options: BenchPublishOptions | SimulatePubOptions) => {
+const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPublishOptions | SimulatePubOptions) => {
   const { saveOptions, loadOptions } = options
+
+  if (loadOptions) {
+    options =
+      commandType === 'simulate'
+        ? handleLoadOptions('simulate', loadOptions, options as SimulatePubOptions)
+        : handleLoadOptions('benchPub', loadOptions, options)
+  }
+  validateClientCount(options.count)
+  saveOptions && handleSaveOptions(commandType, options)
 
   let simulator: Simulator = {} as Simulator
   if (commandType === 'simulate') {
-    options = loadOptions ? handleLoadOptions('simulate', loadOptions, options as SimulatePubOptions) : options
-    saveOptions && handleSaveOptions('simulate', options)
-
     const simulateOptions = options as SimulatePubOptions
     checkScenarioExists(simulateOptions.scenario, simulateOptions.file)
     simulator = loadSimulator(simulateOptions.scenario, simulateOptions.file)
-  } else {
-    options = loadOptions ? handleLoadOptions('benchPub', loadOptions, options as BenchPublishOptions) : options
-    saveOptions && handleSaveOptions('benchPub', options)
   }
 
   const {
@@ -375,11 +410,11 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
   // File Handler
   let fileData: Buffer | string
-  let splitedMessageArr: string[] = []
+  let splitMessages: string[] = []
   if (fileRead) {
     fileData = handleFileRead(processPath(fileRead))
     if (split) {
-      splitedMessageArr = fileDataSplitter(fileData, split)
+      splitMessages = fileDataSplitter(fileData, split)
     }
   }
 
@@ -401,13 +436,11 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
 
   let connectedCount = 0
 
+  let exhaustedCount = 0
+
   let inFlightMessageCount = 0
 
-  const splitLimit = splitedMessageArr.length * count
-
-  const isNewConnArray = Array(count).fill(true)
-
-  const retryTimesArray = Array(count).fill(0)
+  const splitLimit = splitMessages.length * count
 
   const interactivePub = new Signale({ interactive: true, config: singaleConfig })
 
@@ -429,41 +462,46 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
   const connStart = Date.now()
 
   let total = 0
-  let rate = 0
+  const reachedLimit = () => limit > 0 && total >= limit
+  const finishedSplit = () => splitLimit > 0 && total >= splitLimit
 
   for (let i = 1; i <= count; i++) {
-    // Duplicate splited messages array for each connection
-    const dupSplitedMessageArr = splitedMessageArr.length !== 0 ? _.cloneDeep(splitedMessageArr) : []
+    const pendingMessages = [...splitMessages]
 
     ;((i: number, connOpts: mqtt.IClientOptions) => {
       const opts = { ...connOpts }
 
       opts.clientId = getBenchClientId(clientId, i, count)
 
-      let topicName = topic.replaceAll('%i', i.toString()).replaceAll('%c', clientId)
+      let topicName = topic.replaceAll('%i', i.toString()).replaceAll('%c', opts.clientId)
       username && (topicName = topicName.replaceAll('%u', username))
       simulator && (topicName = topicName.replaceAll('%sc', simulator.name))
 
       const client = createMqttClient(opts)
+      let hasConnected = false
+      let isConnected = false
+      let retryTimes = 0
 
       interactivePub.await('[%d/%d] - Connecting...', connectedCount, count)
 
       client.on('connect', () => {
         connectedCount += 1
-        retryTimesArray[i - 1] = 0
-        if (isNewConnArray[i - 1]) {
+        isConnected = true
+        retryTimes = 0
+        if (!hasConnected) {
+          hasConnected = true
           interactivePub.success('[%d/%d] - Connected', connectedCount, count)
 
           setInterval(async () => {
             // If the number of messages sent exceeds the limit, exit the process.
-            if (limit > 0 && total >= limit) {
+            if (reachedLimit()) {
               // Wait for the total number of sent messages to be printed, then exit the process.
               await delay(1000)
               logWrapper.success(`All ${total} messages have been sent, reaching the limit of ${limit}.`)
               process.exit(0)
             }
             // If the segmented message has been completely sent, exit the process.
-            if (splitLimit > 0 && total >= splitLimit) {
+            if (finishedSplit()) {
               // Wait for the total number of sent messages to be printed, then exit the process.
               await delay(1000)
               logWrapper.success(`All ${total} messages from the ${fileRead} have been successfully sent.`)
@@ -478,7 +516,6 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
             ) {
               return
             }
-            inFlightMessageCount += 1
             let publishTopic = topicName
             let publishMessage = message
 
@@ -499,70 +536,73 @@ const multiPub = async (commandType: CommandType, options: BenchPublishOptions |
               if (!split) {
                 publishMessage = fileData
               } else {
-                if (dupSplitedMessageArr.length === 0) {
+                if (pendingMessages.length === 0) {
                   return
                 }
-                publishMessage = Buffer.from(dupSplitedMessageArr.shift()!)
+                publishMessage = Buffer.from(pendingMessages.shift()!)
               }
             }
+            inFlightMessageCount += 1
             client.publish(publishTopic, publishMessage, pubOpts.opts, (err) => {
               inFlightMessageCount -= 1
               if (err) {
                 basicLog.error(err)
               } else {
                 total += 1
-                rate += 1
               }
             })
           }, messageInterval)
-
-          if (connectedCount === count) {
-            initialized = true
-
-            const connEnd = Date.now()
-
-            signale.success(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
-
-            if (!verbose) {
-              setInterval(() => {
-                interactivePub.log(`Published total: ${total}, message rate: ${rate}/s`)
-                rate = 0
-              }, 1000)
-            } else {
-              setInterval(() => {
-                logWrapper.log(`Published total: ${total}, message rate: ${rate}/s`)
-                rate = 0
-              }, 1000)
-            }
-          }
         } else {
           benchLog.reconnected(connectedCount, count, opts.clientId!)
+        }
+
+        if (connectedCount === count && !initialized) {
+          initialized = true
+          const connEnd = Date.now()
+          signale.success(`Created ${count} connections in ${(connEnd - connStart) / 1000}s`)
+
+          const sampleRate = createRateSampler()
+          setInterval(() => {
+            const rate = sampleRate(total)
+            const logMethod = verbose ? logWrapper.log : interactivePub.log
+            logMethod(`Published total: ${total}, message rate: ${rate}/s`)
+          }, 1000)
         }
       })
 
       client.on('error', (err) => {
         benchLog.error(connectedCount, count, opts.clientId!, err)
-        client.end()
-      })
-
-      client.on('reconnect', () => {
-        retryTimesArray[i - 1] += 1
-        if (retryTimesArray[i - 1] > maximumReconnectTimes) {
-          client.end(false, {}, () => {
-            benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
-            if (retryTimesArray.findIndex((times) => times <= maximumReconnectTimes) === -1) {
-              process.exit(1)
-            }
+        if (!shouldRetryConnectionError(err, opts.reconnectPeriod)) {
+          client.end(true, {}, () => {
+            if (!reachedLimit() && !finishedSplit()) process.exit(1)
           })
-        } else {
-          benchLog.reconnecting(connectedCount, count, opts.clientId!)
-          isNewConnArray[i - 1] = false
         }
       })
 
+      client.on('reconnect', () => {
+        retryTimes += 1
+        benchLog.reconnecting(connectedCount, count, opts.clientId!)
+      })
+
       client.on('close', () => {
-        connectedCount > 0 && (connectedCount -= 1)
+        if (isConnected) {
+          connectedCount -= 1
+          isConnected = false
+        }
         benchLog.close(connectedCount, count, opts.clientId!)
+        if (client.disconnecting) return
+        if (reachedLimit() || finishedSplit()) {
+          client.end(true)
+          return
+        }
+        if ((client.options.reconnectPeriod ?? 0) <= 0) process.exit(1)
+        if (retryTimes + 1 > maximumReconnectTimes) {
+          client.end(true, {}, () => {
+            benchLog.reconnectTimesLimit(connectedCount, count, opts.clientId!)
+            exhaustedCount += 1
+            if (!initialized || exhaustedCount === count) process.exit(1)
+          })
+        }
       })
 
       client.on('disconnect', (packet: IDisconnectPacket) => {

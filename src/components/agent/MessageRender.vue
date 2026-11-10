@@ -11,8 +11,10 @@
         :data-prismjs-line-numbers="true"
         data-download-link
         data-download-link-label="Download this file"
+        :html="false"
         :source="part.content"
         :anchor-attributes="{ target: '_blank' }"
+        :postrender="postrender"
       />
     </div>
   </div>
@@ -36,6 +38,26 @@ export default class MessageRender extends Vue {
   @Prop({ default: 'Copy' }) readonly copyText!: string
   @Prop({ default: 'Copy failed' }) readonly copyFailedText!: string
   @Prop({ default: 'Copied' }) readonly copiedText!: string
+
+  /** Shows remote Markdown images as text so a reply never makes the app fetch a URL */
+  postrender(html: string): string {
+    // Skip parsing when the HTML has no <img>
+    if (!/<im/i.test(html)) return html
+
+    const doc = new window.DOMParser().parseFromString(html, 'text/html')
+
+    doc.querySelectorAll('img').forEach((img) => {
+      const src = img.getAttribute('src') || ''
+      if (/^(blob|data):/i.test(src)) {
+        return
+      }
+      const placeholder = doc.createElement('span')
+      placeholder.textContent = `[image: ${img.getAttribute('alt') || 'no alt'}] ${src}`
+      img.replaceWith(placeholder)
+    })
+
+    return doc.body.innerHTML
+  }
 
   get parsedContent(): ContentPart[] {
     const parts: ContentPart[] = []

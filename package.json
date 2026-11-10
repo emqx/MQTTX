@@ -1,6 +1,6 @@
 {
   "name": "MQTTX",
-  "version": "1.13.2",
+  "version": "1.13.3",
   "description": "MQTT desktop client",
   "author": "EMQX Team <yusf@emqx.io>",
   "scripts": {
@@ -95,7 +95,7 @@
     "typedi": "^0.8.0",
     "typeorm": "^0.2.34",
     "typeorm-typedi-extensions": "^0.2.3",
-    "vm2": "^3.9.18",
+    "vm2": "^3.12.2",
     "vue": "^2.6.12",
     "vue-class-component": "^7.0.2",
     "vue-click-outside": "^1.1.0",

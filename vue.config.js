@@ -13,11 +13,17 @@ module.exports = {
   // cannot parse that syntax on its own.
   transpileDependencies: ['zod-to-json-schema', 'ai', /[\\/]node_modules[\\/]@ai-sdk[\\/]/, '@vercel/oidc', 'zod'],
   chainWebpack: (config) => {
+    // The desktop renderer loads the sandbox through Node, including renderer-only builds.
+    // Merge with the electron-builder externals (typeorm, mqtt, ...) instead of replacing them.
+    config.externals([config.get('externals'), { vm2: 'commonjs vm2' }].filter(Boolean))
     // The AI SDK v5+ packages rely on package `exports` subpaths that webpack 4
     // cannot resolve, so resolve them with Node, which honors `exports` and finds
     // copies nested under the importing package. For zod v4 this picks the CJS
     // build, which webpack 4 can parse.
     const aliases = {
+      // KaTeX echoes unparsable LaTeX as raw HTML, which would let Agent reply text
+      // inject markup; replies need no math, so resolve it to a no-op plugin.
+      'markdown-it-katex$': path.resolve(__dirname, 'src/utils/markdownItNoop.js'),
       '@ai-sdk/provider-utils/experimental-decision$': require.resolve('@ai-sdk/provider-utils/experimental-decision'),
       '@ai-sdk/anthropic/internal$': require.resolve('@ai-sdk/anthropic/internal'),
       '@ai-sdk/deepseek/internal$': require.resolve('@ai-sdk/deepseek/internal'),
@@ -71,6 +77,8 @@ module.exports = {
       config.resolve.alias.set('electron', path.resolve(__dirname, 'tests/unit/mocks/electron.js'))
       config.resolve.alias.set('@electron/remote', path.resolve(__dirname, 'tests/unit/mocks/electron.js'))
       config.resolve.alias.set('electron-store', path.resolve(__dirname, 'tests/unit/mocks/electron-store.js'))
+      // Use CommonJS so json-bigint receives the BigNumber constructor in tests.
+      config.resolve.alias.set('bignumber.js$', path.resolve(__dirname, 'node_modules/bignumber.js/bignumber.js'))
       // Keep the native SQLite driver out of the webpack test bundle.
       config.externals({ sqlite3: 'commonjs sqlite3', vm2: 'commonjs vm2' })
     }
