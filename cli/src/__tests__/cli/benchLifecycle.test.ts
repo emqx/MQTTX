@@ -37,7 +37,11 @@ describe('benchmark connection lifecycle', () => {
     rmSync(directory, { recursive: true, force: true })
   })
 
-  const run = async (args: string[], onConnect: (client: Connection, index: number) => void = acknowledge) => {
+  const run = async (
+    args: string[],
+    onConnect: (client: Connection, index: number) => void = acknowledge,
+    grant: (clientId: string) => number = () => 0,
+  ) => {
     const connections: Connection[] = []
     const subscriptions: string[] = []
     const publications: { clientId: string; topic: string; payload: string }[] = []
@@ -55,7 +59,7 @@ describe('benchmark connection lifecycle', () => {
           onConnect(client, connections.length)
         } else if (packet.cmd === 'subscribe') {
           subscriptions.push(client.clientId)
-          socket.write(generate({ cmd: 'suback', messageId: packet.messageId, granted: [0] }))
+          socket.write(generate({ cmd: 'suback', messageId: packet.messageId, granted: [grant(client.clientId)] }))
         } else if (packet.cmd === 'publish') {
           publications.push({ clientId: client.clientId, topic: packet.topic, payload: packet.payload.toString() })
           if (packet.qos === 1) socket.write(generate({ cmd: 'puback', messageId: packet.messageId }))
@@ -140,6 +144,27 @@ describe('benchmark connection lifecycle', () => {
       return bench.output().includes('Created 2 connections')
     })
     await bench.waitFor(() => bench.output().includes('Created 2 connections'))
+  })
+
+  it('reports partial subscription grants and keeps running', async () => {
+    const bench = await run(['bench', 'sub', '-c', '2', '-t', 'test/bench', '-v'], undefined, (clientId) =>
+      clientId === 'benchmark_1' ? 0 : 0x80,
+    )
+    await bench.waitFor(() => bench.output().includes('Subscription negated'))
+    expect(bench.output()).not.toContain('All connections subscribed')
+    expect(bench.output().match(/Subscribed 1 of 2 subscriptions/g)).toHaveLength(1)
+    expect(bench.output()).toContain('Client ID: benchmark_2, Subscription negated to "test/bench" with code 128')
+    expect(child!.exitCode).toBeNull()
+    expect(child!.signalCode).toBeNull()
+  })
+
+  it('exits with code 1 and lists every rejection when all grants fail', async () => {
+    const bench = await run(['bench', 'sub', '-c', '2', '-t', 'test/bench', '-v'], undefined, () => 0x80)
+    await bench.waitFor(() => child!.exitCode !== null)
+    expect(child!.exitCode).toBe(1)
+    expect(bench.output()).not.toContain('All connections subscribed')
+    expect(bench.output()).toContain('Client ID: benchmark_1, Subscription negated to "test/bench" with code 128')
+    expect(bench.output()).toContain('Client ID: benchmark_2, Subscription negated to "test/bench" with code 128')
   })
 
   it('expands %c to each actual publisher ClientId', async () => {
