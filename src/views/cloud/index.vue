@@ -3,14 +3,11 @@
     <header class="titlebar">
       <h1>EMQX Cloud</h1>
       <div class="cloud-actions">
-        <template v-if="signedIn">
-          <span>{{ $t('cloud.remaining') }} {{ $t('cloud.minutes', { count: minutes }) }}</span>
-          <el-button type="text" @click="authenticate('logout')">{{ $t('cloud.logout') }}</el-button>
-        </template>
+        <el-button v-if="signedIn" type="text" @click="authenticate('logout')">{{ $t('cloud.logout') }}</el-button>
         <el-button
           v-if="!state.removed"
           class="cloud-remove"
-          type="text"
+          size="mini"
           icon="el-icon-delete"
           :disabled="removing"
           @click="remove"
@@ -18,66 +15,79 @@
         >
       </div>
     </header>
-    <el-alert v-if="failure || state.error" :title="issueText(failure || state.error)" type="error" :closable="false" />
-    <el-alert
-      v-if="state.updateError && state.active"
-      :title="issueText(state.updateError)"
-      type="info"
-      :closable="false"
-    />
-    <div v-if="state.removed" class="cloud-placeholder">
-      <h2>{{ $t('cloud.removed') }}</h2>
-      <p>{{ $t('cloud.addHint') }}</p>
-      <el-button type="primary" :disabled="removing" @click="prepare('add')">{{ $t('cloud.add') }}</el-button>
-    </div>
-    <div v-else-if="!signedIn" class="cloud-placeholder cloud-login">
-      <section class="cloud-login-card" aria-labelledby="cloud-login-title">
-        <div class="cloud-login-mark" aria-hidden="true">
-          <i v-if="waiting" class="el-icon-loading"></i>
-          <svg v-else viewBox="0 0 48 48" fill="none">
-            <path
-              d="M14 35h23a8 8 0 0 0 1-16 14 14 0 0 0-27-2 9 9 0 0 0 3 18Z"
-              stroke="currentColor"
-              stroke-width="2.4"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-        </div>
-        <h2 id="cloud-login-title">{{ $t(waiting ? 'cloud.authorize' : 'cloud.connect') }}</h2>
-        <el-alert
-          v-if="state.session.message"
-          class="cloud-session-alert"
-          :title="issueText(state.session.message)"
-          :type="waiting ? 'info' : 'warning'"
-          :closable="false"
-          show-icon
-        />
-        <div class="cloud-login-actions">
-          <el-button v-if="waiting" @click="authenticate('cancel')">{{ $t('common.cancel') }}</el-button>
-          <el-button
-            v-else
-            type="primary"
-            icon="el-icon-top-right"
-            :disabled="removing"
-            @click="authenticate('login')"
-            >{{ $t('cloud.login') }}</el-button
-          >
-        </div>
-        <div v-if="!waiting" class="cloud-login-site">
-          <el-button type="text" :disabled="removing" @click="openSiteDialog">
-            {{ $t('cloud.loginSite', { site: $t(chinaSite ? 'cloud.chinaSite' : 'cloud.internationalSite') }) }}
-          </el-button>
-        </div>
-      </section>
-    </div>
-    <div v-else-if="!state.active" class="cloud-placeholder">
-      <h2>{{ $t(state.error || failure ? 'cloud.notReady' : 'cloud.preparing') }}</h2>
-      <p>{{ $t('cloud.prepareHint') }}</p>
-      <el-button v-if="state.error || failure" @click="prepare('retry')">{{ $t('cloud.retry') }}</el-button>
-    </div>
-    <div v-if="signedIn && state.busy && state.active" class="cloud-updating">{{ $t('cloud.checking') }}</div>
-    <div ref="frames" v-show="signedIn" class="cloud-frames"></div>
+    <main class="cloud-body">
+      <el-alert
+        v-if="failure || state.error"
+        :title="issueText(failure || state.error)"
+        type="error"
+        :closable="false"
+      />
+      <el-alert
+        v-if="state.updateError && state.active"
+        :title="issueText(state.updateError)"
+        type="info"
+        :closable="false"
+      />
+      <div v-if="state.removed" class="cloud-placeholder">
+        <h2>{{ $t('cloud.removed') }}</h2>
+        <p>{{ $t('cloud.addHint') }}</p>
+        <el-button type="primary" :disabled="removing" @click="prepare('add')">{{ $t('cloud.add') }}</el-button>
+      </div>
+      <div v-else-if="!signedIn" class="cloud-placeholder cloud-login">
+        <section class="cloud-login-card" aria-labelledby="cloud-login-title">
+          <div class="cloud-login-mark" aria-hidden="true">
+            <i v-if="waiting" class="el-icon-loading"></i>
+            <svg v-else viewBox="0 0 48 48" fill="none">
+              <path
+                d="M14 35h23a8 8 0 0 0 1-16 14 14 0 0 0-27-2 9 9 0 0 0 3 18Z"
+                stroke="currentColor"
+                stroke-width="2.4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+          <h2 id="cloud-login-title">{{ $t(waiting ? 'cloud.authorize' : 'cloud.connect') }}</h2>
+          <el-alert
+            v-if="state.session.message"
+            class="cloud-session-alert"
+            :title="issueText(state.session.message)"
+            :type="waiting ? 'info' : 'warning'"
+            :closable="false"
+            show-icon
+          />
+          <div class="cloud-login-actions">
+            <el-button v-if="waiting" @click="authenticate('cancel')">{{ $t('common.cancel') }}</el-button>
+            <el-button
+              v-else
+              type="primary"
+              icon="el-icon-top-right"
+              :disabled="removing"
+              @click="authenticate('login')"
+              >{{ $t('cloud.login') }}</el-button
+            >
+          </div>
+          <div v-if="!waiting" class="cloud-login-site">
+            <el-button type="text" :disabled="removing" @click="openSiteDialog">
+              {{ $t('cloud.loginSite', { site: $t(chinaSite ? 'cloud.chinaSite' : 'cloud.internationalSite') }) }}
+            </el-button>
+          </div>
+        </section>
+      </div>
+      <div v-else-if="!state.active" class="cloud-placeholder">
+        <h2>{{ $t(state.error || failure ? 'cloud.notReady' : 'cloud.preparing') }}</h2>
+        <p>{{ $t('cloud.prepareHint') }}</p>
+        <el-button v-if="state.error || failure" @click="prepare('retry')">{{ $t('cloud.retry') }}</el-button>
+      </div>
+      <div v-if="signedIn && state.busy && state.active" class="cloud-updating">{{ $t('cloud.checking') }}</div>
+      <div ref="frames" v-show="signedIn" class="cloud-frames"></div>
+    </main>
+    <footer class="cloud-footer">
+      <span v-if="signedIn" class="cloud-session-remaining">
+        {{ $t('cloud.remaining') }} {{ $t('cloud.minutes', { count: minutes }) }}
+      </span>
+      <span class="cloud-footer-brand">EMQX Cloud</span>
+    </footer>
     <el-dialog
       class="cloud-site-dialog"
       :title="$t('cloud.selectSite')"
@@ -249,12 +259,24 @@ export default class Cloud extends Vue {
       messages: Object.fromEntries(
         Object.keys(cloudMessages.errors).map((code) => [code, String(this.$t(`cloud.errors.${code}`))]),
       ),
-      // key 是 CSS 变量名；只传扩展需要的四个颜色，而不是整个宿主样式表。
+      // key 是 CSS 变量名；只传扩展需要的主题颜色，而不是整个宿主样式表。
       tokens: Object.fromEntries(
-        ['--color-text-default', '--color-text-light', '--color-bg-primary', '--color-bg-normal'].map((key) => [
-          key,
-          style.getPropertyValue(key).trim(),
-        ]),
+        [
+          '--color-text-default',
+          '--color-text-light',
+          '--color-bg-primary',
+          '--color-bg-normal',
+          '--color-bg-item',
+          '--color-bg-card-gradient',
+          '--color-bg-btn-gradient',
+          '--color-bg-skeleton',
+          '--color-bg-skeleton_transition',
+          '--color-shadow-card',
+          '--color-text-title',
+          '--color-main-green',
+          '--color-border-default',
+          '--color-minor-red',
+        ].map((key) => [key, style.getPropertyValue(key).trim()]),
       ),
     }
   }
@@ -309,15 +331,17 @@ export default class Cloud extends Vue {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding: 0 16px;
+  padding: 0;
   color: var(--color-text-default);
 }
-header {
+.cloud-view > .titlebar {
   flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin: 0;
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border-default);
 }
 header .el-button {
   -webkit-app-region: no-drag;
@@ -327,8 +351,38 @@ header .el-button {
   align-items: center;
   gap: 16px;
 }
-.cloud-actions span {
+.cloud-remove {
+  background: transparent;
+}
+.cloud-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  > .el-alert {
+    flex-shrink: 0;
+    border-radius: 0;
+  }
+}
+.cloud-footer {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 16px;
+  min-height: 32px;
+  padding: 10px 16px;
+  border-top: 1px solid var(--color-border-default);
+  background: var(--color-bg-normal);
   color: var(--color-text-light);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.cloud-session-remaining {
+  color: var(--color-main-green);
+}
+.cloud-footer-brand {
+  margin-left: auto;
 }
 .cloud-placeholder p,
 .cloud-updating {
@@ -338,14 +392,20 @@ header .el-button {
   text-align: center;
   padding: 70px 24px;
   border: 1px solid var(--color-border-default);
-  border-radius: 10px;
-  margin-top: 24px;
-}
-header .cloud-remove {
-  color: var(--color-text-light);
-  &:hover,
-  &:focus {
-    color: var(--color-minor-red);
+  border-radius: 12px;
+  margin: 24px 16px 0;
+  background: var(--color-bg-normal);
+  box-shadow: 0 8px 28px -16px var(--color-shadow-card);
+  h2 {
+    margin: 0 0 8px;
+    color: var(--color-text-title);
+    font-size: 18px;
+    font-weight: 600;
+  }
+  p {
+    margin: 0 auto 24px;
+    max-width: 420px;
+    line-height: 1.7;
   }
 }
 .cloud-login {
@@ -354,20 +414,31 @@ header .cloud-remove {
   display: flex;
   overflow-y: auto;
   padding: 32px 16px 64px;
-  margin-top: 0;
+  margin: 0;
   border: 0;
   border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 .cloud-login-card {
+  position: relative;
+  overflow: hidden;
   width: 100%;
   max-width: 500px;
   flex-shrink: 0;
   margin: auto;
-  padding: 36px 40px 28px;
+  padding: 40px 40px 28px;
   border: 1px solid var(--color-border-default);
   border-radius: 12px;
   background: var(--color-bg-normal);
   box-shadow: 0 8px 28px -16px var(--color-shadow-card);
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 4px;
+    background: var(--color-bg-btn-gradient);
+  }
   h2 {
     margin: 24px 0 12px;
     color: var(--color-text-title);
@@ -384,7 +455,7 @@ header .cloud-remove {
   height: 64px;
   margin: 0 auto;
   border-radius: 16px;
-  background: color-mix(in srgb, var(--color-main-green) 10%, var(--color-bg-normal));
+  background: var(--color-bg-card-gradient);
   color: var(--color-main-green);
   font-size: 30px;
   svg {
@@ -414,6 +485,16 @@ header .cloud-remove {
     padding: 12px 24px;
     white-space: normal;
     line-height: 1.4;
+  }
+  .el-button--primary {
+    border: 0;
+    background: var(--color-bg-btn-gradient);
+    box-shadow: 0 6px 16px -8px color-mix(in srgb, var(--color-main-green) 65%, transparent);
+    &:hover,
+    &:focus {
+      background: var(--color-bg-btn-gradient);
+      filter: brightness(1.06);
+    }
   }
 }
 .cloud-login-site {
@@ -453,10 +534,11 @@ header .cloud-remove {
   }
 }
 .cloud-updating {
-  margin: 10px 0;
+  flex-shrink: 0;
+  margin: 10px 16px;
 }
 @media (max-width: 640px) {
-  header {
+  .cloud-view > .titlebar {
     flex-wrap: wrap;
     gap: 8px;
   }
@@ -479,6 +561,8 @@ header .cloud-remove {
   min-height: 0;
   position: relative;
   ::v-deep .cloud-frame {
+    position: absolute;
+    inset: 0;
     border: 0;
     width: 100%;
     height: 100%;

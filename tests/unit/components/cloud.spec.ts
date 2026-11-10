@@ -43,6 +43,16 @@ describe('Cloud host appearance and interaction', () => {
       '--color-text-light': '#abcdef',
       '--color-bg-primary': '#101010',
       '--color-bg-normal': '#202020',
+      '--color-bg-item': '#282828',
+      '--color-bg-card-gradient': 'linear-gradient(#111, #222)',
+      '--color-bg-btn-gradient': 'linear-gradient(#333, #444)',
+      '--color-bg-skeleton': '#303030',
+      '--color-bg-skeleton_transition': '#383838',
+      '--color-shadow-card': '#0000001a',
+      '--color-text-title': '#ffffff',
+      '--color-main-green': '#34c388',
+      '--color-border-default': '#383838',
+      '--color-minor-red': '#f56c6c',
     }
     // The project's jsdom version does not implement CSS custom properties.
     global.getComputedStyle = (element: Element) =>
@@ -86,6 +96,16 @@ describe('Cloud host appearance and interaction', () => {
       '--color-text-light': '#abcdef',
       '--color-bg-primary': '#101010',
       '--color-bg-normal': '#202020',
+      '--color-bg-item': '#282828',
+      '--color-bg-card-gradient': 'linear-gradient(#111, #222)',
+      '--color-bg-btn-gradient': 'linear-gradient(#333, #444)',
+      '--color-bg-skeleton': '#303030',
+      '--color-bg-skeleton_transition': '#383838',
+      '--color-shadow-card': '#0000001a',
+      '--color-text-title': '#ffffff',
+      '--color-main-green': '#34c388',
+      '--color-border-default': '#383838',
+      '--color-minor-red': '#f56c6c',
     })
   })
   it('sends theme and language changes to ready frames', async () => {
