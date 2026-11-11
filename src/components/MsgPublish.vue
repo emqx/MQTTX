@@ -245,43 +245,40 @@
         </el-select>
       </div>
     </div>
-    <div class="editor-container">
-      <div
-        class="publish-footer"
-        :style="{
-          height: `${editorHeight - (msgRecord.batch ? 24 : 0)}px`,
-        }"
-      >
-        <Editor
-          ref="payloadEditor"
-          id="payload"
-          :lang="payloadLang"
-          v-model="msgRecord.payload"
-          :useShadows="true"
-          @enter-event="send()"
-          @format="formatJsonValue"
-        />
+    <div class="publish-body" :style="{ height: `${editorHeight}px` }">
+      <div class="editor-container">
+        <div class="publish-footer">
+          <Editor
+            ref="payloadEditor"
+            id="payload"
+            :lang="payloadLang"
+            v-model="msgRecord.payload"
+            :useShadows="true"
+            @enter-event="send()"
+            @format="formatJsonValue"
+          />
+        </div>
+        <a
+          href="javascript:;"
+          :class="['send-btn', { 'is-disabled': msgRecord.batch && batchState.error }]"
+          :aria-disabled="Boolean(msgRecord.batch && batchState.error)"
+          @click="send()"
+        >
+          <i class="iconfont icon-send"></i>
+        </a>
       </div>
-      <a
-        href="javascript:;"
-        :class="['send-btn', { 'is-disabled': msgRecord.batch && batchState.error }]"
-        :aria-disabled="Boolean(msgRecord.batch && batchState.error)"
-        @click="send()"
-      >
-        <i class="iconfont icon-send"></i>
-      </a>
-    </div>
-    <div v-if="msgRecord.batch" class="batch-status" :class="{ invalid: batchState.error }" :title="batchStatusTitle">
-      <template v-if="!batchInput.error">
-        {{
-          $t('connections.batchStatus', {
-            count: batchState.count,
-            bytes: batchState.bytes,
-            max: batchLimits.maxBytes,
-          })
-        }}<span v-if="batchState.error"> · </span>
-      </template>
-      <span v-if="batchState.error">{{ batchError }}</span>
+      <div v-if="msgRecord.batch" class="batch-status" :class="{ invalid: batchState.error }" :title="batchStatusTitle">
+        <template v-if="!batchInput.error">
+          {{
+            $t('connections.batchStatus', {
+              count: batchState.count,
+              bytes: batchState.bytes,
+              max: batchLimits.maxBytes,
+            })
+          }}<span v-if="batchState.error"> · </span>
+        </template>
+        <span v-if="batchState.error">{{ batchError }}</span>
+      </div>
     </div>
     <div v-if="disabled" class="disabled-mask" @click.stop></div>
   </div>
@@ -381,6 +378,7 @@ export default class MsgPublish extends Vue {
   }
 
   get batchError() {
+    if (!this.msgRecord.batch) return ''
     return formatBatchPublishError(this.batchState, this.batchLimits, this.maximumPacketSize, (key, values) =>
       String(this.$t(key, values)),
     )
@@ -544,8 +542,9 @@ export default class MsgPublish extends Vue {
   private payloadOptions: PayloadType[] = payloadTypeOptions
 
   @Watch('editorHeight')
+  @Watch('batchError')
   private handleHeightChanged() {
-    this.handleLayout()
+    this.$nextTick(this.handleLayout)
   }
   @Watch('msgRecord', { deep: true })
   private handleMsgRecordChange() {
@@ -987,11 +986,22 @@ export default class MsgPublish extends Vue {
       @include topic-input__inner;
     }
   }
+  .publish-body {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    .editor-container {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+    }
+  }
   .editor-container {
     padding: 0 6px;
     display: flex;
     justify-content: space-around;
     .publish-footer {
+      height: 100%;
       width: 100%;
       flex: 1 1 auto;
     }
@@ -1092,6 +1102,7 @@ export default class MsgPublish extends Vue {
     }
   }
   .batch-status {
+    flex-shrink: 0;
     height: 24px;
     line-height: 24px;
     padding: 0 48px 0 16px;
@@ -1101,6 +1112,11 @@ export default class MsgPublish extends Vue {
     text-overflow: ellipsis;
     white-space: nowrap;
     &.invalid {
+      height: auto;
+      max-height: 50%;
+      overflow: auto;
+      white-space: normal;
+      overflow-wrap: anywhere;
       color: var(--color-minor-red);
     }
   }
