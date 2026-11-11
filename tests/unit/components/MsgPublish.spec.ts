@@ -37,7 +37,10 @@ describe('MsgPublish per-connection input', () => {
   const mount = async () => {
     wrapper = shallowMount(MsgPublish, {
       localVue,
-      stubs: { Editor: { template: '<div />', methods: { editorLayout: () => undefined } } },
+      stubs: {
+        Editor: { template: '<div />', methods: { editorLayout: () => undefined } },
+        ElCheckbox: ElementUI.Checkbox,
+      },
       store: new Vuex.Store({
         getters: { currentTheme: () => 'light', batchMaxItems: () => 100, batchMaxBytes: () => 65536 },
       }),
@@ -332,6 +335,32 @@ describe('MsgPublish per-connection input', () => {
     expect(vm.msgRecord).to.include({ batch: false, payloadType: 'JSON', payload, qos: 2, retain: true })
     expect(vm.MQTT5PropsForm.payloadFormatIndicator).to.equal(true)
     expect(vm.MQTT5PropsSend.payloadFormatIndicator).to.equal(true)
+  })
+
+  it('opens confirmation on the next checkbox click after canceling or closing it', async () => {
+    Object.assign(vm.msgRecord, { payloadType: 'JSON', batch: false })
+    let dialogs = 0
+    let dismiss!: (reason: string) => void
+    vm.$confirm = () => {
+      dialogs++
+      return new Promise<void>((_resolve, reject) => (dismiss = reject))
+    }
+    await settle()
+    const checkbox = wrapper.find('.batch-checkbox input').element as HTMLInputElement
+    for (const reason of ['cancel', 'close']) {
+      checkbox.click()
+      await settle()
+      expect(dialogs).to.equal(reason === 'cancel' ? 1 : 3)
+      dismiss(reason)
+      await settle()
+      expect(vm.msgRecord.batch).to.equal(false)
+      expect(checkbox.checked).to.equal(false)
+      checkbox.click()
+      await settle()
+      expect(dialogs).to.equal(reason === 'cancel' ? 2 : 4)
+      dismiss(reason)
+      await settle()
+    }
   })
 
   it('lists and confirms turning Retain off for MQTT 3.1.1', async () => {

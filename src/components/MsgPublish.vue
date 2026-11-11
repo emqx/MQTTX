@@ -119,7 +119,7 @@
         ></el-checkbox>
         <el-checkbox
           class="batch-checkbox"
-          :value="msgRecord.batch"
+          v-model="batchChecked"
           :disabled="isMqtt31"
           :title="isMqtt31 ? $t('connections.batchMqttVersion') : ''"
           label="Batch"
@@ -412,6 +412,8 @@ export default class MsgPublish extends Vue {
     return Boolean(this.msgRecord.batch && this.mqttVersion !== '5.0')
   }
 
+  private batchChecked = false
+
   private async handleBatchToggle(batch: boolean) {
     if (!batch) {
       this.msgRecord.batch = false
@@ -449,6 +451,7 @@ export default class MsgPublish extends Vue {
           },
         )
       } catch {
+        this.batchChecked = false
         return
       }
     }
@@ -465,6 +468,7 @@ export default class MsgPublish extends Vue {
   @Watch('msgRecord.qos')
   @Watch('msgRecord.retain')
   private handleBatchChange() {
+    this.batchChecked = Boolean(this.msgRecord.batch)
     this.$nextTick(this.handleLayout)
     if (this.isMqtt31 && this.msgRecord.batch) {
       this.$set(this.msgRecord, 'batch', false)
