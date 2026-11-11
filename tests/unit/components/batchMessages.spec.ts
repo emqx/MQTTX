@@ -149,20 +149,13 @@ describe('Batch message display', () => {
     expect(wrapper.find('.batch-preview-note').text()).to.equal('Preview: 3 B of 10 B')
     wrapper.destroy()
   })
-  it('explains the receive processing skipped for a batch', () => {
-    const wrapper = mountMessage(props())
-    expect(wrapper.find('.batch-notice').text()).to.equal('Batch skipped GZIP decompression, Schema and scripts')
-    wrapper.destroy()
-  })
   it('explains item conversion falling back to text', () => {
     const message = props()
     const wrapper = mountMessage({
       ...message,
       meta: JSON.stringify({ ...JSON.parse(message.meta), batchConversionFallback: true }),
     })
-    expect(wrapper.findAll('.batch-notice').at(1).text()).to.equal(
-      'Some items could not be converted and were saved as text',
-    )
+    expect(wrapper.find('.batch-notice').text()).to.equal('Some items could not be converted and were saved as text')
     wrapper.destroy()
   })
   it('rebuilds published Hex items as decoded binary previews', () => {

@@ -68,7 +68,6 @@
           direction="left"
           @view-all="handleShowFullMsg"
         />
-        <p v-if="!batch.error" class="batch-notice">{{ $t('connections.batchReceiveProcessingSkipped') }}</p>
         <p v-if="conversionFallback" class="batch-notice">{{ $t('connections.batchConversionFallback') }}</p>
       </template>
       <template v-else-if="isLargeMsg">

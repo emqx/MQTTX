@@ -1655,14 +1655,6 @@ export default {
     hu: 'A Batch küldése sikertelen; az időzített küldés leállt',
     ko: 'Batch 발행 실패로 정기 전송을 중지했습니다',
   },
-  batchReceiveProcessingSkipped: {
-    zh: 'Batch 未执行 GZIP 解压、Schema 或脚本',
-    en: 'Batch skipped GZIP decompression, Schema and scripts',
-    tr: 'Batch GZIP açma, şema ve betikleri atladı',
-    ja: 'BatchではGZIP展開、Schema、スクリプトを省略しました',
-    hu: 'A Batch kihagyta a GZIP-kibontást, a Schema-t és a szkripteket',
-    ko: 'Batch는 GZIP 압축 해제, Schema 및 스크립트를 건너뛰었습니다',
-  },
   batchConversionFallback: {
     zh: '部分条目转换失败，已按文本保存',
     en: 'Some items could not be converted and were saved as text',
