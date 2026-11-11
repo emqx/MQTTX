@@ -107,11 +107,12 @@
         ></el-checkbox>
         <el-checkbox
           class="batch-checkbox"
-          v-model="msgRecord.batch"
+          :value="msgRecord.batch"
           :disabled="isMqtt31"
           label="Batch"
           border
           size="mini"
+          @change="handleBatchToggle"
         ></el-checkbox>
         <el-tooltip
           placement="top"
@@ -265,9 +266,6 @@
           max: batchLimits.maxBytes,
         })
       }}<span v-if="batchState.error"> · {{ batchError }}</span>
-      <span v-else-if="payloadLang === 'json'">
-        · {{ $t('connections.batchWholeDocumentHint', { format: msgRecord.payloadType }) }}
-      </span>
     </div>
     <div v-if="disabled" class="disabled-mask" @click.stop></div>
   </div>
@@ -392,6 +390,49 @@ export default class MsgPublish extends Vue {
     return Boolean(this.msgRecord.batch && this.mqttVersion !== '5.0')
   }
 
+  private async handleBatchToggle(batch: boolean) {
+    if (!batch) {
+      this.msgRecord.batch = false
+      return
+    }
+    const changes: string[] = []
+    const settings: Partial<PushMessageModel> = {}
+    if (payloadTypeToEditorLang(this.msgRecord.payloadType) === 'json') {
+      changes.push(this.$t('connections.batchFormatChange', { format: this.msgRecord.payloadType }) as string)
+      settings.payloadType = 'Plaintext'
+    }
+    if (this.msgRecord.qos === 2) {
+      changes.push('QoS 2 → 1')
+      settings.qos = 1
+    }
+    if (this.mqttVersion === '3.1.1' && this.msgRecord.retain) {
+      changes.push(this.$t('connections.batchRetainChange') as string)
+      settings.retain = false
+    }
+    const clearPfi =
+      this.MQTT5PropsForm.payloadFormatIndicator === true || this.MQTT5PropsSend.payloadFormatIndicator === true
+    if (clearPfi) changes.push(this.$t('connections.batchPfiChange') as string)
+    if (changes.length) {
+      try {
+        await this.$confirm(
+          this.$t('connections.batchSettingsConfirm', {
+            changes: changes.join(this.$t('connections.batchSettingsSeparator') as string),
+          }) as string,
+          this.$tc('common.warning'),
+          { type: 'warning' },
+        )
+      } catch {
+        return
+      }
+    }
+    Object.assign(this.msgRecord, settings)
+    if (clearPfi) {
+      this.$set(this.MQTT5PropsForm, 'payloadFormatIndicator', false)
+      this.$set(this.MQTT5PropsSend, 'payloadFormatIndicator', false)
+    }
+    this.msgRecord.batch = true
+  }
+
   @Watch('msgRecord.batch')
   @Watch('mqttVersion')
   @Watch('msgRecord.qos')
@@ -399,15 +440,6 @@ export default class MsgPublish extends Vue {
   private handleBatchChange() {
     this.$nextTick(this.handleLayout)
     if (this.isMqtt31) this.$set(this.msgRecord, 'batch', false)
-    if (this.msgRecord.batch) {
-      if (this.msgRecord.qos === 2) {
-        this.msgRecord.qos = 1
-        this.$message.warning(this.$t('connections.batchQosChanged') as string)
-      }
-      if (this.mqttVersion === '3.1.1') this.msgRecord.retain = false
-      this.$set(this.MQTT5PropsForm, 'payloadFormatIndicator', false)
-      this.$set(this.MQTT5PropsSend, 'payloadFormatIndicator', false)
-    }
     this.$emit('batchChange', Boolean(this.msgRecord.batch))
   }
 

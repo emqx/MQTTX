@@ -10,12 +10,17 @@ import MsgPublish from '@/components/MsgPublish.vue'
 import ConnectionService from '@/database/services/ConnectionService'
 import HistoryMessagePayloadService from '@/database/services/HistoryMessagePayloaderService'
 import HistoryMessageHeaderService from '@/database/services/HistoryMessageHeaderService'
+import connections from '@/lang/connections'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
 localVue.use(ElementUI)
 localVue.use(VueRouter)
 const settle = () => new Promise((resolve) => setTimeout(resolve))
+const translate = (key: string, values: Record<string, string> = {}) => {
+  const message = connections[key.replace('connections.', '') as keyof typeof connections]?.en || key
+  return message.replace(/\{(\w+)\}/g, (_, name) => values[name])
+}
 
 describe('MsgPublish per-connection input', () => {
   const originalGet = Container.get
@@ -171,17 +176,35 @@ describe('MsgPublish per-connection input', () => {
     expect(vm.msgRecord.batch).to.equal(false)
   })
 
-  it('restricts QoS, Retain and PFI when enabling batch and warns once', async () => {
-    Object.assign(vm.msgRecord, { qos: 2, retain: true, batch: true })
+  it('preserves incompatible history settings and blocks sending instead of silently changing them', async () => {
+    await wrapper.setProps({ mqttVersion: '3.1.1' })
+    Object.assign(vm.msgRecord, { payloadType: 'Plaintext', payload: 'valid' })
     vm.MQTT5PropsForm = { payloadFormatIndicator: true }
     vm.MQTT5PropsSend = { payloadFormatIndicator: true }
-    await wrapper.setProps({ mqttVersion: '3.1.1' })
+    vm.handleHeaderChange({ topic: 'demo', qos: 2, retain: true, batch: true })
     await Vue.nextTick()
-    expect(vm.msgRecord).to.include({ qos: 1, retain: false, batch: true })
-    expect(vm.MQTT5PropsSend.payloadFormatIndicator).to.equal(false)
-    expect(errors).to.deep.equal(['connections.batchQosChanged'])
+    expect(vm.msgRecord).to.include({ qos: 2, retain: true, batch: true })
+    expect(vm.MQTT5PropsForm.payloadFormatIndicator).to.equal(true)
+    expect(vm.MQTT5PropsSend.payloadFormatIndicator).to.equal(true)
+    expect(vm.batchState.error).to.equal('UNSUPPORTED_BATCH_QOS')
+    await vm.send()
+    expect(wrapper.emitted('handleSend')).to.equal(undefined)
+    expect(errors).to.deep.equal([])
     await wrapper.setProps({ mqttVersion: '3.1' })
     expect(vm.msgRecord.batch).to.equal(false)
+  })
+
+  it('preserves saved batch settings across a protocol change and blocks incompatible Retain', async () => {
+    savedMessages.b = { topic: 'demo', qos: 1, retain: true, batch: true, payload: 'valid', payloadType: 'Plaintext' }
+    await switchTo('b')
+    expect(vm.msgRecord).to.deep.equal(savedMessages.b)
+    await wrapper.setProps({ mqttVersion: '3.1.1' })
+    expect(vm.msgRecord.retain).to.equal(true)
+    expect(vm.batchRetainDisabled).to.equal(true)
+    expect(vm.batchQosOptions).to.deep.equal([0, 1])
+    expect(vm.batchState.error).to.equal('INVALID_BATCH_METADATA')
+    await vm.send()
+    expect(wrapper.emitted('handleSend')).to.equal(undefined)
   })
 
   it('keeps line input unchanged when choosing a batch payload type and blocks invalid sends', async () => {
@@ -224,19 +247,96 @@ describe('MsgPublish per-connection input', () => {
     expect(vm.batchError).to.include('connections.batchInvalidMetadata')
   })
 
-  it('hints at whole-document validation only for a valid batch with a JSON editor language', async () => {
-    vm.$t = (key: string, values: Record<string, string> = {}) => `${key} ${values.format || ''}`
-    Object.assign(vm.msgRecord, { batch: true, topic: 'demo', payload: '41\n42', payloadType: 'JSON' })
-    await Vue.nextTick()
-    expect(wrapper.find('.batch-status').text()).to.include('connections.batchWholeDocumentHint JSON')
+  it('enables batch for Plaintext and Hex without a confirmation dialog', async () => {
+    Object.assign(vm.msgRecord, { qos: 1, retain: true })
+    vm.MQTT5PropsForm = { payloadFormatIndicator: false }
+    vm.MQTT5PropsSend = { payloadFormatIndicator: false }
+    let dialogs = 0
+    vm.$confirm = () => {
+      dialogs++
+      return Promise.resolve()
+    }
     for (const payloadType of ['Plaintext', 'Hex']) {
       vm.msgRecord.payloadType = payloadType
-      await Vue.nextTick()
-      expect(wrapper.find('.batch-status').text()).not.to.include('connections.batchWholeDocumentHint')
+      wrapper.find('.batch-checkbox').vm.$emit('change', true)
+      await settle()
+      expect(vm.msgRecord).to.include({ batch: true, payloadType, qos: 1, retain: true })
+      wrapper.find('.batch-checkbox').vm.$emit('change', false)
+      await settle()
+      expect(vm.msgRecord.batch).to.equal(false)
     }
-    Object.assign(vm.msgRecord, { payloadType: 'JSON', topic: 'a+b' })
-    await Vue.nextTick()
-    expect(wrapper.find('.batch-status').text()).to.include('connections.batchInvalidTopic')
-    expect(wrapper.find('.batch-status').text()).not.to.include('connections.batchWholeDocumentHint')
+    expect(dialogs).to.equal(0)
+  })
+
+  it('confirms JSON and QoS changes together before applying them and enabling batch', async () => {
+    let confirm!: () => void
+    const dialogs: string[] = []
+    vm.$t = translate
+    vm.$confirm = (message: string) => {
+      dialogs.push(message)
+      return new Promise<void>((resolve) => (confirm = resolve))
+    }
+    const payload = '{"a":1}\n{"a":2}'
+    Object.assign(vm.msgRecord, { payload, payloadType: 'JSON', qos: 2 })
+    wrapper.find('.batch-checkbox').vm.$emit('change', true)
+    expect(dialogs).to.deep.equal(['Enabling Batch changes: JSON → Plaintext, QoS 2 → 1. Continue?'])
+    expect(vm.msgRecord).to.include({ batch: false, payloadType: 'JSON', payload, qos: 2 })
+    confirm()
+    await settle()
+    expect(vm.msgRecord).to.include({ batch: true, payloadType: 'Plaintext', payload, qos: 1 })
+    expect(errors).to.deep.equal([])
+  })
+
+  it('keeps batch off and preserves every setting when its confirmation is canceled', async () => {
+    await wrapper.setProps({ mqttVersion: '3.1.1' })
+    vm.$confirm = () => Promise.reject('cancel')
+    const payload = '{"a":1}\n{"a":2}'
+    Object.assign(vm.msgRecord, { payload, payloadType: 'JSON', qos: 2, retain: true })
+    vm.MQTT5PropsForm = { payloadFormatIndicator: true }
+    vm.MQTT5PropsSend = { payloadFormatIndicator: true }
+    wrapper.find('.batch-checkbox').vm.$emit('change', true)
+    await settle()
+    expect(vm.msgRecord).to.include({ batch: false, payloadType: 'JSON', payload, qos: 2, retain: true })
+    expect(vm.MQTT5PropsForm.payloadFormatIndicator).to.equal(true)
+    expect(vm.MQTT5PropsSend.payloadFormatIndicator).to.equal(true)
+  })
+
+  it('lists and confirms turning Retain off for MQTT 3.1.1', async () => {
+    await wrapper.setProps({ mqttVersion: '3.1.1' })
+    Object.assign(vm.msgRecord, { payloadType: 'Plaintext', retain: true })
+    const dialogs: string[] = []
+    vm.$t = translate
+    vm.$confirm = (message: string) => {
+      dialogs.push(message)
+      return Promise.resolve()
+    }
+    wrapper.find('.batch-checkbox').vm.$emit('change', true)
+    await settle()
+    expect(dialogs).to.deep.equal(['Enabling Batch changes: Retain off. Continue?'])
+    expect(vm.msgRecord).to.include({ batch: true, retain: false })
+  })
+
+  it('lists PFI once when either property record is true and clears both after confirmation', async () => {
+    vm.msgRecord.payloadType = 'Plaintext'
+    const dialogs: string[] = []
+    vm.$t = translate
+    vm.$confirm = (message: string) => {
+      dialogs.push(message)
+      return Promise.resolve()
+    }
+    for (const source of ['MQTT5PropsForm', 'MQTT5PropsSend']) {
+      vm.MQTT5PropsForm = {}
+      vm.MQTT5PropsSend = {}
+      vm[source] = { payloadFormatIndicator: true }
+      wrapper.find('.batch-checkbox').vm.$emit('change', true)
+      await settle()
+      expect(dialogs[dialogs.length - 1]).to.equal('Enabling Batch changes: Payload Format Indicator off. Continue?')
+      expect(vm.msgRecord.batch).to.equal(true)
+      expect(vm.MQTT5PropsForm.payloadFormatIndicator).to.equal(false)
+      expect(vm.MQTT5PropsSend.payloadFormatIndicator).to.equal(false)
+      wrapper.find('.batch-checkbox').vm.$emit('change', false)
+      await settle()
+    }
+    expect(dialogs).to.have.length(2)
   })
 })
