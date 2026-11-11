@@ -189,7 +189,7 @@ describe('Batch message display', () => {
   it('falls back to Plaintext lines for published legacy history', () => {
     const wrapper = mountMessage({ ...props(), payload: 'é\n\nlast\n' }, MsgRightItem)
     expect(wrapper.findAll('.batch-content').wrappers.map((row) => row.text())).to.deep.equal(['é', '', 'last'])
-    expect(wrapper.find('.batch-notice').text()).to.equal('Legacy Batch format was not saved; displayed as Plaintext')
+    expect(wrapper.find('.batch-notice').exists()).to.equal(false)
     wrapper.destroy()
   })
   it('hides the pager for one page and navigates longer batches from the footer', async () => {

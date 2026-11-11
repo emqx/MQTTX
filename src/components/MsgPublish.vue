@@ -112,22 +112,44 @@
           class="retain-checkbox"
           v-model="msgRecord.retain"
           :disabled="batchRetainDisabled"
-          :title="batchRetainDisabled ? $t('connections.batchRetainDisabled') : 'Retain'"
+          :title="batchRetainDisabled ? $t('connections.batchRetainDisabled') : ''"
           label="Retain"
           border
           size="mini"
-        ></el-checkbox>
+        >
+          <el-tooltip
+            placement="top"
+            :open-delay="500"
+            :tabindex="-1"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :content="batchRetainDisabled ? $t('connections.batchRetainDisabled') : 'Retain'"
+          >
+            <i class="toolbar-icon el-icon-paperclip" aria-hidden="true"></i>
+          </el-tooltip>
+          <span class="toolbar-label">Retain</span>
+        </el-checkbox>
         <el-checkbox
           v-if="batchPublishEnabled"
           class="batch-checkbox"
           v-model="batchChecked"
           :disabled="isMqtt31"
-          :title="isMqtt31 ? $t('connections.batchMqttVersion') : 'Batch'"
+          :title="isMqtt31 ? $t('connections.batchMqttVersion') : ''"
           label="Batch"
           border
           size="mini"
           @change="handleBatchToggle"
-        ></el-checkbox>
+        >
+          <el-tooltip
+            placement="top"
+            :open-delay="500"
+            :tabindex="-1"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :content="isMqtt31 ? $t('connections.batchMqttVersion') : 'Batch'"
+          >
+            <i class="toolbar-icon el-icon-files" aria-hidden="true"></i>
+          </el-tooltip>
+          <span class="toolbar-label">Batch</span>
+        </el-checkbox>
         <el-tooltip
           placement="top"
           :disabled="mqtt5PropsEnable"
@@ -143,10 +165,19 @@
               :class="['dropdown-btn', showMetaCard ? 'dropdown-btn-active' : '']"
               @click="changeVisable"
               label="Meta"
-              title="Meta"
               size="mini"
             >
-              Meta
+              <el-tooltip
+                placement="top"
+                :open-delay="500"
+                :tabindex="-1"
+                :disabled="!mqtt5PropsEnable"
+                :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+                content="Meta"
+              >
+                <i class="toolbar-icon el-icon-s-operation" aria-hidden="true"></i>
+              </el-tooltip>
+              <span class="toolbar-label">Meta</span>
             </el-button>
           </el-badge>
         </el-tooltip>
@@ -187,12 +218,7 @@
             :open-delay="500"
             :effect="currentTheme !== 'light' ? 'light' : 'dark'"
           >
-            <el-button
-              size="mini"
-              class="history-btn history-btn-center"
-              :title="`${historyIndex + 1}/${payloadsHistory.length}`"
-              @click="back"
-            >
+            <el-button size="mini" class="history-btn history-btn-center" @click="back">
               <span>{{ historyIndex + 1 }}/{{ payloadsHistory.length }}</span>
             </el-button>
           </el-tooltip>
@@ -491,12 +517,6 @@ export default class MsgPublish extends Vue {
     if (active && this.msgRecord.batch) this.$message.info(this.$t('connections.batchProcessingDisabled') as string)
   }
 
-  private notifyBatchRestore(key: string) {
-    const notices = [this.$t(key)]
-    if (this.msgRecord.batch && this.batchProcessingActive) notices.push(this.$t('connections.batchProcessingDisabled'))
-    this.$message.info(notices.join(' · '))
-  }
-
   private MQTT5PropsForm: PushPropertiesModel = {}
 
   private MQTT5PropsSend: PushPropertiesModel = {}
@@ -582,10 +602,8 @@ export default class MsgPublish extends Vue {
   private selectHistory(index: number) {
     const item = this.payloadsHistory[index]
     if (item) {
-      const changed = this.msgRecord.payload !== item.payload || this.msgRecord.payloadType !== item.payloadType
       this.historyIndex = index
       Object.assign(this.msgRecord, getMsgPayload(item))
-      if (this.msgRecord.batch && changed) this.notifyBatchRestore('connections.batchHistoryRestored')
     }
   }
 
@@ -635,10 +653,8 @@ export default class MsgPublish extends Vue {
 
   private handleHeaderChange(val: HistoryMessageHeaderModel) {
     if (val) {
-      const changed = (this.msgRecord.batch || val.batch) && !_.isEqual(getMsgHeader(this.msgRecord), getMsgHeader(val))
       Object.assign(this.msgRecord, getMsgHeader(val))
       this.handleBatchChange()
-      if (changed) this.notifyBatchRestore('connections.batchHistoryRestored')
     }
   }
 
@@ -764,7 +780,6 @@ export default class MsgPublish extends Vue {
       this.loadHistoryData(),
     ])
     if (connectionId !== this.connectionId) return
-    const previous = { ...this.msgRecord }
     const header = _.last(this.headersHistory)
     const payload = _.last(this.payloadsHistory)
     this.msgRecord = saved
@@ -777,9 +792,6 @@ export default class MsgPublish extends Vue {
     this.savedMsgRecord = { ...this.msgRecord }
     this.historyIndex = saved || !payload ? -1 : this.payloadsHistory.length - 1
     this.headerValue = getMsgHeader(this.msgRecord)
-    if ((previous.batch || this.msgRecord.batch) && !_.isEqual(previous, this.msgRecord)) {
-      this.notifyBatchRestore(saved ? 'connections.batchSavedRestored' : 'connections.batchHistoryRestored')
-    }
   }
 
   private async loadHistoryData(selectLatest?: boolean) {
@@ -803,7 +815,6 @@ export default class MsgPublish extends Vue {
   }
 
   private async loadProperties() {
-    const previous = [this.MQTT5PropsForm, this.MQTT5PropsSend]
     this.MQTT5PropsForm = {}
     this.MQTT5PropsSend = {}
     this.hasMqtt5Prop = false
@@ -816,9 +827,6 @@ export default class MsgPublish extends Vue {
         this.hasMqtt5Prop = this.getHasMqtt5PropState()
         this.handleBatchChange()
       }
-    }
-    if (this.msgRecord.batch && !_.isEqual(previous, [this.MQTT5PropsForm, this.MQTT5PropsSend])) {
-      this.$message.info(this.$t('connections.batchMetaReloaded') as string)
     }
   }
 
@@ -1034,6 +1042,8 @@ export default class MsgPublish extends Vue {
     }
   }
   .publish-metadata {
+    container-type: inline-size;
+    container-name: publish-toolbar;
     background: var(--color-bg-normal);
     padding: 0 13px;
     margin-top: 6px;
@@ -1061,20 +1071,12 @@ export default class MsgPublish extends Vue {
     }
     .retain-checkbox,
     .batch-checkbox {
-      display: inline-flex;
-      align-items: center;
-      min-width: 0;
       margin-right: 4px;
       .el-checkbox__input {
-        flex-shrink: 0;
         line-height: 1px;
       }
       .el-checkbox__label {
-        min-width: 0;
         padding-left: 8px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
       }
     }
     .el-checkbox.is-bordered + .el-checkbox.is-bordered {
@@ -1098,17 +1100,6 @@ export default class MsgPublish extends Vue {
       }
     }
     .el-badge.item {
-      min-width: 0;
-      .dropdown-btn {
-        max-width: calc(100% - 4px);
-        > span {
-          display: block;
-          min-width: 0;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-      }
       .el-badge__content.is-dot {
         top: -1px;
         right: 2px;
@@ -1119,27 +1110,56 @@ export default class MsgPublish extends Vue {
       border-radius: 100%;
     }
     .actions-dropdown {
-      flex-shrink: 0;
       display: inline;
       margin-right: 4px;
     }
     .history-button-group {
-      min-width: 0;
       margin-left: auto;
       @include history-button-group;
-      .history-btn-left,
-      .history-btn-right {
+    }
+    .toolbar-icon {
+      display: none;
+    }
+    @container publish-toolbar (max-width: 527px) {
+      .el-checkbox.retain-checkbox,
+      .el-checkbox.batch-checkbox,
+      .el-badge.item .dropdown-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         flex-shrink: 0;
+        width: 28px;
+        height: 28px;
+        padding: 0;
       }
-      .history-btn-center {
-        min-width: 0;
-        > span {
-          display: block;
-          min-width: 0;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
+      .el-checkbox__inner {
+        display: none;
+      }
+      .el-checkbox__label {
+        padding-left: 0;
+        line-height: 1;
+      }
+      .el-checkbox.is-checked:not(.is-disabled) .toolbar-icon {
+        color: var(--color-main-green);
+      }
+      .el-checkbox.is-disabled .toolbar-icon {
+        color: var(--color-text-historybtn_disabled);
+      }
+      .toolbar-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        font-size: 14px;
+      }
+      .toolbar-label {
+        // Keep the control's accessible name while only its icon is visible.
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
       }
     }
   }

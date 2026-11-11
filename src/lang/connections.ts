@@ -1623,22 +1623,6 @@ export default {
     hu: 'Küldéskor minden sor a kiválasztott formátumban lesz kódolva. A formátumváltás nem módosítja a szerkesztő szövegét.',
     ko: '전송 시 각 줄을 선택한 형식으로 인코딩합니다. 형식을 바꿔도 편집기의 내용은 변경되지 않습니다.',
   },
-  batchHistoryRestored: {
-    zh: '已恢复历史中的 Batch 发布设置',
-    en: 'Batch publish settings restored from history',
-    tr: 'Batch gönderim ayarları geçmişten geri yüklendi',
-    ja: '履歴からBatchの送信設定を復元しました',
-    hu: 'Batch küldési beállítások visszaállítva az előzményekből',
-    ko: '기록의 Batch 발행 설정을 복원했습니다',
-  },
-  batchSavedRestored: {
-    zh: '已恢复连接保存的 Batch 发布设置',
-    en: 'Saved Batch publish settings restored for this connection',
-    tr: 'Bu bağlantının kayıtlı Batch gönderim ayarları geri yüklendi',
-    ja: '接続に保存されたBatchの送信設定を復元しました',
-    hu: 'A kapcsolat mentett Batch küldési beállításai visszaállítva',
-    ko: '연결에 저장된 Batch 발행 설정을 복원했습니다',
-  },
   batchBeautifySkipped: {
     zh: 'Batch 不执行整体格式化，已保留原文',
     en: 'Batch skips whole-document formatting; text kept unchanged',
@@ -1679,14 +1663,6 @@ export default {
     hu: 'Néhány elem nem alakítható át; szövegként lett mentve',
     ko: '일부 항목을 변환하지 못해 텍스트로 저장했습니다',
   },
-  batchLegacyPlaintext: {
-    zh: '旧 Batch 记录未保存格式，已按 Plaintext 显示',
-    en: 'Legacy Batch format was not saved; displayed as Plaintext',
-    tr: 'Eski Batch biçimi kaydedilmemiş; Plaintext olarak gösteriliyor',
-    ja: '旧Batch記録には形式がないため、Plaintextで表示しています',
-    hu: 'A régi Batch formátuma nincs mentve; Plaintextként jelenik meg',
-    ko: '이전 Batch 기록에 형식이 없어 Plaintext로 표시합니다',
-  },
   batchRejectedPreview: {
     zh: 'Batch 校验失败，已保存十六进制预览',
     en: 'Batch validation failed; a hex preview was saved',
@@ -1694,13 +1670,5 @@ export default {
     ja: 'Batchの検証に失敗し、16進数プレビューを保存しました',
     hu: 'A Batch ellenőrzése sikertelen; hexadecimális előnézet mentve',
     ko: 'Batch 검증에 실패하여 16진수 미리보기를 저장했습니다',
-  },
-  batchMetaReloaded: {
-    zh: 'Batch Meta 已按当前连接和协议更新',
-    en: 'Batch Meta updated for the current connection and protocol',
-    tr: 'Batch Meta mevcut bağlantı ve protokol için güncellendi',
-    ja: '現在の接続とプロトコルに合わせてBatch Metaを更新しました',
-    hu: 'A Batch Meta az aktuális kapcsolathoz és protokollhoz frissítve',
-    ko: '현재 연결 및 프로토콜에 맞춰 Batch Meta를 업데이트했습니다',
   },
 }

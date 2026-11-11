@@ -217,7 +217,7 @@ describe('MsgPublish per-connection input', () => {
     expect(vm.msgRecord.batch).to.equal(true)
     vm.handleHeaderChange({ topic: 'ordinary', qos: 1, retain: false })
     expect(vm.msgRecord.batch).to.equal(false)
-    expect(notices).to.deep.equal(['connections.batchHistoryRestored', 'connections.batchHistoryRestored'])
+    expect(notices).to.deep.equal([])
   })
 
   it('preserves incompatible history settings and blocks sending instead of silently changing them', async () => {
@@ -244,7 +244,7 @@ describe('MsgPublish per-connection input', () => {
     savedMessages.b = { topic: 'demo', qos: 1, retain: true, batch: true, payload: 'valid', payloadType: 'Plaintext' }
     await switchTo('b')
     expect(vm.msgRecord).to.deep.equal(savedMessages.b)
-    expect(notices).to.deep.equal(['connections.batchSavedRestored'])
+    expect(notices).to.deep.equal([])
     await wrapper.setProps({ mqttVersion: '3.1.1' })
     expect(vm.msgRecord.retain).to.equal(true)
     expect(vm.batchRetainDisabled).to.equal(true)
@@ -511,26 +511,18 @@ describe('MsgPublish per-connection input', () => {
       .and.include('connections.batchCarrierNotice')
   })
 
-  it('notifies when payload history restores text and format with batch enabled', async () => {
-    Object.assign(vm.msgRecord, { batch: true, payloadType: 'Plaintext' })
-    payloads.push({ connectionId: 'a', payload: '41\n42', payloadType: 'Hex' })
-    await vm.loadHistoryData()
-    vm.selectHistory(0)
-    expect(notices).to.deep.equal(['connections.batchHistoryRestored'])
-  })
-
   it('notifies when active processing changes while Batch is already on', async () => {
     Object.assign(vm.msgRecord, { batch: true, payloadType: 'Plaintext' })
     await wrapper.setProps({ batchProcessingActive: true })
     expect(notices).to.deep.equal(['connections.batchProcessingDisabled'])
   })
 
-  it('notifies when a connection reload restores Batch Meta without silently clearing PFI', async () => {
+  it('loads saved Batch Meta without changing PFI or showing a notice', async () => {
     properties = { payloadFormatIndicator: true }
     Object.assign(vm.msgRecord, { batch: true, topic: 'demo', payload: 'valid', payloadType: 'Plaintext' })
     await wrapper.setProps({ mqtt5PropsEnable: true })
     await settle()
-    expect(notices).to.deep.equal(['connections.batchMetaReloaded'])
+    expect(notices).to.deep.equal([])
     expect(vm.MQTT5PropsSend.payloadFormatIndicator).to.equal(true)
     expect(vm.batchState.error).to.equal('INVALID_BATCH_METADATA')
   })
