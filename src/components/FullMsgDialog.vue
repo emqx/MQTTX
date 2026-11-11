@@ -83,7 +83,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import { Table, TableColumn } from 'element-ui'
+import type { Table } from 'element-ui'
 import useServices from '@/database/useServices'
 import MyDialog from './MyDialog.vue'
 import Editor from './Editor.vue'
@@ -96,8 +96,6 @@ import { calculateTextSize } from '@/utils/data'
   components: {
     MyDialog,
     Editor,
-    ElTable: Table,
-    ElTableColumn: TableColumn,
   },
 })
 export default class FullMsgDialog extends Vue {
