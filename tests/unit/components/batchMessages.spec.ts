@@ -189,6 +189,7 @@ describe('Batch message display', () => {
   it('shows UTF-8 and binary byte sizes in the compact table', () => {
     const wrapper = mountDialog({ batchPayload: JSON.stringify(['é', { b64: '/w==' }]) })
     expect(wrapper.findAll('tbody .batch-size').wrappers.map((row) => row.text())).to.deep.equal(['2 B', '1 B'])
+    expect(wrapper.find('tbody .batch-muted').text()).to.equal('(binary)')
     wrapper.destroy()
   })
   it('keeps the complete saved payload for export', () => {

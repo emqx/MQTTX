@@ -223,4 +223,20 @@ describe('MsgPublish per-connection input', () => {
     vm.MQTT5PropsSend = { payloadFormatIndicator: true }
     expect(vm.batchError).to.include('connections.batchInvalidMetadata')
   })
+
+  it('hints at whole-document validation only for a valid batch with a JSON editor language', async () => {
+    vm.$t = (key: string, values: Record<string, string> = {}) => `${key} ${values.format || ''}`
+    Object.assign(vm.msgRecord, { batch: true, topic: 'demo', payload: '41\n42', payloadType: 'JSON' })
+    await Vue.nextTick()
+    expect(wrapper.find('.batch-status').text()).to.include('connections.batchWholeDocumentHint JSON')
+    for (const payloadType of ['Plaintext', 'Hex']) {
+      vm.msgRecord.payloadType = payloadType
+      await Vue.nextTick()
+      expect(wrapper.find('.batch-status').text()).not.to.include('connections.batchWholeDocumentHint')
+    }
+    Object.assign(vm.msgRecord, { payloadType: 'JSON', topic: 'a+b' })
+    await Vue.nextTick()
+    expect(wrapper.find('.batch-status').text()).to.include('connections.batchInvalidTopic')
+    expect(wrapper.find('.batch-status').text()).not.to.include('connections.batchWholeDocumentHint')
+  })
 })

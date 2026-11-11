@@ -1359,6 +1359,14 @@ export default {
     hu: 'Soronként egy elem · {count} elem · {bytes} B / {max} B',
     ko: '한 줄에 한 항목 · {count}개 · {bytes} B / {max} B',
   },
+  batchWholeDocumentHint: {
+    zh: '{format} 按整体校验，推荐 Plaintext',
+    en: '{format} is validated as a whole; Plaintext recommended',
+    tr: '{format} bir bütün olarak doğrulanır; Plaintext önerilir',
+    ja: '{format}は全体として検証されます。Plaintextを推奨します',
+    hu: 'A(z) {format} egészként ellenőrzött; Plaintext ajánlott',
+    ko: '{format}은 전체 문서로 검증됩니다. Plaintext를 권장합니다',
+  },
   batchLogicalTopic: {
     zh: '填写逻辑 topic，前缀会自动添加',
     en: 'Enter the logical topic; the prefix is added automatically',

@@ -265,6 +265,9 @@
           max: batchLimits.maxBytes,
         })
       }}<span v-if="batchState.error"> · {{ batchError }}</span>
+      <span v-else-if="payloadLang === 'json'">
+        · {{ $t('connections.batchWholeDocumentHint', { format: msgRecord.payloadType }) }}
+      </span>
     </div>
     <div v-if="disabled" class="disabled-mask" @click.stop></div>
   </div>

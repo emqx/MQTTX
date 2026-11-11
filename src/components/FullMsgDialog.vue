@@ -52,9 +52,7 @@
                 <td>
                   <span class="batch-content" :title="item.title"
                     >{{ item.text
-                    }}<span v-if="item.binary" class="batch-muted">
-                      ({{ $t('connections.batchBinary') }}, {{ formatBytes(item.bytes) }})</span
-                    ></span
+                    }}<span v-if="item.binary" class="batch-muted"> ({{ $t('connections.batchBinary') }})</span></span
                   >
                 </td>
                 <td class="batch-size">{{ formatBytes(item.bytes) }}</td>
