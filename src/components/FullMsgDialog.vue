@@ -190,6 +190,9 @@ export default class FullMsgDialog extends Vue {
 @import '~@/assets/scss/mixins.scss';
 
 .full-msg-dialog {
+  .el-dialog__header {
+    text-align: left;
+  }
   &.batch-dialog {
     .el-dialog {
       display: flex;
