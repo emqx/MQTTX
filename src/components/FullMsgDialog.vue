@@ -210,7 +210,7 @@ export default class FullMsgDialog extends Vue {
     border-radius: 8px;
   }
   .batch-page {
-    height: 400px;
+    max-height: 400px;
     overflow: auto;
     color: var(--color-text-default);
     font-size: 13px;
