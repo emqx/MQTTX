@@ -195,7 +195,6 @@ const sub = (options: SubscribeOptions) => {
 
     const msgData: MsgItem[] = []
     const batchInfo: MsgItem[] = []
-    let showMessage = true
 
     let batch: ReturnType<typeof decodeBatch>
     if (options.batch) {
@@ -216,7 +215,6 @@ const sub = (options: SubscribeOptions) => {
     if (batch) {
       savePayload = payload
       if (batch.error !== undefined) {
-        showMessage = false
         batchLog.rejected(batch.error, topic, payload.length)
         const preview = payload.subarray(0, 1024)
         output.payload = preview.toString('hex')
@@ -254,6 +252,17 @@ const sub = (options: SubscribeOptions) => {
       fileWrite && appendFileItems(savePath, appendItems, delimiter)
     }
 
+    if (outputModeClean) {
+      console.log(JSON.stringify(output, null, 2))
+      return
+    }
+
+    const fileNotice = savePath ? `${fileSave ? 'Saved to file' : 'Appended to file'}: ${savePath}` : undefined
+    if (batch?.error !== undefined) {
+      if (fileNotice) logWrapper.log(fileNotice)
+      return
+    }
+
     options.verbose && msgData.push({ label: 'mqtt-packet', value: packet })
 
     msgData.push({ label: 'received_at', value: new Date().toISOString() })
@@ -264,7 +273,6 @@ const sub = (options: SubscribeOptions) => {
 
     packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 
-    const fileNotice = savePath ? `${fileSave ? 'Saved to file' : 'Appended to file'}: ${savePath}` : undefined
     if (fileNotice) {
       msgData.push({ label: 'payload', value: `${receivedMessage}\n${fileNotice}` })
     } else {
@@ -285,13 +293,7 @@ const sub = (options: SubscribeOptions) => {
       msgData.push({ label: 'userProperties', value: up })
     }
 
-    if (outputModeClean) {
-      console.log(JSON.stringify(output, null, 2))
-    } else if (showMessage) {
-      msgLog(msgData)
-    } else if (fileNotice) {
-      logWrapper.log(fileNotice)
-    }
+    msgLog(msgData)
   })
 
   client.on('error', (err) => {
