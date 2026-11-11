@@ -27,8 +27,8 @@ const THEME_BACKDROP: Record<Theme, string> = {
 const DARK_TEXT = '#222b3b'
 const LIGHT_TEXT = '#ffffff'
 
-const hexToRgb = (hex: string): [number, number, number] | null => {
-  const m = hex.replace('#', '').match(/^([0-9a-f]{6}|[0-9a-f]{3})$/i)
+const hexToRgb = (hex?: string | null): [number, number, number] | null => {
+  const m = hex?.replace('#', '').match(/^([0-9a-f]{6}|[0-9a-f]{3})$/i)
   if (!m) return null
   let h = m[1]
   if (h.length === 3)
@@ -85,7 +85,7 @@ const LIGHT_LUM = relativeLuminance(hexToRgb(LIGHT_TEXT) as [number, number, num
  * sub.color is never modified. The colour-line swatch and the card tint render
  * the user's choice verbatim; only the text colour is derived.
  */
-export const topicTextColor = (hex: string, theme: Theme): string => {
+export const topicTextColor = (hex: string | null | undefined, theme: Theme): string => {
   const tint = hexToRgb(hex)
   if (!tint) return theme === 'light' ? DARK_TEXT : LIGHT_TEXT
   const surfaceLum = relativeLuminance(blend(THEME_BACKDROP_RGB[theme], tint, TOPIC_TINT_RATIO))
