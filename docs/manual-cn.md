@@ -226,11 +226,7 @@ sudo snap install mqttx
 
 ### Batch 消息
 
-计划在 MQTTX 1.14.0 提供。在**设置 → 高级**中开启**启用 Batch 发布**，再勾选发布栏中的 Batch，每行输入一条消息。兼容路由上支持 MQTT 5.0、MQTT 3.1.1 和 QoS 0/1。默认每批最多 256 条、65,536 字节 Payload；Desktop 超限时阻止发送，不自动拆包。
-
-接收端自动识别 Batch，以一个气泡预览前 5 条，完整条目在分页表格中查看。高级设置可控制发布选项显示、条数和字节上限，以及完整或摘要存储。摘要仅保留前 20 条、每条最多 32 字节，省略的数据无法恢复。
-
-主题前缀、编码规则、能力协商和使用示例见 [Batch 消息](./desktop/zh/use-desktop/pub-sub.md#batch-消息)。
+Batch 将多条消息打包到一个 MQTT PUBLISH 中。在**设置 > 高级**中开启**启用 Batch 发布**，再勾选发布栏中的 **Batch**，每行输入一条消息。发布、订阅、格式、上限和存储说明见 [Batch 消息](./desktop/zh/use-desktop/pub-sub.md#batch-消息)。
 
 ### MQTT 5
 
@@ -277,7 +273,7 @@ sudo snap install mqttx
 - **基础**：语言、自动检查更新、自动恢复订阅、多主题订阅、最大重连次数和最大 Payload 显示大小。
 - **外观**：同步操作系统主题、主题（Light、Dark 或 Night）以及 JSON 数据高亮。
 - **扩展**：一键安装 MQTTX CLI。
-- **高级**：日志等级、数据恢复和备份、清除历史数据、忽略 QoS 0 消息、自动解压 GZIP 消息、主题空格检测、GPU 加速，以及 Batch 发布开关、条数和字节上限及存储模式。
+- **高级**：日志等级、数据恢复和备份、清除历史数据、忽略 QoS 0 消息、自动解压 GZIP 消息、主题空格检测、GPU 加速和 Batch 设置。
 - **MQTTX Agent**：启用 Agent，配置模型服务商、推理强度、默认权限模式、每次回复的最大步数和 MCP 服务器，详见 [MQTTX Agent](./desktop/zh/use-desktop/agent.md)。
 
 ![mqttx-theme](../assets/mqttx-theme.png)

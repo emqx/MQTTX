@@ -48,14 +48,12 @@ So far, the testing of an `MQTT` message is completed.
 
 ## Batch Messages
 
-> Planned for MQTTX Desktop 1.14.0. This feature is not available in 1.13.3.
-
-Batch sends ordered items on one logical topic in a single MQTT PUBLISH. It supports MQTT 5.0 and MQTT 3.1.1 with QoS 0 or 1. Before sending, confirm that the broker route and consumers support the same batch format and limits. This format uses a two-byte big-endian length prefix for each item, not a JSON array or VBI framing.
+Batch sends ordered items on one topic in a single MQTT PUBLISH. It supports MQTT 5.0 and MQTT 3.1.1 with QoS 0/1 on compatible broker routes.
 
 ### Send a batch
 
-1. Open **Settings → Advanced** and turn on **Enable Batch publishing**. It is off by default and controls whether the publish bar shows the Batch checkbox.
-2. Connect, enter a logical topic such as `demo/batch`, select **Plaintext** and **QoS 1**, then check **Batch**.
+1. Open **Settings > Advanced** and turn on **Enable Batch publishing**.
+2. Connect, enter a topic such as `demo/batch`, select `Plaintext` and **QoS 1**, then check **Batch**.
 3. Enter one item per line and click Send:
 
    ```text
@@ -64,42 +62,48 @@ Batch sends ordered items on one logical topic in a single MQTT PUBLISH. It supp
    world
    ```
 
-The status line shows the item count and encoded payload size. A batch over the configured limits cannot be sent; shorten it or raise the limits within the route's allowance. Desktop sends one batch per click and does not split it automatically.
+The status line shows the item count and encoded payload size. Desktop blocks oversized batches instead of splitting them.
 
 ![Batch publishing and received message](./assets/batch-publish.png)
 
-Empty lines are empty items; one final newline does not add an item. Batch supports **Plaintext, JSON, Hex, and Base64**. Each JSON item must be valid JSON on one line. For Hex, use byte pairs such as `01` and `FF`; for Base64, use encoded text such as `QQ==`. Invalid input shows the failing line and a correction hint, and disables sending.
+Choose `Plaintext`, `JSON`, `Hex`, or `Base64`. JSON requires one valid value per nonempty line. For Hex, use byte pairs such as `01 FF`; for Base64, use encoded text such as `QQ==`. Empty lines are empty items; one final newline adds no item. Invalid input shows the failing line and blocks sending.
 
-Batch skips per-item Schema and scripts, and requires Payload Format Indicator to be off. MQTTX asks for confirmation before changing incompatible publish settings. Turning off the global setting exits Batch publishing mode; it does not hide received batches. Publish history retains the Batch choice, but cannot re-enable it while the global setting is off.
+> **Note:** MQTTX asks for confirmation before changing incompatible settings, including switching `JSON`, `CBOR`, or `MsgPack` to `Plaintext`. You can select `JSON` again after enabling Batch. Keep Payload Format Indicator off.
 
 ### Topics and negotiation
 
-| Connection | Publish topic | Subscribe to          | Retain                          |
-| ---------- | ------------- | --------------------- | ------------------------------- |
-| MQTT 5.0   | `demo/batch`  | `demo/batch`          | Supported on compatible routes. |
-| MQTT 3.1.1 | `demo/topic`  | `$batch/+/demo/topic` | Not supported for batches.      |
+| Connection | Publish topic | Subscribe to          | Retain        |
+| ---------- | ------------- | --------------------- | ------------- |
+| MQTT 5.0   | `demo/batch`  | `demo/batch`          | Supported     |
+| MQTT 3.1.1 | `demo/topic`  | `$batch/+/demo/topic` | Not supported |
 
-MQTT 5.0 adds `batch-format=v1` and `batch-size=N` User Properties automatically. MQTT 3.1.1 publishes to `$batch/{N}/demo/topic`; give the publish field only `demo/topic` to avoid a duplicate prefix. A subscription to `#` does not match topics starting with `$`.
+MQTTX adds `batch-format=v1` and `batch-size=N` User Properties for MQTT 5.0. For MQTT 3.1.1, it publishes to `$batch/{N}/demo/topic`; enter only `demo/topic` in the publish field. A subscription to `#` does not match topics starting with `$`.
 
-If an MQTT 5.0 route requires negotiation, add `batch-publish` with value `v1` to the **connection's** User Properties before connecting. Check the Batch negotiation status in the connection information. Desktop warns if the offered version is not selected; this warning does not itself block publishing. On routes that require negotiation, publish only after confirming selection. The broker's Maximum Packet Size also limits the complete packet, including headers.
+If your MQTT 5.0 route requires negotiation, add `batch-publish` with value `v1` to the connection's User Properties before connecting. Check **Batch negotiation** in the connection information. A missing selection shows a warning but does not block publishing.
 
 ### Receive and inspect
 
-Desktop recognizes incoming batch markers automatically, even when Batch publishing is disabled. Subscribe to the appropriate topic above; no receive-side checkbox is needed. A batch appears as one message bubble with a **Batch N** badge and the first five items. **See More** opens the item table, showing content and byte size with 100 items per page. Pagination changes the view, not the stored item count. **Save to Local** exports the saved payload.
+Subscribe to the topic shown above. Received batches appear automatically, even when Batch publishing is disabled. Each batch has one message bubble with a **Batch N** badge and a preview of up to five items. For larger batches stored with **Save all**, click **See More** to view content and byte size, 100 items per page. **Save to Local** in that dialog exports the saved payload.
 
 ![Batch item table](./assets/batch-items.png)
 
-Batch reception bypasses whole-payload GZIP decompression, Schema, and scripts. Invalid or oversized batches show an error and a bounded hex preview instead of partially decoded items. In Plaintext mode, non-UTF-8 items are preserved as binary and shown with a binary indicator.
+Invalid or oversized batches show an error and a limited hex preview. In `Plaintext` mode, non-UTF-8 items are kept as binary and marked **binary**.
+
+> **Note:** Batch skips Schema and scripts; received batches also skip GZIP decompression.
 
 ### Limits and storage
 
-Configure these options in **Settings → Advanced**:
+Configure these options in **Settings > Advanced**:
 
-| Setting                 | Default | Behavior                                                            |
-| ----------------------- | ------- | ------------------------------------------------------------------- |
-| Enable Batch publishing | Off     | Show or hide the Batch option in the publish bar.                   |
-| Batch max items         | `256`   | Shared publish/receive limit; range `1–65535`.                      |
-| Batch max bytes         | `65536` | Payload bytes including item length prefixes; range `1024–1048576`. |
-| Batch storage mode      | Full    | Save all items in accepted incoming batches.                        |
+| Setting                 | Default  | Behavior                                                    |
+| ----------------------- | -------- | ----------------------------------------------------------- |
+| Enable Batch publishing | Off      | Show the Batch checkbox; turning this off exits Batch mode. |
+| Batch max items         | `256`    | Shared publish/receive limit; range `1–65535`.              |
+| Batch max bytes         | `65536`  | Encoded payload bytes; range `1024–1048576`.                |
+| Batch storage mode      | Save all | Save all items in accepted incoming batches.                |
 
-**Summary** storage keeps only the first 20 items, up to 32 bytes per item, for future incoming batches. The message identifies it as a summary. Omitted data cannot be recovered or exported later. Use Full when you need the complete batch; the five-item bubble preview is only a display limit.
+Publish history can restore Batch mode only while **Enable Batch publishing** is on.
+
+Each item is limited to 65,535 bytes. For MQTT 5.0, **Broker Maximum Packet Size** also limits the complete packet, including headers.
+
+**Summary only** marks future received batches as summaries and saves only the first 20 items, up to 32 bytes each. Omitted data cannot be recovered or exported.
