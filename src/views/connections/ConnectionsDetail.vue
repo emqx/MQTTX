@@ -496,6 +496,7 @@ export default class ConnectionsDetail extends Vue {
   @Getter('showConnectionList') private showConnectionList!: boolean
   @Getter('maxPayloadDisplaySize') private maxPayloadDisplaySize!: number
   @Getter('decompressGzip') private decompressGzip!: boolean
+  @Getter('batchPublishEnabled') private batchPublishEnabled!: boolean
   @Getter('batchMaxItems') private batchMaxItems!: number
   @Getter('batchMaxBytes') private batchMaxBytes!: number
   @Getter('batchStorageMode') private batchStorageMode!: BatchStorageMode
@@ -1931,6 +1932,12 @@ export default class ConnectionsDetail extends Vue {
     let finalPayload: string | Buffer | undefined = payload
 
     if (message.batch) {
+      if (!this.batchPublishEnabled) {
+        const error = new Error(this.$t('connections.batchPublishingDisabled') as string)
+        this.handleErrorOnPublish(error, true)
+        onResult?.(error)
+        return false
+      }
       const limits = getBatchLimits(this.batchMaxItems, this.batchMaxBytes)
       const prepared = prepareBatchPublish(
         message,

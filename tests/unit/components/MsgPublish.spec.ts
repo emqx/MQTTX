@@ -42,7 +42,13 @@ describe('MsgPublish per-connection input', () => {
         ElCheckbox: ElementUI.Checkbox,
       },
       store: new Vuex.Store({
-        getters: { currentTheme: () => 'light', batchMaxItems: () => 100, batchMaxBytes: () => 65536 },
+        state: { batchPublishEnabled: true },
+        getters: {
+          currentTheme: () => 'light',
+          batchPublishEnabled: (state) => state.batchPublishEnabled,
+          batchMaxItems: () => 100,
+          batchMaxBytes: () => 65536,
+        },
       }),
       propsData: { editorHeight: 180, clientConnected: true },
       router,
@@ -98,6 +104,29 @@ describe('MsgPublish per-connection input', () => {
   afterEach(() => {
     wrapper.destroy()
     Container.get = originalGet
+  })
+
+  it('hides disabled Batch controls and prevents history from restoring a hidden batch mode', async () => {
+    vm.$store.state.batchPublishEnabled = false
+    await settle()
+    expect(wrapper.find('.batch-checkbox').exists()).to.equal(false)
+    vm.handleHeaderChange({ topic: 'demo', qos: 1, retain: false, batch: true })
+    await settle()
+    expect(vm.msgRecord.batch).to.equal(false)
+
+    vm.$store.state.batchPublishEnabled = true
+    await settle()
+    expect(wrapper.find('.batch-checkbox').exists()).to.equal(true)
+    Object.assign(vm.msgRecord, { payload: 'one\ntwo', payloadType: 'Plaintext' })
+    await wrapper.find('.batch-checkbox input').trigger('click')
+    await settle()
+    expect(vm.msgRecord.batch).to.equal(true)
+
+    vm.$store.state.batchPublishEnabled = false
+    await settle()
+    expect(wrapper.find('.batch-checkbox').exists()).to.equal(false)
+    expect(vm.msgRecord).to.include({ batch: false, payload: 'one\ntwo', payloadType: 'Plaintext' })
+    expect(wrapper.emitted('batchChange')!.slice(-1)[0]).to.deep.equal([false])
   })
 
   it('keeps each connection input across switches and remounts', async () => {

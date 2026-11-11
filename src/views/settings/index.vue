@@ -346,6 +346,29 @@
 
       <el-row class="settings-item" type="flex" justify="space-between" align="middle">
         <el-col :span="20">
+          <label>{{ $t('settings.batchPublishEnabled') }}</label>
+          <el-tooltip
+            placement="top"
+            :effect="currentTheme !== 'light' ? 'light' : 'dark'"
+            :open-delay="500"
+            :content="$t('settings.batchPublishEnabledDesc')"
+          >
+            <a href="javascript:;" class="icon-oper"><i class="el-icon-warning-outline"></i></a>
+          </el-tooltip>
+        </el-col>
+        <el-col :span="4">
+          <el-switch
+            :value="batchPublishEnabled"
+            active-color="#13ce66"
+            inactive-color="#A2A9B0"
+            @change="handleBatchPublishEnabledChange"
+          />
+        </el-col>
+      </el-row>
+      <el-divider></el-divider>
+
+      <el-row class="settings-item" type="flex" justify="space-between" align="middle">
+        <el-col :span="20">
           <label>{{ $t('settings.batchStorageMode') }}</label>
           <el-tooltip
             placement="top"
@@ -729,6 +752,7 @@ export default class Settings extends Vue {
   @Action('SET_AGENT_MAX_STEPS') private actionSetAgentMaxSteps!: (payload: { agentMaxSteps: number }) => void
   @Action('SET_AGENT_REASONING') private actionSetAgentReasoning!: (payload: { agentReasoning: AgentReasoning }) => void
 
+  @Action('SET_BATCH_PUBLISH_ENABLED') private actionBatchPublishEnabled!: (payload: { batchPublishEnabled: boolean }) => void
   @Action('SET_BATCH_STORAGE_MODE') private actionBatchStorageMode!: (payload: { batchStorageMode: App['batchStorageMode'] }) => void
   @Action('SET_BATCH_MAX_ITEMS') private actionBatchMaxItems!: (payload: { batchMaxItems: number }) => void
   @Action('SET_BATCH_MAX_BYTES') private actionBatchMaxBytes!: (payload: { batchMaxBytes: number }) => void
@@ -754,6 +778,7 @@ export default class Settings extends Vue {
   @Getter('decompressGzip') private decompressGzip!: boolean
   @Getter('maxPayloadDisplaySize') private maxPayloadDisplaySize!: number
   @Getter('enableHardwareAcceleration') private enableHardwareAcceleration!: boolean
+  @Getter('batchPublishEnabled') private batchPublishEnabled!: boolean
   @Getter('batchStorageMode') private batchStorageMode!: App['batchStorageMode']
   @Getter('batchMaxItems') private batchMaxItems!: number
   @Getter('batchMaxBytes') private batchMaxBytes!: number
@@ -936,6 +961,10 @@ export default class Settings extends Vue {
 
   private handleMaxStepsChange(value: number) {
     this.actionSetAgentMaxSteps({ agentMaxSteps: value })
+  }
+
+  private handleBatchPublishEnabledChange(value: boolean) {
+    this.actionBatchPublishEnabled({ batchPublishEnabled: value })
   }
 
   private async handleBatchStorageModeChange(value: App['batchStorageMode']) {

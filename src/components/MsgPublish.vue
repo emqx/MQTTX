@@ -118,6 +118,7 @@
           size="mini"
         ></el-checkbox>
         <el-checkbox
+          v-if="batchPublishEnabled"
           class="batch-checkbox"
           v-model="batchChecked"
           :disabled="isMqtt31"
@@ -345,6 +346,7 @@ export default class MsgPublish extends Vue {
   @Prop({ default: null }) public sendTimeId!: number | null
 
   @Getter('currentTheme') private currentTheme!: Theme
+  @Getter('batchPublishEnabled') private batchPublishEnabled!: boolean
   @Getter('batchMaxItems') private batchMaxItems!: number
   @Getter('batchMaxBytes') private batchMaxBytes!: number
 
@@ -463,11 +465,13 @@ export default class MsgPublish extends Vue {
     this.msgRecord.batch = true
   }
 
+  @Watch('batchPublishEnabled')
   @Watch('msgRecord.batch')
   @Watch('mqttVersion')
   @Watch('msgRecord.qos')
   @Watch('msgRecord.retain')
   private handleBatchChange() {
+    if (!this.batchPublishEnabled && this.msgRecord.batch) this.$set(this.msgRecord, 'batch', false)
     this.batchChecked = Boolean(this.msgRecord.batch)
     this.$nextTick(this.handleLayout)
     if (this.isMqtt31 && this.msgRecord.batch) {

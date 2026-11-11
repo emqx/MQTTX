@@ -1,6 +1,7 @@
 import '../mocks/browserStorage'
 import { expect } from 'chai'
 import settings from '@/lang/settings'
+import app from '@/store/modules/app'
 
 if (typeof document.queryCommandSupported !== 'function') (document as any).queryCommandSupported = () => false
 const Settings = require('@/views/settings/index.vue').default
@@ -37,6 +38,34 @@ const context = () => {
 }
 
 describe('Batch settings notices', () => {
+  it('persists enabling and disabling Batch publishing through the settings handler', () => {
+    const state = { ...app.state, allConnections: [] }
+    const writes: unknown[][] = []
+    const originalSet = Store.prototype.set
+    Store.prototype.set = (...args: unknown[]) => writes.push(args)
+    try {
+      const ctx = {
+        actionBatchPublishEnabled: (payload: App) =>
+          app.actions.SET_BATCH_PUBLISH_ENABLED(
+            {
+              commit: (name: 'SET_BATCH_PUBLISH_ENABLED', value: boolean) => app.mutations[name](state, value),
+            },
+            payload,
+          ),
+      }
+      for (const enabled of [true, false]) {
+        methods.handleBatchPublishEnabledChange.call(ctx, enabled)
+        expect(state.batchPublishEnabled).to.equal(enabled)
+      }
+      expect(writes).to.deep.equal([
+        ['settings.batchPublishEnabled', true],
+        ['settings.batchPublishEnabled', false],
+      ])
+    } finally {
+      Store.prototype.set = originalSet
+    }
+  })
+
   it('confirms the item and byte truncation before enabling summary storage', async () => {
     const { ctx, saved, prompts } = context()
     await methods.handleBatchStorageModeChange.call(ctx, 'summary')

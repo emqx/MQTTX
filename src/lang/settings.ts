@@ -423,6 +423,22 @@ export default {
     hu: 'Ha engedélyezve van, az MQTTX figyelmen kívül hagyja a QoS 0 üzeneteket, és nem tárolja őket helyben. Már mentett üzeneteket nem fog automatikusan törölni, ami teljesítmény javítását eredményezi.',
     ko: '활성화하면 MQTTX는 QoS 0 메시지를 무시하고 로컬에 저장하지 않습니다. 이미 저장된 메시지는 자동으로 삭제되지 않으며, 이를 통해 성능이 향상됩니다',
   },
+  batchPublishEnabled: {
+    zh: '启用 Batch 发布',
+    en: 'Enable Batch publishing',
+    tr: 'Batch yayınlamayı etkinleştir',
+    ja: 'Batch送信を有効にする',
+    hu: 'Batch küldés engedélyezése',
+    ko: 'Batch 발행 활성화',
+  },
+  batchPublishEnabledDesc: {
+    zh: '在发布栏显示 Batch 选项。关闭后退出 Batch 发布模式，不影响已收消息的查看。',
+    en: 'Show the Batch option in the publish bar. Turning this off exits Batch publishing mode without affecting received messages.',
+    tr: 'Yayınlama çubuğunda Batch seçeneğini gösterir. Kapatıldığında alınan mesajları etkilemeden Batch yayınlama modundan çıkılır.',
+    ja: '送信欄にBatchオプションを表示します。無効にするとBatch送信モードを終了します。受信済みメッセージの表示には影響しません。',
+    hu: 'Megjeleníti a Batch opciót a küldési sávban. Kikapcsoláskor kilép a Batch küldési módból, a fogadott üzenetek megjelenítése nem változik.',
+    ko: '발행 영역에 Batch 옵션을 표시합니다. 끄면 Batch 발행 모드가 해제되며 수신한 메시지 표시에는 영향을 주지 않습니다.',
+  },
   batchStorageMode: {
     zh: 'Batch 存储模式',
     en: 'Batch storage mode',

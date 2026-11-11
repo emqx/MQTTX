@@ -126,6 +126,7 @@ declare global {
     ignoreQoS0Message: boolean
     topicWhitespaceDetection: boolean
     decompressGzip: boolean
+    batchPublishEnabled: boolean
     batchStorageMode: BatchStorageMode
     batchMaxItems: number
     batchMaxBytes: number

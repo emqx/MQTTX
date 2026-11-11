@@ -232,7 +232,12 @@ describe('Batch message display', () => {
 
 describe('Batch settings persistence', () => {
   it('uses defaults for old configurations and rejects invalid actions without committing', () => {
-    expect(app.state).to.include({ batchStorageMode: 'full', batchMaxItems: 256, batchMaxBytes: 65536 })
+    expect(app.state).to.include({
+      batchPublishEnabled: false,
+      batchStorageMode: 'full',
+      batchMaxItems: 256,
+      batchMaxBytes: 65536,
+    })
     const commits: any[] = []
     const context = { commit: (...args: any[]) => commits.push(args) }
     for (const value of [0, 65536, 1.5, NaN, Infinity])

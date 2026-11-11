@@ -1591,6 +1591,14 @@ export default {
     hu: 'Az MQTT 3.1 nem támogatja a Batch módot; kikapcsolva',
     ko: 'MQTT 3.1은 Batch를 지원하지 않아 Batch를 껐습니다',
   },
+  batchPublishingDisabled: {
+    zh: '请先在「设置 → 高级」中启用 Batch 发布',
+    en: 'Enable Batch publishing in Settings → Advanced first',
+    tr: 'Önce Ayarlar → Gelişmiş bölümünde Batch yayınlamayı etkinleştirin',
+    ja: '先に「設定 → 詳細設定」でBatch送信を有効にしてください',
+    hu: 'Előbb engedélyezze a Batch küldést a Beállítások → Speciális menüben',
+    ko: '먼저 설정 → 고급에서 Batch 발행을 활성화하세요',
+  },
   batchFormatHint: {
     zh: '发送时按所选格式逐行编码；切换格式不会改写编辑器内容',
     en: 'Each line is encoded in the selected format when sent. Switching formats leaves the editor text unchanged.',

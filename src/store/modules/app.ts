@@ -53,6 +53,7 @@ const TOGGLE_ENABLE_HARDWARE_ACCELERATION = 'TOGGLE_ENABLE_HARDWARE_ACCELERATION
 const SET_AGENT_PERMISSION_MODE = 'SET_AGENT_PERMISSION_MODE'
 const SET_AGENT_MAX_STEPS = 'SET_AGENT_MAX_STEPS'
 const SET_AGENT_REASONING = 'SET_AGENT_REASONING'
+const SET_BATCH_PUBLISH_ENABLED = 'SET_BATCH_PUBLISH_ENABLED'
 const SET_BATCH_STORAGE_MODE = 'SET_BATCH_STORAGE_MODE'
 const SET_BATCH_MAX_ITEMS = 'SET_BATCH_MAX_ITEMS'
 const SET_BATCH_MAX_BYTES = 'SET_BATCH_MAX_BYTES'
@@ -107,6 +108,7 @@ const app = {
     agentPermissionMode: electronStore.get('settings.agentPermissionMode', 'ask'),
     agentMaxSteps: normalizeAgentMaxSteps(electronStore.get('settings.agentMaxSteps', DEFAULT_AGENT_MAX_STEPS)),
     agentReasoning: normalizeAgentReasoning(electronStore.get('settings.agentReasoning', DEFAULT_AGENT_REASONING)),
+    batchPublishEnabled: electronStore.get('settings.batchPublishEnabled', false) === true,
     batchStorageMode: normalizeBatchStorageMode(
       electronStore.get('settings.batchStorageMode', DEFAULT_BATCH_STORAGE_MODE),
     ),
@@ -242,6 +244,9 @@ const app = {
     },
     [SET_AGENT_REASONING](state: App, agentReasoning: AgentReasoning) {
       state.agentReasoning = agentReasoning
+    },
+    [SET_BATCH_PUBLISH_ENABLED](state: App, value: boolean): void {
+      state.batchPublishEnabled = value
     },
     [SET_BATCH_STORAGE_MODE](state: App, mode: App['batchStorageMode']): void {
       state.batchStorageMode = mode
@@ -424,6 +429,11 @@ const app = {
 
       await dispatch('SET_MODEL', { model: migration.model })
       if (migration.agentReasoning) await dispatch('SET_AGENT_REASONING', { agentReasoning: migration.agentReasoning })
+    },
+    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+    [SET_BATCH_PUBLISH_ENABLED]({ commit }: any, payload: App): void {
+      commit(SET_BATCH_PUBLISH_ENABLED, payload.batchPublishEnabled)
+      electronStore.set('settings.batchPublishEnabled', payload.batchPublishEnabled)
     },
     // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     [SET_BATCH_STORAGE_MODE]({ commit }: any, payload: App): void {

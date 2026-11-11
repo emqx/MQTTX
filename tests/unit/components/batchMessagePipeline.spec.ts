@@ -184,12 +184,51 @@ describe('Desktop batch message pipeline', () => {
     expect(result[0].message).to.equal('The payload could not be converted to JSON')
   })
 
+  it('stops a queued batch when publishing is disabled and reports the result', async () => {
+    let stopped = false
+    let result: Error | undefined
+    const context: any = {
+      ...methods,
+      batchPublishEnabled: false,
+      record: { id: 'c1', mqttVersion: '5.0' },
+      insertHistory: async () => undefined,
+      sendTimeId: 1,
+      stopTimedSend: () => {
+        stopped = true
+      },
+      notifyMsgWithAgent: () => undefined,
+      $t: (key: string) => key,
+      $message: { warning: () => undefined },
+      $log: { error: () => undefined },
+      client: {
+        publish: () => {
+          throw new Error('Disabled batch must not publish')
+        },
+      },
+    }
+    context.handleErrorOnPublish = methods.handleErrorOnPublish.bind(context)
+    expect(
+      await methods.publishMessage.call(
+        context,
+        { topic: 'demo', payload: 'one\ntwo', qos: 1, retain: false, batch: true },
+        'Plaintext',
+        undefined,
+        (error?: Error) => {
+          result = error
+        },
+      ),
+    ).to.equal(false)
+    expect(stopped).to.equal(true)
+    expect(result!.message).to.equal('connections.batchPublishingDisabled')
+  })
+
   it('records history before batch validation and reports localized publish errors', async () => {
     const errors: string[] = []
     const events: string[] = []
     const context: any = {
       ...methods,
       record: { id: 'c1', mqttVersion: '5.0' },
+      batchPublishEnabled: true,
       batchMaxItems: 100,
       batchMaxBytes: 65536,
       insertHistory: async (_: any, header: any) => {
@@ -235,6 +274,7 @@ describe('Desktop batch message pipeline', () => {
     const context: any = {
       ...methods,
       record: { id: 'c1', mqttVersion: '3.1.1' },
+      batchPublishEnabled: true,
       batchMaxItems: 100,
       batchMaxBytes: 65536,
       insertHistory: async (...args: any[]) => history.push(args),
@@ -280,6 +320,7 @@ describe('Desktop batch message pipeline', () => {
     const context: any = {
       ...methods,
       record: { id: 'c1', mqttVersion: '5.0' },
+      batchPublishEnabled: true,
       batchMaxItems: 100,
       batchMaxBytes: 65536,
       insertHistory: async () => undefined,
