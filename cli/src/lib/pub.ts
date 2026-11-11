@@ -46,8 +46,12 @@ import {
   PROTOCOL_BATCH_LIMITS,
 } from '../utils/constants'
 import shouldRetryConnectionError from '../utils/shouldRetryConnectionError'
-import { addBatchOffer, createBatchSelectionCheck } from '../utils/batchOptions'
-import { buildTopicCarrier, calculatePublishSize, encodeBatchPayload } from '../utils/batchPublishing'
+import {
+  buildTopicCarrier,
+  calculatePublishSize,
+  createBatchSelectionCheck,
+  encodeBatchPayload,
+} from '../utils/batchPublishing'
 
 /**
  * Processes the outgoing message through two potential stages:
@@ -145,7 +149,7 @@ const watchBatchConnection = (
   options: PublishOptions | BenchPublishOptions,
   packets: BatchMessage[],
 ) => {
-  const checkSelection = createBatchSelectionCheck(options.connUserProperties, options.batchNegotiate)
+  const checkSelection = createBatchSelectionCheck(client.options.properties?.userProperties, options.batchNegotiate)
   client.on('packetreceive', (packet) => {
     if (packet.cmd !== 'connack' || (packet.reasonCode ?? packet.returnCode) !== 0) return
     try {
@@ -463,7 +467,6 @@ const pub = (options: PublishOptions) => {
 
   checkTopicExists(options.topic, 'pub')
   validateBatchOptions(options, 'pub')
-  addBatchOffer(options)
   if (options.batch) {
     try {
       const source = options.fileRead
@@ -583,10 +586,9 @@ const multiPub = async (commandType: 'benchPub' | 'simulate', options: BenchPubl
   checkTopicExists(topic, commandType)
   if (commandType === 'benchPub') {
     validateBatchOptions(options, 'benchPub')
-    addBatchOffer(options)
   }
 
-  const connOpts = parseConnectOptions(options, 'pub')
+  const connOpts = parseConnectOptions(options, commandType)
 
   const pubOpts = parsePublishOptions(options)
 

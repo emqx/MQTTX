@@ -72,7 +72,11 @@ const parseMQTTVersion = (value: string) => {
 
 /** Collect repeated pub messages; the first explicit value replaces the default. */
 const parseMessage = (value: string, previous: string | string[]): string | string[] => {
-  return Array.isArray(previous) ? [...previous, value] : [value]
+  if (Array.isArray(previous)) {
+    previous.push(value)
+    return previous
+  }
+  return [value]
 }
 
 /** Validate a configurable batch limit before connecting. */
@@ -485,8 +489,11 @@ const parseConnectOptions = (
   if (mqttVersion === 3) {
     connectOptions.protocolId = 'MQIsdp'
   } else if (mqttVersion === 5) {
-    const userProperties =
+    let userProperties =
       commandType === 'conn' ? options.userProperties : (<PublishOptions | SubscribeOptions>options).connUserProperties
+    if ((commandType === 'pub' || commandType === 'benchPub') && (options as PublishOptions).batchNegotiate) {
+      userProperties = { ...userProperties, 'batch-publish': 'v1' }
+    }
     const properties = {
       sessionExpiryInterval,
       receiveMaximum,

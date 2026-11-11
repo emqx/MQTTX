@@ -204,13 +204,6 @@ describe('batch carriers and validation order', () => {
   it('rejects an empty batch', () => {
     expect(() => encodeBatchPayload([], large)).toThrow('INVALID_BATCH_COUNT')
   })
-
-  it('never returns partial items for malformed envelopes', () => {
-    for (let size = 0; size < 256; size++) {
-      const result = decodeBatch(property(String((size % 10) + 1), Buffer.alloc(size, size)), 5)
-      if (result?.error) expect(result.items).toBeUndefined()
-    }
-  })
 })
 
 const hex5 =

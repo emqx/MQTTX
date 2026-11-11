@@ -125,6 +125,10 @@ const sub = (options: SubscribeOptions) => {
   const { outputMode, maximumReconnectTimes } = options
 
   const outputModeClean = outputMode === 'clean'
+  const batchLimits = {
+    maxItems: options.batchMaxItems ?? DEFAULT_BATCH_LIMITS.maxItems,
+    maxBytes: options.batchMaxBytes ?? DEFAULT_BATCH_LIMITS.maxBytes,
+  }
 
   let retryTimes = 0
 
@@ -198,12 +202,9 @@ const sub = (options: SubscribeOptions) => {
 
     let batch: ReturnType<typeof decodeBatch>
     if (options.batch) {
-      batch = decodeBatch({ ...packet, topic, payload }, options.mqttVersion, {
-        maxItems: options.batchMaxItems ?? DEFAULT_BATCH_LIMITS.maxItems,
-        maxBytes: options.batchMaxBytes ?? DEFAULT_BATCH_LIMITS.maxBytes,
-      })
+      batch = decodeBatch({ ...packet, topic, payload }, options.mqttVersion, batchLimits)
     }
-    let receivedMessage: string | Buffer
+    let receivedMessage: string | Buffer = ''
     let savePayload: string | Buffer
     let appendItems: (string | Buffer)[] = []
     const output: {
@@ -224,17 +225,18 @@ const sub = (options: SubscribeOptions) => {
           rawPreviewBytes: preview.length,
           rawPreviewTruncated: preview.length < payload.length,
         }
-        receivedMessage = ''
       } else {
         const batchItems = batch.items
         appendItems = batchItems.map((item) => processReceivedMessage(item, schemaOptions, format))
         // Preserve arbitrary bytes when no display encoding was requested.
         const items = appendItems.map((item, index) => cleanBatchItem(format ? item : batchItems[index]))
         output.batch = { carrier: batch.carrier, logicalTopic: batch.logicalTopic, count: batch.count, items }
-        receivedMessage = batchLog.payload(items)
-        batchInfo.push({ label: 'batch', value: `${batch.count} ${batch.count === 1 ? 'item' : 'items'}` })
-        if (batch.carrier === 'topic') {
-          batchInfo.push({ label: 'logical_topic', value: batch.logicalTopic })
+        if (!outputModeClean) {
+          receivedMessage = batchLog.payload(items)
+          batchInfo.push({ label: 'batch', value: `${batch.count} ${batch.count === 1 ? 'item' : 'items'}` })
+          if (batch.carrier === 'topic') {
+            batchInfo.push({ label: 'logical_topic', value: batch.logicalTopic })
+          }
         }
       }
     } else {
