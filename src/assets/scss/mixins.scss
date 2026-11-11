@@ -80,9 +80,26 @@
       color: var(--color-text-right_info);
     }
   }
+  .el-button.see-more-btn {
+    margin-top: 6px;
+    background: transparent;
+    color: var(--color-text-left_info);
+    border: 1px solid var(--color-text-left_info);
+    &:hover {
+      background: transparent;
+      color: var(--color-text-default);
+    }
+  }
+  .right-payload .el-button.see-more-btn {
+    color: var(--color-text-right_info);
+    border-color: var(--color-text-right_info);
+    &:hover {
+      color: var(--color-text-active);
+    }
+  }
   .user-properties {
-    margin-top: 8px;
-    padding: 0;
+    margin-top: 12px;
+    padding: 10px 0;
   }
 }
 
@@ -193,6 +210,50 @@
       vertical-align: middle !important;
       margin: 0 !important;
       align-self: center !important;
+    }
+  }
+}
+
+@mixin history-button-group {
+  display: flex;
+  gap: 3px;
+
+  .history-btn {
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    margin: 0;
+    background-color: transparent;
+    min-width: unset;
+
+    &.history-btn-left {
+      width: 18px;
+      font-size: 13px;
+    }
+
+    &.history-btn-center {
+      min-width: 24px;
+      font-size: 13px;
+      color: var(--color-text-default);
+
+      &:hover {
+        background-color: var(--color-bg-hover);
+      }
+    }
+
+    &.history-btn-right {
+      width: 18px;
+      font-size: 13px;
+    }
+
+    &:hover:not(.is-disabled) {
+      background-color: var(--color-bg-hover);
+    }
+
+    &.is-disabled {
+      background-color: transparent;
+      color: var(--color-text-historybtn_disabled);
     }
   }
 }

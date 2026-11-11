@@ -259,7 +259,7 @@ describe('Desktop batch message pipeline', () => {
     expect(history[0][0].payload).to.equal(message.payload)
     expect(history[0][1]).to.include({ batch: true, topic: 'demo' })
     expect(bubbles[0][1]).to.equal(message.payload)
-    expect(JSON.parse(bubbles[0][0].meta).batch.count).to.equal(2)
+    expect(JSON.parse(bubbles[0][0].meta).batch).to.include({ count: 2, payloadType: 'Plaintext' })
   })
 
   it('revalidates each timer iteration and stops on a newly reduced broker limit', async () => {

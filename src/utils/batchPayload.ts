@@ -19,7 +19,32 @@ export const BATCH_SUMMARY_BYTES = 32
 
 export const BATCH_PAGE_SIZE = 100
 
-type StoredBatchItem = string | { b64: string }
+export type StoredBatchItem = string | { b64: string }
+
+export interface BatchItemDisplay {
+  text: string
+  title: string
+  bytes: number
+  binary: boolean
+}
+
+const BATCH_BINARY_PREVIEW_BYTES = 6
+
+/** Present stored binary items without exposing their persistence wrapper. */
+export const getBatchItemDisplay = (item: StoredBatchItem): BatchItemDisplay => {
+  if (typeof item === 'string') {
+    return { text: item, title: item, bytes: Buffer.byteLength(item), binary: false }
+  }
+  const bytes = Buffer.from(item.b64, 'base64')
+  return {
+    text:
+      bytes.subarray(0, BATCH_BINARY_PREVIEW_BYTES).toString('hex') +
+      (bytes.length > BATCH_BINARY_PREVIEW_BYTES ? '…' : ''),
+    title: bytes.toString('hex'),
+    bytes: bytes.length,
+    binary: bytes.length > 0,
+  }
+}
 
 /** Map the connection's displayed MQTT version to its protocol number. */
 export const getBatchProtocolVersion = (version?: string): 3 | 4 | 5 => {
@@ -78,6 +103,15 @@ export const inspectBatchLines = (text: string, type: PayloadType): BatchInput =
     }
   }
   return { count: lines.length, bytes, items }
+}
+
+/** Rebuild sent items from editor text; older history used Plaintext implicitly. */
+export const getPublishedBatchItems = (text: string, type: PayloadType = 'Plaintext'): StoredBatchItem[] => {
+  const { items = [] } = inspectBatchLines(text, type)
+  return items.map((item) => {
+    if (type === 'Hex' || type === 'Base64') return { b64: item.toString('base64') }
+    return item.toString()
+  })
 }
 
 /** Reused by the publish status and every timed-send iteration. */

@@ -31,9 +31,11 @@
     </span>
     <div ref="leftPayload" class="left-payload payload" @contextmenu.prevent="customMenu($event)">
       <p class="left-info">
-        <span class="topic">Topic: <span v-html="highlightedTopic"></span></span>
+        <span class="topic" :title="batch && batch.carrier === 'topic' ? topic : undefined"
+          >Topic: <span v-html="highlightedTopic"></span
+        ></span>
         <span class="qos">QoS: {{ qos }}</span>
-        <el-tag v-if="batch" class="batch-tag" type="info" size="mini">Batch ×{{ batch.count || 0 }}</el-tag>
+        <el-tag v-if="batch" class="batch-tag" type="info" size="mini">Batch {{ batch.count || 0 }}</el-tag>
         <el-tag
           v-if="gzipDecompressed"
           class="gzip-tag"
@@ -45,49 +47,27 @@
         <span v-if="retain" class="retain">{{ $t('connections.retained') }}</span>
       </p>
       <MqttProperties class="meta" :properties="properties" direction="left" />
-      <div v-if="batch" class="batch-message">
-        <p class="batch-details">
-          <span v-if="batch.carrier === 'topic'"
-            >{{ $t('connections.batchLogicalTopicLabel') }}: {{ batch.logicalTopic }} ·
-          </span>
-          {{ $t('connections.payloadSize') }}: {{ formattedPayloadBytes
-          }}<span v-if="!batch.error && !batch.summary">
-            ·
-            {{
-              $t('connections.batchSaved', {
-                saved: Math.min(batchPreviewItems, batchItems.length),
-                total: batch.count,
-              })
-            }}</span
-          >
-        </p>
+      <template v-if="batch">
         <div v-if="batch.error" class="batch-error-preview">
           <pre class="batch-hex">{{ payload }}</pre>
-          <p class="batch-details">
-            {{ $t('connections.batchHexPreview', { saved: payload.length / 2, total: payloadBytes }) }}
-          </p>
-        </div>
-        <template v-else>
-          <ol class="batch-items">
-            <li v-for="(item, index) in visibleBatchItems" :key="index">
-              <pre>{{ displayBatchItem(item) }}</pre>
-            </li>
-          </ol>
-          <p v-if="batch.summary" class="batch-details">
+          <p v-if="payload.length / 2 < payloadBytes" class="batch-preview-note">
             {{
-              $t('connections.batchSummary', { saved: batchItems.length, total: batch.count, bytes: batchSummaryBytes })
+              $t('connections.batchHexPreview', {
+                saved: formatBytes(payload.length / 2),
+                total: formatBytes(payloadBytes),
+              })
             }}
           </p>
-          <div class="batch-actions">
-            <el-button type="text" size="mini" @click="batchExpanded = !batchExpanded">{{
-              $t(batchExpanded ? 'connections.batchCollapse' : 'connections.batchExpand')
-            }}</el-button>
-            <el-button v-if="!batch.summary" type="text" size="mini" @click="handleShowFullMsg()">{{
-              $t('connections.batchViewAll')
-            }}</el-button>
-          </div>
-        </template>
-      </div>
+        </div>
+        <BatchItems
+          v-else
+          :items="batchItems"
+          :count="batch.count"
+          :summary="Boolean(batch.summary)"
+          direction="left"
+          @view-all="handleShowFullMsg"
+        />
+      </template>
       <template v-else-if="isLargeMsg">
         <div class="large-message">
           <pre v-html="highlightedPayloadPreview"></pre>
@@ -123,9 +103,10 @@
 
 <script lang="ts">
 import { formatBytes } from '@/utils/formatter'
-import { BATCH_PREVIEW_ITEMS, BATCH_SUMMARY_ITEMS, BATCH_SUMMARY_BYTES } from '@/utils/batchPayload'
+import { StoredBatchItem } from '@/utils/batchPayload'
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import FullMsgDialog from './FullMsgDialog.vue'
+import BatchItems from './BatchItems.vue'
 import Prism from 'prismjs'
 import { Getter } from 'vuex-class'
 import { SHOW_MAX_LENGTH } from '@/utils/data'
@@ -135,6 +116,7 @@ import { highlightSearchTerm, highlightInPrismCode, escapeHtml } from '@/utils/h
 @Component({
   components: {
     FullMsgDialog,
+    BatchItems,
     MqttProperties,
   },
 })
@@ -159,9 +141,7 @@ export default class MsgLeftItem extends Vue {
   public highlight = false
 
   private showFullMsg = false
-  private batchPreviewItems = BATCH_PREVIEW_ITEMS
-  private batchSummaryBytes = BATCH_SUMMARY_BYTES
-  private batchExpanded = false
+  private formatBytes = formatBytes
 
   get batch() {
     return this.meta ? JSON.parse(this.meta).batch : undefined
@@ -171,24 +151,12 @@ export default class MsgLeftItem extends Vue {
     return this.meta ? JSON.parse(this.meta).payloadBytes : 0
   }
 
-  get formattedPayloadBytes(): string {
-    return formatBytes(this.payloadBytes)
-  }
-
-  get batchItems(): (string | { b64: string })[] {
+  get batchItems(): StoredBatchItem[] {
     return this.batch && !this.batch.error ? JSON.parse(this.payload) : []
   }
 
-  get visibleBatchItems() {
-    return this.batchItems.slice(
-      0,
-      this.batchExpanded && this.batch.summary ? BATCH_SUMMARY_ITEMS : BATCH_PREVIEW_ITEMS,
-    )
-  }
-
-  private displayBatchItem(item: string | { b64: string }) {
-    const text = typeof item === 'string' ? item : JSON.stringify(item)
-    return this.batchExpanded || text.length <= 160 ? text : text.slice(0, 160) + '…'
+  get displayedTopic(): string {
+    return this.batch?.carrier === 'topic' ? this.batch.logicalTopic || this.topic : this.topic
   }
 
   @Watch('searchParams', { deep: true })
@@ -200,9 +168,9 @@ export default class MsgLeftItem extends Vue {
 
   get highlightedTopic(): string {
     if (this.searchParams.topic) {
-      return highlightSearchTerm(this.topic, this.searchParams.topic, 'search-highlight')
+      return highlightSearchTerm(this.displayedTopic, this.searchParams.topic, 'search-highlight')
     }
-    return escapeHtml(this.topic)
+    return escapeHtml(this.displayedTopic)
   }
 
   get highlightedPayload(): string {
@@ -344,76 +312,24 @@ export default class MsgLeftItem extends Vue {
     animation: leftMsg 0.3s ease-in-out;
   }
   .input-prop {
-    textarea {
+    textarea,
+    .property-cell {
       color: var(--color-text-left_info) !important;
       border: 1px solid var(--color-border-left_metainfo) !important;
     }
   }
-  .large-message {
-    .el-button.see-more-btn {
-      margin-top: 6px;
-      background: transparent;
-      color: var(--color-text-left_info);
-      border: 1px solid var(--color-text-left_info);
-      &:hover {
-        background: transparent;
-        color: var(--color-text-default);
-      }
-    }
-  }
-  .batch-message {
-    margin-top: 8px;
-    > * + * {
-      margin-top: 8px;
-    }
-    .batch-details {
-      color: var(--color-text-tips);
-      font-size: 12px;
-    }
-    .batch-items {
-      margin-bottom: 0;
-      padding-left: 24px;
-      font-family: monospace;
-      font-size: 13px;
-      line-height: 1.6;
-    }
-    .batch-items li {
-      & + li {
-        margin-top: 2px;
-      }
-      &::marker {
-        color: var(--color-text-tips);
-        font-size: 12px;
-      }
-    }
-    .batch-items pre {
-      min-height: 1.6em;
-      margin: 0;
-      white-space: pre-wrap;
-      overflow-wrap: anywhere;
-    }
+  .batch-error-preview {
+    margin-top: 10px;
+    color: var(--color-text-tips);
     .batch-hex {
-      max-height: 80px;
+      max-height: 4.8em;
       margin: 0;
-      color: var(--color-text-tips);
-      font-size: 12px;
       overflow: auto;
       word-break: break-all;
-      white-space: pre-wrap;
     }
-    .batch-error-preview .batch-details {
+    .batch-preview-note {
       margin-top: 8px;
-    }
-    .batch-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 4px;
-      .el-button {
-        margin: 0;
-        padding: 0;
-        font-size: 12px;
-      }
+      font-size: 12px;
     }
   }
 }

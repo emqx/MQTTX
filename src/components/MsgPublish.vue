@@ -983,47 +983,7 @@ export default class MsgPublish extends Vue {
     }
     .history-button-group {
       margin-left: auto;
-      display: flex;
-      gap: 3px;
-
-      .history-btn {
-        height: 28px;
-        padding: 0;
-        border: none;
-        border-radius: 8px;
-        margin: 0;
-        background-color: transparent;
-        min-width: unset;
-
-        &.history-btn-left {
-          width: 18px;
-          font-size: 13px;
-        }
-
-        &.history-btn-center {
-          min-width: 24px;
-          font-size: 13px;
-          color: var(--color-text-default);
-
-          &:hover {
-            background-color: var(--color-bg-hover);
-          }
-        }
-
-        &.history-btn-right {
-          width: 18px;
-          font-size: 13px;
-        }
-
-        &:hover:not(.is-disabled) {
-          background-color: var(--color-bg-hover);
-        }
-
-        &.is-disabled {
-          background-color: transparent;
-          color: var(--color-text-historybtn_disabled);
-        }
-      }
+      @include history-button-group;
     }
   }
   .batch-status {

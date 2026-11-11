@@ -6,7 +6,7 @@ import _Vue from 'vue'
 import {
   Skeleton,
   SkeletonItem,
-  Pagination,
+  // Pagination,
   Dialog,
   Autocomplete,
   Dropdown,
@@ -80,7 +80,7 @@ import {
 export default (Vue: typeof _Vue) => {
   Vue.use(Skeleton)
   Vue.use(SkeletonItem)
-  Vue.use(Pagination)
+  // Vue.use(Pagination)
   Vue.use(Dialog)
   Vue.use(Autocomplete)
   Vue.use(Dropdown)

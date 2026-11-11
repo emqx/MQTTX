@@ -18,24 +18,44 @@
       <p class="right-info">
         <span class="topic">Topic: <span v-html="highlightedTopic"></span></span>
         <span class="qos">QoS: {{ qos }}</span>
-        <el-tag v-if="batch" class="batch-tag" type="info" size="mini">Batch ×{{ batch.count }}</el-tag>
+        <el-tag v-if="batch" class="batch-tag" type="info" size="mini">Batch {{ batch.count }}</el-tag>
       </p>
       <MqttProperties class="meta" :properties="properties" direction="right" />
-      <pre v-if="!searchParams.payload">{{ highlightedPayload }}</pre>
+      <BatchItems
+        v-if="batch"
+        :items="batchItems"
+        :count="batch.count"
+        direction="right"
+        @view-all="showFullMsg = true"
+      />
+      <pre v-else-if="!searchParams.payload">{{ highlightedPayload }}</pre>
       <pre v-else v-html="highlightedPayload"></pre>
     </div>
     <p class="right-time time">{{ createAt }}</p>
+    <FullMsgDialog
+      v-if="showFullMsg"
+      :visible.sync="showFullMsg"
+      :msgId="msgId"
+      :msgType="batch.payloadType || 'Plaintext'"
+      :batch-payload="payload"
+      :batch-payload-type="batch.payloadType || 'Plaintext'"
+    />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import MqttProperties from './MqttProperties.vue'
+import BatchItems from './BatchItems.vue'
+import FullMsgDialog from './FullMsgDialog.vue'
+import { getPublishedBatchItems, StoredBatchItem } from '@/utils/batchPayload'
 import { highlightSearchTerm, escapeHtml } from '@/utils/highlightSearch'
 
 @Component({
   components: {
     MqttProperties,
+    BatchItems,
+    FullMsgDialog,
   },
 })
 export default class MsgRightItem extends Vue {
@@ -43,11 +63,18 @@ export default class MsgRightItem extends Vue {
   @Prop({ required: true }) public qos!: number
   @Prop({ required: true }) public payload!: string
   @Prop({ required: true }) public createAt!: string
+  @Prop({ required: true }) public msgId!: string
   @Prop({ required: false }) public meta?: string
   @Prop({ required: false, default: () => ({}) }) public properties!: PushPropertiesModel
   @Prop({ required: false, default: () => ({ topic: '', payload: '' }) }) public searchParams!: {
     topic: string
     payload: string
+  }
+
+  private showFullMsg = false
+
+  get batchItems(): StoredBatchItem[] {
+    return getPublishedBatchItems(this.payload, this.batch.payloadType || 'Plaintext')
   }
 
   get highlightedTopic(): string {
@@ -102,7 +129,8 @@ export default class MsgRightItem extends Vue {
     animation: rightMsg 0.3s ease-in-out;
   }
   .input-prop {
-    textarea {
+    textarea,
+    .property-cell {
       color: var(--color-text-active) !important;
       border: 1px solid var(--color-border-right_metainfo) !important;
     }

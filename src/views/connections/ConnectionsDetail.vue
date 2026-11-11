@@ -718,7 +718,12 @@ export default class ConnectionsDetail extends Vue {
 
   private updateMetaBatch(
     message: MessageModel,
-    batch: Omit<BatchMetadata, 'count'> & { count?: number; error?: string; summary?: boolean },
+    batch: Omit<BatchMetadata, 'count'> & {
+      count?: number
+      error?: string
+      summary?: boolean
+      payloadType?: PayloadType
+    },
     payloadBytes: number,
   ) {
     const metaObj = JSON.parse(message.meta || '{}')
@@ -1927,7 +1932,7 @@ export default class ConnectionsDetail extends Vue {
       convertedPayload = payload
       this.updateMetaBatch(
         message,
-        { carrier: prepared.carrier!, logicalTopic: topic, count: prepared.count },
+        { carrier: prepared.carrier!, logicalTopic: topic, count: prepared.count, payloadType: type },
         finalPayload.length,
       )
     } else if (payload) {

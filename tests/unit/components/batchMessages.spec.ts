@@ -2,16 +2,21 @@ import '../mocks/browserStorage'
 import { expect } from 'chai'
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { createLocalVue, mount, shallowMount } from '@vue/test-utils'
-import { Pagination } from 'element-ui'
+import { createLocalVue, mount } from '@vue/test-utils'
+import { Button } from 'element-ui'
+import { ipcRenderer } from 'electron'
 import MsgLeftItem from '@/components/MsgLeftItem.vue'
 import MsgRightItem from '@/components/MsgRightItem.vue'
 import FullMsgDialog from '@/components/FullMsgDialog.vue'
-import { formatBytes } from '@/utils/formatter'
+import connections from '@/lang/connections'
 import app from '@/store/modules/app'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
+const translate = (key: string, values: Record<string, any> = {}) => {
+  const text = (connections as any)[key.replace('connections.', '')]?.en || key
+  return text.replace(/\{(\w+)\}/g, (_: string, name: string) => String(values[name]))
+}
 const props = (summary = false, error?: string) => ({
   topic: '$batch/250/demo',
   qos: 1,
@@ -33,13 +38,25 @@ const props = (summary = false, error?: string) => ({
   }),
 })
 const mountMessage = (propsData: any, component: any = MsgLeftItem) =>
-  shallowMount(component, {
+  mount(component, {
     localVue,
     sync: false,
     propsData,
+    stubs: { FullMsgDialog: true, MqttProperties: true },
     store: new Vuex.Store({ getters: { jsonHighlight: () => false, currentTheme: () => 'light' } }),
-    mocks: { $t: (key: string) => key },
+    mocks: { $t: translate },
   })
+const mountDialog = (propsData: any) => {
+  const vue = createLocalVue()
+  vue.use(Button)
+  return mount(FullMsgDialog, {
+    localVue: vue,
+    sync: false,
+    propsData: { visible: true, msgId: 'batch', msgType: 'Plaintext', ...propsData },
+    stubs: { 'el-dialog': { template: '<div><slot/><slot name="footer"/></div>' } },
+    mocks: { $t: translate },
+  })
+}
 
 describe('Batch message display', () => {
   let originalAsync: boolean
@@ -49,71 +66,146 @@ describe('Batch message display', () => {
   afterEach(() => {
     Vue.config.async = originalAsync
   })
-  it('renders five items, wire and logical topics, formatted payload size, and a full-data entry', () => {
+  it('previews only the first five items', () => {
     const wrapper = mountMessage(props())
-    expect(wrapper.findAll('.batch-items li')).to.have.length(5)
-    expect(wrapper.text())
-      .to.include('Batch ×250')
-      .and.include('$batch/250/demo')
-      .and.include('demo')
-      .and.include(formatBytes(12345))
-    expect(wrapper.text()).to.include('connections.batchViewAll')
+    expect(wrapper.findAll('.batch-content').wrappers.map((row) => row.text())).to.deep.equal([
+      'item 1',
+      'item 2',
+      'item 3',
+      'item 4',
+      'item 5',
+    ])
     wrapper.destroy()
   })
-  it('limits summary display to saved items and offers no full-data entry', async () => {
+  it('keeps an empty item as a numbered row', () => {
+    const wrapper = mountMessage({ ...props(), payload: JSON.stringify(['one', '', 'three']) })
+    expect(wrapper.findAll('.batch-row').at(1).text()).to.equal('2')
+    wrapper.destroy()
+  })
+  it('keeps the complete long text in the row tooltip', () => {
+    const text = JSON.stringify({ id: 'device-004', value: 'x'.repeat(400) })
+    const wrapper = mountMessage({ ...props(), payload: JSON.stringify([text]) })
+    expect(wrapper.find('.batch-content').attributes('title')).to.equal(text)
+    wrapper.destroy()
+  })
+  it('offers no See More button when all items fit in the preview', () => {
+    for (const count of [2, 5]) {
+      const wrapper = mountMessage({ ...props(), payload: JSON.stringify(Array(count).fill('item')) })
+      expect(wrapper.find('.see-more-btn').exists()).to.equal(false)
+      wrapper.destroy()
+    }
+  })
+  it('opens the full batch using the existing See More button', async () => {
+    const wrapper = mountMessage(props())
+    expect(wrapper.find('.see-more-btn').text()).to.equal('common.seeMore')
+    await wrapper.find('.see-more-btn').trigger('click')
+    expect(wrapper.find(FullMsgDialog).props('batchPayload')).to.equal(props().payload)
+    wrapper.destroy()
+  })
+  it('renders binary items as a hex prefix with their decoded byte size', () => {
+    const bytes = Buffer.concat([Buffer.from('4f2a9c', 'hex'), Buffer.alloc(61, 255)])
+    const wrapper = mountMessage({ ...props(), payload: JSON.stringify([{ b64: bytes.toString('base64') }]) })
+    expect(wrapper.find('.batch-content').text()).to.equal('4f2a9cffffff… (binary, 64 B)')
+    expect(wrapper.find('.batch-content').attributes('title')).to.equal(bytes.toString('hex'))
+    wrapper.destroy()
+  })
+  it('shows the logical topic in the header and the wire topic in its tooltip', () => {
+    const wrapper = mountMessage(props())
+    expect(wrapper.find('.topic').text()).to.equal('Topic: demo')
+    expect(wrapper.find('.topic').attributes('title')).to.equal('$batch/250/demo')
+    wrapper.destroy()
+  })
+  it('highlights searches in the displayed logical topic', () => {
+    const wrapper = mountMessage({ ...props(), searchParams: { topic: 'emo', payload: '' } })
+    expect(wrapper.find('.topic .search-highlight').text()).to.equal('emo')
+    wrapper.destroy()
+  })
+  it('explains how many summary items were kept without a dialog link', () => {
     const wrapper = mountMessage(props(true))
-    expect(wrapper.text()).to.include('connections.batchSummary')
-    expect(wrapper.text()).not.to.include('connections.batchViewAll')
-    ;(wrapper.vm as any).batchExpanded = true
-    await wrapper.vm.$nextTick()
-    expect(wrapper.findAll('.batch-items li')).to.have.length(20)
+    expect(wrapper.find('.batch-summary').text()).to.equal('Only the first 20 of 250 items were kept')
+    expect(wrapper.find('.see-more-btn').exists()).to.equal(false)
     wrapper.destroy()
   })
-  it('renders failed batches as a diagnostic and hex preview with zero items', () => {
+  it('renders failed batches as an error tag and hex preview with zero items', () => {
     const wrapper = mountMessage(props(false, 'BATCH_LIMIT_EXCEEDED'))
-    expect(wrapper.findAll('.batch-items li')).to.have.length(0)
-    expect(wrapper.text()).to.include('BATCH_LIMIT_EXCEEDED').and.include('connections.batchLimitUnparsed')
+    expect(wrapper.findAll('.batch-row')).to.have.length(0)
+    expect(wrapper.find('.msg-tag').text()).to.include('BATCH_LIMIT_EXCEEDED')
     expect(wrapper.find('.batch-hex').text()).to.equal('0000ff')
-    expect(wrapper.text()).not.to.include('connections.batchViewAll')
     wrapper.destroy()
   })
-  it('keeps outgoing editor text alongside its Batch tag', () => {
-    const wrapper = mountMessage({ ...props(), payload: 'first\nsecond' }, MsgRightItem)
-    expect(wrapper.text()).to.include('Batch ×250').and.include('first\nsecond')
+  it('labels the hex preview length only when it is truncated', async () => {
+    const message = props(false, 'TRUNCATED_ITEM')
+    const meta = JSON.parse(message.meta)
+    meta.payloadBytes = 3
+    const wrapper = mountMessage({ ...message, meta: JSON.stringify(meta) })
+    expect(wrapper.find('.batch-preview-note').exists()).to.equal(false)
+    meta.payloadBytes = 10
+    await wrapper.setProps({ meta: JSON.stringify(meta) })
+    expect(wrapper.find('.batch-preview-note').text()).to.equal('Preview: 3 B of 10 B')
     wrapper.destroy()
   })
-  it('changes the displayed items through pagination controls', async () => {
-    const vue = createLocalVue()
-    vue.use(Pagination)
-    const wrapper = mount(FullMsgDialog, {
-      localVue: vue,
-      sync: false,
-      propsData: { visible: true, msgId: 'batch', msgType: 'Plaintext', batchPayload: props().payload },
-      stubs: { 'my-dialog': true },
-      mocks: { $t: (key: string) => key },
-    })
-    await wrapper.find('.el-pagination .btn-next').trigger('click')
-    expect((wrapper.vm as any).batchPageItems[0]).to.equal('item 101')
+  it('rebuilds published Hex items as decoded binary previews', () => {
+    const meta = JSON.parse(props().meta)
+    meta.batch.payloadType = 'Hex'
+    const wrapper = mountMessage(
+      { ...props(), meta: JSON.stringify(meta), payload: '4f2a9c00010203\n4142' },
+      MsgRightItem,
+    )
+    expect(wrapper.findAll('.batch-content').wrappers.map((row) => row.text())).to.deep.equal([
+      '4f2a9c000102… (binary, 7 B)',
+      '4142 (binary, 2 B)',
+    ])
     wrapper.destroy()
   })
-  it('paginates saved arrays at 100 items and exports the complete saved payload', async () => {
-    const payload = props().payload
-    const wrapper = shallowMount(FullMsgDialog, {
-      localVue,
-      sync: false,
-      propsData: { visible: true, msgId: 'batch', msgType: 'Plaintext', batchPayload: payload },
-      mocks: { $t: (key: string) => key },
-    })
+  it('falls back to Plaintext lines for published legacy history', () => {
+    const wrapper = mountMessage({ ...props(), payload: 'é\n\nlast\n' }, MsgRightItem)
+    expect(wrapper.findAll('.batch-content').wrappers.map((row) => row.text())).to.deep.equal(['é', '', 'last'])
+    wrapper.destroy()
+  })
+  it('hides the pager for one page and navigates longer batches from the footer', async () => {
+    const wrapper = mountDialog({ batchPayload: JSON.stringify(['one', 'two', 'three', 'four', 'five']) })
+    expect(wrapper.find('.batch-pager').exists()).to.equal(false)
+    await wrapper.setProps({ batchPayload: props().payload })
+    const list = wrapper.find('.batch-page').element as HTMLElement
+    list.scrollTop = 120
+    expect(wrapper.find('.batch-pager .history-btn-left').attributes('disabled')).to.equal('disabled')
+    await wrapper.find('.batch-pager .history-btn-right').trigger('click')
+    expect(wrapper.find('tbody .batch-content').text()).to.equal('item 101')
+    expect(wrapper.find('.batch-pager .history-btn-center').text()).to.equal('2/3')
+    expect(list.scrollTop).to.equal(0)
+    wrapper.destroy()
+  })
+  it('paginates saved arrays at 100 items through the last page', async () => {
+    const wrapper = mountDialog({ batchPayload: props().payload })
     const vm = wrapper.vm as any
-    expect(vm.batchPageItems).to.have.length(100)
-    vm.batchPage = 2
-    expect(vm.batchPageItems[0]).to.equal('item 101')
+    expect(wrapper.findAll('tbody tr')).to.have.length(100)
     vm.batchPage = 3
-    expect(vm.batchPageItems).to.have.length(50)
-    expect(vm.batchPageItems[49]).to.equal('item 250')
-    expect(vm.fullMsg).to.equal(payload)
-    expect(vm.format).to.equal('json')
+    await vm.$nextTick()
+    expect(wrapper.findAll('tbody tr')).to.have.length(50)
+    expect(wrapper.find('tbody .batch-index').text()).to.equal('201')
+    expect(wrapper.findAll('tbody .batch-content').at(49).text()).to.equal('item 250')
     wrapper.destroy()
+  })
+  it('shows UTF-8 and binary byte sizes in the compact table', () => {
+    const wrapper = mountDialog({ batchPayload: JSON.stringify(['é', { b64: '/w==' }]) })
+    expect(wrapper.findAll('tbody .batch-size').wrappers.map((row) => row.text())).to.deep.equal(['2 B', '1 B'])
+    wrapper.destroy()
+  })
+  it('keeps the complete saved payload for export', () => {
+    const payload = props().payload
+    const wrapper = mountDialog({ batchPayload: payload })
+    const originalSend = ipcRenderer.send
+    let exported: any[] = []
+    ipcRenderer.send = (...args: any[]) => {
+      exported = args
+    }
+    try {
+      ;(wrapper.vm as any).saveDataToLocal()
+      expect(exported).to.deep.equal(['exportTextData', 'payload', payload, 'json'])
+    } finally {
+      ipcRenderer.send = originalSend
+      wrapper.destroy()
+    }
   })
 })
 

@@ -8,11 +8,15 @@ describe('Read-only MQTT User Properties', () => {
       propsData: { properties: { userProperties: { first: ['one', 'two'], second: 'three', empty: '' } } },
       mocks: { $t: (key: string) => key },
     })
-    expect(wrapper.findAll('.user-property').wrappers.map((row) => row.text())).to.deep.equal([
-      'first: one',
-      'first: two',
-      'second: three',
-      'empty:',
+    expect(
+      wrapper
+        .findAll('.property-row')
+        .wrappers.map((row) => [row.find('.property-key').text(), row.find('.property-value').text()]),
+    ).to.deep.equal([
+      ['first', 'one'],
+      ['first', 'two'],
+      ['second', 'three'],
+      ['empty', ''],
     ])
     expect(wrapper.find('textarea').exists()).to.equal(false)
     wrapper.destroy()
@@ -23,7 +27,7 @@ describe('Read-only MQTT User Properties', () => {
       propsData: { properties: { userProperties: { key: '<script>\nvalue' } } },
       mocks: { $t: (key: string) => key },
     })
-    expect(wrapper.find('.user-property').element.textContent).to.equal('key: <script>\nvalue')
+    expect(wrapper.find('.property-value').element.textContent).to.equal('<script>\nvalue')
     expect(wrapper.find('script').exists()).to.equal(false)
     wrapper.destroy()
   })
