@@ -256,7 +256,7 @@ describe('MsgPublish per-connection input', () => {
     expect(notices).to.deep.equal([])
     expect(vm.batchState.error).to.equal('BATCH_LINE_ERROR')
     await Vue.nextTick()
-    expect(wrapper.find('.batch-status').text()).to.include('line 2').and.include('01 or FF')
+    expect(wrapper.find('.batch-status').text()).to.include('Line 2').and.include('01 or FF')
     expect(wrapper.find('.batch-status').text()).not.to.include(' B / ')
     expect(wrapper.find('.batch-status').attributes('title')).to.equal(vm.batchError)
     await vm.send()

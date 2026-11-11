@@ -1114,6 +1114,10 @@ export default class MsgPublish extends Vue {
     &.invalid {
       height: auto;
       max-height: 50%;
+      box-sizing: border-box;
+      padding-top: 3px;
+      padding-bottom: 3px;
+      line-height: 18px;
       overflow: auto;
       white-space: normal;
       overflow-wrap: anywhere;
