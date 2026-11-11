@@ -35,7 +35,7 @@ const reject = (code: string): never => {
 }
 
 /** Parse a canonical nonzero batch count. */
-export const parseBatchCount = (text: string): number => {
+const parseBatchCount = (text: string): number => {
   if (!/^[1-9][0-9]{0,4}$/.test(text) || String(Number(text)) !== text || Number(text) > 65535) {
     return reject('INVALID_BATCH_COUNT')
   }
@@ -52,7 +52,7 @@ export const validLogicalTopic = (topic: string): boolean =>
 
 // Keep the raw count so invalid metadata is reported before an invalid count.
 /** Read a topic carrier without validating its count yet. */
-export const parseTopicCarrier = (topic: string): { countText: string; logicalTopic: string } => {
+const parseTopicCarrier = (topic: string): { countText: string; logicalTopic: string } => {
   const separator = topic.indexOf('/', 7)
   const logicalTopic = topic.slice(separator + 1)
   if (
@@ -87,7 +87,7 @@ const hasMarker = (properties?: PushPropertiesModel['userProperties']) =>
     Object.prototype.hasOwnProperty.call(properties, 'batch-size'))
 
 /** Prefer the topic carrier when both carrier markers are present. */
-export const classifyBatch = (packet: BatchPacket, mqttVersion: number): BatchCarrier | undefined => {
+const classifyBatch = (packet: BatchPacket, mqttVersion: number): BatchCarrier | undefined => {
   if (packet.topic === '$batch' || packet.topic.startsWith('$batch/')) return 'topic'
   if (mqttVersion === 5 && hasMarker(packet.properties?.userProperties)) return 'property'
   return undefined

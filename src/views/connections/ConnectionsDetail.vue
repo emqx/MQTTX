@@ -384,6 +384,7 @@ import time from '@/utils/time'
 import matchMultipleSearch from '@/utils/matchMultipleSearch'
 import { matchTopicMethod } from '@/utils/topicMatch'
 import { createClient, ignoreQoS0Message } from '@/utils/mqttUtils'
+import { setPublishMQTT5Properties } from '@/utils/mqtt5Properties'
 import { bindMessagePipeline, tearDownMessagePipeline } from '@/utils/connectionMessagePipeline'
 import validFormatJson from '@/utils/validFormatJson'
 import { encodePayloadByType } from '@/utils/payloadEncoder'
@@ -1863,17 +1864,10 @@ export default class ConnectionsDetail extends Vue {
   }
 
   /**
-   * Filters out entries from an object where the value is null or undefined.
-   */
-  private filterNonNullEntries(properties: any): any {
-    return Object.fromEntries(Object.entries(properties).filter(([_, v]) => v != null))
-  }
-
-  /**
    * Processes message properties and returns a refined version.
    */
-  private processProperties(properties: any) {
-    const props = this.filterNonNullEntries(properties)
+  private processProperties(properties: any): any {
+    const props = setPublishMQTT5Properties(properties)
     if (props.correlationData && typeof props.correlationData === 'string') {
       props.correlationData = Buffer.from(props.correlationData)
     }

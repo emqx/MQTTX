@@ -193,8 +193,6 @@ describe('Desktop batch message pipeline', () => {
         errors.push(error.message)
       },
       $t: (key: string, values: any) => `${key} ${JSON.stringify(values)}`,
-      processProperties: methods.processProperties,
-      filterNonNullEntries: methods.filterNonNullEntries,
       client: {
         publish: () => {
           throw new Error('Invalid batch must not be sent')

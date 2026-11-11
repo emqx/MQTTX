@@ -239,7 +239,7 @@
           :lang="payloadLang"
           v-model="msgRecord.payload"
           :useShadows="true"
-          @enter-event="send"
+          @enter-event="send()"
           @format="formatJsonValue"
         />
       </div>
@@ -583,11 +583,7 @@ export default class MsgPublish extends Vue {
     return await connectionService.addPushProp(props, this.$route.params.id)
   }
 
-  private clearRetained = false
-
-  private async send() {
-    const clearRetained = this.clearRetained
-    this.clearRetained = false
+  private async send({ clearRetained = false } = {}) {
     if (!clearRetained && this.msgRecord.batch && this.batchState.error) return
     const { payloadType, ...record } = this.msgRecord
     const message: MessageModel = {
@@ -761,7 +757,7 @@ export default class MsgPublish extends Vue {
   }
 
   private onClearRetainedMsgPublish() {
-    if (this.msgRecord.batch && this.mqttVersion !== '5.0') return
+    if (this.batchClearRetainedDisabled) return
     this.$confirm(
       `${this.$tc('connections.clearRetainedMessageConfirm')} "${this.msgRecord.topic}"`,
       this.$tc('common.warning'),
@@ -772,8 +768,7 @@ export default class MsgPublish extends Vue {
       .then(() => {
         this.msgRecord.payload = ''
         this.msgRecord.retain = true
-        this.clearRetained = true
-        this.send()
+        this.send({ clearRetained: true })
       })
       .catch(() => {
         // The user canceled the action

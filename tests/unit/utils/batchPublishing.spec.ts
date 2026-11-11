@@ -3,10 +3,7 @@ import { generate, parser, IPublishPacket } from 'mqtt-packet'
 import {
   BatchPacket,
   BatchLimits,
-  parseBatchCount,
   buildTopicCarrier,
-  parseTopicCarrier,
-  classifyBatch,
   encodeBatchPayload,
   decodeBatch,
   calculatePublishSize,
@@ -118,21 +115,21 @@ describe('spec §§3.3, 4 and 9.3', () => {
   })
   it('preserves slashes and checks topic byte lengths', () => {
     expect(buildTopicCarrier(2, '/a//b/')).to.equal('$batch/2//a//b/')
-    expect(parseTopicCarrier('$batch/2//a//b/')).to.deep.equal({ countText: '2', logicalTopic: '/a//b/' })
+    const packet = { topic: '$batch/2//a//b/', payload: Buffer.alloc(4) }
+    expect(decodeBatch(packet, 4)?.logicalTopic).to.equal('/a//b/')
     expect(() => buildTopicCarrier(1, 'é'.repeat(32768))).to.throw('INVALID_BATCH_TOPIC')
     expect(() => buildTopicCarrier(1, '\ud800')).to.throw('INVALID_BATCH_TOPIC')
   })
   it('selects topic first and rejects metadata before count', () => {
     const packet = property('1', '0000')
     packet.topic = '$batch/01/demo'
-    expect(classifyBatch(packet, 5)).to.equal('topic')
     expect(decodeBatch(packet, 5)?.error).to.equal('INVALID_BATCH_METADATA')
     packet.properties = undefined
     packet.retain = true
     expect(decodeBatch(packet, 4)?.error).to.equal('INVALID_BATCH_METADATA')
   })
   each(['', '0', '-1', '+1', '1 ', ' 1', '1\n', '１', '١', '10000000000000000000000'])('rejects count %j', (count) => {
-    expect(() => parseBatchCount(count)).to.throw('INVALID_BATCH_COUNT')
+    expect(decodeBatch(property(count, '0000'), 5)?.error).to.equal('INVALID_BATCH_COUNT')
   })
   each([false, 0, undefined])('accepts PFI %p', (payloadFormatIndicator) => {
     const packet = property('1', '0000')
