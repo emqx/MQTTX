@@ -140,6 +140,7 @@ import { Getter } from 'vuex-class'
 import { Tree } from 'element-ui'
 import { ComponentOptions, CreateElement, VNode, VueConstructor } from 'vue'
 import { getAllIDs, isPayloadEmpty } from '@/utils/topicTree'
+import { escapeHtml } from '@/utils/highlightSearch'
 import MyDialog from '@/components/MyDialog.vue'
 import TreeVisual from '@/components/charts/TreeVisual.vue'
 
@@ -194,7 +195,7 @@ export default class TreeView extends Vue {
 
   private tooltipFormatter(params: Record<string, any>): string {
     if (!params.data) {
-      return `<div>Label: ${params.name}</div>`
+      return `<div>Label: ${escapeHtml(String(params.name))}</div>`
     }
 
     const { data, treeAncestors } = params
@@ -202,12 +203,14 @@ export default class TreeView extends Vue {
 
     if (treeAncestors) {
       tooltipParts.push(
-        `<div>Full Topic: <span class="tooltip-topic-value">${this.transformTreeAncestors(treeAncestors)}</span></div>`,
+        `<div>Full Topic: <span class="tooltip-topic-value">${escapeHtml(
+          this.transformTreeAncestors(treeAncestors),
+        )}</span></div>`,
       )
     }
 
     tooltipParts.push(
-      `<div>Label: <span class="tooltip-topic-value">${data.label}</span></div>`,
+      `<div>Label: <span class="tooltip-topic-value">${escapeHtml(String(data.label))}</span></div>`,
       `<div>Messages: <span class="tooltip-topic-value">${data.messageCount}</span></div>`,
       `<div>Sub-topics: <span class="tooltip-topic-value">${data.subTopicCount}</span></div>`,
     )
@@ -217,7 +220,7 @@ export default class TreeView extends Vue {
       const payload = data.message.payload
       const truncatedPayload = payload.length > maxLength ? `${payload.slice(0, maxLength)}...` : payload
       tooltipParts.push(
-        `<div>Last payload: <span class="tooltip-topic-value">${truncatedPayload}</span></div>`,
+        `<div>Last payload: <span class="tooltip-topic-value">${escapeHtml(truncatedPayload)}</span></div>`,
         `<div>Received Time: <span class="tooltip-topic-value">${data.message.createAt}</span></div>`,
       )
     }
