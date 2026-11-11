@@ -9,7 +9,7 @@ interface WindowOptions {
   path: string
 }
 
-const newWindow = (id: string, options: WindowOptions) => {
+const newWindow = (id: string, options: WindowOptions): void => {
   const winPos = BrowserWindow.getFocusedWindow()
   let [x, y] = [0, 0]
   if (winPos) {
@@ -27,7 +27,6 @@ const newWindow = (id: string, options: WindowOptions) => {
       webSecurity: false,
       nodeIntegration: true,
       contextIsolation: false,
-      // Keep MQTT keepalive timers running while the window is hidden
       backgroundThrottling: false,
     },
     titleBarStyle: options.isMac ? 'hidden' : 'default',
