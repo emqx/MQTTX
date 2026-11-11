@@ -12,7 +12,7 @@ import {
 import delay from '../utils/delay'
 import convertPayload from '../utils/convertPayload'
 import { handleSaveOptions, handleLoadOptions } from '../utils/options'
-import { writeFile, appendFileItems, getPathExtname, createNextNumberedFileName } from '../utils/fileUtils'
+import { writeFile, appendFile, getPathExtname, createNextNumberedFileName } from '../utils/fileUtils'
 import { deserializeBufferToProtobuf } from '../utils/protobuf'
 import isSupportedBinaryFormatForMQTT from '../utils/binaryFormats'
 import * as Debug from 'debug'
@@ -100,7 +100,7 @@ const noteBatchFilters = (options: SubscribeOptions) => {
 const cleanBatchItem = (item: string | Buffer): string | { b64: string } => {
   if (typeof item === 'string') return item
   const text = item.toString('utf8')
-  return Buffer.from(text).equals(item) ? text : { b64: item.toString('base64') }
+  return !text.includes('\ufffd') || Buffer.from(text).equals(item) ? text : { b64: item.toString('base64') }
 }
 
 const sub = (options: SubscribeOptions) => {
@@ -197,81 +197,76 @@ const sub = (options: SubscribeOptions) => {
 
     const schemaOptions: SchemaOptions | undefined = parseSchemaOptions(protobufPath, protobufMessageName, avscPath)
 
-    const msgData: MsgItem[] = []
-    const batchInfo: MsgItem[] = []
-
-    let batch: ReturnType<typeof decodeBatch>
-    if (options.batch) {
-      batch = decodeBatch({ ...packet, topic, payload }, options.mqttVersion, batchLimits)
-    }
-    let receivedMessage: string | Buffer = ''
-    let savePayload: string | Buffer
-    let appendItems: (string | Buffer)[] = []
-    const output: {
-      topic: string
-      payload?: string | Buffer
-      packet: mqtt.IPublishPacket
-      batch?: Record<string, unknown>
-    } = { topic, payload: undefined, packet }
-    if (batch) {
-      savePayload = payload
-      if (batch.error !== undefined) {
-        batchLog.rejected(batch.error, topic, payload.length)
-        const preview = payload.subarray(0, 1024)
-        output.payload = preview.toString('hex')
-        output.batch = {
-          ...batch,
-          rawPreviewEncoding: 'hex',
-          rawPreviewBytes: preview.length,
-          rawPreviewTruncated: preview.length < payload.length,
-        }
-      } else {
-        const batchItems = batch.items
-        appendItems = batchItems.map((item) => processReceivedMessage(item, schemaOptions, format))
-        // Preserve arbitrary bytes when no display encoding was requested.
-        const items = appendItems.map((item, index) => cleanBatchItem(format ? item : batchItems[index]))
-        output.batch = { carrier: batch.carrier, logicalTopic: batch.logicalTopic, count: batch.count, items }
-        if (!outputModeClean) {
-          receivedMessage = batchLog.payload(items)
-          batchInfo.push({ label: 'batch', value: `${batch.count} ${batch.count === 1 ? 'item' : 'items'}` })
-          if (batch.carrier === 'topic') {
-            batchInfo.push({ label: 'logical_topic', value: batch.logicalTopic })
-          }
-        }
-      }
-    } else {
-      receivedMessage = processReceivedMessage(payload, schemaOptions, format)
-      savePayload = receivedMessage
-      appendItems = [receivedMessage]
+    const batch = options.batch
+      ? decodeBatch({ ...packet, topic, payload }, options.mqttVersion, batchLimits)
+      : undefined
+    if (batch?.error !== undefined) {
+      batchLog.rejected(batch.error, topic, payload.length)
+      const savePath = fileSave ? createNextNumberedFileName(fileSave) : fileWrite
+      if (savePath && fileSave) writeFile(savePath, payload)
       if (outputModeClean) {
-        output.payload = convertPayload(payload, format, 'decode')
+        const preview = payload.subarray(0, 1024)
+        console.log(
+          JSON.stringify(
+            {
+              topic,
+              payload: preview.toString('hex'),
+              packet,
+              batch: {
+                ...batch,
+                rawPreviewEncoding: 'hex',
+                rawPreviewBytes: preview.length,
+                rawPreviewTruncated: preview.length < payload.length,
+              },
+            },
+            null,
+            2,
+          ),
+        )
+      } else if (savePath) {
+        logWrapper.log(`${fileSave ? 'Saved to file' : 'Appended to file'}: ${savePath}`)
       }
+      return
     }
 
+    const items = batch ? batch.items : [payload]
+    const messages =
+      fileWrite || format || schemaOptions
+        ? items.map((item) => processReceivedMessage(item, schemaOptions, format))
+        : items
+    const message = !batch && !format && Buffer.isBuffer(messages[0]) ? messages[0].toString('utf8') : messages[0]
+    // Without a display format, batch output preserves original bytes even with a schema.
+    const batchItems = batch && (format ? messages : items).map(cleanBatchItem)
     const savePath = fileSave ? createNextNumberedFileName(fileSave) : fileWrite
     if (savePath) {
-      fileSave && writeFile(savePath, savePayload)
-      fileWrite && appendFileItems(savePath, appendItems, delimiter)
+      fileSave && writeFile(savePath, batch ? payload : message)
+      fileWrite && appendFile(savePath, messages, delimiter)
     }
-
     if (outputModeClean) {
+      const output = batch
+        ? {
+            topic,
+            packet,
+            batch: { carrier: batch.carrier, logicalTopic: batch.logicalTopic, count: batch.count, items: batchItems },
+          }
+        : { topic, payload: convertPayload(payload, format, 'decode'), packet }
       console.log(JSON.stringify(output, null, 2))
       return
     }
 
+    const msgData: MsgItem[] = []
+    const receivedMessage = batch ? batchLog.payload(batchItems!) : message
     const fileNotice = savePath ? `${fileSave ? 'Saved to file' : 'Appended to file'}: ${savePath}` : undefined
-    if (batch?.error !== undefined) {
-      if (fileNotice) logWrapper.log(fileNotice)
-      return
-    }
-
     options.verbose && msgData.push({ label: 'mqtt-packet', value: packet })
 
     msgData.push({ label: 'received_at', value: new Date().toISOString() })
     msgData.push({ label: 'topic', value: topic })
     msgData.push({ label: 'qos', value: packet.qos })
     msgData.push({ label: 'size', value: `${formatBytes(payload.length)}` })
-    msgData.push(...batchInfo)
+    if (batch) {
+      msgData.push({ label: 'batch', value: `${batch.count} ${batch.count === 1 ? 'item' : 'items'}` })
+      if (batch.carrier === 'topic') msgData.push({ label: 'logical_topic', value: batch.logicalTopic })
+    }
 
     packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 
@@ -321,22 +316,6 @@ const sub = (options: SubscribeOptions) => {
   client.on('disconnect', (packet: IDisconnectPacket) => {
     !outputModeClean && basicLog.disconnect(packet)
   })
-}
-
-const countBatchMessage = (
-  counts: ReceiveCounts,
-  packet: mqtt.IPublishPacket & { payload: Buffer },
-  version: number,
-) => {
-  const batch = decodeBatch(packet, version, PROTOCOL_BATCH_LIMITS)
-  if (!batch) {
-    counts.ordinary += 1
-  } else if (batch.error !== undefined) {
-    counts.failed += 1
-  } else {
-    counts.total += batch.count
-    counts.packets += 1
-  }
 }
 
 const benchSub = async (options: BenchSubscribeOptions) => {
@@ -480,11 +459,19 @@ const benchSub = async (options: BenchSubscribeOptions) => {
       })
 
       client.on('message', (topic, payload, packet) => {
-        if (options.batch) {
-          countBatchMessage(counts, { ...packet, topic, payload }, options.mqttVersion)
+        if (!options.batch) {
+          counts.total += 1
           return
         }
-        counts.total += 1
+        const batch = decodeBatch({ ...packet, topic, payload }, options.mqttVersion, PROTOCOL_BATCH_LIMITS, false)
+        if (!batch) {
+          counts.ordinary += 1
+        } else if (batch.error !== undefined) {
+          counts.failed += 1
+        } else {
+          counts.total += batch.count
+          counts.packets += 1
+        }
       })
 
       client.on('error', (err) => {

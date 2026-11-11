@@ -56,10 +56,10 @@ describe('batch pub', () => {
     expect(result.packets.map((packet) => items(packet)?.length)).toEqual([256, 1])
   })
 
-  it('shows the 256-item default and unchanged byte limit in pub help', () => {
+  it.each(['pub', 'sub'])('shows the 256-item default and unchanged byte limit in %s help', (name) => {
     const commander = new Commander()
     commander.init()
-    const command = commander.program.commands.find((command) => command.name() === 'pub')!
+    const command = commander.program.commands.find((command) => command.name() === name)!
     command.parseOptions([])
 
     expect(command.opts()).toMatchObject({ batchMaxItems: 256, batchMaxBytes: 65536 })

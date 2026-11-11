@@ -137,10 +137,6 @@ const basicLog = {
 interface PublishStats {
   total: number
   failed: number
-  sent: number
-  limitReached: boolean
-  limit: number
-  fileRead?: string
 }
 
 export interface ReceiveCounts {
@@ -206,7 +202,19 @@ const benchLog = {
         summary: ({ total, failed }: PublishStats) =>
           `Published total: ${total}${failed > 0 ? `, failed: ${failed}` : ''}`,
         rate: ({ total }: PublishStats, rate: number) => `Published total: ${total}, message rate: ${rate}/s`,
-        finish: ({ total, failed, sent, limitReached, limit, fileRead }: PublishStats) => {
+        finish: ({
+          total,
+          failed,
+          sent,
+          limitReached,
+          limit,
+          fileRead,
+        }: PublishStats & {
+          sent: number
+          limitReached: boolean
+          limit: number
+          fileRead?: string
+        }) => {
           if (failed > 0) return `${failed} of ${sent} messages failed to publish.`
           if (limitReached) return `All ${total} messages have been sent, reaching the limit of ${limit}.`
           return `All ${total} messages from the ${fileRead} have been successfully sent.`

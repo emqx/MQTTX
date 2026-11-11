@@ -26,9 +26,9 @@ export const createCli = () => {
     directory = mkdtempSync(join(tmpdir(), 'mqttx-cli-test-'))
   })
 
-  const stop = async (cli: CliProcess) => {
+  const stop = async (cli: CliProcess, signal: NodeJS.Signals = 'SIGTERM') => {
     if (cli.child.exitCode !== null || cli.child.signalCode !== null) return cli.closed
-    cli.child.kill('SIGTERM')
+    cli.child.kill(signal)
     const timeout = setTimeout(() => cli.child.kill('SIGKILL'), 2000)
     try {
       return await cli.closed
@@ -38,7 +38,7 @@ export const createCli = () => {
   }
 
   const cleanup = async () => {
-    await Promise.all(children.splice(0).map(stop))
+    await Promise.all(children.splice(0).map((cli) => stop(cli)))
     if (directory) {
       rmSync(directory, { recursive: true, force: true })
       directory = undefined

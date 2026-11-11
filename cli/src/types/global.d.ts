@@ -90,7 +90,7 @@ declare global {
     batchMaxBytes?: number
     batchNegotiate?: boolean
     topic: string
-    message: string | Buffer | string[]
+    message: string | Buffer
     qos: QoS
     retain?: boolean
     dup?: boolean
@@ -113,6 +113,10 @@ declare global {
     avscPath?: string
     format?: FormatType
     payloadSize?: string
+  }
+
+  interface PublishInputOptions extends Omit<PublishOptions, 'message'> {
+    message: string | Buffer | string[]
   }
 
   interface SubscribeOptions extends ConnectOptions {
@@ -154,14 +158,12 @@ declare global {
     | 'protobufMessageName'
     | 'format'
     | 'debug'
-    | 'message'
     | 'batchMaxItems'
     | 'batchMaxBytes'
   >
 
   interface BenchPublishOptions extends OmitPublishOptions {
     batchItems?: number
-    message: string | Buffer
     count: number
     interval: number
     messageInterval: number
