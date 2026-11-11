@@ -72,7 +72,7 @@ describe('batch sub', () => {
     return { port, payload, acknowledgements: () => acknowledgements }
   }
 
-  it('puts batch facts in the header without repeating topic or size in the payload', async () => {
+  it('prints batch facts once and omits the human header for a rejected batch', async () => {
     const { port } = await sequenceBroker()
     const subscriber = launch(port, 'sub -b -t demo'.split(' '))
     await subscriber.until('after-batch')
@@ -81,14 +81,6 @@ describe('batch sub', () => {
     const topicHeader = subscriber.stdout.split('\n').find((line) => line.includes('topic: $batch/3/demo'))
     expect(topicHeader).toContain('size: 15B, batch: 3 items, logical_topic: demo')
     expect(subscriber.stdout).not.toMatch(/Batch ×|Wire topic:/)
-  })
-
-  it('does not print an empty human header for a rejected batch', async () => {
-    const { port } = await sequenceBroker()
-    const subscriber = launch(port, 'sub -b -t demo'.split(' '))
-    await subscriber.until('after-batch')
-    await broker.stop(subscriber)
-
     expect(subscriber.stdout.match(/received_at:/g)).toHaveLength(3)
   })
 
