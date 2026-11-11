@@ -224,6 +224,14 @@ Click **Connect** in the upper right corner to create the connection and connect
 
    So far, the testing of an `MQTT` message is completed.
 
+### Batch messages
+
+Planned for MQTTX 1.14.0. In **Settings → Advanced**, turn on **Enable Batch publishing** to show the Batch checkbox, then select it in the publish bar and enter one item per line. Supports MQTT 5.0 and MQTT 3.1.1 with QoS 0/1 on compatible broker routes. Defaults are 256 items and 65,536 payload bytes per batch; Desktop blocks oversized batches instead of splitting them.
+
+Received batches are recognized automatically and appear as one bubble with a five-item preview and a paginated item table. Advanced settings control publish visibility, limits, and Full or Summary storage. Summary keeps only the first 20 items, up to 32 bytes each; omitted data cannot be recovered.
+
+See [Batch messages](./desktop/en/use-desktop/pub-sub.md#batch-messages) for examples, prefixed subscription topics, encoding rules, and negotiation.
+
 ### MQTT 5
 
 1. User Properties
@@ -269,7 +277,7 @@ Click the settings button at the bottom of the left menu bar, or use the shortcu
 - **General**: language, auto check update, auto resubscribe, multi topics subscribe, max reconnect times, and max payload display size.
 - **Appearance**: sync with OS theme, theme (Light, Dark, or Night), and JSON highlighting.
 - **Extensions**: one-click installation of MQTTX CLI.
-- **Advanced**: log level, data recovery and backup, clear history data, ignore QoS 0 messages, GZIP message decompression, topic whitespace detection, and GPU acceleration.
+- **Advanced**: log level, data recovery and backup, clear history data, ignore QoS 0 messages, GZIP message decompression, topic whitespace detection, GPU acceleration, and Batch publishing, limits, and storage.
 - **MQTTX Agent**: enable the agent, configure the model provider, reasoning strength, default permission mode, maximum steps per reply, and MCP servers. See [MQTTX Agent](./desktop/en/use-desktop/agent.md).
 
 ![mqttx-theme](../assets/mqttx-theme.png)
