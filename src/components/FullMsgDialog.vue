@@ -3,6 +3,7 @@
     :title="$t('common.viewData')"
     :visible.sync="showDialog"
     class="full-msg-dialog"
+    :class="{ 'batch-dialog': batchPayload !== undefined }"
     width="600px"
     :confirmBtnText="$t('common.saveToLocal')"
     @confirm="saveDataToLocal"
@@ -189,6 +190,24 @@ export default class FullMsgDialog extends Vue {
 @import '~@/assets/scss/mixins.scss';
 
 .full-msg-dialog {
+  &.batch-dialog {
+    .el-dialog {
+      display: flex;
+      flex-direction: column;
+      // MyDialog starts at 15vh; leave 24px below the footer.
+      max-height: calc(85vh - 24px);
+    }
+    .el-dialog__header,
+    .el-dialog__footer {
+      flex-shrink: 0;
+    }
+    .el-dialog__body {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+  }
   .el-dialog__body {
     padding-top: 24px;
     padding-bottom: 0px;
@@ -210,6 +229,7 @@ export default class FullMsgDialog extends Vue {
     border-radius: 8px;
   }
   .batch-page {
+    min-height: 0;
     max-height: 400px;
     overflow: auto;
     color: var(--color-text-default);
