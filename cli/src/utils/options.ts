@@ -96,7 +96,11 @@ const handleSaveOptions = (
  * @returns The options for the specified command type.
  */
 function handleLoadOptions(commandType: 'conn', savePath: boolean | string, opts: ConnectOptions): ConnectOptions
-function handleLoadOptions(commandType: 'pub', savePath: boolean | string, opts: PublishOptions): PublishOptions
+function handleLoadOptions(
+  commandType: 'pub',
+  savePath: boolean | string,
+  opts: PublishInputOptions,
+): PublishInputOptions
 function handleLoadOptions(commandType: 'sub', savePath: boolean | string, opts: SubscribeOptions): SubscribeOptions
 function handleLoadOptions(
   commandType: 'benchConn',

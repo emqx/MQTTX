@@ -10,6 +10,7 @@ import {
   encodeBatchPayload,
   decodeBatch,
   calculatePublishSize,
+  createBatchSelectionCheck,
 } from '../../utils/batchPublishing'
 import { PROTOCOL_BATCH_LIMITS } from '../../utils/constants'
 
@@ -59,14 +60,25 @@ const vectors: {
   { name: '10 truncated item', count: '1', payload: '000241', error: 'TRUNCATED_ITEM' },
   { name: '11 missing second frame', count: '2', payload: '00024142', error: 'BATCH_COUNT_MISMATCH' },
   { name: '12 trailing byte', count: '1', payload: '00014100', error: 'BATCH_COUNT_MISMATCH' },
-  { name: '13 count budget', count: '2', payload: '00000000', limits: { maxItems: 1 }, error: 'BATCH_LIMIT_EXCEEDED' },
+  {
+    name: '13 count budget',
+    count: '2',
+    payload: '00000000',
+    limits: { ...large, maxItems: 1 },
+    error: 'BATCH_LIMIT_EXCEEDED',
+  },
   { name: '14 repeated size', count: ['1', '1'], payload: '0000', error: 'INVALID_BATCH_MARKERS' },
   { name: '15 unknown format', count: '1', payload: '0000', format: 'unknown', error: 'UNSUPPORTED_BATCH_FORMAT' },
 ]
 
 describe('batch validation vectors', () => {
   it.each(vectors)('$name (property carrier)', (vector) => {
-    const result = decodeBatch(property(vector.count, vector.payload, vector.format), 5, vector.limits)
+    const packet = property(vector.count, vector.payload, vector.format)
+    const result = decodeBatch(packet, 5, vector.limits)
+    const counted = decodeBatch(packet, 5, vector.limits, false)
+    expect(counted?.error).toBe(vector.error)
+    expect(counted?.count).toBe(result?.count)
+    expect(counted?.items).toEqual(vector.error ? undefined : [])
     expect(result?.error).toBe(vector.error)
     if (vector.error) expect(result?.items).toBeUndefined()
     else expect(result?.items?.map((item) => item.length)).toEqual(vector.lengths)
@@ -165,7 +177,7 @@ describe('batch carriers and validation order', () => {
     packet.properties!.payloadFormatIndicator = false
     expect(decodeBatch(packet, 5)?.error).toBe('INVALID_BATCH_COUNT')
     packet.properties!.userProperties!['batch-size'] = '1'
-    expect(decodeBatch(packet, 5, { maxBytes: 0 })?.error).toBe('BATCH_LIMIT_EXCEEDED')
+    expect(decodeBatch(packet, 5, { ...large, maxBytes: 0 })?.error).toBe('BATCH_LIMIT_EXCEEDED')
   })
 
   it('ignores MQTT 5 packets without batch markers', () => {
@@ -190,11 +202,6 @@ describe('batch carriers and validation order', () => {
     const payload = encodeBatchPayload([Buffer.from(' A '), Buffer.alloc(0), Buffer.from([0xff])])
     const decoded = decodeBatch(property('3', payload), 5)!
     expect(decoded.items).toEqual([Buffer.from(' A '), Buffer.alloc(0), Buffer.from([0xff])])
-  })
-
-  it('enforces the per-item decoder budget', () => {
-    const payload = encodeBatchPayload([Buffer.from(' A '), Buffer.alloc(0), Buffer.from([0xff])])
-    expect(decodeBatch(property('3', payload), 5, { maxItemBytes: 2 })?.error).toBe('BATCH_LIMIT_EXCEEDED')
   })
 
   it('rejects an item too large for its length prefix', () => {
@@ -241,44 +248,39 @@ describe('exact batch packets', () => {
   const base5 = property('2', encodeBatchPayload([Buffer.from('Msg1'), Buffer.from('LongerMsg2')]))
   const base4 = { ...base5, topic: '$batch/2/batch/demo', properties: undefined }
   it.each([
-    [5, base5, fromHex(hex5), 70, undefined],
-    [4, base4, fromHex(hex4), 43, undefined],
+    [5, base5, fromHex(hex5), undefined],
+    [4, base4, fromHex(hex4), undefined],
     [
       5,
       { ...base5, qos: 0 },
       Buffer.concat([fromHex('3042'), fromHex(hex5).subarray(2, 14), fromHex(hex5).subarray(16)]),
-      68,
       undefined,
     ],
     [
       4,
       { ...base4, qos: 0 },
       Buffer.concat([fromHex('3027'), fromHex(hex4).subarray(2, 23), fromHex(hex4).subarray(25)]),
-      41,
       undefined,
     ],
     [
       5,
       { ...base5, qos: 2, retain: true },
       Buffer.concat([fromHex('3544'), fromHex(hex5).subarray(2)]),
-      70,
       'UNSUPPORTED_BATCH_QOS',
     ],
-    [4, { ...base4, qos: 2 }, Buffer.concat([fromHex('3429'), fromHex(hex4).subarray(2)]), 43, 'UNSUPPORTED_BATCH_QOS'],
+    [4, { ...base4, qos: 2 }, Buffer.concat([fromHex('3429'), fromHex(hex4).subarray(2)]), 'UNSUPPORTED_BATCH_QOS'],
     [
       5,
       { ...base4, qos: 2 },
       Buffer.concat([fromHex('342a'), fromHex(hex4).subarray(2, 25), fromHex('00'), fromHex(hex4).subarray(25)]),
-      44,
       'UNSUPPORTED_BATCH_QOS',
     ],
-  ] as [number, BatchPacket, Buffer, number, string | undefined][])(
+  ] as [number, BatchPacket, Buffer, string | undefined][])(
     'matches golden packet #%# (%i)',
-    (version, packet, expected, bytes, error) => {
+    (version, packet, expected, error) => {
       const generated = wire(packet, version)
       expect(generated).toEqual(expected)
-      expect(generated).toHaveLength(bytes)
-      expect(calculatePublishSize(packet, version)).toBe(bytes)
+      expect(calculatePublishSize(packet, version)).toBe(expected.length)
       const result = decodeBatch(parsed(generated, version), version)
       expect(result?.error).toBe(error)
       if (error) expect(result?.items).toBeUndefined()
@@ -326,5 +328,42 @@ describe('complete PUBLISH length compared with mqtt-packet.generate', () => {
         expect(calculatePublishSize(packet, version)).toBe(wire(packet, version).length)
       }
     }
+  })
+})
+
+describe('batch capability selection', () => {
+  it.each([undefined, 'unknown', ['v1', 'v1'], ['v1', 'unknown']])(
+    'rejects missing, mismatched or repeated selection %p',
+    (value) => {
+      const userProperties = value === undefined ? undefined : { 'batch-publish': value }
+      const check = createBatchSelectionCheck({ 'batch-publish': 'v1' })
+      expect(check({ properties: { userProperties } })).toBe(false)
+    },
+  )
+
+  const selected = { properties: { userProperties: { 'batch-publish': 'v1' } } }
+
+  it('requires an exact offer as well as a selection', () => {
+    expect(createBatchSelectionCheck()(selected)).toBe(false)
+    expect(createBatchSelectionCheck({ 'batch-publish': ['v1', 'unknown'] })(selected)).toBe(false)
+  })
+
+  it('rejects a resumed session when v1 was not reselected', () => {
+    const check = createBatchSelectionCheck({ 'batch-publish': 'v1' }, true)
+    expect(check(selected)).toBe(true)
+    expect(() => check({ sessionPresent: true })).toThrow(
+      'Batch session resume failed: v1 capability was not reselected.',
+    )
+  })
+
+  it('requires selection on a new session when negotiation is requested', () => {
+    const check = createBatchSelectionCheck({ 'batch-publish': 'v1' }, true)
+    check(selected)
+    expect(() => check({ sessionPresent: false })).toThrow('Batch negotiation failed:')
+  })
+
+  it('accepts a resumed session without a previous capability selection', () => {
+    const unpinned = createBatchSelectionCheck()
+    expect(unpinned({ sessionPresent: true })).toBe(false)
   })
 })

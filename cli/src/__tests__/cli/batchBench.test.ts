@@ -66,8 +66,7 @@ describe('batch benchmarks', () => {
     publications.push(publication('demo', Array(101).fill(Buffer.alloc(1024))))
     const subscribed = launch(port, 'bench sub -b -c 1 -t demo -v'.split(' '))
     await subscribed.until('Received total: 101 items (1 batch packets), failed: 1 packets, ordinary: 1 packets')
-    subscribed.child.kill('SIGINT')
-    const result = await subscribed.closed
+    const result = await broker.stop(subscribed, 'SIGINT')
     expect(result.code).toBe(130)
     expect(result.output).toContain('Received total: 101 items')
   })

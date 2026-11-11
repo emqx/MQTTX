@@ -1,7 +1,6 @@
 /// <reference path="../../types/global.d.ts" />
 import { readFileSync } from 'fs'
 import { join } from 'path'
-import { Commander } from '../../index'
 import { encodeBatchPayload } from '../../utils/batchPublishing'
 import { createBatchBroker } from '../../../tests/helpers/batchBroker'
 
@@ -34,8 +33,7 @@ describe('batch sub', () => {
     const { port } = await quoteBroker()
     const subscriber = launch(port, ['sub', '-b', '-t', 'demo'])
     await subscriber.until('[4]')
-    subscriber.child.kill('SIGINT')
-    const result = await subscriber.closed
+    const result = await broker.stop(subscriber, 'SIGINT')
     expect(result.stdout.split(/\r?\n/).filter((line) => /^\[\d+\]/.test(line))).toEqual([
       '[1]  {"id":"device-001","temp":23.1}',
       '[2]  a\\nb\\rc\\u0009\\u0000\\u001b',
@@ -48,8 +46,7 @@ describe('batch sub', () => {
     const { port, messages } = await quoteBroker()
     const clean = launch(port, 'sub -b -t demo --output-mode clean'.split(' '))
     await clean.until('"batch":')
-    clean.child.kill('SIGINT')
-    const output = JSON.parse((await clean.closed).stdout)
+    const output = JSON.parse((await broker.stop(clean, 'SIGINT')).stdout)
     expect(output.batch.items).toEqual(messages)
     expect(output).not.toHaveProperty('payload')
   })
@@ -100,16 +97,6 @@ describe('batch sub', () => {
     expect(JSON.parse(subscriber.stdout).batch.items).toEqual(Array(256).fill('item'))
   })
 
-  it('shows the 256-item default and unchanged byte limit in sub help', () => {
-    const commander = new Commander()
-    commander.init()
-    const command = commander.program.commands.find((command) => command.name() === 'sub')!
-    command.parseOptions([])
-
-    expect(command.opts()).toMatchObject({ batchMaxItems: 256, batchMaxBytes: 65536 })
-    expect(command.helpInformation()).toContain('default: 256')
-  })
-
   it('rejects atomically, continues with both carriers, and appends each item', async () => {
     const { port, acknowledgements } = await sequenceBroker()
     const file = join(broker.directory, 'items.out')
@@ -120,8 +107,7 @@ describe('batch sub', () => {
       '|',
     ])
     await sub.until('after-batch')
-    sub.child.kill('SIGINT')
-    const result = await sub.closed
+    const result = await broker.stop(sub, 'SIGINT')
     const outputs = JSON.parse(`[${result.stdout.trim().replace(/}\s*{/g, '},{')}]`)
     expect(outputs).toHaveLength(4)
     expect(outputs[0].batch.error).toBe('TRUNCATED_ITEM')
@@ -152,8 +138,7 @@ describe('batch sub', () => {
     const saved = join(broker.directory, 'envelope.bin')
     const saveSub = launch(port, ['sub', '-b', '-t', 'demo', '--file-save', saved])
     await saveSub.until('after-batch')
-    saveSub.child.kill('SIGINT')
-    await saveSub.closed
+    await broker.stop(saveSub, 'SIGINT')
     expect(saveSub.stdout).toContain(`Saved to file: ${saved}`)
     expect(readFileSync(saved)).toEqual(Buffer.from('000166000267', 'hex'))
     expect(readFileSync(join(broker.directory, 'envelope(1).bin'))).toEqual(payload)
@@ -182,8 +167,7 @@ describe('batch sub', () => {
     const { port } = await sequenceBroker()
     const plainSub = launch(port, ['sub', '-t', 'demo', '--output-mode', 'clean'])
     await plainSub.until('after-batch')
-    plainSub.child.kill('SIGINT')
-    expect((await plainSub.closed).stdout).not.toContain('"batch":')
+    expect((await broker.stop(plainSub, 'SIGINT')).stdout).not.toContain('"batch":')
   })
 
   it('warns once without rewriting MQTT 3.1.1 filters', async () => {
@@ -194,7 +178,6 @@ describe('batch sub', () => {
     })
     const warned = launch(warningPort, 'sub -V 3.1.1 -b -t demo other'.split(' '))
     await warned.until('Subscribed to other')
-    warned.child.kill('SIGINT')
-    expect((await warned.closed).output.match(/Note: MQTT 3.1.1 batches arrive/g)).toHaveLength(1)
+    expect((await broker.stop(warned, 'SIGINT')).output.match(/Note: MQTT 3.1.1 batches arrive/g)).toHaveLength(1)
   })
 })

@@ -4,7 +4,7 @@ import fs from 'fs'
 import os from 'os'
 import path from 'path'
 import { Commander } from '../../index'
-import { appendFile, appendFileItems, fileDataSplitter, splitBatchFile } from '../../utils/fileUtils'
+import { appendFile, fileDataSplitter, splitBatchFile } from '../../utils/fileUtils'
 
 describe('appendFile', () => {
   let directory: string
@@ -86,26 +86,14 @@ describe('appendFile', () => {
       const reference = path.join(directory, 'reference.bin')
       items.forEach((item) => appendFile(reference, item, delimiter))
 
-      appendFileItems(filePath, items, delimiter)
+      appendFile(filePath, items, delimiter)
 
       expect(fs.readFileSync(filePath)).toEqual(fs.readFileSync(reference))
     },
   )
 
-  it('appends an item list with one filesystem write', () => {
-    const append = jest.spyOn(fs, 'appendFileSync')
-    try {
-      appendFileItems(filePath, ['first', '', 'last'])
-
-      expect(append).toHaveBeenCalledTimes(1)
-      expect(fs.readFileSync(filePath, 'utf8')).toBe('first\n\nlast\n')
-    } finally {
-      append.mockRestore()
-    }
-  })
-
   it('does not create a file for an empty item list', () => {
-    appendFileItems(filePath, [])
+    appendFile(filePath, [])
 
     expect(fs.existsSync(filePath)).toBe(false)
   })

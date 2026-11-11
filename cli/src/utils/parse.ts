@@ -27,24 +27,21 @@ const parseNumber = (value: string) => {
 // Benchmark retry counters are stored in arrays, whose maximum length is 2^32 - 1.
 const MAX_CLIENT_COUNT = 0xffffffff
 
-const validateClientCount = (count: unknown): void => {
-  if (typeof count !== 'number' || !Number.isInteger(count) || count < 1 || count > MAX_CLIENT_COUNT) {
-    logWrapper.fail(`Invalid client count: ${count}. Expected an integer between 1 and ${MAX_CLIENT_COUNT}.`)
-    process.exit(1)
+const fail = (message: string): never => {
+  logWrapper.fail(message)
+  process.exit(1)
+}
+
+const validateIntegerRange = (value: unknown, name: string, min: number, max: number): void => {
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < min || value > max) {
+    fail(`Invalid ${name}: ${value}. Expected an integer between ${min} and ${max}.`)
   }
 }
 
-const validateMaxInflight = (maxInflight: unknown): void => {
-  if (
-    typeof maxInflight !== 'number' ||
-    !Number.isInteger(maxInflight) ||
-    maxInflight < 1 ||
-    maxInflight > MAX_INFLIGHT_LIMIT
-  ) {
-    logWrapper.fail(`Invalid max inflight: ${maxInflight}. Expected an integer between 1 and ${MAX_INFLIGHT_LIMIT}.`)
-    process.exit(1)
-  }
-}
+const validateClientCount = (count: unknown): void => validateIntegerRange(count, 'client count', 1, MAX_CLIENT_COUNT)
+
+const validateMaxInflight = (maxInflight: unknown): void =>
+  validateIntegerRange(maxInflight, 'max inflight', 1, MAX_INFLIGHT_LIMIT)
 
 const parseProtocol = (value: string) => {
   if (!['mqtt', 'mqtts', 'ws', 'wss'].includes(value)) {
@@ -79,14 +76,6 @@ const parseMessage = (value: string, previous: string | string[]): string | stri
   return [value]
 }
 
-/** Validate a configurable batch limit before connecting. */
-const validateBatchLimit = (value: number | undefined, name: string, min: number, max: number): void => {
-  if (value !== undefined && (!Number.isInteger(value) || value < min || value > max)) {
-    logWrapper.fail(`Invalid ${name}: ${value}. Expected an integer between ${min} and ${max}.`)
-    process.exit(1)
-  }
-}
-
 /** Validate batch options using the same failure path as other CLI validators. */
 const validateBatchOptions = (
   options: PublishOptions | SubscribeOptions | BenchPublishOptions | BenchSubscribeOptions,
@@ -96,35 +85,35 @@ const validateBatchOptions = (
   const pub = options as PublishOptions & BenchPublishOptions
   const enabled = options.batch
   if (command === 'benchPub' && pub.batchItems !== undefined && !enabled) {
-    logWrapper.fail('-bi requires -b.')
-    process.exit(1)
+    fail('-bi requires -b.')
   }
-  validateBatchLimit(pub.batchItems, 'batch items', 1, MAX_BATCH_ITEMS)
-  validateBatchLimit(pub.batchMaxItems, 'batch max items', 1, MAX_BATCH_ITEMS)
-  validateBatchLimit(pub.batchMaxBytes, 'batch max bytes', MIN_BATCH_BYTES, MAX_BATCH_BYTES)
+  if (pub.batchItems !== undefined) {
+    validateIntegerRange(pub.batchItems, 'batch items', 1, MAX_BATCH_ITEMS)
+  }
+  if (pub.batchMaxItems !== undefined) {
+    validateIntegerRange(pub.batchMaxItems, 'batch max items', 1, MAX_BATCH_ITEMS)
+  }
+  if (pub.batchMaxBytes !== undefined) {
+    validateIntegerRange(pub.batchMaxBytes, 'batch max bytes', MIN_BATCH_BYTES, MAX_BATCH_BYTES)
+  }
   if (pub.batchNegotiate) {
     if (!publishing || !enabled || options.mqttVersion !== 5) {
-      logWrapper.fail('--batch-negotiate requires batch publishing with MQTT 5.0.')
-      process.exit(1)
+      fail('--batch-negotiate requires batch publishing with MQTT 5.0.')
     }
     if (Object.prototype.hasOwnProperty.call(pub.connUserProperties ?? {}, 'batch-publish')) {
-      logWrapper.fail('--batch-negotiate cannot be combined with -Cup batch-publish.')
-      process.exit(1)
+      fail('--batch-negotiate cannot be combined with -Cup batch-publish.')
     }
   }
   if (command === 'pub' && pub.split !== undefined && !enabled) {
-    logWrapper.fail('--split requires -b.')
-    process.exit(1)
+    fail('--split requires -b.')
   }
   if (!enabled) return
   if (options.mqttVersion === 3) {
-    logWrapper.fail('Batch publishing requires MQTT 5.0 or 3.1.1. MQTT 3.1 is unsupported.')
-    process.exit(1)
+    fail('Batch publishing requires MQTT 5.0 or 3.1.1. MQTT 3.1 is unsupported.')
   }
   const qos = Array.isArray(options.qos) ? options.qos : [options.qos]
   if (qos.includes(2)) {
-    logWrapper.fail('Batch publishing requires QoS 0 or 1.')
-    process.exit(1)
+    fail('Batch publishing requires QoS 0 or 1.')
   }
   if (!publishing) return
   if (pub.topic.startsWith('$batch/')) {
@@ -136,56 +125,43 @@ const validateBatchOptions = (
     } catch {
       // Malformed prefixed topics have no valid logical-topic suggestion.
     }
-    logWrapper.fail(`With -b, -t takes the logical topic; the $batch/{N}/ prefix is added automatically.${suggestion}`)
-    process.exit(1)
+    fail(`With -b, -t takes the logical topic; the $batch/{N}/ prefix is added automatically.${suggestion}`)
   }
   if (!validLogicalTopic(pub.topic)) {
-    logWrapper.fail(`Invalid topic for -b: ${pub.topic} (INVALID_BATCH_TOPIC).`)
-    process.exit(1)
+    fail(`Invalid topic for -b: ${pub.topic} (INVALID_BATCH_TOPIC).`)
   }
   if (options.mqttVersion === 4) {
     try {
       const count = command === 'benchPub' ? pub.batchItems ?? DEFAULT_BATCH_ITEMS : 1
       buildTopicCarrier(count, pub.topic)
     } catch {
-      logWrapper.fail(`Invalid topic for -b: ${pub.topic}. The batch topic exceeds the MQTT topic byte limit.`)
-      process.exit(1)
+      fail(`Invalid topic for -b: ${pub.topic}. The batch topic exceeds the MQTT topic byte limit.`)
     }
   }
   if (pub.mqttVersion === 4 && pub.retain) {
-    logWrapper.fail('MQTT 3.1.1 batch publishing requires RETAIN=0.')
-    process.exit(1)
+    fail('MQTT 3.1.1 batch publishing requires RETAIN=0.')
   }
   if (pub.payloadFormatIndicator) {
-    logWrapper.fail('Batch envelopes require Payload Format Indicator 0 or absent.')
-    process.exit(1)
+    fail('Batch envelopes require Payload Format Indicator 0 or absent.')
   }
   if (hasMarker(pub.userProperties)) {
-    logWrapper.fail('-up batch-format and batch-size are generated automatically with -b.')
-    process.exit(1)
+    fail('-up batch-format and batch-size are generated automatically with -b.')
   }
   if (pub.protobufPath || pub.protobufMessageName || pub.avscPath) {
-    logWrapper.fail('Batch publishing does not support per-item schema encoding.')
-    process.exit(1)
+    fail('Batch publishing does not support per-item schema encoding.')
   }
   if (command === 'pub') {
     if (pub.stdin || pub.multiline || pub.lineMode) {
-      logWrapper.fail(
-        '-b reads items from -m or --file-read (one per line). For piped input use --file-read /dev/stdin.',
-      )
-      process.exit(1)
+      fail('-b reads items from -m or --file-read (one per line). For piped input use --file-read /dev/stdin.')
     }
     if (pub.payloadSize) {
-      logWrapper.fail('-b reads items from -m or --file-read. -S is unsupported.')
-      process.exit(1)
+      fail('-b reads items from -m or --file-read. -S is unsupported.')
     }
     if (pub.split !== undefined && !pub.fileRead) {
-      logWrapper.fail('--split requires --file-read.')
-      process.exit(1)
+      fail('--split requires --file-read.')
     }
   } else if (pub.split !== undefined) {
-    logWrapper.fail('bench pub -b uses the whole file as one item template. --split is unsupported.')
-    process.exit(1)
+    fail('bench pub -b uses the whole file as one item template. --split is unsupported.')
   }
 }
 
@@ -575,7 +551,7 @@ const parsePublishOptions = (options: PublishOptions) => {
 
   return {
     topic,
-    message: Array.isArray(message) ? message[message.length - 1] : message,
+    message,
     schemaOptions,
     format,
     opts: publishOptions,

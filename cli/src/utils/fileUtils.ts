@@ -53,26 +53,27 @@ const writeFile = (filePath: string, data: string | Buffer): void => {
   }
 }
 
-const appendFile = (filePath: string, data: string | Buffer, delimiter = '\n'): void => {
+/** Append scalar or list items in one write, preserving each item's encoding. */
+const appendFile = (filePath: string, data: string | Buffer | (string | Buffer)[], delimiter = '\n'): void => {
+  const items = Array.isArray(data) ? data : [data]
+  if (items.length === 0) return
   try {
-    const content = Buffer.isBuffer(data) ? Buffer.concat([data, Buffer.from(`${delimiter}`)]) : `${data}${delimiter}`
-    fs.appendFileSync(filePath, content)
+    const separator = Buffer.from(`${delimiter}`)
+    const chunks: Buffer[] = []
+    for (const item of items) {
+      if (Buffer.isBuffer(item)) {
+        chunks.push(item)
+        if (separator.length) chunks.push(separator)
+      } else {
+        chunks.push(Buffer.from(`${item}${delimiter}`))
+      }
+    }
+    fs.appendFileSync(filePath, chunks.length === 1 ? chunks[0] : Buffer.concat(chunks))
   } catch (error) {
     const err = error as Error
     logWrapper.fail(err.toString())
     process.exit(1)
   }
-}
-
-/** Append delimited items in one write, preserving each item's encoding. */
-const appendFileItems = (filePath: string, items: (string | Buffer)[], delimiter = '\n'): void => {
-  if (items.length === 0) return
-  if (items.length === 1) return appendFile(filePath, items[0], delimiter)
-  const separator = Buffer.from(`${delimiter}`)
-  const messages = items.map((item) =>
-    Buffer.isBuffer(item) ? Buffer.concat([item, separator]) : Buffer.from(`${item}${delimiter}`),
-  )
-  appendFile(filePath, Buffer.concat(messages), '')
 }
 
 const createNextNumberedFileName = (filePath: string): string => {
@@ -120,12 +121,7 @@ const fileDataSplitter = (data: string | Buffer, split: true | string): string[]
 const splitBatchFile = (data: string | Buffer, split: true | string = true): string[] => {
   let items: string[]
   if (split === true || split === '\n' || split === '\\n') {
-    items = data.toString('utf-8').split('\n')
-    for (let index = 0; index < items.length - 1; index++) {
-      if (items[index].endsWith('\r')) {
-        items[index] = items[index].slice(0, -1)
-      }
-    }
+    items = data.toString('utf-8').replace(/\r\n/g, '\n').split('\n')
   } else {
     items = fileDataSplitter(data, split)
   }
@@ -145,7 +141,6 @@ export {
   readFile,
   writeFile,
   appendFile,
-  appendFileItems,
   createNextNumberedFileName,
   fileDataSplitter,
   splitBatchFile,
