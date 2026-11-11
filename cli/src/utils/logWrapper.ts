@@ -57,24 +57,28 @@ const escapeControlCharacter = (character: string): string => {
 }
 
 const batchLog = {
-  payload: (
-    count: number,
-    logicalTopic: string,
-    bytes: number,
-    items: (string | { b64: string })[],
-    wireTopic?: string,
-  ) => {
-    const lines = [`Batch ×${count} · ${logicalTopic} · ${bytes} B`]
-    if (wireTopic) lines.push(`Wire topic: ${wireTopic}`)
-    items.forEach((item, index) => {
-      const text =
-        typeof item === 'string' ? item.replace(/[\u0000-\u001f]/g, escapeControlCharacter) : JSON.stringify(item)
-      lines.push(`[${index + 1}] ${text}`)
-    })
-    return lines.join('\n')
+  payload: (items: (string | { b64: string })[]) => {
+    const width = String(items.length).length + 2
+    return items
+      .map((item, index) => {
+        const text =
+          typeof item === 'string' ? item.replace(/[\u0000-\u001f]/g, escapeControlCharacter) : JSON.stringify(item)
+        const label = chalk.dim(`[${index + 1}]`.padStart(width))
+        return text ? `${label}  ${text}` : label
+      })
+      .join('\n')
   },
-  rejected: (error: string, topic: string, bytes: number) =>
-    logWrapper.fail(`Batch rejected: ${error}; topic=${topic}; payloadBytes=${bytes}; items=0.`),
+  rejected: (error: string, topic: string, bytes: number) => {
+    let message = `Batch rejected (${error}): ${topic}, ${bytes} B, no items delivered.`
+    if (error === 'BATCH_LIMIT_EXCEEDED') {
+      message += ' Check --batch-max-items and --batch-max-bytes.'
+    }
+    logWrapper.fail(message)
+  },
+  published: (items: number, batches: number) =>
+    logWrapper.success(
+      `Published ${items} ${items === 1 ? 'item' : 'items'} in ${batches} ${batches === 1 ? 'batch' : 'batches'}`,
+    ),
 }
 
 const basicLog = {
@@ -220,8 +224,12 @@ const benchLog = {
   },
   receive: (batch: boolean) => {
     if (batch) {
-      const summary = ({ total, packets, failed, ordinary }: ReceiveCounts) =>
-        `Received total: ${total} items (${packets} batch packets), failed: ${failed} packets, ordinary: ${ordinary} packets`
+      const summary = ({ total, packets, failed, ordinary }: ReceiveCounts) => {
+        let message = `Received total: ${total} items (${packets} batch packets)`
+        if (failed > 0) message += `, failed: ${failed} packets`
+        if (ordinary > 0) message += `, ordinary: ${ordinary} packets`
+        return message
+      }
       return {
         summary,
         rate: (counts: ReceiveCounts, rate: number) => `${summary(counts)}, rate: ${rate} items/s`,

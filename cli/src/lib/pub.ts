@@ -8,7 +8,15 @@ import split2 from 'split2'
 import convertPayload from '../utils/convertPayload'
 import delay from '../utils/delay'
 import { fileDataSplitter, splitBatchFile, processPath, readFile } from '../utils/fileUtils'
-import logWrapper, { basicLog, benchLog, Signale, signale, simulateLog, singaleConfig } from '../utils/logWrapper'
+import logWrapper, {
+  basicLog,
+  batchLog,
+  benchLog,
+  Signale,
+  signale,
+  simulateLog,
+  singaleConfig,
+} from '../utils/logWrapper'
 import { handleLoadOptions, handleSaveOptions } from '../utils/options'
 import {
   checkScenarioExists,
@@ -156,6 +164,7 @@ const buildBatchMessages = (options: PublishOptions, source: (string | Buffer)[]
     maxItems: options.batchMaxItems ?? DEFAULT_BATCH_LIMITS.maxItems,
     maxBytes: options.batchMaxBytes ?? DEFAULT_BATCH_LIMITS.maxBytes,
   }
+  const maxItemBytes = Math.min(MAX_BATCH_ITEM_BYTES, limits.maxBytes - 2)
   const packets: BatchMessage[] = []
   let items: Buffer[] = []
   let bytes = 0
@@ -169,8 +178,13 @@ const buildBatchMessages = (options: PublishOptions, source: (string | Buffer)[]
   source.forEach((item, index) => {
     const message = processPublishMessage(item, undefined, options.format)
     const buffer = Buffer.isBuffer(message) ? message : Buffer.from(message)
-    if (buffer.length > MAX_BATCH_ITEM_BYTES || buffer.length + 2 > limits.maxBytes) {
-      throw new Error(`Batch input error: item ${index + 1} exceeds the item or payload byte limit.`)
+    if (buffer.length > maxItemBytes) {
+      const limit =
+        maxItemBytes < MAX_BATCH_ITEM_BYTES ? `--batch-max-bytes ${limits.maxBytes}` : 'the 2-byte item length prefix'
+      logWrapper.fail(
+        `Item ${index + 1} is ${buffer.length} B; a batch item can be at most ${maxItemBytes} B with ${limit}`,
+      )
+      process.exit(1)
     }
     if (items.length === limits.maxItems || bytes + buffer.length + 2 > limits.maxBytes) {
       flush()
@@ -188,6 +202,7 @@ const send = (
   connOpts: IClientOptions,
   messages: PublishMessage[],
   maximumReconnectTimes: number,
+  onPublished: () => void = basicLog.published,
 ) => {
   let retryTimes = 0
   let publishComplete = false
@@ -228,7 +243,7 @@ const send = (
           return
         }
         publishComplete = true
-        basicLog.published()
+        onPublished()
         // FIXME: When using the ws and wss protocols to connect, and QoS is 0, the message may not have been successfully sent when the publish callback is triggered. Therefore, delay closing the connection for 2 seconds.
         if (['ws', 'wss'].includes(connOpts.protocol ?? '') && pubOpts.opts.qos === 0) {
           setTimeout(() => {
@@ -459,8 +474,11 @@ const pub = (options: PublishOptions) => {
         logWrapper.success('No batch items to publish.')
         return
       }
+      const itemCount = source.length
       watchBatchConnection(
-        send(loadOptions, parseConnectOptions(options, 'pub'), batches, options.maximumReconnectTimes),
+        send(loadOptions, parseConnectOptions(options, 'pub'), batches, options.maximumReconnectTimes, () =>
+          batchLog.published(itemCount, batches.length),
+        ),
         options,
         batches,
       )

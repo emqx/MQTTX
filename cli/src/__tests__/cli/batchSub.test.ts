@@ -37,10 +37,10 @@ describe('batch sub', () => {
     subscriber.child.kill('SIGINT')
     const result = await subscriber.closed
     expect(result.stdout.split(/\r?\n/).filter((line) => /^\[\d+\]/.test(line))).toEqual([
-      '[1] {"id":"device-001","temp":23.1}',
-      '[2] a\\nb\\rc\\u0009\\u0000\\u001b',
-      '[3] C:\\data\\device\\n',
-      '[4] say "hello"',
+      '[1]  {"id":"device-001","temp":23.1}',
+      '[2]  a\\nb\\rc\\u0009\\u0000\\u001b',
+      '[3]  C:\\data\\device\\n',
+      '[4]  say "hello"',
     ])
   })
 
@@ -49,7 +49,9 @@ describe('batch sub', () => {
     const clean = launch(port, 'sub -b -t demo --output-mode clean'.split(' '))
     await clean.until('"batch":')
     clean.child.kill('SIGINT')
-    expect(JSON.parse((await clean.closed).stdout).batch.items).toEqual(messages)
+    const output = JSON.parse((await clean.closed).stdout)
+    expect(output.batch.items).toEqual(messages)
+    expect(output).not.toHaveProperty('payload')
   })
 
   const sequenceBroker = async (messages = [Buffer.from('first'), Buffer.alloc(0), Buffer.from('last')]) => {
@@ -69,6 +71,26 @@ describe('batch sub', () => {
 
     return { port, payload, acknowledgements: () => acknowledgements }
   }
+
+  it('puts batch facts in the header without repeating topic or size in the payload', async () => {
+    const { port } = await sequenceBroker()
+    const subscriber = launch(port, 'sub -b -t demo'.split(' '))
+    await subscriber.until('after-batch')
+    await broker.stop(subscriber)
+
+    const topicHeader = subscriber.stdout.split('\n').find((line) => line.includes('topic: $batch/3/demo'))
+    expect(topicHeader).toContain('size: 15B, batch: 3 items, logical_topic: demo')
+    expect(subscriber.stdout).not.toMatch(/Batch ×|Wire topic:/)
+  })
+
+  it('does not print an empty human header for a rejected batch', async () => {
+    const { port } = await sequenceBroker()
+    const subscriber = launch(port, 'sub -b -t demo'.split(' '))
+    await subscriber.until('after-batch')
+    await broker.stop(subscriber)
+
+    expect(subscriber.stdout.match(/received_at:/g)).toHaveLength(3)
+  })
 
   it('receives 256 items with the default batch limit', async () => {
     const messages = Array(256).fill(Buffer.from('item'))
@@ -112,6 +134,10 @@ describe('batch sub', () => {
     expect(outputs).toHaveLength(4)
     expect(outputs[0].batch.error).toBe('TRUNCATED_ITEM')
     expect(outputs[0].batch.items).toBeUndefined()
+    expect(outputs[0]).toMatchObject({
+      payload: '000166000267',
+      batch: { rawPreviewEncoding: 'hex', rawPreviewBytes: 6, rawPreviewTruncated: false },
+    })
     expect(outputs[1].batch).toMatchObject({
       carrier: 'property',
       logicalTopic: 'demo',
@@ -136,6 +162,7 @@ describe('batch sub', () => {
     await saveSub.until('after-batch')
     saveSub.child.kill('SIGINT')
     await saveSub.closed
+    expect(saveSub.stdout).toContain(`Saved to file: ${saved}`)
     expect(readFileSync(saved)).toEqual(Buffer.from('000166000267', 'hex'))
     expect(readFileSync(join(broker.directory, 'envelope(1).bin'))).toEqual(payload)
     expect(readFileSync(join(broker.directory, 'envelope(2).bin'))).toEqual(payload)

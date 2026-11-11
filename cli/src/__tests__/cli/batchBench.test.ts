@@ -1,6 +1,7 @@
 /// <reference path="../../types/global.d.ts" />
 import { IPublishPacket } from 'mqtt-packet'
 import { Commander } from '../../index'
+import { benchLog } from '../../utils/logWrapper'
 import { createBatchBroker } from '../../../tests/helpers/batchBroker'
 
 jest.setTimeout(60000)
@@ -8,6 +9,17 @@ jest.setTimeout(60000)
 describe('batch benchmarks', () => {
   const broker = createBatchBroker()
   const { listen, write, connack, launch, items, publication } = broker
+
+  it.each([
+    { failed: 0, ordinary: 0, expected: 'Received total: 10 items (2 batch packets)' },
+    { failed: 1, ordinary: 0, expected: 'Received total: 10 items (2 batch packets), failed: 1 packets' },
+    { failed: 0, ordinary: 2, expected: 'Received total: 10 items (2 batch packets), ordinary: 2 packets' },
+  ])('omits zero counters with failed=$failed and ordinary=$ordinary', ({ failed, ordinary, expected }) => {
+    const log = benchLog.receive(true)
+    const counts = { total: 10, packets: 2, failed, ordinary }
+
+    expect([log.summary(counts), log.rate(counts, 30)]).toEqual([expected, `${expected}, rate: 30 items/s`])
+  })
 
   const benchmarkBroker = async () => {
     const publications: IPublishPacket[] = []

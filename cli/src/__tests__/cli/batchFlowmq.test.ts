@@ -26,7 +26,7 @@ jest.setTimeout(60000)
 
 interface ReceivedMessage {
   topic: string
-  payload: string
+  payload?: string
   packet: { properties?: { userProperties?: Record<string, string | string[]> } }
   batch?: { carrier: string; logicalTopic: string; count: number; items: string[] }
 }
@@ -116,13 +116,13 @@ describeFlowmq('batch publishing with FlowMQ', () => {
       .map((message) => Buffer.byteLength(message).toString(16).padStart(4, '0') + Buffer.from(message).toString('hex'))
       .join('')
     expect((await publish(['-m', messages[0], '-m', messages[1]])).code).toBe(0)
-    const matching = () => records(subscriber).filter((message) => message.payload.replace(/\s/g, '') === hex)
+    const matching = () => records(subscriber).filter((message) => message.payload?.replace(/\s/g, '') === hex)
     await subscriber.until(() => matching().length > 0, 'raw batch envelope')
     await cli.stop(subscriber)
     expect(matching()).toHaveLength(1)
     expect(matching()[0].batch).toBeUndefined()
     expect(matching()[0].packet.properties?.userProperties).toMatchObject({ 'batch-format': 'v1', 'batch-size': '2' })
-    expect(matching()[0].payload.replace(/\s/g, '')).toBe(hex)
+    expect(matching()[0].payload?.replace(/\s/g, '')).toBe(hex)
   })
 
   it('requires negotiation before publishing on demo/nego', async () => {
@@ -131,7 +131,7 @@ describeFlowmq('batch publishing with FlowMQ', () => {
     const accepted = `${token}-accepted`
     const rejected = await publish(['-t', 'demo/nego', '-m', declined])
     expect(rejected.code).toBe(1)
-    expect(rejected.output).not.toContain('Message published')
+    expect(rejected.output).not.toContain('Published 1 item in 1 batch')
     const selected = await publish(['-t', 'demo/nego', '-m', accepted, '--batch-negotiate'])
     expect(selected.code).toBe(0)
     expect(selected.output).toContain('Batch negotiation selected: v1')
