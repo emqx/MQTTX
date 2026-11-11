@@ -2,6 +2,7 @@ import '../mocks/browserStorage'
 import { expect } from 'chai'
 import Vue from 'vue'
 import Vuex from 'vuex'
+import VueI18n from 'vue-i18n'
 import { createLocalVue, mount } from '@vue/test-utils'
 import { Button, Table, TableColumn } from 'element-ui'
 import { ipcRenderer } from 'electron'
@@ -13,10 +14,14 @@ import app from '@/store/modules/app'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
-const translate = (key: string, values: Record<string, any> = {}) => {
-  const text = (connections as any)[key.replace('connections.', '')]?.en || key
-  return text.replace(/\{(\w+)\}/g, (_: string, name: string) => String(values[name]))
-}
+localVue.use(VueI18n)
+const i18n = new VueI18n({
+  locale: 'en',
+  messages: {
+    en: { connections: Object.fromEntries(Object.entries(connections).map(([key, values]) => [key, values.en])) },
+  },
+})
+const translate = (key: string, values = {}) => (key.startsWith('connections.') ? i18n.t(key, values) : key)
 const props = (summary = false, error?: string) => ({
   topic: '$batch/250/demo',
   qos: 1,
@@ -44,7 +49,7 @@ const mountMessage = (propsData: any, component: any = MsgLeftItem) =>
     propsData,
     stubs: { FullMsgDialog: true, MqttProperties: true },
     store: new Vuex.Store({ getters: { jsonHighlight: () => false, currentTheme: () => 'light' } }),
-    mocks: { $t: translate },
+    mocks: { $t: translate, $tc: i18n.tc.bind(i18n) },
   })
 const mountDialog = async (propsData: any) => {
   const vue = createLocalVue()
@@ -125,12 +130,20 @@ describe('Batch message display', () => {
     wrapper.destroy()
   })
   it('explains how many summary items were kept without a dialog link', () => {
-    const wrapper = mountMessage(props(true))
-    expect(wrapper.find('.batch-summary').text()).to.equal(
-      'Summary only: first 20 of 250 items, up to the first 32 B each',
-    )
-    expect(wrapper.find('.see-more-btn').exists()).to.equal(false)
-    wrapper.destroy()
+    for (const [count, saved, unit] of [
+      [1, 1, 'item'],
+      [250, 20, 'items'],
+    ] as const) {
+      const data = props(true)
+      data.payload = JSON.stringify(Array(saved).fill('item'))
+      data.meta = JSON.stringify({ ...JSON.parse(data.meta), batch: { ...JSON.parse(data.meta).batch, count } })
+      const wrapper = mountMessage(data)
+      expect(wrapper.find('.batch-summary').text()).to.equal(
+        `Summary only: first ${saved} of ${count} ${unit}, up to the first 32 B each`,
+      )
+      expect(wrapper.find('.see-more-btn').exists()).to.equal(false)
+      wrapper.destroy()
+    }
   })
   it('renders failed batches as an error tag and hex preview with zero items', () => {
     const wrapper = mountMessage(props(false, 'BATCH_LIMIT_EXCEEDED'))

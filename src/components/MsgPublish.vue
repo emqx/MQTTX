@@ -112,7 +112,7 @@
           class="retain-checkbox"
           v-model="msgRecord.retain"
           :disabled="batchRetainDisabled"
-          :title="batchRetainDisabled ? $t('connections.batchRetainDisabled') : ''"
+          :title="batchRetainDisabled ? $t('connections.batchRetainDisabled') : 'Retain'"
           label="Retain"
           border
           size="mini"
@@ -122,7 +122,7 @@
           class="batch-checkbox"
           v-model="batchChecked"
           :disabled="isMqtt31"
-          :title="isMqtt31 ? $t('connections.batchMqttVersion') : ''"
+          :title="isMqtt31 ? $t('connections.batchMqttVersion') : 'Batch'"
           label="Batch"
           border
           size="mini"
@@ -143,6 +143,7 @@
               :class="['dropdown-btn', showMetaCard ? 'dropdown-btn-active' : '']"
               @click="changeVisable"
               label="Meta"
+              title="Meta"
               size="mini"
             >
               Meta
@@ -186,7 +187,12 @@
             :open-delay="500"
             :effect="currentTheme !== 'light' ? 'light' : 'dark'"
           >
-            <el-button size="mini" class="history-btn history-btn-center" @click="back">
+            <el-button
+              size="mini"
+              class="history-btn history-btn-center"
+              :title="`${historyIndex + 1}/${payloadsHistory.length}`"
+              @click="back"
+            >
               <span>{{ historyIndex + 1 }}/{{ payloadsHistory.length }}</span>
             </el-button>
           </el-tooltip>
@@ -270,7 +276,7 @@
       <div v-if="msgRecord.batch" class="batch-status" :class="{ invalid: batchState.error }" :title="batchStatusTitle">
         <template v-if="!batchInput.error">
           {{
-            $t('connections.batchStatus', {
+            $tc('connections.batchStatus', batchState.count, {
               count: batchState.count,
               bytes: batchState.bytes,
               max: batchLimits.maxBytes,
@@ -1035,6 +1041,7 @@ export default class MsgPublish extends Vue {
     margin-top: 6px;
     margin-bottom: 2px;
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
     .el-input__inner {
@@ -1046,20 +1053,30 @@ export default class MsgPublish extends Vue {
     }
     .payload-select {
       width: 88px;
+      flex-shrink: 0;
       margin-right: 4px;
     }
     .qos-select {
       width: 76px;
+      flex-shrink: 0;
       margin-right: 4px;
     }
     .retain-checkbox,
     .batch-checkbox {
+      display: inline-flex;
+      align-items: center;
+      min-width: 0;
       margin-right: 4px;
       .el-checkbox__input {
+        flex-shrink: 0;
         line-height: 1px;
       }
       .el-checkbox__label {
+        min-width: 0;
         padding-left: 8px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
     .el-checkbox.is-bordered + .el-checkbox.is-bordered {
@@ -1083,6 +1100,17 @@ export default class MsgPublish extends Vue {
       }
     }
     .el-badge.item {
+      min-width: 0;
+      .dropdown-btn {
+        max-width: calc(100% - 4px);
+        > span {
+          display: block;
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
       .el-badge__content.is-dot {
         top: -1px;
         right: 2px;
@@ -1093,12 +1121,28 @@ export default class MsgPublish extends Vue {
       border-radius: 100%;
     }
     .actions-dropdown {
+      flex-shrink: 0;
       display: inline;
       margin-right: 4px;
     }
     .history-button-group {
+      min-width: 0;
       margin-left: auto;
       @include history-button-group;
+      .history-btn-left,
+      .history-btn-right {
+        flex-shrink: 0;
+      }
+      .history-btn-center {
+        min-width: 0;
+        > span {
+          display: block;
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
     }
   }
   .batch-status {

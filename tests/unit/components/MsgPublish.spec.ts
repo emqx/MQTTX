@@ -3,6 +3,7 @@ import { expect } from 'chai'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import VueRouter from 'vue-router'
+import VueI18n from 'vue-i18n'
 import { createLocalVue, shallowMount, Wrapper } from '@vue/test-utils'
 import { Container } from 'typedi'
 import MsgPublish from '@/components/MsgPublish.vue'
@@ -16,6 +17,11 @@ const localVue = createLocalVue()
 localVue.use(Vuex)
 localVue.use(ElementUI)
 localVue.use(VueRouter)
+localVue.use(VueI18n)
+const i18n = new VueI18n({
+  locale: 'en',
+  messages: { en: { connections: { batchStatus: connections.batchStatus.en } } },
+})
 const settle = () => new Promise((resolve) => setTimeout(resolve))
 const translate = (key: string, values: Record<string, string> = {}) => {
   const message = connections[key.replace('connections.', '') as keyof typeof connections]?.en || key
@@ -54,7 +60,7 @@ describe('MsgPublish per-connection input', () => {
       router,
       mocks: {
         $t: (key: string) => key,
-        $tc: (key: string) => key,
+        $tc: (key: string, count?: number, values = {}) => (count === undefined ? key : i18n.tc(key, count, values)),
         $confirm: () => Promise.resolve(),
         $message: {
           error: (message: string) => errors.push(message),
@@ -301,6 +307,34 @@ describe('MsgPublish per-connection input', () => {
     vm.MQTT5PropsSend = { payloadFormatIndicator: true }
     expect(vm.batchError).to.include('connections.batchInvalidMetadata')
   })
+
+  for (const count of [1, 2]) {
+    it(`renders the batch status with the correct item count for ${count}`, async () => {
+      const i18n = new VueI18n({
+        locale: 'en',
+        messages: Object.fromEntries(
+          Object.entries(connections.batchStatus).map(([locale, message]) => [
+            locale,
+            { connections: { batchStatus: message } },
+          ]),
+        ),
+      })
+      vm.$tc = i18n.tc.bind(i18n)
+      Object.assign(vm.msgRecord, {
+        batch: true,
+        topic: 'demo',
+        payloadType: 'Plaintext',
+        payload: Array(count).fill('a').join('\n'),
+      })
+      const units = { zh: '条', en: count === 1 ? 'item' : 'items', tr: 'öğe', ja: '件', hu: 'elem', ko: '개' }
+      for (const [locale, unit] of Object.entries(units)) {
+        i18n.locale = locale
+        await Vue.nextTick()
+        expect(wrapper.find('.batch-status').text()).to.include(`${count}${locale === 'ko' ? '' : ' '}${unit} ·`)
+        expect(wrapper.find('.batch-status').text()).not.to.include('|')
+      }
+    })
+  }
 
   it('confirms removing manual batch markers when clearing an ordinary retained message', async () => {
     Object.assign(vm.msgRecord, { topic: 'demo', payloadType: 'Plaintext' })

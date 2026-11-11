@@ -10,7 +10,7 @@
       >
     </div>
     <p v-if="summary" class="batch-summary batch-muted">
-      {{ $t('connections.batchSummary', { saved: items.length, total: count, bytes: summaryBytes }) }}
+      {{ $tc('connections.batchSummary', count, { saved: items.length, total: count, bytes: summaryBytes }) }}
     </p>
     <el-button
       v-else-if="items.length > previewItems.length"

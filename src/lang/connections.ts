@@ -1353,7 +1353,7 @@ export default {
   },
   batchStatus: {
     zh: '每行一条 · {count} 条 · {bytes} B / {max} B',
-    en: 'One item per line · {count} items · {bytes} B / {max} B',
+    en: 'One item per line · {count} item · {bytes} B / {max} B | One item per line · {count} items · {bytes} B / {max} B',
     tr: 'Satır başına bir öğe · {count} öğe · {bytes} B / {max} B',
     ja: '1行1件 · {count} 件 · {bytes} B / {max} B',
     hu: 'Soronként egy elem · {count} elem · {bytes} B / {max} B',
@@ -1465,7 +1465,7 @@ export default {
   },
   batchSummary: {
     zh: '仅保存摘要：前 {saved} / 共 {total} 条，每条最多前 {bytes} B',
-    en: 'Summary only: first {saved} of {total} items, up to the first {bytes} B each',
+    en: 'Summary only: first {saved} of {total} item, up to the first {bytes} B each | Summary only: first {saved} of {total} items, up to the first {bytes} B each',
     tr: 'Yalnızca özet: {total} öğenin ilk {saved} öğesi, her biri en fazla ilk {bytes} B',
     ja: '要約のみ：全{total}件のうち先頭{saved}件、各先頭{bytes} Bまで',
     hu: 'Csak összegzés: első {saved} / {total} elem, egyenként az első {bytes} B',
