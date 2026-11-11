@@ -89,7 +89,7 @@
           class="payload-select"
           size="mini"
           :value="msgRecord.payloadType"
-          :title="msgRecord.batch ? $t('connections.batchPayloadType') : ''"
+          :title="msgRecord.batch ? $t('connections.batchFormatHint') : ''"
           @change="handleTypeChange"
         >
           <el-option-group :label="$t('connections.publishPayloadEncodedBy')">
@@ -554,7 +554,6 @@ export default class MsgPublish extends Vue {
     const { payload, payloadType } = this.msgRecord
     if (this.msgRecord.batch) {
       this.msgRecord.payloadType = type
-      if (type !== payloadType) this.$message.info(this.$t('connections.batchFormatKept', { format: type }) as string)
       return
     }
     try {

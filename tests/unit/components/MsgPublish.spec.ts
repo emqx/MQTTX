@@ -223,7 +223,7 @@ describe('MsgPublish per-connection input', () => {
     Object.assign(vm.msgRecord, { batch: true, topic: 'demo', payload: '41\ninvalid', payloadType: 'Plaintext' })
     await vm.handleTypeChange('Hex')
     expect(vm.msgRecord.payload).to.equal('41\ninvalid')
-    expect(notices).to.deep.equal(['connections.batchFormatKept'])
+    expect(notices).to.deep.equal([])
     expect(vm.batchState.error).to.equal('BATCH_LINE_ERROR')
     await vm.send()
     expect(wrapper.emitted('handleSend')).to.equal(undefined)
@@ -432,7 +432,7 @@ describe('MsgPublish per-connection input', () => {
     await wrapper.setProps({ mqttVersion: '3.1.1' })
     expect(wrapper.find('.retain-checkbox').attributes('title')).to.equal('connections.batchRetainDisabled')
     expect(wrapper.find('.qos-select').attributes('title')).to.equal('connections.batchUnsupportedQos')
-    expect(wrapper.find('.payload-select').attributes('title')).to.equal('connections.batchPayloadType')
+    expect(wrapper.find('.payload-select').attributes('title')).to.equal('connections.batchFormatHint')
     expect(wrapper.find('[command="clearRetainedMessage"]').attributes('title')).to.equal(
       'connections.batchClearRetainedDisabled',
     )

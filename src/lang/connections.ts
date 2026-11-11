@@ -1591,13 +1591,13 @@ export default {
     hu: 'Az MQTT 3.1 nem támogatja a Batch módot; kikapcsolva',
     ko: 'MQTT 3.1은 Batch를 지원하지 않아 Batch를 껐습니다',
   },
-  batchFormatKept: {
-    zh: '已切换为 {format}，Batch 保留原文，不转换内容',
-    en: 'Switched to {format}; Batch keeps the text without conversion',
-    tr: '{format} seçildi; Batch metni dönüştürmeden korur',
-    ja: '{format}に変更しました。Batchではテキストを変換しません',
-    hu: '{format} kiválasztva; a Batch nem alakítja át a szöveget',
-    ko: '{format}으로 변경했습니다. Batch는 원문을 변환하지 않습니다',
+  batchFormatHint: {
+    zh: '发送时按所选格式逐行编码；切换格式不会改写编辑器内容',
+    en: 'Each line is encoded in the selected format when sent. Switching formats leaves the editor text unchanged.',
+    tr: 'Gönderirken her satır seçilen biçimde kodlanır. Biçimi değiştirmek düzenleyicideki metni değiştirmez.',
+    ja: '送信時に各行を選択した形式でエンコードします。形式を切り替えてもエディターの内容は変わりません。',
+    hu: 'Küldéskor minden sor a kiválasztott formátumban lesz kódolva. A formátumváltás nem módosítja a szerkesztő szövegét.',
+    ko: '전송 시 각 줄을 선택한 형식으로 인코딩합니다. 형식을 바꿔도 편집기의 내용은 변경되지 않습니다.',
   },
   batchHistoryRestored: {
     zh: '已恢复历史中的 Batch 发布设置',
