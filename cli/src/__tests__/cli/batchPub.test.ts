@@ -23,8 +23,8 @@ describe('batch pub', () => {
     const result = await launch(port, 'pub -b -q 1 -t demo -m test'.split(' ')).closed
     expect(result.code).toBe(1)
     expect(result.output).toContain('Publish error: Implementation specific error')
-    expect(result.stdout).not.toContain('Message published')
-    expect(result.output).not.toContain('Message published')
+    expect(result.stdout).not.toContain('Published 1 item in 1 batch')
+    expect(result.output).not.toContain('Published 1 item in 1 batch')
     expect(publications).toBe(1)
   })
 
@@ -32,6 +32,7 @@ describe('batch pub', () => {
     const repeated = await publish(['-b', '-m', ' A ', '-m', '', '-m', 'B', '--batch-max-items', '2'])
     expect(repeated.code).toBe(0)
     expect(repeated.packets.map((packet) => items(packet))).toEqual([[' A ', ''], ['B']])
+    expect(repeated.output).toContain('Published 3 items in 2 batches')
   })
 
   it('encodes each item before adding the topic carrier', async () => {
@@ -100,7 +101,20 @@ describe('batch pub', () => {
     const tooBig = await publish(['-b', '-m', 'x'.repeat(1023), '--batch-max-bytes', '1024'])
     expect(tooBig.code).toBe(1)
     expect(tooBig.packets).toHaveLength(0)
-    expect(tooBig.output).toContain('Batch input error: item 1')
+    expect(tooBig.output).toContain('Item 1 is 1023 B; a batch item can be at most 1022 B with --batch-max-bytes 1024')
+    expect(tooBig.output).not.toContain('Error:')
+  })
+
+  it('names the length-prefix limit when the payload budget is larger', async () => {
+    const file = itemsFile('x'.repeat(70000))
+    const result = await publish(['-b', '--file-read', file, '--batch-max-bytes', '1048576'])
+
+    expect(result.code).toBe(1)
+    expect(result.packets).toHaveLength(0)
+    expect(result.output).toContain(
+      'Item 1 is 70000 B; a batch item can be at most 65535 B with the 2-byte item length prefix',
+    )
+    expect(result.output).not.toContain('Error:')
   })
 
   it('uses the last repeated message outside batch mode', async () => {

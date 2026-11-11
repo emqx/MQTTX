@@ -194,6 +194,8 @@ const sub = (options: SubscribeOptions) => {
     const schemaOptions: SchemaOptions | undefined = parseSchemaOptions(protobufPath, protobufMessageName, avscPath)
 
     const msgData: MsgItem[] = []
+    const batchInfo: MsgItem[] = []
+    let showMessage = true
 
     let batch: ReturnType<typeof decodeBatch>
     if (options.batch) {
@@ -214,6 +216,7 @@ const sub = (options: SubscribeOptions) => {
     if (batch) {
       savePayload = payload
       if (batch.error !== undefined) {
+        showMessage = false
         batchLog.rejected(batch.error, topic, payload.length)
         const preview = payload.subarray(0, 1024)
         output.payload = preview.toString('hex')
@@ -225,19 +228,16 @@ const sub = (options: SubscribeOptions) => {
         }
         receivedMessage = ''
       } else {
-        if (outputModeClean) output.payload = payload.toString()
         const batchItems = batch.items
         appendItems = batchItems.map((item) => processReceivedMessage(item, schemaOptions, format))
         // Preserve arbitrary bytes when no display encoding was requested.
         const items = appendItems.map((item, index) => cleanBatchItem(format ? item : batchItems[index]))
         output.batch = { carrier: batch.carrier, logicalTopic: batch.logicalTopic, count: batch.count, items }
-        receivedMessage = batchLog.payload(
-          batch.count,
-          batch.logicalTopic,
-          payload.length,
-          items,
-          batch.carrier === 'topic' ? topic : undefined,
-        )
+        receivedMessage = batchLog.payload(items)
+        batchInfo.push({ label: 'batch', value: `${batch.count} ${batch.count === 1 ? 'item' : 'items'}` })
+        if (batch.carrier === 'topic') {
+          batchInfo.push({ label: 'logical_topic', value: batch.logicalTopic })
+        }
       }
     } else {
       receivedMessage = processReceivedMessage(payload, schemaOptions, format)
@@ -260,12 +260,13 @@ const sub = (options: SubscribeOptions) => {
     msgData.push({ label: 'topic', value: topic })
     msgData.push({ label: 'qos', value: packet.qos })
     msgData.push({ label: 'size', value: `${formatBytes(payload.length)}` })
+    msgData.push(...batchInfo)
 
     packet.retain && msgData.push({ label: 'retain', value: packet.retain })
 
-    if (savePath) {
-      const successMessage = fileSave ? 'Saved to file' : 'Appended to file'
-      msgData.push({ label: 'payload', value: `${receivedMessage}\n${successMessage}: ${savePath}` })
+    const fileNotice = savePath ? `${fileSave ? 'Saved to file' : 'Appended to file'}: ${savePath}` : undefined
+    if (fileNotice) {
+      msgData.push({ label: 'payload', value: `${receivedMessage}\n${fileNotice}` })
     } else {
       msgData.push({ label: 'payload', value: receivedMessage })
     }
@@ -286,8 +287,10 @@ const sub = (options: SubscribeOptions) => {
 
     if (outputModeClean) {
       console.log(JSON.stringify(output, null, 2))
-    } else {
+    } else if (showMessage) {
       msgLog(msgData)
+    } else if (fileNotice) {
+      logWrapper.log(fileNotice)
     }
   })
 
