@@ -1,22 +1,20 @@
-import { validateBatchSelection } from '../../utils/batchPublishing'
-import { createBatchSelectionCheck } from '../../utils/batchOptions'
+import { createBatchSelectionCheck } from '../../utils/batchPublishing'
 
 describe('batch capability selection', () => {
   it.each([undefined, 'unknown', ['v1', 'v1'], ['v1', 'unknown']])(
     'rejects missing, mismatched or repeated selection %p',
     (value) => {
       const userProperties = value === undefined ? undefined : { 'batch-publish': value }
-      expect(validateBatchSelection({ 'batch-publish': 'v1' }, userProperties)).toBe(false)
+      const check = createBatchSelectionCheck({ 'batch-publish': 'v1' })
+      expect(check({ properties: { userProperties } })).toBe(false)
     },
   )
 
   const selected = { properties: { userProperties: { 'batch-publish': 'v1' } } }
 
   it('requires an exact offer as well as a selection', () => {
-    expect(validateBatchSelection(undefined, selected.properties.userProperties)).toBe(false)
-    expect(validateBatchSelection({ 'batch-publish': ['v1', 'unknown'] }, selected.properties.userProperties)).toBe(
-      false,
-    )
+    expect(createBatchSelectionCheck()(selected)).toBe(false)
+    expect(createBatchSelectionCheck({ 'batch-publish': ['v1', 'unknown'] })(selected)).toBe(false)
   })
 
   it('rejects a resumed session when v1 was not reselected', () => {
