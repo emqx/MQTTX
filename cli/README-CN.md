@@ -337,6 +337,96 @@ mqttx pub --help
 | -Pp, --protobuf-path \<PATH\>                      | 定义 Protocol Buffers（protobuf）消息格式的 .proto 文件路径                                |
 | -Pmn, --protobuf-message-name \<NAME\>             | Protobuf 消息类型的名称（必须存在于 .proto 文件中）                                        |
 
+### Batch 消息
+
+> 计划在 MQTTX CLI 1.14.0 提供。以下命令需要包含 Batch 功能的构建，1.13.3 尚不支持。
+
+Batch 将同一逻辑主题下的多条有序消息打包到一个 MQTT PUBLISH 中，支持 MQTT 5.0、MQTT 3.1.1，以及 QoS 0/1。使用前，确认 Broker 路由配置和消费者支持相同的批量格式及上限。以下示例假设 `localhost:1883` 已配置这样的路由；请按部署情况替换主机、端口、认证和 TLS 参数。
+
+#### 发布与订阅
+
+在一个终端启动订阅：
+
+```bash
+mqttx sub -h localhost -p 1883 -V 5.0 -q 1 -t demo/batch -b
+```
+
+在另一个终端准备 `items.txt`，每行一条消息：
+
+```text
+hello
+{"temperature":23.5}
+world
+```
+
+```bash
+mqttx pub -h localhost -p 1883 -V 5.0 -q 1 -t demo/batch -b --file-read items.txt
+```
+
+只有几条消息时，也可以重复传入 `-m`：
+
+```bash
+mqttx pub -h localhost -p 1883 -V 5.0 -q 1 -t demo/batch -b -m hello -m world
+```
+
+发布上述文件后，输出为 `Published 3 items in 1 batch`；订阅端显示批量条数和逐条编号。`sub` 不加 `-b` 时接收原始 MQTT 消息，不拆解条目；`sub -b` 也能接收普通消息。
+
+#### 输入与上限
+
+- 文件默认按 LF 或 CRLF 换行拆分。空行表示空条目；文件末尾的一个换行不会新增条目。输入不是 JSON 数组，每条 JSON 消息应独占一行。
+- `pub -b --file-read` 可用 `--split ','` 指定分隔符。Unix 类系统可以用 `--file-read /dev/stdin` 读取管道；`-s`、`-M`、`-lm` 不作为 Batch 输入。
+- `-f` 对每条消息应用所选编码。Batch 发布不支持逐条 Protobuf/Avro 编码，也不支持 `pub -S`。
+- `pub` 默认按每包最多 **256 条、65,536 字节 Payload** 自动拆包。每条消息的两字节大端长度前缀计入字节上限。单条消息不能再拆分，且不得超过 65,535 字节或每包字节预算减去长度前缀。
+- `sub` 使用相同默认上限。格式错误或超限时整批拒绝；发送更大批次时，应同步调高接收上限，并遵守路由限制。
+- MQTT 5.0 Broker 返回的 Maximum Packet Size 限制完整 PUBLISH，包括报文头。超过该限制时 MQTTX 拒绝发送，不会按此限制再次自动拆包。
+
+| 参数                          | 命令                                   | 说明                                                                               |
+| ----------------------------- | -------------------------------------- | ---------------------------------------------------------------------------------- |
+| `-b, --batch`                 | `pub`、`sub`、`bench pub`、`bench sub` | 开启 Batch 发布或解析、计数。                                                      |
+| `--batch-max-items <NUMBER>`  | `pub`、`sub`                           | 每包最大条数，默认 `256`，范围 `1–65535`。                                         |
+| `--batch-max-bytes <SIZE>`    | `pub`、`sub`                           | 含长度前缀的 Payload 字节上限，默认 `65536`，范围 `1024–1048576`。填写整数字节数。 |
+| `--split [CHARACTER]`         | `pub`                                  | `-b --file-read` 的分隔符，默认换行。                                              |
+| `-bi, --batch-items <NUMBER>` | `bench pub`                            | 每包条数，默认 `256`，范围 `1–65535`，必须配合 `-b`。                              |
+| `--batch-negotiate`           | `pub`、`bench pub`                     | 要求 MQTT 5.0 Broker 在 CONNACK 中确认 `batch-publish=v1`。                        |
+
+例如，将文件按每包最多 64 条、32 KiB Payload 拆包：
+
+```bash
+mqttx pub -h localhost -p 1883 -V 5.0 -q 1 -t demo/batch -b --file-read items.txt --batch-max-items 64 --batch-max-bytes 32768
+```
+
+#### MQTT 3.1.1 主题与 MQTT 5.0 协商
+
+MQTT 5.0 保留发布主题，自动添加 `batch-format=v1` 和 `batch-size=N` User Properties。每条消息使用固定两字节长度前缀，不是 JSON 数组或 VBI 编码。不要手动添加这两个属性，也不要将 Payload Format Indicator 设为 `1`。
+
+MQTT 3.1.1 自动添加 `$batch/{N}/` 前缀。发布时始终填写不带前缀的**逻辑主题**。`-b` 不改写订阅过滤器，因此订阅时要显式填写带前缀的主题：
+
+```bash
+# 终端 1
+mqttx sub -h localhost -p 1883 -V 3.1.1 -q 1 -t '$batch/+/demo/topic' -b
+
+# 终端 2：实际发布到 $batch/2/demo/topic
+mqttx pub -h localhost -p 1883 -V 3.1.1 -q 1 -t demo/topic -b -m hello -m world
+```
+
+Shell 中须用引号包住 `$batch`。订阅 `#` 无法匹配这些主题。MQTT 3.1.1 Batch 不支持 Retain；MQTT 5.0 可在兼容路由上保留整批消息，清除时发送不带 `-b` 和 Batch 标记的普通保留空消息。
+
+如果 MQTT 5.0 路由要求能力协商，在发布命令中添加 `--batch-negotiate`。CLI 会在 CONNECT 中声明能力，并在发送前检查 CONNACK 是否确认。不要同时添加 `-Cup 'batch-publish: v1'`。协商不能代替路由兼容性配置。
+
+#### 性能测试
+
+先启动订阅，再发送五个批次，每批 256 条：
+
+```bash
+# 终端 1
+mqttx bench sub -h localhost -p 1883 -V 5.0 -q 1 -c 1 -t demo/batch -b
+
+# 终端 2
+mqttx bench pub -h localhost -p 1883 -V 5.0 -q 1 -c 1 -t demo/batch -b -bi 256 -m hello -im 1000 -L 5
+```
+
+`-L` 按包计数，因此共发送 1,280 条消息。输出分别统计包和条目。`bench pub -b` 会在每包内重复同一条目模板，来源是 `-m`、生成的 Payload，或 `--file-read` 读取的**整个文件**；它不会逐行拆文件，也不支持 `--split`。压测批次使用协议上限，不沿用 `pub`/`sub` 的默认上限，应按 Broker 路由限制选择 `-bi` 和单条大小。`bench sub -b` 统计校验通过的条目，并单独报告无效批次。
+
 ### 性能测试
 
 性能测试命令与普通命令参数基本相同，以下仅列出新增或有变化的参数。
