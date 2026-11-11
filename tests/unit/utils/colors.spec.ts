@@ -109,5 +109,12 @@ describe('colors utility functions', () => {
         expect(topicTextColor('not-a-color', theme)).to.match(/^#[0-9a-f]{6}$/i)
       })
     })
+
+    it('falls back to the theme text color for a subscription stored without a color', () => {
+      THEMES.forEach((theme) => {
+        expect(topicTextColor(null, theme)).to.equal(topicTextColor('', theme))
+        expect(topicTextColor(undefined, theme)).to.equal(topicTextColor('', theme))
+      })
+    })
   })
 })
