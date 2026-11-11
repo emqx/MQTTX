@@ -249,14 +249,21 @@ describe('MsgPublish per-connection input', () => {
   })
 
   it('keeps line input unchanged when choosing a batch payload type and blocks invalid sends', async () => {
+    vm.$t = translate
     Object.assign(vm.msgRecord, { batch: true, topic: 'demo', payload: '41\ninvalid', payloadType: 'Plaintext' })
     await vm.handleTypeChange('Hex')
     expect(vm.msgRecord.payload).to.equal('41\ninvalid')
     expect(notices).to.deep.equal([])
     expect(vm.batchState.error).to.equal('BATCH_LINE_ERROR')
+    await Vue.nextTick()
+    expect(wrapper.find('.batch-status').text()).to.include('line 2').and.include('01 or FF')
+    expect(wrapper.find('.batch-status').text()).not.to.include(' B / ')
+    expect(wrapper.find('.batch-status').attributes('title')).to.equal(vm.batchError)
     await vm.send()
     expect(wrapper.emitted('handleSend')).to.equal(undefined)
     vm.msgRecord.payload = '41\n42'
+    await Vue.nextTick()
+    expect(wrapper.find('.batch-status').text()).to.include('6 B / 65536 B')
     await vm.send()
     expect(wrapper.emitted('handleSend')![0][0]).to.include({ batch: true, payload: '41\n42' })
   })

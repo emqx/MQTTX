@@ -160,7 +160,7 @@ describe('Desktop batch storage bounds', () => {
 describe('Localized batch publish diagnostics', () => {
   const translate =
     (lang: Language) =>
-    (key: string, values: Record<string, number | undefined> = {}) => {
+    (key: string, values: Record<string, string | number | undefined> = {}) => {
       const text = connections[key.replace('connections.', '') as keyof typeof connections][lang]
       return text.replace(/\{(\w+)\}/g, (_, name) => String(values[name]))
     }
@@ -181,6 +181,21 @@ describe('Localized batch publish diagnostics', () => {
     }
   })
   for (const lang of ['zh', 'en', 'tr', 'ja', 'hu', 'ko'] as Language[]) {
+    it(`explains invalid encodings on the failing line in ${lang}`, () => {
+      for (const [payload, type, example] of [
+        ['41\n4', 'Hex', '01'],
+        ['41\nGG', 'Hex', 'FF'],
+        ['QQ==\n@@==', 'Base64', 'QQ=='],
+        ['{}\n{', 'JSON', ''],
+      ] as [string, PayloadType, string][]) {
+        const prepared = prepareBatchPublish({ ...message, payload }, type, 5, undefined, DEFAULT_BATCH_LIMITS)
+        const reason = formatBatchPublishError(prepared, DEFAULT_BATCH_LIMITS, undefined, translate(lang))
+        expect(reason).to.include('2').and.include(example)
+        expect(reason).not.to.include('undefined').and.not.to.include('connections.')
+        if (type === 'JSON') expect(reason).to.include(prepared.encodingError!)
+        else expect(reason).to.include('Plaintext')
+      }
+    })
     it(`localizes each publish reason in ${lang} without changing its protocol code`, () => {
       for (const error of [
         'INVALID_BATCH_TOPIC',

@@ -272,13 +272,16 @@
       </a>
     </div>
     <div v-if="msgRecord.batch" class="batch-status" :class="{ invalid: batchState.error }" :title="batchStatusTitle">
-      {{
-        $t('connections.batchStatus', {
-          count: batchState.count,
-          bytes: batchState.bytes,
-          max: batchLimits.maxBytes,
-        })
-      }}<span v-if="batchState.error"> · {{ batchError }}</span>
+      <template v-if="!batchInput.error">
+        {{
+          $t('connections.batchStatus', {
+            count: batchState.count,
+            bytes: batchState.bytes,
+            max: batchLimits.maxBytes,
+          })
+        }}<span v-if="batchState.error"> · </span>
+      </template>
+      <span v-if="batchState.error">{{ batchError }}</span>
     </div>
     <div v-if="disabled" class="disabled-mask" @click.stop></div>
   </div>

@@ -81,6 +81,7 @@ interface BatchInput {
   bytes: number
   items?: Buffer[]
   line?: number
+  encodingError?: string
   error?: string
 }
 
@@ -133,7 +134,7 @@ export const prepareBatchPublish = (
   if (hasMarker(properties?.userProperties)) return fail('INVALID_BATCH_MARKERS')
   if (properties?.payloadFormatIndicator || (version === 4 && message.retain)) return fail('INVALID_BATCH_METADATA')
   if (!batchPayloadTypeOptions.includes(type)) return fail('BATCH_PAYLOAD_TYPE')
-  if (input.error) return fail('BATCH_LINE_ERROR')
+  if (input.error) return { ...fail('BATCH_LINE_ERROR'), encodingError: input.error }
   try {
     const payload = encodeBatchPayload(input.items!, limits)
     const packet: BatchPacket = {
@@ -168,8 +169,19 @@ export const formatBatchPublishError = (
   input: BatchInput,
   limits: BatchLimits,
   maximumPacketSize: number | undefined,
-  translate: (key: string, values?: Record<string, number | undefined>) => string,
+  translate: (key: string, values?: Record<string, string | number | undefined>) => string,
 ): string => {
+  if (input.error === 'BATCH_LINE_ERROR') {
+    const reasons: Record<string, string> = {
+      'Invalid Hex string': 'batchInvalidHex',
+      'Invalid Base64 string': 'batchInvalidBase64',
+    }
+    const reason = input.encodingError && reasons[input.encodingError]
+    return translate('connections.batchLineError', {
+      line: input.line,
+      reason: reason ? translate(`connections.${reason}`) : input.encodingError,
+    })
+  }
   if (input.error === 'BATCH_LIMIT_EXCEEDED') {
     if (input.count > (limits.maxItems ?? 65535)) {
       return translate('connections.batchItemsLimit', { count: input.count, max: limits.maxItems ?? 65535 })
@@ -184,7 +196,6 @@ export const formatBatchPublishError = (
   const keys: Record<string, string> = {
     BATCH_PAYLOAD_TYPE: 'batchPayloadType',
     BATCH_MQTT_VERSION: 'batchMqttVersion',
-    BATCH_LINE_ERROR: 'batchLineError',
     BATCH_LOGICAL_TOPIC: 'batchLogicalTopic',
     BATCH_PACKET_TOO_LARGE: 'batchPacketTooLarge',
     INVALID_BATCH_TOPIC: 'batchInvalidTopic',
