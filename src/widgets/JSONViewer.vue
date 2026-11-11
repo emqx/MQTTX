@@ -112,9 +112,24 @@ import { JsonTreeConverter } from '@/utils/jsonTreeConverter'
 import { highlightInPrismCode, escapeHtml } from '@/utils/highlightSearch'
 import { jsonParse, toPlainObject } from '@/utils/jsonUtils'
 
+// The library renders string leaves with v-html. Escape them once when building the tree DSL so
+// payload HTML stays literal, without touching the original message, chart data or copy payload.
+const SafeTreeView = Vue.extend({
+  extends: TreeView,
+  methods: {
+    transformValue(valueToTransform: unknown, keyForValue: string | number) {
+      return {
+        key: keyForValue,
+        type: 'value',
+        value: typeof valueToTransform === 'string' ? escapeHtml(valueToTransform) : valueToTransform,
+      }
+    },
+  },
+})
+
 @Component({
   components: {
-    TreeView,
+    TreeView: SafeTreeView,
     TreeVisual,
     MyDialog,
     MessageHeaderMeta,
