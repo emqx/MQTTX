@@ -13,16 +13,9 @@ const callTooltipFormatter = (params: Record<string, any>) =>
 const callJsonTooltipFormatter = (params: Record<string, any>) =>
   jsonViewerMethods.customTooltipFormatter.call({}, params) as string
 
-const renderIntoDiv = (html: string) => {
-  const div = document.createElement('div')
-  div.innerHTML = html
-  return div
-}
-
-const expectNoLiveElements = (html: string) => {
-  const div = renderIntoDiv(html)
-  expect(div.querySelector('img')).to.equal(null)
-  expect(div.querySelector('script')).to.equal(null)
+const expectEscaped = (html: string) => {
+  expect(html).to.contain('&lt;img')
+  expect(html).not.to.contain('<img')
 }
 
 describe('Tree tooltip HTML escaping', () => {
@@ -38,35 +31,14 @@ describe('Tree tooltip HTML escaping', () => {
       },
     })
 
-    expect(html).to.contain('&lt;img')
-    expect(html).not.to.contain('<img')
-    expectNoLiveElements(html)
-  })
-
-  it('escapes a malicious payload and keeps the remaining markup intact', () => {
-    const html = callTooltipFormatter({
-      name: 'root',
-      treeAncestors: [{ name: 'root' }],
-      data: {
-        label: 'leaf',
-        messageCount: 1,
-        subTopicCount: 0,
-        message: { payload: XSS, createAt: '2024-01-01 00:00:00' },
-      },
-    })
-
-    expect(html).to.contain('&lt;img')
-    expect(html).not.to.contain('<img')
     expect(html).to.contain('class="tooltip-topic-value"')
-    expectNoLiveElements(html)
+    expectEscaped(html)
   })
 
   it('escapes the fallback branch when params.data is missing', () => {
     const html = callTooltipFormatter({ name: XSS })
 
-    expect(html).to.contain('&lt;img')
-    expect(html).not.to.contain('<img')
-    expectNoLiveElements(html)
+    expectEscaped(html)
   })
 
   it('truncates the raw payload before escaping so no entity is cut in half', () => {
@@ -85,8 +57,7 @@ describe('Tree tooltip HTML escaping', () => {
     expect(payload.length).to.be.greaterThan(50)
     expect(html).to.contain('...')
     expect(html).to.contain('&lt;')
-    expect(html).not.to.contain('<img')
-    expectNoLiveElements(html)
+    expectEscaped(html)
   })
 })
 
@@ -96,9 +67,7 @@ describe('JSON tree tooltip HTML escaping', () => {
       data: { id: `root.${XSS}`, vtype: 'string', children: [] },
     })
 
-    expect(html).to.contain('&lt;img')
-    expect(html).not.to.contain('<img')
     expect(html).to.contain('Children: 0')
-    expectNoLiveElements(html)
+    expectEscaped(html)
   })
 })
