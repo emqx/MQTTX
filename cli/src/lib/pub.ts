@@ -190,7 +190,6 @@ const send = (
   maximumReconnectTimes: number,
 ) => {
   let retryTimes = 0
-  let isNewConnection = true
   let publishComplete = false
   let started = false
   let pending = false
@@ -221,16 +220,15 @@ const send = (
         pending = false
         if (err) {
           return exitWithPublishError(client, err)
-        } else {
-          if (index + 1 < messages.length) {
-            index += 1
-            // QoS 0 callbacks can run synchronously; avoid growing the call stack.
-            setImmediate(next)
-            return
-          }
-          publishComplete = true
-          basicLog.published()
         }
+        if (index + 1 < messages.length) {
+          index += 1
+          // QoS 0 callbacks can run synchronously; avoid growing the call stack.
+          setImmediate(next)
+          return
+        }
+        publishComplete = true
+        basicLog.published()
         // FIXME: When using the ws and wss protocols to connect, and QoS is 0, the message may not have been successfully sent when the publish callback is triggered. Therefore, delay closing the connection for 2 seconds.
         if (['ws', 'wss'].includes(connOpts.protocol ?? '') && pubOpts.opts.qos === 0) {
           setTimeout(() => {
@@ -267,7 +265,6 @@ const send = (
       })
     } else {
       basicLog.reconnecting(retryTimes, maximumReconnectTimes)
-      isNewConnection = false
     }
   })
 
@@ -280,13 +277,7 @@ const send = (
 const multiSend = (
   config: boolean | string | undefined,
   connOpts: IClientOptions,
-  pubOpts: {
-    topic: string
-    message: string | Buffer
-    schemaOptions?: SchemaOptions
-    format?: FormatType
-    opts: IClientPublishOptions
-  },
+  pubOpts: PublishMessage,
   maximumReconnectTimes: number,
 ) => {
   let isNewConnection = true

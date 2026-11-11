@@ -99,7 +99,7 @@ export const hasMarker = (properties?: UserProperties) =>
     Object.prototype.hasOwnProperty.call(properties, 'batch-size'))
 
 /** Identify the carrier, giving topic markers priority. */
-export const classifyBatch = (packet: BatchPacket, mqttVersion: number): BatchCarrier | undefined => {
+const classifyBatch = (packet: BatchPacket, mqttVersion: number): BatchCarrier | undefined => {
   if (packet.topic === '$batch' || packet.topic.startsWith('$batch/')) return 'topic'
   if (mqttVersion === 5 && hasMarker(packet.properties?.userProperties)) return 'property'
   return undefined

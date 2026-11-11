@@ -7,7 +7,6 @@ import {
   parseBatchCount,
   buildTopicCarrier,
   parseTopicCarrier,
-  classifyBatch,
   encodeBatchPayload,
   decodeBatch,
   calculatePublishSize,
@@ -132,7 +131,6 @@ describe('batch carriers and validation order', () => {
   it('selects topic first and rejects metadata before count', () => {
     const packet = property('1', '0000')
     packet.topic = '$batch/01/demo'
-    expect(classifyBatch(packet, 5)).toBe('topic')
     expect(decodeBatch(packet, 5)?.error).toBe('INVALID_BATCH_METADATA')
     packet.properties = undefined
     packet.retain = true
