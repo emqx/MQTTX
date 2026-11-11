@@ -8,6 +8,9 @@ import { generate, parser } from 'mqtt-packet'
 
 jest.setTimeout(30000)
 
+// listen(0) only hands out ephemeral ports, so no parallel test broker can take this one.
+const REFUSED_PORT = 1
+
 describe('benchmark reconnection after connection errors', () => {
   const sockets = new Set<Socket>()
   let server: Server
@@ -165,7 +168,7 @@ describe('benchmark reconnection after connection errors', () => {
   })
 
   it.each(['conn', 'pub', 'sub'])('%s fails without retrying when reconnection is disabled', async (command) => {
-    await stopBroker()
+    port = REFUSED_PORT
     await start(command, [], 0)
     await waitFor(() => child!.exitCode !== null)
     expect(child!.exitCode).toBe(1)
@@ -174,7 +177,7 @@ describe('benchmark reconnection after connection errors', () => {
   })
 
   it.each(['conn', 'pub', 'sub'])('%s stops after exhausting its retry budget', async (command) => {
-    await stopBroker()
+    port = REFUSED_PORT
     await start(command, [], 50, 2)
     await waitFor(() => child!.exitCode !== null)
     expect(child!.exitCode).toBe(1)
